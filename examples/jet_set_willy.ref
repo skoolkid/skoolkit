@@ -1,0 +1,123 @@
+;
+; SkoolKit ref file for Jet Set Willy
+;
+
+[Config]
+HtmlWriterClass=skoolkit.jetsetwilly.JetSetWillyHtmlWriter
+
+[Game]
+Game=Jet Set Willy
+Logo=#UDGARRAY26,0,1;0x41;33857,40;33865,40;33841,5;33849,5;0x8;0x3,83;0;0x3,83;0;0x3,83;0;33857,40;0x3,83;33857,37;0x3,83;0;0x3,83;0x3;0,83;0x2;0,83;0x4;0,83;33857,40;33865,40;0,45;0,83;33857,37;33865,37;0,36;0,83;0x4;0,83;0x4;0,83;0x2;0x3,83;0;33857,40;0,83;0x2,45;33857,37;0x3,83;0,36;0x3,83;0x2;0,83;0x4;0,83;0x2;0,83;0;33857,40;33865,40;0,45;0,83;33857,37;33865,37;0x2,36;33857,4;0,83;0,36;0,83;0x4;0,83;0x3;0x2,83;0x2;0x3,83;0,45;33857,37;0,83;0x2,36;33857,4;0x3,83;0,36;0x3,83;0x2;0,83;0x7;33841,41;33849,41;0x2,45;33841,37;33849,37;33857,4;33865,4;0x2;0x2,9;0x2,36;0x12;0x2,9;33841,41;33849,41;0x2,45;33841,5;33849,5;0x2;0x2,9;0x2,36;0x10;0,83;0;33841,8;33849,8;0,83;0,9;0,83;33849,41;0,83;0,45;33841,5;33849,5;0,83;0,9;0,36;0,83;0x3;0,83;0x6;0,83;0x3;0,83;33849,8;0,83;0,9;0,83;33849,41;0x2,45;0,83;0,9;0,36;0,83;0x3;0,83;0x6;0,83;0;0,83;0;0,83;0;0,83;33849,8;0,83;0,9;33841,41;33849,41;0,83;0,9;0,36;0x5,83;0x6;0,83;0;0,83;0;0,83;0;0,83;0;0,83;33849,8;0x2,9;0,83;0,9;0x2,36;0;0,83;0x8;0x5,83;0;0,83;0;0x3,83;33849,8;0x3,83;0,36;0;0,83;0x20;33841,8;33849,8;33857,4;33865,4;0x33{4,4,200,120}(/images/logo)
+
+[Font]
+32=0000000000000000
+39=0008100000000000
+46=0000000000181800
+65=003C42427E424200
+66=007C427C42427C00
+67=003C424040423C00
+68=0078444242447800
+69=007E407C40407E00
+70=007E407C40404000
+71=003C42404E423C00
+72=0042427E42424200
+73=003E080808083E00
+74=0002020242423C00
+75=0044487048444200
+76=0040404040407E00
+77=0042665A42424200
+78=004262524A464200
+79=003C424242423C00
+80=007C42427C404000
+81=003C4242524A3C00
+82=007C42427C444200
+83=003C403C02423C00
+84=00FE101010101000
+85=0042424242423C00
+87=00424242425A2400
+89=0082442810101000
+91=000E080808080E00
+97=000038043C443C00
+98=0020203C22223C00
+99=00001C2020201C00
+100=0004043C44443C00
+101=0000384478403C00
+102=000C101810101000
+103=00003C44443C0438
+104=0040407844444400
+105=0010003010103800
+107=0020283030282400
+108=0010101010100C00
+109=0000685454545400
+110=0000784444444400
+111=0000384444443800
+112=0000784444784040
+114=00001C2020202000
+115=0000384038047800
+116=0010381010100C00
+117=0000444444443800
+118=0000444428281000
+119=0000445454542800
+121=00004444443C0438
+
+[Paths]
+StyleSheet=skoolkit.css;examples/jet_set_willy.css
+
+[Fact:unusedObjects:Unused objects]
+There are five rooms in which nontrivial object graphics are defined, but not used.
+
+#UDGTABLE(gallery)
+{ #R54497(Ballroom East)   | #UDG54497,3(object20) }
+{ #R55265(The Kitchen)     | #UDG55265,3(object23) }
+{ #R59873(The Attic)       | #UDG59873,3(object41) }
+{ #R60897(Under the Drive) | #UDG60897,3(object45) }
+{ #R61665(Nomen Luni)      | #UDG61665,3(object48) }
+TABLE#
+
+[Fact:unusedNasties:Unused nasties]
+There are seven rooms in which nontrivial nasty graphics are defined, but not used.
+
+#UDGTABLE(gallery)
+{ #R50363(The Drive)          | #UDG50364,68(nasty04) }
+{ #R54715(Ballroom West)      | #UDG54716,66(nasty21) }
+{ #R56251(The Chapel)         | #UDG56252,66(nasty27) }
+{ #R56763(The Nightmare Room) | #UDG56764,69(nasty29) }
+{ #R57019(The Banyan Tree)    | #UDG57020,14(nasty30) }
+{ #R58811(Orangery)           | #UDG58812,6(nasty37) }
+{ #R61627(Nomen Luni)         | #UDG61628,6(nasty48) }
+TABLE#
+
+[Fact:unusedFloor:Unused floor]
+There is one room in which a nontrivial floor graphic is defined, but not used.
+
+#UDGTABLE(gallery)
+{ #R52137(The Hall) | #UDG52138,71(floor11) }
+TABLE#
+
+[Fact:unusedRamp:Unused ramp]
+There is one room in which a nontrivial ramp graphic is defined, but not used.
+
+#UDGTABLE(gallery)
+{ #R50884(Entrance to Hades) | #UDG50885,7(ramp06) }
+TABLE#
+
+[Fact:unusedConveyor:Unused conveyor]
+There is one room in which a nontrivial conveyor graphic is defined, but not used.
+
+#UDGTABLE(gallery)
+{ #R56269(The Chapel) | #UDG56270,7(conveyor27) }
+TABLE#
+
+[Fact:emptiestRooms:The emptiest rooms]
+#R62720(Back Door) is the only room that has no objects, nasties or guardians.
+
+#ROOM62720
+
+#R51712(The Front Door) is the only other room that has no guardians; it also has no nasties, but does contain an object.
+
+#ROOM51712
+
+[Fact:mostObjects:The most objects]
+The room with the most objects is #R49152(The Off Licence) with 12.
+
+#ROOM49152

@@ -1,0 +1,10 @@
+table.gallery {
+  border-collapse: collapse;
+}
+table.gallery td {
+  text-align: center;
+  border-width: 1px;
+  border-style: solid;
+  border-color: black;
+  padding: 5px;
+}
