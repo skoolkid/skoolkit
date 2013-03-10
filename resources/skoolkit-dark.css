@@ -1,0 +1,293 @@
+/* Universal/generic */
+body {
+  color: #ffffff;
+  background-color: #221100;
+  font-family: sans;
+}
+img {
+  border-width: 0px;
+}
+a.link {
+  text-decoration: none;
+  color: #ffff00;
+}
+a.link:hover {
+  color: #00ffff;
+}
+table.header td {
+  vertical-align: middle;
+  font-weight: bold;
+  font-size: 150%;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+td.headerText {
+  white-space: nowrap;
+}
+div.headerText {
+  font-weight: bold;
+  font-size: 125%;
+}
+div.footer {
+  clear: both;
+  margin-top: 10px;
+  text-align: center;
+}
+td.transparent {
+  background-color: #221100 !important;
+}
+ul.linkList {
+  list-style-type: none;
+  margin-left: 0px;
+  padding-left: 0px;
+}
+span.register {
+  color: #ff7fff;
+}
+div.box {
+  width: 800px;
+  padding: 6px;
+  margin-bottom: 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -khtml-border-radius: 10px;
+  border-radius: 10px;
+}
+div.boxTitle {
+  font-size: 150%;
+  font-weight: bold;
+}
+div.box p {
+  margin-bottom: 0px;
+}
+div.box1 {
+  background-color: #553311;
+}
+div.box2 {
+  background-color: #442200;
+}
+div.paragraph {
+  margin-top: 10px;
+}
+table.default th {
+  background-color: #775533;
+}
+table.default td {
+  background-color: #553311 !important;
+}
+td.centre {
+  text-align: center;
+}
+
+/* Home page */
+ul.indexList {
+  list-style-type: none;
+  margin-top: 0px;
+  margin-left: 0px;
+  padding-left: 20px;
+}
+
+/* Disassembly pages */
+table.prevNext {
+  margin-top: 10px;
+  border-collapse: collapse;
+  width: 100%;
+}
+table.prevNext td {
+  background-color: #443322;
+}
+table.prevNext td.prev {
+  width: 30%;
+  text-align: left;
+}
+table.prevNext td.up {
+  width: 40%;
+  text-align: center;
+}
+table.prevNext td.next {
+  width: 30%;
+  text-align: right;
+}
+table.disassembly {
+  width: 640px;
+}
+table.dataDisassembly {
+  width: 800px;
+}
+div.description {
+  margin-top: 10px;
+  font-weight: bold;
+}
+div.details {
+  margin-bottom: 10px;
+}
+div.comments {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+table.input, table.output {
+  margin-bottom: 10px;
+}
+table.input td {
+  background-color: #3f3f3f;
+}
+table.output td {
+  background-color: #3f3f3f;
+}
+table.input th {
+  background-color: #5f5f5f;
+}
+table.output th {
+  background-color: #5f5f5f;
+}
+td.register {
+  color: #ff7fff;
+  width: 20px;
+  text-align: center;
+}
+td.label {
+  color: #00ffff;
+  font-weight: bold;
+  font-family: monospace;
+  vertical-align: top;
+  padding-right: 10px;
+}
+td.address {
+  color: #00ffff;
+  font-family: monospace;
+  vertical-align: top;
+  padding-right: 10px;
+}
+td.instruction {
+  color: #ff7fff;
+  font-family: monospace;
+  vertical-align: top;
+  white-space: pre;
+  padding-right: 10px;
+}
+td.comment {
+  background-color: #332211;
+  width: 640px;
+  vertical-align: top;
+}
+td.dataComment {
+  background-color: #332211;
+  width: 800px;
+  vertical-align: top;
+}
+td.routineComment {
+  padding-left: 0px;
+}
+td.transparentComment {
+  width: 640px;
+}
+td.transparentDataComment {
+  width: 800px;
+}
+
+/* Maps */
+table.map th {
+  background-color: #775533;
+}
+table.map td {
+  background-color: #442200;
+}
+div.mapIntro {
+  margin-bottom: 10px;
+}
+td.mapPage {
+  text-align: center;
+}
+td.mapByte {
+  text-align: center;
+}
+td.routine {
+  text-align: center;
+}
+td.routineDesc {
+  color: #7fff7f;
+}
+td.data {
+  text-align: center;
+}
+td.dataDesc {
+  color: #ff7fff;
+}
+td.gbuffer {
+  text-align: center;
+}
+td.gbufferDesc {
+  color: #7fffff;
+}
+td.message {
+  text-align: center;
+}
+td.messageDesc {
+  color: #aaaaaa;
+  font-family: monospace;
+}
+td.unused {
+  text-align: center;
+}
+td.unusedDesc {
+  color: #ffffff;
+}
+
+/* Game status buffer */
+table.gbuffer th {
+  background-color: #775533;
+}
+table.gbuffer td {
+  background-color: #442200;
+}
+td.gbufAddress {
+  text-align: center;
+  vertical-align: top;
+}
+td.gbufLength {
+  text-align: center;
+  vertical-align: top;
+}
+div.gbufDesc {
+  font-weight: bold;
+}
+
+/* Graphic glitches */
+table.gglitch {
+  border-collapse: collapse;
+}
+table.gglitch td {
+  text-align: center;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #000000;
+  padding: 5px;
+}
+
+/* Changelog */
+div.changelog {
+  width: 800px;
+  padding: 6px;
+  margin-bottom: 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -khtml-border-radius: 10px;
+  border-radius: 10px;
+}
+div.changelog1 {
+  background-color: #553311;
+}
+div.changelog2 {
+  background-color: #442200;
+}
+div.changelogTitle {
+  font-size: 150%;
+  font-weight: bold;
+}
+div.changelogDesc {
+  margin-top: 5px;
+}
+ul.changelog {
+  margin-top: 5px;
+  margin-bottom: 0px;
+}
