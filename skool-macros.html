@@ -1,0 +1,945 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Skool macros &mdash; SkoolKit 3.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="next" title="Ref files" href="ref-files.html" />
+    <link rel="prev" title="Skool file templates" href="skool-file-templates.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ref-files.html" title="Ref files"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="skool-file-templates.html" title="Skool file templates"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="skool-macros">
+<span id="skoolmacros"></span><h1>Skool macros<a class="headerlink" href="#skool-macros" title="Permalink to this headline">¶</a></h1>
+<p><cite>skool</cite> files and <cite>ref</cite> files may contain skool macros that are &#8216;expanded&#8217; to
+an appropriate piece of HTML markup (when rendering in HTML mode), or to an
+appropriate piece of plain text (when rendering in ASM mode).</p>
+<p>Skool macros have the following general form:</p>
+<div class="highlight-none"><div class="highlight"><pre>#MACROrparam1,rparam2,...[,oparam1,oparam2,...]
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">MACRO</span></tt> is the macro name</li>
+<li><tt class="docutils literal"><span class="pre">rparam1</span></tt>, <tt class="docutils literal"><span class="pre">rparam2</span></tt> etc. are required parameters</li>
+<li><tt class="docutils literal"><span class="pre">oparam1</span></tt>, <tt class="docutils literal"><span class="pre">oparam2</span></tt> etc. are optional parameters</li>
+</ul>
+<p>If an optional parameter is left blank or omitted entirely, it assumes its
+default value. So, for example:</p>
+<div class="highlight-none"><div class="highlight"><pre>#UDG39144
+</pre></div>
+</div>
+<p>is equivalent to:</p>
+<div class="highlight-none"><div class="highlight"><pre>#UDG39144,56,4,1,0,0,0
+</pre></div>
+</div>
+<p>and:</p>
+<div class="highlight-none"><div class="highlight"><pre>#UDG30115,23,,2,1
+</pre></div>
+</div>
+<p>is equivalent to:</p>
+<div class="highlight-none"><div class="highlight"><pre>#UDG30115,23,4,2,1
+</pre></div>
+</div>
+<p>Numeric parameters may be given in decimal notation (as already shown in the
+examples above), or in hexadecimal notation (prefixed by <tt class="docutils literal"><span class="pre">$</span></tt>):</p>
+<div class="highlight-none"><div class="highlight"><pre>#UDG$98E8,$06
+</pre></div>
+</div>
+<p>The skool macros recognised by SkoolKit are described in the following
+subsections.</p>
+<div class="section" id="bug">
+<span id="id1"></span><h2>#BUG<a class="headerlink" href="#bug" title="Permalink to this headline">¶</a></h2>
+<p>In HTML mode, the <tt class="docutils literal"><span class="pre">#BUG</span></tt> macro expands to a hyperlink (<tt class="docutils literal"><span class="pre">&lt;a&gt;</span></tt> element) to
+the &#8216;Bugs&#8217; page, or to a specific entry on that page.</p>
+<div class="highlight-none"><div class="highlight"><pre>#BUG[#name][(link text)]
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">#name</span></tt> is the named anchor of a bug (if linking to a specific one)</li>
+<li><tt class="docutils literal"><span class="pre">link</span> <span class="pre">text</span></tt> is the link text to use</li>
+</ul>
+<p>In HTML mode, if the link text is blank, the title of the bug entry (if linking
+to a specific one) is substituted; if the link text is omitted entirely, &#8216;bug&#8217;
+is substituted.</p>
+<p>In ASM mode, the <tt class="docutils literal"><span class="pre">#BUG</span></tt> macro expands to the link text, or &#8216;bug&#8217; if the link
+text is blank or omitted.</p>
+<p>For example:</p>
+<div class="nonexistent highlight-none"><div class="highlight"><pre> 42726 DEFB 130 ; This is a #BUG#bug1; it should be 188
+</pre></div>
+</div>
+<p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#BUG</span></tt> macro expands to a hyperlink to an
+entry on the &#8216;Bugs&#8217; page.</p>
+<p>In ASM mode, this instance of the <tt class="docutils literal"><span class="pre">#BUG</span></tt> macro expands to &#8216;bug&#8217;.</p>
+<p>See also <a class="reference internal" href="#fact"><em>#FACT</em></a> and <a class="reference internal" href="#poke"><em>#POKE</em></a>.</p>
+<p><cite>Changed in version 2.3.1:</cite> If left blank, the link text defaults to the bug
+entry title in HTML mode.</p>
+</div>
+<div class="section" id="call">
+<span id="id2"></span><h2>#CALL<a class="headerlink" href="#call" title="Permalink to this headline">¶</a></h2>
+<p>In HTML mode, the <tt class="docutils literal"><span class="pre">#CALL</span></tt> macro expands to the return value of a method on
+the <cite>HtmlWriter</cite> class or subclass that is being used to create the HTML
+disassembly (as defined by the <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt> parameter in the
+<a class="reference internal" href="ref-files.html#ref-config"><em>[Config]</em></a> section of the <cite>ref</cite> file).</p>
+<p>In ASM mode, the <tt class="docutils literal"><span class="pre">#CALL</span></tt> macro expands to the return value of a method on the
+<cite>AsmWriter</cite> class or subclass that is being used to generate the ASM output (as
+defined by the <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a> ASM directive in the <cite>skool</cite> file).</p>
+<div class="highlight-none"><div class="highlight"><pre>#CALL:methodName(args)
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">methodName</span></tt> is the name of the method to call</li>
+<li><tt class="docutils literal"><span class="pre">args</span></tt> is a comma-separated list of arguments to pass to the method</li>
+</ul>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; The byte at address 32768 is #CALL:peek(32768).
+</pre></div>
+</div>
+<p>This instance of the <tt class="docutils literal"><span class="pre">#CALL</span></tt> macro expands to the return value of the <cite>peek</cite>
+method (on the <cite>HtmlWriter</cite> or <cite>AsmWriter</cite> subclass being used) when called
+with the argument <tt class="docutils literal"><span class="pre">32768</span></tt>.</p>
+<p>For information on writing methods that may be called by a <tt class="docutils literal"><span class="pre">#CALL</span></tt> macro, see
+the documentation on <a class="reference internal" href="extending.html#extendingskoolkit"><em>extending SkoolKit</em></a>.</p>
+<p><cite>New in version 2.1.</cite></p>
+<p><cite>Changed in version 3.1:</cite> Added support for ASM mode.</p>
+</div>
+<div class="section" id="chr">
+<span id="id3"></span><h2>#CHR<a class="headerlink" href="#chr" title="Permalink to this headline">¶</a></h2>
+<p>In HTML mode, the <tt class="docutils literal"><span class="pre">#CHR</span></tt> macro expands to a numeric character reference
+(<tt class="docutils literal"><span class="pre">&amp;#num;</span></tt>). In ASM mode, it expands to a unicode character in the UTF-8
+encoding.</p>
+<div class="highlight-none"><div class="highlight"><pre>#CHRnum
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-none"><div class="highlight"><pre>#CHR(num)
+</pre></div>
+</div>
+<p>For example:</p>
+<div class="nonexistent highlight-none"><div class="highlight"><pre> 26751 DEFB 127   ; This is the copyright symbol: #CHR169
+</pre></div>
+</div>
+<p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#CHR</span></tt> macro expands to <tt class="docutils literal"><span class="pre">&amp;#169;</span></tt>. In ASM
+mode, it expands to the copyright symbol.</p>
+<p><cite>New in version 3.1.</cite></p>
+</div>
+<div class="section" id="d">
+<span id="id4"></span><h2>#D<a class="headerlink" href="#d" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">#D</span></tt> (Description) macro expands to the title of an entry (a routine or
+data block) in the memory map.</p>
+<div class="highlight-none"><div class="highlight"><pre>#Daddr
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">addr</span></tt> is the address of the entry.</li>
+</ul>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; Now we make an indirect jump to one of the following routines:
+; .
+; #TABLE(default,centre)
+; { =h Address | =h Description }
+; { #R27126    | #D27126 }
+</pre></div>
+</div>
+<p>This instance of the <tt class="docutils literal"><span class="pre">#D</span></tt> macro expands to the title of the routine at 27126.</p>
+</div>
+<div class="section" id="erefs">
+<span id="id5"></span><h2>#EREFS<a class="headerlink" href="#erefs" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">#EREFS</span></tt> (Entry point REFerenceS) macro expands to a comma-separated
+sequence of hyperlinks to (in HTML mode) or addresses of (in ASM mode) the
+routines that jump to or call a given address.</p>
+<div class="highlight-none"><div class="highlight"><pre>#EREFSaddr
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">addr</span></tt> is the address to search for references to</li>
+</ul>
+<p>See also <a class="reference internal" href="#m-refs"><em>#REFS</em></a>.</p>
+<p><cite>Changed in version 3.1:</cite> Added support for ASM mode.</p>
+</div>
+<div class="section" id="fact">
+<span id="id6"></span><h2>#FACT<a class="headerlink" href="#fact" title="Permalink to this headline">¶</a></h2>
+<p>In HTML mode, the <tt class="docutils literal"><span class="pre">#FACT</span></tt> macro expands to a hyperlink (<tt class="docutils literal"><span class="pre">&lt;a&gt;</span></tt> element) to
+the &#8216;Trivia&#8217; page, or to a specific entry on that page.</p>
+<div class="highlight-none"><div class="highlight"><pre>#FACT[#name][(link text)]
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">#name</span></tt> is the named anchor of a trivia entry (if linking to a specific
+one)</li>
+<li><tt class="docutils literal"><span class="pre">link</span> <span class="pre">text</span></tt> is the link text to use</li>
+</ul>
+<p>In HTML mode, if the link text is blank, the title of the trivia entry (if
+linking to a specific one) is substituted; if the link text is omitted
+entirely, &#8216;fact&#8217; is substituted.</p>
+<p>In ASM mode, the <tt class="docutils literal"><span class="pre">#FACT</span></tt> macro expands to the link text, or &#8216;fact&#8217; if the
+link text is blank or omitted.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>See the trivia entry #FACT#interestingFact() for details.
+</pre></div>
+</div>
+<p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#FACT</span></tt> macro expands to a hyperlink to
+an entry on the &#8216;Trivia&#8217; page, with link text equal to the title of the entry.</p>
+<p>See also <a class="reference internal" href="#bug"><em>#BUG</em></a> and <a class="reference internal" href="#poke"><em>#POKE</em></a>.</p>
+<p><cite>Changed in version 2.3.1:</cite> If left blank, the link text defaults to the trivia
+entry title in HTML mode; added support for ASM mode.</p>
+</div>
+<div class="section" id="font">
+<span id="id7"></span><h2>#FONT<a class="headerlink" href="#font" title="Permalink to this headline">¶</a></h2>
+<p>In HTML mode, the <tt class="docutils literal"><span class="pre">#FONT</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element for an image
+of the game font.</p>
+<div class="highlight-none"><div class="highlight"><pre>#FONTaddr,chars[,attr,scale][{X,Y,W,H}][(fname)]
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">addr</span></tt> is the base address of the font graphic data</li>
+<li><tt class="docutils literal"><span class="pre">chars</span></tt> is the number of characters in the font</li>
+<li><tt class="docutils literal"><span class="pre">attr</span></tt> is the attribute byte to use (default: 56)</li>
+<li><tt class="docutils literal"><span class="pre">scale</span></tt> is the required scale of the image (default: 2)</li>
+<li><tt class="docutils literal"><span class="pre">X</span></tt> is the x-coordinate of the leftmost pixel column of the constructed
+image to include in the final image (if greater than 0, the image will be
+cropped on the left)</li>
+<li><tt class="docutils literal"><span class="pre">Y</span></tt> is the y-coordinate of the topmost pixel row of the constructed image
+to include in the final image (if greater than 0, the image will be cropped
+on the top)</li>
+<li><tt class="docutils literal"><span class="pre">W</span></tt> is the width of the final image (if less than the full width of the
+constructed image, the image will be cropped on the right)</li>
+<li><tt class="docutils literal"><span class="pre">H</span></tt> is the height of the final image (if less than the full height of the
+constructed image, the image will be cropped on the bottom)</li>
+<li><tt class="docutils literal"><span class="pre">fname</span></tt> is the name of the image file (default: &#8216;<cite>font</cite>&#8216;); &#8216;<cite>.png</cite>&#8216; or
+&#8216;<cite>.gif</cite>&#8216; will be appended (depending on the default image format specified in
+the <a class="reference internal" href="ref-files.html#ref-imagewriter"><em>[ImageWriter]</em></a> section of the <cite>ref</cite> file) if not present</li>
+</ul>
+<p>The <tt class="docutils literal"><span class="pre">#FONT</span></tt> macro is not supported in ASM mode.</p>
+<p>If an image with the given filename doesn&#8217;t already exist, it will be created.
+If <tt class="docutils literal"><span class="pre">fname</span></tt> starts with a &#8216;/&#8217;, the filename is taken to be relative to the
+root of the HTML disassembly; otherwise the filename is taken to be relative to
+the directory defined by the <tt class="docutils literal"><span class="pre">FontImagePath</span></tt> parameter in the <a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a>
+section of the <cite>ref</cite> file.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; Font graphic data
+;
+; #HTML(#FONT49152,32)
+</pre></div>
+</div>
+<p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#FONT</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt>
+element for the image of the 32 characters in the 8*8 font whose graphic data
+starts at 49152.</p>
+<p><cite>Changed in version 2.0.5:</cite> Added the <tt class="docutils literal"><span class="pre">fname</span></tt> parameter and support for
+regular 8x8 fonts.</p>
+<p><cite>Changed in version 3.0:</cite> Added image-cropping capabilities.</p>
+</div>
+<div class="section" id="html">
+<span id="id8"></span><h2>#HTML<a class="headerlink" href="#html" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">#HTML</span></tt> macro expands to arbitrary text (in HTML mode) or to an empty
+string (in ASM mode).</p>
+<div class="highlight-none"><div class="highlight"><pre>#HTML(text)
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">#HTML</span></tt> macro may be used to render HTML (which would otherwise be
+escaped) from a <cite>skool</cite> file. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; #HTML(For more information, go &lt;a href=&quot;http://example.com/&quot;&gt;here&lt;/a&gt;.)
+</pre></div>
+</div>
+<p>If <tt class="docutils literal"><span class="pre">text</span></tt> contains a closing bracket - <tt class="docutils literal"><span class="pre">)</span></tt> - then the macro will not expand
+as required. In that case, square brackets, braces or any character that does
+not appear in <tt class="docutils literal"><span class="pre">text</span></tt> (except for an upper case letter) may be used as
+delimiters:</p>
+<div class="highlight-none"><div class="highlight"><pre>#HTML[text]
+#HTML{text}
+#HTML@text@
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">text</span></tt> may contain other skool macros, which will be expanded before
+rendering. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; #HTML[The UDG defined here (32768) looks like this: #UDG32768,4,1]
+</pre></div>
+</div>
+<p>See also <a class="reference internal" href="#udgtable"><em>#UDGTABLE</em></a>.</p>
+<p><cite>New in version 3.1.2.</cite></p>
+</div>
+<div class="section" id="link">
+<span id="id9"></span><h2>#LINK<a class="headerlink" href="#link" title="Permalink to this headline">¶</a></h2>
+<p>In HTML mode, the <tt class="docutils literal"><span class="pre">#LINK</span></tt> macro expands to a hyperlink (<tt class="docutils literal"><span class="pre">&lt;a&gt;</span></tt> element) to
+another page.</p>
+<div class="highlight-none"><div class="highlight"><pre>#LINK:PageId[#name](link text)
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">PageId</span></tt> is the ID of the page to link to</li>
+<li><tt class="docutils literal"><span class="pre">name</span></tt> is the name of an anchor on the page to link to</li>
+<li><tt class="docutils literal"><span class="pre">link</span> <span class="pre">text</span></tt> is the link text to use</li>
+</ul>
+<p>In HTML mode, if the link text is blank, the page&#8217;s link text (as defined in
+the <a class="reference internal" href="ref-files.html#links"><em>[Links]</em></a> section or the relevant <a class="reference internal" href="ref-files.html#page"><em>[Page:*]</em></a> section of the <cite>ref</cite> file)
+is substituted.</p>
+<p>In ASM mode, the <tt class="docutils literal"><span class="pre">#LINK</span></tt> macro expands to the link text.</p>
+<p>The page IDs that may be used are the same as the file IDs that may be used in
+the <a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of a <cite>ref</cite> file, or the page IDs defined by
+<a class="reference internal" href="ref-files.html#page"><em>[Page:*]</em></a> sections.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; See the #LINK:Glossary(glossary) for a definition of &#39;chuntey&#39;.
+</pre></div>
+</div>
+<p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#LINK</span></tt> macro expands to a hyperlink to
+the &#8216;Glossary&#8217; page, with link text &#8216;glossary&#8217;.</p>
+<p>In ASM mode, this instance of the <tt class="docutils literal"><span class="pre">#LINK</span></tt> macro expands to &#8216;glossary&#8217;.</p>
+<p><cite>New in version 2.1.</cite></p>
+<p><cite>Changed in version 3.1.3:</cite> If left blank, the link text defaults to the page&#8217;s
+link text in HTML mode.</p>
+</div>
+<div class="section" id="list">
+<span id="id10"></span><h2>#LIST<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">#LIST</span></tt> macro marks the beginning of a list of bulleted items; <tt class="docutils literal"><span class="pre">LIST#</span></tt>
+is used to mark the end. Between these markers, the list items are defined.</p>
+<div class="highlight-none"><div class="highlight"><pre>#LIST[(class)]&lt;items&gt;LIST#
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">class</span></tt> is the CSS class to use for the <tt class="docutils literal"><span class="pre">&lt;ul&gt;</span></tt> element</li>
+</ul>
+<p>Each item in a list must start with <tt class="docutils literal"><span class="pre">{</span></tt> followed by a whitespace character,
+and end with <tt class="docutils literal"><span class="pre">}</span></tt> preceded by a whitespace character.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; #LIST(data)
+; { Item 1 }
+; { Item 2 }
+; LIST#
+</pre></div>
+</div>
+<p>This list has two items, and will have the CSS class &#8216;data&#8217;.</p>
+<p>In ASM mode, lists are rendered as plain text, with each item on its own line,
+and an asterisk as the bullet character. The bullet character can be changed by
+using a <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a> directive to set the <tt class="docutils literal"><span class="pre">bullet</span></tt> property on the ASM writer.</p>
+<p><cite>New in version 3.2.</cite></p>
+</div>
+<div class="section" id="name">
+<span id="id11"></span><h2>#NAME<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
+<p>In HTML mode, the <tt class="docutils literal"><span class="pre">#NAME</span></tt> macro expands to an anchor (<tt class="docutils literal"><span class="pre">&lt;a&gt;</span></tt>) element with a
+given name.</p>
+<div class="highlight-none"><div class="highlight"><pre>#NAMEname
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">name</span></tt> is the name of the anchor</li>
+</ul>
+<p>In ASM mode, the <tt class="docutils literal"><span class="pre">#NAME</span></tt> macro expands to an empty string.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; #NAMEspriteData
+; The following section contains sprite graphic data.
+</pre></div>
+</div>
+<p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#NAME</span></tt> macro expands to an anchor element
+named &#8216;spriteData&#8217;.</p>
+<p>Note that <tt class="docutils literal"><span class="pre">name</span></tt> must not start with an upper case letter.</p>
+</div>
+<div class="section" id="poke">
+<span id="id12"></span><h2>#POKE<a class="headerlink" href="#poke" title="Permalink to this headline">¶</a></h2>
+<p>In HTML mode, the <tt class="docutils literal"><span class="pre">#POKE</span></tt> macro expands to a hyperlink (<tt class="docutils literal"><span class="pre">&lt;a&gt;</span></tt> element) to
+the &#8216;Pokes&#8217; page, or to a specific entry on that page.</p>
+<div class="highlight-none"><div class="highlight"><pre>#POKE[#name][(link text)]
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">#name</span></tt> is the named anchor of a poke (if linking to a specific one)</li>
+<li><tt class="docutils literal"><span class="pre">link</span> <span class="pre">text</span></tt> is the link text to use</li>
+</ul>
+<p>In HTML mode, if the link text is blank, the title of the poke entry (if
+linking to a specific one) is substituted; if the link text is omitted
+entirely, &#8216;poke&#8217; is substituted.</p>
+<p>In ASM mode, the <tt class="docutils literal"><span class="pre">#POKE</span></tt> macro expands to the link text, or &#8216;poke&#8217; if the
+link text is blank or omitted.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; Of course, if you feel like cheating, you can always give yourself
+; #POKE#infiniteLives(infinite lives).
+</pre></div>
+</div>
+<p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#POKE</span></tt> macro expands to a hyperlink to
+an entry on the &#8216;Pokes&#8217; page, with link text &#8216;infinite lives&#8217;.</p>
+<p>In ASM mode, this instance of the <tt class="docutils literal"><span class="pre">#POKE</span></tt> macro expands to &#8216;infinite lives&#8217;.</p>
+<p>See also <a class="reference internal" href="#bug"><em>#BUG</em></a> and <a class="reference internal" href="#fact"><em>#FACT</em></a>.</p>
+<p><cite>Changed in version 2.3.1:</cite> If left blank, the link text defaults to the poke
+entry title in HTML mode; added support for ASM mode.</p>
+</div>
+<div class="section" id="pokes">
+<span id="id13"></span><h2>#POKES<a class="headerlink" href="#pokes" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">#POKES</span></tt> (POKE Snapshot) macro POKEs values into the current memory
+snapshot.</p>
+<div class="highlight-none"><div class="highlight"><pre>#POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">addr</span></tt> is the address to POKE</li>
+<li><tt class="docutils literal"><span class="pre">byte</span></tt> is the value to POKE <tt class="docutils literal"><span class="pre">addr</span></tt> with</li>
+<li><tt class="docutils literal"><span class="pre">length</span></tt> is the number of addresses to POKE (default: 1)</li>
+<li><tt class="docutils literal"><span class="pre">step</span></tt> is the address increment to use after each POKE (if <tt class="docutils literal"><span class="pre">length</span></tt>&gt;1;
+default: 1)</li>
+</ul>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>The UDG looks like this:
+
+#UDG32768(udg_orig)
+
+But it&#39;s supposed to look like this:
+
+#PUSHS
+#POKES32772,254;32775,136
+#UDG32768(udg_fixed)
+#POPS
+</pre></div>
+</div>
+<p>This instance of the <tt class="docutils literal"><span class="pre">#POKES</span></tt> macro does <tt class="docutils literal"><span class="pre">POKE</span> <span class="pre">32772,254</span></tt> and
+<tt class="docutils literal"><span class="pre">POKE</span> <span class="pre">32775,136</span></tt>, which fixes a graphic glitch in the UDG at 32768.</p>
+<p>The <tt class="docutils literal"><span class="pre">#POKES</span></tt> macro expands to an empty string.</p>
+<p>See also <a class="reference internal" href="#pushs"><em>#PUSHS</em></a> and <a class="reference internal" href="#pops"><em>#POPS</em></a>.</p>
+<p><cite>Changed in version 2.3.1:</cite> Added support for multiple addresses.</p>
+<p><cite>Changed in version 3.1:</cite> Added support for ASM mode.</p>
+</div>
+<div class="section" id="pops">
+<span id="id14"></span><h2>#POPS<a class="headerlink" href="#pops" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">#POPS</span></tt> (POP Snapshot) macro removes the current memory snapshot and
+replaces it with the one that was previously saved by a <tt class="docutils literal"><span class="pre">#PUSHS</span></tt> macro.</p>
+<div class="highlight-none"><div class="highlight"><pre>#POPS
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">#POPS</span></tt> macro expands to an empty string.</p>
+<p>See also <a class="reference internal" href="#pushs"><em>#PUSHS</em></a> and <a class="reference internal" href="#pokes"><em>#POKES</em></a>.</p>
+<p><cite>Changed in version 3.1:</cite> Added support for ASM mode.</p>
+</div>
+<div class="section" id="pushs">
+<span id="id15"></span><h2>#PUSHS<a class="headerlink" href="#pushs" title="Permalink to this headline">¶</a></h2>
+<p>As a <cite>skool</cite> file is being parsed, a memory snapshot is built up from all the
+<tt class="docutils literal"><span class="pre">DEFB</span></tt>, <tt class="docutils literal"><span class="pre">DEFW</span></tt>, <tt class="docutils literal"><span class="pre">DEFM</span></tt> and <tt class="docutils literal"><span class="pre">DEFS</span></tt> instructions. After the file has been
+parsed, the memory snapshot may be used to build images of the game&#8217;s graphic
+elements (for example).</p>
+<p>The <tt class="docutils literal"><span class="pre">#PUSHS</span></tt> (PUSH Snapshot) macro saves the current snapshot, and replaces
+it with an identical copy with a given name.</p>
+<div class="highlight-none"><div class="highlight"><pre>#PUSHS[name]
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">name</span></tt> is the snapshot name (defaults to an empty string)</li>
+</ul>
+<p>The new snapshot may then be modified by using the <tt class="docutils literal"><span class="pre">#POKES</span></tt> macro.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>The UDG at 32768 is supposed to look like this:
+
+#PUSHS
+#POKES32772,254
+#UDG32768
+#POPS
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">#PUSHS</span></tt> macro expands to an empty string.</p>
+<p>See also <a class="reference internal" href="#pokes"><em>#POKES</em></a> and <a class="reference internal" href="#pops"><em>#POPS</em></a>.</p>
+<p><cite>Changed in version 3.1:</cite> Added support for ASM mode.</p>
+</div>
+<div class="section" id="r">
+<span id="id16"></span><h2>#R<a class="headerlink" href="#r" title="Permalink to this headline">¶</a></h2>
+<p>In HTML mode, the <tt class="docutils literal"><span class="pre">#R</span></tt> (Reference) macro expands to a hyperlink (<tt class="docutils literal"><span class="pre">&lt;a&gt;</span></tt>
+element) to the disassembly page for a routine or data block, or to a line at a
+given address within that page.</p>
+<div class="highlight-none"><div class="highlight"><pre>#Raddr[@code][#name][(link text)]
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">addr</span></tt> is the address of the routine or data block (or entry point
+thereof)</li>
+<li><tt class="docutils literal"><span class="pre">code</span></tt> is the ID of the disassembly that contains the routine or data block
+(if not given, the current disassembly is assumed; otherwise this should be
+an ID defined in an <tt class="docutils literal"><span class="pre">[OtherCode:*]</span></tt> section of the ref file)</li>
+<li><tt class="docutils literal"><span class="pre">#name</span></tt> is the named anchor of an item on the disassembly page</li>
+<li><tt class="docutils literal"><span class="pre">link</span> <span class="pre">text</span></tt> is the link text to use (default: <tt class="docutils literal"><span class="pre">addr</span></tt>)</li>
+</ul>
+<p>In ASM mode, the <tt class="docutils literal"><span class="pre">#R</span></tt> macro expands to the link text if it is specified, or
+to the label for <tt class="docutils literal"><span class="pre">addr</span></tt>, or to <tt class="docutils literal"><span class="pre">addr</span></tt> if no label is found.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; Prepare for a new game
+;
+; Used by the routine at #R25820.
+</pre></div>
+</div>
+<p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#R</span></tt> macro expands to a hyperlink to the
+disassembly page for the routine at 25820.</p>
+<p>In ASM mode, this instance of the <tt class="docutils literal"><span class="pre">#R</span></tt> macro expands to the label for the
+routine at 25820 (or simply <tt class="docutils literal"><span class="pre">25820</span></tt> if that routine has no label).</p>
+<p><cite>Changed in version 2.0:</cite> Added support for the <tt class="docutils literal"><span class="pre">&#64;code</span></tt> notation.</p>
+</div>
+<div class="section" id="refs">
+<span id="m-refs"></span><h2>#REFS<a class="headerlink" href="#refs" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">#REFS</span></tt> (REFerenceS) macro expands to a comma-separated sequence of
+hyperlinks to (in HTML mode) or addresses of (in ASM mode) the routines that
+jump to or call a given routine, or jump to or call any entry point within that
+routine.</p>
+<div class="highlight-none"><div class="highlight"><pre>#REFSaddr[(prefix)]
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">addr</span></tt> is the address of the routine to search for references to</li>
+<li><tt class="docutils literal"><span class="pre">prefix</span></tt> is the text to display before the sequence of hyperlinks or
+addresses if there is at least one reference (default: no text)</li>
+</ul>
+<p>If there are no references, the macro expands to the following text:</p>
+<div class="highlight-none"><div class="highlight"><pre>Not used directly by any other routines
+</pre></div>
+</div>
+<p>See also <a class="reference internal" href="#erefs"><em>#EREFS</em></a>.</p>
+<p><cite>Changed in version 1.0.6:</cite> Added the <tt class="docutils literal"><span class="pre">prefix</span></tt> parameter.</p>
+<p><cite>Changed in version 3.1:</cite> Added support for ASM mode.</p>
+</div>
+<div class="section" id="reg">
+<span id="id17"></span><h2>#REG<a class="headerlink" href="#reg" title="Permalink to this headline">¶</a></h2>
+<p>In HTML mode, the <tt class="docutils literal"><span class="pre">#REG</span></tt> (REGister) macro expands to a styled <tt class="docutils literal"><span class="pre">&lt;span&gt;</span></tt>
+element containing a register name.</p>
+<div class="highlight-none"><div class="highlight"><pre>#REGreg
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">reg</span></tt> is the name of the register (e.g. &#8216;a&#8217;, &#8216;bc&#8217;)</li>
+</ul>
+<p>In ASM mode, the <tt class="docutils literal"><span class="pre">#REG</span></tt> macro expands to the name of the register.</p>
+<p>The register name must contain 1, 2 or 3 of the following characters:</p>
+<div class="highlight-none"><div class="highlight"><pre>abcdefhlirspxy&#39;
+</pre></div>
+</div>
+<p>For example:</p>
+<div class="nonexistent highlight-none"><div class="highlight"><pre> 24623 LD C,31       ; #REGbc&#39;=31
+</pre></div>
+</div>
+</div>
+<div class="section" id="scr">
+<span id="id18"></span><h2>#SCR<a class="headerlink" href="#scr" title="Permalink to this headline">¶</a></h2>
+<p>In HTML mode, the <tt class="docutils literal"><span class="pre">#SCR</span></tt> (SCReenshot) macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element
+for an image constructed from the display file and attribute file (or suitably
+arranged graphic data and attribute bytes elsewhere in memory) of the current
+memory snapshot (in turn constructed from the contents of the <cite>skool</cite> file).</p>
+<div class="highlight-none"><div class="highlight"><pre>#SCR[scale,x,y,w,h,dfAddr,afAddr][{X,Y,W,H}][(fname)]
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">scale</span></tt> is the required scale of the image (default: 1)</li>
+<li><tt class="docutils literal"><span class="pre">x</span></tt> is the x-coordinate of the top-left tile of the screen to include in
+the screenshot (default: 0)</li>
+<li><tt class="docutils literal"><span class="pre">y</span></tt> is the y-coordinate of the top-left tile of the screen to include in
+the screenshot (default: 0)</li>
+<li><tt class="docutils literal"><span class="pre">w</span></tt> is the width of the screenshot in tiles (default: 32)</li>
+<li><tt class="docutils literal"><span class="pre">h</span></tt> is the height of the screenshot in tiles (default: 24)</li>
+<li><tt class="docutils literal"><span class="pre">dfAddr</span></tt> is the base address of the display file (default: 16384)</li>
+<li><tt class="docutils literal"><span class="pre">afAddr</span></tt> is the base address of the attribute file (default: 22528)</li>
+<li><tt class="docutils literal"><span class="pre">X</span></tt> is the x-coordinate of the leftmost pixel column of the constructed
+image to include in the final image (if greater than 0, the image will be
+cropped on the left)</li>
+<li><tt class="docutils literal"><span class="pre">Y</span></tt> is the y-coordinate of the topmost pixel row of the constructed image
+to include in the final image (if greater than 0, the image will be cropped
+on the top)</li>
+<li><tt class="docutils literal"><span class="pre">W</span></tt> is the width of the final image (if less than the full width of the
+constructed image, the image will be cropped on the right)</li>
+<li><tt class="docutils literal"><span class="pre">H</span></tt> is the height of the final image (if less than the full height of the
+constructed image, the image will be cropped on the bottom)</li>
+<li><tt class="docutils literal"><span class="pre">fname</span></tt> is the name of the image file (default: &#8216;<cite>scr</cite>&#8216;); &#8216;<cite>.png</cite>&#8216; or
+&#8216;<cite>.gif</cite>&#8216; will be appended (depending on the default image format specified in
+the <a class="reference internal" href="ref-files.html#ref-imagewriter"><em>[ImageWriter]</em></a> section of the <cite>ref</cite> file) if not present</li>
+</ul>
+<p>The <tt class="docutils literal"><span class="pre">#SCR</span></tt> macro is not supported in ASM mode.</p>
+<p>If an image with the given filename doesn&#8217;t already exist, it will be created.
+If <tt class="docutils literal"><span class="pre">fname</span></tt> starts with a &#8216;/&#8217;, the filename is taken to be relative to the
+root of the HTML disassembly; otherwise the filename is taken to be relative to
+the directory defined by the <tt class="docutils literal"><span class="pre">ScreenshotImagePath</span></tt> parameter in the
+<a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the <cite>ref</cite> file.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; #UDGTABLE
+; { #SCR(loading) | This is the loading screen. }
+; TABLE#
+</pre></div>
+</div>
+<p><cite>Changed in version 2.0.5:</cite> Added the <tt class="docutils literal"><span class="pre">scale</span></tt>, <tt class="docutils literal"><span class="pre">x</span></tt>, <tt class="docutils literal"><span class="pre">y</span></tt>, <tt class="docutils literal"><span class="pre">w</span></tt>, <tt class="docutils literal"><span class="pre">h</span></tt> and
+<tt class="docutils literal"><span class="pre">fname</span></tt> parameters.</p>
+<p><cite>Changed in version 3.0:</cite> Added image-cropping capabilities and the <tt class="docutils literal"><span class="pre">dfAddr</span></tt>
+and <tt class="docutils literal"><span class="pre">afAddr</span></tt> parameters.</p>
+</div>
+<div class="section" id="space">
+<span id="id19"></span><h2>#SPACE<a class="headerlink" href="#space" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">#SPACE</span></tt> macro expands to one or more <tt class="docutils literal"><span class="pre">&amp;#160;</span></tt> expressions (in HTML
+mode) or spaces (in ASM mode).</p>
+<div class="highlight-none"><div class="highlight"><pre>#SPACE[num]
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-none"><div class="highlight"><pre>#SPACE([num])
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">num</span></tt> is the number of spaces required (default: 1)</li>
+</ul>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; &#39;#SPACE8&#39; (8 spaces)
+t56832 DEFM &quot;        &quot;
+</pre></div>
+</div>
+<p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#SPACE</span></tt> macro expands to:</p>
+<div class="highlight-none"><div class="highlight"><pre>&amp;#160;&amp;#160;&amp;#160;&amp;#160;&amp;#160;&amp;#160;&amp;#160;&amp;#160;
+</pre></div>
+</div>
+<p>In ASM mode, this instance of the <tt class="docutils literal"><span class="pre">#SPACE</span></tt> macro expands to a string
+containing 8 spaces.</p>
+<p>The form <tt class="docutils literal"><span class="pre">SPACE([num])</span></tt> may be used to distinguish the macro from adjacent
+text where necessary. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; &#39;Score:#SPACE(5)0&#39;
+t49152 DEFM &quot;Score:     0&quot;
+</pre></div>
+</div>
+<p><cite>Changed in version 2.4.1:</cite> Added support for the <tt class="docutils literal"><span class="pre">#SPACE([num])</span></tt> syntax.</p>
+</div>
+<div class="section" id="table">
+<span id="id20"></span><h2>#TABLE<a class="headerlink" href="#table" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">#TABLE</span></tt> macro marks the beginning of a table; <tt class="docutils literal"><span class="pre">TABLE#</span></tt> is used to mark
+the end. Between these markers, the rows of the table are defined.</p>
+<div class="highlight-none"><div class="highlight"><pre>#TABLE[([class[,class1[:w][,class2[:w]...]]])]&lt;rows&gt;TABLE#
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">class</span></tt> is the CSS class to use for the <tt class="docutils literal"><span class="pre">&lt;table&gt;</span></tt> element</li>
+<li><tt class="docutils literal"><span class="pre">class1</span></tt>, <tt class="docutils literal"><span class="pre">class2</span></tt> etc. are the CSS classes to use for the <tt class="docutils literal"><span class="pre">&lt;td&gt;</span></tt>
+elements in columns 1, 2 etc.</li>
+</ul>
+<p>Each row in a table must start with <tt class="docutils literal"><span class="pre">{</span></tt> followed by a whitespace character,
+and end with <tt class="docutils literal"><span class="pre">}</span></tt> preceded by a whitespace character. The cells in a row must
+be separated by <tt class="docutils literal"><span class="pre">|</span></tt> with a whitespace character on each side.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; #TABLE(default,centre)
+; { 0 | Off }
+; { 1 | On }
+; TABLE#
+</pre></div>
+</div>
+<p>This table has two rows and two columns, and will have the CSS class &#8216;default&#8217;.
+The cells in the first column will have the CSS class &#8216;centre&#8217;.</p>
+<p>By default, cells will be rendered as <tt class="docutils literal"><span class="pre">&lt;td&gt;</span></tt> elements. To specify that a
+<tt class="docutils literal"><span class="pre">&lt;th&gt;</span></tt> element should be used instead, use the <tt class="docutils literal"><span class="pre">=h</span></tt> indicator before the
+cell contents:</p>
+<div class="highlight-none"><div class="highlight"><pre>; #TABLE
+; { =h Header 1  | =h Header 2 }
+; { Regular cell | Another one }
+; TABLE#
+</pre></div>
+</div>
+<p>It is also possible to specify <tt class="docutils literal"><span class="pre">colspan</span></tt> and <tt class="docutils literal"><span class="pre">rowspan</span></tt> attributes using the
+<tt class="docutils literal"><span class="pre">=c</span></tt> and <tt class="docutils literal"><span class="pre">=r</span></tt> indicators:</p>
+<div class="highlight-none"><div class="highlight"><pre>; #TABLE
+; { =r2 2 rows  | X | Y }
+; { =c2           2 columns }
+; TABLE#
+</pre></div>
+</div>
+<p>Finally, the <tt class="docutils literal"><span class="pre">=t</span></tt> indicator specifies that a cell should be transparent (i.e.
+have the same background colour as the page body).</p>
+<p>If a cell requires more than one indicator, the indicators should be separated
+by commas:</p>
+<div class="highlight-none"><div class="highlight"><pre>; #TABLE
+; { =h,c2 Wide header }
+; { Column 1 | Column 2 }
+; TABLE#
+</pre></div>
+</div>
+<p>The CSS files included in SkoolKit provide two classes that may be used when
+defining tables:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">default</span></tt> - a class for <tt class="docutils literal"><span class="pre">&lt;table&gt;</span></tt> elements that provides a background
+colour to make the table stand out from the page body</li>
+<li><tt class="docutils literal"><span class="pre">centre</span></tt> - a class for <tt class="docutils literal"><span class="pre">&lt;td&gt;</span></tt> elements that centres their contents</li>
+</ul>
+<p>In ASM mode, tables are rendered as plain text, using dashes (<tt class="docutils literal"><span class="pre">-</span></tt>) and pipes
+(<tt class="docutils literal"><span class="pre">|</span></tt>) for the borders, and plus signs (<tt class="docutils literal"><span class="pre">+</span></tt>) where a horizontal border meets
+a vertical border.</p>
+<p>ASM mode also supports the <tt class="docutils literal"><span class="pre">:w</span></tt> indicator in the <tt class="docutils literal"><span class="pre">#TABLE</span></tt> macro&#8217;s
+parameters. The <tt class="docutils literal"><span class="pre">:w</span></tt> indicator marks a column as a candidate for having its
+width reduced (by wrapping the text it contains) so that the table will be no
+more than 79 characters wide when rendered. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; #TABLE(default,centre,:w)
+; { =h X | =h Description }
+; { 0    | Text in this column will be wrapped in ASM mode to make the table less than 80 characters wide }
+; TABLE#
+</pre></div>
+</div>
+<p>See also <a class="reference internal" href="#udgtable"><em>#UDGTABLE</em></a>.</p>
+</div>
+<div class="section" id="udg">
+<span id="id21"></span><h2>#UDG<a class="headerlink" href="#udg" title="Permalink to this headline">¶</a></h2>
+<p>In HTML mode, the <tt class="docutils literal"><span class="pre">#UDG</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element for the image
+of a UDG (an 8x8 block of pixels).</p>
+<div class="highlight-none"><div class="highlight"><pre>#UDGaddr[,attr,scale,step,inc,flip,rotate][:maskAddr[,maskStep]][{X,Y,W,H}][(fname)]
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">addr</span></tt> is the base address of the UDG bytes</li>
+<li><tt class="docutils literal"><span class="pre">attr</span></tt> is the attribute byte to use (default: 56)</li>
+<li><tt class="docutils literal"><span class="pre">scale</span></tt> is the required scale of the image (default: 4)</li>
+<li><tt class="docutils literal"><span class="pre">step</span></tt> is the interval between successive bytes of the UDG (default: 1)</li>
+<li><tt class="docutils literal"><span class="pre">inc</span></tt> will be added to each UDG byte before constructing the image
+(default: 0)</li>
+<li><tt class="docutils literal"><span class="pre">flip</span></tt> is 1 to flip the UDG horizontally, 2 to flip it vertically, 3 to
+flip it both ways, or 0 to leave it as it is (default: 0)</li>
+<li><tt class="docutils literal"><span class="pre">rotate</span></tt> is 1 to rotate the UDG 90 degrees clockwise, 2 to rotate it 180
+degrees, 3 to rotate it 90 degrees anticlockwise, or 0 to leave it as it is
+(default: 0)</li>
+<li><tt class="docutils literal"><span class="pre">maskAddr</span></tt> is the base address of the mask bytes to use for the UDG</li>
+<li><tt class="docutils literal"><span class="pre">maskStep</span></tt> is the interval between successive mask bytes (default:
+<tt class="docutils literal"><span class="pre">step</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">X</span></tt> is the x-coordinate of the leftmost pixel column of the constructed
+image to include in the final image (if greater than 0, the image will be
+cropped on the left)</li>
+<li><tt class="docutils literal"><span class="pre">Y</span></tt> is the y-coordinate of the topmost pixel row of the constructed image
+to include in the final image (if greater than 0, the image will be cropped
+on the top)</li>
+<li><tt class="docutils literal"><span class="pre">W</span></tt> is the width of the final image (if less than the full width of the
+constructed image, the image will be cropped on the right)</li>
+<li><tt class="docutils literal"><span class="pre">H</span></tt> is the height of the final image (if less than the full height of the
+constructed image, the image will be cropped on the bottom)</li>
+<li><tt class="docutils literal"><span class="pre">fname</span></tt> is the name of the image file (if not given, a name based on
+<tt class="docutils literal"><span class="pre">addr</span></tt>, <tt class="docutils literal"><span class="pre">attr</span></tt> and <tt class="docutils literal"><span class="pre">scale</span></tt> will be generated); &#8216;<cite>.png</cite>&#8216; or &#8216;<cite>.gif</cite>&#8216;
+will be appended (depending on the default image format specified in the
+<a class="reference internal" href="ref-files.html#ref-imagewriter"><em>[ImageWriter]</em></a> section of the <cite>ref</cite> file) if not present</li>
+</ul>
+<p>The <tt class="docutils literal"><span class="pre">#UDG</span></tt> macro is not supported in ASM mode.</p>
+<p>If an image with the given filename doesn&#8217;t already exist, it will be created.
+If <tt class="docutils literal"><span class="pre">fname</span></tt> starts with a &#8216;/&#8217;, the filename is taken to be relative to the
+root of the HTML disassembly; otherwise the filename is taken to be relative to
+the directory defined by the <tt class="docutils literal"><span class="pre">UDGImagePath</span></tt> parameter in the <a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a>
+section of the <cite>ref</cite> file.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; Safe key UDG
+;
+; #HTML[#UDG39144,6(safe_key)]
+</pre></div>
+</div>
+<p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#UDG</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt>
+element for the image of the UDG at 39144 (which will be named <cite>safe_key.png</cite>
+or <cite>safe_key.gif</cite>), with attribute byte 6 (INK 6: PAPER 0).</p>
+<p><cite>Changed in version 2.0.5:</cite> Added the <tt class="docutils literal"><span class="pre">fname</span></tt> parameter.</p>
+<p><cite>Changed in version 2.1:</cite> Added support for masks.</p>
+<p><cite>Changed in version 2.3.1:</cite> Added the <tt class="docutils literal"><span class="pre">flip</span></tt> parameter.</p>
+<p><cite>Changed in version 2.4:</cite> Added the <tt class="docutils literal"><span class="pre">rotate</span></tt> parameter.</p>
+<p><cite>Changed in version 3.0:</cite> Added image-cropping capabilities.</p>
+<p><cite>Changed in version 3.1.2:</cite> Made the <tt class="docutils literal"><span class="pre">attr</span></tt> parameter optional.</p>
+</div>
+<div class="section" id="udgarray">
+<span id="id22"></span><h2>#UDGARRAY<a class="headerlink" href="#udgarray" title="Permalink to this headline">¶</a></h2>
+<p>In HTML mode, the <tt class="docutils literal"><span class="pre">#UDGARRAY</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element for the
+image of an array of UDGs (8x8 blocks of pixels).</p>
+<div class="highlight-none"><div class="highlight"><pre>#UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}](fname)
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">width</span></tt> is the width of the image (in UDGs)</li>
+<li><tt class="docutils literal"><span class="pre">attr</span></tt> is the default attribute byte to use for each UDG (default: 56)</li>
+<li><tt class="docutils literal"><span class="pre">scale</span></tt> is the required scale of the image (default: 2)</li>
+<li><tt class="docutils literal"><span class="pre">step</span></tt> is the default interval between successive bytes of each UDG
+(default: 1)</li>
+<li><tt class="docutils literal"><span class="pre">inc</span></tt> will be added to each UDG byte before constructing the image
+(default: 0)</li>
+<li><tt class="docutils literal"><span class="pre">flip</span></tt> is 1 to flip the array of UDGs horizontally, 2 to flip it
+vertically, 3 to flip it both ways, or 0 to leave it as it is (default: 0)</li>
+<li><tt class="docutils literal"><span class="pre">rotate</span></tt> is 1 to rotate the array of UDGs 90 degrees clockwise, 2 to rotate
+it 180 degrees, 3 to rotate it 90 degrees anticlockwise, or 0 to leave it as
+it is (default: 0)</li>
+<li><tt class="docutils literal"><span class="pre">addr1</span></tt> is the address range specification for the first set of UDGs (see
+below)</li>
+<li><tt class="docutils literal"><span class="pre">attr1</span></tt> is the attribute byte to use for the each UDG in the set (overrides
+<tt class="docutils literal"><span class="pre">attr</span></tt> if specified)</li>
+<li><tt class="docutils literal"><span class="pre">step1</span></tt> is the interval between successive bytes of each UDG in the set
+(overrides <tt class="docutils literal"><span class="pre">step</span></tt> if specified)</li>
+<li><tt class="docutils literal"><span class="pre">inc1</span></tt> will be added to each byte of every UDG in the set before
+constructing the image (overrides <tt class="docutils literal"><span class="pre">inc</span></tt> if specified)</li>
+<li><tt class="docutils literal"><span class="pre">maskAddr1</span></tt> is the address range specification for the first set of mask
+UDGs (see below)</li>
+<li><tt class="docutils literal"><span class="pre">maskStep1</span></tt> is the interval between successive bytes of each mask UDG in
+the set (default: <tt class="docutils literal"><span class="pre">step1</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">X</span></tt> is the x-coordinate of the leftmost pixel column of the constructed
+image to include in the final image (if greater than 0, the image will be
+cropped on the left)</li>
+<li><tt class="docutils literal"><span class="pre">Y</span></tt> is the y-coordinate of the topmost pixel row of the constructed image
+to include in the final image (if greater than 0, the image will be cropped
+on the top)</li>
+<li><tt class="docutils literal"><span class="pre">W</span></tt> is the width of the final image (if less than the full width of the
+constructed image, the image will be cropped on the right)</li>
+<li><tt class="docutils literal"><span class="pre">H</span></tt> is the height of the final image (if less than the full height of the
+constructed image, the image will be cropped on the bottom)</li>
+<li><tt class="docutils literal"><span class="pre">fname</span></tt> is the name of the image file; &#8216;<cite>.png</cite>&#8216; or &#8216;<cite>.gif</cite>&#8216; will be
+appended (depending on the default image format specified in the
+<a class="reference internal" href="ref-files.html#ref-imagewriter"><em>[ImageWriter]</em></a> section of the <cite>ref</cite> file) if not present</li>
+</ul>
+<p>Address range specifications (<tt class="docutils literal"><span class="pre">addr1</span></tt>, <tt class="docutils literal"><span class="pre">maskAddr1</span></tt> etc.) may be given in
+one of the following forms:</p>
+<ul class="simple">
+<li>a single address (e.g. <tt class="docutils literal"><span class="pre">39144</span></tt>)</li>
+<li>a simple address range (e.g. <tt class="docutils literal"><span class="pre">33008-33015</span></tt>)</li>
+<li>an address range with a step (e.g. <tt class="docutils literal"><span class="pre">32768-33792-256</span></tt>)</li>
+<li>an address range with a horizontal and a vertical step (e.g.
+<tt class="docutils literal"><span class="pre">63476-63525-1-16</span></tt>; this form specifies the step between the base addresses
+of adjacent UDGs in each row as 1, and the step between the base addresses of
+adjacent UDGs in each column as 16)</li>
+</ul>
+<p>Any of these forms of address ranges can be repeated by appending <tt class="docutils literal"><span class="pre">xN</span></tt>, where
+<tt class="docutils literal"><span class="pre">N</span></tt> is the desired number of repetitions. For example:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">39648x3</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">39648;39648;39648</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">32768-32769x2</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">32768;32769;32768;32769</span></tt></li>
+</ul>
+<p>As many sets of UDGs as required may be specified, separated by semicolons;
+the UDGs will be arranged in a rectangular array with the given width.</p>
+<p>The <tt class="docutils literal"><span class="pre">#UDGARRAY</span></tt> macro is not supported in ASM mode.</p>
+<p>If an image with the given filename doesn&#8217;t already exist, it will be created.
+If <tt class="docutils literal"><span class="pre">fname</span></tt> starts with a &#8216;/&#8217;, the filename is taken to be relative to the
+root of the HTML disassembly; otherwise the filename is taken to be relative to
+the directory defined by the <tt class="docutils literal"><span class="pre">UDGImagePath</span></tt> parameter in the <a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a>
+section of the <cite>ref</cite> file.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; Base sprite
+;
+; #HTML[#UDGARRAY4;32768-32888-8(base_sprite.png)]
+</pre></div>
+</div>
+<p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#UDGARRAY</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt>
+element for the image of the 4x4 sprite formed by the 16 UDGs with base
+addresses 32768, 32776, 32784 and so on up to 32888; the image file will be
+named <cite>base_sprite.png</cite>.</p>
+<p><cite>New in version 2.0.5.</cite></p>
+<p><cite>Changed in version 2.2.5:</cite> Added support for masks.</p>
+<p><cite>Changed in version 2.3.1:</cite> Added the <tt class="docutils literal"><span class="pre">flip</span></tt> parameter.</p>
+<p><cite>Changed in version 2.4:</cite> Added the <tt class="docutils literal"><span class="pre">rotate</span></tt> parameter.</p>
+<p><cite>Changed in version 3.0:</cite> Added image-cropping capabilities.</p>
+<p><cite>Changed in version 3.1.1:</cite> Added support for UDG address ranges with
+horizontal and vertical steps.</p>
+</div>
+<div class="section" id="udgtable">
+<span id="id23"></span><h2>#UDGTABLE<a class="headerlink" href="#udgtable" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">#UDGTABLE</span></tt> macro behaves in exactly the same way as the <tt class="docutils literal"><span class="pre">#TABLE</span></tt>
+macro, except that the resulting table will not be rendered in ASM mode. Its
+intended use is to contain images that should be rendered in HTML mode only.</p>
+<p>See <a class="reference internal" href="#table"><em>#TABLE</em></a>, and also <a class="reference internal" href="#html"><em>#HTML</em></a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Skool macros</a><ul>
+<li><a class="reference internal" href="#bug">#BUG</a></li>
+<li><a class="reference internal" href="#call">#CALL</a></li>
+<li><a class="reference internal" href="#chr">#CHR</a></li>
+<li><a class="reference internal" href="#d">#D</a></li>
+<li><a class="reference internal" href="#erefs">#EREFS</a></li>
+<li><a class="reference internal" href="#fact">#FACT</a></li>
+<li><a class="reference internal" href="#font">#FONT</a></li>
+<li><a class="reference internal" href="#html">#HTML</a></li>
+<li><a class="reference internal" href="#link">#LINK</a></li>
+<li><a class="reference internal" href="#list">#LIST</a></li>
+<li><a class="reference internal" href="#name">#NAME</a></li>
+<li><a class="reference internal" href="#poke">#POKE</a></li>
+<li><a class="reference internal" href="#pokes">#POKES</a></li>
+<li><a class="reference internal" href="#pops">#POPS</a></li>
+<li><a class="reference internal" href="#pushs">#PUSHS</a></li>
+<li><a class="reference internal" href="#r">#R</a></li>
+<li><a class="reference internal" href="#refs">#REFS</a></li>
+<li><a class="reference internal" href="#reg">#REG</a></li>
+<li><a class="reference internal" href="#scr">#SCR</a></li>
+<li><a class="reference internal" href="#space">#SPACE</a></li>
+<li><a class="reference internal" href="#table">#TABLE</a></li>
+<li><a class="reference internal" href="#udg">#UDG</a></li>
+<li><a class="reference internal" href="#udgarray">#UDGARRAY</a></li>
+<li><a class="reference internal" href="#udgtable">#UDGTABLE</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="skool-file-templates.html"
+                        title="previous chapter">Skool file templates</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ref-files.html"
+                        title="next chapter">Ref files</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ref-files.html" title="Ref files"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="skool-file-templates.html" title="Skool file templates"
+             >previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Richard Dymond.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

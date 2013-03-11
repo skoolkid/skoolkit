@@ -1,0 +1,149 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Building the documentation &mdash; SkoolKit 3.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="next" title="Running unit tests" href="unit-tests.html" />
+    <link rel="prev" title="Prerequisites" href="dev-prereqs.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="unit-tests.html" title="Running unit tests"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dev-prereqs.html" title="Prerequisites"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="building-the-documentation">
+<h1>Building the documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="html-documentation">
+<h2>HTML documentation<a class="headerlink" href="#html-documentation" title="Permalink to this headline">¶</a></h2>
+<p>In order to build SkoolKit&#8217;s HTML documentation from the source files included
+in the <cite>docs-src</cite> directory in the SkoolKit source distribution, you will need
+to install <a class="reference external" href="http://sphinx.pocoo.org/">Sphinx</a>. See <a class="reference internal" href="dev-prereqs.html#prerequisites"><em>Prerequisites</em></a> for
+details on how to do that.</p>
+<p>Once <cite>Sphinx</cite> is installed, building the HTML documentation can be achieved by
+opening a terminal window, changing to the <cite>docs-src</cite> directory, and running
+the following command:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ make html
+</pre></div>
+</div>
+</div>
+<div class="section" id="man-pages">
+<h2>Man pages<a class="headerlink" href="#man-pages" title="Permalink to this headline">¶</a></h2>
+<p>In order to build the man pages (the sources for which are in the <cite>man</cite>
+directory in the SkoolKit source distribution), you will need the <cite>rst2man</cite>
+utility (<cite>rst2man.py</cite> on Windows, openSUSE, FreeBSD and NetBSD), which is part
+of the Python <cite>docutils</cite> package (<cite>python-docutils</cite> in Debian, Ubuntu, openSUSE
+and Fedora; <cite>textproc/py-docutils</cite> in FreeBSD, NetBSD and OpenBSD); <cite>docutils</cite>
+should already be installed if you have installed <cite>Sphinx</cite> (see
+<a class="reference internal" href="dev-prereqs.html#prerequisites"><em>Prerequisites</em></a>).</p>
+<p>Once <cite>rst2man</cite> (or <cite>rst2man.py</cite>) is installed, building the man page for
+<cite>skool2html.py</cite> (for example) can be achieved by opening a terminal window,
+changing to the <cite>man</cite> directory, and running the following commands:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ rst2man skool2html.py.rst man1/skool2html.py.1
+</pre></div>
+</div>
+<p>The man page can then be viewed thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ man -M . skool2html.py
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Building the documentation</a><ul>
+<li><a class="reference internal" href="#html-documentation">HTML documentation</a></li>
+<li><a class="reference internal" href="#man-pages">Man pages</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="dev-prereqs.html"
+                        title="previous chapter">Prerequisites</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="unit-tests.html"
+                        title="next chapter">Running unit tests</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="unit-tests.html" title="Running unit tests"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="dev-prereqs.html" title="Prerequisites"
+             >previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Richard Dymond.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

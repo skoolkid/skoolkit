@@ -1,0 +1,281 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Changelog &mdash; SkoolKit 3.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="next" title="SkoolKit 2.x changelog" href="changelog2.html" />
+    <link rel="prev" title="General info" href="info.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="changelog2.html" title="SkoolKit 2.x changelog"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="info.html" title="General info"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog2.html">SkoolKit 2.x changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog1.html">SkoolKit 1.x changelog</a></li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h2>3.3.1 (2013-03-04)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added support to the <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a> ASM directive for the <cite>comment-width-min</cite>,
+<cite>indent</cite>, <cite>instruction-width</cite>, <cite>label-colons</cite>, <cite>line-width</cite> and <cite>warnings</cite>
+properties</li>
+<li>Added support to the <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt> parameter (in the <a class="reference internal" href="ref-files.html#ref-config"><em>[Config]</em></a>
+section) and the <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a> directive for specifying a module outside the
+module search path (e.g. a standalone module that is not part of an installed
+package)</li>
+<li><a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> now correctly renders an empty block description as a
+dot (<tt class="docutils literal"><span class="pre">.</span></tt>) on a line of its own</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>3.3 (2013-01-08)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added support to <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> for reading code execution maps produced
+by the Fuse, SpecEmu, Spud, Zero and Z80 emulators (to generate more accurate
+control files)</li>
+<li>Increased the speed at which <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> generates control files</li>
+<li>Added support to <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> for disassembling 128K SNA snapshots</li>
+</ul>
+</div>
+<div class="section" id="id3">
+<h2>3.2 (2012-11-01)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added support to <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> for disassembling 128K Z80 snapshots and
+16K, 48K and 128K SZX snapshots</li>
+<li>Added the <a class="reference internal" href="skool-macros.html#list"><em>#LIST</em></a> macro (for rendering lists of bulleted items in both
+HTML mode and ASM mode)</li>
+<li>Added the <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a> ASM directive (for setting properties on the ASM writer)</li>
+<li>Added trivia entries to <cite>jet_set_willy.ref</cite></li>
+<li>Annotated the source code remnants at 32768 and 37708 in <cite>manic_miner.ctl</cite></li>
+</ul>
+</div>
+<div class="section" id="id4">
+<h2>3.1.4 (2012-10-11)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added support to <a class="reference internal" href="commands.html#skool2ctl-py"><em>skool2ctl.py</em></a> and <a class="reference internal" href="commands.html#skool2sft-py"><em>skool2sft.py</em></a> for DEFB and
+DEFM statements that contain both strings and bytes</li>
+<li><a class="reference internal" href="commands.html#skool2ctl-py"><em>skool2ctl.py</em></a> now correctly processes lower case DEFB, DEFM, DEFS and
+DEFW statements</li>
+<li>The length of a string (in a DEFB or DEFM statement) that contains one or
+more backslashes  is now correctly calculated by <a class="reference internal" href="commands.html#skool2ctl-py"><em>skool2ctl.py</em></a> and
+<a class="reference internal" href="commands.html#skool2sft-py"><em>skool2sft.py</em></a></li>
+<li>DEFB and DEFM statements that contain both strings and bytes are now
+correctly converted to lower case, upper case, decimal or hexadecimal (when
+using the <tt class="docutils literal"><span class="pre">-l</span></tt>, <tt class="docutils literal"><span class="pre">-u</span></tt>, <tt class="docutils literal"><span class="pre">-D</span></tt> and <tt class="docutils literal"><span class="pre">-H</span></tt> options of <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>
+and <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a>)</li>
+<li>Operations involving (IX+n) or (IY+n) expressions are now correctly converted
+to lower case decimal or hexadecimal (when using the <tt class="docutils literal"><span class="pre">-l</span></tt>, <tt class="docutils literal"><span class="pre">-D</span></tt> and
+<tt class="docutils literal"><span class="pre">-H</span></tt> options of <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a> and <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a>)</li>
+</ul>
+</div>
+<div class="section" id="id5">
+<h2>3.1.3 (2012-09-11)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>The &#8216;Glossary&#8217; page is formatted in the same way as the &#8216;Trivia&#8217;, &#8216;Bugs&#8217;,
+&#8216;Pokes&#8217; and &#8216;Graphic glitches&#8217; pages</li>
+<li>When the link text of a <a class="reference internal" href="skool-macros.html#link"><em>#LINK</em></a> macro is left blank, the link text of the
+page is substituted</li>
+<li>The disassembler escapes backslashes and double quotes in DEFM statements
+(so that <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a> no longer has to)</li>
+<li>DEFB and DEFM statements that contain both strings and bytes are parsed
+correctly for the purpose of building a memory snapshot</li>
+</ul>
+</div>
+<div class="section" id="id6">
+<h2>3.1.2 (2012-08-01)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added the <a class="reference internal" href="skool-macros.html#html"><em>#HTML</em></a> macro (for rendering arbitrary text in HTML mode only)</li>
+<li>Added support for distinguishing input values from output values in a
+routine&#8217;s register section (by using prefixes such as &#8216;Input:&#8217; and &#8216;Output:&#8217;)</li>
+<li>Added support for the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
+<tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> parameters in the <a class="reference internal" href="ref-files.html#ref-game"><em>[Game]</em></a> section of
+the <cite>ref</cite> file</li>
+<li>Added the &#8216;default&#8217; CSS class for HTML tables created by the <a class="reference internal" href="skool-macros.html#table"><em>#TABLE</em></a>
+macro</li>
+</ul>
+</div>
+<div class="section" id="id7">
+<h2>3.1.1 (2012-07-17)<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Enhanced the <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macro so that it accepts both horizontal and
+vertical steps in UDG address ranges</li>
+<li>Added support for the <tt class="docutils literal"><span class="pre">Font</span></tt> and <tt class="docutils literal"><span class="pre">FontPath</span></tt> parameters in the
+<a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the <cite>ref</cite> file (for specifying font files used by CSS
+<cite>&#64;font-face</cite> rules)</li>
+<li>Added a Spectrum theme CSS file that uses the Spectrum font and colours:
+<cite>skoolkit-spectrum.css</cite></li>
+<li>Fixed <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a> so that it escapes backslashes and double quotes in
+DEFM statements</li>
+</ul>
+</div>
+<div class="section" id="id8">
+<h2>3.1 (2012-06-19)<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added documentation on <a class="reference internal" href="extending.html#extendingskoolkit"><em>extending SkoolKit</em></a></li>
+<li>Added the <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a> ASM directive (to specify the class to use for
+producing ASM output)</li>
+<li>Added the <a class="reference internal" href="skool-macros.html#chr"><em>#CHR</em></a> macro (for rendering arbitrary unicode characters);
+removed support for the redundant <tt class="docutils literal"><span class="pre">#C</span></tt> macro accordingly</li>
+<li>Added support for the <a class="reference internal" href="skool-macros.html#call"><em>#CALL</em></a>, <a class="reference internal" href="skool-macros.html#m-refs"><em>#REFS</em></a>, <a class="reference internal" href="skool-macros.html#erefs"><em>#EREFS</em></a>, <a class="reference internal" href="skool-macros.html#pushs"><em>#PUSHS</em></a>,
+<a class="reference internal" href="skool-macros.html#pokes"><em>#POKES</em></a> and <a class="reference internal" href="skool-macros.html#pops"><em>#POPS</em></a> macros in ASM mode</li>
+<li>Added the <tt class="docutils literal"><span class="pre">-c</span></tt> option to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> (to simulate adding lines to
+the <cite>ref</cite> file)</li>
+<li>Added a dark theme CSS file: <cite>skoolkit-dark.css</cite></li>
+</ul>
+</div>
+<div class="section" id="id9">
+<h2>3.0.2 (2012-05-01)<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added room images and descriptions to <cite>manic_miner.ctl</cite> and
+<cite>jet_set_willy.ctl</cite> (based on reference material from
+<a class="reference external" href="http://webspace.webring.com/people/ja/andrewbroad/">Andrew Broad</a> and
+<a class="reference external" href="http://mdfs.net/Software/JSW/Docs/">J. G. Harston</a>)</li>
+<li>Fixed the bug that prevents the &#8216;Data tables and buffers&#8217; section from
+appearing on the disassembly index page when the default <tt class="docutils literal"><span class="pre">DataTables</span></tt> link
+group is used</li>
+</ul>
+</div>
+<div class="section" id="id10">
+<h2>3.0.1 (2012-04-11)<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added support for creating GIF files (including transparent and animated
+GIFs)</li>
+<li>Added support for creating animated PNGs in APNG format</li>
+<li>Added support for transparency in PNG images (by using the <tt class="docutils literal"><span class="pre">PNGAlpha</span></tt>
+parameter in the <a class="reference internal" href="ref-files.html#ref-imagewriter"><em>[ImageWriter]</em></a> section of the <cite>ref</cite> file)</li>
+<li>Added an example control file: <cite>jet_set_willy.ctl</cite></li>
+<li>Fixed the bug in how images are cropped by the <a class="reference internal" href="skool-macros.html#font"><em>#FONT</em></a>, <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a>,
+<a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a> and <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macros when using non-zero <tt class="docutils literal"><span class="pre">X</span></tt> and <tt class="docutils literal"><span class="pre">Y</span></tt>
+parameters</li>
+</ul>
+</div>
+<div class="section" id="id11">
+<h2>3.0 (2012-03-20)<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>SkoolKit now works with Python 3.x</li>
+<li>Added a native image creation library, which can be configured by using the
+<a class="reference internal" href="ref-files.html#ref-imagewriter"><em>[ImageWriter]</em></a> section of the <cite>ref</cite> file; <cite>gd</cite> and <cite>PIL</cite> are no
+longer required or supported</li>
+<li>Enhanced the <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a> macro so that graphic data and attribute bytes in
+places other than the display file and attribute file may be used to build a
+screenshot</li>
+<li>Added image-cropping capabilities to the <a class="reference internal" href="skool-macros.html#font"><em>#FONT</em></a>, <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a>, <a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a>
+and <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macros</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Changelog</a><ul>
+<li><a class="reference internal" href="#id1">3.3.1 (2013-03-04)</a></li>
+<li><a class="reference internal" href="#id2">3.3 (2013-01-08)</a></li>
+<li><a class="reference internal" href="#id3">3.2 (2012-11-01)</a></li>
+<li><a class="reference internal" href="#id4">3.1.4 (2012-10-11)</a></li>
+<li><a class="reference internal" href="#id5">3.1.3 (2012-09-11)</a></li>
+<li><a class="reference internal" href="#id6">3.1.2 (2012-08-01)</a></li>
+<li><a class="reference internal" href="#id7">3.1.1 (2012-07-17)</a></li>
+<li><a class="reference internal" href="#id8">3.1 (2012-06-19)</a></li>
+<li><a class="reference internal" href="#id9">3.0.2 (2012-05-01)</a></li>
+<li><a class="reference internal" href="#id10">3.0.1 (2012-04-11)</a></li>
+<li><a class="reference internal" href="#id11">3.0 (2012-03-20)</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="info.html"
+                        title="previous chapter">General info</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="changelog2.html"
+                        title="next chapter">SkoolKit 2.x changelog</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="changelog2.html" title="SkoolKit 2.x changelog"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="info.html" title="General info"
+             >previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Richard Dymond.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

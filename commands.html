@@ -1,0 +1,404 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Command reference &mdash; SkoolKit 3.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="next" title="Disassembly DIY" href="diy.html" />
+    <link rel="prev" title="Installing and using SkoolKit" href="usage.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="diy.html" title="Disassembly DIY"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="usage.html" title="Installing and using SkoolKit"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="command-reference">
+<span id="commands"></span><h1>Command reference<a class="headerlink" href="#command-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="bin2tap-py">
+<span id="id1"></span><h2>bin2tap.py<a class="headerlink" href="#bin2tap-py" title="Permalink to this headline">¶</a></h2>
+<p><cite>bin2tap.py</cite> converts a binary file produced by an assembler (see
+<a class="reference internal" href="assemblers.html#supportedassemblers"><em>Supported assemblers</em></a>) into a TAP file that can be loaded into an
+emulator. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ bin2tap.py game.bin
+</pre></div>
+</div>
+<p>will create a file called <cite>game.tap</cite>. By default, the origin address (the
+address of the first byte of code or data), the start address (the first byte
+of code to run) and the stack pointer are set to 65536 minus the length of
+<cite>game.bin</cite>. These defaults can be changed by passing options to <cite>bin2tap.py</cite>.
+Run it with no arguments to see the list of available options:</p>
+<div class="highlight-none"><div class="highlight"><pre>Usage: bin2tap.py [options] FILE.bin
+
+  Convert a binary snapshot file into a TAP file.
+
+Options:
+  -o ORG      Set the origin (default: 65536 - length of FILE.bin)
+  -s START    Set the start address to JP to (default: ORG)
+  -p STACK    Set the stack pointer (default: ORG)
+  -t TAPFILE  Set the TAP filename (default: FILE.tap)
+</pre></div>
+</div>
+<p>Note that the ROM tape loading routine at 1366 ($0556) and the load routine
+used by <cite>bin2tap.py</cite> together require 14 bytes for stack operations, and so
+STACK must be at least 16384+14=16398 ($400E). This means that if ORG is less
+than 16398, you should use the <tt class="docutils literal"><span class="pre">-p</span></tt> option to set the stack pointer to
+something appropriate. If the main data block (derived from <cite>game.bin</cite>)
+overlaps any of the last four bytes of the stack, <cite>bin2tap.py</cite> will replace
+those bytes with the values required by the tape loading routine for correct
+operation upon returning. Stack operations will overwrite the bytes in the
+address range STACK-14 to STACK-1 inclusive, so those addresses should not be
+used to store essential code or data.</p>
+<p><cite>New in version 1.3.1.</cite></p>
+<p><cite>Changed in version 2.2.5:</cite> Added the <tt class="docutils literal"><span class="pre">-p</span></tt> option.</p>
+</div>
+<div class="section" id="skool2asm-py">
+<span id="id2"></span><h2>skool2asm.py<a class="headerlink" href="#skool2asm-py" title="Permalink to this headline">¶</a></h2>
+<p><cite>skool2asm.py</cite> converts a <cite>skool</cite> file into an ASM file that can be fed to an
+assembler (see <a class="reference internal" href="assemblers.html#supportedassemblers"><em>Supported assemblers</em></a>). For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2asm.py game.skool &gt; game.asm
+</pre></div>
+</div>
+<p><cite>skool2asm.py</cite> supports many options; run it with no arguments to see a list:</p>
+<div class="highlight-none"><div class="highlight"><pre>Usage: skool2asm.py [options] FILE
+
+  Convert a skool file into an ASM file, written to standard output. FILE may
+  be a regular file, or &#39;-&#39; for standard input.
+
+Options:
+  -q    Be quiet
+  -w    Suppress warnings
+  -d    Use CR+LF to end lines
+  -t    Use tab to indent instructions (default indentation is 2 spaces)
+  -l    Write disassembly in lower case
+  -u    Write disassembly in upper case
+  -D    Write disassembly in decimal
+  -H    Write disassembly in hexadecimal
+  -i N  Set instruction field width to N (default=23)
+  -f N  Apply fixes:
+          N=0: None (default)
+          N=1: @ofix only
+          N=2: @ofix and @bfix
+          N=3: @ofix, @bfix and @rfix (implies -r)
+  -c    Create default labels for unlabelled instructions
+  -s    Use safe substitutions (@ssub)
+  -r    Use relocatability substitutions too (@rsub) (implies &#39;-f 1&#39;)
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="asm.html#asmmodesanddirectives"><em>ASM modes and directives</em></a> for a description of the <tt class="docutils literal"><span class="pre">&#64;ssub</span></tt> and
+<tt class="docutils literal"><span class="pre">&#64;rsub</span></tt> substitution modes, and the <tt class="docutils literal"><span class="pre">&#64;ofix</span></tt>, <tt class="docutils literal"><span class="pre">&#64;bfix</span></tt> and <tt class="docutils literal"><span class="pre">&#64;rfix</span></tt> bugfix
+modes.</p>
+<p><cite>Changed in version 1.1:</cite> Added the <tt class="docutils literal"><span class="pre">-c</span></tt> option.</p>
+<p><cite>Changed in version 2.1.1:</cite> Added the <tt class="docutils literal"><span class="pre">-u</span></tt>, <tt class="docutils literal"><span class="pre">-D</span></tt> and <tt class="docutils literal"><span class="pre">-H</span></tt> options.</p>
+<p><cite>Changed in version 2.2.2:</cite> Added the ability to read a <cite>skool</cite> file from
+standard input.</p>
+</div>
+<div class="section" id="skool2ctl-py">
+<span id="id3"></span><h2>skool2ctl.py<a class="headerlink" href="#skool2ctl-py" title="Permalink to this headline">¶</a></h2>
+<p><cite>skool2ctl.py</cite> converts a <cite>skool</cite> file into a
+<a class="reference internal" href="control-files.html#controlfiles"><em>control file</em></a>. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2ctl.py game.skool &gt; game.ctl
+</pre></div>
+</div>
+<p>In addition to block types and addresses, <cite>game.ctl</cite> will contain block titles,
+block descriptions, registers, mid-block comments, block end comments,
+sub-block types and addresses, instruction-level comments, and some
+<a class="reference internal" href="asm.html#asmdirectives"><em>ASM directives</em></a>.</p>
+<p>To list the options supported by <cite>skool2ctl.py</cite>, run it with no arguments:</p>
+<div class="highlight-none"><div class="highlight"><pre>Usage: skool2ctl.py [options] FILE
+
+  Convert a skool file into a control file, written to standard output. FILE
+  may be a regular file, or &#39;-&#39; for standard input.
+
+Options:
+  -w X  Write only these elements, where X is one or more of:
+          b = block types and addresses
+          t = block titles
+          d = block descriptions
+          r = registers
+          m = mid-block comments and block end comments
+          s = sub-block types and addresses
+          c = instruction-level comments
+  -h    Write addresses in hexadecimal format
+  -a    Do not write ASM directives
+</pre></div>
+</div>
+<p>If you need to preserve any elements that control files do not support (such as
+data definition entries and ASM block directives), consider using
+<a class="reference internal" href="#skool2sft-py"><em>skool2sft.py</em></a> to create a skool file template instead.</p>
+<p><cite>New in version 1.1.</cite></p>
+<p><cite>Changed in version 2.0.6:</cite> Added the <tt class="docutils literal"><span class="pre">-h</span></tt> option.</p>
+<p><cite>Changed in version 2.2.2:</cite> Added the ability to read a <cite>skool</cite> file from
+standard input.</p>
+<p><cite>Changed in version 2.4:</cite> Added the <tt class="docutils literal"><span class="pre">-a</span></tt> option and the ability to preserve
+some ASM directives.</p>
+</div>
+<div class="section" id="skool2html-py">
+<span id="id4"></span><h2>skool2html.py<a class="headerlink" href="#skool2html-py" title="Permalink to this headline">¶</a></h2>
+<p><cite>skool2html.py</cite> converts a <cite>skool</cite> file (and its associated <cite>ref</cite> files, if any
+exist) into a browsable disassembly in HTML format.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py game.skool
+</pre></div>
+</div>
+<p>will convert the file <cite>game.skool</cite> into a bunch of HTML files. If any files
+named <cite>game*.ref</cite> (e.g. <cite>game.ref</cite>, <cite>game-bugs.ref</cite>, <cite>game-pokes.ref</cite> and so
+on) also exist, they will be used to provide further information to the
+conversion process.</p>
+<p><cite>skool2html.py</cite> can operate directly on <cite>ref</cite> files, too. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py game.ref
+</pre></div>
+</div>
+<p>In this case, the <cite>skool</cite> file declared in the <a class="reference internal" href="ref-files.html#ref-config"><em>[Config]</em></a> section of
+<cite>game.ref</cite> will be used; if no <cite>skool</cite> file is declared in <cite>game.ref</cite>,
+<cite>game.skool</cite> will be used if it exists. In addition, any existing files besides
+<cite>game.ref</cite> that are named <cite>game*.ref</cite> (e.g. <cite>game-bugs.ref</cite>, <cite>game-pokes.ref</cite>
+and so on) will also be used.</p>
+<p><cite>skool2html.py</cite> supports several options; run it with no arguments to see a
+list:</p>
+<div class="highlight-none"><div class="highlight"><pre>Usage: skool2html.py [options] FILE [FILE...]
+
+  Convert skool files and ref files to HTML. FILE may be a regular file, or &#39;-&#39;
+  for standard input.
+
+Options:
+  -V        Show SkoolKit version number and exit
+  -q        Be quiet
+  -t        Show timings
+  -d DIR    Write files in this directory (default is &#39;.&#39;)
+  -o        Overwrite existing image files
+  -l        Write disassembly in lower case
+  -u        Write disassembly in upper case
+  -D        Write disassembly in decimal
+  -H        Write disassembly in hexadecimal
+  -c S/L    Add the line &#39;L&#39; to the ref file section &#39;S&#39;; this option may be
+            used multiple times
+  -P PAGES  Write only these custom pages (when &#39;-w P&#39; is specified); PAGES
+            should be a comma-separated list of IDs of pages defined in [Page:*]
+            sections in the ref file(s)
+  -w X      Write only these files, where X is one or more of:
+              B = Graphic glitches
+              b = Bugs
+              c = Changelog
+              d = Disassembly files
+              G = Game status buffer
+              g = Graphics
+              i = Disassembly index
+              m = Memory maps
+              o = Other code
+              P = Pages defined in the ref file(s)
+              p = Pokes
+              t = Trivia
+              y = Glossary
+</pre></div>
+</div>
+<p>When <cite>skool2html.py</cite> is run, it looks for <cite>skool</cite> files, <cite>ref</cite> files, CSS
+files, JavaScript files and font files required by the disassembly in the
+following directories, in the order listed:</p>
+<ul class="simple">
+<li>The directory that contains the <cite>skool</cite> or <cite>ref</cite> file named on the command
+line</li>
+<li>The current working directory</li>
+<li><cite>./resources</cite></li>
+<li><cite>~/.skoolkit</cite></li>
+<li><cite>/usr/share/skoolkit</cite></li>
+</ul>
+<p><cite>Changed in version 1.4:</cite> Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option.</p>
+<p><cite>Changed in version 2.1:</cite> Added the <tt class="docutils literal"><span class="pre">-o</span></tt> and <tt class="docutils literal"><span class="pre">-P</span></tt> options.</p>
+<p><cite>Changed in version 2.1.1:</cite> Added the <tt class="docutils literal"><span class="pre">-l</span></tt>, <tt class="docutils literal"><span class="pre">-u</span></tt>, <tt class="docutils literal"><span class="pre">-D</span></tt> and <tt class="docutils literal"><span class="pre">-H</span></tt>
+options.</p>
+<p><cite>Changed in version 2.2:</cite> No longer writes the Skool Daze and Back to Skool
+disassemblies by default; added the <tt class="docutils literal"><span class="pre">-d</span></tt> option.</p>
+<p><cite>Changed in version 2.2.2:</cite> Added the ability to read a <cite>skool</cite> file from
+standard input.</p>
+<p><cite>Changed in version 2.3.1:</cite> Added support for reading multiple <cite>ref</cite> files per
+disassembly.</p>
+<p><cite>Changed in version 3.0.2:</cite> No longer shows timings by default; added the
+<tt class="docutils literal"><span class="pre">-t</span></tt> option.</p>
+<p><cite>Changed in version 3.1:</cite> Added the <tt class="docutils literal"><span class="pre">-c</span></tt> option.</p>
+<p><cite>Changed in version 3.2:</cite> Added <cite>~/.skoolkit</cite> to the search path.</p>
+</div>
+<div class="section" id="skool2sft-py">
+<span id="id5"></span><h2>skool2sft.py<a class="headerlink" href="#skool2sft-py" title="Permalink to this headline">¶</a></h2>
+<p><cite>skool2sft.py</cite>  converts a <cite>skool</cite> file into a
+<a class="reference internal" href="skool-file-templates.html#skoolfiletemplates"><em>skool file template</em></a>. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2sft.py game.skool &gt; game.sft
+</pre></div>
+</div>
+<p>To list the options supported by <cite>skool2sft.py</cite>, run it with no arguments:</p>
+<div class="highlight-none"><div class="highlight"><pre>Usage: skool2sft.py [options] FILE
+
+  Convert a skool file into a skool file template, written to standard output.
+  FILE may be a regular file, or &#39;-&#39; for standard input.
+
+Options:
+  -h  Write addresses in hexadecimal format
+</pre></div>
+</div>
+<p><cite>New in version 2.4.</cite></p>
+</div>
+<div class="section" id="sna2skool-py">
+<span id="id6"></span><h2>sna2skool.py<a class="headerlink" href="#sna2skool-py" title="Permalink to this headline">¶</a></h2>
+<p><cite>sna2skool.py</cite> converts a binary (raw memory) file or a SNA, SZX or Z80
+snapshot into a <cite>skool</cite> file. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py game.z80 &gt; game.skool
+</pre></div>
+</div>
+<p>Now <cite>game.skool</cite> can be converted into a browsable HTML disassembly using
+<a class="reference internal" href="#skool2html-py"><em>skool2html.py</em></a>, or into an assembler-ready ASM file using
+<a class="reference internal" href="#skool2asm-py"><em>skool2asm.py</em></a>.</p>
+<p><cite>sna2skool.py</cite> supports several options; run it with no arguments to see a
+list:</p>
+<div class="highlight-none"><div class="highlight"><pre>Usage: sna2skool.py [options] file
+
+  Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool
+  file.
+
+Options:
+  -c FILE  Use FILE as the control file (default is file.ctl)
+  -T FILE  Use FILE as the skool file template (default is file.sft)
+  -g FILE  Generate a control file in FILE
+  -M FILE  Use FILE as a code execution map when generating the control file
+  -h       Write hexadecimal addresses in the generated control file
+  -H       Write hexadecimal addresses and operands in the disassembly
+  -L       Write the disassembly in lower case
+  -s ADDR  Specify the address at which to start disassembling (default=16384)
+  -o ADDR  Specify the origin address of file.bin (default: 65536 - length)
+  -p PAGE  Specify the page (0-7) of a 128K snapshot to map to 49152-65535
+  -t       Show ASCII text in the comment fields
+  -r       Don&#39;t add comments that list entry point referrers
+  -n N     Set the max number of bytes per DEFB statement to N (default=8)
+  -m M     Group DEFB blocks by addresses that are divisible by M
+  -z       Write bytes with leading zeroes in DEFB statements
+  -l L     Set the max number of characters per DEFM statement to L (default=66)
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">-M</span></tt> option may be used (in conjunction with the <tt class="docutils literal"><span class="pre">-g</span></tt> option) to
+specify a code execution map to use when generating a control file. The
+supported file formats are:</p>
+<ul class="simple">
+<li>Profiles created by the Fuse emulator</li>
+<li>Code execution logs created by the SpecEmu, Spud and Zero emulators</li>
+<li>Map files created by the Z80 emulator</li>
+</ul>
+<p>If the file specified by the <tt class="docutils literal"><span class="pre">-M</span></tt> option is 8192 bytes long, it is assumed to
+be a Z80 map file; otherwise it is assumed to be in one of the other supported
+formats.</p>
+<p><cite>Changed in version 1.0.4:</cite> Added the <tt class="docutils literal"><span class="pre">-g</span></tt> and <tt class="docutils literal"><span class="pre">-s</span></tt> options.</p>
+<p><cite>Changed in version 1.0.5:</cite> Added the <tt class="docutils literal"><span class="pre">-t</span></tt> option.</p>
+<p><cite>Changed in version 2.0:</cite> Added the <tt class="docutils literal"><span class="pre">-n</span></tt>, <tt class="docutils literal"><span class="pre">-m</span></tt> and <tt class="docutils literal"><span class="pre">-z</span></tt> options.</p>
+<p><cite>Changed in version 2.0.1:</cite> Added the <tt class="docutils literal"><span class="pre">-o</span></tt>, <tt class="docutils literal"><span class="pre">-r</span></tt> and <tt class="docutils literal"><span class="pre">-l</span></tt> options, and
+the ability to read binary files.</p>
+<p><cite>Changed in version 2.0.6:</cite> Added the <tt class="docutils literal"><span class="pre">-h</span></tt> option.</p>
+<p><cite>Changed in version 2.1:</cite> Added the <tt class="docutils literal"><span class="pre">-H</span></tt> option.</p>
+<p><cite>Changed in version 2.1.2:</cite> Added the <tt class="docutils literal"><span class="pre">-L</span></tt> option.</p>
+<p><cite>Changed in version 2.4:</cite> Added the <tt class="docutils literal"><span class="pre">-T</span></tt> option.</p>
+<p><cite>Changed in version 3.2:</cite> Added the <tt class="docutils literal"><span class="pre">-p</span></tt> option, and the ability to read SZX
+snapshots and 128K Z80 snapshots.</p>
+<p><cite>Changed in version 3.3:</cite> Added the <tt class="docutils literal"><span class="pre">-M</span></tt> option, along with support for code
+execution maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the ability
+to read 128K SNA snapshots.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Command reference</a><ul>
+<li><a class="reference internal" href="#bin2tap-py">bin2tap.py</a></li>
+<li><a class="reference internal" href="#skool2asm-py">skool2asm.py</a></li>
+<li><a class="reference internal" href="#skool2ctl-py">skool2ctl.py</a></li>
+<li><a class="reference internal" href="#skool2html-py">skool2html.py</a></li>
+<li><a class="reference internal" href="#skool2sft-py">skool2sft.py</a></li>
+<li><a class="reference internal" href="#sna2skool-py">sna2skool.py</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="usage.html"
+                        title="previous chapter">Installing and using SkoolKit</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="diy.html"
+                        title="next chapter">Disassembly DIY</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="diy.html" title="Disassembly DIY"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="usage.html" title="Installing and using SkoolKit"
+             >previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Richard Dymond.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

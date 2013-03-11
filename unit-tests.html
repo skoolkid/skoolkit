@@ -1,0 +1,128 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Running unit tests &mdash; SkoolKit 3.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="next" title="Extending SkoolKit" href="extending.html" />
+    <link rel="prev" title="Building the documentation" href="docbuild.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="extending.html" title="Extending SkoolKit"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="docbuild.html" title="Building the documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="running-unit-tests">
+<h1>Running unit tests<a class="headerlink" href="#running-unit-tests" title="Permalink to this headline">¶</a></h1>
+<p>Unit tests for SkoolKit are included in the <cite>test_*.py</cite> files in the <cite>tests</cite>
+directory in the SkoolKit source distribution. To run the unit tests contained
+in a single file, open a terminal window, change to the <cite>tests</cite> directory, and
+execute the file.</p>
+<p>On Windows, the file can be executed by entering its name; for example:</p>
+<div class="highlight-none"><div class="highlight"><pre>&gt; test_skoolasm.py
+</pre></div>
+</div>
+<p>On Linux/*BSD, the file can be executed by passing it to the Python
+interpreter:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ python test_skoolasm.py
+</pre></div>
+</div>
+<p>To run all the unit tests in one go, you can use
+<a class="reference external" href="http://somethingaboutorange.com/mrl/projects/nose/">nose</a>. For details on
+installing <cite>nose</cite>, see <a class="reference internal" href="dev-prereqs.html#prerequisites"><em>Prerequisites</em></a>.</p>
+<p>Once <cite>nose</cite> is installed, run the following command from the <cite>tests</cite>
+directory:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ nosetests
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="docbuild.html"
+                        title="previous chapter">Building the documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="extending.html"
+                        title="next chapter">Extending SkoolKit</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="extending.html" title="Extending SkoolKit"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="docbuild.html" title="Building the documentation"
+             >previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Richard Dymond.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

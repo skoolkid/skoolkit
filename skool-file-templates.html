@@ -1,0 +1,206 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Skool file templates &mdash; SkoolKit 3.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="next" title="Skool macros" href="skool-macros.html" />
+    <link rel="prev" title="Skool files" href="skool-files.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="skool-macros.html" title="Skool macros"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="skool-files.html" title="Skool files"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="skool-file-templates">
+<span id="skoolfiletemplates"></span><h1>Skool file templates<a class="headerlink" href="#skool-file-templates" title="Permalink to this headline">¶</a></h1>
+<p>A skool file template defines the basic structure of a <cite>skool</cite> file, but,
+unlike a <cite>skool</cite> file, contains directives on how to disassemble a program into
+Z80 instructions instead of the Z80 instructions themselves. The directives are
+similar to those that may appear in a control file.</p>
+<p>The <a class="reference internal" href="commands.html#skool2sft-py"><em>skool2sft.py</em></a> command can generate a skool file template from an
+existing <cite>skool</cite> file; the <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> command can then generate a
+<cite>skool</cite> file from the template and an appropriate snapshot.</p>
+<div class="section" id="skool-file-template-format">
+<span id="skoolfiletemplateformat"></span><h2>Skool file template format<a class="headerlink" href="#skool-file-template-format" title="Permalink to this headline">¶</a></h2>
+<p>A skool file template has the same layout as a <cite>skool</cite> file, except that the
+lines in &#8216;b&#8217;, &#8216;c&#8217;, &#8216;g&#8217;, &#8216;t&#8217;, &#8216;u&#8217;, &#8216;w&#8217; and &#8216;z&#8217; blocks that correspond to Z80
+instructions look like this:</p>
+<div class="highlight-none"><div class="highlight"><pre>xX#####,n[;c[ comment]]
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">x</span></tt> is one of the characters <tt class="docutils literal"><span class="pre">*</span> <span class="pre">bcgtuwz</span></tt> (with the same meaning as in a
+<a class="reference internal" href="skool-files.html#skoolfiles"><em>skool file</em></a>)</li>
+<li><tt class="docutils literal"><span class="pre">X</span></tt> is one of the characters <tt class="docutils literal"><span class="pre">BCTWZ</span></tt> (with the same meaning as in a
+<a class="reference internal" href="control-files.html#controlfiles"><em>control file</em></a>)</li>
+<li><tt class="docutils literal"><span class="pre">#####</span></tt> is the address at which to start disassembling</li>
+<li><tt class="docutils literal"><span class="pre">n</span></tt> is the number of bytes to disassemble</li>
+<li><tt class="docutils literal"><span class="pre">c</span></tt> is the index of the column in which the comment marker (<tt class="docutils literal"><span class="pre">;</span></tt>) appears
+in the line (if it does appear)</li>
+<li><tt class="docutils literal"><span class="pre">comment</span></tt>, if present, is the instruction-level comment for the line on
+which the instruction occurs</li>
+</ul>
+<p>If a comment for a single instruction spans two or more lines in a <cite>skool</cite>
+file, as in:</p>
+<div class="highlight-none"><div class="highlight"><pre>c24296 CALL 57935    ; This comment is too long to fit on a single line, so
+                     ; we use two lines
+</pre></div>
+</div>
+<p>then it will be rendered in the skool file template thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>cC24296,3;21 This comment is too long to fit on a single line, so
+ ;21 we use two lines
+</pre></div>
+</div>
+<p>Sequences of DEFB statements can be declared on a single line thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>bB40960,8*2,5
+</pre></div>
+</div>
+<p>which is equivalent to:</p>
+<div class="highlight-none"><div class="highlight"><pre>bB40960,8
+ B40968,8
+ B40976,5
+</pre></div>
+</div>
+<p>The same syntax also applies for declaring sequences of DEFM, DEFW and DEFS
+statements.</p>
+<p>DEFB and DEFM statements may contain both strings and bytes; for example:</p>
+<div class="highlight-none"><div class="highlight"><pre>b30000 DEFB 1,2,3,4,&quot;Hello!&quot;
+ 30010 DEFM &quot;A&quot;,5,6
+ 30013 DEFM &quot;B&quot;,7,8
+</pre></div>
+</div>
+<p>Such statements will be rendered in the skool file template thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>bB30000,4:T6
+ T30010,1:B2*2
+</pre></div>
+</div>
+<p>Finally, any line that begins with a hash character (<tt class="docutils literal"><span class="pre">#</span></tt>) is ignored by
+<cite>sna2skool.py</cite>, and will not show up in the <cite>skool</cite> file.</p>
+</div>
+<div class="section" id="data-definition-entries">
+<h2>Data definition entries<a class="headerlink" href="#data-definition-entries" title="Permalink to this headline">¶</a></h2>
+<p>In the same way as <cite>skool2html.py</cite> uses data definition entries (&#8216;d&#8217; blocks) in
+a <cite>skool</cite> file to insert data into the memory snapshot it constructs,
+<cite>sna2skool.py</cite> uses data definition entries in a skool file template to replace
+data in the snapshot given on the command line. This feature can be used to
+make sure that a &#8216;volatile&#8217; part of memory is set to a specific value before
+being disassembled.</p>
+<p>For example, if address 32400 holds the number of lives, you could make sure
+that its contents are set to 0 so that it will disassemble to <tt class="docutils literal"><span class="pre">DEFB</span> <span class="pre">0</span></tt>
+(whatever the contents may be in the snapshot itself) thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>d32400 DEFB 0
+
+; Number of lives
+bB32400,1
+</pre></div>
+</div>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision history<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p><cite>New in version 2.4.</cite></p>
+<p><cite>Changed in version 3.1.4:</cite> Added support for DEFB and DEFM statements that
+contain both strings and bytes.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Skool file templates</a><ul>
+<li><a class="reference internal" href="#skool-file-template-format">Skool file template format</a></li>
+<li><a class="reference internal" href="#data-definition-entries">Data definition entries</a></li>
+<li><a class="reference internal" href="#revision-history">Revision history</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="skool-files.html"
+                        title="previous chapter">Skool files</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="skool-macros.html"
+                        title="next chapter">Skool macros</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="skool-macros.html" title="Skool macros"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="skool-files.html" title="Skool files"
+             >previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Richard Dymond.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

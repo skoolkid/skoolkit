@@ -1,0 +1,136 @@
+Changelog
+=========
+
+.. toctree::
+   :maxdepth: 1
+
+   changelog2
+   changelog1
+
+3.3.1 (2013-03-04)
+------------------
+* Added support to the :ref:`set` ASM directive for the `comment-width-min`,
+  `indent`, `instruction-width`, `label-colons`, `line-width` and `warnings`
+  properties
+* Added support to the ``HtmlWriterClass`` parameter (in the :ref:`ref-Config`
+  section) and the :ref:`writer` directive for specifying a module outside the
+  module search path (e.g. a standalone module that is not part of an installed
+  package)
+* :ref:`sna2skool.py` now correctly renders an empty block description as a
+  dot (``.``) on a line of its own
+
+3.3 (2013-01-08)
+----------------
+* Added support to :ref:`sna2skool.py` for reading code execution maps produced
+  by the Fuse, SpecEmu, Spud, Zero and Z80 emulators (to generate more accurate
+  control files)
+* Increased the speed at which :ref:`sna2skool.py` generates control files
+* Added support to :ref:`sna2skool.py` for disassembling 128K SNA snapshots
+
+3.2 (2012-11-01)
+----------------
+* Added support to :ref:`sna2skool.py` for disassembling 128K Z80 snapshots and
+  16K, 48K and 128K SZX snapshots
+* Added the :ref:`LIST` macro (for rendering lists of bulleted items in both
+  HTML mode and ASM mode)
+* Added the :ref:`set` ASM directive (for setting properties on the ASM writer)
+* Added trivia entries to `jet_set_willy.ref`
+* Annotated the source code remnants at 32768 and 37708 in `manic_miner.ctl`
+
+3.1.4 (2012-10-11)
+------------------
+* Added support to :ref:`skool2ctl.py` and :ref:`skool2sft.py` for DEFB and
+  DEFM statements that contain both strings and bytes
+* :ref:`skool2ctl.py` now correctly processes lower case DEFB, DEFM, DEFS and
+  DEFW statements
+* The length of a string (in a DEFB or DEFM statement) that contains one or
+  more backslashes  is now correctly calculated by :ref:`skool2ctl.py` and
+  :ref:`skool2sft.py`
+* DEFB and DEFM statements that contain both strings and bytes are now
+  correctly converted to lower case, upper case, decimal or hexadecimal (when
+  using the ``-l``, ``-u``, ``-D`` and ``-H`` options of :ref:`skool2asm.py`
+  and :ref:`skool2html.py`)
+* Operations involving (IX+n) or (IY+n) expressions are now correctly converted
+  to lower case decimal or hexadecimal (when using the ``-l``, ``-D`` and
+  ``-H`` options of :ref:`skool2asm.py` and :ref:`skool2html.py`)
+
+3.1.3 (2012-09-11)
+------------------
+* The 'Glossary' page is formatted in the same way as the 'Trivia', 'Bugs',
+  'Pokes' and 'Graphic glitches' pages
+* When the link text of a :ref:`link` macro is left blank, the link text of the
+  page is substituted
+* The disassembler escapes backslashes and double quotes in DEFM statements
+  (so that :ref:`skool2asm.py` no longer has to)
+* DEFB and DEFM statements that contain both strings and bytes are parsed
+  correctly for the purpose of building a memory snapshot
+
+3.1.2 (2012-08-01)
+------------------
+* Added the :ref:`HTML` macro (for rendering arbitrary text in HTML mode only)
+* Added support for distinguishing input values from output values in a
+  routine's register section (by using prefixes such as 'Input:' and 'Output:')
+* Added support for the ``InputRegisterTableHeader`` and
+  ``OutputRegisterTableHeader`` parameters in the :ref:`ref-Game` section of
+  the `ref` file
+* Added the 'default' CSS class for HTML tables created by the :ref:`table`
+  macro
+
+3.1.1 (2012-07-17)
+------------------
+* Enhanced the :ref:`UDGARRAY` macro so that it accepts both horizontal and
+  vertical steps in UDG address ranges
+* Added support for the ``Font`` and ``FontPath`` parameters in the
+  :ref:`Paths` section of the `ref` file (for specifying font files used by CSS
+  `@font-face` rules)
+* Added a Spectrum theme CSS file that uses the Spectrum font and colours:
+  `skoolkit-spectrum.css`
+* Fixed :ref:`skool2asm.py` so that it escapes backslashes and double quotes in
+  DEFM statements
+
+3.1 (2012-06-19)
+----------------
+* Added documentation on :ref:`extending SkoolKit <extendingSkoolKit>`
+* Added the :ref:`writer` ASM directive (to specify the class to use for
+  producing ASM output)
+* Added the :ref:`CHR` macro (for rendering arbitrary unicode characters);
+  removed support for the redundant ``#C`` macro accordingly
+* Added support for the :ref:`CALL`, :ref:`m-REFS`, :ref:`EREFS`, :ref:`PUSHS`,
+  :ref:`POKES` and :ref:`POPS` macros in ASM mode
+* Added the ``-c`` option to :ref:`skool2html.py` (to simulate adding lines to
+  the `ref` file)
+* Added a dark theme CSS file: `skoolkit-dark.css`
+
+3.0.2 (2012-05-01)
+------------------
+* Added room images and descriptions to `manic_miner.ctl` and
+  `jet_set_willy.ctl` (based on reference material from
+  `Andrew Broad <http://webspace.webring.com/people/ja/andrewbroad/>`_ and
+  `J. G. Harston <http://mdfs.net/Software/JSW/Docs/>`_)
+* Fixed the bug that prevents the 'Data tables and buffers' section from
+  appearing on the disassembly index page when the default ``DataTables`` link
+  group is used
+
+3.0.1 (2012-04-11)
+------------------
+* Added support for creating GIF files (including transparent and animated
+  GIFs)
+* Added support for creating animated PNGs in APNG format
+* Added support for transparency in PNG images (by using the ``PNGAlpha``
+  parameter in the :ref:`ref-ImageWriter` section of the `ref` file)
+* Added an example control file: `jet_set_willy.ctl`
+* Fixed the bug in how images are cropped by the :ref:`FONT`, :ref:`SCR`,
+  :ref:`UDG` and :ref:`UDGARRAY` macros when using non-zero ``X`` and ``Y``
+  parameters
+
+3.0 (2012-03-20)
+----------------
+* SkoolKit now works with Python 3.x
+* Added a native image creation library, which can be configured by using the
+  :ref:`ref-ImageWriter` section of the `ref` file; `gd` and `PIL` are no
+  longer required or supported
+* Enhanced the :ref:`SCR` macro so that graphic data and attribute bytes in
+  places other than the display file and attribute file may be used to build a
+  screenshot
+* Added image-cropping capabilities to the :ref:`FONT`, :ref:`SCR`, :ref:`UDG`
+  and :ref:`UDGARRAY` macros

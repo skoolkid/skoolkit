@@ -1,0 +1,175 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installing and using SkoolKit &mdash; SkoolKit 3.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="next" title="Command reference" href="commands.html" />
+    <link rel="prev" title="What is SkoolKit?" href="whatis.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="commands.html" title="Command reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="whatis.html" title="What is SkoolKit?"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="installing-and-using-skoolkit">
+<h1>Installing and using SkoolKit<a class="headerlink" href="#installing-and-using-skoolkit" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<p>SkoolKit requires <a class="reference external" href="http://www.python.org/">Python</a> 2.6, 2.7 or 3.1+. If
+you&#8217;re running Linux or one of the BSDs, you probably already have Python
+installed. If you&#8217;re running Windows, you can get Python
+<a class="reference external" href="http://www.python.org/download/">here</a>.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>SkoolKit can be used wherever the zip archive or tarball was unpacked - it does
+not need to be installed in any particular location. However, if you would like
+to install SkoolKit as a Python package, you can do so by using the supplied
+<tt class="docutils literal"><span class="pre">setup.py</span></tt> script. After installation, the <a class="reference internal" href="commands.html#commands"><em>command scripts</em></a>
+included in SkoolKit can be run from anywhere, instead of just the directory in
+which the SkoolKit zip archive or tarball was unpacked.</p>
+<div class="section" id="windows">
+<h3>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h3>
+<p>To install SkoolKit as a Python package on Windows, open a command prompt,
+change to the directory where SkoolKit was unpacked, and run the following
+command:</p>
+<div class="highlight-none"><div class="highlight"><pre>&gt; setup.py install
+</pre></div>
+</div>
+<p>This should install the SkoolKit command scripts in <cite>C:\Python2X\Scripts</cite>
+(assuming you have installed Python in <cite>C:\Python2X</cite>), which means you can
+run them from anywhere (assuming you have added <cite>C:\Python2X\Scripts</cite> to the
+<tt class="docutils literal"><span class="pre">Path</span></tt> environment variable; see <a class="reference internal" href="dev-prereqs.html#windowspath"><em>here</em></a> for details).</p>
+</div>
+<div class="section" id="linux-bsd">
+<h3>Linux/*BSD<a class="headerlink" href="#linux-bsd" title="Permalink to this headline">¶</a></h3>
+<p>To install SkoolKit as a Python package on Linux/*BSD, open a terminal window,
+change to the directory where SkoolKit was unpacked, and run the following
+command as root:</p>
+<div class="highlight-none"><div class="highlight"><pre># ./setup.py install
+</pre></div>
+</div>
+<p>This should install the SkoolKit command scripts in <cite>/usr/local/bin</cite> (or some
+other suitable location in your <tt class="docutils literal"><span class="pre">PATH</span></tt>), which means you can run them from
+anywhere.</p>
+</div>
+</div>
+<div class="section" id="linux-bsd-v-windows-command-line">
+<h2>Linux/*BSD v. Windows command line<a class="headerlink" href="#linux-bsd-v-windows-command-line" title="Permalink to this headline">¶</a></h2>
+<p>Throughout this documentation, commands that must be entered in a terminal
+window (&#8216;Command Prompt&#8217; in Windows) are shown on a line beginning with a
+dollar sign (<tt class="docutils literal"><span class="pre">$</span></tt>), like this:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ some-script.py some arguments
+</pre></div>
+</div>
+<p>On Windows, and on Linux/*BSD if SkoolKit has been installed as a Python
+package (see above), the commands may be entered exactly as they are shown. On
+Linux/*BSD, a dot-slash (<tt class="docutils literal"><span class="pre">./</span></tt>) prefix should be added to <tt class="docutils literal"><span class="pre">some-script.py</span></tt>
+if it is being run from the current working directory.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installing and using SkoolKit</a><ul>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#windows">Windows</a></li>
+<li><a class="reference internal" href="#linux-bsd">Linux/*BSD</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#linux-bsd-v-windows-command-line">Linux/*BSD v. Windows command line</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="whatis.html"
+                        title="previous chapter">What is SkoolKit?</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="commands.html"
+                        title="next chapter">Command reference</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="commands.html" title="Command reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="whatis.html" title="What is SkoolKit?"
+             >previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Richard Dymond.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

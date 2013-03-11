@@ -1,0 +1,198 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Parsing, rendering, and modes &mdash; SkoolKit 3.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="next" title="Control files" href="control-files.html" />
+    <link rel="prev" title="SkoolKit 1.x changelog" href="changelog1.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="control-files.html" title="Control files"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="changelog1.html" title="SkoolKit 1.x changelog"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="parsing-rendering-and-modes">
+<h1>Parsing, rendering, and modes<a class="headerlink" href="#parsing-rendering-and-modes" title="Permalink to this headline">¶</a></h1>
+<p>The following subsections explain at a high level the two phases involved in
+transforming a <cite>skool</cite> file (and its related <cite>ref</cite> files, if any exist) into
+HTML or ASM format by using <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> or <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>:
+parsing and rendering.</p>
+<div class="section" id="parsing">
+<h2>Parsing<a class="headerlink" href="#parsing" title="Permalink to this headline">¶</a></h2>
+<p>In the first phase, the <cite>skool</cite> file is parsed. Parsing a <cite>skool</cite> file entails
+reading each line of the file, and processing any relevant
+<a class="reference internal" href="asm.html#asmdirectives"><em>ASM directives</em></a> that are found along the way.</p>
+<p>After an ASM directive has been processed, it is discarded, so that it cannot
+be &#8216;seen&#8217; during the rendering phase. The purpose of the ASM directives is to
+transform the <cite>skool</cite> file into something suitable for rendering (in either
+HTML or ASM format) later on.</p>
+<p>Whether a particular ASM directive is processed depends on the mode in which
+the parsing is being done: HTML mode or ASM mode.</p>
+<div class="section" id="html-mode">
+<h3>HTML mode<a class="headerlink" href="#html-mode" title="Permalink to this headline">¶</a></h3>
+<p>HTML mode is used when the target output format is HTML, as is the case when
+running <cite>skool2html.py</cite>. In HTML mode, most ASM directives are ignored because
+they are irrelevant to the purpose of creating the HTML version of the
+disassembly. The only ASM directives that are processed in HTML mode are the
+block directives:</p>
+<ul class="simple">
+<li><a class="reference internal" href="asm.html#bfixblockdirectives"><em>&#64;bfix block directives</em></a></li>
+<li><a class="reference internal" href="asm.html#isubblockdirectives"><em>&#64;isub block directives</em></a></li>
+<li><a class="reference internal" href="asm.html#ofixblockdirectives"><em>&#64;ofix block directives</em></a></li>
+<li><a class="reference internal" href="asm.html#rfixblockdirectives"><em>&#64;rfix block directives</em></a></li>
+<li><a class="reference internal" href="asm.html#rsubblockdirectives"><em>&#64;rsub block directives</em></a></li>
+</ul>
+<p>The reason that these directives are processed is that they may define two
+different versions of a section of code or data: first, a version to include in
+the output if the corresponding ASM mode (<a class="reference internal" href="asm.html#bfixmode"><em>&#64;bfix</em></a>,
+<a class="reference internal" href="asm.html#isubmode"><em>&#64;isub</em></a>, <a class="reference internal" href="asm.html#ofixmode"><em>&#64;ofix</em></a>, <a class="reference internal" href="asm.html#rfixmode"><em>&#64;rfix</em></a>,
+<a class="reference internal" href="asm.html#rsubmode"><em>&#64;rsub</em></a>) is in effect; and second, a version to include in the
+output if the corresponding ASM mode is not in effect - which will always be
+the case when parsing in HTML mode.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; @bfix-begin
+ 32459 CP 26  ; This is a bug; it should be &#39;CP 27&#39;
+; @bfix+else
+       CP 27  ;
+; @bfix+end
+</pre></div>
+</div>
+<p>This instance of a <tt class="docutils literal"><span class="pre">&#64;bfix</span></tt> block directive defines two versions of a section
+of code. The first version (between <tt class="docutils literal"><span class="pre">&#64;bfix-begin</span></tt> and <tt class="docutils literal"><span class="pre">&#64;bfix+else</span></tt>) will be
+included in the HTML output, and the second version (between <tt class="docutils literal"><span class="pre">&#64;bfix+else</span></tt> and
+<tt class="docutils literal"><span class="pre">&#64;bfix+end</span></tt>) will be omitted.</p>
+</div>
+<div class="section" id="asm-mode">
+<h3>ASM mode<a class="headerlink" href="#asm-mode" title="Permalink to this headline">¶</a></h3>
+<p>ASM mode is used when the target output format is ASM, as is the case when
+running <cite>skool2asm.py</cite>. In ASM mode, all ASM directives are processed.</p>
+</div>
+</div>
+<div class="section" id="rendering">
+<h2>Rendering<a class="headerlink" href="#rendering" title="Permalink to this headline">¶</a></h2>
+<p>In the second phase, the <cite>skool</cite> file (stripped of all its ASM directives
+during the parsing phase) is &#8216;rendered&#8217; - as either HTML or ASM, depending on
+the mode.</p>
+<div class="section" id="id1">
+<h3>HTML mode<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>HTML mode is used to render the <cite>skool</cite> file (and its related <cite>ref</cite> file, if
+one exists) as a bunch of HTML files. During rendering, any
+<a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a> found along the way are expanded to the
+required HTML markup.</p>
+</div>
+<div class="section" id="id2">
+<h3>ASM mode<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>ASM mode is used to render the <cite>skool</cite> file as a single, assembler-ready ASM
+file. During rendering, any <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a> found along the
+way are expanded to some appropriate plain text.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Parsing, rendering, and modes</a><ul>
+<li><a class="reference internal" href="#parsing">Parsing</a><ul>
+<li><a class="reference internal" href="#html-mode">HTML mode</a></li>
+<li><a class="reference internal" href="#asm-mode">ASM mode</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#rendering">Rendering</a><ul>
+<li><a class="reference internal" href="#id1">HTML mode</a></li>
+<li><a class="reference internal" href="#id2">ASM mode</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="changelog1.html"
+                        title="previous chapter">SkoolKit 1.x changelog</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="control-files.html"
+                        title="next chapter">Control files</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="control-files.html" title="Control files"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="changelog1.html" title="SkoolKit 1.x changelog"
+             >previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Richard Dymond.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

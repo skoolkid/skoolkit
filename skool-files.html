@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Skool files &mdash; SkoolKit 3.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="next" title="Skool file templates" href="skool-file-templates.html" />
+    <link rel="prev" title="Control files" href="control-files.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="skool-file-templates.html" title="Skool file templates"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="control-files.html" title="Control files"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="skool-files">
+<span id="skoolfiles"></span><h1>Skool files<a class="headerlink" href="#skool-files" title="Permalink to this headline">¶</a></h1>
+<p>A <cite>skool</cite> file contains the list of Z80 instructions that make up the routines
+and data blocks of the program being disassembled, with accompanying comments
+(if any).</p>
+<div class="section" id="skool-file-format">
+<span id="skoolfileformat"></span><h2>Skool file format<a class="headerlink" href="#skool-file-format" title="Permalink to this headline">¶</a></h2>
+<p>A <cite>skool</cite> file must be in a certain format to ensure that it is processed
+correctly by <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a>, <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>, <a class="reference internal" href="commands.html#skool2ctl-py"><em>skool2ctl.py</em></a> and
+<a class="reference internal" href="commands.html#skool2sft-py"><em>skool2sft.py</em></a>. The rules are as follows:</p>
+<ol class="arabic simple">
+<li>Entries (an &#8216;entry&#8217; being a routine or data block) must be separated by
+blank lines, and an entry must not contain any blank lines.</li>
+<li>Lines in an entry may start with one of <tt class="docutils literal"><span class="pre">;*</span> <span class="pre">bcdgirtuwz</span></tt>, where:</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">;</span></tt> begins a comment line</li>
+<li><tt class="docutils literal"><span class="pre">*</span></tt> denotes an entry point in a routine</li>
+<li><tt class="docutils literal"><span class="pre">b</span></tt> denotes the first instruction in a data block</li>
+<li><tt class="docutils literal"><span class="pre">c</span></tt> denotes the first instruction in a code block (routine)</li>
+<li><tt class="docutils literal"><span class="pre">d</span></tt> denotes the first instruction in a
+<a class="reference internal" href="#dentry"><em>data definition entry</em></a></li>
+<li><tt class="docutils literal"><span class="pre">g</span></tt> denotes the first instruction in a game status buffer entry</li>
+<li><tt class="docutils literal"><span class="pre">i</span></tt> denotes an ignored entry</li>
+<li><tt class="docutils literal"><span class="pre">r</span></tt> denotes the first instruction in a <a class="reference internal" href="#rentry"><em>remote entry</em></a></li>
+<li><tt class="docutils literal"><span class="pre">t</span></tt> denotes the first instruction in a data block that contains text</li>
+<li><tt class="docutils literal"><span class="pre">u</span></tt> denotes the first instruction in an unused code or data block</li>
+<li><tt class="docutils literal"><span class="pre">w</span></tt> denotes the first instruction in a data block that contains two-byte
+values (words)</li>
+<li><tt class="docutils literal"><span class="pre">z</span></tt> denotes the first instruction in a data block that contains only
+zeroes</li>
+<li>a space begins a line that does not require any of the markers listed above</li>
+</ul>
+<p>The format of a non-comment line is:</p>
+<div class="highlight-none"><div class="highlight"><pre>C##### INSTRUCTION ; comment
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">C</span></tt> is one of the characters listed above: <tt class="docutils literal"><span class="pre">*</span> <span class="pre">bcdgirtuwz</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">#####</span></tt> is an address (e.g. <tt class="docutils literal"><span class="pre">24576</span></tt>, or <tt class="docutils literal"><span class="pre">$6000</span></tt> if you prefer
+hexadecimal notation)</li>
+<li><tt class="docutils literal"><span class="pre">INSTRUCTION</span></tt> is an instruction (e.g. <tt class="docutils literal"><span class="pre">LD</span> <span class="pre">A,(HL)</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">comment</span></tt> is a comment (which may be blank)</li>
+</ul>
+<p>The comment for a single instruction may span multiple lines thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>c24296 CALL 57935    ; This comment is too long to fit on a single line, so
+                     ; we use two lines
+</pre></div>
+</div>
+<p>A comment may also be associated with more than one instruction by the use of
+braces (&#8216;{&#8216; and &#8216;}&#8217;) to indicate the start and end points, thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>*24372 SUB D         ; {This comment applies to the two instructions at
+ 24373 JR NZ,24378   ; 24372 and 24373}
+</pre></div>
+</div>
+<p>Comments may appear between instructions, or after the last instruction in an
+entry; paragraphs in such comments must be separated by a comment line
+containing a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) on its own. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>*28975 JR 28902
+; This is a mid-block comment between two instructions.
+; .
+; This is the second paragraph of the comment.
+ 28977 XOR A
+</pre></div>
+</div>
+<p>Lines that start with <tt class="docutils literal"><span class="pre">*</span></tt> will have their addresses shown in bold in the
+HTML version of the disassembly (generated by <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a>), and will
+have labels generated for them in the ASM version (generated by
+<a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>).</p>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li>Tables (grids) have their own markup syntax. See <a class="reference internal" href="skool-macros.html#table"><em>#TABLE</em></a> for details.</li>
+<li>Entry headers are a sequence of comment lines broken into three sections:</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li>Entry title</li>
+<li>Entry description (optional)</li>
+<li>Registers (optional)</li>
+</ul>
+<p>The sections are separated by an empty comment line, and paragraphs within
+the entry description must be separated by a comment line containing a dot
+(<tt class="docutils literal"><span class="pre">.</span></tt>) on its own. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; This is the entry title
+;
+; This is the first paragraph of the entry description.
+; .
+; This is the second paragraph of the entry description.
+;
+; A An important parameter
+; B Another important parameter
+</pre></div>
+</div>
+<p>If a register section is required, but an entry description is not, a blank
+entry description may be specified by using a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>; This is the title of an entry that has no description
+;
+; .
+;
+; A An important parameter
+; B Another important parameter
+</pre></div>
+</div>
+<p>Registers may be listed as shown above, or with colon-terminated prefixes
+(such as &#8216;Input:&#8217; and &#8216;Output:&#8217;, or simply &#8216;I:&#8217; and &#8216;O:&#8217;) to distinguish
+input values from output values:</p>
+<div class="highlight-none"><div class="highlight"><pre>;  Input:A An important parameter
+;        B Another important parameter
+; Output:C The result
+</pre></div>
+</div>
+<p>In the HTML version of the disassembly, input values and output values are
+shown in separate tables. If a register&#8217;s prefix begins with the letter &#8216;O&#8217;,
+it is regarded as an output value; if it begins with any other letter, it is
+regarded as an input value. If a register has no prefix, it will be placed in
+the same table as the previous register; if there is no previous register, it
+will be placed in the table of input values.</p>
+</div></blockquote>
+</div>
+<div class="section" id="data-definition-entries">
+<span id="dentry"></span><h2>Data definition entries<a class="headerlink" href="#data-definition-entries" title="Permalink to this headline">¶</a></h2>
+<p>If the first instruction line in an entry starts with <tt class="docutils literal"><span class="pre">d</span></tt>, the entry is
+regarded as a data definition entry. Such entries do not appear in the memory
+map generated by <cite>skool2html.py</cite>, but may contain DEFB, DEFW, DEFM and DEFS
+assembler directives that will be parsed, and so can be used to insert data
+into the memory snapshot.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; The eight bytes of code in this routine are also used as UDG data.
+; .
+; #HTML(#UDG44919)
+c44919 LD DE,46572   ;
+ 44922 CP 200        ;
+ 44924 JP 45429      ;
+
+d44919 DEFB 17,236,181,254,200,195,117,177
+</pre></div>
+</div>
+<p>This data definition entry is required to define the bytes for addresses
+44919-44926. If it were not present, the memory snapshot would contain zeroes
+at those addresses, and the UDG created by <cite>skool2html.py</cite> would be blank. The
+reason for this is that the skool file parser will only convert DEFB, DEFW,
+DEFM and DEFS assembler directives into a sequence of bytes; it does not
+convert assembly language instructions into the equivalent byte values (it is
+not a Z80 assembler).</p>
+</div>
+<div class="section" id="remote-entries">
+<span id="rentry"></span><h2>Remote entries<a class="headerlink" href="#remote-entries" title="Permalink to this headline">¶</a></h2>
+<p>If the first instruction line in an entry starts with <tt class="docutils literal"><span class="pre">r</span></tt>, the entry is
+regarded as a remote entry. Such entries do not appear in the memory map
+generated by <cite>skool2html.py</cite>, but they enable <tt class="docutils literal"><span class="pre">JR</span></tt>, <tt class="docutils literal"><span class="pre">JP</span></tt> and <tt class="docutils literal"><span class="pre">CALL</span></tt>
+instructions to be hyperlinked to entries defined in other <cite>skool</cite> files.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>r26880 main
+</pre></div>
+</div>
+<p>This entry, if it were present in a secondary <cite>skool</cite> file, would enable any
+<tt class="docutils literal"><span class="pre">JR</span></tt>, <tt class="docutils literal"><span class="pre">JP</span></tt> and <tt class="docutils literal"><span class="pre">CALL</span></tt> instruction with 26880 as the operand to be
+hyperlinked to that routine in the main disassembly (the entry for which should
+be defined in the main <cite>skool</cite> file).</p>
+<p>If the desired target of the hyperlink is an entry point within a routine that
+is defined in another <cite>skool</cite> file (as opposed to the address of the routine
+itself), both the routine address and the entry point address should be
+declared in the remote entry. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>r29012 main
+ 29015
+</pre></div>
+</div>
+<p>This would enable hyperlinks to 29015 in the main disassembly, which is an
+entry point in the routine at 29012.</p>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision history<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p><cite>Changed in version 2.0:</cite> Added support for data definition entries and remote
+entries.</p>
+<p><cite>Changed in version 2.1:</cite> Added support for hexadecimal numbers.</p>
+<p><cite>Changed in version 2.4:</cite> Added the ability to separate paragraphs and specify
+a blank entry description by using a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) on a line of its own.</p>
+<p><cite>Changed in version 3.1.2:</cite> Added support for &#8216;Input&#8217; and &#8216;Output&#8217; prefixes in
+register sections.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Skool files</a><ul>
+<li><a class="reference internal" href="#skool-file-format">Skool file format</a></li>
+<li><a class="reference internal" href="#data-definition-entries">Data definition entries</a></li>
+<li><a class="reference internal" href="#remote-entries">Remote entries</a></li>
+<li><a class="reference internal" href="#revision-history">Revision history</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="control-files.html"
+                        title="previous chapter">Control files</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="skool-file-templates.html"
+                        title="next chapter">Skool file templates</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="skool-file-templates.html" title="Skool file templates"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="control-files.html" title="Control files"
+             >previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Richard Dymond.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

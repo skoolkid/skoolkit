@@ -1,0 +1,448 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Control files &mdash; SkoolKit 3.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="next" title="Skool files" href="skool-files.html" />
+    <link rel="prev" title="Parsing, rendering, and modes" href="parsing.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="skool-files.html" title="Skool files"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="parsing.html" title="Parsing, rendering, and modes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="control-files">
+<span id="controlfiles"></span><h1>Control files<a class="headerlink" href="#control-files" title="Permalink to this headline">¶</a></h1>
+<p>A control file contains a list of start addresses of code and data blocks. This
+information can be used by <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> to organise a
+<cite>skool</cite> file into corresponding code and data blocks.</p>
+<p>Each block address in a control file is marked with a &#8216;control directive&#8217;,
+which is a single letter that indicates what the block contains:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">b</span></tt> indicates a data block</li>
+<li><tt class="docutils literal"><span class="pre">c</span></tt> indicates a code block</li>
+<li><tt class="docutils literal"><span class="pre">g</span></tt> indicates a game status buffer entry</li>
+<li><tt class="docutils literal"><span class="pre">i</span></tt> indicates a block that should be ignored</li>
+<li><tt class="docutils literal"><span class="pre">t</span></tt> indicates a block containing text</li>
+<li><tt class="docutils literal"><span class="pre">u</span></tt> indicates an unused block of memory</li>
+<li><tt class="docutils literal"><span class="pre">w</span></tt> indicates a block containing words (two-byte values)</li>
+<li><tt class="docutils literal"><span class="pre">z</span></tt> indicates an unused block containing all zeroes</li>
+</ul>
+<p>(If these letters remind you of the valid characters that may appear in the
+first column of each line of a <a class="reference internal" href="skool-files.html#skoolfileformat"><em>skool file</em></a>, that is no
+coincidence.)</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>c 24576 Do stuff
+b 24832 Important data
+t 25088 Interesting messages
+u 25344 Unused
+</pre></div>
+</div>
+<p>This control file declares that:</p>
+<ul class="simple">
+<li>Everything before 24576 should be ignored</li>
+<li>There is a routine at 24576-24831 which should be titled &#8216;Do stuff&#8217;</li>
+<li>There is data at 24832-25087</li>
+<li>There is text at 25088-25343</li>
+<li>Everything from 25344 onwards is unused (but should still be disassembled as
+data)</li>
+</ul>
+<p>Addresses may be written as hexadecimal numbers, too; the equivalent example
+control file using hexadecimal notation would be:</p>
+<div class="highlight-none"><div class="highlight"><pre>c $6000 Do stuff
+b $6100 Important data
+t $6200 Interesting messages
+u $6300 Unused
+</pre></div>
+</div>
+<p>Besides the declaration of block types, addresses and titles, the control file
+syntax also supports the declaration of the following things:</p>
+<ul class="simple">
+<li>Block descriptions</li>
+<li>Register values</li>
+<li>Mid-block comments</li>
+<li>Block end comments</li>
+<li>Sub-block types and comments</li>
+<li>DEFB/DEFM/DEFW/DEFS statement lengths in data, text and unused sub-blocks</li>
+<li>ASM directives (except block directives)</li>
+</ul>
+<p>The syntax for declaring these things is described in the following sections.</p>
+<div class="section" id="block-descriptions">
+<h2>Block descriptions<a class="headerlink" href="#block-descriptions" title="Permalink to this headline">¶</a></h2>
+<p>To provide a description for a code block at 24576 (for example), use the <tt class="docutils literal"><span class="pre">D</span></tt>
+directive thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>c 24576 This is the title of the routine at 24576
+D 24576 This is the description of the routine at 24576.
+</pre></div>
+</div>
+<p>If the description consists of two or more paragraphs, each one should be
+declared with a separate <tt class="docutils literal"><span class="pre">D</span></tt> directive:</p>
+<div class="highlight-none"><div class="highlight"><pre>D 24576 This is the first paragraph of the description of the routine at 24576.
+D 24576 This is the second paragraph of the description of the routine at 24576.
+</pre></div>
+</div>
+</div>
+<div class="section" id="register-values">
+<h2>Register values<a class="headerlink" href="#register-values" title="Permalink to this headline">¶</a></h2>
+<p>To declare the values of the registers upon entry to the routine at 24576, add
+one line per register with the <tt class="docutils literal"><span class="pre">R</span></tt> directive thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>R 24576 A An important value in the accumulator
+R 24576 DE Display file address
+</pre></div>
+</div>
+</div>
+<div class="section" id="mid-block-comments">
+<h2>Mid-block comments<a class="headerlink" href="#mid-block-comments" title="Permalink to this headline">¶</a></h2>
+<p>To declare a mid-block comment that will appear above the instruction at 24592,
+use the <tt class="docutils literal"><span class="pre">D</span></tt> directive thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>D 24592 The next section of code does something really important.
+</pre></div>
+</div>
+<p>If the mid-block comment consists of two or more paragraphs, each one should be
+declared with a separate <tt class="docutils literal"><span class="pre">D</span></tt> directive:</p>
+<div class="highlight-none"><div class="highlight"><pre>D 24592 This is the first paragraph of the mid-block comment.
+D 24592 This is the second paragraph of the mid-block comment.
+</pre></div>
+</div>
+</div>
+<div class="section" id="block-end-comments">
+<h2>Block end comments<a class="headerlink" href="#block-end-comments" title="Permalink to this headline">¶</a></h2>
+<p>To declare a comment that will appear at the end of the routine at 24576, use
+the <tt class="docutils literal"><span class="pre">E</span></tt> directive thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>E 24576 And so the work of this routine is done.
+</pre></div>
+</div>
+<p>If the block end comment consists of two or more paragraphs, each one should be
+declared with a separate <tt class="docutils literal"><span class="pre">E</span></tt> directive:</p>
+<div class="highlight-none"><div class="highlight"><pre>E 24576 This is the first paragraph of the end comment for the routine at 24576.
+E 24576 This is the second paragraph of the end comment for the routine at 24576.
+</pre></div>
+</div>
+</div>
+<div class="section" id="sub-block-syntax">
+<h2>Sub-block syntax<a class="headerlink" href="#sub-block-syntax" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes a block marked as one type (code, data, text, or whatever) may
+contain instructions or statements of another type. For example, a word (<tt class="docutils literal"><span class="pre">w</span></tt>)
+block may contain the odd non-word here and there. To declare such sub-blocks
+whose type does not match that of the containing block, use the following
+syntax:</p>
+<div class="highlight-none"><div class="highlight"><pre>w 32768 A block containing mostly words
+B 32800,3 But here&#39;s a sub-block of 3 bytes at 32800
+T 32809,8 And an 8-byte text string at 32809
+C 32821,10 And 10 bytes of code at 32821 too?
+</pre></div>
+</div>
+<p>The directives (<tt class="docutils literal"><span class="pre">B</span></tt>, <tt class="docutils literal"><span class="pre">T</span></tt> and <tt class="docutils literal"><span class="pre">C</span></tt>) used here to mark the sub-blocks are
+the upper case equivalents of the directives used to mark top-level blocks
+(<tt class="docutils literal"><span class="pre">b</span></tt>, <tt class="docutils literal"><span class="pre">t</span></tt> and <tt class="docutils literal"><span class="pre">c</span></tt>). The comments at the end of these sub-block
+declarations are taken as instruction-level comments and will appear as such in
+the resultant <cite>skool</cite> file.</p>
+<p>If an instruction-level comment spans a group of two or more sub-blocks of
+different types, it must be declared with an <tt class="docutils literal"><span class="pre">M</span></tt> directive:</p>
+<div class="highlight-none"><div class="highlight"><pre>M 40000,21 This comment covers the following 3 sub-blocks
+B 40000,3
+W 40003,10
+T 40013,8
+</pre></div>
+</div>
+<p>If the length parameter is omitted from an <tt class="docutils literal"><span class="pre">M</span></tt> directive, the comment is
+assumed to cover all sub-blocks from the given start address to the end of the
+top-level block.</p>
+<p>Three bits of sub-block syntax left. First,  the blank sub-block directive:</p>
+<div class="highlight-none"><div class="highlight"><pre>c 24576 A great routine
+  24580,11 A great section of code at 24580
+</pre></div>
+</div>
+<p>This is equivalent to:</p>
+<div class="highlight-none"><div class="highlight"><pre>c 24576 A great routine
+C 24580,11 A great section of code at 24580
+</pre></div>
+</div>
+<p>That is, the the type of a blank sub-block directive is taken to be the same as
+that of the parent block.</p>
+<p>Next, the address range:</p>
+<div class="highlight-none"><div class="highlight"><pre>c 24576 A great routine
+  24580-24590 A great section of code at 24580
+</pre></div>
+</div>
+<p>This is equivalent to:</p>
+<div class="highlight-none"><div class="highlight"><pre>c 24576 A great routine
+  24580,11 A great section of code at 24580
+</pre></div>
+</div>
+<p>That is, you can specify the extent of a sub-block using either an address
+range, or an address and a length.</p>
+<p>Finally, the implicit sub-block extent:</p>
+<div class="highlight-none"><div class="highlight"><pre>c 24576 A great routine
+  24580 A great section of code at 24580
+  24588,10 Another great section of code at 24590
+</pre></div>
+</div>
+<p>This is equivalent to:</p>
+<div class="highlight-none"><div class="highlight"><pre>c 24576 A great routine
+  24580,8 A great section of code at 24580
+  24588,10 Another great section of code at 24588
+</pre></div>
+</div>
+<p>But the declaration of the length (8) of the sub-block at 24580 is redundant,
+because the sub-block is implicitly terminated by the declaration of the
+sub-block at 24588 that follows. This is exactly how top-level block
+declarations work: each top-level block is implicitly terminated by the
+declaration of the next one.</p>
+</div>
+<div class="section" id="statement-lengths-in-b-t-w-and-z-sub-blocks">
+<h2>Statement lengths in &#8216;B&#8217;, &#8216;T&#8217;, &#8216;W&#8217; and &#8216;Z&#8217; sub-blocks<a class="headerlink" href="#statement-lengths-in-b-t-w-and-z-sub-blocks" title="Permalink to this headline">¶</a></h2>
+<p>Normally, a <tt class="docutils literal"><span class="pre">B</span></tt> sub-block declared thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>B 24580,12 Interesting data
+</pre></div>
+</div>
+<p>would result in something like this in the corresponding skool file:</p>
+<div class="highlight-none"><div class="highlight"><pre>24580 DEFB 1,2,3,4,5,6,7,8 ; {Interesting data
+24588 DEFB 9,10,11,12      ; }
+</pre></div>
+</div>
+<p>But what if you wanted to split the data in this sub-block into groups of 3
+bytes each? That can be achieved with:</p>
+<div class="highlight-none"><div class="highlight"><pre>B 24580,12,3 Interesting data
+</pre></div>
+</div>
+<p>which would give:</p>
+<div class="highlight-none"><div class="highlight"><pre>24580 DEFB 1,2,3    ; {Interesting data
+24583 DEFB 4,5,6
+24586 DEFB 7,8,9
+24589 DEFB 10,11,12 ; }
+</pre></div>
+</div>
+<p>That is, in a <tt class="docutils literal"><span class="pre">B</span></tt> directive, the desired DEFB statement lengths may be given
+as a comma-separated list of numbers following the sub-block length parameter,
+and the final number in the list is used for all remaining data in the block.
+So, for example:</p>
+<div class="highlight-none"><div class="highlight"><pre>B 24580,12,1,2,3 Interesting data
+</pre></div>
+</div>
+<p>would give:</p>
+<div class="highlight-none"><div class="highlight"><pre>24580 DEFB 1        ; {Interesting data
+24581 DEFB 2,3
+24583 DEFB 4,5,6
+24586 DEFB 7,8,9
+24589 DEFB 10,11,12 ; }
+</pre></div>
+</div>
+<p>If the statement length list contains sequences of two or more identical
+lengths, as in:</p>
+<div class="highlight-none"><div class="highlight"><pre>B 24580,21,2,2,2,2,2,2,1,1,1,3
+</pre></div>
+</div>
+<p>then it may be abbreviated thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>B 24580,21,2*6,1*3,3
+</pre></div>
+</div>
+<p>The same syntax can be used for <tt class="docutils literal"><span class="pre">T</span></tt>, <tt class="docutils literal"><span class="pre">W</span></tt> and <tt class="docutils literal"><span class="pre">Z</span></tt> sub-blocks too. For
+example:</p>
+<div class="highlight-none"><div class="highlight"><pre>Z 32768,100,25 Four 25-byte chunks of zeroes
+</pre></div>
+</div>
+<p>would give:</p>
+<div class="highlight-none"><div class="highlight"><pre>32768 DEFS 25 ; {Four 25-byte chunks of zeroes
+32793 DEFS 25
+32818 DEFS 25
+32843 DEFS 25 ; }
+</pre></div>
+</div>
+<p>DEFB and DEFM statements may contain both bytes and strings; for example:</p>
+<div class="highlight-none"><div class="highlight"><pre>40000 DEFM &quot;Hi &quot;,5
+40004 DEFB 4,&quot;go&quot;
+</pre></div>
+</div>
+<p>Such statements can be encoded in a control file thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>T 40000,4,3:B1
+B 40004,3,1:T2
+</pre></div>
+</div>
+<p>That is, the length of a string in a DEFB statement is prefixed by <tt class="docutils literal"><span class="pre">T</span></tt>, the
+length of a sequence of bytes in a DEFM statement is prefixed by <tt class="docutils literal"><span class="pre">B</span></tt>, and the
+lengths of all strings and byte sequences are separated by colons. This
+notation can also be combined with the &#8216;*&#8217; notation; for example:</p>
+<div class="highlight-none"><div class="highlight"><pre>T 50000,8,2:B2*2
+</pre></div>
+</div>
+<p>which is equivalent to:</p>
+<div class="highlight-none"><div class="highlight"><pre>T 50000,8,2:B2,2:B2
+</pre></div>
+</div>
+</div>
+<div class="section" id="asm-directives">
+<h2>ASM directives<a class="headerlink" href="#asm-directives" title="Permalink to this headline">¶</a></h2>
+<p>To declare an ASM directive for a block or an individual instruction, use the
+following syntax:</p>
+<div class="highlight-none"><div class="highlight"><pre>; @directive:address[=value]
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">directive</span></tt> is the directive name</li>
+<li><tt class="docutils literal"><span class="pre">address</span></tt> is the address of the block or instruction to which the directive
+applies</li>
+<li><tt class="docutils literal"><span class="pre">value</span></tt> is the value of the directive (if it requires one)</li>
+</ul>
+<p>For example, to declare a <a class="reference internal" href="asm.html#label"><em>&#64;label</em></a> directive for the instruction at 32768:</p>
+<div class="highlight-none"><div class="highlight"><pre>; @label:32768=LOOP
+</pre></div>
+</div>
+<p>Note that neither ASM block directives (such as the <a class="reference internal" href="asm.html#bfixblockdirectives"><em>&#64;bfix block directives</em></a>)
+nor the exact location of <a class="reference internal" href="asm.html#org"><em>&#64;org</em></a>, <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a>, <a class="reference internal" href="asm.html#start"><em>&#64;start</em></a>, <a class="reference internal" href="asm.html#end"><em>&#64;end</em></a>,
+<a class="reference internal" href="asm.html#ignoreua"><em>&#64;ignoreua</em></a> and <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a> ASM directives can be preserved using this
+syntax.</p>
+</div>
+<div class="section" id="control-file-comments">
+<h2>Control file comments<a class="headerlink" href="#control-file-comments" title="Permalink to this headline">¶</a></h2>
+<p>A comment may be added to a control file by starting a line with something
+other than a space, a control directive, or <tt class="docutils literal"><span class="pre">;</span> <span class="pre">&#64;</span></tt>. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; This is a comment
+# This is another comment
+% This is yet another comment
+</pre></div>
+</div>
+</div>
+<div class="section" id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h2>
+<p>A control file can be useful in the early stages of developing a <cite>skool</cite> file
+for reorganising code and data blocks, but it cannot preserve the following
+elements:</p>
+<ul class="simple">
+<li>ASM block directives</li>
+<li>the exact locations of <cite>&#64;org</cite>, <cite>&#64;writer</cite>, <cite>&#64;start</cite>, <cite>&#64;end</cite>, <cite>&#64;ignoreua</cite> and
+<cite>&#64;set</cite> ASM directives</li>
+<li>data definition entries (&#8216;d&#8217; blocks) and remote entries (&#8216;r&#8217; blocks)</li>
+<li>comments that are not part of a code or data block</li>
+</ul>
+<p><a class="reference internal" href="skool-file-templates.html#skoolfiletemplates"><em>Skool file templates</em></a>, however, can preserve all of these elements, and so
+may be a better choice for <cite>skool</cite> files that contain any of them.</p>
+</div>
+<div class="section" id="revision-history">
+<h2>Revision history<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
+<p><cite>Changed in version 1.0.7:</cite> Added support for block titles, block descriptions,
+register values, mid-block comments, block end comments, sub-block types and
+instruction-level comments.</p>
+<p><cite>Changed in version 2.0.6:</cite> Added support for hexadecimal numbers.</p>
+<p><cite>Changed in version 2.1:</cite> Added support for DEFB statement lengths in <tt class="docutils literal"><span class="pre">B</span></tt>
+sub-blocks.</p>
+<p><cite>Changed in version 2.1.1:</cite> Added the <tt class="docutils literal"><span class="pre">M</span></tt> directive.</p>
+<p><cite>Changed in version 2.1.2:</cite> Added support for DEFM, DEFW and DEFS statement
+lengths in <tt class="docutils literal"><span class="pre">T</span></tt>, <tt class="docutils literal"><span class="pre">W</span></tt> and <tt class="docutils literal"><span class="pre">Z</span></tt> sub-blocks.</p>
+<p><cite>Changed in version 2.2:</cite> Added support for the <tt class="docutils literal"><span class="pre">*</span></tt> notation in DEFB, DEFM,
+DEFW and DEFS statement length lists in <tt class="docutils literal"><span class="pre">B</span></tt>, <tt class="docutils literal"><span class="pre">T</span></tt>, <tt class="docutils literal"><span class="pre">W</span></tt> and <tt class="docutils literal"><span class="pre">Z</span></tt>
+sub-blocks.</p>
+<p><cite>Changed in version 2.4:</cite> Added support for non-block ASM directives.</p>
+<p><cite>Changed in version 3.1.4:</cite> Added support for DEFB and DEFM statements that
+contain both strings and bytes.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Control files</a><ul>
+<li><a class="reference internal" href="#block-descriptions">Block descriptions</a></li>
+<li><a class="reference internal" href="#register-values">Register values</a></li>
+<li><a class="reference internal" href="#mid-block-comments">Mid-block comments</a></li>
+<li><a class="reference internal" href="#block-end-comments">Block end comments</a></li>
+<li><a class="reference internal" href="#sub-block-syntax">Sub-block syntax</a></li>
+<li><a class="reference internal" href="#statement-lengths-in-b-t-w-and-z-sub-blocks">Statement lengths in &#8216;B&#8217;, &#8216;T&#8217;, &#8216;W&#8217; and &#8216;Z&#8217; sub-blocks</a></li>
+<li><a class="reference internal" href="#asm-directives">ASM directives</a></li>
+<li><a class="reference internal" href="#control-file-comments">Control file comments</a></li>
+<li><a class="reference internal" href="#limitations">Limitations</a></li>
+<li><a class="reference internal" href="#revision-history">Revision history</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="parsing.html"
+                        title="previous chapter">Parsing, rendering, and modes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="skool-files.html"
+                        title="next chapter">Skool files</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="skool-files.html" title="Skool files"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="parsing.html" title="Parsing, rendering, and modes"
+             >previous</a> |</li>
+        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Richard Dymond.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
