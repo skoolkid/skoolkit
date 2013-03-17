@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+
+# Verify that the code examples in the 'Extending SkoolKit' documentation
+# actually work
+
+write_skool() {
+  cat <<EOF
+; @start
+; @writer=skoolkit.game.GameAsmWriter
+; Test the GameAsmWriter.timestamp() method: #CALL:timestamp()
+; Test the TIMESTAMP macro: #TIMESTAMP
+
+; Start
+;
+; #UDGTABLE
+; { #SPRITE3(jumping) }
+; { Created using SPRITE3(jumping)  }
+; TABLE#
+; .
+; #UDGTABLE
+; { #CALL:sprite(3,jumping2) }
+; { Created using CALL:sprite(3,jumping2) }
+; TABLE#
+; .
+; PEEK 32770 = #PEEK32770
+; .
+; #UDGTABLE
+; { #INVERSE32768,56 }
+; { Created using INVERSE32768,56 }
+; TABLE#
+b32768 DEFB 1,2,4,8,16,32,64,128
+EOF
+}
+
+write_ref() {
+  cat <<EOF
+[Config]
+HtmlWriterClass=skoolkit.game.GameHtmlWriter
+EOF
+}
+
+write_module() {
+  cat <<EOF
+import time
+
+from .skoolhtml import HtmlWriter, Udg
+from .skoolasm import AsmWriter
+from .skoolmacro import parse_ints
+
+class GameHtmlWriter(HtmlWriter):
+    def sprite(self, cwd, sprite_id, fname):
+        img_path = self.image_path(fname)
+        if self.need_image(img_path):
+            # Build udgs for the sprite
+            udgs = [[Udg(4, self.snapshot[32768:32776])]]
+            self.write_image(img_path, udgs)
+        return self.img_element(cwd, img_path)
+
+    # #SPRITEspriteId{X,Y,W,H}(fname)
+    def expand_sprite(self, text, index, cwd):
+        end, img_path, crop_rect, sprite_id = self.parse_image_params(text, index, 1)
+        if self.need_image(img_path):
+            # Build udgs for the sprite
+            udgs = [[Udg(4, self.snapshot[32768:32776])]] * 2
+            self.write_image(img_path, udgs, crop_rect)
+        return end, self.img_element(cwd, img_path)
+
+    # #PEEKaddress
+    def expand_peek(self, text, index, cwd):
+        end, address = parse_ints(text, index, 1)
+        return end, str(self.snapshot[address])
+
+    # #INVERSEaddress,attr
+    def expand_inverse(self, text, index, cwd):
+        end, address, attr = parse_ints(text, index, 2)
+        img_path = self.image_path('inverse{0}_{1}'.format(address, attr))
+        if self.need_image(img_path):
+            udg_data = [b ^ 255 for b in self.snapshot[address:address + 8]]
+            udg = Udg(attr, udg_data)
+            self.write_image(img_path, [[udg]])
+        return end, self.img_element(cwd, img_path)
+
+class GameAsmWriter(AsmWriter):
+    def expand_peek(self, text, index):
+        end, address = parse_ints(text, index, 1)
+        return end, str(self.snapshot[address])
+
+    def timestamp(self):
+        return time.strftime("%a %d %b %Y %H:%M:%S %Z")
+
+    def expand_timestamp(self, text, index):
+        return index, time.strftime("%a %d %b %Y %H:%M:%S %Z")
+EOF
+}
+
+SKOOL2HTML=./skool2html.py
+SKOOL2ASM=./skool2asm.py
+if [ ! -f $SKOOL2HTML ] || [ ! -f $SKOOL2ASM ] || [ ! -d skoolkit ]; then
+  if [ -z "$SKOOLKIT_HOME" ]; then
+    echo "Error: SKOOLKIT_HOME not defined."
+    exit 1
+  fi
+  if [ ! -d "$SKOOLKIT_HOME" ]; then
+    echo "Error: directory not found: $SKOOLKIT_HOME"
+    exit 1
+  fi
+  cd $SKOOLKIT_HOME
+fi
+
+write_skool > build/game.skool
+write_ref > build/game.ref
+write_module > skoolkit/game.py
+
+rm -rf build/game
+$SKOOL2HTML -d build build/game.ref
+$SKOOL2ASM build/game.skool > build/game.asm
+
+rm skoolkit/game.py*
