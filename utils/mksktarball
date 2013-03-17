@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+usage() {
+  cat <<EOF
+Usage: $(basename $0) [options]
+
+  Create a release tarball and zip archive of SkoolKit.
+
+Options:
+  -h  Show this help
+  -q  Be quiet
+  -t  Write only the release tarball
+EOF
+  exit 1
+}
+
+info() {
+  [ $VERBOSE -eq 1 ] && echo $*
+}
+
+if [ -z "$SKOOLKIT_HOME" ]; then
+  echo "Error: SKOOLKIT_HOME not defined."
+  exit 1
+fi
+if [ ! -d "$SKOOLKIT_HOME" ]; then
+  echo "Error: directory not found: $SKOOLKIT_HOME"
+  exit 1
+fi
+
+cd $SKOOLKIT_HOME
+VERSION=$(./skool2html.py -V | cut -f2 -d' ')
+PKGNAME=skoolkit-$VERSION
+
+VERBOSE=1
+WRITE_ZIP=1
+
+while getopts ":hqt" opt; do
+  case $opt in
+    h) usage ;;
+    q) VERBOSE=0 ;;
+    t) WRITE_ZIP=0 ;;
+  esac
+done
+
+DISTDIR=$SKOOLKIT_HOME/dist
+ABSDIR=${DISTDIR}/${PKGNAME}
+rm -rf ${ABSDIR}*
+DOCSDIR=${ABSDIR}/docs
+mkdir -p $DOCSDIR
+DOCSRC=${ABSDIR}/docs-src
+mkdir -p ${DOCSRC}/build
+
+rsync -aR \
+  {bin2tap,skool2{asm,ctl,html,sft},sna2skool}.py \
+  skoolkit/{__init__,bin2tap,ctlparser,disassembler,image,refparser,pngwriter,gifwriter,sftparser,skool{{,2}{asm,ctl,html,sft},macro,parser},sna{,2}skool,snapshot,manicminer,jetsetwilly}.py \
+  examples/{{manic_miner,jet_set_willy}.ref,jet_set_willy.css} \
+  resources/{skoolkit{,-dark,-spectrum}.css,spectrum.ttf{,.txt}} \
+  tests/{skoolkittest,test_{bin2tap,ctlparser,disassembler,image,skool{{,2}{asm,ctl,html,sft},macro,parser},refparser,sftparser,skoolkit,sna{2,}skool,snapshot}}.py \
+  man/{bin2tap,skool2{asm,ctl,html,sft},sna2skool}.py.rst \
+  COPYING setup.py \
+  $ABSDIR
+
+# examples/{manic_miner,jet_set_willy}.ctl
+utils/mm2ctl.py snapshots/manic_miner.z80 > $ABSDIR/examples/manic_miner.ctl
+utils/jsw2ctl.py snapshots/jet_set_willy.z80 > $ABSDIR/examples/jet_set_willy.ctl
+
+# Documentation
+cd $SKOOLKIT_HOME/sphinx
+rm -rf build/*
+if ! make html &> /dev/null; then
+  echo "*** Error building documentation; aborting"
+  exit 1
+fi
+rsync -a --exclude=.buildinfo --exclude=objects.inv build/html/ $DOCSDIR
+rsync -a --exclude=.svn Makefile make.bat source $DOCSRC
+
+# Man pages
+cd $ABSDIR/man
+MANDIR=man1
+mkdir $MANDIR
+for m in *.rst; do
+  rst2man $m $MANDIR/$(basename $m .rst).1
+done
+
+cd $DISTDIR
+
+info "Creating ${DISTDIR}/${PKGNAME}.tar.xz"
+tar acf ${PKGNAME}.tar.xz $PKGNAME
+
+if [ $WRITE_ZIP -eq 1 ]; then
+  info "Creating ${DISTDIR}/${PKGNAME}.zip"
+  zip -9qr ${PKGNAME}.zip $PKGNAME
+fi
