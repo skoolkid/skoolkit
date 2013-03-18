@@ -1,4 +1,6 @@
 *.pyc
+.coverage
 build
 dist
 snapshots
+tests/cover
