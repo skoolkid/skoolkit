@@ -72,7 +72,7 @@ if ! make html &> /dev/null; then
   exit 1
 fi
 rsync -a --exclude=.buildinfo --exclude=objects.inv build/html/ $DOCSDIR
-rsync -a --exclude=.svn Makefile make.bat source $DOCSRC
+rsync -a Makefile make.bat source $DOCSRC
 
 # Man pages
 cd $ABSDIR/man
