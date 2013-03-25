@@ -1,6 +1,9 @@
 *.pyc
 .coverage
+.emacs.desktop
+.emacs.desktop.lock
 build
 dist
 snapshots
 tests/cover
+untracked
