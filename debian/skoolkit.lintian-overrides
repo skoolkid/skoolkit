@@ -1,0 +1,11 @@
+skoolkit binary: new-package-should-close-itp-bug
+skoolkit binary: changelog-file-not-compressed changelog.html
+skoolkit binary: html-changelog-without-text-version
+skoolkit binary: embedded-javascript-library usr/share/doc/skoolkit/_static/jquery.js
+skoolkit binary: embedded-javascript-library usr/share/doc/skoolkit/_static/underscore.js
+skoolkit binary: script-with-language-extension usr/bin/bin2tap.py
+skoolkit binary: script-with-language-extension usr/bin/skool2asm.py
+skoolkit binary: script-with-language-extension usr/bin/skool2ctl.py
+skoolkit binary: script-with-language-extension usr/bin/skool2html.py
+skoolkit binary: script-with-language-extension usr/bin/skool2sft.py
+skoolkit binary: script-with-language-extension usr/bin/sna2skool.py

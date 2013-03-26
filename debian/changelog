@@ -1,0 +1,23 @@
+skoolkit (3.3.1-1) unstable; urgency=low
+
+  * Updated to 3.3.1.
+
+ -- Richard Dymond <rjdymond@gmail.com>  Mon, 04 Mar 2013 12:54:31 -0400
+
+skoolkit (3.3-1) unstable; urgency=low
+
+  * Updated to 3.3.
+
+ -- Richard Dymond <rjdymond@gmail.com>  Tue, 08 Jan 2013 08:44:52 -0400
+
+skoolkit (3.2-2) unstable; urgency=low
+
+  * Added a missing file: docs/searchindex.js.
+
+ -- Richard Dymond <rjdymond@gmail.com>  Mon, 26 Nov 2012 09:56:35 -0400
+
+skoolkit (3.2-1) unstable; urgency=low
+
+  * Initial release.
+
+ -- Richard Dymond <rjdymond@gmail.com>  Fri, 02 Nov 2012 16:13:40 +0000

@@ -3,7 +3,17 @@
 .emacs.desktop
 .emacs.desktop.lock
 build
+debian/files
+debian/skoolkit.debhelper.log
+debian/skoolkit.postinst.debhelper
+debian/skoolkit.prerm.debhelper
+debian/skoolkit.substvars
+debian/skoolkit
 dist
+docs
+examples/jet_set_willy.ctl
+examples/manic_miner.ctl
+man/man1
 snapshots
 tests/cover
 untracked
