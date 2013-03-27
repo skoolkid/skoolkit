@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e # Abort on errors
 
 usage() {
   cat <<EOF
@@ -15,7 +16,9 @@ EOF
 }
 
 info() {
-  [ $VERBOSE -eq 1 ] && echo $*
+  if [ $VERBOSE -eq 1 ]; then
+    echo $*
+  fi
 }
 
 if [ -z "$SKOOLKIT_HOME" ]; then
@@ -44,7 +47,7 @@ done
 
 DISTDIR=$SKOOLKIT_HOME/dist
 ABSDIR=${DISTDIR}/${PKGNAME}
-rm -rf ${ABSDIR}*
+rm -rf ${ABSDIR}
 DOCSDIR=${ABSDIR}/docs
 mkdir -p $DOCSDIR
 DOCSRC=${ABSDIR}/docs-src

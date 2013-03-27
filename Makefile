@@ -37,6 +37,7 @@ usage:
 	@echo "  tarball      build a SkoolKit release tarball"
 	@echo "  deb          build a SkoolKit Debian package"
 	@echo "  deb-clean    clean up after 'make deb'"
+	@echo "  rpm          build a SkoolKit RPM package"
 	@echo ""
 	@echo "Environment variables:"
 	@echo "  DARK=1       use skoolkit-dark.css when building a disassembly"
@@ -118,3 +119,7 @@ deb: clean doc
 .PHONY: deb-clean
 deb-clean:
 	rm -rf ../skoolkit_*.build ../skoolkit_*.changes build docs debian/skoolkit debian/files debian/skoolkit.debhelper.log debian/skoolkit.postinst.debhelper debian/skoolkit.prerm.debhelper debian/skoolkit.substvars examples/manic_miner.ctl examples/jet_set_willy.ctl man/man1
+
+.PHONY: rpm
+rpm:
+	utils/mkskpkg

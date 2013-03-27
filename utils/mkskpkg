@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -e # Abort on errors
+
+if [ -z "$SKOOLKIT_HOME" ]; then
+  echo "Error: SKOOLKIT_HOME not defined."
+  exit 1
+fi
+if [ ! -d "$SKOOLKIT_HOME" ]; then
+  echo "Error: directory not found: $SKOOLKIT_HOME"
+  exit 1
+fi
+
+cd $SKOOLKIT_HOME
+VERSION=$(./skool2html.py -V | cut -f2 -d' ')
+SKOOLKIT_TAR=skoolkit-$VERSION.tar.xz
+if [ -f "dist/$SKOOLKIT_TAR" ]; then
+  echo "Using existing $SKOOLKIT_TAR"
+else
+  echo "Building $SKOOLKIT_TAR"
+  utils/mksktarball -q -t
+fi
+
+cp -p dist/$SKOOLKIT_TAR ~/rpmbuild/SOURCES
+rm -f ~/rpmbuild/RPMS/noarch/skoolkit-$VERSION-*.rpm
+rpmbuild -bb rpm/skoolkit.spec
+mv ~/rpmbuild/RPMS/noarch/skoolkit-$VERSION-*.rpm dist
+ls -l dist/skoolkit-$VERSION-*.rpm
