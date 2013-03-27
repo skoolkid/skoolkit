@@ -36,7 +36,6 @@ usage:
 	@echo "  release      build a SkoolKit release tarball and zip archive"
 	@echo "  tarball      build a SkoolKit release tarball"
 	@echo "  deb          build a SkoolKit Debian package"
-	@echo "  deb-clean    clean up after 'make deb'"
 	@echo "  rpm          build a SkoolKit RPM package"
 	@echo ""
 	@echo "Environment variables:"
@@ -105,21 +104,9 @@ tarball:
 	utils/mksktarball -t
 
 .PHONY: deb
-deb: clean doc
-	rsync -a --exclude=.buildinfo --exclude=objects.inv sphinx/build/html/ docs
-	utils/mm2ctl.py snapshots/manic_miner.z80 > examples/manic_miner.ctl
-	utils/jsw2ctl.py snapshots/jet_set_willy.z80 > examples/jet_set_willy.ctl
-	rm -rf man/man1
-	mkdir man/man1
-	for m in bin2tap.py.rst skool2asm.py.rst skool2ctl.py.rst skool2html.py.rst skool2sft.py.rst sna2skool.py.rst; do rst2man man/$$m man/man1/$$(basename $$m .rst).1; done
-	debuild -b -us -uc
-	mkdir -p dist
-	mv ../skoolkit_*.deb dist
-
-.PHONY: deb-clean
-deb-clean:
-	rm -rf ../skoolkit_*.build ../skoolkit_*.changes build docs debian/skoolkit debian/files debian/skoolkit.debhelper.log debian/skoolkit.postinst.debhelper debian/skoolkit.prerm.debhelper debian/skoolkit.substvars examples/manic_miner.ctl examples/jet_set_willy.ctl man/man1
+deb:
+	utils/mkskpkg deb
 
 .PHONY: rpm
 rpm:
-	utils/mkskpkg
+	utils/mkskpkg rpm
