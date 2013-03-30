@@ -21,27 +21,27 @@ endif
 .PHONY: usage
 usage:
 	@echo "Supported targets:"
-	@echo "  usage        show this help"
-	@echo "  doc          build the documentation"
-	@echo "  clean        clean the documentation"
-	@echo "  mm           build the Manic Miner disassembly"
-	@echo "  jsw          build the Jet Set Willy disassembly"
-	@echo "  test         run unit tests with current Python interpreter"
-	@echo "  test2.6      run unit tests with Python 2.6"
-	@echo "  test2.7      run unit tests with Python 2.7"
-	@echo "  test3.1      run unit tests with Python 3.1"
-	@echo "  test3.2      run unit tests with Python 3.2"
-	@echo "  test3.3      run unit tests with Python 3.3"
-	@echo "  test-cover   run unit tests with coverage info"
-	@echo "  release      build a SkoolKit release tarball and zip archive"
-	@echo "  tarball      build a SkoolKit release tarball"
-	@echo "  deb          build a SkoolKit Debian package"
-	@echo "  rpm          build a SkoolKit RPM package"
+	@echo "  usage            show this help"
+	@echo "  doc              build the documentation"
+	@echo "  clean            clean the documentation"
+	@echo "  mm               build the Manic Miner disassembly"
+	@echo "  jsw              build the Jet Set Willy disassembly"
+	@echo "  test[-all]       run core/all unit tests with current Python interpreter"
+	@echo "  test2.6[-all]    run core/all unit tests with Python 2.6"
+	@echo "  test2.7[-all]    run core/all unit tests with Python 2.7"
+	@echo "  test3.1[-all]    run core/all unit tests with Python 3.1"
+	@echo "  test3.2[-all]    run core/all unit tests with Python 3.2"
+	@echo "  test3.3[-all]    run core/all unit tests with Python 3.3"
+	@echo "  test-cover[-all] run core/all unit tests with coverage info"
+	@echo "  release          build a SkoolKit release tarball and zip archive"
+	@echo "  tarball          build a SkoolKit release tarball"
+	@echo "  deb              build a SkoolKit Debian package"
+	@echo "  rpm              build a SkoolKit RPM package"
 	@echo ""
 	@echo "Environment variables:"
-	@echo "  DARK=1       use skoolkit-dark.css when building a disassembly"
-	@echo "  SPECTRUM=1   use skoolkit-spectrum.css when building a disassembly"
-	@echo "  HEX=1        use hexadecimal when building a disassembly"
+	@echo "  DARK=1           use skoolkit-dark.css when building a disassembly"
+	@echo "  SPECTRUM=1       use skoolkit-spectrum.css when building a disassembly"
+	@echo "  HEX=1            use hexadecimal when building a disassembly"
 
 .PHONY: doc
 doc:
@@ -67,30 +67,60 @@ jsw:
 
 .PHONY: test
 test:
+	nosetests -w tests --ignore-files=test_disassemblies.py
+
+.PHONY: test-all
+test-all:
 	nosetests -w tests
 
 .PHONY: test2.6
 test2.6:
+	$(NOSETESTS26) -w tests --ignore-files=test_disassemblies.py
+
+.PHONY: test2.6-all
+test2.6-all:
 	$(NOSETESTS26) -w tests
 
 .PHONY: test2.7
 test2.7:
+	$(NOSETESTS27) -w tests --ignore-files=test_disassemblies.py
+
+.PHONY: test2.7-all
+test2.7-all:
 	$(NOSETESTS27) -w tests
 
 .PHONY: test3.1
 test3.1:
+	$(NOSETESTS31) -w tests --ignore-files=test_disassemblies.py
+
+.PHONY: test3.1-all
+test3.1-all:
 	$(NOSETESTS31) -w tests
 
 .PHONY: test3.2
 test3.2:
+	$(NOSETESTS32) -w tests --ignore-files=test_disassemblies.py
+
+.PHONY: test3.2-all
+test3.2-all:
 	$(NOSETESTS32) -w tests
 
 .PHONY: test3.3
 test3.3:
+	$(NOSETESTS33) -w tests --ignore-files=test_disassemblies.py
+
+.PHONY: test3.3-all
+test3.3-all:
 	$(NOSETESTS33) -w tests
 
 .PHONY: test-cover
 test-cover:
+	rm -rf tests/cover
+	nosetests -w tests --with-coverage --cover-package=skoolkit --cover-html --cover-erase --ignore-files=test_disassemblies.py
+	@echo "Coverage info in tests/cover/index.html"
+
+.PHONY: test-cover-all
+test-cover-all:
 	rm -rf tests/cover
 	nosetests -w tests --with-coverage --cover-package=skoolkit --cover-html --cover-erase
 	@echo "Coverage info in tests/cover/index.html"
