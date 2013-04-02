@@ -5,6 +5,7 @@
 .emacs.desktop.lock
 build
 dist
+DTD
 examples/jet_set_willy.ctl
 examples/manic_miner.ctl
 snapshots

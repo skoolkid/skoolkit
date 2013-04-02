@@ -37,6 +37,7 @@ usage:
 	@echo "  tarball          build a SkoolKit release tarball"
 	@echo "  deb              build a SkoolKit Debian package"
 	@echo "  rpm              build a SkoolKit RPM package"
+	@echo "  DTD              download XHTML DTDs"
 	@echo ""
 	@echo "Environment variables:"
 	@echo "  DARK=1           use skoolkit-dark.css when building a disassembly"
@@ -140,3 +141,6 @@ deb:
 .PHONY: rpm
 rpm:
 	utils/mkskpkg rpm
+
+DTD:
+	curl -s http://www.w3.org/TR/xhtml1/xhtml1.tgz | tar xzf - xhtml1-20020801/DTD --strip-components=1
