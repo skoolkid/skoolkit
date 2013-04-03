@@ -3,6 +3,7 @@ import sys
 import os
 import shutil
 from subprocess import Popen, PIPE
+from lxml import etree
 from xml.dom.minidom import parse
 from xml.dom import Node
 from nose.plugins.skip import SkipTest
@@ -13,6 +14,8 @@ MM2CTL = '{0}/utils/mm2ctl.py'.format(SKOOLKIT_HOME)
 MMZ80 = '{0}/snapshots/manic_miner.z80'.format(SKOOLKIT_HOME)
 JSW2CTL = '{0}/utils/jsw2ctl.py'.format(SKOOLKIT_HOME)
 JSWZ80 = '{0}/snapshots/jet_set_willy.z80'.format(SKOOLKIT_HOME)
+
+XHTML_XSD = os.path.join(SKOOLKIT_HOME, 'XSD', 'xhtml1-strict.xsd')
 
 OUTPUT_MM = """Creating directory {odir}
 Using skool file: {skoolfile}
@@ -191,6 +194,21 @@ class HtmlTest(DisassembliesTest):
             self.assertEqual(len(error), 0)
             reps = {'odir': self.odir, 'cssfile': cssfile, 'skoolfile': skoolfile}
             self.assertEqual(output, exp_output.format(**reps).split('\n'))
+
+            # Do XHTML validation using lxml.etree
+            if os.path.isfile(XHTML_XSD):
+                with open(XHTML_XSD) as f:
+                    xmlschema_doc = etree.parse(f)
+                xmlschema = etree.XMLSchema(xmlschema_doc)
+                for root, dirs, files in os.walk(self.odir):
+                    for fname in files:
+                        if fname[-5:] == '.html':
+                            htmlfile = os.path.join(root, fname)
+                            try:
+                                xhtml = etree.parse(htmlfile)
+                            except:
+                                self.fail('Error while parsing {0}'.format(htmlfile))
+                            xmlschema.assertValid(xhtml)
 
             # Check links
             all_files, orphans, missing_files, missing_anchors = check_links(self.odir)

@@ -38,6 +38,7 @@ usage:
 	@echo "  deb              build a SkoolKit Debian package"
 	@echo "  rpm              build a SkoolKit RPM package"
 	@echo "  DTD              download XHTML DTDs"
+	@echo "  XSD              download XHTML XSDs"
 	@echo ""
 	@echo "Environment variables:"
 	@echo "  DARK=1           use skoolkit-dark.css when building a disassembly"
@@ -144,3 +145,8 @@ rpm:
 
 DTD:
 	curl -s http://www.w3.org/TR/xhtml1/xhtml1.tgz | tar xzf - xhtml1-20020801/DTD --strip-components=1
+
+XSD:
+	mkdir XSD
+	curl -s http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd | sed 's@http://www.w3.org/2001/xml.xsd@xml.xsd@' > XSD/xhtml1-strict.xsd
+	curl -s -o XSD/xml.xsd http://www.w3.org/2009/01/xml.xsd
