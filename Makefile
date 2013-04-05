@@ -39,6 +39,7 @@ usage:
 	@echo "  rpm              build a SkoolKit RPM package"
 	@echo "  DTD              download XHTML DTDs"
 	@echo "  XSD              download XHTML XSDs"
+	@echo "  snapshots        build snapshots of Manic Miner and Jet Set Willy"
 	@echo ""
 	@echo "Environment variables:"
 	@echo "  DARK=1           use skoolkit-dark.css when building a disassembly"
@@ -150,3 +151,7 @@ XSD:
 	mkdir XSD
 	curl -s http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd | sed 's@http://www.w3.org/2001/xml.xsd@xml.xsd@' > XSD/xhtml1-strict.xsd
 	curl -s -o XSD/xml.xsd http://www.w3.org/2009/01/xml.xsd
+
+.PHONY: snapshots
+snapshots:
+	utils/get-snapshots.py
