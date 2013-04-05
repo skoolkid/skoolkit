@@ -206,9 +206,12 @@ class HtmlTest(DisassembliesTest):
                             htmlfile = os.path.join(root, fname)
                             try:
                                 xhtml = etree.parse(htmlfile)
-                            except:
-                                self.fail('Error while parsing {0}'.format(htmlfile))
-                            xmlschema.assertValid(xhtml)
+                            except etree.LxmlError as e:
+                                self.fail('Error while parsing {0}: {1}'.format(htmlfile, e.message))
+                            try:
+                                xmlschema.assertValid(xhtml)
+                            except etree.DocumentInvalid as e:
+                                self.fail('Error while validating {0}: {1}'.format(htmlfile, e.message))
 
             # Check links
             all_files, orphans, missing_files, missing_anchors = check_links(self.odir)
