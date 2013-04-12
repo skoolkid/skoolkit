@@ -49,9 +49,6 @@ div.box {
   width: 960px;
   padding: 6px;
   margin-bottom: 10px;
-  -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
-  -khtml-border-radius: 10px;
   border-radius: 10px;
 }
 div.boxTitle {
