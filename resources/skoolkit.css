@@ -5,7 +5,7 @@ body {
   font-family: sans;
 }
 img {
-  border-width: 0px;
+  border-width: 0;
 }
 a.link {
   text-decoration: none;
@@ -18,8 +18,8 @@ table.header td {
   vertical-align: middle;
   font-weight: bold;
   font-size: 150%;
-  padding-top: 0px;
-  padding-bottom: 0px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 td.headerText {
   white-space: nowrap;
@@ -38,8 +38,8 @@ td.transparent {
 }
 ul.linkList {
   list-style-type: none;
-  margin-left: 0px;
-  padding-left: 0px;
+  margin-left: 0;
+  padding-left: 0;
 }
 span.register {
   color: #008000;
@@ -55,7 +55,7 @@ div.boxTitle {
   font-weight: bold;
 }
 div.box p {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 div.box1 {
   background-color: #aaccee;
@@ -79,8 +79,8 @@ td.centre {
 /* Home page */
 ul.indexList {
   list-style-type: none;
-  margin-top: 0px;
-  margin-left: 0px;
+  margin-top: 0;
+  margin-left: 0;
   padding-left: 20px;
 }
 
@@ -173,7 +173,7 @@ td.dataComment {
   vertical-align: top;
 }
 td.routineComment {
-  padding-left: 0px;
+  padding-left: 0;
 }
 td.transparentComment {
   width: 640px;
@@ -286,5 +286,5 @@ div.changelogDesc {
 }
 ul.changelog {
   margin-top: 5px;
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
