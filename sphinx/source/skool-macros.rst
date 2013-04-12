@@ -839,7 +839,7 @@ image of an array of UDGs (8x8 blocks of pixels). ::
   it is (default: 0)
 * ``addr1`` is the address range specification for the first set of UDGs (see
   below)
-* ``attr1`` is the attribute byte to use for the each UDG in the set (overrides
+* ``attr1`` is the attribute byte to use for each UDG in the set (overrides
   ``attr`` if specified)
 * ``step1`` is the interval between successive bytes of each UDG in the set
   (overrides ``step`` if specified)
