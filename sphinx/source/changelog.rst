@@ -7,6 +7,9 @@ Changelog
    changelog2
    changelog1
 
+3.3.2beta
+---------
+
 3.3.1 (2013-03-04)
 ------------------
 * Added support to the :ref:`set` ASM directive for the `comment-width-min`,

@@ -20,7 +20,7 @@ import sys
 import os
 import textwrap
 
-VERSION = '3.3.1'
+VERSION = '3.3.2beta'
 ENCODING = 'utf-8'
 PY3 = sys.version_info >= (3,)
 
