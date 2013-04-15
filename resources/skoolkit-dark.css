@@ -66,11 +66,11 @@ div.box2 {
 div.paragraph {
   margin-top: 10px;
 }
-table.default th {
+table table.default th, table.default th {
   background-color: #775533;
 }
-table.default td {
-  background-color: #553311 !important;
+table table.default td, table.default td {
+  background-color: #553311;
 }
 td.centre {
   text-align: center;
