@@ -1,4 +1,7 @@
 SKOOLKIT_HOME?=.
+DARK?=0
+SPECTRUM?=0
+HEX?=0
 SKOOL2HTML=$(SKOOLKIT_HOME)/skool2html.py
 SNA2SKOOL=$(SKOOLKIT_HOME)/sna2skool.py
 NOSETESTS26=/usr/bin/python2.6 /usr/bin/nosetests
@@ -8,13 +11,15 @@ NOSETESTS32=/usr/bin/python3.2 /usr/bin/nosetests
 NOSETESTS33=$(HOME)/Python/Python3.3/bin/nosetests
 OPTIONS=-d build/html -t
 
-ifdef DARK
-  OPTIONS+= -c Paths/StyleSheet=skoolkit-dark.css
+ifeq ($(DARK),1)
+  MM_OPTIONS=-c Paths/StyleSheet=skoolkit-dark.css
+  JSW_OPTIONS=-c 'Paths/StyleSheet=skoolkit-dark.css;examples/jet_set_willy-dark.css'
+else ifeq ($(SPECTRUM),1)
+  MM_OPTIONS=-c Paths/StyleSheet=skoolkit-spectrum.css
+  JSW_OPTIONS=-c 'Paths/StyleSheet=skoolkit-spectrum.css;examples/jet_set_willy.css'
+  OPTIONS+= -c Paths/Font=spectrum.ttf
 endif
-ifdef SPECTRUM
-  OPTIONS+= -c Paths/StyleSheet=skoolkit-spectrum.css -c Paths/Font=spectrum.ttf
-endif
-ifdef HEX
+ifeq ($(HEX),1)
   OPTIONS+= -H
 endif
 
@@ -42,8 +47,8 @@ usage:
 	@echo "  snapshots        build snapshots of Manic Miner and Jet Set Willy"
 	@echo ""
 	@echo "Environment variables:"
-	@echo "  DARK=1           use skoolkit-dark.css when building a disassembly"
-	@echo "  SPECTRUM=1       use skoolkit-spectrum.css when building a disassembly"
+	@echo "  DARK=1           use the 'dark' theme when building a disassembly"
+	@echo "  SPECTRUM=1       use the 'spectrum' theme when building a disassembly"
 	@echo "  HEX=1            use hexadecimal when building a disassembly"
 
 .PHONY: doc
@@ -58,14 +63,14 @@ clean:
 mm:
 	$(SKOOLKIT_HOME)/utils/mm2ctl.py snapshots/manic_miner.z80 > manic_miner.ctl
 	$(SNA2SKOOL) -c manic_miner.ctl snapshots/manic_miner.z80 > manic_miner.skool
-	$(SKOOL2HTML) $(OPTIONS) examples/manic_miner.ref
+	$(SKOOL2HTML) $(OPTIONS) $(MM_OPTIONS) examples/manic_miner.ref
 	rm manic_miner.skool manic_miner.ctl
 
 .PHONY: jsw
 jsw:
 	$(SKOOLKIT_HOME)/utils/jsw2ctl.py snapshots/jet_set_willy.z80 > jet_set_willy.ctl
 	$(SNA2SKOOL) -c jet_set_willy.ctl snapshots/jet_set_willy.z80 > jet_set_willy.skool
-	$(SKOOL2HTML) $(OPTIONS) examples/jet_set_willy.ref
+	$(SKOOL2HTML) $(OPTIONS) $(JSW_OPTIONS) examples/jet_set_willy.ref
 	rm jet_set_willy.skool jet_set_willy.ctl
 
 .PHONY: test

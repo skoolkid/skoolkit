@@ -10,6 +10,8 @@ Changelog
 3.3.2beta
 ---------
 * Fixed the appearance of transparent table cells in HTML output 
+* Added `jet_set_willy-dark.css` (to complete the 'dark' theme for that
+  disassembly)
 
 3.3.1 (2013-03-04)
 ------------------
