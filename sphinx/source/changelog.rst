@@ -9,6 +9,7 @@ Changelog
 
 3.3.2beta
 ---------
+* Fixed the appearance of transparent table cells in HTML output 
 
 3.3.1 (2013-03-04)
 ------------------
