@@ -12,6 +12,8 @@ Changelog
 * Fixed the appearance of transparent table cells in HTML output 
 * Added `jet_set_willy-dark.css` (to complete the 'dark' theme for that
   disassembly)
+* `setup.py` now installs the `resources` directory (so a local copy is no
+  longer required when SkoolKit has been installed via ``setup.py install``)
 
 3.3.1 (2013-03-04)
 ------------------

@@ -7,7 +7,7 @@ convert skool and ref files to HTML
 -----------------------------------
 
 :Author: rjdymond@gmail.com
-:Date: 2012-10-30
+:Date: 2013-04-19
 :Manual section: 1
 
 SYNOPSIS
@@ -64,6 +64,9 @@ directories, in the order listed:
 | - ./resources
 | - ~/.skoolkit
 | - /usr/share/skoolkit
+| - $PACKAGE_DIR/resources
+
+where $PACKAGE_DIR is the directory in which the skoolkit package is installed.
 
 EXAMPLES
 ========

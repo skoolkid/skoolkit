@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -31,7 +31,13 @@ from .refparser import RefParser
 verbose = True
 show_timings = False
 
-SEARCH_DIRS = ('', 'resources', os.path.expanduser('~/.skoolkit'), '/usr/share/skoolkit')
+SEARCH_DIRS = (
+    '',
+    'resources',
+    os.path.expanduser('~/.skoolkit'),
+    '/usr/share/skoolkit',
+    os.path.join(dirname(__file__), 'resources')
+)
 CONFIG = 'Config'
 
 USAGE = """skool2html.py [options] FILE [FILE...]

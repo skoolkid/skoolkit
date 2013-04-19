@@ -211,6 +211,10 @@ following directories, in the order listed:
 * `./resources`
 * `~/.skoolkit`
 * `/usr/share/skoolkit`
+* `$PACKAGE_DIR/resources`
+
+where `$PACKAGE_DIR` is the directory in which the `skoolkit` package is
+installed.
 
 `Changed in version 1.4:` Added the ``-V`` option.
 
@@ -234,6 +238,8 @@ disassembly.
 `Changed in version 3.1:` Added the ``-c`` option.
 
 `Changed in version 3.2:` Added `~/.skoolkit` to the search path.
+
+`Changed in version 3.3.2:` Added `$PACKAGE_DIR/resources` to the search path.
 
 .. _skool2sft.py:
 
