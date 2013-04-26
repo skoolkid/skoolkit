@@ -8,6 +8,7 @@ else:
 import os
 from os.path import abspath, dirname
 from shutil import rmtree
+import glob
 import tempfile
 from unittest import TestCase
 
@@ -57,6 +58,11 @@ class SkoolKitTestCase(TestCase):
         for f in self.tempfiles:
             if os.path.isfile(f):
                 os.remove(f)
+                if f.endswith('.py'):
+                    pyc_pattern = os.path.join(dirname(f), '__pycache__', '{0}*.pyc'.format(f[:-3]))
+                    for pyc in [f + 'c'] + glob.glob(pyc_pattern):
+                        if os.path.isfile(pyc):
+                            os.remove(pyc)
         self.tempfiles = []
         for d in self.tempdirs:
             if os.path.isdir(d):
