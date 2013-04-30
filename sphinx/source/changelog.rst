@@ -14,6 +14,9 @@ Changelog
   disassembly)
 * `setup.py` now installs the `resources` directory (so a local copy is no
   longer required when SkoolKit has been installed via ``setup.py install``)
+* Added :ref:`documentation <bracesInComments>` on how to write an
+  instruction-level comment that contains opening or closing braces when
+  rendered
 
 3.3.1 (2013-03-04)
 ------------------

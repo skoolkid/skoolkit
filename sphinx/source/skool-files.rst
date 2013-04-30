@@ -59,6 +59,9 @@ correctly by :ref:`skool2html.py`, :ref:`skool2asm.py`, :ref:`skool2ctl.py` and
     *24372 SUB D         ; {This comment applies to the two instructions at
      24373 JR NZ,24378   ; 24372 and 24373}
 
+  The opening and closing braces are removed before the comment is rendered in
+  ASM or HTML mode. (See :ref:`bracesInComments`.)
+
   Comments may appear between instructions, or after the last instruction in an
   entry; paragraphs in such comments must be separated by a comment line
   containing a dot (``.``) on its own. For example::
@@ -119,6 +122,56 @@ correctly by :ref:`skool2html.py`, :ref:`skool2asm.py`, :ref:`skool2ctl.py` and
   regarded as an input value. If a register has no prefix, it will be placed in
   the same table as the previous register; if there is no previous register, it
   will be placed in the table of input values.
+
+.. _bracesInComments:
+
+Braces in comments
+------------------
+As noted above, opening and closing braces (``{``, ``}``) are used to mark the
+start and end points of an instruction-level comment that is associated with
+more than one instruction, and the braces are removed before the comment is
+rendered. This means that if the comment requires an opening or closing brace
+`when rendered`, some care must be taken to get the syntax correct.
+
+The rules regarding an instruction-level comment that starts with an opening
+brace are as follows:
+
+* The comment terminates on the line where the total number of closing braces
+  in the comment becomes equal to or greater than the total number of opening
+  braces
+* Adjacent opening braces at the start of the comment are removed before
+  rendering
+* Adjacent closing braces at the end of the comment are removed before
+  rendering
+
+By these rules, it is possible to craft an instruction-level comment that
+contains matched or unmatched opening and closing braces when rendered.
+
+For example::
+
+  b50000 DEFB 0  ; {{ This comment (which spans two instructions) has an
+   50001 DEFB 0  ; unmatched closing brace} }
+
+will render in ASM mode as::
+
+  DEFB 0                  ; This comment (which spans two instructions) has an
+  DEFB 0                  ; unmatched closing brace}
+
+And::
+
+  b50002 DEFB 0  ; { {{Matched opening and closing braces}} }
+
+will render as::
+
+  DEFB 0                  ; {{Matched opening and closing braces}}
+
+Finally::
+
+  b50003 DEFB 0  ; { {Unmatched opening brace }}
+
+will render as::
+
+  DEFB 0                  ; {Unmatched opening brace
 
 .. _dEntry:
 
