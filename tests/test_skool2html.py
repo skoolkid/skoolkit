@@ -4,6 +4,7 @@ import os
 from os.path import basename, isfile, join
 import unittest
 
+import skoolkit
 from skoolkittest import SkoolKitTestCase
 from skoolkit import skool2html, VERSION, UsageError, SkoolKitError
 from skoolkit.skoolhtml import HtmlWriter
@@ -405,6 +406,12 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(len(output), 1)
         self.assertEqual(output[0], 'SkoolKit {0}'.format(VERSION))
+
+    def test_option_p(self):
+        output, error = self.run_skool2html('-p')
+        self.assertEqual(error, '')
+        self.assertEqual(len(output), 1)
+        self.assertEqual(output[0], os.path.dirname(skoolkit.__file__))
 
     def test_option_q(self):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
