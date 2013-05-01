@@ -83,8 +83,10 @@ def parse_args(args):
         arg = args[i]
         if arg == '-c':
             options.ctlfile = args[i + 1]
+            options.sftfile = None
             i += 1
         elif arg == '-T':
+            options.ctlfile = None
             options.sftfile = args[i + 1]
             i += 1
         elif arg == '-g':
@@ -134,10 +136,10 @@ def parse_args(args):
         raise UsageError(USAGE)
     snafile = files[0]
     prefix = snafile[:-4]
-    if options.ctlfile is None:
-        options.ctlfile = find('{0}.ctl'.format(prefix))
-    if options.sftfile is None:
+    if not (options.ctlfile or options.sftfile):
         options.sftfile = find('{0}.sft'.format(prefix))
+    if not (options.ctlfile or options.sftfile):
+        options.ctlfile = find('{0}.ctl'.format(prefix))
     return snafile, options
 
 def run(snafile, options):

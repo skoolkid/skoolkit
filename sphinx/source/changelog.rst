@@ -19,6 +19,8 @@ Changelog
 * Added :ref:`documentation <bracesInComments>` on how to write an
   instruction-level comment that contains opening or closing braces when
   rendered
+* Fixed :ref:`sna2skool.py` so that a control file specified by the ``-c``
+  option takes precedence over a default skool file template
 
 3.3.1 (2013-03-04)
 ------------------
