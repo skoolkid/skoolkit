@@ -126,6 +126,7 @@ USAGE = """skool2html.py [options] FILE [FILE...]
 
 Options:
   -V        Show SkoolKit version number and exit
+  -p        Show path to skoolkit package directory and exit
   -q        Be quiet
   -t        Show timings
   -d DIR    Write files in this directory

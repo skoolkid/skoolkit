@@ -25,7 +25,7 @@ used with different versions of SkoolKit, and shared with other people.
 
 A minimal extension module would look like this::
 
-  # Extension module in the top-level skoolkit package directory
+  # Extension module in the skoolkit package directory
   from .skoolhtml import HtmlWriter
   from .skoolasm import AsmWriter
 
@@ -36,10 +36,16 @@ A minimal extension module would look like this::
       pass
 
 The next step is to get SkoolKit to use the extension module for your game.
-First, place the extension module (let's call it `game.py`) in the top-level
-`skoolkit` package directory (either where SkoolKit was unpacked, or where it
-is installed). Then add the following line to the :ref:`ref-Config` section
-of your disassembly's `ref` file::
+First, place the extension module (let's call it `game.py`) in the `skoolkit`
+package directory; to locate this directory, run :ref:`skool2html.py` with the
+``-p`` option::
+
+  $ skool2html.py -p
+  /usr/lib/python2.7/dist-packages/skoolkit
+
+(The package directory may be different on your system.) With `game.py` in
+place, add the following line to the :ref:`ref-Config` section of your
+disassembly's `ref` file::
 
   HtmlWriterClass=skoolkit.game.GameHtmlWriter
 
@@ -58,10 +64,10 @@ directive (if there is one)::
 
   ; @writer=skoolkit.game.GameAsmWriter
 
-The top-level `skoolkit` package directory is a reasonable place for an
-extension module, but it could be placed in another package, or somewhere else
-as a standalone module. For example, if you wanted to keep a standalone
-extension module in `~/.skoolkit`, it should look like this::
+The `skoolkit` package directory is a reasonable place for an extension module,
+but it could be placed in another package, or somewhere else as a standalone
+module. For example, if you wanted to keep a standalone extension module in
+`~/.skoolkit`, it should look like this::
 
   # Standalone extension module
   from skoolkit.skoolhtml import HtmlWriter

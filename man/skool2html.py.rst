@@ -7,7 +7,7 @@ convert skool and ref files to HTML
 -----------------------------------
 
 :Author: rjdymond@gmail.com
-:Date: 2013-04-19
+:Date: 2013-05-01
 :Manual section: 1
 
 SYNOPSIS
@@ -22,6 +22,7 @@ DESCRIPTION
 OPTIONS
 =======
 -V       Show SkoolKit version number and exit
+-p       Show path to skoolkit package directory and exit
 -q       Be quiet
 -t       Show timings
 -d DIR   Write files in this directory
@@ -66,7 +67,8 @@ directories, in the order listed:
 | - /usr/share/skoolkit
 | - $PACKAGE_DIR/resources
 
-where $PACKAGE_DIR is the directory in which the skoolkit package is installed.
+where $PACKAGE_DIR is the directory in which the skoolkit package is installed
+(as shown by ``skool2html.py -p``).
 
 EXAMPLES
 ========

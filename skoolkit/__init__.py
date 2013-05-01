@@ -23,6 +23,7 @@ import textwrap
 VERSION = '3.3.2beta'
 ENCODING = 'utf-8'
 PY3 = sys.version_info >= (3,)
+PACKAGE_DIR = os.path.dirname(__file__)
 
 def error(msg):
     sys.stderr.write('ERROR: {0}\n'.format(msg))
@@ -39,7 +40,11 @@ def info(msg):
     sys.stderr.write('{0}\n'.format(msg))
 
 def version():
-    sys.stdout.write('SkoolKit {0}\n'.format(VERSION))
+    write_line('SkoolKit {0}'.format(VERSION))
+    sys.exit(0)
+
+def show_package_dir():
+    write_line(PACKAGE_DIR)
     sys.exit(0)
 
 def write(text):

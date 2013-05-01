@@ -173,6 +173,7 @@ list::
 
   Options:
     -V        Show SkoolKit version number and exit
+    -p        Show path to skoolkit package directory and exit
     -q        Be quiet
     -t        Show timings
     -d DIR    Write files in this directory (default is '.')
@@ -214,7 +215,7 @@ following directories, in the order listed:
 * `$PACKAGE_DIR/resources`
 
 where `$PACKAGE_DIR` is the directory in which the `skoolkit` package is
-installed.
+installed (as shown by ``skool2html.py -p``).
 
 `Changed in version 1.4:` Added the ``-V`` option.
 
@@ -239,7 +240,8 @@ disassembly.
 
 `Changed in version 3.2:` Added `~/.skoolkit` to the search path.
 
-`Changed in version 3.3.2:` Added `$PACKAGE_DIR/resources` to the search path.
+`Changed in version 3.3.2:` Added `$PACKAGE_DIR/resources` to the search path;
+added the ``-p`` option.
 
 .. _skool2sft.py:
 

@@ -22,7 +22,7 @@ import posixpath
 import shutil
 import time
 
-from . import version, write, write_line, get_class, UsageError, SkoolKitError
+from . import PACKAGE_DIR, version, show_package_dir, write, write_line, get_class, UsageError, SkoolKitError
 from .image import ImageWriter
 from .skoolhtml import join, FileInfo
 from .skoolparser import SkoolParser, CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
@@ -36,7 +36,7 @@ SEARCH_DIRS = (
     'resources',
     os.path.expanduser('~/.skoolkit'),
     '/usr/share/skoolkit',
-    os.path.join(dirname(__file__), 'resources')
+    os.path.join(PACKAGE_DIR, 'resources')
 )
 CONFIG = 'Config'
 
@@ -47,6 +47,7 @@ USAGE = """skool2html.py [options] FILE [FILE...]
 
 Options:
   -V        Show SkoolKit version number and exit
+  -p        Show path to skoolkit package directory and exit
   -q        Be quiet
   -t        Show timings
   -d DIR    Write files in this directory
@@ -132,6 +133,8 @@ def parse_args(args):
         arg = args[i]
         if arg == '-V':
             version()
+        if arg == '-p':
+            show_package_dir()
         if arg == '-q':
             options.verbose = False
         elif arg == '-t':
