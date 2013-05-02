@@ -21,6 +21,8 @@ Changelog
   rendered
 * Fixed :ref:`sna2skool.py` so that a control file specified by the ``-c``
   option takes precedence over a default skool file template
+* Fixed `manic_miner.ctl` so that the comments at 40177-40191 apply to a
+  pristine snapshot (before stack operations have corrupted those addresses)
 
 3.3.1 (2013-03-04)
 ------------------
