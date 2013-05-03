@@ -52,6 +52,7 @@ Options:
   -t        Show timings
   -d DIR    Write files in this directory
   -o        Overwrite existing image files
+  -T THEME  Use this CSS theme
   -l        Write disassembly in lower case
   -u        Write disassembly in upper case
   -D        Write disassembly in decimal
@@ -82,6 +83,7 @@ class Options:
         self.show_timings = False
         self.config_specs = []
         self.new_images = False
+        self.theme = None
         self.case = None
         self.base = None
         self.files = 'BbcdGgimoPpty'
@@ -125,6 +127,29 @@ def get_config(ref_parser, config_specs):
     add_lines(ref_parser, config_specs, CONFIG)
     return ref_parser.get_dictionary(CONFIG)
 
+def copy_resources(search_dir, root_dir, paths, files_param, path_param, theme=None, suffix=None):
+    fnames = paths.get(files_param)
+    if fnames:
+        dest = paths.get(path_param, '')
+        actual_files = []
+        for fname in fnames.split(';'):
+            f = None
+            if theme and fname.endswith(suffix):
+                f = find('{0}-{1}{2}'.format(fname[:-len(suffix)], theme, suffix), search_dir)
+            if not f:
+                f = find(fname, search_dir)
+            if f:
+                base_f = basename(f)
+                actual_files.append(base_f)
+                html_f = posixpath.normpath(join(root_dir, dest, base_f))
+                if not isfile(html_f) or os.stat(f).st_mtime > os.stat(html_f).st_mtime:
+                    notify('Copying {0} to {1}'.format(f, html_f))
+                    shutil.copy2(f, html_f)
+            else:
+                raise SkoolKitError('{0}: file not found'.format(fname))
+        if theme:
+            paths[files_param] = ';'.join(actual_files)
+
 def parse_args(args):
     options = Options()
     files = []
@@ -147,6 +172,9 @@ def parse_args(args):
             i += 1
         elif arg == '-o':
             options.new_images = True
+        elif arg == '-T':
+            options.theme = args[i + 1]
+            i += 1
         elif arg == '-l':
             options.case = CASE_LOWER
         elif arg == '-u':
@@ -172,7 +200,7 @@ def parse_args(args):
 
     return files, options
 
-def process_file(infile, topdir, files, case, base, pages, config_specs, new_images):
+def process_file(infile, topdir, files, case, base, pages, config_specs, new_images, css_theme):
     if infile == '-' or infile.endswith('.skool'):
         reffile = None
         skoolfile = infile
@@ -261,21 +289,10 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
         os.makedirs(odir)
 
     # Copy CSS, JavaScript and font files if necessary
-    for fnames, dest in (
-        (paths.get('StyleSheet'), paths.get('StyleSheetPath', '')),
-        (paths.get('JavaScript'), paths.get('JavaScriptPath', '')),
-        (paths.get('Font'), paths.get('FontPath', ''))
-    ):
-        if fnames:
-            for fname in fnames.split(';'):
-                f = find(fname, search_dir)
-                if f:
-                    html_f = posixpath.normpath(join(topdir, game_dir, dest, basename(fname)))
-                    if not isfile(html_f) or os.stat(f).st_mtime > os.stat(html_f).st_mtime:
-                        notify('Copying {0} to {1}'.format(f, html_f))
-                        shutil.copy2(f, html_f)
-                else:
-                    raise SkoolKitError('{0}: file not found'.format(fname))
+    root_dir = join(topdir, game_dir)
+    copy_resources(search_dir, root_dir, paths, 'StyleSheet', 'StyleSheetPath', css_theme, '.css')
+    copy_resources(search_dir, root_dir, paths, 'JavaScript', 'JavaScriptPath')
+    copy_resources(search_dir, root_dir, paths, 'Font', 'FontPath')
 
     # Write logo image file if necessary
     if html_writer.write_logo_image(odir):
@@ -348,7 +365,7 @@ def run(files, options):
             os.makedirs(topdir)
 
     for infile in files:
-        process_file(infile, topdir, options.files, options.case, options.base, options.pages, options.config_specs, options.new_images)
+        process_file(infile, topdir, options.files, options.case, options.base, options.pages, options.config_specs, options.new_images, options.theme)
 
 def main(args):
     global verbose, show_timings

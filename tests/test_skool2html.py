@@ -132,6 +132,7 @@ Options:
   -t        Show timings
   -d DIR    Write files in this directory
   -o        Overwrite existing image files
+  -T THEME  Use this CSS theme
   -l        Write disassembly in lower case
   -u        Write disassembly in upper case
   -D        Write disassembly in decimal

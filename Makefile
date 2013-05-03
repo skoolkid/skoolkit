@@ -12,12 +12,9 @@ NOSETESTS33=$(HOME)/Python/Python3.3/bin/nosetests
 OPTIONS=-d build/html -t
 
 ifeq ($(DARK),1)
-  MM_OPTIONS=-c Paths/StyleSheet=skoolkit-dark.css
-  JSW_OPTIONS=-c 'Paths/StyleSheet=skoolkit-dark.css;examples/jet_set_willy-dark.css'
+  OPTIONS+= -T dark
 else ifeq ($(SPECTRUM),1)
-  MM_OPTIONS=-c Paths/StyleSheet=skoolkit-spectrum.css
-  JSW_OPTIONS=-c 'Paths/StyleSheet=skoolkit-spectrum.css;examples/jet_set_willy.css'
-  OPTIONS+= -c Paths/Font=spectrum.ttf
+  OPTIONS+= -T spectrum -c Paths/Font=spectrum.ttf
 endif
 ifeq ($(HEX),1)
   OPTIONS+= -H
@@ -63,14 +60,14 @@ clean:
 mm:
 	$(SKOOLKIT_HOME)/utils/mm2ctl.py snapshots/manic_miner.z80 > manic_miner.ctl
 	$(SNA2SKOOL) -c manic_miner.ctl snapshots/manic_miner.z80 > manic_miner.skool
-	$(SKOOL2HTML) $(OPTIONS) $(MM_OPTIONS) examples/manic_miner.ref
+	$(SKOOL2HTML) $(OPTIONS) examples/manic_miner.ref
 	rm manic_miner.skool manic_miner.ctl
 
 .PHONY: jsw
 jsw:
 	$(SKOOLKIT_HOME)/utils/jsw2ctl.py snapshots/jet_set_willy.z80 > jet_set_willy.ctl
 	$(SNA2SKOOL) -c jet_set_willy.ctl snapshots/jet_set_willy.z80 > jet_set_willy.skool
-	$(SKOOL2HTML) $(OPTIONS) $(JSW_OPTIONS) examples/jet_set_willy.ref
+	$(SKOOL2HTML) $(OPTIONS) examples/jet_set_willy.ref
 	rm jet_set_willy.skool jet_set_willy.ctl
 
 .PHONY: test

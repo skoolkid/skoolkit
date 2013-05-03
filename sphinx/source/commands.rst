@@ -178,6 +178,7 @@ list::
     -t        Show timings
     -d DIR    Write files in this directory (default is '.')
     -o        Overwrite existing image files
+    -T THEME  Use this CSS theme
     -l        Write disassembly in lower case
     -u        Write disassembly in upper case
     -D        Write disassembly in decimal
@@ -241,7 +242,7 @@ disassembly.
 `Changed in version 3.2:` Added `~/.skoolkit` to the search path.
 
 `Changed in version 3.3.2:` Added `$PACKAGE_DIR/resources` to the search path;
-added the ``-p`` option.
+added the ``-p`` and ``-T`` options.
 
 .. _skool2sft.py:
 

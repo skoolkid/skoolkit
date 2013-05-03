@@ -237,19 +237,11 @@ Themes
 In addition to the default theme (defined in `skoolkit.css`), SkoolKit includes
 two alternative themes: 'dark' and 'spectrum'.
 
-In order to use the 'dark' theme, create a ``[Paths]`` section in the `ref`
-file if there isn't one already, and add the following line to it::
+In order to use the 'dark' theme, run `skool2html.py` with the ``-T`` option
+thus::
 
-  StyleSheet=skoolkit-dark.css
+  $ skool2html.py -T dark game.skool
 
-Then run `skool2html.py` to rebuild the disassembly, and the theme should take
-effect.
+Or to use the 'spectrum' theme::
 
-In order to use the 'spectrum' theme, create a ``[Paths]`` section in the `ref`
-file if there isn't one already, and add the following lines to it::
-
-  StyleSheet=skoolkit-spectrum.css
-  Font=spectrum.ttf
-
-Then run `skool2html.py` to rebuild the disassembly, and the theme should take
-effect.
+  $ skool2html.py -T spectrum -c Paths/Font=spectrum.ttf game.skool

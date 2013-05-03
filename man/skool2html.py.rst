@@ -7,7 +7,7 @@ convert skool and ref files to HTML
 -----------------------------------
 
 :Author: rjdymond@gmail.com
-:Date: 2013-05-01
+:Date: 2013-05-03
 :Manual section: 1
 
 SYNOPSIS
@@ -27,6 +27,7 @@ OPTIONS
 -t       Show timings
 -d DIR   Write files in this directory
 -o       Overwrite existing image files
+-T THM   Use this CSS theme
 -l       Write the disassembly in lower case
 -u       Write the disassembly in upper case
 -D       Write the disassembly in decimal
