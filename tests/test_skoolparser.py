@@ -65,6 +65,18 @@ b32768 DEFB 0 ; {These bytes are {REALLY} {{IMPORTANT}}!
  32769 DEFB 0 ; }
 """
 
+TEST_BRACES_IN_COMMENTS = """; Test comments that start or end with a brace
+b30000 DEFB 0 ; {{Unmatched closing
+ 30001 DEFB 0 ; brace} }
+ 30002 DEFB 0 ; { {Matched
+ 30003 DEFB 0 ; braces} }
+ 30004 DEFB 0 ; { {Unmatched opening
+ 30005 DEFB 0 ; brace }}
+ 30006 DEFB 0 ; {{{Unmatched closing braces}} }
+ 30007 DEFB 0 ; { {{Matched braces (2)}} }
+ 30008 DEFB 0 ; { {{Unmatched opening braces}}}
+"""
+
 TEST_END_COMMENTS = """; First routine
 c45192 RET
 ; The end of the first routine.
@@ -201,6 +213,20 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(TEST_NESTED_BRACES)
         comment = parser.instructions[32768][0].comment.text
         self.assertEqual(comment, 'These bytes are {REALLY} {{IMPORTANT}}!')
+
+    def test_braces_in_comments(self):
+        parser = self._get_parser(TEST_BRACES_IN_COMMENTS)
+        exp_comments = (
+            (30000, 'Unmatched closing brace}'),
+            (30002, '{Matched braces}'),
+            (30004, '{Unmatched opening brace'),
+            (30006, 'Unmatched closing braces}}'),
+            (30007, '{{Matched braces (2)}}'),
+            (30008, '{{Unmatched opening braces')
+        )
+        for address, exp_text in exp_comments:
+            text = parser.instructions[address][0].comment.text
+            self.assertEqual(text, exp_text)
 
     def test_end_comments(self):
         parser = self._get_parser(TEST_END_COMMENTS)
