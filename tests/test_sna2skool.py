@@ -664,6 +664,37 @@ class OptionsTest(SkoolKitTestCase):
         self.assertEqual(lines[1], '; @org=16384')
         self.assertEqual(lines[3][:16], 'c16384 LD BC,770')
 
+    def test_default_sft(self):
+        # Test that the default skool file template is used if present
+        binfile = self._write_bin([0])
+        sft = ['; Default skool file template', 'bB65535,1']
+        sftfile = '{0}.sft'.format(binfile[:-4])
+        self.write_text_file('\n'.join(sft), sftfile)
+        lines = self._write_skool(binfile, 2)
+        self.assertEqual(lines[0], sft[0])
+
+        # Test that a control file specified by the '-c' option takes
+        # precedence over the default skool file template
+        ctlfile = self.write_text_file('b 65535 Control file', suffix='.ctl')
+        lines = self._write_skool('-c {0} {1}'.format(ctlfile, binfile), 3)
+        self.assertEqual(lines[2], '; Control file')
+
+    def test_default_ctl(self):
+        # Test that the default control file is used if present
+        binfile = self._write_bin([0])
+        title = 'Default control file'
+        ctlfile = '{0}.ctl'.format(binfile[:-4])
+        self.write_text_file('b 65535 {0}'.format(title), ctlfile)
+        lines = self._write_skool(binfile, 3)
+        self.assertEqual(lines[2], '; {0}'.format(title))
+
+        # Test that a skool file template specified by the '-T' option takes
+        # precedence over the default control file
+        sft = ['; Skool file template', 'bB65535,1']
+        sftfile = self.write_text_file('\n'.join(sft), suffix='.sft')
+        lines = self._write_skool('-T {0} {1}'.format(sftfile, binfile), 1)
+        self.assertEqual(lines[0], sft[0])
+
     def _write_skool(self, args, split=0, exp_error=''):
         output, error = self.run_sna2skool(args, out_lines=False)
         if exp_error:
