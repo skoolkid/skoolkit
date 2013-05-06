@@ -149,7 +149,7 @@ contains matched or unmatched opening and closing braces when rendered.
 
 For example::
 
-  b50000 DEFB 0  ; {{ This comment (which spans two instructions) has an
+  b50000 DEFB 0  ; {{This comment (which spans two instructions) has an
    50001 DEFB 0  ; unmatched closing brace} }
 
 will render in ASM mode as::
@@ -167,7 +167,7 @@ will render as::
 
 Finally::
 
-  b50003 DEFB 0  ; { {Unmatched opening brace }}
+  b50003 DEFB 0  ; { {Unmatched opening brace}}
 
 will render as::
 
