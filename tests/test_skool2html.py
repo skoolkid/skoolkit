@@ -4,8 +4,8 @@ import os
 from os.path import basename, isfile, join
 import unittest
 
-import skoolkit
 from skoolkittest import SkoolKitTestCase
+import skoolkit
 from skoolkit import skool2html, VERSION, UsageError, SkoolKitError
 from skoolkit.skoolhtml import HtmlWriter
 from skoolkit.skoolparser import CASE_UPPER, CASE_LOWER
@@ -452,6 +452,18 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.fail()
         except SkoolKitError as e:
             self.assertEqual(e.args[0], 'Malformed SectionName/Line spec: {0}'.format(sl_spec))
+
+    def test_option_T(self):
+        reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
+        skoolfile = self.write_text_file(path='{0}.skool'.format(reffile[:-4]))
+        cssfile1 = self.write_text_file(suffix='.css')
+        cssfile2 = self.write_text_file(suffix='.css')
+        theme = 'blue'
+        cssfile3 = self.write_text_file(path='{0}-{1}.css'.format(cssfile2[:-4], theme))
+        stylesheet = 'Paths/StyleSheet={0};{1}'.format(cssfile1, cssfile2)
+        output, error = self.run_skool2html('-d {0} -c {1} -T {2} {3}'.format(self.odir, stylesheet, theme, reffile))
+        self.assertEqual(error, '')
+        self.assertEqual(html_writer.paths['StyleSheet'], '{0};{1}'.format(cssfile1, cssfile3))
 
     def test_option_o(self):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
