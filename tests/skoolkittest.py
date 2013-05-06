@@ -159,7 +159,6 @@ class SkoolKitTestCase(TestCase):
                 model = 0 if modify else 1
                 banks[1] = ram[16384:32768]
                 banks[2] = ram[32768:49152]
-                other_banks = ()
             else:
                 # 128K
                 model = 2
