@@ -228,6 +228,19 @@ following directories, in the order listed:
 where `$PACKAGE_DIR` is the directory in which the `skoolkit` package is
 installed (as shown by ``skool2html.py -p``).
 
+The ``-T`` option sets the CSS theme. For example, if `game.ref` specifies the
+CSS files to use thus::
+
+  [Paths]
+  StyleSheet=skoolkit.css;game.css
+
+then::
+
+  $ skool2html.py -T dark game.ref
+
+will use `skoolkit-dark.css` and `game-dark.css` if they exist, and fall back
+to `skoolkit.css` and `game.css` if they don't.
+
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
