@@ -201,12 +201,11 @@ def parse_args(args):
     return files, options
 
 def process_file(infile, topdir, files, case, base, pages, config_specs, new_images, css_theme):
-    if infile == '-' or infile.endswith('.skool'):
-        reffile = None
-        skoolfile = infile
-    else:
+    reffile = skoolfile = None
+    if infile.endswith('.ref'):
         reffile = infile
-        skoolfile = None
+    else:
+        skoolfile = infile
 
     ref_parser = RefParser()
     reffile_f = find(reffile)

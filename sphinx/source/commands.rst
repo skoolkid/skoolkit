@@ -173,6 +173,9 @@ In this case, the `skool` file declared in the :ref:`ref-Config` section of
 `game.ref` that are named `game*.ref` (e.g. `game-bugs.ref`, `game-pokes.ref`
 and so on) will also be used.
 
+If an input file's name ends with '.ref', it will be treated as a `ref` file;
+otherwise it will be treated as a `skool` file.
+
 `skool2html.py` supports several options; run it with no arguments to see a
 list::
 

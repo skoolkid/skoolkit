@@ -71,6 +71,9 @@ directories, in the order listed:
 where $PACKAGE_DIR is the directory in which the skoolkit package is installed
 (as shown by ``skool2html.py -p``).
 
+If an input file's name ends with '.ref', it will be treated as a ref file;
+otherwise it will be treated as a skool file.
+
 THEMES
 ======
 The ``-T`` option sets the CSS theme. For example, if `game.ref` specifies the

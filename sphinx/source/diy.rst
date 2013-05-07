@@ -17,6 +17,13 @@ following command from the SkoolKit directory::
 
   $ sna2skool.py mm.z80 > manic_miner.skool
 
+Note that the '.skool' file name suffix is merely a convention, not a
+requirement. In general, any suffix besides '.ref' (which is used by
+`skool2html.py` to identify `ref` files) will do. If you are fond of the
+traditional three-letter suffix, then perhaps '.sks' (for 'SkoolKit source') or
+'.kit' would be more to your liking. However, for the purpose of this
+particular tutorial, it's best to stick with '.skool'.
+
 Now take a look at `manic_miner.skool`. As you can see, by default,
 `sna2skool.py` disassembles everything from 16384 to 65535, treating it all as
 code. Needless to say, this is not particularly useful - unless you have no
