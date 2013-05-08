@@ -92,7 +92,11 @@ that its contents are set to 0 so that it will disassemble to ``DEFB 0``
 
 Revision history
 ----------------
-`New in version 2.4.`
-
-`Changed in version 3.1.4:` Added support for DEFB and DEFM statements that
-contain both strings and bytes.
++---------+--------------------------------------------------------------+
+| Version | Changes                                                      |
++=========+==============================================================+
+| 2.4     | New                                                          |
++---------+--------------------------------------------------------------+
+| 3.1.4   | Added support for DEFB and DEFM statements that contain both |
+|         | strings and bytes                                            |
++---------+--------------------------------------------------------------+
