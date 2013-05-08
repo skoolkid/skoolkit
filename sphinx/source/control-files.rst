@@ -311,25 +311,28 @@ may be a better choice for `skool` files that contain any of them.
 
 Revision history
 ----------------
-`Changed in version 1.0.7:` Added support for block titles, block descriptions,
-register values, mid-block comments, block end comments, sub-block types and
-instruction-level comments.
-
-`Changed in version 2.0.6:` Added support for hexadecimal numbers.
-
-`Changed in version 2.1:` Added support for DEFB statement lengths in ``B``
-sub-blocks.
-
-`Changed in version 2.1.1:` Added the ``M`` directive.
-
-`Changed in version 2.1.2:` Added support for DEFM, DEFW and DEFS statement
-lengths in ``T``, ``W`` and ``Z`` sub-blocks.
-
-`Changed in version 2.2:` Added support for the ``*`` notation in DEFB, DEFM,
-DEFW and DEFS statement length lists in ``B``, ``T``, ``W`` and ``Z``
-sub-blocks.
-
-`Changed in version 2.4:` Added support for non-block ASM directives.
-
-`Changed in version 3.1.4:` Added support for DEFB and DEFM statements that
-contain both strings and bytes.
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 1.0.7   | Added support for block titles, block descriptions, register      |
+|         | values, mid-block comments, block end comments, sub-block types   |
+|         | and instruction-level comments                                    |
++---------+-------------------------------------------------------------------+
+| 2.0.6   | Added support for hexadecimal numbers                             |
++---------+-------------------------------------------------------------------+
+| 2.1     | Added support for DEFB statement lengths in ``B`` sub-blocks      |
++---------+-------------------------------------------------------------------+
+| 2.1.1   | Added the ``M`` directive                                         |
++---------+-------------------------------------------------------------------+
+| 2.1.2   | Added support for DEFM, DEFW and DEFS statement lengths in ``T``, |
+|         | ``W`` and ``Z`` sub-blocks                                        |
++---------+-------------------------------------------------------------------+
+| 2.2     | Added support for the ``*`` notation in DEFB, DEFM, DEFW and DEFS |
+|         | statement length lists in ``B``, ``T``, ``W`` and ``Z``           |
+|         | sub-blocks                                                        |
++---------+-------------------------------------------------------------------+
+| 2.4     | Added support for non-block ASM directives                        |
++---------+-------------------------------------------------------------------+
+| 3.1.4   | Added support for DEFB and DEFM statements that contain both      |
+|         | strings and bytes                                                 |
++---------+-------------------------------------------------------------------+
