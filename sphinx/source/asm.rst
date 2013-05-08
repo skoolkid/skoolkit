@@ -242,7 +242,11 @@ The ``@end`` directive may be used to indicate where to stop parsing the
 
 See also :ref:`start`.
 
-`New in version 2.2.2.`
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 2.2.2   | New     |
++---------+---------+
 
 .. _ignoreua:
 
@@ -307,8 +311,12 @@ If the ``@ignoreua`` directive were not present, a warning would be printed
 (during the rendering phase) about the comment containing an address (62818)
 that has not been converted to a label.
 
-`Changed in version 2.4.1:` Added support for entry titles, entry descriptions,
-mid-block comments and block end comments.
++---------+---------------------------------------------------------------+
+| Version | Changes                                                       |
++=========+===============================================================+
+| 2.4.1   | Added support for entry titles, entry descriptions, mid-block |
+|         | comments and block end comments                               |
++---------+---------------------------------------------------------------+
 
 .. _isub:
 
@@ -523,7 +531,11 @@ For example::
   ; @rem=The next section of data MUST start at 64000
   ; @org=64000
 
-`Changed in version 2.4:` The ``=`` is required.
++---------+-----------------------+
+| Version | Changes               |
++=========+=======================+
+| 2.4     | The ``=`` is required |
++---------+-----------------------+
 
 .. _rfixBlockDirectives:
 
@@ -598,10 +610,14 @@ For example::
 
 This ``@set`` directive sets the bullet character to '+'.
 
-`New in version 3.2.`
-
-`Changed in version 3.3.1:` Added the `comment-width-min`, `indent`,
-`instruction-width`, `label-colons`, `line-width` and `warnings` properties.
++---------+---------------------------------------------------------------+
+| Version | Changes                                                       |
++=========+===============================================================+
+| 3.2     | New                                                           |
++---------+---------------------------------------------------------------+
+| 3.3.1   | Added the `comment-width-min`, `indent`, `instruction-width`, |
+|         | `label-colons`, `line-width` and `warnings` properties        |
++---------+---------------------------------------------------------------+
 
 .. _ssub:
 
@@ -659,7 +675,11 @@ The default ASM writer class is skoolkit.skoolasm.AsmWriter. For information on
 how to create your own Python class for generating ASM output, see the
 documentation on :ref:`extending SkoolKit <extendingSkoolKit>`.
 
-`New in version 3.1.`
-
-`Changed in version 3.3.1:` Added support for specifying a module outside the
-module search path.
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 3.1     | New                                                             |
++---------+-----------------------------------------------------------------+
+| 3.3.1   | Added support for specifying a module outside the module search |
+|         | path                                                            |
++---------+-----------------------------------------------------------------+
