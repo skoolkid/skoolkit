@@ -371,6 +371,23 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(output[4], message)
 
+    def test_file_identification(self):
+        # Test that a file named *.ref is treated as a ref file
+        reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
+        self.write_text_file(path='{0}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('{0} -d {1} {2}'.format(self._css_c(), self.odir, reffile))
+        self.assertEqual(error, '')
+        self.assertTrue('write_index' in html_writer.call_dict)
+
+        # Test that a file not named *.ref is treated as a skool file
+        for suffix in ('.skool', '.sks', '.kit'):
+            skoolfile = self.write_text_file("; Data\nb40000 DEFB 0", suffix=suffix)
+            game_dir = skoolfile[:-len(suffix)] if suffix == '.skool' else skoolfile
+            output, error = self.run_skool2html('{0} -d {1} {2}'.format(self._css_c(), self.odir, skoolfile))
+            self.assertEqual(error, '')
+            self.assertEqual(output[1], 'Found no ref file for {0}'.format(skoolfile))
+            self.assertTrue(isfile(join(self.odir, game_dir, 'asm', '40000.html')))
+
     def test_option_w(self):
         options = [
             ('d', 'write_asm_entries', [()]),
