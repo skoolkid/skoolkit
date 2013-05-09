@@ -150,6 +150,11 @@ def copy_resources(search_dir, root_dir, paths, files_param, path_param, theme=N
         if theme:
             paths[files_param] = ';'.join(actual_files)
 
+def get_prefix(fname):
+    if '.' in fname:
+        return fname.rsplit('.', 1)[0]
+    return fname
+
 def parse_args(args):
     options = Options()
     files = []
@@ -219,9 +224,7 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
         search_dir = dirname(reffile_f)
         ref_parser.parse(reffile_f)
         config = get_config(ref_parser, config_specs)
-        prefix = basename(reffile)
-        if prefix[-4:] == '.ref':
-            prefix = prefix[:-4]
+        prefix = get_prefix(basename(reffile))
         skoolfile = config.get('SkoolFile', '{0}.skool'.format(prefix))
 
     skoolfile_f = skoolfile if skoolfile == '-' else find(skoolfile, search_dir)
@@ -229,11 +232,10 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
         raise SkoolKitError('{0}: file not found'.format(skoolfile))
 
     if prefix is None:
-        prefix = basename(skoolfile_f)
-        if prefix == '-':
+        if skoolfile_f == '-':
             prefix = 'program'
-        elif prefix[-6:] == '.skool':
-            prefix = prefix[:-6]
+        else:
+            prefix = get_prefix(basename(skoolfile_f))
 
     if reffile is None and skoolfile != '-':
         search_dir = dirname(skoolfile_f)

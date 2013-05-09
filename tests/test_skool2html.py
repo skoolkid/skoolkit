@@ -380,9 +380,9 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertTrue('write_index' in html_writer.call_dict)
 
         # Test that a file not named *.ref is treated as a skool file
-        for suffix in ('.skool', '.sks', '.kit'):
+        for suffix in ('.skool', '.sks', '.kit', ''):
             skoolfile = self.write_text_file("; Data\nb40000 DEFB 0", suffix=suffix)
-            game_dir = skoolfile[:-len(suffix)] if suffix == '.skool' else skoolfile
+            game_dir = skoolfile[:-len(suffix)] if suffix else skoolfile
             output, error = self.run_skool2html('{0} -d {1} {2}'.format(self._css_c(), self.odir, skoolfile))
             self.assertEqual(error, '')
             self.assertEqual(output[1], 'Found no ref file for {0}'.format(skoolfile))
