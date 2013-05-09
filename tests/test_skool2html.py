@@ -385,7 +385,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
             game_dir = skoolfile[:-len(suffix)] if suffix else skoolfile
             output, error = self.run_skool2html('{0} -d {1} {2}'.format(self._css_c(), self.odir, skoolfile))
             self.assertEqual(error, '')
-            self.assertEqual(output[1], 'Found no ref file for {0}'.format(skoolfile))
+            self.assertEqual(output[0], 'Using skool file: {0}'.format(skoolfile))
             self.assertTrue(isfile(join(self.odir, game_dir, 'asm', '40000.html')))
 
     def test_option_w(self):
