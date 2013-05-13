@@ -7,8 +7,8 @@ Changelog
    changelog2
    changelog1
 
-3.3.2beta
----------
+3.3.2 (2013-05-13)
+------------------
 * Added the ``-T`` option to :ref:`skool2html.py` (to specify a CSS theme)
 * Added the ``-p`` option to :ref:`skool2html.py` (to show the path to the
   skoolkit package directory)

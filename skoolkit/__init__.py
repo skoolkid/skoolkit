@@ -20,7 +20,7 @@ import sys
 import os
 import textwrap
 
-VERSION = '3.3.2beta'
+VERSION = '3.3.2'
 ENCODING = 'utf-8'
 PY3 = sys.version_info >= (3,)
 PACKAGE_DIR = os.path.dirname(__file__)
