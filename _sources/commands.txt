@@ -40,9 +40,13 @@ operation upon returning. Stack operations will overwrite the bytes in the
 address range STACK-14 to STACK-1 inclusive, so those addresses should not be
 used to store essential code or data.
 
-`New in version 1.3.1.`
-
-`Changed in version 2.2.5:` Added the ``-p`` option.
++---------+-------------------------+
+| Version | Changes                 |
++=========+=========================+
+| 1.3.1   | New                     |
++---------+-------------------------+
+| 2.2.5   | Added the ``-p`` option |
++---------+-------------------------+
 
 .. _skool2asm.py:
 
@@ -83,12 +87,15 @@ See :ref:`asmModesAndDirectives` for a description of the ``@ssub`` and
 ``@rsub`` substitution modes, and the ``@ofix``, ``@bfix`` and ``@rfix`` bugfix
 modes.
 
-`Changed in version 1.1:` Added the ``-c`` option.
-
-`Changed in version 2.1.1:` Added the ``-u``, ``-D`` and ``-H`` options.
-
-`Changed in version 2.2.2:` Added the ability to read a `skool` file from
-standard input.
++---------+--------------------------------------------------------------+
+| Version | Changes                                                      |
++=========+==============================================================+
+| 1.1     | Added the ``-c`` option                                      |
++---------+--------------------------------------------------------------+
+| 2.1.1   | Added the ``-u``, ``-D`` and ``-H`` options                  |
++---------+--------------------------------------------------------------+
+| 2.2.2   | Added the ability to read a `skool` file from standard input |
++---------+--------------------------------------------------------------+
 
 .. _skool2ctl.py:
 
@@ -127,15 +134,18 @@ If you need to preserve any elements that control files do not support (such as
 data definition entries and ASM block directives), consider using
 :ref:`skool2sft.py` to create a skool file template instead.
 
-`New in version 1.1.`
-
-`Changed in version 2.0.6:` Added the ``-h`` option.
-
-`Changed in version 2.2.2:` Added the ability to read a `skool` file from
-standard input.
-
-`Changed in version 2.4:` Added the ``-a`` option and the ability to preserve
-some ASM directives.
++---------+--------------------------------------------------------------+
+| Version | Changes                                                      |
++=========+==============================================================+
+| 1.1     | New                                                          |
++---------+--------------------------------------------------------------+
+| 2.0.6   | Added the ``-h`` option                                      |
++---------+--------------------------------------------------------------+
+| 2.2.2   | Added the ability to read a `skool` file from standard input |
++---------+--------------------------------------------------------------+
+| 2.4     | Added the ``-a`` option and the ability to preserve some ASM |
+|         | directives                                                   |
++---------+--------------------------------------------------------------+
 
 .. _skool2html.py:
 
@@ -163,6 +173,9 @@ In this case, the `skool` file declared in the :ref:`ref-Config` section of
 `game.ref` that are named `game*.ref` (e.g. `game-bugs.ref`, `game-pokes.ref`
 and so on) will also be used.
 
+If an input file's name ends with '.ref', it will be treated as a `ref` file;
+otherwise it will be treated as a `skool` file.
+
 `skool2html.py` supports several options; run it with no arguments to see a
 list::
 
@@ -173,10 +186,12 @@ list::
 
   Options:
     -V        Show SkoolKit version number and exit
+    -p        Show path to skoolkit package directory and exit
     -q        Be quiet
     -t        Show timings
     -d DIR    Write files in this directory (default is '.')
     -o        Overwrite existing image files
+    -T THEME  Use this CSS theme
     -l        Write disassembly in lower case
     -u        Write disassembly in upper case
     -D        Write disassembly in decimal
@@ -211,29 +226,49 @@ following directories, in the order listed:
 * `./resources`
 * `~/.skoolkit`
 * `/usr/share/skoolkit`
+* `$PACKAGE_DIR/resources`
 
-`Changed in version 1.4:` Added the ``-V`` option.
+where `$PACKAGE_DIR` is the directory in which the `skoolkit` package is
+installed (as shown by ``skool2html.py -p``).
 
-`Changed in version 2.1:` Added the ``-o`` and ``-P`` options.
+The ``-T`` option sets the CSS theme. For example, if `game.ref` specifies the
+CSS files to use thus::
 
-`Changed in version 2.1.1:` Added the ``-l``, ``-u``, ``-D`` and ``-H``
-options.
+  [Paths]
+  StyleSheet=skoolkit.css;game.css
 
-`Changed in version 2.2:` No longer writes the Skool Daze and Back to Skool
-disassemblies by default; added the ``-d`` option.
+then::
 
-`Changed in version 2.2.2:` Added the ability to read a `skool` file from
-standard input.
+  $ skool2html.py -T dark game.ref
 
-`Changed in version 2.3.1:` Added support for reading multiple `ref` files per
-disassembly.
+will use `skoolkit-dark.css` and `game-dark.css` if they exist, and fall back
+to `skoolkit.css` and `game.css` if they don't.
 
-`Changed in version 3.0.2:` No longer shows timings by default; added the
-``-t`` option.
-
-`Changed in version 3.1:` Added the ``-c`` option.
-
-`Changed in version 3.2:` Added `~/.skoolkit` to the search path.
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 1.4     | Added the ``-V`` option                                         |
++---------+-----------------------------------------------------------------+
+| 2.1     | Added the ``-o`` and ``-P`` options                             |
++---------+-----------------------------------------------------------------+
+| 2.1.1   | Added the ``-l``, ``-u``, ``-D`` and ``-H`` options             |
++---------+-----------------------------------------------------------------+
+| 2.2     | No longer writes the Skool Daze and Back to Skool disassemblies |
+|         | by default; added the ``-d`` option                             |
++---------+-----------------------------------------------------------------+
+| 2.2.2   | Added the ability to read a `skool` file from standard input    |
++---------+-----------------------------------------------------------------+
+| 2.3.1   | Added support for reading multiple `ref` files per disassembly  |
++---------+-----------------------------------------------------------------+
+| 3.0.2   | No longer shows timings by default; added the ``-t`` option     |
++---------+-----------------------------------------------------------------+
+| 3.1     | Added the ``-c`` option                                         |
++---------+-----------------------------------------------------------------+
+| 3.2     | Added `~/.skoolkit` to the search path                          |
++---------+-----------------------------------------------------------------+
+| 3.3.2   | Added `$PACKAGE_DIR/resources` to the search path; added the    |
+|         | ``-p`` and ``-T`` options                                       |
++---------+-----------------------------------------------------------------+ 
 
 .. _skool2sft.py:
 
@@ -254,7 +289,11 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
   Options:
     -h  Write addresses in hexadecimal format
 
-`New in version 2.4.`
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 2.4     | New     |
++---------+---------+
 
 .. _sna2skool.py:
 
@@ -307,26 +346,30 @@ If the file specified by the ``-M`` option is 8192 bytes long, it is assumed to
 be a Z80 map file; otherwise it is assumed to be in one of the other supported
 formats.
 
-`Changed in version 1.0.4:` Added the ``-g`` and ``-s`` options.
-
-`Changed in version 1.0.5:` Added the ``-t`` option.
-
-`Changed in version 2.0:` Added the ``-n``, ``-m`` and ``-z`` options.
-
-`Changed in version 2.0.1:` Added the ``-o``, ``-r`` and ``-l`` options, and
-the ability to read binary files.
-
-`Changed in version 2.0.6:` Added the ``-h`` option.
-
-`Changed in version 2.1:` Added the ``-H`` option.
-
-`Changed in version 2.1.2:` Added the ``-L`` option.
-
-`Changed in version 2.4:` Added the ``-T`` option.
-
-`Changed in version 3.2:` Added the ``-p`` option, and the ability to read SZX
-snapshots and 128K Z80 snapshots.
-
-`Changed in version 3.3:` Added the ``-M`` option, along with support for code
-execution maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the ability
-to read 128K SNA snapshots.
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 1.0.4   | Added the ``-g`` and ``-s`` options                             |
++---------+-----------------------------------------------------------------+
+| 1.0.5   | Added the ``-t`` option                                         |
++---------+-----------------------------------------------------------------+
+| 2.0     | Added the ``-n``, ``-m`` and ``-z`` options                     |
++---------+-----------------------------------------------------------------+
+| 2.0.1   | Added the ``-o``, ``-r`` and ``-l`` options, and the ability to |
+|         | read binary files                                               |
++---------+-----------------------------------------------------------------+
+| 2.0.6   | Added the ``-h`` option                                         |
++---------+-----------------------------------------------------------------+
+| 2.1     | Added the ``-H`` option                                         |
++---------+-----------------------------------------------------------------+
+| 2.1.2   | Added the ``-L`` option                                         |
++---------+-----------------------------------------------------------------+
+| 2.4     | Added the ``-T`` option                                         |
++---------+-----------------------------------------------------------------+
+| 3.2     | Added the ``-p`` option, and the ability to read SZX snapshots  |
+|         | and 128K Z80 snapshots                                          |
++---------+-----------------------------------------------------------------+
+| 3.3     | Added the ``-M`` option, along with support for code execution  |
+|         | maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the   |
+|         | ability to read 128K SNA snapshots                              |
++---------+-----------------------------------------------------------------+

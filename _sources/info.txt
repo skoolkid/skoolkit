@@ -27,4 +27,4 @@ Bugs
 ----
 If you find any bugs in SkoolKit, please report them using the `bug tracker`_.
 
-.. _bug tracker: https://bugs.launchpad.net/skoolkit
+.. _bug tracker: https://github.com/skoolkid/skoolkit/issues

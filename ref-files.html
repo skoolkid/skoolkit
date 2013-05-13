@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &mdash; SkoolKit 3.3.1 documentation</title>
+    <title>Ref files &mdash; SkoolKit 3.3.2 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.3.1',
+        VERSION:     '3.3.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.3.2 documentation" href="index.html" />
     <link rel="next" title="ASM modes and directives" href="asm.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -119,7 +119,22 @@ indentation, as shown.</p>
 final HTML rendering.</p>
 <p>The intro text and changelog items may contain HTML markup and
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
-<p><cite>New in version 2.2.5.</cite></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.2.5</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="colours">
 <span id="ref-colours"></span><h2>[Colours]<a class="headerlink" href="#colours" title="Permalink to this headline">¶</a></h2>
@@ -148,7 +163,22 @@ creating images. Each line has the form:</p>
 <li><tt class="docutils literal"><span class="pre">BRIGHT_YELLOW</span></tt>: 255,255,0</li>
 <li><tt class="docutils literal"><span class="pre">BRIGHT_WHITE</span></tt>: 255,255,255</li>
 </ul>
-<p><cite>New in version 2.0.5.</cite></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0.5</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="config">
 <span id="ref-config"></span><h2>[Config]<a class="headerlink" href="#config" title="Permalink to this headline">¶</a></h2>
@@ -173,10 +203,29 @@ specified, the base name of the <cite>skool</cite> or <cite>ref</cite> file give
 <p>For information on how to create your own Python class for writing an HTML
 disassembly, see the documentation on
 <a class="reference internal" href="extending.html#extendingskoolkit"><em>extending SkoolKit</em></a>.</p>
-<p><cite>New in version 2.0.</cite></p>
-<p><cite>Changed in version 2.2.3:</cite> Added the <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt> parameter.</p>
-<p><cite>Changed in version 3.3.1:</cite> Added support to the <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt> parameter
-for specifying a module outside the module search path.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0</td>
+<td>New</td>
+</tr>
+<tr class="row-odd"><td>2.2.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt> parameter</td>
+</tr>
+<tr class="row-even"><td>3.3.1</td>
+<td>Added support to the <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt> parameter for specifying
+a module outside the module search path</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="fact">
 <span id="ref-fact"></span><h2>[Fact:*:*]<a class="headerlink" href="#fact" title="Permalink to this headline">¶</a></h2>
@@ -228,11 +277,30 @@ header of the main index page (default: &#8216;The complete&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">TitleSuffix</span></tt> - the suffix to use after the game name or logo in the header
 of the main index page (default: &#8216;RAM disassembly&#8217;)</li>
 </ul>
-<p><cite>Changed in version 2.0.3:</cite> Added the <tt class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></tt> parameter.</p>
-<p><cite>Changed in version 2.0.5:</cite> <tt class="docutils literal"><span class="pre">Logo</span></tt> defines the text/HTML for the logo instead
-of the path to the logo image.</p>
-<p><cite>Changed in version 3.1.2:</cite> Added the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
-<tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> parameters.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></tt> parameter</td>
+</tr>
+<tr class="row-odd"><td>2.0.5</td>
+<td><tt class="docutils literal"><span class="pre">Logo</span></tt> defines the text/HTML for the logo instead of the path
+to the logo image</td>
+</tr>
+<tr class="row-even"><td>3.1.2</td>
+<td>Added the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
+<tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> parameters</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="glossary">
 <h2>[Glossary:*]<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h2>
@@ -249,7 +317,22 @@ Second paragraph.
 <p>where <tt class="docutils literal"><span class="pre">term</span></tt> is the term being defined in the entry.</p>
 <p>Paragraphs should be separated by blank lines, and may contain HTML markup and
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
-<p><cite>Changed in version 3.1.3:</cite> Added support for multiple paragraphs.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>3.1.3</td>
+<td>Added support for multiple paragraphs</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="graphicglitch">
 <h2>[GraphicGlitch:*:*]<a class="headerlink" href="#graphicglitch" title="Permalink to this headline">¶</a></h2>
@@ -275,7 +358,22 @@ Second paragraph.
 <span id="id1"></span><h2>[Graphics]<a class="headerlink" href="#graphics" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">Graphics</span></tt> section, if present, defines the body of the &#8216;Other graphics&#8217;
 page; it may contain HTML markup and <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
-<p><cite>New in version 2.0.5.</cite></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0.5</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="imagewriter">
 <span id="ref-imagewriter"></span><h2>[ImageWriter]<a class="headerlink" href="#imagewriter" title="Permalink to this headline">¶</a></h2>
@@ -322,10 +420,27 @@ then:</p>
 <p>For images that contain flashing cells, animated GIFs are recommended over
 animated PNGs in APNG format, because they are more widely supported in web
 browsers.</p>
-<p><cite>New in version 3.0.</cite></p>
-<p><cite>Changed in version 3.0.1:</cite> Added the <tt class="docutils literal"><span class="pre">DefaultFormat</span></tt>, <tt class="docutils literal"><span class="pre">GIFCompression</span></tt>,
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>3.0</td>
+<td>New</td>
+</tr>
+<tr class="row-odd"><td>3.0.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">DefaultFormat</span></tt>, <tt class="docutils literal"><span class="pre">GIFCompression</span></tt>,
 <tt class="docutils literal"><span class="pre">GIFEnableAnimation</span></tt>, <tt class="docutils literal"><span class="pre">GIFTransparency</span></tt>, <tt class="docutils literal"><span class="pre">PNGAlpha</span></tt> and
-<tt class="docutils literal"><span class="pre">PNGEnableAnimation</span></tt> parameters.</p>
+<tt class="docutils literal"><span class="pre">PNGEnableAnimation</span></tt> parameters</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="index">
 <span id="id2"></span><h2>[Index]<a class="headerlink" href="#index" title="Permalink to this headline">¶</a></h2>
@@ -341,7 +456,22 @@ OtherCode
 Reference
 </pre></div>
 </div>
-<p><cite>New in version 2.0.5.</cite></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0.5</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="indexgroup">
 <span id="id3"></span><h2>[Index:*:*]<a class="headerlink" href="#indexgroup" title="Permalink to this headline">¶</a></h2>
@@ -388,7 +518,22 @@ Bugs
 Pokes
 </pre></div>
 </div>
-<p><cite>New in version 2.0.5.</cite></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0.5</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="info">
 <h2>[Info]<a class="headerlink" href="#info" title="Permalink to this headline">¶</a></h2>
@@ -409,10 +554,28 @@ disassembly (default: &#8216;&#8217;)</li>
 <p>If the string <tt class="docutils literal"><span class="pre">$VERSION</span></tt> appears anywhere in the <tt class="docutils literal"><span class="pre">Created</span></tt> message, it is
 replaced by the version number of SkoolKit.</p>
 <p>Each of these messages may contain HTML markup.</p>
-<p><cite>New in version 2.0.</cite></p>
-<p><cite>Changed in version 2.0.3:</cite> Added the <tt class="docutils literal"><span class="pre">Created</span></tt> parameter.</p>
-<p><cite>Changed in version 2.2.5:</cite> Set the default value for the <tt class="docutils literal"><span class="pre">Created</span></tt>
-parameter.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0</td>
+<td>New</td>
+</tr>
+<tr class="row-odd"><td>2.0.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">Created</span></tt> parameter</td>
+</tr>
+<tr class="row-even"><td>2.2.5</td>
+<td>Set the default value for the <tt class="docutils literal"><span class="pre">Created</span></tt> parameter</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="links">
 <span id="id4"></span><h2>[Links]<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
@@ -454,9 +617,28 @@ hyperlink. For example:</p>
 <p>This declares that the link text for the &#8216;Everything&#8217; memory map page will be
 &#8216;Everything&#8217;, and &#8216;(routines, data, text and unused addresses)&#8217; will be
 displayed alongside it.</p>
-<p><cite>New in version 2.0.5.</cite></p>
-<p><cite>Changed in version 2.2.5:</cite> Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> page ID.</p>
-<p><cite>Changed in version 2.5:</cite> Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> page ID.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="79%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0.5</td>
+<td>New</td>
+</tr>
+<tr class="row-odd"><td>2.2.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> page ID</td>
+</tr>
+<tr class="row-even"><td>2.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> page ID</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="memorymap">
 <span id="id5"></span><h2>[MemoryMap:*]<a class="headerlink" href="#memorymap" title="Permalink to this headline">¶</a></h2>
@@ -512,7 +694,22 @@ EntryTypes=uz
 PageByteColumns=1
 </pre></div>
 </div>
-<p><cite>New in version 2.5.</cite></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.5</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="othercode">
 <h2>[OtherCode:*]<a class="headerlink" href="#othercode" title="Permalink to this headline">¶</a></h2>
@@ -549,8 +746,25 @@ it can be used by the <a class="reference internal" href="skool-macros.html#link
 hyperlink to the secondary disassembly index page (defaults to the value of
 the <tt class="docutils literal"><span class="pre">Title</span></tt> parameter)</li>
 </ul>
-<p><cite>New in version 2.0.</cite></p>
-<p><cite>Changed in version 2.2.5:</cite> Added the <tt class="docutils literal"><span class="pre">IndexPageId</span></tt> and <tt class="docutils literal"><span class="pre">Link</span></tt> parameters.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0</td>
+<td>New</td>
+</tr>
+<tr class="row-odd"><td>2.2.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">IndexPageId</span></tt> and <tt class="docutils literal"><span class="pre">Link</span></tt> parameters</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="page">
 <span id="id6"></span><h2>[Page:*]<a class="headerlink" href="#page" title="Permalink to this headline">¶</a></h2>
@@ -586,7 +800,22 @@ the page, <tt class="docutils literal"><span class="pre">0</span></tt> otherwise
 <a class="reference internal" href="#pagecontent"><em>[PageContent:*]</em></a> section if the source can be written on a single line</li>
 <li><tt class="docutils literal"><span class="pre">Title</span></tt> - the title of the page (defaults to the page ID)</li>
 </ul>
-<p><cite>New in version 2.1.</cite></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.1</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="pagecontent">
 <span id="id7"></span><h2>[PageContent:*]<a class="headerlink" href="#pagecontent" title="Permalink to this headline">¶</a></h2>
@@ -598,7 +827,22 @@ page defined in a <a class="reference internal" href="#page"><em>[Page:*]</em></
 <p>where <tt class="docutils literal"><span class="pre">PageId</span></tt> is the unique ID of the page (as previously declared in the
 name of the corresponding <a class="reference internal" href="#page"><em>[Page:*]</em></a> section).</p>
 <p>The HTML source may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
-<p><cite>New in version 2.1.</cite></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.1</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="paths">
 <span id="id8"></span><h2>[Paths]<a class="headerlink" href="#paths" title="Permalink to this headline">¶</a></h2>
@@ -664,15 +908,39 @@ by the <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em><
 <a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a> or <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macro) will be placed
 (default: <cite>images/udgs</cite>)</li>
 </ul>
-<p><cite>New in version 2.0.</cite></p>
-<p><cite>Changed in version 2.0.5:</cite> Added the <tt class="docutils literal"><span class="pre">FontImagePath</span></tt> directory ID.</p>
-<p><cite>Changed in version 2.1.1:</cite> Added the <tt class="docutils literal"><span class="pre">CodePath</span></tt> directory ID.</p>
-<p><cite>Changed in version 2.2.5:</cite> Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> file ID.</p>
-<p><cite>Changed in version 2.5:</cite> Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> file ID, and support for
-declaring multiple JavaScript files and CSS files in the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> and
-<tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parameters.</p>
-<p><cite>Changed in version 3.1.1:</cite> Added the <tt class="docutils literal"><span class="pre">Font</span></tt> file ID and the <tt class="docutils literal"><span class="pre">FontPath</span></tt>
-directory ID.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0</td>
+<td>New</td>
+</tr>
+<tr class="row-odd"><td>2.0.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">FontImagePath</span></tt> directory ID</td>
+</tr>
+<tr class="row-even"><td>2.1.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">CodePath</span></tt> directory ID</td>
+</tr>
+<tr class="row-odd"><td>2.2.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> file ID</td>
+</tr>
+<tr class="row-even"><td>2.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> file ID, and support for declaring
+multiple JavaScript files and CSS files in the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> and
+<tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parameters</td>
+</tr>
+<tr class="row-odd"><td>3.1.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">Font</span></tt> file ID and the <tt class="docutils literal"><span class="pre">FontPath</span></tt> directory ID</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="poke">
 <span id="ref-poke"></span><h2>[Poke:*:*]<a class="headerlink" href="#poke" title="Permalink to this headline">¶</a></h2>
@@ -726,9 +994,28 @@ glitches&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">UnusedMap</span></tt> - the &#8216;Unused addresses&#8217; memory map page (default: &#8216;Unused
 addresses&#8217;)</li>
 </ul>
-<p><cite>New in version 2.0.5.</cite></p>
-<p><cite>Changed in version 2.2.5:</cite> Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> page ID.</p>
-<p><cite>Changed in version 2.5:</cite> Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> page ID.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="79%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0.5</td>
+<td>New</td>
+</tr>
+<tr class="row-odd"><td>2.2.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> page ID</td>
+</tr>
+<tr class="row-even"><td>2.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> page ID</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 
@@ -801,7 +1088,7 @@ addresses&#8217;)</li>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &mdash; SkoolKit 3.3.1 documentation</title>
+    <title>Extending SkoolKit &mdash; SkoolKit 3.3.2 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.3.1',
+        VERSION:     '3.3.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.3.2 documentation" href="index.html" />
     <link rel="prev" title="Running unit tests" href="unit-tests.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="unit-tests.html" title="Running unit tests"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -66,7 +66,7 @@ a better way is to subclass HtmlWriter and AsmWriter in a separate extension
 module, and add the methods there; then that extension module can be easily
 used with different versions of SkoolKit, and shared with other people.</p>
 <p>A minimal extension module would look like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># Extension module in the top-level skoolkit package directory</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Extension module in the skoolkit package directory</span>
 <span class="kn">from</span> <span class="nn">.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 <span class="kn">from</span> <span class="nn">.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
 
@@ -78,10 +78,15 @@ used with different versions of SkoolKit, and shared with other people.</p>
 </pre></div>
 </div>
 <p>The next step is to get SkoolKit to use the extension module for your game.
-First, place the extension module (let&#8217;s call it <cite>game.py</cite>) in the top-level
-<cite>skoolkit</cite> package directory (either where SkoolKit was unpacked, or where it
-is installed). Then add the following line to the <a class="reference internal" href="ref-files.html#ref-config"><em>[Config]</em></a> section
-of your disassembly&#8217;s <cite>ref</cite> file:</p>
+First, place the extension module (let&#8217;s call it <cite>game.py</cite>) in the <cite>skoolkit</cite>
+package directory; to locate this directory, run <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> with the
+<tt class="docutils literal"><span class="pre">-p</span></tt> option:</p>
+<div class="highlight-python"><pre>$ skool2html.py -p
+/usr/lib/python2.7/dist-packages/skoolkit</pre>
+</div>
+<p>(The package directory may be different on your system.) With <cite>game.py</cite> in
+place, add the following line to the <a class="reference internal" href="ref-files.html#ref-config"><em>[Config]</em></a> section of your
+disassembly&#8217;s <cite>ref</cite> file:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">HtmlWriterClass</span><span class="o">=</span><span class="n">skoolkit</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">GameHtmlWriter</span>
 </pre></div>
 </div>
@@ -97,10 +102,10 @@ directive somewhere after the <tt class="docutils literal"><span class="pre">&#6
 directive (if there is one):</p>
 <div class="highlight-python"><pre>; @writer=skoolkit.game.GameAsmWriter</pre>
 </div>
-<p>The top-level <cite>skoolkit</cite> package directory is a reasonable place for an
-extension module, but it could be placed in another package, or somewhere else
-as a standalone module. For example, if you wanted to keep a standalone
-extension module in <cite>~/.skoolkit</cite>, it should look like this:</p>
+<p>The <cite>skoolkit</cite> package directory is a reasonable place for an extension module,
+but it could be placed in another package, or somewhere else as a standalone
+module. For example, if you wanted to keep a standalone extension module in
+<cite>~/.skoolkit</cite>, it should look like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Standalone extension module</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
@@ -767,7 +772,7 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="unit-tests.html" title="Running unit tests"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

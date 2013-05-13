@@ -74,8 +74,12 @@ In ASM mode, this instance of the ``#BUG`` macro expands to 'bug'.
 
 See also :ref:`FACT` and :ref:`POKE`.
 
-`Changed in version 2.3.1:` If left blank, the link text defaults to the bug
-entry title in HTML mode.
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 2.3.1   | If left blank, the link text defaults to the bug entry title in |
+|         | HTML mode                                                       |
++---------+-----------------------------------------------------------------+
 
 .. _CALL:
 
@@ -106,9 +110,13 @@ with the argument ``32768``.
 For information on writing methods that may be called by a ``#CALL`` macro, see
 the documentation on :ref:`extending SkoolKit <extendingSkoolKit>`.
 
-`New in version 2.1.`
-
-`Changed in version 3.1:` Added support for ASM mode.
++---------+----------------------------+
+| Version | Changes                    |
++=========+============================+
+| 2.1     | New                        |
++---------+----------------------------+
+| 3.1     | Added support for ASM mode |
++---------+----------------------------+
 
 .. _CHR:
 
@@ -134,7 +142,11 @@ For example:
 In HTML mode, this instance of the ``#CHR`` macro expands to ``&#169;``. In ASM
 mode, it expands to the copyright symbol.
 
-`New in version 3.1.`
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 3.1     | New     |
++---------+---------+
 
 .. _D:
 
@@ -171,7 +183,11 @@ routines that jump to or call a given address. ::
 
 See also :ref:`m-REFS`.
 
-`Changed in version 3.1:` Added support for ASM mode.
++---------+----------------------------+
+| Version | Changes                    |
++=========+============================+
+| 3.1     | Added support for ASM mode |
++---------+----------------------------+
 
 .. _FACT:
 
@@ -202,8 +218,12 @@ an entry on the 'Trivia' page, with link text equal to the title of the entry.
 
 See also :ref:`BUG` and :ref:`POKE`.
 
-`Changed in version 2.3.1:` If left blank, the link text defaults to the trivia
-entry title in HTML mode; added support for ASM mode.
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 2.3.1   | If left blank, the link text defaults to the trivia entry title |
+|         | in HTML mode; added support for ASM mode                        |
++---------+-----------------------------------------------------------------+
 
 .. _FONT:
 
@@ -250,10 +270,13 @@ In HTML mode, this instance of the ``#FONT`` macro expands to an ``<img>``
 element for the image of the 32 characters in the 8*8 font whose graphic data
 starts at 49152.
 
-`Changed in version 2.0.5:` Added the ``fname`` parameter and support for
-regular 8x8 fonts.
-
-`Changed in version 3.0:` Added image-cropping capabilities.
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 2.0.5   | Added the ``fname`` parameter and support for regular 8x8 fonts |
++---------+-----------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities                               |
++---------+-----------------------------------------------------------------+
 
 .. _HTML:
 
@@ -285,7 +308,11 @@ rendering. For example::
 
 See also :ref:`UDGTABLE`.
 
-`New in version 3.1.2.`
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 3.1.2   | New     |
++---------+---------+
 
 .. _LINK:
 
@@ -319,10 +346,14 @@ the 'Glossary' page, with link text 'glossary'.
 
 In ASM mode, this instance of the ``#LINK`` macro expands to 'glossary'.
 
-`New in version 2.1.`
-
-`Changed in version 3.1.3:` If left blank, the link text defaults to the page's
-link text in HTML mode.
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 2.1     | New                                                              |
++---------+------------------------------------------------------------------+
+| 3.1.3   | If left blank, the link text defaults to the page's link text in |
+|         | HTML mode                                                        |
++---------+------------------------------------------------------------------+
 
 .. _LIST:
 
@@ -351,7 +382,11 @@ In ASM mode, lists are rendered as plain text, with each item on its own line,
 and an asterisk as the bullet character. The bullet character can be changed by
 using a :ref:`set` directive to set the ``bullet`` property on the ASM writer.
 
-`New in version 3.2.`
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 3.2     | New     |
++---------+---------+
 
 .. _NAME:
 
@@ -407,8 +442,12 @@ In ASM mode, this instance of the ``#POKE`` macro expands to 'infinite lives'.
 
 See also :ref:`BUG` and :ref:`FACT`.
 
-`Changed in version 2.3.1:` If left blank, the link text defaults to the poke
-entry title in HTML mode; added support for ASM mode.
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 2.3.1   | If left blank, the link text defaults to the poke entry title in |
+|         | HTML mode; added support for ASM mode                            |
++---------+------------------------------------------------------------------+
 
 .. _POKES:
 
@@ -445,9 +484,13 @@ The ``#POKES`` macro expands to an empty string.
 
 See also :ref:`PUSHS` and :ref:`POPS`.
 
-`Changed in version 2.3.1:` Added support for multiple addresses.
-
-`Changed in version 3.1:` Added support for ASM mode.
++---------+--------------------------------------+
+| Version | Changes                              |
++=========+======================================+
+| 2.3.1   | Added support for multiple addresses |
++---------+--------------------------------------+
+| 3.1     | Added support for ASM mode           |
++---------+--------------------------------------+
 
 .. _POPS:
 
@@ -462,7 +505,11 @@ The ``#POPS`` macro expands to an empty string.
 
 See also :ref:`PUSHS` and :ref:`POKES`.
 
-`Changed in version 3.1:` Added support for ASM mode.
++---------+----------------------------+
+| Version | Changes                    |
++=========+============================+
+| 3.1     | Added support for ASM mode |
++---------+----------------------------+
 
 .. _PUSHS:
 
@@ -495,7 +542,11 @@ The ``#PUSHS`` macro expands to an empty string.
 
 See also :ref:`POKES` and :ref:`POPS`.
 
-`Changed in version 3.1:` Added support for ASM mode.
++---------+----------------------------+
+| Version | Changes                    |
++=========+============================+
+| 3.1     | Added support for ASM mode |
++---------+----------------------------+
 
 .. _R:
 
@@ -530,7 +581,11 @@ disassembly page for the routine at 25820.
 In ASM mode, this instance of the ``#R`` macro expands to the label for the
 routine at 25820 (or simply ``25820`` if that routine has no label).
 
-`Changed in version 2.0:` Added support for the ``@code`` notation.
++---------+------------------------------------------+
+| Version | Changes                                  |
++=========+==========================================+
+| 2.0     | Added support for the ``@code`` notation |
++---------+------------------------------------------+
 
 .. _m-REFS:
 
@@ -553,9 +608,13 @@ If there are no references, the macro expands to the following text::
 
 See also :ref:`EREFS`.
 
-`Changed in version 1.0.6:` Added the ``prefix`` parameter.
-
-`Changed in version 3.1:` Added support for ASM mode.
++---------+--------------------------------+
+| Version | Changes                        |
++=========+================================+
+| 1.0.6   | Added the ``prefix`` parameter |
++---------+--------------------------------+
+| 3.1     | Added support for ASM mode     |
++---------+--------------------------------+
 
 .. _REG:
 
@@ -629,11 +688,15 @@ For example::
   ; { #SCR(loading) | This is the loading screen. }
   ; TABLE#
 
-`Changed in version 2.0.5:` Added the ``scale``, ``x``, ``y``, ``w``, ``h`` and
-``fname`` parameters.
-
-`Changed in version 3.0:` Added image-cropping capabilities and the ``dfAddr``
-and ``afAddr`` parameters.
++---------+---------------------------------------------------------------+
+| Version | Changes                                                       |
++=========+===============================================================+
+| 2.0.5   | Added the ``scale``, ``x``, ``y``, ``w``, ``h`` and ``fname`` |
+|         | parameters                                                    |
++---------+---------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities and the ``dfAddr`` and      |
+|         | ``afAddr`` parameters                                         |
++---------+---------------------------------------------------------------+
 
 .. _SPACE:
 
@@ -668,7 +731,11 @@ text where necessary. For example::
   ; 'Score:#SPACE(5)0'
   t49152 DEFM "Score:     0"
 
-`Changed in version 2.4.1:` Added support for the ``#SPACE([num])`` syntax.
++---------+------------------------------------------------+
+| Version | Changes                                        |
++=========+================================================+
+| 2.4.1   | Added support for the ``#SPACE([num])`` syntax |
++---------+------------------------------------------------+
 
 .. _TABLE:
 
@@ -804,17 +871,21 @@ In HTML mode, this instance of the ``#UDG`` macro expands to an ``<img>``
 element for the image of the UDG at 39144 (which will be named `safe_key.png`
 or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
 
-`Changed in version 2.0.5:` Added the ``fname`` parameter.
-
-`Changed in version 2.1:` Added support for masks.
-
-`Changed in version 2.3.1:` Added the ``flip`` parameter.
-
-`Changed in version 2.4:` Added the ``rotate`` parameter.
-
-`Changed in version 3.0:` Added image-cropping capabilities.
-
-`Changed in version 3.1.2:` Made the ``attr`` parameter optional.
++---------+--------------------------------------+
+| Version | Changes                              |
++=========+======================================+
+| 2.0.5   | Added the ``fname`` parameter        |
++---------+--------------------------------------+
+| 2.1     | Added support for masks              |
++---------+--------------------------------------+
+| 2.3.1   | Added the ``flip`` parameter         |
++---------+--------------------------------------+
+| 2.4     | Added the ``rotate`` parameter       |
++---------+--------------------------------------+
+| 3.0     | Added image-cropping capabilities    |
++---------+--------------------------------------+
+| 3.1.2   | Made the ``attr`` parameter optional |
++---------+--------------------------------------+
 
 .. _UDGARRAY:
 
@@ -839,7 +910,7 @@ image of an array of UDGs (8x8 blocks of pixels). ::
   it is (default: 0)
 * ``addr1`` is the address range specification for the first set of UDGs (see
   below)
-* ``attr1`` is the attribute byte to use for the each UDG in the set (overrides
+* ``attr1`` is the attribute byte to use for each UDG in the set (overrides
   ``attr`` if specified)
 * ``step1`` is the interval between successive bytes of each UDG in the set
   (overrides ``step`` if specified)
@@ -902,18 +973,22 @@ element for the image of the 4x4 sprite formed by the 16 UDGs with base
 addresses 32768, 32776, 32784 and so on up to 32888; the image file will be
 named `base_sprite.png`.
 
-`New in version 2.0.5.`
-
-`Changed in version 2.2.5:` Added support for masks.
-
-`Changed in version 2.3.1:` Added the ``flip`` parameter.
-
-`Changed in version 2.4:` Added the ``rotate`` parameter.
-
-`Changed in version 3.0:` Added image-cropping capabilities.
-
-`Changed in version 3.1.1:` Added support for UDG address ranges with
-horizontal and vertical steps.
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 2.0.5   | New                                                               |
++---------+-------------------------------------------------------------------+
+| 2.2.5   | Added support for masks                                           |
++---------+-------------------------------------------------------------------+
+| 2.3.1   | Added the ``flip`` parameter                                      |
++---------+-------------------------------------------------------------------+
+| 2.4     | Added the ``rotate`` parameter                                    |
++---------+-------------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities                                 |
++---------+-------------------------------------------------------------------+
+| 3.1.1   | Added support for UDG address ranges with horizontal and vertical |
+|         | steps                                                             |
++---------+-------------------------------------------------------------------+
 
 .. _UDGTABLE:
 

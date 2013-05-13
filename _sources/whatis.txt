@@ -11,9 +11,9 @@ developer- and assembler-friendly ASM version of the disassembly.
 
 .. _Spectrum: http://en.wikipedia.org/wiki/ZX_Spectrum
 
-The latest version of SkoolKit can always be obtained from `pyskool.ca`_.
-
-.. _pyskool.ca: http://pyskool.ca/
+The latest stable release of SkoolKit can always be obtained from
+`pyskool.ca <http://pyskool.ca/?page_id=177>`__; the latest development version
+can be found on `GitHub <http://github.com/skoolkid/skoolkit>`__.
 
 Features
 --------
@@ -33,12 +33,14 @@ can also:
 
 For a demonstration of SkoolKit's capabilities, take a look at the complete
 disassemblies of `Skool Daze`_, `Back to Skool`_ and `Contact Sam Cruise`_. The
-source `skool` files for these disassemblies can be downloaded here_.
+latest stable releases of the source `skool` files for these disassemblies can
+always be obtained from `pyskool.ca <http://pyskool.ca/?page_id=113>`__; the
+latest development versions can be found on
+`GitHub <http://github.com/skoolkid/disassemblies>`__.
 
 .. _Skool Daze: http://pyskool.ca/disassemblies/skool_daze/
 .. _Back to Skool: http://pyskool.ca/disassemblies/back_to_skool/
 .. _Contact Sam Cruise: http://pyskool.ca/disassemblies/contact_sam_cruise/
-.. _here: http://pyskool.ca/?page_id=113
 
 Licence
 -------

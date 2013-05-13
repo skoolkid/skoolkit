@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool files &mdash; SkoolKit 3.3.1 documentation</title>
+    <title>Skool files &mdash; SkoolKit 3.3.2 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.3.1',
+        VERSION:     '3.3.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.3.2 documentation" href="index.html" />
     <link rel="next" title="Skool file templates" href="skool-file-templates.html" />
     <link rel="prev" title="Control files" href="control-files.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="control-files.html" title="Control files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -108,6 +108,8 @@ braces (&#8216;{&#8216; and &#8216;}&#8217;) to indicate the start and end point
  24373 JR NZ,24378   ; 24372 and 24373}
 </pre></div>
 </div>
+<p>The opening and closing braces are removed before the comment is rendered in
+ASM or HTML mode. (See <a class="reference internal" href="#bracesincomments"><em>Braces in comments</em></a>.)</p>
 <p>Comments may appear between instructions, or after the last instruction in an
 entry; paragraphs in such comments must be separated by a comment line
 containing a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) on its own. For example:</p>
@@ -172,6 +174,53 @@ the same table as the previous register; if there is no previous register, it
 will be placed in the table of input values.</p>
 </div></blockquote>
 </div>
+<div class="section" id="braces-in-comments">
+<span id="bracesincomments"></span><h2>Braces in comments<a class="headerlink" href="#braces-in-comments" title="Permalink to this headline">¶</a></h2>
+<p>As noted above, opening and closing braces (<tt class="docutils literal"><span class="pre">{</span></tt>, <tt class="docutils literal"><span class="pre">}</span></tt>) are used to mark the
+start and end points of an instruction-level comment that is associated with
+more than one instruction, and the braces are removed before the comment is
+rendered. This means that if the comment requires an opening or closing brace
+<cite>when rendered</cite>, some care must be taken to get the syntax correct.</p>
+<p>The rules regarding an instruction-level comment that starts with an opening
+brace are as follows:</p>
+<ul class="simple">
+<li>The comment terminates on the line where the total number of closing braces
+in the comment becomes equal to or greater than the total number of opening
+braces</li>
+<li>Adjacent opening braces at the start of the comment are removed before
+rendering</li>
+<li>Adjacent closing braces at the end of the comment are removed before
+rendering</li>
+</ul>
+<p>By these rules, it is possible to craft an instruction-level comment that
+contains matched or unmatched opening and closing braces when rendered.</p>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>b50000 DEFB 0  ; {{This comment (which spans two instructions) has an
+ 50001 DEFB 0  ; unmatched closing brace} }
+</pre></div>
+</div>
+<p>will render in ASM mode as:</p>
+<div class="highlight-none"><div class="highlight"><pre>DEFB 0                  ; This comment (which spans two instructions) has an
+DEFB 0                  ; unmatched closing brace}
+</pre></div>
+</div>
+<p>And:</p>
+<div class="highlight-none"><div class="highlight"><pre>b50002 DEFB 0  ; { {{Matched opening and closing braces}} }
+</pre></div>
+</div>
+<p>will render as:</p>
+<div class="highlight-none"><div class="highlight"><pre>DEFB 0                  ; {{Matched opening and closing braces}}
+</pre></div>
+</div>
+<p>Finally:</p>
+<div class="highlight-none"><div class="highlight"><pre>b50003 DEFB 0  ; { {Unmatched opening brace}}
+</pre></div>
+</div>
+<p>will render as:</p>
+<div class="highlight-none"><div class="highlight"><pre>DEFB 0                  ; {Unmatched opening brace
+</pre></div>
+</div>
+</div>
 <div class="section" id="data-definition-entries">
 <span id="dentry"></span><h2>Data definition entries<a class="headerlink" href="#data-definition-entries" title="Permalink to this headline">¶</a></h2>
 <p>If the first instruction line in an entry starts with <tt class="docutils literal"><span class="pre">d</span></tt>, the entry is
@@ -225,13 +274,33 @@ entry point in the routine at 29012.</p>
 </div>
 <div class="section" id="revision-history">
 <h2>Revision history<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
-<p><cite>Changed in version 2.0:</cite> Added support for data definition entries and remote
-entries.</p>
-<p><cite>Changed in version 2.1:</cite> Added support for hexadecimal numbers.</p>
-<p><cite>Changed in version 2.4:</cite> Added the ability to separate paragraphs and specify
-a blank entry description by using a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) on a line of its own.</p>
-<p><cite>Changed in version 3.1.2:</cite> Added support for &#8216;Input&#8217; and &#8216;Output&#8217; prefixes in
-register sections.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0</td>
+<td>Added support for data definition entries and remote entries</td>
+</tr>
+<tr class="row-odd"><td>2.1</td>
+<td>Added support for hexadecimal numbers</td>
+</tr>
+<tr class="row-even"><td>2.4</td>
+<td>Added the ability to separate paragraphs and specify a blank
+entry description by using a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) on a line of its own</td>
+</tr>
+<tr class="row-odd"><td>3.1.2</td>
+<td>Added support for &#8216;Input&#8217; and &#8216;Output&#8217; prefixes in register
+sections</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 
@@ -245,6 +314,7 @@ register sections.</p>
   <ul>
 <li><a class="reference internal" href="#">Skool files</a><ul>
 <li><a class="reference internal" href="#skool-file-format">Skool file format</a></li>
+<li><a class="reference internal" href="#braces-in-comments">Braces in comments</a></li>
 <li><a class="reference internal" href="#data-definition-entries">Data definition entries</a></li>
 <li><a class="reference internal" href="#remote-entries">Remote entries</a></li>
 <li><a class="reference internal" href="#revision-history">Revision history</a></li>
@@ -287,7 +357,7 @@ register sections.</p>
         <li class="right" >
           <a href="control-files.html" title="Control files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

@@ -7,6 +7,24 @@ Changelog
    changelog2
    changelog1
 
+3.3.2 (2013-05-13)
+------------------
+* Added the ``-T`` option to :ref:`skool2html.py` (to specify a CSS theme)
+* Added the ``-p`` option to :ref:`skool2html.py` (to show the path to the
+  skoolkit package directory)
+* `setup.py` now installs the `resources` directory (so a local copy is no
+  longer required when SkoolKit has been installed via ``setup.py install``)
+* Added `jet_set_willy-dark.css` (to complete the 'dark' theme for that
+  disassembly)
+* Added :ref:`documentation <bracesInComments>` on how to write an
+  instruction-level comment that contains opening or closing braces when
+  rendered
+* Fixed the appearance of transparent table cells in HTML output
+* Fixed :ref:`sna2skool.py` so that a control file specified by the ``-c``
+  option takes precedence over a default skool file template
+* Fixed `manic_miner.ctl` so that the comments at 40177-40191 apply to a
+  pristine snapshot (before stack operations have corrupted those addresses)
+
 3.3.1 (2013-03-04)
 ------------------
 * Added support to the :ref:`set` ASM directive for the `comment-width-min`,

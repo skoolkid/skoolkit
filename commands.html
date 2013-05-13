@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Command reference &mdash; SkoolKit 3.3.1 documentation</title>
+    <title>Command reference &mdash; SkoolKit 3.3.2 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.3.1',
+        VERSION:     '3.3.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.3.2 documentation" href="index.html" />
     <link rel="next" title="Disassembly DIY" href="diy.html" />
     <link rel="prev" title="Installing and using SkoolKit" href="usage.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -87,8 +87,25 @@ those bytes with the values required by the tape loading routine for correct
 operation upon returning. Stack operations will overwrite the bytes in the
 address range STACK-14 to STACK-1 inclusive, so those addresses should not be
 used to store essential code or data.</p>
-<p><cite>New in version 1.3.1.</cite></p>
-<p><cite>Changed in version 2.2.5:</cite> Added the <tt class="docutils literal"><span class="pre">-p</span></tt> option.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="26%" />
+<col width="74%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1.3.1</td>
+<td>New</td>
+</tr>
+<tr class="row-odd"><td>2.2.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-p</span></tt> option</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="skool2asm-py">
 <span id="id2"></span><h2>skool2asm.py<a class="headerlink" href="#skool2asm-py" title="Permalink to this headline">¶</a></h2>
@@ -126,10 +143,28 @@ Options:
 <p>See <a class="reference internal" href="asm.html#asmmodesanddirectives"><em>ASM modes and directives</em></a> for a description of the <tt class="docutils literal"><span class="pre">&#64;ssub</span></tt> and
 <tt class="docutils literal"><span class="pre">&#64;rsub</span></tt> substitution modes, and the <tt class="docutils literal"><span class="pre">&#64;ofix</span></tt>, <tt class="docutils literal"><span class="pre">&#64;bfix</span></tt> and <tt class="docutils literal"><span class="pre">&#64;rfix</span></tt> bugfix
 modes.</p>
-<p><cite>Changed in version 1.1:</cite> Added the <tt class="docutils literal"><span class="pre">-c</span></tt> option.</p>
-<p><cite>Changed in version 2.1.1:</cite> Added the <tt class="docutils literal"><span class="pre">-u</span></tt>, <tt class="docutils literal"><span class="pre">-D</span></tt> and <tt class="docutils literal"><span class="pre">-H</span></tt> options.</p>
-<p><cite>Changed in version 2.2.2:</cite> Added the ability to read a <cite>skool</cite> file from
-standard input.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-c</span></tt> option</td>
+</tr>
+<tr class="row-odd"><td>2.1.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-u</span></tt>, <tt class="docutils literal"><span class="pre">-D</span></tt> and <tt class="docutils literal"><span class="pre">-H</span></tt> options</td>
+</tr>
+<tr class="row-even"><td>2.2.2</td>
+<td>Added the ability to read a <cite>skool</cite> file from standard input</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="skool2ctl-py">
 <span id="id3"></span><h2>skool2ctl.py<a class="headerlink" href="#skool2ctl-py" title="Permalink to this headline">¶</a></h2>
@@ -164,12 +199,32 @@ Options:
 <p>If you need to preserve any elements that control files do not support (such as
 data definition entries and ASM block directives), consider using
 <a class="reference internal" href="#skool2sft-py"><em>skool2sft.py</em></a> to create a skool file template instead.</p>
-<p><cite>New in version 1.1.</cite></p>
-<p><cite>Changed in version 2.0.6:</cite> Added the <tt class="docutils literal"><span class="pre">-h</span></tt> option.</p>
-<p><cite>Changed in version 2.2.2:</cite> Added the ability to read a <cite>skool</cite> file from
-standard input.</p>
-<p><cite>Changed in version 2.4:</cite> Added the <tt class="docutils literal"><span class="pre">-a</span></tt> option and the ability to preserve
-some ASM directives.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1.1</td>
+<td>New</td>
+</tr>
+<tr class="row-odd"><td>2.0.6</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-h</span></tt> option</td>
+</tr>
+<tr class="row-even"><td>2.2.2</td>
+<td>Added the ability to read a <cite>skool</cite> file from standard input</td>
+</tr>
+<tr class="row-odd"><td>2.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-a</span></tt> option and the ability to preserve some ASM
+directives</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="skool2html-py">
 <span id="id4"></span><h2>skool2html.py<a class="headerlink" href="#skool2html-py" title="Permalink to this headline">¶</a></h2>
@@ -192,6 +247,8 @@ conversion process.</p>
 <cite>game.skool</cite> will be used if it exists. In addition, any existing files besides
 <cite>game.ref</cite> that are named <cite>game*.ref</cite> (e.g. <cite>game-bugs.ref</cite>, <cite>game-pokes.ref</cite>
 and so on) will also be used.</p>
+<p>If an input file&#8217;s name ends with &#8216;.ref&#8217;, it will be treated as a <cite>ref</cite> file;
+otherwise it will be treated as a <cite>skool</cite> file.</p>
 <p><cite>skool2html.py</cite> supports several options; run it with no arguments to see a
 list:</p>
 <div class="highlight-none"><div class="highlight"><pre>Usage: skool2html.py [options] FILE [FILE...]
@@ -201,10 +258,12 @@ list:</p>
 
 Options:
   -V        Show SkoolKit version number and exit
+  -p        Show path to skoolkit package directory and exit
   -q        Be quiet
   -t        Show timings
   -d DIR    Write files in this directory (default is &#39;.&#39;)
   -o        Overwrite existing image files
+  -T THEME  Use this CSS theme
   -l        Write disassembly in lower case
   -u        Write disassembly in upper case
   -D        Write disassembly in decimal
@@ -240,21 +299,67 @@ line</li>
 <li><cite>./resources</cite></li>
 <li><cite>~/.skoolkit</cite></li>
 <li><cite>/usr/share/skoolkit</cite></li>
+<li><cite>$PACKAGE_DIR/resources</cite></li>
 </ul>
-<p><cite>Changed in version 1.4:</cite> Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option.</p>
-<p><cite>Changed in version 2.1:</cite> Added the <tt class="docutils literal"><span class="pre">-o</span></tt> and <tt class="docutils literal"><span class="pre">-P</span></tt> options.</p>
-<p><cite>Changed in version 2.1.1:</cite> Added the <tt class="docutils literal"><span class="pre">-l</span></tt>, <tt class="docutils literal"><span class="pre">-u</span></tt>, <tt class="docutils literal"><span class="pre">-D</span></tt> and <tt class="docutils literal"><span class="pre">-H</span></tt>
-options.</p>
-<p><cite>Changed in version 2.2:</cite> No longer writes the Skool Daze and Back to Skool
-disassemblies by default; added the <tt class="docutils literal"><span class="pre">-d</span></tt> option.</p>
-<p><cite>Changed in version 2.2.2:</cite> Added the ability to read a <cite>skool</cite> file from
-standard input.</p>
-<p><cite>Changed in version 2.3.1:</cite> Added support for reading multiple <cite>ref</cite> files per
-disassembly.</p>
-<p><cite>Changed in version 3.0.2:</cite> No longer shows timings by default; added the
-<tt class="docutils literal"><span class="pre">-t</span></tt> option.</p>
-<p><cite>Changed in version 3.1:</cite> Added the <tt class="docutils literal"><span class="pre">-c</span></tt> option.</p>
-<p><cite>Changed in version 3.2:</cite> Added <cite>~/.skoolkit</cite> to the search path.</p>
+<p>where <cite>$PACKAGE_DIR</cite> is the directory in which the <cite>skoolkit</cite> package is
+installed (as shown by <tt class="docutils literal"><span class="pre">skool2html.py</span> <span class="pre">-p</span></tt>).</p>
+<p>The <tt class="docutils literal"><span class="pre">-T</span></tt> option sets the CSS theme. For example, if <cite>game.ref</cite> specifies the
+CSS files to use thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>[Paths]
+StyleSheet=skoolkit.css;game.css
+</pre></div>
+</div>
+<p>then:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -T dark game.ref
+</pre></div>
+</div>
+<p>will use <cite>skoolkit-dark.css</cite> and <cite>game-dark.css</cite> if they exist, and fall back
+to <cite>skoolkit.css</cite> and <cite>game.css</cite> if they don&#8217;t.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option</td>
+</tr>
+<tr class="row-odd"><td>2.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-o</span></tt> and <tt class="docutils literal"><span class="pre">-P</span></tt> options</td>
+</tr>
+<tr class="row-even"><td>2.1.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-l</span></tt>, <tt class="docutils literal"><span class="pre">-u</span></tt>, <tt class="docutils literal"><span class="pre">-D</span></tt> and <tt class="docutils literal"><span class="pre">-H</span></tt> options</td>
+</tr>
+<tr class="row-odd"><td>2.2</td>
+<td>No longer writes the Skool Daze and Back to Skool disassemblies
+by default; added the <tt class="docutils literal"><span class="pre">-d</span></tt> option</td>
+</tr>
+<tr class="row-even"><td>2.2.2</td>
+<td>Added the ability to read a <cite>skool</cite> file from standard input</td>
+</tr>
+<tr class="row-odd"><td>2.3.1</td>
+<td>Added support for reading multiple <cite>ref</cite> files per disassembly</td>
+</tr>
+<tr class="row-even"><td>3.0.2</td>
+<td>No longer shows timings by default; added the <tt class="docutils literal"><span class="pre">-t</span></tt> option</td>
+</tr>
+<tr class="row-odd"><td>3.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-c</span></tt> option</td>
+</tr>
+<tr class="row-even"><td>3.2</td>
+<td>Added <cite>~/.skoolkit</cite> to the search path</td>
+</tr>
+<tr class="row-odd"><td>3.3.2</td>
+<td>Added <cite>$PACKAGE_DIR/resources</cite> to the search path; added the
+<tt class="docutils literal"><span class="pre">-p</span></tt> and <tt class="docutils literal"><span class="pre">-T</span></tt> options</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="skool2sft-py">
 <span id="id5"></span><h2>skool2sft.py<a class="headerlink" href="#skool2sft-py" title="Permalink to this headline">¶</a></h2>
@@ -273,7 +378,22 @@ Options:
   -h  Write addresses in hexadecimal format
 </pre></div>
 </div>
-<p><cite>New in version 2.4.</cite></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.4</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="sna2skool-py">
 <span id="id6"></span><h2>sna2skool.py<a class="headerlink" href="#sna2skool-py" title="Permalink to this headline">¶</a></h2>
@@ -322,20 +442,53 @@ supported file formats are:</p>
 <p>If the file specified by the <tt class="docutils literal"><span class="pre">-M</span></tt> option is 8192 bytes long, it is assumed to
 be a Z80 map file; otherwise it is assumed to be in one of the other supported
 formats.</p>
-<p><cite>Changed in version 1.0.4:</cite> Added the <tt class="docutils literal"><span class="pre">-g</span></tt> and <tt class="docutils literal"><span class="pre">-s</span></tt> options.</p>
-<p><cite>Changed in version 1.0.5:</cite> Added the <tt class="docutils literal"><span class="pre">-t</span></tt> option.</p>
-<p><cite>Changed in version 2.0:</cite> Added the <tt class="docutils literal"><span class="pre">-n</span></tt>, <tt class="docutils literal"><span class="pre">-m</span></tt> and <tt class="docutils literal"><span class="pre">-z</span></tt> options.</p>
-<p><cite>Changed in version 2.0.1:</cite> Added the <tt class="docutils literal"><span class="pre">-o</span></tt>, <tt class="docutils literal"><span class="pre">-r</span></tt> and <tt class="docutils literal"><span class="pre">-l</span></tt> options, and
-the ability to read binary files.</p>
-<p><cite>Changed in version 2.0.6:</cite> Added the <tt class="docutils literal"><span class="pre">-h</span></tt> option.</p>
-<p><cite>Changed in version 2.1:</cite> Added the <tt class="docutils literal"><span class="pre">-H</span></tt> option.</p>
-<p><cite>Changed in version 2.1.2:</cite> Added the <tt class="docutils literal"><span class="pre">-L</span></tt> option.</p>
-<p><cite>Changed in version 2.4:</cite> Added the <tt class="docutils literal"><span class="pre">-T</span></tt> option.</p>
-<p><cite>Changed in version 3.2:</cite> Added the <tt class="docutils literal"><span class="pre">-p</span></tt> option, and the ability to read SZX
-snapshots and 128K Z80 snapshots.</p>
-<p><cite>Changed in version 3.3:</cite> Added the <tt class="docutils literal"><span class="pre">-M</span></tt> option, along with support for code
-execution maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the ability
-to read 128K SNA snapshots.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1.0.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-g</span></tt> and <tt class="docutils literal"><span class="pre">-s</span></tt> options</td>
+</tr>
+<tr class="row-odd"><td>1.0.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-t</span></tt> option</td>
+</tr>
+<tr class="row-even"><td>2.0</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-n</span></tt>, <tt class="docutils literal"><span class="pre">-m</span></tt> and <tt class="docutils literal"><span class="pre">-z</span></tt> options</td>
+</tr>
+<tr class="row-odd"><td>2.0.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-o</span></tt>, <tt class="docutils literal"><span class="pre">-r</span></tt> and <tt class="docutils literal"><span class="pre">-l</span></tt> options, and the ability to
+read binary files</td>
+</tr>
+<tr class="row-even"><td>2.0.6</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-h</span></tt> option</td>
+</tr>
+<tr class="row-odd"><td>2.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-H</span></tt> option</td>
+</tr>
+<tr class="row-even"><td>2.1.2</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-L</span></tt> option</td>
+</tr>
+<tr class="row-odd"><td>2.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-T</span></tt> option</td>
+</tr>
+<tr class="row-even"><td>3.2</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-p</span></tt> option, and the ability to read SZX snapshots
+and 128K Z80 snapshots</td>
+</tr>
+<tr class="row-odd"><td>3.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-M</span></tt> option, along with support for code execution
+maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the
+ability to read 128K SNA snapshots</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 
@@ -393,7 +546,7 @@ to read 128K SNA snapshots.</p>
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

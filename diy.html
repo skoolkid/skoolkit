@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Disassembly DIY &mdash; SkoolKit 3.3.1 documentation</title>
+    <title>Disassembly DIY &mdash; SkoolKit 3.3.2 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.3.1',
+        VERSION:     '3.3.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.3.2 documentation" href="index.html" />
     <link rel="next" title="Supported assemblers" href="assemblers.html" />
     <link rel="prev" title="Command reference" href="commands.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="commands.html" title="Command reference"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -66,6 +66,12 @@ following command from the SkoolKit directory:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py mm.z80 &gt; manic_miner.skool
 </pre></div>
 </div>
+<p>Note that the &#8216;.skool&#8217; file name suffix is merely a convention, not a
+requirement. In general, any suffix besides &#8216;.ref&#8217; (which is used by
+<cite>skool2html.py</cite> to identify <cite>ref</cite> files) will do. If you are fond of the
+traditional three-letter suffix, then perhaps &#8216;.sks&#8217; (for &#8216;SkoolKit source&#8217;) or
+&#8216;.kit&#8217; would be more to your liking. However, for the purpose of this
+particular tutorial, you should stick with &#8216;.skool&#8217;.</p>
 <p>Now take a look at <cite>manic_miner.skool</cite>. As you can see, by default,
 <cite>sna2skool.py</cite> disassembles everything from 16384 to 65535, treating it all as
 code. Needless to say, this is not particularly useful - unless you have no
@@ -266,21 +272,15 @@ trivia item to be documented. Entries will appear on the &#8216;Pokes&#8217;, &#
 <h2>Themes<a class="headerlink" href="#themes" title="Permalink to this headline">¶</a></h2>
 <p>In addition to the default theme (defined in <cite>skoolkit.css</cite>), SkoolKit includes
 two alternative themes: &#8216;dark&#8217; and &#8216;spectrum&#8217;.</p>
-<p>In order to use the &#8216;dark&#8217; theme, create a <tt class="docutils literal"><span class="pre">[Paths]</span></tt> section in the <cite>ref</cite>
-file if there isn&#8217;t one already, and add the following line to it:</p>
-<div class="highlight-none"><div class="highlight"><pre>StyleSheet=skoolkit-dark.css
+<p>In order to use the &#8216;dark&#8217; theme, run <cite>skool2html.py</cite> with the <tt class="docutils literal"><span class="pre">-T</span></tt> option
+thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -T dark game.skool
 </pre></div>
 </div>
-<p>Then run <cite>skool2html.py</cite> to rebuild the disassembly, and the theme should take
-effect.</p>
-<p>In order to use the &#8216;spectrum&#8217; theme, create a <tt class="docutils literal"><span class="pre">[Paths]</span></tt> section in the <cite>ref</cite>
-file if there isn&#8217;t one already, and add the following lines to it:</p>
-<div class="highlight-none"><div class="highlight"><pre>StyleSheet=skoolkit-spectrum.css
-Font=spectrum.ttf
+<p>Or to use the &#8216;spectrum&#8217; theme:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -T spectrum -c Paths/Font=spectrum.ttf game.skool
 </pre></div>
 </div>
-<p>Then run <cite>skool2html.py</cite> to rebuild the disassembly, and the theme should take
-effect.</p>
 </div>
 </div>
 
@@ -339,7 +339,7 @@ effect.</p>
         <li class="right" >
           <a href="commands.html" title="Command reference"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool macros &mdash; SkoolKit 3.3.1 documentation</title>
+    <title>Skool macros &mdash; SkoolKit 3.3.2 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.3.1',
+        VERSION:     '3.3.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.3.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.3.2 documentation" href="index.html" />
     <link rel="next" title="Ref files" href="ref-files.html" />
     <link rel="prev" title="Skool file templates" href="skool-file-templates.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -114,8 +114,23 @@ text is blank or omitted.</p>
 entry on the &#8216;Bugs&#8217; page.</p>
 <p>In ASM mode, this instance of the <tt class="docutils literal"><span class="pre">#BUG</span></tt> macro expands to &#8216;bug&#8217;.</p>
 <p>See also <a class="reference internal" href="#fact"><em>#FACT</em></a> and <a class="reference internal" href="#poke"><em>#POKE</em></a>.</p>
-<p><cite>Changed in version 2.3.1:</cite> If left blank, the link text defaults to the bug
-entry title in HTML mode.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.3.1</td>
+<td>If left blank, the link text defaults to the bug entry title in
+HTML mode</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="call">
 <span id="id2"></span><h2>#CALL<a class="headerlink" href="#call" title="Permalink to this headline">¶</a></h2>
@@ -142,8 +157,25 @@ method (on the <cite>HtmlWriter</cite> or <cite>AsmWriter</cite> subclass being 
 with the argument <tt class="docutils literal"><span class="pre">32768</span></tt>.</p>
 <p>For information on writing methods that may be called by a <tt class="docutils literal"><span class="pre">#CALL</span></tt> macro, see
 the documentation on <a class="reference internal" href="extending.html#extendingskoolkit"><em>extending SkoolKit</em></a>.</p>
-<p><cite>New in version 2.1.</cite></p>
-<p><cite>Changed in version 3.1:</cite> Added support for ASM mode.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.1</td>
+<td>New</td>
+</tr>
+<tr class="row-odd"><td>3.1</td>
+<td>Added support for ASM mode</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="chr">
 <span id="id3"></span><h2>#CHR<a class="headerlink" href="#chr" title="Permalink to this headline">¶</a></h2>
@@ -163,7 +195,22 @@ encoding.</p>
 </div>
 <p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#CHR</span></tt> macro expands to <tt class="docutils literal"><span class="pre">&amp;#169;</span></tt>. In ASM
 mode, it expands to the copyright symbol.</p>
-<p><cite>New in version 3.1.</cite></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>3.1</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="d">
 <span id="id4"></span><h2>#D<a class="headerlink" href="#d" title="Permalink to this headline">¶</a></h2>
@@ -197,7 +244,22 @@ routines that jump to or call a given address.</p>
 <li><tt class="docutils literal"><span class="pre">addr</span></tt> is the address to search for references to</li>
 </ul>
 <p>See also <a class="reference internal" href="#m-refs"><em>#REFS</em></a>.</p>
-<p><cite>Changed in version 3.1:</cite> Added support for ASM mode.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>3.1</td>
+<td>Added support for ASM mode</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="fact">
 <span id="id6"></span><h2>#FACT<a class="headerlink" href="#fact" title="Permalink to this headline">¶</a></h2>
@@ -223,8 +285,23 @@ link text is blank or omitted.</p>
 <p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#FACT</span></tt> macro expands to a hyperlink to
 an entry on the &#8216;Trivia&#8217; page, with link text equal to the title of the entry.</p>
 <p>See also <a class="reference internal" href="#bug"><em>#BUG</em></a> and <a class="reference internal" href="#poke"><em>#POKE</em></a>.</p>
-<p><cite>Changed in version 2.3.1:</cite> If left blank, the link text defaults to the trivia
-entry title in HTML mode; added support for ASM mode.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.3.1</td>
+<td>If left blank, the link text defaults to the trivia entry title
+in HTML mode; added support for ASM mode</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="font">
 <span id="id7"></span><h2>#FONT<a class="headerlink" href="#font" title="Permalink to this headline">¶</a></h2>
@@ -267,9 +344,25 @@ section of the <cite>ref</cite> file.</p>
 <p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#FONT</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt>
 element for the image of the 32 characters in the 8*8 font whose graphic data
 starts at 49152.</p>
-<p><cite>Changed in version 2.0.5:</cite> Added the <tt class="docutils literal"><span class="pre">fname</span></tt> parameter and support for
-regular 8x8 fonts.</p>
-<p><cite>Changed in version 3.0:</cite> Added image-cropping capabilities.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">fname</span></tt> parameter and support for regular 8x8 fonts</td>
+</tr>
+<tr class="row-odd"><td>3.0</td>
+<td>Added image-cropping capabilities</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="html">
 <span id="id8"></span><h2>#HTML<a class="headerlink" href="#html" title="Permalink to this headline">¶</a></h2>
@@ -298,7 +391,22 @@ rendering. For example:</p>
 </pre></div>
 </div>
 <p>See also <a class="reference internal" href="#udgtable"><em>#UDGTABLE</em></a>.</p>
-<p><cite>New in version 3.1.2.</cite></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>3.1.2</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="link">
 <span id="id9"></span><h2>#LINK<a class="headerlink" href="#link" title="Permalink to this headline">¶</a></h2>
@@ -326,9 +434,26 @@ the <a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></
 <p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#LINK</span></tt> macro expands to a hyperlink to
 the &#8216;Glossary&#8217; page, with link text &#8216;glossary&#8217;.</p>
 <p>In ASM mode, this instance of the <tt class="docutils literal"><span class="pre">#LINK</span></tt> macro expands to &#8216;glossary&#8217;.</p>
-<p><cite>New in version 2.1.</cite></p>
-<p><cite>Changed in version 3.1.3:</cite> If left blank, the link text defaults to the page&#8217;s
-link text in HTML mode.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.1</td>
+<td>New</td>
+</tr>
+<tr class="row-odd"><td>3.1.3</td>
+<td>If left blank, the link text defaults to the page&#8217;s link text in
+HTML mode</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="list">
 <span id="id10"></span><h2>#LIST<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h2>
@@ -353,7 +478,22 @@ and end with <tt class="docutils literal"><span class="pre">}</span></tt> preced
 <p>In ASM mode, lists are rendered as plain text, with each item on its own line,
 and an asterisk as the bullet character. The bullet character can be changed by
 using a <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a> directive to set the <tt class="docutils literal"><span class="pre">bullet</span></tt> property on the ASM writer.</p>
-<p><cite>New in version 3.2.</cite></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>3.2</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="name">
 <span id="id11"></span><h2>#NAME<a class="headerlink" href="#name" title="Permalink to this headline">¶</a></h2>
@@ -400,8 +540,23 @@ link text is blank or omitted.</p>
 an entry on the &#8216;Pokes&#8217; page, with link text &#8216;infinite lives&#8217;.</p>
 <p>In ASM mode, this instance of the <tt class="docutils literal"><span class="pre">#POKE</span></tt> macro expands to &#8216;infinite lives&#8217;.</p>
 <p>See also <a class="reference internal" href="#bug"><em>#BUG</em></a> and <a class="reference internal" href="#fact"><em>#FACT</em></a>.</p>
-<p><cite>Changed in version 2.3.1:</cite> If left blank, the link text defaults to the poke
-entry title in HTML mode; added support for ASM mode.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.3.1</td>
+<td>If left blank, the link text defaults to the poke entry title in
+HTML mode; added support for ASM mode</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="pokes">
 <span id="id13"></span><h2>#POKES<a class="headerlink" href="#pokes" title="Permalink to this headline">¶</a></h2>
@@ -434,8 +589,25 @@ But it&#39;s supposed to look like this:
 <tt class="docutils literal"><span class="pre">POKE</span> <span class="pre">32775,136</span></tt>, which fixes a graphic glitch in the UDG at 32768.</p>
 <p>The <tt class="docutils literal"><span class="pre">#POKES</span></tt> macro expands to an empty string.</p>
 <p>See also <a class="reference internal" href="#pushs"><em>#PUSHS</em></a> and <a class="reference internal" href="#pops"><em>#POPS</em></a>.</p>
-<p><cite>Changed in version 2.3.1:</cite> Added support for multiple addresses.</p>
-<p><cite>Changed in version 3.1:</cite> Added support for ASM mode.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.3.1</td>
+<td>Added support for multiple addresses</td>
+</tr>
+<tr class="row-odd"><td>3.1</td>
+<td>Added support for ASM mode</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="pops">
 <span id="id14"></span><h2>#POPS<a class="headerlink" href="#pops" title="Permalink to this headline">¶</a></h2>
@@ -446,7 +618,22 @@ replaces it with the one that was previously saved by a <tt class="docutils lite
 </div>
 <p>The <tt class="docutils literal"><span class="pre">#POPS</span></tt> macro expands to an empty string.</p>
 <p>See also <a class="reference internal" href="#pushs"><em>#PUSHS</em></a> and <a class="reference internal" href="#pokes"><em>#POKES</em></a>.</p>
-<p><cite>Changed in version 3.1:</cite> Added support for ASM mode.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>3.1</td>
+<td>Added support for ASM mode</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="pushs">
 <span id="id15"></span><h2>#PUSHS<a class="headerlink" href="#pushs" title="Permalink to this headline">¶</a></h2>
@@ -474,7 +661,22 @@ it with an identical copy with a given name.</p>
 </div>
 <p>The <tt class="docutils literal"><span class="pre">#PUSHS</span></tt> macro expands to an empty string.</p>
 <p>See also <a class="reference internal" href="#pokes"><em>#POKES</em></a> and <a class="reference internal" href="#pops"><em>#POPS</em></a>.</p>
-<p><cite>Changed in version 3.1:</cite> Added support for ASM mode.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>3.1</td>
+<td>Added support for ASM mode</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="r">
 <span id="id16"></span><h2>#R<a class="headerlink" href="#r" title="Permalink to this headline">¶</a></h2>
@@ -505,7 +707,22 @@ to the label for <tt class="docutils literal"><span class="pre">addr</span></tt>
 disassembly page for the routine at 25820.</p>
 <p>In ASM mode, this instance of the <tt class="docutils literal"><span class="pre">#R</span></tt> macro expands to the label for the
 routine at 25820 (or simply <tt class="docutils literal"><span class="pre">25820</span></tt> if that routine has no label).</p>
-<p><cite>Changed in version 2.0:</cite> Added support for the <tt class="docutils literal"><span class="pre">&#64;code</span></tt> notation.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="82%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0</td>
+<td>Added support for the <tt class="docutils literal"><span class="pre">&#64;code</span></tt> notation</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="refs">
 <span id="m-refs"></span><h2>#REFS<a class="headerlink" href="#refs" title="Permalink to this headline">¶</a></h2>
@@ -526,8 +743,25 @@ addresses if there is at least one reference (default: no text)</li>
 </pre></div>
 </div>
 <p>See also <a class="reference internal" href="#erefs"><em>#EREFS</em></a>.</p>
-<p><cite>Changed in version 1.0.6:</cite> Added the <tt class="docutils literal"><span class="pre">prefix</span></tt> parameter.</p>
-<p><cite>Changed in version 3.1:</cite> Added support for ASM mode.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="78%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1.0.6</td>
+<td>Added the <tt class="docutils literal"><span class="pre">prefix</span></tt> parameter</td>
+</tr>
+<tr class="row-odd"><td>3.1</td>
+<td>Added support for ASM mode</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="reg">
 <span id="id17"></span><h2>#REG<a class="headerlink" href="#reg" title="Permalink to this headline">¶</a></h2>
@@ -594,10 +828,27 @@ the directory defined by the <tt class="docutils literal"><span class="pre">Scre
 ; TABLE#
 </pre></div>
 </div>
-<p><cite>Changed in version 2.0.5:</cite> Added the <tt class="docutils literal"><span class="pre">scale</span></tt>, <tt class="docutils literal"><span class="pre">x</span></tt>, <tt class="docutils literal"><span class="pre">y</span></tt>, <tt class="docutils literal"><span class="pre">w</span></tt>, <tt class="docutils literal"><span class="pre">h</span></tt> and
-<tt class="docutils literal"><span class="pre">fname</span></tt> parameters.</p>
-<p><cite>Changed in version 3.0:</cite> Added image-cropping capabilities and the <tt class="docutils literal"><span class="pre">dfAddr</span></tt>
-and <tt class="docutils literal"><span class="pre">afAddr</span></tt> parameters.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">scale</span></tt>, <tt class="docutils literal"><span class="pre">x</span></tt>, <tt class="docutils literal"><span class="pre">y</span></tt>, <tt class="docutils literal"><span class="pre">w</span></tt>, <tt class="docutils literal"><span class="pre">h</span></tt> and <tt class="docutils literal"><span class="pre">fname</span></tt>
+parameters</td>
+</tr>
+<tr class="row-odd"><td>3.0</td>
+<td>Added image-cropping capabilities and the <tt class="docutils literal"><span class="pre">dfAddr</span></tt> and
+<tt class="docutils literal"><span class="pre">afAddr</span></tt> parameters</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="space">
 <span id="id19"></span><h2>#SPACE<a class="headerlink" href="#space" title="Permalink to this headline">¶</a></h2>
@@ -630,7 +881,22 @@ text where necessary. For example:</p>
 t49152 DEFM &quot;Score:     0&quot;
 </pre></div>
 </div>
-<p><cite>Changed in version 2.4.1:</cite> Added support for the <tt class="docutils literal"><span class="pre">#SPACE([num])</span></tt> syntax.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.4.1</td>
+<td>Added support for the <tt class="docutils literal"><span class="pre">#SPACE([num])</span></tt> syntax</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="table">
 <span id="id20"></span><h2>#TABLE<a class="headerlink" href="#table" title="Permalink to this headline">¶</a></h2>
@@ -757,12 +1023,37 @@ section of the <cite>ref</cite> file.</p>
 <p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#UDG</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt>
 element for the image of the UDG at 39144 (which will be named <cite>safe_key.png</cite>
 or <cite>safe_key.gif</cite>), with attribute byte 6 (INK 6: PAPER 0).</p>
-<p><cite>Changed in version 2.0.5:</cite> Added the <tt class="docutils literal"><span class="pre">fname</span></tt> parameter.</p>
-<p><cite>Changed in version 2.1:</cite> Added support for masks.</p>
-<p><cite>Changed in version 2.3.1:</cite> Added the <tt class="docutils literal"><span class="pre">flip</span></tt> parameter.</p>
-<p><cite>Changed in version 2.4:</cite> Added the <tt class="docutils literal"><span class="pre">rotate</span></tt> parameter.</p>
-<p><cite>Changed in version 3.0:</cite> Added image-cropping capabilities.</p>
-<p><cite>Changed in version 3.1.2:</cite> Made the <tt class="docutils literal"><span class="pre">attr</span></tt> parameter optional.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">fname</span></tt> parameter</td>
+</tr>
+<tr class="row-odd"><td>2.1</td>
+<td>Added support for masks</td>
+</tr>
+<tr class="row-even"><td>2.3.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">flip</span></tt> parameter</td>
+</tr>
+<tr class="row-odd"><td>2.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">rotate</span></tt> parameter</td>
+</tr>
+<tr class="row-even"><td>3.0</td>
+<td>Added image-cropping capabilities</td>
+</tr>
+<tr class="row-odd"><td>3.1.2</td>
+<td>Made the <tt class="docutils literal"><span class="pre">attr</span></tt> parameter optional</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="udgarray">
 <span id="id22"></span><h2>#UDGARRAY<a class="headerlink" href="#udgarray" title="Permalink to this headline">¶</a></h2>
@@ -786,7 +1077,7 @@ it 180 degrees, 3 to rotate it 90 degrees anticlockwise, or 0 to leave it as
 it is (default: 0)</li>
 <li><tt class="docutils literal"><span class="pre">addr1</span></tt> is the address range specification for the first set of UDGs (see
 below)</li>
-<li><tt class="docutils literal"><span class="pre">attr1</span></tt> is the attribute byte to use for the each UDG in the set (overrides
+<li><tt class="docutils literal"><span class="pre">attr1</span></tt> is the attribute byte to use for each UDG in the set (overrides
 <tt class="docutils literal"><span class="pre">attr</span></tt> if specified)</li>
 <li><tt class="docutils literal"><span class="pre">step1</span></tt> is the interval between successive bytes of each UDG in the set
 (overrides <tt class="docutils literal"><span class="pre">step</span></tt> if specified)</li>
@@ -845,13 +1136,38 @@ section of the <cite>ref</cite> file.</p>
 element for the image of the 4x4 sprite formed by the 16 UDGs with base
 addresses 32768, 32776, 32784 and so on up to 32888; the image file will be
 named <cite>base_sprite.png</cite>.</p>
-<p><cite>New in version 2.0.5.</cite></p>
-<p><cite>Changed in version 2.2.5:</cite> Added support for masks.</p>
-<p><cite>Changed in version 2.3.1:</cite> Added the <tt class="docutils literal"><span class="pre">flip</span></tt> parameter.</p>
-<p><cite>Changed in version 2.4:</cite> Added the <tt class="docutils literal"><span class="pre">rotate</span></tt> parameter.</p>
-<p><cite>Changed in version 3.0:</cite> Added image-cropping capabilities.</p>
-<p><cite>Changed in version 3.1.1:</cite> Added support for UDG address ranges with
-horizontal and vertical steps.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>2.0.5</td>
+<td>New</td>
+</tr>
+<tr class="row-odd"><td>2.2.5</td>
+<td>Added support for masks</td>
+</tr>
+<tr class="row-even"><td>2.3.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">flip</span></tt> parameter</td>
+</tr>
+<tr class="row-odd"><td>2.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">rotate</span></tt> parameter</td>
+</tr>
+<tr class="row-even"><td>3.0</td>
+<td>Added image-cropping capabilities</td>
+</tr>
+<tr class="row-odd"><td>3.1.1</td>
+<td>Added support for UDG address ranges with horizontal and vertical
+steps</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="udgtable">
 <span id="id23"></span><h2>#UDGTABLE<a class="headerlink" href="#udgtable" title="Permalink to this headline">¶</a></h2>
@@ -934,7 +1250,7 @@ intended use is to contain images that should be rendered in HTML mode only.</p>
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

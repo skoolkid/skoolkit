@@ -74,7 +74,11 @@ final HTML rendering.
 The intro text and changelog items may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
 
-`New in version 2.2.5.`
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 2.2.5   | New     |
++---------+---------+
 
 .. _ref-Colours:
 
@@ -106,7 +110,11 @@ Recognised colour names and their default RGB values are:
 * ``BRIGHT_YELLOW``: 255,255,0
 * ``BRIGHT_WHITE``: 255,255,255
 
-`New in version 2.0.5.`
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 2.0.5   | New     |
++---------+---------+
 
 .. _ref-Config:
 
@@ -134,12 +142,16 @@ For information on how to create your own Python class for writing an HTML
 disassembly, see the documentation on
 :ref:`extending SkoolKit <extendingSkoolKit>`.
 
-`New in version 2.0.`
-
-`Changed in version 2.2.3:` Added the ``HtmlWriterClass`` parameter.
-
-`Changed in version 3.3.1:` Added support to the ``HtmlWriterClass`` parameter
-for specifying a module outside the module search path.
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 2.0     | New                                                               |
++---------+-------------------------------------------------------------------+
+| 2.2.3   | Added the ``HtmlWriterClass`` parameter                           |
++---------+-------------------------------------------------------------------+
+| 3.3.1   | Added support to the ``HtmlWriterClass`` parameter for specifying |
+|         | a module outside the module search path                           |
++---------+-------------------------------------------------------------------+
 
 .. _ref-Fact:
 
@@ -195,13 +207,17 @@ Recognised parameters are:
 * ``TitleSuffix`` - the suffix to use after the game name or logo in the header
   of the main index page (default: 'RAM disassembly')
 
-`Changed in version 2.0.3:` Added the ``GameStatusBufferIncludes`` parameter.
-
-`Changed in version 2.0.5:` ``Logo`` defines the text/HTML for the logo instead
-of the path to the logo image.
-
-`Changed in version 3.1.2:` Added the ``InputRegisterTableHeader`` and
-``OutputRegisterTableHeader`` parameters.
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 2.0.3   | Added the ``GameStatusBufferIncludes`` parameter                |
++---------+-----------------------------------------------------------------+
+| 2.0.5   | ``Logo`` defines the text/HTML for the logo instead of the path |
+|         | to the logo image                                               |
++---------+-----------------------------------------------------------------+
+| 3.1.2   | Added the ``InputRegisterTableHeader`` and                      |
+|         | ``OutputRegisterTableHeader`` parameters                        |
++---------+-----------------------------------------------------------------+
 
 [Glossary:\*]
 -------------
@@ -220,7 +236,11 @@ where ``term`` is the term being defined in the entry.
 Paragraphs should be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
 
-`Changed in version 3.1.3:` Added support for multiple paragraphs.
++---------+---------------------------------------+
+| Version | Changes                               |
++=========+=======================================+
+| 3.1.3   | Added support for multiple paragraphs |
++---------+---------------------------------------+
 
 [GraphicGlitch:\*:\*]
 ---------------------
@@ -249,7 +269,11 @@ Paragraphs should be separated by blank lines, and may contain HTML markup and
 The ``Graphics`` section, if present, defines the body of the 'Other graphics'
 page; it may contain HTML markup and :ref:`skool macros <skoolMacros>`.
 
-`New in version 2.0.5.`
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 2.0.5   | New     |
++---------+---------+
 
 .. _ref-ImageWriter:
 
@@ -299,11 +323,15 @@ For images that contain flashing cells, animated GIFs are recommended over
 animated PNGs in APNG format, because they are more widely supported in web
 browsers.
 
-`New in version 3.0.`
-
-`Changed in version 3.0.1:` Added the ``DefaultFormat``, ``GIFCompression``,
-``GIFEnableAnimation``, ``GIFTransparency``, ``PNGAlpha`` and
-``PNGEnableAnimation`` parameters.
++---------+---------------------------------------------------------------+
+| Version | Changes                                                       |
++=========+===============================================================+
+| 3.0     | New                                                           |
++---------+---------------------------------------------------------------+
+| 3.0.1   | Added the ``DefaultFormat``, ``GIFCompression``,              |
+|         | ``GIFEnableAnimation``, ``GIFTransparency``, ``PNGAlpha`` and |
+|         | ``PNGEnableAnimation`` parameters                             |
++---------+---------------------------------------------------------------+
 
 .. _index:
 
@@ -322,7 +350,11 @@ By default, SkoolKit defines the following list of link groups::
   OtherCode
   Reference
 
-`New in version 2.0.5.`
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 2.0.5   | New     |
++---------+---------+
 
 .. _indexGroup:
 
@@ -372,7 +404,11 @@ contents::
   Bugs
   Pokes
 
-`New in version 2.0.5.`
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 2.0.5   | New     |
++---------+---------+
 
 [Info]
 ------
@@ -395,12 +431,15 @@ replaced by the version number of SkoolKit.
 
 Each of these messages may contain HTML markup.
 
-`New in version 2.0.`
-
-`Changed in version 2.0.3:` Added the ``Created`` parameter.
-
-`Changed in version 2.2.5:` Set the default value for the ``Created``
-parameter.
++---------+-----------------------------------------------------+
+| Version | Changes                                             |
++=========+=====================================================+
+| 2.0     | New                                                 |
++---------+-----------------------------------------------------+
+| 2.0.3   | Added the ``Created`` parameter                     |
++---------+-----------------------------------------------------+
+| 2.2.5   | Set the default value for the ``Created`` parameter |
++---------+-----------------------------------------------------+
 
 .. _links:
 
@@ -446,11 +485,15 @@ This declares that the link text for the 'Everything' memory map page will be
 'Everything', and '(routines, data, text and unused addresses)' will be
 displayed alongside it.
 
-`New in version 2.0.5.`
-
-`Changed in version 2.2.5:` Added the ``Changelog`` page ID.
-
-`Changed in version 2.5:` Added the ``UnusedMap`` page ID.
++---------+---------------------------------+
+| Version | Changes                         |
++=========+=================================+
+| 2.0.5   | New                             |
++---------+---------------------------------+
+| 2.2.5   | Added the ``Changelog`` page ID |
++---------+---------------------------------+
+| 2.5     | Added the ``UnusedMap`` page ID |
++---------+---------------------------------+
 
 .. _memoryMap:
 
@@ -509,7 +552,11 @@ the defaults as follows::
   EntryTypes=uz
   PageByteColumns=1
 
-`New in version 2.5.`
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 2.5     | New     |
++---------+---------+
 
 [OtherCode:\*]
 --------------
@@ -547,9 +594,13 @@ The following parameters are optional:
   hyperlink to the secondary disassembly index page (defaults to the value of
   the ``Title`` parameter)
 
-`New in version 2.0.`
-
-`Changed in version 2.2.5:` Added the ``IndexPageId`` and ``Link`` parameters.
++---------+---------------------------------------------------+
+| Version | Changes                                           |
++=========+===================================================+
+| 2.0     | New                                               |
++---------+---------------------------------------------------+
+| 2.2.5   | Added the ``IndexPageId`` and ``Link`` parameters |
++---------+---------------------------------------------------+
 
 .. _page:
 
@@ -588,7 +639,11 @@ The following parameters are optional:
   :ref:`pageContent` section if the source can be written on a single line
 * ``Title`` - the title of the page (defaults to the page ID)
 
-`New in version 2.1.`
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 2.1     | New     |
++---------+---------+
 
 .. _pageContent:
 
@@ -604,7 +659,11 @@ name of the corresponding :ref:`page` section).
 
 The HTML source may contain :ref:`skool macros <skoolMacros>`.
 
-`New in version 2.1.`
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 2.1     | New     |
++---------+---------+
 
 .. _paths:
 
@@ -672,20 +731,23 @@ Recognised directory IDs and their default paths are:
   :ref:`#UDG <UDG>` or :ref:`#UDGARRAY <UDGARRAY>` macro) will be placed
   (default: `images/udgs`)
 
-`New in version 2.0.`
-
-`Changed in version 2.0.5:` Added the ``FontImagePath`` directory ID.
-
-`Changed in version 2.1.1:` Added the ``CodePath`` directory ID.
-
-`Changed in version 2.2.5:` Added the ``Changelog`` file ID.
-
-`Changed in version 2.5:` Added the ``UnusedMap`` file ID, and support for
-declaring multiple JavaScript files and CSS files in the ``JavaScript`` and
-``StyleSheet`` parameters.
-
-`Changed in version 3.1.1:` Added the ``Font`` file ID and the ``FontPath``
-directory ID.
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 2.0     | New                                                               |
++---------+-------------------------------------------------------------------+
+| 2.0.5   | Added the ``FontImagePath`` directory ID                          |
++---------+-------------------------------------------------------------------+
+| 2.1.1   | Added the ``CodePath`` directory ID                               |
++---------+-------------------------------------------------------------------+
+| 2.2.5   | Added the ``Changelog`` file ID                                   |
++---------+-------------------------------------------------------------------+
+| 2.5     | Added the ``UnusedMap`` file ID, and support for declaring        |
+|         | multiple JavaScript files and CSS files in the ``JavaScript`` and |
+|         | ``StyleSheet`` parameters                                         |
++---------+-------------------------------------------------------------------+
+| 3.1.1   | Added the ``Font`` file ID and the ``FontPath`` directory ID      |
++---------+-------------------------------------------------------------------+
 
 .. _ref-Poke:
 
@@ -743,8 +805,12 @@ Recognised page IDs and their default titles are:
 * ``UnusedMap`` - the 'Unused addresses' memory map page (default: 'Unused
   addresses')
 
-`New in version 2.0.5.`
-
-`Changed in version 2.2.5:` Added the ``Changelog`` page ID.
-
-`Changed in version 2.5:` Added the ``UnusedMap`` page ID.
++---------+---------------------------------+
+| Version | Changes                         |
++=========+=================================+
+| 2.0.5   | New                             |
++---------+---------------------------------+
+| 2.2.5   | Added the ``Changelog`` page ID |
++---------+---------------------------------+
+| 2.5     | Added the ``UnusedMap`` page ID |
++---------+---------------------------------+
