@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 import sys
 import os
-import urllib2
 import zipfile
-from StringIO import StringIO
+try:
+    from urllib2 import urlopen
+    from StringIO import StringIO as StreamIO
+except ImportError:
+    from urllib.request import urlopen
+    from io import BytesIO as StreamIO
 
 SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
 if not SKOOLKIT_HOME:
@@ -82,11 +86,11 @@ def get_ram(tap):
 
 def get_tap(url, member):
     sys.stdout.write('Downloading {0}\n'.format(url))
-    u = urllib2.urlopen(url, timeout=30)
+    u = urlopen(url, timeout=30)
     data = u.read()
 
     sys.stdout.write('Extracting {0}\n'.format(member))
-    z = zipfile.ZipFile(StringIO(data))
+    z = zipfile.ZipFile(StreamIO(data))
     tap = z.open(member)
     return bytearray(tap.read())
 
