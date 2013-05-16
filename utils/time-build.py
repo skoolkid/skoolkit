@@ -217,17 +217,19 @@ def parse_args(args):
     return p_args[0], p_args[1], int(p_args[2]), show_timings, udgs, scale
 
 def show_usage():
-    sys.stderr.write("""Usage: %s [options] METHOD1 METHOD2 DEPTH
+    sys.stderr.write("""Usage:
+    {0} -l
+    {0} [options] METHOD1 METHOD2 DEPTH
 
-  Compare the performance of PngWriter._build_image* methods in the current
-  development version of SkoolKit.
+  Compare the performance of two PngWriter._build_image* methods in the current
+  development version of SkoolKit. DEPTH must be 1, 2 or 4.
 
 Available options:
   -l        List methods available on PngWriter
-  -t        Show timings
+  -t        Show timings (when DEPTH > 1)
   -u UDGS   Compare methods using this UDG array
   -s SCALE  Set the scale of the image (use with -u)
-""" % os.path.basename(sys.argv[0]))
+""".format(os.path.basename(sys.argv[0])))
     sys.exit()
 
 ###############################################################################
