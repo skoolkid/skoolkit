@@ -147,7 +147,7 @@ rpm:
 	utils/mkskpkg rpm
 
 DTD:
-	curl -s http://www.w3.org/TR/xhtml1/xhtml1.tgz | tar xzf - xhtml1-20020801/DTD --strip-components=1
+	curl -s http://www.w3.org/TR/xhtml1/xhtml1.tgz | tar xzf - --strip-components=1 xhtml1-20020801/DTD
 
 XSD:
 	mkdir XSD
