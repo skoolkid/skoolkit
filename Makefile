@@ -1,9 +1,6 @@
-SKOOLKIT_HOME?=.
 DARK?=0
 SPECTRUM?=0
 HEX?=0
-SKOOL2HTML=$(SKOOLKIT_HOME)/skool2html.py
-SNA2SKOOL=$(SKOOLKIT_HOME)/sna2skool.py
 NOSETESTS26=/usr/bin/python2.6 /usr/bin/nosetests
 NOSETESTS27=/usr/bin/python2.7 /usr/bin/nosetests
 NOSETESTS31=$(HOME)/Python/Python3.1/bin/nosetests
@@ -58,16 +55,16 @@ clean:
 
 .PHONY: mm
 mm:
-	$(SKOOLKIT_HOME)/utils/mm2ctl.py snapshots/manic_miner.z80 > manic_miner.ctl
-	$(SNA2SKOOL) -c manic_miner.ctl snapshots/manic_miner.z80 > manic_miner.skool
-	$(SKOOL2HTML) $(OPTIONS) examples/manic_miner.ref
+	SKOOLKIT_HOME=. utils/mm2ctl.py snapshots/manic_miner.z80 > manic_miner.ctl
+	./sna2skool.py -c manic_miner.ctl snapshots/manic_miner.z80 > manic_miner.skool
+	./skool2html.py $(OPTIONS) examples/manic_miner.ref
 	rm manic_miner.skool manic_miner.ctl
 
 .PHONY: jsw
 jsw:
-	$(SKOOLKIT_HOME)/utils/jsw2ctl.py snapshots/jet_set_willy.z80 > jet_set_willy.ctl
-	$(SNA2SKOOL) -c jet_set_willy.ctl snapshots/jet_set_willy.z80 > jet_set_willy.skool
-	$(SKOOL2HTML) $(OPTIONS) examples/jet_set_willy.ref
+	SKOOLKIT_HOME=. utils/jsw2ctl.py snapshots/jet_set_willy.z80 > jet_set_willy.ctl
+	./sna2skool.py -c jet_set_willy.ctl snapshots/jet_set_willy.z80 > jet_set_willy.skool
+	./skool2html.py $(OPTIONS) examples/jet_set_willy.ref
 	rm jet_set_willy.skool jet_set_willy.ctl
 
 .PHONY: test
