@@ -1,0 +1,4 @@
+include COPYING
+recursive-include skoolkit *.py
+recursive-exclude skoolkit manicminer.py jetsetwilly.py
+graft resources
