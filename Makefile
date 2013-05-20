@@ -55,14 +55,14 @@ clean:
 
 .PHONY: mm
 mm:
-	SKOOLKIT_HOME=. utils/mm2ctl.py snapshots/manic_miner.z80 > manic_miner.ctl
+	SKOOLKIT_HOME=`pwd` utils/mm2ctl.py snapshots/manic_miner.z80 > manic_miner.ctl
 	./sna2skool.py -c manic_miner.ctl snapshots/manic_miner.z80 > manic_miner.skool
 	./skool2html.py $(OPTIONS) examples/manic_miner.ref
 	rm manic_miner.skool manic_miner.ctl
 
 .PHONY: jsw
 jsw:
-	SKOOLKIT_HOME=. utils/jsw2ctl.py snapshots/jet_set_willy.z80 > jet_set_willy.ctl
+	SKOOLKIT_HOME=`pwd` utils/jsw2ctl.py snapshots/jet_set_willy.z80 > jet_set_willy.ctl
 	./sna2skool.py -c jet_set_willy.ctl snapshots/jet_set_willy.z80 > jet_set_willy.skool
 	./skool2html.py $(OPTIONS) examples/jet_set_willy.ref
 	rm jet_set_willy.skool jet_set_willy.ctl
@@ -129,19 +129,19 @@ test-cover-all:
 
 .PHONY: release
 release:
-	utils/mksktarball
+	SKOOLKIT_HOME=`pwd` utils/mksktarball
 
 .PHONY: tarball
 tarball:
-	utils/mksktarball -t
+	SKOOLKIT_HOME=`pwd` utils/mksktarball -t
 
 .PHONY: deb
 deb:
-	utils/mkskpkg deb
+	SKOOLKIT_HOME=`pwd` utils/mkskpkg deb
 
 .PHONY: rpm
 rpm:
-	utils/mkskpkg rpm
+	SKOOLKIT_HOME=`pwd` utils/mkskpkg rpm
 
 DTD:
 	curl -s http://www.w3.org/TR/xhtml1/xhtml1.tgz | tar xzf - --strip-components=1 xhtml1-20020801/DTD
@@ -153,4 +153,4 @@ XSD:
 
 .PHONY: snapshots
 snapshots:
-	utils/get-snapshots.py
+	SKOOLKIT_HOME=`pwd` utils/get-snapshots.py
