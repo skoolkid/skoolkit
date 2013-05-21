@@ -24,8 +24,7 @@ fi
 
 cd $SKOOLKIT_HOME
 VERSION=$(./skool2html.py -V | cut -f2 -d' ')
-SKOOLKIT_DIR=skoolkit-pkg-$VERSION
-SKOOLKIT_TAR=$SKOOLKIT_DIR.tar.xz
+SKOOLKIT_TAR=skoolkit-pkg-$VERSION.tar.xz
 if [ -f "dist/$SKOOLKIT_TAR" ]; then
   echo "Using existing $SKOOLKIT_TAR"
 else
@@ -36,14 +35,14 @@ fi
 if [ "$PKGTYPE" = "deb" ]; then
   cd dist
   tar xf $SKOOLKIT_TAR
-  cd $SKOOLKIT_DIR
+  cd skoolkit-$VERSION
   cp -a $SKOOLKIT_HOME/debian .
   debuild -b -us -uc
   rm -rf ../skoolkit_$VERSION*.build ../skoolkit_$VERSION*.changes
   cd $SKOOLKIT_HOME
   echo "Created $(ls $SKOOLKIT_HOME/dist/skoolkit_$VERSION-*.deb)"
 elif [ "$PKGTYPE" = "rpm" ]; then
-  cp -p dist/$SKOOLKIT_TAR ~/rpmbuild/SOURCES
+  cp -p dist/$SKOOLKIT_TAR ~/rpmbuild/SOURCES/skoolkit-$VERSION.tar.xz
   rm -f ~/rpmbuild/RPMS/noarch/skoolkit-$VERSION-*.rpm
   rpmbuild -bb rpm/skoolkit.spec
   mv ~/rpmbuild/RPMS/noarch/skoolkit-$VERSION-*.rpm dist

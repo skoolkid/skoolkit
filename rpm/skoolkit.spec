@@ -2,7 +2,7 @@
 
 Name:           skoolkit
 Version:        3.3.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Tools for creating disassemblies of ZX Spectrum programs
 
 License:        GPLv3+
@@ -46,6 +46,10 @@ cp -a examples %{buildroot}%{_datadir}/%{name}
 %{python_sitelib}/*
 
 %changelog
+* Tue May 21 2013 Richard Dymond <rjdymond@gmail.com> 3.3.2-2
+- Restored manicminer.py and jetsetwilly.py modules
+- Removed resources from the skoolkit package directory
+
 * Mon May 13 2013 Richard Dymond <rjdymond@gmail.com> 3.3.2-1
 - Updated to 3.3.2
 

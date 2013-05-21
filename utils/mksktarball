@@ -34,6 +34,7 @@ fi
 cd $SKOOLKIT_HOME
 VERSION=$(./skool2html.py -V | cut -f2 -d' ')
 PKGNAME=skoolkit-$VERSION
+PKGDIR=$PKGNAME
 
 VERBOSE=1
 WRITE_ZIP=1
@@ -49,7 +50,7 @@ while getopts ":hpqt" opt; do
 done
 
 DISTDIR=$SKOOLKIT_HOME/dist
-ABSDIR=${DISTDIR}/${PKGNAME}
+ABSDIR=${DISTDIR}/${PKGDIR}
 rm -rf ${ABSDIR}
 DOCSDIR=${ABSDIR}/docs
 mkdir -p $DOCSDIR
@@ -92,9 +93,9 @@ done
 cd $DISTDIR
 
 info "Creating ${DISTDIR}/${PKGNAME}.tar.xz"
-tar acf ${PKGNAME}.tar.xz $PKGNAME
+tar acf ${PKGNAME}.tar.xz $PKGDIR
 
 if [ $WRITE_ZIP -eq 1 ]; then
   info "Creating ${DISTDIR}/${PKGNAME}.zip"
-  zip -9qr ${PKGNAME}.zip $PKGNAME
+  zip -9qr ${PKGNAME}.zip $PKGDIR
 fi
