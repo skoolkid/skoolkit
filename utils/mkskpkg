@@ -24,13 +24,13 @@ fi
 
 cd $SKOOLKIT_HOME
 VERSION=$(./skool2html.py -V | cut -f2 -d' ')
-SKOOLKIT_DIR=skoolkit-$VERSION
+SKOOLKIT_DIR=skoolkit-pkg-$VERSION
 SKOOLKIT_TAR=$SKOOLKIT_DIR.tar.xz
 if [ -f "dist/$SKOOLKIT_TAR" ]; then
   echo "Using existing $SKOOLKIT_TAR"
 else
   echo "Building $SKOOLKIT_TAR"
-  utils/mksktarball -q -t
+  utils/mksktarball -q -t -p
 fi
 
 if [ "$PKGTYPE" = "deb" ]; then

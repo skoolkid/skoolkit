@@ -9,6 +9,7 @@ Usage: $(basename $0) [options]
 
 Options:
   -h  Show this help
+  -p  Use setup-pkg.py (for building a DEB or RPM package)
   -q  Be quiet
   -t  Write only the release tarball
 EOF
@@ -36,10 +37,12 @@ PKGNAME=skoolkit-$VERSION
 
 VERBOSE=1
 WRITE_ZIP=1
+SETUP=setup.py
 
-while getopts ":hqt" opt; do
+while getopts ":hpqt" opt; do
   case $opt in
     h) usage ;;
+    p) SETUP=setup-pkg.py; PKGNAME=skoolkit-pkg-$VERSION ;;
     q) VERBOSE=0 ;;
     t) WRITE_ZIP=0 ;;
   esac
@@ -60,8 +63,9 @@ rsync -aR \
   resources/{skoolkit{,-dark,-spectrum}.css,spectrum.ttf{,.txt}} \
   tests/{skoolkittest,test_{bin2tap,ctlparser,disassembler,image,skool{{,2}{asm,ctl,html,sft},macro,parser},refparser,sftparser,skoolkit,sna{2,}skool,snapshot}}.py \
   man/{bin2tap,skool2{asm,ctl,html,sft},sna2skool}.py.rst \
-  COPYING setup.py \
+  COPYING \
   $ABSDIR
+cp -a $SETUP $ABSDIR/setup.py
 
 # examples/{manic_miner,jet_set_willy}.ctl
 utils/mm2ctl.py snapshots/manic_miner.z80 > $ABSDIR/examples/manic_miner.ctl
