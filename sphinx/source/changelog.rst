@@ -7,6 +7,9 @@ Changelog
    changelog2
    changelog1
 
+3.4b1
+-----
+
 3.3.2 (2013-05-13)
 ------------------
 * Added the ``-T`` option to :ref:`skool2html.py` (to specify a CSS theme)
