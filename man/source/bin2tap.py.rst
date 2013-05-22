@@ -2,14 +2,6 @@
 bin2tap.py
 ==========
 
-----------------------------------------------
-convert a binary snapshot file into a TAP file
-----------------------------------------------
-
-:Author: rjdymond@gmail.com
-:Date: 2012-06-11
-:Manual section: 1
-
 SYNOPSIS
 ========
 ``bin2tap.py`` [options] FILE.bin

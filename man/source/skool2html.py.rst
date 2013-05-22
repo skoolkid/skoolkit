@@ -2,14 +2,6 @@
 skool2html.py
 =============
 
------------------------------------
-convert skool and ref files to HTML
------------------------------------
-
-:Author: rjdymond@gmail.com
-:Date: 2013-05-07
-:Manual section: 1
-
 SYNOPSIS
 ========
 ``skool2html.py`` [options] FILE [FILE...]

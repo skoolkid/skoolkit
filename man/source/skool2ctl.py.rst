@@ -2,14 +2,6 @@
 skool2ctl.py
 ============
 
-----------------------------------------
-convert a skool file into a control file
-----------------------------------------
-
-:Author: rjdymond@gmail.com
-:Date: 2012-06-11
-:Manual section: 1
-
 SYNOPSIS
 ========
 ``skool2ctl.py`` [options] FILE

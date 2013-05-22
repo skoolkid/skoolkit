@@ -2,14 +2,6 @@
 skool2asm.py
 ============
 
-----------------------------------
-convert a skool file to ASM format
-----------------------------------
-
-:Author: rjdymond@gmail.com
-:Date: 2012-06-15
-:Manual section: 1
-
 SYNOPSIS
 ========
 ``skool2asm.py`` [options] FILE
@@ -46,7 +38,7 @@ EXAMPLES
 ========
 1. Convert ``game.skool`` into an ASM file named ``game.asm``:
 
-   | 
+   |
    |   ``skool2asm.py game.skool > game.asm``
 
 2. Convert ``game.skool`` into an ASM file, applying @ssub substitutions and

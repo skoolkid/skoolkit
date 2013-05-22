@@ -2,14 +2,6 @@
 sna2skool.py
 ============
 
-------------------------------------
-convert a snapshot into a skool file
-------------------------------------
-
-:Author: rjdymond@gmail.com
-:Date: 2013-01-02
-:Manual section: 1
-
 SYNOPSIS
 ========
 ``sna2kool.py`` [options] FILE

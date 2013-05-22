@@ -2,14 +2,6 @@
 skool2sft.py
 ============
 
------------------------------------------------
-convert a skool file into a skool file template
------------------------------------------------
-
-:Author: rjdymond@gmail.com
-:Date: 2012-06-11
-:Manual section: 1
-
 SYNOPSIS
 ========
 ``skool2sft.py`` [options] FILE
