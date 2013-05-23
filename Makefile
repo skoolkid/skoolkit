@@ -22,7 +22,8 @@ usage:
 	@echo "Supported targets:"
 	@echo "  usage            show this help"
 	@echo "  doc              build the documentation"
-	@echo "  clean            clean the documentation"
+	@echo "  man              build the man pages"
+	@echo "  clean            clean the documentation and man pages"
 	@echo "  mm               build the Manic Miner disassembly"
 	@echo "  jsw              build the Jet Set Willy disassembly"
 	@echo "  test[-all]       run core/all unit tests with current Python interpreter"
@@ -49,9 +50,14 @@ usage:
 doc:
 	$(MAKE) -C sphinx html
 
+.PHONY: man
+man:
+	$(MAKE) -C man man
+
 .PHONY: clean
 clean:
 	$(MAKE) -C sphinx clean
+	$(MAKE) -C man clean
 
 .PHONY: mm
 mm:
