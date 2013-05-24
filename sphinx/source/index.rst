@@ -32,5 +32,4 @@ Developer reference
 .. toctree::
    :maxdepth: 1
 
-   unit-tests
    extending
