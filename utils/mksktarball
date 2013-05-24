@@ -54,6 +54,8 @@ ABSDIR=${DISTDIR}/${PKGDIR}
 rm -rf ${ABSDIR}
 DOCSDIR=${ABSDIR}/docs
 mkdir -p $DOCSDIR
+MANDIR=${ABSDIR}/man/man1
+mkdir -p $MANDIR
 DOCSRC=${ABSDIR}/docs-src
 mkdir -p ${DOCSRC}/build
 
@@ -63,7 +65,6 @@ rsync -aR \
   examples/{{manic_miner,jet_set_willy}.ref,jet_set_willy{,-dark}.css} \
   resources/{skoolkit{,-dark,-spectrum}.css,spectrum.ttf{,.txt}} \
   tests/{skoolkittest,test_{bin2tap,ctlparser,disassembler,image,skool{{,2}{asm,ctl,html,sft},macro,parser},refparser,sftparser,skoolkit,sna{2,}skool,snapshot}}.py \
-  man/{bin2tap,skool2{asm,ctl,html,sft},sna2skool}.py.rst \
   COPYING \
   $ABSDIR
 cp -a $SETUP $ABSDIR/setup.py
@@ -83,12 +84,13 @@ rsync -a --exclude=.buildinfo --exclude=objects.inv build/html/ $DOCSDIR
 rsync -a Makefile make.bat source $DOCSRC
 
 # Man pages
-cd $ABSDIR/man
-MANDIR=man1
-mkdir $MANDIR
-for m in *.rst; do
-  rst2man $m $MANDIR/$(basename $m .rst).1
-done
+cd $SKOOLKIT_HOME/man
+rm -rf build/*
+if ! make man &> /dev/null; then
+  echo "*** Error building man pages; aborting"
+  exit 1
+fi
+rsync -a build/man/*.py.1 $MANDIR
 
 cd $DISTDIR
 
