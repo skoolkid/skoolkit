@@ -32,7 +32,5 @@ Developer reference
 .. toctree::
    :maxdepth: 1
 
-   dev-prereqs
-   docbuild
    unit-tests
    extending

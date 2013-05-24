@@ -15,8 +15,7 @@ interpreter::
   $ python test_skoolasm.py
 
 To run all the unit tests in one go, you can use
-`nose <http://somethingaboutorange.com/mrl/projects/nose/>`_. For details on
-installing `nose`, see :ref:`prerequisites`.
+`nose <http://somethingaboutorange.com/mrl/projects/nose/>`_.
 
 Once `nose` is installed, run the following command from the `tests`
 directory::

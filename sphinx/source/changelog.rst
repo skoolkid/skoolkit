@@ -9,6 +9,10 @@ Changelog
 
 3.4b1
 -----
+* Removed the documentation sources and man page sources from the SkoolKit
+  distribution (they can be obtained from GitHub_)
+
+.. _GitHub: https://github.com/skoolkid/skoolkit
 
 3.3.2 (2013-05-13)
 ------------------

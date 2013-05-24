@@ -25,10 +25,10 @@ command::
 
   > setup.py install
 
-This should install the SkoolKit command scripts in `C:\\Python2X\\Scripts`
-(assuming you have installed Python in `C:\\Python2X`), which means you can
-run them from anywhere (assuming you have added `C:\\Python2X\\Scripts` to the
-``Path`` environment variable; see :ref:`here <windowsPath>` for details).
+This should install the SkoolKit command scripts in `C:\\Python27\\Scripts`
+(assuming you have installed Python in `C:\\Python27`), which means you can
+run them from anywhere (assuming you have added `C:\\Python27\\Scripts` to the
+``Path`` environment variable).
 
 Linux/\*BSD
 ^^^^^^^^^^^
