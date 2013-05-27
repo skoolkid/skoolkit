@@ -281,19 +281,22 @@ skool2sft.py
 
 To list the options supported by `skool2sft.py`, run it with no arguments::
 
-  Usage: skool2sft.py [options] FILE
+  usage: skool2sft.py [options] FILE
 
-    Convert a skool file into a skool file template, written to standard output.
-    FILE may be a regular file, or '-' for standard input.
+  Convert a skool file into a skool file template, written to standard output.
+  FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -h  Write addresses in hexadecimal format
+    -V, --version  Show SkoolKit version number and exit
+    -h, --hex      Write addresses in hexadecimal format
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 2.4     | New     |
-+---------+---------+
++---------+----------------------------------------------+
+| Version | Changes                                      |
++=========+==============================================+
+| 2.4     | New                                          |
++---------+----------------------------------------------+
+| 3.4     | Added the ``-V`` option and the long options |
++---------+----------------------------------------------+
 
 .. _sna2skool.py:
 

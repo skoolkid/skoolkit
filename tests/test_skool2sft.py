@@ -2,47 +2,51 @@
 import unittest
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import skool2sft, UsageError
-
-USAGE = """skool2sft.py [options] FILE
-
-  Convert a skool file into a skool file template, written to standard output.
-  FILE may be a regular file, or '-' for standard input.
-
-Options:
-  -h  Write addresses in hexadecimal format"""
+from skoolkit import skool2sft, VERSION
 
 TEST_SKOOL = """; Routine
 c32768 RET
 """
 
+def mock_run(*args):
+    global run_args
+    run_args = args
+
 class Skool2SftTest(SkoolKitTestCase):
     def test_no_arguments(self):
-        try:
+        with self.assertRaises(SystemExit) as cm:
             self.run_skool2sft()
-            self.fail()
-        except UsageError as e:
-            self.assertEqual(e.args[0], USAGE)
+        self.assertEqual(cm.exception.args[0], 2)
 
     def test_invalid_arguments(self):
         for args in ('-h', '-x test.skool'):
-            try:
+            with self.assertRaises(SystemExit) as cm:
                 self.run_skool2sft(args)
-                self.fail()
-            except UsageError as e:
-                self.assertEqual(e.args[0], USAGE)
+            self.assertEqual(cm.exception.args[0], 2)
 
     def test_default_option_values(self):
+        self.mock(skool2sft, 'run', mock_run)
         skoolfile = 'test.skool'
-        infile, write_hex = skool2sft.parse_args((skoolfile,))
+        skool2sft.main((skoolfile,))
+        infile, write_hex = run_args
         self.assertEqual(infile, skoolfile)
         self.assertFalse(write_hex)
 
+    def test_option_V(self):
+        for option in ('-V', '--version'):
+            output, error = self.run_skool2sft(option, err_lines=True, catch_exit=True)
+            self.assertEqual(len(output), 0)
+            self.assertEqual(len(error), 1)
+            self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))
+
     def test_option_h(self):
+        self.mock(skool2sft, 'run', mock_run)
         skoolfile = 'test.skool'
-        infile, write_hex = skool2sft.parse_args(('-h', skoolfile))
-        self.assertEqual(infile, skoolfile)
-        self.assertTrue(write_hex)
+        for option in ('-h', '--hex'):
+            skool2sft.main((option, skoolfile))
+            infile, write_hex = run_args
+            self.assertEqual(infile, skoolfile)
+            self.assertTrue(write_hex)
 
     def test_run(self):
         skoolfile = self.write_text_file(TEST_SKOOL, suffix='.skool')

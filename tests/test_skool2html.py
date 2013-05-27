@@ -420,13 +420,13 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertEqual(arg_list, exp_arg_list, '{0}: {1} != {2}'.format(method_name, arg_list, exp_arg_list))
 
     def test_option_V(self):
-        output, error = self.run_skool2html('-V')
+        output, error = self.run_skool2html('-V', catch_exit=True)
         self.assertEqual(error, '')
         self.assertEqual(len(output), 1)
         self.assertEqual(output[0], 'SkoolKit {0}'.format(VERSION))
 
     def test_option_p(self):
-        output, error = self.run_skool2html('-p')
+        output, error = self.run_skool2html('-p', catch_exit=True)
         self.assertEqual(error, '')
         self.assertEqual(len(output), 1)
         self.assertEqual(output[0], os.path.dirname(skoolkit.__file__))

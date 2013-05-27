@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011-2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -16,38 +16,30 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from . import UsageError
+import argparse
+
+from . import VERSION
 from .skoolsft import SftWriter
-
-USAGE = """skool2sft.py [options] FILE
-
-  Convert a skool file into a skool file template, written to standard output.
-  FILE may be a regular file, or '-' for standard input.
-
-Options:
-  -h  Write addresses in hexadecimal format"""
-
-def parse_args(args):
-    write_hex = False
-    files = []
-    i = 0
-    while i < len(args):
-        arg = args[i]
-        if arg == '-h':
-            write_hex = True
-        elif len(arg) > 1 and arg[0] == '-':
-            raise UsageError(USAGE)
-        else:
-            files.append(arg)
-        i += 1
-
-    if len(files) != 1:
-        raise UsageError(USAGE)
-    return files[0], write_hex
 
 def run(skoolfile, write_hex):
     writer = SftWriter(skoolfile, write_hex)
     writer.write()
 
 def main(args):
-    run(*parse_args(args))
+    parser = argparse.ArgumentParser(
+        usage='skool2sft.py [options] FILE',
+        description="Convert a skool file into a skool file template, written to standard output. "
+                    "FILE may be a regular file, or '-' for standard input.",
+        add_help=False
+    )
+    parser.add_argument('skoolfile', help=argparse.SUPPRESS, nargs='?')
+    group = parser.add_argument_group('Options')
+    group.add_argument('-V', '--version', action='version',
+                       version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit')
+    group.add_argument('-h', '--hex', action='store_true', dest='write_hex',
+                       help='Write addresses in hexadecimal format')
+    namespace, unknown_args = parser.parse_known_args(args)
+    if unknown_args or namespace.skoolfile is None:
+        parser.exit(2, parser.format_help())
+    run(namespace.skoolfile, namespace.write_hex)

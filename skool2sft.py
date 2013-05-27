@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright 2011-2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -19,11 +19,9 @@
 
 import sys
 
-from skoolkit import skool2sft, usage, error, UsageError, SkoolKitError
+from skoolkit import skool2sft, error, SkoolKitError
 
 try:
     skool2sft.main(sys.argv[1:])
-except UsageError as e:
-    usage(e.args[0])
 except SkoolKitError as e:
     error(e.args[0])

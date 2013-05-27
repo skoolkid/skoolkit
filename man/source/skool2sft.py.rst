@@ -14,11 +14,12 @@ from standard input.
 
 OPTIONS
 =======
--h  Write addresses in hexadecimal format
+-V, --version  Show SkoolKit version number and exit
+-h, --hex      Write addresses in hexadecimal format
 
 EXAMPLE
 =======
 Convert ``game.skool`` into a skool file template named ``game.sft``:
 
 |
-|   ``skool2ctl.py game.skool > game.sft``
+|   ``skool2sft.py game.skool > game.sft``

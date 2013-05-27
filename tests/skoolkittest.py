@@ -46,13 +46,20 @@ class SkoolKitTestCase(TestCase):
         sys.stderr = self.err = Stream()
         self.tempfiles = []
         self.tempdirs = []
+        self.mocks = []
 
     def tearDown(self):
+        for obj, attr_name, attr in self.mocks:
+            setattr(obj, attr_name, attr)
         self.remove_files()
         sys.stdin.close()
         sys.stdin = self.stdin
         sys.stdout = self.stdout
         sys.stderr = self.stderr
+
+    def mock(self, obj, attr_name, mock):
+        self.mocks.append((obj, attr_name, getattr(obj, attr_name)))
+        setattr(obj, attr_name, mock)
 
     def remove_files(self):
         for f in self.tempfiles:
@@ -194,12 +201,16 @@ class SkoolKitTestCase(TestCase):
             lines.pop()
         return lines
 
-    def _run_skoolkit_command(self, cmd, args, out_lines, err_lines, strip_cr):
+    def _run_skoolkit_command(self, cmd, args, out_lines, err_lines, strip_cr, catch_exit=False):
         self.clear_streams()
-        try:
+        if catch_exit:
+            try:
+                cmd(args.split())
+                self.fail()
+            except SystemExit:
+                pass
+        else:
             cmd(args.split())
-        except SystemExit:
-            pass
         out = self.to_lines(self.out.getvalue(), strip_cr) if out_lines else self.out.getvalue()
         err = self.to_lines(self.err.getvalue(), strip_cr) if err_lines else self.err.getvalue()
         return out, err
@@ -213,11 +224,11 @@ class SkoolKitTestCase(TestCase):
     def run_skool2ctl(self, args='', out_lines=True, err_lines=False, strip_cr=True):
         return self._run_skoolkit_command(skool2ctl.main, args, out_lines, err_lines, strip_cr)
 
-    def run_skool2html(self, args='', out_lines=True, err_lines=False, strip_cr=True):
-        return self._run_skoolkit_command(skool2html.main, args, out_lines, err_lines, strip_cr)
+    def run_skool2html(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=False):
+        return self._run_skoolkit_command(skool2html.main, args, out_lines, err_lines, strip_cr, catch_exit)
 
-    def run_skool2sft(self, args='', out_lines=True, err_lines=False, strip_cr=True):
-        return self._run_skoolkit_command(skool2sft.main, args, out_lines, err_lines, strip_cr)
+    def run_skool2sft(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=False):
+        return self._run_skoolkit_command(skool2sft.main, args, out_lines, err_lines, strip_cr, catch_exit)
 
     def run_sna2skool(self, args='', out_lines=True, err_lines=False, strip_cr=True):
         return self._run_skoolkit_command(sna2skool.main, args, out_lines, err_lines, strip_cr)
