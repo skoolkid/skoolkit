@@ -9,7 +9,7 @@ Changelog
 
 3.4b1
 -----
-* Dropped support for Python 2.6
+* Dropped support for Python 2.6 and 3.1
 * Removed the documentation sources and man page sources from the SkoolKit
   distribution (they can be obtained from GitHub_)
 
