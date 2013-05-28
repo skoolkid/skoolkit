@@ -9,6 +9,7 @@ Changelog
 
 3.4b1
 -----
+* Dropped support for Python 2.6
 * Removed the documentation sources and man page sources from the SkoolKit
   distribution (they can be obtained from GitHub_)
 
@@ -115,6 +116,7 @@ Changelog
 
 3.1 (2012-06-19)
 ----------------
+* Dropped support for Python 2.5
 * Added documentation on :ref:`extending SkoolKit <extendingSkoolKit>`
 * Added the :ref:`writer` ASM directive (to specify the class to use for
   producing ASM output)

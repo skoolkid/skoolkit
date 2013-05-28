@@ -1,7 +1,6 @@
 DARK?=0
 SPECTRUM?=0
 HEX?=0
-NOSETESTS26=/usr/bin/python2.6 /usr/bin/nosetests
 NOSETESTS27=/usr/bin/python2.7 /usr/bin/nosetests
 NOSETESTS31=$(HOME)/Python/Python3.1/bin/nosetests
 NOSETESTS32=/usr/bin/python3.2 /usr/bin/nosetests
@@ -27,7 +26,6 @@ usage:
 	@echo "  mm               build the Manic Miner disassembly"
 	@echo "  jsw              build the Jet Set Willy disassembly"
 	@echo "  test[-all]       run core/all unit tests with current Python interpreter"
-	@echo "  test2.6[-all]    run core/all unit tests with Python 2.6"
 	@echo "  test2.7[-all]    run core/all unit tests with Python 2.7"
 	@echo "  test3.1[-all]    run core/all unit tests with Python 3.1"
 	@echo "  test3.2[-all]    run core/all unit tests with Python 3.2"
@@ -80,14 +78,6 @@ test:
 .PHONY: test-all
 test-all:
 	nosetests -w tests
-
-.PHONY: test2.6
-test2.6:
-	$(NOSETESTS26) -w tests --ignore-files=test_disassemblies.py
-
-.PHONY: test2.6-all
-test2.6-all:
-	$(NOSETESTS26) -w tests
 
 .PHONY: test2.7
 test2.7:

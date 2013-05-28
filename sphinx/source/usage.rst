@@ -3,9 +3,9 @@ Installing and using SkoolKit
 
 Requirements
 ------------
-SkoolKit requires `Python <http://www.python.org/>`_ 2.6, 2.7 or 3.1+. If
-you're running Linux or one of the BSDs, you probably already have Python
-installed. If you're running Windows, you can get Python
+SkoolKit requires `Python <http://www.python.org/>`_ 2.7 or 3.1+. If you're
+running Linux or one of the BSDs, you probably already have Python installed.
+If you're running Windows, you can get Python
 `here <http://www.python.org/download/>`_.
 
 Installation
