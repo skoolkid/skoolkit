@@ -201,7 +201,7 @@ class SkoolKitTestCase(TestCase):
             lines.pop()
         return lines
 
-    def _run_skoolkit_command(self, cmd, args, out_lines, err_lines, strip_cr, catch_exit=False):
+    def _run_skoolkit_command(self, cmd, args, out_lines, err_lines, strip_cr, catch_exit):
         self.clear_streams()
         if catch_exit:
             try:
@@ -216,13 +216,13 @@ class SkoolKitTestCase(TestCase):
         return out, err
 
     def run_bin2tap(self, args='', out_lines=True, err_lines=False, strip_cr=True):
-        return self._run_skoolkit_command(bin2tap.main, args, out_lines, err_lines, strip_cr)
+        return self._run_skoolkit_command(bin2tap.main, args, out_lines, err_lines, strip_cr, False)
 
     def run_skool2asm(self, args='', out_lines=True, err_lines=False, strip_cr=True):
-        return self._run_skoolkit_command(skool2asm.main, args, out_lines, err_lines, strip_cr)
+        return self._run_skoolkit_command(skool2asm.main, args, out_lines, err_lines, strip_cr, False)
 
     def run_skool2ctl(self, args='', out_lines=True, err_lines=False, strip_cr=True):
-        return self._run_skoolkit_command(skool2ctl.main, args, out_lines, err_lines, strip_cr)
+        return self._run_skoolkit_command(skool2ctl.main, args, out_lines, err_lines, strip_cr, False)
 
     def run_skool2html(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=False):
         return self._run_skoolkit_command(skool2html.main, args, out_lines, err_lines, strip_cr, catch_exit)
@@ -230,5 +230,5 @@ class SkoolKitTestCase(TestCase):
     def run_skool2sft(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=False):
         return self._run_skoolkit_command(skool2sft.main, args, out_lines, err_lines, strip_cr, catch_exit)
 
-    def run_sna2skool(self, args='', out_lines=True, err_lines=False, strip_cr=True):
-        return self._run_skoolkit_command(sna2skool.main, args, out_lines, err_lines, strip_cr)
+    def run_sna2skool(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=False):
+        return self._run_skoolkit_command(sna2skool.main, args, out_lines, err_lines, strip_cr, catch_exit)

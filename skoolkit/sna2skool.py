@@ -16,9 +16,10 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
 from os.path import isfile
 
-from . import read_bin_file, parse_int_arg, UsageError
+from . import read_bin_file, VERSION
 from .snaskool import SkoolWriter, generate_ctls, write_ctl
 from .snapshot import get_snapshot
 from .sftparser import SftParser
@@ -28,119 +29,9 @@ START = 16384
 DEFB_SIZE = 8
 DEFM_SIZE = 66
 
-USAGE = """sna2skool.py [options] file
-
-  Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool
-  file.
-
-Options:
-  -c FILE  Use FILE as the control file (default is file.ctl)
-  -T FILE  Use FILE as the skool file template (default is file.sft)
-  -g FILE  Generate a control file in FILE
-  -M FILE  Use FILE as a code execution map when generating the control file
-  -h       Write hexadecimal addresses in the generated control file
-  -H       Write hexadecimal addresses and operands in the disassembly
-  -L       Write the disassembly in lower case
-  -s ADDR  Specify the address at which to start disassembling (default={0})
-  -o ADDR  Specify the origin address of file.bin (default: 65536 - length)
-  -p PAGE  Specify the page (0-7) of a 128K snapshot to map to 49152-65535
-  -t       Show ASCII text in the comment fields
-  -r       Don't add comments that list entry point referrers
-  -n N     Set the max number of bytes per DEFB statement to N (default={1})
-  -m M     Group DEFB blocks by addresses that are divisible by M
-  -z       Write bytes with leading zeroes in DEFB statements
-  -l L     Set the max number of characters per DEFM statement to L (default={2})""".format(START, DEFB_SIZE, DEFM_SIZE)
-
-class Options:
-    def __init__(self):
-        self.ctlfile = None
-        self.sftfile = None
-        self.genctl = False
-        self.genctlfile = None
-        self.code_map = None
-        self.ctl_hex = False
-        self.asm_hex = False
-        self.asm_lower = False
-        self.start = START
-        self.org = None
-        self.page = None
-        self.text = False
-        self.write_refs = True
-        self.defb_size = DEFB_SIZE
-        self.defb_mod = 1
-        self.defm_width = DEFM_SIZE
-        self.zfill = False
-
 def find(fname):
     if isfile(fname):
         return fname
-
-def parse_args(args):
-    options = Options()
-    files = []
-    i = 0
-    while i < len(args):
-        arg = args[i]
-        if arg == '-c':
-            options.ctlfile = args[i + 1]
-            options.sftfile = None
-            i += 1
-        elif arg == '-T':
-            options.ctlfile = None
-            options.sftfile = args[i + 1]
-            i += 1
-        elif arg == '-g':
-            options.genctl = True
-            options.genctlfile = args[i + 1]
-            i += 1
-        elif arg == '-M':
-            options.code_map = args[i + 1]
-            i += 1
-        elif arg == '-h':
-            options.ctl_hex = True
-        elif arg == '-H':
-            options.asm_hex = True
-        elif arg == '-L':
-            options.asm_lower = True
-        elif arg == '-s':
-            options.start = parse_int_arg(args[i + 1], arg, 'Start address')
-            i += 1
-        elif arg == '-o':
-            options.org = parse_int_arg(args[i + 1], arg, 'Origin address')
-            i += 1
-        elif arg == '-p':
-            options.page = parse_int_arg(args[i + 1], arg, 'Page')
-            i += 1
-        elif arg == '-t':
-            options.text = True
-        elif arg == '-r':
-            options.write_refs = False
-        elif arg == '-n':
-            options.defb_size = parse_int_arg(args[i + 1], arg, 'Max number of bytes per DEFB statement')
-            i += 1
-        elif arg == '-m':
-            options.defb_mod = parse_int_arg(args[i + 1], arg, 'DEFB block address divisor')
-            i += 1
-        elif arg == '-l':
-            options.defm_width = parse_int_arg(args[i + 1], arg, 'Max number of characters per DEFM statement')
-            i += 1
-        elif arg == '-z':
-            options.zfill = True
-        elif arg[0] == '-':
-            raise UsageError(USAGE)
-        else:
-            files.append(arg)
-        i += 1
-
-    if len(files) != 1 or files[0][-4:].lower() not in ('.bin', '.sna', '.z80', '.szx'):
-        raise UsageError(USAGE)
-    snafile = files[0]
-    prefix = snafile[:-4]
-    if not (options.ctlfile or options.sftfile):
-        options.sftfile = find('{0}.sft'.format(prefix))
-    if not (options.ctlfile or options.sftfile):
-        options.ctlfile = find('{0}.ctl'.format(prefix))
-    return snafile, options
 
 def run(snafile, options):
     start = options.start
@@ -184,4 +75,57 @@ def run(snafile, options):
     writer.write_skool(options.write_refs, options.text)
 
 def main(args):
-    run(*parse_args(args))
+    parser = argparse.ArgumentParser(
+        usage='sna2skool.py [options] file',
+        description="Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool file.",
+        add_help=False
+    )
+    parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')
+    group = parser.add_argument_group('Options')
+    group.add_argument('-V', '--version', action='version',
+                       version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit')
+    group.add_argument('-c', dest='ctlfile', metavar='FILE',
+                       help='Use FILE as the control file (default is file.ctl)')
+    group.add_argument('-T', dest='sftfile', metavar='FILE',
+                       help='Use FILE as the skool file template (default is file.sft)')
+    group.add_argument('-g', dest='genctlfile', metavar='FILE',
+                       help='Generate a control file in FILE')
+    group.add_argument('-M', dest='code_map', metavar='FILE',
+                       help='Use FILE as a code execution map when generating the control file')
+    group.add_argument('-h', dest='ctl_hex', action='store_true',
+                       help='Write hexadecimal addresses in the generated control file')
+    group.add_argument('-H', dest='asm_hex', action='store_true',
+                       help='Write hexadecimal addresses and operands in the disassembly')
+    group.add_argument('-L', dest='asm_lower', action='store_true',
+                       help='Write the disassembly in lower case')
+    group.add_argument('-s', dest='start', metavar='ADDR', type=int, default=START,
+                       help='Specify the address at which to start disassembling (default={})'.format(START))
+    group.add_argument('-o', dest='org', metavar='ADDR', type=int,
+                       help='Specify the origin address of file.bin (default: 65536 - length)')
+    group.add_argument('-p', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
+                       help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535')
+    group.add_argument('-t', dest='text', action='store_true',
+                       help='Show ASCII text in the comment fields')
+    group.add_argument('-r', dest='write_refs', action='store_false',
+                       help="Don't add comments that list entry point referrers")
+    group.add_argument('-n', dest='defb_size', metavar='N', type=int, default=DEFB_SIZE,
+                       help='Set the max number of bytes per DEFB statement to N (default={})'.format(DEFB_SIZE))
+    group.add_argument('-m', dest='defb_mod', metavar='M', type=int, default=1,
+                       help='Group DEFB blocks by addresses that are divisible by M')
+    group.add_argument('-z', dest='zfill', action='store_true',
+                       help='Write bytes with leading zeroes in DEFB statements')
+    group.add_argument('-l', dest='defm_width', metavar='L', type=int, default=DEFM_SIZE,
+                       help='Set the max number of characters per DEFM statement to L (default={})'.format(DEFM_SIZE))
+
+    namespace, unknown_args = parser.parse_known_args(args)
+    snafile = namespace.snafile
+    if unknown_args or snafile is None or snafile[-4:].lower() not in ('.bin', '.sna', '.z80', '.szx'):
+        parser.exit(2, parser.format_help())
+    prefix = snafile[:-4]
+    if not (namespace.ctlfile or namespace.sftfile):
+        namespace.sftfile = find('{}.sft'.format(prefix))
+    if not (namespace.ctlfile or namespace.sftfile):
+        namespace.ctlfile = find('{}.ctl'.format(prefix))
+    namespace.genctl = bool(namespace.genctlfile)
+    run(snafile, namespace)

@@ -3,7 +3,7 @@ import re
 import unittest
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import sna2skool, UsageError, SkoolKitError
+from skoolkit import sna2skool, SkoolKitError, VERSION
 
 # Binary data designed to test the default static code analysis algorithm:
 #   1. Insert block separators after byte sequences 201 ('RET'), 195,n,n
@@ -256,28 +256,9 @@ b 65492
 c 65498
 z 65499"""
 
-USAGE = """sna2skool.py [options] file
-
-  Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool
-  file.
-
-Options:
-  -c FILE  Use FILE as the control file (default is file.ctl)
-  -T FILE  Use FILE as the skool file template (default is file.sft)
-  -g FILE  Generate a control file in FILE
-  -M FILE  Use FILE as a code execution map when generating the control file
-  -h       Write hexadecimal addresses in the generated control file
-  -H       Write hexadecimal addresses and operands in the disassembly
-  -L       Write the disassembly in lower case
-  -s ADDR  Specify the address at which to start disassembling (default=16384)
-  -o ADDR  Specify the origin address of file.bin (default: 65536 - length)
-  -p PAGE  Specify the page (0-7) of a 128K snapshot to map to 49152-65535
-  -t       Show ASCII text in the comment fields
-  -r       Don't add comments that list entry point referrers
-  -n N     Set the max number of bytes per DEFB statement to N (default=8)
-  -m M     Group DEFB blocks by addresses that are divisible by M
-  -z       Write bytes with leading zeroes in DEFB statements
-  -l L     Set the max number of characters per DEFM statement to L (default=66)"""
+def mock_run(*args):
+    global run_args
+    run_args = args
 
 class OptionsTest(SkoolKitTestCase):
     def _write_bin(self, data, ctls=None):
@@ -344,7 +325,9 @@ class OptionsTest(SkoolKitTestCase):
         return log
 
     def test_default_option_values(self):
-        snafile, options = sna2skool.parse_args(('test.sna',))
+        self.mock(sna2skool, 'run', mock_run)
+        sna2skool.main(('test.sna',))
+        snafile, options = run_args
         self.assertEqual(snafile, 'test.sna')
         self.assertEqual(options.ctlfile, None)
         self.assertEqual(options.sftfile, None)
@@ -363,33 +346,20 @@ class OptionsTest(SkoolKitTestCase):
         self.assertFalse(options.zfill)
 
     def test_invalid_option(self):
-        try:
+        with self.assertRaises(SystemExit) as cm:
             self.run_sna2skool('-x dummy.bin')
-            self.fail()
-        except UsageError as e:
-            self.assertEqual(e.args[0], USAGE)
+        self.assertEqual(cm.exception.args[0], 2)
 
     def test_invalid_option_value(self):
-        for option, name, value in (
-            ('-s', 'Start address', 'ABC'),
-            ('-o', 'Origin address', '+'),
-            ('-p', 'Page', '='),
-            ('-n', 'Max number of bytes per DEFB statement', 'q'),
-            ('-m', 'DEFB block address divisor', '.'),
-            ('-l', 'Max number of characters per DEFM statement', '?')
-        ):
-            try:
-                self.run_sna2skool('{0} {1} dummy.bin'.format(option, value))
-                self.fail()
-            except UsageError as e:
-                self.assertEqual(e.args[0], '{0} ({1}) must be an integer'.format(name, option))
+        for option in (('-s ABC'), ('-o +'), ('-p ='), ('-n q'), ('-m .'), ('-l ?')):
+            with self.assertRaises(SystemExit) as cm:
+                self.run_sna2skool('{} dummy.bin'.format(option))
+            self.assertEqual(cm.exception.args[0], 2)
 
     def test_no_arguments(self):
-        try:
+        with self.assertRaises(SystemExit) as cm:
             self.run_sna2skool()
-            self.fail()
-        except UsageError as e:
-            self.assertEqual(e.args[0], USAGE)
+        self.assertEqual(cm.exception.args[0], 2)
 
     def test_no_options(self):
         binfile = self._write_bin([201])
@@ -439,6 +409,13 @@ class OptionsTest(SkoolKitTestCase):
             self.fail()
         except SkoolKitError as e:
             self.assertEqual(e.args[0], '{0} is a directory'.format(nonexistent_map))
+
+    def test_option_V(self):
+        for option in ('-V', '--version'):
+            output, error = self.run_sna2skool(option, err_lines=True, catch_exit=True)
+            self.assertEqual(len(output), 0)
+            self.assertEqual(len(error), 1)
+            self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))
 
     def test_option_H(self):
         data = [62, 254]           # $FFFB LD A,$FE
