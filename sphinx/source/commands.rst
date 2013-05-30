@@ -314,28 +314,39 @@ Now `game.skool` can be converted into a browsable HTML disassembly using
 `sna2skool.py` supports several options; run it with no arguments to see a
 list::
 
-  Usage: sna2skool.py [options] file
+  usage: sna2skool.py [options] file
 
-    Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool
-    file.
+  Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool
+  file.
 
   Options:
-    -c FILE  Use FILE as the control file (default is file.ctl)
-    -T FILE  Use FILE as the skool file template (default is file.sft)
-    -g FILE  Generate a control file in FILE
-    -M FILE  Use FILE as a code execution map when generating the control file
-    -h       Write hexadecimal addresses in the generated control file
-    -H       Write hexadecimal addresses and operands in the disassembly
-    -L       Write the disassembly in lower case
-    -s ADDR  Specify the address at which to start disassembling (default=16384)
-    -o ADDR  Specify the origin address of file.bin (default: 65536 - length)
-    -p PAGE  Specify the page (0-7) of a 128K snapshot to map to 49152-65535
-    -t       Show ASCII text in the comment fields
-    -r       Don't add comments that list entry point referrers
-    -n N     Set the max number of bytes per DEFB statement to N (default=8)
-    -m M     Group DEFB blocks by addresses that are divisible by M
-    -z       Write bytes with leading zeroes in DEFB statements
-    -l L     Set the max number of characters per DEFM statement to L (default=66)
+    -V, --version         Show SkoolKit version number and exit
+    -c FILE, --ctl FILE   Use FILE as the control file
+    -T FILE, --sft FILE   Use FILE as the skool file template
+    -g FILE, --gen-ctl FILE
+                          Generate a control file in FILE
+    -M FILE, --map FILE   Use FILE as a code execution map when generating the
+                          control file
+    -h, --ctl-hex         Write hexadecimal addresses in the generated control
+                          file
+    -H, --skool-hex       Write hexadecimal addresses and operands in the
+                          disassembly
+    -L, --lower           Write the disassembly in lower case
+    -s ADDR, --start ADDR
+                          Specify the address at which to start disassembling
+                          (default=16384)
+    -o ADDR, --org ADDR   Specify the origin address of a binary (.bin) file
+                          (default: 65536 - length)
+    -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
+                          49152-65535
+    -t, --text            Show ASCII text in the comment fields
+    -r, --no-erefs        Don't add comments that list entry point referrers
+    -n N, --defb-size N   Set the maximum number of bytes per DEFB statement to
+                          N (default=8)
+    -m M, --defb-mod M    Group DEFB blocks by addresses that are divisible by M
+    -z, --defb-zfill      Write bytes with leading zeroes in DEFB statements
+    -l L, --defm-size L   Set the maximum number of characters per DEFM
+                          statement to L (default=66)
 
 The ``-M`` option may be used (in conjunction with the ``-g`` option) to
 specify a code execution map to use when generating a control file. The
@@ -375,4 +386,6 @@ formats.
 | 3.3     | Added the ``-M`` option, along with support for code execution  |
 |         | maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the   |
 |         | ability to read 128K SNA snapshots                              |
++---------+-----------------------------------------------------------------+
+| 3.4     | Added the ``-V`` option and the long options                    |
 +---------+-----------------------------------------------------------------+

@@ -13,25 +13,68 @@ into a skool file. The skool file is written to stdout.
 
 OPTIONS
 =======
--c CTL  Specify the control file to use (default is FILE.ctl)
--T SFT  Specify the skool file template to use (default is FILE.sft)
--g CTL  Generate a control file with this name
--M MAP  Use MAP as a code execution map when generating the control file; maps
-        (otherwise known as profiles or traces) produced by the Fuse, SpecEmu,
-        Spud, Zero and Z80 emulators are supported
--h      Write hexadecimal addresses in the generated control file
--H      Write hexadecimal addresses and operands in the disassembly
--L      Write the disassembly in lower case
--s ORG  Specify the address at which to start disassembling
--o ORG  Specify the origin address of a ``BIN`` file (default: 65536 - length)
--p PAG  Specify the page (0-7) of a 128K snapshot to map to 49152-65535
--t      Show ASCII text in the comment fields
--r      Don't add comments that list entry point referrers
--n N    Set the maximum number of bytes per DEFB statement to `N` (default: 8)
--m M    Group DEFB blocks by addresses that are divisible by `M`
--z      Write bytes with leading zeroes in DEFB statements
--l L    Set the maximum number of characters per DEFM statement to `L`
-        (default: 66)
+-V, --version
+  Show the SkoolKit version number and exit.
+
+-c FILE, --ctl FILE
+  Use FILE as the control file. By default, any control file whose name (minus
+  the .ctl suffix) matches the input snapshot name (minus the .bin, .sna, .szx
+  or .z80 suffix) will be used, if present.
+
+-T FILE, --sft FILE
+  Use FILE as the skool file template. By default, any skool file template
+  whose name (minus the .sft suffix) matches the input snapshot name (minus
+  the .bin, .sna, .szx or .z80 suffix) will be used, if present.
+
+-g FILE, --gen-ctl FILE
+  Generate a control file in FILE.
+
+-M FILE, --map FILE
+  Use FILE as a code execution map when generating a control file. Code
+  execution maps produced by the Fuse, SpecEmu, Spud, Zero and Z80 Spectrum
+  emulators are supported.
+
+-h, --ctl-hex
+  Write hexadecimal addresses in the generated control file.
+
+-H, --skool-hex
+  Write hexadecimal addresses and operands in the disassembly.
+
+-L, --lower
+  Write the disassembly in lower case.
+
+-s ADDR, --start ADDR
+  Specify the address at which to start disassembling; the default start
+  address is 16384.
+
+-o ADDR, --org ADDR
+  Specify the origin address of a binary (.bin) file; the default origin
+  address is 65536 minus the length of the file.
+
+-p PAGE, --page PAGE
+  Specify the page (0-7) of a 128K snapshot to map to 49152-65535.
+
+-t, --text
+  Show ASCII text in the comment fields of the disassembly.
+
+-r, --no-erefs
+  Every routine entry point is decorated with a comment that lists the other
+  routines that use it (unless an alternative comment is defined in a control
+  file). This option suppresses those comments.
+
+-n BYTES, --defb-size BYTES
+  Set the maximum number of bytes that may appear in a DEFB statement; the
+  default number is 8.
+
+-m MOD, --defb-mod MOD
+  Group DEFB blocks by addresses that are divisible by MOD.
+
+-z, --defb-zfill
+  Write bytes with leading zeroes in DEFB statements.
+
+-l CHARS, --defm-size CHARS
+  Set the maximum number of characters that may appear in a DEFM statement; the
+  default number is 66.
 
 EXAMPLES
 ========

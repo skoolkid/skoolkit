@@ -421,21 +421,23 @@ class OptionsTest(SkoolKitTestCase):
         data = [62, 254]           # $FFFB LD A,$FE
         data.extend((195, 1, 128)) # $FFFD JP $8001
         binfile = self._write_bin(data, ['c $FFFB'])
-        lines = self._write_skool('-H {0}'.format(binfile), 5)
-        self.assertEqual(lines[0], '; @start')
-        self.assertEqual(lines[1], '; @org=$FFFB')
-        self.assertEqual(lines[3][:15], 'c$FFFB LD A,$FE')
-        self.assertEqual(lines[4][:15], ' $FFFD JP $8001')
+        for option in ('-H', '--skool-hex'):
+            lines = self._write_skool('{0} {1}'.format(option, binfile), 5)
+            self.assertEqual(lines[0], '; @start')
+            self.assertEqual(lines[1], '; @org=$FFFB')
+            self.assertEqual(lines[3][:15], 'c$FFFB LD A,$FE')
+            self.assertEqual(lines[4][:15], ' $FFFD JP $8001')
 
     def test_option_L(self):
         data = [0]      # 65534 nop
         data.append(65) # 65535 defm "A"
         binfile = self._write_bin(data, ['c 65534', 'T 65535'])
-        lines = self._write_skool('-L {0}'.format(binfile), 5)
-        self.assertEqual(lines[0], '; @start')
-        self.assertEqual(lines[1], '; @org=65534')
-        self.assertEqual(lines[3][:10], 'c65534 nop')
-        self.assertEqual(lines[4][:15], ' 65535 defm "A"')
+        for option in ('-L', '--lower'):
+            lines = self._write_skool('{0} {1}'.format(option, binfile), 5)
+            self.assertEqual(lines[0], '; @start')
+            self.assertEqual(lines[1], '; @org=65534')
+            self.assertEqual(lines[3][:10], 'c65534 nop')
+            self.assertEqual(lines[4][:15], ' 65535 defm "A"')
 
     def test_option_T(self):
         data = [0] * 6
@@ -446,30 +448,33 @@ class OptionsTest(SkoolKitTestCase):
         sft.append('cC65532,1;20 Blah')
         sft.append(' C65533,3;20 Yah')
         sftfile = self.write_text_file('\n'.join(sft))
-        lines = self._write_skool('-T {0} {1}'.format(sftfile, binfile), 2)
-        self.assertEqual(len(lines), 3)
-        self.assertEqual(lines[0], sft[0])
-        self.assertEqual(lines[1], 'c65532 LD A,B       ; Blah')
-        self.assertEqual(lines[2], ' 65533 JP 32774     ; Yah')
+        for option in ('-T', '--sft'):
+            lines = self._write_skool('{0} {1} {2}'.format(option, sftfile, binfile), 2)
+            self.assertEqual(len(lines), 3)
+            self.assertEqual(lines[0], sft[0])
+            self.assertEqual(lines[1], 'c65532 LD A,B       ; Blah')
+            self.assertEqual(lines[2], ' 65533 JP 32774     ; Yah')
 
     def test_option_c(self):
         org = 65530
         binfile = self._write_bin([0] * 10)
         ctlfile = self._write_ctl(['c {0}'.format(org), 'i {0}'.format(org + 4)])
-        lines = self._write_skool('-c {0} {1}'.format(ctlfile, binfile), 10)
-        self.assertEqual(self._get_first_address(lines), str(org))
+        for option in ('-c', '--ctl'):
+            lines = self._write_skool('{0} {1} {2}'.format(option, ctlfile, binfile), 10)
+            self.assertEqual(self._get_first_address(lines), str(org))
 
     def test_option_g(self):
         ctlfile = self.write_text_file()
         binfile = self.write_bin_file(TEST_BIN, suffix='.bin')
-        skool = self._write_skool('-g {0} -o {1} {2}'.format(ctlfile, TEST_BIN_ORG, binfile), 85)
-        self.assertEqual(skool[2], '; Routine at {0}'.format(TEST_BIN_ORG))
-        self.assertEqual(skool[41], '; Unused')
-        self.assertEqual(skool[52], '; Message at {0}'.format(TEST_BIN_ORG + 49))
-        self.assertEqual(skool[84], '; Data block at {0}'.format(TEST_BIN_ORG + 103))
-        with open(ctlfile, 'r') as f:
-            lines = [line.rstrip() for line in f]
-        self.assert_output_equal(lines, TEST_CTL_G.split('\n'))
+        for option in ('-g', '--gen-ctl'):
+            skool = self._write_skool('{0} {1} -o {2} {3}'.format(option, ctlfile, TEST_BIN_ORG, binfile), 85)
+            self.assertEqual(skool[2], '; Routine at {0}'.format(TEST_BIN_ORG))
+            self.assertEqual(skool[41], '; Unused')
+            self.assertEqual(skool[52], '; Message at {0}'.format(TEST_BIN_ORG + 49))
+            self.assertEqual(skool[84], '; Data block at {0}'.format(TEST_BIN_ORG + 103))
+            with open(ctlfile, 'r') as f:
+                lines = [line.rstrip() for line in f]
+            self.assert_output_equal(lines, TEST_CTL_G.split('\n'))
 
     def _test_option_M(self, code_map, z80=False):
         ctlfile = self.write_text_file()
@@ -480,14 +485,15 @@ class OptionsTest(SkoolKitTestCase):
         else:
             code_map_file = self.write_text_file('\n'.join(code_map), suffix='.log')
             exp_error = 'Reading {0}: .*100%\x08\x08\x08\x08\n'.format(code_map_file)
-        skool = self._write_skool('-g {0} -M {1} -o {2} {3}'.format(ctlfile, code_map_file, TEST_MAP_BIN_ORG, binfile), 100, exp_error)
-        self.assertEqual(skool[2], '; Routine at {0}'.format(TEST_MAP_BIN_ORG))
-        self.assertEqual(skool[74], '; Message at {0}'.format(TEST_MAP_BIN_ORG + 53))
-        self.assertEqual(skool[93], '; Unused')
-        self.assertEqual(skool[99], '; Data block at {0}'.format(TEST_MAP_BIN_ORG + 92))
-        with open(ctlfile, 'r') as f:
-            lines = [line.rstrip() for line in f]
-        self.assert_output_equal(lines, TEST_MAP_CTL_G.split('\n'))
+        for option in ('-M', '--map'):
+            skool = self._write_skool('-g {0} {1} {2} -o {3} {4}'.format(ctlfile, option, code_map_file, TEST_MAP_BIN_ORG, binfile), 100, exp_error)
+            self.assertEqual(skool[2], '; Routine at {0}'.format(TEST_MAP_BIN_ORG))
+            self.assertEqual(skool[74], '; Message at {0}'.format(TEST_MAP_BIN_ORG + 53))
+            self.assertEqual(skool[93], '; Unused')
+            self.assertEqual(skool[99], '; Data block at {0}'.format(TEST_MAP_BIN_ORG + 92))
+            with open(ctlfile, 'r') as f:
+                lines = [line.rstrip() for line in f]
+            self.assert_output_equal(lines, TEST_MAP_CTL_G.split('\n'))
 
     def test_option_M_z80(self):
         self._test_option_M(self._create_map(TEST_MAP), True)
@@ -541,19 +547,21 @@ class OptionsTest(SkoolKitTestCase):
     def test_option_h(self):
         ctlfile = self.write_text_file()
         binfile = self.write_bin_file(TEST_BIN, suffix='.bin')
-        self._write_skool('-g {0} -h -o {1} {2}'.format(ctlfile, TEST_BIN_ORG, binfile))
-        with open(ctlfile, 'r') as f:
-            lines = [line.rstrip() for line in f]
-        self.assert_output_equal(lines, TEST_CTL_G_HEX.split('\n'))
+        for option in ('-h', '--ctl-hex'):
+            self._write_skool('-g {0} {1} -o {2} {3}'.format(ctlfile, option, TEST_BIN_ORG, binfile))
+            with open(ctlfile, 'r') as f:
+                lines = [line.rstrip() for line in f]
+            self.assert_output_equal(lines, TEST_CTL_G_HEX.split('\n'))
 
     def test_option_l(self):
         bin_len = 16
         binfile = self._write_bin([65] * bin_len, ['t {0}'.format(65536 - bin_len)])
         defm_len = 5
         defm = 'DEFM "{0}"'.format('A' * defm_len)
-        lines = self._write_skool('-l {0} {1}'.format(defm_len, binfile), 6)
-        for line in lines[3:6]:
-            self.assertEqual(line[7:], defm)
+        for option in ('-l', '--defm-size'):
+            lines = self._write_skool('{0} {1} {2}'.format(option, defm_len, binfile), 6)
+            for line in lines[3:6]:
+                self.assertEqual(line[7:], defm)
 
     def test_option_m(self):
         bin_len = 25
@@ -564,12 +572,13 @@ class OptionsTest(SkoolKitTestCase):
         first_defb = 'DEFB {0}'.format(','.join([str(b) for b in [0] * first_defb_len]))
         defb_len = 8
         defb = 'DEFB {0}'.format(','.join([str(b) for b in [0] * defb_len]))
-        lines = self._write_skool('-m {0} {1}'.format(defb_mod, binfile), 6)
-        self.assertEqual(lines[0], '; @start')
-        self.assertEqual(lines[1], '; @org={0}'.format(org))
-        self.assertEqual(lines[3], 'b{0} {1}'.format(org, first_defb))
-        self.assertEqual(lines[4], ' {0} {1}'.format(org + first_defb_len, defb))
-        self.assertEqual(lines[5], ' {0} {1}'.format(org + first_defb_len + defb_len, defb))
+        for option in ('-m', '--defb-mod'):
+            lines = self._write_skool('{0} {1} {2}'.format(option, defb_mod, binfile), 6)
+            self.assertEqual(lines[0], '; @start')
+            self.assertEqual(lines[1], '; @org={0}'.format(org))
+            self.assertEqual(lines[3], 'b{0} {1}'.format(org, first_defb))
+            self.assertEqual(lines[4], ' {0} {1}'.format(org + first_defb_len, defb))
+            self.assertEqual(lines[5], ' {0} {1}'.format(org + first_defb_len + defb_len, defb))
 
     def test_option_n(self):
         bin_len = 10
@@ -577,58 +586,65 @@ class OptionsTest(SkoolKitTestCase):
         binfile = self._write_bin([0] * bin_len, ['b {0}'.format(org)])
         defb_len = 3
         defb = 'DEFB {0}'.format(','.join([str(b) for b in [0] * defb_len]))
-        lines = self._write_skool('-n {0} {1}'.format(defb_len, binfile), 6)
-        self.assertEqual(lines[0], '; @start')
-        self.assertEqual(lines[1], '; @org={0}'.format(org))
-        for line in lines[3:6]:
-            self.assertEqual(line[7:], defb)
+        for option in ('-n', '--defb-size'):
+            lines = self._write_skool('{0} {1} {2}'.format(option, defb_len, binfile), 6)
+            self.assertEqual(lines[0], '; @start')
+            self.assertEqual(lines[1], '; @org={0}'.format(org))
+            for line in lines[3:6]:
+                self.assertEqual(line[7:], defb)
 
     def test_option_o(self):
         data = [33, 0, 0, 201]
         binfile = self._write_bin(data)
         org = str(65536 - len(data) - 100)
-        lines = self._write_skool('-o {0} {1}'.format(org, binfile), 4)
-        self.assertEqual(self._get_first_address(lines), org)
+        for option in ('-o', '--org'):
+            lines = self._write_skool('{0} {1} {2}'.format(option, org, binfile), 4)
+            self.assertEqual(self._get_first_address(lines), org)
 
     def test_option_p(self):
         ram = [0] * 49152
         pages = {3: [201] + [0] * 16383}
         ctlfile = self.write_text_file('c49152\ni49153', suffix='.ctl')
         z80file = self.write_z80(ram, version=3, machine_id=4, pages=pages)[1]
-        lines = self._write_skool('-c {0} -p 3 {1}'.format(ctlfile, z80file), 4)
-        self.assertEqual(lines[3], 'c49152 RET           ;')
+        for option in ('-p', '--page'):
+            lines = self._write_skool('-c {0} {1} 3 {2}'.format(ctlfile, option, z80file), 4)
+            self.assertEqual(lines[3], 'c49152 RET           ;')
 
     def test_option_r(self):
         data = [201]           # 65533 RET
         data.extend((24, 253)) # 65534 JR 65533
         binfile = self._write_bin(data, ['c 65533', 'c 65534'])
-        lines = self._write_skool('-r {0}'.format(binfile), 4)
-        self.assertEqual(lines[0], '; @start')
-        self.assertEqual(lines[1], '; @org=65533')
-        self.assertEqual(lines[2], '; Routine at 65533')
-        self.assertEqual(lines[3][:10], 'c65533 RET')
+        for option in ('-r', '--no-erefs'):
+            lines = self._write_skool('{0} {1}'.format(option, binfile), 4)
+            self.assertEqual(lines[0], '; @start')
+            self.assertEqual(lines[1], '; @org=65533')
+            self.assertEqual(lines[2], '; Routine at 65533')
+            self.assertEqual(lines[3][:10], 'c65533 RET')
 
     def test_option_s(self):
         data = [0] * 4
         binfile = self._write_bin(data)
         start = '65534'
-        lines = self._write_skool('-s {0} {1}'.format(start, binfile), 10)
-        self.assertTrue(self._get_first_address(lines) == start)
+        for option in ('-s', '--start'):
+            lines = self._write_skool('{0} {1} {2}'.format(option, start, binfile), 10)
+            self.assertTrue(self._get_first_address(lines) == start)
 
     def test_option_t(self):
         binfile = self._write_bin([49, 54, 50]) # DEFM "162"
-        skool = self._write_skool('-t {0}'.format(binfile), 10)
-        self.assertTrue('c65533 LD SP,12854   ; [162]' in skool)
+        for option in ('-t', '--text'):
+            skool = self._write_skool('{0} {1}'.format(option, binfile), 10)
+            self.assertTrue('c65533 LD SP,12854   ; [162]' in skool)
 
     def test_option_z(self):
         data = [0, 1, 2, 3, 4, 5]
         org = 65536 - len(data)
         binfile = self._write_bin(data, ['b {0}'.format(org)])
         defb = 'DEFB {0}'.format(','.join(['%03i' % b for b in data]))
-        lines = self._write_skool('-z {0}'.format(binfile), 4)
-        self.assertEqual(lines[0], '; @start')
-        self.assertEqual(lines[1], '; @org={0}'.format(org))
-        self.assertEqual(lines[3], 'b{0} {1}'.format(org, defb))
+        for option in ('-z', '--defb-zfill'):
+            lines = self._write_skool('{0} {1}'.format(option, binfile), 4)
+            self.assertEqual(lines[0], '; @start')
+            self.assertEqual(lines[1], '; @org={0}'.format(org))
+            self.assertEqual(lines[3], 'b{0} {1}'.format(org, defb))
 
     def test_sna(self):
         data = [0] * 27 # header
@@ -673,6 +689,7 @@ class OptionsTest(SkoolKitTestCase):
         self.assertEqual(lines[0], sft[0])
 
     def _write_skool(self, args, split=0, exp_error=''):
+        self.clear_streams()
         output, error = self.run_sna2skool(args, out_lines=False)
         if exp_error:
             match = re.match(exp_error, error)
