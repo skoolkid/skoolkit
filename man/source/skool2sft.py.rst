@@ -14,8 +14,11 @@ from standard input.
 
 OPTIONS
 =======
--V, --version  Show SkoolKit version number and exit
--h, --hex      Write addresses in hexadecimal format
+-V, --version
+  Show the SkoolKit version number and exit.
+
+-h, --hex
+  Write addresses in hexadecimal format.
 
 EXAMPLE
 =======
