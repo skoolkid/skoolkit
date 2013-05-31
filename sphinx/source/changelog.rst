@@ -10,6 +10,8 @@ Changelog
 3.4b1
 -----
 * Dropped support for Python 2.6 and 3.1
+* Added the ``--erefs`` option to :ref:`sna2skool.py` (to always add comments
+  that list entry point referrers)
 * Removed the documentation sources and man page sources from the SkoolKit
   distribution (they can be obtained from GitHub_)
 

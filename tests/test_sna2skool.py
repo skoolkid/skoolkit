@@ -340,7 +340,7 @@ class OptionsTest(SkoolKitTestCase):
         self.assertEqual(options.org, None)
         self.assertEqual(options.page, None)
         self.assertFalse(options.text)
-        self.assertTrue(options.write_refs)
+        self.assertEqual(options.write_refs, 0)
         self.assertEqual(options.defb_size, 8)
         self.assertEqual(options.defb_mod, 1)
         self.assertFalse(options.zfill)
@@ -620,6 +620,24 @@ class OptionsTest(SkoolKitTestCase):
             self.assertEqual(lines[1], '; @org=65533')
             self.assertEqual(lines[2], '; Routine at 65533')
             self.assertEqual(lines[3][:10], 'c65533 RET')
+
+    def test_option_R(self):
+        data = [201]           # 65533 RET
+        data.extend((24, 253)) # 65534 JR 65533
+        ctls = ['c 65533']
+        ctls.append('D 65533 Routine description.')
+        ctls.append('c 65534')
+        binfile = self._write_bin(data, ctls)
+        for option in ('-R', '--erefs'):
+            lines = self._write_skool('{0} {1}'.format(option, binfile), 8)
+            self.assertEqual(lines[2:7], [
+                '; Routine at 65533',
+                ';',
+                '; Used by the routine at #R65534.',
+                '; .',
+                '; Routine description.'
+            ])
+            self.assertEqual(lines[7][:10], 'c65533 RET')
 
     def test_option_s(self):
         data = [0] * 4

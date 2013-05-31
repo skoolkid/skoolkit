@@ -341,6 +341,7 @@ list::
                           49152-65535
     -t, --text            Show ASCII text in the comment fields
     -r, --no-erefs        Don't add comments that list entry point referrers
+    -R, --erefs           Always add comments that list entry point referrers
     -n N, --defb-size N   Set the maximum number of bytes per DEFB statement to
                           N (default=8)
     -m M, --defb-mod M    Group DEFB blocks by addresses that are divisible by M
@@ -387,5 +388,5 @@ formats.
 |         | maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the   |
 |         | ability to read 128K SNA snapshots                              |
 +---------+-----------------------------------------------------------------+
-| 3.4     | Added the ``-V`` option and the long options                    |
+| 3.4     | Added the ``-V`` and ``-R`` options and the long options        |
 +---------+-----------------------------------------------------------------+

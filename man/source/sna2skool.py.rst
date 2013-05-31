@@ -62,6 +62,11 @@ OPTIONS
   routines that use it (unless an alternative comment is defined in a control
   file). This option suppresses those comments.
 
+-R, --erefs
+  Decorate every routine entry point with a comment that lists the other
+  routines that use it; the comment will precede any comment defined in a
+  control file.
+
 -n BYTES, --defb-size BYTES
   Set the maximum number of bytes that may appear in a DEFB statement; the
   default number is 8.

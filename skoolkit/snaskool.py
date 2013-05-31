@@ -741,16 +741,19 @@ class SkoolWriter:
             if entry.title:
                 self.write_comment(entry.title)
                 wrote_desc = False
-                if entry.description:
-                    self.write_comment('')
-                    self.write_paragraphs(entry.description)
-                    wrote_desc = True
-                elif entry.ctl == 'c':
+                if entry.ctl == 'c' and write_refs > -1:
                     referrers = entry.instructions[0].referrers
-                    if referrers and write_refs:
+                    if referrers and (write_refs == 1 or not entry.description):
                         self.write_comment('')
                         self.write_referrers('Used by the ', referrers)
                         wrote_desc = True
+                if entry.description:
+                    if wrote_desc:
+                        self.write_comment('.')
+                    else:
+                        self.write_comment('')
+                    self.write_paragraphs(entry.description)
+                    wrote_desc = True
                 if entry.registers:
                     if not wrote_desc:
                         self.write_comment('')
@@ -760,8 +763,18 @@ class SkoolWriter:
                         write_line('; {0} {1}'.format(reg, desc))
             op_width = max((OP_WIDTH, entry.width()))
             line_width = op_width + 8
+            first_block = True
             for block in entry.blocks:
-                self.write_paragraphs(block.header)
+                begun_header = False
+                if not first_block and entry.ctl == 'c' and write_refs > -1:
+                    referrers = block.instructions[0].referrers
+                    if referrers and (write_refs == 1 or not block.header):
+                        self.write_referrers('This entry point is used by the ', referrers)
+                        begun_header = True
+                if block.header:
+                    if begun_header:
+                        self.write_comment('.')
+                    self.write_paragraphs(block.header)
                 rowspan = len(block.instructions)
                 multi_line = rowspan > 1 and block.comment
                 if multi_line:
@@ -779,7 +792,7 @@ class SkoolWriter:
                         comment = comment_lines[i] if i < len(comment_lines) else ''
                     else:
                         comment = self.to_ascii(instruction.bytes) if text and entry.ctl != 't' else ''
-                    if write_refs and entry.ctl == 'c' and ctl == '*' and (i > 0 or not block.header):
+                    if i > 0 and entry.ctl == 'c' and ctl == '*' and write_refs > -1:
                         self.write_referrers('This entry point is used by the ', instruction.referrers)
                     for directive, value in instruction.asm_directives:
                         self.write_asm_directive(directive, value)
@@ -790,6 +803,7 @@ class SkoolWriter:
                 indent = ' ' * line_width
                 for j in range(i + 1, len(comment_lines)):
                     write_line('{0}; {1}'.format(indent, comment_lines[j]))
+                first_block = False
             self.write_paragraphs(entry.end_comment)
             if entry.end:
                 self.write_asm_directive(AD_END)
