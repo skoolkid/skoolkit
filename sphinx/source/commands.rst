@@ -59,29 +59,32 @@ assembler (see :ref:`supportedAssemblers`). For example::
 
 `skool2asm.py` supports many options; run it with no arguments to see a list::
 
-  Usage: skool2asm.py [options] FILE
+  usage: skool2asm.py [options] file
 
-    Convert a skool file into an ASM file, written to standard output. FILE may
-    be a regular file, or '-' for standard input.
+  Convert a skool file into an ASM file, written to standard output. FILE may be
+  a regular file, or '-' for standard input.
 
   Options:
-    -q    Be quiet
-    -w    Suppress warnings
-    -d    Use CR+LF to end lines
-    -t    Use tab to indent instructions (default indentation is 2 spaces)
-    -l    Write disassembly in lower case
-    -u    Write disassembly in upper case
-    -D    Write disassembly in decimal
-    -H    Write disassembly in hexadecimal
-    -i N  Set instruction field width to N (default=23)
-    -f N  Apply fixes:
-            N=0: None (default)
-            N=1: @ofix only
-            N=2: @ofix and @bfix
-            N=3: @ofix, @bfix and @rfix (implies -r)
-    -c    Create default labels for unlabelled instructions
-    -s    Use safe substitutions (@ssub)
-    -r    Use relocatability substitutions too (@rsub) (implies '-f 1')
+    -V, --version         Show SkoolKit version number and exit
+    -q, --quiet           Be quiet
+    -w, --no-warnings     Suppress warnings
+    -d, --crlf            Use CR+LF to end lines
+    -t, --tabs            Use tab to indent instructions (default indentation is
+                          2 spaces)
+    -l, --lower           Write disassembly in lower case
+    -u, --upper           Write disassembly in upper case
+    -D, --decimal         Write disassembly in decimal
+    -H, --hex             Write disassembly in hexadecimal
+    -i N, --inst-width N  Set instruction field width (default=23)
+    -f N, --fixes N       Apply fixes:
+                            N=0: None (default)
+                            N=1: @ofix only
+                            N=2: @ofix and @bfix
+                            N=3: @ofix, @bfix and @rfix (implies -r)
+    -c, --labels          Create default labels for unlabelled instructions
+    -s, --ssub            Use safe substitutions (@ssub)
+    -r, --rsub            Use relocatability substitutions too (@rsub) (implies
+                          '-f 1')
 
 See :ref:`asmModesAndDirectives` for a description of the ``@ssub`` and
 ``@rsub`` substitution modes, and the ``@ofix``, ``@bfix`` and ``@rfix`` bugfix
@@ -95,6 +98,8 @@ modes.
 | 2.1.1   | Added the ``-u``, ``-D`` and ``-H`` options                  |
 +---------+--------------------------------------------------------------+
 | 2.2.2   | Added the ability to read a `skool` file from standard input |
++---------+--------------------------------------------------------------+
+| 3.4     | Added the ``-V`` option and the long options                 |
 +---------+--------------------------------------------------------------+
 
 .. _skool2ctl.py:

@@ -4,7 +4,7 @@ import unittest
 import textwrap
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import skool2asm, write_text, UsageError, SkoolKitError
+from skoolkit import skool2asm, write_text, SkoolKitError, VERSION
 
 TEST_NO_OPTIONS_SKOOL = """; @start
 ; @org=24593
@@ -251,29 +251,9 @@ TEST_COMMENT_WIDTH_MIN_SKOOL = """; @start
 c35000 DEFB 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255 ; {1}
 """
 
-USAGE = """skool2asm.py [options] FILE
-
-  Convert a skool file into an ASM file, written to standard output. FILE may
-  be a regular file, or '-' for standard input.
-
-Options:
-  -q    Be quiet
-  -w    Suppress warnings
-  -d    Use CR+LF to end lines
-  -t    Use tab to indent instructions (default indentation is 2 spaces)
-  -l    Write disassembly in lower case
-  -u    Write disassembly in upper case
-  -D    Write disassembly in decimal
-  -H    Write disassembly in hexadecimal
-  -i N  Set instruction field width to N (default=23)
-  -f N  Apply fixes:
-          N=0: None (default)
-          N=1: @ofix only
-          N=2: @ofix and @bfix
-          N=3: @ofix, @bfix and @rfix (implies -r)
-  -c    Create default labels for unlabelled instructions
-  -s    Use safe substitutions (@ssub)
-  -r    Use relocatability substitutions too (@rsub) (implies '-f 1')"""
+def mock_run(*args):
+    global run_args
+    run_args = args
 
 class TestAsmWriter:
     def __init__(self, *args):
@@ -284,7 +264,9 @@ class TestAsmWriter:
 
 class Skool2AsmTest(SkoolKitTestCase):
     def test_default_option_values(self):
-        fname, properties, parser_mode, writer_mode, be_quiet = skool2asm.parse_args(('test.skool',))
+        self.mock(skool2asm, 'run', mock_run)
+        skool2asm.main(('test.skool',))
+        fname, be_quiet, properties, parser_mode, writer_mode = run_args
         self.assertEqual(fname, 'test.skool')
         case = base = None
         asm_mode = 1
@@ -297,26 +279,20 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertFalse(be_quiet)
 
     def test_no_arguments(self):
-        try:
+        with self.assertRaises(SystemExit) as cm:
             self.run_skool2asm()
-            self.fail()
-        except UsageError as e:
-            self.assertEqual(e.args[0], USAGE)
+        self.assertEqual(cm.exception.args[0], 2)
 
     def test_invalid_option(self):
-        try:
+        with self.assertRaises(SystemExit) as cm:
             self.run_skool2asm('-x')
-            self.fail()
-        except UsageError as e:
-            self.assertEqual(e.args[0], USAGE)
+        self.assertEqual(cm.exception.args[0], 2)
 
     def test_invalid_option_value(self):
-        for option, name, value in (('-i', 'Instruction field width', 'ABC'), ('-f', 'Fix mode', '+')):
-            try:
-                self.run_skool2asm('{0} {1} dummy.skool'.format(option, value))
-                self.fail()
-            except UsageError as e:
-                self.assertEqual(e.args[0], '{0} ({1}) must be an integer'.format(name, option))
+        for args in ('-i ABC', '-f +'):
+            with self.assertRaises(SystemExit) as cm:
+                self.run_skool2asm(args)
+            self.assertEqual(cm.exception.args[0], 2)
 
     def test_no_options(self):
         asm = self.get_asm(skool=TEST_NO_OPTIONS_SKOOL)
@@ -328,6 +304,13 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(asm[14], '  LD E,A')   # @rfix-
         self.assertEqual(asm[17], '  RET')      # No @ssub
         self.assertEqual(asm[21], '  LD A,0')   # @rsub-
+
+    def test_option_V(self):
+        for option in ('-V', '--version'):
+            output, error = self.run_skool2asm(option, err_lines=True, catch_exit=True)
+            self.assertEqual(len(output), 0)
+            self.assertEqual(len(error), 1)
+            self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))
 
     def test_q(self):
         skoolfile = self.write_text_file(TEST_Q_SKOOL, suffix='.skool')
