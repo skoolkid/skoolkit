@@ -16,21 +16,21 @@ OPTIONS
 -V, --version
   Show the SkoolKit version number and exit.
 
--c FILE, --ctl FILE
-  Use FILE as the control file. By default, any control file whose name (minus
-  the .ctl suffix) matches the input snapshot name (minus the .bin, .sna, .szx
-  or .z80 suffix) will be used, if present.
+-c, --ctl `FILE`
+  Specify the control file to use. By default, any control file whose name
+  (minus the .ctl suffix) matches the input snapshot name (minus
+  the .bin, .sna, .szx or .z80 suffix) will be used, if present.
 
--T FILE, --sft FILE
-  Use FILE as the skool file template. By default, any skool file template
+-T, --sft `FILE`
+  Specify the skool file template to use. By default, any skool file template
   whose name (minus the .sft suffix) matches the input snapshot name (minus
   the .bin, .sna, .szx or .z80 suffix) will be used, if present.
 
--g FILE, --gen-ctl FILE
-  Generate a control file in FILE.
+-g, --gen-ctl `FILE`
+  Generate a control file in `FILE`.
 
--M FILE, --map FILE
-  Use FILE as a code execution map when generating a control file. Code
+-M, --map `FILE`
+  Specify a code execution map to use when generating a control file. Code
   execution maps produced by the Fuse, SpecEmu, Spud, Zero and Z80 Spectrum
   emulators are supported.
 
@@ -43,15 +43,15 @@ OPTIONS
 -L, --lower
   Write the disassembly in lower case.
 
--s ADDR, --start ADDR
+-s, --start `ADDR`
   Specify the address at which to start disassembling; the default start
   address is 16384.
 
--o ADDR, --org ADDR
+-o, --org `ADDR`
   Specify the origin address of a binary (.bin) file; the default origin
   address is 65536 minus the length of the file.
 
--p PAGE, --page PAGE
+-p, --page `PAGE`
   Specify the page (0-7) of a 128K snapshot to map to 49152-65535.
 
 -t, --text
@@ -64,20 +64,20 @@ OPTIONS
 
 -R, --erefs
   Decorate every routine entry point with a comment that lists the other
-  routines that use it; the comment will precede any comment defined in a
-  control file.
+  routines that use it; the comment will precede any additional comment defined
+  in a control file.
 
--n BYTES, --defb-size BYTES
+-n, --defb-size `BYTES`
   Set the maximum number of bytes that may appear in a DEFB statement; the
   default number is 8.
 
--m MOD, --defb-mod MOD
-  Group DEFB blocks by addresses that are divisible by MOD.
+-m, --defb-mod `MOD`
+  Group DEFB blocks by addresses that are divisible by `MOD`.
 
 -z, --defb-zfill
   Write bytes with leading zeroes in DEFB statements.
 
--l CHARS, --defm-size CHARS
+-l, --defm-size `CHARS`
   Set the maximum number of characters that may appear in a DEFM statement; the
   default number is 66.
 
