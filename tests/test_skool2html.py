@@ -120,43 +120,6 @@ TEST_HTML_WRITER_REF = """[Config]
 HtmlWriterClass={0}:{1}.TestHtmlWriter
 """
 
-USAGE = """skool2html.py [options] FILE [FILE...]
-
-  Convert skool files and ref files to HTML. FILE may be a regular file, or '-'
-  for standard input.
-
-Options:
-  -V        Show SkoolKit version number and exit
-  -p        Show path to skoolkit package directory and exit
-  -q        Be quiet
-  -t        Show timings
-  -d DIR    Write files in this directory
-  -o        Overwrite existing image files
-  -T THEME  Use this CSS theme
-  -l        Write disassembly in lower case
-  -u        Write disassembly in upper case
-  -D        Write disassembly in decimal
-  -H        Write disassembly in hexadecimal
-  -c S/L    Add the line 'L' to the ref file section 'S'; this option may be
-            used multiple times
-  -P PAGES  Write only these custom pages (when '-w P' is specified); PAGES
-            should be a comma-separated list of IDs of pages defined in [Page:*]
-            sections in the ref file(s)
-  -w X      Write only these files, where X is one or more of:
-              B = Graphic glitches
-              b = Bugs
-              c = Changelog
-              d = Disassembly files
-              G = Game status buffer
-              g = Graphics
-              i = Disassembly index
-              m = Memory maps
-              o = Other code
-              P = Pages defined in the ref file(s)
-              p = Pokes
-              t = Trivia
-              y = Glossary"""
-
 OUTPUT_NO_REF = """Creating directory {0}
 Using skool file: test-html-no-ref.skool
 Found no ref file for test-html-no-ref.skool
@@ -171,6 +134,10 @@ Copying {1} to {0}/test-html-no-ref/{1}
   Writing test-html-no-ref/index.html"""
 
 html_writer = None
+
+def mock_run(*args):
+    global run_args
+    run_args = args
 
 class TestHtmlWriter(HtmlWriter):
     def init(self):
@@ -236,8 +203,10 @@ class Skool2HtmlTest(SkoolKitTestCase):
         return '-c Paths/StyleSheet={0}'.format(self.write_text_file(suffix='.css'))
 
     def test_default_option_values(self):
+        self.mock(skool2html, 'run', mock_run)
         infiles = ['game1.ref', 'game2.skool']
-        files, options = skool2html.parse_args(infiles)
+        skool2html.main(infiles)
+        files, options = run_args
         self.assertEqual(files, infiles)
         self.assertTrue(options.verbose)
         self.assertFalse(options.show_timings)
@@ -250,18 +219,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(options.output_dir, None)
 
     def test_no_arguments(self):
-        try:
-            self.run_skool2html()
-            self.fail()
-        except UsageError as e:
-            self.assertEqual(e.args[0], USAGE)
+        output, error = self.run_skool2html(catch_exit=True)
+        self.assertEqual(len(output), 0)
+        self.assertTrue(error.startswith('usage: skool2html.py'))
 
     def test_invalid_option(self):
-        try:
-            self.run_skool2html('-X')
-            self.fail()
-        except UsageError as e:
-            self.assertEqual(e.args[0], USAGE)
+        output, error = self.run_skool2html('-X', catch_exit=True)
+        self.assertEqual(len(output), 0)
+        self.assertTrue(error.startswith('usage: skool2html.py'))
 
     def test_no_ref(self):
         skoolfile = self.write_text_file(TEST_NO_REF, 'test-html-no-ref.skool')
@@ -420,10 +385,11 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertEqual(arg_list, exp_arg_list, '{0}: {1} != {2}'.format(method_name, arg_list, exp_arg_list))
 
     def test_option_V(self):
-        output, error = self.run_skool2html('-V', catch_exit=True)
-        self.assertEqual(error, '')
-        self.assertEqual(len(output), 1)
-        self.assertEqual(output[0], 'SkoolKit {0}'.format(VERSION))
+        for option in ('-V', '--version'):
+            output, error = self.run_skool2html(option, err_lines=True, catch_exit=True)
+            self.assertEqual(len(output), 0)
+            self.assertEqual(len(error), 1)
+            self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))
 
     def test_option_p(self):
         output, error = self.run_skool2html('-p', catch_exit=True)

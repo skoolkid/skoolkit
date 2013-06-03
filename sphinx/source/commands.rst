@@ -191,42 +191,46 @@ otherwise it will be treated as a `skool` file.
 `skool2html.py` supports several options; run it with no arguments to see a
 list::
 
-  Usage: skool2html.py [options] FILE [FILE...]
+  usage: skool2html.py [options] FILE [FILE...]
 
-    Convert skool files and ref files to HTML. FILE may be a regular file, or '-'
-    for standard input.
+  Convert skool files and ref files to HTML. FILE may be a regular file, or '-'
+  for standard input.
 
   Options:
-    -V        Show SkoolKit version number and exit
-    -p        Show path to skoolkit package directory and exit
-    -q        Be quiet
-    -t        Show timings
-    -d DIR    Write files in this directory (default is '.')
-    -o        Overwrite existing image files
-    -T THEME  Use this CSS theme
-    -l        Write disassembly in lower case
-    -u        Write disassembly in upper case
-    -D        Write disassembly in decimal
-    -H        Write disassembly in hexadecimal
-    -c S/L    Add the line 'L' to the ref file section 'S'; this option may be
-              used multiple times
-    -P PAGES  Write only these custom pages (when '-w P' is specified); PAGES
-              should be a comma-separated list of IDs of pages defined in [Page:*]
-              sections in the ref file(s)
-    -w X      Write only these files, where X is one or more of:
-                B = Graphic glitches
-                b = Bugs
-                c = Changelog
-                d = Disassembly files
-                G = Game status buffer
-                g = Graphics
-                i = Disassembly index
-                m = Memory maps
-                o = Other code
-                P = Pages defined in the ref file(s)
-                p = Pokes
-                t = Trivia
-                y = Glossary
+    -V, --version         Show SkoolKit version number and exit
+    -p, --package-dir     Show path to skoolkit package directory and exit
+    -q, --quiet           Be quiet
+    -t, --time            Show timings
+    -d DIR, --output-dir DIR
+                          Write files in this directory (default is '.')
+    -o, --new-images      Overwrite existing image files
+    -T THEME, --theme THEME
+                          Use this CSS theme
+    -l, --lower           Write the disassembly in lower case
+    -u, --upper           Write the disassembly in upper case
+    -D, --decimal         Write the disassembly in decimal
+    -H, --hex             Write the disassembly in hexadecimal
+    -c S/L, --config S/L  Add the line 'L' to the ref file section 'S'; this
+                          option may be used multiple times
+    -P PAGES, --pages PAGES
+                          Write only these custom pages (when '-w P' is
+                          specified); PAGES should be a comma-separated list of
+                          IDs of pages defined in [Page:*] sections in the ref
+                          file(s)
+    -w X, --write X       Write only these files, where X is one or more of:
+                            B = Graphic glitches
+                            b = Bugs
+                            c = Changelog
+                            d = Disassembly files
+                            G = Game status buffer
+                            g = Graphics
+                            i = Disassembly index
+                            m = Memory maps
+                            o = Other code
+                            P = Pages defined in the ref file(s)
+                            p = Pokes
+                            t = Trivia
+                            y = Glossary
 
 When `skool2html.py` is run, it looks for `skool` files, `ref` files, CSS
 files, JavaScript files and font files required by the disassembly in the
@@ -281,6 +285,8 @@ to `skoolkit.css` and `game.css` if they don't.
 | 3.3.2   | Added `$PACKAGE_DIR/resources` to the search path; added the    |
 |         | ``-p`` and ``-T`` options                                       |
 +---------+-----------------------------------------------------------------+ 
+| 3.4     | Added the long options                                          |
++---------+-----------------------------------------------------------------+
 
 .. _skool2sft.py:
 

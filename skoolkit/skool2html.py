@@ -21,8 +21,9 @@ from os.path import isfile, isdir, basename, dirname
 import posixpath
 import shutil
 import time
+import argparse
 
-from . import PACKAGE_DIR, version, show_package_dir, write, write_line, get_class, UsageError, SkoolKitError
+from . import PACKAGE_DIR, VERSION, show_package_dir, write, write_line, get_class, SkoolKitError
 from .image import ImageWriter
 from .skoolhtml import join, FileInfo
 from .skoolparser import SkoolParser, CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
@@ -39,56 +40,6 @@ SEARCH_DIRS = (
     os.path.join(PACKAGE_DIR, 'resources')
 )
 CONFIG = 'Config'
-
-USAGE = """skool2html.py [options] FILE [FILE...]
-
-  Convert skool files and ref files to HTML. FILE may be a regular file, or '-'
-  for standard input.
-
-Options:
-  -V        Show SkoolKit version number and exit
-  -p        Show path to skoolkit package directory and exit
-  -q        Be quiet
-  -t        Show timings
-  -d DIR    Write files in this directory
-  -o        Overwrite existing image files
-  -T THEME  Use this CSS theme
-  -l        Write disassembly in lower case
-  -u        Write disassembly in upper case
-  -D        Write disassembly in decimal
-  -H        Write disassembly in hexadecimal
-  -c S/L    Add the line 'L' to the ref file section 'S'; this option may be
-            used multiple times
-  -P PAGES  Write only these custom pages (when '-w P' is specified); PAGES
-            should be a comma-separated list of IDs of pages defined in [Page:*]
-            sections in the ref file(s)
-  -w X      Write only these files, where X is one or more of:
-              B = Graphic glitches
-              b = Bugs
-              c = Changelog
-              d = Disassembly files
-              G = Game status buffer
-              g = Graphics
-              i = Disassembly index
-              m = Memory maps
-              o = Other code
-              P = Pages defined in the ref file(s)
-              p = Pokes
-              t = Trivia
-              y = Glossary"""
-
-class Options:
-    def __init__(self):
-        self.verbose = True
-        self.show_timings = False
-        self.config_specs = []
-        self.new_images = False
-        self.theme = None
-        self.case = None
-        self.base = None
-        self.files = 'BbcdGgimoPpty'
-        self.pages = []
-        self.output_dir = None
 
 def notify(notice):
     if verbose:
@@ -154,56 +105,6 @@ def get_prefix(fname):
     if '.' in fname:
         return fname.rsplit('.', 1)[0]
     return fname
-
-def parse_args(args):
-    options = Options()
-    files = []
-    i = 0
-    while i < len(args):
-        arg = args[i]
-        if arg == '-V':
-            version()
-        if arg == '-p':
-            show_package_dir()
-        if arg == '-q':
-            options.verbose = False
-        elif arg == '-t':
-            options.show_timings = True
-        elif arg == '-c':
-            options.config_specs.append(args[i + 1])
-            i += 1
-        elif arg == '-d':
-            options.output_dir = args[i + 1]
-            i += 1
-        elif arg == '-o':
-            options.new_images = True
-        elif arg == '-T':
-            options.theme = args[i + 1]
-            i += 1
-        elif arg == '-l':
-            options.case = CASE_LOWER
-        elif arg == '-u':
-            options.case = CASE_UPPER
-        elif arg == '-D':
-            options.base = BASE_10
-        elif arg == '-H':
-            options.base = BASE_16
-        elif arg == '-P':
-            options.pages += args[i + 1].split(',')
-            i += 1
-        elif arg == '-w':
-            options.files = args[i + 1]
-            i += 1
-        elif len(arg) > 1 and arg[0] == '-':
-            raise UsageError(USAGE)
-        else:
-            files.append(arg)
-        i += 1
-
-    if not files:
-        raise UsageError(USAGE)
-
-    return files, options
 
 def process_file(infile, topdir, files, case, base, pages, config_specs, new_images, css_theme):
     reffile = skoolfile = None
@@ -370,9 +271,72 @@ def run(files, options):
 
 def main(args):
     global verbose, show_timings
+
+    parser = argparse.ArgumentParser(
+        usage='skool2html.py [options] FILE [FILE...]',
+        description="Convert skool files and ref files to HTML. FILE may be a regular file, or '-'\n"
+                    "for standard input.",
+        formatter_class=argparse.RawTextHelpFormatter,
+        add_help=False
+    )
+    parser.add_argument('infiles', help=argparse.SUPPRESS, nargs='*')
+    group = parser.add_argument_group('Options')
+    group.add_argument('-V', '--version', action='version',
+                       version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit')
+    group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
+                       help="Show path to skoolkit package directory and exit")
+    group.add_argument('-q', '--quiet', dest='verbose', action='store_false',
+                       help="Be quiet")
+    group.add_argument('-t', '--time', dest='show_timings', action='store_true',
+                       help="Show timings")
+    group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR',
+                       help="Write files in this directory (default is '.')")
+    group.add_argument('-o', '--new-images', dest='new_images', action='store_true',
+                       help="Overwrite existing image files")
+    group.add_argument('-T', '--theme', dest='theme', metavar='THEME',
+                       help="Use this CSS theme")
+    group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER,
+                       help="Write the disassembly in lower case")
+    group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER,
+                       help="Write the disassembly in upper case")
+    group.add_argument('-D', '--decimal', dest='base', action='store_const', const=BASE_10,
+                       help="Write the disassembly in decimal")
+    group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16,
+                       help="Write the disassembly in hexadecimal")
+    group.add_argument('-c', '--config', dest='config_specs', metavar='S/L', action='append',
+                       help="Add the line 'L' to the ref file section 'S'; this\n"
+                            "option may be used multiple times")
+    group.add_argument('-P', '--pages', dest='pages', metavar='PAGES',
+                       help="Write only these custom pages (when '-w P' is\n"
+                            "specified); PAGES should be a comma-separated list of\n"
+                            "IDs of pages defined in [Page:*] sections in the ref\n"
+                            "file(s)")
+    group.add_argument('-w', '--write', dest='files', metavar='X', default='BbcdGgimoPpty',
+                       help="Write only these files, where X is one or more of:\n"
+                            "  B = Graphic glitches\n"
+                            "  b = Bugs\n"
+                            "  c = Changelog\n"
+                            "  d = Disassembly files\n"
+                            "  G = Game status buffer\n"
+                            "  g = Graphics\n"
+                            "  i = Disassembly index\n"
+                            "  m = Memory maps\n"
+                            "  o = Other code\n"
+                            "  P = Pages defined in the ref file(s)\n"
+                            "  p = Pokes\n"
+                            "  t = Trivia\n"
+                            "  y = Glossary")
+
     start = time.time()
-    files, options = parse_args(args)
-    verbose, show_timings = options.verbose, options.show_timings
-    run(files, options)
+    namespace, unknown_args = parser.parse_known_args(args)
+    if namespace.package_dir:
+        show_package_dir()
+    if unknown_args or not namespace.infiles:
+        parser.exit(2, parser.format_help())
+    verbose, show_timings = namespace.verbose, namespace.show_timings
+    namespace.config_specs = namespace.config_specs or []
+    namespace.pages = namespace.pages.split(',') if namespace.pages else []
+    run(namespace.infiles, namespace)
     if show_timings:
         notify('Done ({0:0.2f}s)'.format(time.time() - start))
