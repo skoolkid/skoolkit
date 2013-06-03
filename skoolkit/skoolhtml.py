@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -951,6 +951,7 @@ class HtmlWriter:
     def write_head(self, ofile, title, cwd, js=False):
         ofile.write(PROLOGUE)
         ofile.write('<head>\n')
+        ofile.write('<meta http-equiv="content-type" content="text/html; charset=utf-8" />\n')
         ofile.write('<title>{0}: {1}</title>\n'.format(self.game, title))
         for css_file in self.paths['StyleSheet'].split(';'):
             ofile.write('<link rel="stylesheet" type="text/css" href="{0}" />\n'.format(FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))))
