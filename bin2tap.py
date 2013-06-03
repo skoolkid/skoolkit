@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -19,11 +19,9 @@
 
 import sys
 
-from skoolkit import bin2tap, error, usage, UsageError, SkoolKitError
+from skoolkit import bin2tap, error, SkoolKitError
 
 try:
     bin2tap.main(sys.argv[1:])
-except UsageError as e:
-    usage(e.args[0])
 except SkoolKitError as e:
     error(e.args[0])

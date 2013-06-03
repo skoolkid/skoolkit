@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2010-2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -16,17 +16,9 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from . import read_bin_file, parse_int_arg, UsageError
+import argparse
 
-USAGE = """bin2tap.py [options] FILE.bin
-
-  Convert a binary snapshot file into a TAP file.
-
-Options:
-  -o ORG      Set the origin (default: 65536 - length of FILE.bin)
-  -s START    Set the start address to JP to (default: ORG)
-  -p STACK    Set the stack pointer (default: ORG)
-  -t TAPFILE  Set the TAP filename (default: FILE.tap)"""
+from . import read_bin_file, VERSION
 
 def get_str(chars):
     return [ord(c) for c in chars]
@@ -104,49 +96,6 @@ def get_data_loader(title, org, length, start, stack):
 
     return header + data
 
-def parse_args(args):
-    org = None
-    start = None
-    stack = None
-    tapfile = None
-    files = []
-
-    i = 0
-    while i < len(args):
-        arg = args[i]
-        if arg == '-o':
-            org = parse_int_arg(args[i + 1], arg, 'ORG')
-            i += 1
-        elif arg == '-s':
-            start = parse_int_arg(args[i + 1], arg, 'START')
-            i += 1
-        elif arg == '-p':
-            stack = parse_int_arg(args[i + 1], arg, 'STACK')
-            i += 1
-        elif arg == '-t':
-            tapfile = args[i + 1]
-            i += 1
-        elif arg.startswith('-'):
-            raise UsageError(USAGE)
-        else:
-            files.append(arg)
-        i += 1
-
-    if len(files) != 1:
-        raise UsageError(USAGE)
-    binfile = files[0]
-    ram = read_bin_file(binfile)
-    length = len(ram)
-    org = org or 65536 - length
-    if tapfile is None:
-        suffix = '.bin'
-        if binfile.endswith(suffix):
-            prefix = binfile[:-len(suffix)]
-        else:
-            prefix = binfile
-        tapfile = prefix + ".tap"
-    return ram, org, start or org, stack or org, binfile, tapfile
-
 def run(ram, org, start, stack, binfile, tapfile):
     length = len(ram)
 
@@ -176,5 +125,40 @@ def run(ram, org, start, stack, binfile, tapfile):
         f.write(bytearray(tap_data))
 
 def main(args):
-    ram, org, start, stack, binfile, tapfile = parse_args(args)
+    parser = argparse.ArgumentParser(
+        usage='bin2tap.py [options] FILE.bin',
+        description="Convert a binary snapshot file into a TAP file.",
+        add_help=False
+    )
+    parser.add_argument('binfile', help=argparse.SUPPRESS, nargs='?')
+    group = parser.add_argument_group('Options')
+    group.add_argument('-V', '--version', action='version',
+                       version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit')
+    group.add_argument('-o', '--org', dest='org', metavar='ORG', type=int,
+                       help="Set the origin address (default: 65536 minus the length of FILE.bin)")
+    group.add_argument('-s', '--start', dest='start', metavar='START', type=int,
+                       help="Set the start address to JP to (default: ORG)")
+    group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=int,
+                       help="Set the stack pointer (default: ORG)")
+    group.add_argument('-t', '--tapfile', dest='tapfile', metavar='TAPFILE',
+                       help="Set the TAP filename (default: FILE.tap)")
+
+    namespace, unknown_args = parser.parse_known_args(args)
+    binfile = namespace.binfile
+    if unknown_args or binfile is None:
+        parser.exit(2, parser.format_help())
+    ram = read_bin_file(binfile)
+    length = len(ram)
+    org = namespace.org or 65536 - length
+    start = namespace.start or org
+    stack = namespace.stack or org
+    tapfile = namespace.tapfile
+    if tapfile is None:
+        suffix = '.bin'
+        if binfile.endswith(suffix):
+            prefix = binfile[:-len(suffix)]
+        else:
+            prefix = binfile
+        tapfile = prefix + ".tap"
     run(ram, org, start, stack, binfile, tapfile)
