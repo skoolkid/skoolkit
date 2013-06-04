@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -201,10 +201,11 @@ class SkoolParser:
     :param html: Whether to escape HTML characters.
     :param create_labels: Whether to create default labels for unlabelled
                           instructions.
+    :param asm_labels: Whether to parse `@label` directives.
     """
-    def __init__(self, skoolfile, case=None, base=None, asm_mode=0, warnings=False, fix_mode=0, html=False, create_labels=False):
+    def __init__(self, skoolfile, case=None, base=None, asm_mode=0, warnings=False, fix_mode=0, html=False, create_labels=False, asm_labels=True):
         self.skoolfile = skoolfile
-        self.mode = Mode(case, base, asm_mode, warnings, fix_mode, html, create_labels)
+        self.mode = Mode(case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels)
 
         self.snapshot = [0] * 65536  # 64K of Spectrum memory
         self.instructions = {}       # address -> [Instructions]
@@ -224,17 +225,26 @@ class SkoolParser:
         """Return the routine or data block that starts at `address`."""
         return self.entries.get(address)
 
+    def get_instruction(self, address):
+        """Return the instruction at `address`."""
+        return self.instructions.get(address, [None])[0]
+
     def get_container(self, address):
         """Return the routine or data block that contains `address`."""
-        instructions = self.instructions.get(address)
-        if instructions:
-            return instructions[0].container
+        instruction = self.get_instruction(address)
+        if instruction:
+            return instruction.container
 
     def get_entry_point_refs(self, address):
         """Return the addresses of the routines and data blocks that contain
         instructions that refer to `address`.
         """
-        return [referrer.address for referrer in self.instructions[address][0].referrers]
+        return [referrer.address for referrer in self.get_instruction(address).referrers]
+
+    def get_asm_label(self, address):
+        instruction = self.get_instruction(address)
+        if instruction:
+            return instruction.asm_label
 
     def _parse_skool(self, skoolfile):
         map_entry = None
@@ -397,6 +407,9 @@ class SkoolParser:
                 self.mode.include = include
                 return
 
+            if directive.startswith('label='):
+                self.mode.label = directive[6:].rstrip()
+
             if self.mode.asm and self.mode.include:
                 if directive.startswith('rsub='):
                     self.mode.rsub = directive[5:].rstrip()
@@ -408,8 +421,6 @@ class SkoolParser:
                     self.mode.bfix = directive[5:].rstrip()
                 elif directive.startswith('ofix='):
                     self.mode.ofix = directive[5:].rstrip()
-                elif directive.startswith('label='):
-                    self.mode.label = directive[6:].rstrip()
                 elif directive.startswith('nolabel'):
                     self.mode.nolabel = True
                 elif directive.startswith('nowarn'):
@@ -531,7 +542,7 @@ class SkoolParser:
                     other_instructions = self.instructions.get(address, [])
                     if other_instructions:
                         other_entry = other_instructions[0].container
-                        if entry != other_entry and (other_entry.is_remote() or operation.startswith('DEFW') or other_entry.is_routine()):
+                        if (entry != other_entry or self.mode.asm_labels) and (other_entry.is_remote() or operation.startswith('DEFW') or other_entry.is_routine()):
                             instruction.set_reference(other_entry, address, addr_str)
                             for other_instruction in other_instructions:
                                 other_instruction.add_referrer(entry)
@@ -597,7 +608,7 @@ class SkoolParser:
             self.warn('Unreplaced operand: {0} {1}'.format(instruction.address, operation))
 
 class Mode:
-    def __init__(self, case, base, asm_mode, warnings, fix_mode, html, create_labels):
+    def __init__(self, case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels):
         self.lower = case == CASE_LOWER
         self.upper = case == CASE_UPPER
         self.decimal = base == BASE_10
@@ -614,6 +625,7 @@ class Mode:
         self.do_bfixes = fix_mode >= 2
         self.labels = []
         self.create_labels = create_labels
+        self.asm_labels = asm_labels
         self.ignoretua = False
         self.ignoredua = False
         self.hex4fmt = '${0:04x}' if self.lower else '${0:04X}'
@@ -643,35 +655,33 @@ class Mode:
             self.include = False
 
     def apply_asm_attributes(self, instruction):
-        if self.html:
-            return
-
-        if self.label:
+        if self.asm_labels and self.label:
             if self.label in self.labels:
                 raise SkoolParsingError('Duplicate label {0} at {1}'.format(self.label, instruction.address))
             self.labels.append(self.label)
             instruction.asm_label = self.label
 
-        sub = self.isub
-        if self.bfix is not None and self.do_bfixes:
-            sub = self.bfix
-        elif self.ofix is not None and self.do_ofixes:
-            sub = self.ofix
-        elif self.rsub is not None and self.do_rsubs:
-            sub = self.rsub
-        elif self.ssub is not None and self.do_ssubs:
-            sub = self.ssub
-        if sub is not None:
-            _, sub = self.apply_case('', sub)
-            _, sub = self.apply_base('', sub)
-            instruction.apply_sub(sub)
+        if not self.html:
+            sub = self.isub
+            if self.bfix is not None and self.do_bfixes:
+                sub = self.bfix
+            elif self.ofix is not None and self.do_ofixes:
+                sub = self.ofix
+            elif self.rsub is not None and self.do_rsubs:
+                sub = self.rsub
+            elif self.ssub is not None and self.do_ssubs:
+                sub = self.ssub
+            if sub is not None:
+                _, sub = self.apply_case('', sub)
+                _, sub = self.apply_base('', sub)
+                instruction.apply_sub(sub)
 
-        instruction.warn = not self.nowarn
-        instruction.nolabel = self.nolabel
-        instruction.ignoreua = self.ignoreua
-        instruction.ignoremrcua = self.ignoremrcua
-        instruction.keep = self.keep
-        instruction.org = self.org
+            instruction.warn = not self.nowarn
+            instruction.nolabel = self.nolabel
+            instruction.ignoreua = self.ignoreua
+            instruction.ignoremrcua = self.ignoremrcua
+            instruction.keep = self.keep
+            instruction.org = self.org
 
         self.reset()
 

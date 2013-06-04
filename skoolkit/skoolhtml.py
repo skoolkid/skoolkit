@@ -740,6 +740,10 @@ class HtmlWriter:
     def write_entry(self, cwd, entry, fname=None, page_header=None, prev_entry=None, next_entry=None, up=None):
         fname = fname or FileInfo.asm_fname(entry.address)
         ofile = self.file_info.open_file(cwd, fname)
+        title_suffix = ''
+        asm_label = self.parser.get_asm_label(entry.address)
+        if asm_label:
+            title_suffix = ' ({0})'.format(asm_label)
         body_class = "disassembly"
         if entry.is_routine():
             title_format = "Routine at {0}"
@@ -753,7 +757,7 @@ class HtmlWriter:
         else:
             title_format = "Data at {0}"
             page_header = page_header or "Data"
-        self.write_header(ofile, title_format.format(entry.addr_str), cwd, body_class, page_header)
+        self.write_header(ofile, title_format.format(entry.addr_str) + title_suffix, cwd, body_class, page_header)
 
         prev_link = None
         if prev_entry:
@@ -770,7 +774,10 @@ class HtmlWriter:
         self.write_prev_next(ofile, prev_link, next_link, up_link)
 
         desc = self.expand(entry.description, cwd)
-        ofile.write('<div class="description">{0}: {1}</div>\n'.format(entry.addr_str, desc))
+        label_text = ''
+        if asm_label:
+            label_text = '{0}: '.format(asm_label)
+        ofile.write('<div class="description">{0}: {1}{2}</div>\n'.format(entry.addr_str, label_text, desc))
 
         table_class = 'disassembly'
         comment_class = 'comment'
@@ -810,7 +817,8 @@ class HtmlWriter:
                 anchor = ''
             ofile.write('<tr>\n')
             tdclass = 'label' if instruction.ctl in 'c*!' else 'address'
-            ofile.write('<td class="{0}">{1}{2}</td>\n'.format(tdclass, anchor, instruction.addr_str))
+            address_label = instruction.asm_label or instruction.addr_str
+            ofile.write('<td class="{0}">{1}{2}</td>\n'.format(tdclass, anchor, address_label))
             operation, reference = instruction.operation, instruction.reference
             if reference:
                 entry_address = reference.entry.address
@@ -821,7 +829,8 @@ class HtmlWriter:
                 else:
                     # This is a reference to an entry in the same disassembly
                     entry_file = FileInfo.asm_fname(entry_address)
-                link = '<a class="link" href="{0}{1}">{2}</a>'.format(entry_file, name, reference.addr_str)
+                link_text = self.parser.get_asm_label(reference.address) or reference.addr_str
+                link = '<a class="link" href="{0}{1}">{2}</a>'.format(entry_file, name, link_text)
                 operation = operation.replace(reference.addr_str, link)
             ofile.write('<td class="instruction">{0}</td>\n'.format(operation))
             if show_comment_col:
@@ -1355,8 +1364,9 @@ class HtmlWriter:
             container_address = container.address
             code_path = self.code_path
             anchor = anchor if address == container_address else '#{0}'.format(address)
+        asm_label = self.parser.get_asm_label(address)
         ref_file = FileInfo.asm_relpath(cwd, container_address, code_path)
-        link = '<a class="link" href="{0}{1}">{2}</a>'.format(ref_file, anchor, link_text or inst_addr_str)
+        link = '<a class="link" href="{0}{1}">{2}</a>'.format(ref_file, anchor, link_text or asm_label or inst_addr_str)
         return end, link
 
     def expand_refs(self, text, index, cwd):

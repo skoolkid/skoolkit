@@ -210,6 +210,7 @@ list::
     -u, --upper           Write the disassembly in upper case
     -D, --decimal         Write the disassembly in decimal
     -H, --hex             Write the disassembly in hexadecimal
+    -a, --asm-labels      Use ASM labels
     -c S/L, --config S/L  Add the line 'L' to the ref file section 'S'; this
                           option may be used multiple times
     -P PAGES, --pages PAGES
@@ -285,7 +286,7 @@ to `skoolkit.css` and `game.css` if they don't.
 | 3.3.2   | Added `$PACKAGE_DIR/resources` to the search path; added the    |
 |         | ``-p`` and ``-T`` options                                       |
 +---------+-----------------------------------------------------------------+ 
-| 3.4     | Added the long options                                          |
+| 3.4     | Added the ``-a`` option and the long options                    |
 +---------+-----------------------------------------------------------------+
 
 .. _skool2sft.py:

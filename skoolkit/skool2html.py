@@ -106,7 +106,7 @@ def get_prefix(fname):
         return fname.rsplit('.', 1)[0]
     return fname
 
-def process_file(infile, topdir, files, case, base, pages, config_specs, new_images, css_theme):
+def process_file(infile, topdir, files, case, base, pages, config_specs, new_images, css_theme, asm_labels):
     reffile = skoolfile = None
     if infile.endswith('.ref'):
         reffile = infile
@@ -168,7 +168,7 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
 
     # Parse the skool file and initialise the writer
     fname = 'standard input' if skoolfile_f == '-' else skoolfile_f
-    skool_parser = clock(SkoolParser, 'Parsing {0}'.format(fname), skoolfile_f, case=case, base=base, html=True)
+    skool_parser = clock(SkoolParser, 'Parsing {0}'.format(fname), skoolfile_f, case=case, base=base, html=True, asm_labels=asm_labels)
     file_info = FileInfo(topdir, game_dir, new_images)
     colours = {}
     for k, v in ref_parser.get_dictionary('Colours').items():
@@ -267,7 +267,7 @@ def run(files, options):
             os.makedirs(topdir)
 
     for infile in files:
-        process_file(infile, topdir, options.files, options.case, options.base, options.pages, options.config_specs, options.new_images, options.theme)
+        process_file(infile, topdir, options.files, options.case, options.base, options.pages, options.config_specs, options.new_images, options.theme, options.asm_labels)
 
 def main(args):
     global verbose, show_timings
@@ -304,6 +304,8 @@ def main(args):
                        help="Write the disassembly in decimal")
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16,
                        help="Write the disassembly in hexadecimal")
+    group.add_argument('-a', '--asm-labels', dest='asm_labels', action='store_true',
+                       help="Use ASM labels")
     group.add_argument('-c', '--config', dest='config_specs', metavar='S/L', action='append',
                        help="Add the line 'L' to the ref file section 'S'; this\n"
                             "option may be used multiple times")
