@@ -2,79 +2,90 @@
 import unittest
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import skool2ctl, UsageError
+from skoolkit import skool2ctl, VERSION
 
 ELEMENTS = 'btdrmsc'
-
-USAGE = """skool2ctl.py [options] FILE
-
-  Convert a skool file into a control file, written to standard output. FILE
-  may be a regular file, or '-' for standard input.
-
-Options:
-  -w X  Write only these elements, where X is one or more of:
-          b = block types and addresses
-          t = block titles
-          d = block descriptions
-          r = registers
-          m = mid-block comments and block end comments
-          s = sub-block types and addresses
-          c = instruction-level comments
-  -h    Write addresses in hexadecimal format
-  -a    Do not write ASM directives"""
 
 TEST_SKOOL = """; Test skool file for skool2ctl testing
 c32768 RET
 """
 
+class MockCtlWriter:
+    def __init__(self, *args):
+        global mock_ctl_writer
+        self.args = args
+        self.write_called = False
+        mock_ctl_writer = self
+
+    def write(self):
+        self.write_called = True
+
 class Skool2CtlTest(SkoolKitTestCase):
     def test_no_arguments(self):
-        try:
-            self.run_skool2ctl()
-            self.fail()
-        except UsageError as e:
-            self.assertEqual(e.args[0], USAGE)
+        output, error = self.run_skool2ctl(catch_exit=True)
+        self.assertEqual(len(output), 0)
+        self.assertTrue(error.startswith('usage: skool2ctl.py'))
 
     def test_invalid_arguments(self):
         for args in ('-h', '-x test.skool'):
-            try:
-                self.run_skool2ctl(args)
-                self.fail()
-            except UsageError as e:
-                self.assertEqual(e.args[0], USAGE)
+            output, error = self.run_skool2ctl(args, catch_exit=True)
+            self.assertEqual(len(output), 0)
+            self.assertTrue(error.startswith('usage: skool2ctl.py'))
 
     def test_default_option_values(self):
+        self.mock(skool2ctl, 'CtlWriter', MockCtlWriter)
         skoolfile = 'test.skool'
-        infile, elements, write_hex, write_asm_dirs = skool2ctl.parse_args((skoolfile,))
+        skool2ctl.main((skoolfile,))
+        infile, elements, write_hex, write_asm_dirs = mock_ctl_writer.args
         self.assertEqual(infile, skoolfile)
         self.assertEqual(elements, ELEMENTS)
         self.assertFalse(write_hex)
         self.assertTrue(write_asm_dirs)
+        self.assertTrue(mock_ctl_writer.write_called)
+
+    def test_option_V(self):
+        for option in ('-V', '--version'):
+            output, error = self.run_skool2ctl(option, err_lines=True, catch_exit=True)
+            self.assertEqual(len(output), 0)
+            self.assertEqual(len(error), 1)
+            self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))
 
     def test_option_w(self):
+        self.mock(skool2ctl, 'CtlWriter', MockCtlWriter)
         skoolfile = 'test.skool'
         for w in ('b', 't', 'd', 'r', 'm', 's', 'c', 'btd', ELEMENTS):
-            infile, elements, write_hex, write_asm_dirs = skool2ctl.parse_args(('-w', w, skoolfile))
-            self.assertEqual(infile, skoolfile)
-            self.assertEqual(elements, w)
-            self.assertFalse(write_hex)
-            self.assertTrue(write_asm_dirs)
+            for option in ('-w', '--write'):
+                skool2ctl.main((option, w, skoolfile))
+                infile, elements, write_hex, write_asm_dirs = mock_ctl_writer.args
+                self.assertEqual(infile, skoolfile)
+                self.assertEqual(elements, w)
+                self.assertFalse(write_hex)
+                self.assertTrue(write_asm_dirs)
+                self.assertTrue(mock_ctl_writer.write_called)
 
     def test_option_h(self):
+        self.mock(skool2ctl, 'CtlWriter', MockCtlWriter)
         skoolfile = 'test.skool'
-        infile, elements, write_hex, write_asm_dirs = skool2ctl.parse_args(('-h', skoolfile))
-        self.assertEqual(infile, skoolfile)
-        self.assertEqual(elements, ELEMENTS)
-        self.assertTrue(write_hex)
-        self.assertTrue(write_asm_dirs)
+        for option in ('-h', '--hex'):
+            skool2ctl.main((option, skoolfile))
+            infile, elements, write_hex, write_asm_dirs = mock_ctl_writer.args
+            self.assertEqual(infile, skoolfile)
+            self.assertEqual(elements, ELEMENTS)
+            self.assertTrue(write_hex)
+            self.assertTrue(write_asm_dirs)
+            self.assertTrue(mock_ctl_writer.write_called)
 
     def test_option_a(self):
+        self.mock(skool2ctl, 'CtlWriter', MockCtlWriter)
         skoolfile = 'test.skool'
-        infile, elements, write_hex, write_asm_dirs = skool2ctl.parse_args(('-a', skoolfile))
-        self.assertEqual(infile, skoolfile)
-        self.assertEqual(elements, ELEMENTS)
-        self.assertFalse(write_hex)
-        self.assertFalse(write_asm_dirs)
+        for option in ('-a', '--no-asm-dirs'):
+            skool2ctl.main((option, skoolfile))
+            infile, elements, write_hex, write_asm_dirs = mock_ctl_writer.args
+            self.assertEqual(infile, skoolfile)
+            self.assertEqual(elements, ELEMENTS)
+            self.assertFalse(write_hex)
+            self.assertFalse(write_asm_dirs)
+            self.assertTrue(mock_ctl_writer.write_called)
 
     def test_run(self):
         skoolfile = self.write_text_file(TEST_SKOOL, suffix='.skool')

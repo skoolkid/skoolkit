@@ -125,22 +125,23 @@ sub-block types and addresses, instruction-level comments, and some
 
 To list the options supported by `skool2ctl.py`, run it with no arguments::
 
-  Usage: skool2ctl.py [options] FILE
+  usage: skool2ctl.py [options] FILE
 
-    Convert a skool file into a control file, written to standard output. FILE
-    may be a regular file, or '-' for standard input.
+  Convert a skool file into a control file, written to standard output. FILE may
+  be a regular file, or '-' for standard input.
 
   Options:
-    -w X  Write only these elements, where X is one or more of:
-            b = block types and addresses
-            t = block titles
-            d = block descriptions
-            r = registers
-            m = mid-block comments and block end comments
-            s = sub-block types and addresses
-            c = instruction-level comments
-    -h    Write addresses in hexadecimal format
-    -a    Do not write ASM directives
+    -V, --version      Show SkoolKit version number and exit
+    -w X, --write X    Write only these elements, where X is one or more of:
+                         b = block types and addresses
+                         t = block titles
+                         d = block descriptions
+                         r = registers
+                         m = mid-block comments and block end comments
+                         s = sub-block types and addresses
+                         c = instruction-level comments
+    -h, --hex          Write addresses in hexadecimal format
+    -a, --no-asm-dirs  Do not write ASM directives
 
 If you need to preserve any elements that control files do not support (such as
 data definition entries and ASM block directives), consider using
@@ -157,6 +158,8 @@ data definition entries and ASM block directives), consider using
 +---------+--------------------------------------------------------------+
 | 2.4     | Added the ``-a`` option and the ability to preserve some ASM |
 |         | directives                                                   |
++---------+--------------------------------------------------------------+
+| 3.4     | Added the ``-V`` option and the long options                 |
 +---------+--------------------------------------------------------------+
 
 .. _skool2html.py:

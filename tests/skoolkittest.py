@@ -221,8 +221,8 @@ class SkoolKitTestCase(TestCase):
     def run_skool2asm(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=False):
         return self._run_skoolkit_command(skool2asm.main, args, out_lines, err_lines, strip_cr, catch_exit)
 
-    def run_skool2ctl(self, args='', out_lines=True, err_lines=False, strip_cr=True):
-        return self._run_skoolkit_command(skool2ctl.main, args, out_lines, err_lines, strip_cr, False)
+    def run_skool2ctl(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=False):
+        return self._run_skoolkit_command(skool2ctl.main, args, out_lines, err_lines, strip_cr, catch_exit)
 
     def run_skool2html(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=False):
         return self._run_skoolkit_command(skool2html.main, args, out_lines, err_lines, strip_cr, catch_exit)

@@ -10,6 +10,7 @@ Changelog
 3.4b1
 -----
 * Dropped support for Python 2.6 and 3.1
+* Added long options to every command
 * Added the ``--asm-labels`` option to :ref:`skool2html.py` (to use ASM labels
   defined by :ref:`label` directives)
 * Added the ``--erefs`` option to :ref:`sna2skool.py` (to always add comments

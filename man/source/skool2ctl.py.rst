@@ -14,18 +14,28 @@ input.
 
 OPTIONS
 =======
--w X  Write only these elements, where `X` is one or more of:
+-V, --version
+  Show the SkoolKit version number and exit.
 
-      |
-      |   ``b`` = block types and addresses
-      |   ``t`` = block titles
-      |   ``d`` = block descriptions
-      |   ``r`` = registers
-      |   ``m`` = mid-block comments and block end comments
-      |   ``s`` = sub-block types and addresses
-      |   ``c`` = instruction-level comments
--h    Write addresses in hexadecimal format
--a    Do not write ASM directives
+-w, --write `X`
+  Write only these elements, where `X` is one or more of:
+
+  |
+  |   ``b`` = block types and addresses
+  |   ``t`` = block titles
+  |   ``d`` = block descriptions
+  |   ``r`` = registers
+  |   ``m`` = mid-block comments and block end comments
+  |   ``s`` = sub-block types and addresses
+  |   ``c`` = instruction-level comments
+
+  The default is to write all of these elements.
+
+-h, --hex
+  Write addresses in hexadecimal format.
+
+-a, --no-asm-dirs
+  Do not write ASM directives.
 
 EXAMPLES
 ========
