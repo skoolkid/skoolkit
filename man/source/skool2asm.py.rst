@@ -14,25 +14,56 @@ Z80 assembler. The ASM file is written to standard output. When FILE is '-',
 
 OPTIONS
 =======
--q    Be quiet
--w    Suppress warnings
--d    Use CR+LF to end lines (default on Windows)
--t    Use tab to indent instructions (default indentation is 2 spaces)
--l    Write the disassembly in lower case
--u    Write the disassembly in upper case
--D    Write the disassembly in decimal
--H    Write the disassembly in hexadecimal
--i N  Set instruction field width to `N` (default=23)
--f N  Apply fixes; `N` may be one of:
+-V, --version
+  Show the SkoolKit version number and exit.
 
-      |
-      |   0: None (default)
-      |   1: @ofix only
-      |   2: @ofix and @bfix
-      |   3: @ofix, @bfix and @rfix (implies ``-r``)
--c    Create default labels for unlabelled instructions
--s    Use safe substitutions (@ssub)
--r    Use relocatability substitutions too (@rsub) (implies ``-f 1``)
+-q, --quiet
+  Be quiet. This option suppresses both the timing information, and the message
+  about the AsmWriter class being used, but does not suppress warnings.
+
+-w, --no-warnings
+  Suppress warnings.
+
+-d, --crlf
+  Use CR+LF to end lines, instead of the system default (CR+LF is the default
+  on Windows).
+
+-t, --tabs
+  Use tab to indent instructions; the default indentation is 2 spaces.
+
+-l, --lower
+  Write the disassembly in lower case.
+
+-u, --upper
+  Write the disassembly in upper case.
+
+-D, --decimal
+  Write the disassembly in decimal.
+
+-H, --hex
+  Write the disassembly in hexadecimal.
+
+-i, --inst-width `N`
+  Set the width of the instruction field; the default width is 23 characters.
+
+-f, --fixes `N`
+  Apply fixes; `N` may be one of:
+
+  |
+  |   0: None (default)
+  |   1: @ofix only
+  |   2: @ofix and @bfix
+  |   3: @ofix, @bfix and @rfix (implies ``-r``)
+
+-c, --labels
+  Create default labels for unlabelled instructions.
+
+-s, --ssub
+  Apply safe substitutions (@ssub).
+
+-r, --rsub
+  Apply safe substitutions (@ssub) and relocatability substitutions (@rsub)
+  (implies ``-f 1``).
 
 EXAMPLES
 ========
