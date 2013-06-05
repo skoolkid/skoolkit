@@ -143,30 +143,35 @@ class Bin2TapTest(SkoolKitTestCase):
             self.assertEqual(len(error), 1)
             self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))
 
-    def test_o(self):
+    def test_option_o(self):
         org = 40000
         bin_data = [i for i in range(50)]
-        tap_data = self._run('-o {0} {1}'.format(org, TEST_BIN), bin_data)
-        self._check_tap(tap_data, bin_data, org=org)
+        for option in ('-o', '--org'):
+            tap_data = self._run('{0} {1} {2}'.format(option, org, TEST_BIN), bin_data)
+            self._check_tap(tap_data, bin_data, org=org)
 
-    def test_s(self):
+    def test_option_s(self):
         bin_data = [i for i in range(100)]
         start = 65536 - len(bin_data) // 2
-        tap_data = self._run('-s {0} {1}'.format(start, TEST_BIN), bin_data)
-        self._check_tap(tap_data, bin_data, start=start)
+        for option in ('-s', '--start'):
+            tap_data = self._run('{0} {1} {2}'.format(option, start, TEST_BIN), bin_data)
+            self._check_tap(tap_data, bin_data, start=start)
 
-    def test_p(self):
+    def test_option_p(self):
         stack = 32768
         bin_data = [i for i in range(64)]
-        tap_data = self._run('-p {0} {1}'.format(stack, TEST_BIN), bin_data)
-        self._check_tap(tap_data, bin_data, stack=stack)
+        for option in ('-p', '--stack'):
+            tap_data = self._run('{0} {1} {2}'.format(option, stack, TEST_BIN), bin_data)
+            self._check_tap(tap_data, bin_data, stack=stack)
 
-    def test_t(self):
-        tapfile = 'testtap.tap'
+    def test_option_t(self):
+        tapfile = 'testtap-{0}.tap'.format(os.getpid())
+        self.tempfiles.append(tapfile)
         bin_data = [i for i in range(32)]
-        tap_data = self._run('-t {0} {1}'.format(tapfile, TEST_BIN), bin_data, tapfile)
-        self._check_tap(tap_data, bin_data)
-        os.remove(tapfile)
+        for option in ('-t', '--tapfile'):
+            tap_data = self._run('{0} {1} {2}'.format(option, tapfile, TEST_BIN), bin_data, tapfile)
+            self._check_tap(tap_data, bin_data)
+            os.remove(tapfile)
 
     def test_data_overwrites_stack(self):
         bin_data = [0] * 10
