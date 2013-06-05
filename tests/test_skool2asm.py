@@ -312,101 +312,117 @@ class Skool2AsmTest(SkoolKitTestCase):
             self.assertEqual(len(error), 1)
             self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))
 
-    def test_q(self):
+    def test_option_q(self):
         skoolfile = self.write_text_file(TEST_Q_SKOOL, suffix='.skool')
-        output, error = self.run_skool2asm('-q {0}'.format(skoolfile))
-        self.assertEqual(error, '')
+        for option in ('-q', '--quiet'):
+            output, error = self.run_skool2asm('{0} {1}'.format(option, skoolfile))
+            self.assertEqual(error, '')
 
-    def test_w(self):
+    def test_option_w(self):
         skoolfile = self.write_text_file(TEST_W_SKOOL, suffix='.skool')
-        output, error = self.run_skool2asm('-q -w {0}'.format(skoolfile))
-        self.assertEqual(error, '')
+        for option in ('-w', '--no-warnings'):
+            output, error = self.run_skool2asm('-q {0} {1}'.format(option, skoolfile))
+            self.assertEqual(error, '')
 
-    def test_d(self):
-        asm = self.get_asm('-d', TEST_d_SKOOL, strip_cr=False)
-        self.assertEqual(asm[0][-1], '\r')
+    def test_option_d(self):
+        for option in ('-d', '--crlf'):
+            asm = self.get_asm(option, TEST_d_SKOOL, strip_cr=False)
+            self.assertEqual(asm[0][-1], '\r')
 
-    def test_t(self):
-        asm = self.get_asm('-t', TEST_t_SKOOL)
-        self.assertEqual(asm[0], '\tORG 24576')
-        self.assertEqual(asm[3], '\tRET')
+    def test_option_t(self):
+        for option in ('-t', '--tabs'):
+            asm = self.get_asm(option, TEST_t_SKOOL)
+            self.assertEqual(asm[0], '\tORG 24576')
+            self.assertEqual(asm[3], '\tRET')
 
-    def test_l(self):
-        asm = self.get_asm('-l', TEST_l_SKOOL)
-        self.assertEqual(asm[0], '  org 24576')
-        self.assertEqual(asm[3], 'DOSTUFF:') # Labels unaffected
-        self.assertEqual(asm[4], '  nop')
+    def test_option_l(self):
+        for option in ('-l', '--lower'):
+            asm = self.get_asm(option, TEST_l_SKOOL)
+            self.assertEqual(asm[0], '  org 24576')
+            self.assertEqual(asm[3], 'DOSTUFF:') # Labels unaffected
+            self.assertEqual(asm[4], '  nop')
 
-    def test_u(self):
-        asm = self.get_asm('-u', TEST_U_SKOOL)
-        self.assertEqual(asm[1], 'start:') # Labels unaffected
-        self.assertEqual(asm[2], '  NOP')
+    def test_option_u(self):
+        for option in ('-u', '--upper'):
+            asm = self.get_asm(option, TEST_U_SKOOL)
+            self.assertEqual(asm[1], 'start:') # Labels unaffected
+            self.assertEqual(asm[2], '  NOP')
 
-    def test_D(self):
-        asm = self.get_asm('-D', TEST_D_SKOOL)
-        self.assertEqual(asm[1], '  JP 43981')
+    def test_option_D(self):
+        for option in ('-D', '--decimal'):
+            asm = self.get_asm(option, TEST_D_SKOOL)
+            self.assertEqual(asm[1], '  JP 43981')
 
-    def test_H(self):
-        asm = self.get_asm('-H', TEST_H_SKOOL)
-        self.assertEqual(asm[1], '  JP $DCBA')
+    def test_option_H(self):
+        for option in ('-H', '--hex'):
+            asm = self.get_asm(option, TEST_H_SKOOL)
+            self.assertEqual(asm[1], '  JP $DCBA')
 
-    def test_i(self):
+    def test_option_i(self):
         width = 30
-        asm = self.get_asm('-i {0}'.format(width), TEST_i_SKOOL)
-        self.assertEqual(asm[1].find(';'), width + 3)
+        for option in ('-i', '--inst-width'):
+            asm = self.get_asm('{0} {1}'.format(option, width), TEST_i_SKOOL)
+            self.assertEqual(asm[1].find(';'), width + 3)
 
-    def test_f0(self):
-        asm = self.get_asm('-f 0', TEST_f_SKOOL)
-        self.assertEqual(asm[2], '  LD A,B')
-        self.assertEqual(asm[3], '  LD B,A')
-        self.assertEqual(asm[7], '  LD C,A')
-        self.assertEqual(asm[8], '  LD D,A')
-        self.assertEqual(asm[12], '  LD E,A')
+    def test_option_f0(self):
+        for option in ('-f', '--fixes'):
+            asm = self.get_asm('{0} 0'.format(option), TEST_f_SKOOL)
+            self.assertEqual(asm[2], '  LD A,B')
+            self.assertEqual(asm[3], '  LD B,A')
+            self.assertEqual(asm[7], '  LD C,A')
+            self.assertEqual(asm[8], '  LD D,A')
+            self.assertEqual(asm[12], '  LD E,A')
 
-    def test_f1(self):
-        asm = self.get_asm('-f 1', TEST_f_SKOOL)
-        self.assertEqual(asm[2], '  LD A,C')
-        self.assertEqual(asm[3], '  LD B,C')
-        self.assertEqual(asm[7], '  LD C,A')
-        self.assertEqual(asm[8], '  LD D,A')
-        self.assertEqual(asm[12], '  LD E,A')
+    def test_option_f1(self):
+        for option in ('-f', '--fixes'):
+            asm = self.get_asm('{0} 1'.format(option), TEST_f_SKOOL)
+            self.assertEqual(asm[2], '  LD A,C')
+            self.assertEqual(asm[3], '  LD B,C')
+            self.assertEqual(asm[7], '  LD C,A')
+            self.assertEqual(asm[8], '  LD D,A')
+            self.assertEqual(asm[12], '  LD E,A')
 
-    def test_f2(self):
-        asm = self.get_asm('-f 2', TEST_f_SKOOL)
-        self.assertEqual(asm[2], '  LD A,C')
-        self.assertEqual(asm[3], '  LD B,C')
-        self.assertEqual(asm[7], '  LD C,B')
-        self.assertEqual(asm[8], '  LD D,B')
-        self.assertEqual(asm[12], '  LD E,A')
+    def test_option_f2(self):
+        for option in ('-f', '--fixes'):
+            asm = self.get_asm('{0} 2'.format(option), TEST_f_SKOOL)
+            self.assertEqual(asm[2], '  LD A,C')
+            self.assertEqual(asm[3], '  LD B,C')
+            self.assertEqual(asm[7], '  LD C,B')
+            self.assertEqual(asm[8], '  LD D,B')
+            self.assertEqual(asm[12], '  LD E,A')
 
-    def test_f3(self):
-        asm = self.get_asm('-f 3', TEST_f_SKOOL)
-        self.assertEqual(asm[2], '  LD A,C')
-        self.assertEqual(asm[3], '  LD B,C')
-        self.assertEqual(asm[7], '  LD C,B')
-        self.assertEqual(asm[8], '  LD D,B')
-        self.assertEqual(asm[12], '  LD E,B')
+    def test_option_f3(self):
+        for option in ('-f', '--fixes'):
+            asm = self.get_asm('{0} 3'.format(option), TEST_f_SKOOL)
+            self.assertEqual(asm[2], '  LD A,C')
+            self.assertEqual(asm[3], '  LD B,C')
+            self.assertEqual(asm[7], '  LD C,B')
+            self.assertEqual(asm[8], '  LD D,B')
+            self.assertEqual(asm[12], '  LD E,B')
 
-    def test_s(self):
-        asm = self.get_asm('-s', TEST_s_SKOOL)
-        self.assertEqual(asm[1], '  JP (HL)')
+    def test_option_s(self):
+        for option in ('-s', '--ssub'):
+            asm = self.get_asm(option, TEST_s_SKOOL)
+            self.assertEqual(asm[1], '  JP (HL)')
 
-    def test_r(self):
-        asm = self.get_asm('-r', TEST_r_SKOOL)
-        self.assertEqual(asm[2], '  LD A,C')   # @ofix
-        self.assertEqual(asm[3], '  LD B,C')   # @ofix+
-        self.assertEqual(asm[7], '  LD C,A')   # No @bfix
-        self.assertEqual(asm[8], '  LD D,A')   # @bfix-
-        self.assertEqual(asm[12], '  LD E,A')  # @rfix-
-        self.assertEqual(asm[15], '  JP (HL)') # @ssub
-        self.assertEqual(asm[19], '  XOR A')   # @rsub+
+    def test_option_r(self):
+        for option in ('-r', '--rsub'):
+            asm = self.get_asm(option, TEST_r_SKOOL)
+            self.assertEqual(asm[2], '  LD A,C')   # @ofix
+            self.assertEqual(asm[3], '  LD B,C')   # @ofix+
+            self.assertEqual(asm[7], '  LD C,A')   # No @bfix
+            self.assertEqual(asm[8], '  LD D,A')   # @bfix-
+            self.assertEqual(asm[12], '  LD E,A')  # @rfix-
+            self.assertEqual(asm[15], '  JP (HL)') # @ssub
+            self.assertEqual(asm[19], '  XOR A')   # @rsub+
 
-    def test_c(self):
-        asm = self.get_asm('-c', TEST_C_SKOOL)
-        self.assertEqual(asm[1], 'L32768:')
-        self.assertEqual(asm[2], '  JR L32770')
-        self.assertEqual(asm[5], 'L32770:')
-        self.assertEqual(asm[6], '  JR L32768')
+    def test_option_c(self):
+        for option in ('-c', '--labels'):
+            asm = self.get_asm(option, TEST_C_SKOOL)
+            self.assertEqual(asm[1], 'L32768:')
+            self.assertEqual(asm[2], '  JR L32770')
+            self.assertEqual(asm[5], 'L32770:')
+            self.assertEqual(asm[6], '  JR L32768')
 
     def test_writer(self):
         # Test a writer with no module or package name
