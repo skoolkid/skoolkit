@@ -240,11 +240,6 @@ class AsmWriter:
             raise MacroParsingError("No link text specified: {0}{1}".format(macro, text[index:end]))
         return end, link_text
 
-    def expand_name(self, text, index):
-        # #NAMEname
-        end, params, p_text = parse_params(text, index)
-        return end, ''
-
     def expand_poke(self, text, index):
         # #POKE[#name][(link text)]
         return self._expand_item_macro(text, index, 'poke')

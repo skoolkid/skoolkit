@@ -1624,12 +1624,6 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#LIST{0}\nLIST#'.format(LIST_SRC), ASMDIR)
         self.assertEqual(output, LIST_HTML)
 
-    def test_macro_name(self):
-        writer = self._get_writer()
-        anchor = 'testing'
-        output = writer.expand('#NAME{0}'.format(anchor), ASMDIR)
-        self.assertEqual(output, '<a name="{0}"></a>'.format(anchor))
-
     def test_macro_poke(self):
         self._test_reference_macro('POKE', 'poke', 'pokes')
 

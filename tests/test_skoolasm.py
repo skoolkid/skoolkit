@@ -989,11 +989,6 @@ class AsmWriterTest(SkoolKitTestCase):
             output = '\n'.join(writer.format(list_src, 79))
             self.assertEqual(output, text.strip())
 
-    def test_macro_name(self):
-        writer = self._get_writer()
-        output = writer.expand('#NAMEanchor')
-        self.assertEqual(output, '')
-
     def test_macro_poke(self):
         self._test_reference_macro('POKE', 'poke')
 

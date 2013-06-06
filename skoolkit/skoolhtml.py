@@ -1308,11 +1308,6 @@ class HtmlWriter:
         end, list_obj = self.list_parser.parse_text(text, index)
         return end, self.build_list(list_obj)
 
-    def expand_name(self, text, index, cwd):
-        # #NAMEname
-        end, name, link_text = parse_params(text, index)
-        return end, '<a name="{0}"></a>'.format(name)
-
     def expand_poke(self, text, index, cwd):
         # #POKE[#name][(link text)]
         return self._expand_item_macro('#POKE', text, index, cwd, self.pokes, P_POKES, 'poke')
