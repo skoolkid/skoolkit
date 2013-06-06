@@ -377,12 +377,13 @@ class Skool2HtmlTest(SkoolKitTestCase):
         other_skoolfile = self.write_text_file(TEST_w_OTHER_SKOOL, suffix='.skool')
         reffile = self.write_text_file(TEST_w_REF.format(other_skoolfile), suffix='.ref')
         self.write_text_file(TEST_w_SKOOL, '{0}.skool'.format(reffile[:-4]))
-        for file_ids, method_name, exp_arg_list in options:
-            output, error = self.run_skool2html('{0} -d {1} -w {2} {3}'.format(self._css_c(), self.odir, file_ids, reffile))
-            self.assertEqual(error, '')
-            self.assertTrue(method_name in html_writer.call_dict, '{0} was not called'.format(method_name))
-            arg_list = html_writer.call_dict[method_name]
-            self.assertEqual(arg_list, exp_arg_list, '{0}: {1} != {2}'.format(method_name, arg_list, exp_arg_list))
+        for write_option in ('-w', '--write'):
+            for file_ids, method_name, exp_arg_list in options:
+                output, error = self.run_skool2html('{0} -d {1} {2} {3} {4}'.format(self._css_c(), self.odir, write_option, file_ids, reffile))
+                self.assertEqual(error, '')
+                self.assertTrue(method_name in html_writer.call_dict, '{0} was not called'.format(method_name))
+                arg_list = html_writer.call_dict[method_name]
+                self.assertEqual(arg_list, exp_arg_list, '{0}: {1} != {2}'.format(method_name, arg_list, exp_arg_list))
 
     def test_option_V(self):
         for option in ('-V', '--version'):
@@ -392,49 +393,53 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))
 
     def test_option_p(self):
-        output, error = self.run_skool2html('-p', catch_exit=True)
-        self.assertEqual(error, '')
-        self.assertEqual(len(output), 1)
-        self.assertEqual(output[0], os.path.dirname(skoolkit.__file__))
+        for option in ('-p', '--package-dir'):
+            output, error = self.run_skool2html(option, catch_exit=True)
+            self.assertEqual(error, '')
+            self.assertEqual(len(output), 1)
+            self.assertEqual(output[0], os.path.dirname(skoolkit.__file__))
 
     def test_option_q(self):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
         name = reffile[:-4]
         self.write_text_file('', '{0}.skool'.format(name))
-        output, error = self.run_skool2html('{0} -q -d {1} -w i {2}'.format(self._css_c(), self.odir, reffile))
-        self.assertEqual(error, '')
         logo_method = 'write_logo_image'
-        self.assertTrue(logo_method in html_writer.call_dict, '{0} was not called'.format(logo_method))
-        self.assertEqual(html_writer.call_dict[logo_method], [('{0}/{1}'.format(self.odir, basename(name)),)])
-        self.assertEqual(len(output), 0)
+        for option in ('-q', '--quiet'):
+            output, error = self.run_skool2html('{0} {1} -d {2} -w i {3}'.format(self._css_c(), option, self.odir, reffile))
+            self.assertEqual(error, '')
+            self.assertTrue(logo_method in html_writer.call_dict, '{0} was not called'.format(logo_method))
+            self.assertEqual(html_writer.call_dict[logo_method], [('{0}/{1}'.format(self.odir, basename(name)),)])
+            self.assertEqual(len(output), 0)
 
     def test_option_t(self):
         skoolfile = self.write_text_file(suffix='.skool')
-        output, error = self.run_skool2html('{0} -t -w i -d {1} {2}'.format(self._css_c(), self.odir, skoolfile))
-        self.assertEqual(error, '')
         pattern = 'Done \([0-9]+\.[0-9][0-9]s\)'
-        done = output[-1]
-        search = re.search(pattern, done)
-        self.assertTrue(search is not None, '"{0}" is not of the form "{1}"'.format(done, pattern))
+        for option in ('-t', '--time'):
+            output, error = self.run_skool2html('{0} {1} -w i -d {2} {3}'.format(self._css_c(), option, self.odir, skoolfile))
+            self.assertEqual(error, '')
+            done = output[-1]
+            search = re.search(pattern, done)
+            self.assertTrue(search is not None, '"{0}" is not of the form "{1}"'.format(done, pattern))
 
     def test_option_c(self):
         reffile = self.write_text_file(TEST_c_REF, suffix='.ref')
         self.write_text_file('', '{0}.skool'.format(reffile[:-4]))
-        for section_name, param_name, value in (
-            ('Colours', 'RED', '255,0,0'),
-            ('Config', 'GameDir', 'test-c'),
-            ('ImageWriter', 'DefaultFormat', 'gif')
-        ):
-            output, error = self.run_skool2html('{0} -c {1}/{2}={3} -w i -d {4} {5}'.format(self._css_c(), section_name, param_name, value, self.odir, reffile))
-            self.assertEqual(error, '')
-            section = html_writer.ref_parser.get_dictionary(section_name)
-            self.assertEqual(section[param_name], value, '{0}/{1}!={2}'.format(section_name, param_name, value))
         sl_spec = 'GARBAGE'
-        try:
-            self.run_skool2html('-c {0} -w i -d {1} {2}'.format(sl_spec, self.odir, reffile))
-            self.fail()
-        except SkoolKitError as e:
-            self.assertEqual(e.args[0], 'Malformed SectionName/Line spec: {0}'.format(sl_spec))
+        for option in ('-c', '--config'):
+            for section_name, param_name, value in (
+                ('Colours', 'RED', '255,0,0'),
+                ('Config', 'GameDir', 'test-c'),
+                ('ImageWriter', 'DefaultFormat', 'gif')
+            ):
+                output, error = self.run_skool2html('{0} {1} {2}/{3}={4} -w i -d {5} {6}'.format(self._css_c(), option, section_name, param_name, value, self.odir, reffile))
+                self.assertEqual(error, '')
+                section = html_writer.ref_parser.get_dictionary(section_name)
+                self.assertEqual(section[param_name], value, '{0}/{1}!={2}'.format(section_name, param_name, value))
+            try:
+                self.run_skool2html('{0} {1} -w i -d {2} {3}'.format(option, sl_spec, self.odir, reffile))
+                self.fail()
+            except SkoolKitError as e:
+                self.assertEqual(e.args[0], 'Malformed SectionName/Line spec: {0}'.format(sl_spec))
 
     def test_option_T(self):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
@@ -444,44 +449,50 @@ class Skool2HtmlTest(SkoolKitTestCase):
         theme = 'blue'
         cssfile3 = self.write_text_file(path='{0}-{1}.css'.format(cssfile2[:-4], theme))
         stylesheet = 'Paths/StyleSheet={0};{1}'.format(cssfile1, cssfile2)
-        output, error = self.run_skool2html('-d {0} -c {1} -T {2} {3}'.format(self.odir, stylesheet, theme, reffile))
-        self.assertEqual(error, '')
-        self.assertEqual(html_writer.paths['StyleSheet'], '{0};{1}'.format(cssfile1, cssfile3))
+        for option in ('-T', '--theme'):
+            output, error = self.run_skool2html('-d {0} -c {1} {2} {3} {4}'.format(self.odir, stylesheet, option, theme, reffile))
+            self.assertEqual(error, '')
+            self.assertEqual(html_writer.paths['StyleSheet'], '{0};{1}'.format(cssfile1, cssfile3))
 
     def test_option_o(self):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
         self.write_text_file('', '{0}.skool'.format(reffile[:-4]))
-        output, error = self.run_skool2html('{0} -o -w "" -d {1} {2}'.format(self._css_c(), self.odir, reffile))
-        self.assertEqual(error, '')
-        self.assertTrue(html_writer.file_info.replace_images)
+        for option in ('-o', '--new-images'):
+            output, error = self.run_skool2html('{0} {1} -w "" -d {2} {3}'.format(self._css_c(), option, self.odir, reffile))
+            self.assertEqual(error, '')
+            self.assertTrue(html_writer.file_info.replace_images)
 
     def test_option_l(self):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
         self.write_text_file('', '{0}.skool'.format(reffile[:-4]))
-        output, error = self.run_skool2html('{0} -l -w "" -d {1} {2}'.format(self._css_c(), self.odir, reffile))
-        self.assertEqual(error, '')
-        self.assertEqual(html_writer.case, CASE_LOWER)
+        for option in ('-l', '--lower'):
+            output, error = self.run_skool2html('{0} {1} -w "" -d {2} {3}'.format(self._css_c(), option, self.odir, reffile))
+            self.assertEqual(error, '')
+            self.assertEqual(html_writer.case, CASE_LOWER)
 
     def test_option_u(self):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
         self.write_text_file('', '{0}.skool'.format(reffile[:-4]))
-        output, error = self.run_skool2html('{0} -u -w "" -d {1} {2}'.format(self._css_c(), self.odir, reffile))
-        self.assertEqual(error, '')
-        self.assertEqual(html_writer.case, CASE_UPPER)
+        for option in ('-u', '--upper'):
+            output, error = self.run_skool2html('{0} {1} -w "" -d {2} {3}'.format(self._css_c(), option, self.odir, reffile))
+            self.assertEqual(error, '')
+            self.assertEqual(html_writer.case, CASE_UPPER)
 
     def test_option_D(self):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
         self.write_text_file('', '{0}.skool'.format(reffile[:-4]))
-        output, error = self.run_skool2html('{0} -D -w "" -d {1} {2}'.format(self._css_c(), self.odir, reffile))
-        self.assertEqual(error, '')
-        self.assertTrue(html_writer.parser.mode.decimal)
+        for option in ('-D', '--decimal'):
+            output, error = self.run_skool2html('{0} {1} -w "" -d {2} {3}'.format(self._css_c(), option, self.odir, reffile))
+            self.assertEqual(error, '')
+            self.assertTrue(html_writer.parser.mode.decimal)
 
     def test_option_H(self):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
         self.write_text_file('', '{0}.skool'.format(reffile[:-4]))
-        output, error = self.run_skool2html('{0} -H -w "" -d {1} {2}'.format(self._css_c(), self.odir, reffile))
-        self.assertEqual(error, '')
-        self.assertTrue(html_writer.parser.mode.hexadecimal)
+        for option in ('-H', '--hex'):
+            output, error = self.run_skool2html('{0} {1} -w "" -d {2} {3}'.format(self._css_c(), option, self.odir, reffile))
+            self.assertEqual(error, '')
+            self.assertTrue(html_writer.parser.mode.hexadecimal)
 
 if __name__ == '__main__':
     unittest.main()
