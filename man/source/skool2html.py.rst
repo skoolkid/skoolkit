@@ -13,38 +13,68 @@ DESCRIPTION
 
 OPTIONS
 =======
--V       Show SkoolKit version number and exit
--p       Show path to skoolkit package directory and exit
--q       Be quiet
--t       Show timings
--d DIR   Write files in this directory
--o       Overwrite existing image files
--T THM   Use this CSS theme
--l       Write the disassembly in lower case
--u       Write the disassembly in upper case
--D       Write the disassembly in decimal
--H       Write the disassembly in hexadecimal
--c ARG   Add a line to a ref file section (where the format of `ARG` is
-         SectionName/Line); this option may be used multiple times
--P IDS   Write only these custom pages (when ``-w P`` is specified); `IDS`
-         should be a comma-separated list of IDs of pages defined in
-         ``[Page:*]`` sections in the ref file(s)
--w X     Write only these pages, where ``X`` is one or more of:
+-V, --version
+  Show the SkoolKit version number and exit.
 
-         |
-         |   ``B`` = Graphic glitches
-         |   ``b`` = Bugs
-         |   ``c`` = Changelog
-         |   ``d`` = Disassembly files
-         |   ``G`` = Game status buffer
-         |   ``g`` = Graphics
-         |   ``i`` = Disassembly index
-         |   ``m`` = Memory maps
-         |   ``o`` = Other code
-         |   ``P`` = Pages defined in the ref file(s)
-         |   ``p`` = Pokes
-         |   ``t`` = Trivia
-         |   ``y`` = Glossary
+-p, --package-dir
+  Show the path to the skoolkit package directory and exit.
+
+-q, --quiet
+  Be quiet.
+
+-t, --time
+  Show timings.
+
+-d, --output-dir `DIR`
+  Specify the directory in which to write files; the default output directory
+  is the current working directory.
+
+-o, --new-images
+  Overwrite existing image files.
+
+-T, --theme `THEME`
+  Specify the CSS theme to use; see the section on ``THEMES`` below.
+
+-l, --lower
+  Write the disassembly in lower case.
+
+-u, --upper
+  Write the disassembly in upper case.
+
+-D, --decimal
+  Write the disassembly in decimal.
+
+-H, --hex
+  Write the disassembly in hexadecimal.
+
+-a, --asm-labels
+  Use ASM labels (defined by ``@label`` directives).
+
+-c, --config `S/L`
+  Add the line `L` to the ref file section `S`; this option may be used
+  multiple times.
+
+-P, --pages `PAGES`
+  Specify the custom pages to write; `PAGES` should be a comma-separated list
+  of IDs of pages defined in ``[Page:*]`` sections in the ref file(s).
+
+-w, --write `X`
+  Write only these files, where `X` is one or more of:
+
+  |
+  |   ``B`` = Graphic glitches
+  |   ``b`` = Bugs
+  |   ``c`` = Changelog
+  |   ``d`` = Disassembly files
+  |   ``G`` = Game status buffer
+  |   ``g`` = Graphics
+  |   ``i`` = Disassembly index
+  |   ``m`` = Memory maps
+  |   ``o`` = Other code
+  |   ``P`` = Pages defined in the ref file(s)
+  |   ``p`` = Pokes
+  |   ``t`` = Trivia
+  |   ``y`` = Glossary
 
 FILES
 =====
