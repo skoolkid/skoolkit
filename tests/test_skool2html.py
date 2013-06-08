@@ -6,7 +6,7 @@ import unittest
 
 from skoolkittest import SkoolKitTestCase
 import skoolkit
-from skoolkit import skool2html, VERSION, UsageError, SkoolKitError
+from skoolkit import skool2html, VERSION, SkoolKitError
 from skoolkit.skoolhtml import HtmlWriter
 from skoolkit.skoolparser import CASE_UPPER, CASE_LOWER
 

@@ -32,16 +32,8 @@ def error(msg):
 def warn(msg):
     sys.stderr.write('WARNING: {0}\n'.format(msg))
 
-def usage(msg):
-    sys.stderr.write('Usage: {0}\n'.format(msg))
-    sys.exit(1)
-
 def info(msg):
     sys.stderr.write('{0}\n'.format(msg))
-
-def version():
-    write_line('SkoolKit {0}'.format(VERSION))
-    sys.exit(0)
 
 def show_package_dir():
     write_line(PACKAGE_DIR)
@@ -70,12 +62,6 @@ def parse_int(num_str, default=None):
         return get_int_param(num_str)
     except ValueError:
         return default
-
-def parse_int_arg(num_str, option, name):
-    try:
-        return get_int_param(num_str)
-    except ValueError:
-        raise UsageError('{0} ({1}) must be an integer'.format(name, option))
 
 def get_chr(code):
     return chr(code) if PY3 else unichr(code).encode(ENCODING)
@@ -119,9 +105,6 @@ def read_bin_file(fname):
         if e.errno == 2:
             raise SkoolKitError('{0}: file not found'.format(fname))
         raise
-
-class UsageError(Exception):
-    pass
 
 class SkoolKitError(Exception):
     pass
