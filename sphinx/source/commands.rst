@@ -73,6 +73,7 @@ assembler (see :ref:`supportedAssemblers`). For example::
 
   Options:
     -V, --version         Show SkoolKit version number and exit
+    -p, --package-dir     Show path to skoolkit package directory and exit
     -q, --quiet           Be quiet
     -w, --no-warnings     Suppress warnings
     -d, --crlf            Use CR+LF to end lines
@@ -106,7 +107,7 @@ modes.
 +---------+--------------------------------------------------------------+
 | 2.2.2   | Added the ability to read a `skool` file from standard input |
 +---------+--------------------------------------------------------------+
-| 3.4     | Added the ``-V`` option and the long options                 |
+| 3.4     | Added the ``-V`` and ``-p`` options and the long options     |
 +---------+--------------------------------------------------------------+
 
 .. _skool2ctl.py:

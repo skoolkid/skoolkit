@@ -19,7 +19,7 @@
 import argparse
 import time
 
-from . import info, get_class, VERSION
+from . import info, get_class, VERSION, show_package_dir
 from .skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, BASE_16
 from .skoolasm import AsmWriter
 
@@ -86,6 +86,8 @@ def main(args):
     group.add_argument('-V', '--version', action='version',
                        version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
+    group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
+                       help="Show path to skoolkit package directory and exit")
     group.add_argument('-q', '--quiet', dest='quiet', action='store_true',
                        help="Be quiet")
     group.add_argument('-w', '--no-warnings', dest='warn', action='store_false',
@@ -118,6 +120,8 @@ def main(args):
                        help="Use relocatability substitutions too (@rsub) (implies\n'-f 1')")
 
     namespace, unknown_args = parser.parse_known_args(args)
+    if namespace.package_dir:
+        show_package_dir()
     if unknown_args or namespace.skoolfile is None:
         parser.exit(2, parser.format_help())
     properties = {}

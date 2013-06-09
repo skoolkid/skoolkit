@@ -17,6 +17,9 @@ OPTIONS
 -V, --version
   Show the SkoolKit version number and exit.
 
+-p, --package-dir
+  Show the path to the skoolkit package directory and exit.
+
 -q, --quiet
   Be quiet. This option suppresses both the timing information, and the message
   about the AsmWriter class being used, but does not suppress warnings.

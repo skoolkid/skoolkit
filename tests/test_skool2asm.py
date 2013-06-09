@@ -4,6 +4,7 @@ import unittest
 import textwrap
 
 from skoolkittest import SkoolKitTestCase
+import skoolkit
 from skoolkit import skool2asm, write_text, SkoolKitError, VERSION
 
 TEST_NO_OPTIONS_SKOOL = """; @start
@@ -311,6 +312,13 @@ class Skool2AsmTest(SkoolKitTestCase):
             self.assertEqual(len(output), 0)
             self.assertEqual(len(error), 1)
             self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))
+
+    def test_option_p(self):
+        for option in ('-p', '--package-dir'):
+            output, error = self.run_skool2asm(option, catch_exit=True)
+            self.assertEqual(error, '')
+            self.assertEqual(len(output), 1)
+            self.assertEqual(output[0], os.path.dirname(skoolkit.__file__))
 
     def test_option_q(self):
         skoolfile = self.write_text_file(TEST_Q_SKOOL, suffix='.skool')
