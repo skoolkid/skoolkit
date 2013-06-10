@@ -346,20 +346,20 @@ class OptionsTest(SkoolKitTestCase):
         self.assertFalse(options.zfill)
 
     def test_invalid_option(self):
-        with self.assertRaises(SystemExit) as cm:
-            self.run_sna2skool('-x dummy.bin')
-        self.assertEqual(cm.exception.args[0], 2)
+        output, error = self.run_sna2skool('-x dummy.bin', catch_exit=2)
+        self.assertEqual(len(output), 0)
+        self.assertTrue(error.startswith('usage: sna2skool.py'))
 
     def test_invalid_option_value(self):
         for option in (('-s ABC'), ('-o +'), ('-p ='), ('-n q'), ('-m .'), ('-l ?')):
-            with self.assertRaises(SystemExit) as cm:
-                self.run_sna2skool('{} dummy.bin'.format(option))
-            self.assertEqual(cm.exception.args[0], 2)
+            output, error = self.run_sna2skool(option, catch_exit=2)
+            self.assertEqual(len(output), 0)
+            self.assertTrue(error.startswith('usage: sna2skool.py'))
 
     def test_no_arguments(self):
-        with self.assertRaises(SystemExit) as cm:
-            self.run_sna2skool()
-        self.assertEqual(cm.exception.args[0], 2)
+        output, error = self.run_sna2skool(catch_exit=2)
+        self.assertEqual(len(output), 0)
+        self.assertTrue(error.startswith('usage: sna2skool.py'))
 
     def test_no_options(self):
         binfile = self._write_bin([201])
@@ -412,7 +412,7 @@ class OptionsTest(SkoolKitTestCase):
 
     def test_option_V(self):
         for option in ('-V', '--version'):
-            output, error = self.run_sna2skool(option, err_lines=True, catch_exit=True)
+            output, error = self.run_sna2skool(option, err_lines=True, catch_exit=0)
             self.assertEqual(len(output), 0)
             self.assertEqual(len(error), 1)
             self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))

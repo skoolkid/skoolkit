@@ -14,15 +14,15 @@ def mock_run(*args):
 
 class Skool2SftTest(SkoolKitTestCase):
     def test_no_arguments(self):
-        with self.assertRaises(SystemExit) as cm:
-            self.run_skool2sft()
-        self.assertEqual(cm.exception.args[0], 2)
+        output, error = self.run_skool2sft(catch_exit=2)
+        self.assertEqual(len(output), 0)
+        self.assertTrue(error.startswith('usage: skool2sft.py'))
 
     def test_invalid_arguments(self):
         for args in ('-h', '-x test.skool'):
-            with self.assertRaises(SystemExit) as cm:
-                self.run_skool2sft(args)
-            self.assertEqual(cm.exception.args[0], 2)
+            output, error = self.run_skool2sft(args, catch_exit=2)
+            self.assertEqual(len(output), 0)
+            self.assertTrue(error.startswith('usage: skool2sft.py'))
 
     def test_default_option_values(self):
         self.mock(skool2sft, 'run', mock_run)
@@ -34,7 +34,7 @@ class Skool2SftTest(SkoolKitTestCase):
 
     def test_option_V(self):
         for option in ('-V', '--version'):
-            output, error = self.run_skool2sft(option, err_lines=True, catch_exit=True)
+            output, error = self.run_skool2sft(option, err_lines=True, catch_exit=0)
             self.assertEqual(len(output), 0)
             self.assertEqual(len(error), 1)
             self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))

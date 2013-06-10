@@ -107,19 +107,19 @@ class Bin2TapTest(SkoolKitTestCase):
         self.assertEqual(tapfile, binfile[:-4] + '.tap')
 
     def test_no_arguments(self):
-        output, error = self.run_bin2tap(catch_exit=True)
+        output, error = self.run_bin2tap(catch_exit=2)
         self.assertEqual(len(output), 0)
         self.assertTrue(error.startswith('usage: bin2tap.py'))
 
     def test_invalid_option(self):
-        output, error = self.run_bin2tap('-x {0}'.format(TEST_BIN), catch_exit=True)
+        output, error = self.run_bin2tap('-x {0}'.format(TEST_BIN), catch_exit=2)
         self.assertEqual(len(output), 0)
         self.assertTrue(error.startswith('usage: bin2tap.py'))
 
     def test_invalid_option_value(self):
         binfile = self.write_bin_file(suffix='.bin')
         for option in ('-o ABC', '-s =', '-p q'):
-            output, error = self.run_bin2tap('{0} {1}'.format(option, binfile), catch_exit=True)
+            output, error = self.run_bin2tap('{0} {1}'.format(option, binfile), catch_exit=2)
             self.assertEqual(len(output), 0)
             self.assertTrue(error.startswith('usage: bin2tap.py'))
 
@@ -138,7 +138,7 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_V(self):
         for option in ('-V', '--version'):
-            output, error = self.run_bin2tap(option, err_lines=True, catch_exit=True)
+            output, error = self.run_bin2tap(option, err_lines=True, catch_exit=0)
             self.assertEqual(len(output), 0)
             self.assertEqual(len(error), 1)
             self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))

@@ -219,12 +219,12 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(options.output_dir, None)
 
     def test_no_arguments(self):
-        output, error = self.run_skool2html(catch_exit=True)
+        output, error = self.run_skool2html(catch_exit=2)
         self.assertEqual(len(output), 0)
         self.assertTrue(error.startswith('usage: skool2html.py'))
 
     def test_invalid_option(self):
-        output, error = self.run_skool2html('-X', catch_exit=True)
+        output, error = self.run_skool2html('-X', catch_exit=2)
         self.assertEqual(len(output), 0)
         self.assertTrue(error.startswith('usage: skool2html.py'))
 
@@ -387,14 +387,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     def test_option_V(self):
         for option in ('-V', '--version'):
-            output, error = self.run_skool2html(option, err_lines=True, catch_exit=True)
+            output, error = self.run_skool2html(option, err_lines=True, catch_exit=0)
             self.assertEqual(len(output), 0)
             self.assertEqual(len(error), 1)
             self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))
 
     def test_option_p(self):
         for option in ('-p', '--package-dir'):
-            output, error = self.run_skool2html(option, catch_exit=True)
+            output, error = self.run_skool2html(option, catch_exit=0)
             self.assertEqual(error, '')
             self.assertEqual(len(output), 1)
             self.assertEqual(output[0], os.path.dirname(skoolkit.__file__))

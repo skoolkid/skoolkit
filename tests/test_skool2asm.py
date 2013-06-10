@@ -280,20 +280,20 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertFalse(be_quiet)
 
     def test_no_arguments(self):
-        with self.assertRaises(SystemExit) as cm:
-            self.run_skool2asm()
-        self.assertEqual(cm.exception.args[0], 2)
+        output, error = self.run_skool2asm('-x', catch_exit=2)
+        self.assertEqual(len(output), 0)
+        self.assertTrue(error.startswith('usage: skool2asm.py'))
 
     def test_invalid_option(self):
-        with self.assertRaises(SystemExit) as cm:
-            self.run_skool2asm('-x')
-        self.assertEqual(cm.exception.args[0], 2)
+        output, error = self.run_skool2asm('-x', catch_exit=2)
+        self.assertEqual(len(output), 0)
+        self.assertTrue(error.startswith('usage: skool2asm.py'))
 
     def test_invalid_option_value(self):
         for args in ('-i ABC', '-f +'):
-            with self.assertRaises(SystemExit) as cm:
-                self.run_skool2asm(args)
-            self.assertEqual(cm.exception.args[0], 2)
+            output, error = self.run_skool2asm(args, catch_exit=2)
+            self.assertEqual(len(output), 0)
+            self.assertTrue(error.startswith('usage: skool2asm.py'))
 
     def test_no_options(self):
         asm = self.get_asm(skool=TEST_NO_OPTIONS_SKOOL)
@@ -308,14 +308,14 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     def test_option_V(self):
         for option in ('-V', '--version'):
-            output, error = self.run_skool2asm(option, err_lines=True, catch_exit=True)
+            output, error = self.run_skool2asm(option, err_lines=True, catch_exit=0)
             self.assertEqual(len(output), 0)
             self.assertEqual(len(error), 1)
             self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))
 
     def test_option_p(self):
         for option in ('-p', '--package-dir'):
-            output, error = self.run_skool2asm(option, catch_exit=True)
+            output, error = self.run_skool2asm(option, catch_exit=0)
             self.assertEqual(error, '')
             self.assertEqual(len(output), 1)
             self.assertEqual(output[0], os.path.dirname(skoolkit.__file__))

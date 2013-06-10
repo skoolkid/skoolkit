@@ -203,32 +203,30 @@ class SkoolKitTestCase(TestCase):
 
     def _run_skoolkit_command(self, cmd, args, out_lines, err_lines, strip_cr, catch_exit):
         self.clear_streams()
-        if catch_exit:
-            try:
-                cmd(args.split())
-                self.fail()
-            except SystemExit:
-                pass
-        else:
+        if catch_exit is None:
             cmd(args.split())
+        else:
+            with self.assertRaises(SystemExit) as cm:
+                cmd(args.split())
+            self.assertEqual(cm.exception.args[0], catch_exit)
         out = self.to_lines(self.out.getvalue(), strip_cr) if out_lines else self.out.getvalue()
         err = self.to_lines(self.err.getvalue(), strip_cr) if err_lines else self.err.getvalue()
         return out, err
 
-    def run_bin2tap(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=False):
+    def run_bin2tap(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=None):
         return self._run_skoolkit_command(bin2tap.main, args, out_lines, err_lines, strip_cr, catch_exit)
 
-    def run_skool2asm(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=False):
+    def run_skool2asm(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=None):
         return self._run_skoolkit_command(skool2asm.main, args, out_lines, err_lines, strip_cr, catch_exit)
 
-    def run_skool2ctl(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=False):
+    def run_skool2ctl(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=None):
         return self._run_skoolkit_command(skool2ctl.main, args, out_lines, err_lines, strip_cr, catch_exit)
 
-    def run_skool2html(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=False):
+    def run_skool2html(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=None):
         return self._run_skoolkit_command(skool2html.main, args, out_lines, err_lines, strip_cr, catch_exit)
 
-    def run_skool2sft(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=False):
+    def run_skool2sft(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=None):
         return self._run_skoolkit_command(skool2sft.main, args, out_lines, err_lines, strip_cr, catch_exit)
 
-    def run_sna2skool(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=False):
+    def run_sna2skool(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=None):
         return self._run_skoolkit_command(sna2skool.main, args, out_lines, err_lines, strip_cr, catch_exit)
