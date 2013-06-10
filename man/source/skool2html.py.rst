@@ -50,6 +50,10 @@ OPTIONS
 -a, --asm-labels
   Use ASM labels (defined by ``@label`` directives).
 
+-C, --create-labels
+  Create default labels for unlabelled instructions. This option is intended
+  for use alongside the ``-a`` option.
+
 -c, --config `S/L`
   Add the line `L` to the ref file section `S`; this option may be used
   multiple times.

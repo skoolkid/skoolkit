@@ -13,6 +13,8 @@ Changelog
 * Added long options to every command
 * Added the ``--asm-labels`` option to :ref:`skool2html.py` (to use ASM labels
   defined by :ref:`label` directives)
+* Added the ``--create-labels`` option to :ref:`skool2html.py` (to create
+  default labels for unlabelled instructions)
 * Added the ``--erefs`` option to :ref:`sna2skool.py` (to always add comments
   that list entry point referrers)
 * Added the ``--package-dir`` option to :ref:`skool2asm.py` (to show the path

@@ -327,6 +327,8 @@ class SkoolParser:
         # Do some post-processing
         self._parse_address_comments(address_comments)
         self._calculate_references()
+        if self.mode.asm_labels:
+            self._generate_labels()
         if self.mode.html:
             self._calculate_entry_sizes()
             self._escape_instructions()
@@ -557,7 +559,6 @@ class SkoolParser:
             warn(s)
 
     def _substitute_labels(self):
-        self._generate_labels()
         for entry in self.memory_map:
             for instruction in entry.instructions:
                 if instruction.sub or not instruction.keep:
@@ -833,6 +834,8 @@ class Instruction:
         self.comment = None
         self.referrers = []
         self.asm_label = None
+        self.nolabel = False
+        self.org = None
         # If this instruction has no address, it was inserted between
         # @rsub+begin and @rsub+end; in that case, mark it as a subbed
         # instruction already
