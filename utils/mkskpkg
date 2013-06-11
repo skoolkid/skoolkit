@@ -23,7 +23,7 @@ if [ ! -d "$SKOOLKIT_HOME" ]; then
 fi
 
 cd $SKOOLKIT_HOME
-VERSION=$(./skool2html.py -V | cut -f2 -d' ')
+VERSION=$(./skool2html.py -V 2>&1 | cut -f2 -d' ')
 SKOOLKIT_TAR=skoolkit-pkg-$VERSION.tar.xz
 if [ -f "dist/$SKOOLKIT_TAR" ]; then
   echo "Using existing $SKOOLKIT_TAR"
