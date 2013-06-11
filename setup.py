@@ -69,8 +69,9 @@ To turn it into an ASM file that can be fed to an assembler::
 PACKAGE_DIR = 'build/skoolkit-pkg'
 
 shutil.rmtree(PACKAGE_DIR, True)
-shutil.copytree('skoolkit', PACKAGE_DIR, ignore=shutil.ignore_patterns('*.pyc', 'manicminer.py', 'jetsetwilly.py'))
+shutil.copytree('skoolkit', PACKAGE_DIR, ignore=shutil.ignore_patterns('*.pyc'))
 shutil.copytree('resources', '{0}/resources'.format(PACKAGE_DIR))
+shutil.copytree('examples', '{0}/examples'.format(PACKAGE_DIR))
 
 setup(
     name='skoolkit',
@@ -83,6 +84,6 @@ setup(
     long_description=LONG_DESCRIPTION,
     packages=['skoolkit'],
     package_dir={'skoolkit': PACKAGE_DIR},
-    package_data={'skoolkit': ['resources/*']},
+    package_data={'skoolkit': ['resources/*', 'examples/*']},
     scripts=['bin2tap.py', 'skool2asm.py', 'skool2ctl.py', 'skool2html.py', 'skool2sft.py', 'sna2skool.py']
 )

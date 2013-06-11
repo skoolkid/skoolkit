@@ -61,7 +61,7 @@ Logo=#UDGARRAY26,0,1;0x41;33857,40;33865,40;33841,5;33849,5;0x8;0x3,83;0;0x3,83;
 121=00004444443C0438
 
 [Paths]
-StyleSheet=skoolkit.css;examples/jet_set_willy.css
+StyleSheet=skoolkit.css;jet_set_willy.css
 
 [Fact:unusedObjects:Unused objects]
 There are five rooms in which nontrivial object graphics are defined, but not used.
