@@ -67,7 +67,8 @@ class AsmWriter:
         # Label suffix
         self.label_suffix = ':' if self._get_int_property(properties, 'label-colons', 1) else ''
 
-        self.table_writer = TableWriter(self.desc_width, 10)
+        min_col_width = self._get_int_property(properties, 'wrap-column-width-min', 10)
+        self.table_writer = TableWriter(self.desc_width, min_col_width)
 
         self.snapshot = self.parser.snapshot
         self._snapshots = [(self.snapshot, '')]

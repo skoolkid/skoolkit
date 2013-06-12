@@ -11,14 +11,15 @@ Changelog
 -----
 * Dropped support for Python 2.6 and 3.1
 * Added long options to every command
-* Added the ``--asm-labels`` option to :ref:`skool2html.py` (to use ASM labels
-  defined by :ref:`label` directives)
-* Added the ``--create-labels`` option to :ref:`skool2html.py` (to create
-  default labels for unlabelled instructions)
+* Added the ``--asm-labels`` and ``--create-labels`` options to
+  :ref:`skool2html.py` (to use ASM labels defined by :ref:`label` directives,
+  and to create default labels for unlabelled instructions)
 * Added the ``--erefs`` option to :ref:`sna2skool.py` (to always add comments
   that list entry point referrers)
 * Added the ``--package-dir`` option to :ref:`skool2asm.py` (to show the path
   to the skoolkit package directory)
+* Added support to the :ref:`set` ASM directive for the `wrap-column-width-min`
+  property
 * Removed support for the ``#NAME`` macro (what it did can be done by the
   :ref:`html` macro instead)
 * Removed the documentation sources and man page sources from the SkoolKit

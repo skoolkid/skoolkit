@@ -252,6 +252,16 @@ TEST_COMMENT_WIDTH_MIN_SKOOL = """; @start
 c35000 DEFB 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255 ; {1}
 """
 
+TEST_WRAP_COLUMN_WIDTH_MIN_SKOOL = """; @start
+; @set-wrap-column-width-min={}
+; Routine
+;
+; #TABLE(,:w)
+; {{ {} | An unwrappable column whose contents extend the table width beyond 80 characters }}
+; TABLE#
+c40000 RET
+"""
+
 def mock_run(*args):
     global run_args
     run_args = args
@@ -596,6 +606,20 @@ class Skool2AsmTest(SkoolKitTestCase):
                 exp_lines.append('{0}; {1}'.format(indent, comment_line))
             for line_no, exp_line in enumerate(exp_lines, 1):
                 self.assertEqual(asm[line_no], exp_line)
+
+    def test_wrap_column_width_min_property(self):
+        text = 'This wrappable text should have the designated minimum width'
+        for width in (10, 18, 26, 'Z'):
+            asm = self.get_asm(skool=TEST_WRAP_COLUMN_WIDTH_MIN_SKOOL.format(width, text))
+            try:
+                wrap_column_width_min = int(width)
+            except ValueError:
+                wrap_column_width_min = 10
+            text_lines = textwrap.wrap(text, wrap_column_width_min)
+            actual_width = max([len(line) for line in text_lines])
+            exp_lines = ['; | {} |'.format(line.ljust(actual_width)) for line in text_lines]
+            for line_no, exp_line in enumerate(exp_lines, 3):
+                self.assertEqual(asm[line_no][:len(exp_line)], exp_line)
 
     def test_no_html_escape(self):
         asm = self.get_asm(skool=TEST_NO_HTML_ESCAPE_SKOOL)

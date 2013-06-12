@@ -603,6 +603,8 @@ Recognised property names and their default values are:
 * ``warnings`` - ``1`` to print any warnings that are produced while writing
   ASM output (after parsing the `skool` file), or ``0`` to suppress them
   (default: ``1``)
+* ``wrap-column-width-min`` - the minimum width of a wrappable table column
+  (default: ``10``)
 
 For example::
 
@@ -617,6 +619,8 @@ This ``@set`` directive sets the bullet character to '+'.
 +---------+---------------------------------------------------------------+
 | 3.3.1   | Added the `comment-width-min`, `indent`, `instruction-width`, |
 |         | `label-colons`, `line-width` and `warnings` properties        |
++---------+---------------------------------------------------------------+
+| 3.4     | Added the `wrap-column-width-min` property                    |
 +---------+---------------------------------------------------------------+
 
 .. _ssub:
