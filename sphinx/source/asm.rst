@@ -592,6 +592,8 @@ Recognised property names and their default values are:
   (default: ``10``)
 * ``crlf`` - ``1`` to use CR+LF to terminate lines, or ``0`` to use the system
   default (default: ``0``)
+* ``handle-unsupported-macros`` - how to handle an unsupported macro: ``1`` to
+  expand it to an empty string, or ``0`` to exit with an error (default: ``0``)
 * ``indent`` - the number of spaces by which to indent instructions (default:
   ``2``)
 * ``instruction-width`` - the width of the instruction field (default: ``23``)
@@ -620,7 +622,8 @@ This ``@set`` directive sets the bullet character to '+'.
 | 3.3.1   | Added the `comment-width-min`, `indent`, `instruction-width`, |
 |         | `label-colons`, `line-width` and `warnings` properties        |
 +---------+---------------------------------------------------------------+
-| 3.4     | Added the `wrap-column-width-min` property                    |
+| 3.4     | Added the `handle-unsupported-macros` and                     |
+|         | `wrap-column-width-min` properties                            |
 +---------+---------------------------------------------------------------+
 
 .. _ssub:

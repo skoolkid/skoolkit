@@ -70,6 +70,8 @@ class AsmWriter:
         min_col_width = self._get_int_property(properties, 'wrap-column-width-min', 10)
         self.table_writer = TableWriter(self.desc_width, min_col_width)
 
+        self.handle_unsupported_macros = self._get_int_property(properties, 'handle-unsupported-macros', 0)
+
         self.snapshot = self.parser.snapshot
         self._snapshots = [(self.snapshot, '')]
         self.entries = self.parser.entries
@@ -132,6 +134,12 @@ class AsmWriter:
     def _expand_item_macro(self, text, index, default):
         end, params, p_text = parse_params(text, index, default)
         return end, p_text
+
+    def _expand_unsupported_macro(self, text, index):
+        if self.handle_unsupported_macros:
+            end, params, p_text = parse_params(text, index, chars=',:;-x{}')
+            return end, ''
+        raise UnsupportedMacroError()
 
     def pop_snapshot(self):
         """Discard the current memory snapshot and replace it with the one that
@@ -219,7 +227,7 @@ class AsmWriter:
         return self._expand_item_macro(text, index, 'fact')
 
     def expand_font(self, text, index):
-        raise UnsupportedMacroError()
+        return self._expand_unsupported_macro(text, index)
 
     def expand_html(self, text, index):
         # #HTML(text)
@@ -317,7 +325,7 @@ class AsmWriter:
         return end, reg.lower() if self.lower else reg.upper()
 
     def expand_scr(self, text, index):
-        raise UnsupportedMacroError()
+        return self._expand_unsupported_macro(text, index)
 
     def expand_space(self, text, index):
         # #SPACE[num] or #SPACE([num])
@@ -326,10 +334,10 @@ class AsmWriter:
         return end + offset, ''.ljust(num_sp)
 
     def expand_udg(self, text, index):
-        raise UnsupportedMacroError()
+        return self._expand_unsupported_macro(text, index)
 
     def expand_udgarray(self, text, index):
-        raise UnsupportedMacroError()
+        return self._expand_unsupported_macro(text, index)
 
     def expand(self, text):
         if text.find('#') < 0:

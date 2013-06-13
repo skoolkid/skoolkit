@@ -18,8 +18,8 @@ Changelog
   that list entry point referrers)
 * Added the ``--package-dir`` option to :ref:`skool2asm.py` (to show the path
   to the skoolkit package directory)
-* Added support to the :ref:`set` ASM directive for the `wrap-column-width-min`
-  property
+* Added support to the :ref:`set` ASM directive for the
+  `handle-unsupported-macros` and `wrap-column-width-min` properties
 * Removed support for the ``#NAME`` macro (what it did can be done by the
   :ref:`html` macro instead)
 * Removed the documentation sources and man page sources from the SkoolKit
