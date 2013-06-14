@@ -777,7 +777,7 @@ class HtmlWriter:
         label_text = ''
         if asm_label:
             label_text = '{0}: '.format(asm_label)
-        ofile.write('<div class="description">{0}: {1}{2}</div>\n'.format(entry.addr_str, label_text, desc))
+        ofile.write('<div class="description">{0}{1}: {2}</div>\n'.format(label_text, entry.addr_str, desc))
 
         table_class = 'disassembly'
         comment_class = 'comment'
@@ -788,8 +788,21 @@ class HtmlWriter:
             transparent_class = 'transparentDataComment'
         ofile.write('<table class="{0}">\n'.format(table_class))
 
+        show_comment_col = False
+        show_label_col = False
+        routine_comment_colspan = 3
+        for instruction in entry.instructions:
+            if instruction.comment and instruction.comment.text:
+                show_comment_col = True
+            if instruction.asm_label:
+                show_label_col = True
+                routine_comment_colspan = 4
+            if show_comment_col and show_label_col:
+                break
+        routine_comment_td = '<td class="routineComment" colspan="{}">\n'.format(routine_comment_colspan)
+
         ofile.write('<tr>\n')
-        ofile.write('<td class="routineComment" colspan="3">\n')
+        ofile.write(routine_comment_td)
         ofile.write('<div class="details">\n')
         if entry.details:
             ofile.write('{0}\n'.format(self.join_paragraphs(entry.details, cwd)))
@@ -799,28 +812,25 @@ class HtmlWriter:
         ofile.write('</td>\n')
         ofile.write('</tr>\n')
 
-        show_comment_col = False
-        for instruction in entry.instructions:
-            if instruction.comment and instruction.comment.text:
-                show_comment_col = True
         for instruction in entry.instructions:
             mid_routine_comments = entry.get_mid_routine_comment(instruction.label)
             address = instruction.address
             anchor = '<a name="{0}"></a>'.format(address)
             if mid_routine_comments:
                 ofile.write('<tr>\n')
-                ofile.write('<td class="routineComment" colspan="3">\n')
+                ofile.write(routine_comment_td)
                 ofile.write('{0}\n'.format(anchor))
                 ofile.write('<div class="comments">\n{0}\n</div>\n'.format(self.join_paragraphs(mid_routine_comments, cwd)))
                 ofile.write('</td>\n')
                 ofile.write('</tr>\n')
                 anchor = ''
             ofile.write('<tr>\n')
+            if show_label_col:
+                ofile.write('<td class="label">{}</td>\n'.format(instruction.asm_label or ''))
             tdclass = 'label' if instruction.ctl in 'c*!' else 'address'
-            address_label = instruction.asm_label or instruction.addr_str
-            ofile.write('<td class="{0}">{1}{2}</td>\n'.format(tdclass, anchor, address_label))
+            ofile.write('<td class="{0}">{1}{2}</td>\n'.format(tdclass, anchor, instruction.addr_str))
             operation, reference = instruction.operation, instruction.reference
-            if reference:
+            if reference and operation.upper().startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR')):
                 entry_address = reference.entry.address
                 name = '' if reference.address == entry_address else '#{0}'.format(reference.address)
                 if reference.entry.asm_id:
@@ -845,7 +855,7 @@ class HtmlWriter:
 
         if entry.end_comment:
             ofile.write('<tr>\n')
-            ofile.write('<td class="routineComment" colspan="3">\n')
+            ofile.write(routine_comment_td)
             ofile.write('<div class="comments">\n{0}\n</div>\n'.format(self.join_paragraphs(entry.end_comment, cwd)))
             ofile.write('</td>\n')
             ofile.write('</tr>\n')

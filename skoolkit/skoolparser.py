@@ -536,18 +536,18 @@ class SkoolParser:
         for entry in self.memory_map:
             for instruction in entry.instructions:
                 operation = instruction.operation.upper()
-                if operation.startswith('DEFW') or operation[0:2] in ['JP', 'JR', 'CA']:
+                if operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ')):
                     addr_str = get_address(operation)
                     if not addr_str:
                         continue
                     address = parse_int(addr_str)
-                    other_instructions = self.instructions.get(address, [])
+                    other_instructions = self.instructions.get(address)
                     if other_instructions:
                         other_entry = other_instructions[0].container
-                        if (entry != other_entry or self.mode.asm_labels) and (other_entry.is_remote() or operation.startswith('DEFW') or other_entry.is_routine()):
+                        if (entry != other_entry or self.mode.asm_labels) and (other_entry.is_remote() or operation.startswith(('DEFW', 'LD ')) or other_entry.is_routine()):
                             instruction.set_reference(other_entry, address, addr_str)
-                            for other_instruction in other_instructions:
-                                other_instruction.add_referrer(entry)
+                            if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR')):
+                                other_instructions[0].add_referrer(entry)
 
     def _escape_instructions(self):
         for entry in self.memory_map:
