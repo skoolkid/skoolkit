@@ -1050,6 +1050,7 @@ class MockSkoolParser:
         self.entries = entries
         self.memory_map = memory_map
         self.skoolfile = ''
+        self.base = None
 
 class MockFileInfo:
     def __init__(self, topdir, game_dir):

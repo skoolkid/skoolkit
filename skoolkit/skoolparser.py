@@ -206,6 +206,7 @@ class SkoolParser:
     def __init__(self, skoolfile, case=None, base=None, asm_mode=0, warnings=False, fix_mode=0, html=False, create_labels=False, asm_labels=True):
         self.skoolfile = skoolfile
         self.mode = Mode(case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels)
+        self.base = base
 
         self.snapshot = [0] * 65536  # 64K of Spectrum memory
         self.instructions = {}       # address -> [Instructions]

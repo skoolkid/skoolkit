@@ -21,6 +21,8 @@ Changelog
 * Added support for the ``LinkOperands`` parameter in the :ref:`ref-Game`
   section of the `ref` file, which may be used to enable the address operands
   of LD instructions to be hyperlinked
+* Added support for defining image colours by using hex triplets in the
+  :ref:`ref-Colours` section of the `ref` file
 * Added support to the :ref:`set` ASM directive for the
   `handle-unsupported-macros` and `wrap-column-width-min` properties
 * Removed support for the ``#NAME`` macro (what it did can be done by the

@@ -105,6 +105,7 @@ class HtmlWriter:
         self.image_writer = image_writer
         self.default_image_format = image_writer.default_format if image_writer else None
         self.case = case
+        self.base = skool_parser.base
 
         self.snapshot = self.parser.snapshot
         self._snapshots = [(self.snapshot, '')]
@@ -1528,6 +1529,7 @@ class FileInfo:
     :param replace_images: Whether existing images should be overwritten.
     """
     def __init__(self, topdir, game_dir, replace_images):
+        self.game_dir = game_dir
         self.odir = join(topdir, game_dir)
         self.replace_images = replace_images
 

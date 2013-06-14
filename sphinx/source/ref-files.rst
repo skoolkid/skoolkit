@@ -89,32 +89,44 @@ creating images. Each line has the form::
 
   name=R,G,B
 
-where ``name`` is the colour name, and ``R,G,B`` is an RGB triplet.
+or::
+
+  name=#RGB
+
+where:
+
+*  ``name`` is the colour name
+* ``R,G,B`` is a decimal RGB triplet
+* ``#RGB`` is a hexadecimal RGB triplet (in the usual 6-digit form, or in the
+  short 3-digit form)
 
 Recognised colour names and their default RGB values are:
 
-* ``TRANSPARENT``: 0,254,0
-* ``BLACK``: 0,0,0
-* ``BLUE``: 0,0,197
-* ``RED``: 197,0,0
-* ``MAGENTA``: 197,0,197
-* ``GREEN``: 0,198,0
-* ``CYAN``: 0,198,197
-* ``YELLOW``: 197,198,0
-* ``WHITE``: 205,198,205
-* ``BRIGHT_BLUE``: 0,0,255
-* ``BRIGHT_RED``: 255,0,0
-* ``BRIGHT_MAGENTA``: 255,0,255
-* ``BRIGHT_GREEN``: 0,255,0
-* ``BRIGHT_CYAN``: 0,255,255
-* ``BRIGHT_YELLOW``: 255,255,0
-* ``BRIGHT_WHITE``: 255,255,255
+* ``TRANSPARENT``: 0,254,0 (#00fe00)
+* ``BLACK``: 0,0,0 (#000000)
+* ``BLUE``: 0,0,197 (#0000c5)
+* ``RED``: 197,0,0 (#c50000)
+* ``MAGENTA``: 197,0,197 (#c500c5)
+* ``GREEN``: 0,198,0 (#00c600)
+* ``CYAN``: 0,198,197 (#00c6c5)
+* ``YELLOW``: 197,198,0 (#c5c600)
+* ``WHITE``: 205,198,205 (#cdc6cd)
+* ``BRIGHT_BLUE``: 0,0,255 (#0000ff)
+* ``BRIGHT_RED``: 255,0,0 (#ff0000)
+* ``BRIGHT_MAGENTA``: 255,0,255 (#ff00ff)
+* ``BRIGHT_GREEN``: 0,255,0 (#00ff00)
+* ``BRIGHT_CYAN``: 0,255,255 (#00ffff)
+* ``BRIGHT_YELLOW``: 255,255,0 (#ffff00)
+* ``BRIGHT_WHITE``: 255,255,255 (#ffffff)
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 2.0.5   | New     |
-+---------+---------+
++---------+--------------------------------------------+
+| Version | Changes                                    |
++=========+============================================+
+| 2.0.5   | New                                        |
++---------+--------------------------------------------+
+| 3.4     | Added support for hexadecimal RGB triplets |
++---------+--------------------------------------------+
+
 
 .. _ref-Config:
 

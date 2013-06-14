@@ -78,6 +78,27 @@ def get_config(ref_parser, config_specs):
     add_lines(ref_parser, config_specs, CONFIG)
     return ref_parser.get_dictionary(CONFIG)
 
+def get_colours(colour_specs):
+    colours = {}
+    for k, v in colour_specs.items():
+        if v.startswith('#'):
+            hex_rgb = v[1:7]
+            if len(hex_rgb) == 3:
+                hex_rgb = '{0}{0}{1}{1}{2}{2}'.format(*hex_rgb)
+            else:
+                hex_rgb = '0' * (6 - len(hex_rgb)) + hex_rgb
+            values = [hex_rgb[i:i + 2] for i in range(0, 5, 2)]
+            base = 16
+        else:
+            values = v.split(',')[:3]
+            values.extend(['0'] * (3 - len(values)))
+            base = 10
+        try:
+            colours[k] = tuple([int(n, base) for n in values])
+        except ValueError:
+            raise SkoolKitError("Invalid colour spec: {}={}".format(k, v))
+    return colours
+
 def copy_resources(search_dir, root_dir, paths, files_param, path_param, theme=None, suffix=None):
     fnames = paths.get(files_param)
     if fnames:
@@ -170,31 +191,34 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
     fname = 'standard input' if skoolfile_f == '-' else skoolfile_f
     skool_parser = clock(SkoolParser, 'Parsing {0}'.format(fname), skoolfile_f, case=case, base=base, html=True, create_labels=create_labels, asm_labels=asm_labels)
     file_info = FileInfo(topdir, game_dir, new_images)
-    colours = {}
-    for k, v in ref_parser.get_dictionary('Colours').items():
-        colours[k] = tuple([int(n) for n in v.split(',')])
+    colours = get_colours(ref_parser.get_dictionary('Colours'))
     iw_options = ref_parser.get_dictionary('ImageWriter')
     image_writer = ImageWriter(colours, iw_options)
     html_writer = html_writer_class(skool_parser, ref_parser, file_info, image_writer, case)
-    paths = html_writer.paths
 
     # Check that the specified pages exist
     all_page_ids = html_writer.get_page_ids()
     for page_id in pages:
         if page_id not in all_page_ids:
             raise SkoolKitError('Invalid page ID: {0}'.format(page_id))
+    pages = pages or all_page_ids
+
+    write_disassembly(html_writer, html_writer_class, files, search_dir, pages, css_theme)
+
+def write_disassembly(html_writer, html_writer_class, files, search_dir, pages, css_theme):
+    game_dir = html_writer.file_info.game_dir
+    paths = html_writer.paths
 
     # Create the disassembly subdirectory if necessary
-    odir = file_info.odir
+    odir = html_writer.file_info.odir
     if not isdir(odir):
         notify('Creating directory {0}'.format(odir))
         os.makedirs(odir)
 
     # Copy CSS, JavaScript and font files if necessary
-    root_dir = join(topdir, game_dir)
-    copy_resources(search_dir, root_dir, paths, 'StyleSheet', 'StyleSheetPath', css_theme, '.css')
-    copy_resources(search_dir, root_dir, paths, 'JavaScript', 'JavaScriptPath')
-    copy_resources(search_dir, root_dir, paths, 'Font', 'FontPath')
+    copy_resources(search_dir, odir, paths, 'StyleSheet', 'StyleSheetPath', css_theme, '.css')
+    copy_resources(search_dir, odir, paths, 'JavaScript', 'JavaScriptPath')
+    copy_resources(search_dir, odir, paths, 'Font', 'FontPath')
 
     # Write logo image file if necessary
     if html_writer.write_logo_image(odir):
@@ -214,7 +238,7 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
 
     # Write pages defined in the ref file
     if 'P' in files:
-        for page_id in pages or all_page_ids:
+        for page_id in pages:
             clock(html_writer.write_page, '  Writing {0}'.format(join(game_dir, paths[page_id])), page_id)
 
     # Write other files
@@ -237,8 +261,8 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
     if 'o' in files:
         for code_id, code in html_writer.other_code:
             skoolfile = find(code['Source'], search_dir)
-            skool2_parser = clock(SkoolParser, '  Parsing {0}'.format(skoolfile), skoolfile, case=case, base=base, html=True)
-            skool2_writer = html_writer_class(skool2_parser, ref_parser, file_info, image_writer, case, code_id)
+            skool2_parser = clock(SkoolParser, '  Parsing {0}'.format(skoolfile), skoolfile, case=html_writer.case, base=html_writer.base, html=True)
+            skool2_writer = html_writer_class(skool2_parser, html_writer.ref_parser, html_writer.file_info, html_writer.image_writer, html_writer.case, code_id)
             map_path = code['Index']
             asm_path = code['Path']
             map_details = {
