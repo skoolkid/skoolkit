@@ -196,6 +196,10 @@ Recognised parameters are:
 * ``InputRegisterTableHeader`` - the text to use in the header of input
   register tables on routine disassembly pages; if not specified, no header is
   displayed
+* ``LinkOperands`` - a comma-separated list of instruction types whose operands
+  should be hyperlinked when possible (default: ``CALL,DEFW,DJNZ,JP,JR``); add
+  ``LD`` to the list to enable the address operands of LD instructions to be
+  hyperlinked as well
 * ``Logo`` - the text/HTML that will serve as the game logo in the header of
   every page (typically a skool macro that creates a suitable image); if not
   specified, the name of the game is used
@@ -217,6 +221,8 @@ Recognised parameters are:
 +---------+-----------------------------------------------------------------+
 | 3.1.2   | Added the ``InputRegisterTableHeader`` and                      |
 |         | ``OutputRegisterTableHeader`` parameters                        |
++---------+-----------------------------------------------------------------+
+| 3.4     | Added the ``LinkOperands`` parameter                            |
 +---------+-----------------------------------------------------------------+
 
 [Glossary:\*]

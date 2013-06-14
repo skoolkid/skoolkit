@@ -18,6 +18,9 @@ Changelog
   that list entry point referrers)
 * Added the ``--package-dir`` option to :ref:`skool2asm.py` (to show the path
   to the skoolkit package directory)
+* Added support for the ``LinkOperands`` parameter in the :ref:`ref-Game`
+  section of the `ref` file, which may be used to enable the address operands
+  of LD instructions to be hyperlinked
 * Added support to the :ref:`set` ASM directive for the
   `handle-unsupported-macros` and `wrap-column-width-min` properties
 * Removed support for the ``#NAME`` macro (what it did can be done by the

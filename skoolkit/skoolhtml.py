@@ -170,6 +170,8 @@ class HtmlWriter:
         if def_game_name.endswith(suffix):
             def_game_name = def_game_name[:-len(suffix)]
         self.game = self.game_vars.get('Game', def_game_name)
+        link_operands = self.game_vars.get('LinkOperands', 'CALL,DEFW,DJNZ,JP,JR')
+        self.link_operands = tuple(op.upper() for op in link_operands.split(','))
 
         self.bugs = self.get_sections('Bug', True)
         self.facts = self.get_sections('Fact', True)
@@ -830,7 +832,7 @@ class HtmlWriter:
             tdclass = 'label' if instruction.ctl in 'c*!' else 'address'
             ofile.write('<td class="{0}">{1}{2}</td>\n'.format(tdclass, anchor, instruction.addr_str))
             operation, reference = instruction.operation, instruction.reference
-            if reference and operation.upper().startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR')):
+            if reference and operation.upper().startswith(self.link_operands):
                 entry_address = reference.entry.address
                 name = '' if reference.address == entry_address else '#{0}'.format(reference.address)
                 if reference.entry.asm_id:
