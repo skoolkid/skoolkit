@@ -97,13 +97,13 @@ def main(args):
     group.add_argument('-t', '--tabs', dest='tabs', action='store_true',
                        help="Use tab to indent instructions (default indentation is\n2 spaces)")
     group.add_argument('-l', '--lower', dest='lower', action='store_true',
-                       help="Write disassembly in lower case")
+                       help="Write the disassembly in lower case")
     group.add_argument('-u', '--upper', dest='upper', action='store_true',
-                       help="Write disassembly in upper case")
+                       help="Write the disassembly in upper case")
     group.add_argument('-D', '--decimal', dest='decimal', action='store_true',
-                       help="Write disassembly in decimal")
+                       help="Write the disassembly in decimal")
     group.add_argument('-H', '--hex', dest='hex', action='store_true',
-                       help="Write disassembly in hexadecimal")
+                       help="Write the disassembly in hexadecimal")
     group.add_argument('-i', '--inst-width', dest='inst_width', metavar='N', type=int,
                        help="Set instruction field width (default={})".format(DEF_INSTR_WIDTH))
     group.add_argument('-f', '--fixes', dest='fix_mode', metavar='N', type=int, choices=range(4), default=0,
@@ -112,7 +112,7 @@ def main(args):
                             "  N=1: @ofix only\n"
                             "  N=2: @ofix and @bfix\n"
                             "  N=3: @ofix, @bfix and @rfix (implies -r)")
-    group.add_argument('-c', '--labels', dest='create_labels', action='store_true',
+    group.add_argument('-c', '--create-labels', dest='create_labels', action='store_true',
                        help="Create default labels for unlabelled instructions")
     group.add_argument('-s', '--ssub', dest='ssub', action='store_true',
                        help="Use safe substitutions (@ssub)")

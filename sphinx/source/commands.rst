@@ -79,17 +79,17 @@ assembler (see :ref:`supportedAssemblers`). For example::
     -d, --crlf            Use CR+LF to end lines
     -t, --tabs            Use tab to indent instructions (default indentation is
                           2 spaces)
-    -l, --lower           Write disassembly in lower case
-    -u, --upper           Write disassembly in upper case
-    -D, --decimal         Write disassembly in decimal
-    -H, --hex             Write disassembly in hexadecimal
+    -l, --lower           Write the disassembly in lower case
+    -u, --upper           Write the disassembly in upper case
+    -D, --decimal         Write the disassembly in decimal
+    -H, --hex             Write the disassembly in hexadecimal
     -i N, --inst-width N  Set instruction field width (default=23)
     -f N, --fixes N       Apply fixes:
                             N=0: None (default)
                             N=1: @ofix only
                             N=2: @ofix and @bfix
                             N=3: @ofix, @bfix and @rfix (implies -r)
-    -c, --labels          Create default labels for unlabelled instructions
+    -c, --create-labels   Create default labels for unlabelled instructions
     -s, --ssub            Use safe substitutions (@ssub)
     -r, --rsub            Use relocatability substitutions too (@rsub) (implies
                           '-f 1')

@@ -58,7 +58,7 @@ OPTIONS
   |   2: @ofix and @bfix
   |   3: @ofix, @bfix and @rfix (implies ``-r``)
 
--c, --labels
+-c, --create-labels
   Create default labels for unlabelled instructions.
 
 -s, --ssub

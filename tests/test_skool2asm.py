@@ -435,7 +435,7 @@ class Skool2AsmTest(SkoolKitTestCase):
             self.assertEqual(asm[19], '  XOR A')   # @rsub+
 
     def test_option_c(self):
-        for option in ('-c', '--labels'):
+        for option in ('-c', '--create-labels'):
             asm = self.get_asm(option, TEST_C_SKOOL)
             self.assertEqual(asm[1], 'L32768:')
             self.assertEqual(asm[2], '  JR L32770')
