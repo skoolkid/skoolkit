@@ -333,6 +333,61 @@ ENTRY6 = """<div class="description">24584: Routine at 24584 (register section b
 </table>
 """
 
+TEST_ASM_LABELS_SKOOL = """; Routine with a label
+; @label=START
+c50000 LD B,5     ; Loop 5 times
+ 50002 DJNZ 50002
+ 50004 RET
+
+; Routine without a label
+c50005 JP 50000
+"""
+
+ASM_LABELS_ENTRY1 = """<div class="description">START: 50000: Routine with a label</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="4">
+<div class="details">
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">START</td>
+<td class="label"><a name="50000"></a>50000</td>
+<td class="instruction">LD B,5</td>
+<td class="comment">Loop 5 times</td>
+</tr>
+<tr>
+<td class="label"></td>
+<td class="address"><a name="50002"></a>50002</td>
+<td class="instruction">DJNZ <a class="link" href="50000.html#50002">50002</a></td>
+<td class="comment"></td>
+</tr>
+<tr>
+<td class="label"></td>
+<td class="address"><a name="50004"></a>50004</td>
+<td class="instruction">RET</td>
+<td class="comment"></td>
+</tr>
+</table>
+"""
+
+ASM_LABELS_ENTRY2 = """<div class="description">50005: Routine without a label</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="50005"></a>50005</td>
+<td class="instruction">JP <a class="link" href="50000.html">START</a></td>
+<td class="transparentComment" />
+</tr>
+</table>
+"""
+
 TEST_WRITE_MAP = """; Routine
 c30000 RET
 
@@ -1152,7 +1207,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def _unsupported_macro(self, *args):
         raise UnsupportedMacroError()
 
-    def _get_writer(self, ref=None, snapshot=(), skool=None):
+    def _get_writer(self, ref=None, snapshot=(), skool=None, create_labels=False, asm_labels=False):
         self.reffile = None
         self.skoolfile = None
         ref_parser = RefParser()
@@ -1163,7 +1218,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             skool_parser = MockSkoolParser(snapshot)
         else:
             self.skoolfile = self.write_text_file(skool, suffix='.skool')
-            skool_parser = SkoolParser(self.skoolfile, html=True)
+            skool_parser = SkoolParser(self.skoolfile, html=True, create_labels=create_labels, asm_labels=asm_labels)
         self.odir = self.make_directory()
         file_info = FileInfo(self.odir, GAMEDIR, False)
         return TestHtmlWriter(skool_parser, ref_parser, file_info, MockImageWriter())
@@ -2067,6 +2122,37 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         subs.update(common_subs)
         self.assert_files_equal(join(ASMDIR, '24584.html'), subs)
+
+    def test_asm_labels(self):
+        writer = self._get_writer(skool=TEST_ASM_LABELS_SKOOL, asm_labels=True)
+        common_subs = {
+            'header': 'Routines',
+            'name': basename(self.skoolfile)[:-6],
+            'path': '../',
+            'body_class': 'disassembly',
+            'footer': BARE_FOOTER,
+        }
+        writer.write_asm_entries()
+
+        # Routine at 50000
+        subs = {
+            'title': 'Routine at 50000 (START)',
+            'up': 50000,
+            'next': 50005,
+            'content': ASM_LABELS_ENTRY1
+        }
+        subs.update(common_subs)
+        self.assert_files_equal(join(ASMDIR, '50000.html'), subs)
+
+        # Routine at 50005
+        subs = {
+            'title': 'Routine at 50005',
+            'prev': 50000,
+            'up': 50005,
+            'content': ASM_LABELS_ENTRY2
+        }
+        subs.update(common_subs)
+        self.assert_files_equal(join(ASMDIR, '50005.html'), subs)
 
     def test_write_map(self):
         writer = self._get_writer(skool=TEST_WRITE_MAP)

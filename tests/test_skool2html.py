@@ -202,6 +202,18 @@ class MockImageWriter:
         self.default_format = None
         mock_image_writer = self
 
+class MockSkoolParser:
+    def __init__(self, *args, **kwargs):
+        global mock_skool_parser
+        self.skoolfile = args[0]
+        self.base = kwargs.get('base')
+        self.create_labels = kwargs.get('create_labels')
+        self.asm_labels = kwargs.get('asm_labels')
+        self.snapshot = None
+        self.entries = None
+        self.memory_map = []
+        mock_skool_parser = self
+
 class Skool2HtmlTest(SkoolKitTestCase):
     def setUp(self):
         global html_writer
@@ -396,6 +408,16 @@ class Skool2HtmlTest(SkoolKitTestCase):
             with self.assertRaises(SkoolKitError) as cm:
                 self.run_skool2html(reffile)
             self.assertEqual(cm.exception.args[0], 'Invalid colour spec: {}={}'.format(name, spec))
+
+    def test_option_a(self):
+        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
+        self.mock(skool2html, 'SkoolParser', MockSkoolParser)
+        skoolfile = self.write_text_file(suffix='.skool')
+        for option in ('-a', '--asm-labels'):
+            output, error = self.run_skool2html('{} {}'.format(option, skoolfile))
+            self.assertEqual(error, '')
+            self.assertIs(mock_skool_parser.create_labels, False)
+            self.assertIs(mock_skool_parser.asm_labels, True)
 
     def test_option_w(self):
         options = [
