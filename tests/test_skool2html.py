@@ -21,6 +21,13 @@ HtmlWriterClass={0}.TestHtmlWriter
 RED=197,0,0
 """.format(__name__)
 
+TEST_P_REF = """[Page:Page1]
+Path=page1.html
+
+[Page:Page2]
+Path=page2.html
+"""
+
 TEST_w_REF = """[Config]
 HtmlWriterClass={0}.TestHtmlWriter
 
@@ -140,7 +147,8 @@ def mock_run(*args):
     run_args = args
 
 def mock_write_disassembly(*args):
-    pass
+    global write_disassembly_args
+    write_disassembly_args = args
 
 class TestHtmlWriter(HtmlWriter):
     def init(self):
@@ -427,6 +435,18 @@ class Skool2HtmlTest(SkoolKitTestCase):
             output, error = self.run_skool2html('{} {}'.format(option, skoolfile))
             self.assertEqual(error, '')
             self.assertIs(mock_skool_parser.create_labels, True)
+
+    def test_option_P(self):
+        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
+        reffile = self.write_text_file(TEST_P_REF, suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        for option in ('-P', '--pages'):
+            for pages in ('Page1', 'Page1,Page2'):
+                output, error = self.run_skool2html('{} {} {}'.format(option, pages, reffile))
+                self.assertEqual(error, '')
+                self.assertEqual(write_disassembly_args[4], pages.split(','))
+        output, error = self.run_skool2html(reffile)
+        self.assertEqual(write_disassembly_args[4], ['Page1', 'Page2'])
 
     def test_option_w(self):
         options = [
