@@ -419,6 +419,15 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertIs(mock_skool_parser.create_labels, False)
             self.assertIs(mock_skool_parser.asm_labels, True)
 
+    def test_option_C(self):
+        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
+        self.mock(skool2html, 'SkoolParser', MockSkoolParser)
+        skoolfile = self.write_text_file(suffix='.skool')
+        for option in ('-C', '--create-labels'):
+            output, error = self.run_skool2html('{} {}'.format(option, skoolfile))
+            self.assertEqual(error, '')
+            self.assertIs(mock_skool_parser.create_labels, True)
+
     def test_option_w(self):
         options = [
             ('d', 'write_asm_entries', [()]),
