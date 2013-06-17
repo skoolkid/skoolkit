@@ -256,6 +256,14 @@ b 65492
 c 65498
 z 65499"""
 
+class MockSkoolWriter:
+    def __init__(self, *args, **kwargs):
+        global mock_skool_writer
+        mock_skool_writer = self
+
+    def write_skool(self, write_refs, text):
+        self.write_refs = write_refs
+
 def mock_run(*args):
     global run_args
     run_args = args
@@ -611,33 +619,20 @@ class OptionsTest(SkoolKitTestCase):
             self.assertEqual(lines[3], 'c49152 RET           ;')
 
     def test_option_r(self):
-        data = [201]           # 65533 RET
-        data.extend((24, 253)) # 65534 JR 65533
-        binfile = self._write_bin(data, ['c 65533', 'c 65534'])
+        self.mock(sna2skool, 'SkoolWriter', MockSkoolWriter)
+        binfile = self.write_bin_file(suffix='.bin')
         for option in ('-r', '--no-erefs'):
-            lines = self._write_skool('{0} {1}'.format(option, binfile), 4)
-            self.assertEqual(lines[0], '; @start')
-            self.assertEqual(lines[1], '; @org=65533')
-            self.assertEqual(lines[2], '; Routine at 65533')
-            self.assertEqual(lines[3][:10], 'c65533 RET')
+            output, error = self.run_sna2skool('{} {}'.format(option, binfile))
+            self.assertEqual(error, '')
+            self.assertEqual(mock_skool_writer.write_refs, -1)
 
     def test_option_R(self):
-        data = [201]           # 65533 RET
-        data.extend((24, 253)) # 65534 JR 65533
-        ctls = ['c 65533']
-        ctls.append('D 65533 Routine description.')
-        ctls.append('c 65534')
-        binfile = self._write_bin(data, ctls)
+        self.mock(sna2skool, 'SkoolWriter', MockSkoolWriter)
+        binfile = self.write_bin_file(suffix='.bin')
         for option in ('-R', '--erefs'):
-            lines = self._write_skool('{0} {1}'.format(option, binfile), 8)
-            self.assertEqual(lines[2:7], [
-                '; Routine at 65533',
-                ';',
-                '; Used by the routine at #R65534.',
-                '; .',
-                '; Routine description.'
-            ])
-            self.assertEqual(lines[7][:10], 'c65533 RET')
+            output, error = self.run_sna2skool('{} {}'.format(option, binfile))
+            self.assertEqual(error, '')
+            self.assertEqual(mock_skool_writer.write_refs, 1)
 
     def test_option_s(self):
         data = [0] * 4

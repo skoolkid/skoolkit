@@ -353,6 +353,103 @@ class DisassemblyTest(SkoolKitTestCase):
         entry = entries[15]
         self.assertEqual(entry.address, 32837)
 
+WRITE_REFS_SNAPSHOTS = {}
+WRITE_REFS_CTLS = {}
+WRITE_REFS_SKOOLS = {}
+
+WRITE_REFS_SNAPSHOTS[-1] = [0] * 65536
+WRITE_REFS_SNAPSHOTS[-1][30000:30007] = [
+    175,     # 30000 XOR A
+    2,       # 30001 LD (BC),A
+    201,     # 30002 RET
+    24, 251, # 30003 JR 30000
+    24, 250  # 30005 JR 30001
+]
+
+WRITE_REFS_CTLS[-1] = """
+c 30000
+c 30003
+c 30005
+i 30007
+"""
+
+WRITE_REFS_SKOOLS[-1] = """; @start
+; @org=30000
+; Routine at 30000
+c30000 XOR A         ;
+*30001 LD (BC),A     ;
+ 30002 RET           ;
+
+; Routine at 30003
+c30003 JR 30000      ;
+
+; Routine at 30005
+c30005 JR 30001      ;
+"""
+
+WRITE_REFS_SNAPSHOTS[0] = [0] * 65536
+WRITE_REFS_SNAPSHOTS[0][40000:40012] = [
+    175,     # 40000 XOR A
+    201,     # 40001 RET
+    175,     # 40002 XOR A
+    201,     # 40003 RET
+    24, 250, # 40004 JR 40000
+    24, 249, # 40006 JR 40001
+    24, 248, # 40008 JR 40002
+    24, 247  # 40010 JR 40003
+]
+
+WRITE_REFS_CTLS[0] = """
+c 40000
+D 40000 Routine description.
+D 40001 Mid-routine comment.
+c 40002
+c 40004
+i 40012
+"""
+
+WRITE_REFS_SKOOLS[0] = """; @start
+; @org=40000
+; Routine at 40000
+;
+; Routine description.
+c40000 XOR A         ;
+; Mid-routine comment.
+*40001 RET           ;
+
+; Routine at 40002
+;
+; Used by the routine at #R40004.
+c40002 XOR A         ;
+; This entry point is used by the routine at #R40004.
+*40003 RET           ;
+"""
+
+WRITE_REFS_SNAPSHOTS[1] = WRITE_REFS_SNAPSHOTS[0]
+
+WRITE_REFS_CTLS[1] = WRITE_REFS_CTLS[0]
+
+WRITE_REFS_SKOOLS[1] = """; @start
+; @org=40000
+; Routine at 40000
+;
+; Used by the routine at #R40004.
+; .
+; Routine description.
+c40000 XOR A         ;
+; This entry point is used by the routine at #R40004.
+; .
+; Mid-routine comment.
+*40001 RET           ;
+
+; Routine at 40002
+;
+; Used by the routine at #R40004.
+c40002 XOR A         ;
+; This entry point is used by the routine at #R40004.
+*40003 RET           ;
+"""
+
 class SkoolWriterTest(SkoolKitTestCase):
     def _get_writer(self, snapshot, ctl, defb_size=8, defb_mod=1, zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
         ctl_parser = CtlParser()
@@ -361,19 +458,27 @@ class SkoolWriterTest(SkoolKitTestCase):
 
     def test_write_skool(self):
         writer = self._get_writer(WRITER_SNAPSHOT, WRITER_CTL)
-        writer.write_skool(True, False)
+        writer.write_skool(0, False)
         skool = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(skool, SKOOL)
+
+    def test_write_refs(self):
+        for write_refs in (-1, 0, 1):
+            snapshot = WRITE_REFS_SNAPSHOTS[write_refs]
+            ctl = WRITE_REFS_CTLS[write_refs]
+            writer = self._get_writer(snapshot, ctl)
+            writer.write_skool(write_refs, False)
+            skool = self.out.getvalue().split('\n')
+            exp_skool = WRITE_REFS_SKOOLS[write_refs].split('\n')
+            self.assertEqual(skool[:len(exp_skool)], exp_skool)
+            self.clear_streams()
 
     def test_bad_blocks(self):
         snapshot = [0] * 65537
         snapshot[65533:65535] = [62, 195]
-        ctls = [
-            'c 65533',
-            'c 65534'
-        ]
+        ctls = ('c 65533', 'c 65534')
         writer = self._get_writer(snapshot, '\n'.join(ctls))
-        writer.write_skool(True, False)
+        writer.write_skool(0, False)
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0], 'WARNING: Code block at 65533 overlaps the following block at 65534')
