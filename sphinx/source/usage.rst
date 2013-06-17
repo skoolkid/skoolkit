@@ -10,12 +10,19 @@ If you're running Windows, you can get Python
 
 Installation
 ------------
-SkoolKit can be used wherever the zip archive or tarball was unpacked - it does
-not need to be installed in any particular location. However, if you would like
-to install SkoolKit as a Python package, you can do so by using the supplied
-``setup.py`` script. After installation, the :ref:`command scripts <commands>`
-included in SkoolKit can be run from anywhere, instead of just the directory in
-which the SkoolKit zip archive or tarball was unpacked.
+There are various ways to install the latest stable release of SkoolKit:
+
+* from the zip archive or tarball available at
+  `pyskool.ca <http://pyskool.ca/?page_id=177>`_
+* from the DEB package or RPM package available at `pyskool.ca`_
+* from `PyPI <https://pypi.python.org/pypi/skoolkit>`_ by using
+  `easy_install <https://pythonhosted.org/setuptools/easy_install.html>`_ or
+  `pip <http://www.pip-installer.org/>`_
+
+If you choose the zip archive or tarball, note that SkoolKit can be used
+wherever it is unpacked: it does not need to be installed in any particular
+location. However, if you would like to install SkoolKit as a Python package,
+you can do so by using the supplied ``setup.py`` script.
 
 Windows
 ^^^^^^^
