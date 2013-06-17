@@ -1989,6 +1989,34 @@ class HtmlWriterTest(SkoolKitTestCase):
             except SkoolParsingError as e:
                 self.assertEqual(e.args[0], 'Found unknown macro: {0}'.format(macro))
 
+    def test_parameter_LinkOperands(self):
+        ref = '[Game]\nLinkOperands={}'
+        skool = '\n'.join((
+            '; Routine at 32768',
+            'c32768 RET',
+            '',
+            '; Routine at 32769',
+            'c32769 CALL 32768',
+            ' 32772 DEFW 32768',
+            ' 32774 DJNZ 32768',
+            ' 32776 JP 32768',
+            ' 32779 JR 32768',
+            ' 32781 LD HL,32768'
+        ))
+        for param_value in ('CALL,JP,JR', 'CALL,DEFW,djnz,JP,LD'):
+            writer = self._get_writer(ref=ref.format(param_value), skool=skool)
+            link_operands = tuple(param_value.upper().split(','))
+            self.assertEqual(writer.link_operands, link_operands)
+            writer.write_asm_entries()
+            html = self.read_file(join(ASMDIR, '32769.html'), True)
+            link = '<a class="link" href="32768.html">32768</a>'
+            line_no = 34
+            for prefix in ('CALL ', 'DEFW ', 'DJNZ ', 'JP ', 'JR ', 'LD HL,'):
+                inst_type = prefix.split()[0]
+                exp_html = prefix + (link if inst_type in link_operands else '32768')
+                self.assertEqual(html[line_no], '<td class="instruction">{}</td>'.format(exp_html))
+                line_no += 5
+
     def test_html_escape(self):
         # Check that HTML characters from the skool file are escaped
         writer = self._get_writer(skool=TEST_HTML_SKOOL)
