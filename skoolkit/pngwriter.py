@@ -421,10 +421,7 @@ class PngWriter:
                     attrs[attr].append(byte_list)
                     for bit in BIT_PAIRS[j]:
                         for k, s in BD4_MAP0[bit]:
-                            if s:
-                                byte_list.extend(b[k] * (scale // s))
-                            else:
-                                byte_list.extend(b[k])
+                            byte_list.extend(b[k] * (scale // s))
 
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
