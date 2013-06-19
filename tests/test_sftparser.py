@@ -61,6 +61,15 @@ tT32800,5,1:B1,2:B2*2
 bB32815,2:T1,1:T2*2,1
 """
 
+TEST_SNAPSHOT = [0] * 32826
+TEST_SNAPSHOT[32768] = 47  # 32768 CPL
+TEST_SNAPSHOT[32769] = 201 # 32769 RET
+TEST_SNAPSHOT[32770] = 55  # 32770 SCF
+TEST_SNAPSHOT[32771] = 63  # 32771 CCF
+TEST_SNAPSHOT[32772] = 118 # 32772 HALT
+TEST_SNAPSHOT[32784:32789] = [ord(c) for c in "Hello"]
+TEST_SNAPSHOT[32800:32825] = [ord('a')] * 25
+
 TEST_SKOOL = """; Test processing of a data definition entry
 d24576 DEFB 128
 
@@ -187,47 +196,41 @@ b$802F DEFB $61,$61,"a"
  $8038 DEFB $61
 """.split('\n')
 
-TEST_INVALID_LINE = [
-    "bB30000,5,1:X3",
-    "tT30000,a",
-    "wW40000,1:B2",
-    "cC$ABCG,20"
-]
-
 class SftParserTest(SkoolKitTestCase):
-    def _parse_sft(self, sft, asm_hex=False):
-        snapshot = [0] * 65536
-        snapshot[32768] = 47  # 32768 CPL
-        snapshot[32769] = 201 # 32769 RET
-        snapshot[32770] = 55  # 32770 SCF
-        snapshot[32771] = 63  # 32771 CCF
-        snapshot[32772] = 118 # 32772 HALT
-        text = "Hello"
-        snapshot[32784:32784 + len(text)] = [ord(c) for c in text]
-        snapshot[32800:32825] = [ord('a')] * 25
+    def _parse_sft(self, sft, snapshot=(), asm_hex=False, asm_lower=False):
         sftfile = self.write_text_file(sft, suffix='.sft')
-        writer = SftParser(snapshot, sftfile, asm_hex=asm_hex)
+        writer = SftParser(snapshot[:], sftfile, asm_hex=asm_hex, asm_lower=asm_lower)
         writer.write_skool()
-        return snapshot, self.out.getvalue().split('\n')
+        return writer.snapshot, self.out.getvalue().split('\n')
 
     def test_write_skool(self):
-        snapshot, skool = self._parse_sft(TEST_SFT)
+        snapshot, skool = self._parse_sft(TEST_SFT, TEST_SNAPSHOT)
         self.assertEqual(len(skool), len(TEST_SKOOL))
         for i, line in enumerate(skool):
             self.assertEqual(line, TEST_SKOOL[i])
         self.assertEqual(snapshot[24576], 128)
 
     def test_write_skool_hex(self):
-        snapshot, skool = self._parse_sft(TEST_SFT, True)
+        snapshot, skool = self._parse_sft(TEST_SFT, TEST_SNAPSHOT, asm_hex=True)
         self.assertEqual(len(skool), len(TEST_SKOOL_HEX))
         for i, line in enumerate(skool):
             self.assertEqual(line, TEST_SKOOL_HEX[i])
         self.assertEqual(snapshot[24576], 128)
 
+    def test_write_skool_hex_lower(self):
+        snapshot, skool = self._parse_sft('bB19132,1', [0] * 19133, asm_hex=True, asm_lower=True)
+        self.assertEqual(skool[0], 'b$4abc defb $00')
+
     def test_invalid_line(self):
-        for line in TEST_INVALID_LINE:
+        for line in (
+            "bB30000,5,1:X3",
+            "tT30000,a",
+            "wW40000,1:B2",
+            "cC$ABCG,20"
+        ):
             try:
                 self._parse_sft(line)
+                self.fail("Line '{}' did not cause an SftParsingError".format(line))
             except SftParsingError as e:
                 self.assertEqual(e.args[0], "Invalid line: {0}".format(line))
 

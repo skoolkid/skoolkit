@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from . import write_line, parse_int, open_file, SkoolKitError
+from . import write_line, get_int_param, parse_int, open_file, SkoolKitError
 from .skoolparser import set_bytes, parse_asm_block_directive
 from .skoolsft import VALID_CTLS, VERBATIM_BLOCKS
 from .ctlparser import parse_params
@@ -80,7 +80,7 @@ class SftParser:
             j = 1
         else:
             inst_ctl = line[1]
-            start = parse_int(line[2:7])
+            start = get_int_param(line[2:7])
             i = line.find(' ', 8)
             if i < 0:
                 i = len(line.rstrip())
@@ -90,7 +90,7 @@ class SftParser:
             j = i
             comment_index = -1
         else:
-            comment_index = parse_int(line[j + 1:i])
+            comment_index = get_int_param(line[j + 1:i])
         if j > 8:
             lengths = parse_params(inst_ctl, line[8:j].split(','), 0)
         comment = line[i:].strip()
