@@ -41,6 +41,7 @@ TEST_REGISTERS = """; Test register parsing (1)
 ;
 ; A Some value
 ; B Some other value
+; C
 c24589 RET
 
 ; Test register parsing (2)
@@ -179,7 +180,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
         # Traditional
         registers = parser.entries[24589].registers
-        self.assertEqual(len(registers), 2)
+        self.assertEqual(len(registers), 3)
         reg_a = registers[0]
         self.assertEqual(reg_a.prefix, '')
         self.assertEqual(reg_a.name, 'A')
@@ -188,6 +189,10 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(reg_b.prefix, '')
         self.assertEqual(reg_b.name, 'B')
         self.assertEqual(reg_b.contents, 'Some other value')
+        reg_c = registers[2]
+        self.assertEqual(reg_c.prefix, '')
+        self.assertEqual(reg_c.name, 'C')
+        self.assertEqual(reg_c.contents, '')
 
         # With prefixes
         registers = parser.entries[24590].registers
@@ -311,6 +316,38 @@ class SkoolParserTest(SkoolKitTestCase):
             self.fail()
         except SkoolParsingError as e:
             self.assertEqual(e.args[0], 'Duplicate label START at 40001')
+
+    def test_asm_mode(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            '; @rsub-begin',
+            '; @label=FOO',
+            '; @rsub+else',
+            '; @label=BAR',
+            '; @rsub+end',
+            'c32768 RET'
+        ))
+        for asm_mode, exp_label in ((0, 'FOO'), (1, 'FOO'), (2, 'FOO'), (3, 'BAR')):
+            parser = self._get_parser(skool, asm_mode=asm_mode)
+            self.assertEqual(parser.get_instruction(32768).asm_label, exp_label)
+
+    def test_rsub_no_address(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            'c30000 XOR A',
+            '; @rsub-begin',
+            ' 30001 LD L,0',
+            '; @rsub+else',
+            '       LD HL,16384',
+            '; @rsub+end'
+        ))
+        parser = self._get_parser(skool, asm_mode=3)
+        entry = parser.entries[30000]
+        instruction = entry.instructions[1]
+        self.assertEqual(instruction.operation, 'LD HL,16384')
+        self.assertEqual(instruction.sub, instruction.operation)
 
 if __name__ == '__main__':
     unittest.main()

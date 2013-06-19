@@ -19,7 +19,7 @@
 import cgi
 import re
 
-from . import warn, wrap, parse_int, open_file, SkoolParsingError
+from . import warn, wrap, get_int_param, parse_int, open_file, SkoolParsingError
 
 DIRECTIVES = 'bcgituwz'
 
@@ -431,10 +431,13 @@ class SkoolParser:
                 self.mode.include = include
                 return
 
+            if not self.mode.include:
+                return
+
             if directive.startswith('label='):
                 self.mode.label = directive[6:].rstrip()
 
-            if self.mode.asm and self.mode.include:
+            if self.mode.asm:
                 if directive.startswith('rsub='):
                     self.mode.rsub = directive[5:].rstrip()
                 elif directive.startswith('ssub='):
@@ -611,11 +614,8 @@ class SkoolParser:
         operand = get_address(operation)
         if operand is None:
             return
-        operand_int = parse_int(operand, -1)
-        if operand_int < 0:
-            instructions = None
-        else:
-            instructions = self.instructions.get(operand_int)
+        operand_int = get_int_param(operand)
+        instructions = self.instructions.get(operand_int)
         if instructions:
             reference = instructions[0]
             if reference.asm_label:
@@ -993,10 +993,7 @@ class TableParser:
         for ws_char in '\n\r\t':
             text = text.replace(ws_char, ' ')
 
-        if text.startswith(TABLE_MARKER):
-            index = len(TABLE_MARKER)
-        else:
-            index = 0
+        index = 0
         classes = []
         if text[index] == '(':
             end = text.find(')', index)
@@ -1192,10 +1189,7 @@ class ListParser:
         for ws_char in '\n\r\t':
             text = text.replace(ws_char, ' ')
 
-        if text.startswith(LIST_MARKER):
-            index = len(LIST_MARKER)
-        else:
-            index = 0
+        index = 0
         css_class = ''
         if text[index] == '(':
             end = text.find(')', index)
