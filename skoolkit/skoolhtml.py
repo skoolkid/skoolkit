@@ -103,7 +103,10 @@ class HtmlWriter:
         self.ref_parser = ref_parser
         self.file_info = file_info
         self.image_writer = image_writer
-        self.default_image_format = image_writer.default_format if image_writer else None
+        if image_writer:
+            self.default_image_format = image_writer.default_format
+        else:
+            self.default_image_format = None
         self.case = case
         self.base = skool_parser.base
 
@@ -406,7 +409,9 @@ class HtmlWriter:
     def _get_changelog(self):
         changelog = []
         for title, paragraphs in self.get_sections('Changelog', True, True):
-            intro = '' if paragraphs[0][0] == '-' else paragraphs[0][0]
+            intro = paragraphs[0][0]
+            if intro == '-':
+                intro = ''
             items = []
             for p in paragraphs[1:]:
                 items.append(p)
@@ -830,12 +835,18 @@ class HtmlWriter:
             ofile.write('<tr>\n')
             if show_label_col:
                 ofile.write('<td class="label">{}</td>\n'.format(instruction.asm_label or ''))
-            tdclass = 'label' if instruction.ctl in 'c*!' else 'address'
+            if instruction.ctl in 'c*!':
+                tdclass = 'label'
+            else:
+                tdclass = 'address'
             ofile.write('<td class="{0}">{1}{2}</td>\n'.format(tdclass, anchor, instruction.addr_str))
             operation, reference = instruction.operation, instruction.reference
             if reference and operation.upper().startswith(self.link_operands):
                 entry_address = reference.entry.address
-                name = '' if reference.address == entry_address else '#{0}'.format(reference.address)
+                if reference.address == entry_address:
+                    name = ''
+                else:
+                    name = '#{0}'.format(reference.address)
                 if reference.entry.asm_id:
                     # This is a reference to an entry in another disassembly
                     entry_file = FileInfo.asm_relpath(cwd, entry_address, self.get_code_path(reference.entry.asm_id))
@@ -849,7 +860,10 @@ class HtmlWriter:
             if show_comment_col:
                 comment = instruction.comment
                 if comment:
-                    rowspan = '' if comment.rowspan < 2 else ' rowspan="{0}"'.format(comment.rowspan)
+                    if comment.rowspan < 2:
+                        rowspan = ''
+                    else:
+                        rowspan = ' rowspan="{0}"'.format(comment.rowspan)
                     comment_html = self.expand(comment.text, cwd)
                     ofile.write('<td class="{0}"{1}>{2}</td>\n'.format(comment_class, rowspan, comment_html))
             else:
@@ -872,7 +886,10 @@ class HtmlWriter:
         prev_entry = None
         memory_map = self.memory_map
         for i, entry in enumerate(memory_map):
-            next_entry = memory_map[i + 1] if i + 1 < len(memory_map) else None
+            if i + 1 < len(memory_map):
+                next_entry = memory_map[i + 1]
+            else:
+                next_entry = None
             self.write_entry(cwd, entry, page_header=page_header, prev_entry=prev_entry, next_entry=next_entry, up=map_file)
             prev_entry = entry
 
@@ -933,7 +950,11 @@ class HtmlWriter:
                 desc_class = 'gbufferDesc'
             elif entry.ctl in 'uz':
                 size = entry.size
-                purpose = 'Unused ({0} byte{1})'.format(size, 's' if size > 1 else '')
+                if size > 1:
+                    suffix = 's'
+                else:
+                    suffix = ''
+                purpose = 'Unused ({0} byte{1})'.format(size, suffix)
                 entry_class = 'unused'
                 desc_class = 'unusedDesc'
             elif entry.ctl == 't':
@@ -1051,13 +1072,22 @@ class HtmlWriter:
     def build_table(self, table):
         table_class = table.table_class
         html = []
-        class_attr = ' class="{0}"'.format(table_class) if table_class else ''
+        if table_class:
+            class_attr = ' class="{0}"'.format(table_class)
+        else:
+            class_attr = ''
         html.append('<table{0}>'.format(class_attr))
         for row in table.rows:
             html.append('<tr>')
             for cell in row:
-                colspan = ' colspan="{0}"'.format(cell.colspan) if cell.colspan > 1 else ''
-                rowspan = ' rowspan="{0}"'.format(cell.rowspan) if cell.rowspan > 1 else ''
+                if cell.colspan > 1:
+                    colspan = ' colspan="{0}"'.format(cell.colspan)
+                else:
+                    colspan = ''
+                if cell.rowspan > 1:
+                    rowspan = ' rowspan="{0}"'.format(cell.rowspan)
+                else:
+                    rowspan = ''
                 if cell.header:
                     tag = 'th'
                     td_class = ''
@@ -1067,7 +1097,10 @@ class HtmlWriter:
                     if cell.transparent:
                         cell_class += " transparent"
                     cell_class = cell_class.lstrip()
-                    td_class = ' class="{0}"'.format(cell_class) if cell_class else ''
+                    if cell_class:
+                        td_class = ' class="{0}"'.format(cell_class)
+                    else:
+                        td_class = ''
                 html.append('<{0}{1}{2}{3}>{4}</{0}>'.format(tag, td_class, colspan, rowspan, cell.contents))
             html.append('</tr>')
         html.append('</table>')
@@ -1075,7 +1108,10 @@ class HtmlWriter:
 
     def build_list(self, list_obj):
         html = []
-        class_attr = ' class="{0}"'.format(list_obj.css_class) if list_obj.css_class else ''
+        if list_obj.css_class:
+            class_attr = ' class="{0}"'.format(list_obj.css_class)
+        else:
+            class_attr = ''
         html.append('<ul{0}>'.format(class_attr))
         for item in list_obj.items:
             html.append('<li>{0}</li>'.format(item))
@@ -1240,7 +1276,10 @@ class HtmlWriter:
 
     def expand_chr(self, text, index, cwd):
         # #CHRnum or #CHR(num)
-        offset = 1 if text[index:].startswith('(') else 0
+        if text[index:].startswith('('):
+            offset = 1
+        else:
+            offset = 0
         end, num = parse_ints(text, index + offset, 1)
         return end + offset, '&#{0};'.format(num)
 
@@ -1258,7 +1297,10 @@ class HtmlWriter:
         # #EREFSaddr
         end, address = parse_ints(text, index, 1)
         ereferrers = self.get_entry_point_refs(address)
-        addr_fmt = '{0:04X}' if text[index] == '$' else '{0}'
+        if text[index] == '$':
+            addr_fmt = '{0:04X}'
+        else:
+            addr_fmt = '{0}'
         if not ereferrers:
             raise MacroParsingError('Entry point at {0} has no referrers'.format(addr_fmt.format(address)))
         ereferrers.sort()
@@ -1371,7 +1413,8 @@ class HtmlWriter:
             inst_addr_str = self.get_instruction_addr_str(address)
             container_address = container.address
             code_path = self.code_path
-            anchor = anchor if address == container_address else '#{0}'.format(address)
+            if address != container_address:
+                anchor = '#{0}'.format(address)
         asm_label = self.parser.get_asm_label(address)
         ref_file = FileInfo.asm_relpath(cwd, container_address, code_path)
         link = '<a class="link" href="{0}{1}">{2}</a>'.format(ref_file, anchor, link_text or asm_label or inst_addr_str)
@@ -1384,7 +1427,10 @@ class HtmlWriter:
         entry = self.entries.get(address)
         if not entry:
             raise MacroParsingError('No entry at {0}'.format(addr_str))
-        addr_fmt = '{0:04X}' if text[index] == '$' else '{0}'
+        if text[index] == '$':
+            addr_fmt = '{0:04X}'
+        else:
+            addr_fmt = '{0}'
         referrers = [ref.address for ref in entry.referrers]
         if referrers:
             referrers.sort()
@@ -1410,7 +1456,10 @@ class HtmlWriter:
             raise MacroParsingError('Missing register argument')
         if len(reg) > 3:
             raise MacroParsingError('Bad register: "{0}"'.format(reg))
-        reg_name = reg.lower() if self.case == CASE_LOWER else reg.upper()
+        if self.case == CASE_LOWER:
+            reg_name = reg.lower()
+        else:
+            reg_name = reg.upper()
         return end, '<span class="register">{0}</span>'.format(reg_name)
 
     def expand_scr(self, text, index, cwd):
@@ -1422,7 +1471,10 @@ class HtmlWriter:
 
     def expand_space(self, text, index, cwd):
         # #SPACE[num] or #SPACE([num])
-        offset = 1 if text[index:].startswith('(') else 0
+        if text[index:].startswith('('):
+            offset = 1
+        else:
+            offset = 0
         end, num_sp = parse_ints(text, index + offset, 1, (1,))
         return end + offset, '&#160;' * num_sp
 
@@ -1514,8 +1566,14 @@ class HtmlWriter:
                 raise SkoolParsingError('Found unsupported macro: {0}'.format(marker))
             except MacroParsingError as e:
                 raise SkoolParsingError('Error while parsing {0} macro: {1}'.format(marker, e.args[0]))
-            prefix = text[:start].rstrip() if rep.startswith('\n') else text[:start]
-            suffix = text[end:].lstrip() if rep.endswith('\n') else text[end:]
+            if rep.startswith('\n'):
+                prefix = text[:start].rstrip()
+            else:
+                prefix = text[:start]
+            if rep.endswith('\n'):
+                suffix = text[end:].lstrip()
+            else:
+                suffix = text[end:]
             text = "{0}{1}{2}".format(prefix, rep, suffix)
 
         return text
@@ -1590,7 +1648,8 @@ class Udg(object):
             rbyte = 0
             for byte in tile_data:
                 rbyte //= 2
-                rbyte += 128 if byte & b else 0
+                if byte & b:
+                    rbyte += 128
             rotated.append(rbyte)
             b *= 2
         rotated.reverse()

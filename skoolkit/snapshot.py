@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -53,8 +53,14 @@ def _read_sna(data, page=None):
     return data[27:32795] + data[index:index + 16384]
 
 def _read_z80(data, page=None):
-    version = 1 if sum(data[6:8]) > 0 else 2
-    header_size = 30 if version == 1 else 32 + data[30]
+    if sum(data[6:8]) > 0:
+        version = 1
+    else:
+        version = 2
+    if version == 1:
+        header_size = 30
+    else:
+        header_size = 32 + data[30]
     header = data[:header_size]
     if version == 1:
         if header[12] & 32 == 0:

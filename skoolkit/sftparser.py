@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011-2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -59,7 +59,10 @@ class SftParser:
         self.disassembler = Disassembler(snapshot, zfill=zfill, asm_hex=asm_hex, asm_lower=asm_lower)
         self.sftfile = sftfile
         if asm_hex:
-            self.address_fmt = HEX4FMT.lower() if asm_lower else HEX4FMT
+            if asm_lower:
+                self.address_fmt = HEX4FMT.lower()
+            else:
+                self.address_fmt = HEX4FMT
         else:
             self.address_fmt = '{0}'
         self.stack = []

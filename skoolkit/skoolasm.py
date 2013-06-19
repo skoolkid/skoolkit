@@ -61,11 +61,20 @@ class AsmWriter:
         self.desc_width = self.line_width - 2
 
         # Line terminator and indent
-        self.end = '\r\n' if crlf else '\n'
-        self.indent = '\t' if tab else ' ' * self.indent_width
+        if crlf:
+            self.end = '\r\n'
+        else:
+            self.end = '\n'
+        if tab:
+            self.indent = '\t'
+        else:
+            self.indent = ' ' * self.indent_width
 
         # Label suffix
-        self.label_suffix = ':' if self._get_int_property(properties, 'label-colons', 1) else ''
+        if self._get_int_property(properties, 'label-colons', 1):
+            self.label_suffix = ':'
+        else:
+            self.label_suffix = ''
 
         min_col_width = self._get_int_property(properties, 'wrap-column-width-min', 10)
         self.table_writer = TableWriter(self.desc_width, min_col_width)
@@ -96,7 +105,11 @@ class AsmWriter:
             first_instruction = entry.instructions[0]
             org = first_instruction.org
             if org:
-                self.write_line('{0}{1} {2}'.format(self.indent, 'org' if self.lower else 'ORG', org))
+                if self.lower:
+                    org_dir = 'org'
+                else:
+                    org_dir = 'ORG'
+                self.write_line('{0}{1} {2}'.format(self.indent, org_dir, org))
                 self.write_line('')
             self.entry = entry
             self.print_entry()
@@ -191,7 +204,10 @@ class AsmWriter:
 
     def expand_chr(self, text, index):
         # #CHRnum or #CHR(num)
-        offset = 1 if text[index:].startswith('(') else 0
+        if text[index:].startswith('('):
+            offset = 1
+        else:
+            offset = 0
         end, num = parse_ints(text, index + offset, 1)
         return end + offset, get_chr(num)
 
@@ -209,7 +225,10 @@ class AsmWriter:
         # #EREFSaddr
         end, address = parse_ints(text, index, 1)
         ereferrers = self.parser.get_entry_point_refs(address)
-        addr_fmt = '{0:04X}' if text[index] == '$' else '{0}'
+        if text[index] == '$':
+            addr_fmt = '{0:04X}'
+        else:
+            addr_fmt = '{0}'
         if not ereferrers:
             raise MacroParsingError('Entry point at {0} has no referrers'.format(addr_fmt.format(address)))
         ereferrers.sort()
@@ -289,8 +308,10 @@ class AsmWriter:
             instructions = self.parser.instructions.get(address)
             if instructions:
                 label = instructions[0].addr_str
+            elif addr_str.startswith('$'):
+                label = addr_str[1:]
             else:
-                label = addr_str[1:] if addr_str.startswith('$') else addr_str
+                label = addr_str
         return end, label
 
     def expand_refs(self, text, index):
@@ -300,7 +321,10 @@ class AsmWriter:
         entry = self.entries.get(address)
         if not entry:
             raise MacroParsingError('No entry at {0}'.format(addr_str))
-        addr_fmt = '{0:04X}' if text[index] == '$' else '{0}'
+        if text[index] == '$':
+            addr_fmt = '{0:04X}'
+        else:
+            addr_fmt = '{0}'
         referrers = [ref.address for ref in entry.referrers]
         if referrers:
             referrers.sort()
@@ -322,14 +346,21 @@ class AsmWriter:
             raise MacroParsingError('Missing register argument')
         if len(reg) > 3 or any([char not in "abcdefhlirspxy'" for char in reg]):
             raise MacroParsingError('Bad register: "{0}"'.format(reg))
-        return end, reg.lower() if self.lower else reg.upper()
+        if self.lower:
+            reg_name = reg.lower()
+        else:
+            reg_name = reg.upper()
+        return end, reg_name
 
     def expand_scr(self, text, index):
         return self._expand_unsupported_macro(text, index)
 
     def expand_space(self, text, index):
         # #SPACE[num] or #SPACE([num])
-        offset = 1 if text[index:].startswith('(') else 0
+        if text[index:].startswith('('):
+            offset = 1
+        else:
+            offset = 0
         end, num_sp = parse_ints(text, index + offset, 1, (1,))
         return end + offset, ''.ljust(num_sp)
 
@@ -462,7 +493,10 @@ class AsmWriter:
         instructions = self.entry.instructions
 
         while i < len(instructions) or lines:
-            instruction = instructions[i] if i < len(instructions) else None
+            if i < len(instructions):
+                instruction = instructions[i]
+            else:
+                instruction = None
 
             # Deal with remaining comment lines or rowspan on the previous
             # instruction
@@ -527,11 +561,17 @@ class TableWriter:
                 col_index = 0
                 while col_index < self.table.num_cols:
                     prev_cell, prev_rowspan, prev_line_index = prev_row[col_index]
-                    line += ' ' if adj_transparent and prev_cell.transparent else '|'
+                    if adj_transparent and prev_cell.transparent:
+                        line += ' '
+                    else:
+                        line += '|'
                     if prev_cell:
                         adj_transparent = prev_cell.transparent
                         colspan = prev_cell.colspan
-                        contents = prev_cell.contents[prev_line_index] if prev_line_index < len(prev_cell.contents) else ''
+                        if prev_line_index < len(prev_cell.contents):
+                            contents = prev_cell.contents[prev_line_index]
+                        else:
+                            contents = ''
                     else:
                         colspan = 1
                         contents = ''
@@ -541,7 +581,10 @@ class TableWriter:
                     prev_row[col_index] = (prev_cell, prev_rowspan, prev_line_index + 1)
                     col_index += colspan
                 if not finished:
-                    line += ' ' if prev_cell.transparent else '|'
+                    if prev_cell.transparent:
+                        line += ' '
+                    else:
+                        line += '|'
                     lines.append(line)
 
             # Stop now if we've reached the end of the table (marked by an
@@ -560,16 +603,25 @@ class TableWriter:
                 # Deal with previous rowspan > 1
                 prev_cell, prev_rowspan, prev_line_index = prev_row[col_index]
                 while prev_rowspan > 1:
-                    line += ' ' if adj_transparent and prev_cell.transparent else '|'
+                    if adj_transparent and prev_cell.transparent:
+                        line += ' '
+                    else:
+                        line += '|'
                     adj_transparent, colspan = prev_cell.transparent, prev_cell.colspan
-                    contents = prev_cell.contents[prev_line_index] if prev_line_index < len(prev_cell.contents) else ''
+                    if prev_line_index < len(prev_cell.contents):
+                        contents = prev_cell.contents[prev_line_index]
+                    else:
+                        contents = ''
                     line += " {0} ".format(contents.ljust(self.table.get_cell_width(col_index, colspan)))
                     prev_row[col_index] = (prev_cell, prev_rowspan - 1, prev_line_index + 1)
                     col_index += colspan
                     prev_cell, prev_rowspan, prev_line_index = prev_row[col_index]
 
                 # Deal with cells in this row
-                line += ' ' if adj_transparent and cell.transparent else '|'
+                if adj_transparent and cell.transparent:
+                    line += ' '
+                else:
+                    line += '|'
                 adj_transparent, colspan = cell.transparent, cell.colspan
                 line += " {0} ".format(cell.contents[0].ljust(self.table.get_cell_width(col_index, colspan)))
                 prev_row[col_index] = (cell, cell.rowspan, 1)
@@ -580,16 +632,25 @@ class TableWriter:
             while col_index < len(prev_row):
                 prev_cell, prev_rowspan, prev_line_index = prev_row[col_index]
                 if prev_rowspan > 1:
-                    line += ' ' if adj_transparent and prev_cell.transparent else '|'
+                    if adj_transparent and prev_cell.transparent:
+                        line += ' '
+                    else:
+                        line += '|'
                     adj_transparent, colspan = prev_cell.transparent, prev_cell.colspan
-                    contents = prev_cell.contents[prev_line_index] if prev_line_index < len(prev_cell.contents) else ''
+                    if prev_line_index < len(prev_cell.contents):
+                        contents = prev_cell.contents[prev_line_index]
+                    else:
+                        contents = ''
                     line += " {0} ".format(contents.ljust(self.table.get_cell_width(col_index, colspan)))
                     prev_row[col_index] = (prev_cell, prev_rowspan - 1, prev_line_index + 1)
                     col_index += prev_cell.colspan
                 else:
                     break
 
-            line += ' ' if cell.transparent and row_index == 0 else '|'
+            if cell.transparent and row_index == 0:
+                line += ' '
+            else:
+                line += '|'
             lines.append(line)
 
         lines.append(self._create_row_separator(self.table.rows[-1], prev_row))
@@ -604,15 +665,27 @@ class TableWriter:
 
             # Deal with previous rowspan > 1
             if col_index < cell.col_index:
-                separator += '+' if fill else ' '
+                if fill:
+                    separator += '+'
+                else:
+                    separator += ' '
                 colspan = cell.col_index - col_index
-                spacer = '-' if solid else ' '
+                if solid:
+                    spacer = '-'
+                else:
+                    spacer = ' '
                 separator += spacer * (2 + self.table.get_cell_width(col_index, colspan))
 
             # Deal with cells in this row
             col_index, colspan = cell.col_index, cell.colspan
-            separator += ' ' if adj_transparent and not solid else '+'
-            spacer = '-' if solid else ' '
+            if adj_transparent and not solid:
+                separator += ' '
+            else:
+                separator += '+'
+            if solid:
+                spacer = '-'
+            else:
+                spacer = ' '
             separator += spacer * (2 + self.table.get_cell_width(col_index, colspan))
             adj_transparent = cell.transparent
             col_index += colspan
@@ -622,8 +695,13 @@ class TableWriter:
         if prev_row:
             while col_index < self.table.num_cols:
                 prev_cell = prev_row[col_index][0]
-                separator += ' ' if adj_transparent and not solid else '+'
+                if adj_transparent and not solid:
+                    separator += ' '
+                else:
+                    separator += '+'
                 separator += spacer * (2 + self.table.get_cell_width(col_index, prev_cell.colspan))
                 col_index += prev_cell.colspan
 
-        return separator + ('+' if solid else '')
+        if solid:
+            return separator + '+'
+        return separator

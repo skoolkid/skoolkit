@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -100,7 +100,10 @@ def get_params(param_string, num=0, defaults=(), ints_only=False):
     i = req
     while i < len(params):
         if params[i] is None:
-            params[i] = defaults[i - req] if i - req < len(defaults) else None
+            if i - req < len(defaults):
+                params[i] = defaults[i - req]
+            else:
+                params[i] = None
         i += 1
     return params
 

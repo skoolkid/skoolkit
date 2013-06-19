@@ -39,7 +39,10 @@ def run(snafile, options):
     # Read the snapshot file
     if snafile[-4:] == '.bin':
         ram = read_bin_file(snafile)
-        org = 65536 - len(ram) if options.org is None else options.org
+        if options.org is None:
+            org = 65536 - len(ram)
+        else:
+            org = options.org
         snapshot = [0] * org
         snapshot.extend(ram)
         start = max(org, options.start)

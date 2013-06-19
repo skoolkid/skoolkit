@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -158,8 +158,14 @@ class RefParser:
             if line:
                 p.append(line)
             elif p:
-                paragraphs.append(p if lines else '\n'.join(p))
+                if lines:
+                    paragraphs.append(p)
+                else:
+                    paragraphs.append('\n'.join(p))
                 p = []
         if p:
-            paragraphs.append(p if lines else '\n'.join(p))
+            if lines:
+                paragraphs.append(p)
+            else:
+                paragraphs.append('\n'.join(p))
         return paragraphs

@@ -255,7 +255,10 @@ def _generate_ctls_with_code_map(snapshot, start, code_map):
                     for referrer in instruction.referrers:
                         if ctls[referrer.address] == 'c':
                             ctls[instruction.address] = 'c'
-                            end = entry.next.address if entry.next else 65536
+                            if entry.next:
+                                end = entry.next.address
+                            else:
+                                end = 65536
                             _find_terminal_instruction(disassembler, ctls, instruction.address, end, entry.ctl)
                             disassembly.remove_entry(entry.address)
                             done = False
@@ -401,7 +404,10 @@ def _generate_ctls_without_code_map(snapshot, start):
 
 def write_ctl(ctlfile, ctls, ctl_hex):
     # Write a control file
-    addr_fmt = HEX4FMT if ctl_hex else '{0}'
+    if ctl_hex:
+        addr_fmt = HEX4FMT
+    else:
+        addr_fmt = '{0}'
     with open(ctlfile, 'w') as f:
         for address in sorted(ctls.keys()):
             f.write('{0} {1}\n'.format(ctls[address], addr_fmt.format(address)))
@@ -589,7 +595,10 @@ class Disassembly:
         self.disassembler = Disassembler(snapshot, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
         self.ctl_parser = ctl_parser
         if asm_hex:
-            self.address_fmt = '{0:04x}' if asm_lower else '{0:04X}'
+            if asm_lower:
+                self.address_fmt = '{0:04x}'
+            else:
+                self.address_fmt = '{0:04X}'
         else:
             self.address_fmt = '{0}'
         self.entry_map = {}
@@ -704,7 +713,10 @@ class SkoolWriter:
     def __init__(self, snapshot, ctl_parser, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower):
         self.disassembly = Disassembly(snapshot, ctl_parser, True, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
         if asm_hex:
-            self.address_fmt = HEX4FMT.lower() if asm_lower else HEX4FMT
+            if asm_lower:
+                self.address_fmt = HEX4FMT.lower()
+            else:
+                self.address_fmt = HEX4FMT
         else:
             self.address_fmt = '{0}'
         self.has_start = ctl_parser.contains_entry_asm_directive(AD_START)
@@ -789,9 +801,14 @@ class SkoolWriter:
                     address = instruction.address
                     operation = instruction.operation
                     if block.comment:
-                        comment = comment_lines[i] if i < len(comment_lines) else ''
+                        if i < len(comment_lines):
+                            comment = comment_lines[i]
+                        else:
+                            comment = ''
+                    elif text and entry.ctl != 't':
+                        comment = self.to_ascii(instruction.bytes)
                     else:
-                        comment = self.to_ascii(instruction.bytes) if text and entry.ctl != 't' else ''
+                        comment = ''
                     if i > 0 and entry.ctl == 'c' and ctl == '*' and write_refs > -1:
                         self.write_referrers('This entry point is used by the ', instruction.referrers)
                     for directive, value in instruction.asm_directives:
@@ -832,13 +849,19 @@ class SkoolWriter:
             self.write_comment('{0}{1}{2}.'.format(prefix, infix, suffix))
 
     def write_asm_directive(self, directive, value=None):
-        suffix = '' if value is None else '={0}'.format(value)
+        if value is None:
+            suffix = ''
+        else:
+            suffix = '={0}'.format(value)
         write_line('; @{0}{1}'.format(directive, suffix))
 
     def to_ascii(self, data):
         chars = ['[']
         for b in data:
-            chars.append(chr(b) if 32 <= b < 127 else '.')
+            if 32 <= b < 127:
+                chars.append(chr(b))
+            else:
+                chars.append('.')
         chars.append(']')
         return ''.join(chars)
 

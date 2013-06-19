@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2010-2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -66,7 +66,10 @@ class CtlWriter:
             self.write_entry(entry)
 
     def _write_asm_directive(self, directive, address, value):
-        suffix = '' if value is None else '={0}'.format(value)
+        if value is None:
+            suffix = ''
+        else:
+            suffix = '={0}'.format(value)
         write_line('; @{0}:{1}{2}'.format(directive, address, suffix))
 
     def _write_entry_asm_directive(self, entry, directive, value=None):
@@ -109,7 +112,10 @@ class CtlWriter:
             self._write_entry_asm_directive(entry, AD_END)
 
     def write_body(self, entry):
-        entry_ctl = 'b' if entry.ctl in 'gu' else entry.ctl
+        if entry.ctl in 'gu':
+            entry_ctl = 'b'
+        else:
+            entry_ctl = entry.ctl
         first_instruction = entry.instructions[0]
         if entry_ctl == 'i' and not first_instruction.operation:
             # Don't write any sub-blocks for an empty 'i' entry
@@ -137,7 +143,10 @@ class CtlWriter:
                         self._write_instruction_asm_directives(instruction)
                     if ctl != 'M' or COMMENTS in self.elements:
                         length = None
-                        offset = instructions[0].comment.rowspan + 1 if ctl == 'M' else 1
+                        if ctl == 'M':
+                            offset = instructions[0].comment.rowspan + 1
+                        else:
+                            offset = 1
                         if j + offset < len(sub_blocks):
                             length = int(sub_blocks[j + offset][1][0].address) - int(instructions[0].address)
                         elif k + 1 < len(sections):
@@ -149,7 +158,9 @@ class CtlWriter:
                             self.write_sub_block(ctl, entry_ctl, comment, instructions, length)
 
     def addr_str(self, address):
-        return '${0:04X}'.format(int(address)) if self.write_hex else str(address)
+        if self.write_hex:
+            return '${0:04X}'.format(int(address))
+        return str(address)
 
     def need_sub_block(self, ctl, entry_ctl, comment, index, instructions):
         # Return whether a ctl line needs to be written for a sub-block
@@ -210,11 +221,17 @@ class CtlWriter:
                 # the previous instruction, so start a new sub-block
                 sub_blocks.append((ctl, [instruction]))
                 prev_ctl = ctl
-            i += comment.rowspan if comment else 1
+            if comment:
+                i += comment.rowspan
+            else:
+                i += 1
         return sub_blocks
 
     def write_sub_block(self, ctl, entry_ctl, comment, instructions, length):
-        sub_block_ctl = ' ' if ctl == entry_ctl else ctl.upper()
+        if ctl == entry_ctl:
+            sub_block_ctl = ' '
+        else:
+            sub_block_ctl = ctl.upper()
         address = self.addr_str(instructions[0].address)
         lengths = ''
 
@@ -327,7 +344,9 @@ class SkoolParser:
         paragraphs = [" ".join(section) for section in sections if section]
         if split:
             return paragraphs
-        return paragraphs[0] if paragraphs else ''
+        if paragraphs:
+            return paragraphs[0]
+        return ''
 
     def _parse_comment(self, line, comments):
         """Parses a comment line. Returns False if the line contains an ASM (@)
@@ -449,7 +468,10 @@ class Instruction:
     def __init__(self, label, address, operation):
         self.label = label
         self.ctl = label[0]
-        self.addr_str = label[1:] if label[1].isdigit() else label[2:]
+        if label[1].isdigit():
+            self.addr_str = label[1:]
+        else:
+            self.addr_str = label[2:]
         self.address = address
         self.operation = operation
         self.container = None

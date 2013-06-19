@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011-2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -47,7 +47,10 @@ class ControlLine(Line):
 
     def __str__(self):
         comment = ' {0}'.format(self.comment).rstrip()
-        comment_index = ';{0}'.format(self.comment_index) if self.comment_index > 0 else ''
+        if self.comment_index > 0:
+            comment_index = ';{0}'.format(self.comment_index)
+        else:
+            comment_index = ''
         return "{0}{1}{2},{3}{4}{5}".format(self.ctl, self.inst_ctl, self.addr_str, self._get_lengths(), comment_index, comment)
 
     def _get_lengths(self):
@@ -151,7 +154,10 @@ class SftWriter:
         address = parse_int(line[1:6])
         addr_str = self._addr_str(address)
         comment_index = line.find(';', 7)
-        end = comment_index if comment_index > 0 else len(line)
+        if comment_index > 0:
+            end = comment_index
+        else:
+            end = len(line)
         operation = line[7:end].strip()
         comment = line[end + 1:].strip()
         return ControlLine(ctl, address, addr_str, operation, comment_index, comment)
@@ -166,7 +172,10 @@ class SftWriter:
 
     def _calculate_lengths(self, ctl_lines):
         for i, ctl_line in enumerate(ctl_lines):
-            next_ctl_line = ctl_lines[i + 1] if i < len(ctl_lines) - 1 else None
+            if i < len(ctl_lines) - 1:
+                next_ctl_line = ctl_lines[i + 1]
+            else:
+                next_ctl_line = None
             ctl_line.calculate_length(next_ctl_line)
 
     def _compress_blocks(self, lines):
@@ -193,7 +202,9 @@ class SftWriter:
 
     def _addr_str(self, address):
         if address is not None:
-            return '${0:04X}'.format(int(address)) if self.write_hex else str(address)
+            if self.write_hex:
+                return '${0:04X}'.format(int(address))
+            return str(address)
 
     def write(self):
         for line in self._parse_skool():

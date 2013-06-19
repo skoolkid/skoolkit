@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -271,7 +271,10 @@ class PngWriter:
             else:
                 frame2_rect = flash_rect
 
-        bd = 0 if palette_size == 1 else bit_depth
+        if palette_size == 1:
+            bd = 0
+        else:
+            bd = bit_depth
         method_dict = self.png_method_dict[bd][full_size][trans]
 
         # Frame 1
@@ -405,7 +408,10 @@ class PngWriter:
                     attrs[attr].append(byte_list)
                     for bit in BIT_PAIRS[j]:
                         for k, s in BD4_MAP1[bit]:
-                            byte_list.extend(b[k] * (scale // s if s else 1))
+                            if s:
+                                byte_list.extend(b[k] * (scale // s))
+                            else:
+                                byte_list.extend(b[k])
         else:
             for attr, (p, i) in attr_map.items():
                 b = ((p * 17,), (i * 17,))
@@ -415,7 +421,10 @@ class PngWriter:
                     attrs[attr].append(byte_list)
                     for bit in BIT_PAIRS[j]:
                         for k, s in BD4_MAP0[bit]:
-                            byte_list.extend(b[k] * (scale // s if s else 1))
+                            if s:
+                                byte_list.extend(b[k] * (scale // s))
+                            else:
+                                byte_list.extend(b[k])
 
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
@@ -691,7 +700,10 @@ class PngWriter:
         udg = udg_array[0][0]
         img_bytes = {}
         for p, i in attr_map.values():
-            xor = 255 if p else 0
+            if p:
+                xor = 255
+            else:
+                xor = 0
         if scale == 4:
             for b in set(udg.data):
                 b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[b ^ xor]

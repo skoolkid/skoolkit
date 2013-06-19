@@ -46,12 +46,18 @@ BASE_10 = 10
 BASE_16 = 16
 
 def get_address(operation, check_prefix=True):
-    prefixes = '[ ,(+-]' if check_prefix else ''
+    if check_prefix:
+        prefixes = '[ ,(+-]'
+    else:
+        prefixes = ''
     search = re.search('{0}\$[0-9A-Fa-f]+'.format(prefixes), operation)
     if not search:
         search = re.search('{0}[0-9]+'.format(prefixes), operation)
     if search:
-        index = 1 if check_prefix else 0
+        if check_prefix:
+            index = 1
+        else:
+            index = 0
         return search.group()[index:]
 
 def get_instruction_ctl(op):
@@ -67,8 +73,12 @@ def get_instruction_ctl(op):
     return 'C'
 
 def get_defb_length(item_str, defb=True):
-    byte_fmt = '{0}' if defb else 'B{0}'
-    text_fmt = 'T{0}' if defb else '{0}'
+    if defb:
+        byte_fmt = '{0}'
+        text_fmt = 'T{0}'
+    else:
+        byte_fmt = 'B{0}'
+        text_fmt = '{0}'
     full_length = 0
     lengths = []
     length = 0
@@ -149,7 +159,10 @@ def set_bytes(snapshot, address, operation):
     args = [parse_int(v, 0) for v in operation[5:].split(',')]
     if directive == 'DEFS':
         span = args[0]
-        value = args[1] if len(args) > 1 else 0
+        if len(args) > 1:
+            value = args[1]
+        else:
+            value = 0
         snapshot[address:address + span] = [value] * span
     elif directive == 'DEFW':
         for arg in args:
@@ -161,7 +174,10 @@ def parse_asm_block_directive(directive, stack):
     infix = directive[len(prefix):len(prefix) + 1]
     suffix = directive[len(prefix) + len(infix):].rstrip()
     if prefix in ('ofix', 'bfix', 'rfix', 'isub', 'rsub') and infix in '+-' and suffix in ('begin', 'else', 'end'):
-        cur_op = stack[-1] if stack else (None, None)
+        if stack:
+            cur_op = stack[-1]
+        else:
+            cur_op = (None, None)
         if suffix == 'begin':
             if prefix == cur_op[0]:
                 raise SkoolParsingError('{0} inside {1}{2} block'.format(directive, cur_op[0], cur_op[1]))
@@ -353,7 +369,9 @@ class SkoolParser:
             paragraphs = [self._html_escape(p) for p in paragraphs]
         if split:
             return paragraphs
-        return paragraphs[0] if paragraphs else ''
+        if paragraphs:
+            return paragraphs[0]
+        return ''
 
     def _html_escape(self, text):
         chunks = []
@@ -404,7 +422,10 @@ class SkoolParser:
                         do_op = self.mode.asm
                     elif p == 'rsub':
                         do_op = self.mode.do_rsubs
-                    include = i == '+' if do_op else i == '-'
+                    if do_op:
+                        include = i == '+'
+                    else:
+                        include = i == '-'
                     if not include:
                         break
                 self.mode.include = include
@@ -495,7 +516,10 @@ class SkoolParser:
             prefix = ''
             elements = line.split(None, 1)
             reg = elements[0]
-            desc = elements[1] if len(elements) > 1 else ''
+            if len(elements) > 1:
+                desc = elements[1]
+            else:
+                desc = ''
             if ':' in reg:
                 prefix, reg = reg.split(':', 1)
             if self.mode.lower:
@@ -588,7 +612,10 @@ class SkoolParser:
         if operand is None:
             return
         operand_int = parse_int(operand, -1)
-        instructions = None if operand_int < 0 else self.instructions.get(operand_int)
+        if operand_int < 0:
+            instructions = None
+        else:
+            instructions = self.instructions.get(operand_int)
         if instructions:
             reference = instructions[0]
             if reference.asm_label:
@@ -630,7 +657,10 @@ class Mode:
         self.asm_labels = asm_labels
         self.ignoretua = False
         self.ignoredua = False
-        self.hex4fmt = '${0:04x}' if self.lower else '${0:04X}'
+        if self.lower:
+            self.hex4fmt = '${0:04x}'
+        else:
+            self.hex4fmt = '${0:04X}'
         self.reset()
 
     def reset(self):
@@ -827,7 +857,10 @@ class Instruction:
     def __init__(self, label, address, operation):
         self.label = label
         self.ctl = label[0]
-        self.addr_str = label[1:] if label[1].isdigit() else label[2:]
+        if label[1].isdigit():
+            self.addr_str = label[1:]
+        else:
+            self.addr_str = label[2:]
         self.address = address
         self.operation = operation
         self.container = None
@@ -840,7 +873,10 @@ class Instruction:
         # If this instruction has no address, it was inserted between
         # @rsub+begin and @rsub+end; in that case, mark it as a subbed
         # instruction already
-        self.sub = None if address else operation
+        if address:
+            self.sub = None
+        else:
+            self.sub = operation
         self.keep = False
         self.warn = True
         self.ignoreua = False
@@ -957,7 +993,10 @@ class TableParser:
         for ws_char in '\n\r\t':
             text = text.replace(ws_char, ' ')
 
-        index = len(TABLE_MARKER) if text.startswith(TABLE_MARKER) else 0
+        if text.startswith(TABLE_MARKER):
+            index = len(TABLE_MARKER)
+        else:
+            index = 0
         classes = []
         if text[index] == '(':
             end = text.find(')', index)
@@ -965,7 +1004,10 @@ class TableParser:
                 raise SkoolParsingError("Cannot find closing ')' in table CSS class list:\n{0}".format(table_def))
             classes = [c.strip() for c in text[index + 1:end].split(',')]
             index = end + 1
-        table_class = classes[0] if classes else ''
+        if classes:
+            table_class = classes[0]
+        else:
+            table_class = ''
         column_classes = classes[1:]
         wrap_columns = []
         for i, column_class in enumerate(column_classes):
@@ -992,7 +1034,10 @@ class TableParser:
                     prev_rowspan, prev_colspan = prev_spans.get(col_index, (1, 1))
                 header, transparent = False, False
                 rowspan, colspan = 1, 1
-                cell_class = column_classes[col_index] if len(column_classes) > col_index else ''
+                if len(column_classes) > col_index:
+                    cell_class = column_classes[col_index]
+                else:
+                    cell_class = ''
                 cell = cell.strip()
                 if cell.startswith('='):
                     end = cell.find(' ')
@@ -1147,7 +1192,10 @@ class ListParser:
         for ws_char in '\n\r\t':
             text = text.replace(ws_char, ' ')
 
-        index = len(LIST_MARKER) if text.startswith(LIST_MARKER) else 0
+        if text.startswith(LIST_MARKER):
+            index = len(LIST_MARKER)
+        else:
+            index = 0
         css_class = ''
         if text[index] == '(':
             end = text.find(')', index)

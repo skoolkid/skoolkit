@@ -60,7 +60,10 @@ def clock(operation, prefix, *args, **kwargs):
 def find(fname, search_dir=None):
     if fname is None:
         return
-    search_dirs = [search_dir] if search_dir else []
+    if search_dir:
+        search_dirs = [search_dir]
+    else:
+        search_dirs = []
     search_dirs.extend(SEARCH_DIRS)
     for f in [join(d, fname) for d in search_dirs]:
         if isfile(f):
@@ -149,7 +152,10 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
         prefix = get_prefix(basename(reffile))
         skoolfile = config.get('SkoolFile', '{0}.skool'.format(prefix))
 
-    skoolfile_f = skoolfile if skoolfile == '-' else find(skoolfile, search_dir)
+    if skoolfile == '-':
+        skoolfile_f = skoolfile
+    else:
+        skoolfile_f = find(skoolfile, search_dir)
     if skoolfile_f is None:
         raise SkoolKitError('{0}: file not found'.format(skoolfile))
 
@@ -180,7 +186,11 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
 
     notify('Using skool file: {0}'.format(skoolfile_f))
     if reffiles:
-        notify('Using ref file{0}: {1}'.format('s' if len(reffiles) > 1 else '', ', '.join(reffiles)))
+        if len(reffiles) > 1:
+            suffix = 's'
+        else:
+            suffix = ''
+        notify('Using ref file{0}: {1}'.format(suffix, ', '.join(reffiles)))
     else:
         notify('Found no ref file for {0}'.format(skoolfile_f))
 
@@ -188,7 +198,10 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
     game_dir = config.get('GameDir', prefix)
 
     # Parse the skool file and initialise the writer
-    fname = 'standard input' if skoolfile_f == '-' else skoolfile_f
+    if skoolfile_f == '-':
+        fname = 'standard input'
+    else:
+        fname = skoolfile_f
     skool_parser = clock(SkoolParser, 'Parsing {0}'.format(fname), skoolfile_f, case=case, base=base, html=True, create_labels=create_labels, asm_labels=asm_labels)
     file_info = FileInfo(topdir, game_dir, new_images)
     colours = get_colours(ref_parser.get_dictionary('Colours'))
@@ -364,7 +377,10 @@ def main(args):
         parser.exit(2, parser.format_help())
     verbose, show_timings = namespace.verbose, namespace.show_timings
     namespace.config_specs = namespace.config_specs or []
-    namespace.pages = namespace.pages.split(',') if namespace.pages else []
+    if namespace.pages:
+        namespace.pages = namespace.pages.split(',')
+    else:
+        namespace.pages = []
     run(namespace.infiles, namespace)
     if show_timings:
         notify('Done ({0:0.2f}s)'.format(time.time() - start))

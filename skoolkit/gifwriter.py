@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -359,7 +359,10 @@ class GifWriter:
         data = bytearray()
         data.extend((33, 249)) # Graphic Control Extension
         data.append(4) # 4 bytes follow
-        data.append(1 if transparent else 0) # transparency
+        if transparent:
+            data.append(1) # transparency
+        else:
+            data.append(0)
         data.extend((delay % 256, delay // 256)) # delay before next frame
         data.append(0) # transparent colour
         data.append(0) # end of GCE block

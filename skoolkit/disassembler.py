@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2010-2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -52,12 +52,20 @@ class Disassembler:
         self.defm_width = defm_width
         self.asm_hex = asm_hex
         self.asm_lower = asm_lower
-        self.hex2fmt = '${0:02x}' if asm_lower else '${0:02X}'
-        self.hex4fmt = HEX4FMT.lower() if asm_lower else HEX4FMT
-        self.defb_inst = 'defb' if asm_lower else 'DEFB'
-        self.defm_inst = 'defm' if asm_lower else 'DEFM'
-        self.defs_inst = 'defs' if asm_lower else 'DEFS'
-        self.defw_inst = 'defw' if asm_lower else 'DEFW'
+        if asm_lower:
+            self.hex2fmt = '${0:02x}'
+            self.hex4fmt = HEX4FMT.lower()
+            self.defb_inst = 'defb'
+            self.defm_inst = 'defm'
+            self.defs_inst = 'defs'
+            self.defw_inst = 'defw'
+        else:
+            self.hex2fmt = '${0:02X}'
+            self.hex4fmt = HEX4FMT
+            self.defb_inst = 'DEFB'
+            self.defm_inst = 'DEFM'
+            self.defs_inst = 'DEFS'
+            self.defw_inst = 'DEFW'
 
     def num_str(self, num, num_bytes=0):
         if not self.asm_hex:
@@ -171,7 +179,10 @@ class Disassembler:
 
     def jr_arg(self, template, a):
         offset = self.snapshot[a + 1]
-        address = a + 2 + offset if offset < 128 else a + offset - 254
+        if offset < 128:
+            address = a + 2 + offset
+        else:
+            address = a + offset - 254
         if 0 <= address < 65536:
             return template.format(self.num_str(address, 2)), 2
         return self.defb(a, 2)
@@ -183,7 +194,10 @@ class Disassembler:
         if self.asm_hex:
             byte_fmt = self.hex2fmt
         else:
-            byte_fmt = '{0:03d}' if self.zfill else '{0}'
+            if self.zfill:
+                byte_fmt = '{0:03d}'
+            else:
+                byte_fmt = '{0}'
         if sublengths:
             items = []
             i = 0

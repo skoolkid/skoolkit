@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -129,7 +129,10 @@ class CtlParser:
                     valid = False
                 if valid:
                     start = int_params[0]
-                    end = int_params[1] if len(int_params) > 1 else None
+                    if len(int_params) > 1:
+                        end = int_params[1]
+                    else:
+                        end = None
                     if use_length:
                         end += start - 1
                     if ctl.islower():
@@ -148,7 +151,10 @@ class CtlParser:
                         valid = False
                     else:
                         directive = asm_fields[0][1:]
-                        value = asm_fields[1][1] if len(asm_fields[1]) == 2 else None
+                        if len(asm_fields[1]) == 2:
+                            value = asm_fields[1][1]
+                        else:
+                            value = None
                         asm_directive = (directive, address, value)
 
         return valid, ctl, start, end, text, lengths, asm_directive

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2013 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -130,7 +130,10 @@ class ImageWriter:
         full_height = 8 * len(udg_array) * scale
         width = min(width or full_width, full_width - x)
         height = min(height or full_height, full_height - y)
-        full_size = 1 if width == full_width and height == full_height else 0
+        if width == full_width and height == full_height:
+            full_size = 1
+        else:
+            full_size = 0
         use_flash = self.animation.get(img_format)
         palette, attr_map, trans, flash_rect = self._get_palette(udg_array, scale, mask, x, y, width, height, full_size, use_flash)
         if img_format == PNG_FORMAT:
@@ -288,7 +291,10 @@ class ImageWriter:
             flash_rect = (min_x, min_y, max_x - min_x, max_y - min_y)
         else:
             flash_rect = None
-        trans = 1 + all_masked if has_trans else 0
+        if has_trans:
+            trans = 1 + all_masked
+        else:
+            trans = 0
         return colours, attrs, trans, flash_rect
 
     def _get_all_colours(self, udg_array, mask, use_flash):
@@ -352,7 +358,10 @@ class ImageWriter:
             flash_rect = (min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
         else:
             flash_rect = None
-        trans = 1 + all_masked if has_trans else 0
+        if has_trans:
+            trans = 1 + all_masked
+        else:
+            trans = 0
         return colours, attrs, trans, flash_rect
 
     def _get_palette(self, udg_array, scale, mask, x, y, width, height, full_size, use_flash):
