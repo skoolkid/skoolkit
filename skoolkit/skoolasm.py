@@ -226,7 +226,7 @@ class AsmWriter:
         end, address = parse_ints(text, index, 1)
         ereferrers = self.parser.get_entry_point_refs(address)
         if text[index] == '$':
-            addr_fmt = '{0:04X}'
+            addr_fmt = '${0:04X}'
         else:
             addr_fmt = '{0}'
         if not ereferrers:
@@ -322,7 +322,7 @@ class AsmWriter:
         if not entry:
             raise MacroParsingError('No entry at {0}'.format(addr_str))
         if text[index] == '$':
-            addr_fmt = '{0:04X}'
+            addr_fmt = '${0:04X}'
         else:
             addr_fmt = '{0}'
         referrers = [ref.address for ref in entry.referrers]
@@ -581,11 +581,9 @@ class TableWriter:
                     prev_row[col_index] = (prev_cell, prev_rowspan, prev_line_index + 1)
                     col_index += colspan
                 if not finished:
-                    if prev_cell.transparent:
-                        line += ' '
-                    else:
+                    if not prev_cell.transparent:
                         line += '|'
-                    lines.append(line)
+                    lines.append(line.rstrip())
 
             # Stop now if we've reached the end of the table (marked by an
             # empty row)
@@ -594,7 +592,7 @@ class TableWriter:
 
             # Create a separator row if required
             if row_index - 1 in header_rows:
-                lines.append(self._create_row_separator(row, fill=row_index > 0))
+                lines.append(self._create_row_separator(row, prev_row, row_index > 0))
 
             line = ''
             adj_transparent = True
@@ -644,40 +642,37 @@ class TableWriter:
                     line += " {0} ".format(contents.ljust(self.table.get_cell_width(col_index, colspan)))
                     prev_row[col_index] = (prev_cell, prev_rowspan - 1, prev_line_index + 1)
                     col_index += prev_cell.colspan
+                    cell = prev_cell
                 else:
                     break
 
-            if cell.transparent and row_index == 0:
-                line += ' '
-            else:
+            if not cell.transparent:
                 line += '|'
-            lines.append(line)
+            lines.append(line.rstrip())
 
         lines.append(self._create_row_separator(self.table.rows[-1], prev_row))
         return lines
 
-    def _create_row_separator(self, row, prev_row=None, fill=True):
+    def _create_row_separator(self, row, prev_row=None, fill=False):
         separator = ''
         col_index = 0
         adj_transparent = True
         for cell in row:
-            solid = fill or not cell.transparent
-
             # Deal with previous rowspan > 1
             if col_index < cell.col_index:
-                if fill:
-                    separator += '+'
-                else:
+                prev_cell = prev_row[col_index][0]
+                if prev_cell.transparent:
                     separator += ' '
-                colspan = cell.col_index - col_index
-                if solid:
-                    spacer = '-'
-                else:
                     spacer = ' '
+                else:
+                    separator += '+'
+                    spacer = '-'
+                colspan = cell.col_index - col_index
                 separator += spacer * (2 + self.table.get_cell_width(col_index, colspan))
 
             # Deal with cells in this row
             col_index, colspan = cell.col_index, cell.colspan
+            solid = fill or not cell.transparent
             if adj_transparent and not solid:
                 separator += ' '
             else:
@@ -690,18 +685,21 @@ class TableWriter:
             adj_transparent = cell.transparent
             col_index += colspan
 
-        # Deal with cells at the end of the previous row that have rowspan
-        # greater than 1
-        if prev_row:
+        # Deal with cells at the end of the previous row that have rowspan > 1
+        if prev_row[0][0]:
             while col_index < self.table.num_cols:
                 prev_cell = prev_row[col_index][0]
-                if adj_transparent and not solid:
+                if adj_transparent and prev_cell.transparent and not fill:
                     separator += ' '
                 else:
                     separator += '+'
+                if prev_cell.transparent:
+                    spacer = ' '
+                else:
+                    spacer = '-'
                 separator += spacer * (2 + self.table.get_cell_width(col_index, prev_cell.colspan))
                 col_index += prev_cell.colspan
 
-        if solid:
+        if separator.endswith('-'):
             return separator + '+'
-        return separator
+        return separator.rstrip()

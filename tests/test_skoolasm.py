@@ -612,25 +612,27 @@ INVALID_BLOCK_DIRECTIVE_WARNINGS.append("bfix-end cannot end ofix- block")
 TABLE_SRC = []
 TABLE_TEXT = []
 
-# Headers, colspans 1 and 2, rowspans 1 and 2, transparent cell
+# Headers, colspans 1 and 2, rowspans 1 and 2
 TABLE_SRC.append("""(data)
 { =h Col1 | =h Col2 | =h,c2 Cols3+4 }
 { =r2 X   | Y       | Za  | Zb }
-{           Y2      | Za2 | =t }""")
+{           Y2      | Za2 | Zb2 }
+""")
 
 TABLE_TEXT.append("""
-+------+------+----------+
-| Col1 | Col2 | Cols3+4  |
-+------+------+-----+----+
-| X    | Y    | Za  | Zb |
-|      | Y2   | Za2 |    |
-+------+------+-----+----+
++------+------+-----------+
+| Col1 | Col2 | Cols3+4   |
++------+------+-----+-----+
+| X    | Y    | Za  | Zb  |
+|      | Y2   | Za2 | Zb2 |
++------+------+-----+-----+
 """)
 
 # Cell with rowspan > 1 in the middle column
 TABLE_SRC.append("""
 { A1 cell | =r2 This is a cell with rowspan=2 | C1 cell }
-{ A2 cell | C2 cell }""")
+{ A2 cell | C2 cell }
+""")
 
 TABLE_TEXT.append("""
 +---------+-------------------------------+---------+
@@ -642,7 +644,8 @@ TABLE_TEXT.append("""
 # Cell with rowspan > 1 in the rightmost column
 TABLE_SRC.append("""
 { A1 cell | B1 cell | =r2 This is a cell with rowspan=2 }
-{ A2 cell | B2 cell }""")
+{ A2 cell | B2 cell }
+""")
 
 TABLE_TEXT.append("""
 +---------+---------+-------------------------------+
@@ -679,6 +682,128 @@ TABLE_TEXT.append("""
 | A1 | B1 | C1 |
 | A2 | B2 | C2 |
 +----+----+----+
+""")
+
+# Transparent cell in the top left corner
+TABLE_SRC.append("""
+{ =t | =h H2 }
+{ A1 | B1 }
+""")
+
+TABLE_TEXT.append("""
+     +----+
+     | H2 |
++----+----+
+| A1 | B1 |
++----+----+
+""")
+
+# Transparent cell in the top right corner
+TABLE_SRC.append("""
+{ =h H1 | =t }
+{ A1    | B1 }
+""")
+
+TABLE_TEXT.append("""
++----+
+| H1 |
++----+----+
+| A1 | B1 |
++----+----+
+""")
+
+# Transparent cell in the bottom right corner
+TABLE_SRC.append("""
+{ =h H1 | =h H2 }
+{ A1    | =t }
+""")
+
+TABLE_TEXT.append("""
++----+----+
+| H1 | H2 |
++----+----+
+| A1 |
++----+
+""")
+
+# Transparent cell in the bottom left corner
+TABLE_SRC.append("""
+{ =h H1 | =h H2 }
+{ =t    | B1 }
+""")
+
+TABLE_TEXT.append("""
++----+----+
+| H1 | H2 |
++----+----+
+     | B1 |
+     +----+
+""")
+
+# Transparent cells with rowspan > 1 in the top corners
+TABLE_SRC.append("""
+{ =t,r2 | H1    | =t,r2 }
+{         =h H2         }
+{ A1    | B1    | C1    }
+""")
+
+TABLE_TEXT.append("""
+     +----+
+     | H1 |
+     | H2 |
++----+----+----+
+| A1 | B1 | C1 |
++----+----+----+
+""")
+
+# Transparent cells with rowspan > 1 in the bottom corners
+TABLE_SRC.append("""
+{ =h H1 | =h H2 | =h H3 }
+{ =t,r2 | B1    | =t,r2 }
+{         B2 }
+""")
+
+TABLE_TEXT.append("""
++----+----+----+
+| H1 | H2 | H3 |
++----+----+----+
+     | B1 |
+     | B2 |
+     +----+
+""")
+
+# Adjacent transparent cells
+TABLE_SRC.append("""
+{ =h H1 | =h H2 | =h H3 }
+{ =h A1 | =h B1 | =t,r2 }
+{ A2    | =t }
+""")
+
+TABLE_TEXT.append("""
++----+----+----+
+| H1 | H2 | H3 |
++----+----+----+
+| A1 | B1 |
++----+----+
+| A2 |
++----+
+""")
+
+# More adjacent transparent cells
+TABLE_SRC.append("""
+{ =h H1 | =h H2 | =h H3 }
+{ =t,r2 | =h B1 | =h C1 }
+{         =t    | C2 }
+""")
+
+TABLE_TEXT.append("""
++----+----+----+
+| H1 | H2 | H3 |
++----+----+----+
+     | B1 | C1 |
+     +----+----+
+          | C2 |
+          +----+
 """)
 
 TEST_TABLES = []
@@ -918,8 +1043,9 @@ class AsmWriterTest(SkoolKitTestCase):
     def test_macro_erefs(self):
         writer = self._get_writer(TEST_MACRO_EREFS)
 
-        output = writer.expand('#EREFS30004')
-        self.assertEqual(output, 'routines at 30000 and 30005')
+        for address in ('30004', '$7534'):
+            output = writer.expand('#EREFS{}'.format(address))
+            self.assertEqual(output, 'routines at 30000 and 30005')
 
         # Entry point with no referrers
         prefix = ERROR_PREFIX.format('EREFS')
@@ -1077,8 +1203,9 @@ class AsmWriterTest(SkoolKitTestCase):
         writer = self._get_writer(TEST_MACRO_REFS)
 
         # Some referrers
-        output = writer.expand('#REFS24581')
-        self.assertEqual(output, 'routines at 24583, 24586 and 24589')
+        for address in ('24581', '$6005'):
+            output = writer.expand('#REFS{}'.format(address))
+            self.assertEqual(output, 'routines at 24583, 24586 and 24589')
 
         # No referrers
         output = writer.expand('#REFS24586')
@@ -1135,8 +1262,8 @@ class AsmWriterTest(SkoolKitTestCase):
         writer = self._get_writer()
         for src, text in zip(TABLE_SRC, TABLE_TEXT):
             table = '#TABLE{0}\nTABLE#'.format(src)
-            output = '\n'.join(writer.format(table, 79))
-            self.assertEqual(output, text.strip())
+            output = writer.format(table, 79)
+            self.assertEqual(output, text.split('\n')[1:-1])
 
     def test_macro_udg(self):
         self._test_unsupported_macro('#UDG39144,6(safe_key)')

@@ -25,6 +25,8 @@ Changelog
   :ref:`ref-Colours` section of the `ref` file
 * Added support to the :ref:`set` ASM directive for the
   `handle-unsupported-macros` and `wrap-column-width-min` properties
+* Fixed the :ref:`EREFS` and :ref:`m-REFS` macros so that they work with
+  hexadecimal address parameters in ASM mode
 * Removed support for the ``#NAME`` macro (what it did can be done by the
   :ref:`html` macro instead)
 * Removed the documentation sources and man page sources from the SkoolKit
