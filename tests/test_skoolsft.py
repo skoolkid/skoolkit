@@ -251,5 +251,12 @@ class SftWriterTest(SkoolKitTestCase):
         for i, line in enumerate(sft):
             self.assertEqual(line, TEST_SFT[i])
 
+    def test_write_hex(self):
+        skoolfile = self.write_text_file('c40177 RET', suffix='.skool')
+        writer = SftWriter(skoolfile, True)
+        writer.write()
+        sft = self.out.getvalue().split('\n')
+        self.assertEqual(sft[0], 'cC$9CF1,1')
+
 if __name__ == '__main__':
     unittest.main()
