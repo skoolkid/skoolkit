@@ -384,6 +384,28 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertEqual(output[0], 'Using skool file: {0}'.format(skoolfile))
             self.assertTrue(isfile(join(self.odir, game_dir, 'asm', '40000.html')))
 
+    def test_search_dirs(self):
+        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
+        subdir = self.make_directory()
+        skool = '; Routine\nc30000 RET'
+        skoolfile = self.write_text_file(skool, os.path.join(subdir, 'test-{}.skool'.format(os.getpid())))
+        game = 'Test{}'.format(os.getpid())
+        ref = '[Game]\nGame={}'.format(game)
+        reffile = self.write_text_file(ref, '{}.ref'.format(skoolfile[:-6]))
+
+        # Test that a ref file in the same directory as the skool file is found
+        output, error = self.run_skool2html(skoolfile)
+        self.assertEqual(error, '')
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(html_writer.game, game)
+
+        # Test that a skool file in the same directory as the ref file is found
+        output, error = self.run_skool2html(reffile)
+        self.assertEqual(error, '')
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(len(html_writer.entries), 1)
+        self.assertTrue(30000 in html_writer.entries)
+
     def test_colour_parsing(self):
         self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         self.mock(skool2html, 'ImageWriter', MockImageWriter)
