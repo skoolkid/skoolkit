@@ -272,9 +272,10 @@ def write_disassembly(html_writer, html_writer_class, files, search_dir, pages, 
     if 'p' in files and html_writer.pokes:
         clock(html_writer.write_pokes, '  Writing {0}'.format(join(game_dir, paths['Pokes'])))
     if 'o' in files:
+        mode = html_writer.parser.mode
         for code_id, code in html_writer.other_code:
             skoolfile = find(code['Source'], search_dir)
-            skool2_parser = clock(SkoolParser, '  Parsing {0}'.format(skoolfile), skoolfile, case=html_writer.case, base=html_writer.base, html=True)
+            skool2_parser = clock(SkoolParser, '  Parsing {0}'.format(skoolfile), skoolfile, case=html_writer.case, base=html_writer.base, html=True, create_labels=mode.create_labels, asm_labels=mode.asm_labels)
             skool2_writer = html_writer_class(skool2_parser, html_writer.ref_parser, html_writer.file_info, html_writer.image_writer, html_writer.case, code_id)
             map_path = code['Index']
             asm_path = code['Path']
