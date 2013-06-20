@@ -47,7 +47,7 @@ c32768 NOP          ; Do nothing
 ; @ssub=DEFM "Lo"
  32790 defm "H",105 ;
  32792 DEFS 3       ; in the comment}
- 32795 RET          ; Instruction with a
+ $801B RET          ; Instruction with a
                     ; comment continuation line
 ; End comment paragraph 1.
 ; .
