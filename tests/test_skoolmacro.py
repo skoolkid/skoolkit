@@ -40,8 +40,8 @@ class SkoolMacroTest(SkoolKitTestCase):
         self.assertEqual(end, len(text))
 
         # Test with an empty parameter string
-        end, p1 = parse_ints('', 0, 1)
-        self.assertEqual(p1, None)
+        end, p1 = parse_ints('', 0, 1, (1,))
+        self.assertEqual(p1, 1)
         self.assertEqual(end, 0)
 
         # Test with adjacent non-numeric characters

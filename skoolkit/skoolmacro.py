@@ -39,11 +39,7 @@ def parse_ints(text, index, num, defaults=()):
                 break
             num_params += 1
         end += 1
-    param_string = text[index:end]
-    req = num - len(defaults)
-    if num_params < req:
-        raise MacroParsingError("Not enough parameters (expected {0}): '{1}'".format(req, param_string))
-    params = get_params(param_string, num, defaults, True)
+    params = get_params(text[index:end], num, defaults, True)
     return [end] + params
 
 def parse_params(text, index, p_text=None, chars=''):
@@ -95,15 +91,14 @@ def get_params(param_string, num=0, defaults=(), ints_only=False):
                     params.append(param)
             else:
                 params.append(None)
-    params += [None] * (num - len(params))
     req = num - len(defaults)
+    if len(params) < req:
+        raise MacroParsingError("Not enough parameters (expected {0}): '{1}'".format(req, param_string))
+    params += [None] * (num - len(params))
     i = req
     while i < len(params):
         if params[i] is None:
-            if i - req < len(defaults):
-                params[i] = defaults[i - req]
-            else:
-                params[i] = None
+            params[i] = defaults[i - req]
         i += 1
     return params
 
