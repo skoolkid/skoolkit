@@ -668,6 +668,45 @@ TABLE_TEXT.append("""
 +-------------------------------------+------------------------------------+
 """)
 
+# Cell in the first column with rowspan > 1 and wrapped contents
+TABLE_SRC.append("""(,:w)
+{ =r2 This cell has rowspan=2 and contains text that will wrap onto the next line | B1 }
+{ B2 }
+""")
+
+TABLE_TEXT.append("""
++-------------------------------------------------------------------+----+
+| This cell has rowspan=2 and contains text that will wrap onto the | B1 |
+| next line                                                         | B2 |
++-------------------------------------------------------------------+----+
+""")
+
+# Cell in the middle column with rowspan > 1 and wrapped contents
+TABLE_SRC.append("""(,,:w)
+{ A1 | =r2 This cell has rowspan=2 and contains text that will wrap onto the next line | C1 }
+{ A2 | C2 }
+""")
+
+TABLE_TEXT.append("""
++----+---------------------------------------------------------------+----+
+| A1 | This cell has rowspan=2 and contains text that will wrap onto | C1 |
+| A2 | the next line                                                 | C2 |
++----+---------------------------------------------------------------+----+
+""")
+
+# Cell in the last column with rowspan > 1 and wrapped contents
+TABLE_SRC.append("""(,,:w)
+{ A1 | =r2 This cell has rowspan=2 and contains text that will wrap onto the next line }
+{ A2 }
+""")
+
+TABLE_TEXT.append("""
++----+-------------------------------------------------------------------+
+| A1 | This cell has rowspan=2 and contains text that will wrap onto the |
+| A2 | next line                                                         |
++----+-------------------------------------------------------------------+
+""")
+
 # Header row shorter than the remaining rows
 TABLE_SRC.append("""
 { =h H1 | =h H2 }

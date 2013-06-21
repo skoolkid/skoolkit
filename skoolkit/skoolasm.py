@@ -575,15 +575,19 @@ class TableWriter:
                     else:
                         colspan = 1
                         contents = ''
-                    if contents:
+                    if contents and prev_rowspan == 1:
                         finished = False
                     line += " {0} ".format(contents.ljust(self.table.get_cell_width(col_index, colspan)))
                     prev_row[col_index] = (prev_cell, prev_rowspan, prev_line_index + 1)
                     col_index += colspan
-                if not finished:
-                    if not prev_cell.transparent:
-                        line += '|'
-                    lines.append(line.rstrip())
+                if finished:
+                    for i, (prev_cell, prev_rowspan, prev_line_index) in enumerate(prev_row):
+                        if prev_rowspan > 1:
+                            prev_row[i] = (prev_cell, prev_rowspan, prev_line_index - 1)
+                    break
+                if not prev_cell.transparent:
+                    line += '|'
+                lines.append(line.rstrip())
 
             # Stop now if we've reached the end of the table (marked by an
             # empty row)
