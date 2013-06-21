@@ -103,10 +103,7 @@ class HtmlWriter:
         self.ref_parser = ref_parser
         self.file_info = file_info
         self.image_writer = image_writer
-        if image_writer:
-            self.default_image_format = image_writer.default_format
-        else:
-            self.default_image_format = None
+        self.default_image_format = image_writer.default_format
         self.case = case
         self.base = skool_parser.base
 
@@ -1297,21 +1294,16 @@ class HtmlWriter:
         # #EREFSaddr
         end, address = parse_ints(text, index, 1)
         ereferrers = self.get_entry_point_refs(address)
-        if text[index] == '$':
-            addr_fmt = '{0:04X}'
-        else:
-            addr_fmt = '{0}'
         if not ereferrers:
-            raise MacroParsingError('Entry point at {0} has no referrers'.format(addr_fmt.format(address)))
-        ereferrers.sort()
-        eref_files = [(FileInfo.asm_relpath(cwd, addr, self.code_path), addr) for addr in ereferrers]
-        html = 'routine at '
-        if len(ereferrers) > 1:
+            raise MacroParsingError('Entry point at {0} has no referrers'.format(address))
+        if len(ereferrers) == 1:
+            html = 'routine at '
+        else:
+            ereferrers.sort()
             html = 'routines at '
-            html += ', '.join('<a class="link" href="{0}">{1}</a>'.format(eref_file, addr_fmt.format(addr)) for eref_file, addr in eref_files[:-1])
+            html += ', '.join('#R{}'.format(addr) for addr in ereferrers[:-1])
             html += ' and '
-        eref_file, addr = eref_files[-1]
-        html += '<a class="link" href="{0}">{1}</a>'.format(eref_file, addr_fmt.format(addr))
+        html += '#R{}'.format(ereferrers[-1])
         return end, html
 
     def expand_fact(self, text, index, cwd):
@@ -1427,21 +1419,16 @@ class HtmlWriter:
         entry = self.entries.get(address)
         if not entry:
             raise MacroParsingError('No entry at {0}'.format(addr_str))
-        if text[index] == '$':
-            addr_fmt = '{0:04X}'
-        else:
-            addr_fmt = '{0}'
         referrers = [ref.address for ref in entry.referrers]
         if referrers:
-            referrers.sort()
-            ref_files = [(FileInfo.asm_relpath(cwd, addr, self.code_path), addr) for addr in referrers]
-            html = ('{0} routine at '.format(prefix)).lstrip()
-            if len(referrers) > 1:
+            if len(referrers) == 1:
+                html = ('{0} routine at '.format(prefix)).lstrip()
+            else:
+                referrers.sort()
                 html = ('{0} routines at '.format(prefix)).lstrip()
-                html += ', '.join('<a class="link" href="{0}">{1}</a>'.format(ref_file, addr_fmt.format(addr)) for ref_file, addr in ref_files[:-1])
+                html += ', '.join('#R{}'.format(addr) for addr in referrers[:-1])
                 html += ' and '
-            ref_file, addr = ref_files[-1]
-            html += '<a class="link" href="{0}">{1}</a>'.format(ref_file, addr_fmt.format(addr))
+            html += '#R{}'.format(referrers[-1])
         else:
             html = 'Not used directly by any other routines'
         return end, html
@@ -1566,15 +1553,7 @@ class HtmlWriter:
                 raise SkoolParsingError('Found unsupported macro: {0}'.format(marker))
             except MacroParsingError as e:
                 raise SkoolParsingError('Error while parsing {0} macro: {1}'.format(marker, e.args[0]))
-            if rep.startswith('\n'):
-                prefix = text[:start].rstrip()
-            else:
-                prefix = text[:start]
-            if rep.endswith('\n'):
-                suffix = text[end:].lstrip()
-            else:
-                suffix = text[end:]
-            text = "{0}{1}{2}".format(prefix, rep, suffix)
+            text = text[:start] + rep + text[end:]
 
         return text
 

@@ -95,11 +95,9 @@ def get_params(param_string, num=0, defaults=(), ints_only=False):
     if len(params) < req:
         raise MacroParsingError("Not enough parameters (expected {0}): '{1}'".format(req, param_string))
     params += [None] * (num - len(params))
-    i = req
-    while i < len(params):
+    for i in range(req, num):
         if params[i] is None:
             params[i] = defaults[i - req]
-        i += 1
     return params
 
 class UnsupportedMacroError(SkoolKitError):

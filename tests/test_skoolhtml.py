@@ -7,7 +7,7 @@ from skoolkittest import SkoolKitTestCase, StringIO
 from skoolkit import VERSION, SkoolKitError, SkoolParsingError
 from skoolkit.skoolmacro import UnsupportedMacroError
 from skoolkit.skoolhtml import HtmlWriter, FileInfo, Udg
-from skoolkit.skoolparser import SkoolParser, Register
+from skoolkit.skoolparser import SkoolParser, Register, CASE_LOWER
 from skoolkit.refparser import RefParser
 
 GAMEDIR = 'test'
@@ -109,17 +109,19 @@ TABLE_HTML = """<table class="data">
 </tr>
 </table>"""
 
-LIST_SRC = """(default)
-{ Item 1 }
-{ Item 2 }
-{ #REGa }
+TABLE2_SRC = """(,centre)
+{ =h Header }
+{ Cell }
 """
 
-LIST_HTML = """<ul class="default">
-<li>Item 1</li>
-<li>Item 2</li>
-<li><span class="register">A</span></li>
-</ul>"""
+TABLE2_HTML = """<table>
+<tr>
+<th>Header</th>
+</tr>
+<tr>
+<td class="centre">Cell</td>
+</tr>
+</table>"""
 
 TEST_ADDRESS_SKOOL = """; Routine
 c24576 LD HL,$6003
@@ -173,8 +175,8 @@ u24583 DEFB 0
 ; .
 ;
 ; A 0
-c24584 CALL 30000
- 24587 JP 30003
+c24584 CALL 30000  ; {Comment for the instructions at 24584 and 24587
+ 24587 JP 30003    ; }
 
 r30000 start
  30003
@@ -323,12 +325,11 @@ ENTRY6 = """<div class="description">24584: Routine at 24584 (register section b
 <tr>
 <td class="label"><a name="24584"></a>24584</td>
 <td class="instruction">CALL <a class="link" href="../start/30000.html">30000</a></td>
-<td class="transparentComment" />
+<td class="comment" rowspan="2">Comment for the instructions at 24584 and 24587</td>
 </tr>
 <tr>
 <td class="address"><a name="24587"></a>24587</td>
 <td class="instruction">JP <a class="link" href="../start/30000.html#30003">30003</a></td>
-<td class="transparentComment" />
 </tr>
 </table>
 """
@@ -1197,9 +1198,9 @@ class HtmlWriterTest(SkoolKitTestCase):
                 output = writer.expand('#{0}{1}{2}'.format(macro, anchor, link_text), ASMDIR)
                 self.link_equals(output, '../{0}/{1}.html{2}'.format(REFERENCE_DIR, page, anchor), link_text[1:-1] or def_link_text)
 
-    def _test_call(self, cwd, arg1, arg2):
+    def _test_call(self, *args):
         # Method used to test the #CALL macro
-        return '{0}{1}'.format(cwd, arg2 * arg1)
+        return str(args)
 
     def _test_call_no_retval(self, *args):
         return
@@ -1467,9 +1468,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer = self._get_writer()
         writer.test_call = self._test_call
 
-        # Correct
+        # All arguments given
         output = writer.expand('#CALL:test_call(10,test)', ASMDIR)
         self.assertEqual(output, self._test_call(ASMDIR, 10, 'test'))
+
+        # One argument omitted
+        output = writer.expand('#CALL:test_call(3,,test2)', ASMDIR)
+        self.assertEqual(output, self._test_call(ASMDIR, 3, None, 'test2'))
 
         prefix = ERROR_PREFIX.format('CALL')
 
@@ -1543,8 +1548,22 @@ class HtmlWriterTest(SkoolKitTestCase):
             self.assertEqual(e.args[0], '{0}: Cannot determine description for nonexistent entry at {1}'.format(prefix, address))
 
     def test_macro_erefs(self):
+        # Entry point with one referrer
+        skool = '\n'.join((
+            '; Referrer',
+            'c40000 JP 40004',
+            '',
+            '; Routine',
+            'c40003 LD A,B',
+            ' 40004 INC A'
+        ))
+        writer = self._get_writer(skool=skool)
+        output = writer.expand('#EREFS40004', ASMDIR)
+        self.assertEqual(output, 'routine at <a class="link" href="40000.html">40000</a>')
+
         writer = self._get_writer(skool=TEST_MACRO_EREFS)
 
+        # Entry point with more than one referrer
         output = writer.expand('#EREFS30004', ASMDIR)
         self.assertEqual(output, 'routines at <a class="link" href="30000.html">30000</a> and <a class="link" href="30005.html">30005</a>')
 
@@ -1677,8 +1696,28 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_macro_list(self):
         writer = self._get_writer()
-        output = writer.expand('#LIST{0}\nLIST#'.format(LIST_SRC), ASMDIR)
-        self.assertEqual(output, LIST_HTML)
+
+        # List with a CSS class and an item containing a skool macro
+        src = "(default){ Item 1 }{ Item 2 }{ #REGa }"
+        html = '\n'.join((
+            '<ul class="default">',
+            '<li>Item 1</li>',
+            '<li>Item 2</li>',
+            '<li><span class="register">A</span></li>',
+            '</ul>'
+        ))
+        output = writer.expand('#LIST{0}\nLIST#'.format(src), ASMDIR)
+        self.assertEqual(output, html)
+
+        # List with no CSS class
+        src = "{ Item 1 }"
+        html = '\n'.join((
+            '<ul>',
+            '<li>Item 1</li>',
+            '</ul>'
+        ))
+        output = writer.expand('#LIST{0}\nLIST#'.format(src), ASMDIR)
+        self.assertEqual(output, html)
 
     def test_macro_poke(self):
         self._test_reference_macro('POKE', 'poke', 'pokes')
@@ -1786,11 +1825,24 @@ class HtmlWriterTest(SkoolKitTestCase):
             self.assertEqual(e.args[0], '{0}: Could not find routine file containing {1}'.format(prefix, address))
 
     def test_macro_refs(self):
+        # One referrer
+        skool = '\n'.join((
+            '; Referrer',
+            'c40000 JP 40003',
+            '',
+            '; Routine',
+            'c40003 LD A,B'
+        ))
+        writer = self._get_writer(skool=skool)
+        output = writer.expand('#REFS40003', ASMDIR)
+        self.assertEqual(output, 'routine at <a class="link" href="40000.html">40000</a>')
+
         writer = self._get_writer(skool=TEST_MACRO_REFS_SKOOL)
 
         # Some referrers
-        output = writer.expand('#REFS24579', ASMDIR)
-        self.assertEqual(output, 'routines at <a class="link" href="24581.html">24581</a>, <a class="link" href="24584.html">24584</a> and <a class="link" href="24590.html">24590</a>')
+        for address in ('24579', '$6003'):
+            output = writer.expand('#REFS{}'.format(address), ASMDIR)
+            self.assertEqual(output, 'routines at <a class="link" href="24581.html">24581</a>, <a class="link" href="24584.html">24584</a> and <a class="link" href="24590.html">24590</a>')
 
         # No referrers
         output = writer.expand('#REFS24576', ASMDIR)
@@ -1806,7 +1858,14 @@ class HtmlWriterTest(SkoolKitTestCase):
             self.assertEqual(e.args[0], '{0}: No entry at {1}'.format(prefix, address))
 
     def test_macro_reg(self):
+        # Lower case
         writer = self._get_writer()
+        writer.case = CASE_LOWER
+        output = writer.expand('#REGhl', ASMDIR)
+        self.assertEqual(output, '<span class="register">hl</span>')
+        writer.case = None
+
+        # Upper case, all registers
         for reg in ("a", "b", "c", "d", "e", "h", "l", "i", "r", "ixl", "ixh", "iyl", "iyh", "b'", "c'", "d'", "e'", "h'", "l'", "bc", "de", "hl", "sp", "ix", "iy", "bc'", "de'", "hl'"):
             output = writer.expand('#REG{0}'.format(reg), ASMDIR)
             self.assertEqual(output, '<span class="register">{0}</span>'.format(reg.upper()))
@@ -1868,8 +1927,9 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_macro_table(self):
         writer = self._get_writer()
-        output = writer.expand('#TABLE{0}\nTABLE#'.format(TABLE_SRC), ASMDIR)
-        self.assertEqual(output, TABLE_HTML)
+        for src, html in ((TABLE_SRC, TABLE_HTML), (TABLE2_SRC, TABLE2_HTML)):
+            output = writer.expand('#TABLE{0}\nTABLE#'.format(src), ASMDIR)
+            self.assertEqual(output, html)
 
     def test_macro_udg(self):
         snapshot = [0] * 65536

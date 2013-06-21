@@ -991,8 +991,8 @@ class AsmWriterTest(SkoolKitTestCase):
                 output = writer.expand('#{0}{1}{2}'.format(macro, anchor, link_text))
                 self.assertEqual(output, link_text[1:-1] or def_link_text)
 
-    def _test_call(self, x, y):
-        return y * x
+    def _test_call(self, *args):
+        return str(args)
 
     def _test_call_no_retval(self, *args):
         return
@@ -1004,9 +1004,13 @@ class AsmWriterTest(SkoolKitTestCase):
         writer = self._get_writer(warn=True)
         writer.test_call = self._test_call
 
-        # Correct
-        output = writer.expand('#CALL:test_call(10,t)')
-        self.assertEqual(output, 'tttttttttt')
+        # All arguments given
+        output = writer.expand('#CALL:test_call(10,t,5)')
+        self.assertEqual(output, self._test_call(10, 't', 5))
+
+        # One argument omitted
+        output = writer.expand('#CALL:test_call(7,,test2)')
+        self.assertEqual(output, self._test_call(7, None, 'test2'))
 
         prefix = ERROR_PREFIX.format('CALL')
 
