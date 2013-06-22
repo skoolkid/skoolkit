@@ -447,6 +447,16 @@ class OptionsTest(SkoolKitTestCase):
             self.assertEqual(lines[3][:10], 'c65534 nop')
             self.assertEqual(lines[4][:15], ' 65535 defm "A"')
 
+    def test_options_HL(self):
+        data = [62, 254]           # $FFFB LD A,$FE
+        data.extend((195, 1, 128)) # $FFFD JP $8001
+        binfile = self._write_bin(data, ['c $FFFB'])
+        lines = self._write_skool('-HL {}'.format(binfile), 5)
+        self.assertEqual(lines[0], '; @start')
+        self.assertEqual(lines[1], '; @org=$fffb')
+        self.assertEqual(lines[3][:15], 'c$fffb ld a,$fe')
+        self.assertEqual(lines[4][:15], ' $fffd jp $8001')
+
     def test_option_T(self):
         data = [0] * 6
         data.append(120)           # 65532 LD A,B
@@ -643,10 +653,10 @@ class OptionsTest(SkoolKitTestCase):
             self.assertTrue(self._get_first_address(lines) == start)
 
     def test_option_t(self):
-        binfile = self._write_bin([49, 54, 50]) # DEFM "162"
+        binfile = self._write_bin([49, 127, 50])
         for option in ('-t', '--text'):
             skool = self._write_skool('{0} {1}'.format(option, binfile), 10)
-            self.assertTrue('c65533 LD SP,12854   ; [162]' in skool)
+            self.assertTrue('c65533 LD SP,12927   ; [1.2]' in skool)
 
     def test_option_z(self):
         data = [0, 1, 2, 3, 4, 5]
@@ -700,6 +710,22 @@ class OptionsTest(SkoolKitTestCase):
         sftfile = self.write_text_file('\n'.join(sft), suffix='.sft')
         lines = self._write_skool('-T {0} {1}'.format(sftfile, binfile), 1)
         self.assertEqual(lines[0], sft[0])
+
+    def test_terminal_unknown_block(self):
+        data = (
+            205, 255, 255, # 65531 CALL 65535
+            201,           # 65534 RET
+            233            # 65535 JP (HL)
+        )
+        org = 65536 - len(data)
+        code_map = self._create_map((org, org + 3))
+        code_map_file = self.write_bin_file(code_map, suffix='.map')
+        ctlfile = self.write_text_file()
+        binfile = self.write_bin_file(data, suffix='.bin')
+        exp_error = 'Reading {0}\n'.format(code_map_file)
+        skool = self._write_skool('-g {0} -M {1} {2}'.format(ctlfile, code_map_file, binfile), 7, exp_error)
+        self.assertEqual(skool[2], '; Routine at {0}'.format(org))
+        self.assertEqual(skool[6], '; Routine at 65535')
 
     def _write_skool(self, args, split=0, exp_error=''):
         self.clear_streams()

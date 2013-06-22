@@ -198,7 +198,7 @@ def _find_terminal_instruction(disassembler, ctls, start, end=65536, ctl=None):
             if ctls.get(address) == 'c':
                 break
         if _is_terminal_instruction(instruction):
-            if address not in ctls:
+            if address < 65536 and address not in ctls:
                 ctls[address] = ctl or next_ctl
             break
     return address
@@ -801,10 +801,7 @@ class SkoolWriter:
                     address = instruction.address
                     operation = instruction.operation
                     if block.comment:
-                        if i < len(comment_lines):
-                            comment = comment_lines[i]
-                        else:
-                            comment = ''
+                        comment = comment_lines[i]
                     elif text and entry.ctl != 't':
                         comment = self.to_ascii(instruction.bytes)
                     else:

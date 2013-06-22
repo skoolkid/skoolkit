@@ -27,6 +27,9 @@ Changelog
   `handle-unsupported-macros` and `wrap-column-width-min` properties
 * Fixed the :ref:`EREFS` and :ref:`m-REFS` macros so that they work with
   hexadecimal address parameters
+* Fixed the bug that crashes :ref:`sna2skool.py` when generating a control file
+  from a code execution map and a snapshot with a code block that terminates at
+  65535
 * Removed support for the ``#NAME`` macro (what it did can be done by the
   :ref:`html` macro instead)
 * Removed the documentation sources and man page sources from the SkoolKit
