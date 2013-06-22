@@ -30,6 +30,8 @@ Changelog
 * Fixed the bug that crashes :ref:`sna2skool.py` when generating a control file
   from a code execution map and a snapshot with a code block that terminates at
   65535
+* Fixed how :ref:`skool2asm.py` renders table cells with rowspan > 1 and
+  wrapped contents alongside cells with rowspan = 1
 * Removed support for the ``#NAME`` macro (what it did can be done by the
   :ref:`html` macro instead)
 * Removed the documentation sources and man page sources from the SkoolKit
