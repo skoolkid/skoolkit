@@ -457,12 +457,7 @@ class AsmWriter:
             for line in lines:
                 if not ignoreua:
                     uaddress = self.find_unconverted_address(line)
-                    if uaddress and not (line.startswith('| ') and line.endswith(' |')):
-                        # Print a warning only if the unconverted address
-                        # appears outside a table row (there are many
-                        # unconvertible addresses in table rows that would
-                        # otherwise flood the warning output, so we ignore
-                        # them)
+                    if uaddress:
                         if instruction:
                             if not instruction.ignoremrcua:
                                 self.warn('Comment above {0} contains address ({1}) not converted to a label:\n; {2}'.format(instruction.address, uaddress, line))
