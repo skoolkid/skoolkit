@@ -436,6 +436,8 @@ class SkoolParser:
 
             if directive.startswith('label='):
                 self.mode.label = directive[6:].rstrip()
+            elif directive.startswith('keep'):
+                self.mode.keep = True
 
             if self.mode.asm:
                 if directive.startswith('rsub='):
@@ -455,8 +457,6 @@ class SkoolParser:
                 elif directive.startswith('ignoreua'):
                     self.mode.ignoreua = True
                     self.ignores.append(len(self.comments))
-                elif directive.startswith('keep'):
-                    self.mode.keep = True
                 elif directive.startswith('org='):
                     self.mode.org = directive[4:].rstrip()
                 elif directive.startswith('writer='):
@@ -563,6 +563,8 @@ class SkoolParser:
         # Parse operations for routine/data addresses
         for entry in self.memory_map:
             for instruction in entry.instructions:
+                if instruction.keep:
+                    continue
                 operation = instruction.operation.upper()
                 if operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ')):
                     addr_str = get_address(operation)
@@ -687,6 +689,8 @@ class Mode:
             self.include = False
 
     def apply_asm_attributes(self, instruction):
+        instruction.keep = self.keep
+
         if self.asm_labels and self.label:
             if self.label in self.labels:
                 raise SkoolParsingError('Duplicate label {0} at {1}'.format(self.label, instruction.address))
@@ -712,7 +716,6 @@ class Mode:
             instruction.nolabel = self.nolabel
             instruction.ignoreua = self.ignoreua
             instruction.ignoremrcua = self.ignoremrcua
-            instruction.keep = self.keep
             instruction.org = self.org
 
         self.reset()

@@ -349,5 +349,33 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instruction.operation, 'LD HL,16384')
         self.assertEqual(instruction.sub, instruction.operation)
 
+    def test_html_mode_label(self):
+        label = 'START'
+        skool = '\n'.join((
+            '; Routine',
+            '; @label={}'.format(label),
+            'c49152 LD BC,0',
+            ' 49155 RET'
+        ))
+        parser = self._get_parser(skool, html=True)
+        entry = parser.get_entry(49152)
+        self.assertEqual(entry.instructions[0].asm_label, label)
+        self.assertIsNone(entry.instructions[1].asm_label)
+
+    def test_html_mode_keep(self):
+        skool = '\n'.join((
+            '; Routine',
+            'c40000 LD HL,40006',
+            '; @keep',
+            ' 40003 LD DE,40006',
+            '',
+            '; Another routine',
+            'c40006 RET'
+        ))
+        parser = self._get_parser(skool, html=True)
+        entry = parser.get_entry(40000)
+        self.assertFalse(entry.instructions[0].keep)
+        self.assertTrue(entry.instructions[1].keep)
+
 if __name__ == '__main__':
     unittest.main()

@@ -342,6 +342,10 @@ c50000 LD B,5     ; Loop 5 times
 
 ; Routine without a label
 c50005 JP 50000
+
+; DEFW statement with a @keep directive
+; @keep
+b50008 DEFW 50000
 """
 
 ASM_LABELS_ENTRY1 = """<div class="description">START: 50000: Routine with a label</div>
@@ -385,6 +389,22 @@ ASM_LABELS_ENTRY2 = """<div class="description">50005: Routine without a label</
 <td class="label"><a name="50005"></a>50005</td>
 <td class="instruction">JP <a class="link" href="50000.html">START</a></td>
 <td class="transparentComment" />
+</tr>
+</table>
+"""
+
+ASM_LABELS_ENTRY3 = """<div class="description">50008: DEFW statement with a @keep directive</div>
+<table class="dataDisassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+</div>
+</td>
+</tr>
+<tr>
+<td class="address"><a name="50008"></a>50008</td>
+<td class="instruction">DEFW 50000</td>
+<td class="transparentDataComment" />
 </tr>
 </table>
 """
@@ -2214,7 +2234,6 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_asm_labels(self):
         writer = self._get_writer(skool=TEST_ASM_LABELS_SKOOL, asm_labels=True)
         common_subs = {
-            'header': 'Routines',
             'name': basename(self.skoolfile)[:-6],
             'path': '../',
             'body_class': 'disassembly',
@@ -2224,6 +2243,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # Routine at 50000
         subs = {
+            'header': 'Routines',
             'title': 'Routine at 50000 (START)',
             'up': 50000,
             'next': 50005,
@@ -2234,13 +2254,26 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # Routine at 50005
         subs = {
+            'header': 'Routines',
             'title': 'Routine at 50005',
             'prev': 50000,
             'up': 50005,
+            'next': 50008,
             'content': ASM_LABELS_ENTRY2
         }
         subs.update(common_subs)
         self.assert_files_equal(join(ASMDIR, '50005.html'), subs)
+
+        # DEFW statement at 50008
+        subs = {
+            'header': 'Data',
+            'title': 'Data at 50008',
+            'prev': 50005,
+            'up': 50008,
+            'content': ASM_LABELS_ENTRY3
+        }
+        subs.update(common_subs)
+        self.assert_files_equal(join(ASMDIR, '50008.html'), subs)
 
     def test_write_map(self):
         writer = self._get_writer(skool=TEST_WRITE_MAP)

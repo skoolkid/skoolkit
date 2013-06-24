@@ -27,7 +27,8 @@ they are irrelevant to the purpose of creating the HTML version of the
 disassembly. The only ASM directives that are processed in HTML mode are the
 following:
 
-* :ref:`label` (when the ``--asm-labels`` option is used)
+* :ref:`keep`
+* :ref:`label`
 * :ref:`bfixBlockDirectives`
 * :ref:`isubBlockDirectives`
 * :ref:`ofixBlockDirectives`
