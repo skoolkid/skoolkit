@@ -556,7 +556,7 @@ class TableWriter:
                 col_index = 0
                 while col_index < self.table.num_cols:
                     prev_cell, prev_rowspan, prev_line_index = prev_row[col_index]
-                    if adj_transparent and prev_cell.transparent:
+                    if adj_transparent and prev_cell and prev_cell.transparent:
                         line += ' '
                     else:
                         line += '|'

@@ -845,6 +845,20 @@ TABLE_TEXT.append("""
           +----+
 """)
 
+# Short header row ending with a (redundant) transparent cell
+TABLE_SRC.append("""
+{ =h A1 | =t }
+{ A2 | B2 | C2 }
+""")
+
+TABLE_TEXT.append("""
++----+
+| A1 |
++----+----+----+
+| A2 | B2 | C2 |
++----+----+----+
+""")
+
 TEST_TABLES = []
 TABLE_ERRORS = []
 
