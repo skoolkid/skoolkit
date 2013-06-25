@@ -531,174 +531,99 @@ class TableWriter:
     def __init__(self, max_width, min_col_width):
         self.max_width = max_width
         self.min_col_width = min_col_width
-        self.cell_padding = len(' | ')
         self.table = None
         self.table_parser = TableParser()
+        self.cell_matrix = None
 
     def format_table(self, text):
         self.table = self.table_parser.parse_table(text)
-        self.table.cell_padding = self.cell_padding
+        self.table.cell_padding = 3
         self.table.prepare_cells()
         self.table.reduce_width(self.max_width, self.min_col_width)
+        self.cell_matrix = self._build_cell_matrix()
         return self._create_table_text()
 
-    def _create_table_text(self):
-        header_rows = [-1] + self.table.get_header_rows()
-        lines = []
-        prev_row = [(None, 1, 0)] * self.table.num_cols
-        for row_index, row in enumerate(self.table.rows + [[]]):
-            # Deal with remaining lines in previous row
-            finished = row_index == 0
-            while not finished:
-                line = ''
-                adj_transparent = True
-                finished = True
-                col_index = 0
-                while col_index < self.table.num_cols:
-                    prev_cell, prev_rowspan, prev_line_index = prev_row[col_index]
-                    if adj_transparent and prev_cell and prev_cell.transparent:
-                        line += ' '
-                    else:
-                        line += '|'
-                    if prev_cell:
-                        adj_transparent = prev_cell.transparent
-                        colspan = prev_cell.colspan
-                        if prev_line_index < len(prev_cell.contents):
-                            contents = prev_cell.contents[prev_line_index]
-                        else:
-                            contents = ''
-                    else:
-                        colspan = 1
-                        contents = ''
-                    if contents and prev_rowspan == 1:
-                        finished = False
-                    line += " {0} ".format(contents.ljust(self.table.get_cell_width(col_index, colspan)))
-                    prev_row[col_index] = (prev_cell, prev_rowspan, prev_line_index + 1)
-                    col_index += colspan
-                if finished:
-                    for i, (prev_cell, prev_rowspan, prev_line_index) in enumerate(prev_row):
-                        if prev_rowspan > 1:
-                            prev_row[i] = (prev_cell, prev_rowspan, prev_line_index - 1)
-                    break
-                if not prev_cell.transparent:
-                    line += '|'
-                lines.append(line.rstrip())
+    def _build_cell_matrix(self):
+        cell_matrix = []
+        for row in self.table.rows:
+            cell_matrix.append([None] * self.table.num_cols)
+        for cell in self.table.cells:
+            for x in range(cell.col_index, cell.col_index + cell.colspan):
+                for y in range(cell.row_index, cell.row_index + cell.rowspan):
+                    cell_matrix[y][x] = cell
+        return cell_matrix
 
-            # Stop now if we've reached the end of the table (marked by an
-            # empty row)
-            if not row:
-                break
+    def _get_cell(self, col_index, row_index):
+        if 0 <= row_index < len(self.cell_matrix) and 0 <= col_index < self.table.num_cols:
+            return self.cell_matrix[row_index][col_index]
 
-            # Create a separator row if required
-            if row_index - 1 in header_rows:
-                lines.append(self._create_row_separator(row, prev_row, row_index > 0))
-
-            line = ''
-            adj_transparent = True
-            col_index = 0
-            for cell in row:
-                # Deal with previous rowspan > 1
-                prev_cell, prev_rowspan, prev_line_index = prev_row[col_index]
-                while prev_rowspan > 1:
-                    if adj_transparent and prev_cell.transparent:
-                        line += ' '
-                    else:
-                        line += '|'
-                    adj_transparent, colspan = prev_cell.transparent, prev_cell.colspan
-                    if prev_line_index < len(prev_cell.contents):
-                        contents = prev_cell.contents[prev_line_index]
-                    else:
-                        contents = ''
-                    line += " {0} ".format(contents.ljust(self.table.get_cell_width(col_index, colspan)))
-                    prev_row[col_index] = (prev_cell, prev_rowspan - 1, prev_line_index + 1)
-                    col_index += colspan
-                    prev_cell, prev_rowspan, prev_line_index = prev_row[col_index]
-
-                # Deal with cells in this row
-                if adj_transparent and cell.transparent:
-                    line += ' '
-                else:
-                    line += '|'
-                adj_transparent, colspan = cell.transparent, cell.colspan
-                line += " {0} ".format(cell.contents[0].ljust(self.table.get_cell_width(col_index, colspan)))
-                prev_row[col_index] = (cell, cell.rowspan, 1)
-                col_index += colspan
-
-            # Deal with cells at the end of the previous row that have rowspan
-            # greater than 1
-            while col_index < len(prev_row):
-                prev_cell, prev_rowspan, prev_line_index = prev_row[col_index]
-                if prev_rowspan > 1:
-                    if adj_transparent and prev_cell.transparent:
-                        line += ' '
-                    else:
-                        line += '|'
-                    adj_transparent, colspan = prev_cell.transparent, prev_cell.colspan
-                    if prev_line_index < len(prev_cell.contents):
-                        contents = prev_cell.contents[prev_line_index]
-                    else:
-                        contents = ''
-                    line += " {0} ".format(contents.ljust(self.table.get_cell_width(col_index, colspan)))
-                    prev_row[col_index] = (prev_cell, prev_rowspan - 1, prev_line_index + 1)
-                    col_index += prev_cell.colspan
-                    cell = prev_cell
-                else:
-                    break
-
-            if not cell.transparent:
+    def _render_row(self, lines, row_index, first_line=True):
+        rendered = False
+        line = ''
+        col_index = 0
+        cell_left_transparent = True
+        cell = self._get_cell(col_index, row_index)
+        while cell:
+            if cell.transparent and cell_left_transparent:
+                border = ' '
+            else:
+                border = '|'
+            text = ''
+            if cell.contents and (first_line or row_index == cell.row_index + cell.rowspan - 1):
+                text = cell.contents.pop(0)
+                rendered = True
+            line += "{} {} ".format(border, text.ljust(self.table.get_cell_width(col_index, cell.colspan)))
+            col_index += cell.colspan
+            cell_left_transparent = cell.transparent
+            cell = self._get_cell(col_index, row_index)
+        if rendered:
+            if (cell and not cell.transparent) or (cell is None and not cell_left_transparent):
                 line += '|'
             lines.append(line.rstrip())
+        return rendered
 
-        lines.append(self._create_row_separator(self.table.rows[-1], prev_row))
+    def _create_table_text(self):
+        max_row_index = len(self.table.rows)
+        separator_row_indexes = set((0, max_row_index))
+        separator_row_indexes.update([i + 1 for i in self.table.get_header_rows()])
+        lines = []
+        for row_index in range(max_row_index):
+            if row_index in separator_row_indexes:
+                lines.append(self._create_row_separator(row_index))
+            self._render_row(lines, row_index)
+            while self._render_row(lines, row_index, False):
+                pass
+        lines.append(self._create_row_separator(max_row_index))
         return lines
 
-    def _create_row_separator(self, row, prev_row=None, fill=False):
+    def _create_row_separator(self, row_index):
+        # Return a separator between rows `row_index - 1` and `row_index`
         separator = ''
         col_index = 0
-        adj_transparent = True
-        for cell in row:
-            # Deal with previous rowspan > 1
-            if col_index < cell.col_index:
-                prev_cell = prev_row[col_index][0]
-                if prev_cell.transparent:
-                    separator += ' '
-                    spacer = ' '
-                else:
-                    separator += '+'
-                    spacer = '-'
-                colspan = cell.col_index - col_index
-                separator += spacer * (2 + self.table.get_cell_width(col_index, colspan))
-
-            # Deal with cells in this row
-            col_index, colspan = cell.col_index, cell.colspan
-            solid = fill or not cell.transparent
-            if adj_transparent and not solid:
+        while col_index < self.table.num_cols:
+            cell_above = self._get_cell(col_index, row_index - 1)
+            if row_index < len(self.table.rows):
+                cell = self._get_cell(col_index, row_index)
+            else:
+                cell = cell_above
+            if cell is None:
+                break
+            cell_above_transparent = cell_above is None or cell_above.transparent
+            cell_above_left = self._get_cell(col_index - 1, row_index - 1)
+            cell_above_left_transparent = cell_above_left is None or cell_above_left.transparent
+            cell_left = self._get_cell(col_index - 1, row_index)
+            cell_left_transparent = cell_left is None or cell_left.transparent
+            if cell.transparent and cell_above_transparent and cell_above_left_transparent and cell_left_transparent:
                 separator += ' '
             else:
                 separator += '+'
-            if solid:
-                spacer = '-'
-            else:
+            if cell.transparent and cell_above_transparent:
                 spacer = ' '
-            separator += spacer * (2 + self.table.get_cell_width(col_index, colspan))
-            adj_transparent = cell.transparent
-            col_index += colspan
+            else:
+                spacer = '-'
+            separator += spacer * (2 + self.table.get_cell_width(col_index, cell.colspan))
+            col_index += cell.colspan
 
-        # Deal with cells at the end of the previous row that have rowspan > 1
-        if prev_row[0][0]:
-            while col_index < self.table.num_cols:
-                prev_cell = prev_row[col_index][0]
-                if adj_transparent and prev_cell.transparent and not fill:
-                    separator += ' '
-                else:
-                    separator += '+'
-                if prev_cell.transparent:
-                    spacer = ' '
-                else:
-                    spacer = '-'
-                separator += spacer * (2 + self.table.get_cell_width(col_index, prev_cell.colspan))
-                col_index += prev_cell.colspan
-
-        if separator.endswith('-'):
-            return separator + '+'
-        return separator.rstrip()
+        if separator.endswith(' '):
+            return separator.rstrip()
+        return separator + '+'
