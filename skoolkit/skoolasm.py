@@ -598,8 +598,10 @@ class TableWriter:
 
     def _create_row_separator(self, row_index):
         # Return a separator between rows `row_index - 1` and `row_index`
-        separator = ''
+        line = ''
         col_index = 0
+        cell_left_contents = True
+
         while col_index < self.table.num_cols:
             cell_above = self._get_cell(col_index, row_index - 1)
             if row_index < len(self.table.rows):
@@ -613,17 +615,27 @@ class TableWriter:
             cell_above_left_transparent = cell_above_left is None or cell_above_left.transparent
             cell_left = self._get_cell(col_index - 1, row_index)
             cell_left_transparent = cell_left is None or cell_left.transparent
+            cell_contents = bool(cell_above and cell_above.contents)
             if cell.transparent and cell_above_transparent and cell_above_left_transparent and cell_left_transparent:
-                separator += ' '
+                line += ' '
+            elif cell_contents and cell_left_contents:
+                line += '|'
             else:
-                separator += '+'
-            if cell.transparent and cell_above_transparent:
-                spacer = ' '
+                line += '+'
+            if cell_contents:
+                text = cell.contents.pop(0)
+                line += ' {} '.format(text.ljust(self.table.get_cell_width(col_index, cell_above.colspan)))
             else:
-                spacer = '-'
-            separator += spacer * (2 + self.table.get_cell_width(col_index, cell.colspan))
+                if cell.transparent and cell_above_transparent:
+                    spacer = ' '
+                else:
+                    spacer = '-'
+                line += spacer * (2 + self.table.get_cell_width(col_index, cell.colspan))
+            cell_left_contents = cell_contents
             col_index += cell.colspan
 
-        if separator.endswith(' '):
-            return separator.rstrip()
-        return separator + '+'
+        if cell_contents:
+            return line + '|'
+        if line.endswith(' '):
+            return line.rstrip()
+        return line + '+'

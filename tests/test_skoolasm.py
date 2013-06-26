@@ -859,6 +859,116 @@ TABLE_TEXT.append("""
 +----+----+----+
 """)
 
+# Transparent cell in the last column between the top and bottom rows
+TABLE_SRC.append("""
+{ =h A1 | =h B1 | =h C1 }
+{ =h A2 | =h B2 | =t }
+{ A3 | B3 | C3 }
+""")
+
+TABLE_TEXT.append("""
++----+----+----+
+| A1 | B1 | C1 |
++----+----+----+
+| A2 | B2 |
++----+----+----+
+| A3 | B3 | C3 |
++----+----+----+
+""")
+
+# Transparent cell in the bottom row between the first and last columns
+TABLE_SRC.append("""
+{ =h A1 | =h B1 | =h C1 }
+{ =h A2 | =h B2 | =h C2 }
+{ A3 | =t | C3 }
+""")
+
+TABLE_TEXT.append("""
++----+----+----+
+| A1 | B1 | C1 |
++----+----+----+
+| A2 | B2 | C2 |
++----+----+----+
+| A3 |    | C3 |
++----+    +----+
+""")
+
+# Transparent cell in the first column between the top and bottom rows
+TABLE_SRC.append("""
+{ =h A1 | =h B1 | =h C1 }
+{ =t | =h B2 | =h C2 }
+{ A3 | B3 | C3 }
+""")
+
+TABLE_TEXT.append("""
++----+----+----+
+| A1 | B1 | C1 |
++----+----+----+
+     | B2 | C2 |
++----+----+----+
+| A3 | B3 | C3 |
++----+----+----+
+""")
+
+# Transparent cell in the top row between the first and last columns
+TABLE_SRC.append("""
+{ =h A1 | =t | =h C1 }
+{ =h A2 | =h B2 | =h C2 }
+{ A3 | B3 | C3 }
+""")
+
+TABLE_TEXT.append("""
++----+    +----+
+| A1 |    | C1 |
++----+----+----+
+| A2 | B2 | C2 |
++----+----+----+
+| A3 | B3 | C3 |
++----+----+----+
+""")
+
+# Header cell with rowspan > 1 and wrapped contents in the first column
+TABLE_SRC.append("""(,:w)
+{ =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length | =h B1 }
+{ =h B2 }
+""")
+
+TABLE_TEXT.append("""
++-----------------------------------------------------------------+----+
+| The contents of this cell are wrapped onto two lines because of | B1 |
+| their excessive length                                          +----+
+|                                                                 | B2 |
++-----------------------------------------------------------------+----+
+""")
+
+# Header cell with rowspan > 1 and wrapped contents in the last column
+TABLE_SRC.append("""(,,:w)
+; { =h A1 | =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length }
+; { =h A2 }
+""")
+
+TABLE_TEXT.append("""
++----+-----------------------------------------------------------------+
+| A1 | The contents of this cell are wrapped onto two lines because of |
++----+ their excessive length                                          |
+| A2 |                                                                 |
++----+-----------------------------------------------------------------+
+""")
+
+# Header cell with rowspan > 1 and wrapped contents in the middle column
+TABLE_SRC.append("""(,,:w)
+{ =h A1 | =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length | =h C1 }
+{ =h A2 | =h C2 }
+""")
+
+TABLE_TEXT.append("""
++----+-----------------------------------------------------------------+----+
+| A1 | The contents of this cell are wrapped onto two lines because of | C1 |
++----+ their excessive length                                          +----+
+| A2 |                                                                 | C2 |
++----+-----------------------------------------------------------------+----+
+""")
+
 TEST_TABLES = []
 TABLE_ERRORS = []
 
