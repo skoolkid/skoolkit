@@ -201,42 +201,36 @@ list::
   for standard input.
 
   Options:
-    -V, --version         Show SkoolKit version number and exit
-    -p, --package-dir     Show path to skoolkit package directory and exit
-    -q, --quiet           Be quiet
-    -t, --time            Show timings
-    -d DIR, --output-dir DIR
-                          Write files in this directory (default is '.')
-    -o, --new-images      Overwrite existing image files
-    -T THEME, --theme THEME
-                          Use this CSS theme
-    -l, --lower           Write the disassembly in lower case
-    -u, --upper           Write the disassembly in upper case
-    -D, --decimal         Write the disassembly in decimal
-    -H, --hex             Write the disassembly in hexadecimal
     -a, --asm-labels      Use ASM labels
-    -C, --create-labels   Create default labels for unlabelled instructions
     -c S/L, --config S/L  Add the line 'L' to the ref file section 'S'; this
                           option may be used multiple times
+    -C, --create-labels   Create default labels for unlabelled instructions
+    -d DIR, --output-dir DIR
+                          Write files in this directory (default is '.')
+    -D, --decimal         Write the disassembly in decimal
+    -H, --hex             Write the disassembly in hexadecimal
+    -l, --lower           Write the disassembly in lower case
+    -o, --new-images      Overwrite existing image files
+    -p, --package-dir     Show path to skoolkit package directory and exit
     -P PAGES, --pages PAGES
                           Write only these custom pages (when '-w P' is
                           specified); PAGES should be a comma-separated list of
                           IDs of pages defined in [Page:*] sections in the ref
                           file(s)
+    -q, --quiet           Be quiet
+    -t, --time            Show timings
+    -T THEME, --theme THEME
+                          Use this CSS theme
+    -u, --upper           Write the disassembly in upper case
+    -V, --version         Show SkoolKit version number and exit
     -w X, --write X       Write only these files, where X is one or more of:
-                            B = Graphic glitches
-                            b = Bugs
-                            c = Changelog
-                            d = Disassembly files
-                            G = Game status buffer
-                            g = Graphics
+                            B = Graphic glitches    m = Memory maps
+                            b = Bugs                o = Other code
+                            c = Changelog           P = Custom pages
+                            d = Disassembly files   p = Pokes
+                            G = Game status buffer  t = Trivia
+                            g = Graphics            y = Glossary
                             i = Disassembly index
-                            m = Memory maps
-                            o = Other code
-                            P = Pages defined in the ref file(s)
-                            p = Pokes
-                            t = Trivia
-                            y = Glossary
 
 When `skool2html.py` is run, it looks for `skool` files, `ref` files, CSS
 files, JavaScript files and font files required by the disassembly in the

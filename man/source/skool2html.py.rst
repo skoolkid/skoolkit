@@ -13,33 +13,20 @@ DESCRIPTION
 
 OPTIONS
 =======
--V, --version
-  Show the SkoolKit version number and exit.
+-a, --asm-labels
+  Use ASM labels (defined by ``@label`` directives).
 
--p, --package-dir
-  Show the path to the skoolkit package directory and exit.
+-c, --config `S/L`
+  Add the line `L` to the ref file section `S`; this option may be used
+  multiple times.
 
--q, --quiet
-  Be quiet.
-
--t, --time
-  Show timings.
+-C, --create-labels
+  Create default labels for unlabelled instructions. This option is intended
+  for use alongside the ``-a`` option.
 
 -d, --output-dir `DIR`
   Specify the directory in which to write files; the default output directory
   is the current working directory.
-
--o, --new-images
-  Overwrite existing image files.
-
--T, --theme `THEME`
-  Specify the CSS theme to use; see the section on ``THEMES`` below.
-
--l, --lower
-  Write the disassembly in lower case.
-
--u, --upper
-  Write the disassembly in upper case.
 
 -D, --decimal
   Write the disassembly in decimal.
@@ -47,38 +34,45 @@ OPTIONS
 -H, --hex
   Write the disassembly in hexadecimal.
 
--a, --asm-labels
-  Use ASM labels (defined by ``@label`` directives).
+-l, --lower
+  Write the disassembly in lower case.
 
--C, --create-labels
-  Create default labels for unlabelled instructions. This option is intended
-  for use alongside the ``-a`` option.
+-o, --new-images
+  Overwrite existing image files.
 
--c, --config `S/L`
-  Add the line `L` to the ref file section `S`; this option may be used
-  multiple times.
+-p, --package-dir
+  Show the path to the skoolkit package directory and exit.
 
 -P, --pages `PAGES`
   Specify the custom pages to write; `PAGES` should be a comma-separated list
   of IDs of pages defined in ``[Page:*]`` sections in the ref file(s).
 
+-q, --quiet
+  Be quiet.
+
+-t, --time
+  Show timings.
+
+-T, --theme `THEME`
+  Specify the CSS theme to use; see the section on ``THEMES`` below.
+
+-u, --upper
+  Write the disassembly in upper case.
+
+-V, --version
+  Show the SkoolKit version number and exit.
+
 -w, --write `X`
   Write only these files, where `X` is one or more of:
 
   |
-  |   ``B`` = Graphic glitches
-  |   ``b`` = Bugs
-  |   ``c`` = Changelog
-  |   ``d`` = Disassembly files
-  |   ``G`` = Game status buffer
-  |   ``g`` = Graphics
+  |   ``B`` = Graphic glitches    ``m`` = Memory maps
+  |   ``b`` = Bugs                ``o`` = Other code
+  |   ``c`` = Changelog           ``P`` = Custom pages
+  |   ``d`` = Disassembly files   ``p`` = Pokes
+  |   ``G`` = Game status buffer  ``t`` = Trivia
+  |   ``g`` = Graphics            ``y`` = Glossary
   |   ``i`` = Disassembly index
-  |   ``m`` = Memory maps
-  |   ``o`` = Other code
-  |   ``P`` = Pages defined in the ref file(s)
-  |   ``p`` = Pokes
-  |   ``t`` = Trivia
-  |   ``y`` = Glossary
 
 FILES
 =====

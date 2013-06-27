@@ -319,56 +319,50 @@ def main(args):
     )
     parser.add_argument('infiles', help=argparse.SUPPRESS, nargs='*')
     group = parser.add_argument_group('Options')
-    group.add_argument('-V', '--version', action='version',
-                       version='SkoolKit {}'.format(VERSION),
-                       help='Show SkoolKit version number and exit')
-    group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
-                       help="Show path to skoolkit package directory and exit")
-    group.add_argument('-q', '--quiet', dest='verbose', action='store_false',
-                       help="Be quiet")
-    group.add_argument('-t', '--time', dest='show_timings', action='store_true',
-                       help="Show timings")
+    group.add_argument('-a', '--asm-labels', dest='asm_labels', action='store_true',
+                       help="Use ASM labels")
+    group.add_argument('-c', '--config', dest='config_specs', metavar='S/L', action='append',
+                       help="Add the line 'L' to the ref file section 'S'; this\n"
+                            "option may be used multiple times")
+    group.add_argument('-C', '--create-labels', dest='create_labels', action='store_true',
+                       help="Create default labels for unlabelled instructions")
     group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR',
                        help="Write files in this directory (default is '.')")
-    group.add_argument('-o', '--new-images', dest='new_images', action='store_true',
-                       help="Overwrite existing image files")
-    group.add_argument('-T', '--theme', dest='theme', metavar='THEME',
-                       help="Use this CSS theme")
-    group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER,
-                       help="Write the disassembly in lower case")
-    group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER,
-                       help="Write the disassembly in upper case")
     group.add_argument('-D', '--decimal', dest='base', action='store_const', const=BASE_10,
                        help="Write the disassembly in decimal")
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16,
                        help="Write the disassembly in hexadecimal")
-    group.add_argument('-a', '--asm-labels', dest='asm_labels', action='store_true',
-                       help="Use ASM labels")
-    group.add_argument('-C', '--create-labels', dest='create_labels', action='store_true',
-                       help="Create default labels for unlabelled instructions")
-    group.add_argument('-c', '--config', dest='config_specs', metavar='S/L', action='append',
-                       help="Add the line 'L' to the ref file section 'S'; this\n"
-                            "option may be used multiple times")
+    group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER,
+                       help="Write the disassembly in lower case")
+    group.add_argument('-o', '--new-images', dest='new_images', action='store_true',
+                       help="Overwrite existing image files")
+    group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
+                       help="Show path to skoolkit package directory and exit")
     group.add_argument('-P', '--pages', dest='pages', metavar='PAGES',
                        help="Write only these custom pages (when '-w P' is\n"
                             "specified); PAGES should be a comma-separated list of\n"
                             "IDs of pages defined in [Page:*] sections in the ref\n"
                             "file(s)")
+    group.add_argument('-q', '--quiet', dest='verbose', action='store_false',
+                       help="Be quiet")
+    group.add_argument('-t', '--time', dest='show_timings', action='store_true',
+                       help="Show timings")
+    group.add_argument('-T', '--theme', dest='theme', metavar='THEME',
+                       help="Use this CSS theme")
+    group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER,
+                       help="Write the disassembly in upper case")
+    group.add_argument('-V', '--version', action='version',
+                       version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit')
     group.add_argument('-w', '--write', dest='files', metavar='X', default='BbcdGgimoPpty',
                        help="Write only these files, where X is one or more of:\n"
-                            "  B = Graphic glitches\n"
-                            "  b = Bugs\n"
-                            "  c = Changelog\n"
-                            "  d = Disassembly files\n"
-                            "  G = Game status buffer\n"
-                            "  g = Graphics\n"
-                            "  i = Disassembly index\n"
-                            "  m = Memory maps\n"
-                            "  o = Other code\n"
-                            "  P = Pages defined in the ref file(s)\n"
-                            "  p = Pokes\n"
-                            "  t = Trivia\n"
-                            "  y = Glossary")
+                            "  B = Graphic glitches    m = Memory maps\n"
+                            "  b = Bugs                o = Other code\n"
+                            "  c = Changelog           P = Custom pages\n"
+                            "  d = Disassembly files   p = Pokes\n"
+                            "  G = Game status buffer  t = Trivia\n"
+                            "  g = Graphics            y = Glossary\n"
+                            "  i = Disassembly index")
 
     start = time.time()
     namespace, unknown_args = parser.parse_known_args(args)
