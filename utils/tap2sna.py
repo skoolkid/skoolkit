@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import sys
 import os
+import argparse
 import zipfile
+from io import BytesIO
 try:
     from urllib2 import urlopen
-    from StringIO import StringIO as StreamIO
 except ImportError:
     from urllib.request import urlopen
-    from io import BytesIO as StreamIO
 
 SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
 if not SKOOLKIT_HOME:
@@ -16,10 +16,6 @@ if not SKOOLKIT_HOME:
 if not os.path.isdir(SKOOLKIT_HOME):
     sys.stderr.write('SKOOLKIT_HOME={0}: directory not found\n'.format(SKOOLKIT_HOME))
     sys.exit(1)
-
-SNAPSHOTS_DIR = os.path.join(SKOOLKIT_HOME, 'snapshots')
-MM_Z80 = os.path.join(SNAPSHOTS_DIR, 'manic_miner.z80')
-JSW_Z80 = os.path.join(SNAPSHOTS_DIR, 'jet_set_willy.z80')
 
 class TapError(Exception):
     pass
@@ -55,7 +51,7 @@ def get_z80(ram, start):
 
 def write_z80(ram, start, fname):
     parent_dir = os.path.dirname(fname)
-    if not os.path.isdir(parent_dir):
+    if parent_dir and not os.path.isdir(parent_dir):
         os.makedirs(parent_dir)
     sys.stdout.write('Writing {0}\n'.format(fname))
     with open(fname, 'wb') as f:
@@ -84,36 +80,51 @@ def get_ram(tap):
         i += block_len + 2
     return ram
 
-def get_tap(url, member):
+def get_tap(url, member=None):
     sys.stdout.write('Downloading {0}\n'.format(url))
     u = urlopen(url, timeout=30)
     data = u.read()
 
+    z = zipfile.ZipFile(BytesIO(data))
+    if member is None:
+        for name in z.namelist():
+            if name.lower().endswith('.tap'):
+                member = name
+                break
+        else:
+            raise TapError('No TAP file found')
     sys.stdout.write('Extracting {0}\n'.format(member))
-    z = zipfile.ZipFile(StreamIO(data))
     tap = z.open(member)
     return bytearray(tap.read())
 
-def get_mm(fname):
-    url = 'ftp://ftp.worldofspectrum.org/pub/sinclair/games/m/ManicMiner.tap.zip'
-    tap = get_tap(url, 'MANIC.TAP')
-    ram = get_ram(tap)
-    write_z80(ram, 33792, fname)
-
-def get_jsw(fname):
-    url = 'ftp://ftp.worldofspectrum.org/pub/sinclair/games/j/JetSetWilly(original).tap.zip'
-    tap = get_tap(url, 'JETSET.TAP')
-    ram = get_ram(tap)
-    write_z80(ram, 33792, fname)
-
-###############################################################################
-# Begin
-###############################################################################
-for snapshot, f in ((MM_Z80, get_mm), (JSW_Z80, get_jsw)):
-    if os.path.isfile(snapshot):
-        sys.stdout.write('{0}: file already exists\n'.format(snapshot))
-    else:
+def main(args):
+    parser = argparse.ArgumentParser(
+        usage='tap2sna.py [options] ZIPURL FILE.z80',
+        description="Convert a TAP file into a Z80 snapshot. ZIPURL should be "
+                    "the full URL to a zip archive that contains the TAP file.",
+        add_help=False
+    )
+    parser.add_argument('args', help=argparse.SUPPRESS, nargs='*')
+    group = parser.add_argument_group('Options')
+    group.add_argument('-f', '--force', action='store_true',
+                       help="Overwrite an existing snapshot")
+    group.add_argument('-s', '--start', dest='start', type=int, default=0,
+                       help="Specify the start address")
+    namespace, unknown_args = parser.parse_known_args(args)
+    if unknown_args or len(namespace.args) != 2:
+        parser.exit(2, parser.format_help())
+    url, z80 = namespace.args
+    if namespace.force or not os.path.isfile(z80):
         try:
-            f(snapshot)
+            tap = get_tap(url)
+            ram = get_ram(tap)
+            write_z80(ram, namespace.start, z80)
         except Exception as e:
-            sys.stderr.write("Error while getting snapshot {0}: {1}\n".format(os.path.basename(snapshot), e.args[0]))
+            sys.stderr.write("Error while getting snapshot {0}: {1}\n".format(os.path.basename(z80), e.args[0]))
+            sys.exit(1)
+    else:
+        sys.stdout.write('{0}: file already exists; use -f to overwrite\n'.format(z80))
+        sys.exit(0)
+
+if __name__ == '__main__':
+    main(sys.argv[1:])

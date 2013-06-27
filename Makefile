@@ -139,4 +139,5 @@ XSD:
 
 .PHONY: snapshots
 snapshots:
-	SKOOLKIT_HOME=`pwd` utils/get-snapshots.py
+	SKOOLKIT_HOME=`pwd` utils/tap2sna.py -s 33792 'ftp://ftp.worldofspectrum.org/pub/sinclair/games/m/ManicMiner.tap.zip' snapshots/manic_miner.z80
+	SKOOLKIT_HOME=`pwd` utils/tap2sna.py -s 33792 'ftp://ftp.worldofspectrum.org/pub/sinclair/games/j/JetSetWilly(original).tap.zip' snapshots/jet_set_willy.z80
