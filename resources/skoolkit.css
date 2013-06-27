@@ -105,10 +105,7 @@ table.prevNext td.next {
   width: 30%;
   text-align: right;
 }
-table.disassembly {
-  width: 640px;
-}
-table.dataDisassembly {
+table.disassembly, table.dataDisassembly {
   width: 800px;
 }
 div.description {
@@ -162,24 +159,15 @@ td.instruction {
   white-space: pre;
   padding-right: 10px;
 }
-td.comment {
+td.comment, td.dataComment {
   background-color: #ccddee;
-  width: 640px;
-  vertical-align: top;
-}
-td.dataComment {
-  background-color: #ccddee;
-  width: 800px;
   vertical-align: top;
 }
 td.routineComment {
   padding-left: 0;
 }
-td.transparentComment {
-  width: 640px;
-}
-td.transparentDataComment {
-  width: 800px;
+td.comment, td.dataComment, td.transparentComment, td.transparentDataComment {
+  width: 100%;
 }
 
 /* Maps */
