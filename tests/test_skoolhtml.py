@@ -357,19 +357,19 @@ ASM_LABELS_ENTRY1 = """<div class="description">START: 50000: Routine with a lab
 </td>
 </tr>
 <tr>
-<td class="label">START</td>
+<td class="asmLabel">START</td>
 <td class="label"><a name="50000"></a>50000</td>
 <td class="instruction">LD B,5</td>
 <td class="comment">Loop 5 times</td>
 </tr>
 <tr>
-<td class="label"></td>
+<td class="asmLabel"></td>
 <td class="address"><a name="50002"></a>50002</td>
 <td class="instruction">DJNZ <a class="link" href="50000.html#50002">50002</a></td>
 <td class="comment"></td>
 </tr>
 <tr>
-<td class="label"></td>
+<td class="asmLabel"></td>
 <td class="address"><a name="50004"></a>50004</td>
 <td class="instruction">RET</td>
 <td class="comment"></td>

@@ -831,7 +831,7 @@ class HtmlWriter:
                 anchor = ''
             ofile.write('<tr>\n')
             if show_label_col:
-                ofile.write('<td class="label">{}</td>\n'.format(instruction.asm_label or ''))
+                ofile.write('<td class="asmLabel">{}</td>\n'.format(instruction.asm_label or ''))
             if instruction.ctl in 'c*!':
                 tdclass = 'label'
             else:

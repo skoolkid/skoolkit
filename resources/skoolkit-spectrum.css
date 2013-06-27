@@ -141,7 +141,7 @@ td.register {
   width: 20px;
   text-align: center;
 }
-td.label {
+td.asmLabel, td.label {
   color: #ff0000;
   vertical-align: top;
   padding-right: 10px;
