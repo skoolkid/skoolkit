@@ -83,41 +83,40 @@ def main(args):
     )
     parser.add_argument('skoolfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-V', '--version', action='version',
-                       version='SkoolKit {}'.format(VERSION),
-                       help='Show SkoolKit version number and exit')
-    group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
-                       help="Show path to skoolkit package directory and exit")
-    group.add_argument('-q', '--quiet', dest='quiet', action='store_true',
-                       help="Be quiet")
-    group.add_argument('-w', '--no-warnings', dest='warn', action='store_false',
-                       help="Suppress warnings")
+    group.add_argument('-c', '--create-labels', dest='create_labels', action='store_true',
+                       help="Create default labels for unlabelled instructions")
     group.add_argument('-d', '--crlf', dest='crlf', action='store_true',
                        help="Use CR+LF to end lines")
-    group.add_argument('-t', '--tabs', dest='tabs', action='store_true',
-                       help="Use tab to indent instructions (default indentation is\n2 spaces)")
-    group.add_argument('-l', '--lower', dest='lower', action='store_true',
-                       help="Write the disassembly in lower case")
-    group.add_argument('-u', '--upper', dest='upper', action='store_true',
-                       help="Write the disassembly in upper case")
     group.add_argument('-D', '--decimal', dest='decimal', action='store_true',
                        help="Write the disassembly in decimal")
-    group.add_argument('-H', '--hex', dest='hex', action='store_true',
-                       help="Write the disassembly in hexadecimal")
-    group.add_argument('-i', '--inst-width', dest='inst_width', metavar='N', type=int,
-                       help="Set instruction field width (default={})".format(DEF_INSTR_WIDTH))
     group.add_argument('-f', '--fixes', dest='fix_mode', metavar='N', type=int, choices=range(4), default=0,
                        help="Apply fixes:\n"
                             "  N=0: None (default)\n"
                             "  N=1: @ofix only\n"
                             "  N=2: @ofix and @bfix\n"
                             "  N=3: @ofix, @bfix and @rfix (implies -r)")
-    group.add_argument('-c', '--create-labels', dest='create_labels', action='store_true',
-                       help="Create default labels for unlabelled instructions")
-    group.add_argument('-s', '--ssub', dest='ssub', action='store_true',
-                       help="Use safe substitutions (@ssub)")
+    group.add_argument('-H', '--hex', dest='hex', action='store_true',
+                       help="Write the disassembly in hexadecimal")
+    group.add_argument('-i', '--inst-width', dest='inst_width', metavar='N', type=int,
+                       help="Set instruction field width (default={})".format(DEF_INSTR_WIDTH))
+    group.add_argument('-l', '--lower', dest='lower', action='store_true',
+                       help="Write the disassembly in lower case")
+    group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
+                       help="Show path to skoolkit package directory and exit")
+    group.add_argument('-q', '--quiet', dest='quiet', action='store_true',
+                       help="Be quiet")
     group.add_argument('-r', '--rsub', dest='rsub', action='store_true',
                        help="Use relocatability substitutions too (@rsub) (implies\n'-f 1')")
+    group.add_argument('-s', '--ssub', dest='ssub', action='store_true',
+                       help="Use safe substitutions (@ssub)")
+    group.add_argument('-t', '--tabs', dest='tabs', action='store_true',
+                       help="Use tab to indent instructions (default indentation is\n2 spaces)")
+    group.add_argument('-u', '--upper', dest='upper', action='store_true',
+                       help="Write the disassembly in upper case")
+    group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit')
+    group.add_argument('-w', '--no-warnings', dest='warn', action='store_false',
+                       help="Suppress warnings")
 
     namespace, unknown_args = parser.parse_known_args(args)
     if namespace.package_dir:

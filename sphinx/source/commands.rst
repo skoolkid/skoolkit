@@ -72,27 +72,27 @@ assembler (see :ref:`supportedAssemblers`). For example::
   a regular file, or '-' for standard input.
 
   Options:
-    -V, --version         Show SkoolKit version number and exit
-    -p, --package-dir     Show path to skoolkit package directory and exit
-    -q, --quiet           Be quiet
-    -w, --no-warnings     Suppress warnings
+    -c, --create-labels   Create default labels for unlabelled instructions
     -d, --crlf            Use CR+LF to end lines
-    -t, --tabs            Use tab to indent instructions (default indentation is
-                          2 spaces)
-    -l, --lower           Write the disassembly in lower case
-    -u, --upper           Write the disassembly in upper case
     -D, --decimal         Write the disassembly in decimal
-    -H, --hex             Write the disassembly in hexadecimal
-    -i N, --inst-width N  Set instruction field width (default=23)
     -f N, --fixes N       Apply fixes:
                             N=0: None (default)
                             N=1: @ofix only
                             N=2: @ofix and @bfix
                             N=3: @ofix, @bfix and @rfix (implies -r)
-    -c, --create-labels   Create default labels for unlabelled instructions
-    -s, --ssub            Use safe substitutions (@ssub)
+    -H, --hex             Write the disassembly in hexadecimal
+    -i N, --inst-width N  Set instruction field width (default=23)
+    -l, --lower           Write the disassembly in lower case
+    -p, --package-dir     Show path to skoolkit package directory and exit
+    -q, --quiet           Be quiet
     -r, --rsub            Use relocatability substitutions too (@rsub) (implies
                           '-f 1')
+    -s, --ssub            Use safe substitutions (@ssub)
+    -t, --tabs            Use tab to indent instructions (default indentation is
+                          2 spaces)
+    -u, --upper           Write the disassembly in upper case
+    -V, --version         Show SkoolKit version number and exit
+    -w, --no-warnings     Suppress warnings
 
 See :ref:`asmModesAndDirectives` for a description of the ``@ssub`` and
 ``@rsub`` substitution modes, and the ``@ofix``, ``@bfix`` and ``@rfix`` bugfix

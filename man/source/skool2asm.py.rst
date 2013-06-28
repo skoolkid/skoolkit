@@ -14,40 +14,15 @@ Z80 assembler. The ASM file is written to standard output. When FILE is '-',
 
 OPTIONS
 =======
--V, --version
-  Show the SkoolKit version number and exit.
-
--p, --package-dir
-  Show the path to the skoolkit package directory and exit.
-
--q, --quiet
-  Be quiet. This option suppresses both the timing information, and the message
-  about the AsmWriter class being used, but does not suppress warnings.
-
--w, --no-warnings
-  Suppress warnings.
+-c, --create-labels
+  Create default labels for unlabelled instructions.
 
 -d, --crlf
   Use CR+LF to end lines, instead of the system default (CR+LF is the default
   on Windows).
 
--t, --tabs
-  Use tab to indent instructions; the default indentation is 2 spaces.
-
--l, --lower
-  Write the disassembly in lower case.
-
--u, --upper
-  Write the disassembly in upper case.
-
 -D, --decimal
   Write the disassembly in decimal.
-
--H, --hex
-  Write the disassembly in hexadecimal.
-
--i, --inst-width `N`
-  Set the width of the instruction field; the default width is 23 characters.
 
 -f, --fixes `N`
   Apply fixes; `N` may be one of:
@@ -58,15 +33,40 @@ OPTIONS
   |   2: @ofix and @bfix
   |   3: @ofix, @bfix and @rfix (implies ``-r``)
 
--c, --create-labels
-  Create default labels for unlabelled instructions.
+-H, --hex
+  Write the disassembly in hexadecimal.
 
--s, --ssub
-  Apply safe substitutions (@ssub).
+-i, --inst-width `N`
+  Set the width of the instruction field; the default width is 23 characters.
+
+-l, --lower
+  Write the disassembly in lower case.
+
+-p, --package-dir
+  Show the path to the skoolkit package directory and exit.
+
+-q, --quiet
+  Be quiet. This option suppresses both the timing information, and the message
+  about the AsmWriter class being used, but does not suppress warnings.
 
 -r, --rsub
   Apply safe substitutions (@ssub) and relocatability substitutions (@rsub)
   (implies ``-f 1``).
+
+-s, --ssub
+  Apply safe substitutions (@ssub).
+
+-t, --tabs
+  Use tab to indent instructions; the default indentation is 2 spaces.
+
+-u, --upper
+  Write the disassembly in upper case.
+
+-V, --version
+  Show the SkoolKit version number and exit.
+
+-w, --no-warnings
+  Suppress warnings.
 
 EXAMPLES
 ========
