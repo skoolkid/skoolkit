@@ -1,0 +1,9 @@
+; tap2sna.py file for Manic Miner. Run:
+;
+;   $ tap2sna.py @manic_miner.t2s
+;
+; to create a Z80 snapshot.
+
+ftp://ftp.worldofspectrum.org/pub/sinclair/games/m/ManicMiner.tap.zip
+manic_miner.z80
+--pc 33792

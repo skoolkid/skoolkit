@@ -6,8 +6,10 @@ import zipfile
 from io import BytesIO
 try:
     from urllib2 import urlopen
+    from urlparse import urlparse
 except ImportError:
     from urllib.request import urlopen
+    from urllib.parse import urlparse
 
 SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
 if not SKOOLKIT_HOME:
@@ -16,6 +18,13 @@ if not SKOOLKIT_HOME:
 if not os.path.isdir(SKOOLKIT_HOME):
     sys.stderr.write('SKOOLKIT_HOME={0}: directory not found\n'.format(SKOOLKIT_HOME))
     sys.exit(1)
+
+class SkoolKitArgumentParser(argparse.ArgumentParser):
+    def convert_arg_line_to_args(self, arg_line):
+        for arg in arg_line.split():
+            if arg in (';', '#'):
+                break
+            yield arg
 
 class TapError(Exception):
     pass
@@ -38,10 +47,10 @@ def get_z80_ram_block(data, page):
     length = len(block)
     return [length % 256, length // 256, page] + block
 
-def get_z80(ram, start):
+def get_z80(ram, options):
     z80 = [0] * 86
     z80[30] = 54 # Indicate a v3 Z80 snapshot
-    z80[32:34] = [start % 256, start // 256]
+    z80[32:34] = [options.pc % 256, options.pc // 256]
     banks = {5: ram[:16384]}
     banks[1] = ram[16384:32768]
     banks[2] = ram[32768:49152]
@@ -49,13 +58,13 @@ def get_z80(ram, start):
         z80 += get_z80_ram_block(data, bank + 3)
     return z80
 
-def write_z80(ram, start, fname):
+def write_z80(ram, options, fname):
     parent_dir = os.path.dirname(fname)
     if parent_dir and not os.path.isdir(parent_dir):
         os.makedirs(parent_dir)
     sys.stdout.write('Writing {0}\n'.format(fname))
     with open(fname, 'wb') as f:
-        f.write(bytearray(get_z80(ram, start)))
+        f.write(bytearray(get_z80(ram, options)))
 
 def get_ram(tap):
     ram = [0] * 49152
@@ -80,10 +89,17 @@ def get_ram(tap):
         i += block_len + 2
     return ram
 
-def get_tap(url, member=None):
-    sys.stdout.write('Downloading {0}\n'.format(url))
-    u = urlopen(url, timeout=30)
-    data = u.read()
+def get_tap(urlstring, member=None):
+    url = urlparse(urlstring)
+    if url.scheme:
+        sys.stdout.write('Downloading {0}\n'.format(urlstring))
+        u = urlopen(urlstring, timeout=30)
+        data = u.read()
+    elif url.path and not url.netloc:
+        with open(url.path, 'rb') as f:
+            data = f.read()
+    else:
+        data = ''
 
     z = zipfile.ZipFile(BytesIO(data))
     if member is None:
@@ -98,27 +114,32 @@ def get_tap(url, member=None):
     return bytearray(tap.read())
 
 def main(args):
-    parser = argparse.ArgumentParser(
-        usage='tap2sna.py [options] ZIPURL FILE.z80',
-        description="Convert a TAP file into a Z80 snapshot. ZIPURL should be "
-                    "the full URL to a zip archive that contains the TAP file.",
+    parser = SkoolKitArgumentParser(
+        usage='tap2sna.py [options] INPUT FILE.z80',
+        description="Convert a TAP file inside a zip archive into a Z80 snapshot. "
+                    "INPUT should be the full URL to a remote zip archive, or the path to a local zip archive.",
+        fromfile_prefix_chars='@',
         add_help=False
     )
     parser.add_argument('args', help=argparse.SUPPRESS, nargs='*')
     group = parser.add_argument_group('Options')
+    group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR',
+                       help="Write the snapshot file in this directory")
     group.add_argument('-f', '--force', action='store_true',
                        help="Overwrite an existing snapshot")
-    group.add_argument('-s', '--start', dest='start', type=int, default=0,
-                       help="Specify the start address")
+    group.add_argument('--pc', dest='pc', metavar='ADDRESS', type=int, default=0,
+                       help="Set the value of the program counter")
     namespace, unknown_args = parser.parse_known_args(args)
     if unknown_args or len(namespace.args) != 2:
         parser.exit(2, parser.format_help())
     url, z80 = namespace.args
+    if namespace.output_dir:
+        z80 = os.path.join(namespace.output_dir, z80)
     if namespace.force or not os.path.isfile(z80):
         try:
             tap = get_tap(url)
             ram = get_ram(tap)
-            write_z80(ram, namespace.start, z80)
+            write_z80(ram, namespace, z80)
         except Exception as e:
             sys.stderr.write("Error while getting snapshot {0}: {1}\n".format(os.path.basename(z80), e.args[0]))
             sys.exit(1)
