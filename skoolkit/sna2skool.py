@@ -85,43 +85,42 @@ def main(args):
     )
     parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-V', '--version', action='version',
-                       version='SkoolKit {}'.format(VERSION),
-                       help='Show SkoolKit version number and exit')
     group.add_argument('-c', '--ctl', dest='ctlfile', metavar='FILE',
                        help='Use FILE as the control file')
-    group.add_argument('-T', '--sft', dest='sftfile', metavar='FILE',
-                       help='Use FILE as the skool file template')
     group.add_argument('-g', '--gen-ctl', dest='genctlfile', metavar='FILE',
                        help='Generate a control file in FILE')
-    group.add_argument('-M', '--map', dest='code_map', metavar='FILE',
-                       help='Use FILE as a code execution map when generating the control file')
     group.add_argument('-h', '--ctl-hex', dest='ctl_hex', action='store_true',
                        help='Write hexadecimal addresses in the generated control file')
     group.add_argument('-H', '--skool-hex', dest='asm_hex', action='store_true',
                        help='Write hexadecimal addresses and operands in the disassembly')
+    group.add_argument('-l', '--defm-size', dest='defm_width', metavar='L', type=int, default=DEFM_SIZE,
+                       help='Set the maximum number of characters per DEFM statement to L (default={})'.format(DEFM_SIZE))
     group.add_argument('-L', '--lower', dest='asm_lower', action='store_true',
                        help='Write the disassembly in lower case')
-    group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=int, default=START,
-                       help='Specify the address at which to start disassembling (default={})'.format(START))
+    group.add_argument('-m', '--defb-mod', dest='defb_mod', metavar='M', type=int, default=1,
+                       help='Group DEFB blocks by addresses that are divisible by M')
+    group.add_argument('-M', '--map', dest='code_map', metavar='FILE',
+                       help='Use FILE as a code execution map when generating a control file')
+    group.add_argument('-n', '--defb-size', dest='defb_size', metavar='N', type=int, default=DEFB_SIZE,
+                       help='Set the maximum number of bytes per DEFB statement to N (default={})'.format(DEFB_SIZE))
     group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=int,
                        help='Specify the origin address of a binary (.bin) file (default: 65536 - length)')
     group.add_argument('-p', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535')
-    group.add_argument('-t', '--text', dest='text', action='store_true',
-                       help='Show ASCII text in the comment fields')
     group.add_argument('-r', '--no-erefs', dest='write_refs', action='store_const', const=-1, default=0,
                        help="Don't add comments that list entry point referrers")
     group.add_argument('-R', '--erefs', dest='write_refs', action='store_const', const=1, default=0,
                        help="Always add comments that list entry point referrers")
-    group.add_argument('-n', '--defb-size', dest='defb_size', metavar='N', type=int, default=DEFB_SIZE,
-                       help='Set the maximum number of bytes per DEFB statement to N (default={})'.format(DEFB_SIZE))
-    group.add_argument('-m', '--defb-mod', dest='defb_mod', metavar='M', type=int, default=1,
-                       help='Group DEFB blocks by addresses that are divisible by M')
+    group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=int, default=START,
+                       help='Specify the address at which to start disassembling (default={})'.format(START))
+    group.add_argument('-t', '--text', dest='text', action='store_true',
+                       help='Show ASCII text in the comment fields')
+    group.add_argument('-T', '--sft', dest='sftfile', metavar='FILE',
+                       help='Use FILE as the skool file template')
+    group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit')
     group.add_argument('-z', '--defb-zfill', dest='zfill', action='store_true',
                        help='Write bytes with leading zeroes in DEFB statements')
-    group.add_argument('-l', '--defm-size', dest='defm_width', metavar='L', type=int, default=DEFM_SIZE,
-                       help='Set the maximum number of characters per DEFM statement to L (default={})'.format(DEFM_SIZE))
 
     namespace, unknown_args = parser.parse_known_args(args)
     snafile = namespace.snafile

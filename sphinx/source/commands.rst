@@ -338,34 +338,34 @@ list::
   file.
 
   Options:
-    -V, --version         Show SkoolKit version number and exit
     -c FILE, --ctl FILE   Use FILE as the control file
-    -T FILE, --sft FILE   Use FILE as the skool file template
     -g FILE, --gen-ctl FILE
                           Generate a control file in FILE
-    -M FILE, --map FILE   Use FILE as a code execution map when generating the
-                          control file
     -h, --ctl-hex         Write hexadecimal addresses in the generated control
                           file
     -H, --skool-hex       Write hexadecimal addresses and operands in the
                           disassembly
+    -l L, --defm-size L   Set the maximum number of characters per DEFM
+                          statement to L (default=66)
     -L, --lower           Write the disassembly in lower case
-    -s ADDR, --start ADDR
-                          Specify the address at which to start disassembling
-                          (default=16384)
+    -m M, --defb-mod M    Group DEFB blocks by addresses that are divisible by M
+    -M FILE, --map FILE   Use FILE as a code execution map when generating a
+                          control file
+    -n N, --defb-size N   Set the maximum number of bytes per DEFB statement to
+                          N (default=8)
     -o ADDR, --org ADDR   Specify the origin address of a binary (.bin) file
                           (default: 65536 - length)
     -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
                           49152-65535
-    -t, --text            Show ASCII text in the comment fields
     -r, --no-erefs        Don't add comments that list entry point referrers
     -R, --erefs           Always add comments that list entry point referrers
-    -n N, --defb-size N   Set the maximum number of bytes per DEFB statement to
-                          N (default=8)
-    -m M, --defb-mod M    Group DEFB blocks by addresses that are divisible by M
+    -s ADDR, --start ADDR
+                          Specify the address at which to start disassembling
+                          (default=16384)
+    -t, --text            Show ASCII text in the comment fields
+    -T FILE, --sft FILE   Use FILE as the skool file template
+    -V, --version         Show SkoolKit version number and exit
     -z, --defb-zfill      Write bytes with leading zeroes in DEFB statements
-    -l L, --defm-size L   Set the maximum number of characters per DEFM
-                          statement to L (default=66)
 
 The ``-M`` option may be used (in conjunction with the ``-g`` option) to
 specify a code execution map to use when generating a control file. The

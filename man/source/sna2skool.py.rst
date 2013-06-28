@@ -13,26 +13,13 @@ into a skool file. The skool file is written to stdout.
 
 OPTIONS
 =======
--V, --version
-  Show the SkoolKit version number and exit.
-
 -c, --ctl `FILE`
   Specify the control file to use. By default, any control file whose name
   (minus the .ctl suffix) matches the input snapshot name (minus
   the .bin, .sna, .szx or .z80 suffix) will be used, if present.
 
--T, --sft `FILE`
-  Specify the skool file template to use. By default, any skool file template
-  whose name (minus the .sft suffix) matches the input snapshot name (minus
-  the .bin, .sna, .szx or .z80 suffix) will be used, if present.
-
 -g, --gen-ctl `FILE`
   Generate a control file in `FILE`.
-
--M, --map `FILE`
-  Specify a code execution map to use when generating a control file. Code
-  execution maps produced by the Fuse, SpecEmu, Spud, Zero and Z80 Spectrum
-  emulators are supported.
 
 -h, --ctl-hex
   Write hexadecimal addresses in the generated control file.
@@ -40,12 +27,24 @@ OPTIONS
 -H, --skool-hex
   Write hexadecimal addresses and operands in the disassembly.
 
+-l, --defm-size `CHARS`
+  Set the maximum number of characters that may appear in a DEFM statement; the
+  default number is 66.
+
 -L, --lower
   Write the disassembly in lower case.
 
--s, --start `ADDR`
-  Specify the address at which to start disassembling; the default start
-  address is 16384.
+-m, --defb-mod `MOD`
+  Group DEFB blocks by addresses that are divisible by `MOD`.
+
+-M, --map `FILE`
+  Specify a code execution map to use when generating a control file. Code
+  execution maps produced by the Fuse, SpecEmu, Spud, Zero and Z80 Spectrum
+  emulators are supported.
+
+-n, --defb-size `BYTES`
+  Set the maximum number of bytes that may appear in a DEFB statement; the
+  default number is 8.
 
 -o, --org `ADDR`
   Specify the origin address of a binary (.bin) file; the default origin
@@ -53,9 +52,6 @@ OPTIONS
 
 -p, --page `PAGE`
   Specify the page (0-7) of a 128K snapshot to map to 49152-65535.
-
--t, --text
-  Show ASCII text in the comment fields of the disassembly.
 
 -r, --no-erefs
   Every routine entry point is decorated with a comment that lists the other
@@ -67,19 +63,23 @@ OPTIONS
   routines that use it; the comment will precede any additional comment defined
   in a control file.
 
--n, --defb-size `BYTES`
-  Set the maximum number of bytes that may appear in a DEFB statement; the
-  default number is 8.
+-s, --start `ADDR`
+  Specify the address at which to start disassembling; the default start
+  address is 16384.
 
--m, --defb-mod `MOD`
-  Group DEFB blocks by addresses that are divisible by `MOD`.
+-t, --text
+  Show ASCII text in the comment fields of the disassembly.
+
+-T, --sft `FILE`
+  Specify the skool file template to use. By default, any skool file template
+  whose name (minus the .sft suffix) matches the input snapshot name (minus
+  the .bin, .sna, .szx or .z80 suffix) will be used, if present.
+
+-V, --version
+  Show the SkoolKit version number and exit.
 
 -z, --defb-zfill
   Write bytes with leading zeroes in DEFB statements.
-
--l, --defm-size `CHARS`
-  Set the maximum number of characters that may appear in a DEFM statement; the
-  default number is 66.
 
 EXAMPLES
 ========
