@@ -305,8 +305,8 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
   FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -V, --version  Show SkoolKit version number and exit
     -h, --hex      Write addresses in hexadecimal format
+    -V, --version  Show SkoolKit version number and exit
 
 +---------+----------------------------------------------+
 | Version | Changes                                      |
