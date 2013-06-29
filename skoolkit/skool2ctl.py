@@ -35,6 +35,10 @@ def main(args):
     )
     parser.add_argument('skoolfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-a', '--no-asm-dirs', action='store_false', dest='write_asm_dirs',
+                       help='Do not write ASM directives')
+    group.add_argument('-h', '--hex', action='store_true', dest='write_hex',
+                       help='Write addresses in hexadecimal format')
     group.add_argument('-V', '--version', action='version',
                        version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
@@ -48,10 +52,6 @@ def main(args):
                             "  {4} = mid-block comments and block end comments\n"
                             "  {5} = sub-block types and addresses\n"
                             "  {6} = instruction-level comments\n".format(BLOCKS, BLOCK_TITLES, BLOCK_DESC, REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS))
-    group.add_argument('-h', '--hex', action='store_true', dest='write_hex',
-                       help='Write addresses in hexadecimal format')
-    group.add_argument('-a', '--no-asm-dirs', action='store_false', dest='write_asm_dirs',
-                       help='Do not write ASM directives')
     namespace, unknown_args = parser.parse_known_args(args)
     if unknown_args or namespace.skoolfile is None:
         parser.exit(2, parser.format_help())

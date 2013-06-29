@@ -132,6 +132,8 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
   be a regular file, or '-' for standard input.
 
   Options:
+    -a, --no-asm-dirs  Do not write ASM directives
+    -h, --hex          Write addresses in hexadecimal format
     -V, --version      Show SkoolKit version number and exit
     -w X, --write X    Write only these elements, where X is one or more of:
                          b = block types and addresses
@@ -141,8 +143,6 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
                          m = mid-block comments and block end comments
                          s = sub-block types and addresses
                          c = instruction-level comments
-    -h, --hex          Write addresses in hexadecimal format
-    -a, --no-asm-dirs  Do not write ASM directives
 
 If you need to preserve any elements that control files do not support (such as
 data definition entries and ASM block directives), consider using

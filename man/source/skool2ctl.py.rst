@@ -14,6 +14,12 @@ input.
 
 OPTIONS
 =======
+-a, --no-asm-dirs
+  Do not write ASM directives.
+
+-h, --hex
+  Write addresses in hexadecimal format.
+
 -V, --version
   Show the SkoolKit version number and exit.
 
@@ -30,12 +36,6 @@ OPTIONS
   |   ``c`` = instruction-level comments
 
   The default is to write all of these elements.
-
--h, --hex
-  Write addresses in hexadecimal format.
-
--a, --no-asm-dirs
-  Do not write ASM directives.
 
 EXAMPLES
 ========
