@@ -132,17 +132,16 @@ def main(args):
     )
     parser.add_argument('binfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-V', '--version', action='version',
-                       version='SkoolKit {}'.format(VERSION),
-                       help='Show SkoolKit version number and exit')
     group.add_argument('-o', '--org', dest='org', metavar='ORG', type=int,
                        help="Set the origin address (default: 65536 minus the length of FILE.bin)")
-    group.add_argument('-s', '--start', dest='start', metavar='START', type=int,
-                       help="Set the start address to JP to (default: ORG)")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=int,
                        help="Set the stack pointer (default: ORG)")
+    group.add_argument('-s', '--start', dest='start', metavar='START', type=int,
+                       help="Set the start address to JP to (default: ORG)")
     group.add_argument('-t', '--tapfile', dest='tapfile', metavar='TAPFILE',
                        help="Set the TAP filename (default: FILE.tap)")
+    group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit')
 
     namespace, unknown_args = parser.parse_known_args(args)
     binfile = namespace.binfile

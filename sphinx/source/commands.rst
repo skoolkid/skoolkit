@@ -24,15 +24,15 @@ Run it with no arguments to see the list of available options::
   Convert a binary snapshot file into a TAP file.
 
   Options:
-    -V, --version         Show SkoolKit version number and exit
     -o ORG, --org ORG     Set the origin address (default: 65536 minus the
                           length of FILE.bin)
-    -s START, --start START
-                          Set the start address to JP to (default: ORG)
     -p STACK, --stack STACK
                           Set the stack pointer (default: ORG)
+    -s START, --start START
+                          Set the start address to JP to (default: ORG)
     -t TAPFILE, --tapfile TAPFILE
                           Set the TAP filename (default: FILE.tap)
+    -V, --version         Show SkoolKit version number and exit
 
 Note that the ROM tape loading routine at 1366 ($0556) and the load routine
 used by `bin2tap.py` together require 14 bytes for stack operations, and so

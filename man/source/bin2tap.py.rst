@@ -13,21 +13,21 @@ exported from a Spectrum emulator) into a TAP file.
 
 OPTIONS
 =======
--V, --version
-  Show the SkoolKit version number and exit.
-
 -o, --org `ORG`
   Set the origin address; the default origin address is 65536 minus the length
   of FILE.bin.
 
--s, --start `START`
-  Set the start address to JP to; the default start address is `ORG`.
-
 -p, --stack `STACK`
   Set the stack pointer; the default value is `ORG`.
 
+-s, --start `START`
+  Set the start address to JP to; the default start address is `ORG`.
+
 -t, --tapfile `TAPFILE`
   Set the TAP filename; the default filename is FILE.tap.
+
+-V, --version
+  Show the SkoolKit version number and exit.
 
 STACK POINTER
 =============
