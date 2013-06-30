@@ -87,7 +87,7 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--ctl', dest='ctlfile', metavar='FILE',
                        help='Use FILE as the control file')
-    group.add_argument('-g', '--gen-ctl', dest='genctlfile', metavar='FILE',
+    group.add_argument('-g', '--generate-ctl', dest='genctlfile', metavar='FILE',
                        help='Generate a control file in FILE')
     group.add_argument('-h', '--ctl-hex', dest='ctl_hex', action='store_true',
                        help='Write hexadecimal addresses in the generated control file')

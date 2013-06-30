@@ -18,7 +18,7 @@ OPTIONS
   (minus the .ctl suffix) matches the input snapshot name (minus
   the .bin, .sna, .szx or .z80 suffix) will be used, if present.
 
--g, --gen-ctl `FILE`
+-g, --generate-ctl `FILE`
   Generate a control file in `FILE`.
 
 -h, --ctl-hex

@@ -484,7 +484,7 @@ class OptionsTest(SkoolKitTestCase):
     def test_option_g(self):
         ctlfile = self.write_text_file()
         binfile = self.write_bin_file(TEST_BIN, suffix='.bin')
-        for option in ('-g', '--gen-ctl'):
+        for option in ('-g', '--generate-ctl'):
             skool = self._write_skool('{0} {1} -o {2} {3}'.format(option, ctlfile, TEST_BIN_ORG, binfile), 85)
             self.assertEqual(skool[2], '; Routine at {0}'.format(TEST_BIN_ORG))
             self.assertEqual(skool[41], '; Unused')

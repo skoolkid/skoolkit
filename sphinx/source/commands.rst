@@ -339,7 +339,7 @@ list::
 
   Options:
     -c FILE, --ctl FILE   Use FILE as the control file
-    -g FILE, --gen-ctl FILE
+    -g FILE, --generate-ctl FILE
                           Generate a control file in FILE
     -h, --ctl-hex         Write hexadecimal addresses in the generated control
                           file
