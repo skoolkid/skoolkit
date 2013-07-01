@@ -574,7 +574,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     def test_option_o(self):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
         self.write_text_file('', '{0}.skool'.format(reffile[:-4]))
-        for option in ('-o', '--new-images'):
+        for option in ('-o', '--rebuild-images'):
             output, error = self.run_skool2html('{0} {1} -w "" -d {2} {3}'.format(self._css_c(), option, self.odir, reffile))
             self.assertEqual(error, '')
             self.assertTrue(html_writer.file_info.replace_images)

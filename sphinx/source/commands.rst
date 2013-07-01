@@ -210,7 +210,7 @@ list::
     -D, --decimal         Write the disassembly in decimal
     -H, --hex             Write the disassembly in hexadecimal
     -l, --lower           Write the disassembly in lower case
-    -o, --new-images      Overwrite existing image files
+    -o, --rebuild-images  Overwrite existing image files
     -p, --package-dir     Show path to skoolkit package directory and exit
     -P PAGES, --pages PAGES
                           Write only these custom pages (when '-w P' is

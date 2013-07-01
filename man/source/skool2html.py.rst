@@ -37,7 +37,7 @@ OPTIONS
 -l, --lower
   Write the disassembly in lower case.
 
--o, --new-images
+-o, --rebuild-images
   Overwrite existing image files.
 
 -p, --package-dir

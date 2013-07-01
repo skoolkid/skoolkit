@@ -334,7 +334,7 @@ def main(args):
                        help="Write the disassembly in hexadecimal")
     group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER,
                        help="Write the disassembly in lower case")
-    group.add_argument('-o', '--new-images', dest='new_images', action='store_true',
+    group.add_argument('-o', '--rebuild-images', dest='new_images', action='store_true',
                        help="Overwrite existing image files")
     group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
                        help="Show path to skoolkit package directory and exit")
