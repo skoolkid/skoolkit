@@ -26,7 +26,7 @@ class SkoolKitArgumentParser(argparse.ArgumentParser):
                 break
             yield arg
 
-class TapError(Exception):
+class TapeError(Exception):
     pass
 
 def get_z80_ram_block(data, page):
@@ -48,13 +48,17 @@ def get_z80_ram_block(data, page):
     return [length % 256, length // 256, page] + block
 
 def get_z80(ram, options):
+    # http://www.worldofspectrum.org/faq/reference/z80format.htm
     z80 = [0] * 86
     z80[30] = 54 # Indicate a v3 Z80 snapshot
+    z80[8:10] = [options.sp % 256, options.sp // 256] # Stack pointer
+    z80[10] = 63 # I=63 (interrupt page address register)
+    z80[23:25] = [58, 92] # IY=23610
+    if options.interrupts:
+        z80[27] = 255 # Enable interrupts
     z80[32:34] = [options.pc % 256, options.pc // 256]
-    banks = {5: ram[:16384]}
-    banks[1] = ram[16384:32768]
-    banks[2] = ram[32768:49152]
-    for bank, data in banks.items():
+    banks = ((5, ram[:16384]), (1, ram[16384:32768]), (2, ram[32768:49152]))
+    for bank, data in banks:
         z80 += get_z80_ram_block(data, bank + 3)
     return z80
 
@@ -66,69 +70,280 @@ def write_z80(ram, options, fname):
     with open(fname, 'wb') as f:
         f.write(bytearray(get_z80(ram, options)))
 
-def get_ram(tap):
-    ram = [0] * 49152
+def get_int_params(param_str, num):
+    params = []
+    for n in param_str.split(','):
+        if n:
+            params.append(int(n))
+        else:
+            params.append(None)
+    params += [None] * (num - len(params))
+    return params[:num]
+
+def load_block(snapshot, block, start, length=None, step=None, offset=None, inc=None, index=None):
+    if index is None:
+        index = 1
+    if length is None:
+        data = block[index:-1]
+    else:
+        data = block[index:index + length]
+    if step is None:
+        j = 0
+        while j < len(data):
+            length = len(data) - j
+            if start + length > 65536:
+                length = 65536 - start
+            snapshot[start:start + length] = data[j:j + length]
+            start = (start + length) & 65535
+            j += length
+    else:
+        if offset is None:
+            offset = 0
+        if inc is None:
+            inc = 0
+        i = start
+        for b in data:
+            snapshot[(i + offset) & 65535] = b
+            i += step
+            if i > 65535:
+                i += inc
+            i &= 65535
+    return len(data)
+
+def get_ram(blocks, options):
+    snapshot = [0] * 65536
+
+    operations = []
+    standard_load = True
+    for spec in options.ram_ops:
+        op_type, param_str = spec.split('=', 1)
+        if op_type in ('load', 'move', 'poke'):
+            operations.append((op_type, param_str))
+            if op_type == 'load':
+                standard_load = False
+
+    if standard_load:
+        for block_num, block in enumerate(blocks, 1):
+            if block[0] == 0:
+                # Header
+                block_type = block[1]
+                if block_type == 3:
+                    # Bytes
+                    start = block[14] + 256 * block[15]
+                elif block_type == 0:
+                    # Program
+                    start = 23755
+                else:
+                    raise TapeError('Unknown block type ({0}) in header block {1}'.format(block_type, block_num))
+            else:
+                # Data
+                load_block(snapshot, block, start)
+
+    counters = {}
+    for op_type, param_str in operations:
+        if op_type == 'load':
+            block_num, start, length, step, offset, inc = get_int_params(param_str, 6)
+            index = counters.setdefault(block_num, 1)
+            length = load_block(snapshot, blocks[block_num - 1], start, length, step, offset, inc, index)
+            counters[block_num] += length
+        elif op_type == 'move':
+            src, length, dest = get_int_params(param_str, 3)
+            snapshot[dest:dest + length] = snapshot[src:src + length]
+        elif op_type == 'poke':
+            addr, val = param_str.split(',', 1)
+            value = int(val)
+            step = 1
+            if '-' in addr:
+                addr1, addr2 = addr.split('-', 1)
+                addr1 = int(addr1)
+                if '-' in addr2:
+                    addr2, step = [int(i) for i in addr2.split('-', 1)]
+                else:
+                    addr2 = int(addr2)
+            else:
+                addr1 = int(addr)
+                addr2 = addr1
+            addr2 += 1
+            for a in range(addr1, addr2, step):
+                snapshot[a] = value
+
+    return snapshot[16384:]
+
+def get_word(data, index):
+    return data[index] + 256 * data[index + 1]
+
+def get_word3(data, index):
+    return get_word(data, index) + 65536 * data[index + 2]
+
+def get_dword(data, index):
+    return get_word3(data, index) + 16777216 * data[index + 3]
+
+def get_tzx_block(data, i):
+    # http://www.worldofspectrum.org/TZXformat.html
+    block_id = data[i]
+    tape_data = []
+    i += 1
+    if block_id == 16:
+        # Standard speed data block
+        length = get_word(data, i + 2)
+        tape_data = data[i + 4:i + 4 + length]
+        i += 4 + length
+    elif block_id == 17:
+        # Turbo speed data block
+        length = get_word3(data, i + 15)
+        tape_data = data[i + 18:i + 18 + length]
+        i += 18 + length
+    elif block_id == 18:
+        # Pure tone
+        i += 4
+    elif block_id == 19:
+        # Sequence of pulses of various lengths
+        i += 2 * data[i] + 1
+    elif block_id == 20:
+        # Pure data block
+        i += get_word3(data, i + 7) + 10
+    elif block_id == 21:
+        # Direct recording block
+        i += get_word3(data, i + 5) + 8
+    elif block_id == 24:
+        # CSW recording block
+        i += get_dword(data, i) + 4
+    elif block_id == 25:
+        # Generalized data block
+        i += get_dword(data, i) + 4
+    elif block_id == 32:
+        # Pause (silence) or 'Stop the tape' command
+        i += 2
+    elif block_id == 33:
+        # Group start
+        i += data[i] + 1
+    elif block_id == 34:
+        # Group end
+        pass
+    elif block_id == 35:
+        # Jump to block
+        i += 2
+    elif block_id == 36:
+        # Loop start
+        i += 2
+    elif block_id == 37:
+        # Loop end
+        pass
+    elif block_id == 38:
+        # Call sequence
+        i += get_word(data, i) * 2 + 2
+    elif block_id == 39:
+        # Return from sequence
+        pass
+    elif block_id == 40:
+        # Select block
+        i += get_word(data, i) + 2
+    elif block_id == 42:
+        # Stop the tape if in 48K mode
+        i += 4
+    elif block_id == 43:
+        # Set signal level
+        i += 5
+    elif block_id == 48:
+        # Text description
+        i += data[i] + 1
+    elif block_id == 49:
+        # Message block
+        i += data[i] + 2
+    elif block_id == 50:
+        # Archive info
+        i += get_word(data, i) + 2
+    elif block_id == 51:
+        # Hardware type
+        i += data[i] * 3 + 1
+    elif block_id == 53:
+        # Custom info block
+        i += get_dword(data, i + 16) + 20
+    elif block_id == 90:
+        # "Glue" block
+        i += 9
+    else:
+        raise TapeError('Unknown TZX block ID {0} at index {1}\n'.format(block_id, i - 1))
+    return i, block_id, tape_data
+
+def get_tzx_blocks(data):
+    signature = ''.join(chr(b) for b in data[:7])
+    if signature != 'ZXTape!':
+        raise TapeError("Not a TZX file")
+    i = 10
+    blocks = []
+    while i < len(data):
+        i, block_id, tape_data = get_tzx_block(data, i)
+        if block_id in (16, 17):
+            blocks.append(tape_data)
+    return blocks
+
+def get_tap_blocks(tap):
+    blocks = []
     i = 0
     while i < len(tap):
         block_len = tap[i] + 256 * tap[i + 1]
-        if tap[i + 2] == 0:
-            # Header
-            block_type = tap[i + 3]
-            if block_type == 3:
-                # Bytes
-                start = tap[i + 16] + 256 * tap[i + 17]
-            elif block_type == 0:
-                # Program
-                start = 23755
-            else:
-                raise TapError('Unknown block type ({0}) in header at {1}'.format(block_type, i))
-        else:
-            # Data
-            data = tap[i + 3:i + 1 + block_len]
-            ram[start - 16384:start - 16384 + len(data)] = data
-        i += block_len + 2
-    return ram
+        i += 2
+        blocks.append(tap[i:i + block_len])
+        i += block_len
+    return blocks
 
-def get_tap(urlstring, member=None):
+def get_tape_blocks(tape_type, tape):
+    if tape_type.lower() == 'tzx':
+        return get_tzx_blocks(tape)
+    return get_tap_blocks(tape)
+
+def get_tape(urlstring, member=None):
     url = urlparse(urlstring)
     if url.scheme:
         sys.stdout.write('Downloading {0}\n'.format(urlstring))
         u = urlopen(urlstring, timeout=30)
-        data = u.read()
+        data = bytearray(u.read())
     elif url.path and not url.netloc:
         with open(url.path, 'rb') as f:
-            data = f.read()
+            data = bytearray(f.read()) # PY: data = f.read() in Python 3
     else:
-        data = ''
+        data = bytearray()
 
-    z = zipfile.ZipFile(BytesIO(data))
-    if member is None:
-        for name in z.namelist():
-            if name.lower().endswith('.tap'):
-                member = name
-                break
-        else:
-            raise TapError('No TAP file found')
-    sys.stdout.write('Extracting {0}\n'.format(member))
-    tap = z.open(member)
-    return bytearray(tap.read())
+    if urlstring.lower().endswith('.zip'):
+        z = zipfile.ZipFile(BytesIO(data))
+        if member is None:
+            for name in z.namelist():
+                if name.lower().endswith(('.tap', '.tzx')):
+                    member = name
+                    break
+            else:
+                raise TapeError('No TAP or TZX file found')
+        sys.stdout.write('Extracting {0}\n'.format(member))
+        tape = z.open(member)
+        return member[-3:], bytearray(tape.read())
+    return urlstring[-3:], data
 
 def main(args):
     parser = SkoolKitArgumentParser(
         usage='tap2sna.py [options] INPUT FILE.z80',
-        description="Convert a TAP file inside a zip archive into a Z80 snapshot. "
-                    "INPUT should be the full URL to a remote zip archive, or the path to a local zip archive.",
+        description="Convert a TAP or TZX file (which may be inside a zip archive) into a Z80 snapshot. "
+                    "INPUT may be the full URL to a remote zip archive or TAP/TZX file, or the path to a local file.",
         fromfile_prefix_chars='@',
         add_help=False
     )
     parser.add_argument('args', help=argparse.SUPPRESS, nargs='*')
     group = parser.add_argument_group('Options')
     group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR',
-                       help="Write the snapshot file in this directory")
+                       help="Write the snapshot file in this directory.")
+    group.add_argument('--di', dest='interrupts', action='store_false',
+                       help="Disable interrupts.")
+    group.add_argument('--ei', dest='interrupts', action='store_true',
+                       help="Enable interrupts. This is the default behaviour.")
     group.add_argument('-f', '--force', action='store_true',
-                       help="Overwrite an existing snapshot")
+                       help="Overwrite an existing snapshot.")
     group.add_argument('--pc', dest='pc', metavar='ADDRESS', type=int, default=0,
-                       help="Set the value of the program counter")
+                       help="Set the value of the program counter.")
+    group.add_argument('--ram', dest='ram_ops', metavar='OPERATION', action='append', default=[],
+                       help="Perform a load, move or poke operation on the memory snapshot being built. "
+                            "This option may be used multiple times.")
+    group.add_argument('--sp', dest='sp', metavar='ADDRESS', type=int, default=0,
+                       help="Set the value of the stack pointer.")
     namespace, unknown_args = parser.parse_known_args(args)
     if unknown_args or len(namespace.args) != 2:
         parser.exit(2, parser.format_help())
@@ -137,8 +352,9 @@ def main(args):
         z80 = os.path.join(namespace.output_dir, z80)
     if namespace.force or not os.path.isfile(z80):
         try:
-            tap = get_tap(url)
-            ram = get_ram(tap)
+            tape_type, tape = get_tape(url)
+            tape_blocks = get_tape_blocks(tape_type, tape)
+            ram = get_ram(tape_blocks, namespace)
             write_z80(ram, namespace, z80)
         except Exception as e:
             sys.stderr.write("Error while getting snapshot {0}: {1}\n".format(os.path.basename(z80), e.args[0]))
