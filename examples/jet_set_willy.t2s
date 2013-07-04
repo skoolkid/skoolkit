@@ -6,4 +6,4 @@
 
 ftp://ftp.worldofspectrum.org/pub/sinclair/games/j/JetSetWilly(original).tap.zip
 jet_set_willy.z80
---pc 33792
+--reg pc=33792

@@ -2,6 +2,7 @@
 import sys
 import os
 import argparse
+import textwrap
 import zipfile
 from io import BytesIO
 try:
@@ -47,16 +48,72 @@ def get_z80_ram_block(data, page):
     length = len(block)
     return [length % 256, length // 256, page] + block
 
+Z80_REGISTERS = {
+    'a': 0,
+    'f': 1,
+    'bc': 2,
+    'c': 2,
+    'b': 3,
+    'hl': 4,
+    'l': 4,
+    'h': 5,
+    'sp': 8,
+    'i': 10,
+    'r': 11,
+    'de': 13,
+    'e': 13,
+    'd': 14,
+    '@bc': 15,
+    '@c': 15,
+    '@b': 16,
+    '@de': 17,
+    '@e': 17,
+    '@d': 18,
+    '@hl': 19,
+    '@l': 19,
+    '@h': 20,
+    '@a': 21,
+    '@f': 22,
+    'iy': 23,
+    'ix': 25,
+    'pc': 32
+}
+
 def get_z80(ram, options):
     # http://www.worldofspectrum.org/faq/reference/z80format.htm
     z80 = [0] * 86
     z80[30] = 54 # Indicate a v3 Z80 snapshot
-    z80[8:10] = [options.sp % 256, options.sp // 256] # Stack pointer
+
     z80[10] = 63 # I=63 (interrupt page address register)
     z80[23:25] = [58, 92] # IY=23610
-    if options.interrupts:
-        z80[27] = 255 # Enable interrupts
-    z80[32:34] = [options.pc % 256, options.pc // 256]
+    for spec in options.reg:
+        reg, sep, val = spec.lower().partition('=')
+        if sep:
+            if reg.startswith('@'):
+                size = len(reg) - 1
+            else:
+                size = len(reg)
+            value = int(val)
+            lsb, msb = value % 256, (value & 65535) // 256
+            offset = Z80_REGISTERS.get(reg, -1)
+            if offset >= 0:
+                if size == 1:
+                    z80[offset] = lsb
+                elif size == 2:
+                    z80[offset:offset + 2] = [lsb, msb]
+                if reg == 'r' and lsb & 128:
+                    z80[12] |= 1
+
+    for spec in options.state:
+        name, sep, val = spec.lower().partition('=')
+        if name == 'di':
+            z80[27] = 0   # Disable interrupts
+        elif name == 'ei':
+            z80[27] = 255 # Enable interrupts
+        elif name == 'border' and val:
+            z80[12] &= 241 # Clear bits 1-3
+            z80[12] |= (int(val) & 7) * 2 # Border colour
+
     banks = ((5, ram[:16384]), (1, ram[16384:32768]), (2, ram[32768:49152]))
     for bank, data in banks:
         z80 += get_z80_ram_block(data, bank + 3)
@@ -319,6 +376,25 @@ def get_tape(urlstring, member=None):
         return member[-3:], bytearray(tape.read())
     return urlstring[-3:], data
 
+def print_reg_help():
+    reg_names = ', '.join(sorted(Z80_REGISTERS.keys()))
+    sys.stdout.write("""
+Usage: --reg name=value
+
+Sets the value of a register or register pair. For example:
+
+  --reg hl=32768
+  --reg b=17
+
+To set the value of an alternate (shadow) register, use the '@' prefix:
+
+  --reg @hl=10072
+
+Recognised register names are:
+
+  {}
+""".format('\n  '.join(textwrap.wrap(reg_names, 70))).lstrip())
+
 def main(args):
     parser = SkoolKitArgumentParser(
         usage='tap2sna.py [options] INPUT FILE.z80',
@@ -331,20 +407,20 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR',
                        help="Write the snapshot file in this directory.")
-    group.add_argument('--di', dest='interrupts', action='store_false',
-                       help="Disable interrupts.")
-    group.add_argument('--ei', dest='interrupts', action='store_true',
-                       help="Enable interrupts. This is the default behaviour.")
     group.add_argument('-f', '--force', action='store_true',
                        help="Overwrite an existing snapshot.")
-    group.add_argument('--pc', dest='pc', metavar='ADDRESS', type=int, default=0,
-                       help="Set the value of the program counter.")
     group.add_argument('--ram', dest='ram_ops', metavar='OPERATION', action='append', default=[],
                        help="Perform a load, move or poke operation on the memory snapshot being built. "
                             "This option may be used multiple times.")
-    group.add_argument('--sp', dest='sp', metavar='ADDRESS', type=int, default=0,
-                       help="Set the value of the stack pointer.")
+    group.add_argument('--reg', dest='reg', metavar='name=value', action='append', default=[],
+                       help="Set the value of a register. Do '--reg help' for more information. "
+                            "This option may be used multiple times.")
+    group.add_argument('--state', dest='state', metavar='name[=value]', action='append', default=[],
+                       help="Set a hardware state attribute. This option may be used multiple times.")
     namespace, unknown_args = parser.parse_known_args(args)
+    if 'help' in namespace.reg:
+        print_reg_help()
+        return
     if unknown_args or len(namespace.args) != 2:
         parser.exit(2, parser.format_help())
     url, z80 = namespace.args
