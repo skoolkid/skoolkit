@@ -11,6 +11,7 @@ Source0:        http://pyskool.ca/downloads/%{name}/%{name}-%{version}.tar.xz
 
 BuildArch:      noarch
 BuildRequires:  python-devel
+Requires:       python >= 2.7
 
 %description
 SkoolKit is a collection of utilities that can be used to disassemble a
