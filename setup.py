@@ -85,5 +85,13 @@ setup(
     packages=['skoolkit'],
     package_dir={'skoolkit': PACKAGE_DIR},
     package_data={'skoolkit': ['resources/*', 'examples/*']},
-    scripts=['bin2tap.py', 'skool2asm.py', 'skool2ctl.py', 'skool2html.py', 'skool2sft.py', 'sna2skool.py']
+    scripts=['bin2tap.py', 'skool2asm.py', 'skool2ctl.py', 'skool2html.py', 'skool2sft.py', 'sna2skool.py'],
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Topic :: Utilities'
+    ]
 )
