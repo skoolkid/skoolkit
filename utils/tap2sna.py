@@ -86,6 +86,8 @@ def get_z80(ram, options):
 
     z80[10] = 63 # I=63 (interrupt page address register)
     z80[23:25] = [58, 92] # IY=23610
+    z80[27] = 1 # Enable interrupts
+    z80[29] = 1 # IM 1
     for spec in options.reg:
         reg, sep, val = spec.lower().partition('=')
         if sep:
@@ -106,11 +108,12 @@ def get_z80(ram, options):
 
     for spec in options.state:
         name, sep, val = spec.lower().partition('=')
-        if name == 'di':
-            z80[27] = 0   # Disable interrupts
-        elif name == 'ei':
-            z80[27] = 255 # Enable interrupts
-        elif name == 'border' and val:
+        if name == 'iff':
+            z80[27] = int(val) & 255
+        elif name == 'im':
+            z80[29] &= 252 # Clear bits 0 and 1
+            z80[29] |= int(val) & 3
+        elif name == 'border':
             z80[12] &= 241 # Clear bits 1-3
             z80[12] |= (int(val) & 7) * 2 # Border colour
 
@@ -376,12 +379,70 @@ def get_tape(urlstring, member=None):
         return member[-3:], bytearray(tape.read())
     return urlstring[-3:], data
 
+def print_ram_help():
+    sys.stdout.write("""
+Usage: --ram load=block,start[,length,step,offset,inc]
+       --ram move=src,size,dest
+       --ram poke=a[-b[-c]],v
+
+Load data from a tape block, move a block of bytes from one location to
+another, or POKE a single address or range of addresses with a given value.
+
+--ram load=block,start[,length,step,offset,inc]
+
+  Load data from a tape block.
+
+  block  - the tape block number (the first block is 1, the next is 2, etc.)
+  start  - the destination address at which to start loading
+  length - the number of bytes to load (optional; default is the number of
+           bytes remaining in the block)
+  step   - this number is added to the destination address after each byte is
+           loaded (optional; default=1)
+  offset - this number is added to the destination address before a byte is
+           loaded, and subtracted after the byte is loaded (optional;
+           default=0)
+  inc    - after 'step' is added to the destination address, this number is
+           added too if the result is greater than 65535 (optional; default=0)
+
+  A single tape block can be loaded in two or more stages; for example:
+
+  --ram load=2,32768,2048  # Load the first 2K at 32768
+  --ram load=2,49152       # Load the remainder at 49152
+
+--ram move=src,size,dest
+
+  Move a block of bytes from one location to another.
+
+  src  - the address of the first byte in the block
+  size - the number of bytes in the block
+  dest - the destination address
+
+  For example:
+
+  --ram move=32512,256,32768  # Move 32512-32767 to 32768-33023
+
+--ram poke=a[-b[-c]],v
+
+  Do POKE N,v for N in {a, a+c, a+2c..., b}.
+
+  a - the first address to POKE
+  b - the last address to POKE (optional; default=a)
+  c - step (optional; default=1)
+  v - the value to POKE
+
+  For example:
+
+  --ram poke=24576,16        # POKE 24576,16
+  --ram poke=30000-30002,0   # POKE 30000,0: POKE 30001,0: POKE 30002,0
+  --ram poke=40000-40004-2,1 # POKE 40000,1: POKE 40002,1: POKE 40004,1
+""".lstrip())
+
 def print_reg_help():
     reg_names = ', '.join(sorted(Z80_REGISTERS.keys()))
     sys.stdout.write("""
 Usage: --reg name=value
 
-Sets the value of a register or register pair. For example:
+Set the value of a register or register pair. For example:
 
   --reg hl=32768
   --reg b=17
@@ -395,11 +456,23 @@ Recognised register names are:
   {}
 """.format('\n  '.join(textwrap.wrap(reg_names, 70))).lstrip())
 
+def print_state_help():
+    sys.stdout.write("""
+Usage: --state name=value
+
+Set a hardware state attribute. Recognised names and their default values are:
+
+  border - border colour (default=0)
+  iff    - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
+  im     - interrupt mode (default=1)
+""".lstrip())
+
 def main(args):
     parser = SkoolKitArgumentParser(
-        usage='tap2sna.py [options] INPUT FILE.z80',
+        usage='\n  tap2sna.py [options] INPUT snapshot.z80\n  tap2sna.py @FILE',
         description="Convert a TAP or TZX file (which may be inside a zip archive) into a Z80 snapshot. "
-                    "INPUT may be the full URL to a remote zip archive or TAP/TZX file, or the path to a local file.",
+                    "INPUT may be the full URL to a remote zip archive or TAP/TZX file, or the path to a local file. "
+                    "Arguments may be read from FILE instead of (or as well as) being given on the command line.",
         fromfile_prefix_chars='@',
         add_help=False
     )
@@ -411,15 +484,22 @@ def main(args):
                        help="Overwrite an existing snapshot.")
     group.add_argument('--ram', dest='ram_ops', metavar='OPERATION', action='append', default=[],
                        help="Perform a load, move or poke operation on the memory snapshot being built. "
-                            "This option may be used multiple times.")
+                            "Do '--ram help' for more information. This option may be used multiple times.")
     group.add_argument('--reg', dest='reg', metavar='name=value', action='append', default=[],
                        help="Set the value of a register. Do '--reg help' for more information. "
                             "This option may be used multiple times.")
-    group.add_argument('--state', dest='state', metavar='name[=value]', action='append', default=[],
-                       help="Set a hardware state attribute. This option may be used multiple times.")
+    group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
+                       help="Set a hardware state attribute. Do '--state help' for more information. "
+                            "This option may be used multiple times.")
     namespace, unknown_args = parser.parse_known_args(args)
+    if 'help' in namespace.ram_ops:
+        print_ram_help()
+        return
     if 'help' in namespace.reg:
         print_reg_help()
+        return
+    if 'help' in namespace.state:
+        print_state_help()
         return
     if unknown_args or len(namespace.args) != 2:
         parser.exit(2, parser.format_help())
