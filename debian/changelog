@@ -1,3 +1,9 @@
+skoolkit (3.4-1) unstable; urgency=low
+
+  * Updated to 3.4.
+
+ -- Richard Dymond <rjdymond@gmail.com>  Mon, 08 Jul 2013 08:57:47 -0300
+
 skoolkit (3.3.2-2) unstable; urgency=low
 
   * Restored manicminer.py and jetsetwilly.py modules.
