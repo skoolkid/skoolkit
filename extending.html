@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &mdash; SkoolKit 3.3.2 documentation</title>
+    <title>Extending SkoolKit &mdash; SkoolKit 3.4 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.3.2',
+        VERSION:     '3.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.3.2 documentation" href="index.html" />
-    <link rel="prev" title="Running unit tests" href="unit-tests.html" /> 
+    <link rel="top" title="SkoolKit 3.4 documentation" href="index.html" />
+    <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body>
     <div class="related">
@@ -36,9 +36,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="unit-tests.html" title="Running unit tests"
+          <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -127,7 +127,7 @@ parameter should be set thus:</p>
 </div>
 <div class="section" id="call-methods">
 <h2>#CALL methods<a class="headerlink" href="#call-methods" title="Permalink to this headline">¶</a></h2>
-<p>Adding a method that can be called by a <a class="reference internal" href="skool-macros.html#call"><em>#CALL</em></a> macro is done by simply
+<p>Implementing a method that can be called by a <a class="reference internal" href="skool-macros.html#call"><em>#CALL</em></a> macro is done by
 adding the method to the HtmlWriter or AsmWriter subclass in the extension
 module.</p>
 <p>One thing to be aware of when adding a <tt class="docutils literal"><span class="pre">#CALL</span></tt> method to a subclass of
@@ -175,17 +175,26 @@ this:</p>
 </div>
 <div class="section" id="skool-macros">
 <h2>Skool macros<a class="headerlink" href="#skool-macros" title="Permalink to this headline">¶</a></h2>
-<p>Another way to add a custom method is to implement it as a skool macro. This is
-more complicated than adding a <tt class="docutils literal"><span class="pre">#CALL</span></tt> method, because the skool macro&#8217;s
-parameters have to be parsed manually. However, skool macros are more flexible
-than <tt class="docutils literal"><span class="pre">#CALL</span></tt> methods, because optional parameters omitted at any position can
-be assigned their default values; in a <tt class="docutils literal"><span class="pre">#CALL</span></tt> method, only the optional
-arguments at the end will be assigned their default values if omitted, whereas
-any others will be set to <cite>None</cite>.</p>
-<p>Implementing a skool macro is done by simply adding a method named
-<cite>expand_macroname</cite> to the HtmlWriter or AsmWriter subclass in the extension
-module. So, to implement a <tt class="docutils literal"><span class="pre">#SPRITE</span></tt> or <tt class="docutils literal"><span class="pre">#TIMESTAMP</span></tt> macro, we would add a
-method named <cite>expand_sprite</cite> or <cite>expand_timestamp</cite>.</p>
+<p>Another way to add a custom method is to implement it as a skool macro. The
+main differences between a skool macro and a <tt class="docutils literal"><span class="pre">#CALL</span></tt> method are:</p>
+<ul class="simple">
+<li>a <tt class="docutils literal"><span class="pre">#CALL</span></tt> macro&#8217;s parameters are automatically evaluated and passed to the
+<tt class="docutils literal"><span class="pre">#CALL</span></tt> method; a skool macro&#8217;s parameters must be parsed and evaluated
+manually (typically by using one or more of the
+<a class="reference internal" href="#ext-macroparsing"><em>macro-parsing utility functions</em></a>)</li>
+<li>every optional parameter in a skool macro can be assigned a default value if
+omitted; in a <tt class="docutils literal"><span class="pre">#CALL</span></tt> method, only the optional arguments at the end can be
+assigned default values if omitted, whereas any others are set to <cite>None</cite></li>
+<li>numeric parameters in a <tt class="docutils literal"><span class="pre">#CALL</span></tt> macro are automatically converted to
+numbers before being passed to the <tt class="docutils literal"><span class="pre">#CALL</span></tt> method; no automatic conversion
+is done on the parameters of a skool macro</li>
+</ul>
+<p>In summary: a <tt class="docutils literal"><span class="pre">#CALL</span></tt> method is generally simpler to implement than a skool
+macro, but skool macros are more flexible.</p>
+<p>Implementing a skool macro is done by adding a method named <cite>expand_macroname</cite>
+to the HtmlWriter or AsmWriter subclass in the extension module. So, to
+implement a <tt class="docutils literal"><span class="pre">#SPRITE</span></tt> or <tt class="docutils literal"><span class="pre">#TIMESTAMP</span></tt> macro, we would add a method named
+<cite>expand_sprite</cite> or <cite>expand_timestamp</cite>.</p>
 <p>A skool macro method must accept either two or three parameters, depending on
 whether it is implemented on a subclass of AsmWriter or HtmlWriter:</p>
 <ul class="simple">
@@ -232,7 +241,7 @@ TABLE#</pre>
 </div>
 </div>
 <div class="section" id="parsing-skool-macros">
-<h2>Parsing skool macros<a class="headerlink" href="#parsing-skool-macros" title="Permalink to this headline">¶</a></h2>
+<span id="ext-macroparsing"></span><h2>Parsing skool macros<a class="headerlink" href="#parsing-skool-macros" title="Permalink to this headline">¶</a></h2>
 <p>The skoolkit.skoolmacro module provides some utility functions that may be used
 to parse the parameters of a skool macro.</p>
 <dl class="function">
@@ -744,8 +753,13 @@ subclasses may override it.</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="unit-tests.html"
-                        title="previous chapter">Running unit tests</a></p>
+  <p class="topless"><a href="asm.html"
+                        title="previous chapter">ASM modes and directives</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/extending.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -770,9 +784,9 @@ subclasses may override it.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="unit-tests.html" title="Running unit tests"
+          <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

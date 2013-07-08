@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ASM modes and directives &mdash; SkoolKit 3.3.2 documentation</title>
+    <title>ASM modes and directives &mdash; SkoolKit 3.4 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.3.2',
+        VERSION:     '3.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.3.2 documentation" href="index.html" />
-    <link rel="next" title="Prerequisites" href="dev-prereqs.html" />
+    <link rel="top" title="SkoolKit 3.4 documentation" href="index.html" />
+    <link rel="next" title="Extending SkoolKit" href="extending.html" />
     <link rel="prev" title="Ref files" href="ref-files.html" /> 
   </head>
   <body>
@@ -37,12 +37,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="dev-prereqs.html" title="Prerequisites"
+          <a href="extending.html" title="Extending SkoolKit"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -607,6 +607,8 @@ and before the <tt class="docutils literal"><span class="pre">&#64;end</span></t
 (default: <tt class="docutils literal"><span class="pre">10</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">crlf</span></tt> - <tt class="docutils literal"><span class="pre">1</span></tt> to use CR+LF to terminate lines, or <tt class="docutils literal"><span class="pre">0</span></tt> to use the system
 default (default: <tt class="docutils literal"><span class="pre">0</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">handle-unsupported-macros</span></tt> - how to handle an unsupported macro: <tt class="docutils literal"><span class="pre">1</span></tt> to
+expand it to an empty string, or <tt class="docutils literal"><span class="pre">0</span></tt> to exit with an error (default: <tt class="docutils literal"><span class="pre">0</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">indent</span></tt> - the number of spaces by which to indent instructions (default:
 <tt class="docutils literal"><span class="pre">2</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">instruction-width</span></tt> - the width of the instruction field (default: <tt class="docutils literal"><span class="pre">23</span></tt>)</li>
@@ -618,6 +620,8 @@ use spaces (default: <tt class="docutils literal"><span class="pre">0</span></tt
 <li><tt class="docutils literal"><span class="pre">warnings</span></tt> - <tt class="docutils literal"><span class="pre">1</span></tt> to print any warnings that are produced while writing
 ASM output (after parsing the <cite>skool</cite> file), or <tt class="docutils literal"><span class="pre">0</span></tt> to suppress them
 (default: <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">wrap-column-width-min</span></tt> - the minimum width of a wrappable table column
+(default: <tt class="docutils literal"><span class="pre">10</span></tt>)</li>
 </ul>
 <p>For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>; @set-bullet=+
@@ -641,6 +645,10 @@ ASM output (after parsing the <cite>skool</cite> file), or <tt class="docutils l
 <tr class="row-odd"><td>3.3.1</td>
 <td>Added the <cite>comment-width-min</cite>, <cite>indent</cite>, <cite>instruction-width</cite>,
 <cite>label-colons</cite>, <cite>line-width</cite> and <cite>warnings</cite> properties</td>
+</tr>
+<tr class="row-even"><td>3.4</td>
+<td>Added the <cite>handle-unsupported-macros</cite> and
+<cite>wrap-column-width-min</cite> properties</td>
 </tr>
 </tbody>
 </table>
@@ -771,8 +779,13 @@ path</td>
   <p class="topless"><a href="ref-files.html"
                         title="previous chapter">Ref files</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="dev-prereqs.html"
-                        title="next chapter">Prerequisites</a></p>
+  <p class="topless"><a href="extending.html"
+                        title="next chapter">Extending SkoolKit</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/asm.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -797,12 +810,12 @@ path</td>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="dev-prereqs.html" title="Prerequisites"
+          <a href="extending.html" title="Extending SkoolKit"
              >next</a> |</li>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

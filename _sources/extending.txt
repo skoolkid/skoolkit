@@ -90,7 +90,7 @@ and the ``@writer`` directive should be set thus::
 
 #CALL methods
 -------------
-Adding a method that can be called by a :ref:`call` macro is done by simply
+Implementing a method that can be called by a :ref:`call` macro is done by
 adding the method to the HtmlWriter or AsmWriter subclass in the extension
 module.
 
@@ -141,18 +141,27 @@ With this method in place, it's possible to use a ``#CALL`` macro like this::
 
 Skool macros
 ------------
-Another way to add a custom method is to implement it as a skool macro. This is
-more complicated than adding a ``#CALL`` method, because the skool macro's
-parameters have to be parsed manually. However, skool macros are more flexible
-than ``#CALL`` methods, because optional parameters omitted at any position can
-be assigned their default values; in a ``#CALL`` method, only the optional
-arguments at the end will be assigned their default values if omitted, whereas
-any others will be set to `None`.
+Another way to add a custom method is to implement it as a skool macro. The
+main differences between a skool macro and a ``#CALL`` method are:
 
-Implementing a skool macro is done by simply adding a method named
-`expand_macroname` to the HtmlWriter or AsmWriter subclass in the extension
-module. So, to implement a ``#SPRITE`` or ``#TIMESTAMP`` macro, we would add a
-method named `expand_sprite` or `expand_timestamp`.
+* a ``#CALL`` macro's parameters are automatically evaluated and passed to the
+  ``#CALL`` method; a skool macro's parameters must be parsed and evaluated
+  manually (typically by using one or more of the
+  :ref:`macro-parsing utility functions <ext-MacroParsing>`)
+* every optional parameter in a skool macro can be assigned a default value if
+  omitted; in a ``#CALL`` method, only the optional arguments at the end can be
+  assigned default values if omitted, whereas any others are set to `None`
+* numeric parameters in a ``#CALL`` macro are automatically converted to
+  numbers before being passed to the ``#CALL`` method; no automatic conversion
+  is done on the parameters of a skool macro
+
+In summary: a ``#CALL`` method is generally simpler to implement than a skool
+macro, but skool macros are more flexible.
+
+Implementing a skool macro is done by adding a method named `expand_macroname`
+to the HtmlWriter or AsmWriter subclass in the extension module. So, to
+implement a ``#SPRITE`` or ``#TIMESTAMP`` macro, we would add a method named
+`expand_sprite` or `expand_timestamp`.
 
 A skool macro method must accept either two or three parameters, depending on
 whether it is implemented on a subclass of AsmWriter or HtmlWriter:
@@ -199,6 +208,8 @@ The `expand_timestamp` method on GameAsmWriter would look something like this::
   class GameAsmWriter(AsmWriter):
       def expand_timestamp(self, text, index):
           return index, time.strftime("%a %d %b %Y %H:%M:%S %Z")
+
+.. _ext-MacroParsing:
 
 Parsing skool macros
 --------------------

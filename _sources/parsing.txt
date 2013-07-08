@@ -25,15 +25,17 @@ HTML mode is used when the target output format is HTML, as is the case when
 running `skool2html.py`. In HTML mode, most ASM directives are ignored because
 they are irrelevant to the purpose of creating the HTML version of the
 disassembly. The only ASM directives that are processed in HTML mode are the
-block directives:
+following:
 
+* :ref:`keep`
+* :ref:`label`
 * :ref:`bfixBlockDirectives`
 * :ref:`isubBlockDirectives`
 * :ref:`ofixBlockDirectives`
 * :ref:`rfixBlockDirectives`
 * :ref:`rsubBlockDirectives`
 
-The reason that these directives are processed is that they may define two
+The reason that the block directives are processed is that they may define two
 different versions of a section of code or data: first, a version to include in
 the output if the corresponding ASM mode (:ref:`@bfix <bfixMode>`,
 :ref:`@isub <isubMode>`, :ref:`@ofix <ofixMode>`, :ref:`@rfix <rfixMode>`,

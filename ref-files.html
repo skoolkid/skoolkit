@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &mdash; SkoolKit 3.3.2 documentation</title>
+    <title>Ref files &mdash; SkoolKit 3.4 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.3.2',
+        VERSION:     '3.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.3.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.4 documentation" href="index.html" />
     <link rel="next" title="ASM modes and directives" href="asm.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -143,30 +143,40 @@ creating images. Each line has the form:</p>
 <div class="highlight-none"><div class="highlight"><pre>name=R,G,B
 </pre></div>
 </div>
-<p>where <tt class="docutils literal"><span class="pre">name</span></tt> is the colour name, and <tt class="docutils literal"><span class="pre">R,G,B</span></tt> is an RGB triplet.</p>
+<p>or:</p>
+<div class="highlight-none"><div class="highlight"><pre>name=#RGB
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">name</span></tt> is the colour name</li>
+<li><tt class="docutils literal"><span class="pre">R,G,B</span></tt> is a decimal RGB triplet</li>
+<li><tt class="docutils literal"><span class="pre">#RGB</span></tt> is a hexadecimal RGB triplet (in the usual 6-digit form, or in the
+short 3-digit form)</li>
+</ul>
 <p>Recognised colour names and their default RGB values are:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">TRANSPARENT</span></tt>: 0,254,0</li>
-<li><tt class="docutils literal"><span class="pre">BLACK</span></tt>: 0,0,0</li>
-<li><tt class="docutils literal"><span class="pre">BLUE</span></tt>: 0,0,197</li>
-<li><tt class="docutils literal"><span class="pre">RED</span></tt>: 197,0,0</li>
-<li><tt class="docutils literal"><span class="pre">MAGENTA</span></tt>: 197,0,197</li>
-<li><tt class="docutils literal"><span class="pre">GREEN</span></tt>: 0,198,0</li>
-<li><tt class="docutils literal"><span class="pre">CYAN</span></tt>: 0,198,197</li>
-<li><tt class="docutils literal"><span class="pre">YELLOW</span></tt>: 197,198,0</li>
-<li><tt class="docutils literal"><span class="pre">WHITE</span></tt>: 205,198,205</li>
-<li><tt class="docutils literal"><span class="pre">BRIGHT_BLUE</span></tt>: 0,0,255</li>
-<li><tt class="docutils literal"><span class="pre">BRIGHT_RED</span></tt>: 255,0,0</li>
-<li><tt class="docutils literal"><span class="pre">BRIGHT_MAGENTA</span></tt>: 255,0,255</li>
-<li><tt class="docutils literal"><span class="pre">BRIGHT_GREEN</span></tt>: 0,255,0</li>
-<li><tt class="docutils literal"><span class="pre">BRIGHT_CYAN</span></tt>: 0,255,255</li>
-<li><tt class="docutils literal"><span class="pre">BRIGHT_YELLOW</span></tt>: 255,255,0</li>
-<li><tt class="docutils literal"><span class="pre">BRIGHT_WHITE</span></tt>: 255,255,255</li>
+<li><tt class="docutils literal"><span class="pre">TRANSPARENT</span></tt>: 0,254,0 (#00fe00)</li>
+<li><tt class="docutils literal"><span class="pre">BLACK</span></tt>: 0,0,0 (#000000)</li>
+<li><tt class="docutils literal"><span class="pre">BLUE</span></tt>: 0,0,197 (#0000c5)</li>
+<li><tt class="docutils literal"><span class="pre">RED</span></tt>: 197,0,0 (#c50000)</li>
+<li><tt class="docutils literal"><span class="pre">MAGENTA</span></tt>: 197,0,197 (#c500c5)</li>
+<li><tt class="docutils literal"><span class="pre">GREEN</span></tt>: 0,198,0 (#00c600)</li>
+<li><tt class="docutils literal"><span class="pre">CYAN</span></tt>: 0,198,197 (#00c6c5)</li>
+<li><tt class="docutils literal"><span class="pre">YELLOW</span></tt>: 197,198,0 (#c5c600)</li>
+<li><tt class="docutils literal"><span class="pre">WHITE</span></tt>: 205,198,205 (#cdc6cd)</li>
+<li><tt class="docutils literal"><span class="pre">BRIGHT_BLUE</span></tt>: 0,0,255 (#0000ff)</li>
+<li><tt class="docutils literal"><span class="pre">BRIGHT_RED</span></tt>: 255,0,0 (#ff0000)</li>
+<li><tt class="docutils literal"><span class="pre">BRIGHT_MAGENTA</span></tt>: 255,0,255 (#ff00ff)</li>
+<li><tt class="docutils literal"><span class="pre">BRIGHT_GREEN</span></tt>: 0,255,0 (#00ff00)</li>
+<li><tt class="docutils literal"><span class="pre">BRIGHT_CYAN</span></tt>: 0,255,255 (#00ffff)</li>
+<li><tt class="docutils literal"><span class="pre">BRIGHT_YELLOW</span></tt>: 255,255,0 (#ffff00)</li>
+<li><tt class="docutils literal"><span class="pre">BRIGHT_WHITE</span></tt>: 255,255,255 (#ffffff)</li>
 </ul>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="17%" />
+<col width="83%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -176,6 +186,9 @@ creating images. Each line has the form:</p>
 <tbody valign="top">
 <tr class="row-even"><td>2.0.5</td>
 <td>New</td>
+</tr>
+<tr class="row-odd"><td>3.4</td>
+<td>Added support for hexadecimal RGB triplets</td>
 </tr>
 </tbody>
 </table>
@@ -266,6 +279,10 @@ marked with a <tt class="docutils literal"><span class="pre">g</span></tt> (see 
 <li><tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> - the text to use in the header of input
 register tables on routine disassembly pages; if not specified, no header is
 displayed</li>
+<li><tt class="docutils literal"><span class="pre">LinkOperands</span></tt> - a comma-separated list of instruction types whose operands
+should be hyperlinked when possible (default: <tt class="docutils literal"><span class="pre">CALL,DEFW,DJNZ,JP,JR</span></tt>); add
+<tt class="docutils literal"><span class="pre">LD</span></tt> to the list to enable the address operands of LD instructions to be
+hyperlinked as well</li>
 <li><tt class="docutils literal"><span class="pre">Logo</span></tt> - the text/HTML that will serve as the game logo in the header of
 every page (typically a skool macro that creates a suitable image); if not
 specified, the name of the game is used</li>
@@ -298,6 +315,9 @@ to the logo image</td>
 <tr class="row-even"><td>3.1.2</td>
 <td>Added the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
 <tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> parameters</td>
+</tr>
+<tr class="row-odd"><td>3.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">LinkOperands</span></tt> parameter</td>
 </tr>
 </tbody>
 </table>
@@ -1059,6 +1079,11 @@ addresses&#8217;)</li>
   <h4>Next topic</h4>
   <p class="topless"><a href="asm.html"
                         title="next chapter">ASM modes and directives</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ref-files.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -1088,7 +1113,7 @@ addresses&#8217;)</li>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Changelog &mdash; SkoolKit 3.3.2 documentation</title>
+    <title>Changelog &mdash; SkoolKit 3.4 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.3.2',
+        VERSION:     '3.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.3.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.4 documentation" href="index.html" />
     <link rel="next" title="SkoolKit 2.x changelog" href="changelog2.html" />
     <link rel="prev" title="General info" href="info.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="info.html" title="General info"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -60,7 +60,39 @@
 </ul>
 </div>
 <div class="section" id="id1">
-<h2>3.3.2 (2013-05-13)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>3.4 (2013-07-08)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Dropped support for Python 2.6 and 3.1</li>
+<li>Added long options to every command</li>
+<li>Added the <tt class="docutils literal"><span class="pre">--asm-labels</span></tt> and <tt class="docutils literal"><span class="pre">--create-labels</span></tt> options to
+<a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> (to use ASM labels defined by <a class="reference internal" href="asm.html#label"><em>&#64;label</em></a> directives,
+and to create default labels for unlabelled instructions)</li>
+<li>Added the <tt class="docutils literal"><span class="pre">--erefs</span></tt> option to <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> (to always add comments
+that list entry point referrers)</li>
+<li>Added the <tt class="docutils literal"><span class="pre">--package-dir</span></tt> option to <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a> (to show the path
+to the skoolkit package directory)</li>
+<li>Added support for the <tt class="docutils literal"><span class="pre">LinkOperands</span></tt> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><em>[Game]</em></a>
+section of the <cite>ref</cite> file, which may be used to enable the address operands
+of LD instructions to be hyperlinked</li>
+<li>Added support for defining image colours by using hex triplets in the
+<a class="reference internal" href="ref-files.html#ref-colours"><em>[Colours]</em></a> section of the <cite>ref</cite> file</li>
+<li>Added support to the <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a> ASM directive for the
+<cite>handle-unsupported-macros</cite> and <cite>wrap-column-width-min</cite> properties</li>
+<li>Fixed the <a class="reference internal" href="skool-macros.html#erefs"><em>#EREFS</em></a> and <a class="reference internal" href="skool-macros.html#m-refs"><em>#REFS</em></a> macros so that they work with
+hexadecimal address parameters</li>
+<li>Fixed the bug that crashes <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> when generating a control file
+from a code execution map and a snapshot with a code block that terminates at
+65535</li>
+<li>Fixed how <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a> renders table cells with rowspan &gt; 1 and
+wrapped contents alongside cells with rowspan = 1</li>
+<li>Removed support for the <tt class="docutils literal"><span class="pre">#NAME</span></tt> macro (what it did can be done by the
+<a class="reference internal" href="skool-macros.html#html"><em>#HTML</em></a> macro instead)</li>
+<li>Removed the documentation sources and man page sources from the SkoolKit
+distribution (they can be obtained from <a class="reference external" href="https://github.com/skoolkid/skoolkit">GitHub</a>)</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>3.3.2 (2013-05-13)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <tt class="docutils literal"><span class="pre">-T</span></tt> option to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> (to specify a CSS theme)</li>
 <li>Added the <tt class="docutils literal"><span class="pre">-p</span></tt> option to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> (to show the path to the
@@ -79,8 +111,8 @@ option takes precedence over a default skool file template</li>
 pristine snapshot (before stack operations have corrupted those addresses)</li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h2>3.3.1 (2013-03-04)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h2>3.3.1 (2013-03-04)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added support to the <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a> ASM directive for the <cite>comment-width-min</cite>,
 <cite>indent</cite>, <cite>instruction-width</cite>, <cite>label-colons</cite>, <cite>line-width</cite> and <cite>warnings</cite>
@@ -93,8 +125,8 @@ package)</li>
 dot (<tt class="docutils literal"><span class="pre">.</span></tt>) on a line of its own</li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>3.3 (2013-01-08)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>3.3 (2013-01-08)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added support to <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> for reading code execution maps produced
 by the Fuse, SpecEmu, Spud, Zero and Z80 emulators (to generate more accurate
@@ -103,8 +135,8 @@ control files)</li>
 <li>Added support to <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> for disassembling 128K SNA snapshots</li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>3.2 (2012-11-01)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>3.2 (2012-11-01)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added support to <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> for disassembling 128K Z80 snapshots and
 16K, 48K and 128K SZX snapshots</li>
@@ -115,8 +147,8 @@ HTML mode and ASM mode)</li>
 <li>Annotated the source code remnants at 32768 and 37708 in <cite>manic_miner.ctl</cite></li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h2>3.1.4 (2012-10-11)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h2>3.1.4 (2012-10-11)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added support to <a class="reference internal" href="commands.html#skool2ctl-py"><em>skool2ctl.py</em></a> and <a class="reference internal" href="commands.html#skool2sft-py"><em>skool2sft.py</em></a> for DEFB and
 DEFM statements that contain both strings and bytes</li>
@@ -134,8 +166,8 @@ to lower case decimal or hexadecimal (when using the <tt class="docutils literal
 <tt class="docutils literal"><span class="pre">-H</span></tt> options of <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a> and <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a>)</li>
 </ul>
 </div>
-<div class="section" id="id6">
-<h2>3.1.3 (2012-09-11)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id7">
+<h2>3.1.3 (2012-09-11)<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>The &#8216;Glossary&#8217; page is formatted in the same way as the &#8216;Trivia&#8217;, &#8216;Bugs&#8217;,
 &#8216;Pokes&#8217; and &#8216;Graphic glitches&#8217; pages</li>
@@ -147,8 +179,8 @@ page is substituted</li>
 correctly for the purpose of building a memory snapshot</li>
 </ul>
 </div>
-<div class="section" id="id7">
-<h2>3.1.2 (2012-08-01)<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id8">
+<h2>3.1.2 (2012-08-01)<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <a class="reference internal" href="skool-macros.html#html"><em>#HTML</em></a> macro (for rendering arbitrary text in HTML mode only)</li>
 <li>Added support for distinguishing input values from output values in a
@@ -160,8 +192,8 @@ the <cite>ref</cite> file</li>
 macro</li>
 </ul>
 </div>
-<div class="section" id="id8">
-<h2>3.1.1 (2012-07-17)<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id9">
+<h2>3.1.1 (2012-07-17)<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Enhanced the <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macro so that it accepts both horizontal and
 vertical steps in UDG address ranges</li>
@@ -174,9 +206,10 @@ vertical steps in UDG address ranges</li>
 DEFM statements</li>
 </ul>
 </div>
-<div class="section" id="id9">
-<h2>3.1 (2012-06-19)<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id10">
+<h2>3.1 (2012-06-19)<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
+<li>Dropped support for Python 2.5</li>
 <li>Added documentation on <a class="reference internal" href="extending.html#extendingskoolkit"><em>extending SkoolKit</em></a></li>
 <li>Added the <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a> ASM directive (to specify the class to use for
 producing ASM output)</li>
@@ -189,8 +222,8 @@ the <cite>ref</cite> file)</li>
 <li>Added a dark theme CSS file: <cite>skoolkit-dark.css</cite></li>
 </ul>
 </div>
-<div class="section" id="id10">
-<h2>3.0.2 (2012-05-01)<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id11">
+<h2>3.0.2 (2012-05-01)<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added room images and descriptions to <cite>manic_miner.ctl</cite> and
 <cite>jet_set_willy.ctl</cite> (based on reference material from
@@ -201,8 +234,8 @@ appearing on the disassembly index page when the default <tt class="docutils lit
 group is used</li>
 </ul>
 </div>
-<div class="section" id="id11">
-<h2>3.0.1 (2012-04-11)<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id12">
+<h2>3.0.1 (2012-04-11)<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added support for creating GIF files (including transparent and animated
 GIFs)</li>
@@ -215,8 +248,8 @@ parameter in the <a class="reference internal" href="ref-files.html#ref-imagewri
 parameters</li>
 </ul>
 </div>
-<div class="section" id="id12">
-<h2>3.0 (2012-03-20)<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id13">
+<h2>3.0 (2012-03-20)<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>SkoolKit now works with Python 3.x</li>
 <li>Added a native image creation library, which can be configured by using the
@@ -240,18 +273,19 @@ and <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRA
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">3.3.2 (2013-05-13)</a></li>
-<li><a class="reference internal" href="#id2">3.3.1 (2013-03-04)</a></li>
-<li><a class="reference internal" href="#id3">3.3 (2013-01-08)</a></li>
-<li><a class="reference internal" href="#id4">3.2 (2012-11-01)</a></li>
-<li><a class="reference internal" href="#id5">3.1.4 (2012-10-11)</a></li>
-<li><a class="reference internal" href="#id6">3.1.3 (2012-09-11)</a></li>
-<li><a class="reference internal" href="#id7">3.1.2 (2012-08-01)</a></li>
-<li><a class="reference internal" href="#id8">3.1.1 (2012-07-17)</a></li>
-<li><a class="reference internal" href="#id9">3.1 (2012-06-19)</a></li>
-<li><a class="reference internal" href="#id10">3.0.2 (2012-05-01)</a></li>
-<li><a class="reference internal" href="#id11">3.0.1 (2012-04-11)</a></li>
-<li><a class="reference internal" href="#id12">3.0 (2012-03-20)</a></li>
+<li><a class="reference internal" href="#id1">3.4 (2013-07-08)</a></li>
+<li><a class="reference internal" href="#id2">3.3.2 (2013-05-13)</a></li>
+<li><a class="reference internal" href="#id3">3.3.1 (2013-03-04)</a></li>
+<li><a class="reference internal" href="#id4">3.3 (2013-01-08)</a></li>
+<li><a class="reference internal" href="#id5">3.2 (2012-11-01)</a></li>
+<li><a class="reference internal" href="#id6">3.1.4 (2012-10-11)</a></li>
+<li><a class="reference internal" href="#id7">3.1.3 (2012-09-11)</a></li>
+<li><a class="reference internal" href="#id8">3.1.2 (2012-08-01)</a></li>
+<li><a class="reference internal" href="#id9">3.1.1 (2012-07-17)</a></li>
+<li><a class="reference internal" href="#id10">3.1 (2012-06-19)</a></li>
+<li><a class="reference internal" href="#id11">3.0.2 (2012-05-01)</a></li>
+<li><a class="reference internal" href="#id12">3.0.1 (2012-04-11)</a></li>
+<li><a class="reference internal" href="#id13">3.0 (2012-03-20)</a></li>
 </ul>
 </li>
 </ul>
@@ -262,6 +296,11 @@ and <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRA
   <h4>Next topic</h4>
   <p class="topless"><a href="changelog2.html"
                         title="next chapter">SkoolKit 2.x changelog</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/changelog.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -291,7 +330,7 @@ and <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRA
         <li class="right" >
           <a href="info.html" title="General info"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

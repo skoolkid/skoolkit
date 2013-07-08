@@ -7,6 +7,38 @@ Changelog
    changelog2
    changelog1
 
+3.4 (2013-07-08)
+----------------
+* Dropped support for Python 2.6 and 3.1
+* Added long options to every command
+* Added the ``--asm-labels`` and ``--create-labels`` options to
+  :ref:`skool2html.py` (to use ASM labels defined by :ref:`label` directives,
+  and to create default labels for unlabelled instructions)
+* Added the ``--erefs`` option to :ref:`sna2skool.py` (to always add comments
+  that list entry point referrers)
+* Added the ``--package-dir`` option to :ref:`skool2asm.py` (to show the path
+  to the skoolkit package directory)
+* Added support for the ``LinkOperands`` parameter in the :ref:`ref-Game`
+  section of the `ref` file, which may be used to enable the address operands
+  of LD instructions to be hyperlinked
+* Added support for defining image colours by using hex triplets in the
+  :ref:`ref-Colours` section of the `ref` file
+* Added support to the :ref:`set` ASM directive for the
+  `handle-unsupported-macros` and `wrap-column-width-min` properties
+* Fixed the :ref:`EREFS` and :ref:`m-REFS` macros so that they work with
+  hexadecimal address parameters
+* Fixed the bug that crashes :ref:`sna2skool.py` when generating a control file
+  from a code execution map and a snapshot with a code block that terminates at
+  65535
+* Fixed how :ref:`skool2asm.py` renders table cells with rowspan > 1 and
+  wrapped contents alongside cells with rowspan = 1
+* Removed support for the ``#NAME`` macro (what it did can be done by the
+  :ref:`html` macro instead)
+* Removed the documentation sources and man page sources from the SkoolKit
+  distribution (they can be obtained from GitHub_)
+
+.. _GitHub: https://github.com/skoolkid/skoolkit
+
 3.3.2 (2013-05-13)
 ------------------
 * Added the ``-T`` option to :ref:`skool2html.py` (to specify a CSS theme)
@@ -108,6 +140,7 @@ Changelog
 
 3.1 (2012-06-19)
 ----------------
+* Dropped support for Python 2.5
 * Added documentation on :ref:`extending SkoolKit <extendingSkoolKit>`
 * Added the :ref:`writer` ASM directive (to specify the class to use for
   producing ASM output)

@@ -388,29 +388,6 @@ using a :ref:`set` directive to set the ``bullet`` property on the ASM writer.
 | 3.2     | New     |
 +---------+---------+
 
-.. _NAME:
-
-#NAME
------
-In HTML mode, the ``#NAME`` macro expands to an anchor (``<a>``) element with a
-given name. ::
-
-  #NAMEname
-
-* ``name`` is the name of the anchor
-
-In ASM mode, the ``#NAME`` macro expands to an empty string.
-
-For example::
-
-  ; #NAMEspriteData
-  ; The following section contains sprite graphic data.
-
-In HTML mode, this instance of the ``#NAME`` macro expands to an anchor element
-named 'spriteData'.
-
-Note that ``name`` must not start with an upper case letter.
-
 .. _POKE:
 
 #POKE

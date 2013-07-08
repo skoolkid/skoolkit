@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Command reference &mdash; SkoolKit 3.3.2 documentation</title>
+    <title>Command reference &mdash; SkoolKit 3.4 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.3.2',
+        VERSION:     '3.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.3.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.4 documentation" href="index.html" />
     <link rel="next" title="Disassembly DIY" href="diy.html" />
     <link rel="prev" title="Installing and using SkoolKit" href="usage.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -66,15 +66,20 @@ address of the first byte of code or data), the start address (the first byte
 of code to run) and the stack pointer are set to 65536 minus the length of
 <cite>game.bin</cite>. These defaults can be changed by passing options to <cite>bin2tap.py</cite>.
 Run it with no arguments to see the list of available options:</p>
-<div class="highlight-none"><div class="highlight"><pre>Usage: bin2tap.py [options] FILE.bin
+<div class="highlight-none"><div class="highlight"><pre>usage: bin2tap.py [options] FILE.bin
 
-  Convert a binary snapshot file into a TAP file.
+Convert a binary snapshot file into a TAP file.
 
 Options:
-  -o ORG      Set the origin (default: 65536 - length of FILE.bin)
-  -s START    Set the start address to JP to (default: ORG)
-  -p STACK    Set the stack pointer (default: ORG)
-  -t TAPFILE  Set the TAP filename (default: FILE.tap)
+  -o ORG, --org ORG     Set the origin address (default: 65536 minus the
+                        length of FILE.bin)
+  -p STACK, --stack STACK
+                        Set the stack pointer (default: ORG)
+  -s START, --start START
+                        Set the start address to JP to (default: ORG)
+  -t TAPFILE, --tapfile TAPFILE
+                        Set the TAP filename (default: FILE.tap)
+  -V, --version         Show SkoolKit version number and exit
 </pre></div>
 </div>
 <p>Note that the ROM tape loading routine at 1366 ($0556) and the load routine
@@ -89,8 +94,8 @@ address range STACK-14 to STACK-1 inclusive, so those addresses should not be
 used to store essential code or data.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="26%" />
-<col width="74%" />
+<col width="16%" />
+<col width="84%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -104,6 +109,9 @@ used to store essential code or data.</p>
 <tr class="row-odd"><td>2.2.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-p</span></tt> option</td>
 </tr>
+<tr class="row-even"><td>3.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option and the long options</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -115,29 +123,33 @@ assembler (see <a class="reference internal" href="assemblers.html#supportedasse
 </pre></div>
 </div>
 <p><cite>skool2asm.py</cite> supports many options; run it with no arguments to see a list:</p>
-<div class="highlight-none"><div class="highlight"><pre>Usage: skool2asm.py [options] FILE
+<div class="highlight-none"><div class="highlight"><pre>usage: skool2asm.py [options] file
 
-  Convert a skool file into an ASM file, written to standard output. FILE may
-  be a regular file, or &#39;-&#39; for standard input.
+Convert a skool file into an ASM file, written to standard output. FILE may be
+a regular file, or &#39;-&#39; for standard input.
 
 Options:
-  -q    Be quiet
-  -w    Suppress warnings
-  -d    Use CR+LF to end lines
-  -t    Use tab to indent instructions (default indentation is 2 spaces)
-  -l    Write disassembly in lower case
-  -u    Write disassembly in upper case
-  -D    Write disassembly in decimal
-  -H    Write disassembly in hexadecimal
-  -i N  Set instruction field width to N (default=23)
-  -f N  Apply fixes:
-          N=0: None (default)
-          N=1: @ofix only
-          N=2: @ofix and @bfix
-          N=3: @ofix, @bfix and @rfix (implies -r)
-  -c    Create default labels for unlabelled instructions
-  -s    Use safe substitutions (@ssub)
-  -r    Use relocatability substitutions too (@rsub) (implies &#39;-f 1&#39;)
+  -c, --create-labels   Create default labels for unlabelled instructions
+  -d, --crlf            Use CR+LF to end lines
+  -D, --decimal         Write the disassembly in decimal
+  -f N, --fixes N       Apply fixes:
+                          N=0: None (default)
+                          N=1: @ofix only
+                          N=2: @ofix and @bfix
+                          N=3: @ofix, @bfix and @rfix (implies -r)
+  -H, --hex             Write the disassembly in hexadecimal
+  -i N, --inst-width N  Set instruction field width (default=23)
+  -l, --lower           Write the disassembly in lower case
+  -p, --package-dir     Show path to skoolkit package directory and exit
+  -q, --quiet           Be quiet
+  -r, --rsub            Use relocatability substitutions too (@rsub) (implies
+                        &#39;-f 1&#39;)
+  -s, --ssub            Use safe substitutions (@ssub)
+  -t, --tabs            Use tab to indent instructions (default indentation is
+                        2 spaces)
+  -u, --upper           Write the disassembly in upper case
+  -V, --version         Show SkoolKit version number and exit
+  -w, --no-warnings     Suppress warnings
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="asm.html#asmmodesanddirectives"><em>ASM modes and directives</em></a> for a description of the <tt class="docutils literal"><span class="pre">&#64;ssub</span></tt> and
@@ -163,6 +175,9 @@ modes.</p>
 <tr class="row-even"><td>2.2.2</td>
 <td>Added the ability to read a <cite>skool</cite> file from standard input</td>
 </tr>
+<tr class="row-odd"><td>3.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> and <tt class="docutils literal"><span class="pre">-p</span></tt> options and the long options</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -178,22 +193,23 @@ block descriptions, registers, mid-block comments, block end comments,
 sub-block types and addresses, instruction-level comments, and some
 <a class="reference internal" href="asm.html#asmdirectives"><em>ASM directives</em></a>.</p>
 <p>To list the options supported by <cite>skool2ctl.py</cite>, run it with no arguments:</p>
-<div class="highlight-none"><div class="highlight"><pre>Usage: skool2ctl.py [options] FILE
+<div class="highlight-none"><div class="highlight"><pre>usage: skool2ctl.py [options] FILE
 
-  Convert a skool file into a control file, written to standard output. FILE
-  may be a regular file, or &#39;-&#39; for standard input.
+Convert a skool file into a control file, written to standard output. FILE may
+be a regular file, or &#39;-&#39; for standard input.
 
 Options:
-  -w X  Write only these elements, where X is one or more of:
-          b = block types and addresses
-          t = block titles
-          d = block descriptions
-          r = registers
-          m = mid-block comments and block end comments
-          s = sub-block types and addresses
-          c = instruction-level comments
-  -h    Write addresses in hexadecimal format
-  -a    Do not write ASM directives
+  -a, --no-asm-dirs  Do not write ASM directives
+  -h, --hex          Write addresses in hexadecimal format
+  -V, --version      Show SkoolKit version number and exit
+  -w X, --write X    Write only these elements, where X is one or more of:
+                       b = block types and addresses
+                       t = block titles
+                       d = block descriptions
+                       r = registers
+                       m = mid-block comments and block end comments
+                       s = sub-block types and addresses
+                       c = instruction-level comments
 </pre></div>
 </div>
 <p>If you need to preserve any elements that control files do not support (such as
@@ -223,6 +239,9 @@ data definition entries and ASM block directives), consider using
 <td>Added the <tt class="docutils literal"><span class="pre">-a</span></tt> option and the ability to preserve some ASM
 directives</td>
 </tr>
+<tr class="row-even"><td>3.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option and the long options</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -251,42 +270,42 @@ and so on) will also be used.</p>
 otherwise it will be treated as a <cite>skool</cite> file.</p>
 <p><cite>skool2html.py</cite> supports several options; run it with no arguments to see a
 list:</p>
-<div class="highlight-none"><div class="highlight"><pre>Usage: skool2html.py [options] FILE [FILE...]
+<div class="highlight-none"><div class="highlight"><pre>usage: skool2html.py [options] FILE [FILE...]
 
-  Convert skool files and ref files to HTML. FILE may be a regular file, or &#39;-&#39;
-  for standard input.
+Convert skool files and ref files to HTML. FILE may be a regular file, or &#39;-&#39;
+for standard input.
 
 Options:
-  -V        Show SkoolKit version number and exit
-  -p        Show path to skoolkit package directory and exit
-  -q        Be quiet
-  -t        Show timings
-  -d DIR    Write files in this directory (default is &#39;.&#39;)
-  -o        Overwrite existing image files
-  -T THEME  Use this CSS theme
-  -l        Write disassembly in lower case
-  -u        Write disassembly in upper case
-  -D        Write disassembly in decimal
-  -H        Write disassembly in hexadecimal
-  -c S/L    Add the line &#39;L&#39; to the ref file section &#39;S&#39;; this option may be
-            used multiple times
-  -P PAGES  Write only these custom pages (when &#39;-w P&#39; is specified); PAGES
-            should be a comma-separated list of IDs of pages defined in [Page:*]
-            sections in the ref file(s)
-  -w X      Write only these files, where X is one or more of:
-              B = Graphic glitches
-              b = Bugs
-              c = Changelog
-              d = Disassembly files
-              G = Game status buffer
-              g = Graphics
-              i = Disassembly index
-              m = Memory maps
-              o = Other code
-              P = Pages defined in the ref file(s)
-              p = Pokes
-              t = Trivia
-              y = Glossary
+  -a, --asm-labels      Use ASM labels
+  -c S/L, --config S/L  Add the line &#39;L&#39; to the ref file section &#39;S&#39;; this
+                        option may be used multiple times
+  -C, --create-labels   Create default labels for unlabelled instructions
+  -d DIR, --output-dir DIR
+                        Write files in this directory (default is &#39;.&#39;)
+  -D, --decimal         Write the disassembly in decimal
+  -H, --hex             Write the disassembly in hexadecimal
+  -l, --lower           Write the disassembly in lower case
+  -o, --rebuild-images  Overwrite existing image files
+  -p, --package-dir     Show path to skoolkit package directory and exit
+  -P PAGES, --pages PAGES
+                        Write only these custom pages (when &#39;-w P&#39; is
+                        specified); PAGES should be a comma-separated list of
+                        IDs of pages defined in [Page:*] sections in the ref
+                        file(s)
+  -q, --quiet           Be quiet
+  -t, --time            Show timings
+  -T THEME, --theme THEME
+                        Use this CSS theme
+  -u, --upper           Write the disassembly in upper case
+  -V, --version         Show SkoolKit version number and exit
+  -w X, --write X       Write only these files, where X is one or more of:
+                          B = Graphic glitches    m = Memory maps
+                          b = Bugs                o = Other code
+                          c = Changelog           P = Custom pages
+                          d = Disassembly files   p = Pokes
+                          G = Game status buffer  t = Trivia
+                          g = Graphics            y = Glossary
+                          i = Disassembly index
 </pre></div>
 </div>
 <p>When <cite>skool2html.py</cite> is run, it looks for <cite>skool</cite> files, <cite>ref</cite> files, CSS
@@ -358,6 +377,9 @@ by default; added the <tt class="docutils literal"><span class="pre">-d</span></
 <td>Added <cite>$PACKAGE_DIR/resources</cite> to the search path; added the
 <tt class="docutils literal"><span class="pre">-p</span></tt> and <tt class="docutils literal"><span class="pre">-T</span></tt> options</td>
 </tr>
+<tr class="row-even"><td>3.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-a</span></tt> and <tt class="docutils literal"><span class="pre">-C</span></tt> options and the long options</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -369,19 +391,20 @@ by default; added the <tt class="docutils literal"><span class="pre">-d</span></
 </pre></div>
 </div>
 <p>To list the options supported by <cite>skool2sft.py</cite>, run it with no arguments:</p>
-<div class="highlight-none"><div class="highlight"><pre>Usage: skool2sft.py [options] FILE
+<div class="highlight-none"><div class="highlight"><pre>usage: skool2sft.py [options] FILE
 
-  Convert a skool file into a skool file template, written to standard output.
-  FILE may be a regular file, or &#39;-&#39; for standard input.
+Convert a skool file into a skool file template, written to standard output.
+FILE may be a regular file, or &#39;-&#39; for standard input.
 
 Options:
-  -h  Write addresses in hexadecimal format
+  -h, --hex      Write addresses in hexadecimal format
+  -V, --version  Show SkoolKit version number and exit
 </pre></div>
 </div>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="16%" />
+<col width="84%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -391,6 +414,9 @@ Options:
 <tbody valign="top">
 <tr class="row-even"><td>2.4</td>
 <td>New</td>
+</tr>
+<tr class="row-odd"><td>3.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option and the long options</td>
 </tr>
 </tbody>
 </table>
@@ -407,28 +433,40 @@ snapshot into a <cite>skool</cite> file. For example:</p>
 <a class="reference internal" href="#skool2asm-py"><em>skool2asm.py</em></a>.</p>
 <p><cite>sna2skool.py</cite> supports several options; run it with no arguments to see a
 list:</p>
-<div class="highlight-none"><div class="highlight"><pre>Usage: sna2skool.py [options] file
+<div class="highlight-none"><div class="highlight"><pre>usage: sna2skool.py [options] file
 
-  Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool
-  file.
+Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool
+file.
 
 Options:
-  -c FILE  Use FILE as the control file (default is file.ctl)
-  -T FILE  Use FILE as the skool file template (default is file.sft)
-  -g FILE  Generate a control file in FILE
-  -M FILE  Use FILE as a code execution map when generating the control file
-  -h       Write hexadecimal addresses in the generated control file
-  -H       Write hexadecimal addresses and operands in the disassembly
-  -L       Write the disassembly in lower case
-  -s ADDR  Specify the address at which to start disassembling (default=16384)
-  -o ADDR  Specify the origin address of file.bin (default: 65536 - length)
-  -p PAGE  Specify the page (0-7) of a 128K snapshot to map to 49152-65535
-  -t       Show ASCII text in the comment fields
-  -r       Don&#39;t add comments that list entry point referrers
-  -n N     Set the max number of bytes per DEFB statement to N (default=8)
-  -m M     Group DEFB blocks by addresses that are divisible by M
-  -z       Write bytes with leading zeroes in DEFB statements
-  -l L     Set the max number of characters per DEFM statement to L (default=66)
+  -c FILE, --ctl FILE   Use FILE as the control file
+  -g FILE, --generate-ctl FILE
+                        Generate a control file in FILE
+  -h, --ctl-hex         Write hexadecimal addresses in the generated control
+                        file
+  -H, --skool-hex       Write hexadecimal addresses and operands in the
+                        disassembly
+  -l L, --defm-size L   Set the maximum number of characters per DEFM
+                        statement to L (default=66)
+  -L, --lower           Write the disassembly in lower case
+  -m M, --defb-mod M    Group DEFB blocks by addresses that are divisible by M
+  -M FILE, --map FILE   Use FILE as a code execution map when generating a
+                        control file
+  -n N, --defb-size N   Set the maximum number of bytes per DEFB statement to
+                        N (default=8)
+  -o ADDR, --org ADDR   Specify the origin address of a binary (.bin) file
+                        (default: 65536 - length)
+  -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
+                        49152-65535
+  -r, --no-erefs        Don&#39;t add comments that list entry point referrers
+  -R, --erefs           Always add comments that list entry point referrers
+  -s ADDR, --start ADDR
+                        Specify the address at which to start disassembling
+                        (default=16384)
+  -t, --text            Show ASCII text in the comment fields
+  -T FILE, --sft FILE   Use FILE as the skool file template
+  -V, --version         Show SkoolKit version number and exit
+  -z, --defb-zfill      Write bytes with leading zeroes in DEFB statements
 </pre></div>
 </div>
 <p>The <tt class="docutils literal"><span class="pre">-M</span></tt> option may be used (in conjunction with the <tt class="docutils literal"><span class="pre">-g</span></tt> option) to
@@ -487,6 +525,9 @@ and 128K Z80 snapshots</td>
 maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the
 ability to read 128K SNA snapshots</td>
 </tr>
+<tr class="row-even"><td>3.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> and <tt class="docutils literal"><span class="pre">-R</span></tt> options and the long options</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -517,6 +558,11 @@ ability to read 128K SNA snapshots</td>
   <h4>Next topic</h4>
   <p class="topless"><a href="diy.html"
                         title="next chapter">Disassembly DIY</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/commands.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -546,7 +592,7 @@ ability to read 128K SNA snapshots</td>
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.3.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
