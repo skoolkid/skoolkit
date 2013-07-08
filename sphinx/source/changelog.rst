@@ -7,8 +7,8 @@ Changelog
    changelog2
    changelog1
 
-3.4rc
------
+3.4 (2013-07-08)
+----------------
 * Dropped support for Python 2.6 and 3.1
 * Added long options to every command
 * Added the ``--asm-labels`` and ``--create-labels`` options to
