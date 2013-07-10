@@ -139,5 +139,5 @@ XSD:
 
 .PHONY: snapshots
 snapshots:
-	SKOOLKIT_HOME=`pwd` utils/tap2sna.py -d snapshots @examples/manic_miner.t2s
-	SKOOLKIT_HOME=`pwd` utils/tap2sna.py -d snapshots @examples/jet_set_willy.t2s
+	./tap2sna.py -d snapshots @examples/manic_miner.t2s
+	./tap2sna.py -d snapshots @examples/jet_set_willy.t2s

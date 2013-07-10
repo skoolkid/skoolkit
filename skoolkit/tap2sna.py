@@ -1,4 +1,21 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Copyright 2013 Richard Dymond (rjdymond@gmail.com)
+#
+# This file is part of SkoolKit.
+#
+# SkoolKit is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# SkoolKit is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# SkoolKit. If not, see <http://www.gnu.org/licenses/>.
+
 import sys
 import os
 import argparse
@@ -12,13 +29,7 @@ except ImportError:
     from urllib.request import urlopen
     from urllib.parse import urlparse
 
-SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
-if not SKOOLKIT_HOME:
-    sys.stderr.write('SKOOLKIT_HOME is not set; aborting\n')
-    sys.exit(1)
-if not os.path.isdir(SKOOLKIT_HOME):
-    sys.stderr.write('SKOOLKIT_HOME={0}: directory not found\n'.format(SKOOLKIT_HOME))
-    sys.exit(1)
+from . import VERSION, SkoolKitError
 
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
@@ -491,6 +502,8 @@ def main(args):
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. "
                             "This option may be used multiple times.")
+    group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
     if 'help' in namespace.ram_ops:
         print_ram_help()
@@ -513,11 +526,6 @@ def main(args):
             ram = get_ram(tape_blocks, namespace)
             write_z80(ram, namespace, z80)
         except Exception as e:
-            sys.stderr.write("Error while getting snapshot {0}: {1}\n".format(os.path.basename(z80), e.args[0]))
-            sys.exit(1)
+            raise SkoolKitError("Error while getting snapshot {0}: {1}\n".format(os.path.basename(z80), e.args[0]))
     else:
         sys.stdout.write('{0}: file already exists; use -f to overwrite\n'.format(z80))
-        sys.exit(0)
-
-if __name__ == '__main__':
-    main(sys.argv[1:])
