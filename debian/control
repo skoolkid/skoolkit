@@ -7,7 +7,7 @@ Standards-Version: 3.9.1
 
 Package: skoolkit
 Architecture: all
-Depends: python2.7, python (>= 2.7), python (<< 2.8)
+Depends: ${misc:Depends}, python2.7, python (>= 2.7), python (<< 2.8)
 Description: Tools for creating disassemblies of ZX Spectrum programs
  SkoolKit is a collection of utilities that can be used to disassemble a
  Spectrum game (or indeed any piece of Spectrum software written in machine
