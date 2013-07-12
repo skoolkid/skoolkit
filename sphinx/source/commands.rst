@@ -408,3 +408,82 @@ formats.
 +---------+-----------------------------------------------------------------+
 | 3.4     | Added the ``-V`` and ``-R`` options and the long options        |
 +---------+-----------------------------------------------------------------+
+
+.. _tap2sna.py:
+
+tap2sna.py
+----------
+`tap2sna.py` converts a TAP or TZX file (which may be inside a zip archive)
+into a Z80 snapshot. For example::
+
+  $ tap2sna.py game.tap game.z80
+
+To list the options supported by `tap2sna.py`, run it with no arguments::
+
+  usage:
+    tap2sna.py [options] INPUT snapshot.z80
+    tap2sna.py @FILE
+
+  Convert a TAP or TZX file (which may be inside a zip archive) into a Z80
+  snapshot. INPUT may be the full URL to a remote zip archive or TAP/TZX file,
+  or the path to a local file. Arguments may be read from FILE instead of (or as
+  well as) being given on the command line.
+
+  Options:
+    -d DIR, --output-dir DIR
+                          Write the snapshot file in this directory.
+    -f, --force           Overwrite an existing snapshot.
+    --ram OPERATION       Perform a load, move or poke operation on the memory
+                          snapshot being built. Do '--ram help' for more
+                          information. This option may be used multiple times.
+    --reg name=value      Set the value of a register. Do '--reg help' for more
+                          information. This option may be used multiple times.
+    --state name=value    Set a hardware state attribute. Do '--state help' for
+                          more information. This option may be used multiple
+                          times.
+    -V, --version         Show SkoolKit version number and exit.
+
+By default, `tap2sna.py` loads bytes from every data block on the tape, using
+the start address given in the corresponding header. For tapes that contain
+headerless data blocks, headers with incorrect start addresses, or irrelevant
+blocks, the ``--ram`` option can be used to load bytes from specific blocks at
+the appropriate addresses. For example::
+
+  $ tap2sna.py --ram load=3,30000 game.tzx game.z80
+
+loads the third block on the tape at address 30000, and ignores all other
+blocks. The ``--ram`` option can also be used to move blocks of bytes from one
+location to another, and POKE values into individual addresses or address
+ranges before the snapshot is saved. For more information on the operations
+that the ``--ram`` option can perform, run::
+
+  $ tap2sna.py --ram help
+
+For complex snapshots that require many ``--ram``, ``--reg`` or ``--state``
+options to build, it may be more convenient to store the arguments to
+`tap2sna.py` in a file. For example, if the file `game.t2s` has the following
+contents::
+
+  ;
+  ; tap2sna.py file for GAME
+  ;
+  http://example.com/pub/games/GAME.zip
+  game.z80
+  --ram load=4,32768         # Load the fourth block at 32768
+  --ram move=40960,512,43520 # Move 40960-41471 to 43520-44031
+  --reg pc=34816             # Start at 34816
+  --reg sp=32768             # Stack at 32768
+  --state iff=0              # Disable interrupts
+
+then::
+
+  $ tap2sna.py @game.t2s
+
+will create `game.z80` as if the arguments specified in `game.t2s` had been
+given on the command line.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 3.5     | New     |
++---------+---------+
