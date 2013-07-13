@@ -1,4 +1,7 @@
 include COPYING
 recursive-include skoolkit *.py
-recursive-exclude skoolkit manicminer.py jetsetwilly.py
+graft docs
+graft examples
+graft man
 graft resources
+graft tests

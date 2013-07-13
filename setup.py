@@ -71,10 +71,7 @@ PACKAGE_DIR = 'build/skoolkit-pkg'
 shutil.rmtree(PACKAGE_DIR, True)
 shutil.copytree('skoolkit', PACKAGE_DIR, ignore=shutil.ignore_patterns('*.pyc'))
 shutil.copytree('resources', '{0}/resources'.format(PACKAGE_DIR))
-try:
-    shutil.copytree('examples', '{0}/examples'.format(PACKAGE_DIR))
-except OSError:
-    pass # There is no examples directory in the source package
+shutil.copytree('examples', '{0}/examples'.format(PACKAGE_DIR))
 
 setup(
     name='skoolkit',

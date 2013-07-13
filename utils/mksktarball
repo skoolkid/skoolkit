@@ -63,7 +63,7 @@ rsync -aR \
   examples/{{manic_miner,jet_set_willy}.{ref,t2s},jet_set_willy{,-dark}.css} \
   resources/{skoolkit{,-dark,-spectrum}.css,spectrum.ttf{,.txt}} \
   tests/{skoolkittest,test_{bin2tap,ctlparser,disassembler,image,skool{{,2}{asm,ctl,html,sft},macro,parser},refparser,sftparser,skoolkit,sna{2,}skool,snapshot,tap2sna}}.py \
-  COPYING \
+  COPYING MANIFEST.in \
   $ABSDIR
 cp -a $SETUP $ABSDIR/setup.py
 
