@@ -218,6 +218,7 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
 def write_disassembly(html_writer, html_writer_class, files, search_dir, pages, css_theme):
     game_dir = html_writer.file_info.game_dir
     paths = html_writer.paths
+    game_vars = html_writer.game_vars
 
     # Create the disassembly subdirectory if necessary
     odir = html_writer.file_info.odir
@@ -226,7 +227,7 @@ def write_disassembly(html_writer, html_writer_class, files, search_dir, pages, 
         os.makedirs(odir)
 
     # Copy CSS and font files if necessary
-    paths['StyleSheet'] = copy_resources(search_dir, odir, paths.get('StyleSheet'), paths.get('StyleSheetPath', ''), css_theme, '.css')
+    game_vars['StyleSheet'] = copy_resources(search_dir, odir, game_vars.get('StyleSheet'), paths.get('StyleSheetPath', ''), css_theme, '.css')
     copy_resources(search_dir, odir, paths.get('Font'), paths.get('FontPath', ''))
 
     # Write logo image file if necessary

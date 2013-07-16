@@ -230,7 +230,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         html_writer = None
 
     def _css_c(self):
-        return '-c Paths/StyleSheet={0}'.format(self.write_text_file(suffix='.css'))
+        return '-c Game/StyleSheet={0}'.format(self.write_text_file(suffix='.css'))
 
     def test_default_option_values(self):
         self.mock(skool2html, 'run', mock_run)
@@ -261,7 +261,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     def test_no_ref(self):
         skoolfile = self.write_text_file(TEST_NO_REF, 'test-html-no-ref.skool')
         cssfile = self.write_text_file(suffix='.css')
-        output, error = self.run_skool2html('-c Paths/StyleSheet={0} -d {1} {2}'.format(cssfile, self.odir, skoolfile))
+        output, error = self.run_skool2html('-c Game/StyleSheet={0} -d {1} {2}'.format(cssfile, self.odir, skoolfile))
         self.assertEqual(len(error), 0)
         self.assert_output_equal(output, OUTPUT_NO_REF.format(self.odir, cssfile).split('\n'), True)
 
@@ -285,7 +285,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         cssfile = 'abc.css'
         skoolfile = self.write_text_file(suffix='.skool')
         try:
-            self.run_skool2html('-c Paths/StyleSheet={0} -w "" -d {1} {2}'.format(cssfile, self.odir, skoolfile))
+            self.run_skool2html('-c Game/StyleSheet={0} -w "" -d {1} {2}'.format(cssfile, self.odir, skoolfile))
             self.fail()
         except SkoolKitError as e:
             self.assertEqual(e.args[0], '{0}: file not found'.format(cssfile))
@@ -568,11 +568,11 @@ class Skool2HtmlTest(SkoolKitTestCase):
         cssfile2 = self.write_text_file(suffix='.css')
         theme = 'blue'
         cssfile3 = self.write_text_file(path='{0}-{1}.css'.format(cssfile2[:-4], theme))
-        stylesheet = 'Paths/StyleSheet={0};{1}'.format(cssfile1, cssfile2)
+        stylesheet = 'Game/StyleSheet={0};{1}'.format(cssfile1, cssfile2)
         for option in ('-T', '--theme'):
             output, error = self.run_skool2html('-d {0} -c {1} {2} {3} {4}'.format(self.odir, stylesheet, option, theme, reffile))
             self.assertEqual(error, '')
-            self.assertEqual(html_writer.paths['StyleSheet'], '{0};{1}'.format(cssfile1, cssfile3))
+            self.assertEqual(html_writer.game_vars['StyleSheet'], '{0};{1}'.format(cssfile1, cssfile3))
 
     def test_option_o(self):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')

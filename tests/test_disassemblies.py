@@ -184,7 +184,7 @@ class HtmlTest(DisassembliesTest):
 
     def _test_html(self, html_dir, ref_file, exp_output, skoolfile):
         cssfile = self.write_text_file(suffix='.css')
-        c_options = '-c Paths/StyleSheet={0}'.format(cssfile)
+        c_options = '-c Game/StyleSheet={0}'.format(cssfile)
         c_options += ' -c Config/SkoolFile={0}'.format(skoolfile)
         for option in ('', '-H', '-D', '-l', '-u'):
             shutil.rmtree(self.odir, True)

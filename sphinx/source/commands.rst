@@ -250,7 +250,7 @@ installed (as shown by ``skool2html.py -p``).
 The ``-T`` option sets the CSS theme. For example, if `game.ref` specifies the
 CSS files to use thus::
 
-  [Paths]
+  [Game]
   StyleSheet=skoolkit.css;game.css
 
 then::

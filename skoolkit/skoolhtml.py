@@ -173,6 +173,7 @@ class HtmlWriter:
         self.game = self.game_vars.get('Game', def_game_name)
         link_operands = self.game_vars.get('LinkOperands', 'CALL,DEFW,DJNZ,JP,JR')
         self.link_operands = tuple(op.upper() for op in link_operands.split(','))
+        self.game_vars.setdefault('StyleSheet', 'skoolkit.css')
 
         self.bugs = self.get_sections('Bug', True)
         self.facts = self.get_sections('Fact', True)
@@ -338,7 +339,6 @@ class HtmlWriter:
             'StyleSheetPath': '.',
             'UDGImagePath': join(images_path, 'udgs'),
             'Logo': join(images_path, 'logo.{0}'.format(self.default_image_format)),
-            'StyleSheet': 'skoolkit.css',
             P_GAME_INDEX: 'index.html',
             P_MEMORY_MAP: join(maps_path, 'all.html'),
             P_ROUTINES_MAP: join(maps_path, 'routines.html'),
@@ -993,7 +993,7 @@ class HtmlWriter:
         ofile.write('<head>\n')
         ofile.write('<meta http-equiv="content-type" content="text/html; charset=utf-8" />\n')
         ofile.write('<title>{0}: {1}</title>\n'.format(self.game, title))
-        for css_file in self.paths['StyleSheet'].split(';'):
+        for css_file in self.game_vars['StyleSheet'].split(';'):
             ofile.write('<link rel="stylesheet" type="text/css" href="{0}" />\n'.format(FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))))
         if js:
             for js_file in js.split(';'):

@@ -100,7 +100,7 @@ The ``-T`` option sets the CSS theme. For example, if `game.ref` specifies the
 CSS files to use thus:
 
 |
-|   [Paths]
+|   [Game]
 |   StyleSheet=skoolkit.css;game.css
 
 then:
@@ -138,4 +138,4 @@ EXAMPLES
    instead of the default ``skoolkit.css``:
 
    |
-   |   ``skool2html.py -c Path/StyleSheet=game.css game1.ref``
+   |   ``skool2html.py -c Game/StyleSheet=game.css game1.ref``

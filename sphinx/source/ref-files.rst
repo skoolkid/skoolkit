@@ -218,6 +218,9 @@ Recognised parameters are:
 * ``OutputRegisterTableHeader`` - the text to use in the header of output
   register tables on routine disassembly pages; if not specified, no header is
   displayed
+* ``StyleSheet`` - the base name of the CSS file to use (default:
+  `skoolkit.css`); multiple CSS files can be declared by separating their names
+  with semicolons
 * ``TitlePrefix`` - the prefix to use before the game name or logo in the
   header of the main index page (default: 'The complete')
 * ``TitleSuffix`` - the suffix to use after the game name or logo in the header
@@ -235,6 +238,9 @@ Recognised parameters are:
 |         | ``OutputRegisterTableHeader`` parameters                        |
 +---------+-----------------------------------------------------------------+
 | 3.4     | Added the ``LinkOperands`` parameter                            |
++---------+-----------------------------------------------------------------+
+| 3.5     | Added the ``StyleSheet`` parameter (which previously lived in   |
+|         | the :ref:`Paths` section)                                       |
 +---------+-----------------------------------------------------------------+
 
 [Glossary:\*]
@@ -726,9 +732,6 @@ Recognised file IDs and their default paths are:
 * ``Pokes`` - the 'Pokes' page (default: `reference/pokes.html`)
 * ``RoutinesMap`` - the 'Routines' memory map page (default:
   `maps/routines.html`)
-* ``StyleSheet`` - the base name of the CSS file to use (default:
-  `skoolkit.css`); multiple CSS files can be declared by separating their names
-  with semicolons
 * ``UnusedMap`` - the 'Unused addresses' memory map page (default:
   `maps/unused.html`)
 
@@ -760,8 +763,7 @@ Recognised directory IDs and their default paths are:
 +---------+-------------------------------------------------------------------+
 | 2.2.5   | Added the ``Changelog`` file ID                                   |
 +---------+-------------------------------------------------------------------+
-| 2.5     | Added the ``UnusedMap`` file ID, and support for declaring        |
-|         | multiple CSS files in the ``StyleSheet`` parameter                |
+| 2.5     | Added the ``UnusedMap`` file ID                                   |
 +---------+-------------------------------------------------------------------+
 | 3.1.1   | Added the ``Font`` file ID and the ``FontPath`` directory ID      |
 +---------+-------------------------------------------------------------------+
