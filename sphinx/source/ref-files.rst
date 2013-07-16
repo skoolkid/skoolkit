@@ -198,6 +198,8 @@ aspects of the HTML output. The parameters are in the format::
 
 Recognised parameters are:
 
+* ``Font`` - the base name of the font file to use (default: None); multiple
+  font files can be declared by separating their names with semicolons
 * ``Game`` - the name of the game, which appears in the title of every page,
   and also in the header of the main index page (if no logo is defined); if not
   specified, the base name of the `skool` file is used
@@ -239,8 +241,8 @@ Recognised parameters are:
 +---------+-----------------------------------------------------------------+
 | 3.4     | Added the ``LinkOperands`` parameter                            |
 +---------+-----------------------------------------------------------------+
-| 3.5     | Added the ``StyleSheet`` parameter (which previously lived in   |
-|         | the :ref:`Paths` section)                                       |
+| 3.5     | Added the ``Font`` and ``StyleSheet`` parameters (which         |
+|         | previously lived in the :ref:`Paths` section)                   |
 +---------+-----------------------------------------------------------------+
 
 [Glossary:\*]
@@ -713,8 +715,6 @@ Recognised file IDs and their default paths are:
 * ``Changelog`` - the 'Changelog' page (default: `reference/changelog.html`)
 * ``DataMap`` - the 'Data' memory map page (default: `maps/data.html`)
 * ``Facts`` - the 'Trivia' page (default: `reference/facts.html`)
-* ``Font`` - the base name of the font file to use (default: None); multiple
-  font files can be declared by separating their names with semicolons
 * ``GameIndex`` - the disassembly home page (default: `index.html`)
 * ``GameStatusBuffer`` - the 'Game status buffer' page (default:
   `buffers/gbuffer.html`)
@@ -739,15 +739,17 @@ Recognised directory IDs and their default paths are:
 
 * ``CodePath`` - the directory in which the disassembly files will be written
   (default: `asm`)
-* ``FontPath`` - the directory in which to store font files (default: `.`)
+* ``FontPath`` - the directory in which to store font files specified by the
+  ``Font`` parameter in the :ref:`ref-Game` section (default: `.`)
 * ``FontImagePath`` - the directory in which font images (created by the
   :ref:`#FONT <FONT>` macro) will be placed (default: `images/font`)
 * ``JavaScriptPath`` - the directory in which to store JavaScript files
-  (default: `.`)
+  specified by the ``JavaScript`` parameter in :ref:`Page` sections (default:
+  `.`)
 * ``ScreenshotImagePath`` - the directory in which screenshot images (created
   by the :ref:`#SCR <SCR>` macro) will be placed (default: `images/scr`)
-* ``StyleSheetPath`` - the directory in which to store CSS files (default:
-  `.`)
+* ``StyleSheetPath`` - the directory in which to store CSS files specified by
+  the ``StyleSheet`` parameter in the :ref:`ref-Game` section (default: `.`)
 * ``UDGImagePath`` - the directory in which UDG images (created by the
   :ref:`#UDG <UDG>` or :ref:`#UDGARRAY <UDGARRAY>` macro) will be placed
   (default: `images/udgs`)
@@ -765,7 +767,7 @@ Recognised directory IDs and their default paths are:
 +---------+-------------------------------------------------------------------+
 | 2.5     | Added the ``UnusedMap`` file ID                                   |
 +---------+-------------------------------------------------------------------+
-| 3.1.1   | Added the ``Font`` file ID and the ``FontPath`` directory ID      |
+| 3.1.1   | Added the ``FontPath`` directory ID                               |
 +---------+-------------------------------------------------------------------+
 
 .. _ref-Poke:

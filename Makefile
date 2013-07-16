@@ -9,7 +9,7 @@ OPTIONS=-d build/html -t
 ifeq ($(DARK),1)
   OPTIONS+= -T dark
 else ifeq ($(SPECTRUM),1)
-  OPTIONS+= -T spectrum -c Paths/Font=spectrum.ttf
+  OPTIONS+= -T spectrum -c Game/Font=spectrum.ttf
 endif
 ifeq ($(HEX),1)
   OPTIONS+= -H

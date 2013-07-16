@@ -251,4 +251,4 @@ thus::
 
 Or to use the 'spectrum' theme::
 
-  $ skool2html.py -T spectrum -c Paths/Font=spectrum.ttf game.skool
+  $ skool2html.py -T spectrum -c Game/Font=spectrum.ttf game.skool

@@ -228,7 +228,7 @@ def write_disassembly(html_writer, html_writer_class, files, search_dir, pages, 
 
     # Copy CSS and font files if necessary
     game_vars['StyleSheet'] = copy_resources(search_dir, odir, game_vars.get('StyleSheet'), paths.get('StyleSheetPath', ''), css_theme, '.css')
-    copy_resources(search_dir, odir, paths.get('Font'), paths.get('FontPath', ''))
+    copy_resources(search_dir, odir, game_vars.get('Font'), paths.get('FontPath', ''))
 
     # Write logo image file if necessary
     if html_writer.write_logo_image(odir):

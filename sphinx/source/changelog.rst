@@ -11,8 +11,8 @@ Changelog
 -----
 * Added the :ref:`tap2sna.py` command (for building snapshots from TAP/TZX
   files)
-* Moved the ``StyleSheet`` parameter from the ``[Paths]`` section to the
-  :ref:`ref-game` section
+* Moved the ``Font`` and ``StyleSheet`` parameters from the ``[Paths]`` section
+  to the :ref:`ref-game` section
 * Moved the ``JavaScript`` parameter from the ``[Paths]`` section to the
   :ref:`page` section
 
