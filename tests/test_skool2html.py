@@ -54,7 +54,6 @@ Definition 1.
 
 [Page:CustomPage1]
 Title=Custom page
-JavaScript=1
 Path=page.html
 
 [PageContent:CustomPage1]
@@ -294,11 +293,15 @@ class Skool2HtmlTest(SkoolKitTestCase):
     def test_nonexistent_js_file(self):
         jsfile = 'cba.js'
         skoolfile = self.write_text_file(suffix='.skool')
-        try:
-            self.run_skool2html('{0} -c Paths/JavaScript={1} -w "" -d {2} {3}'.format(self._css_c(), jsfile, self.odir, skoolfile))
-            self.fail()
-        except SkoolKitError as e:
-            self.assertEqual(e.args[0], '{0}: file not found'.format(jsfile))
+        ref = '\n'.join((
+            '[Page:P1]',
+            'Path=p1.html',
+            'JavaScript={}'.format(jsfile)
+        ))
+        self.write_text_file(ref, '{}.ref'.format(skoolfile[:-6]))
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_skool2html('{0} -w P -d {1} {2}'.format(self._css_c(), self.odir, skoolfile))
+        self.assertEqual(cm.exception.args[0], '{0}: file not found'.format(jsfile))
 
     def test_invalid_page_id(self):
         page_id = 'NonexistentPage'

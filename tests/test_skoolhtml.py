@@ -687,13 +687,10 @@ TEST_WRITE_GRAPHICS_REF = """
 """
 
 TEST_WRITE_PAGE_REF = """
-[Paths]
-JavaScript=test-html.js
-
 [Page:CustomPage]
 Title=Custom page
 Path=page.html
-JavaScript=1
+JavaScript=test-html.js
 
 [PageContent:CustomPage]
 <b>This is the content of the custom page.</b>

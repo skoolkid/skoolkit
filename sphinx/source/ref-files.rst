@@ -648,20 +648,23 @@ The following parameters are optional:
 
 * ``BodyClass`` - the CSS class to use for the ``<body>`` element of the page
   (default: no CSS class is used)
-* ``JavaScript`` - ``1`` if a link to the JavaScript file (defined by the
-  ``JavaScript`` parameter in the :ref:`paths` section) should be inserted into
-  the page, ``0`` otherwise (default: ``0``)
+* ``JavaScript`` - the base name of the JavaScript file to use (default: None);
+  multiple JavaScript files can be declared by separating their names with
+  semicolons
 * ``Link`` - the link text for the page (defaults to the title)
 * ``PageContent`` - the HTML source of the body of the page; this may contain
   :ref:`skool macros <skoolMacros>`, and can be used instead of a
   :ref:`pageContent` section if the source can be written on a single line
 * ``Title`` - the title of the page (defaults to the page ID)
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 2.1     | New     |
-+---------+---------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 2.1     | New                                                              |
++---------+------------------------------------------------------------------+
+| 3.5     | The ``JavaScript`` parameter specifies the JavaScript file(s) to |
+|         | use                                                              |
++---------+------------------------------------------------------------------+
 
 .. _pageContent:
 
@@ -713,9 +716,6 @@ Recognised file IDs and their default paths are:
 * ``GraphicGlitches`` - the 'Graphic glitches' page (default:
   `graphics/glitches.html`)
 * ``Graphics`` - the 'Other graphics' page (default: `graphics/graphics.html`)
-* ``JavaScript`` - the base name of the JavaScript file to use (default: None);
-  multiple JavaScript files can be declared by separating their names with
-  semicolons
 * ``Logo`` - the game logo image (default: `images/logo.png` or
   `images/logo.gif`, depending on the default image format specified in the
   :ref:`ref-ImageWriter` section; this value may be overridden by the ``Logo``
@@ -761,8 +761,7 @@ Recognised directory IDs and their default paths are:
 | 2.2.5   | Added the ``Changelog`` file ID                                   |
 +---------+-------------------------------------------------------------------+
 | 2.5     | Added the ``UnusedMap`` file ID, and support for declaring        |
-|         | multiple JavaScript files and CSS files in the ``JavaScript`` and |
-|         | ``StyleSheet`` parameters                                         |
+|         | multiple CSS files in the ``StyleSheet`` parameter                |
 +---------+-------------------------------------------------------------------+
 | 3.1.1   | Added the ``Font`` file ID and the ``FontPath`` directory ID      |
 +---------+-------------------------------------------------------------------+

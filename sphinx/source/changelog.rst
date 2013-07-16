@@ -11,6 +11,9 @@ Changelog
 -----
 * Added the :ref:`tap2sna.py` command (for building snapshots from TAP/TZX
   files)
+* Moved the ``JavaScript`` parameter from the ``[Paths]`` section to the
+  :ref:`page` section
+
 
 3.4 (2013-07-08)
 ----------------

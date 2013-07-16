@@ -977,7 +977,7 @@ class HtmlWriter:
         ofile, cwd = self.open_file(self.paths[page_id])
         page = self.pages[page_id]
         body_class = page.get('BodyClass')
-        js = page.get('JavaScript', '0') != '0'
+        js = page.get('JavaScript')
         self.write_header(ofile, self.titles[page_id], cwd, body_class, js=js)
         page_content = self.expand(self.page_contents[page_id], cwd).strip()
         ofile.write('{0}\n'.format(page_content))
@@ -988,7 +988,7 @@ class HtmlWriter:
         cwd = os.path.dirname(fname)
         return ofile, cwd
 
-    def write_head(self, ofile, title, cwd, js=False):
+    def write_head(self, ofile, title, cwd, js=None):
         ofile.write(PROLOGUE)
         ofile.write('<head>\n')
         ofile.write('<meta http-equiv="content-type" content="text/html; charset=utf-8" />\n')
@@ -996,7 +996,7 @@ class HtmlWriter:
         for css_file in self.paths['StyleSheet'].split(';'):
             ofile.write('<link rel="stylesheet" type="text/css" href="{0}" />\n'.format(FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))))
         if js:
-            for js_file in self.paths['JavaScript'].split(';'):
+            for js_file in js.split(';'):
                 ofile.write('<script type="text/javascript" src="{0}"></script>\n'.format(FileInfo.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))))
         ofile.write('</head>\n')
 
@@ -1005,7 +1005,7 @@ class HtmlWriter:
             return '<img src="{0}" alt="{1}" />'.format(FileInfo.relpath(cwd, self.paths['Logo']), self.game)
         return self.game
 
-    def write_header(self, ofile, title, cwd, body_class, body_title=None, js=False):
+    def write_header(self, ofile, title, cwd, body_class, body_title=None, js=None):
         self.write_head(ofile, title, cwd, js)
         index = FileInfo.relpath(cwd, self.paths[P_GAME_INDEX])
         if body_class:

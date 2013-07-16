@@ -102,10 +102,8 @@ def get_colours(colour_specs):
             raise SkoolKitError("Invalid colour spec: {}={}".format(k, v))
     return colours
 
-def copy_resources(search_dir, root_dir, paths, files_param, path_param, theme=None, suffix=None):
-    fnames = paths.get(files_param)
+def copy_resources(search_dir, root_dir, fnames, dest, theme=None, suffix=None, indent=0):
     if fnames:
-        dest = paths.get(path_param, '')
         actual_files = []
         for fname in fnames.split(';'):
             f = None
@@ -118,12 +116,11 @@ def copy_resources(search_dir, root_dir, paths, files_param, path_param, theme=N
                 actual_files.append(base_f)
                 html_f = posixpath.normpath(join(root_dir, dest, base_f))
                 if not isfile(html_f) or os.stat(f).st_mtime > os.stat(html_f).st_mtime:
-                    notify('Copying {0} to {1}'.format(f, html_f))
+                    notify('{}Copying {} to {}'.format(indent * ' ', f, html_f))
                     shutil.copy2(f, html_f)
             else:
                 raise SkoolKitError('{0}: file not found'.format(fname))
-        if theme:
-            paths[files_param] = ';'.join(actual_files)
+        return ';'.join(actual_files)
 
 def get_prefix(fname):
     if '.' in fname:
@@ -228,10 +225,9 @@ def write_disassembly(html_writer, html_writer_class, files, search_dir, pages, 
         notify('Creating directory {0}'.format(odir))
         os.makedirs(odir)
 
-    # Copy CSS, JavaScript and font files if necessary
-    copy_resources(search_dir, odir, paths, 'StyleSheet', 'StyleSheetPath', css_theme, '.css')
-    copy_resources(search_dir, odir, paths, 'JavaScript', 'JavaScriptPath')
-    copy_resources(search_dir, odir, paths, 'Font', 'FontPath')
+    # Copy CSS and font files if necessary
+    paths['StyleSheet'] = copy_resources(search_dir, odir, paths.get('StyleSheet'), paths.get('StyleSheetPath', ''), css_theme, '.css')
+    copy_resources(search_dir, odir, paths.get('Font'), paths.get('FontPath', ''))
 
     # Write logo image file if necessary
     if html_writer.write_logo_image(odir):
@@ -252,6 +248,8 @@ def write_disassembly(html_writer, html_writer_class, files, search_dir, pages, 
     # Write pages defined in the ref file
     if 'P' in files:
         for page_id in pages:
+            page_details = html_writer.pages[page_id]
+            copy_resources(search_dir, odir, page_details.get('JavaScript'), paths.get('JavaScriptPath', ''), indent=2)
             clock(html_writer.write_page, '  Writing {0}'.format(join(game_dir, paths[page_id])), page_id)
 
     # Write other files
