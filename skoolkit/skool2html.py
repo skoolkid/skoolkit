@@ -232,7 +232,7 @@ def write_disassembly(html_writer, html_writer_class, files, search_dir, pages, 
 
     # Write logo image file if necessary
     if html_writer.write_logo_image(odir):
-        notify('  Wrote {0}'.format(join(game_dir, paths['Logo'])))
+        notify('  Wrote {0}'.format(join(game_dir, game_vars['LogoImage'])))
 
     # Write disassembly files
     if 'd' in files:

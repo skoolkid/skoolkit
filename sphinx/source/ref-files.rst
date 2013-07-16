@@ -216,7 +216,11 @@ Recognised parameters are:
   hyperlinked as well
 * ``Logo`` - the text/HTML that will serve as the game logo in the header of
   every page (typically a skool macro that creates a suitable image); if not
-  specified, the name of the game is used
+  specified, ``LogoImage`` is used
+* ``LogoImage`` - the path to the game logo image (default: `images/logo.png`
+  or `images/logo.gif`, depending on the default image format specified in the
+  :ref:`ref-ImageWriter` section); if the specified image does not exist, the
+  name of the game is used in place of an image
 * ``OutputRegisterTableHeader`` - the text to use in the header of output
   register tables on routine disassembly pages; if not specified, no header is
   displayed
@@ -241,8 +245,9 @@ Recognised parameters are:
 +---------+-----------------------------------------------------------------+
 | 3.4     | Added the ``LinkOperands`` parameter                            |
 +---------+-----------------------------------------------------------------+
-| 3.5     | Added the ``Font`` and ``StyleSheet`` parameters (which         |
-|         | previously lived in the :ref:`Paths` section)                   |
+| 3.5     | Added the ``Font``, ``LogoImage`` and ``StyleSheet`` parameters |
+|         | (all of which used to live in the :ref:`Paths` section,         |
+|         | ``LogoImage`` by the name ``Logo``)                             |
 +---------+-----------------------------------------------------------------+
 
 [Glossary:\*]
@@ -722,10 +727,6 @@ Recognised file IDs and their default paths are:
 * ``GraphicGlitches`` - the 'Graphic glitches' page (default:
   `graphics/glitches.html`)
 * ``Graphics`` - the 'Other graphics' page (default: `graphics/graphics.html`)
-* ``Logo`` - the game logo image (default: `images/logo.png` or
-  `images/logo.gif`, depending on the default image format specified in the
-  :ref:`ref-ImageWriter` section; this value may be overridden by the ``Logo``
-  parameter in the :ref:`ref-Game` section)
 * ``MemoryMap`` - the 'Everything' memory map page (default: `maps/all.html`)
 * ``MessagesMap`` - the 'Messages' memory map page (default:
   `maps/messages.html`)

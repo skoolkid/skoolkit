@@ -2131,7 +2131,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # Empty index with logo image
         writer = self._get_writer(skool='')
-        logo_image_path = writer.paths['Logo']
+        logo_image_path = writer.game_vars['LogoImage']
         self.write_bin_file(path=join(self.odir, GAMEDIR, logo_image_path))
         writer.write_index()
         game = basename(self.skoolfile)[:-6]
@@ -2568,7 +2568,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         # Without Game/Logo parameter
         writer.write_logo_image(file_info.odir)
         self.assertEqual(file_info.path, None)
-        self.assertEqual(writer.paths['Logo'], 'images/logo.png')
+        self.assertEqual(writer.game_vars['LogoImage'], 'images/logo.png')
 
         # With Game/Logo parameter
         logo_image_path = 'images/game_logo.gif'
@@ -2576,7 +2576,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer.write_logo_image(file_info.odir)
         self.assertEqual(file_info.path, join(file_info.odir, logo_image_path))
         self.assertEqual(file_info.mode, 'wb')
-        self.assertEqual(writer.paths['Logo'], logo_image_path)
+        self.assertEqual(writer.game_vars['LogoImage'], logo_image_path)
 
 class UdgTest(SkoolKitTestCase):
     def test_flip(self):

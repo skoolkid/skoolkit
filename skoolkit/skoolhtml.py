@@ -174,6 +174,7 @@ class HtmlWriter:
         link_operands = self.game_vars.get('LinkOperands', 'CALL,DEFW,DJNZ,JP,JR')
         self.link_operands = tuple(op.upper() for op in link_operands.split(','))
         self.game_vars.setdefault('StyleSheet', 'skoolkit.css')
+        self.game_vars.setdefault('LogoImage', join('images', 'logo.{0}'.format(self.default_image_format)))
 
         self.bugs = self.get_sections('Bug', True)
         self.facts = self.get_sections('Fact', True)
@@ -338,7 +339,6 @@ class HtmlWriter:
             'ScreenshotImagePath': join(images_path, 'scr'),
             'StyleSheetPath': '.',
             'UDGImagePath': join(images_path, 'udgs'),
-            'Logo': join(images_path, 'logo.{0}'.format(self.default_image_format)),
             P_GAME_INDEX: 'index.html',
             P_MEMORY_MAP: join(maps_path, 'all.html'),
             P_ROUTINES_MAP: join(maps_path, 'routines.html'),
@@ -1001,8 +1001,9 @@ class HtmlWriter:
         ofile.write('</head>\n')
 
     def _get_logo(self, cwd):
-        if self.file_exists(self.paths['Logo']):
-            return '<img src="{0}" alt="{1}" />'.format(FileInfo.relpath(cwd, self.paths['Logo']), self.game)
+        logo_image = self.game_vars['LogoImage']
+        if self.file_exists(logo_image):
+            return '<img src="{0}" alt="{1}" />'.format(FileInfo.relpath(cwd, logo_image), self.game)
         return self.game
 
     def write_header(self, ofile, title, cwd, body_class, body_title=None, js=None):
@@ -1024,7 +1025,7 @@ class HtmlWriter:
         if logo_macro:
             self.expand(logo_macro, cwd)
             if self._img_path:
-                self.paths['Logo'] = self._img_path
+                self.game_vars['LogoImage'] = self._img_path
             return self._img_path
 
     def write_image(self, image_path, udgs, crop_rect=(), scale=2, mask=False):

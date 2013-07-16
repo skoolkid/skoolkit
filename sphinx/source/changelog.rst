@@ -15,6 +15,8 @@ Changelog
   to the :ref:`ref-game` section
 * Moved the ``JavaScript`` parameter from the ``[Paths]`` section to the
   :ref:`page` section
+* Moved the ``Logo`` parameter from the ``[Paths]`` section to the
+  :ref:`ref-game` section and renamed it ``LogoImage``
 
 3.4 (2013-07-08)
 ----------------
