@@ -571,7 +571,24 @@ class Skool2HtmlTest(SkoolKitTestCase):
         for option in ('-T', '--theme'):
             output, error = self.run_skool2html('-d {0} -c {1} {2} {3} {4}'.format(self.odir, stylesheet, option, theme, reffile))
             self.assertEqual(error, '')
-            self.assertEqual(html_writer.game_vars['StyleSheet'], '{0};{1}'.format(cssfile1, cssfile3))
+            self.assertEqual(html_writer.game_vars['StyleSheet'], '{};{};{}'.format(cssfile1, cssfile2, cssfile3))
+
+    def test_option_T_multiple(self):
+        reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
+        skoolfile = self.write_text_file(path='{0}.skool'.format(reffile[:-4]))
+        default_css = [self.write_text_file(suffix='.css') for i in range(2)]
+        themes = ('dark', 'wide', 'long')
+        exp_css = []
+        for css in default_css:
+            exp_css.append(css)
+            for theme in themes:
+                exp_css.append(self.write_text_file(path='{0}-{1}.css'.format(css[:-4], theme)))
+        stylesheet = 'Game/StyleSheet={}'.format(';'.join(default_css))
+        theme_options = ['-T {}'.format(theme) for theme in themes]
+        output, error = self.run_skool2html('-d {} -c {} {} {}'.format(self.odir, stylesheet, ' '.join(theme_options), reffile))
+        self.assertEqual(error, '')
+        actual_css = html_writer.game_vars['StyleSheet'].split(';')
+        self.assertEqual(actual_css, exp_css)
 
     def test_option_o(self):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')

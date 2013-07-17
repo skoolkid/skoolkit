@@ -102,24 +102,28 @@ def get_colours(colour_specs):
             raise SkoolKitError("Invalid colour spec: {}={}".format(k, v))
     return colours
 
-def copy_resources(search_dir, root_dir, fnames, dest, theme=None, suffix=None, indent=0):
+def copy_resources(search_dir, root_dir, fnames, dest, themes=None, suffix=None, indent=0):
     if fnames:
         actual_files = []
         for fname in fnames.split(';'):
-            f = None
-            if theme and fname.endswith(suffix):
-                f = find('{0}-{1}{2}'.format(fname[:-len(suffix)], theme, suffix), search_dir)
-            if not f:
-                f = find(fname, search_dir)
+            files = []
+            f = find(fname, search_dir)
             if f:
+                files.append(f)
+            else:
+                raise SkoolKitError('{0}: file not found'.format(fname))
+            if themes and fname.endswith(suffix):
+                for theme in themes:
+                    f = find('{0}-{1}{2}'.format(fname[:-len(suffix)], theme, suffix), search_dir)
+                    if f:
+                        files.append(f)
+            for f in files:
                 base_f = basename(f)
                 actual_files.append(base_f)
                 html_f = posixpath.normpath(join(root_dir, dest, base_f))
                 if not isfile(html_f) or os.stat(f).st_mtime > os.stat(html_f).st_mtime:
                     notify('{}Copying {} to {}'.format(indent * ' ', f, html_f))
                     shutil.copy2(f, html_f)
-            else:
-                raise SkoolKitError('{0}: file not found'.format(fname))
         return ';'.join(actual_files)
 
 def get_prefix(fname):
@@ -300,7 +304,7 @@ def run(files, options):
             os.makedirs(topdir)
 
     for infile in files:
-        process_file(infile, topdir, options.files, options.case, options.base, options.pages, options.config_specs, options.new_images, options.theme, options.create_labels, options.asm_labels)
+        process_file(infile, topdir, options.files, options.case, options.base, options.pages, options.config_specs, options.new_images, options.themes, options.create_labels, options.asm_labels)
 
 def main(args):
     global verbose, show_timings
@@ -342,8 +346,8 @@ def main(args):
                        help="Be quiet")
     group.add_argument('-t', '--time', dest='show_timings', action='store_true',
                        help="Show timings")
-    group.add_argument('-T', '--theme', dest='theme', metavar='THEME',
-                       help="Use this CSS theme")
+    group.add_argument('-T', '--theme', dest='themes', metavar='THEME', action='append',
+                       help="Use this CSS theme; this option may be used multiple\ntimes")
     group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER,
                        help="Write the disassembly in upper case")
     group.add_argument('-V', '--version', action='version',

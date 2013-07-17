@@ -220,7 +220,8 @@ list::
     -q, --quiet           Be quiet
     -t, --time            Show timings
     -T THEME, --theme THEME
-                          Use this CSS theme
+                          Use this CSS theme; this option may be used multiple
+                          times
     -u, --upper           Write the disassembly in upper case
     -V, --version         Show SkoolKit version number and exit
     -w X, --write X       Write only these files, where X is one or more of:
@@ -255,10 +256,16 @@ CSS files to use thus::
 
 then::
 
-  $ skool2html.py -T dark game.ref
+  $ skool2html.py -T dark -T wide game.ref
 
-will use `skoolkit-dark.css` and `game-dark.css` if they exist, and fall back
-to `skoolkit.css` and `game.css` if they don't.
+will use the following CSS files, if they exist, in the order listed:
+
+* `skoolkit.css`
+* `skoolkit-dark.css`
+* `skoolkit-wide.css`
+* `game.css`
+* `game-dark.css`
+* `game-wide.css`
 
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
@@ -286,6 +293,8 @@ to `skoolkit.css` and `game.css` if they don't.
 |         | ``-p`` and ``-T`` options                                       |
 +---------+-----------------------------------------------------------------+ 
 | 3.4     | Added the ``-a`` and ``-C`` options and the long options        |
++---------+-----------------------------------------------------------------+
+| 3.5     | Added support for multiple CSS themes                           |
 +---------+-----------------------------------------------------------------+
 
 .. _skool2sft.py:

@@ -54,7 +54,8 @@ OPTIONS
   Show timings.
 
 -T, --theme `THEME`
-  Specify the CSS theme to use; see the section on ``THEMES`` below.
+  Specify the CSS theme to use; this option may be used multiple times. See the
+  section on ``THEMES`` below.
 
 -u, --upper
   Write the disassembly in upper case.
@@ -96,8 +97,8 @@ otherwise it will be treated as a skool file.
 
 THEMES
 ======
-The ``-T`` option sets the CSS theme. For example, if `game.ref` specifies the
-CSS files to use thus:
+The ``-T`` option sets the CSS theme. For example, if ``game.ref`` specifies
+the CSS files to use thus:
 
 |
 |   [Game]
@@ -106,10 +107,17 @@ CSS files to use thus:
 then:
 
 |
-|   ``skool2html.py -T dark game.ref``
+|   ``skool2html.py -T dark -T wide game.ref``
 
-will use `skoolkit-dark.css` and `game-dark.css` if they exist, and fall back
-to `skoolkit.css` and `game.css` if they don't.
+will use the following CSS files, if they exist, in the order listed:
+
+|
+|   skoolkit.css
+|   skoolkit-dark.css
+|   skoolkit-wide.css
+|   game.css
+|   game-dark.css
+|   game-wide.css
 
 EXAMPLES
 ========
