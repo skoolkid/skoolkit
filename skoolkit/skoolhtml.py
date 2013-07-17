@@ -140,7 +140,6 @@ class HtmlWriter:
             link_text[page_id] = page.get('Link', titles[page_id])
         links = self._parse_links(link_text)
 
-        self._img_path = None
         self.paths = self._get_paths()
         self.paths.update(paths)
         self.titles = self._get_titles()
@@ -174,7 +173,6 @@ class HtmlWriter:
         link_operands = self.game_vars.get('LinkOperands', 'CALL,DEFW,DJNZ,JP,JR')
         self.link_operands = tuple(op.upper() for op in link_operands.split(','))
         self.game_vars.setdefault('StyleSheet', 'skoolkit.css')
-        self.game_vars.setdefault('LogoImage', join('images', 'logo.{0}'.format(self.default_image_format)))
 
         self.bugs = self.get_sections('Bug', True)
         self.facts = self.get_sections('Fact', True)
@@ -1001,8 +999,11 @@ class HtmlWriter:
         ofile.write('</head>\n')
 
     def _get_logo(self, cwd):
-        logo_image = self.game_vars['LogoImage']
-        if self.file_exists(logo_image):
+        logo_macro = self.game_vars.get('Logo')
+        if logo_macro:
+            return self.expand(logo_macro, cwd)
+        logo_image = self.game_vars.get('LogoImage')
+        if logo_image and self.file_exists(logo_image):
             return '<img src="{0}" alt="{1}" />'.format(FileInfo.relpath(cwd, logo_image), self.game)
         return self.game
 
@@ -1019,14 +1020,6 @@ class HtmlWriter:
         ofile.write('<td class="headerText">{0}</td>\n'.format(body_title or title))
         ofile.write('</tr>\n')
         ofile.write('</table>\n')
-
-    def write_logo_image(self, cwd):
-        logo_macro = self.game_vars.get('Logo')
-        if logo_macro:
-            self.expand(logo_macro, cwd)
-            if self._img_path:
-                self.game_vars['LogoImage'] = self._img_path
-            return self._img_path
 
     def write_image(self, image_path, udgs, crop_rect=(), scale=2, mask=False):
         """Create an image and write it to a file.
@@ -1056,7 +1049,6 @@ class HtmlWriter:
             f = self.file_info.open_file(image_path, mode='wb')
             self.image_writer.write_image(udgs, f, img_format, scale, mask, *crop_rect)
             f.close()
-            self._img_path = image_path
 
     def _create_macros(self):
         self.macros = {}
@@ -1168,7 +1160,6 @@ class HtmlWriter:
         :param path_id: The ID of the target directory (as defined in the
                         :ref:`paths` section of the `ref` file).
         """
-        self._img_path = None
         if fname:
             if fname[-4:].lower() in ('.png', '.gif'):
                 suffix = ''

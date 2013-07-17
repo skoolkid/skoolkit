@@ -1372,6 +1372,9 @@ class HtmlWriterTest(SkoolKitTestCase):
         img_path = writer.image_path('img')
         self.assertEqual(img_path, '{0}/img.{1}'.format(writer.paths['UDGImagePath'], def_img_format))
 
+        img_path = writer.image_path('/pics/foo.png')
+        self.assertEqual(img_path, 'pics/foo.png')
+
         path_id = 'ScreenshotImagePath'
         img_path = writer.image_path('img.gif', path_id)
         self.assertEqual(img_path, '{0}/img.gif'.format(writer.paths[path_id]))
@@ -2131,7 +2134,8 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # Empty index with logo image
         writer = self._get_writer(skool='')
-        logo_image_path = writer.game_vars['LogoImage']
+        logo_image_path = 'logo.png'
+        writer.game_vars['LogoImage'] = logo_image_path
         self.write_bin_file(path=join(self.odir, GAMEDIR, logo_image_path))
         writer.write_index()
         game = basename(self.skoolfile)[:-6]
@@ -2559,24 +2563,78 @@ class HtmlWriterTest(SkoolKitTestCase):
         except SkoolKitError as e:
              self.assertEqual(e.args[0], 'Unsupported image file format: {0}'.format(image_path))
 
-    def test_write_logo_image(self):
-        file_info = MockFileInfo('html', 'test_write_logo_image')
-        image_writer = MockImageWriter2()
-        snapshot = [0] * 65536
-        writer = HtmlWriter(MockSkoolParser(snapshot), RefParser(), file_info, image_writer)
+    def test_write_header_no_game_name(self):
+        writer = self._get_writer(skool='')
+        ofile = StringIO()
+        title = 'Main page'
+        cwd = ''
+        writer.write_header(ofile, title, cwd, body_class=None, body_title=None, js=None)
+        header = ofile.getvalue().split('\n')
+        index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
+        game_name = self.skoolfile[:-6]
+        self.assertEqual(header[7], '<title>{}: {}</title>'.format(game_name, title))
+        self.assertEqual(header[10], '<body>')
+        self.assertEqual(header[13], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
+        self.assertEqual(header[14], '<td class="headerText">{}</td>'.format(title))
 
-        # Without Game/Logo parameter
-        writer.write_logo_image(file_info.odir)
-        self.assertEqual(file_info.path, None)
-        self.assertEqual(writer.game_vars['LogoImage'], 'images/logo.png')
+    def test_write_header_with_game_name(self):
+        game_name = 'Some game'
+        writer = self._get_writer(ref='[Game]\nGame={}'.format(game_name), skool='')
+        ofile = StringIO()
+        cwd = 'subdir'
+        body_class = 'default'
+        writer.write_header(ofile, title='', cwd=cwd, body_class=body_class, body_title=None, js=None)
+        header = ofile.getvalue().split('\n')
+        index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
+        self.assertEqual(header[10], '<body class="{}">'.format(body_class))
+        self.assertEqual(header[13], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
 
-        # With Game/Logo parameter
-        logo_image_path = 'images/game_logo.gif'
-        writer.game_vars['Logo'] = '#UDG32768(/{0})'.format(logo_image_path)
-        writer.write_logo_image(file_info.odir)
-        self.assertEqual(file_info.path, join(file_info.odir, logo_image_path))
-        self.assertEqual(file_info.mode, 'wb')
-        self.assertEqual(writer.game_vars['LogoImage'], logo_image_path)
+    def test_write_header_with_nonexistent_logo_image(self):
+        writer = self._get_writer(ref='[Game]\nLogoImage=images/nonexistent.png', skool='')
+        ofile = StringIO()
+        cwd = 'subdir'
+        body_title = 'ABCD'
+        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=body_title, js=None)
+        header = ofile.getvalue().split('\n')
+        index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
+        game_name = self.skoolfile[:-6]
+        self.assertEqual(header[13], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
+        self.assertEqual(header[14], '<td class="headerText">{0}</td>'.format(body_title))
+
+    def test_write_header_with_logo_image(self):
+        logo_image_fname = 'logo.png'
+        css = 'css/game.css'
+        ref = '\n'.join((
+            '[Game]',
+            'LogoImage={}'.format(logo_image_fname),
+            'StyleSheet={}'.format(css)
+        ))
+        writer = self._get_writer(ref=ref, skool='')
+        logo_image = self.write_bin_file(path=join(writer.file_info.odir, logo_image_fname))
+        ofile = StringIO()
+        cwd = 'subdir/subdir2'
+        js = 'js/script.js'
+        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=js)
+        header = ofile.getvalue().split('\n')
+        css_path = FileInfo.relpath(cwd, join(writer.paths['StyleSheetPath'], basename(css)))
+        js_path = FileInfo.relpath(cwd, join(writer.paths['JavaScriptPath'], basename(js)))
+        index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
+        logo = FileInfo.relpath(cwd, logo_image_fname)
+        game_name = self.skoolfile[:-6]
+        self.assertEqual(header[8], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_path))
+        self.assertEqual(header[9], '<script type="text/javascript" src="{}"></script>'.format(js_path))
+        self.assertEqual(header[14], '<td class="headerLogo"><a class="link" href="{}"><img src="{}" alt="{}" /></a></td>'.format(index, logo, game_name))
+
+    def test_write_header_with_logo(self):
+        logo = 'ABC #UDG30000 123'
+        writer = self._get_writer(ref='[Game]\nLogo={}'.format(logo), skool='')
+        ofile = StringIO()
+        cwd = ''
+        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=None)
+        header = ofile.getvalue().split('\n')
+        index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
+        logo_value = writer.expand(logo, cwd)
+        self.assertEqual(header[13], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, logo_value))
 
 class UdgTest(SkoolKitTestCase):
     def test_flip(self):

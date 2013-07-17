@@ -23,7 +23,6 @@ Using ref file: ../examples/manic_miner.ref
 Parsing {skoolfile}
 Creating directory {odir}/manic_miner
 Copying {cssfile} to {odir}/manic_miner/{cssfile}
-  Wrote manic_miner/images/logo.png
   Writing disassembly files in manic_miner/asm
   Writing manic_miner/maps/all.html
   Writing manic_miner/maps/routines.html
@@ -38,7 +37,6 @@ Using ref file: ../examples/jet_set_willy.ref
 Parsing {skoolfile}
 Creating directory {odir}/jet_set_willy
 Copying {cssfile} to {odir}/jet_set_willy/{cssfile}
-  Wrote jet_set_willy/images/logo.png
   Writing disassembly files in jet_set_willy/asm
   Writing jet_set_willy/maps/all.html
   Writing jet_set_willy/maps/routines.html

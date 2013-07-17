@@ -230,10 +230,6 @@ def write_disassembly(html_writer, html_writer_class, files, search_dir, pages, 
     game_vars['StyleSheet'] = copy_resources(search_dir, odir, game_vars.get('StyleSheet'), paths.get('StyleSheetPath', ''), css_theme, '.css')
     copy_resources(search_dir, odir, game_vars.get('Font'), paths.get('FontPath', ''))
 
-    # Write logo image file if necessary
-    if html_writer.write_logo_image(odir):
-        notify('  Wrote {0}'.format(join(game_dir, game_vars['LogoImage'])))
-
     # Write disassembly files
     if 'd' in files:
         clock(html_writer.write_asm_entries, '  Writing disassembly files in {0}'.format(join(game_dir, html_writer.code_path)))

@@ -523,12 +523,11 @@ class Skool2HtmlTest(SkoolKitTestCase):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
         name = reffile[:-4]
         self.write_text_file('', '{0}.skool'.format(name))
-        logo_method = 'write_logo_image'
+        index_method = 'write_index'
         for option in ('-q', '--quiet'):
             output, error = self.run_skool2html('{0} {1} -d {2} -w i {3}'.format(self._css_c(), option, self.odir, reffile))
             self.assertEqual(error, '')
-            self.assertTrue(logo_method in html_writer.call_dict, '{0} was not called'.format(logo_method))
-            self.assertEqual(html_writer.call_dict[logo_method], [('{0}/{1}'.format(self.odir, basename(name)),)])
+            self.assertTrue(index_method in html_writer.call_dict, '{0} was not called'.format(index_method))
             self.assertEqual(len(output), 0)
 
     def test_option_t(self):

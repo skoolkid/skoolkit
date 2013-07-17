@@ -217,10 +217,9 @@ Recognised parameters are:
 * ``Logo`` - the text/HTML that will serve as the game logo in the header of
   every page (typically a skool macro that creates a suitable image); if not
   specified, ``LogoImage`` is used
-* ``LogoImage`` - the path to the game logo image (default: `images/logo.png`
-  or `images/logo.gif`, depending on the default image format specified in the
-  :ref:`ref-ImageWriter` section); if the specified image does not exist, the
-  name of the game is used in place of an image
+* ``LogoImage`` - the path to the game logo image, which appears in the header
+  of every page; if the specified file does not exist, the name of the game is
+  used in place of an image
 * ``OutputRegisterTableHeader`` - the text to use in the header of output
   register tables on routine disassembly pages; if not specified, no header is
   displayed
