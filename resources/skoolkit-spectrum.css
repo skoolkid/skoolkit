@@ -6,56 +6,31 @@
 
 /* Universal/generic */
 body {
-  color: #000000;
   background-color: #cdc6cd;
   font-family: spectrum;
   font-size: 16px;
 }
-img {
-  border-width: 0;
-}
-a.link {
-  text-decoration: none;
-  color: #0000ff;
-}
-a.link:hover {
-  color: #ff0000;
-}
 table.header td {
-  vertical-align: middle;
-  padding-top: 0;
-  padding-bottom: 0;
+  font-weight: normal;
+  font-size: 100%;
 }
-td.headerText {
-  white-space: nowrap;
-}
-div.footer {
-  clear: both;
-  margin-top: 10px;
-  text-align: center;
+div.headerText {
+  font-weight: normal;
+  font-size: 100%;
 }
 td.transparent {
   background-color: #cdc6cd !important;
-}
-ul.linkList {
-  list-style-type: none;
-  margin-left: 0;
-  padding-left: 0;
 }
 span.register {
   color: #00c600;
 }
 div.box {
   width: 960px;
-  padding: 6px;
-  margin-bottom: 10px;
-  border-radius: 10px;
 }
 div.boxTitle {
+  font-size: 100%;
+  font-weight: normal;
   text-decoration: underline;
-}
-div.box p {
-  margin-bottom: 0;
 }
 div.box1 {
   background-color: #00c6c5;
@@ -63,63 +38,22 @@ div.box1 {
 div.box2 {
   background-color: #00ffff;
 }
-div.paragraph {
-  margin-top: 10px;
-}
 table table.default th, table.default th {
   background-color: #00c6c5;
 }
 table table.default td, table.default td {
   background-color: #00ffff;
 }
-td.centre {
-  text-align: center;
-}
-
-/* Home page */
-ul.indexList {
-  list-style-type: none;
-  margin-top: 0;
-  margin-left: 0;
-  padding-left: 20px;
-}
 
 /* Disassembly pages */
-table.prevNext {
-  margin-top: 10px;
-  border-collapse: collapse;
-  width: 100%;
-}
 table.prevNext td {
   background-color: #00ffff;
-}
-table.prevNext td.prev {
-  width: 30%;
-  text-align: left;
-}
-table.prevNext td.up {
-  width: 40%;
-  text-align: center;
-}
-table.prevNext td.next {
-  width: 30%;
-  text-align: right;
 }
 table.disassembly, table.dataDisassembly {
   width: 960px;
 }
 div.description {
-  margin-top: 10px;
-}
-div.details {
-  margin-bottom: 10px;
-}
-div.comments {
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-table.input, table.output {
-  margin-bottom: 10px;
+  font-weight: normal;
 }
 table.input td {
   background-color: #ffff00;
@@ -135,34 +69,20 @@ table.output th {
 }
 td.register {
   color: #00c600;
-  width: 20px;
-  text-align: center;
 }
 td.asmLabel, td.label {
-  color: #ff0000;
-  vertical-align: top;
-  padding-right: 10px;
+  font-weight: normal;
+  font-family: spectrum;
 }
 td.address {
-  color: #ff0000;
-  vertical-align: top;
-  padding-right: 10px;
+  font-family: spectrum;
 }
 td.instruction {
   color: #00c600;
-  vertical-align: top;
-  white-space: pre;
-  padding-right: 10px;
+  font-family: spectrum;
 }
 td.comment, td.dataComment {
   background-color: #00ffff;
-  vertical-align: top;
-}
-td.routineComment {
-  padding-left: 0;
-}
-td.comment, td.dataComment, td.transparentComment, td.transparentDataComment {
-  width: 100%;
 }
 
 /* Maps */
@@ -172,44 +92,18 @@ table.map th {
 table.map td {
   background-color: #00ffff;
 }
-div.mapIntro {
-  margin-bottom: 10px;
-}
-td.mapPage {
-  text-align: center;
-}
-td.mapByte {
-  text-align: center;
-}
-td.routine {
-  text-align: center;
-}
 td.routineDesc {
   color: #c500c5;
-}
-td.data {
-  text-align: center;
 }
 td.dataDesc {
   color: #00c600;
 }
-td.gbuffer {
-  text-align: center;
-}
 td.gbufferDesc {
   color: #c50000;
 }
-td.message {
-  text-align: center;
-}
 td.messageDesc {
   color: #0000c5;
-}
-td.unused {
-  text-align: center;
-}
-td.unusedDesc {
-  color: #000000;
+  font-family: spectrum;
 }
 
 /* Game status buffer */
@@ -219,33 +113,13 @@ table.gbuffer th {
 table.gbuffer td {
   background-color: #ffff00;
 }
-td.gbufAddress {
-  text-align: center;
-  vertical-align: top;
-}
-td.gbufLength {
-  text-align: center;
-  vertical-align: top;
-}
-
-/* Graphic glitches */
-table.gglitch {
-  border-collapse: collapse;
-}
-table.gglitch td {
-  text-align: center;
-  border-width: 1px;
-  border-style: solid;
-  border-color: #000000;
-  padding: 5px;
+div.gbufDesc {
+  font-weight: normal;
 }
 
 /* Changelog */
 div.changelog {
   width: 960px;
-  padding: 6px;
-  margin-bottom: 10px;
-  border-radius: 10px;
 }
 div.changelog1 {
   background-color: #00c6c5;
@@ -254,12 +128,7 @@ div.changelog2 {
   background-color: #00ffff;
 }
 div.changelogTitle {
+  font-size: 100%;
+  font-weight: normal;
   text-decoration: underline;
-}
-div.changelogDesc {
-  margin-top: 5px;
-}
-ul.changelog {
-  margin-top: 5px;
-  margin-bottom: 0;
 }
