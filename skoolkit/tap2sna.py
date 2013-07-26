@@ -320,7 +320,7 @@ def get_tzx_block(data, i):
         i += data[i] + 1
     elif block_id == 49:
         # Message block
-        i += data[i] + 2
+        i += data[i + 1] + 2
     elif block_id == 50:
         # Archive info
         i += get_word(data, i) + 2
