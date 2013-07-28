@@ -134,15 +134,15 @@ For example:
 |  ``--reg hl=32768``
 |  ``--reg b=17``
 
-To set the value of an alternate (shadow) register, use the '@' prefix:
+To set the value of an alternate (shadow) register, use the '^' prefix:
 
 |
-|  ``--reg @hl=10072``
+|  ``--reg ^hl=10072``
 
 Recognised register names are:
 
 |
-|  ``@a``, ``@b``, ``@bc``, ``@c``, ``@d``, ``@de``, ``@e``, ``@f``, ``@h``, ``@hl``, ``@l``,
+|  ``^a``, ``^b``, ``^bc``, ``^c``, ``^d``, ``^de``, ``^e``, ``^f``, ``^h``, ``^hl``, ``^l``,
 |  ``a``, ``b``, ``bc``, ``c``, ``d``, ``de``, ``e``, ``f``, ``h``, ``hl``, ``l``,
 |  ``i``, ``ix``, ``iy``, ``pc``, ``r``, ``sp``
 

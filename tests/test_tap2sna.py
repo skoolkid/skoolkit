@@ -166,5 +166,39 @@ class Tap2SnaTest(SkoolKitTestCase):
         snapshot = get_snapshot(z80file)
         self.assertEqual(snapshot[start:start + len(data)], data)
 
+    def test_reg(self):
+        z80_registers = {
+            'a': 0, 'f': 1, 'bc': 2, 'c': 2, 'b': 3, 'hl': 4, 'l': 4, 'h': 5,
+            'sp': 8, 'i': 10, 'r': 11, 'de': 13, 'e': 13, 'd': 14, '^bc': 15,
+            '^c': 15, '^b': 16, '^de': 17, '^e': 17, '^d': 18, '^hl': 19,
+            '^l': 19, '^h': 20, '^a': 21, '^f': 22, 'iy': 23, 'ix': 25,
+            'pc': 32
+        }
+        block = self._create_tap_data_block([1])
+        tapfile = self._write_tap([block])
+        z80file = self.write_bin_file(suffix='.z80')
+        reg_dicts = (
+            {'^a': 1, '^b': 2, '^c': 3, '^d': 4, '^e': 5, '^f': 6, '^h': 7, '^l': 8},
+            {'a': 9, 'b': 10, 'c': 11, 'd': 12, 'e': 13, 'f': 14, 'h': 15, 'l': 16, 'r': 129},
+            {'^bc': 258, '^de': 515, '^hl': 65534, 'bc': 259, 'de': 516, 'hl': 65533},
+            {'i': 13, 'ix': 1027, 'iy': 1284, 'pc': 1541, 'r': 23, 'sp': 32769}
+        )
+        for reg_dict in reg_dicts:
+            reg_options = ' '.join(['--reg {}={}'.format(r, v) for r, v in reg_dict.iteritems()])
+            output, error = self.run_tap2sna('--force --ram load=1,16384 {} {} {}'.format(reg_options, tapfile, z80file))
+            self.assertEqual(error, '')
+            with open(z80file, 'rb') as f:
+                z80_header = bytearray(f.read(34))
+            for reg, exp_value in reg_dict.iteritems():
+                offset = z80_registers[reg]
+                size = len(reg) - 1 if reg.startswith('^') else len(reg)
+                if size == 1:
+                    value = z80_header[offset]
+                else:
+                    value = z80_header[offset] + 256 * z80_header[offset + 1]
+                self.assertEqual(value, exp_value)
+                if reg == 'r' and exp_value & 128:
+                    self.assertEqual(z80_header[12] & 1, 1)
+
 if __name__ == '__main__':
     unittest.main()

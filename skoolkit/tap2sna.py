@@ -74,17 +74,17 @@ Z80_REGISTERS = {
     'de': 13,
     'e': 13,
     'd': 14,
-    '@bc': 15,
-    '@c': 15,
-    '@b': 16,
-    '@de': 17,
-    '@e': 17,
-    '@d': 18,
-    '@hl': 19,
-    '@l': 19,
-    '@h': 20,
-    '@a': 21,
-    '@f': 22,
+    '^bc': 15,
+    '^c': 15,
+    '^b': 16,
+    '^de': 17,
+    '^e': 17,
+    '^d': 18,
+    '^hl': 19,
+    '^l': 19,
+    '^h': 20,
+    '^a': 21,
+    '^f': 22,
     'iy': 23,
     'ix': 25,
     'pc': 32
@@ -102,7 +102,7 @@ def get_z80(ram, options):
     for spec in options.reg:
         reg, sep, val = spec.lower().partition('=')
         if sep:
-            if reg.startswith('@'):
+            if reg.startswith('^'):
                 size = len(reg) - 1
             else:
                 size = len(reg)
@@ -458,9 +458,9 @@ Set the value of a register or register pair. For example:
   --reg hl=32768
   --reg b=17
 
-To set the value of an alternate (shadow) register, use the '@' prefix:
+To set the value of an alternate (shadow) register, use the '^' prefix:
 
-  --reg @hl=10072
+  --reg ^hl=10072
 
 Recognised register names are:
 
