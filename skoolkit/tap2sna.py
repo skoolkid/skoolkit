@@ -25,11 +25,11 @@ from io import BytesIO
 try:
     from urllib2 import urlopen
     from urlparse import urlparse
-except ImportError:
-    from urllib.request import urlopen
-    from urllib.parse import urlparse
+except ImportError:                    # pragma: no cover
+    from urllib.request import urlopen # pragma: no cover
+    from urllib.parse import urlparse  # pragma: no cover
 
-from . import VERSION, SkoolKitError
+from . import VERSION, SkoolKitError, read_bin_file
 
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
@@ -194,6 +194,7 @@ def get_ram(blocks, options):
                 standard_load = False
 
     if standard_load:
+        start = None
         for block_num, block in enumerate(blocks, 1):
             if block[0] == 0:
                 # Header
@@ -206,7 +207,7 @@ def get_ram(blocks, options):
                     start = 23755
                 else:
                     raise TapeError('Unknown block type ({0}) in header block {1}'.format(block_type, block_num))
-            else:
+            elif start is not None:
                 # Data
                 load_block(snapshot, block, start)
 
@@ -370,11 +371,8 @@ def get_tape(urlstring, member=None):
         sys.stdout.write('Downloading {0}\n'.format(urlstring))
         u = urlopen(urlstring, timeout=30)
         data = bytearray(u.read())
-    elif url.path and not url.netloc:
-        with open(url.path, 'rb') as f:
-            data = bytearray(f.read()) # PY: data = f.read() in Python 3
-    else:
-        data = bytearray()
+    elif url.path:
+        data = read_bin_file(url.path)
 
     if urlstring.lower().endswith('.zip'):
         z = zipfile.ZipFile(BytesIO(data))
@@ -478,6 +476,12 @@ Set a hardware state attribute. Recognised names and their default values are:
   im     - interrupt mode (default=1)
 """.lstrip())
 
+def make_z80(url, namespace, z80):
+    tape_type, tape = get_tape(url)
+    tape_blocks = get_tape_blocks(tape_type, tape)
+    ram = get_ram(tape_blocks, namespace)
+    write_z80(ram, namespace, z80)
+
 def main(args):
     parser = SkoolKitArgumentParser(
         usage='\n  tap2sna.py [options] INPUT snapshot.z80\n  tap2sna.py @FILE',
@@ -521,11 +525,8 @@ def main(args):
         z80 = os.path.join(namespace.output_dir, z80)
     if namespace.force or not os.path.isfile(z80):
         try:
-            tape_type, tape = get_tape(url)
-            tape_blocks = get_tape_blocks(tape_type, tape)
-            ram = get_ram(tape_blocks, namespace)
-            write_z80(ram, namespace, z80)
+            make_z80(url, namespace, z80)
         except Exception as e:
-            raise SkoolKitError("Error while getting snapshot {0}: {1}\n".format(os.path.basename(z80), e.args[0]))
+            raise SkoolKitError("Error while getting snapshot {0}: {1}".format(os.path.basename(z80), e.args[0]))
     else:
         sys.stdout.write('{0}: file already exists; use -f to overwrite\n'.format(z80))
