@@ -151,34 +151,24 @@ def get_int_params(param_str, num):
     params += [None] * (num - len(params))
     return params[:num]
 
-def load_block(snapshot, block, start, length=None, step=None, offset=None, inc=None, index=None):
-    if index is None:
-        index = 1
+def load_block(snapshot, block, start, length=None, step=None, offset=None, inc=None, index=1):
     if length is None:
         data = block[index:-1]
     else:
         data = block[index:index + length]
     if step is None:
-        j = 0
-        while j < len(data):
-            length = len(data) - j
-            if start + length > 65536:
-                length = 65536 - start
-            snapshot[start:start + length] = data[j:j + length]
-            start = (start + length) & 65535
-            j += length
-    else:
-        if offset is None:
-            offset = 0
-        if inc is None:
-            inc = 0
-        i = start
-        for b in data:
-            snapshot[(i + offset) & 65535] = b
-            i += step
-            if i > 65535:
-                i += inc
-            i &= 65535
+        step = 1
+    if offset is None:
+        offset = 0
+    if inc is None:
+        inc = 0
+    i = start
+    for b in data:
+        snapshot[(i + offset) & 65535] = b
+        i += step
+        if i > 65535:
+            i += inc
+        i &= 65535
     return len(data)
 
 def get_ram(blocks, options):
@@ -335,7 +325,7 @@ def get_tzx_block(data, i):
         # "Glue" block
         i += 9
     else:
-        raise TapeError('Unknown TZX block ID {0} at index {1}\n'.format(block_id, i - 1))
+        raise TapeError('Unknown TZX block ID: {0}'.format(block_id))
     return i, block_id, tape_data
 
 def get_tzx_blocks(data):
