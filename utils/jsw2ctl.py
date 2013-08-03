@@ -108,8 +108,28 @@ B 39424,256,16
 b 39680 {number_keys}
 b 39808 Attributes for the password screen
 B 39808,128,16
-u 39936
-B 39936,64,16
+t 39936 Source code remnants
+D 39936 The source code here corresponds to the code at #R35545.
+T 39936 [JR ]NZ,ENDPAUSE
+M 39947,9 INC E
+W 39947
+B 39949
+T 39950,6,B1:3:B1:1
+M 39956,15 JR NZ,PAUSE
+W 39956
+B 39958
+T 39959,12,B1:2:B1:8
+M 39971,9 INC D
+W 39971
+B 39973
+T 39974,6,B1:3:B1:1
+M 39980,15 JR NZ,PAUSE
+W 39980
+B 39982
+T 39983,12,B1:2:B1:8
+W 39995
+B 39997
+T 39998,2,B1:1
 b 40000 {foot_barrel}
 b 40064 {maria}
 b 40192 {willy}
