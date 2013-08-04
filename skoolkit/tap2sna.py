@@ -389,7 +389,11 @@ another, or POKE a single address or range of addresses with a given value.
 
 --ram load=block,start[,length,step,offset,inc]
 
-  Load data from a tape block.
+  By default, tap2sna.py loads bytes from every data block on the tape, using
+  the start address given in the corresponding header. For tapes that contain
+  headerless data blocks, headers with incorrect start addresses, or irrelevant
+  blocks, '--ram load' can be used to load bytes from specific blocks at the
+  appropriate addresses.
 
   block  - the tape block number (the first block is 1, the next is 2, etc.)
   start  - the destination address at which to start loading
