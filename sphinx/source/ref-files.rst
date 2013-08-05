@@ -236,8 +236,7 @@ Recognised parameters are:
 +=========+=================================================================+
 | 2.0.3   | Added the ``GameStatusBufferIncludes`` parameter                |
 +---------+-----------------------------------------------------------------+
-| 2.0.5   | ``Logo`` defines the text/HTML for the logo instead of the path |
-|         | to the logo image                                               |
+| 2.0.5   | Added the ``Logo`` parameter                                    |
 +---------+-----------------------------------------------------------------+
 | 3.1.2   | Added the ``InputRegisterTableHeader`` and                      |
 |         | ``OutputRegisterTableHeader`` parameters                        |
