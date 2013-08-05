@@ -6,13 +6,12 @@ NOSETESTS32=/usr/bin/python3.2 /usr/bin/nosetests
 NOSETESTS33=$(HOME)/Python/Python3.3/bin/nosetests
 OPTIONS=-d build/html -t
 
-ifeq ($(DARK),1)
-  OPTIONS+= -T dark
-else ifeq ($(SPECTRUM),1)
-  OPTIONS+= -T spectrum -c Game/Font=spectrum.ttf
+OPTIONS+=$(foreach theme,$(THEMES),-T $(theme))
+ifeq ($(findstring spectrum,$(THEMES)),spectrum)
+  OPTIONS+=-c Game/Font=spectrum.ttf
 endif
 ifeq ($(HEX),1)
-  OPTIONS+= -H
+  OPTIONS+=-H
 endif
 
 .PHONY: usage
@@ -38,8 +37,7 @@ usage:
 	@echo "  snapshots        build snapshots of Manic Miner and Jet Set Willy"
 	@echo ""
 	@echo "Environment variables:"
-	@echo "  DARK=1           use the 'dark' theme when building a disassembly"
-	@echo "  SPECTRUM=1       use the 'spectrum' theme when building a disassembly"
+	@echo "  THEMES           CSS theme(s) to use"
 	@echo "  HEX=1            use hexadecimal when building a disassembly"
 
 .PHONY: doc
