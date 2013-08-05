@@ -1,4 +1,3 @@
-/* Universal/generic */
 body {
   color: #ffffff;
   background-color: #221100;
@@ -12,13 +11,10 @@ a.link:hover {
 td.transparent {
   background-color: #221100 !important;
 }
-span.register {
-  color: #ff7fff;
-}
-div.box1 {
+div.box1, div.changelog1 {
   background-color: #553311;
 }
-div.box2 {
+div.box2, div.changelog2 {
   background-color: #442200;
 }
 table table.default th, table.default th {
@@ -27,30 +23,19 @@ table table.default th, table.default th {
 table table.default td, table.default td {
   background-color: #553311;
 }
-
-/* Disassembly pages */
 table.prevNext td {
   background-color: #443322;
 }
-table.input td {
+table.input td, table.output td {
   background-color: #3f3f3f;
 }
-table.output td {
-  background-color: #3f3f3f;
-}
-table.input th {
+table.input th, table.output th {
   background-color: #5f5f5f;
 }
-table.output th {
-  background-color: #5f5f5f;
-}
-td.register {
+span.register, td.register {
   color: #ff7fff;
 }
-td.asmLabel, td.label {
-  color: #00ffff;
-}
-td.address {
+td.asmLabel, td.label, td.address {
   color: #00ffff;
 }
 td.instruction {
@@ -59,12 +44,10 @@ td.instruction {
 td.comment, td.dataComment {
   background-color: #332211;
 }
-
-/* Maps */
-table.map th {
+table.gbuffer th, table.map th {
   background-color: #775533;
 }
-table.map td {
+table.gbuffer td, table.map td {
   background-color: #442200;
 }
 td.routineDesc {
@@ -82,24 +65,6 @@ td.messageDesc {
 td.unusedDesc {
   color: #ffffff;
 }
-
-/* Game status buffer */
-table.gbuffer th {
-  background-color: #775533;
-}
-table.gbuffer td {
-  background-color: #442200;
-}
-
-/* Graphic glitches */
 table.gglitch td {
   border-color: #000000;
-}
-
-/* Changelog */
-div.changelog1 {
-  background-color: #553311;
-}
-div.changelog2 {
-  background-color: #442200;
 }
