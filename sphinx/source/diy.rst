@@ -242,13 +242,24 @@ See :ref:`refFiles` for more information on the format of the ``Poke``,
 Themes
 ------
 In addition to the default theme (defined in `skoolkit.css`), SkoolKit includes
-two alternative themes: 'dark' and 'spectrum'.
+some alternative themes:
 
-In order to use the 'dark' theme, run `skool2html.py` with the ``-T`` option
-thus::
+* dark (dark colours)
+* spectrum (Spectrum colours and font)
+* wide (wide comment fields on the disassembly pages, and wide boxes on the
+  Changelog, Glossary, Trivia, Bugs and Pokes pages)
+
+In order to use a theme, run `skool2html.py` with the ``-T`` option; for
+example::
 
   $ skool2html.py -T dark game.skool
 
-Or to use the 'spectrum' theme::
+To use the 'spectrum' theme, the spectrum font file should also be specified
+thus::
 
   $ skool2html.py -T spectrum -c Game/Font=spectrum.ttf game.skool
+
+Themes may also be combined; for example, to use both the 'dark' and 'wide'
+themes::
+
+  $ skool2html.py -T dark -T wide game.skool
