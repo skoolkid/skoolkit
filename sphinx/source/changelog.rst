@@ -1,12 +1,6 @@
 Changelog
 =========
 
-.. toctree::
-   :maxdepth: 1
-
-   changelog2
-   changelog1
-
 3.5b1
 -----
 * Added the :ref:`tap2sna.py` command (for building snapshots from TAP/TZX
@@ -199,3 +193,11 @@ Changelog
   screenshot
 * Added image-cropping capabilities to the :ref:`FONT`, :ref:`SCR`, :ref:`UDG`
   and :ref:`UDGARRAY` macros
+
+Older versions
+--------------
+.. toctree::
+   :maxdepth: 1
+
+   changelog2
+   changelog1
