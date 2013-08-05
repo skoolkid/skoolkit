@@ -201,7 +201,7 @@ Recognised parameters are:
 * ``Font`` - the base name of the font file to use (default: None); multiple
   font files can be declared by separating their names with semicolons
 * ``Game`` - the name of the game, which appears in the title of every page,
-  and also in the header of the main index page (if no logo is defined); if not
+  and also in the header of every page (if no logo is defined); if not
   specified, the base name of the `skool` file is used
 * ``GameStatusBufferIncludes`` - a comma-separated list of addresses of entries
   to include on the 'Game status buffer' page in addition to those that are
