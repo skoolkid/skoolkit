@@ -6,7 +6,8 @@ Changelog
 * Added the :ref:`tap2sna.py` command (for building snapshots from TAP/TZX
   files)
 * Added support to :ref:`skool2html.py` for multiple CSS themes
-* Added the 'wide' CSS theme: `skoolkit-wide.css`
+* Added the 'green' and 'wide' CSS themes: `skoolkit-green.css`,
+  `skoolkit-wide.css`
 * Moved the ``Font`` and ``StyleSheet`` parameters from the ``[Paths]`` section
   to the :ref:`ref-game` section
 * Moved the ``JavaScript`` parameter from the ``[Paths]`` section to the

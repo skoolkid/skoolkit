@@ -244,13 +244,14 @@ Themes
 In addition to the default theme (defined in `skoolkit.css`), SkoolKit includes
 some alternative themes:
 
-* dark (dark colours)
-* spectrum (Spectrum colours and font)
+* dark (dark colours): `skoolkit-dark.css`
+* spectrum (Spectrum colours and font): `skoolkit-spectrum.css`
+* green (mostly green): `skoolkit-green.css`
 * wide (wide comment fields on the disassembly pages, and wide boxes on the
-  Changelog, Glossary, Trivia, Bugs and Pokes pages)
+  Changelog, Glossary, Trivia, Bugs and Pokes pages): `skoolkit-wide.css`
 
 In order to use a theme, run `skool2html.py` with the ``-T`` option; for
-example::
+example, to use the 'dark' theme::
 
   $ skool2html.py -T dark game.skool
 
