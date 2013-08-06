@@ -1,0 +1,70 @@
+body {
+  color: #ffffff;
+  background-color: #330019;
+}
+a.link {
+  color: #ff00ff;
+}
+a.link:hover {
+  color: #00ffff;
+}
+td.transparent {
+  background-color: #330019 !important;
+}
+div.box1, div.changelog1 {
+  background-color: #7f194c;
+}
+div.box2, div.changelog2 {
+  background-color: #660033;
+}
+table table.default th, table.default th {
+  background-color: #b24c7f;
+}
+table table.default td, table.default td {
+  background-color: #7f194c;
+}
+table.prevNext td {
+  background-color: #66334c;
+}
+table.input td, table.output td {
+  background-color: #5e5e5e;
+}
+table.input th, table.output th {
+  background-color: #8e8e8e;
+}
+span.register, td.register {
+  color: #ffffbe;
+}
+td.asmLabel, td.label, td.address {
+  color: #00ffff;
+}
+td.instruction {
+  color: #ffffbe;
+}
+td.comment, td.dataComment {
+  background-color: #4c1933;
+}
+table.gbuffer th, table.map th {
+  background-color: #b24c7f;
+}
+table.gbuffer td, table.map td {
+  background-color: #660033;
+}
+td.routineDesc {
+  color: #bebeff;
+}
+td.dataDesc {
+  color: #ffffbe;
+}
+td.gbufferDesc {
+  color: #beffff;
+}
+td.messageDesc {
+  color: #ffffff;
+}
+td.unusedDesc {
+  color: #ffffff;
+}
+table.gglitch td {
+  border-color: #000000;
+}

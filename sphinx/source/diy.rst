@@ -245,8 +245,9 @@ In addition to the default theme (defined in `skoolkit.css`), SkoolKit includes
 some alternative themes:
 
 * dark (dark colours): `skoolkit-dark.css`
-* spectrum (Spectrum colours and font): `skoolkit-spectrum.css`
 * green (mostly green): `skoolkit-green.css`
+* plum (mostly purple): `skoolkit-plum.css`
+* spectrum (Spectrum colours and font): `skoolkit-spectrum.css`
 * wide (wide comment fields on the disassembly pages, and wide boxes on the
   Changelog, Glossary, Trivia, Bugs and Pokes pages): `skoolkit-wide.css`
 
