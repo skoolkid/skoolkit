@@ -1,10 +1,7 @@
-/* ZX-Spectrum font */
 @font-face {
   font-family: 'spectrum';
   src: url(spectrum.ttf);
 }
-
-/* Universal/generic */
 body {
   background-color: #cdc6cd;
   font-family: spectrum;
@@ -32,10 +29,10 @@ div.boxTitle {
   font-weight: normal;
   text-decoration: underline;
 }
-div.box1 {
+div.box1, div.changelog1 {
   background-color: #00c6c5;
 }
-div.box2 {
+div.box2, div.changelog2 {
   background-color: #00ffff;
 }
 table table.default th, table.default th {
@@ -44,8 +41,6 @@ table table.default th, table.default th {
 table table.default td, table.default td {
   background-color: #00ffff;
 }
-
-/* Disassembly pages */
 table.prevNext td {
   background-color: #00ffff;
 }
@@ -55,37 +50,25 @@ table.disassembly, table.dataDisassembly {
 div.description {
   font-weight: normal;
 }
-table.input td {
+table.input td, table.output td {
   background-color: #ffff00;
 }
-table.output td {
-  background-color: #ffff00;
-}
-table.input th {
-  background-color: #c5c600;
-}
-table.output th {
+table.input th, table.output th {
   background-color: #c5c600;
 }
 td.register {
   color: #00c600;
 }
-td.asmLabel, td.label {
+td.asmLabel, td.label, td.address, td.instruction {
   font-weight: normal;
-  font-family: spectrum;
-}
-td.address {
   font-family: spectrum;
 }
 td.instruction {
   color: #00c600;
-  font-family: spectrum;
 }
 td.comment, td.dataComment {
   background-color: #00ffff;
 }
-
-/* Maps */
 table.map th {
   background-color: #00c6c5;
 }
@@ -105,8 +88,6 @@ td.messageDesc {
   color: #0000c5;
   font-family: spectrum;
 }
-
-/* Game status buffer */
 table.gbuffer th {
   background-color: #c5c600;
 }
@@ -116,16 +97,8 @@ table.gbuffer td {
 div.gbufDesc {
   font-weight: normal;
 }
-
-/* Changelog */
 div.changelog {
   width: 960px;
-}
-div.changelog1 {
-  background-color: #00c6c5;
-}
-div.changelog2 {
-  background-color: #00ffff;
 }
 div.changelogTitle {
   font-size: 100%;
