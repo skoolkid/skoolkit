@@ -1,4 +1,3 @@
-/* Universal/generic */
 body {
   color: #000000;
   background-color: #ddeeff;
@@ -57,10 +56,10 @@ div.boxTitle {
 div.box p {
   margin-bottom: 0;
 }
-div.box1 {
+div.box1, div.changelog1 {
   background-color: #aaccee;
 }
-div.box2 {
+div.box2, div.changelog2 {
   background-color: #bbddff;
 }
 div.paragraph {
@@ -75,16 +74,12 @@ table table.default td, table.default td {
 td.centre {
   text-align: center;
 }
-
-/* Home page */
 ul.indexList {
   list-style-type: none;
   margin-top: 0;
   margin-left: 0;
   padding-left: 20px;
 }
-
-/* Disassembly pages */
 table.prevNext {
   margin-top: 10px;
   border-collapse: collapse;
@@ -122,16 +117,10 @@ div.comments {
 table.input, table.output {
   margin-bottom: 10px;
 }
-table.input td {
+table.input td, table.output td {
   background-color: #c0c0c0;
 }
-table.output td {
-  background-color: #c0c0c0;
-}
-table.input th {
-  background-color: #a0a0a0;
-}
-table.output th {
+table.input th, table.output th {
   background-color: #a0a0a0;
 }
 td.register {
@@ -139,25 +128,20 @@ td.register {
   width: 20px;
   text-align: center;
 }
-td.asmLabel, td.label {
-  color: #ff0000;
-  font-weight: bold;
+td.asmLabel, td.label, td.address, td.instruction {
   font-family: monospace;
   vertical-align: top;
   padding-right: 10px;
 }
-td.address {
+td.asmLabel, td.label, td.address {
   color: #ff0000;
-  font-family: monospace;
-  vertical-align: top;
-  padding-right: 10px;
+}
+td.asmLabel, td.label {
+  font-weight: bold;
 }
 td.instruction {
   color: #008000;
-  font-family: monospace;
-  vertical-align: top;
   white-space: pre;
-  padding-right: 10px;
 }
 td.comment, td.dataComment {
   background-color: #ccddee;
@@ -169,75 +153,41 @@ td.routineComment {
 td.comment, td.dataComment, td.transparentComment, td.transparentDataComment {
   width: 100%;
 }
-
-/* Maps */
-table.map th {
+table.gbuffer th, table.map th {
   background-color: #88aacc;
 }
-table.map td {
+table.gbuffer td, table.map td {
   background-color: #bbddff;
 }
 div.mapIntro {
   margin-bottom: 10px;
 }
-td.mapPage {
-  text-align: center;
-}
-td.mapByte {
-  text-align: center;
-}
-td.routine {
+td.mapPage, td.mapByte, td.routine, td.data, td.gbuffer, td.message, td.unused {
   text-align: center;
 }
 td.routineDesc {
   color: #800080;
 }
-td.data {
-  text-align: center;
-}
 td.dataDesc {
   color: #008000;
 }
-td.gbuffer {
-  text-align: center;
-}
 td.gbufferDesc {
   color: #800000;
-}
-td.message {
-  text-align: center;
 }
 td.messageDesc {
   color: #555555;
   font-family: monospace;
 }
-td.unused {
-  text-align: center;
-}
 td.unusedDesc {
   color: #000000;
 }
-
-/* Game status buffer */
-table.gbuffer th {
-  background-color: #88aacc;
-}
-table.gbuffer td {
-  background-color: #bbddff;
-}
-td.gbufAddress {
-  text-align: center;
-  vertical-align: top;
-}
-td.gbufLength {
+td.gbufAddress, td.gbufLength {
   text-align: center;
   vertical-align: top;
 }
 div.gbufDesc {
   font-weight: bold;
 }
-
-/* Graphic glitches */
 table.gglitch {
   border-collapse: collapse;
 }
@@ -248,19 +198,11 @@ table.gglitch td {
   border-color: #000000;
   padding: 5px;
 }
-
-/* Changelog */
 div.changelog {
   width: 800px;
   padding: 6px;
   margin-bottom: 10px;
   border-radius: 10px;
-}
-div.changelog1 {
-  background-color: #aaccee;
-}
-div.changelog2 {
-  background-color: #bbddff;
 }
 div.changelogTitle {
   font-size: 150%;
