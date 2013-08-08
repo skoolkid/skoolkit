@@ -33,7 +33,7 @@ div.footer {
   text-align: center;
 }
 td.transparent {
-  background-color: #ddeeff !important;
+  background-color: transparent !important;
 }
 ul.linkList {
   list-style-type: none;

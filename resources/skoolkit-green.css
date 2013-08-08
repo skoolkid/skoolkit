@@ -8,9 +8,6 @@ a.link {
 a.link:hover {
   color: #ff00ff;
 }
-td.transparent {
-  background-color: #193300 !important;
-}
 div.box1, div.changelog1 {
   background-color: #4c7f19;
 }
