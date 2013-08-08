@@ -195,8 +195,7 @@ class HtmlTest(DisassembliesTest):
 
             # Do XHTML validation using lxml.etree
             if os.path.isfile(XHTML_XSD):
-                with open(XHTML_XSD) as f:
-                    xmlschema_doc = etree.parse(f)
+                xmlschema_doc = etree.parse(XHTML_XSD)
                 xmlschema = etree.XMLSchema(xmlschema_doc)
                 for root, dirs, files in os.walk(self.odir):
                     for fname in files:
