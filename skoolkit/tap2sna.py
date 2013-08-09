@@ -325,7 +325,7 @@ def get_tzx_block(data, i):
         # "Glue" block
         i += 9
     else:
-        raise TapeError('Unknown TZX block ID: {0}'.format(block_id))
+        raise TapeError('Unknown TZX block ID: 0x{:X}'.format(block_id))
     return i, block_id, tape_data
 
 def get_tzx_blocks(data):

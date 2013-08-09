@@ -336,7 +336,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         z80file = 'test.z80'
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna('{} {}'.format(tzxfile, z80file))
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: Unknown TZX block ID: {}'.format(z80file, block_id))
+        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: Unknown TZX block ID: 0x{:X}'.format(z80file, block_id))
 
     def test_reg(self):
         z80_registers = {
