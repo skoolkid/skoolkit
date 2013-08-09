@@ -197,6 +197,11 @@ then:
 will create ``game.z80`` as if the arguments specified in ``game.t2s`` had been
 given on the command line.
 
+TZX SUPPORT
+===========
+Support for TZX files is limited to block types 0x10 (Standard Speed Data
+Block) and 0x11 (Turbo Speed Data Block).
+
 EXAMPLES
 ========
 1. Extract the TAP or TZX file from a remote zip archive and convert it into a
