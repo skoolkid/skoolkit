@@ -9,13 +9,19 @@ Getting started
 ---------------
 The first thing to do is select a Spectrum game to disassemble. For the purpose
 of this discussion, we'll use `Manic Miner`_ (the original Bug Byte version).
-Grab a copy of it, load it in an emulator, and save a Z80 snapshot called
-`mm.z80` in the directory containing SkoolKit.
+To build a pristine snapshot of the game, run the following command in the
+directory where SkoolKit was unpacked::
+
+  $ tap2sna.py @examples/manic_miner.t2s
+
+(If that doesn't work, or you prefer to make your own snapshot, just grab a
+copy of the game, load it in an emulator, and save a Z80 snapshot named
+`manic_miner.z80`.)
 
 The next thing to do is create a `skool` file from this snapshot. Run the
 following command from the SkoolKit directory::
 
-  $ sna2skool.py mm.z80 > manic_miner.skool
+  $ sna2skool.py manic_miner.z80 > manic_miner.skool
 
 Note that the '.skool' file name suffix is merely a convention, not a
 requirement. In general, any suffix besides '.ref' (which is used by
@@ -76,7 +82,7 @@ So if we had a control file for Manic Miner, we could produce a much more
 useful `skool` file. As it happens, SkoolKit includes one: `manic_miner.ctl`.
 You can use it with `sna2skool.py` thus::
 
-  $ sna2skool.py -c examples/manic_miner.ctl mm.z80 > manic_miner.skool
+  $ sna2skool.py -c examples/manic_miner.ctl manic_miner.z80 > manic_miner.skool
 
 This time, `manic_miner.skool` is split up into meaningful blocks, with code as
 code, data as data (DEFBs), and text as text (DEFMs). Much nicer.
@@ -85,7 +91,7 @@ By default, `sna2skool.py` produces a disassembly with addresses and
 instruction operands in decimal notation. If you prefer to work in hexadecimal,
 however, use the ``-H`` option::
 
-  $ sna2skool.py -H -c examples/manic_miner.ctl mm.z80 > manic_miner.skool
+  $ sna2skool.py -H -c examples/manic_miner.ctl manic_miner.z80 > manic_miner.skool
 
 The next step is to create an HTML disassembly from this `skool` file::
 
