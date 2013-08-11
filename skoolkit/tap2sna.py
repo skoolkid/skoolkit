@@ -29,7 +29,7 @@ except ImportError:                    # pragma: no cover
     from urllib.request import urlopen # pragma: no cover
     from urllib.parse import urlparse  # pragma: no cover
 
-from . import VERSION, SkoolKitError, read_bin_file
+from . import VERSION, SkoolKitError, get_int_param, read_bin_file, write_line
 
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
@@ -106,27 +106,37 @@ def get_z80(ram, options):
                 size = len(reg) - 1
             else:
                 size = len(reg)
-            value = int(val)
-            lsb, msb = value % 256, (value & 65535) // 256
             offset = Z80_REGISTERS.get(reg, -1)
             if offset >= 0:
+                try:
+                    value = get_int_param(val)
+                except ValueError:
+                    raise SkoolKitError("Cannot parse register value: {}".format(spec))
+                lsb, msb = value % 256, (value & 65535) // 256
                 if size == 1:
                     z80[offset] = lsb
                 elif size == 2:
                     z80[offset:offset + 2] = [lsb, msb]
                 if reg == 'r' and lsb & 128:
                     z80[12] |= 1
+            else:
+                raise SkoolKitError('Invalid register: {}'.format(spec))
 
     for spec in options.state:
         name, sep, val = spec.lower().partition('=')
-        if name == 'iff':
-            z80[27] = int(val) & 255
-        elif name == 'im':
-            z80[29] &= 252 # Clear bits 0 and 1
-            z80[29] |= int(val) & 3
-        elif name == 'border':
-            z80[12] &= 241 # Clear bits 1-3
-            z80[12] |= (int(val) & 7) * 2 # Border colour
+        try:
+            if name == 'iff':
+                z80[27] = get_int_param(val) & 255
+            elif name == 'im':
+                z80[29] &= 252 # Clear bits 0 and 1
+                z80[29] |= get_int_param(val) & 3
+            elif name == 'border':
+                z80[12] &= 241 # Clear bits 1-3
+                z80[12] |= (get_int_param(val) & 7) * 2 # Border colour
+            else:
+                raise SkoolKitError("Invalid parameter: {}".format(spec))
+        except ValueError:
+            raise SkoolKitError("Cannot parse integer: {}".format(spec))
 
     banks = ((5, ram[:16384]), (1, ram[16384:32768]), (2, ram[32768:49152]))
     for bank, data in banks:
@@ -137,7 +147,7 @@ def write_z80(ram, options, fname):
     parent_dir = os.path.dirname(fname)
     if parent_dir and not os.path.isdir(parent_dir):
         os.makedirs(parent_dir)
-    sys.stdout.write('Writing {0}\n'.format(fname))
+    write_line('Writing {0}'.format(fname))
     with open(fname, 'wb') as f:
         f.write(bytearray(get_z80(ram, options)))
 
@@ -145,7 +155,7 @@ def get_int_params(param_str, num):
     params = []
     for n in param_str.split(','):
         if n:
-            params.append(int(n))
+            params.append(get_int_param(n))
         else:
             params.append(None)
     params += [None] * (num - len(params))
@@ -171,6 +181,33 @@ def load_block(snapshot, block, start, length=None, step=None, offset=None, inc=
         i &= 65535
     return len(data)
 
+def do_ram_operation(snapshot, counters, blocks, op_type, param_str):
+    if op_type == 'load':
+        block_num, start, length, step, offset, inc = get_int_params(param_str, 6)
+        index = counters.setdefault(block_num, 1)
+        length = load_block(snapshot, blocks[block_num - 1], start, length, step, offset, inc, index)
+        counters[block_num] += length
+    elif op_type == 'move':
+        src, length, dest = get_int_params(param_str, 3)
+        snapshot[dest:dest + length] = snapshot[src:src + length]
+    elif op_type == 'poke':
+        addr, val = param_str.split(',', 1)
+        value = get_int_param(val)
+        step = 1
+        if '-' in addr:
+            addr1, addr2 = addr.split('-', 1)
+            addr1 = get_int_param(addr1)
+            if '-' in addr2:
+                addr2, step = [get_int_param(i) for i in addr2.split('-', 1)]
+            else:
+                addr2 = get_int_param(addr2)
+        else:
+            addr1 = get_int_param(addr)
+            addr2 = addr1
+        addr2 += 1
+        for a in range(addr1, addr2, step):
+            snapshot[a] = value
+
 def get_ram(blocks, options):
     snapshot = [0] * 65536
 
@@ -182,6 +219,8 @@ def get_ram(blocks, options):
             operations.append((op_type, param_str))
             if op_type == 'load':
                 standard_load = False
+        else:
+            raise SkoolKitError("Invalid operation: {}".format(spec))
 
     if standard_load:
         start = None
@@ -203,31 +242,10 @@ def get_ram(blocks, options):
 
     counters = {}
     for op_type, param_str in operations:
-        if op_type == 'load':
-            block_num, start, length, step, offset, inc = get_int_params(param_str, 6)
-            index = counters.setdefault(block_num, 1)
-            length = load_block(snapshot, blocks[block_num - 1], start, length, step, offset, inc, index)
-            counters[block_num] += length
-        elif op_type == 'move':
-            src, length, dest = get_int_params(param_str, 3)
-            snapshot[dest:dest + length] = snapshot[src:src + length]
-        elif op_type == 'poke':
-            addr, val = param_str.split(',', 1)
-            value = int(val)
-            step = 1
-            if '-' in addr:
-                addr1, addr2 = addr.split('-', 1)
-                addr1 = int(addr1)
-                if '-' in addr2:
-                    addr2, step = [int(i) for i in addr2.split('-', 1)]
-                else:
-                    addr2 = int(addr2)
-            else:
-                addr1 = int(addr)
-                addr2 = addr1
-            addr2 += 1
-            for a in range(addr1, addr2, step):
-                snapshot[a] = value
+        try:
+            do_ram_operation(snapshot, counters, blocks, op_type, param_str)
+        except ValueError:
+            raise SkoolKitError("Cannot parse integer: {}={}".format(op_type, param_str))
 
     return snapshot[16384:]
 
@@ -358,7 +376,7 @@ def get_tape_blocks(tape_type, tape):
 def get_tape(urlstring, member=None):
     url = urlparse(urlstring)
     if url.scheme:
-        sys.stdout.write('Downloading {0}\n'.format(urlstring))
+        write_line('Downloading {0}'.format(urlstring))
         u = urlopen(urlstring, timeout=30)
         data = bytearray(u.read())
     elif url.path:
@@ -373,7 +391,7 @@ def get_tape(urlstring, member=None):
                     break
             else:
                 raise TapeError('No TAP or TZX file found')
-        sys.stdout.write('Extracting {0}\n'.format(member))
+        write_line('Extracting {0}'.format(member))
         tape = z.open(member)
         return member[-3:], bytearray(tape.read())
     return urlstring[-3:], data
@@ -523,4 +541,4 @@ def main(args):
         except Exception as e:
             raise SkoolKitError("Error while getting snapshot {0}: {1}".format(os.path.basename(z80), e.args[0]))
     else:
-        sys.stdout.write('{0}: file already exists; use -f to overwrite\n'.format(z80))
+        write_line('{0}: file already exists; use -f to overwrite'.format(z80))
