@@ -387,12 +387,12 @@ class Tap2SnaTest(SkoolKitTestCase):
             {'i': 13, 'ix': 1027, 'iy': 1284, 'pc': 1541, 'r': 23, 'sp': 32769}
         )
         for reg_dict in reg_dicts:
-            reg_options = ' '.join(['--reg {}={}'.format(r, v) for r, v in reg_dict.iteritems()])
+            reg_options = ' '.join(['--reg {}={}'.format(r, v) for r, v in reg_dict.items()])
             output, error = self.run_tap2sna('--force --ram load=1,16384 {} {} {}'.format(reg_options, tapfile, z80file))
             self.assertEqual(error, '')
             with open(z80file, 'rb') as f:
                 z80_header = bytearray(f.read(34))
-            for reg, exp_value in reg_dict.iteritems():
+            for reg, exp_value in reg_dict.items():
                 offset = z80_registers[reg]
                 size = len(reg) - 1 if reg.startswith('^') else len(reg)
                 if size == 1:
