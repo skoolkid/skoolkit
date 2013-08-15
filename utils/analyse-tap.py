@@ -19,10 +19,8 @@ def analyse(tap):
             if block_type == 3:
                 # Bytes
                 print("{}Bytes: {}".format(indent, title))
-                length = tap[i + 14] + 256 * tap[i + 15]
                 start = tap[i + 16] + 256 * tap[i + 17]
                 print("{}Start: {}".format(indent, start))
-                print("{}Length: {}".format(indent, length))
             elif block_type == 0:
                 # Program
                 print("{}Program: {}".format(indent, title))
@@ -31,6 +29,8 @@ def analyse(tap):
             else:
                 print('ERROR: Unknown block type ({}) in header at {}'.format(block_type, i))
                 sys.exit(1)
+            length = tap[i + 14] + 256 * tap[i + 15]
+            print("{}Length: {}".format(indent, length))
         print("{}Parity byte: {}".format(indent, tap[i + block_len + 1]))
         i += block_len + 2
         block_num += 1
