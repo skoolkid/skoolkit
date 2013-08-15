@@ -53,6 +53,17 @@ class Tap2SnaTest(SkoolKitTestCase):
         length = len(data_block)
         return [length % 256, length // 256] + data_block
 
+    def _create_tap_bytes_header_block(self, start, length=0):
+        header = []
+        header.append(0)                             # Header block marker
+        header.append(3)                             # Bytes
+        header.extend([32] * 10)
+        header.extend((length % 256, length // 256)) # Length
+        header.extend((start % 256, start // 256))   # Start address
+        header.extend((0, 0))
+        header.append(self._get_parity(header))
+        return [19, 0] + header
+
     def _get_snapshot(self, start=16384, data=None, options='', load_options=None, blocks=None, tzx=False):
         if blocks is None:
             blocks = [self._create_tap_data_block(data)]
@@ -124,21 +135,16 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     def test_standard_load(self):
         basic_header = []
-        basic_header.extend((19, 0))  # Length of header block
         basic_header.append(0)        # Header block marker
         basic_header.append(0)        # BASIC program follows
-        basic_header.extend([0] * 16)
+        basic_header.extend([0] * 10)
+        basic_header.extend((1, 0))   # Length
+        basic_header.extend([0] * 4)
         basic_header.append(self._get_parity(basic_header))
         basic_data = [1]
-        blocks = [basic_header, self._create_tap_data_block(basic_data)]
-        code_header = []
-        code_header.extend((19, 0))   # Length of header block
-        code_header.append(0)         # Header block marker
-        code_header.append(3)         # Bytes
-        code_header.extend([32] * 12)
-        code_header.extend((0, 128))  # Start address
-        code_header.extend((0, 0))
-        code_header.append(self._get_parity(code_header))
+        blocks = [[19, 0] + basic_header, self._create_tap_data_block(basic_data)]
+        code_start = 32768
+        code_header = self._create_tap_bytes_header_block(code_start)
         code = [2]
         blocks.append(code_header)
         blocks.append(self._create_tap_data_block(code))
@@ -149,7 +155,21 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         snapshot = get_snapshot(z80file)
         self.assertEqual(snapshot[23755:23755 + len(basic_data)], basic_data)
-        self.assertEqual(snapshot[32768:32768 + len(code)], code)
+        self.assertEqual(snapshot[code_start:code_start + len(code)], code)
+
+    def test_standard_load_ignores_headerless_block(self):
+        code_start = 16384
+        code_header = self._create_tap_bytes_header_block(code_start)
+        code = [2]
+        blocks = [code_header, self._create_tap_data_block(code)]
+        blocks.append(self._create_tap_data_block([23]))
+
+        tapfile = self._write_tap(blocks)
+        z80file = self.write_bin_file(suffix='.z80')
+        output, error = self.run_tap2sna('--force {} {}'.format(tapfile, z80file))
+        self.assertEqual(error, '')
+        snapshot = get_snapshot(z80file)
+        self.assertEqual(snapshot[code_start:code_start + len(code)], code)
 
     def test_standard_load_with_unknown_block_type(self):
         block_type = 1 # Array of numbers

@@ -239,6 +239,7 @@ def get_ram(blocks, options):
             elif start is not None:
                 # Data
                 load_block(snapshot, block, start)
+                start = None
 
     counters = {}
     for op_type, param_str in operations:
