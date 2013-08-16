@@ -442,6 +442,25 @@ class Skool2HtmlTest(SkoolKitTestCase):
                 self.run_skool2html(reffile)
             self.assertEqual(cm.exception.args[0], 'Invalid colour spec: {}={}'.format(name, spec))
 
+    def test_font_is_copied(self):
+        font_file = self.write_bin_file(suffix='.ttf')
+        reffile = self.write_text_file("[Game]\nFont={}".format(font_file), suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('{} -d {} {}'.format(self._css_c(), self.odir, reffile))
+        self.assertEqual(error, '')
+        game_dir = os.path.join(self.odir, reffile[:-4])
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, font_file)))
+
+    def test_multiple_fonts_are_copied(self):
+        font_files = [self.write_bin_file(suffix='.ttf'), self.write_bin_file(suffix='.ttf')]
+        reffile = self.write_text_file("[Game]\nFont={}".format(';'.join(font_files)), suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('{} -d {} {}'.format(self._css_c(), self.odir, reffile))
+        self.assertEqual(error, '')
+        game_dir = os.path.join(self.odir, reffile[:-4])
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, font_files[0])))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, font_files[1])))
+
     def test_option_a(self):
         self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         self.mock(skool2html, 'SkoolParser', MockSkoolParser)
