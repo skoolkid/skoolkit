@@ -87,11 +87,11 @@ def get_class(name_spec):
     except AttributeError:
         raise SkoolKitError("No class named '{0}' in module '{1}'".format(cls_name, mod_name))
 
-def open_file(fname):
+def open_file(fname, mode='r'):
     if fname == '-':
         return sys.stdin
     try:
-        return open(fname, 'r')
+        return open(fname, mode)
     except IOError as e:
         if e.errno == 2:
             raise SkoolKitError('{0}: file not found'.format(fname))

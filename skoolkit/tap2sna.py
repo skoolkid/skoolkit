@@ -20,6 +20,7 @@ import sys
 import os
 import argparse
 import textwrap
+import tempfile
 import zipfile
 from io import BytesIO
 try:
@@ -29,7 +30,7 @@ except ImportError:                    # pragma: no cover
     from urllib.request import urlopen # pragma: no cover
     from urllib.parse import urlparse  # pragma: no cover
 
-from . import VERSION, SkoolKitError, get_int_param, read_bin_file, write_line
+from . import VERSION, SkoolKitError, get_int_param, open_file, write_line
 
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
@@ -379,12 +380,18 @@ def get_tape(urlstring, member=None):
     if url.scheme:
         write_line('Downloading {0}'.format(urlstring))
         u = urlopen(urlstring, timeout=30)
-        data = bytearray(u.read())
+        f = tempfile.NamedTemporaryFile(prefix='tap2sna-')
+        while 1:
+            data = bytearray(u.read(4096))
+            if data:
+                f.write(data)
+            else:
+                break
     elif url.path:
-        data = read_bin_file(url.path)
+        f = open_file(url.path, 'rb')
 
     if urlstring.lower().endswith('.zip'):
-        z = zipfile.ZipFile(BytesIO(data))
+        z = zipfile.ZipFile(f)
         if member is None:
             for name in z.namelist():
                 if name.lower().endswith(('.tap', '.tzx')):
@@ -394,8 +401,15 @@ def get_tape(urlstring, member=None):
                 raise TapeError('No TAP or TZX file found')
         write_line('Extracting {0}'.format(member))
         tape = z.open(member)
-        return member[-3:], bytearray(tape.read())
-    return urlstring[-3:], data
+        data = bytearray(tape.read())
+        tape_type = member[-3:]
+    else:
+        tape_type = urlstring[-3:]
+        f.seek(0)
+        data = bytearray(f.read())
+
+    f.close()
+    return tape_type, data
 
 def print_ram_help():
     sys.stdout.write("""
