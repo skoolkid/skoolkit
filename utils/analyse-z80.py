@@ -14,6 +14,7 @@ if not os.path.isdir(SKOOLKIT_HOME):
 sys.path.insert(0, SKOOLKIT_HOME)
 
 from skoolkit.snapshot import get_snapshot
+from skoolkit import get_int_param
 
 # http://www.worldofspectrum.org/faq/reference/z80format.htm
 # http://www.worldofspectrum.org/faq/reference/128kreference.htm
@@ -157,6 +158,33 @@ def analyse(z80file):
             print('RAM block {0}{1}: {2} bytes ({3}compressed)'.format(page_num, addr_range, block_len, prefix))
             i += block_len
 
+def find(z80file, byte_seq):
+    step = 1
+    if '-' in byte_seq:
+        byte_seq, step = byte_seq.split('-', 1)
+        step = get_int_param(step)
+    byte_values = [get_int_param(i) for i in byte_seq.split(',')]
+    offset = step * len(byte_values)
+    snapshot = get_snapshot(z80file)
+    for a in range(16384, 65537 - offset):
+        if snapshot[a:a + offset:step] == byte_values:
+            print("{}-{}-{}: {}".format(a, a + offset - step, step, byte_seq))
+
+def peek(z80file, addr_range):
+    step = 1
+    if '-' in addr_range:
+        addr1, addr2 = addr_range.split('-', 1)
+        addr1 = get_int_param(addr1)
+        if '-' in addr2:
+            addr2, step = [get_int_param(i) for i in addr2.split('-', 1)]
+        else:
+            addr2 = get_int_param(addr2)
+    else:
+        addr1 = addr2 = get_int_param(addr_range)
+    snapshot = get_snapshot(z80file)
+    for a in range(addr1, addr2 + 1, step):
+        print('{}: {}'.format(a, snapshot[a]))
+
 ###############################################################################
 # Begin
 ###############################################################################
@@ -167,16 +195,18 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument('z80file', help=argparse.SUPPRESS, nargs='?')
 group = parser.add_argument_group('Options')
-group.add_argument('--peek', metavar='ADDR', type=int,
-                   help='Show the contents of an address')
+group.add_argument('--find', metavar='A[,B...[-N]]',
+                   help='Search for the byte sequence A,B... with distance N (default=1) between bytes')
+group.add_argument('--peek', metavar='A[-B[-C]]',
+                   help='Show the contents of addresses A TO B STEP C')
 namespace, unknown_args = parser.parse_known_args()
 if unknown_args or namespace.z80file is None:
     parser.exit(2, parser.format_help())
 z80file = namespace.z80file
 
-if namespace.peek is not None:
-    address = namespace.peek & 65535
-    snapshot = get_snapshot(z80file)
-    print('{}: {}'.format(address, snapshot[address]))
+if namespace.find is not None:
+    find(z80file, namespace.find)
+elif namespace.peek is not None:
+    peek(z80file, namespace.peek)
 else:
     analyse(z80file)
