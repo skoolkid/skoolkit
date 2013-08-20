@@ -25,13 +25,8 @@ class SkoolMacroTest(SkoolKitTestCase):
         self.assertEqual(end, 3)
 
         # Test with not enough parameters
-        text = '1,2,$3'
-        try:
-            parse_ints(text, 0, 4)
-        except MacroParsingError as e:
-            self.assertEqual(e.args[0], "Not enough parameters (expected 4): '{0}'".format(text))
-        else:
-            self.fail()
+        with self.assertRaisesRegexp(MacroParsingError, "Not enough parameters \(expected 4\): '1,2,\$3'"):
+            parse_ints('1,2,$3', 0, 4)
 
         # Test with blank parameters
         text = '1,,$a,'
@@ -52,14 +47,8 @@ class SkoolMacroTest(SkoolKitTestCase):
         self.assertEqual(end, len(text) - len(junk))
 
         # Test with an invalid parameter
-        invalid_param = '3$0'
-        text = '1,{0}'.format(invalid_param)
-        try:
-            parse_ints(text, 0, 2)
-        except MacroParsingError as e:
-            self.assertEqual(e.args[0], "Cannot parse integer '{0}' in macro parameter list: '{1}'".format(invalid_param, text))
-        else:
-            self.fail()
+        with self.assertRaisesRegexp(MacroParsingError, "Cannot parse integer '3\$0' in macro parameter list: '1,3\$0'"):
+            parse_ints('1,3$0', 0, 2)
 
 if __name__ == '__main__':
     unittest.main()

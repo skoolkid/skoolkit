@@ -26,19 +26,13 @@ class ErrorTest(SnapshotTest):
     def test_unknown_file_type(self):
         file_type = 'tzx'
         snapshot_file = self.write_bin_file(suffix='.{0}'.format(file_type))
-        try:
+        with self.assertRaisesRegexp(SnapshotError, "{}: Unknown file type '{}'".format(snapshot_file, file_type)):
             get_snapshot(snapshot_file)
-            self.fail()
-        except SnapshotError as e:
-            self.assertEqual(e.args[0], "{0}: Unknown file type '{1}'".format(snapshot_file, file_type))
 
     def test_bad_ram_size(self):
         ram_size = 3
-        try:
+        with self.assertRaisesRegexp(SnapshotError, 'RAM size is {}'.format(ram_size)):
             get_snapshot(self.write_bin_file([0] * (27 + ram_size), suffix='.sna'))
-            self.fail()
-        except SnapshotError as e:
-            self.assertEqual(e.args[0], 'RAM size is {0}'.format(ram_size))
 
 class SNATest(SnapshotTest):
     def test_sna_48k(self):
@@ -164,11 +158,8 @@ class Z80Test(SnapshotTest):
         z80 += [237, 237, 0, 11] # Bad block of length 0
         z80 += [0, 237, 237, 0] # Terminator
         z80_file = self.write_bin_file(z80, suffix='.z80')
-        try:
+        with self.assertRaisesRegexp(SnapshotError, 'Found ED ED 00 0B'):
             get_snapshot(z80_file)
-            self.fail()
-        except SnapshotError as e:
-            self.assertEqual(e.args[0], 'Found ED ED 00 0B')
 
 class SZXTest(SnapshotTest):
     def _get_szx_header(self, machine_id=1, ch7ffd=0, specregs=True):

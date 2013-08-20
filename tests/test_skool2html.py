@@ -267,28 +267,19 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     def test_nonexistent_skool_file(self):
         skoolfile = 'xyz.skool'
-        try:
+        with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(skoolfile)):
             self.run_skool2html('-d {0} {1}'.format(self.odir, skoolfile))
-            self.fail()
-        except SkoolKitError as e:
-            self.assertEqual(e.args[0], '{0}: file not found'.format(skoolfile))
 
     def test_nonexistent_ref_file(self):
         reffile = 'zyx.ref'
-        try:
+        with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(reffile)):
             self.run_skool2html('-d {0} {1}'.format(self.odir, reffile))
-            self.fail()
-        except SkoolKitError as e:
-            self.assertEqual(e.args[0], '{0}: file not found'.format(reffile))
 
     def test_nonexistent_css_file(self):
         cssfile = 'abc.css'
         skoolfile = self.write_text_file(suffix='.skool')
-        try:
+        with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(cssfile)):
             self.run_skool2html('-c Game/StyleSheet={0} -w "" -d {1} {2}'.format(cssfile, self.odir, skoolfile))
-            self.fail()
-        except SkoolKitError as e:
-            self.assertEqual(e.args[0], '{0}: file not found'.format(cssfile))
 
     def test_nonexistent_js_file(self):
         jsfile = 'cba.js'
@@ -299,18 +290,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
             'JavaScript={}'.format(jsfile)
         ))
         self.write_text_file(ref, '{}.ref'.format(skoolfile[:-6]))
-        with self.assertRaises(SkoolKitError) as cm:
+        with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(jsfile)):
             self.run_skool2html('{0} -w P -d {1} {2}'.format(self._css_c(), self.odir, skoolfile))
-        self.assertEqual(cm.exception.args[0], '{0}: file not found'.format(jsfile))
 
     def test_invalid_page_id(self):
         page_id = 'NonexistentPage'
         skoolfile = self.write_text_file(suffix='.skool')
-        try:
+        with self.assertRaisesRegexp(SkoolKitError, 'Invalid page ID: {}'.format(page_id)):
             self.run_skool2html('-d {0} -w P -P {1} {2}'.format(self.odir, page_id, skoolfile))
-            self.fail()
-        except SkoolKitError as e:
-            self.assertEqual(e.args[0], 'Invalid page ID: {0}'.format(page_id))
 
     def test_default_ref_file(self):
         skoolfile = self.write_text_file("; Routine\nc24576 RET", suffix='.skool')
@@ -573,11 +560,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
                 self.assertEqual(error, '')
                 section = html_writer.ref_parser.get_dictionary(section_name)
                 self.assertEqual(section[param_name], value, '{0}/{1}!={2}'.format(section_name, param_name, value))
-            try:
+            with self.assertRaisesRegexp(SkoolKitError, 'Malformed SectionName/Line spec: {0}'.format(sl_spec)):
                 self.run_skool2html('{0} {1} -w i -d {2} {3}'.format(option, sl_spec, self.odir, reffile))
-                self.fail()
-            except SkoolKitError as e:
-                self.assertEqual(e.args[0], 'Malformed SectionName/Line spec: {0}'.format(sl_spec))
 
     def test_option_T(self):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')

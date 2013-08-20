@@ -311,11 +311,8 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(warnings[0], 'WARNING: Unreplaced operand: 30000 JR 30002')
 
     def test_error_duplicate_label(self):
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, 'Duplicate label START at 40001'):
             self._get_parser(TEST_DUPLICATE_LABEL, asm_mode=1)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], 'Duplicate label START at 40001')
 
     def test_asm_mode(self):
         skool = '\n'.join((

@@ -1102,11 +1102,8 @@ class AsmWriterTest(SkoolKitTestCase):
         search = re.search('#[A-Z]+', text)
         macro = search.group()
         writer = self._get_writer()
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, 'Found unsupported macro: {}'.format(macro)):
             writer.expand(text)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], 'Found unsupported macro: {0}'.format(macro))
 
     def _test_reference_macro(self, macro, def_link_text):
         writer = self._get_writer()
@@ -1139,26 +1136,17 @@ class AsmWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('CALL')
 
         # Malformed #CALL macro
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Malformed macro: #CALLt...'.format(prefix)):
             writer.expand('#CALLtest_call(5,s)')
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Malformed macro: #CALLt...'.format(prefix))
 
         # #CALL a non-method
         writer.var = 'x'
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Uncallable method name: var'.format(prefix)):
             writer.expand('#CALL:var(0)')
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Uncallable method name: var'.format(prefix))
 
         # No argument list
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No argument list specified: #CALL:test_call'.format(prefix)):
             writer.expand('#CALL:test_call')
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: No argument list specified: #CALL:test_call'.format(prefix))
 
         # No return value
         writer.test_call_no_retval = self._test_call_no_retval
@@ -1193,19 +1181,13 @@ class AsmWriterTest(SkoolKitTestCase):
 
         # Descriptionless entry
         address = 32770
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Entry at {} has no description'.format(prefix, address)):
             writer.expand('#D{0}'.format(address))
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Entry at {1} has no description'.format(prefix, address))
 
         # Nonexistent entry
         address = 32771
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Cannot determine description for nonexistent entry at {}'.format(prefix, address)):
             writer.expand('#D{0}'.format(address))
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Cannot determine description for nonexistent entry at {1}'.format(prefix, address))
 
     def test_macro_erefs(self):
         writer = self._get_writer(TEST_MACRO_EREFS)
@@ -1217,11 +1199,8 @@ class AsmWriterTest(SkoolKitTestCase):
         # Entry point with no referrers
         prefix = ERROR_PREFIX.format('EREFS')
         address = 30005
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Entry point at {} has no referrers'.format(prefix, address)):
             writer.expand('#EREFS{0}'.format(address))
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Entry point at {1} has no referrers'.format(prefix, address))
 
     def test_macro_fact(self):
         self._test_reference_macro('FACT', 'fact')
@@ -1245,11 +1224,8 @@ class AsmWriterTest(SkoolKitTestCase):
         # Unterminated #HTML macro
         prefix = ERROR_PREFIX.format('HTML')
         macro = '#HTML:unterminated'
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No terminating delimiter: {}'.format(prefix, macro)):
             writer.expand(macro)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: No terminating delimiter: {1}'.format(prefix, macro))
 
     def test_macro_link(self):
         writer = self._get_writer()
@@ -1261,18 +1237,12 @@ class AsmWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('LINK')
 
         # Malformed #LINK macro
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Malformed macro: #LINKp...'.format(prefix)):
             writer.expand('#LINKpageID')
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Malformed macro: #LINKp...'.format(prefix))
 
         # No link text
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No link text specified: #LINK:PageID'.format(prefix)):
             writer.expand('#LINK:PageID')
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: No link text specified: #LINK:PageID'.format(prefix))
 
     def test_macro_list(self):
         writer = self._get_writer()
@@ -1381,11 +1351,8 @@ class AsmWriterTest(SkoolKitTestCase):
         # Nonexistent entry
         prefix = ERROR_PREFIX.format('REFS')
         address = 40000
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No entry at {}'.format(prefix, address)):
             writer.expand('#REFS{0}'.format(address))
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: No entry at {1}'.format(prefix, address))
 
     def test_macro_reg(self):
         writer = self._get_writer()
@@ -1396,19 +1363,13 @@ class AsmWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('REG')
 
         # Missing register argument
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Missing register argument'.format(prefix)):
             writer.expand('#REG')
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Missing register argument'.format(prefix))
 
         # Bad register arguments
         for bad_reg in ('q', 'toolong', 'az', 'mb'):
-            try:
+            with self.assertRaisesRegexp(SkoolParsingError, '{}: Bad register: "{}"'.format(prefix, bad_reg)):
                 writer.expand('#REG{0}'.format(bad_reg))
-                self.fail()
-            except SkoolParsingError as e:
-                self.assertEqual(e.args[0], '{0}: Bad register: "{1}"'.format(prefix, bad_reg))
 
     def test_macro_scr(self):
         self._test_unsupported_macro('#SCR2(fname)')
@@ -1447,11 +1408,8 @@ class AsmWriterTest(SkoolKitTestCase):
     def test_unknown_macro(self):
         writer = self._get_writer()
         for macro, params in (('#FOO', 'xyz'), ('#BAR', '1,2(baz)'), ('#UDGS', '#r1'), ('#LINKS', '')):
-            try:
+            with self.assertRaisesRegexp(SkoolParsingError, 'Found unknown macro: {}'.format(macro)):
                 writer.expand(macro + params)
-                self.fail()
-            except SkoolParsingError as e:
-                self.assertEqual(e.args[0], 'Found unknown macro: {0}'.format(macro))
 
     def test_property_handle_unsupported_macros(self):
         skool = '; @start\n; @set-handle-unsupported-macros={}'
@@ -1672,27 +1630,18 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_invalid_block_directives(self):
         for i, skool in enumerate(TEST_INVALID_BLOCK_DIRECTIVES):
-            try:
+            with self.assertRaisesRegexp(SkoolParsingError, re.escape(INVALID_BLOCK_DIRECTIVE_WARNINGS[i])):
                 self._get_asm(skool)
-                self.fail()
-            except SkoolParsingError as e:
-                self.assertEqual(e.args[0], INVALID_BLOCK_DIRECTIVE_WARNINGS[i])
 
     def test_table_parsing_errors(self):
         for i, skool in enumerate(TEST_TABLES):
-            try:
+            with self.assertRaisesRegexp(SkoolParsingError, re.escape(TABLE_ERRORS[i])):
                 self._get_asm(skool)
-                self.fail()
-            except SkoolParsingError as e:
-                self.assertEqual(e.args[0], TABLE_ERRORS[i])
 
     def test_list_parsing_errors(self):
         for i, skool in enumerate(TEST_LISTS):
-            try:
+            with self.assertRaisesRegexp(SkoolParsingError, re.escape(LIST_ERRORS[i])):
                 self._get_asm(skool)
-                self.fail()
-            except SkoolParsingError as e:
-                self.assertEqual(e.args[0], LIST_ERRORS[i])
 
 if __name__ == '__main__':
     unittest.main()

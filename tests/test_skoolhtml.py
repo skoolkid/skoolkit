@@ -1381,11 +1381,8 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         path_id = 'UnknownImagePath'
         fname = 'img.png'
-        try:
+        with self.assertRaisesRegexp(SkoolKitError, "Unknown path ID '{}' for image file '{}'".format(path_id, fname)):
             writer.image_path(fname, path_id)
-            self.fail()
-        except SkoolKitError as e:
-            self.assertEqual(e.args[0], "Unknown path ID '{0}' for image file '{1}'".format(path_id, fname))
 
     def test_flip_udgs(self):
         writer = self._get_writer()
@@ -1478,11 +1475,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('BUG')
         writer = self._get_writer()
         macro = '#BUG#nonexistentBug()'
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Cannot determine title of item: {}'.format(prefix, macro)):
             writer.expand(macro, ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Cannot determine title of item: {1}'.format(prefix, macro))
 
     def test_macro_call(self):
         writer = self._get_writer()
@@ -1499,26 +1493,17 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('CALL')
 
         # Malformed #CALL macro
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Malformed macro: #CALLt...'.format(prefix)):
             writer.expand('#CALLtest_call(5,s)', ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Malformed macro: #CALLt...'.format(prefix))
 
         # #CALL a non-method
         writer.var = 'x'
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Uncallable method name: var'.format(prefix)):
             writer.expand('#CALL:var(0)', ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Uncallable method name: var'.format(prefix))
 
         # No argument list
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No argument list specified: #CALL:test_call'.format(prefix)):
             writer.expand('#CALL:test_call', ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: No argument list specified: #CALL:test_call'.format(prefix))
 
         # No return value
         writer.test_call_no_retval = self._test_call_no_retval
@@ -1553,19 +1538,13 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # Descriptionless entry
         address = 32770
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Entry at {} has no description'.format(prefix, address)):
             writer.expand('#D{0}'.format(address), ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Entry at {1} has no description'.format(prefix, address))
 
         # Nonexistent entry
         address = 32771
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Cannot determine description for nonexistent entry at {}'.format(prefix, address)):
             writer.expand('#D{0}'.format(address), ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Cannot determine description for nonexistent entry at {1}'.format(prefix, address))
 
     def test_macro_erefs(self):
         # Entry point with one referrer
@@ -1590,11 +1569,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         # Entry point with no referrers
         prefix = ERROR_PREFIX.format('EREFS')
         address = 30005
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Entry point at {} has no referrers'.format(prefix, address)):
             writer.expand('#EREFS{0}'.format(address), ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Entry point at {1} has no referrers'.format(prefix, address))
 
     def test_macro_fact(self):
         self._test_reference_macro('FACT', 'fact', 'facts')
@@ -1611,11 +1587,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('FACT')
         writer = self._get_writer()
         macro = '#FACT#nonexistentFact()'
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Cannot determine title of item: {}'.format(prefix, macro)):
             writer.expand(macro, ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Cannot determine title of item: {1}'.format(prefix, macro))
 
     def test_macro_font(self):
         snapshot = [0] * 65536
@@ -1665,11 +1638,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         # Unterminated #HTML macro
         prefix = ERROR_PREFIX.format('HTML')
         macro = '#HTML:unterminated'
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No terminating delimiter: {}'.format(prefix, macro)):
             writer.expand(macro, ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: No terminating delimiter: {1}'.format(prefix, macro))
 
     def test_macro_link(self):
         writer = self._get_writer(ref=TEST_MACRO_LINK_REF)
@@ -1692,27 +1662,18 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('LINK')
 
         # Malformed #LINK macro
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Malformed macro: #LINKp...'.format(prefix)):
             writer.expand('#LINKpageID(text)', ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Malformed macro: #LINKp...'.format(prefix))
 
         # Unknown page ID
         nonexistent_page_id = 'nonexistentPageID'
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Unknown page ID: {}'.format(prefix, nonexistent_page_id)):
             writer.expand('#LINK:{0}(text)'.format(nonexistent_page_id), ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Unknown page ID: {1}'.format(prefix, nonexistent_page_id))
 
         # No link text
         macro = '#LINK:Bugs'
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No link text: {}'.format(prefix, macro)):
             writer.expand(macro, ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: No link text: {1}'.format(prefix, macro))
 
     def test_macro_list(self):
         writer = self._get_writer()
@@ -1754,11 +1715,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('POKE')
         writer = self._get_writer()
         macro = '#POKE#nonexistentPoke()'
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Cannot determine title of item: {}'.format(prefix, macro)):
             writer.expand(macro, ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Cannot determine title of item: {1}'.format(prefix, macro))
 
     def test_macro_pokes(self):
         writer = self._get_writer(snapshot=[0] * 65536)
@@ -1838,11 +1796,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         # Nonexistent reference
         prefix = ERROR_PREFIX.format('R')
         address = '$ABCD'
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Could not find routine file containing \{}'.format(prefix, address)):
             writer.expand('#R{0}'.format(address), ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Could not find routine file containing {1}'.format(prefix, address))
 
     def test_macro_refs(self):
         # One referrer
@@ -1871,11 +1826,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         # Nonexistent entry
         prefix = ERROR_PREFIX.format('REFS')
         address = 40000
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No entry at {}'.format(prefix, address)):
             writer.expand('#REFS{0}'.format(address), ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: No entry at {1}'.format(prefix, address))
 
     def test_macro_reg(self):
         # Lower case
@@ -1893,19 +1845,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('REG')
 
         # Missing register argument
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Missing register argument'.format(prefix)):
             writer.expand('#REG', ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Missing register argument'.format(prefix))
 
         # Bad register argument
         bad_reg = 'abcd'
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Bad register: "{}"'.format(prefix, bad_reg)):
             writer.expand('#REG{0}'.format(bad_reg), ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Bad register: "{1}"'.format(prefix, bad_reg))
 
     def test_macro_scr(self):
         snapshot = [0] * 65536
@@ -2039,11 +1985,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         # Missing filename argument
         prefix = ERROR_PREFIX.format('UDGARRAY')
         macro = '#UDGARRAY1;30000'
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Missing filename: {}'.format(prefix, macro)):
             writer.expand(macro, ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], '{0}: Missing filename: {1}'.format(prefix, macro))
 
     def test_macro_udgtable(self):
         writer = self._get_writer()
@@ -2054,20 +1997,14 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer = self._get_writer()
         macro = '#BUG'
         writer.macros[macro] = self._unsupported_macro
-        try:
+        with self.assertRaisesRegexp(SkoolParsingError, 'Found unsupported macro: {}'.format(macro)):
             writer.expand('{0}#bug1'.format(macro), ASMDIR)
-            self.fail()
-        except SkoolParsingError as e:
-            self.assertEqual(e.args[0], 'Found unsupported macro: {0}'.format(macro))
 
     def test_unknown_macro(self):
         writer = self._get_writer()
         for macro, params in (('#FOO', 'xyz'), ('#BAR', '1,2(baz)'), ('#UDGS', '#r1'), ('#LINKS', '')):
-            try:
+            with self.assertRaisesRegexp(SkoolParsingError, 'Found unknown macro: {}'.format(macro)):
                 writer.expand(macro + params, ASMDIR)
-                self.fail()
-            except SkoolParsingError as e:
-                self.assertEqual(e.args[0], 'Found unknown macro: {0}'.format(macro))
 
     def test_parameter_LinkOperands(self):
         ref = '[Game]\nLinkOperands={}'
@@ -2557,11 +2494,8 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # Unsupported format
         image_path = 'images/test.jpg'
-        try:
+        with self.assertRaisesRegexp(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
             writer.write_image(image_path, None)
-            self.fail()
-        except SkoolKitError as e:
-             self.assertEqual(e.args[0], 'Unsupported image file format: {0}'.format(image_path))
 
     def test_write_header_with_title(self):
         writer = self._get_writer(skool='')
