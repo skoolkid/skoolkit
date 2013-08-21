@@ -198,6 +198,14 @@ class HtmlWriter:
         """
         return
 
+    def clone(self, skool_parser, code_id):
+        the_clone = self.__class__(skool_parser, self.ref_parser, self.file_info, self.image_writer, self.case, code_id)
+        the_clone.set_style_sheet(self.game_vars['StyleSheet'])
+        return the_clone
+
+    def set_style_sheet(self, value):
+        self.game_vars['StyleSheet'] = value
+
     def _build_footer(self):
         lines = ['<div class="footer">']
         release_name = self.info.get('Release')

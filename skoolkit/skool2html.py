@@ -217,9 +217,9 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
             raise SkoolKitError('Invalid page ID: {0}'.format(page_id))
     pages = pages or all_page_ids
 
-    write_disassembly(html_writer, html_writer_class, files, search_dir, pages, css_theme)
+    write_disassembly(html_writer, files, search_dir, pages, css_theme)
 
-def write_disassembly(html_writer, html_writer_class, files, search_dir, pages, css_theme):
+def write_disassembly(html_writer, files, search_dir, pages, css_theme):
     game_dir = html_writer.file_info.game_dir
     paths = html_writer.paths
     game_vars = html_writer.game_vars
@@ -231,7 +231,7 @@ def write_disassembly(html_writer, html_writer_class, files, search_dir, pages, 
         os.makedirs(odir)
 
     # Copy CSS and font files if necessary
-    game_vars['StyleSheet'] = copy_resources(search_dir, odir, game_vars.get('StyleSheet'), paths.get('StyleSheetPath', ''), css_theme, '.css')
+    html_writer.set_style_sheet(copy_resources(search_dir, odir, game_vars.get('StyleSheet'), paths.get('StyleSheetPath', ''), css_theme, '.css'))
     copy_resources(search_dir, odir, game_vars.get('Font'), paths.get('FontPath', ''))
 
     # Write disassembly files
@@ -275,8 +275,7 @@ def write_disassembly(html_writer, html_writer_class, files, search_dir, pages, 
         for code_id, code in html_writer.other_code:
             skoolfile = find(code['Source'], search_dir)
             skool2_parser = clock(SkoolParser, '  Parsing {0}'.format(skoolfile), skoolfile, case=html_writer.case, base=html_writer.base, html=True, create_labels=mode.create_labels, asm_labels=mode.asm_labels)
-            skool2_writer = html_writer_class(skool2_parser, html_writer.ref_parser, html_writer.file_info, html_writer.image_writer, html_writer.case, code_id)
-            skool2_writer.game_vars['StyleSheet'] = game_vars['StyleSheet']
+            html_writer2 = html_writer.clone(skool2_parser, code_id)
             map_path = code['Index']
             asm_path = code['Path']
             map_details = {
@@ -284,8 +283,8 @@ def write_disassembly(html_writer, html_writer_class, files, search_dir, pages, 
                 'AsmPath': asm_path,
                 'Title': code['Title']
             }
-            clock(skool2_writer.write_map, '    Writing {0}'.format(join(game_dir, map_path)), map_details)
-            clock(skool2_writer.write_entries, '    Writing disassembly files in {0}'.format(join(game_dir, asm_path)), asm_path, map_path, code['Header'])
+            clock(html_writer2.write_map, '    Writing {0}'.format(join(game_dir, map_path)), map_details)
+            clock(html_writer2.write_entries, '    Writing disassembly files in {0}'.format(join(game_dir, asm_path)), asm_path, map_path, code['Header'])
 
     # Write index.html
     if 'i' in files:

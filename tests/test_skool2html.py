@@ -475,9 +475,9 @@ class Skool2HtmlTest(SkoolKitTestCase):
             for pages in ('Page1', 'Page1,Page2'):
                 output, error = self.run_skool2html('{} {} {}'.format(option, pages, reffile))
                 self.assertEqual(error, '')
-                self.assertEqual(write_disassembly_args[4], pages.split(','))
+                self.assertEqual(write_disassembly_args[3], pages.split(','))
         output, error = self.run_skool2html(reffile)
-        self.assertEqual(write_disassembly_args[4], ['Page1', 'Page2'])
+        self.assertEqual(write_disassembly_args[3], ['Page1', 'Page2'])
 
     def test_option_w(self):
         options = [
