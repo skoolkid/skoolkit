@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import os
+import argparse
 from pylint import lint
 
 # Use the current development version of SkoolKit
@@ -9,7 +10,7 @@ if not SKOOLKIT_HOME:
     sys.stderr.write('SKOOLKIT_HOME is not set; aborting\n')
     sys.exit(1)
 if not os.path.isdir(SKOOLKIT_HOME):
-    sys.stderr.write('SKOOLKIT_HOME=%s; directory not found\n' % SKOOLKIT_HOME)
+    sys.stderr.write('SKOOLKIT_HOME={}; directory not found\n'.format(SKOOLKIT_HOME))
     sys.exit(1)
 os.chdir(SKOOLKIT_HOME)
 
@@ -40,45 +41,43 @@ OPTIONS = (
     '-i y',
 )
 
-def parse_args(args):
-    ignores = []
-    i = 0
-    while i < len(args):
-        arg = args[i]
-        if arg == '-d':
-            ignores.extend(args[i + 1].split(','))
-            i += 1
-        elif arg == '-s':
-            ignores.append('R0801')
-        elif arg == '-u':
-            ignores.append('W0612')
-            ignores.append('W0613')
-        elif arg.startswith('-'):
-            show_usage()
-        i += 1
-    return ignores
-
-def show_usage():
-    sys.stderr.write("""Usage: %s [options]
-
-  Run pylint on the current development version of SkoolKit.
-
-Available options:
-  -d LIST  Disable the messages in this comma-separated list (in addition to
-           those disabled by default)
-  -s       Ignore messages about code similarities (R0801)
-  -u       Ignore messages about unused variables (W0612) and arguments (W0613)
-""" % os.path.basename(sys.argv[0]))
-    sys.exit()
-
 ###############################################################################
 # Begin
 ###############################################################################
-extra_ignores = parse_args(sys.argv[1:])
+parser = argparse.ArgumentParser(
+    usage='lint.py [options]',
+    description="Run pylint on the SkoolKit code or test modules.",
+    add_help=False
+)
+group = parser.add_argument_group('Options')
+group.add_argument('-d', dest='message_ids', metavar='LIST',
+                   help='Disable the messages in this comma-separated list (in addition to those disabled by default)')
+group.add_argument('-s', dest='ignore_similarities', action='store_true',
+                   help='Ignore messages about code similarities (R0801)')
+group.add_argument('-t', dest='test', action='store_true',
+                   help='Run pylint on the SkoolKit test modules')
+group.add_argument('-u', dest='ignore_unused', action='store_true',
+                   help='Ignore messages about unused variables (W0612) and arguments (W0613)')
+namespace, unknown_args = parser.parse_known_args()
+if unknown_args:
+    parser.exit(2, parser.format_help())
+
+extra_ignores = []
+if namespace.message_ids:
+    extra_ignores.extend(namespace.message_ids.split(','))
+if namespace.ignore_similarities:
+    extra_ignores.append('R0801')
+if namespace.ignore_unused:
+    extra_ignores.append('W0612')
+    extra_ignores.append('W0613')
 IGNORE_MSG_IDS.extend(extra_ignores)
 
-args = 'skoolkit %s -d %s' % (' '.join(OPTIONS), ','.join(IGNORE_MSG_IDS))
+paths = 'skoolkit'
+if namespace.test:
+    os.chdir('tests')
+    paths = ' '.join([m for m in os.listdir('.') if m.endswith('.py')])
+args = '{} {} -d {}'.format(paths, ' '.join(OPTIONS), ','.join(IGNORE_MSG_IDS))
 divider = '-' * 80
-sys.stdout.write('%s\npylint %s\n%s\n' % (divider, args, divider))
+sys.stdout.write('{}\npylint {}\n{}\n'.format(divider, args, divider))
 
 lint.Run(args.split())
