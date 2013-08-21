@@ -2,9 +2,9 @@
 import sys
 PY3 = sys.version_info >= (3,)
 if PY3:
-    from io import StringIO, BytesIO as StreamIO
+    from io import StringIO
 else:
-    from StringIO import StringIO, StringIO as StreamIO
+    from StringIO import StringIO
 import os
 from os.path import abspath, dirname
 from shutil import rmtree

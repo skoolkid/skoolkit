@@ -2,8 +2,9 @@
 import zlib
 import unittest
 from collections import deque
+from io import BytesIO
 
-from skoolkittest import SkoolKitTestCase, StreamIO, PY3
+from skoolkittest import SkoolKitTestCase, PY3
 from skoolkit.image import ImageWriter, PngWriter, DEFAULT_FORMAT, PNG_COMPRESSION_LEVEL, PNG_ENABLE_ANIMATION, PNG_ALPHA, GIF_ENABLE_ANIMATION, GIF_TRANSPARENCY, GIF_COMPRESSION
 from skoolkit.skoolhtml import Udg
 
@@ -124,7 +125,7 @@ class ImageWriterTest:
         return index + 4, 16777216 * stream[index] + 65536 * stream[index + 1] + 256 * stream[index + 2] + stream[index + 3]
 
     def _get_image_data(self, image_writer, udg_array, img_format, scale=1, mask=False, x=0, y=0, width=None, height=None):
-        img_stream = StreamIO()
+        img_stream = BytesIO()
         image_writer.write_image(udg_array, img_stream, img_format, scale, mask, x, y, width, height)
         if PY3:
             img_bytes = [b for b in img_stream.getvalue()]
