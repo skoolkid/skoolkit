@@ -339,7 +339,6 @@ class OptionsTest(SkoolKitTestCase):
         self.assertEqual(snafile, 'test.sna')
         self.assertEqual(options.ctlfile, None)
         self.assertEqual(options.sftfile, None)
-        self.assertFalse(options.genctl)
         self.assertEqual(options.genctlfile, None)
         self.assertFalse(options.ctl_hex)
         self.assertFalse(options.asm_hex)

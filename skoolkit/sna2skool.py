@@ -61,7 +61,7 @@ def run(snafile, options):
         return
 
     ctl_parser = CtlParser()
-    if options.genctl:
+    if options.genctlfile:
         # Generate a control file
         ctls = generate_ctls(snapshot, start, options.code_map)
         write_ctl(options.genctlfile, ctls, options.ctl_hex)
@@ -131,5 +131,4 @@ def main(args):
         namespace.sftfile = find('{}.sft'.format(prefix))
     if not (namespace.ctlfile or namespace.sftfile):
         namespace.ctlfile = find('{}.ctl'.format(prefix))
-    namespace.genctl = bool(namespace.genctlfile)
     run(snafile, namespace)
