@@ -22,7 +22,6 @@ import argparse
 import textwrap
 import tempfile
 import zipfile
-from io import BytesIO
 try:
     from urllib2 import urlopen
     from urlparse import urlparse
