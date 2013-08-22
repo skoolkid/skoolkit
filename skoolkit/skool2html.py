@@ -274,7 +274,7 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme):
         mode = html_writer.parser.mode
         for code_id, code in html_writer.other_code:
             skoolfile = find(code['Source'], search_dir)
-            skool2_parser = clock(SkoolParser, '  Parsing {0}'.format(skoolfile), skoolfile, case=html_writer.case, base=html_writer.base, html=True, create_labels=mode.create_labels, asm_labels=mode.asm_labels)
+            skool2_parser = clock(html_writer.parser.clone, '  Parsing {0}'.format(skoolfile), skoolfile)
             html_writer2 = html_writer.clone(skool2_parser, code_id)
             map_path = code['Index']
             asm_path = code['Path']

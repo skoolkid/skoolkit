@@ -222,6 +222,7 @@ class SkoolParser:
     def __init__(self, skoolfile, case=None, base=None, asm_mode=0, warnings=False, fix_mode=0, html=False, create_labels=False, asm_labels=True):
         self.skoolfile = skoolfile
         self.mode = Mode(case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels)
+        self.case = case
         self.base = base
 
         self.snapshot = [0] * 65536  # 64K of Spectrum memory
@@ -237,6 +238,19 @@ class SkoolParser:
 
         with open_file(skoolfile) as f:
             self._parse_skool(f)
+
+    def clone(self, skoolfile):
+        return SkoolParser(
+            skoolfile,
+            self.case,
+            self.base,
+            self.mode.asm_mode,
+            self.mode.warn,
+            self.mode.fix_mode,
+            self.mode.html,
+            self.mode.create_labels,
+            self.mode.asm_labels
+        )
 
     def get_entry(self, address):
         """Return the routine or data block that starts at `address`."""
@@ -645,10 +659,12 @@ class Mode:
         self.decimal = base == BASE_10
         self.hexadecimal = base == BASE_16
         self.html = html
+        self.asm_mode = asm_mode
         self.asm = asm_mode > 0
         self.warn = warnings
         self.started = asm_mode == 0
         self.include = self.started
+        self.fix_mode = fix_mode
         self.do_rfixes = fix_mode >= 3
         self.do_rsubs = asm_mode >= 3 or self.do_rfixes
         self.do_ssubs = asm_mode >= 2
