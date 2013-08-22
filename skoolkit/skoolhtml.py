@@ -310,9 +310,11 @@ class HtmlWriter:
         """Return the routine or data block that contains `address`."""
         return self.parser.get_container(address)
 
-    def get_instruction_addr_str(self, address):
+    def get_instruction_addr_str(self, address, code_id):
         """Return the address string of the instruction at `address`."""
-        return self.parser.instructions[address][0].addr_str
+        if code_id:
+            return self.parser.get_addr_str(address)
+        return self.parser.get_instruction_addr_str(address)
 
     def get_snapshot_name(self):
         """Return the name of the current memory snapshot."""
@@ -1397,12 +1399,11 @@ class HtmlWriter:
         container = self.get_container(address)
         if not code_id and not container:
             raise MacroParsingError('Could not find routine file containing {0}'.format(addr_str))
+        inst_addr_str = self.get_instruction_addr_str(address, code_id)
         if code_id:
-            inst_addr_str = addr_str
             container_address = address
             code_path = self.get_code_path(code_id)
         else:
-            inst_addr_str = self.get_instruction_addr_str(address)
             container_address = container.address
             code_path = self.code_path
             if address != container_address:

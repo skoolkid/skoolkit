@@ -277,6 +277,12 @@ class SkoolParser:
         if instruction:
             return instruction.asm_label
 
+    def get_instruction_addr_str(self, address):
+        return self.instructions[address][0].addr_str
+
+    def get_addr_str(self, address):
+        return self.mode.get_addr_str(address)
+
     def _parse_skool(self, skoolfile):
         map_entry = None
         instruction = None
@@ -677,8 +683,10 @@ class Mode:
         self.ignoredua = False
         if self.lower:
             self.hex4fmt = '${0:04x}'
+            self.addr_fmt = '{0:04x}'
         else:
             self.hex4fmt = '${0:04X}'
+            self.addr_fmt = '{0:04X}'
         self.reset()
 
     def reset(self):
@@ -735,6 +743,11 @@ class Mode:
             instruction.org = self.org
 
         self.reset()
+
+    def get_addr_str(self, address):
+        if self.hexadecimal:
+            return self.addr_fmt.format(address)
+        return str(address)
 
     def apply_case(self, addr_str, operation):
         if self.lower:
