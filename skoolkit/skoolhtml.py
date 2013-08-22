@@ -306,16 +306,6 @@ class HtmlWriter:
         """
         return self.parser.get_entry_point_refs(address)
 
-    def get_container(self, address):
-        """Return the routine or data block that contains `address`."""
-        return self.parser.get_container(address)
-
-    def get_instruction_addr_str(self, address, code_id):
-        """Return the address string of the instruction at `address`."""
-        if code_id:
-            return self.parser.get_addr_str(address)
-        return self.parser.get_instruction_addr_str(address)
-
     def get_snapshot_name(self):
         """Return the name of the current memory snapshot."""
         return self._snapshots[-1][1]
@@ -1396,18 +1386,20 @@ class HtmlWriter:
             params = params[:code_id_index]
         addr_str = params
         address = parse_int(addr_str)
-        container = self.get_container(address)
+        container = self.parser.get_container(address, code_id)
         if not code_id and not container:
             raise MacroParsingError('Could not find routine file containing {0}'.format(addr_str))
-        inst_addr_str = self.get_instruction_addr_str(address, code_id)
-        if code_id:
+        inst_addr_str = self.parser.get_instruction_addr_str(address, code_id)
+        if container:
+            container_address = container.address
+        else:
             container_address = address
+        if code_id:
             code_path = self.get_code_path(code_id)
         else:
-            container_address = container.address
             code_path = self.code_path
-            if address != container_address:
-                anchor = '#{0}'.format(address)
+        if address != container_address:
+            anchor = '#{0}'.format(address)
         asm_label = self.parser.get_asm_label(address)
         ref_file = FileInfo.asm_relpath(cwd, container_address, code_path)
         link = '<a class="link" href="{0}{1}">{2}</a>'.format(ref_file, anchor, link_text or asm_label or inst_addr_str)

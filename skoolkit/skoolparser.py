@@ -256,13 +256,15 @@ class SkoolParser:
         """Return the routine or data block that starts at `address`."""
         return self.entries.get(address)
 
-    def get_instruction(self, address):
+    def get_instruction(self, address, asm_id=''):
         """Return the instruction at `address`."""
-        return self.instructions.get(address, [None])[0]
+        for instruction in self.instructions.get(address, []):
+            if instruction.container.asm_id == asm_id:
+                return instruction
 
-    def get_container(self, address):
+    def get_container(self, address, asm_id):
         """Return the routine or data block that contains `address`."""
-        instruction = self.get_instruction(address)
+        instruction = self.get_instruction(address, asm_id)
         if instruction:
             return instruction.container
 
@@ -277,11 +279,10 @@ class SkoolParser:
         if instruction:
             return instruction.asm_label
 
-    def get_instruction_addr_str(self, address):
-        return self.instructions[address][0].addr_str
-
-    def get_addr_str(self, address):
-        return self.mode.get_addr_str(address)
+    def get_instruction_addr_str(self, address, asm_id):
+        if asm_id:
+            return self.mode.get_addr_str(address)
+        return self.get_instruction(address).addr_str
 
     def _parse_skool(self, skoolfile):
         map_entry = None
@@ -951,7 +952,7 @@ class Comment:
 
 class SkoolEntry:
     def __init__(self, address, addr_str=None, ctl=None, description=None, details=()):
-        self.asm_id = None
+        self.asm_id = ''
         self.address = address
         self.addr_str = addr_str
         self.ctl = ctl

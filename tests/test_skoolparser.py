@@ -3,7 +3,7 @@ import unittest
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolParsingError
-from skoolkit.skoolparser import SkoolParser, set_bytes
+from skoolkit.skoolparser import SkoolParser, set_bytes, BASE_10, BASE_16, CASE_LOWER
 
 TEST_HTML_ESCAPE = """; Test HTML escaping
 c24576 NOP ; Return if X<=Y or Y>=Z
@@ -129,6 +129,13 @@ c40000 RET
 ; False start
 ; @label=START
 c40001 RET
+"""
+
+TEST_ADDRESS_SKOOL = """; Routine
+c24583 LD HL,$6003
+
+; Data
+b$600A DEFB 123
 """
 
 class SkoolParserTest(SkoolKitTestCase):
@@ -303,6 +310,30 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(len(warnings), 2)
         self.assertEqual(warnings[0], 'WARNING: LD operand replaced with routine label in unsubbed operation:')
         self.assertEqual(warnings[1], '  32768 LD HL,32771 -> LD HL,DOSTUFF')
+
+    def test_get_instruction_addr_str_no_base(self):
+        parser = self._get_parser(TEST_ADDRESS_SKOOL)
+        self.assertEqual(parser.get_instruction_addr_str(24583, ''), '24583')
+        self.assertEqual(parser.get_instruction_addr_str(24586, ''), '600A')
+        self.assertEqual(parser.get_instruction_addr_str(24586, 'start'), '24586')
+
+    def test_get_instruction_addr_str_base_10(self):
+        parser = self._get_parser(TEST_ADDRESS_SKOOL, base=BASE_10)
+        self.assertEqual(parser.get_instruction_addr_str(24583, ''), '24583')
+        self.assertEqual(parser.get_instruction_addr_str(24586, ''), '24586')
+        self.assertEqual(parser.get_instruction_addr_str(24586, 'load'), '24586')
+
+    def test_get_instruction_addr_str_base_16(self):
+        parser = self._get_parser(TEST_ADDRESS_SKOOL, base=BASE_16)
+        self.assertEqual(parser.get_instruction_addr_str(24583, ''), '6007')
+        self.assertEqual(parser.get_instruction_addr_str(24586, ''), '600A')
+        self.assertEqual(parser.get_instruction_addr_str(24586, 'save'), '600A')
+
+    def test_get_instruction_addr_str_base_16_lower_case(self):
+        parser = self._get_parser(TEST_ADDRESS_SKOOL, case=CASE_LOWER, base=BASE_16)
+        self.assertEqual(parser.get_instruction_addr_str(24583, ''), '6007')
+        self.assertEqual(parser.get_instruction_addr_str(24586, ''), '600a')
+        self.assertEqual(parser.get_instruction_addr_str(24586, 'save'), '600a')
 
     def test_warn_unreplaced_operand(self):
         self._get_parser(TEST_WARN_UNREPLACED_OPERAND, asm_mode=2, warnings=True)

@@ -7,7 +7,7 @@ from skoolkittest import SkoolKitTestCase, StringIO
 from skoolkit import VERSION, SkoolKitError, SkoolParsingError
 from skoolkit.skoolmacro import UnsupportedMacroError
 from skoolkit.skoolhtml import HtmlWriter, FileInfo, Udg
-from skoolkit.skoolparser import SkoolParser, Register, BASE_10, BASE_16, CASE_LOWER
+from skoolkit.skoolparser import SkoolParser, Register, CASE_LOWER
 from skoolkit.refparser import RefParser
 
 GAMEDIR = 'test'
@@ -122,13 +122,6 @@ TABLE2_HTML = """<table>
 <td class="centre">Cell</td>
 </tr>
 </table>"""
-
-TEST_ADDRESS_SKOOL = """; Routine
-c24583 LD HL,$6003
-
-; Data
-b$600A DEFB 123
-"""
 
 TEST_HTML_SKOOL = """; Text
 t24576 DEFM "<&>" ; a <= b & b >= c
@@ -1225,7 +1218,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def _unsupported_macro(self, *args):
         raise UnsupportedMacroError()
 
-    def _get_writer(self, ref=None, snapshot=(), skool=None, create_labels=False, asm_labels=False, case=None, base=None):
+    def _get_writer(self, ref=None, snapshot=(), skool=None, create_labels=False, asm_labels=False):
         self.reffile = None
         self.skoolfile = None
         ref_parser = RefParser()
@@ -1236,7 +1229,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             skool_parser = MockSkoolParser(snapshot)
         else:
             self.skoolfile = self.write_text_file(skool, suffix='.skool')
-            skool_parser = SkoolParser(self.skoolfile, case=case, base=base, html=True, create_labels=create_labels, asm_labels=asm_labels)
+            skool_parser = SkoolParser(self.skoolfile, html=True, create_labels=create_labels, asm_labels=asm_labels)
         self.odir = self.make_directory()
         file_info = FileInfo(self.odir, GAMEDIR, False)
         return TestHtmlWriter(skool_parser, ref_parser, file_info, MockImageWriter())
@@ -1304,30 +1297,6 @@ class HtmlWriterTest(SkoolKitTestCase):
         for i, udg in enumerate(font_udg_array[0]):
             self.assertEqual(udg.attr, attr)
             self.assertEqual(udg.data, chars[i])
-
-    def test_get_instruction_addr_str_no_base(self):
-        writer = self._get_writer(skool=TEST_ADDRESS_SKOOL)
-        self.assertEqual(writer.get_instruction_addr_str(24583, ''), '24583')
-        self.assertEqual(writer.get_instruction_addr_str(24586, ''), '600A')
-        self.assertEqual(writer.get_instruction_addr_str(24586, 'start'), '24586')
-
-    def test_get_instruction_addr_str_base_10(self):
-        writer = self._get_writer(skool=TEST_ADDRESS_SKOOL, base=BASE_10)
-        self.assertEqual(writer.get_instruction_addr_str(24583, ''), '24583')
-        self.assertEqual(writer.get_instruction_addr_str(24586, ''), '24586')
-        self.assertEqual(writer.get_instruction_addr_str(24586, 'load'), '24586')
-
-    def test_get_instruction_addr_str_base_16(self):
-        writer = self._get_writer(skool=TEST_ADDRESS_SKOOL, base=BASE_16)
-        self.assertEqual(writer.get_instruction_addr_str(24583, ''), '6007')
-        self.assertEqual(writer.get_instruction_addr_str(24586, ''), '600A')
-        self.assertEqual(writer.get_instruction_addr_str(24586, 'save'), '600A')
-
-    def test_get_instruction_addr_str_base_16_lower_case(self):
-        writer = self._get_writer(skool=TEST_ADDRESS_SKOOL, case=CASE_LOWER, base=BASE_16)
-        self.assertEqual(writer.get_instruction_addr_str(24583, ''), '6007')
-        self.assertEqual(writer.get_instruction_addr_str(24586, ''), '600a')
-        self.assertEqual(writer.get_instruction_addr_str(24586, 'save'), '600a')
 
     def test_ref_parsing(self):
         writer = self._get_writer(ref=TEST_PARSING_REF)
