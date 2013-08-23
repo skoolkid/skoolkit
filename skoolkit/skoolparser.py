@@ -259,7 +259,7 @@ class SkoolParser:
     def get_instruction(self, address, asm_id=''):
         """Return the instruction at `address`."""
         for instruction in self.instructions.get(address, []):
-            if instruction.container.asm_id == asm_id:
+            if instruction.container.asm_id.lower() == asm_id.lower():
                 return instruction
 
     def get_container(self, address, asm_id):

@@ -7,7 +7,7 @@ from skoolkittest import SkoolKitTestCase, StringIO
 from skoolkit import VERSION, SkoolKitError, SkoolParsingError
 from skoolkit.skoolmacro import UnsupportedMacroError
 from skoolkit.skoolhtml import HtmlWriter, FileInfo, Udg
-from skoolkit.skoolparser import SkoolParser, Register, CASE_LOWER
+from skoolkit.skoolparser import SkoolParser, Register, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
 from skoolkit.refparser import RefParser
 
 GAMEDIR = 'test'
@@ -1186,7 +1186,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def _unsupported_macro(self, *args):
         raise UnsupportedMacroError()
 
-    def _get_writer(self, ref=None, snapshot=(), skool=None, create_labels=False, asm_labels=False):
+    def _get_writer(self, ref=None, snapshot=(), case=None, base=None, skool=None, create_labels=False, asm_labels=False):
         self.reffile = None
         self.skoolfile = None
         ref_parser = RefParser()
@@ -1197,7 +1197,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             skool_parser = MockSkoolParser(snapshot)
         else:
             self.skoolfile = self.write_text_file(skool, suffix='.skool')
-            skool_parser = SkoolParser(self.skoolfile, html=True, create_labels=create_labels, asm_labels=asm_labels)
+            skool_parser = SkoolParser(self.skoolfile, case=case, base=base, html=True, create_labels=create_labels, asm_labels=asm_labels)
         self.odir = self.make_directory()
         file_info = FileInfo(self.odir, GAMEDIR, False)
         return TestHtmlWriter(skool_parser, ref_parser, file_info, MockImageWriter())
@@ -1781,7 +1781,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             ' 49155 RET',
             '',
             'r$C000 other',
-            ' $C003'
+            ' $c003'
         ))
         writer = self._get_writer(ref=ref, skool=skool)
 
@@ -1803,7 +1803,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # Other code with remote entry point
         output = writer.expand('#R49155@other', ASMDIR)
-        self.link_equals(output, '../other/49152.html#49155', 'C003')
+        self.link_equals(output, '../other/49152.html#49155', 'c003')
 
         # Other code with anchor and link text
         link_text = 'Testing2'
@@ -1816,6 +1816,158 @@ class HtmlWriterTest(SkoolKitTestCase):
         code_id = 'nonexistent'
         with self.assertRaisesRegexp(SkoolParsingError, "{}: Could not find code path for '{}' disassembly".format(prefix, code_id)):
             writer.expand('#R24576@{}'.format(code_id), ASMDIR)
+
+    def test_macro_r_decimal(self):
+        ref = '\n'.join((
+            '[OtherCode:other]',
+            'Source=other.skool',
+            'Path=other',
+            'Index=other.html',
+            'Title=Other code',
+            'Header=Other code'
+        ))
+        skool = '\n'.join((
+            'c32768 LD A,B',
+            ' 32769 RET',
+            '',
+            'r$C000 other',
+            ' $C003'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool, base=BASE_10)
+
+        # Routine
+        output = writer.expand('#R32768', ASMDIR)
+        self.link_equals(output, '32768.html', '32768')
+
+        # Routine entry point
+        output = writer.expand('#R32769', ASMDIR)
+        self.link_equals(output, '32768.html#32769', '32769')
+
+        # Other code, no remote entry
+        output = writer.expand('#R32768@other', ASMDIR)
+        self.link_equals(output, '../other/32768.html', '32768')
+
+        # Other code with remote entry
+        output = writer.expand('#R49152@other', ASMDIR)
+        self.link_equals(output, '../other/49152.html', '49152')
+
+        # Other code with remote entry point
+        output = writer.expand('#R49155@other', ASMDIR)
+        self.link_equals(output, '../other/49152.html#49155', '49155')
+
+    def test_macro_r_hex(self):
+        ref = '\n'.join((
+            '[OtherCode:other]',
+            'Source=other.skool',
+            'Path=other',
+            'Index=other.html',
+            'Title=Other code',
+            'Header=Other code'
+        ))
+        skool = '\n'.join((
+            'c32768 LD A,B',
+            ' 32769 RET',
+            '',
+            'r$C000 other',
+            ' $C003'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool, base=BASE_16)
+
+        # Routine
+        output = writer.expand('#R32768', ASMDIR)
+        self.link_equals(output, '32768.html', '8000')
+
+        # Routine entry point
+        output = writer.expand('#R32769', ASMDIR)
+        self.link_equals(output, '32768.html#32769', '8001')
+
+        # Other code, no remote entry
+        output = writer.expand('#R32768@other', ASMDIR)
+        self.link_equals(output, '../other/32768.html', '8000')
+
+        # Other code with remote entry
+        output = writer.expand('#R49152@other', ASMDIR)
+        self.link_equals(output, '../other/49152.html', 'C000')
+
+        # Other code with remote entry point
+        output = writer.expand('#R49155@other', ASMDIR)
+        self.link_equals(output, '../other/49152.html#49155', 'C003')
+
+    def test_macro_r_hex_lower(self):
+        ref = '\n'.join((
+            '[OtherCode:Other]',
+            'Source=other.skool',
+            'Path=other',
+            'Index=other.html',
+            'Title=Other code',
+            'Header=Other code'
+        ))
+        skool = '\n'.join((
+            'c40970 LD A,B',
+            ' 40971 RET',
+            '',
+            'r$C000 other',
+            ' $C003'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool, case=CASE_LOWER, base=BASE_16)
+
+        # Routine
+        output = writer.expand('#R40970', ASMDIR)
+        self.link_equals(output, '40970.html', 'a00a')
+
+        # Routine entry point
+        output = writer.expand('#R40971', ASMDIR)
+        self.link_equals(output, '40970.html#40971', 'a00b')
+
+        # Other code, no remote entry
+        output = writer.expand('#R45066@Other', ASMDIR)
+        self.link_equals(output, '../other/45066.html', 'b00a')
+
+        # Other code with remote entry
+        output = writer.expand('#R49152@Other', ASMDIR)
+        self.link_equals(output, '../other/49152.html', 'c000')
+
+        # Other code with remote entry point
+        output = writer.expand('#R49155@Other', ASMDIR)
+        self.link_equals(output, '../other/49152.html#49155', 'c003')
+
+    def test_macro_r_hex_upper(self):
+        ref = '\n'.join((
+            '[OtherCode:other]',
+            'Source=other.skool',
+            'Path=other',
+            'Index=other.html',
+            'Title=Other code',
+            'Header=Other code'
+        ))
+        skool = '\n'.join((
+            'c$a00a LD A,B',
+            ' 40971 RET',
+            '',
+            'r$c000 other',
+            ' $c003'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool, case=CASE_UPPER, base=BASE_16)
+
+        # Routine
+        output = writer.expand('#R40970', ASMDIR)
+        self.link_equals(output, '40970.html', 'A00A')
+
+        # Routine entry point
+        output = writer.expand('#R40971', ASMDIR)
+        self.link_equals(output, '40970.html#40971', 'A00B')
+
+        # Other code, no remote entry
+        output = writer.expand('#R45066@other', ASMDIR)
+        self.link_equals(output, '../other/45066.html', 'B00A')
+
+        # Other code with remote entry
+        output = writer.expand('#R49152@other', ASMDIR)
+        self.link_equals(output, '../other/49152.html', 'C000')
+
+        # Other code with remote entry point
+        output = writer.expand('#R49155@other', ASMDIR)
+        self.link_equals(output, '../other/49152.html#49155', 'C003')
 
     def test_macro_refs(self):
         # One referrer
