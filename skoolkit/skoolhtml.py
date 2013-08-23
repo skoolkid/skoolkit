@@ -1384,6 +1384,12 @@ class HtmlWriter:
         if code_id_index > 0:
             code_id = params[code_id_index + 1:]
             params = params[:code_id_index]
+        if code_id:
+            code_path = self.get_code_path(code_id)
+            if code_path is None:
+                raise MacroParsingError("Could not find code path for '{}' disassembly".format(code_id))
+        else:
+            code_path = self.code_path
         addr_str = params
         address = parse_int(addr_str)
         container = self.parser.get_container(address, code_id)
@@ -1394,10 +1400,6 @@ class HtmlWriter:
             container_address = container.address
         else:
             container_address = address
-        if code_id:
-            code_path = self.get_code_path(code_id)
-        else:
-            code_path = self.code_path
         if address != container_address:
             anchor = '#{0}'.format(address)
         asm_label = self.parser.get_asm_label(address)

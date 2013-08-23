@@ -912,38 +912,6 @@ Path=page2.html
 Link=Custom page 2
 """
 
-TEST_MACRO_R_SKOOL = """
-; Routine
-c24576 LD HL,$6003
-
-; Data
-b$6003 DEFB 123
- $6004 DEFB 246
-
-; Another routine
-c24581 NOP
- 24582 NOP
-
-; Yet another routine
-c24583 CALL 24581
-
-; Another routine still
-c24586 CALL 24581
- 24589 JP 24582
-
-; The final routine
-c24592 CALL 24582
-"""
-
-TEST_MACRO_R_REF = """
-[OtherCode:other]
-Source=test-html-other.skool
-Path=other
-Index=other.html
-Title=Other code
-Header=Other code
-"""
-
 TEST_MACRO_REFS_SKOOL = """; Not used directly by any other routines
 c24576 LD HL,$6003
 
@@ -1748,7 +1716,37 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assertEqual(writer.snapshot[addr], byte)
 
     def test_macro_r(self):
-        writer = self._get_writer(ref=TEST_MACRO_R_REF, skool=TEST_MACRO_R_SKOOL)
+        ref = '\n'.join((
+            '[OtherCode:other]',
+            'Source=test-html-other.skool',
+            'Path=other',
+            'Index=other.html',
+            'Title=Other code',
+            'Header=Other code'
+        ))
+        skool = '\n'.join((
+            '; Routine',
+            'c24576 LD HL,$6003',
+            '',
+            '; Data',
+            'b$6003 DEFB 123',
+            ' $6004 DEFB 246',
+            '',
+            '; Another routine',
+            'c24581 NOP',
+            ' 24582 NOP',
+            '',
+            '; Yet another routine',
+            'c24583 CALL 24581',
+            '',
+            '; Another routine still',
+            'c24586 CALL 24581',
+            ' 24589 JP 24582',
+            '',
+            '; The final routine',
+            'c24592 CALL 24582'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
 
         # Routine reference
         output = writer.expand('#R24576', ASMDIR)
@@ -1786,6 +1784,12 @@ class HtmlWriterTest(SkoolKitTestCase):
         address = '$ABCD'
         with self.assertRaisesRegexp(SkoolParsingError, '{}: Could not find routine file containing \{}'.format(prefix, address)):
             writer.expand('#R{0}'.format(address), ASMDIR)
+
+        # Nonexistent other code reference
+        prefix = ERROR_PREFIX.format('R')
+        code_id = 'nonexistent'
+        with self.assertRaisesRegexp(SkoolParsingError, "{}: Could not find code path for '{}' disassembly".format(prefix, code_id)):
+            writer.expand('#R24576@{}'.format(code_id), ASMDIR)
 
     def test_macro_refs(self):
         # One referrer
