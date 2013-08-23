@@ -286,6 +286,9 @@ class SkoolParser:
         if instruction:
             return instruction.addr_str
 
+    def convert_address_operand(self, operand):
+        return self.mode.convert_address_operand(operand)
+
     def _parse_skool(self, skoolfile):
         map_entry = None
         instruction = None
@@ -685,9 +688,11 @@ class Mode:
         self.ignoretua = False
         self.ignoredua = False
         if self.lower:
+            self.hex2fmt = '${0:02x}'
             self.hex4fmt = '${0:04x}'
             self.addr_fmt = '{0:04x}'
         else:
+            self.hex2fmt = '${0:02X}'
             self.hex4fmt = '${0:04X}'
             self.addr_fmt = '{0:04X}'
         self.reset()
@@ -751,6 +756,13 @@ class Mode:
         if self.hexadecimal:
             return self.addr_fmt.format(address)
         return str(address)
+
+    def convert_address_operand(self, operand):
+        if self.decimal:
+            return str(parse_int(operand))
+        if self.hexadecimal:
+            return self.hex4fmt.format(parse_int(operand))
+        return operand
 
     def apply_case(self, addr_str, operation):
         if self.lower:
@@ -879,13 +891,11 @@ class Mode:
         num = parse_int(num_str)
         if self.decimal:
             return text.replace(num_str, str(num))
-        elif self.hexadecimal:
+        if self.hexadecimal:
             if digits <= 2 and num < 256:
-                hex_fmt = '${0:02X}'
+                hex_fmt = self.hex2fmt
             else:
-                hex_fmt = '${0:04X}'
-            if self.lower:
-                hex_fmt = hex_fmt.lower()
+                hex_fmt = self.hex4fmt
             return text.replace(num_str, hex_fmt.format(num))
 
 class Instruction:

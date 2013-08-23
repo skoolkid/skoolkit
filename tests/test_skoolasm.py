@@ -252,6 +252,7 @@ c40000 LD A,B
 """
 
 TEST_HEX = r"""; @start
+; @org=32767
 ; Routine
 c32768 ld a,(ix+17)
  32772 DEFW 0,1,17,273,43981
@@ -290,6 +291,9 @@ c32768 ld a,(ix+17)
 """
 
 TEST_HEX_ASM = r"""
+  ORG $7FFF
+
+; Routine
   ld a,(ix+$11)
   DEFW $0000,$0001,$0011,$0111,$ABCD
   LD (IY-$19),$7C
@@ -327,6 +331,9 @@ TEST_HEX_ASM = r"""
 """.split('\n')[1:-1]
 
 TEST_HEX_ASM_LOWER = r"""
+  org $7fff
+
+; Routine
   ld a,(ix+$11)
   defw $0000,$0001,$0011,$0111,$abcd
   ld (iy-$19),$7c
@@ -364,6 +371,9 @@ TEST_HEX_ASM_LOWER = r"""
 """.split('\n')[1:-1]
 
 TEST_HEX_ASM_UPPER = r"""
+  ORG $7FFF
+
+; Routine
   LD A,(IX+$11)
   DEFW $0000,$0001,$0011,$0111,$ABCD
   LD (IY-$19),$7C
@@ -401,6 +411,7 @@ TEST_HEX_ASM_UPPER = r"""
 """.split('\n')[1:-1]
 
 TEST_DECIMAL = r"""; @start
+; @org=$8000
 ; Routine
 c32768 ld a,(ix+$11)
  32772 DEFW $0000,$0001,$0011,$0111,$ABCD
@@ -439,6 +450,9 @@ c32768 ld a,(ix+$11)
 """
 
 TEST_DECIMAL_ASM = r"""
+  ORG 32768
+
+; Routine
   ld a,(ix+17)
   DEFW 0,1,17,273,43981
   LD (IY-25),124
@@ -476,6 +490,9 @@ TEST_DECIMAL_ASM = r"""
 """.split('\n')[1:-1]
 
 TEST_DECIMAL_ASM_LOWER = r"""
+  org 32768
+
+; Routine
   ld a,(ix+17)
   defw 0,1,17,273,43981
   ld (iy-25),124
@@ -513,6 +530,9 @@ TEST_DECIMAL_ASM_LOWER = r"""
 """.split('\n')[1:-1]
 
 TEST_DECIMAL_ASM_UPPER = r"""
+  ORG 32768
+
+; Routine
   LD A,(IX+17)
   DEFW 0,1,17,273,43981
   LD (IY-25),124
@@ -1608,27 +1628,27 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_decimal(self):
         asm = self._get_asm(TEST_DECIMAL, base=BASE_10)
-        self.assertEqual(asm[1:-1], TEST_DECIMAL_ASM)
+        self.assertEqual(asm[:-1], TEST_DECIMAL_ASM)
 
     def test_decimal_lower(self):
         asm = self._get_asm(TEST_DECIMAL, base=BASE_10, case=CASE_LOWER)
-        self.assertEqual(asm[1:-1], TEST_DECIMAL_ASM_LOWER)
+        self.assertEqual(asm[:-1], TEST_DECIMAL_ASM_LOWER)
 
     def test_decimal_upper(self):
         asm = self._get_asm(TEST_DECIMAL, base=BASE_10, case=CASE_UPPER)
-        self.assertEqual(asm[1:-1], TEST_DECIMAL_ASM_UPPER)
+        self.assertEqual(asm[:-1], TEST_DECIMAL_ASM_UPPER)
 
     def test_hex(self):
         asm = self._get_asm(TEST_HEX, base=BASE_16)
-        self.assertEqual(asm[1:-1], TEST_HEX_ASM)
+        self.assertEqual(asm[:-1], TEST_HEX_ASM)
 
     def test_hex_lower(self):
         asm = self._get_asm(TEST_HEX, base=BASE_16, case=CASE_LOWER)
-        self.assertEqual(asm[1:-1], TEST_HEX_ASM_LOWER)
+        self.assertEqual(asm[:-1], TEST_HEX_ASM_LOWER)
 
     def test_hex_upper(self):
         asm = self._get_asm(TEST_HEX, base=BASE_16, case=CASE_UPPER)
-        self.assertEqual(asm[1:-1], TEST_HEX_ASM_UPPER)
+        self.assertEqual(asm[:-1], TEST_HEX_ASM_UPPER)
 
     def test_end_directive(self):
         asm = self._get_asm(TEST_END_DIRECTIVE)

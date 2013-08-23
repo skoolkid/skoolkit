@@ -109,7 +109,8 @@ class AsmWriter:
                     org_dir = 'org'
                 else:
                     org_dir = 'ORG'
-                self.write_line('{0}{1} {2}'.format(self.indent, org_dir, org))
+                org_addr_str = self.parser.convert_address_operand(org)
+                self.write_line('{0}{1} {2}'.format(self.indent, org_dir, org_addr_str))
                 self.write_line('')
             self.entry = entry
             self.print_entry()
