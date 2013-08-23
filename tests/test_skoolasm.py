@@ -1311,7 +1311,7 @@ class AsmWriterTest(SkoolKitTestCase):
             '; @label=DOSTUFF',
             'c24576 LD HL,0',
             '',
-            'b$6003 DEFB 123'
+            'b$6003 DEFB 123',
         ))
         writer = self._get_writer(skool, warn=True)
 
@@ -1330,17 +1330,6 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(self.err.getvalue(), 'WARNING: Could not convert address 24579 to label\n')
         self.clear_streams()
 
-        # Other code
-        output = writer.expand('#R32768@other')
-        self.assertEqual(output, '32768')
-        self.assertEqual(self.err.getvalue(), '')
-
-        # Other code with link text
-        link_text = 'Testing2'
-        output = writer.expand('#R32768@other#testing({0})'.format(link_text))
-        self.assertEqual(output, link_text)
-        self.assertEqual(self.err.getvalue(), '')
-
         # Address between instructions
         output = writer.expand('#R24577')
         self.assertEqual(output, '24577')
@@ -1352,6 +1341,42 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(output, '6001')
         self.assertEqual(self.err.getvalue(), 'WARNING: Could not convert address $6001 to label\n')
 
+    def test_macro_r_other_code(self):
+        skool = '\n'.join((
+            '; @start',
+            'c49152 LD HL,0',
+            ' $c003 RET',
+            '',
+            'r$c000 other',
+            ' $C003'
+        ))
+        writer = self._get_writer(skool)
+
+        # Reference with the same address as a remote entry
+        output = writer.expand('#R49152')
+        self.assertEqual(output, '49152')
+
+        # Reference with the same address as a remote entry point
+        output = writer.expand('#R49155')
+        self.assertEqual(output, 'c003')
+
+        # Other code, no remote entry
+        output = writer.expand('#R32768@other')
+        self.assertEqual(output, '32768')
+
+        # Other code with remote entry
+        output = writer.expand('#R49152@other')
+        self.assertEqual(output, 'c000')
+
+        # Other code with remote entry point
+        output = writer.expand('#R49155@other')
+        self.assertEqual(output, 'C003')
+
+        # Other code with link text
+        link_text = 'Testing2'
+        output = writer.expand('#R32768@other#testing({0})'.format(link_text))
+        self.assertEqual(output, link_text)
+
     def test_macro_r_lower(self):
         skool = '\n'.join((
             '; @start',
@@ -1359,6 +1384,8 @@ class AsmWriterTest(SkoolKitTestCase):
             'c32000 RET',
             '',
             'b$7D01 DEFB 0'
+            '',
+            'r$C000 other',
         ))
         writer = self._get_writer(skool, case=CASE_LOWER)
 
@@ -1370,39 +1397,74 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.expand('#R32001')
         self.assertEqual(output, '7d01')
 
+        # Other code, no remote entry
+        output = writer.expand('#R32768@main')
+        self.assertEqual(output, '32768')
+
+        # Other code with remote entry
+        output = writer.expand('#R49152@other')
+        self.assertEqual(output, 'c000')
+
     def test_macro_r_hex(self):
-        skool = '; @start\nt24580 DEFM "Hi"'
+        skool = '\n'.join((
+            '; @start',
+            'c24580 RET',
+            '',
+            'r49152 other',
+        ))
         writer = self._get_writer(skool, base=BASE_16)
 
         # No label
         output = writer.expand('#R24580')
         self.assertEqual(output, '6004')
 
-        # Other code
+        # Other code, no remote entry
         output = writer.expand('#R32768@main')
         self.assertEqual(output, '8000')
 
+        # Other code with remote entry
+        output = writer.expand('#R49152@other')
+        self.assertEqual(output, 'C000')
+
     def test_macro_r_hex_lower(self):
-        skool = '; @start\nt24590 DEFM "Lo"'
+        skool = '\n'.join((
+            '; @start',
+            'c24590 RET'
+            '',
+            'r49152 other',
+        ))
         writer = self._get_writer(skool, base=BASE_16, case=CASE_LOWER)
 
         # No label
         output = writer.expand('#R24590')
         self.assertEqual(output, '600e')
 
-        # Other code
+        # Other code, no remote entry
         output = writer.expand('#R43981@main')
         self.assertEqual(output, 'abcd')
 
+        # Other code with remote entry
+        output = writer.expand('#R49152@other')
+        self.assertEqual(output, 'c000')
+
     def test_macro_r_decimal(self):
-        skool = '; @start\nc$8000 LD A,B'
+        skool = '\n'.join((
+            '; @start',
+            'c$8000 LD A,B'
+            '',
+            'r$C000 other',
+        ))
         writer = self._get_writer(skool, base=BASE_10)
 
         # No label
         output = writer.expand('#R$8000')
         self.assertEqual(output, '32768')
 
-        # Other code
+        # Other code, no remote entry
+        output = writer.expand('#R44444@main')
+        self.assertEqual(output, '44444')
+
+        # Other code with remote entry
         output = writer.expand('#R$c000@main')
         self.assertEqual(output, '49152')
 

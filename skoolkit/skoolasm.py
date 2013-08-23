@@ -298,10 +298,18 @@ class AsmWriter:
         end, params, p_text = parse_params(text, index, chars='@')
         if p_text:
             return end, p_text
-        addr_str = params[:5]
+        anchor_index = params.find('#')
+        if anchor_index > 0:
+            params = params[:anchor_index]
+        code_id = ''
+        code_id_index = params.find('@')
+        if code_id_index > 0:
+            code_id = params[code_id_index + 1:]
+            params = params[:code_id_index]
+        addr_str = params
         address = parse_int(addr_str)
-        if params[5:].startswith('@'):
-            return end, self.parser.get_instruction_addr_str(address, '*')
+        if code_id:
+            return end, self.parser.get_instruction_addr_str(address, code_id)
         label = self.labels.get(address)
         if label is None:
             if self.base_address <= address <= self.end_address:
