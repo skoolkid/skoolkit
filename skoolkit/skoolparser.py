@@ -280,11 +280,11 @@ class SkoolParser:
             return instruction.asm_label
 
     def get_instruction_addr_str(self, address, asm_id=''):
-        if asm_id:
-            return self.mode.get_addr_str(address)
-        instruction = self.get_instruction(address)
+        instruction = self.get_instruction(address, asm_id)
         if instruction:
             return instruction.addr_str
+        if asm_id:
+            return self.mode.get_addr_str(address)
 
     def convert_address_operand(self, operand):
         return self.mode.convert_address_operand(operand)

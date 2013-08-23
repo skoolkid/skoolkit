@@ -1716,14 +1716,6 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assertEqual(writer.snapshot[addr], byte)
 
     def test_macro_r(self):
-        ref = '\n'.join((
-            '[OtherCode:other]',
-            'Source=test-html-other.skool',
-            'Path=other',
-            'Index=other.html',
-            'Title=Other code',
-            'Header=Other code'
-        ))
         skool = '\n'.join((
             '; Routine',
             'c24576 LD HL,$6003',
@@ -1746,7 +1738,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '; The final routine',
             'c24592 CALL 24582'
         ))
-        writer = self._get_writer(ref=ref, skool=skool)
+        writer = self._get_writer(skool=skool)
 
         # Routine reference
         output = writer.expand('#R24576', ASMDIR)
@@ -1769,21 +1761,55 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#R24580', ASMDIR)
         self.link_equals(output, '24579.html#24580', '6004')
 
-        # Other code
+        # Nonexistent reference
+        prefix = ERROR_PREFIX.format('R')
+        address = '$ABCD'
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Could not find routine file containing \{}'.format(prefix, address)):
+            writer.expand('#R{0}'.format(address), ASMDIR)
+
+    def test_macro_r_other_code(self):
+        ref = '\n'.join((
+            '[OtherCode:other]',
+            'Source=other.skool',
+            'Path=other',
+            'Index=other.html',
+            'Title=Other code',
+            'Header=Other code'
+        ))
+        skool = '\n'.join((
+            'c49152 LD DE,0',
+            ' 49155 RET',
+            '',
+            'r$C000 other',
+            ' $C003'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        # Reference with the same address as a remote entry
+        output = writer.expand('#R49152', ASMDIR)
+        self.link_equals(output, '49152.html', '49152')
+
+        # Reference with the same address as a remote entry point
+        output = writer.expand('#R49155', ASMDIR)
+        self.link_equals(output, '49152.html#49155', '49155')
+
+        # Other code, no remote entry
         output = writer.expand('#R32768@other', ASMDIR)
         self.link_equals(output, '../other/32768.html', '32768')
+
+        # Other code with remote entry
+        output = writer.expand('#R49152@other', ASMDIR)
+        self.link_equals(output, '../other/49152.html', 'C000')
+
+        # Other code with remote entry point
+        output = writer.expand('#R49155@other', ASMDIR)
+        self.link_equals(output, '../other/49152.html#49155', 'C003')
 
         # Other code with anchor and link text
         link_text = 'Testing2'
         anchor = 'testing3'
         output = writer.expand('#R32768@other#{0}({1})'.format(anchor, link_text), ASMDIR)
         self.link_equals(output, '../other/32768.html#{0}'.format(anchor), link_text)
-
-        # Nonexistent reference
-        prefix = ERROR_PREFIX.format('R')
-        address = '$ABCD'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Could not find routine file containing \{}'.format(prefix, address)):
-            writer.expand('#R{0}'.format(address), ASMDIR)
 
         # Nonexistent other code reference
         prefix = ERROR_PREFIX.format('R')
