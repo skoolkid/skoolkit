@@ -107,17 +107,6 @@ c30003 LD A,B
 c30005 JP 30004
 """
 
-TEST_MACRO_R = """; @start
-; @org=24576
-
-; Routine
-; @label=DOSTUFF
-c24576 LD HL,$6003
-
-; Data
-b$6003 DEFB 123
-"""
-
 TEST_MACRO_REFS = """; @start
 ; Used by the routines at 24583, 24586 and 24589
 c24581 LD A,B
@@ -1297,7 +1286,14 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(writer.snapshot[addr], byte)
 
     def test_macro_r(self):
-        writer = self._get_writer(TEST_MACRO_R, warn=True)
+        skool = '\n'.join((
+            '; @start',
+            '; @label=DOSTUFF',
+            'c24576 LD HL,0',
+            '',
+            'b$6003 DEFB 123'
+        ))
+        writer = self._get_writer(skool, warn=True)
 
         # Address resolves to a label
         output = writer.expand('#R24576')
@@ -1335,6 +1331,60 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.expand('#R$6001')
         self.assertEqual(output, '6001')
         self.assertEqual(self.err.getvalue(), 'WARNING: Could not convert address $6001 to label\n')
+
+    def test_macro_r_lower(self):
+        skool = '\n'.join((
+            '; @start',
+            '; @label=START',
+            'c32000 RET',
+            '',
+            'b$7D01 DEFB 0'
+        ))
+        writer = self._get_writer(skool, case=CASE_LOWER)
+
+        # Label
+        output = writer.expand('#R32000')
+        self.assertEqual(output, 'START')
+
+        # No label
+        output = writer.expand('#R32001')
+        self.assertEqual(output, '7d01')
+
+    def test_macro_r_hex(self):
+        skool = '; @start\nt24580 DEFM "Hi"'
+        writer = self._get_writer(skool, base=BASE_16)
+
+        # No label
+        output = writer.expand('#R24580')
+        self.assertEqual(output, '6004')
+
+        # Other code
+        output = writer.expand('#R32768@main')
+        self.assertEqual(output, '8000')
+
+    def test_macro_r_hex_lower(self):
+        skool = '; @start\nt24590 DEFM "Lo"'
+        writer = self._get_writer(skool, base=BASE_16, case=CASE_LOWER)
+
+        # No label
+        output = writer.expand('#R24590')
+        self.assertEqual(output, '600e')
+
+        # Other code
+        output = writer.expand('#R43981@main')
+        self.assertEqual(output, 'abcd')
+
+    def test_macro_r_decimal(self):
+        skool = '; @start\nc$8000 LD A,B'
+        writer = self._get_writer(skool, base=BASE_10)
+
+        # No label
+        output = writer.expand('#R$8000')
+        self.assertEqual(output, '32768')
+
+        # Other code
+        output = writer.expand('#R$c000@main')
+        self.assertEqual(output, '49152')
 
     def test_macro_refs(self):
         writer = self._get_writer(TEST_MACRO_REFS)

@@ -298,20 +298,19 @@ class AsmWriter:
         if p_text:
             return end, p_text
         addr_str = params[:5]
-        if params[5:].startswith('@'):
-            return end, addr_str
         address = parse_int(addr_str)
+        if params[5:].startswith('@'):
+            return end, self.parser.get_instruction_addr_str(address, '*')
         label = self.labels.get(address)
         if label is None:
             if self.base_address <= address <= self.end_address:
                 self.warn('Could not convert address {0} to label'.format(addr_str))
-            instructions = self.parser.instructions.get(address)
-            if instructions:
-                label = instructions[0].addr_str
-            elif addr_str.startswith('$'):
-                label = addr_str[1:]
-            else:
-                label = addr_str
+            label = self.parser.get_instruction_addr_str(address)
+            if label is None:
+                if addr_str.startswith('$'):
+                    label = addr_str[1:]
+                else:
+                    label = addr_str
         return end, label
 
     def expand_refs(self, text, index):

@@ -279,10 +279,12 @@ class SkoolParser:
         if instruction:
             return instruction.asm_label
 
-    def get_instruction_addr_str(self, address, asm_id):
+    def get_instruction_addr_str(self, address, asm_id=''):
         if asm_id:
             return self.mode.get_addr_str(address)
-        return self.get_instruction(address).addr_str
+        instruction = self.get_instruction(address)
+        if instruction:
+            return instruction.addr_str
 
     def _parse_skool(self, skoolfile):
         map_entry = None
