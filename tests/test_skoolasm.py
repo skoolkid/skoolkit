@@ -1311,7 +1311,7 @@ class AsmWriterTest(SkoolKitTestCase):
             '; @label=DOSTUFF',
             'c24576 LD HL,0',
             '',
-            'b$6003 DEFB 123',
+            'b$6003 DEFB 123'
         ))
         writer = self._get_writer(skool, warn=True)
 
@@ -1383,9 +1383,9 @@ class AsmWriterTest(SkoolKitTestCase):
             '; @label=START',
             'c32000 RET',
             '',
-            'b$7D01 DEFB 0'
+            'b$7D01 DEFB 0',
             '',
-            'r$C000 other',
+            'r$C000 other'
         ))
         writer = self._get_writer(skool, case=CASE_LOWER)
 
@@ -1429,9 +1429,9 @@ class AsmWriterTest(SkoolKitTestCase):
     def test_macro_r_hex_lower(self):
         skool = '\n'.join((
             '; @start',
-            'c24590 RET'
+            'c24590 RET',
             '',
-            'r49152 other',
+            'r49152 other'
         ))
         writer = self._get_writer(skool, base=BASE_16, case=CASE_LOWER)
 
@@ -1450,9 +1450,9 @@ class AsmWriterTest(SkoolKitTestCase):
     def test_macro_r_decimal(self):
         skool = '\n'.join((
             '; @start',
-            'c$8000 LD A,B'
+            'c$8000 LD A,B',
             '',
-            'r$C000 other',
+            'r$C000 other'
         ))
         writer = self._get_writer(skool, base=BASE_10)
 
