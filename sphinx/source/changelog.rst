@@ -14,6 +14,8 @@ Changelog
   :ref:`page` section
 * Moved the ``Logo`` parameter from the ``[Paths]`` section to the
   :ref:`ref-game` section and renamed it ``LogoImage``
+* The :ref:`r` macro now renders the addresses of remote entries in the
+  specified case and base, and can resolve the addresses of remote entry points
 * :ref:`skool2asm.py` now writes ORG addresses in the specified case and base
 * Annotated the source code remnants at 39936 in `jet_set_willy.ctl`
 
