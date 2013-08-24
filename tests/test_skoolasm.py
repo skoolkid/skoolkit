@@ -1324,6 +1324,15 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.expand('#R24576({0})'.format(link_text))
         self.assertEqual(output, link_text)
 
+        # Anchor
+        output = writer.expand('#R24576#foo')
+        self.assertEqual(output, 'DOSTUFF')
+
+        # Anchor and link text
+        link_text = 'Testing2'
+        output = writer.expand('#R24576#foo({})'.format(link_text))
+        self.assertEqual(output, link_text)
+
         # No label
         output = writer.expand('#R24579')
         self.assertEqual(output, '6003')
