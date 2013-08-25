@@ -229,6 +229,7 @@ class SkoolParser:
         self.instructions = {}       # address -> [Instructions]
         self.entries = {}            # address -> Routine/Data
         self.memory_map = []         # Routines and Datas
+        self.base_address = 65536
         self.header = []
         self.stack = []
         self.comments = []
@@ -338,6 +339,7 @@ class SkoolParser:
                 self.entries[address] = map_entry
                 self.memory_map.append(map_entry)
                 self.comments[:] = []
+                self.base_address = min((address, self.base_address))
             elif ctl == 'd':
                 # This is a data definition entry
                 map_entry = None
@@ -658,10 +660,10 @@ class SkoolParser:
                 # Warn if we cannot find a label to replace the operand of this
                 # routine instruction (will need @nowarn if this is OK)
                 self.warn('Found no label for operand: {0} {1}'.format(instruction.address, operation))
-        elif label_warn and self.mode.do_ssubs and operand_int > 23755:
-            # Warn if the operand is > 23755 (where code might be) but doesn't
-            # refer to the address of an instruction (will need @nowarn if this
-            # is OK)
+        elif label_warn and self.mode.do_ssubs and operand_int >= self.base_address:
+            # Warn if the operand is at or above the base address of the
+            # disassembly (where code might be) but doesn't refer to the
+            # address of an instruction (will need @nowarn if this is OK)
             self.warn('Unreplaced operand: {0} {1}'.format(instruction.address, operation))
 
 class Mode:
