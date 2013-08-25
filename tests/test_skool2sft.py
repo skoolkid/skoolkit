@@ -4,10 +4,6 @@ import unittest
 from skoolkittest import SkoolKitTestCase
 from skoolkit import skool2sft, VERSION
 
-TEST_SKOOL = """; Routine
-c32768 RET
-"""
-
 def mock_run(*args):
     global run_args
     run_args = args
@@ -49,7 +45,8 @@ class Skool2SftTest(SkoolKitTestCase):
             self.assertTrue(write_hex)
 
     def test_run(self):
-        skoolfile = self.write_text_file(TEST_SKOOL, suffix='.skool')
+        skool = '; Routine\nc32768 RET'
+        skoolfile = self.write_text_file(skool, suffix='.skool')
         output, error = self.run_skool2sft(skoolfile)
         self.assertEqual(len(error), 0)
         self.assertEqual(len(output), 2)
