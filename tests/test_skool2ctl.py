@@ -6,10 +6,6 @@ from skoolkit import skool2ctl, VERSION
 
 ELEMENTS = 'btdrmsc'
 
-TEST_SKOOL = """; Test skool file for skool2ctl testing
-c32768 RET
-"""
-
 class MockCtlWriter:
     def __init__(self, *args):
         global mock_ctl_writer
@@ -88,7 +84,11 @@ class Skool2CtlTest(SkoolKitTestCase):
             self.assertTrue(mock_ctl_writer.write_called)
 
     def test_run(self):
-        skoolfile = self.write_text_file(TEST_SKOOL, suffix='.skool')
+        skool = '\n'.join((
+            '; Test skool file for skool2ctl testing',
+            'c32768 RET'
+        ))
+        skoolfile = self.write_text_file(skool, suffix='.skool')
         output, error = self.run_skool2ctl(skoolfile)
         self.assertEqual(len(error), 0)
         self.assertEqual(len(output), 1)
