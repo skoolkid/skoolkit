@@ -1100,6 +1100,7 @@ class AsmWriterTest(SkoolKitTestCase):
         return AsmWriter(skool_parser, crlf, tab, skool_parser.properties, case == CASE_LOWER, instr_width, warn)
 
     def _get_asm(self, skool, crlf=False, tab=False, case=None, base=None, instr_width=23, warn=False, asm_mode=1, fix_mode=0):
+        self.clear_streams()
         writer = self._get_writer(skool, crlf, tab, case, base, instr_width, warn, asm_mode, fix_mode)
         writer.write()
         asm = self.out.getvalue().split('\n')[:-1]
@@ -1574,6 +1575,22 @@ class AsmWriterTest(SkoolKitTestCase):
         for macro in macros:
             self.assertEqual(writer.expand(macro), '')
 
+    def test_property_label_colons(self):
+        skool = '\n'.join((
+            '; @start',
+            '; @set-label-colons={}',
+            '; @label=START',
+            'c30000 RET'
+        ))
+
+        # label-colons=0
+        asm = self._get_asm(skool.format(0))
+        self.assertEqual(asm[0], 'START')
+
+        # label-colons=1
+        asm = self._get_asm(skool.format(1))
+        self.assertEqual(asm[0], 'START:')
+
     def test_continuation_line(self):
         asm = self._get_asm(TEST_CONTINUATION_LINE)
         self.assertEqual(asm[2], '                          ; require a continuation line')
@@ -1635,7 +1652,6 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_option_instr_width(self):
         for width in (5, 10, 15, 20, 25, 30):
-            self.clear_streams()
             asm = self._get_asm(TEST_INSTR_WIDTH, instr_width=width)
             self.assertEqual(asm[1], '  {0} ; A=0'.format('DEFB 123'.ljust(width)))
 
@@ -1731,20 +1747,17 @@ class AsmWriterTest(SkoolKitTestCase):
         for asm_mode in (1, 2, 3):
             asm = self._get_asm(TEST_ISUB_DIRECTIVE, asm_mode=asm_mode)
             self.assertEqual(asm[1], '  LD A,(32512)')
-            self.clear_streams()
 
     def test_isub_block_directive(self):
         for asm_mode in (1, 2, 3):
             asm = self._get_asm(TEST_ISUB_BLOCK_DIRECTIVE)
             self.assertEqual(asm[2], '; Actual description.')
             self.assertEqual(asm[3], '  RET')
-            self.clear_streams()
 
     def test_rsub_directive(self):
         for asm_mode in (1, 2):
             asm = self._get_asm(TEST_RSUB_DIRECTIVE, asm_mode=asm_mode)
             self.assertEqual(asm[1], '  INC L')
-            self.clear_streams()
         asm = self._get_asm(TEST_RSUB_DIRECTIVE, asm_mode=3)
         self.assertEqual(asm[1], '  INC HL')
 

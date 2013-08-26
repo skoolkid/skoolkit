@@ -239,13 +239,6 @@ c49152 RET ; This is a fairly long instruction comment, which makes it suitable
            ; for testing various line widths
 """
 
-TEST_LABEL_COLONS_SKOOL = """; @start
-; @set-label-colons={0}
-; Routine
-; @label=DOSTUFF
-c50000 RET
-"""
-
 TEST_COMMENT_WIDTH_MIN_SKOOL = """; @start
 ; @set-comment-width-min={0}
 ; Data
@@ -566,16 +559,6 @@ class Skool2AsmTest(SkoolKitTestCase):
                 exp_lines.append('{0} ; {1}'.format(indent, comment_line))
             for line_no, exp_line in enumerate(exp_lines, 1):
                 self.assertEqual(asm[line_no], exp_line)
-
-    def test_label_colons_property(self):
-        for label_colons in ('0', '1', '2', 'x'):
-            asm = self.get_asm(skool=TEST_LABEL_COLONS_SKOOL.format(label_colons))
-            try:
-                expect_colon = int(label_colons)
-            except ValueError:
-                expect_colon = True
-            exp_label = 'DOSTUFF{0}'.format(':' if expect_colon else '')
-            self.assertEqual(asm[1], exp_label)
 
     def test_comment_width_min_property(self):
         line_width = 79
