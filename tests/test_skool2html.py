@@ -14,131 +14,6 @@ TEST_WRITER_REF = """[Config]
 HtmlWriterClass={0}.TestHtmlWriter
 """.format(__name__)
 
-TEST_c_REF = """[Config]
-HtmlWriterClass={0}.TestHtmlWriter
-
-[Colours]
-RED=197,0,0
-""".format(__name__)
-
-TEST_P_REF = """[Page:Page1]
-Path=page1.html
-
-[Page:Page2]
-Path=page2.html
-"""
-
-TEST_w_REF = """[Config]
-HtmlWriterClass={0}.TestHtmlWriter
-
-[OtherCode:other]
-Source={{0}}
-Path=other
-Index=other.html
-Title=Other code
-Header=Other code
-
-[Bug:test:Test]
-<p>Hello</p>
-
-[Changelog:20120704]
-Intro.
-
-Item 1
-
-[Glossary:Term1]
-Definition 1.
-
-[Graphics]
-<em>This is the graphics page.</em>
-
-[Page:CustomPage1]
-Title=Custom page
-Path=page.html
-
-[PageContent:CustomPage1]
-<b>This is the content of custom page 1.</b>
-
-[Page:CustomPage2]
-Path=page2.html
-Link=Custom page 2
-
-[PageContent:CustomPage2]
-Lo
-
-[GraphicGlitch:SpriteBug]
-There is a bug in this sprite.
-
-[Fact:fact:Fact]
-This is a trivia item.
-
-[Poke:poke:POKE]
-This is a POKE.
-""".format(__name__)
-
-TEST_w_SKOOL = """; Routine
-c24576 LD HL,$6003
-
-; Data
-b$6003 DEFB 123
-
-; Game status buffer entry
-g24580 DEFB 0
-
-; A message
-t24581 DEFM "!"
-
-; Unused
-u24582 DEFB 0
-"""
-
-TEST_w_OTHER_SKOOL = """; Other code routine
-c32768 RET
-"""
-
-TEST_NO_REF = """; Routine
-;
-; Description.
-;
-; A Value
-; B Another value
-c24576 RET
-
-; Data
-;
-; Some data.
-b24577 DEFB 0
-
-; Message
-t24578 DEFM "Hello"
-"""
-
-TEST_HTML_WRITER_MODULE = """import sys
-
-from skoolkit.skoolhtml import HtmlWriter
-
-class TestHtmlWriter(HtmlWriter):
-    def init(self):
-        sys.stdout.write('{0}\\n')
-"""
-
-TEST_HTML_WRITER_REF = """[Config]
-HtmlWriterClass={0}:{1}.TestHtmlWriter
-"""
-
-OUTPUT_NO_REF = """Creating directory {0}
-Using skool file: test-html-no-ref.skool
-Found no ref file for test-html-no-ref.skool
-Parsing test-html-no-ref.skool
-Creating directory {0}/test-html-no-ref
-Copying {1} to {0}/test-html-no-ref/{1}
-  Writing disassembly files in test-html-no-ref/asm
-  Writing test-html-no-ref/maps/all.html
-  Writing test-html-no-ref/maps/routines.html
-  Writing test-html-no-ref/maps/data.html
-  Writing test-html-no-ref/maps/messages.html
-  Writing test-html-no-ref/index.html"""
-
 html_writer = None
 
 def mock_run(*args):
@@ -232,6 +107,67 @@ class Skool2HtmlTest(SkoolKitTestCase):
     def _css_c(self):
         return '-c Game/StyleSheet={0}'.format(self.write_text_file(suffix='.css'))
 
+    def _test_option_w(self, write_option, file_ids, method_name, exp_arg_list=None):
+        ref = TEST_WRITER_REF + '\n'.join((
+            '[OtherCode:other]',
+            'Source={0}',
+            'Path=other',
+            'Index=other.html',
+            'Title=Other code',
+            'Header=Other code',
+            '[Bug:test:Test]',
+            '<p>Hello</p>',
+            '[Changelog:20120704]',
+            'Intro.',
+            'Item 1',
+            '[Glossary:Term1]',
+            'Definition 1.',
+            '[Graphics]',
+            '<em>This is the graphics page.</em>',
+            '[Page:CustomPage1]',
+            'Title=Custom page',
+            'Path=page.html',
+            '[PageContent:CustomPage1]',
+            '<b>This is the content of custom page 1.</b>',
+            '[Page:CustomPage2]',
+            'Path=page2.html',
+            'Link=Custom page 2',
+            '[PageContent:CustomPage2]',
+            'Lo',
+            '[GraphicGlitch:SpriteBug]',
+            'There is a bug in this sprite.',
+            '[Fact:fact:Fact]',
+            'This is a trivia item.',
+            '[Poke:poke:POKE]',
+            'This is a POKE.'
+        ))
+        skool = '\n'.join((
+            '; Routine',
+            'c24576 LD HL,$6003',
+            '',
+            '; Data',
+            'b$6003 DEFB 123',
+            '',
+            '; Game status buffer entry',
+            'g24580 DEFB 0',
+            '',
+            '; A message',
+            't24581 DEFM "!"',
+            '',
+            '; Unused',
+            'u24582 DEFB 0'
+        ))
+        other_skool = "; Other code routine\nc32768 RET"
+        other_skoolfile = self.write_text_file(other_skool, suffix='.skool')
+        reffile = self.write_text_file(ref.format(other_skoolfile), suffix='.ref')
+        self.write_text_file(skool, '{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('{} -d {} {} {} {}'.format(self._css_c(), self.odir, write_option, file_ids, reffile))
+        self.assertEqual(error, '')
+        self.assertTrue(method_name in html_writer.call_dict, '{} was not called'.format(method_name))
+        arg_list = html_writer.call_dict[method_name]
+        exp_arg_list = exp_arg_list or [()]
+        self.assertEqual(arg_list, exp_arg_list, '{}: {} != {}'.format(method_name, arg_list, exp_arg_list))
+
     def test_default_option_values(self):
         self.mock(skool2html, 'run', mock_run)
         infiles = ['game1.ref', 'game2.skool']
@@ -259,11 +195,36 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertTrue(error.startswith('usage: skool2html.py'))
 
     def test_no_ref(self):
-        skoolfile = self.write_text_file(TEST_NO_REF, 'test-html-no-ref.skool')
+        skool = '\n'.join((
+            '; Routine',
+            'c24576 RET',
+            '',
+            '; Data',
+            'b24577 DEFB 0',
+            '',
+            '; Message',
+            't24578 DEFM "Hello"'
+        ))
+        exp_output = '\n'.join((
+            'Creating directory {0}',
+            'Using skool file: {1}.skool',
+            'Found no ref file for {1}.skool',
+            'Parsing {1}.skool',
+            'Creating directory {0}/{1}',
+            'Copying {2} to {0}/{1}/{2}',
+            '  Writing disassembly files in {1}/asm',
+            '  Writing {1}/maps/all.html',
+            '  Writing {1}/maps/routines.html',
+            '  Writing {1}/maps/data.html',
+            '  Writing {1}/maps/messages.html',
+            '  Writing {1}/index.html'
+        ))
+        skoolfile = self.write_text_file(skool, suffix='.skool')
+        game_name = skoolfile[:-6]
         cssfile = self.write_text_file(suffix='.css')
         output, error = self.run_skool2html('-c Game/StyleSheet={0} -d {1} {2}'.format(cssfile, self.odir, skoolfile))
         self.assertEqual(len(error), 0)
-        self.assert_output_equal(output, OUTPUT_NO_REF.format(self.odir, cssfile).split('\n'), True)
+        self.assert_output_equal(output, exp_output.format(self.odir, game_name, cssfile).split('\n'), True)
 
     def test_nonexistent_skool_file(self):
         skoolfile = 'xyz.skool'
@@ -345,12 +306,20 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(output[3], 'Creating directory {0}'.format(name))
 
     def test_html_writer_class(self):
+        writer_module = '\n'.join((
+            'import sys',
+            'from skoolkit.skoolhtml import HtmlWriter',
+            'class TestHtmlWriter(HtmlWriter):',
+            '    def init(self):',
+            '        sys.stdout.write("{0}\\n")'
+        ))
+        ref = "[Config]\nHtmlWriterClass={0}:{1}.TestHtmlWriter"
         module_dir = self.make_directory()
         module_path = os.path.join(module_dir, 'testmod.py')
         message = 'Initialising TestHtmlWriter'
-        module = self.write_text_file(TEST_HTML_WRITER_MODULE.format(message), path=module_path)
+        module = self.write_text_file(writer_module.format(message), path=module_path)
         module_name = basename(module)[:-3]
-        reffile = self.write_text_file(TEST_HTML_WRITER_REF.format(module_dir, module_name), suffix='.ref')
+        reffile = self.write_text_file(ref.format(module_dir, module_name), suffix='.ref')
         name = reffile[:-4]
         self.write_text_file('', '{0}.skool'.format(name))
         output, error = self.run_skool2html('{0} -d {1} {2}'.format(self._css_c(), self.odir, reffile))
@@ -468,8 +437,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertIs(mock_skool_parser.create_labels, True)
 
     def test_option_P(self):
+        ref = '\n'.join((
+            '[Page:Page1]',
+            'Path=page1.html',
+            '[Page:Page2]',
+            'Path=page2.html'
+        ))
         self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
-        reffile = self.write_text_file(TEST_P_REF, suffix='.ref')
+        reffile = self.write_text_file(ref, suffix='.ref')
         self.write_text_file(path='{}.skool'.format(reffile[:-4]))
         for option in ('-P', '--pages'):
             for pages in ('Page1', 'Page1,Page2'):
@@ -479,37 +454,54 @@ class Skool2HtmlTest(SkoolKitTestCase):
         output, error = self.run_skool2html(reffile)
         self.assertEqual(write_disassembly_args[3], ['Page1', 'Page2'])
 
-    def test_option_w(self):
-        options = [
-            ('d', 'write_asm_entries', [()]),
-            ('m', 'write_map', [({'Name': 'MemoryMap', 'PageByteColumns': '1'},),
-                                ({'EntryTypes': 'c', 'Name': 'RoutinesMap'},),
-                                ({'EntryTypes': 'bw', 'Name': 'DataMap', 'PageByteColumns': '1'},),
-                                ({'EntryTypes': 't', 'Name': 'MessagesMap'},),
-                                ({'Name': 'UnusedMap', 'EntryTypes': 'uz', 'PageByteColumns': '1'},)]),
-            ('P', 'write_page', [('CustomPage1',), ('CustomPage2',)]),
-            ('G', 'write_gbuffer', [()]),
-            ('g', 'write_graphics', [()]),
-            ('B', 'write_graphic_glitches', [()]),
-            ('c', 'write_changelog', [()]),
-            ('b', 'write_bugs', [()]),
-            ('t', 'write_facts', [()]),
-            ('y', 'write_glossary', [()]),
-            ('p', 'write_pokes', [()]),
-            ('o', 'write_map', [({'Path': 'other.html', 'Title': 'Other code', 'AsmPath': 'other'},)]),
-            ('o', 'write_entries', [('other', 'other.html', 'Other code')]),
-            ('i', 'write_index', [()])
+    def test_option_w_m(self):
+        exp_arg_list = [
+            ({'Name': 'MemoryMap', 'PageByteColumns': '1'},),
+            ({'EntryTypes': 'c', 'Name': 'RoutinesMap'},),
+            ({'EntryTypes': 'bw', 'Name': 'DataMap', 'PageByteColumns': '1'},),
+            ({'EntryTypes': 't', 'Name': 'MessagesMap'},),
+            ({'Name': 'UnusedMap', 'EntryTypes': 'uz', 'PageByteColumns': '1'},)
         ]
-        other_skoolfile = self.write_text_file(TEST_w_OTHER_SKOOL, suffix='.skool')
-        reffile = self.write_text_file(TEST_w_REF.format(other_skoolfile), suffix='.ref')
-        self.write_text_file(TEST_w_SKOOL, '{0}.skool'.format(reffile[:-4]))
-        for write_option in ('-w', '--write'):
-            for file_ids, method_name, exp_arg_list in options:
-                output, error = self.run_skool2html('{0} -d {1} {2} {3} {4}'.format(self._css_c(), self.odir, write_option, file_ids, reffile))
-                self.assertEqual(error, '')
-                self.assertTrue(method_name in html_writer.call_dict, '{0} was not called'.format(method_name))
-                arg_list = html_writer.call_dict[method_name]
-                self.assertEqual(arg_list, exp_arg_list, '{0}: {1} != {2}'.format(method_name, arg_list, exp_arg_list))
+        self._test_option_w('--write', 'm', 'write_map', exp_arg_list)
+
+    def test_option_w_d(self):
+        self._test_option_w('-w', 'd', 'write_asm_entries')
+
+    def test_option_w_P(self):
+        self._test_option_w('--write', 'P', 'write_page', [('CustomPage1',), ('CustomPage2',)])
+
+    def test_option_w_G(self):
+        self._test_option_w('-w', 'G', 'write_gbuffer')
+
+    def test_option_w_g(self):
+        self._test_option_w('--write', 'g', 'write_graphics')
+
+    def test_option_w_B(self):
+        self._test_option_w('-w', 'B', 'write_graphic_glitches')
+
+    def test_option_w_c(self):
+        self._test_option_w('--write', 'c', 'write_changelog')
+
+    def test_option_w_b(self):
+        self._test_option_w('-w', 'b', 'write_bugs')
+
+    def test_option_w_t(self):
+        self._test_option_w('--write', 't', 'write_facts')
+
+    def test_option_w_y(self):
+        self._test_option_w('-w', 'y', 'write_glossary')
+
+    def test_option_w_p(self):
+        self._test_option_w('--write', 'p', 'write_pokes')
+
+    def test_option_w_o_map(self):
+        self._test_option_w('-w', 'o', 'write_map', [({'Path': 'other.html', 'Title': 'Other code', 'AsmPath': 'other'},)])
+
+    def test_option_w_o_entries(self):
+        self._test_option_w('--write', 'o', 'write_entries', [('other', 'other.html', 'Other code')])
+
+    def test_option_w_i(self):
+        self._test_option_w('-w', 'i', 'write_index')
 
     def test_option_V(self):
         for option in ('-V', '--version'):
@@ -547,7 +539,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertTrue(search is not None, '"{0}" is not of the form "{1}"'.format(done, pattern))
 
     def test_option_c(self):
-        reffile = self.write_text_file(TEST_c_REF, suffix='.ref')
+        ref = TEST_WRITER_REF + '[Colours]\nRED=197,0,0'
+        reffile = self.write_text_file(ref, suffix='.ref')
         self.write_text_file('', '{0}.skool'.format(reffile[:-4]))
         sl_spec = 'GARBAGE'
         for option in ('-c', '--config'):
