@@ -2707,7 +2707,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         js = 'js/script.js'
         writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=js)
         header = ofile.getvalue().split('\n')
-        js_path = FileInfo.relpath(cwd, join(writer.paths['JavaScriptPath'], basename(js)))
+        js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
         self.assertEqual(header[9], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
     def test_write_header_with_multiple_js(self):
@@ -2718,7 +2718,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         js = ';'.join(js_files)
         writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=js)
         header = ofile.getvalue().split('\n')
-        js_paths = [FileInfo.relpath(cwd, join(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
+        js_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
         self.assertEqual(header[9], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
         self.assertEqual(header[10], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
 
@@ -2730,7 +2730,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         cwd = ''
         writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=None)
         header = ofile.getvalue().split('\n')
-        css_path = FileInfo.relpath(cwd, join(writer.paths['StyleSheetPath'], basename(css)))
+        css_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css)))
         self.assertEqual(header[8], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_path))
 
     def test_write_header_with_multiple_css(self):
@@ -2741,7 +2741,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         cwd = ''
         writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=None)
         header = ofile.getvalue().split('\n')
-        css_paths = [FileInfo.relpath(cwd, join(writer.paths['StyleSheetPath'], basename(css))) for css in css_files]
+        css_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css))) for css in css_files]
         self.assertEqual(header[8], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[0]))
         self.assertEqual(header[9], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[1]))
 
