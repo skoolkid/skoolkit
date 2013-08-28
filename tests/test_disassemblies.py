@@ -103,7 +103,7 @@ def check_links(root_dir):
             orphans.add(fname)
     return all_files, orphans, missing_files, missing_anchors
 
-class DisassembliesTest(SkoolKitTestCase):
+class DisassembliesTestCase(SkoolKitTestCase):
     def _run_cmd(self, cmd):
         cmdline = cmd.split()
         if sys.platform == 'win32':
@@ -135,119 +135,112 @@ class DisassembliesTest(SkoolKitTestCase):
     def _write_jsw_skool(self):
         return self._write_skool(JSW2CTL, JSWZ80, 'jet_set_willy')
 
-class AsmTest(DisassembliesTest):
-    def _test_asm(self, skoolfile, clean=True):
-        for b in ('', '-D', '-H'):
-            for c in ('', '-l', '-u'):
-                for f in ('', '-f 1', '-f 2', '-f 3'):
-                    for p in ('', '-s', '-r'):
-                        args = '{0} {1} {2} {3} {4}'.format(b, c, f, p, skoolfile)
-                        fail_msg = "skool2asm.py {0} failed".format(args)
-                        output, stderr = self.run_skool2asm(args, err_lines=True)
-                        if clean:
-                            self.assertTrue(stderr[0].startswith('Parsed {0}'.format(skoolfile)), fail_msg)
-                            self.assertEqual(len(stderr), 3, fail_msg)
-                        else:
-                            self.assertTrue(any([line.startswith('Parsed {0}'.format(skoolfile)) for line in stderr]), fail_msg)
-                        self.assertTrue(stderr[-1].startswith('Wrote ASM to stdout'), fail_msg)
+class AsmTestCase(DisassembliesTestCase):
+    def _test_asm(self, options, skoolfile, clean=True):
+        args = '{} {}'.format(options, skoolfile)
+        output, stderr = self.run_skool2asm(args, err_lines=True)
+        if clean:
+            self.assertTrue(stderr[0].startswith('Parsed {}'.format(skoolfile)))
+            self.assertEqual(len(stderr), 3)
+        else:
+            self.assertTrue(any([line.startswith('Parsed {}'.format(skoolfile)) for line in stderr]))
+        self.assertTrue(stderr[-1].startswith('Wrote ASM to stdout'))
 
-    def test_mm_asm(self):
+    def write_mm(self, options):
         skoolfile = self._write_skool(MM2CTL, MMZ80, 'manic_miner')
-        self._test_asm(skoolfile, False)
+        self._test_asm(options, skoolfile, False)
 
-    def test_jsw_asm(self):
+    def write_jsw(self, options):
         skoolfile = self._write_skool(JSW2CTL, JSWZ80, 'jet_set_willy')
-        self._test_asm(skoolfile, False)
+        self._test_asm(options, skoolfile, False)
 
-class CtlTest(DisassembliesTest):
-    def _test_ctl(self, skoolfile):
-        for w in ('', '-w b', '-w bt', '-w btd', '-w btdr', '-w btdrm', '-w btdrms', '-w btdrmsc'):
-            for h in ('', '-h'):
-                for a in ('', '-a'):
-                    args = '{0} {1} {2} {3}'.format(w, h, a, skoolfile)
-                    output, stderr = self.run_skool2ctl(args)
-                    self.assertEqual(stderr, '')
+class CtlTestCase(DisassembliesTestCase):
+    def _test_ctl(self, options, skoolfile):
+        args = '{} {}'.format(options, skoolfile)
+        output, stderr = self.run_skool2ctl(args)
+        self.assertEqual(stderr, '')
 
-    def test_mm_ctl(self):
-        self._test_ctl(self._write_mm_skool())
+    def write_mm(self, options):
+        self._test_ctl(options, self._write_mm_skool())
 
-    def test_jsw_ctl(self):
-        self._test_ctl(self._write_jsw_skool())
+    def write_jsw(self, options):
+        self._test_ctl(options, self._write_jsw_skool())
 
-class HtmlTest(DisassembliesTest):
+class HtmlTestCase(DisassembliesTestCase):
     def setUp(self):
-        DisassembliesTest.setUp(self)
+        DisassembliesTestCase.setUp(self)
         self.odir = 'html-{0}'.format(os.getpid())
         self.tempdirs.append(self.odir)
 
-    def _test_html(self, html_dir, ref_file, exp_output, skoolfile):
+    def _validate_xhtml(self):
+        if os.path.isfile(XHTML_XSD):
+            xmlschema_doc = etree.parse(XHTML_XSD)
+            xmlschema = etree.XMLSchema(xmlschema_doc)
+            for root, dirs, files in os.walk(self.odir):
+                for fname in files:
+                    if fname[-5:] == '.html':
+                        htmlfile = os.path.join(root, fname)
+                        try:
+                            xhtml = etree.parse(htmlfile)
+                        except etree.LxmlError as e:
+                            self.fail('Error while parsing {}: {}'.format(htmlfile, e.message))
+                        try:
+                            xmlschema.assertValid(xhtml)
+                        except etree.DocumentInvalid as e:
+                            self.fail('Error while validating {}: {}'.format(htmlfile, e.message))
+
+    def _check_links(self):
+        all_files, orphans, missing_files, missing_anchors = check_links(self.odir)
+        if orphans or missing_files or missing_anchors:
+            error_msg = []
+            if orphans:
+                error_msg.append('Orphaned files: {}'.format(len(orphans)))
+                for fname in orphans:
+                    error_msg.append('  {}'.format(fname))
+            if missing_files:
+                error_msg.append('Links to nonexistent files: {}'.format(len(missing_files)))
+                for fname, link_dest in missing_files:
+                    error_msg.append('  {} -> {}'.format(fname, link_dest))
+            if missing_anchors:
+                error_msg.append('Links to nonexistent anchors: {}'.format(len(missing_anchors)))
+                for fname, link_dest in missing_anchors:
+                    error_msg.append('  {} -> {}'.format(fname, link_dest))
+            self.fail('\n'.join(error_msg))
+
+    def _test_html(self, html_dir, options, ref_file, exp_output, skoolfile):
         cssfile = self.write_text_file(suffix='.css')
         c_options = '-c Game/StyleSheet={0}'.format(cssfile)
         c_options += ' -c Config/SkoolFile={0}'.format(skoolfile)
-        for option in ('', '-H', '-D', '-l', '-u'):
-            shutil.rmtree(self.odir, True)
+        shutil.rmtree(self.odir, True)
 
-            # Write the disassembly
-            output, error = self.run_skool2html('{0} -d {1} {2} {3}'.format(c_options, self.odir, option, ref_file))
-            self.assertEqual(len(error), 0)
-            reps = {'odir': self.odir, 'cssfile': cssfile, 'skoolfile': skoolfile}
-            self.assertEqual(output, exp_output.format(**reps).split('\n'))
+        # Write the disassembly
+        output, error = self.run_skool2html('{} -d {} {} {}'.format(c_options, self.odir, options, ref_file))
+        self.assertEqual(len(error), 0)
+        reps = {'odir': self.odir, 'cssfile': cssfile, 'skoolfile': skoolfile}
+        self.assertEqual(output, exp_output.format(**reps).split('\n'))
 
-            # Do XHTML validation using lxml.etree
-            if os.path.isfile(XHTML_XSD):
-                xmlschema_doc = etree.parse(XHTML_XSD)
-                xmlschema = etree.XMLSchema(xmlschema_doc)
-                for root, dirs, files in os.walk(self.odir):
-                    for fname in files:
-                        if fname[-5:] == '.html':
-                            htmlfile = os.path.join(root, fname)
-                            try:
-                                xhtml = etree.parse(htmlfile)
-                            except etree.LxmlError as e:
-                                self.fail('Error while parsing {0}: {1}'.format(htmlfile, e.message))
-                            try:
-                                xmlschema.assertValid(xhtml)
-                            except etree.DocumentInvalid as e:
-                                self.fail('Error while validating {0}: {1}'.format(htmlfile, e.message))
+        self._validate_xhtml()
+        self._check_links()
 
-            # Check links
-            all_files, orphans, missing_files, missing_anchors = check_links(self.odir)
-            if orphans or missing_files or missing_anchors:
-                error_msg = []
-                if orphans:
-                    error_msg.append('Orphaned files: {0}'.format(len(orphans)))
-                    for fname in orphans:
-                        error_msg.append('  {0}'.format(fname))
-                if missing_files:
-                    error_msg.append('Links to nonexistent files: {0}'.format(len(missing_files)))
-                    for fname, link_dest in missing_files:
-                        error_msg.append('  {0} -> {1}'.format(fname, link_dest))
-                if missing_anchors:
-                    error_msg.append('Links to nonexistent anchors: {0}'.format(len(missing_anchors)))
-                    for fname, link_dest in missing_anchors:
-                        error_msg.append('  {0} -> {1}'.format(fname, link_dest))
-                self.fail('\n'.join(error_msg))
+    def write_mm(self, options):
+        self._test_html('manic_miner', options, '../examples/manic_miner.ref', OUTPUT_MM, self._write_mm_skool())
 
-    def test_mm_html(self):
-        self._test_html('manic_miner', '../examples/manic_miner.ref', OUTPUT_MM, self._write_mm_skool())
+    def write_jsw(self, options):
+        self._test_html('jet_set_willy', options, '../examples/jet_set_willy.ref', OUTPUT_JSW, self._write_jsw_skool())
 
-    def test_jsw_html(self):
-        self._test_html('jet_set_willy', '../examples/jet_set_willy.ref', OUTPUT_JSW, self._write_jsw_skool())
-
-class SftTest(DisassembliesTest):
-    def _test_sft(self, skoolfile, snapshot):
+class SftTestCase(DisassembliesTestCase):
+    def _test_sft(self, options, skoolfile, snapshot):
         with open(skoolfile, 'rt') as f:
             orig_skool = f.read().split('\n')
-        for h in ('', '-h'):
-            args = '{0} {1}'.format(h, skoolfile)
-            sft, stderr = self.run_skool2sft(args, out_lines=False)
-            self.assertEqual(stderr, '')
-            sftfile = self.write_text_file(sft)
-            output, stderr = self.run_sna2skool('-T {0} {1}'.format(sftfile, snapshot))
-            self.assert_output_equal(output, orig_skool[:-1])
+        args = '{} {}'.format(options, skoolfile)
+        sft, stderr = self.run_skool2sft(args, out_lines=False)
+        self.assertEqual(stderr, '')
+        sftfile = self.write_text_file(sft)
+        output, stderr = self.run_sna2skool('-T {} {}'.format(sftfile, snapshot))
+        self.assert_output_equal(output, orig_skool[:-1])
 
-    def test_mm_sft(self):
-        self._test_sft(self._write_mm_skool(), MMZ80)
+    def write_mm(self, options):
+        self._test_sft(options, self._write_mm_skool(), MMZ80)
 
-    def test_jsw_sft(self):
-        self._test_sft(self._write_jsw_skool(), JSWZ80)
+    def write_jsw(self, options):
+        self._test_sft(options, self._write_jsw_skool(), JSWZ80)

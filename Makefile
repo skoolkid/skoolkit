@@ -67,46 +67,54 @@ jsw:
 	./skool2html.py $(OPTIONS) examples/jet_set_willy.ref
 	rm jet_set_willy.skool jet_set_willy.ctl
 
+.PHONY: write-disassembly-tests
+write-disassembly-tests:
+	for t in asm ctl html sft; do utils/write-disassembly-tests.py $$t > tests/test_disassemblies_$$t.py; done
+
+.PHONY: remove-disassembly-tests
+remove-disassembly-tests:
+	rm -f tests/test_disassemblies_*.py*
+
 .PHONY: test
-test:
-	nosetests -w tests --ignore-files=test_disassemblies.py
+test: remove-disassembly-tests
+	nosetests -w tests
 
 .PHONY: test-all
-test-all:
+test-all: write-disassembly-tests
 	nosetests -w tests
 
 .PHONY: test2.7
-test2.7:
-	$(NOSETESTS27) -w tests --ignore-files=test_disassemblies.py
+test2.7: remove-disassembly-tests
+	$(NOSETESTS27) -w tests
 
 .PHONY: test2.7-all
-test2.7-all:
+test2.7-all: write-disassembly-tests
 	$(NOSETESTS27) -w tests
 
 .PHONY: test3.2
-test3.2:
-	$(NOSETESTS32) -w tests --ignore-files=test_disassemblies.py
+test3.2: remove-disassembly-tests
+	$(NOSETESTS32) -w tests
 
 .PHONY: test3.2-all
-test3.2-all:
+test3.2-all: write-disassembly-tests
 	$(NOSETESTS32) -w tests
 
 .PHONY: test3.3
-test3.3:
-	$(NOSETESTS33) -w tests --ignore-files=test_disassemblies.py
+test3.3: remove-disassembly-tests
+	$(NOSETESTS33) -w tests
 
 .PHONY: test3.3-all
-test3.3-all:
+test3.3-all: write-disassembly-tests
 	$(NOSETESTS33) -w tests
 
 .PHONY: test-cover
-test-cover:
+test-cover: remove-disassembly-tests
 	rm -rf tests/cover
-	nosetests -w tests --with-coverage --cover-package=skoolkit --cover-html --cover-erase --ignore-files=test_disassemblies.py
+	nosetests -w tests --with-coverage --cover-package=skoolkit --cover-html --cover-erase
 	@echo "Coverage info in tests/cover/index.html"
 
 .PHONY: test-cover-all
-test-cover-all:
+test-cover-all: write-disassembly-tests
 	rm -rf tests/cover
 	nosetests -w tests --with-coverage --cover-package=skoolkit --cover-html --cover-erase
 	@echo "Coverage info in tests/cover/index.html"
