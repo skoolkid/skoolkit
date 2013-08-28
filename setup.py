@@ -52,8 +52,8 @@ To convert a SNA, Z80 or SZX snapshot of a Spectrum game into a `skool` file
 
   $ sna2skool.py game.z80 > game.skool
 
-To split the disassembly up into code and data blocks, you'll need a 'control
-file'. See the documentation_ for further details.
+To split the disassembly up into code and data blocks, you'll need a
+`control file`_.
 
 To turn this `skool` file into an HTML disassembly::
 
@@ -64,6 +64,7 @@ To turn it into an ASM file that can be fed to an assembler::
   $ skool2asm.py game.skool > game.asm
 
 .. _documentation: http://pyskool.ca/docs/skoolkit/
+.. _control file: http://pyskool.ca/docs/skoolkit/control-files.html
 """
 
 PACKAGE_DIR = 'build/skoolkit-pkg'
