@@ -1,7 +1,7 @@
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 
 Name:           skoolkit
-Version:        3.4
+Version:        3.5
 Release:        1%{?dist}
 Summary:        Tools for creating disassemblies of ZX Spectrum programs
 
@@ -47,6 +47,9 @@ cp -a examples %{buildroot}%{_datadir}/%{name}
 %{python_sitelib}/*
 
 %changelog
+* Sun Sep 01 2013 Richard Dymond <rjdymond@gmail.com> 3.5-1
+- Updated to 3.5
+
 * Mon Jul 08 2013 Richard Dymond <rjdymond@gmail.com> 3.4-1
 - Updated to 3.4
 
