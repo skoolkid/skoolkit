@@ -198,8 +198,10 @@ aspects of the HTML output. The parameters are in the format::
 
 Recognised parameters are:
 
+* ``Font`` - the base name of the font file to use (default: None); multiple
+  font files can be declared by separating their names with semicolons
 * ``Game`` - the name of the game, which appears in the title of every page,
-  and also in the header of the main index page (if no logo is defined); if not
+  and also in the header of every page (if no logo is defined); if not
   specified, the base name of the `skool` file is used
 * ``GameStatusBufferIncludes`` - a comma-separated list of addresses of entries
   to include on the 'Game status buffer' page in addition to those that are
@@ -214,10 +216,16 @@ Recognised parameters are:
   hyperlinked as well
 * ``Logo`` - the text/HTML that will serve as the game logo in the header of
   every page (typically a skool macro that creates a suitable image); if not
-  specified, the name of the game is used
+  specified, ``LogoImage`` is used
+* ``LogoImage`` - the path to the game logo image, which appears in the header
+  of every page; if the specified file does not exist, the name of the game is
+  used in place of an image
 * ``OutputRegisterTableHeader`` - the text to use in the header of output
   register tables on routine disassembly pages; if not specified, no header is
   displayed
+* ``StyleSheet`` - the base name of the CSS file to use (default:
+  `skoolkit.css`); multiple CSS files can be declared by separating their names
+  with semicolons
 * ``TitlePrefix`` - the prefix to use before the game name or logo in the
   header of the main index page (default: 'The complete')
 * ``TitleSuffix`` - the suffix to use after the game name or logo in the header
@@ -228,13 +236,16 @@ Recognised parameters are:
 +=========+=================================================================+
 | 2.0.3   | Added the ``GameStatusBufferIncludes`` parameter                |
 +---------+-----------------------------------------------------------------+
-| 2.0.5   | ``Logo`` defines the text/HTML for the logo instead of the path |
-|         | to the logo image                                               |
+| 2.0.5   | Added the ``Logo`` parameter                                    |
 +---------+-----------------------------------------------------------------+
 | 3.1.2   | Added the ``InputRegisterTableHeader`` and                      |
 |         | ``OutputRegisterTableHeader`` parameters                        |
 +---------+-----------------------------------------------------------------+
 | 3.4     | Added the ``LinkOperands`` parameter                            |
++---------+-----------------------------------------------------------------+
+| 3.5     | Added the ``Font``, ``LogoImage`` and ``StyleSheet`` parameters |
+|         | (all of which used to live in the :ref:`Paths` section,         |
+|         | ``LogoImage`` by the name ``Logo``)                             |
 +---------+-----------------------------------------------------------------+
 
 [Glossary:\*]
@@ -648,20 +659,23 @@ The following parameters are optional:
 
 * ``BodyClass`` - the CSS class to use for the ``<body>`` element of the page
   (default: no CSS class is used)
-* ``JavaScript`` - ``1`` if a link to the JavaScript file (defined by the
-  ``JavaScript`` parameter in the :ref:`paths` section) should be inserted into
-  the page, ``0`` otherwise (default: ``0``)
+* ``JavaScript`` - the base name of the JavaScript file to use (default: None);
+  multiple JavaScript files can be declared by separating their names with
+  semicolons
 * ``Link`` - the link text for the page (defaults to the title)
 * ``PageContent`` - the HTML source of the body of the page; this may contain
   :ref:`skool macros <skoolMacros>`, and can be used instead of a
   :ref:`pageContent` section if the source can be written on a single line
 * ``Title`` - the title of the page (defaults to the page ID)
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 2.1     | New     |
-+---------+---------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 2.1     | New                                                              |
++---------+------------------------------------------------------------------+
+| 3.5     | The ``JavaScript`` parameter specifies the JavaScript file(s) to |
+|         | use                                                              |
++---------+------------------------------------------------------------------+
 
 .. _pageContent:
 
@@ -704,8 +718,6 @@ Recognised file IDs and their default paths are:
 * ``Changelog`` - the 'Changelog' page (default: `reference/changelog.html`)
 * ``DataMap`` - the 'Data' memory map page (default: `maps/data.html`)
 * ``Facts`` - the 'Trivia' page (default: `reference/facts.html`)
-* ``Font`` - the base name of the font file to use (default: None); multiple
-  font files can be declared by separating their names with semicolons
 * ``GameIndex`` - the disassembly home page (default: `index.html`)
 * ``GameStatusBuffer`` - the 'Game status buffer' page (default:
   `buffers/gbuffer.html`)
@@ -713,22 +725,12 @@ Recognised file IDs and their default paths are:
 * ``GraphicGlitches`` - the 'Graphic glitches' page (default:
   `graphics/glitches.html`)
 * ``Graphics`` - the 'Other graphics' page (default: `graphics/graphics.html`)
-* ``JavaScript`` - the base name of the JavaScript file to use (default: None);
-  multiple JavaScript files can be declared by separating their names with
-  semicolons
-* ``Logo`` - the game logo image (default: `images/logo.png` or
-  `images/logo.gif`, depending on the default image format specified in the
-  :ref:`ref-ImageWriter` section; this value may be overridden by the ``Logo``
-  parameter in the :ref:`ref-Game` section)
 * ``MemoryMap`` - the 'Everything' memory map page (default: `maps/all.html`)
 * ``MessagesMap`` - the 'Messages' memory map page (default:
   `maps/messages.html`)
 * ``Pokes`` - the 'Pokes' page (default: `reference/pokes.html`)
 * ``RoutinesMap`` - the 'Routines' memory map page (default:
   `maps/routines.html`)
-* ``StyleSheet`` - the base name of the CSS file to use (default:
-  `skoolkit.css`); multiple CSS files can be declared by separating their names
-  with semicolons
 * ``UnusedMap`` - the 'Unused addresses' memory map page (default:
   `maps/unused.html`)
 
@@ -736,15 +738,17 @@ Recognised directory IDs and their default paths are:
 
 * ``CodePath`` - the directory in which the disassembly files will be written
   (default: `asm`)
-* ``FontPath`` - the directory in which to store font files (default: `.`)
+* ``FontPath`` - the directory in which to store font files specified by the
+  ``Font`` parameter in the :ref:`ref-Game` section (default: `.`)
 * ``FontImagePath`` - the directory in which font images (created by the
   :ref:`#FONT <FONT>` macro) will be placed (default: `images/font`)
 * ``JavaScriptPath`` - the directory in which to store JavaScript files
-  (default: `.`)
+  specified by the ``JavaScript`` parameter in :ref:`Page` sections (default:
+  `.`)
 * ``ScreenshotImagePath`` - the directory in which screenshot images (created
   by the :ref:`#SCR <SCR>` macro) will be placed (default: `images/scr`)
-* ``StyleSheetPath`` - the directory in which to store CSS files (default:
-  `.`)
+* ``StyleSheetPath`` - the directory in which to store CSS files specified by
+  the ``StyleSheet`` parameter in the :ref:`ref-Game` section (default: `.`)
 * ``UDGImagePath`` - the directory in which UDG images (created by the
   :ref:`#UDG <UDG>` or :ref:`#UDGARRAY <UDGARRAY>` macro) will be placed
   (default: `images/udgs`)
@@ -760,11 +764,9 @@ Recognised directory IDs and their default paths are:
 +---------+-------------------------------------------------------------------+
 | 2.2.5   | Added the ``Changelog`` file ID                                   |
 +---------+-------------------------------------------------------------------+
-| 2.5     | Added the ``UnusedMap`` file ID, and support for declaring        |
-|         | multiple JavaScript files and CSS files in the ``JavaScript`` and |
-|         | ``StyleSheet`` parameters                                         |
+| 2.5     | Added the ``UnusedMap`` file ID                                   |
 +---------+-------------------------------------------------------------------+
-| 3.1.1   | Added the ``Font`` file ID and the ``FontPath`` directory ID      |
+| 3.1.1   | Added the ``FontPath`` directory ID                               |
 +---------+-------------------------------------------------------------------+
 
 .. _ref-Poke:

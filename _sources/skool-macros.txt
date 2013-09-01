@@ -558,11 +558,15 @@ disassembly page for the routine at 25820.
 In ASM mode, this instance of the ``#R`` macro expands to the label for the
 routine at 25820 (or simply ``25820`` if that routine has no label).
 
-+---------+------------------------------------------+
-| Version | Changes                                  |
-+=========+==========================================+
-| 2.0     | Added support for the ``@code`` notation |
-+---------+------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 2.0     | Added support for the ``@code`` notation                         |
++---------+------------------------------------------------------------------+
+| 3.5     | Added the ability to resolve (in HTML mode) the address of an    |
+|         | entry point in another disassembly when an appropriate           |
+|         | :ref:`remote entry <rEntry>` is defined                          |
++---------+------------------------------------------------------------------+
 
 .. _m-REFS:
 

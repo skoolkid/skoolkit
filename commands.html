@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Command reference &mdash; SkoolKit 3.4 documentation</title>
+    <title>Command reference &mdash; SkoolKit 3.5 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.4',
+        VERSION:     '3.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.5 documentation" href="index.html" />
     <link rel="next" title="Disassembly DIY" href="diy.html" />
     <link rel="prev" title="Installing and using SkoolKit" href="usage.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -295,7 +295,8 @@ Options:
   -q, --quiet           Be quiet
   -t, --time            Show timings
   -T THEME, --theme THEME
-                        Use this CSS theme
+                        Use this CSS theme; this option may be used multiple
+                        times
   -u, --upper           Write the disassembly in upper case
   -V, --version         Show SkoolKit version number and exit
   -w X, --write X       Write only these files, where X is one or more of:
@@ -324,16 +325,23 @@ line</li>
 installed (as shown by <tt class="docutils literal"><span class="pre">skool2html.py</span> <span class="pre">-p</span></tt>).</p>
 <p>The <tt class="docutils literal"><span class="pre">-T</span></tt> option sets the CSS theme. For example, if <cite>game.ref</cite> specifies the
 CSS files to use thus:</p>
-<div class="highlight-none"><div class="highlight"><pre>[Paths]
+<div class="highlight-none"><div class="highlight"><pre>[Game]
 StyleSheet=skoolkit.css;game.css
 </pre></div>
 </div>
 <p>then:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -T dark game.ref
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -T dark -T wide game.ref
 </pre></div>
 </div>
-<p>will use <cite>skoolkit-dark.css</cite> and <cite>game-dark.css</cite> if they exist, and fall back
-to <cite>skoolkit.css</cite> and <cite>game.css</cite> if they don&#8217;t.</p>
+<p>will use the following CSS files, if they exist, in the order listed:</p>
+<ul class="simple">
+<li><cite>skoolkit.css</cite></li>
+<li><cite>skoolkit-dark.css</cite></li>
+<li><cite>skoolkit-wide.css</cite></li>
+<li><cite>game.css</cite></li>
+<li><cite>game-dark.css</cite></li>
+<li><cite>game-wide.css</cite></li>
+</ul>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -379,6 +387,9 @@ by default; added the <tt class="docutils literal"><span class="pre">-d</span></
 </tr>
 <tr class="row-even"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-a</span></tt> and <tt class="docutils literal"><span class="pre">-C</span></tt> options and the long options</td>
+</tr>
+<tr class="row-odd"><td>3.5</td>
+<td>Added support for multiple CSS themes</td>
 </tr>
 </tbody>
 </table>
@@ -531,6 +542,95 @@ ability to read 128K SNA snapshots</td>
 </tbody>
 </table>
 </div>
+<div class="section" id="tap2sna-py">
+<span id="id7"></span><h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Permalink to this headline">¶</a></h2>
+<p><cite>tap2sna.py</cite> converts a TAP or TZX file (which may be inside a zip archive)
+into a Z80 snapshot. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ tap2sna.py game.tap game.z80
+</pre></div>
+</div>
+<p>To list the options supported by <cite>tap2sna.py</cite>, run it with no arguments:</p>
+<div class="highlight-none"><div class="highlight"><pre>usage:
+  tap2sna.py [options] INPUT snapshot.z80
+  tap2sna.py @FILE
+
+Convert a TAP or TZX file (which may be inside a zip archive) into a Z80
+snapshot. INPUT may be the full URL to a remote zip archive or TAP/TZX file,
+or the path to a local file. Arguments may be read from FILE instead of (or as
+well as) being given on the command line.
+
+Options:
+  -d DIR, --output-dir DIR
+                        Write the snapshot file in this directory.
+  -f, --force           Overwrite an existing snapshot.
+  --ram OPERATION       Perform a load, move or poke operation on the memory
+                        snapshot being built. Do &#39;--ram help&#39; for more
+                        information. This option may be used multiple times.
+  --reg name=value      Set the value of a register. Do &#39;--reg help&#39; for more
+                        information. This option may be used multiple times.
+  --state name=value    Set a hardware state attribute. Do &#39;--state help&#39; for
+                        more information. This option may be used multiple
+                        times.
+  -V, --version         Show SkoolKit version number and exit.
+</pre></div>
+</div>
+<p>Note that support for TZX files is limited to block types 0x10 (Standard Speed
+Data Block) and 0x11 (Turbo Speed Data Block).</p>
+<p>By default, <cite>tap2sna.py</cite> loads bytes from every data block on the tape, using
+the start address given in the corresponding header. For tapes that contain
+headerless data blocks, headers with incorrect start addresses, or irrelevant
+blocks, the <tt class="docutils literal"><span class="pre">--ram</span></tt> option can be used to load bytes from specific blocks at
+the appropriate addresses. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ tap2sna.py --ram load=3,30000 game.tzx game.z80
+</pre></div>
+</div>
+<p>loads the third block on the tape at address 30000, and ignores all other
+blocks. The <tt class="docutils literal"><span class="pre">--ram</span></tt> option can also be used to move blocks of bytes from one
+location to another, and POKE values into individual addresses or address
+ranges before the snapshot is saved. For more information on the operations
+that the <tt class="docutils literal"><span class="pre">--ram</span></tt> option can perform, run:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ tap2sna.py --ram help
+</pre></div>
+</div>
+<p>For complex snapshots that require many <tt class="docutils literal"><span class="pre">--ram</span></tt>, <tt class="docutils literal"><span class="pre">--reg</span></tt> or <tt class="docutils literal"><span class="pre">--state</span></tt>
+options to build, it may be more convenient to store the arguments to
+<cite>tap2sna.py</cite> in a file. For example, if the file <cite>game.t2s</cite> has the following
+contents:</p>
+<div class="highlight-none"><div class="highlight"><pre>;
+; tap2sna.py file for GAME
+;
+http://example.com/pub/games/GAME.zip
+game.z80
+--ram load=4,32768         # Load the fourth block at 32768
+--ram move=40960,512,43520 # Move 40960-41471 to 43520-44031
+--reg pc=34816             # Start at 34816
+--reg sp=32768             # Stack at 32768
+--state iff=0              # Disable interrupts
+</pre></div>
+</div>
+<p>then:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ tap2sna.py @game.t2s
+</pre></div>
+</div>
+<p>will create <cite>game.z80</cite> as if the arguments specified in <cite>game.t2s</cite> had been
+given on the command line.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>3.5</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 
 
@@ -548,6 +648,7 @@ ability to read 128K SNA snapshots</td>
 <li><a class="reference internal" href="#skool2html-py">skool2html.py</a></li>
 <li><a class="reference internal" href="#skool2sft-py">skool2sft.py</a></li>
 <li><a class="reference internal" href="#sna2skool-py">sna2skool.py</a></li>
+<li><a class="reference internal" href="#tap2sna-py">tap2sna.py</a></li>
 </ul>
 </li>
 </ul>
@@ -592,7 +693,7 @@ ability to read 128K SNA snapshots</td>
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

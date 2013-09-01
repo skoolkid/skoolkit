@@ -18,6 +18,8 @@ There are various ways to install the latest stable release of SkoolKit:
 * from `PyPI <https://pypi.python.org/pypi/skoolkit>`_ by using
   `easy_install <https://pythonhosted.org/setuptools/easy_install.html>`_ or
   `pip <http://www.pip-installer.org/>`_
+* from the `SkoolKit PPA <https://launchpad.net/~rjdymond/+archive/ppa>`_ for
+  Ubuntu
 
 If you choose the zip archive or tarball, note that SkoolKit can be used
 wherever it is unpacked: it does not need to be installed in any particular

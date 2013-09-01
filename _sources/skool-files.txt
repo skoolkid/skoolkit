@@ -228,8 +228,16 @@ declared in the remote entry. For example::
   r29012 main
    29015
 
-This would enable hyperlinks to 29015 in the main disassembly, which is an
-entry point in the routine at 29012.
+This enables hyperlinks to 29015 in the main disassembly, which is an entry
+point in the routine at 29012. It also enables the :ref:`r` macro to create
+hyperlinks to remote entry points using the short form::
+
+  #R29015@main
+
+instead of the longer form (which would be required if the remote entry were
+not defined)::
+
+  #R29012@main#29015(29015)
 
 Revision history
 ----------------

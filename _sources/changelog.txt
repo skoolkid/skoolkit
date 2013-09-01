@@ -1,11 +1,23 @@
 Changelog
 =========
 
-.. toctree::
-   :maxdepth: 1
-
-   changelog2
-   changelog1
+3.5 (2013-09-01)
+----------------
+* Added the :ref:`tap2sna.py` command (for building snapshots from TAP/TZX
+  files)
+* Added support to :ref:`skool2html.py` for multiple CSS themes
+* Added the 'green', 'plum' and 'wide' CSS themes: `skoolkit-green.css`,
+  `skoolkit-plum.css`, `skoolkit-wide.css`
+* Moved the ``Font`` and ``StyleSheet`` parameters from the ``[Paths]`` section
+  to the :ref:`ref-game` section
+* Moved the ``JavaScript`` parameter from the ``[Paths]`` section to the
+  :ref:`page` section
+* Moved the ``Logo`` parameter from the ``[Paths]`` section to the
+  :ref:`ref-game` section and renamed it ``LogoImage``
+* The :ref:`r` macro now renders the addresses of remote entries in the
+  specified case and base, and can resolve the addresses of remote entry points
+* :ref:`skool2asm.py` now writes ORG addresses in the specified case and base
+* Annotated the source code remnants at 39936 in `jet_set_willy.ctl`
 
 3.4 (2013-07-08)
 ----------------
@@ -185,3 +197,11 @@ Changelog
   screenshot
 * Added image-cropping capabilities to the :ref:`FONT`, :ref:`SCR`, :ref:`UDG`
   and :ref:`UDGARRAY` macros
+
+Older versions
+--------------
+.. toctree::
+   :maxdepth: 1
+
+   changelog2
+   changelog1

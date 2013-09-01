@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &mdash; SkoolKit 3.4 documentation</title>
+    <title>Ref files &mdash; SkoolKit 3.5 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.4',
+        VERSION:     '3.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.5 documentation" href="index.html" />
     <link rel="next" title="ASM modes and directives" href="asm.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -269,8 +269,10 @@ aspects of the HTML output. The parameters are in the format:</p>
 </div>
 <p>Recognised parameters are:</p>
 <ul class="simple">
+<li><tt class="docutils literal"><span class="pre">Font</span></tt> - the base name of the font file to use (default: None); multiple
+font files can be declared by separating their names with semicolons</li>
 <li><tt class="docutils literal"><span class="pre">Game</span></tt> - the name of the game, which appears in the title of every page,
-and also in the header of the main index page (if no logo is defined); if not
+and also in the header of every page (if no logo is defined); if not
 specified, the base name of the <cite>skool</cite> file is used</li>
 <li><tt class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></tt> - a comma-separated list of addresses of entries
 to include on the &#8216;Game status buffer&#8217; page in addition to those that are
@@ -285,10 +287,16 @@ should be hyperlinked when possible (default: <tt class="docutils literal"><span
 hyperlinked as well</li>
 <li><tt class="docutils literal"><span class="pre">Logo</span></tt> - the text/HTML that will serve as the game logo in the header of
 every page (typically a skool macro that creates a suitable image); if not
-specified, the name of the game is used</li>
+specified, <tt class="docutils literal"><span class="pre">LogoImage</span></tt> is used</li>
+<li><tt class="docutils literal"><span class="pre">LogoImage</span></tt> - the path to the game logo image, which appears in the header
+of every page; if the specified file does not exist, the name of the game is
+used in place of an image</li>
 <li><tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> - the text to use in the header of output
 register tables on routine disassembly pages; if not specified, no header is
 displayed</li>
+<li><tt class="docutils literal"><span class="pre">StyleSheet</span></tt> - the base name of the CSS file to use (default:
+<cite>skoolkit.css</cite>); multiple CSS files can be declared by separating their names
+with semicolons</li>
 <li><tt class="docutils literal"><span class="pre">TitlePrefix</span></tt> - the prefix to use before the game name or logo in the
 header of the main index page (default: &#8216;The complete&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">TitleSuffix</span></tt> - the suffix to use after the game name or logo in the header
@@ -309,8 +317,7 @@ of the main index page (default: &#8216;RAM disassembly&#8217;)</li>
 <td>Added the <tt class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></tt> parameter</td>
 </tr>
 <tr class="row-odd"><td>2.0.5</td>
-<td><tt class="docutils literal"><span class="pre">Logo</span></tt> defines the text/HTML for the logo instead of the path
-to the logo image</td>
+<td>Added the <tt class="docutils literal"><span class="pre">Logo</span></tt> parameter</td>
 </tr>
 <tr class="row-even"><td>3.1.2</td>
 <td>Added the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
@@ -318,6 +325,11 @@ to the logo image</td>
 </tr>
 <tr class="row-odd"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">LinkOperands</span></tt> parameter</td>
+</tr>
+<tr class="row-even"><td>3.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">Font</span></tt>, <tt class="docutils literal"><span class="pre">LogoImage</span></tt> and <tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parameters
+(all of which used to live in the <a class="reference internal" href="#paths"><em>[Paths]</em></a> section,
+<tt class="docutils literal"><span class="pre">LogoImage</span></tt> by the name <tt class="docutils literal"><span class="pre">Logo</span></tt>)</td>
 </tr>
 </tbody>
 </table>
@@ -811,9 +823,9 @@ created</li>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">BodyClass</span></tt> - the CSS class to use for the <tt class="docutils literal"><span class="pre">&lt;body&gt;</span></tt> element of the page
 (default: no CSS class is used)</li>
-<li><tt class="docutils literal"><span class="pre">JavaScript</span></tt> - <tt class="docutils literal"><span class="pre">1</span></tt> if a link to the JavaScript file (defined by the
-<tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter in the <a class="reference internal" href="#paths"><em>[Paths]</em></a> section) should be inserted into
-the page, <tt class="docutils literal"><span class="pre">0</span></tt> otherwise (default: <tt class="docutils literal"><span class="pre">0</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">JavaScript</span></tt> - the base name of the JavaScript file to use (default: None);
+multiple JavaScript files can be declared by separating their names with
+semicolons</li>
 <li><tt class="docutils literal"><span class="pre">Link</span></tt> - the link text for the page (defaults to the title)</li>
 <li><tt class="docutils literal"><span class="pre">PageContent</span></tt> - the HTML source of the body of the page; this may contain
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>, and can be used instead of a
@@ -822,8 +834,8 @@ the page, <tt class="docutils literal"><span class="pre">0</span></tt> otherwise
 </ul>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="12%" />
+<col width="88%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -833,6 +845,10 @@ the page, <tt class="docutils literal"><span class="pre">0</span></tt> otherwise
 <tbody valign="top">
 <tr class="row-even"><td>2.1</td>
 <td>New</td>
+</tr>
+<tr class="row-odd"><td>3.5</td>
+<td>The <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter specifies the JavaScript file(s) to
+use</td>
 </tr>
 </tbody>
 </table>
@@ -883,8 +899,6 @@ of the disassembly</li>
 <li><tt class="docutils literal"><span class="pre">Changelog</span></tt> - the &#8216;Changelog&#8217; page (default: <cite>reference/changelog.html</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">DataMap</span></tt> - the &#8216;Data&#8217; memory map page (default: <cite>maps/data.html</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">Facts</span></tt> - the &#8216;Trivia&#8217; page (default: <cite>reference/facts.html</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">Font</span></tt> - the base name of the font file to use (default: None); multiple
-font files can be declared by separating their names with semicolons</li>
 <li><tt class="docutils literal"><span class="pre">GameIndex</span></tt> - the disassembly home page (default: <cite>index.html</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">GameStatusBuffer</span></tt> - the &#8216;Game status buffer&#8217; page (default:
 <cite>buffers/gbuffer.html</cite>)</li>
@@ -892,22 +906,12 @@ font files can be declared by separating their names with semicolons</li>
 <li><tt class="docutils literal"><span class="pre">GraphicGlitches</span></tt> - the &#8216;Graphic glitches&#8217; page (default:
 <cite>graphics/glitches.html</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">Graphics</span></tt> - the &#8216;Other graphics&#8217; page (default: <cite>graphics/graphics.html</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">JavaScript</span></tt> - the base name of the JavaScript file to use (default: None);
-multiple JavaScript files can be declared by separating their names with
-semicolons</li>
-<li><tt class="docutils literal"><span class="pre">Logo</span></tt> - the game logo image (default: <cite>images/logo.png</cite> or
-<cite>images/logo.gif</cite>, depending on the default image format specified in the
-<a class="reference internal" href="#ref-imagewriter"><em>[ImageWriter]</em></a> section; this value may be overridden by the <tt class="docutils literal"><span class="pre">Logo</span></tt>
-parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section)</li>
 <li><tt class="docutils literal"><span class="pre">MemoryMap</span></tt> - the &#8216;Everything&#8217; memory map page (default: <cite>maps/all.html</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">MessagesMap</span></tt> - the &#8216;Messages&#8217; memory map page (default:
 <cite>maps/messages.html</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">Pokes</span></tt> - the &#8216;Pokes&#8217; page (default: <cite>reference/pokes.html</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">RoutinesMap</span></tt> - the &#8216;Routines&#8217; memory map page (default:
 <cite>maps/routines.html</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">StyleSheet</span></tt> - the base name of the CSS file to use (default:
-<cite>skoolkit.css</cite>); multiple CSS files can be declared by separating their names
-with semicolons</li>
 <li><tt class="docutils literal"><span class="pre">UnusedMap</span></tt> - the &#8216;Unused addresses&#8217; memory map page (default:
 <cite>maps/unused.html</cite>)</li>
 </ul>
@@ -915,15 +919,17 @@ with semicolons</li>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">CodePath</span></tt> - the directory in which the disassembly files will be written
 (default: <cite>asm</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">FontPath</span></tt> - the directory in which to store font files (default: <cite>.</cite>)</li>
+<li><tt class="docutils literal"><span class="pre">FontPath</span></tt> - the directory in which to store font files specified by the
+<tt class="docutils literal"><span class="pre">Font</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section (default: <cite>.</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">FontImagePath</span></tt> - the directory in which font images (created by the
 <a class="reference internal" href="skool-macros.html#font"><em>#FONT</em></a> macro) will be placed (default: <cite>images/font</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">JavaScriptPath</span></tt> - the directory in which to store JavaScript files
-(default: <cite>.</cite>)</li>
+specified by the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter in <a class="reference internal" href="#page"><em>[Page:*]</em></a> sections (default:
+<cite>.</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">ScreenshotImagePath</span></tt> - the directory in which screenshot images (created
 by the <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a> macro) will be placed (default: <cite>images/scr</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">StyleSheetPath</span></tt> - the directory in which to store CSS files (default:
-<cite>.</cite>)</li>
+<li><tt class="docutils literal"><span class="pre">StyleSheetPath</span></tt> - the directory in which to store CSS files specified by
+the <tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section (default: <cite>.</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">UDGImagePath</span></tt> - the directory in which UDG images (created by the
 <a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a> or <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macro) will be placed
 (default: <cite>images/udgs</cite>)</li>
@@ -952,12 +958,10 @@ by the <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em><
 <td>Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> file ID</td>
 </tr>
 <tr class="row-even"><td>2.5</td>
-<td>Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> file ID, and support for declaring
-multiple JavaScript files and CSS files in the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> and
-<tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parameters</td>
+<td>Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> file ID</td>
 </tr>
 <tr class="row-odd"><td>3.1.1</td>
-<td>Added the <tt class="docutils literal"><span class="pre">Font</span></tt> file ID and the <tt class="docutils literal"><span class="pre">FontPath</span></tt> directory ID</td>
+<td>Added the <tt class="docutils literal"><span class="pre">FontPath</span></tt> directory ID</td>
 </tr>
 </tbody>
 </table>
@@ -1113,7 +1117,7 @@ addresses&#8217;)</li>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

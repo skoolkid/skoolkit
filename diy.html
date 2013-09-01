@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Disassembly DIY &mdash; SkoolKit 3.4 documentation</title>
+    <title>Disassembly DIY &mdash; SkoolKit 3.5 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.4',
+        VERSION:     '3.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.5 documentation" href="index.html" />
     <link rel="next" title="Supported assemblers" href="assemblers.html" />
     <link rel="prev" title="Command reference" href="commands.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="commands.html" title="Command reference"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -59,11 +59,17 @@ Spectrum game disassembly.</p>
 <h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
 <p>The first thing to do is select a Spectrum game to disassemble. For the purpose
 of this discussion, we&#8217;ll use <a class="reference external" href="http://www.worldofspectrum.org/infoseekid.cgi?id=0003012&amp;loadpics=3">Manic Miner</a> (the original Bug Byte version).
-Grab a copy of it, load it in an emulator, and save a Z80 snapshot called
-<cite>mm.z80</cite> in the directory containing SkoolKit.</p>
+To build a pristine snapshot of the game, run the following command in the
+directory where SkoolKit was unpacked:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ tap2sna.py @examples/manic_miner.t2s
+</pre></div>
+</div>
+<p>(If that doesn&#8217;t work, or you prefer to make your own snapshot, just grab a
+copy of the game, load it in an emulator, and save a Z80 snapshot named
+<cite>manic_miner.z80</cite>.)</p>
 <p>The next thing to do is create a <cite>skool</cite> file from this snapshot. Run the
 following command from the SkoolKit directory:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py mm.z80 &gt; manic_miner.skool
+<div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py manic_miner.z80 &gt; manic_miner.skool
 </pre></div>
 </div>
 <p>Note that the &#8216;.skool&#8217; file name suffix is merely a convention, not a
@@ -119,7 +125,7 @@ contains)</li>
 <p>So if we had a control file for Manic Miner, we could produce a much more
 useful <cite>skool</cite> file. As it happens, SkoolKit includes one: <cite>manic_miner.ctl</cite>.
 You can use it with <cite>sna2skool.py</cite> thus:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py -c examples/manic_miner.ctl mm.z80 &gt; manic_miner.skool
+<div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py -c examples/manic_miner.ctl manic_miner.z80 &gt; manic_miner.skool
 </pre></div>
 </div>
 <p>This time, <cite>manic_miner.skool</cite> is split up into meaningful blocks, with code as
@@ -127,7 +133,7 @@ code, data as data (DEFBs), and text as text (DEFMs). Much nicer.</p>
 <p>By default, <cite>sna2skool.py</cite> produces a disassembly with addresses and
 instruction operands in decimal notation. If you prefer to work in hexadecimal,
 however, use the <tt class="docutils literal"><span class="pre">-H</span></tt> option:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py -H -c examples/manic_miner.ctl mm.z80 &gt; manic_miner.skool
+<div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py -H -c examples/manic_miner.ctl manic_miner.z80 &gt; manic_miner.skool
 </pre></div>
 </div>
 <p>The next step is to create an HTML disassembly from this <cite>skool</cite> file:</p>
@@ -271,14 +277,28 @@ trivia item to be documented. Entries will appear on the &#8216;Pokes&#8217;, &#
 <div class="section" id="themes">
 <h2>Themes<a class="headerlink" href="#themes" title="Permalink to this headline">¶</a></h2>
 <p>In addition to the default theme (defined in <cite>skoolkit.css</cite>), SkoolKit includes
-two alternative themes: &#8216;dark&#8217; and &#8216;spectrum&#8217;.</p>
-<p>In order to use the &#8216;dark&#8217; theme, run <cite>skool2html.py</cite> with the <tt class="docutils literal"><span class="pre">-T</span></tt> option
-thus:</p>
+some alternative themes:</p>
+<ul class="simple">
+<li>dark (dark colours): <cite>skoolkit-dark.css</cite></li>
+<li>green (mostly green): <cite>skoolkit-green.css</cite></li>
+<li>plum (mostly purple): <cite>skoolkit-plum.css</cite></li>
+<li>spectrum (Spectrum colours and font): <cite>skoolkit-spectrum.css</cite></li>
+<li>wide (wide comment fields on the disassembly pages, and wide boxes on the
+Changelog, Glossary, Trivia, Bugs and Pokes pages): <cite>skoolkit-wide.css</cite></li>
+</ul>
+<p>In order to use a theme, run <cite>skool2html.py</cite> with the <tt class="docutils literal"><span class="pre">-T</span></tt> option; for
+example, to use the &#8216;dark&#8217; theme:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -T dark game.skool
 </pre></div>
 </div>
-<p>Or to use the &#8216;spectrum&#8217; theme:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -T spectrum -c Paths/Font=spectrum.ttf game.skool
+<p>To use the &#8216;spectrum&#8217; theme, the spectrum font file should also be specified
+thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -T spectrum -c Game/Font=spectrum.ttf game.skool
+</pre></div>
+</div>
+<p>Themes may also be combined; for example, to use both the &#8216;dark&#8217; and &#8216;wide&#8217;
+themes:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -T dark -T wide game.skool
 </pre></div>
 </div>
 </div>
@@ -344,7 +364,7 @@ thus:</p>
         <li class="right" >
           <a href="commands.html" title="Command reference"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
