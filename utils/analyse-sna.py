@@ -104,6 +104,7 @@ def analyse_z80(z80file):
             bank = header[35] & 7
     print('Machine: {}'.format(machine))
     print('Interrupts: {}abled'.format('en' if header[27] else 'dis'))
+    print('Interrupt mode: {}'.format(header[29] & 3))
     print('Border: {}'.format((header[12] // 2) & 7))
     if bank is not None:
         print('Port $7FFD: {} - bank {} (block {}) paged into 49152-65535'.format(header[35], bank, bank + 3))
@@ -160,6 +161,8 @@ def analyse_z80(z80file):
 
 ###############################################################################
 
+# http://www.spectaculator.com/docs/zx-state/intro.shtml
+
 SZX_MACHINES = {
     0: '16K ZX Spectrum',
     1: '48K ZX Spectrum',
@@ -209,6 +212,7 @@ def print_z80r(block, variables):
     lines = []
     width = 11
     flags = "SZ5H3PNC"
+    lines.append('Interrupt mode: {}'.format(block[28]))
     lines.append('PC={}'.format(get_word(block, 22)))
     lines.append('SP={}'.format(get_word(block, 20)))
     lines.append('I={}'.format(block[24]))
@@ -260,9 +264,12 @@ def analyse_szx(szxfile):
 
 ###############################################################################
 
+# http://www.worldofspectrum.org/faq/reference/formats.htm#SNA
+
 def analyse_sna(snafile):
     with open(snafile, 'rb') as f:
         sna = bytearray(f.read(49179))
+    print('Interrupt mode: {}'.format(header[25]))
     print('Border: {}'.format(sna[26] & 7))
     width = 11
     flags = "SZ5H3PNC"
