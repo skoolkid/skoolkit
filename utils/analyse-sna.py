@@ -211,8 +211,8 @@ def print_z80r(block, variables):
     flags = "SZ5H3PNC"
     lines.append('PC={}'.format(get_word(block, 22)))
     lines.append('SP={}'.format(get_word(block, 20)))
-    lines.append('I={}'.format(block[23]))
-    lines.append('R={}'.format(block[24]))
+    lines.append('I={}'.format(block[24]))
+    lines.append('R={}'.format(block[25]))
     lines.append("{} A'={}".format('A={}'.format(block[9]).ljust(width), block[1]))
     lines.append("  {}    {}".format(flags.ljust(width - 2), flags))
     lines.append("{} F'={}".format('F={}'.format(to_binary(block[8])).ljust(width), to_binary(block[0])))
