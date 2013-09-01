@@ -158,6 +158,108 @@ def analyse_z80(z80file):
             print('RAM block {}{}: {} bytes ({}compressed)'.format(page_num, addr_range, block_len, prefix))
             i += block_len
 
+###############################################################################
+
+SZX_MACHINES = {
+    0: '16K ZX Spectrum',
+    1: '48K ZX Spectrum',
+    2: 'ZX Spectrum 128',
+    3: 'ZX Spectrum +2',
+    4: 'ZX Spectrum +2A/+2B',
+    5: 'ZX Spectrum +3',
+    6: 'ZX Spectrum +3e'
+}
+
+def get_block_id(data, index):
+    return ''.join([chr(b) for b in data[index:index+ 4]])
+
+def get_dword(data, index):
+    return data[index] + 256 * data[index + 1] + 65536 * data[index + 2] + 16777216 * data[index + 3]
+
+def print_ramp(block, variables):
+    lines = []
+    flags = get_word(block, 0)
+    compressed = 'compressed' if flags & 1 else 'uncompressed'
+    page = block[2]
+    ram = block[3:]
+    lines.append("Page: {}".format(page))
+    machine_id = variables['chMachineId']
+    addresses = ''
+    if page == 5:
+        addresses = '16384-32767'
+    elif page == 2:
+        addresses = '32768-49151'
+    elif machine_id > 1 and page == variables['ch7ffd'] & 7:
+        addresses = '49152-65535'
+    if addresses:
+        addresses += ' - '
+    lines.append("RAM: {}{} bytes, {}".format(addresses, len(ram), compressed))
+    return lines
+
+def print_spcr(block, variables):
+    lines = []
+    lines.append('Border: {}'.format(block[0]))
+    ch7ffd = block[1]
+    variables['ch7ffd'] = ch7ffd
+    bank = ch7ffd & 7
+    lines.append('Port $7FFD: {} (bank {} paged into 49152-65535)'.format(ch7ffd, bank))
+    return lines
+
+def print_z80r(block, variables):
+    lines = []
+    width = 11
+    flags = "SZ5H3PNC"
+    lines.append('PC={}'.format(get_word(block, 22)))
+    lines.append('SP={}'.format(get_word(block, 20)))
+    lines.append('I={}'.format(block[23]))
+    lines.append('R={}'.format(block[24]))
+    lines.append("{} A'={}".format('A={}'.format(block[9]).ljust(width), block[1]))
+    lines.append("  {}    {}".format(flags.ljust(width - 2), flags))
+    lines.append("{} F'={}".format('F={}'.format(to_binary(block[8])).ljust(width), to_binary(block[0])))
+    lines.append("{} B'={}".format('B={}'.format(block[11]).ljust(width), block[3]))
+    lines.append("{} C'={}".format('C={}'.format(block[10]).ljust(width), block[2]))
+    lines.append("{} D'={}".format('D={}'.format(block[13]).ljust(width), block[5]))
+    lines.append("{} E'={}".format('E={}'.format(block[12]).ljust(width), block[4]))
+    lines.append("{} H'={}".format('H={}'.format(block[15]).ljust(width), block[7]))
+    lines.append("{} L'={}".format('L={}'.format(block[14]).ljust(width), block[6]))
+    lines.append('IX={}'.format(get_word(block, 16)))
+    lines.append('IY={}'.format(get_word(block, 18)))
+    return lines
+
+SZX_BLOCK_PRINTERS = {
+    'RAMP': print_ramp,
+    'SPCR': print_spcr,
+    'Z80R': print_z80r
+}
+
+def analyse_szx(szxfile):
+    with open(szxfile, 'rb') as f:
+        szx = bytearray(f.read())
+
+    magic = get_block_id(szx, 0)
+    if magic != 'ZXST':
+        sys.stderr.write("{} is not an SZX file\n".format(namespace.szxfile))
+        sys.exit(1)
+
+    print('Version: {}.{}'.format(szx[4], szx[5]))
+    machine_id = szx[6]
+    print('Machine: {}'.format(SZX_MACHINES.get(machine_id, 'Unknown')))
+    variables = {'chMachineId': machine_id}
+
+    i = 8
+    while i < len(szx):
+        block_id = get_block_id(szx, i)
+        block_size = get_dword(szx, i + 4)
+        i += 8
+        print('{}: {} bytes'.format(block_id, block_size))
+        printer = SZX_BLOCK_PRINTERS.get(block_id)
+        if printer:
+            for line in printer(szx[i:i + block_size], variables):
+                print("  " + line)
+        i += block_size
+
+###############################################################################
+
 def analyse_sna(snafile):
     with open(snafile, 'rb') as f:
         sna = bytearray(f.read(49179))
@@ -217,7 +319,7 @@ def peek(infile, addr_range):
 ###############################################################################
 parser = argparse.ArgumentParser(
     usage='analyse-sna.py [options] file',
-    description="Analyse an SNA or Z80 snapshot.",
+    description="Analyse an SNA, SZX or Z80 snapshot.",
     add_help=False
 )
 parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
@@ -231,7 +333,7 @@ if unknown_args or namespace.infile is None:
     parser.exit(2, parser.format_help())
 infile = namespace.infile
 snapshot_type = infile[-4:].lower()
-if snapshot_type not in ('.sna', '.z80'):
+if snapshot_type not in ('.sna', '.szx', '.z80'):
     sys.stderr.write('Error: unrecognized snapshot type\n')
     sys.exit(1)
 
@@ -241,5 +343,7 @@ elif namespace.peek is not None:
     peek(infile, namespace.peek)
 elif snapshot_type == '.sna':
     analyse_sna(infile)
-else:
+elif snapshot_type == '.z80':
     analyse_z80(infile)
+else:
+    analyse_szx(infile)
