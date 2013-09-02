@@ -212,6 +212,7 @@ def print_z80r(block, variables):
     lines = []
     width = 11
     flags = "SZ5H3PNC"
+    lines.append('Interrupts: {}abled'.format('en' if block[27] else 'dis'))
     lines.append('Interrupt mode: {}'.format(block[28]))
     lines.append('PC={}'.format(get_word(block, 22)))
     lines.append('SP={}'.format(get_word(block, 20)))
@@ -269,7 +270,8 @@ def analyse_szx(szxfile):
 def analyse_sna(snafile):
     with open(snafile, 'rb') as f:
         sna = bytearray(f.read(49179))
-    print('Interrupt mode: {}'.format(header[25]))
+    print('Interrupts: {}abled'.format('en' if sna[19] & 4 else 'dis'))
+    print('Interrupt mode: {}'.format(sna[25]))
     print('Border: {}'.format(sna[26] & 7))
     width = 11
     flags = "SZ5H3PNC"
