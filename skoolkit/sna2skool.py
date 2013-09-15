@@ -37,7 +37,9 @@ def run(snafile, options):
     start = options.start
 
     # Read the snapshot file
-    if snafile[-4:] == '.bin':
+    if snafile[-4:].lower() in ('.sna', '.szx', '.z80'):
+        snapshot = get_snapshot(snafile, options.page)
+    else:
         ram = read_bin_file(snafile)
         if options.org is None:
             org = 65536 - len(ram)
@@ -46,8 +48,6 @@ def run(snafile, options):
         snapshot = [0] * org
         snapshot.extend(ram)
         start = max(org, options.start)
-    else:
-        snapshot = get_snapshot(snafile, options.page)
     end = len(snapshot)
 
     # Pad out the end of the snapshot to avoid disassembly errors when an
@@ -124,9 +124,12 @@ def main(args):
 
     namespace, unknown_args = parser.parse_known_args(args)
     snafile = namespace.snafile
-    if unknown_args or snafile is None or snafile[-4:].lower() not in ('.bin', '.sna', '.z80', '.szx'):
+    if unknown_args or snafile is None:
         parser.exit(2, parser.format_help())
-    prefix = snafile[:-4]
+    if snafile[-4:].lower() in ('.bin', '.sna', '.szx', '.z80'):
+        prefix = snafile[:-4]
+    else:
+        prefix = snafile
     if not (namespace.ctlfile or namespace.sftfile):
         namespace.sftfile = find('{}.sft'.format(prefix))
     if not (namespace.ctlfile or namespace.sftfile):
