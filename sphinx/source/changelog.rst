@@ -1,6 +1,9 @@
 Changelog
 =========
 
+3.5.1b1
+-------
+
 3.5 (2013-09-01)
 ----------------
 * Added the :ref:`tap2sna.py` command (for building snapshots from TAP/TZX
