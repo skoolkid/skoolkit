@@ -718,18 +718,21 @@ class SkoolWriter:
             else:
                 self.address_fmt = HEX4FMT
         else:
-            self.address_fmt = '{0}'
+            self.address_fmt = '{:05d}'
+        self.asm_hex = asm_hex
         self.has_start = ctl_parser.contains_entry_asm_directive(AD_START)
         self.has_org = ctl_parser.contains_entry_asm_directive(AD_ORG)
 
-    def address_str(self, address):
-        return self.address_fmt.format(address)
+    def address_str(self, address, pad=True):
+        if self.asm_hex or pad:
+            return self.address_fmt.format(address)
+        return str(address)
 
     def write_skool(self, write_refs, text):
         if not self.has_start:
             self.write_asm_directive(AD_START)
             if not self.has_org:
-                self.write_asm_directive(AD_ORG, self.address_str(self.disassembly.org))
+                self.write_asm_directive(AD_ORG, self.address_str(self.disassembly.org, False))
         for entry_index, entry in enumerate(self.disassembly.entries):
             if entry_index > 0:
                 write_line('')
@@ -749,7 +752,7 @@ class SkoolWriter:
                     write_line('{0}{1}'.format(entry.ctl, self.address_str(entry.blocks[0].start)))
                 continue # pragma: no cover
             for block in entry.bad_blocks:
-                warn('Code block at {0} overlaps the following block at {1}'.format(self.address_str(block.start), self.address_str(block.end)))
+                warn('Code block at {} overlaps the following block at {}'.format(self.address_str(block.start, False), self.address_str(block.end, False)))
             if entry.title:
                 self.write_comment(entry.title)
                 wrote_desc = False
@@ -841,8 +844,8 @@ class SkoolWriter:
             if len(referrers) == 1:
                 infix = 'routine at '
             else:
-                infix = 'routines at {0} and '.format(', '.join('#R{0}'.format(self.address_str(r.address)) for r in referrers[:-1]))
-            suffix = '#R{0}'.format(self.address_str(referrers[-1].address))
+                infix = 'routines at {} and '.format(', '.join('#R{}'.format(self.address_str(r.address, False)) for r in referrers[:-1]))
+            suffix = '#R{}'.format(self.address_str(referrers[-1].address, False))
             self.write_comment('{0}{1}{2}.'.format(prefix, infix, suffix))
 
     def write_asm_directive(self, directive, value=None):
