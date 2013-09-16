@@ -74,12 +74,12 @@ class CtlWriter:
 
     def _write_entry_asm_directive(self, entry, directive, value=None):
         if self.write_asm_dirs:
-            self._write_asm_directive(directive, self.addr_str(entry.address), value)
+            self._write_asm_directive(directive, self.addr_str(entry.address, False), value)
 
     def _write_instruction_asm_directives(self, instruction):
         if not self.write_asm_dirs:
             return
-        address = self.addr_str(instruction.address)
+        address = self.addr_str(instruction.address, False)
         for directive, value in instruction.asm_directives:
             self._write_asm_directive(directive, address, value)
 
@@ -157,9 +157,11 @@ class CtlWriter:
                         if self.need_sub_block(ctl, entry_ctl, comment, j, instructions):
                             self.write_sub_block(ctl, entry_ctl, comment, instructions, length)
 
-    def addr_str(self, address):
+    def addr_str(self, address, pad=True):
         if self.write_hex:
-            return '${0:04X}'.format(int(address))
+            return '${:04X}'.format(address)
+        if pad:
+            return '{:05d}'.format(address)
         return str(address)
 
     def need_sub_block(self, ctl, entry_ctl, comment, index, instructions):
