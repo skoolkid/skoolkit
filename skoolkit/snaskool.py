@@ -407,7 +407,7 @@ def write_ctl(ctlfile, ctls, ctl_hex):
     if ctl_hex:
         addr_fmt = HEX4FMT
     else:
-        addr_fmt = '{0}'
+        addr_fmt = '{:05d}'
     with open(ctlfile, 'w') as f:
         for address in sorted(ctls.keys()):
             f.write('{0} {1}\n'.format(ctls[address], addr_fmt.format(address)))
