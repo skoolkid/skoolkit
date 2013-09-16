@@ -797,7 +797,7 @@ class Mode:
         address = parse_int(addr_str)
         if self.decimal:
             if address:
-                addr_str = str(address)
+                addr_str = '{:05d}'.format(address)
             if operation:
                 operation = self.convert(operation)
         elif self.hexadecimal:
