@@ -1,0 +1,8 @@
+;
+; SkoolKit ref file for the 48K Spectrum ROM
+;
+
+[Game]
+Game=Spectrum ROM
+TitlePrefix=The Complete
+TitleSuffix=Disassembly
