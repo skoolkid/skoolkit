@@ -6,6 +6,8 @@ resources/skoolkit-spectrum.css /usr/share/skoolkit
 resources/skoolkit-wide.css /usr/share/skoolkit
 resources/spectrum.ttf /usr/share/skoolkit
 resources/spectrum.ttf.txt /usr/share/skoolkit
+examples/48.rom.ctl /usr/share/skoolkit/examples
+examples/48.rom.ref /usr/share/skoolkit/examples
 examples/jet_set_willy.css /usr/share/skoolkit/examples
 examples/jet_set_willy-dark.css /usr/share/skoolkit/examples
 examples/jet_set_willy-green.css /usr/share/skoolkit/examples
