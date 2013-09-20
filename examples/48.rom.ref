@@ -2,6 +2,9 @@
 ; SkoolKit ref file for the 48K Spectrum ROM
 ;
 
+[Config]
+GameDir=rom
+
 [Game]
 Game=Spectrum ROM
 TitlePrefix=The Complete

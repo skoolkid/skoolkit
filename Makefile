@@ -1,6 +1,7 @@
 DARK?=0
 SPECTRUM?=0
 HEX?=0
+ROM?=/usr/share/spectrum-roms/48.rom
 NOSETESTS27=/usr/bin/python2.7 /usr/bin/nosetests
 NOSETESTS32=/usr/bin/python3.2 /usr/bin/nosetests
 NOSETESTS33=$(HOME)/Python/Python3.3/bin/nosetests
@@ -23,6 +24,7 @@ usage:
 	@echo "  clean            clean the documentation and man pages"
 	@echo "  mm               build the Manic Miner disassembly"
 	@echo "  jsw              build the Jet Set Willy disassembly"
+	@echo "  rom              build the Spectrum ROM disassembly"
 	@echo "  test[-all]       run core/all unit tests with current Python interpreter"
 	@echo "  test2.7[-all]    run core/all unit tests with Python 2.7"
 	@echo "  test3.2[-all]    run core/all unit tests with Python 3.2"
@@ -39,6 +41,7 @@ usage:
 	@echo "Environment variables:"
 	@echo "  THEMES           CSS theme(s) to use"
 	@echo "  HEX=1            use hexadecimal when building a disassembly"
+	@echo "  ROM              path to the Spectrum ROM dump"
 
 .PHONY: doc
 doc:
@@ -66,6 +69,12 @@ jsw:
 	./sna2skool.py -c jet_set_willy.ctl snapshots/jet_set_willy.z80 > jet_set_willy.skool
 	./skool2html.py $(OPTIONS) examples/jet_set_willy.ref
 	rm jet_set_willy.skool jet_set_willy.ctl
+
+.PHONY: rom
+rom:
+	./sna2skool.py -o 0 -H -c examples/48.rom.ctl $(ROM) > 48.rom.skool
+	./skool2html.py $(OPTIONS) examples/48.rom.ref
+	rm 48.rom.skool
 
 .PHONY: write-disassembly-tests
 write-disassembly-tests:
