@@ -75,6 +75,35 @@ class GifWriter:
         # GIF trailer
         img_file.write(self.gif_trailer)
 
+    def write_animated_image(self, frames, img_file, scale, width, height, palette, attr_map, trans):
+        x = y = 0
+        full_size = True
+        frame_delay = 32
+
+        transparent = self.transparency and trans
+
+        # Header
+        img_file.write(self.gif_header)
+
+        # Logical screen descriptor
+        data = bytearray()
+        data.extend((width % 256, width // 256)) # logical screen width
+        data.extend((height % 256, height // 256)) # logical screen height
+        img_file.write(data)
+
+        # Global Colour Table
+        min_code_size = self._write_gct(img_file, palette)
+
+        img_file.write(self.aeb)
+
+        for udg_array in frames:
+            self._write_gce(img_file, frame_delay, transparent)
+            self._write_image_descriptor(img_file, width, height)
+            self._write_gif_image_data(img_file, udg_array, scale, trans, x, y, width, height, full_size, min_code_size, attr_map)
+
+        # GIF trailer
+        img_file.write(self.gif_trailer)
+
     def _get_pixels(self, udg_array, scale, trans, x, y, width, height, flash, attr_map):
         pixels = []
         y_count = 0

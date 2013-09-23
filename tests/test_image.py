@@ -734,7 +734,11 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         height = min(height or full_height, full_height - y)
         full_size = 1 if width == full_width and height == full_height else 0
         use_flash = image_writer.options[PNG_ENABLE_ANIMATION]
-        palette, attr_map, trans, flash_rect = image_writer._get_palette(udg_array, scale, mask, x, y, width, height, full_size, use_flash)
+        if full_size:
+            colours, attrs, trans, flash_rect = image_writer._get_all_colours(udg_array, mask, use_flash)
+        else:
+            colours, attrs, trans, flash_rect = image_writer._get_colours(udg_array, scale, mask, x, y, width, height, use_flash)
+        palette, attr_map = image_writer._get_palette(colours, attrs, trans)
         palette = [palette[i:i + 3] for i in range(0, len(palette), 3)]
 
         exp_palette, exp_trans, exp_pixels, exp_pixels2, frame2_xy = self._get_pixels_from_udg_array(udg_array, scale, mask, x, y, width, height)
