@@ -1502,9 +1502,9 @@ class HtmlWriter:
             self.write_image(udg_path, [[udg]], crop_rect, scale, mask)
         return end, self.img_element(cwd, udg_path)
 
-    def _expand_udgarray_with_frames(self, text, index):
+    def _expand_udgarray_with_frames(self, text, index, cwd):
         end = text.index('*', index) + 1
-        frame_params = text[index + 1:end - 1]
+        frame_params = text[index:end - 1]
         fname = None
         if end < len(text) and text[end] == '(':
             start = end + 1
@@ -1517,13 +1517,13 @@ class HtmlWriter:
             for frame_param in frame_params.split(';'):
                 elements = frame_param.rsplit(',', 1)
                 if len(elements) == 2:
-                    frame = elements[0]
+                    frame_id = elements[0]
                     delay = parse_int(elements[1])
                     default_delay = delay
                 else:
-                    frame = frame_param
+                    frame_id = frame_param
                     delay = default_delay
-                frame = self.frames[frame]
+                frame = self.frames[frame_id]
                 frame.delay = delay
                 frames.append(frame)
             self.write_animated_image(img_path, frames)
@@ -1534,7 +1534,7 @@ class HtmlWriter:
         # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}]*frame*
         # #UDGARRAY*frame1[,delay1];frame2[,delay2];...*(fname)
         if text[index] == '*':
-            self._expand_udgarray_with_frames(text, index + 1)
+            return self._expand_udgarray_with_frames(text, index + 1, cwd)
         udg_path_id = 'UDGImagePath'
         end, img_path, crop_rect, width, def_attr, scale, def_step, def_inc, flip, rotate = self.parse_image_params(text, index, 7, (56, 2, 1, 0, 0, 0), udg_path_id)
         udg_array = [[]]
