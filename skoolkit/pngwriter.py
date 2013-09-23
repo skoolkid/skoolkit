@@ -114,6 +114,61 @@ class PngWriter:
         # IEND
         img_file.write(self.iend_chunk)
 
+    def write_animated_image(self, frames, img_file, width, height, palette, attr_map, trans):
+        frame = frames[0]
+        udg_array = frame.udgs
+        scale = frame.scale
+        x, y, f_width, f_height = frame.crop_rect
+        full_width = 8 * len(udg_array) * frame.scale
+        full_height = 8 * len(udg_array) * frame.scale
+        f_width = min(width or full_width, full_width - x)
+        f_height = min(f_height or full_height, full_height - y)
+        full_size = f_width == full_width and f_height == full_height
+        bit_depth, plte_chunk, frame1, _frame2, _frame2_rect = self._build_image_data(udg_array, scale, x, y, f_width, f_height, full_size, palette, attr_map, trans)
+
+        # PNG signature
+        img_file.write(self.png_signature)
+
+        # IHDR
+        self._write_ihdr_chunk(img_file, width, height, bit_depth)
+
+        # PLTE
+        self._write_chunk(img_file, plte_chunk)
+
+        # tRNS
+        if trans and self.alpha != 255:
+            self._write_chunk(img_file, self.trns + [self.alpha])
+
+        # acTL and fcTL
+        if len(frames) > 1:
+            actl_chunk = (97, 99, 84, 76, 0, 0, 0, len(frames), 0, 0, 0, 0)
+            self._write_chunk(img_file, actl_chunk)
+            seq_num = 0
+            self._write_fctl_chunk(img_file, seq_num, width, height, delay=frame.delay)
+
+        # IDAT
+        self._write_img_data_chunk(img_file, self.idat + frame1)
+
+        # fcTL and fdAT
+        for frame in frames[1:]:
+            udg_array = frame.udgs
+            scale = frame.scale
+            x, y, f_width, f_height = frame.crop_rect
+            full_width = 8 * len(udg_array) * frame.scale
+            full_height = 8 * len(udg_array) * frame.scale
+            f_width = min(f_width or full_width, full_width - x)
+            f_height = min(f_height or full_height, full_height - y)
+            full_size = f_width == full_width and f_height == full_height
+            _bit_depth, _plte_chunk, f, _frame2, _frame2_rect = self._build_image_data(udg_array, scale, x, y, f_width, f_height, full_size, palette, attr_map, trans)
+            seq_num += 1
+            self._write_fctl_chunk(img_file, seq_num, width, height, delay=frame.delay)
+            seq_num += 1
+            fdat = bytearray((102, 100, 65, 84) + self._to_bytes(seq_num))
+            self._write_img_data_chunk(img_file, fdat + f)
+
+        # IEND
+        img_file.write(self.iend_chunk)
+
     def _compress_bytes(self, compressor, array, data):
         # PY: No need to convert data to bytes in Python 3
         array.extend(compressor.compress(bytes(data)))
@@ -238,20 +293,20 @@ class PngWriter:
         data.extend((0, 0, 0)) # compression, filter and interlace methods
         self._write_chunk(img_file, data)
 
-    def _write_fctl_chunk(self, img_file, frame_num, width, height, x_offset=0, y_offset=0):
+    def _write_fctl_chunk(self, img_file, seq_num, width, height, x_offset=0, y_offset=0, delay=32):
         data = list(FCTL) # chunk type
-        data.extend(self._to_bytes(frame_num)) # frame number
+        data.extend(self._to_bytes(seq_num)) # sequence number
         data.extend(self._to_bytes(width)) # width
         data.extend(self._to_bytes(height)) # height
         data.extend(self._to_bytes(x_offset)) # x offset
         data.extend(self._to_bytes(y_offset)) # y offset
-        data.extend((0, 8)) # delay numerator
-        data.extend((0, 25)) # delay denominator
+        data.extend((delay // 256, delay % 256)) # delay numerator
+        data.extend((0, 100)) # delay denominator
         data.append(0) # frame disposal operation
         data.append(0) # frame blending operation
         self._write_chunk(img_file, data)
 
-    def _build_image_data(self, udg_array, scale, x, y, width, height, full_size, palette, attr_map, trans, flash_rect):
+    def _build_image_data(self, udg_array, scale, x, y, width, height, full_size, palette, attr_map, trans, flash_rect=None):
         palette_size = len(palette) // 3
         if palette_size > 4:
             bit_depth = 4

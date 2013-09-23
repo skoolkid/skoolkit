@@ -635,9 +635,9 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         i, y_offset = self._get_dword(img_bytes, i)
         self.assertEqual(y_offset, exp_y_offset)
         i, delay_num = self._get_word(img_bytes, i)
-        self.assertEqual(delay_num, 8)
+        self.assertEqual(delay_num, 32)
         i, delay_den = self._get_word(img_bytes, i)
-        self.assertEqual(delay_den, 25)
+        self.assertEqual(delay_den, 100)
         dispose_op = img_bytes[i]
         self.assertEqual(dispose_op, 0)
         i += 1
