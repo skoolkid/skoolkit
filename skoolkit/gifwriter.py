@@ -75,11 +75,7 @@ class GifWriter:
         # GIF trailer
         img_file.write(self.gif_trailer)
 
-    def write_animated_image(self, frames, img_file, scale, width, height, palette, attr_map, trans):
-        x = y = 0
-        full_size = True
-        frame_delay = 32
-
+    def write_animated_image(self, frames, img_file, width, height, palette, attr_map, trans):
         transparent = self.transparency and trans
 
         # Header
@@ -96,10 +92,16 @@ class GifWriter:
 
         img_file.write(self.aeb)
 
-        for udg_array in frames:
-            self._write_gce(img_file, frame_delay, transparent)
+        for frame in frames:
+            x, y, f_width, f_height = frame.crop_rect
+            full_width = 8 * len(frame.udgs[0]) * frame.scale
+            full_height = 8 * len(frame.udgs) * frame.scale
+            f_width = min(f_width or full_width, full_width - x)
+            f_height = min(f_height or full_height, full_height - y)
+            full_size = f_width == full_width and f_height == full_height
+            self._write_gce(img_file, frame.delay, transparent)
             self._write_image_descriptor(img_file, width, height)
-            self._write_gif_image_data(img_file, udg_array, scale, trans, x, y, width, height, full_size, min_code_size, attr_map)
+            self._write_gif_image_data(img_file, frame.udgs, frame.scale, frame.mask, x, y, f_width, f_height, full_size, min_code_size, attr_map)
 
         # GIF trailer
         img_file.write(self.gif_trailer)

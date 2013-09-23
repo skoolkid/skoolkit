@@ -104,6 +104,7 @@ class HtmlWriter:
         self.file_info = file_info
         self.image_writer = image_writer
         self.default_image_format = image_writer.default_format
+        self.frames = {}
         self.case = case
         self.base = skool_parser.base
 
@@ -1021,6 +1022,14 @@ class HtmlWriter:
         ofile.write('</tr>\n')
         ofile.write('</table>\n')
 
+    def _get_image_format(self, image_path):
+        img_file_ext = image_path.lower()[-4:]
+        if img_file_ext == '.png':
+            return 'png'
+        if img_file_ext == '.gif':
+            return 'gif'
+        raise SkoolKitError('Unsupported image file format: {}'.format(image_path))
+
     def write_image(self, image_path, udgs, crop_rect=(), scale=2, mask=False):
         """Create an image and write it to a file.
 
@@ -1039,15 +1048,16 @@ class HtmlWriter:
         :param mask: Whether to apply masks to the tiles in the image.
         """
         if self.image_writer:
-            img_file_ext = image_path.lower()[-4:]
-            if img_file_ext == '.png':
-                img_format = 'png'
-            elif img_file_ext == '.gif':
-                img_format = 'gif'
-            else:
-                raise SkoolKitError('Unsupported image file format: {0}'.format(image_path))
+            img_format = self._get_image_format(image_path)
             f = self.file_info.open_file(image_path, mode='wb')
             self.image_writer.write_image(udgs, f, img_format, scale, mask, *crop_rect)
+            f.close()
+
+    def write_animated_image(self, image_path, frames):
+        if self.image_writer:
+            img_format = self._get_image_format(image_path)
+            f = self.file_info.open_file(image_path, mode='wb')
+            self.image_writer.write_animated_image(frames, f, img_format)
             f.close()
 
     def _create_macros(self):
@@ -1492,8 +1502,39 @@ class HtmlWriter:
             self.write_image(udg_path, [[udg]], crop_rect, scale, mask)
         return end, self.img_element(cwd, udg_path)
 
+    def _expand_udgarray_with_frames(self, text, index):
+        end = text.index('*', index) + 1
+        frame_params = text[index + 1:end - 1]
+        fname = None
+        if end < len(text) and text[end] == '(':
+            start = end + 1
+            end = text.index(')', start) + 1
+            fname = text[start:end - 1]
+        img_path = self.image_path(fname, 'UDGImagePath')
+        if self.need_image(img_path):
+            frames = []
+            default_delay = 32 # 0.32s
+            for frame_param in frame_params.split(';'):
+                elements = frame_param.rsplit(',', 1)
+                if len(elements) == 2:
+                    frame = elements[0]
+                    delay = parse_int(elements[1])
+                    default_delay = delay
+                else:
+                    frame = frame_param
+                    delay = default_delay
+                frame = self.frames[frame]
+                frame.delay = delay
+                frames.append(frame)
+            self.write_animated_image(img_path, frames)
+        return end, self.img_element(cwd, img_path)
+
     def expand_udgarray(self, text, index, cwd):
         # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}](fname)
+        # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}]*frame*
+        # #UDGARRAY*frame1[,delay1];frame2[,delay2];...*(fname)
+        if text[index] == '*':
+            self._expand_udgarray_with_frames(text, index + 1)
         udg_path_id = 'UDGImagePath'
         end, img_path, crop_rect, width, def_attr, scale, def_step, def_inc, flip, rotate = self.parse_image_params(text, index, 7, (56, 2, 1, 0, 0, 0), udg_path_id)
         udg_array = [[]]
@@ -1516,14 +1557,23 @@ class HtmlWriter:
                     udg_array.append([udg])
                 else:
                     udg_array[-1].append(udg)
-        if img_path is None:
+        build_frame = img_path is None and end < len(text) and text[end] == '*'
+        if img_path is None and not build_frame:
             raise MacroParsingError('Missing filename: #UDGARRAY{0}'.format(text[index:end]))
-        if self.need_image(img_path):
+        if  build_frame or self.need_image(img_path):
             if flip:
                 self.flip_udgs(udg_array, flip)
             if rotate:
                 self.rotate_udgs(udg_array, rotate)
-            self.write_image(img_path, udg_array, crop_rect, scale, has_masks)
+            if build_frame:
+                start = end + 1
+                end = text.index('*', start) + 1
+                name = text[start:end - 1]
+                self.frames[name] = Frame(udg_array, scale, crop_rect, has_masks)
+            else:
+                self.write_image(img_path, udg_array, crop_rect, scale, has_masks)
+        if build_frame:
+            return end, ''
         return end, self.img_element(cwd, img_path)
 
     def expand_udgtable(self, text, index, cwd):
@@ -1659,3 +1709,11 @@ class Udg(object):
         if self.mask:
             return Udg(self.attr, self.data[:], self.mask[:])
         return Udg(self.attr, self.data[:])
+
+class Frame(object):
+    def __init__(self, udgs, scale=1, crop_rect=(0, 0, None, None), mask=False, delay=None):
+        self.udgs = udgs
+        self.scale = scale
+        self.crop_rect = crop_rect
+        self.mask = mask
+        self.delay = delay
