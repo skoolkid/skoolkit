@@ -6,7 +6,7 @@ import unittest
 from skoolkittest import SkoolKitTestCase, StringIO
 from skoolkit import VERSION, SkoolKitError, SkoolParsingError
 from skoolkit.skoolmacro import UnsupportedMacroError
-from skoolkit.skoolhtml import HtmlWriter, FileInfo, Udg
+from skoolkit.skoolhtml import HtmlWriter, FileInfo, Udg, Frame
 from skoolkit.skoolparser import SkoolParser, Register, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
 from skoolkit.refparser import RefParser
 
@@ -1078,6 +1078,9 @@ class TestHtmlWriter(HtmlWriter):
     def write_image(self, img_file, udgs=(), crop_rect=(), scale=2, mask=False):
         self.image_writer.write_image(udgs, scale, mask, *crop_rect)
 
+    def write_animated_image(self, img_file, frames):
+        self.image_writer.write_animated_image(frames)
+
 class MockSkoolParser:
     def __init__(self, snapshot=None, entries=(), memory_map=()):
         self.snapshot = snapshot
@@ -1117,6 +1120,9 @@ class MockImageWriter:
         self.y = y
         self.width = width
         self.height = height
+
+    def write_animated_image(self, frames):
+        self.frames = frames
 
 class MockImageWriter2:
     def __init__(self):
@@ -1221,6 +1227,16 @@ class HtmlWriterTest(SkoolKitTestCase):
     def img_equals(self, html, alt, src):
         self.assertEqual(html, '<img alt="{0}" src="{1}" />'.format(alt, src))
 
+    def _compare_udgs(self, udg_array, exp_udg_array):
+        for i, row in enumerate(udg_array):
+            exp_row = exp_udg_array[i]
+            self.assertEqual(len(row), len(exp_row))
+            for j, udg in enumerate(row):
+                exp_udg = exp_row[j]
+                self.assertEqual(udg.attr, exp_udg.attr)
+                self.assertEqual(udg.data, exp_udg.data)
+                self.assertEqual(udg.mask, exp_udg.mask)
+
     def _check_image(self, image_writer, udg_array, scale, mask, x, y, width, height):
         self.assertEqual(image_writer.scale, scale)
         self.assertEqual(image_writer.mask, mask)
@@ -1229,14 +1245,17 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assertEqual(image_writer.width, width)
         self.assertEqual(image_writer.height, height)
         self.assertEqual(len(image_writer.udg_array), len(udg_array))
-        for i, row in enumerate(image_writer.udg_array):
-            exp_row = udg_array[i]
-            self.assertEqual(len(row), len(exp_row))
-            for j, udg in enumerate(row):
-                exp_udg = exp_row[j]
-                self.assertEqual(udg.attr, exp_udg.attr)
-                self.assertEqual(udg.data, exp_udg.data)
-                self.assertEqual(udg.mask, exp_udg.mask)
+        self._compare_udgs(image_writer.udg_array, udg_array)
+
+    def _check_animated_image(self, image_writer, frames):
+        self.assertEqual(len(image_writer.frames), len(frames))
+        for i, frame in enumerate(image_writer.frames):
+            exp_frame = frames[i]
+            self.assertEqual(frame.scale, exp_frame.scale)
+            self.assertEqual(frame.crop_rect, exp_frame.crop_rect)
+            self.assertEqual(frame.mask, exp_frame.mask)
+            self.assertEqual(frame.delay, exp_frame.delay)
+            self._compare_udgs(frame.udgs, exp_frame.udgs)
 
     def test_get_screenshot(self):
         snapshot = [0] * 65536
@@ -2157,6 +2176,32 @@ class HtmlWriterTest(SkoolKitTestCase):
         macro = '#UDGARRAY1;30000'
         with self.assertRaisesRegexp(SkoolParsingError, '{}: Missing filename: {}'.format(prefix, macro)):
             writer.expand(macro, ASMDIR)
+
+    def test_macro_udgarray_frames(self):
+        snapshot = [0] * 65536
+        writer = self._get_writer(snapshot=snapshot)
+
+        udg1_addr = 40000
+        udg1 = Udg(23, [101] * 8)
+        udg2_addr = 40008
+        udg2 = Udg(47, [35] * 8)
+        snapshot[udg1_addr:udg1_addr + 8] = udg1.data
+        snapshot[udg2_addr:udg2_addr + 8] = udg2.data
+        frameset_name = 'foo'
+        macro1 = '#UDGARRAY1;{},{}*{}1*'.format(udg1_addr, udg1.attr, frameset_name)
+        macro2 = '#UDGARRAY1;{},{}*{}2*'.format(udg2_addr, udg2.attr, frameset_name)
+        for macro in (macro1, macro2):
+            output = writer.expand(macro, ASMDIR)
+            self.assertEqual(output, '')
+        delay = 93
+        fname = 'test_udg_array_frames'
+        macro3 = '#UDGARRAY*{0}1,{1};{0}2*({2})'.format(frameset_name, delay, fname)
+        output = writer.expand(macro3, ASMDIR)
+        self.img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
+        frame1 = Frame([[udg1]], 2, delay=delay)
+        frame2 = Frame([[udg2]], 2, delay=delay)
+        frames = [frame1, frame2]
+        self._check_animated_image(writer.image_writer, frames)
 
     def test_macro_udgtable(self):
         writer = self._get_writer()
