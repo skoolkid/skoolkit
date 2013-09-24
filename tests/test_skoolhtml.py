@@ -1138,6 +1138,10 @@ class MockImageWriter2:
         self.width = width
         self.height = height
 
+    def write_animated_image(self, frames, img_file, img_format):
+        self.frames = frames
+        self.img_format = img_format
+
 class HtmlWriterTest(SkoolKitTestCase):
     def read_file(self, fname, lines=False):
         f = open(join(self.odir, GAMEDIR, fname), 'r')
@@ -2711,6 +2715,41 @@ class HtmlWriterTest(SkoolKitTestCase):
         image_path = 'images/test.jpg'
         with self.assertRaisesRegexp(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
             writer.write_image(image_path, None)
+
+    def test_write_animated_image_png(self):
+        file_info = MockFileInfo('html', 'test_write_animated_png')
+        image_writer = MockImageWriter2()
+        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
+
+        image_path = 'images/test_animated.png'
+        frames = object()
+        writer.write_animated_image(image_path, frames)
+        self.assertEqual(file_info.path, join(file_info.odir, image_path))
+        self.assertEqual(file_info.mode, 'wb')
+        self.assertEqual(image_writer.frames, frames)
+        self.assertEqual(image_writer.img_format, 'png')
+
+    def test_write_animated_image_gif(self):
+        file_info = MockFileInfo('html', 'test_write_animated_gif')
+        image_writer = MockImageWriter2()
+        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
+
+        image_path = 'images/test_animated.gif'
+        frames = object()
+        writer.write_animated_image(image_path, frames)
+        self.assertEqual(file_info.path, join(file_info.odir, image_path))
+        self.assertEqual(file_info.mode, 'wb')
+        self.assertEqual(image_writer.frames, frames)
+        self.assertEqual(image_writer.img_format, 'gif')
+
+    def test_write_animated_image_unsupported_format(self):
+        file_info = MockFileInfo('html', 'test_write_animated_jpg')
+        image_writer = MockImageWriter2()
+        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
+
+        image_path = 'images/test_animated.jpg'
+        with self.assertRaisesRegexp(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
+            writer.write_animated_image(image_path, None)
 
     def test_write_header_with_title(self):
         writer = self._get_writer(skool='')
