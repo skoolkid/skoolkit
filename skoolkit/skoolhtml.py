@@ -1711,7 +1711,7 @@ class Udg(object):
         return Udg(self.attr, self.data[:])
 
 class Frame(object):
-    def __init__(self, udgs, scale=1, crop_rect=(0, 0, None, None), mask=False, delay=None):
+    def __init__(self, udgs, scale=1, crop_rect=(0, 0, None, None), mask=False, delay=32):
         self.udgs = udgs
         self.scale = scale
         self.crop_rect = crop_rect

@@ -27,7 +27,7 @@ TRNS = (116, 82, 78, 83)
 ACTL_CHUNK = (0, 0, 0, 8, 97, 99, 84, 76, 0, 0, 0, 2, 0, 0, 0, 0, 243, 141, 147, 112)
 FCTL = (102, 99, 84, 76)
 IDAT = (73, 68, 65, 84)
-FDAT = (102, 100, 65, 84, 0, 0, 0, 2)
+FDAT = (102, 100, 65, 84)
 IEND_CHUNK = (0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130)
 CRC_MASK = 4294967295
 
@@ -79,6 +79,7 @@ class PngWriter:
         self.actl_chunk = bytearray(ACTL_CHUNK)
         self.idat = bytearray(IDAT)
         self.fdat = bytearray(FDAT)
+        self.fdat2 = bytearray(FDAT + (0, 0, 0, 2))
         self.iend_chunk = bytearray(IEND_CHUNK)
 
     def write_image(self, udg_array, img_file, scale, x, y, width, height, full_size, palette, attr_map, trans, flash_rect):
@@ -109,7 +110,7 @@ class PngWriter:
         if frame2:
             f2_x, f2_y, f2_w, f2_h = frame2_rect
             self._write_fctl_chunk(img_file, 1, f2_w, f2_h, f2_x, f2_y)
-            self._write_img_data_chunk(img_file, self.fdat + frame2)
+            self._write_img_data_chunk(img_file, self.fdat2 + frame2)
 
         # IEND
         img_file.write(self.iend_chunk)
@@ -163,7 +164,7 @@ class PngWriter:
             seq_num += 1
             self._write_fctl_chunk(img_file, seq_num, width, height, delay=frame.delay)
             seq_num += 1
-            fdat = bytearray((102, 100, 65, 84) + self._to_bytes(seq_num))
+            fdat = self.fdat + bytearray(self._to_bytes(seq_num))
             self._write_img_data_chunk(img_file, fdat + f)
 
         # IEND

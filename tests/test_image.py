@@ -6,7 +6,7 @@ from io import BytesIO
 
 from skoolkittest import SkoolKitTestCase, PY3
 from skoolkit.image import ImageWriter, PngWriter, DEFAULT_FORMAT, PNG_COMPRESSION_LEVEL, PNG_ENABLE_ANIMATION, PNG_ALPHA, GIF_ENABLE_ANIMATION, GIF_TRANSPARENCY, GIF_COMPRESSION
-from skoolkit.skoolhtml import Udg
+from skoolkit.skoolhtml import Udg, Frame
 
 TRANSPARENT = [0, 254, 0]
 BLACK = [0, 0, 0]
@@ -48,7 +48,7 @@ PNG_SIGNATURE = [137, 80, 78, 71, 13, 10, 26, 10]
 IHDR = [73, 72, 68, 82]
 PLTE = [80, 76, 84, 69]
 TRNS = [116, 82, 78, 83]
-ACTL_CHUNK = [0, 0, 0, 8, 97, 99, 84, 76, 0, 0, 0, 2, 0, 0, 0, 0, 243, 141, 147, 112]
+ACTL = [97, 99, 84, 76]
 FCTL = [102, 99, 84, 76]
 FDAT = [102, 100, 65, 84]
 IDAT = [73, 68, 65, 84]
@@ -127,6 +127,16 @@ class ImageWriterTest:
     def _get_image_data(self, image_writer, udg_array, img_format, scale=1, mask=False, x=0, y=0, width=None, height=None):
         img_stream = BytesIO()
         image_writer.write_image(udg_array, img_stream, img_format, scale, mask, x, y, width, height)
+        if PY3:
+            img_bytes = [b for b in img_stream.getvalue()]
+        else:
+            img_bytes = [ord(c) for c in img_stream.getvalue()]
+        img_stream.close()
+        return img_bytes
+
+    def _get_animated_image_data(self, image_writer, frames, img_format):
+        img_stream = BytesIO()
+        image_writer.write_animated_image(frames, img_stream, img_format)
         if PY3:
             img_bytes = [b for b in img_stream.getvalue()]
         else:
@@ -538,6 +548,29 @@ class ImageWriterTest:
         udg_array = [[udg]]
         self._test_image(udg_array, iw_args=iw_args)
 
+    def test_animation(self):
+        # 3 frames, 2 colours, 8x8
+        frame1 = Frame([[Udg(56, (128,) * 8)]], delay=20)
+        frame2 = Frame([[Udg(56, (64,) * 8)]], delay=100)
+        frame3 = Frame([[Udg(56, (32,) * 8)]], delay=150)
+        frames = [frame1, frame2, frame3]
+        self._test_animated_image(frames)
+
+    def test_animation_cropped(self):
+        # 2 frames, 4 colours, 4x4
+        frame1 = Frame([[Udg(56, (128,) * 8)]], crop_rect=(1, 1, 4, 4))
+        frame2 = Frame([[Udg(49, (64,) * 8)]], crop_rect=(2, 3, 4, 4))
+        frames = [frame1, frame2]
+        self._test_animated_image(frames)
+
+    def test_animation_masked(self):
+        # 2 frames, transparency on frame 1
+        iw_args = {'options': self.alpha_option}
+        frame1 = Frame([[Udg(184, (240,) * 8, (243,) * 8)]], mask=True)
+        frame2 = Frame([[Udg(49, (64,) * 8)]])
+        frames = [frame1, frame2]
+        self._test_animated_image(frames, iw_args)
+
 class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
     def setUp(self):
         SkoolKitTestCase.setUp(self)
@@ -617,7 +650,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(trns_crc, self._get_crc(img_bytes[trns_start:trns_end]))
         return i
 
-    def _check_fctl(self, img_bytes, index, exp_frame_num, exp_width, exp_height, exp_x_offset=0, exp_y_offset=0):
+    def _check_fctl(self, img_bytes, index, exp_frame_num, exp_width, exp_height, exp_x_offset=0, exp_y_offset=0, exp_delay=32):
         i = index
         i, chunk_length = self._get_dword(img_bytes, i)
         self.assertEqual(chunk_length, 26)
@@ -635,7 +668,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         i, y_offset = self._get_dword(img_bytes, i)
         self.assertEqual(y_offset, exp_y_offset)
         i, delay_num = self._get_word(img_bytes, i)
-        self.assertEqual(delay_num, 32)
+        self.assertEqual(delay_num, exp_delay)
         i, delay_den = self._get_word(img_bytes, i)
         self.assertEqual(delay_den, 100)
         dispose_op = img_bytes[i]
@@ -677,7 +710,22 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         pixels.append(pixel_row[:width])
         return pixels
 
-    def _check_fdat(self, img_bytes, index, bit_depth, palette, exp_pixels, width):
+    def _check_actl(self, img_bytes, index, exp_num_frames=2):
+        i = index
+        i, chunk_length = self._get_dword(img_bytes, i)
+        actl_start = i
+        i, chunk_type = self._get_chunk_type(img_bytes, i)
+        self.assertEqual(chunk_type, ACTL)
+        actl_end = i + chunk_length
+        i, num_frames = self._get_dword(img_bytes, i)
+        self.assertEqual(num_frames, exp_num_frames)
+        i, repeat = self._get_dword(img_bytes, i)
+        self.assertEqual(repeat, 0)
+        i, actl_crc = self._get_dword(img_bytes, i)
+        self.assertEqual(actl_crc, self._get_crc(img_bytes[actl_start:actl_end]))
+        return i
+
+    def _check_fdat(self, img_bytes, index, bit_depth, palette, exp_pixels, width, exp_seq_num=2):
         i = index
         i, chunk_length = self._get_dword(img_bytes, i)
         fdat_start = i
@@ -685,7 +733,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(chunk_type, FDAT)
         fdat_end = i + chunk_length
         i, seq_num = self._get_dword(img_bytes, i)
-        self.assertEqual(seq_num, 2)
+        self.assertEqual(seq_num, exp_seq_num)
         if PY3:
             image_data_z = bytes(img_bytes[i:fdat_end])
             image_data = list(zlib.decompress(image_data_z))
@@ -804,8 +852,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
 
         # acTL and fcTL
         if exp_pixels2:
-            self.assertEqual(img_bytes[i:i + len(ACTL_CHUNK)], ACTL_CHUNK)
-            i += len(ACTL_CHUNK)
+            i = self._check_actl(img_bytes, i)
             i = self._check_fctl(img_bytes, i, 0, exp_width, exp_height)
 
         # IDAT
@@ -818,6 +865,73 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
             exp_x_offset, exp_y_offset = frame2_xy
             i = self._check_fctl(img_bytes, i, 1, exp_width, exp_height, exp_x_offset, exp_y_offset)
             i = self._check_fdat(img_bytes, i, exp_bit_depth, palette, exp_pixels2, exp_width)
+
+        # IEND
+        self.assertEqual(img_bytes[i:], IEND_CHUNK)
+
+    def _test_animated_image(self, frames, iw_args=None):
+        image_writer = ImageWriter(**(iw_args or {}))
+        img_bytes = self._get_animated_image_data(image_writer, frames, 'png')
+
+        exp_palette = []
+        frame_data = []
+        has_trans = 0
+        exp_width = None
+        exp_height = None
+        for frame in frames:
+            x, y, width, height = frame.crop_rect
+            full_width = 8 * len(frame.udgs[0]) * frame.scale
+            full_height = 8 * len(frame.udgs) * frame.scale
+            width = min(width or full_width, full_width - x)
+            height = min(height or full_height, full_height - y)
+            if exp_width is None:
+                exp_width = width
+                exp_height = height
+            else:
+                exp_width = min(exp_width, width)
+                exp_height = min(exp_height, height)
+            frame_palette, f_has_trans, pixels, pixels2, frame2_xy = self._get_pixels_from_udg_array(frame.udgs, frame.scale, frame.mask, x, y, width, height)
+            has_trans = has_trans or f_has_trans
+            frame_data.append((pixels, frame.delay))
+            for c in frame_palette:
+                if c not in exp_palette:
+                    exp_palette.append(c)
+
+        palette_size = len(exp_palette)
+        if palette_size > 4:
+            exp_bit_depth = 4
+        elif palette_size > 2:
+            exp_bit_depth = 2
+        else:
+            exp_bit_depth = 1
+
+        # PNG signature
+        i = self._check_signature(img_bytes)
+
+        # IHDR
+        i = self._check_ihdr(img_bytes, i, exp_width, exp_height, exp_bit_depth)
+
+        # PLTE
+        i, palette = self._check_plte(img_bytes, i, exp_palette)
+
+        # tRNS
+        alpha = image_writer.options[PNG_ALPHA]
+        if alpha < 255 and has_trans:
+            i = self._check_trns(img_bytes, i, alpha)
+
+        # acTL
+        i = self._check_actl(img_bytes, i, len(frames))
+
+        # Frames
+        seq_num = 0
+        for exp_pixels, exp_delay in frame_data:
+            i = self._check_fctl(img_bytes, i, seq_num, exp_width, exp_height, exp_delay=exp_delay)
+            seq_num += 1
+            if seq_num == 1:
+                i = self._check_idat(img_bytes, i, exp_bit_depth, palette, exp_pixels, exp_width)
+            else:
+                i = self._check_fdat(img_bytes, i, exp_bit_depth, palette, exp_pixels, exp_width, seq_num)
+                seq_num += 1
 
         # IEND
         self.assertEqual(img_bytes[i:], IEND_CHUNK)
@@ -1126,6 +1240,74 @@ class GifWriterTest(ImageWriterTest):
             exp_x_offset, exp_y_offset = frame2_xy
             i = self._check_image_descriptor(img_bytes, i, exp_width, exp_height, exp_x_offset, exp_y_offset)
             i = self._check_image_data(img_bytes, i, exp_width, exp_height, palette, exp_min_code_size, exp_pixels2)
+
+        # GIF trailer
+        self.assertEqual(img_bytes[i], GIF_TRAILER)
+
+    def _test_animated_image(self, frames, iw_args=None):
+        if iw_args is None:
+            iw_args = {}
+        options = iw_args.setdefault('options', {})
+        options.update(self.iw_options)
+        image_writer = ImageWriter(**iw_args)
+        img_bytes = self._get_animated_image_data(image_writer, frames, 'gif')
+
+        exp_palette = []
+        frame_data = []
+        has_trans = 0
+        exp_width = None
+        exp_height = None
+        for frame in frames:
+            x, y, width, height = frame.crop_rect
+            full_width = 8 * len(frame.udgs[0]) * frame.scale
+            full_height = 8 * len(frame.udgs) * frame.scale
+            width = min(width or full_width, full_width - x)
+            height = min(height or full_height, full_height - y)
+            if exp_width is None:
+                exp_width = width
+                exp_height = height
+            else:
+                exp_width = min(exp_width, width)
+                exp_height = min(exp_height, height)
+            frame_palette, f_has_trans, pixels, pixels2, frame2_xy = self._get_pixels_from_udg_array(frame.udgs, frame.scale, frame.mask, x, y, width, height)
+            has_trans = has_trans or f_has_trans
+            frame_data.append((pixels, frame.delay))
+            for c in frame_palette:
+                if c not in exp_palette:
+                    exp_palette.append(c)
+
+        t_flag = 1 if image_writer.options[GIF_TRANSPARENCY] and has_trans else 0
+
+        if image_writer.options[GIF_COMPRESSION]:
+            palette_size = len(exp_palette)
+            if palette_size > 8:
+                exp_min_code_size = 4
+            elif palette_size > 4:
+                exp_min_code_size = 3
+            else:
+                exp_min_code_size = 2
+        else:
+            exp_min_code_size = 7
+
+        # GIF header
+        i = self._check_header(img_bytes)
+
+        # Logical screen descriptor
+        i = self._check_lsd(img_bytes, i, exp_width, exp_height)
+
+        # Global Colour Table
+        i, palette = self._check_gct(img_bytes, i, exp_palette)
+
+        # AEB
+        aeb_len = len(AEB)
+        self.assertEqual(img_bytes[i:i + aeb_len], AEB)
+        i += aeb_len
+
+        # Frames
+        for exp_pixels, exp_delay in frame_data:
+            i = self._check_gce(img_bytes, i, t_flag, exp_delay)
+            i = self._check_image_descriptor(img_bytes, i, exp_width, exp_height)
+            i = self._check_image_data(img_bytes, i, exp_width, exp_height, palette, exp_min_code_size, exp_pixels)
 
         # GIF trailer
         self.assertEqual(img_bytes[i], GIF_TRAILER)
