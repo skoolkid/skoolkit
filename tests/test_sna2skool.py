@@ -673,6 +673,14 @@ class OptionsTest(SkoolKitTestCase):
         lines = self._write_skool('-c {0} {1}'.format(ctlfile, binfile), 3)
         self.assertEqual(lines[2], '; Control file')
 
+    def test_default_sft_for_unrecognised_snapshot_format(self):
+        self.mock(sna2skool, 'run', mock_run)
+        binfile = 'snapshot.foo'
+        sftfile = self.write_text_file(path='{}.sft'.format(binfile))
+        sna2skool.main((binfile,))
+        snafile, options = run_args
+        self.assertEqual(options.sftfile, sftfile)
+
     def test_default_ctl(self):
         # Test that the default control file is used if present
         binfile = self._write_bin([0])
@@ -688,6 +696,14 @@ class OptionsTest(SkoolKitTestCase):
         sftfile = self.write_text_file('\n'.join(sft), suffix='.sft')
         lines = self._write_skool('-T {0} {1}'.format(sftfile, binfile), 1)
         self.assertEqual(lines[0], sft[0])
+
+    def test_default_ctl_for_unrecognised_snapshot_format(self):
+        self.mock(sna2skool, 'run', mock_run)
+        binfile = 'input.bar'
+        ctlfile = self.write_text_file(path='{}.ctl'.format(binfile))
+        sna2skool.main((binfile,))
+        snafile, options = run_args
+        self.assertEqual(options.ctlfile, ctlfile)
 
     def test_terminal_unknown_block(self):
         data = (
