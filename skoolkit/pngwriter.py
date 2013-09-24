@@ -83,7 +83,8 @@ class PngWriter:
         self.iend_chunk = bytearray(IEND_CHUNK)
 
     def write_image(self, udg_array, img_file, scale, x, y, width, height, full_size, palette, attr_map, trans, flash_rect):
-        bit_depth, plte_chunk, frame1, frame2, frame2_rect = self._build_image_data(udg_array, scale, x, y, width, height, full_size, palette, attr_map, trans, flash_rect)
+        bit_depth, palette_size = self._get_bit_depth(palette)
+        frame1, frame2, frame2_rect = self._build_image_data(udg_array, scale, x, y, width, height, full_size, palette_size, bit_depth, attr_map, trans, flash_rect)
 
         # PNG signature
         img_file.write(self.png_signature)
@@ -92,7 +93,7 @@ class PngWriter:
         self._write_ihdr_chunk(img_file, width, height, bit_depth)
 
         # PLTE
-        self._write_chunk(img_file, plte_chunk)
+        self._write_plte_chunk(img_file, palette)
 
         # tRNS
         if trans and self.alpha != 255:
@@ -116,6 +117,7 @@ class PngWriter:
         img_file.write(self.iend_chunk)
 
     def write_animated_image(self, frames, img_file, width, height, palette, attr_map, trans):
+        bit_depth, palette_size = self._get_bit_depth(palette)
         frame = frames[0]
         udg_array = frame.udgs
         scale = frame.scale
@@ -125,7 +127,7 @@ class PngWriter:
         f_width = min(width or full_width, full_width - x)
         f_height = min(f_height or full_height, full_height - y)
         full_size = f_width == full_width and f_height == full_height
-        bit_depth, plte_chunk, frame1, _frame2, _frame2_rect = self._build_image_data(udg_array, scale, x, y, f_width, f_height, full_size, palette, attr_map, trans)
+        frame1 = self._build_image_data(udg_array, scale, x, y, f_width, f_height, full_size, palette_size, bit_depth, attr_map, trans)[0]
 
         # PNG signature
         img_file.write(self.png_signature)
@@ -134,7 +136,7 @@ class PngWriter:
         self._write_ihdr_chunk(img_file, width, height, bit_depth)
 
         # PLTE
-        self._write_chunk(img_file, plte_chunk)
+        self._write_plte_chunk(img_file, palette)
 
         # tRNS
         if trans and self.alpha != 255:
@@ -160,7 +162,7 @@ class PngWriter:
             f_width = min(f_width or full_width, full_width - x)
             f_height = min(f_height or full_height, full_height - y)
             full_size = f_width == full_width and f_height == full_height
-            _bit_depth, _plte_chunk, f, _frame2, _frame2_rect = self._build_image_data(udg_array, scale, x, y, f_width, f_height, full_size, palette, attr_map, trans)
+            f = self._build_image_data(udg_array, scale, x, y, f_width, f_height, full_size, palette_size, bit_depth, attr_map, trans)[0]
             seq_num += 1
             self._write_fctl_chunk(img_file, seq_num, width, height, delay=frame.delay)
             seq_num += 1
@@ -294,6 +296,11 @@ class PngWriter:
         data.extend((0, 0, 0)) # compression, filter and interlace methods
         self._write_chunk(img_file, data)
 
+    def _write_plte_chunk(self, img_file, palette):
+        data = list(PLTE)
+        data.extend(palette)
+        self._write_chunk(img_file, data)
+
     def _write_fctl_chunk(self, img_file, seq_num, width, height, x_offset=0, y_offset=0, delay=32):
         data = list(FCTL) # chunk type
         data.extend(self._to_bytes(seq_num)) # sequence number
@@ -307,7 +314,7 @@ class PngWriter:
         data.append(0) # frame blending operation
         self._write_chunk(img_file, data)
 
-    def _build_image_data(self, udg_array, scale, x, y, width, height, full_size, palette, attr_map, trans, flash_rect=None):
+    def _get_bit_depth(self, palette):
         palette_size = len(palette) // 3
         if palette_size > 4:
             bit_depth = 4
@@ -315,9 +322,9 @@ class PngWriter:
             bit_depth = 2
         else:
             bit_depth = 1
-        plte_chunk = list(PLTE)
-        plte_chunk.extend(palette)
+        return bit_depth, palette_size
 
+    def _build_image_data(self, udg_array, scale, x, y, width, height, full_size, palette_size, bit_depth, attr_map, trans, flash_rect=None):
         frame2 = frame2_rect = None
         if flash_rect:
             if full_size:
@@ -352,7 +359,7 @@ class PngWriter:
                 f2_build_method = f2_method(len(f2_udg_array[0]) * len(f2_udg_array), len(attr_map), scale)
             frame2 = f2_build_method(f2_udg_array, scale, attr_map, trans, True, x + f2_x, y + f2_y, f2_w, f2_h, bit_depth)
 
-        return bit_depth, plte_chunk, frame1, frame2, frame2_rect
+        return frame1, frame2, frame2_rect
 
     def _get_crc(self, byte_list):
         crc = CRC_MASK
