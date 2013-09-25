@@ -84,11 +84,9 @@ class PngWriter:
 
     def write_image(self, frame, img_file,  palette, attr_map, trans, flash_rect):
         udg_array = frame.udgs
-        scale = frame.scale
-        x, y, width, height = frame.x, frame.y, frame.width, frame.height
-        full_size = not frame.cropped
+        width, height = frame.width, frame.height
         bit_depth, palette_size = self._get_bit_depth(palette)
-        frame1, frame2, frame2_rect = self._build_image_data(udg_array, scale, x, y, width, height, full_size, palette_size, bit_depth, attr_map, trans, flash_rect)
+        frame1, frame2, frame2_rect = self._build_image_data(frame, palette_size, bit_depth, attr_map, trans, flash_rect)
 
         # PNG signature
         img_file.write(self.png_signature)
@@ -122,12 +120,8 @@ class PngWriter:
 
     def write_animated_image(self, frames, img_file, width, height, palette, attr_map, trans):
         bit_depth, palette_size = self._get_bit_depth(palette)
-        frame = frames[0]
-        udg_array = frame.udgs
-        scale = frame.scale
-        x, y, f_width, f_height = frame.x, frame.y, frame.width, frame.height
-        full_size = not frame.cropped
-        frame1 = self._build_image_data(udg_array, scale, x, y, f_width, f_height, full_size, palette_size, bit_depth, attr_map, trans)[0]
+        frame1 = frames[0]
+        frame1_data = self._build_image_data(frame1, palette_size, bit_depth, attr_map, trans)[0]
 
         # PNG signature
         img_file.write(self.png_signature)
@@ -147,23 +141,19 @@ class PngWriter:
             actl_chunk = (97, 99, 84, 76, 0, 0, 0, len(frames), 0, 0, 0, 0)
             self._write_chunk(img_file, actl_chunk)
             seq_num = 0
-            self._write_fctl_chunk(img_file, seq_num, width, height, delay=frame.delay)
+            self._write_fctl_chunk(img_file, seq_num, width, height, delay=frame1.delay)
 
         # IDAT
-        self._write_img_data_chunk(img_file, self.idat + frame1)
+        self._write_img_data_chunk(img_file, self.idat + frame1_data)
 
         # fcTL and fdAT
         for frame in frames[1:]:
-            udg_array = frame.udgs
-            scale = frame.scale
-            x, y, f_width, f_height = frame.x, frame.y, frame.width, frame.height
-            full_size = not frame.cropped
-            f = self._build_image_data(udg_array, scale, x, y, f_width, f_height, full_size, palette_size, bit_depth, attr_map, trans)[0]
+            frame_data = self._build_image_data(frame, palette_size, bit_depth, attr_map, trans)[0]
             seq_num += 1
             self._write_fctl_chunk(img_file, seq_num, width, height, delay=frame.delay)
             seq_num += 1
             fdat = self.fdat + bytearray(self._to_bytes(seq_num))
-            self._write_img_data_chunk(img_file, fdat + f)
+            self._write_img_data_chunk(img_file, fdat + frame_data)
 
         # IEND
         img_file.write(self.iend_chunk)
@@ -320,7 +310,12 @@ class PngWriter:
             bit_depth = 1
         return bit_depth, palette_size
 
-    def _build_image_data(self, udg_array, scale, x, y, width, height, full_size, palette_size, bit_depth, attr_map, trans, flash_rect=None):
+    def _build_image_data(self, frame, palette_size, bit_depth, attr_map, trans, flash_rect=None):
+        udg_array = frame.udgs
+        scale = frame.scale
+        x, y, width, height = frame.x, frame.y, frame.width, frame.height
+        full_size = not frame.cropped
+
         frame2 = frame2_rect = None
         if flash_rect:
             if full_size:
