@@ -82,46 +82,16 @@ class PngWriter:
         self.fdat2 = bytearray(FDAT + (0, 0, 0, 2))
         self.iend_chunk = bytearray(IEND_CHUNK)
 
-    def write_image(self, frame, img_file,  palette, attr_map, trans, flash_rect):
-        udg_array = frame.udgs
-        width, height = frame.width, frame.height
-        bit_depth, palette_size = self._get_bit_depth(palette)
-        frame1, frame2, frame2_rect = self._build_image_data(frame, palette_size, bit_depth, attr_map, trans, flash_rect)
-
-        # PNG signature
-        img_file.write(self.png_signature)
-
-        # IHDR
-        self._write_ihdr_chunk(img_file, width, height, bit_depth)
-
-        # PLTE
-        self._write_plte_chunk(img_file, palette)
-
-        # tRNS
-        if trans and self.alpha != 255:
-            self._write_chunk(img_file, self.trns + [self.alpha])
-
-        # acTL and fcTL
-        if frame2:
-            img_file.write(self.actl_chunk)
-            self._write_fctl_chunk(img_file, 0, width, height)
-
-        # IDAT
-        self._write_img_data_chunk(img_file, self.idat + frame1)
-
-        # fcTL and fdAT
-        if frame2:
-            f2_x, f2_y, f2_w, f2_h = frame2_rect
-            self._write_fctl_chunk(img_file, 1, f2_w, f2_h, f2_x, f2_y)
-            self._write_img_data_chunk(img_file, self.fdat2 + frame2)
-
-        # IEND
-        img_file.write(self.iend_chunk)
+    def write_image(self, frame, img_file, palette, attr_map, trans, flash_rect):
+        return self._write_image([frame], img_file, frame.width, frame.height, palette, attr_map, trans, flash_rect)
 
     def write_animated_image(self, frames, img_file, width, height, palette, attr_map, trans):
+        return self._write_image(frames, img_file, width, height, palette, attr_map, trans)
+
+    def _write_image(self, frames, img_file, width, height, palette, attr_map, trans, flash_rect=None):
         bit_depth, palette_size = self._get_bit_depth(palette)
         frame1 = frames[0]
-        frame1_data = self._build_image_data(frame1, palette_size, bit_depth, attr_map, trans)[0]
+        frame1_data, frame2_data, frame2_rect = self._build_image_data(frame1, palette_size, bit_depth, attr_map, trans, flash_rect)
 
         # PNG signature
         img_file.write(self.png_signature)
@@ -136,10 +106,15 @@ class PngWriter:
         if trans and self.alpha != 255:
             self._write_chunk(img_file, self.trns + [self.alpha])
 
-        # acTL and fcTL
-        if len(frames) > 1:
+        # acTL
+        if len(frames) == 1 and flash_rect:
+            img_file.write(self.actl_chunk)
+        elif len(frames) > 1:
             actl_chunk = (97, 99, 84, 76, 0, 0, 0, len(frames), 0, 0, 0, 0)
             self._write_chunk(img_file, actl_chunk)
+
+        # fcTL
+        if len(frames) > 1 or flash_rect:
             seq_num = 0
             self._write_fctl_chunk(img_file, seq_num, width, height, delay=frame1.delay)
 
@@ -147,6 +122,10 @@ class PngWriter:
         self._write_img_data_chunk(img_file, self.idat + frame1_data)
 
         # fcTL and fdAT
+        if len(frames) == 1 and flash_rect:
+            f2_x, f2_y, f2_w, f2_h = frame2_rect
+            self._write_fctl_chunk(img_file, 1, f2_w, f2_h, f2_x, f2_y)
+            self._write_img_data_chunk(img_file, self.fdat2 + frame2_data)
         for frame in frames[1:]:
             frame_data = self._build_image_data(frame, palette_size, bit_depth, attr_map, trans)[0]
             seq_num += 1
