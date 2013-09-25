@@ -82,7 +82,11 @@ class PngWriter:
         self.fdat2 = bytearray(FDAT + (0, 0, 0, 2))
         self.iend_chunk = bytearray(IEND_CHUNK)
 
-    def write_image(self, udg_array, img_file, scale, x, y, width, height, full_size, palette, attr_map, trans, flash_rect):
+    def write_image(self, frame, img_file,  palette, attr_map, trans, flash_rect):
+        udg_array = frame.udgs
+        scale = frame.scale
+        x, y, width, height = frame.x, frame.y, frame.width, frame.height
+        full_size = not frame.cropped
         bit_depth, palette_size = self._get_bit_depth(palette)
         frame1, frame2, frame2_rect = self._build_image_data(udg_array, scale, x, y, width, height, full_size, palette_size, bit_depth, attr_map, trans, flash_rect)
 
@@ -121,12 +125,8 @@ class PngWriter:
         frame = frames[0]
         udg_array = frame.udgs
         scale = frame.scale
-        x, y, f_width, f_height = frame.crop_rect
-        full_width = 8 * len(udg_array) * frame.scale
-        full_height = 8 * len(udg_array) * frame.scale
-        f_width = min(width or full_width, full_width - x)
-        f_height = min(f_height or full_height, full_height - y)
-        full_size = f_width == full_width and f_height == full_height
+        x, y, f_width, f_height = frame.x, frame.y, frame.width, frame.height
+        full_size = not frame.cropped
         frame1 = self._build_image_data(udg_array, scale, x, y, f_width, f_height, full_size, palette_size, bit_depth, attr_map, trans)[0]
 
         # PNG signature
@@ -156,12 +156,8 @@ class PngWriter:
         for frame in frames[1:]:
             udg_array = frame.udgs
             scale = frame.scale
-            x, y, f_width, f_height = frame.crop_rect
-            full_width = 8 * len(udg_array) * frame.scale
-            full_height = 8 * len(udg_array) * frame.scale
-            f_width = min(f_width or full_width, full_width - x)
-            f_height = min(f_height or full_height, full_height - y)
-            full_size = f_width == full_width and f_height == full_height
+            x, y, f_width, f_height = frame.x, frame.y, frame.width, frame.height
+            full_size = not frame.cropped
             f = self._build_image_data(udg_array, scale, x, y, f_width, f_height, full_size, palette_size, bit_depth, attr_map, trans)[0]
             seq_num += 1
             self._write_fctl_chunk(img_file, seq_num, width, height, delay=frame.delay)

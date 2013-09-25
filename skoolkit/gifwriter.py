@@ -32,7 +32,11 @@ class GifWriter:
         self.aeb = bytearray(AEB)
         self.gif_trailer = bytearray((GIF_TRAILER,))
 
-    def write_image(self, udg_array, img_file, scale, x, y, width, height, full_size, palette, attr_map, trans, flash_rect):
+    def write_image(self, frame, img_file, palette, attr_map, trans, flash_rect):
+        udg_array = frame.udgs
+        scale = frame.scale
+        x, y, width, height = frame.x, frame.y, frame.width, frame.height
+        full_size = not frame.cropped
         transparent = self.transparency and trans
 
         # Header
@@ -93,12 +97,8 @@ class GifWriter:
         img_file.write(self.aeb)
 
         for frame in frames:
-            x, y, f_width, f_height = frame.crop_rect
-            full_width = 8 * len(frame.udgs[0]) * frame.scale
-            full_height = 8 * len(frame.udgs) * frame.scale
-            f_width = min(f_width or full_width, full_width - x)
-            f_height = min(f_height or full_height, full_height - y)
-            full_size = f_width == full_width and f_height == full_height
+            x, y, f_width, f_height = frame.x, frame.y, frame.width, frame.height
+            full_size = not frame.cropped
             self._write_gce(img_file, frame.delay, transparent)
             self._write_image_descriptor(img_file, width, height)
             self._write_gif_image_data(img_file, frame.udgs, frame.scale, frame.mask, x, y, f_width, f_height, full_size, min_code_size, attr_map)

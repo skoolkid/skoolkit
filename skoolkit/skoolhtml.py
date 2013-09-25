@@ -1048,16 +1048,14 @@ class HtmlWriter:
         :param mask: Whether to apply masks to the tiles in the image.
         """
         if self.image_writer:
-            img_format = self._get_image_format(image_path)
-            f = self.file_info.open_file(image_path, mode='wb')
-            self.image_writer.write_image(udgs, f, img_format, scale, mask, *crop_rect)
-            f.close()
+            frame = Frame(udgs, scale, mask, *crop_rect)
+            self.write_animated_image(image_path, [frame])
 
     def write_animated_image(self, image_path, frames):
         if self.image_writer:
             img_format = self._get_image_format(image_path)
             f = self.file_info.open_file(image_path, mode='wb')
-            self.image_writer.write_animated_image(frames, f, img_format)
+            self.image_writer.write_image(frames, f, img_format)
             f.close()
 
     def _create_macros(self):
@@ -1569,7 +1567,7 @@ class HtmlWriter:
                 start = end + 1
                 end = text.index('*', start) + 1
                 name = text[start:end - 1]
-                self.frames[name] = Frame(udg_array, scale, crop_rect, has_masks)
+                self.frames[name] = Frame(udg_array, scale, has_masks, *crop_rect)
             else:
                 self.write_image(img_path, udg_array, crop_rect, scale, has_masks)
         if build_frame:
@@ -1711,9 +1709,42 @@ class Udg(object):
         return Udg(self.attr, self.data[:])
 
 class Frame(object):
-    def __init__(self, udgs, scale=1, crop_rect=(0, 0, None, None), mask=False, delay=32):
-        self.udgs = udgs
-        self.scale = scale
-        self.crop_rect = crop_rect
+    def __init__(self, udgs, scale=1, mask=False, x=0, y=0, width=None, height=None, delay=32):
+        self._udgs = udgs
+        self._scale = scale
         self.mask = mask
+        self._x = x
+        self._y = y
+        self._full_width = 8 * len(udgs[0]) * scale
+        self._full_height = 8 * len(udgs) * scale
+        self._width = min(width or self._full_width, self._full_width - x)
+        self._height = min(height or self._full_height, self._full_height - y)
         self.delay = delay
+
+    @property
+    def udgs(self):
+        return self._udgs
+
+    @property
+    def scale(self):
+        return self._scale
+
+    @property
+    def x(self):
+        return self._x
+
+    @property
+    def y(self):
+        return self._y
+
+    @property
+    def width(self):
+        return self._width
+
+    @property
+    def height(self):
+        return self._height
+
+    @property
+    def cropped(self):
+        return self._width != self._full_width or self._height != self._full_height

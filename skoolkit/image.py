@@ -109,69 +109,28 @@ class ImageWriter:
         self.gif_writer = GifWriter(self.options[GIF_TRANSPARENCY], self.options[GIF_COMPRESSION])
         self.png_writer = PngWriter(self.options[PNG_ALPHA] & 255, self.options[PNG_COMPRESSION_LEVEL])
 
-    def write_image(self, udg_array, img_file, img_format, scale=1, mask=False, x=0, y=0, width=None, height=None):
-        """Create an image and write it to a file.
-
-        :param udg_array: The two-dimensional array of tiles (instances of
-                          :class:`~skoolkit.skoolhtml.Udg`) from which to build
-                          the image.
-        :param img_file: The file-like object to which to write the image.
-        :param img_format: The format of the image ('png' or 'gif').
-        :param scale: The scale of the image.
-        :param mask: Whether to apply masks to the tiles in the image.
-        :param x: The x-coordinate of the top-left pixel to include in the
-                  image.
-        :param y: The y-coordinate of the top-left pixel to include in the
-                  image.
-        :param width: The width of the image.
-        :param height: The height of the image.
-        """
-        full_width = 8 * len(udg_array[0]) * scale
-        full_height = 8 * len(udg_array) * scale
-        width = min(width or full_width, full_width - x)
-        height = min(height or full_height, full_height - y)
-        if width == full_width and height == full_height:
-            full_size = 1
-        else:
-            full_size = 0
-        use_flash = self.animation.get(img_format)
-        if full_size:
-            colours, attrs, trans, flash_rect = self._get_all_colours(udg_array, mask, use_flash)
-        else:
-            colours, attrs, trans, flash_rect = self._get_colours(udg_array, scale, mask, x, y, width, height, use_flash)
-        palette, attr_map = self._get_palette(colours, attrs, trans)
-
-        if img_format == PNG_FORMAT:
-            self.png_writer.write_image(udg_array, img_file, scale, x, y, width, height, full_size, palette, attr_map, trans, flash_rect)
-        elif img_format == GIF_FORMAT:
-            self.gif_writer.write_image(udg_array, img_file, scale, x, y, width, height, full_size, palette, attr_map, trans, flash_rect)
-
-    def write_animated_image(self, frames, img_file, img_format):
+    def write_image(self, frames, img_file, img_format):
+        use_flash = len(frames) == 1 and self.animation.get(img_format)
         attrs = set()
         colours = set()
         trans = 0
         i_width = i_height = 0
         for frame in frames:
-            x, y, width, height = frame.crop_rect
-            full_width = 8 * len(frame.udgs[0]) * frame.scale
-            full_height = 8 * len(frame.udgs) * frame.scale
-            width = min(width or full_width, full_width - x)
-            height = min(height or full_height, full_height - y)
-            i_width = max(i_width, width)
-            i_height = max(i_height, height)
-            if width == full_width and height == full_height:
-                f_colours, f_attrs, f_trans, f_flash_rect = self._get_all_colours(frame.udgs, frame.mask)
-            else:
-                f_colours, f_attrs, f_trans, f_flash_rect = self._get_colours(frame.udgs, frame.scale, frame.mask, x, y, width, height)
+            i_width = max(i_width, frame.width)
+            i_height = max(i_height, frame.height)
+            f_colours, f_attrs, f_trans, flash_rect = self._get_colours(frame, use_flash)
             colours.update(f_colours)
             attrs.update(f_attrs)
             trans = trans or f_trans
         palette, attr_map = self._get_palette(colours, attrs, trans)
-
         if img_format == PNG_FORMAT:
-            self.png_writer.write_animated_image(frames, img_file, i_width, i_height, palette, attr_map, trans)
+            writer = self.png_writer
         elif img_format == GIF_FORMAT:
-            self.gif_writer.write_animated_image(frames, img_file, i_width, i_height, palette, attr_map, trans)
+            writer = self.gif_writer
+        if len(frames) == 1:
+            writer.write_image(frames[0], img_file, palette, attr_map, trans, flash_rect)
+        else:
+            writer.write_animated_image(frames, img_file, i_width, i_height, palette, attr_map, trans)
 
     def _get_default_palette(self):
         return  {
@@ -239,8 +198,14 @@ class ImageWriter:
                 paper = 1 + (attr & 56) // 8
             self.attr_index[attr] = (paper, ink)
 
-    def _get_colours(self, udg_array, scale, mask, x, y, width, height, use_flash=False):
-        # Find all the colours in a cropped image
+    def _get_colours(self, frame, use_flash=False):
+        if not frame.cropped:
+            return self._get_all_colours(frame, use_flash)
+
+        udg_array = frame.udgs
+        scale = frame.scale
+        mask = frame.mask
+        x, y, width, height = frame.x, frame.y, frame.width, frame.height
         attrs = set()
         colours = set()
         has_trans = 0
@@ -329,8 +294,10 @@ class ImageWriter:
             trans = 0
         return colours, attrs, trans, flash_rect
 
-    def _get_all_colours(self, udg_array, mask, use_flash=False):
+    def _get_all_colours(self, frame, use_flash=False):
         # Find all the colours in an uncropped image
+        udg_array = frame.udgs
+        mask = frame.mask
         attrs = set()
         colours = set()
         has_trans = 0

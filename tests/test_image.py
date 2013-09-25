@@ -125,8 +125,9 @@ class ImageWriterTest:
         return index + 4, 16777216 * stream[index] + 65536 * stream[index + 1] + 256 * stream[index + 2] + stream[index + 3]
 
     def _get_image_data(self, image_writer, udg_array, img_format, scale=1, mask=False, x=0, y=0, width=None, height=None):
+        frame = Frame(udg_array, scale, mask, x, y, width, height)
         img_stream = BytesIO()
-        image_writer.write_image(udg_array, img_stream, img_format, scale, mask, x, y, width, height)
+        image_writer.write_image([frame], img_stream, img_format)
         if PY3:
             img_bytes = [b for b in img_stream.getvalue()]
         else:
@@ -136,7 +137,7 @@ class ImageWriterTest:
 
     def _get_animated_image_data(self, image_writer, frames, img_format):
         img_stream = BytesIO()
-        image_writer.write_animated_image(frames, img_stream, img_format)
+        image_writer.write_image(frames, img_stream, img_format)
         if PY3:
             img_bytes = [b for b in img_stream.getvalue()]
         else:
@@ -549,17 +550,17 @@ class ImageWriterTest:
         self._test_image(udg_array, iw_args=iw_args)
 
     def test_animation(self):
-        # 3 frames, 2 colours, 8x8
-        frame1 = Frame([[Udg(56, (128,) * 8)]], delay=20)
-        frame2 = Frame([[Udg(56, (64,) * 8)]], delay=100)
-        frame3 = Frame([[Udg(56, (32,) * 8)]], delay=150)
+        # 3 frames, 2 colours, 16x8
+        frame1 = Frame([[Udg(6, (128,) * 8), Udg(6, (0,) * 8)]], delay=20)
+        frame2 = Frame([[Udg(6, (64,) * 8), Udg(6, (1,) * 8)]], delay=100)
+        frame3 = Frame([[Udg(6, (32,) * 8), Udg(6, (2,) * 8)]], delay=150)
         frames = [frame1, frame2, frame3]
         self._test_animated_image(frames)
 
     def test_animation_cropped(self):
         # 2 frames, 4 colours, 4x4
-        frame1 = Frame([[Udg(56, (128,) * 8)]], crop_rect=(1, 1, 4, 4))
-        frame2 = Frame([[Udg(49, (64,) * 8)]], crop_rect=(2, 3, 4, 4))
+        frame1 = Frame([[Udg(56, (128,) * 8)]], x=1, y=1, width=4, height=4)
+        frame2 = Frame([[Udg(49, (64,) * 8)]], x=2, y=3, width=4, height=4)
         frames = [frame1, frame2]
         self._test_animated_image(frames)
 
@@ -774,18 +775,10 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         png_writer = image_writer.png_writer
         method = getattr(png_writer, '_build_image_data_{0}'.format(method_name))
 
-        t_width = len(udg_array[0])
-        t_height = len(udg_array)
-        full_width = 8 * t_width * scale
-        full_height = 8 * t_height * scale
-        width = min(width or full_width, full_width - x)
-        height = min(height or full_height, full_height - y)
-        full_size = 1 if width == full_width and height == full_height else 0
         use_flash = image_writer.options[PNG_ENABLE_ANIMATION]
-        if full_size:
-            colours, attrs, trans, flash_rect = image_writer._get_all_colours(udg_array, mask, use_flash)
-        else:
-            colours, attrs, trans, flash_rect = image_writer._get_colours(udg_array, scale, mask, x, y, width, height, use_flash)
+        frame = Frame(udg_array, scale, mask, x, y, width, height)
+        width, height = frame.width, frame.height
+        colours, attrs, trans, flash_rect = image_writer._get_colours(frame, use_flash)
         palette, attr_map = image_writer._get_palette(colours, attrs, trans)
         palette = [palette[i:i + 3] for i in range(0, len(palette), 3)]
 
@@ -879,7 +872,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         exp_width = None
         exp_height = None
         for frame in frames:
-            x, y, width, height = frame.crop_rect
+            x, y, width, height = frame.x, frame.y, frame.width, frame.height
             full_width = 8 * len(frame.udgs[0]) * frame.scale
             full_height = 8 * len(frame.udgs) * frame.scale
             width = min(width or full_width, full_width - x)
@@ -1258,7 +1251,7 @@ class GifWriterTest(ImageWriterTest):
         exp_width = None
         exp_height = None
         for frame in frames:
-            x, y, width, height = frame.crop_rect
+            x, y, width, height = frame.x, frame.y, frame.width, frame.height
             full_width = 8 * len(frame.udgs[0]) * frame.scale
             full_height = 8 * len(frame.udgs) * frame.scale
             width = min(width or full_width, full_width - x)

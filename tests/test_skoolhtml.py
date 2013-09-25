@@ -1076,10 +1076,11 @@ ERROR_PREFIX = 'Error while parsing #{0} macro'
 
 class TestHtmlWriter(HtmlWriter):
     def write_image(self, img_file, udgs=(), crop_rect=(), scale=2, mask=False):
-        self.image_writer.write_image(udgs, scale, mask, *crop_rect)
+        frame = Frame(udgs, scale, mask, *crop_rect)
+        self.write_animated_image(img_file, [frame])
 
     def write_animated_image(self, img_file, frames):
-        self.image_writer.write_animated_image(frames)
+        self.image_writer.write_image(frames)
 
 class MockSkoolParser:
     def __init__(self, snapshot=None, entries=(), memory_map=()):
@@ -1112,35 +1113,33 @@ class MockImageWriter:
         self.build_images = True
         self.default_format = 'png'
 
-    def write_image(self, udg_array, scale, mask, x, y, width, height):
-        self.udg_array = udg_array
-        self.scale = scale
-        self.mask = mask
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-
-    def write_animated_image(self, frames):
+    def write_image(self, frames):
         self.frames = frames
+        frame1 = frames[0]
+        self.udg_array = frame1.udgs
+        self.scale = frame1.scale
+        self.mask = frame1.mask
+        self.x = frame1.x
+        self.y = frame1.y
+        self.width = frame1.width
+        self.height = frame1.height
 
 class MockImageWriter2:
     def __init__(self):
         self.default_format = 'png'
 
-    def write_image(self, udg_array, img_file, img_format, scale, mask, x=0, y=0, width=None, height=None):
-        self.udg_array = udg_array
-        self.img_format = img_format
-        self.scale = scale
-        self.mask = mask
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-
-    def write_animated_image(self, frames, img_file, img_format):
+    def write_image(self, frames, img_file, img_format):
         self.frames = frames
         self.img_format = img_format
+        if isinstance(frames, list):
+            frame1 = frames[0]
+            self.udg_array = frame1.udgs
+            self.scale = frame1.scale
+            self.mask = frame1.mask
+            self.x = frame1.x
+            self.y = frame1.y
+            self.width = frame1.width
+            self.height = frame1.height
 
 class HtmlWriterTest(SkoolKitTestCase):
     def read_file(self, fname, lines=False):
@@ -1256,7 +1255,10 @@ class HtmlWriterTest(SkoolKitTestCase):
         for i, frame in enumerate(image_writer.frames):
             exp_frame = frames[i]
             self.assertEqual(frame.scale, exp_frame.scale)
-            self.assertEqual(frame.crop_rect, exp_frame.crop_rect)
+            self.assertEqual(frame.x, exp_frame.x)
+            self.assertEqual(frame.y, exp_frame.y)
+            self.assertEqual(frame.width, exp_frame.width)
+            self.assertEqual(frame.height, exp_frame.height)
             self.assertEqual(frame.mask, exp_frame.mask)
             self.assertEqual(frame.delay, exp_frame.delay)
             self._compare_udgs(frame.udgs, exp_frame.udgs)
@@ -2163,7 +2165,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#UDGARRAY1,,,,,1;{0}({1})'.format(udg_addr, udg_fname), ASMDIR)
         self.img_equals(output, udg_fname, '../{0}/{1}.png'.format(UDGDIR, udg_fname))
         udg.flip(1)
-        self._check_image(writer.image_writer, [[udg]], 2, False, 0, 0, None, None)
+        self._check_image(writer.image_writer, [[udg]], 2, False, 0, 0, 16, 16)
 
         # Rotate
         udg_fname = 'test_udg_array5'
@@ -2173,7 +2175,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#UDGARRAY1,,,,,,2;{0}({1})'.format(udg_addr, udg_fname), ASMDIR)
         self.img_equals(output, udg_fname, '../{0}/{1}.png'.format(UDGDIR, udg_fname))
         udg.rotate(2)
-        self._check_image(writer.image_writer, [[udg]], 2, False, 0, 0, None, None)
+        self._check_image(writer.image_writer, [[udg]], 2, False, 0, 0, 16, 16)
 
         # Missing filename argument
         prefix = ERROR_PREFIX.format('UDGARRAY')
@@ -2692,7 +2694,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # PNG
         image_path = 'images/test.png'
-        udgs = [[]]
+        udgs = [[Udg(0, (0,) * 8)]]
         writer.write_image(image_path, udgs)
         self.assertEqual(file_info.path, join(file_info.odir, image_path))
         self.assertEqual(file_info.mode, 'wb')
@@ -2702,19 +2704,19 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assertFalse(image_writer.mask)
         self.assertEqual(image_writer.x, 0)
         self.assertEqual(image_writer.y, 0)
-        self.assertEqual(image_writer.width, None)
-        self.assertEqual(image_writer.height, None)
+        self.assertEqual(image_writer.width, 16)
+        self.assertEqual(image_writer.height, 16)
 
         # GIF
         image_path = 'images/test.gif'
-        writer.write_image(image_path, None)
+        writer.write_image(image_path, udgs)
         self.assertEqual(file_info.path, join(file_info.odir, image_path))
         self.assertEqual(image_writer.img_format, 'gif')
 
         # Unsupported format
         image_path = 'images/test.jpg'
         with self.assertRaisesRegexp(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
-            writer.write_image(image_path, None)
+            writer.write_image(image_path, udgs)
 
     def test_write_animated_image_png(self):
         file_info = MockFileInfo('html', 'test_write_animated_png')
