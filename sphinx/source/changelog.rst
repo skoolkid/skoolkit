@@ -1,8 +1,8 @@
 Changelog
 =========
 
-3.5.1b1
--------
+3.6b1
+-----
 * Added an example control file for the 48K Spectrum ROM: `48.rom.ctl`
 
 3.5 (2013-09-01)
