@@ -18,7 +18,6 @@
 
 # http://www.w3.org/Graphics/GIF/spec-gif89a.txt
 GIF89A = (71, 73, 70, 56, 57, 97)
-GIF_FRAME_DELAY = 32
 AEB = (33, 255, 11, 78, 69, 84, 83, 67, 65, 80, 69, 50, 46, 48, 3, 1, 0, 0, 0)
 GIF_TRAILER = 59
 
@@ -33,53 +32,12 @@ class GifWriter:
         self.gif_trailer = bytearray((GIF_TRAILER,))
 
     def write_image(self, frame, img_file, palette, attr_map, trans, flash_rect):
-        udg_array = frame.udgs
-        scale = frame.scale
-        x, y, width, height = frame.x, frame.y, frame.width, frame.height
-        full_size = not frame.cropped
-        transparent = self.transparency and trans
-
-        # Header
-        img_file.write(self.gif_header)
-
-        # Logical screen descriptor
-        data = bytearray()
-        data.extend((width % 256, width // 256)) # logical screen width
-        data.extend((height % 256, height // 256)) # logical screen height
-        img_file.write(data)
-
-        # Global Colour Table
-        min_code_size = self._write_gct(img_file, palette)
-
-        if flash_rect:
-            img_file.write(self.aeb)
-            self._write_gce(img_file, GIF_FRAME_DELAY, transparent)
-        elif transparent:
-            self._write_gce(img_file, 0, transparent)
-
-        # Frame 1
-        self._write_image_descriptor(img_file, width, height)
-        self._write_gif_image_data(img_file, udg_array, scale, trans, x, y, width, height, full_size, min_code_size, attr_map)
-
-        if flash_rect:
-            # Frame 2
-            f2_x, f2_y, f2_w, f2_h = flash_rect
-            f2_udg_array = udg_array
-            if full_size:
-                if f2_w < width or f2_h < height:
-                    f2_udg_array = [udg_array[i][f2_x:f2_x + f2_w] for i in range(f2_y, f2_y + f2_h)]
-                f2_x *= 8 * scale
-                f2_y *= 8 * scale
-                f2_w *= 8 * scale
-                f2_h *= 8 * scale
-            self._write_gce(img_file, GIF_FRAME_DELAY, transparent)
-            self._write_image_descriptor(img_file, f2_w, f2_h, f2_x, f2_y)
-            self._write_gif_image_data(img_file, f2_udg_array, scale, trans, x + f2_x, y + f2_y, f2_w, f2_h, full_size, min_code_size, attr_map, True)
-
-        # GIF trailer
-        img_file.write(self.gif_trailer)
+        return self._write_image([frame], img_file, frame.width, frame.height, palette, attr_map, trans, flash_rect)
 
     def write_animated_image(self, frames, img_file, width, height, palette, attr_map, trans):
+        return self._write_image(frames, img_file, width, height, palette, attr_map, trans)
+
+    def _write_image(self, frames, img_file, width, height, palette, attr_map, trans, flash_rect=None):
         transparent = self.transparency and trans
 
         # Header
@@ -94,14 +52,47 @@ class GifWriter:
         # Global Colour Table
         min_code_size = self._write_gct(img_file, palette)
 
-        img_file.write(self.aeb)
+        # Application Extension block
+        if len(frames) > 1 or flash_rect:
+            img_file.write(self.aeb)
 
-        for frame in frames:
-            x, y, f_width, f_height = frame.x, frame.y, frame.width, frame.height
+        if len(frames) == 1:
+            frame = frames[0]
+            udg_array = frame.udgs
+            scale = frame.scale
+            x, y = frame.x, frame.y
             full_size = not frame.cropped
-            self._write_gce(img_file, frame.delay, transparent)
+
+            if flash_rect:
+                self._write_gce(img_file, frame.delay, transparent)
+            elif transparent:
+                self._write_gce(img_file, 0, transparent)
+
+            # Frame 1
             self._write_image_descriptor(img_file, width, height)
-            self._write_gif_image_data(img_file, frame.udgs, frame.scale, frame.mask, x, y, f_width, f_height, full_size, min_code_size, attr_map)
+            self._write_gif_image_data(img_file, udg_array, scale, trans, x, y, width, height, full_size, min_code_size, attr_map)
+
+            if flash_rect:
+                # Frame 2
+                f2_x, f2_y, f2_w, f2_h = flash_rect
+                f2_udg_array = udg_array
+                if full_size:
+                    if f2_w < width or f2_h < height:
+                        f2_udg_array = [udg_array[i][f2_x:f2_x + f2_w] for i in range(f2_y, f2_y + f2_h)]
+                    f2_x *= 8 * scale
+                    f2_y *= 8 * scale
+                    f2_w *= 8 * scale
+                    f2_h *= 8 * scale
+                self._write_gce(img_file, frame.delay, transparent)
+                self._write_image_descriptor(img_file, f2_w, f2_h, f2_x, f2_y)
+                self._write_gif_image_data(img_file, f2_udg_array, scale, trans, x + f2_x, y + f2_y, f2_w, f2_h, full_size, min_code_size, attr_map, True)
+        else:
+            for frame in frames:
+                x, y, f_width, f_height = frame.x, frame.y, frame.width, frame.height
+                full_size = not frame.cropped
+                self._write_gce(img_file, frame.delay, transparent)
+                self._write_image_descriptor(img_file, width, height)
+                self._write_gif_image_data(img_file, frame.udgs, frame.scale, frame.mask, x, y, f_width, f_height, full_size, min_code_size, attr_map)
 
         # GIF trailer
         img_file.write(self.gif_trailer)
