@@ -31,13 +31,9 @@ class GifWriter:
         self.aeb = bytearray(AEB)
         self.gif_trailer = bytearray((GIF_TRAILER,))
 
-    def write_image(self, frame, img_file, palette, attr_map, trans, flash_rect):
-        return self._write_image([frame], img_file, frame.width, frame.height, palette, attr_map, trans, flash_rect)
-
-    def write_animated_image(self, frames, img_file, width, height, palette, attr_map, trans):
-        return self._write_image(frames, img_file, width, height, palette, attr_map, trans)
-
-    def _write_image(self, frames, img_file, width, height, palette, attr_map, trans, flash_rect=None):
+    def write_image(self, frames, img_file, palette, attr_map, trans, flash_rect):
+        frame = frames[0]
+        width, height = frame.width, frame.height
         transparent = self.transparency and trans
 
         # Header
@@ -57,7 +53,6 @@ class GifWriter:
             img_file.write(self.aeb)
 
         if len(frames) == 1:
-            frame = frames[0]
             udg_array = frame.udgs
             scale = frame.scale
             x, y = frame.x, frame.y

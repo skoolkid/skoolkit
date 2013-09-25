@@ -772,7 +772,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
 
     def _test_method(self, method_name, udg_array, scale=1, mask=False, flash=0, x=0, y=0, width=None, height=None):
         image_writer = ImageWriter()
-        png_writer = image_writer.png_writer
+        png_writer = image_writer.writers['png']
         method = getattr(png_writer, '_build_image_data_{0}'.format(method_name))
 
         use_flash = image_writer.options[PNG_ENABLE_ANIMATION]

@@ -82,15 +82,10 @@ class PngWriter:
         self.fdat2 = bytearray(FDAT + (0, 0, 0, 2))
         self.iend_chunk = bytearray(IEND_CHUNK)
 
-    def write_image(self, frame, img_file, palette, attr_map, trans, flash_rect):
-        return self._write_image([frame], img_file, frame.width, frame.height, palette, attr_map, trans, flash_rect)
-
-    def write_animated_image(self, frames, img_file, width, height, palette, attr_map, trans):
-        return self._write_image(frames, img_file, width, height, palette, attr_map, trans)
-
-    def _write_image(self, frames, img_file, width, height, palette, attr_map, trans, flash_rect=None):
+    def write_image(self, frames, img_file, palette, attr_map, trans, flash_rect):
         bit_depth, palette_size = self._get_bit_depth(palette)
         frame1 = frames[0]
+        width, height = frame1.width, frame1.height
         frame1_data, frame2_data, frame2_rect = self._build_image_data(frame1, palette_size, bit_depth, attr_map, trans, flash_rect)
 
         # PNG signature
@@ -129,7 +124,7 @@ class PngWriter:
         for frame in frames[1:]:
             frame_data = self._build_image_data(frame, palette_size, bit_depth, attr_map, trans)[0]
             seq_num += 1
-            self._write_fctl_chunk(img_file, seq_num, frame.delay, width, height)
+            self._write_fctl_chunk(img_file, seq_num, frame.delay, frame.width, frame.height)
             seq_num += 1
             fdat = self.fdat + bytearray(self._to_bytes(seq_num))
             self._write_img_data_chunk(img_file, fdat + frame_data)

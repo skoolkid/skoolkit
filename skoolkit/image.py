@@ -106,31 +106,23 @@ class ImageWriter:
             PNG_FORMAT: self.options[PNG_ENABLE_ANIMATION],
             GIF_FORMAT: self.options[GIF_ENABLE_ANIMATION]
         }
-        self.gif_writer = GifWriter(self.options[GIF_TRANSPARENCY], self.options[GIF_COMPRESSION])
-        self.png_writer = PngWriter(self.options[PNG_ALPHA] & 255, self.options[PNG_COMPRESSION_LEVEL])
+        self.writers = {
+            PNG_FORMAT: PngWriter(self.options[PNG_ALPHA] & 255, self.options[PNG_COMPRESSION_LEVEL]),
+            GIF_FORMAT: GifWriter(self.options[GIF_TRANSPARENCY], self.options[GIF_COMPRESSION])
+        }
 
     def write_image(self, frames, img_file, img_format):
         use_flash = len(frames) == 1 and self.animation.get(img_format)
         attrs = set()
         colours = set()
         trans = 0
-        i_width = i_height = 0
         for frame in frames:
-            i_width = max(i_width, frame.width)
-            i_height = max(i_height, frame.height)
             f_colours, f_attrs, f_trans, flash_rect = self._get_colours(frame, use_flash)
             colours.update(f_colours)
             attrs.update(f_attrs)
             trans = trans or f_trans
         palette, attr_map = self._get_palette(colours, attrs, trans)
-        if img_format == PNG_FORMAT:
-            writer = self.png_writer
-        elif img_format == GIF_FORMAT:
-            writer = self.gif_writer
-        if len(frames) == 1:
-            writer.write_image(frames[0], img_file, palette, attr_map, trans, flash_rect)
-        else:
-            writer.write_animated_image(frames, img_file, i_width, i_height, palette, attr_map, trans)
+        self.writers[img_format].write_image(frames, img_file, palette, attr_map, trans, flash_rect)
 
     def _get_default_palette(self):
         return  {
