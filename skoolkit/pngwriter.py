@@ -116,20 +116,20 @@ class PngWriter:
         # fcTL
         if len(frames) > 1 or flash_rect:
             seq_num = 0
-            self._write_fctl_chunk(img_file, seq_num, width, height, delay=frame1.delay)
+            self._write_fctl_chunk(img_file, seq_num, frame1.delay, width, height)
 
         # IDAT
         self._write_img_data_chunk(img_file, self.idat + frame1_data)
 
         # fcTL and fdAT
         if len(frames) == 1 and flash_rect:
-            f2_x, f2_y, f2_w, f2_h = frame2_rect
-            self._write_fctl_chunk(img_file, 1, f2_w, f2_h, f2_x, f2_y)
+            f2_x_offset, f2_y_offset, f2_width, f2_height = frame2_rect
+            self._write_fctl_chunk(img_file, 1, frame1.delay, f2_width, f2_height, f2_x_offset, f2_y_offset)
             self._write_img_data_chunk(img_file, self.fdat2 + frame2_data)
         for frame in frames[1:]:
             frame_data = self._build_image_data(frame, palette_size, bit_depth, attr_map, trans)[0]
             seq_num += 1
-            self._write_fctl_chunk(img_file, seq_num, width, height, delay=frame.delay)
+            self._write_fctl_chunk(img_file, seq_num, frame.delay, width, height)
             seq_num += 1
             fdat = self.fdat + bytearray(self._to_bytes(seq_num))
             self._write_img_data_chunk(img_file, fdat + frame_data)
@@ -266,7 +266,7 @@ class PngWriter:
         data.extend(palette)
         self._write_chunk(img_file, data)
 
-    def _write_fctl_chunk(self, img_file, seq_num, width, height, x_offset=0, y_offset=0, delay=32):
+    def _write_fctl_chunk(self, img_file, seq_num, delay, width, height, x_offset=0, y_offset=0):
         data = list(FCTL) # chunk type
         data.extend(self._to_bytes(seq_num)) # sequence number
         data.extend(self._to_bytes(width)) # width
