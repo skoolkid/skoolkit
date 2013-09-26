@@ -1228,7 +1228,10 @@ class HtmlWriter:
             fname = text[index + 1:end - 1]
         else:
             end = index
-        img_path = self.image_path(fname, path_id)
+        if path_id:
+            img_path = self.image_path(fname, path_id)
+        else:
+            img_path = fname
 
         return [end, img_path, (x, y, width, height)] + params
 
@@ -1501,13 +1504,11 @@ class HtmlWriter:
         return end, self.img_element(cwd, udg_path)
 
     def _expand_udgarray_with_frames(self, text, index, cwd):
-        end = text.index('*', index) + 1
-        frame_params = text[index:end - 1]
-        fname = None
-        if end < len(text) and text[end] == '(':
-            start = end + 1
-            end = text.index(')', start) + 1
-            fname = text[start:end - 1]
+        end = text.index('(', index)
+        frame_params = text[index:end]
+        start = end + 1
+        end = text.index(')', start) + 1
+        fname = text[start:end - 1]
         img_path = self.image_path(fname, 'UDGImagePath')
         if self.need_image(img_path):
             frames = []
@@ -1529,20 +1530,20 @@ class HtmlWriter:
 
     def expand_udgarray(self, text, index, cwd):
         # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}](fname)
-        # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}]*frame*
-        # #UDGARRAY*frame1[,delay1];frame2[,delay2];...*(fname)
+        # #UDGARRAY*frame1[,delay1];frame2[,delay2];...(fname)
         if text[index] == '*':
             return self._expand_udgarray_with_frames(text, index + 1, cwd)
-        udg_path_id = 'UDGImagePath'
-        end, img_path, crop_rect, width, def_attr, scale, def_step, def_inc, flip, rotate = self.parse_image_params(text, index, 7, (56, 2, 1, 0, 0, 0), udg_path_id)
+
+        udg_path_id = None
+        end, fname, crop_rect, width, def_attr, scale, def_step, def_inc, flip, rotate = self.parse_image_params(text, index, 7, (56, 2, 1, 0, 0, 0), udg_path_id)
         udg_array = [[]]
         has_masks = False
         while end < len(text) and text[end] == ';':
-            end, img_path, crop_rect, address, attr, step, inc = self.parse_image_params(text, end + 1, 4, (def_attr, def_step, def_inc), udg_path_id, chars='-x')
+            end, fname, crop_rect, address, attr, step, inc = self.parse_image_params(text, end + 1, 4, (def_attr, def_step, def_inc), udg_path_id, chars='-x')
             udg_addresses = self._get_udg_addresses(address, width)
             mask_addresses = []
             if end < len(text) and text[end] == ':':
-                end, img_path, crop_rect, mask_addr, mask_step = self.parse_image_params(text, end + 1, 2, (step,), udg_path_id, chars='-x')
+                end, fname, crop_rect, mask_addr, mask_step = self.parse_image_params(text, end + 1, 2, (step,), udg_path_id, chars='-x')
                 mask_addresses = self._get_udg_addresses(mask_addr, width)
             has_masks = len(mask_addresses) > 0
             mask_addresses += [None] * (len(udg_addresses) - len(mask_addresses))
@@ -1555,24 +1556,32 @@ class HtmlWriter:
                     udg_array.append([udg])
                 else:
                     udg_array[-1].append(udg)
-        build_frame = img_path is None and end < len(text) and text[end] == '*'
-        if img_path is None and not build_frame:
+
+        if not fname:
             raise MacroParsingError('Missing filename: #UDGARRAY{0}'.format(text[index:end]))
-        if  build_frame or self.need_image(img_path):
+
+        frame = None
+        if '*' in fname:
+            fname, sep, frame = fname.partition('*')
+            if not frame:
+                frame = fname
+        if not fname and not frame:
+            raise MacroParsingError('Missing filename or frame ID: #UDGARRAY{}'.format(text[index:end]))
+
+        img_path = self.image_path(fname, 'UDGImagePath')
+        need_image = img_path and self.need_image(img_path)
+        if frame or need_image:
             if flip:
                 self.flip_udgs(udg_array, flip)
             if rotate:
                 self.rotate_udgs(udg_array, rotate)
-            if build_frame:
-                start = end + 1
-                end = text.index('*', start) + 1
-                name = text[start:end - 1]
-                self.frames[name] = Frame(udg_array, scale, has_masks, *crop_rect)
-            else:
+            if frame:
+                self.frames[frame] = Frame(udg_array, scale, has_masks, *crop_rect)
+            if need_image:
                 self.write_image(img_path, udg_array, crop_rect, scale, has_masks)
-        if build_frame:
-            return end, ''
-        return end, self.img_element(cwd, img_path)
+        if img_path:
+            return end, self.img_element(cwd, img_path)
+        return end, ''
 
     def expand_udgtable(self, text, index, cwd):
         return self.expand_table(text, index, cwd)

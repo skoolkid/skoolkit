@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import random
+import re
 from os.path import join, basename
 import unittest
 
@@ -2187,27 +2188,42 @@ class HtmlWriterTest(SkoolKitTestCase):
         snapshot = [0] * 65536
         writer = self._get_writer(snapshot=snapshot)
 
+        # Frames
         udg1_addr = 40000
         udg1 = Udg(23, [101] * 8)
         udg2_addr = 40008
         udg2 = Udg(47, [35] * 8)
+        udg3_addr = 40016
+        udg3 = Udg(56, [19] * 8)
         snapshot[udg1_addr:udg1_addr + 8] = udg1.data
         snapshot[udg2_addr:udg2_addr + 8] = udg2.data
-        frameset_name = 'foo'
-        macro1 = '#UDGARRAY1;{},{}*{}1*'.format(udg1_addr, udg1.attr, frameset_name)
-        macro2 = '#UDGARRAY1;{},{}*{}2*'.format(udg2_addr, udg2.attr, frameset_name)
-        for macro in (macro1, macro2):
-            output = writer.expand(macro, ASMDIR)
-            self.assertEqual(output, '')
-        delay = 93
+        snapshot[udg3_addr:udg3_addr + 8] = udg3.data
+        macro1 = '#UDGARRAY1;{},{}(*foo)'.format(udg1_addr, udg1.attr)
+        macro2 = '#UDGARRAY1;{},{}(bar*)'.format(udg2_addr, udg2.attr)
+        macro3 = '#UDGARRAY1;{},{}(baz*qux)'.format(udg3_addr, udg3.attr)
+        output = writer.expand(macro1, ASMDIR)
+        self.assertEqual(output, '')
+        output = writer.expand(macro2, ASMDIR)
+        self.img_equals(output, 'bar', '../{}/bar.png'.format(UDGDIR))
+        output = writer.expand(macro3, ASMDIR)
+        self.img_equals(output, 'baz', '../{}/baz.png'.format(UDGDIR))
+        delay1 = 93
+        delay3 = 47
         fname = 'test_udg_array_frames'
-        macro3 = '#UDGARRAY*{0}1,{1};{0}2*({2})'.format(frameset_name, delay, fname)
+        macro3 = '#UDGARRAY*foo,{};bar;qux,{}({})'.format(delay1, delay3, fname)
         output = writer.expand(macro3, ASMDIR)
         self.img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
-        frame1 = Frame([[udg1]], 2, delay=delay)
-        frame2 = Frame([[udg2]], 2, delay=delay)
-        frames = [frame1, frame2]
+        frame1 = Frame([[udg1]], 2, delay=delay1)
+        frame2 = Frame([[udg2]], 2, delay=delay1)
+        frame3 = Frame([[udg3]], 2, delay=delay3)
+        frames = [frame1, frame2, frame3]
         self._check_animated_image(writer.image_writer, frames)
+
+        # Missing filename or frame ID
+        prefix = ERROR_PREFIX.format('UDGARRAY')
+        macro = '#UDGARRAY1;40000(*)'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: Missing filename or frame ID: {}'.format(prefix, macro))):
+            writer.expand(macro, ASMDIR)
 
     def test_macro_udgtable(self):
         writer = self._get_writer()
