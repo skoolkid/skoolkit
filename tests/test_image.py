@@ -572,6 +572,14 @@ class ImageWriterTest:
         frames = [frame1, frame2]
         self._test_animated_image(frames, iw_args)
 
+    def test_animation_with_frames_of_different_sizes(self):
+        # First frame 16x8, second frame 8x16, third frame 8x8
+        frame1 = Frame([[Udg(1, (0,) * 8)] * 2])
+        frame2 = Frame([[Udg(1, (0,) * 8)]] * 2)
+        frame3 = Frame([[Udg(1, (0,) * 8)]])
+        frames = [frame1, frame2, frame3]
+        self._test_animated_image(frames)
+
 class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
     def setUp(self):
         SkoolKitTestCase.setUp(self)
@@ -869,23 +877,11 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         exp_palette = []
         frame_data = []
         has_trans = 0
-        exp_width = None
-        exp_height = None
         for frame in frames:
             x, y, width, height = frame.x, frame.y, frame.width, frame.height
-            full_width = 8 * len(frame.udgs[0]) * frame.scale
-            full_height = 8 * len(frame.udgs) * frame.scale
-            width = min(width or full_width, full_width - x)
-            height = min(height or full_height, full_height - y)
-            if exp_width is None:
-                exp_width = width
-                exp_height = height
-            else:
-                exp_width = min(exp_width, width)
-                exp_height = min(exp_height, height)
             frame_palette, f_has_trans, pixels, pixels2, frame2_xy = self._get_pixels_from_udg_array(frame.udgs, frame.scale, frame.mask, x, y, width, height)
             has_trans = has_trans or f_has_trans
-            frame_data.append((pixels, frame.delay))
+            frame_data.append((width, height, pixels, frame.delay))
             for c in frame_palette:
                 if c not in exp_palette:
                     exp_palette.append(c)
@@ -902,6 +898,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         i = self._check_signature(img_bytes)
 
         # IHDR
+        exp_width, exp_height = frame_data[0][:2]
         i = self._check_ihdr(img_bytes, i, exp_width, exp_height, exp_bit_depth)
 
         # PLTE
@@ -917,7 +914,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
 
         # Frames
         seq_num = 0
-        for exp_pixels, exp_delay in frame_data:
+        for exp_width, exp_height, exp_pixels, exp_delay in frame_data:
             i = self._check_fctl(img_bytes, i, seq_num, exp_width, exp_height, exp_delay=exp_delay)
             seq_num += 1
             if seq_num == 1:
@@ -1248,23 +1245,11 @@ class GifWriterTest(ImageWriterTest):
         exp_palette = []
         frame_data = []
         has_trans = 0
-        exp_width = None
-        exp_height = None
         for frame in frames:
             x, y, width, height = frame.x, frame.y, frame.width, frame.height
-            full_width = 8 * len(frame.udgs[0]) * frame.scale
-            full_height = 8 * len(frame.udgs) * frame.scale
-            width = min(width or full_width, full_width - x)
-            height = min(height or full_height, full_height - y)
-            if exp_width is None:
-                exp_width = width
-                exp_height = height
-            else:
-                exp_width = min(exp_width, width)
-                exp_height = min(exp_height, height)
             frame_palette, f_has_trans, pixels, pixels2, frame2_xy = self._get_pixels_from_udg_array(frame.udgs, frame.scale, frame.mask, x, y, width, height)
             has_trans = has_trans or f_has_trans
-            frame_data.append((pixels, frame.delay))
+            frame_data.append((width, height, pixels, frame.delay))
             for c in frame_palette:
                 if c not in exp_palette:
                     exp_palette.append(c)
@@ -1286,6 +1271,7 @@ class GifWriterTest(ImageWriterTest):
         i = self._check_header(img_bytes)
 
         # Logical screen descriptor
+        exp_width, exp_height = frame_data[0][:2]
         i = self._check_lsd(img_bytes, i, exp_width, exp_height)
 
         # Global Colour Table
@@ -1297,7 +1283,7 @@ class GifWriterTest(ImageWriterTest):
         i += aeb_len
 
         # Frames
-        for exp_pixels, exp_delay in frame_data:
+        for exp_width, exp_height, exp_pixels, exp_delay in frame_data:
             i = self._check_gce(img_bytes, i, t_flag, exp_delay)
             i = self._check_image_descriptor(img_bytes, i, exp_width, exp_height)
             i = self._check_image_data(img_bytes, i, exp_width, exp_height, palette, exp_min_code_size, exp_pixels)
