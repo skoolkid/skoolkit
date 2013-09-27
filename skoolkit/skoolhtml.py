@@ -1504,11 +1504,20 @@ class HtmlWriter:
         return end, self.img_element(cwd, udg_path)
 
     def _expand_udgarray_with_frames(self, text, index, cwd):
-        end = text.index('(', index)
-        frame_params = text[index:end]
+        end = index + 1
+        while end < len(text) and text[end] not in ' (':
+            end += 1
+        if text[end:end + 1] != '(':
+            raise MacroParsingError('Missing filename')
+        frame_params = text[index + 1:end]
         start = end + 1
-        end = text.index(')', start) + 1
+        try:
+            end = text.index(')', start) + 1
+        except ValueError:
+            raise MacroParsingError('No closing bracket: #UDGARRAY{}...'.format(text[index:start]))
         fname = text[start:end - 1]
+        if not fname:
+            raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
         img_path = self.image_path(fname, 'UDGImagePath')
         if self.need_image(img_path):
             frames = []
@@ -1518,11 +1527,18 @@ class HtmlWriter:
                 if len(elements) == 2:
                     frame_id = elements[0]
                     delay = parse_int(elements[1])
+                    if delay is None:
+                        raise MacroParsingError('Invalid delay parameter: "{}"'.format(elements[1]))
                     default_delay = delay
                 else:
                     frame_id = frame_param
                     delay = default_delay
-                frame = self.frames[frame_id]
+                if not frame_id:
+                    raise MacroParsingError('Missing frame ID: #UDGARRAY{}'.format(text[index:end]))
+                try:
+                    frame = self.frames[frame_id]
+                except KeyError:
+                    raise MacroParsingError('No such frame: "{}"'.format(frame_id))
                 frame.delay = delay
                 frames.append(frame)
             self.write_animated_image(img_path, frames)
@@ -1532,7 +1548,7 @@ class HtmlWriter:
         # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}](fname)
         # #UDGARRAY*frame1[,delay1];frame2[,delay2];...(fname)
         if text[index] == '*':
-            return self._expand_udgarray_with_frames(text, index + 1, cwd)
+            return self._expand_udgarray_with_frames(text, index, cwd)
 
         udg_path_id = None
         end, fname, crop_rect, width, def_attr, scale, def_step, def_inc, flip, rotate = self.parse_image_params(text, index, 7, (56, 2, 1, 0, 0, 0), udg_path_id)
@@ -1560,11 +1576,9 @@ class HtmlWriter:
         if not fname:
             raise MacroParsingError('Missing filename: #UDGARRAY{0}'.format(text[index:end]))
 
-        frame = None
-        if '*' in fname:
-            fname, sep, frame = fname.partition('*')
-            if not frame:
-                frame = fname
+        fname, sep, frame = fname.partition('*')
+        if sep and not frame:
+            frame = fname
         if not fname and not frame:
             raise MacroParsingError('Missing filename or frame ID: #UDGARRAY{}'.format(text[index:end]))
 

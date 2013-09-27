@@ -2219,10 +2219,36 @@ class HtmlWriterTest(SkoolKitTestCase):
         frames = [frame1, frame2, frame3]
         self._check_animated_image(writer.image_writer, frames)
 
-        # Missing filename or frame ID
+    def test_macro_udgarray_frames_invalid(self):
+        writer = self._get_writer(snapshot=[0] * 8)
         prefix = ERROR_PREFIX.format('UDGARRAY')
-        macro = '#UDGARRAY1;40000(*)'
+
+        macro = '#UDGARRAY1;0(*)'
         with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: Missing filename or frame ID: {}'.format(prefix, macro))):
+            writer.expand(macro, ASMDIR)
+
+        macro = '#UDGARRAY*,3(foo)'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: Missing frame ID: {}'.format(prefix, macro))):
+            writer.expand(macro, ASMDIR)
+
+        macro = '#UDGARRAY*foo'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: Missing filename'.format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        macro = '#UDGARRAY*foo()'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: Missing filename'.format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        macro = '#UDGARRAY*foo(bar'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: #UDGARRAY*foo(...'.format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        macro = '#UDGARRAY*foo(bar)'
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No such frame: "foo"'.format(prefix)):
+            writer.expand(macro, ASMDIR)
+
+        macro = '#UDGARRAY*foo,qux(bar)'
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Invalid delay parameter: "qux"'.format(prefix)):
             writer.expand(macro, ASMDIR)
 
     def test_macro_udgtable(self):
