@@ -22,9 +22,9 @@ HEADER = """
 ; <http://webspace.webring.com/people/ja/andrewbroad/>.
 ;
 ; To build the HTML disassembly, create a z80 snapshot of Manic Miner named
-; mm.z80, and run these commands from the top-level SkoolKit directory:
-;   ./sna2skool.py -c examples/manic_miner.ctl mm.z80 > manic_miner.skool
-;   ./skool2html.py examples/manic_miner.ref
+; mm.z80, and run these commands:
+;   sna2skool.py -c manic_miner.ctl mm.z80 > manic_miner.skool
+;   skool2html.py manic_miner.ref
 ;
 b 32768 Cavern buffer
 D 32768 Source code remnants. These DB directives define part of the title screen tune data at #R33902.

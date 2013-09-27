@@ -23,9 +23,9 @@ TEMPLATE = """
 ; <http://mdfs.net/Software/JSW/Docs/>.
 ;
 ; To build the HTML disassembly, create a z80 snapshot of Jet Set Willy named
-; jsw.z80, and run these commands from the top-level SkoolKit directory:
-;   ./sna2skool.py -c examples/jet_set_willy.ctl jsw.z80 > jet_set_willy.skool
-;   ./skool2html.py examples/jet_set_willy.ref
+; jsw.z80, and run these commands:
+;   sna2skool.py -c jet_set_willy.ctl jsw.z80 > jet_set_willy.skool
+;   skool2html.py jet_set_willy.ref
 ;
 b 32768 Room buffer
 Z 32768,256

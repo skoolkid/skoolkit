@@ -5,9 +5,9 @@
 ; Logan and Dr Frank O'Hara, published by Melbourne House.
 ;
 ; To build the HTML disassembly, find a dump of the 48K Spectrum ROM (48.rom),
-; and run these commands from the top-level SkoolKit directory:
-;   ./sna2skool.py -o 0 -H -c examples/48.rom.ctl 48.rom > 48.rom.skool
-;   ./skool2html.py examples/48.rom.ref
+; and run these commands:
+;   sna2skool.py -o 0 -H -c 48.rom.ctl 48.rom > 48.rom.skool
+;   skool2html.py 48.rom.ref
 ;
 c $0000 THE 'START'
 c $0008 THE 'ERROR' RESTART
