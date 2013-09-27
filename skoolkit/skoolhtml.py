@@ -1729,6 +1729,7 @@ class Frame(object):
         self._width = min(width or self._full_width, self._full_width - x)
         self._height = min(height or self._full_height, self._full_height - y)
         self.delay = delay
+        self.trans = 0
 
     @property
     def udgs(self):

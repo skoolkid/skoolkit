@@ -86,7 +86,7 @@ class PngWriter:
         bit_depth, palette_size = self._get_bit_depth(palette)
         frame1 = frames[0]
         width, height = frame1.width, frame1.height
-        frame1_data, frame2_data, frame2_rect = self._build_image_data(frame1, palette_size, bit_depth, attr_map, trans, flash_rect)
+        frame1_data, frame2_data, frame2_rect = self._build_image_data(frame1, palette_size, bit_depth, attr_map, flash_rect)
 
         # PNG signature
         img_file.write(self.png_signature)
@@ -122,7 +122,7 @@ class PngWriter:
             self._write_fctl_chunk(img_file, 1, frame1.delay, f2_width, f2_height, f2_x_offset, f2_y_offset)
             self._write_img_data_chunk(img_file, self.fdat2 + frame2_data)
         for frame in frames[1:]:
-            frame_data = self._build_image_data(frame, palette_size, bit_depth, attr_map, trans)[0]
+            frame_data = self._build_image_data(frame, palette_size, bit_depth, attr_map)[0]
             seq_num += 1
             self._write_fctl_chunk(img_file, seq_num, frame.delay, frame.width, frame.height)
             seq_num += 1
@@ -284,10 +284,11 @@ class PngWriter:
             bit_depth = 1
         return bit_depth, palette_size
 
-    def _build_image_data(self, frame, palette_size, bit_depth, attr_map, trans, flash_rect=None):
+    def _build_image_data(self, frame, palette_size, bit_depth, attr_map, flash_rect=None):
         udg_array = frame.udgs
         scale = frame.scale
         x, y, width, height = frame.x, frame.y, frame.width, frame.height
+        trans = frame.trans
         full_size = not frame.cropped
 
         frame2 = frame2_rect = None

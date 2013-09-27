@@ -117,10 +117,10 @@ class ImageWriter:
         colours = set()
         trans = 0
         for frame in frames:
-            f_colours, f_attrs, f_trans, flash_rect = self._get_colours(frame, use_flash)
+            f_colours, f_attrs, flash_rect = self._get_colours(frame, use_flash)
             colours.update(f_colours)
             attrs.update(f_attrs)
-            trans = trans or f_trans
+            trans = trans or frame.trans
         palette, attr_map = self._get_palette(colours, attrs, trans)
         self.writers[img_format].write_image(frames, img_file, palette, attr_map, trans, flash_rect)
 
@@ -281,10 +281,10 @@ class ImageWriter:
         else:
             flash_rect = None
         if has_trans:
-            trans = 1 + all_masked
+            frame.trans = 1 + all_masked
         else:
-            trans = 0
-        return colours, attrs, trans, flash_rect
+            frame.trans = 0
+        return colours, attrs, flash_rect
 
     def _get_all_colours(self, frame, use_flash=False):
         # Find all the colours in an uncropped image
@@ -350,10 +350,10 @@ class ImageWriter:
         else:
             flash_rect = None
         if has_trans:
-            trans = 1 + all_masked
+            frame.trans = 1 + all_masked
         else:
-            trans = 0
-        return colours, attrs, trans, flash_rect
+            frame.trans = 0
+        return colours, attrs, flash_rect
 
     def _get_palette(self, colours, attrs, trans):
         colour_map = {}

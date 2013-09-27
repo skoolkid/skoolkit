@@ -565,10 +565,10 @@ class ImageWriterTest:
         self._test_animated_image(frames)
 
     def test_animation_masked(self):
-        # 2 frames, transparency on frame 1
+        # 2 frames, transparency on frame 2
         iw_args = {'options': self.alpha_option}
-        frame1 = Frame([[Udg(184, (240,) * 8, (243,) * 8)]], mask=True)
-        frame2 = Frame([[Udg(49, (64,) * 8)]])
+        frame1 = Frame([[Udg(49, (64,) * 8)]])
+        frame2 = Frame([[Udg(184, (240,) * 8, (243,) * 8)]], mask=True)
         frames = [frame1, frame2]
         self._test_animated_image(frames, iw_args)
 
@@ -786,7 +786,8 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         use_flash = image_writer.options[PNG_ENABLE_ANIMATION]
         frame = Frame(udg_array, scale, mask, x, y, width, height)
         width, height = frame.width, frame.height
-        colours, attrs, trans, flash_rect = image_writer._get_colours(frame, use_flash)
+        colours, attrs, flash_rect = image_writer._get_colours(frame, use_flash)
+        trans = frame.trans
         palette, attr_map = image_writer._get_palette(colours, attrs, trans)
         palette = [palette[i:i + 3] for i in range(0, len(palette), 3)]
 

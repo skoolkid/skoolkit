@@ -87,7 +87,7 @@ class GifWriter:
                 full_size = not frame.cropped
                 self._write_gce(img_file, frame.delay, transparent)
                 self._write_image_descriptor(img_file, width, height)
-                self._write_gif_image_data(img_file, frame.udgs, frame.scale, frame.mask, x, y, width, height, full_size, min_code_size, attr_map)
+                self._write_gif_image_data(img_file, frame.udgs, frame.scale, frame.trans, x, y, width, height, full_size, min_code_size, attr_map)
 
         # GIF trailer
         img_file.write(self.gif_trailer)
