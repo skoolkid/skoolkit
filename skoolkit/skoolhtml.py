@@ -1547,7 +1547,7 @@ class HtmlWriter:
     def expand_udgarray(self, text, index, cwd):
         # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}](fname)
         # #UDGARRAY*frame1[,delay1];frame2[,delay2];...(fname)
-        if text[index] == '*':
+        if index < len(text) and text[index] == '*':
             return self._expand_udgarray_with_frames(text, index, cwd)
 
         udg_path_id = None

@@ -2178,9 +2178,17 @@ class HtmlWriterTest(SkoolKitTestCase):
         udg.rotate(2)
         self._check_image(writer.image_writer, [[udg]], 2, False, 0, 0, 16, 16)
 
-        # Missing filename argument
+    def test_macro_udgarray_invalid(self):
+        writer = self._get_writer(snapshot=[0] * 8)
         prefix = ERROR_PREFIX.format('UDGARRAY')
-        macro = '#UDGARRAY1;30000'
+
+        # No parameters
+        macro = '#UDGARRAY'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Not enough parameters (expected 1): ''".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # Missing filename argument
+        macro = '#UDGARRAY1;0'
         with self.assertRaisesRegexp(SkoolParsingError, '{}: Missing filename: {}'.format(prefix, macro)):
             writer.expand(macro, ASMDIR)
 
