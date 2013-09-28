@@ -3,6 +3,8 @@ Changelog
 
 3.6b1
 -----
+* Enhanced the :ref:`UDGARRAY` macro so that it can create an animated image
+  from an arbitrary sequence of frames
 * Added an example control file for the 48K Spectrum ROM: `48.rom.ctl`
 
 3.5 (2013-09-01)
