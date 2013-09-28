@@ -875,32 +875,19 @@ or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
 In HTML mode, the ``#UDGARRAY`` macro expands to an ``<img>`` element for the
 image of an array of UDGs (8x8 blocks of pixels). ::
 
-  #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}](fname)
+  #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];SPEC1[;SPEC2;...][{X,Y,W,H}](fname)
 
 * ``width`` is the width of the image (in UDGs)
-* ``attr`` is the default attribute byte to use for each UDG (default: 56)
+* ``attr`` is the default attribute byte of each UDG (default: 56)
 * ``scale`` is the required scale of the image (default: 2)
 * ``step`` is the default interval between successive bytes of each UDG
   (default: 1)
-* ``inc`` will be added to each UDG byte before constructing the image
-  (default: 0)
+* ``inc`` is added to each UDG byte before constructing the image (default: 0)
 * ``flip`` is 1 to flip the array of UDGs horizontally, 2 to flip it
   vertically, 3 to flip it both ways, or 0 to leave it as it is (default: 0)
 * ``rotate`` is 1 to rotate the array of UDGs 90 degrees clockwise, 2 to rotate
   it 180 degrees, 3 to rotate it 90 degrees anticlockwise, or 0 to leave it as
   it is (default: 0)
-* ``addr1`` is the address range specification for the first set of UDGs (see
-  below)
-* ``attr1`` is the attribute byte to use for each UDG in the set (overrides
-  ``attr`` if specified)
-* ``step1`` is the interval between successive bytes of each UDG in the set
-  (overrides ``step`` if specified)
-* ``inc1`` will be added to each byte of every UDG in the set before
-  constructing the image (overrides ``inc`` if specified)
-* ``maskAddr1`` is the address range specification for the first set of mask
-  UDGs (see below)
-* ``maskStep1`` is the interval between successive bytes of each mask UDG in
-  the set (default: ``step1``)
 * ``X`` is the x-coordinate of the leftmost pixel column of the constructed
   image to include in the final image (if greater than 0, the image will be
   cropped on the left)
@@ -915,8 +902,26 @@ image of an array of UDGs (8x8 blocks of pixels). ::
   appended (depending on the default image format specified in the
   :ref:`ref-ImageWriter` section of the `ref` file) if not present
 
-Address range specifications (``addr1``, ``maskAddr1`` etc.) may be given in
-one of the following forms:
+``SPEC1``, ``SPEC2`` etc. are UDG specifications for the sets of UDGs that make
+up the array. Each UDG specification has the form::
+
+  udgAddr[,udgAttr,udgStep,udgInc][:maskAddr[,maskStep]]
+
+* ``udgAddr`` is the address range specification for the set of UDGs (see
+  below)
+* ``udgAttr`` is the attribute byte of each UDG in the set (overrides ``attr``
+  if specified)
+* ``udgStep`` is the interval between successive bytes of each UDG in the set
+  (overrides ``step`` if specified)
+* ``udgInc`` is added to each byte of every UDG in the set before constructing
+  the image (overrides ``inc`` if specified)
+* ``maskAddr`` is the address range specification for the set of mask UDGs (see
+  below)
+* ``maskStep`` is the interval between successive bytes of each mask UDG in the
+  set (default: ``udgStep``)
+
+Address range specifications (``udgAddr`` and ``maskAddr``) may be given in one
+of the following forms:
 
 * a single address (e.g. ``39144``)
 * a simple address range (e.g. ``33008-33015``)
@@ -932,8 +937,9 @@ Any of these forms of address ranges can be repeated by appending ``xN``, where
 * ``39648x3`` is equivalent to ``39648;39648;39648``
 * ``32768-32769x2`` is equivalent to ``32768;32769;32768;32769``
 
-As many sets of UDGs as required may be specified, separated by semicolons;
-the UDGs will be arranged in a rectangular array with the given width.
+As many UDG specifications as required may be supplied, separated by
+semicolons; the UDGs will be arranged in a rectangular array with the given
+width.
 
 The ``#UDGARRAY`` macro is not supported in ASM mode.
 
