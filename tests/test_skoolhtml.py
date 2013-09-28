@@ -1285,8 +1285,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         snapshot[address:address + sum(len(c) for c in chars)] = char_data
         writer = self._get_writer(snapshot=snapshot)
         attr = 56
-        width, font_udg_array = writer.get_font_udg_array(address, len(chars), attr)
-        self.assertEqual(width, 8 * len(chars))
+        message = ''.join([chr(n) for n in range(32, 32 + len(chars))])
+        font_udg_array = writer.get_font_udg_array(address, attr, message)
         self.assertEqual(len(font_udg_array[0]), len(chars))
         for i, udg in enumerate(font_udg_array[0]):
             self.assertEqual(udg.attr, attr)

@@ -23,7 +23,7 @@ from . import warn, wrap, get_int_param, parse_int, open_file, SkoolParsingError
 
 DIRECTIVES = 'bcgituwz'
 
-HTML_MACRO_DELIMITERS = {
+DELIMITERS = {
     '(': ')',
     '[': ']',
     '{': '}'
@@ -409,7 +409,7 @@ class SkoolParser:
                 break
             start, index = search.span()
             delim1 = search.group()[-1]
-            delim2 = HTML_MACRO_DELIMITERS.get(delim1, delim1)
+            delim2 = DELIMITERS.get(delim1, delim1)
             end = text.find(delim2, index) + 1
             if end < index:
                 end = len(text)

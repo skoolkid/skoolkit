@@ -21,7 +21,7 @@ import inspect
 
 from . import warn, write_text, wrap, parse_int, get_chr, SkoolParsingError
 from .skoolmacro import parse_ints, parse_params, get_params, MacroParsingError, UnsupportedMacroError
-from .skoolparser import TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER, HTML_MACRO_DELIMITERS
+from .skoolparser import TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER, DELIMITERS
 
 UDGTABLE_MARKER = '#UDGTABLE'
 
@@ -252,7 +252,7 @@ class AsmWriter:
     def expand_html(self, text, index):
         # #HTML(text)
         delim1 = text[index]
-        delim2 = HTML_MACRO_DELIMITERS.get(delim1, delim1)
+        delim2 = DELIMITERS.get(delim1, delim1)
         start = index + 1
         end = text.find(delim2, start)
         if end < start:

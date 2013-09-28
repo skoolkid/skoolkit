@@ -28,7 +28,7 @@ import inspect
 
 from . import VERSION, warn, parse_int, SkoolKitError, SkoolParsingError
 from .skoolmacro import parse_ints, parse_params, get_params, MacroParsingError, UnsupportedMacroError
-from .skoolparser import TableParser, ListParser, CASE_LOWER, HTML_MACRO_DELIMITERS
+from .skoolparser import TableParser, ListParser, CASE_LOWER, DELIMITERS
 
 #: The ID of the main disassembly.
 MAIN_CODE_ID = 'main'
@@ -505,8 +505,12 @@ class HtmlWriter:
                     rotated[0].append(udgs[j][i])
             udgs[:] = rotated
 
-    def get_font_udg_array(self, address, chars, attr):
-        return 8 * chars, [[Udg(attr, self.snapshot[a:a + 8]) for a in range(address, address + 8 * chars, 8)]]
+    def get_font_udg_array(self, address, attr, message):
+        udgs = []
+        for c in message:
+            a = address + 8 * (ord(c) - 32)
+            udgs.append(Udg(attr, self.snapshot[a:a + 8]))
+        return [udgs]
 
     def write_asm_entries(self):
         self.write_entries(self.code_path, self.paths[P_MEMORY_MAP])
@@ -1314,23 +1318,36 @@ class HtmlWriter:
         return self._expand_item_macro('#FACT', text, index, cwd, self.facts, P_FACTS, 'fact')
 
     def expand_font(self, text, index, cwd):
-        # #FONTaddr,chars[,attr,scale][{X,Y,W,H}][(fname)]
-        end, img_path, crop_rect, addr, chars, attr, scale = self.parse_image_params(text, index, 4, (56, 2), 'FontImagePath', 'font')
+        # #FONT[:(text)]addr[,chars,attr,scale][{X,Y,W,H}][(fname)]
+        if index + 1 < len(text) and text[index] == ':':
+            delim1 = text[index + 1]
+            delim2 = DELIMITERS.get(delim1, delim1)
+            start = index + 2
+            try:
+                end = text.index(delim2, start) + 1
+            except ValueError:
+                raise MacroParsingError("No terminating delimiter: #FONT{}".format(text[index:]))
+            message = text[start:end - 1]
+            if not message:
+                raise MacroParsingError("Empty message: #FONT{}".format(text[index:end]))
+            index = end
+        else:
+            message = ''.join([chr(n) for n in range(32, 128)])
+
+        end, img_path, crop_rect, addr, chars, attr, scale = self.parse_image_params(text, index, 4, (len(message), 56, 2), 'FontImagePath', 'font')
         if self.need_image(img_path):
-            full_width, font_udg_array = self.get_font_udg_array(addr, chars, attr)
-            if crop_rect[2] is None:
-                crop_rect = (crop_rect[0], crop_rect[1], full_width * scale, crop_rect[3])
-            self.write_image(img_path, font_udg_array, crop_rect, scale)
+            udg_array = self.get_font_udg_array(addr, attr, message[:chars])
+            self.write_image(img_path, udg_array, crop_rect, scale)
         return end, self.img_element(cwd, img_path)
 
     def expand_html(self, text, index, cwd):
         # #HTML(text)
         delim1 = text[index]
-        delim2 = HTML_MACRO_DELIMITERS.get(delim1, delim1)
+        delim2 = DELIMITERS.get(delim1, delim1)
         start = index + 1
         end = text.find(delim2, start)
         if end < start:
-            raise MacroParsingError("No terminating delimiter: {0}{1}".format('#HTML', text[index:]))
+            raise MacroParsingError("No terminating delimiter: #HTML{}".format(text[index:]))
         return end + 1, text[start:end]
 
     def expand_link(self, text, index, cwd):
