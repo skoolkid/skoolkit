@@ -960,6 +960,47 @@ element for the image of the 4x4 sprite formed by the 16 UDGs with base
 addresses 32768, 32776, 32784 and so on up to 32888; the image file will be
 named `base_sprite.png`.
 
+**Animated images**
+
+The ``#UDGARRAY`` macro may also be used to create an animated image from an
+arbitrary sequence of frames. To create a frame, the ``fname`` parameter must
+have one of the following forms:
+
+* ``name*`` - writes an image file with this name, and also creates a frame
+  with the same name
+* ``name1*name2`` - writes an image file named `name1`, and also creates a
+  frame named `name2`
+* ``*name`` - writes no image file, but creates a frame with this name
+
+Then a special form of the ``#UDGARRAY`` macro is used to create the animated
+image from a set of frames::
+
+  #UDGARRAY*FRAME1[;FRAME2;...](fname)
+
+``FRAME1``, ``FRAME2`` etc. are frame specifications; each one has the form::
+
+  name[,delay]
+
+* ``name`` is the name of the frame
+* ``delay`` is the delay between this frame and the next in 1/100ths of a
+  second; it also sets the default delay for any frames that follow (default:
+  32)
+
+For example::
+
+  ; Sprite animation frames
+  ;
+  ; #UDGTABLE {
+  ; #UDGARRAY2;64000-64024-8(sprite1*) |
+  ; #UDGARRAY2;64032-64056-8(sprite2*) |
+  ; #UDGARRAY2;64064-64088-8(sprite3*) |
+  ; #UDGARRAY*sprite1,50;sprite2;sprite3(sprite.gif)
+  ; } TABLE#
+
+The first three ``#UDGARRAY`` macros create the required frames (and write
+images of them); the last ``#UDGARRAY`` macro combines the three frames into a
+single animated image, with a delay of 0.5s between each frame.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
@@ -975,6 +1016,9 @@ named `base_sprite.png`.
 +---------+-------------------------------------------------------------------+
 | 3.1.1   | Added support for UDG address ranges with horizontal and vertical |
 |         | steps                                                             |
++---------+-------------------------------------------------------------------+
+| 3.6     | Added support for creating an animated image from an arbitrary    |
+|         | sequence of frames                                                |
 +---------+-------------------------------------------------------------------+
 
 .. _UDGTABLE:
