@@ -404,7 +404,7 @@ class SkoolParser:
     def _html_escape(self, text):
         chunks = []
         while 1:
-            search = re.search('#HTML[^A-Z]', text)
+            search = re.search('(#HTML[^A-Z]|#FONT:)', text)
             if not search:
                 break
             start, index = search.span()
