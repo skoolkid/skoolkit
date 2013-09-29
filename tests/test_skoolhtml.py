@@ -1241,7 +1241,11 @@ class HtmlWriterTest(SkoolKitTestCase):
                 self.assertEqual(udg.data, exp_udg.data)
                 self.assertEqual(udg.mask, exp_udg.mask)
 
-    def _check_image(self, image_writer, udg_array, scale, mask, x, y, width, height):
+    def _check_image(self, image_writer, udg_array, scale=2, mask=False, x=0, y=0, width=None, height=None):
+        if width is None:
+            width = 8 * len(udg_array[0]) * scale
+        if height is None:
+            height = 8 * len(udg_array) * scale
         self.assertEqual(image_writer.scale, scale)
         self.assertEqual(image_writer.mask, mask)
         self.assertEqual(image_writer.x, x)
@@ -1599,6 +1603,36 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.img_equals(output, img_fname, '../images/font/{0}.png'.format(img_fname))
         udg_array = [[Udg(4, char) for char in chars]]
         self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
+
+    def test_macro_font_text(self):
+        snapshot = [1, 2, 3, 4, 5, 6, 7, 8] # ' '
+        snapshot.extend((8, 7, 6, 5, 4, 3, 2, 1)) # '!'
+        snapshot.extend((1, 3, 7, 15, 31, 63, 127, 255)) # '"'
+        snapshot.extend([0] * 56)
+        snapshot.extend((1, 3, 5, 7, 9, 11, 13, 15)) # ')'
+        writer = self._get_writer(snapshot=snapshot)
+
+        img_fname = 'message'
+        message = ' !"%'
+        macro = '#FONT:({})0({})'.format(message, img_fname)
+        output = writer.expand(macro, ASMDIR)
+        self.img_equals(output, img_fname, '../images/font/{}.png'.format(img_fname))
+        udg_array = [[]]
+        for c in message:
+            c_addr = 8 * (ord(c) - 32)
+            udg_array[0].append(Udg(56, snapshot[c_addr:c_addr + 8]))
+        self._check_image(writer.image_writer, udg_array)
+
+        message = ')!!!!'
+        attr = 43
+        scale = 5
+        c_addr = 8 * (ord(message[0]) - 32)
+        udg_array = [[Udg(attr, snapshot[c_addr:c_addr + 8])]]
+        for delim1, delim2 in (('{', '}'), ('[', ']'), ('*', '*'), ('@', '@')):
+            macro = '#FONT:{}{}{}0,1,{},{}({})'.format(delim1, message, delim2, attr, scale, img_fname)
+            output = writer.expand(macro, ASMDIR)
+            self.img_equals(output, img_fname, '../images/font/{}.png'.format(img_fname))
+            self._check_image(writer.image_writer, udg_array, scale)
 
     def test_macro_html(self):
         writer = self._get_writer()
