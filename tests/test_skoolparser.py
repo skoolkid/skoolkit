@@ -173,6 +173,29 @@ class SkoolParserTest(SkoolKitTestCase):
 
         self.assertEqual(parser.instructions[24588][0].comment.text, '#HTML')
 
+    def test_font_macro_text_parameter(self):
+        macros = (
+            '#FONT:(1. A < B)0',
+            '#FONT:[2. A & B]8',
+            '#FONT:{3. A > B}16',
+            '#FONT:@4. A <> B@24',
+            '#FONT:??',
+            '#FONT:*This macro is <unterminated>'
+        )
+        skool = '\n'.join((
+            ('; Test the FONT macro text parameter',
+             'c24577 NOP ; {}') +
+            ('           ; {}',) * (len(macros) - 1) +
+            ('; Test the FONT macro with an empty parameter string',
+             ' 24588 NOP ; #FONT:')
+        )).format(*macros)
+        parser = self._get_parser(skool, html=True)
+
+        text = parser.instructions[24577][0].comment.text
+        self.assertEqual(text, ' '.join(macros))
+
+        self.assertEqual(parser.instructions[24588][0].comment.text, '#FONT:')
+
     def test_empty_description(self):
         parser = self._get_parser(TEST_EMPTY_DESCRIPTION, html=False)
         entry = parser.entries[25600]
