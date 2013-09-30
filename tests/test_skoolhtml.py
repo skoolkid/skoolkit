@@ -1634,6 +1634,29 @@ class HtmlWriterTest(SkoolKitTestCase):
             self.img_equals(output, img_fname, '../images/font/{}.png'.format(img_fname))
             self._check_image(writer.image_writer, udg_array, scale)
 
+    def test_macro_font_invalid(self):
+        writer = self._get_writer()
+
+        macro = '#FONT'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: Not enough parameters (expected 1): ''")):
+            writer.expand(macro, ASMDIR)
+
+        macro = '#FONTx'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: Not enough parameters (expected 1): ''")):
+            writer.expand(macro, ASMDIR)
+
+        macro = '#FONT:'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: Not enough parameters (expected 1): ''")):
+            writer.expand(macro, ASMDIR)
+
+        macro = '#FONT:()0'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: Empty message: #FONT:()")):
+            writer.expand(macro, ASMDIR)
+
+        macro = '#FONT:[hi)0'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: No terminating delimiter: {}".format(macro))):
+            writer.expand(macro, ASMDIR)
+
     def test_macro_html(self):
         writer = self._get_writer()
 
