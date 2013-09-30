@@ -230,12 +230,15 @@ See also :ref:`BUG` and :ref:`POKE`.
 #FONT
 -----
 In HTML mode, the ``#FONT`` macro expands to an ``<img>`` element for an image
-of the game font. ::
+of text rendered in the game font. ::
 
-  #FONTaddr,chars[,attr,scale][{X,Y,W,H}][(fname)]
+  #FONT[:(text)]addr[,chars,attr,scale][{X,Y,W,H}][(fname)]
 
+* ``text`` is the text to render (default: the 96 characters from code 32 to
+  code 127)
 * ``addr`` is the base address of the font graphic data
-* ``chars`` is the number of characters in the font
+* ``chars`` is the number of characters to render (default: the length of
+  ``text``)
 * ``attr`` is the attribute byte to use (default: 56)
 * ``scale`` is the required scale of the image (default: 2)
 * ``X`` is the x-coordinate of the leftmost pixel column of the constructed
@@ -252,6 +255,14 @@ of the game font. ::
   '`.gif`' will be appended (depending on the default image format specified in
   the :ref:`ref-ImageWriter` section of the `ref` file) if not present
 
+If ``text`` contains a closing bracket - ``)`` - then the macro will not expand
+as required. In that case, square brackets, braces or any character that does
+not appear in ``text`` may be used as delimiters; for example::
+
+  #FONT:[(0) OK]$3D00
+  #FONT:{(0) OK}$3D00
+  #FONT:/(0) OK/$3D00
+
 The ``#FONT`` macro is not supported in ASM mode.
 
 If an image with the given filename doesn't already exist, it will be created.
@@ -264,10 +275,10 @@ For example::
 
   ; Font graphic data
   ;
-  ; #HTML(#FONT49152,32)
+  ; #HTML[#FONT:(0123456789)49152]
 
 In HTML mode, this instance of the ``#FONT`` macro expands to an ``<img>``
-element for the image of the 32 characters in the 8*8 font whose graphic data
+element for the image of the digits 0-9 in the 8*8 font whose graphic data
 starts at 49152.
 
 +---------+-----------------------------------------------------------------+
@@ -276,6 +287,9 @@ starts at 49152.
 | 2.0.5   | Added the ``fname`` parameter and support for regular 8x8 fonts |
 +---------+-----------------------------------------------------------------+
 | 3.0     | Added image-cropping capabilities                               |
++---------+-----------------------------------------------------------------+
+| 3.6     | Added the ``text`` parameter, and made the ``chars`` parameter  |
+|         | optional                                                        |
 +---------+-----------------------------------------------------------------+
 
 .. _HTML:
