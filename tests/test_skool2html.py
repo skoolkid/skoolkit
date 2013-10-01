@@ -417,6 +417,43 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertTrue(os.path.isfile(os.path.join(game_dir, font_files[0])))
         self.assertTrue(os.path.isfile(os.path.join(game_dir, font_files[1])))
 
+    def test_resources_are_copied(self):
+        resource1 = self.write_bin_file(suffix='.jpg')
+        resource2 = self.write_bin_file(suffix='.swf')
+        resource3 = self.write_bin_file(suffix='.pdf')
+        dest_dir = 'stuff'
+        ref = '\n'.join((
+            '[Resources]',
+            '{}=.'.format(resource1),
+            '{}={}'.format(resource2, dest_dir),
+            '{}={}'.format(resource3, dest_dir)
+        ))
+        reffile = self.write_text_file(ref, suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('{} -d {} {}'.format(self._css_c(), self.odir, reffile))
+        self.assertEqual(error, '')
+        game_dir = os.path.join(self.odir, reffile[:-4])
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, resource1)))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, dest_dir, resource2)))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, dest_dir, resource3)))
+
+    def test_resource_not_found(self):
+        resource = 'nosuchfile.png'
+        reffile = self.write_text_file("[Resources]\n{}=foo".format(resource), suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        with self.assertRaisesRegexp(SkoolKitError, 'Cannot copy resource "{}": file not found'.format(resource)):
+            self.run_skool2html('{} -d {} {}'.format(self._css_c(), self.odir, reffile))
+
+    def test_resource_is_not_copied_over_existing_file(self):
+        resource = self.write_bin_file(suffix='.jpg')
+        dest_dir = 'already-exists'
+        reffile = self.write_text_file("[Resources]\n{}={}".format(resource, dest_dir), suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        path = os.path.join(self.odir, reffile[:-4], dest_dir)
+        self.write_text_file(path=path)
+        with self.assertRaisesRegexp(SkoolKitError, 'Cannot copy {0} to {1}: {1} is not a directory'.format(resource, dest_dir)):
+            self.run_skool2html('{} -d {} {}'.format(self._css_c(), self.odir, reffile))
+
     def test_option_a(self):
         self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         self.mock(skool2html, 'SkoolParser', MockSkoolParser)
