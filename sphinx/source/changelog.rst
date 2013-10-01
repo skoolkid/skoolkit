@@ -7,7 +7,12 @@ Changelog
   from an arbitrary sequence of frames
 * Enhanced the :ref:`FONT` macro so that it can create an image of arbitrary
   text
+* Added support for copying arbitrary files into an HTML disassembly by using
+  the :ref:`resources` section in the `ref` file
 * Added an example control file for the 48K Spectrum ROM: `48.rom.ctl`
+* Fixed the bug that makes `skool2html.py` fail if the ``FontPath``,
+  ``JavaScriptPath`` or ``StyleSheetPath`` parameter in the ``[Paths]`` section
+  of the `ref` file is set to some directory other than the default
 
 3.5 (2013-09-01)
 ----------------
