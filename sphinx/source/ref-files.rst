@@ -791,6 +791,31 @@ where:
 Paragraphs should be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
 
+.. _resources:
+
+[Resources]
+-----------
+The ``Resources`` section lists files that will be copied into the disassembly
+build directory when :ref:`skool2html.py` is run. Each line has the form::
+
+  fname=destDir
+
+where:
+
+* ``fname`` is the name of the file to copy
+* ``destDir`` is the destination directory, relative to the root directory of
+  the disassembly; the directory will be created if it doesn't already exist
+
+If your disassembly requires pre-built images or other resources that SkoolKit
+cannot create, listing them in the ``Resources`` section ensures that they will
+be copied into place whenever the disassembly is built.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 3.6     | New     |
++---------+---------+
+
 .. _titles:
 
 [Titles]
