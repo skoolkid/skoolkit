@@ -102,6 +102,18 @@ def get_colours(colour_specs):
             raise SkoolKitError("Invalid colour spec: {}={}".format(k, v))
     return colours
 
+def copy_resource(fname, root_dir, dest_dir, indent=0):
+    base_f = basename(fname)
+    dest_f = posixpath.normpath(join(root_dir, dest_dir, base_f))
+    if not isfile(dest_f) or os.stat(fname).st_mtime > os.stat(dest_f).st_mtime:
+        dest_d = posixpath.dirname(dest_f)
+        if isfile(dest_d):
+            raise SkoolKitError("Cannot copy {0} to {1}: {1} is not a directory".format(fname, dest_dir))
+        elif not isdir(dest_d):
+            os.makedirs(dest_d)
+        notify('{}Copying {} to {}'.format(indent * ' ', fname, dest_f))
+        shutil.copy2(fname, dest_f)
+
 def copy_resources(search_dir, root_dir, fnames, dest, themes=None, suffix=None, indent=0):
     if fnames:
         actual_files = []
@@ -118,12 +130,8 @@ def copy_resources(search_dir, root_dir, fnames, dest, themes=None, suffix=None,
                     if f:
                         files.append(f)
             for f in files:
-                base_f = basename(f)
-                actual_files.append(base_f)
-                html_f = posixpath.normpath(join(root_dir, dest, base_f))
-                if not isfile(html_f) or os.stat(f).st_mtime > os.stat(html_f).st_mtime:
-                    notify('{}Copying {} to {}'.format(indent * ' ', f, html_f))
-                    shutil.copy2(f, html_f)
+                copy_resource(f, root_dir, dest, indent)
+                actual_files.append(basename(f))
         return ';'.join(actual_files)
 
 def get_prefix(fname):
@@ -233,6 +241,14 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme):
     # Copy CSS and font files if necessary
     html_writer.set_style_sheet(copy_resources(search_dir, odir, game_vars.get('StyleSheet'), paths.get('StyleSheetPath', ''), css_theme, '.css'))
     copy_resources(search_dir, odir, game_vars.get('Font'), paths.get('FontPath', ''))
+
+    # Copy resources named in the [Resources] section
+    resources = html_writer.ref_parser.get_dictionary('Resources')
+    for f, dest_dir in resources.items():
+        fname = find(f, search_dir)
+        if not fname:
+            raise SkoolKitError('Cannot copy resource "{}": file not found'.format(f))
+        copy_resource(fname, odir, dest_dir)
 
     # Write disassembly files
     if 'd' in files:
