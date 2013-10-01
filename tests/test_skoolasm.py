@@ -1108,12 +1108,27 @@ class AsmWriterTest(SkoolKitTestCase):
             return asm, self.err.getvalue().split('\n')[:-1]
         return asm
 
-    def _test_unsupported_macro(self, text):
+    def _test_unsupported_macro(self, text, writer=None, regexp=None):
         search = re.search('#[A-Z]+', text)
         macro = search.group()
-        writer = self._get_writer()
+        if writer is None:
+            writer = self._get_writer()
+
+        # handle_unsupported_macros = 0
+        writer.handle_unsupported_macros = 0
         with self.assertRaisesRegexp(SkoolParsingError, 'Found unsupported macro: {}'.format(macro)):
             writer.expand(text)
+
+        # handle_unsupported_macros = 1
+        writer.handle_unsupported_macros = 1
+        if regexp is None:
+            prefix = 'abc '
+            suffix = ' xyz'
+            output = writer.expand(prefix + text + suffix)
+            self.assertEqual(output, prefix + suffix)
+        else:
+            with self.assertRaisesRegexp(SkoolParsingError, regexp):
+                writer.expand(text)
 
     def _test_reference_macro(self, macro, def_link_text):
         writer = self._get_writer()
@@ -1216,7 +1231,10 @@ class AsmWriterTest(SkoolKitTestCase):
         self._test_reference_macro('FACT', 'fact')
 
     def test_macro_font(self):
-        self._test_unsupported_macro('#FONT55584,96,,,1')
+        writer = self._get_writer()
+        self._test_unsupported_macro('#FONT55584,,,,1{1,2}', writer)
+        self._test_unsupported_macro('#FONT:[foo]0,,5', writer)
+        self._test_unsupported_macro('#FONT:@bar', writer, "Error while parsing #FONT macro: No terminating delimiter: #FONT:@bar")
 
     def test_macro_html(self):
         writer = self._get_writer()

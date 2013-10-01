@@ -247,7 +247,18 @@ class AsmWriter:
         return self._expand_item_macro(text, index, 'fact')
 
     def expand_font(self, text, index):
-        return self._expand_unsupported_macro(text, index)
+        # #FONT[:(text)]addr[,chars,attr,scale][{X,Y,W,H}][(fname)]
+        if self.handle_unsupported_macros:
+            if index + 1 < len(text) and text[index] == ':':
+                delim1 = text[index + 1]
+                delim2 = DELIMITERS.get(delim1, delim1)
+                try:
+                    index = text.index(delim2, index + 2) + 1
+                except ValueError:
+                    raise MacroParsingError("No terminating delimiter: #FONT{}".format(text[index:]))
+            end, params, p_text = parse_params(text, index, chars=',{}')
+            return end, ''
+        raise UnsupportedMacroError()
 
     def expand_html(self, text, index):
         # #HTML(text)
