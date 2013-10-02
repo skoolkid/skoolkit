@@ -454,6 +454,41 @@ class Skool2HtmlTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolKitError, 'Cannot copy {0} to {1}: {1} is not a directory'.format(resource, dest_dir)):
             self.run_skool2html('{} -d {} {}'.format(self._css_c(), self.odir, reffile))
 
+    def test_option_j(self):
+        css1_content = 'a { color: blue }'
+        css1 = self.write_text_file(css1_content, suffix='.css')
+        css2_content = 'td { color: red }'
+        css2 = self.write_text_file(css2_content, suffix='.css')
+        ref = '[Game]\nStyleSheet={};{}'.format(css1, css2)
+        reffile = self.write_text_file(ref, suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        game_dir = os.path.join(self.odir, reffile[:-4])
+        single_css = 'style.css'
+        single_css_f = os.path.join(game_dir, single_css)
+        appending_msg = 'Appending {{}} to {}'.format(single_css_f)
+        for option in ('-j', '--join-css'):
+            output, error = self.run_skool2html('{} {} -d {} {}'.format(option, single_css, self.odir, reffile))
+            self.assertEqual(error, '')
+            self.assertTrue(appending_msg.format(css1) in output)
+            self.assertTrue(appending_msg.format(css2) in output)
+            self.assertTrue(os.path.isfile(single_css_f))
+            self.assertFalse(os.path.isfile(os.path.join(game_dir, css1)))
+            self.assertFalse(os.path.isfile(os.path.join(game_dir, css2)))
+            with open(single_css_f) as f:
+                css = f.read()
+            self.assertEqual(css, '\n'.join((css1_content, css2_content, '')))
+
+    def test_option_j_directory_exists(self):
+        single_css = 'game.css'
+        skoolfile = self.write_text_file(suffix='.skool')
+        game_dir = os.path.join(self.odir, skoolfile[:-6])
+        dest = os.path.join(game_dir, single_css)
+        self.make_directory(dest)
+        error_msg = "Cannot write CSS file '{}': {} already exists and is a directory".format(single_css, dest)
+        for option in ('-j', '--join-css'):
+            with self.assertRaisesRegexp(SkoolKitError, error_msg):
+                self.run_skool2html('{} {} {} -d {} {}'.format(option, single_css, self._css_c(), self.odir, skoolfile))
+
     def test_option_a(self):
         self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         self.mock(skool2html, 'SkoolParser', MockSkoolParser)
