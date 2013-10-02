@@ -114,32 +114,47 @@ def copy_resource(fname, root_dir, dest_dir, indent=0):
         notify('{}Copying {} to {}'.format(indent * ' ', fname, dest_f))
         shutil.copy2(fname, dest_f)
 
-def copy_resources(search_dir, root_dir, fnames, dest, themes=None, suffix=None, indent=0):
-    if fnames:
-        actual_files = []
-        for fname in fnames.split(';'):
-            files = []
-            f = find(fname, search_dir)
-            if f:
-                files.append(f)
-            else:
-                raise SkoolKitError('{0}: file not found'.format(fname))
-            if themes and fname.endswith(suffix):
-                for theme in themes:
-                    f = find('{0}-{1}{2}'.format(fname[:-len(suffix)], theme, suffix), search_dir)
-                    if f:
-                        files.append(f)
+def copy_resources(search_dir, root_dir, fnames, dest_dir, themes=None, suffix=None, single_css=None, indent=0):
+    if not fnames:
+        return
+    files = []
+    actual_files = []
+    for fname in fnames.split(';'):
+        f = find(fname, search_dir)
+        if f:
+            files.append(f)
+        else:
+            raise SkoolKitError('{0}: file not found'.format(fname))
+        if themes and fname.endswith(suffix):
+            for theme in themes:
+                f = find('{0}-{1}{2}'.format(fname[:-len(suffix)], theme, suffix), search_dir)
+                if f:
+                    files.append(f)
+        if not single_css:
             for f in files:
-                copy_resource(f, root_dir, dest, indent)
+                copy_resource(f, root_dir, dest_dir, indent)
                 actual_files.append(basename(f))
-        return ';'.join(actual_files)
+            files = []
+    if single_css:
+        dest_css = posixpath.normpath(join(root_dir, dest_dir, single_css))
+        if isdir(dest_css):
+            raise SkoolKitError("Cannot write CSS file '{}': {} already exists and is a directory".format(single_css, dest_css))
+        with open(dest_css, 'w') as css:
+            for f in files:
+                notify('{}Appending {} to {}'.format(indent * ' ', f, dest_css))
+                with open(f) as src:
+                    for line in src:
+                        css.write(line)
+                css.write('\n')
+        return single_css
+    return ';'.join(actual_files)
 
 def get_prefix(fname):
     if '.' in fname:
         return fname.rsplit('.', 1)[0]
     return fname
 
-def process_file(infile, topdir, files, case, base, pages, config_specs, new_images, css_theme, create_labels, asm_labels):
+def process_file(infile, topdir, files, case, base, pages, config_specs, new_images, css_theme, create_labels, asm_labels, single_css):
     reffile = skoolfile = None
     if infile.endswith('.ref'):
         reffile = infile
@@ -225,9 +240,9 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
             raise SkoolKitError('Invalid page ID: {0}'.format(page_id))
     pages = pages or all_page_ids
 
-    write_disassembly(html_writer, files, search_dir, pages, css_theme)
+    write_disassembly(html_writer, files, search_dir, pages, css_theme, single_css)
 
-def write_disassembly(html_writer, files, search_dir, pages, css_theme):
+def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_css):
     game_dir = html_writer.file_info.game_dir
     paths = html_writer.paths
     game_vars = html_writer.game_vars
@@ -239,7 +254,7 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme):
         os.makedirs(odir)
 
     # Copy CSS and font files if necessary
-    html_writer.set_style_sheet(copy_resources(search_dir, odir, game_vars.get('StyleSheet'), paths.get('StyleSheetPath', ''), css_theme, '.css'))
+    html_writer.set_style_sheet(copy_resources(search_dir, odir, game_vars.get('StyleSheet'), paths.get('StyleSheetPath', ''), css_theme, '.css', single_css))
     copy_resources(search_dir, odir, game_vars.get('Font'), paths.get('FontPath', ''))
 
     # Copy resources named in the [Resources] section
@@ -320,7 +335,7 @@ def run(files, options):
             os.makedirs(topdir)
 
     for infile in files:
-        process_file(infile, topdir, options.files, options.case, options.base, options.pages, options.config_specs, options.new_images, options.themes, options.create_labels, options.asm_labels)
+        process_file(infile, topdir, options.files, options.case, options.base, options.pages, options.config_specs, options.new_images, options.themes, options.create_labels, options.asm_labels, options.single_css)
 
 def main(args):
     global verbose, show_timings
@@ -347,6 +362,8 @@ def main(args):
                        help="Write the disassembly in decimal")
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16,
                        help="Write the disassembly in hexadecimal")
+    group.add_argument('-j', '--join-css', dest='single_css', metavar='NAME',
+                       help="Concatenate CSS files into a single file with this name")
     group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER,
                        help="Write the disassembly in lower case")
     group.add_argument('-o', '--rebuild-images', dest='new_images', action='store_true',
