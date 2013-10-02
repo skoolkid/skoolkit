@@ -209,6 +209,8 @@ list::
                           Write files in this directory (default is '.')
     -D, --decimal         Write the disassembly in decimal
     -H, --hex             Write the disassembly in hexadecimal
+    -j NAME, --join-css NAME
+                          Concatenate CSS files into a single file with this name
     -l, --lower           Write the disassembly in lower case
     -o, --rebuild-images  Overwrite existing image files
     -p, --package-dir     Show path to skoolkit package directory and exit
@@ -234,7 +236,8 @@ list::
                             i = Disassembly index
 
 When `skool2html.py` is run, it looks for `skool` files, `ref` files, CSS
-files, JavaScript files and font files required by the disassembly in the
+files, JavaScript files and font files required by the disassembly (along with
+any files listed in the :ref:`resources` section of the `ref` file) in the
 following directories, in the order listed:
 
 * The directory that contains the `skool` or `ref` file named on the command
@@ -295,6 +298,8 @@ will use the following CSS files, if they exist, in the order listed:
 | 3.4     | Added the ``-a`` and ``-C`` options and the long options        |
 +---------+-----------------------------------------------------------------+
 | 3.5     | Added support for multiple CSS themes                           |
++---------+-----------------------------------------------------------------+
+| 3.6     | Added the ``--join-css`` option                                 |
 +---------+-----------------------------------------------------------------+
 
 .. _skool2sft.py:
