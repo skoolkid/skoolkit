@@ -34,6 +34,9 @@ OPTIONS
 -H, --hex
   Write the disassembly in hexadecimal.
 
+-j, --join-css `NAME`
+  Concatenate CSS files into a single file with this name.
+
 -l, --lower
   Write the disassembly in lower case.
 
@@ -141,9 +144,3 @@ EXAMPLES
 
    |
    |   ``skool2html.py -w bpt game1.ref``
-
-5. Build the HTML disassembly for 'game1' using the CSS file ``game.css``
-   instead of the default ``skoolkit.css``:
-
-   |
-   |   ``skool2html.py -c Game/StyleSheet=game.css game1.ref``
