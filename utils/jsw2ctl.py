@@ -159,13 +159,34 @@ C 65426
 Z 65517
 """.lstrip()
 
-def get_udg_table(addr, fname, num=8):
-    macros = ['#UDGARRAY2,56,,2;{0}-{1}-1-16({2}{3})'.format(b, b + 17, fname, (b - addr) // 32) for b in range(addr, addr + 32 * num, 32)]
-    return '#UDGTABLE {{ {0} }} TABLE#'.format(' | '.join(macros))
+def get_udg_table(addr, fname, num=8, rows=1, animation='', delay=None):
+    macros = []
+    start = addr
+    suffix = '*' if animation else ''
+    for r in range(rows):
+        macros.append([])
+        frames = []
+        end = start + (32 * num) // rows
+        for b in range(start, end, 32):
+            frame = '{}{}'.format(fname, (b - addr) // 32)
+            if r % 2:
+                frames.insert(0, frame)
+            else:
+                frames.append(frame)
+            macros[-1].append('#UDGARRAY2,56,,2;{}-{}-1-16({}{})'.format(b, b + 17, frame, suffix))
+        start = end
+        if r < len(animation):
+            if delay:
+                frames[0] += ',{}'.format(delay)
+            macros[-1].append('#UDGARRAY*{}({}_{}.gif)'.format(';'.join(frames), fname, animation[r]))
+    udgtable = '#UDGTABLE'
+    for r in range(rows):
+        udgtable += ' {{ {} }}'.format(' | '.join(macros[r]))
+    return udgtable + ' TABLE#'
 
-def get_graphics(address, title, img_fname_prefix, num_sprites=8):
+def get_graphics(address, title, img_fname_prefix, num_sprites, rows=1, animation='', delay=None):
     lines = [title]
-    udg_table = get_udg_table(address, img_fname_prefix, num_sprites)
+    udg_table = get_udg_table(address, img_fname_prefix, num_sprites, rows, animation, delay)
     lines.append('D {0} {1}'.format(address, udg_table))
     lines.append('B {0},{1},16'.format(address, 32 * num_sprites))
     return '\n'.join(lines)
@@ -346,8 +367,8 @@ def write_ctl(snapshot):
         number_keys=get_graphics(39680, 'Number key graphics', 'number_key', 4),
         foot_barrel=get_graphics(40000, 'Foot/barrel graphic data', 'fb', 2),
         maria=get_graphics(40064, 'Maria sprite graphic data', 'maria', 4),
-        willy=get_graphics(40192, 'Willy sprite graphic data', 'willy'),
-        toilet=get_graphics(42496, 'Toilet graphics', 'toilet', 4),
+        willy=get_graphics(40192, 'Willy sprite graphic data', 'willy', 8, 2, ('r', 'l')),
+        toilet=get_graphics(42496, 'Toilet graphics', 'toilet', 4, 2, ('empty', 'full'), 10),
         guardians=get_guardian_graphics(),
         rooms=get_rooms(snapshot)
     ))
