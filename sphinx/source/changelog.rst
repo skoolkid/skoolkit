@@ -11,6 +11,8 @@ Changelog
   the :ref:`resources` section in the `ref` file
 * Added the ``--join-css`` option to :ref:`skool2html.py` (to concatenate CSS
   files into a single file)
+* Added the ``--search-dirs`` option to :ref:`skool2html.py` (to show the
+  locations that `skool2html.py` searches for resources)
 * Added an example control file for the 48K Spectrum ROM: `48.rom.ctl`
 * Fixed the bug that makes `skool2html.py` fail if the ``FontPath``,
   ``JavaScriptPath`` or ``StyleSheetPath`` parameter in the ``[Paths]`` section
