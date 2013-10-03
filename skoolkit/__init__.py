@@ -18,6 +18,7 @@
 
 import sys
 import os
+import posixpath
 import textwrap
 
 VERSION = '3.6b1'
@@ -105,6 +106,9 @@ def read_bin_file(fname):
         if e.errno == 2:
             raise SkoolKitError('{0}: file not found'.format(fname))
         raise
+
+def normpath(*paths):
+    return posixpath.normpath(posixpath.join(*[p.replace('\\', '/') for p in paths]))
 
 class SkoolKitError(Exception):
     pass
