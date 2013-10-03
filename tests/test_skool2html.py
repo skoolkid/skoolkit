@@ -6,7 +6,7 @@ import unittest
 
 from skoolkittest import SkoolKitTestCase
 import skoolkit
-from skoolkit import skool2html, VERSION, SkoolKitError
+from skoolkit import skool2html, PACKAGE_DIR, VERSION, SkoolKitError
 from skoolkit.skoolhtml import HtmlWriter
 from skoolkit.skoolparser import CASE_UPPER, CASE_LOWER
 
@@ -453,6 +453,28 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.write_text_file(path=path)
         with self.assertRaisesRegexp(SkoolKitError, 'Cannot copy {0} to {1}: {1} is not a directory'.format(resource, dest_dir)):
             self.run_skool2html('{} -d {} {}'.format(self._css_c(), self.odir, reffile))
+
+    def test_option_s(self):
+        exp_preamble = [
+            'skool2html.py searches the following directories for skool files, ref files,',
+            'CSS files, JavaScript files, font files, and files listed in the [Resources]',
+            'section of the ref file:',
+            ''
+        ]
+        preamble_len = len(exp_preamble)
+        exp_search_dirs = [
+            'The directory that contains the skool or ref file named on the command line',
+            'The current working directory',
+            os.path.join('.', 'resources'),
+            os.path.join(os.path.expanduser('~'), '.skoolkit'),
+            os.path.normpath('/usr/share/skoolkit'),
+            os.path.join(PACKAGE_DIR, 'resources')
+        ]
+        for option in ('-s', '--search-dirs'):
+            output, error = self.run_skool2html(option, catch_exit=0)
+            self.assertEqual(error, '')
+            self.assertEqual(output[:preamble_len], exp_preamble)
+            self.assertEqual(output[preamble_len:], ['- ' + d for d in exp_search_dirs])
 
     def test_option_j(self):
         css1_content = 'a { color: blue }'
