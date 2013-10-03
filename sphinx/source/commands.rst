@@ -220,6 +220,7 @@ list::
                           IDs of pages defined in [Page:*] sections in the ref
                           file(s)
     -q, --quiet           Be quiet
+    -s, --search-dirs     Show the locations skool2html.py searches for resources
     -t, --time            Show timings
     -T THEME, --theme THEME
                           Use this CSS theme; this option may be used multiple
@@ -235,10 +236,9 @@ list::
                             g = Graphics            y = Glossary
                             i = Disassembly index
 
-When `skool2html.py` is run, it looks for `skool` files, `ref` files, CSS
-files, JavaScript files and font files required by the disassembly (along with
-any files listed in the :ref:`resources` section of the `ref` file) in the
-following directories, in the order listed:
+`skool2html.py` searches the following directories for `skool` files, `ref`
+files, CSS files, JavaScript files, font files, and files listed in the
+:ref:`resources` section of the `ref` file:
 
 * The directory that contains the `skool` or `ref` file named on the command
   line
@@ -249,7 +249,8 @@ following directories, in the order listed:
 * `$PACKAGE_DIR/resources`
 
 where `$PACKAGE_DIR` is the directory in which the `skoolkit` package is
-installed (as shown by ``skool2html.py -p``).
+installed (as shown by ``skool2html.py -p``). When you need a reminder of these
+locations, run ``skool2html.py -s``.
 
 The ``-T`` option sets the CSS theme. For example, if `game.ref` specifies the
 CSS files to use thus::
@@ -299,7 +300,7 @@ will use the following CSS files, if they exist, in the order listed:
 +---------+-----------------------------------------------------------------+
 | 3.5     | Added support for multiple CSS themes                           |
 +---------+-----------------------------------------------------------------+
-| 3.6     | Added the ``--join-css`` option                                 |
+| 3.6     | Added the ``--join-css`` and ``--search-dirs`` options          |
 +---------+-----------------------------------------------------------------+
 
 .. _skool2sft.py:
