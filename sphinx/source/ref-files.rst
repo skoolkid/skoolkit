@@ -806,9 +806,12 @@ where:
 * ``destDir`` is the destination directory, relative to the root directory of
   the disassembly; the directory will be created if it doesn't already exist
 
+The files to be copied must be present in `skool2html.py`'s search path in
+order for it to find them; to see the search path, run ``skool2html.py -s``.
+
 If your disassembly requires pre-built images or other resources that SkoolKit
-cannot create, listing them in the ``Resources`` section ensures that they will
-be copied into place whenever the disassembly is built.
+does not build, listing them in this section ensures that they will be copied
+into place whenever the disassembly is built.
 
 +---------+---------+
 | Version | Changes |
