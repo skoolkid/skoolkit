@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import os
 from os.path import isfile, isdir, basename, dirname
 import posixpath
@@ -40,6 +41,27 @@ SEARCH_DIRS = (
     os.path.join(PACKAGE_DIR, 'resources')
 )
 CONFIG = 'Config'
+
+SEARCH_DIRS_MSG = """
+skool2html.py searches the following directories for skool files, ref files,
+CSS files, JavaScript files, font files, and files listed in the [Resources]
+section of the ref file:
+
+""".lstrip()
+
+def show_search_dirs():
+    write(SEARCH_DIRS_MSG)
+    prefix = '- '
+    write_line(prefix + 'The directory that contains the skool or ref file named on the command line')
+    for search_dir in SEARCH_DIRS:
+        if not search_dir:
+            search_dir = 'The current working directory'
+        elif not os.path.split(search_dir)[0]:
+            search_dir = os.path.join('.', search_dir)
+        else:
+            search_dir = os.path.normpath(search_dir)
+        write_line(prefix + search_dir)
+    sys.exit(0)
 
 def notify(notice):
     if verbose:
@@ -377,6 +399,8 @@ def main(args):
                             "file(s)")
     group.add_argument('-q', '--quiet', dest='verbose', action='store_false',
                        help="Be quiet")
+    group.add_argument('-s', '--search-dirs', dest='search_dirs', action='store_true',
+                       help="Show the locations skool2html.py searches for resources")
     group.add_argument('-t', '--time', dest='show_timings', action='store_true',
                        help="Show timings")
     group.add_argument('-T', '--theme', dest='themes', metavar='THEME', action='append',
@@ -400,6 +424,8 @@ def main(args):
     namespace, unknown_args = parser.parse_known_args(args)
     if namespace.package_dir:
         show_package_dir()
+    if namespace.search_dirs:
+        show_search_dirs()
     if unknown_args or not namespace.infiles:
         parser.exit(2, parser.format_help())
     verbose, show_timings = namespace.verbose, namespace.show_timings
