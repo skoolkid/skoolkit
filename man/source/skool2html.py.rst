@@ -53,6 +53,9 @@ OPTIONS
 -q, --quiet
   Be quiet.
 
+-s, --search-dirs
+  Show the locations that ``skool2html.py`` searches for resources.
+
 -t, --time
   Show timings.
 
@@ -80,9 +83,9 @@ OPTIONS
 
 FILES
 =====
-When ``skool2html.py`` is run, it looks for skool files, ref files, CSS files,
-JavaScript files and font files required by the disassembly in the following
-directories, in the order listed:
+``skool2html.py`` searches the following directories for skool files, ref
+files, CSS files, JavaScript files, font files, and files listed in the
+[Resources] section of the ref file:
 
 |
 | - The directory containing the skool/ref file named on the command line
