@@ -793,6 +793,8 @@ class SkoolWriter:
                 rowspan = len(block.instructions)
                 multi_line = rowspan > 1 and block.comment
                 if multi_line:
+                    if not block.comment.replace('.', ''):
+                        block.comment = block.comment[1:]
                     block.comment = '{{{0}}}'.format(block.comment)
                 comment_lines = wrap(block.comment, max((77 - line_width, 10)))
                 if multi_line and len(comment_lines) < rowspan:

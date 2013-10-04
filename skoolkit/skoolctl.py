@@ -151,11 +151,14 @@ class CtlWriter:
                             length = int(sub_blocks[j + offset][1][0].address) - int(instructions[0].address)
                         elif k + 1 < len(sections):
                             length = int(sections[k + 1][1][0].address) - int(instructions[0].address)
-                        comment = ''
-                        if instructions[0].comment and COMMENTS in self.elements:
-                            comment = instructions[0].comment.text
-                        if self.need_sub_block(ctl, entry_ctl, comment, j, instructions):
-                            self.write_sub_block(ctl, entry_ctl, comment, instructions, length)
+                        comment_text = ''
+                        comment = instructions[0].comment
+                        if comment and COMMENTS in self.elements:
+                            comment_text = comment.text
+                            if comment.rowspan > 1 and not comment_text.replace('.', ''):
+                                comment_text = '.' + comment_text
+                        if self.need_sub_block(ctl, entry_ctl, comment_text, j, instructions):
+                            self.write_sub_block(ctl, entry_ctl, comment_text, instructions, length)
 
     def addr_str(self, address, pad=True):
         if self.write_hex:
