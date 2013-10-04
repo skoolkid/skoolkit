@@ -494,5 +494,46 @@ class SkoolWriterTest(SkoolKitTestCase):
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0], 'WARNING: Code block at 65533 overlaps the following block at 65534')
 
+    def test_blank_multi_instruction_comment(self):
+        ctl = '\n'.join((
+            'c 65534',
+            '  65534,2 .'
+        ))
+        writer = self._get_writer([0] * 65536, ctl)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')[:-1]
+        self.assertEqual(skool[-2], 'c65534 NOP           ; {')
+        self.assertEqual(skool[-1], ' 65535 NOP           ; }')
+
+    def test_instruction_comments_starting_with_a_dot(self):
+        comment1 = '...'
+        comment2 = '...and so it ends'
+        ctl = '\n'.join((
+            'c 65534',
+            '  65534,1 {}'.format(comment1),
+            '  65535,1 {}'.format(comment2)
+        ))
+        writer = self._get_writer([0] * 65536, ctl)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')[:-1]
+        self.assertEqual(skool[-2], 'c65534 NOP           ; {}'.format(comment1))
+        self.assertEqual(skool[-1], ' 65535 NOP           ; {}'.format(comment2))
+
+    def test_multi_instruction_comments_starting_with_a_dot(self):
+        comment1 = '...'
+        comment2 = '...and so it ends'
+        ctl = '\n'.join((
+            'c 65532',
+            '  65532,2 .{}'.format(comment1),
+            '  65534,2 {}'.format(comment2)
+        ))
+        writer = self._get_writer([0] * 65536, ctl)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')[:-1]
+        self.assertEqual(skool[-4], 'c65532 NOP           ; {{{}'.format(comment1))
+        self.assertEqual(skool[-3], ' 65533 NOP           ; }')
+        self.assertEqual(skool[-2], ' 65534 NOP           ; {{{}'.format(comment2))
+        self.assertEqual(skool[-1], ' 65535 NOP           ; }')
+
 if __name__ == '__main__':
     unittest.main()

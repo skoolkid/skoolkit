@@ -134,8 +134,19 @@ b49618 DEFB 1,"Hi"
 ; BC 0
 c49634 RET
 
+; Routine with an empty multi-instruction comment and instruction comments that
+; start with a '.'
+c49635 XOR B ; {
+ 49636 XOR C ; }
+ 49637 XOR D ; {...and so on
+ 49638 XOR E ; }
+ 49639 XOR H ; {...
+ 49640 XOR L ; }
+ 49641 XOR A ; ...
+ 49642 RET   ; ...until the end
+
 ; Another ignore block
-i49635
+i49643
 ; End comment on the final block.
 """
 
@@ -204,8 +215,14 @@ b 49618 Data block with sequences of complex DEFB statements amenable to abbrevi
   49618,16,1:T2*2,1,2:T1
 c 49634 Routine with an empty block description and a register section
 R 49634 BC 0
-i 49635 Another ignore block
-E 49635 End comment on the final block.""".split('\n')
+c 49635 Routine with an empty multi-instruction comment and instruction comments that start with a '.'
+  49635,2 .
+  49637,2 ...and so on
+  49639,2 ....
+  49641,1 ...
+  49642 ...until the end
+i 49643 Another ignore block
+E 49643 End comment on the final block.""".split('\n')
 
 TEST_CTL_HEX = """; @start:$8000
 ; @writer:$8000=package.module.classname
@@ -272,8 +289,14 @@ b $C1D2 Data block with sequences of complex DEFB statements amenable to abbrevi
   $C1D2,16,1:T2*2,1,2:T1
 c $C1E2 Routine with an empty block description and a register section
 R $C1E2 BC 0
-i $C1E3 Another ignore block
-E $C1E3 End comment on the final block.""".split('\n')
+c $C1E3 Routine with an empty multi-instruction comment and instruction comments that start with a '.'
+  $C1E3,2 .
+  $C1E5,2 ...and so on
+  $C1E7,2 ....
+  $C1E9,1 ...
+  $C1EA ...until the end
+i $C1EB Another ignore block
+E $C1EB End comment on the final block.""".split('\n')
 
 TEST_CTL_BS = """c 32768
 B 32769,2,2
@@ -314,7 +337,8 @@ t 49598
 b 49618
   49618,16,1:T2*2,1,2:T1
 c 49634
-i 49635""".split('\n')
+c 49635
+i 49643""".split('\n')
 
 TEST_CTL_BSC = """c 32768
   32768,1 Do nothing
@@ -358,7 +382,13 @@ t 49598
 b 49618
   49618,16,1:T2*2,1,2:T1
 c 49634
-i 49635""".split('\n')
+c 49635
+  49635,2 .
+  49637,2 ...and so on
+  49639,2 ....
+  49641,1 ...
+  49642 ...until the end
+i 49643""".split('\n')
 
 class CtlWriterTest(SkoolKitTestCase):
     def _get_ctl(self, elements='btdrmsc', write_hex=False, write_asm_dirs=True):
@@ -367,26 +397,21 @@ class CtlWriterTest(SkoolKitTestCase):
         writer.write()
         return self.out.getvalue().split('\n')[:-1]
 
-    def _assert_ctls_equal(self, actual_ctl, expected_ctl):
-        self.assertEqual(len(actual_ctl), len(expected_ctl))
-        for i, line in enumerate(actual_ctl):
-            self.assertEqual(line, expected_ctl[i])
-
     def test_default_elements(self):
-        self._assert_ctls_equal(self._get_ctl(), TEST_CTL)
+        self.assertEqual(self._get_ctl(), TEST_CTL)
 
     def test_default_elements_hex(self):
-        self._assert_ctls_equal(self._get_ctl(write_hex=True), TEST_CTL_HEX)
+        self.assertEqual(self._get_ctl(write_hex=True), TEST_CTL_HEX)
 
     def test_default_elements_no_asm_dirs(self):
         ctl = self._get_ctl(write_asm_dirs=False)
         test_ctl = [line for line in TEST_CTL if not line.startswith(';')]
-        self._assert_ctls_equal(ctl, test_ctl)
+        self.assertEqual(ctl, test_ctl)
 
     def test_wb(self):
         ctl = self._get_ctl('b', write_asm_dirs=False)
         test_ctl = [line[:7] for line in TEST_CTL if line[0] in DIRECTIVES]
-        self._assert_ctls_equal(ctl, test_ctl)
+        self.assertEqual(ctl, test_ctl)
 
     def test_wbd(self):
         ctl = self._get_ctl('bd', write_asm_dirs=False)
@@ -396,7 +421,7 @@ class CtlWriterTest(SkoolKitTestCase):
                 test_ctl.append(line[:7])
             elif line.startswith('D 32768'):
                 test_ctl.append(line)
-        self._assert_ctls_equal(ctl, test_ctl)
+        self.assertEqual(ctl, test_ctl)
 
     def test_wbm(self):
         ctl = self._get_ctl('bm', write_asm_dirs=False)
@@ -406,7 +431,7 @@ class CtlWriterTest(SkoolKitTestCase):
                 test_ctl.append(line[:7])
             elif line[0] in 'DE' and not line.startswith('D 32768'):
                 test_ctl.append(line)
-        self._assert_ctls_equal(ctl, test_ctl)
+        self.assertEqual(ctl, test_ctl)
 
     def test_wbr(self):
         ctl = self._get_ctl('br', write_asm_dirs=False)
@@ -416,20 +441,20 @@ class CtlWriterTest(SkoolKitTestCase):
                 test_ctl.append(line[:7])
             elif line[0] == 'R':
                 test_ctl.append(line)
-        self._assert_ctls_equal(ctl, test_ctl)
+        self.assertEqual(ctl, test_ctl)
 
     def test_wbs(self):
         ctl = self._get_ctl('bs', write_asm_dirs=False)
-        self._assert_ctls_equal(ctl, TEST_CTL_BS)
+        self.assertEqual(ctl, TEST_CTL_BS)
 
     def test_wbsc(self):
         ctl = self._get_ctl('bsc', write_asm_dirs=False)
-        self._assert_ctls_equal(ctl, TEST_CTL_BSC)
+        self.assertEqual(ctl, TEST_CTL_BSC)
 
     def test_wbt(self):
         ctl = self._get_ctl('bt', write_asm_dirs=False)
         test_ctl = [line for line in TEST_CTL if line[0] in DIRECTIVES]
-        self._assert_ctls_equal(ctl, test_ctl)
+        self.assertEqual(ctl, test_ctl)
 
 if __name__ == '__main__':
     unittest.main()
