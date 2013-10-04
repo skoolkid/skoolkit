@@ -14,6 +14,8 @@ Changelog
 * Added the ``--search-dirs`` option to :ref:`skool2html.py` (to show the
   locations that `skool2html.py` searches for resources)
 * Added an example control file for the 48K Spectrum ROM: `48.rom.ctl`
+* Control files can now preserve blank comments that span two or more
+  instructions
 * Fixed the bug that makes `skool2html.py` fail if the ``FontPath``,
   ``JavaScriptPath`` or ``StyleSheetPath`` parameter in the ``[Paths]`` section
   of the `ref` file is set to some directory other than the default
