@@ -64,35 +64,38 @@ class SftParser:
             else:
                 self.address_fmt = HEX4FMT
         else:
-            self.address_fmt = '{0}'
+            self.address_fmt = '{:05d}'
         self.stack = []
         self.disassemble = True
         self.lines = None
 
     def _parse_instruction(self, line):
         ctl = line[0]
+        lengths = []
         if line[1] == ';':
             inst_ctl = None
             start = None
             i = line.find(' ', 2)
             if i < 0:
                 i = len(line.rstrip())
-            j = 1
+            comment_index = get_int_param(line[2:i])
         else:
             inst_ctl = line[1]
-            start = get_int_param(line[2:7])
-            i = line.find(' ', 8)
+            comma_index = line.index(',', 2)
+            start = get_int_param(line[2:comma_index])
+            i = line.find(' ', comma_index + 1)
             if i < 0:
                 i = len(line.rstrip())
-            j = line.find(';', 8, i)
-        lengths = []
-        if j < 0:
-            j = i
-            comment_index = -1
-        else:
-            comment_index = get_int_param(line[j + 1:i])
-        if j > 8:
-            lengths = parse_params(inst_ctl, line[8:j].split(','), 0)
+            j = line.find(';', comma_index + 1, i)
+            if j < 0:
+                j = i
+                comment_index = -1
+            else:
+                comment_index = get_int_param(line[j + 1:i])
+            if j > comma_index + 1:
+                lengths = parse_params(inst_ctl, line[comma_index + 1:j].split(','), 0)
+            else:
+                raise ValueError
         comment = line[i:].strip()
         return ctl, inst_ctl, start, lengths, comment_index, comment
 
@@ -159,9 +162,9 @@ class SftParser:
 
             try:
                 ctl, inst_ctl, start, lengths, comment_index, comment = self._parse_instruction(line)
-            except ValueError:
+            except (IndexError, ValueError):
                 raise SftParsingError("Invalid line: {0}".format(line.split()[0]))
-            if start:
+            if start is not None:
                 # This line contains a control directive
                 instructions = []
                 for length, sublengths in lengths:

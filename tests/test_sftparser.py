@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 import unittest
 
 from skoolkittest import SkoolKitTestCase
@@ -9,6 +10,30 @@ TEST_SFT = """#
 #
 ; Test processing of a data definition entry
 d24576 DEFB 128
+
+; Data at 0
+bB0,1
+
+; Data at 15
+bB$f,1
+
+; Data at 23
+bB23,1
+
+; Data at 91
+bB$5b,1
+
+; Data at 456
+bB456,1
+
+; Data at 1018
+bB$3FA,1
+
+; Data at 7890
+bB7890,1
+
+; Data at 9642
+bB$25aa,1
 
 ; Routine at 32768
 ;
@@ -62,6 +87,13 @@ bB32815,2:T1,1:T2*2,1
 """
 
 TEST_SNAPSHOT = [0] * 32826
+TEST_SNAPSHOT[15] = 15
+TEST_SNAPSHOT[23] = 23
+TEST_SNAPSHOT[91] = 91
+TEST_SNAPSHOT[456] = 56
+TEST_SNAPSHOT[1018] = 18
+TEST_SNAPSHOT[7890] = 90
+TEST_SNAPSHOT[9642] = 42
 TEST_SNAPSHOT[32768] = 47  # 32768 CPL
 TEST_SNAPSHOT[32769] = 201 # 32769 RET
 TEST_SNAPSHOT[32770] = 55  # 32770 SCF
@@ -72,6 +104,30 @@ TEST_SNAPSHOT[32800:32825] = [ord('a')] * 25
 
 TEST_SKOOL = """; Test processing of a data definition entry
 d24576 DEFB 128
+
+; Data at 0
+b00000 DEFB 0
+
+; Data at 15
+b00015 DEFB 15
+
+; Data at 23
+b00023 DEFB 23
+
+; Data at 91
+b00091 DEFB 91
+
+; Data at 456
+b00456 DEFB 56
+
+; Data at 1018
+b01018 DEFB 18
+
+; Data at 7890
+b07890 DEFB 90
+
+; Data at 9642
+b09642 DEFB 42
 
 ; Routine at 32768
 ;
@@ -135,6 +191,30 @@ b32815 DEFB 97,97,"a"
 
 TEST_SKOOL_HEX = """; Test processing of a data definition entry
 d24576 DEFB 128
+
+; Data at 0
+b$0000 DEFB $00
+
+; Data at 15
+b$000F DEFB $0F
+
+; Data at 23
+b$0017 DEFB $17
+
+; Data at 91
+b$005B DEFB $5B
+
+; Data at 456
+b$01C8 DEFB $38
+
+; Data at 1018
+b$03FA DEFB $12
+
+; Data at 7890
+b$1ED2 DEFB $5A
+
+; Data at 9642
+b$25AA DEFB $2A
 
 ; Routine at 32768
 ;
@@ -205,16 +285,12 @@ class SftParserTest(SkoolKitTestCase):
 
     def test_write_skool(self):
         snapshot, skool = self._parse_sft(TEST_SFT, TEST_SNAPSHOT)
-        self.assertEqual(len(skool), len(TEST_SKOOL))
-        for i, line in enumerate(skool):
-            self.assertEqual(line, TEST_SKOOL[i])
+        self.assertEqual(skool, TEST_SKOOL)
         self.assertEqual(snapshot[24576], 128)
 
     def test_write_skool_hex(self):
         snapshot, skool = self._parse_sft(TEST_SFT, TEST_SNAPSHOT, asm_hex=True)
-        self.assertEqual(len(skool), len(TEST_SKOOL_HEX))
-        for i, line in enumerate(skool):
-            self.assertEqual(line, TEST_SKOOL_HEX[i])
+        self.assertEqual(skool, TEST_SKOOL_HEX)
         self.assertEqual(snapshot[24576], 128)
 
     def test_write_skool_hex_lower(self):
@@ -223,16 +299,22 @@ class SftParserTest(SkoolKitTestCase):
 
     def test_invalid_line(self):
         for line in (
+            "b",
+            "bX",
+            "bB",
+            "bB30000",
+            "bB30000;",
+            "bB30000,",
+            "bB30000,;",
+            "bB30000,3;q",
+            "bB30000,3;k ...",
             "bB30000,5,1:X3",
             "tT30000,a",
             "wW40000,1:B2",
             "cC$ABCG,20"
         ):
-            try:
+            with self.assertRaisesRegexp(SftParsingError, re.escape("Invalid line: {}".format(line.split()[0]))):
                 self._parse_sft(line)
-                self.fail("Line '{}' did not cause an SftParsingError".format(line))
-            except SftParsingError as e:
-                self.assertEqual(e.args[0], "Invalid line: {0}".format(line))
 
 if __name__ == '__main__':
     unittest.main()
