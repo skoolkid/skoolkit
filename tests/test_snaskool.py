@@ -535,5 +535,37 @@ class SkoolWriterTest(SkoolKitTestCase):
         self.assertEqual(skool[-2], ' 65534 NOP           ; {{{}'.format(comment2))
         self.assertEqual(skool[-1], ' 65535 NOP           ; }')
 
+    def test_decimal_addresses_below_10000(self):
+        ctl = '\n'.join((
+            'b 00000',
+            'i 00001',
+            'b 00003',
+            'i 00004',
+            'b 00023',
+            'i 00024',
+            'b 00573',
+            'i 00574',
+            'b 09876',
+            'i 09877',
+        ))
+        writer = self._get_writer([0] * 65536, ctl)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')[:-1]
+        self.assertEqual(skool[3], 'b00000 DEFB 0')
+        self.assertEqual(skool[8], 'b00003 DEFB 0')
+        self.assertEqual(skool[13], 'b00023 DEFB 0')
+        self.assertEqual(skool[18], 'b00573 DEFB 0')
+        self.assertEqual(skool[23], 'b09876 DEFB 0')
+
+    def test_decimal_org_addresses_below_10000(self):
+        snapshot = [0] * 65536
+        for org in (0, 1, 12, 123, 1234):
+            ctl = 'b {:05d}\ni {:05d}'.format(org, org + 1)
+            writer = self._get_writer(snapshot, ctl)
+            self.clear_streams()
+            writer.write_skool(0, False)
+            skool = self.out.getvalue().split('\n')[:-1]
+            self.assertEqual(skool[1], '; @org={}'.format(org))
+
 if __name__ == '__main__':
     unittest.main()
