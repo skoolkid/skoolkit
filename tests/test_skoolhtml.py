@@ -1800,6 +1800,16 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_macro_r(self):
         skool = '\n'.join((
+            'c00000 LD A,B',
+            '',
+            'c00007 LD A,C',
+            '',
+            'c00016 LD A,D',
+            '',
+            'c00115 LD A,E',
+            '',
+            'c01114 LD A,H',
+            '',
             '; Routine',
             'c24576 LD HL,$6003',
             '',
@@ -1822,6 +1832,26 @@ class HtmlWriterTest(SkoolKitTestCase):
             'c24592 CALL 24582'
         ))
         writer = self._get_writer(skool=skool)
+
+        # Reference address is 0
+        output = writer.expand('#R0', ASMDIR)
+        self.link_equals(output, '0.html', '0')
+
+        # Reference address is 1 digit
+        output = writer.expand('#R7', ASMDIR)
+        self.link_equals(output, '7.html', '7')
+
+        # Reference address is 2 digits
+        output = writer.expand('#R16', ASMDIR)
+        self.link_equals(output, '16.html', '16')
+
+        # Reference address is 3 digits
+        output = writer.expand('#R115', ASMDIR)
+        self.link_equals(output, '115.html', '115')
+
+        # Reference address is 4 digits
+        output = writer.expand('#R1114', ASMDIR)
+        self.link_equals(output, '1114.html', '1114')
 
         # Routine reference
         output = writer.expand('#R24576', ASMDIR)

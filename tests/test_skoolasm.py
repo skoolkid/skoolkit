@@ -1327,12 +1327,48 @@ class AsmWriterTest(SkoolKitTestCase):
     def test_macro_r(self):
         skool = '\n'.join((
             '; @start',
+            'c00000 LD A,B',
+            '',
+            'c00004 LD A,C',
+            '',
+            'c00015 LD A,D',
+            '',
+            'c00116 LD A,E',
+            '',
+            'c01117 LD A,H',
+            '',
+            'c11118 LD A,L',
+            '',
             '; @label=DOSTUFF',
             'c24576 LD HL,0',
             '',
             'b$6003 DEFB 123'
         ))
         writer = self._get_writer(skool, warn=True)
+
+        # Reference address is 0
+        output = writer.expand('#R0')
+        self.assertEqual(output, '0')
+
+        # Reference address is 1 digit
+        output = writer.expand('#R4')
+        self.assertEqual(output, '4')
+
+        # Reference address is 2 digits
+        output = writer.expand('#R15')
+        self.assertEqual(output, '15')
+
+        # Reference address is 3 digits
+        output = writer.expand('#R116')
+        self.assertEqual(output, '116')
+
+        # Reference address is 4 digits
+        output = writer.expand('#R1117')
+        self.assertEqual(output, '1117')
+
+        # Reference address is 5 digits
+        output = writer.expand('#R11118')
+        self.assertEqual(output, '11118')
 
         # Address resolves to a label
         output = writer.expand('#R24576')
