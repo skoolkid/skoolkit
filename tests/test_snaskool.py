@@ -2,7 +2,7 @@
 import unittest
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit.snaskool import Disassembly, SkoolWriter
+from skoolkit.snaskool import Disassembly, SkoolWriter, write_ctl
 from skoolkit.ctlparser import CtlParser
 
 DISASSEMBLY_SNAPSHOT = [0] * 65536
@@ -566,6 +566,22 @@ class SkoolWriterTest(SkoolKitTestCase):
             writer.write_skool(0, False)
             skool = self.out.getvalue().split('\n')[:-1]
             self.assertEqual(skool[1], '; @org={}'.format(org))
+
+class CtlWriterTest(SkoolKitTestCase):
+    def test_decimal_addresses_below_10000(self):
+        ctls = {0: 'b', 1: 'c', 22: 't', 333: 'w', 4444: 'z'}
+        exp_ctl = [
+            'b 00000',
+            'c 00001',
+            't 00022',
+            'w 00333',
+            'z 04444'
+        ]
+        ctlfile = self.write_bin_file()
+        write_ctl(ctlfile, ctls, False)
+        with open(ctlfile, 'r') as f:
+            lines = [line.rstrip() for line in f]
+        self.assertEqual(lines, exp_ctl)
 
 if __name__ == '__main__':
     unittest.main()
