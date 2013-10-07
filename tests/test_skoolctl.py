@@ -14,6 +14,26 @@ d49153 DEFW 0
 ; Remote entry (ignored)
 r24576 start
 
+; Address 0
+; @label=START0
+c00000 RET
+
+; Address with 1 digit
+; @label=START1
+c00001 RET
+
+; Address with 2 digits
+; @label=START33
+c00033 RET
+
+; Address with 3 digits
+; @label=START555
+c00555 RET
+
+; Address with 4 digits
+; @label=START7890
+c07890 RET
+
 ; @start
 ; @writer=package.module.classname
 ; @set-bullet=+
@@ -150,7 +170,17 @@ i49643
 ; End comment on the final block.
 """
 
-TEST_CTL = """; @start:32768
+TEST_CTL = """c 00000 Address 0
+; @label:0=START0
+c 00001 Address with 1 digit
+; @label:1=START1
+c 00033 Address with 2 digits
+; @label:33=START33
+c 00555 Address with 3 digits
+; @label:555=START555
+c 07890 Address with 4 digits
+; @label:7890=START7890
+; @start:32768
 ; @writer:32768=package.module.classname
 ; @set-bullet:32768=+
 ; @org:32768=32768
@@ -224,7 +254,17 @@ c 49635 Routine with an empty multi-instruction comment and instruction comments
 i 49643 Another ignore block
 E 49643 End comment on the final block.""".split('\n')
 
-TEST_CTL_HEX = """; @start:$8000
+TEST_CTL_HEX = """c $0000 Address 0
+; @label:$0000=START0
+c $0001 Address with 1 digit
+; @label:$0001=START1
+c $0021 Address with 2 digits
+; @label:$0021=START33
+c $022B Address with 3 digits
+; @label:$022B=START555
+c $1ED2 Address with 4 digits
+; @label:$1ED2=START7890
+; @start:$8000
 ; @writer:$8000=package.module.classname
 ; @set-bullet:$8000=+
 ; @org:$8000=32768
@@ -298,7 +338,12 @@ c $C1E3 Routine with an empty multi-instruction comment and instruction comments
 i $C1EB Another ignore block
 E $C1EB End comment on the final block.""".split('\n')
 
-TEST_CTL_BS = """c 32768
+TEST_CTL_BS = """c 00000
+c 00001
+c 00033
+c 00555
+c 07890
+c 32768
 B 32769,2,2
 B 32771,3,1,2
 T 32774,5,5
@@ -340,7 +385,12 @@ c 49634
 c 49635
 i 49643""".split('\n')
 
-TEST_CTL_BSC = """c 32768
+TEST_CTL_BSC = """c 00000
+c 00001
+c 00033
+c 00555
+c 07890
+c 32768
   32768,1 Do nothing
 B 32769,2,2 1-line B sub-block
 B 32771,3,1,2 2-line B sub-block
