@@ -1168,12 +1168,10 @@ class HtmlWriterTest(SkoolKitTestCase):
             subs['prev_link'] = ''
             subs['up_link'] = 'Up: <a class="link" href="{path}maps/all.html#{up}">Map</a>'.format(**subs)
             subs['next_link'] = ''
-            prev_entry = subs.get('prev')
-            if prev_entry:
-                subs['prev_link'] = 'Prev: <a class="link" href="{0}.html">{0}</a>'.format(prev_entry)
-            next_entry = subs.get('next')
-            if next_entry:
-                subs['next_link'] = 'Next: <a class="link" href="{0}.html">{0}</a>'.format(next_entry)
+            if 'prev' in subs:
+                subs['prev_link'] = 'Prev: <a class="link" href="{0}.html">{0:05d}</a>'.format(subs['prev'])
+            if 'next' in subs:
+                subs['next_link'] = 'Next: <a class="link" href="{0}.html">{0:05d}</a>'.format(subs['next'])
             prev_up_next = PREV_UP_NEXT.format(**subs)
         header_template = INDEX_HEADER if index else HEADER
         t_html_lines = (header_template + prev_up_next + body + prev_up_next + footer).format(**subs).split('\n')
@@ -2527,6 +2525,104 @@ class HtmlWriterTest(SkoolKitTestCase):
         subs.update(common_subs)
         self.assert_files_equal(join(ASMDIR, '24584.html'), subs)
 
+    def test_write_asm_entries_with_decimal_addresses_below_10000(self):
+        skool = '\n'.join((
+            'c00000 RET',
+            '',
+            'c00002 RET',
+            '',
+            'c00044 RET',
+            '',
+            'c00666 RET',
+            '',
+            'c08888 RET'
+        ))
+        entry_template = '\n'.join((
+            '<div class="description">{address:05d}: </div>',
+            '<table class="disassembly">',
+            '<tr>',
+            '<td class="routineComment" colspan="3">',
+            '<div class="details">',
+            '</div>',
+            '</td>',
+            '</tr>',
+            '<tr>',
+            '<td class="label"><a name="{address}"></a>{address:05d}</td>',
+            '<td class="instruction">RET</td>',
+            '<td class="transparentComment" />',
+            '</tr>',
+            '</table>',
+            ''
+        ))
+        common_subs = {
+            'path': '../',
+            'body_class': 'disassembly',
+            'footer': BARE_FOOTER,
+        }
+
+        for base in (None, BASE_10):
+            writer = self._get_writer(skool=skool, base=BASE_10)
+            common_subs['name'] = basename(self.skoolfile)[:-6]
+            writer.write_asm_entries()
+
+            # Address 0
+            subs = {
+                'title': 'Routine at 00000',
+                'header': 'Routines',
+                'up': 0,
+                'next': 2,
+                'content': entry_template.format(address=0)
+            }
+            subs.update(common_subs)
+            self.assert_files_equal(join(ASMDIR, '0.html'), subs)
+
+            # Address 2
+            subs = {
+                'title': 'Routine at 00002',
+                'header': 'Routines',
+                'prev': 0,
+                'up': 2,
+                'next': 44,
+                'content': entry_template.format(address=2)
+            }
+            subs.update(common_subs)
+            self.assert_files_equal(join(ASMDIR, '2.html'), subs)
+
+            # Address 44
+            subs = {
+                'title': 'Routine at 00044',
+                'header': 'Routines',
+                'prev': 2,
+                'up': 44,
+                'next': 666,
+                'content': entry_template.format(address=44)
+            }
+            subs.update(common_subs)
+            self.assert_files_equal(join(ASMDIR, '44.html'), subs)
+
+            # Address 666
+            subs = {
+                'title': 'Routine at 00666',
+                'header': 'Routines',
+                'prev': 44,
+                'up': 666,
+                'next': 8888,
+                'content': entry_template.format(address=666)
+            }
+            subs.update(common_subs)
+            self.assert_files_equal(join(ASMDIR, '666.html'), subs)
+
+            # Address 8888
+            subs = {
+                'title': 'Routine at 08888',
+                'header': 'Routines',
+                'prev': 666,
+                'up': 8888,
+                'content': entry_template.format(address=8888)
+            }
+            subs.update(common_subs)
+            self.assert_files_equal(join(ASMDIR, '8888.html'), subs)
+
     def test_asm_labels(self):
         writer = self._get_writer(skool=TEST_ASM_LABELS_SKOOL, asm_labels=True)
         common_subs = {
@@ -2639,6 +2735,52 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         subs.update(common_subs)
         self.assert_files_equal(map_details['Path'], subs)
+
+    def test_write_map_with_decimal_addresses_below_10000(self):
+        skool = '\n'.join((
+            'c00000 RET',
+            '',
+            'c00002 RET',
+            '',
+            'c00044 RET',
+            '',
+            'c00666 RET',
+            '',
+            'c08888 RET'
+        ))
+        exp_content = '\n'.join((
+            '<table class="map">',
+            '<tr>',
+            '<th>Page</th>',
+            '<th>Byte</th>',
+            '<th>Address</th>',
+            '<th>Description</th>',
+            '</tr>\n'
+        ))
+        for address in (0, 2, 44, 666, 8888):
+            exp_content += '\n'.join((
+                '<tr>',
+                '<td class="mapPage">{}</td>'.format(address // 256),
+                '<td class="mapByte">{}</td>'.format(address % 256),
+                '<td class="routine"><a class="link" name="{0}" href="../asm/{0}.html">{0:05d}</a></td>'.format(address),
+                '<td class="routineDesc"></td>',
+                '</tr>\n'
+            ))
+        exp_content += '</table>\n'
+
+        # Memory map
+        for base in (None, BASE_10):
+            writer = self._get_writer(skool=skool, base=base)
+            writer.write_map(writer.memory_maps['MemoryMap'])
+            subs = {
+                'name': basename(self.skoolfile)[:-6],
+                'path': '../',
+                'title': 'Memory map',
+                'body_class': 'map',
+                'content': exp_content,
+                'footer': BARE_FOOTER
+            }
+            self.assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
     def test_write_changelog(self):
         writer = self._get_writer(ref=TEST_WRITE_CHANGELOG_REF, skool='')
