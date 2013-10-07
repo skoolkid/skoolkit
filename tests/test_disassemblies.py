@@ -12,14 +12,19 @@ from skoolkittest import SkoolKitTestCase, PY3, SKOOLKIT_HOME
 
 MM2CTL = '{0}/utils/mm2ctl.py'.format(SKOOLKIT_HOME)
 MMZ80 = '{0}/snapshots/manic_miner.z80'.format(SKOOLKIT_HOME)
+MMREF = '{}/examples/manic_miner.ref'.format(SKOOLKIT_HOME)
 JSW2CTL = '{0}/utils/jsw2ctl.py'.format(SKOOLKIT_HOME)
 JSWZ80 = '{0}/snapshots/jet_set_willy.z80'.format(SKOOLKIT_HOME)
+JSWREF = '{}/examples/jet_set_willy.ref'.format(SKOOLKIT_HOME)
+ROM = '/usr/share/spectrum-roms/48.rom'
+ROMCTL = '{}/examples/48.rom.ctl'.format(SKOOLKIT_HOME)
+ROMREF = '{}/examples/48.rom.ref'.format(SKOOLKIT_HOME)
 
 XHTML_XSD = os.path.join(SKOOLKIT_HOME, 'XSD', 'xhtml1-strict.xsd')
 
 OUTPUT_MM = """Creating directory {odir}
 Using skool file: {skoolfile}
-Using ref file: ../examples/manic_miner.ref
+Using ref file: {reffile}
 Parsing {skoolfile}
 Creating directory {odir}/manic_miner
 Copying {cssfile} to {odir}/manic_miner/{cssfile}
@@ -33,7 +38,7 @@ Copying {cssfile} to {odir}/manic_miner/{cssfile}
 
 OUTPUT_JSW = """Creating directory {odir}
 Using skool file: {skoolfile}
-Using ref file: ../examples/jet_set_willy.ref
+Using ref file: {reffile}
 Parsing {skoolfile}
 Creating directory {odir}/jet_set_willy
 Copying {cssfile} to {odir}/jet_set_willy/{cssfile}
@@ -46,6 +51,20 @@ Copying {cssfile} to {odir}/jet_set_willy/{cssfile}
   Writing jet_set_willy/buffers/gbuffer.html
   Writing jet_set_willy/reference/facts.html
   Writing jet_set_willy/index.html"""
+
+OUTPUT_ROM = """Creating directory {odir}
+Using skool file: {skoolfile}
+Using ref file: {reffile}
+Parsing {skoolfile}
+Creating directory {odir}/rom
+Copying {cssfile} to {odir}/rom/{cssfile}
+  Writing disassembly files in rom/asm
+  Writing rom/maps/all.html
+  Writing rom/maps/routines.html
+  Writing rom/maps/data.html
+  Writing rom/maps/messages.html
+  Writing rom/maps/unused.html
+  Writing rom/index.html"""
 
 def _find_ids_and_hrefs(elements, doc_anchors, doc_hrefs):
     for node in elements:
@@ -115,25 +134,32 @@ class DisassembliesTestCase(SkoolKitTestCase):
             err = err.decode()
         return out, err
 
-    def _write_skool(self, ctlutil, snapshot, prefix):
+    def _write_skool(self, snapshot, prefix, ctlutil=None, ctlfile=None, org=None):
         if not os.path.isfile(snapshot):
             raise SkipTest("{0} not found".format(snapshot))
         os.environ['SKOOLKIT_HOME'] = SKOOLKIT_HOME
-        output, error = self._run_cmd('{0} {1}'.format(ctlutil, snapshot))
-        self.assertEqual(len(error), 0)
-        ctlfile = '{0}-{1}.ctl'.format(prefix, os.getpid())
-        self.write_text_file(output, ctlfile)
-        output, error = self.run_sna2skool('-c {0} {1}'.format(ctlfile, snapshot), out_lines=False)
+        if ctlutil:
+            output, error = self._run_cmd('{0} {1}'.format(ctlutil, snapshot))
+            self.assertEqual(len(error), 0)
+            ctlfile = '{0}-{1}.ctl'.format(prefix, os.getpid())
+            self.write_text_file(output, ctlfile)
+        options = '-c {}'.format(ctlfile)
+        if org is not None:
+            options += ' -o {}'.format(org)
+        output, error = self.run_sna2skool('{} {}'.format(options, snapshot), out_lines=False)
         self.assertEqual(len(error), 0)
         skoolfile = '{0}-{1}.skool'.format(prefix, os.getpid())
         self.write_text_file(output, skoolfile)
         return skoolfile
 
     def _write_mm_skool(self):
-        return self._write_skool(MM2CTL, MMZ80, 'manic_miner')
+        return self._write_skool(MMZ80, 'manic_miner', MM2CTL)
 
     def _write_jsw_skool(self):
-        return self._write_skool(JSW2CTL, JSWZ80, 'jet_set_willy')
+        return self._write_skool(JSWZ80, 'jet_set_willy', JSW2CTL)
+
+    def _write_rom_skool(self):
+        return self._write_skool(ROM, 'rom', ctlfile=ROMCTL, org=0)
 
 class AsmTestCase(DisassembliesTestCase):
     def _test_asm(self, options, skoolfile, clean=True):
@@ -147,12 +173,13 @@ class AsmTestCase(DisassembliesTestCase):
         self.assertTrue(stderr[-1].startswith('Wrote ASM to stdout'))
 
     def write_mm(self, options):
-        skoolfile = self._write_skool(MM2CTL, MMZ80, 'manic_miner')
-        self._test_asm(options, skoolfile, False)
+        self._test_asm(options, self._write_mm_skool(), False)
 
     def write_jsw(self, options):
-        skoolfile = self._write_skool(JSW2CTL, JSWZ80, 'jet_set_willy')
-        self._test_asm(options, skoolfile, False)
+        self._test_asm(options, self._write_jsw_skool(), False)
+
+    def write_rom(self, options):
+        self._test_asm(options, self._write_rom_skool(), False)
 
 class CtlTestCase(DisassembliesTestCase):
     def _test_ctl(self, options, skoolfile):
@@ -165,6 +192,9 @@ class CtlTestCase(DisassembliesTestCase):
 
     def write_jsw(self, options):
         self._test_ctl(options, self._write_jsw_skool())
+
+    def write_rom(self, options):
+        self._test_ctl(options, self._write_rom_skool())
 
 class HtmlTestCase(DisassembliesTestCase):
     def setUp(self):
@@ -216,27 +246,33 @@ class HtmlTestCase(DisassembliesTestCase):
         # Write the disassembly
         output, error = self.run_skool2html('{} -d {} {} {}'.format(c_options, self.odir, options, ref_file))
         self.assertEqual(len(error), 0)
-        reps = {'odir': self.odir, 'cssfile': cssfile, 'skoolfile': skoolfile}
+        reps = {'odir': self.odir, 'cssfile': cssfile, 'skoolfile': skoolfile, 'reffile': ref_file}
         self.assertEqual(output, exp_output.format(**reps).split('\n'))
 
         self._validate_xhtml()
         self._check_links()
 
     def write_mm(self, options):
-        self._test_html('manic_miner', options, '../examples/manic_miner.ref', OUTPUT_MM, self._write_mm_skool())
+        self._test_html('manic_miner', options, MMREF, OUTPUT_MM, self._write_mm_skool())
 
     def write_jsw(self, options):
-        self._test_html('jet_set_willy', options, '../examples/jet_set_willy.ref', OUTPUT_JSW, self._write_jsw_skool())
+        self._test_html('jet_set_willy', options, JSWREF, OUTPUT_JSW, self._write_jsw_skool())
+
+    def write_rom(self, options):
+        self._test_html('rom', options, ROMREF, OUTPUT_ROM, self._write_rom_skool())
 
 class SftTestCase(DisassembliesTestCase):
-    def _test_sft(self, options, skoolfile, snapshot):
+    def _test_sft(self, options, skoolfile, snapshot, org=None):
         with open(skoolfile, 'rt') as f:
             orig_skool = f.read().split('\n')
         args = '{} {}'.format(options, skoolfile)
         sft, stderr = self.run_skool2sft(args, out_lines=False)
         self.assertEqual(stderr, '')
         sftfile = self.write_text_file(sft)
-        output, stderr = self.run_sna2skool('-T {} {}'.format(sftfile, snapshot))
+        options = '-T {}'.format(sftfile)
+        if org is not None:
+            options += ' -o {}'.format(org)
+        output, stderr = self.run_sna2skool('{} {}'.format(options, snapshot))
         self.assert_output_equal(output, orig_skool[:-1])
 
     def write_mm(self, options):
@@ -244,3 +280,6 @@ class SftTestCase(DisassembliesTestCase):
 
     def write_jsw(self, options):
         self._test_sft(options, self._write_jsw_skool(), JSWZ80)
+
+    def write_rom(self, options):
+        self._test_sft(options, self._write_rom_skool(), ROM, 0)
