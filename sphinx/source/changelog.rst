@@ -13,6 +13,7 @@ Changelog
   files into a single file)
 * Added the ``--search-dirs`` option to :ref:`skool2html.py` (to show the
   locations that `skool2html.py` searches for resources)
+* Added support for creating disassemblies with a start address below 10000
 * Added an example control file for the 48K Spectrum ROM: `48.rom.ctl`
 * Control files can now preserve blank comments that span two or more
   instructions
