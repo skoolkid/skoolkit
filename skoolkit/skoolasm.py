@@ -149,12 +149,6 @@ class AsmWriter:
         end, params, p_text = parse_params(text, index, default)
         return end, p_text
 
-    def _expand_unsupported_macro(self, text, index):
-        if self.handle_unsupported_macros:
-            end, params, p_text = parse_params(text, index, chars=',:;-x{}')
-            return end, ''
-        raise UnsupportedMacroError()
-
     def pop_snapshot(self):
         """Discard the current memory snapshot and replace it with the one that
         was most recently saved (by
@@ -372,7 +366,11 @@ class AsmWriter:
         return end, reg_name
 
     def expand_scr(self, text, index):
-        return self._expand_unsupported_macro(text, index)
+        # #SCR[scale,x,y,w,h,dfAddr,afAddr][{X,Y,W,H}][(fname)]
+        if self.handle_unsupported_macros:
+            end, params, p_text = parse_params(text, index, chars=',{}')
+            return end, ''
+        raise UnsupportedMacroError()
 
     def expand_space(self, text, index):
         # #SPACE[num] or #SPACE([num])
@@ -384,10 +382,22 @@ class AsmWriter:
         return end + offset, ''.ljust(num_sp)
 
     def expand_udg(self, text, index):
-        return self._expand_unsupported_macro(text, index)
+        # #UDGaddr[,attr,scale,step,inc,flip,rotate][:maskAddr[,maskStep]][{X,Y,W,H}][(fname)]
+        if self.handle_unsupported_macros:
+            end, params, p_text = parse_params(text, index, chars=',:{}')
+            return end, ''
+        raise UnsupportedMacroError()
 
     def expand_udgarray(self, text, index):
-        return self._expand_unsupported_macro(text, index)
+        # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}](fname)
+        # #UDGARRAY*frame1[,delay1];frame2[,delay2];...(fname)
+        if self.handle_unsupported_macros:
+            if index < len(text) and text[index] == '*':
+                end, params, p_text = parse_params(text, index, except_chars=' (')
+            else:
+                end, params, p_text = parse_params(text, index, chars=',:;-x{}')
+            return end, ''
+        raise UnsupportedMacroError()
 
     def expand(self, text):
         if text.find('#') < 0:

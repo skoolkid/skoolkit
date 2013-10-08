@@ -1593,7 +1593,9 @@ class AsmWriterTest(SkoolKitTestCase):
         self._test_unsupported_macro('#UDG39144,6(safe_key)')
 
     def test_macro_udgarray(self):
-        self._test_unsupported_macro('#UDGARRAY8,,,256;33008-33023(bubble)')
+        writer = self._get_writer()
+        self._test_unsupported_macro('#UDGARRAY8,,,256;33008-33023(bubble)', writer)
+        self._test_unsupported_macro('#UDGARRAY*foo,2;bar(baz)', writer)
 
     def test_macro_udgtable(self):
         writer = self._get_writer()
