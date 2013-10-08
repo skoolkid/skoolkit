@@ -2,7 +2,7 @@
 import unittest
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit.skoolmacro import parse_ints, MacroParsingError
+from skoolkit.skoolmacro import parse_ints, parse_params, MacroParsingError
 
 class SkoolMacroTest(SkoolKitTestCase):
     def test_parse_ints(self):
@@ -49,6 +49,57 @@ class SkoolMacroTest(SkoolKitTestCase):
         # Test with an invalid parameter
         with self.assertRaisesRegexp(MacroParsingError, "Cannot parse integer '3\$0' in macro parameter list: '1,3\$0'"):
             parse_ints('1,3$0', 0, 2)
+
+    def test_parse_params_default_valid_characters(self):
+        text = '$5B'
+        result = parse_params(text, 0)
+        self.assertEqual(result, (len(text), '$5B', None))
+
+        text = '$5B[foo]'
+        result = parse_params(text, 0, 'qux')
+        self.assertEqual(result, (text.index('['), '$5B', 'qux'))
+
+        text = '1234(foo)'
+        result = parse_params(text, 0, 'qux')
+        self.assertEqual(result, (len(text), '1234', 'foo'))
+
+        text = '#foo(bar)'
+        result = parse_params(text, 0)
+        self.assertEqual(result, (len(text), '#foo', 'bar'))
+
+        text = '1,2,3,4(foo)'
+        result = parse_params(text, 0)
+        self.assertEqual(result, (1, '1', None))
+
+    def test_parse_params_extra_valid_characters(self):
+        text = '$5A,2'
+        result = parse_params(text, 0, chars=',')
+        self.assertEqual(result, (len(text), '$5A,2', None))
+
+        text = '$5A,2.'
+        result = parse_params(text, 0, 'xyzzy', chars=',',)
+        self.assertEqual(result, (text.index('.'), '$5A,2', 'xyzzy'))
+
+        text = '1;2#blah(hey)'
+        result = parse_params(text, 0, 'xyzzy', chars=';',)
+        self.assertEqual(result, (len(text), '1;2#blah', 'hey'))
+
+    def test_parse_params_except_chars(self):
+        text = '*foo,3;bar,$4:baz*'
+        result = parse_params(text, 0, except_chars=' (')
+        self.assertEqual(result, (len(text), '*foo,3;bar,$4:baz*', None))
+
+        text = '*foo,3;bar,$4:baz* etc.'
+        result = parse_params(text, 0, 'qux', except_chars=' (')
+        self.assertEqual(result, (text.index(' '), '*foo,3;bar,$4:baz*', 'qux'))
+
+        text = '*foo,3;bar,$4:baz*(qux)'
+        result = parse_params(text, 0, except_chars=' (')
+        self.assertEqual(result, (len(text), '*foo,3;bar,$4:baz*', 'qux'))
+
+        text = '*foo,3(bar,$4){baz}* etc.'
+        result = parse_params(text, 0, except_chars=' ')
+        self.assertEqual(result, (text.index(' '), '*foo,3(bar,$4){baz}*', None))
 
 if __name__ == '__main__':
     unittest.main()

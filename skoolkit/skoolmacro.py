@@ -42,17 +42,19 @@ def parse_ints(text, index, num, defaults=()):
     params = get_params(text[index:end], num, defaults, True)
     return [end] + params
 
-def parse_params(text, index, p_text=None, chars=''):
+def parse_params(text, index, p_text=None, chars='', except_chars=''):
     """Parse a string of the form ``params[(p_text)]``. The parameter string
     ``params`` will be parsed until either the end of the text is reached, or
-    an invalid character is encountered.
+    an invalid character is encountered. The default set of valid characters
+    consists of '$', '#', the digits 0-9, and the letters A-Z and a-z.
 
     :param text: The text to parse.
     :param index: The index at which to start parsing.
     :param p_text: The default value to use for text found in parentheses.
-    :param chars: Characters to consider valid in the parameter string in
-                  addition to '$', '#', the digits 0-9, and the letters A-Z and
-                  a-z.
+    :param chars: Characters to consider valid in addition to those in the
+                  default set.
+    :param except_chars: If not empty, all characters except those in this
+                         string are considered valid.
     :return: A 3-tuple of the form ``(end, params, p_text)``, where ``end``
              is the index at which parsing terminated (because either an
              invalid character or the end of the text was encountered),
@@ -60,9 +62,13 @@ def parse_params(text, index, p_text=None, chars=''):
              found in parentheses (if any).
     """
     start = index
-    valid_chars = '$#' + chars
-    while index < len(text) and (text[index].isalnum() or text[index] in valid_chars):
-        index += 1
+    if except_chars:
+        while index < len(text) and text[index] not in except_chars:
+            index += 1
+    else:
+        valid_chars = '$#' + chars
+        while index < len(text) and (text[index].isalnum() or text[index] in valid_chars):
+            index += 1
     params = text[start:index]
     end = index
     if index < len(text) and text[index] == '(':
