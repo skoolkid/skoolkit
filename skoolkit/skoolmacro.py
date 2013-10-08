@@ -80,6 +80,8 @@ def parse_params(text, index, p_text=None, chars='', except_chars=''):
             elif text[end] == '(':
                 depth += 1
             end += 1
+        if depth > 0:
+            raise MacroParsingError('No closing bracket: {}'.format(text[start:]))
         p_text = text[index + 1:end - 1]
     return end, params, p_text
 

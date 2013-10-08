@@ -2333,7 +2333,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             writer.expand(macro, ASMDIR)
 
         macro = '#UDGARRAY*foo(bar'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: #UDGARRAY*foo(...'.format(prefix))):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: *foo(bar'.format(prefix))):
             writer.expand(macro, ASMDIR)
 
         macro = '#UDGARRAY*foo(bar)'

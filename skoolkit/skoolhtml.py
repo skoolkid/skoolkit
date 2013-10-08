@@ -1521,25 +1521,14 @@ class HtmlWriter:
         return end, self.img_element(cwd, udg_path)
 
     def _expand_udgarray_with_frames(self, text, index, cwd):
-        end = index + 1
-        while end < len(text) and text[end] not in ' (':
-            end += 1
-        if text[end:end + 1] != '(':
-            raise MacroParsingError('Missing filename')
-        frame_params = text[index + 1:end]
-        start = end + 1
-        try:
-            end = text.index(')', start) + 1
-        except ValueError:
-            raise MacroParsingError('No closing bracket: #UDGARRAY{}...'.format(text[index:start]))
-        fname = text[start:end - 1]
+        end, frame_params, fname = parse_params(text, index, except_chars=' (')
         if not fname:
             raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
         img_path = self.image_path(fname, 'UDGImagePath')
         if self.need_image(img_path):
             frames = []
             default_delay = 32 # 0.32s
-            for frame_param in frame_params.split(';'):
+            for frame_param in frame_params[1:].split(';'):
                 elements = frame_param.rsplit(',', 1)
                 if len(elements) == 2:
                     frame_id = elements[0]
