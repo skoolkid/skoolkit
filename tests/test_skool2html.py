@@ -231,6 +231,13 @@ class Skool2HtmlTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(skoolfile)):
             self.run_skool2html('-d {0} {1}'.format(self.odir, skoolfile))
 
+    def test_nonexistent_skool_file_named_in_ref_file(self):
+        skoolfile = 'pqr.skool'
+        ref = '[Config]\nSkoolFile={}'.format(skoolfile)
+        reffile = self.write_text_file(ref, suffix='.ref')
+        with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(skoolfile)):
+            self.run_skool2html('-d {} {}'.format(self.odir, reffile))
+
     def test_nonexistent_ref_file(self):
         reffile = 'zyx.ref'
         with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(reffile)):
@@ -279,6 +286,24 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(len(error), 0)
         self.assertEqual(output[2], 'Using ref files: {0}, {1}'.format(reffile, reffile2))
         self.assertEqual(output[6], '  Writing disassembly files in {0}/{1}'.format(basename(prefix), code_path))
+
+    def test_config_in_secondary_ref_file(self):
+        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
+        skoolfile = self.write_text_file(suffix='.skool')
+        reffile1 = self.write_text_file(suffix='.ref')
+        game_dir = 'foo'
+        ref = '\n'.join((
+            '[Config]',
+            'SkoolFile={}'.format(skoolfile),
+            'GameDir={}'.format(game_dir)
+        ))
+        reffile2 = self.write_text_file(ref, '{}-2.ref'.format(reffile1[:-4]))
+        output, error = self.run_skool2html(reffile1)
+        self.assertEqual(error, '')
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(html_writer.file_info.game_dir, game_dir)
+        skool_parser = html_writer.parser
+        self.assertEqual(skool_parser.skoolfile, skoolfile)
 
     def test_skool_from_stdin(self):
         self.write_stdin('; Routine\nc30000 RET')

@@ -39,7 +39,6 @@ SEARCH_DIRS = (
     '/usr/share/skoolkit',
     os.path.join(PACKAGE_DIR, 'resources')
 )
-CONFIG = 'Config'
 
 SEARCH_DIRS_MSG = """
 skool2html.py searches the following directories for skool files, ref files,
@@ -79,8 +78,6 @@ def clock(operation, prefix, *args, **kwargs):
     return result
 
 def find(fname, search_dir=None):
-    if fname is None:
-        return
     if search_dir:
         search_dirs = [search_dir]
     else:
@@ -97,10 +94,6 @@ def add_lines(ref_parser, config_specs, section=None):
             raise SkoolKitError("Malformed SectionName/Line spec: {0}".format(config_spec))
         if section is None or section_name == section:
             ref_parser.add_line(section_name, line)
-
-def get_config(ref_parser, config_specs):
-    add_lines(ref_parser, config_specs, CONFIG)
-    return ref_parser.get_dictionary(CONFIG)
 
 def get_colours(colour_specs):
     colours = {}
@@ -177,59 +170,45 @@ def get_prefix(fname):
     return fname
 
 def process_file(infile, topdir, files, case, base, pages, config_specs, new_images, css_theme, create_labels, asm_labels, single_css):
-    reffile = skoolfile = None
+    skoolfile_f = reffile_f = None
+    ref_search_dir = ''
     if infile.endswith('.ref'):
-        reffile = infile
-    else:
-        skoolfile = infile
-
-    ref_parser = RefParser()
-    reffile_f = find(reffile)
-    config = {}
-    search_dir = None
-
-    prefix = None
-    if reffile:
-        if reffile_f is None:
-            raise SkoolKitError('{}: file not found'.format(normpath(reffile)))
-        search_dir = dirname(reffile_f)
-        ref_parser.parse(reffile_f)
-        config = get_config(ref_parser, config_specs)
-        prefix = get_prefix(basename(reffile))
-        skoolfile = config.get('SkoolFile', '{0}.skool'.format(prefix))
-
-    if skoolfile == '-':
-        skoolfile_f = skoolfile
-    else:
-        skoolfile_f = find(skoolfile, search_dir)
-    if skoolfile_f is None:
-        raise SkoolKitError('{}: file not found'.format(normpath(skoolfile)))
-
-    if prefix is None:
-        if skoolfile_f == '-':
-            prefix = 'program'
-        else:
-            prefix = get_prefix(basename(skoolfile_f))
-
-    if reffile is None and skoolfile != '-':
-        search_dir = dirname(skoolfile_f)
-        reffile_f = find('{0}.ref'.format(prefix), search_dir)
+        reffile_f = find(infile)
         if reffile_f:
-            ref_parser.parse(reffile_f)
-            config = get_config(ref_parser, config_specs)
-            search_dir = dirname(reffile_f)
+            ref_search_dir = dirname(reffile_f)
+            prefix = get_prefix(basename(reffile_f))
+    elif infile == '-':
+        skoolfile_f = infile
+        prefix = 'program'
+    else:
+        skoolfile_f = find(infile)
+        if skoolfile_f:
+            ref_search_dir = dirname(skoolfile_f)
+            prefix = get_prefix(basename(skoolfile_f))
+            reffile_f = find('{}.ref'.format(prefix), ref_search_dir)
+            if reffile_f:
+                ref_search_dir = dirname(reffile_f)
+    if skoolfile_f is reffile_f is None:
+        raise SkoolKitError('{}: file not found'.format(normpath(infile)))
 
-    reffiles = [normpath(search_dir, f) for f in os.listdir(search_dir or '.') if f.startswith(prefix) and f.endswith('.ref')]
-    reffiles = [f for f in reffiles if isfile(f)]
+    reffiles = []
+    base_ref = prefix + '.ref'
+    for f in sorted(os.listdir(ref_search_dir or '.')):
+        if isfile(os.path.join(ref_search_dir, f)) and f.endswith('.ref') and f.startswith(prefix) and f != base_ref:
+            reffiles.append(normpath(ref_search_dir, f))
     if reffile_f:
-        reffile_n = normpath(reffile_f)
-        reffiles.remove(reffile_n)
-    reffiles.sort()
+        reffiles.insert(0, normpath(reffile_f))
+    ref_parser = RefParser()
     for oreffile_f in reffiles:
         ref_parser.parse(oreffile_f)
-    if reffile_f:
-        reffiles.insert(0, reffile_n)
     add_lines(ref_parser, config_specs)
+
+    config = ref_parser.get_dictionary('Config')
+    if skoolfile_f is None:
+        skoolfile = config.get('SkoolFile', '{}.skool'.format(prefix))
+        skoolfile_f = find(skoolfile, ref_search_dir)
+        if skoolfile_f is None:
+            raise SkoolKitError('{}: file not found'.format(normpath(skoolfile)))
 
     skoolfile_n = normpath(skoolfile_f)
     notify('Using skool file: {}'.format(skoolfile_n))
@@ -264,7 +243,7 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
             raise SkoolKitError('Invalid page ID: {0}'.format(page_id))
     pages = pages or all_page_ids
 
-    write_disassembly(html_writer, files, search_dir, pages, css_theme, single_css)
+    write_disassembly(html_writer, files, ref_search_dir, pages, css_theme, single_css)
 
 def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_css):
     game_dir = html_writer.file_info.game_dir

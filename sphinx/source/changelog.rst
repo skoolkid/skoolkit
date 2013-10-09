@@ -17,6 +17,8 @@ Changelog
 * Added an example control file for the 48K Spectrum ROM: `48.rom.ctl`
 * Control files can now preserve blank comments that span two or more
   instructions
+* The ``[Config]`` section no longer has to be in the `ref` file named on the
+  `skool2html.py` command line; it can be in any secondary `ref` file
 * Fixed the bug that makes `skool2html.py` fail if the ``FontPath``,
   ``JavaScriptPath`` or ``StyleSheetPath`` parameter in the ``[Paths]`` section
   of the `ref` file is set to some directory other than the default
