@@ -101,7 +101,9 @@ def get_params(param_string, num=0, defaults=(), ints_only=False):
                 params.append(None)
     req = num - len(defaults)
     if len(params) < req:
-        raise MacroParsingError("Not enough parameters (expected {0}): '{1}'".format(req, param_string))
+        if params:
+            raise MacroParsingError("Not enough parameters (expected {}): '{}'".format(req, param_string))
+        raise MacroParsingError("No parameters (expected {})".format(req))
     params += [None] * (num - len(params))
     for i in range(req, num):
         if params[i] is None:

@@ -1636,15 +1636,15 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer = self._get_writer()
 
         macro = '#FONT'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: Not enough parameters (expected 1): ''")):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: No parameters (expected 1)")):
             writer.expand(macro, ASMDIR)
 
         macro = '#FONTx'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: Not enough parameters (expected 1): ''")):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: No parameters (expected 1)")):
             writer.expand(macro, ASMDIR)
 
         macro = '#FONT:'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: Not enough parameters (expected 1): ''")):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: No parameters (expected 1)")):
             writer.expand(macro, ASMDIR)
 
         macro = '#FONT:()0'
@@ -2269,7 +2269,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # No parameters
         macro = '#UDGARRAY'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Not enough parameters (expected 1): ''".format(prefix))):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No parameters (expected 1)".format(prefix))):
             writer.expand(macro, ASMDIR)
 
         # Missing filename argument
