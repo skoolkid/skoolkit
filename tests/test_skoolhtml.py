@@ -6,7 +6,7 @@ import unittest
 
 from skoolkittest import SkoolKitTestCase, StringIO
 from skoolkit import VERSION, SkoolKitError, SkoolParsingError
-from skoolkit.skoolmacro import UnsupportedMacroError
+from skoolkit.skoolmacro import MacroParsingError, UnsupportedMacroError
 from skoolkit.skoolhtml import HtmlWriter, FileInfo, Udg, Frame
 from skoolkit.skoolparser import SkoolParser, Register, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
 from skoolkit.refparser import RefParser
@@ -1343,11 +1343,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assertEqual(end, len(text))
 
         text = '0,1,2,3{1,2}(x)'
-        end, img_path, crop_rect, p1, p2, p3 = writer.parse_image_params(text, 0, 3)
-        self.assertEqual(img_path, None)
-        self.assertEqual(crop_rect, def_crop_rect)
-        self.assertEqual((p1, p2, p3), (0, 1, 2))
-        self.assertEqual(end, 5)
+        with self.assertRaisesRegexp(MacroParsingError, re.escape("Too many parameters (expected 3): '0,1,2,3'")):
+            writer.parse_image_params(text, 0, 3)
 
     def test_image_path(self):
         writer = self._get_writer()
@@ -1634,25 +1631,41 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_macro_font_invalid(self):
         writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('FONT')
 
+        # No parameters
         macro = '#FONT'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: No parameters (expected 1)")):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No parameters (expected 1)".format(prefix))):
             writer.expand(macro, ASMDIR)
 
+        # No parameters (2)
         macro = '#FONTx'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: No parameters (expected 1)")):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No parameters (expected 1)".format(prefix))):
             writer.expand(macro, ASMDIR)
 
+        # No parameters (3)
         macro = '#FONT:'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: No parameters (expected 1)")):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No parameters (expected 1)".format(prefix))):
             writer.expand(macro, ASMDIR)
 
+        # Too many parameters
+        macro = '#FONT0,1,2,3,4,5'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Too many parameters (expected 4): '0,1,2,3,4,5'".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # No closing bracket
+        macro = '#FONT(foo'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (foo'.format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # Empty message
         macro = '#FONT:()0'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: Empty message: #FONT:()")):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Empty message: #FONT:()".format(prefix))):
             writer.expand(macro, ASMDIR)
 
+        # No terminating text delimiter
         macro = '#FONT:[hi)0'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Error while parsing #FONT macro: No terminating delimiter: {}".format(macro))):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No terminating delimiter: {}".format(prefix, macro))):
             writer.expand(macro, ASMDIR)
 
     def test_macro_html(self):
@@ -2158,6 +2171,20 @@ class HtmlWriterTest(SkoolKitTestCase):
         udg_array = [[Udg(attr, data)]]
         self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
 
+    def test_macro_scr_invalid(self):
+        writer = self._get_writer(snapshot=[0] * 8)
+        prefix = ERROR_PREFIX.format('SCR')
+
+        # Too many parameters
+        macro = '#SCR0,1,2,3,4,5,6,7,8'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Too many parameters (expected 7): '0,1,2,3,4,5,6,7,8'".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # No closing bracket
+        macro = '#SCR(foo'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (foo'.format(prefix))):
+            writer.expand(macro, ASMDIR)
+
     def test_macro_space(self):
         writer = self._get_writer()
 
@@ -2211,6 +2238,25 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.img_equals(output, udg_fname, '../{0}/{1}.png'.format(UDGDIR, udg_fname))
         udg_array = [[Udg(attr, udg_data, udg_mask)]]
         self._check_image(writer.image_writer, udg_array, scale, True, x, y, w, h)
+
+    def test_macro_udg_invalid(self):
+        writer = self._get_writer(snapshot=[0] * 8)
+        prefix = ERROR_PREFIX.format('UDG')
+
+        # No parameters
+        macro = '#UDG'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No parameters (expected 1)".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # Too many parameters
+        macro = '#UDG0,1,2,3,4,5,6,7,8'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Too many parameters (expected 7): '0,1,2,3,4,5,6,7,8'".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # No closing bracket
+        macro = '#UDG0(foo'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (foo'.format(prefix))):
+            writer.expand(macro, ASMDIR)
 
     def test_macro_udgarray(self):
         snapshot = [0] * 65536
@@ -2277,6 +2323,16 @@ class HtmlWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolParsingError, '{}: Missing filename: {}'.format(prefix, macro)):
             writer.expand(macro, ASMDIR)
 
+        # Missing filename argument (2)
+        macro = '#UDGARRAY1;0{0,0}1(foo)'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: Missing filename: #UDGARRAY1;0{{0,0}}'.format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # No closing bracket
+        macro = '#UDGARRAY1;0(foo'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (foo'.format(prefix))):
+            writer.expand(macro, ASMDIR)
+
     def test_macro_udgarray_frames(self):
         snapshot = [0] * 65536
         writer = self._get_writer(snapshot=snapshot)
@@ -2333,7 +2389,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             writer.expand(macro, ASMDIR)
 
         macro = '#UDGARRAY*foo(bar'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: *foo(bar'.format(prefix))):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (bar'.format(prefix))):
             writer.expand(macro, ASMDIR)
 
         macro = '#UDGARRAY*foo(bar)'

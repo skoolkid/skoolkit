@@ -42,7 +42,7 @@ def parse_ints(text, index, num, defaults=()):
     params = get_params(text[index:end], num, defaults, True)
     return [end] + params
 
-def parse_params(text, index, p_text=None, chars='', except_chars=''):
+def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars=''):
     """Parse a string of the form ``params[(p_text)]``. The parameter string
     ``params`` will be parsed until either the end of the text is reached, or
     an invalid character is encountered. The default set of valid characters
@@ -55,6 +55,8 @@ def parse_params(text, index, p_text=None, chars='', except_chars=''):
                   default set.
     :param except_chars: If not empty, all characters except those in this
                          string are considered valid.
+    :param only_chars: If not empty, only the characters in this string are
+                       considered valid.
     :return: A 3-tuple of the form ``(end, params, p_text)``, where ``end``
              is the index at which parsing terminated (because either an
              invalid character or the end of the text was encountered),
@@ -65,6 +67,9 @@ def parse_params(text, index, p_text=None, chars='', except_chars=''):
     if except_chars:
         while index < len(text) and text[index] not in except_chars:
             index += 1
+    elif only_chars:
+        while index < len(text) and text[index] in only_chars:
+            index += 1
     else:
         valid_chars = '$#' + chars
         while index < len(text) and (text[index].isalnum() or text[index] in valid_chars):
@@ -72,6 +77,7 @@ def parse_params(text, index, p_text=None, chars='', except_chars=''):
     params = text[start:index]
     end = index
     if index < len(text) and text[index] == '(':
+        p_index = index
         depth = 1
         end += 1
         while end < len(text) and depth > 0:
@@ -81,7 +87,7 @@ def parse_params(text, index, p_text=None, chars='', except_chars=''):
                 depth += 1
             end += 1
         if depth > 0:
-            raise MacroParsingError('No closing bracket: {}'.format(text[start:]))
+            raise MacroParsingError('No closing bracket: {}'.format(text[p_index:]))
         p_text = text[index + 1:end - 1]
     return end, params, p_text
 

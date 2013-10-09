@@ -220,7 +220,7 @@ to parse the parameters of a skool macro.
 .. autofunction:: skoolkit.skoolmacro.parse_params
 
    .. versionadded:: 3.6
-      The *except_chars* parameter.
+      The *except_chars* and *only_chars* parameters.
 
 HtmlWriter also provides a method for parsing the parameters of an
 image-creating skool macro.

@@ -1208,30 +1208,20 @@ class HtmlWriter:
                  parameter values.
         """
         valid_chars = '$0123456789abcdefABCDEF,' + chars
-        param_string = ''
-        commas = 0
-
-        while index < len(text) and text[index] in valid_chars:
-            char = text[index]
-            if char == ',':
-                commas += 1
-                if commas == num:
-                    break
-            param_string += char
-            index += 1
+        end, param_string, p_text = parse_params(text, index, only_chars=valid_chars)
         params = get_params(param_string, num, defaults)
+        if len(params) > num:
+            raise MacroParsingError("Too many parameters (expected {}): '{}'".format(num, text[index:end]))
 
-        x = y = 0
-        width = height = None
-        if index < len(text) and text[index] == '{':
-            index, x, y, width, height = parse_ints(text, index + 1, 4, (0, 0, None, None))
-            index += 1
-
-        if index < len(text) and text[index] == '(':
-            end = text.index(')', index) + 1
-            fname = text[index + 1:end - 1]
+        if end < len(text) and text[end] == '{':
+            end, x, y, width, height = parse_ints(text, end + 1, 4, (0, 0, None, None))
+            end, param_string, p_text = parse_params(text, end, only_chars='}')
         else:
-            end = index
+            x = y = 0
+            width = height = None
+
+        if p_text:
+            fname = p_text
         if path_id:
             img_path = self.image_path(fname, path_id)
         else:
