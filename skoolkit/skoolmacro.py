@@ -26,16 +26,18 @@ DELIMITERS = {
 
 def parse_ints(text, index, num, defaults=()):
     """Parse a string of comma-separated integer parameters. The string will be
-    parsed until either the end of the text is reached, or some character other
-    than one of ``$0123456789abcdefABCDEF`` is encountered.
+    parsed until either the end is reached, or an invalid character is
+    encountered. The set of valid characters consists of the comma, '$', the
+    digits 0-9, and the letters A-F and a-f.
 
     :param text: The text to parse.
     :param index: The index at which to start parsing.
     :param num: The maximum number of parameters to parse.
     :param defaults: The default values of the optional parameters.
-    :return: A list of the form ``[end, value1, value2...]``, where ``end``
-             is the index at which parsing terminated, and ``value1``,
-             ``value2`` etc. are the parameter values.
+    :return: A list of the form ``[end, value1, value2...]``, where:
+
+             * ``end`` is the index at which parsing terminated.
+             * ``value1``, ``value2`` etc. are the parameter values.
     """
     end = index
     num_params = 1
@@ -50,9 +52,9 @@ def parse_ints(text, index, num, defaults=()):
 
 def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars=''):
     """Parse a string of the form ``params[(p_text)]``. The parameter string
-    ``params`` will be parsed until either the end of the text is reached, or
-    an invalid character is encountered. The default set of valid characters
-    consists of '$', '#', the digits 0-9, and the letters A-Z and a-z.
+    ``params`` will be parsed until either the end is reached, or an invalid
+    character is encountered. The default set of valid characters consists of
+    '$', '#', the digits 0-9, and the letters A-Z and a-z.
 
     :param text: The text to parse.
     :param index: The index at which to start parsing.
@@ -63,11 +65,11 @@ def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars
                          string are considered valid.
     :param only_chars: If not empty, only the characters in this string are
                        considered valid.
-    :return: A 3-tuple of the form ``(end, params, p_text)``, where ``end``
-             is the index at which parsing terminated (because either an
-             invalid character or the end of the text was encountered),
-             ``params`` is the parameter string, and ``p_text`` is the text
-             found in parentheses (if any).
+    :return: A 3-tuple of the form ``(end, params, p_text)``, where:
+
+             * ``end`` is the index at which parsing terminated.
+             * ``params`` is the parameter string.
+             * ``p_text`` is the text found in parentheses (if any).
     """
     start = index
     if except_chars:

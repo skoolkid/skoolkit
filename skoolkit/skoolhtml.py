@@ -1192,8 +1192,9 @@ class HtmlWriter:
     def parse_image_params(self, text, index, num, defaults=(), path_id=DEF_IMG_PATH, fname='', chars='', ints=None):
         """Parse a string of the form ``params[{X,Y,W,H}][(fname)]``. The
         parameter string ``params`` may contain comma-separated values and will
-        be parsed until either the end of the text is reached, or an invalid
-        character is encountered.
+        be parsed until either the end is reached, or an invalid character is
+        encountered. The default set of valid characters consists of the comma,
+        '$', the digits 0-9, and the letters A-F and a-f.
 
         :param text: The text to parse.
         :param index: The index at which to start parsing.
@@ -1202,19 +1203,20 @@ class HtmlWriter:
         :param path_id: The ID of the target directory for the image file (as
                         defined in the :ref:`paths` section of the `ref` file).
         :param fname: The default base name of the image file.
-        :param chars: Characters to consider valid in the parameter string in
-                      addition to the comma, '$', the digits 0-9, and the
-                      letters A-F and a-f.
+        :param chars: Characters to consider valid in addition to those in the
+                      default set.
         :param ints: A list of the indexes (0-based) of the parameters that
                      must evaluate to an integer; if `None`, every parameter
                      must evaluate to an integer.
         :return: A list of the form
-                 ``[end, image_path, crop_rect, value1, value2...]``, where
-                 ``end`` is the index at which parsing terminated,
-                 ``image_path`` is the full path of the image file (relative to
-                 the root directory of the disassembly), ``crop_rect`` is
-                 ``(X, Y, W, H)``, and ``value1``, ``value2`` etc. are the
-                 parameter values.
+                 ``[end, image_path, crop_rect, value1, value2...]``, where:
+
+                 * ``end`` is the index at which parsing terminated.
+                 * ``image_path`` is either the full path of the image file
+                   (relative to the root directory of the disassembly) or
+                   ``fname`` (if `path_id` is blank or `None`).
+                 * ``crop_rect`` is ``(X, Y, W, H)``.
+                 * ``value1``, ``value2`` etc. are the parameter values.
         """
         valid_chars = '$0123456789abcdefABCDEF,' + chars
         end, param_string, p_text = parse_params(text, index, only_chars=valid_chars)

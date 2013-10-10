@@ -227,6 +227,9 @@ image-creating skool macro.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.parse_image_params
 
+   .. versionchanged:: 3.6
+      If *path_id* is blank or *None*, ``image_path`` is equal to ``fname``.
+
    .. versionadded:: 3.6
       The *ints* parameter.
 
