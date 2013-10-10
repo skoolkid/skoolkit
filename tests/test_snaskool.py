@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import re
 import unittest
 
 from skoolkittest import SkoolKitTestCase
+from skoolkit import SkoolKitError
 from skoolkit.snaskool import Disassembly, SkoolWriter, write_ctl
 from skoolkit.ctlparser import CtlParser
 
@@ -545,20 +547,20 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 00024',
             'b 00573',
             'i 00574',
-            'b 09876',
-            'i 09877',
+            'b 01876',
+            'i 01877',
         ))
-        writer = self._get_writer([0] * 65536, ctl)
+        writer = self._get_writer([0] * 1877, ctl)
         writer.write_skool(0, False)
         skool = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(skool[3], 'b00000 DEFB 0')
         self.assertEqual(skool[8], 'b00003 DEFB 0')
         self.assertEqual(skool[13], 'b00023 DEFB 0')
         self.assertEqual(skool[18], 'b00573 DEFB 0')
-        self.assertEqual(skool[23], 'b09876 DEFB 0')
+        self.assertEqual(skool[23], 'b01876 DEFB 0')
 
     def test_decimal_org_addresses_below_10000(self):
-        snapshot = [0] * 65536
+        snapshot = [0] * 1235
         for org in (0, 1, 12, 123, 1234):
             ctl = 'b {:05d}\ni {:05d}'.format(org, org + 1)
             writer = self._get_writer(snapshot, ctl)
@@ -566,6 +568,36 @@ class SkoolWriterTest(SkoolKitTestCase):
             writer.write_skool(0, False)
             skool = self.out.getvalue().split('\n')[:-1]
             self.assertEqual(skool[1], '; @org={}'.format(org))
+
+    def test_no_table_end_marker(self):
+        ctl = '\n'.join((
+            'b 00000',
+            'D 00000 #TABLE { this table has no end marker }',
+            'i 00001'
+        ))
+        writer = self._get_writer([0], ctl)
+        with self.assertRaisesRegexp(SkoolKitError, re.escape("No end marker found: #TABLE { this table h...")):
+            writer.write_skool(0, False)
+
+    def test_no_udgtable_end_marker(self):
+        ctl = '\n'.join((
+            'b 00000',
+            'D 00000 #UDGTABLE { this table has no end marker }',
+            'i 00001'
+        ))
+        writer = self._get_writer([0], ctl)
+        with self.assertRaisesRegexp(SkoolKitError, re.escape("No end marker found: #UDGTABLE { this table h...")):
+            writer.write_skool(0, False)
+
+    def test_no_list_end_marker(self):
+        ctl = '\n'.join((
+            'b 00000',
+            'D 00000 #LIST { this list has no end marker }',
+            'i 00001'
+        ))
+        writer = self._get_writer([0], ctl)
+        with self.assertRaisesRegexp(SkoolKitError, re.escape("No end marker found: #LIST { this list ha...")):
+            writer.write_skool(0, False)
 
 class CtlWriterTest(SkoolKitTestCase):
     def test_decimal_addresses_below_10000(self):

@@ -904,7 +904,10 @@ class SkoolWriter:
                     if start > 0:
                         indexes.append(start - 1)
                     marker, end_marker = markers[i]
-                    end = text.index(end_marker, start) + len(end_marker)
+                    try:
+                        end = text.index(end_marker, start) + len(end_marker)
+                    except ValueError:
+                        raise SkoolKitError("No end marker found: {}...".format(text[start:start + len(marker) + 15]))
                     indexes.extend(self.parse_block(text[:end], start + len(marker)))
                     break
             else:
