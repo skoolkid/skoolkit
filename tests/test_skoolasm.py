@@ -1234,7 +1234,7 @@ class AsmWriterTest(SkoolKitTestCase):
         writer = self._get_writer()
         self._test_unsupported_macro('#FONT55584,,,,1{1,2}', writer)
         self._test_unsupported_macro('#FONT:[foo]0,,5', writer)
-        self._test_unsupported_macro('#FONT:@bar', writer, "Error while parsing #FONT macro: No terminating delimiter: #FONT:@bar")
+        self._test_unsupported_macro('#FONT:@bar', writer, "Error while parsing #FONT macro: No terminating delimiter: @bar")
 
     def test_macro_html(self):
         writer = self._get_writer()
@@ -1252,7 +1252,7 @@ class AsmWriterTest(SkoolKitTestCase):
         # Unterminated #HTML macro
         prefix = ERROR_PREFIX.format('HTML')
         macro = '#HTML:unterminated'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No terminating delimiter: {}'.format(prefix, macro)):
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No terminating delimiter: :unterminated'.format(prefix)):
             writer.expand(macro)
 
     def test_macro_link(self):

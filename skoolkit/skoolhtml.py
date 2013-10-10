@@ -27,8 +27,8 @@ from os.path import isfile, isdir, basename
 import inspect
 
 from . import VERSION, warn, parse_int, SkoolKitError, SkoolParsingError
-from .skoolmacro import parse_ints, parse_params, get_params, MacroParsingError, UnsupportedMacroError
-from .skoolparser import TableParser, ListParser, CASE_LOWER, DELIMITERS
+from .skoolmacro import parse_ints, parse_params, get_params, get_text_param, MacroParsingError, UnsupportedMacroError
+from .skoolparser import TableParser, ListParser, CASE_LOWER
 
 #: The ID of the main disassembly.
 MAIN_CODE_ID = 'main'
@@ -1309,18 +1309,10 @@ class HtmlWriter:
 
     def expand_font(self, text, index, cwd):
         # #FONT[:(text)]addr[,chars,attr,scale][{X,Y,W,H}][(fname)]
-        if index + 1 < len(text) and text[index] == ':':
-            delim1 = text[index + 1]
-            delim2 = DELIMITERS.get(delim1, delim1)
-            start = index + 2
-            try:
-                end = text.index(delim2, start) + 1
-            except ValueError:
-                raise MacroParsingError("No terminating delimiter: #FONT{}".format(text[index:]))
-            message = text[start:end - 1]
+        if index < len(text) and text[index] == ':':
+            index, message = get_text_param(text, index + 1)
             if not message:
-                raise MacroParsingError("Empty message: #FONT{}".format(text[index:end]))
-            index = end
+                raise MacroParsingError("Empty message: {}".format(text[index - 2:index]))
         else:
             message = ''.join([chr(n) for n in range(32, 128)])
 
@@ -1332,13 +1324,7 @@ class HtmlWriter:
 
     def expand_html(self, text, index, cwd):
         # #HTML(text)
-        delim1 = text[index]
-        delim2 = DELIMITERS.get(delim1, delim1)
-        start = index + 1
-        end = text.find(delim2, start)
-        if end < start:
-            raise MacroParsingError("No terminating delimiter: #HTML{}".format(text[index:]))
-        return end + 1, text[start:end]
+        return get_text_param(text, index)
 
     def expand_link(self, text, index, cwd):
         # #LINK:PageId[#name](link text)

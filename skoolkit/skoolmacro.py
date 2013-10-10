@@ -18,6 +18,12 @@
 
 from . import parse_int, SkoolKitError
 
+DELIMITERS = {
+    '(': ')',
+    '[': ']',
+    '{': '}'
+}
+
 def parse_ints(text, index, num, defaults=()):
     """Parse a string of comma-separated integer parameters. The string will be
     parsed until either the end of the text is reached, or some character other
@@ -115,6 +121,17 @@ def get_params(param_string, num=0, defaults=(), ints_only=False):
         if params[i] is None:
             params[i] = defaults[i - req]
     return params
+
+def get_text_param(text, index):
+    if index >= len(text):
+        raise MacroParsingError("No text parameter")
+    delim1 = text[index]
+    delim2 = DELIMITERS.get(delim1, delim1)
+    start = index + 1
+    end = text.find(delim2, start)
+    if end < start:
+        raise MacroParsingError("No terminating delimiter: {}".format(text[index:]))
+    return end + 1, text[start:end]
 
 class UnsupportedMacroError(SkoolKitError):
     pass

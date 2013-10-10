@@ -20,8 +20,8 @@ import re
 import inspect
 
 from . import warn, write_text, wrap, parse_int, get_chr, SkoolParsingError
-from .skoolmacro import parse_ints, parse_params, get_params, MacroParsingError, UnsupportedMacroError
-from .skoolparser import TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER, DELIMITERS
+from .skoolmacro import parse_ints, parse_params, get_params, get_text_param, MacroParsingError, UnsupportedMacroError
+from .skoolparser import TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
 
 UDGTABLE_MARKER = '#UDGTABLE'
 
@@ -243,26 +243,16 @@ class AsmWriter:
     def expand_font(self, text, index):
         # #FONT[:(text)]addr[,chars,attr,scale][{X,Y,W,H}][(fname)]
         if self.handle_unsupported_macros:
-            if index + 1 < len(text) and text[index] == ':':
-                delim1 = text[index + 1]
-                delim2 = DELIMITERS.get(delim1, delim1)
-                try:
-                    index = text.index(delim2, index + 2) + 1
-                except ValueError:
-                    raise MacroParsingError("No terminating delimiter: #FONT{}".format(text[index:]))
+            if index < len(text) and text[index] == ':':
+                index, message = get_text_param(text, index + 1)
             end, params, p_text = parse_params(text, index, chars=',{}')
             return end, ''
         raise UnsupportedMacroError()
 
     def expand_html(self, text, index):
         # #HTML(text)
-        delim1 = text[index]
-        delim2 = DELIMITERS.get(delim1, delim1)
-        start = index + 1
-        end = text.find(delim2, start)
-        if end < start:
-            raise MacroParsingError("No terminating delimiter: #HTML{0}".format(text[index:]))
-        return end + 1, ''
+        end, message = get_text_param(text, index)
+        return end, ''
 
     def expand_link(self, text, index):
         # #LINK:PageId[#name](link text)

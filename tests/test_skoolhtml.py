@@ -1643,9 +1643,9 @@ class HtmlWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No parameters (expected 1)".format(prefix))):
             writer.expand(macro, ASMDIR)
 
-        # No parameters (3)
+        # No text parameter
         macro = '#FONT:'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No parameters (expected 1)".format(prefix))):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No text parameter".format(prefix))):
             writer.expand(macro, ASMDIR)
 
         # Too many parameters
@@ -1660,12 +1660,12 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # Empty message
         macro = '#FONT:()0'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Empty message: #FONT:()".format(prefix))):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Empty message: ()".format(prefix))):
             writer.expand(macro, ASMDIR)
 
         # No terminating text delimiter
         macro = '#FONT:[hi)0'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No terminating delimiter: {}".format(prefix, macro))):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No terminating delimiter: [hi)0".format(prefix))):
             writer.expand(macro, ASMDIR)
 
     def test_macro_html(self):
@@ -1685,10 +1685,18 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#HTML?#CHR169?', ASMDIR)
         self.assertEqual(output, '&#169;')
 
-        # Unterminated #HTML macro
+    def test_macro_html_invalid(self):
+        writer = self._get_writer()
         prefix = ERROR_PREFIX.format('HTML')
+
+        # No text parameter
+        macro = '#HTML'
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No text parameter'.format(prefix)):
+            writer.expand(macro, ASMDIR)
+
+        # Unterminated
         macro = '#HTML:unterminated'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No terminating delimiter: {}'.format(prefix, macro)):
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No terminating delimiter: :unterminated'.format(prefix)):
             writer.expand(macro, ASMDIR)
 
     def test_macro_link(self):
