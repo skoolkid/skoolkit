@@ -2346,9 +2346,39 @@ class HtmlWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '5$' in parameter string: '1,5$,4'".format(prefix))):
             writer.expand(macro, ASMDIR)
 
+        # Invalid UDG address range spec (1)
+        macro = '#UDGARRAY1;0-1$(bar)'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid address range specification: 0-1$".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # Invalid UDG address range spec (2)
+        macro = '#UDGARRAY1;0-1x2x2(bar)'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid address range specification: 0-1x2x2".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # Invalid UDG address range spec (3)
+        macro = '#UDGARRAY1;0-1-2-3-4x5(bar)'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid address range specification: 0-1-2-3-4x5".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
         # Invalid UDG spec
         macro = '#UDGARRAY1;0,5-(bar)'
         with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '5-' in parameter string: '0,5-'".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # Invalid mask address range spec (1)
+        macro = '#UDGARRAY1;0-2:0-2$(bar)'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid address range specification: 0-2$".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # Invalid mask address range spec (2)
+        macro = '#UDGARRAY1;0-1x2:2-3x2x2(bar)'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid address range specification: 2-3x2x2".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # Invalid mask address range spec (3)
+        macro = '#UDGARRAY1;0-1-2-3x9:4-5-6-7-8x9(bar)'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid address range specification: 4-5-6-7-8x9".format(prefix))):
             writer.expand(macro, ASMDIR)
 
         # Invalid UDG mask spec

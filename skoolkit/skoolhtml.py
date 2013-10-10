@@ -26,7 +26,7 @@ import os.path
 from os.path import isfile, isdir, basename
 import inspect
 
-from . import VERSION, warn, parse_int, SkoolKitError, SkoolParsingError
+from . import VERSION, warn, get_int_param, parse_int, SkoolKitError, SkoolParsingError
 from .skoolmacro import parse_ints, parse_params, get_params, get_text_param, MacroParsingError, UnsupportedMacroError
 from .skoolparser import TableParser, ListParser, CASE_LOWER
 
@@ -1120,29 +1120,35 @@ class HtmlWriter:
         html.append('</ul>')
         return '\n'.join(html)
 
-    def _get_udg_addresses(self, addr, width):
-        if type(addr) is int:
-            return [addr]
+    def _get_udg_addresses(self, addr_spec, width):
+        if type(addr_spec) is int:
+            return [addr_spec]
         num = 1
+        addr = addr_spec
         if 'x' in addr:
-            addr, num = addr.split('x')
-            num = parse_int(num)
-        if '-' in addr:
-            elements = [parse_int(n) for n in addr.split('-')]
-            if len(elements) < 3:
-                elements.append(1)
-            if len(elements) < 4:
-                elements.append(elements[2] * width)
-            address, end_address, h_step, v_step = elements
-            addresses = []
-            while address <= end_address:
-                addresses.append(address)
-                if len(addresses) % width:
-                    address += h_step
-                else:
-                    address += v_step - (width - 1) * h_step
-        else:
-            addresses = [parse_int(addr)]
+            addr, num = addr_spec.split('x', 1)
+            try:
+                num = get_int_param(num)
+            except ValueError:
+                raise MacroParsingError("Invalid address range specification: {}".format(addr_spec))
+        try:
+            elements = [get_int_param(n) for n in addr.split('-', 3)]
+        except ValueError:
+            raise MacroParsingError("Invalid address range specification: {}".format(addr_spec))
+        if len(elements) < 2:
+            elements.append(elements[0])
+        if len(elements) < 3:
+            elements.append(1)
+        if len(elements) < 4:
+            elements.append(elements[2] * width)
+        address, end_address, h_step, v_step = elements
+        addresses = []
+        while address <= end_address:
+            addresses.append(address)
+            if len(addresses) % width:
+                address += h_step
+            else:
+                address += v_step - (width - 1) * h_step
         return addresses * num
 
     def img_element(self, cwd, image_path, alt=None):
