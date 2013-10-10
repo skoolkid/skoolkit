@@ -1653,6 +1653,11 @@ class HtmlWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Too many parameters (expected 4): '0,1,2,3,4,5'".format(prefix))):
             writer.expand(macro, ASMDIR)
 
+        # Invalid parameter
+        macro = '#FONT0,1$,2'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '1$' in parameter string: '0,1$,2'".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
         # No closing bracket
         macro = '#FONT(foo'
         with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (foo'.format(prefix))):
@@ -2193,6 +2198,11 @@ class HtmlWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (foo'.format(prefix))):
             writer.expand(macro, ASMDIR)
 
+        # Invalid parameter
+        macro = '#SCR0,1,2$,3'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '2$' in parameter string: '0,1,2$,3'".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
     def test_macro_space(self):
         writer = self._get_writer()
 
@@ -2261,6 +2271,11 @@ class HtmlWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Too many parameters (expected 7): '0,1,2,3,4,5,6,7,8'".format(prefix))):
             writer.expand(macro, ASMDIR)
 
+        # Invalid parameter
+        macro = '#UDG0$,1,2'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '0$' in parameter string: '0$,1,2'".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
         # No closing bracket
         macro = '#UDG0(foo'
         with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (foo'.format(prefix))):
@@ -2324,6 +2339,16 @@ class HtmlWriterTest(SkoolKitTestCase):
         # No parameters
         macro = '#UDGARRAY'
         with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No parameters (expected 1)".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # Invalid parameter
+        macro = '#UDGARRAY1,5$,4;0(bar)'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '5$' in parameter string: '1,5$,4'".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # Invalid UDG spec
+        macro = '#UDGARRAY1;0,5$(bar)'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '5$' in parameter string: '1,5$,4'".format(prefix))):
             writer.expand(macro, ASMDIR)
 
         # Missing filename argument

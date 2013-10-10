@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 import unittest
 
 from skoolkittest import SkoolKitTestCase
@@ -47,7 +48,7 @@ class SkoolMacroTest(SkoolKitTestCase):
         self.assertEqual(end, len(text) - len(junk))
 
         # Test with an invalid parameter
-        with self.assertRaisesRegexp(MacroParsingError, "Cannot parse integer '3\$0' in macro parameter list: '1,3\$0'"):
+        with self.assertRaisesRegexp(MacroParsingError, re.escape("Cannot parse integer '3$0' in parameter string: '1,3$0'")):
             parse_ints('1,3$0', 0, 2)
 
     def test_parse_params_default_valid_characters(self):

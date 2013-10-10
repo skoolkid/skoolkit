@@ -105,7 +105,7 @@ def get_params(param_string, num=0, defaults=(), ints_only=False):
                 param = parse_int(p)
                 if param is None:
                     if ints_only:
-                        raise MacroParsingError("Cannot parse integer '{0}' in macro parameter list: '{1}'".format(p, param_string))
+                        raise MacroParsingError("Cannot parse integer '{}' in parameter string: '{}'".format(p, param_string))
                     params.append(p)
                 else:
                     params.append(param)

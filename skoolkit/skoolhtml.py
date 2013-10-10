@@ -1209,7 +1209,8 @@ class HtmlWriter:
         """
         valid_chars = '$0123456789abcdefABCDEF,' + chars
         end, param_string, p_text = parse_params(text, index, only_chars=valid_chars)
-        params = get_params(param_string, num, defaults)
+        ints_only = not chars
+        params = get_params(param_string, num, defaults, ints_only)
         if len(params) > num:
             raise MacroParsingError("Too many parameters (expected {}): '{}'".format(num, text[index:end]))
 
