@@ -1609,28 +1609,6 @@ class AsmWriterTest(SkoolKitTestCase):
             with self.assertRaisesRegexp(SkoolParsingError, 'Found unknown macro: {}'.format(macro)):
                 writer.expand(macro + params)
 
-    def test_property_handle_unsupported_macros(self):
-        skool = '; @start\n; @set-handle-unsupported-macros={}'
-        macros = (
-            '#FONT30000,2',
-            '#SCR2{0,0,0,0}',
-            '#UDG56000:56008(icon)',
-            '#UDGARRAY5;40000-40016-8x4{0,0,10,10}(sprite.gif)'
-        )
-
-        # handle-unsupported-macros = 0
-        writer = self._get_writer(skool.format(0))
-        for macro in macros:
-            with self.assertRaises(SkoolParsingError) as cm:
-                writer.expand(macro)
-            marker = re.search('#[A-Z]+', macro).group()
-            self.assertEqual(cm.exception.args[0], 'Found unsupported macro: {}'.format(marker))
-
-        # handle-unsupported-macros = 1
-        writer = self._get_writer(skool.format(1))
-        for macro in macros:
-            self.assertEqual(writer.expand(macro), '')
-
     def test_property_label_colons(self):
         skool = '\n'.join((
             '; @start',
