@@ -2347,8 +2347,13 @@ class HtmlWriterTest(SkoolKitTestCase):
             writer.expand(macro, ASMDIR)
 
         # Invalid UDG spec
-        macro = '#UDGARRAY1;0,5$(bar)'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '5$' in parameter string: '1,5$,4'".format(prefix))):
+        macro = '#UDGARRAY1;0,5-(bar)'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '5-' in parameter string: '0,5-'".format(prefix))):
+            writer.expand(macro, ASMDIR)
+
+        # Invalid UDG mask spec
+        macro = '#UDGARRAY1;0,5:8,1x(bar)'
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '1x' in parameter string: '8,1x'".format(prefix))):
             writer.expand(macro, ASMDIR)
 
         # Missing filename argument

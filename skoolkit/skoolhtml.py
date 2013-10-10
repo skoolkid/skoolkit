@@ -1183,7 +1183,7 @@ class HtmlWriter:
                 return join(self.paths[path_id], '{0}{1}'.format(fname, suffix))
             raise SkoolKitError("Unknown path ID '{0}' for image file '{1}'".format(path_id, fname))
 
-    def parse_image_params(self, text, index, num, defaults=(), path_id=DEF_IMG_PATH, fname='', chars=''):
+    def parse_image_params(self, text, index, num, defaults=(), path_id=DEF_IMG_PATH, fname='', chars='', ints=None):
         """Parse a string of the form ``params[{X,Y,W,H}][(fname)]``. The
         parameter string ``params`` may contain comma-separated values and will
         be parsed until either the end of the text is reached, or an invalid
@@ -1199,6 +1199,9 @@ class HtmlWriter:
         :param chars: Characters to consider valid in the parameter string in
                       addition to the comma, '$', the digits 0-9, and the
                       letters A-F and a-f.
+        :param ints: A list of the indexes (0-based) of the parameters that
+                     must evaluate to an integer; if `None`, every parameter
+                     must evaluate to an integer.
         :return: A list of the form
                  ``[end, image_path, crop_rect, value1, value2...]``, where
                  ``end`` is the index at which parsing terminated,
@@ -1209,8 +1212,7 @@ class HtmlWriter:
         """
         valid_chars = '$0123456789abcdefABCDEF,' + chars
         end, param_string, p_text = parse_params(text, index, only_chars=valid_chars)
-        ints_only = not chars
-        params = get_params(param_string, num, defaults, ints_only)
+        params = get_params(param_string, num, defaults, ints)
         if len(params) > num:
             raise MacroParsingError("Too many parameters (expected {}): '{}'".format(num, text[index:end]))
 
@@ -1263,7 +1265,7 @@ class HtmlWriter:
             raise MacroParsingError("Uncallable method name: {0}".format(method_name))
         if arg_string is None:
             raise MacroParsingError("No argument list specified: {0}{1}".format(macro, text[index:end]))
-        args = [cwd] + get_params(arg_string)
+        args = [cwd] + get_params(arg_string, ints=())
         retval = method(*args)
         if retval is None:
             retval = ''
@@ -1538,11 +1540,11 @@ class HtmlWriter:
         udg_array = [[]]
         has_masks = False
         while end < len(text) and text[end] == ';':
-            end, fname, crop_rect, address, attr, step, inc = self.parse_image_params(text, end + 1, 4, (def_attr, def_step, def_inc), udg_path_id, chars='-x')
+            end, fname, crop_rect, address, attr, step, inc = self.parse_image_params(text, end + 1, 4, (def_attr, def_step, def_inc), udg_path_id, chars='-x', ints=(1, 2, 3))
             udg_addresses = self._get_udg_addresses(address, width)
             mask_addresses = []
             if end < len(text) and text[end] == ':':
-                end, fname, crop_rect, mask_addr, mask_step = self.parse_image_params(text, end + 1, 2, (step,), udg_path_id, chars='-x')
+                end, fname, crop_rect, mask_addr, mask_step = self.parse_image_params(text, end + 1, 2, (step,), udg_path_id, chars='-x', ints=(1,))
                 mask_addresses = self._get_udg_addresses(mask_addr, width)
             has_masks = len(mask_addresses) > 0
             mask_addresses += [None] * (len(udg_addresses) - len(mask_addresses))

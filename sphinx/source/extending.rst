@@ -227,6 +227,9 @@ image-creating skool macro.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.parse_image_params
 
+   .. versionadded:: 3.6
+      The *ints* parameter.
+
 Parsing ref files
 -----------------
 HtmlWriter provides some convenience methods for extracting text and data from

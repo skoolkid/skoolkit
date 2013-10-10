@@ -191,7 +191,7 @@ class AsmWriter:
             raise MacroParsingError("Uncallable method name: {0}".format(method_name))
         if arg_string is None:
             raise MacroParsingError("No argument list specified: {0}{1}".format(macro, text[index:end]))
-        args = get_params(arg_string)
+        args = get_params(arg_string, ints=())
         retval = method(*args)
         if retval is None:
             retval = ''

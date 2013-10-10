@@ -45,7 +45,7 @@ def parse_ints(text, index, num, defaults=()):
                 break
             num_params += 1
         end += 1
-    params = get_params(text[index:end], num, defaults, True)
+    params = get_params(text[index:end], num, defaults)
     return [end] + params
 
 def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars=''):
@@ -97,14 +97,14 @@ def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars
         p_text = text[index + 1:end - 1]
     return end, params, p_text
 
-def get_params(param_string, num=0, defaults=(), ints_only=False):
+def get_params(param_string, num=0, defaults=(), ints=None):
     params = []
     if param_string:
-        for p in param_string.split(','):
+        for i, p in enumerate(param_string.split(',')):
             if p:
                 param = parse_int(p)
                 if param is None:
-                    if ints_only:
+                    if ints is None or i in ints:
                         raise MacroParsingError("Cannot parse integer '{}' in parameter string: '{}'".format(p, param_string))
                     params.append(p)
                 else:
