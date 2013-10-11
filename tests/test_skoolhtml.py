@@ -1845,6 +1845,17 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#LIST{0}\nLIST#'.format(src), ASMDIR)
         self.assertEqual(output, html)
 
+        # Empty list
+        output = writer.expand('#LIST LIST#', ASMDIR)
+        self.assertEqual(output, '<ul>\n</ul>')
+
+    def test_macro_list_invalid(self):
+        writer = self._get_writer()
+
+        # No end marker
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("No end marker: #LIST { Item }...")):
+            writer.expand('#LIST { Item }', ASMDIR)
+
     def test_macro_poke(self):
         self._test_reference_macro('POKE', 'poke', 'pokes')
 

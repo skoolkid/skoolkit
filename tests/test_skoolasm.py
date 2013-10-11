@@ -1362,6 +1362,17 @@ class AsmWriterTest(SkoolKitTestCase):
             output = '\n'.join(writer.format(list_src, 79))
             self.assertEqual(output, text.strip())
 
+        # Empty list
+        output = '\n'.join(writer.format('#LIST LIST#', 79))
+        self.assertEqual(output, '')
+
+    def test_macro_list_invalid(self):
+        writer = self._get_writer()
+
+        # No end marker
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("No end marker: #LIST { Item }...")):
+            writer.format('#LIST { Item }', 79)
+
     def test_macro_poke(self):
         self._test_reference_macro('POKE', 'poke')
 

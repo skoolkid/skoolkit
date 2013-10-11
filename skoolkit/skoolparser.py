@@ -1228,7 +1228,10 @@ class Cell:
 
 class ListParser:
     def parse_text(self, text, index):
-        end = text.index(LIST_END_MARKER, index) + len(LIST_END_MARKER)
+        try:
+            end = text.index(LIST_END_MARKER, index) + len(LIST_END_MARKER)
+        except ValueError:
+            raise SkoolParsingError("No end marker: #LIST{}...".format(text[index:index + 15]))
         return end, self.parse_list(text[index:end])
 
     def parse_list(self, list_def):

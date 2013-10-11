@@ -427,7 +427,10 @@ class AsmWriter:
         index = 0
         while text.find(marker, index) >= 0:
             block_index = text.index(marker, index)
-            block_end_index = text.index(end_marker, block_index) + len(end_marker)
+            try:
+                block_end_index = text.index(end_marker, block_index) + len(end_marker)
+            except ValueError:
+                raise SkoolParsingError("No end marker: {}...".format(text[block_index:block_index + len(marker) + 15]))
             block_indexes.append(block_index)
             block_indexes.append(block_end_index)
             index = block_end_index
