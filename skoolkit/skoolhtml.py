@@ -1347,9 +1347,13 @@ class HtmlWriter:
     def expand_link(self, text, index, cwd):
         # #LINK:PageId[#name](link text)
         macro = '#LINK'
+        if index >= len(text):
+            raise MacroParsingError("No parameters")
         if text[index] != ':':
             raise MacroParsingError("Malformed macro: {0}{1}...".format(macro, text[index]))
         end, page_id, link_text = parse_params(text, index + 1)
+        if not page_id:
+            raise MacroParsingError("No page ID: {}{}".format(macro, text[index:end]))
         anchor = ''
         if '#' in page_id:
             page_id, anchor = page_id.split('#')

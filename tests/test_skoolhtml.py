@@ -1786,9 +1786,27 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#LINK:CustomPage2()', ASMDIR)
         self.link_equals(output, '../page2.html', 'Custom page 2')
 
+    def test_macro_link_invalid(self):
+        writer = self._get_writer()
         prefix = ERROR_PREFIX.format('LINK')
 
-        # Malformed #LINK macro
+        # No parameters
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
+            writer.expand('#LINK', ASMDIR)
+
+        # No page ID (1)
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No page ID: #LINK:'.format(prefix)):
+            writer.expand('#LINK:', ASMDIR)
+
+        # No page ID (2)
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No page ID: #LINK:(text)'.format(prefix))):
+            writer.expand('#LINK:(text)', ASMDIR)
+
+        # No closing bracket
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (text'.format(prefix))):
+            writer.expand('#LINK:(text', ASMDIR)
+
+        # Malformed macro
         with self.assertRaisesRegexp(SkoolParsingError, '{}: Malformed macro: #LINKp...'.format(prefix)):
             writer.expand('#LINKpageID(text)', ASMDIR)
 

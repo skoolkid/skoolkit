@@ -1326,7 +1326,25 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.expand('#LINK:PageID#anchor({0})'.format(link_text))
         self.assertEqual(output, link_text)
 
+    def test_macro_link_invalid(self):
+        writer = self._get_writer()
         prefix = ERROR_PREFIX.format('LINK')
+
+        # No parameters
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
+            writer.expand('#LINK')
+
+        # No page ID (1)
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No page ID: #LINK:'.format(prefix)):
+            writer.expand('#LINK:')
+
+        # No page ID (2)
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No page ID: #LINK:(text)'.format(prefix))):
+            writer.expand('#LINK:(text)')
+
+        # No closing bracket
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (text'.format(prefix))):
+            writer.expand('#LINK:(text')
 
         # Malformed #LINK macro
         with self.assertRaisesRegexp(SkoolParsingError, '{}: Malformed macro: #LINKp...'.format(prefix)):
