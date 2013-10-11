@@ -1396,6 +1396,30 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertEqual(snapshot[49152:49154], [1, 2])
 
+    def test_macro_pokes_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('POKES')
+
+        # No parameters (1)
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No parameters (expected 2)'.format(prefix))):
+            writer.expand('#POKES')
+
+        # No parameters (2)
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No parameters (expected 2)'.format(prefix))):
+            writer.expand('#POKESx')
+
+        # Not enough parameters (1)
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Not enough parameters (expected 2): '0'".format(prefix))):
+            writer.expand('#POKES0')
+
+        # Not enough parameters (2)
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Not enough parameters (expected 2): '1'".format(prefix))):
+            writer.expand('#POKES0,1;1')
+
+        # Invalid parameter
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '2$2' in parameter string: '40000,2$2'".format(prefix))):
+            writer.expand('#POKES40000,2$2')
+
     def test_macro_pops(self):
         writer = self._get_writer()
         addr, byte = 49152, 128
