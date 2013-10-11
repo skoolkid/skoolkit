@@ -1303,7 +1303,7 @@ class HtmlWriter:
             if entry.description:
                 return end, entry.description
             raise MacroParsingError('Entry at {0} has no description'.format(addr))
-        raise MacroParsingError('Cannot determine description for nonexistent entry at {0}'.format(addr))
+        raise MacroParsingError('Cannot determine description for non-existent entry at {}'.format(addr))
 
     def expand_erefs(self, text, index, cwd):
         # #EREFSaddr

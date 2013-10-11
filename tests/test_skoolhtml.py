@@ -1550,16 +1550,30 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#D$8001', ASMDIR)
         self.assertEqual(output, 'Second routine')
 
+    def test_macro_d_invalid(self):
+        writer = self._get_writer(skool=TEST_MACRO_D)
         prefix = ERROR_PREFIX.format('D')
+
+        # No parameter (1)
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
+            writer.expand('#D', ASMDIR)
+
+        # No parameter (2)
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
+            writer.expand('#Dx', ASMDIR)
+
+        # Invalid parameter
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '234$' in parameter string: '234$'".format(prefix))):
+            writer.expand('#D234$', ASMDIR)
 
         # Descriptionless entry
         address = 32770
         with self.assertRaisesRegexp(SkoolParsingError, '{}: Entry at {} has no description'.format(prefix, address)):
             writer.expand('#D{0}'.format(address), ASMDIR)
 
-        # Nonexistent entry
+        # Non-existent entry
         address = 32771
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Cannot determine description for nonexistent entry at {}'.format(prefix, address)):
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Cannot determine description for non-existent entry at {}'.format(prefix, address)):
             writer.expand('#D{0}'.format(address), ASMDIR)
 
     def test_macro_erefs(self):
