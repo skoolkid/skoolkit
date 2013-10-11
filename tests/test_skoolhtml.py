@@ -1596,8 +1596,23 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#EREFS30004', ASMDIR)
         self.assertEqual(output, 'routines at <a class="link" href="30000.html">30000</a> and <a class="link" href="30005.html">30005</a>')
 
-        # Entry point with no referrers
+    def test_macro_erefs_invalid(self):
+        writer = self._get_writer(skool=TEST_MACRO_EREFS)
         prefix = ERROR_PREFIX.format('EREFS')
+
+        # No parameter (1)
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
+            writer.expand('#EREFS', ASMDIR)
+
+        # No parameter (2)
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
+            writer.expand('#EREFSx', ASMDIR)
+
+        # Invalid parameter
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '2$2' in parameter string: '2$2'".format(prefix))):
+            writer.expand('#EREFS2$2', ASMDIR)
+
+        # Entry point with no referrers
         address = 30005
         with self.assertRaisesRegexp(SkoolParsingError, '{}: Entry point at {} has no referrers'.format(prefix, address)):
             writer.expand('#EREFS{0}'.format(address), ASMDIR)

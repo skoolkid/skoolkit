@@ -1270,8 +1270,23 @@ class AsmWriterTest(SkoolKitTestCase):
             output = writer.expand('#EREFS{}'.format(address))
             self.assertEqual(output, 'routines at 30000 and 30005')
 
-        # Entry point with no referrers
+    def test_macro_erefs_invalid(self):
+        writer = self._get_writer(TEST_MACRO_EREFS)
         prefix = ERROR_PREFIX.format('EREFS')
+
+        # No parameter (1)
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
+            writer.expand('#EREFS')
+
+        # No parameter (2)
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
+            writer.expand('#EREFSx')
+
+        # Invalid parameter
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '2$2' in parameter string: '2$2'".format(prefix))):
+            writer.expand('#EREFS2$2')
+
+        # Entry point with no referrers
         address = 30005
         with self.assertRaisesRegexp(SkoolParsingError, '{}: Entry point at {} has no referrers'.format(prefix, address)):
             writer.expand('#EREFS{0}'.format(address))
