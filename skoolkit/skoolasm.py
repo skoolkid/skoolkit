@@ -19,7 +19,7 @@
 import re
 import inspect
 
-from . import warn, write_text, wrap, parse_int, get_chr, SkoolParsingError
+from . import warn, write_text, wrap, get_int_param, parse_int, get_chr, SkoolParsingError
 from .skoolmacro import parse_ints, parse_params, get_params, get_text_param, MacroParsingError, UnsupportedMacroError
 from .skoolparser import TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
 
@@ -203,12 +203,15 @@ class AsmWriter:
 
     def expand_chr(self, text, index):
         # #CHRnum or #CHR(num)
-        if text[index:].startswith('('):
-            offset = 1
+        if index < len(text) and text[index] == '(':
+            end, _, num_str = parse_params(text, index)
+            try:
+                num = get_int_param(num_str)
+            except ValueError:
+                raise MacroParsingError("Invalid integer: '{}'".format(num_str))
         else:
-            offset = 0
-        end, num = parse_ints(text, index + offset, 1)
-        return end + offset, get_chr(num)
+            end, num = parse_ints(text, index, 1)
+        return end, get_chr(num)
 
     def expand_d(self, text, index):
         # #Daddr

@@ -1285,12 +1285,15 @@ class HtmlWriter:
 
     def expand_chr(self, text, index, cwd):
         # #CHRnum or #CHR(num)
-        if text[index:].startswith('('):
-            offset = 1
+        if index < len(text) and text[index] == '(':
+            end, _, num_str = parse_params(text, index)
+            try:
+                num = get_int_param(num_str)
+            except ValueError:
+                raise MacroParsingError("Invalid integer: '{}'".format(num_str))
         else:
-            offset = 0
-        end, num = parse_ints(text, index + offset, 1)
-        return end + offset, '&#{0};'.format(num)
+            end, num = parse_ints(text, index, 1)
+        return end, '&#{};'.format(num)
 
     def expand_d(self, text, index, cwd):
         # #Daddr

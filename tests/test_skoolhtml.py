@@ -1517,6 +1517,30 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#CHR(163)1984', ASMDIR)
         self.assertEqual(output, '&#163;1984')
 
+    def test_macro_chr_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('CHR')
+
+        # No parameter
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
+            writer.expand('#CHR', ASMDIR)
+
+        # Blank parameter
+        with self.assertRaisesRegexp(SkoolParsingError, "{}: Invalid integer: ''".format(prefix)):
+            writer.expand('#CHR()', ASMDIR)
+
+        # Invalid parameter (1)
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '2$' in parameter string: '2$'".format(prefix))):
+            writer.expand('#CHR2$', ASMDIR)
+
+        # Invalid parameter (2)
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid integer: 'x'".format(prefix))):
+            writer.expand('#CHR(x)', ASMDIR)
+
+        # No closing bracket
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No closing bracket: (2".format(prefix))):
+            writer.expand('#CHR(2 ...', ASMDIR)
+
     def test_macro_d(self):
         writer = self._get_writer(skool=TEST_MACRO_D)
 

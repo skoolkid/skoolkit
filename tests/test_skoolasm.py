@@ -1204,6 +1204,30 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.expand('#CHR(163)1985')
         self.assertEqual(output, '{0}1985'.format(get_chr(163)))
 
+    def test_macro_chr_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('CHR')
+
+        # No parameter
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
+            writer.expand('#CHR')
+
+        # Blank parameter
+        with self.assertRaisesRegexp(SkoolParsingError, "{}: Invalid integer: ''".format(prefix)):
+            writer.expand('#CHR()')
+
+        # Invalid parameter (1)
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '2$' in parameter string: '2$'".format(prefix))):
+            writer.expand('#CHR2$')
+
+        # Invalid parameter (2)
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid integer: 'x,y'".format(prefix))):
+            writer.expand('#CHR(x,y)')
+
+        # No closing bracket
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No closing bracket: (2".format(prefix))):
+            writer.expand('#CHR(2 ...')
+
     def test_macro_d(self):
         writer = self._get_writer(TEST_MACRO_D)
 
