@@ -180,9 +180,13 @@ class AsmWriter:
     def expand_call(self, text, index):
         # #CALL:methodName(args)
         macro = '#CALL'
+        if index >= len(text):
+            raise MacroParsingError("No parameters")
         if text[index] != ':':
             raise MacroParsingError("Malformed macro: {0}{1}...".format(macro, text[index]))
         end, method_name, arg_string = parse_params(text, index + 1, chars='_')
+        if not method_name:
+            raise MacroParsingError("No method name")
         if not hasattr(self, method_name):
             self.warn("Unknown method name in {0} macro: {1}".format(macro, method_name))
             return end, ''

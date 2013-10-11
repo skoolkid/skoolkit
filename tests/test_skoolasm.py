@@ -1158,21 +1158,6 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.expand('#CALL:test_call(7,,test2)')
         self.assertEqual(output, self._test_call(7, None, 'test2'))
 
-        prefix = ERROR_PREFIX.format('CALL')
-
-        # Malformed #CALL macro
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Malformed macro: #CALLt...'.format(prefix)):
-            writer.expand('#CALLtest_call(5,s)')
-
-        # #CALL a non-method
-        writer.var = 'x'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Uncallable method name: var'.format(prefix)):
-            writer.expand('#CALL:var(0)')
-
-        # No argument list
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No argument list specified: #CALL:test_call'.format(prefix)):
-            writer.expand('#CALL:test_call')
-
         # No return value
         writer.test_call_no_retval = self._test_call_no_retval
         output = writer.expand('#CALL:test_call_no_retval(1,2)')
@@ -1183,6 +1168,32 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.expand('#CALL:{0}(0)'.format(method_name))
         self.assertEqual(output, '')
         self.assertEqual(self.err.getvalue().split('\n')[0], 'WARNING: Unknown method name in #CALL macro: {0}'.format(method_name))
+
+    def test_macro_call_invalid(self):
+        writer = self._get_writer()
+        writer.test_call = self._test_call
+        prefix = ERROR_PREFIX.format('CALL')
+
+        # No parameters
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
+            writer.expand('#CALL')
+
+        # Malformed #CALL macro
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Malformed macro: #CALLt...'.format(prefix)):
+            writer.expand('#CALLtest_call(5,s)')
+
+        # No method name
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No method name'.format(prefix)):
+            writer.expand('#CALL:(0)')
+
+        # #CALL a non-method
+        writer.var = 'x'
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: Uncallable method name: var'.format(prefix)):
+            writer.expand('#CALL:var(0)')
+
+        # No argument list
+        with self.assertRaisesRegexp(SkoolParsingError, '{}: No argument list specified: #CALL:test_call'.format(prefix)):
+            writer.expand('#CALL:test_call')
 
     def test_macro_chr(self):
         writer = self._get_writer()
