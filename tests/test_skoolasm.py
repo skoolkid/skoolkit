@@ -1433,13 +1433,14 @@ class AsmWriterTest(SkoolKitTestCase):
     def test_macro_pushs(self):
         writer = self._get_writer()
         addr, byte = 32768, 64
-        writer.snapshot[addr] = byte
-        output = writer.expand('#PUSHStest')
-        self.assertEqual(output, '')
-        self.assertEqual(writer.snapshot[addr], byte)
-        writer.snapshot[addr] = (byte + 127) % 256
-        writer.pop_snapshot()
-        self.assertEqual(writer.snapshot[addr], byte)
+        for name in ('test', ''):
+            writer.snapshot[addr] = byte
+            output = writer.expand('#PUSHS{}'.format(name))
+            self.assertEqual(output, '')
+            self.assertEqual(writer.snapshot[addr], byte)
+            writer.snapshot[addr] = (byte + 127) % 256
+            writer.pop_snapshot()
+            self.assertEqual(writer.snapshot[addr], byte)
 
     def test_macro_r(self):
         skool = '\n'.join((
