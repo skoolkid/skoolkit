@@ -96,7 +96,8 @@ files, CSS files, JavaScript files, font files, and files listed in the
 | - $PACKAGE_DIR/resources
 
 where $PACKAGE_DIR is the directory in which the skoolkit package is installed
-(as shown by ``skool2html.py -p``).
+(as shown by ``skool2html.py -p``). When you need a reminder of these
+locations, run ``skool2html.py -s``.
 
 If an input file's name ends with '.ref', it will be treated as a ref file;
 otherwise it will be treated as a skool file.
