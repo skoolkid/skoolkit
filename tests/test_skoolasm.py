@@ -1108,6 +1108,11 @@ class AsmWriterTest(SkoolKitTestCase):
             return asm, self.err.getvalue().split('\n')[:-1]
         return asm
 
+    def assert_error(self, writer, text, error_msg, prefix):
+        with self.assertRaises(SkoolParsingError) as cm:
+            writer.expand(text)
+        self.assertEqual(cm.exception[0], '{}: {}'.format(prefix, error_msg))
+
     def _test_unsupported_macro(self, text, writer=None, regexp=None):
         search = re.search('#[A-Z]+', text)
         macro = search.group()
@@ -1649,6 +1654,28 @@ class AsmWriterTest(SkoolKitTestCase):
         # Other code with remote entry
         output = writer.expand('#R$c000@main')
         self.assertEqual(output, '49152')
+
+    def test_macro_r_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('R')
+
+        # No address (1)
+        self.assert_error(writer, '#R', "No address", prefix)
+
+        # No address (2)
+        self.assert_error(writer, '#R@main', "No address", prefix)
+
+        # No address (3)
+        self.assert_error(writer, '#R#bar', "No address", prefix)
+
+        # No address (4)
+        self.assert_error(writer, '#R(baz)', "No address", prefix)
+
+        # Invalid address
+        self.assert_error(writer, '#R20$5', "Invalid address: 20$5", prefix)
+
+        # No closing bracket
+        self.assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)
 
     def test_macro_refs(self):
         writer = self._get_writer(TEST_MACRO_REFS)

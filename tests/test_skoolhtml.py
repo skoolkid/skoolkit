@@ -1177,6 +1177,11 @@ class HtmlWriterTest(SkoolKitTestCase):
         t_html_lines = (header_template + prev_up_next + body + prev_up_next + footer).format(**subs).split('\n')
         self.assertEqual(d_html_lines, t_html_lines)
 
+    def assert_error(self, writer, text, error_msg, prefix):
+        with self.assertRaises(SkoolParsingError) as cm:
+            writer.expand(text, ASMDIR)
+        self.assertEqual(cm.exception[0], '{}: {}'.format(prefix, error_msg))
+
     def _test_reference_macro(self, macro, def_link_text, page):
         writer = self._get_writer()
         for link_text in ('', '(test)', '(test (nested) parentheses)'):
@@ -2224,6 +2229,28 @@ class HtmlWriterTest(SkoolKitTestCase):
         # Other code with remote entry point
         output = writer.expand('#R49155@other', ASMDIR)
         self.link_equals(output, '../other/49152.html#49155', 'C003')
+
+    def test_macro_r_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('R')
+
+        # No address (1)
+        self.assert_error(writer, '#R', "No address", prefix)
+
+        # No address (2)
+        self.assert_error(writer, '#R@main', "No address", prefix)
+
+        # No address (3)
+        self.assert_error(writer, '#R#bar', "No address", prefix)
+
+        # No address (4)
+        self.assert_error(writer, '#R(baz)', "No address", prefix)
+
+        # Invalid address
+        self.assert_error(writer, '#R20$5', "Invalid address: 20$5", prefix)
+
+        # No closing bracket
+        self.assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)
 
     def test_macro_refs(self):
         # One referrer

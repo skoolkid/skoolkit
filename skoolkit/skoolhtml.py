@@ -1402,12 +1402,12 @@ class HtmlWriter:
         end, params, link_text = parse_params(text, index, chars='@')
         anchor = ''
         anchor_index = params.find('#')
-        if anchor_index > 0:
+        if anchor_index >= 0:
             anchor = params[anchor_index:]
             params = params[:anchor_index]
         code_id = ''
         code_id_index = params.find('@')
-        if code_id_index > 0:
+        if code_id_index >= 0:
             code_id = params[code_id_index + 1:]
             params = params[:code_id_index]
         if code_id:
@@ -1417,7 +1417,12 @@ class HtmlWriter:
         else:
             code_path = self.code_path
         addr_str = params
-        address = parse_int(addr_str)
+        if not addr_str:
+            raise MacroParsingError("No address")
+        try:
+            address = get_int_param(addr_str)
+        except ValueError:
+            raise MacroParsingError("Invalid address: {}".format(addr_str))
         container = self.parser.get_container(address, code_id)
         if not code_id and not container:
             raise MacroParsingError('Could not find routine file containing {0}'.format(addr_str))

@@ -302,18 +302,23 @@ class AsmWriter:
     def expand_r(self, text, index):
         # #Raddr[@code][#anchor][(link text)]
         end, params, p_text = parse_params(text, index, chars='@')
-        if p_text:
-            return end, p_text
         anchor_index = params.find('#')
-        if anchor_index > 0:
+        if anchor_index >= 0:
             params = params[:anchor_index]
         code_id = ''
         code_id_index = params.find('@')
-        if code_id_index > 0:
+        if code_id_index >= 0:
             code_id = params[code_id_index + 1:]
             params = params[:code_id_index]
         addr_str = params
-        address = parse_int(addr_str)
+        if not addr_str:
+            raise MacroParsingError("No address")
+        try:
+            address = get_int_param(addr_str)
+        except ValueError:
+            raise MacroParsingError("Invalid address: {}".format(addr_str))
+        if p_text:
+            return end, p_text
         if code_id:
             return end, self.parser.get_instruction_addr_str(address, code_id)
         label = self.labels.get(address)
