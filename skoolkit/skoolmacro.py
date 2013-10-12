@@ -36,8 +36,8 @@ def parse_ints(text, index, num, defaults=()):
     :param defaults: The default values of the optional parameters.
     :return: A list of the form ``[end, value1, value2...]``, where:
 
-             * ``end`` is the index at which parsing terminated.
-             * ``value1``, ``value2`` etc. are the parameter values.
+             * ``end`` is the index at which parsing terminated
+             * ``value1``, ``value2`` etc. are the parameter values
     """
     end = index
     num_params = 1
@@ -67,9 +67,9 @@ def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars
                        considered valid.
     :return: A 3-tuple of the form ``(end, params, p_text)``, where:
 
-             * ``end`` is the index at which parsing terminated.
-             * ``params`` is the parameter string.
-             * ``p_text`` is the text found in parentheses (if any).
+             * ``end`` is the index at which parsing terminated
+             * ``params`` is the parameter string
+             * ``p_text`` is the text found in parentheses (if any)
     """
     start = index
     if except_chars:

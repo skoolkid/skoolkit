@@ -1211,12 +1211,12 @@ class HtmlWriter:
         :return: A list of the form
                  ``[end, image_path, crop_rect, value1, value2...]``, where:
 
-                 * ``end`` is the index at which parsing terminated.
+                 * ``end`` is the index at which parsing terminated
                  * ``image_path`` is either the full path of the image file
                    (relative to the root directory of the disassembly) or
-                   ``fname`` (if `path_id` is blank or `None`).
-                 * ``crop_rect`` is ``(X, Y, W, H)``.
-                 * ``value1``, ``value2`` etc. are the parameter values.
+                   ``fname`` (if `path_id` is blank or `None`)
+                 * ``crop_rect`` is ``(X, Y, W, H)``
+                 * ``value1``, ``value2`` etc. are the parameter values
         """
         valid_chars = '$0123456789abcdefABCDEF,' + chars
         end, param_string, p_text = parse_params(text, index, only_chars=valid_chars)
