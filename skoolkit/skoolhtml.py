@@ -1441,7 +1441,12 @@ class HtmlWriter:
     def expand_refs(self, text, index, cwd):
         # #REFSaddr[(prefix)]
         end, addr_str, prefix = parse_params(text, index, '')
-        address = parse_int(addr_str)
+        if not addr_str:
+            raise MacroParsingError("No address")
+        try:
+            address = get_int_param(addr_str)
+        except ValueError:
+            raise MacroParsingError("Invalid address: {}".format(addr_str))
         entry = self.entries.get(address)
         if not entry:
             raise MacroParsingError('No entry at {0}'.format(addr_str))

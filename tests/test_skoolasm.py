@@ -1689,11 +1689,21 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.expand('#REFS24586')
         self.assertEqual(output, 'Not used directly by any other routines')
 
-        # Nonexistent entry
+    def test_macro_refs_invalid(self):
+        writer = self._get_writer()
         prefix = ERROR_PREFIX.format('REFS')
-        address = 40000
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No entry at {}'.format(prefix, address)):
-            writer.expand('#REFS{0}'.format(address))
+
+        # No address
+        self.assert_error(writer, '#REFS', "No address", prefix)
+
+        # Invalid address
+        self.assert_error(writer, '#REFS3$56', "Invalid address: 3$56", prefix)
+
+        # No closing bracket
+        self.assert_error(writer, '#REFS34567(foo', "No closing bracket: (foo", prefix)
+
+        # Non-existent entry
+        self.assert_error(writer, '#REFS40000', "No entry at 40000", prefix)
 
     def test_macro_reg(self):
         writer = self._get_writer()
