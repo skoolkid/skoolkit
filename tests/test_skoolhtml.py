@@ -1191,6 +1191,9 @@ class HtmlWriterTest(SkoolKitTestCase):
                 output = writer.expand('#{0}{1}{2}'.format(macro, anchor, link_text), ASMDIR)
                 self.link_equals(output, '../{0}/{1}.html{2}'.format(REFERENCE_DIR, page, anchor), link_text[1:-1] or def_link_text)
 
+        # No closing bracket
+        self.assert_error(writer, '#{}(foo'.format(macro), "No closing bracket: (foo", ERROR_PREFIX.format(macro))
+
     def _test_call(self, *args):
         # Method used to test the #CALL macro
         return str(args)

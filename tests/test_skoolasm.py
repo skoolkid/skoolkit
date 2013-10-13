@@ -1142,6 +1142,9 @@ class AsmWriterTest(SkoolKitTestCase):
                 output = writer.expand('#{0}{1}{2}'.format(macro, anchor, link_text))
                 self.assertEqual(output, link_text[1:-1] or def_link_text)
 
+        # No closing bracket
+        self.assert_error(writer, '#{}(foo'.format(macro), "No closing bracket: (foo", ERROR_PREFIX.format(macro))
+
     def _test_call(self, *args):
         return str(args)
 
