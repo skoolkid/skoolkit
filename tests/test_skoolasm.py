@@ -1769,6 +1769,17 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.format(udgtable, 79)
         self.assertEqual(output, [])
 
+        # Empty table
+        output = '\n'.join(writer.format('#UDGTABLE UDGTABLE#', 79))
+        self.assertEqual(output, '')
+
+    def test_macro_udgtable_invalid(self):
+        writer = self._get_writer()
+
+        # No end marker
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Missing end marker: #UDGTABLE { A1 }...")):
+            writer.format('#UDGTABLE { A1 }', 79)
+
     def test_unknown_macro(self):
         writer = self._get_writer()
         for macro, params in (('#FOO', 'xyz'), ('#BAR', '1,2(baz)'), ('#UDGS', '#r1'), ('#LINKS', '')):

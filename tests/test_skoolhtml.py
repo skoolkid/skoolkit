@@ -2642,6 +2642,17 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#UDGTABLE{0}\nUDGTABLE#'.format(TABLE_SRC), ASMDIR)
         self.assertEqual(output, TABLE_HTML)
 
+        # Empty table
+        output = writer.expand('#UDGTABLE UDGTABLE#', ASMDIR)
+        self.assertEqual(output, '<table>\n</table>')
+
+    def test_macro_udgtable_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('UDGTABLE')
+
+        # No end marker
+        self.assert_error(writer, '#UDGTABLE { A1 }', 'Missing table end marker: #UDGTABLE { A1 }...')
+
     def test_unsupported_macro(self):
         writer = self._get_writer()
         macro = '#BUG'

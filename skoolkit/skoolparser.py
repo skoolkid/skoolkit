@@ -1035,7 +1035,8 @@ class TableParser:
         try:
             end = text.index(TABLE_END_MARKER, index) + len(TABLE_END_MARKER)
         except ValueError:
-            raise SkoolParsingError("Missing table end marker: #TABLE{}...".format(text[index:index + 15]))
+            marker = text[text.rindex('#', 0, index):index]
+            raise SkoolParsingError("Missing table end marker: {}{}...".format(marker, text[index:index + 15]))
         return end, self.parse_table(text[index:end])
 
     def parse_table(self, table_def):
