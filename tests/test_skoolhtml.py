@@ -1518,6 +1518,9 @@ class HtmlWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolParsingError, '{}: No argument list specified: #CALL:test_call'.format(prefix)):
             writer.expand('#CALL:test_call', ASMDIR)
 
+        # No closing bracket
+        self.assert_error(writer, '#CALL:test_call(1,2', 'No closing bracket: (1,2', prefix)
+
     def test_macro_chr(self):
         writer = self._get_writer()
 
