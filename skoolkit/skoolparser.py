@@ -1032,7 +1032,10 @@ class Data(SkoolEntry):
 
 class TableParser:
     def parse_text(self, text, index):
-        end = text.index(TABLE_END_MARKER, index) + len(TABLE_END_MARKER)
+        try:
+            end = text.index(TABLE_END_MARKER, index) + len(TABLE_END_MARKER)
+        except ValueError:
+            raise SkoolParsingError("Missing table end marker: #TABLE{}...".format(text[index:index + 15]))
         return end, self.parse_table(text[index:end])
 
     def parse_table(self, table_def):
@@ -1154,7 +1157,10 @@ class Table:
                     prev_spans[col_index] = (prev_rowspan - 1, prev_colspan)
                 col_index += prev_colspan
 
-        self.num_cols = 1 + max([cell.col_index for cell in [row[-1] for row in self.rows]])
+        if self.rows:
+            self.num_cols = 1 + max([cell.col_index for cell in [row[-1] for row in self.rows]])
+        else:
+            self.num_cols = 0
         self._calculate_col_widths()
 
     def get_header_rows(self):

@@ -1177,10 +1177,12 @@ class HtmlWriterTest(SkoolKitTestCase):
         t_html_lines = (header_template + prev_up_next + body + prev_up_next + footer).format(**subs).split('\n')
         self.assertEqual(d_html_lines, t_html_lines)
 
-    def assert_error(self, writer, text, error_msg, prefix):
+    def assert_error(self, writer, text, error_msg, prefix=None):
         with self.assertRaises(SkoolParsingError) as cm:
             writer.expand(text, ASMDIR)
-        self.assertEqual(cm.exception[0], '{}: {}'.format(prefix, error_msg))
+        if prefix:
+            error_msg = '{}: {}'.format(prefix, error_msg)
+        self.assertEqual(cm.exception[0], error_msg)
 
     def _test_reference_macro(self, macro, def_link_text, page):
         writer = self._get_writer()
@@ -2378,6 +2380,17 @@ class HtmlWriterTest(SkoolKitTestCase):
         for src, html in ((TABLE_SRC, TABLE_HTML), (TABLE2_SRC, TABLE2_HTML)):
             output = writer.expand('#TABLE{0}\nTABLE#'.format(src), ASMDIR)
             self.assertEqual(output, html)
+
+        # Empty table
+        output = writer.expand('#TABLE TABLE#', ASMDIR)
+        self.assertEqual(output, '<table>\n</table>')
+
+    def test_macro_table_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('TABLE')
+
+        # No end marker
+        self.assert_error(writer, '#TABLE { A1 }', 'Missing table end marker: #TABLE { A1 }...')
 
     def test_macro_udg(self):
         snapshot = [0] * 65536

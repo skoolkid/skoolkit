@@ -1375,7 +1375,7 @@ class AsmWriterTest(SkoolKitTestCase):
         writer = self._get_writer()
 
         # No end marker
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("No end marker: #LIST { Item }...")):
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Missing end marker: #LIST { Item }...")):
             writer.format('#LIST { Item }', 79)
 
     def test_macro_poke(self):
@@ -1743,6 +1743,17 @@ class AsmWriterTest(SkoolKitTestCase):
             table = '#TABLE{0}\nTABLE#'.format(src)
             output = writer.format(table, 79)
             self.assertEqual(output, text.split('\n')[1:-1])
+
+        # Empty table
+        output = '\n'.join(writer.format('#TABLE TABLE#', 79))
+        self.assertEqual(output, '')
+
+    def test_macro_table_invalid(self):
+        writer = self._get_writer()
+
+        # No end marker
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Missing end marker: #TABLE { A1 }...")):
+            writer.format('#TABLE { A1 }', 79)
 
     def test_macro_udg(self):
         self._test_unsupported_macro('#UDG39144,6(safe_key)')

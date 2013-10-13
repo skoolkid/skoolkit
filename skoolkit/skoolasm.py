@@ -440,7 +440,7 @@ class AsmWriter:
             try:
                 block_end_index = text.index(end_marker, block_index) + len(end_marker)
             except ValueError:
-                raise SkoolParsingError("No end marker: {}...".format(text[block_index:block_index + len(marker) + 15]))
+                raise SkoolParsingError("Missing end marker: {}...".format(text[block_index:block_index + len(marker) + 15]))
             block_indexes.append(block_index)
             block_indexes.append(block_end_index)
             index = block_end_index
@@ -472,10 +472,11 @@ class AsmWriter:
         for block in self.extract_blocks(text):
             if block.startswith(TABLE_MARKER):
                 table_lines = self.table_writer.format_table(self.expand(block[len(TABLE_MARKER):]))
-                table_width = max([len(line) for line in table_lines])
-                if table_width > width:
-                    self.warn('Table in entry at {0} is {1} characters wide'.format(self.entry.address, table_width))
-                lines.extend(table_lines)
+                if table_lines:
+                    table_width = max([len(line) for line in table_lines])
+                    if table_width > width:
+                        self.warn('Table in entry at {0} is {1} characters wide'.format(self.entry.address, table_width))
+                    lines.extend(table_lines)
             elif block.startswith(LIST_MARKER):
                 list_obj = self.list_parser.parse_list(self.expand(block[len(LIST_MARKER):]))
                 for item in list_obj.items:
@@ -626,10 +627,12 @@ class TableWriter:
         return rendered
 
     def _create_table_text(self):
+        lines = []
         max_row_index = len(self.table.rows)
+        if max_row_index == 0:
+            return lines
         separator_row_indexes = set((0, max_row_index))
         separator_row_indexes.update([i + 1 for i in self.table.get_header_rows()])
-        lines = []
         for row_index in range(max_row_index):
             if row_index in separator_row_indexes:
                 lines.append(self._create_row_separator(row_index))
