@@ -385,12 +385,15 @@ class AsmWriter:
 
     def expand_space(self, text, index):
         # #SPACE[num] or #SPACE([num])
-        if text[index:].startswith('('):
-            offset = 1
+        if index < len(text) and text[index] == '(':
+            end, _, num_str = parse_params(text, index)
+            try:
+                num_sp = get_int_param(num_str)
+            except ValueError:
+                raise MacroParsingError("Invalid integer: '{}'".format(num_str))
         else:
-            offset = 0
-        end, num_sp = parse_ints(text, index + offset, 1, (1,))
-        return end + offset, ''.ljust(num_sp)
+            end, num_sp = parse_ints(text, index, 1, (1,))
+        return end, ' ' * num_sp
 
     def expand_udg(self, text, index):
         # #UDGaddr[,attr,scale,step,inc,flip,rotate][:maskAddr[,maskStep]][{X,Y,W,H}][(fname)]

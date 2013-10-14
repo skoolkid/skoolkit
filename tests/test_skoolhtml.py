@@ -2381,6 +2381,19 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('1#SPACE({0})1'.format(num), ASMDIR)
         self.assertEqual(output, '1{0}1'.format('&#160;' * num))
 
+    def test_macro_space_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('SPACE')
+
+        # Invalid integer
+        self.assert_error(writer, '#SPACE5$3', "Cannot parse integer '5$3' in parameter string: '5$3'", prefix)
+
+        # Invalid integer in brackets
+        self.assert_error(writer, '#SPACE(5$3)', "Invalid integer: '5$3'", prefix)
+
+        # No closing bracket
+        self.assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)
+
     def test_macro_table(self):
         writer = self._get_writer()
         for src, html in ((TABLE_SRC, TABLE_HTML), (TABLE2_SRC, TABLE2_HTML)):
