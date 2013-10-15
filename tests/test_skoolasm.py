@@ -1113,11 +1113,9 @@ class AsmWriterTest(SkoolKitTestCase):
             writer.expand(text)
         self.assertEqual(cm.exception[0], '{}: {}'.format(prefix, error_msg))
 
-    def _test_unsupported_macro(self, text, writer=None, regexp=None):
+    def _test_unsupported_macro(self, writer, text, error_msg=None):
         search = re.search('#[A-Z]+', text)
         macro = search.group()
-        if writer is None:
-            writer = self._get_writer()
 
         # handle_unsupported_macros = 0
         writer.handle_unsupported_macros = 0
@@ -1126,14 +1124,16 @@ class AsmWriterTest(SkoolKitTestCase):
 
         # handle_unsupported_macros = 1
         writer.handle_unsupported_macros = 1
-        if regexp is None:
+        if error_msg is None:
             prefix = 'abc '
             suffix = ' xyz'
             output = writer.expand(prefix + text + suffix)
             self.assertEqual(output, prefix + suffix)
         else:
-            with self.assertRaisesRegexp(SkoolParsingError, regexp):
+            with self.assertRaises(SkoolParsingError) as cm:
                 writer.expand(text)
+            prefix = ERROR_PREFIX.format(macro[1:])
+            self.assertEqual(cm.exception[0], '{}: {}'.format(prefix, error_msg))
 
     def _test_reference_macro(self, macro, def_link_text):
         writer = self._get_writer()
@@ -1307,9 +1307,14 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_macro_font(self):
         writer = self._get_writer()
-        self._test_unsupported_macro('#FONT55584,,,,1{1,2}', writer)
-        self._test_unsupported_macro('#FONT:[foo]0,,5', writer)
-        self._test_unsupported_macro('#FONT:@bar', writer, "Error while parsing #FONT macro: No terminating delimiter: @bar")
+        self._test_unsupported_macro(writer, '#FONT55584,,,,1{1,2}')
+        self._test_unsupported_macro(writer, '#FONT:[foo]0,,5')
+
+    def test_macro_font_invalid(self):
+        writer = self._get_writer()
+
+        self._test_unsupported_macro(writer, '#FONT:@bar', "No terminating delimiter: @bar")
+        self._test_unsupported_macro(writer, '#FONT0(foo', "No closing bracket: (foo")
 
     def test_macro_html(self):
         writer = self._get_writer()
@@ -1729,7 +1734,12 @@ class AsmWriterTest(SkoolKitTestCase):
                 writer.expand('#REG{0}'.format(bad_reg))
 
     def test_macro_scr(self):
-        self._test_unsupported_macro('#SCR2(fname)')
+        writer = self._get_writer()
+        self._test_unsupported_macro(writer, '#SCR2(fname)')
+
+    def test_macro_scr_invalid(self):
+        writer = self._get_writer()
+        self._test_unsupported_macro(writer, '#SCR0(bar', "No closing bracket: (bar")
 
     def test_macro_space(self):
         writer = self._get_writer()
@@ -1775,12 +1785,22 @@ class AsmWriterTest(SkoolKitTestCase):
             writer.format('#TABLE { A1 }', 79)
 
     def test_macro_udg(self):
-        self._test_unsupported_macro('#UDG39144,6(safe_key)')
+        writer = self._get_writer()
+        self._test_unsupported_macro(writer, '#UDG39144,6(safe_key)')
+
+    def test_macro_udg_invalid(self):
+        writer = self._get_writer()
+        self._test_unsupported_macro(writer, '#UDG0(baz', "No closing bracket: (baz")
 
     def test_macro_udgarray(self):
         writer = self._get_writer()
-        self._test_unsupported_macro('#UDGARRAY8,,,256;33008-33023(bubble)', writer)
-        self._test_unsupported_macro('#UDGARRAY*foo,2;bar(baz)', writer)
+        self._test_unsupported_macro(writer, '#UDGARRAY8,,,256;33008-33023(bubble)')
+        self._test_unsupported_macro(writer, '#UDGARRAY*foo,2;bar(baz)')
+
+    def test_macro_udgarray_invalid(self):
+        writer = self._get_writer()
+        self._test_unsupported_macro(writer, '#UDGARRAY1;0(qux', "No closing bracket: (qux")
+        self._test_unsupported_macro(writer, '#UDGARRAY*xyzzy;foo(wibble', "No closing bracket: (wibble")
 
     def test_macro_udgtable(self):
         writer = self._get_writer()
