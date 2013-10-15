@@ -658,6 +658,11 @@ class OptionsTest(SkoolKitTestCase):
         self.assertEqual(lines[1], '; @org=16384')
         self.assertEqual(lines[3][:16], 'c16384 LD BC,770')
 
+    def test_unrecognised_snapshot_format_is_treated_as_binary(self):
+        binfile = self.write_bin_file([1, 2, 3], suffix='.qux')
+        lines = self._write_skool(binfile, 3)
+        self.assertEqual(lines[3], 'c65533 LD BC,770     ;')
+
     def test_default_sft(self):
         # Test that the default skool file template is used if present
         binfile = self._write_bin([0])
