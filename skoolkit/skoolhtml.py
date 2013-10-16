@@ -1056,6 +1056,15 @@ class HtmlWriter:
             self.write_animated_image(image_path, [frame])
 
     def write_animated_image(self, image_path, frames):
+        """Create an animated image and write it to a file.
+
+        :param image_path: The full path of the file to which to write the
+                           image (relative to the root directory of the
+                           disassembly).
+        :param frames: A list of the frames (instances of
+                       :class:`~skoolkit.skoolhtml.Frame`) from which to build
+                       the image.
+        """
         if self.image_writer:
             img_format = self._get_image_format(image_path)
             f = self.file_info.open_file(image_path, mode='wb')
@@ -1749,6 +1758,22 @@ class Udg(object):
         return Udg(self.attr, self.data[:])
 
 class Frame(object):
+    """Create a frame of an animated image.
+
+    :param udgs: The two-dimensional array of tiles (instances of
+                 :class:`~skoolkit.skoolhtml.Udg`) from which to build the
+                 frame.
+    :param scale: The scale of the frame.
+    :param mask: Whether to apply masks to the tiles in the frame.
+    :param x: The x-coordinate of the top-left pixel to include in the frame.
+    :param y: The y-coordinate of the top-left pixel to include in the frame.
+    :param width: The width of the frame; if `None`, the maximum width
+                  (derived from `x` and width of the array of tiles) is used.
+    :param height: The height of the frame; if `None`, the maximum height
+                   (derived from `y` and height of the array of tiles) is used.
+    :param delay: The delay between this frame and the next in 1/100ths of a
+                  second.
+    """
     def __init__(self, udgs, scale=1, mask=False, x=0, y=0, width=None, height=None, delay=32):
         self._udgs = udgs
         self._scale = scale

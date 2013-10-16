@@ -311,11 +311,25 @@ The Udg class provides two methods for manipulating an 8x8 graphic: `flip` and
 .. automethod:: skoolkit.skoolhtml.Udg.flip
 .. automethod:: skoolkit.skoolhtml.Udg.rotate
 
+If you are going to implement ``#CALL`` methods or skool macros that create
+animated images, you will need to make use of the skoolkit.skoolhtml.Frame
+class.
+
+The Frame class represents a single frame of an animated image.
+
+.. autoclass:: skoolkit.skoolhtml.Frame
+
+   .. versionadded:: 3.6
+
 HtmlWriter provides the following image-related convenience methods.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.image_path
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.need_image
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.write_image
+.. automethod:: skoolkit.skoolhtml.HtmlWriter.write_animated_image
+
+   .. versionadded:: 3.6
+
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.img_element
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.screenshot
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.flip_udgs
