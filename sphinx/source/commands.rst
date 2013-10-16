@@ -382,6 +382,14 @@ list::
     -V, --version         Show SkoolKit version number and exit
     -z, --defb-zfill      Write bytes with leading zeroes in DEFB statements
 
+If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
+to be a binary file.
+
+By default, any :ref:`control file <controlFiles>` or
+:ref:`skool file template <skoolFileTemplates>` whose name (minus the '.ctl' or
+'.sft' suffix) matches the input filename (minus the '.bin', '.sna', '.szx' or
+'.z80' suffix, if any) will be used, if present.
+
 The ``-M`` option may be used (in conjunction with the ``-g`` option) to
 specify a code execution map to use when generating a control file. The
 supported file formats are:

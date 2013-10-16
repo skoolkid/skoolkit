@@ -8,15 +8,15 @@ SYNOPSIS
 
 DESCRIPTION
 ===========
-``sna2kool.py`` converts a snapshot (``BIN``, ``SNA``, ``SZX`` or ``Z80`` file)
-into a skool file. The skool file is written to stdout.
+``sna2kool.py`` converts a binary (raw memory) file or a SNA, SZX or Z80
+snapshot into a skool file. The skool file is written to stdout.
 
 OPTIONS
 =======
 -c, --ctl `FILE`
   Specify the control file to use. By default, any control file whose name
   (minus the .ctl suffix) matches the input snapshot name (minus
-  the .bin, .sna, .szx or .z80 suffix) will be used, if present.
+  the .bin, .sna, .szx or .z80 suffix, if any) will be used, if present.
 
 -g, --generate-ctl `FILE`
   Generate a control file in `FILE`.
@@ -73,7 +73,7 @@ OPTIONS
 -T, --sft `FILE`
   Specify the skool file template to use. By default, any skool file template
   whose name (minus the .sft suffix) matches the input snapshot name (minus
-  the .bin, .sna, .szx or .z80 suffix) will be used, if present.
+  the .bin, .sna, .szx or .z80 suffix, if any) will be used, if present.
 
 -V, --version
   Show the SkoolKit version number and exit.
