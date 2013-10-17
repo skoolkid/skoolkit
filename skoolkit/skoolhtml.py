@@ -1346,44 +1346,26 @@ class HtmlWriter:
         return end, ''
 
     def expand_r(self, text, index, cwd):
-        # #Raddr[@code][#anchor][(link text)]
-        end, params, link_text = parse_params(text, index, chars='@')
-        anchor = ''
-        anchor_index = params.find('#')
-        if anchor_index >= 0:
-            anchor = params[anchor_index:]
-            params = params[:anchor_index]
-        code_id = ''
-        code_id_index = params.find('@')
-        if code_id_index >= 0:
-            code_id = params[code_id_index + 1:]
-            params = params[:code_id_index]
+        end, addr_str, address, code_id, anchor, link_text = skoolmacro.parse_r(text, index)
         if code_id:
             code_path = self.get_code_path(code_id)
             if code_path is None:
                 raise MacroParsingError("Could not find code path for '{}' disassembly".format(code_id))
         else:
             code_path = self.code_path
-        addr_str = params
-        if not addr_str:
-            raise MacroParsingError("No address")
-        try:
-            address = get_int_param(addr_str)
-        except ValueError:
-            raise MacroParsingError("Invalid address: {}".format(addr_str))
         container = self.parser.get_container(address, code_id)
         if not code_id and not container:
-            raise MacroParsingError('Could not find routine file containing {0}'.format(addr_str))
+            raise MacroParsingError('Could not find routine file containing {}'.format(addr_str))
         inst_addr_str = self.parser.get_instruction_addr_str(address, code_id)
         if container:
             container_address = container.address
         else:
             container_address = address
         if address != container_address:
-            anchor = '#{0}'.format(address)
+            anchor = '#{}'.format(address)
         asm_label = self.parser.get_asm_label(address)
         ref_file = FileInfo.asm_relpath(cwd, container_address, code_path)
-        link = '<a class="link" href="{0}{1}">{2}</a>'.format(ref_file, anchor, link_text or asm_label or inst_addr_str)
+        link = '<a class="link" href="{}{}">{}</a>'.format(ref_file, anchor, link_text or asm_label or inst_addr_str)
         return end, link
 
     def expand_refs(self, text, index, cwd):
