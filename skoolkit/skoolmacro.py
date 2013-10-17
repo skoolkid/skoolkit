@@ -144,7 +144,7 @@ class MacroParsingError(SkoolKitError):
     pass
 
 def parse_item_macro(text, index, macro, def_link_text):
-    end, anchor, link_text = parse_params(text, index)
+    end, anchor, link_text = parse_params(text, index, except_chars=' (')
     if anchor and anchor[0] != '#':
         raise MacroParsingError("Malformed macro: {}{}".format(macro, text[index:end]))
     if anchor == '#':
@@ -227,7 +227,7 @@ def parse_link(text, index):
         raise MacroParsingError("No parameters")
     if text[index] != ':':
         raise MacroParsingError("Malformed macro: {}{}...".format(macro, text[index]))
-    end, param_str, link_text = parse_params(text, index + 1)
+    end, param_str, link_text = parse_params(text, index + 1, except_chars=' (')
     if not param_str:
         raise MacroParsingError("No page ID: {}{}".format(macro, text[index:end]))
     if link_text is None:

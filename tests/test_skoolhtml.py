@@ -904,11 +904,11 @@ c30003 LD A,B
 c30005 JP 30004
 """
 
-TEST_MACRO_LINK_REF = """[Page:CustomPage1]
+TEST_MACRO_LINK_REF = """[Page:Custom_Page_1]
 Title=Custom page
 Path=page.html
 
-[Page:CustomPage2]
+[Page:Custom_Page_2]
 Path=page2.html
 Link=Custom page 2
 """
@@ -1187,7 +1187,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def _test_reference_macro(self, macro, def_link_text, page):
         writer = self._get_writer()
         for link_text in ('', '(test)', '(test (nested) parentheses)'):
-            for anchor in ('', '#test'):
+            for anchor in ('', '#test', '#foo_bar*baz'):
                 output = writer.expand('#{0}{1}{2}'.format(macro, anchor, link_text), ASMDIR)
                 self.link_equals(output, '../{0}/{1}.html{2}'.format(REFERENCE_DIR, page, anchor), link_text[1:-1] or def_link_text)
 
@@ -1798,11 +1798,11 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#LINK:Pokes{0}({1})'.format(anchor, link_text), ASMDIR)
         self.link_equals(output, '../{0}/pokes.html{1}'.format(REFERENCE_DIR, anchor), link_text)
 
-        output = writer.expand('#LINK:CustomPage1()', ASMDIR)
+        output = writer.expand('#LINK:Custom_Page_1()', ASMDIR)
         self.link_equals(output, '../page.html', 'Custom page')
 
-        output = writer.expand('#LINK:CustomPage2()', ASMDIR)
-        self.link_equals(output, '../page2.html', 'Custom page 2')
+        output = writer.expand('#LINK:Custom_Page_2#anchor~1()', ASMDIR)
+        self.link_equals(output, '../page2.html#anchor~1', 'Custom page 2')
 
     def test_macro_link_invalid(self):
         writer = self._get_writer()
