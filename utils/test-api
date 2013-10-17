@@ -28,7 +28,16 @@ write_skool() {
 ; { #INVERSE32768,56 }
 ; { Created using INVERSE32768,56 }
 ; TABLE#
+; .
+; #UDGTABLE
+; { #CALL:countdown(countdown.gif) }
+; { Created using CALL:countdown(countdown.gif) }
+; TABLE#
 b32768 DEFB 1,2,4,8,16,32,64,128
+ 32776 DEFB 0,60,70,74,82,98,60,0 ; '0'
+ 32784 DEFB 0,24,40,8,8,8,62,0    ; '1'
+ 32792 DEFB 0,60,66,2,60,64,126,0 ; '2'
+ 32800 DEFB 0,60,66,12,2,66,60,0  ; '3'
 EOF
 }
 
@@ -43,7 +52,7 @@ write_module() {
   cat <<EOF
 import time
 
-from .skoolhtml import HtmlWriter, Udg
+from .skoolhtml import HtmlWriter, Udg, Frame
 from .skoolasm import AsmWriter
 from .skoolmacro import parse_ints
 
@@ -80,6 +89,18 @@ class GameHtmlWriter(HtmlWriter):
             self.write_image(img_path, [[udg]])
         return end, self.img_element(cwd, img_path)
 
+    def countdown(self, cwd, fname):
+        img_path = self.image_path(fname)
+        if self.need_image(img_path):
+            attr = 56
+            kwargs = dict(scale=4, x=2, y=2, width=28, height=28, delay=100)
+            frames = [Frame([[Udg(attr, self.snapshot[32800:32808])]], **kwargs)]
+            frames.append(Frame([[Udg(attr, self.snapshot[32792:32800])]], **kwargs))
+            frames.append(Frame([[Udg(attr, self.snapshot[32784:32792])]], **kwargs))
+            frames.append(Frame([[Udg(attr, self.snapshot[32776:32784])]], **kwargs))
+            self.write_animated_image(img_path, frames)
+        return self.img_element(cwd, img_path)
+
 class GameAsmWriter(AsmWriter):
     def expand_peek(self, text, index):
         end, address = parse_ints(text, index, 1)
@@ -111,8 +132,8 @@ write_skool > build/game.skool
 write_ref > build/game.ref
 write_module > skoolkit/game.py
 
-rm -rf build/game
-$SKOOL2HTML -d build build/game.ref
+rm -rf build/html/game
+$SKOOL2HTML -d build/html build/game.ref
 $SKOOL2ASM build/game.skool > build/game.asm
 
 rm skoolkit/game.py*
