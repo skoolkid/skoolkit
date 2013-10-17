@@ -289,3 +289,13 @@ def parse_reg(text, index, lower):
     if lower:
         return end, reg.lower()
     return end, reg.upper()
+
+def parse_space(text, index):
+    # #SPACE[num] or #SPACE([num])
+    if index < len(text) and text[index] == '(':
+        end, _, num_str = parse_params(text, index)
+        try:
+            return end, get_int_param(num_str)
+        except ValueError:
+            raise MacroParsingError("Invalid integer: '{}'".format(num_str))
+    return parse_ints(text, index, 1, (1,))

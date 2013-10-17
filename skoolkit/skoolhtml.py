@@ -1383,15 +1383,7 @@ class HtmlWriter:
         return end, self.img_element(cwd, scr_path)
 
     def expand_space(self, text, index, cwd):
-        # #SPACE[num] or #SPACE([num])
-        if index < len(text) and text[index] == '(':
-            end, _, num_str = parse_params(text, index)
-            try:
-                num_sp = get_int_param(num_str)
-            except ValueError:
-                raise MacroParsingError("Invalid integer: '{}'".format(num_str))
-        else:
-            end, num_sp = parse_ints(text, index, 1, (1,))
+        end, num_sp = skoolmacro.parse_space(text, index)
         return end, '&#160;' * num_sp
 
     def expand_table(self, text, index, cwd):
