@@ -45,6 +45,9 @@ where:
 * ``anchor`` is the name of the HTML anchor for the entry
 * ``title`` is the title of the entry
 
+To ensure that an entry can be linked to by the :ref:`bug` macro, the anchor
+name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
+
 Paragraphs should be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
 
@@ -183,6 +186,9 @@ where:
 
 * ``anchor`` is the name of the HTML anchor for the entry
 * ``title`` is the title of the entry
+
+To ensure that an entry can be linked to by the :ref:`fact` macro, the anchor
+name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
 
 Paragraphs should be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
@@ -595,9 +601,10 @@ the form::
 
   [OtherCode:asm_id]
 
-where ``asm_id`` is a unique ID for the secondary disassembly. The unique ID
-may be used by the :ref:`#R macro <R>` when referring to routines or data
-blocks in the secondary disassembly from another disassembly.
+where ``asm_id`` is a unique ID for the secondary disassembly; it must be
+limited to the characters '$', '#', 0-9, A-Z and a-z. The unique ID may be used
+by the :ref:`R` macro when referring to routines or data blocks in the
+secondary disassembly from another disassembly.
 
 Each ``OtherCode:*`` section contains parameters in the form::
 
@@ -787,6 +794,9 @@ where:
 
 * ``anchor`` is the name of the HTML anchor for the entry
 * ``title`` is the title of the entry
+
+To ensure that an entry can be linked to by the :ref:`poke` macro, the anchor
+name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
 
 Paragraphs should be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.

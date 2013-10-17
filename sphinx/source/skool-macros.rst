@@ -53,8 +53,7 @@ the 'Bugs' page, or to a specific entry on that page. ::
 * ``#name`` is the named anchor of a bug (if linking to a specific one)
 * ``link text`` is the link text to use
 
-The anchor name must consist of the characters '$', '#', the digits 0-9, and
-the letters A-Z and a-z.
+The anchor name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
 
 In HTML mode, if the link text is blank, the title of the bug entry (if linking
 to a specific one) is substituted; if the link text is omitted entirely, 'bug'
@@ -205,8 +204,7 @@ the 'Trivia' page, or to a specific entry on that page. ::
   one)
 * ``link text`` is the link text to use
 
-The anchor name must consist of the characters '$', '#', the digits 0-9, and
-the letters A-Z and a-z.
+The anchor name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
 
 In HTML mode, if the link text is blank, the title of the trivia entry (if
 linking to a specific one) is substituted; if the link text is omitted
@@ -420,8 +418,7 @@ the 'Pokes' page, or to a specific entry on that page. ::
 * ``#name`` is the named anchor of a poke (if linking to a specific one)
 * ``link text`` is the link text to use
 
-The anchor name must consist of the characters '$', '#', the digits 0-9, and
-the letters A-Z and a-z.
+The anchor name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
 
 In HTML mode, if the link text is blank, the title of the poke entry (if
 linking to a specific one) is substituted; if the link text is omitted
@@ -527,8 +524,8 @@ it with an identical copy with a given name. ::
 
 * ``name`` is the snapshot name (defaults to an empty string)
 
-The snapshot name may consist of the characters '$', '#', the digits 0-9, and
-the letters A-Z and a-z; it must not start with a capital letter.
+The snapshot name must be limited to the characters '$', '#', 0-9, A-Z and a-z;
+it must not start with a capital letter.
 
 For example::
 
@@ -566,6 +563,9 @@ given address within that page. ::
   an ID defined in an ``[OtherCode:*]`` section of the ref file)
 * ``#name`` is the named anchor of an item on the disassembly page
 * ``link text`` is the link text to use (default: ``addr``)
+
+The disassembly ID (``code``) and anchor name (``name``) must be limited to the
+characters '$', '#', 0-9, A-Z and a-z.
 
 In ASM mode, the ``#R`` macro expands to the link text if it is specified, or
 to the label for ``addr``, or to ``addr`` if no label is found.
