@@ -227,13 +227,7 @@ class AsmWriter:
         return self._expand_item_macro(text, index, 'poke')
 
     def expand_pokes(self, text, index):
-        # #POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
-        end, addr, byte, length, step = parse_ints(text, index, 4, (1, 1))
-        self.snapshot[addr:addr + length * step:step] = [byte] * length
-        while end < len(text) and text[end] == ';':
-            end, addr, byte, length, step = parse_ints(text, end + 1, 4, (1, 1))
-            self.snapshot[addr:addr + length * step:step] = [byte] * length
-        return end, ''
+        return skoolmacro.parse_pokes(text, index, self.snapshot)
 
     def expand_pops(self, text, index):
         # #POPS

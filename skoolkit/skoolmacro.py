@@ -218,3 +218,12 @@ def parse_link(text, index):
     if sep:
         anchor = sep + anchor
     return end, page_id, anchor, link_text
+
+def parse_pokes(text, index, snapshot):
+    # #POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
+    end, addr, byte, length, step = parse_ints(text, index, 4, (1, 1))
+    snapshot[addr:addr + length * step:step] = [byte] * length
+    while end < len(text) and text[end] == ';':
+        end, addr, byte, length, step = parse_ints(text, end + 1, 4, (1, 1))
+        snapshot[addr:addr + length * step:step] = [byte] * length
+    return end, ''
