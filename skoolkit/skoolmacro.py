@@ -143,6 +143,20 @@ class UnsupportedMacroError(SkoolKitError):
 class MacroParsingError(SkoolKitError):
     pass
 
+def parse_item_macro(text, index, macro, def_link_text):
+    end, anchor, link_text = parse_params(text, index)
+    if anchor and anchor[0] != '#':
+        raise MacroParsingError("Malformed macro: {}{}".format(macro, text[index:end]))
+    if anchor == '#':
+        raise MacroParsingError("No item name: {}{}".format(macro, text[index:end]))
+    if link_text is None:
+        link_text = def_link_text
+    return end, anchor[1:], link_text
+
+def parse_bug(text, index):
+    # #BUG[#name][(link text)]
+    return parse_item_macro(text, index, '#BUG', 'bug')
+
 def parse_call(text, index, writer):
     # #CALL:methodName(args)
     macro = '#CALL'
@@ -202,6 +216,10 @@ def parse_erefs(text, index, entry_holder):
     rep += '#R{}'.format(addr)
     return end, rep
 
+def parse_fact(text, index):
+    # #FACT[#name][(link text)]
+    return parse_item_macro(text, index, '#FACT', 'fact')
+
 def parse_link(text, index):
     # #LINK:PageId[#name](link text)
     macro = '#LINK'
@@ -218,6 +236,10 @@ def parse_link(text, index):
     if sep:
         anchor = sep + anchor
     return end, page_id, anchor, link_text
+
+def parse_poke(text, index):
+    # #POKE[#name][(link text)]
+    return parse_item_macro(text, index, '#POKE', 'poke')
 
 def parse_pokes(text, index, snapshot):
     # #POKESaddr,byte[,length,step][;addr,byte[,length,step];...]

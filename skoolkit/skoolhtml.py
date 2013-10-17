@@ -1250,24 +1250,24 @@ class HtmlWriter:
 
         return [end, img_path, (x, y, width, height)] + params
 
-    def _expand_item_macro(self, macro, text, index, cwd, items, path_id, def_link_text):
-        end, anchor, link_text = skoolmacro.parse_params(text, index)
-        if anchor and link_text == '':
+    def _expand_item_macro(self, item, link_text, cwd, items, path_id):
+        if item and link_text == '':
             for name, title, contents in items:
-                if anchor[1:] == name:
+                if item == name:
                     link_text = title
                     break
             else:
-                raise MacroParsingError("Cannot determine title of item: {0}{1}()".format(macro, anchor))
-        if link_text is None:
-            link_text = def_link_text
+                raise MacroParsingError("Cannot determine title of item '{}'".format(item))
+        if item:
+            anchor = '#' + item
+        else:
+            anchor = ''
         items_file = FileInfo.relpath(cwd, self.paths[path_id])
-        link = '<a class="link" href="{0}{1}">{2}</a>'.format(items_file, anchor, link_text)
-        return end, link
+        return '<a class="link" href="{}{}">{}</a>'.format(items_file, anchor, link_text)
 
     def expand_bug(self, text, index, cwd):
-        # #BUG[#name][(link text)]
-        return self._expand_item_macro('#BUG', text, index, cwd, self.bugs, P_BUGS, 'bug')
+        end, item, link_text = skoolmacro.parse_bug(text, index)
+        return end, self._expand_item_macro(item, link_text, cwd, self.bugs, P_BUGS)
 
     def expand_call(self, text, index, cwd):
         end, method, args, warning = skoolmacro.parse_call(text, index, self)
@@ -1290,8 +1290,8 @@ class HtmlWriter:
         return skoolmacro.parse_erefs(text, index, self)
 
     def expand_fact(self, text, index, cwd):
-        # #FACT[#name][(link text)]
-        return self._expand_item_macro('#FACT', text, index, cwd, self.facts, P_FACTS, 'fact')
+        end, item, link_text = skoolmacro.parse_fact(text, index)
+        return end, self._expand_item_macro(item, link_text, cwd, self.facts, P_FACTS)
 
     def expand_font(self, text, index, cwd):
         # #FONT[:(text)]addr[,chars,attr,scale][{X,Y,W,H}][(fname)]
@@ -1328,8 +1328,8 @@ class HtmlWriter:
         return end, self.build_list(list_obj)
 
     def expand_poke(self, text, index, cwd):
-        # #POKE[#name][(link text)]
-        return self._expand_item_macro('#POKE', text, index, cwd, self.pokes, P_POKES, 'poke')
+        end, item, link_text = skoolmacro.parse_poke(text, index)
+        return end, self._expand_item_macro(item, link_text, cwd, self.pokes, P_POKES)
 
     def expand_pokes(self, text, index, cwd):
         return skoolmacro.parse_pokes(text, index, self.snapshot)

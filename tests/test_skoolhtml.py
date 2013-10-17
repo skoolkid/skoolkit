@@ -1191,8 +1191,21 @@ class HtmlWriterTest(SkoolKitTestCase):
                 output = writer.expand('#{0}{1}{2}'.format(macro, anchor, link_text), ASMDIR)
                 self.link_equals(output, '../{0}/{1}.html{2}'.format(REFERENCE_DIR, page, anchor), link_text[1:-1] or def_link_text)
 
+    def _test_invalid_reference_macro(self, macro):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format(macro)
+
+        # Non-existent item
+        self.assert_error(writer, '#{}#nonexistentItem()'.format(macro), "Cannot determine title of item 'nonexistentItem'", prefix)
+
+        # Malformed item name
+        self.assert_error(writer, '#{}bad#name()'.format(macro), "Malformed macro: #{}bad#name()".format(macro), prefix)
+
+        # No item name
+        self.assert_error(writer, '#{}#(foo)'.format(macro), "No item name: #{}#(foo)".format(macro), prefix)
+
         # No closing bracket
-        self.assert_error(writer, '#{}(foo'.format(macro), "No closing bracket: (foo", ERROR_PREFIX.format(macro))
+        self.assert_error(writer, '#{}(foo'.format(macro), "No closing bracket: (foo", prefix)
 
     def _test_call(self, *args):
         # Method used to test the #CALL macro
@@ -1462,12 +1475,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#BUG#{0}()'.format(anchor), ASMDIR)
         self.link_equals(output, '../reference/bugs.html#{0}'.format(anchor), title)
 
-        # Nonexistent item
-        prefix = ERROR_PREFIX.format('BUG')
-        writer = self._get_writer()
-        macro = '#BUG#nonexistentBug()'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Cannot determine title of item: {}'.format(prefix, macro)):
-            writer.expand(macro, ASMDIR)
+    def test_macro_bug_invalid(self):
+        self._test_invalid_reference_macro('BUG')
 
     def test_macro_call(self):
         writer = self._get_writer()
@@ -1641,12 +1650,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#FACT#{0}()'.format(anchor), ASMDIR)
         self.link_equals(output, '../reference/facts.html#{0}'.format(anchor), title)
 
-        # Nonexistent item
-        prefix = ERROR_PREFIX.format('FACT')
-        writer = self._get_writer()
-        macro = '#FACT#nonexistentFact()'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Cannot determine title of item: {}'.format(prefix, macro)):
-            writer.expand(macro, ASMDIR)
+    def test_macro_fact_invalid(self):
+        self._test_invalid_reference_macro('FACT')
 
     def test_macro_font(self):
         snapshot = [0] * 65536
@@ -1880,12 +1885,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#POKE#{0}()'.format(anchor), ASMDIR)
         self.link_equals(output, '../reference/pokes.html#{0}'.format(anchor), title)
 
-        # Nonexistent item
-        prefix = ERROR_PREFIX.format('POKE')
-        writer = self._get_writer()
-        macro = '#POKE#nonexistentPoke()'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Cannot determine title of item: {}'.format(prefix, macro)):
-            writer.expand(macro, ASMDIR)
+    def test_macro_poke_invalid(self):
+        self._test_invalid_reference_macro('POKE')
 
     def test_macro_pokes(self):
         writer = self._get_writer(snapshot=[0] * 65536)

@@ -1142,8 +1142,21 @@ class AsmWriterTest(SkoolKitTestCase):
                 output = writer.expand('#{0}{1}{2}'.format(macro, anchor, link_text))
                 self.assertEqual(output, link_text[1:-1] or def_link_text)
 
+    def _test_invalid_reference_macro(self, macro):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format(macro)
+
+        # Non-existent item
+        self.assert_error(writer, '#{}#nonexistentItem()'.format(macro), "Cannot determine title of item 'nonexistentItem'", prefix)
+
+        # Malformed item name
+        self.assert_error(writer, '#{}bad#name()'.format(macro), "Malformed macro: #{}bad#name()".format(macro), prefix)
+
+        # No item name
+        self.assert_error(writer, '#{}#(foo)'.format(macro), "No item name: #{}#(foo)".format(macro), prefix)
+
         # No closing bracket
-        self.assert_error(writer, '#{}(foo'.format(macro), "No closing bracket: (foo", ERROR_PREFIX.format(macro))
+        self.assert_error(writer, '#{}(foo'.format(macro), "No closing bracket: (foo", prefix)
 
     def _test_call(self, *args):
         return str(args)

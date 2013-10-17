@@ -146,10 +146,6 @@ class AsmWriter:
     def write_line(self, s):
         write_text('{0}{1}'.format(s, self.end))
 
-    def _expand_item_macro(self, text, index, default):
-        end, params, p_text = skoolmacro.parse_params(text, index, default)
-        return end, p_text
-
     def pop_snapshot(self):
         """Discard the current memory snapshot and replace it with the one that
         was most recently saved (by
@@ -175,8 +171,8 @@ class AsmWriter:
                 self.macros[macro] = method
 
     def expand_bug(self, text, index):
-        # #BUG[#name][(link text)]
-        return self._expand_item_macro(text, index, 'bug')
+        end, item, link_text = skoolmacro.parse_bug(text, index)
+        return end, link_text
 
     def expand_call(self, text, index):
         end, method, args, warning = skoolmacro.parse_call(text, index, self)
@@ -199,8 +195,8 @@ class AsmWriter:
         return skoolmacro.parse_erefs(text, index, self.parser)
 
     def expand_fact(self, text, index):
-        # #FACT[#name][(link text)]
-        return self._expand_item_macro(text, index, 'fact')
+        end, item, link_text = skoolmacro.parse_fact(text, index)
+        return end, link_text
 
     def expand_font(self, text, index):
         # #FONT[:(text)]addr[,chars,attr,scale][{X,Y,W,H}][(fname)]
@@ -223,8 +219,8 @@ class AsmWriter:
         return end, link_text
 
     def expand_poke(self, text, index):
-        # #POKE[#name][(link text)]
-        return self._expand_item_macro(text, index, 'poke')
+        end, item, link_text = skoolmacro.parse_poke(text, index)
+        return end, link_text
 
     def expand_pokes(self, text, index):
         return skoolmacro.parse_pokes(text, index, self.snapshot)
