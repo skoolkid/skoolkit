@@ -157,7 +157,7 @@ def parse_bug(text, index):
     # #BUG[#name][(link text)]
     return parse_item_macro(text, index, '#BUG', 'bug')
 
-def parse_call(text, index, writer):
+def parse_call(text, index, writer, cwd=None):
     # #CALL:methodName(args)
     macro = '#CALL'
     if index >= len(text):
@@ -168,15 +168,23 @@ def parse_call(text, index, writer):
     if not method_name:
         raise MacroParsingError("No method name")
     if not hasattr(writer, method_name):
-        warning = "Unknown method name in {} macro: {}".format(macro, method_name)
-        return end, None, None, warning
+        writer.warn("Unknown method name in {} macro: {}".format(macro, method_name))
+        return end, ''
     method = getattr(writer, method_name)
     if not inspect.ismethod(method):
         raise MacroParsingError("Uncallable method name: {}".format(method_name))
     if arg_string is None:
         raise MacroParsingError("No argument list specified: {}{}".format(macro, text[index:end]))
     args = get_params(arg_string, ints=())
-    return end, method, args, None
+    if cwd is not None:
+        args.insert(0, cwd)
+    try:
+        retval = method(*args)
+    except Exception as e:
+        raise MacroParsingError("Method call {} failed: {}".format(text[index + 1:end], e))
+    if retval is None:
+        retval = ''
+    return end, retval
 
 def parse_chr(text, index):
     # #CHRnum or #CHR(num)

@@ -1162,8 +1162,9 @@ class AsmWriterTest(SkoolKitTestCase):
         # No closing bracket
         self.assert_error(writer, '#{}(foo'.format(macro), "No closing bracket: (foo", prefix)
 
-    def _test_call(self, *args):
-        return str(args)
+    def _test_call(self, arg1, arg2, arg3=None):
+        # Method used to test the #CALL macro
+        return str((arg1, arg2, arg3))
 
     def _test_call_no_retval(self, *args):
         return
@@ -1222,6 +1223,12 @@ class AsmWriterTest(SkoolKitTestCase):
 
         # No closing bracket
         self.assert_error(writer, '#CALL:test_call(1,2', 'No closing bracket: (1,2', prefix)
+
+        # Not enough parameters
+        self.assert_error(writer, '#CALL:test_call(1)', 'Method call test_call(1) failed: _test_call() takes at least 3 arguments (2 given)', prefix)
+
+        # Too many parameters
+        self.assert_error(writer, '#CALL:test_call(1,2,3,4)', 'Method call test_call(1,2,3,4) failed: _test_call() takes at most 4 arguments (5 given)', prefix)
 
     def test_macro_chr(self):
         writer = self._get_writer()

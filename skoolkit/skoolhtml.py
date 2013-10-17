@@ -200,6 +200,9 @@ class HtmlWriter:
         """
         return
 
+    def warn(self, s):
+         warn(s)
+
     def clone(self, skool_parser, code_id):
         the_clone = self.__class__(skool_parser, self.ref_parser, self.file_info, self.image_writer, self.case, code_id)
         the_clone.set_style_sheet(self.game_vars['StyleSheet'])
@@ -1270,14 +1273,7 @@ class HtmlWriter:
         return end, self._expand_item_macro(item, link_text, cwd, self.bugs, P_BUGS)
 
     def expand_call(self, text, index, cwd):
-        end, method, args, warning = skoolmacro.parse_call(text, index, self)
-        if warning:
-            warn(warning)
-            return end, ''
-        retval = method(cwd, *args)
-        if retval is None:
-            retval = ''
-        return end, retval
+        return skoolmacro.parse_call(text, index, self, cwd)
 
     def expand_chr(self, text, index, cwd):
         end, num = skoolmacro.parse_chr(text, index)

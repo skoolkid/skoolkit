@@ -175,14 +175,7 @@ class AsmWriter:
         return end, link_text or 'bug'
 
     def expand_call(self, text, index):
-        end, method, args, warning = skoolmacro.parse_call(text, index, self)
-        if warning:
-            self.warn(warning)
-            return end, ''
-        retval = method(*args)
-        if retval is None:
-            retval = ''
-        return end, retval
+        return skoolmacro.parse_call(text, index, self)
 
     def expand_chr(self, text, index):
         end, num = skoolmacro.parse_chr(text, index)
