@@ -1270,7 +1270,6 @@ class HtmlWriter:
         return self._expand_item_macro('#BUG', text, index, cwd, self.bugs, P_BUGS, 'bug')
 
     def expand_call(self, text, index, cwd):
-        # #CALL:methodName(args)
         end, method, args, warning = skoolmacro.parse_call(text, index, self)
         if warning:
             warn(warning)
@@ -1281,15 +1280,7 @@ class HtmlWriter:
         return end, retval
 
     def expand_chr(self, text, index, cwd):
-        # #CHRnum or #CHR(num)
-        if index < len(text) and text[index] == '(':
-            end, _, num_str = parse_params(text, index)
-            try:
-                num = get_int_param(num_str)
-            except ValueError:
-                raise MacroParsingError("Invalid integer: '{}'".format(num_str))
-        else:
-            end, num = parse_ints(text, index, 1)
+        end, num = skoolmacro.parse_chr(text, index)
         return end, '&#{};'.format(num)
 
     def expand_d(self, text, index, cwd):

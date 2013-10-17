@@ -18,7 +18,7 @@
 
 import inspect
 
-from . import parse_int, SkoolKitError
+from . import get_int_param, parse_int, SkoolKitError
 
 DELIMITERS = {
     '(': ')',
@@ -163,3 +163,15 @@ def parse_call(text, index, writer):
         raise MacroParsingError("No argument list specified: {}{}".format(macro, text[index:end]))
     args = get_params(arg_string, ints=())
     return end, method, args, None
+
+def parse_chr(text, index):
+    # #CHRnum or #CHR(num)
+    if index < len(text) and text[index] == '(':
+        end, _, num_str = parse_params(text, index)
+        try:
+            num = get_int_param(num_str)
+        except ValueError:
+            raise MacroParsingError("Invalid integer: '{}'".format(num_str))
+    else:
+        end, num = parse_ints(text, index, 1)
+    return end, num

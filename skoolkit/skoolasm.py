@@ -189,15 +189,7 @@ class AsmWriter:
         return end, retval
 
     def expand_chr(self, text, index):
-        # #CHRnum or #CHR(num)
-        if index < len(text) and text[index] == '(':
-            end, _, num_str = parse_params(text, index)
-            try:
-                num = get_int_param(num_str)
-            except ValueError:
-                raise MacroParsingError("Invalid integer: '{}'".format(num_str))
-        else:
-            end, num = parse_ints(text, index, 1)
+        end, num = skoolmacro.parse_chr(text, index)
         return end, get_chr(num)
 
     def expand_d(self, text, index):
