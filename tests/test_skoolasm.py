@@ -1367,8 +1367,10 @@ class AsmWriterTest(SkoolKitTestCase):
             writer.expand('#LINKpageID')
 
         # No link text
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No link text specified: #LINK:PageID'.format(prefix)):
-            writer.expand('#LINK:PageID')
+        self.assert_error(writer, '#LINK:PageID', 'No link text: #LINK:PageID', prefix)
+
+        # Blank link text
+        self.assert_error(writer, '#LINK:PageID()', 'Blank link text: #LINK:PageID()', prefix)
 
     def test_macro_list(self):
         writer = self._get_writer()

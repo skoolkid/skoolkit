@@ -201,3 +201,20 @@ def parse_erefs(text, index, entry_holder):
     addr = ereferrers[-1]
     rep += '#R{}'.format(addr)
     return end, rep
+
+def parse_link(text, index):
+    # #LINK:PageId[#name](link text)
+    macro = '#LINK'
+    if index >= len(text):
+        raise MacroParsingError("No parameters")
+    if text[index] != ':':
+        raise MacroParsingError("Malformed macro: {}{}...".format(macro, text[index]))
+    end, param_str, link_text = parse_params(text, index + 1)
+    if not param_str:
+        raise MacroParsingError("No page ID: {}{}".format(macro, text[index:end]))
+    if link_text is None:
+        raise MacroParsingError("No link text: {}{}".format(macro, text[index:end]))
+    page_id, sep, anchor = param_str.partition('#')
+    if sep:
+        anchor = sep + anchor
+    return end, page_id, anchor, link_text

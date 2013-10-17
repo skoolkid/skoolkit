@@ -217,17 +217,9 @@ class AsmWriter:
         return end, ''
 
     def expand_link(self, text, index):
-        # #LINK:PageId[#name](link text)
-        macro = '#LINK'
-        if index >= len(text):
-            raise MacroParsingError("No parameters")
-        if text[index] != ':':
-            raise MacroParsingError("Malformed macro: {0}{1}...".format(macro, text[index]))
-        end, page_id, link_text = parse_params(text, index + 1)
-        if not page_id:
-            raise MacroParsingError("No page ID: {}{}".format(macro, text[index:end]))
+        end, page_id, anchor, link_text = skoolmacro.parse_link(text, index)
         if not link_text:
-            raise MacroParsingError("No link text specified: {0}{1}".format(macro, text[index:end]))
+            raise MacroParsingError("Blank link text: #LINK{}".format(text[index:end]))
         return end, link_text
 
     def expand_poke(self, text, index):

@@ -1313,27 +1313,13 @@ class HtmlWriter:
         return get_text_param(text, index)
 
     def expand_link(self, text, index, cwd):
-        # #LINK:PageId[#name](link text)
-        macro = '#LINK'
-        if index >= len(text):
-            raise MacroParsingError("No parameters")
-        if text[index] != ':':
-            raise MacroParsingError("Malformed macro: {0}{1}...".format(macro, text[index]))
-        end, page_id, link_text = parse_params(text, index + 1)
-        if not page_id:
-            raise MacroParsingError("No page ID: {}{}".format(macro, text[index:end]))
-        anchor = ''
-        if '#' in page_id:
-            page_id, anchor = page_id.split('#')
-            anchor = '#' + anchor
+        end, page_id, anchor, link_text = skoolmacro.parse_link(text, index)
         if page_id not in self.paths:
-            raise MacroParsingError("Unknown page ID: {0}".format(page_id))
+            raise MacroParsingError("Unknown page ID: {}".format(page_id))
         if link_text == '':
             link_text = self.links[page_id][0]
         href = FileInfo.relpath(cwd, self.paths[page_id])
-        if not link_text:
-            raise MacroParsingError("No link text: {0}{1}".format(macro, text[index:end]))
-        link = '<a class="link" href="{0}{1}">{2}</a>'.format(href, anchor, link_text)
+        link = '<a class="link" href="{}{}">{}</a>'.format(href, anchor, link_text)
         return end, link
 
     def expand_list(self, text, index, cwd):
