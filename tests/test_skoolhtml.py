@@ -2313,16 +2313,18 @@ class HtmlWriterTest(SkoolKitTestCase):
             output = writer.expand('#REG{0}'.format(reg), ASMDIR)
             self.assertEqual(output, '<span class="register">{0}</span>'.format(reg.upper()))
 
+    def test_macro_reg_invalid(self):
+        writer = self._get_writer()
         prefix = ERROR_PREFIX.format('REG')
 
-        # Missing register argument
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Missing register argument'.format(prefix)):
-            writer.expand('#REG', ASMDIR)
+        # Missing register argument (1)
+        self.assert_error(writer, '#REG', 'Missing register argument', prefix)
+
+        # Missing register argument (2)
+        self.assert_error(writer, '#REGq', 'Missing register argument', prefix)
 
         # Bad register argument
-        bad_reg = 'abcd'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Bad register: "{}"'.format(prefix, bad_reg)):
-            writer.expand('#REG{0}'.format(bad_reg), ASMDIR)
+        self.assert_error(writer, '#REGabcd', 'Bad register: "abcd"', prefix)
 
     def test_macro_scr(self):
         snapshot = [0] * 65536

@@ -1724,16 +1724,18 @@ class AsmWriterTest(SkoolKitTestCase):
             output = writer.expand('#REG{0}'.format(reg))
             self.assertEqual(output, reg.upper())
 
+    def test_macro_reg_invalid(self):
+        writer = self._get_writer()
         prefix = ERROR_PREFIX.format('REG')
 
-        # Missing register argument
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Missing register argument'.format(prefix)):
-            writer.expand('#REG')
+        # Missing register argument (1)
+        self.assert_error(writer, '#REG', 'Missing register argument', prefix)
 
-        # Bad register arguments
-        for bad_reg in ('q', 'toolong', 'az', 'mb'):
-            with self.assertRaisesRegexp(SkoolParsingError, '{}: Bad register: "{}"'.format(prefix, bad_reg)):
-                writer.expand('#REG{0}'.format(bad_reg))
+        # Missing register argument (2)
+        self.assert_error(writer, '#REGq', 'Missing register argument', prefix)
+
+        # Bad register argument
+        self.assert_error(writer, '#REGabcd', 'Bad register: "abcd"', prefix)
 
     def test_macro_scr(self):
         writer = self._get_writer()

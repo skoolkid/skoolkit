@@ -262,17 +262,7 @@ class AsmWriter:
         return skoolmacro.parse_refs(text, index, self.entries)
 
     def expand_reg(self, text, index):
-        # #REGreg
-        end, reg, p_text = parse_params(text, index, chars="'")
-        if not reg:
-            raise MacroParsingError('Missing register argument')
-        if len(reg) > 3 or any([char not in "abcdefhlirspxy'" for char in reg]):
-            raise MacroParsingError('Bad register: "{0}"'.format(reg))
-        if self.lower:
-            reg_name = reg.lower()
-        else:
-            reg_name = reg.upper()
-        return end, reg_name
+        return skoolmacro.parse_reg(text, index, self.lower)
 
     def expand_scr(self, text, index):
         # #SCR[scale,x,y,w,h,dfAddr,afAddr][{X,Y,W,H}][(fname)]

@@ -275,3 +275,17 @@ def parse_refs(text, index, entries):
     else:
         rep = 'Not used directly by any other routines'
     return end, rep
+
+def parse_reg(text, index, lower):
+    # #REGreg
+    end = index
+    while end < len(text) and text[end] in "abcdefhlirspxy'":
+        end += 1
+    reg = text[index:end]
+    if not reg:
+        raise MacroParsingError('Missing register argument')
+    if len(reg) > 3:
+        raise MacroParsingError('Bad register: "{}"'.format(reg))
+    if lower:
+        return end, reg.lower()
+    return end, reg.upper()

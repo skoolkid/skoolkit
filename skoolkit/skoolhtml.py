@@ -1372,20 +1372,8 @@ class HtmlWriter:
         return skoolmacro.parse_refs(text, index, self.entries)
 
     def expand_reg(self, text, index, cwd):
-        # #REGreg
-        end = index
-        while end < len(text) and text[end] in "abcdefhlirspxy'":
-            end += 1
-        reg = text[index:end]
-        if not reg:
-            raise MacroParsingError('Missing register argument')
-        if len(reg) > 3:
-            raise MacroParsingError('Bad register: "{0}"'.format(reg))
-        if self.case == CASE_LOWER:
-            reg_name = reg.lower()
-        else:
-            reg_name = reg.upper()
-        return end, '<span class="register">{0}</span>'.format(reg_name)
+        end, reg = skoolmacro.parse_reg(text, index, self.case == CASE_LOWER)
+        return end, '<span class="register">{}</span>'.format(reg)
 
     def expand_scr(self, text, index, cwd):
         # #SCR[scale,x,y,w,h,dfAddr,afAddr][{X,Y,W,H}][(fname)]
