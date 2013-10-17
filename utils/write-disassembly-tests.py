@@ -4,7 +4,7 @@ import sys
 import os
 
 def write_tests(class_name, options_list):
-    print('from test_disassemblies import {}Case'.format(class_name))
+    print('from disassemblytest import {}Case'.format(class_name))
     print('')
     print('class {0}({0}Case):'.format(class_name))
     for game in ('mm', 'jsw', 'rom'):
