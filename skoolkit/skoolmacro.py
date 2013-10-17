@@ -144,7 +144,7 @@ class MacroParsingError(SkoolKitError):
     pass
 
 def parse_item_macro(text, index, macro, def_link_text):
-    end, anchor, link_text = parse_params(text, index, except_chars=' (')
+    end, anchor, link_text = parse_params(text, index)
     if anchor and anchor[0] != '#':
         raise MacroParsingError("Malformed macro: {}{}".format(macro, text[index:end]))
     if anchor == '#':

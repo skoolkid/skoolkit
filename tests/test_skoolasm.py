@@ -1138,9 +1138,13 @@ class AsmWriterTest(SkoolKitTestCase):
     def _test_reference_macro(self, macro, def_link_text):
         writer = self._get_writer()
         for link_text in ('',  '(testing)', '(testing (nested) parentheses)'):
-            for anchor in ('', '#name', '#foo_bar*baz'):
-                output = writer.expand('#{0}{1}{2}'.format(macro, anchor, link_text))
+            for anchor in ('', '#name', '#foo$bar'):
+                output = writer.expand('#{}{}{}'.format(macro, anchor, link_text))
                 self.assertEqual(output, link_text[1:-1] or def_link_text)
+
+        for suffix in ',;:.!)?/"\'':
+            output = writer.expand('#{}#name{}'.format(macro, suffix))
+            self.assertEqual(output, def_link_text + suffix)
 
     def _test_invalid_reference_macro(self, macro):
         writer = self._get_writer()

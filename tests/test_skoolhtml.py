@@ -1187,9 +1187,13 @@ class HtmlWriterTest(SkoolKitTestCase):
     def _test_reference_macro(self, macro, def_link_text, page):
         writer = self._get_writer()
         for link_text in ('', '(test)', '(test (nested) parentheses)'):
-            for anchor in ('', '#test', '#foo_bar*baz'):
-                output = writer.expand('#{0}{1}{2}'.format(macro, anchor, link_text), ASMDIR)
-                self.link_equals(output, '../{0}/{1}.html{2}'.format(REFERENCE_DIR, page, anchor), link_text[1:-1] or def_link_text)
+            for anchor in ('', '#test', '#foo$bar'):
+                output = writer.expand('#{}{}{}'.format(macro, anchor, link_text), ASMDIR)
+                self.link_equals(output, '../{}/{}.html{}'.format(REFERENCE_DIR, page, anchor), link_text[1:-1] or def_link_text)
+
+        for suffix in ',;:.!)?/"\'':
+            output = writer.expand('#{}#name{}'.format(macro, suffix), ASMDIR)
+            self.link_equals(output, '../{}/{}.html#name'.format(REFERENCE_DIR, page), def_link_text, suffix)
 
     def _test_invalid_reference_macro(self, macro):
         writer = self._get_writer()
@@ -1246,8 +1250,8 @@ class HtmlWriterTest(SkoolKitTestCase):
                 self.assertEqual(udg.data, snapshot[df_addr:df_addr + 2048:256], 'Graphic data for cell at ({0},{1}) is incorrect'.format(x, y))
                 self.assertEqual(udg.attr, snapshot[af_addr], 'Attribute byte for cell at ({0},{1}) is incorrect'.format(x, y))
 
-    def link_equals(self, html, href, text):
-        self.assertEqual(html, '<a class="link" href="{0}">{1}</a>'.format(href, text))
+    def link_equals(self, html, href, text, suffix=''):
+        self.assertEqual(html, '<a class="link" href="{}">{}</a>{}'.format(href, text, suffix))
 
     def img_equals(self, html, alt, src):
         self.assertEqual(html, '<img alt="{0}" src="{1}" />'.format(alt, src))

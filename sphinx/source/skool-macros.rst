@@ -53,6 +53,9 @@ the 'Bugs' page, or to a specific entry on that page. ::
 * ``#name`` is the named anchor of a bug (if linking to a specific one)
 * ``link text`` is the link text to use
 
+The anchor name must consist of the characters '$', '#', the digits 0-9, and
+the letters A-Z and a-z.
+
 In HTML mode, if the link text is blank, the title of the bug entry (if linking
 to a specific one) is substituted; if the link text is omitted entirely, 'bug'
 is substituted.
@@ -201,6 +204,9 @@ the 'Trivia' page, or to a specific entry on that page. ::
 * ``#name`` is the named anchor of a trivia entry (if linking to a specific
   one)
 * ``link text`` is the link text to use
+
+The anchor name must consist of the characters '$', '#', the digits 0-9, and
+the letters A-Z and a-z.
 
 In HTML mode, if the link text is blank, the title of the trivia entry (if
 linking to a specific one) is substituted; if the link text is omitted
@@ -413,6 +419,9 @@ the 'Pokes' page, or to a specific entry on that page. ::
 
 * ``#name`` is the named anchor of a poke (if linking to a specific one)
 * ``link text`` is the link text to use
+
+The anchor name must consist of the characters '$', '#', the digits 0-9, and
+the letters A-Z and a-z.
 
 In HTML mode, if the link text is blank, the title of the poke entry (if
 linking to a specific one) is substituted; if the link text is omitted
