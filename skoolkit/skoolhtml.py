@@ -1369,30 +1369,7 @@ class HtmlWriter:
         return end, link
 
     def expand_refs(self, text, index, cwd):
-        # #REFSaddr[(prefix)]
-        end, addr_str, prefix = parse_params(text, index, '')
-        if not addr_str:
-            raise MacroParsingError("No address")
-        try:
-            address = get_int_param(addr_str)
-        except ValueError:
-            raise MacroParsingError("Invalid address: {}".format(addr_str))
-        entry = self.entries.get(address)
-        if not entry:
-            raise MacroParsingError('No entry at {0}'.format(addr_str))
-        referrers = [ref.address for ref in entry.referrers]
-        if referrers:
-            if len(referrers) == 1:
-                html = ('{0} routine at '.format(prefix)).lstrip()
-            else:
-                referrers.sort()
-                html = ('{0} routines at '.format(prefix)).lstrip()
-                html += ', '.join('#R{}'.format(addr) for addr in referrers[:-1])
-                html += ' and '
-            html += '#R{}'.format(referrers[-1])
-        else:
-            html = 'Not used directly by any other routines'
-        return end, html
+        return skoolmacro.parse_refs(text, index, self.entries)
 
     def expand_reg(self, text, index, cwd):
         # #REGreg

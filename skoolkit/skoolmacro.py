@@ -249,3 +249,29 @@ def parse_r(text, index):
     except ValueError:
         raise MacroParsingError("Invalid address: {}".format(addr_str))
     return end, addr_str, address, code_id, anchor, link_text
+
+def parse_refs(text, index, entries):
+    # #REFSaddr[(prefix)]
+    end, addr_str, prefix = parse_params(text, index, '')
+    if not addr_str:
+        raise MacroParsingError("No address")
+    try:
+        address = get_int_param(addr_str)
+    except ValueError:
+        raise MacroParsingError("Invalid address: {}".format(addr_str))
+    entry = entries.get(address)
+    if not entry:
+        raise MacroParsingError('No entry at {}'.format(addr_str))
+    referrers = [ref.address for ref in entry.referrers]
+    if referrers:
+        referrers.sort()
+        rep = '{} routine at '.format(prefix).lstrip()
+        if len(referrers) > 1:
+            rep = '{} routines at '.format(prefix).lstrip()
+            rep += ', '.join('#R{}'.format(addr) for addr in referrers[:-1])
+            rep += ' and '
+        addr = referrers[-1]
+        rep += '#R{}'.format(addr)
+    else:
+        rep = 'Not used directly by any other routines'
+    return end, rep

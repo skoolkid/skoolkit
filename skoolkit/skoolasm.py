@@ -259,34 +259,7 @@ class AsmWriter:
         return end, label
 
     def expand_refs(self, text, index):
-        # #REFSaddr[(prefix)]
-        end, addr_str, prefix = parse_params(text, index, '')
-        if not addr_str:
-            raise MacroParsingError("No address")
-        try:
-            address = get_int_param(addr_str)
-        except ValueError:
-            raise MacroParsingError("Invalid address: {}".format(addr_str))
-        entry = self.entries.get(address)
-        if not entry:
-            raise MacroParsingError('No entry at {0}'.format(addr_str))
-        if text[index] == '$':
-            addr_fmt = '${0:04X}'
-        else:
-            addr_fmt = '{0}'
-        referrers = [ref.address for ref in entry.referrers]
-        if referrers:
-            referrers.sort()
-            rep = '{0} routine at '.format(prefix).lstrip()
-            if len(referrers) > 1:
-                rep = '{0} routines at '.format(prefix).lstrip()
-                rep += ', '.join('#R{0}'.format(addr_fmt.format(addr)) for addr in referrers[:-1])
-                rep += ' and '
-            addr = referrers[-1]
-            rep += '#R{0}'.format(addr_fmt.format(addr))
-        else:
-            rep = 'Not used directly by any other routines'
-        return end, rep
+        return skoolmacro.parse_refs(text, index, self.entries)
 
     def expand_reg(self, text, index):
         # #REGreg
