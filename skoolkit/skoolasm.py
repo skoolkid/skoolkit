@@ -208,8 +208,7 @@ class AsmWriter:
         raise UnsupportedMacroError()
 
     def expand_html(self, text, index):
-        # #HTML(text)
-        end, message = skoolmacro.get_text_param(text, index)
+        end, message = skoolmacro.parse_html(text, index)
         return end, ''
 
     def expand_link(self, text, index):

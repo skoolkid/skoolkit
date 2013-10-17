@@ -1309,8 +1309,7 @@ class HtmlWriter:
         return end, self.img_element(cwd, img_path)
 
     def expand_html(self, text, index, cwd):
-        # #HTML(text)
-        return skoolmacro.get_text_param(text, index)
+        return skoolmacro.parse_html(text, index)
 
     def expand_link(self, text, index, cwd):
         end, page_id, anchor, link_text = skoolmacro.parse_link(text, index)

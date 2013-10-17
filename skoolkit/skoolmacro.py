@@ -220,6 +220,10 @@ def parse_fact(text, index):
     # #FACT[#name][(link text)]
     return parse_item_macro(text, index, '#FACT', 'fact')
 
+def parse_html(text, index):
+    # #HTML(text)
+    return get_text_param(text, index)
+
 def parse_link(text, index):
     # #LINK:PageId[#name](link text)
     macro = '#LINK'
