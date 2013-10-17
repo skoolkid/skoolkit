@@ -19,9 +19,9 @@
 import re
 import inspect
 
-from . import warn, write_text, wrap, get_int_param, parse_int, get_chr, SkoolParsingError
+from . import warn, write_text, wrap, get_chr, SkoolParsingError
 from . import skoolmacro
-from .skoolmacro import parse_ints, parse_params, get_params, get_text_param, MacroParsingError, UnsupportedMacroError
+from .skoolmacro import MacroParsingError, UnsupportedMacroError
 from .skoolparser import TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
 
 UDGTABLE_MARKER = '#UDGTABLE'
@@ -147,7 +147,7 @@ class AsmWriter:
         write_text('{0}{1}'.format(s, self.end))
 
     def _expand_item_macro(self, text, index, default):
-        end, params, p_text = parse_params(text, index, default)
+        end, params, p_text = skoolmacro.parse_params(text, index, default)
         return end, p_text
 
     def pop_snapshot(self):
@@ -206,14 +206,14 @@ class AsmWriter:
         # #FONT[:(text)]addr[,chars,attr,scale][{X,Y,W,H}][(fname)]
         if self.handle_unsupported_macros:
             if index < len(text) and text[index] == ':':
-                index, message = get_text_param(text, index + 1)
-            end, params, p_text = parse_params(text, index, chars=',{}')
+                index, message = skoolmacro.get_text_param(text, index + 1)
+            end, params, p_text = skoolmacro.parse_params(text, index, chars=',{}')
             return end, ''
         raise UnsupportedMacroError()
 
     def expand_html(self, text, index):
         # #HTML(text)
-        end, message = get_text_param(text, index)
+        end, message = skoolmacro.get_text_param(text, index)
         return end, ''
 
     def expand_link(self, text, index):
@@ -236,7 +236,7 @@ class AsmWriter:
 
     def expand_pushs(self, text, index):
         # #PUSHS[name]
-        end, name, p_text = parse_params(text, index)
+        end, name, p_text = skoolmacro.parse_params(text, index)
         self.push_snapshot(name)
         return end, ''
 
@@ -267,7 +267,7 @@ class AsmWriter:
     def expand_scr(self, text, index):
         # #SCR[scale,x,y,w,h,dfAddr,afAddr][{X,Y,W,H}][(fname)]
         if self.handle_unsupported_macros:
-            end, params, p_text = parse_params(text, index, chars=',{}')
+            end, params, p_text = skoolmacro.parse_params(text, index, chars=',{}')
             return end, ''
         raise UnsupportedMacroError()
 
@@ -278,7 +278,7 @@ class AsmWriter:
     def expand_udg(self, text, index):
         # #UDGaddr[,attr,scale,step,inc,flip,rotate][:maskAddr[,maskStep]][{X,Y,W,H}][(fname)]
         if self.handle_unsupported_macros:
-            end, params, p_text = parse_params(text, index, chars=',:{}')
+            end, params, p_text = skoolmacro.parse_params(text, index, chars=',:{}')
             return end, ''
         raise UnsupportedMacroError()
 
@@ -287,9 +287,9 @@ class AsmWriter:
         # #UDGARRAY*frame1[,delay1];frame2[,delay2];...(fname)
         if self.handle_unsupported_macros:
             if index < len(text) and text[index] == '*':
-                end, params, p_text = parse_params(text, index, except_chars=' (')
+                end, params, p_text = skoolmacro.parse_params(text, index, except_chars=' (')
             else:
-                end, params, p_text = parse_params(text, index, chars=',:;-x{}')
+                end, params, p_text = skoolmacro.parse_params(text, index, chars=',:;-x{}')
             return end, ''
         raise UnsupportedMacroError()
 

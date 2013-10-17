@@ -28,7 +28,7 @@ import inspect
 
 from . import VERSION, warn, get_int_param, parse_int, SkoolKitError, SkoolParsingError
 from . import skoolmacro
-from .skoolmacro import parse_ints, parse_params, get_params, get_text_param, MacroParsingError, UnsupportedMacroError
+from .skoolmacro import MacroParsingError, UnsupportedMacroError
 from .skoolparser import TableParser, ListParser, CASE_LOWER
 
 #: The ID of the main disassembly.
@@ -1229,14 +1229,14 @@ class HtmlWriter:
                  * ``value1``, ``value2`` etc. are the parameter values
         """
         valid_chars = '$0123456789abcdefABCDEF,' + chars
-        end, param_string, p_text = parse_params(text, index, only_chars=valid_chars)
-        params = get_params(param_string, num, defaults, ints)
+        end, param_string, p_text = skoolmacro.parse_params(text, index, only_chars=valid_chars)
+        params = skoolmacro.get_params(param_string, num, defaults, ints)
         if len(params) > num:
             raise MacroParsingError("Too many parameters (expected {}): '{}'".format(num, text[index:end]))
 
         if end < len(text) and text[end] == '{':
-            end, x, y, width, height = parse_ints(text, end + 1, 4, (0, 0, None, None))
-            end, param_string, p_text = parse_params(text, end, only_chars='}')
+            end, x, y, width, height = skoolmacro.parse_ints(text, end + 1, 4, (0, 0, None, None))
+            end, param_string, p_text = skoolmacro.parse_params(text, end, only_chars='}')
         else:
             x = y = 0
             width = height = None
@@ -1251,7 +1251,7 @@ class HtmlWriter:
         return [end, img_path, (x, y, width, height)] + params
 
     def _expand_item_macro(self, macro, text, index, cwd, items, path_id, def_link_text):
-        end, anchor, link_text = parse_params(text, index)
+        end, anchor, link_text = skoolmacro.parse_params(text, index)
         if anchor and link_text == '':
             for name, title, contents in items:
                 if anchor[1:] == name:
@@ -1296,7 +1296,7 @@ class HtmlWriter:
     def expand_font(self, text, index, cwd):
         # #FONT[:(text)]addr[,chars,attr,scale][{X,Y,W,H}][(fname)]
         if index < len(text) and text[index] == ':':
-            index, message = get_text_param(text, index + 1)
+            index, message = skoolmacro.get_text_param(text, index + 1)
             if not message:
                 raise MacroParsingError("Empty message: {}".format(text[index - 2:index]))
         else:
@@ -1310,7 +1310,7 @@ class HtmlWriter:
 
     def expand_html(self, text, index, cwd):
         # #HTML(text)
-        return get_text_param(text, index)
+        return skoolmacro.get_text_param(text, index)
 
     def expand_link(self, text, index, cwd):
         end, page_id, anchor, link_text = skoolmacro.parse_link(text, index)
@@ -1341,7 +1341,7 @@ class HtmlWriter:
 
     def expand_pushs(self, text, index, cwd):
         # #PUSHS[name]
-        end, name, p_text = parse_params(text, index)
+        end, name, p_text = skoolmacro.parse_params(text, index)
         self.push_snapshot(name)
         return end, ''
 
@@ -1419,7 +1419,7 @@ class HtmlWriter:
         return end, self.img_element(cwd, udg_path)
 
     def _expand_udgarray_with_frames(self, text, index, cwd):
-        end, frame_params, fname = parse_params(text, index, except_chars=' (')
+        end, frame_params, fname = skoolmacro.parse_params(text, index, except_chars=' (')
         if not fname:
             raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
         img_path = self.image_path(fname, 'UDGImagePath')
