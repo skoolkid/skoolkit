@@ -20,6 +20,7 @@ import re
 import inspect
 
 from . import warn, write_text, wrap, get_int_param, parse_int, get_chr, SkoolParsingError
+from . import skoolmacro
 from .skoolmacro import parse_ints, parse_params, get_params, get_text_param, MacroParsingError, UnsupportedMacroError
 from .skoolparser import TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
 
@@ -178,24 +179,10 @@ class AsmWriter:
         return self._expand_item_macro(text, index, 'bug')
 
     def expand_call(self, text, index):
-        # #CALL:methodName(args)
-        macro = '#CALL'
-        if index >= len(text):
-            raise MacroParsingError("No parameters")
-        if text[index] != ':':
-            raise MacroParsingError("Malformed macro: {0}{1}...".format(macro, text[index]))
-        end, method_name, arg_string = parse_params(text, index + 1, chars='_')
-        if not method_name:
-            raise MacroParsingError("No method name")
-        if not hasattr(self, method_name):
-            self.warn("Unknown method name in {0} macro: {1}".format(macro, method_name))
+        end, method, args, warning = skoolmacro.parse_call(text, index, self)
+        if warning:
+            self.warn(warning)
             return end, ''
-        method = getattr(self, method_name)
-        if not inspect.ismethod(method):
-            raise MacroParsingError("Uncallable method name: {0}".format(method_name))
-        if arg_string is None:
-            raise MacroParsingError("No argument list specified: {0}{1}".format(macro, text[index:end]))
-        args = get_params(arg_string, ints=())
         retval = method(*args)
         if retval is None:
             retval = ''

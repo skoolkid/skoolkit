@@ -27,6 +27,7 @@ from os.path import isfile, isdir, basename
 import inspect
 
 from . import VERSION, warn, get_int_param, parse_int, SkoolKitError, SkoolParsingError
+from . import skoolmacro
 from .skoolmacro import parse_ints, parse_params, get_params, get_text_param, MacroParsingError, UnsupportedMacroError
 from .skoolparser import TableParser, ListParser, CASE_LOWER
 
@@ -1270,24 +1271,11 @@ class HtmlWriter:
 
     def expand_call(self, text, index, cwd):
         # #CALL:methodName(args)
-        macro = '#CALL'
-        if index >= len(text):
-            raise MacroParsingError("No parameters")
-        if text[index] != ':':
-            raise MacroParsingError("Malformed macro: {0}{1}...".format(macro, text[index]))
-        end, method_name, arg_string = parse_params(text, index + 1, chars='_')
-        if not method_name:
-            raise MacroParsingError("No method name")
-        if not hasattr(self, method_name):
-            warn("Unknown method name in {0} macro: {1}".format(macro, method_name))
+        end, method, args, warning = skoolmacro.parse_call(text, index, self)
+        if warning:
+            warn(warning)
             return end, ''
-        method = getattr(self, method_name)
-        if not inspect.ismethod(method):
-            raise MacroParsingError("Uncallable method name: {0}".format(method_name))
-        if arg_string is None:
-            raise MacroParsingError("No argument list specified: {0}{1}".format(macro, text[index:end]))
-        args = [cwd] + get_params(arg_string, ints=())
-        retval = method(*args)
+        retval = method(cwd, *args)
         if retval is None:
             retval = ''
         return end, retval

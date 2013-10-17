@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import inspect
+
 from . import parse_int, SkoolKitError
 
 DELIMITERS = {
@@ -140,3 +142,24 @@ class UnsupportedMacroError(SkoolKitError):
 
 class MacroParsingError(SkoolKitError):
     pass
+
+def parse_call(text, index, writer):
+    # #CALL:methodName(args)
+    macro = '#CALL'
+    if index >= len(text):
+        raise MacroParsingError("No parameters")
+    if text[index] != ':':
+        raise MacroParsingError("Malformed macro: {}{}...".format(macro, text[index]))
+    end, method_name, arg_string = parse_params(text, index + 1, chars='_')
+    if not method_name:
+        raise MacroParsingError("No method name")
+    if not hasattr(writer, method_name):
+        warning = "Unknown method name in {} macro: {}".format(macro, method_name)
+        return end, None, None, warning
+    method = getattr(writer, method_name)
+    if not inspect.ismethod(method):
+        raise MacroParsingError("Uncallable method name: {}".format(method_name))
+    if arg_string is None:
+        raise MacroParsingError("No argument list specified: {}{}".format(macro, text[index:end]))
+    args = get_params(arg_string, ints=())
+    return end, method, args, None
