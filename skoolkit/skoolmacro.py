@@ -175,3 +175,13 @@ def parse_chr(text, index):
     else:
         end, num = parse_ints(text, index, 1)
     return end, num
+
+def parse_d(text, index, entry_holder):
+    # #Daddr
+    end, addr = parse_ints(text, index, 1)
+    entry = entry_holder.get_entry(addr)
+    if not entry:
+        raise MacroParsingError('Cannot determine description for non-existent entry at {}'.format(addr))
+    if not entry.description:
+        raise MacroParsingError('Entry at {} has no description'.format(addr))
+    return end, entry.description

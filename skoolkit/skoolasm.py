@@ -193,14 +193,7 @@ class AsmWriter:
         return end, get_chr(num)
 
     def expand_d(self, text, index):
-        # #Daddr
-        end, addr = parse_ints(text, index, 1)
-        entry = self.parser.get_entry(addr)
-        if entry:
-            if entry.description:
-                return end, entry.description
-            raise MacroParsingError('Entry at {0} has no description'.format(addr))
-        raise MacroParsingError('Cannot determine description for non-existent entry at {0}'.format(addr))
+        return skoolmacro.parse_d(text, index, self.parser)
 
     def expand_erefs(self, text, index):
         # #EREFSaddr
