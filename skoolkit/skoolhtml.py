@@ -1287,20 +1287,7 @@ class HtmlWriter:
         return skoolmacro.parse_d(text, index, self)
 
     def expand_erefs(self, text, index, cwd):
-        # #EREFSaddr
-        end, address = parse_ints(text, index, 1)
-        ereferrers = self.get_entry_point_refs(address)
-        if not ereferrers:
-            raise MacroParsingError('Entry point at {0} has no referrers'.format(address))
-        if len(ereferrers) == 1:
-            html = 'routine at '
-        else:
-            ereferrers.sort()
-            html = 'routines at '
-            html += ', '.join('#R{}'.format(addr) for addr in ereferrers[:-1])
-            html += ' and '
-        html += '#R{}'.format(ereferrers[-1])
-        return end, html
+        return skoolmacro.parse_erefs(text, index, self)
 
     def expand_fact(self, text, index, cwd):
         # #FACT[#name][(link text)]

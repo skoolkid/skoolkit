@@ -185,3 +185,19 @@ def parse_d(text, index, entry_holder):
     if not entry.description:
         raise MacroParsingError('Entry at {} has no description'.format(addr))
     return end, entry.description
+
+def parse_erefs(text, index, entry_holder):
+    # #EREFSaddr
+    end, address = parse_ints(text, index, 1)
+    ereferrers = entry_holder.get_entry_point_refs(address)
+    if not ereferrers:
+        raise MacroParsingError('Entry point at {} has no referrers'.format(address))
+    ereferrers.sort()
+    rep = 'routine at '
+    if len(ereferrers) > 1:
+        rep = 'routines at '
+        rep += ', '.join('#R{}'.format(addr) for addr in ereferrers[:-1])
+        rep += ' and '
+    addr = ereferrers[-1]
+    rep += '#R{}'.format(addr)
+    return end, rep

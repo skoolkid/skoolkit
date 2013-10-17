@@ -196,24 +196,7 @@ class AsmWriter:
         return skoolmacro.parse_d(text, index, self.parser)
 
     def expand_erefs(self, text, index):
-        # #EREFSaddr
-        end, address = parse_ints(text, index, 1)
-        ereferrers = self.parser.get_entry_point_refs(address)
-        if text[index] == '$':
-            addr_fmt = '${0:04X}'
-        else:
-            addr_fmt = '{0}'
-        if not ereferrers:
-            raise MacroParsingError('Entry point at {0} has no referrers'.format(addr_fmt.format(address)))
-        ereferrers.sort()
-        rep = 'routine at '
-        if len(ereferrers) > 1:
-            rep = 'routines at '
-            rep += ', '.join('#R{0}'.format(addr_fmt.format(addr)) for addr in ereferrers[:-1])
-            rep += ' and '
-        addr = ereferrers[-1]
-        rep += '#R{0}'.format(addr_fmt.format(addr))
-        return end, rep
+        return skoolmacro.parse_erefs(text, index, self.parser)
 
     def expand_fact(self, text, index):
         # #FACT[#name][(link text)]
