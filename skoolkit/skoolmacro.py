@@ -228,6 +228,14 @@ def parse_pokes(text, index, snapshot):
         snapshot[addr:addr + length * step:step] = [byte] * length
     return end, ''
 
+def parse_pushs(text, index, writer):
+    # #PUSHS[name]
+    end = index
+    while end < len(text) and (text[end].isalnum() or text[end] in '$#'):
+        end += 1
+    writer.push_snapshot(text[index:end])
+    return end, ''
+
 def parse_r(text, index):
     # #Raddr[@code][#anchor][(link text)]
     end, params, link_text = parse_params(text, index, chars='@')

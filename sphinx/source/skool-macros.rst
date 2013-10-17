@@ -518,7 +518,8 @@ it with an identical copy with a given name. ::
 
 * ``name`` is the snapshot name (defaults to an empty string)
 
-The new snapshot may then be modified by using the ``#POKES`` macro.
+The snapshot name may consist of the characters '$', '#', the digits 0-9, and
+the letters A-Z and a-z; it must not start with a capital letter.
 
 For example::
 

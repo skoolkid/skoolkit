@@ -1944,15 +1944,16 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_macro_pushs(self):
         writer = self._get_writer(snapshot=[0] * 65536)
         addr, byte = 32768, 64
-        for name in ('test', ''):
-            writer.snapshot[addr] = byte
-            output = writer.expand('#PUSHS{}'.format(name), ASMDIR)
-            self.assertEqual(output, '')
-            self.assertEqual(writer.get_snapshot_name(), name)
-            self.assertEqual(writer.snapshot[addr], byte)
-            writer.snapshot[addr] = (byte + 127) % 256
-            writer.pop_snapshot()
-            self.assertEqual(writer.snapshot[addr], byte)
+        for name in ('test', '#foo', 'foo$abcd', ''):
+            for suffix in ('', '(bar)', ':baz'):
+                writer.snapshot[addr] = byte
+                output = writer.expand('#PUSHS{}{}'.format(name, suffix), ASMDIR)
+                self.assertEqual(output, suffix)
+                self.assertEqual(writer.get_snapshot_name(), name)
+                self.assertEqual(writer.snapshot[addr], byte)
+                writer.snapshot[addr] = (byte + 127) % 256
+                writer.pop_snapshot()
+                self.assertEqual(writer.snapshot[addr], byte)
 
     def test_macro_r(self):
         skool = '\n'.join((

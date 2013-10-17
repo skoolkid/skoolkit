@@ -1340,10 +1340,7 @@ class HtmlWriter:
         return index, ''
 
     def expand_pushs(self, text, index, cwd):
-        # #PUSHS[name]
-        end, name, p_text = skoolmacro.parse_params(text, index)
-        self.push_snapshot(name)
-        return end, ''
+        return skoolmacro.parse_pushs(text, index, self)
 
     def expand_r(self, text, index, cwd):
         end, addr_str, address, code_id, anchor, link_text = skoolmacro.parse_r(text, index)
