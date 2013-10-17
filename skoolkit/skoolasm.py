@@ -172,7 +172,7 @@ class AsmWriter:
 
     def expand_bug(self, text, index):
         end, item, link_text = skoolmacro.parse_bug(text, index)
-        return end, link_text
+        return end, link_text or 'bug'
 
     def expand_call(self, text, index):
         end, method, args, warning = skoolmacro.parse_call(text, index, self)
@@ -196,7 +196,7 @@ class AsmWriter:
 
     def expand_fact(self, text, index):
         end, item, link_text = skoolmacro.parse_fact(text, index)
-        return end, link_text
+        return end, link_text or 'fact'
 
     def expand_font(self, text, index):
         # #FONT[:(text)]addr[,chars,attr,scale][{X,Y,W,H}][(fname)]
@@ -220,7 +220,7 @@ class AsmWriter:
 
     def expand_poke(self, text, index):
         end, item, link_text = skoolmacro.parse_poke(text, index)
-        return end, link_text
+        return end, link_text or 'poke'
 
     def expand_pokes(self, text, index):
         return skoolmacro.parse_pokes(text, index, self.snapshot)
