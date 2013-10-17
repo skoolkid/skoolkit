@@ -250,6 +250,11 @@ def parse_pokes(text, index, snapshot):
         snapshot[addr:addr + length * step:step] = [byte] * length
     return end, ''
 
+def parse_pops(text, index, writer):
+    # #POPS
+    writer.pop_snapshot()
+    return index, ''
+
 def parse_pushs(text, index, writer):
     # #PUSHS[name]
     end = index

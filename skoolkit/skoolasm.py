@@ -226,9 +226,7 @@ class AsmWriter:
         return skoolmacro.parse_pokes(text, index, self.snapshot)
 
     def expand_pops(self, text, index):
-        # #POPS
-        self.pop_snapshot()
-        return index, ''
+        return skoolmacro.parse_pops(text, index, self)
 
     def expand_pushs(self, text, index):
         return skoolmacro.parse_pushs(text, index, self)

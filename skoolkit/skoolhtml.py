@@ -1335,9 +1335,7 @@ class HtmlWriter:
         return skoolmacro.parse_pokes(text, index, self.snapshot)
 
     def expand_pops(self, text, index, cwd):
-        # #POPS
-        self.pop_snapshot()
-        return index, ''
+        return skoolmacro.parse_pops(text, index, self)
 
     def expand_pushs(self, text, index, cwd):
         return skoolmacro.parse_pushs(text, index, self)
