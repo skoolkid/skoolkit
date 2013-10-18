@@ -20,18 +20,6 @@ REFERENCE_DIR = 'reference'
 UDGDIR = 'images/udgs'
 TEMPLATES_DIR = 'templates'
 
-TEST_PARSING_REF = """[Info]
-Release=Test HTML disassembly
-Copyright=Me, 2012
-
-[Links]
-Bugs=[Bugs] (program errors)
-Pokes=[Pokes [with square brackets in the link text]] (cheats)
-
-[MemoryMap:TestMap]
-EntryTypes=w
-"""
-
 HEADER = """<?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -123,58 +111,6 @@ TABLE2_HTML = """<table>
 <td class="centre">Cell</td>
 </tr>
 </table>"""
-
-TEST_HTML_SKOOL = """; Text
-t24576 DEFM "<&>" ; a <= b & b >= c
-"""
-
-TEST_HTML_REF = """
-[Bug:test:Test]
-<p>Hello</p>
-"""
-
-TEST_WRITE_ASM_ENTRIES_REF = """[OtherCode:start]
-Header=Startup code
-Index=start/index.html
-Path=start
-Source=start.skool
-Title=Startup code
-"""
-
-TEST_WRITE_ASM_ENTRIES_SKOOL = """; Routine at 24576
-;
-; Description of routine at 24576.
-;
-; A Some value
-; B Some other value
-c24576 LD A,B  ; Comment for instruction at 24576
-; Mid-routine comment above 24577.
-*24577 RET
-; End comment for routine at 24576.
-
-; Data block at 24578
-b24578 DEFB 0
-
-; Routine at 24579
-c24579 JR 24577
-
-; GSB entry at 24581
-g24581 DEFW 123
-
-; Unused
-u24583 DEFB 0
-
-; Routine at 24584 (register section but no description)
-;
-; .
-;
-; A 0
-c24584 CALL 30000  ; {Comment for the instructions at 24584 and 24587
- 24587 JP 30003    ; }
-
-r30000 start
- 30003
-"""
 
 PREV_UP_NEXT = """<table class="prevNext">
 <tr>
@@ -328,20 +264,6 @@ ENTRY6 = """<div class="description">24584: Routine at 24584 (register section b
 </table>
 """
 
-TEST_ASM_LABELS_SKOOL = """; Routine with a label
-; @label=START
-c50000 LD B,5     ; Loop 5 times
- 50002 DJNZ 50002
- 50004 RET
-
-; Routine without a label
-c50005 JP 50000
-
-; DEFW statement with a @keep directive
-; @keep
-b50008 DEFW 50000
-"""
-
 ASM_LABELS_ENTRY1 = """<div class="description">START: 50000: Routine with a label</div>
 <table class="disassembly">
 <tr>
@@ -401,28 +323,6 @@ ASM_LABELS_ENTRY3 = """<div class="description">50008: DEFW statement with a @ke
 <td class="transparentDataComment" />
 </tr>
 </table>
-"""
-
-TEST_WRITE_MAP = """; Routine
-c30000 RET
-
-; Bytes
-b30001 DEFB 1,2
-
-; Words
-b30003 DEFW 257,65534
-
-; GSB entry
-g30007 DEFB 0
-
-; Unused
-u30008 DEFB 0
-
-; Zeroes
-z30009 DEFS 6
-
-; Text
-t30015 DEFM "Hi"
 """
 
 MEMORY_MAP = """<table class="map">
@@ -562,24 +462,6 @@ CUSTOM_MAP = """<div class="mapIntro">Introduction.</div>
 </table>
 """
 
-TEST_WRITE_CHANGELOG_REF = """
-[Changelog:20120704]
-Intro.
-
-1
-  2
-    3
-    4
-  5
-
-[Changelog:20120703]
--
-
-1
-  2
-    3
-"""
-
 CHANGELOG = """<ul class="linkList">
 <li><a class="link" href="#20120704">20120704</a></li>
 <li><a class="link" href="#20120703">20120703</a></li>
@@ -617,16 +499,6 @@ CHANGELOG = """<ul class="linkList">
 </li>
 </ul>
 </div>
-"""
-
-TEST_WRITE_GLOSSARY_REF = """
-[Glossary:Term1]
-Definition 1.
-
-[Glossary:Term2]
-Definition 2. Paragraph 1.
-
-Definition 2. Paragraph 2.
 """
 
 GLOSSARY = """<ul class="linkList">
@@ -675,21 +547,6 @@ GBUFFER = """<table class="gbuffer">
 </table>
 """
 
-TEST_WRITE_GRAPHICS_REF = """
-[Graphics]
-<em>This is the graphics page.</em>
-"""
-
-TEST_WRITE_PAGE_REF = """
-[Page:CustomPage]
-Title=Custom page
-Path=page.html
-JavaScript=test-html.js
-
-[PageContent:CustomPage]
-<b>This is the content of the custom page.</b>
-"""
-
 REGISTERS_1 = """<table class="input">
 <tr>
 <td class="register">A</td>
@@ -730,12 +587,6 @@ REGISTERS_2 = """<table class="input">
 </table>
 """
 
-TEST_WRITE_BUGS_REF = """[Bug:b1:Showstopper]
-This bug is bad.
-
-Really bad.
-"""
-
 BUGS = """<ul class="linkList">
 <li><a class="link" href="#b1">Showstopper</a></li>
 </ul>
@@ -749,15 +600,6 @@ This bug is bad.
 Really bad.
 </div>
 </div>
-"""
-
-TEST_WRITE_FACTS_REF = """[Fact:f1:Interesting fact]
-Hello.
-
-Goodbye.
-
-[Fact:f2:Another interesting fact]
-Yes.
 """
 
 FACTS = """<ul class="linkList">
@@ -783,10 +625,6 @@ Yes.
 </div>
 """
 
-TEST_WRITE_POKES_REF = """[Poke:p1:Infinite everything]
-POKE 12345,0
-"""
-
 POKES = """<ul class="linkList">
 <li><a class="link" href="#p1">Infinite everything</a></li>
 </ul>
@@ -799,10 +637,6 @@ POKE 12345,0
 </div>
 """
 
-TEST_WRITE_GRAPHIC_GLITCHES_REF = """[GraphicGlitch:g0:Wrong arms]
-Hello.
-"""
-
 GRAPHIC_GLITCHES = """<ul class="linkList">
 <li><a class="link" href="#g0">Wrong arms</a></li>
 </ul>
@@ -813,30 +647,6 @@ GRAPHIC_GLITCHES = """<ul class="linkList">
 Hello.
 </div>
 </div>
-"""
-
-TEST_WRITE_GBUFFER_REF = """[Game]
-GameStatusBufferIncludes=30003,30004
-"""
-
-TEST_WRITE_GBUFFER_SKOOL = """; GSB entry 1
-;
-; Number of lives.
-g30000 DEFB 4
-
-; GSB entry 2
-g30001 DEFW 78
-
-; Message ID
-t30003 DEFB 0
-
-; Another message ID
-t30004 DEFB 0
-
-; Not a game status buffer entry
-c30005 RET
-
-i30006
 """
 
 GAME_STATUS_BUFFER = """<table class="gbuffer">
@@ -879,83 +689,6 @@ Number of lives.
 </td>
 </tr>
 </table>
-"""
-
-TEST_MACRO_D = """; @start
-
-; First routine
-c32768 RET
-
-; Second routine
-c32769 RET
-
-c32770 RET
-"""
-
-TEST_MACRO_EREFS = """; @start
-; First routine
-c30000 CALL 30004
-
-; Second routine
-c30003 LD A,B
- 30004 LD B,C
-
-; Third routine
-c30005 JP 30004
-"""
-
-TEST_MACRO_LINK_REF = """[Page:Custom_Page_1]
-Title=Custom page
-Path=page.html
-
-[Page:Custom_Page_2]
-Path=page2.html
-Link=Custom page 2
-"""
-
-TEST_MACRO_REFS_SKOOL = """; Not used directly by any other routines
-c24576 LD HL,$6003
-
-; Used by the routines at 24581, 24584 and 24590
-c24579 LD A,H
- 24580 RET
-
-; Calls 24579
-c24581 CALL 24579
-
-; Also calls 24579
-c24584 CALL 24579
- 24587 JP 24580
-
-; Calls 24579 too
-c24590 CALL 24580
-"""
-
-TEST_INDEX_PAGE_ID_REF = """[OtherCode:secondary]
-Source=secondary.skool
-Path=secondary
-Index=secondary/secondary.html
-Title=Secondary code
-Header=Secondary code
-IndexPageId=SecondaryCode
-"""
-
-TEST_PAGE_CONTENT_REF = """[Page:ExistingPage]
-Content=asm/32768.html
-"""
-
-TEST_SHOULD_WRITE_MAP_REF = """[MemoryMap:UnusedMap]
-Write=0
-"""
-
-TEST_SHOULD_WRITE_MAP_SKOOL = """; Routine
-c40000 RET
-
-; Data
-b40001 DEFB 0
-
-; Unused
-u40002 DEFB 0
 """
 
 TEST_WRITE_INDEX_REF = []
@@ -1322,7 +1055,19 @@ class HtmlWriterTest(SkoolKitTestCase):
             self.assertEqual(udg.data, chars[i])
 
     def test_ref_parsing(self):
-        writer = self._get_writer(ref=TEST_PARSING_REF)
+        ref = '\n'.join((
+            '[Info]',
+            'Release=Test HTML disassembly',
+            'Copyright=Me, 2012',
+            '',
+            '[Links]',
+            'Bugs=[Bugs] (program errors)',
+            'Pokes=[Pokes [with square brackets in the link text]] (cheats)',
+            '',
+            '[MemoryMap:TestMap]',
+            'EntryTypes=w',
+        ))
+        writer = self._get_writer(ref=ref)
 
         # [Info]
         self.assertEqual(writer.info['Release'], 'Test HTML disassembly')
@@ -1574,7 +1319,18 @@ class HtmlWriterTest(SkoolKitTestCase):
             writer.expand('#CHR(2 ...', ASMDIR)
 
     def test_macro_d(self):
-        writer = self._get_writer(skool=TEST_MACRO_D)
+        skool = '\n'.join((
+            '; @start',
+            '',
+            '; First routine',
+            'c32768 RET',
+            '',
+            '; Second routine',
+            'c32769 RET',
+            '',
+            'c32770 RET',
+        ))
+        writer = self._get_writer(skool=skool)
 
         output = writer.expand('#D32768', ASMDIR)
         self.assertEqual(output, 'First routine')
@@ -1583,7 +1339,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assertEqual(output, 'Second routine')
 
     def test_macro_d_invalid(self):
-        writer = self._get_writer(skool=TEST_MACRO_D)
+        skool = '; @start\nc32770 RET'
+        writer = self._get_writer(skool=skool)
         prefix = ERROR_PREFIX.format('D')
 
         # No parameter (1)
@@ -1622,14 +1379,26 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#EREFS40004', ASMDIR)
         self.assertEqual(output, 'routine at <a class="link" href="40000.html">40000</a>')
 
-        writer = self._get_writer(skool=TEST_MACRO_EREFS)
-
         # Entry point with more than one referrer
+        skool = '\n'.join((
+            '; @start',
+            '; First routine',
+            'c30000 CALL 30004',
+            '',
+            '; Second routine',
+            'c30003 LD A,B',
+            ' 30004 LD B,C',
+            '',
+            '; Third routine',
+            'c30005 JP 30004',
+        ))
+        writer = self._get_writer(skool=skool)
         output = writer.expand('#EREFS30004', ASMDIR)
         self.assertEqual(output, 'routines at <a class="link" href="30000.html">30000</a> and <a class="link" href="30005.html">30005</a>')
 
     def test_macro_erefs_invalid(self):
-        writer = self._get_writer(skool=TEST_MACRO_EREFS)
+        skool = '; @start\nc30005 JP 30004'
+        writer = self._get_writer(skool=skool)
         prefix = ERROR_PREFIX.format('EREFS')
 
         # No parameter (1)
@@ -1797,7 +1566,16 @@ class HtmlWriterTest(SkoolKitTestCase):
             writer.expand(macro, ASMDIR)
 
     def test_macro_link(self):
-        writer = self._get_writer(ref=TEST_MACRO_LINK_REF)
+        ref = '\n'.join((
+            '[Page:Custom_Page_1]',
+            'Title=Custom page',
+            'Path=page.html',
+            '',
+            '[Page:Custom_Page_2]',
+            'Path=page2.html',
+            'Link=Custom page 2',
+        ))
+        writer = self._get_writer(ref=ref)
 
         link_text = 'bugs'
         output = writer.expand('#LINK:Bugs({0})'.format(link_text), ASMDIR)
@@ -2285,7 +2063,25 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#REFS40003', ASMDIR)
         self.assertEqual(output, 'routine at <a class="link" href="40000.html">40000</a>')
 
-        writer = self._get_writer(skool=TEST_MACRO_REFS_SKOOL)
+        skool = '\n'.join((
+            '; Not used directly by any other routines',
+            'c24576 LD HL,$6003',
+            '',
+            '; Used by the routines at 24581, 24584 and 24590',
+            'c24579 LD A,H',
+            ' 24580 RET',
+            '',
+            '; Calls 24579',
+            'c24581 CALL 24579',
+            '',
+            '; Also calls 24579',
+            'c24584 CALL 24579',
+            ' 24587 JP 24580',
+            '',
+            '; Calls 24579 too',
+            'c24590 CALL 24580',
+        ))
+        writer = self._get_writer(skool=skool)
 
         # Some referrers
         for address in ('24579', '$6003'):
@@ -2729,7 +2525,8 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_html_escape(self):
         # Check that HTML characters from the skool file are escaped
-        writer = self._get_writer(skool=TEST_HTML_SKOOL)
+        skool = 't24576 DEFM "<&>" ; a <= b & b >= c'
+        writer = self._get_writer(skool=skool)
         fname = 'test.html'
         writer.write_entry(ASMDIR, writer.entries[24576], fname)
         html = self.read_file(join(ASMDIR, fname))
@@ -2738,7 +2535,8 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_html_no_escape(self):
         # Check that HTML characters from the ref file are not escaped
-        writer = self._get_writer(ref=TEST_HTML_REF)
+        ref = '[Bug:test:Test]\n<p>Hello</p>'
+        writer = self._get_writer(ref=ref)
         writer.write_bugs()
         html = self.read_file(join(REFERENCE_DIR, 'bugs.html'))
         self.assertTrue('<p>Hello</p>' in html)
@@ -2783,7 +2581,50 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_files_equal('index.html', subs, True)
 
     def test_write_asm_entries(self):
-        writer = self._get_writer(ref=TEST_WRITE_ASM_ENTRIES_REF, skool=TEST_WRITE_ASM_ENTRIES_SKOOL)
+        ref = '\n'.join((
+            '[OtherCode:start]',
+            'Header=Startup code',
+            'Index=start/index.html',
+            'Path=start',
+            'Source=start.skool',
+            'Title=Startup code',
+        ))
+        skool = '\n'.join((
+            '; Routine at 24576',
+            ';',
+            '; Description of routine at 24576.',
+            ';',
+            '; A Some value',
+            '; B Some other value',
+            'c24576 LD A,B  ; Comment for instruction at 24576',
+            '; Mid-routine comment above 24577.',
+            '*24577 RET',
+            '; End comment for routine at 24576.',
+            '',
+            '; Data block at 24578',
+            'b24578 DEFB 0',
+            '',
+            '; Routine at 24579',
+            'c24579 JR 24577',
+            '',
+            '; GSB entry at 24581',
+            'g24581 DEFW 123',
+            '',
+            '; Unused',
+            'u24583 DEFB 0',
+            '',
+            '; Routine at 24584 (register section but no description)',
+            ';',
+            '; .',
+            ';',
+            '; A 0',
+            'c24584 CALL 30000  ; {Comment for the instructions at 24584 and 24587',
+            ' 24587 JP 30003    ; }',
+            '',
+            'r30000 start',
+            ' 30003',
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
         common_subs = {
             'name': basename(self.skoolfile)[:-6],
             'path': '../',
@@ -2961,7 +2802,21 @@ class HtmlWriterTest(SkoolKitTestCase):
             self.assert_files_equal(join(ASMDIR, '8888.html'), subs)
 
     def test_asm_labels(self):
-        writer = self._get_writer(skool=TEST_ASM_LABELS_SKOOL, asm_labels=True)
+        skool = '\n'.join((
+            '; Routine with a label',
+            '; @label=START',
+            'c50000 LD B,5     ; Loop 5 times',
+            ' 50002 DJNZ 50002',
+            ' 50004 RET',
+            '',
+            '; Routine without a label',
+            'c50005 JP 50000',
+            '',
+            '; DEFW statement with a @keep directive',
+            '; @keep',
+            'b50008 DEFW 50000',
+        ))
+        writer = self._get_writer(skool=skool, asm_labels=True)
         common_subs = {
             'name': basename(self.skoolfile)[:-6],
             'path': '../',
@@ -3005,7 +2860,29 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_files_equal(join(ASMDIR, '50008.html'), subs)
 
     def test_write_map(self):
-        writer = self._get_writer(skool=TEST_WRITE_MAP)
+        skool = '\n'.join((
+            '; Routine',
+            'c30000 RET',
+            '',
+            '; Bytes',
+            'b30001 DEFB 1,2',
+            '',
+            '; Words',
+            'b30003 DEFW 257,65534',
+            '',
+            '; GSB entry',
+            'g30007 DEFB 0',
+            '',
+            '; Unused',
+            'u30008 DEFB 0',
+            '',
+            '; Zeroes',
+            'z30009 DEFS 6',
+            '',
+            '; Text',
+            't30015 DEFM "Hi"',
+        ))
+        writer = self._get_writer(skool=skool)
         common_subs = {
             'name': basename(self.skoolfile)[:-6],
             'path': '../',
@@ -3120,7 +2997,24 @@ class HtmlWriterTest(SkoolKitTestCase):
             self.assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
     def test_write_changelog(self):
-        writer = self._get_writer(ref=TEST_WRITE_CHANGELOG_REF, skool='')
+        ref = '\n'.join((
+            '[Changelog:20120704]',
+            'Intro.',
+            '',
+            '1',
+            '  2',
+            '    3',
+            '    4',
+            '  5',
+            '',
+            '[Changelog:20120703]',
+            '-',
+            '',
+            '1',
+            '  2',
+            '    3',
+        ))
+        writer = self._get_writer(ref=ref, skool='')
         writer.write_changelog()
         subs = {
             'name': basename(self.skoolfile)[:-6],
@@ -3133,7 +3027,16 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_files_equal(join(REFERENCE_DIR, 'changelog.html'), subs)
 
     def test_write_glossary(self):
-        writer = self._get_writer(ref=TEST_WRITE_GLOSSARY_REF, skool='')
+        ref = '\n'.join((
+            '[Glossary:Term1]',
+            'Definition 1.',
+            '',
+            '[Glossary:Term2]',
+            'Definition 2. Paragraph 1.',
+            '',
+            'Definition 2. Paragraph 2.',
+        ))
+        writer = self._get_writer(ref=ref, skool='')
         writer.write_glossary()
         subs = {
             'name': basename(self.skoolfile)[:-6],
@@ -3146,7 +3049,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_files_equal(join(REFERENCE_DIR, 'glossary.html'), subs)
 
     def test_write_graphics(self):
-        writer = self._get_writer(ref=TEST_WRITE_GRAPHICS_REF, skool='')
+        ref = '[Graphics]\n<em>This is the graphics page.</em>'
+        writer = self._get_writer(ref=ref, skool='')
         writer.write_graphics()
         subs = {
             'name': basename(self.skoolfile)[:-6],
@@ -3159,7 +3063,16 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_files_equal(join(GRAPHICS_DIR, 'graphics.html'), subs)
 
     def test_write_page(self):
-        writer = self._get_writer(ref=TEST_WRITE_PAGE_REF, skool='')
+        ref = '\n'.join((
+            '[Page:CustomPage]',
+            'Title=Custom page',
+            'Path=page.html',
+            'JavaScript=test-html.js',
+            '',
+            '[PageContent:CustomPage]',
+            '<b>This is the content of the custom page.</b>',
+        ))
+        writer = self._get_writer(ref=ref, skool='')
         writer.write_page('CustomPage')
         subs = {
             'name': basename(self.skoolfile)[:-6],
@@ -3172,7 +3085,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_files_equal('page.html', subs)
 
     def test_write_bugs(self):
-        writer = self._get_writer(ref=TEST_WRITE_BUGS_REF, skool='')
+        ref = '\n'.join((
+            '[Bug:b1:Showstopper]',
+            'This bug is bad.',
+            '',
+            'Really bad.',
+        ))
+        writer = self._get_writer(ref=ref, skool='')
         writer.write_bugs()
         subs = {
             'name': basename(self.skoolfile)[:-6],
@@ -3185,7 +3104,16 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_files_equal(join(REFERENCE_DIR, 'bugs.html'), subs)
 
     def test_write_facts(self):
-        writer = self._get_writer(ref=TEST_WRITE_FACTS_REF, skool='')
+        ref = '\n'.join((
+            '[Fact:f1:Interesting fact]',
+            'Hello.',
+            '',
+            'Goodbye.',
+            '',
+            '[Fact:f2:Another interesting fact]',
+            'Yes.',
+        ))
+        writer = self._get_writer(ref=ref, skool='')
         writer.write_facts()
         subs = {
             'name': basename(self.skoolfile)[:-6],
@@ -3198,7 +3126,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_files_equal(join(REFERENCE_DIR, 'facts.html'), subs)
 
     def test_write_pokes(self):
-        writer = self._get_writer(ref=TEST_WRITE_POKES_REF, skool='')
+        ref = '[Poke:p1:Infinite everything]\nPOKE 12345,0'
+        writer = self._get_writer(ref=ref, skool='')
         writer.write_pokes()
         subs = {
             'name': basename(self.skoolfile)[:-6],
@@ -3211,7 +3140,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_files_equal(join(REFERENCE_DIR, 'pokes.html'), subs)
 
     def test_write_graphic_glitches(self):
-        writer = self._get_writer(ref=TEST_WRITE_GRAPHIC_GLITCHES_REF, skool='')
+        ref = '[GraphicGlitch:g0:Wrong arms]\nHello.'
+        writer = self._get_writer(ref=ref, skool='')
         writer.write_graphic_glitches()
         subs = {
             'name': basename(self.skoolfile)[:-6],
@@ -3224,7 +3154,28 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_files_equal(join(GRAPHICS_DIR, 'glitches.html'), subs)
 
     def test_write_gbuffer(self):
-        writer = self._get_writer(ref=TEST_WRITE_GBUFFER_REF, skool=TEST_WRITE_GBUFFER_SKOOL)
+        ref = '[Game]\nGameStatusBufferIncludes=30003,30004'
+        skool = '\n'.join((
+            '; GSB entry 1',
+            ';',
+            '; Number of lives.',
+            'g30000 DEFB 4',
+            '',
+            '; GSB entry 2',
+            'g30001 DEFW 78',
+            '',
+            '; Message ID',
+            't30003 DEFB 0',
+            '',
+            '; Another message ID',
+            't30004 DEFB 0',
+            '',
+            '; Not a game status buffer entry',
+            'c30005 RET',
+            '',
+            'i30006',
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
         writer.write_gbuffer()
         subs = {
             'name': basename(self.skoolfile)[:-6],
@@ -3237,12 +3188,22 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)
 
     def test_index_page_id(self):
-        writer = self._get_writer(ref=TEST_INDEX_PAGE_ID_REF)
+        ref = '\n'.join((
+            '[OtherCode:secondary]',
+            'Source=secondary.skool',
+            'Path=secondary',
+            'Index=secondary/secondary.html',
+            'Title=Secondary code',
+            'Header=Secondary code',
+            'IndexPageId=SecondaryCode',
+        ))
+        writer = self._get_writer(ref=ref)
         self.assertTrue('SecondaryCode' in writer.paths)
         self.assertEqual(writer.paths['SecondaryCode'], 'secondary/secondary.html')
 
     def test_page_content(self):
-        writer = self._get_writer(ref=TEST_PAGE_CONTENT_REF)
+        ref = '[Page:ExistingPage]\nContent=asm/32768.html'
+        writer = self._get_writer(ref=ref)
         self.assertFalse('ExistingPage' in writer.page_ids)
         self.assertTrue('ExistingPage' in writer.paths)
         self.assertTrue(writer.paths['ExistingPage'], 'asm/32768.html')
@@ -3273,7 +3234,18 @@ class HtmlWriterTest(SkoolKitTestCase):
             writer.pop_snapshot()
 
     def test_should_write_map(self):
-        writer = self._get_writer(ref=TEST_SHOULD_WRITE_MAP_REF, skool=TEST_SHOULD_WRITE_MAP_SKOOL)
+        ref = '[MemoryMap:UnusedMap]\nWrite=0'
+        skool = '\n'.join((
+            '; Routine',
+            'c40000 RET',
+            '',
+            '; Data',
+            'b40001 DEFB 0',
+            '',
+            '; Unused',
+            'u40002 DEFB 0',
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
         self.assertTrue(writer.should_write_map(writer.memory_maps['MemoryMap']))
         self.assertTrue(writer.should_write_map(writer.memory_maps['RoutinesMap']))
         self.assertTrue(writer.should_write_map(writer.memory_maps['DataMap']))
