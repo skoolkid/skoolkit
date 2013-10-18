@@ -7,250 +7,6 @@ from skoolkit import SkoolParsingError
 from skoolkit.skoolasm import AsmWriter
 from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, BASE_16
 
-TEST_EMPTY_DESCRIPTION = """; @start
-; Test an empty description
-;
-; #HTML(#UDG32768)
-c24604 RET
-"""
-
-TEST_EMPTY_DESCRIPTION_WITH_REGISTERS = """; @start
-; Test an empty description and a register section
-;
-; .
-;
-; A 0
-; B 1
-c25600 RET
-"""
-
-TEST_CRLF = """; @start
-; Routine
-c32768 RET
-"""
-
-TEST_TAB = """; @start
-; Routine
-c32768 LD A,B
- 32769 RET
-"""
-
-TEST_LOWER = """; @start
-; @org=24576
-
-; Routine
-;
-; Description.
-;
-; A Value
-; B Another value
-; @label=DOSTUFF
-c24576 LD HL,$6003
-
-; Data
-b$6003 DEFB 123 ; #REGa=0
- $6004 DEFB 246 ; #R24576
-"""
-
-TEST_INSTR_WIDTH = """; @start
-; Data
-b$6003 DEFB 123 ; #REGa=0
-"""
-
-TEST_REGISTERS = """; @start
-; Test parsing of register blocks (1)
-;
-; Traditional.
-;
-; A Some value
-; B Some other value
-c24604 RET
-
-; Test parsing of register blocks (2)
-;
-; With prefixes.
-;
-; Input:a Some value
-;       b Some other value
-; Output:c The result
-c24605 RET
-"""
-
-TEST_DEFM = """; @start
-; Message 1
-t32768 DEFM "AbCdEfG"
-
-; Message 2
-t32775 defm "hIjKlMn"
-"""
-
-TEST_MACRO_D = """; @start
-
-; First routine
-c32768 RET
-
-; Second routine
-c32769 RET
-
-c32770 RET
-"""
-
-TEST_MACRO_EREFS = """; @start
-; First routine
-c30000 CALL 30004
-
-; Second routine
-c30003 LD A,B
- 30004 LD B,C
-
-; Third routine
-c30005 JP 30004
-"""
-
-TEST_MACRO_REFS = """; @start
-; Used by the routines at 24583, 24586 and 24589
-c24581 LD A,B
- 24582 RET
-
-; Uses 24581
-c24583 CALL 24581
-
-; Also uses 24581
-c24586 CALL 24581
-
-; Uses 24581 too
-c24589 JP 24582
-"""
-
-TEST_HEADER = """; @start
-; Header line 1.
-; Header line 2.
-
-; Start
-c32768 JP 49152
-"""
-
-TEST_END_COMMENT = """; @start
-; Start
-c49152 RET
-; End comment.
-"""
-
-TEST_UNCONVERTED_ADDRESSES = """; @start
-; Routine at 32768
-;
-; Used by the routine at 32768.
-c32768 LD A,B  ; This instruction is at 32768
-; This mid-routine comment is above 32769.
- 32769 RET
-"""
-
-TEST_LONG_LINE = """; @start
-; Routine
-c30000 BIT 3,(IX+101) ; Pneumonoultramicroscopicsilicovolcanoconiosis
-"""
-
-TEST_CONTINUATION_LINE = """; @start
-; Routine
-c40000 LD A,B ; This instruction has a long comment that will require a
-              ; continuation line
-"""
-
-TEST_WIDE_TABLE = """; @start
-; Routine
-;
-; #TABLE
-; { This is cell A1 | This is cell A2 | This is cell A3 | This is cell A4 | This is cell A5 }
-; TABLE#
-c50000 RET
-"""
-
-TEST_END_DIRECTIVE = """; @start
-; Routine
-c40000 RET
-; @end
-
-; More code
-c40001 NOP
-"""
-
-TEST_ISUB_DIRECTIVE = """; @start
-; Routine
-; @isub=LD A,(32512)
-c60000 LD A,(m)
-"""
-
-TEST_ISUB_BLOCK_DIRECTIVE = """; @start
-; Routine
-;
-; @isub+begin
-; Actual description.
-; @isub-else
-; Other description.
-; @isub-end
-c24576 RET
-"""
-
-TEST_RSUB_DIRECTIVE = """; @start
-; Routine
-; @rsub=INC HL
-c23456 INC L
-"""
-
-TEST_IGNOREUA_DIRECTIVE = """; @start
-; @ignoreua
-; Routine at 32768
-;
-; @ignoreua
-; Description of routine at 32768.
-; @ignoreua
-c32768 LD A,B ; This is the instruction at 32768
-; @ignoreua
-; This is the mid-routine comment above 32769.
- 32769 RET
-; @ignoreua
-; This is the end comment after 32769.
-"""
-
-TEST_NOWARN_DIRECTIVE = """; @start
-; Routine
-; @nowarn
-c30000 LD HL,30003
-
-; Routine
-; @label=NEXT
-; @nowarn
-c30003 CALL 30000
-; @nowarn
- 30006 CALL 30001
-"""
-
-TEST_KEEP_DIRECTIVE = """; @start
-; Routine
-; @keep
-c30000 LD HL,30003
-
-; Routine
-; @label=NEXT
-c30003 RET
-"""
-
-TEST_NOLABEL_DIRECTIVE = """; @start
-; Start
-; @label=START
-c32768 LD A,B
-; @nolabel
-*32769 RET
-"""
-
-TEST_ENTRY_POINT_LABELS = """; @start
-; Routine
-; @label=START
-c40000 LD A,B
-*40001 LD C,D
-*40002 RET
-"""
-
 TEST_HEX = r"""; @start
 ; @org=32767
 ; Routine
@@ -1264,7 +1020,18 @@ class AsmWriterTest(SkoolKitTestCase):
             writer.expand('#CHR(2 ...')
 
     def test_macro_d(self):
-        writer = self._get_writer(TEST_MACRO_D)
+        skool = '\n'.join((
+            '; @start',
+            '',
+            '; First routine',
+            'c32768 RET',
+            '',
+            '; Second routine',
+            'c32769 RET',
+            '',
+            'c32770 RET',
+        ))
+        writer = self._get_writer(skool)
 
         output = writer.expand('#D32768')
         self.assertEqual(output, 'First routine')
@@ -1273,7 +1040,18 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(output, 'Second routine')
 
     def test_macro_d_invalid(self):
-        writer = self._get_writer(TEST_MACRO_D)
+        skool = '\n'.join((
+            '; @start',
+            '',
+            '; First routine',
+            'c32768 RET',
+            '',
+            '; Second routine',
+            'c32769 RET',
+            '',
+            'c32770 RET',
+        ))
+        writer = self._get_writer(skool)
         prefix = ERROR_PREFIX.format('D')
 
         # No parameter (1)
@@ -1299,14 +1077,38 @@ class AsmWriterTest(SkoolKitTestCase):
             writer.expand('#D{0}'.format(address))
 
     def test_macro_erefs(self):
-        writer = self._get_writer(TEST_MACRO_EREFS)
+        skool = '\n'.join((
+            '; @start',
+            '; First routine',
+            'c30000 CALL 30004',
+            '',
+            '; Second routine',
+            'c30003 LD A,B',
+            ' 30004 LD B,C',
+            '',
+            '; Third routine',
+            'c30005 JP 30004',
+        ))
+        writer = self._get_writer(skool)
 
         for address in ('30004', '$7534'):
             output = writer.expand('#EREFS{}'.format(address))
             self.assertEqual(output, 'routines at 30000 and 30005')
 
     def test_macro_erefs_invalid(self):
-        writer = self._get_writer(TEST_MACRO_EREFS)
+        skool = '\n'.join((
+            '; @start',
+            '; First routine',
+            'c30000 CALL 30004',
+            '',
+            '; Second routine',
+            'c30003 LD A,B',
+            ' 30004 LD B,C',
+            '',
+            '; Third routine',
+            'c30005 JP 30004',
+        ))
+        writer = self._get_writer(skool)
         prefix = ERROR_PREFIX.format('EREFS')
 
         # No parameter (1)
@@ -1716,7 +1518,22 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)
 
     def test_macro_refs(self):
-        writer = self._get_writer(TEST_MACRO_REFS)
+        skool = '\n'.join((
+            '; @start',
+            '; Used by the routines at 24583, 24586 and 24589',
+            'c24581 LD A,B',
+            ' 24582 RET',
+            '',
+            '; Uses 24581',
+            'c24583 CALL 24581',
+            '',
+            '; Also uses 24581',
+            'c24586 CALL 24581',
+            '',
+            '; Uses 24581 too',
+            'c24589 JP 24582',
+        ))
+        writer = self._get_writer(skool)
 
         # Some referrers
         for address in ('24581', '$6005'):
@@ -1871,11 +1688,26 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(asm[0], 'START:')
 
     def test_continuation_line(self):
-        asm = self._get_asm(TEST_CONTINUATION_LINE)
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            'c40000 LD A,B ; This instruction has a long comment that will require a',
+            '              ; continuation line',
+        ))
+        asm = self._get_asm(skool)
         self.assertEqual(asm[2], '                          ; require a continuation line')
 
     def test_warn_unconverted_addresses(self):
-        self._get_asm(TEST_UNCONVERTED_ADDRESSES, warn=True)
+        skool = '\n'.join((
+            '; @start',
+            '; Routine at 32768',
+            ';',
+            '; Used by the routine at 32768.',
+            'c32768 LD A,B  ; This instruction is at 32768',
+            '; This mid-routine comment is above 32769.',
+            ' 32769 RET',
+        ))
+        self._get_asm(skool, warn=True)
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 8)
         self.assertEqual(warnings[0], 'WARNING: Comment contains address (32768) not converted to a label:')
@@ -1888,30 +1720,72 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(warnings[7], '; This mid-routine comment is above 32769.')
 
     def test_warn_long_line(self):
-        self._get_asm(TEST_LONG_LINE, instr_width=30, warn=True)
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            'c30000 BIT 3,(IX+101) ; Pneumonoultramicroscopicsilicovolcanoconiosis',
+        ))
+        self._get_asm(skool, instr_width=30, warn=True)
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 2)
         self.assertEqual(warnings[0], 'WARNING: Line is 80 characters long:')
         self.assertEqual(warnings[1], '  BIT 3,(IX+101)                 ; Pneumonoultramicroscopicsilicovolcanoconiosis')
 
     def test_warn_wide_table(self):
-        self._get_asm(TEST_WIDE_TABLE, warn=True)
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            ';',
+            '; #TABLE',
+            '; { This is cell A1 | This is cell A2 | This is cell A3 | This is cell A4 | This is cell A5 }',
+            '; TABLE#',
+            'c50000 RET',
+        ))
+        self._get_asm(skool, warn=True)
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0], 'WARNING: Table in entry at 50000 is 91 characters wide')
 
     def test_option_crlf(self):
-        asm = self._get_asm(TEST_CRLF, crlf=True)
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            'c32768 RET',
+        ))
+        asm = self._get_asm(skool, crlf=True)
         self.assertTrue(all(line.endswith('\r') for line in asm))
 
     def test_option_tab(self):
-        asm = self._get_asm(TEST_TAB, tab=True)
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            'c32768 LD A,B',
+            ' 32769 RET',
+        ))
+        asm = self._get_asm(skool, tab=True)
         for line in asm:
             if line and line[0].isspace():
                 self.assertEqual(line[0], '\t')
 
     def test_option_lower(self):
-        asm = self._get_asm(TEST_LOWER, case=CASE_LOWER)
+        skool = '\n'.join((
+            '; @start',
+            '; @org=24576',
+            '',
+            '; Routine',
+            ';',
+            '; Description.',
+            ';',
+            '; A Value',
+            '; B Another value',
+            '; @label=DOSTUFF',
+            'c24576 LD HL,$6003',
+            '',
+            '; Data',
+            'b$6003 DEFB 123 ; #REGa=0',
+            ' $6004 DEFB 246 ; #R24576',
+        ))
+        asm = self._get_asm(skool, case=CASE_LOWER)
 
         # Test that the ORG directive is in lower case
         self.assertEqual(asm[0], '  org 24576')
@@ -1930,19 +1804,51 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(asm[13], '  defb 246                ; DOSTUFF')
 
     def test_option_instr_width(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Data',
+            'b$6003 DEFB 123 ; #REGa=0',
+        ))
         for width in (5, 10, 15, 20, 25, 30):
-            asm = self._get_asm(TEST_INSTR_WIDTH, instr_width=width)
+            asm = self._get_asm(skool, instr_width=width)
             self.assertEqual(asm[1], '  {0} ; A=0'.format('DEFB 123'.ljust(width)))
 
     def test_header(self):
-        asm = self._get_asm(TEST_HEADER)
+        skool = '\n'.join((
+            '; @start',
+            '; Header line 1.',
+            '; Header line 2.',
+            '',
+            '; Start',
+            'c32768 JP 49152',
+        ))
+        asm = self._get_asm(skool)
         self.assertEqual(asm[0], '; Header line 1.')
         self.assertEqual(asm[1], '; Header line 2.')
         self.assertEqual(asm[2], '')
         self.assertEqual(asm[3], '; Start')
 
     def test_registers(self):
-        asm = self._get_asm(TEST_REGISTERS)
+        skool = '\n'.join((
+            '; @start',
+            '; Test parsing of register blocks (1)',
+            ';',
+            '; Traditional.',
+            ';',
+            '; A Some value',
+            '; B Some other value',
+            'c24604 RET',
+            '',
+            '; Test parsing of register blocks (2)',
+            ';',
+            '; With prefixes.',
+            ';',
+            '; Input:a Some value',
+            ';       b Some other value',
+            '; Output:c The result',
+            'c24605 RET',
+        ))
+        asm = self._get_asm(skool)
 
         # Traditional
         self.assertEqual(asm[4], '; A Some value')
@@ -1954,40 +1860,106 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(asm[14], '; Output:c The result')
 
     def test_registers_upper(self):
-        asm = self._get_asm(TEST_REGISTERS, case=CASE_UPPER)
+        skool = '\n'.join((
+            '; @start',
+            '; Test parsing of register blocks (1)',
+            ';',
+            '; Traditional.',
+            ';',
+            '; A Some value',
+            '; B Some other value',
+            'c24604 RET',
+            '',
+            '; Test parsing of register blocks (2)',
+            ';',
+            '; With prefixes.',
+            ';',
+            '; Input:a Some value',
+            ';       b Some other value',
+            '; Output:c The result',
+            'c24605 RET',
+        ))
+        asm = self._get_asm(skool, case=CASE_UPPER)
         self.assertEqual(asm[12], ';  Input:A Some value')
         self.assertEqual(asm[13], ';        B Some other value')
         self.assertEqual(asm[14], '; Output:C The result')
 
     def test_defm_upper(self):
-        asm = self._get_asm(TEST_DEFM, case=CASE_UPPER)
+        skool = '\n'.join((
+            '; @start',
+            '; Message 1',
+            't32768 DEFM "AbCdEfG"',
+            '',
+            '; Message 2',
+            't32775 defm "hIjKlMn"',
+        ))
+        asm = self._get_asm(skool, case=CASE_UPPER)
         self.assertEqual(asm[1], '  DEFM "AbCdEfG"')
         self.assertEqual(asm[4], '  DEFM "hIjKlMn"')
 
     def test_defm_lower(self):
-        asm = self._get_asm(TEST_DEFM, case=CASE_LOWER)
+        skool = '\n'.join((
+            '; @start',
+            '; Message 1',
+            't32768 DEFM "AbCdEfG"',
+            '',
+            '; Message 2',
+            't32775 defm "hIjKlMn"',
+        ))
+        asm = self._get_asm(skool, case=CASE_LOWER)
         self.assertEqual(asm[1], '  defm "AbCdEfG"')
         self.assertEqual(asm[4], '  defm "hIjKlMn"')
 
     def test_empty_description(self):
-        asm = self._get_asm(TEST_EMPTY_DESCRIPTION)
+        skool = '\n'.join((
+            '; @start',
+            '; Test an empty description',
+            ';',
+            '; #HTML(#UDG32768)',
+            'c24604 RET',
+        ))
+        asm = self._get_asm(skool)
         self.assertEqual(asm[0], '; Test an empty description')
         self.assertEqual(asm[1], '  RET')
 
     def test_empty_description_with_registers(self):
-        asm = self._get_asm(TEST_EMPTY_DESCRIPTION_WITH_REGISTERS)
+        skool = '\n'.join((
+            '; @start',
+            '; Test an empty description and a register section',
+            ';',
+            '; .',
+            ';',
+            '; A 0',
+            '; B 1',
+            'c25600 RET',
+        ))
+        asm = self._get_asm(skool)
         self.assertEqual(asm[0], '; Test an empty description and a register section')
         self.assertEqual(asm[1], ';')
         self.assertEqual(asm[2], '; A 0')
         self.assertEqual(asm[4], '  RET')
 
     def test_end_comment(self):
-        asm = self._get_asm(TEST_END_COMMENT)
+        skool = '\n'.join((
+            '; @start',
+            '; Start',
+            'c49152 RET',
+            '; End comment.',
+        ))
+        asm = self._get_asm(skool)
         self.assertEqual(asm[1], '  RET')
         self.assertEqual(asm[2], '; End comment.')
 
     def test_entry_point_labels(self):
-        asm = self._get_asm(TEST_ENTRY_POINT_LABELS)
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            '; @label=START',
+            'c40000 LD A,B',
+            '*40001 LD C,D',
+            '*40002 RET',
+        ))
+        asm = self._get_asm(skool)
         self.assertEqual(asm[1], 'START:')
         self.assertEqual(asm[3], 'START_0:')
         self.assertEqual(asm[5], 'START_1:')
@@ -2017,46 +1989,124 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(asm[:-1], TEST_HEX_ASM_UPPER)
 
     def test_end_directive(self):
-        asm = self._get_asm(TEST_END_DIRECTIVE)
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            'c40000 RET',
+            '; @end',
+            '',
+            '; More code',
+            'c40001 NOP',
+        ))
+        asm = self._get_asm(skool)
         self.assertEqual(len(asm), 3)
         self.assertEqual(asm[1], '  RET')
         self.assertEqual(asm[2], '')
 
     def test_isub_directive(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            '; @isub=LD A,(32512)',
+            'c60000 LD A,(m)',
+        ))
         for asm_mode in (1, 2, 3):
-            asm = self._get_asm(TEST_ISUB_DIRECTIVE, asm_mode=asm_mode)
+            asm = self._get_asm(skool, asm_mode=asm_mode)
             self.assertEqual(asm[1], '  LD A,(32512)')
 
     def test_isub_block_directive(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            ';',
+            '; @isub+begin',
+            '; Actual description.',
+            '; @isub-else',
+            '; Other description.',
+            '; @isub-end',
+            'c24576 RET',
+        ))
         for asm_mode in (1, 2, 3):
-            asm = self._get_asm(TEST_ISUB_BLOCK_DIRECTIVE)
+            asm = self._get_asm(skool)
             self.assertEqual(asm[2], '; Actual description.')
             self.assertEqual(asm[3], '  RET')
 
     def test_rsub_directive(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            '; @rsub=INC HL',
+            'c23456 INC L',
+        ))
         for asm_mode in (1, 2):
-            asm = self._get_asm(TEST_RSUB_DIRECTIVE, asm_mode=asm_mode)
+            asm = self._get_asm(skool, asm_mode=asm_mode)
             self.assertEqual(asm[1], '  INC L')
-        asm = self._get_asm(TEST_RSUB_DIRECTIVE, asm_mode=3)
+        asm = self._get_asm(skool, asm_mode=3)
         self.assertEqual(asm[1], '  INC HL')
 
     def test_ignoreua_directive(self):
-        self._get_asm(TEST_IGNOREUA_DIRECTIVE, warn=True)
+        skool = '\n'.join((
+            '; @start',
+            '; @ignoreua',
+            '; Routine at 32768',
+            ';',
+            '; @ignoreua',
+            '; Description of routine at 32768.',
+            '; @ignoreua',
+            'c32768 LD A,B ; This is the instruction at 32768',
+            '; @ignoreua',
+            '; This is the mid-routine comment above 32769.',
+            ' 32769 RET',
+            '; @ignoreua',
+            '; This is the end comment after 32769.',
+        ))
+        self._get_asm(skool, warn=True)
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 0)
 
     def test_nowarn_directive(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            '; @nowarn',
+            'c30000 LD HL,30003',
+            '',
+            '; Routine',
+            '; @label=NEXT',
+            '; @nowarn',
+            'c30003 CALL 30000',
+            '; @nowarn',
+            ' 30006 CALL 30001',
+        ))
         for asm_mode in (1, 2, 3):
-            self._get_asm(TEST_NOWARN_DIRECTIVE, warn=True, asm_mode=asm_mode)
+            self._get_asm(skool, warn=True, asm_mode=asm_mode)
             warnings = self.err.getvalue().split('\n')[:-1]
             self.assertEqual(len(warnings), 0)
 
     def test_keep_directive(self):
-        asm = self._get_asm(TEST_KEEP_DIRECTIVE)
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            '; @keep',
+            'c30000 LD HL,30003',
+            '',
+            '; Routine',
+            '; @label=NEXT',
+            'c30003 RET',
+        ))
+        asm = self._get_asm(skool)
         self.assertEqual(asm[1], '  LD HL,30003')
 
     def test_nolabel_directive(self):
-        asm = self._get_asm(TEST_NOLABEL_DIRECTIVE)
+        skool = '\n'.join((
+            '; @start',
+            '; Start',
+            '; @label=START',
+            'c32768 LD A,B',
+            '; @nolabel',
+            '*32769 RET',
+        ))
+        asm = self._get_asm(skool)
         self.assertEqual(asm[1], 'START:')
         self.assertEqual(asm[2], '  LD A,B')
         self.assertEqual(asm[3], '  RET')
