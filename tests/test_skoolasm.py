@@ -325,55 +325,6 @@ TEST_DECIMAL_ASM_UPPER = r"""
   DEFS 2748,254
 """.split('\n')[1:-1]
 
-TEST_INVALID_BLOCK_DIRECTIVES = []
-INVALID_BLOCK_DIRECTIVE_WARNINGS = []
-
-# @rsub-begin inside @rsub- block
-TEST_INVALID_BLOCK_DIRECTIVES.append("""; @start
-; @rsub-begin
-; @rsub-begin
-; @rsub-end
-; @rsub-end
-""")
-INVALID_BLOCK_DIRECTIVE_WARNINGS.append("rsub-begin inside rsub- block")
-
-# @isub+else inside @bfix+ block
-TEST_INVALID_BLOCK_DIRECTIVES.append("""; @start
-; @bfix+begin
-; @isub+else
-; @isub+end
-; @bfix+end
-""")
-INVALID_BLOCK_DIRECTIVE_WARNINGS.append("isub+else inside bfix+ block")
-
-# Dangling @ofix+else directive
-TEST_INVALID_BLOCK_DIRECTIVES.append("""; @start
-; @ofix+else
-; @ofix+end
-""")
-INVALID_BLOCK_DIRECTIVE_WARNINGS.append("ofix+else not inside block")
-
-# Dangling @rfix+end directive
-TEST_INVALID_BLOCK_DIRECTIVES.append("""; @start
-; @rfix+end
-""")
-INVALID_BLOCK_DIRECTIVE_WARNINGS.append("rfix+end has no matching start directive")
-
-# Mismatched begin/else/end (wrong infix)
-TEST_INVALID_BLOCK_DIRECTIVES.append("""; @start
-; @rsub+begin
-; @rsub-else
-; @rsub+end
-""")
-INVALID_BLOCK_DIRECTIVE_WARNINGS.append("rsub+end cannot end rsub- block")
-
-# Mismatched begin/end (different directive)
-TEST_INVALID_BLOCK_DIRECTIVES.append("""; @start
-; @ofix-begin
-; @bfix-end
-""")
-INVALID_BLOCK_DIRECTIVE_WARNINGS.append("bfix-end cannot end ofix- block")
-
 ERROR_PREFIX = 'Error while parsing #{0} macro'
 
 def get_chr(code):
@@ -1603,11 +1554,6 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(asm[1], 'START:')
         self.assertEqual(asm[2], '  LD A,B')
         self.assertEqual(asm[3], '  RET')
-
-    def test_invalid_block_directives(self):
-        for i, skool in enumerate(TEST_INVALID_BLOCK_DIRECTIVES):
-            with self.assertRaisesRegexp(SkoolParsingError, re.escape(INVALID_BLOCK_DIRECTIVE_WARNINGS[i])):
-                self._get_asm(skool)
 
 class TableMacroTest(SkoolKitTestCase):
     def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):

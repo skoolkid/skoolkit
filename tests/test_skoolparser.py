@@ -10,6 +10,11 @@ class SkoolParserTest(SkoolKitTestCase):
         skoolfile = self.write_text_file(contents, suffix='.skool')
         return SkoolParser(skoolfile, *args, **kwargs)
 
+    def assert_error(self, skool, error):
+        with self.assertRaises(SkoolParsingError) as cm:
+            self._get_parser('; @start\n' + skool, asm_mode=1)
+        self.assertEqual(cm.exception.args[0], error)
+
     def test_html_escape(self):
         skool = 'c24576 NOP ; Return if X<=Y & Y>=Z'
         parser = self._get_parser(skool, html=True)
@@ -436,6 +441,62 @@ class SkoolParserTest(SkoolKitTestCase):
         entry = parser.get_entry(40000)
         self.assertFalse(entry.instructions[0].keep)
         self.assertTrue(entry.instructions[1].keep)
+
+    def test_rsub_minus_inside_rsub_minus(self):
+        # @rsub-begin inside @rsub- block
+        skool = '\n'.join((
+            '; @rsub-begin',
+            '; @rsub-begin',
+            '; @rsub-end',
+            '; @rsub-end',
+        ))
+        error = "rsub-begin inside rsub- block"
+        self.assert_error(skool, error)
+
+    def test_isub_plus_inside_bfix_plus(self):
+        # @isub+else inside @bfix+ block
+        skool = '\n'.join((
+            '; @bfix+begin',
+            '; @isub+else',
+            '; @isub+end',
+            '; @bfix+end',
+        ))
+        error = "isub+else inside bfix+ block"
+        self.assert_error(skool, error)
+
+    def test_dangling_ofix_else(self):
+        # Dangling @ofix+else directive
+        skool = '\n'.join((
+            '; @ofix+else',
+            '; @ofix+end',
+        ))
+        error = "ofix+else not inside block"
+        self.assert_error(skool, error)
+
+    def test_dangling_rfix_end(self):
+        # Dangling @rfix+end directive
+        skool = '; @rfix+end'
+        error = "rfix+end has no matching start directive"
+        self.assert_error(skool, error)
+
+    def test_wrong_end_infix(self):
+        # Mismatched begin/else/end (wrong infix)
+        skool = '\n'.join((
+            '; @rsub+begin',
+            '; @rsub-else',
+            '; @rsub+end',
+        ))
+        error = "rsub+end cannot end rsub- block"
+        self.assert_error(skool, error)
+
+    def test_mismatched_begin_end(self):
+        # Mismatched begin/end (different directive)
+        skool = '\n'.join((
+            '; @ofix-begin',
+            '; @bfix-end',
+        ))
+        error = "bfix-end cannot end ofix- block"
+        self.assert_error(skool, error)
 
 if __name__ == '__main__':
     unittest.main()
