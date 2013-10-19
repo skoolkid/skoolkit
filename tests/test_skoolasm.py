@@ -374,476 +374,6 @@ TEST_INVALID_BLOCK_DIRECTIVES.append("""; @start
 """)
 INVALID_BLOCK_DIRECTIVE_WARNINGS.append("bfix-end cannot end ofix- block")
 
-TABLE_SRC = []
-TABLE_TEXT = []
-
-# Headers, colspans 1 and 2, rowspans 1 and 2
-TABLE_SRC.append("""(data)
-{ =h Col1 | =h Col2 | =h,c2 Cols3+4 }
-{ =r2 X   | Y       | Za  | Zb }
-{           Y2      | Za2 | Zb2 }
-""")
-
-TABLE_TEXT.append("""
-+------+------+-----------+
-| Col1 | Col2 | Cols3+4   |
-+------+------+-----+-----+
-| X    | Y    | Za  | Zb  |
-|      | Y2   | Za2 | Zb2 |
-+------+------+-----+-----+
-""")
-
-# Cell with rowspan > 1 in the middle column
-TABLE_SRC.append("""
-{ A1 cell | =r2 This is a cell with rowspan=2 | C1 cell }
-{ A2 cell | C2 cell }
-""")
-
-TABLE_TEXT.append("""
-+---------+-------------------------------+---------+
-| A1 cell | This is a cell with rowspan=2 | C1 cell |
-| A2 cell |                               | C2 cell |
-+---------+-------------------------------+---------+
-""")
-
-# Cell with rowspan > 1 in the rightmost column
-TABLE_SRC.append("""
-{ A1 cell | B1 cell | =r2 This is a cell with rowspan=2 }
-{ A2 cell | B2 cell }
-""")
-
-TABLE_TEXT.append("""
-+---------+---------+-------------------------------+
-| A1 cell | B1 cell | This is a cell with rowspan=2 |
-| A2 cell | B2 cell |                               |
-+---------+---------+-------------------------------+
-""")
-
-# Cell with colspan > 1 and wrapped contents
-TABLE_SRC.append("""(,:w)
-{ =c2 Cell with colspan=2 and contents that will be wrapped onto the following line }
-{ A2 | B2 }
-""")
-
-TABLE_TEXT.append("""
-+--------------------------------------------------------------------------+
-| Cell with colspan=2 and contents that will be wrapped onto the following |
-| line                                                                     |
-| A2                                  | B2                                 |
-+-------------------------------------+------------------------------------+
-""")
-
-# Cell in the first column with rowspan > 1 and wrapped contents
-TABLE_SRC.append("""(,:w)
-{ =r2 This cell has rowspan=2 and contains text that will wrap onto the next line | B1 }
-{ B2 }
-""")
-
-TABLE_TEXT.append("""
-+-------------------------------------------------------------------+----+
-| This cell has rowspan=2 and contains text that will wrap onto the | B1 |
-| next line                                                         | B2 |
-+-------------------------------------------------------------------+----+
-""")
-
-# Cell in the middle column with rowspan > 1 and wrapped contents
-TABLE_SRC.append("""(,,:w)
-{ A1 | =r2 This cell has rowspan=2 and contains text that will wrap onto the next line | C1 }
-{ A2 | C2 }
-""")
-
-TABLE_TEXT.append("""
-+----+---------------------------------------------------------------+----+
-| A1 | This cell has rowspan=2 and contains text that will wrap onto | C1 |
-| A2 | the next line                                                 | C2 |
-+----+---------------------------------------------------------------+----+
-""")
-
-# Cell in the last column with rowspan > 1 and wrapped contents
-TABLE_SRC.append("""(,,:w)
-{ A1 | =r2 This cell has rowspan=2 and contains text that will wrap onto the next line }
-{ A2 }
-""")
-
-TABLE_TEXT.append("""
-+----+-------------------------------------------------------------------+
-| A1 | This cell has rowspan=2 and contains text that will wrap onto the |
-| A2 | next line                                                         |
-+----+-------------------------------------------------------------------+
-""")
-
-# Header row shorter than the remaining rows
-TABLE_SRC.append("""
-{ =h H1 | =h H2 }
-{ A1    | B1    | C1 }
-{ A2    | B2    | C2 }
-""")
-
-TABLE_TEXT.append("""
-+----+----+
-| H1 | H2 |
-+----+----+----+
-| A1 | B1 | C1 |
-| A2 | B2 | C2 |
-+----+----+----+
-""")
-
-# Transparent cell in the top left corner
-TABLE_SRC.append("""
-{ =t | =h H2 }
-{ A1 | B1 }
-""")
-
-TABLE_TEXT.append("""
-     +----+
-     | H2 |
-+----+----+
-| A1 | B1 |
-+----+----+
-""")
-
-# Transparent cell in the top right corner
-TABLE_SRC.append("""
-{ =h H1 | =t }
-{ A1    | B1 }
-""")
-
-TABLE_TEXT.append("""
-+----+
-| H1 |
-+----+----+
-| A1 | B1 |
-+----+----+
-""")
-
-# Transparent cell in the bottom right corner
-TABLE_SRC.append("""
-{ =h H1 | =h H2 }
-{ A1    | =t }
-""")
-
-TABLE_TEXT.append("""
-+----+----+
-| H1 | H2 |
-+----+----+
-| A1 |
-+----+
-""")
-
-# Transparent cell in the bottom left corner
-TABLE_SRC.append("""
-{ =h H1 | =h H2 }
-{ =t    | B1 }
-""")
-
-TABLE_TEXT.append("""
-+----+----+
-| H1 | H2 |
-+----+----+
-     | B1 |
-     +----+
-""")
-
-# Transparent cells with rowspan > 1 in the top corners
-TABLE_SRC.append("""
-{ =t,r2 | H1    | =t,r2 }
-{         =h H2         }
-{ A1    | B1    | C1    }
-""")
-
-TABLE_TEXT.append("""
-     +----+
-     | H1 |
-     | H2 |
-+----+----+----+
-| A1 | B1 | C1 |
-+----+----+----+
-""")
-
-# Transparent cells with rowspan > 1 in the bottom corners
-TABLE_SRC.append("""
-{ =h H1 | =h H2 | =h H3 }
-{ =t,r2 | B1    | =t,r2 }
-{         B2 }
-""")
-
-TABLE_TEXT.append("""
-+----+----+----+
-| H1 | H2 | H3 |
-+----+----+----+
-     | B1 |
-     | B2 |
-     +----+
-""")
-
-# Adjacent transparent cells
-TABLE_SRC.append("""
-{ =h H1 | =h H2 | =h H3 }
-{ =h A1 | =h B1 | =t,r2 }
-{ A2    | =t }
-""")
-
-TABLE_TEXT.append("""
-+----+----+----+
-| H1 | H2 | H3 |
-+----+----+----+
-| A1 | B1 |
-+----+----+
-| A2 |
-+----+
-""")
-
-# More adjacent transparent cells
-TABLE_SRC.append("""
-{ =h H1 | =h H2 | =h H3 }
-{ =t,r2 | =h B1 | =h C1 }
-{         =t    | C2 }
-""")
-
-TABLE_TEXT.append("""
-+----+----+----+
-| H1 | H2 | H3 |
-+----+----+----+
-     | B1 | C1 |
-     +----+----+
-          | C2 |
-          +----+
-""")
-
-# Short header row ending with a (redundant) transparent cell
-TABLE_SRC.append("""
-{ =h A1 | =t }
-{ A2 | B2 | C2 }
-""")
-
-TABLE_TEXT.append("""
-+----+
-| A1 |
-+----+----+----+
-| A2 | B2 | C2 |
-+----+----+----+
-""")
-
-# Transparent cell in the last column between the top and bottom rows
-TABLE_SRC.append("""
-{ =h A1 | =h B1 | =h C1 }
-{ =h A2 | =h B2 | =t }
-{ A3 | B3 | C3 }
-""")
-
-TABLE_TEXT.append("""
-+----+----+----+
-| A1 | B1 | C1 |
-+----+----+----+
-| A2 | B2 |
-+----+----+----+
-| A3 | B3 | C3 |
-+----+----+----+
-""")
-
-# Transparent cell in the bottom row between the first and last columns
-TABLE_SRC.append("""
-{ =h A1 | =h B1 | =h C1 }
-{ =h A2 | =h B2 | =h C2 }
-{ A3 | =t | C3 }
-""")
-
-TABLE_TEXT.append("""
-+----+----+----+
-| A1 | B1 | C1 |
-+----+----+----+
-| A2 | B2 | C2 |
-+----+----+----+
-| A3 |    | C3 |
-+----+    +----+
-""")
-
-# Transparent cell in the first column between the top and bottom rows
-TABLE_SRC.append("""
-{ =h A1 | =h B1 | =h C1 }
-{ =t | =h B2 | =h C2 }
-{ A3 | B3 | C3 }
-""")
-
-TABLE_TEXT.append("""
-+----+----+----+
-| A1 | B1 | C1 |
-+----+----+----+
-     | B2 | C2 |
-+----+----+----+
-| A3 | B3 | C3 |
-+----+----+----+
-""")
-
-# Transparent cell in the top row between the first and last columns
-TABLE_SRC.append("""
-{ =h A1 | =t | =h C1 }
-{ =h A2 | =h B2 | =h C2 }
-{ A3 | B3 | C3 }
-""")
-
-TABLE_TEXT.append("""
-+----+    +----+
-| A1 |    | C1 |
-+----+----+----+
-| A2 | B2 | C2 |
-+----+----+----+
-| A3 | B3 | C3 |
-+----+----+----+
-""")
-
-# Header cell with rowspan > 1 and wrapped contents in the first column
-TABLE_SRC.append("""(,:w)
-{ =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length | =h B1 }
-{ =h B2 }
-""")
-
-TABLE_TEXT.append("""
-+-----------------------------------------------------------------+----+
-| The contents of this cell are wrapped onto two lines because of | B1 |
-| their excessive length                                          +----+
-|                                                                 | B2 |
-+-----------------------------------------------------------------+----+
-""")
-
-# Header cell with rowspan > 1 and wrapped contents in the last column
-TABLE_SRC.append("""(,,:w)
-; { =h A1 | =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length }
-; { =h A2 }
-""")
-
-TABLE_TEXT.append("""
-+----+-----------------------------------------------------------------+
-| A1 | The contents of this cell are wrapped onto two lines because of |
-+----+ their excessive length                                          |
-| A2 |                                                                 |
-+----+-----------------------------------------------------------------+
-""")
-
-# Header cell with rowspan > 1 and wrapped contents in the middle column
-TABLE_SRC.append("""(,,:w)
-{ =h A1 | =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length | =h C1 }
-{ =h A2 | =h C2 }
-""")
-
-TABLE_TEXT.append("""
-+----+-----------------------------------------------------------------+----+
-| A1 | The contents of this cell are wrapped onto two lines because of | C1 |
-+----+ their excessive length                                          +----+
-| A2 |                                                                 | C2 |
-+----+-----------------------------------------------------------------+----+
-""")
-
-TEST_TABLES = []
-TABLE_ERRORS = []
-
-# No closing ')' in CSS class list
-TEST_TABLES.append("""; @start
-; Routine
-;
-; #TABLE(class1,class2,
-; { Hi }
-; TABLE#
-c32768 RET
-""")
-
-TABLE_ERRORS.append(("""Cannot find closing ')' in table CSS class list:
-(class1,class2, { Hi } TABLE#"""))
-
-# No space after the opening '{'
-TEST_TABLES.append("""; @start
-; Routine
-;
-; #TABLE
-; {Lo }
-; TABLE#
-c49152 RET
-""")
-
-TABLE_ERRORS.append("""Cannot find opening '{ ' in table row:
-{Lo } TABLE#""")
-
-# No space before the closing '}'
-TEST_TABLES.append("""; @start
-; Routine
-;
-; #TABLE
-; { Yo}
-; TABLE#
-c24576 RET
-""")
-
-TABLE_ERRORS.append("""Cannot find closing ' }' in table row:
-{ Yo} TABLE#""")
-
-LIST_BULLET = []
-LIST_SRC = []
-LIST_TEXT = []
-
-LIST_BULLET.append('*')
-LIST_SRC.append("""(data)
-{ Really long item that should end up being wrapped onto two lines when rendered in ASM mode }
-{ Short item with a skool macro: #REGa }
-""")
-LIST_TEXT.append("""
-* Really long item that should end up being wrapped onto two lines when
-  rendered in ASM mode
-* Short item with a skool macro: A
-""")
-
-LIST_BULLET.append('--')
-LIST_SRC.append("""
-{ Really long item that should end up being wrapped onto two lines when rendered in ASM mode }
-{ Short item }
-""")
-LIST_TEXT.append("""
--- Really long item that should end up being wrapped onto two lines when
-   rendered in ASM mode
--- Short item
-""")
-
-TEST_LISTS = []
-LIST_ERRORS = []
-
-# No closing ')' in parameter list
-TEST_LISTS.append("""; @start
-; Routine
-;
-; #LIST(default
-; { Item 1 }
-; LIST#
-c32768 RET
-""")
-
-LIST_ERRORS.append("""Cannot find closing ')' in parameter list:
-(default { Item 1 } LIST#""")
-
-# No space after the opening '{'
-TEST_LISTS.append("""; @start
-; Routine
-;
-; #LIST
-; {Item }
-; LIST#
-c40000 RET
-""")
-
-LIST_ERRORS.append("""Cannot find opening '{ ' in list item:
-{Item } LIST#""")
-
-# No space before the closing '}'
-TEST_LISTS.append("""; @start
-; Routine
-;
-; #LIST
-; { Item}
-; LIST#
-c50000 RET
-""")
-
-LIST_ERRORS.append("""Cannot find closing ' }' in list item:
-{ Item} LIST#""")
-
 ERROR_PREFIX = 'Error while parsing #{0} macro'
 
 def get_chr(code):
@@ -1197,25 +727,6 @@ class AsmWriterTest(SkoolKitTestCase):
 
         # Blank link text
         self.assert_error(writer, '#LINK:PageID()', 'Blank link text: #LINK:PageID()', prefix)
-
-    def test_macro_list(self):
-        writer = self._get_writer()
-        for bullet, src, text in zip(LIST_BULLET, LIST_SRC, LIST_TEXT):
-            writer.bullet = bullet
-            list_src = '#LIST{0}\nLIST#'.format(src)
-            output = '\n'.join(writer.format(list_src, 79))
-            self.assertEqual(output, text.strip())
-
-        # Empty list
-        output = '\n'.join(writer.format('#LIST LIST#', 79))
-        self.assertEqual(output, '')
-
-    def test_macro_list_invalid(self):
-        writer = self._get_writer()
-
-        # No end marker
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Missing end marker: #LIST { Item }...")):
-            writer.format('#LIST { Item }', 79)
 
     def test_macro_poke(self):
         self._test_reference_macro('POKE', 'poke')
@@ -1612,24 +1123,6 @@ class AsmWriterTest(SkoolKitTestCase):
         # No closing bracket
         self.assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)
 
-    def test_macro_table(self):
-        writer = self._get_writer()
-        for src, text in zip(TABLE_SRC, TABLE_TEXT):
-            table = '#TABLE{0}\nTABLE#'.format(src)
-            output = writer.format(table, 79)
-            self.assertEqual(output, text.split('\n')[1:-1])
-
-        # Empty table
-        output = '\n'.join(writer.format('#TABLE TABLE#', 79))
-        self.assertEqual(output, '')
-
-    def test_macro_table_invalid(self):
-        writer = self._get_writer()
-
-        # No end marker
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Missing end marker: #TABLE { A1 }...")):
-            writer.format('#TABLE { A1 }', 79)
-
     def test_macro_udg(self):
         writer = self._get_writer()
         self._test_unsupported_macro(writer, '#UDG39144,6(safe_key)')
@@ -1650,7 +1143,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_macro_udgtable(self):
         writer = self._get_writer()
-        udgtable = '#UDGTABLE{0}\nUDGTABLE#'.format(TABLE_SRC[0])
+        udgtable = '#UDGTABLE { #UDG0 } UDGTABLE#'
         output = writer.format(udgtable, 79)
         self.assertEqual(output, [])
 
@@ -2116,15 +1609,576 @@ class AsmWriterTest(SkoolKitTestCase):
             with self.assertRaisesRegexp(SkoolParsingError, re.escape(INVALID_BLOCK_DIRECTIVE_WARNINGS[i])):
                 self._get_asm(skool)
 
-    def test_table_parsing_errors(self):
-        for i, skool in enumerate(TEST_TABLES):
-            with self.assertRaisesRegexp(SkoolParsingError, re.escape(TABLE_ERRORS[i])):
-                self._get_asm(skool)
+class TableMacroTest(SkoolKitTestCase):
+    def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):
+        skoolfile = self.write_text_file(skool, suffix='.skool')
+        skool_parser = SkoolParser(skoolfile, asm_mode=1)
+        return AsmWriter(skool_parser, crlf, tab, skool_parser.properties, False, instr_width, warn)
 
-    def test_list_parsing_errors(self):
-        for i, skool in enumerate(TEST_LISTS):
-            with self.assertRaisesRegexp(SkoolParsingError, re.escape(LIST_ERRORS[i])):
-                self._get_asm(skool)
+    def assert_error(self, skool, error):
+        self.clear_streams()
+        writer = self._get_writer(skool)
+        with self.assertRaises(SkoolParsingError) as cm:
+            writer.write()
+        self.assertEqual(cm.exception.args[0], error)
+
+    def _test_table(self, src_lines, exp_output):
+        writer = self._get_writer()
+        table = '#TABLE{}\nTABLE#'.format('\n'.join(src_lines))
+        output = writer.format(table, 79)
+        self.assertEqual(output, exp_output)
+
+    def test_headers_and_colspans_and_rowspans(self):
+        # Headers, colspans 1 and 2, rowspans 1 and 2
+        src = (
+            '(data)',
+            '{ =h Col1 | =h Col2 | =h,c2 Cols3+4 }',
+            '{ =r2 X   | Y       | Za  | Zb }',
+            '{           Y2      | Za2 | Zb2 }',
+        )
+        exp_output = [
+            '+------+------+-----------+',
+            '| Col1 | Col2 | Cols3+4   |',
+            '+------+------+-----+-----+',
+            '| X    | Y    | Za  | Zb  |',
+            '|      | Y2   | Za2 | Zb2 |',
+            '+------+------+-----+-----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_cell_with_rowspan_2_in_middle_column(self):
+        # Cell with rowspan > 1 in the middle column
+        src = (
+            '{ A1 cell | =r2 This is a cell with rowspan=2 | C1 cell }',
+            '{ A2 cell | C2 cell }',
+        )
+        exp_output = [
+            '+---------+-------------------------------+---------+',
+            '| A1 cell | This is a cell with rowspan=2 | C1 cell |',
+            '| A2 cell |                               | C2 cell |',
+            '+---------+-------------------------------+---------+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_cell_with_rowspan_2_in_last_column(self):
+        # Cell with rowspan > 1 in the rightmost column
+        src = (
+            '{ A1 cell | B1 cell | =r2 This is a cell with rowspan=2 }',
+            '{ A2 cell | B2 cell }',
+        )
+        exp_output = [
+            '+---------+---------+-------------------------------+',
+            '| A1 cell | B1 cell | This is a cell with rowspan=2 |',
+            '| A2 cell | B2 cell |                               |',
+            '+---------+---------+-------------------------------+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_cell_with_colspan_2_and_wrapped_contents(self):
+        # Cell with colspan > 1 and wrapped contents
+        src = (
+            '(,:w)',
+            '{ =c2 Cell with colspan=2 and contents that will be wrapped onto the following line }',
+            '{ A2 | B2 }',
+        )
+
+        exp_output = [
+            '+--------------------------------------------------------------------------+',
+            '| Cell with colspan=2 and contents that will be wrapped onto the following |',
+            '| line                                                                     |',
+            '| A2                                  | B2                                 |',
+            '+-------------------------------------+------------------------------------+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_cell_in_first_column_with_rowspan_2_and_wrapped_contents(self):
+        # Cell in the first column with rowspan > 1 and wrapped contents
+        src = (
+            '(,:w)',
+            '{ =r2 This cell has rowspan=2 and contains text that will wrap onto the next line | B1 }',
+            '{ B2 }',
+        )
+        exp_output = [
+            '+-------------------------------------------------------------------+----+',
+            '| This cell has rowspan=2 and contains text that will wrap onto the | B1 |',
+            '| next line                                                         | B2 |',
+            '+-------------------------------------------------------------------+----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_cell_in_middle_column_with_rowspan_2_and_wrapped_contents(self):
+        # Cell in the middle column with rowspan > 1 and wrapped contents
+        src = (
+            '(,,:w)',
+            '{ A1 | =r2 This cell has rowspan=2 and contains text that will wrap onto the next line | C1 }',
+            '{ A2 | C2 }',
+        )
+        exp_output = [
+            '+----+---------------------------------------------------------------+----+',
+            '| A1 | This cell has rowspan=2 and contains text that will wrap onto | C1 |',
+            '| A2 | the next line                                                 | C2 |',
+            '+----+---------------------------------------------------------------+----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_cell_in_last_column_with_rowspan_2_and_wrapped_contents(self):
+        # Cell in the last column with rowspan > 1 and wrapped contents
+        src = (
+            '(,,:w)',
+            '{ A1 | =r2 This cell has rowspan=2 and contains text that will wrap onto the next line }',
+            '{ A2 }',
+        )
+        exp_output = [
+            '+----+-------------------------------------------------------------------+',
+            '| A1 | This cell has rowspan=2 and contains text that will wrap onto the |',
+            '| A2 | next line                                                         |',
+            '+----+-------------------------------------------------------------------+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_short_header_row(self):
+        # Header row shorter than the remaining rows
+        src = (
+            '{ =h H1 | =h H2 }',
+            '{ A1    | B1    | C1 }',
+            '{ A2    | B2    | C2 }',
+        )
+        exp_output = [
+            '+----+----+',
+            '| H1 | H2 |',
+            '+----+----+----+',
+            '| A1 | B1 | C1 |',
+            '| A2 | B2 | C2 |',
+            '+----+----+----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_transparent_cell_in_top_left_corner(self):
+        # Transparent cell in the top left corner
+        src = (
+            '{ =t | =h H2 }',
+            '{ A1 | B1 }',
+        )
+        exp_output = [
+            '     +----+',
+            '     | H2 |',
+            '+----+----+',
+            '| A1 | B1 |',
+            '+----+----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_transparent_cell_in_top_right_corner(self):
+        # Transparent cell in the top right corner
+        src = (
+            '{ =h H1 | =t }',
+            '{ A1    | B1 }',
+        )
+        exp_output = [
+            '+----+',
+            '| H1 |',
+            '+----+----+',
+            '| A1 | B1 |',
+            '+----+----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_transparent_cell_in_bottom_right_corner(self):
+        # Transparent cell in the bottom right corner
+        src = (
+            '{ =h H1 | =h H2 }',
+            '{ A1    | =t }',
+        )
+        exp_output = [
+            '+----+----+',
+            '| H1 | H2 |',
+            '+----+----+',
+            '| A1 |',
+            '+----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_transparent_cell_in_bottom_left_corner(self):
+        # Transparent cell in the bottom left corner
+        src = (
+            '{ =h H1 | =h H2 }',
+            '{ =t    | B1 }',
+        )
+        exp_output = [
+            '+----+----+',
+            '| H1 | H2 |',
+            '+----+----+',
+            '     | B1 |',
+            '     +----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_transparent_cells_with_rowspan_2_in_top_corners(self):
+        # Transparent cells with rowspan > 1 in the top corners
+        src = (
+            '{ =t,r2 | H1    | =t,r2 }',
+            '{         =h H2         }',
+            '{ A1    | B1    | C1    }',
+        )
+        exp_output = [
+            '     +----+',
+            '     | H1 |',
+            '     | H2 |',
+            '+----+----+----+',
+            '| A1 | B1 | C1 |',
+            '+----+----+----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_transparent_cells__with_rowspan_2_in_bottom_corners(self):
+        # Transparent cells with rowspan > 1 in the bottom corners
+        src = (
+            '{ =h H1 | =h H2 | =h H3 }',
+            '{ =t,r2 | B1    | =t,r2 }',
+            '{         B2 }',
+        )
+        exp_output = [
+            '+----+----+----+',
+            '| H1 | H2 | H3 |',
+            '+----+----+----+',
+            '     | B1 |',
+            '     | B2 |',
+            '     +----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_adjacent_transparent_cells_in_bottom_right_corner(self):
+        # Adjacent transparent cells
+        src = (
+            '{ =h H1 | =h H2 | =h H3 }',
+            '{ =h A1 | =h B1 | =t,r2 }',
+            '{ A2    | =t }',
+        )
+        exp_output = [
+            '+----+----+----+',
+            '| H1 | H2 | H3 |',
+            '+----+----+----+',
+            '| A1 | B1 |',
+            '+----+----+',
+            '| A2 |',
+            '+----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_adjacent_transparent_cells_in_bottom_left_corner(self):
+        # More adjacent transparent cells
+        src = (
+            '{ =h H1 | =h H2 | =h H3 }',
+            '{ =t,r2 | =h B1 | =h C1 }',
+            '{         =t    | C2 }',
+        )
+        exp_output = [
+            '+----+----+----+',
+            '| H1 | H2 | H3 |',
+            '+----+----+----+',
+            '     | B1 | C1 |',
+            '     +----+----+',
+            '          | C2 |',
+            '          +----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_short_header_row_ending_with_transparent_cell(self):
+        # Short header row ending with a (redundant) transparent cell
+        src = (
+            '{ =h A1 | =t }',
+            '{ A2 | B2 | C2 }',
+        )
+        exp_output = [
+            '+----+',
+            '| A1 |',
+            '+----+----+----+',
+            '| A2 | B2 | C2 |',
+            '+----+----+----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_transparent_cell_in_last_column_of_middle_row(self):
+        # Transparent cell in the last column between the top and bottom rows
+        src = (
+            '{ =h A1 | =h B1 | =h C1 }',
+            '{ =h A2 | =h B2 | =t }',
+            '{ A3 | B3 | C3 }',
+        )
+        exp_output = [
+            '+----+----+----+',
+            '| A1 | B1 | C1 |',
+            '+----+----+----+',
+            '| A2 | B2 |',
+            '+----+----+----+',
+            '| A3 | B3 | C3 |',
+            '+----+----+----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_transparent_cell_in_middle_column_of_bottom_row(self):
+        # Transparent cell in the bottom row between the first and last columns
+        src = (
+            '{ =h A1 | =h B1 | =h C1 }',
+            '{ =h A2 | =h B2 | =h C2 }',
+            '{ A3 | =t | C3 }',
+        )
+        exp_output = [
+            '+----+----+----+',
+            '| A1 | B1 | C1 |',
+            '+----+----+----+',
+            '| A2 | B2 | C2 |',
+            '+----+----+----+',
+            '| A3 |    | C3 |',
+            '+----+    +----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_transparent_cell_in_first_column_of_middle_row(self):
+        # Transparent cell in the first column between the top and bottom rows
+        src = (
+            '{ =h A1 | =h B1 | =h C1 }',
+            '{ =t | =h B2 | =h C2 }',
+            '{ A3 | B3 | C3 }',
+        )
+        exp_output = [
+            '+----+----+----+',
+            '| A1 | B1 | C1 |',
+            '+----+----+----+',
+            '     | B2 | C2 |',
+            '+----+----+----+',
+            '| A3 | B3 | C3 |',
+            '+----+----+----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_transparent_cell_in_middle_column_of_top_row(self):
+        # Transparent cell in the top row between the first and last columns
+        src = (
+            '{ =h A1 | =t | =h C1 }',
+            '{ =h A2 | =h B2 | =h C2 }',
+            '{ A3 | B3 | C3 }',
+        )
+        exp_output = [
+            '+----+    +----+',
+            '| A1 |    | C1 |',
+            '+----+----+----+',
+            '| A2 | B2 | C2 |',
+            '+----+----+----+',
+            '| A3 | B3 | C3 |',
+            '+----+----+----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_header_cell_with_rowspan_2_and_wrapped_contents_in_first_column(self):
+        # Header cell with rowspan > 1 and wrapped contents in the first column
+        src = (
+            '(,:w)',
+            '{ =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length | =h B1 }',
+            '{ =h B2 }',
+        )
+        exp_output = [
+            '+-----------------------------------------------------------------+----+',
+            '| The contents of this cell are wrapped onto two lines because of | B1 |',
+            '| their excessive length                                          +----+',
+            '|                                                                 | B2 |',
+            '+-----------------------------------------------------------------+----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_header_cell_with_rowspan_2_and_wrapped_contents_in_last_column(self):
+        # Header cell with rowspan > 1 and wrapped contents in the last column
+        src = (
+            '(,,:w)',
+            '; { =h A1 | =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length }',
+            '; { =h A2 }',
+        )
+        exp_output = [
+            '+----+-----------------------------------------------------------------+',
+            '| A1 | The contents of this cell are wrapped onto two lines because of |',
+            '+----+ their excessive length                                          |',
+            '| A2 |                                                                 |',
+            '+----+-----------------------------------------------------------------+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_header_cell_with_rowspan_2_and_wrapped_contents_in_middle_column(self):
+        # Header cell with rowspan > 1 and wrapped contents in the middle column
+        src = (
+            '(,,:w)',
+            '{ =h A1 | =h,r2 The contents of this cell are wrapped onto two lines because of their excessive length | =h C1 }',
+            '{ =h A2 | =h C2 }',
+        )
+        exp_output = [
+            '+----+-----------------------------------------------------------------+----+',
+            '| A1 | The contents of this cell are wrapped onto two lines because of | C1 |',
+            '+----+ their excessive length                                          +----+',
+            '| A2 |                                                                 | C2 |',
+            '+----+-----------------------------------------------------------------+----+',
+        ]
+        self._test_table(src, exp_output)
+
+    def test_empty_table(self):
+        self._test_table((), [])
+
+    def test_missing_end_marker(self):
+        writer = self._get_writer()
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Missing end marker: #TABLE { A1 }...")):
+            writer.format('#TABLE { A1 }', 79)
+
+    def test_no_closing_bracket_in_css_class_list(self):
+        # No closing ')' in CSS class list
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            ';',
+            '; #TABLE(class1,class2,',
+            '; { Hi }',
+            '; TABLE#',
+            'c32768 RET',
+        ))
+        error = '\n'.join((
+            "Cannot find closing ')' in table CSS class list:",
+            '(class1,class2, { Hi } TABLE#',
+        ))
+        self.assert_error(skool, error)
+
+    def test_no_space_after_opening_brace(self):
+        # No space after the opening '{'
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            ';',
+            '; #TABLE',
+            '; {Lo }',
+            '; TABLE#',
+            'c49152 RET',
+        ))
+        error = '\n'.join((
+            "Cannot find opening '{ ' in table row:",
+            '{Lo } TABLE#',
+        ))
+        self.assert_error(skool, error)
+
+    def test_no_space_before_closing_brace(self):
+        # No space before the closing '}'
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            ';',
+            '; #TABLE',
+            '; { Yo}',
+            '; TABLE#',
+            'c24576 RET',
+        ))
+        error = '\n'.join((
+            "Cannot find closing ' }' in table row:",
+            '{ Yo} TABLE#',
+        ))
+        self.assert_error(skool, error)
+
+class ListMacroTest(SkoolKitTestCase):
+    def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):
+        skoolfile = self.write_text_file(skool, suffix='.skool')
+        skool_parser = SkoolParser(skoolfile, asm_mode=1)
+        return AsmWriter(skool_parser, crlf, tab, skool_parser.properties, False, instr_width, warn)
+
+    def assert_error(self, skool, error):
+        self.clear_streams()
+        writer = self._get_writer(skool)
+        with self.assertRaises(SkoolParsingError) as cm:
+            writer.write()
+        self.assertEqual(cm.exception.args[0], error)
+
+    def _test_list(self, src_lines, exp_output, bullet='*'):
+        writer = self._get_writer()
+        writer.bullet = bullet
+        list_src = '#LIST{}\nLIST#'.format('\n'.join(src_lines))
+        output = writer.format(list_src, 79)
+        self.assertEqual(output, exp_output)
+
+    def test_wrapped_item(self):
+        src = (
+            '(data)',
+            '{ Really long item that should end up being wrapped onto two lines when rendered in ASM mode }',
+            '{ Short item with a skool macro: #REGa }',
+        )
+        exp_output = [
+            '* Really long item that should end up being wrapped onto two lines when',
+            '  rendered in ASM mode',
+            '* Short item with a skool macro: A',
+        ]
+        self._test_list(src, exp_output)
+
+    def test_bullet(self):
+        src = (
+            '{ First item }',
+            '{ Second item }',
+        )
+        exp_output = [
+            '-- First item',
+            '-- Second item',
+        ]
+        self._test_list(src, exp_output, '--')
+
+    def test_empty_list(self):
+        self._test_list((), [])
+
+    def test_missing_end_marker(self):
+        writer = self._get_writer()
+        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Missing end marker: #LIST { Item }...")):
+            writer.format('#LIST { Item }', 79)
+
+    def test_no_closing_bracket_in_parameter_list(self):
+        # No closing ')' in parameter list
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            ';',
+            '; #LIST(default',
+            '; { Item 1 }',
+            '; LIST#',
+            'c32768 RET',
+        ))
+        error = '\n'.join((
+            "Cannot find closing ')' in parameter list:",
+            '(default { Item 1 } LIST#',
+        ))
+        self.assert_error(skool, error)
+
+    def test_no_space_after_opening_brace(self):
+        # No space after the opening '{'
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            ';',
+            '; #LIST',
+            '; {Item }',
+            '; LIST#',
+            'c40000 RET',
+        ))
+        error = '\n'.join((
+            "Cannot find opening '{ ' in list item:",
+            '{Item } LIST#',
+        ))
+        self.assert_error(skool, error)
+
+    def test_no_space_before_closing_brace(self):
+        # No space before the closing '}'
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            ';',
+            '; #LIST',
+            '; { Item}',
+            '; LIST#',
+            'c50000 RET',
+        ))
+        error = '\n'.join((
+            "Cannot find closing ' }' in list item:",
+            '{ Item} LIST#',
+        ))
+        self.assert_error(skool, error)
 
 if __name__ == '__main__':
     unittest.main()
