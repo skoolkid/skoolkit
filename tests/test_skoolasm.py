@@ -345,10 +345,12 @@ class AsmWriterTest(SkoolKitTestCase):
             return asm, self.err.getvalue().split('\n')[:-1]
         return asm
 
-    def assert_error(self, writer, text, error_msg, prefix):
+    def assert_error(self, writer, text, error_msg, prefix=None):
         with self.assertRaises(SkoolParsingError) as cm:
             writer.expand(text)
-        self.assertEqual(cm.exception[0], '{}: {}'.format(prefix, error_msg))
+        if prefix:
+            error_msg = '{}: {}'.format(prefix, error_msg)
+        self.assertEqual(cm.exception[0], error_msg)
 
     def _test_unsupported_macro(self, writer, text, error_msg=None):
         search = re.search('#[A-Z]+', text)
@@ -356,8 +358,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
         # handle_unsupported_macros = 0
         writer.handle_unsupported_macros = 0
-        with self.assertRaisesRegexp(SkoolParsingError, 'Found unsupported macro: {}'.format(macro)):
-            writer.expand(text)
+        self.assert_error(writer, text, 'Found unsupported macro: {}'.format(macro))
 
         # handle_unsupported_macros = 1
         writer.handle_unsupported_macros = 1
@@ -367,10 +368,8 @@ class AsmWriterTest(SkoolKitTestCase):
             output = writer.expand(prefix + text + suffix)
             self.assertEqual(output, prefix + suffix)
         else:
-            with self.assertRaises(SkoolParsingError) as cm:
-                writer.expand(text)
             prefix = ERROR_PREFIX.format(macro[1:])
-            self.assertEqual(cm.exception[0], '{}: {}'.format(prefix, error_msg))
+            self.assert_error(writer, text, error_msg, prefix)
 
     def _test_reference_macro(self, macro, def_link_text):
         writer = self._get_writer()
@@ -438,25 +437,20 @@ class AsmWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('CALL')
 
         # No parameters
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
-            writer.expand('#CALL')
+        self.assert_error(writer, '#CALL', 'No parameters', prefix)
 
         # Malformed #CALL macro
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Malformed macro: #CALLt...'.format(prefix)):
-            writer.expand('#CALLtest_call(5,s)')
+        self.assert_error(writer, '#CALLtest_call(5,s)', 'Malformed macro: #CALLt...', prefix)
 
         # No method name
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No method name'.format(prefix)):
-            writer.expand('#CALL:(0)')
+        self.assert_error(writer, '#CALL:(0)', 'No method name', prefix)
 
         # #CALL a non-method
         writer.var = 'x'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Uncallable method name: var'.format(prefix)):
-            writer.expand('#CALL:var(0)')
+        self.assert_error(writer, '#CALL:var(0)', 'Uncallable method name: var', prefix)
 
         # No argument list
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No argument list specified: #CALL:test_call'.format(prefix)):
-            writer.expand('#CALL:test_call')
+        self.assert_error(writer, '#CALL:test_call', 'No argument list specified: #CALL:test_call', prefix)
 
         # No closing bracket
         self.assert_error(writer, '#CALL:test_call(1,2', 'No closing bracket: (1,2', prefix)
@@ -481,24 +475,19 @@ class AsmWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('CHR')
 
         # No parameter
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
-            writer.expand('#CHR')
+        self.assert_error(writer, '#CHR', 'No parameters (expected 1)', prefix)
 
         # Blank parameter
-        with self.assertRaisesRegexp(SkoolParsingError, "{}: Invalid integer: ''".format(prefix)):
-            writer.expand('#CHR()')
+        self.assert_error(writer, '#CHR()', "Invalid integer: ''", prefix)
 
         # Invalid parameter (1)
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '2$' in parameter string: '2$'".format(prefix))):
-            writer.expand('#CHR2$')
+        self.assert_error(writer, '#CHR2$', "Cannot parse integer '2$' in parameter string: '2$'", prefix)
 
         # Invalid parameter (2)
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid integer: 'x,y'".format(prefix))):
-            writer.expand('#CHR(x,y)')
+        self.assert_error(writer, '#CHR(x,y)', "Invalid integer: 'x,y'", prefix)
 
         # No closing bracket
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No closing bracket: (2".format(prefix))):
-            writer.expand('#CHR(2 ...')
+        self.assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)
 
     def test_macro_d(self):
         skool = '\n'.join((
@@ -521,41 +510,24 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(output, 'Second routine')
 
     def test_macro_d_invalid(self):
-        skool = '\n'.join((
-            '; @start',
-            '',
-            '; First routine',
-            'c32768 RET',
-            '',
-            '; Second routine',
-            'c32769 RET',
-            '',
-            'c32770 RET',
-        ))
+        skool = '; @start\nc32770 RET'
         writer = self._get_writer(skool)
         prefix = ERROR_PREFIX.format('D')
 
         # No parameter (1)
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
-            writer.expand('#D')
+        self.assert_error(writer, '#D', 'No parameters (expected 1)', prefix)
 
         # No parameter (2)
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
-            writer.expand('#Dx')
+        self.assert_error(writer, '#Dx', 'No parameters (expected 1)', prefix)
 
         # Invalid parameter
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '234$' in parameter string: '234$'".format(prefix))):
-            writer.expand('#D234$')
+        self.assert_error(writer, '#D234$', "Cannot parse integer '234$' in parameter string: '234$'", prefix)
 
         # Descriptionless entry
-        address = 32770
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Entry at {} has no description'.format(prefix, address)):
-            writer.expand('#D{0}'.format(address))
+        self.assert_error(writer, '#D32770', 'Entry at 32770 has no description', prefix)
 
         # Non-existent entry
-        address = 32771
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Cannot determine description for non-existent entry at {}'.format(prefix, address)):
-            writer.expand('#D{0}'.format(address))
+        self.assert_error(writer, '#D32771', 'Cannot determine description for non-existent entry at 32771', prefix)
 
     def test_macro_erefs(self):
         skool = '\n'.join((
@@ -593,21 +565,17 @@ class AsmWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('EREFS')
 
         # No parameter (1)
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
-            writer.expand('#EREFS')
+        self.assert_error(writer, '#EREFS', 'No parameters (expected 1)', prefix)
 
         # No parameter (2)
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
-            writer.expand('#EREFSx')
+        self.assert_error(writer, '#EREFSx', 'No parameters (expected 1)', prefix)
 
         # Invalid parameter
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '2$2' in parameter string: '2$2'".format(prefix))):
-            writer.expand('#EREFS2$2')
+        self.assert_error(writer, '#EREFS2$2', "Cannot parse integer '2$2' in parameter string: '2$2'", prefix)
 
         # Entry point with no referrers
         address = 30005
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Entry point at {} has no referrers'.format(prefix, address)):
-            writer.expand('#EREFS{0}'.format(address))
+        self.assert_error(writer, '#EREFS30005', 'Entry point at 30005 has no referrers', prefix)
 
     def test_macro_fact(self):
         self._test_reference_macro('FACT', 'fact')
@@ -638,9 +606,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
         # Unterminated #HTML macro
         prefix = ERROR_PREFIX.format('HTML')
-        macro = '#HTML:unterminated'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No terminating delimiter: :unterminated'.format(prefix)):
-            writer.expand(macro)
+        self.assert_error(writer, '#HTML:unterminated', 'No terminating delimiter: :unterminated', prefix)
 
     def test_macro_link(self):
         writer = self._get_writer()
@@ -654,24 +620,19 @@ class AsmWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('LINK')
 
         # No parameters
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
-            writer.expand('#LINK')
+        self.assert_error(writer, '#LINK', 'No parameters', prefix)
 
         # No page ID (1)
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No page ID: #LINK:'.format(prefix)):
-            writer.expand('#LINK:')
+        self.assert_error(writer, '#LINK:', 'No page ID: #LINK:', prefix)
 
         # No page ID (2)
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No page ID: #LINK:(text)'.format(prefix))):
-            writer.expand('#LINK:(text)')
+        self.assert_error(writer, '#LINK:(text)', 'No page ID: #LINK:(text)', prefix)
 
         # No closing bracket
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (text'.format(prefix))):
-            writer.expand('#LINK:(text')
+        self.assert_error(writer, '#LINK:(text', 'No closing bracket: (text', prefix)
 
         # Malformed #LINK macro
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Malformed macro: #LINKp...'.format(prefix)):
-            writer.expand('#LINKpageID')
+        self.assert_error(writer, '#LINKpageID', 'Malformed macro: #LINKp...', prefix)
 
         # No link text
         self.assert_error(writer, '#LINK:PageID', 'No link text: #LINK:PageID', prefix)
@@ -707,24 +668,19 @@ class AsmWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('POKES')
 
         # No parameters (1)
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No parameters (expected 2)'.format(prefix))):
-            writer.expand('#POKES')
+        self.assert_error(writer, '#POKES', 'No parameters (expected 2)', prefix)
 
         # No parameters (2)
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No parameters (expected 2)'.format(prefix))):
-            writer.expand('#POKESx')
+        self.assert_error(writer, '#POKESx', 'No parameters (expected 2)', prefix)
 
         # Not enough parameters (1)
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Not enough parameters (expected 2): '0'".format(prefix))):
-            writer.expand('#POKES0')
+        self.assert_error(writer, '#POKES0', "Not enough parameters (expected 2): '0'", prefix)
 
         # Not enough parameters (2)
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Not enough parameters (expected 2): '1'".format(prefix))):
-            writer.expand('#POKES0,1;1')
+        self.assert_error(writer, '#POKES0,1;1', "Not enough parameters (expected 2): '1'", prefix)
 
         # Invalid parameter
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '2$2' in parameter string: '40000,2$2'".format(prefix))):
-            writer.expand('#POKES40000,2$2')
+        self.assert_error(writer, '#POKES40000,2$2', "Cannot parse integer '2$2' in parameter string: '40000,2$2'", prefix)
 
     def test_macro_pops(self):
         writer = self._get_writer()
@@ -1112,8 +1068,7 @@ class AsmWriterTest(SkoolKitTestCase):
     def test_unknown_macro(self):
         writer = self._get_writer()
         for macro, params in (('#FOO', 'xyz'), ('#BAR', '1,2(baz)'), ('#UDGS', '#r1'), ('#LINKS', '')):
-            with self.assertRaisesRegexp(SkoolParsingError, 'Found unknown macro: {}'.format(macro)):
-                writer.expand(macro + params)
+            self.assert_error(writer, macro + params, 'Found unknown macro: {}'.format(macro))
 
     def test_property_label_colons(self):
         skool = '\n'.join((
