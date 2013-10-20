@@ -36,8 +36,7 @@ HEADER = """<?xml version="1.0" encoding="utf-8" ?>
 <td class="headerLogo"><a class="link" href="{path}index.html">{logo}</a></td>
 <td class="headerText">{header}</td>
 </tr>
-</table>
-"""
+</table>"""
 
 INDEX_HEADER = """<?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html
@@ -56,8 +55,7 @@ INDEX_HEADER = """<?xml version="1.0" encoding="utf-8" ?>
 <td class="headerLogo">{logo}</td>
 <td class="headerText">{header_suffix}</td>
 </tr>
-</table>
-"""
+</table>"""
 
 BARE_FOOTER = """<div class="footer">
 <div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> {0}.</div>
@@ -73,738 +71,13 @@ FOOTER = """<div class="footer">
 </body>
 </html>""".format(VERSION)
 
-TABLE_SRC = """(data)
-{ =h Col1 | =h Col2 | =h,c2 Cols3+4 }
-{ =r2 X   | Y       | Za  | Zb }
-{           Y2      | Za2 | =t }
-"""
-
-TABLE_HTML = """<table class="data">
-<tr>
-<th>Col1</th>
-<th>Col2</th>
-<th colspan="2">Cols3+4</th>
-</tr>
-<tr>
-<td rowspan="2">X</td>
-<td>Y</td>
-<td>Za</td>
-<td>Zb</td>
-</tr>
-<tr>
-<td>Y2</td>
-<td>Za2</td>
-<td class="transparent"></td>
-</tr>
-</table>"""
-
-TABLE2_SRC = """(,centre)
-{ =h Header }
-{ Cell }
-"""
-
-TABLE2_HTML = """<table>
-<tr>
-<th>Header</th>
-</tr>
-<tr>
-<td class="centre">Cell</td>
-</tr>
-</table>"""
-
 PREV_UP_NEXT = """<table class="prevNext">
 <tr>
 <td class="prev">{prev_link}</td>
 <td class="up">{up_link}</td>
 <td class="next">{next_link}</td>
 </tr>
-</table>
-"""
-
-ENTRY1 = """<div class="description">24576: Routine at 24576</div>
-<table class="disassembly">
-<tr>
-<td class="routineComment" colspan="3">
-<div class="details">
-<div class="paragraph">
-Description of routine at 24576.
-</div>
-</div>
-<table class="input">
-<tr>
-<td class="register">A</td>
-<td class="registerContents">Some value</td>
-</tr>
-<tr>
-<td class="register">B</td>
-<td class="registerContents">Some other value</td>
-</tr>
-</table>
-</td>
-</tr>
-<tr>
-<td class="label"><a name="24576"></a>24576</td>
-<td class="instruction">LD A,B</td>
-<td class="comment">Comment for instruction at 24576</td>
-</tr>
-<tr>
-<td class="routineComment" colspan="3">
-<a name="24577"></a>
-<div class="comments">
-<div class="paragraph">
-Mid-routine comment above 24577.
-</div>
-</div>
-</td>
-</tr>
-<tr>
-<td class="label">24577</td>
-<td class="instruction">RET</td>
-<td class="comment"></td>
-</tr>
-<tr>
-<td class="routineComment" colspan="3">
-<div class="comments">
-<div class="paragraph">
-End comment for routine at 24576.
-</div>
-</div>
-</td>
-</tr>
-</table>
-"""
-
-ENTRY2 = """<div class="description">24578: Data block at 24578</div>
-<table class="dataDisassembly">
-<tr>
-<td class="routineComment" colspan="3">
-<div class="details">
-</div>
-</td>
-</tr>
-<tr>
-<td class="address"><a name="24578"></a>24578</td>
-<td class="instruction">DEFB 0</td>
-<td class="transparentDataComment" />
-</tr>
-</table>
-"""
-
-ENTRY3 = """<div class="description">24579: Routine at 24579</div>
-<table class="disassembly">
-<tr>
-<td class="routineComment" colspan="3">
-<div class="details">
-</div>
-</td>
-</tr>
-<tr>
-<td class="label"><a name="24579"></a>24579</td>
-<td class="instruction">JR <a class="link" href="24576.html#24577">24577</a></td>
-<td class="transparentComment" />
-</tr>
-</table>
-"""
-
-ENTRY4 = """<div class="description">24581: GSB entry at 24581</div>
-<table class="dataDisassembly">
-<tr>
-<td class="routineComment" colspan="3">
-<div class="details">
-</div>
-</td>
-</tr>
-<tr>
-<td class="address"><a name="24581"></a>24581</td>
-<td class="instruction">DEFW 123</td>
-<td class="transparentDataComment" />
-</tr>
-</table>
-"""
-
-ENTRY5 = """<div class="description">24583: Unused</div>
-<table class="disassembly">
-<tr>
-<td class="routineComment" colspan="3">
-<div class="details">
-</div>
-</td>
-</tr>
-<tr>
-<td class="address"><a name="24583"></a>24583</td>
-<td class="instruction">DEFB 0</td>
-<td class="transparentComment" />
-</tr>
-</table>
-"""
-
-ENTRY6 = """<div class="description">24584: Routine at 24584 (register section but no description)</div>
-<table class="disassembly">
-<tr>
-<td class="routineComment" colspan="3">
-<div class="details">
-</div>
-<table class="input">
-<tr>
-<td class="register">A</td>
-<td class="registerContents">0</td>
-</tr>
-</table>
-</td>
-</tr>
-<tr>
-<td class="label"><a name="24584"></a>24584</td>
-<td class="instruction">CALL <a class="link" href="../start/30000.html">30000</a></td>
-<td class="comment" rowspan="2">Comment for the instructions at 24584 and 24587</td>
-</tr>
-<tr>
-<td class="address"><a name="24587"></a>24587</td>
-<td class="instruction">JP <a class="link" href="../start/30000.html#30003">30003</a></td>
-</tr>
-</table>
-"""
-
-ASM_LABELS_ENTRY1 = """<div class="description">START: 50000: Routine with a label</div>
-<table class="disassembly">
-<tr>
-<td class="routineComment" colspan="4">
-<div class="details">
-</div>
-</td>
-</tr>
-<tr>
-<td class="asmLabel">START</td>
-<td class="label"><a name="50000"></a>50000</td>
-<td class="instruction">LD B,5</td>
-<td class="comment">Loop 5 times</td>
-</tr>
-<tr>
-<td class="asmLabel"></td>
-<td class="address"><a name="50002"></a>50002</td>
-<td class="instruction">DJNZ <a class="link" href="50000.html#50002">50002</a></td>
-<td class="comment"></td>
-</tr>
-<tr>
-<td class="asmLabel"></td>
-<td class="address"><a name="50004"></a>50004</td>
-<td class="instruction">RET</td>
-<td class="comment"></td>
-</tr>
-</table>
-"""
-
-ASM_LABELS_ENTRY2 = """<div class="description">50005: Routine without a label</div>
-<table class="disassembly">
-<tr>
-<td class="routineComment" colspan="3">
-<div class="details">
-</div>
-</td>
-</tr>
-<tr>
-<td class="label"><a name="50005"></a>50005</td>
-<td class="instruction">JP <a class="link" href="50000.html">START</a></td>
-<td class="transparentComment" />
-</tr>
-</table>
-"""
-
-ASM_LABELS_ENTRY3 = """<div class="description">50008: DEFW statement with a @keep directive</div>
-<table class="dataDisassembly">
-<tr>
-<td class="routineComment" colspan="3">
-<div class="details">
-</div>
-</td>
-</tr>
-<tr>
-<td class="address"><a name="50008"></a>50008</td>
-<td class="instruction">DEFW 50000</td>
-<td class="transparentDataComment" />
-</tr>
-</table>
-"""
-
-MEMORY_MAP = """<table class="map">
-<tr>
-<th>Page</th>
-<th>Byte</th>
-<th>Address</th>
-<th>Description</th>
-</tr>
-<tr>
-<td class="mapPage">117</td>
-<td class="mapByte">48</td>
-<td class="routine"><a class="link" name="30000" href="../asm/30000.html">30000</a></td>
-<td class="routineDesc">Routine</td>
-</tr>
-<tr>
-<td class="mapPage">117</td>
-<td class="mapByte">49</td>
-<td class="data"><a class="link" name="30001" href="../asm/30001.html">30001</a></td>
-<td class="dataDesc">Bytes</td>
-</tr>
-<tr>
-<td class="mapPage">117</td>
-<td class="mapByte">51</td>
-<td class="data"><a class="link" name="30003" href="../asm/30003.html">30003</a></td>
-<td class="dataDesc">Words</td>
-</tr>
-<tr>
-<td class="mapPage">117</td>
-<td class="mapByte">55</td>
-<td class="gbuffer"><a class="link" name="30007" href="../asm/30007.html">30007</a></td>
-<td class="gbufferDesc">GSB entry</td>
-</tr>
-<tr>
-<td class="mapPage">117</td>
-<td class="mapByte">56</td>
-<td class="unused"><a class="link" name="30008" href="../asm/30008.html">30008</a></td>
-<td class="unusedDesc">Unused (1 byte)</td>
-</tr>
-<tr>
-<td class="mapPage">117</td>
-<td class="mapByte">57</td>
-<td class="unused"><a class="link" name="30009" href="../asm/30009.html">30009</a></td>
-<td class="unusedDesc">Unused (6 bytes)</td>
-</tr>
-<tr>
-<td class="mapPage">117</td>
-<td class="mapByte">63</td>
-<td class="message"><a class="link" name="30015" href="../asm/30015.html">30015</a></td>
-<td class="messageDesc">Text</td>
-</tr>
-</table>
-"""
-
-ROUTINES_MAP = """<table class="map">
-<tr>
-<th>Address</th>
-<th>Description</th>
-</tr>
-<tr>
-<td class="routine"><a class="link" name="30000" href="../asm/30000.html">30000</a></td>
-<td class="routineDesc">Routine</td>
-</tr>
-</table>
-"""
-
-DATA_MAP = """<table class="map">
-<tr>
-<th>Page</th>
-<th>Byte</th>
-<th>Address</th>
-<th>Description</th>
-</tr>
-<tr>
-<td class="mapPage">117</td>
-<td class="mapByte">49</td>
-<td class="data"><a class="link" name="30001" href="../asm/30001.html">30001</a></td>
-<td class="dataDesc">Bytes</td>
-</tr>
-<tr>
-<td class="mapPage">117</td>
-<td class="mapByte">51</td>
-<td class="data"><a class="link" name="30003" href="../asm/30003.html">30003</a></td>
-<td class="dataDesc">Words</td>
-</tr>
-</table>
-"""
-
-MESSAGES_MAP = """<table class="map">
-<tr>
-<th>Address</th>
-<th>Description</th>
-</tr>
-<tr>
-<td class="message"><a class="link" name="30015" href="../asm/30015.html">30015</a></td>
-<td class="messageDesc">Text</td>
-</tr>
-</table>
-"""
-
-UNUSED_MAP = """<table class="map">
-<tr>
-<th>Page</th>
-<th>Byte</th>
-<th>Address</th>
-<th>Description</th>
-</tr>
-<tr>
-<td class="mapPage">117</td>
-<td class="mapByte">56</td>
-<td class="unused"><a class="link" name="30008" href="../asm/30008.html">30008</a></td>
-<td class="unusedDesc">Unused (1 byte)</td>
-</tr>
-<tr>
-<td class="mapPage">117</td>
-<td class="mapByte">57</td>
-<td class="unused"><a class="link" name="30009" href="../asm/30009.html">30009</a></td>
-<td class="unusedDesc">Unused (6 bytes)</td>
-</tr>
-</table>
-"""
-
-CUSTOM_MAP = """<div class="mapIntro">Introduction.</div>
-<table class="map">
-<tr>
-<th>Address</th>
-<th>Description</th>
-</tr>
-<tr>
-<td class="routine"><a class="link" name="30000" href="../asm/30000.html">30000</a></td>
-<td class="routineDesc">Routine</td>
-</tr>
-<tr>
-<td class="gbuffer"><a class="link" name="30007" href="../asm/30007.html">30007</a></td>
-<td class="gbufferDesc">GSB entry</td>
-</tr>
-</table>
-"""
-
-CHANGELOG = """<ul class="linkList">
-<li><a class="link" href="#20120704">20120704</a></li>
-<li><a class="link" href="#20120703">20120703</a></li>
-</ul>
-<div><a name="20120704"></a></div>
-<div class="changelog changelog1">
-<div class="changelogTitle">20120704</div>
-<div class="changelogDesc">Intro.</div>
-<ul class="changelog">
-<li>1
-<ul class="changelog1">
-<li>2
-<ul class="changelog2">
-<li>3</li>
-<li>4</li>
-</ul>
-</li>
-<li>5</li>
-</ul>
-</li>
-</ul>
-</div>
-<div><a name="20120703"></a></div>
-<div class="changelog changelog2">
-<div class="changelogTitle">20120703</div>
-<ul class="changelog">
-<li>1
-<ul class="changelog1">
-<li>2
-<ul class="changelog2">
-<li>3</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</div>
-"""
-
-GLOSSARY = """<ul class="linkList">
-<li><a class="link" href="#term1">Term1</a></li>
-<li><a class="link" href="#term2">Term2</a></li>
-</ul>
-<div><a name="term1"></a></div>
-<div class="box box1">
-<div class="boxTitle">Term1</div>
-<div class="paragraph">
-Definition 1.
-</div>
-</div>
-<div><a name="term2"></a></div>
-<div class="box box2">
-<div class="boxTitle">Term2</div>
-<div class="paragraph">
-Definition 2. Paragraph 1.
-</div>
-<div class="paragraph">
-Definition 2. Paragraph 2.
-</div>
-</div>
-"""
-
-GBUFFER = """<table class="gbuffer">
-<tr>
-<th>Address</th>
-<th>Length</th>
-<th>Purpose</th>
-</tr>
-<tr>
-<td class="gbufAddress"><a name="24595" class="link" href="../asm/24595.html">24595</a></td>
-<td class="gbufLength">1</td>
-<td class="gbufDesc">
-<div class="gbufDesc">Game status buffer entry</div>
-</td>
-</tr>
-<tr>
-<td class="gbufAddress"><a name="24596" class="link" href="../asm/24596.html">24596</a></td>
-<td class="gbufLength">1</td>
-<td class="gbufDesc">
-<div class="gbufDesc">Another game status buffer entry</div>
-</td>
-</tr>
-</table>
-"""
-
-REGISTERS_1 = """<table class="input">
-<tr>
-<td class="register">A</td>
-<td class="registerContents">Some value</td>
-</tr>
-<tr>
-<td class="register">B</td>
-<td class="registerContents">Some other value</td>
-</tr>
-</table>
-"""
-
-REGISTERS_2 = """<table class="input">
-<tr>
-<th colspan="2">Input</th>
-</tr>
-<tr>
-<td class="register">A</td>
-<td class="registerContents">Some value</td>
-</tr>
-<tr>
-<td class="register">B</td>
-<td class="registerContents">Some other value</td>
-</tr>
-</table>
-<table class="output">
-<tr>
-<th colspan="2">Output</th>
-</tr>
-<tr>
-<td class="register">D</td>
-<td class="registerContents">The result</td>
-</tr>
-<tr>
-<td class="register">E</td>
-<td class="registerContents">Result flags</td>
-</tr>
-</table>
-"""
-
-BUGS = """<ul class="linkList">
-<li><a class="link" href="#b1">Showstopper</a></li>
-</ul>
-<div><a name="b1"></a></div>
-<div class="box box1">
-<div class="boxTitle">Showstopper</div>
-<div class="paragraph">
-This bug is bad.
-</div>
-<div class="paragraph">
-Really bad.
-</div>
-</div>
-"""
-
-FACTS = """<ul class="linkList">
-<li><a class="link" href="#f1">Interesting fact</a></li>
-<li><a class="link" href="#f2">Another interesting fact</a></li>
-</ul>
-<div><a name="f1"></a></div>
-<div class="box box1">
-<div class="boxTitle">Interesting fact</div>
-<div class="paragraph">
-Hello.
-</div>
-<div class="paragraph">
-Goodbye.
-</div>
-</div>
-<div><a name="f2"></a></div>
-<div class="box box2">
-<div class="boxTitle">Another interesting fact</div>
-<div class="paragraph">
-Yes.
-</div>
-</div>
-"""
-
-POKES = """<ul class="linkList">
-<li><a class="link" href="#p1">Infinite everything</a></li>
-</ul>
-<div><a name="p1"></a></div>
-<div class="box box1">
-<div class="boxTitle">Infinite everything</div>
-<div class="paragraph">
-POKE 12345,0
-</div>
-</div>
-"""
-
-GRAPHIC_GLITCHES = """<ul class="linkList">
-<li><a class="link" href="#g0">Wrong arms</a></li>
-</ul>
-<div><a name="g0"></a></div>
-<div class="box box1">
-<div class="boxTitle">Wrong arms</div>
-<div class="paragraph">
-Hello.
-</div>
-</div>
-"""
-
-GAME_STATUS_BUFFER = """<table class="gbuffer">
-<tr>
-<th>Address</th>
-<th>Length</th>
-<th>Purpose</th>
-</tr>
-<tr>
-<td class="gbufAddress"><a name="30000" class="link" href="../asm/30000.html">30000</a></td>
-<td class="gbufLength">1</td>
-<td class="gbufDesc">
-<div class="gbufDesc">GSB entry 1</div>
-<div class="gbufDetails">
-<div class="paragraph">
-Number of lives.
-</div>
-</div>
-</td>
-</tr>
-<tr>
-<td class="gbufAddress"><a name="30001" class="link" href="../asm/30001.html">30001</a></td>
-<td class="gbufLength">2</td>
-<td class="gbufDesc">
-<div class="gbufDesc">GSB entry 2</div>
-</td>
-</tr>
-<tr>
-<td class="gbufAddress"><a name="30003" class="link" href="../asm/30003.html">30003</a></td>
-<td class="gbufLength">1</td>
-<td class="gbufDesc">
-<div class="gbufDesc">Message ID</div>
-</td>
-</tr>
-<tr>
-<td class="gbufAddress"><a name="30004" class="link" href="../asm/30004.html">30004</a></td>
-<td class="gbufLength">1</td>
-<td class="gbufDesc">
-<div class="gbufDesc">Another message ID</div>
-</td>
-</tr>
-</table>
-"""
-
-TEST_WRITE_INDEX_REF = []
-TEST_WRITE_INDEX_FILES = []
-INDEX = []
-
-# Index (empty)
-TEST_WRITE_INDEX_REF.append("")
-TEST_WRITE_INDEX_FILES.append([])
-INDEX.append("")
-
-# Index (memory map, routines map)
-TEST_WRITE_INDEX_REF.append("")
-TEST_WRITE_INDEX_FILES.append([
-    join(MAPS_DIR, 'all.html'),
-    join(MAPS_DIR, 'routines.html')
-])
-INDEX.append("""<div class="headerText">Memory maps</div>
-<ul class="indexList">
-<li><a class="link" href="maps/all.html">Everything</a></li>
-<li><a class="link" href="maps/routines.html">Routines</a></li>
-</ul>
-""")
-
-# Index (memory map, routines map, data map)
-TEST_WRITE_INDEX_REF.append("")
-TEST_WRITE_INDEX_FILES.append([
-    join(MAPS_DIR, 'all.html'),
-    join(MAPS_DIR, 'routines.html'),
-    join(MAPS_DIR, 'data.html')
-])
-INDEX.append("""<div class="headerText">Memory maps</div>
-<ul class="indexList">
-<li><a class="link" href="maps/all.html">Everything</a></li>
-<li><a class="link" href="maps/routines.html">Routines</a></li>
-<li><a class="link" href="maps/data.html">Data</a></li>
-</ul>
-""")
-
-# Index (memory map, routines map, data map, messages map)
-TEST_WRITE_INDEX_REF.append("")
-TEST_WRITE_INDEX_FILES.append([
-    join(MAPS_DIR, 'all.html'),
-    join(MAPS_DIR, 'routines.html'),
-    join(MAPS_DIR, 'data.html'),
-    join(MAPS_DIR, 'messages.html')
-])
-INDEX.append("""<div class="headerText">Memory maps</div>
-<ul class="indexList">
-<li><a class="link" href="maps/all.html">Everything</a></li>
-<li><a class="link" href="maps/routines.html">Routines</a></li>
-<li><a class="link" href="maps/data.html">Data</a></li>
-<li><a class="link" href="maps/messages.html">Messages</a></li>
-</ul>
-""")
-
-# Index (other code)
-TEST_WRITE_INDEX_REF.append("""[OtherCode:otherCode]
-Header=Startup
-Index=other/other.html
-Path=other
-Source=other.skool
-Title=Startup code
-""")
-TEST_WRITE_INDEX_FILES.append([
-    'other/other.html'
-])
-INDEX.append("""<div class="headerText">Other code</div>
-<ul class="indexList">
-<li><a class="link" href="other/other.html">Startup code</a></li>
-</ul>
-""")
-
-# Index (defined by [Index], [Index:*:*], [Links] and [Paths] sections)
-TEST_WRITE_INDEX_REF.append("""[Index]
-Reference
-MemoryMaps
-
-[Index:Reference:Reference material]
-Bugs
-Facts
-
-[Index:MemoryMaps:RAM maps]
-RoutinesMap
-MemoryMap
-
-[Links]
-MemoryMap=Entire RAM
-Facts=Facts
-
-[Paths]
-MemoryMap=memorymaps/ram.html
-RoutinesMap=memorymaps/routines.html
-Bugs=ref/bugs.html
-Facts=ref/facts.html
-Changelog=ref/changelog.html
-""")
-TEST_WRITE_INDEX_FILES.append([
-    'ref/bugs.html',
-    'ref/facts.html',
-    'ref/changelog.html',
-    'memorymaps/ram.html',
-    'memorymaps/routines.html',
-    'memorymaps/data.html'
-])
-INDEX.append("""<div class="headerText">Reference material</div>
-<ul class="indexList">
-<li><a class="link" href="ref/bugs.html">Bugs</a></li>
-<li><a class="link" href="ref/facts.html">Facts</a></li>
-</ul>
-<div class="headerText">RAM maps</div>
-<ul class="indexList">
-<li><a class="link" href="memorymaps/routines.html">Routines</a></li>
-<li><a class="link" href="memorymaps/ram.html">Entire RAM</a></li>
-</ul>
-""")
+</table>"""
 
 ERROR_PREFIX = 'Error while parsing #{0} macro'
 
@@ -887,7 +160,11 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def assert_files_equal(self, d_fname, subs, index=False):
         d_html_lines = self.read_file(d_fname, True)
-        body = subs['content']
+        body_lines = []
+        for line in subs['content'].split('\n'):
+            s_line = line.lstrip()
+            if s_line:
+                body_lines.append(s_line)
         body_class = subs.get('body_class')
         body_class_attr = ' class="{0}"'.format(body_class) if body_class else ''
         subs['body'] = '<body{0}>'.format(body_class_attr)
@@ -896,7 +173,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         subs.setdefault('header', subs['title'])
         subs.setdefault('logo', subs['name'])
         footer = subs.get('footer', FOOTER)
-        prev_up_next = ''
+        prev_up_next_lines = []
         if 'up' in subs:
             subs['prev_link'] = ''
             subs['up_link'] = 'Up: <a class="link" href="{path}maps/all.html#{up}">Map</a>'.format(**subs)
@@ -906,9 +183,24 @@ class HtmlWriterTest(SkoolKitTestCase):
             if 'next' in subs:
                 subs['next_link'] = 'Next: <a class="link" href="{0}.html">{0:05d}</a>'.format(subs['next'])
             prev_up_next = PREV_UP_NEXT.format(**subs)
+            prev_up_next_lines = prev_up_next.split('\n')
         header_template = INDEX_HEADER if index else HEADER
-        t_html_lines = (header_template + prev_up_next + body + prev_up_next + footer).format(**subs).split('\n')
+        t_html_lines = header_template.format(**subs).split('\n')
+        t_html_lines.extend(prev_up_next_lines)
+        t_html_lines.extend(body_lines)
+        t_html_lines.extend(prev_up_next_lines)
+        t_html_lines.extend(footer.split('\n'))
         self.assertEqual(d_html_lines, t_html_lines)
+
+    def assert_html_equal(self, html, exp_html, eol=False):
+        exp_lines = []
+        for line in exp_html.split('\n'):
+            s_line = line.lstrip()
+            if s_line:
+                exp_lines.append(s_line)
+        if eol:
+            exp_lines.append('')
+        self.assertEqual(html.split('\n'), exp_lines)
 
     def assert_error(self, writer, text, error_msg, prefix=None):
         with self.assertRaises(SkoolParsingError) as cm:
@@ -2205,10 +1497,53 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)
 
     def test_macro_table(self):
+        src1 = '\n'.join((
+            '(data)',
+            '{ =h Col1 | =h Col2 | =h,c2 Cols3+4 }',
+            '{ =r2 X   | Y       | Za  | Zb }',
+            '{           Y2      | Za2 | =t }'
+        ))
+        html1 = """
+            <table class="data">
+            <tr>
+            <th>Col1</th>
+            <th>Col2</th>
+            <th colspan="2">Cols3+4</th>
+            </tr>
+            <tr>
+            <td rowspan="2">X</td>
+            <td>Y</td>
+            <td>Za</td>
+            <td>Zb</td>
+            </tr>
+            <tr>
+            <td>Y2</td>
+            <td>Za2</td>
+            <td class="transparent"></td>
+            </tr>
+            </table>
+        """
+
+        src2 = '\n'.join((
+            '(,centre)',
+            '{ =h Header }',
+            '{ Cell }'
+        ))
+        html2 = """
+            <table>
+            <tr>
+            <th>Header</th>
+            </tr>
+            <tr>
+            <td class="centre">Cell</td>
+            </tr>
+            </table>
+        """
+
         writer = self._get_writer()
-        for src, html in ((TABLE_SRC, TABLE_HTML), (TABLE2_SRC, TABLE2_HTML)):
-            output = writer.expand('#TABLE{0}\nTABLE#'.format(src), ASMDIR)
-            self.assertEqual(output, html)
+        for src, html in ((src1, html1), (src2, html2)):
+            output = writer.expand('#TABLE{}\nTABLE#'.format(src), ASMDIR)
+            self.assert_html_equal(output, html)
 
         # Empty table
         output = writer.expand('#TABLE TABLE#', ASMDIR)
@@ -2467,9 +1802,35 @@ class HtmlWriterTest(SkoolKitTestCase):
             writer.expand(macro, ASMDIR)
 
     def test_macro_udgtable(self):
+        src = '\n'.join((
+            '(data)',
+            '{ =h Col1 | =h Col2 | =h,c2 Cols3+4 }',
+            '{ =r2 X   | Y       | Za  | Zb }',
+            '{           Y2      | Za2 | =t }'
+        ))
+        html = """
+            <table class="data">
+            <tr>
+            <th>Col1</th>
+            <th>Col2</th>
+            <th colspan="2">Cols3+4</th>
+            </tr>
+            <tr>
+            <td rowspan="2">X</td>
+            <td>Y</td>
+            <td>Za</td>
+            <td>Zb</td>
+            </tr>
+            <tr>
+            <td>Y2</td>
+            <td>Za2</td>
+            <td class="transparent"></td>
+            </tr>
+            </table>
+        """
         writer = self._get_writer()
-        output = writer.expand('#UDGTABLE{0}\nUDGTABLE#'.format(TABLE_SRC), ASMDIR)
-        self.assertEqual(output, TABLE_HTML)
+        output = writer.expand('#UDGTABLE{}\nUDGTABLE#'.format(src), ASMDIR)
+        self.assert_html_equal(output, html)
 
         # Empty table
         output = writer.expand('#UDGTABLE UDGTABLE#', ASMDIR)
@@ -2541,25 +1902,149 @@ class HtmlWriterTest(SkoolKitTestCase):
         html = self.read_file(join(REFERENCE_DIR, 'bugs.html'))
         self.assertTrue('<p>Hello</p>' in html)
 
-    def test_write_index(self):
-        for i, ref in enumerate(TEST_WRITE_INDEX_REF):
-            writer = self._get_writer(ref=ref, skool='')
-            for f in TEST_WRITE_INDEX_FILES[i]:
-                self.write_text_file(path=join(self.odir, GAMEDIR, f))
-            writer.write_index()
-            subs = {
-                'name': basename(self.skoolfile)[:-6],
-                'title': 'Index',
-                'header_prefix': 'The complete',
-                'header_suffix': 'RAM disassembly',
-                'path': '',
-                'body_class': 'main',
-                'content': INDEX[i],
-                'footer': BARE_FOOTER
-            }
-            self.assert_files_equal('index.html', subs, True)
-            self.remove_files()
+    def _test_write_index(self, files, content, ref=''):
+        writer = self._get_writer(ref=ref, skool='')
+        for f in files:
+            self.write_text_file(path=join(self.odir, GAMEDIR, f))
+        writer.write_index()
+        subs = {
+            'name': basename(self.skoolfile)[:-6],
+            'title': 'Index',
+            'header_prefix': 'The complete',
+            'header_suffix': 'RAM disassembly',
+            'path': '',
+            'body_class': 'main',
+            'content': content,
+            'footer': BARE_FOOTER
+        }
+        self.assert_files_equal('index.html', subs, True)
+        self.remove_files()
 
+    def test_write_index_empty(self):
+        # Empty index
+        files = []
+        content = ""
+        self._test_write_index(files, content)
+
+    def test_write_index_two_maps(self):
+        # Memory map, routines map
+        files = [
+            join(MAPS_DIR, 'all.html'),
+            join(MAPS_DIR, 'routines.html')
+        ]
+        content = """
+            <div class="headerText">Memory maps</div>
+            <ul class="indexList">
+            <li><a class="link" href="maps/all.html">Everything</a></li>
+            <li><a class="link" href="maps/routines.html">Routines</a></li>
+            </ul>
+        """
+        self._test_write_index(files, content)
+
+    def test_write_index_three_maps(self):
+        # Memory map, routines map, data map
+        files = [
+            join(MAPS_DIR, 'all.html'),
+            join(MAPS_DIR, 'routines.html'),
+            join(MAPS_DIR, 'data.html')
+        ]
+        content = """
+            <div class="headerText">Memory maps</div>
+            <ul class="indexList">
+            <li><a class="link" href="maps/all.html">Everything</a></li>
+            <li><a class="link" href="maps/routines.html">Routines</a></li>
+            <li><a class="link" href="maps/data.html">Data</a></li>
+            </ul>
+        """
+        self._test_write_index(files, content)
+
+    def test_write_index_four_maps(self):
+        # Memory map, routines map, data map, messages map
+        files = [
+            join(MAPS_DIR, 'all.html'),
+            join(MAPS_DIR, 'routines.html'),
+            join(MAPS_DIR, 'data.html'),
+            join(MAPS_DIR, 'messages.html')
+        ]
+        content = """
+            <div class="headerText">Memory maps</div>
+            <ul class="indexList">
+            <li><a class="link" href="maps/all.html">Everything</a></li>
+            <li><a class="link" href="maps/routines.html">Routines</a></li>
+            <li><a class="link" href="maps/data.html">Data</a></li>
+            <li><a class="link" href="maps/messages.html">Messages</a></li>
+            </ul>
+        """
+        self._test_write_index(files, content)
+
+    def test_write_index_other_code(self):
+        # Other code
+        ref = '\n'.join((
+            '[OtherCode:otherCode]',
+            'Header=Startup',
+            'Index=other/other.html',
+            'Path=other',
+            'Source=other.skool',
+            'Title=Startup code',
+        ))
+        files = ['other/other.html']
+        content = """
+            <div class="headerText">Other code</div>
+            <ul class="indexList">
+            <li><a class="link" href="other/other.html">Startup code</a></li>
+            </ul>
+        """
+        self._test_write_index(files, content, ref)
+
+    def test_write_index_custom(self):
+        # Defined by [Index], [Index:*:*], [Links] and [Paths] sections
+        ref = '\n'.join((
+            '[Index]',
+            'Reference',
+            'MemoryMaps',
+            '',
+            '[Index:Reference:Reference material]',
+            'Bugs',
+            'Facts',
+            '',
+            '[Index:MemoryMaps:RAM maps]',
+            'RoutinesMap',
+            'MemoryMap',
+            '',
+            '[Links]',
+            'MemoryMap=Entire RAM',
+            'Facts=Facts',
+            '',
+            '[Paths]',
+            'MemoryMap=memorymaps/ram.html',
+            'RoutinesMap=memorymaps/routines.html',
+            'Bugs=ref/bugs.html',
+            'Facts=ref/facts.html',
+            'Changelog=ref/changelog.html',
+        ))
+        files = [
+            'ref/bugs.html',
+            'ref/facts.html',
+            'ref/changelog.html',
+            'memorymaps/ram.html',
+            'memorymaps/routines.html',
+            'memorymaps/data.html'
+        ]
+        content = """
+            <div class="headerText">Reference material</div>
+            <ul class="indexList">
+            <li><a class="link" href="ref/bugs.html">Bugs</a></li>
+            <li><a class="link" href="ref/facts.html">Facts</a></li>
+            </ul>
+            <div class="headerText">RAM maps</div>
+            <ul class="indexList">
+            <li><a class="link" href="memorymaps/routines.html">Routines</a></li>
+            <li><a class="link" href="memorymaps/ram.html">Entire RAM</a></li>
+            </ul>
+        """
+        self._test_write_index(files, content, ref)
+
+    def test_write_index_empty_with_logo_image(self):
         # Empty index with logo image
         writer = self._get_writer(skool='')
         logo_image_path = 'logo.png'
@@ -2575,7 +2060,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'header_suffix': 'RAM disassembly',
             'path': '',
             'body_class': 'main',
-            'content': INDEX[0],
+            'content': '',
             'footer': BARE_FOOTER
         }
         self.assert_files_equal('index.html', subs, True)
@@ -2634,71 +2119,214 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer.write_asm_entries()
 
         # Routine at 24576
+        content = """
+            <div class="description">24576: Routine at 24576</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routineComment" colspan="3">
+            <div class="details">
+            <div class="paragraph">
+            Description of routine at 24576.
+            </div>
+            </div>
+            <table class="input">
+            <tr>
+            <td class="register">A</td>
+            <td class="registerContents">Some value</td>
+            </tr>
+            <tr>
+            <td class="register">B</td>
+            <td class="registerContents">Some other value</td>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="label"><a name="24576"></a>24576</td>
+            <td class="instruction">LD A,B</td>
+            <td class="comment">Comment for instruction at 24576</td>
+            </tr>
+            <tr>
+            <td class="routineComment" colspan="3">
+            <a name="24577"></a>
+            <div class="comments">
+            <div class="paragraph">
+            Mid-routine comment above 24577.
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="label">24577</td>
+            <td class="instruction">RET</td>
+            <td class="comment"></td>
+            </tr>
+            <tr>
+            <td class="routineComment" colspan="3">
+            <div class="comments">
+            <div class="paragraph">
+            End comment for routine at 24576.
+            </div>
+            </div>
+            </td>
+            </tr>
+            </table>
+        """
         subs = {
             'title': 'Routine at 24576',
             'header': 'Routines',
             'up': 24576,
             'next': 24578,
-            'content': ENTRY1
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(join(ASMDIR, '24576.html'), subs)
 
         # Data at 24578
+        content = """
+            <div class="description">24578: Data block at 24578</div>
+            <table class="dataDisassembly">
+            <tr>
+            <td class="routineComment" colspan="3">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address"><a name="24578"></a>24578</td>
+            <td class="instruction">DEFB 0</td>
+            <td class="transparentDataComment" />
+            </tr>
+            </table>
+        """
         subs = {
             'title': 'Data at 24578',
             'header': 'Data',
             'prev': 24576,
             'up': 24578,
             'next': 24579,
-            'content': ENTRY2
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(join(ASMDIR, '24578.html'), subs)
 
         # Routine at 24579
+        content = """
+            <div class="description">24579: Routine at 24579</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routineComment" colspan="3">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="label"><a name="24579"></a>24579</td>
+            <td class="instruction">JR <a class="link" href="24576.html#24577">24577</a></td>
+            <td class="transparentComment" />
+            </tr>
+            </table>
+        """
         subs = {
             'title': 'Routine at 24579',
             'header': 'Routines',
             'prev': 24578,
             'up': 24579,
             'next': 24581,
-            'content': ENTRY3
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(join(ASMDIR, '24579.html'), subs)
 
         # Game status buffer entry at 24581
+        content = """
+            <div class="description">24581: GSB entry at 24581</div>
+            <table class="dataDisassembly">
+            <tr>
+            <td class="routineComment" colspan="3">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address"><a name="24581"></a>24581</td>
+            <td class="instruction">DEFW 123</td>
+            <td class="transparentDataComment" />
+            </tr>
+            </table>
+        """
         subs = {
             'title': 'Game status buffer entry at 24581',
             'header': 'Game status buffer',
             'prev': 24579,
             'up': 24581,
             'next': 24583,
-            'content': ENTRY4
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(join(ASMDIR, '24581.html'), subs)
 
         # Unused RAM at 24583
+        content = """
+            <div class="description">24583: Unused</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routineComment" colspan="3">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address"><a name="24583"></a>24583</td>
+            <td class="instruction">DEFB 0</td>
+            <td class="transparentComment" />
+            </tr>
+            </table>
+        """
         subs = {
             'title': 'Unused RAM at 24583',
             'header': 'Unused',
             'prev': 24581,
             'up': 24583,
             'next': 24584,
-            'content': ENTRY5
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(join(ASMDIR, '24583.html'), subs)
 
         # Routine at 24584
+        content = """
+            <div class="description">24584: Routine at 24584 (register section but no description)</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routineComment" colspan="3">
+            <div class="details">
+            </div>
+            <table class="input">
+            <tr>
+            <td class="register">A</td>
+            <td class="registerContents">0</td>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="label"><a name="24584"></a>24584</td>
+            <td class="instruction">CALL <a class="link" href="../start/30000.html">30000</a></td>
+            <td class="comment" rowspan="2">Comment for the instructions at 24584 and 24587</td>
+            </tr>
+            <tr>
+            <td class="address"><a name="24587"></a>24587</td>
+            <td class="instruction">JP <a class="link" href="../start/30000.html#30003">30003</a></td>
+            </tr>
+            </table>
+        """
         subs = {
             'title': 'Routine at 24584',
             'header': 'Routines',
             'prev': 24583,
             'up': 24584,
-            'content': ENTRY6
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(join(ASMDIR, '24584.html'), subs)
@@ -2826,35 +2454,96 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer.write_asm_entries()
 
         # Routine at 50000
+        content = """
+            <div class="description">START: 50000: Routine with a label</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routineComment" colspan="4">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="asmLabel">START</td>
+            <td class="label"><a name="50000"></a>50000</td>
+            <td class="instruction">LD B,5</td>
+            <td class="comment">Loop 5 times</td>
+            </tr>
+            <tr>
+            <td class="asmLabel"></td>
+            <td class="address"><a name="50002"></a>50002</td>
+            <td class="instruction">DJNZ <a class="link" href="50000.html#50002">50002</a></td>
+            <td class="comment"></td>
+            </tr>
+            <tr>
+            <td class="asmLabel"></td>
+            <td class="address"><a name="50004"></a>50004</td>
+            <td class="instruction">RET</td>
+            <td class="comment"></td>
+            </tr>
+            </table>
+        """
         subs = {
             'header': 'Routines',
             'title': 'Routine at 50000 (START)',
             'up': 50000,
             'next': 50005,
-            'content': ASM_LABELS_ENTRY1
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(join(ASMDIR, '50000.html'), subs)
 
         # Routine at 50005
+        content = """
+            <div class="description">50005: Routine without a label</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routineComment" colspan="3">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="label"><a name="50005"></a>50005</td>
+            <td class="instruction">JP <a class="link" href="50000.html">START</a></td>
+            <td class="transparentComment" />
+            </tr>
+            </table>
+        """
         subs = {
             'header': 'Routines',
             'title': 'Routine at 50005',
             'prev': 50000,
             'up': 50005,
             'next': 50008,
-            'content': ASM_LABELS_ENTRY2
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(join(ASMDIR, '50005.html'), subs)
 
         # DEFW statement at 50008
+        content = """
+            <div class="description">50008: DEFW statement with a @keep directive</div>
+            <table class="dataDisassembly">
+            <tr>
+            <td class="routineComment" colspan="3">
+            <div class="details">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="address"><a name="50008"></a>50008</td>
+            <td class="instruction">DEFW 50000</td>
+            <td class="transparentDataComment" />
+            </tr>
+            </table>
+        """
         subs = {
             'header': 'Data',
             'title': 'Data at 50008',
             'prev': 50005,
             'up': 50008,
-            'content': ASM_LABELS_ENTRY3
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(join(ASMDIR, '50008.html'), subs)
@@ -2891,51 +2580,188 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
 
         # Memory map
+        content = """
+            <table class="map">
+            <tr>
+            <th>Page</th>
+            <th>Byte</th>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="mapPage">117</td>
+            <td class="mapByte">48</td>
+            <td class="routine"><a class="link" name="30000" href="../asm/30000.html">30000</a></td>
+            <td class="routineDesc">Routine</td>
+            </tr>
+            <tr>
+            <td class="mapPage">117</td>
+            <td class="mapByte">49</td>
+            <td class="data"><a class="link" name="30001" href="../asm/30001.html">30001</a></td>
+            <td class="dataDesc">Bytes</td>
+            </tr>
+            <tr>
+            <td class="mapPage">117</td>
+            <td class="mapByte">51</td>
+            <td class="data"><a class="link" name="30003" href="../asm/30003.html">30003</a></td>
+            <td class="dataDesc">Words</td>
+            </tr>
+            <tr>
+            <td class="mapPage">117</td>
+            <td class="mapByte">55</td>
+            <td class="gbuffer"><a class="link" name="30007" href="../asm/30007.html">30007</a></td>
+            <td class="gbufferDesc">GSB entry</td>
+            </tr>
+            <tr>
+            <td class="mapPage">117</td>
+            <td class="mapByte">56</td>
+            <td class="unused"><a class="link" name="30008" href="../asm/30008.html">30008</a></td>
+            <td class="unusedDesc">Unused (1 byte)</td>
+            </tr>
+            <tr>
+            <td class="mapPage">117</td>
+            <td class="mapByte">57</td>
+            <td class="unused"><a class="link" name="30009" href="../asm/30009.html">30009</a></td>
+            <td class="unusedDesc">Unused (6 bytes)</td>
+            </tr>
+            <tr>
+            <td class="mapPage">117</td>
+            <td class="mapByte">63</td>
+            <td class="message"><a class="link" name="30015" href="../asm/30015.html">30015</a></td>
+            <td class="messageDesc">Text</td>
+            </tr>
+            </table>
+        """
         writer.write_map(writer.memory_maps['MemoryMap'])
         subs = {
             'title': 'Memory map',
-            'content': MEMORY_MAP
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
         # Routines map
+        content = """
+            <table class="map">
+            <tr>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="routine"><a class="link" name="30000" href="../asm/30000.html">30000</a></td>
+            <td class="routineDesc">Routine</td>
+            </tr>
+            </table>
+        """
         writer.write_map(writer.memory_maps['RoutinesMap'])
         subs = {
             'title': 'Routines',
-            'content': ROUTINES_MAP
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(join(MAPS_DIR, 'routines.html'), subs)
 
         # Data map
+        content = """
+            <table class="map">
+            <tr>
+            <th>Page</th>
+            <th>Byte</th>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="mapPage">117</td>
+            <td class="mapByte">49</td>
+            <td class="data"><a class="link" name="30001" href="../asm/30001.html">30001</a></td>
+            <td class="dataDesc">Bytes</td>
+            </tr>
+            <tr>
+            <td class="mapPage">117</td>
+            <td class="mapByte">51</td>
+            <td class="data"><a class="link" name="30003" href="../asm/30003.html">30003</a></td>
+            <td class="dataDesc">Words</td>
+            </tr>
+            </table>
+        """
         writer.write_map(writer.memory_maps['DataMap'])
         subs = {
             'title': 'Data',
-            'content': DATA_MAP
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(join(MAPS_DIR, 'data.html'), subs)
 
         # Messages map
+        content = """
+            <table class="map">
+            <tr>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="message"><a class="link" name="30015" href="../asm/30015.html">30015</a></td>
+            <td class="messageDesc">Text</td>
+            </tr>
+            </table>
+        """
         writer.write_map(writer.memory_maps['MessagesMap'])
         subs = {
             'title': 'Messages',
-            'content': MESSAGES_MAP
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(join(MAPS_DIR, 'messages.html'), subs)
 
         # Unused map
+        content = """
+            <table class="map">
+            <tr>
+            <th>Page</th>
+            <th>Byte</th>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="mapPage">117</td>
+            <td class="mapByte">56</td>
+            <td class="unused"><a class="link" name="30008" href="../asm/30008.html">30008</a></td>
+            <td class="unusedDesc">Unused (1 byte)</td>
+            </tr>
+            <tr>
+            <td class="mapPage">117</td>
+            <td class="mapByte">57</td>
+            <td class="unused"><a class="link" name="30009" href="../asm/30009.html">30009</a></td>
+            <td class="unusedDesc">Unused (6 bytes)</td>
+            </tr>
+            </table>
+        """
         writer.write_map(writer.memory_maps['UnusedMap'])
         subs = {
             'title': 'Unused addresses',
-            'content': UNUSED_MAP
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(join(MAPS_DIR, 'unused.html'), subs)
 
         # Custom map
+        content = """
+            <div class="mapIntro">Introduction.</div>
+            <table class="map">
+            <tr>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="routine"><a class="link" name="30000" href="../asm/30000.html">30000</a></td>
+            <td class="routineDesc">Routine</td>
+            </tr>
+            <tr>
+            <td class="gbuffer"><a class="link" name="30007" href="../asm/30007.html">30007</a></td>
+            <td class="gbufferDesc">GSB entry</td>
+            </tr>
+            </table>
+        """
         map_details = {
             'Path': join(MAPS_DIR, 'custom.html'),
             'Title': 'Custom map',
@@ -2945,7 +2771,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer.write_map(map_details)
         subs = {
             'title': map_details['Title'],
-            'content': CUSTOM_MAP
+            'content': content
         }
         subs.update(common_subs)
         self.assert_files_equal(map_details['Path'], subs)
@@ -3014,6 +2840,45 @@ class HtmlWriterTest(SkoolKitTestCase):
             '  2',
             '    3',
         ))
+        content = """
+            <ul class="linkList">
+            <li><a class="link" href="#20120704">20120704</a></li>
+            <li><a class="link" href="#20120703">20120703</a></li>
+            </ul>
+            <div><a name="20120704"></a></div>
+            <div class="changelog changelog1">
+            <div class="changelogTitle">20120704</div>
+            <div class="changelogDesc">Intro.</div>
+            <ul class="changelog">
+            <li>1
+            <ul class="changelog1">
+            <li>2
+            <ul class="changelog2">
+            <li>3</li>
+            <li>4</li>
+            </ul>
+            </li>
+            <li>5</li>
+            </ul>
+            </li>
+            </ul>
+            </div>
+            <div><a name="20120703"></a></div>
+            <div class="changelog changelog2">
+            <div class="changelogTitle">20120703</div>
+            <ul class="changelog">
+            <li>1
+            <ul class="changelog1">
+            <li>2
+            <ul class="changelog2">
+            <li>3</li>
+            </ul>
+            </li>
+            </ul>
+            </li>
+            </ul>
+            </div>
+        """
         writer = self._get_writer(ref=ref, skool='')
         writer.write_changelog()
         subs = {
@@ -3021,7 +2886,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'title': 'Changelog',
             'path': '../',
             'body_class': 'changelog',
-            'content': CHANGELOG,
+            'content': content,
             'footer': BARE_FOOTER
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'changelog.html'), subs)
@@ -3036,6 +2901,29 @@ class HtmlWriterTest(SkoolKitTestCase):
             '',
             'Definition 2. Paragraph 2.',
         ))
+        content = """
+            <ul class="linkList">
+            <li><a class="link" href="#term1">Term1</a></li>
+            <li><a class="link" href="#term2">Term2</a></li>
+            </ul>
+            <div><a name="term1"></a></div>
+            <div class="box box1">
+            <div class="boxTitle">Term1</div>
+            <div class="paragraph">
+            Definition 1.
+            </div>
+            </div>
+            <div><a name="term2"></a></div>
+            <div class="box box2">
+            <div class="boxTitle">Term2</div>
+            <div class="paragraph">
+            Definition 2. Paragraph 1.
+            </div>
+            <div class="paragraph">
+            Definition 2. Paragraph 2.
+            </div>
+            </div>
+        """
         writer = self._get_writer(ref=ref, skool='')
         writer.write_glossary()
         subs = {
@@ -3043,7 +2931,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'title': 'Glossary',
             'path': '../',
             'body_class': 'glossary',
-            'content': GLOSSARY,
+            'content': content,
             'footer': BARE_FOOTER
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'glossary.html'), subs)
@@ -3091,6 +2979,21 @@ class HtmlWriterTest(SkoolKitTestCase):
             '',
             'Really bad.',
         ))
+        content = """
+            <ul class="linkList">
+            <li><a class="link" href="#b1">Showstopper</a></li>
+            </ul>
+            <div><a name="b1"></a></div>
+            <div class="box box1">
+            <div class="boxTitle">Showstopper</div>
+            <div class="paragraph">
+            This bug is bad.
+            </div>
+            <div class="paragraph">
+            Really bad.
+            </div>
+            </div>
+        """
         writer = self._get_writer(ref=ref, skool='')
         writer.write_bugs()
         subs = {
@@ -3098,7 +3001,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'title': 'Bugs',
             'path': '../',
             'body_class': 'bugs',
-            'content': BUGS,
+            'content': content,
             'footer': BARE_FOOTER
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'bugs.html'), subs)
@@ -3113,6 +3016,29 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Fact:f2:Another interesting fact]',
             'Yes.',
         ))
+        content = """
+            <ul class="linkList">
+            <li><a class="link" href="#f1">Interesting fact</a></li>
+            <li><a class="link" href="#f2">Another interesting fact</a></li>
+            </ul>
+            <div><a name="f1"></a></div>
+            <div class="box box1">
+            <div class="boxTitle">Interesting fact</div>
+            <div class="paragraph">
+            Hello.
+            </div>
+            <div class="paragraph">
+            Goodbye.
+            </div>
+            </div>
+            <div><a name="f2"></a></div>
+            <div class="box box2">
+            <div class="boxTitle">Another interesting fact</div>
+            <div class="paragraph">
+            Yes.
+            </div>
+            </div>
+        """
         writer = self._get_writer(ref=ref, skool='')
         writer.write_facts()
         subs = {
@@ -3120,12 +3046,24 @@ class HtmlWriterTest(SkoolKitTestCase):
             'title': 'Trivia',
             'path': '../',
             'body_class': 'facts',
-            'content': FACTS,
+            'content': content,
             'footer': BARE_FOOTER
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'facts.html'), subs)
 
     def test_write_pokes(self):
+        html = """
+            <ul class="linkList">
+            <li><a class="link" href="#p1">Infinite everything</a></li>
+            </ul>
+            <div><a name="p1"></a></div>
+            <div class="box box1">
+            <div class="boxTitle">Infinite everything</div>
+            <div class="paragraph">
+            POKE 12345,0
+            </div>
+            </div>
+        """
         ref = '[Poke:p1:Infinite everything]\nPOKE 12345,0'
         writer = self._get_writer(ref=ref, skool='')
         writer.write_pokes()
@@ -3134,13 +3072,25 @@ class HtmlWriterTest(SkoolKitTestCase):
             'title': 'Pokes',
             'path': '../',
             'body_class': 'pokes',
-            'content': POKES,
+            'content': html,
             'footer': BARE_FOOTER
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'pokes.html'), subs)
 
     def test_write_graphic_glitches(self):
         ref = '[GraphicGlitch:g0:Wrong arms]\nHello.'
+        content = """
+            <ul class="linkList">
+            <li><a class="link" href="#g0">Wrong arms</a></li>
+            </ul>
+            <div><a name="g0"></a></div>
+            <div class="box box1">
+            <div class="boxTitle">Wrong arms</div>
+            <div class="paragraph">
+            Hello.
+            </div>
+            </div>
+        """
         writer = self._get_writer(ref=ref, skool='')
         writer.write_graphic_glitches()
         subs = {
@@ -3148,7 +3098,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'title': 'Graphic glitches',
             'path': '../',
             'body_class': 'graphics',
-            'content': GRAPHIC_GLITCHES,
+            'content': content,
             'footer': BARE_FOOTER
         }
         self.assert_files_equal(join(GRAPHICS_DIR, 'glitches.html'), subs)
@@ -3175,6 +3125,48 @@ class HtmlWriterTest(SkoolKitTestCase):
             '',
             'i30006',
         ))
+        content = """
+            <table class="gbuffer">
+            <tr>
+            <th>Address</th>
+            <th>Length</th>
+            <th>Purpose</th>
+            </tr>
+            <tr>
+            <td class="gbufAddress"><a name="30000" class="link" href="../asm/30000.html">30000</a></td>
+            <td class="gbufLength">1</td>
+            <td class="gbufDesc">
+            <div class="gbufDesc">GSB entry 1</div>
+            <div class="gbufDetails">
+            <div class="paragraph">
+            Number of lives.
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="gbufAddress"><a name="30001" class="link" href="../asm/30001.html">30001</a></td>
+            <td class="gbufLength">2</td>
+            <td class="gbufDesc">
+            <div class="gbufDesc">GSB entry 2</div>
+            </td>
+            </tr>
+            <tr>
+            <td class="gbufAddress"><a name="30003" class="link" href="../asm/30003.html">30003</a></td>
+            <td class="gbufLength">1</td>
+            <td class="gbufDesc">
+            <div class="gbufDesc">Message ID</div>
+            </td>
+            </tr>
+            <tr>
+            <td class="gbufAddress"><a name="30004" class="link" href="../asm/30004.html">30004</a></td>
+            <td class="gbufLength">1</td>
+            <td class="gbufDesc">
+            <div class="gbufDesc">Another message ID</div>
+            </td>
+            </tr>
+            </table>
+        """
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_gbuffer()
         subs = {
@@ -3182,7 +3174,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'title': 'Game status buffer',
             'path': '../',
             'body_class': 'gbuffer',
-            'content': GAME_STATUS_BUFFER,
+            'content': content,
             'footer': BARE_FOOTER
         }
         self.assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)
@@ -3256,14 +3248,54 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer = self._get_writer(snapshot=())
 
         # Traditional
+        html = """
+            <table class="input">
+            <tr>
+            <td class="register">A</td>
+            <td class="registerContents">Some value</td>
+            </tr>
+            <tr>
+            <td class="register">B</td>
+            <td class="registerContents">Some other value</td>
+            </tr>
+            </table>
+        """
         registers = []
         registers.append(Register('', 'A', 'Some value'))
         registers.append(Register('', 'B', 'Some other value'))
         stream = StringIO()
         writer.write_registers(stream, registers, ASMDIR)
-        self.assertEqual(stream.getvalue(), REGISTERS_1)
+        self.assert_html_equal(stream.getvalue(), html, True)
 
         # With prefixes
+        html = """
+            <table class="input">
+            <tr>
+            <th colspan="2">Input</th>
+            </tr>
+            <tr>
+            <td class="register">A</td>
+            <td class="registerContents">Some value</td>
+            </tr>
+            <tr>
+            <td class="register">B</td>
+            <td class="registerContents">Some other value</td>
+            </tr>
+            </table>
+            <table class="output">
+            <tr>
+            <th colspan="2">Output</th>
+            </tr>
+            <tr>
+            <td class="register">D</td>
+            <td class="registerContents">The result</td>
+            </tr>
+            <tr>
+            <td class="register">E</td>
+            <td class="registerContents">Result flags</td>
+            </tr>
+            </table>
+        """
         writer.game_vars['InputRegisterTableHeader'] = 'Input'
         writer.game_vars['OutputRegisterTableHeader'] = 'Output'
         registers = []
@@ -3273,7 +3305,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         registers.append(Register('', 'E', 'Result flags'))
         stream = StringIO()
         writer.write_registers(stream, registers, ASMDIR)
-        self.assertEqual(stream.getvalue(), REGISTERS_2)
+        self.assert_html_equal(stream.getvalue(), html, True)
 
     def test_write_image(self):
         file_info = MockFileInfo('html', 'test_write_image')
