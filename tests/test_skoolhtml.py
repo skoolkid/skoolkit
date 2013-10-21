@@ -548,25 +548,20 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('CALL')
 
         # No parameters
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
-            writer.expand('#CALL', ASMDIR)
+        self.assert_error(writer, '#CALL', 'No parameters', prefix)
 
         # Malformed #CALL macro
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Malformed macro: #CALLt...'.format(prefix)):
-            writer.expand('#CALLtest_call(5,s)', ASMDIR)
+        self.assert_error(writer, '#CALLtest_call(5,s)', 'Malformed macro: #CALLt...', prefix)
 
         # No method name
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No method name'.format(prefix)):
-            writer.expand('#CALL:(0)', ASMDIR)
+        self.assert_error(writer, '#CALL:(0)', 'No method name', prefix)
 
         # #CALL a non-method
         writer.var = 'x'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Uncallable method name: var'.format(prefix)):
-            writer.expand('#CALL:var(0)', ASMDIR)
+        self.assert_error(writer, '#CALL:var(0)', 'Uncallable method name: var', prefix)
 
         # No argument list
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No argument list specified: #CALL:test_call'.format(prefix)):
-            writer.expand('#CALL:test_call', ASMDIR)
+        self.assert_error(writer, '#CALL:test_call', 'No argument list specified: #CALL:test_call', prefix)
 
         # No closing bracket
         self.assert_error(writer, '#CALL:test_call(1,2', 'No closing bracket: (1,2', prefix)
@@ -591,24 +586,19 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('CHR')
 
         # No parameter
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
-            writer.expand('#CHR', ASMDIR)
+        self.assert_error(writer, '#CHR', 'No parameters (expected 1)', prefix)
 
         # Blank parameter
-        with self.assertRaisesRegexp(SkoolParsingError, "{}: Invalid integer: ''".format(prefix)):
-            writer.expand('#CHR()', ASMDIR)
+        self.assert_error(writer, '#CHR()', "Invalid integer: ''", prefix)
 
         # Invalid parameter (1)
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '2$' in parameter string: '2$'".format(prefix))):
-            writer.expand('#CHR2$', ASMDIR)
+        self.assert_error(writer, '#CHR2$', "Cannot parse integer '2$' in parameter string: '2$'", prefix)
 
         # Invalid parameter (2)
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid integer: 'x'".format(prefix))):
-            writer.expand('#CHR(x)', ASMDIR)
+        self.assert_error(writer, '#CHR(x)', "Invalid integer: 'x'", prefix)
 
         # No closing bracket
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No closing bracket: (2".format(prefix))):
-            writer.expand('#CHR(2 ...', ASMDIR)
+        self.assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)
 
     def test_macro_d(self):
         skool = '\n'.join((
@@ -636,26 +626,19 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('D')
 
         # No parameter (1)
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
-            writer.expand('#D', ASMDIR)
+        self.assert_error(writer, '#D', 'No parameters (expected 1)', prefix)
 
         # No parameter (2)
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
-            writer.expand('#Dx', ASMDIR)
+        self.assert_error(writer, '#Dx', 'No parameters (expected 1)', prefix)
 
         # Invalid parameter
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '234$' in parameter string: '234$'".format(prefix))):
-            writer.expand('#D234$', ASMDIR)
+        self.assert_error(writer, '#D234$', "Cannot parse integer '234$' in parameter string: '234$'", prefix)
 
         # Descriptionless entry
-        address = 32770
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Entry at {} has no description'.format(prefix, address)):
-            writer.expand('#D{0}'.format(address), ASMDIR)
+        self.assert_error(writer, '#D32770', 'Entry at 32770 has no description', prefix)
 
         # Non-existent entry
-        address = 32771
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Cannot determine description for non-existent entry at {}'.format(prefix, address)):
-            writer.expand('#D{0}'.format(address), ASMDIR)
+        self.assert_error(writer, '#D32771', 'Cannot determine description for non-existent entry at 32771', prefix)
 
     def test_macro_erefs(self):
         # Entry point with one referrer
@@ -694,21 +677,17 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('EREFS')
 
         # No parameter (1)
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
-            writer.expand('#EREFS', ASMDIR)
+        self.assert_error(writer, '#EREFS', 'No parameters (expected 1)', prefix)
 
         # No parameter (2)
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
-            writer.expand('#EREFSx', ASMDIR)
+        self.assert_error(writer, '#EREFSx', 'No parameters (expected 1)', prefix)
 
         # Invalid parameter
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '2$2' in parameter string: '2$2'".format(prefix))):
-            writer.expand('#EREFS2$2', ASMDIR)
+        self.assert_error(writer, '#EREFS2$2', "Cannot parse integer '2$2' in parameter string: '2$2'", prefix)
 
         # Entry point with no referrers
         address = 30005
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Entry point at {} has no referrers'.format(prefix, address)):
-            writer.expand('#EREFS{0}'.format(address), ASMDIR)
+        self.assert_error(writer, '#EREFS30005', 'Entry point at 30005 has no referrers', prefix)
 
     def test_macro_fact(self):
         self._test_reference_macro('FACT', 'fact', 'facts')
@@ -787,44 +766,28 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('FONT')
 
         # No parameters
-        macro = '#FONT'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No parameters (expected 1)".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#FONT', 'No parameters (expected 1)', prefix)
 
         # No parameters (2)
-        macro = '#FONTx'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No parameters (expected 1)".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#FONTx', 'No parameters (expected 1)', prefix)
 
         # No text parameter
-        macro = '#FONT:'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No text parameter".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#FONT:', 'No text parameter', prefix)
 
         # Too many parameters
-        macro = '#FONT0,1,2,3,4,5'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Too many parameters (expected 4): '0,1,2,3,4,5'".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#FONT0,1,2,3,4,5', "Too many parameters (expected 4): '0,1,2,3,4,5'", prefix)
 
         # Invalid parameter
-        macro = '#FONT0,1$,2'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '1$' in parameter string: '0,1$,2'".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#FONT0,1$,2', "Cannot parse integer '1$' in parameter string: '0,1$,2'", prefix)
 
         # No closing bracket
-        macro = '#FONT(foo'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (foo'.format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#FONT(foo', 'No closing bracket: (foo', prefix)
 
         # Empty message
-        macro = '#FONT:()0'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Empty message: ()".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#FONT:()0', 'Empty message: ()', prefix)
 
         # No terminating text delimiter
-        macro = '#FONT:[hi)0'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No terminating delimiter: [hi)0".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#FONT:[hi)0', 'No terminating delimiter: [hi)0', prefix)
 
     def test_macro_html(self):
         writer = self._get_writer()
@@ -848,14 +811,10 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('HTML')
 
         # No text parameter
-        macro = '#HTML'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No text parameter'.format(prefix)):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#HTML', 'No text parameter', prefix)
 
         # Unterminated
-        macro = '#HTML:unterminated'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No terminating delimiter: :unterminated'.format(prefix)):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#HTML:unterminated', 'No terminating delimiter: :unterminated', prefix)
 
     def test_macro_link(self):
         ref = '\n'.join((
@@ -889,34 +848,25 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('LINK')
 
         # No parameters
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No parameters'.format(prefix)):
-            writer.expand('#LINK', ASMDIR)
+        self.assert_error(writer, '#LINK', 'No parameters', prefix)
 
         # No page ID (1)
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No page ID: #LINK:'.format(prefix)):
-            writer.expand('#LINK:', ASMDIR)
+        self.assert_error(writer, '#LINK:', 'No page ID: #LINK:', prefix)
 
         # No page ID (2)
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No page ID: #LINK:(text)'.format(prefix))):
-            writer.expand('#LINK:(text)', ASMDIR)
+        self.assert_error(writer, '#LINK:(text)', 'No page ID: #LINK:(text)', prefix)
 
         # No closing bracket
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (text'.format(prefix))):
-            writer.expand('#LINK:(text', ASMDIR)
+        self.assert_error(writer, '#LINK:(text', 'No closing bracket: (text', prefix)
 
         # Malformed macro
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Malformed macro: #LINKp...'.format(prefix)):
-            writer.expand('#LINKpageID(text)', ASMDIR)
+        self.assert_error(writer, '#LINKpageID(text)', 'Malformed macro: #LINKp...', prefix)
 
         # Unknown page ID
-        nonexistent_page_id = 'nonexistentPageID'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Unknown page ID: {}'.format(prefix, nonexistent_page_id)):
-            writer.expand('#LINK:{0}(text)'.format(nonexistent_page_id), ASMDIR)
+        self.assert_error(writer, '#LINK:nonexistentPageID(text)', 'Unknown page ID: nonexistentPageID', prefix)
 
         # No link text
-        macro = '#LINK:Bugs'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No link text: {}'.format(prefix, macro)):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#LINK:Bugs', 'No link text: #LINK:Bugs', prefix)
 
     def test_macro_list(self):
         writer = self._get_writer()
@@ -951,8 +901,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer = self._get_writer()
 
         # No end marker
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("No end marker: #LIST { Item }...")):
-            writer.expand('#LIST { Item }', ASMDIR)
+        self.assert_error(writer, '#LIST { Item }', 'No end marker: #LIST { Item }...')
 
     def test_macro_poke(self):
         self._test_reference_macro('POKE', 'poke', 'pokes')
@@ -993,24 +942,19 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('POKES')
 
         # No parameters (1)
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No parameters (expected 2)'.format(prefix))):
-            writer.expand('#POKES', ASMDIR)
+        self.assert_error(writer, '#POKES', 'No parameters (expected 2)', prefix)
 
         # No parameters (2)
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No parameters (expected 2)'.format(prefix))):
-            writer.expand('#POKESx', ASMDIR)
+        self.assert_error(writer, '#POKESx', 'No parameters (expected 2)', prefix)
 
         # Not enough parameters (1)
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Not enough parameters (expected 2): '0'".format(prefix))):
-            writer.expand('#POKES0', ASMDIR)
+        self.assert_error(writer, '#POKES0', "Not enough parameters (expected 2): '0'", prefix)
 
         # Not enough parameters (2)
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Not enough parameters (expected 2): '1'".format(prefix))):
-            writer.expand('#POKES0,1;1', ASMDIR)
+        self.assert_error(writer, '#POKES0,1;1', "Not enough parameters (expected 2): '1'", prefix)
 
         # Invalid parameter
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '2$2' in parameter string: '40000,2$2'".format(prefix))):
-            writer.expand('#POKES40000,2$2', ASMDIR)
+        self.assert_error(writer, '#POKES40000,2$2', "Cannot parse integer '2$2' in parameter string: '40000,2$2'", prefix)
 
     def test_macro_pops(self):
         writer = self._get_writer(snapshot=[0] * 65536)
@@ -1112,11 +1056,9 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#R24580', ASMDIR)
         self.link_equals(output, '24579.html#24580', '6004')
 
-        # Nonexistent reference
+        # Non-existent reference
         prefix = ERROR_PREFIX.format('R')
-        address = '$ABCD'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Could not find routine file containing \{}'.format(prefix, address)):
-            writer.expand('#R{0}'.format(address), ASMDIR)
+        self.assert_error(writer, '#R$ABCD', 'Could not find routine file containing $ABCD', prefix)
 
     def test_macro_r_other_code(self):
         ref = '\n'.join((
@@ -1161,12 +1103,6 @@ class HtmlWriterTest(SkoolKitTestCase):
         anchor = 'testing3'
         output = writer.expand('#R32768@other#{0}({1})'.format(anchor, link_text), ASMDIR)
         self.link_equals(output, '../other/32768.html#{0}'.format(anchor), link_text)
-
-        # Nonexistent other code reference
-        prefix = ERROR_PREFIX.format('R')
-        code_id = 'nonexistent'
-        with self.assertRaisesRegexp(SkoolParsingError, "{}: Could not find code path for '{}' disassembly".format(prefix, code_id)):
-            writer.expand('#R24576@{}'.format(code_id), ASMDIR)
 
     def test_macro_r_decimal(self):
         ref = '\n'.join((
@@ -1342,6 +1278,9 @@ class HtmlWriterTest(SkoolKitTestCase):
         # No closing bracket
         self.assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)
 
+        # Non-existent other code reference
+        self.assert_error(writer, '#R24576@nonexistent', "Could not find code path for 'nonexistent' disassembly", prefix)
+
     def test_macro_refs(self):
         # One referrer
         skool = '\n'.join((
@@ -1455,19 +1394,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('SCR')
 
         # Too many parameters
-        macro = '#SCR0,1,2,3,4,5,6,7,8'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Too many parameters (expected 7): '0,1,2,3,4,5,6,7,8'".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#SCR0,1,2,3,4,5,6,7,8', "Too many parameters (expected 7): '0,1,2,3,4,5,6,7,8'", prefix)
 
         # No closing bracket
-        macro = '#SCR(foo'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (foo'.format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#SCR(foo', 'No closing bracket: (foo', prefix)
 
         # Invalid parameter
-        macro = '#SCR0,1,2$,3'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '2$' in parameter string: '0,1,2$,3'".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#SCR0,1,2$,3', "Cannot parse integer '2$' in parameter string: '0,1,2$,3'", prefix)
 
     def test_macro_space(self):
         writer = self._get_writer()
@@ -1595,24 +1528,16 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('UDG')
 
         # No parameters
-        macro = '#UDG'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No parameters (expected 1)".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDG', 'No parameters (expected 1)', prefix)
 
         # Too many parameters
-        macro = '#UDG0,1,2,3,4,5,6,7,8'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Too many parameters (expected 7): '0,1,2,3,4,5,6,7,8'".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDG0,1,2,3,4,5,6,7,8', "Too many parameters (expected 7): '0,1,2,3,4,5,6,7,8'", prefix)
 
         # Invalid parameter
-        macro = '#UDG0$,1,2'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '0$' in parameter string: '0$,1,2'".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDG0$,1,2', "Cannot parse integer '0$' in parameter string: '0$,1,2'", prefix)
 
         # No closing bracket
-        macro = '#UDG0(foo'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (foo'.format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDG0(foo', 'No closing bracket: (foo', prefix)
 
     def test_macro_udgarray(self):
         snapshot = [0] * 65536
@@ -1670,69 +1595,43 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('UDGARRAY')
 
         # No parameters
-        macro = '#UDGARRAY'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: No parameters (expected 1)".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDGARRAY', 'No parameters (expected 1)', prefix)
 
         # Invalid parameter
-        macro = '#UDGARRAY1,5$,4;0(bar)'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '5$' in parameter string: '1,5$,4'".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDGARRAY1,5$,4;0(bar)', "Cannot parse integer '5$' in parameter string: '1,5$,4'", prefix)
 
         # Invalid UDG address range spec (1)
-        macro = '#UDGARRAY1;0-1$(bar)'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid address range specification: 0-1$".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDGARRAY1;0-1$(bar)', 'Invalid address range specification: 0-1$', prefix)
 
         # Invalid UDG address range spec (2)
-        macro = '#UDGARRAY1;0-1x2x2(bar)'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid address range specification: 0-1x2x2".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDGARRAY1;0-1x2x2(bar)', 'Invalid address range specification: 0-1x2x2', prefix)
 
         # Invalid UDG address range spec (3)
-        macro = '#UDGARRAY1;0-1-2-3-4x5(bar)'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid address range specification: 0-1-2-3-4x5".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDGARRAY1;0-1-2-3-4x5(bar)', 'Invalid address range specification: 0-1-2-3-4x5', prefix)
 
         # Invalid UDG spec
-        macro = '#UDGARRAY1;0,5-(bar)'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '5-' in parameter string: '0,5-'".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDGARRAY1;0,5-(bar)', "Cannot parse integer '5-' in parameter string: '0,5-'", prefix)
 
         # Invalid mask address range spec (1)
-        macro = '#UDGARRAY1;0-2:0-2$(bar)'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid address range specification: 0-2$".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDGARRAY1;0-2:0-2$(bar)', 'Invalid address range specification: 0-2$', prefix)
 
         # Invalid mask address range spec (2)
-        macro = '#UDGARRAY1;0-1x2:2-3x2x2(bar)'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid address range specification: 2-3x2x2".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDGARRAY1;0-1x2:2-3x2x2(bar)', 'Invalid address range specification: 2-3x2x2', prefix)
 
         # Invalid mask address range spec (3)
-        macro = '#UDGARRAY1;0-1-2-3x9:4-5-6-7-8x9(bar)'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Invalid address range specification: 4-5-6-7-8x9".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDGARRAY1;0-1-2-3x9:4-5-6-7-8x9(bar)', 'Invalid address range specification: 4-5-6-7-8x9', prefix)
 
         # Invalid UDG mask spec
-        macro = '#UDGARRAY1;0,5:8,1x(bar)'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("{}: Cannot parse integer '1x' in parameter string: '8,1x'".format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDGARRAY1;0,5:8,1x(bar)', "Cannot parse integer '1x' in parameter string: '8,1x'", prefix)
 
-        # Missing filename argument
-        macro = '#UDGARRAY1;0'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Missing filename: {}'.format(prefix, macro)):
-            writer.expand(macro, ASMDIR)
+        # Missing filename (1)
+        self.assert_error(writer, '#UDGARRAY1;0', 'Missing filename: #UDGARRAY1;0', prefix)
 
-        # Missing filename argument (2)
-        macro = '#UDGARRAY1;0{0,0}1(foo)'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: Missing filename: #UDGARRAY1;0{{0,0}}'.format(prefix))):
-            writer.expand(macro, ASMDIR)
+        # Missing filename (2)
+        self.assert_error(writer, '#UDGARRAY1;0{0,0}1(foo)', 'Missing filename: #UDGARRAY1;0{0,0}', prefix)
 
         # No closing bracket
-        macro = '#UDGARRAY1;0(foo'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (foo'.format(prefix))):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDGARRAY1;0(foo', 'No closing bracket: (foo', prefix)
 
     def test_macro_udgarray_frames(self):
         snapshot = [0] * 65536
@@ -1773,33 +1672,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer = self._get_writer(snapshot=[0] * 8)
         prefix = ERROR_PREFIX.format('UDGARRAY')
 
-        macro = '#UDGARRAY1;0(*)'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: Missing filename or frame ID: {}'.format(prefix, macro))):
-            writer.expand(macro, ASMDIR)
-
-        macro = '#UDGARRAY*,3(foo)'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: Missing frame ID: {}'.format(prefix, macro))):
-            writer.expand(macro, ASMDIR)
-
-        macro = '#UDGARRAY*foo'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: Missing filename'.format(prefix))):
-            writer.expand(macro, ASMDIR)
-
-        macro = '#UDGARRAY*foo()'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: Missing filename'.format(prefix))):
-            writer.expand(macro, ASMDIR)
-
-        macro = '#UDGARRAY*foo(bar'
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape('{}: No closing bracket: (bar'.format(prefix))):
-            writer.expand(macro, ASMDIR)
-
-        macro = '#UDGARRAY*foo(bar)'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: No such frame: "foo"'.format(prefix)):
-            writer.expand(macro, ASMDIR)
-
-        macro = '#UDGARRAY*foo,qux(bar)'
-        with self.assertRaisesRegexp(SkoolParsingError, '{}: Invalid delay parameter: "qux"'.format(prefix)):
-            writer.expand(macro, ASMDIR)
+        self.assert_error(writer, '#UDGARRAY1;0(*)', 'Missing filename or frame ID: #UDGARRAY1;0(*)', prefix)
+        self.assert_error(writer, '#UDGARRAY*,3(foo)', 'Missing frame ID: #UDGARRAY*,3(foo)', prefix)
+        self.assert_error(writer, '#UDGARRAY*foo', 'Missing filename: #UDGARRAY*foo', prefix)
+        self.assert_error(writer, '#UDGARRAY*foo()', 'Missing filename: #UDGARRAY*foo()', prefix)
+        self.assert_error(writer, '#UDGARRAY*foo(bar', 'No closing bracket: (bar', prefix)
+        self.assert_error(writer, '#UDGARRAY*foo(bar)', 'No such frame: "foo"', prefix)
+        self.assert_error(writer, '#UDGARRAY*foo,qux(bar)', 'Invalid delay parameter: "qux"', prefix)
 
     def test_macro_udgtable(self):
         src = '\n'.join((
@@ -1845,16 +1724,13 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_unsupported_macro(self):
         writer = self._get_writer()
-        macro = '#BUG'
-        writer.macros[macro] = self._unsupported_macro
-        with self.assertRaisesRegexp(SkoolParsingError, 'Found unsupported macro: {}'.format(macro)):
-            writer.expand('{0}#bug1'.format(macro), ASMDIR)
+        writer.macros['#BUG'] = self._unsupported_macro
+        self.assert_error(writer, '#BUG#bug1', 'Found unsupported macro: #BUG')
 
     def test_unknown_macro(self):
         writer = self._get_writer()
         for macro, params in (('#FOO', 'xyz'), ('#BAR', '1,2(baz)'), ('#UDGS', '#r1'), ('#LINKS', '')):
-            with self.assertRaisesRegexp(SkoolParsingError, 'Found unknown macro: {}'.format(macro)):
-                writer.expand(macro + params, ASMDIR)
+            self.assert_error(writer, macro + params, 'Found unknown macro: {}'.format(macro))
 
     def test_parameter_LinkOperands(self):
         ref = '[Game]\nLinkOperands={}'
