@@ -414,6 +414,29 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instruction.operation, 'LD HL,16384')
         self.assertEqual(instruction.sub, instruction.operation)
 
+    def test_start_and_end_directives(self):
+        skool = '\n'.join((
+            'c40000 LD A,B',
+            '',
+            '; @start',
+            'c40001 LD A,C',
+            '; @end',
+            '',
+            'c40002 LD A,D',
+            '',
+            '; @start',
+            'c40003 LD A,E',
+            '; @end',
+            '',
+            'c40004 LD A,H'
+        ))
+        entries = self._get_parser(skool, asm_mode=1).entries
+        self.assertFalse(40000 in entries)
+        self.assertTrue(40001 in entries)
+        self.assertFalse(40002 in entries)
+        self.assertTrue(40003 in entries)
+        self.assertFalse(40004 in entries)
+
     def test_html_mode_label(self):
         label = 'START'
         skool = '\n'.join((
