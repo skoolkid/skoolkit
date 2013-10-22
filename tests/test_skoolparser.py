@@ -465,6 +465,37 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertFalse(entry.instructions[0].keep)
         self.assertTrue(entry.instructions[1].keep)
 
+    def test_html_mode_rem(self):
+        skool = '\n'.join((
+            '; Routine',
+            ';',
+            '; @rem=These comments',
+            '; @rem=should be ignored.',
+            '; Foo.',
+            '; @rem=And these',
+            '; @rem=ones too.',
+            'c50000 RET'
+        ))
+        parser = self._get_parser(skool, html=True)
+        entry = parser.get_entry(50000)
+        self.assertEqual(entry.details, ['Foo.'])
+
+    def test_asm_mode_rem(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            ';',
+            '; @rem=These comments',
+            '; @rem=should be ignored.',
+            '; Foo.',
+            '; @rem=And these',
+            '; @rem=ones too.',
+            'c50000 RET'
+        ))
+        parser = self._get_parser(skool, asm_mode=1)
+        entry = parser.get_entry(50000)
+        self.assertEqual(entry.details, ['Foo.'])
+
     def test_rsub_minus_inside_rsub_minus(self):
         # @rsub-begin inside @rsub- block
         skool = '\n'.join((
