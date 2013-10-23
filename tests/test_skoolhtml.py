@@ -1932,6 +1932,67 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self._test_write_index(files, content, ref, custom_subs)
 
+    def test_write_index_with_custom_link_text(self):
+        ref = '\n'.join((
+            '[Links]',
+            'Bugs=[Bugs] (glitches)',
+            'Changelog=Change log',
+            'DataMap=Game data',
+            'Facts=[Facts] (trivia)',
+            'GameStatusBuffer=Workspace',
+            'Glossary=List of terms',
+            'GraphicGlitches=Graphic bugs',
+            'Graphics=UDGs and stuff',
+            'MemoryMap=All code and data',
+            'MessagesMap=Strings',
+            'Pokes=POKEs',
+            'RoutinesMap=Game code',
+            'UnusedMap=Unused bytes'
+        ))
+        files = [
+            'buffers/gbuffer.html',
+            'graphics/glitches.html',
+            'graphics/graphics.html',
+            'maps/all.html',
+            'maps/data.html',
+            'maps/messages.html',
+            'maps/routines.html',
+            'maps/unused.html',
+            'reference/bugs.html',
+            'reference/changelog.html',
+            'reference/facts.html',
+            'reference/glossary.html',
+            'reference/pokes.html',
+        ]
+        content = """
+            <div class="headerText">Memory maps</div>
+            <ul class="indexList">
+            <li><a class="link" href="maps/all.html">All code and data</a></li>
+            <li><a class="link" href="maps/routines.html">Game code</a></li>
+            <li><a class="link" href="maps/data.html">Game data</a></li>
+            <li><a class="link" href="maps/messages.html">Strings</a></li>
+            <li><a class="link" href="maps/unused.html">Unused bytes</a></li>
+            </ul>
+            <div class="headerText">Graphics</div>
+            <ul class="indexList">
+            <li><a class="link" href="graphics/graphics.html">UDGs and stuff</a></li>
+            <li><a class="link" href="graphics/glitches.html">Graphic bugs</a></li>
+            </ul>
+            <div class="headerText">Data tables and buffers</div>
+            <ul class="indexList">
+            <li><a class="link" href="buffers/gbuffer.html">Workspace</a></li>
+            </ul>
+            <div class="headerText">Reference</div>
+            <ul class="indexList">
+            <li><a class="link" href="reference/changelog.html">Change log</a></li>
+            <li><a class="link" href="reference/glossary.html">List of terms</a></li>
+            <li><a class="link" href="reference/facts.html">Facts</a> (trivia)</li>
+            <li><a class="link" href="reference/bugs.html">Bugs</a> (glitches)</li>
+            <li><a class="link" href="reference/pokes.html">POKEs</a></li>
+            </ul>
+        """
+        self._test_write_index(files, content, ref)
+
     def test_write_index_empty_with_logo_image(self):
         # Empty index with logo image
         writer = self._get_writer(skool='')
