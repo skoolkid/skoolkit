@@ -1778,7 +1778,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         html = self.read_file(join(REFERENCE_DIR, 'bugs.html'))
         self.assertTrue('<p>Hello</p>' in html)
 
-    def _test_write_index(self, files, content, ref=''):
+    def _test_write_index(self, files, content, ref='', custom_subs=None):
         writer = self._get_writer(ref=ref, skool='')
         for f in files:
             self.write_text_file(path=join(self.odir, GAMEDIR, f))
@@ -1793,6 +1793,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             'content': content,
             'footer': BARE_FOOTER
         }
+        if custom_subs:
+            subs.update(custom_subs)
         self.assert_files_equal('index.html', subs, True)
         self.remove_files()
 
@@ -1873,8 +1875,14 @@ class HtmlWriterTest(SkoolKitTestCase):
         self._test_write_index(files, content, ref)
 
     def test_write_index_custom(self):
-        # Defined by [Index], [Index:*:*], [Links] and [Paths] sections
+        # Defined by [Game], [Index], [Index:*:*], [Links] and [Paths] sections
+        title_prefix = 'The woefully incomplete'
+        title_suffix = 'disassembly of the RAM'
         ref = '\n'.join((
+            '[Game]',
+            'TitlePrefix={}'.format(title_prefix),
+            'TitleSuffix={}'.format(title_suffix),
+            '',
             '[Index]',
             'Reference',
             'MemoryMaps',
@@ -1918,7 +1926,11 @@ class HtmlWriterTest(SkoolKitTestCase):
             <li><a class="link" href="memorymaps/ram.html">Entire RAM</a></li>
             </ul>
         """
-        self._test_write_index(files, content, ref)
+        custom_subs = {
+            'header_prefix': title_prefix,
+            'header_suffix': title_suffix
+        }
+        self._test_write_index(files, content, ref, custom_subs)
 
     def test_write_index_empty_with_logo_image(self):
         # Empty index with logo image
