@@ -2042,6 +2042,30 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         self._test_write_index(files, content, ref)
 
+    def test_write_index_with_custom_footer(self):
+        files = []
+        content = ""
+        release = 'foo'
+        c = 'bar'
+        created = 'baz'
+        ref = '\n'.join((
+            '[Info]',
+            'Copyright={}',
+            'Created={}',
+            'Release={}'
+        )).format(c, created, release)
+        footer = '\n'.join((
+            '<div class="footer">',
+            '<div class="release">{}</div>',
+            '<div class="copyright">{}</div>',
+            '<div class="created">{}</div>',
+            '</div>',
+            '</body>',
+            '</html>'
+        )).format(release, c, created)
+        custom_subs = {'footer': footer}
+        self._test_write_index(files, content, ref, custom_subs)
+
     def test_write_index_empty_with_logo_image(self):
         # Empty index with logo image
         writer = self._get_writer(skool='')
