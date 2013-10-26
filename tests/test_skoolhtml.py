@@ -3084,6 +3084,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'pokes.html'), subs)
 
+    def test_write_pokes_with_custom_title(self):
+        title = 'Hacking the game'
+        ref = '[Titles]\nPokes={}'.format(title)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_pokes()
+        self.assert_title_equals(join(REFERENCE_DIR, 'pokes.html'), title)
+
     def test_write_graphic_glitches(self):
         ref = '[GraphicGlitch:g0:Wrong arms]\nHello.'
         content = """
