@@ -1912,12 +1912,21 @@ class HtmlWriterTest(SkoolKitTestCase):
             'Path=other',
             'Source=other.skool',
             'Title=Startup code',
+            '',
+            '[OtherCode:otherCode2]',
+            'Header=Loading code',
+            'Index=load/index.html',
+            'Path=load',
+            'Source=load.skool',
+            'Title=Load code',
+            'Link=Loading code'
         ))
-        files = ['other/other.html']
+        files = ['other/other.html', 'load/index.html']
         content = """
             <div class="headerText">Other code</div>
             <ul class="indexList">
             <li><a class="link" href="other/other.html">Startup code</a></li>
+            <li><a class="link" href="load/index.html">Loading code</a></li>
             </ul>
         """
         self._test_write_index(files, content, ref)
