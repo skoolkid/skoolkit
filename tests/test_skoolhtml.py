@@ -3089,6 +3089,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(GRAPHICS_DIR, 'glitches.html'), subs)
 
+    def test_write_graphic_glitches_with_custom_title(self):
+        title = 'Bugs with the graphics'
+        ref = '[Titles]\nGraphicGlitches={}'.format(title)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_graphic_glitches()
+        self.assert_title_equals(join(GRAPHICS_DIR, 'glitches.html'), title)
+
     def test_write_gbuffer(self):
         ref = '[Game]\nGameStatusBufferIncludes=30003,30004'
         skool = '\n'.join((
