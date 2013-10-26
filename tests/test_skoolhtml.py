@@ -2851,13 +2851,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_write_changelog_with_custom_title(self):
         title = 'Log of changes'
-        ref = '\n'.join((
-            '[Changelog:20131026]',
-            'Intro.',
-            '',
-            '[Titles]',
-            'Changelog={}'.format(title)
-        ))
+        ref = '[Titles]\nChangelog={}'.format(title)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_changelog()
         self.assert_title_equals(join(REFERENCE_DIR, 'changelog.html'), title)
@@ -2979,13 +2973,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_write_bugs_with_custom_title(self):
         title = 'Things that go wrong'
-        ref = '\n'.join((
-            '[Bug:bug1:Bug 1]',
-            'This is wrong.',
-            '',
-            '[Titles]',
-            'Bugs={}'.format(title)
-        ))
+        ref = '[Titles]\nBugs={}'.format(title)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_bugs()
         self.assert_title_equals(join(REFERENCE_DIR, 'bugs.html'), title)
@@ -3034,6 +3022,13 @@ class HtmlWriterTest(SkoolKitTestCase):
             'footer': BARE_FOOTER
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'facts.html'), subs)
+
+    def test_write_facts_with_custom_title(self):
+        title = 'Things that are true'
+        ref = '[Titles]\nFacts={}'.format(title)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_facts()
+        self.assert_title_equals(join(REFERENCE_DIR, 'facts.html'), title)
 
     def test_write_pokes(self):
         html = """
