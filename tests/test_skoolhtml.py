@@ -2909,12 +2909,18 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'changelog.html'), subs)
 
-    def test_write_changelog_with_custom_title(self):
+    def test_write_changelog_with_custom_title_and_path(self):
         title = 'Log of changes'
-        ref = '[Titles]\nChangelog={}'.format(title)
+        path = 'changes/log.html'
+        ref = '\n'.join((
+            '[Titles]',
+            'Changelog={}',
+            '[Paths]',
+            'Changelog={}'
+        )).format(title, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_changelog()
-        self.assert_title_equals(join(REFERENCE_DIR, 'changelog.html'), title)
+        self.assert_title_equals(path, title)
 
     def test_write_glossary(self):
         ref = '\n'.join((
@@ -2961,12 +2967,18 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'glossary.html'), subs)
 
-    def test_write_glossary_with_custom_title(self):
+    def test_write_glossary_with_custom_title_and_path(self):
         title = 'Terminology'
-        ref = '[Titles]\nGlossary={}'.format(title)
+        path = 'terminology.html'
+        ref = '\n'.join((
+            '[Titles]',
+            'Glossary={}',
+            '[Paths]',
+            'Glossary={}'
+        )).format(title, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_glossary()
-        self.assert_title_equals(join(REFERENCE_DIR, 'glossary.html'), title)
+        self.assert_title_equals(path, title)
 
     def test_write_graphics(self):
         ref = '[Graphics]\n<em>This is the graphics page.</em>'
@@ -3276,12 +3288,18 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)
 
-    def test_write_gbuffer_with_custom_title(self):
+    def test_write_gbuffer_with_custom_title_and_path(self):
         title = 'Workspace'
-        ref = '[Titles]\nGameStatusBuffer={}'.format(title)
+        path = 'game/status_buffer.html'
+        ref = '\n'.join((
+            '[Titles]',
+            'GameStatusBuffer={}',
+            '[Paths]',
+            'GameStatusBuffer={}'
+        )).format(title, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_gbuffer()
-        self.assert_title_equals(join(BUFFERS_DIR, 'gbuffer.html'), title)
+        self.assert_title_equals(path, title)
 
     def test_index_page_id(self):
         ref = '\n'.join((
