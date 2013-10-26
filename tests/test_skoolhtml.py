@@ -63,14 +63,6 @@ BARE_FOOTER = """<div class="footer">
 </body>
 </html>""".format(VERSION)
 
-FOOTER = """<div class="footer">
-<div class="release">Test HTML disassembly</div>
-<div class="copyright">Me, 2012</div>
-<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> {0}.</div>
-</div>
-</body>
-</html>""".format(VERSION)
-
 PREV_UP_NEXT = """<table class="prevNext">
 <tr>
 <td class="prev">{prev_link}</td>
@@ -172,7 +164,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         subs['script'] = '\n<script type="text/javascript" src="{0}"></script>'.format(js) if js else ''
         subs.setdefault('header', subs['title'])
         subs.setdefault('logo', subs['name'])
-        footer = subs.get('footer', FOOTER)
+        footer = subs['footer']
         prev_up_next_lines = []
         if 'up' in subs:
             subs['prev_link'] = ''
