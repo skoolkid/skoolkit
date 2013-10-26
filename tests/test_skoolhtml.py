@@ -766,6 +766,17 @@ class HtmlWriterTest(SkoolKitTestCase):
             self.img_equals(output, img_fname, '../images/font/{}.png'.format(img_fname))
             self._check_image(writer.image_writer, udg_array, scale)
 
+    def test_macro_font_with_custom_font_image_path(self):
+        font_path = 'graphics/font'
+        ref = '[Paths]\nFontImagePath={}'.format(font_path)
+        writer = self._get_writer(ref=ref, snapshot=[0] * 16)
+        img_fname = 'text'
+        exp_img_path = '{}/{}.png'.format(font_path, img_fname)
+
+        output = writer.expand('#FONT:(!!!)0({})'.format(img_fname), ASMDIR)
+        self.img_equals(output, img_fname, '../{}'.format(exp_img_path))
+        self.assertEqual(writer.image_writer.img_file, exp_img_path)
+
     def test_macro_font_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('FONT')
