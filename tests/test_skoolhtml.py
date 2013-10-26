@@ -87,7 +87,7 @@ class TestHtmlWriter(HtmlWriter):
         self.write_animated_image(img_file, [frame])
 
     def write_animated_image(self, img_file, frames):
-        self.image_writer.write_image(frames)
+        self.image_writer.write_image(img_file, frames)
 
 class MockSkoolParser:
     def __init__(self, snapshot=None, entries=(), memory_map=()):
@@ -120,7 +120,8 @@ class MockImageWriter:
         self.build_images = True
         self.default_format = 'png'
 
-    def write_image(self, frames):
+    def write_image(self, img_file, frames):
+        self.img_file = img_file
         self.frames = frames
         frame1 = frames[0]
         self.udg_array = frame1.udgs
@@ -1392,6 +1393,16 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.img_equals(output, scr_fname, '../images/scr/{0}.png'.format(scr_fname))
         udg_array = [[Udg(attr, data)]]
         self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
+
+    def test_macro_scr_with_custom_screenshot_path(self):
+        scr_path = 'graphics/screenshots'
+        ref = '[Paths]\nScreenshotImagePath={}'.format(scr_path)
+        writer = self._get_writer(ref=ref, snapshot=[0] * 23296)
+        exp_img_path = '{}/scr.png'.format(scr_path)
+
+        output = writer.expand('#SCR', ASMDIR)
+        self.img_equals(output, 'scr', '../{}'.format(exp_img_path))
+        self.assertEqual(writer.image_writer.img_file, exp_img_path)
 
     def test_macro_scr_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
