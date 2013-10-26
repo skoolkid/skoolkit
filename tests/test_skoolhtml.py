@@ -150,13 +150,10 @@ class MockImageWriter2:
 
 class HtmlWriterTest(SkoolKitTestCase):
     def read_file(self, fname, lines=False):
-        f = open(join(self.odir, GAMEDIR, fname), 'r')
-        if lines:
-            contents = [line.rstrip('\n') for line in f]
-        else:
-            contents = f.read()
-        f.close()
-        return contents
+        with open(join(self.odir, GAMEDIR, fname), 'r') as f:
+            if lines:
+                return [line.rstrip('\n') for line in f]
+            return f.read()
 
     def assert_files_equal(self, d_fname, subs, index=False):
         d_html_lines = self.read_file(d_fname, True)
@@ -2954,6 +2951,20 @@ class HtmlWriterTest(SkoolKitTestCase):
             'footer': BARE_FOOTER
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'bugs.html'), subs)
+
+    def test_write_bugs_with_custom_title(self):
+        title = 'Things that go wrong'
+        ref = '\n'.join((
+            '[Bug:bug1:Bug 1]',
+            'This is wrong.',
+            '',
+            '[Titles]',
+            'Bugs={}'.format(title)
+        ))
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_bugs()
+        bugs_html = self.read_file(join(REFERENCE_DIR, 'bugs.html'))
+        self.assertTrue('<title>{}: {}</title>'.format(self.skoolfile[:-6], title) in bugs_html)
 
     def test_write_facts(self):
         ref = '\n'.join((
