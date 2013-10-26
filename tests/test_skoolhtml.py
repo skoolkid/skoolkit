@@ -2794,6 +2794,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer.write_map(writer.memory_maps['MessagesMap'])
         self.assert_title_equals(join(MAPS_DIR, 'messages.html'), title)
 
+    def test_write_routines_map_with_custom_title(self):
+        title = 'All the code'
+        ref = '[Titles]\nRoutinesMap={}'.format(title)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_map(writer.memory_maps['RoutinesMap'])
+        self.assert_title_equals(join(MAPS_DIR, 'routines.html'), title)
+
     def test_write_changelog(self):
         ref = '\n'.join((
             '[Changelog:20120704]',
