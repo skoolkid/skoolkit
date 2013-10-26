@@ -199,6 +199,11 @@ class HtmlWriterTest(SkoolKitTestCase):
             exp_lines.append('')
         self.assertEqual(html.split('\n'), exp_lines)
 
+    def assert_title_equals(self, fname, title):
+        html = self.read_file(fname)
+        prefix = self.skoolfile[:-6]
+        self.assertTrue('<title>{}: {}</title>'.format(prefix, title) in html)
+
     def assert_error(self, writer, text, error_msg, prefix=None):
         with self.assertRaises(SkoolParsingError) as cm:
             writer.expand(text, ASMDIR)
@@ -2837,6 +2842,19 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'changelog.html'), subs)
 
+    def test_write_changelog_with_custom_title(self):
+        title = 'Log of changes'
+        ref = '\n'.join((
+            '[Changelog:20131026]',
+            'Intro.',
+            '',
+            '[Titles]',
+            'Changelog={}'.format(title)
+        ))
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_changelog()
+        self.assert_title_equals(join(REFERENCE_DIR, 'changelog.html'), title)
+
     def test_write_glossary(self):
         ref = '\n'.join((
             '[Glossary:Term1]',
@@ -2963,8 +2981,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         ))
         writer = self._get_writer(ref=ref, skool='')
         writer.write_bugs()
-        bugs_html = self.read_file(join(REFERENCE_DIR, 'bugs.html'))
-        self.assertTrue('<title>{}: {}</title>'.format(self.skoolfile[:-6], title) in bugs_html)
+        self.assert_title_equals(join(REFERENCE_DIR, 'bugs.html'), title)
 
     def test_write_facts(self):
         ref = '\n'.join((
