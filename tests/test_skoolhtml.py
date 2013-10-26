@@ -2922,6 +2922,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(GRAPHICS_DIR, 'graphics.html'), subs)
 
+    def test_write_graphics_with_custom_title(self):
+        title = 'Bugs with the graphics'
+        ref = '[Titles]\nGraphics={}'.format(title)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_graphics()
+        self.assert_title_equals(join(GRAPHICS_DIR, 'graphics.html'), title)
+
     def test_write_page(self):
         ref = '\n'.join((
             '[Page:CustomPage]',
