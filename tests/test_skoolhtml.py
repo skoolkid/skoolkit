@@ -2773,6 +2773,13 @@ class HtmlWriterTest(SkoolKitTestCase):
             }
             self.assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
+    def test_write_data_map_with_custom_title(self):
+        title = 'Data blocks'
+        ref = '[Titles]\nDataMap={}'.format(title)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_map(writer.memory_maps['DataMap'])
+        self.assert_title_equals(join(MAPS_DIR, 'data.html'), title)
+
     def test_write_changelog(self):
         ref = '\n'.join((
             '[Changelog:20120704]',
