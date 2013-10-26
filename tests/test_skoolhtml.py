@@ -1549,6 +1549,17 @@ class HtmlWriterTest(SkoolKitTestCase):
         udg_array = [[Udg(attr, udg_data, udg_mask)]]
         self._check_image(writer.image_writer, udg_array, scale, True, x, y, w, h)
 
+    def test_macro_udg_with_custom_udg_image_path(self):
+        font_path = 'graphics/udgs'
+        ref = '[Paths]\nUDGImagePath={}'.format(font_path)
+        writer = self._get_writer(ref=ref, snapshot=[0] * 8)
+        img_fname = 'udg0'
+        exp_img_path = '{}/{}.png'.format(font_path, img_fname)
+
+        output = writer.expand('#UDG0({})'.format(img_fname), ASMDIR)
+        self.img_equals(output, img_fname, '../{}'.format(exp_img_path))
+        self.assertEqual(writer.image_writer.img_file, exp_img_path)
+
     def test_macro_udg_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
         prefix = ERROR_PREFIX.format('UDG')
@@ -1615,6 +1626,17 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.img_equals(output, udg_fname, '../{0}/{1}.png'.format(UDGDIR, udg_fname))
         udg.rotate(2)
         self._check_image(writer.image_writer, [[udg]], 2, False, 0, 0, 16, 16)
+
+    def test_macro_udgarray_with_custom_udg_image_path(self):
+        font_path = 'udg_images'
+        ref = '[Paths]\nUDGImagePath={}'.format(font_path)
+        writer = self._get_writer(ref=ref, snapshot=[0] * 8)
+        img_fname = 'udgarray0'
+        exp_img_path = '{}/{}.png'.format(font_path, img_fname)
+
+        output = writer.expand('#UDGARRAY1;0({})'.format(img_fname), ASMDIR)
+        self.img_equals(output, img_fname, '../{}'.format(exp_img_path))
+        self.assertEqual(writer.image_writer.img_file, exp_img_path)
 
     def test_macro_udgarray_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
