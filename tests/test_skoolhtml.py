@@ -2801,6 +2801,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer.write_map(writer.memory_maps['RoutinesMap'])
         self.assert_title_equals(join(MAPS_DIR, 'routines.html'), title)
 
+    def test_write_unused_map_with_custom_title(self):
+        title = 'Bytes of no use'
+        ref = '[Titles]\nUnusedMap={}'.format(title)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_map(writer.memory_maps['UnusedMap'])
+        self.assert_title_equals(join(MAPS_DIR, 'unused.html'), title)
+
     def test_write_changelog(self):
         ref = '\n'.join((
             '[Changelog:20120704]',
