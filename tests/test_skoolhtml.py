@@ -2982,12 +2982,18 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(GRAPHICS_DIR, 'graphics.html'), subs)
 
-    def test_write_graphics_with_custom_title(self):
-        title = 'Bugs with the graphics'
-        ref = '[Titles]\nGraphics={}'.format(title)
+    def test_write_graphics_with_custom_title_and_path(self):
+        title = 'Sprites and stuff'
+        path = 'sprites_and_stuff.html'
+        ref = '\n'.join((
+            '[Titles]',
+            'Graphics={}',
+            '[Paths]',
+            'Graphics={}'
+        )).format(title, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_graphics()
-        self.assert_title_equals(join(GRAPHICS_DIR, 'graphics.html'), title)
+        self.assert_title_equals(path, title)
 
     def test_write_page(self):
         ref = '\n'.join((
@@ -3181,12 +3187,18 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(GRAPHICS_DIR, 'glitches.html'), subs)
 
-    def test_write_graphic_glitches_with_custom_title(self):
+    def test_write_graphic_glitches_with_custom_title_and_path(self):
         title = 'Bugs with the graphics'
-        ref = '[Titles]\nGraphicGlitches={}'.format(title)
+        path = 'cgi/graphic_bugs.html'
+        ref = '\n'.join((
+            '[Titles]',
+            'GraphicGlitches={}',
+            '[Paths]',
+            'GraphicGlitches={}'
+        )).format(title, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_graphic_glitches()
-        self.assert_title_equals(join(GRAPHICS_DIR, 'glitches.html'), title)
+        self.assert_title_equals(path, title)
 
     def test_write_gbuffer(self):
         ref = '[Game]\nGameStatusBufferIncludes=30003,30004'
