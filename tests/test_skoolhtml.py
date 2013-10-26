@@ -3045,12 +3045,18 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'bugs.html'), subs)
 
-    def test_write_bugs_with_custom_title(self):
+    def test_write_bugs_with_custom_title_and_path(self):
         title = 'Things that go wrong'
-        ref = '[Titles]\nBugs={}'.format(title)
+        path = 'ref/wrongness.html'
+        ref = '\n'.join((
+            '[Titles]',
+            'Bugs={}',
+            '[Paths]',
+            'Bugs={}'
+        )).format(title, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_bugs()
-        self.assert_title_equals(join(REFERENCE_DIR, 'bugs.html'), title)
+        self.assert_title_equals(path, title)
 
     def test_write_facts(self):
         ref = '\n'.join((
@@ -3097,12 +3103,18 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'facts.html'), subs)
 
-    def test_write_facts_with_custom_title(self):
+    def test_write_facts_with_custom_title_and_path(self):
         title = 'Things that are true'
-        ref = '[Titles]\nFacts={}'.format(title)
+        path = 'true_stuff.html'
+        ref = '\n'.join((
+            '[Titles]',
+            'Facts={}',
+            '[Paths]',
+            'Facts={}'
+        )).format(title, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_facts()
-        self.assert_title_equals(join(REFERENCE_DIR, 'facts.html'), title)
+        self.assert_title_equals(path, title)
 
     def test_write_pokes(self):
         html = """
@@ -3130,12 +3142,18 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'pokes.html'), subs)
 
-    def test_write_pokes_with_custom_title(self):
+    def test_write_pokes_with_custom_title_and_path(self):
         title = 'Hacking the game'
-        ref = '[Titles]\nPokes={}'.format(title)
+        path = 'qux/xyzzy/hacks.html'
+        ref = '\n'.join((
+            '[Titles]',
+            'Pokes={}',
+            '[Paths]',
+            'Pokes={}'
+        )).format(title, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_pokes()
-        self.assert_title_equals(join(REFERENCE_DIR, 'pokes.html'), title)
+        self.assert_title_equals(path, title)
 
     def test_write_graphic_glitches(self):
         ref = '[GraphicGlitch:g0:Wrong arms]\nHello.'
