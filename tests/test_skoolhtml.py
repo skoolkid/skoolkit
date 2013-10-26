@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import random
 import re
-from os.path import join, basename
+from os.path import join, basename, isfile
 import unittest
 
 from skoolkittest import SkoolKitTestCase, StringIO
@@ -150,7 +150,9 @@ class MockImageWriter2:
 
 class HtmlWriterTest(SkoolKitTestCase):
     def read_file(self, fname, lines=False):
-        with open(join(self.odir, GAMEDIR, fname), 'r') as f:
+        fpath = join(self.odir, GAMEDIR, fname)
+        self.assertTrue(isfile(fpath), '{} does not exist'.format(fpath))
+        with open(fpath, 'r') as f:
             if lines:
                 return [line.rstrip('\n') for line in f]
             return f.read()
@@ -2773,40 +2775,70 @@ class HtmlWriterTest(SkoolKitTestCase):
             }
             self.assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
-    def test_write_data_map_with_custom_title(self):
+    def test_write_data_map_with_custom_title_and_path(self):
         title = 'Data blocks'
-        ref = '[Titles]\nDataMap={}'.format(title)
+        path = 'foo/bar/data.html'
+        ref = '\n'.join((
+            '[Titles]',
+            'DataMap={}',
+            '[Paths]',
+            'DataMap={}'
+        )).format(title, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_map(writer.memory_maps['DataMap'])
-        self.assert_title_equals(join(MAPS_DIR, 'data.html'), title)
+        self.assert_title_equals(path, title)
 
-    def test_write_memory_map_with_custom_title(self):
+    def test_write_memory_map_with_custom_title_and_path(self):
         title = 'All the RAM'
-        ref = '[Titles]\nMemoryMap={}'.format(title)
+        path = 'memory_map.html'
+        ref = '\n'.join((
+            '[Titles]',
+            'MemoryMap={}',
+            '[Paths]',
+            'MemoryMap={}'
+        )).format(title, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_map(writer.memory_maps['MemoryMap'])
-        self.assert_title_equals(join(MAPS_DIR, 'all.html'), title)
+        self.assert_title_equals(path, title)
 
-    def test_write_messages_map_with_custom_title(self):
+    def test_write_messages_map_with_custom_title_and_path(self):
         title = 'Strings'
-        ref = '[Titles]\nMessagesMap={}'.format(title)
+        path = 'text/strings.html'
+        ref = '\n'.join((
+            '[Titles]',
+            'MessagesMap={}',
+            '[Paths]',
+            'MessagesMap={}'
+        )).format(title, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_map(writer.memory_maps['MessagesMap'])
-        self.assert_title_equals(join(MAPS_DIR, 'messages.html'), title)
+        self.assert_title_equals(path, title)
 
-    def test_write_routines_map_with_custom_title(self):
+    def test_write_routines_map_with_custom_title_and_path(self):
         title = 'All the code'
-        ref = '[Titles]\nRoutinesMap={}'.format(title)
+        path = 'mappage/code.html'
+        ref = '\n'.join((
+            '[Titles]',
+            'RoutinesMap={}',
+            '[Paths]',
+            'RoutinesMap={}'
+        )).format(title, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_map(writer.memory_maps['RoutinesMap'])
-        self.assert_title_equals(join(MAPS_DIR, 'routines.html'), title)
+        self.assert_title_equals(path, title)
 
-    def test_write_unused_map_with_custom_title(self):
+    def test_write_unused_map_with_custom_title_and_path(self):
         title = 'Bytes of no use'
-        ref = '[Titles]\nUnusedMap={}'.format(title)
+        path = 'unused_bytes.html'
+        ref = '\n'.join((
+            '[Titles]',
+            'UnusedMap={}',
+            '[Paths]',
+            'UnusedMap={}'
+        )).format(title, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_map(writer.memory_maps['UnusedMap'])
-        self.assert_title_equals(join(MAPS_DIR, 'unused.html'), title)
+        self.assert_title_equals(path, title)
 
     def test_write_changelog(self):
         ref = '\n'.join((
