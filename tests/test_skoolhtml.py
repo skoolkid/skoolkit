@@ -2901,6 +2901,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'glossary.html'), subs)
 
+    def test_write_glossary_with_custom_title(self):
+        title = 'Terminology'
+        ref = '[Titles]\nGlossary={}'.format(title)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_glossary()
+        self.assert_title_equals(join(REFERENCE_DIR, 'glossary.html'), title)
+
     def test_write_graphics(self):
         ref = '[Graphics]\n<em>This is the graphics page.</em>'
         writer = self._get_writer(ref=ref, skool='')
