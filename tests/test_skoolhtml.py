@@ -2782,6 +2782,33 @@ class HtmlWriterTest(SkoolKitTestCase):
         subs.update(common_subs)
         self.assert_files_equal(map_details['Path'], subs)
 
+    def test_write_memory_map_with_intro(self):
+        intro = 'This map is empty.'
+        ref = '[MemoryMap:MemoryMap]\nIntro={}'.format(intro)
+        writer = self._get_writer(ref=ref, skool='')
+        content = """
+            <div class="mapIntro">{}</div>
+            <table class="map">
+            <tr>
+            <th>Page</th>
+            <th>Byte</th>
+            <th>Address</th>
+            <th>Description</th>
+            </tr>
+            </table>
+        """.format(intro)
+        subs = {
+            'name': basename(self.skoolfile)[:-6],
+            'path': '../',
+            'title': 'Memory map',
+            'body_class': 'map',
+            'content': content,
+            'footer': BARE_FOOTER
+        }
+
+        writer.write_map(writer.memory_maps['MemoryMap'])
+        self.assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
+
     def test_write_map_with_decimal_addresses_below_10000(self):
         skool = '\n'.join((
             'c00000 RET',
