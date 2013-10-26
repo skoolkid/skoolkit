@@ -3158,6 +3158,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)
 
+    def test_write_gbuffer_with_custom_title(self):
+        title = 'Workspace'
+        ref = '[Titles]\nGameStatusBuffer={}'.format(title)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_gbuffer()
+        self.assert_title_equals(join(BUFFERS_DIR, 'gbuffer.html'), title)
+
     def test_index_page_id(self):
         ref = '\n'.join((
             '[OtherCode:secondary]',
