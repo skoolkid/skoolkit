@@ -442,6 +442,22 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertTrue(os.path.isfile(os.path.join(game_dir, font_files[0])))
         self.assertTrue(os.path.isfile(os.path.join(game_dir, font_files[1])))
 
+    def test_custom_font_path(self):
+        font_file = self.write_bin_file(suffix='.ttf')
+        font_path = 'fonts'
+        ref = '\n'.join((
+            '[Game]',
+            'Font={}',
+            '[Paths]',
+            'FontPath={}'
+        )).format(font_file, font_path)
+        reffile = self.write_text_file(ref, suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('{} -d {} {}'.format(self._css_c(), self.odir, reffile))
+        self.assertEqual(error, '')
+        game_dir = os.path.join(self.odir, reffile[:-4])
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, font_path, font_file)))
+
     def test_resources_are_copied(self):
         resource1 = self.write_bin_file(suffix='.jpg')
         resource2 = self.write_bin_file(suffix='.swf')
