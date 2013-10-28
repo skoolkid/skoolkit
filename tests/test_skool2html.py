@@ -423,6 +423,27 @@ class Skool2HtmlTest(SkoolKitTestCase):
                 self.run_skool2html(reffile)
             self.assertEqual(cm.exception.args[0], 'Invalid colour spec: {}={}'.format(name, spec))
 
+    def test_image_writer_options(self):
+        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
+        exp_iw_options = (
+            ('DefaultFormat', 'gif'),
+            ('GIFCompression', 0),
+            ('GIFEnableAnimation', 0),
+            ('GIFTransparency', 1),
+            ('PNGAlpha', 1),
+            ('PNGCompressionLevel', 4),
+            ('PNGEnableAnimation', 0)
+        )
+        ref = '[ImageWriter]\n' + '\n'.join(['{}={}'.format(k, v) for k, v in exp_iw_options])
+        reffile = self.write_text_file(ref, suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+
+        output, error = self.run_skool2html(reffile)
+        self.assertEqual(error, '')
+        iw_options = write_disassembly_args[0].image_writer.options
+        for k, v in exp_iw_options:
+            self.assertEqual(iw_options[k], v)
+
     def test_font_is_copied(self):
         font_file = self.write_bin_file(suffix='.ttf')
         reffile = self.write_text_file("[Game]\nFont={}".format(font_file), suffix='.ref')
