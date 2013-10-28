@@ -458,6 +458,24 @@ class Skool2HtmlTest(SkoolKitTestCase):
         game_dir = os.path.join(self.odir, reffile[:-4])
         self.assertTrue(os.path.isfile(os.path.join(game_dir, font_path, font_file)))
 
+    def test_custom_javascript_path(self):
+        js_file = self.write_text_file(suffix='.js')
+        js_path = 'javascript'
+        ref = '\n'.join((
+            '[Paths]',
+            'JavaScriptPath={}',
+            '[Page:CustomPage]',
+            'JavaScript={}',
+            'Path=page.html',
+            'PageContent=<b>Hello</b>'
+        )).format(js_path, js_file)
+        reffile = self.write_text_file(ref, suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('{} -d {} -w P {}'.format(self._css_c(), self.odir, reffile))
+        self.assertEqual(error, '')
+        game_dir = os.path.join(self.odir, reffile[:-4])
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, js_path, js_file)))
+
     def test_custom_style_sheet_path(self):
         css_file = self.write_text_file(suffix='.css')
         style_sheet_path = 'css'
