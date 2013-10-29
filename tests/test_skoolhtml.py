@@ -199,12 +199,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         prefix = self.skoolfile[:-6]
         self.assertTrue('<title>{}: {}</title>'.format(prefix, title) in html)
 
-    def assert_error(self, writer, text, error_msg, prefix=None):
+    def assert_error(self, writer, text, error_msg=None, prefix=None):
         with self.assertRaises(SkoolParsingError) as cm:
             writer.expand(text, ASMDIR)
-        if prefix:
-            error_msg = '{}: {}'.format(prefix, error_msg)
-        self.assertEqual(cm.exception[0], error_msg)
+        if error_msg:
+            if prefix:
+                error_msg = '{}: {}'.format(prefix, error_msg)
+            self.assertEqual(cm.exception.args[0], error_msg)
 
     def _test_reference_macro(self, macro, def_link_text, page):
         writer = self._get_writer()
@@ -564,10 +565,10 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_error(writer, '#CALL:test_call(1,2', 'No closing bracket: (1,2', prefix)
 
         # Not enough parameters
-        self.assert_error(writer, '#CALL:test_call(1)', 'Method call test_call(1) failed: _test_call() takes at least 4 arguments (3 given)', prefix)
+        self.assert_error(writer, '#CALL:test_call(1)')
 
         # Too many parameters
-        self.assert_error(writer, '#CALL:test_call(1,2,3,4)', 'Method call test_call(1,2,3,4) failed: _test_call() takes at most 5 arguments (6 given)', prefix)
+        self.assert_error(writer, '#CALL:test_call(1,2,3,4)')
 
     def test_macro_chr(self):
         writer = self._get_writer()

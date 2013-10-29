@@ -345,12 +345,13 @@ class AsmWriterTest(SkoolKitTestCase):
             return asm, self.err.getvalue().split('\n')[:-1]
         return asm
 
-    def assert_error(self, writer, text, error_msg, prefix=None):
+    def assert_error(self, writer, text, error_msg=None, prefix=None):
         with self.assertRaises(SkoolParsingError) as cm:
             writer.expand(text)
-        if prefix:
-            error_msg = '{}: {}'.format(prefix, error_msg)
-        self.assertEqual(cm.exception[0], error_msg)
+        if error_msg:
+            if prefix:
+                error_msg = '{}: {}'.format(prefix, error_msg)
+            self.assertEqual(cm.exception.args[0], error_msg)
 
     def _test_unsupported_macro(self, writer, text, error_msg=None):
         search = re.search('#[A-Z]+', text)
@@ -456,10 +457,10 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assert_error(writer, '#CALL:test_call(1,2', 'No closing bracket: (1,2', prefix)
 
         # Not enough parameters
-        self.assert_error(writer, '#CALL:test_call(1)', 'Method call test_call(1) failed: _test_call() takes at least 3 arguments (2 given)', prefix)
+        self.assert_error(writer, '#CALL:test_call(1)')
 
         # Too many parameters
-        self.assert_error(writer, '#CALL:test_call(1,2,3,4)', 'Method call test_call(1,2,3,4) failed: _test_call() takes at most 4 arguments (5 given)', prefix)
+        self.assert_error(writer, '#CALL:test_call(1,2,3,4)')
 
     def test_macro_chr(self):
         writer = self._get_writer()
