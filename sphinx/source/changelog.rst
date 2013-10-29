@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.6b1
+3.6rc
 -----
 * Enhanced the :ref:`UDGARRAY` macro so that it can create an animated image
   from an arbitrary sequence of frames

@@ -21,7 +21,7 @@ import os
 import posixpath
 import textwrap
 
-VERSION = '3.6b1'
+VERSION = '3.6rc'
 ENCODING = 'utf-8'
 PY3 = sys.version_info >= (3,)
 PACKAGE_DIR = os.path.dirname(__file__)
