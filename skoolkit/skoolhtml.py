@@ -201,7 +201,7 @@ class HtmlWriter:
         return
 
     def warn(self, s):
-         warn(s)
+        warn(s)
 
     def clone(self, skool_parser, code_id):
         the_clone = self.__class__(skool_parser, self.ref_parser, self.file_info, self.image_writer, self.case, code_id)
