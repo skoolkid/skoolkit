@@ -12,6 +12,7 @@ write_skool() {
 
 ; Start
 ;
+; @ignoreua
 ; #UDGTABLE
 ; { #SPRITE3(jumping) }
 ; { Created using SPRITE3(jumping)  }
