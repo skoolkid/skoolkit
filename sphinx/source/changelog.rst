@@ -1,8 +1,8 @@
 Changelog
 =========
 
-3.6rc
------
+3.6 (2013-11-02)
+----------------
 * Enhanced the :ref:`UDGARRAY` macro so that it can create an animated image
   from an arbitrary sequence of frames
 * Enhanced the :ref:`FONT` macro so that it can create an image of arbitrary
