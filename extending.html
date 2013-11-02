@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &mdash; SkoolKit 3.5 documentation</title>
+    <title>Extending SkoolKit &mdash; SkoolKit 3.6 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.5',
+        VERSION:     '3.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.5 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.6 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -248,8 +248,9 @@ to parse the parameters of a skool macro.</p>
 <dt id="skoolkit.skoolmacro.parse_ints">
 <tt class="descclassname">skoolkit.skoolmacro.</tt><tt class="descname">parse_ints</tt><big>(</big><em>text</em>, <em>index</em>, <em>num</em>, <em>defaults=()</em><big>)</big><a class="headerlink" href="#skoolkit.skoolmacro.parse_ints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse a string of comma-separated integer parameters. The string will be
-parsed until either the end of the text is reached, or some character other
-than one of <tt class="docutils literal"><span class="pre">$0123456789abcdefABCDEF</span></tt> is encountered.</p>
+parsed until either the end is reached, or an invalid character is
+encountered. The set of valid characters consists of the comma, &#8216;$&#8217;, the
+digits 0-9, and the letters A-F and a-f.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -262,9 +263,12 @@ than one of <tt class="docutils literal"><span class="pre">$0123456789abcdefABCD
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of the form <tt class="docutils literal"><span class="pre">[end,</span> <span class="pre">value1,</span> <span class="pre">value2...]</span></tt>, where <tt class="docutils literal"><span class="pre">end</span></tt>
-is the index at which parsing terminated, and <tt class="docutils literal"><span class="pre">value1</span></tt>,
-<tt class="docutils literal"><span class="pre">value2</span></tt> etc. are the parameter values.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A list of the form <tt class="docutils literal"><span class="pre">[end,</span> <span class="pre">value1,</span> <span class="pre">value2...]</span></tt>, where:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">end</span></tt> is the index at which parsing terminated</li>
+<li><tt class="docutils literal"><span class="pre">value1</span></tt>, <tt class="docutils literal"><span class="pre">value2</span></tt> etc. are the parameter values</li>
+</ul>
+</p>
 </td>
 </tr>
 </tbody>
@@ -273,10 +277,11 @@ is the index at which parsing terminated, and <tt class="docutils literal"><span
 
 <dl class="function">
 <dt id="skoolkit.skoolmacro.parse_params">
-<tt class="descclassname">skoolkit.skoolmacro.</tt><tt class="descname">parse_params</tt><big>(</big><em>text</em>, <em>index</em>, <em>p_text=None</em>, <em>chars=''</em><big>)</big><a class="headerlink" href="#skoolkit.skoolmacro.parse_params" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">skoolkit.skoolmacro.</tt><tt class="descname">parse_params</tt><big>(</big><em>text</em>, <em>index</em>, <em>p_text=None</em>, <em>chars=''</em>, <em>except_chars=''</em>, <em>only_chars=''</em><big>)</big><a class="headerlink" href="#skoolkit.skoolmacro.parse_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse a string of the form <tt class="docutils literal"><span class="pre">params[(p_text)]</span></tt>. The parameter string
-<tt class="docutils literal"><span class="pre">params</span></tt> will be parsed until either the end of the text is reached, or
-an invalid character is encountered.</p>
+<tt class="docutils literal"><span class="pre">params</span></tt> will be parsed until either the end is reached, or an invalid
+character is encountered. The default set of valid characters consists of
+&#8216;$&#8217;, &#8216;#&#8217;, the digits 0-9, and the letters A-Z and a-z.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -285,32 +290,40 @@ an invalid character is encountered.</p>
 <li><strong>text</strong> &#8211; The text to parse.</li>
 <li><strong>index</strong> &#8211; The index at which to start parsing.</li>
 <li><strong>p_text</strong> &#8211; The default value to use for text found in parentheses.</li>
-<li><strong>chars</strong> &#8211; Characters to consider valid in the parameter string in
-addition to &#8216;$&#8217;, &#8216;#&#8217;, the digits 0-9, and the letters A-Z and
-a-z.</li>
+<li><strong>chars</strong> &#8211; Characters to consider valid in addition to those in the
+default set.</li>
+<li><strong>except_chars</strong> &#8211; If not empty, all characters except those in this
+string are considered valid.</li>
+<li><strong>only_chars</strong> &#8211; If not empty, only the characters in this string are
+considered valid.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A 3-tuple of the form <tt class="docutils literal"><span class="pre">(end,</span> <span class="pre">params,</span> <span class="pre">p_text)</span></tt>, where <tt class="docutils literal"><span class="pre">end</span></tt>
-is the index at which parsing terminated (because either an
-invalid character or the end of the text was encountered),
-<tt class="docutils literal"><span class="pre">params</span></tt> is the parameter string, and <tt class="docutils literal"><span class="pre">p_text</span></tt> is the text
-found in parentheses (if any).</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A 3-tuple of the form <tt class="docutils literal"><span class="pre">(end,</span> <span class="pre">params,</span> <span class="pre">p_text)</span></tt>, where:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">end</span></tt> is the index at which parsing terminated</li>
+<li><tt class="docutils literal"><span class="pre">params</span></tt> is the parameter string</li>
+<li><tt class="docutils literal"><span class="pre">p_text</span></tt> is the text found in parentheses (if any)</li>
+</ul>
+</p>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="versionadded">
+<span class="versionmodified">New in version 3.6: </span>The <em>except_chars</em> and <em>only_chars</em> parameters.</p>
 </dd></dl>
 
 <p>HtmlWriter also provides a method for parsing the parameters of an
 image-creating skool macro.</p>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.parse_image_params">
-<tt class="descclassname">HtmlWriter.</tt><tt class="descname">parse_image_params</tt><big>(</big><em>text</em>, <em>index</em>, <em>num</em>, <em>defaults=()</em>, <em>path_id='UDGImagePath'</em>, <em>fname=''</em>, <em>chars=''</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.parse_image_params" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">HtmlWriter.</tt><tt class="descname">parse_image_params</tt><big>(</big><em>text</em>, <em>index</em>, <em>num</em>, <em>defaults=()</em>, <em>path_id='UDGImagePath'</em>, <em>fname=''</em>, <em>chars=''</em>, <em>ints=None</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.parse_image_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse a string of the form <tt class="docutils literal"><span class="pre">params[{X,Y,W,H}][(fname)]</span></tt>. The
 parameter string <tt class="docutils literal"><span class="pre">params</span></tt> may contain comma-separated values and will
-be parsed until either the end of the text is reached, or an invalid
-character is encountered.</p>
+be parsed until either the end is reached, or an invalid character is
+encountered. The default set of valid characters consists of the comma,
+&#8216;$&#8217;, the digits 0-9, and the letters A-F and a-f.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -323,23 +336,33 @@ character is encountered.</p>
 <li><strong>path_id</strong> &#8211; The ID of the target directory for the image file (as
 defined in the <a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the <cite>ref</cite> file).</li>
 <li><strong>fname</strong> &#8211; The default base name of the image file.</li>
-<li><strong>chars</strong> &#8211; Characters to consider valid in the parameter string in
-addition to the comma, &#8216;$&#8217;, the digits 0-9, and the
-letters A-F and a-f.</li>
+<li><strong>chars</strong> &#8211; Characters to consider valid in addition to those in the
+default set.</li>
+<li><strong>ints</strong> &#8211; A list of the indexes (0-based) of the parameters that
+must evaluate to an integer; if <cite>None</cite>, every parameter
+must evaluate to an integer.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of the form
-<tt class="docutils literal"><span class="pre">[end,</span> <span class="pre">image_path,</span> <span class="pre">crop_rect,</span> <span class="pre">value1,</span> <span class="pre">value2...]</span></tt>, where
-<tt class="docutils literal"><span class="pre">end</span></tt> is the index at which parsing terminated,
-<tt class="docutils literal"><span class="pre">image_path</span></tt> is the full path of the image file (relative to
-the root directory of the disassembly), <tt class="docutils literal"><span class="pre">crop_rect</span></tt> is
-<tt class="docutils literal"><span class="pre">(X,</span> <span class="pre">Y,</span> <span class="pre">W,</span> <span class="pre">H)</span></tt>, and <tt class="docutils literal"><span class="pre">value1</span></tt>, <tt class="docutils literal"><span class="pre">value2</span></tt> etc. are the
-parameter values.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A list of the form
+<tt class="docutils literal"><span class="pre">[end,</span> <span class="pre">image_path,</span> <span class="pre">crop_rect,</span> <span class="pre">value1,</span> <span class="pre">value2...]</span></tt>, where:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">end</span></tt> is the index at which parsing terminated</li>
+<li><tt class="docutils literal"><span class="pre">image_path</span></tt> is either the full path of the image file
+(relative to the root directory of the disassembly) or
+<tt class="docutils literal"><span class="pre">fname</span></tt> (if <cite>path_id</cite> is blank or <cite>None</cite>)</li>
+<li><tt class="docutils literal"><span class="pre">crop_rect</span></tt> is <tt class="docutils literal"><span class="pre">(X,</span> <span class="pre">Y,</span> <span class="pre">W,</span> <span class="pre">H)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">value1</span></tt>, <tt class="docutils literal"><span class="pre">value2</span></tt> etc. are the parameter values</li>
+</ul>
+</p>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 3.6: </span>If <em>path_id</em> is blank or <em>None</em>, <tt class="docutils literal"><span class="pre">image_path</span></tt> is equal to <tt class="docutils literal"><span class="pre">fname</span></tt>.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 3.6: </span>The <em>ints</em> parameter.</p>
 </dd></dl>
 
 </div>
@@ -546,6 +569,41 @@ horizontally and vertically.</td>
 </table>
 </dd></dl>
 
+<p>If you are going to implement <tt class="docutils literal"><span class="pre">#CALL</span></tt> methods or skool macros that create
+animated images, you will need to make use of the skoolkit.skoolhtml.Frame
+class.</p>
+<p>The Frame class represents a single frame of an animated image.</p>
+<dl class="class">
+<dt id="skoolkit.skoolhtml.Frame">
+<em class="property">class </em><tt class="descclassname">skoolkit.skoolhtml.</tt><tt class="descname">Frame</tt><big>(</big><em>udgs</em>, <em>scale=1</em>, <em>mask=False</em>, <em>x=0</em>, <em>y=0</em>, <em>width=None</em>, <em>height=None</em>, <em>delay=32</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.Frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a frame of an animated image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>udgs</strong> &#8211; The two-dimensional array of tiles (instances of
+<a class="reference internal" href="#skoolkit.skoolhtml.Udg" title="skoolkit.skoolhtml.Udg"><tt class="xref py py-class docutils literal"><span class="pre">Udg</span></tt></a>) from which to build the
+frame.</li>
+<li><strong>scale</strong> &#8211; The scale of the frame.</li>
+<li><strong>mask</strong> &#8211; Whether to apply masks to the tiles in the frame.</li>
+<li><strong>x</strong> &#8211; The x-coordinate of the top-left pixel to include in the frame.</li>
+<li><strong>y</strong> &#8211; The y-coordinate of the top-left pixel to include in the frame.</li>
+<li><strong>width</strong> &#8211; The width of the frame; if <cite>None</cite>, the maximum width
+(derived from <cite>x</cite> and width of the array of tiles) is used.</li>
+<li><strong>height</strong> &#8211; The height of the frame; if <cite>None</cite>, the maximum height
+(derived from <cite>y</cite> and height of the array of tiles) is used.</li>
+<li><strong>delay</strong> &#8211; The delay between this frame and the next in 1/100ths of a
+second.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="versionadded">
+<span class="versionmodified">New in version 3.6.</span></p>
+</dd></dl>
+
 <p>HtmlWriter provides the following image-related convenience methods.</p>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.image_path">
@@ -617,6 +675,30 @@ the final image.</li>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="skoolkit.skoolhtml.HtmlWriter.write_animated_image">
+<tt class="descclassname">HtmlWriter.</tt><tt class="descname">write_animated_image</tt><big>(</big><em>image_path</em>, <em>frames</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.write_animated_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an animated image and write it to a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>image_path</strong> &#8211; The full path of the file to which to write the
+image (relative to the root directory of the
+disassembly).</li>
+<li><strong>frames</strong> &#8211; A list of the frames (instances of
+<a class="reference internal" href="#skoolkit.skoolhtml.Frame" title="skoolkit.skoolhtml.Frame"><tt class="xref py py-class docutils literal"><span class="pre">Frame</span></tt></a>) from which to build
+the image.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="versionadded">
+<span class="versionmodified">New in version 3.6.</span></p>
 </dd></dl>
 
 <dl class="method">
@@ -786,7 +868,7 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

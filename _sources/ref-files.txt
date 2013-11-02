@@ -45,6 +45,9 @@ where:
 * ``anchor`` is the name of the HTML anchor for the entry
 * ``title`` is the title of the entry
 
+To ensure that an entry can be linked to by the :ref:`bug` macro, the anchor
+name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
+
 Paragraphs should be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
 
@@ -138,17 +141,17 @@ The ``Config`` section contains configuration parameters in the format::
 
 Recognised parameters are:
 
-* ``SkoolFile`` - the name of the main `skool` file to use if not given on the
-  :ref:`skool2html.py <skool2html.py>` command line; if not specified, the
-  `skool` file with the same base name as the `ref` file will be used
+* ``GameDir`` - the root directory of the game's HTML disassembly; if not
+  specified, the base name of the `skool` or `ref` file given on the
+  :ref:`skool2html.py <skool2html.py>` command line will be used
 * ``HtmlWriterClass`` - the name of the Python class to use for writing the
   HTML disassembly of the game (default: ``skoolkit.skoolhtml.HtmlWriter``); if
   the class is in a module that is not in the module search path (e.g. a
   standalone module that is not part of an installed package), the module's
   location may be specified thus: ``/path/to/moduledir:module.classname``
-* ``GameDir`` - the root directory of the game's HTML disassembly; if not
-  specified, the base name of the `skool` or `ref` file given on the
-  :ref:`skool2html.py <skool2html.py>` command line will be used
+* ``SkoolFile`` - the name of the main `skool` file to use if not given on the
+  :ref:`skool2html.py <skool2html.py>` command line; if not specified, the
+  `skool` file with the same base name as the `ref` file will be used
 
 For information on how to create your own Python class for writing an HTML
 disassembly, see the documentation on
@@ -183,6 +186,9 @@ where:
 
 * ``anchor`` is the name of the HTML anchor for the entry
 * ``title`` is the title of the entry
+
+To ensure that an entry can be linked to by the :ref:`fact` macro, the anchor
+name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
 
 Paragraphs should be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
@@ -295,8 +301,8 @@ Paragraphs should be separated by blank lines, and may contain HTML markup and
 
 [Graphics]
 ----------
-The ``Graphics`` section, if present, defines the body of the 'Other graphics'
-page; it may contain HTML markup and :ref:`skool macros <skoolMacros>`.
+The ``Graphics`` section, if present, defines the body of the 'Graphics' page;
+it may contain HTML markup and :ref:`skool macros <skoolMacros>`.
 
 +---------+---------+
 | Version | Changes |
@@ -494,7 +500,7 @@ Recognised page IDs are:
 * ``GameStatusBuffer`` - the 'Game status buffer' page
 * ``Glossary`` - the 'Glossary' page
 * ``GraphicGlitches`` - the 'Graphic glitches' page
-* ``Graphics`` - the 'Other graphics' page
+* ``Graphics`` - the 'Graphics' page
 * ``MemoryMap`` - the 'Everything' memory map page (default: 'Everything')
 * ``MessagesMap`` - the 'Messages' memory map page
 * ``Pokes`` - the 'Pokes' page
@@ -595,9 +601,10 @@ the form::
 
   [OtherCode:asm_id]
 
-where ``asm_id`` is a unique ID for the secondary disassembly. The unique ID
-may be used by the :ref:`#R macro <R>` when referring to routines or data
-blocks in the secondary disassembly from another disassembly.
+where ``asm_id`` is a unique ID for the secondary disassembly; it must be
+limited to the characters '$', '#', 0-9, A-Z and a-z. The unique ID may be used
+by the :ref:`R` macro when referring to routines or data blocks in the
+secondary disassembly from another disassembly.
 
 Each ``OtherCode:*`` section contains parameters in the form::
 
@@ -724,7 +731,7 @@ Recognised file IDs and their default paths are:
 * ``Glossary`` - the 'Glossary' page (default: `reference/glossary.html`)
 * ``GraphicGlitches`` - the 'Graphic glitches' page (default:
   `graphics/glitches.html`)
-* ``Graphics`` - the 'Other graphics' page (default: `graphics/graphics.html`)
+* ``Graphics`` - the 'Graphics' page (default: `graphics/graphics.html`)
 * ``MemoryMap`` - the 'Everything' memory map page (default: `maps/all.html`)
 * ``MessagesMap`` - the 'Messages' memory map page (default:
   `maps/messages.html`)
@@ -738,10 +745,10 @@ Recognised directory IDs and their default paths are:
 
 * ``CodePath`` - the directory in which the disassembly files will be written
   (default: `asm`)
-* ``FontPath`` - the directory in which to store font files specified by the
-  ``Font`` parameter in the :ref:`ref-Game` section (default: `.`)
 * ``FontImagePath`` - the directory in which font images (created by the
   :ref:`#FONT <FONT>` macro) will be placed (default: `images/font`)
+* ``FontPath`` - the directory in which to store font files specified by the
+  ``Font`` parameter in the :ref:`ref-Game` section (default: `.`)
 * ``JavaScriptPath`` - the directory in which to store JavaScript files
   specified by the ``JavaScript`` parameter in :ref:`Page` sections (default:
   `.`)
@@ -788,8 +795,39 @@ where:
 * ``anchor`` is the name of the HTML anchor for the entry
 * ``title`` is the title of the entry
 
+To ensure that an entry can be linked to by the :ref:`poke` macro, the anchor
+name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
+
 Paragraphs should be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
+
+.. _resources:
+
+[Resources]
+-----------
+The ``Resources`` section lists files that will be copied into the disassembly
+build directory when :ref:`skool2html.py` is run. Each line has the form::
+
+  fname=destDir
+
+where:
+
+* ``fname`` is the name of the file to copy
+* ``destDir`` is the destination directory, relative to the root directory of
+  the disassembly; the directory will be created if it doesn't already exist
+
+The files to be copied must be present in `skool2html.py`'s search path in
+order for it to find them; to see the search path, run ``skool2html.py -s``.
+
+If your disassembly requires pre-built images or other resources that SkoolKit
+does not build, listing them in this section ensures that they will be copied
+into place whenever the disassembly is built.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 3.6     | New     |
++---------+---------+
 
 .. _titles:
 
@@ -817,7 +855,7 @@ Recognised page IDs and their default titles are:
 * ``Glossary`` - the 'Glossary' page (default: 'Glossary')
 * ``GraphicGlitches`` - the 'Graphic glitches' page (default: 'Graphic
   glitches')
-* ``Graphics`` - the 'Other graphics' page (default: 'Graphics')
+* ``Graphics`` - the 'Graphics' page (default: 'Graphics')
 * ``MemoryMap`` - the 'Everything' memory map page (default: 'Memory map')
 * ``MessagesMap`` - the 'Messages' memory map page (default: 'Messages')
 * ``Pokes`` - the 'Pokes' page (default: 'Pokes')

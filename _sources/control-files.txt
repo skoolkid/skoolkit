@@ -285,6 +285,46 @@ nor the exact location of :ref:`org`, :ref:`writer`, :ref:`start`, :ref:`end`,
 :ref:`ignoreua` and :ref:`set` ASM directives can be preserved using this
 syntax.
 
+Instruction-level comments
+--------------------------
+One limitation of storing instruction-level comments as shown so far is that
+there is no way to distinguish between a blank comment that spans two or more
+instructions and no comment at all. For example, both::
+
+  30000 DEFB 0 ; {
+  30001 DEFB 0 ; }
+
+and::
+
+  30000 DEFB 0 ;
+  30001 DEFB 0 ;
+
+would be preserved thus::
+
+  B 30000,2,1
+
+To solve this problem, a special syntax is used to preserve blank
+multi-instruction comments::
+
+  B 30000,2,1 .
+
+When restored, this comment is reduced to an empty string.
+
+But how then to preserve a multi-instruction comment consisting of a single dot
+(``.``), or a sequence of two or more dots? In that case, another dot is
+prefixed to the comment. So::
+
+  30000 DEFB 0 ; {...
+  30001 DEFB 0 ; }
+
+is preserved thus::
+
+  B 30000,2,1 ....
+
+Note that this scheme does not apply to multi-instruction comments that contain
+at least one character other than a dot; such comments are preserved verbatim
+(that is, without a dot prefix).
+
 Control file comments
 ---------------------
 A comment may be added to a control file by starting a line with something
@@ -335,4 +375,7 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | 3.1.4   | Added support for DEFB and DEFM statements that contain both      |
 |         | strings and bytes                                                 |
++---------+-------------------------------------------------------------------+
+| 3.6     | Added support for preserving blank comments that span two or more |
+|         | instructions                                                      |
 +---------+-------------------------------------------------------------------+

@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Control files &mdash; SkoolKit 3.5 documentation</title>
+    <title>Control files &mdash; SkoolKit 3.6 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.5',
+        VERSION:     '3.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.5 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.6 documentation" href="index.html" />
     <link rel="next" title="Skool files" href="skool-files.html" />
     <link rel="prev" title="Parsing, rendering, and modes" href="parsing.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -334,6 +334,45 @@ nor the exact location of <a class="reference internal" href="asm.html#org"><em>
 <a class="reference internal" href="asm.html#ignoreua"><em>&#64;ignoreua</em></a> and <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a> ASM directives can be preserved using this
 syntax.</p>
 </div>
+<div class="section" id="instruction-level-comments">
+<h2>Instruction-level comments<a class="headerlink" href="#instruction-level-comments" title="Permalink to this headline">¶</a></h2>
+<p>One limitation of storing instruction-level comments as shown so far is that
+there is no way to distinguish between a blank comment that spans two or more
+instructions and no comment at all. For example, both:</p>
+<div class="highlight-none"><div class="highlight"><pre>30000 DEFB 0 ; {
+30001 DEFB 0 ; }
+</pre></div>
+</div>
+<p>and:</p>
+<div class="highlight-none"><div class="highlight"><pre>30000 DEFB 0 ;
+30001 DEFB 0 ;
+</pre></div>
+</div>
+<p>would be preserved thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>B 30000,2,1
+</pre></div>
+</div>
+<p>To solve this problem, a special syntax is used to preserve blank
+multi-instruction comments:</p>
+<div class="highlight-none"><div class="highlight"><pre>B 30000,2,1 .
+</pre></div>
+</div>
+<p>When restored, this comment is reduced to an empty string.</p>
+<p>But how then to preserve a multi-instruction comment consisting of a single dot
+(<tt class="docutils literal"><span class="pre">.</span></tt>), or a sequence of two or more dots? In that case, another dot is
+prefixed to the comment. So:</p>
+<div class="highlight-none"><div class="highlight"><pre>30000 DEFB 0 ; {...
+30001 DEFB 0 ; }
+</pre></div>
+</div>
+<p>is preserved thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>B 30000,2,1 ....
+</pre></div>
+</div>
+<p>Note that this scheme does not apply to multi-instruction comments that contain
+at least one character other than a dot; such comments are preserved verbatim
+(that is, without a dot prefix).</p>
+</div>
 <div class="section" id="control-file-comments">
 <h2>Control file comments<a class="headerlink" href="#control-file-comments" title="Permalink to this headline">¶</a></h2>
 <p>A comment may be added to a control file by starting a line with something
@@ -402,6 +441,10 @@ sub-blocks</td>
 <td>Added support for DEFB and DEFM statements that contain both
 strings and bytes</td>
 </tr>
+<tr class="row-even"><td>3.6</td>
+<td>Added support for preserving blank comments that span two or more
+instructions</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -423,6 +466,7 @@ strings and bytes</td>
 <li><a class="reference internal" href="#sub-block-syntax">Sub-block syntax</a></li>
 <li><a class="reference internal" href="#statement-lengths-in-b-t-w-and-z-sub-blocks">Statement lengths in &#8216;B&#8217;, &#8216;T&#8217;, &#8216;W&#8217; and &#8216;Z&#8217; sub-blocks</a></li>
 <li><a class="reference internal" href="#asm-directives">ASM directives</a></li>
+<li><a class="reference internal" href="#instruction-level-comments">Instruction-level comments</a></li>
 <li><a class="reference internal" href="#control-file-comments">Control file comments</a></li>
 <li><a class="reference internal" href="#limitations">Limitations</a></li>
 <li><a class="reference internal" href="#revision-history">Revision history</a></li>
@@ -470,7 +514,7 @@ strings and bytes</td>
         <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

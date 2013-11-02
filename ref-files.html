@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &mdash; SkoolKit 3.5 documentation</title>
+    <title>Ref files &mdash; SkoolKit 3.6 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.5',
+        VERSION:     '3.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.5 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.6 documentation" href="index.html" />
     <link rel="next" title="ASM modes and directives" href="asm.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -93,6 +93,8 @@ Second paragraph.
 <li><tt class="docutils literal"><span class="pre">anchor</span></tt> is the name of the HTML anchor for the entry</li>
 <li><tt class="docutils literal"><span class="pre">title</span></tt> is the title of the entry</li>
 </ul>
+<p>To ensure that an entry can be linked to by the <a class="reference internal" href="skool-macros.html#bug"><em>#BUG</em></a> macro, the anchor
+name must be limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z.</p>
 <p>Paragraphs should be separated by blank lines, and may contain HTML markup and
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
 </div>
@@ -201,17 +203,17 @@ short 3-digit form)</li>
 </div>
 <p>Recognised parameters are:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">SkoolFile</span></tt> - the name of the main <cite>skool</cite> file to use if not given on the
-<a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> command line; if not specified, the
-<cite>skool</cite> file with the same base name as the <cite>ref</cite> file will be used</li>
+<li><tt class="docutils literal"><span class="pre">GameDir</span></tt> - the root directory of the game&#8217;s HTML disassembly; if not
+specified, the base name of the <cite>skool</cite> or <cite>ref</cite> file given on the
+<a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> command line will be used</li>
 <li><tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt> - the name of the Python class to use for writing the
 HTML disassembly of the game (default: <tt class="docutils literal"><span class="pre">skoolkit.skoolhtml.HtmlWriter</span></tt>); if
 the class is in a module that is not in the module search path (e.g. a
 standalone module that is not part of an installed package), the module&#8217;s
 location may be specified thus: <tt class="docutils literal"><span class="pre">/path/to/moduledir:module.classname</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">GameDir</span></tt> - the root directory of the game&#8217;s HTML disassembly; if not
-specified, the base name of the <cite>skool</cite> or <cite>ref</cite> file given on the
-<a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> command line will be used</li>
+<li><tt class="docutils literal"><span class="pre">SkoolFile</span></tt> - the name of the main <cite>skool</cite> file to use if not given on the
+<a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> command line; if not specified, the
+<cite>skool</cite> file with the same base name as the <cite>ref</cite> file will be used</li>
 </ul>
 <p>For information on how to create your own Python class for writing an HTML
 disassembly, see the documentation on
@@ -257,6 +259,8 @@ Second paragraph.
 <li><tt class="docutils literal"><span class="pre">anchor</span></tt> is the name of the HTML anchor for the entry</li>
 <li><tt class="docutils literal"><span class="pre">title</span></tt> is the title of the entry</li>
 </ul>
+<p>To ensure that an entry can be linked to by the <a class="reference internal" href="skool-macros.html#fact"><em>#FACT</em></a> macro, the anchor
+name must be limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z.</p>
 <p>Paragraphs should be separated by blank lines, and may contain HTML markup and
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
 </div>
@@ -388,8 +392,8 @@ Second paragraph.
 </div>
 <div class="section" id="graphics">
 <span id="id1"></span><h2>[Graphics]<a class="headerlink" href="#graphics" title="Permalink to this headline">¶</a></h2>
-<p>The <tt class="docutils literal"><span class="pre">Graphics</span></tt> section, if present, defines the body of the &#8216;Other graphics&#8217;
-page; it may contain HTML markup and <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
+<p>The <tt class="docutils literal"><span class="pre">Graphics</span></tt> section, if present, defines the body of the &#8216;Graphics&#8217; page;
+it may contain HTML markup and <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="50%" />
@@ -631,7 +635,7 @@ form:</p>
 <li><tt class="docutils literal"><span class="pre">GameStatusBuffer</span></tt> - the &#8216;Game status buffer&#8217; page</li>
 <li><tt class="docutils literal"><span class="pre">Glossary</span></tt> - the &#8216;Glossary&#8217; page</li>
 <li><tt class="docutils literal"><span class="pre">GraphicGlitches</span></tt> - the &#8216;Graphic glitches&#8217; page</li>
-<li><tt class="docutils literal"><span class="pre">Graphics</span></tt> - the &#8216;Other graphics&#8217; page</li>
+<li><tt class="docutils literal"><span class="pre">Graphics</span></tt> - the &#8216;Graphics&#8217; page</li>
 <li><tt class="docutils literal"><span class="pre">MemoryMap</span></tt> - the &#8216;Everything&#8217; memory map page (default: &#8216;Everything&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">MessagesMap</span></tt> - the &#8216;Messages&#8217; memory map page</li>
 <li><tt class="docutils literal"><span class="pre">Pokes</span></tt> - the &#8216;Pokes&#8217; page</li>
@@ -751,9 +755,10 @@ the form:</p>
 <div class="highlight-none"><div class="highlight"><pre>[OtherCode:asm_id]
 </pre></div>
 </div>
-<p>where <tt class="docutils literal"><span class="pre">asm_id</span></tt> is a unique ID for the secondary disassembly. The unique ID
-may be used by the <a class="reference internal" href="skool-macros.html#r"><em>#R macro</em></a> when referring to routines or data
-blocks in the secondary disassembly from another disassembly.</p>
+<p>where <tt class="docutils literal"><span class="pre">asm_id</span></tt> is a unique ID for the secondary disassembly; it must be
+limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z. The unique ID may be used
+by the <a class="reference internal" href="skool-macros.html#r"><em>#R</em></a> macro when referring to routines or data blocks in the
+secondary disassembly from another disassembly.</p>
 <p>Each <tt class="docutils literal"><span class="pre">OtherCode:*</span></tt> section contains parameters in the form:</p>
 <div class="highlight-none"><div class="highlight"><pre>name=value
 </pre></div>
@@ -905,7 +910,7 @@ of the disassembly</li>
 <li><tt class="docutils literal"><span class="pre">Glossary</span></tt> - the &#8216;Glossary&#8217; page (default: <cite>reference/glossary.html</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">GraphicGlitches</span></tt> - the &#8216;Graphic glitches&#8217; page (default:
 <cite>graphics/glitches.html</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">Graphics</span></tt> - the &#8216;Other graphics&#8217; page (default: <cite>graphics/graphics.html</cite>)</li>
+<li><tt class="docutils literal"><span class="pre">Graphics</span></tt> - the &#8216;Graphics&#8217; page (default: <cite>graphics/graphics.html</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">MemoryMap</span></tt> - the &#8216;Everything&#8217; memory map page (default: <cite>maps/all.html</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">MessagesMap</span></tt> - the &#8216;Messages&#8217; memory map page (default:
 <cite>maps/messages.html</cite>)</li>
@@ -919,10 +924,10 @@ of the disassembly</li>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">CodePath</span></tt> - the directory in which the disassembly files will be written
 (default: <cite>asm</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">FontPath</span></tt> - the directory in which to store font files specified by the
-<tt class="docutils literal"><span class="pre">Font</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section (default: <cite>.</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">FontImagePath</span></tt> - the directory in which font images (created by the
 <a class="reference internal" href="skool-macros.html#font"><em>#FONT</em></a> macro) will be placed (default: <cite>images/font</cite>)</li>
+<li><tt class="docutils literal"><span class="pre">FontPath</span></tt> - the directory in which to store font files specified by the
+<tt class="docutils literal"><span class="pre">Font</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section (default: <cite>.</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">JavaScriptPath</span></tt> - the directory in which to store JavaScript files
 specified by the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter in <a class="reference internal" href="#page"><em>[Page:*]</em></a> sections (default:
 <cite>.</cite>)</li>
@@ -983,11 +988,48 @@ Second paragraph.
 <li><tt class="docutils literal"><span class="pre">anchor</span></tt> is the name of the HTML anchor for the entry</li>
 <li><tt class="docutils literal"><span class="pre">title</span></tt> is the title of the entry</li>
 </ul>
+<p>To ensure that an entry can be linked to by the <a class="reference internal" href="skool-macros.html#poke"><em>#POKE</em></a> macro, the anchor
+name must be limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z.</p>
 <p>Paragraphs should be separated by blank lines, and may contain HTML markup and
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
 </div>
+<div class="section" id="resources">
+<span id="id9"></span><h2>[Resources]<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">Resources</span></tt> section lists files that will be copied into the disassembly
+build directory when <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> is run. Each line has the form:</p>
+<div class="highlight-none"><div class="highlight"><pre>fname=destDir
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">fname</span></tt> is the name of the file to copy</li>
+<li><tt class="docutils literal"><span class="pre">destDir</span></tt> is the destination directory, relative to the root directory of
+the disassembly; the directory will be created if it doesn&#8217;t already exist</li>
+</ul>
+<p>The files to be copied must be present in <cite>skool2html.py</cite>&#8216;s search path in
+order for it to find them; to see the search path, run <tt class="docutils literal"><span class="pre">skool2html.py</span> <span class="pre">-s</span></tt>.</p>
+<p>If your disassembly requires pre-built images or other resources that SkoolKit
+does not build, listing them in this section ensures that they will be copied
+into place whenever the disassembly is built.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>3.6</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="titles">
-<span id="id9"></span><h2>[Titles]<a class="headerlink" href="#titles" title="Permalink to this headline">¶</a></h2>
+<span id="id10"></span><h2>[Titles]<a class="headerlink" href="#titles" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">Titles</span></tt> section defines the titles of the various pages in the HTML
 disassembly. Each line has the form:</p>
 <div class="highlight-none"><div class="highlight"><pre>ID=title
@@ -1010,7 +1052,7 @@ buffer&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">Glossary</span></tt> - the &#8216;Glossary&#8217; page (default: &#8216;Glossary&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">GraphicGlitches</span></tt> - the &#8216;Graphic glitches&#8217; page (default: &#8216;Graphic
 glitches&#8217;)</li>
-<li><tt class="docutils literal"><span class="pre">Graphics</span></tt> - the &#8216;Other graphics&#8217; page (default: &#8216;Graphics&#8217;)</li>
+<li><tt class="docutils literal"><span class="pre">Graphics</span></tt> - the &#8216;Graphics&#8217; page (default: &#8216;Graphics&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">MemoryMap</span></tt> - the &#8216;Everything&#8217; memory map page (default: &#8216;Memory map&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">MessagesMap</span></tt> - the &#8216;Messages&#8217; memory map page (default: &#8216;Messages&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">Pokes</span></tt> - the &#8216;Pokes&#8217; page (default: &#8216;Pokes&#8217;)</li>
@@ -1072,6 +1114,7 @@ addresses&#8217;)</li>
 <li><a class="reference internal" href="#pagecontent">[PageContent:*]</a></li>
 <li><a class="reference internal" href="#paths">[Paths]</a></li>
 <li><a class="reference internal" href="#poke">[Poke:*:*]</a></li>
+<li><a class="reference internal" href="#resources">[Resources]</a></li>
 <li><a class="reference internal" href="#titles">[Titles]</a></li>
 </ul>
 </li>
@@ -1117,7 +1160,7 @@ addresses&#8217;)</li>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

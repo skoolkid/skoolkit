@@ -209,6 +209,8 @@ list::
                           Write files in this directory (default is '.')
     -D, --decimal         Write the disassembly in decimal
     -H, --hex             Write the disassembly in hexadecimal
+    -j NAME, --join-css NAME
+                          Concatenate CSS files into a single file with this name
     -l, --lower           Write the disassembly in lower case
     -o, --rebuild-images  Overwrite existing image files
     -p, --package-dir     Show path to skoolkit package directory and exit
@@ -218,6 +220,7 @@ list::
                           IDs of pages defined in [Page:*] sections in the ref
                           file(s)
     -q, --quiet           Be quiet
+    -s, --search-dirs     Show the locations skool2html.py searches for resources
     -t, --time            Show timings
     -T THEME, --theme THEME
                           Use this CSS theme; this option may be used multiple
@@ -233,9 +236,9 @@ list::
                             g = Graphics            y = Glossary
                             i = Disassembly index
 
-When `skool2html.py` is run, it looks for `skool` files, `ref` files, CSS
-files, JavaScript files and font files required by the disassembly in the
-following directories, in the order listed:
+`skool2html.py` searches the following directories for `skool` files, `ref`
+files, CSS files, JavaScript files, font files, and files listed in the
+:ref:`resources` section of the `ref` file:
 
 * The directory that contains the `skool` or `ref` file named on the command
   line
@@ -246,7 +249,8 @@ following directories, in the order listed:
 * `$PACKAGE_DIR/resources`
 
 where `$PACKAGE_DIR` is the directory in which the `skoolkit` package is
-installed (as shown by ``skool2html.py -p``).
+installed (as shown by ``skool2html.py -p``). When you need a reminder of these
+locations, run ``skool2html.py -s``.
 
 The ``-T`` option sets the CSS theme. For example, if `game.ref` specifies the
 CSS files to use thus::
@@ -295,6 +299,8 @@ will use the following CSS files, if they exist, in the order listed:
 | 3.4     | Added the ``-a`` and ``-C`` options and the long options        |
 +---------+-----------------------------------------------------------------+
 | 3.5     | Added support for multiple CSS themes                           |
++---------+-----------------------------------------------------------------+
+| 3.6     | Added the ``--join-css`` and ``--search-dirs`` options          |
 +---------+-----------------------------------------------------------------+
 
 .. _skool2sft.py:
@@ -375,6 +381,14 @@ list::
     -T FILE, --sft FILE   Use FILE as the skool file template
     -V, --version         Show SkoolKit version number and exit
     -z, --defb-zfill      Write bytes with leading zeroes in DEFB statements
+
+If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
+to be a binary file.
+
+By default, any :ref:`control file <controlFiles>` or
+:ref:`skool file template <skoolFileTemplates>` whose name (minus the '.ctl' or
+'.sft' suffix) matches the input filename (minus the '.bin', '.sna', '.szx' or
+'.z80' suffix, if any) will be used, if present.
 
 The ``-M`` option may be used (in conjunction with the ``-g`` option) to
 specify a code execution map to use when generating a control file. The

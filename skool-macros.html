@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool macros &mdash; SkoolKit 3.5 documentation</title>
+    <title>Skool macros &mdash; SkoolKit 3.6 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.5',
+        VERSION:     '3.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.5 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.6 documentation" href="index.html" />
     <link rel="next" title="Ref files" href="ref-files.html" />
     <link rel="prev" title="Skool file templates" href="skool-file-templates.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -101,6 +101,7 @@ the &#8216;Bugs&#8217; page, or to a specific entry on that page.</p>
 <li><tt class="docutils literal"><span class="pre">#name</span></tt> is the named anchor of a bug (if linking to a specific one)</li>
 <li><tt class="docutils literal"><span class="pre">link</span> <span class="pre">text</span></tt> is the link text to use</li>
 </ul>
+<p>The anchor name must be limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z.</p>
 <p>In HTML mode, if the link text is blank, the title of the bug entry (if linking
 to a specific one) is substituted; if the link text is omitted entirely, &#8216;bug&#8217;
 is substituted.</p>
@@ -273,6 +274,7 @@ the &#8216;Trivia&#8217; page, or to a specific entry on that page.</p>
 one)</li>
 <li><tt class="docutils literal"><span class="pre">link</span> <span class="pre">text</span></tt> is the link text to use</li>
 </ul>
+<p>The anchor name must be limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z.</p>
 <p>In HTML mode, if the link text is blank, the title of the trivia entry (if
 linking to a specific one) is substituted; if the link text is omitted
 entirely, &#8216;fact&#8217; is substituted.</p>
@@ -306,13 +308,16 @@ in HTML mode; added support for ASM mode</td>
 <div class="section" id="font">
 <span id="id7"></span><h2>#FONT<a class="headerlink" href="#font" title="Permalink to this headline">¶</a></h2>
 <p>In HTML mode, the <tt class="docutils literal"><span class="pre">#FONT</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element for an image
-of the game font.</p>
-<div class="highlight-none"><div class="highlight"><pre>#FONTaddr,chars[,attr,scale][{X,Y,W,H}][(fname)]
+of text rendered in the game font.</p>
+<div class="highlight-none"><div class="highlight"><pre>#FONT[:(text)]addr[,chars,attr,scale][{X,Y,W,H}][(fname)]
 </pre></div>
 </div>
 <ul class="simple">
+<li><tt class="docutils literal"><span class="pre">text</span></tt> is the text to render (default: the 96 characters from code 32 to
+code 127)</li>
 <li><tt class="docutils literal"><span class="pre">addr</span></tt> is the base address of the font graphic data</li>
-<li><tt class="docutils literal"><span class="pre">chars</span></tt> is the number of characters in the font</li>
+<li><tt class="docutils literal"><span class="pre">chars</span></tt> is the number of characters to render (default: the length of
+<tt class="docutils literal"><span class="pre">text</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">attr</span></tt> is the attribute byte to use (default: 56)</li>
 <li><tt class="docutils literal"><span class="pre">scale</span></tt> is the required scale of the image (default: 2)</li>
 <li><tt class="docutils literal"><span class="pre">X</span></tt> is the x-coordinate of the leftmost pixel column of the constructed
@@ -329,6 +334,14 @@ constructed image, the image will be cropped on the bottom)</li>
 &#8216;<cite>.gif</cite>&#8216; will be appended (depending on the default image format specified in
 the <a class="reference internal" href="ref-files.html#ref-imagewriter"><em>[ImageWriter]</em></a> section of the <cite>ref</cite> file) if not present</li>
 </ul>
+<p>If <tt class="docutils literal"><span class="pre">text</span></tt> contains a closing bracket - <tt class="docutils literal"><span class="pre">)</span></tt> - then the macro will not expand
+as required. In that case, square brackets, braces or any character that does
+not appear in <tt class="docutils literal"><span class="pre">text</span></tt> may be used as delimiters; for example:</p>
+<div class="highlight-none"><div class="highlight"><pre>#FONT:[(0) OK]$3D00
+#FONT:{(0) OK}$3D00
+#FONT:/(0) OK/$3D00
+</pre></div>
+</div>
 <p>The <tt class="docutils literal"><span class="pre">#FONT</span></tt> macro is not supported in ASM mode.</p>
 <p>If an image with the given filename doesn&#8217;t already exist, it will be created.
 If <tt class="docutils literal"><span class="pre">fname</span></tt> starts with a &#8216;/&#8217;, the filename is taken to be relative to the
@@ -338,11 +351,11 @@ section of the <cite>ref</cite> file.</p>
 <p>For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>; Font graphic data
 ;
-; #HTML(#FONT49152,32)
+; #HTML[#FONT:(0123456789)49152]
 </pre></div>
 </div>
 <p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#FONT</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt>
-element for the image of the 32 characters in the 8*8 font whose graphic data
+element for the image of the digits 0-9 in the 8*8 font whose graphic data
 starts at 49152.</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -360,6 +373,10 @@ starts at 49152.</p>
 </tr>
 <tr class="row-odd"><td>3.0</td>
 <td>Added image-cropping capabilities</td>
+</tr>
+<tr class="row-even"><td>3.6</td>
+<td>Added the <tt class="docutils literal"><span class="pre">text</span></tt> parameter, and made the <tt class="docutils literal"><span class="pre">chars</span></tt> parameter
+optional</td>
 </tr>
 </tbody>
 </table>
@@ -506,6 +523,7 @@ the &#8216;Pokes&#8217; page, or to a specific entry on that page.</p>
 <li><tt class="docutils literal"><span class="pre">#name</span></tt> is the named anchor of a poke (if linking to a specific one)</li>
 <li><tt class="docutils literal"><span class="pre">link</span> <span class="pre">text</span></tt> is the link text to use</li>
 </ul>
+<p>The anchor name must be limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z.</p>
 <p>In HTML mode, if the link text is blank, the title of the poke entry (if
 linking to a specific one) is substituted; if the link text is omitted
 entirely, &#8216;poke&#8217; is substituted.</p>
@@ -629,7 +647,8 @@ it with an identical copy with a given name.</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">name</span></tt> is the snapshot name (defaults to an empty string)</li>
 </ul>
-<p>The new snapshot may then be modified by using the <tt class="docutils literal"><span class="pre">#POKES</span></tt> macro.</p>
+<p>The snapshot name must be limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z;
+it must not start with a capital letter.</p>
 <p>For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>The UDG at 32768 is supposed to look like this:
 
@@ -675,6 +694,8 @@ an ID defined in an <tt class="docutils literal"><span class="pre">[OtherCode:*]
 <li><tt class="docutils literal"><span class="pre">#name</span></tt> is the named anchor of an item on the disassembly page</li>
 <li><tt class="docutils literal"><span class="pre">link</span> <span class="pre">text</span></tt> is the link text to use (default: <tt class="docutils literal"><span class="pre">addr</span></tt>)</li>
 </ul>
+<p>The disassembly ID (<tt class="docutils literal"><span class="pre">code</span></tt>) and anchor name (<tt class="docutils literal"><span class="pre">name</span></tt>) must be limited to the
+characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z.</p>
 <p>In ASM mode, the <tt class="docutils literal"><span class="pre">#R</span></tt> macro expands to the link text if it is specified, or
 to the label for <tt class="docutils literal"><span class="pre">addr</span></tt>, or to <tt class="docutils literal"><span class="pre">addr</span></tt> if no label is found.</p>
 <p>For example:</p>
@@ -1044,34 +1065,21 @@ or <cite>safe_key.gif</cite>), with attribute byte 6 (INK 6: PAPER 0).</p>
 <span id="id21"></span><h2>#UDGARRAY<a class="headerlink" href="#udgarray" title="Permalink to this headline">¶</a></h2>
 <p>In HTML mode, the <tt class="docutils literal"><span class="pre">#UDGARRAY</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element for the
 image of an array of UDGs (8x8 blocks of pixels).</p>
-<div class="highlight-none"><div class="highlight"><pre>#UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}](fname)
+<div class="highlight-none"><div class="highlight"><pre>#UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];SPEC1[;SPEC2;...][{X,Y,W,H}](fname)
 </pre></div>
 </div>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">width</span></tt> is the width of the image (in UDGs)</li>
-<li><tt class="docutils literal"><span class="pre">attr</span></tt> is the default attribute byte to use for each UDG (default: 56)</li>
+<li><tt class="docutils literal"><span class="pre">attr</span></tt> is the default attribute byte of each UDG (default: 56)</li>
 <li><tt class="docutils literal"><span class="pre">scale</span></tt> is the required scale of the image (default: 2)</li>
 <li><tt class="docutils literal"><span class="pre">step</span></tt> is the default interval between successive bytes of each UDG
 (default: 1)</li>
-<li><tt class="docutils literal"><span class="pre">inc</span></tt> will be added to each UDG byte before constructing the image
-(default: 0)</li>
+<li><tt class="docutils literal"><span class="pre">inc</span></tt> is added to each UDG byte before constructing the image (default: 0)</li>
 <li><tt class="docutils literal"><span class="pre">flip</span></tt> is 1 to flip the array of UDGs horizontally, 2 to flip it
 vertically, 3 to flip it both ways, or 0 to leave it as it is (default: 0)</li>
 <li><tt class="docutils literal"><span class="pre">rotate</span></tt> is 1 to rotate the array of UDGs 90 degrees clockwise, 2 to rotate
 it 180 degrees, 3 to rotate it 90 degrees anticlockwise, or 0 to leave it as
 it is (default: 0)</li>
-<li><tt class="docutils literal"><span class="pre">addr1</span></tt> is the address range specification for the first set of UDGs (see
-below)</li>
-<li><tt class="docutils literal"><span class="pre">attr1</span></tt> is the attribute byte to use for each UDG in the set (overrides
-<tt class="docutils literal"><span class="pre">attr</span></tt> if specified)</li>
-<li><tt class="docutils literal"><span class="pre">step1</span></tt> is the interval between successive bytes of each UDG in the set
-(overrides <tt class="docutils literal"><span class="pre">step</span></tt> if specified)</li>
-<li><tt class="docutils literal"><span class="pre">inc1</span></tt> will be added to each byte of every UDG in the set before
-constructing the image (overrides <tt class="docutils literal"><span class="pre">inc</span></tt> if specified)</li>
-<li><tt class="docutils literal"><span class="pre">maskAddr1</span></tt> is the address range specification for the first set of mask
-UDGs (see below)</li>
-<li><tt class="docutils literal"><span class="pre">maskStep1</span></tt> is the interval between successive bytes of each mask UDG in
-the set (default: <tt class="docutils literal"><span class="pre">step1</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">X</span></tt> is the x-coordinate of the leftmost pixel column of the constructed
 image to include in the final image (if greater than 0, the image will be
 cropped on the left)</li>
@@ -1086,8 +1094,27 @@ constructed image, the image will be cropped on the bottom)</li>
 appended (depending on the default image format specified in the
 <a class="reference internal" href="ref-files.html#ref-imagewriter"><em>[ImageWriter]</em></a> section of the <cite>ref</cite> file) if not present</li>
 </ul>
-<p>Address range specifications (<tt class="docutils literal"><span class="pre">addr1</span></tt>, <tt class="docutils literal"><span class="pre">maskAddr1</span></tt> etc.) may be given in
-one of the following forms:</p>
+<p><tt class="docutils literal"><span class="pre">SPEC1</span></tt>, <tt class="docutils literal"><span class="pre">SPEC2</span></tt> etc. are UDG specifications for the sets of UDGs that make
+up the array. Each UDG specification has the form:</p>
+<div class="highlight-none"><div class="highlight"><pre>udgAddr[,udgAttr,udgStep,udgInc][:maskAddr[,maskStep]]
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">udgAddr</span></tt> is the address range specification for the set of UDGs (see
+below)</li>
+<li><tt class="docutils literal"><span class="pre">udgAttr</span></tt> is the attribute byte of each UDG in the set (overrides <tt class="docutils literal"><span class="pre">attr</span></tt>
+if specified)</li>
+<li><tt class="docutils literal"><span class="pre">udgStep</span></tt> is the interval between successive bytes of each UDG in the set
+(overrides <tt class="docutils literal"><span class="pre">step</span></tt> if specified)</li>
+<li><tt class="docutils literal"><span class="pre">udgInc</span></tt> is added to each byte of every UDG in the set before constructing
+the image (overrides <tt class="docutils literal"><span class="pre">inc</span></tt> if specified)</li>
+<li><tt class="docutils literal"><span class="pre">maskAddr</span></tt> is the address range specification for the set of mask UDGs (see
+below)</li>
+<li><tt class="docutils literal"><span class="pre">maskStep</span></tt> is the interval between successive bytes of each mask UDG in the
+set (default: <tt class="docutils literal"><span class="pre">udgStep</span></tt>)</li>
+</ul>
+<p>Address range specifications (<tt class="docutils literal"><span class="pre">udgAddr</span></tt> and <tt class="docutils literal"><span class="pre">maskAddr</span></tt>) may be given in one
+of the following forms:</p>
 <ul class="simple">
 <li>a single address (e.g. <tt class="docutils literal"><span class="pre">39144</span></tt>)</li>
 <li>a simple address range (e.g. <tt class="docutils literal"><span class="pre">33008-33015</span></tt>)</li>
@@ -1103,8 +1130,9 @@ adjacent UDGs in each column as 16)</li>
 <li><tt class="docutils literal"><span class="pre">39648x3</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">39648;39648;39648</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">32768-32769x2</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">32768;32769;32768;32769</span></tt></li>
 </ul>
-<p>As many sets of UDGs as required may be specified, separated by semicolons;
-the UDGs will be arranged in a rectangular array with the given width.</p>
+<p>As many UDG specifications as required may be supplied, separated by
+semicolons; the UDGs will be arranged in a rectangular array with the given
+width.</p>
 <p>The <tt class="docutils literal"><span class="pre">#UDGARRAY</span></tt> macro is not supported in ASM mode.</p>
 <p>If an image with the given filename doesn&#8217;t already exist, it will be created.
 If <tt class="docutils literal"><span class="pre">fname</span></tt> starts with a &#8216;/&#8217;, the filename is taken to be relative to the
@@ -1121,6 +1149,46 @@ section of the <cite>ref</cite> file.</p>
 element for the image of the 4x4 sprite formed by the 16 UDGs with base
 addresses 32768, 32776, 32784 and so on up to 32888; the image file will be
 named <cite>base_sprite.png</cite>.</p>
+<p><strong>Animated images</strong></p>
+<p>The <tt class="docutils literal"><span class="pre">#UDGARRAY</span></tt> macro may also be used to create an animated image from an
+arbitrary sequence of frames. To create a frame, the <tt class="docutils literal"><span class="pre">fname</span></tt> parameter must
+have one of the following forms:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">name*</span></tt> - writes an image file with this name, and also creates a frame
+with the same name</li>
+<li><tt class="docutils literal"><span class="pre">name1*name2</span></tt> - writes an image file named <cite>name1</cite>, and also creates a
+frame named <cite>name2</cite></li>
+<li><tt class="docutils literal"><span class="pre">*name</span></tt> - writes no image file, but creates a frame with this name</li>
+</ul>
+<p>Then a special form of the <tt class="docutils literal"><span class="pre">#UDGARRAY</span></tt> macro is used to create the animated
+image from a set of frames:</p>
+<div class="highlight-none"><div class="highlight"><pre>#UDGARRAY*FRAME1[;FRAME2;...](fname)
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">FRAME1</span></tt>, <tt class="docutils literal"><span class="pre">FRAME2</span></tt> etc. are frame specifications; each one has the form:</p>
+<div class="highlight-none"><div class="highlight"><pre>name[,delay]
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">name</span></tt> is the name of the frame</li>
+<li><tt class="docutils literal"><span class="pre">delay</span></tt> is the delay between this frame and the next in 1/100ths of a
+second; it also sets the default delay for any frames that follow (default:
+32)</li>
+</ul>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; Sprite animation frames
+;
+; #UDGTABLE {
+; #UDGARRAY2;64000-64024-8(sprite1*) |
+; #UDGARRAY2;64032-64056-8(sprite2*) |
+; #UDGARRAY2;64064-64088-8(sprite3*) |
+; #UDGARRAY*sprite1,50;sprite2;sprite3(sprite.gif)
+; } TABLE#
+</pre></div>
+</div>
+<p>The first three <tt class="docutils literal"><span class="pre">#UDGARRAY</span></tt> macros create the required frames (and write
+images of them); the last <tt class="docutils literal"><span class="pre">#UDGARRAY</span></tt> macro combines the three frames into a
+single animated image, with a delay of 0.5s between each frame.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -1150,6 +1218,10 @@ named <cite>base_sprite.png</cite>.</p>
 <tr class="row-odd"><td>3.1.1</td>
 <td>Added support for UDG address ranges with horizontal and vertical
 steps</td>
+</tr>
+<tr class="row-even"><td>3.6</td>
+<td>Added support for creating an animated image from an arbitrary
+sequence of frames</td>
 </tr>
 </tbody>
 </table>
@@ -1239,7 +1311,7 @@ intended use is to contain images that should be rendered in HTML mode only.</p>
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

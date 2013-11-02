@@ -219,10 +219,19 @@ to parse the parameters of a skool macro.
 .. autofunction:: skoolkit.skoolmacro.parse_ints
 .. autofunction:: skoolkit.skoolmacro.parse_params
 
+   .. versionadded:: 3.6
+      The *except_chars* and *only_chars* parameters.
+
 HtmlWriter also provides a method for parsing the parameters of an
 image-creating skool macro.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.parse_image_params
+
+   .. versionchanged:: 3.6
+      If *path_id* is blank or *None*, ``image_path`` is equal to ``fname``.
+
+   .. versionadded:: 3.6
+      The *ints* parameter.
 
 Parsing ref files
 -----------------
@@ -302,11 +311,25 @@ The Udg class provides two methods for manipulating an 8x8 graphic: `flip` and
 .. automethod:: skoolkit.skoolhtml.Udg.flip
 .. automethod:: skoolkit.skoolhtml.Udg.rotate
 
+If you are going to implement ``#CALL`` methods or skool macros that create
+animated images, you will need to make use of the skoolkit.skoolhtml.Frame
+class.
+
+The Frame class represents a single frame of an animated image.
+
+.. autoclass:: skoolkit.skoolhtml.Frame
+
+   .. versionadded:: 3.6
+
 HtmlWriter provides the following image-related convenience methods.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.image_path
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.need_image
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.write_image
+.. automethod:: skoolkit.skoolhtml.HtmlWriter.write_animated_image
+
+   .. versionadded:: 3.6
+
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.img_element
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.screenshot
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.flip_udgs
