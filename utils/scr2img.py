@@ -15,7 +15,7 @@ sys.path.insert(0, SKOOLKIT_HOME)
 
 from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import get_snapshot
-from skoolkit.skoolhtml import Udg
+from skoolkit.skoolhtml import Udg, Frame
 
 def get_screen_udg(scr, row, col):
     attr = scr[6144 + 32 * row + col]
@@ -109,10 +109,10 @@ def write_image(udgs, img_file, scale, no_anim):
         iw_options[GIF_ENABLE_ANIMATION] = 0
         iw_options[PNG_ENABLE_ANIMATION] = 0
     image_writer = ImageWriter(options=iw_options)
-    format = 'gif' if img_file.lower()[-4:] == '.gif' else 'png'
-    f = open(img_file, "wb")
-    image_writer.write_image(udgs, f, format, scale)
-    f.close()
+    image_format = 'gif' if img_file.lower()[-4:] == '.gif' else 'png'
+    frame = Frame(udgs, scale)
+    with open(img_file, "wb") as f:
+        image_writer.write_image([frame], f, image_format)
 
 def parse_args(args):
     x, y = 0, 0
