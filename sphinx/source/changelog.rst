@@ -3,6 +3,7 @@ Changelog
 
 3.7b1
 -----
+* Added changelog entries to `manic_miner.ref`
 
 3.6 (2013-11-02)
 ----------------
