@@ -1,6 +1,9 @@
 Changelog
 =========
 
+3.7b1
+-----
+
 3.6 (2013-11-02)
 ----------------
 * Enhanced the :ref:`UDGARRAY` macro so that it can create an animated image
