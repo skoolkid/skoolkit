@@ -3,7 +3,7 @@ Changelog
 
 3.7b1
 -----
-* Added changelog entries to `manic_miner.ref`
+* Added changelog entries to `manic_miner.ref` and `jet_set_willy.ref`
 
 3.6 (2013-11-02)
 ----------------

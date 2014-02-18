@@ -119,3 +119,34 @@ TABLE#
 The room with the most objects is #R49152(The Off Licence) with 12.
 
 #ROOM49152
+
+[Changelog:20131102]
+Included in SkoolKit 3.6.
+
+Added animated images of Willy to the entry at #R40192
+Added animated images of the toilet to the entry at #R42496
+
+[Changelog:20130901]
+Included in SkoolKit 3.5.
+
+Annotated the source code remnants at #R39936
+
+[Changelog:20121101]
+Included in SkoolKit 3.2.
+
+Added the first seven trivia entries:
+  #FACT#unusedObjects()
+  #FACT#unusedNasties()
+  #FACT#unusedFloor()
+  #FACT#unusedRamp()
+  #FACT#unusedConveyor()
+  #FACT#emptiestRooms()
+  #FACT#mostObjects()
+
+[Changelog:20120501]
+Included in SkoolKit 3.0.2.
+
+Added room images and descriptions
+
+[Changelog:20120411]
+Initial version, included in SkoolKit 3.0.1.
