@@ -316,5 +316,47 @@ class SftParserTest(SkoolKitTestCase):
             with self.assertRaisesRegexp(SftParsingError, re.escape("Invalid line: {}".format(line.split()[0]))):
                 self._parse_sft(line)
 
+    def test_byte_formats(self):
+        snapshot = [42] * 75
+        sft = '\n'.join((
+            'bB00000,b5',
+            ' B00005,h15',
+            ' B00020,b2,d2,h1',
+            ' B00025,b2:d2:h1',
+            ' B00030,h5:d3:b2',
+            ' B00040,b1,h2*2',
+            ' B00045,h1,T4',
+            ' B00050,b2:T3',
+            ' T00055,h2,3',
+            ' T00060,2:d3',
+            ' T00065,3,B1*2',
+            ' T00070,B2:h3'
+        ))
+        skool = self._parse_sft(sft, snapshot)[1]
+
+        exp_skool = [
+            'b00000 DEFB %00101010,%00101010,%00101010,%00101010,%00101010',
+            ' 00005 DEFB $2A,$2A,$2A,$2A,$2A,$2A,$2A,$2A,$2A,$2A,$2A,$2A,$2A,$2A,$2A',
+            ' 00020 DEFB %00101010,%00101010',
+            ' 00022 DEFB 42,42',
+            ' 00024 DEFB $2A',
+            ' 00025 DEFB %00101010,%00101010,42,42,$2A',
+            ' 00030 DEFB $2A,$2A,$2A,$2A,$2A,42,42,42,%00101010,%00101010',
+            ' 00040 DEFB %00101010',
+            ' 00041 DEFB $2A,$2A',
+            ' 00043 DEFB $2A,$2A',
+            ' 00045 DEFB $2A',
+            ' 00046 DEFB "****"',
+            ' 00050 DEFB %00101010,%00101010,"***"',
+            ' 00055 DEFM $2A,$2A',
+            ' 00057 DEFM "***"',
+            ' 00060 DEFM "**",42,42,42',
+            ' 00065 DEFM "***"',
+            ' 00068 DEFM 42',
+            ' 00069 DEFM 42',
+            ' 00070 DEFM 42,42,$2A,$2A,$2A'
+        ]
+        self.assertEqual(skool[:-1], exp_skool)
+
 if __name__ == '__main__':
     unittest.main()
