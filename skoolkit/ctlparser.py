@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -21,33 +21,39 @@ from .skoolctl import AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET
 
 def parse_params(ctl, params, lengths_index=2):
     int_params = []
+    prefix = None
     for i, num in enumerate(params):
         if i < lengths_index:
-            int_params.append(get_int_param(num))
-        elif '*' in num:
-            n, m = num.split('*')
-            if ':' in n and ctl in ' BT':
-                int_params += [_parse_sublengths(n)] * get_int_param(m)
+            length, prefix = _parse_length(num)
+            int_params.append(length)
+        else:
+            if '*' in num:
+                n, m = num.split('*', 1)
+            else:
+                n, m = num, '1'
+            if ctl in ' BT':
+                int_params += [_parse_sublengths(n, prefix)] * get_int_param(m)
             else:
                 int_params += [(get_int_param(n), None)] * get_int_param(m)
-        elif ':' in num and ctl in ' BT':
-            int_params.append(_parse_sublengths(num))
-        else:
-            int_params.append((get_int_param(num), None))
+    if prefix and len(int_params) == lengths_index:
+        int_params.append((None, [(None, prefix)]))
     return int_params
 
-def _parse_sublengths(sublengths):
+def _parse_sublengths(sublengths, default_prefix):
     length = 0
     lengths = []
     for num in sublengths.split(':'):
-        if num.startswith(('B', 'T')):
-            sublength = get_int_param(num[1:])
-            lengths.append((sublength, num[0]))
-        else:
-            sublength = get_int_param(num)
-            lengths.append((sublength, None))
+        sublength, prefix = _parse_length(num, default_prefix)
+        lengths.append((sublength, prefix))
         length += sublength
+    if len(lengths) == 1 and prefix is None:
+        return (length, None)
     return (length, lengths)
+
+def _parse_length(length, default_prefix=None):
+    if length.startswith(('B', 'T', 'b', 'd', 'h')):
+        return (get_int_param(length[1:]), length[0])
+    return (get_int_param(length), default_prefix)
 
 class CtlParser:
     def __init__(self):

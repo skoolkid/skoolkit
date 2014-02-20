@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -639,12 +639,14 @@ class Disassembly:
                     lengths = self.ctl_parser.get_lengths(address)
                     one_line = True
                     if not lengths:
-                        lengths = [(sub_block.end - sub_block.start, None)]
-                        one_line = False
+                        lengths = [(None, None)]
                     instructions = []
                     while address < sub_block.end:
                         if lengths:
                             length, sublengths = lengths.pop(0)
+                        if length is None:
+                            one_line = False
+                            length = sub_block.end - sub_block.start
                         end = min((address + length, sub_block.end))
                         if sub_block.ctl == 't':
                             instructions += self.disassembler.defm_range(address, end, one_line, sublengths)

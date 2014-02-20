@@ -355,6 +355,60 @@ class DisassemblyTest(SkoolKitTestCase):
         entry = entries[15]
         self.assertEqual(entry.address, 32837)
 
+    def test_byte_formats(self):
+        snapshot = [42] * 65536
+        ctl = '\n'.join((
+            'b 30000',
+            '  30000,b5',
+            '  30005,b15',
+            '  30020,b5,2,d2,h1',
+            '  30025,b5,2:d2:h1',
+            '  30030,h10,5:d3:b2',
+            '  30040,5,b1,h2',
+            '  30045,5,h1,T4',
+            '  30050,5,b2:T3',
+            'T 30055,5,h2,3',
+            'T 30060,5,2:d3',
+            'T 30065,5,3,B1',
+            'T 30070,5,B2:h3',
+            'i 30075'
+        ))
+        ctl_parser = CtlParser()
+        ctl_parser.parse_ctl(self.write_text_file(ctl))
+        disassembly = Disassembly(snapshot, ctl_parser, True)
+
+        entries = disassembly.entries
+        self.assertEqual(len(entries), 2)
+
+        entry = entries[0]
+        self.assertEqual(entry.address, 30000)
+        instructions = entry.instructions
+        actual_instructions = [(i.address, i.operation) for i in instructions]
+        exp_instructions = [
+            (30000, 'DEFB %00101010,%00101010,%00101010,%00101010,%00101010'),
+            (30005, 'DEFB %00101010,%00101010,%00101010,%00101010,%00101010,%00101010,%00101010,%00101010'),
+            (30013, 'DEFB %00101010,%00101010,%00101010,%00101010,%00101010,%00101010,%00101010'),
+            (30020, 'DEFB %00101010,%00101010'),
+            (30022, 'DEFB 42,42'),
+            (30024, 'DEFB $2A'),
+            (30025, 'DEFB %00101010,%00101010,42,42,$2A'),
+            (30030, 'DEFB $2A,$2A,$2A,$2A,$2A,42,42,42,%00101010,%00101010'),
+            (30040, 'DEFB %00101010'),
+            (30041, 'DEFB $2A,$2A'),
+            (30043, 'DEFB $2A,$2A'),
+            (30045, 'DEFB $2A'),
+            (30046, 'DEFB "****"'),
+            (30050, 'DEFB %00101010,%00101010,"***"'),
+            (30055, 'DEFM $2A,$2A'),
+            (30057, 'DEFM "***"'),
+            (30060, 'DEFM "**",42,42,42'),
+            (30065, 'DEFM "***"'),
+            (30068, 'DEFM 42'),
+            (30069, 'DEFM 42'),
+            (30070, 'DEFM 42,42,$2A,$2A,$2A')
+        ]
+        self.assertEqual(actual_instructions, exp_instructions)
+
 class SkoolWriterTest(SkoolKitTestCase):
     def _get_writer(self, snapshot, ctl, defb_size=8, defb_mod=1, zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
         ctl_parser = CtlParser()

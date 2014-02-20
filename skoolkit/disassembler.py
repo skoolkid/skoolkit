@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2010-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -66,6 +66,13 @@ class Disassembler:
             self.defm_inst = 'DEFM'
             self.defs_inst = 'DEFS'
             self.defw_inst = 'DEFW'
+        self.byte_formats = {
+            'b': '%{:08b}',
+            'h': self.hex2fmt,
+            'd': '{}'
+        }
+        if self.zfill:
+            self.byte_formats['d'] = '{:03d}'
 
     def num_str(self, num, num_bytes=0):
         if not self.asm_hex:
@@ -103,7 +110,7 @@ class Disassembler:
         return instructions
 
     def defb_range(self, start, end, one_line=False, sublengths=None):
-        if one_line or sublengths or end - start <= self.defb_size:
+        if one_line or (sublengths and sublengths[0][0]) or end - start <= self.defb_size:
             return [self.defb_line(start, self.snapshot[start:end], sublengths)]
         instructions = []
         data = []
@@ -115,11 +122,11 @@ class Disassembler:
                 aligned = True
                 ready = True
             if len(data) == self.defb_size or ready:
-                instructions.append(self.defb_line(i - len(data) + 1, data))
+                instructions.append(self.defb_line(i - len(data) + 1, data, sublengths))
                 data = []
                 ready = False
         if data:
-            instructions.append(self.defb_line(i - len(data) + 1, data))
+            instructions.append(self.defb_line(i - len(data) + 1, data, sublengths))
         return instructions
 
     def defw_range(self, start, end, one_line=False):
@@ -190,19 +197,20 @@ class Disassembler:
     def rst_arg(self, rst_address, a):
         return 'RST {0}'.format(self.num_str(rst_address, 1)), 1
 
-    def defb_items(self, data, sublengths, defb=True):
-        if self.asm_hex:
-            byte_fmt = self.hex2fmt
-        else:
-            if self.zfill:
-                byte_fmt = '{0:03d}'
+    def format_byte(self, value, base=None):
+        if base not in self.byte_formats:
+            if self.asm_hex:
+                base = 'h'
             else:
-                byte_fmt = '{0}'
-        if sublengths:
+                base = 'd'
+        return self.byte_formats[base].format(value)
+
+    def defb_items(self, data, sublengths, defb=True):
+        if sublengths and sublengths[0][0]:
             items = []
             i = 0
             for length, ctl in sublengths:
-                if ctl == 'B':
+                if ctl and ctl in 'Bbdh':
                     text = False
                 elif ctl == 'T':
                     text = True
@@ -214,10 +222,13 @@ class Disassembler:
                 if text:
                     items.append('"{0}"'.format(self.get_message(chunk)))
                 else:
-                    items.append(','.join([(byte_fmt.format(b)) for b in chunk]))
+                    items.append(','.join([(self.format_byte(b, ctl)) for b in chunk]))
                 i += length
         else:
-            items = [byte_fmt.format(b) for b in data]
+            base = None
+            if sublengths:
+                base = sublengths[0][1]
+            items = [self.format_byte(b, base) for b in data]
         return ','.join(items)
 
     def defb_dir(self, data, sublengths=None):

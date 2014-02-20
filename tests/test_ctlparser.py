@@ -180,5 +180,54 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(warnings[0::2], [text] * exp_warnings)
         self.assertEqual(warnings[1::2], invalid_lines)
 
+    def test_byte_formats(self):
+        ctl = '\n'.join((
+            'b 40000 Test byte formats',
+            '  40000,b10 10 bytes in binary format',
+            '  40010,b10,5,d3,h2 5 binary, 3 decimal, 2 hex',
+            '  40020,b10,2:d3:h5 2 binary, 3 decimal, 5 hex, one line',
+            '  40030,10,b6,3,h1 6 binary, 3 default, 1 hex',
+            '  40040,10,b5:2:h3 5 binary, 2 default, 3 hex, one line',
+            '  40050,10,1,T9 1 default, 9 text',
+            '  40060,10,h4:T6 4 hex, 6 text, one line',
+            'T 40070,10,3,b7 3 text, 7 binary',
+            'T 40080,10,2:h8 2 text, 8 hex, one line',
+            'T 40090,10,5,B5 5 text, 5 default'
+        ))
+        ctl_parser = CtlParser()
+        ctlfile = self.write_text_file(ctl)
+        ctl_parser.parse_ctl(ctlfile)
+
+        exp_lengths = {
+            40000: [(None, [(None, 'b')])],
+            40010: [
+                (5, [(5, 'b')]),
+                (3, [(3, 'd')]),
+                (2, [(2, 'h')])
+            ],
+            40020: [(10, [(2, 'b'), (3, 'd'), (5, 'h')])],
+            40030: [
+                (6, [(6, 'b')]),
+                (3, None),
+                (1, [(1, 'h')])
+            ],
+            40040: [(10, [(5, 'b'), (2, None), (3, 'h')])],
+            40050: [
+                (1, None),
+                (9, [(9, 'T')])
+            ],
+            40060: [(10, [(4, 'h'), (6, 'T')])],
+            40070: [
+                (3, None),
+                (7, [(7, 'b')])
+            ],
+            40080: [(10, [(2, None), (8, 'h')])],
+            40090: [
+                (5, None),
+                (5, [(5, 'B')])
+            ],
+        }
+        self.assertEqual(ctl_parser.lengths, exp_lengths)
+
 if __name__ == '__main__':
     unittest.main()
