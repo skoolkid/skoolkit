@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2010-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -54,8 +54,8 @@ def get_lengths(stmt_lengths):
     return ','.join(length_params)
 
 class CtlWriter:
-    def __init__(self, skoolfile, elements='btdrmsc', write_hex=False, write_asm_dirs=True):
-        parser = SkoolParser(skoolfile)
+    def __init__(self, skoolfile, elements='btdrmsc', write_hex=False, write_asm_dirs=True, preserve_base=False):
+        parser = SkoolParser(skoolfile, preserve_base)
         self.entries = parser.memory_map
         self.elements = elements
         self.write_hex = write_hex
@@ -266,8 +266,9 @@ class CtlWriter:
             write_line('{0} {1} {2}'.format(sub_block_ctl, address, comment).rstrip())
 
 class SkoolParser:
-    def __init__(self, skoolfile):
+    def __init__(self, skoolfile, preserve_base):
         self.skoolfile = skoolfile
+        self.preserve_base = preserve_base
         self.mode = Mode()
         self.memory_map = []
         self.header = []
@@ -395,7 +396,7 @@ class SkoolParser:
             comment_index = len(line)
         operation = line[7:comment_index].strip()
         address_comment = line[comment_index + 1:].strip()
-        instruction = Instruction(ctl + addr_str, address, operation)
+        instruction = Instruction(ctl + addr_str, address, operation, self.preserve_base)
         self.mode.apply_instruction_asm_directives(instruction)
         return instruction, address_comment
 
@@ -470,7 +471,7 @@ class FakeInstruction:
         self.asm_directives = ()
 
 class Instruction:
-    def __init__(self, label, address, operation):
+    def __init__(self, label, address, operation, preserve_base):
         self.label = label
         self.ctl = label[0]
         if label[1].isdigit():
@@ -486,9 +487,9 @@ class Instruction:
         self.size = None
         self.length = None
         if self.inst_ctl == 'b':
-            self.size, self.length = get_defb_length(operation[5:])
+            self.size, self.length = get_defb_length(operation[5:], preserve_base)
         elif self.inst_ctl == 't':
-            self.size, self.length = get_defm_length(operation[5:])
+            self.size, self.length = get_defm_length(operation[5:], preserve_base)
         elif self.inst_ctl == 'w':
             self.size = get_defw_length(operation[5:])
         elif self.inst_ctl == 'z':

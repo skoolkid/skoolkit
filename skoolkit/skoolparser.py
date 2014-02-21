@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -40,6 +40,24 @@ BASE_10 = 10
 #: Force hexadecimal.
 BASE_16 = 16
 
+BYTE_FORMAT_DEFB_NO_BASE = {
+    'b': 'b{}',
+    'd': '{}',
+    'h': '{}'
+}
+
+BYTE_FORMAT_DEFM_NO_BASE = {
+    'b': 'b{}',
+    'd': 'B{}',
+    'h': 'B{}'
+}
+
+BYTE_FORMAT_PRESERVE_BASE = {
+    'b': 'b{}',
+    'd': 'd{}',
+    'h': 'h{}'
+}
+
 def get_address(operation, check_prefix=True):
     if check_prefix:
         prefixes = '[ ,(+-]'
@@ -67,22 +85,26 @@ def get_instruction_ctl(op):
         return 'Z'
     return 'C'
 
-def get_defb_length(item_str, defb=True):
+def get_defb_length(item_str, preserve_base=False, defb=True):
     if defb:
-        byte_fmt = '{0}'
-        text_fmt = 'T{0}'
+        byte_fmt = BYTE_FORMAT_DEFB_NO_BASE
+        text_fmt = 'T{}'
     else:
-        byte_fmt = 'B{0}'
-        text_fmt = '{0}'
+        byte_fmt = BYTE_FORMAT_DEFM_NO_BASE
+        text_fmt = '{}'
+    if preserve_base:
+        byte_fmt = BYTE_FORMAT_PRESERVE_BASE
     full_length = 0
     lengths = []
     length = 0
+    prev_base = None
     for item in get_defb_item_list(item_str) + ['""']:
         if item.startswith('"'):
             if length:
-                lengths.append(byte_fmt.format(length))
+                lengths.append(byte_fmt[prev_base].format(length))
                 full_length += length
                 length = 0
+                prev_base = None
             i = 1
             while i < len(item) - 1:
                 if item[i] == '\\':
@@ -94,11 +116,22 @@ def get_defb_length(item_str, defb=True):
                 full_length += length
                 length = 0
         else:
+            if item.startswith('%'):
+                cur_base = 'b'
+            elif item.startswith('$') and preserve_base:
+                cur_base = 'h'
+            else:
+                cur_base = 'd'
+            if prev_base != cur_base and length:
+                lengths.append(byte_fmt[prev_base].format(length))
+                full_length += length
+                length = 0
             length += 1
+            prev_base = cur_base
     return full_length, ':'.join(lengths)
 
-def get_defm_length(item_str):
-    return get_defb_length(item_str, False)
+def get_defm_length(item_str, preserve_base=False):
+    return get_defb_length(item_str, preserve_base, False)
 
 def get_defb_item_list(item_str):
     items = []
