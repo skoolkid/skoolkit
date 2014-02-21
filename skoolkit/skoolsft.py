@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -35,13 +35,14 @@ class VerbatimLine(Line):
         return self.text
 
 class ControlLine(Line):
-    def __init__(self, ctl, address, addr_str, operation, comment_index, comment):
+    def __init__(self, ctl, address, addr_str, operation, comment_index, comment, preserve_base):
         self.ctl = ctl
         self.address = address
         self.addr_str = addr_str
         self.comment_index = comment_index
         self.comment = comment
         self.operation = operation
+        self.preserve_base = preserve_base
         self.inst_ctl = get_instruction_ctl(operation)
         self.lengths = None
 
@@ -71,10 +72,10 @@ class ControlLine(Line):
             self.size = length
             self.lengths = [str(length)]
         elif self.inst_ctl == 'B':
-            self.size, length = get_defb_length(self.operation[5:])
+            self.size, length = get_defb_length(self.operation[5:], self.preserve_base)
             self.lengths = [length]
         elif self.inst_ctl == 'T':
-            self.size, length = get_defm_length(self.operation[5:])
+            self.size, length = get_defm_length(self.operation[5:], self.preserve_base)
             self.lengths = [length]
         elif self.inst_ctl == 'W':
             self.size = get_defw_length(self.operation[5:])
@@ -94,9 +95,10 @@ class ControlLine(Line):
         return True
 
 class SftWriter:
-    def __init__(self, skoolfile, write_hex=False):
+    def __init__(self, skoolfile, write_hex=False, preserve_base=False):
         self.skoolfile = skoolfile
         self.write_hex = write_hex
+        self.preserve_base = preserve_base
         self.stack = []
         self.verbatim = False
 
@@ -160,7 +162,7 @@ class SftWriter:
             end = len(line)
         operation = line[7:end].strip()
         comment = line[end + 1:].strip()
-        return ControlLine(ctl, address, addr_str, operation, comment_index, comment)
+        return ControlLine(ctl, address, addr_str, operation, comment_index, comment, self.preserve_base)
 
     def _parse_asm_directive(self, directive):
         if parse_asm_block_directive(directive, self.stack):

@@ -85,7 +85,7 @@ def get_instruction_ctl(op):
         return 'Z'
     return 'C'
 
-def get_defb_length(item_str, preserve_base=False, defb=True):
+def get_defb_length(item_str, preserve_base, defb=True):
     if defb:
         byte_fmt = BYTE_FORMAT_DEFB_NO_BASE
         text_fmt = 'T{}'
@@ -130,7 +130,7 @@ def get_defb_length(item_str, preserve_base=False, defb=True):
             prev_base = cur_base
     return full_length, ':'.join(lengths)
 
-def get_defm_length(item_str, preserve_base=False):
+def get_defm_length(item_str, preserve_base):
     return get_defb_length(item_str, preserve_base, False)
 
 def get_defb_item_list(item_str):

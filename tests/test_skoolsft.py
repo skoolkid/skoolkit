@@ -241,22 +241,52 @@ bB49213,1:T2*2,1,2:T1*3
 ; Another ignore block
 i49229""".split('\n')
 
+TEST_BYTE_FORMATS_SKOOL = """; Binary and mixed-base DEFB/DEFM statements
+b30000 DEFB %10111101,$42,26
+ 30003 DEFB $38,$39,%11110000,%00001111,24,25,26
+ 30010 DEFB %11111111,%10000001
+ 30012 DEFB 47,34,56
+ 30015 DEFB $1A,$00,$00,$00,$A2
+ 30020 DEFB "hello"
+ 30025 DEFB %10101010,"hi",24,$56
+ 30030 DEFM %10111101,$42,26
+ 30033 DEFM $38,$39,%11110000,%00001111,24,25,26
+ 30040 DEFM %11111111,%10000001
+ 30042 DEFM 47,34,56
+ 30045 DEFM $1A,$00,$00,$00,$A2
+ 30050 DEFM "hello"
+ 30055 DEFM %10101010,"hi",24,$56
+"""
+
 class SftWriterTest(SkoolKitTestCase):
-    def test_sftwriter(self):
-        skoolfile = self.write_text_file(TEST_SKOOL, suffix='.skool')
-        writer = SftWriter(skoolfile)
+    def _test_sft(self, skool, exp_sft, write_hex=False, preserve_base=False):
+        skoolfile = self.write_text_file(skool, suffix='.skool')
+        writer = SftWriter(skoolfile, write_hex, preserve_base)
         writer.write()
-        sft = self.out.getvalue().split('\n')[:-1]
-        self.assertEqual(len(sft), len(TEST_SFT))
-        for i, line in enumerate(sft):
-            self.assertEqual(line, TEST_SFT[i])
+        sft =  self.out.getvalue().split('\n')[:-1]
+        self.assertEqual(sft, exp_sft)
+
+    def test_sftwriter(self):
+        self._test_sft(TEST_SKOOL, TEST_SFT)
 
     def test_write_hex(self):
-        skoolfile = self.write_text_file('c40177 RET', suffix='.skool')
-        writer = SftWriter(skoolfile, True)
-        writer.write()
-        sft = self.out.getvalue().split('\n')
-        self.assertEqual(sft[0], 'cC$9CF1,1')
+        self._test_sft('c40177 RET', ['cC$9CF1,1'], write_hex=True)
+
+    def test_byte_formats_no_base(self):
+        exp_sft = [
+            '; Binary and mixed-base DEFB/DEFM statements',
+            'bB30000,b1:2,2:b2:3,b2,3,5,T5,b1:T2:2',
+            ' T30030,b1:B2,B2:b2:B3,b2,B3,B5,5,b1:2:B2'
+        ]
+        self._test_sft(TEST_BYTE_FORMATS_SKOOL, exp_sft, preserve_base=False)
+
+    def test_byte_formats_preserve_base(self):
+        exp_sft = [
+            '; Binary and mixed-base DEFB/DEFM statements',
+            'bB30000,b1:h1:d1,h2:b2:d3,b2,d3,h5,T5,b1:T2:d1:h1',
+            ' T30030,b1:h1:d1,h2:b2:d3,b2,d3,h5,5,b1:2:d1:h1'
+        ]
+        self._test_sft(TEST_BYTE_FORMATS_SKOOL, exp_sft, preserve_base=True)
 
 if __name__ == '__main__':
     unittest.main()
