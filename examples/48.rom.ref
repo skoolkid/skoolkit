@@ -9,3 +9,6 @@ GameDir=rom
 Game=Spectrum ROM
 TitlePrefix=The Complete
 TitleSuffix=Disassembly
+
+[Changelog:20131102]
+Initial version, included in SkoolKit 3.6.
