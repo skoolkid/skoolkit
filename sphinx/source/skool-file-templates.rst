@@ -45,6 +45,12 @@ then it will be rendered in the skool file template thus::
   cC24296,3;21 This comment is too long to fit on a single line, so
    ;21 we use two lines
 
+Sub-block syntax
+----------------
+The syntax for specifying ``B``, ``T``, ``W`` and ``Z`` sub-blocks is analogous
+to the syntax used in :ref:`control files <controlFiles>`. A brief summary of
+the syntax is given here.
+
 Sequences of DEFB statements can be declared on a single line thus::
 
   bB40960,8*2,5
@@ -61,15 +67,29 @@ statements.
 DEFB and DEFM statements may contain both strings and bytes; for example::
 
   b30000 DEFB 1,2,3,4,"Hello!"
-   30010 DEFM "A",5,6
-   30013 DEFM "B",7,8
+   30010 DEFM 5,6
+   30012 DEFM "B",7,8
 
-Such statements will be rendered in the skool file template thus::
+Such statements are preserved in a skool file template thus::
 
   bB30000,4:T6
-   T30010,1:B2*2
+   T30010,B2,1:B2
 
-Finally, any line that begins with a hash character (``#``) is ignored by
+DEFB and DEFM statements may contain numeric values in various bases; for
+example::
+
+  b40000 DEFB %10101010,23,43,$5F
+   40004 DEFB 56
+   40005 DEFB %11110000
+   40006 DEFB $2B,$80
+
+These statements may be preserved in a skool file template thus::
+
+  bB40000,b1:d2:h1,d1,b1,h2
+
+Skool file template comments
+----------------------------
+Any line that begins with a hash character (``#``) is ignored by
 `sna2skool.py`, and will not show up in the `skool` file.
 
 Data definition entries
@@ -92,11 +112,14 @@ that its contents are set to 0 so that it will disassemble to ``DEFB 0``
 
 Revision history
 ----------------
-+---------+--------------------------------------------------------------+
-| Version | Changes                                                      |
-+=========+==============================================================+
-| 2.4     | New                                                          |
-+---------+--------------------------------------------------------------+
-| 3.1.4   | Added support for DEFB and DEFM statements that contain both |
-|         | strings and bytes                                            |
-+---------+--------------------------------------------------------------+
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 2.4     | New                                                             |
++---------+-----------------------------------------------------------------+
+| 3.1.4   | Added support for DEFB and DEFM statements that contain both    |
+|         | strings and bytes                                               |
++---------+-----------------------------------------------------------------+
+| 3.7     | Added support for specifying the base of numeric values in DEFB |
+|         | and DEFM statements                                             |
++---------+-----------------------------------------------------------------+
