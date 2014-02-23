@@ -182,8 +182,8 @@ sub-block at 24588 that follows. This is exactly how top-level block
 declarations work: each top-level block is implicitly terminated by the
 declaration of the next one.
 
-Statement lengths in 'B', 'T', 'W' and 'Z' sub-blocks
------------------------------------------------------
+Sub-block lengths
+-----------------
 Normally, a ``B`` sub-block declared thus::
 
   B 24580,12 Interesting data
@@ -261,6 +261,25 @@ notation can also be combined with the '*' notation; for example::
 which is equivalent to::
 
   T 50000,8,2:B2,2:B2
+
+Number bases
+------------
+Numeric values in DEFB and DEFM statements are normally rendered in either
+decimal or hexadecimal, depending on the options passed to :ref:`sna2skool.py`.
+To force a numeric value to be rendered in a specific base, attach a ``b``
+(binary), ``d`` (decimal) or ``h`` (hexadecimal) prefix to the statement
+length.
+
+For example::
+
+  B 40000,8,b1:d2:h1,d1,b1,h2
+
+will result in something like this in the corresponding skool file::
+
+  40000 DEFB %10101010,23,43,$5F
+  40004 DEFB 56
+  40005 DEFB %11110000
+  40006 DEFB $2B,$80
 
 ASM directives
 --------------
@@ -378,4 +397,7 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | 3.6     | Added support for preserving blank comments that span two or more |
 |         | instructions                                                      |
++---------+-------------------------------------------------------------------+
+| 3.7     | Added support for specifying the base of numeric values in DEFB   |
+|         | and DEFM statements                                               |
 +---------+-------------------------------------------------------------------+
