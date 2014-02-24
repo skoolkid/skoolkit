@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -172,7 +172,7 @@ class SftParser:
                     if inst_ctl == 'C':
                         instructions += self.disassembler.disassemble(start, end)
                     elif inst_ctl == 'W':
-                        instructions += self.disassembler.defw_range(start, end, True)
+                        instructions += self.disassembler.defw_range(start, end, True, sublengths)
                     elif inst_ctl == 'T':
                         instructions += self.disassembler.defm_range(start, end, True, sublengths)
                     elif inst_ctl == 'Z':

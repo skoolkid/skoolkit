@@ -310,7 +310,7 @@ class SftParserTest(SkoolKitTestCase):
             "bB30000,3;k ...",
             "bB30000,5,1:X3",
             "tT30000,a",
-            "wW40000,1:B2",
+            "wW40000,1:C2",
             "cC$ABCG,20"
         ):
             with self.assertRaisesRegexp(SftParsingError, re.escape("Invalid line: {}".format(line.split()[0]))):
@@ -355,6 +355,34 @@ class SftParserTest(SkoolKitTestCase):
             ' 00068 DEFM 42',
             ' 00069 DEFM 42',
             ' 00070 DEFM 42,42,$2A,$2A,$2A'
+        ]
+        self.assertEqual(skool[:-1], exp_skool)
+
+    def test_word_formats(self):
+        snapshot = [205, 85] * 20
+        sft = '\n'.join((
+            'wW00000,4',
+            ' W00004,b4',
+            ' W00008,d4',
+            ' W00012,h4',
+            ' W00016,2,d2,h4',
+            ' W00024,b4:2:h2',
+            ' W00032,b2,4,h2'
+        ))
+        skool = self._parse_sft(sft, snapshot)[1]
+
+        exp_skool = [
+            'w00000 DEFW 21965,21965',
+            ' 00004 DEFW %0101010111001101,%0101010111001101',
+            ' 00008 DEFW 21965,21965',
+            ' 00012 DEFW $55CD,$55CD',
+            ' 00016 DEFW 21965',
+            ' 00018 DEFW 21965',
+            ' 00020 DEFW $55CD,$55CD',
+            ' 00024 DEFW %0101010111001101,%0101010111001101,21965,$55CD',
+            ' 00032 DEFW %0101010111001101',
+            ' 00034 DEFW 21965,21965',
+            ' 00038 DEFW $55CD'
         ]
         self.assertEqual(skool[:-1], exp_skool)
 
