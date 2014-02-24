@@ -247,7 +247,7 @@ class CtlWriter:
             stmt_lengths = []
             for stmt in instructions:
                 num_bytes += stmt.size
-                if ctl in 'bt':
+                if ctl in 'btw':
                     stmt_lengths.append(stmt.length)
                 else:
                     stmt_lengths.append(str(stmt.size))
@@ -491,7 +491,7 @@ class Instruction:
         elif self.inst_ctl == 't':
             self.size, self.length = get_defm_length(operation[5:], preserve_base)
         elif self.inst_ctl == 'w':
-            self.size = get_defw_length(operation[5:])
+            self.size, self.length = get_defw_length(operation[5:], preserve_base)
         elif self.inst_ctl == 'z':
             self.size = parse_int(get_address(operation[4:]))
 

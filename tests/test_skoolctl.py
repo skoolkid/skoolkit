@@ -457,6 +457,21 @@ b30000 DEFB %10111101,$42,26
  30055 DEFM %10101010,"hi",24,$56
 """
 
+TEST_WORD_FORMATS_SKOOL = """; Binary and mixed-base DEFW statements
+w40000 DEFW %1111000000001111,%1111000000001111
+ 40004 DEFW 12345,12345,12345
+ 40010 DEFW $AB0C,$CD32,$102F,$0000
+ 40018 DEFW 54321,%1010101010101010,$F001
+ 40024 DEFW $1234,$543C,%1111111100000000,2345,9876
+ 40034 DEFW $2345,$876D,%1001001010001011,3456,8765
+ 40044 DEFW 65535,65534
+ 40048 DEFW 1,2
+ 40052 DEFW $0000,$FFFF
+ 40056 DEFW $1000,$2FFF
+ 40060 DEFW %0101010111110101,%1111111111111111
+ 40064 DEFW %1101010111110101,%0000000000000001
+"""
+
 class CtlWriterTest(SkoolKitTestCase):
     def _get_ctl(self, elements='btdrmsc', write_hex=False, write_asm_dirs=True, skool=TEST_SKOOL, preserve_base=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')
@@ -538,6 +553,22 @@ class CtlWriterTest(SkoolKitTestCase):
             'b 30000 Binary and mixed-base DEFB/DEFM statements',
             '  30000,30,b1:h1:d1,h2:b2:d3,b2,d3,h5,T5,b1:T2:d1:h1',
             'T 30030,30,b1:h1:d1,h2:b2:d3,b2,d3,h5,5,b1:2:d1:h1'
+        ]
+        self.assertEqual(exp_ctl, ctl)
+
+    def test_word_formats_no_base(self):
+        ctl = self._get_ctl(skool=TEST_WORD_FORMATS_SKOOL, preserve_base=False)
+        exp_ctl = [
+            'w 40000 Binary and mixed-base DEFW statements',
+            '  40000,68,b4,6,8,2:b2:2,4:b2:4*2,4*4,b4'
+        ]
+        self.assertEqual(exp_ctl, ctl)
+
+    def test_word_formats_preserve_base(self):
+        ctl = self._get_ctl(skool=TEST_WORD_FORMATS_SKOOL, preserve_base=True)
+        exp_ctl = [
+            'w 40000 Binary and mixed-base DEFW statements',
+            '  40000,68,b4,d6,h8,d2:b2:h2,h4:b2:d4*2,d4*2,h4*2,b4'
         ]
         self.assertEqual(exp_ctl, ctl)
 

@@ -40,19 +40,19 @@ BASE_10 = 10
 #: Force hexadecimal.
 BASE_16 = 16
 
-BYTE_FORMAT_DEFB_NO_BASE = {
+FORMAT_NO_BASE = {
     'b': 'b{}',
     'd': '{}',
     'h': '{}'
 }
 
-BYTE_FORMAT_DEFM_NO_BASE = {
+FORMAT_DEFM_NO_BASE = {
     'b': 'b{}',
     'd': 'B{}',
     'h': 'B{}'
 }
 
-BYTE_FORMAT_PRESERVE_BASE = {
+FORMAT_PRESERVE_BASE = {
     'b': 'b{}',
     'd': 'd{}',
     'h': 'h{}'
@@ -87,13 +87,13 @@ def get_instruction_ctl(op):
 
 def get_defb_length(item_str, preserve_base, defb=True):
     if defb:
-        byte_fmt = BYTE_FORMAT_DEFB_NO_BASE
+        byte_fmt = FORMAT_NO_BASE
         text_fmt = 'T{}'
     else:
-        byte_fmt = BYTE_FORMAT_DEFM_NO_BASE
+        byte_fmt = FORMAT_DEFM_NO_BASE
         text_fmt = '{}'
     if preserve_base:
-        byte_fmt = BYTE_FORMAT_PRESERVE_BASE
+        byte_fmt = FORMAT_PRESERVE_BASE
     full_length = 0
     lengths = []
     length = 0
@@ -163,8 +163,32 @@ def get_defb_item_list(item_str):
             i = end + 1
     return items
 
-def get_defw_length(item_str):
-    return 2 * (item_str.count(',') + 1)
+def get_defw_length(item_str, preserve_base):
+    if preserve_base:
+        word_fmt = FORMAT_PRESERVE_BASE
+    else:
+        word_fmt = FORMAT_NO_BASE
+    full_length = 0
+    lengths = []
+    length = 0
+    prev_base = None
+    for item in item_str.split(','):
+        item = item.strip()
+        if item.startswith('%'):
+            cur_base = 'b'
+        elif item.startswith('$') and preserve_base:
+            cur_base = 'h'
+        else:
+            cur_base = 'd'
+        if prev_base != cur_base and length:
+            lengths.append(word_fmt[prev_base].format(length))
+            full_length += length
+            length = 0
+        length += 2
+        prev_base = cur_base
+    lengths.append(word_fmt[prev_base].format(length))
+    full_length += length
+    return full_length, ':'.join(lengths)
 
 def set_bytes(snapshot, address, operation):
     directive = operation[:4].upper()
