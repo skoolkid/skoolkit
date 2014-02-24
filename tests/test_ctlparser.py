@@ -39,7 +39,7 @@ B 30720,10,1,T3:2,1:T1*2
 T 30730-30744,10:B5
 B 30745,15,5:X10
 T 30760,5,2:Y3
-W 30765,5,1:B4
+W 30765,5,1:Z4
 Z 30770,10,T8:2
 c ABCDE Invalid
 C 40000,Q Invalid
@@ -168,7 +168,7 @@ class CtlParserTest(SkoolKitTestCase):
         invalid_lines = [
             'B 30745,15,5:X10',
             'T 30760,5,2:Y3',
-            'W 30765,5,1:B4',
+            'W 30765,5,1:Z4',
             'Z 30770,10,T8:2',
             'c ABCDE Invalid',
             'C 40000,Q Invalid',
@@ -226,6 +226,37 @@ class CtlParserTest(SkoolKitTestCase):
                 (5, None),
                 (5, [(5, 'B')])
             ],
+        }
+        self.assertEqual(ctl_parser.lengths, exp_lengths)
+
+    def test_word_formats(self):
+        ctl = '\n'.join((
+            'w 40000 Test word formats',
+            '  40000,10 5 default',
+            '  40010,b10 5 words in binary format',
+            '  40020,b10,6,d2,h2 3 binary, 1 decimal, 1 hex',
+            '  40030,b10,4:d4:h2 2 binary, 2 decimal, 1 hex, one line',
+            '  40040,10,b2,4,h4 1 binary, 2 default, 2 hex',
+            '  40050,10,b2:6:h2 1 binary, 3 default, 1 hex, one line',
+        ))
+        ctl_parser = CtlParser()
+        ctlfile = self.write_text_file(ctl)
+        ctl_parser.parse_ctl(ctlfile)
+
+        exp_lengths = {
+            40010: [(None, [(None, 'b')])],
+            40020: [
+                (6, [(6, 'b')]),
+                (2, [(2, 'd')]),
+                (2, [(2, 'h')])
+            ],
+            40030: [(10, [(4, 'b'), (4, 'd'), (2, 'h')])],
+            40040: [
+                (2, [(2, 'b')]),
+                (4, None),
+                (4, [(4, 'h')])
+            ],
+            40050: [(10, [(2, 'b'), (6, None), (2, 'h')])]
         }
         self.assertEqual(ctl_parser.lengths, exp_lengths)
 

@@ -52,6 +52,7 @@ class Disassembler:
         self.defm_width = defm_width
         self.asm_hex = asm_hex
         self.asm_lower = asm_lower
+        self.defw_size = 2
         if asm_lower:
             self.hex2fmt = '${0:02x}'
             self.hex4fmt = HEX4FMT.lower()
@@ -73,6 +74,11 @@ class Disassembler:
         }
         if self.zfill:
             self.byte_formats['d'] = '{:03d}'
+        self.word_formats = {
+            'b': '%{:016b}',
+            'h': self.hex4fmt,
+            'd': '{}'
+        }
 
     def num_str(self, num, num_bytes=0):
         if not self.asm_hex:
@@ -129,15 +135,42 @@ class Disassembler:
             instructions.append(self.defb_line(i - len(data) + 1, data, sublengths))
         return instructions
 
-    def defw_range(self, start, end, one_line=False):
-        if one_line:
-            words = [self.num_str(self.snapshot[i] + 256 * self.snapshot[i + 1], 2) for i in range(start, end, 2)]
-            instructions = [Instruction(start, '{0} {1}'.format(self.defw_inst, ','.join(words)), self.snapshot[start:end])]
+    def _format_word(self, value, base):
+        if base not in self.word_formats:
+            if self.asm_hex:
+                base = 'h'
+            else:
+                base = 'd'
+        return self.word_formats[base].format(value)
+
+    def _defw_items(self, data, sublengths):
+        items = []
+        if sublengths and sublengths[0][0]:
+            i = 0
+            for length, ctl in sublengths:
+                for j in range(i, i + length, 2):
+                    word = data[j] + 256 * data[j + 1]
+                    items.append(self._format_word(word, ctl))
+                i += length
         else:
-            instructions = []
-            for i in range(start, end, 2):
-                word = self.num_str(self.snapshot[i] + 256 * self.snapshot[i + 1], 2)
-                instructions.append(Instruction(i, '{0} {1}'.format(self.defw_inst, word), self.snapshot[i:i + 2]))
+            base = None
+            if sublengths:
+                base = sublengths[0][1]
+            for j in range(0, len(data), 2):
+                word = data[j] + 256 * data[j + 1]
+                items.append(self._format_word(word, base))
+        return ','.join(items)
+
+    def defw_range(self, start, end, one_line, sublengths=None):
+        if one_line:
+            step = end - start
+        else:
+            step = self.defw_size
+        instructions = []
+        for address in range(start, end, step):
+            data = self.snapshot[address:address + step]
+            defw_dir = '{} {}'.format(self.defw_inst, self._defw_items(data, sublengths))
+            instructions.append(Instruction(address, defw_dir, data))
         return instructions
 
     def defm_range(self, start, end, one_line=False, sublengths=None):

@@ -409,6 +409,56 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         self.assertEqual(actual_instructions, exp_instructions)
 
+    def test_word_formats(self):
+        snapshot = [170, 53] * 32
+        ctl = '\n'.join((
+            'w 00000',
+            '  00000,4',
+            '  00004,b4',
+            '  00008,d4',
+            '  00012,h4',
+            '  00016,b8,2,d2,h4',
+            '  00024,d8,b4:2:h2',
+            '  00032,h8,b2:d4:2',
+            '  00040,8,b2,4,h2',
+            '  00048,8,b2:2:h4',
+            '  00056,8,4',
+            'i 00064'
+        ))
+        ctl_parser = CtlParser()
+        ctl_parser.parse_ctl(self.write_text_file(ctl))
+        disassembly = Disassembly(snapshot, ctl_parser, True)
+
+        entries = disassembly.entries
+        self.assertEqual(len(entries), 2)
+
+        entry = entries[0]
+        self.assertEqual(entry.address, 0)
+        instructions = entry.instructions
+        actual_instructions = [(i.address, i.operation) for i in instructions]
+        exp_instructions = [
+            ( 0, 'DEFW 13738'),
+            ( 2, 'DEFW 13738'),
+            ( 4, 'DEFW %0011010110101010'),
+            ( 6, 'DEFW %0011010110101010'),
+            ( 8, 'DEFW 13738'),
+            (10, 'DEFW 13738'),
+            (12, 'DEFW $35AA'),
+            (14, 'DEFW $35AA'),
+            (16, 'DEFW %0011010110101010'),
+            (18, 'DEFW 13738'),
+            (20, 'DEFW $35AA,$35AA'),
+            (24, 'DEFW %0011010110101010,%0011010110101010,13738,$35AA'),
+            (32, 'DEFW %0011010110101010,13738,13738,$35AA'),
+            (40, 'DEFW %0011010110101010'),
+            (42, 'DEFW 13738,13738'),
+            (46, 'DEFW $35AA'),
+            (48, 'DEFW %0011010110101010,13738,$35AA,$35AA'),
+            (56, 'DEFW 13738,13738'),
+            (60, 'DEFW 13738,13738')
+        ]
+        self.assertEqual(actual_instructions, exp_instructions)
+
 class SkoolWriterTest(SkoolKitTestCase):
     def _get_writer(self, snapshot, ctl, defb_size=8, defb_mod=1, zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
         ctl_parser = CtlParser()
