@@ -460,7 +460,7 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(actual_instructions, exp_instructions)
 
     def test_defs_formats(self):
-        snapshot = [0] * 968
+        snapshot = []
         ctl = '\n'.join((
             'z 00000',
             '  00000,4',
@@ -472,7 +472,9 @@ class DisassemblyTest(SkoolKitTestCase):
             '  00100,d40,b10,10,h10',
             '  00140,h60,b10,d10,40',
             'Z 00200,768,b256,d256,h256',
-            'i 00968'
+            '  00968,16,16:b%10101010',
+            '  00984,40,40:h17',
+            'i 01024'
         ))
         ctl_parser = CtlParser()
         ctl_parser.parse_ctl(self.write_text_file(ctl))
@@ -507,7 +509,9 @@ class DisassemblyTest(SkoolKitTestCase):
             (160, 'DEFS $28'),
             (200, 'DEFS %0000000100000000'),
             (456, 'DEFS 256'),
-            (712, 'DEFS $0100')
+            (712, 'DEFS $0100'),
+            (968, 'DEFS 16,%10101010'),
+            (984, 'DEFS 40,$11')
         ]
         self.assertEqual(exp_instructions, actual_instructions)
 

@@ -270,7 +270,9 @@ class CtlParserTest(SkoolKitTestCase):
             'Z 50040,b20,5,d5,h5',
             'Z 50060,d20,b5,5,h5',
             'Z 50080,h20,b5,d5,5',
-            '  50100,20,b5,d5,5'
+            '  50100,20,b5,d5,5',
+            '  50120,20,d20:b%10001000',
+            '  50140,20,20:h$44'
         ))
         ctl_parser = CtlParser()
         ctlfile = self.write_text_file(ctl)
@@ -299,7 +301,9 @@ class CtlParserTest(SkoolKitTestCase):
                 (5, [(5, 'b')]),
                 (5, [(5, 'd')]),
                 (5, None)
-            ]
+            ],
+            50120: [(156, [(20, 'd'), (136, 'b')])],
+            50140: [(88, [(20, None), (68, 'h')])]
         }
         self.assertEqual(exp_lengths, ctl_parser.lengths)
 

@@ -56,6 +56,8 @@ def wrap(text, width):
 def get_int_param(num_str):
     if num_str.startswith('$'):
         return int(num_str[1:], 16)
+    if num_str.startswith('%'):
+        return int(num_str[1:], 2)
     return int(num_str)
 
 def parse_int(num_str, default=None):

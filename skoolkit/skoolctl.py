@@ -17,7 +17,8 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from . import write_line, parse_int, open_file
-from .skoolparser import DIRECTIVES, get_address, parse_asm_block_directive, get_instruction_ctl, get_defb_length, get_defm_length, get_defw_length
+from .skoolparser import (DIRECTIVES, get_address, parse_asm_block_directive, get_instruction_ctl,
+                          get_defb_length, get_defm_length, get_defs_length, get_defw_length)
 
 BLOCKS = 'b'
 BLOCK_TITLES = 't'
@@ -247,7 +248,7 @@ class CtlWriter:
             stmt_lengths = []
             for stmt in instructions:
                 num_bytes += stmt.size
-                if ctl in 'btw':
+                if ctl in 'btwz':
                     stmt_lengths.append(stmt.length)
                 else:
                     stmt_lengths.append(str(stmt.size))
@@ -493,7 +494,7 @@ class Instruction:
         elif self.inst_ctl == 'w':
             self.size, self.length = get_defw_length(operation[5:], preserve_base)
         elif self.inst_ctl == 'z':
-            self.size = parse_int(get_address(operation[4:]))
+            self.size, self.length = get_defs_length(operation[5:], preserve_base)
 
     def set_comment(self, rowspan, text):
         self.comment = Comment(rowspan, text)

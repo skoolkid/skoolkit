@@ -191,10 +191,12 @@ class Disassembler:
         return instructions
 
     def defs(self, start, end, sublengths):
-        base = None
+        size = end - start
         if sublengths:
-            base = sublengths[0][1]
-        return [Instruction(start, '{} {}'.format(self.defs_inst, self.num_str(end - start, base=base)), self.snapshot[start:end])]
+            items = [self.num_str(value or size, base=base) for value, base in sublengths]
+        else:
+            items = [self.num_str(size)]
+        return Instruction(start, '{} {}'.format(self.defs_inst, ','.join(items)), self.snapshot[start:end])
 
     def ignore(self, start, end):
         return [Instruction(start, '', self.snapshot[start:end])]

@@ -472,6 +472,14 @@ w40000 DEFW %1111000000001111,%1111000000001111
  40064 DEFW %1101010111110101,%0000000000000001
 """
 
+TEST_DEFS_FORMATS_SKOOL = """; DEFS statements in various bases
+z50000 DEFS %0000000111110100
+ 50500 DEFS 1000
+ 51500 DEFS $07D0
+ 53500 DEFS 500,%10101010
+ 54000 DEFS $0100,170
+"""
+
 class CtlWriterTest(SkoolKitTestCase):
     def _get_ctl(self, elements='btdrmsc', write_hex=False, write_asm_dirs=True, skool=TEST_SKOOL, preserve_base=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')
@@ -569,6 +577,22 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'w 40000 Binary and mixed-base DEFW statements',
             '  40000,68,b4,d6,h8,d2:b2:h2,h4:b2:d4*2,d4*2,h4*2,b4'
+        ]
+        self.assertEqual(exp_ctl, ctl)
+
+    def test_defs_formats_no_base(self):
+        ctl = self._get_ctl(skool=TEST_DEFS_FORMATS_SKOOL, preserve_base=False)
+        exp_ctl = [
+            'z 50000 DEFS statements in various bases',
+            '  50000,4256,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170'
+        ]
+        self.assertEqual(exp_ctl, ctl)
+
+    def test_defs_formats_preserve_base(self):
+        ctl = self._get_ctl(skool=TEST_DEFS_FORMATS_SKOOL, preserve_base=True)
+        exp_ctl = [
+            'z 50000 DEFS statements in various bases',
+            '  50000,4256,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170'
         ]
         self.assertEqual(exp_ctl, ctl)
 

@@ -85,6 +85,13 @@ def get_instruction_ctl(op):
         return 'Z'
     return 'C'
 
+def _get_base(item, preserve_base):
+    if item.startswith('%'):
+        return 'b'
+    if item.startswith('$') and preserve_base:
+        return 'h'
+    return 'd'
+
 def get_defb_length(item_str, preserve_base, defb=True):
     if defb:
         byte_fmt = FORMAT_NO_BASE
@@ -116,12 +123,7 @@ def get_defb_length(item_str, preserve_base, defb=True):
                 full_length += length
                 length = 0
         else:
-            if item.startswith('%'):
-                cur_base = 'b'
-            elif item.startswith('$') and preserve_base:
-                cur_base = 'h'
-            else:
-                cur_base = 'd'
+            cur_base = _get_base(item, preserve_base)
             if prev_base != cur_base and length:
                 lengths.append(byte_fmt[prev_base].format(length))
                 full_length += length
@@ -174,12 +176,7 @@ def get_defw_length(item_str, preserve_base):
     prev_base = None
     for item in item_str.split(','):
         item = item.strip()
-        if item.startswith('%'):
-            cur_base = 'b'
-        elif item.startswith('$') and preserve_base:
-            cur_base = 'h'
-        else:
-            cur_base = 'd'
+        cur_base = _get_base(item, preserve_base)
         if prev_base != cur_base and length:
             lengths.append(word_fmt[prev_base].format(length))
             full_length += length
@@ -189,6 +186,20 @@ def get_defw_length(item_str, preserve_base):
     lengths.append(word_fmt[prev_base].format(length))
     full_length += length
     return full_length, ':'.join(lengths)
+
+def get_defs_length(item_str, preserve_base):
+    if preserve_base:
+        fmt = FORMAT_PRESERVE_BASE
+    else:
+        fmt = FORMAT_NO_BASE
+    size = None
+    lengths = []
+    for item in item_str.split(',', 1):
+        if size is None:
+            size = get_int_param(item)
+        base = _get_base(item, preserve_base)
+        lengths.append(fmt[base].format(item))
+    return size, ':'.join(lengths)
 
 def set_bytes(snapshot, address, operation):
     directive = operation[:4].upper()
