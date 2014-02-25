@@ -40,7 +40,7 @@ T 30730-30744,10:B5
 B 30745,15,5:X10
 T 30760,5,2:Y3
 W 30765,5,1:Z4
-Z 30770,10,T8:2
+Z 30770,10,U8:2
 c ABCDE Invalid
 C 40000,Q Invalid
 ; @label:EDCBA=INVALID"""
@@ -169,7 +169,7 @@ class CtlParserTest(SkoolKitTestCase):
             'B 30745,15,5:X10',
             'T 30760,5,2:Y3',
             'W 30765,5,1:Z4',
-            'Z 30770,10,T8:2',
+            'Z 30770,10,U8:2',
             'c ABCDE Invalid',
             'C 40000,Q Invalid',
             '; @label:EDCBA=INVALID'
@@ -184,8 +184,8 @@ class CtlParserTest(SkoolKitTestCase):
         ctl = '\n'.join((
             'b 40000 Test byte formats',
             '  40000,b10 10 bytes in binary format',
-            '  40010,b10,5,d3,h2 5 binary, 3 decimal, 2 hex',
-            '  40020,b10,2:d3:h5 2 binary, 3 decimal, 5 hex, one line',
+            'B 40010,b10,5,d3,h2 5 binary, 3 decimal, 2 hex',
+            'B 40020,b10,2:d3:h5 2 binary, 3 decimal, 5 hex, one line',
             '  40030,10,b6,3,h1 6 binary, 3 default, 1 hex',
             '  40040,10,b5:2:h3 5 binary, 2 default, 3 hex, one line',
             '  40050,10,1,T9 1 default, 9 text',
@@ -227,15 +227,15 @@ class CtlParserTest(SkoolKitTestCase):
                 (5, [(5, 'B')])
             ],
         }
-        self.assertEqual(ctl_parser.lengths, exp_lengths)
+        self.assertEqual(exp_lengths, ctl_parser.lengths)
 
     def test_word_formats(self):
         ctl = '\n'.join((
             'w 40000 Test word formats',
             '  40000,10 5 default',
             '  40010,b10 5 words in binary format',
-            '  40020,b10,6,d2,h2 3 binary, 1 decimal, 1 hex',
-            '  40030,b10,4:d4:h2 2 binary, 2 decimal, 1 hex, one line',
+            'W 40020,b10,6,d2,h2 3 binary, 1 decimal, 1 hex',
+            'W 40030,b10,4:d4:h2 2 binary, 2 decimal, 1 hex, one line',
             '  40040,10,b2,4,h4 1 binary, 2 default, 2 hex',
             '  40050,10,b2:6:h2 1 binary, 3 default, 1 hex, one line',
         ))
@@ -258,7 +258,50 @@ class CtlParserTest(SkoolKitTestCase):
             ],
             40050: [(10, [(2, 'b'), (6, None), (2, 'h')])]
         }
-        self.assertEqual(ctl_parser.lengths, exp_lengths)
+        self.assertEqual(exp_lengths, ctl_parser.lengths)
+
+    def test_defs_formats(self):
+        ctl = '\n'.join((
+            'z 50000 Test DEFS formats',
+            '  50000,10',
+            '  50010,b10',
+            '  50020,d10',
+            '  50030,h10',
+            'Z 50040,b20,5,d5,h5',
+            'Z 50060,d20,b5,5,h5',
+            'Z 50080,h20,b5,d5,5',
+            '  50100,20,b5,d5,5'
+        ))
+        ctl_parser = CtlParser()
+        ctlfile = self.write_text_file(ctl)
+        ctl_parser.parse_ctl(ctlfile)
+
+        exp_lengths = {
+            50010: [(None, [(None, 'b')])],
+            50020: [(None, [(None, 'd')])],
+            50030: [(None, [(None, 'h')])],
+            50040: [
+                (5, [(5, 'b')]),
+                (5, [(5, 'd')]),
+                (5, [(5, 'h')])
+            ],
+            50060: [
+                (5, [(5, 'b')]),
+                (5, [(5, 'd')]),
+                (5, [(5, 'h')])
+            ],
+            50080: [
+                (5, [(5, 'b')]),
+                (5, [(5, 'd')]),
+                (5, [(5, 'h')])
+            ],
+            50100: [
+                (5, [(5, 'b')]),
+                (5, [(5, 'd')]),
+                (5, None)
+            ]
+        }
+        self.assertEqual(exp_lengths, ctl_parser.lengths)
 
 if __name__ == '__main__':
     unittest.main()

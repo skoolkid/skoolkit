@@ -653,7 +653,7 @@ class Disassembly:
                         elif sub_block.ctl == 'w':
                             instructions += self.disassembler.defw_range(address, end, one_line, sublengths)
                         elif sub_block.ctl == 'z':
-                            instructions += self.disassembler.defs(address, end)
+                            instructions += self.disassembler.defs(address, end, sublengths)
                         else:
                             instructions += self.disassembler.defb_range(address, end, one_line, sublengths)
                         address += length

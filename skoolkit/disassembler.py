@@ -80,20 +80,17 @@ class Disassembler:
             'd': '{}'
         }
 
-    def num_str(self, num, num_bytes=0):
-        if not self.asm_hex:
-            return str(num)
-        if num_bytes == 0:
-            if num < 10:
-                fmt = '{0}'
-            elif num < 256:
-                fmt = self.hex2fmt
+    def num_str(self, num, num_bytes=0, base=None):
+        if base not in self.byte_formats:
+            if self.asm_hex:
+                base = 'h'
             else:
-                fmt = self.hex4fmt
-        elif num_bytes == 1:
-            fmt = self.hex2fmt
-        else:
-            fmt = self.hex4fmt
+                base = 'd'
+        fmt = self.byte_formats[base]
+        if num_bytes == 0 and num < 10 and base == 'h':
+            fmt = '{}'
+        elif num > 255 or num_bytes > 1:
+            fmt = self.word_formats[base]
         return fmt.format(num)
 
     def disassemble(self, start, end=65536):
@@ -193,8 +190,11 @@ class Disassembler:
             instructions.extend(self.defm_lines(i - len(msg) + 1, msg, one_line))
         return instructions
 
-    def defs(self, start, end):
-        return [Instruction(start, '{0} {1}'.format(self.defs_inst, self.num_str(end - start)), self.snapshot[start:end])]
+    def defs(self, start, end, sublengths):
+        base = None
+        if sublengths:
+            base = sublengths[0][1]
+        return [Instruction(start, '{} {}'.format(self.defs_inst, self.num_str(end - start, base=base)), self.snapshot[start:end])]
 
     def ignore(self, start, end):
         return [Instruction(start, '', self.snapshot[start:end])]

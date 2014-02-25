@@ -362,9 +362,9 @@ class DisassemblyTest(SkoolKitTestCase):
             '  30000,b5',
             '  30005,b15',
             '  30020,b5,2,d2,h1',
-            '  30025,b5,2:d2:h1',
+            'B 30025,b5,2:d2:h1',
             '  30030,h10,5:d3:b2',
-            '  30040,5,b1,h2',
+            'B 30040,5,b1,h2',
             '  30045,5,h1,T4',
             '  30050,5,b2:T3',
             'T 30055,5,h2,3',
@@ -416,12 +416,12 @@ class DisassemblyTest(SkoolKitTestCase):
             '  00000,4',
             '  00004,b4',
             '  00008,d4',
-            '  00012,h4',
-            '  00016,b8,2,d2,h4',
+            'W 00012,h4',
+            'W 00016,b8,2,d2,h4',
             '  00024,d8,b4:2:h2',
             '  00032,h8,b2:d4:2',
             '  00040,8,b2,4,h2',
-            '  00048,8,b2:2:h4',
+            'W 00048,8,b2:2:h4',
             '  00056,8,4',
             'i 00064'
         ))
@@ -458,6 +458,58 @@ class DisassemblyTest(SkoolKitTestCase):
             (60, 'DEFW 13738,13738')
         ]
         self.assertEqual(actual_instructions, exp_instructions)
+
+    def test_defs_formats(self):
+        snapshot = [0] * 968
+        ctl = '\n'.join((
+            'z 00000',
+            '  00000,4',
+            '  00004,b4',
+            'Z 00008,d4',
+            '  00012,h8',
+            '  00020,40,b10,10,h10',
+            'Z 00060,b40,10,d10,h10',
+            '  00100,d40,b10,10,h10',
+            '  00140,h60,b10,d10,40',
+            'Z 00200,768,b256,d256,h256',
+            'i 00968'
+        ))
+        ctl_parser = CtlParser()
+        ctl_parser.parse_ctl(self.write_text_file(ctl))
+        disassembly = Disassembly(snapshot, ctl_parser, True)
+
+        entries = disassembly.entries
+        self.assertEqual(len(entries), 2)
+
+        entry = entries[0]
+        self.assertEqual(entry.address, 0)
+        instructions = entry.instructions
+        actual_instructions = [(i.address, i.operation) for i in instructions]
+        exp_instructions = [
+            (  0, 'DEFS 4'),
+            (  4, 'DEFS %00000100'),
+            (  8, 'DEFS 4'),
+            ( 12, 'DEFS 8'),
+            ( 20, 'DEFS %00001010'),
+            ( 30, 'DEFS 10'),
+            ( 40, 'DEFS $0A'),
+            ( 50, 'DEFS $0A'),
+            ( 60, 'DEFS %00001010'),
+            ( 70, 'DEFS 10'),
+            ( 80, 'DEFS $0A'),
+            ( 90, 'DEFS $0A'),
+            (100, 'DEFS %00001010'),
+            (110, 'DEFS 10'),
+            (120, 'DEFS $0A'),
+            (130, 'DEFS $0A'),
+            (140, 'DEFS %00001010'),
+            (150, 'DEFS 10'),
+            (160, 'DEFS $28'),
+            (200, 'DEFS %0000000100000000'),
+            (456, 'DEFS 256'),
+            (712, 'DEFS $0100')
+        ]
+        self.assertEqual(exp_instructions, actual_instructions)
 
 class SkoolWriterTest(SkoolKitTestCase):
     def _get_writer(self, snapshot, ctl, defb_size=8, defb_mod=1, zfill=False, defm_width=66, asm_hex=False, asm_lower=False):

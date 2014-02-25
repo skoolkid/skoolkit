@@ -176,7 +176,7 @@ class SftParser:
                     elif inst_ctl == 'T':
                         instructions += self.disassembler.defm_range(start, end, True, sublengths)
                     elif inst_ctl == 'Z':
-                        instructions += self.disassembler.defs(start, end)
+                        instructions += self.disassembler.defs(start, end, sublengths)
                     else:
                         instructions += self.disassembler.defb_range(start, end, True, sublengths)
                     start += length
