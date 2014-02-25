@@ -79,7 +79,7 @@ class ControlLine(Line):
             self.lengths = [length]
         elif self.inst_ctl == 'W':
             self.size, length = get_defw_length(self.operation[5:], self.preserve_base)
-            self.lengths = [str(self.size)]
+            self.lengths = [length]
         else:
             self.size = parse_int(get_address(self.operation[4:]))
             self.lengths = [str(self.size)]

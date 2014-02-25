@@ -258,6 +258,21 @@ b30000 DEFB %10111101,$42,26
  30055 DEFM %10101010,"hi",24,$56
 """
 
+TEST_WORD_FORMATS_SKOOL = """; Binary and mixed-base DEFW statements
+w40000 DEFW %1111000000001111,%1111000000001111
+ 40004 DEFW 12345,12345,12345
+ 40010 DEFW $AB0C,$CD32,$102F,$0000
+ 40018 DEFW 54321,%1010101010101010,$F001
+ 40024 DEFW $1234,$543C,%1111111100000000,2345,9876
+ 40034 DEFW $2345,$876D,%1001001010001011,3456,8765
+ 40044 DEFW 65535,65534
+ 40048 DEFW 1,2
+ 40052 DEFW $0000,$FFFF
+ 40056 DEFW $1000,$2FFF
+ 40060 DEFW %0101010111110101,%1111111111111111
+ 40064 DEFW %1101010111110101,%0000000000000001
+"""
+
 class SftWriterTest(SkoolKitTestCase):
     def _test_sft(self, skool, exp_sft, write_hex=False, preserve_base=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')
@@ -287,6 +302,20 @@ class SftWriterTest(SkoolKitTestCase):
             ' T30030,b1:h1:d1,h2:b2:d3,b2,d3,h5,5,b1:2:d1:h1'
         ]
         self._test_sft(TEST_BYTE_FORMATS_SKOOL, exp_sft, preserve_base=True)
+
+    def test_word_formats_no_base(self):
+        exp_sft = [
+            '; Binary and mixed-base DEFW statements',
+            'wW40000,b4,6,8,2:b2:2,4:b2:4*2,4*4,b4*2'
+        ]
+        self._test_sft(TEST_WORD_FORMATS_SKOOL, exp_sft, preserve_base=False)
+
+    def test_word_formats_preserve_base(self):
+        exp_sft = [
+            '; Binary and mixed-base DEFW statements',
+            'wW40000,b4,d6,h8,d2:b2:h2,h4:b2:d4*2,d4*2,h4*2,b4*2'
+        ]
+        self._test_sft(TEST_WORD_FORMATS_SKOOL, exp_sft, preserve_base=True)
 
 if __name__ == '__main__':
     unittest.main()
