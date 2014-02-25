@@ -17,7 +17,8 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from . import write_line, parse_int, open_file
-from .skoolparser import DIRECTIVES, get_address, parse_asm_block_directive, get_instruction_ctl, get_defb_length, get_defm_length, get_defw_length
+from .skoolparser import (DIRECTIVES, get_address, parse_asm_block_directive, get_instruction_ctl,
+                          get_defb_length, get_defm_length, get_defs_length, get_defw_length)
 from .skoolctl import get_lengths
 
 VALID_CTLS = DIRECTIVES + ' *'
@@ -81,8 +82,8 @@ class ControlLine(Line):
             self.size, length = get_defw_length(self.operation[5:], self.preserve_base)
             self.lengths = [length]
         else:
-            self.size = parse_int(get_address(self.operation[4:]))
-            self.lengths = [str(self.size)]
+            self.size, length = get_defs_length(self.operation[5:], self.preserve_base)
+            self.lengths = [length]
 
     def add_length(self, ctl_line):
         self.size += ctl_line.size

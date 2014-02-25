@@ -273,13 +273,21 @@ w40000 DEFW %1111000000001111,%1111000000001111
  40064 DEFW %1101010111110101,%0000000000000001
 """
 
+TEST_DEFS_FORMATS_SKOOL = """; DEFS statements in various bases
+z50000 DEFS %0000000111110100
+ 50500 DEFS 1000
+ 51500 DEFS $07D0
+ 53500 DEFS 500,%10101010
+ 54000 DEFS $0100,170
+"""
+
 class SftWriterTest(SkoolKitTestCase):
     def _test_sft(self, skool, exp_sft, write_hex=False, preserve_base=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')
         writer = SftWriter(skoolfile, write_hex, preserve_base)
         writer.write()
         sft =  self.out.getvalue().split('\n')[:-1]
-        self.assertEqual(sft, exp_sft)
+        self.assertEqual(exp_sft, sft)
 
     def test_sftwriter(self):
         self._test_sft(TEST_SKOOL, TEST_SFT)
@@ -316,6 +324,20 @@ class SftWriterTest(SkoolKitTestCase):
             'wW40000,b4,d6,h8,d2:b2:h2,h4:b2:d4*2,d4*2,h4*2,b4*2'
         ]
         self._test_sft(TEST_WORD_FORMATS_SKOOL, exp_sft, preserve_base=True)
+
+    def test_defs_formats_no_base(self):
+        exp_sft = [
+            '; DEFS statements in various bases',
+            'zZ50000,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170'
+        ]
+        self._test_sft(TEST_DEFS_FORMATS_SKOOL, exp_sft, preserve_base=False)
+
+    def test_defs_formats_preserve_base(self):
+        exp_sft = [
+            '; DEFS statements in various bases',
+            'zZ50000,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170'
+        ]
+        self._test_sft(TEST_DEFS_FORMATS_SKOOL, exp_sft, preserve_base=True)
 
 if __name__ == '__main__':
     unittest.main()
