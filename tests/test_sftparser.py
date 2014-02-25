@@ -356,7 +356,7 @@ class SftParserTest(SkoolKitTestCase):
             ' 00069 DEFM 42',
             ' 00070 DEFM 42,42,$2A,$2A,$2A'
         ]
-        self.assertEqual(skool[:-1], exp_skool)
+        self.assertEqual(exp_skool, skool[:-1])
 
     def test_word_formats(self):
         snapshot = [205, 85] * 20
@@ -384,7 +384,45 @@ class SftParserTest(SkoolKitTestCase):
             ' 00034 DEFW 21965,21965',
             ' 00038 DEFW $55CD'
         ]
-        self.assertEqual(skool[:-1], exp_skool)
+        self.assertEqual(exp_skool, skool[:-1])
+
+    def test_defs_formats(self):
+        snapshot = [0] * 950
+        sft = '\n'.join((
+            'zZ00000,1,b2,d3,h4',
+            ' Z00010,b10,d10,h10',
+            ' Z00040,10',
+            ' Z00050,b300,d300,h300'
+        ))
+        skool = self._parse_sft(sft, snapshot)[1]
+
+        exp_skool = [
+            'z00000 DEFS 1',
+            ' 00001 DEFS %00000010',
+            ' 00003 DEFS 3',
+            ' 00006 DEFS 4',
+            ' 00010 DEFS %00001010',
+            ' 00020 DEFS 10',
+            ' 00030 DEFS $0A',
+            ' 00040 DEFS 10',
+            ' 00050 DEFS %0000000100101100',
+            ' 00350 DEFS 300',
+            ' 00650 DEFS $012C'
+        ]
+        self.assertEqual(exp_skool, skool[:-1])
+
+    def test_defs_formats_hex(self):
+        snapshot = [0] * 40
+        sft = 'zZ00000,b10,d10,h10,10'
+        skool = self._parse_sft(sft, snapshot, asm_hex=True)[1]
+
+        exp_skool = [
+            'z$0000 DEFS %00001010',
+            ' $000A DEFS 10',
+            ' $0014 DEFS $0A',
+            ' $001E DEFS $0A'
+        ]
+        self.assertEqual(exp_skool, skool[:-1])
 
 if __name__ == '__main__':
     unittest.main()
