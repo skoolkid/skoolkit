@@ -75,7 +75,7 @@ Such statements are preserved in a skool file template thus::
   bB30000,4:T6
    T30010,B2,1:B2
 
-DEFB and DEFM statements may contain numeric values in various bases; for
+DEFB, DEFM and DEFW statements may contain numeric values in various bases; for
 example::
 
   b40000 DEFB %10101010,23,43,$5F
@@ -112,14 +112,14 @@ that its contents are set to 0 so that it will disassemble to ``DEFB 0``
 
 Revision history
 ----------------
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 2.4     | New                                                             |
-+---------+-----------------------------------------------------------------+
-| 3.1.4   | Added support for DEFB and DEFM statements that contain both    |
-|         | strings and bytes                                               |
-+---------+-----------------------------------------------------------------+
-| 3.7     | Added support for specifying the base of numeric values in DEFB |
-|         | and DEFM statements                                             |
-+---------+-----------------------------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 2.4     | New                                                              |
++---------+------------------------------------------------------------------+
+| 3.1.4   | Added support for DEFB and DEFM statements that contain both     |
+|         | strings and bytes                                                |
++---------+------------------------------------------------------------------+
+| 3.7     | Added support for specifying the base of numeric values in DEFB, |
+|         | DEFM and DEFW statements                                         |
++---------+------------------------------------------------------------------+
