@@ -264,7 +264,7 @@ which is equivalent to::
 
 Number bases
 ------------
-Numeric values in DEFB, DEFM and DEFW statements are normally rendered in
+Numeric values in DEFB, DEFM, DEFS and DEFW statements are normally rendered in
 either decimal or hexadecimal, depending on the options passed to
 :ref:`sna2skool.py`. To force a numeric value to be rendered in a specific
 base, attach a ``b`` (binary), ``d`` (decimal) or ``h`` (hexadecimal) prefix to
@@ -399,5 +399,5 @@ Revision history
 |         | instructions                                                      |
 +---------+-------------------------------------------------------------------+
 | 3.7     | Added support for specifying the base of numeric values in DEFB,  |
-|         | DEFM and DEFW statements                                          |
+|         | DEFM, DEFS and DEFW statements                                    |
 +---------+-------------------------------------------------------------------+

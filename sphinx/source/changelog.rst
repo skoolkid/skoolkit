@@ -4,7 +4,7 @@ Changelog
 3.7b1
 -----
 * Added support to control files and skool file templates for specifying the
-  base of numeric values in DEFB, DEFM and DEFW statements
+  base of numeric values in DEFB, DEFM, DEFS and DEFW statements
 * Added changelog entries to `manic_miner.ref`, `jet_set_willy.ref` and
   `48.rom.ref`
 

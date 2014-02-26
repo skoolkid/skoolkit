@@ -61,7 +61,7 @@ which is equivalent to::
    B40968,8
    B40976,5
 
-The same syntax also applies for declaring sequences of DEFM, DEFW and DEFS
+The same syntax also applies for declaring sequences of DEFM, DEFS and DEFW
 statements.
 
 DEFB and DEFM statements may contain both strings and bytes; for example::
@@ -75,8 +75,8 @@ Such statements are preserved in a skool file template thus::
   bB30000,4:T6
    T30010,B2,1:B2
 
-DEFB, DEFM and DEFW statements may contain numeric values in various bases; for
-example::
+DEFB, DEFM, DEFS and DEFW statements may contain numeric values in various
+bases; for example::
 
   b40000 DEFB %10101010,23,43,$5F
    40004 DEFB 56
@@ -121,5 +121,5 @@ Revision history
 |         | strings and bytes                                                |
 +---------+------------------------------------------------------------------+
 | 3.7     | Added support for specifying the base of numeric values in DEFB, |
-|         | DEFM and DEFW statements                                         |
+|         | DEFM, DEFS and DEFW statements                                   |
 +---------+------------------------------------------------------------------+
