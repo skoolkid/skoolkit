@@ -248,10 +248,7 @@ class CtlWriter:
             stmt_lengths = []
             for stmt in instructions:
                 num_bytes += stmt.size
-                if ctl in 'btwz':
-                    stmt_lengths.append(stmt.length)
-                else:
-                    stmt_lengths.append(str(stmt.size))
+                stmt_lengths.append(stmt.length)
             while len(stmt_lengths) > 1 and stmt_lengths[-1] == stmt_lengths[-2]:
                 stmt_lengths.pop()
             # Don't write the statement lengths in a ctl line for a lone DEFB
