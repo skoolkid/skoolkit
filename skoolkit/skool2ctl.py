@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2010-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -21,8 +21,8 @@ import argparse
 from . import VERSION
 from .skoolctl import CtlWriter, BLOCKS, BLOCK_TITLES, BLOCK_DESC, REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS
 
-def run(skoolfile, elements, write_hex, write_asm_dirs):
-    writer = CtlWriter(skoolfile, elements, write_hex, write_asm_dirs)
+def run(skoolfile, options):
+    writer = CtlWriter(skoolfile, options.elements, options.write_hex, options.write_asm_dirs, options.preserve_base)
     writer.write()
 
 def main(args):
@@ -37,6 +37,9 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-a', '--no-asm-dirs', action='store_false', dest='write_asm_dirs',
                        help='Do not write ASM directives')
+    group.add_argument('-b', '--preserve-base', action='store_true', dest='preserve_base',
+                       help="Preserve the base of decimal and hexadecimal values in\n"
+                            "DEFB, DEFM, DEFS and DEFW statements")
     group.add_argument('-h', '--hex', action='store_true', dest='write_hex',
                        help='Write addresses in hexadecimal format')
     group.add_argument('-V', '--version', action='version',
@@ -55,4 +58,4 @@ def main(args):
     namespace, unknown_args = parser.parse_known_args(args)
     if unknown_args or namespace.skoolfile is None:
         parser.exit(2, parser.format_help())
-    run(namespace.skoolfile, namespace.elements, namespace.write_hex, namespace.write_asm_dirs)
+    run(namespace.skoolfile, namespace)

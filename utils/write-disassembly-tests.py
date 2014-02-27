@@ -29,7 +29,8 @@ def get_ctl_options_list():
     for w in ('', '-w b', '-w bt', '-w btd', '-w btdr', '-w btdrm', '-w btdrms', '-w btdrmsc'):
         for h in ('', '-h'):
             for a in ('', '-a'):
-                options_list.append('{} {} {}'.format(w, h, a).strip())
+                for b in ('', '-b'):
+                    options_list.append('{} {} {} {}'.format(w, h, a, b).strip())
     return options_list
 
 def get_html_options_list():

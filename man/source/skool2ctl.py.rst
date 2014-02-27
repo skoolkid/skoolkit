@@ -17,6 +17,10 @@ OPTIONS
 -a, --no-asm-dirs
   Do not write ASM directives.
 
+-b, --preserve-base
+  Preserve the base of decimal and hexadecimal values in DEFB, DEFM, DEFS and
+  DEFW statements. (By default, only binary values are preserved.)
+
 -h, --hex
   Write addresses in hexadecimal format.
 
