@@ -359,12 +359,14 @@ at least one character other than a dot; such comments are preserved verbatim
 
 Control file comments
 ---------------------
-A comment may be added to a control file by starting a line with something
-other than a space, a control directive, or ``; @``. For example::
+A comment may be added to a control file by starting a line with a hash
+character (``#``), a per cent sign (``%``), or a semicolon (so long as the next
+non-whitespace character is not ``@``, because ``; @`` is used to declare ASM
+directives). For example::
 
-  ; This is a comment
-  # This is another comment
-  % This is yet another comment
+  # This is a comment
+  % This is another comment
+  ; This is yet another comment
 
 Limitations
 -----------
