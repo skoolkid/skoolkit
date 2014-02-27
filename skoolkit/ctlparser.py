@@ -31,7 +31,7 @@ def parse_params(ctl, params, lengths_index=2):
                 n, m = num.split('*', 1)
             else:
                 n, m = num, '1'
-            if ctl in ' BTWZ':
+            if ctl in ' BSTWZ':
                 int_params += [_parse_sublengths(n, prefix)] * get_int_param(m)
             else:
                 int_params += [(get_int_param(n), None)] * get_int_param(m)
@@ -119,7 +119,7 @@ class CtlParser:
         first_char = line[0]
         content = line[1:].lstrip()
         if content:
-            if first_char.lower() in ' bcdegimrtuwz':
+            if first_char.lower() in ' bcdegimrstuwz':
                 fields = content.split(' ', 1)
                 ctl = first_char
                 use_length = False

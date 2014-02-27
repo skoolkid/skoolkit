@@ -107,7 +107,7 @@ c 65406
 c 65409
 c 65418
 c 65426
-z 65433
+s 65433
 c 65443
 c 65445
 t 65449
@@ -117,7 +117,7 @@ b 65470
 t 65479
 c 65485
 t 65494
-z 65500
+s 65500
 c 65502
 b 65503
 c 65508
@@ -138,7 +138,7 @@ TEST_CTL_G_HEX = '\n'.join(['{0} ${1:04X}'.format(line[0], int(line[2:7])) for l
 #     address of the second block is JRed or JPed to from the first block,
 #     and join such pairs.
 #  6. Examine the remaining 'U' blocks for text.
-#  7. Mark data blocks of all zeroes with 'z'.
+#  7. Mark data blocks of all zeroes with 's'.
 #  8. Join any adjacent data and zero blocks.
 TEST_MAP_BIN = (
     # Test that a 'c' block that doesn't end with a RET/JP/JR is extended up to
@@ -201,11 +201,11 @@ TEST_MAP_BIN = (
     72, 101, 108, 108, 111, 46, # 65479 DEFM "Hello."
     201,                        # 65485 RET
 
-    # Test that a data block of all zeroes is marked with 'z'
+    # Test that a data block of all zeroes is marked with 's'
     0, 0, 0, 0, 0, # 65486 DEFS 5
     201,           # 65491 RET
 
-    # Test that adjacent 'z' and 'b' blocks are joined
+    # Test that adjacent 's' and 'b' blocks are joined
     0, 0, 0,       # 65492 DEFS 3
     1, 2, 3,       # 65495 DEFB 1,2,3
     201            # 65498 RET
@@ -250,11 +250,11 @@ t 65453
 b 65470
 t 65479
 c 65485
-z 65486
+s 65486
 c 65491
 b 65492
 c 65498
-z 65499"""
+s 65499"""
 
 class MockSkoolWriter:
     def __init__(self, *args, **kwargs):

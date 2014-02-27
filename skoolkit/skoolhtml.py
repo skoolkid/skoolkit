@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -401,7 +401,7 @@ class HtmlWriter:
             'EntryTypes': 't'
         }
         memory_maps[P_UNUSED_MAP] = {
-            'EntryTypes': 'uz',
+            'EntryTypes': 'suz',
             'PageByteColumns': '1'
         }
         return memory_maps
@@ -760,7 +760,7 @@ class HtmlWriter:
         if entry.is_routine():
             title_format = "Routine at {0}"
             page_header = page_header or "Routines"
-        elif entry.ctl in 'uz':
+        elif entry.ctl in 'suz':
             title_format = "Unused RAM at {0}"
             page_header = page_header or "Unused"
         elif entry.ctl == 'g':
@@ -794,7 +794,7 @@ class HtmlWriter:
         table_class = 'disassembly'
         comment_class = 'comment'
         transparent_class = 'transparentComment'
-        if entry.ctl not in 'cuz':
+        if entry.ctl not in 'csuz':
             table_class = 'dataDisassembly'
             comment_class = 'dataComment'
             transparent_class = 'transparentDataComment'
@@ -918,7 +918,7 @@ class HtmlWriter:
         else:
             map_name = map_details['Name']
             title = self.titles.get(map_name, map_name)
-        entry_types = map_details.get('EntryTypes', 'bcgtuwz')
+        entry_types = map_details.get('EntryTypes', 'bcgstuwz')
         show_page_byte = map_details.get('PageByteColumns', '0') != '0'
         intro = map_details.get('Intro')
         asm_path = map_details.get('AsmPath', self.code_path)
@@ -952,7 +952,7 @@ class HtmlWriter:
             elif entry.ctl in 'g':
                 entry_class = 'gbuffer'
                 desc_class = 'gbufferDesc'
-            elif entry.ctl in 'uz':
+            elif entry.ctl in 'suz':
                 size = entry.size
                 if size > 1:
                     suffix = 's'

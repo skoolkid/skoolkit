@@ -16,16 +16,16 @@ existing `skool` file; the :ref:`sna2skool.py` command can then generate a
 Skool file template format
 --------------------------
 A skool file template has the same layout as a `skool` file, except that the
-lines in 'b', 'c', 'g', 't', 'u', 'w' and 'z' blocks that correspond to Z80
-instructions look like this::
+lines in 'b', 'c', 'g', 's', 't', 'u', 'w' and 'z' blocks that correspond to
+Z80 instructions look like this::
 
   xX#####,n[;c[ comment]]
 
 where:
 
-* ``x`` is one of the characters ``* bcgtuwz`` (with the same meaning as in a
+* ``x`` is one of the characters ``* bcgstuwz`` (with the same meaning as in a
   :ref:`skool file <skoolFiles>`)
-* ``X`` is one of the characters ``BCTWZ`` (with the same meaning as in a
+* ``X`` is one of the characters ``BCSTWZ`` (with the same meaning as in a
   :ref:`control file <controlFiles>`)
 * ``#####`` is the address at which to start disassembling
 * ``n`` is the number of bytes to disassemble
@@ -47,7 +47,7 @@ then it will be rendered in the skool file template thus::
 
 Sub-block syntax
 ----------------
-The syntax for specifying ``B``, ``T``, ``W`` and ``Z`` sub-blocks is analogous
+The syntax for specifying ``B``, ``S``, ``T`` and ``W`` sub-blocks is analogous
 to the syntax used in :ref:`control files <controlFiles>`. A brief summary of
 the syntax is given here.
 
@@ -120,6 +120,8 @@ Revision history
 | 3.1.4   | Added support for DEFB and DEFM statements that contain both     |
 |         | strings and bytes                                                |
 +---------+------------------------------------------------------------------+
-| 3.7     | Added support for specifying the base of numeric values in DEFB, |
-|         | DEFM, DEFS and DEFW statements                                   |
+| 3.7     | Added support for binary numbers; added support for specifying   |
+|         | the base of numeric values in DEFB, DEFM, DEFS and DEFW          |
+|         | statements; added the ``s`` and ``S`` directives and support for |
+|         | DEFS statements with non-zero byte values                        |
 +---------+------------------------------------------------------------------+

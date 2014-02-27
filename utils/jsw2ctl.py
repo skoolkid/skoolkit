@@ -28,11 +28,11 @@ TEMPLATE = """
 ;   skool2html.py jet_set_willy.ref
 ;
 b 32768 Room buffer
-Z 32768,256
+S 32768,256
 b 33024 Guardian buffer
-Z 33024,64
+S 33024,64
 B 33088 Terminator
-z 33089
+s 33089
 w 33280 Screen buffer address lookup table
 W 33280,256,16
 b 33536 Rope animation table
@@ -100,7 +100,7 @@ c 38528
 c 38545
 c 38562
 c 38622
-z 38680
+s 38680
 b 38912 Attributes for the top two-thirds of the title screen
 B 38912,512,16
 b 39424 Attributes for the bottom third of the screen during gameplay
@@ -135,7 +135,7 @@ b 40064 {maria}
 b 40192 {willy}
 b 40448 Password codes
 B 40448,256,16
-z 40704
+s 40704
 b 40960 Guardian definitions
 B 40960,1023,8
 b 41983 Index of first object
@@ -143,7 +143,7 @@ b 41984 Object table
 b 42496 {toilet}
 u 42624
 B 42624,128,16
-Z 42752
+S 42752
 b 43776 {guardians}
 {rooms}
 u 64768 Unused TRS-DOS code
@@ -156,7 +156,7 @@ T 65205
 C 65236
 B 65410,16,8
 C 65426
-Z 65517
+S 65517
 """.lstrip()
 
 def get_udg_table(addr, fname, num=8, rows=1, animation='', delay=None):

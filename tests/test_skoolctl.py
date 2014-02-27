@@ -4,7 +4,7 @@ import unittest
 from skoolkittest import SkoolKitTestCase
 from skoolkit.skoolctl import CtlWriter
 
-DIRECTIVES = 'bcgituwz'
+DIRECTIVES = 'bcgistuwz'
 
 TEST_SKOOL = r"""; Dangling comment not associated with any entry
 
@@ -57,7 +57,7 @@ c32768 NOP          ; Do nothing
 ; @keep
 ; @ignoreua
  32779 DEFW 12345   ; W sub-block
- 32781 defs 2       ; Z sub-block
+ 32781 defs 2       ; S sub-block
 ; @nolabel
  32783 LD A,5       ; {Sub-block with instructions of various types
 ; @ofix=DEFB 2
@@ -106,7 +106,7 @@ w49166 DEFW 23
  49168 RET
 
 ; Zero block beginning with an implicit sub-block
-z49169 DEFS 9
+s49169 DEFS 9
  49178 RET
 
 ; Data block with sub-block lengths amenable to abbreviation (2*3,3*2,1)
@@ -126,7 +126,7 @@ c49193 NOP
 ; @bfix+end
 
 ; Zero block
-z49194 DEFS 128
+s49194 DEFS 128
  49322 DEFS 128
  49450 DEFS 128
 ; @end
@@ -200,7 +200,7 @@ T 32774,5,5 T sub-block
 ; @keep:32779
 ; @ignoreua:32779
 W 32779,2 W sub-block
-Z 32781,2 Z sub-block
+S 32781,2 S sub-block
 M 32783,12 Sub-block with instructions of various types and blank lines in the comment
 ; @nolabel:32783
 ; @ofix:32785=DEFB 2
@@ -209,7 +209,7 @@ B 32785,1
 W 32786,4,4
 ; @ssub:32790=DEFM "Lo"
 T 32790,2,1:B1
-Z 32792,3
+S 32792,3
   32795 Instruction with a comment continuation line
 E 32768 End comment paragraph 1.
 E 32768 End comment paragraph 2.
@@ -229,12 +229,12 @@ t 49164 Text block beginning with an implicit 1-byte sub-block
 C 49165
 w 49166 Word block beginning with an implicit 2-byte sub-block
 C 49168
-z 49169 Zero block beginning with an implicit sub-block
+s 49169 Zero block beginning with an implicit sub-block
 C 49178
 b 49179 Data block with sub-block lengths amenable to abbreviation (2*3,3*2,1)
   49179,14,2*3,3*2,1
 b 49193 ASM block directives
-z 49194 Zero block
+s 49194 Zero block
   49194,384,128
 ; @end:49194
 b 49578 Complex DEFB statements
@@ -284,7 +284,7 @@ T $8006,5,5 T sub-block
 ; @keep:$800B
 ; @ignoreua:$800B
 W $800B,2 W sub-block
-Z $800D,2 Z sub-block
+S $800D,2 S sub-block
 M $800F,12 Sub-block with instructions of various types and blank lines in the comment
 ; @nolabel:$800F
 ; @ofix:$8011=DEFB 2
@@ -293,7 +293,7 @@ B $8011,1
 W $8012,4,4
 ; @ssub:$8016=DEFM "Lo"
 T $8016,2,1:B1
-Z $8018,3
+S $8018,3
   $801B Instruction with a comment continuation line
 E $8000 End comment paragraph 1.
 E $8000 End comment paragraph 2.
@@ -313,12 +313,12 @@ t $C00C Text block beginning with an implicit 1-byte sub-block
 C $C00D
 w $C00E Word block beginning with an implicit 2-byte sub-block
 C $C010
-z $C011 Zero block beginning with an implicit sub-block
+s $C011 Zero block beginning with an implicit sub-block
 C $C01A
 b $C01B Data block with sub-block lengths amenable to abbreviation (2*3,3*2,1)
   $C01B,14,2*3,3*2,1
 b $C029 ASM block directives
-z $C02A Zero block
+s $C02A Zero block
   $C02A,384,128
 ; @end:$C02A
 b $C1AA Complex DEFB statements
@@ -348,11 +348,11 @@ B 32769,2,2
 B 32771,3,1,2
 T 32774,5,5
 W 32779,2
-Z 32781,2
+S 32781,2
 B 32785,1
 W 32786,4,4
 T 32790,2,1:B1
-Z 32792,3
+S 32792,3
 i 32796
 b 49152
 g 49153
@@ -368,12 +368,12 @@ t 49164
 C 49165
 w 49166
 C 49168
-z 49169
+s 49169
 C 49178
 b 49179
   49179,14,2*3,3*2,1
 b 49193
-z 49194
+s 49194
   49194,384,128
 b 49578
   49578,20,3:T5:2,T7:3
@@ -396,12 +396,12 @@ B 32769,2,2 1-line B sub-block
 B 32771,3,1,2 2-line B sub-block
 T 32774,5,5 T sub-block
 W 32779,2 W sub-block
-Z 32781,2 Z sub-block
+S 32781,2 S sub-block
 M 32783,12 Sub-block with instructions of various types and blank lines in the comment
 B 32785,1
 W 32786,4,4
 T 32790,2,1:B1
-Z 32792,3
+S 32792,3
   32795 Instruction with a comment continuation line
 i 32796
 b 49152
@@ -418,12 +418,12 @@ t 49164
 C 49165
 w 49166
 C 49168
-z 49169
+s 49169
 C 49178
 b 49179
   49179,14,2*3,3*2,1
 b 49193
-z 49194
+s 49194
   49194,384,128
 b 49578
   49578,20,3:T5:2,T7:3
@@ -472,12 +472,18 @@ w40000 DEFW %1111000000001111,%1111000000001111
  40064 DEFW %1101010111110101,%0000000000000001
 """
 
-TEST_DEFS_FORMATS_SKOOL = """; DEFS statements in various bases
-z50000 DEFS %0000000111110100
+TEST_S_DIRECTIVES_SKOOL = """; DEFS statements in various bases
+s50000 DEFS %0000000111110100
  50500 DEFS 1000
  51500 DEFS $07D0
  53500 DEFS 500,%10101010
  54000 DEFS $0100,170
+"""
+
+TEST_Z_DIRECTIVES_SKOOL = """; DEFS statements in various bases
+z50000 DEFS %0000000111110100
+ 50500 DEFS 1000
+ 51500 DEFS $07D0
 """
 
 class CtlWriterTest(SkoolKitTestCase):
@@ -488,20 +494,20 @@ class CtlWriterTest(SkoolKitTestCase):
         return self.out.getvalue().split('\n')[:-1]
 
     def test_default_elements(self):
-        self.assertEqual(self._get_ctl(), TEST_CTL)
+        self.assertEqual(TEST_CTL, self._get_ctl())
 
     def test_default_elements_hex(self):
-        self.assertEqual(self._get_ctl(write_hex=True), TEST_CTL_HEX)
+        self.assertEqual(TEST_CTL_HEX, self._get_ctl(write_hex=True))
 
     def test_default_elements_no_asm_dirs(self):
         ctl = self._get_ctl(write_asm_dirs=False)
         test_ctl = [line for line in TEST_CTL if not line.startswith(';')]
-        self.assertEqual(ctl, test_ctl)
+        self.assertEqual(test_ctl, ctl)
 
     def test_wb(self):
         ctl = self._get_ctl('b', write_asm_dirs=False)
         test_ctl = [line[:7] for line in TEST_CTL if line[0] in DIRECTIVES]
-        self.assertEqual(ctl, test_ctl)
+        self.assertEqual(test_ctl, ctl)
 
     def test_wbd(self):
         ctl = self._get_ctl('bd', write_asm_dirs=False)
@@ -511,7 +517,7 @@ class CtlWriterTest(SkoolKitTestCase):
                 test_ctl.append(line[:7])
             elif line.startswith('D 32768'):
                 test_ctl.append(line)
-        self.assertEqual(ctl, test_ctl)
+        self.assertEqual(test_ctl, ctl)
 
     def test_wbm(self):
         ctl = self._get_ctl('bm', write_asm_dirs=False)
@@ -521,7 +527,7 @@ class CtlWriterTest(SkoolKitTestCase):
                 test_ctl.append(line[:7])
             elif line[0] in 'DE' and not line.startswith('D 32768'):
                 test_ctl.append(line)
-        self.assertEqual(ctl, test_ctl)
+        self.assertEqual(test_ctl, ctl)
 
     def test_wbr(self):
         ctl = self._get_ctl('br', write_asm_dirs=False)
@@ -531,20 +537,20 @@ class CtlWriterTest(SkoolKitTestCase):
                 test_ctl.append(line[:7])
             elif line[0] == 'R':
                 test_ctl.append(line)
-        self.assertEqual(ctl, test_ctl)
+        self.assertEqual(test_ctl, ctl)
 
     def test_wbs(self):
         ctl = self._get_ctl('bs', write_asm_dirs=False)
-        self.assertEqual(ctl, TEST_CTL_BS)
+        self.assertEqual(TEST_CTL_BS, ctl)
 
     def test_wbsc(self):
         ctl = self._get_ctl('bsc', write_asm_dirs=False)
-        self.assertEqual(ctl, TEST_CTL_BSC)
+        self.assertEqual(TEST_CTL_BSC, ctl)
 
     def test_wbt(self):
         ctl = self._get_ctl('bt', write_asm_dirs=False)
         test_ctl = [line for line in TEST_CTL if line[0] in DIRECTIVES]
-        self.assertEqual(ctl, test_ctl)
+        self.assertEqual(test_ctl, ctl)
 
     def test_byte_formats_no_base(self):
         ctl = self._get_ctl(skool=TEST_BYTE_FORMATS_SKOOL, preserve_base=False)
@@ -580,19 +586,35 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self.assertEqual(exp_ctl, ctl)
 
-    def test_defs_formats_no_base(self):
-        ctl = self._get_ctl(skool=TEST_DEFS_FORMATS_SKOOL, preserve_base=False)
+    def test_s_directives_no_base(self):
+        ctl = self._get_ctl(skool=TEST_S_DIRECTIVES_SKOOL, preserve_base=False)
         exp_ctl = [
-            'z 50000 DEFS statements in various bases',
+            's 50000 DEFS statements in various bases',
             '  50000,4256,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170'
         ]
         self.assertEqual(exp_ctl, ctl)
 
-    def test_defs_formats_preserve_base(self):
-        ctl = self._get_ctl(skool=TEST_DEFS_FORMATS_SKOOL, preserve_base=True)
+    def test_s_directives_preserve_base(self):
+        ctl = self._get_ctl(skool=TEST_S_DIRECTIVES_SKOOL, preserve_base=True)
+        exp_ctl = [
+            's 50000 DEFS statements in various bases',
+            '  50000,4256,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170'
+        ]
+        self.assertEqual(exp_ctl, ctl)
+
+    def test_z_directives_no_base(self):
+        ctl = self._get_ctl(skool=TEST_Z_DIRECTIVES_SKOOL, preserve_base=False)
         exp_ctl = [
             'z 50000 DEFS statements in various bases',
-            '  50000,4256,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170'
+            'S 50000,3500,b%0000000111110100,1000,$07D0'
+        ]
+        self.assertEqual(exp_ctl, ctl)
+
+    def test_z_directives_preserve_base(self):
+        ctl = self._get_ctl(skool=TEST_Z_DIRECTIVES_SKOOL, preserve_base=True)
+        exp_ctl = [
+            'z 50000 DEFS statements in various bases',
+            'S 50000,3500,b%0000000111110100,d1000,h$07D0'
         ]
         self.assertEqual(exp_ctl, ctl)
 

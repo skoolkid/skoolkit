@@ -650,7 +650,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
             ({'EntryTypes': 'c', 'Name': 'RoutinesMap'},),
             ({'EntryTypes': 'bw', 'Name': 'DataMap', 'PageByteColumns': '1'},),
             ({'EntryTypes': 't', 'Name': 'MessagesMap'},),
-            ({'Name': 'UnusedMap', 'EntryTypes': 'uz', 'PageByteColumns': '1'},)
+            ({'Name': 'UnusedMap', 'EntryTypes': 'suz', 'PageByteColumns': '1'},)
         ]
         self._test_option_w('--write', 'm', 'write_map', exp_arg_list)
 

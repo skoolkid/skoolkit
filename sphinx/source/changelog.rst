@@ -3,6 +3,10 @@ Changelog
 
 3.7b1
 -----
+* Added support for numbers in binary notation (e.g. %10101010)
+* Added the ``s`` and ``S`` control directives for encoding DEFS statements
+  (with optional non-zero byte values); the ``z`` and ``Z`` directives are now
+  deprecated
 * Added support to control files and skool file templates for specifying the
   base of numeric values in DEFB, DEFM, DEFS and DEFW statements
 * Added changelog entries to `manic_miner.ref`, `jet_set_willy.ref` and

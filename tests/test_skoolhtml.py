@@ -2584,10 +2584,13 @@ class HtmlWriterTest(SkoolKitTestCase):
             'u30008 DEFB 0',
             '',
             '; Zeroes',
-            'z30009 DEFS 6',
+            's30009 DEFS 6',
+            '',
+            '; More zeroes',
+            'z30015 DEFS 3',
             '',
             '; Text',
-            't30015 DEFM "Hi"',
+            't30018 DEFM "Hi"'
         ))
         writer = self._get_writer(skool=skool)
         common_subs = {
@@ -2644,7 +2647,13 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="mapPage">117</td>
             <td class="mapByte">63</td>
-            <td class="message"><a class="link" name="30015" href="../asm/30015.html">30015</a></td>
+            <td class="unused"><a class="link" name="30015" href="../asm/30015.html">30015</a></td>
+            <td class="unusedDesc">Unused (3 bytes)</td>
+            </tr>
+            <tr>
+            <td class="mapPage">117</td>
+            <td class="mapByte">66</td>
+            <td class="message"><a class="link" name="30018" href="../asm/30018.html">30018</a></td>
             <td class="messageDesc">Text</td>
             </tr>
             </table>
@@ -2717,7 +2726,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <th>Description</th>
             </tr>
             <tr>
-            <td class="message"><a class="link" name="30015" href="../asm/30015.html">30015</a></td>
+            <td class="message"><a class="link" name="30018" href="../asm/30018.html">30018</a></td>
             <td class="messageDesc">Text</td>
             </tr>
             </table>
@@ -2750,6 +2759,12 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="mapByte">57</td>
             <td class="unused"><a class="link" name="30009" href="../asm/30009.html">30009</a></td>
             <td class="unusedDesc">Unused (6 bytes)</td>
+            </tr>
+            <tr>
+            <td class="mapPage">117</td>
+            <td class="mapByte">63</td>
+            <td class="unused"><a class="link" name="30015" href="../asm/30015.html">30015</a></td>
+            <td class="unusedDesc">Unused (3 bytes)</td>
             </tr>
             </table>
         """

@@ -65,10 +65,10 @@ u 32797
 ; Entry #11
 u 32798 Unimportant unused byte
 ; Entry #12
-z 32799
-Z 32799,10,5
+s 32799
+S 32799,10,5
 ; Entry #13
-z 32809 Block of zeroes
+s 32809 Block of zeroes
 M 32809,5 A DEFS followed by two NOPs
 C 32812,2
 ; Entry #14
@@ -459,19 +459,19 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         self.assertEqual(actual_instructions, exp_instructions)
 
-    def test_defs_formats(self):
+    def test_s_directives(self):
         snapshot = []
         ctl = '\n'.join((
-            'z 00000',
+            's 00000',
             '  00000,4',
             '  00004,b4',
-            'Z 00008,d4',
+            'S 00008,d4',
             '  00012,h8',
             '  00020,40,b10,10,h10',
-            'Z 00060,b40,10,d10,h10',
+            'S 00060,b40,10,d10,h10',
             '  00100,d40,b10,10,h10',
             '  00140,h60,b10,d10,40',
-            'Z 00200,768,b256,d256,h256',
+            'S 00200,768,b256,d256,h256',
             '  00968,16,16:b%10101010',
             '  00984,40,40:h17',
             'i 01024'
@@ -512,6 +512,58 @@ class DisassemblyTest(SkoolKitTestCase):
             (712, 'DEFS $0100'),
             (968, 'DEFS 16,%10101010'),
             (984, 'DEFS 40,$11')
+        ]
+        self.assertEqual(exp_instructions, actual_instructions)
+
+    def test_z_directives(self):
+        snapshot = []
+        ctl = '\n'.join((
+            'z 00000',
+            '  00000,4',
+            '  00004,b4',
+            'Z 00008,d4',
+            '  00012,h8',
+            '  00020,40,b10,10,h10',
+            'Z 00060,b40,10,d10,h10',
+            '  00100,d40,b10,10,h10',
+            '  00140,h60,b10,d10,40',
+            'Z 00200,768,b256,d256,h256',
+            'i 00968'
+        ))
+        ctl_parser = CtlParser()
+        ctl_parser.parse_ctl(self.write_text_file(ctl))
+        disassembly = Disassembly(snapshot, ctl_parser, True)
+
+        entries = disassembly.entries
+        self.assertEqual(len(entries), 2)
+
+        entry = entries[0]
+        self.assertEqual(entry.address, 0)
+        instructions = entry.instructions
+        actual_instructions = [(i.address, i.operation) for i in instructions]
+        exp_instructions = [
+            (  0, 'DEFS 4'),
+            (  4, 'DEFS %00000100'),
+            (  8, 'DEFS 4'),
+            ( 12, 'DEFS 8'),
+            ( 20, 'DEFS %00001010'),
+            ( 30, 'DEFS 10'),
+            ( 40, 'DEFS $0A'),
+            ( 50, 'DEFS $0A'),
+            ( 60, 'DEFS %00001010'),
+            ( 70, 'DEFS 10'),
+            ( 80, 'DEFS $0A'),
+            ( 90, 'DEFS $0A'),
+            (100, 'DEFS %00001010'),
+            (110, 'DEFS 10'),
+            (120, 'DEFS $0A'),
+            (130, 'DEFS $0A'),
+            (140, 'DEFS %00001010'),
+            (150, 'DEFS 10'),
+            (160, 'DEFS $28'),
+            (200, 'DEFS %0000000100000000'),
+            (456, 'DEFS 256'),
+            (712, 'DEFS $0100')
         ]
         self.assertEqual(exp_instructions, actual_instructions)
 

@@ -187,7 +187,7 @@ class CtlWriter:
                 # Don't write a ctl line for a DEFS statement if it's
                 # commentless, the first instruction in the section, the sole
                 # instruction in its sub-block, and inside a 'z' block
-                if ctl == 'z':
+                if ctl in 'sz':
                     return False
         return True
 
@@ -241,8 +241,8 @@ class CtlWriter:
         address = self.addr_str(instructions[0].address)
         lengths = ''
 
-        if ctl in 'btwz':
-            # Find the byte lengths of each line in a 'B', 'T', 'W' or 'Z'
+        if ctl in 'bstwz':
+            # Find the byte lengths of each line in a 'B', 'S', 'T', 'W' or 'Z'
             # sub-block
             num_bytes = 0
             stmt_lengths = []
@@ -254,7 +254,7 @@ class CtlWriter:
             # Don't write the statement lengths in a ctl line for a lone DEFB
             # statement of length 1, a lone DEFM statement of length 1, a lone
             # DEFW statement of length 2, or a lone DEFS statement
-            if not (len(instructions) == 1 and ((ctl in 'bt' and num_bytes == 1) or (ctl == 'w' and num_bytes == 2) or ctl == 'z')):
+            if not (len(instructions) == 1 and ((ctl in 'bt' and num_bytes == 1) or (ctl == 'w' and num_bytes == 2) or ctl in 'sz')):
                 length = num_bytes
                 lengths = ',' + get_lengths(stmt_lengths)
 
@@ -490,7 +490,7 @@ class Instruction:
             self.size, self.length = get_defm_length(operation[5:], preserve_base)
         elif self.inst_ctl == 'w':
             self.size, self.length = get_defw_length(operation[5:], preserve_base)
-        elif self.inst_ctl == 'z':
+        elif self.inst_ctl in 'sz':
             self.size, self.length = get_defs_length(operation[5:], preserve_base)
 
     def set_comment(self, rowspan, text):

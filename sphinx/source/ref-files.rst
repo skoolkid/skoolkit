@@ -555,10 +555,11 @@ Recognised parameters and their default values are:
   * ``b`` - DEFB blocks
   * ``c`` - routines
   * ``g`` - game status buffer entries
+  * ``s`` - blocks containing bytes that are all the same value
   * ``t`` - messages
   * ``u`` - unused addresses
   * ``w`` - DEFW blocks
-  * ``z`` - blocks containing all zeroes
+  * ``z`` - blocks containing all zeroes (deprecated; use ``s`` instead)
 
 * ``Intro`` - the text (HTML) to display at the top of the memory map page
   (default: '')
@@ -584,7 +585,7 @@ the defaults as follows::
   EntryTypes=t
 
   [MemoryMap:UnusedMap]
-  EntryTypes=uz
+  EntryTypes=suz
   PageByteColumns=1
 
 +---------+---------+

@@ -17,7 +17,7 @@ correctly by :ref:`skool2html.py`, :ref:`skool2asm.py`, :ref:`skool2ctl.py` and
 1. Entries (an 'entry' being a routine or data block) must be separated by
    blank lines, and an entry must not contain any blank lines.
 
-2. Lines in an entry may start with one of ``;* bcdgirtuwz``, where:
+2. Lines in an entry may start with one of ``;* bcdgirstuwz``, where:
 
   * ``;`` begins a comment line
   * ``*`` denotes an entry point in a routine
@@ -28,12 +28,14 @@ correctly by :ref:`skool2html.py`, :ref:`skool2asm.py`, :ref:`skool2ctl.py` and
   * ``g`` denotes the first instruction in a game status buffer entry
   * ``i`` denotes an ignored entry
   * ``r`` denotes the first instruction in a :ref:`remote entry <rEntry>`
+  * ``s`` denotes the first instruction in a data block containing bytes that
+    are all the same value (typically unused zeroes)
   * ``t`` denotes the first instruction in a data block that contains text
   * ``u`` denotes the first instruction in an unused code or data block
   * ``w`` denotes the first instruction in a data block that contains two-byte
     values (words)
   * ``z`` denotes the first instruction in a data block that contains only
-    zeroes
+    zeroes (deprecated; use ``s`` instead)
   * a space begins a line that does not require any of the markers listed above
 
   The format of a non-comment line is::
@@ -42,7 +44,7 @@ correctly by :ref:`skool2html.py`, :ref:`skool2asm.py`, :ref:`skool2ctl.py` and
 
   where:
 
-  * ``C`` is one of the characters listed above: ``* bcdgirtuwz``
+  * ``C`` is one of the characters listed above: ``* bcdgirstuwz``
   * ``#####`` is an address (e.g. ``24576``, or ``$6000`` if you prefer
     hexadecimal notation)
   * ``INSTRUCTION`` is an instruction (e.g. ``LD A,(HL)``)
@@ -253,4 +255,6 @@ Revision history
 +---------+---------------------------------------------------------------+
 | 3.1.2   | Added support for 'Input' and 'Output' prefixes in register   |
 |         | sections                                                      |
++---------+---------------------------------------------------------------+
+| 3.7     | Added support for binary numbers; added the ``s`` block type  |
 +---------+---------------------------------------------------------------+

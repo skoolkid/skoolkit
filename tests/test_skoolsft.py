@@ -39,7 +39,7 @@ c32768 NOP          ; Do nothing
 ; @keep
  32779 DEFW 12345   ; W sub-block
 ; @nowarn
- 32781 DEFS 2       ; Z sub-block
+ 32781 DEFS 2       ; S sub-block
 ; @nolabel
 ; @ofix=LD A,6
 *32783 LD A,5       ; {Sub-block with instructions of various types
@@ -101,7 +101,7 @@ w49158 DEFW 2
  49160 DEFW 4
 
 ; Zero block
-z49162 DEFS 10
+s49162 DEFS 10
 ; @end
 
 ; Block that starts with an invalid control character
@@ -162,7 +162,7 @@ cC32768,1;20 Do nothing
 ; @keep
  W32779,2;20 W sub-block
 ; @nowarn
- Z32781,2;20 Z sub-block
+ S32781,2;20 S sub-block
 ; @nolabel
 ; @ofix=LD A,6
 *C32783,2;20 {Sub-block with instructions of various types
@@ -171,7 +171,7 @@ cC32768,1;20 Do nothing
 ; @rsub=DEFB 3
  W32786,4;20
  T32790,2;20
- Z32792,3;20 }
+ S32792,3;20 }
  C32795,1;20 Return
  ;20 comment continuation line
 ; End comment paragraph 1.
@@ -223,7 +223,7 @@ uB49157,1
 wW49158,2*2
 
 ; Zero block
-zZ49162,10
+sS49162,10
 ; @end
 
 ; Block that starts with an invalid control character
@@ -273,12 +273,18 @@ w40000 DEFW %1111000000001111,%1111000000001111
  40064 DEFW %1101010111110101,%0000000000000001
 """
 
-TEST_DEFS_FORMATS_SKOOL = """; DEFS statements in various bases
-z50000 DEFS %0000000111110100
+TEST_S_DIRECTIVES_SKOOL = """; DEFS statements in various bases
+s50000 DEFS %0000000111110100
  50500 DEFS 1000
  51500 DEFS $07D0
  53500 DEFS 500,%10101010
  54000 DEFS $0100,170
+"""
+
+TEST_Z_DIRECTIVES_SKOOL = """; DEFS statements in various bases
+z50000 DEFS %0000000111110100
+ 50500 DEFS 1000
+ 51500 DEFS $07D0
 """
 
 class SftWriterTest(SkoolKitTestCase):
@@ -325,19 +331,33 @@ class SftWriterTest(SkoolKitTestCase):
         ]
         self._test_sft(TEST_WORD_FORMATS_SKOOL, exp_sft, preserve_base=True)
 
-    def test_defs_formats_no_base(self):
+    def test_s_directives_no_base(self):
         exp_sft = [
             '; DEFS statements in various bases',
-            'zZ50000,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170'
+            'sS50000,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170'
         ]
-        self._test_sft(TEST_DEFS_FORMATS_SKOOL, exp_sft, preserve_base=False)
+        self._test_sft(TEST_S_DIRECTIVES_SKOOL, exp_sft, preserve_base=False)
 
-    def test_defs_formats_preserve_base(self):
+    def test_s_directives_preserve_base(self):
         exp_sft = [
             '; DEFS statements in various bases',
-            'zZ50000,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170'
+            'sS50000,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170'
         ]
-        self._test_sft(TEST_DEFS_FORMATS_SKOOL, exp_sft, preserve_base=True)
+        self._test_sft(TEST_S_DIRECTIVES_SKOOL, exp_sft, preserve_base=True)
+
+    def test_z_directives_no_base(self):
+        exp_sft = [
+            '; DEFS statements in various bases',
+            'zS50000,b%0000000111110100,1000,$07D0'
+        ]
+        self._test_sft(TEST_Z_DIRECTIVES_SKOOL, exp_sft, preserve_base=False)
+
+    def test_z_directives_preserve_base(self):
+        exp_sft = [
+            '; DEFS statements in various bases',
+            'zS50000,b%0000000111110100,d1000,h$07D0'
+        ]
+        self._test_sft(TEST_Z_DIRECTIVES_SKOOL, exp_sft, preserve_base=True)
 
 if __name__ == '__main__':
     unittest.main()

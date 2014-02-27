@@ -66,8 +66,8 @@ tT32784,5
 ; Test the W directive
 wW32789,4
 
-; Test the Z directive
-zZ32793,10
+; Test the S directive
+sS32793,10
 
 ; Test an invalid control directive
 a32794 NOP
@@ -163,8 +163,8 @@ t32784 DEFM "Hello"
 ; Test the W directive
 w32789 DEFW 0,0
 
-; Test the Z directive
-z32793 DEFS 10
+; Test the S directive
+s32793 DEFS 10
 
 ; Test an invalid control directive
 a32794 NOP
@@ -250,8 +250,8 @@ t$8010 DEFM "Hello"
 ; Test the W directive
 w$8015 DEFW $0000,$0000
 
-; Test the Z directive
-z$8019 DEFS $0A
+; Test the S directive
+s$8019 DEFS $0A
 
 ; Test an invalid control directive
 a32794 NOP
@@ -285,12 +285,12 @@ class SftParserTest(SkoolKitTestCase):
 
     def test_write_skool(self):
         snapshot, skool = self._parse_sft(TEST_SFT, TEST_SNAPSHOT)
-        self.assertEqual(skool, TEST_SKOOL)
+        self.assertEqual(TEST_SKOOL, skool)
         self.assertEqual(snapshot[24576], 128)
 
     def test_write_skool_hex(self):
         snapshot, skool = self._parse_sft(TEST_SFT, TEST_SNAPSHOT, asm_hex=True)
-        self.assertEqual(skool, TEST_SKOOL_HEX)
+        self.assertEqual(TEST_SKOOL_HEX, skool)
         self.assertEqual(snapshot[24576], 128)
 
     def test_write_skool_hex_lower(self):
@@ -386,15 +386,50 @@ class SftParserTest(SkoolKitTestCase):
         ]
         self.assertEqual(exp_skool, skool[:-1])
 
-    def test_defs_formats(self):
-        snapshot = [0] * 950
+    def test_s_directives(self):
+        sft = '\n'.join((
+            'sS00000,1,b2,d3,h4',
+            ' S00010,b10,d10,h10',
+            ' S00040,10',
+            ' S00050,b300,d300,h300'
+        ))
+        skool = self._parse_sft(sft)[1]
+
+        exp_skool = [
+            's00000 DEFS 1',
+            ' 00001 DEFS %00000010',
+            ' 00003 DEFS 3',
+            ' 00006 DEFS 4',
+            ' 00010 DEFS %00001010',
+            ' 00020 DEFS 10',
+            ' 00030 DEFS $0A',
+            ' 00040 DEFS 10',
+            ' 00050 DEFS %0000000100101100',
+            ' 00350 DEFS 300',
+            ' 00650 DEFS $012C'
+        ]
+        self.assertEqual(exp_skool, skool[:-1])
+
+    def test_s_directives_hex(self):
+        sft = 'sS00000,b10,d10,h10,10'
+        skool = self._parse_sft(sft, asm_hex=True)[1]
+
+        exp_skool = [
+            's$0000 DEFS %00001010',
+            ' $000A DEFS 10',
+            ' $0014 DEFS $0A',
+            ' $001E DEFS $0A'
+        ]
+        self.assertEqual(exp_skool, skool[:-1])
+
+    def test_z_directives(self):
         sft = '\n'.join((
             'zZ00000,1,b2,d3,h4',
             ' Z00010,b10,d10,h10',
             ' Z00040,10',
             ' Z00050,b300,d300,h300'
         ))
-        skool = self._parse_sft(sft, snapshot)[1]
+        skool = self._parse_sft(sft)[1]
 
         exp_skool = [
             'z00000 DEFS 1',
@@ -411,10 +446,9 @@ class SftParserTest(SkoolKitTestCase):
         ]
         self.assertEqual(exp_skool, skool[:-1])
 
-    def test_defs_formats_hex(self):
-        snapshot = [0] * 40
+    def test_z_directives_hex(self):
         sft = 'zZ00000,b10,d10,h10,10'
-        skool = self._parse_sft(sft, snapshot, asm_hex=True)[1]
+        skool = self._parse_sft(sft, asm_hex=True)[1]
 
         exp_skool = [
             'z$0000 DEFS %00001010',

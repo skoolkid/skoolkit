@@ -31,16 +31,16 @@ B 30502,3
 B 30510,12,3
 B 30530-30549,2*7,1*3,3
 B 30560,21,6,5,4,3,2,1
-! This is yet another control file comment
+; This is yet another control file comment
 w 30600 Words at 30600
-Z 30620,7
-z 30700 Zeroes at 30700
+S 30620,7
+s 30700 Zeroes at 30700
 B 30720,10,1,T3:2,1:T1*2
 T 30730-30744,10:B5
 B 30745,15,5:X10
 T 30760,5,2:Y3
 W 30765,5,1:Z4
-Z 30770,10,U8:2
+S 30770,10,U8:2
 c ABCDE Invalid
 C 40000,Q Invalid
 ; @label:EDCBA=INVALID"""
@@ -59,7 +59,7 @@ class CtlParserTest(SkoolKitTestCase):
             30400: 't',
             30500: 'u',
             30600: 'w',
-            30700: 'z'
+            30700: 's'
         }
         self.assertEqual(ctl_parser.ctls, exp_ctls)
 
@@ -81,7 +81,7 @@ class CtlParserTest(SkoolKitTestCase):
             30550: None,
             30560: 'b',
             30581: None,
-            30620: 'z',
+            30620: 's',
             30627: None,
             30720: 'b',
             30730: 't',
@@ -169,7 +169,7 @@ class CtlParserTest(SkoolKitTestCase):
             'B 30745,15,5:X10',
             'T 30760,5,2:Y3',
             'W 30765,5,1:Z4',
-            'Z 30770,10,U8:2',
+            'S 30770,10,U8:2',
             'c ABCDE Invalid',
             'C 40000,Q Invalid',
             '; @label:EDCBA=INVALID'
@@ -260,16 +260,16 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self.assertEqual(exp_lengths, ctl_parser.lengths)
 
-    def test_defs_formats(self):
+    def test_s_directives(self):
         ctl = '\n'.join((
-            'z 50000 Test DEFS formats',
+            's 50000 Test s/S directives',
             '  50000,10',
             '  50010,b10',
             '  50020,d10',
             '  50030,h10',
-            'Z 50040,b20,5,d5,h5',
-            'Z 50060,d20,b5,5,h5',
-            'Z 50080,h20,b5,d5,5',
+            'S 50040,b20,5,d5,h5',
+            'S 50060,d20,b5,5,h5',
+            'S 50080,h20,b5,d5,5',
             '  50100,20,b5,d5,5',
             '  50120,20,d20:b%10001000',
             '  50140,20,20:h$44'
@@ -304,6 +304,49 @@ class CtlParserTest(SkoolKitTestCase):
             ],
             50120: [(156, [(20, 'd'), (136, 'b')])],
             50140: [(88, [(20, None), (68, 'h')])]
+        }
+        self.assertEqual(exp_lengths, ctl_parser.lengths)
+
+    def test_z_directives(self):
+        ctl = '\n'.join((
+            'z 50000 Test z/Z directives',
+            '  50000,10',
+            '  50010,b10',
+            '  50020,d10',
+            '  50030,h10',
+            'Z 50040,b20,5,d5,h5',
+            'Z 50060,d20,b5,5,h5',
+            'Z 50080,h20,b5,d5,5',
+            '  50100,20,b5,d5,5'
+        ))
+        ctl_parser = CtlParser()
+        ctlfile = self.write_text_file(ctl)
+        ctl_parser.parse_ctl(ctlfile)
+
+        exp_lengths = {
+            50010: [(None, [(None, 'b')])],
+            50020: [(None, [(None, 'd')])],
+            50030: [(None, [(None, 'h')])],
+            50040: [
+                (5, [(5, 'b')]),
+                (5, [(5, 'd')]),
+                (5, [(5, 'h')])
+            ],
+            50060: [
+                (5, [(5, 'b')]),
+                (5, [(5, 'd')]),
+                (5, [(5, 'h')])
+            ],
+            50080: [
+                (5, [(5, 'b')]),
+                (5, [(5, 'd')]),
+                (5, [(5, 'h')])
+            ],
+            50100: [
+                (5, [(5, 'b')]),
+                (5, [(5, 'd')]),
+                (5, None)
+            ]
         }
         self.assertEqual(exp_lengths, ctl_parser.lengths)
 

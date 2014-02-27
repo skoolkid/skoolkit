@@ -22,7 +22,7 @@ import re
 from . import warn, wrap, get_int_param, parse_int, open_file, SkoolParsingError
 from .skoolmacro import DELIMITERS
 
-DIRECTIVES = 'bcgituwz'
+DIRECTIVES = 'bcgistuwz'
 
 TABLE_MARKER = '#TABLE'
 TABLE_END_MARKER = 'TABLE#'
@@ -82,7 +82,7 @@ def get_instruction_ctl(op):
     if op.startswith('DEFM'):
         return 'T'
     if op.startswith('DEFS'):
-        return 'Z'
+        return 'S'
     return 'C'
 
 def _get_base(item, preserve_base):

@@ -216,7 +216,7 @@ def _generate_ctls_with_code_map(snapshot, start, code_map):
     #     address of the second block is JRed or JPed to from the first block,
     #     and join such pairs
     # (6) Examine the remaining 'U' blocks for text
-    # (7) Mark data blocks of all zeroes with 'z'
+    # (7) Mark data blocks of all zeroes with 's'
 
     # (1) Mark all executed blocks as 'c' and unexecuted blocks as 'U'
     # (unknown)
@@ -307,14 +307,14 @@ def _generate_ctls_with_code_map(snapshot, start, code_map):
                 if t_end < end:
                     ctls[t_end] = 'b'
 
-    # (7) Mark data blocks of all zeroes with 'z'
+    # (7) Mark data blocks of all zeroes with 's'
     for ctl, start, end in _get_blocks(ctls):
         if ctl == 'b':
             z_end = start
             while z_end < end and snapshot[z_end] == 0:
                 z_end += 1
             if z_end > start:
-                ctls[start] = 'z'
+                ctls[start] = 's'
                 if z_end < end:
                     ctls[z_end] = 'b'
 
@@ -393,7 +393,7 @@ def _generate_ctls_without_code_map(snapshot, start):
         for instruction in entry.instructions[1:]:
             if instruction.operation != 'NOP':
                 break
-        ctls[entry.address] = 'z'
+        ctls[entry.address] = 's'
         if entry.instructions[-1].operation != 'NOP':
             ctls[instruction.address] = 'c'
 
@@ -525,7 +525,7 @@ def _analyse_blocks(disassembly):
             while z_end < end and snapshot[z_end] == 0:
                 z_end += 1
             if z_end > start:
-                ctls[start] = 'z'
+                ctls[start] = 's'
                 if z_end < end:
                     ctls[z_end] = 'c'
 
@@ -539,7 +539,7 @@ def generate_ctls(snapshot, start, code_map):
     blocks = _get_blocks(ctls)
     prev_block = blocks[0]
     for block in blocks[1:]:
-        if prev_block[0] in 'bz' and block[0] in 'bz':
+        if prev_block[0] in 'bs' and block[0] in 'bs':
             ctls[prev_block[1]] = 'b'
             del ctls[block[1]]
         else:
@@ -629,12 +629,12 @@ class Disassembly:
                 title = title or 'Message at {0}'.format(self.address_str(block.start))
             elif block.ctl == 'g':
                 title = title or 'Game status buffer entry at {0}'.format(self.address_str(block.start))
-            elif block.ctl in 'uz':
+            elif block.ctl in 'usz':
                 title = title or 'Unused'
             for sub_block in block.blocks:
                 if sub_block.ctl in 'cBT':
                     instructions = self.disassembler.disassemble(sub_block.start, sub_block.end)
-                elif sub_block.ctl in 'bgtuwz':
+                elif sub_block.ctl in 'bgstuwz':
                     address = sub_block.start
                     lengths = self.ctl_parser.get_lengths(address)
                     one_line = True
@@ -652,7 +652,7 @@ class Disassembly:
                             instructions += self.disassembler.defm_range(address, end, one_line, sublengths)
                         elif sub_block.ctl == 'w':
                             instructions += self.disassembler.defw_range(address, end, one_line, sublengths)
-                        elif sub_block.ctl == 'z':
+                        elif sub_block.ctl in 'sz':
                             instructions.append(self.disassembler.defs(address, end, sublengths))
                         else:
                             instructions += self.disassembler.defb_range(address, end, one_line, sublengths)

@@ -13,10 +13,13 @@ which is a single letter that indicates what the block contains:
 * ``c`` indicates a code block
 * ``g`` indicates a game status buffer entry
 * ``i`` indicates a block that should be ignored
+* ``s`` indicates a block containing bytes that are all the same value
+  (typically unused zeroes)
 * ``t`` indicates a block containing text
 * ``u`` indicates an unused block of memory
 * ``w`` indicates a block containing words (two-byte values)
-* ``z`` indicates an unused block containing all zeroes
+* ``z`` indicates a block containing all zeroes (this directive is deprecated;
+  use ``s`` instead)
 
 (If these letters remind you of the valid characters that may appear in the
 first column of each line of a :ref:`skool file <skoolFileFormat>`, that is no
@@ -118,11 +121,12 @@ syntax::
   w 32768 A block containing mostly words
   B 32800,3 But here's a sub-block of 3 bytes at 32800
   T 32809,8 And an 8-byte text string at 32809
-  C 32821,10 And 10 bytes of code at 32821 too?
+  C 32821,10 And 10 bytes of code at 32821
+  S 32831,17 Followed by 17 zeroes at 32831
 
-The directives (``B``, ``T`` and ``C``) used here to mark the sub-blocks are
-the upper case equivalents of the directives used to mark top-level blocks
-(``b``, ``t`` and ``c``). The comments at the end of these sub-block
+The directives (``B``, ``T``, ``C`` and ``S``) used here to mark the sub-blocks
+are the upper case equivalents of the directives used to mark top-level blocks
+(``b``, ``t``, ``c`` and ``s``). The comments at the end of these sub-block
 declarations are taken as instruction-level comments and will appear as such in
 the resultant `skool` file.
 
@@ -229,10 +233,10 @@ then it may be abbreviated thus::
 
   B 24580,21,2*6,1*3,3
 
-The same syntax can be used for ``T``, ``W`` and ``Z`` sub-blocks too. For
+The same syntax can be used for ``S``, ``T``, ``W`` sub-blocks too. For
 example::
 
-  Z 32768,100,25 Four 25-byte chunks of zeroes
+  S 32768,100,25 Four 25-byte chunks of zeroes
 
 would give::
 
@@ -261,6 +265,15 @@ notation can also be combined with the '*' notation; for example::
 which is equivalent to::
 
   T 50000,8,2:B2,2:B2
+
+DEFS statements may specify a byte value other than zero; for example::
+
+  60000 DEFS 20,170
+  60020 DEFS 40,85
+
+These statements can be encoded in a control file thus::
+
+  S 60000,60,20:170,40:85
 
 Number bases
 ------------
@@ -379,16 +392,14 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | 2.0.6   | Added support for hexadecimal numbers                             |
 +---------+-------------------------------------------------------------------+
-| 2.1     | Added support for DEFB statement lengths in ``B`` sub-blocks      |
+| 2.1     | Added support for DEFB statement lengths                          |
 +---------+-------------------------------------------------------------------+
 | 2.1.1   | Added the ``M`` directive                                         |
 +---------+-------------------------------------------------------------------+
-| 2.1.2   | Added support for DEFM, DEFW and DEFS statement lengths in ``T``, |
-|         | ``W`` and ``Z`` sub-blocks                                        |
+| 2.1.2   | Added support for DEFM, DEFS and DEFW statement lengths           |
 +---------+-------------------------------------------------------------------+
-| 2.2     | Added support for the ``*`` notation in DEFB, DEFM, DEFW and DEFS |
-|         | statement length lists in ``B``, ``T``, ``W`` and ``Z``           |
-|         | sub-blocks                                                        |
+| 2.2     | Added support for the ``*`` notation in DEFB, DEFM, DEFS and DEFW |
+|         | statement length lists                                            |
 +---------+-------------------------------------------------------------------+
 | 2.4     | Added support for non-block ASM directives                        |
 +---------+-------------------------------------------------------------------+
@@ -398,6 +409,8 @@ Revision history
 | 3.6     | Added support for preserving blank comments that span two or more |
 |         | instructions                                                      |
 +---------+-------------------------------------------------------------------+
-| 3.7     | Added support for specifying the base of numeric values in DEFB,  |
-|         | DEFM, DEFS and DEFW statements                                    |
+| 3.7     | Added support for binary numbers; added support for specifying    |
+|         | the base of numeric values in DEFB, DEFM, DEFS and DEFW           |
+|         | statements; added the ``s`` and ``S`` directives and support for  |
+|         | DEFS statements with non-zero byte values                         |
 +---------+-------------------------------------------------------------------+
