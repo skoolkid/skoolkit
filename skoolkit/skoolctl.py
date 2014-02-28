@@ -158,7 +158,7 @@ class CtlWriter:
                             comment_text = comment.text
                             if comment.rowspan > 1 and not comment_text.replace('.', ''):
                                 comment_text = '.' + comment_text
-                        if self.need_sub_block(ctl, entry_ctl, comment_text, j, instructions):
+                        if comment_text or ctl != entry_ctl or ctl != 'c':
                             self.write_sub_block(ctl, entry_ctl, comment_text, instructions, length)
 
     def addr_str(self, address, pad=True):
@@ -167,29 +167,6 @@ class CtlWriter:
         if pad:
             return '{:05d}'.format(address)
         return str(address)
-
-    def need_sub_block(self, ctl, entry_ctl, comment, index, instructions):
-        # Return whether a ctl line needs to be written for a sub-block
-        if ctl == entry_ctl and not comment:
-            # Don't write a ctl line for a commentless sub-block of a code
-            # block
-            if ctl == 'c':
-                return False
-            if index == 0 and len(instructions) == 1:
-                # Don't write a ctl line for a DEF{B,M,W} statement if it's 1
-                # byte or 1 word, commentless, the first instruction in the
-                # section, the sole instruction in its sub-block, and of the
-                # same type as the containing block (i.e. 'b', 't' or 'w')
-                if ctl in 'bt' and instructions[0].size == 1:
-                    return False
-                if ctl == 'w' and instructions[0].size == 2:
-                    return False
-                # Don't write a ctl line for a DEFS statement if it's
-                # commentless, the first instruction in the section, the sole
-                # instruction in its sub-block, and inside a 'z' block
-                if ctl in 'sz':
-                    return False
-        return True
 
     def get_sub_blocks(self, instructions):
         # Split a block of instructions into sub-blocks by comment rowspan
@@ -244,19 +221,14 @@ class CtlWriter:
         if ctl in 'bstwz':
             # Find the byte lengths of each line in a 'B', 'S', 'T', 'W' or 'Z'
             # sub-block
-            num_bytes = 0
+            length = 0
             stmt_lengths = []
             for stmt in instructions:
-                num_bytes += stmt.size
+                length += stmt.size
                 stmt_lengths.append(stmt.length)
             while len(stmt_lengths) > 1 and stmt_lengths[-1] == stmt_lengths[-2]:
                 stmt_lengths.pop()
-            # Don't write the statement lengths in a ctl line for a lone DEFB
-            # statement of length 1, a lone DEFM statement of length 1, a lone
-            # DEFW statement of length 2, or a lone DEFS statement
-            if not (len(instructions) == 1 and ((ctl in 'bt' and num_bytes == 1) or (ctl == 'w' and num_bytes == 2) or ctl in 'sz')):
-                length = num_bytes
-                lengths = ',' + get_lengths(stmt_lengths)
+            lengths = ',' + get_lengths(stmt_lengths)
 
         if length:
             write_line('{0} {1},{2}{3} {4}'.format(sub_block_ctl, address, length, lengths, comment).rstrip())

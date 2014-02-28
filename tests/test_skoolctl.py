@@ -93,19 +93,19 @@ u49157 DEFB 128
 w49158 DEFW 2
  49160 DEFW 4
 
-; Data block beginning with an implicit 1-byte sub-block
+; Data block beginning with a 1-byte sub-block
 b49162 DEFB 0
  49163 RET
 
-; Text block beginning with an implicit 1-byte sub-block
+; Text block beginning with a 1-byte sub-block
 t49164 DEFM "a"
  49165 RET
 
-; Word block beginning with an implicit 2-byte sub-block
+; Word block beginning with a 2-byte sub-block
 w49166 DEFW 23
  49168 RET
 
-; Zero block beginning with an implicit sub-block
+; Zero block
 s49169 DEFS 9
  49178 RET
 
@@ -199,41 +199,48 @@ D 32774 Mid-block comment
 T 32774,5,5 T sub-block
 ; @keep:32779
 ; @ignoreua:32779
-W 32779,2 W sub-block
-S 32781,2 S sub-block
+W 32779,2,2 W sub-block
+S 32781,2,2 S sub-block
 M 32783,12 Sub-block with instructions of various types and blank lines in the comment
 ; @nolabel:32783
 ; @ofix:32785=DEFB 2
-B 32785,1
+B 32785,1,1
 ; @rsub:32786=DEFW 0,1,2
 W 32786,4,4
 ; @ssub:32790=DEFM "Lo"
 T 32790,2,1:B1
-S 32792,3
+S 32792,3,3
   32795 Instruction with a comment continuation line
 E 32768 End comment paragraph 1.
 E 32768 End comment paragraph 2.
 i 32796 Ignore block
 b 49152 Data block
 ; @rem:49152=Hello!
+  49152,1,1
 g 49153 Game status buffer entry
-W 49153
+W 49153,2,2
 t 49155 Message
   49155,2,2
 u 49157 Unused block
+  49157,1,1
 w 49158 Word block
   49158,4,2
-b 49162 Data block beginning with an implicit 1-byte sub-block
+b 49162 Data block beginning with a 1-byte sub-block
+  49162,1,1
 C 49163
-t 49164 Text block beginning with an implicit 1-byte sub-block
+t 49164 Text block beginning with a 1-byte sub-block
+  49164,1,1
 C 49165
-w 49166 Word block beginning with an implicit 2-byte sub-block
+w 49166 Word block beginning with a 2-byte sub-block
+  49166,2,2
 C 49168
-s 49169 Zero block beginning with an implicit sub-block
+s 49169 Zero block
+  49169,9,9
 C 49178
 b 49179 Data block with sub-block lengths amenable to abbreviation (2*3,3*2,1)
   49179,14,2*3,3*2,1
 b 49193 ASM block directives
+  49193,1,1
 s 49194 Zero block
   49194,384,128
 ; @end:49194
@@ -283,41 +290,48 @@ D $8006 Mid-block comment
 T $8006,5,5 T sub-block
 ; @keep:$800B
 ; @ignoreua:$800B
-W $800B,2 W sub-block
-S $800D,2 S sub-block
+W $800B,2,2 W sub-block
+S $800D,2,2 S sub-block
 M $800F,12 Sub-block with instructions of various types and blank lines in the comment
 ; @nolabel:$800F
 ; @ofix:$8011=DEFB 2
-B $8011,1
+B $8011,1,1
 ; @rsub:$8012=DEFW 0,1,2
 W $8012,4,4
 ; @ssub:$8016=DEFM "Lo"
 T $8016,2,1:B1
-S $8018,3
+S $8018,3,3
   $801B Instruction with a comment continuation line
 E $8000 End comment paragraph 1.
 E $8000 End comment paragraph 2.
 i $801C Ignore block
 b $C000 Data block
 ; @rem:$C000=Hello!
+  $C000,1,1
 g $C001 Game status buffer entry
-W $C001
+W $C001,2,2
 t $C003 Message
   $C003,2,2
 u $C005 Unused block
+  $C005,1,1
 w $C006 Word block
   $C006,4,2
-b $C00A Data block beginning with an implicit 1-byte sub-block
+b $C00A Data block beginning with a 1-byte sub-block
+  $C00A,1,1
 C $C00B
-t $C00C Text block beginning with an implicit 1-byte sub-block
+t $C00C Text block beginning with a 1-byte sub-block
+  $C00C,1,1
 C $C00D
-w $C00E Word block beginning with an implicit 2-byte sub-block
+w $C00E Word block beginning with a 2-byte sub-block
+  $C00E,2,2
 C $C010
-s $C011 Zero block beginning with an implicit sub-block
+s $C011 Zero block
+  $C011,9,9
 C $C01A
 b $C01B Data block with sub-block lengths amenable to abbreviation (2*3,3*2,1)
   $C01B,14,2*3,3*2,1
 b $C029 ASM block directives
+  $C029,1,1
 s $C02A Zero block
   $C02A,384,128
 ; @end:$C02A
@@ -347,32 +361,39 @@ c 32768
 B 32769,2,2
 B 32771,3,1,2
 T 32774,5,5
-W 32779,2
-S 32781,2
-B 32785,1
+W 32779,2,2
+S 32781,2,2
+B 32785,1,1
 W 32786,4,4
 T 32790,2,1:B1
-S 32792,3
+S 32792,3,3
 i 32796
 b 49152
+  49152,1,1
 g 49153
-W 49153
+W 49153,2,2
 t 49155
   49155,2,2
 u 49157
+  49157,1,1
 w 49158
   49158,4,2
 b 49162
+  49162,1,1
 C 49163
 t 49164
+  49164,1,1
 C 49165
 w 49166
+  49166,2,2
 C 49168
 s 49169
+  49169,9,9
 C 49178
 b 49179
   49179,14,2*3,3*2,1
 b 49193
+  49193,1,1
 s 49194
   49194,384,128
 b 49578
@@ -395,34 +416,41 @@ c 32768
 B 32769,2,2 1-line B sub-block
 B 32771,3,1,2 2-line B sub-block
 T 32774,5,5 T sub-block
-W 32779,2 W sub-block
-S 32781,2 S sub-block
+W 32779,2,2 W sub-block
+S 32781,2,2 S sub-block
 M 32783,12 Sub-block with instructions of various types and blank lines in the comment
-B 32785,1
+B 32785,1,1
 W 32786,4,4
 T 32790,2,1:B1
-S 32792,3
+S 32792,3,3
   32795 Instruction with a comment continuation line
 i 32796
 b 49152
+  49152,1,1
 g 49153
-W 49153
+W 49153,2,2
 t 49155
   49155,2,2
 u 49157
+  49157,1,1
 w 49158
   49158,4,2
 b 49162
+  49162,1,1
 C 49163
 t 49164
+  49164,1,1
 C 49165
 w 49166
+  49166,2,2
 C 49168
 s 49169
+  49169,9,9
 C 49178
 b 49179
   49179,14,2*3,3*2,1
 b 49193
+  49193,1,1
 s 49194
   49194,384,128
 b 49578
