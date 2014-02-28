@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -21,8 +21,8 @@ import argparse
 from . import VERSION
 from .skoolsft import SftWriter
 
-def run(skoolfile, write_hex):
-    writer = SftWriter(skoolfile, write_hex)
+def run(skoolfile, options):
+    writer = SftWriter(skoolfile, options.write_hex, options.preserve_base)
     writer.write()
 
 def main(args):
@@ -34,6 +34,8 @@ def main(args):
     )
     parser.add_argument('skoolfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-b', '--preserve-base', action='store_true', dest='preserve_base',
+                       help="Preserve the base of decimal and hexadecimal values in DEFB, DEFM, DEFS and DEFW statements")
     group.add_argument('-h', '--hex', action='store_true', dest='write_hex',
                        help='Write addresses in hexadecimal format')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
@@ -41,4 +43,4 @@ def main(args):
     namespace, unknown_args = parser.parse_known_args(args)
     if unknown_args or namespace.skoolfile is None:
         parser.exit(2, parser.format_help())
-    run(namespace.skoolfile, namespace.write_hex)
+    run(namespace.skoolfile, namespace)

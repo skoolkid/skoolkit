@@ -9,9 +9,9 @@ Changelog
   deprecated
 * Added support to control files and skool file templates for specifying the
   base of numeric values in DEFB, DEFM, DEFS and DEFW statements
-* Added the ``--preserve-base`` option to :ref:`skool2ctl.py` (to preserve the
-  base of decimal and hexadecimal values in DEFB, DEFM, DEFS and DEFW
-  statements)
+* Added the ``--preserve-base`` option to :ref:`skool2ctl.py` and
+  :ref:`skool2sft.py` (to preserve the base of decimal and hexadecimal values
+  in DEFB, DEFM, DEFS and DEFW statements)
 * Added changelog entries to `manic_miner.ref`, `jet_set_willy.ref` and
   `48.rom.ref`
 

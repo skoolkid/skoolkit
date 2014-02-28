@@ -44,7 +44,7 @@ TEST_TYPES = {
     'asm': get_asm_options_list(),
     'ctl': get_ctl_options_list(),
     'html': get_html_options_list(),
-    'sft': ('', '-h')
+    'sft': ('', '-h', '-b', '-h -b')
 }
 
 ###############################################################################

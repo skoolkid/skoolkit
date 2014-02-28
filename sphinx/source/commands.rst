@@ -324,8 +324,10 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
   FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -h, --hex      Write addresses in hexadecimal format
-    -V, --version  Show SkoolKit version number and exit
+    -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
+                         DEFB, DEFM, DEFS and DEFW statements
+    -h, --hex            Write addresses in hexadecimal format
+    -V, --version        Show SkoolKit version number and exit
 
 +---------+----------------------------------------------+
 | Version | Changes                                      |
@@ -333,6 +335,8 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 | 2.4     | New                                          |
 +---------+----------------------------------------------+
 | 3.4     | Added the ``-V`` option and the long options |
++---------+----------------------------------------------+
+| 3.7     | Added the ``--preserve-base`` option         |
 +---------+----------------------------------------------+
 
 .. _sna2skool.py:
