@@ -164,10 +164,20 @@ class SkoolParserTest(SkoolKitTestCase):
             'b24591 DEFB 1',
             ' 24592 DEFW 300',
             ' 24594 DEFM "abc"',
-            ' 24597 DEFS 3,7'
+            ' 24597 DEFS 3,7',
+            ' 24600 DEFB $A0',
+            ' 24601 DEFW $812C',
+            ' 24603 DEFM "ab",$11',
+            ' 24606 DEFS $03,%10101010',
+            ' 24609 DEFB %00001111,"c"',
+            ' 24611 DEFW %1010101000001111',
+            ' 24613 DEFM %11110000,"bc"',
+            ' 24616 DEFS 2'
         ))
         parser = self._get_parser(skool)
         self.assertEqual(parser.snapshot[24591:24600], [1, 44, 1, 97, 98, 99, 7, 7, 7]) 
+        self.assertEqual(parser.snapshot[24600:24609], [160, 44, 129, 97, 98, 17, 170, 170, 170])
+        self.assertEqual(parser.snapshot[24609:24618], [15, 99, 15, 170, 240, 98, 99, 0, 0])
 
     def test_nested_braces(self):
         skool = '\n'.join((
