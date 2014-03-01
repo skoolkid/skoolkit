@@ -479,23 +479,65 @@ class Skool2HtmlTest(SkoolKitTestCase):
         game_dir = os.path.join(self.odir, reffile[:-4])
         self.assertTrue(os.path.isfile(os.path.join(game_dir, font_path, font_file)))
 
+    def test_js_file_is_copied(self):
+        global_js_file = self.write_text_file(suffix='.js')
+        local_js_file = self.write_text_file(suffix='.js')
+        ref = '\n'.join((
+            '[Game]',
+            'JavaScript={}',
+            '[Page:CustomPage]',
+            'JavaScript={}',
+            'Path=page.html',
+            'PageContent=<b>Hello</b>'
+        )).format(global_js_file, local_js_file)
+        reffile = self.write_text_file(ref, suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('{} -d {} -w P {}'.format(self._css_c(), self.odir, reffile))
+        self.assertEqual(error, '')
+        game_dir = os.path.join(self.odir, reffile[:-4])
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, global_js_file)))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, local_js_file)))
+
+    def test_multiple_js_files_are_copied(self):
+        global_js_files = [self.write_text_file(suffix='.js'), self.write_text_file(suffix='.js')]
+        local_js_files = [self.write_text_file(suffix='.js'), self.write_text_file(suffix='.js')]
+        ref = '\n'.join((
+            '[Game]',
+            'JavaScript={}',
+            '[Page:CustomPage]',
+            'JavaScript={}',
+            'Path=page.html',
+            'PageContent=<b>Hello</b>'
+        )).format(';'.join(global_js_files), ';'.join(local_js_files))
+        reffile = self.write_text_file(ref, suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('{} -d {} -w P {}'.format(self._css_c(), self.odir, reffile))
+        self.assertEqual(error, '')
+        game_dir = os.path.join(self.odir, reffile[:-4])
+        for js_file in global_js_files + local_js_files:
+            self.assertTrue(os.path.isfile(os.path.join(game_dir, js_file)))
+
     def test_custom_javascript_path(self):
-        js_file = self.write_text_file(suffix='.js')
+        global_js_file = self.write_text_file(suffix='.js')
+        local_js_file = self.write_text_file(suffix='.js')
         js_path = 'javascript'
         ref = '\n'.join((
+            '[Game]',
+            'JavaScript={}',
             '[Paths]',
             'JavaScriptPath={}',
             '[Page:CustomPage]',
             'JavaScript={}',
             'Path=page.html',
             'PageContent=<b>Hello</b>'
-        )).format(js_path, js_file)
+        )).format(global_js_file, js_path, local_js_file)
         reffile = self.write_text_file(ref, suffix='.ref')
         self.write_text_file(path='{}.skool'.format(reffile[:-4]))
         output, error = self.run_skool2html('{} -d {} -w P {}'.format(self._css_c(), self.odir, reffile))
         self.assertEqual(error, '')
         game_dir = os.path.join(self.odir, reffile[:-4])
-        self.assertTrue(os.path.isfile(os.path.join(game_dir, js_path, js_file)))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, js_path, global_js_file)))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, js_path, local_js_file)))
 
     def test_custom_style_sheet_path(self):
         css_file = self.write_text_file(suffix='.css')

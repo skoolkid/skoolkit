@@ -3644,7 +3644,31 @@ class HtmlWriterTest(SkoolKitTestCase):
         game_name = self.skoolfile[:-6]
         self.assertEqual(header[14], '<td class="headerText">{}</td>'.format(body_title))
 
-    def test_write_header_with_single_js(self):
+    def test_write_header_with_single_global_js(self):
+        global_js = 'js/global.js'
+        ref = '[Game]\nJavaScript={}'.format(global_js)
+        writer = self._get_writer(ref=ref, skool='')
+        ofile = StringIO()
+        cwd = 'subdir/subdir2'
+        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None)
+        header = ofile.getvalue().split('\n')
+        js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(global_js)))
+        self.assertEqual(header[9], '<script type="text/javascript" src="{}"></script>'.format(js_path))
+
+    def test_write_header_with_multiple_global_js(self):
+        js_files = ['js/global1.js', 'js.global2.js']
+        global_js = ';'.join(js_files)
+        ref = '[Game]\nJavaScript={}'.format(global_js)
+        writer = self._get_writer(ref=ref, skool='')
+        ofile = StringIO()
+        cwd = 'subdir/subdir2'
+        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None)
+        header = ofile.getvalue().split('\n')
+        js_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
+        self.assertEqual(header[9], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
+        self.assertEqual(header[10], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
+
+    def test_write_header_with_single_local_js(self):
         writer = self._get_writer(skool='')
         ofile = StringIO()
         cwd = 'subdir/subdir2'
@@ -3654,7 +3678,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
         self.assertEqual(header[9], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
-    def test_write_header_with_multiple_js(self):
+    def test_write_header_with_multiple_local_js(self):
         writer = self._get_writer(skool='')
         ofile = StringIO()
         cwd = 'subdir'
@@ -3665,6 +3689,21 @@ class HtmlWriterTest(SkoolKitTestCase):
         js_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
         self.assertEqual(header[9], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
         self.assertEqual(header[10], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
+
+    def test_write_header_with_local_and_global_js(self):
+        global_js_files = ['js/global1.js', 'js.global2.js']
+        global_js = ';'.join(global_js_files)
+        local_js_files = ['js/local1.js', 'js/local2.js']
+        local_js = ';'.join(local_js_files)
+        ref = '[Game]\nJavaScript={}'.format(global_js)
+        writer = self._get_writer(ref=ref, skool='')
+        ofile = StringIO()
+        cwd = 'subdir/subdir2'
+        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=local_js)
+        header = ofile.getvalue().split('\n')
+        for i, js in enumerate(global_js_files + local_js_files, 9):
+            js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
+            self.assertEqual(header[i], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
     def test_write_header_with_single_css(self):
         css = 'css/game.css'

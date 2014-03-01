@@ -175,6 +175,10 @@ class HtmlWriter:
         link_operands = self.game_vars.get('LinkOperands', 'CALL,DEFW,DJNZ,JP,JR')
         self.link_operands = tuple(op.upper() for op in link_operands.split(','))
         self.game_vars.setdefault('StyleSheet', 'skoolkit.css')
+        self.js_files = ()
+        global_js = self.game_vars.get('JavaScript')
+        if global_js:
+            self.js_files = tuple(global_js.split(';'))
 
         self.bugs = self.get_sections('Bug', True)
         self.facts = self.get_sections('Fact', True)
@@ -1002,9 +1006,11 @@ class HtmlWriter:
         ofile.write('<title>{0}: {1}</title>\n'.format(self.game, title))
         for css_file in self.game_vars['StyleSheet'].split(';'):
             ofile.write('<link rel="stylesheet" type="text/css" href="{0}" />\n'.format(FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))))
+        js_files = self.js_files
         if js:
-            for js_file in js.split(';'):
-                ofile.write('<script type="text/javascript" src="{0}"></script>\n'.format(FileInfo.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))))
+            js_files = list(js_files) + js.split(';')
+        for js_file in js_files:
+            ofile.write('<script type="text/javascript" src="{}"></script>\n'.format(FileInfo.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))))
         ofile.write('</head>\n')
 
     def _get_logo(self, cwd):

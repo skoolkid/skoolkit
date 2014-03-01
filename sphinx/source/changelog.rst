@@ -12,6 +12,8 @@ Changelog
 * Added the ``--preserve-base`` option to :ref:`skool2ctl.py` and
   :ref:`skool2sft.py` (to preserve the base of decimal and hexadecimal values
   in DEFB, DEFM, DEFS and DEFW statements)
+* Added the ``JavaScript`` parameter to the :ref:`ref-Game` section (for
+  specifying JavaScript files to include in every page of a disassembly)
 * Added changelog entries to `manic_miner.ref`, `jet_set_willy.ref` and
   `48.rom.ref`
 

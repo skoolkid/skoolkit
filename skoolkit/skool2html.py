@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -256,8 +256,10 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_c
         notify('Creating directory {0}'.format(odir))
         os.makedirs(odir)
 
-    # Copy CSS and font files if necessary
+    # Copy CSS, JavaScript and font files if necessary
     html_writer.set_style_sheet(copy_resources(search_dir, odir, game_vars.get('StyleSheet'), paths.get('StyleSheetPath', ''), css_theme, '.css', single_css))
+    js_path = paths.get('JavaScriptPath', '')
+    copy_resources(search_dir, odir, game_vars.get('JavaScript'), js_path)
     copy_resources(search_dir, odir, game_vars.get('Font'), paths.get('FontPath', ''))
 
     # Copy resources named in the [Resources] section
@@ -284,7 +286,7 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_c
     if 'P' in files:
         for page_id in pages:
             page_details = html_writer.pages[page_id]
-            copy_resources(search_dir, odir, page_details.get('JavaScript'), paths.get('JavaScriptPath', ''), indent=2)
+            copy_resources(search_dir, odir, page_details.get('JavaScript'), js_path, indent=2)
             clock(html_writer.write_page, '  Writing {}'.format(normpath(game_dir, paths[page_id])), page_id)
 
     # Write other files

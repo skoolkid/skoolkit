@@ -216,6 +216,9 @@ Recognised parameters are:
 * ``InputRegisterTableHeader`` - the text to use in the header of input
   register tables on routine disassembly pages; if not specified, no header is
   displayed
+* ``JavaScript`` - the base name of the JavaScript file to include in every
+  page (default: None); multiple JavaScript files can be declared by separating
+  their names with semicolons
 * ``LinkOperands`` - a comma-separated list of instruction types whose operands
   should be hyperlinked when possible (default: ``CALL,DEFW,DJNZ,JP,JR``); add
   ``LD`` to the list to enable the address operands of LD instructions to be
@@ -252,6 +255,8 @@ Recognised parameters are:
 | 3.5     | Added the ``Font``, ``LogoImage`` and ``StyleSheet`` parameters |
 |         | (all of which used to live in the :ref:`Paths` section,         |
 |         | ``LogoImage`` by the name ``Logo``)                             |
++---------+-----------------------------------------------------------------+
+| 3.7     | Added the ``JavaScript`` parameter                              |
 +---------+-----------------------------------------------------------------+
 
 [Glossary:\*]
@@ -667,9 +672,10 @@ The following parameters are optional:
 
 * ``BodyClass`` - the CSS class to use for the ``<body>`` element of the page
   (default: no CSS class is used)
-* ``JavaScript`` - the base name of the JavaScript file to use (default: None);
-  multiple JavaScript files can be declared by separating their names with
-  semicolons
+* ``JavaScript`` - the base name of the JavaScript file to use in addition to
+  any declared by the ``JavaScript`` parameter in the :ref:`ref-Game` section
+  (default: None); multiple JavaScript files can be declared by separating
+  their names with semicolons
 * ``Link`` - the link text for the page (defaults to the title)
 * ``PageContent`` - the HTML source of the body of the page; this may contain
   :ref:`skool macros <skoolMacros>`, and can be used instead of a
@@ -751,8 +757,8 @@ Recognised directory IDs and their default paths are:
 * ``FontPath`` - the directory in which to store font files specified by the
   ``Font`` parameter in the :ref:`ref-Game` section (default: `.`)
 * ``JavaScriptPath`` - the directory in which to store JavaScript files
-  specified by the ``JavaScript`` parameter in :ref:`Page` sections (default:
-  `.`)
+  specified by the ``JavaScript`` parameter in the :ref:`ref-Game` section and
+  :ref:`Page` sections (default: `.`)
 * ``ScreenshotImagePath`` - the directory in which screenshot images (created
   by the :ref:`#SCR <SCR>` macro) will be placed (default: `images/scr`)
 * ``StyleSheetPath`` - the directory in which to store CSS files specified by
