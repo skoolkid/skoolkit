@@ -813,13 +813,13 @@ class SkoolWriterTest(SkoolKitTestCase):
 
 class CtlWriterTest(SkoolKitTestCase):
     def test_decimal_addresses_below_10000(self):
-        ctls = {0: 'b', 1: 'c', 22: 't', 333: 'w', 4444: 'z'}
+        ctls = {0: 'b', 1: 'c', 22: 't', 333: 'w', 4444: 's'}
         exp_ctl = [
             'b 00000',
             'c 00001',
             't 00022',
             'w 00333',
-            'z 04444'
+            's 04444'
         ]
         ctlfile = self.write_bin_file()
         write_ctl(ctlfile, ctls, False)
