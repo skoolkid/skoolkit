@@ -358,6 +358,11 @@ class SftParserTest(SkoolKitTestCase):
         ]
         self.assertEqual(exp_skool, skool[:-1])
 
+    def test_byte_formats_hex(self):
+        snapshot = [170] * 4
+        skool = self._parse_sft('bB00000,b1:d1:h1:1', snapshot, asm_hex=True)[1]
+        self.assertEqual('b$0000 DEFB %10101010,170,$AA,$AA', skool[0])
+
     def test_word_formats(self):
         snapshot = [205, 85] * 20
         sft = '\n'.join((
@@ -383,6 +388,18 @@ class SftParserTest(SkoolKitTestCase):
             ' 00032 DEFW %0101010111001101',
             ' 00034 DEFW 21965,21965',
             ' 00038 DEFW $55CD'
+        ]
+        self.assertEqual(exp_skool, skool[:-1])
+
+    def test_word_formats_hex(self):
+        snapshot = [170] * 8
+        skool = self._parse_sft('wW00000,b2,d2,h2,2', snapshot, asm_hex=True)[1]
+
+        exp_skool = [
+            'w$0000 DEFW %1010101010101010',
+            ' $0002 DEFW 43690',
+            ' $0004 DEFW $AAAA',
+            ' $0006 DEFW $AAAA'
         ]
         self.assertEqual(exp_skool, skool[:-1])
 
