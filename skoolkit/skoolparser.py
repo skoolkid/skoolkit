@@ -63,9 +63,11 @@ def get_address(operation, check_prefix=True):
         prefixes = '[ ,(+-]'
     else:
         prefixes = ''
-    search = re.search('{0}\$[0-9A-Fa-f]+'.format(prefixes), operation)
+    search = re.search('{}\$[0-9A-Fa-f]+'.format(prefixes), operation)
     if not search:
-        search = re.search('{0}[0-9]+'.format(prefixes), operation)
+        search = re.search('{}%[01]+'.format(prefixes), operation)
+    if not search:
+        search = re.search('{}[0-9]+'.format(prefixes), operation)
     if search:
         if check_prefix:
             index = 1
@@ -951,7 +953,7 @@ class Mode:
 
     def replace_number(self, text, digits, check_prefix):
         num_str = get_address(text, check_prefix)
-        if num_str is None:
+        if num_str is None or num_str.startswith('%'):
             return text
         num = parse_int(num_str)
         if self.decimal:
