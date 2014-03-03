@@ -36,14 +36,7 @@ w 30600 Words at 30600
 S 30620,7
 s 30700 Zeroes at 30700
 B 30720,10,1,T3:2,1:T1*2
-T 30730-30744,10:B5
-B 30745,15,5:X10
-T 30760,5,2:Y3
-W 30765,5,1:Z4
-S 30770,10,U8:2
-c ABCDE Invalid
-C 40000,Q Invalid
-; @label:EDCBA=INVALID"""
+T 30730-30744,10:B5"""
 
 class CtlParserTest(SkoolKitTestCase):
     def test_parse_ctl(self):
@@ -68,10 +61,10 @@ class CtlParserTest(SkoolKitTestCase):
             30012: 'w',
             30020: 'c',
             30027: None,
-            30050: '',
+            30050: 'b',
             30055: None,
             30100: None,
-            30450: '',
+            30450: 't',
             30457: None,
             30502: 'b',
             30505: None,
@@ -164,21 +157,49 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self.assertEqual(ctl_parser.instruction_asm_directives, exp_instruction_asm_directives)
 
-        text = 'WARNING: Ignoring invalid control directive in {0}:'.format(ctlfile)
-        invalid_lines = [
-            'B 30745,15,5:X10',
-            'T 30760,5,2:Y3',
-            'W 30765,5,1:Z4',
-            'S 30770,10,U8:2',
-            'c ABCDE Invalid',
-            'C 40000,Q Invalid',
-            '; @label:EDCBA=INVALID'
+    def test_invalid_lines(self):
+        ctl_specs = [
+            ('  30000,1',        'blank directive with no containing block'),
+            ('B 30745,15,5:X10', 'invalid integer'),
+            ('T 30760,5,2:Y3',   'invalid integer'),
+            ('W 30765,5,1:B4',   'invalid integer'),
+            ('S 30770,10,T8:2',  'invalid integer'),
+            ('g 30780',          ''),
+            ('  30780,10',       "blank directive in a 'g' block"),
+            ('C 40000,Q',        'invalid integer'),
+            ('; @label:EDCBA=Z', 'invalid ASM directive address'),
+            ('; @label=Z',       'invalid ASM directive declaration'),
+            ('b 50000,20',       'extra parameters after address'),
+            ('d 50020',          'invalid directive'),
+            ('! 50030',          'invalid directive')
         ]
-        exp_warnings = len(invalid_lines)
+        ctls = [spec[0] for spec in ctl_specs]
+        ctl_parser = CtlParser()
+        ctlfile = self.write_text_file('\n'.join(ctls))
+        ctl_parser.parse_ctl(ctlfile)
+        exp_warnings = []
+        for line_no, (ctl, error_msg) in enumerate(ctl_specs, 1):
+            if error_msg:
+                exp_warnings.append('WARNING: Ignoring line {} in {} ({}):'.format(line_no, ctlfile, error_msg))
         warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), exp_warnings * 2)
-        self.assertEqual(warnings[0::2], [text] * exp_warnings)
-        self.assertEqual(warnings[1::2], invalid_lines)
+        self.assertEqual(exp_warnings, warnings[0::2])
+        invalid_ctls = [spec[0] for spec in ctl_specs if spec[1]]
+        self.assertEqual(invalid_ctls, warnings[1::2])
+
+    def test_comments(self):
+        ctl = '\n'.join((
+            '# This is a comment',
+            'b 32768',
+            '% This is also a comment',
+            'w 32769',
+            '; This is a comment too'
+        ))
+        ctl_parser = CtlParser()
+        ctlfile = self.write_text_file(ctl)
+        ctl_parser.parse_ctl(ctlfile)
+
+        self.assertEqual(self.err.getvalue(), '')
+        self.assertEqual({32768: 'b', 32769: 'w'}, ctl_parser.ctls)
 
     def test_byte_formats(self):
         ctl = '\n'.join((
@@ -303,11 +324,11 @@ class CtlParserTest(SkoolKitTestCase):
                 (5, [(5, 'd')]),
                 (5, None)
             ],
-            50120: [(156, [(20, 'd'), (136, 'b')])],
-            50140: [(88, [(20, None), (68, 'h')])],
+            50120: [(20, [(20, 'd'), (136, 'b')])],
+            50140: [(20, [(20, None), (68, 'h')])],
             50160: [
-                (20, [(10, None), (10, 'h')]),
-                (4, [(2, 'h'), (2, None)]),
+                (10, [(10, None), (10, 'h')]),
+                (2, [(2, 'h'), (2, None)]),
             ]
         }
         self.assertEqual(exp_lengths, ctl_parser.lengths)

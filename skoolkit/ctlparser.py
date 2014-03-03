@@ -19,6 +19,9 @@
 from . import warn, get_int_param, open_file
 from .skoolctl import AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET
 
+class CtlParserError(Exception):
+    pass
+
 def parse_params(ctl, params, lengths_index=2):
     int_params = []
     prefix = None
@@ -31,27 +34,29 @@ def parse_params(ctl, params, lengths_index=2):
                 n, m = num.split('*', 1)
             else:
                 n, m = num, '1'
-            if ctl in ' BSTWZ':
-                int_params += [_parse_sublengths(n, prefix)] * get_int_param(m)
+            if ctl in 'BSTWZ':
+                int_params += [_parse_sublengths(n, ctl, prefix)] * get_int_param(m)
             else:
                 int_params += [(get_int_param(n), None)] * get_int_param(m)
     if prefix and len(int_params) == lengths_index:
         int_params.append((None, [(None, prefix)]))
     return int_params
 
-def _parse_sublengths(sublengths, default_prefix):
+def _parse_sublengths(sublengths, subctl, default_prefix):
     length = 0
     lengths = []
     for num in sublengths.split(':'):
-        sublength, prefix = _parse_length(num, default_prefix)
+        sublength, prefix = _parse_length(num, subctl, default_prefix)
         lengths.append((sublength, prefix))
         length += sublength
     if len(lengths) == 1 and prefix is None:
         return (length, None)
+    if subctl in 'SZ':
+        length = lengths[0][0]
     return (length, lengths)
 
-def _parse_length(length, default_prefix=None):
-    if length.startswith(('B', 'T', 'b', 'd', 'h')):
+def _parse_length(length, subctl=None, default_prefix=None):
+    if length.startswith(('b', 'd', 'h')) or (subctl in ('B', 'T') and length.startswith(('B', 'T'))):
         return (get_int_param(length[1:]), length[0])
     return (get_int_param(length), default_prefix)
 
@@ -70,58 +75,66 @@ class CtlParser:
         self.instruction_asm_directives = {}
 
     def parse_ctl(self, ctlfile):
+        entry_ctl = None
         f = open_file(ctlfile)
-        for line in f:
+        for line_no, line in enumerate(f, 1):
             s_line = line.rstrip()
             if not s_line:
                 continue
-            valid, ctl, start, end, text, lengths, asm_directive = self._parse_ctl_line(s_line)
-            if valid:
-                if ctl:
-                    ctl = ctl.strip()
-                    if ctl.islower():
-                        self.ctls[start] = ctl
-                        self.titles[start] = text
-                    elif ctl == 'D':
-                        self.comments.setdefault(start, []).append(text)
-                        self.subctls.setdefault(start, None)
-                    elif ctl == 'E':
-                        self.end_comments.setdefault(start, []).append(text)
-                    elif ctl == 'R':
-                        fields = text.split(' ', 1)
-                        valid = len(fields) == 2
-                        if valid:
-                            self.registers.setdefault(start, [])
-                            self.registers[start].append(fields)
-                    elif ctl == 'M':
-                        self.multiline_comments[start] = (end, text)
-                    else:
-                        self.subctls[start] = ctl.lower()
-                        self.instruction_comments[start] = text
-                        if end:
-                            self.subctls[end + 1] = None
-                    if lengths:
-                        self.lengths[start] = lengths
-                elif asm_directive:
-                    directive, address, value = asm_directive
-                    if directive in (AD_ORG, AD_WRITER, AD_START, AD_END) or directive.startswith(AD_SET):
-                        self.entry_asm_directives.setdefault(address, []).append((directive, value))
-                    else:
-                        self.instruction_asm_directives.setdefault(address, []).append((directive, value))
-            else:
-                warn('Ignoring invalid control directive in {0}:\n{1}'.format(ctlfile, s_line))
+            try:
+                ctl, start, end, text, lengths, asm_directive = self._parse_ctl_line(s_line, entry_ctl)
+            except CtlParserError as e:
+                warn('Ignoring line {} in {} ({}):\n{}'.format(line_no, ctlfile, e.args[0], s_line))
+                continue
+            if ctl:
+                ctl = ctl.strip()
+                if ctl.islower():
+                    self.ctls[start] = ctl
+                    entry_ctl = ctl
+                    self.titles[start] = text
+                elif ctl == 'D':
+                    self.comments.setdefault(start, []).append(text)
+                    self.subctls.setdefault(start, None)
+                elif ctl == 'E':
+                    self.end_comments.setdefault(start, []).append(text)
+                elif ctl == 'R':
+                    fields = text.split(' ', 1)
+                    valid = len(fields) == 2
+                    if valid:
+                        self.registers.setdefault(start, [])
+                        self.registers[start].append(fields)
+                elif ctl == 'M':
+                    self.multiline_comments[start] = (end, text)
+                else:
+                    self.subctls[start] = ctl.lower()
+                    self.instruction_comments[start] = text
+                    if end:
+                        self.subctls[end + 1] = None
+                if lengths:
+                    self.lengths[start] = lengths
+            elif asm_directive:
+                directive, address, value = asm_directive
+                if directive in (AD_ORG, AD_WRITER, AD_START, AD_END) or directive.startswith(AD_SET):
+                    self.entry_asm_directives.setdefault(address, []).append((directive, value))
+                else:
+                    self.instruction_asm_directives.setdefault(address, []).append((directive, value))
         f.close()
 
-    def _parse_ctl_line(self, line):
-        valid = True
+    def _parse_ctl_line(self, line, entry_ctl):
         ctl = start = end = text = asm_directive = None
         lengths = []
         first_char = line[0]
         content = line[1:].lstrip()
         if content:
-            if first_char.lower() in ' bcdegimrstuwz':
+            if first_char in ' bBcCDEgiMRsStTuwWzZ':
                 fields = content.split(' ', 1)
                 ctl = first_char
+                if ctl == ' ':
+                    if entry_ctl is None:
+                        raise CtlParserError("blank directive with no containing block")
+                    if entry_ctl not in 'bcstwz':
+                        raise CtlParserError("blank directive in a '{}' block".format(entry_ctl))
+                    ctl = entry_ctl.upper()
                 use_length = False
                 if '-' in fields[0]:
                     params = fields[0].split('-', 1)
@@ -132,38 +145,37 @@ class CtlParser:
                 try:
                     int_params = parse_params(ctl, params)
                 except ValueError:
-                    valid = False
-                if valid:
-                    start = int_params[0]
-                    if len(int_params) > 1:
-                        end = int_params[1]
-                    else:
-                        end = None
+                    raise CtlParserError("invalid integer")
+                start = int_params[0]
+                if len(int_params) > 1:
+                    if ctl.islower():
+                        raise CtlParserError("extra parameters after address")
+                    end = int_params[1]
                     if use_length:
                         end += start - 1
-                    if ctl.islower():
-                        valid = len(int_params) == 1 and ctl not in 'der'
-                    lengths = int_params[2:]
-                    if len(fields) > 1:
-                        text = fields[1]
+                else:
+                    end = None
+                lengths = int_params[2:]
+                if len(fields) > 1:
+                    text = fields[1]
             elif first_char == ';' and content.startswith('@'):
                 asm_fields = content.split(':', 1)
-                valid = len(asm_fields) > 1
-                if valid:
-                    asm_fields[1] = asm_fields[1].split('=', 1)
-                    try:
-                        address = get_int_param(asm_fields[1][0])
-                    except ValueError:
-                        valid = False
-                    else:
-                        directive = asm_fields[0][1:]
-                        if len(asm_fields[1]) == 2:
-                            value = asm_fields[1][1]
-                        else:
-                            value = None
-                        asm_directive = (directive, address, value)
-
-        return valid, ctl, start, end, text, lengths, asm_directive
+                if len(asm_fields) < 2:
+                    raise CtlParserError("invalid ASM directive declaration")
+                asm_fields[1] = asm_fields[1].split('=', 1)
+                try:
+                    address = get_int_param(asm_fields[1][0])
+                except ValueError:
+                    raise CtlParserError("invalid ASM directive address")
+                directive = asm_fields[0][1:]
+                if len(asm_fields[1]) == 2:
+                    value = asm_fields[1][1]
+                else:
+                    value = None
+                asm_directive = (directive, address, value)
+            elif first_char not in '#%;':
+                raise CtlParserError("invalid directive")
+        return ctl, start, end, text, lengths, asm_directive
 
     def get_block_title(self, address):
         return self.titles.get(address)

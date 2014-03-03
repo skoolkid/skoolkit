@@ -644,8 +644,6 @@ class Disassembly:
                     while address < sub_block.end:
                         if lengths:
                             length, sublengths = lengths.pop(0)
-                        if sub_block.ctl in 'sz' and sublengths:
-                            length = sublengths[0][0]
                         if length is None:
                             one_line = False
                             length = sub_block.end - sub_block.start
