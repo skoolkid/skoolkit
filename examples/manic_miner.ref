@@ -7,6 +7,7 @@ HtmlWriterClass=skoolkit.manicminer.ManicMinerHtmlWriter
 
 [Game]
 Game=Manic Miner
+TitlePrefix=The incomplete
 Logo=#SCR2,0,1,19,2,43008,40448{10,,292}(/images/logo)
 
 [Font]

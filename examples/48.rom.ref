@@ -7,7 +7,7 @@ GameDir=rom
 
 [Game]
 Game=Spectrum ROM
-TitlePrefix=The Complete
+TitlePrefix=The Incomplete
 TitleSuffix=Disassembly
 
 [Changelog:20131102]
