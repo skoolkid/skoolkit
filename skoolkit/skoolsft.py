@@ -207,7 +207,7 @@ class SftWriter:
         if address is not None:
             if self.write_hex:
                 return '${0:04X}'.format(int(address))
-            return str(address)
+            return '{:05d}'.format(address)
 
     def write(self):
         for line in self._parse_skool():

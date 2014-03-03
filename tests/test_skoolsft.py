@@ -301,6 +301,23 @@ class SftWriterTest(SkoolKitTestCase):
     def test_write_hex(self):
         self._test_sft('c40177 RET', ['cC$9CF1,1'], write_hex=True)
 
+    def test_decimal_addresses_below_10000(self):
+        skool = '\n'.join((
+            'b00000 DEFB 0,0,0,0',
+            ' 00004 DEFW 0,0,0,0',
+            ' 00012 DEFM "Hello"',
+            ' 00123 DEFS 1000',
+            ' 01123 RET'
+        ))
+        exp_sft = [
+            'bB00000,4',
+            ' W00004,8',
+            ' T00012,5',
+            ' S00123,1000',
+            ' C01123,1'
+        ]
+        self._test_sft(skool, exp_sft)
+
     def test_byte_formats_no_base(self):
         exp_sft = [
             '; Binary and mixed-base DEFB/DEFM statements',
