@@ -409,6 +409,27 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         self.assertEqual(actual_instructions, exp_instructions)
 
+    def test_byte_formats_hex(self):
+        snapshot = [85] * 4
+        ctl = '\n'.join((
+            'b 00000',
+            '  00000,4,b1:d1:h1:1',
+            'i 00004'
+        ))
+        ctl_parser = CtlParser()
+        ctl_parser.parse_ctl(self.write_text_file(ctl))
+        disassembly = Disassembly(snapshot, ctl_parser, True, asm_hex=True)
+
+        entries = disassembly.entries
+        self.assertEqual(len(entries), 2)
+
+        entry = entries[0]
+        self.assertEqual(entry.address, 0)
+        instructions = entry.instructions
+        self.assertEqual(len(instructions), 1)
+        defb = instructions[0]
+        self.assertEqual(defb.operation, 'DEFB %01010101,85,$55,$55')
+
     def test_word_formats(self):
         snapshot = [170, 53] * 32
         ctl = '\n'.join((
@@ -459,6 +480,32 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         self.assertEqual(actual_instructions, exp_instructions)
 
+    def test_word_formats_hex(self):
+        snapshot = [240] * 8
+        ctl = '\n'.join((
+            'w 00000',
+            '  00000,8,b2,d2,h2,2',
+            'i 00008'
+        ))
+        ctl_parser = CtlParser()
+        ctl_parser.parse_ctl(self.write_text_file(ctl))
+        disassembly = Disassembly(snapshot, ctl_parser, True, asm_hex=True)
+
+        entries = disassembly.entries
+        self.assertEqual(len(entries), 2)
+
+        entry = entries[0]
+        self.assertEqual(entry.address, 0)
+        instructions = entry.instructions
+        actual_instructions = [(i.address, i.operation) for i in instructions]
+        exp_instructions = [
+            (0, 'DEFW %1111000011110000'),
+            (2, 'DEFW 61680'),
+            (4, 'DEFW $F0F0'),
+            (6, 'DEFW $F0F0')
+        ]
+        self.assertEqual(exp_instructions, actual_instructions)
+
     def test_s_directives(self):
         snapshot = []
         ctl = '\n'.join((
@@ -472,8 +519,7 @@ class DisassemblyTest(SkoolKitTestCase):
             '  00100,d40,b10,10,h10',
             '  00140,h60,b10,d10,40',
             'S 00200,768,b256,d256,h256',
-            '  00968,16,16:b%10101010',
-            '  00984,40,40:h17',
+            '  00968,56,16:b%10101010,40:h17',
             'i 01024'
         ))
         ctl_parser = CtlParser()
@@ -512,6 +558,31 @@ class DisassemblyTest(SkoolKitTestCase):
             (712, 'DEFS $0100'),
             (968, 'DEFS 16,%10101010'),
             (984, 'DEFS 40,$11')
+        ]
+        self.assertEqual(exp_instructions, actual_instructions)
+
+    def test_s_directives_hex(self):
+        snapshot = []
+        ctl = '\n'.join((
+            's 00000',
+            '  00000,14,d2:b1,h2:128,h10:2',
+            'i 00014'
+        ))
+        ctl_parser = CtlParser()
+        ctl_parser.parse_ctl(self.write_text_file(ctl))
+        disassembly = Disassembly(snapshot, ctl_parser, True, asm_hex=True)
+
+        entries = disassembly.entries
+        self.assertEqual(len(entries), 2)
+
+        entry = entries[0]
+        self.assertEqual(entry.address, 0)
+        instructions = entry.instructions
+        actual_instructions = [(i.address, i.operation) for i in instructions]
+        exp_instructions = [
+            (0, 'DEFS 2,%00000001'),
+            (2, 'DEFS 2,$80'),
+            (4, 'DEFS $0A,2')
         ]
         self.assertEqual(exp_instructions, actual_instructions)
 
@@ -564,6 +635,33 @@ class DisassemblyTest(SkoolKitTestCase):
             (200, 'DEFS %0000000100000000'),
             (456, 'DEFS 256'),
             (712, 'DEFS $0100')
+        ]
+        self.assertEqual(exp_instructions, actual_instructions)
+
+    def test_z_directives_hex(self):
+        snapshot = []
+        ctl = '\n'.join((
+            'z 00000',
+            '  00000,26,b2,d2,h2,h10,10',
+            'i 00026'
+        ))
+        ctl_parser = CtlParser()
+        ctl_parser.parse_ctl(self.write_text_file(ctl))
+        disassembly = Disassembly(snapshot, ctl_parser, True, asm_hex=True)
+
+        entries = disassembly.entries
+        self.assertEqual(len(entries), 2)
+
+        entry = entries[0]
+        self.assertEqual(entry.address, 0)
+        instructions = entry.instructions
+        actual_instructions = [(i.address, i.operation) for i in instructions]
+        exp_instructions = [
+            ( 0, 'DEFS %00000010'),
+            ( 2, 'DEFS 2'),
+            ( 4, 'DEFS 2'),
+            ( 6, 'DEFS $0A'),
+            (16, 'DEFS $0A')
         ]
         self.assertEqual(exp_instructions, actual_instructions)
 
