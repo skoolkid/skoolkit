@@ -54,6 +54,11 @@ Logo=#SCR2,0,1,19,2,43008,40448{10,,292}(/images/logo)
 120=0000442810284400
 121=00004444443C0438
 
+[Changelog:--------]
+Included in SkoolKit 3.7.
+
+Added images of the top third and middle third of the title screen to the entry at #R40960
+
 [Changelog:20131102]
 Included in SkoolKit 3.6.
 
@@ -82,7 +87,7 @@ Added a logo image
 [Changelog:20120222]
 Included in SkoolKit 2.5.
 
-Fixed the spacing in the title at #R33839
+Fixed the spacing in the title of the entry at #R33839
 
 [Changelog:20100212]
 Initial version, included in SkoolKit 1.0.7.

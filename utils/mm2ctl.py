@@ -26,6 +26,10 @@ HEADER = """
 ;   sna2skool.py -c manic_miner.ctl mm.z80 > manic_miner.skool
 ;   skool2html.py manic_miner.ref
 ;
+
+; @start:32768
+; @set-handle-unsupported-macros:32768=1
+; @org:32768=32768
 b 32768 Cavern buffer
 D 32768 Source code remnants. These DB directives define part of the title screen tune data at #R33902.
 T 32768,19
@@ -926,9 +930,14 @@ T 40288
 T 40336
 T 40382
 b 40448 Attribute data for the middle third of the title screen
+D 40448 The graphic data for the middle third of the title screen is located at #R43008.
 B 40448,512,16
 b 40960 Title screen graphic data
 B 40960,4096,16
+D 40960 #SCR2,,,,8,40960,64512(title_screen_1)
+D 40960 The attributes for the top third of the title screen are located at #R64512 (in the cavern data for The Final Barrier).
+D 40960 #SCR2,,8,,8,40960,40192(title_screen_2)
+D 40960 The attributes for the middle third of the title screen are located at #R40448.
 """.strip()
 
 def write(text):
