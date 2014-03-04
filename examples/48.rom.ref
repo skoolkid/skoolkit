@@ -10,5 +10,10 @@ Game=Spectrum ROM
 TitlePrefix=The Incomplete
 TitleSuffix=Disassembly
 
+[Changelog:--------]
+Included in SkoolKit 3.7.
+
+Recast the character set at #R$3D00 as binary DEFB statements with a single image for each character
+
 [Changelog:20131102]
 Initial version, included in SkoolKit 3.6.
