@@ -27,6 +27,9 @@ TEMPLATE = """
 ;   sna2skool.py -c jet_set_willy.ctl jsw.z80 > jet_set_willy.skool
 ;   skool2html.py jet_set_willy.ref
 ;
+
+; @start:32768
+; @org:32768=32768
 b 32768 Room buffer
 S 32768,256
 b 33024 Guardian buffer
