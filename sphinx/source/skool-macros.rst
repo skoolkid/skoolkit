@@ -559,8 +559,8 @@ given address within that page. ::
 * ``addr`` is the address of the routine or data block (or entry point
   thereof)
 * ``code`` is the ID of the disassembly that contains the routine or data block
-  (if not given, the current disassembly is assumed; otherwise this should be
-  an ID defined in an ``[OtherCode:*]`` section of the ref file)
+  (if not given, the current disassembly is assumed; otherwise this must be an
+  ID defined in an ``[OtherCode:*]`` section of the ref file)
 * ``#name`` is the named anchor of an item on the disassembly page
 * ``link text`` is the link text to use (default: ``addr``)
 
@@ -769,9 +769,8 @@ For example::
 This table has two rows and two columns, and will have the CSS class 'default'.
 The cells in the first column will have the CSS class 'centre'.
 
-By default, cells will be rendered as ``<td>`` elements. To specify that a
-``<th>`` element should be used instead, use the ``=h`` indicator before the
-cell contents::
+By default, cells will be rendered as ``<td>`` elements. To render a cell as a
+``<th>`` element, use the ``=h`` indicator before the cell contents::
 
   ; #TABLE
   ; { =h Header 1  | =h Header 2 }
@@ -786,11 +785,10 @@ It is also possible to specify ``colspan`` and ``rowspan`` attributes using the
   ; { =c2           2 columns }
   ; TABLE#
 
-Finally, the ``=t`` indicator specifies that a cell should be transparent (i.e.
-have the same background colour as the page body).
+Finally, the ``=t`` indicator makes a cell transparent (i.e. gives it the same
+background colour as the page body).
 
-If a cell requires more than one indicator, the indicators should be separated
-by commas::
+If a cell requires more than one indicator, separate the indicators by commas::
 
   ; #TABLE
   ; { =h,c2 Wide header }
@@ -1051,6 +1049,6 @@ single animated image, with a delay of 0.5s between each frame.
 ---------
 The ``#UDGTABLE`` macro behaves in exactly the same way as the ``#TABLE``
 macro, except that the resulting table will not be rendered in ASM mode. Its
-intended use is to contain images that should be rendered in HTML mode only.
+intended use is to contain images that will be rendered in HTML mode only.
 
 See :ref:`TABLE`, and also :ref:`HTML`.

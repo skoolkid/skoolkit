@@ -12,7 +12,7 @@ which is a single letter that indicates what the block contains:
 * ``b`` indicates a data block
 * ``c`` indicates a code block
 * ``g`` indicates a game status buffer entry
-* ``i`` indicates a block that should be ignored
+* ``i`` indicates a block that will be ignored
 * ``s`` indicates a block containing bytes that are all the same value
   (typically unused zeroes)
 * ``t`` indicates a block containing text
@@ -34,11 +34,11 @@ For example::
 
 This control file declares that:
 
-* Everything before 24576 should be ignored
-* There is a routine at 24576-24831 which should be titled 'Do stuff'
+* Everything before 24576 will be ignored
+* There is a routine at 24576-24831 titled 'Do stuff'
 * There is data at 24832-25087
 * There is text at 25088-25343
-* Everything from 25344 onwards is unused (but should still be disassembled as
+* Everything from 25344 onwards is unused (but will still be disassembled as
   data)
 
 Addresses may be written as hexadecimal numbers, too; the equivalent example
@@ -70,8 +70,8 @@ directive thus::
   c 24576 This is the title of the routine at 24576
   D 24576 This is the description of the routine at 24576.
 
-If the description consists of two or more paragraphs, each one should be
-declared with a separate ``D`` directive::
+If the description consists of two or more paragraphs, declare each one with a
+separate ``D`` directive::
 
   D 24576 This is the first paragraph of the description of the routine at 24576.
   D 24576 This is the second paragraph of the description of the routine at 24576.
@@ -91,8 +91,8 @@ use the ``D`` directive thus::
 
   D 24592 The next section of code does something really important.
 
-If the mid-block comment consists of two or more paragraphs, each one should be
-declared with a separate ``D`` directive::
+If the mid-block comment consists of two or more paragraphs, declare each one
+with a separate ``D`` directive::
 
   D 24592 This is the first paragraph of the mid-block comment.
   D 24592 This is the second paragraph of the mid-block comment.
@@ -104,8 +104,8 @@ the ``E`` directive thus::
 
   E 24576 And so the work of this routine is done.
 
-If the block end comment consists of two or more paragraphs, each one should be
-declared with a separate ``E`` directive::
+If the block end comment consists of two or more paragraphs, declare each one
+with a separate ``E`` directive::
 
   E 24576 This is the first paragraph of the end comment for the routine at 24576.
   E 24576 This is the second paragraph of the end comment for the routine at 24576.

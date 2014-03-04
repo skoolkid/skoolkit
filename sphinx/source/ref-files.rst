@@ -48,7 +48,7 @@ where:
 To ensure that an entry can be linked to by the :ref:`bug` macro, the anchor
 name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
 
-Paragraphs should be separated by blank lines, and may contain HTML markup and
+Paragraphs must be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
 
 [Changelog:\*]
@@ -190,7 +190,7 @@ where:
 To ensure that an entry can be linked to by the :ref:`fact` macro, the anchor
 name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
 
-Paragraphs should be separated by blank lines, and may contain HTML markup and
+Paragraphs must be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
 
 .. _ref-Game:
@@ -220,7 +220,7 @@ Recognised parameters are:
   page (default: None); multiple JavaScript files can be declared by separating
   their names with semicolons
 * ``LinkOperands`` - a comma-separated list of instruction types whose operands
-  should be hyperlinked when possible (default: ``CALL,DEFW,DJNZ,JP,JR``); add
+  will be hyperlinked when possible (default: ``CALL,DEFW,DJNZ,JP,JR``); add
   ``LD`` to the list to enable the address operands of LD instructions to be
   hyperlinked as well
 * ``Logo`` - the text/HTML that will serve as the game logo in the header of
@@ -273,7 +273,7 @@ section names and contents take the form::
 
 where ``term`` is the term being defined in the entry.
 
-Paragraphs should be separated by blank lines, and may contain HTML markup and
+Paragraphs must be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
 
 +---------+---------------------------------------+
@@ -299,7 +299,7 @@ where:
 * ``anchor`` is the name of the HTML anchor for the entry
 * ``title`` is the title of the entry
 
-Paragraphs should be separated by blank lines, and may contain HTML markup and
+Paragraphs must be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
 
 .. _graphics:
@@ -378,7 +378,7 @@ browsers.
 [Index]
 -------
 The ``Index`` section contains a list of link group IDs in the order in which
-the link groups should appear on the disassembly index page. The link groups
+the link groups will appear on the disassembly index page. The link groups
 themselves are defined in ``[Index:*:*]`` sections (see below).
 
 By default, SkoolKit defines the following list of link groups::
@@ -544,7 +544,7 @@ section names take the form::
 
   [MemoryMap:PageID]
 
-where ``PageID`` is the unique ID of the memory map page (which should be the
+where ``PageID`` is the unique ID of the memory map page (which must be the
 same as the corresponding page ID that appears in the :ref:`Paths` section).
 
 Each ``MemoryMap:*`` section contains parameters in the form::
@@ -568,10 +568,10 @@ Recognised parameters and their default values are:
 
 * ``Intro`` - the text (HTML) to display at the top of the memory map page
   (default: '')
-* ``PageByteColumns`` - ``1`` if the memory map page should include 'Page' and
-  'Byte' columns, ``0`` otherwise (default: ``0``)
-* ``Write`` - ``1`` if the memory map page should be written, ``0`` otherwise
-  (default: ``1``)
+* ``PageByteColumns`` - ``1`` to include 'Page' and 'Byte' columns on the
+  memory map page, or ``0`` to omit them (default: ``0``)
+* ``Write`` - ``1`` to write the memory map page, or ``0`` not to (default:
+  ``1``)
 
 By default, SkoolKit defines five memory maps whose property values differ from
 the defaults as follows::
@@ -805,7 +805,7 @@ where:
 To ensure that an entry can be linked to by the :ref:`poke` macro, the anchor
 name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
 
-Paragraphs should be separated by blank lines, and may contain HTML markup and
+Paragraphs must be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
 
 .. _resources:
