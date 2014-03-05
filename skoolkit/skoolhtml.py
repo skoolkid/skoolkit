@@ -1642,9 +1642,11 @@ class Frame(object):
     :param x: The x-coordinate of the top-left pixel to include in the frame.
     :param y: The y-coordinate of the top-left pixel to include in the frame.
     :param width: The width of the frame; if `None`, the maximum width
-                  (derived from `x` and width of the array of tiles) is used.
+                  (derived from `x` and the width of the array of tiles) is
+                  used.
     :param height: The height of the frame; if `None`, the maximum height
-                   (derived from `y` and height of the array of tiles) is used.
+                   (derived from `y` and the height of the array of tiles) is
+                   used.
     :param delay: The delay between this frame and the next in 1/100ths of a
                   second.
     """
