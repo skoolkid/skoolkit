@@ -1,7 +1,7 @@
 .. _commands:
 
-Command reference
-=================
+Commands
+========
 
 .. _bin2tap.py:
 
