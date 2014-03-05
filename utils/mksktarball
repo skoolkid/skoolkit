@@ -71,18 +71,15 @@ cp -a $SETUP $ABSDIR/setup.py
 utils/mm2ctl.py snapshots/manic_miner.z80 > $ABSDIR/examples/manic_miner.ctl
 utils/jsw2ctl.py snapshots/jet_set_willy.z80 > $ABSDIR/examples/jet_set_willy.ctl
 
-# Documentation
+# Documentation and man pages
 cd $SKOOLKIT_HOME/sphinx
 rm -rf build/*
 if ! make html &> /dev/null; then
   echo "*** Error building documentation; aborting"
   exit 1
 fi
+rm -rf build/html/man
 rsync -a --exclude=.buildinfo --exclude=objects.inv build/html/ $DOCSDIR
-
-# Man pages
-cd $SKOOLKIT_HOME/man
-rm -rf build/*
 if ! make man &> /dev/null; then
   echo "*** Error building man pages; aborting"
   exit 1

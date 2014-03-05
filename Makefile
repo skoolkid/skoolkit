@@ -49,12 +49,11 @@ doc:
 
 .PHONY: man
 man:
-	$(MAKE) -C man man
+	$(MAKE) -C sphinx man
 
 .PHONY: clean
 clean:
 	$(MAKE) -C sphinx clean
-	$(MAKE) -C man clean
 
 .PHONY: mm
 mm:

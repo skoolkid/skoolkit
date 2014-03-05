@@ -214,9 +214,22 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
+_authors = [u'Richard Dymond']
 man_pages = [
-    ('index', 'skoolkit', u'SkoolKit Documentation',
-     [u'Richard Dymond'], 1)
+    ('man/bin2tap.py', 'bin2tap.py',
+     u'convert a binary snapshot file into a TAP file', _authors, 1),
+    ('man/skool2asm.py', 'skool2asm.py',
+     u'convert a skool file to ASM format', _authors, 1),
+    ('man/skool2ctl.py', 'skool2ctl.py',
+     u'convert a skool file into a control file', _authors, 1),
+    ('man/skool2html.py', 'skool2html.py',
+     u'convert skool and ref files to HTML', _authors, 1),
+    ('man/skool2sft.py', 'skool2sft.py',
+     u'convert a skool file into a skool file template', _authors, 1),
+    ('man/sna2skool.py', 'sna2skool.py',
+     u'convert a snapshot into a skool file', _authors, 1),
+    ('man/tap2sna.py', 'tap2sna.py',
+     u'convert a TAP or TZX file into a snapshot file', _authors, 1)
 ]
 
 # If true, show URL addresses after external links.
