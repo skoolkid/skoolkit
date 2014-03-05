@@ -34,6 +34,7 @@ Copying {cssfile} to {odir}/manic_miner/{cssfile}
   Writing manic_miner/maps/data.html
   Writing manic_miner/maps/messages.html
   Writing manic_miner/buffers/gbuffer.html
+  Writing manic_miner/reference/changelog.html
   Writing manic_miner/index.html"""
 
 OUTPUT_JSW = """Creating directory {odir}
@@ -49,6 +50,7 @@ Copying {cssfile} to {odir}/jet_set_willy/{cssfile}
   Writing jet_set_willy/maps/messages.html
   Writing jet_set_willy/maps/unused.html
   Writing jet_set_willy/buffers/gbuffer.html
+  Writing jet_set_willy/reference/changelog.html
   Writing jet_set_willy/reference/facts.html
   Writing jet_set_willy/index.html"""
 
@@ -64,6 +66,7 @@ Copying {cssfile} to {odir}/rom/{cssfile}
   Writing rom/maps/data.html
   Writing rom/maps/messages.html
   Writing rom/maps/unused.html
+  Writing rom/reference/changelog.html
   Writing rom/index.html"""
 
 def _find_ids_and_hrefs(elements, doc_anchors, doc_hrefs):
