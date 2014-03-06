@@ -1,19 +1,15 @@
-DARK?=0
-SPECTRUM?=0
-HEX?=0
 ROM?=/usr/share/spectrum-roms/48.rom
 NOSETESTS27=/usr/bin/python2.7 /usr/bin/nosetests
 NOSETESTS32=/usr/bin/python3.2 /usr/bin/nosetests
 NOSETESTS33=$(HOME)/Python/Python3.3/bin/nosetests
 OPTIONS=-d build/html -t
+SKOOL2HTMLOPTS=
 
 OPTIONS+=$(foreach theme,$(THEMES),-T $(theme))
 ifeq ($(findstring spectrum,$(THEMES)),spectrum)
   OPTIONS+=-c Game/Font=spectrum.ttf
 endif
-ifeq ($(HEX),1)
-  OPTIONS+=-H
-endif
+OPTIONS+=$(SKOOL2HTMLOPTS)
 
 .PHONY: usage
 usage:
@@ -40,7 +36,7 @@ usage:
 	@echo ""
 	@echo "Environment variables:"
 	@echo "  THEMES           CSS theme(s) to use"
-	@echo "  HEX=1            use hexadecimal when building a disassembly"
+	@echo "  SKOOL2HTMLOPTS   options passed to skool2html.py"
 	@echo "  ROM              path to the Spectrum ROM dump"
 
 .PHONY: doc
