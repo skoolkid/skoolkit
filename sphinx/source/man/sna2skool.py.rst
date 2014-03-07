@@ -81,7 +81,7 @@ OPTIONS
   Show the SkoolKit version number and exit.
 
 -z, --defb-zfill
-  Write bytes with leading zeroes in DEFB statements.
+  Pad decimal values in DEFB statements with leading zeroes.
 
 EXAMPLES
 ========

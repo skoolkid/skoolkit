@@ -388,7 +388,8 @@ list::
     -t, --text            Show ASCII text in the comment fields
     -T FILE, --sft FILE   Use FILE as the skool file template
     -V, --version         Show SkoolKit version number and exit
-    -z, --defb-zfill      Write bytes with leading zeroes in DEFB statements
+    -z, --defb-zfill      Pad decimal values in DEFB statements with leading
+                          zeroes
 
 If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
 to be a binary file.

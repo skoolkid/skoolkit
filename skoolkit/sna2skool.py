@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -120,7 +120,7 @@ def main(args):
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
     group.add_argument('-z', '--defb-zfill', dest='zfill', action='store_true',
-                       help='Write bytes with leading zeroes in DEFB statements')
+                       help='Pad decimal values in DEFB statements with leading zeroes')
 
     namespace, unknown_args = parser.parse_known_args(args)
     snafile = namespace.snafile
