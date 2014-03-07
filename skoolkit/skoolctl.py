@@ -17,7 +17,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from . import write_line, parse_int, open_file
-from .skoolparser import (DIRECTIVES, get_address, parse_asm_block_directive, get_instruction_ctl,
+from .skoolparser import (DIRECTIVES, parse_asm_block_directive, get_instruction_ctl,
                           get_defb_length, get_defm_length, get_defs_length, get_defw_length)
 
 BLOCKS = 'b'
