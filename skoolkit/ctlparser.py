@@ -132,9 +132,10 @@ class CtlParser:
                 if ctl == ' ':
                     if entry_ctl is None:
                         raise CtlParserError("blank directive with no containing block")
-                    if entry_ctl not in 'bcstwz':
-                        raise CtlParserError("blank directive in a '{}' block".format(entry_ctl))
-                    ctl = entry_ctl.upper()
+                    if entry_ctl in 'bcstwz':
+                        ctl = entry_ctl.upper()
+                    else:
+                        ctl = 'B'
                 use_length = False
                 if '-' in fields[0]:
                     params = fields[0].split('-', 1)

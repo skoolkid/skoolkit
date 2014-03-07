@@ -23,10 +23,12 @@ E 30100 First paragraph of the end comment for the routine at 30100
 E 30100 Second paragraph of the end comment for the routine at 30100
 % This is another control file comment
 g 30200 Game status buffer entry at 30200
+  30200,10,1 Blank directive in a 'g' block
 i 30300 Ignored block at 30300
 t 30400 Message at 30400
   30450,7,4:B3 Complex DEFM with a blank directive
 u 30500 Unused block at 30500
+  30500,2 Blank directive in a 'u' block
 B 30502,3
 B 30510,12,3
 B 30530-30549,2*7,1*3,3
@@ -54,7 +56,7 @@ class CtlParserTest(SkoolKitTestCase):
             30600: 'w',
             30700: 's'
         }
-        self.assertEqual(ctl_parser.ctls, exp_ctls)
+        self.assertEqual(exp_ctls, ctl_parser.ctls)
 
         exp_subctls = {
             30002: 't',
@@ -64,8 +66,11 @@ class CtlParserTest(SkoolKitTestCase):
             30050: 'b',
             30055: None,
             30100: None,
+            30200: 'b',
+            30210: None,
             30450: 't',
             30457: None,
+            30500: 'b',
             30502: 'b',
             30505: None,
             30510: 'b',
@@ -80,7 +85,7 @@ class CtlParserTest(SkoolKitTestCase):
             30730: 't',
             30745: None
         }
-        self.assertEqual(ctl_parser.subctls, exp_subctls)
+        self.assertEqual(exp_subctls, ctl_parser.subctls)
 
         exp_titles = {
             30000: 'Data at 30000',
@@ -92,14 +97,16 @@ class CtlParserTest(SkoolKitTestCase):
             30600: 'Words at 30600',
             30700: 'Zeroes at 30700'
         }
-        self.assertEqual(ctl_parser.titles, exp_titles)
+        self.assertEqual(exp_titles, ctl_parser.titles)
 
         exp_instruction_comments = {
             30002: 'Message in the data block',
             30012: None,
             30020: None,
             30050: 'Complex DEFB with a blank directive',
+            30200: "Blank directive in a 'g' block",
             30450: 'Complex DEFM with a blank directive',
+            30500: "Blank directive in a 'u' block",
             30502: None,
             30510: None,
             30530: None,
@@ -108,26 +115,27 @@ class CtlParserTest(SkoolKitTestCase):
             30720: None,
             30730: None
         }
-        self.assertEqual(ctl_parser.instruction_comments, exp_instruction_comments)
+        self.assertEqual(exp_instruction_comments, ctl_parser.instruction_comments)
 
         exp_comments = {
             30100: ['Description of routine at 30100']
         }
-        self.assertEqual(ctl_parser.comments, exp_comments)
+        self.assertEqual(exp_comments, ctl_parser.comments)
 
         exp_registers = {
             30100: [['A', 'Some value'], ['BC', 'Some other value']]
         }
-        self.assertEqual(ctl_parser.registers, exp_registers)
+        self.assertEqual(exp_registers, ctl_parser.registers)
 
         exp_end_comments = {
             30100: ['First paragraph of the end comment for the routine at 30100',
                     'Second paragraph of the end comment for the routine at 30100']
         }
-        self.assertEqual(ctl_parser.end_comments, exp_end_comments)
+        self.assertEqual(exp_end_comments, ctl_parser.end_comments)
 
         exp_lengths = {
             30050: [(5, [(3, None), (2, 'T')])],
+            30200: [(1, None)],
             30450: [(7, [(4, None), (3, 'B')])],
             30510: [(3, None)],
             30530: list(zip([2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 3], [None] * 11)),
@@ -140,22 +148,22 @@ class CtlParserTest(SkoolKitTestCase):
             ],
             30730: [(15, [(10, None), (5, 'B')])]
         }
-        self.assertEqual(ctl_parser.lengths, exp_lengths)
+        self.assertEqual(exp_lengths, ctl_parser.lengths)
 
         exp_multiline_comments = {
             30012: (30026, 'This comment covers the following two sub-blocks')
         }
-        self.assertEqual(ctl_parser.multiline_comments, exp_multiline_comments)
+        self.assertEqual(exp_multiline_comments, ctl_parser.multiline_comments)
 
         exp_entry_asm_directives = {
             30000: [('start', None)]
         }
-        self.assertEqual(ctl_parser.entry_asm_directives, exp_entry_asm_directives)
+        self.assertEqual(exp_entry_asm_directives, ctl_parser.entry_asm_directives)
 
         exp_instruction_asm_directives = {
             30101: [('label', 'LOOP')]
         }
-        self.assertEqual(ctl_parser.instruction_asm_directives, exp_instruction_asm_directives)
+        self.assertEqual(exp_instruction_asm_directives, ctl_parser.instruction_asm_directives)
 
     def test_invalid_lines(self):
         ctl_specs = [
@@ -164,8 +172,6 @@ class CtlParserTest(SkoolKitTestCase):
             ('T 30760,5,2:Y3',   'invalid integer'),
             ('W 30765,5,1:B4',   'invalid integer'),
             ('S 30770,10,T8:2',  'invalid integer'),
-            ('g 30780',          ''),
-            ('  30780,10',       "blank directive in a 'g' block"),
             ('C 40000,Q',        'invalid integer'),
             ('; @label:EDCBA=Z', 'invalid ASM directive address'),
             ('; @label=Z',       'invalid ASM directive declaration'),
