@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.7b1
+3.7rc
 -----
 * Added support for numbers in binary notation (e.g. %10101010)
 * Added the ``s`` and ``S`` control directives for encoding DEFS statements
