@@ -1,7 +1,7 @@
 .. _commands:
 
-Command reference
-=================
+Commands
+========
 
 .. _bin2tap.py:
 
@@ -132,17 +132,19 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
   be a regular file, or '-' for standard input.
 
   Options:
-    -a, --no-asm-dirs  Do not write ASM directives
-    -h, --hex          Write addresses in hexadecimal format
-    -V, --version      Show SkoolKit version number and exit
-    -w X, --write X    Write only these elements, where X is one or more of:
-                         b = block types and addresses
-                         t = block titles
-                         d = block descriptions
-                         r = registers
-                         m = mid-block comments and block end comments
-                         s = sub-block types and addresses
-                         c = instruction-level comments
+    -a, --no-asm-dirs    Do not write ASM directives
+    -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
+                         DEFB, DEFM, DEFS and DEFW statements
+    -h, --hex            Write addresses in hexadecimal format
+    -V, --version        Show SkoolKit version number and exit
+    -w X, --write X      Write only these elements, where X is one or more of:
+                           b = block types and addresses
+                           t = block titles
+                           d = block descriptions
+                           r = registers
+                           m = mid-block comments and block end comments
+                           s = sub-block types and addresses
+                           c = instruction-level comments
 
 If you need to preserve any elements that control files do not support (such as
 data definition entries and ASM block directives), consider using
@@ -161,6 +163,8 @@ data definition entries and ASM block directives), consider using
 |         | directives                                                   |
 +---------+--------------------------------------------------------------+
 | 3.4     | Added the ``-V`` option and the long options                 |
++---------+--------------------------------------------------------------+
+| 3.7     | Added the ``--preserve-base`` option                         |
 +---------+--------------------------------------------------------------+
 
 .. _skool2html.py:
@@ -320,8 +324,10 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
   FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -h, --hex      Write addresses in hexadecimal format
-    -V, --version  Show SkoolKit version number and exit
+    -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
+                         DEFB, DEFM, DEFS and DEFW statements
+    -h, --hex            Write addresses in hexadecimal format
+    -V, --version        Show SkoolKit version number and exit
 
 +---------+----------------------------------------------+
 | Version | Changes                                      |
@@ -329,6 +335,8 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 | 2.4     | New                                          |
 +---------+----------------------------------------------+
 | 3.4     | Added the ``-V`` option and the long options |
++---------+----------------------------------------------+
+| 3.7     | Added the ``--preserve-base`` option         |
 +---------+----------------------------------------------+
 
 .. _sna2skool.py:
@@ -380,7 +388,8 @@ list::
     -t, --text            Show ASCII text in the comment fields
     -T FILE, --sft FILE   Use FILE as the skool file template
     -V, --version         Show SkoolKit version number and exit
-    -z, --defb-zfill      Write bytes with leading zeroes in DEFB statements
+    -z, --defb-zfill      Pad decimal values in DEFB statements with leading
+                          zeroes
 
 If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
 to be a binary file.

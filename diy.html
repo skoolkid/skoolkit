@@ -8,15 +8,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Disassembly DIY &mdash; SkoolKit 3.6 documentation</title>
+    <title>Disassembly DIY &mdash; SkoolKit 3.7 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.6',
+        VERSION:     '3.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,9 +25,9 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.6 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.7 documentation" href="index.html" />
     <link rel="next" title="Supported assemblers" href="assemblers.html" />
-    <link rel="prev" title="Command reference" href="commands.html" /> 
+    <link rel="prev" title="Installing and using SkoolKit" href="usage.html" /> 
   </head>
   <body>
     <div class="related">
@@ -40,11 +40,53 @@
           <a href="assemblers.html" title="Supported assemblers"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="commands.html" title="Command reference"
+          <a href="usage.html" title="Installing and using SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
       </ul>
-    </div>  
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Disassembly DIY</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li><a class="reference internal" href="#the-control-file">The control file</a></li>
+<li><a class="reference internal" href="#a-skeleton-disassembly">A skeleton disassembly</a></li>
+<li><a class="reference internal" href="#generating-a-control-file">Generating a control file</a></li>
+<li><a class="reference internal" href="#developing-the-skool-file">Developing the skool file</a></li>
+<li><a class="reference internal" href="#adding-pokes-bugs-and-trivia">Adding pokes, bugs and trivia</a></li>
+<li><a class="reference internal" href="#themes">Themes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="usage.html"
+                        title="previous chapter">Installing and using SkoolKit</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="assemblers.html"
+                        title="next chapter">Supported assemblers</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/diy.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -77,7 +119,7 @@ requirement. In general, any suffix besides &#8216;.ref&#8217; (which is used by
 <cite>skool2html.py</cite> to identify <cite>ref</cite> files) will do. If you are fond of the
 traditional three-letter suffix, then perhaps &#8216;.sks&#8217; (for &#8216;SkoolKit source&#8217;) or
 &#8216;.kit&#8217; would be more to your liking. However, for the purpose of this
-particular tutorial, you should stick with &#8216;.skool&#8217;.</p>
+particular tutorial, it would be best to stick with &#8216;.skool&#8217;.</p>
 <p>Now take a look at <cite>manic_miner.skool</cite>. As you can see, by default,
 <cite>sna2skool.py</cite> disassembles everything from 16384 to 65535, treating it all as
 code. Needless to say, this is not particularly useful - unless you have no
@@ -109,13 +151,11 @@ t 33816 &#39;AIR&#39;
 <p>This control file declares that there is:</p>
 <ul class="simple">
 <li>a data block at 32768</li>
-<li>a data block at 33280 which should be titled &#8216;Miner Willy sprite data&#8217;</li>
+<li>a data block at 33280 titled &#8216;Miner Willy sprite data&#8217;</li>
 <li>a data block at 33536</li>
-<li>a code block (routine) at 33792 which should be titled &#8216;The game has just
-loaded&#8217;</li>
+<li>a code block (routine) at 33792 titled &#8216;The game has just loaded&#8217;</li>
 <li>a data block at 33799</li>
-<li>a text block at 33816 which should be titled &#8216;AIR&#8217; (because that&#8217;s what it
-contains)</li>
+<li>a text block at 33816 titled &#8216;AIR&#8217; (because that&#8217;s what it contains)</li>
 </ul>
 <p>For more information on control file directives and their syntax, see
 <a class="reference internal" href="control-files.html#controlfiles"><em>Control files</em></a>.</p>
@@ -151,9 +191,8 @@ with the <cite>skool</cite> file we&#8217;ve just created:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2html.py examples/manic_miner.ref
 </pre></div>
 </div>
-<p>This time there should be no warnings printed, and the disassembly should sport
-a game logo image, and contain images of the caverns and the guardians that
-populate them.</p>
+<p>Now the disassembly will sport a game logo image, and contain images of the
+caverns and the guardians that populate them.</p>
 <p>See <a class="reference internal" href="ref-files.html#reffiles"><em>Ref files</em></a> for more information on how to use a <cite>ref</cite> file to
 configure and customise a disassembly.</p>
 </div>
@@ -243,7 +282,7 @@ code and data blocks. Then generate a new <cite>skool</cite> file:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py -c game-2.ctl game.z80 &gt; game-2.skool
 </pre></div>
 </div>
-<p>This new skool file, <cite>game-2.skool</cite>, should contain your reorganised code and
+<p>This new skool file, <cite>game-2.skool</cite>, will contain your reorganised code and
 data blocks, and all the annotations you carefully added to <cite>game.skool</cite>.</p>
 </div>
 <div class="section" id="adding-pokes-bugs-and-trivia">
@@ -263,14 +302,14 @@ POKE 35136,0
 <div class="highlight-none"><div class="highlight"><pre>$ skool2html.py examples/manic_miner.ref
 </pre></div>
 </div>
-<p>Open <cite>manic_miner/index.html</cite> and you should see a link to the &#8216;Pokes&#8217; page in
+<p>Open <cite>manic_miner/index.html</cite> and you will see a link to the &#8216;Pokes&#8217; page in
 the &#8216;Reference&#8217; section.</p>
 <p>The format of a <tt class="docutils literal"><span class="pre">Bug</span></tt> or <tt class="docutils literal"><span class="pre">Fact</span></tt> section is the same, except that the
 section name prefix is <tt class="docutils literal"><span class="pre">Bug:</span></tt> or <tt class="docutils literal"><span class="pre">Fact:</span></tt> (instead of <tt class="docutils literal"><span class="pre">Poke:</span></tt>) as
 appropriate.</p>
-<p>One <tt class="docutils literal"><span class="pre">Poke</span></tt>, <tt class="docutils literal"><span class="pre">Bug</span></tt> or <tt class="docutils literal"><span class="pre">Fact</span></tt> section should be added for each poke, bug or
-trivia item to be documented. Entries will appear on the &#8216;Pokes&#8217;, &#8216;Bugs&#8217; or
-&#8216;Trivia&#8217; page in the same order as the sections appear in the <cite>ref</cite> file.</p>
+<p>Add one <tt class="docutils literal"><span class="pre">Poke</span></tt>, <tt class="docutils literal"><span class="pre">Bug</span></tt> or <tt class="docutils literal"><span class="pre">Fact</span></tt> section for each poke, bug or trivia item
+to be documented. Entries will appear on the &#8216;Pokes&#8217;, &#8216;Bugs&#8217; or &#8216;Trivia&#8217; page
+in the same order as the sections appear in the <cite>ref</cite> file.</p>
 <p>See <a class="reference internal" href="ref-files.html#reffiles"><em>Ref files</em></a> for more information on the format of the <tt class="docutils literal"><span class="pre">Poke</span></tt>,
 <tt class="docutils literal"><span class="pre">Bug</span></tt>, and <tt class="docutils literal"><span class="pre">Fact</span></tt> (and other) sections that may appear in a <cite>ref</cite> file.</p>
 </div>
@@ -291,7 +330,7 @@ example, to use the &#8216;dark&#8217; theme:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -T dark game.skool
 </pre></div>
 </div>
-<p>To use the &#8216;spectrum&#8217; theme, the spectrum font file should also be specified
+<p>To use the &#8216;spectrum&#8217; theme, the spectrum font file must also be specified
 thus:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -T spectrum -c Game/Font=spectrum.ttf game.skool
 </pre></div>
@@ -308,48 +347,6 @@ themes:</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Disassembly DIY</a><ul>
-<li><a class="reference internal" href="#getting-started">Getting started</a></li>
-<li><a class="reference internal" href="#the-control-file">The control file</a></li>
-<li><a class="reference internal" href="#a-skeleton-disassembly">A skeleton disassembly</a></li>
-<li><a class="reference internal" href="#generating-a-control-file">Generating a control file</a></li>
-<li><a class="reference internal" href="#developing-the-skool-file">Developing the skool file</a></li>
-<li><a class="reference internal" href="#adding-pokes-bugs-and-trivia">Adding pokes, bugs and trivia</a></li>
-<li><a class="reference internal" href="#themes">Themes</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="commands.html"
-                        title="previous chapter">Command reference</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="assemblers.html"
-                        title="next chapter">Supported assemblers</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/diy.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
       <div class="clearer"></div>
     </div>
     <div class="related">
@@ -362,13 +359,13 @@ themes:</p>
           <a href="assemblers.html" title="Supported assemblers"
              >next</a> |</li>
         <li class="right" >
-          <a href="commands.html" title="Command reference"
+          <a href="usage.html" title="Installing and using SkoolKit"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Richard Dymond.
+        &copy; Copyright 2014, Richard Dymond.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

@@ -79,12 +79,12 @@ module. For example, if you wanted to keep a standalone extension module in
   class GameAsmWriter(AsmWriter):
       pass
 
-Then, assuming the extension module is `game.py`, the ``HtmlWriterClass``
-parameter should be set thus::
+Then, assuming the extension module is `game.py`, set the ``HtmlWriterClass``
+parameter thus::
 
   HtmlWriterClass=~/.skoolkit:game.GameHtmlWriter
 
-and the ``@writer`` directive should be set thus::
+and the ``@writer`` directive thus::
 
   ; @writer=~/.skoolkit:game.GameAsmWriter
 
@@ -175,8 +175,8 @@ whether it is implemented on a subclass of AsmWriter or HtmlWriter:
 
 A skool macro method must return a 2-tuple of the form ``(end, string)``, where
 ``end`` is the index of the character after the last character of the macro's
-parameter string, and ``string`` is the HTML or text to which the macro should
-be expanded.
+parameter string, and ``string`` is the HTML or text to which the macro will be
+expanded.
 
 The `expand_sprite` method on GameHtmlWriter may therefore look something like
 this::

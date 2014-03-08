@@ -34,7 +34,7 @@ command::
 
   > setup.py install
 
-This should install the SkoolKit command scripts in `C:\\Python27\\Scripts`
+This will install the SkoolKit command scripts in `C:\\Python27\\Scripts`
 (assuming you have installed Python in `C:\\Python27`), which means you can
 run them from anywhere (assuming you have added `C:\\Python27\\Scripts` to the
 ``Path`` environment variable).
@@ -47,7 +47,7 @@ command as root::
 
   # ./setup.py install
 
-This should install the SkoolKit command scripts in `/usr/local/bin` (or some
+This will install the SkoolKit command scripts in `/usr/local/bin` (or some
 other suitable location in your ``PATH``), which means you can run them from
 anywhere.
 
@@ -61,5 +61,5 @@ dollar sign (``$``), like this::
 
 On Windows, and on Linux/\*BSD if SkoolKit has been installed as a Python
 package (see above), the commands may be entered exactly as they are shown. On
-Linux/\*BSD, a dot-slash (``./``) prefix should be added to ``some-script.py``
-if it is being run from the current working directory.
+Linux/\*BSD, use a dot-slash prefix (e.g. ``./some-script.py``) if the script
+is being run from the current working directory.

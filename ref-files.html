@@ -8,15 +8,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &mdash; SkoolKit 3.6 documentation</title>
+    <title>Ref files &mdash; SkoolKit 3.7 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.6',
+        VERSION:     '3.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.6 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.7 documentation" href="index.html" />
     <link rel="next" title="ASM modes and directives" href="asm.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
@@ -42,9 +42,66 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
       </ul>
-    </div>  
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Ref files</a><ul>
+<li><a class="reference internal" href="#bug">[Bug:*:*]</a></li>
+<li><a class="reference internal" href="#changelog">[Changelog:*]</a></li>
+<li><a class="reference internal" href="#colours">[Colours]</a></li>
+<li><a class="reference internal" href="#config">[Config]</a></li>
+<li><a class="reference internal" href="#fact">[Fact:*:*]</a></li>
+<li><a class="reference internal" href="#game">[Game]</a></li>
+<li><a class="reference internal" href="#glossary">[Glossary:*]</a></li>
+<li><a class="reference internal" href="#graphicglitch">[GraphicGlitch:*:*]</a></li>
+<li><a class="reference internal" href="#graphics">[Graphics]</a></li>
+<li><a class="reference internal" href="#imagewriter">[ImageWriter]</a></li>
+<li><a class="reference internal" href="#index">[Index]</a></li>
+<li><a class="reference internal" href="#indexgroup">[Index:*:*]</a></li>
+<li><a class="reference internal" href="#info">[Info]</a></li>
+<li><a class="reference internal" href="#links">[Links]</a></li>
+<li><a class="reference internal" href="#memorymap">[MemoryMap:*]</a></li>
+<li><a class="reference internal" href="#othercode">[OtherCode:*]</a></li>
+<li><a class="reference internal" href="#page">[Page:*]</a></li>
+<li><a class="reference internal" href="#pagecontent">[PageContent:*]</a></li>
+<li><a class="reference internal" href="#paths">[Paths]</a></li>
+<li><a class="reference internal" href="#poke">[Poke:*:*]</a></li>
+<li><a class="reference internal" href="#resources">[Resources]</a></li>
+<li><a class="reference internal" href="#titles">[Titles]</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="skool-macros.html"
+                        title="previous chapter">Skool macros</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="asm.html"
+                        title="next chapter">ASM modes and directives</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ref-files.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -95,7 +152,7 @@ Second paragraph.
 </ul>
 <p>To ensure that an entry can be linked to by the <a class="reference internal" href="skool-macros.html#bug"><em>#BUG</em></a> macro, the anchor
 name must be limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z.</p>
-<p>Paragraphs should be separated by blank lines, and may contain HTML markup and
+<p>Paragraphs must be separated by blank lines, and may contain HTML markup and
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
 </div>
 <div class="section" id="changelog">
@@ -261,7 +318,7 @@ Second paragraph.
 </ul>
 <p>To ensure that an entry can be linked to by the <a class="reference internal" href="skool-macros.html#fact"><em>#FACT</em></a> macro, the anchor
 name must be limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z.</p>
-<p>Paragraphs should be separated by blank lines, and may contain HTML markup and
+<p>Paragraphs must be separated by blank lines, and may contain HTML markup and
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
 </div>
 <div class="section" id="game">
@@ -285,8 +342,11 @@ marked with a <tt class="docutils literal"><span class="pre">g</span></tt> (see 
 <li><tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> - the text to use in the header of input
 register tables on routine disassembly pages; if not specified, no header is
 displayed</li>
+<li><tt class="docutils literal"><span class="pre">JavaScript</span></tt> - the base name of the JavaScript file to include in every
+page (default: None); multiple JavaScript files can be declared by separating
+their names with semicolons</li>
 <li><tt class="docutils literal"><span class="pre">LinkOperands</span></tt> - a comma-separated list of instruction types whose operands
-should be hyperlinked when possible (default: <tt class="docutils literal"><span class="pre">CALL,DEFW,DJNZ,JP,JR</span></tt>); add
+will be hyperlinked when possible (default: <tt class="docutils literal"><span class="pre">CALL,DEFW,DJNZ,JP,JR</span></tt>); add
 <tt class="docutils literal"><span class="pre">LD</span></tt> to the list to enable the address operands of LD instructions to be
 hyperlinked as well</li>
 <li><tt class="docutils literal"><span class="pre">Logo</span></tt> - the text/HTML that will serve as the game logo in the header of
@@ -335,6 +395,9 @@ of the main index page (default: &#8216;RAM disassembly&#8217;)</li>
 (all of which used to live in the <a class="reference internal" href="#paths"><em>[Paths]</em></a> section,
 <tt class="docutils literal"><span class="pre">LogoImage</span></tt> by the name <tt class="docutils literal"><span class="pre">Logo</span></tt>)</td>
 </tr>
+<tr class="row-odd"><td>3.7</td>
+<td>Added the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -351,7 +414,7 @@ Second paragraph.
 </pre></div>
 </div>
 <p>where <tt class="docutils literal"><span class="pre">term</span></tt> is the term being defined in the entry.</p>
-<p>Paragraphs should be separated by blank lines, and may contain HTML markup and
+<p>Paragraphs must be separated by blank lines, and may contain HTML markup and
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -387,7 +450,7 @@ Second paragraph.
 <li><tt class="docutils literal"><span class="pre">anchor</span></tt> is the name of the HTML anchor for the entry</li>
 <li><tt class="docutils literal"><span class="pre">title</span></tt> is the title of the entry</li>
 </ul>
-<p>Paragraphs should be separated by blank lines, and may contain HTML markup and
+<p>Paragraphs must be separated by blank lines, and may contain HTML markup and
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
 </div>
 <div class="section" id="graphics">
@@ -481,7 +544,7 @@ browsers.</p>
 <div class="section" id="index">
 <span id="id2"></span><h2>[Index]<a class="headerlink" href="#index" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">Index</span></tt> section contains a list of link group IDs in the order in which
-the link groups should appear on the disassembly index page. The link groups
+the link groups will appear on the disassembly index page. The link groups
 themselves are defined in <tt class="docutils literal"><span class="pre">[Index:*:*]</span></tt> sections (see below).</p>
 <p>By default, SkoolKit defines the following list of link groups:</p>
 <div class="highlight-none"><div class="highlight"><pre>[Index]
@@ -683,7 +746,7 @@ section names take the form:</p>
 <div class="highlight-none"><div class="highlight"><pre>[MemoryMap:PageID]
 </pre></div>
 </div>
-<p>where <tt class="docutils literal"><span class="pre">PageID</span></tt> is the unique ID of the memory map page (which should be the
+<p>where <tt class="docutils literal"><span class="pre">PageID</span></tt> is the unique ID of the memory map page (which must be the
 same as the corresponding page ID that appears in the <a class="reference internal" href="#paths"><em>[Paths]</em></a> section).</p>
 <p>Each <tt class="docutils literal"><span class="pre">MemoryMap:*</span></tt> section contains parameters in the form:</p>
 <div class="highlight-none"><div class="highlight"><pre>name=value
@@ -697,18 +760,19 @@ follows:<ul>
 <li><tt class="docutils literal"><span class="pre">b</span></tt> - DEFB blocks</li>
 <li><tt class="docutils literal"><span class="pre">c</span></tt> - routines</li>
 <li><tt class="docutils literal"><span class="pre">g</span></tt> - game status buffer entries</li>
+<li><tt class="docutils literal"><span class="pre">s</span></tt> - blocks containing bytes that are all the same value</li>
 <li><tt class="docutils literal"><span class="pre">t</span></tt> - messages</li>
 <li><tt class="docutils literal"><span class="pre">u</span></tt> - unused addresses</li>
 <li><tt class="docutils literal"><span class="pre">w</span></tt> - DEFW blocks</li>
-<li><tt class="docutils literal"><span class="pre">z</span></tt> - blocks containing all zeroes</li>
+<li><tt class="docutils literal"><span class="pre">z</span></tt> - blocks containing all zeroes (deprecated; use <tt class="docutils literal"><span class="pre">s</span></tt> instead)</li>
 </ul>
 </li>
 <li><tt class="docutils literal"><span class="pre">Intro</span></tt> - the text (HTML) to display at the top of the memory map page
 (default: &#8216;&#8217;)</li>
-<li><tt class="docutils literal"><span class="pre">PageByteColumns</span></tt> - <tt class="docutils literal"><span class="pre">1</span></tt> if the memory map page should include &#8216;Page&#8217; and
-&#8216;Byte&#8217; columns, <tt class="docutils literal"><span class="pre">0</span></tt> otherwise (default: <tt class="docutils literal"><span class="pre">0</span></tt>)</li>
-<li><tt class="docutils literal"><span class="pre">Write</span></tt> - <tt class="docutils literal"><span class="pre">1</span></tt> if the memory map page should be written, <tt class="docutils literal"><span class="pre">0</span></tt> otherwise
-(default: <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">PageByteColumns</span></tt> - <tt class="docutils literal"><span class="pre">1</span></tt> to include &#8216;Page&#8217; and &#8216;Byte&#8217; columns on the
+memory map page, or <tt class="docutils literal"><span class="pre">0</span></tt> to omit them (default: <tt class="docutils literal"><span class="pre">0</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">Write</span></tt> - <tt class="docutils literal"><span class="pre">1</span></tt> to write the memory map page, or <tt class="docutils literal"><span class="pre">0</span></tt> not to (default:
+<tt class="docutils literal"><span class="pre">1</span></tt>)</li>
 </ul>
 <p>By default, SkoolKit defines five memory maps whose property values differ from
 the defaults as follows:</p>
@@ -726,7 +790,7 @@ PageByteColumns=1
 EntryTypes=t
 
 [MemoryMap:UnusedMap]
-EntryTypes=uz
+EntryTypes=suz
 PageByteColumns=1
 </pre></div>
 </div>
@@ -828,9 +892,10 @@ created</li>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">BodyClass</span></tt> - the CSS class to use for the <tt class="docutils literal"><span class="pre">&lt;body&gt;</span></tt> element of the page
 (default: no CSS class is used)</li>
-<li><tt class="docutils literal"><span class="pre">JavaScript</span></tt> - the base name of the JavaScript file to use (default: None);
-multiple JavaScript files can be declared by separating their names with
-semicolons</li>
+<li><tt class="docutils literal"><span class="pre">JavaScript</span></tt> - the base name of the JavaScript file to use in addition to
+any declared by the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section
+(default: None); multiple JavaScript files can be declared by separating
+their names with semicolons</li>
 <li><tt class="docutils literal"><span class="pre">Link</span></tt> - the link text for the page (defaults to the title)</li>
 <li><tt class="docutils literal"><span class="pre">PageContent</span></tt> - the HTML source of the body of the page; this may contain
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>, and can be used instead of a
@@ -929,8 +994,8 @@ of the disassembly</li>
 <li><tt class="docutils literal"><span class="pre">FontPath</span></tt> - the directory in which to store font files specified by the
 <tt class="docutils literal"><span class="pre">Font</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section (default: <cite>.</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">JavaScriptPath</span></tt> - the directory in which to store JavaScript files
-specified by the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter in <a class="reference internal" href="#page"><em>[Page:*]</em></a> sections (default:
-<cite>.</cite>)</li>
+specified by the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section and
+<a class="reference internal" href="#page"><em>[Page:*]</em></a> sections (default: <cite>.</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">ScreenshotImagePath</span></tt> - the directory in which screenshot images (created
 by the <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a> macro) will be placed (default: <cite>images/scr</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">StyleSheetPath</span></tt> - the directory in which to store CSS files specified by
@@ -990,7 +1055,7 @@ Second paragraph.
 </ul>
 <p>To ensure that an entry can be linked to by the <a class="reference internal" href="skool-macros.html#poke"><em>#POKE</em></a> macro, the anchor
 name must be limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z.</p>
-<p>Paragraphs should be separated by blank lines, and may contain HTML markup and
+<p>Paragraphs must be separated by blank lines, and may contain HTML markup and
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
 </div>
 <div class="section" id="resources">
@@ -1089,63 +1154,6 @@ addresses&#8217;)</li>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Ref files</a><ul>
-<li><a class="reference internal" href="#bug">[Bug:*:*]</a></li>
-<li><a class="reference internal" href="#changelog">[Changelog:*]</a></li>
-<li><a class="reference internal" href="#colours">[Colours]</a></li>
-<li><a class="reference internal" href="#config">[Config]</a></li>
-<li><a class="reference internal" href="#fact">[Fact:*:*]</a></li>
-<li><a class="reference internal" href="#game">[Game]</a></li>
-<li><a class="reference internal" href="#glossary">[Glossary:*]</a></li>
-<li><a class="reference internal" href="#graphicglitch">[GraphicGlitch:*:*]</a></li>
-<li><a class="reference internal" href="#graphics">[Graphics]</a></li>
-<li><a class="reference internal" href="#imagewriter">[ImageWriter]</a></li>
-<li><a class="reference internal" href="#index">[Index]</a></li>
-<li><a class="reference internal" href="#indexgroup">[Index:*:*]</a></li>
-<li><a class="reference internal" href="#info">[Info]</a></li>
-<li><a class="reference internal" href="#links">[Links]</a></li>
-<li><a class="reference internal" href="#memorymap">[MemoryMap:*]</a></li>
-<li><a class="reference internal" href="#othercode">[OtherCode:*]</a></li>
-<li><a class="reference internal" href="#page">[Page:*]</a></li>
-<li><a class="reference internal" href="#pagecontent">[PageContent:*]</a></li>
-<li><a class="reference internal" href="#paths">[Paths]</a></li>
-<li><a class="reference internal" href="#poke">[Poke:*:*]</a></li>
-<li><a class="reference internal" href="#resources">[Resources]</a></li>
-<li><a class="reference internal" href="#titles">[Titles]</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="skool-macros.html"
-                        title="previous chapter">Skool macros</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="asm.html"
-                        title="next chapter">ASM modes and directives</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/ref-files.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
       <div class="clearer"></div>
     </div>
     <div class="related">
@@ -1160,11 +1168,11 @@ addresses&#8217;)</li>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Richard Dymond.
+        &copy; Copyright 2014, Richard Dymond.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

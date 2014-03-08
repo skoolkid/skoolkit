@@ -28,7 +28,7 @@ requirement. In general, any suffix besides '.ref' (which is used by
 `skool2html.py` to identify `ref` files) will do. If you are fond of the
 traditional three-letter suffix, then perhaps '.sks' (for 'SkoolKit source') or
 '.kit' would be more to your liking. However, for the purpose of this
-particular tutorial, you should stick with '.skool'.
+particular tutorial, it would be best to stick with '.skool'.
 
 Now take a look at `manic_miner.skool`. As you can see, by default,
 `sna2skool.py` disassembles everything from 16384 to 65535, treating it all as
@@ -65,13 +65,11 @@ A control file for Manic Miner might start like this::
 This control file declares that there is:
 
 * a data block at 32768
-* a data block at 33280 which should be titled 'Miner Willy sprite data'
+* a data block at 33280 titled 'Miner Willy sprite data'
 * a data block at 33536
-* a code block (routine) at 33792 which should be titled 'The game has just
-  loaded'
+* a code block (routine) at 33792 titled 'The game has just loaded'
 * a data block at 33799
-* a text block at 33816 which should be titled 'AIR' (because that's what it
-  contains)
+* a text block at 33816 titled 'AIR' (because that's what it contains)
 
 For more information on control file directives and their syntax, see
 :ref:`controlFiles`.
@@ -109,9 +107,8 @@ with the `skool` file we've just created::
 
   $ skool2html.py examples/manic_miner.ref
 
-This time there should be no warnings printed, and the disassembly should sport
-a game logo image, and contain images of the caverns and the guardians that
-populate them.
+Now the disassembly will sport a game logo image, and contain images of the
+caverns and the guardians that populate them.
 
 See :ref:`refFiles` for more information on how to use a `ref` file to
 configure and customise a disassembly.
@@ -210,7 +207,7 @@ code and data blocks. Then generate a new `skool` file::
 
   $ sna2skool.py -c game-2.ctl game.z80 > game-2.skool
 
-This new skool file, `game-2.skool`, should contain your reorganised code and
+This new skool file, `game-2.skool`, will contain your reorganised code and
 data blocks, and all the annotations you carefully added to `game.skool`.
 
 Adding pokes, bugs and trivia
@@ -231,16 +228,16 @@ Now run `skool2html.py` again::
 
   $ skool2html.py examples/manic_miner.ref
 
-Open `manic_miner/index.html` and you should see a link to the 'Pokes' page in
+Open `manic_miner/index.html` and you will see a link to the 'Pokes' page in
 the 'Reference' section.
 
 The format of a ``Bug`` or ``Fact`` section is the same, except that the
 section name prefix is ``Bug:`` or ``Fact:`` (instead of ``Poke:``) as
 appropriate.
 
-One ``Poke``, ``Bug`` or ``Fact`` section should be added for each poke, bug or
-trivia item to be documented. Entries will appear on the 'Pokes', 'Bugs' or
-'Trivia' page in the same order as the sections appear in the `ref` file.
+Add one ``Poke``, ``Bug`` or ``Fact`` section for each poke, bug or trivia item
+to be documented. Entries will appear on the 'Pokes', 'Bugs' or 'Trivia' page
+in the same order as the sections appear in the `ref` file.
 
 See :ref:`refFiles` for more information on the format of the ``Poke``,
 ``Bug``, and ``Fact`` (and other) sections that may appear in a `ref` file.
@@ -262,7 +259,7 @@ example, to use the 'dark' theme::
 
   $ skool2html.py -T dark game.skool
 
-To use the 'spectrum' theme, the spectrum font file should also be specified
+To use the 'spectrum' theme, the spectrum font file must also be specified
 thus::
 
   $ skool2html.py -T spectrum -c Game/Font=spectrum.ttf game.skool

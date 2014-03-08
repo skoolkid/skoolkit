@@ -8,15 +8,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ASM modes and directives &mdash; SkoolKit 3.6 documentation</title>
+    <title>ASM modes and directives &mdash; SkoolKit 3.7 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.6',
+        VERSION:     '3.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.6 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.7 documentation" href="index.html" />
     <link rel="next" title="Extending SkoolKit" href="extending.html" />
     <link rel="prev" title="Ref files" href="ref-files.html" /> 
   </head>
@@ -42,9 +42,80 @@
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
       </ul>
-    </div>  
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ASM modes and directives</a><ul>
+<li><a class="reference internal" href="#substitution-modes">Substitution modes</a><ul>
+<li><a class="reference internal" href="#isub-mode">&#64;isub mode</a></li>
+<li><a class="reference internal" href="#ssub-mode">&#64;ssub mode</a></li>
+<li><a class="reference internal" href="#rsub-mode">&#64;rsub mode</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bugfix-modes">Bugfix modes</a><ul>
+<li><a class="reference internal" href="#ofix-mode">&#64;ofix mode</a></li>
+<li><a class="reference internal" href="#bfix-mode">&#64;bfix mode</a></li>
+<li><a class="reference internal" href="#rfix-mode">&#64;rfix mode</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#asm-directives">ASM directives</a><ul>
+<li><a class="reference internal" href="#bfix">&#64;bfix</a></li>
+<li><a class="reference internal" href="#bfix-block-directives">&#64;bfix block directives</a></li>
+<li><a class="reference internal" href="#end">&#64;end</a></li>
+<li><a class="reference internal" href="#ignoreua">&#64;ignoreua</a></li>
+<li><a class="reference internal" href="#isub">&#64;isub</a></li>
+<li><a class="reference internal" href="#isub-block-directives">&#64;isub block directives</a></li>
+<li><a class="reference internal" href="#keep">&#64;keep</a></li>
+<li><a class="reference internal" href="#label">&#64;label</a></li>
+<li><a class="reference internal" href="#nolabel">&#64;nolabel</a></li>
+<li><a class="reference internal" href="#nowarn">&#64;nowarn</a></li>
+<li><a class="reference internal" href="#ofix">&#64;ofix</a></li>
+<li><a class="reference internal" href="#ofix-block-directives">&#64;ofix block directives</a></li>
+<li><a class="reference internal" href="#org">&#64;org</a></li>
+<li><a class="reference internal" href="#rem">&#64;rem</a></li>
+<li><a class="reference internal" href="#rfix-block-directives">&#64;rfix block directives</a></li>
+<li><a class="reference internal" href="#rsub">&#64;rsub</a></li>
+<li><a class="reference internal" href="#rsub-block-directives">&#64;rsub block directives</a></li>
+<li><a class="reference internal" href="#set">&#64;set</a></li>
+<li><a class="reference internal" href="#ssub">&#64;ssub</a></li>
+<li><a class="reference internal" href="#start">&#64;start</a></li>
+<li><a class="reference internal" href="#writer">&#64;writer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ref-files.html"
+                        title="previous chapter">Ref files</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="extending.html"
+                        title="next chapter">Extending SkoolKit</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/asm.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -221,8 +292,8 @@ left in otherwise) is:</p>
 </pre></div>
 </div>
 <p>Typically, though, it is desirable to define a block that will be removed in
-<tt class="docutils literal"><span class="pre">&#64;bfix</span></tt> mode right next to the block that should be inserted in its place.
-That may be done thus:</p>
+<tt class="docutils literal"><span class="pre">&#64;bfix</span></tt> mode right next to the block that will be inserted in its place. That
+may be done thus:</p>
 <div class="highlight-none"><div class="highlight"><pre>; @bfix-begin
 ...                  ; Instructions to be removed
 ; @bfix+else
@@ -597,7 +668,7 @@ removed in <tt class="docutils literal"><span class="pre">&#64;rsub</span></tt> 
 <li><tt class="docutils literal"><span class="pre">name</span></tt> is the property name</li>
 <li><tt class="docutils literal"><span class="pre">value</span></tt> is the property value</li>
 </ul>
-<p><tt class="docutils literal"><span class="pre">&#64;set</span></tt> directives should be placed somewhere after the <tt class="docutils literal"><span class="pre">&#64;start</span></tt> directive,
+<p><tt class="docutils literal"><span class="pre">&#64;set</span></tt> directives must be placed somewhere after the <tt class="docutils literal"><span class="pre">&#64;start</span></tt> directive,
 and before the <tt class="docutils literal"><span class="pre">&#64;end</span></tt> directive (if there is one).</p>
 <p>Recognised property names and their default values are:</p>
 <ul class="simple">
@@ -676,9 +747,9 @@ instruction.)</p>
 </div>
 <div class="section" id="start">
 <span id="id15"></span><h3>&#64;start<a class="headerlink" href="#start" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">&#64;start</span></tt> directive must be used to indicate where to start parsing the
-<cite>skool</cite> file for the purpose of generating ASM output. Everything before the
-<tt class="docutils literal"><span class="pre">&#64;start</span></tt> directive is ignored.</p>
+<p>The <tt class="docutils literal"><span class="pre">&#64;start</span></tt> directive indicates where to start parsing the <cite>skool</cite> file for
+the purpose of generating ASM output. Everything before the <tt class="docutils literal"><span class="pre">&#64;start</span></tt>
+directive is ignored.</p>
 <div class="highlight-none"><div class="highlight"><pre>; @start
 </pre></div>
 </div>
@@ -687,7 +758,7 @@ instruction.)</p>
 <div class="section" id="writer">
 <span id="id16"></span><h3>&#64;writer<a class="headerlink" href="#writer" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;writer</span></tt> directive specifies the name of the Python class to use to
-generate ASM output. It should be placed somewhere after the <tt class="docutils literal"><span class="pre">&#64;start</span></tt>
+generate ASM output. It must be placed somewhere after the <tt class="docutils literal"><span class="pre">&#64;start</span></tt>
 directive, and before the <tt class="docutils literal"><span class="pre">&#64;end</span></tt> directive (if there is one).</p>
 <div class="highlight-none"><div class="highlight"><pre>; @writer=package.module.classname
 </pre></div>
@@ -730,77 +801,6 @@ path</td>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">ASM modes and directives</a><ul>
-<li><a class="reference internal" href="#substitution-modes">Substitution modes</a><ul>
-<li><a class="reference internal" href="#isub-mode">&#64;isub mode</a></li>
-<li><a class="reference internal" href="#ssub-mode">&#64;ssub mode</a></li>
-<li><a class="reference internal" href="#rsub-mode">&#64;rsub mode</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#bugfix-modes">Bugfix modes</a><ul>
-<li><a class="reference internal" href="#ofix-mode">&#64;ofix mode</a></li>
-<li><a class="reference internal" href="#bfix-mode">&#64;bfix mode</a></li>
-<li><a class="reference internal" href="#rfix-mode">&#64;rfix mode</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#asm-directives">ASM directives</a><ul>
-<li><a class="reference internal" href="#bfix">&#64;bfix</a></li>
-<li><a class="reference internal" href="#bfix-block-directives">&#64;bfix block directives</a></li>
-<li><a class="reference internal" href="#end">&#64;end</a></li>
-<li><a class="reference internal" href="#ignoreua">&#64;ignoreua</a></li>
-<li><a class="reference internal" href="#isub">&#64;isub</a></li>
-<li><a class="reference internal" href="#isub-block-directives">&#64;isub block directives</a></li>
-<li><a class="reference internal" href="#keep">&#64;keep</a></li>
-<li><a class="reference internal" href="#label">&#64;label</a></li>
-<li><a class="reference internal" href="#nolabel">&#64;nolabel</a></li>
-<li><a class="reference internal" href="#nowarn">&#64;nowarn</a></li>
-<li><a class="reference internal" href="#ofix">&#64;ofix</a></li>
-<li><a class="reference internal" href="#ofix-block-directives">&#64;ofix block directives</a></li>
-<li><a class="reference internal" href="#org">&#64;org</a></li>
-<li><a class="reference internal" href="#rem">&#64;rem</a></li>
-<li><a class="reference internal" href="#rfix-block-directives">&#64;rfix block directives</a></li>
-<li><a class="reference internal" href="#rsub">&#64;rsub</a></li>
-<li><a class="reference internal" href="#rsub-block-directives">&#64;rsub block directives</a></li>
-<li><a class="reference internal" href="#set">&#64;set</a></li>
-<li><a class="reference internal" href="#ssub">&#64;ssub</a></li>
-<li><a class="reference internal" href="#start">&#64;start</a></li>
-<li><a class="reference internal" href="#writer">&#64;writer</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="ref-files.html"
-                        title="previous chapter">Ref files</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="extending.html"
-                        title="next chapter">Extending SkoolKit</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/asm.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
       <div class="clearer"></div>
     </div>
     <div class="related">
@@ -815,11 +815,11 @@ path</td>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Richard Dymond.
+        &copy; Copyright 2014, Richard Dymond.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

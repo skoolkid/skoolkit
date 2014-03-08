@@ -204,8 +204,8 @@ left in otherwise) is::
   ; @bfix-end
 
 Typically, though, it is desirable to define a block that will be removed in
-``@bfix`` mode right next to the block that should be inserted in its place.
-That may be done thus::
+``@bfix`` mode right next to the block that will be inserted in its place. That
+may be done thus::
 
   ; @bfix-begin
   ...                  ; Instructions to be removed
@@ -581,7 +581,7 @@ The ``@set`` directive sets a property on the ASM writer. ::
 * ``name`` is the property name
 * ``value`` is the property value
 
-``@set`` directives should be placed somewhere after the ``@start`` directive,
+``@set`` directives must be placed somewhere after the ``@start`` directive,
 and before the ``@end`` directive (if there is one).
 
 Recognised property names and their default values are:
@@ -652,9 +652,9 @@ instruction.)
 
 @start
 ^^^^^^
-The ``@start`` directive must be used to indicate where to start parsing the
-`skool` file for the purpose of generating ASM output. Everything before the
-``@start`` directive is ignored. ::
+The ``@start`` directive indicates where to start parsing the `skool` file for
+the purpose of generating ASM output. Everything before the ``@start``
+directive is ignored. ::
 
   ; @start
 
@@ -665,7 +665,7 @@ See also :ref:`end`.
 @writer
 ^^^^^^^
 The ``@writer`` directive specifies the name of the Python class to use to
-generate ASM output. It should be placed somewhere after the ``@start``
+generate ASM output. It must be placed somewhere after the ``@start``
 directive, and before the ``@end`` directive (if there is one). ::
 
   ; @writer=package.module.classname

@@ -8,15 +8,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool macros &mdash; SkoolKit 3.6 documentation</title>
+    <title>Skool macros &mdash; SkoolKit 3.7 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.6',
+        VERSION:     '3.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.6 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.7 documentation" href="index.html" />
     <link rel="next" title="Ref files" href="ref-files.html" />
     <link rel="prev" title="Skool file templates" href="skool-file-templates.html" /> 
   </head>
@@ -42,9 +42,67 @@
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
       </ul>
-    </div>  
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Skool macros</a><ul>
+<li><a class="reference internal" href="#bug">#BUG</a></li>
+<li><a class="reference internal" href="#call">#CALL</a></li>
+<li><a class="reference internal" href="#chr">#CHR</a></li>
+<li><a class="reference internal" href="#d">#D</a></li>
+<li><a class="reference internal" href="#erefs">#EREFS</a></li>
+<li><a class="reference internal" href="#fact">#FACT</a></li>
+<li><a class="reference internal" href="#font">#FONT</a></li>
+<li><a class="reference internal" href="#html">#HTML</a></li>
+<li><a class="reference internal" href="#link">#LINK</a></li>
+<li><a class="reference internal" href="#list">#LIST</a></li>
+<li><a class="reference internal" href="#poke">#POKE</a></li>
+<li><a class="reference internal" href="#pokes">#POKES</a></li>
+<li><a class="reference internal" href="#pops">#POPS</a></li>
+<li><a class="reference internal" href="#pushs">#PUSHS</a></li>
+<li><a class="reference internal" href="#r">#R</a></li>
+<li><a class="reference internal" href="#refs">#REFS</a></li>
+<li><a class="reference internal" href="#reg">#REG</a></li>
+<li><a class="reference internal" href="#scr">#SCR</a></li>
+<li><a class="reference internal" href="#space">#SPACE</a></li>
+<li><a class="reference internal" href="#table">#TABLE</a></li>
+<li><a class="reference internal" href="#udg">#UDG</a></li>
+<li><a class="reference internal" href="#udgarray">#UDGARRAY</a></li>
+<li><a class="reference internal" href="#udgtable">#UDGTABLE</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="skool-file-templates.html"
+                        title="previous chapter">Skool file templates</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ref-files.html"
+                        title="next chapter">Ref files</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/skool-macros.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -689,8 +747,8 @@ given address within that page.</p>
 <li><tt class="docutils literal"><span class="pre">addr</span></tt> is the address of the routine or data block (or entry point
 thereof)</li>
 <li><tt class="docutils literal"><span class="pre">code</span></tt> is the ID of the disassembly that contains the routine or data block
-(if not given, the current disassembly is assumed; otherwise this should be
-an ID defined in an <tt class="docutils literal"><span class="pre">[OtherCode:*]</span></tt> section of the ref file)</li>
+(if not given, the current disassembly is assumed; otherwise this must be an
+ID defined in an <tt class="docutils literal"><span class="pre">[OtherCode:*]</span></tt> section of the ref file)</li>
 <li><tt class="docutils literal"><span class="pre">#name</span></tt> is the named anchor of an item on the disassembly page</li>
 <li><tt class="docutils literal"><span class="pre">link</span> <span class="pre">text</span></tt> is the link text to use (default: <tt class="docutils literal"><span class="pre">addr</span></tt>)</li>
 </ul>
@@ -928,9 +986,8 @@ be separated by <tt class="docutils literal"><span class="pre">|</span></tt> wit
 </div>
 <p>This table has two rows and two columns, and will have the CSS class &#8216;default&#8217;.
 The cells in the first column will have the CSS class &#8216;centre&#8217;.</p>
-<p>By default, cells will be rendered as <tt class="docutils literal"><span class="pre">&lt;td&gt;</span></tt> elements. To specify that a
-<tt class="docutils literal"><span class="pre">&lt;th&gt;</span></tt> element should be used instead, use the <tt class="docutils literal"><span class="pre">=h</span></tt> indicator before the
-cell contents:</p>
+<p>By default, cells will be rendered as <tt class="docutils literal"><span class="pre">&lt;td&gt;</span></tt> elements. To render a cell as a
+<tt class="docutils literal"><span class="pre">&lt;th&gt;</span></tt> element, use the <tt class="docutils literal"><span class="pre">=h</span></tt> indicator before the cell contents:</p>
 <div class="highlight-none"><div class="highlight"><pre>; #TABLE
 ; { =h Header 1  | =h Header 2 }
 ; { Regular cell | Another one }
@@ -945,10 +1002,9 @@ cell contents:</p>
 ; TABLE#
 </pre></div>
 </div>
-<p>Finally, the <tt class="docutils literal"><span class="pre">=t</span></tt> indicator specifies that a cell should be transparent (i.e.
-have the same background colour as the page body).</p>
-<p>If a cell requires more than one indicator, the indicators should be separated
-by commas:</p>
+<p>Finally, the <tt class="docutils literal"><span class="pre">=t</span></tt> indicator makes a cell transparent (i.e. gives it the same
+background colour as the page body).</p>
+<p>If a cell requires more than one indicator, separate the indicators by commas:</p>
 <div class="highlight-none"><div class="highlight"><pre>; #TABLE
 ; { =h,c2 Wide header }
 ; { Column 1 | Column 2 }
@@ -1230,71 +1286,13 @@ sequence of frames</td>
 <span id="id22"></span><h2>#UDGTABLE<a class="headerlink" href="#udgtable" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">#UDGTABLE</span></tt> macro behaves in exactly the same way as the <tt class="docutils literal"><span class="pre">#TABLE</span></tt>
 macro, except that the resulting table will not be rendered in ASM mode. Its
-intended use is to contain images that should be rendered in HTML mode only.</p>
+intended use is to contain images that will be rendered in HTML mode only.</p>
 <p>See <a class="reference internal" href="#table"><em>#TABLE</em></a>, and also <a class="reference internal" href="#html"><em>#HTML</em></a>.</p>
 </div>
 </div>
 
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Skool macros</a><ul>
-<li><a class="reference internal" href="#bug">#BUG</a></li>
-<li><a class="reference internal" href="#call">#CALL</a></li>
-<li><a class="reference internal" href="#chr">#CHR</a></li>
-<li><a class="reference internal" href="#d">#D</a></li>
-<li><a class="reference internal" href="#erefs">#EREFS</a></li>
-<li><a class="reference internal" href="#fact">#FACT</a></li>
-<li><a class="reference internal" href="#font">#FONT</a></li>
-<li><a class="reference internal" href="#html">#HTML</a></li>
-<li><a class="reference internal" href="#link">#LINK</a></li>
-<li><a class="reference internal" href="#list">#LIST</a></li>
-<li><a class="reference internal" href="#poke">#POKE</a></li>
-<li><a class="reference internal" href="#pokes">#POKES</a></li>
-<li><a class="reference internal" href="#pops">#POPS</a></li>
-<li><a class="reference internal" href="#pushs">#PUSHS</a></li>
-<li><a class="reference internal" href="#r">#R</a></li>
-<li><a class="reference internal" href="#refs">#REFS</a></li>
-<li><a class="reference internal" href="#reg">#REG</a></li>
-<li><a class="reference internal" href="#scr">#SCR</a></li>
-<li><a class="reference internal" href="#space">#SPACE</a></li>
-<li><a class="reference internal" href="#table">#TABLE</a></li>
-<li><a class="reference internal" href="#udg">#UDG</a></li>
-<li><a class="reference internal" href="#udgarray">#UDGARRAY</a></li>
-<li><a class="reference internal" href="#udgtable">#UDGTABLE</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="skool-file-templates.html"
-                        title="previous chapter">Skool file templates</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="ref-files.html"
-                        title="next chapter">Ref files</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/skool-macros.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -1311,11 +1309,11 @@ intended use is to contain images that should be rendered in HTML mode only.</p>
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Richard Dymond.
+        &copy; Copyright 2014, Richard Dymond.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

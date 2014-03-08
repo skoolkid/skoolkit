@@ -8,15 +8,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &mdash; SkoolKit 3.6 documentation</title>
+    <title>Extending SkoolKit &mdash; SkoolKit 3.7 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.6',
+        VERSION:     '3.7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.6 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 3.7 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body>
@@ -38,9 +38,49 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
       </ul>
-    </div>  
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Extending SkoolKit</a><ul>
+<li><a class="reference internal" href="#extension-modules">Extension modules</a></li>
+<li><a class="reference internal" href="#call-methods">#CALL methods</a></li>
+<li><a class="reference internal" href="#skool-macros">Skool macros</a></li>
+<li><a class="reference internal" href="#parsing-skool-macros">Parsing skool macros</a></li>
+<li><a class="reference internal" href="#parsing-ref-files">Parsing ref files</a></li>
+<li><a class="reference internal" href="#memory-snapshots">Memory snapshots</a></li>
+<li><a class="reference internal" href="#graphics">Graphics</a></li>
+<li><a class="reference internal" href="#htmlwriter-initialisation">HtmlWriter initialisation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="asm.html"
+                        title="previous chapter">ASM modes and directives</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/extending.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -117,11 +157,11 @@ module. For example, if you wanted to keep a standalone extension module in
     <span class="k">pass</span>
 </pre></div>
 </div>
-<p>Then, assuming the extension module is <cite>game.py</cite>, the <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt>
-parameter should be set thus:</p>
+<p>Then, assuming the extension module is <cite>game.py</cite>, set the <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt>
+parameter thus:</p>
 <div class="highlight-python"><pre>HtmlWriterClass=~/.skoolkit:game.GameHtmlWriter</pre>
 </div>
-<p>and the <tt class="docutils literal"><span class="pre">&#64;writer</span></tt> directive should be set thus:</p>
+<p>and the <tt class="docutils literal"><span class="pre">&#64;writer</span></tt> directive thus:</p>
 <div class="highlight-python"><pre>; @writer=~/.skoolkit:game.GameAsmWriter</pre>
 </div>
 </div>
@@ -207,8 +247,8 @@ HtmlWriter subclass</li>
 </ul>
 <p>A skool macro method must return a 2-tuple of the form <tt class="docutils literal"><span class="pre">(end,</span> <span class="pre">string)</span></tt>, where
 <tt class="docutils literal"><span class="pre">end</span></tt> is the index of the character after the last character of the macro&#8217;s
-parameter string, and <tt class="docutils literal"><span class="pre">string</span></tt> is the HTML or text to which the macro should
-be expanded.</p>
+parameter string, and <tt class="docutils literal"><span class="pre">string</span></tt> is the HTML or text to which the macro will be
+expanded.</p>
 <p>The <cite>expand_sprite</cite> method on GameHtmlWriter may therefore look something like
 this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
@@ -590,9 +630,11 @@ frame.</li>
 <li><strong>x</strong> &#8211; The x-coordinate of the top-left pixel to include in the frame.</li>
 <li><strong>y</strong> &#8211; The y-coordinate of the top-left pixel to include in the frame.</li>
 <li><strong>width</strong> &#8211; The width of the frame; if <cite>None</cite>, the maximum width
-(derived from <cite>x</cite> and width of the array of tiles) is used.</li>
+(derived from <cite>x</cite> and the width of the array of tiles) is
+used.</li>
 <li><strong>height</strong> &#8211; The height of the frame; if <cite>None</cite>, the maximum height
-(derived from <cite>y</cite> and height of the array of tiles) is used.</li>
+(derived from <cite>y</cite> and the height of the array of tiles) is
+used.</li>
 <li><strong>delay</strong> &#8211; The delay between this frame and the next in 1/100ths of a
 second.</li>
 </ul>
@@ -817,46 +859,6 @@ subclasses may override it.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Extending SkoolKit</a><ul>
-<li><a class="reference internal" href="#extension-modules">Extension modules</a></li>
-<li><a class="reference internal" href="#call-methods">#CALL methods</a></li>
-<li><a class="reference internal" href="#skool-macros">Skool macros</a></li>
-<li><a class="reference internal" href="#parsing-skool-macros">Parsing skool macros</a></li>
-<li><a class="reference internal" href="#parsing-ref-files">Parsing ref files</a></li>
-<li><a class="reference internal" href="#memory-snapshots">Memory snapshots</a></li>
-<li><a class="reference internal" href="#graphics">Graphics</a></li>
-<li><a class="reference internal" href="#htmlwriter-initialisation">HtmlWriter initialisation</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="asm.html"
-                        title="previous chapter">ASM modes and directives</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/extending.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
       <div class="clearer"></div>
     </div>
     <div class="related">
@@ -868,11 +870,11 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.6 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Richard Dymond.
+        &copy; Copyright 2014, Richard Dymond.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
