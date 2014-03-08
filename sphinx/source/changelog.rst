@@ -1,8 +1,8 @@
 Changelog
 =========
 
-3.7rc
------
+3.7 (2014-03-08)
+----------------
 * Added support for numbers in binary notation (e.g. %10101010)
 * Added the ``s`` and ``S`` control directives for encoding DEFS statements
   (with optional non-zero byte values); the ``z`` and ``Z`` directives are now

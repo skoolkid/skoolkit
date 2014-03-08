@@ -54,7 +54,7 @@ Logo=#SCR2,0,1,19,2,43008,40448{10,,292}(/images/logo)
 120=0000442810284400
 121=00004444443C0438
 
-[Changelog:--------]
+[Changelog:20140308]
 Included in SkoolKit 3.7.
 
 Added images of the top third and middle third of the title screen to the entry at #R40960
