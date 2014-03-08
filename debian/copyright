@@ -3,7 +3,7 @@ Upstream-Name: skoolkit
 Source: http://pyskool.ca/?page_id=177
 
 Files: *
-Copyright: 2010-2013 Richard Dymond
+Copyright: 2008-2014 Richard Dymond
 License: GPL-3+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
