@@ -1,0 +1,126 @@
+#!/bin/bash -e
+
+declare -A SK_VERSIONS
+SK_VERSIONS=(
+  [20131102]=3.6
+  [20130901]=3.5
+  [20130513]=3.3.2
+  [20121101]=3.2
+  [20120501]=3.0.2
+  [20120411]=3.0.1
+  [20120320]=3.0
+  [20120222]=2.5
+  [20100212]=1.0.7
+)
+
+ROM=/usr/share/spectrum-roms/48.rom
+
+if [ $# -lt 3 ]; then
+  echo "Usage: $(basename $0) mm|jsw|rom VERSION SKOOLKIT_VERSION"
+  echo ""
+  echo "  Attempts to build a specific version of the Manic Miner, Jet Set Willy or"
+  echo "  Spectrum ROM disassembly using a specific version of SkoolKit."
+  echo ""
+  echo "  VERSION must be one of:"
+  echo ""
+  for v in ${!SK_VERSIONS[@]}; do
+    echo "    $v"
+  done | sort -r | column -c 80
+  echo ""
+  echo "  Environment variables:"
+  echo "    SKOOLKIT_ARCHIVE - directory containing SkoolKit release tarballs"
+  exit 1
+fi
+
+if [ -z "$SKOOLKIT_ARCHIVE" ]; then
+    echo 'SKOOLKIT_ARCHIVE is not set; aborting'
+    exit 1
+fi
+if [ ! -d "$SKOOLKIT_ARCHIVE" ]; then
+    echo "SKOOLKIT_ARCHIVE=$SKOOLKIT_ARCHIVE: directory not found"
+    exit 1
+fi
+
+GAME=$1
+D_VERSION=$2
+SK_VERSION=$3
+
+SK_VERSION_INT=$(echo $SK_VERSION | tr -d . )0
+SK_VERSION_INT=${SK_VERSION_INT:0:3}
+
+if [ $GAME != mm ] && [ $GAME != jsw ] && [ $GAME != rom ]; then
+  echo "Unknown game: $GAME"
+  exit 1
+fi
+
+if [ $GAME = rom ] && [ $SK_VERSION_INT -lt 210 ]; then
+  echo "Building the 48K ROM disassembly is not supported with SkoolKit < 2.1"
+  exit 1
+fi
+
+SK_DIR=skoolkit-$SK_VERSION
+odir=$GAME-$D_VERSION-$SK_VERSION
+rm -rf $SK_DIR $odir
+
+D_SK_VERSION=${SK_VERSIONS[$D_VERSION]}
+if [[ -z "$D_SK_VERSION" ]]; then
+  echo "Disassembly version not recognised: $D_VERSION"
+  exit 1
+fi
+
+D_SK_VERSION_INT=$(echo $D_SK_VERSION | tr -d . )0
+D_SK_VERSION_INT=${D_SK_VERSION_INT:0:3}
+tar xf $SKOOLKIT_ARCHIVE/$SK_DIR.tar.*
+mv $SK_DIR $odir
+cd $odir
+D_DIR=skoolkit-$D_SK_VERSION
+tar xf $SKOOLKIT_ARCHIVE/$D_DIR.tar.*
+
+if [ -d examples ]; then
+  mv examples examples-$SK_VERSION
+  mkdir examples
+fi
+
+# Remove existing ctl/skool/ref files from the current working directory
+rm -f *.ctl *.skool *.ref
+
+# Copy control, ref and CSS files into the current working directory
+if [ -d $D_DIR/ctl ]; then
+  cp -a $D_DIR/ctl/*.ctl .
+elif [ -d $D_DIR/examples ]; then
+  cp -a $D_DIR/examples/*.ctl .
+  cp -a $D_DIR/examples/*.ref . &>/dev/null || true
+  cp -a $D_DIR/examples/*.css . &>/dev/null || true
+  cp -a $D_DIR/examples/*.css examples &>/dev/null || true
+fi
+
+# Create manic_miner.skool or jet_set_willy.skool
+if [ $GAME = mm ]; then
+  # Manic Miner
+  skool=manic_miner.skool
+  ./sna2skool.py -c manic_miner.ctl $SKOOLKIT_HOME/snapshots/manic_miner.z80 > $skool
+elif [ $GAME = jsw ]; then
+  # Jet Set Willy
+  skool=jet_set_willy.skool
+  ./sna2skool.py -c jet_set_willy.ctl $SKOOLKIT_HOME/snapshots/jet_set_willy.z80 > $skool
+else
+  # 48K ROM
+  cp -p $SKOOLKIT_HOME/examples/48.rom.* .
+  if [ $SK_VERSION_INT -lt 360 ]; then
+    binfile=48.rom.bin
+    cp -p $ROM $binfile
+  else
+    binfile=$ROM
+  fi
+  skool=48.rom.skool
+  ./sna2skool.py -o 0 -H -c 48.rom.ctl $binfile > $skool
+fi
+
+# Run skool2html.py
+if [ $SK_VERSION_INT -ge 220 ]; then
+  # SkoolKit 2.2+
+  ./skool2html.py -d html $skool
+else
+  # SkoolKit 1.0 - 2.1.2
+  ./skool2html.py -f $skool html
+fi
