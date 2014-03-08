@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 1C79</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="7276.html">1C6C</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#7289">Map</a></td>
+<td class="next">Next: <a class="link" href="7318.html">1C96</a></td>
+</tr>
+</table>
+<div class="description">1C79: THE 'EXPECT NUMERIC/STRING EXPRESSIONS' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routines at <a class="link" href="8188.html">1FFC</a> and <a class="link" href="9467.html">24FB</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="7289"></a>1C79</td>
+<td class="instruction">RST $20</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="7290"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routine at <a class="link" href="7358.html">1CBE</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">1C7A</td>
+<td class="instruction">CALL $1C82</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7293"></a>1C7D</td>
+<td class="instruction">CP $2C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7295"></a>1C7F</td>
+<td class="instruction">JR NZ,$1C8A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7297"></a>1C81</td>
+<td class="instruction">RST $20</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="7298"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routines at <a class="link" href="1541.html">0605</a>, <a class="link" href="6137.html">17F9</a>, <a class="link" href="7390.html">1CDE</a>, <a class="link" href="7427.html">1D03</a>, <a class="link" href="8188.html">1FFC</a>, <a class="link" href="8304.html">2070</a>, <a class="link" href="8673.html">21E1</a>, <a class="link" href="8992.html">2320</a>, <a class="link" href="9090.html">2382</a> and <a class="link" href="10956.html">2ACC</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">1C82</td>
+<td class="instruction">CALL <a class="link" href="9467.html">$24FB</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7301"></a>1C85</td>
+<td class="instruction">BIT 6,(IY+$01)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7305"></a>1C89</td>
+<td class="instruction">RET NZ</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="7306"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routines at <a class="link" href="1194.html">04AA</a>, <a class="link" href="1541.html">0605</a>, <a class="link" href="6651.html">19FB</a>, <a class="link" href="6952.html">1B28</a>, <a class="link" href="7023.html">1B6F</a>, <a class="link" href="7156.html">1BF4</a>, <a class="link" href="7254.html">1C56</a>, <a class="link" href="7276.html">1C6C</a>, <a class="link" href="8032.html">1F60</a>, <a class="link" href="8329.html">2089</a>, <a class="link" href="8673.html">21E1</a>, <a class="link" href="8992.html">2320</a>, <a class="link" href="9467.html">24FB</a>, <a class="link" href="9647.html">25AF</a>, <a class="link" href="9929.html">26C9</a>, <a class="link" href="10173.html">27BD</a>, <a class="link" href="10418.html">28B2</a>, <a class="link" href="10834.html">2A52</a>, <a class="link" href="11266.html">2C02</a>, <a class="link" href="11419.html">2C9B</a> and <a class="link" href="13790.html">35DE</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">1C8A</td>
+<td class="instruction">RST $08</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7307"></a>1C8B</td>
+<td class="instruction">DEFB $0B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="7308"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routine at <a class="link" href="1541.html">0605</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">1C8C</td>
+<td class="instruction">CALL <a class="link" href="9467.html">$24FB</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7311"></a>1C8F</td>
+<td class="instruction">BIT 6,(IY+$01)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7315"></a>1C93</td>
+<td class="instruction">RET Z</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7316"></a>1C94</td>
+<td class="instruction">JR $1C8A</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="7276.html">1C6C</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#7289">Map</a></td>
+<td class="next">Next: <a class="link" href="7318.html">1C96</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

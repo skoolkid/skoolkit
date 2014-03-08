@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 3297</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="12947.html">3293</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#12951">Map</a></td>
+<td class="next">Next: <a class="link" href="12997.html">32C5</a></td>
+</tr>
+</table>
+<div class="description">3297: THE 'RE-STACK' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routine at <a class="link" href="14306.html">37E2</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="12951"></a>3297</td>
+<td class="instruction">LD A,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12952"></a>3298</td>
+<td class="instruction">AND A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12953"></a>3299</td>
+<td class="instruction">RET NZ</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12954"></a>329A</td>
+<td class="instruction">PUSH DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12955"></a>329B</td>
+<td class="instruction">CALL <a class="link" href="11647.html">$2D7F</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12958"></a>329E</td>
+<td class="instruction">XOR A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12959"></a>329F</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12960"></a>32A0</td>
+<td class="instruction">LD (HL),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12961"></a>32A1</td>
+<td class="instruction">DEC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12962"></a>32A2</td>
+<td class="instruction">LD (HL),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12963"></a>32A3</td>
+<td class="instruction">LD B,$91</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12965"></a>32A5</td>
+<td class="instruction">LD A,D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12966"></a>32A6</td>
+<td class="instruction">AND A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12967"></a>32A7</td>
+<td class="instruction">JR NZ,$32B1</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12969"></a>32A9</td>
+<td class="instruction">OR E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12970"></a>32AA</td>
+<td class="instruction">LD B,D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12971"></a>32AB</td>
+<td class="instruction">JR Z,$32BD</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12973"></a>32AD</td>
+<td class="instruction">LD D,E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12974"></a>32AE</td>
+<td class="instruction">LD E,B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12975"></a>32AF</td>
+<td class="instruction">LD B,$89</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="12977"></a>32B1</td>
+<td class="instruction">EX DE,HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="12978"></a>32B2</td>
+<td class="instruction">DEC B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12979"></a>32B3</td>
+<td class="instruction">ADD HL,HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12980"></a>32B4</td>
+<td class="instruction">JR NC,$32B2</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12982"></a>32B6</td>
+<td class="instruction">RRC C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12984"></a>32B8</td>
+<td class="instruction">RR H</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12986"></a>32BA</td>
+<td class="instruction">RR L</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12988"></a>32BC</td>
+<td class="instruction">EX DE,HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="12989"></a>32BD</td>
+<td class="instruction">DEC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12990"></a>32BE</td>
+<td class="instruction">LD (HL),E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12991"></a>32BF</td>
+<td class="instruction">DEC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12992"></a>32C0</td>
+<td class="instruction">LD (HL),D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12993"></a>32C1</td>
+<td class="instruction">DEC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12994"></a>32C2</td>
+<td class="instruction">LD (HL),B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12995"></a>32C3</td>
+<td class="instruction">POP DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="12996"></a>32C4</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="12947.html">3293</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#12951">Map</a></td>
+<td class="next">Next: <a class="link" href="12997.html">32C5</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

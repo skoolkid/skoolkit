@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Jet Set Willy: Data at 61696</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html"><img alt="logo" src="../images/logo.png" /></a></td>
+<td class="headerText">Data</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="61440.html">61440</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#61696">Map</a></td>
+<td class="next">Next: <a class="link" href="61952.html">61952</a></td>
+</tr>
+</table>
+<div class="description">61696: Room 49: The Wine Cellar</div>
+<table class="dataDisassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+<table>
+<tr>
+<td><img alt="the_wine_cellar" src="../images/scr/the_wine_cellar.png" /></td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+The first 128 bytes define the room layout. Each bit-pair (bits 7 and 6, 5 and 4, 3 and 2, or 1 and 0 of each byte) determines the type of tile (background, floor, wall or nasty) that will be drawn at the corresponding location.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address"><a name="61696"></a>61696</td>
+<td class="instruction">DEFB 0,0,0,0,0,12,2,170</td>
+<td class="dataComment" rowspan="16">Room layout</td>
+</tr>
+<tr>
+<td class="address"><a name="61704"></a>61704</td>
+<td class="instruction">DEFB 0,0,0,0,0,0,2,170</td>
+</tr>
+<tr>
+<td class="address"><a name="61712"></a>61712</td>
+<td class="instruction">DEFB 85,64,0,0,0,0,2,170</td>
+</tr>
+<tr>
+<td class="address"><a name="61720"></a>61720</td>
+<td class="instruction">DEFB 0,0,0,0,0,0,0,42</td>
+</tr>
+<tr>
+<td class="address"><a name="61728"></a>61728</td>
+<td class="instruction">DEFB 0,0,0,0,0,0,0,42</td>
+</tr>
+<tr>
+<td class="address"><a name="61736"></a>61736</td>
+<td class="instruction">DEFB 170,168,0,65,0,21,86,170</td>
+</tr>
+<tr>
+<td class="address"><a name="61744"></a>61744</td>
+<td class="instruction">DEFB 170,0,0,0,0,0,0,42</td>
+</tr>
+<tr>
+<td class="address"><a name="61752"></a>61752</td>
+<td class="instruction">DEFB 170,0,0,0,0,0,0,42</td>
+</tr>
+<tr>
+<td class="address"><a name="61760"></a>61760</td>
+<td class="instruction">DEFB 170,168,0,65,0,85,86,170</td>
+</tr>
+<tr>
+<td class="address"><a name="61768"></a>61768</td>
+<td class="instruction">DEFB 160,0,0,0,0,0,0,42</td>
+</tr>
+<tr>
+<td class="address"><a name="61776"></a>61776</td>
+<td class="instruction">DEFB 160,0,0,0,0,0,0,42</td>
+</tr>
+<tr>
+<td class="address"><a name="61784"></a>61784</td>
+<td class="instruction">DEFB 170,168,0,65,1,85,85,85</td>
+</tr>
+<tr>
+<td class="address"><a name="61792"></a>61792</td>
+<td class="instruction">DEFB 170,0,0,195,3,0,0,0</td>
+</tr>
+<tr>
+<td class="address"><a name="61800"></a>61800</td>
+<td class="instruction">DEFB 170,0,0,0,0,0,10,170</td>
+</tr>
+<tr>
+<td class="address"><a name="61808"></a>61808</td>
+<td class="instruction">DEFB 170,168,0,0,0,0,42,170</td>
+</tr>
+<tr>
+<td class="address"><a name="61816"></a>61816</td>
+<td class="instruction">DEFB 170,170,170,170,170,170,170,170</td>
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="61824"></a>
+<div class="comments">
+<div class="paragraph">
+The next 32 bytes contain the room name.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address">61824</td>
+<td class="instruction">DEFM "        The Wine Cellar         "</td>
+<td class="dataComment">Room name</td>
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="61856"></a>
+<div class="comments">
+<div class="paragraph">
+The next 54 bytes contain the attributes and graphic data for the tiles used to build the room. Note that because of a bug in the game engine, the conveyor tile is not drawn correctly (see the room image above).
+</div>
+<div class="paragraph">
+<table>
+<tr>
+<td><img alt="background49" src="../images/udgs/background49.png" /></td>
+<td><img alt="floor49" src="../images/udgs/floor49.png" /></td>
+<td><img alt="wall49" src="../images/udgs/wall49.png" /></td>
+<td><img alt="nasty49" src="../images/udgs/nasty49.png" /></td>
+<td><img alt="ramp49" src="../images/udgs/ramp49.png" /></td>
+<td><img alt="conveyor49" src="../images/udgs/conveyor49.png" /></td>
+</tr>
+</table>
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address">61856</td>
+<td class="instruction">DEFB 0,0,0,0,0,0,0,0,0</td>
+<td class="dataComment">Background</td>
+</tr>
+<tr>
+<td class="address"><a name="61865"></a>61865</td>
+<td class="instruction">DEFB 66,255,24,231,16,199,56,0,0</td>
+<td class="dataComment">Floor</td>
+</tr>
+<tr>
+<td class="address"><a name="61874"></a>61874</td>
+<td class="instruction">DEFB 41,10,65,40,5,160,20,130,80</td>
+<td class="dataComment">Wall</td>
+</tr>
+<tr>
+<td class="address"><a name="61883"></a>61883</td>
+<td class="instruction">DEFB 70,36,36,36,90,219,189,195,126</td>
+<td class="dataComment">Nasty</td>
+</tr>
+<tr>
+<td class="address"><a name="61892"></a>61892</td>
+<td class="instruction">DEFB 7,3,3,13,14,53,58,213,234</td>
+<td class="dataComment">Ramp</td>
+</tr>
+<tr>
+<td class="address"><a name="61901"></a>61901</td>
+<td class="instruction">DEFB 13,170,85,170,85,170,85,170,85</td>
+<td class="dataComment">Conveyor</td>
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="61910"></a>
+<div class="comments">
+<div class="paragraph">
+The next 8 bytes define the direction, location and length of the conveyor and ramp.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address">61910</td>
+<td class="instruction">DEFB 1,155,95,5</td>
+<td class="dataComment">Conveyor direction (right), location (x=27, y=12) and length (5)</td>
+</tr>
+<tr>
+<td class="address"><a name="61914"></a>61914</td>
+<td class="instruction">DEFB 1,216,95,3</td>
+<td class="dataComment">Ramp direction (right), location (x=24, y=14) and length (3)</td>
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="61918"></a>
+<div class="comments">
+<div class="paragraph">
+The next byte specifies the border colour.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address">61918</td>
+<td class="instruction">DEFB 4</td>
+<td class="dataComment">Border colour</td>
+</tr>
+<tr>
+<td class="address"><a name="61919"></a>61919</td>
+<td class="instruction">DEFB 0,0</td>
+<td class="dataComment">Unused</td>
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="61921"></a>
+<div class="comments">
+<div class="paragraph">
+The next 8 bytes define the object graphic.
+</div>
+<div class="paragraph">
+<table>
+<tr>
+<td><img alt="object49" src="../images/udgs/object49.png" /></td>
+</tr>
+</table>
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address">61921</td>
+<td class="instruction">DEFB 0,25,249,31,0,25,255,31</td>
+<td class="dataComment">Object graphic</td>
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="61929"></a>
+<div class="comments">
+<div class="paragraph">
+The next 4 bytes specify the rooms to the left, to the right, above and below.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address">61929</td>
+<td class="instruction">DEFB 51</td>
+<td class="dataComment">Room to the left (<a class="link" href="62208.html">Tool&#160;&#160;Shed</a>)</td>
+</tr>
+<tr>
+<td class="address"><a name="61930"></a>61930</td>
+<td class="instruction">DEFB 19</td>
+<td class="dataComment">Room to the right (<a class="link" href="54016.html">The Forgotten Abbey</a>)</td>
+</tr>
+<tr>
+<td class="address"><a name="61931"></a>61931</td>
+<td class="instruction">DEFB 52</td>
+<td class="dataComment">Room above (<a class="link" href="62464.html">Back Stairway</a>)</td>
+</tr>
+<tr>
+<td class="address"><a name="61932"></a>61932</td>
+<td class="instruction">DEFB 0</td>
+<td class="dataComment">Room below (<a class="link" href="49152.html">The Off Licence</a>)</td>
+</tr>
+<tr>
+<td class="address"><a name="61933"></a>61933</td>
+<td class="instruction">DEFB 0,0,0</td>
+<td class="dataComment">Unused</td>
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="61936"></a>
+<div class="comments">
+<div class="paragraph">
+The next 8 bytes define the guardians.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address">61936</td>
+<td class="instruction">DEFB 52,16</td>
+<td class="dataComment">Guardian 1</td>
+</tr>
+<tr>
+<td class="address"><a name="61938"></a>61938</td>
+<td class="instruction">DEFB 64,25</td>
+<td class="dataComment">Guardian 2</td>
+</tr>
+<tr>
+<td class="address"><a name="61940"></a>61940</td>
+<td class="instruction">DEFB 65,9</td>
+<td class="dataComment">Guardian 3</td>
+</tr>
+<tr>
+<td class="address"><a name="61942"></a>61942</td>
+<td class="instruction">DEFB 66,19</td>
+<td class="dataComment">Guardian 4</td>
+</tr>
+<tr>
+<td class="address"><a name="61944"></a>61944</td>
+<td class="instruction">DEFB 255</td>
+<td class="dataComment">Terminator</td>
+</tr>
+<tr>
+<td class="address"><a name="61945"></a>61945</td>
+<td class="instruction">DEFB 0,0,0,0,0,0,0</td>
+<td class="dataComment">Unused</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="61440.html">61440</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#61696">Map</a></td>
+<td class="next">Next: <a class="link" href="61952.html">61952</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

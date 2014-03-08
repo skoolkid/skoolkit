@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 0DAF</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="3435.html">0D6B</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#3503">Map</a></td>
+<td class="next">Next: <a class="link" href="3545.html">0DD9</a></td>
+</tr>
+</table>
+<div class="description">0DAF: THE 'CLEARING THE WHOLE DISPLAY AREA' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routines at <a class="link" href="3435.html">0D6B</a>, <a class="link" href="4770.html">12A2</a> and <a class="link" href="6037.html">1795</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="3503"></a>0DAF</td>
+<td class="instruction">LD HL,$0000</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3506"></a>0DB2</td>
+<td class="instruction">LD ($5C7D),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3509"></a>0DB5</td>
+<td class="instruction">RES 0,(IY+$30)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3513"></a>0DB9</td>
+<td class="instruction">CALL <a class="link" href="3435.html#3476">$0D94</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3516"></a>0DBC</td>
+<td class="instruction">LD A,$FE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3518"></a>0DBE</td>
+<td class="instruction">CALL <a class="link" href="5633.html">$1601</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3521"></a>0DC1</td>
+<td class="instruction">CALL <a class="link" href="3405.html">$0D4D</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3524"></a>0DC4</td>
+<td class="instruction">LD B,$18</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3526"></a>0DC6</td>
+<td class="instruction">CALL <a class="link" href="3652.html">$0E44</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3529"></a>0DC9</td>
+<td class="instruction">LD HL,($5C51)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3532"></a>0DCC</td>
+<td class="instruction">LD DE,$09F4</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3535"></a>0DCF</td>
+<td class="instruction">LD (HL),E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3536"></a>0DD0</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3537"></a>0DD1</td>
+<td class="instruction">LD (HL),D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3538"></a>0DD2</td>
+<td class="instruction">LD (IY+$52),$01</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3542"></a>0DD6</td>
+<td class="instruction">LD BC,$1821</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="3435.html">0D6B</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#3503">Map</a></td>
+<td class="next">Next: <a class="link" href="3545.html">0DD9</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

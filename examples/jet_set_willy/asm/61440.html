@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Jet Set Willy: Data at 61440</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html"><img alt="logo" src="../images/logo.png" /></a></td>
+<td class="headerText">Data</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="61184.html">61184</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#61440">Map</a></td>
+<td class="next">Next: <a class="link" href="61696.html">61696</a></td>
+</tr>
+</table>
+<div class="description">61440: Room 48: Nomen Luni</div>
+<table class="dataDisassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+<table>
+<tr>
+<td><img alt="nomen_luni" src="../images/scr/nomen_luni.gif" /></td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+The first 128 bytes define the room layout. Each bit-pair (bits 7 and 6, 5 and 4, 3 and 2, or 1 and 0 of each byte) determines the type of tile (background, floor, wall or nasty) that will be drawn at the corresponding location.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address"><a name="61440"></a>61440</td>
+<td class="instruction">DEFB 0,0,0,0,0,0,0,0</td>
+<td class="dataComment" rowspan="16">Room layout</td>
+</tr>
+<tr>
+<td class="address"><a name="61448"></a>61448</td>
+<td class="instruction">DEFB 0,0,0,0,0,0,0,0</td>
+</tr>
+<tr>
+<td class="address"><a name="61456"></a>61456</td>
+<td class="instruction">DEFB 0,0,0,0,0,0,0,0</td>
+</tr>
+<tr>
+<td class="address"><a name="61464"></a>61464</td>
+<td class="instruction">DEFB 0,0,0,0,0,0,0,0</td>
+</tr>
+<tr>
+<td class="address"><a name="61472"></a>61472</td>
+<td class="instruction">DEFB 0,0,0,0,0,0,0,0</td>
+</tr>
+<tr>
+<td class="address"><a name="61480"></a>61480</td>
+<td class="instruction">DEFB 0,0,0,0,10,170,0,0</td>
+</tr>
+<tr>
+<td class="address"><a name="61488"></a>61488</td>
+<td class="instruction">DEFB 0,0,0,1,10,170,0,80</td>
+</tr>
+<tr>
+<td class="address"><a name="61496"></a>61496</td>
+<td class="instruction">DEFB 0,0,0,0,0,160,0,0</td>
+</tr>
+<tr>
+<td class="address"><a name="61504"></a>61504</td>
+<td class="instruction">DEFB 0,0,1,80,0,160,64,0</td>
+</tr>
+<tr>
+<td class="address"><a name="61512"></a>61512</td>
+<td class="instruction">DEFB 0,0,0,0,4,160,0,10</td>
+</tr>
+<tr>
+<td class="address"><a name="61520"></a>61520</td>
+<td class="instruction">DEFB 0,0,0,0,0,160,0,42</td>
+</tr>
+<tr>
+<td class="address"><a name="61528"></a>61528</td>
+<td class="instruction">DEFB 0,0,0,0,64,160,10,162</td>
+</tr>
+<tr>
+<td class="address"><a name="61536"></a>61536</td>
+<td class="instruction">DEFB 0,0,0,0,1,160,33,66</td>
+</tr>
+<tr>
+<td class="address"><a name="61544"></a>61544</td>
+<td class="instruction">DEFB 0,0,0,0,0,160,0,10</td>
+</tr>
+<tr>
+<td class="address"><a name="61552"></a>61552</td>
+<td class="instruction">DEFB 0,0,0,170,170,170,170,162</td>
+</tr>
+<tr>
+<td class="address"><a name="61560"></a>61560</td>
+<td class="instruction">DEFB 0,0,0,170,170,170,170,162</td>
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="61568"></a>
+<div class="comments">
+<div class="paragraph">
+The next 32 bytes contain the room name.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address">61568</td>
+<td class="instruction">DEFM "           Nomen Luni           "</td>
+<td class="dataComment">Room name</td>
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="61600"></a>
+<div class="comments">
+<div class="paragraph">
+The next 54 bytes contain the attributes and graphic data for the tiles used to build the room.
+</div>
+<div class="paragraph">
+<table>
+<tr>
+<td><img alt="background48" src="../images/udgs/background48.png" /></td>
+<td><img alt="floor48" src="../images/udgs/floor48.png" /></td>
+<td><img alt="wall48" src="../images/udgs/wall48.gif" /></td>
+<td><img alt="nasty48" src="../images/udgs/nasty48.png" /></td>
+<td><img alt="ramp48" src="../images/udgs/ramp48.png" /></td>
+<td><img alt="conveyor48" src="../images/udgs/conveyor48.png" /></td>
+</tr>
+</table>
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address">61600</td>
+<td class="instruction">DEFB 0,0,0,0,0,0,0,0,0</td>
+<td class="dataComment">Background</td>
+</tr>
+<tr>
+<td class="address"><a name="61609"></a>61609</td>
+<td class="instruction">DEFB 13,255,34,68,136,85,34,0,0</td>
+<td class="dataComment">Floor</td>
+</tr>
+<tr>
+<td class="address"><a name="61618"></a>61618</td>
+<td class="instruction">DEFB 243,170,112,170,108,177,95,170,85</td>
+<td class="dataComment">Wall</td>
+</tr>
+<tr>
+<td class="address"><a name="61627"></a>61627</td>
+<td class="instruction">DEFB 6,85,162,85,152,28,42,69,138</td>
+<td class="dataComment">Nasty (unused)</td>
+</tr>
+<tr>
+<td class="address"><a name="61636"></a>61636</td>
+<td class="instruction">DEFB 7,3,0,12,0,52,10,196,0</td>
+<td class="dataComment">Ramp</td>
+</tr>
+<tr>
+<td class="address"><a name="61645"></a>61645</td>
+<td class="instruction">DEFB 255,0,0,0,0,0,0,0,0</td>
+<td class="dataComment">Conveyor (unused)</td>
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="61654"></a>
+<div class="comments">
+<div class="paragraph">
+The next 8 bytes define the direction, location and length of the conveyor and ramp.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address">61654</td>
+<td class="instruction">DEFB 0,0,0,0</td>
+<td class="dataComment">Conveyor direction (left), location (x=0, y=0) and length (0)</td>
+</tr>
+<tr>
+<td class="address"><a name="61658"></a>61658</td>
+<td class="instruction">DEFB 1,233,95,5</td>
+<td class="dataComment">Ramp direction (right), location (x=9, y=15) and length (5)</td>
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="61662"></a>
+<div class="comments">
+<div class="paragraph">
+The next byte specifies the border colour.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address">61662</td>
+<td class="instruction">DEFB 2</td>
+<td class="dataComment">Border colour</td>
+</tr>
+<tr>
+<td class="address"><a name="61663"></a>61663</td>
+<td class="instruction">DEFB 0,0</td>
+<td class="dataComment">Unused</td>
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="61665"></a>
+<div class="comments">
+<div class="paragraph">
+The next 8 bytes define the object graphic.
+</div>
+<div class="paragraph">
+<table>
+<tr>
+<td><img alt="object48" src="../images/udgs/object48.png" /></td>
+</tr>
+</table>
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address">61665</td>
+<td class="instruction">DEFB 18,18,18,18,18,18,18,18</td>
+<td class="dataComment">Object graphic (unused)</td>
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="61673"></a>
+<div class="comments">
+<div class="paragraph">
+The next 4 bytes specify the rooms to the left, to the right, above and below.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address">61673</td>
+<td class="instruction">DEFB 0</td>
+<td class="dataComment">Room to the left (<a class="link" href="49152.html">The Off Licence</a>)</td>
+</tr>
+<tr>
+<td class="address"><a name="61674"></a>61674</td>
+<td class="instruction">DEFB 18</td>
+<td class="dataComment">Room to the right (<a class="link" href="53760.html">On the Roof</a>)</td>
+</tr>
+<tr>
+<td class="address"><a name="61675"></a>61675</td>
+<td class="instruction">DEFB 0</td>
+<td class="dataComment">Room above (<a class="link" href="49152.html">The Off Licence</a>)</td>
+</tr>
+<tr>
+<td class="address"><a name="61676"></a>61676</td>
+<td class="instruction">DEFB 42</td>
+<td class="dataComment">Room below (<a class="link" href="59904.html">Under the Roof</a>)</td>
+</tr>
+<tr>
+<td class="address"><a name="61677"></a>61677</td>
+<td class="instruction">DEFB 0,0,0</td>
+<td class="dataComment">Unused</td>
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="61680"></a>
+<div class="comments">
+<div class="paragraph">
+The next 8 bytes define the guardians.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="address">61680</td>
+<td class="instruction">DEFB 104,5</td>
+<td class="dataComment">Guardian 1</td>
+</tr>
+<tr>
+<td class="address"><a name="61682"></a>61682</td>
+<td class="instruction">DEFB 107,20</td>
+<td class="dataComment">Guardian 2</td>
+</tr>
+<tr>
+<td class="address"><a name="61684"></a>61684</td>
+<td class="instruction">DEFB 29,144</td>
+<td class="dataComment">Guardian 3</td>
+</tr>
+<tr>
+<td class="address"><a name="61686"></a>61686</td>
+<td class="instruction">DEFB 11,22</td>
+<td class="dataComment">Guardian 4</td>
+</tr>
+<tr>
+<td class="address"><a name="61688"></a>61688</td>
+<td class="instruction">DEFB 255</td>
+<td class="dataComment">Terminator</td>
+</tr>
+<tr>
+<td class="address"><a name="61689"></a>61689</td>
+<td class="instruction">DEFB 0,0,0,0,0,0,0</td>
+<td class="dataComment">Unused</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="61184.html">61184</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#61440">Map</a></td>
+<td class="next">Next: <a class="link" href="61696.html">61696</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

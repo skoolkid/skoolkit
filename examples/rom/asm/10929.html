@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 2AB1</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="10834.html">2A52</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#10929">Map</a></td>
+<td class="next">Next: <a class="link" href="10956.html">2ACC</a></td>
+</tr>
+</table>
+<div class="description">2AB1: THE 'STK-STORE' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routine at <a class="link" href="10646.html">2996</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="10929"></a>2AB1</td>
+<td class="instruction">XOR A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="10930"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routines at <a class="link" href="8329.html">2089</a>, <a class="link" href="9520.html">2530</a>, <a class="link" href="9647.html">25AF</a>, <a class="link" href="10646.html">2996</a>, <a class="link" href="13724.html">359C</a>, <a class="link" href="13769.html">35C9</a>, <a class="link" href="13855.html">361F</a> and <a class="link" href="13893.html">3645</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">2AB2</td>
+<td class="instruction">RES 6,(IY+$01)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="10934"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routines at <a class="link" href="11563.html">2D2B</a> and <a class="link" href="11713.html">2DC1</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">2AB6</td>
+<td class="instruction">PUSH BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10935"></a>2AB7</td>
+<td class="instruction">CALL <a class="link" href="13225.html">$33A9</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10938"></a>2ABA</td>
+<td class="instruction">POP BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10939"></a>2ABB</td>
+<td class="instruction">LD HL,($5C65)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10942"></a>2ABE</td>
+<td class="instruction">LD (HL),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10943"></a>2ABF</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10944"></a>2AC0</td>
+<td class="instruction">LD (HL),E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10945"></a>2AC1</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10946"></a>2AC2</td>
+<td class="instruction">LD (HL),D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10947"></a>2AC3</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10948"></a>2AC4</td>
+<td class="instruction">LD (HL),C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10949"></a>2AC5</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10950"></a>2AC6</td>
+<td class="instruction">LD (HL),B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10951"></a>2AC7</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10952"></a>2AC8</td>
+<td class="instruction">LD ($5C65),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10955"></a>2ACB</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="10834.html">2A52</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#10929">Map</a></td>
+<td class="next">Next: <a class="link" href="10956.html">2ACC</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

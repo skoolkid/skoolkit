@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 16DB</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="5844.html">16D4</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#5851">Map</a></td>
+<td class="next">Next: <a class="link" href="5861.html">16E5</a></td>
+</tr>
+</table>
+<div class="description">16DB: THE 'INDEXER' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="5851"></a>16DB</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="5852"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routines at <a class="link" href="5653.html">1615</a>, <a class="link" href="5889.html">1701</a>, <a class="link" href="5981.html">175D</a>, <a class="link" href="9467.html">24FB</a> and <a class="link" href="9929.html">26C9</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">16DC</td>
+<td class="instruction">LD A,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="5853"></a>16DD</td>
+<td class="instruction">AND A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="5854"></a>16DE</td>
+<td class="instruction">RET Z</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="5855"></a>16DF</td>
+<td class="instruction">CP C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="5856"></a>16E0</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="5857"></a>16E1</td>
+<td class="instruction">JR NZ,$16DB</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="5859"></a>16E3</td>
+<td class="instruction">SCF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="5860"></a>16E4</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="5844.html">16D4</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#5851">Map</a></td>
+<td class="next">Next: <a class="link" href="5861.html">16E5</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

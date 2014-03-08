@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 09F4</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="2465.html">09A1</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#2548">Map</a></td>
+<td class="next">Next: <a class="link" href="2577.html">0A11</a></td>
+</tr>
+</table>
+<div class="description">09F4: THE 'PRINT-OUT' ROUTINES</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routines at <a class="link" href="4381.html">111D</a> and <a class="link" href="6337.html">18C1</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="2548"></a>09F4</td>
+<td class="instruction">CALL <a class="link" href="2819.html">$0B03</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2551"></a>09F7</td>
+<td class="instruction">CP $20</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2553"></a>09F9</td>
+<td class="instruction">JP NC,<a class="link" href="2777.html">$0AD9</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2556"></a>09FC</td>
+<td class="instruction">CP $06</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2558"></a>09FE</td>
+<td class="instruction">JR C,<a class="link" href="2665.html">$0A69</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2560"></a>0A00</td>
+<td class="instruction">CP $18</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2562"></a>0A02</td>
+<td class="instruction">JR NC,<a class="link" href="2665.html">$0A69</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2564"></a>0A04</td>
+<td class="instruction">LD HL,$0A0B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2567"></a>0A07</td>
+<td class="instruction">LD E,A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2568"></a>0A08</td>
+<td class="instruction">LD D,$00</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2570"></a>0A0A</td>
+<td class="instruction">ADD HL,DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2571"></a>0A0B</td>
+<td class="instruction">LD E,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2572"></a>0A0C</td>
+<td class="instruction">ADD HL,DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2573"></a>0A0D</td>
+<td class="instruction">PUSH HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2574"></a>0A0E</td>
+<td class="instruction">JP <a class="link" href="2819.html">$0B03</a></td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="2465.html">09A1</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#2548">Map</a></td>
+<td class="next">Next: <a class="link" href="2577.html">0A11</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

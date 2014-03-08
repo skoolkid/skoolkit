@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 18C1</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="6326.html">18B6</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#6337">Map</a></td>
+<td class="next">Next: <a class="link" href="6369.html">18E1</a></td>
+</tr>
+</table>
+<div class="description">18C1: THE 'PRINT A FLASHING CHARACTER' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routines at <a class="link" href="6229.html">1855</a> and <a class="link" href="6369.html">18E1</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="6337"></a>18C1</td>
+<td class="instruction">EXX</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6338"></a>18C2</td>
+<td class="instruction">LD HL,($5C8F)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6341"></a>18C5</td>
+<td class="instruction">PUSH HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6342"></a>18C6</td>
+<td class="instruction">RES 7,H</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6344"></a>18C8</td>
+<td class="instruction">SET 7,L</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6346"></a>18CA</td>
+<td class="instruction">LD ($5C8F),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6349"></a>18CD</td>
+<td class="instruction">LD HL,$5C91</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6352"></a>18D0</td>
+<td class="instruction">LD D,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6353"></a>18D1</td>
+<td class="instruction">PUSH DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6354"></a>18D2</td>
+<td class="instruction">LD (HL),$00</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6356"></a>18D4</td>
+<td class="instruction">CALL <a class="link" href="2548.html">$09F4</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6359"></a>18D7</td>
+<td class="instruction">POP HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6360"></a>18D8</td>
+<td class="instruction">LD (IY+$57),H</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6363"></a>18DB</td>
+<td class="instruction">POP HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6364"></a>18DC</td>
+<td class="instruction">LD ($5C8F),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6367"></a>18DF</td>
+<td class="instruction">EXX</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6368"></a>18E0</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="6326.html">18B6</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#6337">Map</a></td>
+<td class="next">Next: <a class="link" href="6369.html">18E1</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

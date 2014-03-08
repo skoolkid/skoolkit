@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 168F</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="5732.html">1664</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#5775">Map</a></td>
+<td class="next">Next: <a class="link" href="5790.html">169E</a></td>
+</tr>
+</table>
+<div class="description">168F: THE 'COLLECT A LINE NUMBER' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="5775"></a>168F</td>
+<td class="instruction">DEFB $00,$00</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="5777"></a>1691</td>
+<td class="instruction">EX DE,HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="5778"></a>1692</td>
+<td class="instruction">LD DE,$168F</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="5781"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routines at <a class="link" href="4009.html">0FA9</a>, <a class="link" href="4185.html">1059</a> and <a class="link" href="6415.html">190F</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">1695</td>
+<td class="instruction">LD A,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="5782"></a>1696</td>
+<td class="instruction">AND $C0</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="5784"></a>1698</td>
+<td class="instruction">JR NZ,$1691</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="5786"></a>169A</td>
+<td class="instruction">LD D,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="5787"></a>169B</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="5788"></a>169C</td>
+<td class="instruction">LD E,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="5789"></a>169D</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="5732.html">1664</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#5775">Map</a></td>
+<td class="next">Next: <a class="link" href="5790.html">169E</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 1190</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="4381.html">111D</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#4496">Map</a></td>
+<td class="next">Next: <a class="link" href="4519.html">11A7</a></td>
+</tr>
+</table>
+<div class="description">1190: THE 'SET-HL' AND 'SET-DE' SUBROUTINES</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routine at <a class="link" href="4247.html">1097</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="4496"></a>1190</td>
+<td class="instruction">LD HL,($5C61)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4499"></a>1193</td>
+<td class="instruction">DEC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4500"></a>1194</td>
+<td class="instruction">AND A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="4501"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routines at <a class="link" href="4145.html">1031</a> and <a class="link" href="4381.html">111D</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">1195</td>
+<td class="instruction">LD DE,($5C59)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4505"></a>1199</td>
+<td class="instruction">BIT 5,(IY+$37)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4509"></a>119D</td>
+<td class="instruction">RET Z</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4510"></a>119E</td>
+<td class="instruction">LD DE,($5C61)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4514"></a>11A2</td>
+<td class="instruction">RET C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4515"></a>11A3</td>
+<td class="instruction">LD HL,($5C63)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4518"></a>11A6</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="4381.html">111D</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#4496">Map</a></td>
+<td class="next">Next: <a class="link" href="4519.html">11A7</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

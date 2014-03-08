@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 22AA</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="8852.html">2294</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#8874">Map</a></td>
+<td class="next">Next: <a class="link" href="8907.html">22CB</a></td>
+</tr>
+</table>
+<div class="description">22AA: THE 'PIXEL ADDRESS' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routines at <a class="link" href="8907.html">22CB</a> and <a class="link" href="8924.html">22DC</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="8874"></a>22AA</td>
+<td class="instruction">LD A,$AF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8876"></a>22AC</td>
+<td class="instruction">SUB B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8877"></a>22AD</td>
+<td class="instruction">JP C,<a class="link" href="9399.html#9465">$24F9</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8880"></a>22B0</td>
+<td class="instruction">LD B,A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8881"></a>22B1</td>
+<td class="instruction">AND A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8882"></a>22B2</td>
+<td class="instruction">RRA</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8883"></a>22B3</td>
+<td class="instruction">SCF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8884"></a>22B4</td>
+<td class="instruction">RRA</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8885"></a>22B5</td>
+<td class="instruction">AND A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8886"></a>22B6</td>
+<td class="instruction">RRA</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8887"></a>22B7</td>
+<td class="instruction">XOR B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8888"></a>22B8</td>
+<td class="instruction">AND $F8</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8890"></a>22BA</td>
+<td class="instruction">XOR B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8891"></a>22BB</td>
+<td class="instruction">LD H,A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8892"></a>22BC</td>
+<td class="instruction">LD A,C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8893"></a>22BD</td>
+<td class="instruction">RLCA</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8894"></a>22BE</td>
+<td class="instruction">RLCA</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8895"></a>22BF</td>
+<td class="instruction">RLCA</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8896"></a>22C0</td>
+<td class="instruction">XOR B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8897"></a>22C1</td>
+<td class="instruction">AND $C7</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8899"></a>22C3</td>
+<td class="instruction">XOR B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8900"></a>22C4</td>
+<td class="instruction">RLCA</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8901"></a>22C5</td>
+<td class="instruction">RLCA</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8902"></a>22C6</td>
+<td class="instruction">LD L,A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8903"></a>22C7</td>
+<td class="instruction">LD A,C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8904"></a>22C8</td>
+<td class="instruction">AND $07</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8906"></a>22CA</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="8852.html">2294</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#8874">Map</a></td>
+<td class="next">Next: <a class="link" href="8907.html">22CB</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

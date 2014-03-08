@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 204E</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="8261.html">2045</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#8270">Map</a></td>
+<td class="next">Next: <a class="link" href="8304.html">2070</a></td>
+</tr>
+</table>
+<div class="description">204E: THE 'PRINT POSITION' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routines at <a class="link" href="8137.html">1FC9</a> and <a class="link" href="8329.html">2089</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="8270"></a>204E</td>
+<td class="instruction">RST $18</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8271"></a>204F</td>
+<td class="instruction">CP $3B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8273"></a>2051</td>
+<td class="instruction">JR Z,$2067</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8275"></a>2053</td>
+<td class="instruction">CP $2C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8277"></a>2055</td>
+<td class="instruction">JR NZ,$2061</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8279"></a>2057</td>
+<td class="instruction">CALL <a class="link" href="9520.html">$2530</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8282"></a>205A</td>
+<td class="instruction">JR Z,$2067</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8284"></a>205C</td>
+<td class="instruction">LD A,$06</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8286"></a>205E</td>
+<td class="instruction">RST $10</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8287"></a>205F</td>
+<td class="instruction">JR $2067</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="8289"></a>2061</td>
+<td class="instruction">CP $27</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8291"></a>2063</td>
+<td class="instruction">RET NZ</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8292"></a>2064</td>
+<td class="instruction">CALL <a class="link" href="8181.html">$1FF5</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="8295"></a>2067</td>
+<td class="instruction">RST $20</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8296"></a>2068</td>
+<td class="instruction">CALL <a class="link" href="8261.html">$2045</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8299"></a>206B</td>
+<td class="instruction">JR NZ,$206E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8301"></a>206D</td>
+<td class="instruction">POP BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="8302"></a>206E</td>
+<td class="instruction">CP A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8303"></a>206F</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="8261.html">2045</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#8270">Map</a></td>
+<td class="next">Next: <a class="link" href="8304.html">2070</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

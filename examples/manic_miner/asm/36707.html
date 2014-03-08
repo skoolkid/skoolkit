@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Manic Miner: Routine at 36707</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html"><img alt="logo" src="../images/logo.png" /></a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="36593.html">36593</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#36707">Map</a></td>
+<td class="next">Next: <a class="link" href="36805.html">36805</a></td>
+</tr>
+</table>
+<div class="description">36707: Routine at 36707</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routine at <a class="link" href="34252.html">34252</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="36707"></a>36707</td>
+<td class="instruction">XOR A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36708"></a>36708</td>
+<td class="instruction">LD (32884),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36711"></a>36711</td>
+<td class="instruction">LD IY,32885</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="36715"></a>36715</td>
+<td class="instruction">LD A,(IY+0)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36718"></a>36718</td>
+<td class="instruction">CP 255</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36720"></a>36720</td>
+<td class="instruction">JR Z,36794</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36722"></a>36722</td>
+<td class="instruction">OR A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36723"></a>36723</td>
+<td class="instruction">JR Z,36782</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36725"></a>36725</td>
+<td class="instruction">LD E,(IY+1)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36728"></a>36728</td>
+<td class="instruction">LD D,(IY+2)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36731"></a>36731</td>
+<td class="instruction">LD A,(DE)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36732"></a>36732</td>
+<td class="instruction">AND 7</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36734"></a>36734</td>
+<td class="instruction">CP 7</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36736"></a>36736</td>
+<td class="instruction">JR NZ,36750</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36738"></a>36738</td>
+<td class="instruction">LD HL,33836</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36741"></a>36741</td>
+<td class="instruction">CALL <a class="link" href="37098.html#37118">37118</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36744"></a>36744</td>
+<td class="instruction">LD (IY+0),0</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36748"></a>36748</td>
+<td class="instruction">JR 36782</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="36750"></a>36750</td>
+<td class="instruction">LD A,(IY+0)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36753"></a>36753</td>
+<td class="instruction">AND 248</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36755"></a>36755</td>
+<td class="instruction">OR 3</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36757"></a>36757</td>
+<td class="instruction">LD B,A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36758"></a>36758</td>
+<td class="instruction">LD A,(IY+0)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36761"></a>36761</td>
+<td class="instruction">AND 3</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36763"></a>36763</td>
+<td class="instruction">ADD A,B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36764"></a>36764</td>
+<td class="instruction">LD (IY+0),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36767"></a>36767</td>
+<td class="instruction">LD (DE),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36768"></a>36768</td>
+<td class="instruction">LD (32884),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36771"></a>36771</td>
+<td class="instruction">LD D,(IY+3)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36774"></a>36774</td>
+<td class="instruction">LD HL,32948</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36777"></a>36777</td>
+<td class="instruction">LD B,8</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36779"></a>36779</td>
+<td class="instruction">CALL <a class="link" href="37579.html#37589">37589</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="36782"></a>36782</td>
+<td class="instruction">INC IY</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36784"></a>36784</td>
+<td class="instruction">INC IY</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36786"></a>36786</td>
+<td class="instruction">INC IY</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36788"></a>36788</td>
+<td class="instruction">INC IY</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36790"></a>36790</td>
+<td class="instruction">INC IY</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36792"></a>36792</td>
+<td class="instruction">JR 36715</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="36794"></a>36794</td>
+<td class="instruction">LD A,(32884)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36797"></a>36797</td>
+<td class="instruction">OR A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36798"></a>36798</td>
+<td class="instruction">RET NZ</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36799"></a>36799</td>
+<td class="instruction">LD HL,32911</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36802"></a>36802</td>
+<td class="instruction">SET 7,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="36804"></a>36804</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="36593.html">36593</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#36707">Map</a></td>
+<td class="next">Next: <a class="link" href="36805.html">36805</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

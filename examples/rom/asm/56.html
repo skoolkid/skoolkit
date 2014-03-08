@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 0038</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="48.html">0030</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#56">Map</a></td>
+<td class="next">Next: <a class="link" href="83.html">0053</a></td>
+</tr>
+</table>
+<div class="description">0038: THE 'MASKABLE INTERRUPT' ROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="56"></a>0038</td>
+<td class="instruction">PUSH AF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="57"></a>0039</td>
+<td class="instruction">PUSH HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="58"></a>003A</td>
+<td class="instruction">LD HL,($5C78)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="61"></a>003D</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="62"></a>003E</td>
+<td class="instruction">LD ($5C78),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="65"></a>0041</td>
+<td class="instruction">LD A,H</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="66"></a>0042</td>
+<td class="instruction">OR L</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="67"></a>0043</td>
+<td class="instruction">JR NZ,$0048</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="69"></a>0045</td>
+<td class="instruction">INC (IY+$40)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="72"></a>0048</td>
+<td class="instruction">PUSH BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="73"></a>0049</td>
+<td class="instruction">PUSH DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="74"></a>004A</td>
+<td class="instruction">CALL <a class="link" href="703.html">$02BF</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="77"></a>004D</td>
+<td class="instruction">POP DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="78"></a>004E</td>
+<td class="instruction">POP BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="79"></a>004F</td>
+<td class="instruction">POP HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="80"></a>0050</td>
+<td class="instruction">POP AF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="81"></a>0051</td>
+<td class="instruction">EI</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="82"></a>0052</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="48.html">0030</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#56">Map</a></td>
+<td class="next">Next: <a class="link" href="83.html">0053</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

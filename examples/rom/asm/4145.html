@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 1031</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="4132.html">1024</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#4145">Map</a></td>
+<td class="next">Next: <a class="link" href="4185.html">1059</a></td>
+</tr>
+</table>
+<div class="description">1031: THE 'ED-EDGE' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routines at <a class="link" href="4103.html">1007</a> and <a class="link" href="4117.html">1015</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="4145"></a>1031</td>
+<td class="instruction">SCF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4146"></a>1032</td>
+<td class="instruction">CALL <a class="link" href="4496.html#4501">$1195</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4149"></a>1035</td>
+<td class="instruction">SBC HL,DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4151"></a>1037</td>
+<td class="instruction">ADD HL,DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4152"></a>1038</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4153"></a>1039</td>
+<td class="instruction">POP BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4154"></a>103A</td>
+<td class="instruction">RET C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4155"></a>103B</td>
+<td class="instruction">PUSH BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4156"></a>103C</td>
+<td class="instruction">LD B,H</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4157"></a>103D</td>
+<td class="instruction">LD C,L</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="4158"></a>103E</td>
+<td class="instruction">LD H,D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4159"></a>103F</td>
+<td class="instruction">LD L,E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4160"></a>1040</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4161"></a>1041</td>
+<td class="instruction">LD A,(DE)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4162"></a>1042</td>
+<td class="instruction">AND $F0</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4164"></a>1044</td>
+<td class="instruction">CP $10</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4166"></a>1046</td>
+<td class="instruction">JR NZ,$1051</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4168"></a>1048</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4169"></a>1049</td>
+<td class="instruction">LD A,(DE)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4170"></a>104A</td>
+<td class="instruction">SUB $17</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4172"></a>104C</td>
+<td class="instruction">ADC A,$00</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4174"></a>104E</td>
+<td class="instruction">JR NZ,$1051</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4176"></a>1050</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="4177"></a>1051</td>
+<td class="instruction">AND A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4178"></a>1052</td>
+<td class="instruction">SBC HL,BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4180"></a>1054</td>
+<td class="instruction">ADD HL,BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4181"></a>1055</td>
+<td class="instruction">EX DE,HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4182"></a>1056</td>
+<td class="instruction">JR C,$103E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4184"></a>1058</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="4132.html">1024</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#4145">Map</a></td>
+<td class="next">Next: <a class="link" href="4185.html">1059</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 0A23</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="2577.html">0A11</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#2595">Map</a></td>
+<td class="next">Next: <a class="link" href="2621.html">0A3D</a></td>
+</tr>
+</table>
+<div class="description">0A23: THE 'CURSOR LEFT' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="2595"></a>0A23</td>
+<td class="instruction">INC C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2596"></a>0A24</td>
+<td class="instruction">LD A,$22</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2598"></a>0A26</td>
+<td class="instruction">CP C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2599"></a>0A27</td>
+<td class="instruction">JR NZ,$0A3A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2601"></a>0A29</td>
+<td class="instruction">BIT 1,(IY+$01)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2605"></a>0A2D</td>
+<td class="instruction">JR NZ,$0A38</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2607"></a>0A2F</td>
+<td class="instruction">INC B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2608"></a>0A30</td>
+<td class="instruction">LD C,$02</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2610"></a>0A32</td>
+<td class="instruction">LD A,$18</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2612"></a>0A34</td>
+<td class="instruction">CP B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2613"></a>0A35</td>
+<td class="instruction">JR NZ,$0A3A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="2615"></a>0A37</td>
+<td class="instruction">DEC B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="2616"></a>0A38</td>
+<td class="instruction">LD C,$21</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="2618"></a>0A3A</td>
+<td class="instruction">JP <a class="link" href="3545.html">$0DD9</a></td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="2577.html">0A11</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#2595">Map</a></td>
+<td class="next">Next: <a class="link" href="2621.html">0A3D</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

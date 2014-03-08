@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 3645</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="13855.html">361F</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#13893">Map</a></td>
+<td class="next">Next: <a class="link" href="13929.html">3669</a></td>
+</tr>
+</table>
+<div class="description">3645: THE 'READ-IN' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="13893"></a>3645</td>
+<td class="instruction">CALL <a class="link" href="7828.html">$1E94</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="13896"></a>3648</td>
+<td class="instruction">CP $10</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="13898"></a>364A</td>
+<td class="instruction">JP NC,<a class="link" href="7828.html#7839">$1E9F</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="13901"></a>364D</td>
+<td class="instruction">LD HL,($5C51)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="13904"></a>3650</td>
+<td class="instruction">PUSH HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="13905"></a>3651</td>
+<td class="instruction">CALL <a class="link" href="5633.html">$1601</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="13908"></a>3654</td>
+<td class="instruction">CALL <a class="link" href="5606.html">$15E6</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="13911"></a>3657</td>
+<td class="instruction">LD BC,$0000</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="13914"></a>365A</td>
+<td class="instruction">JR NC,$365F</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="13916"></a>365C</td>
+<td class="instruction">INC C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="13917"></a>365D</td>
+<td class="instruction">RST $30</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="13918"></a>365E</td>
+<td class="instruction">LD (DE),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="13919"></a>365F</td>
+<td class="instruction">CALL <a class="link" href="10929.html#10930">$2AB2</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="13922"></a>3662</td>
+<td class="instruction">POP HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="13923"></a>3663</td>
+<td class="instruction">CALL <a class="link" href="5653.html">$1615</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="13926"></a>3666</td>
+<td class="instruction">JP <a class="link" href="13759.html">$35BF</a></td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="13855.html">361F</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#13893">Map</a></td>
+<td class="next">Next: <a class="link" href="13929.html">3669</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

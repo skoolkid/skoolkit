@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 24FB</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="9399.html">24B7</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#9467">Map</a></td>
+<td class="next">Next: <a class="link" href="9520.html">2530</a></td>
+</tr>
+</table>
+<div class="description">24FB: THE 'SCANNING' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routines at <a class="link" href="1194.html">04AA</a>, <a class="link" href="7254.html">1C56</a>, <a class="link" href="7289.html">1C79</a>, <a class="link" href="7719.html">1E27</a>, <a class="link" href="8032.html">1F60</a>, <a class="link" href="8188.html">1FFC</a>, <a class="link" href="9647.html">25AF</a>, <a class="link" href="10173.html">27BD</a> and <a class="link" href="13790.html">35DE</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="9467"></a>24FB</td>
+<td class="instruction">RST $18</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9468"></a>24FC</td>
+<td class="instruction">LD B,$00</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9470"></a>24FE</td>
+<td class="instruction">PUSH BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="9471"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routines at <a class="link" href="9647.html">25AF</a> and <a class="link" href="9929.html">26C9</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">24FF</td>
+<td class="instruction">LD C,A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9472"></a>2500</td>
+<td class="instruction">LD HL,$2596</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9475"></a>2503</td>
+<td class="instruction">CALL <a class="link" href="5851.html#5852">$16DC</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9478"></a>2506</td>
+<td class="instruction">LD A,C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9479"></a>2507</td>
+<td class="instruction">JP NC,<a class="link" href="9647.html#9860">$2684</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9482"></a>250A</td>
+<td class="instruction">LD B,$00</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9484"></a>250C</td>
+<td class="instruction">LD C,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9485"></a>250D</td>
+<td class="instruction">ADD HL,BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9486"></a>250E</td>
+<td class="instruction">JP (HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="9487"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routine at <a class="link" href="9647.html">25AF</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">250F</td>
+<td class="instruction">CALL <a class="link" href="116.html">$0074</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9490"></a>2512</td>
+<td class="instruction">INC BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9491"></a>2513</td>
+<td class="instruction">CP $0D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9493"></a>2515</td>
+<td class="instruction">JP Z,<a class="link" href="7289.html#7306">$1C8A</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9496"></a>2518</td>
+<td class="instruction">CP $22</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9498"></a>251A</td>
+<td class="instruction">JR NZ,$250F</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9500"></a>251C</td>
+<td class="instruction">CALL <a class="link" href="116.html">$0074</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9503"></a>251F</td>
+<td class="instruction">CP $22</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9505"></a>2521</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="9506"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routine at <a class="link" href="9647.html">25AF</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">2522</td>
+<td class="instruction">RST $20</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9507"></a>2523</td>
+<td class="instruction">CP $28</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9509"></a>2525</td>
+<td class="instruction">JR NZ,$252D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9511"></a>2527</td>
+<td class="instruction">CALL <a class="link" href="7289.html">$1C79</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9514"></a>252A</td>
+<td class="instruction">RST $18</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="9515"></a>252B</td>
+<td class="instruction">CP $29</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="9517"></a>252D</td>
+<td class="instruction">JP NZ,<a class="link" href="7289.html#7306">$1C8A</a></td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="9399.html">24B7</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#9467">Map</a></td>
+<td class="next">Next: <a class="link" href="9520.html">2530</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

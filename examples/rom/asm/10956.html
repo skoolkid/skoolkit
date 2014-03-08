@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 2ACC</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="10929.html">2AB1</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#10956">Map</a></td>
+<td class="next">Next: <a class="link" href="10990.html">2AEE</a></td>
+</tr>
+</table>
+<div class="description">2ACC: THE 'INT-EXP' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routines at <a class="link" href="10646.html">2996</a> and <a class="link" href="11266.html">2C02</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="10956"></a>2ACC</td>
+<td class="instruction">XOR A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="10957"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routine at <a class="link" href="10834.html">2A52</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">2ACD</td>
+<td class="instruction">PUSH DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10958"></a>2ACE</td>
+<td class="instruction">PUSH HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10959"></a>2ACF</td>
+<td class="instruction">PUSH AF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10960"></a>2AD0</td>
+<td class="instruction">CALL <a class="link" href="7289.html#7298">$1C82</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10963"></a>2AD3</td>
+<td class="instruction">POP AF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10964"></a>2AD4</td>
+<td class="instruction">CALL <a class="link" href="9520.html">$2530</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10967"></a>2AD7</td>
+<td class="instruction">JR Z,$2AEB</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10969"></a>2AD9</td>
+<td class="instruction">PUSH AF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10970"></a>2ADA</td>
+<td class="instruction">CALL <a class="link" href="7828.html#7833">$1E99</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10973"></a>2ADD</td>
+<td class="instruction">POP DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10974"></a>2ADE</td>
+<td class="instruction">LD A,B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10975"></a>2ADF</td>
+<td class="instruction">OR C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10976"></a>2AE0</td>
+<td class="instruction">SCF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10977"></a>2AE1</td>
+<td class="instruction">JR Z,$2AE8</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10979"></a>2AE3</td>
+<td class="instruction">POP HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10980"></a>2AE4</td>
+<td class="instruction">PUSH HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10981"></a>2AE5</td>
+<td class="instruction">AND A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10982"></a>2AE6</td>
+<td class="instruction">SBC HL,BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="10984"></a>2AE8</td>
+<td class="instruction">LD A,D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10985"></a>2AE9</td>
+<td class="instruction">SBC A,$00</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="10987"></a>2AEB</td>
+<td class="instruction">POP HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10988"></a>2AEC</td>
+<td class="instruction">POP DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="10989"></a>2AED</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="10929.html">2AB1</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#10956">Map</a></td>
+<td class="next">Next: <a class="link" href="10990.html">2AEE</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

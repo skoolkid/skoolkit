@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 007D</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="116.html">0074</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#125">Map</a></td>
+<td class="next">Next: <a class="link" href="149.html">0095</a></td>
+</tr>
+</table>
+<div class="description">007D: THE 'SKIP-OVER' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routine at <a class="link" href="24.html">0018</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="125"></a>007D</td>
+<td class="instruction">CP $21</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="127"></a>007F</td>
+<td class="instruction">RET NC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="128"></a>0080</td>
+<td class="instruction">CP $0D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="130"></a>0082</td>
+<td class="instruction">RET Z</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="131"></a>0083</td>
+<td class="instruction">CP $10</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="133"></a>0085</td>
+<td class="instruction">RET C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="134"></a>0086</td>
+<td class="instruction">CP $18</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="136"></a>0088</td>
+<td class="instruction">CCF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="137"></a>0089</td>
+<td class="instruction">RET C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="138"></a>008A</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="139"></a>008B</td>
+<td class="instruction">CP $16</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="141"></a>008D</td>
+<td class="instruction">JR C,$0090</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="143"></a>008F</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="144"></a>0090</td>
+<td class="instruction">SCF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="145"></a>0091</td>
+<td class="instruction">LD ($5C5D),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="148"></a>0094</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="116.html">0074</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#125">Map</a></td>
+<td class="next">Next: <a class="link" href="149.html">0095</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

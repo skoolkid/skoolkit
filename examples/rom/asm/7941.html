@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 1F05</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="7917.html">1EED</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#7941">Map</a></td>
+<td class="next">Next: <a class="link" href="7962.html">1F1A</a></td>
+</tr>
+</table>
+<div class="description">1F05: THE 'TEST-ROOM' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routines at <a class="link" href="2056.html">0808</a>, <a class="link" href="4009.html">0FA9</a>, <a class="link" href="5714.html">1652</a>, <a class="link" href="7962.html">1F1A</a> and <a class="link" href="13225.html">33A9</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="7941"></a>1F05</td>
+<td class="instruction">LD HL,($5C65)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7944"></a>1F08</td>
+<td class="instruction">ADD HL,BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7945"></a>1F09</td>
+<td class="instruction">JR C,$1F15</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7947"></a>1F0B</td>
+<td class="instruction">EX DE,HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7948"></a>1F0C</td>
+<td class="instruction">LD HL,$0050</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7951"></a>1F0F</td>
+<td class="instruction">ADD HL,DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7952"></a>1F10</td>
+<td class="instruction">JR C,$1F15</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7954"></a>1F12</td>
+<td class="instruction">SBC HL,SP</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7956"></a>1F14</td>
+<td class="instruction">RET C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="7957"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routines at <a class="link" href="10996.html">2AF4</a> and <a class="link" href="11266.html">2C02</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">1F15</td>
+<td class="instruction">LD L,$03</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7959"></a>1F17</td>
+<td class="instruction">JP <a class="link" href="83.html#85">$0055</a></td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="7917.html">1EED</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#7941">Map</a></td>
+<td class="next">Next: <a class="link" href="7962.html">1F1A</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 0D6B</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="3405.html">0D4D</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#3435">Map</a></td>
+<td class="next">Next: <a class="link" href="3503.html">0DAF</a></td>
+</tr>
+</table>
+<div class="description">0D6B: THE 'CLS COMMAND' ROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routines at <a class="link" href="4535.html">11B7</a> and <a class="link" href="7852.html">1EAC</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="3435"></a>0D6B</td>
+<td class="instruction">CALL <a class="link" href="3503.html">$0DAF</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="3438"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routines at <a class="link" href="4264.html">10A8</a>, <a class="link" href="4770.html">12A2</a> and <a class="link" href="8329.html">2089</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">0D6E</td>
+<td class="instruction">LD HL,$5C3C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3441"></a>0D71</td>
+<td class="instruction">RES 5,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3443"></a>0D73</td>
+<td class="instruction">SET 0,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3445"></a>0D75</td>
+<td class="instruction">CALL <a class="link" href="3405.html">$0D4D</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3448"></a>0D78</td>
+<td class="instruction">LD B,(IY+$31)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3451"></a>0D7B</td>
+<td class="instruction">CALL <a class="link" href="3652.html">$0E44</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3454"></a>0D7E</td>
+<td class="instruction">LD HL,$5AC0</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3457"></a>0D81</td>
+<td class="instruction">LD A,($5C8D)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3460"></a>0D84</td>
+<td class="instruction">DEC B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3461"></a>0D85</td>
+<td class="instruction">JR $0D8E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="3463"></a>0D87</td>
+<td class="instruction">LD C,$20</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="3465"></a>0D89</td>
+<td class="instruction">DEC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3466"></a>0D8A</td>
+<td class="instruction">LD (HL),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3467"></a>0D8B</td>
+<td class="instruction">DEC C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3468"></a>0D8C</td>
+<td class="instruction">JR NZ,$0D89</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="3470"></a>0D8E</td>
+<td class="instruction">DJNZ $0D87</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3472"></a>0D90</td>
+<td class="instruction">LD (IY+$31),$02</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="3476"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routine at <a class="link" href="3503.html">0DAF</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">0D94</td>
+<td class="instruction">LD A,$FD</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3478"></a>0D96</td>
+<td class="instruction">CALL <a class="link" href="5633.html">$1601</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3481"></a>0D99</td>
+<td class="instruction">LD HL,($5C51)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3484"></a>0D9C</td>
+<td class="instruction">LD DE,$09F4</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3487"></a>0D9F</td>
+<td class="instruction">AND A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="3488"></a>0DA0</td>
+<td class="instruction">LD (HL),E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3489"></a>0DA1</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3490"></a>0DA2</td>
+<td class="instruction">LD (HL),D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3491"></a>0DA3</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3492"></a>0DA4</td>
+<td class="instruction">LD DE,$10A8</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3495"></a>0DA7</td>
+<td class="instruction">CCF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3496"></a>0DA8</td>
+<td class="instruction">JR C,$0DA0</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3498"></a>0DAA</td>
+<td class="instruction">LD BC,$1721</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3501"></a>0DAD</td>
+<td class="instruction">JR <a class="link" href="3545.html">$0DD9</a></td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="3405.html">0D4D</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#3435">Map</a></td>
+<td class="next">Next: <a class="link" href="3503.html">0DAF</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

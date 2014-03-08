@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 1EED</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="7852.html">1EAC</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#7917">Map</a></td>
+<td class="next">Next: <a class="link" href="7941.html">1F05</a></td>
+</tr>
+</table>
+<div class="description">1EED: THE 'GO SUB' COMMAND ROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="7917"></a>1EED</td>
+<td class="instruction">POP DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7918"></a>1EEE</td>
+<td class="instruction">LD H,(IY+$0D)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7921"></a>1EF1</td>
+<td class="instruction">INC H</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7922"></a>1EF2</td>
+<td class="instruction">EX (SP),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7923"></a>1EF3</td>
+<td class="instruction">INC SP</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7924"></a>1EF4</td>
+<td class="instruction">LD BC,($5C45)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7928"></a>1EF8</td>
+<td class="instruction">PUSH BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7929"></a>1EF9</td>
+<td class="instruction">PUSH HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7930"></a>1EFA</td>
+<td class="instruction">LD ($5C3D),SP</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7934"></a>1EFE</td>
+<td class="instruction">PUSH DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7935"></a>1EFF</td>
+<td class="instruction">CALL <a class="link" href="7783.html">$1E67</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7938"></a>1F02</td>
+<td class="instruction">LD BC,$0014</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="7852.html">1EAC</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#7917">Map</a></td>
+<td class="next">Next: <a class="link" href="7941.html">1F05</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

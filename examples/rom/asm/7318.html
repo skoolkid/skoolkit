@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 1C96</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="7289.html">1C79</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#7318">Map</a></td>
+<td class="next">Next: <a class="link" href="7358.html">1CBE</a></td>
+</tr>
+</table>
+<div class="description">1C96: THE 'SET PERMANENT COLOURS' SUBROUTINE (EQU. CLASS-07)</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="7318"></a>1C96</td>
+<td class="instruction">BIT 7,(IY+$01)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7322"></a>1C9A</td>
+<td class="instruction">RES 0,(IY+$02)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7326"></a>1C9E</td>
+<td class="instruction">CALL NZ,<a class="link" href="3405.html">$0D4D</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7329"></a>1CA1</td>
+<td class="instruction">POP AF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7330"></a>1CA2</td>
+<td class="instruction">LD A,($5C74)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7333"></a>1CA5</td>
+<td class="instruction">SUB $13</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7335"></a>1CA7</td>
+<td class="instruction">CALL <a class="link" href="8673.html#8700">$21FC</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7338"></a>1CAA</td>
+<td class="instruction">CALL <a class="link" href="7150.html">$1BEE</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7341"></a>1CAD</td>
+<td class="instruction">LD HL,($5C8F)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7344"></a>1CB0</td>
+<td class="instruction">LD ($5C8D),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7347"></a>1CB3</td>
+<td class="instruction">LD HL,$5C91</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7350"></a>1CB6</td>
+<td class="instruction">LD A,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7351"></a>1CB7</td>
+<td class="instruction">RLCA</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7352"></a>1CB8</td>
+<td class="instruction">XOR (HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7353"></a>1CB9</td>
+<td class="instruction">AND $AA</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7355"></a>1CBB</td>
+<td class="instruction">XOR (HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7356"></a>1CBC</td>
+<td class="instruction">LD (HL),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="7357"></a>1CBD</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="7289.html">1C79</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#7318">Map</a></td>
+<td class="next">Next: <a class="link" href="7358.html">1CBE</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

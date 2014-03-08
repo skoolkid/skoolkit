@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 0DD9</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="3503.html">0DAF</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#3545">Map</a></td>
+<td class="next">Next: <a class="link" href="3582.html">0DFE</a></td>
+</tr>
+</table>
+<div class="description">0DD9: THE 'CL-SET' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routines at <a class="link" href="2595.html">0A23</a>, <a class="link" href="2639.html">0A4F</a>, <a class="link" href="2669.html">0A6D</a>, <a class="link" href="3157.html">0C55</a>, <a class="link" href="3435.html">0D6B</a>, <a class="link" href="3807.html">0EDF</a>, <a class="link" href="4381.html">111D</a> and <a class="link" href="8329.html">2089</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="3545"></a>0DD9</td>
+<td class="instruction">LD HL,$5B00</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3548"></a>0DDC</td>
+<td class="instruction">BIT 1,(IY+$01)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3552"></a>0DE0</td>
+<td class="instruction">JR NZ,$0DF4</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3554"></a>0DE2</td>
+<td class="instruction">LD A,B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3555"></a>0DE3</td>
+<td class="instruction">BIT 0,(IY+$02)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3559"></a>0DE7</td>
+<td class="instruction">JR Z,$0DEE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3561"></a>0DE9</td>
+<td class="instruction">ADD A,(IY+$31)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3564"></a>0DEC</td>
+<td class="instruction">SUB $18</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="3566"></a>0DEE</td>
+<td class="instruction">PUSH BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3567"></a>0DEF</td>
+<td class="instruction">LD B,A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3568"></a>0DF0</td>
+<td class="instruction">CALL <a class="link" href="3739.html">$0E9B</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3571"></a>0DF3</td>
+<td class="instruction">POP BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="3572"></a>0DF4</td>
+<td class="instruction">LD A,$21</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3574"></a>0DF6</td>
+<td class="instruction">SUB C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3575"></a>0DF7</td>
+<td class="instruction">LD E,A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3576"></a>0DF8</td>
+<td class="instruction">LD D,$00</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3578"></a>0DFA</td>
+<td class="instruction">ADD HL,DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="3579"></a>0DFB</td>
+<td class="instruction">JP <a class="link" href="2780.html">$0ADC</a></td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="3503.html">0DAF</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#3545">Map</a></td>
+<td class="next">Next: <a class="link" href="3582.html">0DFE</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

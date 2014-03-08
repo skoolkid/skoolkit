@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 18E1</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="6337.html">18C1</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#6369">Map</a></td>
+<td class="next">Next: <a class="link" href="6415.html">190F</a></td>
+</tr>
+</table>
+<div class="description">18E1: THE 'PRINT THE CURSOR' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routines at <a class="link" href="4381.html">111D</a> and <a class="link" href="6229.html">1855</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="6369"></a>18E1</td>
+<td class="instruction">LD HL,($5C5B)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6372"></a>18E4</td>
+<td class="instruction">AND A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6373"></a>18E5</td>
+<td class="instruction">SBC HL,DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6375"></a>18E7</td>
+<td class="instruction">RET NZ</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6376"></a>18E8</td>
+<td class="instruction">LD A,($5C41)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6379"></a>18EB</td>
+<td class="instruction">RLC A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6381"></a>18ED</td>
+<td class="instruction">JR Z,$18F3</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6383"></a>18EF</td>
+<td class="instruction">ADD A,$43</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6385"></a>18F1</td>
+<td class="instruction">JR $1909</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="6387"></a>18F3</td>
+<td class="instruction">LD HL,$5C3B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6390"></a>18F6</td>
+<td class="instruction">RES 3,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6392"></a>18F8</td>
+<td class="instruction">LD A,$4B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6394"></a>18FA</td>
+<td class="instruction">BIT 2,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6396"></a>18FC</td>
+<td class="instruction">JR Z,$1909</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6398"></a>18FE</td>
+<td class="instruction">SET 3,(HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6400"></a>1900</td>
+<td class="instruction">INC A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6401"></a>1901</td>
+<td class="instruction">BIT 3,(IY+$30)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6405"></a>1905</td>
+<td class="instruction">JR Z,$1909</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6407"></a>1907</td>
+<td class="instruction">LD A,$43</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="6409"></a>1909</td>
+<td class="instruction">PUSH DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6410"></a>190A</td>
+<td class="instruction">CALL <a class="link" href="6337.html">$18C1</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6413"></a>190D</td>
+<td class="instruction">POP DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="6414"></a>190E</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="6337.html">18C1</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#6369">Map</a></td>
+<td class="next">Next: <a class="link" href="6415.html">190F</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

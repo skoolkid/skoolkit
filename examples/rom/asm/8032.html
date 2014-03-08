@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 1F60</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="8020.html">1F54</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#8032">Map</a></td>
+<td class="next">Next: <a class="link" href="8131.html">1FC3</a></td>
+</tr>
+</table>
+<div class="description">1F60: THE 'DEF FN' COMMAND ROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="8032"></a>1F60</td>
+<td class="instruction">CALL <a class="link" href="9520.html">$2530</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8035"></a>1F63</td>
+<td class="instruction">JR Z,$1F6A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8037"></a>1F65</td>
+<td class="instruction">LD A,$CE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8039"></a>1F67</td>
+<td class="instruction">JP <a class="link" href="7737.html">$1E39</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="8042"></a>1F6A</td>
+<td class="instruction">SET 6,(IY+$01)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8046"></a>1F6E</td>
+<td class="instruction">CALL <a class="link" href="11405.html">$2C8D</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8049"></a>1F71</td>
+<td class="instruction">JR NC,$1F89</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8051"></a>1F73</td>
+<td class="instruction">RST $20</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8052"></a>1F74</td>
+<td class="instruction">CP $24</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8054"></a>1F76</td>
+<td class="instruction">JR NZ,$1F7D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8056"></a>1F78</td>
+<td class="instruction">RES 6,(IY+$01)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8060"></a>1F7C</td>
+<td class="instruction">RST $20</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="8061"></a>1F7D</td>
+<td class="instruction">CP $28</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8063"></a>1F7F</td>
+<td class="instruction">JR NZ,$1FBD</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8065"></a>1F81</td>
+<td class="instruction">RST $20</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8066"></a>1F82</td>
+<td class="instruction">CP $29</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8068"></a>1F84</td>
+<td class="instruction">JR Z,$1FA6</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="8070"></a>1F86</td>
+<td class="instruction">CALL <a class="link" href="11405.html">$2C8D</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="8073"></a>1F89</td>
+<td class="instruction">JP NC,<a class="link" href="7289.html#7306">$1C8A</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8076"></a>1F8C</td>
+<td class="instruction">EX DE,HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8077"></a>1F8D</td>
+<td class="instruction">RST $20</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8078"></a>1F8E</td>
+<td class="instruction">CP $24</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8080"></a>1F90</td>
+<td class="instruction">JR NZ,$1F94</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8082"></a>1F92</td>
+<td class="instruction">EX DE,HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8083"></a>1F93</td>
+<td class="instruction">RST $20</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="8084"></a>1F94</td>
+<td class="instruction">EX DE,HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8085"></a>1F95</td>
+<td class="instruction">LD BC,$0006</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8088"></a>1F98</td>
+<td class="instruction">CALL <a class="link" href="5714.html#5717">$1655</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8091"></a>1F9B</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8092"></a>1F9C</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8093"></a>1F9D</td>
+<td class="instruction">LD (HL),$0E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8095"></a>1F9F</td>
+<td class="instruction">CP $2C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8097"></a>1FA1</td>
+<td class="instruction">JR NZ,$1FA6</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8099"></a>1FA3</td>
+<td class="instruction">RST $20</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8100"></a>1FA4</td>
+<td class="instruction">JR $1F86</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="8102"></a>1FA6</td>
+<td class="instruction">CP $29</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8104"></a>1FA8</td>
+<td class="instruction">JR NZ,$1FBD</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8106"></a>1FAA</td>
+<td class="instruction">RST $20</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8107"></a>1FAB</td>
+<td class="instruction">CP $3D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8109"></a>1FAD</td>
+<td class="instruction">JR NZ,$1FBD</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8111"></a>1FAF</td>
+<td class="instruction">RST $20</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8112"></a>1FB0</td>
+<td class="instruction">LD A,($5C3B)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8115"></a>1FB3</td>
+<td class="instruction">PUSH AF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8116"></a>1FB4</td>
+<td class="instruction">CALL <a class="link" href="9467.html">$24FB</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8119"></a>1FB7</td>
+<td class="instruction">POP AF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8120"></a>1FB8</td>
+<td class="instruction">XOR (IY+$01)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8123"></a>1FBB</td>
+<td class="instruction">AND $40</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="8125"></a>1FBD</td>
+<td class="instruction">JP NZ,<a class="link" href="7289.html#7306">$1C8A</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="8128"></a>1FC0</td>
+<td class="instruction">CALL <a class="link" href="7150.html">$1BEE</a></td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="8020.html">1F54</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#8032">Map</a></td>
+<td class="next">Next: <a class="link" href="8131.html">1FC3</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 03B5</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="819.html">0333</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#949">Map</a></td>
+<td class="next">Next: <a class="link" href="1016.html">03F8</a></td>
+</tr>
+</table>
+<div class="description">03B5: THE 'BEEPER' SUBROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+<div class="paragraph">
+Used by the routines at <a class="link" href="1016.html">03F8</a>, <a class="link" href="3884.html">0F2C</a>, <a class="link" href="4223.html">107F</a> and <a class="link" href="4381.html">111D</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="949"></a>03B5</td>
+<td class="instruction">DI</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="950"></a>03B6</td>
+<td class="instruction">LD A,L</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="951"></a>03B7</td>
+<td class="instruction">SRL L</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="953"></a>03B9</td>
+<td class="instruction">SRL L</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="955"></a>03BB</td>
+<td class="instruction">CPL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="956"></a>03BC</td>
+<td class="instruction">AND $03</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="958"></a>03BE</td>
+<td class="instruction">LD C,A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="959"></a>03BF</td>
+<td class="instruction">LD B,$00</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="961"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routine at <a class="link" href="13385.html">3449</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">03C1</td>
+<td class="instruction">LD IX,$03D1</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="965"></a>03C5</td>
+<td class="instruction">ADD IX,BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="967"></a>03C7</td>
+<td class="instruction">LD A,($5C48)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="970"></a>03CA</td>
+<td class="instruction">AND $38</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="972"></a>03CC</td>
+<td class="instruction">RRCA</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="973"></a>03CD</td>
+<td class="instruction">RRCA</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="974"></a>03CE</td>
+<td class="instruction">RRCA</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="975"></a>03CF</td>
+<td class="instruction">OR $08</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="977"></a>03D1</td>
+<td class="instruction">NOP</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="978"></a>03D2</td>
+<td class="instruction">NOP</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="979"></a>03D3</td>
+<td class="instruction">NOP</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="980"></a>03D4</td>
+<td class="instruction">INC B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="981"></a>03D5</td>
+<td class="instruction">INC C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="982"></a>03D6</td>
+<td class="instruction">DEC C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="983"></a>03D7</td>
+<td class="instruction">JR NZ,$03D6</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="985"></a>03D9</td>
+<td class="instruction">LD C,$3F</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="987"></a>03DB</td>
+<td class="instruction">DEC B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="988"></a>03DC</td>
+<td class="instruction">JP NZ,$03D6</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="991"></a>03DF</td>
+<td class="instruction">XOR $10</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="993"></a>03E1</td>
+<td class="instruction">OUT ($FE),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="995"></a>03E3</td>
+<td class="instruction">LD B,H</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="996"></a>03E4</td>
+<td class="instruction">LD C,A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="997"></a>03E5</td>
+<td class="instruction">BIT 4,A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="999"></a>03E7</td>
+<td class="instruction">JR NZ,$03F2</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="1001"></a>03E9</td>
+<td class="instruction">LD A,D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="1002"></a>03EA</td>
+<td class="instruction">OR E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="1003"></a>03EB</td>
+<td class="instruction">JR Z,$03F6</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="1005"></a>03ED</td>
+<td class="instruction">LD A,C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="1006"></a>03EE</td>
+<td class="instruction">LD C,L</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="1007"></a>03EF</td>
+<td class="instruction">DEC DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="1008"></a>03F0</td>
+<td class="instruction">JP (IX)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="1010"></a>03F2</td>
+<td class="instruction">LD C,L</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="1011"></a>03F3</td>
+<td class="instruction">INC C</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="1012"></a>03F4</td>
+<td class="instruction">JP (IX)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="1014"></a>03F6</td>
+<td class="instruction">EI</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="1015"></a>03F7</td>
+<td class="instruction">RET</td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="819.html">0333</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#949">Map</a></td>
+<td class="next">Next: <a class="link" href="1016.html">03F8</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>

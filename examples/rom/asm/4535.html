@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Spectrum ROM: Routine at 11B7</title>
+<link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+<body class="disassembly">
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="../index.html">Spectrum ROM</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="4519.html">11A7</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#4535">Map</a></td>
+<td class="next">Next: <a class="link" href="4770.html">12A2</a></td>
+</tr>
+</table>
+<div class="description">11B7: THE 'NEW COMMAND' ROUTINE</div>
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="3">
+<div class="details">
+</div>
+</td>
+</tr>
+<tr>
+<td class="label"><a name="4535"></a>11B7</td>
+<td class="instruction">DI</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4536"></a>11B8</td>
+<td class="instruction">LD A,$FF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4538"></a>11BA</td>
+<td class="instruction">LD DE,($5CB2)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4542"></a>11BE</td>
+<td class="instruction">EXX</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4543"></a>11BF</td>
+<td class="instruction">LD BC,($5CB4)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4547"></a>11C3</td>
+<td class="instruction">LD DE,($5C38)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4551"></a>11C7</td>
+<td class="instruction">LD HL,($5C7B)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4554"></a>11CA</td>
+<td class="instruction">EXX</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="routineComment" colspan="3">
+<a name="4555"></a>
+<div class="comments">
+<div class="paragraph">
+This entry point is used by the routine at <a class="link" href="0.html">0000</a>.
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="label">11CB</td>
+<td class="instruction">LD B,A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4556"></a>11CC</td>
+<td class="instruction">LD A,$07</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4558"></a>11CE</td>
+<td class="instruction">OUT ($FE),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4560"></a>11D0</td>
+<td class="instruction">LD A,$3F</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4562"></a>11D2</td>
+<td class="instruction">LD I,A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4564"></a>11D4</td>
+<td class="instruction">NOP</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4565"></a>11D5</td>
+<td class="instruction">NOP</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4566"></a>11D6</td>
+<td class="instruction">NOP</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4567"></a>11D7</td>
+<td class="instruction">NOP</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4568"></a>11D8</td>
+<td class="instruction">NOP</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4569"></a>11D9</td>
+<td class="instruction">NOP</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4570"></a>11DA</td>
+<td class="instruction">LD H,D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4571"></a>11DB</td>
+<td class="instruction">LD L,E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="4572"></a>11DC</td>
+<td class="instruction">LD (HL),$02</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4574"></a>11DE</td>
+<td class="instruction">DEC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4575"></a>11DF</td>
+<td class="instruction">CP H</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4576"></a>11E0</td>
+<td class="instruction">JR NZ,$11DC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="4578"></a>11E2</td>
+<td class="instruction">AND A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4579"></a>11E3</td>
+<td class="instruction">SBC HL,DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4581"></a>11E5</td>
+<td class="instruction">ADD HL,DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4582"></a>11E6</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4583"></a>11E7</td>
+<td class="instruction">JR NC,$11EF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4585"></a>11E9</td>
+<td class="instruction">DEC (HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4586"></a>11EA</td>
+<td class="instruction">JR Z,$11EF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4588"></a>11EC</td>
+<td class="instruction">DEC (HL)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4589"></a>11ED</td>
+<td class="instruction">JR Z,$11E2</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="4591"></a>11EF</td>
+<td class="instruction">DEC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4592"></a>11F0</td>
+<td class="instruction">EXX</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4593"></a>11F1</td>
+<td class="instruction">LD ($5CB4),BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4597"></a>11F5</td>
+<td class="instruction">LD ($5C38),DE</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4601"></a>11F9</td>
+<td class="instruction">LD ($5C7B),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4604"></a>11FC</td>
+<td class="instruction">EXX</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4605"></a>11FD</td>
+<td class="instruction">INC B</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4606"></a>11FE</td>
+<td class="instruction">JR Z,$1219</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4608"></a>1200</td>
+<td class="instruction">LD ($5CB4),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4611"></a>1203</td>
+<td class="instruction">LD DE,$3EAF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4614"></a>1206</td>
+<td class="instruction">LD BC,$00A8</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4617"></a>1209</td>
+<td class="instruction">EX DE,HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4618"></a>120A</td>
+<td class="instruction">LDDR</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4620"></a>120C</td>
+<td class="instruction">EX DE,HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4621"></a>120D</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4622"></a>120E</td>
+<td class="instruction">LD ($5C7B),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4625"></a>1211</td>
+<td class="instruction">DEC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4626"></a>1212</td>
+<td class="instruction">LD BC,$0040</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4629"></a>1215</td>
+<td class="instruction">LD ($5C38),BC</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="label"><a name="4633"></a>1219</td>
+<td class="instruction">LD ($5CB2),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4636"></a>121C</td>
+<td class="instruction">LD HL,$3C00</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4639"></a>121F</td>
+<td class="instruction">LD ($5C36),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4642"></a>1222</td>
+<td class="instruction">LD HL,($5CB2)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4645"></a>1225</td>
+<td class="instruction">LD (HL),$3E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4647"></a>1227</td>
+<td class="instruction">DEC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4648"></a>1228</td>
+<td class="instruction">LD SP,HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4649"></a>1229</td>
+<td class="instruction">DEC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4650"></a>122A</td>
+<td class="instruction">DEC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4651"></a>122B</td>
+<td class="instruction">LD ($5C3D),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4654"></a>122E</td>
+<td class="instruction">IM 1</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4656"></a>1230</td>
+<td class="instruction">LD IY,$5C3A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4660"></a>1234</td>
+<td class="instruction">EI</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4661"></a>1235</td>
+<td class="instruction">LD HL,$5CB6</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4664"></a>1238</td>
+<td class="instruction">LD ($5C4F),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4667"></a>123B</td>
+<td class="instruction">LD DE,$15AF</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4670"></a>123E</td>
+<td class="instruction">LD BC,$0015</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4673"></a>1241</td>
+<td class="instruction">EX DE,HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4674"></a>1242</td>
+<td class="instruction">LDIR</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4676"></a>1244</td>
+<td class="instruction">EX DE,HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4677"></a>1245</td>
+<td class="instruction">DEC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4678"></a>1246</td>
+<td class="instruction">LD ($5C57),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4681"></a>1249</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4682"></a>124A</td>
+<td class="instruction">LD ($5C53),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4685"></a>124D</td>
+<td class="instruction">LD ($5C4B),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4688"></a>1250</td>
+<td class="instruction">LD (HL),$80</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4690"></a>1252</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4691"></a>1253</td>
+<td class="instruction">LD ($5C59),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4694"></a>1256</td>
+<td class="instruction">LD (HL),$0D</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4696"></a>1258</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4697"></a>1259</td>
+<td class="instruction">LD (HL),$80</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4699"></a>125B</td>
+<td class="instruction">INC HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4700"></a>125C</td>
+<td class="instruction">LD ($5C61),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4703"></a>125F</td>
+<td class="instruction">LD ($5C63),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4706"></a>1262</td>
+<td class="instruction">LD ($5C65),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4709"></a>1265</td>
+<td class="instruction">LD A,$38</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4711"></a>1267</td>
+<td class="instruction">LD ($5C8D),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4714"></a>126A</td>
+<td class="instruction">LD ($5C8F),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4717"></a>126D</td>
+<td class="instruction">LD ($5C48),A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4720"></a>1270</td>
+<td class="instruction">LD HL,$0523</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4723"></a>1273</td>
+<td class="instruction">LD ($5C09),HL</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4726"></a>1276</td>
+<td class="instruction">DEC (IY-$3A)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4729"></a>1279</td>
+<td class="instruction">DEC (IY-$36)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4732"></a>127C</td>
+<td class="instruction">LD HL,$15C6</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4735"></a>127F</td>
+<td class="instruction">LD DE,$5C10</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4738"></a>1282</td>
+<td class="instruction">LD BC,$000E</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4741"></a>1285</td>
+<td class="instruction">LDIR</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4743"></a>1287</td>
+<td class="instruction">SET 1,(IY+$01)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4747"></a>128B</td>
+<td class="instruction">CALL <a class="link" href="3807.html">$0EDF</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4750"></a>128E</td>
+<td class="instruction">LD (IY+$31),$02</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4754"></a>1292</td>
+<td class="instruction">CALL <a class="link" href="3435.html">$0D6B</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4757"></a>1295</td>
+<td class="instruction">XOR A</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4758"></a>1296</td>
+<td class="instruction">LD DE,$1538</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4761"></a>1299</td>
+<td class="instruction">CALL <a class="link" href="3082.html">$0C0A</a></td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4764"></a>129C</td>
+<td class="instruction">SET 5,(IY+$02)</td>
+<td class="transparentComment" />
+</tr>
+<tr>
+<td class="address"><a name="4768"></a>12A0</td>
+<td class="instruction">JR <a class="link" href="4770.html#4777">$12A9</a></td>
+<td class="transparentComment" />
+</tr>
+</table>
+<table class="prevNext">
+<tr>
+<td class="prev">Prev: <a class="link" href="4519.html">11A7</a></td>
+<td class="up">Up: <a class="link" href="../maps/all.html#4535">Map</a></td>
+<td class="next">Next: <a class="link" href="4770.html">12A2</a></td>
+</tr>
+</table>
+<div class="footer">
+<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> 3.7.</div>
+</div>
+</body>
+</html>
