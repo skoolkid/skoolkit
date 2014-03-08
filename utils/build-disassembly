@@ -2,6 +2,7 @@
 
 declare -A SK_VERSIONS
 SK_VERSIONS=(
+  [20140308]=3.7
   [20131102]=3.6
   [20130901]=3.5
   [20130513]=3.3.2
@@ -49,7 +50,7 @@ SK_VERSION_INT=$(echo $SK_VERSION | tr -d . )0
 SK_VERSION_INT=${SK_VERSION_INT:0:3}
 
 if [ $GAME != mm ] && [ $GAME != jsw ] && [ $GAME != rom ]; then
-  echo "Unknown game: $GAME"
+  echo "Unknown disassembly: $GAME"
   exit 1
 fi
 
