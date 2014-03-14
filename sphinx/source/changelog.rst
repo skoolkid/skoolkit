@@ -1,6 +1,9 @@
 Changelog
 =========
 
+3.8b1
+-----
+
 3.7 (2014-03-08)
 ----------------
 * Added support for numbers in binary notation (e.g. %10101010)
