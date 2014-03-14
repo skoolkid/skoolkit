@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -106,9 +106,14 @@ class ImageWriter:
             PNG_FORMAT: self.options[PNG_ENABLE_ANIMATION],
             GIF_FORMAT: self.options[GIF_ENABLE_ANIMATION]
         }
+        self.masks = {
+            0: NoMask(),
+            1: OrAndMask(),
+            2: AndOrMask()
+        }
         self.writers = {
-            PNG_FORMAT: PngWriter(self.options[PNG_ALPHA] & 255, self.options[PNG_COMPRESSION_LEVEL]),
-            GIF_FORMAT: GifWriter(self.options[GIF_TRANSPARENCY], self.options[GIF_COMPRESSION])
+            PNG_FORMAT: PngWriter(self.options[PNG_ALPHA] & 255, self.options[PNG_COMPRESSION_LEVEL], self.masks),
+            GIF_FORMAT: GifWriter(self.options[GIF_TRANSPARENCY], self.options[GIF_COMPRESSION], self.masks)
         }
 
     def write_image(self, frames, img_file, img_format):
@@ -289,7 +294,7 @@ class ImageWriter:
     def _get_all_colours(self, frame, use_flash=False):
         # Find all the colours in an uncropped image
         udg_array = frame.udgs
-        mask = frame.mask
+        mask = self.masks[frame.mask]
         attrs = set()
         colours = set()
         has_trans = 0
@@ -306,13 +311,15 @@ class ImageWriter:
                 attr = udg.attr
                 attrs.add(attr & 127)
                 paper, ink = self.attr_index[attr & 127]
-                if mask and udg.mask:
-                    data = [udg.data[i] & udg.mask[i] for i in range(8)]
+                if udg.mask:
+                    pixels = []
+                    for i in range(8):
+                        pixels.extend(mask.apply(udg.data[i], udg.mask[i], paper, ink))
                     has_non_trans = False
-                    if any(data):
+                    if ink in pixels:
                         colours.add(ink)
                         has_non_trans = True
-                    if any([b < 255 for b in udg.mask]):
+                    if paper in pixels:
                         colours.add(paper)
                         has_non_trans = True
                     if use_flash and attr & 128 and has_non_trans:
@@ -324,7 +331,7 @@ class ImageWriter:
                             max_y = max((y, max_y))
                             colours.add(paper)
                             flashing = True
-                    if any([data[i] | udg.mask[i] > data[i] for i in range(8)]):
+                    if None in pixels:
                         has_trans = 1
                 elif use_flash and attr & 128:
                     colours.add(ink)
@@ -373,3 +380,58 @@ class ImageWriter:
             attr_map[attr] = (colour_map.get(paper, 0), colour_map.get(ink, 0))
 
         return palette, attr_map
+
+class NoMask:
+    def apply(self, udg_byte, mask_byte, paper, ink, trans=None):
+        pixels = []
+        for b in range(8):
+            if udg_byte & 128:
+                pixels.append(ink)
+            else:
+                pixels.append(paper)
+            udg_byte *= 2
+        return pixels
+
+class OrAndMask:
+    def apply(self, udg_byte, mask_byte, paper, ink, trans=None):
+        pixels = []
+        for b in range(8):
+            if mask_byte & 128 == 0:
+                pixels.append(paper)
+            elif udg_byte & 128:
+                pixels.append(ink)
+            else:
+                pixels.append(trans)
+            udg_byte *= 2
+            mask_byte *= 2
+        return pixels
+
+    def colours(self, patterns, paper, ink, trans):
+        return (
+            patterns[paper], # 00
+            patterns[trans], # 01
+            patterns[paper], # 10
+            patterns[ink]    # 11
+        )
+
+class AndOrMask:
+    def apply(self, udg_byte, mask_byte, paper, ink, trans=None):
+        pixels = []
+        for b in range(8):
+            if udg_byte & 128:
+                pixels.append(ink)
+            elif mask_byte & 128:
+                pixels.append(trans)
+            else:
+                pixels.append(paper)
+            udg_byte *= 2
+            mask_byte *= 2
+        return pixels
+
+    def colours(self, patterns, paper, ink, trans):
+        return (
+            patterns[paper], # 00
+            patterns[trans], # 01
+            patterns[ink],   # 10
+            patterns[ink]    # 11
+        )

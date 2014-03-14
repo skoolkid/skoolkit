@@ -1445,13 +1445,13 @@ class HtmlWriter:
         return end, self.img_element(cwd, img_path)
 
     def expand_udgarray(self, text, index, cwd):
-        # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}](fname)
+        # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,maskType];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}](fname)
         # #UDGARRAY*frame1[,delay1];frame2[,delay2];...(fname)
         if index < len(text) and text[index] == '*':
             return self._expand_udgarray_with_frames(text, index, cwd)
 
         udg_path_id = None
-        end, fname, crop_rect, width, def_attr, scale, def_step, def_inc, flip, rotate = self.parse_image_params(text, index, 7, (56, 2, 1, 0, 0, 0), udg_path_id)
+        end, fname, crop_rect, width, def_attr, scale, def_step, def_inc, flip, rotate, mask_type = self.parse_image_params(text, index, 8, (56, 2, 1, 0, 0, 0, 1), udg_path_id)
         udg_array = [[]]
         has_masks = False
         while end < len(text) and text[end] == ';':
@@ -1472,6 +1472,8 @@ class HtmlWriter:
                     udg_array.append([udg])
                 else:
                     udg_array[-1].append(udg)
+        if not has_masks:
+            mask_type = 0
 
         if not fname:
             raise MacroParsingError('Missing filename: #UDGARRAY{0}'.format(text[index:end]))
@@ -1490,9 +1492,9 @@ class HtmlWriter:
             if rotate:
                 self.rotate_udgs(udg_array, rotate)
             if frame:
-                self.frames[frame] = Frame(udg_array, scale, has_masks, *crop_rect)
+                self.frames[frame] = Frame(udg_array, scale, mask_type, *crop_rect)
             if need_image:
-                self.write_image(img_path, udg_array, crop_rect, scale, has_masks)
+                self.write_image(img_path, udg_array, crop_rect, scale, mask_type)
         if img_path:
             return end, self.img_element(cwd, img_path)
         return end, ''
@@ -1650,10 +1652,15 @@ class Frame(object):
     :param delay: The delay between this frame and the next in 1/100ths of a
                   second.
     """
-    def __init__(self, udgs, scale=1, mask=False, x=0, y=0, width=None, height=None, delay=32):
+    def __init__(self, udgs, scale=1, mask=0, x=0, y=0, width=None, height=None, delay=32):
         self._udgs = udgs
         self._scale = scale
-        self.mask = mask
+        if mask is False:
+            self.mask = 0
+        elif mask is True:
+            self.mask = 1
+        else:
+            self.mask = mask
         self._x = x
         self._y = y
         self._full_width = 8 * len(udgs[0]) * scale

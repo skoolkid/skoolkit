@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -24,9 +24,10 @@ GIF_TRAILER = 59
 BINSTR = [''.join([str((m >> n) & 1) for n in range(11, -1, -1)]) for m in range(4096)]
 
 class GifWriter:
-    def __init__(self, transparency, compression):
+    def __init__(self, transparency, compression, masks):
         self.transparency = transparency
         self.compression = compression
+        self.masks = masks
         self.gif_header = bytearray(GIF89A)
         self.aeb = bytearray(AEB)
         self.gif_trailer = bytearray((GIF_TRAILER,))
