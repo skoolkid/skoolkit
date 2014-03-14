@@ -1561,7 +1561,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_error(writer, '#UDG', 'No parameters (expected 1)', prefix)
 
         # Too many parameters
-        self.assert_error(writer, '#UDG0,1,2,3,4,5,6,7,8', "Too many parameters (expected 7): '0,1,2,3,4,5,6,7,8'", prefix)
+        self.assert_error(writer, '#UDG0,1,2,3,4,5,6,7,8,9', "Too many parameters (expected 8): '0,1,2,3,4,5,6,7,8,9'", prefix)
 
         # Invalid parameter
         self.assert_error(writer, '#UDG0$,1,2', "Cannot parse integer '0$' in parameter string: '0$,1,2'", prefix)

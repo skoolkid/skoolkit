@@ -1394,10 +1394,10 @@ class HtmlWriter:
         return end, self.build_table(table)
 
     def expand_udg(self, text, index, cwd):
-        # #UDGaddr[,attr,scale,step,inc,flip,rotate][:addr[,step]][{x,y,width,height}][(fname)]
+        # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:addr[,step]][{x,y,width,height}][(fname)]
         path_id = 'UDGImagePath'
-        param_names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate')
-        end, udg_path, crop_rect, udg_params = self.parse_image_params(text, index, defaults=(56, 4, 1, 0, 0, 0), path_id=path_id, names=param_names)
+        param_names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
+        end, udg_path, crop_rect, udg_params = self.parse_image_params(text, index, defaults=(56, 4, 1, 0, 0, 0, 1), path_id=path_id, names=param_names)
         if end < len(text) and text[end] == ':':
             end, udg_path, crop_rect, mask_params = self.parse_image_params(text, end + 1, defaults=(udg_params['step'],), path_id=path_id, names=('addr', 'step'))
         else:
@@ -1408,8 +1408,8 @@ class HtmlWriter:
         if self.need_image(udg_path):
             udg_bytes = [(self.snapshot[addr + n * udg_params['step']] + udg_params['inc']) % 256 for n in range(8)]
             mask_bytes = None
-            mask = mask_params is not None
-            if mask:
+            mask = udg_params['mask']
+            if mask and mask_params:
                 mask_addr, mask_step = mask_params['addr'], mask_params['step']
                 mask_bytes = self.snapshot[mask_addr:mask_addr + 8 * mask_step:mask_step]
             udg = Udg(attr, udg_bytes, mask_bytes)
