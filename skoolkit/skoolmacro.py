@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -26,7 +26,7 @@ DELIMITERS = {
     '{': '}'
 }
 
-def parse_ints(text, index, num, defaults=()):
+def parse_ints(text, index, num=0, defaults=(), names=()):
     """Parse a string of comma-separated integer parameters. The string will be
     parsed until either the end is reached, or an invalid character is
     encountered. The set of valid characters consists of the comma, '$', the
@@ -43,13 +43,18 @@ def parse_ints(text, index, num, defaults=()):
     """
     end = index
     num_params = 1
-    while end < len(text) and text[end] in '$0123456789abcdefABCDEF,':
+    valid_chars = '$0123456789abcdefABCDEF,'
+    if names:
+        valid_chars += 'ghijklmnopqrstuvwxyz='
+    while end < len(text) and text[end] in valid_chars:
         if text[end] == ',':
             if num_params == num:
                 break
             num_params += 1
         end += 1
-    params = get_params(text[index:end], num, defaults)
+    params = get_params(text[index:end], num, defaults, names=names)
+    if names:
+        return [end, params]
     return [end] + params
 
 def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars=''):
@@ -101,25 +106,59 @@ def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars
         p_text = text[index + 1:end - 1]
     return end, params, p_text
 
-def get_params(param_string, num=0, defaults=(), ints=None):
+def get_params(param_string, num=0, defaults=(), ints=None, names=()):
     params = []
+    named_params = {}
+    index = 0
+    has_named_param = False
+    if names:
+        num = len(names)
     if param_string:
-        for i, p in enumerate(param_string.split(',')):
-            if p:
-                param = parse_int(p)
+        for p in param_string.split(','):
+            if index < len(names):
+                name = names[index]
+            else:
+                name = index
+            if p and names:
+                param_name, eq, value = p.partition('=')
+                if not eq:
+                    if has_named_param:
+                        raise MacroParsingError("Non-keyword parameter after keyword parameter: '{}'".format(p))
+                    value = param_name
+                elif param_name in names:
+                    name = param_name
+                    has_named_param = True
+                else:
+                    raise MacroParsingError("Unknown keyword parameter: '{}'".format(p))
+            else:
+                value = p
+            if value:
+                param = parse_int(value)
                 if param is None:
-                    if ints is None or i in ints:
-                        raise MacroParsingError("Cannot parse integer '{}' in parameter string: '{}'".format(p, param_string))
-                    params.append(p)
+                    if ints is None or index in ints:
+                        raise MacroParsingError("Cannot parse integer '{}' in parameter string: '{}'".format(value, param_string))
+                    param = value
+                if names and name:
+                    named_params[name] = param
                 else:
                     params.append(param)
-            else:
+            elif not names:
                 params.append(None)
+            index += 1
+
     req = num - len(defaults)
-    if len(params) < req:
-        if params:
+    if index < req:
+        if params or named_params:
             raise MacroParsingError("Not enough parameters (expected {}): '{}'".format(req, param_string))
         raise MacroParsingError("No parameters (expected {})".format(req))
+
+    if names:
+        for i in range(req, num):
+            name = names[i]
+            if named_params.get(name) is None:
+                named_params[name] = defaults[i - req]
+        return named_params
+
     params += [None] * (num - len(params))
     for i in range(req, num):
         if params[i] is None:

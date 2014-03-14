@@ -1208,7 +1208,7 @@ class HtmlWriter:
                 return join(self.paths[path_id], '{0}{1}'.format(fname, suffix))
             raise SkoolKitError("Unknown path ID '{0}' for image file '{1}'".format(path_id, fname))
 
-    def parse_image_params(self, text, index, num, defaults=(), path_id=DEF_IMG_PATH, fname='', chars='', ints=None):
+    def parse_image_params(self, text, index, num=0, defaults=(), path_id=DEF_IMG_PATH, fname='', chars='', ints=None, names=()):
         """Parse a string of the form ``params[{X,Y,W,H}][(fname)]``. The
         parameter string ``params`` may contain comma-separated values and will
         be parsed until either the end is reached, or an invalid character is
@@ -1238,13 +1238,17 @@ class HtmlWriter:
                  * ``value1``, ``value2`` etc. are the parameter values
         """
         valid_chars = '$0123456789abcdefABCDEF,' + chars
+        if names:
+            valid_chars += 'ghijklmnopqrstuvwxyz='
+            num = len(names)
         end, param_string, p_text = skoolmacro.parse_params(text, index, only_chars=valid_chars)
-        params = skoolmacro.get_params(param_string, num, defaults, ints)
+        params = skoolmacro.get_params(param_string, num, defaults, ints, names)
         if len(params) > num:
             raise MacroParsingError("Too many parameters (expected {}): '{}'".format(num, text[index:end]))
 
         if end < len(text) and text[end] == '{':
-            end, x, y, width, height = skoolmacro.parse_ints(text, end + 1, 4, (0, 0, None, None))
+            end, crop_params = skoolmacro.parse_ints(text, end + 1, defaults=(0, 0, None, None), names=('x', 'y', 'width', 'height'))
+            x, y, width, height = crop_params['x'], crop_params['y'], crop_params['width'], crop_params['height']
             end, param_string, p_text = skoolmacro.parse_params(text, end, only_chars='}')
         else:
             x = y = 0
@@ -1257,6 +1261,8 @@ class HtmlWriter:
         else:
             img_path = fname
 
+        if names:
+            return [end, img_path, (x, y, width, height), params]
         return [end, img_path, (x, y, width, height)] + params
 
     def _expand_item_macro(self, item, link_text, cwd, items, path_id):
@@ -1388,29 +1394,27 @@ class HtmlWriter:
         return end, self.build_table(table)
 
     def expand_udg(self, text, index, cwd):
-        # #UDGaddr[,attr,scale,step,inc,flip,rotate][:maskAddr[,maskStep]][{X,Y,W,H}][(fname)]
+        # #UDGaddr[,attr,scale,step,inc,flip,rotate][:addr[,step]][{x,y,width,height}][(fname)]
         path_id = 'UDGImagePath'
-        udg_params = self.parse_image_params(text, index, 7, (56, 4, 1, 0, 0, 0), path_id)
-        end = udg_params[0]
+        param_names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate')
+        end, udg_path, crop_rect, udg_params = self.parse_image_params(text, index, defaults=(56, 4, 1, 0, 0, 0), path_id=path_id, names=param_names)
         if end < len(text) and text[end] == ':':
-            mask_defaults = (udg_params[6],) # Default mask step value
-            end, img_path, crop_rect, mask_addr, mask_step = self.parse_image_params(text, end + 1, 2, mask_defaults, path_id)
-            udg_params[0:3] = [end, img_path, crop_rect]
-            udg_params += [mask_addr, mask_step]
+            end, udg_path, crop_rect, mask_params = self.parse_image_params(text, end + 1, defaults=(udg_params['step'],), path_id=path_id, names=('addr', 'step'))
         else:
-            udg_params += [None, None]
-        end, udg_path, crop_rect, addr, attr, scale, step, inc, flip, rotate, mask_addr, mask_step = udg_params
+            mask_params = None
+        addr, attr, scale = udg_params['addr'], udg_params['attr'], udg_params['scale']
         if udg_path is None:
             udg_path = self.image_path('udg{0}_{1}x{2}'.format(addr, attr, scale))
         if self.need_image(udg_path):
-            udg_bytes = [(self.snapshot[addr + n * step] + inc) % 256 for n in range(8)]
+            udg_bytes = [(self.snapshot[addr + n * udg_params['step']] + udg_params['inc']) % 256 for n in range(8)]
             mask_bytes = None
-            mask = mask_addr is not None
+            mask = mask_params is not None
             if mask:
+                mask_addr, mask_step = mask_params['addr'], mask_params['step']
                 mask_bytes = self.snapshot[mask_addr:mask_addr + 8 * mask_step:mask_step]
             udg = Udg(attr, udg_bytes, mask_bytes)
-            udg.flip(flip)
-            udg.rotate(rotate)
+            udg.flip(udg_params['flip'])
+            udg.rotate(udg_params['rotate'])
             self.write_image(udg_path, [[udg]], crop_rect, scale, mask)
         return end, self.img_element(cwd, udg_path)
 
