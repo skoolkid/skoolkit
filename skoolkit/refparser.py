@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -39,14 +39,15 @@ class RefParser:
         """
         section_name = None
         section_lines = []
-        with open_file(reffile) as infile:
-            for line in infile:
-                if line.startswith('['):
-                    self._add_section(section_name, section_lines)
-                    section_name = line[1:line.index(']')]
-                    section_lines = []
-                elif not line.startswith(';'):
-                    section_lines.append(line.rstrip())
+        infile = open_file(reffile)
+        for line in infile:
+            if line.startswith('['):
+                self._add_section(section_name, section_lines)
+                section_name = line[1:line.index(']')]
+                section_lines = []
+            elif not line.startswith(';'):
+                section_lines.append(line.rstrip())
+        infile.close()
         self._add_section(section_name, section_lines)
  
     def add_line(self, section_name, line):

@@ -99,6 +99,9 @@ def open_file(fname, mode='r'):
         if e.errno == 2:
             raise SkoolKitError('{0}: file not found'.format(fname))
         raise
+    except TypeError:
+        # Assume this is already a file-like object
+        return fname
 
 def read_bin_file(fname):
     try:

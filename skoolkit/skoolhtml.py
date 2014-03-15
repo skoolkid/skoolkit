@@ -25,6 +25,7 @@ import posixpath
 import os.path
 from os.path import isfile, isdir, basename
 import inspect
+from string import Template
 
 from . import VERSION, warn, get_int_param, parse_int, SkoolKitError, SkoolParsingError
 from . import skoolmacro
@@ -73,12 +74,15 @@ FLIP = (
     15, 143, 79, 207, 47, 175, 111, 239, 31, 159, 95, 223, 63, 191, 127, 255
 )
 
-PROLOGUE = """<?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-"""
+# Template names
+T_HEAD = 'head'
+T_STYLE_SHEET = 'stylesheet'
+T_JAVASCRIPT = 'javascript'
+T_FOOTER = 'footer'
+T_INDEX_SECTION = 'index_section'
+T_LINK_LIST = 'link_list'
+T_LINK_LIST_ITEM = 'link_list_item'
+T_INDEX = 'index'
 
 def join(*path_components):
     return '/'.join([c for c in path_components if c.replace('/', '')])
@@ -193,6 +197,9 @@ class HtmlWriter:
         self.graphics = self.get_section('Graphics')
         self.changelog = self._get_changelog()
 
+        self.templates = {}
+        for name, template in ref_parser.get_sections('Template'):
+            self.templates[name] = Template(template + '\n')
         self.footer = self._build_footer()
 
         self.init()
@@ -215,21 +222,24 @@ class HtmlWriter:
     def set_style_sheet(self, value):
         self.game_vars['StyleSheet'] = value
 
+    def _remove_blank_lines(self, html):
+        while '\n\n' in html:
+            html = html.replace('\n\n', '\n')
+        return html
+
     def _build_footer(self):
-        lines = ['<div class="footer">']
-        release_name = self.info.get('Release')
-        copyright_message = self.info.get('Copyright')
-        created_message = self.info.get('Created', 'Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> $VERSION.')
-        if release_name:
-            lines.append('<div class="release">{0}</div>'.format(release_name))
-        if copyright_message:
-            lines.append('<div class="copyright">{0}</div>'.format(copyright_message))
-        if created_message:
-            lines.append('<div class="created">{0}</div>'.format(created_message.replace('$VERSION', VERSION)))
-        lines.append('</div>')
-        lines.append('</body>')
-        lines.append('</html>')
-        return '\n'.join(lines)
+        return self._get_footer() + '</body>\n</html>'
+
+    def _get_footer(self):
+        t_footer = self.templates[T_FOOTER]
+        t_footer_subs = {
+            'Release': '',
+            'Copyright': '',
+            'Created': 'Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> $VERSION.'
+        }
+        t_footer_subs.update(self.info)
+        t_footer_subs['Created'] = t_footer_subs['Created'].replace('$VERSION', VERSION)
+        return t_footer.substitute(t_footer_subs)
 
     def _parse_links(self, links):
         new_links = {}
@@ -535,17 +545,6 @@ class HtmlWriter:
 
     def write_index(self):
         ofile, cwd = self.open_file(self.paths[P_GAME_INDEX])
-        self.write_head(ofile, 'Index', cwd)
-        ofile.write('<body class="main">\n')
-        prefix = self.game_vars.get('TitlePrefix', 'The complete')
-        suffix = self.game_vars.get('TitleSuffix', 'RAM disassembly')
-        ofile.write('<table class="header">\n')
-        ofile.write('<tr>\n')
-        ofile.write('<td class="headerText">{0}</td>\n'.format(prefix))
-        ofile.write('<td class="headerLogo">{0}</td>\n'.format(self._get_logo(cwd)))
-        ofile.write('<td class="headerText">{0}</td>\n'.format(suffix))
-        ofile.write('</tr>\n')
-        ofile.write('</table>\n')
 
         memory_maps = []
         for map_name in (P_MEMORY_MAP, P_ROUTINES_MAP, P_DATA_MAP, P_MESSAGES_MAP, P_UNUSED_MAP):
@@ -580,28 +579,51 @@ class HtmlWriter:
                     link_file = FileInfo.relpath(cwd, fname)
                     link_text = self.links[page_id]
                     links.append((link_file, link_text[0], link_text[1]))
-            sections[section_id] = ('<div class="headerText">{0}</div>\n'.format(header_text), links)
+            sections[section_id] = (header_text, links)
         other_code_links = []
         for code_id, code in self.other_code:
             fname = code['Index']
             if self.file_exists(fname):
                 link_file = FileInfo.relpath(cwd, fname)
                 other_code_links.append((link_file, code.get('Link', code['Title']), ''))
-        sections['OtherCode'] = ('<div class="headerText">Other code</div>\n', other_code_links)
+        sections['OtherCode'] = ('Other code', other_code_links)
 
+        t_section = self.templates[T_INDEX_SECTION]
+        t_link_list = self.templates[T_LINK_LIST]
+        t_link_list_subs = {'list_class': 'indexList'}
+        t_link_list_item = self.templates[T_LINK_LIST_ITEM]
+        sections_html = []
         index = self.get_section('Index', False, True)
         if not index:
             index = ('MemoryMaps', 'Graphics', 'DataTables', 'OtherCode', 'Reference')
         for section_id in index:
             header, links = sections.get(section_id, ('', ()))
             if links:
-                ofile.write(header)
-                ofile.write('<ul class="indexList">\n')
+                link_list = []
                 for href, link_text, other_text in links:
-                    ofile.write('<li><a class="link" href="{0}">{1}</a>{2}</li>\n'.format(href, link_text, other_text))
-                ofile.write('</ul>\n')
+                    t_link_list_item_subs = {
+                        'href': href,
+                        'link_text': link_text,
+                        'other_text': other_text
+                    }
+                    link_list.append(t_link_list_item.substitute(t_link_list_item_subs))
+                t_link_list_subs['t_link_list_items'] = '\n'.join(link_list)
+                t_section_subs = {
+                    'header': header,
+                    't_link_list': t_link_list.substitute(t_link_list_subs)
+                }
+                sections_html.append(t_section.substitute(t_section_subs))
 
-        ofile.write(self.footer)
+        t_index = self.templates[T_INDEX]
+        t_index_subs = {
+            't_head': self._get_head('Index', cwd),
+            'TitlePrefix': self.game_vars.get('TitlePrefix', 'The complete'),
+            'Logo': self._get_logo(cwd),
+            'TitleSuffix': self.game_vars.get('TitleSuffix', 'RAM disassembly'),
+            't_index_sections': '\n'.join(sections_html),
+            't_footer': self._get_footer()
+        }
+        ofile.write(self._remove_blank_lines(t_index.substitute(t_index_subs)))
 
     def write_gbuffer(self):
         ofile, cwd = self.open_file(self.paths[P_GSB])
@@ -1000,18 +1022,31 @@ class HtmlWriter:
         return ofile, cwd
 
     def write_head(self, ofile, title, cwd, js=None):
-        ofile.write(PROLOGUE)
-        ofile.write('<head>\n')
-        ofile.write('<meta http-equiv="content-type" content="text/html; charset=utf-8" />\n')
-        ofile.write('<title>{0}: {1}</title>\n'.format(self.game, title))
+        ofile.write(self._get_head(title, cwd, js))
+
+    def _get_head(self, title, cwd, js=None):
+        stylesheets = []
+        t_stylesheet = self.templates[T_STYLE_SHEET]
         for css_file in self.game_vars['StyleSheet'].split(';'):
-            ofile.write('<link rel="stylesheet" type="text/css" href="{0}" />\n'.format(FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))))
+            t_stylesheet_subs = {'href': FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}
+            stylesheets.append(t_stylesheet.substitute(t_stylesheet_subs))
+        javascript = []
+        t_javascript = self.templates[T_JAVASCRIPT]
         js_files = self.js_files
         if js:
             js_files = list(js_files) + js.split(';')
         for js_file in js_files:
-            ofile.write('<script type="text/javascript" src="{}"></script>\n'.format(FileInfo.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))))
-        ofile.write('</head>\n')
+            t_javascript_subs = {'src': FileInfo.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))}
+            javascript.append(t_javascript.substitute(t_javascript_subs))
+
+        t_head = self.templates[T_HEAD]
+        t_head_subs = {
+            'Game': self.game,
+            'title': title,
+            't_stylesheets': '\n'.join(stylesheets),
+            't_javascripts': '\n'.join(javascript)
+        }
+        return self._remove_blank_lines(t_head.substitute(t_head_subs))
 
     def _get_logo(self, cwd):
         logo_macro = self.game_vars.get('Logo')

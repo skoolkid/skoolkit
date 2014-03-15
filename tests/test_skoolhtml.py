@@ -10,6 +10,7 @@ from skoolkit.skoolmacro import MacroParsingError, UnsupportedMacroError
 from skoolkit.skoolhtml import HtmlWriter, FileInfo, Udg, Frame
 from skoolkit.skoolparser import SkoolParser, Register, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
 from skoolkit.refparser import RefParser
+from skoolkit.defaults import REF_FILE
 
 GAMEDIR = 'test'
 ASMDIR = 'asm'
@@ -18,7 +19,6 @@ GRAPHICS_DIR = 'graphics'
 BUFFERS_DIR = 'buffers'
 REFERENCE_DIR = 'reference'
 UDGDIR = 'images/udgs'
-TEMPLATES_DIR = 'templates'
 
 HEADER = """<?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html
@@ -58,6 +58,8 @@ INDEX_HEADER = """<?xml version="1.0" encoding="utf-8" ?>
 </table>"""
 
 BARE_FOOTER = """<div class="footer">
+<div class="release"></div>
+<div class="copyright"></div>
 <div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> {0}.</div>
 </div>
 </body>
@@ -182,7 +184,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         t_html_lines.extend(body_lines)
         t_html_lines.extend(prev_up_next_lines)
         t_html_lines.extend(footer.split('\n'))
-        self.assertEqual(d_html_lines, t_html_lines)
+        self.assertEqual(t_html_lines, d_html_lines)
 
     def assert_html_equal(self, html, exp_html, eol=False):
         exp_lines = []
@@ -244,10 +246,15 @@ class HtmlWriterTest(SkoolKitTestCase):
     def _unsupported_macro(self, *args):
         raise UnsupportedMacroError()
 
+    def _get_ref_parser(self):
+        ref_parser = RefParser()
+        ref_parser.parse(StringIO(REF_FILE))
+        return ref_parser
+
     def _get_writer(self, ref=None, snapshot=(), case=None, base=None, skool=None, create_labels=False, asm_labels=False):
         self.reffile = None
         self.skoolfile = None
-        ref_parser = RefParser()
+        ref_parser = self._get_ref_parser()
         if ref is not None:
             self.reffile = self.write_text_file(ref, suffix='.ref')
             ref_parser.parse(self.reffile)
@@ -3548,7 +3555,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_write_image(self):
         file_info = MockFileInfo('html', 'test_write_image')
         image_writer = MockImageWriter2()
-        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
+        writer = HtmlWriter(MockSkoolParser(), self._get_ref_parser(), file_info, image_writer)
 
         # PNG
         image_path = 'images/test.png'
@@ -3579,7 +3586,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_write_animated_image_png(self):
         file_info = MockFileInfo('html', 'test_write_animated_png')
         image_writer = MockImageWriter2()
-        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
+        writer = HtmlWriter(MockSkoolParser(), self._get_ref_parser(), file_info, image_writer)
 
         image_path = 'images/test_animated.png'
         frames = object()
@@ -3592,7 +3599,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_write_animated_image_gif(self):
         file_info = MockFileInfo('html', 'test_write_animated_gif')
         image_writer = MockImageWriter2()
-        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
+        writer = HtmlWriter(MockSkoolParser(), self._get_ref_parser(), file_info, image_writer)
 
         image_path = 'images/test_animated.gif'
         frames = object()
@@ -3605,7 +3612,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_write_animated_image_unsupported_format(self):
         file_info = MockFileInfo('html', 'test_write_animated_jpg')
         image_writer = MockImageWriter2()
-        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
+        writer = HtmlWriter(MockSkoolParser(), self._get_ref_parser(), file_info, image_writer)
 
         image_path = 'images/test_animated.jpg'
         with self.assertRaisesRegexp(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
