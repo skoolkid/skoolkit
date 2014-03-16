@@ -25,7 +25,6 @@ import posixpath
 import os.path
 from os.path import isfile, isdir, basename
 import inspect
-from string import Template
 
 from . import VERSION, warn, get_int_param, parse_int, SkoolKitError, SkoolParsingError
 from . import skoolmacro
@@ -76,7 +75,7 @@ FLIP = (
 
 # Template names
 T_HEAD = 'head'
-T_STYLE_SHEET = 'stylesheet'
+T_STYLESHEET = 'stylesheet'
 T_JAVASCRIPT = 'javascript'
 T_FOOTER = 'footer'
 T_INDEX_SECTION = 'index_section'
@@ -199,7 +198,7 @@ class HtmlWriter:
 
         self.templates = {}
         for name, template in ref_parser.get_sections('Template'):
-            self.templates[name] = Template(template + '\n')
+            self.templates[name] = template + '\n'
         self.footer = self._build_footer()
 
         self.init()
@@ -227,11 +226,13 @@ class HtmlWriter:
             html = html.replace('\n\n', '\n')
         return html
 
+    def _fill_template(self, template_name, subs):
+        return self.templates[template_name].format(**subs)
+
     def _build_footer(self):
         return self._get_footer() + '</body>\n</html>'
 
     def _get_footer(self):
-        t_footer = self.templates[T_FOOTER]
         t_footer_subs = {
             'Release': '',
             'Copyright': '',
@@ -239,7 +240,7 @@ class HtmlWriter:
         }
         t_footer_subs.update(self.info)
         t_footer_subs['Created'] = t_footer_subs['Created'].replace('$VERSION', VERSION)
-        return t_footer.substitute(t_footer_subs)
+        return self._fill_template(T_FOOTER, t_footer_subs)
 
     def _parse_links(self, links):
         new_links = {}
@@ -588,10 +589,7 @@ class HtmlWriter:
                 other_code_links.append((link_file, code.get('Link', code['Title']), ''))
         sections['OtherCode'] = ('Other code', other_code_links)
 
-        t_section = self.templates[T_INDEX_SECTION]
-        t_link_list = self.templates[T_LINK_LIST]
         t_link_list_subs = {'list_class': 'indexList'}
-        t_link_list_item = self.templates[T_LINK_LIST_ITEM]
         sections_html = []
         index = self.get_section('Index', False, True)
         if not index:
@@ -606,15 +604,14 @@ class HtmlWriter:
                         'link_text': link_text,
                         'other_text': other_text
                     }
-                    link_list.append(t_link_list_item.substitute(t_link_list_item_subs))
+                    link_list.append(self._fill_template(T_LINK_LIST_ITEM, t_link_list_item_subs))
                 t_link_list_subs['t_link_list_items'] = '\n'.join(link_list)
-                t_section_subs = {
+                t_index_section_subs = {
                     'header': header,
-                    't_link_list': t_link_list.substitute(t_link_list_subs)
+                    't_link_list': self._fill_template(T_LINK_LIST, t_link_list_subs)
                 }
-                sections_html.append(t_section.substitute(t_section_subs))
+                sections_html.append(self._fill_template(T_INDEX_SECTION, t_index_section_subs))
 
-        t_index = self.templates[T_INDEX]
         t_index_subs = {
             't_head': self._get_head('Index', cwd),
             'TitlePrefix': self.game_vars.get('TitlePrefix', 'The complete'),
@@ -623,7 +620,7 @@ class HtmlWriter:
             't_index_sections': '\n'.join(sections_html),
             't_footer': self._get_footer()
         }
-        ofile.write(self._remove_blank_lines(t_index.substitute(t_index_subs)))
+        ofile.write(self._remove_blank_lines(self._fill_template(T_INDEX, t_index_subs)))
 
     def write_gbuffer(self):
         ofile, cwd = self.open_file(self.paths[P_GSB])
@@ -1026,27 +1023,24 @@ class HtmlWriter:
 
     def _get_head(self, title, cwd, js=None):
         stylesheets = []
-        t_stylesheet = self.templates[T_STYLE_SHEET]
         for css_file in self.game_vars['StyleSheet'].split(';'):
             t_stylesheet_subs = {'href': FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}
-            stylesheets.append(t_stylesheet.substitute(t_stylesheet_subs))
+            stylesheets.append(self._fill_template(T_STYLESHEET, t_stylesheet_subs))
         javascript = []
-        t_javascript = self.templates[T_JAVASCRIPT]
         js_files = self.js_files
         if js:
             js_files = list(js_files) + js.split(';')
         for js_file in js_files:
             t_javascript_subs = {'src': FileInfo.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))}
-            javascript.append(t_javascript.substitute(t_javascript_subs))
+            javascript.append(self._fill_template(T_JAVASCRIPT, t_javascript_subs))
 
-        t_head = self.templates[T_HEAD]
         t_head_subs = {
             'Game': self.game,
             'title': title,
             't_stylesheets': '\n'.join(stylesheets),
             't_javascripts': '\n'.join(javascript)
         }
-        return self._remove_blank_lines(t_head.substitute(t_head_subs))
+        return self._remove_blank_lines(self._fill_template(T_HEAD, t_head_subs))
 
     def _get_logo(self, cwd):
         logo_macro = self.game_vars.get('Logo')
