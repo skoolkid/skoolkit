@@ -274,4 +274,38 @@ Unused ({entry.size} byte{suffix})
 </div>
 </td>
 </tr>
+
+[Template:Changelog]
+{t_head}
+<body class="changelog">
+{t_header}
+{t_contents_list}
+{t_changelog_entries}
+{t_footer}
+</body>
+</html>
+
+[Template:contents_list]
+<ul class="linkList">
+{t_contents_list_items}
+</ul>
+
+[Template:contents_list_item]
+<li><a class="link" href="{item[url]}">{item[title]}</a></li>
+
+[Template:changelog_entry]
+<div>{t_anchor}</div>
+<div class="changelog changelog{changelog_num}">
+<div class="changelogTitle">{entry[title]}</div>
+<div class="changelogDesc">{entry[description]}</div>
+{t_changelog_item_list}
+</div>
+
+[Template:changelog_item_list]
+<ul class="changelog{indent}">
+{t_changelog_items}
+</ul>
+
+[Template:changelog_item]
+<li>{item}</li>
 """.lstrip()

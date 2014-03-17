@@ -2994,6 +2994,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div><a name="20120703"></a></div>
             <div class="changelog changelog2">
             <div class="changelogTitle">20120703</div>
+            <div class="changelogDesc"></div>
             <ul class="changelog">
             <li>1
             <ul class="changelog1">

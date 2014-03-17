@@ -742,45 +742,72 @@ class HtmlWriter:
     def write_glossary(self):
         self.write_box_page(self.paths[P_GLOSSARY], self.titles[P_GLOSSARY], 'glossary', self.glossary)
 
+    def _build_changelog_items(self, items, level=0):
+        changelog_items = []
+        for item, subitems in items:
+            if subitems:
+                item = '{}\n{}'.format(item, self._build_changelog_items(subitems, level + 1))
+            changelog_items.append(self._fill_template('changelog_item', {'item': item}))
+        if level > 0:
+            indent = level
+        else:
+            indent = ''
+        t_changelog_item_list_subs = {
+            'indent': indent,
+            't_changelog_items': ''.join(changelog_items)
+        }
+        return self._fill_template('changelog_item_list', t_changelog_item_list_subs)
+
     def write_changelog(self):
         ofile, cwd = self.open_file(self.paths[P_CHANGELOG])
-        self.write_header(ofile, self.titles[P_CHANGELOG], cwd, 'changelog')
-        ofile.write('<ul class="linkList">\n')
+        contents = []
         for title, description, items in self.changelog:
-            ofile.write('<li><a class="link" href="#{0}">{0}</a></li>\n'.format(title))
-        ofile.write('</ul>\n')
+            item = {'url': '#' + title, 'title': title}
+            contents.append(self._fill_template('contents_list_item', {'item': item}))
+        t_contents_list_subs = {'t_contents_list_items': ''.join(contents)}
+        contents_list = self._fill_template('contents_list', t_contents_list_subs)
+
+        entries = []
         for j, (title, description, items) in enumerate(self.changelog):
-            ofile.write('<div><a name="{0}"></a></div>\n'.format(title))
-            ofile.write('<div class="changelog changelog{0}">\n'.format(1 + j % 2))
-            ofile.write('<div class="changelogTitle">{0}</div>\n'.format(title))
-            if description:
-                ofile.write('<div class="changelogDesc">{0}</div>\n'.format(description))
-            if items:
-                ofile.write('<ul class="changelog">\n')
-                for item in items:
-                    indents = [0]
-                    for i, line in enumerate(item):
-                        new_indent = len(line) - len(line.lstrip())
-                        if new_indent == indents[-1]:
-                            if i > 0:
-                                ofile.write('</li>\n')
-                        else:
-                            if new_indent > indents[-1]:
-                                ofile.write('\n<ul class="changelog{0}">\n'.format(len(indents)))
-                                indents.append(new_indent)
-                            else:
-                                while new_indent < indents[-1]:
-                                    ofile.write('</li>\n</ul>\n')
-                                    indents.pop()
-                                ofile.write('</li>\n')
-                        ofile.write('<li>{0}'.format(self.expand(line.strip(), cwd)))
-                    ofile.write('</li>\n')
-                    while len(indents) > 1:
-                        ofile.write('</ul>\n</li>\n')
-                        indents.pop()
-                ofile.write('</ul>\n')
-            ofile.write('</div>\n')
-        ofile.write(self.footer)
+            changelog_items = []
+            for item in items:
+                indents = [(0, changelog_items)]
+                for line in item:
+                    subitems = indents[-1][1]
+                    item_text = self.expand(line.strip(), cwd)
+                    new_indent = len(line) - len(line.lstrip())
+                    if new_indent == indents[-1][0]:
+                        subitems.append([item_text, None])
+                    elif new_indent > indents[-1][0]:
+                        new_subitems = [[item_text, None]]
+                        subitems[-1][1] = new_subitems
+                        indents.append((new_indent, new_subitems))
+                    else:
+                        while new_indent < indents[-1][0]:
+                            indents.pop()
+                        subitems = indents[-1][1]
+                        subitems.append([item_text, None])
+            entry = {
+                'title': title,
+                'description': description
+            }
+            t_changelog_entry_subs = {
+                't_anchor': self._fill_template(T_ANCHOR, {'anchor': title}, strip=True),
+                'changelog_num': 1 + j % 2,
+                'entry': entry,
+                't_changelog_item_list': self._build_changelog_items(changelog_items)
+            }
+            entries.append(self._fill_template('changelog_entry', t_changelog_entry_subs))
+
+        t_changelog_subs = {
+            't_head': self._get_head(cwd, self.titles[P_CHANGELOG]),
+            't_header': self._get_header(cwd, self.titles[P_CHANGELOG]),
+            't_contents_list': contents_list,
+            't_changelog_entries': ''.join(entries),
+            't_footer': self._get_footer()
+        }
+        ofile.write(self._fill_template('Changelog', t_changelog_subs, True))
+        ofile.close()
 
     def _get_registers(self, registers, cwd):
         input_values = []
