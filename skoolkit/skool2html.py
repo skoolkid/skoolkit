@@ -22,17 +22,12 @@ from os.path import isfile, isdir, basename, dirname
 import shutil
 import time
 import argparse
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
 
 from . import PACKAGE_DIR, VERSION, show_package_dir, write, write_line, get_class, normpath, SkoolKitError
 from .image import ImageWriter
 from .skoolhtml import FileInfo
 from .skoolparser import SkoolParser, CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
 from .refparser import RefParser
-from .defaults import REF_FILE
 
 verbose = True
 show_timings = False
@@ -204,7 +199,6 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
     if reffile_f:
         reffiles.insert(0, normpath(reffile_f))
     ref_parser = RefParser()
-    ref_parser.parse(StringIO(REF_FILE))
     for oreffile_f in reffiles:
         ref_parser.parse(oreffile_f)
     add_lines(ref_parser, config_specs)

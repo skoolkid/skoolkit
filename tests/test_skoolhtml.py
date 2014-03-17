@@ -10,7 +10,6 @@ from skoolkit.skoolmacro import MacroParsingError, UnsupportedMacroError
 from skoolkit.skoolhtml import HtmlWriter, FileInfo, Udg, Frame
 from skoolkit.skoolparser import SkoolParser, Register, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
 from skoolkit.refparser import RefParser
-from skoolkit.defaults import REF_FILE
 
 GAMEDIR = 'test'
 ASMDIR = 'asm'
@@ -186,7 +185,12 @@ class HtmlWriterTest(SkoolKitTestCase):
         t_html_lines.extend(footer.split('\n'))
         self.assertEqual(t_html_lines, d_html_lines)
 
-    def assert_html_equal(self, html, exp_html, eol=False):
+    def assert_html_equal(self, html, exp_html, eol=False, trim=False):
+        lines = []
+        for line in html.split('\n'):
+            s_line = line.lstrip()
+            if s_line or not trim:
+                lines.append(s_line)
         exp_lines = []
         for line in exp_html.split('\n'):
             s_line = line.lstrip()
@@ -194,7 +198,7 @@ class HtmlWriterTest(SkoolKitTestCase):
                 exp_lines.append(s_line)
         if eol:
             exp_lines.append('')
-        self.assertEqual(html.split('\n'), exp_lines)
+        self.assertEqual(exp_lines, lines)
 
     def assert_title_equals(self, fname, title):
         html = self.read_file(fname)
@@ -246,15 +250,10 @@ class HtmlWriterTest(SkoolKitTestCase):
     def _unsupported_macro(self, *args):
         raise UnsupportedMacroError()
 
-    def _get_ref_parser(self):
-        ref_parser = RefParser()
-        ref_parser.parse(StringIO(REF_FILE))
-        return ref_parser
-
     def _get_writer(self, ref=None, snapshot=(), case=None, base=None, skool=None, create_labels=False, asm_labels=False):
         self.reffile = None
         self.skoolfile = None
-        ref_parser = self._get_ref_parser()
+        ref_parser = RefParser()
         if ref is not None:
             self.reffile = self.write_text_file(ref, suffix='.ref')
             ref_parser.parse(self.reffile)
@@ -2222,7 +2221,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="address"><a name="24578"></a>24578</td>
             <td class="instruction">DEFB 0</td>
-            <td class="transparentDataComment" />
+            <td class="transparentDataComment"></td>
             </tr>
             </table>
         """
@@ -2250,7 +2249,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="label"><a name="24579"></a>24579</td>
             <td class="instruction">JR <a class="link" href="24576.html#24577">24577</a></td>
-            <td class="transparentComment" />
+            <td class="transparentComment"></td>
             </tr>
             </table>
         """
@@ -2278,7 +2277,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="address"><a name="24581"></a>24581</td>
             <td class="instruction">DEFW 123</td>
-            <td class="transparentDataComment" />
+            <td class="transparentDataComment"></td>
             </tr>
             </table>
         """
@@ -2306,7 +2305,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="address"><a name="24583"></a>24583</td>
             <td class="instruction">DEFB 0</td>
-            <td class="transparentComment" />
+            <td class="transparentComment"></td>
             </tr>
             </table>
         """
@@ -2382,7 +2381,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '<tr>',
             '<td class="label"><a name="{address}"></a>{address:05d}</td>',
             '<td class="instruction">RET</td>',
-            '<td class="transparentComment" />',
+            '<td class="transparentComment"></td>',
             '</tr>',
             '</table>',
             ''
@@ -2531,7 +2530,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="label"><a name="50005"></a>50005</td>
             <td class="instruction">JP <a class="link" href="50000.html">START</a></td>
-            <td class="transparentComment" />
+            <td class="transparentComment"></td>
             </tr>
             </table>
         """
@@ -2559,7 +2558,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="address"><a name="50008"></a>50008</td>
             <td class="instruction">DEFW 50000</td>
-            <td class="transparentDataComment" />
+            <td class="transparentDataComment"></td>
             </tr>
             </table>
         """
@@ -3508,9 +3507,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         registers = []
         registers.append(Register('', 'A', 'Some value'))
         registers.append(Register('', 'B', 'Some other value'))
-        stream = StringIO()
-        writer.write_registers(stream, registers, ASMDIR)
-        self.assert_html_equal(stream.getvalue(), html, True)
+        input_reg, output_reg = writer._get_registers(registers, ASMDIR)
+        self.assert_html_equal(input_reg + output_reg, html, trim=True)
 
         # With prefixes
         html = """
@@ -3548,14 +3546,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         registers.append(Register('', 'B', 'Some other value'))
         registers.append(Register('Output', 'D', 'The result'))
         registers.append(Register('', 'E', 'Result flags'))
-        stream = StringIO()
-        writer.write_registers(stream, registers, ASMDIR)
-        self.assert_html_equal(stream.getvalue(), html, True)
+        input_reg, output_reg = writer._get_registers(registers, ASMDIR)
+        self.assert_html_equal(input_reg + output_reg, html, trim=True)
 
     def test_write_image(self):
         file_info = MockFileInfo('html', 'test_write_image')
         image_writer = MockImageWriter2()
-        writer = HtmlWriter(MockSkoolParser(), self._get_ref_parser(), file_info, image_writer)
+        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
 
         # PNG
         image_path = 'images/test.png'
@@ -3586,7 +3583,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_write_animated_image_png(self):
         file_info = MockFileInfo('html', 'test_write_animated_png')
         image_writer = MockImageWriter2()
-        writer = HtmlWriter(MockSkoolParser(), self._get_ref_parser(), file_info, image_writer)
+        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
 
         image_path = 'images/test_animated.png'
         frames = object()
@@ -3599,7 +3596,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_write_animated_image_gif(self):
         file_info = MockFileInfo('html', 'test_write_animated_gif')
         image_writer = MockImageWriter2()
-        writer = HtmlWriter(MockSkoolParser(), self._get_ref_parser(), file_info, image_writer)
+        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
 
         image_path = 'images/test_animated.gif'
         frames = object()
@@ -3612,7 +3609,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_write_animated_image_unsupported_format(self):
         file_info = MockFileInfo('html', 'test_write_animated_jpg')
         image_writer = MockImageWriter2()
-        writer = HtmlWriter(MockSkoolParser(), self._get_ref_parser(), file_info, image_writer)
+        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
 
         image_path = 'images/test_animated.jpg'
         with self.assertRaisesRegexp(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):

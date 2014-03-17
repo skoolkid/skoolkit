@@ -25,11 +25,17 @@ import posixpath
 import os.path
 from os.path import isfile, isdir, basename
 import inspect
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 from . import VERSION, warn, get_int_param, parse_int, SkoolKitError, SkoolParsingError
 from . import skoolmacro
 from .skoolmacro import MacroParsingError, UnsupportedMacroError
 from .skoolparser import TableParser, ListParser, CASE_LOWER
+from .refparser import RefParser
+from .defaults import REF_FILE
 
 #: The ID of the main disassembly.
 MAIN_CODE_ID = 'main'
@@ -78,10 +84,38 @@ T_HEAD = 'head'
 T_STYLESHEET = 'stylesheet'
 T_JAVASCRIPT = 'javascript'
 T_FOOTER = 'footer'
+
 T_INDEX_SECTION = 'index_section'
 T_LINK_LIST = 'link_list'
 T_LINK_LIST_ITEM = 'link_list_item'
 T_INDEX = 'index'
+
+T_HEADER = 'header'
+T_PREV_NEXT = 'prev_next'
+T_PREV = 'prev'
+T_UP = 'up'
+T_NEXT = 'next'
+T_INPUT = 'input'
+T_OUTPUT = 'output'
+T_REGISTER = 'register'
+T_REGISTERS_HEADER = 'registers_header'
+T_ANCHOR = 'anchor'
+T_ENTRY_COMMENT = 'entry_comment'
+T_LINK = 'link'
+T_DISASSEMBLY = 'disassembly'
+T_PARAGRAPH = 'paragraph'
+T_ASM_LABEL = 'asm_label'
+T_INSTRUCTION = 'instruction'
+T_INSTRUCTION_COMMENT = 'instruction_comment'
+T_ASM_ENTRY = 'asm_entry'
+T_ROUTINE_TITLE = 'routine_title'
+T_DATA_TITLE = 'data_title'
+T_GSB_TITLE = 'gsb_title'
+T_UNUSED_TITLE = 'unused_title'
+T_ROUTINE_HEADER = 'routine_header'
+T_DATA_HEADER = 'data_header'
+T_GSB_HEADER = 'gsb_header'
+T_UNUSED_HEADER = 'unused_header'
 
 def join(*path_components):
     return '/'.join([c for c in path_components if c.replace('/', '')])
@@ -105,6 +139,8 @@ class HtmlWriter:
     def __init__(self, skool_parser, ref_parser, file_info=None, image_writer=None, case=None, code_id=MAIN_CODE_ID):
         self.parser = skool_parser
         self.ref_parser = ref_parser
+        self.defaults = RefParser()
+        self.defaults.parse(StringIO(REF_FILE))
         self.file_info = file_info
         self.image_writer = image_writer
         self.default_image_format = image_writer.default_format
@@ -117,7 +153,9 @@ class HtmlWriter:
         self.entries = self.parser.entries
         self.memory_map = [e for e in self.parser.memory_map if e.ctl != 'i']
 
-        self.info = self.get_dictionary('Info')
+        self.info = self.defaults.get_dictionary('Info')
+        self.info.update(self.get_dictionary('Info'))
+        self.info['Created'] = self.info['Created'].replace('$VERSION', VERSION)
 
         self.table_parser = TableParser()
         self.list_parser = ListParser()
@@ -197,7 +235,7 @@ class HtmlWriter:
         self.changelog = self._get_changelog()
 
         self.templates = {}
-        for name, template in ref_parser.get_sections('Template'):
+        for name, template in self.defaults.get_sections('Template') + ref_parser.get_sections('Template'):
             self.templates[name] = template + '\n'
         self.footer = self._build_footer()
 
@@ -226,20 +264,19 @@ class HtmlWriter:
             html = html.replace('\n\n', '\n')
         return html
 
-    def _fill_template(self, template_name, subs):
-        return self.templates[template_name].format(**subs)
+    def _fill_template(self, template_name, subs=None, trim=False, strip=False):
+        html = self.templates[template_name].format(**(subs or {}))
+        if trim:
+            html = self._remove_blank_lines(html)
+        if strip:
+            html = html.strip()
+        return html
 
     def _build_footer(self):
         return self._get_footer() + '</body>\n</html>'
 
     def _get_footer(self):
-        t_footer_subs = {
-            'Release': '',
-            'Copyright': '',
-            'Created': 'Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> $VERSION.'
-        }
-        t_footer_subs.update(self.info)
-        t_footer_subs['Created'] = t_footer_subs['Created'].replace('$VERSION', VERSION)
+        t_footer_subs = {'Info': self.info}
         return self._fill_template(T_FOOTER, t_footer_subs)
 
     def _parse_links(self, links):
@@ -452,7 +489,10 @@ class HtmlWriter:
         return self.file_info.file_exists(fname)
 
     def join_paragraphs(self, paragraphs, cwd):
-        return '\n'.join(['<div class="paragraph">\n{0}\n</div>'.format(self.expand(p, cwd).strip()) for p in paragraphs])
+        lines = []
+        for p in paragraphs:
+            lines.append(self._fill_template(T_PARAGRAPH, {'paragraph': self.expand(p, cwd).strip()}))
+        return ''.join(lines).rstrip()
 
     def _get_screen_udg(self, row, col, df_addr=16384, af_addr=22528):
         attr = self.snapshot[af_addr + 32 * row + col]
@@ -727,24 +767,7 @@ class HtmlWriter:
             ofile.write('</div>\n')
         ofile.write(self.footer)
 
-    def write_prev_next(self, ofile, prev_link, next_link, up_link):
-        if prev_link or next_link or up_link:
-            prev_text = next_text = up_text = ''
-            if prev_link:
-                prev_text = 'Prev: {0}'.format(prev_link)
-            if next_link:
-                next_text = 'Next: {0}'.format(next_link)
-            if up_link:
-                up_text = 'Up: {0}'.format(up_link)
-            ofile.write('<table class="prevNext">\n')
-            ofile.write('<tr>\n')
-            ofile.write('<td class="prev">{0}</td>\n'.format(prev_text))
-            ofile.write('<td class="up">{0}</td>\n'.format(up_text))
-            ofile.write('<td class="next">{0}</td>\n'.format(next_text))
-            ofile.write('</tr>\n')
-            ofile.write('</table>\n')
-
-    def write_registers(self, ofile, registers, cwd):
+    def _get_registers(self, registers, cwd):
         input_values = []
         output_values = []
         mode = 'I'
@@ -758,61 +781,77 @@ class HtmlWriter:
 
         input_header = self.game_vars.get('InputRegisterTableHeader')
         output_header = self.game_vars.get('OutputRegisterTableHeader')
-        for table_class, header, registers in (('input', input_header, input_values), ('output', output_header, output_values)):
+        tables = []
+        for template, header, registers in ((T_INPUT, input_header, input_values), (T_OUTPUT, output_header, output_values)):
             if registers:
-                ofile.write('<table class="{0}">\n'.format(table_class))
                 if header:
-                    ofile.write('<tr>\n')
-                    ofile.write('<th colspan="2">{0}</th>\n'.format(header))
-                    ofile.write('</tr>\n')
+                    header = self._fill_template(T_REGISTERS_HEADER, {'header': header})
+                registers_html = ''
                 for reg in registers:
-                    ofile.write('<tr>\n')
-                    ofile.write('<td class="register">{0}</td>\n'.format(reg.name))
-                    ofile.write('<td class="registerContents">{0}</td>\n'.format(self.expand(reg.contents, cwd)))
-                    ofile.write('</tr>\n')
-                ofile.write('</table>\n')
+                    reg.description = self.expand(reg.contents, cwd)
+                    t_register_subs = {'register': reg}
+                    registers_html += self._fill_template(T_REGISTER, t_register_subs)
+                template_subs = {
+                    't_registers_header': header or '',
+                    't_registers': registers_html
+                }
+                tables.append(self._fill_template(template, template_subs))
+            else:
+                tables.append('')
+        return tables
 
     def write_entry(self, cwd, entry, fname=None, page_header=None, prev_entry=None, next_entry=None, up=None):
-        fname = fname or FileInfo.asm_fname(entry.address)
-        ofile = self.file_info.open_file(cwd, fname)
-        title_suffix = ''
+        title_subs = {
+            'address': entry.addr_str,
+            'label_suffix': ''
+        }
         asm_label = self.parser.get_asm_label(entry.address)
         if asm_label:
-            title_suffix = ' ({0})'.format(asm_label)
-        body_class = "disassembly"
+            title_subs['label_suffix'] = ' ({0})'.format(asm_label)
         if entry.is_routine():
-            title_format = "Routine at {0}"
-            page_header = page_header or "Routines"
+            title_template = T_ROUTINE_TITLE
+            page_header_template = T_ROUTINE_HEADER
         elif entry.ctl in 'suz':
-            title_format = "Unused RAM at {0}"
-            page_header = page_header or "Unused"
+            title_template = T_UNUSED_TITLE
+            page_header_template = T_UNUSED_HEADER
         elif entry.ctl == 'g':
-            title_format = "Game status buffer entry at {0}"
-            page_header = page_header or "Game status buffer"
+            title_template = T_GSB_TITLE
+            page_header_template = T_GSB_HEADER
         else:
-            title_format = "Data at {0}"
-            page_header = page_header or "Data"
-        self.write_header(ofile, title_format.format(entry.addr_str) + title_suffix, cwd, body_class, page_header)
+            title_template = T_DATA_TITLE
+            page_header_template = T_DATA_HEADER
+        title = self._fill_template(title_template, title_subs, strip=True)
+        page_header = page_header or self._fill_template(page_header_template, strip=True)
 
-        prev_link = None
+        prev_html = up_html = next_html = ''
         if prev_entry:
-            prev_file = FileInfo.asm_fname(prev_entry.address)
-            prev_link = '<a class="link" href="{0}">{1}</a>'.format(prev_file, prev_entry.addr_str)
-        next_link = None
-        if next_entry:
-            next_file = FileInfo.asm_fname(next_entry.address)
-            next_link = '<a class="link" href="{0}">{1}</a>'.format(next_file, next_entry.addr_str)
-        up_link = None
+            t_prev_subs = {
+                'href': FileInfo.asm_fname(prev_entry.address),
+                'text': prev_entry.addr_str
+            }
+            prev_html = self._fill_template(T_PREV, t_prev_subs, strip=True)
         if up:
-            map_path = FileInfo.relpath(cwd, up)
-            up_link = '<a class="link" href="{0}#{1}">Map</a>'.format(map_path, entry.address)
-        self.write_prev_next(ofile, prev_link, next_link, up_link)
+            t_up_subs = {
+                'href': '{}#{}'.format(FileInfo.relpath(cwd, up), entry.address)
+            }
+            up_html = self._fill_template(T_UP, t_up_subs, strip=True)
+        if next_entry:
+            t_next_subs = {
+                'href': FileInfo.asm_fname(next_entry.address),
+                'text': next_entry.addr_str
+            }
+            next_html = self._fill_template(T_NEXT, t_next_subs, strip=True)
+        t_prev_next_subs = {
+            't_prev': prev_html,
+            't_up': up_html,
+            't_next': next_html
+        }
+        prev_next = self._fill_template(T_PREV_NEXT, t_prev_next_subs)
 
         desc = self.expand(entry.description, cwd)
         label_text = ''
         if asm_label:
             label_text = '{0}: '.format(asm_label)
-        ofile.write('<div class="description">{0}{1}: {2}</div>\n'.format(label_text, entry.addr_str, desc))
 
         table_class = 'disassembly'
         comment_class = 'comment'
@@ -821,7 +860,6 @@ class HtmlWriter:
             table_class = 'dataDisassembly'
             comment_class = 'dataComment'
             transparent_class = 'transparentDataComment'
-        ofile.write('<table class="{0}">\n'.format(table_class))
 
         show_comment_col = False
         show_label_col = False
@@ -834,39 +872,28 @@ class HtmlWriter:
                 routine_comment_colspan = 4
             if show_comment_col and show_label_col:
                 break
-        routine_comment_td = '<td class="routineComment" colspan="{}">\n'.format(routine_comment_colspan)
 
-        ofile.write('<tr>\n')
-        ofile.write(routine_comment_td)
-        ofile.write('<div class="details">\n')
+        input_reg, output_reg = self._get_registers(entry.registers, cwd)
+
         if entry.details:
-            ofile.write('{0}\n'.format(self.join_paragraphs(entry.details, cwd)))
-        ofile.write('</div>\n')
-        if entry.registers:
-            self.write_registers(ofile, entry.registers, cwd)
-        ofile.write('</td>\n')
-        ofile.write('</tr>\n')
+            entry_details = self.join_paragraphs(entry.details, cwd)
+        else:
+            entry_details = ''
 
+        lines = []
         for instruction in entry.instructions:
             mid_routine_comments = entry.get_mid_routine_comment(instruction.label)
             address = instruction.address
-            anchor = '<a name="{0}"></a>'.format(address)
+            anchor = self._fill_template(T_ANCHOR, {'anchor': address}, strip=True)
             if mid_routine_comments:
-                ofile.write('<tr>\n')
-                ofile.write(routine_comment_td)
-                ofile.write('{0}\n'.format(anchor))
-                ofile.write('<div class="comments">\n{0}\n</div>\n'.format(self.join_paragraphs(mid_routine_comments, cwd)))
-                ofile.write('</td>\n')
-                ofile.write('</tr>\n')
+                t_entry_comment_subs = {
+                    'colspan': routine_comment_colspan,
+                    't_anchor': anchor,
+                    't_paragraphs': self.join_paragraphs(mid_routine_comments, cwd)
+                }
+                lines.append(self._fill_template(T_ENTRY_COMMENT, t_entry_comment_subs))
                 anchor = ''
-            ofile.write('<tr>\n')
-            if show_label_col:
-                ofile.write('<td class="asmLabel">{}</td>\n'.format(instruction.asm_label or ''))
-            if instruction.ctl in 'c*!':
-                tdclass = 'label'
-            else:
-                tdclass = 'address'
-            ofile.write('<td class="{0}">{1}{2}</td>\n'.format(tdclass, anchor, instruction.addr_str))
+
             operation, reference = instruction.operation, instruction.reference
             if reference and operation.upper().startswith(self.link_operands):
                 entry_address = reference.entry.address
@@ -881,33 +908,77 @@ class HtmlWriter:
                     # This is a reference to an entry in the same disassembly
                     entry_file = FileInfo.asm_fname(entry_address)
                 link_text = self.parser.get_asm_label(reference.address) or reference.addr_str
-                link = '<a class="link" href="{0}{1}">{2}</a>'.format(entry_file, name, link_text)
+                t_link_subs = {
+                    'href': entry_file + name,
+                    'link_text': link_text
+                }
+                link = self._fill_template(T_LINK, t_link_subs, strip=True)
                 operation = operation.replace(reference.addr_str, link)
-            ofile.write('<td class="instruction">{0}</td>\n'.format(operation))
+            t_instruction_subs = {
+                't_asm_label': '',
+                'class': 'address',
+                't_anchor': anchor,
+                'address': instruction.addr_str,
+                'instruction': operation,
+                't_instruction_comment': ''
+            }
+            if show_label_col:
+                t_instruction_subs['t_asm_label'] = self._fill_template(T_ASM_LABEL, {'label': instruction.asm_label or ''})
+            if instruction.ctl in 'c*!':
+                t_instruction_subs['class'] = 'label'
+            t_instruction_comment_subs = None
             if show_comment_col:
                 comment = instruction.comment
                 if comment:
-                    if comment.rowspan < 2:
-                        rowspan = ''
-                    else:
-                        rowspan = ' rowspan="{0}"'.format(comment.rowspan)
-                    comment_html = self.expand(comment.text, cwd)
-                    ofile.write('<td class="{0}"{1}>{2}</td>\n'.format(comment_class, rowspan, comment_html))
+                    t_instruction_comment_subs = {
+                        'class': comment_class,
+                        'rowspan': '',
+                        'comment': self.expand(comment.text, cwd)
+                    }
+                    if comment.rowspan > 1:
+                        t_instruction_comment_subs['rowspan'] = ' rowspan="{0}"'.format(comment.rowspan)
             else:
-                ofile.write('<td class="{0}" />\n'.format(transparent_class))
-            ofile.write('</tr>\n')
+                t_instruction_comment_subs = {
+                    'class': transparent_class,
+                    'rowspan': '',
+                    'comment': ''
+                }
+            if t_instruction_comment_subs:
+                t_instruction_subs['t_instruction_comment'] = self._fill_template(T_INSTRUCTION_COMMENT, t_instruction_comment_subs)
+            lines.append(self._fill_template(T_INSTRUCTION, t_instruction_subs))
 
         if entry.end_comment:
-            ofile.write('<tr>\n')
-            ofile.write(routine_comment_td)
-            ofile.write('<div class="comments">\n{0}\n</div>\n'.format(self.join_paragraphs(entry.end_comment, cwd)))
-            ofile.write('</td>\n')
-            ofile.write('</tr>\n')
+            t_entry_comment_subs = {
+                'colspan': routine_comment_colspan,
+                't_anchor': '',
+                't_paragraphs': self.join_paragraphs(entry.end_comment, cwd)
+            }
+            lines.append(self._fill_template(T_ENTRY_COMMENT, t_entry_comment_subs))
 
-        ofile.write('</table>\n')
+        instructions_html = ''.join(lines)
 
-        self.write_prev_next(ofile, prev_link, next_link, up_link)
-        ofile.write(self.footer)
+        t_disassembly_subs = {
+            'table_class': table_class,
+            'colspan': routine_comment_colspan,
+            'entry_details': entry_details,
+            't_input': input_reg,
+            't_output': output_reg,
+            't_instructions': instructions_html
+        }
+        disassembly = self._fill_template(T_DISASSEMBLY, t_disassembly_subs)
+
+        t_asm_entry_subs = {
+            't_head': self._get_head(title, cwd),
+            't_header': self._get_header(cwd, page_header),
+            't_prev_next': prev_next,
+            'entry_title': '{}{}: {}'.format(label_text, entry.addr_str, desc),
+            't_disassembly': disassembly,
+            't_footer': self._get_footer()
+        }
+
+        fname = fname or FileInfo.asm_fname(entry.address)
+        with self.file_info.open_file(cwd, fname) as ofile:
+            ofile.write(self._fill_template(T_ASM_ENTRY, t_asm_entry_subs, True))
 
     def write_entries(self, cwd, map_file, page_header=None):
         prev_entry = None
@@ -1053,17 +1124,19 @@ class HtmlWriter:
 
     def write_header(self, ofile, title, cwd, body_class, body_title=None, js=None):
         self.write_head(ofile, title, cwd, js)
-        index = FileInfo.relpath(cwd, self.paths[P_GAME_INDEX])
         if body_class:
             ofile.write('<body class="{0}">\n'.format(body_class))
         else:
             ofile.write('<body>\n')
-        ofile.write('<table class="header">\n')
-        ofile.write('<tr>\n')
-        ofile.write('<td class="headerLogo"><a class="link" href="{0}">{1}</a></td>\n'.format(index, self._get_logo(cwd)))
-        ofile.write('<td class="headerText">{0}</td>\n'.format(body_title or title))
-        ofile.write('</tr>\n')
-        ofile.write('</table>\n')
+        ofile.write(self._get_header(cwd, body_title or title))
+
+    def _get_header(self, cwd, header):
+        t_header_subs = {
+            'href': FileInfo.relpath(cwd, self.paths[P_GAME_INDEX]),
+            'Logo': self._get_logo(cwd),
+            'header': header
+        }
+        return self._fill_template(T_HEADER, t_header_subs)
 
     def _get_image_format(self, image_path):
         img_file_ext = image_path.lower()[-4:]
