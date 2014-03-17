@@ -117,6 +117,13 @@ T_DATA_HEADER = 'data_header'
 T_GSB_HEADER = 'gsb_header'
 T_UNUSED_HEADER = 'unused_header'
 
+T_MAP = 'map'
+T_MAP_ENTRY = 'map_entry'
+T_MAP_INTRO = 'map_intro'
+T_MAP_PAGE_BYTE_HEADER = 'map_page_byte_header'
+T_MAP_PAGE_BYTE = 'map_page_byte'
+T_MAP_UNUSED_DESC = 'map_unused_desc'
+
 def join(*path_components):
     return '/'.join([c for c in path_components if c.replace('/', '')])
 
@@ -653,14 +660,14 @@ class HtmlWriter:
                 sections_html.append(self._fill_template(T_INDEX_SECTION, t_index_section_subs))
 
         t_index_subs = {
-            't_head': self._get_head('Index', cwd),
+            't_head': self._get_head(cwd, 'Index'),
             'TitlePrefix': self.game_vars.get('TitlePrefix', 'The complete'),
             'Logo': self._get_logo(cwd),
             'TitleSuffix': self.game_vars.get('TitleSuffix', 'RAM disassembly'),
             't_index_sections': '\n'.join(sections_html),
             't_footer': self._get_footer()
         }
-        ofile.write(self._remove_blank_lines(self._fill_template(T_INDEX, t_index_subs)))
+        ofile.write(self._fill_template(T_INDEX, t_index_subs, True))
 
     def write_gbuffer(self):
         ofile, cwd = self.open_file(self.paths[P_GSB])
@@ -968,7 +975,7 @@ class HtmlWriter:
         disassembly = self._fill_template(T_DISASSEMBLY, t_disassembly_subs)
 
         t_asm_entry_subs = {
-            't_head': self._get_head(title, cwd),
+            't_head': self._get_head(cwd, title),
             't_header': self._get_header(cwd, page_header),
             't_prev_next': prev_next,
             'entry_title': '{}{}: {}'.format(label_text, entry.addr_str, desc),
@@ -1006,36 +1013,16 @@ class HtmlWriter:
         return self.paths.get(map_name, '{0}.html'.format(map_name))
 
     def write_map(self, map_details):
+        map_entries = []
         map_file = self.get_map_path(map_details)
-        if 'Title' in map_details:
-            title = map_details['Title']
-        else:
-            map_name = map_details['Name']
-            title = self.titles.get(map_name, map_name)
+        cwd = os.path.dirname(map_file)
         entry_types = map_details.get('EntryTypes', 'bcgstuwz')
         show_page_byte = map_details.get('PageByteColumns', '0') != '0'
-        intro = map_details.get('Intro')
         asm_path = map_details.get('AsmPath', self.code_path)
-
-        cwd = os.path.dirname(map_file)
-        ofile = self.file_info.open_file(map_file)
-        self.write_header(ofile, title, cwd, "map")
-        if intro:
-            ofile.write('<div class="mapIntro">{0}</div>\n'.format(self.expand(intro, cwd)))
-        headers = ['Address', 'Description']
-        if show_page_byte:
-            headers.insert(0, 'Page')
-            headers.insert(1, 'Byte')
-        ofile.write('<table class="map">\n')
-        ofile.write('<tr>\n')
-        for header in headers:
-            ofile.write('<th>{0}</th>\n'.format(header))
-        ofile.write('</tr>\n')
 
         for entry in self.memory_map:
             if entry.ctl not in entry_types:
                 continue
-
             purpose = entry.description
             if entry.ctl == 'c':
                 entry_class = 'routine'
@@ -1047,32 +1034,56 @@ class HtmlWriter:
                 entry_class = 'gbuffer'
                 desc_class = 'gbufferDesc'
             elif entry.ctl in 'suz':
-                size = entry.size
-                if size > 1:
+                if entry.size > 1:
                     suffix = 's'
                 else:
                     suffix = ''
-                purpose = 'Unused ({0} byte{1})'.format(size, suffix)
+                t_map_unused_desc_subs = {'entry': entry, 'suffix': suffix}
+                purpose = self._fill_template(T_MAP_UNUSED_DESC, t_map_unused_desc_subs, strip=True)
                 entry_class = 'unused'
                 desc_class = 'unusedDesc'
             elif entry.ctl == 't':
                 entry_class = 'message'
                 desc_class = 'messageDesc'
-
             address = entry.address
-            ofile.write('<tr>\n')
-            if show_page_byte:
-                ofile.write('<td class="mapPage">{0}</td>\n'.format(address // 256))
-                ofile.write('<td class="mapByte">{0}</td>\n'.format(address % 256))
             asm_relpath = FileInfo.relpath(cwd, asm_path)
             asm_file = FileInfo.asm_fname(address, asm_relpath)
-            content = '<a class="link" name="{0}" href="{1}">{2}</a>'.format(address, asm_file, entry.addr_str)
-            ofile.write('<td class="{0}">{1}</td>\n'.format(entry_class, content))
-            ofile.write('<td class="{0}">{1}</td>\n'.format(desc_class, self.expand(purpose, cwd)))
-            ofile.write('</tr>\n')
+            page_byte = ''
+            if show_page_byte:
+                t_map_page_byte_subs = {'page': address // 256, 'byte': address % 256}
+                page_byte = self._fill_template(T_MAP_PAGE_BYTE, t_map_page_byte_subs)
+            entry.title = self.expand(purpose, cwd)
+            t_map_entry_subs = {
+                't_map_page_byte': page_byte,
+                'class': entry_class,
+                'href': asm_file,
+                'desc_class': desc_class,
+                'entry': entry
+            }
+            map_entries.append(self._fill_template(T_MAP_ENTRY, t_map_entry_subs))
 
-        ofile.write('</table>\n')
-        ofile.write(self.footer)
+        if 'Title' in map_details:
+            title = map_details['Title']
+        else:
+            map_name = map_details['Name']
+            title = self.titles.get(map_name, map_name)
+        intro = map_details.get('Intro', '')
+        if intro:
+            intro = self._fill_template(T_MAP_INTRO, {'intro': self.expand(intro, cwd)})
+        page_byte_headers = ''
+        if show_page_byte:
+            page_byte_headers = self._fill_template(T_MAP_PAGE_BYTE_HEADER)
+
+        t_map_subs = {
+            't_head': self._get_head(cwd, title),
+            't_header': self._get_header(cwd, title),
+            't_map_intro': intro,
+            't_map_page_byte_header': page_byte_headers,
+            't_map_entries': ''.join(map_entries),
+            't_footer': self._get_footer()
+        }
+        with self.file_info.open_file(map_file) as ofile:
+            ofile.write(self._fill_template(T_MAP, t_map_subs, True))
 
     def write_page(self, page_id):
         ofile, cwd = self.open_file(self.paths[page_id])
@@ -1090,9 +1101,9 @@ class HtmlWriter:
         return ofile, cwd
 
     def write_head(self, ofile, title, cwd, js=None):
-        ofile.write(self._get_head(title, cwd, js))
+        ofile.write(self._get_head(cwd, title, js))
 
-    def _get_head(self, title, cwd, js=None):
+    def _get_head(self, cwd, title, js=None):
         stylesheets = []
         for css_file in self.game_vars['StyleSheet'].split(';'):
             t_stylesheet_subs = {'href': FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}

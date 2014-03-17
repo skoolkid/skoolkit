@@ -208,4 +208,42 @@ Next: <a class="link" href="{href}">{text}</a>
 
 [Template:link]
 <a class="link" href="{href}">{link_text}</a>
+
+[Template:map]
+{t_head}
+<body class="map">
+{t_header}
+{t_map_intro}
+<table class="map">
+<tr>
+{t_map_page_byte_header}
+<th>Address</th>
+<th>Description</th>
+</tr>
+{t_map_entries}
+</table>
+{t_footer}
+</body>
+</html>
+
+[Template:map_intro]
+<div class="mapIntro">{intro}</div>
+
+[Template:map_entry]
+<tr>
+{t_map_page_byte}
+<td class="{class}"><a class="link" name="{entry.address}" href="{href}">{entry.addr_str}</a></td>
+<td class="{desc_class}">{entry.title}</td>
+</tr>
+
+[Template:map_page_byte_header]
+<th>Page</th>
+<th>Byte</th>
+
+[Template:map_page_byte]
+<td class="mapPage">{page}</td>
+<td class="mapByte">{byte}</td>
+
+[Template:map_unused_desc]
+Unused ({entry.size} byte{suffix})
 """.lstrip()
