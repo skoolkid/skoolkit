@@ -761,7 +761,7 @@ class HtmlWriter:
         self._write_box_page(P_FACTS, self.facts)
 
     def write_glossary(self):
-        self.write_box_page(self.paths[P_GLOSSARY], self.titles[P_GLOSSARY], 'glossary', self.glossary)
+        self._write_box_page(P_GLOSSARY, self.glossary)
 
     def _build_changelog_items(self, items, level=0):
         changelog_items = []
