@@ -592,7 +592,7 @@ class HtmlWriter:
         ofile.write(self.footer)
 
     def write_graphic_glitches(self):
-        self.write_box_page(self.paths[P_GRAPHIC_GLITCHES], self.titles[P_GRAPHIC_GLITCHES], 'graphics', self.graphic_glitches)
+        self._write_box_page(P_GRAPHIC_GLITCHES, self.graphic_glitches)
 
     def write_index(self):
         ofile, cwd = self.open_file(self.paths[P_GAME_INDEX])
@@ -706,9 +706,6 @@ class HtmlWriter:
         ofile.write(self._fill_template(T_GAME_STATUS_BUFFER, t_game_status_buffer_subs, True))
         ofile.close()
 
-    def write_link_list(self, ofile, link_list):
-        ofile.write(self._get_link_list(link_list))
-
     def _get_link_list(self, link_list):
         items = []
         for anchor, title in link_list:
@@ -716,9 +713,6 @@ class HtmlWriter:
             items.append(self._fill_template('contents_list_item', {'item': item}))
         t_contents_list_subs = {'t_contents_list_items': ''.join(items).strip()}
         return self._fill_template('contents_list', t_contents_list_subs)
-
-    def write_boxes(self, ofile, boxes, cwd):
-        ofile.write(self._get_boxes(cwd, boxes))
 
     def _get_boxes(self, cwd, boxes):
         html = ''
@@ -731,13 +725,6 @@ class HtmlWriter:
             }
             html += self._fill_template('box', t_box_subs)
         return html
-
-    def write_box_page(self, fname, title, body_class, boxes):
-        ofile, cwd = self.open_file(fname)
-        self.write_header(ofile, title, cwd, body_class)
-        self.write_link_list(ofile, [(anchor, title) for anchor, title, p in boxes])
-        self.write_boxes(ofile, boxes, cwd)
-        ofile.write(self.footer)
 
     def _write_box_page(self, page_id, boxes):
         ofile, cwd = self.open_file(self.paths[page_id])
