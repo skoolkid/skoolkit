@@ -359,6 +359,15 @@ Unused ({entry.size} byte{suffix})
 </body>
 </html>
 
+[Template:Graphics]
+{t_head}
+<body class="graphics">
+{t_header}
+{Graphics}
+{t_footer}
+</body>
+</html>
+
 [Template:box]
 <div>{t_anchor}</div>
 <div class="box box{box_num}">

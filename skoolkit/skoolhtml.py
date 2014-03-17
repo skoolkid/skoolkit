@@ -586,10 +586,14 @@ class HtmlWriter:
 
     def write_graphics(self):
         ofile, cwd = self.open_file(self.paths[P_GRAPHICS])
-        self.write_header(ofile, self.titles[P_GRAPHICS], cwd, 'graphics')
-        ofile.write(self.expand(self.graphics, cwd))
-        ofile.write('\n')
-        ofile.write(self.footer)
+        t_graphics_subs = {
+            't_head': self._get_head(cwd, self.titles[P_GRAPHICS]).rstrip(),
+            't_header': self._get_header(cwd, self.titles[P_GRAPHICS]).rstrip(),
+            'Graphics': self.expand(self.graphics, cwd),
+            't_footer': self._get_footer().rstrip()
+        }
+        ofile.write(self._fill_template('Graphics', t_graphics_subs))
+        ofile.close()
 
     def write_graphic_glitches(self):
         self._write_box_page(P_GRAPHIC_GLITCHES, self.graphic_glitches)
