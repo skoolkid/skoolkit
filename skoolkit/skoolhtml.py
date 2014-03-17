@@ -758,7 +758,7 @@ class HtmlWriter:
         self._write_box_page(P_BUGS, self.bugs)
 
     def write_facts(self):
-        self.write_box_page(self.paths[P_FACTS], self.titles[P_FACTS], 'facts', self.facts)
+        self._write_box_page(P_FACTS, self.facts)
 
     def write_glossary(self):
         self.write_box_page(self.paths[P_GLOSSARY], self.titles[P_GLOSSARY], 'glossary', self.glossary)

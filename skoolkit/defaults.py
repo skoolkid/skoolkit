@@ -329,6 +329,16 @@ Unused ({entry.size} byte{suffix})
 </body>
 </html>
 
+[Template:Facts]
+{t_head}
+<body class="facts">
+{t_header}
+{t_contents_list}
+{t_boxes}
+{t_footer}
+</body>
+</html>
+
 [Template:box]
 <div>{t_anchor}</div>
 <div class="box box{box_num}">
