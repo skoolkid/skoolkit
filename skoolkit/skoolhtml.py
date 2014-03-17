@@ -247,7 +247,7 @@ class HtmlWriter:
         self.templates = {}
         for name, template in self.defaults.get_sections('Template') + ref_parser.get_sections('Template'):
             self.templates[name] = template + '\n'
-        self.footer = self._build_footer()
+        self.footer = self._fill_template(T_FOOTER, {'Info': self.info})
 
         self.init()
 
@@ -281,13 +281,6 @@ class HtmlWriter:
         if strip:
             html = html.strip()
         return html
-
-    def _build_footer(self):
-        return self._get_footer() + '</body>\n</html>'
-
-    def _get_footer(self):
-        t_footer_subs = {'Info': self.info}
-        return self._fill_template(T_FOOTER, t_footer_subs)
 
     def _parse_links(self, links):
         new_links = {}
@@ -590,7 +583,7 @@ class HtmlWriter:
             't_head': self._get_head(cwd, self.titles[P_GRAPHICS]).rstrip(),
             't_header': self._get_header(cwd, self.titles[P_GRAPHICS]).rstrip(),
             'Graphics': self.expand(self.graphics, cwd),
-            't_footer': self._get_footer().rstrip()
+            't_footer': self.footer.rstrip()
         }
         ofile.write(self._fill_template('Graphics', t_graphics_subs))
         ofile.close()
@@ -672,7 +665,7 @@ class HtmlWriter:
             'Logo': self._get_logo(cwd),
             'TitleSuffix': self.game_vars.get('TitleSuffix', 'RAM disassembly'),
             't_index_sections': '\n'.join(sections_html),
-            't_footer': self._get_footer()
+            't_footer': self.footer
         }
         ofile.write(self._fill_template(T_INDEX, t_index_subs, True))
 
@@ -705,7 +698,7 @@ class HtmlWriter:
             't_head': self._get_head(cwd, self.titles[P_GSB]),
             't_header': self._get_header(cwd, self.titles[P_GSB]),
             't_gsb_entries': ''.join(gsb_entries),
-            't_footer': self._get_footer()
+            't_footer': self.footer
         }
         ofile.write(self._fill_template(T_GAME_STATUS_BUFFER, t_game_status_buffer_subs, True))
         ofile.close()
@@ -737,7 +730,7 @@ class HtmlWriter:
             't_header': self._get_header(cwd, self.titles[page_id]),
             't_contents_list': self._get_link_list([(anchor, title) for anchor, title, p in boxes]),
             't_boxes': self._get_boxes(cwd, boxes),
-            't_footer': self._get_footer()
+            't_footer': self.footer
         }
         ofile.write(self._fill_template(page_id, t_subs, True))
         ofile.close()
@@ -812,7 +805,7 @@ class HtmlWriter:
             't_header': self._get_header(cwd, self.titles[P_CHANGELOG]),
             't_contents_list': self._get_link_list(contents),
             't_changelog_entries': ''.join(entries),
-            't_footer': self._get_footer()
+            't_footer': self.footer
         }
         ofile.write(self._fill_template('Changelog', t_changelog_subs, True))
         ofile.close()
@@ -1023,7 +1016,7 @@ class HtmlWriter:
             't_prev_next': prev_next,
             'entry_title': '{}{}: {}'.format(label_text, entry.addr_str, desc),
             't_disassembly': disassembly,
-            't_footer': self._get_footer()
+            't_footer': self.footer
         }
 
         fname = fname or FileInfo.asm_fname(entry.address)
@@ -1123,7 +1116,7 @@ class HtmlWriter:
             't_map_intro': intro,
             't_map_page_byte_header': page_byte_headers,
             't_map_entries': ''.join(map_entries),
-            't_footer': self._get_footer()
+            't_footer': self.footer
         }
         with self.file_info.open_file(map_file) as ofile:
             ofile.write(self._fill_template(T_MAP, t_map_subs, True))
@@ -1131,12 +1124,18 @@ class HtmlWriter:
     def write_page(self, page_id):
         ofile, cwd = self.open_file(self.paths[page_id])
         page = self.pages[page_id]
-        body_class = page.get('BodyClass')
-        js = page.get('JavaScript')
-        self.write_header(ofile, self.titles[page_id], cwd, body_class, js=js)
-        page_content = self.expand(self.page_contents[page_id], cwd).strip()
-        ofile.write('{0}\n'.format(page_content))
-        ofile.write(self.footer)
+        body_class = page.get('BodyClass', '')
+        if body_class:
+            body_class = ' class="{}"'.format(body_class)
+        t_custom_page_subs = {
+            't_head': self._get_head(cwd, self.titles[page_id], page.get('JavaScript')).rstrip(),
+            't_header': self._get_header(cwd, self.titles[page_id]).rstrip(),
+            'class': body_class,
+            'content': self.expand(self.page_contents[page_id], cwd),
+            't_footer': self.footer.rstrip()
+        }
+        ofile.write(self._fill_template('custom_page', t_custom_page_subs))
+        ofile.close()
 
     def open_file(self, fname):
         ofile = self.file_info.open_file(fname)

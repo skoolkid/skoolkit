@@ -368,6 +368,15 @@ Unused ({entry.size} byte{suffix})
 </body>
 </html>
 
+[Template:custom_page]
+{t_head}
+<body{class}>
+{t_header}
+{content}
+{t_footer}
+</body>
+</html>
+
 [Template:box]
 <div>{t_anchor}</div>
 <div class="box box{box_num}">
