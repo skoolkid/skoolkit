@@ -308,4 +308,21 @@ Unused ({entry.size} byte{suffix})
 
 [Template:changelog_item]
 <li>{item}</li>
+
+[Template:Pokes]
+{t_head}
+<body class="pokes">
+{t_header}
+{t_contents_list}
+{t_boxes}
+{t_footer}
+</body>
+</html>
+
+[Template:box]
+<div>{t_anchor}</div>
+<div class="box box{box_num}">
+<div class="boxTitle">{title}</div>
+{contents}
+</div>
 """.lstrip()

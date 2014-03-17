@@ -707,21 +707,30 @@ class HtmlWriter:
         ofile.close()
 
     def write_link_list(self, ofile, link_list):
-        ofile.write('<ul class="linkList">\n')
+        ofile.write(self._get_link_list(link_list))
+
+    def _get_link_list(self, link_list):
+        items = []
         for anchor, title in link_list:
-            ofile.write('<li><a class="link" href="#{0}">{1}</a></li>\n'.format(anchor, title))
-        ofile.write('</ul>\n')
+            item = {'url': '#' + anchor, 'title': title}
+            items.append(self._fill_template('contents_list_item', {'item': item}))
+        t_contents_list_subs = {'t_contents_list_items': ''.join(items).strip()}
+        return self._fill_template('contents_list', t_contents_list_subs)
 
     def write_boxes(self, ofile, boxes, cwd):
-        box_num = 1
-        for anchor, title, paragraphs in boxes:
-            ofile.write('<div><a name="{0}"></a></div>\n'.format(anchor))
-            ofile.write('<div class="box box{0}">\n'.format(box_num))
-            ofile.write('<div class="boxTitle">{0}</div>\n'.format(title))
-            for paragraph in paragraphs:
-                ofile.write('<div class="paragraph">\n{0}\n</div>\n'.format(self.expand(paragraph, cwd).strip()))
-            ofile.write('</div>\n')
-            box_num = 3 - box_num
+        ofile.write(self._get_boxes(cwd, boxes))
+
+    def _get_boxes(self, cwd, boxes):
+        html = ''
+        for i, (anchor, title, paragraphs) in enumerate(boxes):
+            t_box_subs = {
+                't_anchor': self._fill_template(T_ANCHOR, {'anchor': anchor}, strip=True),
+                'box_num': 1 + i % 2,
+                'title': title,
+                'contents': self.join_paragraphs(paragraphs, cwd)
+            }
+            html += self._fill_template('box', t_box_subs)
+        return html
 
     def write_box_page(self, fname, title, body_class, boxes):
         ofile, cwd = self.open_file(fname)
@@ -730,8 +739,20 @@ class HtmlWriter:
         self.write_boxes(ofile, boxes, cwd)
         ofile.write(self.footer)
 
+    def _write_box_page(self, page_id, boxes):
+        ofile, cwd = self.open_file(self.paths[page_id])
+        t_subs = {
+            't_head': self._get_head(cwd, self.titles[page_id]),
+            't_header': self._get_header(cwd, self.titles[page_id]),
+            't_contents_list': self._get_link_list([(anchor, title) for anchor, title, p in boxes]),
+            't_boxes': self._get_boxes(cwd, boxes),
+            't_footer': self._get_footer()
+        }
+        ofile.write(self._fill_template(page_id, t_subs, True))
+        ofile.close()
+
     def write_pokes(self):
-        self.write_box_page(self.paths[P_POKES], self.titles[P_POKES], 'pokes', self.pokes)
+        self._write_box_page(P_POKES, self.pokes)
 
     def write_bugs(self):
         self.write_box_page(self.paths[P_BUGS], self.titles[P_BUGS], 'bugs', self.bugs)
@@ -760,15 +781,11 @@ class HtmlWriter:
 
     def write_changelog(self):
         ofile, cwd = self.open_file(self.paths[P_CHANGELOG])
-        contents = []
-        for title, description, items in self.changelog:
-            item = {'url': '#' + title, 'title': title}
-            contents.append(self._fill_template('contents_list_item', {'item': item}))
-        t_contents_list_subs = {'t_contents_list_items': ''.join(contents)}
-        contents_list = self._fill_template('contents_list', t_contents_list_subs)
 
+        contents = []
         entries = []
         for j, (title, description, items) in enumerate(self.changelog):
+            contents.append((title, title))
             changelog_items = []
             for item in items:
                 indents = [(0, changelog_items)]
@@ -802,7 +819,7 @@ class HtmlWriter:
         t_changelog_subs = {
             't_head': self._get_head(cwd, self.titles[P_CHANGELOG]),
             't_header': self._get_header(cwd, self.titles[P_CHANGELOG]),
-            't_contents_list': contents_list,
+            't_contents_list': self._get_link_list(contents),
             't_changelog_entries': ''.join(entries),
             't_footer': self._get_footer()
         }
