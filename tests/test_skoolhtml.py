@@ -3381,6 +3381,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="gbufLength">2</td>
             <td class="gbufDesc">
             <div class="gbufDesc">GSB entry 2</div>
+            <div class="gbufDetails">
+            </div>
             </td>
             </tr>
             <tr>
@@ -3388,6 +3390,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="gbufLength">1</td>
             <td class="gbufDesc">
             <div class="gbufDesc">Message ID</div>
+            <div class="gbufDetails">
+            </div>
             </td>
             </tr>
             <tr>
@@ -3395,6 +3399,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="gbufLength">1</td>
             <td class="gbufDesc">
             <div class="gbufDesc">Another message ID</div>
+            <div class="gbufDetails">
+            </div>
             </td>
             </tr>
             </table>

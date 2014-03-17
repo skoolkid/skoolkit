@@ -246,4 +246,32 @@ Next: <a class="link" href="{href}">{text}</a>
 
 [Template:map_unused_desc]
 Unused ({entry.size} byte{suffix})
+
+[Template:GameStatusBuffer]
+{t_head}
+<body class="gbuffer">
+{t_header}
+<table class="gbuffer">
+<tr>
+<th>Address</th>
+<th>Length</th>
+<th>Purpose</th>
+</tr>
+{t_gsb_entries}
+</table>
+{t_footer}
+</body>
+</html>
+
+[Template:gsb_entry]
+<tr>
+<td class="gbufAddress"><a name="{entry[location]}" class="link" href="{entry[url]}">{entry[address]}</a></td>
+<td class="gbufLength">{entry[size]}</td>
+<td class="gbufDesc">
+<div class="gbufDesc">{entry[title]}</div>
+<div class="gbufDetails">
+{entry[description]}
+</div>
+</td>
+</tr>
 """.lstrip()

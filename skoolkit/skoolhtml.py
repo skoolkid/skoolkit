@@ -124,6 +124,9 @@ T_MAP_PAGE_BYTE_HEADER = 'map_page_byte_header'
 T_MAP_PAGE_BYTE = 'map_page_byte'
 T_MAP_UNUSED_DESC = 'map_unused_desc'
 
+T_GAME_STATUS_BUFFER = 'GameStatusBuffer'
+T_GSB_ENTRY = 'gsb_entry'
+
 def join(*path_components):
     return '/'.join([c for c in path_components if c.replace('/', '')])
 
@@ -669,34 +672,39 @@ class HtmlWriter:
         }
         ofile.write(self._fill_template(T_INDEX, t_index_subs, True))
 
+    def _get_entry_dict(self, cwd, entry):
+        desc = ''
+        if entry.details:
+            desc = self.join_paragraphs(entry.details, cwd)
+        return {
+            'location': entry.address,
+            'address': entry.addr_str,
+            'description': desc,
+            'url': FileInfo.asm_relpath(cwd, entry.address, self.code_path),
+            'size': entry.size,
+            'title': self.expand(entry.description, cwd),
+        }
+
     def write_gbuffer(self):
         ofile, cwd = self.open_file(self.paths[P_GSB])
-        self.write_header(ofile, self.titles[P_GSB], cwd, "gbuffer")
-        ofile.write('<table class="gbuffer">\n')
-        ofile.write('<tr>\n')
-        ofile.write('<th>Address</th>\n')
-        ofile.write('<th>Length</th>\n')
-        ofile.write('<th>Purpose</th>\n')
-        ofile.write('</tr>\n')
         gsb_includes = self.game_vars.get('GameStatusBufferIncludes', [])
         if gsb_includes:
             gsb_includes = [parse_int(a) for a in gsb_includes.split(',')]
+        gsb_entries = []
         for entry in self.memory_map:
             if not (entry.ctl == 'g' or entry.address in gsb_includes):
                 continue
-            address = entry.address
-            desc = '<div class="gbufDesc">{0}</div>'.format(self.expand(entry.description, cwd))
-            if entry.details:
-                desc += '\n<div class="gbufDetails">\n{0}\n</div>'.format(self.join_paragraphs(entry.details, cwd))
-            ofile.write('<tr>\n')
-            asm_file = FileInfo.asm_relpath(cwd, address, self.code_path)
-            entry_link = '<a name="{0}" class="link" href="{1}">{2}</a>'.format(address, asm_file, entry.addr_str)
-            ofile.write('<td class="gbufAddress">{0}</td>\n'.format(entry_link))
-            ofile.write('<td class="gbufLength">{0}</td>\n'.format(entry.size))
-            ofile.write('<td class="gbufDesc">\n{0}\n</td>\n'.format(desc))
-            ofile.write('</tr>\n')
-        ofile.write('</table>\n')
-        ofile.write(self.footer)
+            t_gsb_entry_subs = {'entry': self._get_entry_dict(cwd, entry)}
+            gsb_entries.append(self._fill_template(T_GSB_ENTRY, t_gsb_entry_subs))
+
+        t_game_status_buffer_subs = {
+            't_head': self._get_head(cwd, self.titles[P_GSB]),
+            't_header': self._get_header(cwd, self.titles[P_GSB]),
+            't_gsb_entries': ''.join(gsb_entries),
+            't_footer': self._get_footer()
+        }
+        ofile.write(self._fill_template(T_GAME_STATUS_BUFFER, t_game_status_buffer_subs, True))
+        ofile.close()
 
     def write_link_list(self, ofile, link_list):
         ofile.write('<ul class="linkList">\n')
