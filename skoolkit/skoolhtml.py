@@ -755,7 +755,7 @@ class HtmlWriter:
         self._write_box_page(P_POKES, self.pokes)
 
     def write_bugs(self):
-        self.write_box_page(self.paths[P_BUGS], self.titles[P_BUGS], 'bugs', self.bugs)
+        self._write_box_page(P_BUGS, self.bugs)
 
     def write_facts(self):
         self.write_box_page(self.paths[P_FACTS], self.titles[P_FACTS], 'facts', self.facts)
