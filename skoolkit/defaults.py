@@ -52,7 +52,7 @@ Release=
 <div class="headerText">{header}</div>
 {t_link_list}
 
-[Template:index]
+[Template:GameIndex]
 {t_head}
 <body class="main">
 <table class="header">

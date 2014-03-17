@@ -88,7 +88,6 @@ T_FOOTER = 'footer'
 T_INDEX_SECTION = 'index_section'
 T_LINK_LIST = 'link_list'
 T_LINK_LIST_ITEM = 'link_list_item'
-T_INDEX = 'index'
 
 T_HEADER = 'header'
 T_PREV_NEXT = 'prev_next'
@@ -667,7 +666,7 @@ class HtmlWriter:
             't_index_sections': '\n'.join(sections_html),
             't_footer': self.footer
         }
-        ofile.write(self._fill_template(T_INDEX, t_index_subs, True))
+        ofile.write(self._fill_template(P_GAME_INDEX, t_index_subs, True))
 
     def _get_entry_dict(self, cwd, entry):
         desc = ''
