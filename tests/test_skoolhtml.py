@@ -2084,7 +2084,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': game,
             'title': 'Index',
             'header_prefix': 'The complete',
-            'logo': '<img src="{0}" alt="{1}" />'.format(logo_image_path, game),
+            'logo': '<img alt="{}" src="{}" />'.format(game, logo_image_path),
             'header_suffix': 'RAM disassembly',
             'path': '',
             'body_class': 'main',
@@ -3741,7 +3741,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
         logo = FileInfo.relpath(cwd, logo_image_fname)
         game_name = self.skoolfile[:-6]
-        self.assertEqual(header[2], '<td class="headerLogo"><a class="link" href="{}"><img src="{}" alt="{}" /></a></td>'.format(index, logo, game_name))
+        self.assertEqual(header[2], '<td class="headerLogo"><a class="link" href="{}"><img alt="{}" src="{}" /></a></td>'.format(index, game_name, logo))
 
     def test_format_header_with_logo(self):
         logo = 'ABC #UDG30000 123'

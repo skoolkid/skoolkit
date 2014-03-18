@@ -123,6 +123,8 @@ T_MAP_PAGE_BYTE_HEADER = 'map_page_byte_header'
 T_MAP_PAGE_BYTE = 'map_page_byte'
 T_MAP_UNUSED_DESC = 'map_unused_desc'
 
+T_IMG = 'img'
+
 def join(*path_components):
     return '/'.join([c for c in path_components if c.replace('/', '')])
 
@@ -1149,7 +1151,8 @@ class HtmlWriter:
             return self.expand(logo_macro, cwd)
         logo_image = self.game_vars.get('LogoImage')
         if logo_image and self.file_exists(logo_image):
-            return '<img src="{0}" alt="{1}" />'.format(FileInfo.relpath(cwd, logo_image), self.game)
+            img_subs = {'alt': self.game, 'src': FileInfo.relpath(cwd, logo_image)}
+            return self._fill_template(T_IMG, img_subs)
         return self.game
 
     def format_header(self, cwd, header):
@@ -1307,7 +1310,8 @@ class HtmlWriter:
         """
         if alt is None:
             alt = basename(image_path)[:-4]
-        return '<img alt="{0}" src="{1}" />'.format(alt, FileInfo.relpath(cwd, image_path))
+        img_subs = {'alt': alt, 'src': FileInfo.relpath(cwd, image_path)}
+        return self._fill_template(T_IMG, img_subs)
 
     def image_path(self, fname, path_id=DEF_IMG_PATH):
         """Return the full path of an image file relative to the root directory

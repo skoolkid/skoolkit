@@ -383,4 +383,7 @@ Unused ({entry.size} byte{suffix})
 <div class="boxTitle">{title}</div>
 {contents}
 </div>
+
+[Template:img]
+<img alt="{alt}" src="{src}" />
 """.lstrip()
