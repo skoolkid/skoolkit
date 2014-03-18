@@ -3622,178 +3622,135 @@ class HtmlWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
             writer.write_animated_image(image_path, None)
 
-    def test_write_header_with_title(self):
+    def test_format_head_with_title(self):
         writer = self._get_writer(skool='')
-        ofile = StringIO()
         title = 'Main page'
         cwd = ''
-        writer.write_header(ofile, title, cwd, body_class=None, body_title=None, js=None)
-        header = ofile.getvalue().split('\n')
-        index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
+        head = writer.format_head(cwd, title).split('\n')
         game_name = self.skoolfile[:-6]
-        self.assertEqual(header[7], '<title>{}: {}</title>'.format(game_name, title))
-        self.assertEqual(header[14], '<td class="headerText">{}</td>'.format(title))
+        self.assertEqual(head[7], '<title>{}: {}</title>'.format(game_name, title))
 
-    def test_write_header_with_body_class(self):
-        writer = self._get_writer(skool='')
-        ofile = StringIO()
-        cwd = 'subdir'
-        body_class = 'default'
-        writer.write_header(ofile, title='', cwd=cwd, body_class=body_class, body_title=None, js=None)
-        header = ofile.getvalue().split('\n')
-        index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
-        self.assertEqual(header[10], '<body class="{}">'.format(body_class))
-
-    def test_write_header_with_body_title(self):
-        writer = self._get_writer(skool='')
-        ofile = StringIO()
-        cwd = 'subdir'
-        body_title = 'ABCD'
-        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=body_title, js=None)
-        header = ofile.getvalue().split('\n')
-        index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
-        game_name = self.skoolfile[:-6]
-        self.assertEqual(header[14], '<td class="headerText">{}</td>'.format(body_title))
-
-    def test_write_header_with_single_global_js(self):
+    def test_format_head_with_single_global_js(self):
         global_js = 'js/global.js'
         ref = '[Game]\nJavaScript={}'.format(global_js)
         writer = self._get_writer(ref=ref, skool='')
-        ofile = StringIO()
         cwd = 'subdir/subdir2'
-        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None)
-        header = ofile.getvalue().split('\n')
+        head = writer.format_head(cwd, title='').split('\n')
         js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(global_js)))
-        self.assertEqual(header[9], '<script type="text/javascript" src="{}"></script>'.format(js_path))
+        self.assertEqual(head[9], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
-    def test_write_header_with_multiple_global_js(self):
+    def test_format_head_with_multiple_global_js(self):
         js_files = ['js/global1.js', 'js.global2.js']
         global_js = ';'.join(js_files)
         ref = '[Game]\nJavaScript={}'.format(global_js)
         writer = self._get_writer(ref=ref, skool='')
-        ofile = StringIO()
         cwd = 'subdir/subdir2'
-        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None)
-        header = ofile.getvalue().split('\n')
+        head = writer.format_head(cwd, title='').split('\n')
         js_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
-        self.assertEqual(header[9], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
-        self.assertEqual(header[10], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
+        self.assertEqual(head[9], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
+        self.assertEqual(head[10], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
 
-    def test_write_header_with_single_local_js(self):
+    def test_format_head_with_single_local_js(self):
         writer = self._get_writer(skool='')
-        ofile = StringIO()
         cwd = 'subdir/subdir2'
         js = 'js/script.js'
-        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=js)
-        header = ofile.getvalue().split('\n')
+        head = writer.format_head(cwd, title='', js=js).split('\n')
         js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
-        self.assertEqual(header[9], '<script type="text/javascript" src="{}"></script>'.format(js_path))
+        self.assertEqual(head[9], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
-    def test_write_header_with_multiple_local_js(self):
+    def test_format_head_with_multiple_local_js(self):
         writer = self._get_writer(skool='')
-        ofile = StringIO()
         cwd = 'subdir'
         js_files = ['js/script1.js', 'js/script2.js']
         js = ';'.join(js_files)
-        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=js)
-        header = ofile.getvalue().split('\n')
+        head = writer.format_head(cwd, title='', js=js).split('\n')
         js_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
-        self.assertEqual(header[9], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
-        self.assertEqual(header[10], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
+        self.assertEqual(head[9], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
+        self.assertEqual(head[10], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
 
-    def test_write_header_with_local_and_global_js(self):
+    def test_format_head_with_local_and_global_js(self):
         global_js_files = ['js/global1.js', 'js.global2.js']
         global_js = ';'.join(global_js_files)
         local_js_files = ['js/local1.js', 'js/local2.js']
         local_js = ';'.join(local_js_files)
         ref = '[Game]\nJavaScript={}'.format(global_js)
         writer = self._get_writer(ref=ref, skool='')
-        ofile = StringIO()
         cwd = 'subdir/subdir2'
-        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=local_js)
-        header = ofile.getvalue().split('\n')
+        head = writer.format_head(cwd, title='', js=local_js).split('\n')
         for i, js in enumerate(global_js_files + local_js_files, 9):
             js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
-            self.assertEqual(header[i], '<script type="text/javascript" src="{}"></script>'.format(js_path))
+            self.assertEqual(head[i], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
-    def test_write_header_with_single_css(self):
+    def test_format_head_with_single_css(self):
         css = 'css/game.css'
         ref = '[Game]\nStyleSheet={}'.format(css)
         writer = self._get_writer(ref=ref, skool='')
-        ofile = StringIO()
         cwd = ''
-        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=None)
-        header = ofile.getvalue().split('\n')
+        head = writer.format_head(cwd, title='').split('\n')
         css_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css)))
-        self.assertEqual(header[8], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_path))
+        self.assertEqual(head[8], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_path))
 
-    def test_write_header_with_multiple_css(self):
+    def test_format_head_with_multiple_css(self):
         css_files = ['css/game.css', 'css/foo.css']
         ref = '[Game]\nStyleSheet={}'.format(';'.join(css_files))
         writer = self._get_writer(ref=ref, skool='')
-        ofile = StringIO()
         cwd = ''
-        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=None)
-        header = ofile.getvalue().split('\n')
+        head = writer.format_head(cwd, title='').split('\n')
         css_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css))) for css in css_files]
-        self.assertEqual(header[8], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[0]))
-        self.assertEqual(header[9], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[1]))
+        self.assertEqual(head[8], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[0]))
+        self.assertEqual(head[9], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[1]))
 
-    def test_write_header_no_game_name(self):
+    def test_format_header_with_page_header(self):
         writer = self._get_writer(skool='')
-        ofile = StringIO()
+        page_header = 'Main page'
         cwd = ''
-        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=None)
-        header = ofile.getvalue().split('\n')
+        header = writer.format_header(cwd, page_header).split('\n')
+        self.assertEqual(header[3], '<td class="headerText">{}</td>'.format(page_header))
+
+    def test_format_header_no_game_name(self):
+        writer = self._get_writer(skool='')
+        cwd = ''
+        header = writer.format_header(cwd, header='').split('\n')
         index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
         game_name = self.skoolfile[:-6]
-        self.assertEqual(header[10], '<body>')
-        self.assertEqual(header[13], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
+        self.assertEqual(header[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
 
-    def test_write_header_with_game_name(self):
+    def test_format_header_with_game_name(self):
         game_name = 'Some game'
         writer = self._get_writer(ref='[Game]\nGame={}'.format(game_name), skool='')
-        ofile = StringIO()
         cwd = 'subdir'
-        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=None)
-        header = ofile.getvalue().split('\n')
+        header = writer.format_header(cwd, header='').split('\n')
         index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
-        self.assertEqual(header[13], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
+        self.assertEqual(header[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
 
-    def test_write_header_with_nonexistent_logo_image(self):
+    def test_format_header_with_nonexistent_logo_image(self):
         writer = self._get_writer(ref='[Game]\nLogoImage=images/nonexistent.png', skool='')
-        ofile = StringIO()
         cwd = 'subdir'
-        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=None)
-        header = ofile.getvalue().split('\n')
+        header = writer.format_header(cwd, header='').split('\n')
         index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
         game_name = self.skoolfile[:-6]
-        self.assertEqual(header[13], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
+        self.assertEqual(header[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
 
-    def test_write_header_with_logo_image(self):
+    def test_format_header_with_logo_image(self):
         logo_image_fname = 'logo.png'
         ref = '[Game]\nLogoImage={}'.format(logo_image_fname)
         writer = self._get_writer(ref=ref, skool='')
         logo_image = self.write_bin_file(path=join(writer.file_info.odir, logo_image_fname))
-        ofile = StringIO()
         cwd = 'subdir/subdir2'
-        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=None)
-        header = ofile.getvalue().split('\n')
+        header = writer.format_header(cwd, header='').split('\n')
         index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
         logo = FileInfo.relpath(cwd, logo_image_fname)
         game_name = self.skoolfile[:-6]
-        self.assertEqual(header[13], '<td class="headerLogo"><a class="link" href="{}"><img src="{}" alt="{}" /></a></td>'.format(index, logo, game_name))
+        self.assertEqual(header[2], '<td class="headerLogo"><a class="link" href="{}"><img src="{}" alt="{}" /></a></td>'.format(index, logo, game_name))
 
-    def test_write_header_with_logo(self):
+    def test_format_header_with_logo(self):
         logo = 'ABC #UDG30000 123'
         writer = self._get_writer(ref='[Game]\nLogo={}'.format(logo), skool='')
-        ofile = StringIO()
         cwd = ''
-        writer.write_header(ofile, title='', cwd=cwd, body_class=None, body_title=None, js=None)
-        header = ofile.getvalue().split('\n')
+        header = writer.format_header(cwd, header='').split('\n')
         index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
         logo_value = writer.expand(logo, cwd)
-        self.assertEqual(header[13], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, logo_value))
+        self.assertEqual(header[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, logo_value))
 
 class UdgTest(SkoolKitTestCase):
     def test_flip(self):
