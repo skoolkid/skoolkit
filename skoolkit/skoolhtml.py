@@ -1042,7 +1042,7 @@ class HtmlWriter:
             't_footer': self.footer
         }
         with self.file_info.open_file(map_file) as ofile:
-            ofile.write(self.format_template('map', t_map_subs, True))
+            ofile.write(self.format_template(P_MEMORY_MAP, t_map_subs, True))
 
     def write_page(self, page_id):
         ofile, cwd = self.open_file(self.paths[page_id])

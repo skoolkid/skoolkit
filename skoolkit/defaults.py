@@ -209,7 +209,7 @@ Next: <a class="link" href="{href}">{text}</a>
 [Template:link]
 <a class="link" href="{href}">{link_text}</a>
 
-[Template:map]
+[Template:MemoryMap]
 {t_head}
 <body class="map">
 {t_header}
