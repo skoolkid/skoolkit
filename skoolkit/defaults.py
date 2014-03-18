@@ -386,4 +386,7 @@ Unused ({entry.size} byte{suffix})
 
 [Template:img]
 <img alt="{alt}" src="{src}" />
+
+[Template:reg]
+<span class="register">{reg}</span>
 """.lstrip()
