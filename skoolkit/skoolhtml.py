@@ -100,7 +100,6 @@ T_REGISTER = 'register'
 T_REGISTERS_HEADER = 'registers_header'
 T_ANCHOR = 'anchor'
 T_ENTRY_COMMENT = 'entry_comment'
-T_LINK = 'link'
 T_DISASSEMBLY = 'disassembly'
 T_PARAGRAPH = 'paragraph'
 T_ASM_LABEL = 'asm_label'
@@ -122,8 +121,6 @@ T_MAP_INTRO = 'map_intro'
 T_MAP_PAGE_BYTE_HEADER = 'map_page_byte_header'
 T_MAP_PAGE_BYTE = 'map_page_byte'
 T_MAP_UNUSED_DESC = 'map_unused_desc'
-
-T_IMG = 'img'
 
 def join(*path_components):
     return '/'.join([c for c in path_components if c.replace('/', '')])
@@ -926,11 +923,7 @@ class HtmlWriter:
                     # This is a reference to an entry in the same disassembly
                     entry_file = FileInfo.asm_fname(entry_address)
                 link_text = self.parser.get_asm_label(reference.address) or reference.addr_str
-                t_link_subs = {
-                    'href': entry_file + name,
-                    'link_text': link_text
-                }
-                link = self._fill_template(T_LINK, t_link_subs)
+                link = self.format_link(entry_file + name, link_text)
                 operation = operation.replace(reference.addr_str, link)
             t_instruction_subs = {
                 't_asm_label': '',
@@ -1151,8 +1144,7 @@ class HtmlWriter:
             return self.expand(logo_macro, cwd)
         logo_image = self.game_vars.get('LogoImage')
         if logo_image and self.file_exists(logo_image):
-            img_subs = {'alt': self.game, 'src': FileInfo.relpath(cwd, logo_image)}
-            return self._fill_template(T_IMG, img_subs)
+            return self.format_img(self.game, FileInfo.relpath(cwd, logo_image))
         return self.game
 
     def format_header(self, cwd, header):
@@ -1162,6 +1154,12 @@ class HtmlWriter:
             'header': header
         }
         return self._fill_template(T_HEADER, t_header_subs)
+
+    def format_link(self, href, link_text):
+        return self._fill_template('link', {'href': href, 'link_text': link_text})
+
+    def format_img(self, alt, src):
+        return self._fill_template('img', {'alt': alt, 'src': src})
 
     def _get_image_format(self, image_path):
         img_file_ext = image_path.lower()[-4:]
@@ -1310,8 +1308,7 @@ class HtmlWriter:
         """
         if alt is None:
             alt = basename(image_path)[:-4]
-        img_subs = {'alt': alt, 'src': FileInfo.relpath(cwd, image_path)}
-        return self._fill_template(T_IMG, img_subs)
+        return self.format_img(alt, FileInfo.relpath(cwd, image_path))
 
     def image_path(self, fname, path_id=DEF_IMG_PATH):
         """Return the full path of an image file relative to the root directory
@@ -1401,12 +1398,10 @@ class HtmlWriter:
                     break
             else:
                 raise MacroParsingError("Cannot determine title of item '{}'".format(item))
+        href = FileInfo.relpath(cwd, self.paths[path_id])
         if item:
-            anchor = '#' + item
-        else:
-            anchor = ''
-        items_file = FileInfo.relpath(cwd, self.paths[path_id])
-        return '<a class="link" href="{}{}">{}</a>'.format(items_file, anchor, link_text)
+            href += '#' + item
+        return self.format_link(href, link_text)
 
     def expand_bug(self, text, index, cwd):
         end, item, link_text = skoolmacro.parse_bug(text, index)
@@ -1453,9 +1448,8 @@ class HtmlWriter:
             raise MacroParsingError("Unknown page ID: {}".format(page_id))
         if link_text == '':
             link_text = self.links[page_id][0]
-        href = FileInfo.relpath(cwd, self.paths[page_id])
-        link = '<a class="link" href="{}{}">{}</a>'.format(href, anchor, link_text)
-        return end, link
+        href = FileInfo.relpath(cwd, self.paths[page_id]) + anchor
+        return end, self.format_link(href, link_text)
 
     def expand_list(self, text, index, cwd):
         # #LIST[(class)]<items>LIST#
@@ -1495,8 +1489,7 @@ class HtmlWriter:
             anchor = '#{}'.format(address)
         asm_label = self.parser.get_asm_label(address)
         ref_file = FileInfo.asm_relpath(cwd, container_address, code_path)
-        link = '<a class="link" href="{}{}">{}</a>'.format(ref_file, anchor, link_text or asm_label or inst_addr_str)
-        return end, link
+        return end, self.format_link(ref_file + anchor, link_text or asm_label or inst_addr_str)
 
     def expand_refs(self, text, index, cwd):
         return skoolmacro.parse_refs(text, index, self.entries)
