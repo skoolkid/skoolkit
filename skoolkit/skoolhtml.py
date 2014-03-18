@@ -242,7 +242,7 @@ class HtmlWriter:
 
         self.templates = {}
         for name, template in self.defaults.get_sections('Template') + ref_parser.get_sections('Template'):
-            self.templates[name] = template + '\n'
+            self.templates[name] = template
         self.footer = self._fill_template(T_FOOTER, {'Info': self.info})
 
         self.init()
@@ -270,12 +270,10 @@ class HtmlWriter:
             html = html.replace('\n\n', '\n')
         return html
 
-    def _fill_template(self, template_name, subs=None, trim=False, strip=False):
+    def _fill_template(self, template_name, subs=None, trim=False):
         html = self.templates[template_name].format(**(subs or {}))
         if trim:
             html = self._remove_blank_lines(html)
-        if strip:
-            html = html.strip()
         return html
 
     def _parse_links(self, links):
@@ -491,7 +489,7 @@ class HtmlWriter:
         lines = []
         for p in paragraphs:
             lines.append(self._fill_template(T_PARAGRAPH, {'paragraph': self.expand(p, cwd).strip()}))
-        return ''.join(lines).rstrip()
+        return '\n'.join(lines)
 
     def _get_screen_udg(self, row, col, df_addr=16384, af_addr=22528):
         attr = self.snapshot[af_addr + 32 * row + col]
@@ -575,13 +573,8 @@ class HtmlWriter:
 
     def write_graphics(self):
         ofile, cwd = self.open_file(self.paths[P_GRAPHICS])
-        t_graphics_subs = {
-            't_head': self.format_head(cwd, self.titles[P_GRAPHICS]).rstrip(),
-            't_header': self.format_header(cwd, self.titles[P_GRAPHICS]).rstrip(),
-            'Graphics': self.expand(self.graphics, cwd),
-            't_footer': self.footer.rstrip()
-        }
-        ofile.write(self._fill_template('Graphics', t_graphics_subs))
+        t_graphics_subs = {'Graphics': self.expand(self.graphics, cwd)}
+        ofile.write(self.format_page(P_GRAPHICS, cwd, t_graphics_subs, False))
         ofile.close()
 
     def write_graphic_glitches(self):
@@ -689,34 +682,31 @@ class HtmlWriter:
                 continue
             t_gsb_entry_subs = {'entry': self._get_entry_dict(cwd, entry)}
             gsb_entries.append(self._fill_template('gsb_entry', t_gsb_entry_subs))
-        ofile.write(self.format_page(P_GSB, cwd, {'t_gsb_entries': ''.join(gsb_entries)}))
+        ofile.write(self.format_page(P_GSB, cwd, {'t_gsb_entries': '\n'.join(gsb_entries)}))
         ofile.close()
 
-    def _get_link_list(self, link_list):
+    def format_link_list(self, link_list):
         items = []
         for anchor, title in link_list:
             item = {'url': '#' + anchor, 'title': title}
             items.append(self._fill_template('contents_list_item', {'item': item}))
-        t_contents_list_subs = {'t_contents_list_items': ''.join(items).strip()}
+        t_contents_list_subs = {'t_contents_list_items': '\n'.join(items)}
         return self._fill_template('contents_list', t_contents_list_subs)
 
-    def _get_boxes(self, cwd, boxes):
-        html = ''
+    def _write_box_page(self, page_id, boxes):
+        ofile, cwd = self.open_file(self.paths[page_id])
+        boxes_html = []
         for i, (anchor, title, paragraphs) in enumerate(boxes):
             t_box_subs = {
-                't_anchor': self._fill_template(T_ANCHOR, {'anchor': anchor}, strip=True),
+                't_anchor': self._fill_template(T_ANCHOR, {'anchor': anchor}),
                 'box_num': 1 + i % 2,
                 'title': title,
                 'contents': self.join_paragraphs(paragraphs, cwd)
             }
-            html += self._fill_template('box', t_box_subs)
-        return html
-
-    def _write_box_page(self, page_id, boxes):
-        ofile, cwd = self.open_file(self.paths[page_id])
+            boxes_html.append(self._fill_template('box', t_box_subs))
         t_subs = {
-            't_contents_list': self._get_link_list([(anchor, title) for anchor, title, p in boxes]),
-            't_boxes': self._get_boxes(cwd, boxes),
+            't_contents_list': self.format_link_list([(anchor, title) for anchor, title, p in boxes]),
+            't_boxes': '\n'.join(boxes_html),
         }
         ofile.write(self.format_page(page_id, cwd, t_subs))
         ofile.close()
@@ -737,7 +727,7 @@ class HtmlWriter:
         changelog_items = []
         for item, subitems in items:
             if subitems:
-                item = '{}\n{}'.format(item, self._build_changelog_items(subitems, level + 1))
+                item = '{}\n{}\n'.format(item, self._build_changelog_items(subitems, level + 1))
             changelog_items.append(self._fill_template('changelog_item', {'item': item}))
         if level > 0:
             indent = level
@@ -745,7 +735,7 @@ class HtmlWriter:
             indent = ''
         t_changelog_item_list_subs = {
             'indent': indent,
-            't_changelog_items': ''.join(changelog_items)
+            't_changelog_items': '\n'.join(changelog_items)
         }
         return self._fill_template('changelog_item_list', t_changelog_item_list_subs)
 
@@ -779,7 +769,7 @@ class HtmlWriter:
                 'description': description
             }
             t_changelog_entry_subs = {
-                't_anchor': self._fill_template(T_ANCHOR, {'anchor': title}, strip=True),
+                't_anchor': self._fill_template(T_ANCHOR, {'anchor': title}),
                 'changelog_num': 1 + j % 2,
                 'entry': entry,
                 't_changelog_item_list': self._build_changelog_items(changelog_items)
@@ -787,13 +777,13 @@ class HtmlWriter:
             entries.append(self._fill_template('changelog_entry', t_changelog_entry_subs))
 
         t_changelog_subs = {
-            't_contents_list': self._get_link_list(contents),
-            't_changelog_entries': ''.join(entries),
+            't_contents_list': self.format_link_list(contents),
+            't_changelog_entries': '\n'.join(entries),
         }
         ofile.write(self.format_page('Changelog', cwd, t_changelog_subs))
         ofile.close()
 
-    def _get_registers(self, registers, cwd):
+    def format_registers(self, registers, cwd):
         input_values = []
         output_values = []
         mode = 'I'
@@ -812,14 +802,14 @@ class HtmlWriter:
             if registers:
                 if header:
                     header = self._fill_template(T_REGISTERS_HEADER, {'header': header})
-                registers_html = ''
+                registers_html = []
                 for reg in registers:
                     reg.description = self.expand(reg.contents, cwd)
                     t_register_subs = {'register': reg}
-                    registers_html += self._fill_template(T_REGISTER, t_register_subs)
+                    registers_html.append(self._fill_template(T_REGISTER, t_register_subs))
                 template_subs = {
                     't_registers_header': header or '',
-                    't_registers': registers_html
+                    't_registers': '\n'.join(registers_html)
                 }
                 tables.append(self._fill_template(template, template_subs))
             else:
@@ -846,8 +836,8 @@ class HtmlWriter:
         else:
             title_template = T_DATA_TITLE
             page_header_template = T_DATA_HEADER
-        title = self._fill_template(title_template, title_subs, strip=True)
-        page_header = page_header or self._fill_template(page_header_template, strip=True)
+        title = self._fill_template(title_template, title_subs)
+        page_header = page_header or self._fill_template(page_header_template)
 
         prev_html = up_html = next_html = ''
         if prev_entry:
@@ -855,18 +845,18 @@ class HtmlWriter:
                 'href': FileInfo.asm_fname(prev_entry.address),
                 'text': prev_entry.addr_str
             }
-            prev_html = self._fill_template(T_PREV, t_prev_subs, strip=True)
+            prev_html = self._fill_template(T_PREV, t_prev_subs)
         if up:
             t_up_subs = {
                 'href': '{}#{}'.format(FileInfo.relpath(cwd, up), entry.address)
             }
-            up_html = self._fill_template(T_UP, t_up_subs, strip=True)
+            up_html = self._fill_template(T_UP, t_up_subs)
         if next_entry:
             t_next_subs = {
                 'href': FileInfo.asm_fname(next_entry.address),
                 'text': next_entry.addr_str
             }
-            next_html = self._fill_template(T_NEXT, t_next_subs, strip=True)
+            next_html = self._fill_template(T_NEXT, t_next_subs)
         t_prev_next_subs = {
             't_prev': prev_html,
             't_up': up_html,
@@ -899,7 +889,7 @@ class HtmlWriter:
             if show_comment_col and show_label_col:
                 break
 
-        input_reg, output_reg = self._get_registers(entry.registers, cwd)
+        input_reg, output_reg = self.format_registers(entry.registers, cwd)
 
         if entry.details:
             entry_details = self.join_paragraphs(entry.details, cwd)
@@ -910,7 +900,7 @@ class HtmlWriter:
         for instruction in entry.instructions:
             mid_routine_comments = entry.get_mid_routine_comment(instruction.label)
             address = instruction.address
-            anchor = self._fill_template(T_ANCHOR, {'anchor': address}, strip=True)
+            anchor = self._fill_template(T_ANCHOR, {'anchor': address})
             if mid_routine_comments:
                 t_entry_comment_subs = {
                     'colspan': routine_comment_colspan,
@@ -938,7 +928,7 @@ class HtmlWriter:
                     'href': entry_file + name,
                     'link_text': link_text
                 }
-                link = self._fill_template(T_LINK, t_link_subs, strip=True)
+                link = self._fill_template(T_LINK, t_link_subs)
                 operation = operation.replace(reference.addr_str, link)
             t_instruction_subs = {
                 't_asm_label': '',
@@ -981,7 +971,7 @@ class HtmlWriter:
             }
             lines.append(self._fill_template(T_ENTRY_COMMENT, t_entry_comment_subs))
 
-        instructions_html = ''.join(lines)
+        instructions_html = '\n'.join(lines)
 
         t_disassembly_subs = {
             'table_class': table_class,
@@ -1058,7 +1048,7 @@ class HtmlWriter:
                 else:
                     suffix = ''
                 t_map_unused_desc_subs = {'entry': entry, 'suffix': suffix}
-                purpose = self._fill_template(T_MAP_UNUSED_DESC, t_map_unused_desc_subs, strip=True)
+                purpose = self._fill_template(T_MAP_UNUSED_DESC, t_map_unused_desc_subs)
                 entry_class = 'unused'
                 desc_class = 'unusedDesc'
             elif entry.ctl == 't':
@@ -1098,7 +1088,7 @@ class HtmlWriter:
             't_header': self.format_header(cwd, title),
             't_map_intro': intro,
             't_map_page_byte_header': page_byte_headers,
-            't_map_entries': ''.join(map_entries),
+            't_map_entries': '\n'.join(map_entries),
             't_footer': self.footer
         }
         with self.file_info.open_file(map_file) as ofile:
@@ -1111,11 +1101,11 @@ class HtmlWriter:
         if body_class:
             body_class = ' class="{}"'.format(body_class)
         t_custom_page_subs = {
-            't_head': self.format_head(cwd, self.titles[page_id], page.get('JavaScript')).rstrip(),
-            't_header': self.format_header(cwd, self.titles[page_id]).rstrip(),
+            't_head': self.format_head(cwd, self.titles[page_id], page.get('JavaScript')),
+            't_header': self.format_header(cwd, self.titles[page_id]),
             'class': body_class,
             'content': self.expand(self.page_contents[page_id], cwd),
-            't_footer': self.footer.rstrip()
+            't_footer': self.footer
         }
         ofile.write(self._fill_template('custom_page', t_custom_page_subs))
         ofile.close()
@@ -1125,12 +1115,12 @@ class HtmlWriter:
         cwd = os.path.dirname(fname)
         return ofile, cwd
 
-    def format_page(self, page_id, cwd, subs):
+    def format_page(self, page_id, cwd, subs, trim=True):
         title = self.titles[page_id]
         subs['t_head'] = self.format_head(cwd, title)
         subs['t_header'] = self.format_header(cwd, title)
         subs['t_footer'] = self.footer
-        return self._fill_template(page_id, subs, True)
+        return self._fill_template(page_id, subs, trim)
 
     def format_head(self, cwd, title, js=None):
         stylesheets = []

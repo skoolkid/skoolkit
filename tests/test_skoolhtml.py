@@ -3495,11 +3495,11 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assertFalse(writer.should_write_map(writer.memory_maps['MessagesMap']))
         self.assertFalse(writer.should_write_map(writer.memory_maps['UnusedMap']))
 
-    def test_write_registers(self):
+    def test_format_registers(self):
         writer = self._get_writer(snapshot=())
 
         # Traditional
-        html = """
+        exp_html = """
             <table class="input">
             <tr>
             <td class="register">A</td>
@@ -3514,11 +3514,11 @@ class HtmlWriterTest(SkoolKitTestCase):
         registers = []
         registers.append(Register('', 'A', 'Some value'))
         registers.append(Register('', 'B', 'Some other value'))
-        input_reg, output_reg = writer._get_registers(registers, ASMDIR)
-        self.assert_html_equal(input_reg + output_reg, html, trim=True)
+        html = '\n'.join(writer.format_registers(registers, ASMDIR))
+        self.assert_html_equal(html, exp_html, trim=True)
 
         # With prefixes
-        html = """
+        exp_html = """
             <table class="input">
             <tr>
             <th colspan="2">Input</th>
@@ -3553,8 +3553,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         registers.append(Register('', 'B', 'Some other value'))
         registers.append(Register('Output', 'D', 'The result'))
         registers.append(Register('', 'E', 'Result flags'))
-        input_reg, output_reg = writer._get_registers(registers, ASMDIR)
-        self.assert_html_equal(input_reg + output_reg, html, trim=True)
+        html = '\n'.join(writer.format_registers(registers, ASMDIR))
+        self.assert_html_equal(html, exp_html, trim=True)
 
     def test_write_image(self):
         file_info = MockFileInfo('html', 'test_write_image')
