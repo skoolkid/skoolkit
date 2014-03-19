@@ -688,11 +688,11 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     def test_option_w_m(self):
         exp_arg_list = [
-            ({'Name': 'MemoryMap', 'PageByteColumns': '1'},),
+            ({'EntryTypes': 'bcgstuwz', 'Name': 'MemoryMap', 'PageByteColumns': '1'},),
             ({'EntryTypes': 'c', 'Name': 'RoutinesMap'},),
             ({'EntryTypes': 'bw', 'Name': 'DataMap', 'PageByteColumns': '1'},),
             ({'EntryTypes': 't', 'Name': 'MessagesMap'},),
-            ({'Name': 'UnusedMap', 'EntryTypes': 'suz', 'PageByteColumns': '1'},)
+            ({'EntryTypes': 'suz', 'Name': 'UnusedMap', 'PageByteColumns': '1'},)
         ]
         self._test_option_w('--write', 'm', 'write_map', exp_arg_list)
 

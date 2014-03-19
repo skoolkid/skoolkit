@@ -115,10 +115,6 @@ class HtmlWriter:
         self.entries = self.parser.entries
         self.memory_map = [e for e in self.parser.memory_map if e.ctl != 'i']
 
-        self.info = self.defaults.get_dictionary('Info')
-        self.info.update(self.get_dictionary('Info'))
-        self.info['Created'] = self.info['Created'].replace('$VERSION', VERSION)
-
         self.table_parser = TableParser()
         self.list_parser = ListParser()
         self._create_macros()
@@ -158,15 +154,14 @@ class HtmlWriter:
             if page_id and page_id not in self.paths:
                 self.paths[page_id] = code['Index']
 
-        self.memory_map_names = [P_MEMORY_MAP, P_ROUTINES_MAP, P_DATA_MAP, P_MESSAGES_MAP, P_UNUSED_MAP]
-        self.memory_maps = self._get_memory_maps()
+        self.memory_map_names = []
+        self.memory_maps = {}
         for map_name, map_details in self.get_dictionaries('MemoryMap'):
-            if map_name not in self.memory_maps:
-                self.memory_maps[map_name] = {}
+            map_details.setdefault('EntryTypes', 'bcgstuwz')
+            if self._should_write_map(map_details):
+                map_details['Name'] = map_name
+                self.memory_maps[map_name] = map_details
                 self.memory_map_names.append(map_name)
-            self.memory_maps[map_name].update(map_details)
-        for map_name, map_details in self.memory_maps.items():
-            map_details['Name'] = map_name
 
         self.code_path = self.get_code_path(code_id)
         self.game_vars = self.get_dictionary('Game')
@@ -197,11 +192,13 @@ class HtmlWriter:
         self.changelog = self._get_changelog()
 
         self.templates = {}
-        for name, template in self.defaults.get_sections('Template') + ref_parser.get_sections('Template'):
+        for name, template in self.get_sections('Template'):
             self.templates[name] = template
         self.prologue = self.templates['prologue']
         self.html_tag = self.templates['html']
-        self.footer = self.format_template('footer', {'Info': self.info})
+        info = self.get_dictionary('Info')
+        info['Created'] = info['Created'].replace('$VERSION', VERSION)
+        self.footer = self.format_template('footer', {'Info': info})
 
         self.init()
 
@@ -267,7 +264,9 @@ class HtmlWriter:
         """Return a dictionary built from the contents of a `ref` file section.
         Each line in the section should be of the form ``X=Y``.
         """
-        return self.ref_parser.get_dictionary(section_name)
+        dictionary = self.defaults.get_dictionary(section_name)
+        dictionary.update(self.ref_parser.get_dictionary(section_name))
+        return dictionary
 
     def get_dictionaries(self, section_type):
         """Return a list of 2-tuples of the form ``(suffix, dict)`` derived
@@ -276,7 +275,17 @@ class HtmlWriter:
         first colon, and ``dict`` is a dictionary built from the contents of
         that section; each line in the section should be of the form ``X=Y``.
         """
-        return self.ref_parser.get_dictionaries(section_type)
+        dictionaries = []
+        index = {}
+        default_dicts = self.defaults.get_dictionaries(section_type)
+        user_dicts = self.ref_parser.get_dictionaries(section_type)
+        for suffix, dictionary in default_dicts + user_dicts:
+            if suffix in index:
+                dictionaries[index[suffix]][1].update(dictionary)
+            else:
+                index[suffix] = len(dictionaries)
+                dictionaries.append((suffix, dictionary))
+        return dictionaries
 
     def get_section(self, section_name, paragraphs=False, lines=False):
         """Return the contents of a `ref` file section.
@@ -288,7 +297,9 @@ class HtmlWriter:
                       list of lines; otherwise return the contents (or each
                       paragraph) as a single string.
         """
-        return self.ref_parser.get_section(section_name, paragraphs, lines)
+        if self.ref_parser.has_section(section_name):
+            return self.ref_parser.get_section(section_name, paragraphs, lines)
+        return self.defaults.get_section(section_name, paragraphs, lines)
 
     def get_sections(self, section_type, paragraphs=False, lines=False):
         """Return a list of 2-tuples of the form ``(suffix, contents)`` or
@@ -306,7 +317,18 @@ class HtmlWriter:
                       each section as a list of lines; otherwise return the
                       contents (or each paragraph) as a single string.
         """
-        return self.ref_parser.get_sections(section_type, paragraphs, lines)
+        sections = []
+        index = {}
+        default_sections = self.defaults.get_sections(section_type, paragraphs, lines)
+        user_sections = self.ref_parser.get_sections(section_type, paragraphs, lines)
+        for section in default_sections + user_sections:
+            suffix = ':'.join(section[:-1])
+            if suffix in index:
+                sections[index[suffix]] = section
+            else:
+                index[suffix] = len(sections)
+                sections.append(section)
+        return sections
 
     def get_entry(self, address):
         """Return the routine or data block that starts at `address`."""
@@ -391,27 +413,6 @@ class HtmlWriter:
             links[page_id] = (text, '')
         links[P_MEMORY_MAP] = ('Everything', '')
         return links
-
-    def _get_memory_maps(self):
-        memory_maps = {}
-        memory_maps[P_MEMORY_MAP] = {
-            'PageByteColumns': '1'
-        }
-        memory_maps[P_ROUTINES_MAP] = {
-            'EntryTypes': 'c'
-        }
-        memory_maps[P_DATA_MAP] = {
-            'EntryTypes': 'bw',
-            'PageByteColumns': '1'
-        }
-        memory_maps[P_MESSAGES_MAP] = {
-            'EntryTypes': 't'
-        }
-        memory_maps[P_UNUSED_MAP] = {
-            'EntryTypes': 'suz',
-            'PageByteColumns': '1'
-        }
-        return memory_maps
 
     def _get_changelog(self):
         changelog = []
@@ -541,28 +542,7 @@ class HtmlWriter:
     def write_index(self):
         ofile, cwd = self.open_file(self.paths[P_GAME_INDEX])
 
-        memory_maps = []
-        for map_name in (P_MEMORY_MAP, P_ROUTINES_MAP, P_DATA_MAP, P_MESSAGES_MAP, P_UNUSED_MAP):
-            map_details = self.memory_maps[map_name]
-            if map_details.get('Write') != '0':
-                memory_maps.append(map_name)
-        link_groups = {
-            'MemoryMaps': ('Memory maps', memory_maps),
-            'Graphics': ('Graphics', (
-                P_GRAPHICS,
-                P_GRAPHIC_GLITCHES
-            )),
-            'DataTables': ('Data tables and buffers', (
-                P_GSB,
-            )),
-            'Reference': ('Reference', (
-                P_CHANGELOG,
-                P_GLOSSARY,
-                P_FACTS,
-                P_BUGS,
-                P_POKES
-            ))
-        }
+        link_groups = {}
         for section_id, header_text, page_list in self.get_sections('Index', False, True):
             link_groups[section_id] = (header_text, page_list)
         sections = {}
@@ -586,8 +566,6 @@ class HtmlWriter:
         t_link_list_subs = {'list_class': 'indexList'}
         sections_html = []
         index = self.get_section('Index', False, True)
-        if not index:
-            index = ('MemoryMaps', 'Graphics', 'DataTables', 'OtherCode', 'Reference')
         for section_id in index:
             header, links = sections.get(section_id, ('', ()))
             if links:
@@ -963,12 +941,10 @@ class HtmlWriter:
             self.write_entry(cwd, entry, page_header=page_header, prev_entry=prev_entry, next_entry=next_entry, up=map_file)
             prev_entry = entry
 
-    def should_write_map(self, map_details):
+    def _should_write_map(self, map_details):
         if map_details.get('Write') == '0':
             return False
-        entry_types = map_details.get('EntryTypes')
-        if not entry_types:
-            return True
+        entry_types = map_details['EntryTypes']
         return any(entry.ctl in entry_types for entry in self.memory_map)
 
     def get_map_path(self, map_details):
@@ -981,7 +957,7 @@ class HtmlWriter:
         map_entries = []
         map_file = self.get_map_path(map_details)
         cwd = os.path.dirname(map_file)
-        entry_types = map_details.get('EntryTypes', 'bcgstuwz')
+        entry_types = map_details['EntryTypes']
         show_page_byte = map_details.get('PageByteColumns', '0') != '0'
         asm_path = map_details.get('AsmPath', self.code_path)
 

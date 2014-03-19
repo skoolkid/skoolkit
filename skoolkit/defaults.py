@@ -53,6 +53,25 @@ Created=Created using <a class="link" href="http://pyskool.ca/?page_id=177">Skoo
 Release=
 """
 
+MEMORY_MAPS = """
+[MemoryMap:MemoryMap]
+PageByteColumns=1
+
+[MemoryMap:RoutinesMap]
+EntryTypes=c
+
+[MemoryMap:DataMap]
+EntryTypes=bw
+PageByteColumns=1
+
+[MemoryMap:MessagesMap]
+EntryTypes=t
+
+[MemoryMap:UnusedMap]
+EntryTypes=suz
+PageByteColumns=1
+"""
+
 TEMPLATES = """
 [Template:prologue]
 <?xml version="1.0" encoding="utf-8" ?>
@@ -476,5 +495,6 @@ Unused ({entry.size} byte{suffix})
 REF_FILE = """
 {INDEX}
 {INFO}
+{MEMORY_MAPS}
 {TEMPLATES}
 """.format(**locals())

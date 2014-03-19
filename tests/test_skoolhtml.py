@@ -352,10 +352,6 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_ref_parsing(self):
         ref = '\n'.join((
-            '[Info]',
-            'Release=Test HTML disassembly',
-            'Copyright=Me, 2012',
-            '',
             '[Links]',
             'Bugs=[Bugs] (program errors)',
             'Pokes=[Pokes [with square brackets in the link text]] (cheats)',
@@ -363,11 +359,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[MemoryMap:TestMap]',
             'EntryTypes=w',
         ))
-        writer = self._get_writer(ref=ref)
-
-        # [Info]
-        self.assertEqual(writer.info['Release'], 'Test HTML disassembly')
-        self.assertEqual(writer.info['Copyright'], 'Me, 2012')
+        writer = self._get_writer(ref=ref, skool='w30000 DEFW 0')
 
         # [Links]
         self.assertEqual(writer.links['Bugs'], ('Bugs', ' (program errors)'))
@@ -2817,7 +2809,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_write_memory_map_with_intro(self):
         intro = 'This map is empty.'
         ref = '[MemoryMap:MemoryMap]\nIntro={}'.format(intro)
-        writer = self._get_writer(ref=ref, skool='')
+        writer = self._get_writer(ref=ref, skool='; Code\nc32768 RET')
         content = """
             <div class="mapIntro">{}</div>
             <table class="map">
@@ -2826,6 +2818,12 @@ class HtmlWriterTest(SkoolKitTestCase):
             <th>Byte</th>
             <th>Address</th>
             <th>Description</th>
+            </tr>
+            <tr>
+            <td class="mapPage">128</td>
+            <td class="mapByte">0</td>
+            <td class="routine"><a class="link" name="32768" href="../asm/32768.html">32768</a></td>
+            <td class="routineDesc">Code</td>
             </tr>
             </table>
         """.format(intro)
@@ -2894,7 +2892,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Paths]',
             'DataMap={}'
         )).format(title, path)
-        writer = self._get_writer(ref=ref, skool='')
+        writer = self._get_writer(ref=ref, skool='b30000 DEFB 0')
         writer.write_map(writer.memory_maps['DataMap'])
         self.assert_title_equals(path, title)
 
@@ -2907,7 +2905,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Paths]',
             'MemoryMap={}'
         )).format(title, path)
-        writer = self._get_writer(ref=ref, skool='')
+        writer = self._get_writer(ref=ref, skool='c30000 RET')
         writer.write_map(writer.memory_maps['MemoryMap'])
         self.assert_title_equals(path, title)
 
@@ -2920,7 +2918,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Paths]',
             'MessagesMap={}'
         )).format(title, path)
-        writer = self._get_writer(ref=ref, skool='')
+        writer = self._get_writer(ref=ref, skool='t30000 DEFM "a"')
         writer.write_map(writer.memory_maps['MessagesMap'])
         self.assert_title_equals(path, title)
 
@@ -2933,7 +2931,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Paths]',
             'RoutinesMap={}'
         )).format(title, path)
-        writer = self._get_writer(ref=ref, skool='')
+        writer = self._get_writer(ref=ref, skool='c30000 RET')
         writer.write_map(writer.memory_maps['RoutinesMap'])
         self.assert_title_equals(path, title)
 
@@ -2946,7 +2944,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Paths]',
             'UnusedMap={}'
         )).format(title, path)
-        writer = self._get_writer(ref=ref, skool='')
+        writer = self._get_writer(ref=ref, skool='u30000 DEFB 0')
         writer.write_map(writer.memory_maps['UnusedMap'])
         self.assert_title_equals(path, title)
 
@@ -3476,7 +3474,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             self.assertEqual(writer.get_snapshot_name(), names.pop())
             writer.pop_snapshot()
 
-    def test_should_write_map(self):
+    def test_unwritten_maps(self):
         ref = '[MemoryMap:UnusedMap]\nWrite=0'
         skool = '\n'.join((
             '; Routine',
@@ -3489,11 +3487,11 @@ class HtmlWriterTest(SkoolKitTestCase):
             'u40002 DEFB 0',
         ))
         writer = self._get_writer(ref=ref, skool=skool)
-        self.assertTrue(writer.should_write_map(writer.memory_maps['MemoryMap']))
-        self.assertTrue(writer.should_write_map(writer.memory_maps['RoutinesMap']))
-        self.assertTrue(writer.should_write_map(writer.memory_maps['DataMap']))
-        self.assertFalse(writer.should_write_map(writer.memory_maps['MessagesMap']))
-        self.assertFalse(writer.should_write_map(writer.memory_maps['UnusedMap']))
+        self.assertTrue('MemoryMap' in writer.memory_maps)
+        self.assertTrue('RoutinesMap' in writer.memory_maps)
+        self.assertTrue('DataMap' in writer.memory_maps)
+        self.assertFalse('MessagesMap' in writer.memory_maps) # No entries
+        self.assertFalse('UnusedMap' in writer.memory_maps)   # Write=0
 
     def test_format_registers(self):
         writer = self._get_writer(snapshot=())
