@@ -22,18 +22,20 @@ Copyright=
 Created=Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> $VERSION.
 Release=
 
-[Template:head]
+[Template:prologue]
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+[Template:html]
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
+
+[Template:head]
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <title>{Game}: {title}</title>
 {t_stylesheets}
 {t_javascripts}
-</head>
 
 [Template:stylesheet]
 <link rel="stylesheet" type="text/css" href="{href}" />
@@ -53,7 +55,11 @@ Release=
 {t_link_list}
 
 [Template:GameIndex]
+{t_prologue}
+{t_html}
+<head>
 {t_head}
+</head>
 <body class="main">
 <table class="header">
 <tr>
@@ -68,7 +74,11 @@ Release=
 </html>
 
 [Template:asm_entry]
+{t_prologue}
+{t_html}
+<head>
 {t_head}
+</head>
 <body class="disassembly">
 {t_header}
 {t_prev_next}
@@ -210,7 +220,11 @@ Next: <a class="link" href="{href}">{text}</a>
 <a class="link" href="{href}">{link_text}</a>
 
 [Template:MemoryMap]
+{t_prologue}
+{t_html}
+<head>
 {t_head}
+</head>
 <body class="map">
 {t_header}
 {t_map_intro}
@@ -248,7 +262,11 @@ Next: <a class="link" href="{href}">{text}</a>
 Unused ({entry.size} byte{suffix})
 
 [Template:GameStatusBuffer]
+{t_prologue}
+{t_html}
+<head>
 {t_head}
+</head>
 <body class="gbuffer">
 {t_header}
 <table class="gbuffer">
@@ -276,7 +294,11 @@ Unused ({entry.size} byte{suffix})
 </tr>
 
 [Template:Changelog]
+{t_prologue}
+{t_html}
+<head>
 {t_head}
+</head>
 <body class="changelog">
 {t_header}
 {t_contents_list}
@@ -310,7 +332,11 @@ Unused ({entry.size} byte{suffix})
 <li>{item}</li>
 
 [Template:Pokes]
+{t_prologue}
+{t_html}
+<head>
 {t_head}
+</head>
 <body class="pokes">
 {t_header}
 {t_contents_list}
@@ -320,7 +346,11 @@ Unused ({entry.size} byte{suffix})
 </html>
 
 [Template:Bugs]
+{t_prologue}
+{t_html}
+<head>
 {t_head}
+</head>
 <body class="bugs">
 {t_header}
 {t_contents_list}
@@ -330,7 +360,11 @@ Unused ({entry.size} byte{suffix})
 </html>
 
 [Template:Facts]
+{t_prologue}
+{t_html}
+<head>
 {t_head}
+</head>
 <body class="facts">
 {t_header}
 {t_contents_list}
@@ -340,7 +374,11 @@ Unused ({entry.size} byte{suffix})
 </html>
 
 [Template:Glossary]
+{t_prologue}
+{t_html}
+<head>
 {t_head}
+</head>
 <body class="glossary">
 {t_header}
 {t_contents_list}
@@ -350,7 +388,11 @@ Unused ({entry.size} byte{suffix})
 </html>
 
 [Template:GraphicGlitches]
+{t_prologue}
+{t_html}
+<head>
 {t_head}
+</head>
 <body class="graphics">
 {t_header}
 {t_contents_list}
@@ -360,7 +402,11 @@ Unused ({entry.size} byte{suffix})
 </html>
 
 [Template:Graphics]
+{t_prologue}
+{t_html}
+<head>
 {t_head}
+</head>
 <body class="graphics">
 {t_header}
 {Graphics}
@@ -369,7 +415,11 @@ Unused ({entry.size} byte{suffix})
 </html>
 
 [Template:custom_page]
+{t_prologue}
+{t_html}
+<head>
 {t_head}
+</head>
 <body{class}>
 {t_header}
 {content}

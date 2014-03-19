@@ -199,6 +199,8 @@ class HtmlWriter:
         self.templates = {}
         for name, template in self.defaults.get_sections('Template') + ref_parser.get_sections('Template'):
             self.templates[name] = template
+        self.prologue = self.templates['prologue']
+        self.html_tag = self.templates['html']
         self.footer = self.format_template('footer', {'Info': self.info})
 
         self.init()
@@ -605,6 +607,8 @@ class HtmlWriter:
                 sections_html.append(self.format_template('index_section', t_index_section_subs))
 
         t_index_subs = {
+            't_prologue': self.prologue,
+            't_html': self.html_tag,
             't_head': self.format_head(cwd, self.titles[P_GAME_INDEX]),
             'TitlePrefix': self.game_vars.get('TitlePrefix', 'The complete'),
             'Logo': self._get_logo(cwd),
@@ -934,6 +938,8 @@ class HtmlWriter:
         disassembly = self.format_template('disassembly', t_disassembly_subs)
 
         t_asm_entry_subs = {
+            't_prologue': self.prologue,
+            't_html': self.html_tag,
             't_head': self.format_head(cwd, title),
             't_header': self.format_header(cwd, page_header),
             't_prev_next': prev_next,
@@ -1034,6 +1040,8 @@ class HtmlWriter:
             page_byte_headers = self.format_template('map_page_byte_header')
 
         t_map_subs = {
+            't_prologue': self.prologue,
+            't_html': self.html_tag,
             't_head': self.format_head(cwd, title),
             't_header': self.format_header(cwd, title),
             't_map_intro': intro,
@@ -1051,6 +1059,8 @@ class HtmlWriter:
         if body_class:
             body_class = ' class="{}"'.format(body_class)
         t_custom_page_subs = {
+            't_prologue': self.prologue,
+            't_html': self.html_tag,
             't_head': self.format_head(cwd, self.titles[page_id], page.get('JavaScript')),
             't_header': self.format_header(cwd, self.titles[page_id]),
             'class': body_class,
@@ -1067,9 +1077,13 @@ class HtmlWriter:
 
     def format_page(self, page_id, cwd, subs, trim=True):
         title = self.titles[page_id]
-        subs['t_head'] = self.format_head(cwd, title)
-        subs['t_header'] = self.format_header(cwd, title)
-        subs['t_footer'] = self.footer
+        subs.update({
+            't_prologue': self.prologue,
+            't_html': self.html_tag,
+            't_head': self.format_head(cwd, title),
+            't_header': self.format_header(cwd, title),
+            't_footer': self.footer
+        })
         return self.format_template(page_id, subs, trim)
 
     def format_head(self, cwd, title, js=None):
@@ -1091,7 +1105,7 @@ class HtmlWriter:
             't_stylesheets': '\n'.join(stylesheets),
             't_javascripts': '\n'.join(javascript)
         }
-        return self.format_template('head', t_head_subs, True)
+        return self.format_template('head', t_head_subs).rstrip()
 
     def _get_logo(self, cwd):
         logo_macro = self.game_vars.get('Logo')
