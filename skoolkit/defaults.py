@@ -517,10 +517,29 @@ Unused ({entry.size} byte{suffix})
 <span class="register">{reg}</span>
 """
 
+TITLES = """
+[Titles]
+Bugs=Bugs
+Changelog=Changelog
+DataMap=Data
+Facts=Trivia
+GameIndex=Index
+GameStatusBuffer=Game status buffer
+Glossary=Glossary
+GraphicGlitches=Graphic glitches
+Graphics=Graphics
+MemoryMap=Memory map
+MessagesMap=Messages
+Pokes=Pokes
+RoutinesMap=Routines
+UnusedMap=Unused addresses
+"""
+
 REF_FILE = """
 {INDEX}
 {INFO}
 {MEMORY_MAPS}
 {PATHS}
 {TEMPLATES}
+{TITLES}
 """.format(**locals())

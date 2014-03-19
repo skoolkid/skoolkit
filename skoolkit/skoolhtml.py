@@ -120,7 +120,7 @@ class HtmlWriter:
         self._create_macros()
 
         self.paths = self.get_dictionary('Paths')
-        titles = self.get_dictionary('Titles')
+        self.titles = self.get_dictionary('Titles')
         link_text = self.get_dictionary('Links')
 
         self.page_ids = []
@@ -137,12 +137,10 @@ class HtmlWriter:
             else:
                 path = page['Path']
             self.paths[page_id] = path
-            titles[page_id] = page.get('Title', page_id)
-            link_text[page_id] = page.get('Link', titles[page_id])
+            self.titles[page_id] = page.get('Title', page_id)
+            link_text[page_id] = page.get('Link', self.titles[page_id])
         links = self._parse_links(link_text)
 
-        self.titles = self._get_titles()
-        self.titles.update(titles)
         self.links = self._get_links()
         self.links.update(links)
 
@@ -357,28 +355,9 @@ class HtmlWriter:
         """
         self._snapshots.append((self.snapshot[:], name))
 
-    def _get_titles(self):
-        titles = {
-            P_BUGS: 'Bugs',
-            P_CHANGELOG: 'Changelog',
-            P_DATA_MAP: 'Data',
-            P_FACTS: 'Trivia',
-            P_GAME_INDEX: 'Index',
-            P_GSB: 'Game status buffer',
-            P_GLOSSARY: 'Glossary',
-            P_GRAPHIC_GLITCHES: 'Graphic glitches',
-            P_GRAPHICS: 'Graphics',
-            P_MEMORY_MAP: 'Memory map',
-            P_MESSAGES_MAP: 'Messages',
-            P_POKES: 'Pokes',
-            P_ROUTINES_MAP: 'Routines',
-            P_UNUSED_MAP: 'Unused addresses'
-        }
-        return titles
-
     def _get_links(self):
         links = {}
-        for page_id, text in self._get_titles().items():
+        for page_id, text in self.titles.items():
             links[page_id] = (text, '')
         links[P_MEMORY_MAP] = ('Everything', '')
         return links
