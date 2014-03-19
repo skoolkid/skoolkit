@@ -16,6 +16,22 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+GAME = """
+[Game]
+Font=
+Game=
+GameStatusBufferIncludes=
+InputRegisterTableHeader=
+JavaScript=
+LinkOperands=CALL,DEFW,DJNZ,JP,JR
+Logo=
+LogoImage=
+OutputRegisterTableHeader=
+StyleSheet=skoolkit.css
+TitlePrefix=The complete
+TitleSuffix=RAM disassembly
+"""
+
 INDEX = """
 [Index]
 MemoryMaps
@@ -553,6 +569,7 @@ UnusedMap=Unused addresses
 """
 
 REF_FILE = """
+{GAME}
 {INDEX}
 {INFO}
 {LINKS}

@@ -158,16 +158,17 @@ class HtmlWriter:
 
         self.code_path = self.get_code_path(code_id)
         self.game_vars = self.get_dictionary('Game')
-        def_game_name = basename(self.parser.skoolfile)
-        suffix = '.skool'
-        if def_game_name.endswith(suffix):
-            def_game_name = def_game_name[:-len(suffix)]
-        self.game = self.game_vars.get('Game', def_game_name)
-        link_operands = self.game_vars.get('LinkOperands', 'CALL,DEFW,DJNZ,JP,JR')
+        if not self.game_vars['Game']:
+            def_game_name = basename(self.parser.skoolfile)
+            suffix = '.skool'
+            if def_game_name.endswith(suffix):
+                def_game_name = def_game_name[:-len(suffix)]
+            self.game_vars['Game'] = def_game_name
+        self.game = self.game_vars['Game']
+        link_operands = self.game_vars['LinkOperands']
         self.link_operands = tuple(op.upper() for op in link_operands.split(','))
-        self.game_vars.setdefault('StyleSheet', 'skoolkit.css')
         self.js_files = ()
-        global_js = self.game_vars.get('JavaScript')
+        global_js = self.game_vars['JavaScript']
         if global_js:
             self.js_files = tuple(global_js.split(';'))
 
@@ -526,9 +527,9 @@ class HtmlWriter:
             't_prologue': self.prologue,
             't_html': self.html_tag,
             't_head': self.format_head(cwd, self.titles[P_GAME_INDEX]),
-            'TitlePrefix': self.game_vars.get('TitlePrefix', 'The complete'),
+            'TitlePrefix': self.game_vars['TitlePrefix'],
             'Logo': self._get_logo(cwd),
-            'TitleSuffix': self.game_vars.get('TitleSuffix', 'RAM disassembly'),
+            'TitleSuffix': self.game_vars['TitleSuffix'],
             't_index_sections': '\n'.join(sections_html),
             't_footer': self.footer
         }
@@ -549,7 +550,7 @@ class HtmlWriter:
 
     def write_gbuffer(self):
         ofile, cwd = self.open_file(self.paths[P_GSB])
-        gsb_includes = self.game_vars.get('GameStatusBufferIncludes', [])
+        gsb_includes = self.game_vars['GameStatusBufferIncludes']
         if gsb_includes:
             gsb_includes = [parse_int(a) for a in gsb_includes.split(',')]
         gsb_entries = []
@@ -671,8 +672,8 @@ class HtmlWriter:
             else:
                 input_values.append(reg)
 
-        input_header = self.game_vars.get('InputRegisterTableHeader')
-        output_header = self.game_vars.get('OutputRegisterTableHeader')
+        input_header = self.game_vars['InputRegisterTableHeader']
+        output_header = self.game_vars['OutputRegisterTableHeader']
         tables = []
         for template, header, registers in (('input', input_header, input_values), ('output', output_header, output_values)):
             if registers:
@@ -1022,10 +1023,10 @@ class HtmlWriter:
         return self.format_template('head', t_head_subs).rstrip()
 
     def _get_logo(self, cwd):
-        logo_macro = self.game_vars.get('Logo')
+        logo_macro = self.game_vars['Logo']
         if logo_macro:
             return self.expand(logo_macro, cwd)
-        logo_image = self.game_vars.get('LogoImage')
+        logo_image = self.game_vars['LogoImage']
         if logo_image and self.file_exists(logo_image):
             return self.format_img(self.game, FileInfo.relpath(cwd, logo_image))
         return self.game
