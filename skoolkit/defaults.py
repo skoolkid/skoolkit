@@ -16,12 +16,44 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-REF_FILE = """
+INDEX = """
+[Index]
+MemoryMaps
+Graphics
+DataTables
+OtherCode
+Reference
+
+[Index:MemoryMaps:Memory maps]
+MemoryMap
+RoutinesMap
+DataMap
+MessagesMap
+UnusedMap
+
+[Index:Graphics:Graphics]
+Graphics
+GraphicGlitches
+
+[Index:DataTables:Data tables and buffers]
+GameStatusBuffer
+
+[Index:Reference:Reference]
+Changelog
+Glossary
+Facts
+Bugs
+Pokes
+"""
+
+INFO = """
 [Info]
 Copyright=
 Created=Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> $VERSION.
 Release=
+"""
 
+TEMPLATES = """
 [Template:prologue]
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html
@@ -439,4 +471,10 @@ Unused ({entry.size} byte{suffix})
 
 [Template:reg]
 <span class="register">{reg}</span>
-""".lstrip()
+"""
+
+REF_FILE = """
+{INDEX}
+{INFO}
+{TEMPLATES}
+""".format(**locals())
