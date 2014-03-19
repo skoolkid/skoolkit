@@ -53,6 +53,23 @@ Created=Created using <a class="link" href="http://pyskool.ca/?page_id=177">Skoo
 Release=
 """
 
+LINKS = """
+[Links]
+; Bugs=
+; Changelog=
+; DataMap=
+; Facts=
+; GameStatusBuffer=
+; Glossary=
+; GraphicGlitches=
+; Graphics=
+MemoryMap=Everything
+; MessagesMap=
+; Pokes=
+; RoutinesMap=
+; UnusedMap=
+"""
+
 MEMORY_MAPS = """
 [MemoryMap:MemoryMap]
 PageByteColumns=1
@@ -538,6 +555,7 @@ UnusedMap=Unused addresses
 REF_FILE = """
 {INDEX}
 {INFO}
+{LINKS}
 {MEMORY_MAPS}
 {PATHS}
 {TEMPLATES}

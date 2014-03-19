@@ -121,8 +121,8 @@ class HtmlWriter:
 
         self.paths = self.get_dictionary('Paths')
         self.titles = self.get_dictionary('Titles')
-        link_text = self.get_dictionary('Links')
-
+        links = self.titles.copy()
+        links.update(self.get_dictionary('Links'))
         self.page_ids = []
         self.pages = {}
         for page_id, details in self.get_dictionaries('Page'):
@@ -138,11 +138,8 @@ class HtmlWriter:
                 path = page['Path']
             self.paths[page_id] = path
             self.titles[page_id] = page.get('Title', page_id)
-            link_text[page_id] = page.get('Link', self.titles[page_id])
-        links = self._parse_links(link_text)
-
-        self.links = self._get_links()
-        self.links.update(links)
+            links[page_id] = page.get('Link', self.titles[page_id])
+        self.links = self._parse_links(links)
 
         self.other_code = self.get_dictionaries('OtherCode')
         for c_id, code in self.other_code:
@@ -354,13 +351,6 @@ class HtmlWriter:
         :param name: An optional name for the snapshot.
         """
         self._snapshots.append((self.snapshot[:], name))
-
-    def _get_links(self):
-        links = {}
-        for page_id, text in self.titles.items():
-            links[page_id] = (text, '')
-        links[P_MEMORY_MAP] = ('Everything', '')
-        return links
 
     def _get_changelog(self):
         changelog = []
