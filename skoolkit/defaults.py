@@ -72,6 +72,31 @@ EntryTypes=suz
 PageByteColumns=1
 """
 
+PATHS = """
+[Paths]
+CodePath=asm
+FontPath=.
+FontImagePath=images/font
+JavaScriptPath=.
+ScreenshotImagePath=images/scr
+StyleSheetPath=.
+UDGImagePath=images/udgs
+Bugs=reference/bugs.html
+Changelog=reference/changelog.html
+DataMap=maps/data.html
+Facts=reference/facts.html
+GameIndex=index.html
+GameStatusBuffer=buffers/gbuffer.html
+Glossary=reference/glossary.html
+GraphicGlitches=graphics/glitches.html
+Graphics=graphics/graphics.html
+MemoryMap=maps/all.html
+MessagesMap=maps/messages.html
+Pokes=reference/pokes.html
+RoutinesMap=maps/routines.html
+UnusedMap=maps/unused.html
+"""
+
 TEMPLATES = """
 [Template:prologue]
 <?xml version="1.0" encoding="utf-8" ?>
@@ -496,5 +521,6 @@ REF_FILE = """
 {INDEX}
 {INFO}
 {MEMORY_MAPS}
+{PATHS}
 {TEMPLATES}
 """.format(**locals())

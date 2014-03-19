@@ -119,7 +119,7 @@ class HtmlWriter:
         self.list_parser = ListParser()
         self._create_macros()
 
-        paths = self.get_dictionary('Paths')
+        self.paths = self.get_dictionary('Paths')
         titles = self.get_dictionary('Titles')
         link_text = self.get_dictionary('Links')
 
@@ -136,13 +136,11 @@ class HtmlWriter:
                 self.page_ids.remove(page_id)
             else:
                 path = page['Path']
-            paths[page_id] = path
+            self.paths[page_id] = path
             titles[page_id] = page.get('Title', page_id)
             link_text[page_id] = page.get('Link', titles[page_id])
         links = self._parse_links(link_text)
 
-        self.paths = self._get_paths()
-        self.paths.update(paths)
         self.titles = self._get_titles()
         self.titles.update(titles)
         self.links = self._get_links()
@@ -358,35 +356,6 @@ class HtmlWriter:
         :param name: An optional name for the snapshot.
         """
         self._snapshots.append((self.snapshot[:], name))
-
-    def _get_paths(self):
-        buffers_path = 'buffers'
-        graphics_path = 'graphics'
-        images_path = 'images'
-        maps_path = 'maps'
-        reference_path = 'reference'
-        paths = {
-            'FontImagePath': join(images_path, 'font'),
-            'JavaScriptPath': '.',
-            'ScreenshotImagePath': join(images_path, 'scr'),
-            'StyleSheetPath': '.',
-            'UDGImagePath': join(images_path, 'udgs'),
-            P_GAME_INDEX: 'index.html',
-            P_MEMORY_MAP: join(maps_path, 'all.html'),
-            P_ROUTINES_MAP: join(maps_path, 'routines.html'),
-            P_DATA_MAP: join(maps_path, 'data.html'),
-            P_MESSAGES_MAP: join(maps_path, 'messages.html'),
-            P_UNUSED_MAP: join(maps_path, 'unused.html'),
-            P_BUGS: join(reference_path, 'bugs.html'),
-            P_CHANGELOG: join(reference_path, 'changelog.html'),
-            P_FACTS: join(reference_path, 'facts.html'),
-            P_GLOSSARY: join(reference_path, 'glossary.html'),
-            P_POKES: join(reference_path, 'pokes.html'),
-            P_GSB: join(buffers_path, 'gbuffer.html'),
-            P_GRAPHICS: join(graphics_path, 'graphics.html'),
-            P_GRAPHIC_GLITCHES: join(graphics_path, 'glitches.html'),
-        }
-        return paths
 
     def _get_titles(self):
         titles = {
