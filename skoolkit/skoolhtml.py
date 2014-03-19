@@ -219,8 +219,9 @@ class HtmlWriter:
             html = html.replace('\n\n', '\n')
         return html
 
-    def format_template(self, template_name, subs=None, trim=False):
-        html = self.templates[template_name].format(**(subs or {}))
+    def format_template(self, template_name, subs=None, trim=False, default=None):
+        template = self.templates.get(template_name, self.templates.get(default))
+        html = template.format(**(subs or {}))
         if trim:
             html = self._remove_blank_lines(html)
         return html
@@ -982,7 +983,7 @@ class HtmlWriter:
             'content': self.expand(self.page_contents[page_id], cwd),
             't_footer': self.footer
         }
-        ofile.write(self.format_template('custom_page', t_custom_page_subs))
+        ofile.write(self.format_template(page_id, t_custom_page_subs, default='custom_page'))
         ofile.close()
 
     def open_file(self, fname):
