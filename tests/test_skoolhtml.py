@@ -3366,6 +3366,60 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_title_equals(path, title)
 
     def test_write_gbuffer(self):
+        skool = '\n'.join((
+            '; GSB entry 1',
+            ';',
+            '; Number of lives.',
+            'g30000 DEFB 4',
+            '',
+            '; GSB entry 2',
+            'g30001 DEFW 78',
+            '',
+            '; Not a game status buffer entry',
+            't30003 DEFM "a"'
+        ))
+        content = """
+            <table class="gbuffer">
+            <tr>
+            <th>Address</th>
+            <th>Length</th>
+            <th>Purpose</th>
+            </tr>
+            <tr>
+            <td class="gbufAddress"><a name="30000" class="link" href="../asm/30000.html">30000</a></td>
+            <td class="gbufLength">1</td>
+            <td class="gbufDesc">
+            <div class="gbufDesc">GSB entry 1</div>
+            <div class="gbufDetails">
+            <div class="paragraph">
+            Number of lives.
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="gbufAddress"><a name="30001" class="link" href="../asm/30001.html">30001</a></td>
+            <td class="gbufLength">2</td>
+            <td class="gbufDesc">
+            <div class="gbufDesc">GSB entry 2</div>
+            <div class="gbufDetails">
+            </div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer = self._get_writer(skool=skool)
+        writer.write_gbuffer()
+        subs = {
+            'name': basename(self.skoolfile)[:-6],
+            'title': 'Game status buffer',
+            'path': '../',
+            'body_class': 'gbuffer',
+            'content': content
+        }
+        self.assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)
+
+    def test_write_gbuffer_with_includes(self):
         ref = '[Game]\nGameStatusBufferIncludes=30003,30004'
         skool = '\n'.join((
             '; GSB entry 1',

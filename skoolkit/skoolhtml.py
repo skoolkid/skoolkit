@@ -576,9 +576,7 @@ class HtmlWriter:
 
     def write_gbuffer(self):
         ofile, cwd = self.open_file(self.paths[P_GSB])
-        gsb_includes = self.game_vars['GameStatusBufferIncludes']
-        if gsb_includes:
-            gsb_includes = [parse_int(a) for a in gsb_includes.split(',')]
+        gsb_includes = [parse_int(a) for a in self.game_vars['GameStatusBufferIncludes'].split(',')]
         gsb_entries = []
         for entry in self.memory_map:
             if not (entry.ctl == 'g' or entry.address in gsb_includes):
