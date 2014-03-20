@@ -22,11 +22,16 @@ from os.path import isfile, isdir, basename, dirname
 import shutil
 import time
 import argparse
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 from . import PACKAGE_DIR, VERSION, show_package_dir, write, write_line, get_class, normpath, SkoolKitError
 from .skoolhtml import FileInfo
 from .skoolparser import SkoolParser, CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
 from .refparser import RefParser
+from .defaults import CONFIG
 
 verbose = True
 show_timings = False
@@ -177,13 +182,15 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
     if reffile_f:
         reffiles.insert(0, normpath(reffile_f))
     ref_parser = RefParser()
+    ref_parser.parse(StringIO(CONFIG))
+    config = ref_parser.get_dictionary('Config')
     for oreffile_f in reffiles:
         ref_parser.parse(oreffile_f)
     add_lines(ref_parser, config_specs)
+    config.update(ref_parser.get_dictionary('Config'))
 
-    config = ref_parser.get_dictionary('Config')
     if skoolfile_f is None:
-        skoolfile = config.get('SkoolFile', '{}.skool'.format(prefix))
+        skoolfile = config['SkoolFile'] or '{}.skool'.format(prefix)
         skoolfile_f = find(skoolfile, ref_search_dir)
         if skoolfile_f is None:
             raise SkoolKitError('{}: file not found'.format(normpath(skoolfile)))
@@ -199,8 +206,8 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
     else:
         notify('Found no ref file for {}'.format(skoolfile_n))
 
-    html_writer_class = get_class(config.get('HtmlWriterClass', 'skoolkit.skoolhtml.HtmlWriter'))
-    game_dir = config.get('GameDir', prefix)
+    html_writer_class = get_class(config['HtmlWriterClass'])
+    game_dir = config['GameDir'] or prefix
 
     # Parse the skool file and initialise the writer
     if skoolfile_f == '-':

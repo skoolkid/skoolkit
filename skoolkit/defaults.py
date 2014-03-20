@@ -36,6 +36,13 @@ BRIGHT_YELLOW=255,255,0
 BRIGHT_WHITE=255,255,255
 """
 
+CONFIG = """
+[Config]
+HtmlWriterClass=skoolkit.skoolhtml.HtmlWriter
+SkoolFile=
+GameDir=
+"""
+
 GAME = """
 [Game]
 Font=
@@ -601,6 +608,7 @@ UnusedMap=Unused addresses
 
 REF_FILE = """
 {COLOURS}
+{CONFIG}
 {GAME}
 {IMAGE_WRITER}
 {INDEX}
