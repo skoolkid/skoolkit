@@ -155,6 +155,8 @@ class HtmlWriter:
                 map_details['Name'] = map_name
                 self.memory_maps[map_name] = map_details
                 self.memory_map_names.append(map_name)
+                self.paths.setdefault(map_name, 'maps/{}.html'.format(map_name))
+                self.titles.setdefault(map_name, map_name)
 
         self.code_path = self.get_code_path(code_id)
         self.game_vars = self.get_dictionary('Game')
@@ -887,15 +889,10 @@ class HtmlWriter:
         entry_types = map_details['EntryTypes']
         return any(entry.ctl in entry_types for entry in self.memory_map)
 
-    def get_map_path(self, map_details):
-        if 'Path' in map_details:
-            return map_details['Path']
-        map_name = map_details['Name']
-        return self.paths.get(map_name, '{0}.html'.format(map_name))
-
     def write_map(self, map_details):
         map_entries = []
-        map_file = self.get_map_path(map_details)
+        map_name = map_details['Name']
+        map_file = self.paths[map_name]
         cwd = os.path.dirname(map_file)
         entry_types = map_details['EntryTypes']
         show_page_byte = map_details.get('PageByteColumns', '0') != '0'
@@ -943,11 +940,7 @@ class HtmlWriter:
             }
             map_entries.append(self.format_template('map_entry', t_map_entry_subs))
 
-        if 'Title' in map_details:
-            title = map_details['Title']
-        else:
-            map_name = map_details['Name']
-            title = self.titles.get(map_name, map_name)
+        title = self.titles[map_name]
         intro = map_details.get('Intro', '')
         if intro:
             intro = self.format_template('map_intro', {'intro': self.expand(intro, cwd)})
@@ -966,7 +959,7 @@ class HtmlWriter:
             't_footer': self.footer
         }
         with self.file_info.open_file(map_file) as ofile:
-            ofile.write(self.format_template(P_MEMORY_MAP, t_map_subs, True))
+            ofile.write(self.format_template(map_name, t_map_subs, True, default=P_MEMORY_MAP))
 
     def write_page(self, page_id):
         ofile, cwd = self.open_file(self.paths[page_id])

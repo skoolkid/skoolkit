@@ -2774,9 +2774,45 @@ class HtmlWriterTest(SkoolKitTestCase):
         subs.update(common_subs)
         self.assert_files_equal(join(MAPS_DIR, 'unused.html'), subs)
 
-        # Custom map
+    def write_custom_map(self):
+        skool = '\n'.join((
+            '; Routine',
+            'c30000 RET',
+            '',
+            '; Bytes',
+            'b30001 DEFB 1,2',
+            '',
+            '; GSB entry',
+            'g30003 DEFB 0',
+            '',
+            '; Unused',
+            'u30004 DEFB 0',
+            '',
+            '; Zeroes',
+            's30005 DEFS 6',
+            '',
+            '; Text',
+            't30011 DEFM "Hi"'
+        ))
+        map_id = 'CustomMap'
+        map_intro = 'Introduction.'
+        map_path = 'maps/custom.html'
+        map_title = 'Custom map'
+        ref = '\n'.join((
+            '[MemoryMap:{0}]',
+            'EntryTypes=cg',
+            'Intro={1}',
+            ''
+            '[Paths]',
+            '{0}={2}',
+            '',
+            '[Titles]',
+            '{0}={3}'
+        )).format(map_id, map_intro, map_path, map_title)
+        writer = self._get_writer(ref=ref, skool=skool)
+
         content = """
-            <div class="mapIntro">Introduction.</div>
+            <div class="mapIntro">{}</div>
             <table class="map">
             <tr>
             <th>Address</th>
@@ -2787,24 +2823,20 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="routineDesc">Routine</td>
             </tr>
             <tr>
-            <td class="gbuffer"><a class="link" name="30007" href="../asm/30007.html">30007</a></td>
+            <td class="gbuffer"><a class="link" name="30003" href="../asm/30003.html">30003</a></td>
             <td class="gbufferDesc">GSB entry</td>
             </tr>
             </table>
-        """
-        map_details = {
-            'Path': join(MAPS_DIR, 'custom.html'),
-            'Title': 'Custom map',
-            'Intro': 'Introduction.',
-            'EntryTypes': 'cg'
-        }
-        writer.write_map(map_details)
+        """.format(map_intro)
+        writer.write_map(writer.memory_maps[map_id])
         subs = {
-            'title': map_details['Title'],
+            'name': basename(self.skoolfile)[:-6],
+            'path': '../',
+            'body_class': 'map',
+            'title': map_title,
             'content': content
         }
-        subs.update(common_subs)
-        self.assert_files_equal(map_details['Path'], subs)
+        self.assert_files_equal(map_path, subs)
 
     def test_write_memory_map_with_intro(self):
         intro = 'This map is empty.'
