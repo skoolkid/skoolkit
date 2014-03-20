@@ -5,7 +5,7 @@ from os.path import join, basename, isfile
 import unittest
 
 from skoolkittest import SkoolKitTestCase, StringIO
-from skoolkit import VERSION, SkoolKitError, SkoolParsingError
+from skoolkit import VERSION, SkoolKitError, SkoolParsingError, skoolhtml
 from skoolkit.skoolmacro import MacroParsingError, UnsupportedMacroError
 from skoolkit.skoolhtml import HtmlWriter, FileInfo, Udg, Frame
 from skoolkit.skoolparser import SkoolParser, Register, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
@@ -74,14 +74,6 @@ PREV_UP_NEXT = """<table class="prevNext">
 
 ERROR_PREFIX = 'Error while parsing #{0} macro'
 
-class TestHtmlWriter(HtmlWriter):
-    def write_image(self, img_file, udgs=(), crop_rect=(), scale=2, mask=False):
-        frame = Frame(udgs, scale, mask, *crop_rect)
-        self.write_animated_image(img_file, [frame])
-
-    def write_animated_image(self, img_file, frames):
-        self.image_writer.write_image(img_file, frames)
-
 class MockSkoolParser:
     def __init__(self, snapshot=None, entries=(), memory_map=()):
         self.snapshot = snapshot
@@ -91,17 +83,13 @@ class MockSkoolParser:
         self.base = None
 
 class MockFileInfo:
-    def __init__(self, topdir, game_dir):
-        self.odir = join(topdir, game_dir)
-        self.path = None
+    def __init__(self):
+        self.fname = None
         self.mode = None
 
     # PY: open_file(self, *names, mode='w') in Python 3
     def open_file(self, *names, **kwargs):
-        path = self.odir
-        for name in names:
-            path = join(path, name)
-        self.path = path
+        self.fname = join(*names)
         self.mode = kwargs.get('mode', 'w') # PY: Not needed in Python 3
         return StringIO()
 
@@ -109,24 +97,9 @@ class MockFileInfo:
         return True
 
 class MockImageWriter:
-    def __init__(self):
-        self.build_images = True
-        self.default_format = 'png'
-
-    def write_image(self, img_file, frames):
-        self.img_file = img_file
-        self.frames = frames
-        frame1 = frames[0]
-        self.udg_array = frame1.udgs
-        self.scale = frame1.scale
-        self.mask = frame1.mask
-        self.x = frame1.x
-        self.y = frame1.y
-        self.width = frame1.width
-        self.height = frame1.height
-
-class MockImageWriter2:
-    def __init__(self):
+    def __init__(self, palette, options):
+        self.palette = palette
+        self.options = options
         self.default_format = 'png'
 
     def write_image(self, frames, img_file, img_format):
@@ -250,21 +223,23 @@ class HtmlWriterTest(SkoolKitTestCase):
     def _unsupported_macro(self, *args):
         raise UnsupportedMacroError()
 
-    def _get_writer(self, ref=None, snapshot=(), case=None, base=None, skool=None, create_labels=False, asm_labels=False):
-        self.reffile = None
+    def _get_writer(self, ref=None, snapshot=(), case=None, base=None, skool=None, create_labels=False, asm_labels=False, mock_file_info=False):
         self.skoolfile = None
         ref_parser = RefParser()
         if ref is not None:
-            self.reffile = self.write_text_file(ref, suffix='.ref')
-            ref_parser.parse(self.reffile)
+            ref_parser.parse(StringIO(ref))
         if skool is None:
             skool_parser = MockSkoolParser(snapshot)
         else:
             self.skoolfile = self.write_text_file(skool, suffix='.skool')
             skool_parser = SkoolParser(self.skoolfile, case=case, base=base, html=True, create_labels=create_labels, asm_labels=asm_labels)
         self.odir = self.make_directory()
-        file_info = FileInfo(self.odir, GAMEDIR, False)
-        return TestHtmlWriter(skool_parser, ref_parser, file_info, MockImageWriter())
+        if mock_file_info:
+            file_info = MockFileInfo()
+        else:
+            file_info = FileInfo(self.odir, GAMEDIR, False)
+        self.mock(skoolhtml, 'ImageWriter', MockImageWriter)
+        return HtmlWriter(skool_parser, ref_parser, file_info)
 
     def _assert_scr_equal(self, game, x0=0, y0=0, w=32, h=24):
         snapshot = game.snapshot[:]
@@ -321,6 +296,30 @@ class HtmlWriterTest(SkoolKitTestCase):
             self.assertEqual(frame.mask, exp_frame.mask)
             self.assertEqual(frame.delay, exp_frame.delay)
             self._compare_udgs(frame.udgs, exp_frame.udgs)
+
+    def test_colour_parsing(self):
+        # Valid colours
+        exp_colours = (
+            ('RED', '#C40000', (196, 0, 0)),
+            ('WHITE', '#cde', (204, 221, 238)),
+            ('YELLOW', '198,197,0', (198, 197, 0))
+        )
+        colours = ['[Colours]']
+        colours.extend(['{}={}'.format(name, spec) for name, spec, rgb in exp_colours])
+        writer = self._get_writer(ref='\n'.join(colours))
+        for name, spec, rgb in exp_colours:
+            self.assertEqual(writer.image_writer.palette[name], rgb)
+
+        # Invalid colours
+        bad_colours = (
+            ('BLACK', ''),
+            ('CYAN', '#)0C6C5'),
+            ('MAGENTA', '!98,0,198')
+        )
+        for name, spec in bad_colours:
+            with self.assertRaises(SkoolKitError) as cm:
+                self._get_writer(ref='[Colours]\n{}={}'.format(name, spec))
+            self.assertEqual(cm.exception.args[0], 'Invalid colour spec: {}={}'.format(name, spec))
 
     def test_get_screenshot(self):
         snapshot = [0] * 65536
@@ -701,7 +700,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_macro_font(self):
         snapshot = [0] * 65536
-        writer = self._get_writer(snapshot=snapshot)
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
         output = writer.expand('#FONT32768,96', ASMDIR)
         self.img_equals(output, 'font', '../images/font/font.png')
@@ -733,7 +732,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         snapshot.extend((1, 3, 7, 15, 31, 63, 127, 255)) # '"'
         snapshot.extend([0] * 56)
         snapshot.extend((1, 3, 5, 7, 9, 11, 13, 15)) # ')'
-        writer = self._get_writer(snapshot=snapshot)
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
         img_fname = 'message'
         message = ' !"%'
@@ -760,13 +759,13 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_macro_font_with_custom_font_image_path(self):
         font_path = 'graphics/font'
         ref = '[Paths]\nFontImagePath={}'.format(font_path)
-        writer = self._get_writer(ref=ref, snapshot=[0] * 16)
+        writer = self._get_writer(ref=ref, snapshot=[0] * 16, mock_file_info=True)
         img_fname = 'text'
         exp_img_path = '{}/{}.png'.format(font_path, img_fname)
 
         output = writer.expand('#FONT:(!!!)0({})'.format(img_fname), ASMDIR)
         self.img_equals(output, img_fname, '../{}'.format(exp_img_path))
-        self.assertEqual(writer.image_writer.img_file, exp_img_path)
+        self.assertEqual(writer.file_info.fname, exp_img_path)
 
     def test_macro_font_invalid(self):
         writer = self._get_writer()
@@ -1374,7 +1373,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_macro_scr(self):
         snapshot = [0] * 65536
-        writer = self._get_writer(snapshot=snapshot)
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
         output = writer.expand('#SCR', ASMDIR)
         self.img_equals(output, 'scr', '../images/scr/scr.png')
@@ -1399,12 +1398,12 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_macro_scr_with_custom_screenshot_path(self):
         scr_path = 'graphics/screenshots'
         ref = '[Paths]\nScreenshotImagePath={}'.format(scr_path)
-        writer = self._get_writer(ref=ref, snapshot=[0] * 23296)
+        writer = self._get_writer(ref=ref, snapshot=[0] * 23296, mock_file_info=True)
         exp_img_path = '{}/scr.png'.format(scr_path)
 
         output = writer.expand('#SCR', ASMDIR)
         self.img_equals(output, 'scr', '../{}'.format(exp_img_path))
-        self.assertEqual(writer.image_writer.img_file, exp_img_path)
+        self.assertEqual(writer.file_info.fname, exp_img_path)
 
     def test_macro_scr_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
@@ -1508,7 +1507,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_macro_udg(self):
         snapshot = [0] * 65536
-        writer = self._get_writer(snapshot=snapshot)
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
         udg_fname = 'udg32768_56x4'
         output = writer.expand('#UDG32768', ASMDIR)
@@ -1543,13 +1542,13 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_macro_udg_with_custom_udg_image_path(self):
         font_path = 'graphics/udgs'
         ref = '[Paths]\nUDGImagePath={}'.format(font_path)
-        writer = self._get_writer(ref=ref, snapshot=[0] * 8)
+        writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_file_info=True)
         img_fname = 'udg0'
         exp_img_path = '{}/{}.png'.format(font_path, img_fname)
 
         output = writer.expand('#UDG0({})'.format(img_fname), ASMDIR)
         self.img_equals(output, img_fname, '../{}'.format(exp_img_path))
-        self.assertEqual(writer.image_writer.img_file, exp_img_path)
+        self.assertEqual(writer.file_info.fname, exp_img_path)
 
     def test_macro_udg_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
@@ -1569,7 +1568,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_macro_udgarray(self):
         snapshot = [0] * 65536
-        writer = self._get_writer(snapshot=snapshot)
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
         udg_fname = 'test_udg_array'
         output = writer.expand('#UDGARRAY8;32768-32784-1-8({0})'.format(udg_fname), ASMDIR)
@@ -1621,13 +1620,13 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_macro_udgarray_with_custom_udg_image_path(self):
         font_path = 'udg_images'
         ref = '[Paths]\nUDGImagePath={}'.format(font_path)
-        writer = self._get_writer(ref=ref, snapshot=[0] * 8)
+        writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_file_info=True)
         img_fname = 'udgarray0'
         exp_img_path = '{}/{}.png'.format(font_path, img_fname)
 
         output = writer.expand('#UDGARRAY1;0({})'.format(img_fname), ASMDIR)
         self.img_equals(output, img_fname, '../{}'.format(exp_img_path))
-        self.assertEqual(writer.image_writer.img_file, exp_img_path)
+        self.assertEqual(writer.file_info.fname, exp_img_path)
 
     def test_macro_udgarray_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
@@ -1674,7 +1673,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_macro_udgarray_frames(self):
         snapshot = [0] * 65536
-        writer = self._get_writer(snapshot=snapshot)
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
         # Frames
         udg1_addr = 40000
@@ -3587,15 +3586,15 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_html_equal(html, exp_html, trim=True)
 
     def test_write_image(self):
-        file_info = MockFileInfo('html', 'test_write_image')
-        image_writer = MockImageWriter2()
-        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
+        writer = self._get_writer(mock_file_info=True)
+        image_writer = writer.image_writer
+        file_info = writer.file_info
 
         # PNG
         image_path = 'images/test.png'
         udgs = [[Udg(0, (0,) * 8)]]
         writer.write_image(image_path, udgs)
-        self.assertEqual(file_info.path, join(file_info.odir, image_path))
+        self.assertEqual(file_info.fname, image_path)
         self.assertEqual(file_info.mode, 'wb')
         self.assertEqual(image_writer.udg_array, udgs)
         self.assertEqual(image_writer.img_format, 'png')
@@ -3609,7 +3608,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         # GIF
         image_path = 'images/test.gif'
         writer.write_image(image_path, udgs)
-        self.assertEqual(file_info.path, join(file_info.odir, image_path))
+        self.assertEqual(file_info.fname, image_path)
         self.assertEqual(image_writer.img_format, 'gif')
 
         # Unsupported format
@@ -3618,35 +3617,33 @@ class HtmlWriterTest(SkoolKitTestCase):
             writer.write_image(image_path, udgs)
 
     def test_write_animated_image_png(self):
-        file_info = MockFileInfo('html', 'test_write_animated_png')
-        image_writer = MockImageWriter2()
-        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
+        writer = self._get_writer(mock_file_info=True)
+        image_writer = writer.image_writer
+        file_info = writer.file_info
 
         image_path = 'images/test_animated.png'
         frames = object()
         writer.write_animated_image(image_path, frames)
-        self.assertEqual(file_info.path, join(file_info.odir, image_path))
+        self.assertEqual(file_info.fname, image_path)
         self.assertEqual(file_info.mode, 'wb')
         self.assertEqual(image_writer.frames, frames)
         self.assertEqual(image_writer.img_format, 'png')
 
     def test_write_animated_image_gif(self):
-        file_info = MockFileInfo('html', 'test_write_animated_gif')
-        image_writer = MockImageWriter2()
-        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
+        writer = self._get_writer(mock_file_info=True)
+        image_writer = writer.image_writer
+        file_info = writer.file_info
 
         image_path = 'images/test_animated.gif'
         frames = object()
         writer.write_animated_image(image_path, frames)
-        self.assertEqual(file_info.path, join(file_info.odir, image_path))
+        self.assertEqual(file_info.fname, image_path)
         self.assertEqual(file_info.mode, 'wb')
         self.assertEqual(image_writer.frames, frames)
         self.assertEqual(image_writer.img_format, 'gif')
 
     def test_write_animated_image_unsupported_format(self):
-        file_info = MockFileInfo('html', 'test_write_animated_jpg')
-        image_writer = MockImageWriter2()
-        writer = HtmlWriter(MockSkoolParser(), RefParser(), file_info, image_writer)
+        writer = self._get_writer(mock_file_info=True)
 
         image_path = 'images/test_animated.jpg'
         with self.assertRaisesRegexp(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):

@@ -24,7 +24,6 @@ import time
 import argparse
 
 from . import PACKAGE_DIR, VERSION, show_package_dir, write, write_line, get_class, normpath, SkoolKitError
-from .image import ImageWriter
 from .skoolhtml import FileInfo
 from .skoolparser import SkoolParser, CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
 from .refparser import RefParser
@@ -94,27 +93,6 @@ def add_lines(ref_parser, config_specs, section=None):
             raise SkoolKitError("Malformed SectionName/Line spec: {0}".format(config_spec))
         if section is None or section_name == section:
             ref_parser.add_line(section_name, line)
-
-def get_colours(colour_specs):
-    colours = {}
-    for k, v in colour_specs.items():
-        if v.startswith('#'):
-            hex_rgb = v[1:7]
-            if len(hex_rgb) == 3:
-                hex_rgb = '{0}{0}{1}{1}{2}{2}'.format(*hex_rgb)
-            else:
-                hex_rgb = '0' * (6 - len(hex_rgb)) + hex_rgb
-            values = [hex_rgb[i:i + 2] for i in range(0, 5, 2)]
-            base = 16
-        else:
-            values = v.split(',')[:3]
-            values.extend(['0'] * (3 - len(values)))
-            base = 10
-        try:
-            colours[k] = tuple([int(n, base) for n in values])
-        except ValueError:
-            raise SkoolKitError("Invalid colour spec: {}={}".format(k, v))
-    return colours
 
 def copy_resource(fname, root_dir, dest_dir, indent=0):
     base_f = basename(fname)
@@ -231,10 +209,7 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
         fname = skoolfile_f
     skool_parser = clock(SkoolParser, 'Parsing {0}'.format(fname), skoolfile_f, case=case, base=base, html=True, create_labels=create_labels, asm_labels=asm_labels)
     file_info = FileInfo(topdir, game_dir, new_images)
-    colours = get_colours(ref_parser.get_dictionary('Colours'))
-    iw_options = ref_parser.get_dictionary('ImageWriter')
-    image_writer = ImageWriter(colours, iw_options)
-    html_writer = html_writer_class(skool_parser, ref_parser, file_info, image_writer, case)
+    html_writer = html_writer_class(skool_parser, ref_parser, file_info, case)
 
     # Check that the specified pages exist
     all_page_ids = html_writer.get_page_ids()

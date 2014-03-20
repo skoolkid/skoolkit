@@ -32,6 +32,7 @@ except ImportError:
 
 from . import VERSION, warn, get_int_param, parse_int, SkoolKitError, SkoolParsingError
 from . import skoolmacro
+from .image import ImageWriter
 from .skoolmacro import MacroParsingError, UnsupportedMacroError
 from .skoolparser import TableParser, ListParser, CASE_LOWER
 from .refparser import RefParser
@@ -91,24 +92,25 @@ class HtmlWriter:
     :param ref_parser: The `ref` file parser to use.
     :type file_info: :class:`FileInfo`
     :param file_info: The `FileInfo` object to use.
-    :type image_writer: :class:`~skoolkit.image.ImageWriter`
-    :param image_writer: The image writer to use.
     :param case: The case in which to render register names produced by the
                  :ref:`REG` macro (:data:`~skoolkit.skoolparser.CASE_LOWER` for
                  lower case, anything else for upper case)
     :param code_id: The ID of the disassembly.
     """
-    def __init__(self, skool_parser, ref_parser, file_info=None, image_writer=None, case=None, code_id=MAIN_CODE_ID):
+    def __init__(self, skool_parser, ref_parser, file_info=None, case=None, code_id=MAIN_CODE_ID):
         self.parser = skool_parser
         self.ref_parser = ref_parser
         self.defaults = RefParser()
         self.defaults.parse(StringIO(REF_FILE))
         self.file_info = file_info
-        self.image_writer = image_writer
-        self.default_image_format = image_writer.default_format
-        self.frames = {}
         self.case = case
         self.base = skool_parser.base
+
+        colours = self._parse_colours(self.get_dictionary('Colours'))
+        iw_options = self.get_dictionary('ImageWriter')
+        self.image_writer = ImageWriter(colours, iw_options)
+        self.default_image_format = self.image_writer.default_format
+        self.frames = {}
 
         self.snapshot = self.parser.snapshot
         self._snapshots = [(self.snapshot, '')]
@@ -209,7 +211,7 @@ class HtmlWriter:
         warn(s)
 
     def clone(self, skool_parser, code_id):
-        the_clone = self.__class__(skool_parser, self.ref_parser, self.file_info, self.image_writer, self.case, code_id)
+        the_clone = self.__class__(skool_parser, self.ref_parser, self.file_info, self.case, code_id)
         the_clone.set_style_sheet(self.game_vars['StyleSheet'])
         return the_clone
 
@@ -227,6 +229,27 @@ class HtmlWriter:
         if trim:
             html = self._remove_blank_lines(html)
         return html
+
+    def _parse_colours(self, colour_specs):
+        colours = {}
+        for k, v in colour_specs.items():
+            if v.startswith('#'):
+                hex_rgb = v[1:7]
+                if len(hex_rgb) == 3:
+                    hex_rgb = '{0}{0}{1}{1}{2}{2}'.format(*hex_rgb)
+                else:
+                    hex_rgb = '0' * (6 - len(hex_rgb)) + hex_rgb
+                values = [hex_rgb[i:i + 2] for i in range(0, 5, 2)]
+                base = 16
+            else:
+                values = v.split(',')[:3]
+                values.extend(['0'] * (3 - len(values)))
+                base = 10
+            try:
+                colours[k] = tuple([int(n, base) for n in values])
+            except ValueError:
+                raise SkoolKitError("Invalid colour spec: {}={}".format(k, v))
+        return colours
 
     def _parse_links(self, links):
         new_links = {}
@@ -1067,9 +1090,8 @@ class HtmlWriter:
         :param scale: The scale of the image.
         :param mask: Whether to apply masks to the tiles in the image.
         """
-        if self.image_writer:
-            frame = Frame(udgs, scale, mask, *crop_rect)
-            self.write_animated_image(image_path, [frame])
+        frame = Frame(udgs, scale, mask, *crop_rect)
+        self.write_animated_image(image_path, [frame])
 
     def write_animated_image(self, image_path, frames):
         """Create an animated image and write it to a file.
@@ -1081,11 +1103,10 @@ class HtmlWriter:
                        :class:`~skoolkit.skoolhtml.Frame`) from which to build
                        the image.
         """
-        if self.image_writer:
-            img_format = self._get_image_format(image_path)
-            f = self.file_info.open_file(image_path, mode='wb')
-            self.image_writer.write_image(frames, f, img_format)
-            f.close()
+        img_format = self._get_image_format(image_path)
+        f = self.file_info.open_file(image_path, mode='wb')
+        self.image_writer.write_image(frames, f, img_format)
+        f.close()
 
     def _create_macros(self):
         self.macros = {}

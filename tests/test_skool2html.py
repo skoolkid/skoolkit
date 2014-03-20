@@ -390,39 +390,6 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(len(html_writer.entries), 1)
         self.assertTrue(30000 in html_writer.entries)
 
-    def test_colour_parsing(self):
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
-        self.mock(skool2html, 'ImageWriter', MockImageWriter)
-
-        # Valid colours
-        exp_colours = (
-            ('RED', '#C40000', (196, 0, 0)),
-            ('WHITE', '#cde', (204, 221, 238)),
-            ('YELLOW', '198,197,0', (198, 197, 0))
-        )
-        colours = ['[Colours]']
-        colours.extend(['{}={}'.format(name, spec) for name, spec, rgb in exp_colours])
-        reffile = self.write_text_file('\n'.join(colours), suffix='.ref')
-        self.write_text_file(path='{0}.skool'.format(reffile[:-4]))
-        output, error = self.run_skool2html(reffile)
-        self.assertEqual(error, '')
-        for name, spec, rgb in exp_colours:
-            self.assertEqual(mock_image_writer.palette[name], rgb)
-
-        # Invalid colours
-        bad_colours = (
-            ('BLACK', ''),
-            ('CYAN', '#)0C6C5'),
-            ('MAGENTA', '!98,0,198')
-        )
-        for name, spec in bad_colours:
-            colours = ['[Colours]', '{}={}'.format(name, spec)]
-            reffile = self.write_text_file('\n'.join(colours), suffix='.ref')
-            self.write_text_file(path='{0}.skool'.format(reffile[:-4]))
-            with self.assertRaises(SkoolKitError) as cm:
-                self.run_skool2html(reffile)
-            self.assertEqual(cm.exception.args[0], 'Invalid colour spec: {}={}'.format(name, spec))
-
     def test_image_writer_options(self):
         self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         exp_iw_options = (
