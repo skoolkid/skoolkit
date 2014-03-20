@@ -123,8 +123,7 @@ class HtmlWriter:
 
         self.paths = self.get_dictionary('Paths')
         self.titles = self.get_dictionary('Titles')
-        links = self.titles.copy()
-        links.update(self.get_dictionary('Links'))
+        links = self.get_dictionary('Links')
         self.page_ids = []
         self.pages = {}
         for page_id, details in self.get_dictionaries('Page'):
@@ -141,6 +140,8 @@ class HtmlWriter:
             self.paths[page_id] = path
             self.titles[page_id] = page.get('Title', page_id)
             links[page_id] = page.get('Link', self.titles[page_id])
+        for page_id in links:
+            links[page_id] = links[page_id] or self.titles.get(page_id, page_id)
         self.links = self._parse_links(links)
 
         self.other_code = self.get_dictionaries('OtherCode')

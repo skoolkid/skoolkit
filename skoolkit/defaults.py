@@ -109,19 +109,19 @@ Release=
 
 LINKS = """
 [Links]
-; Bugs=
-; Changelog=
-; DataMap=
-; Facts=
-; GameStatusBuffer=
-; Glossary=
-; GraphicGlitches=
-; Graphics=
+Bugs=
+Changelog=
+DataMap=
+Facts=
+GameStatusBuffer=
+Glossary=
+GraphicGlitches=
+Graphics=
 MemoryMap=Everything
-; MessagesMap=
-; Pokes=
-; RoutinesMap=
-; UnusedMap=
+MessagesMap=
+Pokes=
+RoutinesMap=
+UnusedMap=
 """
 
 MEMORY_MAPS = """
