@@ -3386,7 +3386,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <th>Purpose</th>
             </tr>
             <tr>
-            <td class="gbufAddress"><a name="30000" class="link" href="../asm/30000.html">30000</a></td>
+            <td class="gbufAddress"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
             <td class="gbufLength">1</td>
             <td class="gbufDesc">
             <div class="gbufDesc">GSB entry 1</div>
@@ -3398,7 +3398,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </td>
             </tr>
             <tr>
-            <td class="gbufAddress"><a name="30001" class="link" href="../asm/30001.html">30001</a></td>
+            <td class="gbufAddress"><a name="30001"></a><a class="link" href="../asm/30001.html">30001</a></td>
             <td class="gbufLength">2</td>
             <td class="gbufDesc">
             <div class="gbufDesc">GSB entry 2</div>
@@ -3449,7 +3449,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <th>Purpose</th>
             </tr>
             <tr>
-            <td class="gbufAddress"><a name="30000" class="link" href="../asm/30000.html">30000</a></td>
+            <td class="gbufAddress"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
             <td class="gbufLength">1</td>
             <td class="gbufDesc">
             <div class="gbufDesc">GSB entry 1</div>
@@ -3461,7 +3461,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </td>
             </tr>
             <tr>
-            <td class="gbufAddress"><a name="30001" class="link" href="../asm/30001.html">30001</a></td>
+            <td class="gbufAddress"><a name="30001"></a><a class="link" href="../asm/30001.html">30001</a></td>
             <td class="gbufLength">2</td>
             <td class="gbufDesc">
             <div class="gbufDesc">GSB entry 2</div>
@@ -3470,7 +3470,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </td>
             </tr>
             <tr>
-            <td class="gbufAddress"><a name="30003" class="link" href="../asm/30003.html">30003</a></td>
+            <td class="gbufAddress"><a name="30003"></a><a class="link" href="../asm/30003.html">30003</a></td>
             <td class="gbufLength">1</td>
             <td class="gbufDesc">
             <div class="gbufDesc">Message ID</div>
@@ -3479,7 +3479,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </td>
             </tr>
             <tr>
-            <td class="gbufAddress"><a name="30004" class="link" href="../asm/30004.html">30004</a></td>
+            <td class="gbufAddress"><a name="30004"></a><a class="link" href="../asm/30004.html">30004</a></td>
             <td class="gbufLength">1</td>
             <td class="gbufDesc">
             <div class="gbufDesc">Another message ID</div>

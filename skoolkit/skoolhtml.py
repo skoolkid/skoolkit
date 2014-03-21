@@ -579,7 +579,10 @@ class HtmlWriter:
         for entry in self.memory_map:
             if not (entry.ctl == 'g' or entry.address in gsb_includes):
                 continue
-            t_gsb_entry_subs = {'entry': self._get_entry_dict(cwd, entry)}
+            t_gsb_entry_subs = {
+                't_anchor': self.format_anchor(entry.address),
+                'entry': self._get_entry_dict(cwd, entry)
+            }
             gsb_entries.append(self.format_template('gsb_entry', t_gsb_entry_subs))
         html = self.format_page(P_GSB, cwd, {'t_gsb_entries': '\n'.join(gsb_entries)})
         self.write_file(fname, html)

@@ -430,7 +430,7 @@ Unused ({entry.size} byte{suffix})
 
 [Template:gsb_entry]
 <tr>
-<td class="gbufAddress"><a name="{entry[location]}" class="link" href="{entry[url]}">{entry[address]}</a></td>
+<td class="gbufAddress">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
 <td class="gbufLength">{entry[size]}</td>
 <td class="gbufDesc">
 <div class="gbufDesc">{entry[title]}</div>
