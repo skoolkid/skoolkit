@@ -954,6 +954,7 @@ class HtmlWriter:
             t_map_entry_subs = {
                 't_map_page_byte': page_byte,
                 'class': entry_class,
+                't_anchor': self.format_anchor(entry.address),
                 'href': asm_file,
                 'desc_class': desc_class,
                 'entry': entry
