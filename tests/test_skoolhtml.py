@@ -3703,135 +3703,255 @@ class HtmlWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
             writer.write_animated_image(image_path, None)
 
-    def test_format_head_with_title(self):
-        writer = self._get_writer(skool='')
+    def test_format_page_with_title(self):
+        page_id = 'Custom'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'Path=',
+            '[Template:{0}]',
+            '{{t_head}}'
+        )).format(page_id)
+        writer = self._get_writer(ref=ref, skool='')
         title = 'Main page'
         cwd = ''
-        head = writer.format_head(cwd, title).split('\n')
+        page = writer.format_page(page_id, cwd, title=title).split('\n')
         game_name = self.skoolfile[:-6]
-        self.assertEqual(head[1], '<title>{}: {}</title>'.format(game_name, title))
+        self.assertEqual(page[1], '<title>{}: {}</title>'.format(game_name, title))
 
-    def test_format_head_with_single_global_js(self):
+    def test_format_page_with_single_global_js(self):
         global_js = 'js/global.js'
-        ref = '[Game]\nJavaScript={}'.format(global_js)
-        writer = self._get_writer(ref=ref, skool='')
+        page_id = 'Custom'
+        ref = '\n'.join((
+            '[Game]',
+            'JavaScript={0}',
+            '[Page:{1}]',
+            'Path=',
+            '[Template:{1}]',
+            '{{t_head}}'
+        )).format(global_js, page_id)
+        writer = self._get_writer(ref=ref)
         cwd = 'subdir/subdir2'
-        head = writer.format_head(cwd, title='').split('\n')
+        page = writer.format_page(page_id, cwd).split('\n')
         js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(global_js)))
-        self.assertEqual(head[3], '<script type="text/javascript" src="{}"></script>'.format(js_path))
+        self.assertEqual(page[3], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
-    def test_format_head_with_multiple_global_js(self):
+    def test_format_page_with_multiple_global_js(self):
         js_files = ['js/global1.js', 'js.global2.js']
         global_js = ';'.join(js_files)
-        ref = '[Game]\nJavaScript={}'.format(global_js)
-        writer = self._get_writer(ref=ref, skool='')
+        page_id = 'Custom'
+        ref = '\n'.join((
+            '[Game]',
+            'JavaScript={0}',
+            '[Page:{1}]',
+            'Path=',
+            '[Template:{1}]',
+            '{{t_head}}'
+        )).format(global_js, page_id)
+        writer = self._get_writer(ref=ref)
         cwd = 'subdir/subdir2'
-        head = writer.format_head(cwd, title='').split('\n')
+        page = writer.format_page(page_id, cwd).split('\n')
         js_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
-        self.assertEqual(head[3], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
-        self.assertEqual(head[4], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
+        self.assertEqual(page[3], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
+        self.assertEqual(page[4], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
 
-    def test_format_head_with_single_local_js(self):
-        writer = self._get_writer(skool='')
+    def test_format_page_with_single_local_js(self):
+        page_id = 'Custom'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'Path=',
+            '[Template:{0}]',
+            '{{t_head}}'
+        )).format(page_id)
+        writer = self._get_writer(ref=ref)
         cwd = 'subdir/subdir2'
         js = 'js/script.js'
-        head = writer.format_head(cwd, title='', js=js).split('\n')
+        page = writer.format_page(page_id, cwd, js=js).split('\n')
         js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
-        self.assertEqual(head[3], '<script type="text/javascript" src="{}"></script>'.format(js_path))
+        self.assertEqual(page[3], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
-    def test_format_head_with_multiple_local_js(self):
-        writer = self._get_writer(skool='')
+    def test_format_page_with_multiple_local_js(self):
+        page_id = 'Custom'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'Path=',
+            '[Template:{0}]',
+            '{{t_head}}'
+        )).format(page_id)
+        writer = self._get_writer(ref=ref)
         cwd = 'subdir'
         js_files = ['js/script1.js', 'js/script2.js']
         js = ';'.join(js_files)
-        head = writer.format_head(cwd, title='', js=js).split('\n')
+        page = writer.format_page(page_id, cwd, js=js).split('\n')
         js_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
-        self.assertEqual(head[3], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
-        self.assertEqual(head[4], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
+        self.assertEqual(page[3], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
+        self.assertEqual(page[4], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
 
-    def test_format_head_with_local_and_global_js(self):
+    def test_format_page_with_local_and_global_js(self):
         global_js_files = ['js/global1.js', 'js.global2.js']
         global_js = ';'.join(global_js_files)
         local_js_files = ['js/local1.js', 'js/local2.js']
         local_js = ';'.join(local_js_files)
-        ref = '[Game]\nJavaScript={}'.format(global_js)
-        writer = self._get_writer(ref=ref, skool='')
+        page_id = 'Custom'
+        ref = '\n'.join((
+            '[Game]',
+            'JavaScript={0}',
+            '[Page:{1}]',
+            'Path=',
+            '[Template:{1}]',
+            '{{t_head}}'
+        )).format(global_js, page_id)
+        writer = self._get_writer(ref=ref)
         cwd = 'subdir/subdir2'
-        head = writer.format_head(cwd, title='', js=local_js).split('\n')
+        page = writer.format_page(page_id, cwd, js=local_js).split('\n')
         for i, js in enumerate(global_js_files + local_js_files, 3):
             js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
-            self.assertEqual(head[i], '<script type="text/javascript" src="{}"></script>'.format(js_path))
+            self.assertEqual(page[i], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
-    def test_format_head_with_single_css(self):
+    def test_format_page_with_single_css(self):
         css = 'css/game.css'
-        ref = '[Game]\nStyleSheet={}'.format(css)
-        writer = self._get_writer(ref=ref, skool='')
+        page_id = 'Custom'
+        ref = '\n'.join((
+            '[Game]',
+            'StyleSheet={0}',
+            '[Page:{1}]',
+            'Path=',
+            '[Template:{1}]',
+            '{{t_head}}'
+        )).format(css, page_id)
+        writer = self._get_writer(ref=ref)
         cwd = ''
-        head = writer.format_head(cwd, title='').split('\n')
+        page = writer.format_page(page_id, cwd).split('\n')
         css_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css)))
-        self.assertEqual(head[2], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_path))
+        self.assertEqual(page[2], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_path))
 
-    def test_format_head_with_multiple_css(self):
+    def test_format_page_with_multiple_css(self):
         css_files = ['css/game.css', 'css/foo.css']
-        ref = '[Game]\nStyleSheet={}'.format(';'.join(css_files))
+        page_id = 'Custom'
+        ref = '\n'.join((
+            '[Game]',
+            'StyleSheet={0}',
+            '[Page:{1}]',
+            'Path=',
+            '[Template:{1}]',
+            '{{t_head}}'
+        )).format(';'.join(css_files), page_id)
+        writer = self._get_writer(ref=ref)
+        cwd = ''
+        page = writer.format_page(page_id, cwd).split('\n')
+        css_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css))) for css in css_files]
+        self.assertEqual(page[2], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[0]))
+        self.assertEqual(page[3], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[1]))
+
+    def test_format_page_with_header(self):
+        page_id = 'Custom'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'Path=',
+            '[Template:{0}]',
+            '{{t_header}}'
+        )).format(page_id)
+        writer = self._get_writer(ref=ref)
+        header = 'Main page'
+        cwd = ''
+        page = writer.format_page(page_id, cwd, header=header).split('\n')
+        self.assertEqual(page[3], '<td class="headerText">{}</td>'.format(header))
+
+    def test_write_page_no_game_name(self):
+        page_id = 'Custom'
+        path = 'custom.html'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'Path={1}',
+            '[Template:{0}]',
+            '{{t_header}}'
+        )).format(page_id, path)
         writer = self._get_writer(ref=ref, skool='')
         cwd = ''
-        head = writer.format_head(cwd, title='').split('\n')
-        css_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css))) for css in css_files]
-        self.assertEqual(head[2], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[0]))
-        self.assertEqual(head[3], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[1]))
-
-    def test_format_header_with_page_header(self):
-        writer = self._get_writer(skool='')
-        page_header = 'Main page'
-        cwd = ''
-        header = writer.format_header(cwd, page_header).split('\n')
-        self.assertEqual(header[3], '<td class="headerText">{}</td>'.format(page_header))
-
-    def test_format_header_no_game_name(self):
-        writer = self._get_writer(skool='')
-        cwd = ''
-        header = writer.format_header(cwd, header='').split('\n')
+        writer.write_page(page_id)
         index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
         game_name = self.skoolfile[:-6]
-        self.assertEqual(header[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
+        page = self.read_file(path, True)
+        self.assertEqual(page[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
 
-    def test_format_header_with_game_name(self):
+    def test_write_page_with_game_name(self):
         game_name = 'Some game'
-        writer = self._get_writer(ref='[Game]\nGame={}'.format(game_name), skool='')
+        page_id = 'Custom'
         cwd = 'subdir'
-        header = writer.format_header(cwd, header='').split('\n')
+        path = '{}/custom.html'.format(cwd)
+        ref = '\n'.join((
+            '[Game]',
+            'Game={0}',
+            '[Page:{1}]',
+            'Path={2}',
+            '[Template:{1}]',
+            '{{t_header}}'
+        )).format(game_name, page_id, path)
+        writer = self._get_writer(ref=ref)
+        writer.write_page(page_id)
         index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
-        self.assertEqual(header[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
+        page = self.read_file(path, True)
+        self.assertEqual(page[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
 
-    def test_format_header_with_nonexistent_logo_image(self):
-        writer = self._get_writer(ref='[Game]\nLogoImage=images/nonexistent.png', skool='')
+    def test_write_page_with_nonexistent_logo_image(self):
+        page_id = 'Custom'
         cwd = 'subdir'
-        header = writer.format_header(cwd, header='').split('\n')
+        path = '{}/custom.html'.format(cwd)
+        ref = '\n'.join((
+            '[Game]',
+            'LogoImage=images/nonexistent.png',
+            '[Page:{0}]',
+            'Path={1}',
+            '[Template:{0}]',
+            '{{t_header}}'
+        )).format(page_id, path)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
         index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
         game_name = self.skoolfile[:-6]
-        self.assertEqual(header[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
+        page = self.read_file(path, True)
+        self.assertEqual(page[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
 
-    def test_format_header_with_logo_image(self):
+    def test_write_page_with_logo_image(self):
         logo_image_fname = 'logo.png'
-        ref = '[Game]\nLogoImage={}'.format(logo_image_fname)
+        page_id = 'Custom'
+        cwd = 'subdir/subdir2'
+        path = '{}/custom.html'.format(cwd)
+        ref = '\n'.join((
+            '[Game]',
+            'LogoImage={0}',
+            '[Page:{1}]',
+            'Path={2}',
+            '[Template:{1}]',
+            '{{t_header}}'
+        )).format(logo_image_fname, page_id, path)
         writer = self._get_writer(ref=ref, skool='')
         logo_image = self.write_bin_file(path=join(writer.file_info.odir, logo_image_fname))
-        cwd = 'subdir/subdir2'
-        header = writer.format_header(cwd, header='').split('\n')
+        writer.write_page(page_id)
         index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
         logo = FileInfo.relpath(cwd, logo_image_fname)
         game_name = self.skoolfile[:-6]
-        self.assertEqual(header[2], '<td class="headerLogo"><a class="link" href="{}"><img alt="{}" src="{}" /></a></td>'.format(index, game_name, logo))
+        page = self.read_file(path, True)
+        self.assertEqual(page[2], '<td class="headerLogo"><a class="link" href="{}"><img alt="{}" src="{}" /></a></td>'.format(index, game_name, logo))
 
-    def test_format_header_with_logo(self):
+    def test_format_page_with_logo(self):
         logo = 'ABC #UDG30000 123'
-        writer = self._get_writer(ref='[Game]\nLogo={}'.format(logo), skool='')
+        page_id = 'Custom'
+        path = 'custom.html'
+        ref = '\n'.join((
+            '[Game]',
+            'Logo={0}',
+            '[Page:{1}]',
+            'Path={2}',
+            '[Template:{1}]',
+            '{{t_header}}'
+        )).format(logo, page_id, path)
+        writer = self._get_writer(ref=ref, skool='')
         cwd = ''
-        header = writer.format_header(cwd, header='').split('\n')
+        writer.write_page(page_id)
         index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
         logo_value = writer.expand(logo, cwd)
-        self.assertEqual(header[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, logo_value))
+        page = self.read_file(path, True)
+        self.assertEqual(page[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, logo_value))
 
 class UdgTest(SkoolKitTestCase):
     def test_flip(self):

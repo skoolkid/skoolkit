@@ -227,7 +227,7 @@ class HtmlWriter:
 
     def format_template(self, template_name, subs=None, trim=False, default=None):
         template = self.templates.get(template_name, self.templates.get(default))
-        t_subs = {'Info': self.info}
+        t_subs = {'Game': self.game, 'Info': self.info}
         t_subs.update(subs or {})
         html = template.format(**t_subs)
         if trim:
@@ -500,16 +500,18 @@ class HtmlWriter:
         self.write_entries(self.code_path, self.paths[P_MEMORY_MAP])
 
     def write_graphics(self):
-        ofile, cwd = self.open_file(self.paths[P_GRAPHICS])
+        fname = self.paths[P_GRAPHICS]
+        cwd = self._set_cwd(fname)
         t_graphics_subs = {'Graphics': self.expand(self.graphics, cwd)}
-        ofile.write(self.format_page(P_GRAPHICS, cwd, t_graphics_subs, False))
-        ofile.close()
+        html = self.format_page(P_GRAPHICS, cwd, t_graphics_subs, False)
+        self.write_file(fname, html)
 
     def write_graphic_glitches(self):
         self._write_box_page(P_GRAPHIC_GLITCHES, self.graphic_glitches)
 
     def write_index(self):
-        ofile, cwd = self.open_file(self.paths[P_GAME_INDEX])
+        index_fname = self.paths[P_GAME_INDEX]
+        cwd = self._set_cwd(index_fname)
 
         link_groups = {}
         for section_id, header_text, page_list in self.get_sections('Index', False, True):
@@ -554,7 +556,8 @@ class HtmlWriter:
                 sections_html.append(self.format_template('index_section', t_index_section_subs))
 
         t_index_subs = {'t_index_sections': '\n'.join(sections_html)}
-        ofile.write(self.format_page(P_GAME_INDEX, cwd, t_index_subs))
+        html = self.format_page(P_GAME_INDEX, cwd, t_index_subs)
+        self.write_file(index_fname, html)
 
     def _get_entry_dict(self, cwd, entry):
         desc = ''
@@ -570,7 +573,8 @@ class HtmlWriter:
         }
 
     def write_gbuffer(self):
-        ofile, cwd = self.open_file(self.paths[P_GSB])
+        fname = self.paths[P_GSB]
+        cwd = self._set_cwd(fname)
         gsb_includes = [parse_int(a) for a in self.game_vars['GameStatusBufferIncludes'].split(',')]
         gsb_entries = []
         for entry in self.memory_map:
@@ -578,8 +582,8 @@ class HtmlWriter:
                 continue
             t_gsb_entry_subs = {'entry': self._get_entry_dict(cwd, entry)}
             gsb_entries.append(self.format_template('gsb_entry', t_gsb_entry_subs))
-        ofile.write(self.format_page(P_GSB, cwd, {'t_gsb_entries': '\n'.join(gsb_entries)}))
-        ofile.close()
+        html = self.format_page(P_GSB, cwd, {'t_gsb_entries': '\n'.join(gsb_entries)})
+        self.write_file(fname, html)
 
     def format_contents_list(self, link_list):
         items = []
@@ -590,7 +594,8 @@ class HtmlWriter:
         return self.format_template('contents_list', t_contents_list_subs)
 
     def _write_box_page(self, page_id, boxes):
-        ofile, cwd = self.open_file(self.paths[page_id])
+        fname = self.paths[page_id]
+        cwd = self._set_cwd(fname)
         boxes_html = []
         for i, (anchor, title, paragraphs) in enumerate(boxes):
             t_box_subs = {
@@ -604,8 +609,8 @@ class HtmlWriter:
             't_contents_list': self.format_contents_list([(anchor, title) for anchor, title, p in boxes]),
             't_boxes': '\n'.join(boxes_html),
         }
-        ofile.write(self.format_page(page_id, cwd, t_subs))
-        ofile.close()
+        html = self.format_page(page_id, cwd, t_subs)
+        self.write_file(fname, html)
 
     def write_pokes(self):
         self._write_box_page(P_POKES, self.pokes)
@@ -636,7 +641,8 @@ class HtmlWriter:
         return self.format_template('changelog_item_list', t_changelog_item_list_subs)
 
     def write_changelog(self):
-        ofile, cwd = self.open_file(self.paths[P_CHANGELOG])
+        fname = self.paths[P_CHANGELOG]
+        cwd = self._set_cwd(fname)
 
         contents = []
         entries = []
@@ -676,8 +682,8 @@ class HtmlWriter:
             't_contents_list': self.format_contents_list(contents),
             't_changelog_entries': '\n'.join(entries),
         }
-        ofile.write(self.format_page(P_CHANGELOG, cwd, t_changelog_subs))
-        ofile.close()
+        html = self.format_page(P_CHANGELOG, cwd, t_changelog_subs)
+        self.write_file(fname, html)
 
     def format_registers(self, registers, cwd):
         input_values = []
@@ -721,6 +727,9 @@ class HtmlWriter:
         return self.format_template('entry_comment', t_entry_comment_subs)
 
     def write_entry(self, cwd, entry, fname=None, page_header=None, prev_entry=None, next_entry=None, up=None):
+        fname = join(cwd, fname or FileInfo.asm_fname(entry.address))
+        self._set_cwd(fname)
+
         title_subs = {
             'address': entry.addr_str,
             'label_suffix': ''
@@ -879,9 +888,8 @@ class HtmlWriter:
             't_disassembly': disassembly,
         }
 
-        fname = fname or FileInfo.asm_fname(entry.address)
-        with self.file_info.open_file(cwd, fname) as ofile:
-            ofile.write(self.format_page('asm_entry', cwd, t_asm_entry_subs, title=title, header=page_header))
+        html = self.format_page('asm_entry', cwd, t_asm_entry_subs, title=title, header=page_header)
+        self.write_file(fname, html)
 
     def write_entries(self, cwd, map_file, page_header=None):
         prev_entry = None
@@ -901,10 +909,11 @@ class HtmlWriter:
         return any(entry.ctl in entry_types for entry in self.memory_map)
 
     def write_map(self, map_details):
-        map_entries = []
         map_name = map_details['Name']
-        map_file = self.paths[map_name]
-        cwd = os.path.dirname(map_file)
+        fname = self.paths[map_name]
+        cwd = self._set_cwd(fname)
+
+        map_entries = []
         entry_types = map_details['EntryTypes']
         show_page_byte = map_details.get('PageByteColumns', '0') != '0'
         asm_path = map_details.get('AsmPath', self.code_path)
@@ -951,7 +960,6 @@ class HtmlWriter:
             }
             map_entries.append(self.format_template('map_entry', t_map_entry_subs))
 
-        title = self.titles[map_name]
         intro = map_details.get('Intro', '')
         if intro:
             intro = self.format_template('map_intro', {'intro': self.expand(intro, cwd)})
@@ -964,11 +972,12 @@ class HtmlWriter:
             't_map_page_byte_header': page_byte_headers,
             't_map_entries': '\n'.join(map_entries)
         }
-        with self.file_info.open_file(map_file) as ofile:
-            ofile.write(self.format_page(map_name, cwd, t_map_subs, default=P_MEMORY_MAP))
+        html = self.format_page(map_name, cwd, t_map_subs, default=P_MEMORY_MAP)
+        self.write_file(fname, html)
 
     def write_page(self, page_id):
-        ofile, cwd = self.open_file(self.paths[page_id])
+        fname = self.paths[page_id]
+        cwd = self._set_cwd(fname)
         page = self.pages[page_id]
         body_class = page.get('BodyClass', '')
         if body_class:
@@ -978,31 +987,31 @@ class HtmlWriter:
             'content': self.expand(self.page_contents[page_id], cwd)
         }
         js = page.get('JavaScript')
-        ofile.write(self.format_page(page_id, cwd, t_custom_page_subs, trim=False, js=js, default='custom_page'))
-        ofile.close()
+        html = self.format_page(page_id, cwd, t_custom_page_subs, trim=False, js=js, default='custom_page')
+        self.write_file(fname, html)
 
-    def open_file(self, fname):
-        ofile = self.file_info.open_file(fname)
+    def write_file(self, fname, contents):
+        with self.file_info.open_file(fname) as f:
+            f.write(contents)
+
+    def _set_cwd(self, fname):
         cwd = os.path.dirname(fname)
-        return ofile, cwd
-
-    def _set_logo(self, cwd):
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
+        return cwd
 
-    def format_page(self, page_id, cwd, subs, trim=True, title=None, header=None, js=None, default=None):
+    def format_page(self, page_id, cwd, subs=None, trim=True, title=None, header=None, js=None, default=None):
         title = title or self.titles[page_id]
-        self._set_logo(cwd)
-        subs.update({
-            'Game': self.game,
+        all_subs = {
             't_prologue': self.prologue,
             't_html': self.html_tag,
-            't_head': self.format_head(cwd, title, js),
-            't_header': self.format_header(cwd, header or title),
+            't_head': self._format_head(cwd, title, js),
+            't_header': self._format_header(cwd, header or title),
             't_footer': self.footer
-        })
-        return self.format_template(page_id, subs, trim, default=default)
+        }
+        all_subs.update(subs or {})
+        return self.format_template(page_id, all_subs, trim, default=default)
 
-    def format_head(self, cwd, title, js=None):
+    def _format_head(self, cwd, title, js=None):
         stylesheets = []
         for css_file in self.game_vars['StyleSheet'].split(';'):
             t_stylesheet_subs = {'href': FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}
@@ -1015,9 +1024,7 @@ class HtmlWriter:
             t_javascript_subs = {'src': FileInfo.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))}
             javascript.append(self.format_template('javascript', t_javascript_subs))
 
-        self._set_logo(cwd)
         t_head_subs = {
-            'Game': self.game,
             'title': title,
             't_stylesheets': '\n'.join(stylesheets),
             't_javascripts': '\n'.join(javascript)
@@ -1033,10 +1040,8 @@ class HtmlWriter:
             return self.format_img(self.game_name, FileInfo.relpath(cwd, logo_image))
         return self.game_name
 
-    def format_header(self, cwd, header):
-        self._set_logo(cwd)
+    def _format_header(self, cwd, header):
         t_header_subs = {
-            'Game': self.game,
             'href': FileInfo.relpath(cwd, self.paths[P_GAME_INDEX]),
             'header': header
         }
