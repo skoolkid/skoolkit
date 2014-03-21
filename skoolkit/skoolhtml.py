@@ -146,14 +146,13 @@ class HtmlWriter:
 
         self.other_code = self.get_dictionaries('OtherCode')
         for c_id, code in self.other_code:
-            page_id = code.get('IndexPageId')
-            if page_id and page_id not in self.paths:
-                self.paths[page_id] = code['Index']
+            page_id = code.setdefault('IndexPageId', '_{}_index'.format(c_id))
+            self.paths[page_id] = code['Index']
+            self.titles[page_id] = code['Title']
 
         self.memory_map_names = []
         self.memory_maps = {}
         for map_name, map_details in self.get_dictionaries('MemoryMap'):
-            map_details.setdefault('EntryTypes', 'bcgstuwz')
             if self._should_write_map(map_details):
                 map_details['Name'] = map_name
                 self.memory_maps[map_name] = map_details
@@ -905,18 +904,20 @@ class HtmlWriter:
     def _should_write_map(self, map_details):
         if map_details.get('Write') == '0':
             return False
-        entry_types = map_details['EntryTypes']
+        entry_types = map_details.get('EntryTypes')
+        if not entry_types:
+            return True
         return any(entry.ctl in entry_types for entry in self.memory_map)
 
-    def write_map(self, map_details):
-        map_name = map_details['Name']
+    def write_map(self, map_name, asm_path=None):
         fname = self.paths[map_name]
         cwd = self._set_cwd(fname)
 
         map_entries = []
-        entry_types = map_details['EntryTypes']
+        map_details = self.memory_maps.get(map_name, {})
+        entry_types = map_details.get('EntryTypes', 'bcgstuwz')
         show_page_byte = map_details.get('PageByteColumns', '0') != '0'
-        asm_path = map_details.get('AsmPath', self.code_path)
+        asm_relpath = FileInfo.relpath(cwd, asm_path or self.code_path)
 
         for entry in self.memory_map:
             if entry.ctl not in entry_types:
@@ -944,7 +945,6 @@ class HtmlWriter:
                 entry_class = 'message'
                 desc_class = 'messageDesc'
             address = entry.address
-            asm_relpath = FileInfo.relpath(cwd, asm_path)
             asm_file = FileInfo.asm_fname(address, asm_relpath)
             page_byte = ''
             if show_page_byte:

@@ -259,8 +259,7 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_c
     # Write the memory map files
     if 'm' in files:
         for map_name in html_writer.memory_map_names:
-            map_details = html_writer.memory_maps[map_name]
-            clock(html_writer.write_map, '  Writing {}'.format(normpath(game_dir, paths[map_name])), map_details)
+            clock(html_writer.write_map, '  Writing {}'.format(normpath(game_dir, paths[map_name])), map_name)
 
     # Write pages defined in the ref file
     if 'P' in files:
@@ -292,14 +291,10 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_c
             skoolfile = find(code['Source'], search_dir)
             skool2_parser = clock(html_writer.parser.clone, '  Parsing {0}'.format(skoolfile), skoolfile)
             html_writer2 = html_writer.clone(skool2_parser, code_id)
-            map_path = code['Index']
+            map_name = code['IndexPageId']
+            map_path = paths[map_name]
             asm_path = code['Path']
-            map_details = {
-                'Path': map_path,
-                'AsmPath': asm_path,
-                'Title': code['Title']
-            }
-            clock(html_writer2.write_map, '    Writing {}'.format(normpath(game_dir, map_path)), map_details)
+            clock(html_writer2.write_map, '    Writing {}'.format(normpath(game_dir, map_path)), map_name, asm_path)
             clock(html_writer2.write_entries, '    Writing disassembly files in {}'.format(normpath(game_dir, asm_path)), asm_path, map_path, code['Header'])
 
     # Write index.html

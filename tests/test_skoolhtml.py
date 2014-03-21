@@ -2655,7 +2655,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             </table>
         """
-        writer.write_map(writer.memory_maps['MemoryMap'])
+        writer.write_map('MemoryMap')
         subs = {
             'title': 'Memory map',
             'content': content
@@ -2676,7 +2676,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             </table>
         """
-        writer.write_map(writer.memory_maps['RoutinesMap'])
+        writer.write_map('RoutinesMap')
         subs = {
             'title': 'Routines',
             'content': content
@@ -2707,7 +2707,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             </table>
         """
-        writer.write_map(writer.memory_maps['DataMap'])
+        writer.write_map('DataMap')
         subs = {
             'title': 'Data',
             'content': content
@@ -2728,7 +2728,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             </table>
         """
-        writer.write_map(writer.memory_maps['MessagesMap'])
+        writer.write_map('MessagesMap')
         subs = {
             'title': 'Messages',
             'content': content
@@ -2765,7 +2765,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             </table>
         """
-        writer.write_map(writer.memory_maps['UnusedMap'])
+        writer.write_map('UnusedMap')
         subs = {
             'title': 'Unused addresses',
             'content': content
@@ -2827,7 +2827,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             </table>
         """.format(map_intro)
-        writer.write_map(writer.memory_maps[map_id])
+        writer.write_map(map_id)
         subs = {
             'name': basename(self.skoolfile)[:-6],
             'path': '../',
@@ -2866,7 +2866,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'content': content
         }
 
-        writer.write_map(writer.memory_maps['MemoryMap'])
+        writer.write_map('MemoryMap')
         self.assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
     def test_write_map_with_decimal_addresses_below_10000(self):
@@ -2904,7 +2904,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         # Memory map
         for base in (None, BASE_10):
             writer = self._get_writer(skool=skool, base=base)
-            writer.write_map(writer.memory_maps['MemoryMap'])
+            writer.write_map('MemoryMap')
             subs = {
                 'name': basename(self.skoolfile)[:-6],
                 'path': '../',
@@ -2924,7 +2924,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'DataMap={}'
         )).format(title, path)
         writer = self._get_writer(ref=ref, skool='b30000 DEFB 0')
-        writer.write_map(writer.memory_maps['DataMap'])
+        writer.write_map('DataMap')
         self.assert_title_equals(path, title)
 
     def test_write_memory_map_with_custom_title_and_path(self):
@@ -2937,7 +2937,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'MemoryMap={}'
         )).format(title, path)
         writer = self._get_writer(ref=ref, skool='c30000 RET')
-        writer.write_map(writer.memory_maps['MemoryMap'])
+        writer.write_map('MemoryMap')
         self.assert_title_equals(path, title)
 
     def test_write_messages_map_with_custom_title_and_path(self):
@@ -2950,7 +2950,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'MessagesMap={}'
         )).format(title, path)
         writer = self._get_writer(ref=ref, skool='t30000 DEFM "a"')
-        writer.write_map(writer.memory_maps['MessagesMap'])
+        writer.write_map('MessagesMap')
         self.assert_title_equals(path, title)
 
     def test_write_routines_map_with_custom_title_and_path(self):
@@ -2963,7 +2963,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'RoutinesMap={}'
         )).format(title, path)
         writer = self._get_writer(ref=ref, skool='c30000 RET')
-        writer.write_map(writer.memory_maps['RoutinesMap'])
+        writer.write_map('RoutinesMap')
         self.assert_title_equals(path, title)
 
     def test_write_unused_map_with_custom_title_and_path(self):
@@ -2976,7 +2976,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'UnusedMap={}'
         )).format(title, path)
         writer = self._get_writer(ref=ref, skool='u30000 DEFB 0')
-        writer.write_map(writer.memory_maps['UnusedMap'])
+        writer.write_map('UnusedMap')
         self.assert_title_equals(path, title)
 
     def test_write_changelog(self):

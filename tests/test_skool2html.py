@@ -655,11 +655,11 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     def test_option_w_m(self):
         exp_arg_list = [
-            ({'EntryTypes': 'bcgstuwz', 'Name': 'MemoryMap', 'PageByteColumns': '1'},),
-            ({'EntryTypes': 'c', 'Name': 'RoutinesMap'},),
-            ({'EntryTypes': 'bw', 'Name': 'DataMap', 'PageByteColumns': '1'},),
-            ({'EntryTypes': 't', 'Name': 'MessagesMap'},),
-            ({'EntryTypes': 'suz', 'Name': 'UnusedMap', 'PageByteColumns': '1'},)
+            ('MemoryMap',),
+            ('RoutinesMap',),
+            ('DataMap',),
+            ('MessagesMap',),
+            ('UnusedMap',)
         ]
         self._test_option_w('--write', 'm', 'write_map', exp_arg_list)
 
@@ -694,7 +694,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self._test_option_w('--write', 'p', 'write_pokes')
 
     def test_option_w_o_map(self):
-        self._test_option_w('-w', 'o', 'write_map', [({'Path': 'other.html', 'Title': 'Other code', 'AsmPath': 'other'},)])
+        self._test_option_w('-w', 'o', 'write_map', [('_other_index', 'other')])
 
     def test_option_w_o_entries(self):
         self._test_option_w('--write', 'o', 'write_entries', [('other', 'other.html', 'Other code')])
