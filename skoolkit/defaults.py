@@ -180,7 +180,7 @@ TEMPLATES = """
 
 [Template:head]
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<title>{Game}: {title}</title>
+<title>{Game[Game]}: {title}</title>
 {t_stylesheets}
 {t_javascripts}
 
@@ -210,9 +210,9 @@ TEMPLATES = """
 <body class="main">
 <table class="header">
 <tr>
-<td class="headerText">{TitlePrefix}</td>
-<td class="headerLogo">{Logo}</td>
-<td class="headerText">{TitleSuffix}</td>
+<td class="headerText">{Game[TitlePrefix]}</td>
+<td class="headerLogo">{Game[Logo]}</td>
+<td class="headerText">{Game[TitleSuffix]}</td>
 </tr>
 </table>
 {t_index_sections}
@@ -239,7 +239,7 @@ TEMPLATES = """
 [Template:header]
 <table class="header">
 <tr>
-<td class="headerLogo"><a class="link" href="{href}">{Logo}</a></td>
+<td class="headerLogo"><a class="link" href="{href}">{Game[Logo]}</a></td>
 <td class="headerText">{header}</td>
 </tr>
 </table>

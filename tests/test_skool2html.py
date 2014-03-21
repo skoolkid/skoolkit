@@ -381,7 +381,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         output, error = self.run_skool2html(skoolfile)
         self.assertEqual(error, '')
         html_writer = write_disassembly_args[0]
-        self.assertEqual(html_writer.game, game)
+        self.assertEqual(html_writer.game['Game'], game)
 
         # Test that a skool file in the same directory as the ref file is found
         output, error = self.run_skool2html(reffile)
