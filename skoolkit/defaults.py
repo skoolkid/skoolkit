@@ -406,7 +406,7 @@ Next: <a class="link" href="{href}">{text}</a>
 <td class="mapByte">{byte}</td>
 
 [Template:map_unused_desc]
-Unused ({entry.size} byte{suffix})
+Unused ({entry[size]} byte{suffix})
 
 [Template:GameStatusBuffer]
 {t_prologue}
