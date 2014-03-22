@@ -169,37 +169,63 @@ UnusedMap=maps/unused.html
 """
 
 TEMPLATES = """
-[Template:prologue]
-<?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+[Template:Bugs]
+{t_prologue}
+{t_html}
+<head>
+{t_head}
+</head>
+<body class="bugs">
+{t_header}
+{t_contents_list}
+{m_box}
+{t_footer}
+</body>
+</html>
 
-[Template:html]
-<html xmlns="http://www.w3.org/1999/xhtml">
+[Template:Changelog]
+{t_prologue}
+{t_html}
+<head>
+{t_head}
+</head>
+<body class="changelog">
+{t_header}
+{t_contents_list}
+{m_changelog_entry}
+{t_footer}
+</body>
+</html>
 
-[Template:head]
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<title>{Game[Game]}: {title}</title>
-{t_stylesheets}
-{t_javascripts}
+[Template:Code]
+{t_prologue}
+{t_html}
+<head>
+{t_head}
+</head>
+<body class="disassembly">
+{t_header}
+{t_asm_navigation}
+<div class="description">{entry_title}</div>
+{t_asm}
+{t_asm_navigation}
+{t_footer}
+</body>
+</html>
 
-[Template:stylesheet]
-<link rel="stylesheet" type="text/css" href="{href}" />
-
-[Template:javascript]
-<script type="text/javascript" src="{src}"></script>
-
-[Template:footer]
-<div class="footer">
-<div class="release">{Info[Release]}</div>
-<div class="copyright">{Info[Copyright]}</div>
-<div class="created">{Info[Created]}</div>
-</div>
-
-[Template:index_section]
-<div class="headerText">{header}</div>
-{t_link_list}
+[Template:Facts]
+{t_prologue}
+{t_html}
+<head>
+{t_head}
+</head>
+<body class="facts">
+{t_header}
+{t_contents_list}
+{m_box}
+{t_footer}
+</body>
+</html>
 
 [Template:GameIndex]
 {t_prologue}
@@ -215,198 +241,10 @@ TEMPLATES = """
 <td class="headerText">{Game[TitleSuffix]}</td>
 </tr>
 </table>
-{t_index_sections}
+{m_index_section}
 {t_footer}
 </body>
 </html>
-
-[Template:asm_entry]
-{t_prologue}
-{t_html}
-<head>
-{t_head}
-</head>
-<body class="disassembly">
-{t_header}
-{t_prev_next}
-<div class="description">{entry_title}</div>
-{t_disassembly}
-{t_prev_next}
-{t_footer}
-</body>
-</html>
-
-[Template:header]
-<table class="header">
-<tr>
-<td class="headerLogo"><a class="link" href="{href}">{Game[Logo]}</a></td>
-<td class="headerText">{header}</td>
-</tr>
-</table>
-
-[Template:routine_title]
-Routine at {address}{label_suffix}
-
-[Template:routine_header]
-Routines
-
-[Template:gsb_title]
-Game status buffer entry at {address}{label_suffix}
-
-[Template:gsb_header]
-Game status buffer
-
-[Template:data_title]
-Data at {address}{label_suffix}
-
-[Template:data_header]
-Data
-
-[Template:unused_title]
-Unused RAM at {address}{label_suffix}
-
-[Template:unused_header]
-Unused
-
-[Template:prev_next]
-<table class="prevNext">
-<tr>
-<td class="prev">{t_prev}</td>
-<td class="up">{t_up}</td>
-<td class="next">{t_next}</td>
-</tr>
-</table>
-
-[Template:prev]
-Prev: <a class="link" href="{href}">{text}</a>
-
-[Template:up]
-Up: <a class="link" href="{href}">Map</a>
-
-[Template:next]
-Next: <a class="link" href="{href}">{text}</a>
-
-[Template:disassembly]
-<table class="{table_class}">
-<tr>
-<td class="routineComment" colspan="{colspan}">
-<div class="details">
-{entry_details}
-</div>
-{t_input}
-{t_output}
-</td>
-</tr>
-{t_instructions}
-</table>
-
-[Template:anchor]
-<a name="{anchor}"></a>
-
-[Template:entry_comment]
-<tr>
-<td class="routineComment" colspan="{colspan}">
-{t_anchor}
-<div class="comments">
-{t_paragraphs}
-</div>
-</td>
-</tr>
-
-[Template:input]
-<table class="input">
-{t_registers_header}
-{t_registers}
-</table>
-
-[Template:output]
-<table class="output">
-{t_registers_header}
-{t_registers}
-</table>
-
-[Template:registers_header]
-<tr>
-<th colspan="2">{header}</th>
-</tr>
-
-[Template:register]
-<tr>
-<td class="register">{register[name]}</td>
-<td class="registerContents">{register[description]}</td>
-</tr>
-
-[Template:instruction]
-<tr>
-{t_asm_label}
-<td class="{class}">{t_anchor}{address}</td>
-<td class="instruction">{instruction}</td>
-{t_instruction_comment}
-</tr>
-
-[Template:instruction_comment]
-<td class="{class}"{rowspan}>{comment}</td>
-
-[Template:asm_label]
-<td class="asmLabel">{label}</td>
-
-[Template:paragraph]
-<div class="paragraph">
-{paragraph}
-</div>
-
-[Template:link_list]
-<ul class="{list_class}">
-{t_link_list_items}
-</ul>
-
-[Template:link_list_item]
-<li><a class="link" href="{href}">{link_text}</a>{other_text}</li>
-
-[Template:link]
-<a class="link" href="{href}">{link_text}</a>
-
-[Template:MemoryMap]
-{t_prologue}
-{t_html}
-<head>
-{t_head}
-</head>
-<body class="map">
-{t_header}
-{t_map_intro}
-<table class="map">
-<tr>
-{t_map_page_byte_header}
-<th>Address</th>
-<th>Description</th>
-</tr>
-{t_map_entries}
-</table>
-{t_footer}
-</body>
-</html>
-
-[Template:map_intro]
-<div class="mapIntro">{intro}</div>
-
-[Template:map_entry]
-<tr>
-{t_map_page_byte}
-<td class="{class}">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
-<td class="{desc_class}">{entry[title]}</td>
-</tr>
-
-[Template:map_page_byte_header]
-<th>Page</th>
-<th>Byte</th>
-
-[Template:map_page_byte]
-<td class="mapPage">{page}</td>
-<td class="mapByte">{byte}</td>
-
-[Template:map_unused_desc]
-Unused ({entry[size]} byte{suffix})
 
 [Template:GameStatusBuffer]
 {t_prologue}
@@ -422,100 +260,8 @@ Unused ({entry[size]} byte{suffix})
 <th>Length</th>
 <th>Purpose</th>
 </tr>
-{t_gsb_entries}
+{m_gsb_entry}
 </table>
-{t_footer}
-</body>
-</html>
-
-[Template:gsb_entry]
-<tr>
-<td class="gbufAddress">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
-<td class="gbufLength">{entry[size]}</td>
-<td class="gbufDesc">
-<div class="gbufDesc">{entry[title]}</div>
-<div class="gbufDetails">
-{entry[description]}
-</div>
-</td>
-</tr>
-
-[Template:Changelog]
-{t_prologue}
-{t_html}
-<head>
-{t_head}
-</head>
-<body class="changelog">
-{t_header}
-{t_contents_list}
-{t_changelog_entries}
-{t_footer}
-</body>
-</html>
-
-[Template:contents_list]
-<ul class="linkList">
-{t_contents_list_items}
-</ul>
-
-[Template:contents_list_item]
-<li><a class="link" href="{item[url]}">{item[title]}</a></li>
-
-[Template:changelog_entry]
-<div>{t_anchor}</div>
-<div class="changelog changelog{changelog_num}">
-<div class="changelogTitle">{entry[title]}</div>
-<div class="changelogDesc">{entry[description]}</div>
-{t_changelog_item_list}
-</div>
-
-[Template:changelog_item_list]
-<ul class="changelog{indent}">
-{t_changelog_items}
-</ul>
-
-[Template:changelog_item]
-<li>{item}</li>
-
-[Template:Pokes]
-{t_prologue}
-{t_html}
-<head>
-{t_head}
-</head>
-<body class="pokes">
-{t_header}
-{t_contents_list}
-{t_boxes}
-{t_footer}
-</body>
-</html>
-
-[Template:Bugs]
-{t_prologue}
-{t_html}
-<head>
-{t_head}
-</head>
-<body class="bugs">
-{t_header}
-{t_contents_list}
-{t_boxes}
-{t_footer}
-</body>
-</html>
-
-[Template:Facts]
-{t_prologue}
-{t_html}
-<head>
-{t_head}
-</head>
-<body class="facts">
-{t_header}
-{t_contents_list}
-{t_boxes}
 {t_footer}
 </body>
 </html>
@@ -529,7 +275,7 @@ Unused ({entry[size]} byte{suffix})
 <body class="glossary">
 {t_header}
 {t_contents_list}
-{t_boxes}
+{m_box}
 {t_footer}
 </body>
 </html>
@@ -543,7 +289,7 @@ Unused ({entry[size]} byte{suffix})
 <body class="graphics">
 {t_header}
 {t_contents_list}
-{t_boxes}
+{m_box}
 {t_footer}
 </body>
 </html>
@@ -561,7 +307,28 @@ Unused ({entry[size]} byte{suffix})
 </body>
 </html>
 
-[Template:custom_page]
+[Template:MemoryMap]
+{t_prologue}
+{t_html}
+<head>
+{t_head}
+</head>
+<body class="map">
+{t_header}
+{t_map_intro}
+<table class="map">
+<tr>
+{t_map_page_byte_header}
+<th>Address</th>
+<th>Description</th>
+</tr>
+{m_map_entry}
+</table>
+{t_footer}
+</body>
+</html>
+
+[Template:Page]
 {t_prologue}
 {t_html}
 <head>
@@ -569,10 +336,130 @@ Unused ({entry[size]} byte{suffix})
 </head>
 <body{class}>
 {t_header}
-{content}
+{PageContent}
 {t_footer}
 </body>
 </html>
+
+[Template:Pokes]
+{t_prologue}
+{t_html}
+<head>
+{t_head}
+</head>
+<body class="pokes">
+{t_header}
+{t_contents_list}
+{m_box}
+{t_footer}
+</body>
+</html>
+
+[Template:anchor]
+<a name="{anchor}"></a>
+
+[Template:asm]
+<table class="{table_class}">
+<tr>
+<td class="routineComment" colspan="{colspan}">
+<div class="details">
+{entry[description]}
+</div>
+{t_asm_registers_input}
+{t_asm_registers_output}
+</td>
+</tr>
+{disassembly}
+</table>
+
+[Template:asm_comment]
+<tr>
+<td class="routineComment" colspan="{colspan}">
+{t_anchor}
+<div class="comments">
+{m_paragraph}
+</div>
+</td>
+</tr>
+
+[Template:asm_header_data]
+Data
+
+[Template:asm_header_gsb]
+Game status buffer
+
+[Template:asm_header_routine]
+Routines
+
+[Template:asm_header_unused]
+Unused
+
+[Template:asm_instruction]
+<tr>
+{t_asm_instruction_label}
+<td class="{class}">{t_anchor}{instruction[address]}</td>
+<td class="instruction">{instruction[operation]}</td>
+{t_asm_instruction_comment}
+</tr>
+
+[Template:asm_instruction_comment]
+<td class="{class}"{rowspan}>{instruction[comment]}</td>
+
+[Template:asm_instruction_label]
+<td class="asmLabel">{instruction[label]}</td>
+
+[Template:asm_navigation]
+<table class="prevNext">
+<tr>
+<td class="prev">{t_asm_navigation_prev}</td>
+<td class="up">{t_asm_navigation_up}</td>
+<td class="next">{t_asm_navigation_next}</td>
+</tr>
+</table>
+
+[Template:asm_navigation_next]
+Next: <a class="link" href="{entry[url]}">{entry[address]}</a>
+
+[Template:asm_navigation_prev]
+Prev: <a class="link" href="{entry[url]}">{entry[address]}</a>
+
+[Template:asm_navigation_up]
+Up: <a class="link" href="{entry[map_url]}">Map</a>
+
+[Template:asm_register]
+<tr>
+<td class="register">{register[name]}</td>
+<td class="registerContents">{register[description]}</td>
+</tr>
+
+[Template:asm_registers_header]
+<tr>
+<th colspan="2">{header}</th>
+</tr>
+
+[Template:asm_registers_input]
+<table class="input">
+{t_asm_registers_header}
+{m_asm_register}
+</table>
+
+[Template:asm_registers_output]
+<table class="output">
+{t_asm_registers_header}
+{m_asm_register}
+</table>
+
+[Template:asm_title_data]
+Data at {entry[address]}{label_suffix}
+
+[Template:asm_title_gsb]
+Game status buffer entry at {entry[address]}{label_suffix}
+
+[Template:asm_title_routine]
+Routine at {entry[address]}{label_suffix}
+
+[Template:asm_title_unused]
+Unused RAM at {entry[address]}{label_suffix}
 
 [Template:box]
 <div>{t_anchor}</div>
@@ -581,8 +468,118 @@ Unused ({entry[size]} byte{suffix})
 {contents}
 </div>
 
+[Template:changelog_entry]
+<div>{t_anchor}</div>
+<div class="changelog changelog{changelog_num}">
+<div class="changelogTitle">{entry[title]}</div>
+<div class="changelogDesc">{entry[description]}</div>
+{t_changelog_item_list}
+</div>
+
+[Template:changelog_item]
+<li>{item}</li>
+
+[Template:changelog_item_list]
+<ul class="changelog{indent}">
+{m_changelog_item}
+</ul>
+
+[Template:contents_list]
+<ul class="linkList">
+{m_contents_list_item}
+</ul>
+
+[Template:contents_list_item]
+<li><a class="link" href="{item[url]}">{item[title]}</a></li>
+
+[Template:footer]
+<div class="footer">
+<div class="release">{Info[Release]}</div>
+<div class="copyright">{Info[Copyright]}</div>
+<div class="created">{Info[Created]}</div>
+</div>
+
+[Template:gsb_entry]
+<tr>
+<td class="gbufAddress">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
+<td class="gbufLength">{entry[size]}</td>
+<td class="gbufDesc">
+<div class="gbufDesc">{entry[title]}</div>
+<div class="gbufDetails">
+{entry[description]}
+</div>
+</td>
+</tr>
+
+[Template:head]
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>{Game[Game]}: {title}</title>
+{m_head_stylesheet}
+{m_head_javascript}
+
+[Template:head_javascript]
+<script type="text/javascript" src="{src}"></script>
+
+[Template:head_stylesheet]
+<link rel="stylesheet" type="text/css" href="{href}" />
+
+[Template:header]
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{href}">{Game[Logo]}</a></td>
+<td class="headerText">{header}</td>
+</tr>
+</table>
+
+[Template:html]
+<html xmlns="http://www.w3.org/1999/xhtml">
+
 [Template:img]
 <img alt="{alt}" src="{src}" />
+
+[Template:index_section]
+<div class="headerText">{header}</div>
+<ul class="indexList">
+{m_index_section_item}
+</ul>
+
+[Template:index_section_item]
+<li><a class="link" href="{href}">{link_text}</a>{other_text}</li>
+
+[Template:link]
+<a class="link" href="{href}">{link_text}</a>
+
+[Template:map_entry]
+<tr>
+{t_map_page_byte}
+<td class="{class}">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
+<td class="{desc_class}">{entry[title]}</td>
+</tr>
+
+[Template:map_intro]
+<div class="mapIntro">{intro}</div>
+
+[Template:map_page_byte]
+<td class="mapPage">{entry[page]}</td>
+<td class="mapByte">{entry[byte]}</td>
+
+[Template:map_page_byte_header]
+<th>Page</th>
+<th>Byte</th>
+
+[Template:map_unused_desc]
+Unused ({entry[size]} byte{suffix})
+
+[Template:paragraph]
+<div class="paragraph">
+{paragraph}
+</div>
+
+[Template:prologue]
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 [Template:reg]
 <span class="register">{reg}</span>

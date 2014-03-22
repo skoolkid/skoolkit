@@ -495,14 +495,11 @@ class HtmlWriter:
             udgs.append(Udg(attr, self.snapshot[a:a + 8]))
         return [udgs]
 
-    def write_asm_entries(self):
-        self.write_entries(self.code_path, self.paths[P_MEMORY_MAP])
-
     def write_graphics(self):
         fname = self.paths[P_GRAPHICS]
         cwd = self._set_cwd(fname)
-        t_graphics_subs = {'Graphics': self.expand(self.graphics, cwd)}
-        html = self.format_page(P_GRAPHICS, cwd, t_graphics_subs, False)
+        subs = {'Graphics': self.expand(self.graphics, cwd)}
+        html = self.format_page(P_GRAPHICS, cwd, subs, False)
         self.write_file(fname, html)
 
     def write_graphic_glitches(self):
@@ -533,40 +530,41 @@ class HtmlWriter:
                 other_code_links.append((link_file, code.get('Link', code['Title']), ''))
         sections['OtherCode'] = ('Other code', other_code_links)
 
-        t_link_list_subs = {'list_class': 'indexList'}
         sections_html = []
         index = self.get_section('Index', False, True)
         for section_id in index:
             header, links = sections.get(section_id, ('', ()))
             if links:
-                link_list = []
+                items = []
                 for href, link_text, other_text in links:
-                    t_link_list_item_subs = {
+                    t_index_section_item_subs = {
                         'href': href,
                         'link_text': link_text,
                         'other_text': other_text
                     }
-                    link_list.append(self.format_template('link_list_item', t_link_list_item_subs))
-                t_link_list_subs['t_link_list_items'] = '\n'.join(link_list)
+                    items.append(self.format_template('index_section_item', t_index_section_item_subs))
                 t_index_section_subs = {
                     'header': header,
-                    't_link_list': self.format_template('link_list', t_link_list_subs)
+                    'm_index_section_item': '\n'.join(items)
                 }
                 sections_html.append(self.format_template('index_section', t_index_section_subs))
 
-        t_index_subs = {'t_index_sections': '\n'.join(sections_html)}
-        html = self.format_page(P_GAME_INDEX, cwd, t_index_subs)
+        subs = {'m_index_section': '\n'.join(sections_html)}
+        html = self.format_page(P_GAME_INDEX, cwd, subs)
         self.write_file(index_fname, html)
 
-    def _get_entry_dict(self, cwd, entry, asm_path=None):
+    def _get_entry_dict(self, cwd, entry, map_file, asm_path=None):
         desc = ''
         if entry.details:
             desc = self.join_paragraphs(entry.details, cwd)
         return {
             'location': entry.address,
             'address': entry.addr_str,
+            'page': entry.address // 256,
+            'byte': entry.address % 256,
             'description': desc,
             'url': FileInfo.asm_relpath(cwd, entry.address, asm_path or self.code_path),
+            'map_url': '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address),
             'size': entry.size,
             'title': self.expand(entry.description, cwd)
         }
@@ -581,10 +579,10 @@ class HtmlWriter:
                 continue
             t_gsb_entry_subs = {
                 't_anchor': self.format_anchor(entry.address),
-                'entry': self._get_entry_dict(cwd, entry)
+                'entry': self._get_entry_dict(cwd, entry, fname)
             }
             gsb_entries.append(self.format_template('gsb_entry', t_gsb_entry_subs))
-        html = self.format_page(P_GSB, cwd, {'t_gsb_entries': '\n'.join(gsb_entries)})
+        html = self.format_page(P_GSB, cwd, {'m_gsb_entry': '\n'.join(gsb_entries)})
         self.write_file(fname, html)
 
     def format_contents_list(self, link_list):
@@ -592,7 +590,7 @@ class HtmlWriter:
         for anchor, title in link_list:
             item = {'url': '#' + anchor, 'title': title}
             items.append(self.format_template('contents_list_item', {'item': item}))
-        t_contents_list_subs = {'t_contents_list_items': '\n'.join(items)}
+        t_contents_list_subs = {'m_contents_list_item': '\n'.join(items)}
         return self.format_template('contents_list', t_contents_list_subs)
 
     def _write_box_page(self, page_id, boxes):
@@ -607,11 +605,11 @@ class HtmlWriter:
                 'contents': self.join_paragraphs(paragraphs, cwd)
             }
             boxes_html.append(self.format_template('box', t_box_subs))
-        t_subs = {
+        subs = {
             't_contents_list': self.format_contents_list([(anchor, title) for anchor, title, p in boxes]),
-            't_boxes': '\n'.join(boxes_html),
+            'm_box': '\n'.join(boxes_html),
         }
-        html = self.format_page(page_id, cwd, t_subs)
+        html = self.format_page(page_id, cwd, subs)
         self.write_file(fname, html)
 
     def write_pokes(self):
@@ -638,7 +636,7 @@ class HtmlWriter:
             indent = ''
         t_changelog_item_list_subs = {
             'indent': indent,
-            't_changelog_items': '\n'.join(changelog_items)
+            'm_changelog_item': '\n'.join(changelog_items)
         }
         return self.format_template('changelog_item_list', t_changelog_item_list_subs)
 
@@ -680,14 +678,14 @@ class HtmlWriter:
             }
             entries.append(self.format_template('changelog_entry', t_changelog_entry_subs))
 
-        t_changelog_subs = {
+        subs = {
             't_contents_list': self.format_contents_list(contents),
-            't_changelog_entries': '\n'.join(entries),
+            'm_changelog_entry': '\n'.join(entries),
         }
-        html = self.format_page(P_CHANGELOG, cwd, t_changelog_subs)
+        html = self.format_page(P_CHANGELOG, cwd, subs)
         self.write_file(fname, html)
 
-    def format_registers(self, registers, cwd):
+    def format_registers(self, cwd, registers, entry_dict):
         input_values = []
         output_values = []
         mode = 'I'
@@ -702,84 +700,83 @@ class HtmlWriter:
         input_header = self.game_vars['InputRegisterTableHeader']
         output_header = self.game_vars['OutputRegisterTableHeader']
         tables = []
-        for template, header, registers in (('input', input_header, input_values), ('output', output_header, output_values)):
+        for template, header, registers in (
+            ('asm_registers_input', input_header, input_values),
+            ('asm_registers_output', output_header, output_values)
+        ):
             if registers:
                 if header:
-                    header = self.format_template('registers_header', {'header': header})
+                    header = self.format_template('asm_registers_header', {'header': header})
                 registers_html = []
                 for reg in registers:
                     reg_dict = {
+                        'entry': entry_dict,
                         'name': reg.name,
                         'description': self.expand(reg.contents, cwd)
                     }
-                    registers_html.append(self.format_template('register', {'register': reg_dict}))
+                    registers_html.append(self.format_template('asm_register', {'register': reg_dict}))
                 template_subs = {
-                    't_registers_header': header or '',
-                    't_registers': '\n'.join(registers_html)
+                    'entry': entry_dict,
+                    't_asm_registers_header': header or '',
+                    'm_asm_register': '\n'.join(registers_html)
                 }
                 tables.append(self.format_template(template, template_subs))
             else:
                 tables.append('')
         return tables
 
-    def format_entry_comment(self, cwd, colspan, paragraphs, anchor=''):
-        t_entry_comment_subs = {
+    def format_entry_comment(self, cwd, entry_dict, colspan, paragraphs, anchor=''):
+        t_asm_comment_subs = {
+            'entry': entry_dict,
             'colspan': colspan,
             't_anchor': anchor,
-            't_paragraphs': self.join_paragraphs(paragraphs, cwd)
+            'm_paragraph': self.join_paragraphs(paragraphs, cwd)
         }
-        return self.format_template('entry_comment', t_entry_comment_subs)
+        return self.format_template('asm_comment', t_asm_comment_subs)
 
-    def write_entry(self, cwd, entry, fname=None, page_header=None, prev_entry=None, next_entry=None, up=None):
+    def write_entry(self, cwd, entry, map_file, fname=None, page_header=None, prev_entry=None, next_entry=None):
         fname = join(cwd, fname or FileInfo.asm_fname(entry.address))
         self._set_cwd(fname)
 
+        entry_dict = self._get_entry_dict(cwd, entry, map_file)
         title_subs = {
-            'address': entry.addr_str,
+            'entry': entry_dict,
             'label_suffix': ''
         }
         asm_label = self.parser.get_asm_label(entry.address)
         if asm_label:
             title_subs['label_suffix'] = ' ({0})'.format(asm_label)
         if entry.is_routine():
-            title_template = 'routine_title'
-            page_header_template = 'routine_header'
+            title_template = 'asm_title_routine'
+            page_header_template = 'asm_header_routine'
         elif entry.ctl in 'suz':
-            title_template = 'unused_title'
-            page_header_template = 'unused_header'
+            title_template = 'asm_title_unused'
+            page_header_template = 'asm_header_unused'
         elif entry.ctl == 'g':
-            title_template = 'gsb_title'
-            page_header_template = 'gsb_header'
+            title_template = 'asm_title_gsb'
+            page_header_template = 'asm_header_gsb'
         else:
-            title_template = 'data_title'
-            page_header_template = 'data_header'
+            title_template = 'asm_title_data'
+            page_header_template = 'asm_header_data'
         title = self.format_template(title_template, title_subs)
         page_header = page_header or self.format_template(page_header_template)
 
-        prev_html = up_html = next_html = ''
+        prev_html = next_html = ''
         if prev_entry:
-            t_prev_subs = {
-                'href': FileInfo.asm_fname(prev_entry.address),
-                'text': prev_entry.addr_str
-            }
-            prev_html = self.format_template('prev', t_prev_subs)
-        if up:
-            t_up_subs = {
-                'href': '{}#{}'.format(FileInfo.relpath(cwd, up), entry.address)
-            }
-            up_html = self.format_template('up', t_up_subs)
+            t_asm_navigation_prev_subs = {'entry': self._get_entry_dict(cwd, prev_entry, map_file)}
+            prev_html = self.format_template('asm_navigation_prev', t_asm_navigation_prev_subs)
+        t_asm_navigation_up_subs = {'entry': entry_dict}
+        up_html = self.format_template('asm_navigation_up', t_asm_navigation_up_subs)
         if next_entry:
-            t_next_subs = {
-                'href': FileInfo.asm_fname(next_entry.address),
-                'text': next_entry.addr_str
-            }
-            next_html = self.format_template('next', t_next_subs)
-        t_prev_next_subs = {
-            't_prev': prev_html,
-            't_up': up_html,
-            't_next': next_html
+            t_asm_navigation_next_subs = {'entry': self._get_entry_dict(cwd, next_entry, map_file)}
+            next_html = self.format_template('asm_navigation_next', t_asm_navigation_next_subs)
+        t_asm_navigation_subs = {
+            'entry': entry_dict,
+            't_asm_navigation_prev': prev_html,
+            't_asm_navigation_up': up_html,
+            't_asm_navigation_next': next_html
         }
-        prev_next = self.format_template('prev_next', t_prev_next_subs)
+        asm_navigation = self.format_template('asm_navigation', t_asm_navigation_subs)
 
         desc = self.expand(entry.description, cwd)
         label_text = ''
@@ -806,12 +803,7 @@ class HtmlWriter:
             if show_comment_col and show_label_col:
                 break
 
-        input_reg, output_reg = self.format_registers(entry.registers, cwd)
-
-        if entry.details:
-            entry_details = self.join_paragraphs(entry.details, cwd)
-        else:
-            entry_details = ''
+        input_reg, output_reg = self.format_registers(cwd, entry.registers, entry_dict)
 
         lines = []
         for instruction in entry.instructions:
@@ -819,7 +811,7 @@ class HtmlWriter:
             address = instruction.address
             anchor = self.format_anchor(address)
             if mid_routine_comments:
-                lines.append(self.format_entry_comment(cwd, routine_comment_colspan, mid_routine_comments, anchor))
+                lines.append(self.format_entry_comment(cwd, entry_dict, routine_comment_colspan, mid_routine_comments, anchor))
                 anchor = ''
 
             operation, reference = instruction.operation, instruction.reference
@@ -838,61 +830,68 @@ class HtmlWriter:
                 link_text = self.parser.get_asm_label(reference.address) or reference.addr_str
                 link = self.format_link(entry_file + name, link_text)
                 operation = operation.replace(reference.addr_str, link)
-            t_instruction_subs = {
-                't_asm_label': '',
+            instruction_dict = {
+                'address': instruction.addr_str,
+                'label': instruction.asm_label or '',
+                'operation': operation,
+                'comment': ''
+            }
+            t_asm_instruction_subs = {
+                'entry': entry_dict,
+                't_asm_instruction_label': '',
                 'class': 'address',
                 't_anchor': anchor,
-                'address': instruction.addr_str,
-                'instruction': operation,
-                't_instruction_comment': ''
+                'instruction': instruction_dict,
+                't_asm_instruction_comment': ''
             }
             if show_label_col:
-                t_instruction_subs['t_asm_label'] = self.format_template('asm_label', {'label': instruction.asm_label or ''})
+                t_asm_instruction_subs['t_asm_instruction_label'] = self.format_template('asm_instruction_label', {'instruction': instruction_dict})
             if instruction.ctl in 'c*!':
-                t_instruction_subs['class'] = 'label'
-            t_instruction_comment_subs = None
+                t_asm_instruction_subs['class'] = 'label'
+            t_asm_instruction_comment_subs = None
             if show_comment_col:
                 comment = instruction.comment
                 if comment:
-                    t_instruction_comment_subs = {
+                    instruction_dict['comment'] = self.expand(comment.text, cwd)
+                    t_asm_instruction_comment_subs = {
+                        'entry': entry_dict,
+                        'instruction': instruction_dict,
                         'class': comment_class,
-                        'rowspan': '',
-                        'comment': self.expand(comment.text, cwd)
+                        'rowspan': ''
                     }
                     if comment.rowspan > 1:
-                        t_instruction_comment_subs['rowspan'] = ' rowspan="{0}"'.format(comment.rowspan)
+                        t_asm_instruction_comment_subs['rowspan'] = ' rowspan="{0}"'.format(comment.rowspan)
             else:
-                t_instruction_comment_subs = {
+                t_asm_instruction_comment_subs = {
+                    'entry': entry_dict,
+                    'instruction': instruction_dict,
                     'class': transparent_class,
-                    'rowspan': '',
-                    'comment': ''
+                    'rowspan': ''
                 }
-            if t_instruction_comment_subs:
-                t_instruction_subs['t_instruction_comment'] = self.format_template('instruction_comment', t_instruction_comment_subs)
-            lines.append(self.format_template('instruction', t_instruction_subs))
+            if t_asm_instruction_comment_subs:
+                t_asm_instruction_subs['t_asm_instruction_comment'] = self.format_template('asm_instruction_comment', t_asm_instruction_comment_subs)
+            lines.append(self.format_template('asm_instruction', t_asm_instruction_subs))
 
         if entry.end_comment:
-            lines.append(self.format_entry_comment(cwd, routine_comment_colspan, entry.end_comment))
+            lines.append(self.format_entry_comment(cwd, entry_dict, routine_comment_colspan, entry.end_comment))
 
-        instructions_html = '\n'.join(lines)
-
-        t_disassembly_subs = {
+        t_asm_subs = {
+            'entry': entry_dict,
             'table_class': table_class,
             'colspan': routine_comment_colspan,
-            'entry_details': entry_details,
-            't_input': input_reg,
-            't_output': output_reg,
-            't_instructions': instructions_html
+            't_asm_registers_input': input_reg,
+            't_asm_registers_output': output_reg,
+            'disassembly': '\n'.join(lines)
         }
-        disassembly = self.format_template('disassembly', t_disassembly_subs)
+        disassembly = self.format_template('asm', t_asm_subs)
 
-        t_asm_entry_subs = {
-            't_prev_next': prev_next,
+        subs = {
+            'entry': entry_dict,
+            't_asm_navigation': asm_navigation,
             'entry_title': '{}{}: {}'.format(label_text, entry.addr_str, desc),
-            't_disassembly': disassembly,
+            't_asm': disassembly,
         }
-
-        html = self.format_page('asm_entry', cwd, t_asm_entry_subs, title=title, header=page_header)
+        html = self.format_page('Code', cwd, subs, title=title, header=page_header)
         self.write_file(fname, html)
 
     def write_entries(self, cwd, map_file, page_header=None):
@@ -903,8 +902,11 @@ class HtmlWriter:
                 next_entry = memory_map[i + 1]
             else:
                 next_entry = None
-            self.write_entry(cwd, entry, page_header=page_header, prev_entry=prev_entry, next_entry=next_entry, up=map_file)
+            self.write_entry(cwd, entry, map_file, page_header=page_header, prev_entry=prev_entry, next_entry=next_entry)
             prev_entry = entry
+
+    def write_asm_entries(self):
+        self.write_entries(self.code_path, self.paths[P_MEMORY_MAP])
 
     def _should_write_map(self, map_details):
         if map_details.get('Write') == '0':
@@ -926,7 +928,7 @@ class HtmlWriter:
         for entry in self.memory_map:
             if entry.ctl not in entry_types:
                 continue
-            entry_dict = self._get_entry_dict(cwd, entry, asm_path)
+            entry_dict = self._get_entry_dict(cwd, entry, fname, asm_path)
             if entry.ctl == 'c':
                 entry_class = 'routine'
                 desc_class = 'routineDesc'
@@ -952,8 +954,7 @@ class HtmlWriter:
             address = entry.address
             page_byte = ''
             if show_page_byte:
-                t_map_page_byte_subs = {'page': address // 256, 'byte': address % 256}
-                page_byte = self.format_template('map_page_byte', t_map_page_byte_subs)
+                page_byte = self.format_template('map_page_byte', {'entry': entry_dict})
             t_map_entry_subs = {
                 't_map_page_byte': page_byte,
                 'class': entry_class,
@@ -970,12 +971,12 @@ class HtmlWriter:
         if show_page_byte:
             page_byte_headers = self.format_template('map_page_byte_header')
 
-        t_map_subs = {
+        subs = {
             't_map_intro': intro,
             't_map_page_byte_header': page_byte_headers,
-            't_map_entries': '\n'.join(map_entries)
+            'm_map_entry': '\n'.join(map_entries)
         }
-        html = self.format_page(map_name, cwd, t_map_subs, default=P_MEMORY_MAP)
+        html = self.format_page(map_name, cwd, subs, default=P_MEMORY_MAP)
         self.write_file(fname, html)
 
     def write_page(self, page_id):
@@ -985,12 +986,12 @@ class HtmlWriter:
         body_class = page.get('BodyClass', '')
         if body_class:
             body_class = ' class="{}"'.format(body_class)
-        t_custom_page_subs = {
+        subs = {
             'class': body_class,
-            'content': self.expand(self.page_contents[page_id], cwd)
+            'PageContent': self.expand(self.page_contents[page_id], cwd)
         }
         js = page.get('JavaScript')
-        html = self.format_page(page_id, cwd, t_custom_page_subs, trim=False, js=js, default='custom_page')
+        html = self.format_page(page_id, cwd, subs, trim=False, js=js, default='Page')
         self.write_file(fname, html)
 
     def write_file(self, fname, contents):
@@ -1017,20 +1018,20 @@ class HtmlWriter:
     def _format_head(self, cwd, title, js=None):
         stylesheets = []
         for css_file in self.game_vars['StyleSheet'].split(';'):
-            t_stylesheet_subs = {'href': FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}
-            stylesheets.append(self.format_template('stylesheet', t_stylesheet_subs))
+            t_head_stylesheet_subs = {'href': FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}
+            stylesheets.append(self.format_template('head_stylesheet', t_head_stylesheet_subs))
         javascript = []
         js_files = self.js_files
         if js:
             js_files = list(js_files) + js.split(';')
         for js_file in js_files:
-            t_javascript_subs = {'src': FileInfo.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))}
-            javascript.append(self.format_template('javascript', t_javascript_subs))
+            t_head_javascript_subs = {'src': FileInfo.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))}
+            javascript.append(self.format_template('head_javascript', t_head_javascript_subs))
 
         t_head_subs = {
             'title': title,
-            't_stylesheets': '\n'.join(stylesheets),
-            't_javascripts': '\n'.join(javascript)
+            'm_head_stylesheet': '\n'.join(stylesheets),
+            'm_head_javascript': '\n'.join(javascript)
         }
         return self.format_template('head', t_head_subs).rstrip()
 

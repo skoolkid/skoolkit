@@ -1803,7 +1803,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         skool = 't24576 DEFM "<&>" ; a <= b & b >= c'
         writer = self._get_writer(skool=skool)
         fname = 'test.html'
-        writer.write_entry(ASMDIR, writer.entries[24576], fname)
+        writer.write_entry(ASMDIR, writer.entries[24576], writer.paths['MemoryMap'], fname)
         html = self.read_file(join(ASMDIR, fname))
         self.assertTrue('DEFM "&lt;&amp;&gt;"' in html)
         self.assertTrue('a &lt;= b &amp; b &gt;= c' in html)
@@ -3597,7 +3597,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         registers = []
         registers.append(Register('', 'A', 'Some value'))
         registers.append(Register('', 'B', 'Some other value'))
-        html = '\n'.join(writer.format_registers(registers, ASMDIR))
+        html = '\n'.join(writer.format_registers(ASMDIR, registers, None))
         self.assert_html_equal(html, exp_html, trim=True)
 
         # With prefixes
@@ -3636,7 +3636,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         registers.append(Register('', 'B', 'Some other value'))
         registers.append(Register('Output', 'D', 'The result'))
         registers.append(Register('', 'E', 'Result flags'))
-        html = '\n'.join(writer.format_registers(registers, ASMDIR))
+        html = '\n'.join(writer.format_registers(ASMDIR, registers, None))
         self.assert_html_equal(html, exp_html, trim=True)
 
     def test_write_image(self):
