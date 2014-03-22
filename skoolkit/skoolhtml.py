@@ -708,9 +708,11 @@ class HtmlWriter:
                     header = self.format_template('registers_header', {'header': header})
                 registers_html = []
                 for reg in registers:
-                    reg.description = self.expand(reg.contents, cwd)
-                    t_register_subs = {'register': reg}
-                    registers_html.append(self.format_template('register', t_register_subs))
+                    reg_dict = {
+                        'name': reg.name,
+                        'description': self.expand(reg.contents, cwd)
+                    }
+                    registers_html.append(self.format_template('register', {'register': reg_dict}))
                 template_subs = {
                     't_registers_header': header or '',
                     't_registers': '\n'.join(registers_html)

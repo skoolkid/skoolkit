@@ -332,8 +332,8 @@ Next: <a class="link" href="{href}">{text}</a>
 
 [Template:register]
 <tr>
-<td class="register">{register.name}</td>
-<td class="registerContents">{register.description}</td>
+<td class="register">{register[name]}</td>
+<td class="registerContents">{register[description]}</td>
 </tr>
 
 [Template:instruction]
