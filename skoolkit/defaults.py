@@ -393,8 +393,8 @@ Next: <a class="link" href="{href}">{text}</a>
 [Template:map_entry]
 <tr>
 {t_map_page_byte}
-<td class="{class}">{t_anchor}<a class="link" href="{href}">{entry.addr_str}</a></td>
-<td class="{desc_class}">{entry.title}</td>
+<td class="{class}">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
+<td class="{desc_class}">{entry[title]}</td>
 </tr>
 
 [Template:map_page_byte_header]

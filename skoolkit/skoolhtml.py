@@ -558,7 +558,7 @@ class HtmlWriter:
         html = self.format_page(P_GAME_INDEX, cwd, t_index_subs)
         self.write_file(index_fname, html)
 
-    def _get_entry_dict(self, cwd, entry):
+    def _get_entry_dict(self, cwd, entry, asm_path=None, purpose=None):
         desc = ''
         if entry.details:
             desc = self.join_paragraphs(entry.details, cwd)
@@ -566,9 +566,9 @@ class HtmlWriter:
             'location': entry.address,
             'address': entry.addr_str,
             'description': desc,
-            'url': FileInfo.asm_relpath(cwd, entry.address, self.code_path),
+            'url': FileInfo.asm_relpath(cwd, entry.address, asm_path or self.code_path),
             'size': entry.size,
-            'title': self.expand(entry.description, cwd),
+            'title': self.expand(purpose or entry.description, cwd)
         }
 
     def write_gbuffer(self):
@@ -920,7 +920,6 @@ class HtmlWriter:
         map_details = self.memory_maps.get(map_name, {})
         entry_types = map_details.get('EntryTypes', 'bcgstuwz')
         show_page_byte = map_details.get('PageByteColumns', '0') != '0'
-        asm_relpath = FileInfo.relpath(cwd, asm_path or self.code_path)
 
         for entry in self.memory_map:
             if entry.ctl not in entry_types:
@@ -948,19 +947,16 @@ class HtmlWriter:
                 entry_class = 'message'
                 desc_class = 'messageDesc'
             address = entry.address
-            asm_file = FileInfo.asm_fname(address, asm_relpath)
             page_byte = ''
             if show_page_byte:
                 t_map_page_byte_subs = {'page': address // 256, 'byte': address % 256}
                 page_byte = self.format_template('map_page_byte', t_map_page_byte_subs)
-            entry.title = self.expand(purpose, cwd)
             t_map_entry_subs = {
                 't_map_page_byte': page_byte,
                 'class': entry_class,
                 't_anchor': self.format_anchor(entry.address),
-                'href': asm_file,
                 'desc_class': desc_class,
-                'entry': entry
+                'entry': self._get_entry_dict(cwd, entry, asm_path, purpose)
             }
             map_entries.append(self.format_template('map_entry', t_map_entry_subs))
 
