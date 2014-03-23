@@ -784,11 +784,11 @@ class HtmlWriter:
         }
         asm_navigation = self.format_template('asm_navigation', t_asm_navigation_subs)
 
-        table_class = 'disassembly'
+        asm_template = 'asm_code'
         comment_class = 'comment'
         transparent_class = 'transparentComment'
         if entry.ctl not in 'csuz':
-            table_class = 'dataDisassembly'
+            asm_template = 'asm_data'
             comment_class = 'dataComment'
             transparent_class = 'transparentDataComment'
 
@@ -878,18 +878,17 @@ class HtmlWriter:
 
         t_asm_subs = {
             'entry': entry_dict,
-            'table_class': table_class,
             'colspan': routine_comment_colspan,
             't_asm_registers_input': input_reg,
             't_asm_registers_output': output_reg,
             'disassembly': '\n'.join(lines)
         }
-        disassembly = self.format_template('asm', t_asm_subs)
+        disassembly = self.format_template(asm_template, t_asm_subs)
 
         subs = {
             'entry': entry_dict,
             't_asm_navigation': asm_navigation,
-            't_asm': disassembly
+            'asm': disassembly
         }
         html = self.format_page('Code', cwd, subs, title=title, header=page_header)
         self.write_file(fname, html)

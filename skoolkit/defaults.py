@@ -207,7 +207,7 @@ TEMPLATES = """
 {t_header}
 {t_asm_navigation}
 <div class="description">{entry[label_prefix]}{entry[address]}: {entry[title]}</div>
-{t_asm}
+{asm}
 {t_asm_navigation}
 {t_footer}
 </body>
@@ -358,8 +358,8 @@ TEMPLATES = """
 [Template:anchor]
 <a name="{anchor}"></a>
 
-[Template:asm]
-<table class="{table_class}">
+[Template:asm_code]
+<table class="disassembly">
 <tr>
 <td class="routineComment" colspan="{colspan}">
 <div class="details">
@@ -381,6 +381,18 @@ TEMPLATES = """
 </div>
 </td>
 </tr>
+
+[Template:asm_data]
+<table class="dataDisassembly">
+<tr>
+<td class="routineComment" colspan="{colspan}">
+<div class="details">
+{entry[description]}
+</div>
+</td>
+</tr>
+{disassembly}
+</table>
 
 [Template:asm_header_data]
 Data
