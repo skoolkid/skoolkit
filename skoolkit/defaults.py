@@ -169,6 +169,22 @@ UnusedMap=maps/unused.html
 """
 
 TEMPLATES = """
+[Template:Asm]
+{t_prologue}
+{t_html}
+<head>
+{t_head}
+</head>
+<body class="disassembly">
+{t_header}
+{t_asm_navigation}
+<div class="description">{entry[label_prefix]}{entry[address]}: {entry[title]}</div>
+{asm}
+{t_asm_navigation}
+{t_footer}
+</body>
+</html>
+
 [Template:Bugs]
 {t_prologue}
 {t_html}
@@ -193,22 +209,6 @@ TEMPLATES = """
 {t_header}
 {t_contents_list}
 {m_changelog_entry}
-{t_footer}
-</body>
-</html>
-
-[Template:Code]
-{t_prologue}
-{t_html}
-<head>
-{t_head}
-</head>
-<body class="disassembly">
-{t_header}
-{t_asm_navigation}
-<div class="description">{entry[label_prefix]}{entry[address]}: {entry[title]}</div>
-{asm}
-{t_asm_navigation}
 {t_footer}
 </body>
 </html>

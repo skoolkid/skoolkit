@@ -898,7 +898,7 @@ class HtmlWriter:
             't_asm_navigation': asm_navigation,
             'asm': disassembly
         }
-        html = self.format_page('Code', cwd, subs, title=title, header=page_header)
+        html = self.format_page('Asm', cwd, subs, title=title, header=page_header)
         self.write_file(fname, html)
 
     def write_entries(self, cwd, map_file, page_header=None):
