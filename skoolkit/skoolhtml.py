@@ -784,13 +784,12 @@ class HtmlWriter:
         }
         asm_navigation = self.format_template('asm_navigation', t_asm_navigation_subs)
 
-        asm_template = 'asm_code'
-        comment_class = 'comment'
-        transparent_class = 'transparentComment'
-        if entry.ctl not in 'csuz':
+        if entry.ctl in 'csuz':
+            asm_template = 'asm_code'
+            comment_template = 'asm_instruction_comment_code'
+        else:
             asm_template = 'asm_data'
-            comment_class = 'dataComment'
-            transparent_class = 'transparentDataComment'
+            comment_template = 'asm_instruction_comment_data'
 
         show_comment_col = False
         show_label_col = False
@@ -843,7 +842,7 @@ class HtmlWriter:
                 'class': 'address',
                 't_anchor': anchor,
                 'instruction': instruction_dict,
-                't_asm_instruction_comment': ''
+                'comment': ''
             }
             if show_label_col:
                 t_asm_instruction_subs['t_asm_instruction_label'] = self.format_template('asm_instruction_label', {'instruction': instruction_dict})
@@ -851,26 +850,27 @@ class HtmlWriter:
                 t_asm_instruction_subs['class'] = 'label'
             t_asm_instruction_comment_subs = None
             if show_comment_col:
+                template_suffix = ''
                 comment = instruction.comment
                 if comment:
                     instruction_dict['comment'] = self.expand(comment.text, cwd)
                     t_asm_instruction_comment_subs = {
                         'entry': entry_dict,
                         'instruction': instruction_dict,
-                        'class': comment_class,
                         'rowspan': ''
                     }
                     if comment.rowspan > 1:
                         t_asm_instruction_comment_subs['rowspan'] = ' rowspan="{0}"'.format(comment.rowspan)
             else:
+                template_suffix = '_transparent'
                 t_asm_instruction_comment_subs = {
                     'entry': entry_dict,
                     'instruction': instruction_dict,
-                    'class': transparent_class,
                     'rowspan': ''
                 }
             if t_asm_instruction_comment_subs:
-                t_asm_instruction_subs['t_asm_instruction_comment'] = self.format_template('asm_instruction_comment', t_asm_instruction_comment_subs)
+                template_name = comment_template + template_suffix
+                t_asm_instruction_subs['comment'] = self.format_template(template_name, t_asm_instruction_comment_subs)
             lines.append(self.format_template('asm_instruction', t_asm_instruction_subs))
 
         if entry.end_comment:

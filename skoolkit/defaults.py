@@ -411,11 +411,20 @@ Unused
 {t_asm_instruction_label}
 <td class="{class}">{t_anchor}{instruction[address]}</td>
 <td class="instruction">{instruction[operation]}</td>
-{t_asm_instruction_comment}
+{comment}
 </tr>
 
-[Template:asm_instruction_comment]
-<td class="{class}"{rowspan}>{instruction[comment]}</td>
+[Template:asm_instruction_comment_code]
+<td class="comment"{rowspan}>{instruction[comment]}</td>
+
+[Template:asm_instruction_comment_code_transparent]
+<td class="transparentComment"{rowspan}></td>
+
+[Template:asm_instruction_comment_data]
+<td class="dataComment"{rowspan}>{instruction[comment]}</td>
+
+[Template:asm_instruction_comment_data_transparent]
+<td class="transparentDataComment"{rowspan}></td>
 
 [Template:asm_instruction_label]
 <td class="asmLabel">{instruction[label]}</td>
