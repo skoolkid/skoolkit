@@ -830,24 +830,13 @@ class HtmlWriter:
                 link_text = self.parser.get_asm_label(reference.address) or reference.addr_str
                 link = self.format_link(entry_file + name, link_text)
                 operation = operation.replace(reference.addr_str, link)
+
             instruction_dict = {
                 'address': instruction.addr_str,
                 'label': instruction.asm_label or '',
                 'operation': operation,
                 'comment': ''
             }
-            t_asm_instruction_subs = {
-                'entry': entry_dict,
-                't_asm_instruction_label': '',
-                'class': 'address',
-                't_anchor': anchor,
-                'instruction': instruction_dict,
-                'comment': ''
-            }
-            if show_label_col:
-                t_asm_instruction_subs['t_asm_instruction_label'] = self.format_template('asm_instruction_label', {'instruction': instruction_dict})
-            if instruction.ctl in 'c*!':
-                t_asm_instruction_subs['class'] = 'label'
             t_asm_instruction_comment_subs = None
             if show_comment_col:
                 template_suffix = ''
@@ -868,10 +857,24 @@ class HtmlWriter:
                     'instruction': instruction_dict,
                     'rowspan': ''
                 }
+
+            t_asm_instruction_subs = {
+                'entry': entry_dict,
+                'o_asm_instruction_label': '',
+                't_anchor': anchor,
+                'instruction': instruction_dict,
+                'comment': ''
+            }
             if t_asm_instruction_comment_subs:
                 template_name = comment_template + template_suffix
                 t_asm_instruction_subs['comment'] = self.format_template(template_name, t_asm_instruction_comment_subs)
-            lines.append(self.format_template('asm_instruction', t_asm_instruction_subs))
+            if show_label_col:
+                t_asm_instruction_subs['o_asm_instruction_label'] = self.format_template('asm_instruction_label', {'instruction': instruction_dict})
+            if instruction.ctl in 'c*!':
+                instruction_template = 'asm_instruction_labelled'
+            else:
+                instruction_template = 'asm_instruction'
+            lines.append(self.format_template(instruction_template, t_asm_instruction_subs))
 
         if entry.end_comment:
             lines.append(self.format_entry_comment(cwd, entry_dict, routine_comment_colspan, entry.end_comment))
