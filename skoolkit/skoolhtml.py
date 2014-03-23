@@ -557,11 +557,6 @@ class HtmlWriter:
         desc = ''
         if entry.details:
             desc = self.join_paragraphs(entry.details, cwd)
-        asm_label = self.parser.get_asm_label(entry.address)
-        if asm_label:
-            label_prefix = '{}: '.format(asm_label)
-        else:
-            label_prefix = ''
         if entry.size == 1:
             unit_template = 'entry_size_unit'
         else:
@@ -571,7 +566,7 @@ class HtmlWriter:
             'address': entry.addr_str,
             'page': entry.address // 256,
             'byte': entry.address % 256,
-            'label_prefix': label_prefix,
+            'label': self.parser.get_asm_label(entry.address),
             'description': desc,
             'url': FileInfo.asm_relpath(cwd, entry.address, asm_path or self.code_path),
             'map_url': '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address),
@@ -750,13 +745,10 @@ class HtmlWriter:
         self._set_cwd(fname)
 
         entry_dict = self._get_entry_dict(cwd, entry, map_file)
-        title_subs = {
-            'entry': entry_dict,
-            'label_suffix': ''
-        }
-        asm_label = self.parser.get_asm_label(entry.address)
-        if asm_label:
-            title_subs['label_suffix'] = ' ({0})'.format(asm_label)
+        entry_title_template = 'asm_entry_title'
+        template_suffix = ''
+        if entry_dict['label']:
+            template_suffix = '_labelled'
         if entry.is_routine():
             title_template = 'asm_title_routine'
             page_header_template = 'asm_header_routine'
@@ -769,8 +761,9 @@ class HtmlWriter:
         else:
             title_template = 'asm_title_data'
             page_header_template = 'asm_header_data'
-        title = self.format_template(title_template, title_subs)
+        title = self.format_template(title_template + template_suffix, {'entry': entry_dict})
         page_header = page_header or self.format_template(page_header_template)
+        entry_title = self.format_template(entry_title_template + template_suffix, {'entry': entry_dict})
 
         prev_html = next_html = ''
         if prev_entry:
@@ -895,6 +888,7 @@ class HtmlWriter:
 
         subs = {
             'entry': entry_dict,
+            'asm_entry_title': entry_title,
             't_asm_navigation': asm_navigation,
             'asm': disassembly
         }

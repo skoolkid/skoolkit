@@ -178,7 +178,7 @@ TEMPLATES = """
 <body class="disassembly">
 {t_header}
 {t_asm_navigation}
-<div class="description">{entry[label_prefix]}{entry[address]}: {entry[title]}</div>
+<div class="description">{asm_entry_title}</div>
 {asm}
 {t_asm_navigation}
 {t_footer}
@@ -394,6 +394,12 @@ TEMPLATES = """
 {disassembly}
 </table>
 
+[Template:asm_entry_title]
+{entry[address]}: {entry[title]}
+
+[Template:asm_entry_title_labelled]
+{entry[label]}: {entry[address]}: {entry[title]}
+
 [Template:asm_header_data]
 Data
 
@@ -484,16 +490,28 @@ Up: <a class="link" href="{entry[map_url]}">Map</a>
 </table>
 
 [Template:asm_title_data]
-Data at {entry[address]}{label_suffix}
+Data at {entry[address]}
+
+[Template:asm_title_data_labelled]
+Data at {entry[address]} ({entry[label]})
 
 [Template:asm_title_gsb]
-Game status buffer entry at {entry[address]}{label_suffix}
+Game status buffer entry at {entry[address]}
+
+[Template:asm_title_gsb_labelled]
+Game status buffer entry at {entry[address]} ({entry[label]})
 
 [Template:asm_title_routine]
-Routine at {entry[address]}{label_suffix}
+Routine at {entry[address]}
+
+[Template:asm_title_routine_labelled]
+Routine at {entry[address]} ({entry[label]})
 
 [Template:asm_title_unused]
-Unused RAM at {entry[address]}{label_suffix}
+Unused RAM at {entry[address]}
+
+[Template:asm_title_unused_labelled]
+Unused RAM at {entry[address]} ({entry[label]})
 
 [Template:box]
 <div>{t_anchor}</div>
