@@ -315,10 +315,10 @@ TEMPLATES = """
 </head>
 <body class="map">
 {t_header}
-{t_map_intro}
+{o_map_intro}
 <table class="map">
 <tr>
-{t_map_page_byte_header}
+{o_map_page_byte_header}
 <th>Address</th>
 <th>Description</th>
 </tr>
@@ -365,8 +365,8 @@ TEMPLATES = """
 <div class="details">
 {entry[description]}
 </div>
-{t_asm_registers_input}
-{t_asm_registers_output}
+{o_asm_registers_input}
+{o_asm_registers_output}
 </td>
 </tr>
 {disassembly}
@@ -440,9 +440,9 @@ Unused
 [Template:asm_navigation]
 <table class="prevNext">
 <tr>
-<td class="prev">{t_asm_navigation_prev}</td>
+<td class="prev">{o_asm_navigation_prev}</td>
 <td class="up">{t_asm_navigation_up}</td>
-<td class="next">{t_asm_navigation_next}</td>
+<td class="next">{o_asm_navigation_next}</td>
 </tr>
 </table>
 
@@ -591,7 +591,7 @@ bytes
 
 [Template:map_entry]
 <tr>
-{t_map_page_byte}
+{o_map_page_byte}
 {map_entry}
 </tr>
 

@@ -783,9 +783,9 @@ class HtmlWriter:
             next_html = self.format_template('asm_navigation_next', t_asm_navigation_next_subs)
         t_asm_navigation_subs = {
             'entry': entry_dict,
-            't_asm_navigation_prev': prev_html,
+            'o_asm_navigation_prev': prev_html,
             't_asm_navigation_up': up_html,
-            't_asm_navigation_next': next_html
+            'o_asm_navigation_next': next_html
         }
         asm_navigation = self.format_template('asm_navigation', t_asm_navigation_subs)
 
@@ -887,8 +887,8 @@ class HtmlWriter:
         t_asm_subs = {
             'entry': entry_dict,
             'colspan': routine_comment_colspan,
-            't_asm_registers_input': input_reg,
-            't_asm_registers_output': output_reg,
+            'o_asm_registers_input': input_reg,
+            'o_asm_registers_output': output_reg,
             'disassembly': '\n'.join(lines)
         }
         disassembly = self.format_template(asm_template, t_asm_subs)
@@ -954,7 +954,7 @@ class HtmlWriter:
             if show_page_byte:
                 page_byte = self.format_template('map_page_byte', {'entry': entry_dict})
             t_map_entry_subs = {
-                't_map_page_byte': page_byte,
+                'o_map_page_byte': page_byte,
                 'map_entry': self.format_template(entry_template, entry_template_subs),
                 'entry': entry_dict
             }
@@ -968,8 +968,8 @@ class HtmlWriter:
             page_byte_headers = self.format_template('map_page_byte_header')
 
         subs = {
-            't_map_intro': intro,
-            't_map_page_byte_header': page_byte_headers,
+            'o_map_intro': intro,
+            'o_map_page_byte_header': page_byte_headers,
             'm_map_entry': '\n'.join(map_entries)
         }
         html = self.format_page(map_name, cwd, subs, default=P_MEMORY_MAP)
