@@ -526,6 +526,12 @@ Unused RAM at {entry[address]}{label_suffix}
 [Template:contents_list_item]
 <li><a class="link" href="{item[url]}">{item[title]}</a></li>
 
+[Template:entry_size_unit]
+byte
+
+[Template:entry_size_unit_plural]
+bytes
+
 [Template:footer]
 <div class="footer">
 <div class="release">{Info[Release]}</div>
@@ -607,7 +613,7 @@ Unused RAM at {entry[address]}{label_suffix}
 
 [Template:map_entry_unused]
 <td class="unused">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
-<td class="unusedDesc">Unused ({entry[size]} byte{suffix})</td>
+<td class="unusedDesc">Unused ({entry[size]} {entry[unit]})</td>
 
 [Template:map_intro]
 <div class="mapIntro">{intro}</div>

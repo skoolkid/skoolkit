@@ -562,6 +562,10 @@ class HtmlWriter:
             label_prefix = '{}: '.format(asm_label)
         else:
             label_prefix = ''
+        if entry.size == 1:
+            unit_template = 'entry_size_unit'
+        else:
+            unit_template = 'entry_size_unit_plural'
         return {
             'location': entry.address,
             'address': entry.addr_str,
@@ -572,6 +576,7 @@ class HtmlWriter:
             'url': FileInfo.asm_relpath(cwd, entry.address, asm_path or self.code_path),
             'map_url': '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address),
             'size': entry.size,
+            'unit': self.format_template(unit_template),
             'title': self.expand(entry.description, cwd)
         }
 
@@ -941,14 +946,9 @@ class HtmlWriter:
                 entry_template = 'map_entry_unused'
             elif entry.ctl == 't':
                 entry_template = 'map_entry_message'
-            if entry.size > 1:
-                suffix = 's'
-            else:
-                suffix = ''
             entry_template_subs = {
                 'entry': entry_dict,
-                't_anchor': self.format_anchor(entry.address),
-                'suffix': suffix
+                't_anchor': self.format_anchor(entry.address)
             }
             page_byte = ''
             if show_page_byte:
