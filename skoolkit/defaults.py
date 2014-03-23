@@ -552,9 +552,28 @@ Unused RAM at {entry[address]}{label_suffix}
 [Template:map_entry]
 <tr>
 {t_map_page_byte}
-<td class="{class}">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
-<td class="{desc_class}">{entry[title]}</td>
+{map_entry}
 </tr>
+
+[Template:map_entry_data]
+<td class="data">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
+<td class="dataDesc">{entry[title]}</td>
+
+[Template:map_entry_gsb]
+<td class="gbuffer">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
+<td class="gbufferDesc">{entry[title]}</td>
+
+[Template:map_entry_message]
+<td class="message">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
+<td class="messageDesc">{entry[title]}</td>
+
+[Template:map_entry_routine]
+<td class="routine">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
+<td class="routineDesc">{entry[title]}</td>
+
+[Template:map_entry_unused]
+<td class="unused">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
+<td class="unusedDesc">Unused ({entry[size]} byte{suffix})</td>
 
 [Template:map_intro]
 <div class="mapIntro">{intro}</div>
@@ -566,9 +585,6 @@ Unused RAM at {entry[address]}{label_suffix}
 [Template:map_page_byte_header]
 <th>Page</th>
 <th>Byte</th>
-
-[Template:map_unused_desc]
-Unused ({entry[size]} byte{suffix})
 
 [Template:paragraph]
 <div class="paragraph">

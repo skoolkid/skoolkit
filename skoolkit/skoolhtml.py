@@ -930,36 +930,30 @@ class HtmlWriter:
                 continue
             entry_dict = self._get_entry_dict(cwd, entry, fname, asm_path)
             if entry.ctl == 'c':
-                entry_class = 'routine'
-                desc_class = 'routineDesc'
+                entry_template = 'map_entry_routine'
             elif entry.ctl in 'bw':
-                entry_class = 'data'
-                desc_class = 'dataDesc'
+                entry_template = 'map_entry_data'
             elif entry.ctl in 'g':
-                entry_class = 'gbuffer'
-                desc_class = 'gbufferDesc'
+                entry_template = 'map_entry_gsb'
             elif entry.ctl in 'suz':
-                if entry.size > 1:
-                    suffix = 's'
-                else:
-                    suffix = ''
-                t_map_unused_desc_subs = {'entry': entry_dict, 'suffix': suffix}
-                desc = self.format_template('map_unused_desc', t_map_unused_desc_subs)
-                entry_dict['title'] = self.expand(desc, cwd)
-                entry_class = 'unused'
-                desc_class = 'unusedDesc'
+                entry_template = 'map_entry_unused'
             elif entry.ctl == 't':
-                entry_class = 'message'
-                desc_class = 'messageDesc'
-            address = entry.address
+                entry_template = 'map_entry_message'
+            if entry.size > 1:
+                suffix = 's'
+            else:
+                suffix = ''
+            entry_template_subs = {
+                'entry': entry_dict,
+                't_anchor': self.format_anchor(entry.address),
+                'suffix': suffix
+            }
             page_byte = ''
             if show_page_byte:
                 page_byte = self.format_template('map_page_byte', {'entry': entry_dict})
             t_map_entry_subs = {
                 't_map_page_byte': page_byte,
-                'class': entry_class,
-                't_anchor': self.format_anchor(entry.address),
-                'desc_class': desc_class,
+                'map_entry': self.format_template(entry_template, entry_template_subs),
                 'entry': entry_dict
             }
             map_entries.append(self.format_template('map_entry', t_map_entry_subs))
