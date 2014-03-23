@@ -432,20 +432,25 @@ Up: <a class="link" href="{entry[map_url]}">Map</a>
 <td class="registerContents">{register[description]}</td>
 </tr>
 
-[Template:asm_registers_header]
+[Template:asm_registers_header_input]
 <tr>
-<th colspan="2">{header}</th>
+<th colspan="2">{Game[InputRegisterTableHeader]}</th>
+</tr>
+
+[Template:asm_registers_header_output]
+<tr>
+<th colspan="2">{Game[OutputRegisterTableHeader]}</th>
 </tr>
 
 [Template:asm_registers_input]
 <table class="input">
-{t_asm_registers_header}
+{o_asm_registers_header_input}
 {m_asm_register}
 </table>
 
 [Template:asm_registers_output]
 <table class="output">
-{t_asm_registers_header}
+{o_asm_registers_header_output}
 {m_asm_register}
 </table>
 

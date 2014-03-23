@@ -3579,9 +3579,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assertFalse('UnusedMap' in writer.memory_maps)   # Write=0
 
     def test_format_registers(self):
-        writer = self._get_writer(snapshot=())
-
-        # Traditional
+        writer = self._get_writer()
         exp_html = """
             <table class="input">
             <tr>
@@ -3600,7 +3598,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         html = '\n'.join(writer.format_registers(ASMDIR, registers, None))
         self.assert_html_equal(html, exp_html, trim=True)
 
-        # With prefixes
+    def test_format_registers_with_prefixes(self):
+        ref = '\n'.join((
+            '[Game]',
+            'InputRegisterTableHeader=Input',
+            'OutputRegisterTableHeader=Output'
+        ))
+        writer = self._get_writer(ref=ref)
         exp_html = """
             <table class="input">
             <tr>
@@ -3629,8 +3633,6 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             </table>
         """
-        writer.game_vars['InputRegisterTableHeader'] = 'Input'
-        writer.game_vars['OutputRegisterTableHeader'] = 'Output'
         registers = []
         registers.append(Register('Input', 'A', 'Some value'))
         registers.append(Register('', 'B', 'Some other value'))

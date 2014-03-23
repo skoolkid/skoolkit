@@ -706,13 +706,13 @@ class HtmlWriter:
         input_header = self.game_vars['InputRegisterTableHeader']
         output_header = self.game_vars['OutputRegisterTableHeader']
         tables = []
-        for template, header, registers in (
-            ('asm_registers_input', input_header, input_values),
-            ('asm_registers_output', output_header, output_values)
+        for reg_type, header, registers in (
+            ('input', input_header, input_values),
+            ('output', output_header, output_values)
         ):
             if registers:
                 if header:
-                    header = self.format_template('asm_registers_header', {'header': header})
+                    header = self.format_template('asm_registers_header_{}'.format(reg_type))
                 registers_html = []
                 for reg in registers:
                     reg_dict = {
@@ -723,10 +723,10 @@ class HtmlWriter:
                     registers_html.append(self.format_template('asm_register', {'register': reg_dict}))
                 template_subs = {
                     'entry': entry_dict,
-                    't_asm_registers_header': header or '',
+                    'o_asm_registers_header_{}'.format(reg_type): header,
                     'm_asm_register': '\n'.join(registers_html)
                 }
-                tables.append(self.format_template(template, template_subs))
+                tables.append(self.format_template('asm_registers_{}'.format(reg_type), template_subs))
             else:
                 tables.append('')
         return tables
