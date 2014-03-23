@@ -505,8 +505,8 @@ Unused RAM at {entry[address]}{label_suffix}
 [Template:changelog_entry]
 <div>{t_anchor}</div>
 <div class="changelog changelog{changelog_num}">
-<div class="changelogTitle">{entry[title]}</div>
-<div class="changelogDesc">{entry[description]}</div>
+<div class="changelogTitle">{release[title]}</div>
+<div class="changelogDesc">{release[description]}</div>
 {t_changelog_item_list}
 </div>
 
