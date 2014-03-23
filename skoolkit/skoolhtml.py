@@ -762,18 +762,20 @@ class HtmlWriter:
             title_template = 'asm_title_data'
             page_header_template = 'asm_header_data'
         title = self.format_template(title_template + template_suffix, {'entry': entry_dict})
-        page_header = page_header or self.format_template(page_header_template)
+        page_header = page_header or self.format_template(page_header_template, {'entry': entry_dict})
         entry_title = self.format_template(entry_title_template + template_suffix, {'entry': entry_dict})
 
-        prev_html = next_html = ''
         if prev_entry:
             t_asm_navigation_prev_subs = {'entry': self._get_entry_dict(cwd, prev_entry, map_file)}
             prev_html = self.format_template('asm_navigation_prev', t_asm_navigation_prev_subs)
-        t_asm_navigation_up_subs = {'entry': entry_dict}
-        up_html = self.format_template('asm_navigation_up', t_asm_navigation_up_subs)
+        else:
+            prev_html = ''
+        up_html = self.format_template('asm_navigation_up', {'entry': entry_dict})
         if next_entry:
             t_asm_navigation_next_subs = {'entry': self._get_entry_dict(cwd, next_entry, map_file)}
             next_html = self.format_template('asm_navigation_next', t_asm_navigation_next_subs)
+        else:
+            next_html = ''
         t_asm_navigation_subs = {
             'entry': entry_dict,
             'o_asm_navigation_prev': prev_html,
