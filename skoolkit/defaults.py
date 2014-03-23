@@ -206,7 +206,7 @@ TEMPLATES = """
 <body class="disassembly">
 {t_header}
 {t_asm_navigation}
-<div class="description">{entry_title}</div>
+<div class="description">{entry[label_prefix]}{entry[address]}: {entry[title]}</div>
 {t_asm}
 {t_asm_navigation}
 {t_footer}

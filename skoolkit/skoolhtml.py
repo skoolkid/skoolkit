@@ -557,11 +557,17 @@ class HtmlWriter:
         desc = ''
         if entry.details:
             desc = self.join_paragraphs(entry.details, cwd)
+        asm_label = self.parser.get_asm_label(entry.address)
+        if asm_label:
+            label_prefix = '{}: '.format(asm_label)
+        else:
+            label_prefix = ''
         return {
             'location': entry.address,
             'address': entry.addr_str,
             'page': entry.address // 256,
             'byte': entry.address % 256,
+            'label_prefix': label_prefix,
             'description': desc,
             'url': FileInfo.asm_relpath(cwd, entry.address, asm_path or self.code_path),
             'map_url': '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address),
@@ -778,11 +784,6 @@ class HtmlWriter:
         }
         asm_navigation = self.format_template('asm_navigation', t_asm_navigation_subs)
 
-        desc = self.expand(entry.description, cwd)
-        label_text = ''
-        if asm_label:
-            label_text = '{0}: '.format(asm_label)
-
         table_class = 'disassembly'
         comment_class = 'comment'
         transparent_class = 'transparentComment'
@@ -888,8 +889,7 @@ class HtmlWriter:
         subs = {
             'entry': entry_dict,
             't_asm_navigation': asm_navigation,
-            'entry_title': '{}{}: {}'.format(label_text, entry.addr_str, desc),
-            't_asm': disassembly,
+            't_asm': disassembly
         }
         html = self.format_page('Code', cwd, subs, title=title, header=page_header)
         self.write_file(fname, html)
