@@ -132,7 +132,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             if s_line:
                 body_lines.append(s_line)
         body_class = subs.get('body_class')
-        body_class_attr = ' class="{0}"'.format(body_class) if body_class else ''
+        body_class_attr = ' class="{0}"'.format(body_class) if body_class is not None else ''
         subs['body'] = '<body{0}>'.format(body_class_attr)
         js = subs.get('js')
         subs['script'] = '\n<script type="text/javascript" src="{0}"></script>'.format(js) if js else ''
@@ -3160,6 +3160,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'title': 'Custom page',
             'path': '',
+            'body_class': '',
             'js': 'test-html.js',
             'content': '<b>This is the content of the custom page.</b>\n'
         }

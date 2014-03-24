@@ -138,8 +138,11 @@ class HtmlWriter:
             else:
                 path = page['Path']
             self.paths[page_id] = path
-            self.titles[page_id] = page.get('Title', page_id)
-            links[page_id] = page.get('Link', self.titles[page_id])
+            page.setdefault('BodyClass', '')
+            page.setdefault('Title', page_id)
+            page.setdefault('Link', page['Title'])
+            self.titles[page_id] = page['Title']
+            links[page_id] = page['Link']
         for page_id in links:
             links[page_id] = links[page_id] or self.titles.get(page_id, page_id)
         self.links = self._parse_links(links)
@@ -980,11 +983,8 @@ class HtmlWriter:
         fname = self.paths[page_id]
         cwd = self._set_cwd(fname)
         page = self.pages[page_id]
-        body_class = page.get('BodyClass', '')
-        if body_class:
-            body_class = ' class="{}"'.format(body_class)
         subs = {
-            'class': body_class,
+            'Page': page,
             'PageContent': self.expand(self.page_contents[page_id], cwd)
         }
         js = page.get('JavaScript')

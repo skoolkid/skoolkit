@@ -334,7 +334,7 @@ TEMPLATES = """
 <head>
 {t_head}
 </head>
-<body{class}>
+<body class="{Page[BodyClass]}">
 {t_header}
 {PageContent}
 {t_footer}
