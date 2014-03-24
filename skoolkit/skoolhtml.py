@@ -927,6 +927,7 @@ class HtmlWriter:
         map_details = self.memory_maps.get(map_name, {})
         entry_types = map_details.get('EntryTypes', 'bcgstuwz')
         show_page_byte = map_details.get('PageByteColumns', '0') != '0'
+        map_dict = {'Intro': self.expand(map_details.get('Intro', ''), cwd)}
 
         for entry in self.memory_map:
             if entry.ctl not in entry_types:
@@ -943,6 +944,7 @@ class HtmlWriter:
             elif entry.ctl == 't':
                 entry_template = 'map_entry_message'
             entry_template_subs = {
+                'MemoryMap': map_dict,
                 'entry': entry_dict,
                 't_anchor': self.format_anchor(entry.address)
             }
@@ -950,20 +952,23 @@ class HtmlWriter:
             if show_page_byte:
                 page_byte = self.format_template('map_page_byte', {'entry': entry_dict})
             t_map_entry_subs = {
+                'MemoryMap': map_dict,
                 'o_map_page_byte': page_byte,
                 'map_entry': self.format_template(entry_template, entry_template_subs),
                 'entry': entry_dict
             }
             map_entries.append(self.format_template('map_entry', t_map_entry_subs))
 
-        intro = map_details.get('Intro', '')
-        if intro:
-            intro = self.format_template('map_intro', {'intro': self.expand(intro, cwd)})
+        if map_dict['Intro']:
+            intro = self.format_template('map_intro', {'MemoryMap': map_dict})
+        else:
+            intro = ''
         page_byte_headers = ''
         if show_page_byte:
-            page_byte_headers = self.format_template('map_page_byte_header')
+            page_byte_headers = self.format_template('map_page_byte_header', {'MemoryMap': map_dict})
 
         subs = {
+            'MemoryMap': map_dict,
             'o_map_intro': intro,
             'o_map_page_byte_header': page_byte_headers,
             'm_map_entry': '\n'.join(map_entries)

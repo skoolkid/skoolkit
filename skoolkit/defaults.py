@@ -634,7 +634,7 @@ bytes
 <td class="unusedDesc">Unused ({entry[size]} {entry[unit]})</td>
 
 [Template:map_intro]
-<div class="mapIntro">{intro}</div>
+<div class="mapIntro">{MemoryMap[Intro]}</div>
 
 [Template:map_page_byte]
 <td class="mapPage">{entry[page]}</td>
