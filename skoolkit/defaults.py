@@ -421,16 +421,16 @@ Unused
 </tr>
 
 [Template:asm_instruction_comment_code]
-<td class="comment"{rowspan}>{instruction[comment]}</td>
+<td class="comment" rowspan="{instruction[comment_rowspan]}">{instruction[comment]}</td>
 
 [Template:asm_instruction_comment_code_transparent]
-<td class="transparentComment"{rowspan}></td>
+<td class="transparentComment" rowspan="{instruction[comment_rowspan]}"></td>
 
 [Template:asm_instruction_comment_data]
-<td class="dataComment"{rowspan}>{instruction[comment]}</td>
+<td class="dataComment" rowspan="{instruction[comment_rowspan]}">{instruction[comment]}</td>
 
 [Template:asm_instruction_comment_data_transparent]
-<td class="transparentDataComment"{rowspan}></td>
+<td class="transparentDataComment" rowspan="{instruction[comment_rowspan]}"></td>
 
 [Template:asm_instruction_label]
 <td class="asmLabel">{instruction[label]}</td>

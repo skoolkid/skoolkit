@@ -834,32 +834,27 @@ class HtmlWriter:
                 link = self.format_link(entry_file + name, link_text)
                 operation = operation.replace(reference.addr_str, link)
 
+            comment = instruction.comment
+            if comment:
+                comment_rowspan = comment.rowspan
+            else:
+                comment_rowspan = 1
             instruction_dict = {
                 'address': instruction.addr_str,
                 'label': instruction.asm_label or '',
                 'operation': operation,
-                'comment': ''
+                'comment': '',
+                'comment_rowspan': comment_rowspan
             }
-            t_asm_instruction_comment_subs = None
+            show_comment_cell = False
             if show_comment_col:
                 template_suffix = ''
-                comment = instruction.comment
                 if comment:
                     instruction_dict['comment'] = self.expand(comment.text, cwd)
-                    t_asm_instruction_comment_subs = {
-                        'entry': entry_dict,
-                        'instruction': instruction_dict,
-                        'rowspan': ''
-                    }
-                    if comment.rowspan > 1:
-                        t_asm_instruction_comment_subs['rowspan'] = ' rowspan="{0}"'.format(comment.rowspan)
+                    show_comment_cell = True
             else:
                 template_suffix = '_transparent'
-                t_asm_instruction_comment_subs = {
-                    'entry': entry_dict,
-                    'instruction': instruction_dict,
-                    'rowspan': ''
-                }
+                show_comment_cell = True
 
             t_asm_instruction_subs = {
                 'entry': entry_dict,
@@ -868,7 +863,11 @@ class HtmlWriter:
                 'instruction': instruction_dict,
                 'comment': ''
             }
-            if t_asm_instruction_comment_subs:
+            if show_comment_cell:
+                t_asm_instruction_comment_subs = {
+                    'entry': entry_dict,
+                    'instruction': instruction_dict
+                }
                 template_name = comment_template + template_suffix
                 t_asm_instruction_subs['comment'] = self.format_template(template_name, t_asm_instruction_comment_subs)
             if show_label_col:
