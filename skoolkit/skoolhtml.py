@@ -579,6 +579,7 @@ class HtmlWriter:
             '_has_instruction_comments': has_instruction_comments,
             '_has_asm_labels': has_asm_labels,
             'colspan': colspan,
+            'type': entry.ctl,
             'location': entry.address,
             'address': entry.addr_str,
             'page': entry.address // 256,
