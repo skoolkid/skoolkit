@@ -143,15 +143,13 @@ td.instruction {
   color: #008000;
   white-space: pre;
 }
-td.comment, td.dataComment {
+td.comment {
   background-color: #ccddee;
   vertical-align: top;
+  width: 100%;
 }
 td.routineComment {
   padding-left: 0;
-}
-td.comment, td.dataComment {
-  width: 100%;
 }
 table.gbuffer th, table.map th {
   background-color: #88aacc;

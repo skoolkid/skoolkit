@@ -38,7 +38,7 @@ td.asmLabel, td.label, td.address {
 td.instruction {
   color: #beffff;
 }
-td.comment, td.dataComment {
+td.comment {
   background-color: #334c19;
 }
 table.gbuffer th, table.map th {

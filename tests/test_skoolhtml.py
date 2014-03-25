@@ -2212,7 +2212,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="address"><a name="24578"></a>24578</td>
             <td class="instruction">DEFB 0</td>
-            <td class="dataComment" rowspan="1"></td>
+            <td class="comment" rowspan="1"></td>
             </tr>
             </table>
         """
@@ -2268,7 +2268,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="address"><a name="24581"></a>24581</td>
             <td class="instruction">DEFW 123</td>
-            <td class="dataComment" rowspan="1"></td>
+            <td class="comment" rowspan="1"></td>
             </tr>
             </table>
         """
@@ -2549,7 +2549,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="address"><a name="50008"></a>50008</td>
             <td class="instruction">DEFW 50000</td>
-            <td class="dataComment" rowspan="1"></td>
+            <td class="comment" rowspan="1"></td>
             </tr>
             </table>
         """

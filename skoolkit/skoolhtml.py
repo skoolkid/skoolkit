@@ -787,11 +787,6 @@ class HtmlWriter:
         }
         asm_navigation = self.format_template('asm_navigation', t_asm_navigation_subs)
 
-        if entry.ctl in 'csuz':
-            comment_template = 'asm_instruction_comment_code'
-        else:
-            comment_template = 'asm_instruction_comment_data'
-
         input_reg, output_reg = self.format_registers(cwd, entry.registers, entry_dict)
 
         has_asm_labels = any([instruction.asm_label for instruction in entry.instructions])
@@ -835,26 +830,28 @@ class HtmlWriter:
                 'comment': comment_text,
                 'comment_rowspan': comment_rowspan
             }
-            t_asm_instruction_comment_subs = {
+            instruction_subs = {
                 'entry': entry_dict,
                 'instruction': instruction_dict
             }
-            t_asm_instruction_subs = {
-                'entry': entry_dict,
-                'instruction': instruction_dict,
-                'o_asm_instruction_label': '',
-                'o_anchor': anchor,
-                'comment': ''
-            }
             if comment:
-                t_asm_instruction_subs['comment'] = self.format_template(comment_template, t_asm_instruction_comment_subs)
+                comment_cell = self.format_template('asm_instruction_comment', instruction_subs)
+            else:
+                comment_cell = ''
             if has_asm_labels:
-                t_asm_instruction_subs['o_asm_instruction_label'] = self.format_template('asm_instruction_label', {'instruction': instruction_dict})
+                label_cell = self.format_template('asm_instruction_label', instruction_subs)
+            else:
+                label_cell = ''
+            instruction_subs.update({
+                'o_asm_instruction_label': label_cell,
+                'o_anchor': anchor,
+                'o_asm_instruction_comment': comment_cell
+            })
             if instruction.ctl in 'c*!':
                 instruction_template = 'asm_instruction_labelled'
             else:
                 instruction_template = 'asm_instruction'
-            lines.append(self.format_template(instruction_template, t_asm_instruction_subs))
+            lines.append(self.format_template(instruction_template, instruction_subs))
 
         if entry.end_comment:
             lines.append(self.format_entry_comment(cwd, entry_dict, entry.end_comment))
@@ -865,13 +862,11 @@ class HtmlWriter:
             'o_asm_registers_output': output_reg,
             'disassembly': '\n'.join(lines)
         }
-        disassembly = self.format_template('asm', t_asm_subs)
-
         subs = {
             'entry': entry_dict,
             'asm_entry_title': entry_title,
             't_asm_navigation': asm_navigation,
-            't_asm': disassembly
+            't_asm': self.format_template('asm', t_asm_subs)
         }
         html = self.format_page('Asm', cwd, subs, title=title, header=page_header)
         self.write_file(fname, html)

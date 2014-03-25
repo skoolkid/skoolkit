@@ -405,14 +405,11 @@ Unused
 {o_asm_instruction_label}
 <td class="address">{o_anchor}{instruction[address]}</td>
 <td class="instruction">{instruction[operation]}</td>
-{comment}
+{o_asm_instruction_comment}
 </tr>
 
-[Template:asm_instruction_comment_code]
+[Template:asm_instruction_comment]
 <td class="comment" rowspan="{instruction[comment_rowspan]}">{instruction[comment]}</td>
-
-[Template:asm_instruction_comment_data]
-<td class="dataComment" rowspan="{instruction[comment_rowspan]}">{instruction[comment]}</td>
 
 [Template:asm_instruction_label]
 <td class="asmLabel">{instruction[label]}</td>
@@ -422,7 +419,7 @@ Unused
 {o_asm_instruction_label}
 <td class="label">{o_anchor}{instruction[address]}</td>
 <td class="instruction">{instruction[operation]}</td>
-{comment}
+{o_asm_instruction_comment}
 </tr>
 
 [Template:asm_navigation]
