@@ -361,7 +361,7 @@ TEMPLATES = """
 [Template:asm_code]
 <table class="disassembly">
 <tr>
-<td class="routineComment" colspan="{colspan}">
+<td class="routineComment" colspan="{entry[colspan]}">
 <div class="details">
 {entry[description]}
 </div>
@@ -374,8 +374,8 @@ TEMPLATES = """
 
 [Template:asm_comment]
 <tr>
-<td class="routineComment" colspan="{colspan}">
-{t_anchor}
+<td class="routineComment" colspan="{entry[colspan]}">
+{o_anchor}
 <div class="comments">
 {m_paragraph}
 </div>
@@ -385,7 +385,7 @@ TEMPLATES = """
 [Template:asm_data]
 <table class="dataDisassembly">
 <tr>
-<td class="routineComment" colspan="{colspan}">
+<td class="routineComment" colspan="{entry[colspan]}">
 <div class="details">
 {entry[description]}
 </div>
@@ -415,7 +415,7 @@ Unused
 [Template:asm_instruction]
 <tr>
 {o_asm_instruction_label}
-<td class="address">{t_anchor}{instruction[address]}</td>
+<td class="address">{o_anchor}{instruction[address]}</td>
 <td class="instruction">{instruction[operation]}</td>
 {comment}
 </tr>
@@ -438,7 +438,7 @@ Unused
 [Template:asm_instruction_labelled]
 <tr>
 {o_asm_instruction_label}
-<td class="label">{t_anchor}{instruction[address]}</td>
+<td class="label">{o_anchor}{instruction[address]}</td>
 <td class="instruction">{instruction[operation]}</td>
 {comment}
 </tr>
