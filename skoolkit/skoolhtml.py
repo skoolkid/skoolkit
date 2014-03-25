@@ -796,15 +796,7 @@ class HtmlWriter:
 
         input_reg, output_reg = self.format_registers(cwd, entry.registers, entry_dict)
 
-        has_instruction_comments = False
-        has_asm_labels = False
-        for instruction in entry.instructions:
-            if instruction.comment and instruction.comment.text:
-                has_instruction_comments = True
-            if instruction.asm_label:
-                has_asm_labels = True
-            if has_instruction_comments and has_asm_labels:
-                break
+        has_asm_labels = any([instruction.asm_label for instruction in entry.instructions])
         lines = []
         for instruction in entry.instructions:
             mid_routine_comments = entry.get_mid_routine_comment(instruction.label)
@@ -834,25 +826,21 @@ class HtmlWriter:
             comment = instruction.comment
             if comment:
                 comment_rowspan = comment.rowspan
+                comment_text = self.expand(comment.text, cwd)
             else:
                 comment_rowspan = 1
+                comment_text = ''
             instruction_dict = {
                 'address': instruction.addr_str,
                 'label': instruction.asm_label or '',
                 'operation': operation,
-                'comment': '',
+                'comment': comment_text,
                 'comment_rowspan': comment_rowspan
             }
-            show_comment_cell = False
-            if has_instruction_comments:
-                template_suffix = ''
-                if comment:
-                    instruction_dict['comment'] = self.expand(comment.text, cwd)
-                    show_comment_cell = True
-            else:
-                template_suffix = '_transparent'
-                show_comment_cell = True
-
+            t_asm_instruction_comment_subs = {
+                'entry': entry_dict,
+                'instruction': instruction_dict
+            }
             t_asm_instruction_subs = {
                 'entry': entry_dict,
                 'instruction': instruction_dict,
@@ -860,13 +848,8 @@ class HtmlWriter:
                 'o_anchor': anchor,
                 'comment': ''
             }
-            if show_comment_cell:
-                t_asm_instruction_comment_subs = {
-                    'entry': entry_dict,
-                    'instruction': instruction_dict
-                }
-                template_name = comment_template + template_suffix
-                t_asm_instruction_subs['comment'] = self.format_template(template_name, t_asm_instruction_comment_subs)
+            if comment:
+                t_asm_instruction_subs['comment'] = self.format_template(comment_template, t_asm_instruction_comment_subs)
             if has_asm_labels:
                 t_asm_instruction_subs['o_asm_instruction_label'] = self.format_template('asm_instruction_label', {'instruction': instruction_dict})
             if instruction.ctl in 'c*!':

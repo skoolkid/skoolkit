@@ -150,7 +150,7 @@ td.comment, td.dataComment {
 td.routineComment {
   padding-left: 0;
 }
-td.comment, td.dataComment, td.transparentComment, td.transparentDataComment {
+td.comment, td.dataComment {
   width: 100%;
 }
 table.gbuffer th, table.map th {

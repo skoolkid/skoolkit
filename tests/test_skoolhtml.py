@@ -2212,7 +2212,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="address"><a name="24578"></a>24578</td>
             <td class="instruction">DEFB 0</td>
-            <td class="transparentDataComment" rowspan="1"></td>
+            <td class="dataComment" rowspan="1"></td>
             </tr>
             </table>
         """
@@ -2240,7 +2240,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="label"><a name="24579"></a>24579</td>
             <td class="instruction">JR <a class="link" href="24576.html#24577">24577</a></td>
-            <td class="transparentComment" rowspan="1"></td>
+            <td class="comment" rowspan="1"></td>
             </tr>
             </table>
         """
@@ -2268,7 +2268,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="address"><a name="24581"></a>24581</td>
             <td class="instruction">DEFW 123</td>
-            <td class="transparentDataComment" rowspan="1"></td>
+            <td class="dataComment" rowspan="1"></td>
             </tr>
             </table>
         """
@@ -2296,7 +2296,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="address"><a name="24583"></a>24583</td>
             <td class="instruction">DEFB 0</td>
-            <td class="transparentComment" rowspan="1"></td>
+            <td class="comment" rowspan="1"></td>
             </tr>
             </table>
         """
@@ -2372,7 +2372,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '<tr>',
             '<td class="label"><a name="{address}"></a>{address:05d}</td>',
             '<td class="instruction">RET</td>',
-            '<td class="transparentComment" rowspan="1"></td>',
+            '<td class="comment" rowspan="1"></td>',
             '</tr>',
             '</table>',
             ''
@@ -2521,7 +2521,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="label"><a name="50005"></a>50005</td>
             <td class="instruction">JP <a class="link" href="50000.html">START</a></td>
-            <td class="transparentComment" rowspan="1"></td>
+            <td class="comment" rowspan="1"></td>
             </tr>
             </table>
         """
@@ -2549,7 +2549,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="address"><a name="50008"></a>50008</td>
             <td class="instruction">DEFW 50000</td>
-            <td class="transparentDataComment" rowspan="1"></td>
+            <td class="dataComment" rowspan="1"></td>
             </tr>
             </table>
         """
