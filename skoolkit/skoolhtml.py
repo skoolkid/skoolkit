@@ -278,7 +278,7 @@ class HtmlWriter:
 
     def get_code_path(self, code_id):
         if code_id.lower() == MAIN_CODE_ID:
-            return self.paths.get('CodePath', 'asm')
+            return self.paths['CodePath']
         for c_id, code in self.other_code:
             if c_id.lower() == code_id.lower():
                 return code['Path']
