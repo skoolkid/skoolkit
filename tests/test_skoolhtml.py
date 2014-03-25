@@ -2202,7 +2202,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         # Data at 24578
         content = """
             <div class="description">24578: Data block at 24578</div>
-            <table class="dataDisassembly">
+            <table class="disassembly">
             <tr>
             <td class="routineComment" colspan="4">
             <div class="details">
@@ -2258,7 +2258,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         # Game status buffer entry at 24581
         content = """
             <div class="description">24581: GSB entry at 24581</div>
-            <table class="dataDisassembly">
+            <table class="disassembly">
             <tr>
             <td class="routineComment" colspan="4">
             <div class="details">
@@ -2539,7 +2539,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         # DEFW statement at 50008
         content = """
             <div class="description">50008: DEFW statement with a @keep directive</div>
-            <table class="dataDisassembly">
+            <table class="disassembly">
             <tr>
             <td class="routineComment" colspan="4">
             <div class="details">

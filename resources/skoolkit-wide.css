@@ -1,6 +1,6 @@
 div.box, div.changelog {
   width: auto;
 }
-table.disassembly, table.dataDisassembly {
+table.disassembly {
   width: 100%;
 }

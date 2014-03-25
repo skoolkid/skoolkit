@@ -100,7 +100,7 @@ table.prevNext td.next {
   width: 30%;
   text-align: right;
 }
-table.disassembly, table.dataDisassembly {
+table.disassembly {
   width: 800px;
 }
 div.description {

@@ -41,7 +41,7 @@ table table.default td, table.default td {
 table.prevNext td {
   background-color: #00ffff;
 }
-table.disassembly, table.dataDisassembly {
+table.disassembly {
   width: 960px;
 }
 div.description {

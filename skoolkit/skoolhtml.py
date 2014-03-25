@@ -788,10 +788,8 @@ class HtmlWriter:
         asm_navigation = self.format_template('asm_navigation', t_asm_navigation_subs)
 
         if entry.ctl in 'csuz':
-            asm_template = 'asm_code'
             comment_template = 'asm_instruction_comment_code'
         else:
-            asm_template = 'asm_data'
             comment_template = 'asm_instruction_comment_data'
 
         input_reg, output_reg = self.format_registers(cwd, entry.registers, entry_dict)
@@ -867,13 +865,13 @@ class HtmlWriter:
             'o_asm_registers_output': output_reg,
             'disassembly': '\n'.join(lines)
         }
-        disassembly = self.format_template(asm_template, t_asm_subs)
+        disassembly = self.format_template('asm', t_asm_subs)
 
         subs = {
             'entry': entry_dict,
             'asm_entry_title': entry_title,
             't_asm_navigation': asm_navigation,
-            'asm': disassembly
+            't_asm': disassembly
         }
         html = self.format_page('Asm', cwd, subs, title=title, header=page_header)
         self.write_file(fname, html)
