@@ -2140,7 +2140,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">24576: Routine at 24576</div>
             <table class="disassembly">
             <tr>
-            <td class="routineComment" colspan="3">
+            <td class="routineComment" colspan="4">
             <div class="details">
             <div class="paragraph">
             Description of routine at 24576.
@@ -2164,7 +2164,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="comment" rowspan="1">Comment for instruction at 24576</td>
             </tr>
             <tr>
-            <td class="routineComment" colspan="3">
+            <td class="routineComment" colspan="4">
             <a name="24577"></a>
             <div class="comments">
             <div class="paragraph">
@@ -2179,7 +2179,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="comment" rowspan="1"></td>
             </tr>
             <tr>
-            <td class="routineComment" colspan="3">
+            <td class="routineComment" colspan="4">
             <div class="comments">
             <div class="paragraph">
             End comment for routine at 24576.
@@ -2204,7 +2204,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">24578: Data block at 24578</div>
             <table class="dataDisassembly">
             <tr>
-            <td class="routineComment" colspan="3">
+            <td class="routineComment" colspan="4">
             <div class="details">
             </div>
             </td>
@@ -2232,7 +2232,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">24579: Routine at 24579</div>
             <table class="disassembly">
             <tr>
-            <td class="routineComment" colspan="3">
+            <td class="routineComment" colspan="4">
             <div class="details">
             </div>
             </td>
@@ -2260,7 +2260,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">24581: GSB entry at 24581</div>
             <table class="dataDisassembly">
             <tr>
-            <td class="routineComment" colspan="3">
+            <td class="routineComment" colspan="4">
             <div class="details">
             </div>
             </td>
@@ -2288,7 +2288,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">24583: Unused</div>
             <table class="disassembly">
             <tr>
-            <td class="routineComment" colspan="3">
+            <td class="routineComment" colspan="4">
             <div class="details">
             </div>
             </td>
@@ -2316,7 +2316,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">24584: Routine at 24584 (register section but no description)</div>
             <table class="disassembly">
             <tr>
-            <td class="routineComment" colspan="3">
+            <td class="routineComment" colspan="4">
             <div class="details">
             </div>
             <table class="input">
@@ -2364,7 +2364,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '<div class="description">{address:05d}: </div>',
             '<table class="disassembly">',
             '<tr>',
-            '<td class="routineComment" colspan="3">',
+            '<td class="routineComment" colspan="4">',
             '<div class="details">',
             '</div>',
             '</td>',
@@ -2513,7 +2513,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">50005: Routine without a label</div>
             <table class="disassembly">
             <tr>
-            <td class="routineComment" colspan="3">
+            <td class="routineComment" colspan="4">
             <div class="details">
             </div>
             </td>
@@ -2541,7 +2541,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">50008: DEFW statement with a @keep directive</div>
             <table class="dataDisassembly">
             <tr>
-            <td class="routineComment" colspan="3">
+            <td class="routineComment" colspan="4">
             <div class="details">
             </div>
             </td>

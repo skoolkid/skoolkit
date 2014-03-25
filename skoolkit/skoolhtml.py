@@ -564,21 +564,7 @@ class HtmlWriter:
             unit_template = 'entry_size_unit'
         else:
             unit_template = 'entry_size_unit_plural'
-        has_instruction_comments = False
-        has_asm_labels = False
-        colspan = 3
-        for instruction in entry.instructions:
-            if instruction.comment and instruction.comment.text:
-                has_instruction_comments = True
-            if instruction.asm_label:
-                has_asm_labels = True
-                colspan = 4
-            if has_instruction_comments and has_asm_labels:
-                break
         return {
-            '_has_instruction_comments': has_instruction_comments,
-            '_has_asm_labels': has_asm_labels,
-            'colspan': colspan,
             'type': entry.ctl,
             'location': entry.address,
             'address': entry.addr_str,
@@ -810,8 +796,15 @@ class HtmlWriter:
 
         input_reg, output_reg = self.format_registers(cwd, entry.registers, entry_dict)
 
-        has_instruction_comments = entry_dict['_has_instruction_comments']
-        has_asm_labels = entry_dict['_has_asm_labels']
+        has_instruction_comments = False
+        has_asm_labels = False
+        for instruction in entry.instructions:
+            if instruction.comment and instruction.comment.text:
+                has_instruction_comments = True
+            if instruction.asm_label:
+                has_asm_labels = True
+            if has_instruction_comments and has_asm_labels:
+                break
         lines = []
         for instruction in entry.instructions:
             mid_routine_comments = entry.get_mid_routine_comment(instruction.label)
