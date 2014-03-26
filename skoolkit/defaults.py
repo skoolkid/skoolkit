@@ -173,6 +173,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
+<title>{Game[Game]}: {entry[address]}</title>
 {t_head}
 </head>
 <body class="disassembly">
@@ -200,6 +201,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
+<title>{Game[Game]}: {Titles[Bugs]}</title>
 {t_head}
 </head>
 <body class="bugs">
@@ -214,6 +216,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
+<title>{Game[Game]}: {Titles[Changelog]}</title>
 {t_head}
 </head>
 <body class="changelog">
@@ -224,10 +227,33 @@ TEMPLATES = """
 </body>
 </html>
 
+[Template:DataMap]
+{t_prologue}
+{t_html}
+<head>
+<title>{Game[Game]}: {Titles[DataMap]}</title>
+{t_head}
+</head>
+<body class="map">
+{t_header}
+{o_map_intro}
+<table class="map">
+<tr>
+{o_map_page_byte_header}
+<th>Address</th>
+<th>Description</th>
+</tr>
+{m_map_entry}
+</table>
+{t_footer}
+</body>
+</html>
+
 [Template:Facts]
 {t_prologue}
 {t_html}
 <head>
+<title>{Game[Game]}: {Titles[Facts]}</title>
 {t_head}
 </head>
 <body class="facts">
@@ -242,6 +268,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
+<title>{Game[Game]}: {Titles[GameIndex]}</title>
 {t_head}
 </head>
 <body class="main">
@@ -261,6 +288,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
+<title>{Game[Game]}: {Titles[GameStatusBuffer]}</title>
 {t_head}
 </head>
 <body class="gbuffer">
@@ -281,6 +309,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
+<title>{Game[Game]}: {Titles[Glossary]}</title>
 {t_head}
 </head>
 <body class="glossary">
@@ -295,6 +324,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
+<title>{Game[Game]}: {Titles[GraphicGlitches]}</title>
 {t_head}
 </head>
 <body class="graphics">
@@ -309,6 +339,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
+<title>{Game[Game]}: {Titles[Graphics]}</title>
 {t_head}
 </head>
 <body class="graphics">
@@ -322,6 +353,29 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
+<title>{Game[Game]}: {Titles[MemoryMap]}</title>
+{t_head}
+</head>
+<body class="map">
+{t_header}
+{o_map_intro}
+<table class="map">
+<tr>
+{o_map_page_byte_header}
+<th>Address</th>
+<th>Description</th>
+</tr>
+{m_map_entry}
+</table>
+{t_footer}
+</body>
+</html>
+
+[Template:MessagesMap]
+{t_prologue}
+{t_html}
+<head>
+<title>{Game[Game]}: {Titles[MessagesMap]}</title>
 {t_head}
 </head>
 <body class="map">
@@ -343,6 +397,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
+<title>{Game[Game]}: {Page[Title]}</title>
 {t_head}
 </head>
 <body class="{Page[BodyClass]}">
@@ -356,12 +411,57 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
+<title>{Game[Game]}: {Titles[Pokes]}</title>
 {t_head}
 </head>
 <body class="pokes">
 {t_header}
 {t_contents_list}
 {m_box}
+{t_footer}
+</body>
+</html>
+
+[Template:RoutinesMap]
+{t_prologue}
+{t_html}
+<head>
+<title>{Game[Game]}: {Titles[RoutinesMap]}</title>
+{t_head}
+</head>
+<body class="map">
+{t_header}
+{o_map_intro}
+<table class="map">
+<tr>
+{o_map_page_byte_header}
+<th>Address</th>
+<th>Description</th>
+</tr>
+{m_map_entry}
+</table>
+{t_footer}
+</body>
+</html>
+
+[Template:UnusedMap]
+{t_prologue}
+{t_html}
+<head>
+<title>{Game[Game]}: {Titles[UnusedMap]}</title>
+{t_head}
+</head>
+<body class="map">
+{t_header}
+{o_map_intro}
+<table class="map">
+<tr>
+{o_map_page_byte_header}
+<th>Address</th>
+<th>Description</th>
+</tr>
+{m_map_entry}
+</table>
 {t_footer}
 </body>
 </html>
@@ -457,30 +557,6 @@ Up: <a class="link" href="{entry[map_url]}">Map</a>
 {m_asm_register}
 </table>
 
-[Template:asm_title_data]
-Data at {entry[address]}
-
-[Template:asm_title_data_labelled]
-Data at {entry[address]} ({entry[label]})
-
-[Template:asm_title_gsb]
-Game status buffer entry at {entry[address]}
-
-[Template:asm_title_gsb_labelled]
-Game status buffer entry at {entry[address]} ({entry[label]})
-
-[Template:asm_title_routine]
-Routine at {entry[address]}
-
-[Template:asm_title_routine_labelled]
-Routine at {entry[address]} ({entry[label]})
-
-[Template:asm_title_unused]
-Unused RAM at {entry[address]}
-
-[Template:asm_title_unused_labelled]
-Unused RAM at {entry[address]} ({entry[label]})
-
 [Template:box]
 <div>{t_anchor}</div>
 <div class="box box{box_num}">
@@ -539,7 +615,6 @@ bytes
 
 [Template:head]
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<title>{Game[Game]}: {title}</title>
 {m_head_stylesheet}
 {m_head_javascript}
 

@@ -25,8 +25,8 @@ HEADER = """<?xml version="1.0" encoding="utf-8" ?>
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <title>{name}: {title}</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="{path}skoolkit.css" />{script}
 </head>
 {body}
@@ -43,8 +43,8 @@ INDEX_HEADER = """<?xml version="1.0" encoding="utf-8" ?>
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <title>{name}: {title}</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="{path}skoolkit.css" />{script}
 </head>
 {body}
@@ -2190,7 +2190,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'title': 'Routine at 24576',
+            'title': '24576',
             'header': 'Routines',
             'up': 24576,
             'next': 24578,
@@ -2217,7 +2217,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'title': 'Data at 24578',
+            'title': '24578',
             'header': 'Data',
             'prev': 24576,
             'up': 24578,
@@ -2245,7 +2245,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'title': 'Routine at 24579',
+            'title': '24579',
             'header': 'Routines',
             'prev': 24578,
             'up': 24579,
@@ -2273,7 +2273,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'title': 'Game status buffer entry at 24581',
+            'title': '24581',
             'header': 'Game status buffer',
             'prev': 24579,
             'up': 24581,
@@ -2301,7 +2301,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'title': 'Unused RAM at 24583',
+            'title': '24583',
             'header': 'Unused',
             'prev': 24581,
             'up': 24583,
@@ -2339,7 +2339,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'title': 'Routine at 24584',
+            'title': '24584',
             'header': 'Routines',
             'prev': 24583,
             'up': 24584,
@@ -2389,7 +2389,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
             # Address 0
             subs = {
-                'title': 'Routine at 00000',
+                'title': '00000',
                 'header': 'Routines',
                 'up': 0,
                 'next': 2,
@@ -2400,7 +2400,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
             # Address 2
             subs = {
-                'title': 'Routine at 00002',
+                'title': '00002',
                 'header': 'Routines',
                 'prev': 0,
                 'up': 2,
@@ -2412,7 +2412,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
             # Address 44
             subs = {
-                'title': 'Routine at 00044',
+                'title': '00044',
                 'header': 'Routines',
                 'prev': 2,
                 'up': 44,
@@ -2424,7 +2424,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
             # Address 666
             subs = {
-                'title': 'Routine at 00666',
+                'title': '00666',
                 'header': 'Routines',
                 'prev': 44,
                 'up': 666,
@@ -2436,7 +2436,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
             # Address 8888
             subs = {
-                'title': 'Routine at 08888',
+                'title': '08888',
                 'header': 'Routines',
                 'prev': 666,
                 'up': 8888,
@@ -2500,7 +2500,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'header': 'Routines',
-            'title': 'Routine at 50000 (START)',
+            'title': '50000',
             'up': 50000,
             'next': 50005,
             'content': content
@@ -2527,7 +2527,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'header': 'Routines',
-            'title': 'Routine at 50005',
+            'title': '50005',
             'prev': 50000,
             'up': 50005,
             'next': 50008,
@@ -2555,7 +2555,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'header': 'Data',
-            'title': 'Data at 50008',
+            'title': '50008',
             'prev': 50005,
             'up': 50008,
             'content': content
@@ -3706,21 +3706,6 @@ class HtmlWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
             writer.write_animated_image(image_path, None)
 
-    def test_format_page_with_title(self):
-        page_id = 'Custom'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'Path=',
-            '[Template:{0}]',
-            '{{t_head}}'
-        )).format(page_id)
-        writer = self._get_writer(ref=ref, skool='')
-        title = 'Main page'
-        cwd = ''
-        page = writer.format_page(page_id, cwd, title=title).split('\n')
-        game_name = self.skoolfile[:-6]
-        self.assertEqual(page[1], '<title>{}: {}</title>'.format(game_name, title))
-
     def test_format_page_with_single_global_js(self):
         global_js = 'js/global.js'
         page_id = 'Custom'
@@ -3736,7 +3721,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         cwd = 'subdir/subdir2'
         page = writer.format_page(page_id, cwd).split('\n')
         js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(global_js)))
-        self.assertEqual(page[3], '<script type="text/javascript" src="{}"></script>'.format(js_path))
+        self.assertEqual(page[2], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
     def test_format_page_with_multiple_global_js(self):
         js_files = ['js/global1.js', 'js.global2.js']
@@ -3754,8 +3739,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         cwd = 'subdir/subdir2'
         page = writer.format_page(page_id, cwd).split('\n')
         js_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
-        self.assertEqual(page[3], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
-        self.assertEqual(page[4], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
+        self.assertEqual(page[2], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
+        self.assertEqual(page[3], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
 
     def test_format_page_with_single_local_js(self):
         page_id = 'Custom'
@@ -3770,7 +3755,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         js = 'js/script.js'
         page = writer.format_page(page_id, cwd, js=js).split('\n')
         js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
-        self.assertEqual(page[3], '<script type="text/javascript" src="{}"></script>'.format(js_path))
+        self.assertEqual(page[2], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
     def test_format_page_with_multiple_local_js(self):
         page_id = 'Custom'
@@ -3786,8 +3771,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         js = ';'.join(js_files)
         page = writer.format_page(page_id, cwd, js=js).split('\n')
         js_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
-        self.assertEqual(page[3], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
-        self.assertEqual(page[4], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
+        self.assertEqual(page[2], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
+        self.assertEqual(page[3], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
 
     def test_format_page_with_local_and_global_js(self):
         global_js_files = ['js/global1.js', 'js.global2.js']
@@ -3806,7 +3791,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer = self._get_writer(ref=ref)
         cwd = 'subdir/subdir2'
         page = writer.format_page(page_id, cwd, js=local_js).split('\n')
-        for i, js in enumerate(global_js_files + local_js_files, 3):
+        for i, js in enumerate(global_js_files + local_js_files, 2):
             js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
             self.assertEqual(page[i], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
@@ -3825,7 +3810,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         cwd = ''
         page = writer.format_page(page_id, cwd).split('\n')
         css_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css)))
-        self.assertEqual(page[2], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_path))
+        self.assertEqual(page[1], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_path))
 
     def test_format_page_with_multiple_css(self):
         css_files = ['css/game.css', 'css/foo.css']
@@ -3842,8 +3827,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         cwd = ''
         page = writer.format_page(page_id, cwd).split('\n')
         css_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css))) for css in css_files]
-        self.assertEqual(page[2], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[0]))
-        self.assertEqual(page[3], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[1]))
+        self.assertEqual(page[1], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[0]))
+        self.assertEqual(page[2], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[1]))
 
     def test_format_page_with_header(self):
         page_id = 'Custom'

@@ -200,6 +200,7 @@ class HtmlWriter:
         self.html_tag = self.templates['html']
         self.info = self.get_dictionary('Info')
         self.info['Created'] = self.info['Created'].replace('$VERSION', VERSION)
+        self.template_subs = {'Game': self.game, 'Info': self.info, 'Titles': self.titles}
         self.footer = self.format_template('footer')
 
         self.init()
@@ -229,8 +230,8 @@ class HtmlWriter:
 
     def format_template(self, template_name, subs=None, trim=False, default=None):
         template = self.templates.get(template_name, self.templates.get(default))
-        t_subs = {'Game': self.game, 'Info': self.info}
-        t_subs.update(subs or {})
+        t_subs = subs or {}
+        t_subs.update(self.template_subs)
         html = template.format(**t_subs)
         if trim:
             html = self._remove_blank_lines(html)
@@ -753,18 +754,13 @@ class HtmlWriter:
         if entry_dict['label']:
             template_suffix = '_labelled'
         if entry.is_routine():
-            title_template = 'asm_title_routine'
             page_header_template = 'asm_header_routine'
         elif entry.ctl in 'suz':
-            title_template = 'asm_title_unused'
             page_header_template = 'asm_header_unused'
         elif entry.ctl == 'g':
-            title_template = 'asm_title_gsb'
             page_header_template = 'asm_header_gsb'
         else:
-            title_template = 'asm_title_data'
             page_header_template = 'asm_header_data'
-        title = self.format_template(title_template + template_suffix, {'entry': entry_dict})
         page_header = page_header or self.format_template(page_header_template, {'entry': entry_dict})
         entry_title = self.format_template(entry_title_template + template_suffix, {'entry': entry_dict})
 
@@ -860,7 +856,7 @@ class HtmlWriter:
             'o_asm_registers_output': output_reg,
             'disassembly': '\n'.join(lines)
         }
-        html = self.format_page('Asm', cwd, subs, title=title, header=page_header)
+        html = self.format_page('Asm', cwd, subs, header=page_header)
         self.write_file(fname, html)
 
     def write_entries(self, cwd, map_file, page_header=None):
@@ -939,7 +935,7 @@ class HtmlWriter:
             'o_map_page_byte_header': page_byte_headers,
             'm_map_entry': '\n'.join(map_entries)
         }
-        html = self.format_page(map_name, cwd, subs, default=P_MEMORY_MAP)
+        html = self.format_page(map_name, cwd, subs)
         self.write_file(fname, html)
 
     def write_page(self, page_id):
@@ -963,19 +959,18 @@ class HtmlWriter:
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
         return cwd
 
-    def format_page(self, page_id, cwd, subs=None, trim=True, title=None, header=None, js=None, default=None):
-        title = title or self.titles[page_id]
+    def format_page(self, page_id, cwd, subs=None, trim=True, header=None, js=None, default=None):
         all_subs = {
             't_prologue': self.prologue,
             't_html': self.html_tag,
-            't_head': self._format_head(cwd, title, js),
-            't_header': self._format_header(cwd, header or title),
+            't_head': self._format_head(cwd, js),
+            't_header': self._format_header(cwd, header or self.titles[page_id]),
             't_footer': self.footer
         }
         all_subs.update(subs or {})
         return self.format_template(page_id, all_subs, trim, default=default)
 
-    def _format_head(self, cwd, title, js=None):
+    def _format_head(self, cwd, js=None):
         stylesheets = []
         for css_file in self.game_vars['StyleSheet'].split(';'):
             t_head_stylesheet_subs = {'href': FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}
@@ -989,7 +984,6 @@ class HtmlWriter:
             javascript.append(self.format_template('head_javascript', t_head_javascript_subs))
 
         t_head_subs = {
-            'title': title,
             'm_head_stylesheet': '\n'.join(stylesheets),
             'm_head_javascript': '\n'.join(javascript)
         }
