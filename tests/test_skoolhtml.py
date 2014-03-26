@@ -2148,6 +2148,9 @@ class HtmlWriterTest(SkoolKitTestCase):
             </div>
             <table class="input">
             <tr>
+            <th colspan="2">Input</th>
+            </tr>
+            <tr>
             <td class="register">A</td>
             <td class="registerContents">Some value</td>
             </tr>
@@ -2320,6 +2323,9 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="details">
             </div>
             <table class="input">
+            <tr>
+            <th colspan="2">Input</th>
+            </tr>
             <tr>
             <td class="register">A</td>
             <td class="registerContents">0</td>
@@ -3584,6 +3590,9 @@ class HtmlWriterTest(SkoolKitTestCase):
         exp_html = """
             <table class="input">
             <tr>
+            <th colspan="2">Input</th>
+            </tr>
+            <tr>
             <td class="register">A</td>
             <td class="registerContents">Some value</td>
             </tr>
@@ -3600,12 +3609,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_html_equal(html, exp_html, trim=True)
 
     def test_format_registers_with_prefixes(self):
-        ref = '\n'.join((
-            '[Game]',
-            'InputRegisterTableHeader=Input',
-            'OutputRegisterTableHeader=Output'
-        ))
-        writer = self._get_writer(ref=ref)
+        writer = self._get_writer()
         exp_html = """
             <table class="input">
             <tr>

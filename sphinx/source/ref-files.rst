@@ -213,9 +213,6 @@ Recognised parameters are:
   to include on the 'Game status buffer' page in addition to those that are
   marked with a ``g`` (see the
   :ref:`skool file format reference <skoolFileFormat>`)
-* ``InputRegisterTableHeader`` - the text to use in the header of input
-  register tables on routine disassembly pages; if not specified, no header is
-  displayed
 * ``JavaScript`` - the base name of the JavaScript file to include in every
   page (default: None); multiple JavaScript files can be declared by separating
   their names with semicolons
@@ -229,9 +226,6 @@ Recognised parameters are:
 * ``LogoImage`` - the path to the game logo image, which appears in the header
   of every page; if the specified file does not exist, the name of the game is
   used in place of an image
-* ``OutputRegisterTableHeader`` - the text to use in the header of output
-  register tables on routine disassembly pages; if not specified, no header is
-  displayed
 * ``StyleSheet`` - the base name of the CSS file to use (default:
   `skoolkit.css`); multiple CSS files can be declared by separating their names
   with semicolons
@@ -246,9 +240,6 @@ Recognised parameters are:
 | 2.0.3   | Added the ``GameStatusBufferIncludes`` parameter                |
 +---------+-----------------------------------------------------------------+
 | 2.0.5   | Added the ``Logo`` parameter                                    |
-+---------+-----------------------------------------------------------------+
-| 3.1.2   | Added the ``InputRegisterTableHeader`` and                      |
-|         | ``OutputRegisterTableHeader`` parameters                        |
 +---------+-----------------------------------------------------------------+
 | 3.4     | Added the ``LinkOperands`` parameter                            |
 +---------+-----------------------------------------------------------------+

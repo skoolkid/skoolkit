@@ -48,12 +48,10 @@ GAME = """
 Font=
 Game=
 GameStatusBufferIncludes=
-InputRegisterTableHeader=
 JavaScript=
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 Logo=
 LogoImage=
-OutputRegisterTableHeader=
 StyleSheet=skoolkit.css
 TitlePrefix=The complete
 TitleSuffix=RAM disassembly
@@ -529,25 +527,19 @@ Up: <a class="link" href="{entry[map_url]}">Map</a>
 <td class="registerContents">{register[description]}</td>
 </tr>
 
-[Template:asm_registers_header_input]
-<tr>
-<th colspan="2">{Game[InputRegisterTableHeader]}</th>
-</tr>
-
-[Template:asm_registers_header_output]
-<tr>
-<th colspan="2">{Game[OutputRegisterTableHeader]}</th>
-</tr>
-
 [Template:asm_registers_input]
 <table class="input">
-{o_asm_registers_header_input}
+<tr>
+<th colspan="2">Input</th>
+</tr>
 {m_asm_register}
 </table>
 
 [Template:asm_registers_output]
 <table class="output">
-{o_asm_registers_header_output}
+<tr>
+<th colspan="2">Output</th>
+</tr>
 {m_asm_register}
 </table>
 
