@@ -741,15 +741,6 @@ class HtmlWriter:
         self._set_cwd(fname)
 
         entry_dict = self._get_entry_dict(cwd, entry, map_file)
-        if entry.is_routine():
-            page_header_template = 'asm_header_routine'
-        elif entry.ctl in 'suz':
-            page_header_template = 'asm_header_unused'
-        elif entry.ctl == 'g':
-            page_header_template = 'asm_header_gsb'
-        else:
-            page_header_template = 'asm_header_data'
-        page_header = page_header or self.format_template(page_header_template, {'entry': entry_dict})
 
         if prev_entry:
             t_asm_navigation_prev_subs = {'entry': self._get_entry_dict(cwd, prev_entry, map_file)}
@@ -842,8 +833,7 @@ class HtmlWriter:
             'o_asm_registers_output': output_reg,
             'disassembly': '\n'.join(lines)
         }
-        html = self.format_page('Asm', cwd, subs, header=page_header)
-        self.write_file(fname, html)
+        self.write_file(fname, self.format_page('Asm', cwd, subs))
 
     def write_entries(self, cwd, map_file, page_header=None):
         prev_entry = None
@@ -921,7 +911,7 @@ class HtmlWriter:
             'o_map_page_byte_header': page_byte_headers,
             'm_map_entry': '\n'.join(map_entries)
         }
-        html = self.format_page(map_name, cwd, subs)
+        html = self.format_page(map_name, cwd, subs, default=P_MEMORY_MAP)
         self.write_file(fname, html)
 
     def write_page(self, page_id):
@@ -945,12 +935,12 @@ class HtmlWriter:
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
         return cwd
 
-    def format_page(self, page_id, cwd, subs=None, trim=True, header=None, js=None, default=None):
+    def format_page(self, page_id, cwd, subs=None, trim=True, js=None, default=None):
         all_subs = {
             't_prologue': self.prologue,
             't_html': self.html_tag,
             't_head': self._format_head(cwd, js),
-            't_header': self._format_header(cwd, header or self.titles[page_id]),
+            'home': FileInfo.relpath(cwd, self.paths[P_GAME_INDEX]),
             't_footer': self.footer
         }
         all_subs.update(subs or {})
@@ -983,13 +973,6 @@ class HtmlWriter:
         if logo_image and self.file_exists(logo_image):
             return self.format_img(self.game_name, FileInfo.relpath(cwd, logo_image))
         return self.game_name
-
-    def _format_header(self, cwd, header):
-        t_header_subs = {
-            'href': FileInfo.relpath(cwd, self.paths[P_GAME_INDEX]),
-            'header': header
-        }
-        return self.format_template('header', t_header_subs)
 
     def format_anchor(self, anchor):
         return self.format_template('anchor', {'anchor': anchor})

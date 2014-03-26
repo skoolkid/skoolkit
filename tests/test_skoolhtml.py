@@ -2194,7 +2194,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '24576',
-            'header': 'Routines',
+            'header': '24576',
             'up': 24576,
             'next': 24578,
             'content': content
@@ -2221,7 +2221,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '24578',
-            'header': 'Data',
+            'header': '24578',
             'prev': 24576,
             'up': 24578,
             'next': 24579,
@@ -2249,7 +2249,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '24579',
-            'header': 'Routines',
+            'header': '24579',
             'prev': 24578,
             'up': 24579,
             'next': 24581,
@@ -2277,7 +2277,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '24581',
-            'header': 'Game status buffer',
+            'header': '24581',
             'prev': 24579,
             'up': 24581,
             'next': 24583,
@@ -2305,7 +2305,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '24583',
-            'header': 'Unused',
+            'header': '24583',
             'prev': 24581,
             'up': 24583,
             'next': 24584,
@@ -2346,7 +2346,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '24584',
-            'header': 'Routines',
+            'header': '24584',
             'prev': 24583,
             'up': 24584,
             'content': content
@@ -2396,7 +2396,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             # Address 0
             subs = {
                 'title': '00000',
-                'header': 'Routines',
+                'header': '00000',
                 'up': 0,
                 'next': 2,
                 'content': entry_template.format(address=0)
@@ -2407,7 +2407,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             # Address 2
             subs = {
                 'title': '00002',
-                'header': 'Routines',
+                'header': '00002',
                 'prev': 0,
                 'up': 2,
                 'next': 44,
@@ -2419,7 +2419,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             # Address 44
             subs = {
                 'title': '00044',
-                'header': 'Routines',
+                'header': '00044',
                 'prev': 2,
                 'up': 44,
                 'next': 666,
@@ -2431,7 +2431,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             # Address 666
             subs = {
                 'title': '00666',
-                'header': 'Routines',
+                'header': '00666',
                 'prev': 44,
                 'up': 666,
                 'next': 8888,
@@ -2443,7 +2443,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             # Address 8888
             subs = {
                 'title': '08888',
-                'header': 'Routines',
+                'header': '08888',
                 'prev': 666,
                 'up': 8888,
                 'content': entry_template.format(address=8888)
@@ -2505,7 +2505,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'header': 'Routines',
+            'header': '50000',
             'title': '50000',
             'up': 50000,
             'next': 50005,
@@ -2532,7 +2532,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'header': 'Routines',
+            'header': '50005',
             'title': '50005',
             'prev': 50000,
             'up': 50005,
@@ -2560,7 +2560,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'header': 'Data',
+            'header': '50008',
             'title': '50008',
             'prev': 50005,
             'up': 50008,
@@ -3834,20 +3834,6 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assertEqual(page[1], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[0]))
         self.assertEqual(page[2], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[1]))
 
-    def test_format_page_with_header(self):
-        page_id = 'Custom'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'Path=',
-            '[Template:{0}]',
-            '{{t_header}}'
-        )).format(page_id)
-        writer = self._get_writer(ref=ref)
-        header = 'Main page'
-        cwd = ''
-        page = writer.format_page(page_id, cwd, header=header).split('\n')
-        self.assertEqual(page[3], '<td class="headerText">{}</td>'.format(header))
-
     def test_write_page_no_game_name(self):
         page_id = 'Custom'
         path = 'custom.html'
@@ -3855,15 +3841,13 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Page:{0}]',
             'Path={1}',
             '[Template:{0}]',
-            '{{t_header}}'
+            '{{Game[Logo]}}'
         )).format(page_id, path)
         writer = self._get_writer(ref=ref, skool='')
-        cwd = ''
         writer.write_page(page_id)
-        index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
         game_name = self.skoolfile[:-6]
         page = self.read_file(path, True)
-        self.assertEqual(page[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
+        self.assertEqual(page[0], game_name)
 
     def test_write_page_with_game_name(self):
         game_name = 'Some game'
@@ -3876,13 +3860,12 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Page:{1}]',
             'Path={2}',
             '[Template:{1}]',
-            '{{t_header}}'
+            '{{Game[Logo]}}'
         )).format(game_name, page_id, path)
         writer = self._get_writer(ref=ref)
         writer.write_page(page_id)
-        index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
         page = self.read_file(path, True)
-        self.assertEqual(page[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
+        self.assertEqual(page[0], game_name)
 
     def test_write_page_with_nonexistent_logo_image(self):
         page_id = 'Custom'
@@ -3894,14 +3877,13 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Page:{0}]',
             'Path={1}',
             '[Template:{0}]',
-            '{{t_header}}'
+            '{{Game[Logo]}}'
         )).format(page_id, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page(page_id)
-        index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
         game_name = self.skoolfile[:-6]
         page = self.read_file(path, True)
-        self.assertEqual(page[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, game_name))
+        self.assertEqual(page[0], game_name)
 
     def test_write_page_with_logo_image(self):
         logo_image_fname = 'logo.png'
@@ -3914,16 +3896,15 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Page:{1}]',
             'Path={2}',
             '[Template:{1}]',
-            '{{t_header}}'
+            '{{Game[Logo]}}'
         )).format(logo_image_fname, page_id, path)
         writer = self._get_writer(ref=ref, skool='')
         logo_image = self.write_bin_file(path=join(writer.file_info.odir, logo_image_fname))
         writer.write_page(page_id)
-        index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
         logo = FileInfo.relpath(cwd, logo_image_fname)
         game_name = self.skoolfile[:-6]
         page = self.read_file(path, True)
-        self.assertEqual(page[2], '<td class="headerLogo"><a class="link" href="{}"><img alt="{}" src="{}" /></a></td>'.format(index, game_name, logo))
+        self.assertEqual(page[0], '<img alt="{}" src="{}" />'.format(game_name, logo))
 
     def test_format_page_with_logo(self):
         logo = 'ABC #UDG30000 123'
@@ -3935,15 +3916,14 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Page:{1}]',
             'Path={2}',
             '[Template:{1}]',
-            '{{t_header}}'
+            '{{Game[Logo]}}'
         )).format(logo, page_id, path)
         writer = self._get_writer(ref=ref, skool='')
         cwd = ''
         writer.write_page(page_id)
-        index = FileInfo.relpath(cwd, writer.paths['GameIndex'])
         logo_value = writer.expand(logo, cwd)
         page = self.read_file(path, True)
-        self.assertEqual(page[2], '<td class="headerLogo"><a class="link" href="{}">{}</a></td>'.format(index, logo_value))
+        self.assertEqual(page[0], logo_value)
 
 class UdgTest(SkoolKitTestCase):
     def test_flip(self):

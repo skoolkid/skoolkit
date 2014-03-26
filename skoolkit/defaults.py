@@ -175,7 +175,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="disassembly">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">{entry[address]}</td>
+</tr>
+</table>
 {t_asm_navigation}
 <div class="description">{entry[address]}: {entry[title]}</div>
 <table class="disassembly">
@@ -203,7 +208,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="bugs">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">Bugs</td>
+</tr>
+</table>
 {t_contents_list}
 {m_box}
 {t_footer}
@@ -218,7 +228,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="changelog">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">Changelog</td>
+</tr>
+</table>
 {t_contents_list}
 {m_changelog_entry}
 {t_footer}
@@ -233,7 +248,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="map">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">Data</td>
+</tr>
+</table>
 {o_map_intro}
 <table class="map">
 <tr>
@@ -255,7 +275,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="facts">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">Trivia</td>
+</tr>
+</table>
 {t_contents_list}
 {m_box}
 {t_footer}
@@ -290,7 +315,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="gbuffer">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">Game status buffer</td>
+</tr>
+</table>
 <table class="gbuffer">
 <tr>
 <th>Address</th>
@@ -311,7 +341,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="glossary">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">Glossary</td>
+</tr>
+</table>
 {t_contents_list}
 {m_box}
 {t_footer}
@@ -326,7 +361,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="graphics">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">Graphic glitches</td>
+</tr>
+</table>
 {t_contents_list}
 {m_box}
 {t_footer}
@@ -341,7 +381,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="graphics">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">Graphics</td>
+</tr>
+</table>
 {Graphics}
 {t_footer}
 </body>
@@ -355,7 +400,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="map">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">Memory map</td>
+</tr>
+</table>
 {o_map_intro}
 <table class="map">
 <tr>
@@ -377,7 +427,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="map">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">Messages</td>
+</tr>
+</table>
 {o_map_intro}
 <table class="map">
 <tr>
@@ -399,7 +454,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="{Page[BodyClass]}">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">{Page[Title]}</td>
+</tr>
+</table>
 {PageContent}
 {t_footer}
 </body>
@@ -413,7 +473,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="pokes">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">Pokes</td>
+</tr>
+</table>
 {t_contents_list}
 {m_box}
 {t_footer}
@@ -428,7 +493,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="map">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">Routines</td>
+</tr>
+</table>
 {o_map_intro}
 <table class="map">
 <tr>
@@ -450,7 +520,12 @@ TEMPLATES = """
 {t_head}
 </head>
 <body class="map">
-{t_header}
+<table class="header">
+<tr>
+<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
+<td class="headerText">Unused addresses</td>
+</tr>
+</table>
 {o_map_intro}
 <table class="map">
 <tr>
@@ -476,18 +551,6 @@ TEMPLATES = """
 </div>
 </td>
 </tr>
-
-[Template:asm_header_data]
-Data
-
-[Template:asm_header_gsb]
-Game status buffer
-
-[Template:asm_header_routine]
-Routines
-
-[Template:asm_header_unused]
-Unused
 
 [Template:asm_instruction]
 <tr>
@@ -609,14 +672,6 @@ bytes
 
 [Template:head_stylesheet]
 <link rel="stylesheet" type="text/css" href="{href}" />
-
-[Template:header]
-<table class="header">
-<tr>
-<td class="headerLogo"><a class="link" href="{href}">{Game[Logo]}</a></td>
-<td class="headerText">{header}</td>
-</tr>
-</table>
 
 [Template:html]
 <html xmlns="http://www.w3.org/1999/xhtml">
