@@ -856,40 +856,23 @@ class HtmlWriter:
         fname = self.paths[map_name]
         cwd = self._set_cwd(fname)
 
-        map_entries = []
         map_details = self.memory_maps.get(map_name, {})
-        entry_types = map_details.get('EntryTypes', 'bcgstuwz')
-        show_page_byte = map_details.get('PageByteColumns', '0') != '0'
-        map_dict = {'Intro': self.expand(map_details.get('Intro', ''), cwd)}
+        entry_types = map_details.get('EntryTypes', 'bcgstuw')
+        map_dict = {
+            'Intro': self.expand(map_details.get('Intro', ''), cwd),
+            'PageByteColumns': map_details.get('PageByteColumns', '0')
+        }
 
+        map_entries = []
+        t_map_entry_subs = {'MemoryMap': map_dict}
         for entry in self.memory_map:
-            if entry.ctl not in entry_types:
-                continue
-            entry_dict = self._get_entry_dict(cwd, entry, fname, asm_path)
-            if show_page_byte:
-                page_byte = self.format_template('map_page_byte', {'entry': entry_dict})
-            else:
-                page_byte = ''
-            t_map_entry_subs = {
-                'MemoryMap': map_dict,
-                'entry': entry_dict,
-                'o_map_page_byte': page_byte,
-                't_anchor': self.format_anchor(entry.address),
-            }
-            map_entries.append(self.format_template('map_entry', t_map_entry_subs))
-
-        if map_dict['Intro']:
-            intro = self.format_template('map_intro', {'MemoryMap': map_dict})
-        else:
-            intro = ''
-        page_byte_headers = ''
-        if show_page_byte:
-            page_byte_headers = self.format_template('map_page_byte_header', {'MemoryMap': map_dict})
+            if entry.ctl in entry_types:
+                t_map_entry_subs['entry'] = self._get_entry_dict(cwd, entry, fname, asm_path)
+                t_map_entry_subs['t_anchor'] = self.format_anchor(entry.address)
+                map_entries.append(self.format_template('map_entry', t_map_entry_subs))
 
         subs = {
             'MemoryMap': map_dict,
-            'o_map_intro': intro,
-            'o_map_page_byte_header': page_byte_headers,
             'm_map_entry': '\n'.join(map_entries)
         }
         html = self.format_page(map_name, cwd, subs, default=P_MEMORY_MAP)

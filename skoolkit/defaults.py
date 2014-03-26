@@ -254,10 +254,11 @@ TEMPLATES = """
 <td class="headerText">Data</td>
 </tr>
 </table>
-{o_map_intro}
+<div class="mapIntro">{MemoryMap[Intro]}</div>
 <table class="map">
 <tr>
-{o_map_page_byte_header}
+<th class="map-page-{MemoryMap[PageByteColumns]}">Page</th>
+<th class="map-byte-{MemoryMap[PageByteColumns]}">Byte</th>
 <th>Address</th>
 <th>Description</th>
 </tr>
@@ -406,10 +407,11 @@ TEMPLATES = """
 <td class="headerText">Memory map</td>
 </tr>
 </table>
-{o_map_intro}
+<div class="mapIntro">{MemoryMap[Intro]}</div>
 <table class="map">
 <tr>
-{o_map_page_byte_header}
+<th class="map-page-{MemoryMap[PageByteColumns]}">Page</th>
+<th class="map-byte-{MemoryMap[PageByteColumns]}">Byte</th>
 <th>Address</th>
 <th>Description</th>
 </tr>
@@ -433,10 +435,11 @@ TEMPLATES = """
 <td class="headerText">Messages</td>
 </tr>
 </table>
-{o_map_intro}
+<div class="mapIntro">{MemoryMap[Intro]}</div>
 <table class="map">
 <tr>
-{o_map_page_byte_header}
+<th class="map-page-{MemoryMap[PageByteColumns]}">Page</th>
+<th class="map-byte-{MemoryMap[PageByteColumns]}">Byte</th>
 <th>Address</th>
 <th>Description</th>
 </tr>
@@ -499,10 +502,11 @@ TEMPLATES = """
 <td class="headerText">Routines</td>
 </tr>
 </table>
-{o_map_intro}
+<div class="mapIntro">{MemoryMap[Intro]}</div>
 <table class="map">
 <tr>
-{o_map_page_byte_header}
+<th class="map-page-{MemoryMap[PageByteColumns]}">Page</th>
+<th class="map-byte-{MemoryMap[PageByteColumns]}">Byte</th>
 <th>Address</th>
 <th>Description</th>
 </tr>
@@ -526,10 +530,11 @@ TEMPLATES = """
 <td class="headerText">Unused addresses</td>
 </tr>
 </table>
-{o_map_intro}
+<div class="mapIntro">{MemoryMap[Intro]}</div>
 <table class="map">
 <tr>
-{o_map_page_byte_header}
+<th class="map-page-{MemoryMap[PageByteColumns]}">Page</th>
+<th class="map-byte-{MemoryMap[PageByteColumns]}">Byte</th>
 <th>Address</th>
 <th>Description</th>
 </tr>
@@ -687,21 +692,11 @@ Up: <a class="link" href="{entry[map_url]}">Map</a>
 
 [Template:map_entry]
 <tr>
-{o_map_page_byte}
+<td class="map-page-{MemoryMap[PageByteColumns]}">{entry[page]}</td>
+<td class="map-byte-{MemoryMap[PageByteColumns]}">{entry[byte]}</td>
 <td class="map-{entry[type]}">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
 <td class="map-{entry[type]}-desc">{entry[title]}</td>
 </tr>
-
-[Template:map_intro]
-<div class="mapIntro">{MemoryMap[Intro]}</div>
-
-[Template:map_page_byte]
-<td class="mapPage">{entry[page]}</td>
-<td class="mapByte">{entry[byte]}</td>
-
-[Template:map_page_byte_header]
-<th>Page</th>
-<th>Byte</th>
 
 [Template:paragraph]
 <div class="paragraph">
