@@ -561,10 +561,6 @@ class HtmlWriter:
         desc = ''
         if entry.details:
             desc = self.join_paragraphs(entry.details, cwd)
-        if entry.size == 1:
-            unit_template = 'entry_size_unit'
-        else:
-            unit_template = 'entry_size_unit_plural'
         return {
             'type': entry.ctl,
             'location': entry.address,
@@ -576,7 +572,6 @@ class HtmlWriter:
             'url': FileInfo.asm_relpath(cwd, entry.address, asm_path or self.code_path),
             'map_url': '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address),
             'size': entry.size,
-            'unit': self.format_template(unit_template),
             'title': self.expand(entry.description, cwd)
         }
 
@@ -871,29 +866,15 @@ class HtmlWriter:
             if entry.ctl not in entry_types:
                 continue
             entry_dict = self._get_entry_dict(cwd, entry, fname, asm_path)
-            if entry.ctl == 'c':
-                entry_template = 'map_entry_routine'
-            elif entry.ctl in 'bw':
-                entry_template = 'map_entry_data'
-            elif entry.ctl in 'g':
-                entry_template = 'map_entry_gsb'
-            elif entry.ctl in 'suz':
-                entry_template = 'map_entry_unused'
-            elif entry.ctl == 't':
-                entry_template = 'map_entry_message'
-            entry_template_subs = {
-                'MemoryMap': map_dict,
-                'entry': entry_dict,
-                't_anchor': self.format_anchor(entry.address)
-            }
-            page_byte = ''
             if show_page_byte:
                 page_byte = self.format_template('map_page_byte', {'entry': entry_dict})
+            else:
+                page_byte = ''
             t_map_entry_subs = {
                 'MemoryMap': map_dict,
+                'entry': entry_dict,
                 'o_map_page_byte': page_byte,
-                'map_entry': self.format_template(entry_template, entry_template_subs),
-                'entry': entry_dict
+                't_anchor': self.format_anchor(entry.address),
             }
             map_entries.append(self.format_template('map_entry', t_map_entry_subs))
 

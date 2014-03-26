@@ -160,23 +160,23 @@ table.gbuffer td, table.map td {
 div.mapIntro {
   margin-bottom: 10px;
 }
-td.mapPage, td.mapByte, td.routine, td.data, td.gbuffer, td.message, td.unused {
+td.mapPage, td.mapByte, td.map-b, td.map-c, td.map-g, td.map-s, td.map-t, td.map-u, td.map-w {
   text-align: center;
 }
-td.routineDesc {
+td.map-c-desc {
   color: #800080;
 }
-td.dataDesc {
+td.map-b-desc, td.map-w-desc {
   color: #008000;
 }
-td.gbufferDesc {
+td.map-g-desc {
   color: #800000;
 }
-td.messageDesc {
+td.map-t-desc {
   color: #555555;
   font-family: monospace;
 }
-td.unusedDesc {
+td.map-s-desc, td.map-w-desc {
   color: #000000;
 }
 td.gbufAddress, td.gbufLength {

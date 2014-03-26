@@ -2578,7 +2578,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'b30001 DEFB 1,2',
             '',
             '; Words',
-            'b30003 DEFW 257,65534',
+            'w30003 DEFW 257,65534',
             '',
             '; GSB entry',
             'g30007 DEFB 0',
@@ -2587,10 +2587,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'u30008 DEFB 0',
             '',
             '; Zeroes',
-            's30009 DEFS 6',
-            '',
-            '; More zeroes',
-            'z30015 DEFS 3',
+            's30009 DEFS 9',
             '',
             '; Text',
             't30018 DEFM "Hi"'
@@ -2614,50 +2611,44 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="mapPage">117</td>
             <td class="mapByte">48</td>
-            <td class="routine"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
-            <td class="routineDesc">Routine</td>
+            <td class="map-c"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
+            <td class="map-c-desc">Routine</td>
             </tr>
             <tr>
             <td class="mapPage">117</td>
             <td class="mapByte">49</td>
-            <td class="data"><a name="30001"></a><a class="link" href="../asm/30001.html">30001</a></td>
-            <td class="dataDesc">Bytes</td>
+            <td class="map-b"><a name="30001"></a><a class="link" href="../asm/30001.html">30001</a></td>
+            <td class="map-b-desc">Bytes</td>
             </tr>
             <tr>
             <td class="mapPage">117</td>
             <td class="mapByte">51</td>
-            <td class="data"><a name="30003"></a><a class="link" href="../asm/30003.html">30003</a></td>
-            <td class="dataDesc">Words</td>
+            <td class="map-w"><a name="30003"></a><a class="link" href="../asm/30003.html">30003</a></td>
+            <td class="map-w-desc">Words</td>
             </tr>
             <tr>
             <td class="mapPage">117</td>
             <td class="mapByte">55</td>
-            <td class="gbuffer"><a name="30007"></a><a class="link" href="../asm/30007.html">30007</a></td>
-            <td class="gbufferDesc">GSB entry</td>
+            <td class="map-g"><a name="30007"></a><a class="link" href="../asm/30007.html">30007</a></td>
+            <td class="map-g-desc">GSB entry</td>
             </tr>
             <tr>
             <td class="mapPage">117</td>
             <td class="mapByte">56</td>
-            <td class="unused"><a name="30008"></a><a class="link" href="../asm/30008.html">30008</a></td>
-            <td class="unusedDesc">Unused (1 byte)</td>
+            <td class="map-u"><a name="30008"></a><a class="link" href="../asm/30008.html">30008</a></td>
+            <td class="map-u-desc">Unused</td>
             </tr>
             <tr>
             <td class="mapPage">117</td>
             <td class="mapByte">57</td>
-            <td class="unused"><a name="30009"></a><a class="link" href="../asm/30009.html">30009</a></td>
-            <td class="unusedDesc">Unused (6 bytes)</td>
-            </tr>
-            <tr>
-            <td class="mapPage">117</td>
-            <td class="mapByte">63</td>
-            <td class="unused"><a name="30015"></a><a class="link" href="../asm/30015.html">30015</a></td>
-            <td class="unusedDesc">Unused (3 bytes)</td>
+            <td class="map-s"><a name="30009"></a><a class="link" href="../asm/30009.html">30009</a></td>
+            <td class="map-s-desc">Zeroes</td>
             </tr>
             <tr>
             <td class="mapPage">117</td>
             <td class="mapByte">66</td>
-            <td class="message"><a name="30018"></a><a class="link" href="../asm/30018.html">30018</a></td>
-            <td class="messageDesc">Text</td>
+            <td class="map-t"><a name="30018"></a><a class="link" href="../asm/30018.html">30018</a></td>
+            <td class="map-t-desc">Text</td>
             </tr>
             </table>
         """
@@ -2677,8 +2668,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             <th>Description</th>
             </tr>
             <tr>
-            <td class="routine"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
-            <td class="routineDesc">Routine</td>
+            <td class="map-c"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
+            <td class="map-c-desc">Routine</td>
             </tr>
             </table>
         """
@@ -2702,14 +2693,14 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="mapPage">117</td>
             <td class="mapByte">49</td>
-            <td class="data"><a name="30001"></a><a class="link" href="../asm/30001.html">30001</a></td>
-            <td class="dataDesc">Bytes</td>
+            <td class="map-b"><a name="30001"></a><a class="link" href="../asm/30001.html">30001</a></td>
+            <td class="map-b-desc">Bytes</td>
             </tr>
             <tr>
             <td class="mapPage">117</td>
             <td class="mapByte">51</td>
-            <td class="data"><a name="30003"></a><a class="link" href="../asm/30003.html">30003</a></td>
-            <td class="dataDesc">Words</td>
+            <td class="map-w"><a name="30003"></a><a class="link" href="../asm/30003.html">30003</a></td>
+            <td class="map-w-desc">Words</td>
             </tr>
             </table>
         """
@@ -2729,8 +2720,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             <th>Description</th>
             </tr>
             <tr>
-            <td class="message"><a name="30018"></a><a class="link" href="../asm/30018.html">30018</a></td>
-            <td class="messageDesc">Text</td>
+            <td class="map-t"><a name="30018"></a><a class="link" href="../asm/30018.html">30018</a></td>
+            <td class="map-t-desc">Text</td>
             </tr>
             </table>
         """
@@ -2754,20 +2745,14 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="mapPage">117</td>
             <td class="mapByte">56</td>
-            <td class="unused"><a name="30008"></a><a class="link" href="../asm/30008.html">30008</a></td>
-            <td class="unusedDesc">Unused (1 byte)</td>
+            <td class="map-u"><a name="30008"></a><a class="link" href="../asm/30008.html">30008</a></td>
+            <td class="map-u-desc">Unused</td>
             </tr>
             <tr>
             <td class="mapPage">117</td>
             <td class="mapByte">57</td>
-            <td class="unused"><a name="30009"></a><a class="link" href="../asm/30009.html">30009</a></td>
-            <td class="unusedDesc">Unused (6 bytes)</td>
-            </tr>
-            <tr>
-            <td class="mapPage">117</td>
-            <td class="mapByte">63</td>
-            <td class="unused"><a name="30015"></a><a class="link" href="../asm/30015.html">30015</a></td>
-            <td class="unusedDesc">Unused (3 bytes)</td>
+            <td class="map-s"><a name="30009"></a><a class="link" href="../asm/30009.html">30009</a></td>
+            <td class="map-s-desc">Zeroes</td>
             </tr>
             </table>
         """
@@ -2859,8 +2844,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="mapPage">128</td>
             <td class="mapByte">0</td>
-            <td class="routine"><a name="32768"></a><a class="link" href="../asm/32768.html">32768</a></td>
-            <td class="routineDesc">Code</td>
+            <td class="map-c"><a name="32768"></a><a class="link" href="../asm/32768.html">32768</a></td>
+            <td class="map-c-desc">Code</td>
             </tr>
             </table>
         """.format(intro)
@@ -2901,8 +2886,8 @@ class HtmlWriterTest(SkoolKitTestCase):
                 '<tr>',
                 '<td class="mapPage">{}</td>'.format(address // 256),
                 '<td class="mapByte">{}</td>'.format(address % 256),
-                '<td class="routine"><a name="{0}"></a><a class="link" href="../asm/{0}.html">{0:05d}</a></td>'.format(address),
-                '<td class="routineDesc"></td>',
+                '<td class="map-c"><a name="{0}"></a><a class="link" href="../asm/{0}.html">{0:05d}</a></td>'.format(address),
+                '<td class="map-c-desc"></td>',
                 '</tr>\n'
             ))
         exp_content += '</table>\n'

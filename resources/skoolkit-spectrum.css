@@ -72,16 +72,16 @@ table.map th {
 table.map td {
   background-color: #00ffff;
 }
-td.routineDesc {
+td.map-c-desc {
   color: #c500c5;
 }
-td.dataDesc {
+td.map-b-desc, td.map-w-desc {
   color: #00c600;
 }
-td.gbufferDesc {
+td.map-g-desc {
   color: #c50000;
 }
-td.messageDesc {
+td.map-t-desc {
   color: #0000c5;
   font-family: spectrum;
 }

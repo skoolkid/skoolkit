@@ -637,12 +637,6 @@ Up: <a class="link" href="{entry[map_url]}">Map</a>
 [Template:contents_list_item]
 <li><a class="link" href="{item[url]}">{item[title]}</a></li>
 
-[Template:entry_size_unit]
-byte
-
-[Template:entry_size_unit_plural]
-bytes
-
 [Template:footer]
 <div class="footer">
 <div class="release">{Info[Release]}</div>
@@ -694,28 +688,9 @@ bytes
 [Template:map_entry]
 <tr>
 {o_map_page_byte}
-{map_entry}
+<td class="map-{entry[type]}">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
+<td class="map-{entry[type]}-desc">{entry[title]}</td>
 </tr>
-
-[Template:map_entry_data]
-<td class="data">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
-<td class="dataDesc">{entry[title]}</td>
-
-[Template:map_entry_gsb]
-<td class="gbuffer">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
-<td class="gbufferDesc">{entry[title]}</td>
-
-[Template:map_entry_message]
-<td class="message">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
-<td class="messageDesc">{entry[title]}</td>
-
-[Template:map_entry_routine]
-<td class="routine">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
-<td class="routineDesc">{entry[title]}</td>
-
-[Template:map_entry_unused]
-<td class="unused">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
-<td class="unusedDesc">Unused ({entry[size]} {entry[unit]})</td>
 
 [Template:map_intro]
 <div class="mapIntro">{MemoryMap[Intro]}</div>

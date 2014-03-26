@@ -47,19 +47,19 @@ table.gbuffer th, table.map th {
 table.gbuffer td, table.map td {
   background-color: #442200;
 }
-td.routineDesc {
+td.map-c-desc {
   color: #7fff7f;
 }
-td.dataDesc {
+td.map-b-desc, td.map-w-desc {
   color: #ff7fff;
 }
-td.gbufferDesc {
+td.map-g-desc {
   color: #7fffff;
 }
-td.messageDesc {
+td.map-t-desc {
   color: #aaaaaa;
 }
-td.unusedDesc {
+td.map-s-desc, td.map-u-desc {
   color: #ffffff;
 }
 table.gglitch td {
