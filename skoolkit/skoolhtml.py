@@ -847,11 +847,7 @@ class HtmlWriter:
                 'o_anchor': anchor,
                 'o_asm_instruction_comment': comment_cell
             })
-            if instruction.ctl in 'c*!':
-                instruction_template = 'asm_instruction_labelled'
-            else:
-                instruction_template = 'asm_instruction'
-            lines.append(self.format_template(instruction_template, instruction_subs))
+            lines.append(self.format_template('asm_instruction', instruction_subs))
 
         if entry.end_comment:
             lines.append(self.format_entry_comment(cwd, entry_dict, entry.end_comment))

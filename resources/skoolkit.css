@@ -128,15 +128,15 @@ td.register {
   width: 20px;
   text-align: center;
 }
-td.asmLabel, td.label, td.address, td.instruction {
+td.asmLabel, td.address, td.instruction {
   font-family: monospace;
   vertical-align: top;
   padding-right: 10px;
 }
-td.asmLabel, td.label, td.address {
+td.asmLabel, td.address {
   color: #ff0000;
 }
-td.asmLabel, td.label {
+td.asmLabel {
   font-weight: bold;
 }
 td.instruction {

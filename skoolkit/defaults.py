@@ -411,14 +411,6 @@ Unused
 [Template:asm_instruction_label]
 <td class="asmLabel">{instruction[label]}</td>
 
-[Template:asm_instruction_labelled]
-<tr>
-{o_asm_instruction_label}
-<td class="label">{o_anchor}{instruction[address]}</td>
-<td class="instruction">{instruction[operation]}</td>
-{o_asm_instruction_comment}
-</tr>
-
 [Template:asm_navigation]
 <table class="prevNext">
 <tr>
