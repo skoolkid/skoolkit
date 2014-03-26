@@ -179,7 +179,18 @@ TEMPLATES = """
 {t_header}
 {t_asm_navigation}
 <div class="description">{asm_entry_title}</div>
-{t_asm}
+<table class="disassembly">
+<tr>
+<td class="routineComment" colspan="4">
+<div class="details">
+{entry[description]}
+</div>
+{o_asm_registers_input}
+{o_asm_registers_output}
+</td>
+</tr>
+{disassembly}
+</table>
 {t_asm_navigation}
 {t_footer}
 </body>
@@ -357,20 +368,6 @@ TEMPLATES = """
 
 [Template:anchor]
 <a name="{anchor}"></a>
-
-[Template:asm]
-<table class="disassembly">
-<tr>
-<td class="routineComment" colspan="4">
-<div class="details">
-{entry[description]}
-</div>
-{o_asm_registers_input}
-{o_asm_registers_output}
-</td>
-</tr>
-{disassembly}
-</table>
 
 [Template:asm_comment]
 <tr>

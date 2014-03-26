@@ -856,17 +856,13 @@ class HtmlWriter:
         if entry.end_comment:
             lines.append(self.format_entry_comment(cwd, entry_dict, entry.end_comment))
 
-        t_asm_subs = {
-            'entry': entry_dict,
-            'o_asm_registers_input': input_reg,
-            'o_asm_registers_output': output_reg,
-            'disassembly': '\n'.join(lines)
-        }
         subs = {
             'entry': entry_dict,
             'asm_entry_title': entry_title,
             't_asm_navigation': asm_navigation,
-            't_asm': self.format_template('asm', t_asm_subs)
+            'o_asm_registers_input': input_reg,
+            'o_asm_registers_output': output_reg,
+            'disassembly': '\n'.join(lines)
         }
         html = self.format_page('Asm', cwd, subs, title=title, header=page_header)
         self.write_file(fname, html)
