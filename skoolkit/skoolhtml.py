@@ -749,10 +749,6 @@ class HtmlWriter:
         self._set_cwd(fname)
 
         entry_dict = self._get_entry_dict(cwd, entry, map_file)
-        entry_title_template = 'asm_entry_title'
-        template_suffix = ''
-        if entry_dict['label']:
-            template_suffix = '_labelled'
         if entry.is_routine():
             page_header_template = 'asm_header_routine'
         elif entry.ctl in 'suz':
@@ -762,7 +758,6 @@ class HtmlWriter:
         else:
             page_header_template = 'asm_header_data'
         page_header = page_header or self.format_template(page_header_template, {'entry': entry_dict})
-        entry_title = self.format_template(entry_title_template + template_suffix, {'entry': entry_dict})
 
         if prev_entry:
             t_asm_navigation_prev_subs = {'entry': self._get_entry_dict(cwd, prev_entry, map_file)}
@@ -850,7 +845,6 @@ class HtmlWriter:
 
         subs = {
             'entry': entry_dict,
-            'asm_entry_title': entry_title,
             't_asm_navigation': asm_navigation,
             'o_asm_registers_input': input_reg,
             'o_asm_registers_output': output_reg,

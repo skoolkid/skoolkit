@@ -2470,7 +2470,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # Routine at 50000
         content = """
-            <div class="description">START: 50000: Routine with a label</div>
+            <div class="description">50000: Routine with a label</div>
             <table class="disassembly">
             <tr>
             <td class="routineComment" colspan="4">

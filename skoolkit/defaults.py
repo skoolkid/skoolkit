@@ -179,7 +179,7 @@ TEMPLATES = """
 <body class="disassembly">
 {t_header}
 {t_asm_navigation}
-<div class="description">{asm_entry_title}</div>
+<div class="description">{entry[address]}: {entry[title]}</div>
 <table class="disassembly">
 <tr>
 <td class="routineComment" colspan="4">
@@ -478,12 +478,6 @@ TEMPLATES = """
 </div>
 </td>
 </tr>
-
-[Template:asm_entry_title]
-{entry[address]}: {entry[title]}
-
-[Template:asm_entry_title_labelled]
-{entry[label]}: {entry[address]}: {entry[title]}
 
 [Template:asm_header_data]
 Data
