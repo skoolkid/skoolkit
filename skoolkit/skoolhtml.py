@@ -566,6 +566,7 @@ class HtmlWriter:
             'page': entry.address // 256,
             'byte': entry.address % 256,
             'label': self.parser.get_asm_label(entry.address),
+            'has_labels': int(any([instruction.asm_label for instruction in entry.instructions])),
             'description': self.join_paragraphs(entry.details, cwd),
             'url': FileInfo.asm_relpath(cwd, entry.address, self.code_path),
             'map_url': '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address),
@@ -756,7 +757,6 @@ class HtmlWriter:
 
         input_reg, output_reg = self.format_registers(cwd, entry.registers, entry_dict)
 
-        has_asm_labels = any([instruction.asm_label for instruction in entry.instructions])
         lines = []
         for instruction in entry.instructions:
             mid_routine_comments = entry.get_mid_routine_comment(instruction.label)
@@ -805,15 +805,8 @@ class HtmlWriter:
                 comment_cell = self.format_template('asm_instruction_comment', instruction_subs)
             else:
                 comment_cell = ''
-            if has_asm_labels:
-                label_cell = self.format_template('asm_instruction_label', instruction_subs)
-            else:
-                label_cell = ''
-            instruction_subs.update({
-                'o_asm_instruction_label': label_cell,
-                'o_anchor': anchor,
-                'o_asm_instruction_comment': comment_cell
-            })
+            instruction_subs['o_anchor'] = anchor
+            instruction_subs['o_asm_instruction_comment'] = comment_cell
             lines.append(self.format_template('asm_instruction', instruction_subs))
 
         if entry.end_comment:

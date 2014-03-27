@@ -56,7 +56,7 @@ table.input th, table.output th {
 td.register {
   color: #00c600;
 }
-td.asmLabel, td.address, td.instruction {
+td.asm-label-1, td.address, td.instruction {
   font-weight: normal;
   font-family: spectrum;
 }

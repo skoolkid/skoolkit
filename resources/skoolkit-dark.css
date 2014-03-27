@@ -32,7 +32,7 @@ table.input th, table.output th {
 span.register, td.register {
   color: #ff7fff;
 }
-td.asmLabel, td.address {
+td.asm-label-1, td.address {
   color: #00ffff;
 }
 td.instruction {

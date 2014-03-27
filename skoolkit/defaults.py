@@ -559,7 +559,7 @@ TEMPLATES = """
 
 [Template:asm_instruction]
 <tr>
-{o_asm_instruction_label}
+<td class="asm-label-{entry[has_labels]}">{instruction[label]}</td>
 <td class="address">{o_anchor}{instruction[address]}</td>
 <td class="instruction">{instruction[operation]}</td>
 {o_asm_instruction_comment}
@@ -567,9 +567,6 @@ TEMPLATES = """
 
 [Template:asm_instruction_comment]
 <td class="comment" rowspan="{instruction[comment_rowspan]}">{instruction[comment]}</td>
-
-[Template:asm_instruction_label]
-<td class="asmLabel">{instruction[label]}</td>
 
 [Template:asm_navigation]
 <table class="prevNext">
