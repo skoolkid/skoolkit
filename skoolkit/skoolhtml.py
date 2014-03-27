@@ -115,6 +115,7 @@ class HtmlWriter:
         self.snapshot = self.parser.snapshot
         self._snapshots = [(self.snapshot, '')]
         self.entries = self.parser.entries
+        self.entry_dicts = {}
         self.memory_map = [e for e in self.parser.memory_map if e.ctl != 'i']
 
         self.table_parser = TableParser()
@@ -557,23 +558,20 @@ class HtmlWriter:
         html = self.format_page(P_GAME_INDEX, cwd, subs)
         self.write_file(index_fname, html)
 
-    def _get_entry_dict(self, cwd, entry, map_file, asm_path=None):
-        desc = ''
-        if entry.details:
-            desc = self.join_paragraphs(entry.details, cwd)
-        return {
+    def _get_entry_dict(self, cwd, entry, map_file):
+        return self.entry_dicts.setdefault((cwd, entry.address, map_file), {
             'type': entry.ctl,
             'location': entry.address,
             'address': entry.addr_str,
             'page': entry.address // 256,
             'byte': entry.address % 256,
             'label': self.parser.get_asm_label(entry.address),
-            'description': desc,
-            'url': FileInfo.asm_relpath(cwd, entry.address, asm_path or self.code_path),
+            'description': self.join_paragraphs(entry.details, cwd),
+            'url': FileInfo.asm_relpath(cwd, entry.address, self.code_path),
             'map_url': '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address),
             'size': entry.size,
             'title': self.expand(entry.description, cwd)
-        }
+        })
 
     def write_gbuffer(self):
         fname = self.paths[P_GSB]
@@ -852,7 +850,7 @@ class HtmlWriter:
             return True
         return any(entry.ctl in entry_types for entry in self.memory_map)
 
-    def write_map(self, map_name, asm_path=None):
+    def write_map(self, map_name):
         fname = self.paths[map_name]
         cwd = self._set_cwd(fname)
 
@@ -867,7 +865,7 @@ class HtmlWriter:
         t_map_entry_subs = {'MemoryMap': map_dict}
         for entry in self.memory_map:
             if entry.ctl in entry_types:
-                t_map_entry_subs['entry'] = self._get_entry_dict(cwd, entry, fname, asm_path)
+                t_map_entry_subs['entry'] = self._get_entry_dict(cwd, entry, fname)
                 t_map_entry_subs['t_anchor'] = self.format_anchor(entry.address)
                 map_entries.append(self.format_template('map_entry', t_map_entry_subs))
 
