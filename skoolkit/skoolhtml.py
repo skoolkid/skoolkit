@@ -751,6 +751,7 @@ class HtmlWriter:
         input_reg, output_reg = self.format_registers(cwd, entry.registers, entry_dict)
 
         lines = []
+        instruction_subs = {'entry': entry_dict}
         for instruction in entry.instructions:
             mid_routine_comments = entry.get_mid_routine_comment(instruction.label)
             address = instruction.address
@@ -780,26 +781,20 @@ class HtmlWriter:
             if comment:
                 comment_rowspan = comment.rowspan
                 comment_text = self.expand(comment.text, cwd)
+                annotated = 1
             else:
                 comment_rowspan = 1
                 comment_text = ''
-            instruction_dict = {
+                annotated = 0
+            instruction_subs['instruction'] = {
                 'address': instruction.addr_str,
                 'label': instruction.asm_label or '',
                 'operation': operation,
                 'comment': comment_text,
-                'comment_rowspan': comment_rowspan
+                'comment_rowspan': comment_rowspan,
+                'annotated': annotated
             }
-            instruction_subs = {
-                'entry': entry_dict,
-                'instruction': instruction_dict
-            }
-            if comment:
-                comment_cell = self.format_template('asm_instruction_comment', instruction_subs)
-            else:
-                comment_cell = ''
             instruction_subs['o_anchor'] = anchor
-            instruction_subs['o_asm_instruction_comment'] = comment_cell
             lines.append(self.format_template('asm_instruction', instruction_subs))
 
         if entry.end_comment:

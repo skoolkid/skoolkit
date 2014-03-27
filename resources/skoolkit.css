@@ -143,7 +143,7 @@ td.instruction {
   color: #008000;
   white-space: pre;
 }
-td.comment {
+td.comment-1 {
   background-color: #ccddee;
   vertical-align: top;
   width: 100%;
@@ -160,7 +160,7 @@ table.gbuffer td, table.map td {
 div.mapIntro {
   margin-bottom: 10px;
 }
-table.input-0, table.output-0, th.map-page-0, th.map-byte-0, td.map-page-0, td.map-byte-0, td.asm-label-0, span.prev-0, span.next-0 {
+table.input-0, table.output-0, th.map-page-0, th.map-byte-0, td.map-page-0, td.map-byte-0, td.asm-label-0, td.comment-0, span.prev-0, span.next-0 {
   display: none;
 }
 td.map-page-1, td.map-byte-1, td.map-b, td.map-c, td.map-g, td.map-s, td.map-t, td.map-u, td.map-w {

@@ -63,7 +63,7 @@ td.asm-label-1, td.address, td.instruction {
 td.instruction {
   color: #00c600;
 }
-td.comment {
+td.comment-1 {
   background-color: #00ffff;
 }
 table.map th {
