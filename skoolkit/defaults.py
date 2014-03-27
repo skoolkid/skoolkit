@@ -224,7 +224,9 @@ TEMPLATES = """
 <td class="headerText">Bugs</td>
 </tr>
 </table>
-{t_contents_list}
+<ul class="linkList">
+{m_contents_list_item}
+</ul>
 {m_box}
 {t_footer}
 </body>
@@ -244,7 +246,9 @@ TEMPLATES = """
 <td class="headerText">Changelog</td>
 </tr>
 </table>
-{t_contents_list}
+<ul class="linkList">
+{m_contents_list_item}
+</ul>
 {m_changelog_entry}
 {t_footer}
 </body>
@@ -292,7 +296,9 @@ TEMPLATES = """
 <td class="headerText">Trivia</td>
 </tr>
 </table>
-{t_contents_list}
+<ul class="linkList">
+{m_contents_list_item}
+</ul>
 {m_box}
 {t_footer}
 </body>
@@ -358,7 +364,9 @@ TEMPLATES = """
 <td class="headerText">Glossary</td>
 </tr>
 </table>
-{t_contents_list}
+<ul class="linkList">
+{m_contents_list_item}
+</ul>
 {m_box}
 {t_footer}
 </body>
@@ -378,7 +386,9 @@ TEMPLATES = """
 <td class="headerText">Graphic glitches</td>
 </tr>
 </table>
-{t_contents_list}
+<ul class="linkList">
+{m_contents_list_item}
+</ul>
 {m_box}
 {t_footer}
 </body>
@@ -492,7 +502,9 @@ TEMPLATES = """
 <td class="headerText">Pokes</td>
 </tr>
 </table>
-{t_contents_list}
+<ul class="linkList">
+{m_contents_list_item}
+</ul>
 {m_box}
 {t_footer}
 </body>
@@ -617,11 +629,6 @@ TEMPLATES = """
 [Template:changelog_item_list]
 <ul class="changelog{indent}">
 {m_changelog_item}
-</ul>
-
-[Template:contents_list]
-<ul class="linkList">
-{m_contents_list_item}
 </ul>
 
 [Template:contents_list_item]

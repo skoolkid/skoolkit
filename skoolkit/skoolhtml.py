@@ -594,13 +594,12 @@ class HtmlWriter:
         html = self.format_page(P_GSB, cwd, {'m_gsb_entry': '\n'.join(gsb_entries)})
         self.write_file(fname, html)
 
-    def format_contents_list(self, link_list):
+    def _format_contents_list_items(self, link_list):
         items = []
         for anchor, title in link_list:
             item = {'url': '#' + anchor, 'title': title}
             items.append(self.format_template('contents_list_item', {'item': item}))
-        t_contents_list_subs = {'m_contents_list_item': '\n'.join(items)}
-        return self.format_template('contents_list', t_contents_list_subs)
+        return '\n'.join(items)
 
     def _write_box_page(self, page_id, boxes):
         fname = self.paths[page_id]
@@ -615,7 +614,7 @@ class HtmlWriter:
             }
             boxes_html.append(self.format_template('box', t_box_subs))
         subs = {
-            't_contents_list': self.format_contents_list([(anchor, title) for anchor, title, p in boxes]),
+            'm_contents_list_item': self._format_contents_list_items([(anchor, title) for anchor, title, p in boxes]),
             'm_box': '\n'.join(boxes_html),
         }
         html = self.format_page(page_id, cwd, subs)
@@ -688,7 +687,7 @@ class HtmlWriter:
             entries.append(self.format_template('changelog_entry', t_changelog_entry_subs))
 
         subs = {
-            't_contents_list': self.format_contents_list(contents),
+            'm_contents_list_item': self._format_contents_list_items(contents),
             'm_changelog_entry': '\n'.join(entries),
         }
         html = self.format_page(P_CHANGELOG, cwd, subs)
