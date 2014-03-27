@@ -564,13 +564,13 @@ class HtmlWriter:
         entry = self.memory_map[index]
         return self.entry_dicts.setdefault((cwd, entry.address, map_file), {
             'exists': 1,
+            'labels': int(any([instruction.asm_label for instruction in entry.instructions])),
             'type': entry.ctl,
             'location': entry.address,
             'address': entry.addr_str,
             'page': entry.address // 256,
             'byte': entry.address % 256,
             'label': self.parser.get_asm_label(entry.address),
-            'has_labels': int(any([instruction.asm_label for instruction in entry.instructions])),
             'description': self.join_paragraphs(entry.details, cwd),
             'url': FileInfo.asm_relpath(cwd, entry.address, self.code_path),
             'map_url': '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address),
@@ -706,25 +706,17 @@ class HtmlWriter:
             else:
                 input_values.append(reg)
 
-        tables = []
+        reg_lists = []
+        reg_dict = {'entry': entry_dict}
         for reg_type, registers in (('input', input_values), ('output', output_values)):
-            if registers:
-                registers_html = []
-                for reg in registers:
-                    reg_dict = {
-                        'entry': entry_dict,
-                        'name': reg.name,
-                        'description': self.expand(reg.contents, cwd)
-                    }
-                    registers_html.append(self.format_template('asm_register', {'register': reg_dict}))
-                template_subs = {
-                    'entry': entry_dict,
-                    'm_asm_register': '\n'.join(registers_html)
-                }
-                tables.append(self.format_template('asm_registers_{}'.format(reg_type), template_subs))
-            else:
-                tables.append('')
-        return tables
+            registers_html = []
+            entry_dict[reg_type] = min(len(registers), 1)
+            for reg in registers:
+                reg_dict['name'] = reg.name
+                reg_dict['description'] = self.expand(reg.contents, cwd)
+                registers_html.append(self.format_template('asm_register_{}'.format(reg_type), {'register': reg_dict}))
+            reg_lists.append('\n'.join(registers_html))
+        return reg_lists
 
     def format_entry_comment(self, cwd, entry_dict, paragraphs, anchor=''):
         t_asm_comment_subs = {
@@ -816,8 +808,8 @@ class HtmlWriter:
         subs = {
             'entry': entry_dict,
             't_asm_navigation': asm_navigation,
-            'o_asm_registers_input': input_reg,
-            'o_asm_registers_output': output_reg,
+            'm_asm_register_input': input_reg,
+            'm_asm_register_output': output_reg,
             'disassembly': '\n'.join(lines)
         }
         self.write_file(fname, self.format_page('Asm', cwd, subs))

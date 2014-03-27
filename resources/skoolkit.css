@@ -114,13 +114,13 @@ div.comments {
   margin-top: 10px;
   margin-bottom: 10px;
 }
-table.input, table.output {
+table.input-1, table.output-1 {
   margin-bottom: 10px;
 }
-table.input td, table.output td {
+table.input-1 td, table.output-1 td {
   background-color: #c0c0c0;
 }
-table.input th, table.output th {
+table.input-1 th, table.output-1 th {
   background-color: #a0a0a0;
 }
 td.register {
@@ -160,7 +160,7 @@ table.gbuffer td, table.map td {
 div.mapIntro {
   margin-bottom: 10px;
 }
-th.map-page-0, th.map-byte-0, td.map-page-0, td.map-byte-0, td.asm-label-0, span.prev-0, span.next-0 {
+table.input-0, table.output-0, th.map-page-0, th.map-byte-0, td.map-page-0, td.map-byte-0, td.asm-label-0, span.prev-0, span.next-0 {
   display: none;
 }
 td.map-page-1, td.map-byte-1, td.map-b, td.map-c, td.map-g, td.map-s, td.map-t, td.map-u, td.map-w {

@@ -23,10 +23,10 @@ table table.default td, table.default td {
 table.prevNext td {
   background-color: #66334c;
 }
-table.input td, table.output td {
+table.input-1 td, table.output-1 td {
   background-color: #5e5e5e;
 }
-table.input th, table.output th {
+table.input-1 th, table.output-1 th {
   background-color: #8e8e8e;
 }
 span.register, td.register {

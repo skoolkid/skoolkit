@@ -189,8 +189,18 @@ TEMPLATES = """
 <div class="details">
 {entry[description]}
 </div>
-{o_asm_registers_input}
-{o_asm_registers_output}
+<table class="input-{entry[input]}">
+<tr>
+<th colspan="2">Input</th>
+</tr>
+{m_asm_register_input}
+</table>
+<table class="output-{entry[output]}">
+<tr>
+<th colspan="2">Output</th>
+</tr>
+{m_asm_register_output}
+</table>
 </td>
 </tr>
 {disassembly}
@@ -559,7 +569,7 @@ TEMPLATES = """
 
 [Template:asm_instruction]
 <tr>
-<td class="asm-label-{entry[has_labels]}">{instruction[label]}</td>
+<td class="asm-label-{entry[labels]}">{instruction[label]}</td>
 <td class="address">{o_anchor}{instruction[address]}</td>
 <td class="instruction">{instruction[operation]}</td>
 {o_asm_instruction_comment}
@@ -577,27 +587,17 @@ TEMPLATES = """
 </tr>
 </table>
 
-[Template:asm_register]
+[Template:asm_register_input]
 <tr>
 <td class="register">{register[name]}</td>
 <td class="registerContents">{register[description]}</td>
 </tr>
 
-[Template:asm_registers_input]
-<table class="input">
+[Template:asm_register_output]
 <tr>
-<th colspan="2">Input</th>
+<td class="register">{register[name]}</td>
+<td class="registerContents">{register[description]}</td>
 </tr>
-{m_asm_register}
-</table>
-
-[Template:asm_registers_output]
-<table class="output">
-<tr>
-<th colspan="2">Output</th>
-</tr>
-{m_asm_register}
-</table>
 
 [Template:box]
 <div>{t_anchor}</div>

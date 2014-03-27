@@ -47,10 +47,10 @@ table.disassembly {
 div.description {
   font-weight: normal;
 }
-table.input td, table.output td {
+table.input-1 td, table.output-1 td {
   background-color: #ffff00;
 }
-table.input th, table.output th {
+table.input-1 th, table.output-1 th {
   background-color: #c5c600;
 }
 td.register {

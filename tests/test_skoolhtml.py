@@ -1791,7 +1791,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             writer.write_asm_entries()
             html = self.read_file(join(ASMDIR, '32769.html'), True)
             link = '<a class="link" href="32768.html">32768</a>'
-            line_no = 35
+            line_no = 45
             for prefix in ('CALL ', 'DEFW ', 'DJNZ ', 'JP ', 'JR ', 'LD HL,'):
                 inst_type = prefix.split()[0]
                 exp_html = prefix + (link if inst_type in link_operands else '32768')
@@ -2146,7 +2146,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             Description of routine at 24576.
             </div>
             </div>
-            <table class="input">
+            <table class="input-1">
             <tr>
             <th colspan="2">Input</th>
             </tr>
@@ -2157,6 +2157,11 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="register">B</td>
             <td class="registerContents">Some other value</td>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr>
+            <th colspan="2">Output</th>
             </tr>
             </table>
             </td>
@@ -2212,6 +2217,16 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="routineComment" colspan="4">
             <div class="details">
             </div>
+            <table class="input-0">
+            <tr>
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr>
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
             </td>
             </tr>
             <tr>
@@ -2241,6 +2256,16 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="routineComment" colspan="4">
             <div class="details">
             </div>
+            <table class="input-0">
+            <tr>
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr>
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
             </td>
             </tr>
             <tr>
@@ -2270,6 +2295,16 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="routineComment" colspan="4">
             <div class="details">
             </div>
+            <table class="input-0">
+            <tr>
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr>
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
             </td>
             </tr>
             <tr>
@@ -2299,6 +2334,16 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="routineComment" colspan="4">
             <div class="details">
             </div>
+            <table class="input-0">
+            <tr>
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr>
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
             </td>
             </tr>
             <tr>
@@ -2328,13 +2373,18 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="routineComment" colspan="4">
             <div class="details">
             </div>
-            <table class="input">
+            <table class="input-1">
             <tr>
             <th colspan="2">Input</th>
             </tr>
             <tr>
             <td class="register">A</td>
             <td class="registerContents">0</td>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr>
+            <th colspan="2">Output</th>
             </tr>
             </table>
             </td>
@@ -2381,6 +2431,16 @@ class HtmlWriterTest(SkoolKitTestCase):
             '<td class="routineComment" colspan="4">',
             '<div class="details">',
             '</div>',
+            '<table class="input-0">',
+            '<tr>',
+            '<th colspan="2">Input</th>',
+            '</tr>',
+            '</table>',
+            '<table class="output-0">',
+            '<tr>',
+            '<th colspan="2">Output</th>',
+            '</tr>',
+            '</table>',
             '</td>',
             '</tr>',
             '<tr>',
@@ -2491,6 +2551,16 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="routineComment" colspan="4">
             <div class="details">
             </div>
+            <table class="input-0">
+            <tr>
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr>
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
             </td>
             </tr>
             <tr>
@@ -2531,6 +2601,16 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="routineComment" colspan="4">
             <div class="details">
             </div>
+            <table class="input-0">
+            <tr>
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr>
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
             </td>
             </tr>
             <tr>
@@ -2560,6 +2640,16 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="routineComment" colspan="4">
             <div class="details">
             </div>
+            <table class="input-0">
+            <tr>
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr>
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
             </td>
             </tr>
             <tr>
@@ -3604,10 +3694,6 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_format_registers(self):
         writer = self._get_writer()
         exp_html = """
-            <table class="input">
-            <tr>
-            <th colspan="2">Input</th>
-            </tr>
             <tr>
             <td class="register">A</td>
             <td class="registerContents">Some value</td>
@@ -3616,21 +3702,16 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="register">B</td>
             <td class="registerContents">Some other value</td>
             </tr>
-            </table>
         """
         registers = []
         registers.append(Register('', 'A', 'Some value'))
         registers.append(Register('', 'B', 'Some other value'))
-        html = '\n'.join(writer.format_registers(ASMDIR, registers, None))
+        html = '\n'.join(writer.format_registers(ASMDIR, registers, {}))
         self.assert_html_equal(html, exp_html, trim=True)
 
     def test_format_registers_with_prefixes(self):
         writer = self._get_writer()
         exp_html = """
-            <table class="input">
-            <tr>
-            <th colspan="2">Input</th>
-            </tr>
             <tr>
             <td class="register">A</td>
             <td class="registerContents">Some value</td>
@@ -3638,11 +3719,6 @@ class HtmlWriterTest(SkoolKitTestCase):
             <tr>
             <td class="register">B</td>
             <td class="registerContents">Some other value</td>
-            </tr>
-            </table>
-            <table class="output">
-            <tr>
-            <th colspan="2">Output</th>
             </tr>
             <tr>
             <td class="register">D</td>
@@ -3652,14 +3728,13 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="register">E</td>
             <td class="registerContents">Result flags</td>
             </tr>
-            </table>
         """
         registers = []
         registers.append(Register('Input', 'A', 'Some value'))
         registers.append(Register('', 'B', 'Some other value'))
         registers.append(Register('Output', 'D', 'The result'))
         registers.append(Register('', 'E', 'Result flags'))
-        html = '\n'.join(writer.format_registers(ASMDIR, registers, None))
+        html = '\n'.join(writer.format_registers(ASMDIR, registers, {}))
         self.assert_html_equal(html, exp_html, trim=True)
 
     def test_write_image(self):
