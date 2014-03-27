@@ -25,6 +25,7 @@ import posixpath
 import os.path
 from os.path import isfile, isdir, basename
 import inspect
+from collections import defaultdict
 try:
     from StringIO import StringIO
 except ImportError:
@@ -116,6 +117,7 @@ class HtmlWriter:
         self._snapshots = [(self.snapshot, '')]
         self.entries = self.parser.entries
         self.entry_dicts = {}
+        self.nonexistent_entry_dict = defaultdict(lambda: '', exists=0)
         self.memory_map = [e for e in self.parser.memory_map if e.ctl != 'i']
 
         self.table_parser = TableParser()
@@ -558,8 +560,10 @@ class HtmlWriter:
         html = self.format_page(P_GAME_INDEX, cwd, subs)
         self.write_file(index_fname, html)
 
-    def _get_entry_dict(self, cwd, entry, map_file):
+    def _get_entry_dict(self, cwd, index, map_file):
+        entry = self.memory_map[index]
         return self.entry_dicts.setdefault((cwd, entry.address, map_file), {
+            'exists': 1,
             'type': entry.ctl,
             'location': entry.address,
             'address': entry.addr_str,
@@ -579,12 +583,12 @@ class HtmlWriter:
         cwd = self._set_cwd(fname)
         gsb_includes = [parse_int(a) for a in self.game_vars['GameStatusBufferIncludes'].split(',')]
         gsb_entries = []
-        for entry in self.memory_map:
+        for index, entry in enumerate(self.memory_map):
             if not (entry.ctl == 'g' or entry.address in gsb_includes):
                 continue
             t_gsb_entry_subs = {
                 't_anchor': self.format_anchor(entry.address),
-                'entry': self._get_entry_dict(cwd, entry, fname)
+                'entry': self._get_entry_dict(cwd, index, fname)
             }
             gsb_entries.append(self.format_template('gsb_entry', t_gsb_entry_subs))
         html = self.format_page(P_GSB, cwd, {'m_gsb_entry': '\n'.join(gsb_entries)})
@@ -730,28 +734,25 @@ class HtmlWriter:
         }
         return self.format_template('asm_comment', t_asm_comment_subs)
 
-    def write_entry(self, cwd, entry, map_file, fname=None, page_header=None, prev_entry=None, next_entry=None):
+    def write_entry(self, cwd, index, map_file, fname=None, page_header=None):
+        entry = self.memory_map[index]
         fname = join(cwd, fname or FileInfo.asm_fname(entry.address))
         self._set_cwd(fname)
 
-        entry_dict = self._get_entry_dict(cwd, entry, map_file)
+        entry_dict = self._get_entry_dict(cwd, index, map_file)
 
-        if prev_entry:
-            t_asm_navigation_prev_subs = {'entry': self._get_entry_dict(cwd, prev_entry, map_file)}
-            prev_html = self.format_template('asm_navigation_prev', t_asm_navigation_prev_subs)
+        if index:
+            prev_entry_dict = self._get_entry_dict(cwd, index - 1, map_file)
         else:
-            prev_html = ''
-        up_html = self.format_template('asm_navigation_up', {'entry': entry_dict})
-        if next_entry:
-            t_asm_navigation_next_subs = {'entry': self._get_entry_dict(cwd, next_entry, map_file)}
-            next_html = self.format_template('asm_navigation_next', t_asm_navigation_next_subs)
+            prev_entry_dict = self.nonexistent_entry_dict
+        if index + 1 < len(self.memory_map):
+            next_entry_dict = self._get_entry_dict(cwd, index + 1, map_file)
         else:
-            next_html = ''
+            next_entry_dict = self.nonexistent_entry_dict
         t_asm_navigation_subs = {
+            'prev_entry': prev_entry_dict,
             'entry': entry_dict,
-            'o_asm_navigation_prev': prev_html,
-            't_asm_navigation_up': up_html,
-            'o_asm_navigation_next': next_html
+            'next_entry': next_entry_dict
         }
         asm_navigation = self.format_template('asm_navigation', t_asm_navigation_subs)
 
@@ -825,12 +826,7 @@ class HtmlWriter:
         prev_entry = None
         memory_map = self.memory_map
         for i, entry in enumerate(memory_map):
-            if i + 1 < len(memory_map):
-                next_entry = memory_map[i + 1]
-            else:
-                next_entry = None
-            self.write_entry(cwd, entry, map_file, page_header=page_header, prev_entry=prev_entry, next_entry=next_entry)
-            prev_entry = entry
+            self.write_entry(cwd, i, map_file, page_header=page_header)
 
     def write_asm_entries(self):
         self.write_entries(self.code_path, self.paths[P_MEMORY_MAP])
@@ -856,9 +852,9 @@ class HtmlWriter:
 
         map_entries = []
         t_map_entry_subs = {'MemoryMap': map_dict}
-        for entry in self.memory_map:
+        for index, entry in enumerate(self.memory_map):
             if entry.ctl in entry_types:
-                t_map_entry_subs['entry'] = self._get_entry_dict(cwd, entry, fname)
+                t_map_entry_subs['entry'] = self._get_entry_dict(cwd, index, fname)
                 t_map_entry_subs['t_anchor'] = self.format_anchor(entry.address)
                 map_entries.append(self.format_template('map_entry', t_map_entry_subs))
 

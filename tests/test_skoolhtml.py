@@ -141,13 +141,13 @@ class HtmlWriterTest(SkoolKitTestCase):
         footer = subs.get('footer', BARE_FOOTER)
         prev_up_next_lines = []
         if 'up' in subs:
-            subs['prev_link'] = ''
+            subs['prev_link'] = '<span class="prev-0">Prev: <a class="link" href=""></a></span>'
             subs['up_link'] = 'Up: <a class="link" href="{path}maps/all.html#{up}">Map</a>'.format(**subs)
-            subs['next_link'] = ''
+            subs['next_link'] = '<span class="next-0">Next: <a class="link" href=""></a></span>'
             if 'prev' in subs:
-                subs['prev_link'] = 'Prev: <a class="link" href="{0}.html">{0:05d}</a>'.format(subs['prev'])
+                subs['prev_link'] = '<span class="prev-1">Prev: <a class="link" href="{0}.html">{0:05d}</a></span>'.format(subs['prev'])
             if 'next' in subs:
-                subs['next_link'] = 'Next: <a class="link" href="{0}.html">{0:05d}</a>'.format(subs['next'])
+                subs['next_link'] = '<span class="next-1">Next: <a class="link" href="{0}.html">{0:05d}</a></span>'.format(subs['next'])
             prev_up_next = PREV_UP_NEXT.format(**subs)
             prev_up_next_lines = prev_up_next.split('\n')
         header_template = INDEX_HEADER if index else HEADER
@@ -1803,7 +1803,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         skool = 't24576 DEFM "<&>" ; a <= b & b >= c'
         writer = self._get_writer(skool=skool)
         fname = 'test.html'
-        writer.write_entry(ASMDIR, writer.entries[24576], writer.paths['MemoryMap'], fname)
+        writer.write_entry(ASMDIR, 0, writer.paths['MemoryMap'], fname)
         html = self.read_file(join(ASMDIR, fname))
         self.assertTrue('DEFM "&lt;&amp;&gt;"' in html)
         self.assertTrue('a &lt;= b &amp; b &gt;= c' in html)

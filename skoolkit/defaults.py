@@ -571,20 +571,11 @@ TEMPLATES = """
 [Template:asm_navigation]
 <table class="prevNext">
 <tr>
-<td class="prev">{o_asm_navigation_prev}</td>
-<td class="up">{t_asm_navigation_up}</td>
-<td class="next">{o_asm_navigation_next}</td>
+<td class="prev"><span class="prev-{prev_entry[exists]}">Prev: <a class="link" href="{prev_entry[url]}">{prev_entry[address]}</a></span></td>
+<td class="up">Up: <a class="link" href="{entry[map_url]}">Map</a></td>
+<td class="next"><span class="next-{next_entry[exists]}">Next: <a class="link" href="{next_entry[url]}">{next_entry[address]}</a></span></td>
 </tr>
 </table>
-
-[Template:asm_navigation_next]
-Next: <a class="link" href="{entry[url]}">{entry[address]}</a>
-
-[Template:asm_navigation_prev]
-Prev: <a class="link" href="{entry[url]}">{entry[address]}</a>
-
-[Template:asm_navigation_up]
-Up: <a class="link" href="{entry[map_url]}">Map</a>
 
 [Template:asm_register]
 <tr>
