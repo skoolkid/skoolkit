@@ -238,28 +238,6 @@ TEMPLATES = """
 </body>
 </html>
 
-[Template:Bugs]
-{t_prologue}
-{t_html}
-<head>
-<title>{Titles[*]}</title>
-{t_head}
-</head>
-<body class="bugs">
-<table class="header">
-<tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
-</tr>
-</table>
-<ul class="linkList">
-{m_contents_list_item}
-</ul>
-{m_box}
-{t_footer}
-</body>
-</html>
-
 [Template:Changelog]
 {t_prologue}
 {t_html}
@@ -278,28 +256,6 @@ TEMPLATES = """
 {m_contents_list_item}
 </ul>
 {m_changelog_entry}
-{t_footer}
-</body>
-</html>
-
-[Template:Facts]
-{t_prologue}
-{t_html}
-<head>
-<title>{Titles[*]}</title>
-{t_head}
-</head>
-<body class="facts">
-<table class="header">
-<tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
-</tr>
-</table>
-<ul class="linkList">
-{m_contents_list_item}
-</ul>
-{m_box}
 {t_footer}
 </body>
 </html>
@@ -346,50 +302,6 @@ TEMPLATES = """
 </tr>
 {m_gsb_entry}
 </table>
-{t_footer}
-</body>
-</html>
-
-[Template:Glossary]
-{t_prologue}
-{t_html}
-<head>
-<title>{Titles[*]}</title>
-{t_head}
-</head>
-<body class="glossary">
-<table class="header">
-<tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
-</tr>
-</table>
-<ul class="linkList">
-{m_contents_list_item}
-</ul>
-{m_box}
-{t_footer}
-</body>
-</html>
-
-[Template:GraphicGlitches]
-{t_prologue}
-{t_html}
-<head>
-<title>{Titles[*]}</title>
-{t_head}
-</head>
-<body class="graphics">
-<table class="header">
-<tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
-</tr>
-</table>
-<ul class="linkList">
-{m_contents_list_item}
-</ul>
-{m_box}
 {t_footer}
 </body>
 </html>
@@ -460,14 +372,14 @@ TEMPLATES = """
 </body>
 </html>
 
-[Template:Pokes]
+[Template:Reference]
 {t_prologue}
 {t_html}
 <head>
 <title>{Titles[*]}</title>
 {t_head}
 </head>
-<body class="pokes">
+<body class="reference">
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>

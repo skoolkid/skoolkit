@@ -3201,7 +3201,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Glossary',
             'path': '../',
-            'body_class': 'glossary',
+            'body_class': 'reference',
             'content': content
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'glossary.html'), subs)
@@ -3323,7 +3323,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Bugs',
             'path': '../',
-            'body_class': 'bugs',
+            'body_class': 'reference',
             'content': content
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'bugs.html'), subs)
@@ -3380,7 +3380,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Trivia',
             'path': '../',
-            'body_class': 'facts',
+            'body_class': 'reference',
             'content': content
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'facts.html'), subs)
@@ -3418,7 +3418,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Pokes',
             'path': '../',
-            'body_class': 'pokes',
+            'body_class': 'reference',
             'content': html
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'pokes.html'), subs)
@@ -3456,7 +3456,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Graphic glitches',
             'path': '../',
-            'body_class': 'graphics',
+            'body_class': 'reference',
             'content': content
         }
         self.assert_files_equal(join(GRAPHICS_DIR, 'glitches.html'), subs)

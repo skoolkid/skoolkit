@@ -635,7 +635,7 @@ class HtmlWriter:
             'm_contents_list_item': self._format_contents_list_items([(anchor, title) for anchor, title, p in boxes]),
             'm_box': '\n'.join(boxes_html),
         }
-        html = self.format_page(page_id, cwd, subs)
+        html = self.format_page(page_id, cwd, subs, default='Reference')
         self.write_file(fname, html)
 
     def write_pokes(self):
