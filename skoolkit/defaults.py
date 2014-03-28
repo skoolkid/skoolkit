@@ -282,34 +282,6 @@ TEMPLATES = """
 </body>
 </html>
 
-[Template:DataMap]
-{t_prologue}
-{t_html}
-<head>
-<title>{Titles[*]}</title>
-{t_head}
-</head>
-<body class="map">
-<table class="header">
-<tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
-</tr>
-</table>
-<div class="mapIntro">{MemoryMap[Intro]}</div>
-<table class="map">
-<tr>
-<th class="map-page-{MemoryMap[PageByteColumns]}">Page</th>
-<th class="map-byte-{MemoryMap[PageByteColumns]}">Byte</th>
-<th>Address</th>
-<th>Description</th>
-</tr>
-{m_map_entry}
-</table>
-{t_footer}
-</body>
-</html>
-
 [Template:Facts]
 {t_prologue}
 {t_html}
@@ -469,34 +441,6 @@ TEMPLATES = """
 </body>
 </html>
 
-[Template:MessagesMap]
-{t_prologue}
-{t_html}
-<head>
-<title>{Titles[*]}</title>
-{t_head}
-</head>
-<body class="map">
-<table class="header">
-<tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
-</tr>
-</table>
-<div class="mapIntro">{MemoryMap[Intro]}</div>
-<table class="map">
-<tr>
-<th class="map-page-{MemoryMap[PageByteColumns]}">Page</th>
-<th class="map-byte-{MemoryMap[PageByteColumns]}">Byte</th>
-<th>Address</th>
-<th>Description</th>
-</tr>
-{m_map_entry}
-</table>
-{t_footer}
-</body>
-</html>
-
 [Template:Page]
 {t_prologue}
 {t_html}
@@ -534,62 +478,6 @@ TEMPLATES = """
 {m_contents_list_item}
 </ul>
 {m_box}
-{t_footer}
-</body>
-</html>
-
-[Template:RoutinesMap]
-{t_prologue}
-{t_html}
-<head>
-<title>{Titles[*]}</title>
-{t_head}
-</head>
-<body class="map">
-<table class="header">
-<tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
-</tr>
-</table>
-<div class="mapIntro">{MemoryMap[Intro]}</div>
-<table class="map">
-<tr>
-<th class="map-page-{MemoryMap[PageByteColumns]}">Page</th>
-<th class="map-byte-{MemoryMap[PageByteColumns]}">Byte</th>
-<th>Address</th>
-<th>Description</th>
-</tr>
-{m_map_entry}
-</table>
-{t_footer}
-</body>
-</html>
-
-[Template:UnusedMap]
-{t_prologue}
-{t_html}
-<head>
-<title>{Titles[*]}</title>
-{t_head}
-</head>
-<body class="map">
-<table class="header">
-<tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
-</tr>
-</table>
-<div class="mapIntro">{MemoryMap[Intro]}</div>
-<table class="map">
-<tr>
-<th class="map-page-{MemoryMap[PageByteColumns]}">Page</th>
-<th class="map-byte-{MemoryMap[PageByteColumns]}">Byte</th>
-<th>Address</th>
-<th>Description</th>
-</tr>
-{m_map_entry}
-</table>
 {t_footer}
 </body>
 </html>
