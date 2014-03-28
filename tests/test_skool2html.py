@@ -697,7 +697,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self._test_option_w('-w', 'o', 'write_map', [('_other_index',)])
 
     def test_option_w_o_entries(self):
-        self._test_option_w('--write', 'o', 'write_entries', [('other', 'other.html', 'Other code')])
+        self._test_option_w('--write', 'o', 'write_entries', [('other', 'other.html')])
 
     def test_option_w_i(self):
         self._test_option_w('-w', 'i', 'write_index')

@@ -295,7 +295,7 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_c
             map_path = paths[map_name]
             asm_path = code['Path']
             clock(html_writer2.write_map, '    Writing {}'.format(normpath(game_dir, map_path)), map_name)
-            clock(html_writer2.write_entries, '    Writing disassembly files in {}'.format(normpath(game_dir, asm_path)), asm_path, map_path, code['Header'])
+            clock(html_writer2.write_entries, '    Writing disassembly files in {}'.format(normpath(game_dir, asm_path)), asm_path, map_path)
 
     # Write index.html
     if 'i' in files:

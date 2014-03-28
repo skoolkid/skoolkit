@@ -127,6 +127,7 @@ class HtmlWriter:
         self.paths = self.get_dictionary('Paths')
         self.titles = self.get_dictionary('Titles')
         links = self.get_dictionary('Links')
+
         self.page_ids = []
         self.pages = {}
         for page_id, details in self.get_dictionaries('Page'):
@@ -142,19 +143,19 @@ class HtmlWriter:
                 path = page['Path']
             self.paths[page_id] = path
             page.setdefault('BodyClass', '')
-            page.setdefault('Title', page_id)
-            page.setdefault('Link', page['Title'])
-            self.titles[page_id] = page['Title']
-            links[page_id] = page['Link']
-        for page_id in links:
-            links[page_id] = links[page_id] or self.titles.get(page_id, page_id)
-        self.links = self._parse_links(links)
+            self.titles.setdefault(page_id, page_id)
+            links.setdefault(page_id, page_id)
 
         self.other_code = self.get_dictionaries('OtherCode')
         for c_id, code in self.other_code:
-            page_id = code.setdefault('IndexPageId', '_{}_index'.format(c_id))
-            self.paths[page_id] = code['Index']
-            self.titles[page_id] = code['Title']
+            index_page_id = code.setdefault('IndexPageId', '_{}_index'.format(c_id))
+            self.paths[index_page_id] = code['Index']
+            self.titles.setdefault(index_page_id, index_page_id)
+            links.setdefault(index_page_id, index_page_id)
+            for entry_type in 'bcgstuw':
+                asm_page_id = 'Asm-{}-{}'.format(c_id, entry_type)
+                default_asm_page_id = 'Asm-' + entry_type
+                self.titles.setdefault(asm_page_id, self.titles[default_asm_page_id])
 
         self.memory_map_names = []
         self.memory_maps = {}
@@ -165,7 +166,11 @@ class HtmlWriter:
                 self.memory_map_names.append(map_name)
                 self.paths.setdefault(map_name, 'maps/{}.html'.format(map_name))
                 self.titles.setdefault(map_name, map_name)
+                links.setdefault(map_name, map_name)
 
+        self.links = self._parse_links(links)
+
+        self.code_id = code_id
         self.code_path = self.get_code_path(code_id)
         self.game_vars = self.get_dictionary('Game')
         if not self.game_vars['Game']:
@@ -233,6 +238,8 @@ class HtmlWriter:
 
     def format_template(self, template_name, subs=None, trim=False, default=None):
         template = self.templates.get(template_name, self.templates.get(default))
+        if template_name in self.titles:
+            template = template.replace('{Titles[*]}', self.titles[template_name])
         t_subs = subs or {}
         t_subs.update(self.template_subs)
         html = template.format(**t_subs)
@@ -534,7 +541,8 @@ class HtmlWriter:
             fname = code['Index']
             if self.file_exists(fname):
                 link_file = FileInfo.relpath(cwd, fname)
-                other_code_links.append((link_file, code.get('Link', code['Title']), ''))
+                link_text = self.links[code['IndexPageId']]
+                other_code_links.append((link_file, link_text[0], link_text[1]))
         sections['OtherCode'] = ('Other code', other_code_links)
 
         sections_html = []
@@ -725,9 +733,9 @@ class HtmlWriter:
         }
         return self.format_template('asm_comment', t_asm_comment_subs)
 
-    def write_entry(self, cwd, index, map_file, fname=None, page_header=None):
+    def write_entry(self, cwd, index, map_file):
         entry = self.memory_map[index]
-        fname = join(cwd, fname or FileInfo.asm_fname(entry.address))
+        fname = join(cwd, FileInfo.asm_fname(entry.address))
         self._set_cwd(fname)
 
         entry_dict = self._get_entry_dict(cwd, index, map_file)
@@ -806,13 +814,16 @@ class HtmlWriter:
             'm_asm_register_output': output_reg,
             'disassembly': '\n'.join(lines)
         }
-        self.write_file(fname, self.format_page('Asm', cwd, subs))
+        if self.code_id == MAIN_CODE_ID:
+            asm_id = ''
+        else:
+            asm_id = '-' + self.code_id
+        page_id = 'Asm{}-{}'.format(asm_id, entry.ctl)
+        self.write_file(fname, self.format_page(page_id, cwd, subs, default='Asm'))
 
-    def write_entries(self, cwd, map_file, page_header=None):
-        prev_entry = None
-        memory_map = self.memory_map
-        for i, entry in enumerate(memory_map):
-            self.write_entry(cwd, i, map_file, page_header=page_header)
+    def write_entries(self, cwd, map_file):
+        for i, entry in enumerate(self.memory_map):
+            self.write_entry(cwd, i, map_file)
 
     def write_asm_entries(self):
         self.write_entries(self.code_path, self.paths[P_MEMORY_MAP])

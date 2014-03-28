@@ -109,19 +109,20 @@ Release=
 
 LINKS = """
 [Links]
-Bugs=
-Changelog=
-DataMap=
-Facts=
-GameStatusBuffer=
-Glossary=
-GraphicGlitches=
-Graphics=
+Bugs=Bugs
+Changelog=Changelog
+DataMap=Data
+Facts=Trivia
+GameIndex=Index
+GameStatusBuffer=Game status buffer
+Glossary=Glossary
+GraphicGlitches=Graphic glitches
+Graphics=Graphics
 MemoryMap=Everything
-MessagesMap=
-Pokes=
-RoutinesMap=
-UnusedMap=
+MessagesMap=Messages
+Pokes=Pokes
+RoutinesMap=Routines
+UnusedMap=Unused addresses
 """
 
 MEMORY_MAPS = """
@@ -173,7 +174,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {entry[address]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="disassembly">
@@ -216,7 +217,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Titles[Bugs]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="bugs">
@@ -238,7 +239,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Titles[Changelog]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="changelog">
@@ -260,7 +261,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Titles[DataMap]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="map">
@@ -288,7 +289,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Titles[Facts]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="facts">
@@ -310,7 +311,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Titles[GameIndex]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="main">
@@ -330,7 +331,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Titles[GameStatusBuffer]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="gbuffer">
@@ -356,7 +357,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Titles[Glossary]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="glossary">
@@ -378,7 +379,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Titles[GraphicGlitches]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="graphics">
@@ -400,7 +401,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Titles[Graphics]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="graphics">
@@ -419,7 +420,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Titles[MemoryMap]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="map">
@@ -447,7 +448,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Titles[MessagesMap]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="map">
@@ -475,14 +476,14 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Page[Title]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="{Page[BodyClass]}">
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{Page[Title]}</td>
+<td class="headerText">{Titles[*]}</td>
 </tr>
 </table>
 {PageContent}
@@ -494,7 +495,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Titles[Pokes]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="pokes">
@@ -516,7 +517,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Titles[RoutinesMap]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="map">
@@ -544,7 +545,7 @@ TEMPLATES = """
 {t_prologue}
 {t_html}
 <head>
-<title>{Game[Game]}: {Titles[UnusedMap]}</title>
+<title>{Titles[*]}</title>
 {t_head}
 </head>
 <body class="map">
@@ -709,20 +710,27 @@ TEMPLATES = """
 
 TITLES = """
 [Titles]
-Bugs=Bugs
-Changelog=Changelog
-DataMap=Data
-Facts=Trivia
-GameIndex=Index
-GameStatusBuffer=Game status buffer
-Glossary=Glossary
-GraphicGlitches=Graphic glitches
-Graphics=Graphics
-MemoryMap=Memory map
-MessagesMap=Messages
-Pokes=Pokes
-RoutinesMap=Routines
-UnusedMap=Unused addresses
+Asm-b={Game[Game]}: Data at {entry[address]}
+Asm-c={Game[Game]}: Routine at {entry[address]}
+Asm-g={Game[Game]}: Game status buffer entry at {entry[address]}
+Asm-s={Game[Game]}: Unused RAM at {entry[address]}
+Asm-t={Game[Game]}: Data at {entry[address]}
+Asm-u={Game[Game]}: Unused RAM at {entry[address]}
+Asm-w={Game[Game]}: Data at {entry[address]}
+Bugs={Game[Game]}: Bugs
+Changelog={Game[Game]}: Changelog
+DataMap={Game[Game]}: Data
+Facts={Game[Game]}: Trivia
+GameIndex={Game[Game]}: Index
+GameStatusBuffer={Game[Game]}: Game status buffer
+Glossary={Game[Game]}: Glossary
+GraphicGlitches={Game[Game]}: Graphic glitches
+Graphics={Game[Game]}: Graphics
+MemoryMap={Game[Game]}: Memory map
+MessagesMap={Game[Game]}: Messages
+Pokes={Game[Game]}: Pokes
+RoutinesMap={Game[Game]}: Routines
+UnusedMap={Game[Game]}: Unused addresses
 """
 
 REF_FILE = """
