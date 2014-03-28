@@ -144,6 +144,31 @@ EntryTypes=suz
 PageByteColumns=1
 """
 
+PAGE_HEADERS = """
+[PageHeaders]
+Asm-b=Data
+Asm-c=Routines
+Asm-g=Game status buffer
+Asm-s=Unused
+Asm-t=Data
+Asm-u=Unused
+Asm-w=Data
+Bugs=Bugs
+Changelog=Changelog
+DataMap=Data
+Facts=Trivia
+GameIndex=Index
+GameStatusBuffer=Game status buffer
+Glossary=Glossary
+GraphicGlitches=Graphic glitches
+Graphics=Graphics
+MemoryMap=Memory map
+MessagesMap=Messages
+Pokes=Pokes
+RoutinesMap=Routines
+UnusedMap=Unused addresses
+"""
+
 PATHS = """
 [Paths]
 CodePath=asm
@@ -181,7 +206,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{entry[address]}</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 {t_asm_navigation}
@@ -224,7 +249,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">Bugs</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 <ul class="linkList">
@@ -246,7 +271,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">Changelog</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 <ul class="linkList">
@@ -268,7 +293,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">Data</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 <div class="mapIntro">{MemoryMap[Intro]}</div>
@@ -296,7 +321,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">Trivia</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 <ul class="linkList">
@@ -338,7 +363,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">Game status buffer</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 <table class="gbuffer">
@@ -364,7 +389,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">Glossary</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 <ul class="linkList">
@@ -386,7 +411,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">Graphic glitches</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 <ul class="linkList">
@@ -408,7 +433,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">Graphics</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 {Graphics}
@@ -427,7 +452,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">Memory map</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 <div class="mapIntro">{MemoryMap[Intro]}</div>
@@ -455,7 +480,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">Messages</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 <div class="mapIntro">{MemoryMap[Intro]}</div>
@@ -483,7 +508,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{Titles[*]}</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 {PageContent}
@@ -502,7 +527,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">Pokes</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 <ul class="linkList">
@@ -524,7 +549,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">Routines</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 <div class="mapIntro">{MemoryMap[Intro]}</div>
@@ -552,7 +577,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">Unused addresses</td>
+<td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
 <div class="mapIntro">{MemoryMap[Intro]}</div>
@@ -742,6 +767,7 @@ REF_FILE = """
 {INFO}
 {LINKS}
 {MEMORY_MAPS}
+{PAGE_HEADERS}
 {PATHS}
 {TEMPLATES}
 {TITLES}

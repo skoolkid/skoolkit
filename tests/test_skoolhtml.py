@@ -1072,8 +1072,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[OtherCode:other]',
             'Source=other.skool',
             'Path=other',
-            'Index=other.html',
-            'Header=Other code'
+            'Index=other.html'
         ))
         skool = '\n'.join((
             'c49152 LD DE,0',
@@ -1115,8 +1114,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[OtherCode:other]',
             'Source=other.skool',
             'Path=other',
-            'Index=other.html',
-            'Header=Other code'
+            'Index=other.html'
         ))
         skool = '\n'.join((
             'c32768 LD A,B',
@@ -1152,8 +1150,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[OtherCode:other]',
             'Source=other.skool',
             'Path=other',
-            'Index=other.html',
-            'Header=Other code'
+            'Index=other.html'
         ))
         skool = '\n'.join((
             'c32768 LD A,B',
@@ -1189,8 +1186,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[OtherCode:Other]',
             'Source=other.skool',
             'Path=other',
-            'Index=other.html',
-            'Header=Other code'
+            'Index=other.html'
         ))
         skool = '\n'.join((
             'c40970 LD A,B',
@@ -1226,8 +1222,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[OtherCode:other]',
             'Source=other.skool',
             'Path=other',
-            'Index=other.html',
-            'Header=Other code'
+            'Index=other.html'
         ))
         skool = '\n'.join((
             'c$a00a LD A,B',
@@ -1891,14 +1886,12 @@ class HtmlWriterTest(SkoolKitTestCase):
         # Other code
         ref = '\n'.join((
             '[OtherCode:otherCode]',
-            'Header=Startup',
             'Index=other/other.html',
             'IndexPageId=OtherCode',
             'Path=other',
             'Source=other.skool',
             '',
             '[OtherCode:otherCode2]',
-            'Header=Loading code',
             'Index=load/index.html',
             'IndexPageId=OtherCode2',
             'Path=load',
@@ -2084,7 +2077,6 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_write_asm_entries(self):
         ref = '\n'.join((
             '[OtherCode:start]',
-            'Header=Startup code',
             'Index=start/index.html',
             'Path=start',
             'Source=start.skool'
@@ -2199,7 +2191,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '{}: Routine at 24576'.format(name),
-            'header': '24576',
+            'header': 'Routines',
             'up': 24576,
             'next': 24578,
             'content': content
@@ -2237,7 +2229,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '{}: Data at 24578'.format(name),
-            'header': '24578',
+            'header': 'Data',
             'prev': 24576,
             'up': 24578,
             'next': 24579,
@@ -2276,7 +2268,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '{}: Routine at 24579'.format(name),
-            'header': '24579',
+            'header': 'Routines',
             'prev': 24578,
             'up': 24579,
             'next': 24581,
@@ -2315,7 +2307,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '{}: Game status buffer entry at 24581'.format(name),
-            'header': '24581',
+            'header': 'Game status buffer',
             'prev': 24579,
             'up': 24581,
             'next': 24583,
@@ -2354,7 +2346,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '{}: Unused RAM at 24583'.format(name),
-            'header': '24583',
+            'header': 'Unused',
             'prev': 24581,
             'up': 24583,
             'next': 24584,
@@ -2403,7 +2395,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '{}: Routine at 24584'.format(name),
-            'header': '24584',
+            'header': 'Routines',
             'prev': 24583,
             'up': 24584,
             'content': content
@@ -2453,7 +2445,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         ))
         common_subs = {
             'path': '../',
-            'body_class': 'disassembly'
+            'body_class': 'disassembly',
+            'header': 'Routines'
         }
 
         for base in (None, BASE_10):
@@ -2465,7 +2458,6 @@ class HtmlWriterTest(SkoolKitTestCase):
             # Address 0
             subs = {
                 'title': '{}: Routine at 00000'.format(name),
-                'header': '00000',
                 'up': 0,
                 'next': 2,
                 'content': entry_template.format(address=0)
@@ -2476,7 +2468,6 @@ class HtmlWriterTest(SkoolKitTestCase):
             # Address 2
             subs = {
                 'title': '{}: Routine at 00002'.format(name),
-                'header': '00002',
                 'prev': 0,
                 'up': 2,
                 'next': 44,
@@ -2488,7 +2479,6 @@ class HtmlWriterTest(SkoolKitTestCase):
             # Address 44
             subs = {
                 'title': '{}: Routine at 00044'.format(name),
-                'header': '00044',
                 'prev': 2,
                 'up': 44,
                 'next': 666,
@@ -2500,7 +2490,6 @@ class HtmlWriterTest(SkoolKitTestCase):
             # Address 666
             subs = {
                 'title': '{}: Routine at 00666'.format(name),
-                'header': '00666',
                 'prev': 44,
                 'up': 666,
                 'next': 8888,
@@ -2512,7 +2501,6 @@ class HtmlWriterTest(SkoolKitTestCase):
             # Address 8888
             subs = {
                 'title': '{}: Routine at 08888'.format(name),
-                'header': '08888',
                 'prev': 666,
                 'up': 8888,
                 'content': entry_template.format(address=8888)
@@ -2585,7 +2573,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'header': '50000',
+            'header': 'Routines',
             'title': '{}: Routine at 50000'.format(name),
             'up': 50000,
             'next': 50005,
@@ -2623,7 +2611,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'header': '50005',
+            'header': 'Routines',
             'title': '{}: Routine at 50005'.format(name),
             'prev': 50000,
             'up': 50005,
@@ -2662,7 +2650,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'header': '50008',
+            'header': 'Data',
             'title': '{}: Data at 50008'.format(name),
             'prev': 50005,
             'up': 50008,
@@ -3266,6 +3254,9 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[PageContent:CustomPage]',
             '<b>This is the content of the custom page.</b>',
             '',
+            '[PageHeaders]',
+            'CustomPage=Custom page',
+            '',
             '[Titles]',
             'CustomPage=Custom page'
         ))
@@ -3637,7 +3628,6 @@ class HtmlWriterTest(SkoolKitTestCase):
             'Source=secondary.skool',
             'Path=secondary',
             'Index=secondary/secondary.html',
-            'Header=Secondary code',
             'IndexPageId=SecondaryCode',
         ))
         writer = self._get_writer(ref=ref)

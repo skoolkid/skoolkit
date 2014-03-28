@@ -126,6 +126,7 @@ class HtmlWriter:
 
         self.paths = self.get_dictionary('Paths')
         self.titles = self.get_dictionary('Titles')
+        self.page_headers = self.get_dictionary('PageHeaders')
         links = self.get_dictionary('Links')
 
         self.page_ids = []
@@ -144,6 +145,7 @@ class HtmlWriter:
             self.paths[page_id] = path
             page.setdefault('BodyClass', '')
             self.titles.setdefault(page_id, page_id)
+            self.page_headers.setdefault(page_id, page_id)
             links.setdefault(page_id, page_id)
 
         self.other_code = self.get_dictionaries('OtherCode')
@@ -156,6 +158,7 @@ class HtmlWriter:
                 asm_page_id = 'Asm-{}-{}'.format(c_id, entry_type)
                 default_asm_page_id = 'Asm-' + entry_type
                 self.titles.setdefault(asm_page_id, self.titles[default_asm_page_id])
+                self.page_headers.setdefault(asm_page_id, self.page_headers[default_asm_page_id])
 
         self.memory_map_names = []
         self.memory_maps = {}
@@ -166,6 +169,7 @@ class HtmlWriter:
                 self.memory_map_names.append(map_name)
                 self.paths.setdefault(map_name, 'maps/{}.html'.format(map_name))
                 self.titles.setdefault(map_name, map_name)
+                self.page_headers.setdefault(map_name, map_name)
                 links.setdefault(map_name, map_name)
 
         self.links = self._parse_links(links)
@@ -208,7 +212,12 @@ class HtmlWriter:
         self.html_tag = self.templates['html']
         self.info = self.get_dictionary('Info')
         self.info['Created'] = self.info['Created'].replace('$VERSION', VERSION)
-        self.template_subs = {'Game': self.game, 'Info': self.info, 'Titles': self.titles}
+        self.template_subs = {
+            'Game': self.game,
+            'Info': self.info,
+            'PageHeaders': self.page_headers,
+            'Titles': self.titles
+        }
         self.footer = self.format_template('footer')
 
         self.init()
@@ -240,6 +249,7 @@ class HtmlWriter:
         template = self.templates.get(template_name, self.templates.get(default))
         if template_name in self.titles:
             template = template.replace('{Titles[*]}', self.titles[template_name])
+            template = template.replace('{PageHeaders[*]}', self.page_headers[template_name])
         t_subs = subs or {}
         t_subs.update(self.template_subs)
         html = template.format(**t_subs)
