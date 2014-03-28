@@ -48,10 +48,12 @@ GAME = """
 Font=
 Game=
 GameStatusBufferIncludes=
+InputRegisterTableHeader=Input
 JavaScript=
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 Logo=
 LogoImage=
+OutputRegisterTableHeader=Output
 StyleSheet=skoolkit.css
 TitlePrefix=The complete
 TitleSuffix=RAM disassembly
@@ -190,14 +192,14 @@ TEMPLATES = """
 {entry[description]}
 </div>
 <table class="input-{entry[input]}">
-<tr>
-<th colspan="2">Input</th>
+<tr class="asm-input-header">
+<th colspan="2">{Game[InputRegisterTableHeader]}</th>
 </tr>
 {m_asm_register_input}
 </table>
 <table class="output-{entry[output]}">
-<tr>
-<th colspan="2">Output</th>
+<tr class="asm-output-header">
+<th colspan="2">{Game[OutputRegisterTableHeader]}</th>
 </tr>
 {m_asm_register_output}
 </table>

@@ -2147,7 +2147,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </div>
             </div>
             <table class="input-1">
-            <tr>
+            <tr class="asm-input-header">
             <th colspan="2">Input</th>
             </tr>
             <tr>
@@ -2160,7 +2160,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             </table>
             <table class="output-0">
-            <tr>
+            <tr class="asm-output-header">
             <th colspan="2">Output</th>
             </tr>
             </table>
@@ -2218,12 +2218,12 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="details">
             </div>
             <table class="input-0">
-            <tr>
+            <tr class="asm-input-header">
             <th colspan="2">Input</th>
             </tr>
             </table>
             <table class="output-0">
-            <tr>
+            <tr class="asm-output-header">
             <th colspan="2">Output</th>
             </tr>
             </table>
@@ -2257,12 +2257,12 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="details">
             </div>
             <table class="input-0">
-            <tr>
+            <tr class="asm-input-header">
             <th colspan="2">Input</th>
             </tr>
             </table>
             <table class="output-0">
-            <tr>
+            <tr class="asm-output-header">
             <th colspan="2">Output</th>
             </tr>
             </table>
@@ -2296,12 +2296,12 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="details">
             </div>
             <table class="input-0">
-            <tr>
+            <tr class="asm-input-header">
             <th colspan="2">Input</th>
             </tr>
             </table>
             <table class="output-0">
-            <tr>
+            <tr class="asm-output-header">
             <th colspan="2">Output</th>
             </tr>
             </table>
@@ -2335,12 +2335,12 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="details">
             </div>
             <table class="input-0">
-            <tr>
+            <tr class="asm-input-header">
             <th colspan="2">Input</th>
             </tr>
             </table>
             <table class="output-0">
-            <tr>
+            <tr class="asm-output-header">
             <th colspan="2">Output</th>
             </tr>
             </table>
@@ -2374,7 +2374,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="details">
             </div>
             <table class="input-1">
-            <tr>
+            <tr class="asm-input-header">
             <th colspan="2">Input</th>
             </tr>
             <tr>
@@ -2383,7 +2383,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             </table>
             <table class="output-0">
-            <tr>
+            <tr class="asm-output-header">
             <th colspan="2">Output</th>
             </tr>
             </table>
@@ -2433,12 +2433,12 @@ class HtmlWriterTest(SkoolKitTestCase):
             '<div class="details">',
             '</div>',
             '<table class="input-0">',
-            '<tr>',
+            '<tr class="asm-input-header">',
             '<th colspan="2">Input</th>',
             '</tr>',
             '</table>',
             '<table class="output-0">',
-            '<tr>',
+            '<tr class="asm-output-header">',
             '<th colspan="2">Output</th>',
             '</tr>',
             '</table>',
@@ -2553,12 +2553,12 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="details">
             </div>
             <table class="input-0">
-            <tr>
+            <tr class="asm-input-header">
             <th colspan="2">Input</th>
             </tr>
             </table>
             <table class="output-0">
-            <tr>
+            <tr class="asm-output-header">
             <th colspan="2">Output</th>
             </tr>
             </table>
@@ -2603,12 +2603,12 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="details">
             </div>
             <table class="input-0">
-            <tr>
+            <tr class="asm-input-header">
             <th colspan="2">Input</th>
             </tr>
             </table>
             <table class="output-0">
-            <tr>
+            <tr class="asm-output-header">
             <th colspan="2">Output</th>
             </tr>
             </table>
@@ -2642,12 +2642,12 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="details">
             </div>
             <table class="input-0">
-            <tr>
+            <tr class="asm-input-header">
             <th colspan="2">Input</th>
             </tr>
             </table>
             <table class="output-0">
-            <tr>
+            <tr class="asm-output-header">
             <th colspan="2">Output</th>
             </tr>
             </table>
