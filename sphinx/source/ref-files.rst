@@ -604,31 +604,27 @@ Each ``OtherCode:*`` section contains parameters in the form::
 
 The following parameters are required:
 
-* ``Header`` - the header text that will appear on each routine or data block
-  disassembly page in the secondary disassembly
 * ``Index`` - the filename of the home page of the secondary disassembly
 * ``Path`` - the directory to which the secondary disassembly files will be
   written
 * ``Source`` - the `skool` file from which to generate the secondary
   disassembly
-* ``Title`` - the header text that will appear on the the secondary disassembly
-  index page
 
-The following parameters are optional:
+The following parameter is optional:
 
-* ``IndexPageId`` - the ID of the secondary disassembly index page; if defined,
-  it can be used by the :ref:`link` macro to create a hyperlink to the page
-* ``Link`` - the link text to use on the main disassembly index page for the
-  hyperlink to the secondary disassembly index page (defaults to the value of
-  the ``Title`` parameter)
+* ``IndexPageId`` - the ID of the secondary disassembly index page (default:
+  ``Index-<id>``, where ``<id>`` is the unique ID of the secondary disassembly)
 
-+---------+---------------------------------------------------+
-| Version | Changes                                           |
-+=========+===================================================+
-| 2.0     | New                                               |
-+---------+---------------------------------------------------+
-| 2.2.5   | Added the ``IndexPageId`` and ``Link`` parameters |
-+---------+---------------------------------------------------+
+The title and link text for the secondary disassembly index page can be defined
+in the :ref:`titles` and :ref:`links` sections.
+
++---------+-------------------------------------+
+| Version | Changes                             |
++=========+=====================================+
+| 2.0     | New                                 |
++---------+-------------------------------------+
+| 2.2.5   | Added the ``IndexPageId`` parameter |
++---------+-------------------------------------+
 
 .. _page:
 

@@ -149,7 +149,7 @@ class HtmlWriter:
 
         self.other_code = self.get_dictionaries('OtherCode')
         for c_id, code in self.other_code:
-            index_page_id = code.setdefault('IndexPageId', '_{}_index'.format(c_id))
+            index_page_id = code.setdefault('IndexPageId', 'Index-{}'.format(c_id))
             self.paths[index_page_id] = code['Index']
             self.titles.setdefault(index_page_id, index_page_id)
             links.setdefault(index_page_id, index_page_id)
