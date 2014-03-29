@@ -633,7 +633,7 @@ class HtmlWriter:
             boxes_html.append(self.format_template('box', t_box_subs))
         subs = {
             'm_contents_list_item': self._format_contents_list_items([(anchor, title) for anchor, title, p in boxes]),
-            'm_box': '\n'.join(boxes_html),
+            'items': '\n'.join(boxes_html),
         }
         html = self.format_page(page_id, cwd, subs, default='Reference')
         self.write_file(fname, html)
@@ -706,9 +706,9 @@ class HtmlWriter:
 
         subs = {
             'm_contents_list_item': self._format_contents_list_items(contents),
-            'm_changelog_entry': '\n'.join(entries),
+            'items': '\n'.join(entries),
         }
-        html = self.format_page(P_CHANGELOG, cwd, subs)
+        html = self.format_page(P_CHANGELOG, cwd, subs, default='Reference')
         self.write_file(fname, html)
 
     def format_registers(self, cwd, registers, entry_dict):

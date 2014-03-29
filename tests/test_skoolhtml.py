@@ -3144,7 +3144,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Changelog',
             'path': '../',
-            'body_class': 'changelog',
+            'body_class': 'reference',
             'content': content
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'changelog.html'), subs)

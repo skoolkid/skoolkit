@@ -238,28 +238,6 @@ TEMPLATES = """
 </body>
 </html>
 
-[Template:Changelog]
-{t_prologue}
-{t_html}
-<head>
-<title>{Titles[*]}</title>
-{t_head}
-</head>
-<body class="changelog">
-<table class="header">
-<tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
-</tr>
-</table>
-<ul class="linkList">
-{m_contents_list_item}
-</ul>
-{m_changelog_entry}
-{t_footer}
-</body>
-</html>
-
 [Template:GameIndex]
 {t_prologue}
 {t_html}
@@ -389,7 +367,7 @@ TEMPLATES = """
 <ul class="linkList">
 {m_contents_list_item}
 </ul>
-{m_box}
+{items}
 {t_footer}
 </body>
 </html>
