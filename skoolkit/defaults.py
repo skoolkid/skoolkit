@@ -421,7 +421,7 @@ TEMPLATES = """
 [Template:asm_comment]
 <tr>
 <td class="routineComment" colspan="4">
-{o_anchor}
+{t_anchor}
 <div class="comments">
 {m_paragraph}
 </div>
@@ -431,7 +431,7 @@ TEMPLATES = """
 [Template:asm_instruction]
 <tr>
 <td class="asm-label-{entry[labels]}">{instruction[label]}</td>
-<td class="address">{o_anchor}{instruction[address]}</td>
+<td class="address">{t_anchor}{instruction[address]}</td>
 <td class="instruction">{instruction[operation]}</td>
 <td class="comment-{instruction[annotated]}" rowspan="{instruction[comment_rowspan]}">{instruction[comment]}</td>
 </tr>

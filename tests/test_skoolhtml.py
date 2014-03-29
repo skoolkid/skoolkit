@@ -2171,12 +2171,13 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address">24577</td>
+            <td class="address"><a name="24577"></a>24577</td>
             <td class="instruction">RET</td>
             <td class="comment-1" rowspan="1"></td>
             </tr>
             <tr>
             <td class="routineComment" colspan="4">
+            <a name="24577"></a>
             <div class="comments">
             <div class="paragraph">
             End comment for routine at 24576.

@@ -721,10 +721,10 @@ class HtmlWriter:
             reg_lists.append('\n'.join(registers_html))
         return reg_lists
 
-    def format_entry_comment(self, cwd, entry_dict, paragraphs, anchor=''):
+    def format_entry_comment(self, cwd, entry_dict, paragraphs, anchor):
         t_asm_comment_subs = {
             'entry': entry_dict,
-            'o_anchor': anchor,
+            't_anchor': anchor,
             'm_paragraph': self.join_paragraphs(paragraphs, cwd)
         }
         return self.format_template('asm_comment', t_asm_comment_subs)
@@ -755,7 +755,6 @@ class HtmlWriter:
             anchor = self.format_anchor(address)
             if mid_routine_comments:
                 lines.append(self.format_entry_comment(cwd, entry_dict, mid_routine_comments, anchor))
-                anchor = ''
 
             operation, reference = instruction.operation, instruction.reference
             if reference and operation.upper().startswith(self.link_operands):
@@ -791,11 +790,11 @@ class HtmlWriter:
                 'comment_rowspan': comment_rowspan,
                 'annotated': annotated
             }
-            instruction_subs['o_anchor'] = anchor
+            instruction_subs['t_anchor'] = anchor
             lines.append(self.format_template('asm_instruction', instruction_subs))
 
         if entry.end_comment:
-            lines.append(self.format_entry_comment(cwd, entry_dict, entry.end_comment))
+            lines.append(self.format_entry_comment(cwd, entry_dict, entry.end_comment, anchor))
 
         subs = {
             'prev_entry': prev_entry_dict,
