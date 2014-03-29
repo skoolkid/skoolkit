@@ -142,7 +142,6 @@ class HtmlWriter:
             else:
                 path = page['Path']
             self.paths[page_id] = path
-            page.setdefault('BodyClass', '')
             self.titles.setdefault(page_id, page_id)
             self.page_headers.setdefault(page_id, page_id)
             links.setdefault(page_id, page_id)
@@ -206,10 +205,12 @@ class HtmlWriter:
             self.templates[name] = template
         self.info = self.get_dictionary('Info')
         self.info['Created'] = self.info['Created'].replace('$VERSION', VERSION)
+        self.skoolkit = {}
         self.template_subs = {
             'Game': self.game,
             'Info': self.info,
             'PageHeaders': self.page_headers,
+            'SkoolKit': self.skoolkit,
             'Titles': self.titles
         }
 
@@ -241,8 +242,8 @@ class HtmlWriter:
     def format_template(self, template_name, subs=None, trim=False, default=None):
         template = self.templates.get(template_name, self.templates.get(default))
         if template_name in self.titles:
-            template = template.replace('{Titles[*]}', self.titles[template_name])
-            template = template.replace('{PageHeaders[*]}', self.page_headers[template_name])
+            template = template.replace('{Titles[]}', self.titles[template_name])
+            template = template.replace('{PageHeaders[]}', self.page_headers[template_name])
         t_subs = subs or {}
         t_subs.update(self.template_subs)
         html = template.format(**t_subs)
@@ -517,7 +518,7 @@ class HtmlWriter:
 
     def write_index(self):
         index_fname = self.paths[P_GAME_INDEX]
-        cwd = self._set_cwd(index_fname)
+        cwd = self._set_cwd(P_GAME_INDEX, index_fname)
 
         link_groups = {}
         for section_id, header_text, page_list in self.get_sections('Index', False, True):
@@ -584,7 +585,7 @@ class HtmlWriter:
 
     def write_gbuffer(self):
         fname = self.paths[P_GSB]
-        cwd = self._set_cwd(fname)
+        cwd = self._set_cwd(P_GSB, fname)
         gsb_includes = [parse_int(a) for a in self.game_vars['GameStatusBufferIncludes'].split(',')]
         map_dict = {
             'Intro': '',
@@ -616,7 +617,7 @@ class HtmlWriter:
 
     def _write_box_page(self, page_id, boxes):
         fname = self.paths[page_id]
-        cwd = self._set_cwd(fname)
+        cwd = self._set_cwd(page_id, fname)
         boxes_html = []
         for i, (anchor, title, paragraphs) in enumerate(boxes):
             t_box_subs = {
@@ -663,7 +664,7 @@ class HtmlWriter:
 
     def write_changelog(self):
         fname = self.paths[P_CHANGELOG]
-        cwd = self._set_cwd(fname)
+        cwd = self._set_cwd(P_CHANGELOG, fname)
 
         contents = []
         entries = []
@@ -741,7 +742,12 @@ class HtmlWriter:
     def write_entry(self, cwd, index, map_file):
         entry = self.memory_map[index]
         fname = join(cwd, FileInfo.asm_fname(entry.address))
-        self._set_cwd(fname)
+        if self.code_id == MAIN_CODE_ID:
+            asm_id = ''
+        else:
+            asm_id = '-' + self.code_id
+        page_id = 'Asm{}-{}'.format(asm_id, entry.ctl)
+        self._set_cwd(page_id, fname)
 
         entry_dict = self._get_entry_dict(cwd, index, map_file)
 
@@ -813,11 +819,6 @@ class HtmlWriter:
             'm_asm_register_output': output_reg,
             'disassembly': '\n'.join(lines)
         }
-        if self.code_id == MAIN_CODE_ID:
-            asm_id = ''
-        else:
-            asm_id = '-' + self.code_id
-        page_id = 'Asm{}-{}'.format(asm_id, entry.ctl)
         self.write_file(fname, self.format_page(page_id, cwd, subs, default='Asm'))
 
     def write_entries(self, cwd, map_file):
@@ -837,7 +838,7 @@ class HtmlWriter:
 
     def write_map(self, map_name):
         fname = self.paths[map_name]
-        cwd = self._set_cwd(fname)
+        cwd = self._set_cwd(map_name, fname)
 
         map_details = self.memory_maps.get(map_name, {})
         entry_types = map_details.get('EntryTypes', 'bcgstuw')
@@ -864,7 +865,7 @@ class HtmlWriter:
 
     def write_page(self, page_id):
         fname = self.paths[page_id]
-        cwd = self._set_cwd(fname)
+        cwd = self._set_cwd(page_id, fname)
         page = self.pages[page_id]
         subs = {
             'Page': page,
@@ -878,8 +879,10 @@ class HtmlWriter:
         with self.file_info.open_file(fname) as f:
             f.write(contents)
 
-    def _set_cwd(self, fname):
+    def _set_cwd(self, page_id, fname):
         cwd = os.path.dirname(fname)
+        self.skoolkit['page_id'] = page_id
+        self.skoolkit['home'] = FileInfo.relpath(cwd, self.paths[P_GAME_INDEX])
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
         return cwd
 
@@ -898,8 +901,7 @@ class HtmlWriter:
 
         all_subs = {
             'm_stylesheet': '\n'.join(stylesheets),
-            'm_javascript': '\n'.join(javascript),
-            'home': FileInfo.relpath(cwd, self.paths[P_GAME_INDEX])
+            'm_javascript': '\n'.join(javascript)
         }
         all_subs.update(subs or {})
         return self.format_template(page_id, all_subs, trim, default=default)

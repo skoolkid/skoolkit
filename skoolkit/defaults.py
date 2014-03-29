@@ -198,16 +198,16 @@ TEMPLATES = """
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>{Titles[*]}</title>
+<title>{Titles[]}</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 {m_stylesheet}
 {m_javascript}
 </head>
-<body class="disassembly">
+<body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
+<td class="headerLogo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
+<td class="headerText">{PageHeaders[]}</td>
 </tr>
 </table>
 <table class="asm-navigation">
@@ -262,12 +262,12 @@ TEMPLATES = """
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>{Titles[*]}</title>
+<title>{Titles[]}</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 {m_stylesheet}
 {m_javascript}
 </head>
-<body class="main">
+<body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
 <td class="headerText">{Game[TitlePrefix]}</td>
@@ -291,16 +291,16 @@ TEMPLATES = """
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>{Titles[*]}</title>
+<title>{Titles[]}</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 {m_stylesheet}
 {m_javascript}
 </head>
-<body class="map">
+<body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
+<td class="headerLogo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
+<td class="headerText">{PageHeaders[]}</td>
 </tr>
 </table>
 <div class="mapIntro">{MemoryMap[Intro]}</div>
@@ -329,16 +329,16 @@ TEMPLATES = """
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>{Titles[*]}</title>
+<title>{Titles[]}</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 {m_stylesheet}
 {m_javascript}
 </head>
-<body class="{Page[BodyClass]}">
+<body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
+<td class="headerLogo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
+<td class="headerText">{PageHeaders[]}</td>
 </tr>
 </table>
 {PageContent}
@@ -357,16 +357,16 @@ TEMPLATES = """
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>{Titles[*]}</title>
+<title>{Titles[]}</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 {m_stylesheet}
 {m_javascript}
 </head>
-<body class="reference">
+<body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
+<td class="headerLogo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
+<td class="headerText">{PageHeaders[]}</td>
 </tr>
 </table>
 <ul class="linkList">

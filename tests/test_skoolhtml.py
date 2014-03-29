@@ -1817,7 +1817,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'header_prefix': 'The complete',
             'header_suffix': 'RAM disassembly',
             'path': '',
-            'body_class': 'main',
+            'body_class': 'GameIndex',
             'content': content
         }
         if custom_subs:
@@ -2066,7 +2066,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'logo': '<img alt="{}" src="{}" />'.format(game, logo_image_path),
             'header_suffix': 'RAM disassembly',
             'path': '',
-            'body_class': 'main',
+            'body_class': 'GameIndex',
             'content': ''
         }
         self.assert_files_equal('index.html', subs, True)
@@ -2117,8 +2117,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         name = basename(self.skoolfile)[:-6]
         common_subs = {
             'name': name,
-            'path': '../',
-            'body_class': 'disassembly'
+            'path': '../'
         }
         writer.write_asm_entries()
 
@@ -2189,6 +2188,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '{}: Routine at 24576'.format(name),
+            'body_class': 'Asm-c',
             'header': 'Routines',
             'up': 24576,
             'next': 24578,
@@ -2227,6 +2227,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '{}: Data at 24578'.format(name),
+            'body_class': 'Asm-b',
             'header': 'Data',
             'prev': 24576,
             'up': 24578,
@@ -2266,6 +2267,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '{}: Routine at 24579'.format(name),
+            'body_class': 'Asm-c',
             'header': 'Routines',
             'prev': 24578,
             'up': 24579,
@@ -2305,6 +2307,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '{}: Game status buffer entry at 24581'.format(name),
+            'body_class': 'Asm-g',
             'header': 'Game status buffer',
             'prev': 24579,
             'up': 24581,
@@ -2344,6 +2347,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '{}: Unused RAM at 24583'.format(name),
+            'body_class': 'Asm-u',
             'header': 'Unused',
             'prev': 24581,
             'up': 24583,
@@ -2393,6 +2397,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'title': '{}: Routine at 24584'.format(name),
+            'body_class': 'Asm-c',
             'header': 'Routines',
             'prev': 24583,
             'up': 24584,
@@ -2443,7 +2448,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         ))
         common_subs = {
             'path': '../',
-            'body_class': 'disassembly',
+            'body_class': 'Asm-c',
             'header': 'Routines'
         }
 
@@ -2519,14 +2524,13 @@ class HtmlWriterTest(SkoolKitTestCase):
             '',
             '; DEFW statement with a @keep directive',
             '; @keep',
-            'b50008 DEFW 50000',
+            'w50008 DEFW 50000',
         ))
         writer = self._get_writer(skool=skool, asm_labels=True)
         name = basename(self.skoolfile)[:-6]
         common_subs = {
             'name': name,
-            'path': '../',
-            'body_class': 'disassembly'
+            'path': '../'
         }
         writer.write_asm_entries()
 
@@ -2573,6 +2577,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         subs = {
             'header': 'Routines',
             'title': '{}: Routine at 50000'.format(name),
+            'body_class': 'Asm-c',
             'up': 50000,
             'next': 50005,
             'content': content
@@ -2611,6 +2616,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         subs = {
             'header': 'Routines',
             'title': '{}: Routine at 50005'.format(name),
+            'body_class': 'Asm-c',
             'prev': 50000,
             'up': 50005,
             'next': 50008,
@@ -2650,6 +2656,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         subs = {
             'header': 'Data',
             'title': '{}: Data at 50008'.format(name),
+            'body_class': 'Asm-w',
             'prev': 50005,
             'up': 50008,
             'content': content
@@ -2683,8 +2690,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer = self._get_writer(skool=skool)
         common_subs = {
             'name': basename(self.skoolfile)[:-6],
-            'path': '../',
-            'body_class': 'map'
+            'path': '../'
         }
 
         # Memory map
@@ -2751,6 +2757,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         writer.write_map('MemoryMap')
         subs = {
+            'body_class': 'MemoryMap',
             'header': 'Memory map',
             'content': content
         }
@@ -2779,6 +2786,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         writer.write_map('RoutinesMap')
         subs = {
+            'body_class': 'RoutinesMap',
             'header': 'Routines',
             'content': content
         }
@@ -2814,6 +2822,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         writer.write_map('DataMap')
         subs = {
+            'body_class': 'DataMap',
             'header': 'Data',
             'content': content
         }
@@ -2842,6 +2851,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         writer.write_map('MessagesMap')
         subs = {
+            'body_class': 'MessagesMap',
             'header': 'Messages',
             'content': content
         }
@@ -2877,6 +2887,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         writer.write_map('UnusedMap')
         subs = {
+            'body_class': 'UnusedMap',
             'header': 'Unused addresses',
             'content': content
         }
@@ -2947,7 +2958,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         subs = {
             'name': basename(self.skoolfile)[:-6],
             'path': '../',
-            'body_class': 'map',
+            'body_class': map_id,
             'header': map_title,
             'content': content
         }
@@ -2980,7 +2991,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'path': '../',
             'header': 'Memory map',
-            'body_class': 'map',
+            'body_class': 'MemoryMap',
             'content': content
         }
 
@@ -3030,7 +3041,7 @@ class HtmlWriterTest(SkoolKitTestCase):
                 'name': basename(self.skoolfile)[:-6],
                 'path': '../',
                 'header': 'Memory map',
-                'body_class': 'map',
+                'body_class': 'MemoryMap',
                 'content': exp_content
             }
             self.assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
@@ -3164,7 +3175,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Changelog',
             'path': '../',
-            'body_class': 'reference',
+            'body_class': 'Changelog',
             'content': content
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'changelog.html'), subs)
@@ -3221,7 +3232,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Glossary',
             'path': '../',
-            'body_class': 'reference',
+            'body_class': 'Glossary',
             'content': content
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'glossary.html'), subs)
@@ -3261,34 +3272,11 @@ class HtmlWriterTest(SkoolKitTestCase):
             'title': 'Custom page',
             'header': 'Custom page',
             'path': '',
-            'body_class': '',
+            'body_class': 'CustomPage',
             'js': 'test-html.js',
             'content': '<b>This is the content of the custom page.</b>\n'
         }
         self.assert_files_equal('page.html', subs)
-
-    def test_write_page_with_body_class(self):
-        path = 'custom/page.html'
-        body_class = 'custom'
-        content = '<i>This is the content of the custom page.</i>'
-        ref = '\n'.join((
-            '[Page:Custom]',
-            'Path={}',
-            'BodyClass={}',
-            'PageContent={}'
-        )).format(path, body_class, content)
-        writer = self._get_writer(ref=ref, skool='')
-        writer.write_page('Custom')
-        subs = {
-            'name': basename(self.skoolfile)[:-6],
-            'title': 'Custom',
-            'script': '\n',
-            'header': 'Custom',
-            'path': '../',
-            'body_class': body_class,
-            'content': content
-        }
-        self.assert_files_equal(path, subs)
 
     def test_write_bugs(self):
         ref = '\n'.join((
@@ -3318,7 +3306,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Bugs',
             'path': '../',
-            'body_class': 'reference',
+            'body_class': 'Bugs',
             'content': content
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'bugs.html'), subs)
@@ -3375,7 +3363,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Trivia',
             'path': '../',
-            'body_class': 'reference',
+            'body_class': 'Facts',
             'content': content
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'facts.html'), subs)
@@ -3413,7 +3401,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Pokes',
             'path': '../',
-            'body_class': 'reference',
+            'body_class': 'Pokes',
             'content': html
         }
         self.assert_files_equal(join(REFERENCE_DIR, 'pokes.html'), subs)
@@ -3451,7 +3439,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Graphic glitches',
             'path': '../',
-            'body_class': 'reference',
+            'body_class': 'GraphicGlitches',
             'content': content
         }
         self.assert_files_equal(join(GRAPHICS_DIR, 'glitches.html'), subs)
@@ -3521,7 +3509,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Game status buffer',
             'path': '../',
-            'body_class': 'map',
+            'body_class': 'GameStatusBuffer',
             'content': content
         }
         self.assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)
@@ -3605,7 +3593,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Game status buffer',
             'path': '../',
-            'body_class': 'map',
+            'body_class': 'GameStatusBuffer',
             'content': content
         }
         self.assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)
