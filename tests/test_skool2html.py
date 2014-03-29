@@ -122,8 +122,6 @@ class Skool2HtmlTest(SkoolKitTestCase):
             'Item 1',
             '[Glossary:Term1]',
             'Definition 1.',
-            '[Graphics]',
-            '<em>This is the graphics page.</em>',
             '[Page:CustomPage1]',
             'Title=Custom page',
             'Path=page.html',
@@ -671,9 +669,6 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     def test_option_w_G(self):
         self._test_option_w('-w', 'G', 'write_gbuffer')
-
-    def test_option_w_g(self):
-        self._test_option_w('--write', 'g', 'write_graphics')
 
     def test_option_w_B(self):
         self._test_option_w('-w', 'B', 'write_graphic_glitches')

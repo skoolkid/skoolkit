@@ -49,7 +49,6 @@ P_ROUTINES_MAP = 'RoutinesMap'
 P_DATA_MAP = 'DataMap'
 P_MESSAGES_MAP = 'MessagesMap'
 P_UNUSED_MAP = 'UnusedMap'
-P_GRAPHICS = 'Graphics'
 P_GRAPHIC_GLITCHES = 'GraphicGlitches'
 P_GSB = 'GameStatusBuffer'
 P_GLOSSARY = 'Glossary'
@@ -196,13 +195,10 @@ class HtmlWriter:
         self.facts = self.get_sections('Fact', True)
         self.pokes = self.get_sections('Poke', True)
         self.graphic_glitches = self.get_sections('GraphicGlitch', True)
-
         self.glossary = []
         for term, paragraphs in self.get_sections('Glossary', True):
             anchor = term.lower().replace(' ', '_')
             self.glossary.append((anchor, term, paragraphs))
-
-        self.graphics = self.get_section('Graphics')
         self.changelog = self._get_changelog()
 
         self.templates = {}
@@ -518,13 +514,6 @@ class HtmlWriter:
             a = address + 8 * (ord(c) - 32)
             udgs.append(Udg(attr, self.snapshot[a:a + 8]))
         return [udgs]
-
-    def write_graphics(self):
-        fname = self.paths[P_GRAPHICS]
-        cwd = self._set_cwd(fname)
-        subs = {'Graphics': self.expand(self.graphics, cwd)}
-        html = self.format_page(P_GRAPHICS, cwd, subs, False)
-        self.write_file(fname, html)
 
     def write_graphic_glitches(self):
         self._write_box_page(P_GRAPHIC_GLITCHES, self.graphic_glitches)

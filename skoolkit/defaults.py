@@ -73,7 +73,6 @@ PNGEnableAnimation=1
 INDEX = """
 [Index]
 MemoryMaps
-Graphics
 DataTables
 OtherCode
 Reference
@@ -85,10 +84,6 @@ DataMap
 MessagesMap
 UnusedMap
 
-[Index:Graphics:Graphics]
-Graphics
-GraphicGlitches
-
 [Index:DataTables:Data tables and buffers]
 GameStatusBuffer
 
@@ -98,6 +93,7 @@ Glossary
 Facts
 Bugs
 Pokes
+GraphicGlitches
 """
 
 INFO = """
@@ -117,7 +113,6 @@ GameIndex=Index
 GameStatusBuffer=Game status buffer
 Glossary=Glossary
 GraphicGlitches=Graphic glitches
-Graphics=Graphics
 MemoryMap=Everything
 MessagesMap=Messages
 Pokes=Pokes
@@ -161,7 +156,6 @@ GameIndex=Index
 GameStatusBuffer=Game status buffer
 Glossary=Glossary
 GraphicGlitches=Graphic glitches
-Graphics=Graphics
 MemoryMap=Memory map
 MessagesMap=Messages
 Pokes=Pokes
@@ -186,7 +180,6 @@ GameIndex=index.html
 GameStatusBuffer=buffers/gbuffer.html
 Glossary=reference/glossary.html
 GraphicGlitches=graphics/glitches.html
-Graphics=graphics/graphics.html
 MemoryMap=maps/all.html
 MessagesMap=maps/messages.html
 Pokes=reference/pokes.html
@@ -280,25 +273,6 @@ TEMPLATES = """
 </tr>
 {m_gsb_entry}
 </table>
-{t_footer}
-</body>
-</html>
-
-[Template:Graphics]
-{t_prologue}
-{t_html}
-<head>
-<title>{Titles[*]}</title>
-{t_head}
-</head>
-<body class="graphics">
-<table class="header">
-<tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
-</tr>
-</table>
-{Graphics}
 {t_footer}
 </body>
 </html>
@@ -528,7 +502,6 @@ GameIndex={Game[Game]}: Index
 GameStatusBuffer={Game[Game]}: Game status buffer
 Glossary={Game[Game]}: Glossary
 GraphicGlitches={Game[Game]}: Graphic glitches
-Graphics={Game[Game]}: Graphics
 MemoryMap={Game[Game]}: Memory map
 MessagesMap={Game[Game]}: Messages
 Pokes={Game[Game]}: Pokes

@@ -1979,7 +1979,6 @@ class HtmlWriterTest(SkoolKitTestCase):
             'GameStatusBuffer=Workspace',
             'Glossary=List of terms',
             'GraphicGlitches=Graphic bugs',
-            'Graphics=UDGs and stuff',
             'MemoryMap=All code and data',
             'MessagesMap=Strings',
             'Pokes=POKEs',
@@ -1989,7 +1988,6 @@ class HtmlWriterTest(SkoolKitTestCase):
         files = [
             'buffers/gbuffer.html',
             'graphics/glitches.html',
-            'graphics/graphics.html',
             'maps/all.html',
             'maps/data.html',
             'maps/messages.html',
@@ -2010,11 +2008,6 @@ class HtmlWriterTest(SkoolKitTestCase):
             <li><a class="link" href="maps/messages.html">Strings</a></li>
             <li><a class="link" href="maps/unused.html">Unused bytes</a></li>
             </ul>
-            <div class="headerText">Graphics</div>
-            <ul class="indexList">
-            <li><a class="link" href="graphics/graphics.html">UDGs and stuff</a></li>
-            <li><a class="link" href="graphics/glitches.html">Graphic bugs</a></li>
-            </ul>
             <div class="headerText">Data tables and buffers</div>
             <ul class="indexList">
             <li><a class="link" href="buffers/gbuffer.html">Workspace</a></li>
@@ -2026,6 +2019,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <li><a class="link" href="reference/facts.html">Facts</a> (trivia)</li>
             <li><a class="link" href="reference/bugs.html">Bugs</a> (glitches)</li>
             <li><a class="link" href="reference/pokes.html">POKEs</a></li>
+            <li><a class="link" href="graphics/glitches.html">Graphic bugs</a></li>
             </ul>
         """
         self._test_write_index(files, content, ref)
@@ -3217,32 +3211,6 @@ class HtmlWriterTest(SkoolKitTestCase):
         )).format(title, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_glossary()
-        self.assert_title_equals(path, title)
-
-    def test_write_graphics(self):
-        ref = '[Graphics]\n<em>This is the graphics page.</em>'
-        writer = self._get_writer(ref=ref, skool='')
-        writer.write_graphics()
-        subs = {
-            'name': basename(self.skoolfile)[:-6],
-            'header': 'Graphics',
-            'path': '../',
-            'body_class': 'graphics',
-            'content': '<em>This is the graphics page.</em>\n'
-        }
-        self.assert_files_equal(join(GRAPHICS_DIR, 'graphics.html'), subs)
-
-    def test_write_graphics_with_custom_title_and_path(self):
-        title = 'Sprites and stuff'
-        path = 'sprites_and_stuff.html'
-        ref = '\n'.join((
-            '[Titles]',
-            'Graphics={}',
-            '[Paths]',
-            'Graphics={}'
-        )).format(title, path)
-        writer = self._get_writer(ref=ref, skool='')
-        writer.write_graphics()
         self.assert_title_equals(path, title)
 
     def test_write_page(self):

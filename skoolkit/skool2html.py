@@ -271,8 +271,6 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_c
     # Write other files
     if 'G' in files and html_writer.has_gbuffer():
         clock(html_writer.write_gbuffer, '  Writing {}'.format(normpath(game_dir, paths['GameStatusBuffer'])))
-    if 'g' in files and html_writer.graphics:
-        clock(html_writer.write_graphics, '  Writing {}'.format(normpath(game_dir, paths['Graphics'])))
     if 'B' in files and html_writer.graphic_glitches:
         clock(html_writer.write_graphic_glitches, '  Writing {}'.format(normpath(game_dir, paths['GraphicGlitches'])))
     if 'c' in files and html_writer.changelog:
@@ -372,8 +370,7 @@ def main(args):
                             "  c = Changelog           P = Custom pages\n"
                             "  d = Disassembly files   p = Pokes\n"
                             "  G = Game status buffer  t = Trivia\n"
-                            "  g = Graphics            y = Glossary\n"
-                            "  i = Disassembly index")
+                            "  i = Disassembly index   y = Glossary\n")
 
     start = time.time()
     namespace, unknown_args = parser.parse_known_args(args)

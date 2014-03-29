@@ -80,8 +80,7 @@ OPTIONS
   |   ``c`` = Changelog           ``P`` = Custom pages
   |   ``d`` = Disassembly files   ``p`` = Pokes
   |   ``G`` = Game status buffer  ``t`` = Trivia
-  |   ``g`` = Graphics            ``y`` = Glossary
-  |   ``i`` = Disassembly index
+  |   ``i`` = Disassembly index   ``y`` = Glossary
 
 FILES
 =====

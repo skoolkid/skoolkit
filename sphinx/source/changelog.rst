@@ -3,6 +3,7 @@ Changelog
 
 4.0b1
 -----
+* Removed support for the ``[Graphics]`` section
 
 3.7 (2014-03-08)
 ----------------

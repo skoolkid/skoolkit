@@ -237,8 +237,7 @@ list::
                             c = Changelog           P = Custom pages
                             d = Disassembly files   p = Pokes
                             G = Game status buffer  t = Trivia
-                            g = Graphics            y = Glossary
-                            i = Disassembly index
+                            i = Disassembly index   y = Glossary
 
 `skool2html.py` searches the following directories for `skool` files, `ref`
 files, CSS files, JavaScript files, font files, and files listed in the

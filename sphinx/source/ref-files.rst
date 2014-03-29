@@ -303,19 +303,6 @@ where:
 Paragraphs must be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
 
-.. _graphics:
-
-[Graphics]
-----------
-The ``Graphics`` section, if present, defines the body of the 'Graphics' page;
-it may contain HTML markup and :ref:`skool macros <skoolMacros>`.
-
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 2.0.5   | New     |
-+---------+---------+
-
 .. _ref-ImageWriter:
 
 [ImageWriter]
@@ -386,7 +373,6 @@ By default, SkoolKit defines the following list of link groups::
 
   [Index]
   MemoryMaps
-  Graphics
   DataTables
   OtherCode
   Reference
@@ -421,7 +407,7 @@ The page IDs that may be used in an ``[Index:*:*]`` section are the same as the
 file IDs that may be used in the :ref:`paths` section, or the IDs defined by
 :ref:`page` sections.
 
-By default, SkoolKit defines four link groups with the following names and
+By default, SkoolKit defines three link groups with the following names and
 contents::
 
   [Index:MemoryMaps:Memory maps]
@@ -430,10 +416,6 @@ contents::
   DataMap
   MessagesMap
   UnusedMap
-
-  [Index:Graphics:Graphics]
-  Graphics
-  GraphicGlitches
 
   [Index:DataTables:Data tables and buffers]
   GameStatusBuffer
@@ -444,6 +426,7 @@ contents::
   Facts
   Bugs
   Pokes
+  GraphicGlitches
 
 +---------+---------+
 | Version | Changes |
@@ -506,7 +489,6 @@ Recognised page IDs are:
 * ``GameStatusBuffer`` - the 'Game status buffer' page
 * ``Glossary`` - the 'Glossary' page
 * ``GraphicGlitches`` - the 'Graphic glitches' page
-* ``Graphics`` - the 'Graphics' page
 * ``MemoryMap`` - the 'Everything' memory map page (default: 'Everything')
 * ``MessagesMap`` - the 'Messages' memory map page
 * ``Pokes`` - the 'Pokes' page
@@ -739,7 +721,6 @@ Recognised file IDs and their default paths are:
 * ``Glossary`` - the 'Glossary' page (default: `reference/glossary.html`)
 * ``GraphicGlitches`` - the 'Graphic glitches' page (default:
   `graphics/glitches.html`)
-* ``Graphics`` - the 'Graphics' page (default: `graphics/graphics.html`)
 * ``MemoryMap`` - the 'Everything' memory map page (default: `maps/all.html`)
 * ``MessagesMap`` - the 'Messages' memory map page (default:
   `maps/messages.html`)
@@ -863,7 +844,6 @@ Recognised page IDs and their default titles are:
 * ``Glossary`` - the 'Glossary' page (default: 'Glossary')
 * ``GraphicGlitches`` - the 'Graphic glitches' page (default: 'Graphic
   glitches')
-* ``Graphics`` - the 'Graphics' page (default: 'Graphics')
 * ``MemoryMap`` - the 'Everything' memory map page (default: 'Memory map')
 * ``MessagesMap`` - the 'Messages' memory map page (default: 'Messages')
 * ``Pokes`` - the 'Pokes' page (default: 'Pokes')
