@@ -196,7 +196,9 @@ TEMPLATES = """
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
-{t_head}
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+{m_stylesheet}
+{m_javascript}
 </head>
 <body class="disassembly">
 <table class="header">
@@ -255,7 +257,9 @@ TEMPLATES = """
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
-{t_head}
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+{m_stylesheet}
+{m_javascript}
 </head>
 <body class="main">
 <table class="header">
@@ -279,7 +283,9 @@ TEMPLATES = """
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
-{t_head}
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+{m_stylesheet}
+{m_javascript}
 </head>
 <body class="gbuffer">
 <table class="header">
@@ -309,7 +315,9 @@ TEMPLATES = """
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
-{t_head}
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+{m_stylesheet}
+{m_javascript}
 </head>
 <body class="map">
 <table class="header">
@@ -341,7 +349,9 @@ TEMPLATES = """
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
-{t_head}
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+{m_stylesheet}
+{m_javascript}
 </head>
 <body class="{Page[BodyClass]}">
 <table class="header">
@@ -364,7 +374,9 @@ TEMPLATES = """
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
-{t_head}
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+{m_stylesheet}
+{m_javascript}
 </head>
 <body class="reference">
 <table class="header">
@@ -456,17 +468,6 @@ TEMPLATES = """
 </td>
 </tr>
 
-[Template:head]
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-{m_head_stylesheet}
-{m_head_javascript}
-
-[Template:head_javascript]
-<script type="text/javascript" src="{src}"></script>
-
-[Template:head_stylesheet]
-<link rel="stylesheet" type="text/css" href="{href}" />
-
 [Template:img]
 <img alt="{alt}" src="{src}" />
 
@@ -478,6 +479,9 @@ TEMPLATES = """
 
 [Template:index_section_item]
 <li><a class="link" href="{href}">{link_text}</a>{other_text}</li>
+
+[Template:javascript]
+<script type="text/javascript" src="{src}"></script>
 
 [Template:link]
 <a class="link" href="{href}">{link_text}</a>
@@ -503,6 +507,9 @@ TEMPLATES = """
 
 [Template:reg]
 <span class="register">{reg}</span>
+
+[Template:stylesheet]
+<link rel="stylesheet" type="text/css" href="{href}" />
 """
 
 TITLES = """

@@ -876,32 +876,26 @@ class HtmlWriter:
         return cwd
 
     def format_page(self, page_id, cwd, subs=None, trim=True, js=None, default=None):
-        all_subs = {
-            't_prologue': self.prologue,
-            't_head': self._format_head(cwd, js),
-            'home': FileInfo.relpath(cwd, self.paths[P_GAME_INDEX])
-        }
-        all_subs.update(subs or {})
-        return self.format_template(page_id, all_subs, trim, default=default)
-
-    def _format_head(self, cwd, js=None):
         stylesheets = []
         for css_file in self.game_vars['StyleSheet'].split(';'):
-            t_head_stylesheet_subs = {'href': FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}
-            stylesheets.append(self.format_template('head_stylesheet', t_head_stylesheet_subs))
+            t_stylesheet_subs = {'href': FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}
+            stylesheets.append(self.format_template('stylesheet', t_stylesheet_subs))
         javascript = []
         js_files = self.js_files
         if js:
             js_files = list(js_files) + js.split(';')
         for js_file in js_files:
-            t_head_javascript_subs = {'src': FileInfo.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))}
-            javascript.append(self.format_template('head_javascript', t_head_javascript_subs))
+            t_javascript_subs = {'src': FileInfo.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))}
+            javascript.append(self.format_template('javascript', t_javascript_subs))
 
-        t_head_subs = {
-            'm_head_stylesheet': '\n'.join(stylesheets),
-            'm_head_javascript': '\n'.join(javascript)
+        all_subs = {
+            't_prologue': self.prologue,
+            'm_stylesheet': '\n'.join(stylesheets),
+            'm_javascript': '\n'.join(javascript),
+            'home': FileInfo.relpath(cwd, self.paths[P_GAME_INDEX])
         }
-        return self.format_template('head', t_head_subs).rstrip()
+        all_subs.update(subs or {})
+        return self.format_template(page_id, all_subs, trim, default=default)
 
     def _get_logo(self, cwd):
         logo_macro = self.game_vars['Logo']
