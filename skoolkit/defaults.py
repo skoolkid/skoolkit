@@ -205,7 +205,13 @@ TEMPLATES = """
 <td class="headerText">{PageHeaders[*]}</td>
 </tr>
 </table>
-{t_asm_navigation}
+<table class="asm-navigation">
+<tr>
+<td class="prev"><span class="prev-{prev_entry[exists]}">Prev: <a class="link" href="{prev_entry[url]}">{prev_entry[address]}</a></span></td>
+<td class="up">Up: <a class="link" href="{entry[map_url]}">Map</a></td>
+<td class="next"><span class="next-{next_entry[exists]}">Next: <a class="link" href="{next_entry[url]}">{next_entry[address]}</a></span></td>
+</tr>
+</table>
 <div class="description">{entry[address]}: {entry[title]}</div>
 <table class="disassembly">
 <tr>
@@ -229,7 +235,13 @@ TEMPLATES = """
 </tr>
 {disassembly}
 </table>
-{t_asm_navigation}
+<table class="asm-navigation">
+<tr>
+<td class="prev"><span class="prev-{prev_entry[exists]}">Prev: <a class="link" href="{prev_entry[url]}">{prev_entry[address]}</a></span></td>
+<td class="up">Up: <a class="link" href="{entry[map_url]}">Map</a></td>
+<td class="next"><span class="next-{next_entry[exists]}">Next: <a class="link" href="{next_entry[url]}">{next_entry[address]}</a></span></td>
+</tr>
+</table>
 {t_footer}
 </body>
 </html>
@@ -369,15 +381,6 @@ TEMPLATES = """
 <td class="instruction">{instruction[operation]}</td>
 <td class="comment-{instruction[annotated]}" rowspan="{instruction[comment_rowspan]}">{instruction[comment]}</td>
 </tr>
-
-[Template:asm_navigation]
-<table class="prevNext">
-<tr>
-<td class="prev"><span class="prev-{prev_entry[exists]}">Prev: <a class="link" href="{prev_entry[url]}">{prev_entry[address]}</a></span></td>
-<td class="up">Up: <a class="link" href="{entry[map_url]}">Map</a></td>
-<td class="next"><span class="next-{next_entry[exists]}">Next: <a class="link" href="{next_entry[url]}">{next_entry[address]}</a></span></td>
-</tr>
-</table>
 
 [Template:asm_register_input]
 <tr>

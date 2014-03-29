@@ -747,12 +747,6 @@ class HtmlWriter:
             next_entry_dict = self._get_entry_dict(cwd, index + 1, map_file)
         else:
             next_entry_dict = self.nonexistent_entry_dict
-        t_asm_navigation_subs = {
-            'prev_entry': prev_entry_dict,
-            'entry': entry_dict,
-            'next_entry': next_entry_dict
-        }
-        asm_navigation = self.format_template('asm_navigation', t_asm_navigation_subs)
 
         input_reg, output_reg = self.format_registers(cwd, entry.registers, entry_dict)
 
@@ -807,8 +801,9 @@ class HtmlWriter:
             lines.append(self.format_entry_comment(cwd, entry_dict, entry.end_comment))
 
         subs = {
+            'prev_entry': prev_entry_dict,
             'entry': entry_dict,
-            't_asm_navigation': asm_navigation,
+            'next_entry': next_entry_dict,
             'm_asm_register_input': input_reg,
             'm_asm_register_output': output_reg,
             'disassembly': '\n'.join(lines)

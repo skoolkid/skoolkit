@@ -64,7 +64,7 @@ BARE_FOOTER = """<div class="footer">
 </body>
 </html>""".format(VERSION)
 
-PREV_UP_NEXT = """<table class="prevNext">
+PREV_UP_NEXT = """<table class="asm-navigation">
 <tr>
 <td class="prev">{prev_link}</td>
 <td class="up">{up_link}</td>
