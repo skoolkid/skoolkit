@@ -73,6 +73,7 @@ PNGEnableAnimation=1
 INDEX = """
 [Index]
 MemoryMaps
+Graphics
 DataTables
 OtherCode
 Reference
@@ -84,6 +85,9 @@ DataMap
 MessagesMap
 UnusedMap
 
+[Index:Graphics:Graphics]
+GraphicGlitches
+
 [Index:DataTables:Data tables and buffers]
 GameStatusBuffer
 
@@ -93,7 +97,6 @@ Glossary
 Facts
 Bugs
 Pokes
-GraphicGlitches
 """
 
 INFO = """

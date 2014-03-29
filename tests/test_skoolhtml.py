@@ -2008,6 +2008,10 @@ class HtmlWriterTest(SkoolKitTestCase):
             <li><a class="link" href="maps/messages.html">Strings</a></li>
             <li><a class="link" href="maps/unused.html">Unused bytes</a></li>
             </ul>
+            <div class="headerText">Graphics</div>
+            <ul class="indexList">
+            <li><a class="link" href="graphics/glitches.html">Graphic bugs</a></li>
+            </ul>
             <div class="headerText">Data tables and buffers</div>
             <ul class="indexList">
             <li><a class="link" href="buffers/gbuffer.html">Workspace</a></li>
@@ -2019,7 +2023,6 @@ class HtmlWriterTest(SkoolKitTestCase):
             <li><a class="link" href="reference/facts.html">Facts</a> (trivia)</li>
             <li><a class="link" href="reference/bugs.html">Bugs</a> (glitches)</li>
             <li><a class="link" href="reference/pokes.html">POKEs</a></li>
-            <li><a class="link" href="graphics/glitches.html">Graphic bugs</a></li>
             </ul>
         """
         self._test_write_index(files, content, ref)

@@ -373,6 +373,7 @@ By default, SkoolKit defines the following list of link groups::
 
   [Index]
   MemoryMaps
+  Graphics
   DataTables
   OtherCode
   Reference
@@ -407,7 +408,7 @@ The page IDs that may be used in an ``[Index:*:*]`` section are the same as the
 file IDs that may be used in the :ref:`paths` section, or the IDs defined by
 :ref:`page` sections.
 
-By default, SkoolKit defines three link groups with the following names and
+By default, SkoolKit defines four link groups with the following names and
 contents::
 
   [Index:MemoryMaps:Memory maps]
@@ -416,6 +417,9 @@ contents::
   DataMap
   MessagesMap
   UnusedMap
+
+  [Index:Graphics:Graphics]
+  GraphicGlitches
 
   [Index:DataTables:Data tables and buffers]
   GameStatusBuffer
@@ -426,7 +430,6 @@ contents::
   Facts
   Bugs
   Pokes
-  GraphicGlitches
 
 +---------+---------+
 | Version | Changes |
