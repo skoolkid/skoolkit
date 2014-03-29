@@ -2695,48 +2695,56 @@ class HtmlWriterTest(SkoolKitTestCase):
             <th class="map-page-1">Page</th>
             <th class="map-byte-1">Byte</th>
             <th>Address</th>
+            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">48</td>
             <td class="map-c"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
+            <td class="map-length-0">1</td>
             <td class="map-c-desc">Routine</td>
             </tr>
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">49</td>
             <td class="map-b"><a name="30001"></a><a class="link" href="../asm/30001.html">30001</a></td>
+            <td class="map-length-0">2</td>
             <td class="map-b-desc">Bytes</td>
             </tr>
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">51</td>
             <td class="map-w"><a name="30003"></a><a class="link" href="../asm/30003.html">30003</a></td>
+            <td class="map-length-0">4</td>
             <td class="map-w-desc">Words</td>
             </tr>
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">55</td>
             <td class="map-g"><a name="30007"></a><a class="link" href="../asm/30007.html">30007</a></td>
+            <td class="map-length-0">1</td>
             <td class="map-g-desc">GSB entry</td>
             </tr>
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">56</td>
             <td class="map-u"><a name="30008"></a><a class="link" href="../asm/30008.html">30008</a></td>
+            <td class="map-length-0">1</td>
             <td class="map-u-desc">Unused</td>
             </tr>
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">57</td>
             <td class="map-s"><a name="30009"></a><a class="link" href="../asm/30009.html">30009</a></td>
+            <td class="map-length-0">9</td>
             <td class="map-s-desc">Zeroes</td>
             </tr>
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">66</td>
             <td class="map-t"><a name="30018"></a><a class="link" href="../asm/30018.html">30018</a></td>
+            <td class="map-length-0">35518</td>
             <td class="map-t-desc">Text</td>
             </tr>
             </table>
@@ -2757,12 +2765,14 @@ class HtmlWriterTest(SkoolKitTestCase):
             <th class="map-page-0">Page</th>
             <th class="map-byte-0">Byte</th>
             <th>Address</th>
+            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
             <td class="map-page-0">117</td>
             <td class="map-byte-0">48</td>
             <td class="map-c"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
+            <td class="map-length-0">1</td>
             <td class="map-c-desc">Routine</td>
             </tr>
             </table>
@@ -2783,18 +2793,21 @@ class HtmlWriterTest(SkoolKitTestCase):
             <th class="map-page-1">Page</th>
             <th class="map-byte-1">Byte</th>
             <th>Address</th>
+            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">49</td>
             <td class="map-b"><a name="30001"></a><a class="link" href="../asm/30001.html">30001</a></td>
+            <td class="map-length-0">2</td>
             <td class="map-b-desc">Bytes</td>
             </tr>
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">51</td>
             <td class="map-w"><a name="30003"></a><a class="link" href="../asm/30003.html">30003</a></td>
+            <td class="map-length-0">4</td>
             <td class="map-w-desc">Words</td>
             </tr>
             </table>
@@ -2815,12 +2828,14 @@ class HtmlWriterTest(SkoolKitTestCase):
             <th class="map-page-0">Page</th>
             <th class="map-byte-0">Byte</th>
             <th>Address</th>
+            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
             <td class="map-page-0">117</td>
             <td class="map-byte-0">66</td>
             <td class="map-t"><a name="30018"></a><a class="link" href="../asm/30018.html">30018</a></td>
+            <td class="map-length-0">35518</td>
             <td class="map-t-desc">Text</td>
             </tr>
             </table>
@@ -2841,18 +2856,21 @@ class HtmlWriterTest(SkoolKitTestCase):
             <th class="map-page-1">Page</th>
             <th class="map-byte-1">Byte</th>
             <th>Address</th>
+            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">56</td>
             <td class="map-u"><a name="30008"></a><a class="link" href="../asm/30008.html">30008</a></td>
+            <td class="map-length-0">1</td>
             <td class="map-u-desc">Unused</td>
             </tr>
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">57</td>
             <td class="map-s"><a name="30009"></a><a class="link" href="../asm/30009.html">30009</a></td>
+            <td class="map-length-0">9</td>
             <td class="map-s-desc">Zeroes</td>
             </tr>
             </table>
@@ -2946,12 +2964,14 @@ class HtmlWriterTest(SkoolKitTestCase):
             <th class="map-page-1">Page</th>
             <th class="map-byte-1">Byte</th>
             <th>Address</th>
+            <th class="map-length-0">Length</th>
             <th>Description</th>
             </tr>
             <tr>
             <td class="map-page-1">128</td>
             <td class="map-byte-1">0</td>
             <td class="map-c"><a name="32768"></a><a class="link" href="../asm/32768.html">32768</a></td>
+            <td class="map-length-0">32768</td>
             <td class="map-c-desc">Code</td>
             </tr>
             </table>
@@ -2986,15 +3006,17 @@ class HtmlWriterTest(SkoolKitTestCase):
             '<th class="map-page-1">Page</th>',
             '<th class="map-byte-1">Byte</th>',
             '<th>Address</th>',
+            '<th class="map-length-0">Length</th>',
             '<th>Description</th>',
             '</tr>\n'
         ))
-        for address in (0, 2, 44, 666, 8888):
+        for address, length in ((0, 2), (2, 42), (44, 622), (666, 8222), (8888, 56648)):
             exp_content += '\n'.join((
                 '<tr>',
                 '<td class="map-page-1">{}</td>'.format(address // 256),
                 '<td class="map-byte-1">{}</td>'.format(address % 256),
                 '<td class="map-c"><a name="{0}"></a><a class="link" href="../asm/{0}.html">{0:05d}</a></td>'.format(address),
+                '<td class="map-length-0">{}</td>'.format(length),
                 '<td class="map-c-desc"></td>',
                 '</tr>\n'
             ))
@@ -3461,11 +3483,14 @@ class HtmlWriterTest(SkoolKitTestCase):
             't30003 DEFM "a"'
         ))
         content = """
-            <table class="gbuffer">
+            <div class="mapIntro"></div>
+            <table class="map">
             <tr>
+            <th class="map-page-0">Page</th>
+            <th class="map-byte-0">Byte</th>
             <th>Address</th>
-            <th>Length</th>
-            <th>Purpose</th>
+            <th class="map-length-1">Length</th>
+            <th>Description</th>
             </tr>
             <tr>
             <td class="gbufAddress"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
@@ -3496,7 +3521,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Game status buffer',
             'path': '../',
-            'body_class': 'gbuffer',
+            'body_class': 'map',
             'content': content
         }
         self.assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)
@@ -3524,11 +3549,14 @@ class HtmlWriterTest(SkoolKitTestCase):
             'i30006',
         ))
         content = """
-            <table class="gbuffer">
+            <div class="mapIntro"></div>
+            <table class="map">
             <tr>
+            <th class="map-page-0">Page</th>
+            <th class="map-byte-0">Byte</th>
             <th>Address</th>
-            <th>Length</th>
-            <th>Purpose</th>
+            <th class="map-length-1">Length</th>
+            <th>Description</th>
             </tr>
             <tr>
             <td class="gbufAddress"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
@@ -3577,7 +3605,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'name': basename(self.skoolfile)[:-6],
             'header': 'Game status buffer',
             'path': '../',
-            'body_class': 'gbuffer',
+            'body_class': 'map',
             'content': content
         }
         self.assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)

@@ -284,41 +284,6 @@ TEMPLATES = """
 </body>
 </html>
 
-[Template:GameStatusBuffer]
-<?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>{Titles[*]}</title>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-{m_stylesheet}
-{m_javascript}
-</head>
-<body class="gbuffer">
-<table class="header">
-<tr>
-<td class="headerLogo"><a class="link" href="{home}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[*]}</td>
-</tr>
-</table>
-<table class="gbuffer">
-<tr>
-<th>Address</th>
-<th>Length</th>
-<th>Purpose</th>
-</tr>
-{m_gsb_entry}
-</table>
-<div class="footer">
-<div class="release">{Info[Release]}</div>
-<div class="copyright">{Info[Copyright]}</div>
-<div class="created">{Info[Created]}</div>
-</div>
-</body>
-</html>
-
 [Template:MemoryMap]
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html
@@ -344,9 +309,10 @@ TEMPLATES = """
 <th class="map-page-{MemoryMap[PageByteColumns]}">Page</th>
 <th class="map-byte-{MemoryMap[PageByteColumns]}">Byte</th>
 <th>Address</th>
+<th class="map-length-{MemoryMap[LengthColumn]}">Length</th>
 <th>Description</th>
 </tr>
-{m_map_entry}
+{entries}
 </table>
 <div class="footer">
 <div class="release">{Info[Release]}</div>
@@ -509,6 +475,7 @@ TEMPLATES = """
 <td class="map-page-{MemoryMap[PageByteColumns]}">{entry[page]}</td>
 <td class="map-byte-{MemoryMap[PageByteColumns]}">{entry[byte]}</td>
 <td class="map-{entry[type]}">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
+<td class="map-length-{MemoryMap[LengthColumn]}">{entry[size]}</td>
 <td class="map-{entry[type]}-desc">{entry[title]}</td>
 </tr>
 

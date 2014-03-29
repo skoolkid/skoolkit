@@ -85,12 +85,6 @@ td.map-t-desc {
   color: #0000c5;
   font-family: spectrum;
 }
-table.gbuffer th {
-  background-color: #c5c600;
-}
-table.gbuffer td {
-  background-color: #ffff00;
-}
 div.gbufDesc {
   font-weight: normal;
 }

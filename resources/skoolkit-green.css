@@ -41,10 +41,10 @@ td.instruction {
 td.comment-1 {
   background-color: #334c19;
 }
-table.gbuffer th, table.map th {
+table.map th {
   background-color: #7fb24c;
 }
-table.gbuffer td, table.map td {
+table.map td {
   background-color: #336600;
 }
 td.map-c-desc {

@@ -586,16 +586,25 @@ class HtmlWriter:
         fname = self.paths[P_GSB]
         cwd = self._set_cwd(fname)
         gsb_includes = [parse_int(a) for a in self.game_vars['GameStatusBufferIncludes'].split(',')]
+        map_dict = {
+            'Intro': '',
+            'LengthColumn': '1',
+            'PageByteColumns': '0'
+        }
+        t_gsb_entry_subs = {'MemoryMap': map_dict}
+
         gsb_entries = []
         for index, entry in enumerate(self.memory_map):
-            if not (entry.ctl == 'g' or entry.address in gsb_includes):
-                continue
-            t_gsb_entry_subs = {
-                't_anchor': self.format_anchor(entry.address),
-                'entry': self._get_entry_dict(cwd, index, fname)
-            }
-            gsb_entries.append(self.format_template('gsb_entry', t_gsb_entry_subs))
-        html = self.format_page(P_GSB, cwd, {'m_gsb_entry': '\n'.join(gsb_entries)})
+            if entry.ctl == 'g' or entry.address in gsb_includes:
+                t_gsb_entry_subs['t_anchor'] = self.format_anchor(entry.address)
+                t_gsb_entry_subs['entry'] = self._get_entry_dict(cwd, index, fname)
+                gsb_entries.append(self.format_template('gsb_entry', t_gsb_entry_subs))
+
+        subs = {
+            'MemoryMap': map_dict,
+            'entries': '\n'.join(gsb_entries)
+        }
+        html = self.format_page(P_GSB, cwd, subs, default='MemoryMap')
         self.write_file(fname, html)
 
     def _format_contents_list_items(self, link_list):
@@ -834,6 +843,7 @@ class HtmlWriter:
         entry_types = map_details.get('EntryTypes', 'bcgstuw')
         map_dict = {
             'Intro': self.expand(map_details.get('Intro', ''), cwd),
+            'LengthColumn': '0',
             'PageByteColumns': map_details.get('PageByteColumns', '0')
         }
 
@@ -847,7 +857,7 @@ class HtmlWriter:
 
         subs = {
             'MemoryMap': map_dict,
-            'm_map_entry': '\n'.join(map_entries)
+            'entries': '\n'.join(map_entries)
         }
         html = self.format_page(map_name, cwd, subs, default=P_MEMORY_MAP)
         self.write_file(fname, html)
