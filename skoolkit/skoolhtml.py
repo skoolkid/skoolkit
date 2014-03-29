@@ -204,7 +204,6 @@ class HtmlWriter:
         self.templates = {}
         for name, template in self.get_sections('Template'):
             self.templates[name] = template
-        self.prologue = self.templates['prologue']
         self.info = self.get_dictionary('Info')
         self.info['Created'] = self.info['Created'].replace('$VERSION', VERSION)
         self.template_subs = {
@@ -889,7 +888,6 @@ class HtmlWriter:
             javascript.append(self.format_template('javascript', t_javascript_subs))
 
         all_subs = {
-            't_prologue': self.prologue,
             'm_stylesheet': '\n'.join(stylesheets),
             'm_javascript': '\n'.join(javascript),
             'home': FileInfo.relpath(cwd, self.paths[P_GAME_INDEX])

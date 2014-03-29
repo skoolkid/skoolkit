@@ -192,7 +192,10 @@ UnusedMap=maps/unused.html
 
 TEMPLATES = """
 [Template:Asm]
-{t_prologue}
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
@@ -253,7 +256,10 @@ TEMPLATES = """
 </html>
 
 [Template:GameIndex]
-{t_prologue}
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
@@ -279,7 +285,10 @@ TEMPLATES = """
 </html>
 
 [Template:GameStatusBuffer]
-{t_prologue}
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
@@ -311,7 +320,10 @@ TEMPLATES = """
 </html>
 
 [Template:MemoryMap]
-{t_prologue}
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
@@ -345,7 +357,10 @@ TEMPLATES = """
 </html>
 
 [Template:Page]
-{t_prologue}
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
@@ -370,7 +385,10 @@ TEMPLATES = """
 </html>
 
 [Template:Reference]
-{t_prologue}
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
@@ -498,12 +516,6 @@ TEMPLATES = """
 <div class="paragraph">
 {paragraph}
 </div>
-
-[Template:prologue]
-<?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 [Template:reg]
 <span class="register">{reg}</span>
