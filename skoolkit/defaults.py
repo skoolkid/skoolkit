@@ -193,7 +193,7 @@ UnusedMap=maps/unused.html
 TEMPLATES = """
 [Template:Asm]
 {t_prologue}
-{t_html}
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
 {t_head}
@@ -248,7 +248,7 @@ TEMPLATES = """
 
 [Template:GameIndex]
 {t_prologue}
-{t_html}
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
 {t_head}
@@ -268,7 +268,7 @@ TEMPLATES = """
 
 [Template:GameStatusBuffer]
 {t_prologue}
-{t_html}
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
 {t_head}
@@ -294,7 +294,7 @@ TEMPLATES = """
 
 [Template:MemoryMap]
 {t_prologue}
-{t_html}
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
 {t_head}
@@ -322,7 +322,7 @@ TEMPLATES = """
 
 [Template:Page]
 {t_prologue}
-{t_html}
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
 {t_head}
@@ -341,7 +341,7 @@ TEMPLATES = """
 
 [Template:Reference]
 {t_prologue}
-{t_html}
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>{Titles[*]}</title>
 {t_head}
@@ -449,9 +449,6 @@ TEMPLATES = """
 
 [Template:head_stylesheet]
 <link rel="stylesheet" type="text/css" href="{href}" />
-
-[Template:html]
-<html xmlns="http://www.w3.org/1999/xhtml">
 
 [Template:img]
 <img alt="{alt}" src="{src}" />

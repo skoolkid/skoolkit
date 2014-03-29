@@ -205,7 +205,6 @@ class HtmlWriter:
         for name, template in self.get_sections('Template'):
             self.templates[name] = template
         self.prologue = self.templates['prologue']
-        self.html_tag = self.templates['html']
         self.info = self.get_dictionary('Info')
         self.info['Created'] = self.info['Created'].replace('$VERSION', VERSION)
         self.template_subs = {
@@ -880,7 +879,6 @@ class HtmlWriter:
     def format_page(self, page_id, cwd, subs=None, trim=True, js=None, default=None):
         all_subs = {
             't_prologue': self.prologue,
-            't_html': self.html_tag,
             't_head': self._format_head(cwd, js),
             'home': FileInfo.relpath(cwd, self.paths[P_GAME_INDEX]),
             't_footer': self.footer
