@@ -151,6 +151,7 @@ class HtmlWriter:
             index_page_id = code.setdefault('IndexPageId', 'Index-{}'.format(c_id))
             self.paths[index_page_id] = code['Index']
             self.titles.setdefault(index_page_id, index_page_id)
+            self.page_headers.setdefault(index_page_id, index_page_id)
             links.setdefault(index_page_id, index_page_id)
             for entry_type in 'bcgstuw':
                 asm_page_id = 'Asm-{}-{}'.format(c_id, entry_type)
