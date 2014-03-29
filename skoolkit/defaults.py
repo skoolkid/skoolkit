@@ -242,7 +242,11 @@ TEMPLATES = """
 <td class="next"><span class="next-{next_entry[exists]}">Next: <a class="link" href="{next_entry[url]}">{next_entry[address]}</a></span></td>
 </tr>
 </table>
-{t_footer}
+<div class="footer">
+<div class="release">{Info[Release]}</div>
+<div class="copyright">{Info[Copyright]}</div>
+<div class="created">{Info[Created]}</div>
+</div>
 </body>
 </html>
 
@@ -262,7 +266,11 @@ TEMPLATES = """
 </tr>
 </table>
 {m_index_section}
-{t_footer}
+<div class="footer">
+<div class="release">{Info[Release]}</div>
+<div class="copyright">{Info[Copyright]}</div>
+<div class="created">{Info[Created]}</div>
+</div>
 </body>
 </html>
 
@@ -288,7 +296,11 @@ TEMPLATES = """
 </tr>
 {m_gsb_entry}
 </table>
-{t_footer}
+<div class="footer">
+<div class="release">{Info[Release]}</div>
+<div class="copyright">{Info[Copyright]}</div>
+<div class="created">{Info[Created]}</div>
+</div>
 </body>
 </html>
 
@@ -316,7 +328,11 @@ TEMPLATES = """
 </tr>
 {m_map_entry}
 </table>
-{t_footer}
+<div class="footer">
+<div class="release">{Info[Release]}</div>
+<div class="copyright">{Info[Copyright]}</div>
+<div class="created">{Info[Created]}</div>
+</div>
 </body>
 </html>
 
@@ -335,7 +351,11 @@ TEMPLATES = """
 </tr>
 </table>
 {PageContent}
-{t_footer}
+<div class="footer">
+<div class="release">{Info[Release]}</div>
+<div class="copyright">{Info[Copyright]}</div>
+<div class="created">{Info[Created]}</div>
+</div>
 </body>
 </html>
 
@@ -357,7 +377,11 @@ TEMPLATES = """
 {m_contents_list_item}
 </ul>
 {items}
-{t_footer}
+<div class="footer">
+<div class="release">{Info[Release]}</div>
+<div class="copyright">{Info[Copyright]}</div>
+<div class="created">{Info[Created]}</div>
+</div>
 </body>
 </html>
 
@@ -419,13 +443,6 @@ TEMPLATES = """
 
 [Template:contents_list_item]
 <li><a class="link" href="{item[url]}">{item[title]}</a></li>
-
-[Template:footer]
-<div class="footer">
-<div class="release">{Info[Release]}</div>
-<div class="copyright">{Info[Copyright]}</div>
-<div class="created">{Info[Created]}</div>
-</div>
 
 [Template:gsb_entry]
 <tr>

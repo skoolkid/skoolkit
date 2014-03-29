@@ -213,7 +213,6 @@ class HtmlWriter:
             'PageHeaders': self.page_headers,
             'Titles': self.titles
         }
-        self.footer = self.format_template('footer')
 
         self.init()
 
@@ -880,8 +879,7 @@ class HtmlWriter:
         all_subs = {
             't_prologue': self.prologue,
             't_head': self._format_head(cwd, js),
-            'home': FileInfo.relpath(cwd, self.paths[P_GAME_INDEX]),
-            't_footer': self.footer
+            'home': FileInfo.relpath(cwd, self.paths[P_GAME_INDEX])
         }
         all_subs.update(subs or {})
         return self.format_template(page_id, all_subs, trim, default=default)
