@@ -80,23 +80,23 @@ ul.indexList {
   margin-left: 0;
   padding-left: 20px;
 }
-table.prevNext {
+table.asm-navigation {
   margin-top: 10px;
   border-collapse: collapse;
   width: 100%;
 }
-table.prevNext td {
+table.asm-navigation td {
   background-color: #bbccdd;
 }
-table.prevNext td.prev {
+table.asm-navigation td.prev {
   width: 30%;
   text-align: left;
 }
-table.prevNext td.up {
+table.asm-navigation td.up {
   width: 40%;
   text-align: center;
 }
-table.prevNext td.next {
+table.asm-navigation td.next {
   width: 30%;
   text-align: right;
 }

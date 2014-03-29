@@ -20,7 +20,7 @@ table table.default th, table.default th {
 table table.default td, table.default td {
   background-color: #7f194c;
 }
-table.prevNext td {
+table.asm-navigation td {
   background-color: #66334c;
 }
 table.input-1 td, table.output-1 td {

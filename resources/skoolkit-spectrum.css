@@ -38,7 +38,7 @@ table table.default th, table.default th {
 table table.default td, table.default td {
   background-color: #00ffff;
 }
-table.prevNext td {
+table.asm-navigation td {
   background-color: #00ffff;
 }
 table.disassembly {
