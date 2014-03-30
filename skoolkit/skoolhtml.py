@@ -210,9 +210,7 @@ class HtmlWriter:
         self.template_subs = {
             'Game': self.game,
             'Info': self.info,
-            'PageHeaders': self.page_headers,
-            'SkoolKit': self.skoolkit,
-            'Titles': self.titles
+            'SkoolKit': self.skoolkit
         }
 
         self.init()
@@ -242,9 +240,6 @@ class HtmlWriter:
 
     def format_template(self, template_name, subs=None, trim=False, default=None):
         template = self.templates.get(template_name, self.templates.get(default))
-        if template_name in self.titles:
-            template = template.replace('{Titles[]}', self.titles[template_name])
-            template = template.replace('{PageHeaders[]}', self.page_headers[template_name])
         t_subs = subs or {}
         t_subs.update(self.template_subs)
         html = template.format(**t_subs)
@@ -884,6 +879,8 @@ class HtmlWriter:
         cwd = os.path.dirname(fname)
         self.skoolkit['page_id'] = page_id
         self.skoolkit['home'] = FileInfo.relpath(cwd, self.paths[P_GAME_INDEX])
+        self.skoolkit['title'] = self.titles[page_id]
+        self.skoolkit['page_header'] = self.page_headers[page_id]
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
         return cwd
 

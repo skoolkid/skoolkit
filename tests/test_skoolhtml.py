@@ -25,7 +25,7 @@ HEADER = """<?xml version="1.0" encoding="utf-8" ?>
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>{title}</title>
+<title>{name}: {title}</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="{path}skoolkit.css" />{script}
 </head>
@@ -43,7 +43,7 @@ INDEX_HEADER = """<?xml version="1.0" encoding="utf-8" ?>
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>{title}</title>
+<title>{name}: {title}</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="{path}skoolkit.css" />{script}
 </head>
@@ -136,7 +136,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         subs['body'] = '<body{0}>'.format(body_class_attr)
         js = subs.get('js')
         subs.setdefault('script', '\n<script type="text/javascript" src="{0}"></script>'.format(js) if js else '')
-        subs.setdefault('title', '{}: {}'.format(subs['name'], subs['header']))
+        subs.setdefault('title', subs['header'])
         subs.setdefault('logo', subs['name'])
         footer = subs.get('footer', BARE_FOOTER)
         prev_up_next_lines = []
@@ -175,7 +175,8 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def assert_title_equals(self, fname, title):
         html = self.read_file(fname)
-        self.assertTrue('<title>{}</title>'.format(title) in html)
+        name = self.skoolfile[:-6]
+        self.assertTrue('<title>{}: {}</title>'.format(name, title) in html)
 
     def assert_error(self, writer, text, error_msg=None, prefix=None):
         with self.assertRaises(SkoolParsingError) as cm:
@@ -2187,7 +2188,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'title': '{}: Routine at 24576'.format(name),
+            'title': 'Routine at 24576',
             'body_class': 'Asm-c',
             'header': 'Routines',
             'up': 24576,
@@ -2226,7 +2227,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'title': '{}: Data at 24578'.format(name),
+            'title': 'Data at 24578',
             'body_class': 'Asm-b',
             'header': 'Data',
             'prev': 24576,
@@ -2266,7 +2267,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'title': '{}: Routine at 24579'.format(name),
+            'title': 'Routine at 24579',
             'body_class': 'Asm-c',
             'header': 'Routines',
             'prev': 24578,
@@ -2306,7 +2307,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'title': '{}: Game status buffer entry at 24581'.format(name),
+            'title': 'Game status buffer entry at 24581',
             'body_class': 'Asm-g',
             'header': 'Game status buffer',
             'prev': 24579,
@@ -2346,7 +2347,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'title': '{}: Unused RAM at 24583'.format(name),
+            'title': 'Unused RAM at 24583',
             'body_class': 'Asm-u',
             'header': 'Unused',
             'prev': 24581,
@@ -2396,7 +2397,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         subs = {
-            'title': '{}: Routine at 24584'.format(name),
+            'title': 'Routine at 24584',
             'body_class': 'Asm-c',
             'header': 'Routines',
             'prev': 24583,
@@ -2460,7 +2461,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
             # Address 0
             subs = {
-                'title': '{}: Routine at 00000'.format(name),
+                'title': 'Routine at 00000',
                 'up': 0,
                 'next': 2,
                 'content': entry_template.format(address=0)
@@ -2470,7 +2471,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
             # Address 2
             subs = {
-                'title': '{}: Routine at 00002'.format(name),
+                'title': 'Routine at 00002',
                 'prev': 0,
                 'up': 2,
                 'next': 44,
@@ -2481,7 +2482,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
             # Address 44
             subs = {
-                'title': '{}: Routine at 00044'.format(name),
+                'title': 'Routine at 00044',
                 'prev': 2,
                 'up': 44,
                 'next': 666,
@@ -2492,7 +2493,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
             # Address 666
             subs = {
-                'title': '{}: Routine at 00666'.format(name),
+                'title': 'Routine at 00666',
                 'prev': 44,
                 'up': 666,
                 'next': 8888,
@@ -2503,7 +2504,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
             # Address 8888
             subs = {
-                'title': '{}: Routine at 08888'.format(name),
+                'title': 'Routine at 08888',
                 'prev': 666,
                 'up': 8888,
                 'content': entry_template.format(address=8888)
@@ -2576,7 +2577,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'header': 'Routines',
-            'title': '{}: Routine at 50000'.format(name),
+            'title': 'Routine at 50000',
             'body_class': 'Asm-c',
             'up': 50000,
             'next': 50005,
@@ -2615,7 +2616,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'header': 'Routines',
-            'title': '{}: Routine at 50005'.format(name),
+            'title': 'Routine at 50005',
             'body_class': 'Asm-c',
             'prev': 50000,
             'up': 50005,
@@ -2655,7 +2656,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         """
         subs = {
             'header': 'Data',
-            'title': '{}: Data at 50008'.format(name),
+            'title': 'Data at 50008',
             'body_class': 'Asm-w',
             'prev': 50005,
             'up': 50008,

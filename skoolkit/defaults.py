@@ -198,7 +198,7 @@ TEMPLATES = """
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>{Titles[]}</title>
+<title>{Game[Game]}: {SkoolKit[title]} {entry[address]}</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 {m_stylesheet}
 {m_javascript}
@@ -207,7 +207,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[]}</td>
+<td class="headerText">{SkoolKit[page_header]}</td>
 </tr>
 </table>
 <table class="asm-navigation">
@@ -262,7 +262,7 @@ TEMPLATES = """
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>{Titles[]}</title>
+<title>{Game[Game]}: {SkoolKit[title]}</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 {m_stylesheet}
 {m_javascript}
@@ -291,7 +291,7 @@ TEMPLATES = """
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>{Titles[]}</title>
+<title>{Game[Game]}: {SkoolKit[title]}</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 {m_stylesheet}
 {m_javascript}
@@ -300,7 +300,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[]}</td>
+<td class="headerText">{SkoolKit[page_header]}</td>
 </tr>
 </table>
 <div class="mapIntro">{MemoryMap[Intro]}</div>
@@ -329,7 +329,7 @@ TEMPLATES = """
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>{Titles[]}</title>
+<title>{Game[Game]}: {SkoolKit[title]}</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 {m_stylesheet}
 {m_javascript}
@@ -338,7 +338,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[]}</td>
+<td class="headerText">{SkoolKit[page_header]}</td>
 </tr>
 </table>
 {PageContent}
@@ -357,7 +357,7 @@ TEMPLATES = """
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>{Titles[]}</title>
+<title>{Game[Game]}: {SkoolKit[title]}</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 {m_stylesheet}
 {m_javascript}
@@ -366,7 +366,7 @@ TEMPLATES = """
 <table class="header">
 <tr>
 <td class="headerLogo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
-<td class="headerText">{PageHeaders[]}</td>
+<td class="headerText">{SkoolKit[page_header]}</td>
 </tr>
 </table>
 <ul class="linkList">
@@ -493,26 +493,26 @@ TEMPLATES = """
 
 TITLES = """
 [Titles]
-Asm-b={Game[Game]}: Data at {entry[address]}
-Asm-c={Game[Game]}: Routine at {entry[address]}
-Asm-g={Game[Game]}: Game status buffer entry at {entry[address]}
-Asm-s={Game[Game]}: Unused RAM at {entry[address]}
-Asm-t={Game[Game]}: Data at {entry[address]}
-Asm-u={Game[Game]}: Unused RAM at {entry[address]}
-Asm-w={Game[Game]}: Data at {entry[address]}
-Bugs={Game[Game]}: Bugs
-Changelog={Game[Game]}: Changelog
-DataMap={Game[Game]}: Data
-Facts={Game[Game]}: Trivia
-GameIndex={Game[Game]}: Index
-GameStatusBuffer={Game[Game]}: Game status buffer
-Glossary={Game[Game]}: Glossary
-GraphicGlitches={Game[Game]}: Graphic glitches
-MemoryMap={Game[Game]}: Memory map
-MessagesMap={Game[Game]}: Messages
-Pokes={Game[Game]}: Pokes
-RoutinesMap={Game[Game]}: Routines
-UnusedMap={Game[Game]}: Unused addresses
+Asm-b=Data at
+Asm-c=Routine at
+Asm-g=Game status buffer entry at
+Asm-s=Unused RAM at
+Asm-t=Data at
+Asm-u=Unused RAM at
+Asm-w=Data at
+Bugs=Bugs
+Changelog=Changelog
+DataMap=Data
+Facts=Trivia
+GameIndex=Index
+GameStatusBuffer=Game status buffer
+Glossary=Glossary
+GraphicGlitches=Graphic glitches
+MemoryMap=Memory map
+MessagesMap=Messages
+Pokes=Pokes
+RoutinesMap=Routines
+UnusedMap=Unused addresses
 """
 
 REF_FILE = """
