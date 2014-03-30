@@ -204,12 +204,10 @@ class HtmlWriter:
         self.templates = {}
         for name, template in self.get_sections('Template'):
             self.templates[name] = template
-        self.info = self.get_dictionary('Info')
-        self.info['Created'] = self.info['Created'].replace('$VERSION', VERSION)
+        self.game['Created'] = self.game['Created'].replace('$VERSION', VERSION)
         self.skoolkit = {}
         self.template_subs = {
             'Game': self.game,
-            'Info': self.info,
             'SkoolKit': self.skoolkit
         }
 

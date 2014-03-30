@@ -8,6 +8,7 @@ SkoolKit manual
    usage
    diy
    assemblers
+   migration
    info
    changelog
 

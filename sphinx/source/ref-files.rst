@@ -204,6 +204,12 @@ aspects of the HTML output. The parameters are in the format::
 
 Recognised parameters are:
 
+* ``Copyright`` - the copyright message that appears in the footer of every
+  page (default: '')
+* ``Created`` - the message indicating the software used to create the
+  disassembly that appears in the footer of every page (default: 'Created using
+  SkoolKit $VERSION.'; the string ``$VERSION`` is replaced by the version
+  number of SkoolKit)
 * ``Font`` - the base name of the font file to use (default: None); multiple
   font files can be declared by separating their names with semicolons
 * ``Game`` - the name of the game, which appears in the title of every page,
@@ -230,6 +236,8 @@ Recognised parameters are:
   used in place of an image
 * ``OutputRegisterTableHeader`` - the text displayed in the header of output
   register tables on routine disassembly pages (default: 'Output')
+* ``Release`` - the message indicating the release name and version number of
+  the disassembly that appears in the footer of every page (default: '')
 * ``StyleSheet`` - the base name of the CSS file to use (default:
   `skoolkit.css`); multiple CSS files can be declared by separating their names
   with semicolons
@@ -238,27 +246,29 @@ Recognised parameters are:
 * ``TitleSuffix`` - the suffix to use after the game name or logo in the header
   of the main index page (default: 'RAM disassembly')
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 2.0.3   | Added the ``GameStatusBufferIncludes`` parameter                |
-+---------+-----------------------------------------------------------------+
-| 2.0.5   | Added the ``Logo`` parameter                                    |
-+---------+-----------------------------------------------------------------+
-| 3.1.2   | Added the ``InputRegisterTableHeader`` and                      |
-|         | ``OutputRegisterTableHeader`` parameters                        |
-+---------+-----------------------------------------------------------------+
-| 3.4     | Added the ``LinkOperands`` parameter                            |
-+---------+-----------------------------------------------------------------+
-| 3.5     | Added the ``Font``, ``LogoImage`` and ``StyleSheet`` parameters |
-|         | (all of which used to live in the :ref:`Paths` section,         |
-|         | ``LogoImage`` by the name ``Logo``)                             |
-+---------+-----------------------------------------------------------------+
-| 3.7     | Added the ``JavaScript`` parameter                              |
-+---------+-----------------------------------------------------------------+
-| 4.0     | Set default values for the ``InputRegisterTableHeader`` and     |
-|         | ``OutputRegisterTableHeader`` parameters                        |
-+---------+-----------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 2.0.3   | Added the ``GameStatusBufferIncludes`` parameter                  |
++---------+-------------------------------------------------------------------+
+| 2.0.5   | Added the ``Logo`` parameter                                      |
++---------+-------------------------------------------------------------------+
+| 3.1.2   | Added the ``InputRegisterTableHeader`` and                        |
+|         | ``OutputRegisterTableHeader`` parameters                          |
++---------+-------------------------------------------------------------------+
+| 3.4     | Added the ``LinkOperands`` parameter                              |
++---------+-------------------------------------------------------------------+
+| 3.5     | Added the ``Font``, ``LogoImage`` and ``StyleSheet`` parameters   |
+|         | (all of which used to live in the :ref:`Paths` section,           |
+|         | ``LogoImage`` by the name ``Logo``)                               |
++---------+-------------------------------------------------------------------+
+| 3.7     | Added the ``JavaScript`` parameter                                |
++---------+-------------------------------------------------------------------+
+| 4.0     | Set default values for the ``InputRegisterTableHeader`` and       |
+|         | ``OutputRegisterTableHeader`` parameters; added the               |
+|         | ``Copyright``, ``Created`` and ``Release`` parameters (which used |
+|         | to live in the ``[Info]`` section in SkoolKit 3)                  |
++---------+-------------------------------------------------------------------+
 
 [Glossary:\*]
 -------------
@@ -436,37 +446,6 @@ contents::
 +=========+=========+
 | 2.0.5   | New     |
 +---------+---------+
-
-[Info]
-------
-The ``Info`` section contains parameters that define the release and copyright
-information that appears in the footer of every page of the HTML disassembly.
-Each line has the form::
-
-  name=text
-
-Recognised parameters are:
-
-* ``Copyright`` - copyright message (default: '')
-* ``Created`` - message indicating the software used to create the disassembly
-  (default: 'Created using SkoolKit $VERSION.')
-* ``Release`` - message indicating the release name and version number of the
-  disassembly (default: '')
-
-If the string ``$VERSION`` appears anywhere in the ``Created`` message, it is
-replaced by the version number of SkoolKit.
-
-Each of these messages may contain HTML markup.
-
-+---------+-----------------------------------------------------+
-| Version | Changes                                             |
-+=========+=====================================================+
-| 2.0     | New                                                 |
-+---------+-----------------------------------------------------+
-| 2.0.3   | Added the ``Created`` parameter                     |
-+---------+-----------------------------------------------------+
-| 2.2.5   | Set the default value for the ``Created`` parameter |
-+---------+-----------------------------------------------------+
 
 .. _links:
 

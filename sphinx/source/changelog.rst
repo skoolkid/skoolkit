@@ -3,6 +3,8 @@ Changelog
 
 4.0b1
 -----
+* Removed support for the ``[Info]`` section; the parameters it contained now
+  belong in the :ref:`ref-Game` section
 * Removed support for the ``[Graphics]`` section
 
 3.7 (2014-03-08)

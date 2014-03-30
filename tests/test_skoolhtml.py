@@ -2035,7 +2035,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         c = 'bar'
         created = 'baz'
         ref = '\n'.join((
-            '[Info]',
+            '[Game]',
             'Copyright={}',
             'Created={}',
             'Release={}'

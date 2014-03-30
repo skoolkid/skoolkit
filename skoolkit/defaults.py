@@ -45,6 +45,8 @@ GameDir=
 
 GAME = """
 [Game]
+Copyright=
+Created=Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> $VERSION.
 Font=
 Game=
 GameStatusBufferIncludes=
@@ -54,6 +56,7 @@ LinkOperands=CALL,DEFW,DJNZ,JP,JR
 Logo=
 LogoImage=
 OutputRegisterTableHeader=Output
+Release=
 StyleSheet=skoolkit.css
 TitlePrefix=The complete
 TitleSuffix=RAM disassembly
@@ -97,13 +100,6 @@ Glossary
 Facts
 Bugs
 Pokes
-"""
-
-INFO = """
-[Info]
-Copyright=
-Created=Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> $VERSION.
-Release=
 """
 
 LINKS = """
@@ -248,9 +244,9 @@ TEMPLATES = """
 </tr>
 </table>
 <div class="footer">
-<div class="release">{Info[Release]}</div>
-<div class="copyright">{Info[Copyright]}</div>
-<div class="created">{Info[Created]}</div>
+<div class="release">{Game[Release]}</div>
+<div class="copyright">{Game[Copyright]}</div>
+<div class="created">{Game[Created]}</div>
 </div>
 </body>
 </html>
@@ -277,9 +273,9 @@ TEMPLATES = """
 </table>
 {m_index_section}
 <div class="footer">
-<div class="release">{Info[Release]}</div>
-<div class="copyright">{Info[Copyright]}</div>
-<div class="created">{Info[Created]}</div>
+<div class="release">{Game[Release]}</div>
+<div class="copyright">{Game[Copyright]}</div>
+<div class="created">{Game[Created]}</div>
 </div>
 </body>
 </html>
@@ -315,9 +311,9 @@ TEMPLATES = """
 {m_map_entry}
 </table>
 <div class="footer">
-<div class="release">{Info[Release]}</div>
-<div class="copyright">{Info[Copyright]}</div>
-<div class="created">{Info[Created]}</div>
+<div class="release">{Game[Release]}</div>
+<div class="copyright">{Game[Copyright]}</div>
+<div class="created">{Game[Created]}</div>
 </div>
 </body>
 </html>
@@ -343,9 +339,9 @@ TEMPLATES = """
 </table>
 {PageContent}
 <div class="footer">
-<div class="release">{Info[Release]}</div>
-<div class="copyright">{Info[Copyright]}</div>
-<div class="created">{Info[Created]}</div>
+<div class="release">{Game[Release]}</div>
+<div class="copyright">{Game[Copyright]}</div>
+<div class="created">{Game[Created]}</div>
 </div>
 </body>
 </html>
@@ -374,9 +370,9 @@ TEMPLATES = """
 </ul>
 {items}
 <div class="footer">
-<div class="release">{Info[Release]}</div>
-<div class="copyright">{Info[Copyright]}</div>
-<div class="created">{Info[Created]}</div>
+<div class="release">{Game[Release]}</div>
+<div class="copyright">{Game[Copyright]}</div>
+<div class="created">{Game[Created]}</div>
 </div>
 </body>
 </html>
@@ -514,7 +510,6 @@ REF_FILE = """
 {GAME}
 {IMAGE_WRITER}
 {INDEX}
-{INFO}
 {LINKS}
 {MEMORY_MAPS}
 {PAGE_HEADERS}
