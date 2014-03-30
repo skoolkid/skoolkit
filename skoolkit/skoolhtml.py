@@ -561,8 +561,12 @@ class HtmlWriter:
         html = self.format_page(P_GAME_INDEX, cwd, subs)
         self.write_file(index_fname, html)
 
-    def _get_entry_dict(self, cwd, index, map_file):
+    def _get_entry_dict(self, cwd, index, map_file, desc=True):
         entry = self.memory_map[index]
+        if desc:
+            description = self.join_paragraphs(entry.details, cwd)
+        else:
+            description = ''
         return self.entry_dicts.setdefault((cwd, entry.address, map_file), {
             'exists': 1,
             'labels': int(any([instruction.asm_label for instruction in entry.instructions])),
@@ -572,7 +576,7 @@ class HtmlWriter:
             'page': entry.address // 256,
             'byte': entry.address % 256,
             'label': self.parser.get_asm_label(entry.address),
-            'description': self.join_paragraphs(entry.details, cwd),
+            'description': description,
             'url': FileInfo.asm_relpath(cwd, entry.address, self.code_path),
             'map_url': '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address),
             'size': entry.size,
@@ -584,22 +588,23 @@ class HtmlWriter:
         cwd = self._set_cwd(P_GSB, fname)
         gsb_includes = [parse_int(a) for a in self.game_vars['GameStatusBufferIncludes'].split(',')]
         map_dict = {
+            'EntryDescriptions': '1',
             'Intro': '',
             'LengthColumn': '1',
             'PageByteColumns': '0'
         }
-        t_gsb_entry_subs = {'MemoryMap': map_dict}
+        t_map_entry_subs = {'MemoryMap': map_dict}
 
         gsb_entries = []
         for index, entry in enumerate(self.memory_map):
             if entry.ctl == 'g' or entry.address in gsb_includes:
-                t_gsb_entry_subs['t_anchor'] = self.format_anchor(entry.address)
-                t_gsb_entry_subs['entry'] = self._get_entry_dict(cwd, index, fname)
-                gsb_entries.append(self.format_template('gsb_entry', t_gsb_entry_subs))
+                t_map_entry_subs['t_anchor'] = self.format_anchor(entry.address)
+                t_map_entry_subs['entry'] = self._get_entry_dict(cwd, index, fname)
+                gsb_entries.append(self.format_template('map_entry', t_map_entry_subs))
 
         subs = {
             'MemoryMap': map_dict,
-            'entries': '\n'.join(gsb_entries)
+            'm_map_entry': '\n'.join(gsb_entries)
         }
         html = self.format_page(P_GSB, cwd, subs, default='MemoryMap')
         self.write_file(fname, html)
@@ -839,6 +844,7 @@ class HtmlWriter:
         map_details = self.memory_maps.get(map_name, {})
         entry_types = map_details.get('EntryTypes', 'bcgstuw')
         map_dict = {
+            'EntryDescriptions': '0',
             'Intro': self.expand(map_details.get('Intro', ''), cwd),
             'LengthColumn': '0',
             'PageByteColumns': map_details.get('PageByteColumns', '0')
@@ -848,13 +854,13 @@ class HtmlWriter:
         t_map_entry_subs = {'MemoryMap': map_dict}
         for index, entry in enumerate(self.memory_map):
             if entry.ctl in entry_types:
-                t_map_entry_subs['entry'] = self._get_entry_dict(cwd, index, fname)
+                t_map_entry_subs['entry'] = self._get_entry_dict(cwd, index, fname, False)
                 t_map_entry_subs['t_anchor'] = self.format_anchor(entry.address)
                 map_entries.append(self.format_template('map_entry', t_map_entry_subs))
 
         subs = {
             'MemoryMap': map_dict,
-            'entries': '\n'.join(map_entries)
+            'm_map_entry': '\n'.join(map_entries)
         }
         html = self.format_page(map_name, cwd, subs, default=P_MEMORY_MAP)
         self.write_file(fname, html)

@@ -312,7 +312,7 @@ TEMPLATES = """
 <th class="map-length-{MemoryMap[LengthColumn]}">Length</th>
 <th>Description</th>
 </tr>
-{entries}
+{m_map_entry}
 </table>
 <div class="footer">
 <div class="release">{Info[Release]}</div>
@@ -440,18 +440,6 @@ TEMPLATES = """
 [Template:contents_list_item]
 <li><a class="link" href="{item[url]}">{item[title]}</a></li>
 
-[Template:gsb_entry]
-<tr>
-<td class="gbufAddress">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
-<td class="gbufLength">{entry[size]}</td>
-<td class="gbufDesc">
-<div class="gbufDesc">{entry[title]}</div>
-<div class="gbufDetails">
-{entry[description]}
-</div>
-</td>
-</tr>
-
 [Template:img]
 <img alt="{alt}" src="{src}" />
 
@@ -476,7 +464,12 @@ TEMPLATES = """
 <td class="map-byte-{MemoryMap[PageByteColumns]}">{entry[byte]}</td>
 <td class="map-{entry[type]}">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
 <td class="map-length-{MemoryMap[LengthColumn]}">{entry[size]}</td>
-<td class="map-{entry[type]}-desc">{entry[title]}</td>
+<td class="map-{entry[type]}-desc">
+<div class="map-entry-title">{entry[title]}</div>
+<div class="map-entry-desc-{MemoryMap[EntryDescriptions]}">
+{entry[description]}
+</div>
+</td>
 </tr>
 
 [Template:paragraph]
