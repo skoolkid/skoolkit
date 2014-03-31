@@ -106,19 +106,18 @@ Pokes
 """
 
 SECTIONS['Links'] = """
-Bugs=Bugs
-Changelog=Changelog
-DataMap=Data
-Facts=Trivia
-GameIndex=Index
-GameStatusBuffer=Game status buffer
-Glossary=Glossary
-GraphicGlitches=Graphic glitches
+; Bugs=
+; Changelog=
+; DataMap=
+; Facts=
+; GameStatusBuffer=
+; Glossary=
+; GraphicGlitches=
 MemoryMap=Everything
-MessagesMap=Messages
-Pokes=Pokes
-RoutinesMap=Routines
-UnusedMap=Unused addresses
+; MessagesMap=
+; Pokes=
+; RoutinesMap=
+; UnusedMap=
 """
 
 SECTIONS['MemoryMap:MemoryMap'] = """
@@ -164,19 +163,18 @@ Asm-s=Unused
 Asm-t=Data
 Asm-u=Unused
 Asm-w=Data
-Bugs=Bugs
-Changelog=Changelog
-DataMap=Data
-Facts=Trivia
-GameIndex=Index
-GameStatusBuffer=Game status buffer
-Glossary=Glossary
-GraphicGlitches=Graphic glitches
-MemoryMap=Memory map
-MessagesMap=Messages
-Pokes=Pokes
-RoutinesMap=Routines
-UnusedMap=Unused addresses
+; Bugs=
+; Changelog=
+; DataMap=
+; Facts=
+; GameStatusBuffer=
+; Glossary=
+; GraphicGlitches=
+; MemoryMap=
+; MessagesMap=
+; Pokes=
+; RoutinesMap=
+; UnusedMap=
 """
 
 SECTIONS['Paths'] = """

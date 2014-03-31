@@ -3,6 +3,8 @@ Changelog
 
 4.0b1
 -----
+* Added support for defining page headers in the :ref:`pageHeaders` section of
+  the `ref` file
 * Removed support for the ``[Info]`` section; the parameters it contained now
   belong in the :ref:`ref-Game` section
 * Removed support for the ``[Graphics]`` section

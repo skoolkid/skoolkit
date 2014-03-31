@@ -455,11 +455,11 @@ The ``Links`` section defines the link text for the various pages in the HTML
 disassembly (as displayed on the disassembly index page). Each line has the
 form::
 
-  ID=text
+  PageID=text
 
 where:
 
-* ``ID`` is the ID of the page
+* ``PageID`` is the ID of the page
 * ``text`` is the link text
 
 Recognised page IDs are:
@@ -477,8 +477,8 @@ Recognised page IDs are:
 * ``RoutinesMap`` - the 'Routines' memory map page
 * ``UnusedMap`` - the 'Unused addresses' memory map page
 
-The default link text for a page is the same as the page title (see
-:ref:`titles`) except where indicated above.
+The default link text for a page is the same as the header defined in the
+:ref:`pageHeaders` section, except where indicated above.
 
 If the link text starts with some text in square brackets, that text alone is
 used as the link text, and the remaining text is displayed alongside the
@@ -672,6 +672,55 @@ The HTML source may contain :ref:`skool macros <skoolMacros>`.
 | 2.1     | New     |
 +---------+---------+
 
+.. _pageHeaders:
+
+[PageHeaders]
+-------------
+The ``PageHeaders`` section defines the header text for every page in the HTML
+disassembly. Each line has the form::
+
+  PageID=header
+
+where:
+
+* ``PageID`` is the ID of the page
+* ``header`` is the header text
+
+Recognised page IDs are:
+
+* ``Asm-b`` - disassembly pages for 'b' blocks (default: 'Data')
+* ``Asm-c`` - disassembly pages for 'c' blocks (default: 'Routines')
+* ``Asm-g`` - disassembly pages for 'g' blocks (default: 'Game status buffer')
+* ``Asm-s`` - disassembly pages for 's' blocks (default: 'Unused')
+* ``Asm-t`` - disassembly pages for 't' blocks (default: 'Data')
+* ``Asm-u`` - disassembly pages for 'u' blocks (default: 'Unused')
+* ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data')
+* ``Bugs`` - the 'Bugs' page
+* ``Changelog`` - the 'Changelog' page
+* ``DataMap`` - the 'Data' memory map page
+* ``Facts`` - the 'Trivia' page
+* ``GameStatusBuffer`` - the 'Game status buffer' page
+* ``Glossary`` - the 'Glossary' page
+* ``GraphicGlitches`` - the 'Graphic glitches' page
+* ``MemoryMap`` - the 'Everything' memory map page
+* ``MessagesMap`` - the 'Messages' memory map page
+* ``Pokes`` - the 'Pokes' page
+* ``RoutinesMap`` - the 'Routines' memory map page
+* ``UnusedMap`` - the 'Unused addresses' memory map page
+
+The default header text for a page is the same as the title defined in the
+:ref:`titles` section, except where indicated above.
+
+Note that the header of the disassembly index page (``GameIndex``) is not
+defined in this section; it is composed from the values of the ``TitlePrefix``
+and ``TitleSuffix`` parameters in the :ref:`ref-Game` section.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 4.0     | New     |
++---------+---------+
+
 .. _paths:
 
 [Paths]
@@ -800,18 +849,27 @@ into place whenever the disassembly is built.
 
 [Titles]
 --------
-The ``Titles`` section defines the titles of the various pages in the HTML
-disassembly. Each line has the form::
+The ``Titles`` section defines the title (i.e. text used to compose the
+``<title>`` element) for every page in the HTML disassembly. Each line has the
+form::
 
-  ID=title
+  PageID=title
 
 where:
 
-* ``ID`` is the ID of the page
+* ``PageID`` is the ID of the page
 * ``title`` is the page title
 
 Recognised page IDs and their default titles are:
 
+* ``Asm-b`` - disassembly pages for 'b' blocks (default: 'Data at')
+* ``Asm-c`` - disassembly pages for 'c' blocks (default: 'Routine at')
+* ``Asm-g`` - disassembly pages for 'g' blocks (default: 'Game status buffer
+  entry at')
+* ``Asm-s`` - disassembly pages for 's' blocks (default: 'Unused RAM at')
+* ``Asm-t`` - disassembly pages for 't' blocks (default: 'Data at')
+* ``Asm-u`` - disassembly pages for 'u' blocks (default: 'Unused RAM at')
+* ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data at')
 * ``Bugs`` - the 'Bugs' page (default: 'Bugs')
 * ``Changelog`` - the 'Changelog' page (default: 'Changelog')
 * ``DataMap`` - the 'Data' memory map page (default: 'Data')
@@ -837,4 +895,6 @@ Recognised page IDs and their default titles are:
 | 2.2.5   | Added the ``Changelog`` page ID |
 +---------+---------------------------------+
 | 2.5     | Added the ``UnusedMap`` page ID |
++---------+---------------------------------+
+| 4.0     | Added the ``Asm-*`` page IDs    |
 +---------+---------------------------------+

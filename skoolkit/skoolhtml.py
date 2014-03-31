@@ -143,16 +143,12 @@ class HtmlWriter:
                 path = page['Path']
             self.paths[page_id] = path
             self.titles.setdefault(page_id, page_id)
-            self.page_headers.setdefault(page_id, page_id)
-            links.setdefault(page_id, page_id)
 
         self.other_code = self.get_dictionaries('OtherCode')
         for c_id, code in self.other_code:
             index_page_id = code.setdefault('IndexPageId', 'Index-{}'.format(c_id))
             self.paths[index_page_id] = code['Index']
             self.titles.setdefault(index_page_id, index_page_id)
-            self.page_headers.setdefault(index_page_id, index_page_id)
-            links.setdefault(index_page_id, index_page_id)
             for entry_type in 'bcgstuw':
                 asm_page_id = 'Asm-{}-{}'.format(c_id, entry_type)
                 default_asm_page_id = 'Asm-' + entry_type
@@ -168,9 +164,10 @@ class HtmlWriter:
                 self.memory_map_names.append(map_name)
                 self.paths.setdefault(map_name, 'maps/{}.html'.format(map_name))
                 self.titles.setdefault(map_name, map_name)
-                self.page_headers.setdefault(map_name, map_name)
-                links.setdefault(map_name, map_name)
 
+        for page_id, title in self.titles.items():
+            self.page_headers.setdefault(page_id, title)
+            links.setdefault(page_id, self.page_headers[page_id])
         self.links = self._parse_links(links)
 
         self.code_id = code_id
