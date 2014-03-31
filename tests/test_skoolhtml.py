@@ -824,15 +824,11 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_macro_link(self):
         ref = '\n'.join((
-            '[Page:Custom_Page_1]',
-            'Path=page.html',
-            '',
-            '[Page:Custom_Page_2]',
-            'Path=page2.html',
-            '',
+            '[Page:page]',
+            '[Page:page2]',
             '[Links]',
-            'Custom_Page_1=Custom page',
-            'Custom_Page_2=Custom page 2'
+            'page=Custom page',
+            'page2=Custom page 2'
         ))
         writer = self._get_writer(ref=ref)
 
@@ -845,10 +841,10 @@ class HtmlWriterTest(SkoolKitTestCase):
         output = writer.expand('#LINK:Pokes{0}({1})'.format(anchor, link_text), ASMDIR)
         self.link_equals(output, '../{0}/pokes.html{1}'.format(REFERENCE_DIR, anchor), link_text)
 
-        output = writer.expand('#LINK:Custom_Page_1()', ASMDIR)
+        output = writer.expand('#LINK:page()', ASMDIR)
         self.link_equals(output, '../page.html', 'Custom page')
 
-        output = writer.expand('#LINK:Custom_Page_2#anchor~1()', ASMDIR)
+        output = writer.expand('#LINK:page2#anchor~1()', ASMDIR)
         self.link_equals(output, '../page2.html#anchor~1', 'Custom page 2')
 
     def test_macro_link_invalid(self):
@@ -3326,32 +3322,32 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_title_equals(path, title)
 
     def test_write_page(self):
+        page_id = 'page'
         ref = '\n'.join((
-            '[Page:CustomPage]',
-            'Path=page.html',
+            '[Page:{0}]',
             'JavaScript=test-html.js',
             '',
-            '[PageContent:CustomPage]',
+            '[PageContent:{0}]',
             '<b>This is the content of the custom page.</b>',
             '',
             '[PageHeaders]',
-            'CustomPage=Custom page',
+            '{0}=Custom page',
             '',
             '[Titles]',
-            'CustomPage=Custom page'
-        ))
+            '{0}=Custom page'
+        )).format(page_id)
         writer = self._get_writer(ref=ref, skool='')
-        writer.write_page('CustomPage')
+        writer.write_page(page_id)
         subs = {
             'name': basename(self.skoolfile)[:-6],
             'title': 'Custom page',
             'header': 'Custom page',
             'path': '',
-            'body_class': 'CustomPage',
+            'body_class': 'page',
             'js': 'test-html.js',
             'content': '<b>This is the content of the custom page.</b>\n'
         }
-        self.assert_files_equal('page.html', subs)
+        self.assert_files_equal('{}.html'.format(page_id), subs)
 
     def test_write_bugs(self):
         ref = '\n'.join((
@@ -3997,13 +3993,12 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_write_page_no_game_name(self):
         page_id = 'Custom'
-        path = 'custom.html'
+        path = '{}.html'.format(page_id)
         ref = '\n'.join((
             '[Page:{0}]',
-            'Path={1}',
             '[Template:{0}]',
             '{{Game[Logo]}}'
-        )).format(page_id, path)
+        )).format(page_id)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page(page_id)
         game_name = self.skoolfile[:-6]
@@ -4019,7 +4014,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Game]',
             'Game={0}',
             '[Page:{1}]',
-            'Path={2}',
+            '[Paths]',
+            '{1}={2}',
             '[Template:{1}]',
             '{{Game[Logo]}}'
         )).format(game_name, page_id, path)
@@ -4036,7 +4032,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Game]',
             'LogoImage=images/nonexistent.png',
             '[Page:{0}]',
-            'Path={1}',
+            '[Paths]',
+            '{0}={1}',
             '[Template:{0}]',
             '{{Game[Logo]}}'
         )).format(page_id, path)
@@ -4055,7 +4052,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Game]',
             'LogoImage={0}',
             '[Page:{1}]',
-            'Path={2}',
+            '[Paths]',
+            '{1}={2}',
             '[Template:{1}]',
             '{{Game[Logo]}}'
         )).format(logo_image_fname, page_id, path)
@@ -4069,21 +4067,19 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_format_page_with_logo(self):
         logo = 'ABC #UDG30000 123'
-        page_id = 'Custom'
-        path = 'custom.html'
+        page_id = 'custom'
         ref = '\n'.join((
             '[Game]',
             'Logo={0}',
             '[Page:{1}]',
-            'Path={2}',
             '[Template:{1}]',
             '{{Game[Logo]}}'
-        )).format(logo, page_id, path)
+        )).format(logo, page_id)
         writer = self._get_writer(ref=ref, skool='')
         cwd = ''
         writer.write_page(page_id)
         logo_value = writer.expand(logo, cwd)
-        page = self.read_file(path, True)
+        page = self.read_file('{}.html'.format(page_id), True)
         self.assertEqual(page[0], logo_value)
 
 class UdgTest(SkoolKitTestCase):

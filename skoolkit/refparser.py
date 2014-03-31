@@ -26,7 +26,7 @@ class RefParser:
 
     def _add_section(self, section_name, section_lines):
         if section_name:
-            while not section_lines[-1]:
+            while section_lines and not section_lines[-1]:
                 section_lines.pop()
             self.ref.append((section_name, section_lines))
             self.sections[section_name] = section_lines

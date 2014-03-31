@@ -140,8 +140,8 @@ class HtmlWriter:
             if path:
                 self.page_ids.remove(page_id)
             else:
-                path = page['Path']
-            self.paths[page_id] = path
+                path = '{}.html'.format(page_id)
+            self.paths.setdefault(page_id, path)
             self.titles.setdefault(page_id, page_id)
 
         self.other_code = self.get_dictionaries('OtherCode')
