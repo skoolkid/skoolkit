@@ -237,13 +237,13 @@ SECTIONS['Template:Asm'] = """
 <tr class="asm-input-header">
 <th colspan="2">{Game[InputRegisterTableHeader]}</th>
 </tr>
-{m_asm_register_input}
+{registers_input}
 </table>
 <table class="output-{entry[output]}">
 <tr class="asm-output-header">
 <th colspan="2">{Game[OutputRegisterTableHeader]}</th>
 </tr>
-{m_asm_register_output}
+{registers_output}
 </table>
 </td>
 </tr>
@@ -419,14 +419,7 @@ SECTIONS['Template:asm_instruction'] = """
 </tr>
 """
 
-SECTIONS['Template:asm_register_input'] = """
-<tr>
-<td class="register">{register[name]}</td>
-<td class="registerContents">{register[description]}</td>
-</tr>
-"""
-
-SECTIONS['Template:asm_register_output'] = """
+SECTIONS['Template:asm_register'] = """
 <tr>
 <td class="register">{register[name]}</td>
 <td class="registerContents">{register[description]}</td>

@@ -723,7 +723,7 @@ class HtmlWriter:
             for reg in registers:
                 reg_dict['name'] = reg.name
                 reg_dict['description'] = self.expand(reg.contents, cwd)
-                registers_html.append(self.format_template('asm_register_{}'.format(reg_type), {'register': reg_dict}))
+                registers_html.append(self.format_template('asm_register', {'register': reg_dict}))
             reg_lists.append('\n'.join(registers_html))
         return reg_lists
 
@@ -811,8 +811,8 @@ class HtmlWriter:
             'prev_entry': prev_entry_dict,
             'entry': entry_dict,
             'next_entry': next_entry_dict,
-            'm_asm_register_input': input_reg,
-            'm_asm_register_output': output_reg,
+            'registers_input': input_reg,
+            'registers_output': output_reg,
             'disassembly': '\n'.join(lines)
         }
         self.write_file(fname, self.format_page(page_id, cwd, subs, default='Asm'))
