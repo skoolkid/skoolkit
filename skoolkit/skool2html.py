@@ -31,7 +31,7 @@ from . import PACKAGE_DIR, VERSION, show_package_dir, write, write_line, get_cla
 from .skoolhtml import FileInfo
 from .skoolparser import SkoolParser, CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
 from .refparser import RefParser
-from .defaults import CONFIG
+from . import defaults
 
 verbose = True
 show_timings = False
@@ -182,7 +182,7 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
     if reffile_f:
         reffiles.insert(0, normpath(reffile_f))
     ref_parser = RefParser()
-    ref_parser.parse(StringIO(CONFIG))
+    ref_parser.parse(StringIO(defaults.get_section('Config')))
     config = ref_parser.get_dictionary('Config')
     for oreffile_f in reffiles:
         ref_parser.parse(oreffile_f)

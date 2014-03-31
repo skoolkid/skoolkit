@@ -16,8 +16,11 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-COLOURS = """
-[Colours]
+from collections import OrderedDict
+
+SECTIONS = OrderedDict()
+
+SECTIONS['Colours'] = """
 TRANSPARENT=0,254,0
 BLACK=0,0,0
 BLUE=0,0,197
@@ -36,15 +39,13 @@ BRIGHT_YELLOW=255,255,0
 BRIGHT_WHITE=255,255,255
 """
 
-CONFIG = """
-[Config]
+SECTIONS['Config'] = """
 HtmlWriterClass=skoolkit.skoolhtml.HtmlWriter
 SkoolFile=
 GameDir=
 """
 
-GAME = """
-[Game]
+SECTIONS['Game'] = """
 Copyright=
 Created=Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> $VERSION.
 Font=
@@ -62,8 +63,7 @@ TitlePrefix=The complete
 TitleSuffix=RAM disassembly
 """
 
-IMAGE_WRITER = """
-[ImageWriter]
+SECTIONS['ImageWriter'] = """
 DefaultFormat=png
 GIFCompression=1
 GIFEnableAnimation=1
@@ -73,28 +73,31 @@ PNGCompressionLevel=9
 PNGEnableAnimation=1
 """
 
-INDEX = """
-[Index]
+SECTIONS['Index'] = """
 MemoryMaps
 Graphics
 DataTables
 OtherCode
 Reference
+"""
 
-[Index:MemoryMaps:Memory maps]
+SECTIONS['Index:MemoryMaps:Memory maps'] = """
 MemoryMap
 RoutinesMap
 DataMap
 MessagesMap
 UnusedMap
+"""
 
-[Index:Graphics:Graphics]
+SECTIONS['Index:Graphics:Graphics'] = """
 GraphicGlitches
+"""
 
-[Index:DataTables:Data tables and buffers]
+SECTIONS['Index:DataTables:Data tables and buffers'] = """
 GameStatusBuffer
+"""
 
-[Index:Reference:Reference]
+SECTIONS['Index:Reference:Reference'] = """
 Changelog
 Glossary
 Facts
@@ -102,8 +105,7 @@ Bugs
 Pokes
 """
 
-LINKS = """
-[Links]
+SECTIONS['Links'] = """
 Bugs=Bugs
 Changelog=Changelog
 DataMap=Data
@@ -119,27 +121,29 @@ RoutinesMap=Routines
 UnusedMap=Unused addresses
 """
 
-MEMORY_MAPS = """
-[MemoryMap:MemoryMap]
+SECTIONS['MemoryMap:MemoryMap'] = """
 PageByteColumns=1
+"""
 
-[MemoryMap:RoutinesMap]
+SECTIONS['MemoryMap:RoutinesMap'] = """
 EntryTypes=c
+"""
 
-[MemoryMap:DataMap]
+SECTIONS['MemoryMap:DataMap'] = """
 EntryTypes=bw
 PageByteColumns=1
+"""
 
-[MemoryMap:MessagesMap]
+SECTIONS['MemoryMap:MessagesMap'] = """
 EntryTypes=t
+"""
 
-[MemoryMap:UnusedMap]
+SECTIONS['MemoryMap:UnusedMap'] = """
 EntryTypes=suz
 PageByteColumns=1
 """
 
-PAGE_HEADERS = """
-[PageHeaders]
+SECTIONS['PageHeaders'] = """
 Asm-b=Data
 Asm-c=Routines
 Asm-g=Game status buffer
@@ -162,8 +166,7 @@ RoutinesMap=Routines
 UnusedMap=Unused addresses
 """
 
-PATHS = """
-[Paths]
+SECTIONS['Paths'] = """
 CodePath=asm
 FontPath=.
 FontImagePath=images/font
@@ -186,8 +189,7 @@ RoutinesMap=maps/routines.html
 UnusedMap=maps/unused.html
 """
 
-TEMPLATES = """
-[Template:Asm]
+SECTIONS['Template:Asm'] = """
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -250,8 +252,9 @@ TEMPLATES = """
 </div>
 </body>
 </html>
+"""
 
-[Template:GameIndex]
+SECTIONS['Template:GameIndex'] = """
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -279,8 +282,9 @@ TEMPLATES = """
 </div>
 </body>
 </html>
+"""
 
-[Template:MemoryMap]
+SECTIONS['Template:MemoryMap'] = """
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -317,8 +321,9 @@ TEMPLATES = """
 </div>
 </body>
 </html>
+"""
 
-[Template:Page]
+SECTIONS['Template:Page'] = """
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -345,8 +350,9 @@ TEMPLATES = """
 </div>
 </body>
 </html>
+"""
 
-[Template:Reference]
+SECTIONS['Template:Reference'] = """
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -376,11 +382,13 @@ TEMPLATES = """
 </div>
 </body>
 </html>
+"""
 
-[Template:anchor]
+SECTIONS['Template:anchor'] = """
 <a name="{anchor}"></a>
+"""
 
-[Template:asm_comment]
+SECTIONS['Template:asm_comment'] = """
 <tr>
 <td class="routineComment" colspan="4">
 {t_anchor}
@@ -389,72 +397,86 @@ TEMPLATES = """
 </div>
 </td>
 </tr>
+"""
 
-[Template:asm_instruction]
+SECTIONS['Template:asm_instruction'] = """
 <tr>
 <td class="asm-label-{entry[labels]}">{instruction[label]}</td>
 <td class="address">{t_anchor}{instruction[address]}</td>
 <td class="instruction">{instruction[operation]}</td>
 <td class="comment-{instruction[annotated]}" rowspan="{instruction[comment_rowspan]}">{instruction[comment]}</td>
 </tr>
+"""
 
-[Template:asm_register_input]
+SECTIONS['Template:asm_register_input'] = """
 <tr>
 <td class="register">{register[name]}</td>
 <td class="registerContents">{register[description]}</td>
 </tr>
+"""
 
-[Template:asm_register_output]
+SECTIONS['Template:asm_register_output'] = """
 <tr>
 <td class="register">{register[name]}</td>
 <td class="registerContents">{register[description]}</td>
 </tr>
+"""
 
-[Template:box]
+SECTIONS['Template:box'] = """
 <div>{t_anchor}</div>
 <div class="box box{box_num}">
 <div class="boxTitle">{title}</div>
 {contents}
 </div>
+"""
 
-[Template:changelog_entry]
+SECTIONS['Template:changelog_entry'] = """
 <div>{t_anchor}</div>
 <div class="changelog changelog{changelog_num}">
 <div class="changelogTitle">{release[title]}</div>
 <div class="changelogDesc">{release[description]}</div>
 {t_changelog_item_list}
 </div>
+"""
 
-[Template:changelog_item]
+SECTIONS['Template:changelog_item'] = """
 <li>{item}</li>
+"""
 
-[Template:changelog_item_list]
+SECTIONS['Template:changelog_item_list'] = """
 <ul class="changelog{indent}">
 {m_changelog_item}
 </ul>
+"""
 
-[Template:contents_list_item]
+SECTIONS['Template:contents_list_item'] = """
 <li><a class="link" href="{item[url]}">{item[title]}</a></li>
+"""
 
-[Template:img]
+SECTIONS['Template:img'] = """
 <img alt="{alt}" src="{src}" />
+"""
 
-[Template:index_section]
+SECTIONS['Template:index_section'] = """
 <div class="headerText">{header}</div>
 <ul class="indexList">
 {m_index_section_item}
 </ul>
+"""
 
-[Template:index_section_item]
+SECTIONS['Template:index_section_item'] = """
 <li><a class="link" href="{href}">{link_text}</a>{other_text}</li>
+"""
 
-[Template:javascript]
+SECTIONS['Template:javascript'] = """
 <script type="text/javascript" src="{src}"></script>
+"""
 
-[Template:link]
+SECTIONS['Template:link'] = """
 <a class="link" href="{href}">{link_text}</a>
+"""
 
-[Template:map_entry]
+SECTIONS['Template:map_entry'] = """
 <tr>
 <td class="map-page-{MemoryMap[PageByteColumns]}">{entry[page]}</td>
 <td class="map-byte-{MemoryMap[PageByteColumns]}">{entry[byte]}</td>
@@ -467,21 +489,23 @@ TEMPLATES = """
 </div>
 </td>
 </tr>
+"""
 
-[Template:paragraph]
+SECTIONS['Template:paragraph'] = """
 <div class="paragraph">
 {paragraph}
 </div>
+"""
 
-[Template:reg]
+SECTIONS['Template:reg'] = """
 <span class="register">{reg}</span>
+"""
 
-[Template:stylesheet]
+SECTIONS['Template:stylesheet'] = """
 <link rel="stylesheet" type="text/css" href="{href}" />
 """
 
-TITLES = """
-[Titles]
+SECTIONS['Titles'] = """
 Asm-b=Data at
 Asm-c=Routine at
 Asm-g=Game status buffer entry at
@@ -504,16 +528,17 @@ RoutinesMap=Routines
 UnusedMap=Unused addresses
 """
 
-REF_FILE = """
-{COLOURS}
-{CONFIG}
-{GAME}
-{IMAGE_WRITER}
-{INDEX}
-{LINKS}
-{MEMORY_MAPS}
-{PAGE_HEADERS}
-{PATHS}
-{TEMPLATES}
-{TITLES}
-""".format(**locals())
+def _format_section(name):
+    return '[{}]{}'.format(name, SECTIONS[name])
+
+REF_FILE = '\n'.join([_format_section(name) for name in SECTIONS])
+
+def get_section(name):
+    return _format_section(name)
+
+def get_sections(prefix):
+    sections = []
+    for section_name in SECTIONS:
+        if section_name.startswith(prefix):
+            sections.append(_format_section(section_name))
+    return '\n'.join(sections)
