@@ -5,6 +5,9 @@ Changelog
 -----
 * Added support for defining page headers in the :ref:`pageHeaders` section of
   the `ref` file
+* Added the ``--ref-file`` and ``--ref-sections`` options to
+  :ref:`skool2html.py` (to show the entire default `ref` file or individual
+  sections of it)
 * Removed support for the ``[Info]`` section; the parameters it contained now
   belong in the :ref:`ref-Game` section
 * Removed support for the ``[Graphics]`` section

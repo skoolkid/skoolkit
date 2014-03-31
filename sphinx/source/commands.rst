@@ -224,6 +224,10 @@ list::
                           IDs of pages defined in [Page:*] sections in the ref
                           file(s)
     -q, --quiet           Be quiet
+    -r PREFIX, --ref-sections PREFIX
+                          Show default ref file sections whose names start with
+                          PREFIX and exit
+    -R, --ref-file        Show the entire default ref file and exit
     -s, --search-dirs     Show the locations skool2html.py searches for resources
     -t, --time            Show timings
     -T THEME, --theme THEME
@@ -304,6 +308,8 @@ will use the following CSS files, if they exist, in the order listed:
 | 3.5     | Added support for multiple CSS themes                           |
 +---------+-----------------------------------------------------------------+
 | 3.6     | Added the ``--join-css`` and ``--search-dirs`` options          |
++---------+-----------------------------------------------------------------+
+| 4.0     | Added the ``--ref-sections`` and ``--ref-file`` options         |
 +---------+-----------------------------------------------------------------+
 
 .. _skool2sft.py:

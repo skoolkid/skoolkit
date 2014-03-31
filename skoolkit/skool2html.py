@@ -65,6 +65,14 @@ def show_search_dirs():
         write_line(prefix + search_dir)
     sys.exit(0)
 
+def show_ref_file():
+    write(defaults.REF_FILE)
+    sys.exit(0)
+
+def show_ref_sections(prefix):
+    write(defaults.get_sections(prefix))
+    sys.exit(0)
+
 def notify(notice):
     if verbose:
         write_line(notice)
@@ -352,6 +360,11 @@ def main(args):
                             "file(s)")
     group.add_argument('-q', '--quiet', dest='verbose', action='store_false',
                        help="Be quiet")
+    group.add_argument('-r', '--ref-sections', dest='ref_sections', metavar='PREFIX',
+                       help="Show default ref file sections whose names start with\n"
+                            "PREFIX and exit")
+    group.add_argument('-R', '--ref-file', dest='ref_file', action='store_true',
+                       help="Show the entire default ref file and exit")
     group.add_argument('-s', '--search-dirs', dest='search_dirs', action='store_true',
                        help="Show the locations skool2html.py searches for resources")
     group.add_argument('-t', '--time', dest='show_timings', action='store_true',
@@ -378,6 +391,10 @@ def main(args):
         show_package_dir()
     if namespace.search_dirs:
         show_search_dirs()
+    if namespace.ref_file:
+        show_ref_file()
+    if namespace.ref_sections is not None:
+        show_ref_sections(namespace.ref_sections)
     if unknown_args or not namespace.infiles:
         parser.exit(2, parser.format_help())
     verbose, show_timings = namespace.verbose, namespace.show_timings

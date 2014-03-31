@@ -379,7 +379,7 @@ The ``Index`` section contains a list of link group IDs in the order in which
 the link groups will appear on the disassembly index page. The link groups
 themselves are defined in ``[Index:*:*]`` sections (see below).
 
-By default, SkoolKit defines the following list of link groups::
+By default, SkoolKit defines the following link groups::
 
   [Index]
   MemoryMaps
@@ -418,28 +418,9 @@ The page IDs that may be used in an ``[Index:*:*]`` section are the same as the
 file IDs that may be used in the :ref:`paths` section, or the IDs defined by
 :ref:`page` sections.
 
-By default, SkoolKit defines four link groups with the following names and
-contents::
+To see the default link groups and their contents, run the following command::
 
-  [Index:MemoryMaps:Memory maps]
-  MemoryMap
-  RoutinesMap
-  DataMap
-  MessagesMap
-  UnusedMap
-
-  [Index:Graphics:Graphics]
-  GraphicGlitches
-
-  [Index:DataTables:Data tables and buffers]
-  GameStatusBuffer
-
-  [Index:Reference:Reference]
-  Changelog
-  Glossary
-  Facts
-  Bugs
-  Pokes
+  $ skool2html.py -r Index:
 
 +---------+---------+
 | Version | Changes |
@@ -538,25 +519,10 @@ Recognised parameters and their default values are:
 * ``Write`` - ``1`` to write the memory map page, or ``0`` not to (default:
   ``1``)
 
-By default, SkoolKit defines five memory maps whose property values differ from
-the defaults as follows::
+To see the default memory map pages and their properties, run the following
+command::
 
-  [MemoryMap:MemoryMap]
-  PageByteColumns=1
-
-  [MemoryMap:RoutinesMap]
-  EntryTypes=c
-
-  [MemoryMap:DataMap]
-  EntryTypes=bw
-  PageByteColumns=1
-
-  [MemoryMap:MessagesMap]
-  EntryTypes=t
-
-  [MemoryMap:UnusedMap]
-  EntryTypes=suz
-  PageByteColumns=1
+  $ skool2html.py -r MemoryMap
 
 +---------+---------+
 | Version | Changes |

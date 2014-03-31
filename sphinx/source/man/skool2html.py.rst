@@ -55,6 +55,12 @@ OPTIONS
 -q, --quiet
   Be quiet.
 
+-r, --ref-sections `PREFIX`
+  Show the default ref file sections whose names start with `PREFIX` and exit.
+
+-R, --ref-file
+  Show the entire default ref file and exit.
+
 -s, --search-dirs
   Show the locations that ``skool2html.py`` searches for resources.
 
