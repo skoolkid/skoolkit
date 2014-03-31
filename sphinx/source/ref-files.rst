@@ -589,25 +589,23 @@ Each ``Page:*`` section contains parameters in the form::
 
   name=value
 
-One of the following two parameters is required:
+Recognised parameters are:
 
-* ``Content`` - the path (directory and filename) of a page that already exists
-* ``Path`` - the path (directory and filename) where the custom page will be
-  created
-
-The following parameters are optional:
-
-* ``BodyClass`` - the CSS class to use for the ``<body>`` element of the page
-  (default: no CSS class is used)
+* ``Content`` - the path (directory and filename) of a page that already
+  exists; when this parameter is supplied, no others are required
 * ``JavaScript`` - the base name of the JavaScript file to use in addition to
   any declared by the ``JavaScript`` parameter in the :ref:`ref-Game` section
   (default: None); multiple JavaScript files can be declared by separating
   their names with semicolons
-* ``Link`` - the link text for the page (defaults to the title)
 * ``PageContent`` - the HTML source of the body of the page; this may contain
   :ref:`skool macros <skoolMacros>`, and can be used instead of a
   :ref:`pageContent` section if the source can be written on a single line
-* ``Title`` - the title of the page (defaults to the page ID)
+
+By default, the custom page is written to a file named `PageId.html` in the
+root directory of the disassembly; to change this, add a line to the
+:ref:`Paths` section. The title, page header and link text for the custom page
+can be defined in the :ref:`titles`, :ref:`pageHeaders` and :ref:`links`
+sections.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
