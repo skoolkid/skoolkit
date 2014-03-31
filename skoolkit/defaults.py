@@ -122,25 +122,38 @@ UnusedMap=Unused addresses
 """
 
 SECTIONS['MemoryMap:MemoryMap'] = """
+EntryTypes=bcgstuw
+Intro=
 PageByteColumns=1
+Write=1
 """
 
 SECTIONS['MemoryMap:RoutinesMap'] = """
 EntryTypes=c
+Intro=
+PageByteColumns=0
+Write=1
 """
 
 SECTIONS['MemoryMap:DataMap'] = """
 EntryTypes=bw
+Intro=
 PageByteColumns=1
+Write=1
 """
 
 SECTIONS['MemoryMap:MessagesMap'] = """
 EntryTypes=t
+Intro=
+PageByteColumns=0
+Write=1
 """
 
 SECTIONS['MemoryMap:UnusedMap'] = """
 EntryTypes=suz
+Intro=
 PageByteColumns=1
+Write=1
 """
 
 SECTIONS['PageHeaders'] = """
