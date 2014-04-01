@@ -68,3 +68,13 @@ disassembly can be defined in the :ref:`paths`, :ref:`titles`,
 The 'z' and 'Z' control directives (and the corresponding 'z' blocks in `skool`
 files) are not supported in SkoolKit 4; they should be replaced by 's' and 'S'
 directives.
+
+Register table headers
+----------------------
+Input and output register table headers on disassembly pages are now displayed
+by default, with header text 'Input' and 'Output'.
+
+To hide the register table headers (as was the default behaviour in SkoolKit
+3), use the following CSS rule::
+
+  tr.asm-input-header, tr.asm-output-header {display: none;}
