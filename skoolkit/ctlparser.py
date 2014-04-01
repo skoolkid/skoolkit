@@ -34,7 +34,7 @@ def parse_params(ctl, params, lengths_index=2):
                 n, m = num.split('*', 1)
             else:
                 n, m = num, '1'
-            if ctl in 'BSTWZ':
+            if ctl in 'BSTW':
                 int_params += [_parse_sublengths(n, ctl, prefix)] * get_int_param(m)
             else:
                 int_params += [(get_int_param(n), None)] * get_int_param(m)
@@ -51,7 +51,7 @@ def _parse_sublengths(sublengths, subctl, default_prefix):
         length += sublength
     if len(lengths) == 1 and prefix is None:
         return (length, None)
-    if subctl in 'SZ':
+    if subctl == 'S':
         length = lengths[0][0]
     return (length, lengths)
 
@@ -126,13 +126,13 @@ class CtlParser:
         first_char = line[0]
         content = line[1:].lstrip()
         if content:
-            if first_char in ' bBcCDEgiMRsStTuwWzZ':
+            if first_char in ' bBcCDEgiMRsStTuwW':
                 fields = content.split(' ', 1)
                 ctl = first_char
                 if ctl == ' ':
                     if entry_ctl is None:
                         raise CtlParserError("blank directive with no containing block")
-                    if entry_ctl in 'bcstwz':
+                    if entry_ctl in 'bcstw':
                         ctl = entry_ctl.upper()
                     else:
                         ctl = 'B'

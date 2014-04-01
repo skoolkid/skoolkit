@@ -11,6 +11,8 @@ Changelog
 * Removed support for the ``[Info]`` section; the parameters it contained now
   belong in the :ref:`ref-Game` section
 * Removed support for the ``[Graphics]`` section
+* Removed support for the ``z`` and ``Z`` control directives; the ``s`` and
+  ``S`` directives can be used instead
 
 3.7 (2014-03-08)
 ----------------

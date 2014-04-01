@@ -339,48 +339,5 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self.assertEqual(exp_lengths, ctl_parser.lengths)
 
-    def test_z_directives(self):
-        ctl = '\n'.join((
-            'z 50000 Test z/Z directives',
-            '  50000,10',
-            '  50010,b10',
-            '  50020,d10',
-            '  50030,h10',
-            'Z 50040,b20,5,d5,h5',
-            'Z 50060,d20,b5,5,h5',
-            'Z 50080,h20,b5,d5,5',
-            '  50100,20,b5,d5,5'
-        ))
-        ctl_parser = CtlParser()
-        ctlfile = self.write_text_file(ctl)
-        ctl_parser.parse_ctl(ctlfile)
-
-        exp_lengths = {
-            50010: [(None, [(None, 'b')])],
-            50020: [(None, [(None, 'd')])],
-            50030: [(None, [(None, 'h')])],
-            50040: [
-                (5, [(5, 'b')]),
-                (5, [(5, 'd')]),
-                (5, [(5, 'h')])
-            ],
-            50060: [
-                (5, [(5, 'b')]),
-                (5, [(5, 'd')]),
-                (5, [(5, 'h')])
-            ],
-            50080: [
-                (5, [(5, 'b')]),
-                (5, [(5, 'd')]),
-                (5, [(5, 'h')])
-            ],
-            50100: [
-                (5, [(5, 'b')]),
-                (5, [(5, 'd')]),
-                (5, None)
-            ]
-        }
-        self.assertEqual(exp_lengths, ctl_parser.lengths)
-
 if __name__ == '__main__':
     unittest.main()

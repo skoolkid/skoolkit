@@ -4,7 +4,7 @@ import unittest
 from skoolkittest import SkoolKitTestCase
 from skoolkit.skoolctl import CtlWriter
 
-DIRECTIVES = 'bcgistuwz'
+DIRECTIVES = 'bcgistuw'
 
 TEST_SKOOL = r"""; Dangling comment not associated with any entry
 
@@ -508,12 +508,6 @@ s50000 DEFS %0000000111110100
  54000 DEFS $0100,170
 """
 
-TEST_Z_DIRECTIVES_SKOOL = """; DEFS statements in various bases
-z50000 DEFS %0000000111110100
- 50500 DEFS 1000
- 51500 DEFS $07D0
-"""
-
 class CtlWriterTest(SkoolKitTestCase):
     def _get_ctl(self, elements='btdrmsc', write_hex=False, write_asm_dirs=True, skool=TEST_SKOOL, preserve_base=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')
@@ -627,22 +621,6 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             's 50000 DEFS statements in various bases',
             '  50000,4256,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170'
-        ]
-        self.assertEqual(exp_ctl, ctl)
-
-    def test_z_directives_no_base(self):
-        ctl = self._get_ctl(skool=TEST_Z_DIRECTIVES_SKOOL, preserve_base=False)
-        exp_ctl = [
-            'z 50000 DEFS statements in various bases',
-            'S 50000,3500,b%0000000111110100,1000,$07D0'
-        ]
-        self.assertEqual(exp_ctl, ctl)
-
-    def test_z_directives_preserve_base(self):
-        ctl = self._get_ctl(skool=TEST_Z_DIRECTIVES_SKOOL, preserve_base=True)
-        exp_ctl = [
-            'z 50000 DEFS statements in various bases',
-            'S 50000,3500,b%0000000111110100,d1000,h$07D0'
         ]
         self.assertEqual(exp_ctl, ctl)
 

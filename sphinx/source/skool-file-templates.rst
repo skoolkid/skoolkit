@@ -16,16 +16,16 @@ existing `skool` file; the :ref:`sna2skool.py` command can then generate a
 Skool file template format
 --------------------------
 A skool file template has the same layout as a `skool` file, except that the
-lines in 'b', 'c', 'g', 's', 't', 'u', 'w' and 'z' blocks that correspond to
-Z80 instructions look like this::
+lines in 'b', 'c', 'g', 's', 't', 'u' and 'w' blocks that correspond to Z80
+instructions look like this::
 
   xX#####,n[;c[ comment]]
 
 where:
 
-* ``x`` is one of the characters ``* bcgstuwz`` (with the same meaning as in a
+* ``x`` is one of the characters ``* bcgstuw`` (with the same meaning as in a
   :ref:`skool file <skoolFiles>`)
-* ``X`` is one of the characters ``BCSTWZ`` (with the same meaning as in a
+* ``X`` is one of the characters ``BCSTW`` (with the same meaning as in a
   :ref:`control file <controlFiles>`)
 * ``#####`` is the address at which to start disassembling
 * ``n`` is the number of bytes to disassemble

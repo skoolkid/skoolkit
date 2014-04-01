@@ -281,12 +281,6 @@ s50000 DEFS %0000000111110100
  54000 DEFS $0100,170
 """
 
-TEST_Z_DIRECTIVES_SKOOL = """; DEFS statements in various bases
-z50000 DEFS %0000000111110100
- 50500 DEFS 1000
- 51500 DEFS $07D0
-"""
-
 class SftWriterTest(SkoolKitTestCase):
     def _test_sft(self, skool, exp_sft, write_hex=False, preserve_base=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')
@@ -361,20 +355,6 @@ class SftWriterTest(SkoolKitTestCase):
             'sS50000,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170'
         ]
         self._test_sft(TEST_S_DIRECTIVES_SKOOL, exp_sft, preserve_base=True)
-
-    def test_z_directives_no_base(self):
-        exp_sft = [
-            '; DEFS statements in various bases',
-            'zS50000,b%0000000111110100,1000,$07D0'
-        ]
-        self._test_sft(TEST_Z_DIRECTIVES_SKOOL, exp_sft, preserve_base=False)
-
-    def test_z_directives_preserve_base(self):
-        exp_sft = [
-            '; DEFS statements in various bases',
-            'zS50000,b%0000000111110100,d1000,h$07D0'
-        ]
-        self._test_sft(TEST_Z_DIRECTIVES_SKOOL, exp_sft, preserve_base=True)
 
 if __name__ == '__main__':
     unittest.main()

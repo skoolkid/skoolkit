@@ -218,8 +218,8 @@ class CtlWriter:
         address = self.addr_str(instructions[0].address)
         lengths = ''
 
-        if ctl in 'bstwz':
-            # Find the byte lengths of each line in a 'B', 'S', 'T', 'W' or 'Z'
+        if ctl in 'bstw':
+            # Find the byte lengths of each line in a 'B', 'S', 'T' or 'W'
             # sub-block
             length = 0
             stmt_lengths = []
@@ -462,7 +462,7 @@ class Instruction:
             self.size, self.length = get_defm_length(operation[5:], preserve_base)
         elif self.inst_ctl == 'w':
             self.size, self.length = get_defw_length(operation[5:], preserve_base)
-        elif self.inst_ctl in 'sz':
+        elif self.inst_ctl == 's':
             self.size, self.length = get_defs_length(operation[5:], preserve_base)
 
     def set_comment(self, rowspan, text):

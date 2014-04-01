@@ -62,3 +62,9 @@ The paths, titles, headers and link text for the pages in a secondary
 disassembly can be defined in the :ref:`paths`, :ref:`titles`,
 :ref:`pageHeaders` and :ref:`links` sections; see the documentation on
 :ref:`otherCode` sections for more details.
+
+'z' and 'Z' directives
+----------------------
+The 'z' and 'Z' control directives (and the corresponding 'z' blocks in `skool`
+files) are not supported in SkoolKit 4; they should be replaced by 's' and 'S'
+directives.

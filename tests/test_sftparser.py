@@ -439,41 +439,5 @@ class SftParserTest(SkoolKitTestCase):
         ]
         self.assertEqual(exp_skool, skool[:-1])
 
-    def test_z_directives(self):
-        sft = '\n'.join((
-            'zZ00000,1,b2,d3,h4',
-            ' Z00010,b10,d10,h10',
-            ' Z00040,10',
-            ' Z00050,b300,d300,h300'
-        ))
-        skool = self._parse_sft(sft)[1]
-
-        exp_skool = [
-            'z00000 DEFS 1',
-            ' 00001 DEFS %00000010',
-            ' 00003 DEFS 3',
-            ' 00006 DEFS 4',
-            ' 00010 DEFS %00001010',
-            ' 00020 DEFS 10',
-            ' 00030 DEFS $0A',
-            ' 00040 DEFS 10',
-            ' 00050 DEFS %0000000100101100',
-            ' 00350 DEFS 300',
-            ' 00650 DEFS $012C'
-        ]
-        self.assertEqual(exp_skool, skool[:-1])
-
-    def test_z_directives_hex(self):
-        sft = 'zZ00000,b10,d10,h10,10'
-        skool = self._parse_sft(sft, asm_hex=True)[1]
-
-        exp_skool = [
-            'z$0000 DEFS %00001010',
-            ' $000A DEFS 10',
-            ' $0014 DEFS $0A',
-            ' $001E DEFS $0A'
-        ]
-        self.assertEqual(exp_skool, skool[:-1])
-
 if __name__ == '__main__':
     unittest.main()

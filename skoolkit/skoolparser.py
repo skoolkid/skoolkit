@@ -22,7 +22,7 @@ import re
 from . import warn, wrap, get_int_param, parse_int, open_file, SkoolParsingError
 from .skoolmacro import DELIMITERS
 
-DIRECTIVES = 'bcgistuwz'
+DIRECTIVES = 'bcgistuw'
 
 TABLE_MARKER = '#TABLE'
 TABLE_END_MARKER = 'TABLE#'

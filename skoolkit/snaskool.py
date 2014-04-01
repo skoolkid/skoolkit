@@ -629,12 +629,12 @@ class Disassembly:
                 title = title or 'Message at {0}'.format(self.address_str(block.start))
             elif block.ctl == 'g':
                 title = title or 'Game status buffer entry at {0}'.format(self.address_str(block.start))
-            elif block.ctl in 'usz':
+            elif block.ctl in 'us':
                 title = title or 'Unused'
             for sub_block in block.blocks:
                 if sub_block.ctl in 'cBT':
                     instructions = self.disassembler.disassemble(sub_block.start, sub_block.end)
-                elif sub_block.ctl in 'bgstuwz':
+                elif sub_block.ctl in 'bgstuw':
                     address = sub_block.start
                     lengths = self.ctl_parser.get_lengths(address)
                     one_line = True
@@ -652,7 +652,7 @@ class Disassembly:
                             instructions += self.disassembler.defm_range(address, end, one_line, sublengths)
                         elif sub_block.ctl == 'w':
                             instructions += self.disassembler.defw_range(address, end, one_line, sublengths)
-                        elif sub_block.ctl in 'sz':
+                        elif sub_block.ctl == 's':
                             instructions.append(self.disassembler.defs(address, end, sublengths))
                         else:
                             instructions += self.disassembler.defb_range(address, end, one_line, sublengths)

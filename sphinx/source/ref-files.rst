@@ -510,7 +510,6 @@ Recognised parameters and their default values are:
   * ``t`` - messages
   * ``u`` - unused addresses
   * ``w`` - DEFW blocks
-  * ``z`` - blocks containing all zeroes (deprecated; use ``s`` instead)
 
 * ``Intro`` - the text (HTML) to display at the top of the memory map page
   (default: '')
