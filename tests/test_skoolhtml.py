@@ -1067,9 +1067,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_macro_r_other_code(self):
         ref = '\n'.join((
             '[OtherCode:other]',
-            'Source=other.skool',
-            'Path=other',
-            'Index=other.html'
+            'Source=other.skool'
         ))
         skool = '\n'.join((
             'c49152 LD DE,0',
@@ -1109,9 +1107,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_macro_r_decimal(self):
         ref = '\n'.join((
             '[OtherCode:other]',
-            'Source=other.skool',
-            'Path=other',
-            'Index=other.html'
+            'Source=other.skool'
         ))
         skool = '\n'.join((
             'c32768 LD A,B',
@@ -1145,9 +1141,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_macro_r_hex(self):
         ref = '\n'.join((
             '[OtherCode:other]',
-            'Source=other.skool',
-            'Path=other',
-            'Index=other.html'
+            'Source=other.skool'
         ))
         skool = '\n'.join((
             'c32768 LD A,B',
@@ -1182,8 +1176,8 @@ class HtmlWriterTest(SkoolKitTestCase):
         ref = '\n'.join((
             '[OtherCode:Other]',
             'Source=other.skool',
-            'Path=other',
-            'Index=other.html'
+            '[Paths]',
+            'Other-CodePath=other'
         ))
         skool = '\n'.join((
             'c40970 LD A,B',
@@ -1217,9 +1211,7 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_macro_r_hex_upper(self):
         ref = '\n'.join((
             '[OtherCode:other]',
-            'Source=other.skool',
-            'Path=other',
-            'Index=other.html'
+            'Source=other.skool'
         ))
         skool = '\n'.join((
             'c$a00a LD A,B',
@@ -1881,24 +1873,19 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_write_index_other_code(self):
         # Other code
+        files = ('other/other.html', 'load/index.html')
         ref = '\n'.join((
             '[OtherCode:otherCode]',
-            'Index=other/other.html',
-            'IndexPageId=OtherCode',
-            'Path=other',
             'Source=other.skool',
-            '',
             '[OtherCode:otherCode2]',
-            'Index=load/index.html',
-            'IndexPageId=OtherCode2',
-            'Path=load',
             'Source=load.skool',
-            '',
             '[Links]',
-            'OtherCode=Startup code',
-            'OtherCode2=Loading code'
-        ))
-        files = ['other/other.html', 'load/index.html']
+            'otherCode-Index=Startup code',
+            'otherCode2-Index=Loading code',
+            '[Paths]',
+            'otherCode-Index={}',
+            'otherCode2-Index={}'
+        )).format(*files)
         content = """
             <div class="headerText">Other code</div>
             <ul class="indexList">
@@ -2071,8 +2058,6 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_write_asm_entries(self):
         ref = '\n'.join((
             '[OtherCode:start]',
-            'Index=start/index.html',
-            'Path=start',
             'Source=start.skool'
         ))
         skool = '\n'.join((
@@ -3693,18 +3678,6 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer = self._get_writer(ref=ref, skool='')
         writer.write_gbuffer()
         self.assert_title_equals(path, title)
-
-    def test_index_page_id(self):
-        ref = '\n'.join((
-            '[OtherCode:secondary]',
-            'Source=secondary.skool',
-            'Path=secondary',
-            'Index=secondary/secondary.html',
-            'IndexPageId=SecondaryCode',
-        ))
-        writer = self._get_writer(ref=ref)
-        self.assertTrue('SecondaryCode' in writer.paths)
-        self.assertEqual(writer.paths['SecondaryCode'], 'secondary/secondary.html')
 
     def test_page_content(self):
         ref = '[Page:ExistingPage]\nContent=asm/32768.html'

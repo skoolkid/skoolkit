@@ -146,12 +146,14 @@ class HtmlWriter:
 
         self.other_code = self.get_dictionaries('OtherCode')
         for c_id, code in self.other_code:
-            index_page_id = code.setdefault('IndexPageId', 'Index-{}'.format(c_id))
-            self.paths[index_page_id] = code['Index']
-            self.titles.setdefault(index_page_id, index_page_id)
+            index_page_id = code['IndexPageId'] = '{}-Index'.format(c_id)
+            self.paths.setdefault(index_page_id, '{0}/{0}.html'.format(c_id))
+            self.titles.setdefault(index_page_id, c_id)
+            code_path_id = code['CodePathId'] = '{}-CodePath'.format(c_id)
+            self.paths.setdefault(code_path_id, c_id)
             for entry_type in 'bcgstuw':
-                asm_page_id = 'Asm-{}-{}'.format(c_id, entry_type)
-                default_asm_page_id = 'Asm-' + entry_type
+                asm_page_id = self._get_asm_page_id(c_id, entry_type)
+                default_asm_page_id = self._get_asm_page_id(MAIN_CODE_ID, entry_type)
                 self.titles.setdefault(asm_page_id, self.titles[default_asm_page_id])
                 self.page_headers.setdefault(asm_page_id, self.page_headers[default_asm_page_id])
 
@@ -287,7 +289,12 @@ class HtmlWriter:
             return self.paths['CodePath']
         for c_id, code in self.other_code:
             if c_id.lower() == code_id.lower():
-                return code['Path']
+                return self.paths[code['CodePathId']]
+
+    def _get_asm_page_id(self, code_id, entry_type):
+        if code_id == MAIN_CODE_ID:
+            return 'Asm-{}'.format(entry_type)
+        return '{}-Asm-{}'.format(code_id, entry_type)
 
     def has_gbuffer(self):
         return any(entry.ctl == 'g' for entry in self.memory_map)
@@ -526,7 +533,7 @@ class HtmlWriter:
             sections[section_id] = (header_text, links)
         other_code_links = []
         for code_id, code in self.other_code:
-            fname = code['Index']
+            fname = self.paths[code['IndexPageId']]
             if self.file_exists(fname):
                 link_file = FileInfo.relpath(cwd, fname)
                 link_text = self.links[code['IndexPageId']]
@@ -738,11 +745,7 @@ class HtmlWriter:
     def write_entry(self, cwd, index, map_file):
         entry = self.memory_map[index]
         fname = join(cwd, FileInfo.asm_fname(entry.address))
-        if self.code_id == MAIN_CODE_ID:
-            asm_id = ''
-        else:
-            asm_id = '-' + self.code_id
-        page_id = 'Asm{}-{}'.format(asm_id, entry.ctl)
+        page_id = self._get_asm_page_id(self.code_id, entry.ctl)
         self._set_cwd(page_id, fname)
 
         entry_dict = self._get_entry_dict(cwd, index, map_file)

@@ -32,3 +32,33 @@ SkoolKit 4. If you have one in your `ref` file, you can migrate it thus:
     [Index:Graphics:Graphics]
     Graphics
     GraphicGlitches
+
+[Page:\*]
+---------
+The following parameters are no longer supported:
+
+* ``BodyClass``
+* ``Link``
+* ``Path``
+* ``Title``
+
+The CSS class for the ``<body>`` element of a custom page is now set to the
+page ID. The path, title, header and link text for a custom page can be defined
+in the :ref:`paths`, :ref:`titles`, :ref:`pageHeaders` and :ref:`links`
+sections.
+
+[OtherCode:\*]
+--------------
+The following parameters are no longer supported:
+
+* ``Header``
+* ``Index``
+* ``IndexPageId``
+* ``Link``
+* ``Path``
+* ``Title``
+
+The paths, titles, headers and link text for the pages in a secondary
+disassembly can be defined in the :ref:`paths`, :ref:`titles`,
+:ref:`pageHeaders` and :ref:`links` sections; see the documentation on
+:ref:`otherCode` sections for more details.

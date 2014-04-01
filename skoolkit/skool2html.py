@@ -299,7 +299,7 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_c
             html_writer2 = html_writer.clone(skool2_parser, code_id)
             map_name = code['IndexPageId']
             map_path = paths[map_name]
-            asm_path = code['Path']
+            asm_path = paths[code['CodePathId']]
             clock(html_writer2.write_map, '    Writing {}'.format(normpath(game_dir, map_path)), map_name)
             clock(html_writer2.write_entries, '    Writing disassembly files in {}'.format(normpath(game_dir, asm_path)), asm_path, map_path)
 

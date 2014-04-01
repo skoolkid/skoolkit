@@ -111,10 +111,6 @@ class Skool2HtmlTest(SkoolKitTestCase):
         ref = TEST_WRITER_REF + '\n'.join((
             '[OtherCode:other]',
             'Source={0}',
-            'Path=other',
-            'Index=other.html',
-            'Title=Other code',
-            'Header=Other code',
             '[Bug:test:Test]',
             '<p>Hello</p>',
             '[Changelog:20120704]',
@@ -123,13 +119,9 @@ class Skool2HtmlTest(SkoolKitTestCase):
             '[Glossary:Term1]',
             'Definition 1.',
             '[Page:CustomPage1]',
-            'Title=Custom page',
-            'Path=page.html',
             '[PageContent:CustomPage1]',
             '<b>This is the content of custom page 1.</b>',
             '[Page:CustomPage2]',
-            'Path=page2.html',
-            'Link=Custom page 2',
             '[PageContent:CustomPage2]',
             'Lo',
             '[GraphicGlitch:SpriteBug]',
@@ -252,7 +244,6 @@ class Skool2HtmlTest(SkoolKitTestCase):
         skoolfile = self.write_text_file(suffix='.skool')
         ref = '\n'.join((
             '[Page:P1]',
-            'Path=p1.html',
             'JavaScript={}'.format(jsfile)
         ))
         self.write_text_file(ref, '{}.ref'.format(skoolfile[:-6]))
@@ -452,7 +443,6 @@ class Skool2HtmlTest(SkoolKitTestCase):
             'JavaScript={}',
             '[Page:CustomPage]',
             'JavaScript={}',
-            'Path=page.html',
             'PageContent=<b>Hello</b>'
         )).format(global_js_file, local_js_file)
         reffile = self.write_text_file(ref, suffix='.ref')
@@ -471,7 +461,6 @@ class Skool2HtmlTest(SkoolKitTestCase):
             'JavaScript={}',
             '[Page:CustomPage]',
             'JavaScript={}',
-            'Path=page.html',
             'PageContent=<b>Hello</b>'
         )).format(';'.join(global_js_files), ';'.join(local_js_files))
         reffile = self.write_text_file(ref, suffix='.ref')
@@ -493,7 +482,6 @@ class Skool2HtmlTest(SkoolKitTestCase):
             'JavaScriptPath={}',
             '[Page:CustomPage]',
             'JavaScript={}',
-            'Path=page.html',
             'PageContent=<b>Hello</b>'
         )).format(global_js_file, js_path, local_js_file)
         reffile = self.write_text_file(ref, suffix='.ref')
@@ -636,9 +624,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     def test_option_P(self):
         ref = '\n'.join((
             '[Page:Page1]',
-            'Path=page1.html',
-            '[Page:Page2]',
-            'Path=page2.html'
+            '[Page:Page2]'
         ))
         self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         reffile = self.write_text_file(ref, suffix='.ref')
@@ -689,10 +675,10 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self._test_option_w('--write', 'p', 'write_pokes')
 
     def test_option_w_o_map(self):
-        self._test_option_w('-w', 'o', 'write_map', [('Index-other',)])
+        self._test_option_w('-w', 'o', 'write_map', [('other-Index',)])
 
     def test_option_w_o_entries(self):
-        self._test_option_w('--write', 'o', 'write_entries', [('other', 'other.html')])
+        self._test_option_w('--write', 'o', 'write_entries', [('other', 'other/other.html')])
 
     def test_option_w_i(self):
         self._test_option_w('-w', 'i', 'write_index')

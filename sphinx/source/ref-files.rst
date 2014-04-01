@@ -530,45 +530,46 @@ command::
 | 2.5     | New     |
 +---------+---------+
 
+.. _otherCode:
+
 [OtherCode:\*]
 --------------
 Each ``OtherCode:*`` section defines a secondary disassembly that will appear
 under 'Other code' on the main disassembly home page. The section names take
 the form::
 
-  [OtherCode:asm_id]
+  [OtherCode:CodeId]
 
-where ``asm_id`` is a unique ID for the secondary disassembly; it must be
+where ``CodeId`` is a unique ID for the secondary disassembly; it must be
 limited to the characters '$', '#', 0-9, A-Z and a-z. The unique ID may be used
 by the :ref:`R` macro when referring to routines or data blocks in the
 secondary disassembly from another disassembly.
 
-Each ``OtherCode:*`` section contains parameters in the form::
+Each ``OtherCode:*`` section must contain a single parameter named ``Source``
+in the form::
 
-  name=value
+  Source=fname
 
-The following parameters are required:
+where ``fname`` is the path to the `skool` file from which to generate the
+secondary disassembly.
 
-* ``Index`` - the filename of the home page of the secondary disassembly
-* ``Path`` - the directory to which the secondary disassembly files will be
-  written
-* ``Source`` - the `skool` file from which to generate the secondary
-  disassembly
+When a secondary disassembly named ``CodeId`` is defined, the following page
+and directory IDs become available for use in the :ref:`paths`, :ref:`titles`,
+:ref:`pageHeaders` and :ref:`links` sections:
 
-The following parameter is optional:
+* ``CodeId-Index`` - the ID of the index page
+* ``CodeId-Asm-*`` - the IDs of the disassembly pages (``*`` is one of
+  ``bcgstuw``, depending on the entry type)
+* ``CodeId-CodePath`` - the ID of the directory in which the disassembly pages
+  are written
 
-* ``IndexPageId`` - the ID of the secondary disassembly index page (default:
-  ``Index-<id>``, where ``<id>`` is the unique ID of the secondary disassembly)
-
-The title and link text for the secondary disassembly index page can be defined
-in the :ref:`titles` and :ref:`links` sections.
+By default, the index page is written to `CodeId/CodeId.html`, and the
+disassembly pages are written in a directory named `CodeId`.
 
 +---------+-------------------------------------+
 | Version | Changes                             |
 +=========+=====================================+
 | 2.0     | New                                 |
-+---------+-------------------------------------+
-| 2.2.5   | Added the ``IndexPageId`` parameter |
 +---------+-------------------------------------+
 
 .. _page:
