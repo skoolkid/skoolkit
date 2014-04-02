@@ -25,6 +25,7 @@ Technical reference
    skool-file-templates
    skool-macros
    ref-files
+   html-templates
    asm
 
 Developer reference

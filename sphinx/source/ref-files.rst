@@ -809,6 +809,25 @@ into place whenever the disassembly is built.
 | 3.6     | New     |
 +---------+---------+
 
+.. _template:
+
+[Template:\*]
+-------------
+Each ``Template:*`` section defines a template used to build an HTML page (or
+part of one).
+
+To see the contents of the default templates, run the following command::
+
+  $ skool2html.py -r Template:
+
+For more information, see :ref:`htmlTemplates`.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 4.0     | New     |
++---------+---------+
+
 .. _titles:
 
 [Titles]
