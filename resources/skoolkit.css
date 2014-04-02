@@ -20,10 +20,10 @@ table.header td {
   padding-top: 0;
   padding-bottom: 0;
 }
-td.headerText {
+td.page-header {
   white-space: nowrap;
 }
-div.headerText {
+div.section-header {
   font-weight: bold;
   font-size: 125%;
 }
@@ -35,7 +35,7 @@ div.footer {
 td.transparent {
   background-color: transparent !important;
 }
-ul.linkList {
+ul.contents {
   list-style-type: none;
   margin-left: 0;
   padding-left: 0;
@@ -49,7 +49,7 @@ div.box {
   margin-bottom: 10px;
   border-radius: 10px;
 }
-div.boxTitle {
+div.box-title {
   font-size: 150%;
   font-weight: bold;
 }
@@ -74,7 +74,7 @@ table table.default td, table.default td {
 td.centre {
   text-align: center;
 }
-ul.indexList {
+ul.index-list {
   list-style-type: none;
   margin-top: 0;
   margin-left: 0;
@@ -148,7 +148,7 @@ td.comment-1 {
   vertical-align: top;
   width: 100%;
 }
-td.routineComment {
+td.routine-comment {
   padding-left: 0;
 }
 table.map th {
@@ -157,7 +157,7 @@ table.map th {
 table.map td {
   background-color: #bbddff;
 }
-div.mapIntro {
+div.map-intro {
   margin-bottom: 10px;
 }
 table.input-0, table.output-0, th.map-page-0, th.map-byte-0, th.map-length-0, td.map-page-0, td.map-byte-0, td.map-length-0, td.asm-label-0, td.comment-0, div.map-entry-desc-0, span.prev-0, span.next-0 {
@@ -207,11 +207,11 @@ div.changelog {
   margin-bottom: 10px;
   border-radius: 10px;
 }
-div.changelogTitle {
+div.changelog-title {
   font-size: 150%;
   font-weight: bold;
 }
-div.changelogDesc {
+div.changelog-desc {
   margin-top: 5px;
 }
 ul.changelog {

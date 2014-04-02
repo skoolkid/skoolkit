@@ -32,8 +32,8 @@ HEADER = """<?xml version="1.0" encoding="utf-8" ?>
 {body}
 <table class="header">
 <tr>
-<td class="headerLogo"><a class="link" href="{path}index.html">{logo}</a></td>
-<td class="headerText">{header}</td>
+<td class="logo"><a class="link" href="{path}index.html">{logo}</a></td>
+<td class="page-header">{header}</td>
 </tr>
 </table>"""
 
@@ -50,9 +50,9 @@ INDEX_HEADER = """<?xml version="1.0" encoding="utf-8" ?>
 {body}
 <table class="header">
 <tr>
-<td class="headerText">{header_prefix}</td>
-<td class="headerLogo">{logo}</td>
-<td class="headerText">{header_suffix}</td>
+<td class="page-header">{header_prefix}</td>
+<td class="logo">{logo}</td>
+<td class="page-header">{header_suffix}</td>
 </tr>
 </table>"""
 
@@ -1827,8 +1827,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             join(MAPS_DIR, 'routines.html')
         ]
         content = """
-            <div class="headerText">Memory maps</div>
-            <ul class="indexList">
+            <div class="section-header">Memory maps</div>
+            <ul class="index-list">
             <li><a class="link" href="maps/all.html">Everything</a></li>
             <li><a class="link" href="maps/routines.html">Routines</a></li>
             </ul>
@@ -1843,8 +1843,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             join(MAPS_DIR, 'data.html')
         ]
         content = """
-            <div class="headerText">Memory maps</div>
-            <ul class="indexList">
+            <div class="section-header">Memory maps</div>
+            <ul class="index-list">
             <li><a class="link" href="maps/all.html">Everything</a></li>
             <li><a class="link" href="maps/routines.html">Routines</a></li>
             <li><a class="link" href="maps/data.html">Data</a></li>
@@ -1861,8 +1861,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             join(MAPS_DIR, 'messages.html')
         ]
         content = """
-            <div class="headerText">Memory maps</div>
-            <ul class="indexList">
+            <div class="section-header">Memory maps</div>
+            <ul class="index-list">
             <li><a class="link" href="maps/all.html">Everything</a></li>
             <li><a class="link" href="maps/routines.html">Routines</a></li>
             <li><a class="link" href="maps/data.html">Data</a></li>
@@ -1887,8 +1887,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             'otherCode2-Index={}'
         )).format(*files)
         content = """
-            <div class="headerText">Other code</div>
-            <ul class="indexList">
+            <div class="section-header">Other code</div>
+            <ul class="index-list">
             <li><a class="link" href="other/other.html">Startup code</a></li>
             <li><a class="link" href="load/index.html">Loading code</a></li>
             </ul>
@@ -1936,13 +1936,13 @@ class HtmlWriterTest(SkoolKitTestCase):
             'memorymaps/data.html'
         ]
         content = """
-            <div class="headerText">Reference material</div>
-            <ul class="indexList">
+            <div class="section-header">Reference material</div>
+            <ul class="index-list">
             <li><a class="link" href="ref/bugs.html">Bugs</a></li>
             <li><a class="link" href="ref/facts.html">Facts</a></li>
             </ul>
-            <div class="headerText">RAM maps</div>
-            <ul class="indexList">
+            <div class="section-header">RAM maps</div>
+            <ul class="index-list">
             <li><a class="link" href="memorymaps/routines.html">Routines</a></li>
             <li><a class="link" href="memorymaps/ram.html">Entire RAM</a></li>
             </ul>
@@ -1984,24 +1984,24 @@ class HtmlWriterTest(SkoolKitTestCase):
             'reference/pokes.html',
         ]
         content = """
-            <div class="headerText">Memory maps</div>
-            <ul class="indexList">
+            <div class="section-header">Memory maps</div>
+            <ul class="index-list">
             <li><a class="link" href="maps/all.html">All code and data</a></li>
             <li><a class="link" href="maps/routines.html">Game code</a></li>
             <li><a class="link" href="maps/data.html">Game data</a></li>
             <li><a class="link" href="maps/messages.html">Strings</a></li>
             <li><a class="link" href="maps/unused.html">Unused bytes</a></li>
             </ul>
-            <div class="headerText">Graphics</div>
-            <ul class="indexList">
+            <div class="section-header">Graphics</div>
+            <ul class="index-list">
             <li><a class="link" href="graphics/glitches.html">Graphic bugs</a></li>
             </ul>
-            <div class="headerText">Data tables and buffers</div>
-            <ul class="indexList">
+            <div class="section-header">Data tables and buffers</div>
+            <ul class="index-list">
             <li><a class="link" href="buffers/gbuffer.html">Workspace</a></li>
             </ul>
-            <div class="headerText">Reference</div>
-            <ul class="indexList">
+            <div class="section-header">Reference</div>
+            <ul class="index-list">
             <li><a class="link" href="reference/changelog.html">Change log</a></li>
             <li><a class="link" href="reference/glossary.html">List of terms</a></li>
             <li><a class="link" href="reference/facts.html">Facts</a> (trivia)</li>
@@ -2108,7 +2108,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">24576: Routine at 24576</div>
             <table class="disassembly">
             <tr>
-            <td class="routineComment" colspan="4">
+            <td class="routine-comment" colspan="4">
             <div class="details">
             <div class="paragraph">
             Description of routine at 24576.
@@ -2120,11 +2120,11 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             <tr>
             <td class="register">A</td>
-            <td class="registerContents">Some value</td>
+            <td class="register-desc">Some value</td>
             </tr>
             <tr>
             <td class="register">B</td>
-            <td class="registerContents">Some other value</td>
+            <td class="register-desc">Some other value</td>
             </tr>
             </table>
             <table class="output-0">
@@ -2141,7 +2141,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="comment-1" rowspan="1">Comment for instruction at 24576</td>
             </tr>
             <tr>
-            <td class="routineComment" colspan="4">
+            <td class="routine-comment" colspan="4">
             <a name="24577"></a>
             <div class="comments">
             <div class="paragraph">
@@ -2157,7 +2157,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="comment-1" rowspan="1"></td>
             </tr>
             <tr>
-            <td class="routineComment" colspan="4">
+            <td class="routine-comment" colspan="4">
             <a name="24577"></a>
             <div class="comments">
             <div class="paragraph">
@@ -2184,7 +2184,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">24578: Data block at 24578</div>
             <table class="disassembly">
             <tr>
-            <td class="routineComment" colspan="4">
+            <td class="routine-comment" colspan="4">
             <div class="details">
             </div>
             <table class="input-0">
@@ -2224,7 +2224,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">24579: Routine at 24579</div>
             <table class="disassembly">
             <tr>
-            <td class="routineComment" colspan="4">
+            <td class="routine-comment" colspan="4">
             <div class="details">
             </div>
             <table class="input-0">
@@ -2264,7 +2264,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">24581: GSB entry at 24581</div>
             <table class="disassembly">
             <tr>
-            <td class="routineComment" colspan="4">
+            <td class="routine-comment" colspan="4">
             <div class="details">
             </div>
             <table class="input-0">
@@ -2304,7 +2304,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">24583: Unused</div>
             <table class="disassembly">
             <tr>
-            <td class="routineComment" colspan="4">
+            <td class="routine-comment" colspan="4">
             <div class="details">
             </div>
             <table class="input-0">
@@ -2344,7 +2344,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">24584: Routine at 24584 (register section but no description)</div>
             <table class="disassembly">
             <tr>
-            <td class="routineComment" colspan="4">
+            <td class="routine-comment" colspan="4">
             <div class="details">
             </div>
             <table class="input-1">
@@ -2353,7 +2353,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             <tr>
             <td class="register">A</td>
-            <td class="registerContents">0</td>
+            <td class="register-desc">0</td>
             </tr>
             </table>
             <table class="output-0">
@@ -2404,7 +2404,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '<div class="description">{address:05d}: </div>',
             '<table class="disassembly">',
             '<tr>',
-            '<td class="routineComment" colspan="4">',
+            '<td class="routine-comment" colspan="4">',
             '<div class="details">',
             '</div>',
             '<table class="input-0">',
@@ -2521,7 +2521,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">50000: Routine with a label</div>
             <table class="disassembly">
             <tr>
-            <td class="routineComment" colspan="4">
+            <td class="routine-comment" colspan="4">
             <div class="details">
             </div>
             <table class="input-0">
@@ -2572,7 +2572,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">50005: Routine without a label</div>
             <table class="disassembly">
             <tr>
-            <td class="routineComment" colspan="4">
+            <td class="routine-comment" colspan="4">
             <div class="details">
             </div>
             <table class="input-0">
@@ -2612,7 +2612,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <div class="description">50008: DEFW statement with a @keep directive</div>
             <table class="disassembly">
             <tr>
-            <td class="routineComment" colspan="4">
+            <td class="routine-comment" colspan="4">
             <div class="details">
             </div>
             <table class="input-0">
@@ -2677,7 +2677,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # Memory map
         content = """
-            <div class="mapIntro"></div>
+            <div class="map-intro"></div>
             <table class="map">
             <tr>
             <th class="map-page-1">Page</th>
@@ -2776,7 +2776,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # Routines map
         content = """
-            <div class="mapIntro"></div>
+            <div class="map-intro"></div>
             <table class="map">
             <tr>
             <th class="map-page-0">Page</th>
@@ -2809,7 +2809,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # Data map
         content = """
-            <div class="mapIntro"></div>
+            <div class="map-intro"></div>
             <table class="map">
             <tr>
             <th class="map-page-1">Page</th>
@@ -2853,7 +2853,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # Messages map
         content = """
-            <div class="mapIntro"></div>
+            <div class="map-intro"></div>
             <table class="map">
             <tr>
             <th class="map-page-0">Page</th>
@@ -2886,7 +2886,7 @@ class HtmlWriterTest(SkoolKitTestCase):
 
         # Unused map
         content = """
-            <div class="mapIntro"></div>
+            <div class="map-intro"></div>
             <table class="map">
             <tr>
             <th class="map-page-1">Page</th>
@@ -2969,7 +2969,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer = self._get_writer(ref=ref, skool=skool)
 
         content = """
-            <div class="mapIntro">{}</div>
+            <div class="map-intro">{}</div>
             <table class="map">
             <tr>
             <th class="map-page-0">Page</th>
@@ -3017,7 +3017,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         ref = '[MemoryMap:MemoryMap]\nIntro={}'.format(intro)
         writer = self._get_writer(ref=ref, skool='; Code\nc32768 RET')
         content = """
-            <div class="mapIntro">{}</div>
+            <div class="map-intro">{}</div>
             <table class="map">
             <tr>
             <th class="map-page-1">Page</th>
@@ -3063,7 +3063,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'c08888 RET'
         ))
         exp_content = '\n'.join((
-            '<div class="mapIntro"></div>',
+            '<div class="map-intro"></div>',
             '<table class="map">',
             '<tr>',
             '<th class="map-page-1">Page</th>',
@@ -3186,14 +3186,14 @@ class HtmlWriterTest(SkoolKitTestCase):
             '    3',
         ))
         content = """
-            <ul class="linkList">
+            <ul class="contents">
             <li><a class="link" href="#20120704">20120704</a></li>
             <li><a class="link" href="#20120703">20120703</a></li>
             </ul>
             <div><a name="20120704"></a></div>
             <div class="changelog changelog1">
-            <div class="changelogTitle">20120704</div>
-            <div class="changelogDesc">Intro.</div>
+            <div class="changelog-title">20120704</div>
+            <div class="changelog-desc">Intro.</div>
             <ul class="changelog">
             <li>1
             <ul class="changelog1">
@@ -3210,8 +3210,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             </div>
             <div><a name="20120703"></a></div>
             <div class="changelog changelog2">
-            <div class="changelogTitle">20120703</div>
-            <div class="changelogDesc"></div>
+            <div class="changelog-title">20120703</div>
+            <div class="changelog-desc"></div>
             <ul class="changelog">
             <li>1
             <ul class="changelog1">
@@ -3260,20 +3260,20 @@ class HtmlWriterTest(SkoolKitTestCase):
             'Definition 2. Paragraph 2.',
         ))
         content = """
-            <ul class="linkList">
+            <ul class="contents">
             <li><a class="link" href="#term1">Term1</a></li>
             <li><a class="link" href="#term2">Term2</a></li>
             </ul>
             <div><a name="term1"></a></div>
             <div class="box box1">
-            <div class="boxTitle">Term1</div>
+            <div class="box-title">Term1</div>
             <div class="paragraph">
             Definition 1.
             </div>
             </div>
             <div><a name="term2"></a></div>
             <div class="box box2">
-            <div class="boxTitle">Term2</div>
+            <div class="box-title">Term2</div>
             <div class="paragraph">
             Definition 2. Paragraph 1.
             </div>
@@ -3342,12 +3342,12 @@ class HtmlWriterTest(SkoolKitTestCase):
             'Really bad.',
         ))
         content = """
-            <ul class="linkList">
+            <ul class="contents">
             <li><a class="link" href="#b1">Showstopper</a></li>
             </ul>
             <div><a name="b1"></a></div>
             <div class="box box1">
-            <div class="boxTitle">Showstopper</div>
+            <div class="box-title">Showstopper</div>
             <div class="paragraph">
             This bug is bad.
             </div>
@@ -3391,13 +3391,13 @@ class HtmlWriterTest(SkoolKitTestCase):
             'Yes.',
         ))
         content = """
-            <ul class="linkList">
+            <ul class="contents">
             <li><a class="link" href="#f1">Interesting fact</a></li>
             <li><a class="link" href="#f2">Another interesting fact</a></li>
             </ul>
             <div><a name="f1"></a></div>
             <div class="box box1">
-            <div class="boxTitle">Interesting fact</div>
+            <div class="box-title">Interesting fact</div>
             <div class="paragraph">
             Hello.
             </div>
@@ -3407,7 +3407,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </div>
             <div><a name="f2"></a></div>
             <div class="box box2">
-            <div class="boxTitle">Another interesting fact</div>
+            <div class="box-title">Another interesting fact</div>
             <div class="paragraph">
             Yes.
             </div>
@@ -3439,12 +3439,12 @@ class HtmlWriterTest(SkoolKitTestCase):
 
     def test_write_pokes(self):
         html = """
-            <ul class="linkList">
+            <ul class="contents">
             <li><a class="link" href="#p1">Infinite everything</a></li>
             </ul>
             <div><a name="p1"></a></div>
             <div class="box box1">
-            <div class="boxTitle">Infinite everything</div>
+            <div class="box-title">Infinite everything</div>
             <div class="paragraph">
             POKE 12345,0
             </div>
@@ -3478,12 +3478,12 @@ class HtmlWriterTest(SkoolKitTestCase):
     def test_write_graphic_glitches(self):
         ref = '[GraphicGlitch:g0:Wrong arms]\nHello.'
         content = """
-            <ul class="linkList">
+            <ul class="contents">
             <li><a class="link" href="#g0">Wrong arms</a></li>
             </ul>
             <div><a name="g0"></a></div>
             <div class="box box1">
-            <div class="boxTitle">Wrong arms</div>
+            <div class="box-title">Wrong arms</div>
             <div class="paragraph">
             Hello.
             </div>
@@ -3527,7 +3527,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             't30003 DEFM "a"'
         ))
         content = """
-            <div class="mapIntro"></div>
+            <div class="map-intro"></div>
             <table class="map">
             <tr>
             <th class="map-page-0">Page</th>
@@ -3597,7 +3597,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'i30006',
         ))
         content = """
-            <div class="mapIntro"></div>
+            <div class="map-intro"></div>
             <table class="map">
             <tr>
             <th class="map-page-0">Page</th>
@@ -3735,11 +3735,11 @@ class HtmlWriterTest(SkoolKitTestCase):
         exp_html = """
             <tr>
             <td class="register">A</td>
-            <td class="registerContents">Some value</td>
+            <td class="register-desc">Some value</td>
             </tr>
             <tr>
             <td class="register">B</td>
-            <td class="registerContents">Some other value</td>
+            <td class="register-desc">Some other value</td>
             </tr>
         """
         registers = []
@@ -3753,19 +3753,19 @@ class HtmlWriterTest(SkoolKitTestCase):
         exp_html = """
             <tr>
             <td class="register">A</td>
-            <td class="registerContents">Some value</td>
+            <td class="register-desc">Some value</td>
             </tr>
             <tr>
             <td class="register">B</td>
-            <td class="registerContents">Some other value</td>
+            <td class="register-desc">Some other value</td>
             </tr>
             <tr>
             <td class="register">D</td>
-            <td class="registerContents">The result</td>
+            <td class="register-desc">The result</td>
             </tr>
             <tr>
             <td class="register">E</td>
-            <td class="registerContents">Result flags</td>
+            <td class="register-desc">Result flags</td>
             </tr>
         """
         registers = []

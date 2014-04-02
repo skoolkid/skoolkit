@@ -215,8 +215,8 @@ SECTIONS['Template:Asm'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
-<td class="headerLogo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
-<td class="headerText">{SkoolKit[page_header]}</td>
+<td class="logo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
+<td class="page-header">{SkoolKit[page_header]}</td>
 </tr>
 </table>
 <table class="asm-navigation">
@@ -229,7 +229,7 @@ SECTIONS['Template:Asm'] = """
 <div class="description">{entry[address]}: {entry[title]}</div>
 <table class="disassembly">
 <tr>
-<td class="routineComment" colspan="4">
+<td class="routine-comment" colspan="4">
 <div class="details">
 {entry[description]}
 </div>
@@ -280,9 +280,9 @@ SECTIONS['Template:GameIndex'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
-<td class="headerText">{Game[TitlePrefix]}</td>
-<td class="headerLogo">{Game[Logo]}</td>
-<td class="headerText">{Game[TitleSuffix]}</td>
+<td class="page-header">{Game[TitlePrefix]}</td>
+<td class="logo">{Game[Logo]}</td>
+<td class="page-header">{Game[TitleSuffix]}</td>
 </tr>
 </table>
 {m_index_section}
@@ -310,11 +310,11 @@ SECTIONS['Template:MemoryMap'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
-<td class="headerLogo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
-<td class="headerText">{SkoolKit[page_header]}</td>
+<td class="logo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
+<td class="page-header">{SkoolKit[page_header]}</td>
 </tr>
 </table>
-<div class="mapIntro">{MemoryMap[Intro]}</div>
+<div class="map-intro">{MemoryMap[Intro]}</div>
 <table class="map">
 <tr>
 <th class="map-page-{MemoryMap[PageByteColumns]}">Page</th>
@@ -349,8 +349,8 @@ SECTIONS['Template:Page'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
-<td class="headerLogo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
-<td class="headerText">{SkoolKit[page_header]}</td>
+<td class="logo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
+<td class="page-header">{SkoolKit[page_header]}</td>
 </tr>
 </table>
 {PageContent}
@@ -378,11 +378,11 @@ SECTIONS['Template:Reference'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
-<td class="headerLogo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
-<td class="headerText">{SkoolKit[page_header]}</td>
+<td class="logo"><a class="link" href="{SkoolKit[home]}">{Game[Logo]}</a></td>
+<td class="page-header">{SkoolKit[page_header]}</td>
 </tr>
 </table>
-<ul class="linkList">
+<ul class="contents">
 {m_contents_list_item}
 </ul>
 {items}
@@ -401,7 +401,7 @@ SECTIONS['Template:anchor'] = """
 
 SECTIONS['Template:asm_comment'] = """
 <tr>
-<td class="routineComment" colspan="4">
+<td class="routine-comment" colspan="4">
 {t_anchor}
 <div class="comments">
 {m_paragraph}
@@ -422,14 +422,14 @@ SECTIONS['Template:asm_instruction'] = """
 SECTIONS['Template:asm_register'] = """
 <tr>
 <td class="register">{register[name]}</td>
-<td class="registerContents">{register[description]}</td>
+<td class="register-desc">{register[description]}</td>
 </tr>
 """
 
 SECTIONS['Template:box'] = """
 <div>{t_anchor}</div>
 <div class="box box{box_num}">
-<div class="boxTitle">{title}</div>
+<div class="box-title">{title}</div>
 {contents}
 </div>
 """
@@ -437,8 +437,8 @@ SECTIONS['Template:box'] = """
 SECTIONS['Template:changelog_entry'] = """
 <div>{t_anchor}</div>
 <div class="changelog changelog{changelog_num}">
-<div class="changelogTitle">{release[title]}</div>
-<div class="changelogDesc">{release[description]}</div>
+<div class="changelog-title">{release[title]}</div>
+<div class="changelog-desc">{release[description]}</div>
 {t_changelog_item_list}
 </div>
 """
@@ -462,8 +462,8 @@ SECTIONS['Template:img'] = """
 """
 
 SECTIONS['Template:index_section'] = """
-<div class="headerText">{header}</div>
-<ul class="indexList">
+<div class="section-header">{header}</div>
+<ul class="index-list">
 {m_index_section_item}
 </ul>
 """

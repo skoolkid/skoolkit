@@ -11,7 +11,7 @@ table.header td {
   font-weight: normal;
   font-size: 100%;
 }
-div.headerText {
+div.section-header {
   font-weight: normal;
   font-size: 100%;
 }
@@ -21,7 +21,7 @@ span.register {
 div.box {
   width: 960px;
 }
-div.boxTitle {
+div.box-title {
   font-size: 100%;
   font-weight: normal;
   text-decoration: underline;
@@ -98,7 +98,7 @@ body.GameStatusBuffer div.map-entry-title {
 div.changelog {
   width: 960px;
 }
-div.changelogTitle {
+div.changelog-title {
   font-size: 100%;
   font-weight: normal;
   text-decoration: underline;
