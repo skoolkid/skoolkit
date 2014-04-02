@@ -115,7 +115,8 @@ class HtmlWriter:
         self.snapshot = self.parser.snapshot
         self._snapshots = [(self.snapshot, '')]
         self.entries = self.parser.entries
-        self.entry_dicts = {}
+        self.asm_entry_dicts = {}
+        self.map_entry_dicts = {}
         self.nonexistent_entry_dict = defaultdict(lambda: '', exists=0)
         self.memory_map = [e for e in self.parser.memory_map if e.ctl != 'i']
 
@@ -205,6 +206,9 @@ class HtmlWriter:
             self.templates[name] = template
         self.game['Created'] = self.game['Created'].replace('$VERSION', VERSION)
         self.skoolkit = {}
+        self.stylesheets = {}
+        self.javascript = {}
+        self.logo = {}
         self.template_subs = {
             'Game': self.game,
             'SkoolKit': self.skoolkit
@@ -230,19 +234,10 @@ class HtmlWriter:
     def set_style_sheet(self, value):
         self.game_vars['StyleSheet'] = value
 
-    def _remove_blank_lines(self, html):
-        while '\n\n' in html:
-            html = html.replace('\n\n', '\n')
-        return html
-
-    def format_template(self, template_name, subs=None, trim=False, default=None):
+    def format_template(self, template_name, subs, default=None):
         template = self.templates.get(template_name, self.templates.get(default))
-        t_subs = subs or {}
-        t_subs.update(self.template_subs)
-        html = template.format(**t_subs)
-        if trim:
-            html = self._remove_blank_lines(html)
-        return html
+        subs.update(self.template_subs)
+        return template.format(**subs)
 
     def _parse_colours(self, colour_specs):
         colours = {}
@@ -563,13 +558,12 @@ class HtmlWriter:
         html = self.format_page(P_GAME_INDEX, cwd, subs)
         self.write_file(index_fname, html)
 
-    def _get_entry_dict(self, cwd, index, map_file, desc=True):
-        entry = self.memory_map[index]
+    def _get_entry_dict(self, cwd, entry, desc=True):
         if desc:
             description = self.join_paragraphs(entry.details, cwd)
         else:
             description = ''
-        return self.entry_dicts.setdefault((cwd, entry.address, map_file), {
+        return {
             'exists': 1,
             'labels': int(any([instruction.asm_label for instruction in entry.instructions])),
             'type': entry.ctl,
@@ -580,10 +574,25 @@ class HtmlWriter:
             'label': self.parser.get_asm_label(entry.address),
             'description': description,
             'url': FileInfo.asm_relpath(cwd, entry.address, self.code_path),
-            'map_url': '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address),
             'size': entry.size,
             'title': self.expand(entry.description, cwd)
-        })
+        }
+
+    def _get_map_entry_dict(self, cwd, entry, desc=True):
+        address = entry.address
+        key = (cwd, address, desc)
+        if key not in self.map_entry_dicts:
+            self.map_entry_dicts[key] = self._get_entry_dict(cwd, entry, desc)
+        return self.map_entry_dicts[key]
+
+    def _get_asm_entry_dict(self, cwd, index, map_file):
+        entry = self.memory_map[index]
+        address = entry.address
+        if address not in self.asm_entry_dicts:
+            entry_dict = self._get_entry_dict(cwd, entry)
+            entry_dict['map_url'] = '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address)
+            self.asm_entry_dicts[address] = entry_dict
+        return self.asm_entry_dicts[address]
 
     def write_gbuffer(self):
         fname = self.paths[P_GSB]
@@ -598,17 +607,17 @@ class HtmlWriter:
         t_map_entry_subs = {'MemoryMap': map_dict}
 
         gsb_entries = []
-        for index, entry in enumerate(self.memory_map):
+        for entry in self.memory_map:
             if entry.ctl == 'g' or entry.address in gsb_includes:
                 t_map_entry_subs['t_anchor'] = self.format_anchor(entry.address)
-                t_map_entry_subs['entry'] = self._get_entry_dict(cwd, index, fname)
+                t_map_entry_subs['entry'] = self._get_map_entry_dict(cwd, entry)
                 gsb_entries.append(self.format_template('map_entry', t_map_entry_subs))
 
         subs = {
             'MemoryMap': map_dict,
             'm_map_entry': '\n'.join(gsb_entries)
         }
-        html = self.format_page(P_GSB, cwd, subs, default='MemoryMap')
+        html = self.format_page(P_GSB, cwd, subs, P_MEMORY_MAP)
         self.write_file(fname, html)
 
     def _format_contents_list_items(self, link_list):
@@ -634,7 +643,7 @@ class HtmlWriter:
             'm_contents_list_item': self._format_contents_list_items([(anchor, title) for anchor, title, p in boxes]),
             'items': '\n'.join(boxes_html),
         }
-        html = self.format_page(page_id, cwd, subs, default='Reference')
+        html = self.format_page(page_id, cwd, subs, 'Reference')
         self.write_file(fname, html)
 
     def write_pokes(self):
@@ -707,7 +716,7 @@ class HtmlWriter:
             'm_contents_list_item': self._format_contents_list_items(contents),
             'items': '\n'.join(entries),
         }
-        html = self.format_page(P_CHANGELOG, cwd, subs, default='Reference')
+        html = self.format_page(P_CHANGELOG, cwd, subs, 'Reference')
         self.write_file(fname, html)
 
     def format_registers(self, cwd, registers, entry_dict):
@@ -748,14 +757,14 @@ class HtmlWriter:
         page_id = self._get_asm_page_id(self.code_id, entry.ctl)
         self._set_cwd(page_id, fname)
 
-        entry_dict = self._get_entry_dict(cwd, index, map_file)
+        entry_dict = self._get_asm_entry_dict(cwd, index, map_file)
 
         if index:
-            prev_entry_dict = self._get_entry_dict(cwd, index - 1, map_file)
+            prev_entry_dict = self._get_asm_entry_dict(cwd, index - 1, map_file)
         else:
             prev_entry_dict = self.nonexistent_entry_dict
         if index + 1 < len(self.memory_map):
-            next_entry_dict = self._get_entry_dict(cwd, index + 1, map_file)
+            next_entry_dict = self._get_asm_entry_dict(cwd, index + 1, map_file)
         else:
             next_entry_dict = self.nonexistent_entry_dict
 
@@ -818,7 +827,7 @@ class HtmlWriter:
             'registers_output': output_reg,
             'disassembly': '\n'.join(lines)
         }
-        self.write_file(fname, self.format_page(page_id, cwd, subs, default='Asm'))
+        self.write_file(fname, self.format_page(page_id, cwd, subs, 'Asm'))
 
     def write_entries(self, cwd, map_file):
         for i, entry in enumerate(self.memory_map):
@@ -850,9 +859,9 @@ class HtmlWriter:
 
         map_entries = []
         t_map_entry_subs = {'MemoryMap': map_dict}
-        for index, entry in enumerate(self.memory_map):
+        for entry in self.memory_map:
             if entry.ctl in entry_types:
-                t_map_entry_subs['entry'] = self._get_entry_dict(cwd, index, fname, False)
+                t_map_entry_subs['entry'] = self._get_map_entry_dict(cwd, entry, False)
                 t_map_entry_subs['t_anchor'] = self.format_anchor(entry.address)
                 map_entries.append(self.format_template('map_entry', t_map_entry_subs))
 
@@ -860,7 +869,7 @@ class HtmlWriter:
             'MemoryMap': map_dict,
             'm_map_entry': '\n'.join(map_entries)
         }
-        html = self.format_page(map_name, cwd, subs, default=P_MEMORY_MAP)
+        html = self.format_page(map_name, cwd, subs, P_MEMORY_MAP)
         self.write_file(fname, html)
 
     def write_page(self, page_id):
@@ -872,7 +881,7 @@ class HtmlWriter:
             'PageContent': self.expand(self.page_contents[page_id], cwd)
         }
         js = page.get('JavaScript')
-        html = self.format_page(page_id, cwd, subs, trim=False, js=js, default='Page')
+        html = self.format_page(page_id, cwd, subs, 'Page', js)
         self.write_file(fname, html)
 
     def write_file(self, fname, contents):
@@ -888,34 +897,43 @@ class HtmlWriter:
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
         return cwd
 
-    def format_page(self, page_id, cwd, subs=None, trim=True, js=None, default=None):
-        stylesheets = []
-        for css_file in self.game_vars['StyleSheet'].split(';'):
-            t_stylesheet_subs = {'href': FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}
-            stylesheets.append(self.format_template('stylesheet', t_stylesheet_subs))
-        javascript = []
-        js_files = self.js_files
-        if js:
-            js_files = list(js_files) + js.split(';')
-        for js_file in js_files:
-            t_javascript_subs = {'src': FileInfo.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))}
-            javascript.append(self.format_template('javascript', t_javascript_subs))
+    def format_page(self, page_id, cwd, subs, default=None, js=None):
+        if cwd not in self.stylesheets:
+            stylesheets = []
+            for css_file in self.game_vars['StyleSheet'].split(';'):
+                t_stylesheet_subs = {'href': FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}
+                stylesheets.append(self.format_template('stylesheet', t_stylesheet_subs))
+            self.stylesheets[cwd] = '\n'.join(stylesheets)
 
-        all_subs = {
-            'm_stylesheet': '\n'.join(stylesheets),
-            'm_javascript': '\n'.join(javascript)
-        }
-        all_subs.update(subs or {})
-        return self.format_template(page_id, all_subs, trim, default=default)
+        js_key = (cwd, js)
+        if js_key not in self.javascript:
+            javascript = []
+            if js:
+                js_files = list(self.js_files)
+                js_files.extend(js.split(';'))
+            else:
+                js_files = self.js_files
+            for js_file in js_files:
+                t_javascript_subs = {'src': FileInfo.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))}
+                javascript.append(self.format_template('javascript', t_javascript_subs))
+            self.javascript[js_key] = '\n'.join(javascript)
+
+        subs['m_stylesheet'] = self.stylesheets[cwd]
+        subs['m_javascript'] = self.javascript[js_key]
+        return self.format_template(page_id, subs, default)
 
     def _get_logo(self, cwd):
-        logo_macro = self.game_vars['Logo']
-        if logo_macro:
-            return self.expand(logo_macro, cwd)
-        logo_image = self.game_vars['LogoImage']
-        if logo_image and self.file_exists(logo_image):
-            return self.format_img(self.game_name, FileInfo.relpath(cwd, logo_image))
-        return self.game_name
+        if cwd not in self.logo:
+            logo_macro = self.game_vars['Logo']
+            if logo_macro:
+                self.logo[cwd] = self.expand(logo_macro, cwd)
+            else:
+                logo_image = self.game_vars['LogoImage']
+                if logo_image and self.file_exists(logo_image):
+                    self.logo[cwd] = self.format_img(self.game_name, FileInfo.relpath(cwd, logo_image))
+                else:
+                    self.logo[cwd] = self.game_name
+        return self.logo[cwd]
 
     def format_anchor(self, anchor):
         return self.format_template('anchor', {'anchor': anchor})

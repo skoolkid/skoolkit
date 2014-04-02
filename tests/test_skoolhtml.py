@@ -124,7 +124,7 @@ class HtmlWriterTest(SkoolKitTestCase):
                 return [line.rstrip('\n') for line in f]
             return f.read()
 
-    def assert_files_equal(self, d_fname, subs, index=False):
+    def assert_files_equal(self, d_fname, subs, index=False, trim=True):
         d_html_lines = self.read_file(d_fname, True)
         body_lines = []
         for line in subs['content'].split('\n'):
@@ -156,6 +156,9 @@ class HtmlWriterTest(SkoolKitTestCase):
         t_html_lines.extend(body_lines)
         t_html_lines.extend(prev_up_next_lines)
         t_html_lines.extend(footer.split('\n'))
+        if trim:
+            d_html_lines = [line for line in d_html_lines if line]
+            t_html_lines = [line for line in t_html_lines if line]
         self.assertEqual(t_html_lines, d_html_lines)
 
     def assert_html_equal(self, html, exp_html, eol=False, trim=False):
@@ -1771,7 +1774,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             writer.write_asm_entries()
             html = self.read_file(join(ASMDIR, '32769.html'), True)
             link = '<a class="link" href="32768.html">32768</a>'
-            line_no = 45
+            line_no = 49
             for prefix in ('CALL ', 'DEFW ', 'DJNZ ', 'JP ', 'JR ', 'LD HL,'):
                 inst_type = prefix.split()[0]
                 exp_html = prefix + (link if inst_type in link_operands else '32768')
@@ -3853,7 +3856,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         )).format(global_js, page_id)
         writer = self._get_writer(ref=ref)
         cwd = 'subdir/subdir2'
-        page = writer.format_page(page_id, cwd).split('\n')
+        page = writer.format_page(page_id, cwd, {}).split('\n')
         js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(global_js)))
         self.assertEqual(page[0], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
@@ -3871,7 +3874,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         )).format(global_js, page_id)
         writer = self._get_writer(ref=ref)
         cwd = 'subdir/subdir2'
-        page = writer.format_page(page_id, cwd).split('\n')
+        page = writer.format_page(page_id, cwd, {}).split('\n')
         js_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
         self.assertEqual(page[0], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
         self.assertEqual(page[1], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
@@ -3887,7 +3890,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer = self._get_writer(ref=ref)
         cwd = 'subdir/subdir2'
         js = 'js/script.js'
-        page = writer.format_page(page_id, cwd, js=js).split('\n')
+        page = writer.format_page(page_id, cwd, {}, js=js).split('\n')
         js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
         self.assertEqual(page[0], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
@@ -3903,7 +3906,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         cwd = 'subdir'
         js_files = ['js/script1.js', 'js/script2.js']
         js = ';'.join(js_files)
-        page = writer.format_page(page_id, cwd, js=js).split('\n')
+        page = writer.format_page(page_id, cwd, {}, js=js).split('\n')
         js_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
         self.assertEqual(page[0], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
         self.assertEqual(page[1], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
@@ -3924,7 +3927,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         )).format(global_js, page_id)
         writer = self._get_writer(ref=ref)
         cwd = 'subdir/subdir2'
-        page = writer.format_page(page_id, cwd, js=local_js).split('\n')
+        page = writer.format_page(page_id, cwd, {}, js=local_js).split('\n')
         for i, js in enumerate(global_js_files + local_js_files):
             js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
             self.assertEqual(page[i], '<script type="text/javascript" src="{}"></script>'.format(js_path))
@@ -3942,7 +3945,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         )).format(css, page_id)
         writer = self._get_writer(ref=ref)
         cwd = ''
-        page = writer.format_page(page_id, cwd).split('\n')
+        page = writer.format_page(page_id, cwd, {}).split('\n')
         css_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css)))
         self.assertEqual(page[0], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_path))
 
@@ -3959,7 +3962,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         )).format(';'.join(css_files), page_id)
         writer = self._get_writer(ref=ref)
         cwd = ''
-        page = writer.format_page(page_id, cwd).split('\n')
+        page = writer.format_page(page_id, cwd, {}).split('\n')
         css_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css))) for css in css_files]
         self.assertEqual(page[0], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[0]))
         self.assertEqual(page[1], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[1]))
