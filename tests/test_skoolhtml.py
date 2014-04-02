@@ -27,9 +27,10 @@ HEADER = """<?xml version="1.0" encoding="utf-8" ?>
 <head>
 <title>{name}: {title}</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" type="text/css" href="{path}skoolkit.css" />{script}
+<link rel="stylesheet" type="text/css" href="{path}skoolkit.css" />
+{script}
 </head>
-{body}
+<body class="{body_class}">
 <table class="header">
 <tr>
 <td class="logo"><a class="link" href="{path}index.html">{logo}</a></td>
@@ -45,9 +46,10 @@ INDEX_HEADER = """<?xml version="1.0" encoding="utf-8" ?>
 <head>
 <title>{name}: {title}</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" type="text/css" href="{path}skoolkit.css" />{script}
+<link rel="stylesheet" type="text/css" href="{path}skoolkit.css" />
+{script}
 </head>
-{body}
+<body class="{body_class}">
 <table class="header">
 <tr>
 <td class="page-header">{header_prefix}</td>
@@ -116,13 +118,14 @@ class MockImageWriter:
             self.height = frame1.height
 
 class HtmlWriterTest(SkoolKitTestCase):
+    def setUp(self):
+        SkoolKitTestCase.setUp(self)
+        self.files = {}
+
     def read_file(self, fname, lines=False):
-        fpath = join(self.odir, GAMEDIR, fname)
-        self.assertTrue(isfile(fpath), '{} does not exist'.format(fpath))
-        with open(fpath, 'r') as f:
-            if lines:
-                return [line.rstrip('\n') for line in f]
-            return f.read()
+        if lines:
+            return self.files[fname].split('\n')
+        return self.files[fname]
 
     def assert_files_equal(self, d_fname, subs, index=False, trim=True):
         d_html_lines = self.read_file(d_fname, True)
@@ -131,11 +134,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             s_line = line.lstrip()
             if s_line:
                 body_lines.append(s_line)
-        body_class = subs.get('body_class')
-        body_class_attr = ' class="{0}"'.format(body_class) if body_class is not None else ''
-        subs['body'] = '<body{0}>'.format(body_class_attr)
         js = subs.get('js')
-        subs.setdefault('script', '\n<script type="text/javascript" src="{0}"></script>'.format(js) if js else '')
+        subs.setdefault('script', '<script type="text/javascript" src="{}"></script>'.format(js) if js else '')
         subs.setdefault('title', subs['header'])
         subs.setdefault('logo', subs['name'])
         footer = subs.get('footer', BARE_FOOTER)
@@ -226,6 +226,9 @@ class HtmlWriterTest(SkoolKitTestCase):
     def _unsupported_macro(self, *args):
         raise UnsupportedMacroError()
 
+    def _mock_write_file(self, fname, contents):
+        self.files[fname] = contents
+
     def _get_writer(self, ref=None, snapshot=(), case=None, base=None, skool=None, create_labels=False, asm_labels=False, mock_file_info=False):
         self.skoolfile = None
         ref_parser = RefParser()
@@ -242,7 +245,9 @@ class HtmlWriterTest(SkoolKitTestCase):
         else:
             file_info = FileInfo(self.odir, GAMEDIR, False)
         self.mock(skoolhtml, 'ImageWriter', MockImageWriter)
-        return HtmlWriter(skool_parser, ref_parser, file_info)
+        writer = HtmlWriter(skool_parser, ref_parser, file_info)
+        writer.write_file = self._mock_write_file
+        return writer
 
     def _assert_scr_equal(self, game, x0=0, y0=0, w=32, h=24):
         snapshot = game.snapshot[:]
