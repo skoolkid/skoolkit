@@ -124,6 +124,7 @@ class HtmlWriter:
         self.list_parser = ListParser()
         self._create_macros()
 
+        self.game_vars = self.get_dictionary('Game')
         self.paths = self.get_dictionary('Paths')
         self.titles = self.get_dictionary('Titles')
         self.page_headers = self.get_dictionary('PageHeaders')
@@ -158,13 +159,20 @@ class HtmlWriter:
                 self.titles.setdefault(asm_page_id, self.titles[default_asm_page_id])
                 self.page_headers.setdefault(asm_page_id, self.page_headers[default_asm_page_id])
 
+        self.gsb_includes = []
+        for addr_str in self.game_vars['GameStatusBufferIncludes'].split(','):
+            address = parse_int(addr_str)
+            if address in self.entries:
+                self.gsb_includes.append(address)
+
         self.memory_map_names = []
         self.memory_maps = {}
         for map_name, map_details in self.get_dictionaries('MemoryMap'):
+            map_details['Name'] = map_name
             if self._should_write_map(map_details):
-                map_details['Name'] = map_name
                 self.memory_maps[map_name] = map_details
-                self.memory_map_names.append(map_name)
+                if map_name != P_GSB:
+                    self.memory_map_names.append(map_name)
                 self.paths.setdefault(map_name, 'maps/{}.html'.format(map_name))
                 self.titles.setdefault(map_name, map_name)
 
@@ -175,7 +183,6 @@ class HtmlWriter:
 
         self.code_id = code_id
         self.code_path = self.get_code_path(code_id)
-        self.game_vars = self.get_dictionary('Game')
         if not self.game_vars['Game']:
             def_game_name = basename(self.parser.skoolfile)
             suffix = '.skool'
@@ -292,7 +299,7 @@ class HtmlWriter:
         return '{}-Asm-{}'.format(code_id, entry_type)
 
     def has_gbuffer(self):
-        return any(entry.ctl == 'g' for entry in self.memory_map)
+        return P_GSB in self.memory_maps
 
     def get_dictionary(self, section_name):
         """Return a dictionary built from the contents of a `ref` file section.
@@ -597,18 +604,19 @@ class HtmlWriter:
     def write_gbuffer(self):
         fname = self.paths[P_GSB]
         cwd = self._set_cwd(P_GSB, fname)
-        gsb_includes = [parse_int(a) for a in self.game_vars['GameStatusBufferIncludes'].split(',')]
+        map_details = self.memory_maps[P_GSB]
+        entry_types = map_details.get('EntryTypes', 'bcgstuw')
         map_dict = {
             'EntryDescriptions': '1',
-            'Intro': '',
+            'Intro': self.expand(map_details.get('Intro', ''), cwd),
             'LengthColumn': '1',
-            'PageByteColumns': '0'
+            'PageByteColumns': map_details.get('PageByteColumns', '0')
         }
         t_map_entry_subs = {'MemoryMap': map_dict}
 
         gsb_entries = []
         for entry in self.memory_map:
-            if entry.ctl == 'g' or entry.address in gsb_includes:
+            if entry.ctl in entry_types or entry.address in self.gsb_includes:
                 t_map_entry_subs['t_anchor'] = self.format_anchor(entry.address)
                 t_map_entry_subs['entry'] = self._get_map_entry_dict(cwd, entry)
                 gsb_entries.append(self.format_template('map_entry', t_map_entry_subs))
@@ -844,7 +852,9 @@ class HtmlWriter:
         entry_types = map_details.get('EntryTypes')
         if not entry_types:
             return True
-        return any(entry.ctl in entry_types for entry in self.memory_map)
+        if map_details['Name'] == P_GSB and self.gsb_includes:
+            return True
+        return any([entry.ctl in entry_types for entry in self.memory_map])
 
     def write_map(self, map_name):
         fname = self.paths[map_name]

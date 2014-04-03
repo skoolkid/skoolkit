@@ -3683,7 +3683,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '[Paths]',
             'GameStatusBuffer={}'
         )).format(title, path)
-        writer = self._get_writer(ref=ref, skool='')
+        writer = self._get_writer(ref=ref, skool='g32768 DEFB 0')
         writer.write_gbuffer()
         self.assert_title_equals(path, title)
 

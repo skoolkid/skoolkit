@@ -92,7 +92,7 @@ class MockSkoolParser:
         self.create_labels = kwargs.get('create_labels')
         self.asm_labels = kwargs.get('asm_labels')
         self.snapshot = None
-        self.entries = None
+        self.entries = {}
         self.memory_map = []
         mock_skool_parser = self
 

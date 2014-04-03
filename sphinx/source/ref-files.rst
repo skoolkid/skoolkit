@@ -494,8 +494,7 @@ section names take the form::
 
   [MemoryMap:PageID]
 
-where ``PageID`` is the unique ID of the memory map page (which must be the
-same as the corresponding page ID that appears in the :ref:`Paths` section).
+where ``PageID`` is the unique ID of the memory map page.
 
 Each ``MemoryMap:*`` section contains parameters in the form::
 

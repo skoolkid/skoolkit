@@ -155,6 +155,13 @@ PageByteColumns=1
 Write=1
 """
 
+SECTIONS['MemoryMap:GameStatusBuffer'] = """
+EntryTypes=g
+Intro=
+PageByteColumns=0
+Write=1
+"""
+
 SECTIONS['PageHeaders'] = """
 Asm-b=Data
 Asm-c=Routines
