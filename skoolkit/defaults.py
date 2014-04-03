@@ -156,7 +156,7 @@ Write=1
 """
 
 SECTIONS['MemoryMap:GameStatusBuffer'] = """
-EntryTypes=g
+EntryTypes=gG
 Intro=
 PageByteColumns=0
 Write=1

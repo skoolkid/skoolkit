@@ -503,12 +503,13 @@ Each ``MemoryMap:*`` section contains parameters in the form::
 Recognised parameters and their default values are:
 
 * ``EntryTypes`` - the types of entries to show in the map (by default, every
-  type is shown); entry types are identified by their control directives as
-  follows:
+  type is shown); entry types are identified as follows:
 
   * ``b`` - DEFB blocks
   * ``c`` - routines
   * ``g`` - game status buffer entries
+  * ``G`` - entries whose address appears in the ``GameStatusBufferIncludes``
+    parameter in the :ref:`ref-Game` section
   * ``s`` - blocks containing bytes that are all the same value
   * ``t`` - messages
   * ``u`` - unused addresses
@@ -526,11 +527,14 @@ command::
 
   $ skool2html.py -r MemoryMap
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 2.5     | New     |
-+---------+---------+
++---------+--------------------------------------------------------------+
+| Version | Changes                                                      |
++=========+==============================================================+
+| 2.5     | New                                                          |
++---------+--------------------------------------------------------------+
+| 4.0     | Added support for the ``G`` identifier in the ``EntryTypes`` |
+|         | parameter                                                    |
++---------+--------------------------------------------------------------+
 
 .. _otherCode:
 

@@ -616,7 +616,7 @@ class HtmlWriter:
 
         gsb_entries = []
         for entry in self.memory_map:
-            if entry.ctl in entry_types or entry.address in self.gsb_includes:
+            if entry.ctl in entry_types or ('G' in entry_types and entry.address in self.gsb_includes):
                 t_map_entry_subs['t_anchor'] = self.format_anchor(entry.address)
                 t_map_entry_subs['entry'] = self._get_map_entry_dict(cwd, entry)
                 gsb_entries.append(self.format_template('map_entry', t_map_entry_subs))
@@ -847,12 +847,14 @@ class HtmlWriter:
         self.write_entries(self.code_path, self.paths[P_MEMORY_MAP])
 
     def _should_write_map(self, map_details):
+        if not self.memory_map:
+            return False
         if map_details.get('Write') == '0':
             return False
         entry_types = map_details.get('EntryTypes')
         if not entry_types:
             return True
-        if map_details['Name'] == P_GSB and self.gsb_includes:
+        if 'G' in entry_types and self.gsb_includes:
             return True
         return any([entry.ctl in entry_types for entry in self.memory_map])
 
@@ -872,7 +874,7 @@ class HtmlWriter:
         map_entries = []
         t_map_entry_subs = {'MemoryMap': map_dict}
         for entry in self.memory_map:
-            if entry.ctl in entry_types:
+            if entry.ctl in entry_types or ('G' in entry_types and entry.address in self.gsb_includes):
                 t_map_entry_subs['entry'] = self._get_map_entry_dict(cwd, entry, False)
                 t_map_entry_subs['t_anchor'] = self.format_anchor(entry.address)
                 map_entries.append(self.format_template('map_entry', t_map_entry_subs))
