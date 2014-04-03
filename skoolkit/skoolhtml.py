@@ -168,11 +168,9 @@ class HtmlWriter:
         self.memory_map_names = []
         self.memory_maps = {}
         for map_name, map_details in self.get_dictionaries('MemoryMap'):
-            map_details['Name'] = map_name
             if self._should_write_map(map_details):
                 self.memory_maps[map_name] = map_details
-                if map_name != P_GSB:
-                    self.memory_map_names.append(map_name)
+                self.memory_map_names.append(map_name)
                 self.paths.setdefault(map_name, 'maps/{}.html'.format(map_name))
                 self.titles.setdefault(map_name, map_name)
 
@@ -297,9 +295,6 @@ class HtmlWriter:
         if code_id == MAIN_CODE_ID:
             return 'Asm-{}'.format(entry_type)
         return '{}-Asm-{}'.format(code_id, entry_type)
-
-    def has_gbuffer(self):
-        return P_GSB in self.memory_maps
 
     def get_dictionary(self, section_name):
         """Return a dictionary built from the contents of a `ref` file section.
@@ -585,7 +580,7 @@ class HtmlWriter:
             'title': self.expand(entry.description, cwd)
         }
 
-    def _get_map_entry_dict(self, cwd, entry, desc=True):
+    def _get_map_entry_dict(self, cwd, entry, desc):
         address = entry.address
         key = (cwd, address, desc)
         if key not in self.map_entry_dicts:
@@ -600,33 +595,6 @@ class HtmlWriter:
             entry_dict['map_url'] = '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address)
             self.asm_entry_dicts[address] = entry_dict
         return self.asm_entry_dicts[address]
-
-    def write_gbuffer(self):
-        fname = self.paths[P_GSB]
-        cwd = self._set_cwd(P_GSB, fname)
-        map_details = self.memory_maps[P_GSB]
-        entry_types = map_details.get('EntryTypes', 'bcgstuw')
-        map_dict = {
-            'EntryDescriptions': '1',
-            'Intro': self.expand(map_details.get('Intro', ''), cwd),
-            'LengthColumn': '1',
-            'PageByteColumns': map_details.get('PageByteColumns', '0')
-        }
-        t_map_entry_subs = {'MemoryMap': map_dict}
-
-        gsb_entries = []
-        for entry in self.memory_map:
-            if entry.ctl in entry_types or ('G' in entry_types and entry.address in self.gsb_includes):
-                t_map_entry_subs['t_anchor'] = self.format_anchor(entry.address)
-                t_map_entry_subs['entry'] = self._get_map_entry_dict(cwd, entry)
-                gsb_entries.append(self.format_template('map_entry', t_map_entry_subs))
-
-        subs = {
-            'MemoryMap': map_dict,
-            'm_map_entry': '\n'.join(gsb_entries)
-        }
-        html = self.format_page(P_GSB, cwd, subs, P_MEMORY_MAP)
-        self.write_file(fname, html)
 
     def _format_contents_list_items(self, link_list):
         items = []
@@ -865,17 +833,18 @@ class HtmlWriter:
         map_details = self.memory_maps.get(map_name, {})
         entry_types = map_details.get('EntryTypes', 'bcgstuw')
         map_dict = {
-            'EntryDescriptions': '0',
+            'EntryDescriptions': map_details.get('EntryDescriptions', '0'),
             'Intro': self.expand(map_details.get('Intro', ''), cwd),
-            'LengthColumn': '0',
+            'LengthColumn': map_details.get('LengthColumn', '0'),
             'PageByteColumns': map_details.get('PageByteColumns', '0')
         }
+        desc = map_dict['EntryDescriptions'] != '0'
 
         map_entries = []
         t_map_entry_subs = {'MemoryMap': map_dict}
         for entry in self.memory_map:
             if entry.ctl in entry_types or ('G' in entry_types and entry.address in self.gsb_includes):
-                t_map_entry_subs['entry'] = self._get_map_entry_dict(cwd, entry, False)
+                t_map_entry_subs['entry'] = self._get_map_entry_dict(cwd, entry, desc)
                 t_map_entry_subs['t_anchor'] = self.format_anchor(entry.address)
                 map_entries.append(self.format_template('map_entry', t_map_entry_subs))
 

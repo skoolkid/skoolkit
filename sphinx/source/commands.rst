@@ -236,12 +236,12 @@ list::
     -u, --upper           Write the disassembly in upper case
     -V, --version         Show SkoolKit version number and exit
     -w X, --write X       Write only these files, where X is one or more of:
-                            B = Graphic glitches    m = Memory maps
-                            b = Bugs                o = Other code
-                            c = Changelog           P = Custom pages
-                            d = Disassembly files   p = Pokes
-                            G = Game status buffer  t = Trivia
+                            B = Graphic glitches    o = Other code
+                            b = Bugs                P = Custom pages
+                            c = Changelog           p = Pokes
+                            d = Disassembly files   t = Trivia
                             i = Disassembly index   y = Glossary
+                            m = Memory maps
 
 `skool2html.py` searches the following directories for `skool` files, `ref`
 files, CSS files, JavaScript files, font files, and files listed in the

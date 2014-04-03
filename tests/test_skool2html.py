@@ -46,9 +46,6 @@ class TestHtmlWriter(HtmlWriter):
     def write_page(self, *args):
         self.add_call('write_page', args)
 
-    def write_gbuffer(self, *args):
-        self.add_call('write_gbuffer', args)
-
     def write_graphics(self, *args):
         self.add_call('write_graphics', args)
 
@@ -643,7 +640,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
             ('RoutinesMap',),
             ('DataMap',),
             ('MessagesMap',),
-            ('UnusedMap',)
+            ('UnusedMap',),
+            ('GameStatusBuffer',)
         ]
         self._test_option_w('--write', 'm', 'write_map', exp_arg_list)
 
@@ -652,9 +650,6 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     def test_option_w_P(self):
         self._test_option_w('--write', 'P', 'write_page', [('CustomPage1',), ('CustomPage2',)])
-
-    def test_option_w_G(self):
-        self._test_option_w('-w', 'G', 'write_gbuffer')
 
     def test_option_w_B(self):
         self._test_option_w('-w', 'B', 'write_graphic_glitches')

@@ -277,8 +277,6 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_c
             clock(html_writer.write_page, '  Writing {}'.format(normpath(game_dir, paths[page_id])), page_id)
 
     # Write other files
-    if 'G' in files and html_writer.has_gbuffer():
-        clock(html_writer.write_gbuffer, '  Writing {}'.format(normpath(game_dir, paths['GameStatusBuffer'])))
     if 'B' in files and html_writer.graphic_glitches:
         clock(html_writer.write_graphic_glitches, '  Writing {}'.format(normpath(game_dir, paths['GraphicGlitches'])))
     if 'c' in files and html_writer.changelog:
@@ -378,12 +376,12 @@ def main(args):
                        help='Show SkoolKit version number and exit')
     group.add_argument('-w', '--write', dest='files', metavar='X', default='BbcdGgimoPpty',
                        help="Write only these files, where X is one or more of:\n"
-                            "  B = Graphic glitches    m = Memory maps\n"
-                            "  b = Bugs                o = Other code\n"
-                            "  c = Changelog           P = Custom pages\n"
-                            "  d = Disassembly files   p = Pokes\n"
-                            "  G = Game status buffer  t = Trivia\n"
-                            "  i = Disassembly index   y = Glossary\n")
+                            "  B = Graphic glitches    o = Other code\n"
+                            "  b = Bugs                P = Custom pages\n"
+                            "  c = Changelog           p = Pokes\n"
+                            "  d = Disassembly files   t = Trivia\n"
+                            "  i = Disassembly index   y = Glossary\n"
+                            "  m = Memory maps\n")
 
     start = time.time()
     namespace, unknown_args = parser.parse_known_args(args)

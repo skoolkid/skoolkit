@@ -81,12 +81,12 @@ OPTIONS
   Write only these files, where `X` is one or more of:
 
   |
-  |   ``B`` = Graphic glitches    ``m`` = Memory maps
-  |   ``b`` = Bugs                ``o`` = Other code
-  |   ``c`` = Changelog           ``P`` = Custom pages
-  |   ``d`` = Disassembly files   ``p`` = Pokes
-  |   ``G`` = Game status buffer  ``t`` = Trivia
+  |   ``B`` = Graphic glitches    ``o`` = Other code
+  |   ``b`` = Bugs                ``P`` = Custom pages
+  |   ``c`` = Changelog           ``p`` = Pokes
+  |   ``d`` = Disassembly files   ``t`` = Trivia
   |   ``i`` = Disassembly index   ``y`` = Glossary
+  |   ``m`` = Memory maps
 
 FILES
 =====

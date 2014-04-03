@@ -375,7 +375,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         # [MemoryMap:*]
         self.assertTrue('TestMap' in writer.memory_map_names)
         self.assertTrue('TestMap' in writer.memory_maps)
-        self.assertEqual(writer.memory_maps['TestMap'], {'EntryTypes': 'w', 'Name': 'TestMap'})
+        self.assertEqual(writer.memory_maps['TestMap'], {'EntryTypes': 'w'})
 
     def test_parse_image_params(self):
         writer = self._get_writer()
@@ -3521,7 +3521,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         writer.write_graphic_glitches()
         self.assert_title_equals(path, title)
 
-    def test_write_gbuffer(self):
+    def test_write_gsb_page(self):
         skool = '\n'.join((
             '; GSB entry 1',
             ';',
@@ -3572,7 +3572,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         writer = self._get_writer(skool=skool)
-        writer.write_gbuffer()
+        writer.write_map('GameStatusBuffer')
         subs = {
             'name': basename(self.skoolfile)[:-6],
             'header': 'Game status buffer',
@@ -3582,7 +3582,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)
 
-    def test_write_gbuffer_with_includes(self):
+    def test_write_gsb_page_with_includes(self):
         ref = '[Game]\nGameStatusBufferIncludes=30003,30004'
         skool = '\n'.join((
             '; GSB entry 1',
@@ -3664,7 +3664,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </table>
         """
         writer = self._get_writer(ref=ref, skool=skool)
-        writer.write_gbuffer()
+        writer.write_map('GameStatusBuffer')
         subs = {
             'name': basename(self.skoolfile)[:-6],
             'header': 'Game status buffer',
@@ -3674,7 +3674,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)
 
-    def test_write_gbuffer_with_custom_title_and_path(self):
+    def test_write_gsb_page_with_custom_title_and_path(self):
         title = 'Workspace'
         path = 'game/status_buffer.html'
         ref = '\n'.join((
@@ -3684,7 +3684,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             'GameStatusBuffer={}'
         )).format(title, path)
         writer = self._get_writer(ref=ref, skool='g32768 DEFB 0')
-        writer.write_gbuffer()
+        writer.write_map('GameStatusBuffer')
         self.assert_title_equals(path, title)
 
     def test_page_content(self):
