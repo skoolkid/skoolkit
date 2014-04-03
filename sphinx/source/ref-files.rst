@@ -270,6 +270,8 @@ Recognised parameters are:
 |         | to live in the ``[Info]`` section in SkoolKit 3)                  |
 +---------+-------------------------------------------------------------------+
 
+.. _ref-Glossary:
+
 [Glossary:\*]
 -------------
 Each ``Glossary:*`` section defines an entry on the 'Glossary' page. The
@@ -292,6 +294,8 @@ Paragraphs must be separated by blank lines, and may contain HTML markup and
 +=========+=======================================+
 | 3.1.3   | Added support for multiple paragraphs |
 +---------+---------------------------------------+
+
+.. _ref-GraphicGlitch:
 
 [GraphicGlitch:\*:\*]
 ---------------------

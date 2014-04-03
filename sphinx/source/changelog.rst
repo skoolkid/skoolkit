@@ -3,6 +3,8 @@ Changelog
 
 4.0b1
 -----
+* Every HTML page is built from templates defined in :ref:`template` sections
+  in the `ref` file
 * Added support for defining page headers in the :ref:`pageHeaders` section of
   the `ref` file
 * Added the ``--ref-file`` and ``--ref-sections`` options to
