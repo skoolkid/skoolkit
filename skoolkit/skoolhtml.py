@@ -1544,12 +1544,7 @@ class Frame(object):
     def __init__(self, udgs, scale=1, mask=0, x=0, y=0, width=None, height=None, delay=32):
         self._udgs = udgs
         self._scale = scale
-        if mask is False:
-            self.mask = 0
-        elif mask is True:
-            self.mask = 1
-        else:
-            self.mask = mask
+        self.mask = int(mask)
         self._x = x
         self._y = y
         self._full_width = 8 * len(udgs[0]) * scale

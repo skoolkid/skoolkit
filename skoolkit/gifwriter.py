@@ -57,6 +57,7 @@ class GifWriter:
             udg_array = frame.udgs
             scale = frame.scale
             x, y = frame.x, frame.y
+            mask = self.masks[frame.mask]
             full_size = not frame.cropped
 
             if flash_rect:
@@ -66,7 +67,7 @@ class GifWriter:
 
             # Frame 1
             self._write_image_descriptor(img_file, width, height)
-            self._write_gif_image_data(img_file, udg_array, scale, trans, x, y, width, height, full_size, min_code_size, attr_map)
+            self._write_gif_image_data(img_file, udg_array, scale, trans, x, y, width, height, full_size, min_code_size, attr_map, mask)
 
             if flash_rect:
                 # Frame 2
@@ -81,19 +82,20 @@ class GifWriter:
                     f2_h *= 8 * scale
                 self._write_gce(img_file, frame.delay, transparent)
                 self._write_image_descriptor(img_file, f2_w, f2_h, f2_x, f2_y)
-                self._write_gif_image_data(img_file, f2_udg_array, scale, trans, x + f2_x, y + f2_y, f2_w, f2_h, full_size, min_code_size, attr_map, True)
+                self._write_gif_image_data(img_file, f2_udg_array, scale, trans, x + f2_x, y + f2_y, f2_w, f2_h, full_size, min_code_size, attr_map, mask, True)
         else:
             for frame in frames:
                 x, y, width, height = frame.x, frame.y, frame.width, frame.height
+                mask = self.masks[frame.mask]
                 full_size = not frame.cropped
                 self._write_gce(img_file, frame.delay, transparent)
                 self._write_image_descriptor(img_file, width, height)
-                self._write_gif_image_data(img_file, frame.udgs, frame.scale, frame.trans, x, y, width, height, full_size, min_code_size, attr_map)
+                self._write_gif_image_data(img_file, frame.udgs, frame.scale, frame.trans, x, y, width, height, full_size, min_code_size, attr_map, mask)
 
         # GIF trailer
         img_file.write(self.gif_trailer)
 
-    def _get_pixels(self, udg_array, scale, trans, x, y, width, height, flash, attr_map):
+    def _get_pixels(self, udg_array, scale, trans, x, y, width, height, flash, attr_map, mask):
         pixels = []
         y_count = 0
         inc = 8 * scale
@@ -123,38 +125,24 @@ class GifWriter:
                     paper, ink = attr_map[udg.attr & 127]
                     if flash and udg.attr & 128:
                         paper, ink = ink, paper
-                    byte = udg.data[k]
-                    if trans and udg.mask:
-                        mask_byte = udg.mask[k]
-                        byte &= mask_byte
-                    else:
-                        mask_byte = 0
+                    bits = mask.apply(udg, k, paper, ink, 0)
                     for j in range(8):
                         if x_count >= x + width:
                             break
                         if x_count + scale <= x:
                             x_count += scale
-                            byte *= 2
-                            mask_byte *= 2
                             continue
                         if x_count >= x:
                             num_bits = min(x + width - x_count, scale)
                         else:
                             num_bits = x_count - x + scale
                         x_count += scale
-                        if byte & 128:
-                            pixel_row.extend((ink,) * num_bits)
-                        elif mask_byte & 128 == 0:
-                            pixel_row.extend((paper,) * num_bits)
-                        else:
-                            pixel_row.extend((0,) * num_bits)
-                        byte *= 2
-                        mask_byte *= 2
+                        pixel_row.extend((bits[j],) * num_bits)
                 for i in range(num_lines):
                     pixels += pixel_row
         return pixels
 
-    def _get_all_pixels(self, udg_array, scale, trans, flash, attr_map):
+    def _get_all_pixels(self, udg_array, scale, trans, flash, attr_map, mask):
         attr_index = {}
         for attr, (paper, ink) in attr_map.items():
             attr_index[attr] = ((paper,) * scale, (ink,) * scale)
@@ -165,29 +153,16 @@ class GifWriter:
             for k in range(8):
                 pixel_row = []
                 for udg in row:
-                    p, i = attr_index[udg.attr & 127]
+                    paper, ink = attr_index[udg.attr & 127]
                     if flash and udg.attr & 128:
-                        p, i = i, p
-                    byte = udg.data[k]
-                    if trans and udg.mask:
-                        mask_byte = udg.mask[k]
-                        byte &= mask_byte
-                    else:
-                        mask_byte = 0
-                    for j in range(8):
-                        if byte & 128:
-                            pixel_row.extend(i)
-                        elif mask_byte & 128 == 0:
-                            pixel_row.extend(p)
-                        else:
-                            pixel_row.extend(t)
-                        byte *= 2
-                        mask_byte *= 2
+                        paper, ink = ink, paper
+                    for pixel in mask.apply(udg, k, paper, ink, t):
+                        pixel_row.extend(pixel)
                 for i in range(scale):
                     pixels += pixel_row
         return pixels
 
-    def _get_pixels_as_str(self, udg_array, scale, trans, x, y, width, height, flash, attr_map):
+    def _get_pixels_as_str(self, udg_array, scale, trans, x, y, width, height, flash, attr_map, mask):
         pixels = []
         y_count = 0
         inc = 8 * scale
@@ -217,38 +192,24 @@ class GifWriter:
                     paper, ink = attr_map[udg.attr & 127]
                     if flash and udg.attr & 128:
                         paper, ink = ink, paper
-                    byte = udg.data[k]
-                    if trans and udg.mask:
-                        mask_byte = udg.mask[k]
-                        byte &= mask_byte
-                    else:
-                        mask_byte = 0
+                    bits = mask.apply(udg, k, chr(paper), chr(ink), chr(0))
                     for j in range(8):
                         if x_count >= x + width:
                             break
                         if x_count + scale <= x:
                             x_count += scale
-                            byte *= 2
-                            mask_byte *= 2
                             continue
                         if x_count >= x:
                             num_bits = min(x + width - x_count, scale)
                         else:
                             num_bits = x_count - x + scale
                         x_count += scale
-                        if byte & 128:
-                            pixel_row.append(chr(ink) * num_bits)
-                        elif mask_byte & 128 == 0:
-                            pixel_row.append(chr(paper) * num_bits)
-                        else:
-                            pixel_row.append(chr(0) * num_bits)
-                        byte *= 2
-                        mask_byte *= 2
+                        pixel_row.append(bits[j] * num_bits)
                 for i in range(num_lines):
                     pixels += pixel_row
         return ''.join(pixels)
 
-    def _get_all_pixels_as_str(self, udg_array, scale, trans, flash, attr_map):
+    def _get_all_pixels_as_str(self, udg_array, scale, trans, flash, attr_map, mask):
         attr_index = {}
         for attr, (paper, ink) in attr_map.items():
             attr_index[attr] = (chr(paper) * scale, chr(ink) * scale)
@@ -259,24 +220,10 @@ class GifWriter:
             for k in range(8):
                 pixel_row = []
                 for udg in row:
-                    p, i = attr_index[udg.attr & 127]
+                    paper, ink = attr_index[udg.attr & 127]
                     if flash and udg.attr & 128:
-                        p, i = i, p
-                    byte = udg.data[k]
-                    if trans and udg.mask:
-                        mask_byte = udg.mask[k]
-                        byte &= mask_byte
-                    else:
-                        mask_byte = 0
-                    for j in range(8):
-                        if byte & 128:
-                            pixel_row.append(i)
-                        elif mask_byte & 128 == 0:
-                            pixel_row.append(p)
-                        else:
-                            pixel_row.append(t)
-                        byte *= 2
-                        mask_byte *= 2
+                        paper, ink = ink, paper
+                    pixel_row.extend(mask.apply(udg, k, paper, ink, t))
                 for i in range(scale):
                     pixels += pixel_row
         return ''.join(pixels)
@@ -396,13 +343,13 @@ class GifWriter:
         data.append(0) # no local colour table
         img_file.write(data)
 
-    def _write_gif_image_data(self, img_file, udg_array, scale, trans, x, y, width, height, full_size, min_code_size, attr_map, flash=False):
+    def _write_gif_image_data(self, img_file, udg_array, scale, trans, x, y, width, height, full_size, min_code_size, attr_map, mask, flash=False):
         if self.compression:
             data = bytearray((min_code_size,))
             if full_size:
-                pixels = self._get_all_pixels_as_str(udg_array, scale, trans, flash, attr_map)
+                pixels = self._get_all_pixels_as_str(udg_array, scale, trans, flash, attr_map, mask)
             else:
-                pixels = self._get_pixels_as_str(udg_array, scale, trans, x, y, width, height, flash, attr_map)
+                pixels = self._get_pixels_as_str(udg_array, scale, trans, x, y, width, height, flash, attr_map, mask)
             pixels_lzw = self._compress(pixels, min_code_size)
             p_count = len(pixels_lzw)
             i = 0
@@ -415,9 +362,9 @@ class GifWriter:
         else:
             data = bytearray((7,)) # Minimum code size for uncompressed LZW data
             if full_size:
-                pixels = self._get_all_pixels(udg_array, scale, trans, flash, attr_map)
+                pixels = self._get_all_pixels(udg_array, scale, trans, flash, attr_map, mask)
             else:
-                pixels = self._get_pixels(udg_array, scale, trans, x, y, width, height, flash, attr_map)
+                pixels = self._get_pixels(udg_array, scale, trans, x, y, width, height, flash, attr_map, mask)
             pixels.append(129) # 8-bit STOP code
             p_count = len(pixels)
             i = 0

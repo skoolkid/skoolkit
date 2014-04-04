@@ -201,11 +201,10 @@ class ImageWriter:
 
         udg_array = frame.udgs
         scale = frame.scale
-        mask = frame.mask
+        mask = self.masks[frame.mask]
         x, y, width, height = frame.x, frame.y, frame.width, frame.height
         attrs = set()
         colours = set()
-        has_trans = 0
         all_masked = 1
         flashing = False
         y_count = 0
@@ -239,13 +238,9 @@ class ImageWriter:
                     attr = udg.attr & 127
                     attrs.add(attr)
                     paper, ink = self.attr_index[attr]
-                    byte = udg.data[j]
-                    if mask and udg.mask:
-                        mask_byte = udg.mask[j]
-                        byte &= mask_byte
-                    else:
+                    if not udg.mask:
                         all_masked = 0
-                        mask_byte = 0
+                    pixels = mask.apply(udg, j, paper, ink, None)
                     if use_flash and udg.attr & 128:
                         colours.add(ink)
                         if ink != paper:
@@ -256,8 +251,6 @@ class ImageWriter:
                             break
                         if x_count + scale - 1 < x:
                             x_count += scale
-                            byte *= 2
-                            mask_byte *= 2
                             continue
                         if x_count >= x:
                             num_bits = min(x + width - x_count, scale)
@@ -268,14 +261,7 @@ class ImageWriter:
                             max_x = max((cols + num_bits, max_x))
                             min_y = min((rows, min_y))
                             max_y = max((rows + num_lines, max_y))
-                        if byte & 128:
-                            colours.add(ink)
-                        elif mask_byte & 128:
-                            has_trans = 1
-                        else:
-                            colours.add(paper)
-                        byte *= 2
-                        mask_byte *= 2
+                        colours.add(pixels[k])
                         x_count += scale
                         cols += num_bits
                 y_count += scale
@@ -285,7 +271,8 @@ class ImageWriter:
             flash_rect = (min_x, min_y, max_x - min_x, max_y - min_y)
         else:
             flash_rect = None
-        if has_trans:
+        if None in colours:
+            colours.remove(None)
             frame.trans = 1 + all_masked
         else:
             frame.trans = 0
@@ -314,7 +301,7 @@ class ImageWriter:
                 if udg.mask:
                     pixels = []
                     for i in range(8):
-                        pixels.extend(mask.apply(udg.data[i], udg.mask[i], paper, ink))
+                        pixels.extend(mask.apply(udg, i, paper, ink, None))
                     has_non_trans = False
                     if ink in pixels:
                         colours.add(ink)
@@ -382,7 +369,8 @@ class ImageWriter:
         return palette, attr_map
 
 class NoMask:
-    def apply(self, udg_byte, mask_byte, paper, ink, trans=None):
+    def apply(self, udg, row, paper, ink, trans):
+        udg_byte = udg.data[row]
         pixels = []
         for b in range(8):
             if udg_byte & 128:
@@ -393,7 +381,12 @@ class NoMask:
         return pixels
 
 class OrAndMask:
-    def apply(self, udg_byte, mask_byte, paper, ink, trans=None):
+    def apply(self, udg, row, paper, ink, trans):
+        udg_byte = udg.data[row]
+        if udg.mask:
+            mask_byte = udg.mask[row]
+        else:
+            mask_byte = udg_byte
         pixels = []
         for b in range(8):
             if mask_byte & 128 == 0:
@@ -415,7 +408,12 @@ class OrAndMask:
         )
 
 class AndOrMask:
-    def apply(self, udg_byte, mask_byte, paper, ink, trans=None):
+    def apply(self, udg, row, paper, ink, trans):
+        udg_byte = udg.data[row]
+        if udg.mask:
+            mask_byte = udg.mask[row]
+        else:
+            mask_byte = udg_byte
         pixels = []
         for b in range(8):
             if udg_byte & 128:

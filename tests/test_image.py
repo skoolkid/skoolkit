@@ -803,7 +803,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
             bit_depth = 2
         else:
             bit_depth = 1
-        image_data_z = method(udg_array, scale, attr_map, trans, flash, x, y, width, height, bit_depth)
+        image_data_z = method(udg_array, scale, attr_map, trans, flash, x, y, width, height, bit_depth, png_writer.masks[mask])
         if PY3:
             image_data = list(zlib.decompress(image_data_z))
         else:

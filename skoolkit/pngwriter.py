@@ -288,7 +288,7 @@ class PngWriter:
     def _build_image_data(self, frame, palette_size, bit_depth, attr_map, flash_rect=None):
         udg_array = frame.udgs
         scale = frame.scale
-        mask_type = frame.mask
+        mask = self.masks[frame.mask]
         x, y, width, height = frame.x, frame.y, frame.width, frame.height
         trans = frame.trans
         full_size = not frame.cropped
@@ -313,7 +313,7 @@ class PngWriter:
         if f1_method:
             num_tiles = len(udg_array[0]) * len(udg_array)
             f1_build_method = f1_method(num_tiles, len(attr_map), scale)
-        frame1 = f1_build_method(udg_array, scale, attr_map, trans, False, x, y, width, height, bit_depth, mask_type)
+        frame1 = f1_build_method(udg_array, scale, attr_map, trans, False, x, y, width, height, bit_depth, mask)
 
         # Frame 2
         if frame2_rect:
@@ -325,7 +325,7 @@ class PngWriter:
             f2_method, f2_build_method = method_dict[1]
             if f2_method:
                 f2_build_method = f2_method(len(f2_udg_array[0]) * len(f2_udg_array), len(attr_map), scale)
-            frame2 = f2_build_method(f2_udg_array, scale, attr_map, trans, True, x + f2_x, y + f2_y, f2_w, f2_h, bit_depth, mask_type)
+            frame2 = f2_build_method(f2_udg_array, scale, attr_map, trans, True, x + f2_x, y + f2_y, f2_w, f2_h, bit_depth, mask)
 
         return frame1, frame2, frame2_rect
 
@@ -345,7 +345,7 @@ class PngWriter:
         img_file.write(img_data)
         img_file.write(bytearray(self._get_crc(img_data))) # CRC
 
-    def _build_image_data_bd_any(self, udg_array, scale, attr_map, trans, flash, x, y, width, height, bit_depth, mask_type):
+    def _build_image_data_bd_any(self, udg_array, scale, attr_map, trans, flash, x, y, width, height, bit_depth, mask):
         # Build image data at any bit depth using a generic method
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
@@ -379,32 +379,19 @@ class PngWriter:
                     paper, ink = attr_map[attr & 127]
                     if flash and attr & 128:
                         paper, ink = ink, paper
-                    if trans and udg.mask:
-                        mask_byte = udg.mask[i]
-                        byte &= mask_byte
-                    else:
-                        mask_byte = 0
+                    pixels = mask.apply(udg, i, paper, ink, 0)
                     for b in range(8):
                         if x_count >= x + width:
                             break
                         if x_count + scale <= x:
                             x_count += scale
-                            byte *= 2
-                            mask_byte *= 2
                             continue
                         if x_count >= x:
                             num_bits = min(x + width - x_count, scale)
                         else:
                             num_bits = x_count - x + scale
                         x_count += scale
-                        if byte & 128:
-                            p.extend((ink,) * num_bits)
-                        elif mask_byte & 128 == 0:
-                            p.extend((paper,) * num_bits)
-                        else:
-                            p.extend((0,) * num_bits)
-                        byte *= 2
-                        mask_byte *= 2
+                        p.extend((pixels[b],) * num_bits)
                 scanline = bytearray((0,))
                 if bit_depth == 1:
                     p.extend((0,) * (8 - len(p) & 7))
@@ -419,7 +406,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd4_nt_nf(self, udg_array, scale, attr_map, trans=0, flash=0, x=0, y=0, width=0, height=0, bit_depth=0, mask_type=0):
+    def _build_image_data_bd4_nt_nf(self, udg_array, scale, attr_map, trans=0, flash=0, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
         # Build image data with bit depth 4 for an image with no transparency
         attrs = {}
         if scale == 1:
@@ -465,7 +452,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd4(self, udg_array, scale, attr_map, trans, flash, x=0, y=0, width=0, height=0, bit_depth=0, mask_type=0):
+    def _build_image_data_bd4(self, udg_array, scale, attr_map, trans, flash, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
         # Build image data with bit depth 4
         attr_dict = {}
         attr_dict_t = {}
@@ -495,59 +482,54 @@ class PngWriter:
                         if flash and attr & 128:
                             tp, pt, ti, it = ti, it, tp, pt
                         tth = (tt,) * h_scale
-                        mask_byte = udg.mask[i]
-                        byte &= mask_byte
+                        pixels = mask.apply(udg, i, 1, 2, 0)
                         for b in range(4):
-                            bits = byte & 192
-                            mask_bits = mask_byte & 192
-                            if bits == 192:
+                            pixel_pair = pixels[b * 2:b * 2 + 2]
+                            if pixel_pair == [2, 2]:
                                 # ink + ink
                                 scanline.extend((ii,) * scale)
-                            elif bits == 128:
+                            elif pixel_pair == [1, 1]:
+                                # paper + paper
+                                scanline.extend((pp,) * scale)
+                            elif pixel_pair == [0, 0]:
+                                # transparent + transparent
+                                scanline.extend((tt,) * scale)
+                            elif pixel_pair == [2, 1]:
+                                # ink + paper
                                 scanline.extend(iih)
-                                if mask_bits & 64:
-                                    # ink + transparent
-                                    if scale_odd:
-                                        scanline.append(it)
-                                    scanline.extend(tth)
-                                else:
-                                    # ink + paper
-                                    if scale_odd:
-                                        scanline.append(ip)
-                                    scanline.extend(pph)
-                            elif bits == 64:
-                                if mask_bits & 128:
-                                    # transparent + ink
-                                    scanline.extend(tth)
-                                    if scale_odd:
-                                        scanline.append(ti)
-                                else:
-                                    # paper + ink
-                                    scanline.extend(pph)
-                                    if scale_odd:
-                                        scanline.append(pi)
+                                if scale_odd:
+                                    scanline.append(ip)
+                                scanline.extend(pph)
+                            elif pixel_pair == [2, 0]:
+                                # ink + transparent
                                 scanline.extend(iih)
-                            else:
-                                if mask_bits == 192:
-                                    # transparent + transparent
-                                    scanline.extend((tt,) * scale)
-                                elif mask_bits == 128:
-                                    # transparent + paper
-                                    scanline.extend(tth)
-                                    if scale_odd:
-                                        scanline.append(tp)
-                                    scanline.extend(pph)
-                                elif mask_bits == 64:
-                                    # paper + transparent
-                                    scanline.extend(pph)
-                                    if scale_odd:
-                                        scanline.append(pt)
-                                    scanline.extend(tth)
-                                else:
-                                    # paper + paper
-                                    scanline.extend((pp,) * scale)
-                            byte *= 4
-                            mask_byte *= 4
+                                if scale_odd:
+                                    scanline.append(it)
+                                scanline.extend(tth)
+                            elif pixel_pair == [1, 2]:
+                                # paper + ink
+                                scanline.extend(pph)
+                                if scale_odd:
+                                    scanline.append(pi)
+                                scanline.extend(iih)
+                            elif pixel_pair == [1, 0]:
+                                # paper + transparent
+                                scanline.extend(pph)
+                                if scale_odd:
+                                    scanline.append(pt)
+                                scanline.extend(tth)
+                            elif pixel_pair == [0, 2]:
+                                # transparent + ink
+                                scanline.extend(tth)
+                                if scale_odd:
+                                    scanline.append(ti)
+                                scanline.extend(iih)
+                            elif pixel_pair == [0, 1]:
+                                # transparent + paper
+                                scanline.extend(tth)
+                                if scale_odd:
+                                    scanline.append(tp)
+                                scanline.extend(pph)
                     else:
                         # No mask
                         if byte == 0:
@@ -580,7 +562,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd2_nt_nf(self, udg_array, scale, attr_map, trans=0, flash=0, x=0, y=0, width=0, height=0, bit_depth=0, mask_type=0):
+    def _build_image_data_bd2_nt_nf(self, udg_array, scale, attr_map, trans=0, flash=0, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
         # Build image data with bit depth 2 for an image with no transparency
         scale_m = scale & 3
         q = scale // 4
@@ -619,19 +601,17 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd2_at_nf(self, udg_array, scale, attr_map, trans=2, flash=0, x=0, y=0, width=0, height=0, bit_depth=0, mask_type=1):
+    def _build_image_data_bd2_at_nf(self, udg_array, scale, attr_map, trans=2, flash=0, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
         # Build image data with bit depth 2 for a masked image when scale & 3 == 0 or scale == 2
         q = scale // 4
         attrs = {}
         if scale & 3 == 0:
             b = ((0,) * q, (85,) * q, (170,) * q, (255,) * q) # 00000000, 01010101, 10101010, 11111111
             for attr, (p, i) in attr_map.items():
-                mask = self.masks[mask_type]
                 c = mask.colours(b, p, i, 0)
                 attrs[attr] = [c[b3 * 2 + m3] + c[b2 * 2 + m2] + c[b1 * 2 + m1] + c[b0 * 2 + m0] for b3, b2, b1, b0, m3, m2, m1, m0 in BITS8]
         elif scale == 2:
             for attr, (paper, ink) in attr_map.items():
-                mask = self.masks[mask_type]
                 p = mask.colours((paper, ink, 0), 0, 1, 2)
                 attrs[attr] = [BD2_BYTES2[p[b3 * 2 + m3] * 4 + p[b2 * 2 + m2]] + BD2_BYTES2[p[b1 * 2 + m1] * 4 + p[b0 * 2 + m0]] for b3, b2, b1, b0, m3, m2, m1, m0 in BITS8]
 
@@ -649,7 +629,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd2(self, udg_array, scale, attr_map, trans, flash, x=0, y=0, width=0, height=0, bit_depth=0, mask_type=0):
+    def _build_image_data_bd2(self, udg_array, scale, attr_map, trans, flash, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
         # Build image data with bit depth 2
         attr_dict = {}
         for attr, q in attr_map.items():
@@ -669,20 +649,11 @@ class PngWriter:
                     if trans and udg.mask:
                         # Apply mask
                         p = []
-                        mask_byte = udg.mask[i]
-                        byte &= mask_byte
                         paper, ink = attr_map[attr & 127]
                         if flash and attr & 128:
                             paper, ink = ink, paper
-                        for b in range(8):
-                            if byte & 128:
-                                p.extend((ink,) * scale)
-                            elif mask_byte & 128:
-                                p.extend((0,) * scale)
-                            else:
-                                p.extend((paper,) * scale)
-                            byte *= 2
-                            mask_byte *= 2
+                        for pixel in mask.apply(udg, i, (paper,) * scale, (ink,) * scale, (0,) * scale):
+                            p.extend(pixel)
                         scanline.extend([p[j] * 64 + p[j + 1] * 16 + p[j + 2] * 4 + p[j + 3] for j in range(0, len(p), 4)])
                     else:
                         # No mask
@@ -725,7 +696,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd1_nt_nf_1udg(self, udg_array, scale, attr_map, trans, flash, x=0, y=0, width=0, height=0, bit_depth=0, mask_type=0):
+    def _build_image_data_bd1_nt_nf_1udg(self, udg_array, scale, attr_map, trans, flash, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
         # Build image data with bit depth 1 for a single UDG
         udg = udg_array[0][0]
         img_bytes = {}
@@ -755,7 +726,7 @@ class PngWriter:
             img_data.extend(((0,) + img_bytes[b]) * scale)
         return self._compress_all_bytes(img_data)
 
-    def _build_image_data_bd1(self, udg_array, scale, attr_map, trans, flash, x=0, y=0, width=0, height=0, bit_depth=0, mask_type=0):
+    def _build_image_data_bd1(self, udg_array, scale, attr_map, trans, flash, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
         # Build image data with bit depth 1 and a 2-colour palette
         attr_dict = {}
         for attr, q in attr_map.items():
@@ -776,17 +747,8 @@ class PngWriter:
                     if trans and udg.mask:
                         # Apply mask
                         p = []
-                        mask_byte = udg.mask[i]
-                        byte &= mask_byte
-                        for b in range(8):
-                            if byte & 128:
-                                p.extend(ink)
-                            elif mask_byte & 128:
-                                p.extend(t)
-                            else:
-                                p.extend(paper)
-                            byte *= 2
-                            mask_byte *= 2
+                        for pixel in mask.apply(udg, i, paper, ink, t):
+                            p.extend(pixel)
                         scanline.extend([p[j] * 128 + p[j + 1] * 64 + p[j + 2] * 32 + p[j + 3] * 16 + p[j + 4] * 8 + p[j + 5] * 4 + p[j + 6] * 2 + p[j + 7] for j in range(0, len(p), 8)])
                     else:
                         # No mask
@@ -934,7 +896,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd1_blank(self, udg_array, scale, attr_map, trans=0, flash=0, x=0, y=0, width=0, height=0, bit_depth=0, mask_type=0):
+    def _build_image_data_bd1_blank(self, udg_array, scale, attr_map, trans=0, flash=0, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
         # Build image data with bit depth 1 and a single-colour palette;
         # placing the integer value in brackets means it is evaluated before
         # 'multiplying' the tuple (and is therefore quicker)

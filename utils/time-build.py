@@ -15,7 +15,7 @@ if not os.path.isdir(SKOOLKIT_HOME):
 sys.path.insert(0, SKOOLKIT_HOME)
 
 from skoolkit.image import ImageWriter
-from skoolkit.skoolhtml import Udg
+from skoolkit.skoolhtml import Udg, Frame
 
 def write(line):
     sys.stdout.write('%s\n' % line)
@@ -40,7 +40,7 @@ def clock(method, *args):
     return sum(keep) / len(keep)
 
 def get_method(iw, method):
-    png_writer = iw.png_writer
+    png_writer = iw.writers['png']
     if hasattr(png_writer, method):
         return getattr(iw, method)
     m_name = '_build_image_data_%s' % method
@@ -64,17 +64,25 @@ def ua(a, b, c, d, t1, t2, t3, t4):
     q = (t2-a*p)/b
     return n, m, p, q, (n-p)/(q-m)
 
+def _get_attr_map(iw, udgs, scale):
+    frame = Frame(udgs, scale)
+    use_flash = True
+    colours, attrs, flash_rect = iw._get_colours(frame, use_flash)
+    palette, attr_map = iw._get_palette(colours, attrs, frame.trans)
+    return attr_map
+
 def bd4(iw, method1, method2, show_timings, udgs, scale=1):
     m1 = get_method(iw, method1)
     m2 = get_method(iw, method2)
+    mask = iw.masks[0]
 
     if udgs:
         write('%s.%s v. %s (scale=%i):' % (iw.__class__.__name__, m1.__name__, m2.__name__, scale))
         width = len(udgs[0]) * 8 * scale
         height = len(udgs) * 8 * scale
-        attr_map = iw._get_palette(udgs, scale, False, 0, 0, width, height, True, False)[1]
-        t1 = clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 4)
-        t2 = clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 4)
+        attr_map = _get_attr_map(iw, udgs, scale)
+        t1 = clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 4, mask)
+        t2 = clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 4, mask)
         write('%s: %0.4fms' % (method1, t1))
         write('%s: %0.4fms' % (method2, t2))
         return
@@ -92,9 +100,9 @@ def bd4(iw, method1, method2, show_timings, udgs, scale=1):
         for udgs in (udgs1, udgs2):
             width = len(udgs[0]) * 8 * scale
             height = len(udgs) * 8 * scale
-            attr_map = iw._get_palette(udgs, scale, False, 0, 0, width, height, True, False)[1]
-            timings.append(clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 4))
-            timings.append(clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 4))
+            attr_map = _get_attr_map(iw, udgs, scale)
+            timings.append(clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 4, mask))
+            timings.append(clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 4, mask))
         n, m, p, q, index = ua(*timings)
         if show_timings:
             write('    %s: %0.4fms, %0.4fms; %0.4fa+%0.4fu' % (method1, timings[-4], timings[-2], n, m))
@@ -105,14 +113,15 @@ def bd4(iw, method1, method2, show_timings, udgs, scale=1):
 def bd2(iw, method1, method2, show_timings, udgs, scale=1):
     m1 = get_method(iw, method1)
     m2 = get_method(iw, method2)
+    mask = iw.masks[0]
 
     if udgs:
         write('%s.%s v. %s (scale=%i):' % (iw.__class__.__name__, m1.__name__, m2.__name__, scale))
         width = len(udgs[0]) * 8 * scale
         height = len(udgs) * 8 * scale
-        attr_map = iw._get_palette(udgs, scale, False, 0, 0, width, height, True, False)[1]
-        t1 = clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 2)
-        t2 = clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 2)
+        attr_map = _get_attr_map(iw, udgs, scale)
+        t1 = clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 2, mask)
+        t2 = clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 2, mask)
         write('  %s: %0.4fms' % (method1, t1))
         write('  %s: %0.4fms' % (method2, t2))
         return
@@ -130,9 +139,9 @@ def bd2(iw, method1, method2, show_timings, udgs, scale=1):
         for udgs in (udgs1, udgs2):
             width = len(udgs[0]) * 8 * scale
             height = len(udgs) * 8 * scale
-            attr_map = iw._get_palette(udgs, scale, False, 0, 0, width, height, True, False)[1]
-            timings.append(clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 2))
-            timings.append(clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 2))
+            attr_map = _get_attr_map(iw, udgs, scale)
+            timings.append(clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 2, mask))
+            timings.append(clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 2, mask))
         n, m, p, q, index = ua(*timings)
         if show_timings:
             write('    %s: %0.4fms, %0.4fms; %0.4fa+%0.4fu' % (method1, timings[-4], timings[-2], n, m))
@@ -143,15 +152,16 @@ def bd2(iw, method1, method2, show_timings, udgs, scale=1):
 def bd1(iw, method1, method2, udgs, scale=1):
     m1 = get_method(iw, method1)
     m2 = get_method(iw, method2)
+    mask = iw.masks[0]
 
     write('%s.%s v. %s (scale=%i):' % (iw.__class__.__name__, m1.__name__, m2.__name__, scale))
 
     if udgs:
         width = len(udgs[0]) * 8 * scale
         height = len(udgs) * 8 * scale
-        attr_map = iw._get_palette(udgs, scale, False, 0, 0, width, height, True, False)[1]
-        t1 = clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 1)
-        t2 = clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 1)
+        attr_map = _get_attr_map(iw, udgs, scale)
+        t1 = clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 1, mask)
+        t2 = clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 1, mask)
         write('  %s: %0.4fms' % (method1, t1))
         write('  %s: %0.4fms' % (method2, t2))
         return
@@ -169,9 +179,9 @@ def bd1(iw, method1, method2, udgs, scale=1):
         for scale in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13):
             width = len(udgs[0]) * 8 * scale
             height = len(udgs) * 8 * scale
-            attr_map = iw._get_palette(udgs, scale, False, 0, 0, width, height, True, False)[1]
-            t1 = clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 1)
-            t2 = clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 1)
+            attr_map = _get_attr_map(iw, udgs, scale)
+            t1 = clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 1, mask)
+            t2 = clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 1, mask)
             write('  num_udgs=%i, num_attrs=%i, scale=%i' % (len(udgs[0]) * len(udgs), len(attr_map), scale))
             write('    %s: %0.2fms' % (method1, t1))
             write('    %s: %0.2fms' % (method2, t2))
@@ -180,7 +190,7 @@ def list_methods():
     prefix = '_build_image_data_'
     methods = []
     iw = ImageWriter()
-    png_writer = iw.png_writer
+    png_writer = iw.writers['png']
     for attr in dir(png_writer):
         if attr.startswith(prefix):
             methods.append(attr)
