@@ -60,6 +60,9 @@ P_CHANGELOG = 'Changelog'
 # Default image path ID
 DEF_IMG_PATH = 'UDGImagePath'
 
+# Default memory map entry types
+DEF_MEMORY_MAP_ENTRY_TYPES = 'bcgstuw'
+
 # Byte flip table
 FLIP = (
     0, 128, 64, 192, 32, 160, 96, 224, 16, 144, 80, 208, 48, 176, 112, 240, 
@@ -168,7 +171,6 @@ class HtmlWriter:
         self.memory_map_names = []
         self.memory_maps = {}
         for map_name, map_details in self.get_dictionaries('MemoryMap'):
-            map_details.setdefault('EntryTypes', 'bcgstuw')
             if self._should_write_map(map_details):
                 self.memory_maps[map_name] = map_details
                 self.memory_map_names.append(map_name)
@@ -818,7 +820,7 @@ class HtmlWriter:
     def _should_write_map(self, map_details):
         if map_details.get('Write') == '0':
             return False
-        entry_types = map_details['EntryTypes']
+        entry_types = map_details.get('EntryTypes', DEF_MEMORY_MAP_ENTRY_TYPES)
         if 'G' in entry_types and self.gsb_includes:
             return True
         return any([entry.ctl in entry_types for entry in self.memory_map])
@@ -828,7 +830,7 @@ class HtmlWriter:
         cwd = self._set_cwd(map_name, fname)
 
         map_details = self.memory_maps.get(map_name, {})
-        entry_types = map_details['EntryTypes']
+        entry_types = map_details.get('EntryTypes', DEF_MEMORY_MAP_ENTRY_TYPES)
         map_dict = {
             'EntryDescriptions': map_details.get('EntryDescriptions', '0'),
             'EntryTypes': entry_types,
