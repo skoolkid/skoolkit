@@ -59,7 +59,7 @@ td.map-g-desc {
 td.map-t-desc {
   color: #aaaaaa;
 }
-body.GameStatusBuffer div.map-entry-title, body.GameStatusBuffer div.map-entry-desc-1, td.map-s-desc, td.map-u-desc {
+div.map-entry-title-11, div.map-entry-desc-1, td.map-s-desc, td.map-u-desc {
   color: #ffffff;
 }
 table.gglitch td {

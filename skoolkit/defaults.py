@@ -121,6 +121,7 @@ MemoryMap=Everything
 """
 
 SECTIONS['MemoryMap:MemoryMap'] = """
+EntryDescriptions=0
 EntryTypes=bcgstuw
 Intro=
 PageByteColumns=1
@@ -128,6 +129,7 @@ Write=1
 """
 
 SECTIONS['MemoryMap:RoutinesMap'] = """
+EntryDescriptions=0
 EntryTypes=c
 Intro=
 PageByteColumns=0
@@ -135,6 +137,7 @@ Write=1
 """
 
 SECTIONS['MemoryMap:DataMap'] = """
+EntryDescriptions=0
 EntryTypes=bw
 Intro=
 PageByteColumns=1
@@ -142,6 +145,7 @@ Write=1
 """
 
 SECTIONS['MemoryMap:MessagesMap'] = """
+EntryDescriptions=0
 EntryTypes=t
 Intro=
 PageByteColumns=0
@@ -149,6 +153,7 @@ Write=1
 """
 
 SECTIONS['MemoryMap:UnusedMap'] = """
+EntryDescriptions=0
 EntryTypes=suz
 Intro=
 PageByteColumns=1
@@ -496,7 +501,7 @@ SECTIONS['Template:map_entry'] = """
 <td class="map-{entry[type]}">{t_anchor}<a class="link" href="{entry[url]}">{entry[address]}</a></td>
 <td class="map-length-{MemoryMap[LengthColumn]}">{entry[size]}</td>
 <td class="map-{entry[type]}-desc">
-<div class="map-entry-title">{entry[title]}</div>
+<div class="map-entry-title-1{MemoryMap[EntryDescriptions]}">{entry[title]}</div>
 <div class="map-entry-desc-{MemoryMap[EntryDescriptions]}">
 {entry[description]}
 </div>

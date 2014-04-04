@@ -104,7 +104,7 @@ div.comments
 div.description
 div.details
 div.footer
-div.gbufDesc               div.map-entry-title
+div.gbufDesc               div.map-entry-title-11
 div.headerText             div.section-header
 div.mapIntro               div.map-intro
 div.paragraph

@@ -10,6 +10,8 @@ Changelog
 * Added the ``--ref-file`` and ``--ref-sections`` options to
   :ref:`skool2html.py` (to show the entire default `ref` file or individual
   sections of it)
+* Added the ``EntryDescriptions`` parameter to the :ref:`memoryMap` section
+  (for specifying whether to display entry descriptions on a memory map page)
 * Removed support for the ``[Info]`` section; the parameters it contained now
   belong in the :ref:`ref-Game` section
 * Removed support for the ``[Graphics]`` section

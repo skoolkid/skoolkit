@@ -168,6 +168,7 @@ class HtmlWriter:
         self.memory_map_names = []
         self.memory_maps = {}
         for map_name, map_details in self.get_dictionaries('MemoryMap'):
+            map_details.setdefault('EntryTypes', 'bcgstuw')
             if self._should_write_map(map_details):
                 self.memory_maps[map_name] = map_details
                 self.memory_map_names.append(map_name)
@@ -815,13 +816,9 @@ class HtmlWriter:
         self.write_entries(self.code_path, self.paths[P_MEMORY_MAP])
 
     def _should_write_map(self, map_details):
-        if not self.memory_map:
-            return False
         if map_details.get('Write') == '0':
             return False
-        entry_types = map_details.get('EntryTypes')
-        if not entry_types:
-            return True
+        entry_types = map_details['EntryTypes']
         if 'G' in entry_types and self.gsb_includes:
             return True
         return any([entry.ctl in entry_types for entry in self.memory_map])
@@ -831,9 +828,10 @@ class HtmlWriter:
         cwd = self._set_cwd(map_name, fname)
 
         map_details = self.memory_maps.get(map_name, {})
-        entry_types = map_details.get('EntryTypes', 'bcgstuw')
+        entry_types = map_details['EntryTypes']
         map_dict = {
             'EntryDescriptions': map_details.get('EntryDescriptions', '0'),
+            'EntryTypes': entry_types,
             'Intro': self.expand(map_details.get('Intro', ''), cwd),
             'LengthColumn': map_details.get('LengthColumn', '0'),
             'PageByteColumns': map_details.get('PageByteColumns', '0')

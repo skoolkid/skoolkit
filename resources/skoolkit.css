@@ -180,14 +180,14 @@ td.map-t-desc {
   color: #555555;
   font-family: monospace;
 }
-body.GameStatusBuffer div.map-entry-title, body.GameStatusBuffer div.map-entry-desc-1, td.map-s-desc, td.map-u-desc {
+div.map-entry-title-11, div.map-entry-desc-1, td.map-s-desc, td.map-u-desc {
   color: #000000;
 }
 td.map-length-1 {
   text-align: center;
   vertical-align: top;
 }
-body.GameStatusBuffer div.map-entry-title {
+div.map-entry-title-11 {
   font-weight: bold;
   font-family: sans;
 }

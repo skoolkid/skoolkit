@@ -502,6 +502,8 @@ Each ``MemoryMap:*`` section contains parameters in the form::
 
 Recognised parameters and their default values are:
 
+* ``EntryDescriptions`` - ``1`` to display entry descriptions, or ``0`` not to
+  (default: ``0``)
 * ``EntryTypes`` - the types of entries to show in the map (by default, every
   type is shown); entry types are identified as follows:
 
@@ -527,14 +529,14 @@ command::
 
   $ skool2html.py -r MemoryMap
 
-+---------+--------------------------------------------------------------+
-| Version | Changes                                                      |
-+=========+==============================================================+
-| 2.5     | New                                                          |
-+---------+--------------------------------------------------------------+
-| 4.0     | Added support for the ``G`` identifier in the ``EntryTypes`` |
-|         | parameter                                                    |
-+---------+--------------------------------------------------------------+
++---------+----------------------------------------------------------------+
+| Version | Changes                                                        |
++=========+================================================================+
+| 2.5     | New                                                            |
++---------+----------------------------------------------------------------+
+| 4.0     | Added the ``EntryDescriptions`` parameter, and support for the |
+|         | ``G`` identifier in the ``EntryTypes`` parameter               |
++---------+----------------------------------------------------------------+
 
 .. _otherCode:
 
