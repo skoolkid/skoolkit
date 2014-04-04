@@ -12,6 +12,8 @@ Changelog
   sections of it)
 * Added the ``EntryDescriptions`` parameter to the :ref:`memoryMap` section
   (for specifying whether to display entry descriptions on a memory map page)
+* Added the ``LengthColumn`` parameter to the :ref:`memoryMap` section (for
+  specifying whether to display the 'Length' column on a memory map page)
 * Removed support for the ``[Info]`` section; the parameters it contained now
   belong in the :ref:`ref-Game` section
 * Removed support for the ``[Graphics]`` section

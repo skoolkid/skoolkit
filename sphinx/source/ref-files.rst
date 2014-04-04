@@ -517,10 +517,12 @@ Recognised parameters and their default values are:
   * ``u`` - unused addresses
   * ``w`` - DEFW blocks
 
-* ``Intro`` - the text (HTML) to display at the top of the memory map page
+* ``Intro`` - the text (HTML) displayed at the top of the memory map page
   (default: '')
-* ``PageByteColumns`` - ``1`` to include 'Page' and 'Byte' columns on the
-  memory map page, or ``0`` to omit them (default: ``0``)
+* ``LengthColumn`` - ``1`` to display the 'Length' column, or ``0`` not to
+  (default: ``0``)
+* ``PageByteColumns`` - ``1`` to display 'Page' and 'Byte' columns, or ``0``
+  not to (default: ``0``)
 * ``Write`` - ``1`` to write the memory map page, or ``0`` not to (default:
   ``1``)
 
@@ -529,14 +531,15 @@ command::
 
   $ skool2html.py -r MemoryMap
 
-+---------+----------------------------------------------------------------+
-| Version | Changes                                                        |
-+=========+================================================================+
-| 2.5     | New                                                            |
-+---------+----------------------------------------------------------------+
-| 4.0     | Added the ``EntryDescriptions`` parameter, and support for the |
-|         | ``G`` identifier in the ``EntryTypes`` parameter               |
-+---------+----------------------------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 2.5     | New                                                              |
++---------+------------------------------------------------------------------+
+| 4.0     | Added the ``EntryDescriptions`` and ``LengthColumn`` parameters, |
+|         | and support for the ``G`` identifier in the ``EntryTypes``       |
+|         | parameter                                                        |
++---------+------------------------------------------------------------------+
 
 .. _otherCode:
 
