@@ -160,7 +160,7 @@ SECTIONS['MemoryMap:UnusedMap'] = """
 EntryDescriptions=0
 EntryTypes=suz
 Intro=
-LengthColumn=0
+LengthColumn=1
 PageByteColumns=1
 Write=1
 """

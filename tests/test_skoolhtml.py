@@ -2900,14 +2900,14 @@ class HtmlWriterTest(SkoolKitTestCase):
             <th class="map-page-1">Page</th>
             <th class="map-byte-1">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
+            <th class="map-length-1">Length</th>
             <th>Description</th>
             </tr>
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">56</td>
             <td class="map-u"><a name="30008"></a><a class="link" href="../asm/30008.html">30008</a></td>
-            <td class="map-length-0">1</td>
+            <td class="map-length-1">1</td>
             <td class="map-u-desc">
             <div class="map-entry-title-10">Unused</div>
             <div class="map-entry-desc-0">
@@ -2918,7 +2918,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <td class="map-page-1">117</td>
             <td class="map-byte-1">57</td>
             <td class="map-s"><a name="30009"></a><a class="link" href="../asm/30009.html">30009</a></td>
-            <td class="map-length-0">9</td>
+            <td class="map-length-1">9</td>
             <td class="map-s-desc">
             <div class="map-entry-title-10">Zeroes</div>
             <div class="map-entry-desc-0">
