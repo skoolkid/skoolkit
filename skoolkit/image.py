@@ -202,38 +202,40 @@ class ImageWriter:
         udg_array = frame.udgs
         scale = frame.scale
         mask = self.masks[frame.mask]
-        x, y, width, height = frame.x, frame.y, frame.width, frame.height
+        x0, y0, width, height = frame.x, frame.y, frame.width, frame.height
+        x1 = x0 + width
+        y1 = y0 + height
         attrs = set()
         colours = set()
         all_masked = 1
         flashing = False
-        y_count = 0
+        y = 0
         inc = 8 * scale
         min_x = width
         min_y = height
         max_x = max_y = 0
         rows = 0
         for row in udg_array:
-            if y_count >= y + height:
+            if y >= y1:
                 break
-            if y_count + inc - 1 < y:
-                y_count += inc
+            if y + inc <= y0:
+                y += inc
                 continue
             for j in range(8):
-                if y_count + scale - 1 < y:
-                    y_count += scale
+                if y + scale <= y0:
+                    y += scale
                     continue
-                if y_count >= y:
-                    num_lines = min(y + height - y_count, scale)
+                if y >= y0:
+                    num_lines = min(y1 - y, scale)
                 else:
-                    num_lines = y_count - y + scale
-                x_count = 0
+                    num_lines = y - y0 + scale
+                x = 0
                 cols = 0
                 for udg in row:
-                    if x_count >= x + width:
+                    if x >= x1:
                         break
-                    if x_count + inc - 1 < x:
-                        x_count += inc
+                    if x + inc <= x0:
+                        x += inc
                         continue
                     attr = udg.attr & 127
                     attrs.add(attr)
@@ -241,30 +243,32 @@ class ImageWriter:
                     if not udg.mask:
                         all_masked = 0
                     pixels = mask.apply(udg, j, paper, ink, None)
+                    udg_flashing = False
                     if use_flash and udg.attr & 128:
                         colours.add(ink)
                         if ink != paper:
                             colours.add(paper)
                             flashing = True
+                            udg_flashing = True
                     for k in range(8):
-                        if x_count >= x + width:
+                        if x >= x1:
                             break
-                        if x_count + scale - 1 < x:
-                            x_count += scale
+                        if x + scale <= x0:
+                            x += scale
                             continue
-                        if x_count >= x:
-                            num_bits = min(x + width - x_count, scale)
+                        if x >= x0:
+                            num_bits = min(x1 - x, scale)
                         else:
-                            num_bits = x_count - x + scale
-                        if use_flash and udg.attr & 128 and ink != paper:
+                            num_bits = x - x0 + scale
+                        if udg_flashing:
                             min_x = min((cols, min_x))
                             max_x = max((cols + num_bits, max_x))
                             min_y = min((rows, min_y))
                             max_y = max((rows + num_lines, max_y))
                         colours.add(pixels[k])
-                        x_count += scale
+                        x += scale
                         cols += num_bits
-                y_count += scale
+                y += scale
                 rows += num_lines
 
         if flashing:
