@@ -344,12 +344,8 @@ The ``contents_list_item`` template is the subtemplate used by the
 on the 'Bugs', 'Trivia', 'Pokes', 'Glossary', 'Graphic glitches' and
 'Changelog' pages.
 
-It contains the following identifier (in addition to the universal
+It contains the following identifiers (in addition to the universal
 identifiers):
-
-* ``item`` - a dictionary of parameters corresponding to the contents list item
-
-The parameters in the ``item`` dictionary are:
 
 * ``title`` - the entry title
 * ``url`` - the URL to the entry on the page

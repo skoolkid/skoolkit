@@ -473,7 +473,7 @@ SECTIONS['Template:changelog_item_list'] = """
 """
 
 SECTIONS['Template:contents_list_item'] = """
-<li><a class="link" href="{item[url]}">{item[title]}</a></li>
+<li><a class="link" href="{url}">{title}</a></li>
 """
 
 SECTIONS['Template:img'] = """

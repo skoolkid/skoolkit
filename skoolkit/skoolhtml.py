@@ -602,8 +602,8 @@ class HtmlWriter:
     def _format_contents_list_items(self, link_list):
         items = []
         for anchor, title in link_list:
-            item = {'url': '#' + anchor, 'title': title}
-            items.append(self.format_template('contents_list_item', {'item': item}))
+            subs = {'url': '#' + anchor, 'title': title}
+            items.append(self.format_template('contents_list_item', subs))
         return '\n'.join(items)
 
     def _write_box_page(self, page_id, boxes):
