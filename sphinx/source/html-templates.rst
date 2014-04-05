@@ -130,9 +130,8 @@ pages defined by :ref:`page` and :ref:`pageContent` sections.
 It contains the following identifier (in addition to the universal and
 page-level identifiers):
 
-* ``PageContent`` - replaced by the contents of the corresponding
-  :ref:`pageContent` section, or the value of the ``PageContent`` parameter in
-  the corresponding :ref:`page` section
+* ``content`` - replaced by the value of the ``PageContent`` parameter in the
+  corresponding :ref:`page` section
 
 To see the default ``Page`` template, run the following command::
 

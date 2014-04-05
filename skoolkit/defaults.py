@@ -372,7 +372,7 @@ SECTIONS['Template:Page'] = """
 <td class="page-header">{SkoolKit[page_header]}</td>
 </tr>
 </table>
-{PageContent}
+{content}
 <div class="footer">
 <div class="release">{Game[Release]}</div>
 <div class="copyright">{Game[Copyright]}</div>

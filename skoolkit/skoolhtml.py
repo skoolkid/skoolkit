@@ -135,12 +135,15 @@ class HtmlWriter:
 
         self.page_ids = []
         self.pages = {}
-        for page_id, details in self.get_dictionaries('Page'):
+        for page_id, contents in self.get_sections('PageContent'):
+            self.pages[page_id] = {'PageContent': contents}
             self.page_ids.append(page_id)
-            self.pages[page_id] = details
-        self.page_contents = {}
+        for page_id, details in self.get_dictionaries('Page'):
+            if page_id not in self.page_ids:
+                self.page_ids.append(page_id)
+            page = self.pages.setdefault(page_id, {})
+            page.update(details)
         for page_id, page in self.pages.items():
-            self.page_contents[page_id] = page.get('PageContent', self.get_section('PageContent:{0}'.format(page_id)))
             path = page.get('Content')
             if path:
                 self.page_ids.remove(page_id)
@@ -854,10 +857,7 @@ class HtmlWriter:
         fname = self.paths[page_id]
         cwd = self._set_cwd(page_id, fname)
         page = self.pages[page_id]
-        subs = {
-            'Page': page,
-            'PageContent': self.expand(self.page_contents[page_id], cwd)
-        }
+        subs = {'content': self.expand(page.get('PageContent', ''), cwd)}
         js = page.get('JavaScript')
         html = self.format_page(page_id, cwd, subs, 'Page', js)
         self.write_file(fname, html)

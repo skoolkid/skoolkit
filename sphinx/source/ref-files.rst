@@ -587,9 +587,9 @@ disassembly pages are written in a directory named `CodeId`.
 
 [Page:\*]
 ---------
-Each ``Page:*`` section is used to either declare a page that already exists,
+A ``Page:*`` section may be used to either declare a page that already exists,
 or define a custom page in the HTML disassembly (in conjunction with a
-corresponding :ref:`pageContent` section). The section names take the form::
+corresponding :ref:`pageContent` section). The section name takes the form::
 
   [Page:PageId]
 
@@ -597,7 +597,7 @@ where ``PageId`` is a unique ID for the page. The unique ID may be used in an
 :ref:`indexGroup` section to create a link to the page in the disassembly
 index.
 
-Each ``Page:*`` section contains parameters in the form::
+A ``Page:*`` section contains parameters in the form::
 
   name=value
 
@@ -609,15 +609,18 @@ Recognised parameters are:
   any declared by the ``JavaScript`` parameter in the :ref:`ref-Game` section
   (default: None); multiple JavaScript files can be declared by separating
   their names with semicolons
-* ``PageContent`` - the HTML source of the body of the page; this may contain
-  :ref:`skool macros <skoolMacros>`, and can be used instead of a
-  :ref:`pageContent` section if the source can be written on a single line
+* ``PageContent`` - the HTML source of the body of the page; this defaults to
+  the contents of the corresponding :ref:`pageContent` section, but may be
+  specified here if the source can be written on a single line
 
 By default, the custom page is written to a file named `PageId.html` in the
 root directory of the disassembly; to change this, add a line to the
 :ref:`Paths` section. The title, page header and link text for the custom page
 can be defined in the :ref:`titles`, :ref:`pageHeaders` and :ref:`links`
 sections.
+
+Note that a ``Page:*`` section may be empty; if so, it may be omitted from the
+`ref` file.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
@@ -632,13 +635,13 @@ sections.
 
 [PageContent:\*]
 ----------------
-Each ``PageContent:*`` section contains the HTML source of the body of a custom
-page defined in a :ref:`page` section. The section names take the form::
+A ``PageContent:*`` section contains the HTML source of the body of a custom
+page (optionally defined in a :ref:`page` section). The section name takes the
+form::
 
   [PageContent:PageId]
 
-where ``PageId`` is the unique ID of the page (as previously declared in the
-name of the corresponding :ref:`page` section).
+where ``PageId`` is the unique ID of the page.
 
 The HTML source may contain :ref:`skool macros <skoolMacros>`.
 

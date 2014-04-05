@@ -3342,6 +3342,22 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal('{}.html'.format(page_id), subs)
 
+    def test_write_page_with_no_page_section(self):
+        page_id = 'page'
+        content = '<b>This is the content of the custom page.</b>'
+        ref = '[PageContent:{}]\n{}'.format(page_id, content)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        subs = {
+            'name': basename(self.skoolfile)[:-6],
+            'title': page_id,
+            'header': page_id,
+            'path': '',
+            'body_class': page_id,
+            'content': content + '\n'
+        }
+        self.assert_files_equal('{}.html'.format(page_id), subs)
+
     def test_write_bugs(self):
         ref = '\n'.join((
             '[Bug:b1:Showstopper]',

@@ -18,16 +18,16 @@ The ``[Graphics]`` section, introduced in SkoolKit 2.0.5, is not supported in
 SkoolKit 4. If you have one in your `ref` file, you can migrate it thus:
 
 * Rename the ``[Graphics]`` section ``[PageContent:Graphics]``
-* Add an empty ``[Page:Graphics]`` section to the `ref` file::
 
-    [Page:Graphics]
+* Create a ``[Paths]`` section if you don't already have one, and add a line
+  for the Graphics page::
 
-* Add the following line to the ``[Paths]`` section::
-
+    [Paths]
     Graphics=graphics/graphics.html
 
-* Add the ``Graphics`` page ID to the ``[Index:Graphics:Graphics]`` section to
-  make a link to it appear on the disassembly index page; for example::
+* Create an ``[Index:Graphics:Graphics]`` section if you don't already have
+  one, and add the Graphics page ID (to make a link to it appear on the
+  disassembly index page); for example::
 
     [Index:Graphics:Graphics]
     Graphics
