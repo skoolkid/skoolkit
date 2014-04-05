@@ -240,14 +240,10 @@ output register values.
 It contains the following identifiers (in addition to the universal
 identifiers):
 
-* ``entry`` - a dictionary of parameters corresponding to the current memory
-  map entry (see :ref:`t_Asm`)
-* ``register`` - a dictionary of parameters corresponding to the register
-
-The parameters in the ``register`` dictionary are:
-
 * ``description`` - the register's description (as it appears in the register
   section for the current entry in the `skool` file)
+* ``entry`` - a dictionary of parameters corresponding to the current memory
+  map entry (see :ref:`t_Asm`)
 * ``name`` - the register's name (e.g. 'HL')
 
 To see the default ``asm_register`` template, run the following command::

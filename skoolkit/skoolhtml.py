@@ -716,10 +716,8 @@ class HtmlWriter:
             registers_html = []
             entry_dict[reg_type] = min(len(registers), 1)
             for reg in registers:
-                subs['register'] = {
-                    'name': reg.name,
-                    'description': self.expand(reg.contents, cwd)
-                }
+                subs['name'] = reg.name
+                subs['description'] = self.expand(reg.contents, cwd)
                 registers_html.append(self.format_template('asm_register', subs))
             reg_lists.append('\n'.join(registers_html))
         return reg_lists

@@ -440,8 +440,8 @@ SECTIONS['Template:asm_instruction'] = """
 
 SECTIONS['Template:asm_register'] = """
 <tr>
-<td class="register">{register[name]}</td>
-<td class="register-desc">{register[description]}</td>
+<td class="register">{name}</td>
+<td class="register-desc">{description}</td>
 </tr>
 """
 
