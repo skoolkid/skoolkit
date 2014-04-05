@@ -298,29 +298,20 @@ class ImageWriter:
                 attr = udg.attr
                 attrs.add(attr & 127)
                 paper, ink = self.attr_index[attr & 127]
-                if udg.mask:
-                    pixels = []
-                    for i in range(8):
-                        pixels.extend(mask.apply(udg, i, paper, ink, None))
-                    has_non_trans = False
+                has_non_trans = False
+                for i in range(8):
+                    pixels = mask.apply(udg, i, paper, ink, None)
                     if ink in pixels:
                         colours.add(ink)
                         has_non_trans = True
                     if paper in pixels:
                         colours.add(paper)
                         has_non_trans = True
-                    if use_flash and attr & 128 and has_non_trans:
-                        colours.add(ink)
-                        if ink != paper:
-                            min_x = min((x, min_x))
-                            min_y = min((y, min_y))
-                            max_x = max((x, max_x))
-                            max_y = max((y, max_y))
-                            colours.add(paper)
-                            flashing = True
                     if None in pixels:
                         has_trans = 1
-                elif use_flash and attr & 128:
+                    if ink in colours and paper in colours:
+                        break
+                if use_flash and attr & 128 and has_non_trans:
                     colours.add(ink)
                     if ink != paper:
                         min_x = min((x, min_x))
@@ -329,12 +320,7 @@ class ImageWriter:
                         max_y = max((y, max_y))
                         colours.add(paper)
                         flashing = True
-                    all_masked = 0
-                else:
-                    if any(udg.data):
-                        colours.add(ink)
-                    if any([b < 255 for b in udg.data]):
-                        colours.add(paper)
+                if not udg.mask:
                     all_masked = 0
                 x += 1
             y += 1
