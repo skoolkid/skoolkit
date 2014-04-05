@@ -345,53 +345,52 @@ class PngWriter:
         img_file.write(img_data)
         img_file.write(bytearray(self._get_crc(img_data))) # CRC
 
-    def _build_image_data_bd_any(self, udg_array, scale, attr_map, trans, flash, x, y, width, height, bit_depth, mask):
+    def _build_image_data_bd_any(self, udg_array, scale, attr_map, trans, flash, x0, y0, width, height, bit_depth, mask):
         # Build image data at any bit depth using a generic method
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
-        y_count = 0
+        x1 = x0 + width
+        y1 = y0 + height
+        y = 0
         inc = 8 * scale
         for row in udg_array:
-            if y_count >= y + height:
+            if y >= y1:
                 break
-            if y_count + inc <= y:
-                y_count += inc
+            if y + inc <= y0:
+                y += inc
                 continue
             for i in range(8):
-                if y_count + scale <= y:
-                    y_count += scale
+                if y + scale <= y0:
+                    y += scale
                     continue
-                if y_count >= y:
-                    num_lines = min(y + height - y_count, scale)
+                if y >= y0:
+                    num_lines = min(y1 - y, scale)
                 else:
-                    num_lines = y_count - y + scale
-                y_count += scale
+                    num_lines = y - y0 + scale
+                y += scale
                 p = []
-                x_count = 0
+                x = 0
                 for udg in row:
-                    if x_count >= x + width:
+                    if x >= x1:
                         break
-                    if x_count + inc <= x:
-                        x_count += inc
+                    if x + inc <= x0:
+                        x += inc
                         continue
-                    byte = udg.data[i]
                     attr = udg.attr
                     paper, ink = attr_map[attr & 127]
                     if flash and attr & 128:
                         paper, ink = ink, paper
                     pixels = mask.apply(udg, i, paper, ink, 0)
-                    for b in range(8):
-                        if x_count >= x + width:
-                            break
-                        if x_count + scale <= x:
-                            x_count += scale
-                            continue
-                        if x_count >= x:
-                            num_bits = min(x + width - x_count, scale)
+                    min_b = max(0, (x0 - x) // scale)
+                    max_b = min(7, (x1 - x) // scale)
+                    x += min_b * scale
+                    for b in range(min_b, max_b + 1):
+                        if x >= x0:
+                            num_bits = min(x1 - x, scale)
                         else:
-                            num_bits = x_count - x + scale
-                        x_count += scale
+                            num_bits = x - x0 + scale
                         p.extend((pixels[b],) * num_bits)
+                        x += scale
                 scanline = bytearray((0,))
                 if bit_depth == 1:
                     p.extend((0,) * (8 - len(p) & 7))
