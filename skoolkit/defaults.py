@@ -41,8 +41,8 @@ BRIGHT_WHITE=255,255,255
 
 SECTIONS['Config'] = """
 HtmlWriterClass=skoolkit.skoolhtml.HtmlWriter
-SkoolFile=
-GameDir=
+; SkoolFile=
+; GameDir=
 """
 
 SECTIONS['Game'] = """

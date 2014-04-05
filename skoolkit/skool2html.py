@@ -198,7 +198,7 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
     config.update(ref_parser.get_dictionary('Config'))
 
     if skoolfile_f is None:
-        skoolfile = config['SkoolFile'] or '{}.skool'.format(prefix)
+        skoolfile = config.get('SkoolFile', '{}.skool'.format(prefix))
         skoolfile_f = find(skoolfile, ref_search_dir)
         if skoolfile_f is None:
             raise SkoolKitError('{}: file not found'.format(normpath(skoolfile)))
@@ -215,7 +215,7 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
         notify('Found no ref file for {}'.format(skoolfile_n))
 
     html_writer_class = get_class(config['HtmlWriterClass'])
-    game_dir = config['GameDir'] or prefix
+    game_dir = config.get('GameDir', prefix)
 
     # Parse the skool file and initialise the writer
     if skoolfile_f == '-':
