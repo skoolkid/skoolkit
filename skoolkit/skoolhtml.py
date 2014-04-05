@@ -679,14 +679,11 @@ class HtmlWriter:
                             indents.pop()
                         subitems = indents[-1][1]
                         subitems.append([item_text, None])
-            release = {
-                'title': title,
-                'description': description
-            }
             t_changelog_entry_subs = {
                 't_anchor': self.format_anchor(title),
                 'changelog_num': 1 + j % 2,
-                'release': release,
+                'title': title,
+                'description': description,
                 't_changelog_item_list': self._build_changelog_items(changelog_items)
             }
             entries.append(self.format_template('changelog_entry', t_changelog_entry_subs))

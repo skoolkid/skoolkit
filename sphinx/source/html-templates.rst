@@ -283,16 +283,11 @@ identifiers):
 
 * ``changelog_num`` - '1' or '2', depending on the order of the entry on the
   page
-* ``release`` - a dictionary of parameters corresponding to the changelog entry
-  (see below)
+* ``description`` - the changelog entry intro text
 * ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate (with
   the entry title as the anchor name)
 * ``t_changelog_item_list`` - replaced by a copy of the
   :ref:`t_changelog_item_list` subtemplate
-
-The parameters in the ``release`` dictionary are:
-
-* ``description`` - the changelog entry intro text
 * ``title`` - the changelog entry title
 
 To see the default ``changelog_entry`` template, run the following command::

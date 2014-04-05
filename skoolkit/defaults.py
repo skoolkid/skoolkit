@@ -456,8 +456,8 @@ SECTIONS['Template:box'] = """
 SECTIONS['Template:changelog_entry'] = """
 <div>{t_anchor}</div>
 <div class="changelog changelog{changelog_num}">
-<div class="changelog-title">{release[title]}</div>
-<div class="changelog-desc">{release[description]}</div>
+<div class="changelog-title">{title}</div>
+<div class="changelog-desc">{description}</div>
 {t_changelog_item_list}
 </div>
 """
