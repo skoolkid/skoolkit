@@ -121,57 +121,57 @@ MemoryMap=Everything
 """
 
 SECTIONS['MemoryMap:MemoryMap'] = """
-EntryDescriptions=0
-EntryTypes=bcgstuw
-Intro=
-LengthColumn=0
+; EntryDescriptions=0
+; EntryTypes=bcgstuw
+; Intro=
+; LengthColumn=0
 PageByteColumns=1
-Write=1
+; Write=1
 """
 
 SECTIONS['MemoryMap:RoutinesMap'] = """
-EntryDescriptions=0
+; EntryDescriptions=0
 EntryTypes=c
-Intro=
-LengthColumn=0
-PageByteColumns=0
-Write=1
+; Intro=
+; LengthColumn=0
+; PageByteColumns=0
+; Write=1
 """
 
 SECTIONS['MemoryMap:DataMap'] = """
-EntryDescriptions=0
+; EntryDescriptions=0
 EntryTypes=bw
-Intro=
-LengthColumn=0
+; Intro=
+; LengthColumn=0
 PageByteColumns=1
-Write=1
+; Write=1
 """
 
 SECTIONS['MemoryMap:MessagesMap'] = """
-EntryDescriptions=0
+; EntryDescriptions=0
 EntryTypes=t
-Intro=
-LengthColumn=0
-PageByteColumns=0
-Write=1
+; Intro=
+; LengthColumn=0
+; PageByteColumns=0
+; Write=1
 """
 
 SECTIONS['MemoryMap:UnusedMap'] = """
-EntryDescriptions=0
+; EntryDescriptions=0
 EntryTypes=suz
-Intro=
+; Intro=
 LengthColumn=1
 PageByteColumns=1
-Write=1
+; Write=1
 """
 
 SECTIONS['MemoryMap:GameStatusBuffer'] = """
 EntryDescriptions=1
 EntryTypes=gG
-Intro=
+; Intro=
 LengthColumn=1
-PageByteColumns=0
-Write=1
+; PageByteColumns=0
+; Write=1
 """
 
 SECTIONS['PageHeaders'] = """
