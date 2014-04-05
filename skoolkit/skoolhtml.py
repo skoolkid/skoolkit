@@ -163,7 +163,7 @@ class HtmlWriter:
                 self.page_headers.setdefault(asm_page_id, self.page_headers[default_asm_page_id])
 
         self.gsb_includes = []
-        for addr_str in self.game_vars['GameStatusBufferIncludes'].split(','):
+        for addr_str in self.game_vars.get('GameStatusBufferIncludes', '').split(','):
             address = parse_int(addr_str)
             if address in self.entries:
                 self.gsb_includes.append(address)
@@ -184,7 +184,7 @@ class HtmlWriter:
 
         self.code_id = code_id
         self.code_path = self.get_code_path(code_id)
-        if not self.game_vars['Game']:
+        if not self.game_vars.get('Game'):
             def_game_name = basename(self.parser.skoolfile)
             suffix = '.skool'
             if def_game_name.endswith(suffix):
@@ -195,7 +195,7 @@ class HtmlWriter:
         link_operands = self.game_vars['LinkOperands']
         self.link_operands = tuple(op.upper() for op in link_operands.split(','))
         self.js_files = ()
-        global_js = self.game_vars['JavaScript']
+        global_js = self.game_vars.get('JavaScript')
         if global_js:
             self.js_files = tuple(global_js.split(';'))
 
@@ -902,11 +902,11 @@ class HtmlWriter:
 
     def _get_logo(self, cwd):
         if cwd not in self.logo:
-            logo_macro = self.game_vars['Logo']
+            logo_macro = self.game_vars.get('Logo')
             if logo_macro:
                 self.logo[cwd] = self.expand(logo_macro, cwd)
             else:
-                logo_image = self.game_vars['LogoImage']
+                logo_image = self.game_vars.get('LogoImage')
                 if logo_image and self.file_exists(logo_image):
                     self.logo[cwd] = self.format_img(self.game_name, FileInfo.relpath(cwd, logo_image))
                 else:
