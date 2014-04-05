@@ -281,6 +281,7 @@ class ImageWriter:
     def _get_all_colours(self, frame, use_flash=False):
         # Find all the colours in an uncropped image
         udg_array = frame.udgs
+        null_mask = frame.mask == 0
         mask = self.masks[frame.mask]
         attrs = set()
         colours = set()
@@ -309,7 +310,7 @@ class ImageWriter:
                         has_non_trans = True
                     if None in pixels:
                         has_trans = 1
-                    if ink in colours and paper in colours:
+                    if ink in colours and paper in colours and (null_mask or has_trans):
                         break
                 if use_flash and attr & 128 and has_non_trans:
                     colours.add(ink)

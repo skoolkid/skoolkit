@@ -154,6 +154,7 @@ class ImageWriterTest:
         palette = []
         pixels = []
         pixels2 = []
+        mask = int(mask)
         has_trans = 0
         all_trans = 1
         y_count = 0
@@ -194,7 +195,6 @@ class ImageWriterTest:
                     byte = udg.data[j]
                     if mask and udg.mask:
                         mask_byte = udg.mask[j]
-                        byte &= mask_byte
                     else:
                         all_trans = 0
                         mask_byte = 0
@@ -215,22 +215,35 @@ class ImageWriterTest:
                             max_x = max((len(pixel_row) + num_bits, max_x))
                             min_y = min((len(pixels), min_y))
                             max_y = max((len(pixels) + num_lines, max_y))
-                        if byte & 128:
-                            pixel_row.extend((i_rgb,) * num_bits)
-                            if flashing:
-                                pixel_row2.extend((p_rgb,) * num_bits)
+                        ink_p = (i_rgb,) * num_bits
+                        paper_p = (p_rgb,) * num_bits
+                        trans_p = (TRANSPARENT,) * num_bits
+                        if mask == 1 and udg.mask:
+                            if mask_byte & 128 == 0:
+                                pixel, f_pixel = paper_p, ink_p
+                            elif byte & 128:
+                                pixel, f_pixel = ink_p, paper_p
                             else:
-                                pixel_row2.extend((i_rgb,) * num_bits)
-                        elif mask_byte & 128:
-                            pixel_row.extend((TRANSPARENT,) * num_bits)
-                            pixel_row2.extend((TRANSPARENT,) * num_bits)
-                            has_trans = 1
+                                pixel = f_pixel = trans_p
+                                has_trans = 1
+                        elif mask == 2 and udg.mask:
+                            if byte & 128:
+                                pixel, f_pixel = ink_p, paper_p
+                            elif mask_byte & 128:
+                                pixel = f_pixel = trans_p
+                                has_trans = 1
+                            else:
+                                pixel, f_pixel = paper_p, ink_p
                         else:
-                            pixel_row.extend((p_rgb,) * num_bits)
-                            if flashing:
-                                pixel_row2.extend((i_rgb,) * num_bits)
+                            if byte & 128:
+                                pixel, f_pixel = ink_p, paper_p
                             else:
-                                pixel_row2.extend((p_rgb,) * num_bits)
+                                pixel, f_pixel = paper_p, ink_p
+                        pixel_row.extend(pixel)
+                        if flashing:
+                            pixel_row2.extend(f_pixel)
+                        else:
+                            pixel_row2.extend(pixel)
                         byte *= 2
                         mask_byte *= 2
                         x_count += scale
@@ -302,6 +315,18 @@ class ImageWriterTest:
         udg = Udg(88, (34,) * 8, (119,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, mask=True)
+
+    def test_mask2_bd2(self):
+        # AND-OR mask, bit depth 2
+        udg = Udg(56, (170,) * 8, (170,) + (255,) * 7)
+        udg_array = [[udg]]
+        self._test_image(udg_array, mask=2)
+
+    def test_mask2_bd2_cropped(self):
+        # AND-OR mask, bit depth 2, cropped
+        udg = Udg(56, (170,) * 8, (170,) + (255,) * 7)
+        udg_array = [[udg] * 3]
+        self._test_image(udg_array, mask=2, x=7, y=3, width=9, height=2)
 
     def test_masked_bd4_all_bp(self):
         # Masked image, bit depth 4, all bit patterns
