@@ -317,11 +317,12 @@ class PngWriter:
 
         # Frame 2
         if frame2_rect:
+            f2_x, f2_y, f2_w, f2_h = frame2_rect
             if full_size and (f2_tw < len(udg_array[0]) or f2_th < len(udg_array)):
                 f2_udg_array = [udg_array[i][f2_tx:f2_tx + f2_tw] for i in range(f2_ty, f2_ty + f2_th)]
+                x = y = f2_x = f2_y = 0
             else:
                 f2_udg_array = udg_array
-            f2_x, f2_y, f2_w, f2_h = frame2_rect
             f2_method, f2_build_method = method_dict[1]
             if f2_method:
                 f2_build_method = f2_method(len(f2_udg_array[0]) * len(f2_udg_array), len(attr_map), scale)
