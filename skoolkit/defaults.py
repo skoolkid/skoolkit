@@ -21,22 +21,22 @@ from collections import OrderedDict
 SECTIONS = OrderedDict()
 
 SECTIONS['Colours'] = """
-TRANSPARENT=0,254,0
-BLACK=0,0,0
-BLUE=0,0,197
-RED=197,0,0
-MAGENTA=197,0,197
-GREEN=0,198,0
-CYAN=0,198,197
-YELLOW=197,198,0
-WHITE=205,198,205
-BRIGHT_BLUE=0,0,255
-BRIGHT_RED=255,0,0
-BRIGHT_MAGENTA=255,0,255
-BRIGHT_GREEN=0,255,0
-BRIGHT_CYAN=0,255,255
-BRIGHT_YELLOW=255,255,0
-BRIGHT_WHITE=255,255,255
+; TRANSPARENT=0,254,0
+; BLACK=0,0,0
+; BLUE=0,0,197
+; RED=197,0,0
+; MAGENTA=197,0,197
+; GREEN=0,198,0
+; CYAN=0,198,197
+; YELLOW=197,198,0
+; WHITE=205,198,205
+; BRIGHT_BLUE=0,0,255
+; BRIGHT_RED=255,0,0
+; BRIGHT_MAGENTA=255,0,255
+; BRIGHT_GREEN=0,255,0
+; BRIGHT_CYAN=0,255,255
+; BRIGHT_YELLOW=255,255,0
+; BRIGHT_WHITE=255,255,255
 """
 
 SECTIONS['Config'] = """
@@ -64,13 +64,13 @@ TitleSuffix=RAM disassembly
 """
 
 SECTIONS['ImageWriter'] = """
-DefaultFormat=png
-GIFCompression=1
-GIFEnableAnimation=1
-GIFTransparency=0
-PNGAlpha=255
-PNGCompressionLevel=9
-PNGEnableAnimation=1
+; DefaultFormat=png
+; GIFCompression=1
+; GIFEnableAnimation=1
+; GIFTransparency=0
+; PNGAlpha=255
+; PNGCompressionLevel=9
+; PNGEnableAnimation=1
 """
 
 SECTIONS['Index'] = """
