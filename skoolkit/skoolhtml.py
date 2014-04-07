@@ -1184,7 +1184,7 @@ class HtmlWriter:
         return end, self._expand_item_macro(item, link_text, cwd, self.facts, P_FACTS)
 
     def expand_font(self, text, index, cwd):
-        # #FONT[:(text)]addr[,chars,attr,scale][{X,Y,W,H}][(fname)]
+        # #FONT[:(text)]addr[,chars,attr,scale][{x,y,width,height}][(fname)]
         if index < len(text) and text[index] == ':':
             index, message = skoolmacro.get_text_param(text, index + 1)
             if not message:
@@ -1258,7 +1258,7 @@ class HtmlWriter:
         return end, self.format_template('reg', {'reg': reg})
 
     def expand_scr(self, text, index, cwd):
-        # #SCR[scale,x,y,w,h,dfAddr,afAddr][{X,Y,W,H}][(fname)]
+        # #SCR[scale,x,y,w,h,df,af][{x,y,width,height}][(fname)]
         end, scr_path, crop_rect, scale, x, y, w, h, df_addr, af_addr = self.parse_image_params(text, index, 7, (1, 0, 0, 32, 24, 16384, 22528), 'ScreenshotImagePath', 'scr')
         if self.need_image(scr_path):
             self.write_image(scr_path, self.screenshot(x, y, w, h, df_addr, af_addr), crop_rect, scale)
@@ -1329,8 +1329,8 @@ class HtmlWriter:
         return end, self.img_element(cwd, img_path)
 
     def expand_udgarray(self, text, index, cwd):
-        # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,maskType];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}](fname)
-        # #UDGARRAY*frame1[,delay1];frame2[,delay2];...(fname)
+        # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];addr[,attr,step,inc][:addr[,step]];...[{x,y,width,height}](fname)
+        # #UDGARRAY*frame1[,delay];frame2[,delay];...(fname)
         if index < len(text) and text[index] == '*':
             return self._expand_udgarray_with_frames(text, index, cwd)
 
