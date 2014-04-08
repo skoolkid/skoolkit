@@ -71,8 +71,6 @@ GIF_ENABLE_ANIMATION = 'GIFEnableAnimation'
 #: Option name that specifies whether to create transparent GIFs for masked
 #: images.
 GIF_TRANSPARENCY = 'GIFTransparency'
-#: Option name that specifies whether GIFs should be compressed.
-GIF_COMPRESSION = 'GIFCompression'
 
 PNG_FORMAT = 'png'
 GIF_FORMAT = 'gif'
@@ -113,7 +111,7 @@ class ImageWriter:
         }
         self.writers = {
             PNG_FORMAT: PngWriter(self.options[PNG_ALPHA] & 255, self.options[PNG_COMPRESSION_LEVEL], self.masks),
-            GIF_FORMAT: GifWriter(self.options[GIF_TRANSPARENCY], self.options[GIF_COMPRESSION], self.masks)
+            GIF_FORMAT: GifWriter(self.options[GIF_TRANSPARENCY], self.masks)
         }
 
     def write_image(self, frames, img_file, img_format):
@@ -156,8 +154,7 @@ class ImageWriter:
             PNG_ENABLE_ANIMATION: 1,
             PNG_ALPHA: 255,
             GIF_ENABLE_ANIMATION: 1,
-            GIF_TRANSPARENCY: 0,
-            GIF_COMPRESSION: 1
+            GIF_TRANSPARENCY: 0
         }
 
     def _create_colours(self, palette):

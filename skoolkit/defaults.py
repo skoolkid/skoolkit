@@ -65,7 +65,6 @@ TitleSuffix=RAM disassembly
 
 SECTIONS['ImageWriter'] = """
 ; DefaultFormat=png
-; GIFCompression=1
 ; GIFEnableAnimation=1
 ; GIFTransparency=0
 ; PNGAlpha=255

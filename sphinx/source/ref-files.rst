@@ -330,9 +330,6 @@ Recognised parameters are:
 
 * ``DefaultFormat`` - the default image format; valid values are ``png`` (the
   default) and ``gif``
-* ``GIFCompression`` - ``1`` to create compressed GIFs (which is slower but
-  produces much smaller files), or ``0`` to create uncompressed GIFs (default:
-  ``1``); 
 * ``GIFEnableAnimation`` - ``1`` to create animated GIFs for images that
   contain flashing cells, or ``0`` to create plain (unanimated) GIFs for such
   images (default: ``1``)
@@ -365,15 +362,15 @@ For images that contain flashing cells, animated GIFs are recommended over
 animated PNGs in APNG format, because they are more widely supported in web
 browsers.
 
-+---------+---------------------------------------------------------------+
-| Version | Changes                                                       |
-+=========+===============================================================+
-| 3.0     | New                                                           |
-+---------+---------------------------------------------------------------+
-| 3.0.1   | Added the ``DefaultFormat``, ``GIFCompression``,              |
-|         | ``GIFEnableAnimation``, ``GIFTransparency``, ``PNGAlpha`` and |
-|         | ``PNGEnableAnimation`` parameters                             |
-+---------+---------------------------------------------------------------+
++---------+--------------------------------------------------------------+
+| Version | Changes                                                      |
++=========+==============================================================+
+| 3.0     | New                                                          |
++---------+--------------------------------------------------------------+
+| 3.0.1   | Added the ``DefaultFormat``, ``GIFEnableAnimation``,         |
+|         | ``GIFTransparency``, ``PNGAlpha`` and ``PNGEnableAnimation`` |
+|         | parameters                                                   |
++---------+--------------------------------------------------------------+
 
 .. _index:
 

@@ -5,7 +5,9 @@ from collections import deque
 from io import BytesIO
 
 from skoolkittest import SkoolKitTestCase, PY3
-from skoolkit.image import ImageWriter, PngWriter, DEFAULT_FORMAT, PNG_COMPRESSION_LEVEL, PNG_ENABLE_ANIMATION, PNG_ALPHA, GIF_ENABLE_ANIMATION, GIF_TRANSPARENCY, GIF_COMPRESSION
+from skoolkit.image import (ImageWriter, PngWriter, DEFAULT_FORMAT,
+                            PNG_COMPRESSION_LEVEL, PNG_ENABLE_ANIMATION,
+                            PNG_ALPHA, GIF_ENABLE_ANIMATION, GIF_TRANSPARENCY)
 from skoolkit.skoolhtml import Udg, Frame
 
 TRANSPARENT = [0, 254, 0]
@@ -145,11 +147,20 @@ class ImageWriterTest:
         img_stream.close()
         return img_bytes
 
-    def _get_pixels_from_udg_array(self, udg_array, scale, mask, x, y, width, height):
+    def _get_pixels_from_udg_array(self, udg_array, scale, mask, x0, y0, width, height):
         full_width = 8 * len(udg_array[0]) * scale
         full_height = 8 * len(udg_array) * scale
-        width = min(width or full_width, full_width - x)
-        height = min(height or full_height, full_height - y)
+        width = min(width or full_width, full_width - x0)
+        height = min(height or full_height, full_height - y0)
+        x1 = x0 + width
+        y1 = y0 + height
+        inc = 8 * scale
+        min_col = x0 // inc
+        max_col = x1 // inc
+        min_row = y0 // inc
+        max_row = y1 // inc
+        x0_floor = inc * min_col
+        y0_floor = inc * min_row
 
         palette = []
         pixels = []
@@ -157,36 +168,23 @@ class ImageWriterTest:
         mask = int(mask)
         has_trans = 0
         all_trans = 1
-        y_count = 0
-        inc = 8 * scale
-
         min_x = width
         min_y = height
         max_x = max_y = 0
 
-        for row in udg_array:
-            if y_count >= y + height:
-                break
-            if y_count + inc <= y:
-                y_count += inc
-                continue
-            for j in range(8):
-                if y_count + scale <= y:
-                    y_count += scale
-                    continue
-                if y_count >= y:
-                    num_lines = min(y + height - y_count, scale)
+        y = y0_floor
+        for row in udg_array[min_row:max_row + 1]:
+            min_j = max(0, (y0 - y) // scale)
+            y += min_j * scale
+            for j in range(min_j, 8):
+                if y < y0:
+                    num_lines = y - y0 + scale
                 else:
-                    num_lines = y_count - y + scale
+                    num_lines = min(y1 - y, scale)
                 pixel_row = []
                 pixel_row2 = []
-                x_count = 0
-                for udg in row:
-                    if x_count >= x + width:
-                        break
-                    if x_count + inc <= x:
-                        x_count += inc
-                        continue
+                x = x0_floor
+                for udg in row[min_col:max_col + 1]:
                     attr = udg.attr
                     paper, ink = ATTR_INDEX[attr & 127]
                     flashing = attr & 128 and paper != ink
@@ -198,18 +196,17 @@ class ImageWriterTest:
                     else:
                         all_trans = 0
                         mask_byte = 0
-                    for k in range(8):
-                        if x_count >= x + width:
+                    min_k = max(0, (x0 - x) // scale)
+                    x += min_k * scale
+                    byte <<= min_k
+                    mask_byte <<= min_k
+                    for k in range(min_k, 8):
+                        if x >= x1:
                             break
-                        if x_count + scale <= x:
-                            x_count += scale
-                            byte *= 2
-                            mask_byte *= 2
-                            continue
-                        if x_count >= x:
-                            num_bits = min(x + width - x_count, scale)
+                        if x < x0:
+                            num_bits = x - x0 + scale
                         else:
-                            num_bits = x_count - x + scale
+                            num_bits = min(x1 - x, scale)
                         if flashing:
                             min_x = min((len(pixel_row), min_x))
                             max_x = max((len(pixel_row) + num_bits, max_x))
@@ -246,7 +243,7 @@ class ImageWriterTest:
                             pixel_row2.extend(pixel)
                         byte *= 2
                         mask_byte *= 2
-                        x_count += scale
+                        x += scale
                 for pixel in pixel_row:
                     if pixel not in palette:
                         palette.append(pixel)
@@ -256,7 +253,7 @@ class ImageWriterTest:
                 for n in range(num_lines):
                     pixels.append(pixel_row)
                     pixels2.append(pixel_row2)
-                y_count += scale
+                y += scale
 
         if pixels2 == pixels:
             pixels2 = frame2_xy = None
@@ -1039,8 +1036,9 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEquals(iw._bd4_nt_nf_method(195, 5, 3), iw._build_image_data_bd4_nt_nf)
         self.assertEquals(iw._bd4_nt_nf_method(233, 6, 3), iw._build_image_data_bd4)
 
-class GifWriterTest(ImageWriterTest):
+class GifWriterTest(SkoolKitTestCase, ImageWriterTest):
     def setUp(self):
+        SkoolKitTestCase.setUp(self)
         self.animation_flag = GIF_ENABLE_ANIMATION
         self.alpha_option = {GIF_TRANSPARENCY: 1}
 
@@ -1106,6 +1104,7 @@ class GifWriterTest(ImageWriterTest):
         return i
 
     def _get_pixels_from_image_data(self, lzw_data, min_code_size, palette, width):
+        num_clear_codes = 0
         clear_code = 1 << min_code_size
         stop_code = clear_code + 1
         init_d = {}
@@ -1140,6 +1139,7 @@ class GifWriterTest(ImageWriterTest):
                 d = init_d.copy()
                 code_size = min_code_size + 1
                 prefix = None
+                num_clear_codes += 1
                 continue
             elif code == stop_code:
                 # Found the STOP code
@@ -1166,9 +1166,9 @@ class GifWriterTest(ImageWriterTest):
             if len(pixels[-1]) == width:
                 pixels.append([])
             pixels[-1].append(palette[pixel])
-        return pixels
+        return pixels, num_clear_codes
 
-    def _check_image_data(self, img_bytes, index, width, height, palette, exp_min_code_size, exp_pixels):
+    def _check_image_data(self, img_bytes, index, width, height, palette, exp_min_code_size, exp_pixels, exp_clear_codes=None):
         i, min_code_size = self._get_num(img_bytes, index)
         self.assertEqual(min_code_size, exp_min_code_size)
 
@@ -1180,18 +1180,19 @@ class GifWriterTest(ImageWriterTest):
             lzw_data.extend(img_bytes[i:i + length])
             i += length
 
-        pixels = self._get_pixels_from_image_data(lzw_data, min_code_size, palette, width)
+        pixels, num_clear_codes = self._get_pixels_from_image_data(lzw_data, min_code_size, palette, width)
         self.assertEqual(len(pixels[0]), len(exp_pixels[0])) # width
         self.assertEqual(len(pixels), len(exp_pixels)) # height
         self.assertEqual(exp_pixels, pixels)
+        if exp_clear_codes is not None:
+            self.assertEqual(num_clear_codes, exp_clear_codes)
 
         return i
 
-    def _test_image(self, udg_array, exp_pixels=None, scale=1, mask=False, x=0, y=0, width=None, height=None, iw_args=None):
+    def _test_image(self, udg_array, exp_pixels=None, scale=1, mask=False, x=0, y=0, width=None, height=None, iw_args=None, exp_clear_codes=None):
         if iw_args is None:
             iw_args = {}
         options = iw_args.setdefault('options', {})
-        options.update(self.iw_options)
         image_writer = ImageWriter(**iw_args)
         img_bytes = self._get_image_data(image_writer, udg_array, 'gif', scale, mask, x, y, width, height)
 
@@ -1211,16 +1212,13 @@ class GifWriterTest(ImageWriterTest):
 
         t_flag = 1 if image_writer.options[GIF_TRANSPARENCY] and has_trans else 0
 
-        if image_writer.options[GIF_COMPRESSION]:
-            palette_size = len(exp_palette)
-            if palette_size > 8:
-                exp_min_code_size = 4
-            elif palette_size > 4:
-                exp_min_code_size = 3
-            else:
-                exp_min_code_size = 2
+        palette_size = len(exp_palette)
+        if palette_size > 8:
+            exp_min_code_size = 4
+        elif palette_size > 4:
+            exp_min_code_size = 3
         else:
-            exp_min_code_size = 7
+            exp_min_code_size = 2
 
         # GIF header
         i = self._check_header(img_bytes)
@@ -1246,7 +1244,7 @@ class GifWriterTest(ImageWriterTest):
         i = self._check_image_descriptor(img_bytes, i, exp_width, exp_height)
 
         # Frame 1 image data
-        i = self._check_image_data(img_bytes, i, exp_width, exp_height, palette, exp_min_code_size, exp_pixels)
+        i = self._check_image_data(img_bytes, i, exp_width, exp_height, palette, exp_min_code_size, exp_pixels, exp_clear_codes)
 
         # Frame 2
         if exp_pixels2:
@@ -1264,7 +1262,6 @@ class GifWriterTest(ImageWriterTest):
         if iw_args is None:
             iw_args = {}
         options = iw_args.setdefault('options', {})
-        options.update(self.iw_options)
         image_writer = ImageWriter(**iw_args)
         img_bytes = self._get_animated_image_data(image_writer, frames, 'gif')
 
@@ -1282,16 +1279,13 @@ class GifWriterTest(ImageWriterTest):
 
         t_flag = 1 if image_writer.options[GIF_TRANSPARENCY] and has_trans else 0
 
-        if image_writer.options[GIF_COMPRESSION]:
-            palette_size = len(exp_palette)
-            if palette_size > 8:
-                exp_min_code_size = 4
-            elif palette_size > 4:
-                exp_min_code_size = 3
-            else:
-                exp_min_code_size = 2
+        palette_size = len(exp_palette)
+        if palette_size > 8:
+            exp_min_code_size = 4
+        elif palette_size > 4:
+            exp_min_code_size = 3
         else:
-            exp_min_code_size = 7
+            exp_min_code_size = 2
 
         # GIF header
         i = self._check_header(img_bytes)
@@ -1317,40 +1311,15 @@ class GifWriterTest(ImageWriterTest):
         # GIF trailer
         self.assertEqual(img_bytes[i], GIF_TRAILER)
 
-class UncompressedGifWriterTest(SkoolKitTestCase, GifWriterTest):
-    def setUp(self):
-        SkoolKitTestCase.setUp(self)
-        GifWriterTest.setUp(self)
-        self.iw_options = {GIF_COMPRESSION: 0}
-
-class CompressedGifWriterTest(SkoolKitTestCase, GifWriterTest):
-    def setUp(self):
-        SkoolKitTestCase.setUp(self)
-        GifWriterTest.setUp(self)
-        self.iw_options = {GIF_COMPRESSION: 1}
-
-    def _bin_digits(self, n):
-        digits = str(n & 1)
-        n >>= 1
-        while n:
-            digits = str(n & 1) + digits
-            n >>= 1
-        return digits
-
     def test_lzw_clear_code(self):
-        pixels = ''
-        for n in range(3510):
-            pixels += self._bin_digits(n)
-        pixels += '0' * (64 - (len(pixels) & 63))
-        num_udgs = len(pixels) // 64
+        pixels = ''.join(['{:b}'.format(n) for n in range(1639)]) + '0' * 17
         udgs = []
-        for i in range(num_udgs):
-            udg_data = []
-            for j in range(8):
-                index = 8 * (i + num_udgs * j)
-                udg_data.append(int(pixels[index:index + 8], 2))
-            udgs.append(Udg(56, udg_data))
-        self._test_image([udgs])
+        index = 0
+        while index < len(pixels):
+            udg_data = [int(pixels[j:j + 8], 2) for j in range(index, index + 64, 8)]
+            udgs.append(Udg((index // 64) & 127, udg_data))
+            index += 64
+        self._test_image([udgs], exp_clear_codes=2)
 
 if __name__ == '__main__':
     unittest.main()
