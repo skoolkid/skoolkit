@@ -352,14 +352,17 @@ class PngWriter:
         img_data = bytearray()
         x1 = x0 + width
         y1 = y0 + height
-        y = 0
         inc = 8 * scale
-        for row in udg_array:
-            if y >= y1:
-                break
-            if y + inc <= y0:
-                y += inc
-                continue
+        min_col = x0 // inc
+        max_col = x1 // inc
+        min_row = y0 // inc
+        max_row = y1 // inc
+        x0_floor = inc * min_col
+        x1_floor = inc * max_col
+        trans_pixels = (0,) * scale
+
+        y = inc * min_row
+        for row in udg_array[min_row:max_row + 1]:
             for i in range(8):
                 if y + scale <= y0:
                     y += scale
@@ -368,30 +371,31 @@ class PngWriter:
                     num_lines = min(y1 - y, scale)
                 else:
                     num_lines = y - y0 + scale
-                y += scale
                 p = []
-                x = 0
-                for udg in row:
-                    if x >= x1:
-                        break
-                    if x + inc <= x0:
-                        x += inc
-                        continue
+                x = x0_floor
+                for udg in row[min_col:max_col + 1]:
                     attr = udg.attr
                     paper, ink = attr_map[attr & 127]
                     if flash and attr & 128:
                         paper, ink = ink, paper
-                    pixels = mask.apply(udg, i, paper, ink, 0)
-                    min_b = max(0, (x0 - x) // scale)
-                    max_b = min(7, (x1 - x) // scale)
-                    x += min_b * scale
-                    for b in range(min_b, max_b + 1):
-                        if x >= x0:
-                            num_bits = min(x1 - x, scale)
-                        else:
-                            num_bits = x - x0 + scale
-                        p.extend((pixels[b],) * num_bits)
-                        x += scale
+                    if x0 <= x < x1_floor:
+                        # Full width UDG
+                        for pixels in mask.apply(udg, i, (paper,) * scale, (ink,) * scale, trans_pixels):
+                            p.extend(pixels)
+                        x += inc
+                    else:
+                        # UDG cropped on the left or right
+                        min_k = max(0, (x0 - x) // scale)
+                        max_k = min(8, (x1 - x) // scale)
+                        x += min_k * scale
+                        for pixel in mask.apply(udg, i, paper, ink, 0)[min_k:max_k]:
+                            if x < x0:
+                                num_bits = x - x0 + scale
+                            else:
+                                num_bits = min(x1 - x, scale)
+                            p.extend((pixel,) * num_bits)
+                            x += scale
+                y += scale
                 scanline = bytearray((0,))
                 if bit_depth == 1:
                     p.extend((0,) * (8 - len(p) & 7))

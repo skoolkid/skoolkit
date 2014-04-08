@@ -663,7 +663,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(chunk_type, PLTE)
         palette = [img_bytes[j:j + 3] for j in range(i, i + chunk_length, 3)]
         i += chunk_length
-        self.assertEqual(sorted(palette), sorted(exp_palette))
+        self.assertEqual(sorted(exp_palette), sorted(palette))
         plte_end = i
         i, plte_crc = self._get_dword(img_bytes, i)
         self.assertEqual(plte_crc, self._get_crc(img_bytes[plte_start:plte_end]))
@@ -1077,7 +1077,7 @@ class GifWriterTest(ImageWriterTest):
         i, aspect_ratio = self._get_num(img_bytes, i)
         self.assertEqual(aspect_ratio, 0)
         gct = [img_bytes[j:j + 3] for j in range(i, i + 3 * exp_palette_size, 3)]
-        self.assertEqual(sorted(gct), sorted(exp_palette))
+        self.assertEqual(sorted(exp_palette), sorted(gct))
         i += 3 * len(gct)
         full_gct_len = 1 << (1 + exp_gct_size)
         for n in range(full_gct_len - len(gct)):
@@ -1183,7 +1183,7 @@ class GifWriterTest(ImageWriterTest):
         pixels = self._get_pixels_from_image_data(lzw_data, min_code_size, palette, width)
         self.assertEqual(len(pixels[0]), len(exp_pixels[0])) # width
         self.assertEqual(len(pixels), len(exp_pixels)) # height
-        self.assertEqual(pixels, exp_pixels)
+        self.assertEqual(exp_pixels, pixels)
 
         return i
 
