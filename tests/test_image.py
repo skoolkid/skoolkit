@@ -795,7 +795,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         pixels = self._get_pixels_from_image_data(bit_depth, palette, image_data, width)
         self.assertEqual(len(pixels[0]), len(exp_pixels[0])) # width
         self.assertEqual(len(pixels), len(exp_pixels)) # height
-        self.assertEqual(pixels, exp_pixels)
+        self.assertEqual(exp_pixels, pixels)
         i, idat_crc = self._get_dword(img_bytes, idat_end)
         self.assertEqual(idat_crc, self._get_crc(img_bytes[idat_start:idat_end]))
         return i

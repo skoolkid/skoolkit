@@ -98,48 +98,54 @@ class GifWriter:
         pixels = []
         x1 = x0 + width
         y1 = y0 + height
-        y = 0
         inc = 8 * scale
-        for row in udg_array:
-            if y >= y1:
-                break
-            if y + inc <= y0:
-                y += inc
-                continue
-            for k in range(8):
-                if y + scale <= y0:
-                    y += scale
-                    continue
+        min_col = x0 // inc
+        max_col = x1 // inc
+        min_row = y0 // inc
+        max_row = y1 // inc
+        x0_floor = inc * min_col
+        x1_floor = inc * max_col
+        x1_pixel_floor = scale * (x1 // scale)
+        y1_pixel_floor = scale * (y1 // scale)
+        trans_pixels = chr(0) * scale
+
+        y = inc * min_row
+        for row in udg_array[min_row:max_row + 1]:
+            min_k = max(0, (y0 - y) // scale)
+            y += min_k * scale
+            for k in range(min_k, 8):
                 if y < y0:
-                    num_lines = y - y0 + scale
+                    rows = y - y0 + scale
+                elif y < y1_pixel_floor:
+                    rows = scale
                 else:
-                    num_lines = min(y1 - y, scale)
+                    rows = y1 - y
                 y += scale
-                x = 0
+                x = x0_floor
                 pixel_row = []
-                for udg in row:
-                    if x >= x1:
-                        break
-                    if x + inc <= x0:
-                        x += inc
-                        continue
+                for udg in row[min_col:max_col + 1]:
                     paper, ink = attr_map[udg.attr & 127]
                     if flash and udg.attr & 128:
                         paper, ink = ink, paper
-                    bits = mask.apply(udg, k, chr(paper), chr(ink), chr(0))
-                    for j in range(8):
-                        if x >= x1:
-                            break
-                        if x + scale <= x0:
+                    if x0 <= x < x1_floor:
+                        # Full width UDG
+                        pixel_row.extend(mask.apply(udg, k, chr(paper) * scale, chr(ink) * scale, trans_pixels))
+                        x += inc
+                    else:
+                        # UDG cropped on the left or right
+                        min_j = max(0, (x0 - x) // scale)
+                        max_j = min(8, (x1 - x) // scale)
+                        x += min_j * scale
+                        for pixel in mask.apply(udg, k, chr(paper), chr(ink), chr(0))[min_j:max_j]:
+                            if x < x0:
+                                cols = x - x0 + scale
+                            elif x < x1_pixel_floor:
+                                cols = scale
+                            else:
+                                cols = x1 - x
+                            pixel_row.append(pixel * cols)
                             x += scale
-                            continue
-                        if x < x0:
-                            num_bits = x - x0 + scale
-                        else:
-                            num_bits = min(x1 - x, scale)
-                        x += scale
-                        pixel_row.append(bits[j] * num_bits)
-                for i in range(num_lines):
+                for i in range(rows):
                     pixels += pixel_row
         return ''.join(pixels)
 
