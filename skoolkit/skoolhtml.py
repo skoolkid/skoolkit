@@ -1345,7 +1345,7 @@ class HtmlWriter:
             if end < len(text) and text[end] == ':':
                 end, fname, crop_rect, mask_addr, mask_step = self.parse_image_params(text, end + 1, 2, (step,), udg_path_id, chars='-x', ints=(1,))
                 mask_addresses = self._get_udg_addresses(mask_addr, width)
-            has_masks = len(mask_addresses) > 0
+            has_masks = has_masks or len(mask_addresses) > 0
             mask_addresses += [None] * (len(udg_addresses) - len(mask_addresses))
             for u, m in zip(udg_addresses, mask_addresses):
                 udg_bytes = [(self.snapshot[u + n * step] + inc) % 256 for n in range(8)]
