@@ -362,7 +362,8 @@ class ImageWriterTest:
         udg1 = Udg(24, (34,) * 8, (119,) * 8)
         udg2 = Udg(57, (170,) * 8)
         udg_array = [[udg1, udg2]]
-        self._test_image(udg_array, scale=2, mask=True, x=1, y=3, width=27, height=12)
+        self._test_image(udg_array, scale=2, mask=True, x=1, y=3, width=25, height=11)
+        self._test_image(udg_array, scale=2, mask=True, x=1, y=3, width=26, height=12)
 
     def test_masked_cropped_flashing(self):
         # Masked image, cropped, flashing
@@ -370,6 +371,13 @@ class ImageWriterTest:
         udg2 = Udg(56, (170,) * 8)
         udg_array = [[udg1, udg2]] * 2
         self._test_image(udg_array, scale=2, mask=True, x=1, y=1, width=29, height=27)
+
+    def test_masked_cropped_flashing_one_udg_all_transparent(self):
+        # Masked image, cropped, flashing, one UDG all transparent
+        udg1 = Udg(135, (0,) * 8, (255,) * 8)
+        udg2 = Udg(184, (240,) * 8)
+        udg_array = [[udg1, udg2]]
+        self._test_image(udg_array, scale=2, mask=True, x=1, y=1, width=27, height=13)
 
     def test_masked_flashing(self):
         # Masked image, flashing
@@ -622,7 +630,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
 
     def _check_signature(self, img_bytes):
         i = len(PNG_SIGNATURE)
-        self.assertEqual(img_bytes[:i], PNG_SIGNATURE)
+        self.assertEqual(PNG_SIGNATURE, img_bytes[:i])
         return i
 
     def _check_ihdr(self, img_bytes, index, exp_width, exp_height, exp_bit_depth):
@@ -631,7 +639,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(chunk_length, 13)
         ihdr_start = i
         i, chunk_type = self._get_chunk_type(img_bytes, i)
-        self.assertEqual(chunk_type, IHDR)
+        self.assertEqual(IHDR, chunk_type)
         i, image_width = self._get_dword(img_bytes, i)
         self.assertEqual(image_width, exp_width)
         i, image_height = self._get_dword(img_bytes, i)
@@ -657,7 +665,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(chunk_length, len(exp_palette) * 3)
         plte_start = i
         i, chunk_type = self._get_chunk_type(img_bytes, i)
-        self.assertEqual(chunk_type, PLTE)
+        self.assertEqual(PLTE, chunk_type)
         palette = [img_bytes[j:j + 3] for j in range(i, i + chunk_length, 3)]
         i += chunk_length
         self.assertEqual(sorted(exp_palette), sorted(palette))
@@ -687,7 +695,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(chunk_length, 26)
         fctl_start = i
         i, chunk_type = self._get_chunk_type(img_bytes, i)
-        self.assertEqual(chunk_type, FCTL)
+        self.assertEqual(FCTL, chunk_type)
         i, frame_num = self._get_dword(img_bytes, i)
         self.assertEqual(frame_num, exp_frame_num)
         i, width = self._get_dword(img_bytes, i)
@@ -746,7 +754,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         i, chunk_length = self._get_dword(img_bytes, i)
         actl_start = i
         i, chunk_type = self._get_chunk_type(img_bytes, i)
-        self.assertEqual(chunk_type, ACTL)
+        self.assertEqual(ACTL, chunk_type)
         actl_end = i + chunk_length
         i, num_frames = self._get_dword(img_bytes, i)
         self.assertEqual(num_frames, exp_num_frames)
@@ -761,7 +769,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         i, chunk_length = self._get_dword(img_bytes, i)
         fdat_start = i
         i, chunk_type = self._get_chunk_type(img_bytes, i)
-        self.assertEqual(chunk_type, FDAT)
+        self.assertEqual(FDAT, chunk_type)
         fdat_end = i + chunk_length
         i, seq_num = self._get_dword(img_bytes, i)
         self.assertEqual(seq_num, exp_seq_num)
@@ -784,7 +792,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         i, chunk_length = self._get_dword(img_bytes, i)
         idat_start = i
         i, chunk_type = self._get_chunk_type(img_bytes, i)
-        self.assertEqual(chunk_type, IDAT)
+        self.assertEqual(IDAT, chunk_type)
         idat_end = i + chunk_length
         if PY3:
             image_data_z = bytes(img_bytes[i:idat_end])

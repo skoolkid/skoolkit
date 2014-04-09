@@ -238,21 +238,23 @@ class ImageWriter:
                 if x0 <= x < x1_floor and y0 <= y < y1_floor:
                     # Uncropped UDG
                     for j in range(8):
-                        colours.update(mask.apply(udg, j, paper, ink, None))
                         if ink in colours and paper in colours and (mask == 0 or None in colours):
                             break
+                        colours.update(mask.apply(udg, j, paper, ink, None))
                     if udg_flashing:
-                        min_x = min((x, min_x))
-                        max_x = max((x + inc, max_x))
-                        min_y = min((y, min_y))
-                        max_y = max((y + inc, max_y))
+                        min_x = min(x, min_x)
+                        max_x = max(x + inc, max_x)
+                        min_y = min(y, min_y)
+                        max_y = max(y + inc, max_y)
                 else:
                     # Cropped UDG
                     min_k = max(0, (x0 - x) // scale)
-                    max_k = min(8, (x1 - x) // scale)
+                    max_k = min(8, 1 + (x1 - 1 - x) // scale)
                     min_j = max(0, (y0 - y) // scale)
-                    max_j = min(8, (y1 - y) // scale)
+                    max_j = min(8, 1 + (y1 - 1 - y) // scale)
                     for j in range(min_j, max_j):
+                        if ink in colours and paper in colours and (mask == 0 or None in colours):
+                            break
                         for pixel in mask.apply(udg, j, paper, ink, None)[min_k:max_k]:
                             colours.add(pixel)
                     if udg_flashing:
@@ -312,15 +314,12 @@ class ImageWriter:
                         has_trans = 1
                     if ink in colours and paper in colours and (null_mask or has_trans):
                         break
-                if use_flash and attr & 128 and has_non_trans:
-                    colours.add(ink)
-                    if ink != paper:
-                        min_x = min((x, min_x))
-                        min_y = min((y, min_y))
-                        max_x = max((x, max_x))
-                        max_y = max((y, max_y))
-                        colours.add(paper)
-                        flashing = True
+                if use_flash and attr & 128 and ink != paper and has_non_trans:
+                    min_x = min(x, min_x)
+                    min_y = min(y, min_y)
+                    max_x = max(x, max_x)
+                    max_y = max(y, max_y)
+                    flashing = True
                 if not udg.mask:
                     all_masked = 0
                 x += 1

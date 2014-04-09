@@ -359,18 +359,16 @@ class PngWriter:
         max_row = y1 // inc
         x0_floor = inc * min_col
         x1_floor = inc * max_col
+        x1_pixel_floor = scale * (x1 // scale)
+        y1_pixel_floor = scale * (y1 // scale)
         trans_pixels = (0,) * scale
 
         y = inc * min_row
         for row in udg_array[min_row:max_row + 1]:
-            for i in range(8):
-                if y + scale <= y0:
-                    y += scale
-                    continue
-                if y >= y0:
-                    num_lines = min(y1 - y, scale)
-                else:
-                    num_lines = y - y0 + scale
+            min_k = max(0, (y0 - y) // scale)
+            max_k = min(8, 1 + (y1 - 1 - y) // scale)
+            y += min_k * scale
+            for k in range(min_k, max_k):
                 p = []
                 x = x0_floor
                 for udg in row[min_col:max_col + 1]:
@@ -380,22 +378,23 @@ class PngWriter:
                         paper, ink = ink, paper
                     if x0 <= x < x1_floor:
                         # Full width UDG
-                        for pixels in mask.apply(udg, i, (paper,) * scale, (ink,) * scale, trans_pixels):
+                        for pixels in mask.apply(udg, k, (paper,) * scale, (ink,) * scale, trans_pixels):
                             p.extend(pixels)
                         x += inc
                     else:
                         # UDG cropped on the left or right
-                        min_k = max(0, (x0 - x) // scale)
-                        max_k = min(8, (x1 - x) // scale)
-                        x += min_k * scale
-                        for pixel in mask.apply(udg, i, paper, ink, 0)[min_k:max_k]:
+                        min_j = max(0, (x0 - x) // scale)
+                        max_j = min(8, 1 + (x1 - 1 - x) // scale)
+                        x += min_j * scale
+                        for pixel in mask.apply(udg, k, paper, ink, 0)[min_j:max_j]:
                             if x < x0:
-                                num_bits = x - x0 + scale
+                                cols = x - x0 + scale
+                            elif x < x1_pixel_floor:
+                                cols = scale
                             else:
-                                num_bits = min(x1 - x, scale)
-                            p.extend((pixel,) * num_bits)
+                                cols = x1 - x
+                            p.extend((pixel,) * cols)
                             x += scale
-                y += scale
                 scanline = bytearray((0,))
                 if bit_depth == 1:
                     p.extend((0,) * (8 - len(p) & 7))
@@ -406,7 +405,14 @@ class PngWriter:
                 elif bit_depth == 4:
                     p.extend((0,) * (2 - len(p) & 1))
                     scanline.extend([p[j] * 16 + p[j + 1] for j in range(0, len(p), 2)])
-                self._compress_bytes(compressor, img_data, scanline * num_lines)
+                if y < y0:
+                    rows = y - y0 + scale
+                elif y < y1_pixel_floor:
+                    rows = scale
+                else:
+                    rows = y1 - y
+                self._compress_bytes(compressor, img_data, scanline * rows)
+                y += scale
         img_data.extend(compressor.flush())
         return img_data
 

@@ -112,15 +112,9 @@ class GifWriter:
         y = inc * min_row
         for row in udg_array[min_row:max_row + 1]:
             min_k = max(0, (y0 - y) // scale)
+            max_k = min(8, 1 + (y1 - 1 - y) // scale)
             y += min_k * scale
-            for k in range(min_k, 8):
-                if y < y0:
-                    rows = y - y0 + scale
-                elif y < y1_pixel_floor:
-                    rows = scale
-                else:
-                    rows = y1 - y
-                y += scale
+            for k in range(min_k, max_k):
                 x = x0_floor
                 pixel_row = []
                 for udg in row[min_col:max_col + 1]:
@@ -134,7 +128,7 @@ class GifWriter:
                     else:
                         # UDG cropped on the left or right
                         min_j = max(0, (x0 - x) // scale)
-                        max_j = min(8, (x1 - x) // scale)
+                        max_j = min(8, 1 + (x1 - 1 - x) // scale)
                         x += min_j * scale
                         for pixel in mask.apply(udg, k, chr(paper), chr(ink), chr(0))[min_j:max_j]:
                             if x < x0:
@@ -145,8 +139,15 @@ class GifWriter:
                                 cols = x1 - x
                             pixel_row.append(pixel * cols)
                             x += scale
+                if y < y0:
+                    rows = y - y0 + scale
+                elif y < y1_pixel_floor:
+                    rows = scale
+                else:
+                    rows = y1 - y
                 for i in range(rows):
                     pixels += pixel_row
+                y += scale
         return ''.join(pixels)
 
     def _get_all_pixels(self, udg_array, scale, trans, flash, attr_map, mask):
