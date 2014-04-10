@@ -1701,7 +1701,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assert_error(writer, '#UDGARRAY*foo()', 'Missing filename: #UDGARRAY*foo()', prefix)
         self.assert_error(writer, '#UDGARRAY*foo(bar', 'No closing bracket: (bar', prefix)
         self.assert_error(writer, '#UDGARRAY*foo(bar)', 'No such frame: "foo"', prefix)
-        self.assert_error(writer, '#UDGARRAY*foo,qux(bar)', 'Invalid delay parameter: "qux"', prefix)
+        self.assert_error(writer, '#UDGARRAY*foo,qux(bar)', "Cannot parse integer 'qux' in parameter string: 'qux'", prefix)
 
     def test_macro_udgtable(self):
         src = '\n'.join((

@@ -1315,10 +1315,8 @@ class HtmlWriter:
                 elements = frame_param.rsplit(',', 1)
                 if len(elements) == 2:
                     frame_id = elements[0]
-                    delay = parse_int(elements[1])
-                    if delay is None:
-                        raise MacroParsingError('Invalid delay parameter: "{}"'.format(elements[1]))
-                    default_delay = delay
+                    params = skoolmacro.parse_ints(elements[1], 0, 1, names=('delay',))[1]
+                    delay = default_delay = params['delay']
                 else:
                     frame_id = frame_param
                     delay = default_delay
