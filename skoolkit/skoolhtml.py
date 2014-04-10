@@ -1259,9 +1259,12 @@ class HtmlWriter:
 
     def expand_scr(self, text, index, cwd):
         # #SCR[scale,x,y,w,h,df,af][{x,y,width,height}][(fname)]
-        end, scr_path, crop_rect, scale, x, y, w, h, df_addr, af_addr = self.parse_image_params(text, index, 7, (1, 0, 0, 32, 24, 16384, 22528), 'ScreenshotImagePath', 'scr')
+        param_names = ('scale', 'x', 'y', 'w', 'h', 'df', 'af')
+        defaults = (1, 0, 0, 32, 24, 16384, 22528)
+        end, scr_path, crop_rect, params = self.parse_image_params(text, index, 7, defaults, 'ScreenshotImagePath', 'scr', names=param_names)
         if self.need_image(scr_path):
-            self.write_image(scr_path, self.screenshot(x, y, w, h, df_addr, af_addr), crop_rect, scale)
+            udgs = self.screenshot(params['x'], params['y'], params['w'], params['h'], params['df'], params['af'])
+            self.write_image(scr_path, udgs, crop_rect, params['scale'])
         return end, self.img_element(cwd, scr_path)
 
     def expand_space(self, text, index, cwd):
