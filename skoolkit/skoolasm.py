@@ -192,11 +192,11 @@ class AsmWriter:
         return end, link_text or 'fact'
 
     def expand_font(self, text, index):
-        # #FONT[:(text)]addr[,chars,attr,scale][{X,Y,W,H}][(fname)]
+        # #FONT[:(text)]addr[,chars,attr,scale][{x,y,width,height}][(fname)]
         if self.handle_unsupported_macros:
             if index < len(text) and text[index] == ':':
                 index, message = skoolmacro.get_text_param(text, index + 1)
-            end, params, p_text = skoolmacro.parse_params(text, index, chars=',{}')
+            end, params, p_text = skoolmacro.parse_params(text, index, chars='=,{}')
             return end, ''
         raise UnsupportedMacroError()
 
@@ -248,9 +248,9 @@ class AsmWriter:
         return skoolmacro.parse_reg(text, index, self.lower)
 
     def expand_scr(self, text, index):
-        # #SCR[scale,x,y,w,h,dfAddr,afAddr][{X,Y,W,H}][(fname)]
+        # #SCR[scale,x,y,w,h,df,af][{x,y,width,height}][(fname)]
         if self.handle_unsupported_macros:
-            end, params, p_text = skoolmacro.parse_params(text, index, chars=',{}')
+            end, params, p_text = skoolmacro.parse_params(text, index, chars='=,{}')
             return end, ''
         raise UnsupportedMacroError()
 
@@ -259,20 +259,20 @@ class AsmWriter:
         return end, ' ' * num_sp
 
     def expand_udg(self, text, index):
-        # #UDGaddr[,attr,scale,step,inc,flip,rotate][:maskAddr[,maskStep]][{X,Y,W,H}][(fname)]
+        # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:addr[,step]][{x,y,width,height}][(fname)]
         if self.handle_unsupported_macros:
-            end, params, p_text = skoolmacro.parse_params(text, index, chars=',:{}')
+            end, params, p_text = skoolmacro.parse_params(text, index, chars='=,:{}')
             return end, ''
         raise UnsupportedMacroError()
 
     def expand_udgarray(self, text, index):
-        # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];addr1[,attr1,step1,inc1][:maskAddr1[,maskStep1]];...[{X,Y,W,H}](fname)
-        # #UDGARRAY*frame1[,delay1];frame2[,delay2];...(fname)
+        # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];addr[,attr,step,inc][:addr[,step]];...[{x,y,width,height}](fname)
+        # #UDGARRAY*frame1[,delay];frame2[,delay];...(fname)
         if self.handle_unsupported_macros:
             if index < len(text) and text[index] == '*':
                 end, params, p_text = skoolmacro.parse_params(text, index, except_chars=' (')
             else:
-                end, params, p_text = skoolmacro.parse_params(text, index, chars=',:;-x{}')
+                end, params, p_text = skoolmacro.parse_params(text, index, chars='=,:;-{}')
             return end, ''
         raise UnsupportedMacroError()
 
