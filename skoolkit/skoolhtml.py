@@ -1192,10 +1192,12 @@ class HtmlWriter:
         else:
             message = ''.join([chr(n) for n in range(32, 128)])
 
-        end, img_path, crop_rect, addr, chars, attr, scale = self.parse_image_params(text, index, 4, (len(message), 56, 2), 'FontImagePath', 'font')
+        param_names = ('addr', 'chars', 'attr', 'scale')
+        defaults = (len(message), 56, 2)
+        end, img_path, crop_rect, params = self.parse_image_params(text, index, 4, defaults, 'FontImagePath', 'font', names=param_names)
         if self.need_image(img_path):
-            udg_array = self.get_font_udg_array(addr, attr, message[:chars])
-            self.write_image(img_path, udg_array, crop_rect, scale)
+            udg_array = self.get_font_udg_array(params['addr'], params['attr'], message[:params['chars']])
+            self.write_image(img_path, udg_array, crop_rect, params['scale'])
         return end, self.img_element(cwd, img_path)
 
     def expand_html(self, text, index, cwd):

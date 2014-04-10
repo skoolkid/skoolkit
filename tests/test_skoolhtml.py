@@ -782,9 +782,6 @@ class HtmlWriterTest(SkoolKitTestCase):
         # No parameters
         self.assert_error(writer, '#FONT', 'No parameters (expected 1)', prefix)
 
-        # No parameters (2)
-        self.assert_error(writer, '#FONTx', 'No parameters (expected 1)', prefix)
-
         # No text parameter
         self.assert_error(writer, '#FONT:', 'No text parameter', prefix)
 
