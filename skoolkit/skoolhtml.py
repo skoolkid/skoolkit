@@ -1335,29 +1335,35 @@ class HtmlWriter:
             return self._expand_udgarray_with_frames(text, index, cwd)
 
         udg_path_id = None
-        end, fname, crop_rect, width, def_attr, scale, def_step, def_inc, flip, rotate, mask_type = self.parse_image_params(text, index, 8, (56, 2, 1, 0, 0, 0, 1), udg_path_id)
+        param_names = ('width', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
+        defaults = (56, 2, 1, 0, 0, 0, 1)
+        end, udg_path, crop_rect, params = self.parse_image_params(text, index, 8, defaults, udg_path_id, names=param_names)
         udg_array = [[]]
         has_masks = False
         while end < len(text) and text[end] == ';':
-            end, fname, crop_rect, address, attr, step, inc = self.parse_image_params(text, end + 1, 4, (def_attr, def_step, def_inc), udg_path_id, chars='-x', ints=(1, 2, 3))
-            udg_addresses = self._get_udg_addresses(address, width)
+            param_names = ('addr', 'attr', 'step', 'inc')
+            defaults = (params['attr'], params['step'], params['inc'])
+            end, fname, crop_rect, udg_params = self.parse_image_params(text, end + 1, 4, defaults, udg_path_id, chars='-x', ints=(1, 2, 3), names=param_names)
+            udg_addresses = self._get_udg_addresses(udg_params['addr'], params['width'])
             mask_addresses = []
             if end < len(text) and text[end] == ':':
-                end, fname, crop_rect, mask_addr, mask_step = self.parse_image_params(text, end + 1, 2, (step,), udg_path_id, chars='-x', ints=(1,))
-                mask_addresses = self._get_udg_addresses(mask_addr, width)
+                param_names = ('addr', 'step')
+                defaults = (udg_params['step'],)
+                end, fname, crop_rect, mask_params = self.parse_image_params(text, end + 1, 2, defaults, udg_path_id, chars='-x', ints=(1,), names=param_names)
+                mask_addresses = self._get_udg_addresses(mask_params['addr'], params['width'])
             has_masks = has_masks or len(mask_addresses) > 0
             mask_addresses += [None] * (len(udg_addresses) - len(mask_addresses))
             for u, m in zip(udg_addresses, mask_addresses):
-                udg_bytes = [(self.snapshot[u + n * step] + inc) % 256 for n in range(8)]
-                udg = Udg(attr, udg_bytes)
+                udg_bytes = [(self.snapshot[u + n * udg_params['step']] + udg_params['inc']) % 256 for n in range(8)]
+                udg = Udg(udg_params['attr'], udg_bytes)
                 if m is not None:
-                    udg.mask = [self.snapshot[m + n * mask_step] for n in range(8)]
-                if len(udg_array[-1]) == width:
+                    udg.mask = [self.snapshot[m + n * mask_params['step']] for n in range(8)]
+                if len(udg_array[-1]) == params['width']:
                     udg_array.append([udg])
                 else:
                     udg_array[-1].append(udg)
         if not has_masks:
-            mask_type = 0
+            params['mask'] = 0
 
         if not fname:
             raise MacroParsingError('Missing filename: #UDGARRAY{0}'.format(text[index:end]))
@@ -1371,14 +1377,14 @@ class HtmlWriter:
         img_path = self.image_path(fname, 'UDGImagePath')
         need_image = img_path and self.need_image(img_path)
         if frame or need_image:
-            if flip:
-                self.flip_udgs(udg_array, flip)
-            if rotate:
-                self.rotate_udgs(udg_array, rotate)
+            if params['flip']:
+                self.flip_udgs(udg_array, params['flip'])
+            if params['rotate']:
+                self.rotate_udgs(udg_array, params['rotate'])
             if frame:
-                self.frames[frame] = Frame(udg_array, scale, mask_type, *crop_rect)
+                self.frames[frame] = Frame(udg_array, params['scale'], params['mask'], *crop_rect)
             if need_image:
-                self.write_image(img_path, udg_array, crop_rect, scale, mask_type)
+                self.write_image(img_path, udg_array, crop_rect, params['scale'], params['mask'])
         if img_path:
             return end, self.img_element(cwd, img_path)
         return end, ''
