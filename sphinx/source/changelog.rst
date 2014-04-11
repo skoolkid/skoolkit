@@ -5,6 +5,10 @@ Changelog
 -----
 * Every HTML page is built from templates defined in :ref:`template` sections
   in the `ref` file
+* Added support for keyword arguments to the :ref:`FONT`, :ref:`SCR`,
+  :ref:`UDG` and :ref:`UDGARRAY` macros
+* Added the ``mask`` parameter to the :ref:`UDG` and :ref:`UDGARRAY` macros
+  (for specifying the type of mask to apply)
 * Added support for defining page headers in the :ref:`pageHeaders` section of
   the `ref` file
 * Added the ``--ref-file`` and ``--ref-sections`` options to
@@ -14,11 +18,7 @@ Changelog
   (for specifying whether to display entry descriptions on a memory map page)
 * Added the ``LengthColumn`` parameter to the :ref:`memoryMap` section (for
   specifying whether to display the 'Length' column on a memory map page)
-* Removed support for the ``[Info]`` section; the parameters it contained now
-  belong in the :ref:`ref-Game` section
-* Removed support for the ``[Graphics]`` section
-* Removed support for the ``z`` and ``Z`` control directives; the ``s`` and
-  ``S`` directives can be used instead
+* Added documentation on :ref:`migrating from SkoolKit 3 <migrating>`
 
 3.7 (2014-03-08)
 ----------------

@@ -1,3 +1,5 @@
+.. _migrating:
+
 Migrating from SkoolKit 3
 =========================
 SkoolKit 4 includes some changes that make it incompatible with SkoolKit 3. If
