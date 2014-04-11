@@ -23,15 +23,15 @@ default value. So, for example::
 
 is equivalent to::
 
-  #UDG39144,56,4,1,0,0,0
+  #UDG39144,56,4,1,0,0,0,1
 
 and::
 
-  #UDG30115,23,,2,1
+  #UDG30115,,2
 
 is equivalent to::
 
-  #UDG30115,23,4,2,1
+  #UDG30115,56,2
 
 Numeric parameters may be given in decimal notation (as already shown in the
 examples above), or in hexadecimal notation (prefixed by ``$``)::
@@ -39,7 +39,7 @@ examples above), or in hexadecimal notation (prefixed by ``$``)::
   #UDG$98E8,$06
 
 The skool macros recognised by SkoolKit are described in the following
-subsections.
+sections.
 
 .. _BUG:
 
@@ -707,8 +707,21 @@ See :ref:`TABLE`, and also :ref:`HTML`.
 
 Image macros
 ============
-The following skool macros may be used to create images based on graphic data
+The :ref:`FONT`, :ref:`SCR`, :ref:`UDG` and :ref:`UDGARRAY` macros (described
+in the following sections) may be used to create images based on graphic data
 in the memory snapshot. They are not supported in ASM mode.
+
+These macros have several numeric parameters, most of which are optional. This
+can give rise to a long sequence of commas in a macro parameter string, making
+it hard to read (and write); for example::
+
+  #UDG32768,,,,,,1
+
+To alleviate this problem, the image macros accept keyword arguments at any
+position in the parameter string; the ``#UDG`` macro above could be rewritten
+as follows::
+
+  #UDG32768,rotate=1
 
 .. _FONT:
 
@@ -765,6 +778,8 @@ starts at 49152.
 | 3.6     | Added the ``text`` parameter, and made the ``chars`` parameter  |
 |         | optional                                                        |
 +---------+-----------------------------------------------------------------+
+| 4.0     | Added support for keyword arguments                             |
++---------+-----------------------------------------------------------------+
 
 .. _SCR:
 
@@ -811,6 +826,8 @@ For example::
 +---------+---------------------------------------------------------------+
 | 3.0     | Added image-cropping capabilities and the ``df`` and ``af``   |
 |         | parameters                                                    |
++---------+---------------------------------------------------------------+
+| 4.0     | Added support for keyword arguments                           |
 +---------+---------------------------------------------------------------+
 
 .. _UDG:
@@ -864,23 +881,24 @@ In HTML mode, this instance of the ``#UDG`` macro expands to an ``<img>``
 element for the image of the UDG at 39144 (which will be named `safe_key.png`
 or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
 
-+---------+-------------------------------------------------------------+
-| Version | Changes                                                     |
-+=========+=============================================================+
-| 2.0.5   | Added the ``fname`` parameter                               |
-+---------+-------------------------------------------------------------+
-| 2.1     | Added support for masks                                     |
-+---------+-------------------------------------------------------------+
-| 2.3.1   | Added the ``flip`` parameter                                |
-+---------+-------------------------------------------------------------+
-| 2.4     | Added the ``rotate`` parameter                              |
-+---------+-------------------------------------------------------------+
-| 3.0     | Added image-cropping capabilities                           |
-+---------+-------------------------------------------------------------+
-| 3.1.2   | Made the ``attr`` parameter optional                        |
-+---------+-------------------------------------------------------------+
-| 4.0     | Added the ``mask`` parameter and support for AND-OR masking |
-+---------+-------------------------------------------------------------+
++---------+--------------------------------------------------------------+
+| Version | Changes                                                      |
++=========+==============================================================+
+| 2.0.5   | Added the ``fname`` parameter                                |
++---------+--------------------------------------------------------------+
+| 2.1     | Added support for masks                                      |
++---------+--------------------------------------------------------------+
+| 2.3.1   | Added the ``flip`` parameter                                 |
++---------+--------------------------------------------------------------+
+| 2.4     | Added the ``rotate`` parameter                               |
++---------+--------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities                            |
++---------+--------------------------------------------------------------+
+| 3.1.2   | Made the ``attr`` parameter optional                         |
++---------+--------------------------------------------------------------+
+| 4.0     | Added the ``mask`` parameter and support for AND-OR masking; |
+|         | added support for keyword arguments                          |
++---------+--------------------------------------------------------------+
 
 .. _UDGARRAY:
 
@@ -988,7 +1006,8 @@ named `base_sprite.png`.
 | 3.6     | Added support for creating an animated image from an arbitrary    |
 |         | sequence of frames                                                |
 +---------+-------------------------------------------------------------------+
-| 4.0     | Added the ``mask`` parameter and support for AND-OR masking       |
+| 4.0     | Added the ``mask`` parameter and support for AND-OR masking;      |
+|         | added support for keyword arguments                               |
 +---------+-------------------------------------------------------------------+
 
 Animation
