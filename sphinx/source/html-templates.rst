@@ -204,15 +204,6 @@ operation and comment).
 It contains the following identifiers (in addition to the universal
 identifiers):
 
-* ``entry`` - a dictionary of parameters corresponding to the current memory
-  map entry (see :ref:`t_Asm`)
-* ``instruction`` - a dictionary of parameters corresponding to the instruction
-  (see below)
-* ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate (with
-  the instruction's address in decimal format as the anchor name)
-
-The parameters in the ``instruction`` dictionary are:
-
 * ``address`` - the address of the instruction (may be in decimal or
   hexadecimal format, depending on how it appears in the `skool` file, and the
   options passed to :ref:`skool2html.py`)
@@ -220,9 +211,13 @@ The parameters in the ``instruction`` dictionary are:
   '1' otherwise
 * ``comment`` - the text of the comment for the instruction
 * ``comment_rowspan`` - the number of instructions to which the comment applies
+* ``entry`` - a dictionary of parameters corresponding to the memory map entry
+  that contains the instruction (see :ref:`t_Asm`)
 * ``label`` - the instruction's ASM label
 * ``operation`` - the assembly language operation (e.g. 'LD A,B'), with operand
   hyperlinked if appropriate
+* ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate (with
+  the instruction's address in decimal format as the anchor name)
 
 To see the default ``asm_instruction`` template, run the following command::
 

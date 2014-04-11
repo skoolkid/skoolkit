@@ -430,10 +430,10 @@ SECTIONS['Template:asm_comment'] = """
 
 SECTIONS['Template:asm_instruction'] = """
 <tr>
-<td class="asm-label-{entry[labels]}">{instruction[label]}</td>
-<td class="address">{t_anchor}{instruction[address]}</td>
-<td class="instruction">{instruction[operation]}</td>
-<td class="comment-{instruction[annotated]}" rowspan="{instruction[comment_rowspan]}">{instruction[comment]}</td>
+<td class="asm-label-{entry[labels]}">{label}</td>
+<td class="address">{t_anchor}{address}</td>
+<td class="instruction">{operation}</td>
+<td class="comment-{annotated}" rowspan="{comment_rowspan}">{comment}</td>
 </tr>
 """
 

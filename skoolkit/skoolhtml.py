@@ -784,14 +784,12 @@ class HtmlWriter:
                 comment_rowspan = 1
                 comment_text = ''
                 annotated = 0
-            instruction_subs['instruction'] = {
-                'address': instruction.addr_str,
-                'label': instruction.asm_label or '',
-                'operation': operation,
-                'comment': comment_text,
-                'comment_rowspan': comment_rowspan,
-                'annotated': annotated
-            }
+            instruction_subs['address'] = instruction.addr_str
+            instruction_subs['label'] = instruction.asm_label or ''
+            instruction_subs['operation'] = operation
+            instruction_subs['comment'] = comment_text
+            instruction_subs['comment_rowspan'] = comment_rowspan
+            instruction_subs['annotated'] = annotated
             instruction_subs['t_anchor'] = anchor
             lines.append(self.format_template('asm_instruction', instruction_subs))
 
