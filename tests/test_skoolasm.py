@@ -671,9 +671,6 @@ class AsmWriterTest(SkoolKitTestCase):
         # No parameters (1)
         self.assert_error(writer, '#POKES', 'No parameters (expected 2)', prefix)
 
-        # No parameters (2)
-        self.assert_error(writer, '#POKESx', 'No parameters (expected 2)', prefix)
-
         # Not enough parameters (1)
         self.assert_error(writer, '#POKES0', "Not enough parameters (expected 2): '0'", prefix)
 

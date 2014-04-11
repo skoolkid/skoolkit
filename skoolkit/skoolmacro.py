@@ -26,7 +26,7 @@ DELIMITERS = {
     '{': '}'
 }
 
-def parse_ints(text, index, num=0, defaults=(), names=()):
+def parse_ints(text, index=0, num=0, defaults=(), names=()):
     """Parse a string of comma-separated integer parameters. The string will be
     parsed until either the end is reached, or an invalid character is
     encountered. The set of valid characters consists of the comma, '$', the
@@ -52,10 +52,7 @@ def parse_ints(text, index, num=0, defaults=(), names=()):
                 break
             num_params += 1
         end += 1
-    params = get_params(text[index:end], num, defaults, names=names)
-    if names:
-        return [end, params]
-    return [end] + params
+    return [end] + get_params(text[index:end], num, defaults, names=names)
 
 def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars=''):
     """Parse a string of the form ``params[(p_text)]``. The parameter string
@@ -151,13 +148,15 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
         if params or named_params:
             raise MacroParsingError("Not enough parameters (expected {}): '{}'".format(req, param_string))
         raise MacroParsingError("No parameters (expected {})".format(req))
+    if index > num > 0:
+        raise MacroParsingError("Too many parameters (expected {}): '{}'".format(num, param_string))
 
     if names:
         for i in range(req, num):
             name = names[i]
-            if named_params.get(name) is None:
+            if name not in named_params:
                 named_params[name] = defaults[i - req]
-        return named_params
+        return [named_params[name] for name in names]
 
     params += [None] * (num - len(params))
     for i in range(req, num):
@@ -294,10 +293,12 @@ def parse_poke(text, index):
 
 def parse_pokes(text, index, snapshot):
     # #POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
-    end, addr, byte, length, step = parse_ints(text, index, 4, (1, 1))
+    param_names = ('addr', 'byte', 'length', 'step')
+    defaults = (1, 1)
+    end, addr, byte, length, step = parse_ints(text, index, defaults=defaults, names=param_names)
     snapshot[addr:addr + length * step:step] = [byte] * length
     while end < len(text) and text[end] == ';':
-        end, addr, byte, length, step = parse_ints(text, end + 1, 4, (1, 1))
+        end, addr, byte, length, step = parse_ints(text, end + 1, defaults=defaults, names=param_names)
         snapshot[addr:addr + length * step:step] = [byte] * length
     return end, ''
 

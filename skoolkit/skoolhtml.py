@@ -1127,16 +1127,14 @@ class HtmlWriter:
             num = len(names)
         end, param_string, p_text = skoolmacro.parse_params(text, index, only_chars=valid_chars)
         params = skoolmacro.get_params(param_string, num, defaults, ints, names)
-        if len(params) > num:
-            raise MacroParsingError("Too many parameters (expected {}): '{}'".format(num, text[index:end]))
 
+        defaults = (0, 0, None, None)
         if end < len(text) and text[end] == '{':
-            end, crop_params = skoolmacro.parse_ints(text, end + 1, defaults=(0, 0, None, None), names=('x', 'y', 'width', 'height'))
-            x, y, width, height = crop_params['x'], crop_params['y'], crop_params['width'], crop_params['height']
+            param_names = ('x', 'y', 'width', 'height')
+            end, x, y, width, height = skoolmacro.parse_ints(text, end + 1, defaults=defaults, names=param_names)
             end, param_string, p_text = skoolmacro.parse_params(text, end, only_chars='}')
         else:
-            x = y = 0
-            width = height = None
+            x, y, width, height = defaults
 
         if p_text:
             fname = p_text
@@ -1145,8 +1143,6 @@ class HtmlWriter:
         else:
             img_path = fname
 
-        if names:
-            return [end, img_path, (x, y, width, height), params]
         return [end, img_path, (x, y, width, height)] + params
 
     def _expand_item_macro(self, item, link_text, cwd, items, path_id):
@@ -1194,10 +1190,11 @@ class HtmlWriter:
 
         param_names = ('addr', 'chars', 'attr', 'scale')
         defaults = (len(message), 56, 2)
-        end, img_path, crop_rect, params = self.parse_image_params(text, index, 4, defaults, 'FontImagePath', 'font', names=param_names)
+        params = self.parse_image_params(text, index, defaults=defaults, path_id='FontImagePath', fname='font', names=param_names)
+        end, img_path, crop_rect, addr, chars, attr, scale = params
         if self.need_image(img_path):
-            udg_array = self.get_font_udg_array(params['addr'], params['attr'], message[:params['chars']])
-            self.write_image(img_path, udg_array, crop_rect, params['scale'])
+            udg_array = self.get_font_udg_array(addr, attr, message[:chars])
+            self.write_image(img_path, udg_array, crop_rect, scale)
         return end, self.img_element(cwd, img_path)
 
     def expand_html(self, text, index, cwd):
@@ -1263,10 +1260,11 @@ class HtmlWriter:
         # #SCR[scale,x,y,w,h,df,af][{x,y,width,height}][(fname)]
         param_names = ('scale', 'x', 'y', 'w', 'h', 'df', 'af')
         defaults = (1, 0, 0, 32, 24, 16384, 22528)
-        end, scr_path, crop_rect, params = self.parse_image_params(text, index, 7, defaults, 'ScreenshotImagePath', 'scr', names=param_names)
+        params = self.parse_image_params(text, index, defaults=defaults, path_id='ScreenshotImagePath', fname='scr', names=param_names)
+        end, scr_path, crop_rect, scale, x, y, w, h, df, af = params
         if self.need_image(scr_path):
-            udgs = self.screenshot(params['x'], params['y'], params['w'], params['h'], params['df'], params['af'])
-            self.write_image(scr_path, udgs, crop_rect, params['scale'])
+            udgs = self.screenshot(x, y, w, h, df, af)
+            self.write_image(scr_path, udgs, crop_rect, scale)
         return end, self.img_element(cwd, scr_path)
 
     def expand_space(self, text, index, cwd):
@@ -1282,24 +1280,24 @@ class HtmlWriter:
         # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:addr[,step]][{x,y,width,height}][(fname)]
         path_id = 'UDGImagePath'
         param_names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
-        end, udg_path, crop_rect, udg_params = self.parse_image_params(text, index, defaults=(56, 4, 1, 0, 0, 0, 1), path_id=path_id, names=param_names)
+        defaults = (56, 4, 1, 0, 0, 0, 1)
+        udg_params = self.parse_image_params(text, index, defaults=defaults, path_id=path_id, names=param_names)
+        end, udg_path, crop_rect, addr, attr, scale, step, inc, flip, rotate, mask = udg_params
         if end < len(text) and text[end] == ':':
-            end, udg_path, crop_rect, mask_params = self.parse_image_params(text, end + 1, defaults=(udg_params['step'],), path_id=path_id, names=('addr', 'step'))
+            mask_params = self.parse_image_params(text, end + 1, defaults=(step,), path_id=path_id, names=('addr', 'step'))
+            end, udg_path, crop_rect, mask_addr, mask_step = mask_params
         else:
             mask_params = None
-        addr, attr, scale = udg_params['addr'], udg_params['attr'], udg_params['scale']
         if udg_path is None:
             udg_path = self.image_path('udg{0}_{1}x{2}'.format(addr, attr, scale))
         if self.need_image(udg_path):
-            udg_bytes = [(self.snapshot[addr + n * udg_params['step']] + udg_params['inc']) % 256 for n in range(8)]
+            udg_bytes = [(self.snapshot[addr + n * step] + inc) % 256 for n in range(8)]
             mask_bytes = None
-            mask = udg_params['mask']
             if mask and mask_params:
-                mask_addr, mask_step = mask_params['addr'], mask_params['step']
                 mask_bytes = self.snapshot[mask_addr:mask_addr + 8 * mask_step:mask_step]
             udg = Udg(attr, udg_bytes, mask_bytes)
-            udg.flip(udg_params['flip'])
-            udg.rotate(udg_params['rotate'])
+            udg.flip(flip)
+            udg.rotate(rotate)
             self.write_image(udg_path, [[udg]], crop_rect, scale, mask)
         return end, self.img_element(cwd, udg_path)
 
@@ -1315,8 +1313,7 @@ class HtmlWriter:
                 elements = frame_param.rsplit(',', 1)
                 if len(elements) == 2:
                     frame_id = elements[0]
-                    params = skoolmacro.parse_ints(elements[1], 0, 1, names=('delay',))[1]
-                    delay = default_delay = params['delay']
+                    delay = default_delay = skoolmacro.parse_ints(elements[1], names=('delay',))[1]
                 else:
                     frame_id = frame_param
                     delay = default_delay
@@ -1340,33 +1337,36 @@ class HtmlWriter:
         udg_path_id = None
         param_names = ('width', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
         defaults = (56, 2, 1, 0, 0, 0, 1)
-        end, udg_path, crop_rect, params = self.parse_image_params(text, index, 8, defaults, udg_path_id, names=param_names)
+        udg_array_params = self.parse_image_params(text, index, defaults=defaults, path_id=udg_path_id, names=param_names)
+        end, udg_path, crop_rect, width, attr, scale, step, inc, flip, rotate, mask = udg_array_params
         udg_array = [[]]
         has_masks = False
         while end < len(text) and text[end] == ';':
             param_names = ('addr', 'attr', 'step', 'inc')
-            defaults = (params['attr'], params['step'], params['inc'])
-            end, fname, crop_rect, udg_params = self.parse_image_params(text, end + 1, 4, defaults, udg_path_id, chars='-x', ints=(1, 2, 3), names=param_names)
-            udg_addresses = self._get_udg_addresses(udg_params['addr'], params['width'])
+            defaults = (attr, step, inc)
+            udg_params = self.parse_image_params(text, end + 1, defaults=defaults, path_id=udg_path_id, chars='-x', ints=(1, 2, 3), names=param_names)
+            end, fname, crop_rect, udg_addr, udg_attr, udg_step, udg_inc = udg_params
+            udg_addresses = self._get_udg_addresses(udg_addr, width)
             mask_addresses = []
             if end < len(text) and text[end] == ':':
                 param_names = ('addr', 'step')
-                defaults = (udg_params['step'],)
-                end, fname, crop_rect, mask_params = self.parse_image_params(text, end + 1, 2, defaults, udg_path_id, chars='-x', ints=(1,), names=param_names)
-                mask_addresses = self._get_udg_addresses(mask_params['addr'], params['width'])
+                defaults = (udg_step,)
+                mask_params = self.parse_image_params(text, end + 1, defaults=defaults, path_id=udg_path_id, chars='-x', ints=(1,), names=param_names)
+                end, fname, crop_rect, mask_addr, mask_step = mask_params
+                mask_addresses = self._get_udg_addresses(mask_addr, width)
             has_masks = has_masks or len(mask_addresses) > 0
             mask_addresses += [None] * (len(udg_addresses) - len(mask_addresses))
             for u, m in zip(udg_addresses, mask_addresses):
-                udg_bytes = [(self.snapshot[u + n * udg_params['step']] + udg_params['inc']) % 256 for n in range(8)]
-                udg = Udg(udg_params['attr'], udg_bytes)
+                udg_bytes = [(self.snapshot[u + n * udg_step] + udg_inc) % 256 for n in range(8)]
+                udg = Udg(udg_attr, udg_bytes)
                 if m is not None:
-                    udg.mask = [self.snapshot[m + n * mask_params['step']] for n in range(8)]
-                if len(udg_array[-1]) == params['width']:
+                    udg.mask = [self.snapshot[m + n * mask_step] for n in range(8)]
+                if len(udg_array[-1]) == width:
                     udg_array.append([udg])
                 else:
                     udg_array[-1].append(udg)
         if not has_masks:
-            params['mask'] = 0
+            mask = 0
 
         if not fname:
             raise MacroParsingError('Missing filename: #UDGARRAY{0}'.format(text[index:end]))
@@ -1380,14 +1380,14 @@ class HtmlWriter:
         img_path = self.image_path(fname, 'UDGImagePath')
         need_image = img_path and self.need_image(img_path)
         if frame or need_image:
-            if params['flip']:
-                self.flip_udgs(udg_array, params['flip'])
-            if params['rotate']:
-                self.rotate_udgs(udg_array, params['rotate'])
+            if flip:
+                self.flip_udgs(udg_array, flip)
+            if rotate:
+                self.rotate_udgs(udg_array, rotate)
             if frame:
-                self.frames[frame] = Frame(udg_array, params['scale'], params['mask'], *crop_rect)
+                self.frames[frame] = Frame(udg_array, scale, mask, *crop_rect)
             if need_image:
-                self.write_image(img_path, udg_array, crop_rect, params['scale'], params['mask'])
+                self.write_image(img_path, udg_array, crop_rect, scale, mask)
         if img_path:
             return end, self.img_element(cwd, img_path)
         return end, ''
