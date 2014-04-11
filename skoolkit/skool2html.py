@@ -24,8 +24,8 @@ import time
 import argparse
 try:
     from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+except ImportError:         # pragma: no cover
+    from io import StringIO # pragma: no cover
 
 from . import PACKAGE_DIR, VERSION, show_package_dir, write, write_line, get_class, normpath, SkoolKitError
 from .skoolhtml import FileInfo

@@ -801,5 +801,12 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertEqual(error, '')
             self.assertTrue(html_writer.parser.mode.hexadecimal)
 
+    def test_option_R(self):
+        for option in ('-R', '--ref-file'):
+            output, error = self.run_skool2html(option, catch_exit=0)
+            self.assertEqual(error, '')
+            self.assertEqual(output[0], '[Colours]')
+            self.assertTrue('[Titles]' in output)
+
 if __name__ == '__main__':
     unittest.main()
