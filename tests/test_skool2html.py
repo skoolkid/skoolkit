@@ -808,5 +808,16 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertEqual(output[0], '[Colours]')
             self.assertTrue('[Titles]' in output)
 
+    def test_option_r(self):
+        for option in ('-r', '--ref-sections'):
+            for prefix, exp_headers in (
+                ('anchor', ['anchor']),
+                ('index_section', ['index_section', 'index_section_item'])
+            ):
+                output, error = self.run_skool2html('{} Template:{}'.format(option, prefix), catch_exit=0)
+                self.assertEqual(error, '')
+                headers = [line[10:-1] for line in output if line.startswith('[Template:') and line.endswith(']')]
+                self.assertEqual(exp_headers, headers)
+
 if __name__ == '__main__':
     unittest.main()
