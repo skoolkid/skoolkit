@@ -148,9 +148,10 @@ pages.
 It contains the following identifiers (in addition to the universal and
 page-level identifiers):
 
-* ``items`` - replaced by one or more copies of the :ref:`t_box` subtemplate
-  (on the 'Bugs', 'Trivia', 'Pokes', 'Glossary' and 'Graphic glitches' pages)
-  or the :ref:`t_changelog_entry` subtemplate (on the 'Changelog' page)
+* ``entries`` - replaced by one or more copies of the :ref:`t_changelog_entry`
+  subtemplate (on the 'Changelog' page), or the :ref:`t_reference_entry`
+  subtemplate (on the 'Bugs', 'Trivia', 'Pokes', 'Glossary' and 'Graphic
+  glitches' pages)
 * ``m_contents_list_item`` - replaced by one or more copies of the
   :ref:`t_contents_list_item` subtemplate
 
@@ -244,27 +245,6 @@ To see the default ``asm_register`` template, run the following command::
 
   $ skool2html.py -r Template:asm_register
 
-.. _t_box:
-
-box
----
-The ``box`` template is the subtemplate used by the :ref:`t_Reference`
-full-page template to format each entry on the 'Bugs', 'Trivia', 'Pokes',
-'Glossary' and 'Graphic glitches' pages.
-
-It contains the following identifiers (in addition to the universal
-identifiers):
-
-* ``box_num`` - '1' or '2', depending on the order of the entry on the page
-* ``contents`` - replaced by the pre-formatted contents of the relevant
-  :ref:`ref-Bug`, :ref:`ref-Fact`, :ref:`ref-Poke`, :ref:`ref-Glossary` or
-  :ref:`ref-GraphicGlitch` section
-* ``title`` - the entry title
-
-To see the default ``box`` template, run the following command::
-
-  $ skool2html.py -r Template:box
-
 .. _t_changelog_entry:
 
 changelog_entry
@@ -275,9 +255,8 @@ full-page template to format each entry on the 'Changelog' page.
 It contains the following identifiers (in addition to the universal
 identifiers):
 
-* ``changelog_num`` - '1' or '2', depending on the order of the entry on the
-  page
 * ``description`` - the changelog entry intro text
+* ``num`` - '1' or '2', depending on the order of the entry on the page
 * ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate (with
   the entry title as the anchor name)
 * ``t_changelog_item_list`` - replaced by a copy of the
@@ -498,6 +477,27 @@ identifiers):
 To see the default ``paragraph`` template, run the following command::
 
   $ skool2html.py -r Template:paragraph
+
+.. _t_reference_entry:
+
+reference_entry
+---------------
+The ``reference_entry`` template is the subtemplate used by the
+:ref:`t_Reference` full-page template to format each entry on the 'Bugs',
+'Trivia', 'Pokes', 'Glossary' and 'Graphic glitches' pages.
+
+It contains the following identifiers (in addition to the universal
+identifiers):
+
+* ``contents`` - replaced by the pre-formatted contents of the relevant
+  :ref:`ref-Bug`, :ref:`ref-Fact`, :ref:`ref-Poke`, :ref:`ref-Glossary` or
+  :ref:`ref-GraphicGlitch` section
+* ``num`` - '1' or '2', depending on the order of the entry on the page
+* ``title`` - the entry title
+
+To see the default ``reference_entry`` template, run the following command::
+
+  $ skool2html.py -r Template:reference_entry
 
 .. _t_reg:
 

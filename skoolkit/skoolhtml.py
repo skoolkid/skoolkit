@@ -609,21 +609,21 @@ class HtmlWriter:
             items.append(self.format_template('contents_list_item', subs))
         return '\n'.join(items)
 
-    def _write_box_page(self, page_id, boxes):
+    def _write_box_page(self, page_id, entries):
         fname = self.paths[page_id]
         cwd = self._set_cwd(page_id, fname)
-        boxes_html = []
-        for i, (anchor, title, paragraphs) in enumerate(boxes):
-            t_box_subs = {
+        entries_html = []
+        for i, (anchor, title, paragraphs) in enumerate(entries):
+            t_reference_entry_subs = {
                 't_anchor': self.format_anchor(anchor),
-                'box_num': 1 + i % 2,
+                'num': 1 + i % 2,
                 'title': title,
                 'contents': self.join_paragraphs(paragraphs, cwd)
             }
-            boxes_html.append(self.format_template('box', t_box_subs))
+            entries_html.append(self.format_template('reference_entry', t_reference_entry_subs))
         subs = {
-            'm_contents_list_item': self._format_contents_list_items([(anchor, title) for anchor, title, p in boxes]),
-            'items': '\n'.join(boxes_html),
+            'm_contents_list_item': self._format_contents_list_items([(anchor, title) for anchor, title, p in entries]),
+            'entries': '\n'.join(entries_html),
         }
         html = self.format_page(page_id, cwd, subs, 'Reference')
         self.write_file(fname, html)
@@ -684,7 +684,7 @@ class HtmlWriter:
                         subitems.append([item_text, None])
             t_changelog_entry_subs = {
                 't_anchor': self.format_anchor(title),
-                'changelog_num': 1 + j % 2,
+                'num': 1 + j % 2,
                 'title': title,
                 'description': description,
                 't_changelog_item_list': self._build_changelog_items(changelog_items)
@@ -693,7 +693,7 @@ class HtmlWriter:
 
         subs = {
             'm_contents_list_item': self._format_contents_list_items(contents),
-            'items': '\n'.join(entries),
+            'entries': '\n'.join(entries),
         }
         html = self.format_page(P_CHANGELOG, cwd, subs, 'Reference')
         self.write_file(fname, html)

@@ -403,7 +403,7 @@ SECTIONS['Template:Reference'] = """
 <ul class="contents">
 {m_contents_list_item}
 </ul>
-{items}
+{entries}
 <div class="footer">
 <div class="release">{Game[Release]}</div>
 <div class="copyright">{Game[Copyright]}</div>
@@ -444,17 +444,9 @@ SECTIONS['Template:asm_register'] = """
 </tr>
 """
 
-SECTIONS['Template:box'] = """
-<div>{t_anchor}</div>
-<div class="box box{box_num}">
-<div class="box-title">{title}</div>
-{contents}
-</div>
-"""
-
 SECTIONS['Template:changelog_entry'] = """
 <div>{t_anchor}</div>
-<div class="changelog changelog{changelog_num}">
+<div class="changelog changelog{num}">
 <div class="changelog-title">{title}</div>
 <div class="changelog-desc">{description}</div>
 {t_changelog_item_list}
@@ -516,6 +508,14 @@ SECTIONS['Template:map_entry'] = """
 SECTIONS['Template:paragraph'] = """
 <div class="paragraph">
 {paragraph}
+</div>
+"""
+
+SECTIONS['Template:reference_entry'] = """
+<div>{t_anchor}</div>
+<div class="box box{num}">
+<div class="box-title">{title}</div>
+{contents}
 </div>
 """
 
