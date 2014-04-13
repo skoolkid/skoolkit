@@ -2,7 +2,6 @@
 import sys
 import os
 import time
-import textwrap
 
 # Use the current development version of SkoolKit
 SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
@@ -10,7 +9,7 @@ if not SKOOLKIT_HOME:
     sys.stderr.write('SKOOLKIT_HOME is not set; aborting\n')
     sys.exit(1)
 if not os.path.isdir(SKOOLKIT_HOME):
-    sys.stderr.write('SKOOLKIT_HOME=%s; directory not found\n' % SKOOLKIT_HOME)
+    sys.stderr.write('SKOOLKIT_HOME={}; directory not found\n'.format(SKOOLKIT_HOME))
     sys.exit(1)
 sys.path.insert(0, SKOOLKIT_HOME)
 
@@ -18,7 +17,7 @@ from skoolkit.image import ImageWriter
 from skoolkit.skoolhtml import Udg, Frame
 
 def write(line):
-    sys.stdout.write('%s\n' % line)
+    sys.stdout.write(line + '\n')
 
 def clock(method, *args):
     elapsed = []
@@ -43,10 +42,10 @@ def get_method(iw, method):
     png_writer = iw.writers['png']
     if hasattr(png_writer, method):
         return getattr(iw, method)
-    m_name = '_build_image_data_%s' % method
+    m_name = '_build_image_data_{}'.format(method)
     if hasattr(png_writer, m_name):
         return getattr(png_writer, m_name)
-    sys.stderr.write('%s: method not found\n' % method)
+    sys.stderr.write('{}: method not found\n'.format(method))
     sys.exit(1)
 
 def ua(a, b, c, d, t1, t2, t3, t4):
@@ -69,122 +68,165 @@ def _get_attr_map(iw, udgs, scale):
     use_flash = True
     colours, attrs, flash_rect = iw._get_colours(frame, use_flash)
     palette, attr_map = iw._get_palette(colours, attrs, frame.trans)
-    return attr_map
+    palette_size = len(palette) // 3
+    if palette_size > 4:
+        bit_depth = 4
+    elif palette_size > 2:
+        bit_depth = 2
+    else:
+        bit_depth = 1
+    return bit_depth, attr_map
 
-def bd4(iw, method1, method2, show_timings, udgs, scale=1):
+def _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analyse_ua=False):
     m1 = get_method(iw, method1)
     m2 = get_method(iw, method2)
-    mask = iw.masks[0]
+    trans = 2 if mask_type else 0
+    flash = False
+    mask = iw.masks[mask_type]
+    write('{} v. {}:'.format(m1.__name__, m2.__name__))
 
-    if udgs:
-        write('%s.%s v. %s (scale=%i):' % (iw.__class__.__name__, m1.__name__, m2.__name__, scale))
-        width = len(udgs[0]) * 8 * scale
-        height = len(udgs) * 8 * scale
-        attr_map = _get_attr_map(iw, udgs, scale)
-        t1 = clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 4, mask)
-        t2 = clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 4, mask)
-        write('%s: %0.4fms' % (method1, t1))
-        write('%s: %0.4fms' % (method2, t2))
-        return
+    if analyse_ua:
+        for scale in scales:
+            write('  scale={}:'.format(scale))
+            ua_params = []
+            timings = []
+            for udgs in udg_arrays:
+                width = len(udgs[0]) * 8 * scale
+                height = len(udgs) * 8 * scale
+                bit_depth, attr_map = _get_attr_map(iw, udgs, scale)
+                num_udgs = len(udgs[0]) * len(udgs)
+                num_attrs = len(attr_map)
+                ua_params.append(num_attrs)
+                ua_params.append(num_udgs)
+                t1 = clock(m1, udgs, scale, attr_map, trans, flash, 0, 0, width, height, bit_depth, mask)
+                t2 = clock(m2, udgs, scale, attr_map, trans, flash, 0, 0, width, height, bit_depth, mask)
+                timings.append(t1)
+                timings.append(t2)
+                write('    num_udgs={}, num_attrs={}: {:0.2f}ms {:0.2f}ms'.format(num_udgs, num_attrs, t1, t2))
+            n, m, p, q, index = ua(*(ua_params + timings))
+            write('    {}: {:0.4f}a+{:0.4f}u'.format(method1, n, m))
+            write('    {}: {:0.4f}a+{:0.4f}u'.format(method2, p, q))
+            symbol = '<' if m - q > 0 else '>'
+            write('    {} is faster than {} when u/a {} {:0.4f}'.format(method1, method2, symbol, index))
+    else:
+        method1_faster = []
+        for udgs in udg_arrays:
+            for scale in scales:
+                width = len(udgs[0]) * 8 * scale
+                height = len(udgs) * 8 * scale
+                bit_depth, attr_map = _get_attr_map(iw, udgs, scale)
+                t1 = clock(m1, udgs, scale, attr_map, trans, flash, 0, 0, width, height, bit_depth, mask)
+                t2 = clock(m2, udgs, scale, attr_map, trans, flash, 0, 0, width, height, bit_depth, mask)
+                num_udgs = len(udgs[0]) * len(udgs)
+                num_attrs = len(attr_map)
+                output = '  num_udgs={}, num_attrs={}, scale={}: {:0.2f}ms {:0.2f}ms'.format(num_udgs, num_attrs, scale, t1, t2)
+                write(output)
+                if t1 < t2:
+                    method1_faster.append(output)
+        if method1_faster:
+            write('{} is faster than {} when:'.format(method1, method2))
+            for output in method1_faster:
+                write(output)
+        else:
+            write('{} is slower than {} for all UDG arrays tested'.format(method1, method2))
 
-    info = '%s.%s v. %s:' % (iw.__class__.__name__, m1.__name__, m2.__name__)
-    for line in textwrap.wrap(info):
-        write(line)
-
-    udgs1 = [[Udg(i, (240,) * 8) for i in range(16)]] * 16 # u=256, a=16
-    udgs2 = [[Udg(i, (240,) * 8) for i in range(24)]] * 24 # u=576, a=24
-
-    for scale in (1, 2, 3, 4):
-        write('  scale=%i' % scale)
-        timings = [16, 256, 24, 576]
-        for udgs in (udgs1, udgs2):
-            width = len(udgs[0]) * 8 * scale
-            height = len(udgs) * 8 * scale
-            attr_map = _get_attr_map(iw, udgs, scale)
-            timings.append(clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 4, mask))
-            timings.append(clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 4, mask))
-        n, m, p, q, index = ua(*timings)
-        if show_timings:
-            write('    %s: %0.4fms, %0.4fms; %0.4fa+%0.4fu' % (method1, timings[-4], timings[-2], n, m))
-            write('    %s: %0.4fms, %0.4fms; %0.4fa+%0.4fu' % (method2, timings[-3], timings[-1], p, q))
-        symbol = '<' if m - q > 0 else '>'
-        write('    %s is faster than %s when u/a %s %0.4f' % (method1, method2, symbol, index))
-
-def bd2(iw, method1, method2, show_timings, udgs, scale=1):
-    m1 = get_method(iw, method1)
-    m2 = get_method(iw, method2)
-    mask = iw.masks[0]
-
-    if udgs:
-        write('%s.%s v. %s (scale=%i):' % (iw.__class__.__name__, m1.__name__, m2.__name__, scale))
-        width = len(udgs[0]) * 8 * scale
-        height = len(udgs) * 8 * scale
-        attr_map = _get_attr_map(iw, udgs, scale)
-        t1 = clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 2, mask)
-        t2 = clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 2, mask)
-        write('  %s: %0.4fms' % (method1, t1))
-        write('  %s: %0.4fms' % (method2, t2))
-        return
-
-    info = '%s.%s v. %s:' % (iw.__class__.__name__, m1.__name__, m2.__name__)
-    for line in textwrap.wrap(info):
-        write(line)
-
-    udgs1 = [[Udg(i, (255,) * 8) for i in range(4)] * 4] * 16 # u=256, a=4
-    udgs2 = [[Udg(i, (240,) * 8) for i in (1, 19)] * 12] * 24 # u=576, a=2
-
-    for scale in (1, 2, 3, 4, 5):
-        write('  scale=%i' % scale)
-        timings = [4, 256, 2, 576]
-        for udgs in (udgs1, udgs2):
-            width = len(udgs[0]) * 8 * scale
-            height = len(udgs) * 8 * scale
-            attr_map = _get_attr_map(iw, udgs, scale)
-            timings.append(clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 2, mask))
-            timings.append(clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 2, mask))
-        n, m, p, q, index = ua(*timings)
-        if show_timings:
-            write('    %s: %0.4fms, %0.4fms; %0.4fa+%0.4fu' % (method1, timings[-4], timings[-2], n, m))
-            write('    %s: %0.4fms, %0.4fms; %0.4fa+%0.4fu' % (method2, timings[-3], timings[-1], p, q))
-        symbol = '<' if m - q > 0 else '>'
-        write('    %s is faster than %s when u/a %s %0.4f' % (method1, method2, symbol, index))
-
-def bd1(iw, method1, method2, udgs, scale=1):
-    m1 = get_method(iw, method1)
-    m2 = get_method(iw, method2)
-    mask = iw.masks[0]
-
-    write('%s.%s v. %s (scale=%i):' % (iw.__class__.__name__, m1.__name__, m2.__name__, scale))
-
-    if udgs:
-        width = len(udgs[0]) * 8 * scale
-        height = len(udgs) * 8 * scale
-        attr_map = _get_attr_map(iw, udgs, scale)
-        t1 = clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 1, mask)
-        t2 = clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 1, mask)
-        write('  %s: %0.4fms' % (method1, t1))
-        write('  %s: %0.4fms' % (method2, t2))
-        return
-
+def bd4(iw, method1, method2, udgs, scale):
     udg_arrays = []
-    udg_arrays.append([[Udg(56, (240,) * 8)]]) # u=1, a=1
-    udg_arrays.append([[Udg(56, (240,) * 8)] * 2]) # u=2, a=1
-    udg_arrays.append([[Udg(56, (0,) * 8), Udg(7, (0,) * 8)]]) # u=2, a=2
-    udg_arrays.append([[Udg(56, (240,) * 8)] * 3]) # u=3, a=1
-    udg_arrays.append([[Udg(56, (0,) * 8), Udg(7, (0,) * 8), Udg(56, (0,) * 8)]]) # u=3, a=2
-    udg_arrays.append([[Udg(56, (0,) * 8), Udg(7, (0,) * 8), Udg(0, (0,) * 8)]]) # u=3, a=3
+    scales = (1, 2, 3, 4)
+    mask = 0
+    analyse_ua = not udgs
 
-    scale = 1
-    for udgs in udg_arrays:
-        for scale in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13):
-            width = len(udgs[0]) * 8 * scale
-            height = len(udgs) * 8 * scale
-            attr_map = _get_attr_map(iw, udgs, scale)
-            t1 = clock(m1, udgs, scale, attr_map, False, False, 0, 0, width, height, 1, mask)
-            t2 = clock(m2, udgs, scale, attr_map, False, False, 0, 0, width, height, 1, mask)
-            write('  num_udgs=%i, num_attrs=%i, scale=%i' % (len(udgs[0]) * len(udgs), len(attr_map), scale))
-            write('    %s: %0.2fms' % (method1, t1))
-            write('    %s: %0.2fms' % (method2, t2))
+    if analyse_ua:
+        udg_arrays.append([[Udg(i, (240,) * 8) for i in range(16)]] * 16) # u=256, a=16
+        udg_arrays.append([[Udg(i, (240,) * 8) for i in range(24)]] * 24) # u=576, a=24
+
+    if scale:
+        scales = (scale,)
+
+    _compare_methods(iw, method1, method2, udg_arrays, scales, mask, analyse_ua)
+
+def bd2(iw, method1, method2, udgs, scale, masked=False):
+    udg_arrays = []
+    scales = (1, 2, 3, 4, 5)
+    mask = 0
+
+    if udgs:
+        udg_arrays.append(udgs)
+    elif masked:
+        scales = (2, 4, 8)
+        data = (240,) * 8
+        mask_data = (247,) * 8
+        mask = 1
+        udg_arrays.append([[Udg(56, data, mask_data)] * 3] * 5)
+        udg_arrays.append([[Udg(56, data, mask_data)] * 3] * 4)
+    else:
+        scales = (1, 2, 3, 4, 5)
+        data = (170,) * 8
+        udg_arrays.append([[Udg(a, data) for a in (1, 19)] * 2] * 4)
+        udg_arrays.append([[Udg(a, data) for a in (1, 8, 19, 26)]] * 4) 
+
+    if scale:
+        scales = (scale,)
+
+    _compare_methods(iw, method1, method2, udg_arrays, scales, mask)
+
+def bd1(iw, method1, method2, udgs, scale, blank=False, one_udg=False):
+    udg_arrays = []
+    scales = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13)
+    mask = 0
+
+    if udgs:
+        udg_arrays.append(udgs)
+    elif blank:
+        for num_udgs in range(1, 10):
+            udg_arrays.append([[Udg(0, (0,) * 8) for i in range(num_udgs)]])
+    elif one_udg:
+        udg_arrays.append([[Udg(56, (170,) * 8)]])
+        scales = (1, 2, 4, 8)
+    else:
+        attrs = (56, 7, 0, 63)
+        for num_udgs in range(1, 10):
+            for num_attrs in range(1, 5):
+                udg_arrays.append([[Udg(attrs[i % num_attrs], (170,) * 8) for i in range(num_udgs)]])
+
+    if scale:
+        scales = (scale,)
+
+    _compare_methods(iw, method1, method2, udg_arrays, scales, mask)
+
+def bd1_blank(iw, method1, method2, udgs, scale):
+    bd1(iw, method1, method2, udgs, scale, blank=True)
+
+def bd1_1udg(iw, method1, method2, udgs, scale):
+    bd1(iw, method1, method2, udgs, scale, one_udg=True)
+
+def bd2_at_nf(iw, method1, method2, udgs, scale):
+    bd2(iw, method1, method2, udgs, scale, masked=True)
+
+METHODS = (
+    ('bd4', 'bd4_nt_nf', bd4),
+    ('bd_any', 'bd4', bd4),
+    ('bd_any', 'bd4_nt_nf', bd4),
+    ('bd2', 'bd2_at_nf', bd2_at_nf),
+    ('bd2', 'bd2_nt_nf', bd2),
+    ('bd_any', 'bd2', bd2),
+    ('bd_any', 'bd2_at_nf', bd2_at_nf),
+    ('bd_any', 'bd2_nt_nf', bd2),
+    ('bd1', 'bd1_blank', bd1_blank),
+    ('bd1', 'bd1_nt_nf_1udg', bd1_1udg),
+    ('bd_any', 'bd1', bd1),
+    ('bd_any', 'bd1_blank', bd1_blank),
+    ('bd_any', 'bd1_nt_nf_1udg', bd1_1udg)
+)
+
+def time_methods(method1_name, method2_name, udgs, scale):
+    for name1, name2, f in METHODS:
+        if set((name1, name2)) == set((method1_name, method2_name)):
+            iw = ImageWriter()
+            f(iw, name1, name2, udgs, scale)
+            break
+    else:
+        write('{} v. {}: not implemented'.format(method1_name, method2_name))
 
 def list_methods():
     prefix = '_build_image_data_'
@@ -196,21 +238,21 @@ def list_methods():
             methods.append(attr)
     max_len = max([len(m) for m in methods]) - len(prefix)
     for m in methods:
-        write('%s (%s)' % (m[len(prefix):].ljust(max_len), m))
+        write('{} ({})'.format(m[len(prefix):].ljust(max_len), m))
     sys.exit()
 
 def parse_args(args):
     p_args = []
-    show_timings = False
+    run_all = False
     udgs = None
-    scale = 1
+    scale = 0
     i = 0
     while i < len(args):
         arg = args[i]
-        if arg == '-l':
+        if arg == '-a':
+            run_all = True
+        elif arg == '-l':
             list_methods()
-        elif arg == '-t':
-            show_timings = True
         elif arg == '-u':
             udgs = args[i + 1]
             i += 1
@@ -222,35 +264,40 @@ def parse_args(args):
         else:
             p_args.append(arg)
         i += 1
-    if len(p_args) != 3:
+    if run_all:
+        if p_args:
+            show_usage()
+        else:
+            p_args = (None, None)
+    if len(p_args) != 2:
         show_usage()
-    return p_args[0], p_args[1], int(p_args[2]), show_timings, udgs, scale
+    return p_args[0], p_args[1], run_all, udgs, scale
 
 def show_usage():
     sys.stderr.write("""Usage:
+    {0} -a
     {0} -l
-    {0} [options] METHOD1 METHOD2 DEPTH
+    {0} [options] METHOD1 METHOD2
 
   Compare the performance of two PngWriter._build_image* methods in the current
-  development version of SkoolKit. DEPTH must be 1, 2 or 4.
+  development version of SkoolKit.
 
 Available options:
+  -a        Run all method comparisons
   -l        List methods available on PngWriter
-  -t        Show timings (when DEPTH > 1)
   -u UDGS   Compare methods using this UDG array
-  -s SCALE  Set the scale of the image (use with -u)
+  -s SCALE  Set the scale of the images
 """.format(os.path.basename(sys.argv[0])))
     sys.exit()
 
 ###############################################################################
 # Begin
 ###############################################################################
-method1, method2, bit_depth, show_timings, udgs, scale = parse_args(sys.argv[1:])
-iw = ImageWriter()
+method1_name, method2_name, run_all, udgs, scale = parse_args(sys.argv[1:])
 udg_array = eval(udgs) if udgs else None
-if bit_depth == 4:
-    bd4(iw, method1, method2, show_timings, udg_array, scale)
-elif bit_depth == 2:
-    bd2(iw, method1, method2, show_timings, udg_array, scale)
-elif bit_depth == 1:
-    bd1(iw, method1, method2, udg_array, scale)
+if run_all:
+    for name1, name2, f in METHODS:
+        time_methods(name1, name2, udg_array, scale)
+        write('')
+else:
+    time_methods(method1_name, method2_name, udg_array, scale)
