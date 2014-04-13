@@ -186,7 +186,7 @@ def bd1(iw, method1, method2, udgs, scale, blank=False, one_udg=False):
     else:
         attrs = (56, 7, 0, 63)
         for num_udgs in range(1, 10):
-            for num_attrs in range(1, 5):
+            for num_attrs in range(1, min(num_udgs, 4) + 1):
                 udg_arrays.append([[Udg(attrs[i % num_attrs], (170,) * 8) for i in range(num_udgs)]])
 
     if scale:
