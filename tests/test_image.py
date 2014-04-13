@@ -152,6 +152,7 @@ class ImageWriterTest:
         full_height = 8 * len(udg_array) * scale
         width = min(width or full_width, full_width - x0)
         height = min(height or full_height, full_height - y0)
+        cropped = width < full_width or height < full_height
         x1 = x0 + width
         y1 = y0 + height
         inc = 8 * scale
@@ -171,23 +172,24 @@ class ImageWriterTest:
         min_x = width
         min_y = height
         max_x = max_y = 0
+        frames_differ = False
 
         y = y0_floor
         for row in udg_array[min_row:max_row + 1]:
             min_j = max(0, (y0 - y) // scale)
+            max_j = min(8, 1 + (y1 - y - 1) // scale)
             y += min_j * scale
-            for j in range(min_j, 8):
+            for j in range(min_j, max_j):
                 if y < y0:
-                    num_lines = y - y0 + scale
+                    rows = y - y0 + scale
                 else:
-                    num_lines = min(y1 - y, scale)
+                    rows = min(y1 - y, scale)
                 pixel_row = []
                 pixel_row2 = []
                 x = x0_floor
                 for udg in row[min_col:max_col + 1]:
                     attr = udg.attr
                     paper, ink = ATTR_INDEX[attr & 127]
-                    flashing = attr & 128 and paper != ink
                     p_rgb = PALETTE[paper]
                     i_rgb = PALETTE[ink]
                     byte = udg.data[j]
@@ -197,24 +199,21 @@ class ImageWriterTest:
                         all_trans = 0
                         mask_byte = 0
                     min_k = max(0, (x0 - x) // scale)
+                    max_k = min(8, 1 + (x1 - x - 1) // scale)
                     x += min_k * scale
+                    flashing = attr & 128 and paper != ink
+                    has_non_trans = False
                     byte <<= min_k
                     mask_byte <<= min_k
-                    for k in range(min_k, 8):
-                        if x >= x1:
-                            break
+                    min_x_floor = len(pixel_row)
+                    for k in range(min_k, max_k):
                         if x < x0:
-                            num_bits = x - x0 + scale
+                            cols = x - x0 + scale
                         else:
-                            num_bits = min(x1 - x, scale)
-                        if flashing:
-                            min_x = min((len(pixel_row), min_x))
-                            max_x = max((len(pixel_row) + num_bits, max_x))
-                            min_y = min((len(pixels), min_y))
-                            max_y = max((len(pixels) + num_lines, max_y))
-                        ink_p = (i_rgb,) * num_bits
-                        paper_p = (p_rgb,) * num_bits
-                        trans_p = (TRANSPARENT,) * num_bits
+                            cols = min(x1 - x, scale)
+                        ink_p = (i_rgb,) * cols
+                        paper_p = (p_rgb,) * cols
+                        trans_p = (TRANSPARENT,) * cols
                         if mask == 1 and udg.mask:
                             if mask_byte & 128 == 0:
                                 pixel, f_pixel = paper_p, ink_p
@@ -236,30 +235,40 @@ class ImageWriterTest:
                                 pixel, f_pixel = ink_p, paper_p
                             else:
                                 pixel, f_pixel = paper_p, ink_p
+                        pixel_rgb = pixel[0]
+                        if pixel_rgb != TRANSPARENT:
+                            has_non_trans = True
+                        if pixel_rgb not in palette:
+                            palette.append(pixel_rgb)
                         pixel_row.extend(pixel)
                         if flashing:
+                            f_pixel_rgb = f_pixel[0]
+                            if f_pixel_rgb not in palette:
+                                palette.append(f_pixel_rgb)
                             pixel_row2.extend(f_pixel)
+                            frames_differ = frames_differ or f_pixel != pixel
                         else:
                             pixel_row2.extend(pixel)
                         byte *= 2
                         mask_byte *= 2
                         x += scale
-                for pixel in pixel_row:
-                    if pixel not in palette:
-                        palette.append(pixel)
-                for pixel in pixel_row2:
-                    if pixel not in palette:
-                        palette.append(pixel)
-                for n in range(num_lines):
-                    pixels.append(pixel_row)
-                    pixels2.append(pixel_row2)
+                    if flashing and (has_non_trans or cropped):
+                        # A 'flashing' cell that is entirely transparent is
+                        # excluded from a full-size image, but included in a
+                        # cropped image
+                        min_x = min(min_x_floor, min_x)
+                        max_x = max(len(pixel_row), max_x)
+                        min_y = min(len(pixels), min_y)
+                        max_y = max(len(pixels) + rows, max_y)
+                pixels += [pixel_row] * rows
+                pixels2 += [pixel_row2] * rows
                 y += scale
 
-        if pixels2 == pixels:
-            pixels2 = frame2_xy = None
-        else:
+        if frames_differ:
             frame2_xy = (min_x, min_y)
             pixels2 = [pixels2[i][min_x:max_x] for i in range(min_y, max_y)]
+        else:
+            pixels2 = frame2_xy = None
 
         trans = has_trans + all_trans if has_trans else 0
 
@@ -384,6 +393,13 @@ class ImageWriterTest:
         udg = Udg(184, (240,) * 8, (243,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, mask=True)
+
+    def test_masked_flashing_one_udg_all_transparent(self):
+        # Masked image, flashing, one UDG all transparent
+        udg1 = Udg(135, (0,) * 8, (255,) * 8)
+        udg2 = Udg(135, (240,) * 8)
+        udg_array = [[udg1, udg2]]
+        self._test_image(udg_array, scale=2, mask=True)
 
     def test_masked_flashing_no_animation(self):
         # Masked image, flashing, no animation
