@@ -737,6 +737,7 @@ class HtmlWriter:
         self._set_cwd(page_id, fname)
 
         entry_dict = self._get_asm_entry_dict(cwd, index, map_file)
+        entry_dict['annotated'] = int(any([i.comment and i.comment.text for i in entry.instructions]))
 
         if index:
             prev_entry_dict = self._get_asm_entry_dict(cwd, index - 1, map_file)

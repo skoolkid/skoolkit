@@ -124,9 +124,9 @@ table.prevNext             table.asm-navigation
 td.address
 td.asmLabel                td.asm-label-1
 td.centre
-td.comment                 td.comment-1
+td.comment                 td.comment-11
 td.data                    td.map-b, td.map-w
-td.dataComment             td.comment-1
+td.dataComment             td.comment-11
 td.dataDesc                td.map-b-desc, td.map-w-desc
 td.gbufAddress             td.map-b, td.map-c, td.map-g, td.map-s, td.map-t, td.map-u, td.map-w
 td.gbuffer                 td.map-g
@@ -146,8 +146,8 @@ td.routine                 td.map-c
 td.routineComment          td.routine-comment
 td.routineDesc             td.map-c-desc
 td.transparent
-td.transparentComment      td.comment-1
-td.transparentDataComment  td.comment-1
+td.transparentComment      td.comment-10
+td.transparentDataComment  td.comment-10
 td.unused                  td.map-s, td.map-u
 td.unusedDesc              td.map-s-desc, td.map-u-desc
 td.up

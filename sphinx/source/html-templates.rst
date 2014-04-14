@@ -65,6 +65,8 @@ are:
 * ``address`` - the address of the entry (may be in decimal or hexadecimal
   format, depending on how it appears in the `skool` file, and the options
   passed to :ref:`skool2html.py`)
+* ``annotated`` - '1' if any instructions in the entry have a non-empty comment
+  field, '0' otherwise
 * ``byte`` - the LSB of the entry address
 * ``description`` - the entry description
 * ``exists`` - '1' if the entry exists, '0' otherwise
@@ -208,10 +210,10 @@ identifiers):
 * ``address`` - the address of the instruction (may be in decimal or
   hexadecimal format, depending on how it appears in the `skool` file, and the
   options passed to :ref:`skool2html.py`)
-* ``annotated`` - '0' if the instruction has no comment (``comment`` is blank),
-  '1' otherwise
-* ``comment`` - the text of the comment for the instruction
-* ``comment_rowspan`` - the number of instructions to which the comment applies
+* ``annotated`` - '1' if the instruction has a comment field, '0' otherwise
+* ``comment`` - the text of the instruction's comment field
+* ``comment_rowspan`` - the number of instructions to which the comment field
+  applies
 * ``entry`` - a dictionary of parameters corresponding to the memory map entry
   that contains the instruction (see :ref:`t_Asm`)
 * ``label`` - the instruction's ASM label
