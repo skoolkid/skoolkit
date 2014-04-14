@@ -581,7 +581,7 @@ class HtmlWriter:
             'byte': entry.address % 256,
             'label': self.parser.get_asm_label(entry.address),
             'description': description,
-            'url': FileInfo.asm_relpath(cwd, entry.address, self.code_path),
+            'href': FileInfo.asm_relpath(cwd, entry.address, self.code_path),
             'size': entry.size,
             'title': self.expand(entry.description, cwd)
         }
@@ -598,14 +598,14 @@ class HtmlWriter:
         address = entry.address
         if address not in self.asm_entry_dicts:
             entry_dict = self._get_entry_dict(cwd, entry)
-            entry_dict['map_url'] = '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address)
+            entry_dict['map_href'] = '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address)
             self.asm_entry_dicts[address] = entry_dict
         return self.asm_entry_dicts[address]
 
     def _format_contents_list_items(self, link_list):
         items = []
         for anchor, title in link_list:
-            subs = {'url': '#' + anchor, 'title': title}
+            subs = {'href': '#' + anchor, 'title': title}
             items.append(self.format_template('contents_list_item', subs))
         return '\n'.join(items)
 
@@ -869,7 +869,7 @@ class HtmlWriter:
     def _set_cwd(self, page_id, fname):
         cwd = os.path.dirname(fname)
         self.skoolkit['page_id'] = page_id
-        self.skoolkit['home'] = FileInfo.relpath(cwd, self.paths[P_GAME_INDEX])
+        self.skoolkit['index_href'] = FileInfo.relpath(cwd, self.paths[P_GAME_INDEX])
         self.skoolkit['title'] = self.titles[page_id]
         self.skoolkit['page_header'] = self.page_headers[page_id]
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)

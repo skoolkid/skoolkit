@@ -16,7 +16,7 @@ The following 'universal' identifiers are available in every template:
 
 The parameters in the ``SkoolKit`` dictionary are:
 
-* ``home`` - the relative path to the disassembly index page
+* ``index_href`` - the relative path to the disassembly index page
 * ``page_header`` - the page header text (as defined in the :ref:`pageHeaders`
   section)
 * ``page_id`` - the page ID (e.g. ``GameIndex``, ``MemoryMap``)
@@ -70,17 +70,17 @@ are:
 * ``byte`` - the LSB of the entry address
 * ``description`` - the entry description
 * ``exists`` - '1' if the entry exists, '0' otherwise
+* ``href`` - the relative path to the disassembly page for the entry (useful
+  only for ``prev_entry`` and ``next_entry``)
 * ``label`` - the ASM label of the first instruction in the entry
 * ``labels`` - '1' if any instructions in the entry have an ASM label, '0'
   otherwise
 * ``location`` - the address of the entry as a decimal number
-* ``map_url`` - the relative path to the entry on the 'Memory Map' page
+* ``map_href`` - the relative path to the entry on the 'Memory Map' page
 * ``page`` - the MSB of the entry address
 * ``size`` - the size of the entry in bytes
 * ``title`` - the title of the entry
 * ``type`` - the block type of the entry ('b', 'c', 'g', 's', 't', 'u' or 'w')
-* ``url`` - the relative path to the disassembly page for the entry (useful
-  only for ``prev_entry`` and ``next_entry``)
 
 To see the default ``Asm`` template, run the following command::
 
@@ -323,8 +323,8 @@ on the 'Bugs', 'Trivia', 'Pokes', 'Glossary', 'Graphic glitches' and
 It contains the following identifiers (in addition to the universal
 identifiers):
 
+* ``href`` - the URL to the entry on the page
 * ``title`` - the entry title
-* ``url`` - the URL to the entry on the page
 
 To see the default ``contents_list_item`` template, run the following command::
 
@@ -446,6 +446,7 @@ The parameters in the ``entry`` dictionary are:
 * ``byte`` - the LSB of the entry address
 * ``description`` - the entry description
 * ``exists`` - '1' if the entry exists, '0' otherwise
+* ``href`` - the relative path to the disassembly page for the entry
 * ``label`` - the ASM label of the first instruction in the entry
 * ``labels`` - '1' if any instructions in the entry have an ASM label, '0'
   otherwise
@@ -454,7 +455,6 @@ The parameters in the ``entry`` dictionary are:
 * ``size`` - the size of the entry in bytes
 * ``title`` - the title of the entry
 * ``type`` - the block type of the entry ('b', 'c', 'g', 's', 't', 'u' or 'w')
-* ``url`` - the relative path to the disassembly page for the entry
 
 To see the default ``map_entry`` template, run the following command::
 
