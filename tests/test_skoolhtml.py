@@ -95,6 +95,9 @@ class MockFileInfo:
         self.mode = kwargs.get('mode', 'w') # PY: Not needed in Python 3
         return StringIO()
 
+    def add_image(self, image_path):
+        return
+
     def need_image(self, image_path):
         return True
 

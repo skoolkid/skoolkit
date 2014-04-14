@@ -966,6 +966,7 @@ class HtmlWriter:
         f = self.file_info.open_file(image_path, mode='wb')
         self.image_writer.write_image(frames, f, img_format)
         f.close()
+        self.file_info.add_image(image_path)
 
     def _create_macros(self):
         self.macros = {}
@@ -1432,6 +1433,7 @@ class FileInfo:
         self.game_dir = game_dir
         self.odir = join(topdir, game_dir)
         self.replace_images = replace_images
+        self.images = set()
 
     # PY: open_file(self, *names, mode='w') in Python 3
     def open_file(self, *names, **kwargs):
@@ -1443,8 +1445,11 @@ class FileInfo:
         mode = kwargs.get('mode', 'w') # PY: Not needed in Python 3
         return open(path, mode)
 
+    def add_image(self, image_path):
+        self.images.add(image_path)
+
     def need_image(self, image_path):
-        return self.replace_images or not self.file_exists(image_path)
+        return (self.replace_images and image_path not in self.images) or not self.file_exists(image_path)
 
     def file_exists(self, fname):
         return isfile(join(self.odir, fname))
