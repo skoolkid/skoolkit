@@ -130,78 +130,69 @@ def _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analys
         else:
             write('{} is slower than {} for all UDG arrays tested'.format(method1, method2))
 
-def bd4(iw, method1, method2, udgs, scale):
-    udg_arrays = []
-    scales = (1, 2, 3, 4)
-    mask = 0
-    analyse_ua = not udgs
+def bd4(iw, method1, method2, udg_arrays, scales):
+    mask_type = 0
+    analyse_ua = False
 
-    if analyse_ua:
+    if not udg_arrays:
+        analyse_ua = True
+        udg_arrays = []
         udg_arrays.append([[Udg(i, (240,) * 8) for i in range(16)]] * 16) # u=256, a=16
         udg_arrays.append([[Udg(i, (240,) * 8) for i in range(24)]] * 24) # u=576, a=24
 
-    if scale:
-        scales = (scale,)
+    scales = scales or (1, 2, 3, 4)
 
-    _compare_methods(iw, method1, method2, udg_arrays, scales, mask, analyse_ua)
+    _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analyse_ua)
 
-def bd2(iw, method1, method2, udgs, scale, masked=False):
-    udg_arrays = []
-    scales = (1, 2, 3, 4, 5)
-    mask = 0
+def bd2(iw, method1, method2, udg_arrays, scales, masked=False):
+    mask_type = 0
+    udg_arrays = udg_arrays or []
 
-    if udgs:
-        udg_arrays.append(udgs)
-    elif masked:
-        scales = (2, 4, 8)
-        data = (240,) * 8
-        mask_data = (247,) * 8
-        mask = 1
-        udg_arrays.append([[Udg(56, data, mask_data)] * 3] * 5)
-        udg_arrays.append([[Udg(56, data, mask_data)] * 3] * 4)
-    else:
-        scales = (1, 2, 3, 4, 5)
+    if masked:
+        mask_type = 1
+        if not udg_arrays:
+            data = (240,) * 8
+            mask_data = (247,) * 8
+            udg_arrays.append([[Udg(56, data, mask_data)] * 3] * 5)
+            udg_arrays.append([[Udg(56, data, mask_data)] * 3] * 4)
+        scales = scales or (2, 4, 8)
+    elif not udg_arrays:
         data = (170,) * 8
         udg_arrays.append([[Udg(a, data) for a in (1, 19)] * 2] * 4)
         udg_arrays.append([[Udg(a, data) for a in (1, 8, 19, 26)]] * 4) 
 
-    if scale:
-        scales = (scale,)
+    scales = scales or (1, 2, 3, 4, 5)
 
-    _compare_methods(iw, method1, method2, udg_arrays, scales, mask)
+    _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type)
 
-def bd1(iw, method1, method2, udgs, scale, blank=False, one_udg=False):
-    udg_arrays = []
-    scales = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13)
-    mask = 0
+def bd1(iw, method1, method2, udg_arrays, scales, blank=False, one_udg=False):
+    udg_arrays = udg_arrays or []
 
-    if udgs:
-        udg_arrays.append(udgs)
-    elif blank:
+    if blank and not udg_arrays:
         for num_udgs in range(1, 10):
             udg_arrays.append([[Udg(0, (0,) * 8) for i in range(num_udgs)]])
     elif one_udg:
-        udg_arrays.append([[Udg(56, (170,) * 8)]])
-        scales = (1, 2, 4, 8)
-    else:
+        if not udg_arrays:
+            udg_arrays.append([[Udg(56, (170,) * 8)]])
+        scales = scales or (1, 2, 4, 8)
+    elif not udg_arrays:
         attrs = (56, 7, 0, 63)
         for num_udgs in range(1, 10):
             for num_attrs in range(1, min(num_udgs, 4) + 1):
                 udg_arrays.append([[Udg(attrs[i % num_attrs], (170,) * 8) for i in range(num_udgs)]])
 
-    if scale:
-        scales = (scale,)
+    scales = scales or (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13)
 
-    _compare_methods(iw, method1, method2, udg_arrays, scales, mask)
+    _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type=0)
 
-def bd1_blank(iw, method1, method2, udgs, scale):
-    bd1(iw, method1, method2, udgs, scale, blank=True)
+def bd1_blank(iw, method1, method2, udg_arrays, scales):
+    bd1(iw, method1, method2, udg_arrays, scales, blank=True)
 
-def bd1_1udg(iw, method1, method2, udgs, scale):
-    bd1(iw, method1, method2, udgs, scale, one_udg=True)
+def bd1_1udg(iw, method1, method2, udg_arrays, scales):
+    bd1(iw, method1, method2, udg_arrays, scales, one_udg=True)
 
-def bd2_at_nf(iw, method1, method2, udgs, scale):
-    bd2(iw, method1, method2, udgs, scale, masked=True)
+def bd2_at_nf(iw, method1, method2, udg_arrays, scales):
+    bd2(iw, method1, method2, udg_arrays, scales, masked=True)
 
 METHODS = (
     ('bd4', 'bd4_nt_nf', bd4),
@@ -219,11 +210,10 @@ METHODS = (
     ('bd_any', 'bd1_nt_nf_1udg', bd1_1udg)
 )
 
-def time_methods(method1_name, method2_name, udgs, scale):
+def time_methods(method1_name, method2_name, udg_arrays, scale):
     for name1, name2, f in METHODS:
         if set((name1, name2)) == set((method1_name, method2_name)):
-            iw = ImageWriter()
-            f(iw, name1, name2, udgs, scale)
+            f(ImageWriter(), name1, name2, udg_arrays, scale)
             break
     else:
         write('{} v. {}: not implemented'.format(method1_name, method2_name))
@@ -244,8 +234,8 @@ def list_methods():
 def parse_args(args):
     p_args = []
     run_all = False
-    udgs = None
-    scale = 0
+    udgs = []
+    scales = ()
     i = 0
     while i < len(args):
         arg = args[i]
@@ -254,10 +244,10 @@ def parse_args(args):
         elif arg == '-l':
             list_methods()
         elif arg == '-u':
-            udgs = args[i + 1]
+            udgs.append(args[i + 1])
             i += 1
         elif arg == '-s':
-            scale = int(args[i + 1])
+            scales = [int(j) for j in args[i + 1].split(',')]
             i += 1
         elif arg.startswith('-'):
             show_usage()
@@ -271,7 +261,7 @@ def parse_args(args):
             p_args = (None, None)
     if len(p_args) != 2:
         show_usage()
-    return p_args[0], p_args[1], run_all, udgs, scale
+    return p_args[0], p_args[1], run_all, udgs, scales
 
 def show_usage():
     sys.stderr.write("""Usage:
@@ -283,21 +273,22 @@ def show_usage():
   development version of SkoolKit.
 
 Available options:
-  -a        Run all method comparisons
-  -l        List methods available on PngWriter
-  -u UDGS   Compare methods using this UDG array
-  -s SCALE  Set the scale of the images
+  -a                      Run all method comparisons
+  -l                      List methods available on PngWriter
+  -s s1[,s2...]           Compare methods using these scales
+  -u '[[Udg(...), ... ]'  Compare methods using this UDG array; this option may
+                          be used multiple times
 """.format(os.path.basename(sys.argv[0])))
     sys.exit()
 
 ###############################################################################
 # Begin
 ###############################################################################
-method1_name, method2_name, run_all, udgs, scale = parse_args(sys.argv[1:])
-udg_array = eval(udgs) if udgs else None
+method1_name, method2_name, run_all, udgs, scales = parse_args(sys.argv[1:])
+udg_arrays = tuple([eval(udg_array) for udg_array in udgs])
 if run_all:
     for name1, name2, f in METHODS:
-        time_methods(name1, name2, udg_array, scale)
+        time_methods(name1, name2, udg_arrays, scales)
         write('')
 else:
-    time_methods(method1_name, method2_name, udg_array, scale)
+    time_methods(method1_name, method2_name, udg_arrays, scales)
