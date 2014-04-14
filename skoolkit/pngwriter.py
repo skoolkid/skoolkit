@@ -397,13 +397,13 @@ class PngWriter:
                             x += scale
                 scanline = bytearray((0,))
                 if bit_depth == 1:
-                    p.extend((0,) * (8 - len(p) & 7))
+                    p.extend((0,) * (-len(p) & 7))
                     scanline.extend([p[j] * 128 + p[j + 1] * 64 + p[j + 2] * 32 + p[j + 3] * 16 + p[j + 4] * 8 + p[j + 5] * 4 + p[j + 6] * 2 + p[j + 7] for j in range(0, len(p), 8)])
                 elif bit_depth == 2:
-                    p.extend((0,) * (4 - len(p) & 3))
+                    p.extend((0,) * (-len(p) & 3))
                     scanline.extend([p[j] * 64 + p[j + 1] * 16 + p[j + 2] * 4 + p[j + 3] for j in range(0, len(p), 4)])
                 elif bit_depth == 4:
-                    p.extend((0,) * (2 - len(p) & 1))
+                    p.extend((0,) * (len(p) & 1))
                     scanline.extend([p[j] * 16 + p[j + 1] for j in range(0, len(p), 2)])
                 if y < y0:
                     rows = y - y0 + scale
