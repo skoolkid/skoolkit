@@ -211,6 +211,7 @@ identifiers):
   hexadecimal format, depending on how it appears in the `skool` file, and the
   options passed to :ref:`skool2html.py`)
 * ``annotated`` - '1' if the instruction has a comment field, '0' otherwise
+* ``called`` - '2' if the instruction is an entry point, '1' otherwise
 * ``comment`` - the text of the instruction's comment field
 * ``comment_rowspan`` - the number of instructions to which the comment field
   applies

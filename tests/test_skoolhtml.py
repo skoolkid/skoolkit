@@ -2138,7 +2138,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address"><a name="24576"></a>24576</td>
+            <td class="address-2"><a name="24576"></a>24576</td>
             <td class="instruction">LD A,B</td>
             <td class="comment-11" rowspan="1">Comment for instruction at 24576</td>
             </tr>
@@ -2154,7 +2154,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address"><a name="24577"></a>24577</td>
+            <td class="address-2"><a name="24577"></a>24577</td>
             <td class="instruction">RET</td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
@@ -2203,7 +2203,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address"><a name="24578"></a>24578</td>
+            <td class="address-1"><a name="24578"></a>24578</td>
             <td class="instruction">DEFB 0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -2243,7 +2243,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address"><a name="24579"></a>24579</td>
+            <td class="address-2"><a name="24579"></a>24579</td>
             <td class="instruction">JR <a class="link" href="24576.html#24577">24577</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -2283,7 +2283,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address"><a name="24581"></a>24581</td>
+            <td class="address-1"><a name="24581"></a>24581</td>
             <td class="instruction">DEFW 123</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -2323,7 +2323,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address"><a name="24583"></a>24583</td>
+            <td class="address-1"><a name="24583"></a>24583</td>
             <td class="instruction">DEFB 0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -2367,13 +2367,13 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address"><a name="24584"></a>24584</td>
+            <td class="address-2"><a name="24584"></a>24584</td>
             <td class="instruction">CALL <a class="link" href="../start/30000.html">30000</a></td>
             <td class="comment-11" rowspan="2">Comment for the instructions at 24584 and 24587</td>
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address"><a name="24587"></a>24587</td>
+            <td class="address-1"><a name="24587"></a>24587</td>
             <td class="instruction">JP <a class="link" href="../start/30000.html#30003">30003</a></td>
             <td class="comment-01" rowspan="1"></td>
             </tr>
@@ -2423,7 +2423,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '</tr>',
             '<tr>',
             '<td class="asm-label-0"></td>',
-            '<td class="address"><a name="{address}"></a>{address:05d}</td>',
+            '<td class="address-2"><a name="{address}"></a>{address:05d}</td>',
             '<td class="instruction">RET</td>',
             '<td class="comment-10" rowspan="1"></td>',
             '</tr>',
@@ -2500,7 +2500,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             '; Routine with a label',
             '; @label=START',
             'c50000 LD B,5     ; Loop 5 times',
-            ' 50002 DJNZ 50002',
+            '*50002 DJNZ 50002',
             ' 50004 RET',
             '',
             '; Routine without a label',
@@ -2540,19 +2540,19 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             <tr>
             <td class="asm-label-1">START</td>
-            <td class="address"><a name="50000"></a>50000</td>
+            <td class="address-2"><a name="50000"></a>50000</td>
             <td class="instruction">LD B,5</td>
             <td class="comment-11" rowspan="1">Loop 5 times</td>
             </tr>
             <tr>
-            <td class="asm-label-1"></td>
-            <td class="address"><a name="50002"></a>50002</td>
-            <td class="instruction">DJNZ <a class="link" href="50000.html#50002">50002</a></td>
+            <td class="asm-label-1">START_0</td>
+            <td class="address-2"><a name="50002"></a>50002</td>
+            <td class="instruction">DJNZ <a class="link" href="50000.html#50002">START_0</a></td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
             <tr>
             <td class="asm-label-1"></td>
-            <td class="address"><a name="50004"></a>50004</td>
+            <td class="address-1"><a name="50004"></a>50004</td>
             <td class="instruction">RET</td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
@@ -2591,7 +2591,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address"><a name="50005"></a>50005</td>
+            <td class="address-2"><a name="50005"></a>50005</td>
             <td class="instruction">JP <a class="link" href="50000.html">START</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -2631,7 +2631,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address"><a name="50008"></a>50008</td>
+            <td class="address-1"><a name="50008"></a>50008</td>
             <td class="instruction">DEFW 50000</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>

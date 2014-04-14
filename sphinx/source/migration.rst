@@ -121,7 +121,7 @@ table.input                table.input-1
 table.map
 table.output               table.output-1
 table.prevNext             table.asm-navigation
-td.address
+td.address                 td.address-1
 td.asmLabel                td.asm-label-1
 td.centre
 td.comment                 td.comment-11
@@ -134,7 +134,7 @@ td.gbufferDesc             td.map-g-desc
 td.gbufLength              td.map-length-1
 td.headerText              td.page-header
 td.instruction
-td.label                   td.address
+td.label                   td.address-2
 td.mapByte                 td.map-byte-1
 td.mapPage                 td.map-page-1
 td.message                 td.map-t

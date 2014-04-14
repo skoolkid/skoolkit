@@ -128,15 +128,15 @@ td.register {
   width: 20px;
   text-align: center;
 }
-td.asm-label-1, td.address, td.instruction {
+td.asm-label-1, td.address-1, td.address-2, td.instruction {
   font-family: monospace;
   vertical-align: top;
   padding-right: 10px;
 }
-td.asm-label-1, td.address {
+td.asm-label-1, td.address-1, td.address-2 {
   color: #ff0000;
 }
-td.asm-label-1 {
+td.asm-label-1, td.address-2 {
   font-weight: bold;
 }
 td.instruction {
