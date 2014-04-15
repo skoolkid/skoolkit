@@ -893,3 +893,24 @@ Recognised page IDs and their default titles are:
 +---------+---------------------------------+
 | 4.0     | Added the ``Asm-*`` page IDs    |
 +---------+---------------------------------+
+
+Ref file comments
+-----------------
+A comment may be added to a `ref` file by starting a line with a semicolon. For
+example::
+
+  ; This is a comment
+
+If a non-comment line in a `ref` file section needs to start with a semicolon,
+it can be escaped by doubling it::
+
+  [PageContent:Custom]
+  <code>
+  ;; This is not a ref file comment
+  </code>
+
+The content of this section will be rendered thus::
+
+  <code>
+  ; This is not a ref file comment
+  </code>

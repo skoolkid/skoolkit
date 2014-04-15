@@ -45,6 +45,8 @@ class RefParser:
                 self._add_section(section_name, section_lines)
                 section_name = line[1:line.index(']')]
                 section_lines = []
+            elif line.startswith(';;'):
+                section_lines.append(line[1:].rstrip())
             elif not line.startswith(';'):
                 section_lines.append(line.rstrip())
         infile.close()

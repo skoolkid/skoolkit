@@ -185,5 +185,22 @@ class RefParserTest(SkoolKitTestCase):
         section = ref_parser.get_section('Xyzzy')
         self.assertEqual(section, 'Hi')
 
+    def test_comment(self):
+        ref = '\n'.join((
+            '[Foo]',
+            '; This is a comment',
+            'Bar',
+            '; This is another comment'
+        ))
+        ref_parser = self._get_parser(ref)
+        section = ref_parser.get_section('Foo')
+        self.assertEqual(section, 'Bar')
+
+    def test_escaped_semicolon(self):
+        ref = '[Baz]\n;; This is not a comment'
+        ref_parser = self._get_parser(ref)
+        section = ref_parser.get_section('Baz')
+        self.assertEqual(section, '; This is not a comment')
+
 if __name__ == '__main__':
     unittest.main()
