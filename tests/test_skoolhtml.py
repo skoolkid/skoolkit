@@ -3196,7 +3196,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <li><a class="link" href="#20120703">20120703</a></li>
             </ul>
             <div><a name="20120704"></a></div>
-            <div class="changelog changelog1">
+            <div class="changelog changelog-1">
             <div class="changelog-title">20120704</div>
             <div class="changelog-desc">Intro.</div>
             <ul class="changelog">
@@ -3214,7 +3214,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </ul>
             </div>
             <div><a name="20120703"></a></div>
-            <div class="changelog changelog2">
+            <div class="changelog changelog-2">
             <div class="changelog-title">20120703</div>
             <div class="changelog-desc"></div>
             <ul class="changelog">

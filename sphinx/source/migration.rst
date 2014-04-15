@@ -98,8 +98,8 @@ div.box1
 div.box2
 div.boxTitle               div.box-title
 div.changelog
-div.changelog1
-div.changelog2
+div.changelog1             div.changelog-1
+div.changelog2             div.changelog-2
 div.changelogDesc          div.changelog-desc
 div.changelogTitle         div.changelog-title
 div.comments

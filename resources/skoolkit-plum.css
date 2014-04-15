@@ -8,10 +8,10 @@ a.link {
 a.link:hover {
   color: #00ffff;
 }
-div.box1, div.changelog1 {
+div.box1, div.changelog-1 {
   background-color: #7f194c;
 }
-div.box2, div.changelog2 {
+div.box2, div.changelog-2 {
   background-color: #660033;
 }
 table table.default th, table.default th {
