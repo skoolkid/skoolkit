@@ -3270,14 +3270,14 @@ class HtmlWriterTest(SkoolKitTestCase):
             <li><a class="link" href="#term2">Term2</a></li>
             </ul>
             <div><a name="term1"></a></div>
-            <div class="box box1">
+            <div class="box box-1">
             <div class="box-title">Term1</div>
             <div class="paragraph">
             Definition 1.
             </div>
             </div>
             <div><a name="term2"></a></div>
-            <div class="box box2">
+            <div class="box box-2">
             <div class="box-title">Term2</div>
             <div class="paragraph">
             Definition 2. Paragraph 1.
@@ -3367,7 +3367,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <li><a class="link" href="#b1">Showstopper</a></li>
             </ul>
             <div><a name="b1"></a></div>
-            <div class="box box1">
+            <div class="box box-1">
             <div class="box-title">Showstopper</div>
             <div class="paragraph">
             This bug is bad.
@@ -3417,7 +3417,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <li><a class="link" href="#f2">Another interesting fact</a></li>
             </ul>
             <div><a name="f1"></a></div>
-            <div class="box box1">
+            <div class="box box-1">
             <div class="box-title">Interesting fact</div>
             <div class="paragraph">
             Hello.
@@ -3427,7 +3427,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             </div>
             </div>
             <div><a name="f2"></a></div>
-            <div class="box box2">
+            <div class="box box-2">
             <div class="box-title">Another interesting fact</div>
             <div class="paragraph">
             Yes.
@@ -3464,7 +3464,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <li><a class="link" href="#p1">Infinite everything</a></li>
             </ul>
             <div><a name="p1"></a></div>
-            <div class="box box1">
+            <div class="box box-1">
             <div class="box-title">Infinite everything</div>
             <div class="paragraph">
             POKE 12345,0
@@ -3503,7 +3503,7 @@ class HtmlWriterTest(SkoolKitTestCase):
             <li><a class="link" href="#g0">Wrong arms</a></li>
             </ul>
             <div><a name="g0"></a></div>
-            <div class="box box1">
+            <div class="box box-1">
             <div class="box-title">Wrong arms</div>
             <div class="paragraph">
             Hello.

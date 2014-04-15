@@ -513,7 +513,7 @@ SECTIONS['Template:paragraph'] = """
 
 SECTIONS['Template:reference_entry'] = """
 <div>{t_anchor}</div>
-<div class="box box{num}">
+<div class="box box-{num}">
 <div class="box-title">{title}</div>
 {contents}
 </div>

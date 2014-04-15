@@ -94,8 +94,8 @@ SkoolKit 3                 SkoolKit 4
 a.link
 a.link:hover
 div.box
-div.box1
-div.box2
+div.box1                   div.box-1
+div.box2                   div.box-2
 div.boxTitle               div.box-title
 div.changelog
 div.changelog1             div.changelog-1

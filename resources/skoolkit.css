@@ -56,10 +56,10 @@ div.box-title {
 div.box p {
   margin-bottom: 0;
 }
-div.box1, div.changelog-1 {
+div.box-1, div.changelog-1 {
   background-color: #aaccee;
 }
-div.box2, div.changelog-2 {
+div.box-2, div.changelog-2 {
   background-color: #bbddff;
 }
 div.paragraph {
