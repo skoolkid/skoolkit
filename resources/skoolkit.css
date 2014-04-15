@@ -189,16 +189,6 @@ div.map-entry-title-11 {
   font-weight: bold;
   font-family: sans;
 }
-table.gglitch {
-  border-collapse: collapse;
-}
-table.gglitch td {
-  text-align: center;
-  border-width: 1px;
-  border-style: solid;
-  border-color: #000000;
-  padding: 5px;
-}
 div.changelog {
   width: 800px;
   padding: 6px;

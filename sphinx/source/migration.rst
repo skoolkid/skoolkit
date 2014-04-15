@@ -115,7 +115,6 @@ table.dataDisassembly      table.disassembly
 table.default
 table.disassembly
 table.gbuffer              table.map
-table.gglitch
 table.header
 table.input                table.input-1
 table.map
