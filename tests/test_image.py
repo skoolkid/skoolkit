@@ -1033,33 +1033,6 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self._test_method(method_name, udg_array, scale=4)
         self._test_method(method_name, udg_array, scale=8)
 
-    def test_bd1_method(self):
-        iw = PngWriter()
-        self.assertEquals(iw._bd1_method(5, 0, 0), iw._build_image_data_bd1)
-        self.assertEquals(iw._bd1_method(6, 0, 0), iw._build_image_data_bd1)
-        self.assertEquals(iw._bd1_method(4, 2, 0), iw._build_image_data_bd1)
-        self.assertEquals(iw._bd1_method(3, 2, 0), iw._build_image_data_bd1)
-        self.assertEquals(iw._bd1_method(2, 3, 0), iw._build_image_data_bd_any)
-
-    def test_bd2_at_nf_method(self):
-        iw = PngWriter()
-        self.assertEquals(iw._bd2_at_nf_method(0, 0, 2), iw._build_image_data_bd2_at_nf)
-        self.assertEquals(iw._bd2_at_nf_method(0, 0, 4), iw._build_image_data_bd2_at_nf)
-        self.assertEquals(iw._bd2_at_nf_method(0, 0, 8), iw._build_image_data_bd2_at_nf)
-        self.assertEquals(iw._bd2_at_nf_method(0, 0, 3), iw._build_image_data_bd2)
-        self.assertEquals(iw._bd2_at_nf_method(0, 0, 5), iw._build_image_data_bd2)
-        self.assertEquals(iw._bd2_at_nf_method(0, 0, 6), iw._build_image_data_bd2)
-        self.assertEquals(iw._bd2_at_nf_method(0, 0, 3), iw._build_image_data_bd2)
-
-    def test_bd4_nt_nf_method(self):
-        iw = PngWriter()
-        self.assertEquals(iw._bd4_nt_nf_method(35, 5, 1), iw._build_image_data_bd4_nt_nf)
-        self.assertEquals(iw._bd4_nt_nf_method(12, 6, 1), iw._build_image_data_bd4)
-        self.assertEquals(iw._bd4_nt_nf_method(50, 5, 2), iw._build_image_data_bd4_nt_nf)
-        self.assertEquals(iw._bd4_nt_nf_method(16, 6, 2), iw._build_image_data_bd4)
-        self.assertEquals(iw._bd4_nt_nf_method(195, 5, 3), iw._build_image_data_bd4_nt_nf)
-        self.assertEquals(iw._bd4_nt_nf_method(233, 6, 3), iw._build_image_data_bd4)
-
 class GifWriterTest(SkoolKitTestCase, ImageWriterTest):
     def setUp(self):
         SkoolKitTestCase.setUp(self)

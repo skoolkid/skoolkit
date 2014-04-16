@@ -219,11 +219,9 @@ class PngWriter:
         bd4_fs_method_dict[2][1] = bd4_methods
 
     def _bd1_method(self, num_udgs, num_attrs, scale):
-        if num_udgs >= 5:
-            return self._build_image_data_bd1
-        if num_attrs <= 2 and num_udgs >= 3:
-            return self._build_image_data_bd1
-        return self._build_image_data_bd_any
+        if num_udgs < 4 or (num_udgs < 9 and num_attrs > 1):
+            return self._build_image_data_bd_any
+        return self._build_image_data_bd1
 
     def _bd1_nt_nf_method(self, num_udgs, num_attrs, scale):
         if num_udgs == 1 and scale in (1, 2, 4, 8):
