@@ -2163,7 +2163,6 @@ class HtmlWriterTest(SkoolKitTestCase):
             </tr>
             <tr>
             <td class="routine-comment" colspan="4">
-            <a name="24577"></a>
             <div class="comments">
             <div class="paragraph">
             End comment for routine at 24576.

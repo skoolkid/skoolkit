@@ -182,7 +182,7 @@ To see the default ``anchor`` template, run the following command::
 asm_comment
 -----------
 The ``asm_comment`` template is the subtemplate used by the :ref:`t_Asm`
-full-page template to format routine-level comments.
+full-page template to format mid-block comments and block end comments.
 
 It contains the following identifiers (in addition to the universal
 identifiers):
@@ -190,7 +190,9 @@ identifiers):
 * ``m_paragraph`` - replaced by one or more copies of the :ref:`t_paragraph`
   subtemplate
 * ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate (with
-  the address of the next instruction in decimal format as the anchor name)
+  the address of the next instruction in decimal format as the anchor name when
+  formatting a mid-block comment), or by an empty string (when formatting a
+  block end comment)
 
 To see the default ``asm_comment`` template, run the following command::
 

@@ -725,7 +725,7 @@ class HtmlWriter:
             reg_lists.append('\n'.join(registers_html))
         return reg_lists
 
-    def format_entry_comment(self, cwd, entry_dict, paragraphs, anchor):
+    def format_entry_comment(self, cwd, entry_dict, paragraphs, anchor=''):
         t_asm_comment_subs = {
             'entry': entry_dict,
             't_anchor': anchor,
@@ -799,7 +799,7 @@ class HtmlWriter:
             lines.append(self.format_template('asm_instruction', instruction_subs))
 
         if entry.end_comment:
-            lines.append(self.format_entry_comment(cwd, entry_dict, entry.end_comment, anchor))
+            lines.append(self.format_entry_comment(cwd, entry_dict, entry.end_comment))
 
         subs = {
             'prev_entry': prev_entry_dict,
