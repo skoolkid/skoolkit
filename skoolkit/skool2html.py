@@ -266,7 +266,7 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_c
 
     # Write the memory map files
     if 'm' in files:
-        for map_name in html_writer.memory_map_names:
+        for map_name in html_writer.main_memory_maps:
             clock(html_writer.write_map, '  Writing {}'.format(normpath(game_dir, paths[map_name])), map_name)
 
     # Write pages defined in the ref file

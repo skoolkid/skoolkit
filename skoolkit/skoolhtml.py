@@ -153,10 +153,12 @@ class HtmlWriter:
             self.titles.setdefault(page_id, page_id)
 
         self.other_code = []
+        other_code_indexes = set()
         for c_id, code in self.get_dictionaries('OtherCode'):
             if code.get('Source'):
                 self.other_code.append((c_id, code))
                 index_page_id = code['IndexPageId'] = '{}-Index'.format(c_id)
+                other_code_indexes.add(index_page_id)
                 self.paths.setdefault(index_page_id, '{0}/{0}.html'.format(c_id))
                 self.titles.setdefault(index_page_id, c_id)
                 code_path_id = code['CodePathId'] = '{}-CodePath'.format(c_id)
@@ -173,12 +175,12 @@ class HtmlWriter:
             if address in self.entries:
                 self.gsb_includes.append(address)
 
-        self.memory_map_names = []
+        self.main_memory_maps = []
         self.memory_maps = {}
         for map_name, map_details in self.get_dictionaries('MemoryMap'):
-            if self._should_write_map(map_details):
-                self.memory_maps[map_name] = map_details
-                self.memory_map_names.append(map_name)
+            self.memory_maps[map_name] = map_details
+            if map_name not in other_code_indexes and self._should_write_map(map_details):
+                self.main_memory_maps.append(map_name)
                 self.paths.setdefault(map_name, 'maps/{}.html'.format(map_name))
                 self.titles.setdefault(map_name, map_name)
 

@@ -376,7 +376,7 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assertEqual(writer.links['Pokes'], ('Pokes [with square brackets in the link text]', ' (cheats)'))
 
         # [MemoryMap:*]
-        self.assertTrue('TestMap' in writer.memory_map_names)
+        self.assertTrue('TestMap' in writer.main_memory_maps)
         self.assertTrue('TestMap' in writer.memory_maps)
         self.assertEqual(writer.memory_maps['TestMap'], {'EntryTypes': 'w'})
 
@@ -3745,11 +3745,11 @@ class HtmlWriterTest(SkoolKitTestCase):
             'u40002 DEFB 0',
         ))
         writer = self._get_writer(ref=ref, skool=skool)
-        self.assertTrue('MemoryMap' in writer.memory_maps)
-        self.assertTrue('RoutinesMap' in writer.memory_maps)
-        self.assertTrue('DataMap' in writer.memory_maps)
-        self.assertFalse('MessagesMap' in writer.memory_maps) # No entries
-        self.assertFalse('UnusedMap' in writer.memory_maps)   # Write=0
+        self.assertTrue('MemoryMap' in writer.main_memory_maps)
+        self.assertTrue('RoutinesMap' in writer.main_memory_maps)
+        self.assertTrue('DataMap' in writer.main_memory_maps)
+        self.assertFalse('MessagesMap' in writer.main_memory_maps) # No entries
+        self.assertFalse('UnusedMap' in writer.main_memory_maps)   # Write=0
 
     def test_format_registers(self):
         writer = self._get_writer()
