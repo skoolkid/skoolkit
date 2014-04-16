@@ -470,7 +470,7 @@ The ``paragraph`` template is the subtemplate used to format each paragraph in
 the following items:
 
 * memory map entry descriptions (on disassembly pages and memory map pages)
-* routine-level comments on disassembly pages
+* mid-block comments and block end comments on disassembly pages
 * entries on the 'Bugs', 'Trivia', 'Pokes', 'Glossary', 'Graphic glitches' and
   'Changelog' pages
 
