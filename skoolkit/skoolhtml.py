@@ -190,10 +190,9 @@ class HtmlWriter:
         self.code_id = code_id
         self.code_path = self.get_code_path(code_id)
         if not self.game_vars.get('Game'):
-            def_game_name = basename(self.parser.skoolfile)
-            suffix = '.skool'
-            if def_game_name.endswith(suffix):
-                def_game_name = def_game_name[:-len(suffix)]
+            def_game_name, sep, suffix = basename(self.parser.skoolfile).rpartition('.')
+            if not sep:
+                def_game_name = suffix
             self.game_vars['Game'] = def_game_name
         self.game_name = self.game_vars['Game']
         self.game = self.game_vars.copy()
