@@ -933,7 +933,7 @@ class HtmlWriter:
             return 'gif'
         raise SkoolKitError('Unsupported image file format: {}'.format(image_path))
 
-    def write_image(self, image_path, udgs, crop_rect=(), scale=2, mask=False):
+    def write_image(self, image_path, udgs, crop_rect=(), scale=2, mask=0):
         """Create an image and write it to a file.
 
         :param image_path: The full path of the file to which to write the
@@ -948,7 +948,8 @@ class HtmlWriter:
                           ``width`` and ``height`` are the width and height of
                           the final image.
         :param scale: The scale of the image.
-        :param mask: Whether to apply masks to the tiles in the image.
+        :param mask: The type of mask to apply to the tiles: 0 (no mask), 1
+                     (OR-AND mask), or 2 (AND-OR mask).
         """
         frame = Frame(udgs, scale, mask, *crop_rect)
         self.write_animated_image(image_path, [frame])

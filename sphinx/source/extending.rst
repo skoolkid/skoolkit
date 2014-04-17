@@ -330,6 +330,11 @@ HtmlWriter provides the following image-related convenience methods.
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.image_path
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.need_image
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.write_image
+
+   .. versionchanged:: 4.0
+      The *mask* parameter specifies the type of mask to apply (see
+      :ref:`masks`).
+
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.write_animated_image
 
    .. versionadded:: 3.6
