@@ -120,13 +120,13 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
                 param_name, eq, value = p.partition('=')
                 if not eq:
                     if has_named_param:
-                        raise MacroParsingError("Non-keyword parameter after keyword parameter: '{}'".format(p))
+                        raise MacroParsingError("Non-keyword argument after keyword argument: '{}'".format(p))
                     value = param_name
                 elif param_name in names:
                     name = param_name
                     has_named_param = True
                 else:
-                    raise MacroParsingError("Unknown keyword parameter: '{}'".format(p))
+                    raise MacroParsingError("Unknown keyword argument: '{}'".format(p))
             else:
                 value = p
             if value:
@@ -144,8 +144,13 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
             index += 1
 
     req = num - len(defaults)
-    if index < req:
-        if params or named_params:
+    if named_params:
+        for i in range(req):
+            req_name = names[i]
+            if req_name not in named_params:
+                raise MacroParsingError("Missing required argument '{}'".format(req_name))
+    elif index < req:
+        if params:
             raise MacroParsingError("Not enough parameters (expected {}): '{}'".format(req, param_string))
         raise MacroParsingError("No parameters (expected {})".format(req))
     if index > num > 0:
