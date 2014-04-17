@@ -412,9 +412,51 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assertEqual((p1, p2), (0, 1))
         self.assertEqual(end, len(text))
 
-        text = '0,1,2,3{1,2}(x)'
+    def test_parse_image_params_too_many_parameters(self):
+        writer = self._get_writer()
         with self.assertRaisesRegexp(MacroParsingError, re.escape("Too many parameters (expected 3): '0,1,2,3'")):
-            writer.parse_image_params(text, 0, 3)
+            writer.parse_image_params('0,1,2,3{1,2}(x)', 0, 3)
+
+    def test_parse_image_params_not_enough_parameters(self):
+        writer = self._get_writer()
+        with self.assertRaisesRegexp(MacroParsingError, re.escape("Not enough parameters (expected 2): '0'")):
+            writer.parse_image_params('0(x)', 0, 2)
+
+    def test_parse_image_params_with_kwargs(self):
+        writer = self._get_writer()
+
+        text = '1,baz=7,bar=23'
+        end, img_path, crop_rect, foo, bar, baz = writer.parse_image_params(text, 0, defaults=(2, 3), names=('foo', 'bar', 'baz'))
+        self.assertEqual(img_path, None)
+        self.assertEqual((0, 0, None, None), crop_rect)
+        self.assertEqual(foo, 1)
+        self.assertEqual(bar, 23)
+        self.assertEqual(baz, 7)
+        self.assertEqual(end, len(text))
+
+        text = '1{y=1,height=6}'
+        end, img_path, crop_rect, p1 = writer.parse_image_params(text, 0, 1)
+        self.assertEqual(img_path, None)
+        self.assertEqual((0, 1, None, 6), crop_rect)
+        self.assertEqual(p1, 1)
+        self.assertEqual(end, len(text))
+
+        text = '2{width=5,x=2}(foo)'
+        end, img_path, crop_rect, p1 = writer.parse_image_params(text, 0, 1)
+        self.assertEqual(img_path, 'images/udgs/foo.png')
+        self.assertEqual((2, 0, 5, None), crop_rect)
+        self.assertEqual(p1, 2)
+        self.assertEqual(end, len(text))
+
+    def test_parse_image_params_with_kwargs_not_enough_parameters(self):
+        writer = self._get_writer()
+        with self.assertRaisesRegexp(MacroParsingError, "Missing required argument 'foo'"):
+            writer.parse_image_params('baz=0(x)', 0, defaults=(2, 3), names=('foo', 'bar', 'baz'))
+
+    def test_parse_image_params_unknown_kwarg(self):
+        writer = self._get_writer()
+        with self.assertRaisesRegexp(MacroParsingError, "Unknown keyword argument: 'xyzzy=7'"):
+            writer.parse_image_params('bar=1,xyzzy=7', 0, defaults=(1, 2), names=('foo', 'bar'))
 
     def test_image_path(self):
         writer = self._get_writer()
