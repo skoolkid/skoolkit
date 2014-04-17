@@ -3380,6 +3380,20 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal('{}.html'.format(page_id), subs)
 
+    def test_write_page_using_custom_template(self):
+        page_id = 'Custom'
+        content = 'hello'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'PageContent={1}',
+            '[Template:{0}]',
+            '<foo>{{content}}</foo>'
+        )).format(page_id, content)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        path = '{}.html'.format(page_id)
+        self.assertEqual('<foo>{}</foo>'.format(content), self.files[path])
+
     def test_write_page_with_no_page_section(self):
         page_id = 'page'
         content = '<b>This is the content of the custom page.</b>'
