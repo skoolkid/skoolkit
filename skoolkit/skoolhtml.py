@@ -1541,7 +1541,8 @@ class Frame(object):
                  :class:`~skoolkit.skoolhtml.Udg`) from which to build the
                  frame.
     :param scale: The scale of the frame.
-    :param mask: Whether to apply masks to the tiles in the frame.
+    :param mask: The type of mask to apply to the tiles in the frame: 0 (no
+                 mask), 1 (OR-AND mask), or 2 (AND-OR mask).
     :param x: The x-coordinate of the top-left pixel to include in the frame.
     :param y: The y-coordinate of the top-left pixel to include in the frame.
     :param width: The width of the frame; if `None`, the maximum width

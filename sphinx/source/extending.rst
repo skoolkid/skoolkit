@@ -321,6 +321,10 @@ The Frame class represents a single frame of an animated image.
 
    .. versionadded:: 3.6
 
+   .. versionchanged:: 4.0
+      The *mask* parameter specifies the type of mask to apply (see
+      :ref:`masks`).
+
 HtmlWriter provides the following image-related convenience methods.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.image_path
