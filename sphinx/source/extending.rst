@@ -217,10 +217,15 @@ The skoolkit.skoolmacro module provides some utility functions that may be used
 to parse the parameters of a skool macro.
 
 .. autofunction:: skoolkit.skoolmacro.parse_ints
+
+   .. versionchanged:: 4.0
+      Added the *names* parameter and support for keyword arguments; *index*
+      defaults to 0.
+
 .. autofunction:: skoolkit.skoolmacro.parse_params
 
-   .. versionadded:: 3.6
-      The *except_chars* and *only_chars* parameters.
+   .. versionchanged:: 3.6
+      Added the *except_chars* and *only_chars* parameters.
 
 HtmlWriter also provides a method for parsing the parameters of an
 image-creating skool macro.
@@ -228,10 +233,8 @@ image-creating skool macro.
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.parse_image_params
 
    .. versionchanged:: 3.6
-      If *path_id* is blank or *None*, ``image_path`` is equal to ``fname``.
-
-   .. versionadded:: 3.6
-      The *ints* parameter.
+      If *path_id* is blank or *None*, ``image_path`` is equal to ``fname``;
+      added the *ints* parameter.
 
 Parsing ref files
 -----------------
