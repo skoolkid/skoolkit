@@ -107,7 +107,7 @@ To see the default ``GameIndex`` template, run the following command::
 
 MemoryMap
 ---------
-The ``MemoryMap`` template is the full-page template that is used to build the
+The ``MemoryMap`` template is the full-page template that is used to build
 memory map pages and the 'Game status buffer' page.
 
 It contains the following identifiers (in addition to the universal and

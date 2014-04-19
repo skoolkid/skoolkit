@@ -489,9 +489,9 @@ displayed alongside it.
 Each ``MemoryMap:*`` section defines the properties of a memory map page. The
 section names take the form::
 
-  [MemoryMap:PageID]
+  [MemoryMap:PageId]
 
-where ``PageID`` is the unique ID of the memory map page.
+where ``PageId`` is the unique ID of the memory map page.
 
 Each ``MemoryMap:*`` section contains parameters in the form::
 
@@ -527,6 +527,16 @@ To see the default memory map pages and their properties, run the following
 command::
 
   $ skool2html.py -r MemoryMap
+
+A custom memory map page can be defined by creating a ``MemoryMap:*`` section
+for it. By default, the page will be written to `maps/PageId.html`; to change
+this, add a line to the :ref:`paths` section. The title, page header and link
+text for the custom memory map page can be defined in the :ref:`titles`,
+:ref:`pageHeaders` and :ref:`links` sections.
+
+Every memory map page is built using the :ref:`HTML template <template>` whose
+name matches the page ID, if one exists; otherwise, the stock
+:ref:`t_MemoryMap` template is used.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
