@@ -236,6 +236,9 @@ image-creating skool macro.
       If *path_id* is blank or *None*, ``image_path`` is equal to ``fname``;
       added the *ints* parameter.
 
+   .. versionchanged:: 4.0
+      Added the *names* parameter and support for keyword arguments.
+
 Parsing ref files
 -----------------
 HtmlWriter provides some convenience methods for extracting text and data from

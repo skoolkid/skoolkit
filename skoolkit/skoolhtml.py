@@ -1098,15 +1098,19 @@ class HtmlWriter:
             raise SkoolKitError("Unknown path ID '{0}' for image file '{1}'".format(path_id, fname))
 
     def parse_image_params(self, text, index, num=0, defaults=(), path_id=DEF_IMG_PATH, fname='', chars='', ints=None, names=()):
-        """Parse a string of the form ``params[{X,Y,W,H}][(fname)]``. The
-        parameter string ``params`` may contain comma-separated values and will
-        be parsed until either the end is reached, or an invalid character is
+        """Parse a string of the form ``params[{x,y,width,height}][(fname)]``.
+        The parameter string ``params`` may contain comma-separated values and
+        is parsed until either the end is reached, or an invalid character is
         encountered. The default set of valid characters consists of the comma,
-        '$', the digits 0-9, and the letters A-F and a-f.
+        '$', the digits 0-9, and the letters A-F and a-f; if `names` is not
+        empty, the set of valid characters also includes '=' and the letters
+        g-z.
 
         :param text: The text to parse.
         :param index: The index at which to start parsing.
-        :param num: The maximum number of parameters to parse.
+        :param num: The maximum number of parameters to parse; this is set to
+                    the number of elements in `names` if that list is not
+                    empty.
         :param defaults: The default values of the optional parameters.
         :param path_id: The ID of the target directory for the image file (as
                         defined in the :ref:`paths` section of the `ref` file).
@@ -1116,6 +1120,8 @@ class HtmlWriter:
         :param ints: A list of the indexes (0-based) of the parameters that
                      must evaluate to an integer; if `None`, every parameter
                      must evaluate to an integer.
+        :param names: The names of the parameters; if not empty, keyword
+                      arguments in the parameter string ``params`` are parsed.
         :return: A list of the form
                  ``[end, image_path, crop_rect, value1, value2...]``, where:
 
@@ -1123,7 +1129,7 @@ class HtmlWriter:
                  * ``image_path`` is either the full path of the image file
                    (relative to the root directory of the disassembly) or
                    ``fname`` (if `path_id` is blank or `None`)
-                 * ``crop_rect`` is ``(X, Y, W, H)``
+                 * ``crop_rect`` is ``(x, y, width, height)``
                  * ``value1``, ``value2`` etc. are the parameter values
         """
         valid_chars = '$0123456789abcdefABCDEF,' + chars
