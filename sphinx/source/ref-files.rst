@@ -626,6 +626,10 @@ root directory of the disassembly; to change this, add a line to the
 can be defined in the :ref:`titles`, :ref:`pageHeaders` and :ref:`links`
 sections.
 
+Every custom page is built using the :ref:`HTML template <template>` whose name
+matches the page ID, if one exists; otherwise, the stock :ref:`t_Page` template
+is used.
+
 Note that a ``Page:*`` section may be empty; if so, it may be omitted from the
 `ref` file.
 
