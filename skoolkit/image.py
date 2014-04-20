@@ -373,16 +373,17 @@ class OrAndMask:
             mask_byte = udg.mask[row]
         else:
             mask_byte = udg_byte
-        pixels = []
-        for b in range(8):
-            if mask_byte & 128 == 0:
-                pixels.append(paper)
-            elif udg_byte & 128:
-                pixels.append(ink)
-            else:
-                pixels.append(trans)
-            udg_byte *= 2
-            mask_byte *= 2
+        pixels = [paper] * 8
+        index = 7
+        while mask_byte:
+            if mask_byte & 1:
+                if udg_byte & 1:
+                    pixels[index] = ink
+                else:
+                    pixels[index] = trans
+            udg_byte //= 2
+            mask_byte //= 2
+            index -= 1
         return pixels
 
     def colours(self, patterns, paper, ink, trans):
