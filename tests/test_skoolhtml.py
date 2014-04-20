@@ -418,6 +418,24 @@ class HtmlWriterTest(SkoolKitTestCase):
         sections = writer.get_sections('Foo')
         self.assertEqual(exp_sections, sections)
 
+    def test_get_dictionary_from_default_ref_file(self):
+        default_ref = MINIMAL_REF_FILE + '[Foo]\nBar=Baz'
+        self.mock(skoolhtml, 'REF_FILE', default_ref)
+        writer = self._get_writer(ref='')
+        foo = writer.get_dictionary('Foo')
+        self.assertEqual({'Bar': 'Baz'}, foo)
+
+    def test_get_dictionary_from_user_ref_file(self):
+        default_ref = '\n'.join((
+            '[Foo]',
+            'Bar=Baz',
+            'Qux=Xyzzy'
+        ))
+        self.mock(skoolhtml, 'REF_FILE', MINIMAL_REF_FILE + default_ref)
+        writer = self._get_writer(ref='[Foo]\nQux=Wibble')
+        foo = writer.get_dictionary('Foo')
+        self.assertEqual({'Bar': 'Baz', 'Qux': 'Wibble'}, foo)
+
     def test_parse_image_params(self):
         writer = self._get_writer()
         def_crop_rect = (0, 0, None, None)
