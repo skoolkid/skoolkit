@@ -17,6 +17,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from collections import OrderedDict
+import re
 
 SECTIONS = OrderedDict()
 
@@ -561,6 +562,6 @@ def get_section(name):
 def get_sections(prefix):
     sections = []
     for section_name in SECTIONS:
-        if section_name.startswith(prefix):
+        if re.match(prefix, section_name):
             sections.append(_format_section(section_name))
     return '\n'.join(sections)

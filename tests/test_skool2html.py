@@ -811,12 +811,13 @@ class Skool2HtmlTest(SkoolKitTestCase):
     def test_option_r(self):
         for option in ('-r', '--ref-sections'):
             for prefix, exp_headers in (
-                ('anchor', ['anchor']),
-                ('index_section', ['index_section', 'index_section_item'])
+                ('Colours', ['Colours']),
+                ('Template:index_section', ['Template:index_section', 'Template:index_section_item']),
+                ('Template:index_section$', ['Template:index_section'])
             ):
-                output, error = self.run_skool2html('{} Template:{}'.format(option, prefix), catch_exit=0)
+                output, error = self.run_skool2html('{} {}'.format(option, prefix), catch_exit=0)
                 self.assertEqual(error, '')
-                headers = [line[10:-1] for line in output if line.startswith('[Template:') and line.endswith(']')]
+                headers = [line[1:-1] for line in output if line.startswith('[') and line.endswith(']')]
                 self.assertEqual(exp_headers, headers)
 
 if __name__ == '__main__':
