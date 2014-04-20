@@ -187,6 +187,8 @@ full-page template to format mid-block comments and block end comments.
 It contains the following identifiers (in addition to the universal
 identifiers):
 
+* ``entry`` - a dictionary of parameters corresponding to the current memory
+  map entry (see :ref:`t_Asm`)
 * ``m_paragraph`` - replaced by one or more copies of the :ref:`t_paragraph`
   subtemplate
 * ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate (with
