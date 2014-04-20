@@ -388,6 +388,20 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assertTrue('TestMap' in writer.memory_maps)
         self.assertEqual(writer.memory_maps['TestMap'], {'EntryTypes': 'w'})
 
+    def test_get_section_from_default_ref_file(self):
+        default_ref = MINIMAL_REF_FILE + '[Foo]\nBar'
+        self.mock(skoolhtml, 'REF_FILE', default_ref)
+        writer = self._get_writer(ref='')
+        section = writer.get_section('Foo')
+        self.assertEqual(section, 'Bar')
+
+    def test_get_section_from_user_ref_file(self):
+        default_ref = MINIMAL_REF_FILE + '[Foo]\nBar'
+        self.mock(skoolhtml, 'REF_FILE', default_ref)
+        writer = self._get_writer(ref='[Foo]\nBaz')
+        section = writer.get_section('Foo')
+        self.assertEqual(section, 'Baz')
+
     def test_get_sections(self):
         default_ref = '\n'.join((
             '[Foo:a]',
