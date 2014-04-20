@@ -3082,6 +3082,20 @@ class HtmlWriterTest(SkoolKitTestCase):
         }
         self.assert_files_equal(map_path, subs)
 
+    def test_write_custom_map_using_custom_template(self):
+        map_id = 'CustomMap'
+        ref = '\n'.join((
+            '[MemoryMap:{0}]',
+            'EntryTypes=c',
+            'Intro=Bar',
+            '[Template:{0}]',
+            '<foo>{{MemoryMap[Intro]}}</foo>'
+        )).format(map_id)
+        writer = self._get_writer(ref=ref, skool='c50000 RET')
+        writer.write_map(map_id)
+        path = 'maps/{}.html'.format(map_id)
+        self.assertEqual('<foo>Bar</foo>', self.files[path])
+
     def test_write_memory_map_with_intro(self):
         intro = 'This map is empty.'
         ref = '[MemoryMap:MemoryMap]\nIntro={}'.format(intro)
