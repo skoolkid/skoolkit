@@ -240,7 +240,9 @@ class HtmlWriterTest(SkoolKitTestCase):
     def _mock_write_file(self, fname, contents):
         self.files[fname] = contents
 
-    def _get_writer(self, ref=None, snapshot=(), case=None, base=None, skool=None, create_labels=False, asm_labels=False, mock_file_info=False):
+    def _get_writer(self, ref=None, snapshot=(), case=None, base=None,
+                    skool=None, create_labels=False, asm_labels=False,
+                    mock_file_info=False, mock_write_file=True):
         self.skoolfile = None
         ref_parser = RefParser()
         if ref is not None:
@@ -257,7 +259,8 @@ class HtmlWriterTest(SkoolKitTestCase):
             file_info = FileInfo(self.odir, GAMEDIR, False)
         self.mock(skoolhtml, 'ImageWriter', MockImageWriter)
         writer = HtmlWriter(skool_parser, ref_parser, file_info)
-        writer.write_file = self._mock_write_file
+        if mock_write_file:
+            writer.write_file = self._mock_write_file
         return writer
 
     def _assert_scr_equal(self, game, x0=0, y0=0, w=32, h=24):
@@ -456,6 +459,17 @@ class HtmlWriterTest(SkoolKitTestCase):
         ]
         foo_dicts = writer.get_dictionaries('Foo')
         self.assertEqual(exp_dicts, foo_dicts)
+
+    def test_write_file(self):
+        fname = 'foo/bar/baz.html'
+        contents = '<html></html>'
+        writer = self._get_writer(mock_write_file=False)
+        writer.write_file(fname, contents)
+        fpath = join(self.odir, GAMEDIR, fname)
+        self.assertTrue(isfile(fpath), '{} does not exist'.format(fpath))
+        with open(fpath, 'r') as f:
+            actual_contents = f.read()
+        self.assertEqual(actual_contents, contents)
 
     def test_parse_image_params(self):
         writer = self._get_writer()
