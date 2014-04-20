@@ -462,6 +462,10 @@ Recognised page IDs are:
 The default link text for a page is the same as the header defined in the
 :ref:`pageHeaders` section, except where indicated above.
 
+The link text for a page defined by a :ref:`memoryMap`, :ref:`otherCode`,
+:ref:`page` or :ref:`pageContent` section also defaults to the page header
+text, but can be overridden in this section.
+
 If the link text starts with some text in square brackets, that text alone is
 used as the link text, and the remaining text is displayed alongside the
 hyperlink. For example::
@@ -489,9 +493,9 @@ displayed alongside it.
 Each ``MemoryMap:*`` section defines the properties of a memory map page. The
 section names take the form::
 
-  [MemoryMap:PageId]
+  [MemoryMap:PageID]
 
-where ``PageId`` is the unique ID of the memory map page.
+where ``PageID`` is the unique ID of the memory map page.
 
 Each ``MemoryMap:*`` section contains parameters in the form::
 
@@ -529,7 +533,7 @@ command::
   $ skool2html.py -r MemoryMap
 
 A custom memory map page can be defined by creating a ``MemoryMap:*`` section
-for it. By default, the page will be written to `maps/PageId.html`; to change
+for it. By default, the page will be written to `maps/PageID.html`; to change
 this, add a line to the :ref:`paths` section. The title, page header and link
 text for the custom memory map page can be defined in the :ref:`titles`,
 :ref:`pageHeaders` and :ref:`links` sections.
@@ -556,9 +560,9 @@ Each ``OtherCode:*`` section defines a secondary disassembly that will appear
 under 'Other code' on the main disassembly home page. The section names take
 the form::
 
-  [OtherCode:CodeId]
+  [OtherCode:CodeID]
 
-where ``CodeId`` is a unique ID for the secondary disassembly; it must be
+where ``CodeID`` is a unique ID for the secondary disassembly; it must be
 limited to the characters '$', '#', 0-9, A-Z and a-z. The unique ID may be used
 by the :ref:`R` macro when referring to routines or data blocks in the
 secondary disassembly from another disassembly.
@@ -571,18 +575,21 @@ in the form::
 where ``fname`` is the path to the `skool` file from which to generate the
 secondary disassembly.
 
-When a secondary disassembly named ``CodeId`` is defined, the following page
+When a secondary disassembly named ``CodeID`` is defined, the following page
 and directory IDs become available for use in the :ref:`paths`, :ref:`titles`,
 :ref:`pageHeaders` and :ref:`links` sections:
 
-* ``CodeId-Index`` - the ID of the index page
-* ``CodeId-Asm-*`` - the IDs of the disassembly pages (``*`` is one of
+* ``CodeID-Index`` - the ID of the index page
+* ``CodeID-Asm-*`` - the IDs of the disassembly pages (``*`` is one of
   ``bcgstuw``, depending on the entry type)
-* ``CodeId-CodePath`` - the ID of the directory in which the disassembly pages
+* ``CodeID-CodePath`` - the ID of the directory in which the disassembly pages
   are written
 
-By default, the index page is written to `CodeId/CodeId.html`, and the
-disassembly pages are written in a directory named `CodeId`.
+By default, the index page is written to `CodeID/CodeID.html`, and the
+disassembly pages are written in a directory named `CodeID`.
+
+Note that the index page is a memory map page, and as such can be configured by
+creating a :ref:`memoryMap` section (``MemoryMap:CodeID-Index``) for it.
 
 +---------+-------------------------------------+
 | Version | Changes                             |
@@ -598,9 +605,9 @@ A ``Page:*`` section may be used to either declare a page that already exists,
 or define a custom page in the HTML disassembly (in conjunction with a
 corresponding :ref:`pageContent` section). The section name takes the form::
 
-  [Page:PageId]
+  [Page:PageID]
 
-where ``PageId`` is a unique ID for the page. The unique ID may be used in an
+where ``PageID`` is a unique ID for the page. The unique ID may be used in an
 :ref:`indexGroup` section to create a link to the page in the disassembly
 index.
 
@@ -620,7 +627,7 @@ Recognised parameters are:
   the contents of the corresponding :ref:`pageContent` section, but may be
   specified here if the source can be written on a single line
 
-By default, the custom page is written to a file named `PageId.html` in the
+By default, the custom page is written to a file named `PageID.html` in the
 root directory of the disassembly; to change this, add a line to the
 :ref:`Paths` section. The title, page header and link text for the custom page
 can be defined in the :ref:`titles`, :ref:`pageHeaders` and :ref:`links`
@@ -650,9 +657,9 @@ A ``PageContent:*`` section contains the HTML source of the body of a custom
 page (optionally defined in a :ref:`page` section). The section name takes the
 form::
 
-  [PageContent:PageId]
+  [PageContent:PageID]
 
-where ``PageId`` is the unique ID of the page.
+where ``PageID`` is the unique ID of the page.
 
 The HTML source may contain :ref:`skool macros <skoolMacros>`.
 
@@ -700,6 +707,10 @@ Recognised page IDs are:
 
 The default header text for a page is the same as the title defined in the
 :ref:`titles` section, except where indicated above.
+
+The header text for a page defined by a :ref:`memoryMap`, :ref:`otherCode`,
+:ref:`page` or :ref:`pageContent` section also defaults to the title, but can
+be overridden in this section.
 
 Note that the header of the disassembly index page (``GameIndex``) is not
 defined in this section; it is composed from the values of the ``TitlePrefix``
@@ -895,6 +906,10 @@ Recognised page IDs and their default titles are:
 * ``RoutinesMap`` - the 'Routines' memory map page (default: 'Routines')
 * ``UnusedMap`` - the 'Unused addresses' memory map page (default: 'Unused
   addresses')
+
+The title of a page defined by a :ref:`memoryMap`, :ref:`otherCode`,
+:ref:`page` or :ref:`pageContent` section defaults to the page ID, but can be
+overridden in this section.
 
 +---------+---------------------------------+
 | Version | Changes                         |
