@@ -1047,6 +1047,10 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self._test_method(method_name, udg_array, scale=4)
         self._test_method(method_name, udg_array, scale=8)
 
+    def test_bd4_nt_nf_method(self):
+        png_writer = ImageWriter().writers['png']
+        self.assertEqual(png_writer._build_image_data_bd4_nt_nf, png_writer._bd4_nt_nf_method(80, 2, 3))
+
 class GifWriterTest(SkoolKitTestCase, ImageWriterTest):
     def setUp(self):
         SkoolKitTestCase.setUp(self)
