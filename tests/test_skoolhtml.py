@@ -19,6 +19,14 @@ BUFFERS_DIR = 'buffers'
 REFERENCE_DIR = 'reference'
 UDGDIR = 'images/udgs'
 
+MINIMAL_REF_FILE = """
+[Game]
+Created=
+LinkOperands=CALL,DEFW,DJNZ,JP,JR
+[Paths]
+CodePath=asm
+"""
+
 HEADER = """<?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -379,6 +387,22 @@ class HtmlWriterTest(SkoolKitTestCase):
         self.assertTrue('TestMap' in writer.main_memory_maps)
         self.assertTrue('TestMap' in writer.memory_maps)
         self.assertEqual(writer.memory_maps['TestMap'], {'EntryTypes': 'w'})
+
+    def test_get_sections(self):
+        default_ref = '\n'.join((
+            '[Foo:a]',
+            'Bar',
+            '[Foo:b]',
+            'Baz',
+            '[Foo:c]',
+            'Qux'
+        ))
+        self.mock(skoolhtml, 'REF_FILE', MINIMAL_REF_FILE + default_ref)
+        writer = self._get_writer(ref='[Foo:b]\nXyzzy')
+
+        exp_sections = [('a', 'Bar'), ('b', 'Xyzzy'), ('c', 'Qux')]
+        sections = writer.get_sections('Foo')
+        self.assertEqual(exp_sections, sections)
 
     def test_parse_image_params(self):
         writer = self._get_writer()

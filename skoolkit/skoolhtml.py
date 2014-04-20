@@ -28,8 +28,8 @@ import inspect
 from collections import defaultdict
 try:
     from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+except ImportError:         # pragma: no cover
+    from io import StringIO # pragma: no cover
 
 from . import VERSION, warn, get_int_param, parse_int, SkoolKitError, SkoolParsingError
 from . import skoolmacro
