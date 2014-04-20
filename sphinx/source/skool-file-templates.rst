@@ -110,6 +110,9 @@ that its contents are set to 0 so that it will disassemble to ``DEFB 0``
   ; Number of lives
   bB32400,1
 
+Note that in order to take effect, a 'd' block must appear before the block
+that it overrides.
+
 Revision history
 ----------------
 +---------+------------------------------------------------------------------+
