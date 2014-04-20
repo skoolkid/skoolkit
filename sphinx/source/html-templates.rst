@@ -288,7 +288,7 @@ identifiers):
 
 To see the default ``changelog_item`` template, run the following command::
 
-  $ skool2html.py -r Template:changelog_item
+  $ skool2html.py -r Template:changelog_item$
 
 .. _t_changelog_item_list:
 
@@ -366,7 +366,7 @@ identifiers):
 
 To see the default ``index_section`` template, run the following command::
 
-  $ skool2html.py -r Template:index_section
+  $ skool2html.py -r Template:index_section$
 
 .. _t_index_section_item:
 
