@@ -184,7 +184,7 @@ this::
   from .skoolhtml import HtmlWriter
 
   class GameHtmlWriter(HtmlWriter):
-      # #SPRITEspriteId[{X,Y,W,H}](fname)
+      # #SPRITEspriteId[{x,y,width,height}](fname)
       def expand_sprite(self, text, index, cwd):
           end, img_path, crop_rect, sprite_id = self.parse_image_params(text, index, 1)
           if self.need_image(img_path):
