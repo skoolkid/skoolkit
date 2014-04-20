@@ -304,7 +304,14 @@ class ImageWriterTest:
         # Masked image, two colours (trans + paper), >= 4 UDGs
         udg = Udg(8, (0,) * 8, (88,) * 8)
         udg_array = [[udg, udg]] * 2
-        self._test_image(udg_array,  mask=True)
+        self._test_image(udg_array, mask=True)
+
+    def test_mask2_bd1_one_udg_maskless(self):
+        # AND-OR mask, one UDG with no mask
+        udg1 = Udg(7, (15,) * 8, (31,) * 8)
+        udg2 = Udg(7, (240,) * 8)
+        udg_array = [[udg1, udg2]]
+        self._test_image(udg_array, mask=2)
 
     def test_masked_bd2_cropped(self):
         # Masked image, bit depth 2, cropped
@@ -327,6 +334,7 @@ class ImageWriterTest:
         udg = Udg(56, (170,) * 8, (170,) + (255,) * 7)
         udg_array = [[udg]]
         self._test_image(udg_array, mask=2)
+        self._test_image(udg_array, scale=2, mask=2)
 
     def test_mask2_bd2_cropped(self):
         # AND-OR mask, bit depth 2, cropped
