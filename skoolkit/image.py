@@ -401,16 +401,16 @@ class AndOrMask:
             mask_byte = udg.mask[row]
         else:
             mask_byte = udg_byte
-        pixels = []
-        for b in range(8):
-            if udg_byte & 128:
-                pixels.append(ink)
-            elif mask_byte & 128:
-                pixels.append(trans)
-            else:
-                pixels.append(paper)
-            udg_byte *= 2
-            mask_byte *= 2
+        pixels = [paper] * 8
+        index = 7
+        while udg_byte or mask_byte:
+            if udg_byte & 1:
+                pixels[index] = ink
+            elif mask_byte & 1:
+                pixels[index] = trans
+            udg_byte //= 2
+            mask_byte //= 2
+            index -= 1
         return pixels
 
     def colours(self, patterns, paper, ink, trans):
