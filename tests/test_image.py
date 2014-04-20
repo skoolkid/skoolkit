@@ -596,6 +596,12 @@ class ImageWriterTest:
         udg_array = [[udg]]
         self._test_image(udg_array)
 
+    def test_unmasked_cropped_flashing(self):
+        # Unmasked image, cropped, flashing
+        udg = Udg(184, (240,) * 8)
+        udg_array = [[udg] * 3]
+        self._test_image(udg_array, x=2, y=0, width=17, height=8)
+
     def test_unmasked_flashing_no_animation(self):
         # Unmasked image, flashing, no animation
         iw_args = {'options': {self.animation_flag: 0}}
