@@ -378,16 +378,14 @@ browsers.
 -------
 The ``Index`` section contains a list of link group IDs in the order in which
 the link groups will appear on the disassembly index page. The link groups
-themselves are defined in ``[Index:*:*]`` sections (see below).
+themselves - with the exception of ``OtherCode`` - are defined in
+``[Index:*:*]`` sections (see below); ``OtherCode`` is a special built-in link
+group that contains links to the index pages of secondary disassemblies defined
+by :ref:`otherCode` sections.
 
-By default, SkoolKit defines the following link groups::
+To see the default ``Index`` section, run the following command::
 
-  [Index]
-  MemoryMaps
-  Graphics
-  DataTables
-  OtherCode
-  Reference
+  $ skool2html.py -r Index$
 
 +---------+---------+
 | Version | Changes |
@@ -414,10 +412,6 @@ where:
 * ``text`` is the text of the link group header
 * ``Page1ID``, ``Page2ID`` etc. are the IDs of the pages that will appear in
   the link group
-
-The page IDs that may be used in an ``[Index:*:*]`` section are the same as the
-file IDs that may be used in the :ref:`paths` section, or the IDs defined by
-:ref:`page` sections.
 
 To see the default link groups and their contents, run the following command::
 
