@@ -584,7 +584,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
                 self.assertEqual(udg.data, exp_udg.data)
                 self.assertEqual(udg.mask, exp_udg.mask)
 
-    def _check_image(self, image_writer, udg_array, scale=2, mask=False, x=0, y=0, width=None, height=None):
+    def _check_image(self, image_writer, udg_array, scale=2, mask=0, x=0, y=0, width=None, height=None):
         if width is None:
             width = 8 * len(udg_array[0]) * scale
         if height is None:
@@ -1673,7 +1673,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, udg_fname, '../{0}/{1}.png'.format(UDGDIR, udg_fname))
         udg_array = [[Udg(attr, udg_data, udg_mask)]]
-        self._check_image(writer.image_writer, udg_array, scale, True, x, y, w, h)
+        self._check_image(writer.image_writer, udg_array, scale, 1, x, y, w, h)
 
     def test_macro_udg_with_custom_udg_image_path(self):
         font_path = 'graphics/udgs'
@@ -1685,6 +1685,34 @@ class SkoolMacroTest(HtmlWriterTestCase):
         output = writer.expand('#UDG0({})'.format(img_fname), ASMDIR)
         self._assert_img_equals(output, img_fname, '../{}'.format(exp_img_path))
         self.assertEqual(writer.file_info.fname, exp_img_path)
+
+    def test_macro_udg_with_mask(self):
+        udg_data = [240] * 8
+        udg_mask = [248] * 8
+        udg_array_no_mask = [[Udg(56, udg_data)]]
+        udg_array = [[Udg(56, udg_data, udg_mask)]]
+        scale = 4
+        writer = self._get_writer(snapshot=udg_data + udg_mask, mock_file_info=True)
+
+        # No mask parameter, no mask defined
+        writer.expand('#UDG0', ASMDIR)
+        self._check_image(writer.image_writer, udg_array_no_mask, scale, mask=0)
+
+        # mask=1, no mask defined
+        writer.expand('#UDG0,mask=1', ASMDIR)
+        self._check_image(writer.image_writer, udg_array_no_mask, scale, mask=0)
+
+        # mask=0, mask defined
+        writer.expand('#UDG0,mask=0:8', ASMDIR)
+        self._check_image(writer.image_writer, udg_array_no_mask, scale, mask=0)
+
+        # No mask parameter, mask defined
+        writer.expand('#UDG0:8', ASMDIR)
+        self._check_image(writer.image_writer, udg_array, scale, mask=1)
+
+        # mask=2, mask defined
+        writer.expand('#UDG0,mask=2:8', ASMDIR)
+        self._check_image(writer.image_writer, udg_array, scale, mask=2)
 
     def test_macro_udg_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)

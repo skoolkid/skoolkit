@@ -1301,6 +1301,7 @@ class HtmlWriter:
             end, udg_path, crop_rect, mask_addr, mask_step = mask_params
         else:
             mask_params = None
+            mask = 0
         if udg_path is None:
             udg_path = self.image_path('udg{0}_{1}x{2}'.format(addr, attr, scale))
         if self.need_image(udg_path):
