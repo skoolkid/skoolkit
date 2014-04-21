@@ -644,6 +644,8 @@ class HtmlWriter:
         self._write_box_page(P_GLOSSARY, self.glossary)
 
     def _build_changelog_items(self, items, level=0):
+        if not items:
+            return ''
         changelog_items = []
         for item, subitems in items:
             if subitems:
