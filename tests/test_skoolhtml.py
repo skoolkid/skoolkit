@@ -5,7 +5,7 @@ from os.path import join, basename, isfile
 import unittest
 
 from skoolkittest import SkoolKitTestCase, StringIO
-from skoolkit import VERSION, SkoolKitError, SkoolParsingError, skoolhtml
+from skoolkit import VERSION, SkoolKitError, SkoolParsingError, defaults, skoolhtml
 from skoolkit.skoolmacro import MacroParsingError, UnsupportedMacroError
 from skoolkit.skoolhtml import HtmlWriter, FileInfo, Udg, Frame
 from skoolkit.skoolparser import SkoolParser, Register, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
@@ -19,13 +19,46 @@ BUFFERS_DIR = 'buffers'
 REFERENCE_DIR = 'reference'
 UDGDIR = 'images/udgs'
 
+REF_SECTIONS = {
+    'PageHeaders': defaults.get_section('PageHeaders'),
+    'Template_img': defaults.get_section('Template:img'),
+    'Template_link': defaults.get_section('Template:link'),
+    'Template_reg': defaults.get_section('Template:reg')
+}
+
 MINIMAL_REF_FILE = """
 [Game]
 Created=
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 [Paths]
-CodePath=asm
-"""
+CodePath={}
+""".format(ASMDIR)
+
+SKOOL_MACRO_MINIMAL_REF_FILE = """
+[Game]
+Created=
+LinkOperands=CALL,DEFW,DJNZ,JP,JR
+{REF_SECTIONS[PageHeaders]}
+[Paths]
+CodePath={ASMDIR}
+FontImagePath=images/font
+ScreenshotImagePath=images/scr
+UDGImagePath={UDGDIR}
+Bugs={REFERENCE_DIR}/bugs.html
+Facts={REFERENCE_DIR}/facts.html
+Pokes={REFERENCE_DIR}/pokes.html
+{REF_SECTIONS[Template_img]}
+{REF_SECTIONS[Template_link]}
+{REF_SECTIONS[Template_reg]}
+[Titles]
+Asm-b=Data at
+Asm-c=Routine at
+Asm-g=Game status buffer entry at
+Asm-s=Unused RAM at
+Asm-t=Data at
+Asm-u=Unused RAM at
+Asm-w=Data at
+""".format(**locals())
 
 HEADER = """<?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html
@@ -559,6 +592,10 @@ class MethodTest(HtmlWriterTestCase):
             writer.write_animated_image(image_path, None)
 
 class SkoolMacroTest(HtmlWriterTestCase):
+    def setUp(self):
+        HtmlWriterTestCase.setUp(self)
+        self.mock(skoolhtml, 'REF_FILE', SKOOL_MACRO_MINIMAL_REF_FILE)
+
     def _assert_html_equal(self, html, exp_html, eol=False, trim=False):
         lines = []
         for line in html.split('\n'):
