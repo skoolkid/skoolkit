@@ -3493,6 +3493,48 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer.write_map('UnusedMap')
         self._assert_title_equals(path, title)
 
+    def test_write_other_code_index(self):
+        code_id = 'other'
+        ref = '[OtherCode:{}]\nSource=other.skool'.format(code_id)
+        routine_title = 'Other code'
+        skool = '; {}\nc65535 RET'.format(routine_title)
+        main_writer = self._get_writer(ref=ref, skool=skool)
+        writer = main_writer.clone(main_writer.parser, code_id)
+        writer.write_file = self._mock_write_file
+        index_page_id = '{}-Index'.format(code_id)
+        writer.write_map(index_page_id)
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page-0">Page</th>
+            <th class="map-byte-0">Byte</th>
+            <th>Address</th>
+            <th class="map-length-0">Length</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page-0">255</td>
+            <td class="map-byte-0">255</td>
+            <td class="map-c"><a name="65535"></a><a class="link" href="65535.html">65535</a></td>
+            <td class="map-length-0">1</td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10">{}</div>
+            <div class="map-entry-desc-0">
+            </div>
+            </td>
+            </tr>
+            </table>
+        """.format(routine_title)
+        subs = {
+            'name': basename(self.skoolfile)[:-6],
+            'header': code_id,
+            'path': '../',
+            'body_class': index_page_id,
+            'content': content
+        }
+        self._assert_files_equal('{0}/{0}.html'.format(code_id), subs)
+
     def test_write_changelog(self):
         ref = '\n'.join((
             '[Changelog:20120704]',
