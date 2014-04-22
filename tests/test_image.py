@@ -167,8 +167,8 @@ class ImageWriterTest:
         pixels = []
         pixels2 = []
         mask = int(mask)
-        has_trans = 0
-        all_trans = 1
+        has_masks = 0
+        all_masked = 1
         min_x = width
         min_y = height
         max_x = max_y = 0
@@ -193,10 +193,13 @@ class ImageWriterTest:
                     p_rgb = PALETTE[paper]
                     i_rgb = PALETTE[ink]
                     byte = udg.data[j]
+                    if udg.mask:
+                        has_masks = 1
+                    else:
+                        all_masked = 0
                     if mask and udg.mask:
                         mask_byte = udg.mask[j]
                     else:
-                        all_trans = 0
                         mask_byte = 0
                     min_k = max(0, (x0 - x) // scale)
                     max_k = min(8, 1 + (x1 - x - 1) // scale)
@@ -221,13 +224,11 @@ class ImageWriterTest:
                                 pixel, f_pixel = ink_p, paper_p
                             else:
                                 pixel = f_pixel = trans_p
-                                has_trans = 1
                         elif mask == 2 and udg.mask:
                             if byte & 128:
                                 pixel, f_pixel = ink_p, paper_p
                             elif mask_byte & 128:
                                 pixel = f_pixel = trans_p
-                                has_trans = 1
                             else:
                                 pixel, f_pixel = paper_p, ink_p
                         else:
@@ -270,9 +271,9 @@ class ImageWriterTest:
         else:
             pixels2 = frame2_xy = None
 
-        trans = has_trans + all_trans if has_trans else 0
 
-        return palette, trans, pixels, pixels2, frame2_xy
+        masks = has_masks + all_masked
+        return palette, masks, pixels, pixels2, frame2_xy
 
     def test_masked_alpha(self):
         # Masked image, alpha < 255
@@ -280,6 +281,18 @@ class ImageWriterTest:
         udg = Udg(88, (34,) * 8, (163,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, mask=True, iw_args=iw_args)
+
+    def test_masked_no_transparency(self):
+        # Masked image with no transparent bits
+        udg = Udg(56, (255,) * 8, (1,) * 8)
+        udg_array = [[udg]]
+        self._test_image(udg_array, mask=1)
+
+    def test_masked_cropped_no_transparency(self):
+        # Masked image, cropped, with no transparent bits
+        udg = Udg(56, (255,) * 8, (1,) * 8)
+        udg_array = [[udg]]
+        self._test_image(udg_array, mask=1, y=2)
 
     def test_masked_bd1_blank_flashing(self):
         # Masked image, single colour, flashing
@@ -847,13 +860,13 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         frame = Frame(udg_array, scale, mask)
         width, height = frame.width, frame.height
         colours, attrs, flash_rect = image_writer._get_colours(frame, use_flash)
-        trans = frame.trans
-        palette, attr_map = image_writer._get_palette(colours, attrs, trans)
+        masks = frame.has_masks + frame.all_masked
+        palette, attr_map = image_writer._get_palette(colours, attrs, frame.has_trans)
         palette = [palette[i:i + 3] for i in range(0, len(palette), 3)]
 
-        exp_palette, exp_trans, exp_pixels, exp_pixels2, frame2_xy = self._get_pixels_from_udg_array(udg_array, scale, mask)
+        exp_palette, exp_masks, exp_pixels, exp_pixels2, frame2_xy = self._get_pixels_from_udg_array(udg_array, scale, mask)
         self.assertEqual(sorted(palette), sorted(exp_palette))
-        self.assertEqual(trans, exp_trans)
+        self.assertEqual(masks, exp_masks)
         self.assertEqual(flash_rect, frame2_xy)
 
         palette_size = len(palette)

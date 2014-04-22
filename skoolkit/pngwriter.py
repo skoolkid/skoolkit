@@ -83,7 +83,7 @@ class PngWriter:
         self.fdat2 = bytearray(FDAT + (0, 0, 0, 2))
         self.iend_chunk = bytearray(IEND_CHUNK)
 
-    def write_image(self, frames, img_file, palette, attr_map, trans, flash_rect):
+    def write_image(self, frames, img_file, palette, attr_map, has_trans, flash_rect):
         bit_depth, palette_size = self._get_bit_depth(palette)
         frame1 = frames[0]
         width, height = frame1.width, frame1.height
@@ -99,7 +99,7 @@ class PngWriter:
         self._write_plte_chunk(img_file, palette)
 
         # tRNS
-        if trans and self.alpha != 255:
+        if has_trans and self.alpha != 255:
             self._write_chunk(img_file, self.trns + [self.alpha])
 
         # acTL
@@ -156,8 +156,8 @@ class PngWriter:
         # The PNG method dictionary is keyed on:
         #   bit_depth: 0 (1 colour), 1 (2 colours), 2 or 4
         #   full_size: 0 (cropped), 1 (full size)
-        #   trans: 0 (no transparent colour), 1 (some UDGs have masks), or 2
-        #          (all UDGs have masks)
+        #   masks: 0 (no UDGs have masks), 1 (some UDGs have masks), or 2 (all
+        #          UDGs have masks)
         #   flash: 1 (invert paper/ink for flashing cells), 0 (don't)
         # and the values are 2-element tuples:
         #   (method1, method2)
@@ -173,8 +173,8 @@ class PngWriter:
             bd_method_dict = self.png_method_dict[bit_depth] = {}
             for full_size in (0, 1):
                 fs_method_dict = bd_method_dict[full_size] = {}
-                for trans in (0, 1, 2):
-                    ht_method_dict = fs_method_dict[trans] = {}
+                for masks in (0, 1, 2):
+                    ht_method_dict = fs_method_dict[masks] = {}
                     for flash in (0, 1):
                         ht_method_dict[flash] = default_methods
 
@@ -286,9 +286,15 @@ class PngWriter:
     def _build_image_data(self, frame, palette_size, bit_depth, attr_map, flash_rect=None):
         udg_array = frame.udgs
         scale = frame.scale
-        mask = self.masks[frame.mask]
         x, y, width, height = frame.x, frame.y, frame.width, frame.height
-        trans = frame.trans
+        if frame.mask and frame.has_masks:
+            masks = frame.has_masks + frame.all_masked
+            mask = self.masks[frame.mask]
+            masked = True
+        else:
+            masks = 0
+            mask = self.masks[0]
+            masked = False
         full_size = not frame.cropped
 
         frame2 = frame2_rect = None
@@ -304,7 +310,7 @@ class PngWriter:
             bd = 0
         else:
             bd = bit_depth
-        method_dict = self.png_method_dict[bd][full_size][trans]
+        method_dict = self.png_method_dict[bd][full_size][masks]
 
         # Frame 1
         f1_method, f1_build_method = method_dict[0]
@@ -312,7 +318,7 @@ class PngWriter:
             num_tiles = len(udg_array[0]) * len(udg_array)
             f1_build_method = f1_method(num_tiles, len(attr_map), scale)
         frame1 = f1_build_method(udg_array, scale, attr_map=attr_map,
-                                 trans=trans, flash=False,
+                                 masked=masked, flash=False,
                                  x0=x, y0=y, width=width, height=height,
                                  bit_depth=bit_depth, mask=mask)
 
@@ -328,7 +334,7 @@ class PngWriter:
             if f2_method:
                 f2_build_method = f2_method(len(f2_udg_array[0]) * len(f2_udg_array), len(attr_map), scale)
             frame2 = f2_build_method(f2_udg_array, scale, attr_map=attr_map,
-                                     trans=trans, flash=True,
+                                     masked=masked, flash=True,
                                      x0=x + f2_x, y0=y + f2_y, width=f2_w, height=f2_h,
                                      bit_depth=bit_depth, mask=mask)
 
@@ -350,7 +356,7 @@ class PngWriter:
         img_file.write(img_data)
         img_file.write(bytearray(self._get_crc(img_data))) # CRC
 
-    def _build_image_data_bd_any(self, udg_array, scale, attr_map, trans, flash, x0, y0, width, height, bit_depth, mask):
+    def _build_image_data_bd_any(self, udg_array, scale, attr_map, flash, x0, y0, width, height, bit_depth, mask, **kwargs):
         # Build image data at any bit depth using a generic method
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
@@ -466,13 +472,13 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd4(self, udg_array, scale, attr_map, trans, flash, mask, **kwargs):
+    def _build_image_data_bd4(self, udg_array, scale, attr_map, masked, flash, mask, **kwargs):
         # Build image data with bit depth 4
         attr_dict = {}
         attr_dict_t = {}
         for attr, (p, i) in attr_map.items():
             attr_dict[attr] = (p * 17, p * 16 + i, i * 16 + p, i * 17)
-            if trans:
+            if masked:
                 attr_dict_t[attr] = (0, p, p * 16, i, i * 16)
 
         compressor = zlib.compressobj(self.compression_level)
@@ -489,8 +495,7 @@ class PngWriter:
                         pp, pi, ip, ii = ii, ip, pi, pp
                     pph = (pp,) * h_scale
                     iih = (ii,) * h_scale
-                    byte = udg.data[i]
-                    if trans and udg.mask:
+                    if masked and udg.mask:
                         # Apply mask
                         tt, tp, pt, ti, it = attr_dict_t[attr & 127]
                         if flash and attr & 128:
@@ -546,6 +551,7 @@ class PngWriter:
                                 scanline.extend(pph)
                     else:
                         # No mask
+                        byte = udg.data[i]
                         if byte == 0:
                             scanline.extend((pp,) * 4 * scale)
                         elif byte == 255:
@@ -643,7 +649,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd2(self, udg_array, scale, attr_map, trans, flash, mask, **kwargs):
+    def _build_image_data_bd2(self, udg_array, scale, attr_map, masked, flash, mask, **kwargs):
         # Build image data with bit depth 2
         attr_dict = {}
         for attr, q in attr_map.items():
@@ -660,7 +666,7 @@ class PngWriter:
                     attr = udg.attr
                     byte = udg.data[i]
                     attrs = attr_dict[attr & 127]
-                    if trans and udg.mask:
+                    if masked and udg.mask:
                         # Apply mask
                         p = []
                         paper, ink = attr_map[attr & 127]
@@ -740,7 +746,7 @@ class PngWriter:
             img_data.extend(((0,) + img_bytes[b]) * scale)
         return self._compress_all_bytes(img_data)
 
-    def _build_image_data_bd1(self, udg_array, scale, attr_map, trans, flash, mask, **kwargs):
+    def _build_image_data_bd1(self, udg_array, scale, attr_map, masked, flash, mask, **kwargs):
         # Build image data with bit depth 1 and a 2-colour palette
         attr_dict = {}
         for attr, q in attr_map.items():
@@ -749,7 +755,7 @@ class PngWriter:
         compressor = zlib.compressobj(self.compression_level)
         e_scale = scale // 8
         scale_m = scale & 7
-        if trans:
+        if masked:
             t = (0,) * scale
             ink = paper = (1,) * scale
         img_data = bytearray()
@@ -758,7 +764,7 @@ class PngWriter:
                 scanline = bytearray((0,))
                 for udg in row:
                     byte = udg.data[i]
-                    if trans and udg.mask:
+                    if masked and udg.mask:
                         # Apply mask
                         p = []
                         for pixel in mask.apply(udg, i, paper, ink, t):
