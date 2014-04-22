@@ -17,6 +17,7 @@ MAPS_DIR = 'maps'
 GRAPHICS_DIR = 'graphics'
 BUFFERS_DIR = 'buffers'
 REFERENCE_DIR = 'reference'
+SCRDIR = 'images/scr'
 UDGDIR = 'images/udgs'
 
 REF_SECTIONS = {
@@ -34,6 +35,16 @@ LinkOperands=CALL,DEFW,DJNZ,JP,JR
 CodePath={}
 """.format(ASMDIR)
 
+METHOD_MINIMAL_REF_FILE = """
+[Game]
+Created=
+LinkOperands=CALL,DEFW,DJNZ,JP,JR
+[Paths]
+CodePath={ASMDIR}
+ScreenshotImagePath={SCRDIR}
+UDGImagePath={UDGDIR}
+""".format(**locals())
+
 SKOOL_MACRO_MINIMAL_REF_FILE = """
 [Game]
 Created=
@@ -42,7 +53,7 @@ LinkOperands=CALL,DEFW,DJNZ,JP,JR
 [Paths]
 CodePath={ASMDIR}
 FontImagePath=images/font
-ScreenshotImagePath=images/scr
+ScreenshotImagePath={SCRDIR}
 UDGImagePath={UDGDIR}
 Bugs={REFERENCE_DIR}/bugs.html
 Facts={REFERENCE_DIR}/facts.html
@@ -189,6 +200,10 @@ class HtmlWriterTestCase(SkoolKitTestCase):
         return writer
 
 class MethodTest(HtmlWriterTestCase):
+    def setUp(self):
+        HtmlWriterTestCase.setUp(self)
+        self.mock(skoolhtml, 'REF_FILE', METHOD_MINIMAL_REF_FILE)
+
     def _assert_scr_equal(self, game, x0=0, y0=0, w=32, h=24):
         snapshot = game.snapshot[:]
         scr = game.screenshot(x0, y0, w, h)

@@ -49,7 +49,7 @@ class SkoolKitTestCase(TestCase):
         self.mocks = []
 
     def tearDown(self):
-        for obj, attr_name, attr in self.mocks:
+        for obj, attr_name, attr in reversed(self.mocks):
             setattr(obj, attr_name, attr)
         self.remove_files()
         sys.stdin.close()
