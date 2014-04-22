@@ -147,7 +147,7 @@ class ImageWriterTest:
         img_stream.close()
         return img_bytes
 
-    def _get_pixels_from_udg_array(self, udg_array, scale, mask, x0, y0, width, height):
+    def _get_pixels_from_udg_array(self, udg_array, scale, mask, x0=0, y0=0, width=None, height=None):
         full_width = 8 * len(udg_array[0]) * scale
         full_height = 8 * len(udg_array) * scale
         width = min(width or full_width, full_width - x0)
@@ -838,20 +838,20 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(idat_crc, self._get_crc(img_bytes[idat_start:idat_end]))
         return i
 
-    def _test_method(self, method_name, udg_array, scale=1, mask=False, flash=0, x=0, y=0, width=None, height=None):
+    def _test_method(self, method_name, udg_array, scale=1, mask=0):
         image_writer = ImageWriter()
         png_writer = image_writer.writers['png']
         method = getattr(png_writer, '_build_image_data_{0}'.format(method_name))
 
         use_flash = image_writer.options[PNG_ENABLE_ANIMATION]
-        frame = Frame(udg_array, scale, mask, x, y, width, height)
+        frame = Frame(udg_array, scale, mask)
         width, height = frame.width, frame.height
         colours, attrs, flash_rect = image_writer._get_colours(frame, use_flash)
         trans = frame.trans
         palette, attr_map = image_writer._get_palette(colours, attrs, trans)
         palette = [palette[i:i + 3] for i in range(0, len(palette), 3)]
 
-        exp_palette, exp_trans, exp_pixels, exp_pixels2, frame2_xy = self._get_pixels_from_udg_array(udg_array, scale, mask, x, y, width, height)
+        exp_palette, exp_trans, exp_pixels, exp_pixels2, frame2_xy = self._get_pixels_from_udg_array(udg_array, scale, mask)
         self.assertEqual(sorted(palette), sorted(exp_palette))
         self.assertEqual(trans, exp_trans)
         self.assertEqual(flash_rect, frame2_xy)
@@ -863,7 +863,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
             bit_depth = 2
         else:
             bit_depth = 1
-        image_data_z = method(udg_array, scale, attr_map, trans, flash, x, y, width, height, bit_depth, png_writer.masks[mask])
+        image_data_z = method(udg_array, scale, attr_map=attr_map, mask=png_writer.masks[mask])
         if PY3:
             image_data = list(zlib.decompress(image_data_z))
         else:

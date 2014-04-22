@@ -311,7 +311,10 @@ class PngWriter:
         if f1_method:
             num_tiles = len(udg_array[0]) * len(udg_array)
             f1_build_method = f1_method(num_tiles, len(attr_map), scale)
-        frame1 = f1_build_method(udg_array, scale, attr_map, trans, False, x, y, width, height, bit_depth, mask)
+        frame1 = f1_build_method(udg_array, scale, attr_map=attr_map,
+                                 trans=trans, flash=False,
+                                 x0=x, y0=y, width=width, height=height,
+                                 bit_depth=bit_depth, mask=mask)
 
         # Frame 2
         if frame2_rect:
@@ -324,7 +327,10 @@ class PngWriter:
             f2_method, f2_build_method = method_dict[1]
             if f2_method:
                 f2_build_method = f2_method(len(f2_udg_array[0]) * len(f2_udg_array), len(attr_map), scale)
-            frame2 = f2_build_method(f2_udg_array, scale, attr_map, trans, True, x + f2_x, y + f2_y, f2_w, f2_h, bit_depth, mask)
+            frame2 = f2_build_method(f2_udg_array, scale, attr_map=attr_map,
+                                     trans=trans, flash=True,
+                                     x0=x + f2_x, y0=y + f2_y, width=f2_w, height=f2_h,
+                                     bit_depth=bit_depth, mask=mask)
 
         return frame1, frame2, frame2_rect
 
@@ -414,7 +420,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd4_nt_nf(self, udg_array, scale, attr_map, trans=0, flash=0, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
+    def _build_image_data_bd4_nt_nf(self, udg_array, scale, attr_map, **kwargs):
         # Build image data with bit depth 4 for an image with no transparency
         attrs = {}
         if scale == 1:
@@ -460,7 +466,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd4(self, udg_array, scale, attr_map, trans, flash, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
+    def _build_image_data_bd4(self, udg_array, scale, attr_map, trans, flash, mask, **kwargs):
         # Build image data with bit depth 4
         attr_dict = {}
         attr_dict_t = {}
@@ -570,7 +576,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd2_nt_nf(self, udg_array, scale, attr_map, trans=0, flash=0, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
+    def _build_image_data_bd2_nt_nf(self, udg_array, scale, attr_map, **kwargs):
         # Build image data with bit depth 2 for an image with no transparency
         scale_m = scale & 3
         q = scale // 4
@@ -609,7 +615,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd2_at_nf(self, udg_array, scale, attr_map, trans=2, flash=0, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
+    def _build_image_data_bd2_at_nf(self, udg_array, scale, attr_map, mask, **kwargs):
         # Build image data with bit depth 2 for a masked image when scale & 3 == 0 or scale == 2
         q = scale // 4
         attrs = {}
@@ -637,7 +643,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd2(self, udg_array, scale, attr_map, trans, flash, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
+    def _build_image_data_bd2(self, udg_array, scale, attr_map, trans, flash, mask, **kwargs):
         # Build image data with bit depth 2
         attr_dict = {}
         for attr, q in attr_map.items():
@@ -704,7 +710,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd1_nt_nf_1udg(self, udg_array, scale, attr_map, trans, flash, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
+    def _build_image_data_bd1_nt_nf_1udg(self, udg_array, scale, attr_map, **kwargs):
         # Build image data with bit depth 1 for a single UDG
         udg = udg_array[0][0]
         img_bytes = {}
@@ -734,7 +740,7 @@ class PngWriter:
             img_data.extend(((0,) + img_bytes[b]) * scale)
         return self._compress_all_bytes(img_data)
 
-    def _build_image_data_bd1(self, udg_array, scale, attr_map, trans, flash, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
+    def _build_image_data_bd1(self, udg_array, scale, attr_map, trans, flash, mask, **kwargs):
         # Build image data with bit depth 1 and a 2-colour palette
         attr_dict = {}
         for attr, q in attr_map.items():
@@ -904,7 +910,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd1_blank(self, udg_array, scale, attr_map, trans=0, flash=0, x=0, y=0, width=0, height=0, bit_depth=0, mask=None):
+    def _build_image_data_bd1_blank(self, udg_array, scale, **kwargs):
         # Build image data with bit depth 1 and a single-colour palette;
         # placing the integer value in brackets means it is evaluated before
         # 'multiplying' the tuple (and is therefore quicker)
