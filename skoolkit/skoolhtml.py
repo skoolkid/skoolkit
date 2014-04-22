@@ -1367,7 +1367,8 @@ class HtmlWriter:
                 defaults = (udg_step,)
                 mask_params = self.parse_image_params(text, end + 1, defaults=defaults, path_id=udg_path_id, chars='-x', ints=(1,), names=param_names)
                 end, fname, crop_rect, mask_addr, mask_step = mask_params
-                mask_addresses = self._get_udg_addresses(mask_addr, width)
+                if mask:
+                    mask_addresses = self._get_udg_addresses(mask_addr, width)
             has_masks = has_masks or len(mask_addresses) > 0
             mask_addresses += [None] * (len(udg_addresses) - len(mask_addresses))
             for u, m in zip(udg_addresses, mask_addresses):

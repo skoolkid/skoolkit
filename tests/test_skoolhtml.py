@@ -1792,6 +1792,34 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self._assert_img_equals(output, img_fname, '../{}'.format(exp_img_path))
         self.assertEqual(writer.file_info.fname, exp_img_path)
 
+    def test_macro_udgarray_with_mask(self):
+        udg_data = [15] * 8
+        udg_mask = [31] * 8
+        udg_array_no_mask = [[Udg(56, udg_data)]]
+        udg_array = [[Udg(56, udg_data, udg_mask)]]
+        scale = 2
+        writer = self._get_writer(snapshot=udg_data + udg_mask, mock_file_info=True)
+
+        # No mask parameter, no mask defined
+        writer.expand('#UDGARRAY1;0(udgarray)', ASMDIR)
+        self._check_image(writer.image_writer, udg_array_no_mask, scale, mask=0)
+
+        # mask=1, no mask defined
+        writer.expand('#UDGARRAY1,mask=1;0(udgarray)', ASMDIR)
+        self._check_image(writer.image_writer, udg_array_no_mask, scale, mask=0)
+
+        # mask=0, mask defined
+        writer.expand('#UDGARRAY1,mask=0;0:8(udgarray)', ASMDIR)
+        self._check_image(writer.image_writer, udg_array_no_mask, scale, mask=0)
+
+        # No mask parameter, mask defined
+        writer.expand('#UDGARRAY1;0:8(udgarray)', ASMDIR)
+        self._check_image(writer.image_writer, udg_array, scale, mask=1)
+
+        # mask=2, mask defined
+        writer.expand('#UDGARRAY1,mask=2;0:8(udgarray)', ASMDIR)
+        self._check_image(writer.image_writer, udg_array, scale, mask=2)
+
     def test_macro_udgarray_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
         prefix = ERROR_PREFIX.format('UDGARRAY')
