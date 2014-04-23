@@ -3545,18 +3545,20 @@ class HtmlOutputTest(HtmlWriterTestCase):
             '    3',
             '    4',
             '  5',
-            '',
             '[Changelog:20120703]',
             '-',
             '',
             '1',
             '  2',
             '    3',
+            '[Changelog:20120702]',
+            'Initial release'
         ))
         content = """
             <ul class="contents">
             <li><a class="link" href="#20120704">20120704</a></li>
             <li><a class="link" href="#20120703">20120703</a></li>
+            <li><a class="link" href="#20120702">20120702</a></li>
             </ul>
             <div><a name="20120704"></a></div>
             <div class="changelog changelog-1">
@@ -3591,6 +3593,11 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </ul>
             </li>
             </ul>
+            </div>
+            <div><a name="20120702"></a></div>
+            <div class="changelog changelog-1">
+            <div class="changelog-title">20120702</div>
+            <div class="changelog-desc">Initial release</div>
             </div>
         """
         writer = self._get_writer(ref=ref, skool='')
