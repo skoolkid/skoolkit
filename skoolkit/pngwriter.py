@@ -664,8 +664,6 @@ class PngWriter:
                 scanline = bytearray((0,))
                 for udg in row:
                     attr = udg.attr
-                    byte = udg.data[i]
-                    attrs = attr_dict[attr & 127]
                     if masked and udg.mask:
                         # Apply mask
                         p = []
@@ -677,6 +675,8 @@ class PngWriter:
                         scanline.extend([p[j] * 64 + p[j + 1] * 16 + p[j + 2] * 4 + p[j + 3] for j in range(0, len(p), 4)])
                     else:
                         # No mask
+                        byte = udg.data[i]
+                        attrs = attr_dict[attr & 127]
                         if flash and attr & 128:
                             byte ^= 255
                         for bits in ((byte & 240) // 16, byte & 15):
@@ -755,23 +755,24 @@ class PngWriter:
         compressor = zlib.compressobj(self.compression_level)
         e_scale = scale // 8
         scale_m = scale & 7
-        if masked:
-            t = (0,) * scale
-            ink = paper = (1,) * scale
         img_data = bytearray()
         for row in udg_array:
             for i in range(8):
                 scanline = bytearray((0,))
                 for udg in row:
-                    byte = udg.data[i]
+                    attr = udg.attr
                     if masked and udg.mask:
                         # Apply mask
                         p = []
-                        for pixel in mask.apply(udg, i, paper, ink, t):
+                        paper, ink = attr_map[attr & 127]
+                        if flash and attr & 128:
+                            paper, ink = ink, paper
+                        for pixel in mask.apply(udg, i, (paper,) * scale, (ink,) * scale, (0,) * scale):
                             p.extend(pixel)
                         scanline.extend([p[j] * 128 + p[j + 1] * 64 + p[j + 2] * 32 + p[j + 3] * 16 + p[j + 4] * 8 + p[j + 5] * 4 + p[j + 6] * 2 + p[j + 7] for j in range(0, len(p), 8)])
                     else:
                         # No mask
+                        byte = udg.data[i]
                         attr = udg.attr
                         if flash and attr & 128:
                             byte ^= 255
