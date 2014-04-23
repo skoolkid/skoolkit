@@ -2227,15 +2227,18 @@ class HtmlOutputTest(HtmlWriterTestCase):
             '',
             '[Index:MemoryMaps:RAM maps]',
             'RoutinesMap',
-            'MemoryMap',
+            'WordMap',
             '',
             '[Links]',
-            'MemoryMap=Entire RAM',
+            'WordMap=Words',
             'Facts=Facts',
             '',
+            '[MemoryMap:WordMap]',
+            'EntryTypes=w',
+            '',
             '[Paths]',
-            'MemoryMap=memorymaps/ram.html',
             'RoutinesMap=memorymaps/routines.html',
+            'WordMap=memorymaps/words.html',
             'Bugs=ref/bugs.html',
             'Facts=ref/facts.html',
             'Changelog=ref/changelog.html',
@@ -2244,8 +2247,8 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'ref/bugs.html',
             'ref/facts.html',
             'ref/changelog.html',
-            'memorymaps/ram.html',
             'memorymaps/routines.html',
+            'memorymaps/words.html',
             'memorymaps/data.html'
         ]
         content = """
@@ -2257,7 +2260,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <div class="section-header">RAM maps</div>
             <ul class="index-list">
             <li><a class="link" href="memorymaps/routines.html">Routines</a></li>
-            <li><a class="link" href="memorymaps/ram.html">Entire RAM</a></li>
+            <li><a class="link" href="memorymaps/words.html">Words</a></li>
             </ul>
         """
         custom_subs = {
