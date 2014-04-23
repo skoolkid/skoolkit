@@ -34,6 +34,7 @@ CRC_MASK = 4294967295
 BITS4 = [[(n & m) // m for m in (8, 4, 2, 1)] for n in range(16)]
 BITS8 = [[(n & m) // m for m in (128, 64, 32, 16, 8, 4, 2, 1)] for n in range(256)]
 BIT_PAIRS = [((n & 192) >> 6, (n & 48) >> 4, (n & 12) >> 2, n & 3) for n in range(256)]
+BIT_PAIRS2 = [[((n << m) & 128) // 64 + ((n << m) & 8) // 8 for m in range(4)] for n in range(256)]
 BD4_MAP0 = (
     ((0, 1),),
     ((0, 2), (1, 2)),
@@ -47,26 +48,6 @@ BD4_MAP1 = (
     ((3, 1),)
 )
 BD2_BITS = [BITS4[n] for n in (0, 1, 3, 7, 8, 12, 14, 15)]
-
-# Bytes for all possible bit patterns at even scales at bit depth 2
-BD2_BYTES2 = (
-    (0,),   # 00000000 (0000)
-    (5,),   # 00000101 (0011)
-    (10,),  # 00001010 (0022)
-    (15,),  # 00001111 (0033)
-    (80,),  # 01010000 (1100)
-    (85,),  # 01010101 (1111)
-    (90,),  # 01011010 (1122)
-    (95,),  # 01011111 (1133)
-    (160,), # 10100000 (2200)
-    (165,), # 10100101 (2211)
-    (170,), # 10101010 (2222)
-    (175,), # 10101111 (2233)
-    (240,), # 11110000 (3300)
-    (245,), # 11110101 (3311)
-    (250,), # 11111010 (3322)
-    (255,)  # 11111111 (3333)
-)
 
 class PngWriter:
     def __init__(self, alpha=255, compression_level=9, masks=None):
@@ -623,17 +604,17 @@ class PngWriter:
 
     def _build_image_data_bd2_at_nf(self, udg_array, scale, attr_map, mask, **kwargs):
         # Build image data with bit depth 2 for a masked image when scale & 3 == 0 or scale == 2
-        q = scale // 4
         attrs = {}
         if scale & 3 == 0:
+            q = scale // 4
             b = ((0,) * q, (85,) * q, (170,) * q, (255,) * q) # 00000000, 01010101, 10101010, 11111111
             for attr, (p, i) in attr_map.items():
                 c = mask.colours(b, p, i, 0)
-                attrs[attr] = [c[b3 * 2 + m3] + c[b2 * 2 + m2] + c[b1 * 2 + m1] + c[b0 * 2 + m0] for b3, b2, b1, b0, m3, m2, m1, m0 in BITS8]
+                attrs[attr] = [c[b3] + c[b2] + c[b1] + c[b0] for b3, b2, b1, b0 in BIT_PAIRS2]
         elif scale == 2:
             for attr, (paper, ink) in attr_map.items():
                 p = mask.colours((paper, ink, 0), 0, 1, 2)
-                attrs[attr] = [BD2_BYTES2[p[b3 * 2 + m3] * 4 + p[b2 * 2 + m2]] + BD2_BYTES2[p[b1 * 2 + m1] * 4 + p[b0 * 2 + m0]] for b3, b2, b1, b0, m3, m2, m1, m0 in BITS8]
+                attrs[attr] = [(p[b3] * 80 + p[b2] * 5, p[b1] * 80 + p[b0] * 5) for b3, b2, b1, b0 in BIT_PAIRS2]
 
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
@@ -644,7 +625,7 @@ class PngWriter:
                     attr_bytes = attrs[udg.attr & 127]
                     byte = udg.data[i]
                     mask_byte = udg.mask[i]
-                    scanline.extend(attr_bytes[(byte & 240) + (mask_byte & 240) // 16] + attr_bytes[(byte & 15) * 16 + (mask_byte & 15)])
+                    scanline.extend(attr_bytes[(byte & 240) + mask_byte // 16] + attr_bytes[(byte & 15) * 16 + (mask_byte & 15)])
                 self._compress_bytes(compressor, img_data, scanline * scale)
         img_data.extend(compressor.flush())
         return img_data
