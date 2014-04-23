@@ -307,6 +307,12 @@ class ImageWriterTest:
         self._test_image(udg_array, mask=True)
         self._test_image(udg_array, scale=2, mask=True)
 
+    def test_masked_bd1_flashing(self):
+        # Masked image, flashing, no transparent bits
+        udg = Udg(184, (1,) * 8, (1,) * 8)
+        udg_array = [[udg] * 4]
+        self._test_image(udg_array, scale=1, mask=1)
+
     def test_masked_bd1_ink(self):
         # Masked image, two colours (trans + ink), >= 4 UDGs
         udg = Udg(49, (136,) * 8, (255,) * 8)
