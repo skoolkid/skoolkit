@@ -19,18 +19,18 @@ from skoolkit.skoolhtml import Udg, Frame
 def write(line):
     sys.stdout.write(line + '\n')
 
-def clock(method, *args):
+def clock(method, *args, **kwargs):
     elapsed = []
     for n in range(3):
         start = time.time()
-        method(*args)
+        method(*args, **kwargs)
         elapsed.append((time.time() - start) * 1000)
 
     trials = max((10, int(2000 / min(elapsed))))
     elapsed = []
     for n in range(trials):
         start = time.time()
-        method(*args)
+        method(*args, **kwargs)
         elapsed.append((time.time() - start) * 1000)
 
     elapsed.sort()
@@ -67,7 +67,7 @@ def _get_attr_map(iw, udgs, scale):
     frame = Frame(udgs, scale)
     use_flash = True
     colours, attrs, flash_rect = iw._get_colours(frame, use_flash)
-    palette, attr_map = iw._get_palette(colours, attrs, frame.trans)
+    palette, attr_map = iw._get_palette(colours, attrs, frame.has_trans)
     palette_size = len(palette) // 3
     if palette_size > 4:
         bit_depth = 4
@@ -80,10 +80,14 @@ def _get_attr_map(iw, udgs, scale):
 def _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analyse_ua=False):
     m1 = get_method(iw, method1)
     m2 = get_method(iw, method2)
-    trans = 2 if mask_type else 0
-    flash = False
-    mask = iw.masks[mask_type]
     write('{} v. {}:'.format(m1.__name__, m2.__name__))
+    kwargs = {
+        'masked': mask_type > 0,
+        'flash': False,
+        'x0': 0,
+        'y0': 0,
+        'mask': iw.masks[mask_type]
+    }
 
     if analyse_ua:
         for scale in scales:
@@ -98,8 +102,14 @@ def _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analys
                 num_attrs = len(attr_map)
                 ua_params.append(num_attrs)
                 ua_params.append(num_udgs)
-                t1 = clock(m1, udgs, scale, attr_map, trans, flash, 0, 0, width, height, bit_depth, mask)
-                t2 = clock(m2, udgs, scale, attr_map, trans, flash, 0, 0, width, height, bit_depth, mask)
+                kwargs.update({
+                    'attr_map': attr_map,
+                    'width': width,
+                    'height': height,
+                    'bit_depth': bit_depth
+                })
+                t1 = clock(m1, udgs, scale, **kwargs)
+                t2 = clock(m2, udgs, scale, **kwargs)
                 timings.append(t1)
                 timings.append(t2)
                 write('    num_udgs={}, num_attrs={}: {:0.2f}ms {:0.2f}ms'.format(num_udgs, num_attrs, t1, t2))
@@ -115,8 +125,14 @@ def _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analys
                 width = len(udgs[0]) * 8 * scale
                 height = len(udgs) * 8 * scale
                 bit_depth, attr_map = _get_attr_map(iw, udgs, scale)
-                t1 = clock(m1, udgs, scale, attr_map, trans, flash, 0, 0, width, height, bit_depth, mask)
-                t2 = clock(m2, udgs, scale, attr_map, trans, flash, 0, 0, width, height, bit_depth, mask)
+                kwargs.update({
+                    'attr_map': attr_map,
+                    'width': width,
+                    'height': height,
+                    'bit_depth': bit_depth
+                })
+                t1 = clock(m1, udgs, scale, **kwargs)
+                t2 = clock(m2, udgs, scale, **kwargs)
                 num_udgs = len(udgs[0]) * len(udgs)
                 num_attrs = len(attr_map)
                 output = '  num_udgs={}, num_attrs={}, scale={}: {:0.2f}ms {:0.2f}ms'.format(num_udgs, num_attrs, scale, t1, t2)
