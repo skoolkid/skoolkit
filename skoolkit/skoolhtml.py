@@ -1576,6 +1576,11 @@ class Frame(object):
         self._width = min(width or self._full_width, self._full_width - x)
         self._height = min(height or self._full_height, self._full_height - y)
         self.delay = delay
+        self._tiles = len(udgs[0]) * len(udgs)
+
+    def crop(self, tx, ty, tw, th):
+        udgs = [self.udgs[i][tx:tx + tw] for i in range(ty, ty + th)]
+        return Frame(udgs, self.scale, self.mask)
 
     @property
     def udgs(self):
@@ -1604,3 +1609,7 @@ class Frame(object):
     @property
     def cropped(self):
         return self._width != self._full_width or self._height != self._full_height
+
+    @property
+    def tiles(self):
+        return self._tiles

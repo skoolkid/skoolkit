@@ -137,8 +137,7 @@ class PngWriter:
         # The PNG method dictionary is keyed on:
         #   bit_depth: 0 (1 colour), 1 (2 colours), 2 or 4
         #   full_size: 0 (cropped), 1 (full size)
-        #   masks: 0 (no UDGs have masks), 1 (some UDGs have masks), or 2 (all
-        #          UDGs have masks)
+        #   masked: 0 (unmasked), 1 (masked)
         #   flash: 1 (invert paper/ink for flashing cells), 0 (don't)
         # and the values are 2-element tuples:
         #   (method1, method2)
@@ -154,8 +153,8 @@ class PngWriter:
             bd_method_dict = self.png_method_dict[bit_depth] = {}
             for full_size in (0, 1):
                 fs_method_dict = bd_method_dict[full_size] = {}
-                for masks in (0, 1, 2):
-                    ht_method_dict = fs_method_dict[masks] = {}
+                for masked in (0, 1):
+                    ht_method_dict = fs_method_dict[masked] = {}
                     for flash in (0, 1):
                         ht_method_dict[flash] = default_methods
 
@@ -166,8 +165,6 @@ class PngWriter:
         bd0_fs_method_dict[0][1] = bd0_methods
         bd0_fs_method_dict[1][0] = bd0_methods
         bd0_fs_method_dict[1][1] = bd0_methods
-        bd0_fs_method_dict[2][0] = bd0_methods
-        bd0_fs_method_dict[2][1] = bd0_methods
 
         # Bit depth 1 (2 colours)
         bd1_methods = (self._bd1_method, None)
@@ -176,18 +173,14 @@ class PngWriter:
         bd1_fs_method_dict[0][1] = bd1_methods
         bd1_fs_method_dict[1][0] = bd1_methods
         bd1_fs_method_dict[1][1] = bd1_methods
-        bd1_fs_method_dict[2][0] = bd1_methods
-        bd1_fs_method_dict[2][1] = bd1_methods
 
         # Bit depth 2
         bd2_methods = (None, self._build_image_data_bd2)
         bd2_fs_method_dict = self.png_method_dict[2][1]
         bd2_fs_method_dict[0][0] = (None, self._build_image_data_bd2_nt_nf)
         bd2_fs_method_dict[0][1] = bd2_methods
-        bd2_fs_method_dict[1][0] = bd2_methods
+        bd2_fs_method_dict[1][0] = (self._bd2_at_nf_method, None)
         bd2_fs_method_dict[1][1] = bd2_methods
-        bd2_fs_method_dict[2][0] = (self._bd2_at_nf_method, None)
-        bd2_fs_method_dict[2][1] = bd2_methods
 
         # Bit depth 4
         bd4_methods = (None, self._build_image_data_bd4)
@@ -196,32 +189,30 @@ class PngWriter:
         bd4_fs_method_dict[0][1] = bd4_methods
         bd4_fs_method_dict[1][0] = bd4_methods
         bd4_fs_method_dict[1][1] = bd4_methods
-        bd4_fs_method_dict[2][0] = bd4_methods
-        bd4_fs_method_dict[2][1] = bd4_methods
 
-    def _bd1_method(self, num_udgs, num_attrs, scale):
-        if num_udgs < 4 or (num_udgs < 9 and num_attrs > 1):
+    def _bd1_method(self, frame):
+        if frame.tiles < 4 or (frame.tiles < 9 and len(frame.attr_map) > 1):
             return self._build_image_data_bd_any
         return self._build_image_data_bd1
 
-    def _bd1_nt_nf_method(self, num_udgs, num_attrs, scale):
-        if num_udgs == 1 and scale in (1, 2, 4, 8):
+    def _bd1_nt_nf_method(self, frame):
+        if frame.tiles == 1 and frame.scale in (1, 2, 4, 8):
             return self._build_image_data_bd1_nt_nf_1udg
-        return self._bd1_method(num_udgs, num_attrs, scale)
+        return self._bd1_method(frame)
 
-    def _bd2_at_nf_method(self, num_udgs, num_attrs, scale):
-        if scale == 2 or scale & 3 == 0:
+    def _bd2_at_nf_method(self, frame):
+        if frame.all_masked and (frame.scale == 2 or frame.scale & 3 == 0):
             return self._build_image_data_bd2_at_nf
         return self._build_image_data_bd2
 
-    def _bd4_nt_nf_method(self, num_udgs, num_attrs, scale):
-        if scale == 2:
+    def _bd4_nt_nf_method(self, frame):
+        if frame.scale == 2:
             min_index = 10
-        elif scale == 1:
+        elif frame.scale == 1:
             min_index = 7
         else:
             min_index = 39
-        if num_udgs / num_attrs >= min_index:
+        if frame.tiles / len(frame.attr_map) >= min_index:
             return self._build_image_data_bd4_nt_nf
         return self._build_image_data_bd4
 
@@ -271,11 +262,11 @@ class PngWriter:
         if frame.mask and frame.has_masks:
             masks = frame.has_masks + frame.all_masked
             mask = self.masks[frame.mask]
-            masked = True
+            masked = 1
         else:
             masks = 0
             mask = self.masks[0]
-            masked = False
+            masked = 0
         full_size = not frame.cropped
 
         frame2 = frame2_rect = None
@@ -291,13 +282,13 @@ class PngWriter:
             bd = 0
         else:
             bd = bit_depth
-        method_dict = self.png_method_dict[bd][full_size][masks]
+        method_dict = self.png_method_dict[bd][full_size][masked]
 
         # Frame 1
+        frame.attr_map = attr_map
         f1_method, f1_build_method = method_dict[0]
         if f1_method:
-            num_tiles = len(udg_array[0]) * len(udg_array)
-            f1_build_method = f1_method(num_tiles, len(attr_map), scale)
+            f1_build_method = f1_method(frame)
         frame1 = f1_build_method(udg_array, scale, attr_map=attr_map,
                                  masked=masked, flash=False,
                                  x0=x, y0=y, width=width, height=height,
@@ -307,14 +298,16 @@ class PngWriter:
         if frame2_rect:
             f2_x, f2_y, f2_w, f2_h = frame2_rect
             if full_size and (f2_tw < len(udg_array[0]) or f2_th < len(udg_array)):
-                f2_udg_array = [udg_array[i][f2_tx:f2_tx + f2_tw] for i in range(f2_ty, f2_ty + f2_th)]
+                f2_frame = frame.crop(f2_tx, f2_ty, f2_tw, f2_th)
+                f2_frame.attr_map = attr_map
+                f2_frame.all_masked = frame.all_masked
                 x = y = f2_x = f2_y = 0
             else:
-                f2_udg_array = udg_array
+                f2_frame = frame
             f2_method, f2_build_method = method_dict[1]
             if f2_method:
-                f2_build_method = f2_method(len(f2_udg_array[0]) * len(f2_udg_array), len(attr_map), scale)
-            frame2 = f2_build_method(f2_udg_array, scale, attr_map=attr_map,
+                f2_build_method = f2_method(f2_frame)
+            frame2 = f2_build_method(f2_frame.udgs, scale, attr_map=attr_map,
                                      masked=masked, flash=True,
                                      x0=x + f2_x, y0=y + f2_y, width=f2_w, height=f2_h,
                                      bit_depth=bit_depth, mask=mask)

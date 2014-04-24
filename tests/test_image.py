@@ -94,6 +94,12 @@ def create_attr_index():
 CRC_TABLE = create_crc_table()
 ATTR_INDEX = create_attr_index()
 
+class MockFrame:
+    def __init__(self, tiles, num_attrs, scale):
+        self.tiles = tiles
+        self.attr_map = dict([(i, 0) for i in range(num_attrs)])
+        self.scale = scale
+
 class ImageWriterOptionsTest(SkoolKitTestCase):
     def test_change_option_values(self):
         options = {
@@ -1074,7 +1080,8 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
 
     def test_bd4_nt_nf_method(self):
         png_writer = ImageWriter().writers['png']
-        self.assertEqual(png_writer._build_image_data_bd4_nt_nf, png_writer._bd4_nt_nf_method(80, 2, 3))
+        frame = MockFrame(80, 2, 3)
+        self.assertEqual(png_writer._build_image_data_bd4_nt_nf, png_writer._bd4_nt_nf_method(frame))
 
 class GifWriterTest(SkoolKitTestCase, ImageWriterTest):
     def setUp(self):
