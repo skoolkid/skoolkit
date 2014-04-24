@@ -601,64 +601,20 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd2(self, udg_array, scale, attr_map, masked, mask, **kwargs):
+    def _build_image_data_bd2(self, udg_array, scale, attr_map, mask, **kwargs):
         # Bit depth 2, full size
-        attr_dict = {}
-        for attr, q in attr_map.items():
-            attr_dict[attr] = [q[b3] * 64 + q[b2] * 16 + q[b1] * 4 + q[b0] for b3, b2, b1, b0 in BITS4]
-
         compressor = zlib.compressobj(self.compression_level)
-        scale_m = scale & 3
-        q_scale = scale // 4
         img_data = bytearray()
+        trans_pixels = (0,) * scale
         for row in udg_array:
             for i in range(8):
                 scanline = bytearray((0,))
                 for udg in row:
-                    if masked and udg.mask:
-                        # Apply mask
-                        p = []
-                        paper, ink = attr_map[udg.attr & 127]
-                        for pixel in mask.apply(udg, i, (paper,) * scale, (ink,) * scale, (0,) * scale):
-                            p.extend(pixel)
-                        scanline.extend([p[j] * 64 + p[j + 1] * 16 + p[j + 2] * 4 + p[j + 3] for j in range(0, len(p), 4)])
-                    else:
-                        # No mask
-                        byte = udg.data[i]
-                        attrs = attr_dict[udg.attr & 127]
-                        for bits in ((byte & 240) // 16, byte & 15):
-                            b3, b2, b1, b0 = BITS4[bits]
-                            if scale_m == 0:
-                                scanline.extend((attrs[b3 * 15],) * q_scale)
-                                scanline.extend((attrs[b2 * 15],) * q_scale)
-                                scanline.extend((attrs[b1 * 15],) * q_scale)
-                                scanline.extend((attrs[b0 * 15],) * q_scale)
-                            elif scale_m == 1:
-                                if scale == 1:
-                                    scanline.append(attrs[bits])
-                                    continue
-                                scanline.extend((attrs[b3 * 15],) * q_scale)
-                                scanline.append(attrs[b3 * 8 + b2 * 7])
-                                scanline.extend((attrs[b2 * 15],) * (q_scale - 1))
-                                scanline.append(attrs[b2 * 12 + b1 * 3])
-                                scanline.extend((attrs[b1 * 15],) * (q_scale - 1))
-                                scanline.append(attrs[b1 * 14 + b0])
-                                scanline.extend((attrs[b0 * 15],) * q_scale)
-                            elif scale_m == 2:
-                                scanline.extend((attrs[b3 * 15],) * q_scale)
-                                scanline.append(attrs[b3 * 12 + b2 * 3])
-                                scanline.extend((attrs[b2 * 15],) * q_scale)
-                                scanline.extend((attrs[b1 * 15],) * q_scale)
-                                scanline.append(attrs[b1 * 12 + b0 * 3])
-                                scanline.extend((attrs[b0 * 15],) * q_scale)
-                            else:
-                                scanline.extend((attrs[b3 * 15],) * q_scale)
-                                scanline.append(attrs[b3 * 14 + b2])
-                                scanline.extend((attrs[b2 * 15],) * q_scale)
-                                scanline.append(attrs[b2 * 12 + b1 * 3])
-                                scanline.extend((attrs[b1 * 15],) * q_scale)
-                                scanline.append(attrs[b1 * 8 + b0 * 7])
-                                scanline.extend((attrs[b0 * 15],) * q_scale)
+                    p = []
+                    paper, ink = attr_map[udg.attr & 127]
+                    for pixel in mask.apply(udg, i, (paper,) * scale, (ink,) * scale, trans_pixels):
+                        p.extend(pixel)
+                    scanline.extend([p[j] * 64 + p[j + 1] * 16 + p[j + 2] * 4 + p[j + 3] for j in range(0, len(p), 4)])
                 self._compress_bytes(compressor, img_data, scanline * scale)
         img_data.extend(compressor.flush())
         return img_data

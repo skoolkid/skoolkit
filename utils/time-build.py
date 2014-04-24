@@ -173,8 +173,15 @@ def bd2(iw, method1, method2, udg_arrays, scales, masked=False):
         scales = scales or (2, 4, 8)
     elif not udg_arrays:
         data = (170,) * 8
-        udg_arrays.append([[Udg(a, data) for a in (1, 19)] * 2] * 4)
-        udg_arrays.append([[Udg(a, data) for a in (1, 8, 19, 26)]] * 4) 
+        udg_arrays.append([[Udg(a, data) for a in (1, 19)]])           # u=2, a=2
+        udg_arrays.append([[Udg(a, data) for a in (1, 19, 19)]])       # u=3, a=2
+        udg_arrays.append([[Udg(a, data) for a in (1, 19, 1, 19)]])    # u=4, a=2
+        udg_arrays.append([[Udg(a, data) for a in (1, 19, 1, 19, 1)]]) # u=5, a=2
+        udg_arrays.append([[Udg(a, data) for a in (1, 8, 19)]])        # u=3, a=3
+        udg_arrays.append([[Udg(a, data) for a in (1, 8, 19, 1)]])     # u=4, a=3
+        udg_arrays.append([[Udg(a, data) for a in (1, 8, 19, 1, 8)]])  # u=5, a=3
+        udg_arrays.append([[Udg(a, data) for a in (1, 8, 19, 26)]])    # u=4, a=4
+        udg_arrays.append([[Udg(a, data) for a in (1, 8, 19, 26, 1)]]) # u=5, a=4
 
     scales = scales or (1, 2, 3, 4, 5)
 
