@@ -83,7 +83,6 @@ def _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analys
     write('{} v. {}:'.format(m1.__name__, m2.__name__))
     kwargs = {
         'masked': mask_type > 0,
-        'flash': False,
         'x0': 0,
         'y0': 0,
         'mask': iw.masks[mask_type]
@@ -207,23 +206,23 @@ def bd1_blank(iw, method1, method2, udg_arrays, scales):
 def bd1_1udg(iw, method1, method2, udg_arrays, scales):
     bd1(iw, method1, method2, udg_arrays, scales, one_udg=True)
 
-def bd2_at_nf(iw, method1, method2, udg_arrays, scales):
+def bd2_at(iw, method1, method2, udg_arrays, scales):
     bd2(iw, method1, method2, udg_arrays, scales, masked=True)
 
 METHODS = (
-    ('bd4', 'bd4_nt_nf', bd4),
+    ('bd4', 'bd4_nt', bd4),
     ('bd_any', 'bd4', bd4),
-    ('bd_any', 'bd4_nt_nf', bd4),
-    ('bd2', 'bd2_at_nf', bd2_at_nf),
-    ('bd2', 'bd2_nt_nf', bd2),
+    ('bd_any', 'bd4_nt', bd4),
+    ('bd2', 'bd2_at', bd2_at),
+    ('bd2', 'bd2_nt', bd2),
     ('bd_any', 'bd2', bd2),
-    ('bd_any', 'bd2_at_nf', bd2_at_nf),
-    ('bd_any', 'bd2_nt_nf', bd2),
+    ('bd_any', 'bd2_at', bd2_at),
+    ('bd_any', 'bd2_nt', bd2),
     ('bd1', 'bd1_blank', bd1_blank),
-    ('bd1', 'bd1_nt_nf_1udg', bd1_1udg),
+    ('bd1', 'bd1_nt_1udg', bd1_1udg),
     ('bd_any', 'bd1', bd1),
     ('bd_any', 'bd1_blank', bd1_blank),
-    ('bd_any', 'bd1_nt_nf_1udg', bd1_1udg)
+    ('bd_any', 'bd1_nt_1udg', bd1_1udg)
 )
 
 def time_methods(method1_name, method2_name, udg_arrays, scale):

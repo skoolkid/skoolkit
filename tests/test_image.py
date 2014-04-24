@@ -352,7 +352,7 @@ class ImageWriterTest:
         # Masked image, bit depth 2
         udg = Udg(88, (34,) * 8, (119,) * 8)
         udg_array = [[udg]]
-        self._test_image(udg_array, mask=True)
+        self._test_image(udg_array, scale=1, mask=True)
 
     def test_mask2_bd2(self):
         # AND-OR mask, bit depth 2
@@ -1041,32 +1041,32 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self._test_image(udg_array, scale=4)
         self._test_image(udg_array, scale=5)
 
-    def test_bd4_nt_nf(self):
+    def test_bd4_nt(self):
         udg_array = [[Udg(attr, (15,) * 8) for attr in (1, 19, 37, 55)]]
-        method_name = 'bd4_nt_nf'
+        method_name = 'bd4_nt'
         self._test_method(method_name, udg_array, scale=1)
         self._test_method(method_name, udg_array, scale=2)
         self._test_method(method_name, udg_array, scale=3)
         self._test_method(method_name, udg_array, scale=4)
 
-    def test_bd2_nt_nf(self):
+    def test_bd2_nt(self):
         udg_array = [[Udg(attr, (85,) * 8) for attr in (1, 19)]]
-        method_name = 'bd2_nt_nf'
+        method_name = 'bd2_nt'
         self._test_method(method_name, udg_array, scale=1)
         self._test_method(method_name, udg_array, scale=2)
         self._test_method(method_name, udg_array, scale=3)
         self._test_method(method_name, udg_array, scale=4)
         self._test_method(method_name, udg_array, scale=5)
 
-    def test_bd2_at_nf(self):
+    def test_bd2_at(self):
         udg_array = [[Udg(56, (15,) * 8, (207,) * 8)]]
-        method_name = 'bd2_at_nf'
+        method_name = 'bd2_at'
         self._test_method(method_name, udg_array, scale=2, mask=True)
         self._test_method(method_name, udg_array, scale=4, mask=True)
 
-    def test_bd1_nt_nf_1udg(self):
+    def test_bd1_nt_1udg(self):
         udg_array = [[Udg(34, (170,) * 8)]]
-        method_name = 'bd1_nt_nf_1udg'
+        method_name = 'bd1_nt_1udg'
         self._test_method(method_name, udg_array, scale=1)
         self._test_method(method_name, udg_array, scale=2)
         self._test_method(method_name, udg_array, scale=4)
@@ -1078,10 +1078,10 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         method_name = 'bd1'
         self._test_method(method_name, udg_array, scale=1, mask=1)
 
-    def test_bd4_nt_nf_method(self):
+    def test_bd4_nt_method(self):
         png_writer = ImageWriter().writers['png']
         frame = MockFrame(80, 2, 3)
-        self.assertEqual(png_writer._build_image_data_bd4_nt_nf, png_writer._bd4_nt_nf_method(frame))
+        self.assertEqual(png_writer._build_image_data_bd4_nt, png_writer._bd4_nt_method(frame))
 
 class GifWriterTest(SkoolKitTestCase, ImageWriterTest):
     def setUp(self):

@@ -1578,8 +1578,18 @@ class Frame(object):
         self.delay = delay
         self._tiles = len(udgs[0]) * len(udgs)
 
-    def crop(self, tx, ty, tw, th):
-        udgs = [self.udgs[i][tx:tx + tw] for i in range(ty, ty + th)]
+    def swap_colours(self, tx=0, ty=0, tw=None, th=None):
+        # Swap paper and ink in UDGs that are flashing
+        width = tw or len(self.udgs[0])
+        height = th or len(self.udgs)
+        udgs = [self.udgs[i][tx:tx + width] for i in range(ty, ty + height)]
+        for row in udgs:
+            for i in range(len(row)):
+                udg = row[i]
+                attr = udg.attr
+                if attr & 128:
+                    new_attr = (attr & 192) + (attr & 7) * 8 + (attr & 56) // 8
+                    row[i] = Udg(new_attr, udg.data, udg.mask)
         return Frame(udgs, self.scale, self.mask)
 
     @property
