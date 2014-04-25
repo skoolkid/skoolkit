@@ -614,28 +614,25 @@ class PngWriter:
     def _build_image_data_bd1_nt_1udg(self, udg_array, scale, attr_map, **kwargs):
         # 1 UDG, 2 colours, full size, no masks, scale 1, 2, 4 or 8
         udg = udg_array[0][0]
-        img_bytes = {}
-        for p, i in attr_map.values():
-            xor = 255 * p
-        if scale == 4:
-            for b in set(udg.data):
-                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[b ^ xor]
-                img_bytes[b] = (b7 * 240 + b6 * 15, b5 * 240 + b4 * 15, b3 * 240 + b2 * 15, b1 * 240 + b0 * 15)
-        elif scale == 2:
-            for b in set(udg.data):
-                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[b ^ xor]
-                img_bytes[b] = (b7 * 192 + b6 * 48 + b5 * 12 + b4 * 3, b3 * 192 + b2 * 48 + b1 * 12 + b0 * 3)
-        elif scale == 1:
-            for b in set(udg.data):
-                img_bytes[b] = (b ^ xor,)
-        elif scale == 8:
-            for b in set(udg.data):
-                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[b ^ xor]
-                img_bytes[b] = (b7 * 255, b6 * 255, b5 * 255, b4 * 255, b3 * 255, b2 * 255, b1 * 255, b0 * 255)
-
         img_data = bytearray()
-        for b in udg.data:
-            img_data.extend(((0,) + img_bytes[b]) * scale)
+        xor = attr_map[udg.attr & 127][0] * 255
+
+        if scale == 4:
+            for b in udg.data:
+                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[b ^ xor]
+                img_data.extend((0, b7 * 240 + b6 * 15, b5 * 240 + b4 * 15, b3 * 240 + b2 * 15, b1 * 240 + b0 * 15) * scale)
+        elif scale == 2:
+            for b in udg.data:
+                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[b ^ xor]
+                img_data.extend((0, b7 * 192 + b6 * 48 + b5 * 12 + b4 * 3, b3 * 192 + b2 * 48 + b1 * 12 + b0 * 3) * scale)
+        elif scale == 1:
+            for b in udg.data:
+                img_data.extend((0, b ^ xor) * scale)
+        elif scale == 8:
+            for b in udg.data:
+                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[b ^ xor]
+                img_data.extend((0, b7 * 255, b6 * 255, b5 * 255, b4 * 255, b3 * 255, b2 * 255, b1 * 255, b0 * 255) * scale)
+
         return self._compress_all_bytes(img_data)
 
     def _build_image_data_bd1_nt(self, udg_array, scale, attr_map, **kwargs):
