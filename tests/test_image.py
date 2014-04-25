@@ -320,15 +320,15 @@ class ImageWriterTest:
         self._test_image(udg_array, scale=1, mask=1)
 
     def test_masked_bd1_ink(self):
-        # Masked image, two colours (trans + ink), >= 4 UDGs
+        # Masked image, two colours (trans + ink)
         udg = Udg(49, (136,) * 8, (255,) * 8)
-        udg_array = [[udg, udg]] * 2
+        udg_array = [[udg]]
         self._test_image(udg_array, mask=True)
 
     def test_masked_bd1_paper(self):
-        # Masked image, two colours (trans + paper), >= 4 UDGs
+        # Masked image, two colours (trans + paper)
         udg = Udg(8, (0,) * 8, (88,) * 8)
-        udg_array = [[udg, udg]] * 2
+        udg_array = [[udg]]
         self._test_image(udg_array, mask=True)
 
     def test_mask2_bd1_one_udg_maskless(self):
@@ -487,15 +487,15 @@ class ImageWriterTest:
         self._test_image(udg_array, x=1, y=2, width=9, height=11)
 
     def test_unmasked_bd1_flashing(self):
-        # Unmasked image, bit depth 1, >3 UDGs
+        # Unmasked image, bit depth 1, 2 UDGs
         udg = Udg(177, (164,) * 8)
-        udg_array = [[udg] * 4]
+        udg_array = [[udg] * 2]
         self._test_image(udg_array)
 
     def test_unmasked_bd1_scaled(self):
-        # Unmasked image, bit depth 1, scales 1-2, >3 UDGs
+        # Unmasked image, bit depth 1, scales 1-2, 2 UDGs
         udg = Udg(49, (164,) * 8)
-        udg_array = [[udg] * 4]
+        udg_array = [[udg] * 2]
         self._test_image(udg_array)
         self._test_image(udg_array, scale=2)
         return udg_array
@@ -1013,7 +1013,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(img_bytes[i:], IEND_CHUNK)
 
     def test_unmasked_bd1_scaled(self):
-        # Unmasked image, bit depth 1, scales 1-13, >3 UDGs
+        # Unmasked image, bit depth 1, scales 1-13, 2 UDGs
         udg_array = ImageWriterTest.test_unmasked_bd1_scaled(self)
         self._test_image(udg_array, scale=3)
         self._test_image(udg_array, scale=4)
@@ -1026,6 +1026,9 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self._test_image(udg_array, scale=11)
         self._test_image(udg_array, scale=12)
         self._test_image(udg_array, scale=13)
+        self._test_image(udg_array, scale=14)
+        self._test_image(udg_array, scale=15)
+        self._test_image(udg_array, scale=16)
 
     def test_unmasked_bd2_flashing(self):
         # Unmasked image, bit depth 2, flashing, scales 1-5
