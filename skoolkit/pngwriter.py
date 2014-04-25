@@ -187,7 +187,7 @@ class PngWriter:
     def _bd1_nt_method(self, frame):
         if frame.tiles == 1 and frame.scale in (1, 2, 4, 8):
             return self._build_image_data_bd1_nt_1udg
-        return self._bd1_method(frame)
+        return self._build_image_data_bd1_nt
 
     def _bd2_at_method(self, frame):
         if frame.all_masked and (frame.scale == 2 or frame.scale & 3 == 0):
@@ -646,8 +646,8 @@ class PngWriter:
             img_data.extend(((0,) + img_bytes[b]) * scale)
         return self._compress_all_bytes(img_data)
 
-    def _build_image_data_bd1(self, udg_array, scale, attr_map, masked, mask, **kwargs):
-        # 2 colours, full size
+    def _build_image_data_bd1_nt(self, udg_array, scale, attr_map, **kwargs):
+        # 2 colours, full size, no masks
         attr_dict = {}
         for attr, q in attr_map.items():
             attr_dict[attr] = [q[b7] * 128 + q[b6] * 64 + q[b5] * 32 + q[b4] * 16 + q[b3] * 8 + q[b2] * 4 + q[b1] * 2 + q[b0] for b7, b6, b5, b4, b3, b2, b1, b0 in BITS8]
@@ -660,153 +660,159 @@ class PngWriter:
             for i in range(8):
                 scanline = bytearray((0,))
                 for udg in row:
-                    if masked and udg.mask:
-                        # Apply mask
-                        p = []
-                        paper, ink = attr_map[udg.attr & 127]
-                        for pixel in mask.apply(udg, i, (paper,) * scale, (ink,) * scale, (0,) * scale):
-                            p.extend(pixel)
-                        scanline.extend([p[j] * 128 + p[j + 1] * 64 + p[j + 2] * 32 + p[j + 3] * 16 + p[j + 4] * 8 + p[j + 5] * 4 + p[j + 6] * 2 + p[j + 7] for j in range(0, len(p), 8)])
-                    else:
-                        # No mask
-                        byte = udg.data[i]
-                        b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[byte]
-                        attrs = attr_dict[udg.attr & 127]
-                        if scale_m == 0:
-                            scanline.extend((attrs[b7 * 255],) * e_scale)
-                            scanline.extend((attrs[b6 * 255],) * e_scale)
-                            scanline.extend((attrs[b5 * 255],) * e_scale)
-                            scanline.extend((attrs[b4 * 255],) * e_scale)
-                            scanline.extend((attrs[b3 * 255],) * e_scale)
-                            scanline.extend((attrs[b2 * 255],) * e_scale)
-                            scanline.extend((attrs[b1 * 255],) * e_scale)
-                            scanline.extend((attrs[b0 * 255],) * e_scale)
-                        elif scale_m == 1:
-                            if scale == 1:
-                                scanline.append(attrs[byte])
-                                continue
-                            scanline.extend((attrs[b7 * 255],) * e_scale)
-                            scanline.append(attrs[b7 * 128 + b6 * 127])
-                            scanline.extend((attrs[b6 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b6 * 192 + b5 * 63])
-                            scanline.extend((attrs[b5 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b5 * 224 + b4 * 31])
-                            scanline.extend((attrs[b4 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b4 * 240 + b3 * 15])
-                            scanline.extend((attrs[b3 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b3 * 248 + b2 * 7])
-                            scanline.extend((attrs[b2 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b2 * 252 + b1 * 3])
-                            scanline.extend((attrs[b1 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b1 * 254 + b0])
-                            scanline.extend((attrs[b0 * 255],) * e_scale)
-                        elif scale_m == 2:
-                            if scale == 2:
-                                scanline.append(attrs[b7 * 192 + b6 * 48 + b5 * 12 + b4 * 3])
-                                scanline.append(attrs[b3 * 192 + b2 * 48 + b1 * 12 + b0 * 3])
-                                continue
-                            scanline.extend((attrs[b7 * 255],) * e_scale)
-                            scanline.append(attrs[b7 * 192 + b6 * 63])
-                            scanline.extend((attrs[b6 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b6 * 240 + b5 * 15])
-                            scanline.extend((attrs[b5 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b5 * 252 + b4 * 3])
-                            scanline.extend((attrs[b4 * 255],) * e_scale)
-                            scanline.extend((attrs[b3 * 255],) * e_scale)
-                            scanline.append(attrs[b3 * 192 + b2 * 63])
-                            scanline.extend((attrs[b2 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b2 * 240 + b1 * 15])
-                            scanline.extend((attrs[b1 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b1 * 252 + b0 * 3])
-                            scanline.extend((attrs[b0 * 255],) * e_scale)
-                        elif scale_m == 3:
-                            if scale == 3:
-                                scanline.append(attrs[b7 * 224 + b6 * 28 + b5 * 3])
-                                scanline.append(attrs[b5 * 128 + b4 * 112 + b3 * 14 + b2])
-                                scanline.append(attrs[b2 * 192 + b1 * 56 + b0 * 7])
-                                continue
-                            scanline.extend((attrs[b7 * 255],) * e_scale)
-                            scanline.append(attrs[b7 * 224 + b6 * 31])
-                            scanline.extend((attrs[b6 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b6 * 252 + b5 * 3])
-                            scanline.extend((attrs[b5 * 255],) * e_scale)
-                            scanline.append(attrs[b5 * 128 + b4 * 127])
-                            scanline.extend((attrs[b4 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b4 * 240 + b3 * 15])
-                            scanline.extend((attrs[b3 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b3 * 254 + b2])
-                            scanline.extend((attrs[b2 * 255],) * e_scale)
-                            scanline.append(attrs[b2 * 192 + b1 * 63])
-                            scanline.extend((attrs[b1 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b1 * 248 + b0 * 7])
-                            scanline.extend((attrs[b0 * 255],) * e_scale)
-                        elif scale_m == 4:
-                            scanline.extend((attrs[b7 * 255],) * e_scale)
-                            scanline.append(attrs[b7 * 240 + b6 * 15])
-                            scanline.extend((attrs[b6 * 255],) * e_scale)
-                            scanline.extend((attrs[b5 * 255],) * e_scale)
-                            scanline.append(attrs[b5 * 240 + b4 * 15])
-                            scanline.extend((attrs[b4 * 255],) * e_scale)
-                            scanline.extend((attrs[b3 * 255],) * e_scale)
-                            scanline.append(attrs[b3 * 240 + b2 * 15])
-                            scanline.extend((attrs[b2 * 255],) * e_scale)
-                            scanline.extend((attrs[b1 * 255],) * e_scale)
-                            scanline.append(attrs[b1 * 240 + b0 * 15])
-                            scanline.extend((attrs[b0 * 255],) * e_scale)
-                        elif scale_m == 5:
-                            if scale == 5:
-                                scanline.append(attrs[b7 * 248 + b6 * 7])
-                                scanline.append(attrs[b6 * 192 + b5 * 62 + b4])
-                                scanline.append(attrs[b4 * 240 + b3 * 15])
-                                scanline.append(attrs[b3 * 128 + b2 * 124 + b1 * 3])
-                                scanline.append(attrs[b1 * 224 + b0 * 31])
-                                continue
-                            scanline.extend((attrs[b7 * 255],) * e_scale)
-                            scanline.append(attrs[b7 * 248 + b6 * 7])
-                            scanline.extend((attrs[b6 * 255],) * e_scale)
-                            scanline.append(attrs[b6 * 192 + b5 * 63])
-                            scanline.extend((attrs[b5 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b5 * 254 + b4])
-                            scanline.extend((attrs[b4 * 255],) * e_scale)
-                            scanline.append(attrs[b4 * 240 + b3 * 15])
-                            scanline.extend((attrs[b3 * 255],) * e_scale)
-                            scanline.append(attrs[b3 * 128 + b2 * 127])
-                            scanline.extend((attrs[b2 * 255],) * (e_scale - 1))
-                            scanline.append(attrs[b2 * 252 + b1 * 3])
-                            scanline.extend((attrs[b1 * 255],) * e_scale)
-                            scanline.append(attrs[b1 * 224 + b0 * 31])
-                            scanline.extend((attrs[b0 * 255],) * e_scale)
-                        elif scale_m == 6:
-                            scanline.extend((attrs[b7 * 255],) * e_scale)
-                            scanline.append(attrs[b7 * 252 + b6 * 3])
-                            scanline.extend((attrs[b6 * 255],) * e_scale)
-                            scanline.append(attrs[b6 * 240 + b5 * 15])
-                            scanline.extend((attrs[b5 * 255],) * e_scale)
-                            scanline.append(attrs[b5 * 192 + b4 * 63])
-                            scanline.extend((attrs[b4 * 255],) * e_scale)
-                            scanline.extend((attrs[b3 * 255],) * e_scale)
-                            scanline.append(attrs[b3 * 252 + b2 * 3])
-                            scanline.extend((attrs[b2 * 255],) * e_scale)
-                            scanline.append(attrs[b2 * 240 + b1 * 15])
-                            scanline.extend((attrs[b1 * 255],) * e_scale)
-                            scanline.append(attrs[b1 * 192 + b0 * 63])
-                            scanline.extend((attrs[b0 * 255],) * e_scale)
-                        elif scale_m == 7:
-                            scanline.extend((attrs[b7 * 255],) * e_scale)
-                            scanline.append(attrs[b7 * 254 + b6])
-                            scanline.extend((attrs[b6 * 255],) * e_scale)
-                            scanline.append(attrs[b6 * 252 + b5 * 3])
-                            scanline.extend((attrs[b5 * 255],) * e_scale)
-                            scanline.append(attrs[b5 * 248 + b4 * 7])
-                            scanline.extend((attrs[b4 * 255],) * e_scale)
-                            scanline.append(attrs[b4 * 240 + b3 * 15])
-                            scanline.extend((attrs[b3 * 255],) * e_scale)
-                            scanline.append(attrs[b3 * 224 + b2 * 31])
-                            scanline.extend((attrs[b2 * 255],) * e_scale)
-                            scanline.append(attrs[b2 * 192 + b1 * 63])
-                            scanline.extend((attrs[b1 * 255],) * e_scale)
-                            scanline.append(attrs[b1 * 128 + b0 * 127])
-                            scanline.extend((attrs[b0 * 255],) * e_scale)
+                    byte = udg.data[i]
+                    attrs = attr_dict[udg.attr & 127]
+                    if scale == 1:
+                        scanline.append(attrs[byte])
+                        continue
+                    b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[byte]
+                    if scale == 2:
+                        scanline.append(attrs[b7 * 192 + b6 * 48 + b5 * 12 + b4 * 3])
+                        scanline.append(attrs[b3 * 192 + b2 * 48 + b1 * 12 + b0 * 3])
+                    elif scale == 3:
+                        scanline.append(attrs[b7 * 224 + b6 * 28 + b5 * 3])
+                        scanline.append(attrs[b5 * 128 + b4 * 112 + b3 * 14 + b2])
+                        scanline.append(attrs[b2 * 192 + b1 * 56 + b0 * 7])
+                    elif scale_m == 4:
+                        scanline.extend((attrs[b7 * 255],) * e_scale)
+                        scanline.append(attrs[b7 * 240 + b6 * 15])
+                        scanline.extend((attrs[b6 * 255],) * e_scale)
+                        scanline.extend((attrs[b5 * 255],) * e_scale)
+                        scanline.append(attrs[b5 * 240 + b4 * 15])
+                        scanline.extend((attrs[b4 * 255],) * e_scale)
+                        scanline.extend((attrs[b3 * 255],) * e_scale)
+                        scanline.append(attrs[b3 * 240 + b2 * 15])
+                        scanline.extend((attrs[b2 * 255],) * e_scale)
+                        scanline.extend((attrs[b1 * 255],) * e_scale)
+                        scanline.append(attrs[b1 * 240 + b0 * 15])
+                        scanline.extend((attrs[b0 * 255],) * e_scale)
+                    elif scale == 5:
+                        scanline.append(attrs[b7 * 248 + b6 * 7])
+                        scanline.append(attrs[b6 * 192 + b5 * 62 + b4])
+                        scanline.append(attrs[b4 * 240 + b3 * 15])
+                        scanline.append(attrs[b3 * 128 + b2 * 124 + b1 * 3])
+                        scanline.append(attrs[b1 * 224 + b0 * 31])
+                    elif scale_m == 0:
+                        scanline.extend((attrs[b7 * 255],) * e_scale)
+                        scanline.extend((attrs[b6 * 255],) * e_scale)
+                        scanline.extend((attrs[b5 * 255],) * e_scale)
+                        scanline.extend((attrs[b4 * 255],) * e_scale)
+                        scanline.extend((attrs[b3 * 255],) * e_scale)
+                        scanline.extend((attrs[b2 * 255],) * e_scale)
+                        scanline.extend((attrs[b1 * 255],) * e_scale)
+                        scanline.extend((attrs[b0 * 255],) * e_scale)
+                    elif scale_m == 1:
+                        scanline.extend((attrs[b7 * 255],) * e_scale)
+                        scanline.append(attrs[b7 * 128 + b6 * 127])
+                        scanline.extend((attrs[b6 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b6 * 192 + b5 * 63])
+                        scanline.extend((attrs[b5 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b5 * 224 + b4 * 31])
+                        scanline.extend((attrs[b4 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b4 * 240 + b3 * 15])
+                        scanline.extend((attrs[b3 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b3 * 248 + b2 * 7])
+                        scanline.extend((attrs[b2 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b2 * 252 + b1 * 3])
+                        scanline.extend((attrs[b1 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b1 * 254 + b0])
+                        scanline.extend((attrs[b0 * 255],) * e_scale)
+                    elif scale_m == 2:
+                        scanline.extend((attrs[b7 * 255],) * e_scale)
+                        scanline.append(attrs[b7 * 192 + b6 * 63])
+                        scanline.extend((attrs[b6 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b6 * 240 + b5 * 15])
+                        scanline.extend((attrs[b5 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b5 * 252 + b4 * 3])
+                        scanline.extend((attrs[b4 * 255],) * e_scale)
+                        scanline.extend((attrs[b3 * 255],) * e_scale)
+                        scanline.append(attrs[b3 * 192 + b2 * 63])
+                        scanline.extend((attrs[b2 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b2 * 240 + b1 * 15])
+                        scanline.extend((attrs[b1 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b1 * 252 + b0 * 3])
+                        scanline.extend((attrs[b0 * 255],) * e_scale)
+                    elif scale_m == 3:
+                        scanline.extend((attrs[b7 * 255],) * e_scale)
+                        scanline.append(attrs[b7 * 224 + b6 * 31])
+                        scanline.extend((attrs[b6 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b6 * 252 + b5 * 3])
+                        scanline.extend((attrs[b5 * 255],) * e_scale)
+                        scanline.append(attrs[b5 * 128 + b4 * 127])
+                        scanline.extend((attrs[b4 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b4 * 240 + b3 * 15])
+                        scanline.extend((attrs[b3 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b3 * 254 + b2])
+                        scanline.extend((attrs[b2 * 255],) * e_scale)
+                        scanline.append(attrs[b2 * 192 + b1 * 63])
+                        scanline.extend((attrs[b1 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b1 * 248 + b0 * 7])
+                        scanline.extend((attrs[b0 * 255],) * e_scale)
+                    elif scale_m == 5:
+                        scanline.extend((attrs[b7 * 255],) * e_scale)
+                        scanline.append(attrs[b7 * 248 + b6 * 7])
+                        scanline.extend((attrs[b6 * 255],) * e_scale)
+                        scanline.append(attrs[b6 * 192 + b5 * 63])
+                        scanline.extend((attrs[b5 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b5 * 254 + b4])
+                        scanline.extend((attrs[b4 * 255],) * e_scale)
+                        scanline.append(attrs[b4 * 240 + b3 * 15])
+                        scanline.extend((attrs[b3 * 255],) * e_scale)
+                        scanline.append(attrs[b3 * 128 + b2 * 127])
+                        scanline.extend((attrs[b2 * 255],) * (e_scale - 1))
+                        scanline.append(attrs[b2 * 252 + b1 * 3])
+                        scanline.extend((attrs[b1 * 255],) * e_scale)
+                        scanline.append(attrs[b1 * 224 + b0 * 31])
+                        scanline.extend((attrs[b0 * 255],) * e_scale)
+                    elif scale_m == 6:
+                        scanline.extend((attrs[b7 * 255],) * e_scale)
+                        scanline.append(attrs[b7 * 252 + b6 * 3])
+                        scanline.extend((attrs[b6 * 255],) * e_scale)
+                        scanline.append(attrs[b6 * 240 + b5 * 15])
+                        scanline.extend((attrs[b5 * 255],) * e_scale)
+                        scanline.append(attrs[b5 * 192 + b4 * 63])
+                        scanline.extend((attrs[b4 * 255],) * e_scale)
+                        scanline.extend((attrs[b3 * 255],) * e_scale)
+                        scanline.append(attrs[b3 * 252 + b2 * 3])
+                        scanline.extend((attrs[b2 * 255],) * e_scale)
+                        scanline.append(attrs[b2 * 240 + b1 * 15])
+                        scanline.extend((attrs[b1 * 255],) * e_scale)
+                        scanline.append(attrs[b1 * 192 + b0 * 63])
+                        scanline.extend((attrs[b0 * 255],) * e_scale)
+                    elif scale_m == 7:
+                        scanline.extend((attrs[b7 * 255],) * e_scale)
+                        scanline.append(attrs[b7 * 254 + b6])
+                        scanline.extend((attrs[b6 * 255],) * e_scale)
+                        scanline.append(attrs[b6 * 252 + b5 * 3])
+                        scanline.extend((attrs[b5 * 255],) * e_scale)
+                        scanline.append(attrs[b5 * 248 + b4 * 7])
+                        scanline.extend((attrs[b4 * 255],) * e_scale)
+                        scanline.append(attrs[b4 * 240 + b3 * 15])
+                        scanline.extend((attrs[b3 * 255],) * e_scale)
+                        scanline.append(attrs[b3 * 224 + b2 * 31])
+                        scanline.extend((attrs[b2 * 255],) * e_scale)
+                        scanline.append(attrs[b2 * 192 + b1 * 63])
+                        scanline.extend((attrs[b1 * 255],) * e_scale)
+                        scanline.append(attrs[b1 * 128 + b0 * 127])
+                        scanline.extend((attrs[b0 * 255],) * e_scale)
+                self._compress_bytes(compressor, img_data, scanline * scale)
+        img_data.extend(compressor.flush())
+        return img_data
+
+    def _build_image_data_bd1(self, udg_array, scale, attr_map, mask, **kwargs):
+        # 2 colours, full size
+        compressor = zlib.compressobj(self.compression_level)
+        img_data = bytearray()
+        trans_pixels = (0,) * scale
+        for row in udg_array:
+            for i in range(8):
+                scanline = bytearray((0,))
+                for udg in row:
+                    p = []
+                    paper, ink = attr_map[udg.attr & 127]
+                    for pixel in mask.apply(udg, i, (paper,) * scale, (ink,) * scale, trans_pixels):
+                        p.extend(pixel)
+                    scanline.extend([p[j] * 128 + p[j + 1] * 64 + p[j + 2] * 32 + p[j + 3] * 16 + p[j + 4] * 8 + p[j + 5] * 4 + p[j + 6] * 2 + p[j + 7] for j in range(0, len(p), 8)])
                 self._compress_bytes(compressor, img_data, scanline * scale)
         img_data.extend(compressor.flush())
         return img_data

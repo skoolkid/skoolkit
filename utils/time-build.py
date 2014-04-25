@@ -187,13 +187,10 @@ def bd2(iw, method1, method2, udg_arrays, scales, masked=False):
 
     _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type)
 
-def bd1(iw, method1, method2, udg_arrays, scales, blank=False, one_udg=False):
+def bd1(iw, method1, method2, udg_arrays, scales, one_udg=False):
     udg_arrays = udg_arrays or []
 
-    if blank and not udg_arrays:
-        for num_udgs in range(1, 10):
-            udg_arrays.append([[Udg(0, (0,) * 8) for i in range(num_udgs)]])
-    elif one_udg:
+    if one_udg:
         if not udg_arrays:
             udg_arrays.append([[Udg(56, (170,) * 8)]])
         scales = scales or (1, 2, 4, 8)
@@ -206,9 +203,6 @@ def bd1(iw, method1, method2, udg_arrays, scales, blank=False, one_udg=False):
     scales = scales or (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13)
 
     _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type=0)
-
-def bd1_blank(iw, method1, method2, udg_arrays, scales):
-    bd1(iw, method1, method2, udg_arrays, scales, blank=True)
 
 def bd1_1udg(iw, method1, method2, udg_arrays, scales):
     bd1(iw, method1, method2, udg_arrays, scales, one_udg=True)
@@ -225,10 +219,11 @@ METHODS = (
     ('bd_any', 'bd2', bd2),
     ('bd_any', 'bd2_at', bd2_at),
     ('bd_any', 'bd2_nt', bd2),
-    ('bd1', 'bd1_blank', bd1_blank),
+    ('bd1', 'bd1_nt', bd1),
     ('bd1', 'bd1_nt_1udg', bd1_1udg),
+    ('bd1_nt', 'bd1_nt_1udg', bd1_1udg),
     ('bd_any', 'bd1', bd1),
-    ('bd_any', 'bd1_blank', bd1_blank),
+    ('bd_any', 'bd1_nt', bd1),
     ('bd_any', 'bd1_nt_1udg', bd1_1udg)
 )
 
@@ -246,7 +241,7 @@ def list_methods():
     iw = ImageWriter()
     png_writer = iw.writers['png']
     for attr in dir(png_writer):
-        if attr.startswith(prefix):
+        if attr.startswith(prefix) and not attr.endswith('_bd1_blank'):
             methods.append(attr)
     max_len = max([len(m) for m in methods]) - len(prefix)
     for m in methods:
