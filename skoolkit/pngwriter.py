@@ -539,14 +539,13 @@ class PngWriter:
             for attr, (p, i) in attr_map.items():
                 c = ((p * 85,), (i * 85,))
                 attrs[attr] = [c[b3] * q + c[b2] * q + c[b1] * q + c[b0] * q for b3, b2, b1, b0 in BITS4]
+        elif scale == 1:
+            for attr, t in attr_map.items():
+                attrs[attr] = [(t[b3] * 64 + t[b2] * 16 + t[b1] * 4 + t[b0],) for b3, b2, b1, b0 in BITS4]
         elif scale_m == 1:
-            if scale == 1:
-                for attr, t in attr_map.items():
-                    attrs[attr] = [(t[b3] * 64 + t[b2] * 16 + t[b1] * 4 + t[b0],) for b3, b2, b1, b0 in BITS4]
-            else:
-                for attr, t in attr_map.items():
-                    c = [(t[b3] * 64 + t[b2] * 16 + t[b1] * 4 + t[b0],) for b3, b2, b1, b0 in BD2_BITS]
-                    attrs[attr] = [c[b3 * 7] * q + c[b3 * 4 + b2 * 3] + c[b2 * 7] * (q - 1) + c[b2 * 5 + b1 * 2] + c[b1 * 7] * (q - 1) + c[b1 * 6 + b0] + c[b0 * 7] * q for b3, b2, b1, b0 in BITS4]
+            for attr, t in attr_map.items():
+                c = [(t[b3] * 64 + t[b2] * 16 + t[b1] * 4 + t[b0],) for b3, b2, b1, b0 in BD2_BITS]
+                attrs[attr] = [c[b3 * 7] * q + c[b3 * 4 + b2 * 3] + c[b2 * 7] * (q - 1) + c[b2 * 5 + b1 * 2] + c[b1 * 7] * (q - 1) + c[b1 * 6 + b0] + c[b0 * 7] * q for b3, b2, b1, b0 in BITS4]
         else:
             for attr, t in attr_map.items():
                 c = [(t[b3] * 64 + t[b2] * 16 + t[b1] * 4 + t[b0],) for b3, b2, b1, b0 in BD2_BITS]
@@ -560,7 +559,7 @@ class PngWriter:
                 for udg in row:
                     attr_bytes = attrs[udg.attr & 127]
                     byte = udg.data[i]
-                    scanline.extend(attr_bytes[(byte & 240) // 16] + attr_bytes[byte & 15])
+                    scanline.extend(attr_bytes[byte // 16] + attr_bytes[byte & 15])
                 self._compress_bytes(compressor, img_data, scanline * scale)
         img_data.extend(compressor.flush())
         return img_data
