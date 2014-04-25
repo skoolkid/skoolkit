@@ -597,16 +597,16 @@ class PngWriter:
         # Bit depth 2, full size
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
-        trans_pixels = (0,) * scale
+        trans = '00' * scale
+        pixels = (trans, '01' * scale, '10' * scale, '11' * scale)
         for row in udg_array:
-            for i in range(8):
-                scanline = bytearray((0,))
+            for j in range(8):
+                pixel_row = ['00000000']
                 for udg in row:
-                    p = []
-                    paper, ink = attr_map[udg.attr & 127]
-                    for pixel in mask.apply(udg, i, (paper,) * scale, (ink,) * scale, trans_pixels):
-                        p.extend(pixel)
-                    scanline.extend([p[j] * 64 + p[j + 1] * 16 + p[j + 2] * 4 + p[j + 3] for j in range(0, len(p), 4)])
+                    p, i = attr_map[udg.attr & 127]
+                    pixel_row.extend(mask.apply(udg, j, pixels[p], pixels[i], trans))
+                r = ''.join(pixel_row)
+                scanline = bytearray([int(r[k:k + 8], 2) for k in range(0, len(r), 8)])
                 self._compress_bytes(compressor, img_data, scanline * scale)
         img_data.extend(compressor.flush())
         return img_data
