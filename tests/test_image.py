@@ -888,7 +888,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
             bit_depth = 2
         else:
             bit_depth = 1
-        image_data_z = method(udg_array, scale, attr_map=attr_map, masked=frame.has_masks, flash=False, mask=png_writer.masks[mask])
+        image_data_z = method(udg_array, scale, attr_map=attr_map, bit_depth=bit_depth, mask=png_writer.masks[mask])
         if PY3:
             image_data = list(zlib.decompress(image_data_z))
         else:
@@ -1075,10 +1075,10 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self._test_method(method_name, udg_array, scale=4)
         self._test_method(method_name, udg_array, scale=8)
 
-    def test_bd1(self):
+    def test_bd12(self):
         # Masked image with no transparent bits
         udg_array = [[Udg(56, (240,) * 8, (240,) * 8)]]
-        method_name = 'bd1'
+        method_name = 'bd12'
         self._test_method(method_name, udg_array, scale=1, mask=1)
 
     def test_bd4_nt_method(self):

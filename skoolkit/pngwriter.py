@@ -156,15 +156,15 @@ class PngWriter:
                     fs_method_dict[masked] = default_methods
 
         # Bit depth 0 (1 colour)
-        bd0_methods = (None, self._build_image_data_bd1_blank)
+        bd0_methods = (None, self._build_image_data_bd0)
         bd0_fs_method_dict = self.png_method_dict[0][1]
         bd0_fs_method_dict[0] = bd0_methods # Unmasked
         bd0_fs_method_dict[1] = bd0_methods # Masked
 
         # Bit depth 1 (2 colours)
         bd1_fs_method_dict = self.png_method_dict[1][1]
-        bd1_fs_method_dict[0] = (self._bd1_nt_method, None)        # Unmasked
-        bd1_fs_method_dict[1] = (None, self._build_image_data_bd1) # Masked
+        bd1_fs_method_dict[0] = (self._bd1_nt_method, None)         # Unmasked
+        bd1_fs_method_dict[1] = (None, self._build_image_data_bd12) # Masked
 
         # Bit depth 2
         bd2_fs_method_dict = self.png_method_dict[2][1]
@@ -184,7 +184,7 @@ class PngWriter:
     def _bd2_at_method(self, frame):
         if frame.all_masked and (frame.scale == 2 or frame.scale & 3 == 0):
             return self._build_image_data_bd2_at
-        return self._build_image_data_bd2
+        return self._build_image_data_bd12
 
     def _bd4_nt_method(self, frame):
         if frame.scale == 2:
@@ -374,6 +374,27 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
+    def _build_image_data_bd12(self, udg_array, scale, attr_map, bit_depth, mask, **kwargs):
+        # Bit depth 1 or 2, full size
+        compressor = zlib.compressobj(self.compression_level)
+        img_data = bytearray()
+        if bit_depth == 2:
+            pixels = ('00' * scale, '01' * scale, '10' * scale, '11' * scale)
+        else:
+            pixels = ('0' * scale, '1' * scale)
+        trans = pixels[0]
+        for row in udg_array:
+            for j in range(8):
+                pixel_row = ['00000000']
+                for udg in row:
+                    p, i = attr_map[udg.attr & 127]
+                    pixel_row.extend(mask.apply(udg, j, pixels[p], pixels[i], trans))
+                r = ''.join(pixel_row)
+                scanline = bytearray([int(r[k:k + 8], 2) for k in range(0, len(r), 8)])
+                self._compress_bytes(compressor, img_data, scanline * scale)
+        img_data.extend(compressor.flush())
+        return img_data
+
     def _build_image_data_bd4_nt1(self, udg_array, scale, attr_map, **kwargs):
         # Bit depth 4, full size, no masks
         attrs = {}
@@ -420,7 +441,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd4_nt2(self, udg_array, scale, attr_map, mask, **kwargs):
+    def _build_image_data_bd4_nt2(self, udg_array, scale, attr_map, **kwargs):
         # Bit depth 4, full size, no masks
         attr_dict = {}
         for attr, (p, i) in attr_map.items():
@@ -526,24 +547,6 @@ class PngWriter:
                     byte = udg.data[i]
                     mask_byte = udg.mask[i]
                     scanline.extend(attr_bytes[(byte & 240) + mask_byte // 16] + attr_bytes[(byte & 15) * 16 + (mask_byte & 15)])
-                self._compress_bytes(compressor, img_data, scanline * scale)
-        img_data.extend(compressor.flush())
-        return img_data
-
-    def _build_image_data_bd2(self, udg_array, scale, attr_map, mask, **kwargs):
-        # Bit depth 2, full size
-        compressor = zlib.compressobj(self.compression_level)
-        img_data = bytearray()
-        trans = '00' * scale
-        pixels = (trans, '01' * scale, '10' * scale, '11' * scale)
-        for row in udg_array:
-            for j in range(8):
-                pixel_row = ['00000000']
-                for udg in row:
-                    p, i = attr_map[udg.attr & 127]
-                    pixel_row.extend(mask.apply(udg, j, pixels[p], pixels[i], trans))
-                r = ''.join(pixel_row)
-                scanline = bytearray([int(r[k:k + 8], 2) for k in range(0, len(r), 8)])
                 self._compress_bytes(compressor, img_data, scanline * scale)
         img_data.extend(compressor.flush())
         return img_data
@@ -749,25 +752,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd1(self, udg_array, scale, attr_map, mask, **kwargs):
-        # 2 colours, full size
-        compressor = zlib.compressobj(self.compression_level)
-        img_data = bytearray()
-        trans = '0' * scale
-        pixels = (trans, '1' * scale)
-        for row in udg_array:
-            for j in range(8):
-                pixel_row = ['00000000']
-                for udg in row:
-                    p, i = attr_map[udg.attr & 127]
-                    pixel_row.extend(mask.apply(udg, j, pixels[p], pixels[i], trans))
-                r = ''.join(pixel_row)
-                scanline = bytearray([int(r[k:k + 8], 2) for k in range(0, len(r), 8)])
-                self._compress_bytes(compressor, img_data, scanline * scale)
-        img_data.extend(compressor.flush())
-        return img_data
-
-    def _build_image_data_bd1_blank(self, udg_array, scale, **kwargs):
+    def _build_image_data_bd0(self, udg_array, scale, **kwargs):
         # 1 colour (i.e. blank), full size; placing the integer value in
         # brackets means it is evaluated before 'multiplying' the tuple (and is
         # therefore quicker)

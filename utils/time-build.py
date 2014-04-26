@@ -213,15 +213,14 @@ METHODS = (
     ('bd4_nt2', 'bd4_nt1', bd4),
     ('bd_any', 'bd4_nt1', bd4),
     ('bd_any', 'bd4_nt2', bd4),
-    ('bd2', 'bd2_at', bd2_at),
-    ('bd2', 'bd2_nt', bd2),
-    ('bd_any', 'bd2', bd2),
+    ('bd12', 'bd2_at', bd2_at),
+    ('bd12', 'bd2_nt', bd2),
+    ('bd_any', 'bd12', bd2),
     ('bd_any', 'bd2_at', bd2_at),
     ('bd_any', 'bd2_nt', bd2),
-    ('bd1', 'bd1_nt', bd1),
-    ('bd1', 'bd1_nt_1udg', bd1_1udg),
+    ('bd12', 'bd1_nt', bd1),
+    ('bd12', 'bd1_nt_1udg', bd1_1udg),
     ('bd1_nt', 'bd1_nt_1udg', bd1_1udg),
-    ('bd_any', 'bd1', bd1),
     ('bd_any', 'bd1_nt', bd1),
     ('bd_any', 'bd1_nt_1udg', bd1_1udg)
 )
@@ -240,7 +239,7 @@ def list_methods():
     iw = ImageWriter()
     png_writer = iw.writers['png']
     for attr in dir(png_writer):
-        if attr.startswith(prefix) and not attr.endswith('_bd1_blank'):
+        if attr.startswith(prefix) and not attr.endswith('_bd0'):
             methods.append(attr)
     max_len = max([len(m) for m in methods]) - len(prefix)
     for m in methods:
