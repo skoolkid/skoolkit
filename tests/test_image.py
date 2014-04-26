@@ -1075,12 +1075,6 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self._test_method(method_name, udg_array, scale=4)
         self._test_method(method_name, udg_array, scale=8)
 
-    def test_bd12(self):
-        # Masked image with no transparent bits
-        udg_array = [[Udg(56, (240,) * 8, (240,) * 8)]]
-        method_name = 'bd12'
-        self._test_method(method_name, udg_array, scale=1, mask=1)
-
     def test_bd4_nt_method(self):
         png_writer = ImageWriter().writers['png']
         frame = MockFrame(80, 2, 3)
