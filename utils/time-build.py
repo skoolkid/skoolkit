@@ -81,11 +81,7 @@ def _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analys
     m1 = get_method(iw, method1)
     m2 = get_method(iw, method2)
     write('{} v. {}:'.format(m1.__name__, m2.__name__))
-    kwargs = {
-        'x0': 0,
-        'y0': 0,
-        'mask': iw.masks[mask_type]
-    }
+    mask = iw.masks[mask_type]
 
     if analyse_ua:
         for scale in scales:
@@ -93,21 +89,15 @@ def _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analys
             ua_params = []
             timings = []
             for udgs in udg_arrays:
-                width = len(udgs[0]) * 8 * scale
-                height = len(udgs) * 8 * scale
+                frame = Frame(udgs, scale, mask_type)
                 bit_depth, attr_map = _get_attr_map(iw, udgs, scale)
+                frame.attr_map = attr_map
                 num_udgs = len(udgs[0]) * len(udgs)
                 num_attrs = len(attr_map)
                 ua_params.append(num_attrs)
                 ua_params.append(num_udgs)
-                kwargs.update({
-                    'attr_map': attr_map,
-                    'width': width,
-                    'height': height,
-                    'bit_depth': bit_depth
-                })
-                t1 = clock(m1, udgs, scale, **kwargs)
-                t2 = clock(m2, udgs, scale, **kwargs)
+                t1 = clock(m1, frame, bit_depth=bit_depth, mask=mask)
+                t2 = clock(m2, frame, bit_depth=bit_depth, mask=mask)
                 timings.append(t1)
                 timings.append(t2)
                 write('    num_udgs={}, num_attrs={}: {:0.2f}ms {:0.2f}ms'.format(num_udgs, num_attrs, t1, t2))
@@ -120,17 +110,11 @@ def _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analys
         method1_faster = []
         for udgs in udg_arrays:
             for scale in scales:
-                width = len(udgs[0]) * 8 * scale
-                height = len(udgs) * 8 * scale
+                frame = Frame(udgs, scale, mask_type)
                 bit_depth, attr_map = _get_attr_map(iw, udgs, scale)
-                kwargs.update({
-                    'attr_map': attr_map,
-                    'width': width,
-                    'height': height,
-                    'bit_depth': bit_depth
-                })
-                t1 = clock(m1, udgs, scale, **kwargs)
-                t2 = clock(m2, udgs, scale, **kwargs)
+                frame.attr_map = attr_map
+                t1 = clock(m1, frame, bit_depth=bit_depth, mask=mask)
+                t2 = clock(m2, frame, bit_depth=bit_depth, mask=mask)
                 num_udgs = len(udgs[0]) * len(udgs)
                 num_attrs = len(attr_map)
                 output = '  num_udgs={}, num_attrs={}, scale={}: {:0.2f}ms {:0.2f}ms'.format(num_udgs, num_attrs, scale, t1, t2)
