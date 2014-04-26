@@ -571,7 +571,7 @@ class ImageWriterTest:
         udg6 = Udg(74, (15,) * 8)  # bright blue, bright red
         udg7 = Udg(92, (15,) * 8)  # bright magenta, bright green
         udg8 = Udg(110, (15,) * 8) # bright cyan, bright yellow
-        udg_array = [[udg1, udg2, udg3, udg4, udg5, udg6, udg7, udg8, udg1]] * 2
+        udg_array = [[udg1, udg2, udg3, udg4, udg5, udg6, udg7, udg8]]
         self._test_image(udg_array)
 
     def test_unmasked_bd4_cropped(self):
@@ -1044,9 +1044,9 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self._test_image(udg_array, scale=4)
         self._test_image(udg_array, scale=5)
 
-    def test_bd4_nt(self):
+    def test_bd4_nt1(self):
         udg_array = [[Udg(attr, (15,) * 8) for attr in (1, 19, 37, 55)]]
-        method_name = 'bd4_nt'
+        method_name = 'bd4_nt1'
         self._test_method(method_name, udg_array, scale=1)
         self._test_method(method_name, udg_array, scale=2)
         self._test_method(method_name, udg_array, scale=3)
@@ -1084,7 +1084,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
     def test_bd4_nt_method(self):
         png_writer = ImageWriter().writers['png']
         frame = MockFrame(80, 2, 3)
-        self.assertEqual(png_writer._build_image_data_bd4_nt, png_writer._bd4_nt_method(frame))
+        self.assertEqual(png_writer._build_image_data_bd4_nt1, png_writer._bd4_nt_method(frame))
 
 class GifWriterTest(SkoolKitTestCase, ImageWriterTest):
     def setUp(self):

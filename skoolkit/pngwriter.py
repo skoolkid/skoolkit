@@ -173,8 +173,8 @@ class PngWriter:
 
         # Bit depth 4
         bd4_fs_method_dict = self.png_method_dict[4][1]
-        bd4_fs_method_dict[0] = (self._bd4_nt_method, None)        # Unmasked
-        bd4_fs_method_dict[1] = (None, self._build_image_data_bd4) # Masked
+        bd4_fs_method_dict[0] = (self._bd4_nt_method, None)           # Unmasked
+        bd4_fs_method_dict[1] = (None, self._build_image_data_bd_any) # Masked
 
     def _bd1_nt_method(self, frame):
         if frame.tiles == 1 and frame.scale in (1, 2, 4, 8):
@@ -188,14 +188,14 @@ class PngWriter:
 
     def _bd4_nt_method(self, frame):
         if frame.scale == 2:
-            min_index = 10
+            min_index = 11
         elif frame.scale == 1:
-            min_index = 7
+            min_index = 6
         else:
-            min_index = 39
+            min_index = 38
         if frame.tiles / len(frame.attr_map) >= min_index:
-            return self._build_image_data_bd4_nt
-        return self._build_image_data_bd4
+            return self._build_image_data_bd4_nt1
+        return self._build_image_data_bd4_nt2
 
     def _to_bytes(self, num):
         return (num >> 24, (num >> 16) & 255, (num >> 8) & 255, num & 255)
@@ -269,7 +269,7 @@ class PngWriter:
             build_method = method(frame)
 
         # Frame 1
-        frame1 = build_method(udg_array, scale, attr_map=attr_map, masked=masked,
+        frame1 = build_method(udg_array, scale, attr_map=attr_map,
                               x0=x, y0=y, width=width, height=height,
                               bit_depth=bit_depth, mask=mask)
 
@@ -285,7 +285,7 @@ class PngWriter:
             for attr, (paper, ink) in attr_map.items():
                 new_attr = (attr & 192) + (attr & 7) * 8 + (attr & 56) // 8
                 attr_map[new_attr] = (ink, paper)
-            frame2 = build_method(f2_frame.udgs, scale, attr_map=attr_map, masked=masked,
+            frame2 = build_method(f2_frame.udgs, scale, attr_map=attr_map,
                                   x0=x + f2_x, y0=y + f2_y, width=f2_w, height=f2_h,
                                   bit_depth=bit_depth, mask=mask)
 
@@ -374,7 +374,7 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd4_nt(self, udg_array, scale, attr_map, **kwargs):
+    def _build_image_data_bd4_nt1(self, udg_array, scale, attr_map, **kwargs):
         # Bit depth 4, full size, no masks
         attrs = {}
         if scale == 1:
@@ -420,14 +420,11 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd4(self, udg_array, scale, attr_map, masked, mask, **kwargs):
-        # Bit depth 4, full size
+    def _build_image_data_bd4_nt2(self, udg_array, scale, attr_map, mask, **kwargs):
+        # Bit depth 4, full size, no masks
         attr_dict = {}
-        attr_dict_t = {}
         for attr, (p, i) in attr_map.items():
             attr_dict[attr] = (p * 17, p * 16 + i, i * 16 + p, i * 17)
-            if masked:
-                attr_dict_t[attr] = (0, p, p * 16, i, i * 16)
 
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
@@ -441,87 +438,28 @@ class PngWriter:
                     pp, pi, ip, ii = attr_dict[attr & 127]
                     pph = (pp,) * h_scale
                     iih = (ii,) * h_scale
-                    if masked and udg.mask:
-                        # Apply mask
-                        tt, tp, pt, ti, it = attr_dict_t[attr & 127]
-                        tth = (tt,) * h_scale
-                        pixels = mask.apply(udg, i, 1, 2, 0)
-                        for b in range(4):
-                            pixel_pair = pixels[b * 2:b * 2 + 2]
-                            if pixel_pair == [2, 2]:
-                                # ink + ink
-                                scanline.extend((ii,) * scale)
-                            elif pixel_pair == [1, 1]:
-                                # paper + paper
-                                scanline.extend((pp,) * scale)
-                            elif pixel_pair == [0, 0]:
-                                # transparent + transparent
-                                scanline.extend((tt,) * scale)
-                            elif pixel_pair == [2, 1]:
-                                # ink + paper
-                                scanline.extend(iih)
-                                if scale_odd:
-                                    scanline.append(ip)
-                                scanline.extend(pph)
-                            elif pixel_pair == [2, 0]:
-                                # ink + transparent
-                                scanline.extend(iih)
-                                if scale_odd:
-                                    scanline.append(it)
-                                scanline.extend(tth)
-                            elif pixel_pair == [1, 2]:
-                                # paper + ink
-                                scanline.extend(pph)
-                                if scale_odd:
-                                    scanline.append(pi)
-                                scanline.extend(iih)
-                            elif pixel_pair == [1, 0]:
-                                # paper + transparent
-                                scanline.extend(pph)
-                                if scale_odd:
-                                    scanline.append(pt)
-                                scanline.extend(tth)
-                            elif pixel_pair == [0, 2]:
-                                # transparent + ink
-                                scanline.extend(tth)
-                                if scale_odd:
-                                    scanline.append(ti)
-                                scanline.extend(iih)
-                            elif pixel_pair == [0, 1]:
-                                # transparent + paper
-                                scanline.extend(tth)
-                                if scale_odd:
-                                    scanline.append(tp)
-                                scanline.extend(pph)
-                    else:
-                        # No mask
-                        byte = udg.data[i]
-                        if byte == 0:
-                            scanline.extend((pp,) * 4 * scale)
-                        elif byte == 255:
-                            scanline.extend((ii,) * 4 * scale)
+                    byte = udg.data[i]
+                    for b in range(4):
+                        bits = byte & 192
+                        if bits == 0:
+                            # paper + paper
+                            scanline.extend((pp,) * scale)
+                        elif bits == 192:
+                            # ink + ink
+                            scanline.extend((ii,) * scale)
+                        elif bits == 128:
+                            # ink + paper
+                            scanline.extend(iih)
+                            if scale_odd:
+                                scanline.append(ip)
+                            scanline.extend(pph)
                         else:
-                            for b in range(4):
-                                bits = byte & 192
-                                if bits == 0:
-                                    # paper + paper
-                                    scanline.extend((pp,) * scale)
-                                elif bits == 192:
-                                    # ink + ink
-                                    scanline.extend((ii,) * scale)
-                                elif bits == 128:
-                                    # ink + paper
-                                    scanline.extend(iih)
-                                    if scale_odd:
-                                        scanline.append(ip)
-                                    scanline.extend(pph)
-                                else:
-                                    # paper + ink
-                                    scanline.extend(pph)
-                                    if scale_odd:
-                                        scanline.append(pi)
-                                    scanline.extend(iih)
-                                byte *= 4
+                            # paper + ink
+                            scanline.extend(pph)
+                            if scale_odd:
+                                scanline.append(pi)
+                            scanline.extend(iih)
+                        byte *= 4
                 self._compress_bytes(compressor, img_data, scanline * scale)
         img_data.extend(compressor.flush())
         return img_data

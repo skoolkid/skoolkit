@@ -82,7 +82,6 @@ def _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analys
     m2 = get_method(iw, method2)
     write('{} v. {}:'.format(m1.__name__, m2.__name__))
     kwargs = {
-        'masked': mask_type > 0,
         'x0': 0,
         'y0': 0,
         'mask': iw.masks[mask_type]
@@ -211,9 +210,9 @@ def bd2_at(iw, method1, method2, udg_arrays, scales):
     bd2(iw, method1, method2, udg_arrays, scales, masked=True)
 
 METHODS = (
-    ('bd4', 'bd4_nt', bd4),
-    ('bd_any', 'bd4', bd4),
-    ('bd_any', 'bd4_nt', bd4),
+    ('bd4_nt2', 'bd4_nt1', bd4),
+    ('bd_any', 'bd4_nt1', bd4),
+    ('bd_any', 'bd4_nt2', bd4),
     ('bd2', 'bd2_at', bd2_at),
     ('bd2', 'bd2_nt', bd2),
     ('bd_any', 'bd2', bd2),
