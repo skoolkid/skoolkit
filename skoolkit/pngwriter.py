@@ -237,57 +237,43 @@ class PngWriter:
         return bit_depth, palette_size
 
     def _build_image_data(self, frame, palette_size, bit_depth, attr_map, flash_rect=None):
-        frame.attr_map = attr_map
-        udg_array = frame.udgs
-        scale = frame.scale
-        x, y, width, height = frame.x, frame.y, frame.width, frame.height
-        if frame.mask and frame.has_masks:
-            masks = frame.has_masks + frame.all_masked
+        masked = frame.mask and frame.has_masks
+        if masked:
             mask = self.masks[frame.mask]
-            masked = 1
         else:
-            masks = 0
             mask = self.masks[0]
-            masked = 0
         full_size = not frame.cropped
-
-        frame2 = frame2_rect = None
-        if flash_rect:
-            if full_size:
-                f2_tx, f2_ty, f2_tw, f2_th = flash_rect
-                sf = 8 * scale
-                frame2_rect = (f2_tx * sf, f2_ty * sf, f2_tw * sf, f2_th * sf)
-            else:
-                frame2_rect = flash_rect
-
         if palette_size == 1:
             bd = 0
         else:
             bd = bit_depth
         method, build_method = self.png_method_dict[bd][full_size][masked]
+        frame.attr_map = attr_map
         if method:
             build_method = method(frame)
 
-        # Frame 1
-        frame1 = build_method(udg_array, scale, attr_map=attr_map,
-                              x0=x, y0=y, width=width, height=height,
-                              bit_depth=bit_depth, mask=mask)
+        frame1 = build_method(frame, bit_depth=bit_depth, mask=mask)
 
         # Frame 2
-        if frame2_rect:
-            f2_x, f2_y, f2_w, f2_h = frame2_rect
+        frame2 = frame2_rect = None
+        if flash_rect:
+            if full_size:
+                f2_tx, f2_ty, f2_tw, f2_th = flash_rect
+                sf = 8 * frame.scale
+                frame2_rect = (f2_tx * sf, f2_ty * sf, f2_tw * sf, f2_th * sf)
+            else:
+                frame2_rect = flash_rect
+            udg_array = frame.udgs
             if full_size and (f2_tw < len(udg_array[0]) or f2_th < len(udg_array)):
                 f2_frame = frame.swap_colours(f2_tx, f2_ty, f2_tw, f2_th)
-                f2_frame.all_masked = frame.all_masked
-                x = y = f2_x = f2_y = 0
             else:
-                f2_frame = frame.swap_colours()
+                f2_x, f2_y, f2_w, f2_h = frame2_rect
+                f2_frame = frame.swap_colours(x=frame.x + f2_x, y=frame.y + f2_y, width=f2_w, height=f2_h)
             for attr, (paper, ink) in attr_map.items():
                 new_attr = (attr & 192) + (attr & 7) * 8 + (attr & 56) // 8
                 attr_map[new_attr] = (ink, paper)
-            frame2 = build_method(f2_frame.udgs, scale, attr_map=attr_map,
-                                  x0=x + f2_x, y0=y + f2_y, width=f2_w, height=f2_h,
-                                  bit_depth=bit_depth, mask=mask)
+            f2_frame.attr_map = attr_map
+            frame2 = build_method(f2_frame, bit_depth=bit_depth, mask=mask)
 
         return frame1, frame2, frame2_rect
 
@@ -307,12 +293,16 @@ class PngWriter:
         img_file.write(img_data)
         img_file.write(bytearray(self._get_crc(img_data))) # CRC
 
-    def _build_image_data_bd_any(self, udg_array, scale, attr_map, x0, y0, width, height, bit_depth, mask, **kwargs):
+    def _build_image_data_bd_any(self, frame, bit_depth, mask):
         # Build image data at any bit depth using a generic method
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
-        x1 = x0 + width
-        y1 = y0 + height
+        scale = frame.scale
+        attr_map = frame.attr_map
+        x0 = frame.x
+        y0 = frame.y
+        x1 = x0 + frame.width
+        y1 = y0 + frame.height
         inc = 8 * scale
         min_col = x0 // inc
         max_col = x1 // inc
@@ -325,7 +315,7 @@ class PngWriter:
         trans_pixels = (0,) * scale
 
         y = inc * min_row
-        for row in udg_array[min_row:max_row + 1]:
+        for row in frame.udgs[min_row:max_row + 1]:
             min_k = max(0, (y0 - y) // scale)
             max_k = min(8, 1 + (y1 - 1 - y) // scale)
             y += min_k * scale
@@ -374,16 +364,18 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd12(self, udg_array, scale, attr_map, bit_depth, mask, **kwargs):
+    def _build_image_data_bd12(self, frame, bit_depth, mask):
         # Bit depth 1 or 2, full size
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
+        scale = frame.scale
+        attr_map = frame.attr_map
         if bit_depth == 2:
             pixels = ('00' * scale, '01' * scale, '10' * scale, '11' * scale)
         else:
             pixels = ('0' * scale, '1' * scale)
         trans = pixels[0]
-        for row in udg_array:
+        for row in frame.udgs:
             for j in range(8):
                 pixel_row = ['00000000']
                 for udg in row:
@@ -395,8 +387,10 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd4_nt1(self, udg_array, scale, attr_map, **kwargs):
+    def _build_image_data_bd4_nt1(self, frame, **kwargs):
         # Bit depth 4, full size, no masks
+        scale = frame.scale
+        attr_map = frame.attr_map
         attrs = {}
         if scale == 1:
             for attr, (p, i) in attr_map.items():
@@ -432,7 +426,7 @@ class PngWriter:
 
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
-        for row in udg_array:
+        for row in frame.udgs:
             for i in range(8):
                 scanline = bytearray((0,))
                 for udg in row:
@@ -441,17 +435,18 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd4_nt2(self, udg_array, scale, attr_map, **kwargs):
+    def _build_image_data_bd4_nt2(self, frame, **kwargs):
         # Bit depth 4, full size, no masks
         attr_dict = {}
-        for attr, (p, i) in attr_map.items():
+        for attr, (p, i) in frame.attr_map.items():
             attr_dict[attr] = (p * 17, p * 16 + i, i * 16 + p, i * 17)
 
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
+        scale = frame.scale
         scale_odd = scale & 1
         h_scale = scale // 2
-        for row in udg_array:
+        for row in frame.udgs:
             for i in range(8):
                 scanline = bytearray((0,))
                 for udg in row:
@@ -485,34 +480,35 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd2_nt(self, udg_array, scale, attr_map, **kwargs):
+    def _build_image_data_bd2_nt(self, frame, **kwargs):
         # Bit depth 2, full size, no masks
+        scale = frame.scale
         scale_m = scale & 3
         q = scale // 4
         attrs = {}
         if scale_m == 2:
-            for attr, (p, i) in attr_map.items():
+            for attr, (p, i) in frame.attr_map.items():
                 c = ((p * 85,), (p * 80 + i * 5,), (i * 80 + p * 5,), (i * 85,))
                 attrs[attr] = [c[b3 * 3] * q + c[b3 * 2 + b2] + c[b2 * 3] * q + c[b1 * 3] * q + c[b1 * 2 + b0] + c[b0 * 3] * q for b3, b2, b1, b0 in BITS4]
         elif scale_m == 0:
-            for attr, (p, i) in attr_map.items():
+            for attr, (p, i) in frame.attr_map.items():
                 c = ((p * 85,), (i * 85,))
                 attrs[attr] = [c[b3] * q + c[b2] * q + c[b1] * q + c[b0] * q for b3, b2, b1, b0 in BITS4]
         elif scale == 1:
-            for attr, t in attr_map.items():
+            for attr, t in frame.attr_map.items():
                 attrs[attr] = [(t[b3] * 64 + t[b2] * 16 + t[b1] * 4 + t[b0],) for b3, b2, b1, b0 in BITS4]
         elif scale_m == 1:
-            for attr, t in attr_map.items():
+            for attr, t in frame.attr_map.items():
                 c = [(t[b3] * 64 + t[b2] * 16 + t[b1] * 4 + t[b0],) for b3, b2, b1, b0 in BD2_BITS]
                 attrs[attr] = [c[b3 * 7] * q + c[b3 * 4 + b2 * 3] + c[b2 * 7] * (q - 1) + c[b2 * 5 + b1 * 2] + c[b1 * 7] * (q - 1) + c[b1 * 6 + b0] + c[b0 * 7] * q for b3, b2, b1, b0 in BITS4]
         else:
-            for attr, t in attr_map.items():
+            for attr, t in frame.attr_map.items():
                 c = [(t[b3] * 64 + t[b2] * 16 + t[b1] * 4 + t[b0],) for b3, b2, b1, b0 in BD2_BITS]
                 attrs[attr] = [c[b3 * 7] * q + c[b3 * 6 + b2] + c[b2 * 7] * q + c[b2 * 5 + b1 * 2] + c[b1 * 7] * q + c[b1 * 4 + b0 * 3] + c[b0 * 7] * q for b3, b2, b1, b0 in BITS4]
 
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
-        for row in udg_array:
+        for row in frame.udgs:
             for i in range(8):
                 scanline = bytearray((0,))
                 for udg in row:
@@ -523,23 +519,24 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd2_at(self, udg_array, scale, attr_map, mask, **kwargs):
+    def _build_image_data_bd2_at(self, frame, mask, **kwargs):
         # Bit depth 2, full size, fully masked, scale 2 or a multiple of 4
         attrs = {}
+        scale = frame.scale
         if scale & 3 == 0:
             q = scale // 4
             b = ((0,) * q, (85,) * q, (170,) * q, (255,) * q) # 00000000, 01010101, 10101010, 11111111
-            for attr, (p, i) in attr_map.items():
+            for attr, (p, i) in frame.attr_map.items():
                 c = mask.colours(b, p, i, 0)
                 attrs[attr] = [c[b3] + c[b2] + c[b1] + c[b0] for b3, b2, b1, b0 in BIT_PAIRS2]
         elif scale == 2:
-            for attr, (paper, ink) in attr_map.items():
+            for attr, (paper, ink) in frame.attr_map.items():
                 p = mask.colours((paper, ink, 0), 0, 1, 2)
                 attrs[attr] = [(p[b3] * 80 + p[b2] * 5, p[b1] * 80 + p[b0] * 5) for b3, b2, b1, b0 in BIT_PAIRS2]
 
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
-        for row in udg_array:
+        for row in frame.udgs:
             for i in range(8):
                 scanline = bytearray((0,))
                 for udg in row:
@@ -551,12 +548,13 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd1_nt_1udg(self, udg_array, scale, attr_map, **kwargs):
+    def _build_image_data_bd1_nt_1udg(self, frame, **kwargs):
         # 1 UDG, 2 colours, full size, no masks, scale 1, 2, 4 or 8
-        udg = udg_array[0][0]
+        udg = frame.udgs[0][0]
         img_data = bytearray()
-        xor = attr_map[udg.attr & 127][0] * 255
+        xor = frame.attr_map[udg.attr & 127][0] * 255
 
+        scale = frame.scale
         if scale == 4:
             for b in udg.data:
                 b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[b ^ xor]
@@ -575,13 +573,15 @@ class PngWriter:
 
         return self._compress_all_bytes(img_data)
 
-    def _build_image_data_bd1_nt(self, udg_array, scale, attr_map, **kwargs):
+    def _build_image_data_bd1_nt(self, frame, **kwargs):
         # 2 colours, full size, no masks
         compressor = zlib.compressobj(self.compression_level)
+        scale = frame.scale
+        attr_map = frame.attr_map
         e_scale = scale // 8
         scale_m = scale & 7
         img_data = bytearray()
-        for row in udg_array:
+        for row in frame.udgs:
             for i in range(8):
                 scanline = bytearray((0,))
                 for udg in row:
@@ -752,9 +752,9 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
-    def _build_image_data_bd0(self, udg_array, scale, **kwargs):
+    def _build_image_data_bd0(self, frame, **kwargs):
         # 1 colour (i.e. blank), full size; placing the integer value in
         # brackets means it is evaluated before 'multiplying' the tuple (and is
         # therefore quicker)
-        scanlines = bytearray((0,) * ((1 + len(udg_array[0]) * scale) * len(udg_array) * scale * 8))
+        scanlines = bytearray((0,) * ((1 + frame.width // 8) * frame.height))
         return self._compress_all_bytes(scanlines)

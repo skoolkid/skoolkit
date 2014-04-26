@@ -1578,11 +1578,11 @@ class Frame(object):
         self.delay = delay
         self._tiles = len(udgs[0]) * len(udgs)
 
-    def swap_colours(self, tx=0, ty=0, tw=None, th=None):
+    def swap_colours(self, tx=0, ty=0, tw=None, th=None, x=0, y=0, width=None, height=None):
         # Swap paper and ink in UDGs that are flashing
-        width = tw or len(self.udgs[0])
-        height = th or len(self.udgs)
-        udgs = [self.udgs[i][tx:tx + width] for i in range(ty, ty + height)]
+        t_width = tw or len(self.udgs[0])
+        t_height = th or len(self.udgs)
+        udgs = [self.udgs[i][tx:tx + t_width] for i in range(ty, ty + t_height)]
         for row in udgs:
             for i in range(len(row)):
                 udg = row[i]
@@ -1590,7 +1590,7 @@ class Frame(object):
                 if attr & 128:
                     new_attr = (attr & 192) + (attr & 7) * 8 + (attr & 56) // 8
                     row[i] = Udg(new_attr, udg.data, udg.mask)
-        return Frame(udgs, self.scale, self.mask)
+        return Frame(udgs, self.scale, self.mask, x, y, width, height)
 
     @property
     def udgs(self):

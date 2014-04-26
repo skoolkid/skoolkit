@@ -874,6 +874,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         colours, attrs, flash_rect = image_writer._get_colours(frame, use_flash)
         masks = frame.has_masks + frame.all_masked
         palette, attr_map = image_writer._get_palette(colours, attrs, frame.has_trans)
+        frame.attr_map = attr_map
         palette = [palette[i:i + 3] for i in range(0, len(palette), 3)]
 
         exp_palette, exp_masks, exp_pixels, exp_pixels2, frame2_xy = self._get_pixels_from_udg_array(udg_array, scale, mask)
@@ -888,7 +889,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
             bit_depth = 2
         else:
             bit_depth = 1
-        image_data_z = method(udg_array, scale, attr_map=attr_map, bit_depth=bit_depth, mask=png_writer.masks[mask])
+        image_data_z = method(frame, bit_depth=bit_depth, mask=png_writer.masks[mask])
         if PY3:
             image_data = list(zlib.decompress(image_data_z))
         else:
