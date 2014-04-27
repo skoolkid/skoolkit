@@ -187,12 +187,12 @@ class PngWriter:
         return self._build_image_data_bd12
 
     def _bd4_nt_method(self, frame):
-        if frame.scale == 2:
-            min_index = 11
-        elif frame.scale == 1:
-            min_index = 6
+        if frame.scale == 1:
+            min_index = 13
+        elif frame.scale == 2:
+            min_index = 25
         else:
-            min_index = 38
+            min_index = 70
         if frame.tiles / len(frame.attr_map) >= min_index:
             return self._build_image_data_bd4_nt1
         return self._build_image_data_bd4_nt2
@@ -437,45 +437,38 @@ class PngWriter:
 
     def _build_image_data_bd4_nt2(self, frame, **kwargs):
         # Bit depth 4, full size, no masks
+        scale = frame.scale
+        h_scale = scale // 2
         attr_dict = {}
-        for attr, (p, i) in frame.attr_map.items():
-            attr_dict[attr] = (p * 17, p * 16 + i, i * 16 + p, i * 17)
+        if scale & 1:
+            for attr, (p, i) in frame.attr_map.items():
+                attr_dict[attr] = (
+                    (p * 17,) * scale,
+                    (p * 17,) * h_scale + (p * 16 + i,) + (i * 17,) * h_scale,
+                    (i * 17,) * h_scale + (i * 16 + p,) + (p * 17,) * h_scale,
+                    (i * 17,) * scale
+                )
+        else:
+            for attr, (p, i) in frame.attr_map.items():
+                attr_dict[attr] = (
+                    (p * 17,) * scale,
+                    (p * 17,) * h_scale + (i * 17,) * h_scale,
+                    (i * 17,) * h_scale + (p * 17,) * h_scale,
+                    (i * 17,) * scale
+                )
 
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
-        scale = frame.scale
-        scale_odd = scale & 1
-        h_scale = scale // 2
         for row in frame.udgs:
             for i in range(8):
                 scanline = bytearray((0,))
                 for udg in row:
-                    attr = udg.attr
-                    pp, pi, ip, ii = attr_dict[attr & 127]
-                    pph = (pp,) * h_scale
-                    iih = (ii,) * h_scale
                     byte = udg.data[i]
-                    for b in range(4):
-                        bits = byte & 192
-                        if bits == 0:
-                            # paper + paper
-                            scanline.extend((pp,) * scale)
-                        elif bits == 192:
-                            # ink + ink
-                            scanline.extend((ii,) * scale)
-                        elif bits == 128:
-                            # ink + paper
-                            scanline.extend(iih)
-                            if scale_odd:
-                                scanline.append(ip)
-                            scanline.extend(pph)
-                        else:
-                            # paper + ink
-                            scanline.extend(pph)
-                            if scale_odd:
-                                scanline.append(pi)
-                            scanline.extend(iih)
-                        byte *= 4
+                    pixels = attr_dict[udg.attr & 127]
+                    scanline.extend(pixels[byte // 64])
+                    scanline.extend(pixels[(byte & 48) // 16])
+                    scanline.extend(pixels[(byte & 12) // 4])
+                    scanline.extend(pixels[byte & 3])
                 self._compress_bytes(compressor, img_data, scanline * scale)
         img_data.extend(compressor.flush())
         return img_data

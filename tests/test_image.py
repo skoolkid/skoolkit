@@ -1078,7 +1078,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
 
     def test_bd4_nt_method(self):
         png_writer = ImageWriter().writers['png']
-        frame = MockFrame(80, 2, 3)
+        frame = MockFrame(210, 3, 3)
         self.assertEqual(png_writer._build_image_data_bd4_nt1, png_writer._bd4_nt_method(frame))
 
 class GifWriterTest(SkoolKitTestCase, ImageWriterTest):

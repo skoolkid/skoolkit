@@ -194,7 +194,7 @@ def bd2_at(iw, method1, method2, udg_arrays, scales):
     bd2(iw, method1, method2, udg_arrays, scales, masked=True)
 
 METHODS = (
-    ('bd4_nt2', 'bd4_nt1', bd4),
+    ('bd4_nt1', 'bd4_nt2', bd4),
     ('bd_any', 'bd4_nt1', bd4),
     ('bd_any', 'bd4_nt2', bd4),
     ('bd12', 'bd2_at', bd2_at),
