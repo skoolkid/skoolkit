@@ -249,18 +249,14 @@ class PngWriter:
         # Frame 2
         frame2 = frame2_rect = None
         if flash_rect:
+            f2_x, f2_y, f2_w, f2_h = flash_rect
             if full_size:
-                f2_tx, f2_ty, f2_tw, f2_th = flash_rect
+                f2_frame = frame.swap_colours(f2_x, f2_y, f2_w, f2_h)
                 sf = 8 * frame.scale
-                frame2_rect = (f2_tx * sf, f2_ty * sf, f2_tw * sf, f2_th * sf)
+                frame2_rect = (f2_x * sf, f2_y * sf, f2_w * sf, f2_h * sf)
             else:
-                frame2_rect = flash_rect
-            udg_array = frame.udgs
-            if full_size and (f2_tw < len(udg_array[0]) or f2_th < len(udg_array)):
-                f2_frame = frame.swap_colours(f2_tx, f2_ty, f2_tw, f2_th)
-            else:
-                f2_x, f2_y, f2_w, f2_h = frame2_rect
                 f2_frame = frame.swap_colours(x=frame.x + f2_x, y=frame.y + f2_y, width=f2_w, height=f2_h)
+                frame2_rect = flash_rect
             for attr, (paper, ink) in attr_map.items():
                 new_attr = (attr & 192) + (attr & 7) * 8 + (attr & 56) // 8
                 attr_map[new_attr] = (ink, paper)
