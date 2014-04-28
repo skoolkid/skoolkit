@@ -614,6 +614,7 @@ class ImageWriterTest:
         udg_array = [[udg1, udg2, udg3]]
         self._test_image(udg_array)
         self._test_image(udg_array, scale=2)
+        return udg_array
 
     def test_unmasked_flashing(self):
         # Unmasked image, flashing
@@ -1045,6 +1046,11 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self._test_image(udg_array, scale=4)
         self._test_image(udg_array, scale=5)
 
+    def test_unmasked_bd4_scaled(self):
+        # Unmasked image, bit depth 4, scales 1-3
+        udg_array = ImageWriterTest.test_unmasked_bd4_scaled(self)
+        self._test_image(udg_array, scale=3)
+
     def test_bd4_nt1(self):
         udg_array = [[Udg(attr, (15,) * 8) for attr in (1, 19, 37, 55)]]
         method_name = 'bd4_nt1'
@@ -1078,7 +1084,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
 
     def test_bd4_nt_method(self):
         png_writer = ImageWriter().writers['png']
-        frame = MockFrame(210, 3, 3)
+        frame = MockFrame(1000, 3, 3)
         self.assertEqual(png_writer._build_image_data_bd4_nt1, png_writer._bd4_nt_method(frame))
 
 class GifWriterTest(SkoolKitTestCase, ImageWriterTest):

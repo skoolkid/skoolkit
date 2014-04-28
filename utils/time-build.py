@@ -135,8 +135,8 @@ def bd4(iw, method1, method2, udg_arrays, scales):
     if not udg_arrays:
         analyse_ua = True
         udg_arrays = []
-        udg_arrays.append([[Udg(i, (240,) * 8) for i in range(16)]] * 16) # u=256, a=16
-        udg_arrays.append([[Udg(i, (240,) * 8) for i in range(24)]] * 24) # u=576, a=24
+        udg_arrays.append([[Udg(i, (240,) * 8) for i in range(16)]] * 64)  # u=1024, a=16
+        udg_arrays.append([[Udg(i, (240,) * 8) for i in range(24)]] * 128) # u=3072, a=24
 
     scales = scales or (1, 2, 3, 4)
 

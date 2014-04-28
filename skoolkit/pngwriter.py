@@ -188,11 +188,11 @@ class PngWriter:
 
     def _bd4_nt_method(self, frame):
         if frame.scale == 1:
-            min_index = 13
+            min_index = 63
         elif frame.scale == 2:
-            min_index = 25
+            min_index = 104
         else:
-            min_index = 70
+            min_index = 305
         if frame.tiles / len(frame.attr_map) >= min_index:
             return self._build_image_data_bd4_nt1
         return self._build_image_data_bd4_nt2
@@ -388,7 +388,7 @@ class PngWriter:
         return img_data
 
     def _build_image_data_bd4_nt1(self, frame, **kwargs):
-        # Bit depth 4, full size, no masks
+        # Bit depth 4, full size, no masks, large
         scale = frame.scale
         attr_map = frame.attr_map
         attrs = {}
@@ -436,40 +436,106 @@ class PngWriter:
         return img_data
 
     def _build_image_data_bd4_nt2(self, frame, **kwargs):
-        # Bit depth 4, full size, no masks
+        # Bit depth 4, full size, no masks, small
         scale = frame.scale
-        h_scale = scale // 2
         attr_dict = {}
-        if scale & 1:
-            for attr, (p, i) in frame.attr_map.items():
+        if scale == 1:
+            for attr, (paper, ink) in frame.attr_map.items():
+                pp = paper * 17
+                pi = paper * 16 + ink
+                ip = ink * 16 + paper
+                ii = ink * 17
                 attr_dict[attr] = (
-                    (p * 17,) * scale,
-                    (p * 17,) * h_scale + (p * 16 + i,) + (i * 17,) * h_scale,
-                    (i * 17,) * h_scale + (i * 16 + p,) + (p * 17,) * h_scale,
-                    (i * 17,) * scale
+                    (pp, pp), (pp, pi), (pp, ip), (pp, ii),
+                    (pi, pp), (pi, pi), (pi, ip), (pi, ii),
+                    (ip, pp), (ip, pi), (ip, ip), (ip, ii),
+                    (ii, pp), (ii, pi), (ii, ip), (ii, ii)
+                )
+        elif scale & 1:
+            h_scale = scale // 2
+            t_scale = scale + h_scale
+            d_scale = scale * 2
+            for attr, (paper, ink) in frame.attr_map.items():
+                pp = (paper * 17,)
+                pi = (paper * 16 + ink,)
+                ip = (ink * 16 + paper,)
+                ii = (ink * 17,)
+                attr_dict[attr] = (
+                    pp * d_scale,
+                    pp * t_scale + pi + ii * h_scale,
+                    pp * scale + ii * h_scale + ip + pp * h_scale,
+                    pp * scale + ii * scale,
+                    pp * h_scale + pi + ii * h_scale + pp * scale,
+                    pp * h_scale + pi + ii * h_scale + pp * h_scale + pi + ii * h_scale,
+                    pp * h_scale + pi + ii * scale + ip + pp * h_scale,
+                    pp * h_scale + pi + ii * t_scale,
+                    ii * h_scale + ip + pp * t_scale,
+                    ii * h_scale + ip + pp * scale + pi + ii * h_scale,
+                    ii * h_scale + ip + pp * h_scale + ii * h_scale + ip + pp * h_scale,
+                    ii * h_scale + ip + pp * h_scale + ii * scale,
+                    ii * scale + pp * scale,
+                    ii * scale + pp * h_scale + pi + ii * h_scale,
+                    ii * t_scale + ip + pp * h_scale,
+                    ii * d_scale
                 )
         else:
-            for attr, (p, i) in frame.attr_map.items():
+            h_scale = scale // 2
+            for attr, (paper, ink) in frame.attr_map.items():
+                p = (paper * 17,) * h_scale
+                i = (ink * 17,) * h_scale
                 attr_dict[attr] = (
-                    (p * 17,) * scale,
-                    (p * 17,) * h_scale + (i * 17,) * h_scale,
-                    (i * 17,) * h_scale + (p * 17,) * h_scale,
-                    (i * 17,) * scale
+                    p * 4,         p * 3 + i,     p * 2 + i + p, p * 2 + i * 2,
+                    p + i + p * 2, (p + i) * 2,   p + i * 2 + p, p + i * 3,
+                    i + p * 3,     i + p * 2 + i, (i + p) * 2,   i + p + i * 2,
+                    i * 2 + p * 2, i * 2 + p + i, i * 3 + p,     i * 4
                 )
 
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
         for row in frame.udgs:
-            for i in range(8):
-                scanline = bytearray((0,))
-                for udg in row:
-                    byte = udg.data[i]
-                    pixels = attr_dict[udg.attr & 127]
-                    scanline.extend(pixels[byte // 64])
-                    scanline.extend(pixels[(byte & 48) // 16])
-                    scanline.extend(pixels[(byte & 12) // 4])
-                    scanline.extend(pixels[byte & 3])
-                self._compress_bytes(compressor, img_data, scanline * scale)
+            scanline0 = bytearray((0,))
+            scanline1 = bytearray((0,))
+            scanline2 = bytearray((0,))
+            scanline3 = bytearray((0,))
+            scanline4 = bytearray((0,))
+            scanline5 = bytearray((0,))
+            scanline6 = bytearray((0,))
+            scanline7 = bytearray((0,))
+            for udg in row:
+                pixels = attr_dict[udg.attr & 127]
+                udg_bytes = udg.data
+                byte = udg_bytes[0]
+                scanline0.extend(pixels[byte // 16])
+                scanline0.extend(pixels[byte & 15])
+                byte = udg_bytes[1]
+                scanline1.extend(pixels[byte // 16])
+                scanline1.extend(pixels[byte & 15])
+                byte = udg_bytes[2]
+                scanline2.extend(pixels[byte // 16])
+                scanline2.extend(pixels[byte & 15])
+                byte = udg_bytes[3]
+                scanline3.extend(pixels[byte // 16])
+                scanline3.extend(pixels[byte & 15])
+                byte = udg_bytes[4]
+                scanline4.extend(pixels[byte // 16])
+                scanline4.extend(pixels[byte & 15])
+                byte = udg_bytes[5]
+                scanline5.extend(pixels[byte // 16])
+                scanline5.extend(pixels[byte & 15])
+                byte = udg_bytes[6]
+                scanline6.extend(pixels[byte // 16])
+                scanline6.extend(pixels[byte & 15])
+                byte = udg_bytes[7]
+                scanline7.extend(pixels[byte // 16])
+                scanline7.extend(pixels[byte & 15])
+            self._compress_bytes(compressor, img_data, scanline0 * scale)
+            self._compress_bytes(compressor, img_data, scanline1 * scale)
+            self._compress_bytes(compressor, img_data, scanline2 * scale)
+            self._compress_bytes(compressor, img_data, scanline3 * scale)
+            self._compress_bytes(compressor, img_data, scanline4 * scale)
+            self._compress_bytes(compressor, img_data, scanline5 * scale)
+            self._compress_bytes(compressor, img_data, scanline6 * scale)
+            self._compress_bytes(compressor, img_data, scanline7 * scale)
         img_data.extend(compressor.flush())
         return img_data
 
