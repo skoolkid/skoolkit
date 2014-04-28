@@ -46,58 +46,63 @@ class GifWriter:
         img_file.write(data)
 
         # Global Colour Table
-        min_code_size = self._write_gct(img_file, palette)
+        min_code_size, gct = self._gct(palette)
+        img_file.write(gct)
 
         # Application Extension block
         if len(frames) > 1 or flash_rect:
             img_file.write(self.aeb)
 
         if len(frames) == 1:
-            udg_array = frame.udgs
-            scale = frame.scale
-            x, y = frame.x, frame.y
-            mask = self.masks[frame.mask]
-            full_size = not frame.cropped
-
             if flash_rect:
-                self._write_gce(img_file, frame.delay, transparent)
+                img_file.write(self._gce(frame.delay, transparent))
             elif transparent:
-                self._write_gce(img_file, 0, transparent)
+                img_file.write(self._gce(0, transparent))
 
             # Frame 1
-            self._write_image_descriptor(img_file, width, height)
-            self._write_gif_image_data(img_file, udg_array, scale, x, y, width, height, full_size, min_code_size, attr_map, mask)
+            frame.attr_map = attr_map
+            mask = self.masks[frame.mask]
+            img_file.write(self._image_descriptor(width, height))
+            img_file.write(self._build_image_data(frame, min_code_size, mask))
 
             if flash_rect:
                 # Frame 2
                 f2_x, f2_y, f2_w, f2_h = flash_rect
-                f2_udg_array = udg_array
-                if full_size:
-                    if f2_w < width or f2_h < height:
-                        f2_udg_array = [udg_array[i][f2_x:f2_x + f2_w] for i in range(f2_y, f2_y + f2_h)]
-                    f2_x *= 8 * scale
-                    f2_y *= 8 * scale
-                    f2_w *= 8 * scale
-                    f2_h *= 8 * scale
-                self._write_gce(img_file, frame.delay, transparent)
-                self._write_image_descriptor(img_file, f2_w, f2_h, f2_x, f2_y)
-                self._write_gif_image_data(img_file, f2_udg_array, scale, x + f2_x, y + f2_y, f2_w, f2_h, full_size, min_code_size, attr_map, mask, True)
+                if frame.cropped:
+                    f2_frame = frame.swap_colours(x=frame.x + f2_x, y=frame.y + f2_y, width=f2_w, height=f2_h)
+                else:
+                    f2_frame = frame.swap_colours(f2_x, f2_y, f2_w, f2_h)
+                    sf = 8 * frame.scale
+                    f2_x *= sf
+                    f2_y *= sf
+                    f2_w *= sf
+                    f2_h *= sf
+                for attr, (paper, ink) in attr_map.items():
+                    new_attr = (attr & 192) + (attr & 7) * 8 + (attr & 56) // 8
+                    attr_map[new_attr] = (ink, paper)
+                f2_frame.attr_map = attr_map
+                img_file.write(self._gce(frame.delay, transparent))
+                img_file.write(self._image_descriptor(f2_w, f2_h, f2_x, f2_y))
+                img_file.write(self._build_image_data(f2_frame, min_code_size, mask))
         else:
             for frame in frames:
-                x, y, width, height = frame.x, frame.y, frame.width, frame.height
+                frame.attr_map = attr_map
                 mask = self.masks[frame.mask]
-                full_size = not frame.cropped
-                self._write_gce(img_file, frame.delay, transparent)
-                self._write_image_descriptor(img_file, width, height)
-                self._write_gif_image_data(img_file, frame.udgs, frame.scale, x, y, width, height, full_size, min_code_size, attr_map, mask)
+                img_file.write(self._gce(frame.delay, transparent))
+                img_file.write(self._image_descriptor(frame.width, frame.height))
+                img_file.write(self._build_image_data(frame, min_code_size, mask))
 
         # GIF trailer
         img_file.write(self.gif_trailer)
 
-    def _get_pixels(self, udg_array, scale, x0, y0, width, height, flash, attr_map, mask):
+    def _get_pixels(self, frame, mask):
         pixels = []
-        x1 = x0 + width
-        y1 = y0 + height
+        scale = frame.scale
+        attr_map = frame.attr_map
+        x0 = frame.x
+        y0 = frame.y
+        x1 = x0 + frame.width
+        y1 = y0 + frame.height
         inc = 8 * scale
         min_col = x0 // inc
         max_col = x1 // inc
@@ -110,7 +115,7 @@ class GifWriter:
         trans_pixels = chr(0) * scale
 
         y = inc * min_row
-        for row in udg_array[min_row:max_row + 1]:
+        for row in frame.udgs[min_row:max_row + 1]:
             min_k = max(0, (y0 - y) // scale)
             max_k = min(8, 1 + (y1 - 1 - y) // scale)
             y += min_k * scale
@@ -119,8 +124,6 @@ class GifWriter:
                 pixel_row = []
                 for udg in row[min_col:max_col + 1]:
                     paper, ink = attr_map[udg.attr & 127]
-                    if flash and udg.attr & 128:
-                        paper, ink = ink, paper
                     if x0 <= x < x1_floor:
                         # Full width UDG
                         pixel_row.extend(mask.apply(udg, k, chr(paper) * scale, chr(ink) * scale, trans_pixels))
@@ -150,21 +153,21 @@ class GifWriter:
                 y += scale
         return ''.join(pixels)
 
-    def _get_all_pixels(self, udg_array, scale, flash, attr_map, mask):
+    def _get_all_pixels(self, frame, mask):
         # Get all the pixels in an uncropped image
+        scale = frame.scale
+        attr_map = frame.attr_map
         attr_index = {}
         for attr, (paper, ink) in attr_map.items():
             attr_index[attr] = (chr(paper) * scale, chr(ink) * scale)
 
         pixels = []
         t = chr(0) * scale
-        for row in udg_array:
+        for row in frame.udgs:
             for k in range(8):
                 pixel_row = []
                 for udg in row:
                     paper, ink = attr_index[udg.attr & 127]
-                    if flash and udg.attr & 128:
-                        paper, ink = ink, paper
                     pixel_row.extend(mask.apply(udg, k, paper, ink, t))
                 for i in range(scale):
                     pixels += pixel_row
@@ -231,7 +234,7 @@ class GifWriter:
 
         return output
 
-    def _write_gct(self, img_file, palette):
+    def _gct(self, palette):
         data = bytearray()
         gct_flag = 1 # Global Colour Table (GCT) follows
         colour_res = 7 # number of bits per RGB channel = colour_res + 1 = 8
@@ -259,10 +262,9 @@ class GifWriter:
         data.extend(palette)
         for i in range(num_entries - palette_size):
             data.extend((0, 0, 0))
-        img_file.write(data)
-        return min_code_size
+        return min_code_size, data
 
-    def _write_gce(self, img_file, delay, transparent):
+    def _gce(self, delay, transparent):
         data = bytearray()
         data.extend((33, 249)) # Graphic Control Extension
         data.append(4) # 4 bytes follow
@@ -273,9 +275,9 @@ class GifWriter:
         data.extend((delay % 256, delay // 256)) # delay before next frame
         data.append(0) # transparent colour
         data.append(0) # end of GCE block
-        img_file.write(data)
+        return data
 
-    def _write_image_descriptor(self, img_file, width, height, x_offset=0, y_offset=0):
+    def _image_descriptor(self, width, height, x_offset=0, y_offset=0):
         data = bytearray()
         data.append(44) # Image separator
         data.extend((x_offset % 256, x_offset // 256)) # image left position
@@ -283,14 +285,14 @@ class GifWriter:
         data.extend((width % 256, width // 256)) # image width
         data.extend((height % 256, height // 256)) # image height
         data.append(0) # no local colour table
-        img_file.write(data)
+        return data
 
-    def _write_gif_image_data(self, img_file, udg_array, scale, x, y, width, height, full_size, min_code_size, attr_map, mask, flash=False):
+    def _build_image_data(self, frame, min_code_size, mask):
         data = bytearray((min_code_size,))
-        if full_size:
-            pixels = self._get_all_pixels(udg_array, scale, flash, attr_map, mask)
+        if frame.cropped:
+            pixels = self._get_pixels(frame, mask)
         else:
-            pixels = self._get_pixels(udg_array, scale, x, y, width, height, flash, attr_map, mask)
+            pixels = self._get_all_pixels(frame, mask)
         pixels_lzw = self._compress(pixels, min_code_size)
         p_count = len(pixels_lzw)
         i = 0
@@ -301,4 +303,4 @@ class GifWriter:
             data.extend(pixels_lzw[i:i + b_count])
             i += b_count
         data.append(0) # End of image data
-        img_file.write(data)
+        return data
