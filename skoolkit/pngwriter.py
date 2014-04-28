@@ -114,14 +114,6 @@ class PngWriter:
         # IEND
         img_file.write(self.iend_chunk)
 
-    def _compress_bytes(self, compressor, array, data):
-        # PY: No need to convert data to bytes in Python 3
-        array.extend(compressor.compress(bytes(data)))
-
-    def _compress_all_bytes(self, data):
-        # PY: No need to convert data to bytes in Python 3
-        return zlib.compress(bytes(data), self.compression_level)
-
     def _create_crc_table(self):
         self.crc_table = []
         for i in range(256):
@@ -359,7 +351,8 @@ class PngWriter:
                     rows = scale
                 else:
                     rows = y1 - y
-                self._compress_bytes(compressor, img_data, scanline * rows)
+                # PY: No need to convert data to bytes in Python 3
+                img_data.extend(compressor.compress(bytes(scanline * rows)))
                 y += scale
         img_data.extend(compressor.flush())
         return img_data
@@ -383,7 +376,8 @@ class PngWriter:
                     pixel_row.extend(mask.apply(udg, j, pixels[p], pixels[i], trans))
                 r = ''.join(pixel_row)
                 scanline = bytearray([int(r[k:k + 8], 2) for k in range(0, len(r), 8)])
-                self._compress_bytes(compressor, img_data, scanline * scale)
+                # PY: No need to convert data to bytes in Python 3
+                img_data.extend(compressor.compress(bytes(scanline * scale)))
         img_data.extend(compressor.flush())
         return img_data
 
@@ -736,7 +730,8 @@ class PngWriter:
                 b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[b ^ xor]
                 img_data.extend((0, b7 * 255, b6 * 255, b5 * 255, b4 * 255, b3 * 255, b2 * 255, b1 * 255, b0 * 255) * scale)
 
-        return self._compress_all_bytes(img_data)
+        # PY: No need to convert data to bytes in Python 3
+        return zlib.compress(bytes(img_data), self.compression_level)
 
     def _build_image_data_bd1_nt(self, frame, **kwargs):
         # 2 colours, full size, no masks
@@ -913,7 +908,8 @@ class PngWriter:
                         scanline.extend((b1 * 255,) * e_scale)
                         scanline.append(b1 * 128 + b0 * 127)
                         scanline.extend((b0 * 255,) * e_scale)
-                self._compress_bytes(compressor, img_data, scanline * scale)
+                # PY: No need to convert data to bytes in Python 3
+                img_data.extend(compressor.compress(bytes(scanline * scale)))
         img_data.extend(compressor.flush())
         return img_data
 
@@ -922,4 +918,5 @@ class PngWriter:
         # brackets means it is evaluated before 'multiplying' the tuple (and is
         # therefore quicker)
         scanlines = bytearray((0,) * ((1 + frame.width // 8) * frame.height))
-        return self._compress_all_bytes(scanlines)
+        # PY: No need to convert data to bytes in Python 3
+        return zlib.compress(bytes(scanlines), self.compression_level)
