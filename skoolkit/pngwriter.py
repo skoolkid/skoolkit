@@ -596,14 +596,59 @@ class PngWriter:
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
         for row in frame.udgs:
-            for i in range(8):
-                scanline = bytearray((0,))
-                for udg in row:
-                    attr_bytes = attrs[udg.attr & 127]
-                    byte = udg.data[i]
-                    mask_byte = udg.mask[i]
-                    scanline.extend(attr_bytes[(byte & 240) + mask_byte // 16] + attr_bytes[(byte & 15) * 16 + (mask_byte & 15)])
-                self._compress_bytes(compressor, img_data, scanline * scale)
+            scanline0 = bytearray((0,))
+            scanline1 = bytearray((0,))
+            scanline2 = bytearray((0,))
+            scanline3 = bytearray((0,))
+            scanline4 = bytearray((0,))
+            scanline5 = bytearray((0,))
+            scanline6 = bytearray((0,))
+            scanline7 = bytearray((0,))
+            for udg in row:
+                pixels = attrs[udg.attr & 127]
+                udg_bytes = udg.data
+                mask_bytes = udg.mask
+                byte = udg_bytes[0]
+                mask_byte = mask_bytes[0]
+                scanline0.extend(pixels[(byte & 240) + mask_byte // 16])
+                scanline0.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+                byte = udg_bytes[1]
+                mask_byte = mask_bytes[1]
+                scanline1.extend(pixels[(byte & 240) + mask_byte // 16])
+                scanline1.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+                byte = udg_bytes[2]
+                mask_byte = mask_bytes[2]
+                scanline2.extend(pixels[(byte & 240) + mask_byte // 16])
+                scanline2.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+                byte = udg_bytes[3]
+                mask_byte = mask_bytes[3]
+                scanline3.extend(pixels[(byte & 240) + mask_byte // 16])
+                scanline3.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+                byte = udg_bytes[4]
+                mask_byte = mask_bytes[4]
+                scanline4.extend(pixels[(byte & 240) + mask_byte // 16])
+                scanline4.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+                byte = udg_bytes[5]
+                mask_byte = mask_bytes[5]
+                scanline5.extend(pixels[(byte & 240) + mask_byte // 16])
+                scanline5.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+                byte = udg_bytes[6]
+                mask_byte = mask_bytes[6]
+                scanline6.extend(pixels[(byte & 240) + mask_byte // 16])
+                scanline6.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+                byte = udg_bytes[7]
+                mask_byte = mask_bytes[7]
+                scanline7.extend(pixels[(byte & 240) + mask_byte // 16])
+                scanline7.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+            # PY: No need to convert data to bytes in Python 3
+            img_data.extend(compressor.compress(bytes(scanline0 * scale)))
+            img_data.extend(compressor.compress(bytes(scanline1 * scale)))
+            img_data.extend(compressor.compress(bytes(scanline2 * scale)))
+            img_data.extend(compressor.compress(bytes(scanline3 * scale)))
+            img_data.extend(compressor.compress(bytes(scanline4 * scale)))
+            img_data.extend(compressor.compress(bytes(scanline5 * scale)))
+            img_data.extend(compressor.compress(bytes(scanline6 * scale)))
+            img_data.extend(compressor.compress(bytes(scanline7 * scale)))
         img_data.extend(compressor.flush())
         return img_data
 
