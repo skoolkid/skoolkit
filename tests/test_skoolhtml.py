@@ -934,10 +934,17 @@ class SkoolMacroTest(HtmlWriterTestCase):
         attr = 4
         scale = 2
         x, y, w, h = 1, 2, 3, 4
-        macro = '#FONT{0},{1},{2},{3}{{{4},{5},{6},{7}}}({8})'.format(font_addr, len(chars), attr, scale, x, y, w, h, img_fname)
+        values = (font_addr, len(chars), attr, scale, x, y, w, h, img_fname)
+        macro = '#FONT{0},{1},{2},{3}{{{4},{5},{6},{7}}}({8})'.format(*values)
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, img_fname, '../images/font/{0}.png'.format(img_fname))
+        exp_img_fname = '../images/font/{}.png'.format(img_fname)
+        self._assert_img_equals(output, img_fname, exp_img_fname)
         udg_array = [[Udg(4, char) for char in chars]]
+        self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
+
+        macro = '#FONTscale={3},chars={1},addr={0},attr={2}{{x={4},y={5},width={6},height={7}}}({8})'.format(*values)
+        output = writer.expand(macro, ASMDIR)
+        self._assert_img_equals(output, img_fname, exp_img_fname)
         self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
 
     def test_macro_font_text(self):
