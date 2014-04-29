@@ -21,7 +21,7 @@ GIF89A = (71, 73, 70, 56, 57, 97)
 AEB = (33, 255, 11, 78, 69, 84, 83, 67, 65, 80, 69, 50, 46, 48, 3, 1, 0, 0, 0)
 GIF_TRAILER = 59
 
-BINSTR = ['{:012b}'.format(m) for m in range(4096)]
+BINSTR = [['{:0{}b}'.format(n, width) for n in range(2 ** width)] for width in range(13)]
 BITS8 = [[(n >> m) & 1 for m in (7, 6, 5, 4, 3, 2, 1, 0)] for n in range(256)]
 
 class GifWriter:
@@ -233,46 +233,57 @@ class GifWriter:
         init_d[stop_code] = 0
 
         d = init_d.copy()
+        d_size = len(d) - 1
         code_size = min_code_size + 1
+        d_limit = 1 << code_size
         output = []
-        bit_buf = BINSTR[clear_code][-code_size:]
+        bit_buf = BINSTR[code_size][clear_code]
         i = 0
         while 1:
             # Check for max dictionary length
-            if len(d) == 4096:
+            if d_size == 4095:
                 # Output a CLEAR code
-                bit_buf = BINSTR[clear_code] + bit_buf
+                bit_buf = BINSTR[-1][clear_code] + bit_buf
                 # Initialise the dictionary and reset the code size
                 d = init_d.copy()
                 code_size = min_code_size + 1
+                d_limit = 1 << code_size
 
             # Find the next substring not yet in the dictionary
-            j = 1
-            while i + j <= len(pixels):
-                new_substr = pixels[i:i + j]
+            new_substr = ''
+            while i < len(pixels):
+                new_substr += pixels[i]
                 if new_substr in d:
                     substr = new_substr
-                    j += 1
+                    i += 1
                 else:
                     break
-            bit_buf = BINSTR[d[substr]][-code_size:] + bit_buf
+            bit_buf = BINSTR[code_size][d[substr]] + bit_buf
 
-            # Flush any full bytes in the bit buffer to the output
-            while len(bit_buf) > 7:
-                output.append(int(bit_buf[-8:], 2))
-                bit_buf = bit_buf[:-8]
+            k = len(bit_buf)
+            if k > 127:
+                # Flush full bytes in the bit buffer to the output
+                while k > 31:
+                    value = int(bit_buf[k - 32:k], 2)
+                    output.append(value & 255)
+                    output.append((value >> 8) & 255)
+                    output.append((value >> 16) & 255)
+                    output.append((value >> 24) & 255)
+                    k -= 32
+                bit_buf = bit_buf[:k]
 
             if new_substr not in d:
-                if len(d) == 1 << code_size:
+                d_size = len(d)
+                if d_size == d_limit:
                     code_size += 1
+                    d_limit *= 2
                 # Add the code for the new substring
-                d[new_substr] = len(d)
-                i += len(substr)
+                d[new_substr] = d_size
             else:
                 break
 
         # Output the STOP code
-        bit_buf = BINSTR[stop_code][-code_size:] + bit_buf
+        bit_buf = BINSTR[code_size][stop_code] + bit_buf
 
         # Flush any remaining bits from the buffer
         while bit_buf:
