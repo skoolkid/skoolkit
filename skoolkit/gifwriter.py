@@ -21,7 +21,8 @@ GIF89A = (71, 73, 70, 56, 57, 97)
 AEB = (33, 255, 11, 78, 69, 84, 83, 67, 65, 80, 69, 50, 46, 48, 3, 1, 0, 0, 0)
 GIF_TRAILER = 59
 
-BINSTR = [''.join([str((m >> n) & 1) for n in range(11, -1, -1)]) for m in range(4096)]
+BINSTR = ['{:012b}'.format(m) for m in range(4096)]
+BITS8 = [[(n >> m) & 1 for m in (7, 6, 5, 4, 3, 2, 1, 0)] for n in range(256)]
 
 class GifWriter:
     def __init__(self, transparency, masks):
@@ -61,9 +62,8 @@ class GifWriter:
 
             # Frame 1
             frame.attr_map = attr_map
-            mask = self.masks[frame.mask]
             img_file.write(self._image_descriptor(width, height))
-            img_file.write(self._build_image_data(frame, min_code_size, mask))
+            img_file.write(self._build_image_data(frame, min_code_size))
 
             if flash_rect:
                 # Frame 2
@@ -83,22 +83,22 @@ class GifWriter:
                 f2_frame.attr_map = attr_map
                 img_file.write(self._gce(frame.delay, transparent))
                 img_file.write(self._image_descriptor(f2_w, f2_h, f2_x, f2_y))
-                img_file.write(self._build_image_data(f2_frame, min_code_size, mask))
+                img_file.write(self._build_image_data(f2_frame, min_code_size))
         else:
             for frame in frames:
                 frame.attr_map = attr_map
-                mask = self.masks[frame.mask]
                 img_file.write(self._gce(frame.delay, transparent))
                 img_file.write(self._image_descriptor(frame.width, frame.height))
-                img_file.write(self._build_image_data(frame, min_code_size, mask))
+                img_file.write(self._build_image_data(frame, min_code_size))
 
         # GIF trailer
         img_file.write(self.gif_trailer)
 
-    def _get_pixels(self, frame, mask):
+    def _get_pixels(self, frame):
         pixels = []
         scale = frame.scale
         attr_map = frame.attr_map
+        mask = self.masks[frame.mask]
         x0 = frame.x
         y0 = frame.y
         x1 = x0 + frame.width
@@ -153,10 +153,11 @@ class GifWriter:
                 y += scale
         return ''.join(pixels)
 
-    def _get_all_pixels(self, frame, mask):
+    def _get_all_pixels(self, frame):
         # Get all the pixels in an uncropped image
         scale = frame.scale
         attr_map = frame.attr_map
+        mask = self.masks[frame.mask]
         attr_index = {}
         for attr, (paper, ink) in attr_map.items():
             attr_index[attr] = (chr(paper) * scale, chr(ink) * scale)
@@ -171,6 +172,52 @@ class GifWriter:
                     pixel_row.extend(mask.apply(udg, k, paper, ink, t))
                 for i in range(scale):
                     pixels += pixel_row
+        return ''.join(pixels)
+
+    def _get_all_pixels_nt(self, frame):
+        # Get all the pixels in an uncropped, unmasked image
+        scale = frame.scale
+        attr_index = {}
+        for attr, (paper, ink) in frame.attr_map.items():
+            attr_index[attr] = (chr(paper) * scale, chr(ink) * scale)
+
+        pixels = []
+        for row in frame.udgs:
+            pixel_row0 = []
+            pixel_row1 = []
+            pixel_row2 = []
+            pixel_row3 = []
+            pixel_row4 = []
+            pixel_row5 = []
+            pixel_row6 = []
+            pixel_row7 = []
+            for udg in row:
+                bits = attr_index[udg.attr & 127]
+                udg_bytes = udg.data
+                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[udg_bytes[0]]
+                pixel_row0.extend((bits[b7], bits[b6], bits[b5], bits[b4], bits[b3], bits[b2], bits[b1], bits[b0]))
+                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[udg_bytes[1]]
+                pixel_row1.extend((bits[b7], bits[b6], bits[b5], bits[b4], bits[b3], bits[b2], bits[b1], bits[b0]))
+                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[udg_bytes[2]]
+                pixel_row2.extend((bits[b7], bits[b6], bits[b5], bits[b4], bits[b3], bits[b2], bits[b1], bits[b0]))
+                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[udg_bytes[3]]
+                pixel_row3.extend((bits[b7], bits[b6], bits[b5], bits[b4], bits[b3], bits[b2], bits[b1], bits[b0]))
+                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[udg_bytes[4]]
+                pixel_row4.extend((bits[b7], bits[b6], bits[b5], bits[b4], bits[b3], bits[b2], bits[b1], bits[b0]))
+                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[udg_bytes[5]]
+                pixel_row5.extend((bits[b7], bits[b6], bits[b5], bits[b4], bits[b3], bits[b2], bits[b1], bits[b0]))
+                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[udg_bytes[6]]
+                pixel_row6.extend((bits[b7], bits[b6], bits[b5], bits[b4], bits[b3], bits[b2], bits[b1], bits[b0]))
+                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[udg_bytes[7]]
+                pixel_row7.extend((bits[b7], bits[b6], bits[b5], bits[b4], bits[b3], bits[b2], bits[b1], bits[b0]))
+            pixels.append(''.join(pixel_row0) * scale)
+            pixels.append(''.join(pixel_row1) * scale)
+            pixels.append(''.join(pixel_row2) * scale)
+            pixels.append(''.join(pixel_row3) * scale)
+            pixels.append(''.join(pixel_row4) * scale)
+            pixels.append(''.join(pixel_row5) * scale)
+            pixels.append(''.join(pixel_row6) * scale)
+            pixels.append(''.join(pixel_row7) * scale)
         return ''.join(pixels)
 
     def _compress(self, pixels, min_code_size):
@@ -287,17 +334,19 @@ class GifWriter:
         data.append(0) # no local colour table
         return data
 
-    def _build_image_data(self, frame, min_code_size, mask):
+    def _build_image_data(self, frame, min_code_size):
         data = bytearray((min_code_size,))
         if frame.cropped:
-            pixels = self._get_pixels(frame, mask)
+            pixels = self._get_pixels(frame)
+        elif frame.mask:
+            pixels = self._get_all_pixels(frame)
         else:
-            pixels = self._get_all_pixels(frame, mask)
+            pixels = self._get_all_pixels_nt(frame)
         pixels_lzw = self._compress(pixels, min_code_size)
         p_count = len(pixels_lzw)
         i = 0
         while p_count:
-            b_count = min((p_count, 255))
+            b_count = min(p_count, 255)
             p_count -= b_count
             data.append(b_count) # This many bytes follow
             data.extend(pixels_lzw[i:i + b_count])
