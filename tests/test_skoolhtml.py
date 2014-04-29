@@ -1590,6 +1590,20 @@ class SkoolMacroTest(HtmlWriterTestCase):
         udg_array = [[Udg(attr, data)]]
         self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
 
+        scr_fname = 'scr4'
+        scale = 3
+        x, y, w, h = 0, 0, 1, 1
+        df = 0
+        af = 32768
+        data = snapshot[df:df + 2048:256] = [170] * 8
+        attr = snapshot[af] = 56
+        values = {'scale': scale, 'x': x, 'y': y, 'w': w, 'h': h, 'df': df, 'af': af, 'fname': scr_fname}
+        macro = '#SCRx={x},h={h},af={af},scale={scale},y={y},df={df},w={w}({fname})'.format(**values)
+        output = writer.expand(macro, ASMDIR)
+        self._assert_img_equals(output, scr_fname, '../images/scr/{}.png'.format(scr_fname))
+        udg_array = [[Udg(attr, data)]]
+        self._check_image(writer.image_writer, udg_array, scale)
+
     def test_macro_scr_with_custom_screenshot_path(self):
         scr_path = 'graphics/screenshots'
         ref = '[Paths]\nScreenshotImagePath={}'.format(scr_path)

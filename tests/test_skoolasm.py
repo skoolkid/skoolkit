@@ -999,6 +999,7 @@ class AsmWriterTest(SkoolKitTestCase):
     def test_macro_scr(self):
         writer = self._get_writer()
         self._test_unsupported_macro(writer, '#SCR2(fname)')
+        self._test_unsupported_macro(writer, '#SCR2,w=8,h=8{x=1,width=62}(fname)')
 
     def test_macro_scr_invalid(self):
         writer = self._get_writer()
