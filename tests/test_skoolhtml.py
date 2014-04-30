@@ -1748,6 +1748,29 @@ class SkoolMacroTest(HtmlWriterTestCase):
         udg_array = [[Udg(attr, udg_data, udg_mask)]]
         self._check_image(writer.image_writer, udg_array, scale, 1, x, y, w, h)
 
+        fname = 'test_udg3'
+        addr = 49152
+        attr = 2
+        scale = 1
+        step = 2
+        inc = 0
+        mask = 2
+        mask_addr = 49153
+        mask_step = 2
+        x, y, width, height = 1, 2, 4, 3
+        udg_data = [240] * 8
+        udg_mask = [248] * 8
+        snapshot[addr:addr + 8 * step:step] = udg_data
+        snapshot[mask_addr:mask_addr + 8 * mask_step:mask_step] = udg_mask
+        params = 'attr={attr},step={step},inc={inc},addr={addr},mask={mask},scale={scale}'
+        mask_spec = ':step={step},addr={mask_addr}'
+        crop = '{{x={x},y={y},width={width},height={height}}}'
+        macro = ('#UDG' + params + mask_spec + crop + '({fname})').format(**locals())
+        output = writer.expand(macro, ASMDIR)
+        self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
+        udg_array = [[Udg(attr, udg_data, udg_mask)]]
+        self._check_image(writer.image_writer, udg_array, scale, mask, x, y, width, height)
+
     def test_macro_udg_with_custom_udg_image_path(self):
         font_path = 'graphics/udgs'
         ref = '[Paths]\nUDGImagePath={}'.format(font_path)
