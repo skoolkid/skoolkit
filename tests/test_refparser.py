@@ -213,5 +213,23 @@ class RefParserTest(SkoolKitTestCase):
         self.assertEqual(ref_parser.get_section('Foo'), '')
         self.assertEqual(ref_parser.get_section('Baz'), 'Qux')
 
+    def test_escaped_square_brackets(self):
+        ref = '\n'.join((
+            '[Foo]',
+            'Bar',
+            '[[Baz]',
+            'Qux',
+            '[[Xyzzy'
+        ))
+        exp_contents = '\n'.join((
+            'Bar',
+            '[Baz]',
+            'Qux',
+            '[Xyzzy'
+        ))
+        ref_parser = self._get_parser(ref)
+        section = ref_parser.get_section('Foo')
+        self.assertEqual(exp_contents, section)
+
 if __name__ == '__main__':
     unittest.main()

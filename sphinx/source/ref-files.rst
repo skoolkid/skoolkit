@@ -937,3 +937,24 @@ The content of this section will be rendered thus::
   <code>
   ; This is not a ref file comment
   </code>
+
+Square brackets
+---------------
+If a `ref` file section needs to contain a line that looks like a section
+header (i.e. like ``[SectionName]``), then to prevent that line from being
+parsed as a section header it can be escaped by doubling the opening square
+bracket::
+
+  [PageContent:Custom]
+  <code>
+  [[This is not a section header]
+  </code>
+
+The content of this section will be rendered thus::
+
+  <code>
+  [This is not a section header]
+  </code>
+
+In fact, any line that starts with two opening square brackets will be rendered
+with the first one removed.
