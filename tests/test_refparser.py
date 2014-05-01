@@ -202,5 +202,16 @@ class RefParserTest(SkoolKitTestCase):
         section = ref_parser.get_section('Baz')
         self.assertEqual(section, '; This is not a comment')
 
+    def test_unclosed_section_header(self):
+        ref = '\n'.join((
+            '[Foo',
+            'Bar',
+            '[Baz]',
+            'Qux'
+        ))
+        ref_parser = self._get_parser(ref)
+        self.assertEqual(ref_parser.get_section('Foo'), '')
+        self.assertEqual(ref_parser.get_section('Baz'), 'Qux')
+
 if __name__ == '__main__':
     unittest.main()

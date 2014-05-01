@@ -41,14 +41,15 @@ class RefParser:
         section_lines = []
         infile = open_file(reffile)
         for line in infile:
-            if line.startswith('['):
+            s_line = line.rstrip()
+            if s_line.startswith('[') and s_line.endswith(']'):
                 self._add_section(section_name, section_lines)
-                section_name = line[1:line.index(']')]
+                section_name = s_line[1:-1]
                 section_lines = []
-            elif line.startswith(';;'):
-                section_lines.append(line[1:].rstrip())
-            elif not line.startswith(';'):
-                section_lines.append(line.rstrip())
+            elif s_line.startswith(';;'):
+                section_lines.append(s_line[1:])
+            elif not s_line.startswith(';'):
+                section_lines.append(s_line)
         infile.close()
         self._add_section(section_name, section_lines)
  
