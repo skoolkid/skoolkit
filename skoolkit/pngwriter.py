@@ -257,10 +257,11 @@ class PngWriter:
             else:
                 f2_frame = frame.swap_colours(x=frame.x + f2_x, y=frame.y + f2_y, width=f2_w, height=f2_h)
                 frame2_rect = flash_rect
+            f2_attr_map = attr_map.copy()
             for attr, (paper, ink) in attr_map.items():
                 new_attr = (attr & 192) + (attr & 7) * 8 + (attr & 56) // 8
-                attr_map[new_attr] = (ink, paper)
-            f2_frame.attr_map = attr_map
+                f2_attr_map[new_attr] = (ink, paper)
+            f2_frame.attr_map = f2_attr_map
             frame2 = build_method(f2_frame, bit_depth=bit_depth, mask=mask)
 
         return frame1, frame2, frame2_rect

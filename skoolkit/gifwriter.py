@@ -77,10 +77,11 @@ class GifWriter:
                     f2_y *= sf
                     f2_w *= sf
                     f2_h *= sf
+                f2_attr_map = attr_map.copy()
                 for attr, (paper, ink) in attr_map.items():
                     new_attr = (attr & 192) + (attr & 7) * 8 + (attr & 56) // 8
-                    attr_map[new_attr] = (ink, paper)
-                f2_frame.attr_map = attr_map
+                    f2_attr_map[new_attr] = (ink, paper)
+                f2_frame.attr_map = f2_attr_map
                 img_file.write(self._gce(frame.delay, transparent))
                 img_file.write(self._image_descriptor(f2_w, f2_h, f2_x, f2_y))
                 img_file.write(self._build_image_data(f2_frame, min_code_size))
