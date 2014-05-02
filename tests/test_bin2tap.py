@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+import sys
 import os
 import unittest
 
-from skoolkittest import SkoolKitTestCase, PY3
+from skoolkittest import SkoolKitTestCase
 from skoolkit import bin2tap, VERSION
+
+PY3 = sys.version_info >= (3,)
 
 TEST_FNAME = 'test-tap'
 TEST_BIN = '{0}.bin'.format(TEST_FNAME)

@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
+import sys
 import zlib
 import unittest
 from collections import deque
 from io import BytesIO
 
-from skoolkittest import SkoolKitTestCase, PY3
+from skoolkittest import SkoolKitTestCase
 from skoolkit.image import (ImageWriter, PngWriter, DEFAULT_FORMAT,
                             PNG_COMPRESSION_LEVEL, PNG_ENABLE_ANIMATION,
                             PNG_ALPHA, GIF_ENABLE_ANIMATION, GIF_TRANSPARENCY)
 from skoolkit.skoolhtml import Udg, Frame
+
+PY3 = sys.version_info >= (3,)
 
 TRANSPARENT = [0, 254, 0]
 BLACK = [0, 0, 0]

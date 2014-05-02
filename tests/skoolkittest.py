@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 import sys
-PY3 = sys.version_info >= (3,)
-if PY3:
-    from io import StringIO
-else:
+try:
     from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import os
 from os.path import abspath, dirname
 from shutil import rmtree

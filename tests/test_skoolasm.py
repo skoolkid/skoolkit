@@ -2,7 +2,7 @@
 import re
 import unittest
 
-from skoolkittest import PY3, SkoolKitTestCase
+from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolParsingError
 from skoolkit.skoolasm import AsmWriter
 from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, BASE_16
@@ -328,7 +328,10 @@ TEST_DECIMAL_ASM_UPPER = r"""
 ERROR_PREFIX = 'Error while parsing #{0} macro'
 
 def get_chr(code):
-    return chr(code) if PY3 else unichr(code).encode('utf-8')
+    try:
+        return unichr(code).encode('utf-8')
+    except NameError:
+        return chr(code)
 
 class AsmWriterTest(SkoolKitTestCase):
     def _get_writer(self, skool='', crlf=False, tab=False, case=None, base=None, instr_width=23, warn=False, asm_mode=1, fix_mode=0):
