@@ -38,8 +38,8 @@ examples above), or in hexadecimal notation (prefixed by ``$``)::
 
   #UDG$98E8,$06
 
-The skool macros recognised by SkoolKit are described in the following
-sections.
+General macros
+^^^^^^^^^^^^^^
 
 .. _BUG:
 
@@ -379,106 +379,6 @@ See also :ref:`BUG` and :ref:`FACT`.
 |         | HTML mode; added support for ASM mode                            |
 +---------+------------------------------------------------------------------+
 
-.. _POKES:
-
-#POKES
-------
-The ``#POKES`` (POKE Snapshot) macro POKEs values into the current memory
-snapshot. ::
-
-  #POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
-
-* ``addr`` is the address to POKE
-* ``byte`` is the value to POKE ``addr`` with
-* ``length`` is the number of addresses to POKE (default: 1)
-* ``step`` is the address increment to use after each POKE (if ``length``>1;
-  default: 1)
-
-For example::
-
-  The UDG looks like this:
-
-  #UDG32768(udg_orig)
-
-  But it's supposed to look like this:
-
-  #PUSHS
-  #POKES32772,254;32775,136
-  #UDG32768(udg_fixed)
-  #POPS
-
-This instance of the ``#POKES`` macro does ``POKE 32772,254`` and
-``POKE 32775,136``, which fixes a graphic glitch in the UDG at 32768.
-
-The ``#POKES`` macro expands to an empty string.
-
-See also :ref:`PUSHS` and :ref:`POPS`.
-
-+---------+--------------------------------------+
-| Version | Changes                              |
-+=========+======================================+
-| 2.3.1   | Added support for multiple addresses |
-+---------+--------------------------------------+
-| 3.1     | Added support for ASM mode           |
-+---------+--------------------------------------+
-
-.. _POPS:
-
-#POPS
------
-The ``#POPS`` (POP Snapshot) macro removes the current memory snapshot and
-replaces it with the one that was previously saved by a ``#PUSHS`` macro. ::
-
-  #POPS
-
-The ``#POPS`` macro expands to an empty string.
-
-See also :ref:`PUSHS` and :ref:`POKES`.
-
-+---------+----------------------------+
-| Version | Changes                    |
-+=========+============================+
-| 3.1     | Added support for ASM mode |
-+---------+----------------------------+
-
-.. _PUSHS:
-
-#PUSHS
-------
-As a `skool` file is being parsed, a memory snapshot is built up from all the
-``DEFB``, ``DEFW``, ``DEFM`` and ``DEFS`` instructions. After the file has been
-parsed, the memory snapshot may be used to build images of the game's graphic
-elements (for example).
-
-The ``#PUSHS`` (PUSH Snapshot) macro saves the current snapshot, and replaces
-it with an identical copy with a given name. ::
-
-  #PUSHS[name]
-
-* ``name`` is the snapshot name (defaults to an empty string)
-
-The snapshot name must be limited to the characters '$', '#', 0-9, A-Z and a-z;
-it must not start with a capital letter.
-
-For example::
-
-  The UDG at 32768 is supposed to look like this:
-
-  #PUSHS
-  #POKES32772,254
-  #UDG32768
-  #POPS
-
-The ``#PUSHS`` macro expands to an empty string.
-
-See also :ref:`POKES` and :ref:`POPS`.
-
-+---------+----------------------------+
-| Version | Changes                    |
-+=========+============================+
-| 3.1     | Added support for ASM mode |
-+---------+----------------------------+
-
 .. _R:
 
 #R
@@ -706,7 +606,7 @@ See :ref:`TABLE`, and also :ref:`HTML`.
 .. _imageMacros:
 
 Image macros
-============
+^^^^^^^^^^^^
 The :ref:`FONT`, :ref:`SCR`, :ref:`UDG` and :ref:`UDGARRAY` macros (described
 in the following sections) may be used to create images based on graphic data
 in the memory snapshot. They are not supported in ASM mode.
@@ -1122,3 +1022,84 @@ U  M  Result
 By default, transparent bits in a masked image are rendered in bright green
 (#00fe00); this colour can be changed by modifying the ``TRANSPARENT``
 parameter in the :ref:`ref-Colours` section.
+
+Snapshot macros
+^^^^^^^^^^^^^^^
+The :ref:`POKES`, :ref:`POPS` and :ref:`PUSHS` macros (described in the
+following sections) may be used to manipulate the memory snapshot that is built
+from the ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements in the `skool`
+file. Each macro expands to an empty string.
+
+.. _POKES:
+
+#POKES
+------
+The ``#POKES`` (POKE Snapshot) macro POKEs values into the current memory
+snapshot. ::
+
+  #POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
+
+* ``addr`` is the address to POKE
+* ``byte`` is the value to POKE ``addr`` with
+* ``length`` is the number of addresses to POKE (default: 1)
+* ``step`` is the address increment to use after each POKE (if ``length``>1;
+  default: 1)
+
+For example::
+
+  The UDG looks like this:
+
+  #UDG32768(udg_orig)
+
+  But it's supposed to look like this:
+
+  #PUSHS
+  #POKES32772,254;32775,136
+  #UDG32768(udg_fixed)
+  #POPS
+
+This instance of the ``#POKES`` macro does ``POKE 32772,254`` and
+``POKE 32775,136``, which fixes a graphic glitch in the UDG at 32768.
+
++---------+--------------------------------------+
+| Version | Changes                              |
++=========+======================================+
+| 2.3.1   | Added support for multiple addresses |
++---------+--------------------------------------+
+| 3.1     | Added support for ASM mode           |
++---------+--------------------------------------+
+
+.. _POPS:
+
+#POPS
+-----
+The ``#POPS`` (POP Snapshot) macro removes the current memory snapshot and
+replaces it with the one that was previously saved by a ``#PUSHS`` macro. ::
+
+  #POPS
+
++---------+----------------------------+
+| Version | Changes                    |
++=========+============================+
+| 3.1     | Added support for ASM mode |
++---------+----------------------------+
+
+.. _PUSHS:
+
+#PUSHS
+------
+The ``#PUSHS`` (PUSH Snapshot) macro saves the current memory snapshot, and
+replaces it with an identical copy with a given name. ::
+
+  #PUSHS[name]
+
+* ``name`` is the snapshot name (defaults to an empty string)
+
+The snapshot name must be limited to the characters '$', '#', 0-9, A-Z and a-z;
+it must not start with a capital letter.
+
++---------+----------------------------+
+| Version | Changes                    |
++=========+============================+
+| 3.1     | Added support for ASM mode |
++---------+----------------------------+
