@@ -40,6 +40,19 @@ class RefParserTest(SkoolKitTestCase):
         self.assertTrue('Blah' in section_dict)
         self.assertEqual(section_dict['Blah'], 'Bar')
 
+    def test_get_dictionary_with_invalid_line(self):
+        ref = '\n'.join((
+            '[Section]',
+            'Blah=Foo',
+            'Bar',
+            'Baz=Qux'
+        ))
+        ref_parser = self._get_parser(ref)
+        section_dict = ref_parser.get_dictionary('Section')
+        self.assertTrue('Blah' in section_dict)
+        self.assertFalse('Bar' in section_dict)
+        self.assertTrue('Baz' in section_dict)
+
     def test_get_dictionaries(self):
         ref = '\n'.join((
             '[Section:Foo]',

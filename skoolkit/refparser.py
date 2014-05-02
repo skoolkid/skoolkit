@@ -149,7 +149,10 @@ class RefParser:
         dictionary = {}
         for line in contents:
             if line:
-                key, value = line.split('=', 1)
+                try:
+                    key, value = line.split('=', 1)
+                except ValueError:
+                    continue
                 if key.isdigit():
                     key = int(key)
                 dictionary[key] = value
