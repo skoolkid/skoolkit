@@ -1045,7 +1045,9 @@ class AsmWriterTest(SkoolKitTestCase):
     def test_macro_udgarray(self):
         writer = self._get_writer()
         self._test_unsupported_macro(writer, '#UDGARRAY8,,,256;33008-33023(bubble)')
+        self._test_unsupported_macro(writer, '#UDGARRAY4,mask=2,step=256;33008-33023:33024-33039{x=1,width=126}(sprite)')
         self._test_unsupported_macro(writer, '#UDGARRAY*foo,2;bar(baz)')
+        self._test_unsupported_macro(writer, '#UDGARRAY*foo,delay=2;bar(baz)')
 
     def test_macro_udgarray_invalid(self):
         writer = self._get_writer()

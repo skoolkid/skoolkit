@@ -437,6 +437,11 @@ class MethodTest(HtmlWriterTestCase):
         self.assertEqual(p1, 2)
         self.assertEqual(end, len(text))
 
+        text = 'bar=3,foo=NaN(baz)'
+        end, img_path, crop_rect, foo, bar = writer.parse_image_params(text, 0, chars='N', ints=(1,), names=('foo', 'bar'))
+        self.assertEqual(foo, 'NaN')
+        self.assertEqual(bar, 3)
+
     def test_parse_image_params_with_kwargs_not_enough_parameters(self):
         writer = self._get_writer()
         with self.assertRaisesRegexp(MacroParsingError, "Missing required argument 'foo'"):
@@ -1877,6 +1882,31 @@ class SkoolMacroTest(HtmlWriterTestCase):
         udg.rotate(2)
         self._check_image(writer.image_writer, [[udg]], 2, False, 0, 0, 16, 16)
 
+        # Keyword arguments
+        fname = 'test_udg_array6'
+        udg_addr = 32768
+        mask_addr = 32769
+        width = 2
+        attr = 5
+        scale = 1
+        step = 256
+        inc = 0
+        mask = 1
+        x, y, w, h = 4, 6, 8, 5
+        udg_data = [195] * 8
+        udg_mask = [255] * 8
+        snapshot[udg_addr:udg_addr + 8 * step:step] = udg_data
+        snapshot[mask_addr:mask_addr + 8 * step:step] = udg_mask
+        params = 'attr={attr},step={step},inc={inc},mask={mask},scale={scale}'
+        udg_spec = ';addr={udg_addr}x4,step={step}'
+        mask_spec = ':step={step},addr={mask_addr}x4'
+        crop = '{{x={x},y={y},width={w},height={h}}}'
+        macro = ('#UDGARRAY{width},' + params + udg_spec + mask_spec + crop + '({fname})').format(**locals())
+        output = writer.expand(macro, ASMDIR)
+        self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
+        udg_array = [[Udg(attr, udg_data, udg_mask)] * width] * 2
+        self._check_image(writer.image_writer, udg_array, scale, mask, x, y, w, h)
+
     def test_macro_udgarray_with_custom_udg_image_path(self):
         font_path = 'udg_images'
         ref = '[Paths]\nUDGImagePath={}'.format(font_path)
@@ -1985,8 +2015,8 @@ class SkoolMacroTest(HtmlWriterTestCase):
         delay1 = 93
         delay3 = 47
         fname = 'test_udg_array_frames'
-        macro3 = '#UDGARRAY*foo,{};bar;qux,{}({})'.format(delay1, delay3, fname)
-        output = writer.expand(macro3, ASMDIR)
+        macro4 = '#UDGARRAY*foo,{};bar;qux,delay={}({})'.format(delay1, delay3, fname)
+        output = writer.expand(macro4, ASMDIR)
         self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
         frame1 = Frame([[udg1]], 2, delay=delay1)
         frame2 = Frame([[udg2]], 2, delay=delay1)

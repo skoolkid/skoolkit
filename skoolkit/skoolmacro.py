@@ -128,6 +128,7 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
                     value = param_name
                 elif param_name in names:
                     name = param_name
+                    index = names.index(name)
                     has_named_param = True
                 else:
                     raise MacroParsingError("Unknown keyword argument: '{}'".format(p))
