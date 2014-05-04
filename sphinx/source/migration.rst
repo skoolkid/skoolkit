@@ -179,3 +179,18 @@ td.gbufDesc          td.map-b-desc, td.map-c-desc, td.map-g-desc, td.map-s-desc,
 td.headerLogo        td.logo
 td.registerContents  td.register-desc
 ===================  ==========
+
+skoolkit3to4.py
+---------------
+The `skoolkit3to4.py`_ script may be used to convert a `skool` file, `ref`
+file, control file, skool file template or CSS file that is compatible with
+SkoolKit 3 into a file that will work with SkoolKit 4. For example, to convert
+`game.ref`::
+
+  $ skoolkit3to4.py game.ref > game4.ref
+
+Note, however, that `skoolkit3to4.py` converts a CSS file by simply replacing
+each selector that is used in SkoolKit 3 with its SkoolKit 4 equivalent(s),
+which means that complex CSS rules may not be converted correctly.
+
+.. _skoolkit3to4.py: https://github.com/skoolkid/skoolkit/raw/master/utils/skoolkit3to4.py
