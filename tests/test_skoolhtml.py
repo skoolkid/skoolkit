@@ -2132,10 +2132,11 @@ class HtmlOutputTest(HtmlWriterTestCase):
             t_html_lines = [line for line in t_html_lines if line]
         self.assertEqual(t_html_lines, d_html_lines)
 
-    def _assert_title_equals(self, fname, title):
+    def _assert_title_equals(self, fname, title, header):
         html = self._read_file(fname)
         name = self.skoolfile[:-6]
-        self.assertTrue('<title>{}: {}</title>'.format(name, title) in html)
+        self.assertIn('<title>{}: {}</title>'.format(name, title), html)
+        self.assertIn('<td class="page-header">{}</td>'.format(header), html)
 
     def test_parameter_LinkOperands(self):
         ref = '[Game]\nLinkOperands={}'
@@ -2882,6 +2883,76 @@ class HtmlOutputTest(HtmlWriterTestCase):
             subs.update(common_subs)
             self._assert_files_equal(join(ASMDIR, '8888.html'), subs)
 
+    def test_write_asm_entries_with_custom_titles_and_headers(self):
+        titles = {
+            'b': 'Bytes at',
+            'c': 'Code at',
+            'g': 'GSB entry at',
+            's': 'Space at',
+            't': 'Text at',
+            'u': 'Unused bytes at',
+            'w': 'Words at'
+        }
+        headers = {
+            'b': 'Bytes',
+            'c': 'Code',
+            'g': 'GSB',
+            's': 'Unused space',
+            't': 'Text',
+            'u': 'Unused bytes',
+            'w': 'Words'
+        }
+        ref = '\n'.join((
+            '[Titles]',
+            'Asm-b={titles[b]}',
+            'Asm-c={titles[c]}',
+            'Asm-g={titles[g]}',
+            'Asm-s={titles[s]}',
+            'Asm-t={titles[t]}',
+            'Asm-u={titles[u]}',
+            'Asm-w={titles[w]}',
+            '[PageHeaders]',
+            'Asm-b={headers[b]}',
+            'Asm-c={headers[c]}',
+            'Asm-g={headers[g]}',
+            'Asm-s={headers[s]}',
+            'Asm-t={headers[t]}',
+            'Asm-u={headers[u]}',
+            'Asm-w={headers[w]}',
+        )).format(titles=titles, headers=headers)
+        skool = '\n'.join((
+            '; b',
+            'b30000 DEFB 0',
+            '',
+            '; c',
+            'c30001 RET',
+            '',
+            '; g',
+            'g30002 DEFB 0',
+            '',
+            '; s',
+            's30003 DEFS 1',
+            '',
+            '; t',
+            't30004 DEFM "a"',
+            '',
+            '; u',
+            'u30005 DEFB 0',
+            '',
+            '; w',
+            'w30006 DEFW 0'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+        name = basename(self.skoolfile)[:-6]
+        writer.write_asm_entries()
+
+        address = 30000
+        for entry_type in 'bcgstuw':
+            path = '{}/{}.html'.format(ASMDIR, address)
+            title = '{} {}'.format(titles[entry_type], address)
+            self._assert_title_equals(path, title, headers[entry_type])
+            address += 1
+
     def test_asm_labels(self):
         skool = '\n'.join((
             '; Routine with a label',
@@ -3505,70 +3576,85 @@ class HtmlOutputTest(HtmlWriterTestCase):
             }
             self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
-    def test_write_data_map_with_custom_title_and_path(self):
+    def test_write_data_map_with_custom_title_and_header_and_path(self):
         title = 'Data blocks'
+        header = 'Blocks of data'
         path = 'foo/bar/data.html'
         ref = '\n'.join((
             '[Titles]',
             'DataMap={}',
+            '[PageHeaders]',
+            'DataMap={}',
             '[Paths]',
             'DataMap={}'
-        )).format(title, path)
+        )).format(title, header, path)
         writer = self._get_writer(ref=ref, skool='b30000 DEFB 0')
         writer.write_map('DataMap')
-        self._assert_title_equals(path, title)
+        self._assert_title_equals(path, title, header)
 
-    def test_write_memory_map_with_custom_title_and_path(self):
+    def test_write_memory_map_with_custom_title_and_header_and_path(self):
         title = 'All the RAM'
+        header = 'Every bit'
         path = 'memory_map.html'
         ref = '\n'.join((
             '[Titles]',
             'MemoryMap={}',
+            '[PageHeaders]',
+            'MemoryMap={}',
             '[Paths]',
             'MemoryMap={}'
-        )).format(title, path)
+        )).format(title, header, path)
         writer = self._get_writer(ref=ref, skool='c30000 RET')
         writer.write_map('MemoryMap')
-        self._assert_title_equals(path, title)
+        self._assert_title_equals(path, title, header)
 
-    def test_write_messages_map_with_custom_title_and_path(self):
+    def test_write_messages_map_with_custom_title_and_header_and_path(self):
         title = 'Strings'
+        header = 'Text'
         path = 'text/strings.html'
         ref = '\n'.join((
             '[Titles]',
             'MessagesMap={}',
+            '[PageHeaders]',
+            'MessagesMap={}',
             '[Paths]',
             'MessagesMap={}'
-        )).format(title, path)
+        )).format(title, header, path)
         writer = self._get_writer(ref=ref, skool='t30000 DEFM "a"')
         writer.write_map('MessagesMap')
-        self._assert_title_equals(path, title)
+        self._assert_title_equals(path, title, header)
 
-    def test_write_routines_map_with_custom_title_and_path(self):
+    def test_write_routines_map_with_custom_title_and_header_and_path(self):
         title = 'All the code'
+        header = 'Game code'
         path = 'mappage/code.html'
         ref = '\n'.join((
             '[Titles]',
             'RoutinesMap={}',
+            '[PageHeaders]',
+            'RoutinesMap={}',
             '[Paths]',
             'RoutinesMap={}'
-        )).format(title, path)
+        )).format(title, header, path)
         writer = self._get_writer(ref=ref, skool='c30000 RET')
         writer.write_map('RoutinesMap')
-        self._assert_title_equals(path, title)
+        self._assert_title_equals(path, title, header)
 
-    def test_write_unused_map_with_custom_title_and_path(self):
+    def test_write_unused_map_with_custom_title_and_header_and_path(self):
         title = 'Bytes of no use'
+        header = 'Unused memory'
         path = 'unused_bytes.html'
         ref = '\n'.join((
             '[Titles]',
             'UnusedMap={}',
+            '[PageHeaders]',
+            'UnusedMap={}',
             '[Paths]',
             'UnusedMap={}'
-        )).format(title, path)
+        )).format(title, header, path)
         writer = self._get_writer(ref=ref, skool='u30000 DEFB 0')
         writer.write_map('UnusedMap')
-        self._assert_title_equals(path, title)
+        self._assert_title_equals(path, title, header)
 
     def test_write_other_code_index(self):
         code_id = 'other'
@@ -3688,18 +3774,21 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal(join(REFERENCE_DIR, 'changelog.html'), subs)
 
-    def test_write_changelog_with_custom_title_and_path(self):
+    def test_write_changelog_with_custom_title_and_header_and_path(self):
         title = 'Log of changes'
+        header = 'What has changed?'
         path = 'changes/log.html'
         ref = '\n'.join((
             '[Titles]',
             'Changelog={}',
+            '[PageHeaders]',
+            'Changelog={}',
             '[Paths]',
             'Changelog={}'
-        )).format(title, path)
+        )).format(title, header, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_changelog()
-        self._assert_title_equals(path, title)
+        self._assert_title_equals(path, title, header)
 
     def test_write_glossary(self):
         ref = '\n'.join((
@@ -3745,18 +3834,21 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal(join(REFERENCE_DIR, 'glossary.html'), subs)
 
-    def test_write_glossary_with_custom_title_and_path(self):
+    def test_write_glossary_with_custom_title_and_header_and_path(self):
         title = 'Terminology'
+        header = 'Terms'
         path = 'terminology.html'
         ref = '\n'.join((
             '[Titles]',
             'Glossary={}',
+            '[PageHeaders]',
+            'Glossary={}',
             '[Paths]',
             'Glossary={}'
-        )).format(title, path)
+        )).format(title, header, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_glossary()
-        self._assert_title_equals(path, title)
+        self._assert_title_equals(path, title, header)
 
     def test_write_page(self):
         page_id = 'page'
@@ -3849,18 +3941,21 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal(join(REFERENCE_DIR, 'bugs.html'), subs)
 
-    def test_write_bugs_with_custom_title_and_path(self):
+    def test_write_bugs_with_custom_title_and_header_and_path(self):
         title = 'Things that go wrong'
+        header = 'Misfeatures'
         path = 'ref/wrongness.html'
         ref = '\n'.join((
             '[Titles]',
             'Bugs={}',
+            '[PageHeaders]',
+            'Bugs={}',
             '[Paths]',
             'Bugs={}'
-        )).format(title, path)
+        )).format(title, header, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_bugs()
-        self._assert_title_equals(path, title)
+        self._assert_title_equals(path, title, header)
 
     def test_write_facts(self):
         ref = '\n'.join((
@@ -3906,18 +4001,21 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal(join(REFERENCE_DIR, 'facts.html'), subs)
 
-    def test_write_facts_with_custom_title_and_path(self):
+    def test_write_facts_with_custom_title_and_header_and_path(self):
         title = 'Things that are true'
+        header = 'Stuff you may not know'
         path = 'true_stuff.html'
         ref = '\n'.join((
             '[Titles]',
             'Facts={}',
+            '[PageHeaders]',
+            'Facts={}',
             '[Paths]',
             'Facts={}'
-        )).format(title, path)
+        )).format(title, header, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_facts()
-        self._assert_title_equals(path, title)
+        self._assert_title_equals(path, title, header)
 
     def test_write_pokes(self):
         html = """
@@ -3944,18 +4042,21 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal(join(REFERENCE_DIR, 'pokes.html'), subs)
 
-    def test_write_pokes_with_custom_title_and_path(self):
+    def test_write_pokes_with_custom_title_and_header_and_path(self):
         title = 'Hacking the game'
+        header = 'Cheats'
         path = 'qux/xyzzy/hacks.html'
         ref = '\n'.join((
             '[Titles]',
             'Pokes={}',
+            '[PageHeaders]',
+            'Pokes={}',
             '[Paths]',
             'Pokes={}'
-        )).format(title, path)
+        )).format(title, header, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_pokes()
-        self._assert_title_equals(path, title)
+        self._assert_title_equals(path, title, header)
 
     def test_write_graphic_glitches(self):
         ref = '[GraphicGlitch:g0:Wrong arms]\nHello.'
@@ -3982,18 +4083,21 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal(join(GRAPHICS_DIR, 'glitches.html'), subs)
 
-    def test_write_graphic_glitches_with_custom_title_and_path(self):
+    def test_write_graphic_glitches_with_custom_title_and_header_and_path(self):
         title = 'Bugs with the graphics'
+        header = 'Graphical wrongness'
         path = 'cgi/graphic_bugs.html'
         ref = '\n'.join((
             '[Titles]',
             'GraphicGlitches={}',
+            '[PageHeaders]',
+            'GraphicGlitches={}',
             '[Paths]',
             'GraphicGlitches={}'
-        )).format(title, path)
+        )).format(title, header, path)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_graphic_glitches()
-        self._assert_title_equals(path, title)
+        self._assert_title_equals(path, title, header)
 
     def test_write_gsb_page(self):
         skool = '\n'.join((
@@ -4148,18 +4252,21 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)
 
-    def test_write_gsb_page_with_custom_title_and_path(self):
+    def test_write_gsb_page_with_custom_title_and_header_and_path(self):
         title = 'Workspace'
+        header = 'Status buffer'
         path = 'game/status_buffer.html'
         ref = '\n'.join((
             '[Titles]',
             'GameStatusBuffer={}',
+            '[PageHeaders]',
+            'GameStatusBuffer={}',
             '[Paths]',
             'GameStatusBuffer={}'
-        )).format(title, path)
+        )).format(title, header, path)
         writer = self._get_writer(ref=ref, skool='g32768 DEFB 0')
         writer.write_map('GameStatusBuffer')
-        self._assert_title_equals(path, title)
+        self._assert_title_equals(path, title, header)
 
     def test_page_content(self):
         ref = '[Page:ExistingPage]\nContent=asm/32768.html'
