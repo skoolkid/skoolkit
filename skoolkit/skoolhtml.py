@@ -814,7 +814,7 @@ class HtmlWriter:
         self.write_file(fname, self.format_page(page_id, cwd, subs, 'Asm'))
 
     def write_entries(self, cwd, map_file):
-        for i, entry in enumerate(self.memory_map):
+        for i in range(len(self.memory_map)):
             self.write_entry(cwd, i, map_file)
 
     def write_asm_entries(self):
