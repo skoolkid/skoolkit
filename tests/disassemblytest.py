@@ -8,7 +8,9 @@ from xml.dom.minidom import parse
 from xml.dom import Node
 from nose.plugins.skip import SkipTest
 
-from skoolkittest import SkoolKitTestCase, PY3, SKOOLKIT_HOME
+from skoolkittest import SkoolKitTestCase, SKOOLKIT_HOME
+
+PY3 = sys.version_info >= (3,)
 
 MM2CTL = '{0}/utils/mm2ctl.py'.format(SKOOLKIT_HOME)
 MMZ80 = '{0}/snapshots/manic_miner.z80'.format(SKOOLKIT_HOME)
