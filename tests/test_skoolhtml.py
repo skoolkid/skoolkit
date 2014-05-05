@@ -3391,6 +3391,8 @@ class HtmlOutputTest(HtmlWriterTestCase):
     def test_write_custom_map(self):
         skool = '\n'.join((
             '; Routine',
+            ';',
+            '; Return early, return often.',
             'c30000 RET',
             '',
             '; Bytes',
@@ -3414,8 +3416,10 @@ class HtmlOutputTest(HtmlWriterTestCase):
         map_title = 'Custom map'
         ref = '\n'.join((
             '[MemoryMap:{0}]',
+            'EntryDescriptions=1',
             'EntryTypes=cg',
             'Intro={1}',
+            'LengthColumn=1',
             ''
             '[Paths]',
             '{0}={2}',
@@ -3435,17 +3439,20 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <th class="map-page-0">Page</th>
             <th class="map-byte-0">Byte</th>
             <th>Address</th>
-            <th class="map-length-0">Length</th>
+            <th class="map-length-1">Length</th>
             <th>Description</th>
             </tr>
             <tr>
             <td class="map-page-0">117</td>
             <td class="map-byte-0">48</td>
             <td class="map-c"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
-            <td class="map-length-0">1</td>
+            <td class="map-length-1">1</td>
             <td class="map-c-desc">
-            <div class="map-entry-title-10">Routine</div>
-            <div class="map-entry-desc-0">
+            <div class="map-entry-title-11">Routine</div>
+            <div class="map-entry-desc-1">
+            <div class="paragraph">
+            Return early, return often.
+            </div>
             </div>
             </td>
             </tr>
@@ -3453,10 +3460,10 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <td class="map-page-0">117</td>
             <td class="map-byte-0">51</td>
             <td class="map-g"><a name="30003"></a><a class="link" href="../asm/30003.html">30003</a></td>
-            <td class="map-length-0">1</td>
+            <td class="map-length-1">1</td>
             <td class="map-g-desc">
-            <div class="map-entry-title-10">GSB entry</div>
-            <div class="map-entry-desc-0">
+            <div class="map-entry-title-11">GSB entry</div>
+            <div class="map-entry-desc-1">
             </div>
             </td>
             </tr>
