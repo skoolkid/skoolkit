@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import random
 import re
-from os.path import join, basename, isfile
+from os.path import basename, isfile
+from posixpath import join
 import unittest
 
 from skoolkittest import SkoolKitTestCase, StringIO
