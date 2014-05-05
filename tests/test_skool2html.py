@@ -380,7 +380,6 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         exp_iw_options = (
             ('DefaultFormat', 'gif'),
-            ('GIFCompression', 0),
             ('GIFEnableAnimation', 0),
             ('GIFTransparency', 1),
             ('PNGAlpha', 1),
