@@ -1,8 +1,8 @@
 Changelog
 =========
 
-4.0rc
------
+4.0 (2014-05-25)
+----------------
 * Every HTML page is built from templates defined in :ref:`template` sections
   in the `ref` file
 * Added support for keyword arguments to the :ref:`FONT`, :ref:`SCR`,
