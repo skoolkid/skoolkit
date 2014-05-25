@@ -17,7 +17,7 @@ correctly by :ref:`skool2html.py`, :ref:`skool2asm.py`, :ref:`skool2ctl.py` and
 1. Entries (an 'entry' being a routine or data block) must be separated by
    blank lines, and an entry must not contain any blank lines.
 
-2. Lines in an entry may start with one of ``;* bcdgirstuwz``, where:
+2. Lines in an entry may start with one of ``;* bcdgirstuw``, where:
 
   * ``;`` begins a comment line
   * ``*`` denotes an entry point in a routine
@@ -34,8 +34,6 @@ correctly by :ref:`skool2html.py`, :ref:`skool2asm.py`, :ref:`skool2ctl.py` and
   * ``u`` denotes the first instruction in an unused code or data block
   * ``w`` denotes the first instruction in a data block that contains two-byte
     values (words)
-  * ``z`` denotes the first instruction in a data block that contains only
-    zeroes (deprecated; use ``s`` instead)
   * a space begins a line that does not require any of the markers listed above
 
   The format of a non-comment line is::
@@ -44,7 +42,7 @@ correctly by :ref:`skool2html.py`, :ref:`skool2asm.py`, :ref:`skool2ctl.py` and
 
   where:
 
-  * ``C`` is one of the characters listed above: ``* bcdgirstuwz``
+  * ``C`` is one of the characters listed above: ``* bcdgirstuw``
   * ``#####`` is an address (e.g. ``24576``, or ``$6000`` if you prefer
     hexadecimal notation)
   * ``INSTRUCTION`` is an instruction (e.g. ``LD A,(HL)``)

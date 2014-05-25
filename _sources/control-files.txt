@@ -18,8 +18,6 @@ which is a single letter that indicates what the block contains:
 * ``t`` indicates a block containing text
 * ``u`` indicates an unused block of memory
 * ``w`` indicates a block containing words (two-byte values)
-* ``z`` indicates a block containing all zeroes (this directive is deprecated;
-  use ``s`` instead)
 
 (If these letters remind you of the valid characters that may appear in the
 first column of each line of a :ref:`skool file <skoolFileFormat>`, that is no

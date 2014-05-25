@@ -8,6 +8,7 @@ SkoolKit manual
    usage
    diy
    assemblers
+   migration
    info
    changelog
 
@@ -24,6 +25,7 @@ Technical reference
    skool-file-templates
    skool-macros
    ref-files
+   html-templates
    asm
 
 Developer reference

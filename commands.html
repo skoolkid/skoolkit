@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Commands &mdash; SkoolKit 3.7 documentation</title>
+    <title>Commands &mdash; SkoolKit 4.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.7',
+        VERSION:     '4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.7 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.0 documentation" href="index.html" />
     <link rel="next" title="Parsing, rendering, and modes" href="parsing.html" />
     <link rel="prev" title="SkoolKit 1.x changelog" href="changelog1.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="changelog1.html" title="SkoolKit 1.x changelog"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -342,6 +342,10 @@ Options:
                         IDs of pages defined in [Page:*] sections in the ref
                         file(s)
   -q, --quiet           Be quiet
+  -r PREFIX, --ref-sections PREFIX
+                        Show default ref file sections whose names start with
+                        PREFIX and exit
+  -R, --ref-file        Show the entire default ref file and exit
   -s, --search-dirs     Show the locations skool2html.py searches for resources
   -t, --time            Show timings
   -T THEME, --theme THEME
@@ -350,13 +354,12 @@ Options:
   -u, --upper           Write the disassembly in upper case
   -V, --version         Show SkoolKit version number and exit
   -w X, --write X       Write only these files, where X is one or more of:
-                          B = Graphic glitches    m = Memory maps
-                          b = Bugs                o = Other code
-                          c = Changelog           P = Custom pages
-                          d = Disassembly files   p = Pokes
-                          G = Game status buffer  t = Trivia
-                          g = Graphics            y = Glossary
-                          i = Disassembly index
+                          B = Graphic glitches    o = Other code
+                          b = Bugs                P = Custom pages
+                          c = Changelog           p = Pokes
+                          d = Disassembly files   t = Trivia
+                          i = Disassembly index   y = Glossary
+                          m = Memory maps
 </pre></div>
 </div>
 <p><cite>skool2html.py</cite> searches the following directories for <cite>skool</cite> files, <cite>ref</cite>
@@ -444,6 +447,9 @@ by default; added the <tt class="docutils literal"><span class="pre">-d</span></
 </tr>
 <tr class="row-even"><td>3.6</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--join-css</span></tt> and <tt class="docutils literal"><span class="pre">--search-dirs</span></tt> options</td>
+</tr>
+<tr class="row-odd"><td>4.0</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--ref-sections</span></tt> and <tt class="docutils literal"><span class="pre">--ref-file</span></tt> options</td>
 </tr>
 </tbody>
 </table>
@@ -717,7 +723,7 @@ given on the command line.</p>
         <li class="right" >
           <a href="changelog1.html" title="SkoolKit 1.x changelog"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &mdash; SkoolKit 3.7 documentation</title>
+    <title>Extending SkoolKit &mdash; SkoolKit 4.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.7',
+        VERSION:     '4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.7 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.0 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -254,7 +254,7 @@ this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
-    <span class="c"># #SPRITEspriteId[{X,Y,W,H}](fname)</span>
+    <span class="c"># #SPRITEspriteId[{x,y,width,height}](fname)</span>
     <span class="k">def</span> <span class="nf">expand_sprite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">cwd</span><span class="p">):</span>
         <span class="n">end</span><span class="p">,</span> <span class="n">img_path</span><span class="p">,</span> <span class="n">crop_rect</span><span class="p">,</span> <span class="n">sprite_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_image_params</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">need_image</span><span class="p">(</span><span class="n">img_path</span><span class="p">):</span>
@@ -286,11 +286,12 @@ TABLE#</pre>
 to parse the parameters of a skool macro.</p>
 <dl class="function">
 <dt id="skoolkit.skoolmacro.parse_ints">
-<tt class="descclassname">skoolkit.skoolmacro.</tt><tt class="descname">parse_ints</tt><big>(</big><em>text</em>, <em>index</em>, <em>num</em>, <em>defaults=()</em><big>)</big><a class="headerlink" href="#skoolkit.skoolmacro.parse_ints" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">skoolkit.skoolmacro.</tt><tt class="descname">parse_ints</tt><big>(</big><em>text</em>, <em>index=0</em>, <em>num=0</em>, <em>defaults=()</em>, <em>names=()</em><big>)</big><a class="headerlink" href="#skoolkit.skoolmacro.parse_ints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse a string of comma-separated integer parameters. The string will be
 parsed until either the end is reached, or an invalid character is
 encountered. The set of valid characters consists of the comma, &#8216;$&#8217;, the
-digits 0-9, and the letters A-F and a-f.</p>
+digits 0-9, and the letters A-F and a-f; if <cite>names</cite> is not empty, the set
+of valid characters also includes &#8216;=&#8217; and the letters g-z.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -298,8 +299,11 @@ digits 0-9, and the letters A-F and a-f.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>text</strong> &#8211; The text to parse.</li>
 <li><strong>index</strong> &#8211; The index at which to start parsing.</li>
-<li><strong>num</strong> &#8211; The maximum number of parameters to parse.</li>
+<li><strong>num</strong> &#8211; The maximum number of parameters to parse; this is set to the
+number of elements in <cite>names</cite> if that list is not empty.</li>
 <li><strong>defaults</strong> &#8211; The default values of the optional parameters.</li>
+<li><strong>names</strong> &#8211; The names of the parameters; if not empty, keyword arguments
+are parsed.</li>
 </ul>
 </td>
 </tr>
@@ -313,6 +317,9 @@ digits 0-9, and the letters A-F and a-f.</p>
 </tr>
 </tbody>
 </table>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 4.0: </span>Added the <em>names</em> parameter and support for keyword arguments; <em>index</em>
+defaults to 0.</p>
 </dd></dl>
 
 <dl class="function">
@@ -350,20 +357,22 @@ considered valid.</li>
 </tr>
 </tbody>
 </table>
-<p class="versionadded">
-<span class="versionmodified">New in version 3.6: </span>The <em>except_chars</em> and <em>only_chars</em> parameters.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 3.6: </span>Added the <em>except_chars</em> and <em>only_chars</em> parameters.</p>
 </dd></dl>
 
 <p>HtmlWriter also provides a method for parsing the parameters of an
 image-creating skool macro.</p>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.parse_image_params">
-<tt class="descclassname">HtmlWriter.</tt><tt class="descname">parse_image_params</tt><big>(</big><em>text</em>, <em>index</em>, <em>num</em>, <em>defaults=()</em>, <em>path_id='UDGImagePath'</em>, <em>fname=''</em>, <em>chars=''</em>, <em>ints=None</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.parse_image_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse a string of the form <tt class="docutils literal"><span class="pre">params[{X,Y,W,H}][(fname)]</span></tt>. The
-parameter string <tt class="docutils literal"><span class="pre">params</span></tt> may contain comma-separated values and will
-be parsed until either the end is reached, or an invalid character is
+<tt class="descclassname">HtmlWriter.</tt><tt class="descname">parse_image_params</tt><big>(</big><em>text</em>, <em>index</em>, <em>num=0</em>, <em>defaults=()</em>, <em>path_id='UDGImagePath'</em>, <em>fname=''</em>, <em>chars=''</em>, <em>ints=None</em>, <em>names=()</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.parse_image_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a string of the form <tt class="docutils literal"><span class="pre">params[{x,y,width,height}][(fname)]</span></tt>.
+The parameter string <tt class="docutils literal"><span class="pre">params</span></tt> may contain comma-separated values and
+is parsed until either the end is reached, or an invalid character is
 encountered. The default set of valid characters consists of the comma,
-&#8216;$&#8217;, the digits 0-9, and the letters A-F and a-f.</p>
+&#8216;$&#8217;, the digits 0-9, and the letters A-F and a-f; if <cite>names</cite> is not
+empty, the set of valid characters also includes &#8216;=&#8217; and the letters
+g-z.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -371,7 +380,9 @@ encountered. The default set of valid characters consists of the comma,
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>text</strong> &#8211; The text to parse.</li>
 <li><strong>index</strong> &#8211; The index at which to start parsing.</li>
-<li><strong>num</strong> &#8211; The maximum number of parameters to parse.</li>
+<li><strong>num</strong> &#8211; The maximum number of parameters to parse; this is set to
+the number of elements in <cite>names</cite> if that list is not
+empty.</li>
 <li><strong>defaults</strong> &#8211; The default values of the optional parameters.</li>
 <li><strong>path_id</strong> &#8211; The ID of the target directory for the image file (as
 defined in the <a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the <cite>ref</cite> file).</li>
@@ -381,6 +392,8 @@ default set.</li>
 <li><strong>ints</strong> &#8211; A list of the indexes (0-based) of the parameters that
 must evaluate to an integer; if <cite>None</cite>, every parameter
 must evaluate to an integer.</li>
+<li><strong>names</strong> &#8211; The names of the parameters; if not empty, keyword
+arguments in the parameter string <tt class="docutils literal"><span class="pre">params</span></tt> are parsed.</li>
 </ul>
 </td>
 </tr>
@@ -391,7 +404,7 @@ must evaluate to an integer.</li>
 <li><tt class="docutils literal"><span class="pre">image_path</span></tt> is either the full path of the image file
 (relative to the root directory of the disassembly) or
 <tt class="docutils literal"><span class="pre">fname</span></tt> (if <cite>path_id</cite> is blank or <cite>None</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">crop_rect</span></tt> is <tt class="docutils literal"><span class="pre">(X,</span> <span class="pre">Y,</span> <span class="pre">W,</span> <span class="pre">H)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">crop_rect</span></tt> is <tt class="docutils literal"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">width,</span> <span class="pre">height)</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">value1</span></tt>, <tt class="docutils literal"><span class="pre">value2</span></tt> etc. are the parameter values</li>
 </ul>
 </p>
@@ -400,9 +413,10 @@ must evaluate to an integer.</li>
 </tbody>
 </table>
 <p class="versionchanged">
-<span class="versionmodified">Changed in version 3.6: </span>If <em>path_id</em> is blank or <em>None</em>, <tt class="docutils literal"><span class="pre">image_path</span></tt> is equal to <tt class="docutils literal"><span class="pre">fname</span></tt>.</p>
-<p class="versionadded">
-<span class="versionmodified">New in version 3.6: </span>The <em>ints</em> parameter.</p>
+<span class="versionmodified">Changed in version 3.6: </span>If <em>path_id</em> is blank or <em>None</em>, <tt class="docutils literal"><span class="pre">image_path</span></tt> is equal to <tt class="docutils literal"><span class="pre">fname</span></tt>;
+added the <em>ints</em> parameter.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 4.0: </span>Added the <em>names</em> parameter and support for keyword arguments.</p>
 </dd></dl>
 
 </div>
@@ -615,7 +629,7 @@ class.</p>
 <p>The Frame class represents a single frame of an animated image.</p>
 <dl class="class">
 <dt id="skoolkit.skoolhtml.Frame">
-<em class="property">class </em><tt class="descclassname">skoolkit.skoolhtml.</tt><tt class="descname">Frame</tt><big>(</big><em>udgs</em>, <em>scale=1</em>, <em>mask=False</em>, <em>x=0</em>, <em>y=0</em>, <em>width=None</em>, <em>height=None</em>, <em>delay=32</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.Frame" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">skoolkit.skoolhtml.</tt><tt class="descname">Frame</tt><big>(</big><em>udgs</em>, <em>scale=1</em>, <em>mask=0</em>, <em>x=0</em>, <em>y=0</em>, <em>width=None</em>, <em>height=None</em>, <em>delay=32</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.Frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a frame of an animated image.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -626,7 +640,8 @@ class.</p>
 <a class="reference internal" href="#skoolkit.skoolhtml.Udg" title="skoolkit.skoolhtml.Udg"><tt class="xref py py-class docutils literal"><span class="pre">Udg</span></tt></a>) from which to build the
 frame.</li>
 <li><strong>scale</strong> &#8211; The scale of the frame.</li>
-<li><strong>mask</strong> &#8211; Whether to apply masks to the tiles in the frame.</li>
+<li><strong>mask</strong> &#8211; The type of mask to apply to the tiles in the frame: 0 (no
+mask), 1 (OR-AND mask), or 2 (AND-OR mask).</li>
 <li><strong>x</strong> &#8211; The x-coordinate of the top-left pixel to include in the frame.</li>
 <li><strong>y</strong> &#8211; The y-coordinate of the top-left pixel to include in the frame.</li>
 <li><strong>width</strong> &#8211; The width of the frame; if <cite>None</cite>, the maximum width
@@ -644,6 +659,9 @@ second.</li>
 </table>
 <p class="versionadded">
 <span class="versionmodified">New in version 3.6.</span></p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 4.0: </span>The <em>mask</em> parameter specifies the type of mask to apply (see
+<a class="reference internal" href="skool-macros.html#masks"><em>Masks</em></a>).</p>
 </dd></dl>
 
 <p>HtmlWriter provides the following image-related convenience methods.</p>
@@ -692,7 +710,7 @@ directory of the disassembly.</td>
 
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.write_image">
-<tt class="descclassname">HtmlWriter.</tt><tt class="descname">write_image</tt><big>(</big><em>image_path</em>, <em>udgs</em>, <em>crop_rect=()</em>, <em>scale=2</em>, <em>mask=False</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.write_image" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">HtmlWriter.</tt><tt class="descname">write_image</tt><big>(</big><em>image_path</em>, <em>udgs</em>, <em>crop_rect=()</em>, <em>scale=2</em>, <em>mask=0</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.write_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an image and write it to a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -711,12 +729,16 @@ the top-left pixel to include in the final image, and
 <tt class="docutils literal"><span class="pre">width</span></tt> and <tt class="docutils literal"><span class="pre">height</span></tt> are the width and height of
 the final image.</li>
 <li><strong>scale</strong> &#8211; The scale of the image.</li>
-<li><strong>mask</strong> &#8211; Whether to apply masks to the tiles in the image.</li>
+<li><strong>mask</strong> &#8211; The type of mask to apply to the tiles: 0 (no mask), 1
+(OR-AND mask), or 2 (AND-OR mask).</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 4.0: </span>The <em>mask</em> parameter specifies the type of mask to apply (see
+<a class="reference internal" href="skool-macros.html#masks"><em>Masks</em></a>).</p>
 </dd></dl>
 
 <dl class="method">
@@ -870,7 +892,7 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

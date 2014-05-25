@@ -23,23 +23,23 @@ default value. So, for example::
 
 is equivalent to::
 
-  #UDG39144,56,4,1,0,0,0
+  #UDG39144,56,4,1,0,0,0,1
 
 and::
 
-  #UDG30115,23,,2,1
+  #UDG30115,,2
 
 is equivalent to::
 
-  #UDG30115,23,4,2,1
+  #UDG30115,56,2
 
 Numeric parameters may be given in decimal notation (as already shown in the
 examples above), or in hexadecimal notation (prefixed by ``$``)::
 
   #UDG$98E8,$06
 
-The skool macros recognised by SkoolKit are described in the following
-subsections.
+General macros
+^^^^^^^^^^^^^^
 
 .. _BUG:
 
@@ -229,73 +229,6 @@ See also :ref:`BUG` and :ref:`POKE`.
 |         | in HTML mode; added support for ASM mode                        |
 +---------+-----------------------------------------------------------------+
 
-.. _FONT:
-
-#FONT
------
-In HTML mode, the ``#FONT`` macro expands to an ``<img>`` element for an image
-of text rendered in the game font. ::
-
-  #FONT[:(text)]addr[,chars,attr,scale][{X,Y,W,H}][(fname)]
-
-* ``text`` is the text to render (default: the 96 characters from code 32 to
-  code 127)
-* ``addr`` is the base address of the font graphic data
-* ``chars`` is the number of characters to render (default: the length of
-  ``text``)
-* ``attr`` is the attribute byte to use (default: 56)
-* ``scale`` is the required scale of the image (default: 2)
-* ``X`` is the x-coordinate of the leftmost pixel column of the constructed
-  image to include in the final image (if greater than 0, the image will be
-  cropped on the left)
-* ``Y`` is the y-coordinate of the topmost pixel row of the constructed image
-  to include in the final image (if greater than 0, the image will be cropped
-  on the top)
-* ``W`` is the width of the final image (if less than the full width of the
-  constructed image, the image will be cropped on the right)
-* ``H`` is the height of the final image (if less than the full height of the
-  constructed image, the image will be cropped on the bottom)
-* ``fname`` is the name of the image file (default: '`font`'); '`.png`' or
-  '`.gif`' will be appended (depending on the default image format specified in
-  the :ref:`ref-ImageWriter` section of the `ref` file) if not present
-
-If ``text`` contains a closing bracket - ``)`` - then the macro will not expand
-as required. In that case, square brackets, braces or any character that does
-not appear in ``text`` may be used as delimiters; for example::
-
-  #FONT:[(0) OK]$3D00
-  #FONT:{(0) OK}$3D00
-  #FONT:/(0) OK/$3D00
-
-The ``#FONT`` macro is not supported in ASM mode.
-
-If an image with the given filename doesn't already exist, it will be created.
-If ``fname`` starts with a '/', the filename is taken to be relative to the
-root of the HTML disassembly; otherwise the filename is taken to be relative to
-the directory defined by the ``FontImagePath`` parameter in the :ref:`paths`
-section of the `ref` file.
-
-For example::
-
-  ; Font graphic data
-  ;
-  ; #HTML[#FONT:(0123456789)49152]
-
-In HTML mode, this instance of the ``#FONT`` macro expands to an ``<img>``
-element for the image of the digits 0-9 in the 8*8 font whose graphic data
-starts at 49152.
-
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 2.0.5   | Added the ``fname`` parameter and support for regular 8x8 fonts |
-+---------+-----------------------------------------------------------------+
-| 3.0     | Added image-cropping capabilities                               |
-+---------+-----------------------------------------------------------------+
-| 3.6     | Added the ``text`` parameter, and made the ``chars`` parameter  |
-|         | optional                                                        |
-+---------+-----------------------------------------------------------------+
-
 .. _HTML:
 
 #HTML
@@ -446,106 +379,6 @@ See also :ref:`BUG` and :ref:`FACT`.
 |         | HTML mode; added support for ASM mode                            |
 +---------+------------------------------------------------------------------+
 
-.. _POKES:
-
-#POKES
-------
-The ``#POKES`` (POKE Snapshot) macro POKEs values into the current memory
-snapshot. ::
-
-  #POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
-
-* ``addr`` is the address to POKE
-* ``byte`` is the value to POKE ``addr`` with
-* ``length`` is the number of addresses to POKE (default: 1)
-* ``step`` is the address increment to use after each POKE (if ``length``>1;
-  default: 1)
-
-For example::
-
-  The UDG looks like this:
-
-  #UDG32768(udg_orig)
-
-  But it's supposed to look like this:
-
-  #PUSHS
-  #POKES32772,254;32775,136
-  #UDG32768(udg_fixed)
-  #POPS
-
-This instance of the ``#POKES`` macro does ``POKE 32772,254`` and
-``POKE 32775,136``, which fixes a graphic glitch in the UDG at 32768.
-
-The ``#POKES`` macro expands to an empty string.
-
-See also :ref:`PUSHS` and :ref:`POPS`.
-
-+---------+--------------------------------------+
-| Version | Changes                              |
-+=========+======================================+
-| 2.3.1   | Added support for multiple addresses |
-+---------+--------------------------------------+
-| 3.1     | Added support for ASM mode           |
-+---------+--------------------------------------+
-
-.. _POPS:
-
-#POPS
------
-The ``#POPS`` (POP Snapshot) macro removes the current memory snapshot and
-replaces it with the one that was previously saved by a ``#PUSHS`` macro. ::
-
-  #POPS
-
-The ``#POPS`` macro expands to an empty string.
-
-See also :ref:`PUSHS` and :ref:`POKES`.
-
-+---------+----------------------------+
-| Version | Changes                    |
-+=========+============================+
-| 3.1     | Added support for ASM mode |
-+---------+----------------------------+
-
-.. _PUSHS:
-
-#PUSHS
-------
-As a `skool` file is being parsed, a memory snapshot is built up from all the
-``DEFB``, ``DEFW``, ``DEFM`` and ``DEFS`` instructions. After the file has been
-parsed, the memory snapshot may be used to build images of the game's graphic
-elements (for example).
-
-The ``#PUSHS`` (PUSH Snapshot) macro saves the current snapshot, and replaces
-it with an identical copy with a given name. ::
-
-  #PUSHS[name]
-
-* ``name`` is the snapshot name (defaults to an empty string)
-
-The snapshot name must be limited to the characters '$', '#', 0-9, A-Z and a-z;
-it must not start with a capital letter.
-
-For example::
-
-  The UDG at 32768 is supposed to look like this:
-
-  #PUSHS
-  #POKES32772,254
-  #UDG32768
-  #POPS
-
-The ``#PUSHS`` macro expands to an empty string.
-
-See also :ref:`POKES` and :ref:`POPS`.
-
-+---------+----------------------------+
-| Version | Changes                    |
-+=========+============================+
-| 3.1     | Added support for ASM mode |
-+---------+----------------------------+
-
 .. _R:
 
 #R
@@ -644,64 +477,6 @@ For example:
    :class: nonexistent
 
     24623 LD C,31       ; #REGbc'=31
-
-.. _SCR:
-
-#SCR
-----
-In HTML mode, the ``#SCR`` (SCReenshot) macro expands to an ``<img>`` element
-for an image constructed from the display file and attribute file (or suitably
-arranged graphic data and attribute bytes elsewhere in memory) of the current
-memory snapshot (in turn constructed from the contents of the `skool` file). ::
-
-  #SCR[scale,x,y,w,h,dfAddr,afAddr][{X,Y,W,H}][(fname)]
-
-* ``scale`` is the required scale of the image (default: 1)
-* ``x`` is the x-coordinate of the top-left tile of the screen to include in
-  the screenshot (default: 0)
-* ``y`` is the y-coordinate of the top-left tile of the screen to include in
-  the screenshot (default: 0)
-* ``w`` is the width of the screenshot in tiles (default: 32)
-* ``h`` is the height of the screenshot in tiles (default: 24)
-* ``dfAddr`` is the base address of the display file (default: 16384)
-* ``afAddr`` is the base address of the attribute file (default: 22528)
-* ``X`` is the x-coordinate of the leftmost pixel column of the constructed
-  image to include in the final image (if greater than 0, the image will be
-  cropped on the left)
-* ``Y`` is the y-coordinate of the topmost pixel row of the constructed image
-  to include in the final image (if greater than 0, the image will be cropped
-  on the top)
-* ``W`` is the width of the final image (if less than the full width of the
-  constructed image, the image will be cropped on the right)
-* ``H`` is the height of the final image (if less than the full height of the
-  constructed image, the image will be cropped on the bottom)
-* ``fname`` is the name of the image file (default: '`scr`'); '`.png`' or
-  '`.gif`' will be appended (depending on the default image format specified in
-  the :ref:`ref-ImageWriter` section of the `ref` file) if not present
-
-The ``#SCR`` macro is not supported in ASM mode.
-
-If an image with the given filename doesn't already exist, it will be created.
-If ``fname`` starts with a '/', the filename is taken to be relative to the
-root of the HTML disassembly; otherwise the filename is taken to be relative to
-the directory defined by the ``ScreenshotImagePath`` parameter in the
-:ref:`paths` section of the `ref` file.
-
-For example::
-
-  ; #UDGTABLE
-  ; { #SCR(loading) | This is the loading screen. }
-  ; TABLE#
-
-+---------+---------------------------------------------------------------+
-| Version | Changes                                                       |
-+=========+===============================================================+
-| 2.0.5   | Added the ``scale``, ``x``, ``y``, ``w``, ``h`` and ``fname`` |
-|         | parameters                                                    |
-+---------+---------------------------------------------------------------+
-| 3.0     | Added image-cropping capabilities and the ``dfAddr`` and      |
-|         | ``afAddr`` parameters                                         |
-+---------+---------------------------------------------------------------+
 
 .. _SPACE:
 
@@ -818,6 +593,143 @@ more than 79 characters wide when rendered. For example::
 
 See also :ref:`UDGTABLE`.
 
+.. _UDGTABLE:
+
+#UDGTABLE
+---------
+The ``#UDGTABLE`` macro behaves in exactly the same way as the ``#TABLE``
+macro, except that the resulting table will not be rendered in ASM mode. Its
+intended use is to contain images that will be rendered in HTML mode only.
+
+See :ref:`TABLE`, and also :ref:`HTML`.
+
+.. _imageMacros:
+
+Image macros
+^^^^^^^^^^^^
+The :ref:`FONT`, :ref:`SCR`, :ref:`UDG` and :ref:`UDGARRAY` macros (described
+in the following sections) may be used to create images based on graphic data
+in the memory snapshot. They are not supported in ASM mode.
+
+These macros have several numeric parameters, most of which are optional. This
+can give rise to a long sequence of commas in a macro parameter string, making
+it hard to read (and write); for example::
+
+  #UDG32768,,,,,,1
+
+To alleviate this problem, the image macros accept keyword arguments at any
+position in the parameter string; the ``#UDG`` macro above could be rewritten
+as follows::
+
+  #UDG32768,rotate=1
+
+.. _FONT:
+
+#FONT
+-----
+In HTML mode, the ``#FONT`` macro expands to an ``<img>`` element for an image
+of text rendered in the game font. ::
+
+  #FONT[:(text)]addr[,chars,attr,scale][{CROP}][(fname)]
+
+* ``text`` is the text to render (default: the 96 characters from code 32 to
+  code 127)
+* ``addr`` is the base address of the font graphic data
+* ``chars`` is the number of characters to render (default: the length of
+  ``text``)
+* ``attr`` is the attribute byte to use (default: 56)
+* ``scale`` is the scale of the image (default: 2)
+* ``CROP`` is the cropping specification (see :ref:`cropping`)
+* ``fname`` is the name of the image file (default: '`font`'); '`.png`' or
+  '`.gif`' will be appended (depending on the default image format specified in
+  the :ref:`ref-ImageWriter` section of the `ref` file) if not present
+
+If ``text`` contains a closing bracket - ``)`` - then the macro will not expand
+as required. In that case, square brackets, braces or any character that does
+not appear in ``text`` may be used as delimiters; for example::
+
+  #FONT:[(0) OK]$3D00
+  #FONT:{(0) OK}$3D00
+  #FONT:/(0) OK/$3D00
+
+If an image with the given filename doesn't already exist, it will be created.
+If ``fname`` starts with a '/', the filename is taken to be relative to the
+root of the HTML disassembly; otherwise the filename is taken to be relative to
+the directory defined by the ``FontImagePath`` parameter in the :ref:`paths`
+section of the `ref` file.
+
+For example::
+
+  ; Font graphic data
+  ;
+  ; #HTML[#FONT:(0123456789)49152]
+
+In HTML mode, this instance of the ``#FONT`` macro expands to an ``<img>``
+element for the image of the digits 0-9 in the 8*8 font whose graphic data
+starts at 49152.
+
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 2.0.5   | Added the ``fname`` parameter and support for regular 8x8 fonts |
++---------+-----------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities                               |
++---------+-----------------------------------------------------------------+
+| 3.6     | Added the ``text`` parameter, and made the ``chars`` parameter  |
+|         | optional                                                        |
++---------+-----------------------------------------------------------------+
+| 4.0     | Added support for keyword arguments                             |
++---------+-----------------------------------------------------------------+
+
+.. _SCR:
+
+#SCR
+----
+In HTML mode, the ``#SCR`` (SCReenshot) macro expands to an ``<img>`` element
+for an image constructed from the display file and attribute file (or suitably
+arranged graphic data and attribute bytes elsewhere in memory) of the current
+memory snapshot (in turn constructed from the contents of the `skool` file). ::
+
+  #SCR[scale,x,y,w,h,df,af][{CROP}][(fname)]
+
+* ``scale`` is the scale of the image (default: 1)
+* ``x`` is the x-coordinate of the top-left tile of the screen to include in
+  the screenshot (default: 0)
+* ``y`` is the y-coordinate of the top-left tile of the screen to include in
+  the screenshot (default: 0)
+* ``w`` is the width of the screenshot in tiles (default: 32)
+* ``h`` is the height of the screenshot in tiles (default: 24)
+* ``df`` is the base address of the display file (default: 16384)
+* ``af`` is the base address of the attribute file (default: 22528)
+* ``CROP`` is the cropping specification (see :ref:`cropping`)
+* ``fname`` is the name of the image file (default: '`scr`'); '`.png`' or
+  '`.gif`' will be appended (depending on the default image format specified in
+  the :ref:`ref-ImageWriter` section of the `ref` file) if not present
+
+If an image with the given filename doesn't already exist, it will be created.
+If ``fname`` starts with a '/', the filename is taken to be relative to the
+root of the HTML disassembly; otherwise the filename is taken to be relative to
+the directory defined by the ``ScreenshotImagePath`` parameter in the
+:ref:`paths` section of the `ref` file.
+
+For example::
+
+  ; #UDGTABLE
+  ; { #SCR(loading) | This is the loading screen. }
+  ; TABLE#
+
++---------+---------------------------------------------------------------+
+| Version | Changes                                                       |
++=========+===============================================================+
+| 2.0.5   | Added the ``scale``, ``x``, ``y``, ``w``, ``h`` and ``fname`` |
+|         | parameters                                                    |
++---------+---------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities and the ``df`` and ``af``   |
+|         | parameters                                                    |
++---------+---------------------------------------------------------------+
+| 4.0     | Added support for keyword arguments                           |
++---------+---------------------------------------------------------------+
+
 .. _UDG:
 
 #UDG
@@ -825,38 +737,33 @@ See also :ref:`UDGTABLE`.
 In HTML mode, the ``#UDG`` macro expands to an ``<img>`` element for the image
 of a UDG (an 8x8 block of pixels). ::
 
-  #UDGaddr[,attr,scale,step,inc,flip,rotate][:maskAddr[,maskStep]][{X,Y,W,H}][(fname)]
+  #UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:MASK][{CROP}][(fname)]
 
 * ``addr`` is the base address of the UDG bytes
 * ``attr`` is the attribute byte to use (default: 56)
-* ``scale`` is the required scale of the image (default: 4)
+* ``scale`` is the scale of the image (default: 4)
 * ``step`` is the interval between successive bytes of the UDG (default: 1)
-* ``inc`` will be added to each UDG byte before constructing the image
-  (default: 0)
+* ``inc`` is added to each UDG byte before constructing the image (default: 0)
 * ``flip`` is 1 to flip the UDG horizontally, 2 to flip it vertically, 3 to
   flip it both ways, or 0 to leave it as it is (default: 0)
 * ``rotate`` is 1 to rotate the UDG 90 degrees clockwise, 2 to rotate it 180
   degrees, 3 to rotate it 90 degrees anticlockwise, or 0 to leave it as it is
   (default: 0)
-* ``maskAddr`` is the base address of the mask bytes to use for the UDG
-* ``maskStep`` is the interval between successive mask bytes (default:
-  ``step``)
-* ``X`` is the x-coordinate of the leftmost pixel column of the constructed
-  image to include in the final image (if greater than 0, the image will be
-  cropped on the left)
-* ``Y`` is the y-coordinate of the topmost pixel row of the constructed image
-  to include in the final image (if greater than 0, the image will be cropped
-  on the top)
-* ``W`` is the width of the final image (if less than the full width of the
-  constructed image, the image will be cropped on the right)
-* ``H`` is the height of the final image (if less than the full height of the
-  constructed image, the image will be cropped on the bottom)
+* ``mask`` is the type of mask to apply (see :ref:`masks`)
+* ``MASK`` is the mask specification (see below)
+* ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (if not given, a name based on
   ``addr``, ``attr`` and ``scale`` will be generated); '`.png`' or '`.gif`'
   will be appended (depending on the default image format specified in the
   :ref:`ref-ImageWriter` section of the `ref` file) if not present
 
-The ``#UDG`` macro is not supported in ASM mode.
+The mask specification (``MASK``) takes the form::
+
+  addr[,step]
+
+* ``addr`` is the base address of the mask bytes to use for the UDG
+* ``step`` is the interval between successive mask bytes (defaults to the value
+  of ``step`` for the UDG)
 
 If an image with the given filename doesn't already exist, it will be created.
 If ``fname`` starts with a '/', the filename is taken to be relative to the
@@ -874,21 +781,24 @@ In HTML mode, this instance of the ``#UDG`` macro expands to an ``<img>``
 element for the image of the UDG at 39144 (which will be named `safe_key.png`
 or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
 
-+---------+--------------------------------------+
-| Version | Changes                              |
-+=========+======================================+
-| 2.0.5   | Added the ``fname`` parameter        |
-+---------+--------------------------------------+
-| 2.1     | Added support for masks              |
-+---------+--------------------------------------+
-| 2.3.1   | Added the ``flip`` parameter         |
-+---------+--------------------------------------+
-| 2.4     | Added the ``rotate`` parameter       |
-+---------+--------------------------------------+
-| 3.0     | Added image-cropping capabilities    |
-+---------+--------------------------------------+
-| 3.1.2   | Made the ``attr`` parameter optional |
-+---------+--------------------------------------+
++---------+--------------------------------------------------------------+
+| Version | Changes                                                      |
++=========+==============================================================+
+| 2.0.5   | Added the ``fname`` parameter                                |
++---------+--------------------------------------------------------------+
+| 2.1     | Added support for masks                                      |
++---------+--------------------------------------------------------------+
+| 2.3.1   | Added the ``flip`` parameter                                 |
++---------+--------------------------------------------------------------+
+| 2.4     | Added the ``rotate`` parameter                               |
++---------+--------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities                            |
++---------+--------------------------------------------------------------+
+| 3.1.2   | Made the ``attr`` parameter optional                         |
++---------+--------------------------------------------------------------+
+| 4.0     | Added the ``mask`` parameter and support for AND-OR masking; |
+|         | added support for keyword arguments                          |
++---------+--------------------------------------------------------------+
 
 .. _UDGARRAY:
 
@@ -897,11 +807,11 @@ or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
 In HTML mode, the ``#UDGARRAY`` macro expands to an ``<img>`` element for the
 image of an array of UDGs (8x8 blocks of pixels). ::
 
-  #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate];SPEC1[;SPEC2;...][{X,Y,W,H}](fname)
+  #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];SPEC1[;SPEC2;...][{CROP}](fname)
 
 * ``width`` is the width of the image (in UDGs)
 * ``attr`` is the default attribute byte of each UDG (default: 56)
-* ``scale`` is the required scale of the image (default: 2)
+* ``scale`` is the scale of the image (default: 2)
 * ``step`` is the default interval between successive bytes of each UDG
   (default: 1)
 * ``inc`` is added to each UDG byte before constructing the image (default: 0)
@@ -910,16 +820,8 @@ image of an array of UDGs (8x8 blocks of pixels). ::
 * ``rotate`` is 1 to rotate the array of UDGs 90 degrees clockwise, 2 to rotate
   it 180 degrees, 3 to rotate it 90 degrees anticlockwise, or 0 to leave it as
   it is (default: 0)
-* ``X`` is the x-coordinate of the leftmost pixel column of the constructed
-  image to include in the final image (if greater than 0, the image will be
-  cropped on the left)
-* ``Y`` is the y-coordinate of the topmost pixel row of the constructed image
-  to include in the final image (if greater than 0, the image will be cropped
-  on the top)
-* ``W`` is the width of the final image (if less than the full width of the
-  constructed image, the image will be cropped on the right)
-* ``H`` is the height of the final image (if less than the full height of the
-  constructed image, the image will be cropped on the bottom)
+* ``mask`` is the type of mask to apply (see :ref:`masks`)
+* ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file; '`.png`' or '`.gif`' will be
   appended (depending on the default image format specified in the
   :ref:`ref-ImageWriter` section of the `ref` file) if not present
@@ -927,23 +829,28 @@ image of an array of UDGs (8x8 blocks of pixels). ::
 ``SPEC1``, ``SPEC2`` etc. are UDG specifications for the sets of UDGs that make
 up the array. Each UDG specification has the form::
 
-  udgAddr[,udgAttr,udgStep,udgInc][:maskAddr[,maskStep]]
+  addr[,attr,step,inc][:MASK]
 
-* ``udgAddr`` is the address range specification for the set of UDGs (see
-  below)
-* ``udgAttr`` is the attribute byte of each UDG in the set (overrides ``attr``
-  if specified)
-* ``udgStep`` is the interval between successive bytes of each UDG in the set
-  (overrides ``step`` if specified)
-* ``udgInc`` is added to each byte of every UDG in the set before constructing
-  the image (overrides ``inc`` if specified)
-* ``maskAddr`` is the address range specification for the set of mask UDGs (see
-  below)
-* ``maskStep`` is the interval between successive bytes of each mask UDG in the
-  set (default: ``udgStep``)
+* ``addr`` is the address range specification for the set of UDGs (see below)
+* ``attr`` is the attribute byte of each UDG in the set (defaults to the value
+  of ``attr`` for the UDG array)
+* ``step`` is the interval between successive bytes of each UDG in the set
+  (defaults to the value of ``step`` for the UDG array)
+* ``inc`` is added to each byte of every UDG in the set before constructing the
+  image (defaults to the value of ``inc`` for the UDG array)
+* ``MASK`` is the mask specification
 
-Address range specifications (``udgAddr`` and ``maskAddr``) may be given in one
-of the following forms:
+The mask specification (``MASK``) takes the form::
+
+  addr[,step]
+
+* ``addr`` is the address range specification for the set of mask UDGs (see
+  below)
+* ``step`` is the interval between successive bytes of each mask UDG in the set
+  (defaults to the value of ``step`` for the set of UDGs)
+
+Address range specifications (``addr``) may be given in one of the following
+forms:
 
 * a single address (e.g. ``39144``)
 * a simple address range (e.g. ``33008-33015``)
@@ -963,8 +870,6 @@ As many UDG specifications as required may be supplied, separated by
 semicolons; the UDGs will be arranged in a rectangular array with the given
 width.
 
-The ``#UDGARRAY`` macro is not supported in ASM mode.
-
 If an image with the given filename doesn't already exist, it will be created.
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly; otherwise the filename is taken to be relative to
@@ -982,9 +887,32 @@ element for the image of the 4x4 sprite formed by the 16 UDGs with base
 addresses 32768, 32776, 32784 and so on up to 32888; the image file will be
 named `base_sprite.png`.
 
-**Animated images**
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 2.0.5   | New                                                               |
++---------+-------------------------------------------------------------------+
+| 2.2.5   | Added support for masks                                           |
++---------+-------------------------------------------------------------------+
+| 2.3.1   | Added the ``flip`` parameter                                      |
++---------+-------------------------------------------------------------------+
+| 2.4     | Added the ``rotate`` parameter                                    |
++---------+-------------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities                                 |
++---------+-------------------------------------------------------------------+
+| 3.1.1   | Added support for UDG address ranges with horizontal and vertical |
+|         | steps                                                             |
++---------+-------------------------------------------------------------------+
+| 3.6     | Added support for creating an animated image from an arbitrary    |
+|         | sequence of frames                                                |
++---------+-------------------------------------------------------------------+
+| 4.0     | Added the ``mask`` parameter and support for AND-OR masking;      |
+|         | added support for keyword arguments                               |
++---------+-------------------------------------------------------------------+
 
-The ``#UDGARRAY`` macro may also be used to create an animated image from an
+Animation
+---------
+The ``#UDGARRAY`` macro may be used to create an animated image from an
 arbitrary sequence of frames. To create a frame, the ``fname`` parameter must
 have one of the following forms:
 
@@ -1023,32 +951,155 @@ The first three ``#UDGARRAY`` macros create the required frames (and write
 images of them); the last ``#UDGARRAY`` macro combines the three frames into a
 single animated image, with a delay of 0.5s between each frame.
 
-+---------+-------------------------------------------------------------------+
-| Version | Changes                                                           |
-+=========+===================================================================+
-| 2.0.5   | New                                                               |
-+---------+-------------------------------------------------------------------+
-| 2.2.5   | Added support for masks                                           |
-+---------+-------------------------------------------------------------------+
-| 2.3.1   | Added the ``flip`` parameter                                      |
-+---------+-------------------------------------------------------------------+
-| 2.4     | Added the ``rotate`` parameter                                    |
-+---------+-------------------------------------------------------------------+
-| 3.0     | Added image-cropping capabilities                                 |
-+---------+-------------------------------------------------------------------+
-| 3.1.1   | Added support for UDG address ranges with horizontal and vertical |
-|         | steps                                                             |
-+---------+-------------------------------------------------------------------+
-| 3.6     | Added support for creating an animated image from an arbitrary    |
-|         | sequence of frames                                                |
-+---------+-------------------------------------------------------------------+
+.. _cropping:
 
-.. _UDGTABLE:
+Cropping
+--------
+Each image macro accepts a cropping specification (``CROP``) which takes the
+form::
 
-#UDGTABLE
----------
-The ``#UDGTABLE`` macro behaves in exactly the same way as the ``#TABLE``
-macro, except that the resulting table will not be rendered in ASM mode. Its
-intended use is to contain images that will be rendered in HTML mode only.
+  x,y,width,height
 
-See :ref:`TABLE`, and also :ref:`HTML`.
+* ``x`` is the x-coordinate of the leftmost pixel column of the constructed
+  image to include in the final image (default: 0); if greater than 0, the
+  image will be cropped on the left
+* ``y`` is the y-coordinate of the topmost pixel row of the constructed image
+  to include in the final image (default: 0); if greater than 0, the image will
+  be cropped on the top
+* ``width`` is the width of the final image in pixels (default: width of the
+  constructed image)
+* ``height`` is the height of the final image in pixels (default: height of the
+  constructed image)
+
+For example::
+
+  #UDG40000,scale=2{2,2,12,12}
+
+This ``#UDG`` macro creates an image of the UDG at 40000, at scale 2, with the
+top two rows and bottom two rows of pixels removed, and the leftmost two
+columns and rightmost two columns of pixels removed.
+
+.. _masks:
+
+Masks
+-----
+The ``#UDG`` and ``#UDGARRAY`` macros accept a ``mask`` parameter that
+determines what kind of mask to apply to each UDG. The supported values are:
+
+* ``0`` - no mask
+* ``1`` - OR-AND mask (this is the default)
+* ``2`` - AND-OR mask
+
+Given a 'background' bit (B), a UDG bit (U), and a mask bit (M), the OR-AND
+mask works as follows:
+
+* OR the UDG bit (U) onto the background bit (B)
+* AND the mask bit (M) onto the result
+
+=  =  ===============
+U  M  Result
+=  =  ===============
+0  0  0 (paper)
+0  1  B (transparent)
+1  0  0 (paper)
+1  1  1 (ink)
+=  =  ===============
+
+The AND-OR mask works as follows:
+
+* AND the mask bit (M) onto the background bit (B)
+* OR the UDG bit (U) onto the result
+
+=  =  ===============
+U  M  Result
+=  =  ===============
+0  0  0 (paper)
+0  1  B (transparent)
+1  0  1 (ink)
+1  1  1 (ink)
+=  =  ===============
+
+By default, transparent bits in a masked image are rendered in bright green
+(#00fe00); this colour can be changed by modifying the ``TRANSPARENT``
+parameter in the :ref:`ref-Colours` section.
+
+Snapshot macros
+^^^^^^^^^^^^^^^
+The :ref:`POKES`, :ref:`POPS` and :ref:`PUSHS` macros (described in the
+following sections) may be used to manipulate the memory snapshot that is built
+from the ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements in the `skool`
+file. Each macro expands to an empty string.
+
+.. _POKES:
+
+#POKES
+------
+The ``#POKES`` (POKE Snapshot) macro POKEs values into the current memory
+snapshot. ::
+
+  #POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
+
+* ``addr`` is the address to POKE
+* ``byte`` is the value to POKE ``addr`` with
+* ``length`` is the number of addresses to POKE (default: 1)
+* ``step`` is the address increment to use after each POKE (if ``length``>1;
+  default: 1)
+
+For example::
+
+  The UDG looks like this:
+
+  #UDG32768(udg_orig)
+
+  But it's supposed to look like this:
+
+  #PUSHS
+  #POKES32772,254;32775,136
+  #UDG32768(udg_fixed)
+  #POPS
+
+This instance of the ``#POKES`` macro does ``POKE 32772,254`` and
+``POKE 32775,136``, which fixes a graphic glitch in the UDG at 32768.
+
++---------+--------------------------------------+
+| Version | Changes                              |
++=========+======================================+
+| 2.3.1   | Added support for multiple addresses |
++---------+--------------------------------------+
+| 3.1     | Added support for ASM mode           |
++---------+--------------------------------------+
+
+.. _POPS:
+
+#POPS
+-----
+The ``#POPS`` (POP Snapshot) macro removes the current memory snapshot and
+replaces it with the one that was previously saved by a ``#PUSHS`` macro. ::
+
+  #POPS
+
++---------+----------------------------+
+| Version | Changes                    |
++=========+============================+
+| 3.1     | Added support for ASM mode |
++---------+----------------------------+
+
+.. _PUSHS:
+
+#PUSHS
+------
+The ``#PUSHS`` (PUSH Snapshot) macro saves the current memory snapshot, and
+replaces it with an identical copy with a given name. ::
+
+  #PUSHS[name]
+
+* ``name`` is the snapshot name (defaults to an empty string)
+
+The snapshot name must be limited to the characters '$', '#', 0-9, A-Z and a-z;
+it must not start with a capital letter.
+
++---------+----------------------------+
+| Version | Changes                    |
++=========+============================+
+| 3.1     | Added support for ASM mode |
++---------+----------------------------+

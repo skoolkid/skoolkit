@@ -1,0 +1,491 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Migrating from SkoolKit 3 &mdash; SkoolKit 4.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="SkoolKit 4.0 documentation" href="index.html" />
+    <link rel="next" title="General info" href="info.html" />
+    <link rel="prev" title="Supported assemblers" href="assemblers.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="info.html" title="General info"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="assemblers.html" title="Supported assemblers"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SkoolKit 4.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Migrating from SkoolKit 3</a><ul>
+<li><a class="reference internal" href="#info">[Info]</a></li>
+<li><a class="reference internal" href="#graphics">[Graphics]</a></li>
+<li><a class="reference internal" href="#page">[Page:*]</a></li>
+<li><a class="reference internal" href="#othercode">[OtherCode:*]</a></li>
+<li><a class="reference internal" href="#z-and-z-directives">&#8216;z&#8217; and &#8216;Z&#8217; directives</a></li>
+<li><a class="reference internal" href="#register-table-headers">Register table headers</a></li>
+<li><a class="reference internal" href="#css-selectors">CSS selectors</a></li>
+<li><a class="reference internal" href="#skoolkit3to4-py">skoolkit3to4.py</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="assemblers.html"
+                        title="previous chapter">Supported assemblers</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="info.html"
+                        title="next chapter">General info</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/migration.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="migrating-from-skoolkit-3">
+<span id="migrating"></span><h1>Migrating from SkoolKit 3<a class="headerlink" href="#migrating-from-skoolkit-3" title="Permalink to this headline">¶</a></h1>
+<p>SkoolKit 4 includes some changes that make it incompatible with SkoolKit 3. If
+you have developed a disassembly using SkoolKit 3 and find that <cite>skool2html.py</cite>
+no longer works with your <cite>skool</cite> files or <cite>ref</cite> files, or produces broken
+output, look through the following sections for tips on how to migrate your
+disassembly to SkoolKit 4.</p>
+<div class="section" id="info">
+<h2>[Info]<a class="headerlink" href="#info" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">[Info]</span></tt> section, introduced in SkoolKit 2.0, is not supported in
+SkoolKit 4. If you have one in your <cite>ref</cite> file, copy its contents to the
+<a class="reference internal" href="ref-files.html#ref-game"><em>[Game]</em></a> section.</p>
+</div>
+<div class="section" id="graphics">
+<h2>[Graphics]<a class="headerlink" href="#graphics" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">[Graphics]</span></tt> section, introduced in SkoolKit 2.0.5, is not supported in
+SkoolKit 4. If you have one in your <cite>ref</cite> file, you can migrate it thus:</p>
+<ul>
+<li><p class="first">Rename the <tt class="docutils literal"><span class="pre">[Graphics]</span></tt> section <tt class="docutils literal"><span class="pre">[PageContent:Graphics]</span></tt></p>
+</li>
+<li><p class="first">Create a <tt class="docutils literal"><span class="pre">[Paths]</span></tt> section if you don&#8217;t already have one, and add a line
+for the Graphics page:</p>
+<div class="highlight-none"><div class="highlight"><pre>[Paths]
+Graphics=graphics/graphics.html
+</pre></div>
+</div>
+</li>
+<li><p class="first">Create an <tt class="docutils literal"><span class="pre">[Index:Graphics:Graphics]</span></tt> section if you don&#8217;t already have
+one, and add the Graphics page ID (to make a link to it appear on the
+disassembly index page); for example:</p>
+<div class="highlight-none"><div class="highlight"><pre>[Index:Graphics:Graphics]
+Graphics
+GraphicGlitches
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="page">
+<h2>[Page:*]<a class="headerlink" href="#page" title="Permalink to this headline">¶</a></h2>
+<p>The following parameters are no longer supported:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">BodyClass</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Link</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Path</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Title</span></tt></li>
+</ul>
+<p>The CSS class for the <tt class="docutils literal"><span class="pre">&lt;body&gt;</span></tt> element of a custom page is now set to the
+page ID. The path, title, header and link text for a custom page can be defined
+in the <a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a>, <a class="reference internal" href="ref-files.html#titles"><em>[Titles]</em></a>, <a class="reference internal" href="ref-files.html#pageheaders"><em>[PageHeaders]</em></a> and <a class="reference internal" href="ref-files.html#links"><em>[Links]</em></a>
+sections.</p>
+</div>
+<div class="section" id="othercode">
+<h2>[OtherCode:*]<a class="headerlink" href="#othercode" title="Permalink to this headline">¶</a></h2>
+<p>The following parameters are no longer supported:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">Header</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Index</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">IndexPageId</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Link</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Path</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Title</span></tt></li>
+</ul>
+<p>The paths, titles, headers and link text for the pages in a secondary
+disassembly can be defined in the <a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a>, <a class="reference internal" href="ref-files.html#titles"><em>[Titles]</em></a>,
+<a class="reference internal" href="ref-files.html#pageheaders"><em>[PageHeaders]</em></a> and <a class="reference internal" href="ref-files.html#links"><em>[Links]</em></a> sections; see the documentation on
+<a class="reference internal" href="ref-files.html#othercode"><em>[OtherCode:*]</em></a> sections for more details.</p>
+</div>
+<div class="section" id="z-and-z-directives">
+<h2>&#8216;z&#8217; and &#8216;Z&#8217; directives<a class="headerlink" href="#z-and-z-directives" title="Permalink to this headline">¶</a></h2>
+<p>The &#8216;z&#8217; and &#8216;Z&#8217; control directives (and the corresponding &#8216;z&#8217; blocks in <cite>skool</cite>
+files) are not supported in SkoolKit 4; they should be replaced by &#8216;s&#8217; and &#8216;S&#8217;
+directives.</p>
+</div>
+<div class="section" id="register-table-headers">
+<h2>Register table headers<a class="headerlink" href="#register-table-headers" title="Permalink to this headline">¶</a></h2>
+<p>Input and output register table headers on disassembly pages are now displayed
+by default, with header text &#8216;Input&#8217; and &#8216;Output&#8217;.</p>
+<p>To hide the register table headers (as was the default behaviour in SkoolKit
+3), use the following CSS rule:</p>
+<div class="highlight-none"><div class="highlight"><pre>tr.asm-input-header, tr.asm-output-header {display: none;}
+</pre></div>
+</div>
+</div>
+<div class="section" id="css-selectors">
+<h2>CSS selectors<a class="headerlink" href="#css-selectors" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>class</cite> attributes of many HTML elements have changed in SkoolKit 4.</p>
+<p>The following table lists the selectors that appeared in the CSS files in
+SkoolKit 3, and their replacements (if any) in SkoolKit 4.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">SkoolKit 3</th>
+<th class="head">SkoolKit 4</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>a.link</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>a.link:hover</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>div.box</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>div.box1</td>
+<td>div.box-1</td>
+</tr>
+<tr class="row-even"><td>div.box2</td>
+<td>div.box-2</td>
+</tr>
+<tr class="row-odd"><td>div.boxTitle</td>
+<td>div.box-title</td>
+</tr>
+<tr class="row-even"><td>div.changelog</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>div.changelog1</td>
+<td>div.changelog-1</td>
+</tr>
+<tr class="row-even"><td>div.changelog2</td>
+<td>div.changelog-2</td>
+</tr>
+<tr class="row-odd"><td>div.changelogDesc</td>
+<td>div.changelog-desc</td>
+</tr>
+<tr class="row-even"><td>div.changelogTitle</td>
+<td>div.changelog-title</td>
+</tr>
+<tr class="row-odd"><td>div.comments</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>div.description</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>div.details</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>div.footer</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>div.gbufDesc</td>
+<td>div.map-entry-title-11</td>
+</tr>
+<tr class="row-even"><td>div.headerText</td>
+<td>div.section-header</td>
+</tr>
+<tr class="row-odd"><td>div.mapIntro</td>
+<td>div.map-intro</td>
+</tr>
+<tr class="row-even"><td>div.paragraph</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>span.register</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>table.dataDisassembly</td>
+<td>table.disassembly</td>
+</tr>
+<tr class="row-odd"><td>table.default</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>table.disassembly</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>table.gbuffer</td>
+<td>table.map</td>
+</tr>
+<tr class="row-even"><td>table.header</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>table.input</td>
+<td>table.input-1</td>
+</tr>
+<tr class="row-even"><td>table.map</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>table.output</td>
+<td>table.output-1</td>
+</tr>
+<tr class="row-even"><td>table.prevNext</td>
+<td>table.asm-navigation</td>
+</tr>
+<tr class="row-odd"><td>td.address</td>
+<td>td.address-1</td>
+</tr>
+<tr class="row-even"><td>td.asmLabel</td>
+<td>td.asm-label-1</td>
+</tr>
+<tr class="row-odd"><td>td.centre</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>td.comment</td>
+<td>td.comment-11</td>
+</tr>
+<tr class="row-odd"><td>td.data</td>
+<td>td.map-b, td.map-w</td>
+</tr>
+<tr class="row-even"><td>td.dataComment</td>
+<td>td.comment-11</td>
+</tr>
+<tr class="row-odd"><td>td.dataDesc</td>
+<td>td.map-b-desc, td.map-w-desc</td>
+</tr>
+<tr class="row-even"><td>td.gbufAddress</td>
+<td>td.map-b, td.map-c, td.map-g, td.map-s, td.map-t, td.map-u, td.map-w</td>
+</tr>
+<tr class="row-odd"><td>td.gbuffer</td>
+<td>td.map-g</td>
+</tr>
+<tr class="row-even"><td>td.gbufferDesc</td>
+<td>td.map-g-desc</td>
+</tr>
+<tr class="row-odd"><td>td.gbufLength</td>
+<td>td.map-length-1</td>
+</tr>
+<tr class="row-even"><td>td.headerText</td>
+<td>td.page-header</td>
+</tr>
+<tr class="row-odd"><td>td.instruction</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>td.label</td>
+<td>td.address-2</td>
+</tr>
+<tr class="row-odd"><td>td.mapByte</td>
+<td>td.map-byte-1</td>
+</tr>
+<tr class="row-even"><td>td.mapPage</td>
+<td>td.map-page-1</td>
+</tr>
+<tr class="row-odd"><td>td.message</td>
+<td>td.map-t</td>
+</tr>
+<tr class="row-even"><td>td.messageDesc</td>
+<td>td.map-t-desc</td>
+</tr>
+<tr class="row-odd"><td>td.next</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>td.prev</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>td.register</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>td.routine</td>
+<td>td.map-c</td>
+</tr>
+<tr class="row-odd"><td>td.routineComment</td>
+<td>td.routine-comment</td>
+</tr>
+<tr class="row-even"><td>td.routineDesc</td>
+<td>td.map-c-desc</td>
+</tr>
+<tr class="row-odd"><td>td.transparent</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>td.transparentComment</td>
+<td>td.comment-10</td>
+</tr>
+<tr class="row-odd"><td>td.transparentDataComment</td>
+<td>td.comment-10</td>
+</tr>
+<tr class="row-even"><td>td.unused</td>
+<td>td.map-s, td.map-u</td>
+</tr>
+<tr class="row-odd"><td>td.unusedDesc</td>
+<td>td.map-s-desc, td.map-u-desc</td>
+</tr>
+<tr class="row-even"><td>td.up</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>ul.changelog</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>ul.indexList</td>
+<td>ul.index-list</td>
+</tr>
+<tr class="row-odd"><td>ul.linkList</td>
+<td>ul.contents</td>
+</tr>
+</tbody>
+</table>
+<p>The following table lists selectors for the classes that were unstyled (i.e.
+did not appear in any CSS files) in SkoolKit 3, and their replacements (if any)
+in SkoolKit 4.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">SkoolKit 3</th>
+<th class="head">SkoolKit 4</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>body.bugs</td>
+<td>body.Bugs</td>
+</tr>
+<tr class="row-odd"><td>body.changelog</td>
+<td>body.Changelog</td>
+</tr>
+<tr class="row-even"><td>body.disassembly</td>
+<td>body.Asm-b, body.Asm-c, body.Asm-g, body.Asm-s, body.Asm-t, body.Asm-u, body.Asm-w</td>
+</tr>
+<tr class="row-odd"><td>body.facts</td>
+<td>body.Facts</td>
+</tr>
+<tr class="row-even"><td>body.gbuffer</td>
+<td>body.GameStatusBuffer</td>
+</tr>
+<tr class="row-odd"><td>body.glossary</td>
+<td>body.Glossary</td>
+</tr>
+<tr class="row-even"><td>body.main</td>
+<td>body.GameIndex</td>
+</tr>
+<tr class="row-odd"><td>body.map</td>
+<td>body.DataMap, body.MemoryMap, body.MessagesMap, body.RoutinesMap, body.UnusedMap</td>
+</tr>
+<tr class="row-even"><td>body.pokes</td>
+<td>body.Pokes</td>
+</tr>
+<tr class="row-odd"><td>div.copyright</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>div.created</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>div.gbufDetails</td>
+<td>div.map-entry-desc-1</td>
+</tr>
+<tr class="row-even"><td>div.release</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>td.gbufDesc</td>
+<td>td.map-b-desc, td.map-c-desc, td.map-g-desc, td.map-s-desc, td.map-t-desc, td.map-u-desc, td.map-w-desc</td>
+</tr>
+<tr class="row-even"><td>td.headerLogo</td>
+<td>td.logo</td>
+</tr>
+<tr class="row-odd"><td>td.registerContents</td>
+<td>td.register-desc</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="skoolkit3to4-py">
+<h2>skoolkit3to4.py<a class="headerlink" href="#skoolkit3to4-py" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference external" href="https://github.com/skoolkid/skoolkit/raw/master/utils/skoolkit3to4.py">skoolkit3to4.py</a> script may be used to convert a <cite>skool</cite> file, <cite>ref</cite>
+file, control file, skool file template or CSS file that is compatible with
+SkoolKit 3 into a file that will work with SkoolKit 4. For example, to convert
+<cite>game.ref</cite>:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skoolkit3to4.py game.ref &gt; game4.ref
+</pre></div>
+</div>
+<p>Note, however, that <cite>skoolkit3to4.py</cite> converts a CSS file by simply replacing
+each selector that is used in SkoolKit 3 with its SkoolKit 4 equivalent(s),
+which means that complex CSS rules may not be converted correctly.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="info.html" title="General info"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="assemblers.html" title="Supported assemblers"
+             >previous</a> |</li>
+        <li><a href="index.html">SkoolKit 4.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Richard Dymond.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool files &mdash; SkoolKit 3.7 documentation</title>
+    <title>Skool files &mdash; SkoolKit 4.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.7',
+        VERSION:     '4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 3.7 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.0 documentation" href="index.html" />
     <link rel="next" title="Skool file templates" href="skool-file-templates.html" />
     <link rel="prev" title="Control files" href="control-files.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="control-files.html" title="Control files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -104,7 +104,7 @@ correctly by <a class="reference internal" href="commands.html#skool2html-py"><e
 <ol class="arabic simple">
 <li>Entries (an &#8216;entry&#8217; being a routine or data block) must be separated by
 blank lines, and an entry must not contain any blank lines.</li>
-<li>Lines in an entry may start with one of <tt class="docutils literal"><span class="pre">;*</span> <span class="pre">bcdgirstuwz</span></tt>, where:</li>
+<li>Lines in an entry may start with one of <tt class="docutils literal"><span class="pre">;*</span> <span class="pre">bcdgirstuw</span></tt>, where:</li>
 </ol>
 <blockquote>
 <div><ul class="simple">
@@ -123,8 +123,6 @@ are all the same value (typically unused zeroes)</li>
 <li><tt class="docutils literal"><span class="pre">u</span></tt> denotes the first instruction in an unused code or data block</li>
 <li><tt class="docutils literal"><span class="pre">w</span></tt> denotes the first instruction in a data block that contains two-byte
 values (words)</li>
-<li><tt class="docutils literal"><span class="pre">z</span></tt> denotes the first instruction in a data block that contains only
-zeroes (deprecated; use <tt class="docutils literal"><span class="pre">s</span></tt> instead)</li>
 <li>a space begins a line that does not require any of the markers listed above</li>
 </ul>
 <p>The format of a non-comment line is:</p>
@@ -133,7 +131,7 @@ zeroes (deprecated; use <tt class="docutils literal"><span class="pre">s</span><
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">C</span></tt> is one of the characters listed above: <tt class="docutils literal"><span class="pre">*</span> <span class="pre">bcdgirstuwz</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">C</span></tt> is one of the characters listed above: <tt class="docutils literal"><span class="pre">*</span> <span class="pre">bcdgirstuw</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">#####</span></tt> is an address (e.g. <tt class="docutils literal"><span class="pre">24576</span></tt>, or <tt class="docutils literal"><span class="pre">$6000</span></tt> if you prefer
 hexadecimal notation)</li>
 <li><tt class="docutils literal"><span class="pre">INSTRUCTION</span></tt> is an instruction (e.g. <tt class="docutils literal"><span class="pre">LD</span> <span class="pre">A,(HL)</span></tt>)</li>
@@ -376,7 +374,7 @@ sections</td>
         <li class="right" >
           <a href="control-files.html" title="Control files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 3.7 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
