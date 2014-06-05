@@ -1,15 +1,15 @@
-ROM?=/usr/share/spectrum-roms/48.rom
-NOSETESTS27=/usr/bin/python2.7 /usr/bin/nosetests
-NOSETESTS32=/usr/bin/python3.2 /usr/bin/nosetests
-NOSETESTS33=$(HOME)/Python/Python3.3/bin/nosetests
-OPTIONS=-d build/html -t
-SKOOL2HTMLOPTS=
+ROM = /usr/share/spectrum-roms/48.rom
+NOSETESTS27 = /usr/bin/python2.7 /usr/bin/nosetests
+NOSETESTS32 = /usr/bin/python3.2 /usr/bin/nosetests
+NOSETESTS33 = $(HOME)/Python/Python3.3/bin/nosetests
+NOSETESTS34 = $(HOME)/Python/Python3.4/bin/nosetests
+OPTIONS = -d build/html -t
 
-OPTIONS+=$(foreach theme,$(THEMES),-T $(theme))
+OPTIONS += $(foreach theme,$(THEMES),-T $(theme))
 ifeq ($(findstring spectrum,$(THEMES)),spectrum)
-  OPTIONS+=-c Game/Font=spectrum.ttf
+  OPTIONS += -c Game/Font=spectrum.ttf
 endif
-OPTIONS+=$(SKOOL2HTMLOPTS)
+OPTIONS += $(HTML_OPTS)
 
 .PHONY: usage
 usage:
@@ -25,6 +25,7 @@ usage:
 	@echo "  test2.7[-all]    run core/all unit tests with Python 2.7"
 	@echo "  test3.2[-all]    run core/all unit tests with Python 3.2"
 	@echo "  test3.3[-all]    run core/all unit tests with Python 3.3"
+	@echo "  test3.4[-all]    run core/all unit tests with Python 3.4"
 	@echo "  test-cover[-all] run core/all unit tests with coverage info"
 	@echo "  release          build a SkoolKit release tarball and zip archive"
 	@echo "  tarball          build a SkoolKit release tarball"
@@ -36,7 +37,7 @@ usage:
 	@echo ""
 	@echo "Environment variables:"
 	@echo "  THEMES           CSS theme(s) to use"
-	@echo "  SKOOL2HTMLOPTS   options passed to skool2html.py"
+	@echo "  HTML_OPTS        options passed to skool2html.py"
 	@echo "  ROM              path to the Spectrum ROM dump"
 
 .PHONY: doc
@@ -110,6 +111,14 @@ test3.3: remove-disassembly-tests
 .PHONY: test3.3-all
 test3.3-all: write-disassembly-tests
 	$(NOSETESTS33) -w tests
+
+.PHONY: test3.4
+test3.4: remove-disassembly-tests
+	$(NOSETESTS34) -w tests
+
+.PHONY: test3.4-all
+test3.4-all: write-disassembly-tests
+	$(NOSETESTS34) -w tests
 
 .PHONY: test-cover
 test-cover: remove-disassembly-tests
