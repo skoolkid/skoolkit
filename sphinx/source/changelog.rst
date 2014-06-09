@@ -1,6 +1,9 @@
 Changelog
 =========
 
+4.1b1
+-----
+
 4.0 (2014-05-25)
 ----------------
 * Every HTML page is built from templates defined in :ref:`template` sections
