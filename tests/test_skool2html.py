@@ -680,9 +680,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_skool2html(option, err_lines=True, catch_exit=0)
-            self.assertEqual(len(output), 0)
-            self.assertEqual(len(error), 1)
-            self.assertEqual(error[0], 'SkoolKit {}'.format(VERSION))
+            self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
 
     def test_option_p(self):
         for option in ('-p', '--package-dir'):
