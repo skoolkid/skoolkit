@@ -3,6 +3,8 @@ Changelog
 
 4.1b1
 -----
+* Fixed how the address '0' is rendered in HTML output when converted to
+  decimal or hexadecimal
 
 4.0 (2014-05-25)
 ----------------

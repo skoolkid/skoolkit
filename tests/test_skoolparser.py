@@ -1422,6 +1422,55 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(warnings[0], 'WARNING: LD operand replaced with routine label in unsubbed operation:')
         self.assertEqual(warnings[1], '  32768 LD HL,32771 -> LD HL,DOSTUFF')
 
+    def test_instruction_addr_str_no_base(self):
+        skool = '\n'.join((
+            'b00000 DEFB 0',
+            '',
+            'c24583 LD HL,$6003',
+            '',
+            'b$600A DEFB 123'
+        ))
+        parser = self._get_parser(skool)
+        self.assertEqual(parser.get_instruction(0).addr_str, '00000')
+        self.assertEqual(parser.get_instruction(24583).addr_str, '24583')
+        self.assertEqual(parser.get_instruction(24586).addr_str, '600A')
+
+    def test_instruction_addr_str_base_10(self):
+        skool = '\n'.join((
+            'b$0000 DEFB 0',
+            '',
+            'c24583 LD HL,$6003',
+            '',
+            'b$600A DEFB 123'
+        ))
+        parser = self._get_parser(skool, base=BASE_10)
+        self.assertEqual(parser.get_instruction(0).addr_str, '00000')
+        self.assertEqual(parser.get_instruction(24583).addr_str, '24583')
+        self.assertEqual(parser.get_instruction(24586).addr_str, '24586')
+
+    def test_instruction_addr_str_base_16(self):
+        skool = '\n'.join((
+            'b00000 DEFB 0',
+            '',
+            'c24583 LD HL,$6003',
+            '',
+            'b$600A DEFB 123'
+        ))
+        parser = self._get_parser(skool, base=BASE_16)
+        self.assertEqual(parser.get_instruction(0).addr_str, '0000')
+        self.assertEqual(parser.get_instruction(24583).addr_str, '6007')
+        self.assertEqual(parser.get_instruction(24586).addr_str, '600A')
+
+    def test_instruction_addr_str_base_16_lower_case(self):
+        skool = '\n'.join((
+            'c24583 LD HL,$6003',
+            '',
+            'b$600A DEFB 123'
+        ))
+        parser = self._get_parser(skool, case=CASE_LOWER, base=BASE_16)
+        self.assertEqual(parser.get_instruction(24583).addr_str, '6007')
+        self.assertEqual(parser.get_instruction(24586).addr_str, '600a')
+
     def test_get_instruction_addr_str_no_base(self):
         skool = '\n'.join((
             'c24583 LD HL,$6003',

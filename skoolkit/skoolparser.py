@@ -861,12 +861,12 @@ class Mode:
     def apply_base(self, addr_str, operation):
         address = parse_int(addr_str)
         if self.decimal:
-            if address:
+            if address is not None:
                 addr_str = '{:05d}'.format(address)
             if operation:
                 operation = self.convert(operation)
         elif self.hexadecimal:
-            if address:
+            if address is not None:
                 addr_str = self.hex4fmt.format(address)
             if operation:
                 operation = self.convert(operation)
