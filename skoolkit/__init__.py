@@ -20,6 +20,7 @@ import sys
 import os
 import posixpath
 import textwrap
+import importlib
 
 VERSION = '4.1b1'
 ENCODING = 'utf-8'
@@ -78,11 +79,9 @@ def get_class(name_spec):
         name = name_spec
     if '.' not in name:
         raise SkoolKitError("Invalid class name: '{0}'".format(name))
-    elements = name.split('.')
-    mod_name = '.'.join(elements[:-1])
-    cls_name = elements[-1]
+    mod_name, cls_name = name.rsplit('.', 1)
     try:
-        m = __import__(mod_name, globals(), locals(), [cls_name])
+        m = importlib.import_module(mod_name)
     except ImportError as e:
         raise SkoolKitError("Failed to import class {0}: {1}".format(name, e.args[0]))
     try:
