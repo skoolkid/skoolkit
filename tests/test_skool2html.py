@@ -708,7 +708,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertEqual(error, '')
             done = output[-1]
             search = re.search(pattern, done)
-            self.assertTrue(search is not None, '"{0}" is not of the form "{1}"'.format(done, pattern))
+            self.assertIsNot(search, None, '"{0}" is not of the form "{1}"'.format(done, pattern))
 
     def test_option_c(self):
         ref = TEST_WRITER_REF + '[Colours]\nRED=197,0,0'
