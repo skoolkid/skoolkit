@@ -286,8 +286,8 @@ class MethodTest(HtmlWriterTestCase):
         self.assertEqual(writer.links['Pokes'], ('Pokes [with square brackets in the link text]', ' (cheats)'))
 
         # [MemoryMap:*]
-        self.assertTrue('TestMap' in writer.main_memory_maps)
-        self.assertTrue('TestMap' in writer.memory_maps)
+        self.assertIn('TestMap', writer.main_memory_maps)
+        self.assertIn('TestMap', writer.memory_maps)
         self.assertEqual(writer.memory_maps['TestMap'], {'EntryTypes': 'w'})
 
     def test_get_section_from_default_ref_file(self):
@@ -2173,8 +2173,8 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(skool=skool)
         writer.write_entry(ASMDIR, 0, writer.paths['MemoryMap'])
         html = self._read_file(join(ASMDIR, '24576.html'))
-        self.assertTrue('DEFM "&lt;&amp;&gt;"' in html)
-        self.assertTrue('a &lt;= b &amp; b &gt;= c' in html)
+        self.assertIn('DEFM "&lt;&amp;&gt;"', html)
+        self.assertIn('a &lt;= b &amp; b &gt;= c', html)
 
     def test_html_no_escape(self):
         # Check that HTML characters from the ref file are not escaped
@@ -2182,7 +2182,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref)
         writer.write_bugs()
         html = self._read_file(join(REFERENCE_DIR, 'bugs.html'))
-        self.assertTrue('<p>Hello</p>' in html)
+        self.assertIn('<p>Hello</p>', html)
 
     def _test_write_index(self, files, content, ref='', custom_subs=None):
         writer = self._get_writer(ref=ref, skool='')
@@ -4279,8 +4279,8 @@ class HtmlOutputTest(HtmlWriterTestCase):
     def test_page_content(self):
         ref = '[Page:ExistingPage]\nContent=asm/32768.html'
         writer = self._get_writer(ref=ref)
-        self.assertFalse('ExistingPage' in writer.page_ids)
-        self.assertTrue('ExistingPage' in writer.paths)
+        self.assertNotIn('ExistingPage', writer.page_ids)
+        self.assertIn('ExistingPage', writer.paths)
         self.assertTrue(writer.paths['ExistingPage'], 'asm/32768.html')
 
     def test_get_udg_addresses(self):
@@ -4321,11 +4321,11 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'u40002 DEFB 0',
         ))
         writer = self._get_writer(ref=ref, skool=skool)
-        self.assertTrue('MemoryMap' in writer.main_memory_maps)
-        self.assertTrue('RoutinesMap' in writer.main_memory_maps)
-        self.assertTrue('DataMap' in writer.main_memory_maps)
-        self.assertFalse('MessagesMap' in writer.main_memory_maps) # No entries
-        self.assertFalse('UnusedMap' in writer.main_memory_maps)   # Write=0
+        self.assertIn('MemoryMap', writer.main_memory_maps)
+        self.assertIn('RoutinesMap', writer.main_memory_maps)
+        self.assertIn('DataMap', writer.main_memory_maps)
+        self.assertNotIn('MessagesMap', writer.main_memory_maps) # No entries
+        self.assertNotIn('UnusedMap', writer.main_memory_maps)   # Write=0
 
     def test_format_registers_with_prefixes(self):
         skool = '\n'.join((

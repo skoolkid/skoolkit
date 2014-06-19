@@ -632,7 +632,7 @@ class OptionsTest(SkoolKitTestCase):
         binfile = self._write_bin([49, 127, 50])
         for option in ('-t', '--text'):
             skool = self._write_skool('{0} {1}'.format(option, binfile), 10)
-            self.assertTrue('c65533 LD SP,12927   ; [1.2]' in skool)
+            self.assertIn('c65533 LD SP,12927   ; [1.2]', skool)
 
     def test_option_z(self):
         data = [0, 1, 2, 3, 4, 5]

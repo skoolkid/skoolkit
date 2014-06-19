@@ -35,9 +35,9 @@ class RefParserTest(SkoolKitTestCase):
         ))
         ref_parser = self._get_parser(ref)
         section_dict = ref_parser.get_dictionary('Section')
-        self.assertTrue(1 in section_dict)
+        self.assertIn(1, section_dict)
         self.assertEqual(section_dict[1], 'Foo')
-        self.assertTrue('Blah' in section_dict)
+        self.assertIn('Blah', section_dict)
         self.assertEqual(section_dict['Blah'], 'Bar')
 
     def test_get_dictionary_with_invalid_line(self):
@@ -49,9 +49,9 @@ class RefParserTest(SkoolKitTestCase):
         ))
         ref_parser = self._get_parser(ref)
         section_dict = ref_parser.get_dictionary('Section')
-        self.assertTrue('Blah' in section_dict)
-        self.assertFalse('Bar' in section_dict)
-        self.assertTrue('Baz' in section_dict)
+        self.assertIn('Blah', section_dict)
+        self.assertNotIn('Bar', section_dict)
+        self.assertIn('Baz', section_dict)
 
     def test_get_dictionaries(self):
         ref = '\n'.join((
@@ -68,12 +68,12 @@ class RefParserTest(SkoolKitTestCase):
 
         suffix1, dict1 = section_dicts[0]
         self.assertEqual(suffix1, 'Foo')
-        self.assertTrue('A' in dict1)
+        self.assertIn('A', dict1)
         self.assertEqual(dict1['A'], 'B=C')
 
         suffix2, dict2 = section_dicts[1]
         self.assertEqual(suffix2, 'Bar')
-        self.assertTrue('baz' in dict2)
+        self.assertIn('baz', dict2)
         self.assertEqual(dict2['baz'], 'qux')
 
     def test_get_section(self):
@@ -177,14 +177,14 @@ class RefParserTest(SkoolKitTestCase):
         ref_parser = self._get_parser('[Blah]\nA=1')
         ref_parser.add_line('Blah', 'B=2')
         blah = ref_parser.get_dictionary('Blah')
-        self.assertTrue('B' in blah)
+        self.assertIn('B', blah)
         self.assertEqual(blah['B'], '2')
 
     def test_add_line_to_nonexistent_section(self):
         ref_parser = self._get_parser('')
         ref_parser.add_line('Foo', 'Q=0')
         foo = ref_parser.get_dictionary('Foo')
-        self.assertTrue('Q' in foo)
+        self.assertIn('Q', foo)
         self.assertEqual(foo['Q'], '0')
 
     def test_section_content_is_trimmed(self):

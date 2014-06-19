@@ -1374,7 +1374,7 @@ class SkoolParserTest(SkoolKitTestCase):
         ))
         parser = self._get_parser(skool, asm_mode=1)
         for name, value in (('prop1', '1'), ('prop2', 'abc')):
-            self.assertTrue(name in parser.properties)
+            self.assertIn(name, parser.properties)
             self.assertEqual(parser.properties[name], value)
 
     def test_set_bytes(self):
@@ -1603,11 +1603,11 @@ class SkoolParserTest(SkoolKitTestCase):
             'c40004 LD A,H'
         ))
         entries = self._get_parser(skool, asm_mode=1).entries
-        self.assertFalse(40000 in entries)
-        self.assertTrue(40001 in entries)
-        self.assertFalse(40002 in entries)
-        self.assertTrue(40003 in entries)
-        self.assertFalse(40004 in entries)
+        self.assertNotIn(40000, entries)
+        self.assertIn(40001, entries)
+        self.assertNotIn(40002, entries)
+        self.assertIn(40003, entries)
+        self.assertNotIn(40004, entries)
 
     def test_html_mode_label(self):
         label = 'START'

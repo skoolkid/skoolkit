@@ -150,7 +150,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.write_text_file(skool, '{}.skool'.format(reffile[:-4]))
         output, error = self.run_skool2html('{} -d {} {} {} {}'.format(self._css_c(), self.odir, write_option, file_ids, reffile))
         self.assertEqual(error, '')
-        self.assertTrue(method_name in html_writer.call_dict, '{} was not called'.format(method_name))
+        self.assertIn(method_name, html_writer.call_dict, '{} was not called'.format(method_name))
         arg_list = html_writer.call_dict[method_name]
         exp_arg_list = exp_arg_list or [()]
         self.assertEqual(arg_list, exp_arg_list, '{}: {} != {}'.format(method_name, arg_list, exp_arg_list))
@@ -343,7 +343,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.write_text_file(path='{0}.skool'.format(reffile[:-4]))
         output, error = self.run_skool2html('{0} -d {1} {2}'.format(self._css_c(), self.odir, reffile))
         self.assertEqual(error, '')
-        self.assertTrue('write_index' in html_writer.call_dict)
+        self.assertIn('write_index', html_writer.call_dict)
 
         # Test that a file not named *.ref is treated as a skool file
         for suffix in ('.skool', '.sks', '.kit', ''):
@@ -374,7 +374,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         html_writer = write_disassembly_args[0]
         self.assertEqual(len(html_writer.entries), 1)
-        self.assertTrue(30000 in html_writer.entries)
+        self.assertIn(30000, html_writer.entries)
 
     def test_image_writer_options(self):
         self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
@@ -578,8 +578,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
         for option in ('-j', '--join-css'):
             output, error = self.run_skool2html('{} {} -d {} {}'.format(option, single_css, self.odir, reffile))
             self.assertEqual(error, '')
-            self.assertTrue(appending_msg.format(css1) in output)
-            self.assertTrue(appending_msg.format(css2) in output)
+            self.assertIn(appending_msg.format(css1), output)
+            self.assertIn(appending_msg.format(css2), output)
             self.assertTrue(os.path.isfile(single_css_f))
             self.assertFalse(os.path.isfile(os.path.join(game_dir, css1)))
             self.assertFalse(os.path.isfile(os.path.join(game_dir, css2)))
@@ -697,7 +697,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         for option in ('-q', '--quiet'):
             output, error = self.run_skool2html('{0} {1} -d {2} -w i {3}'.format(self._css_c(), option, self.odir, reffile))
             self.assertEqual(error, '')
-            self.assertTrue(index_method in html_writer.call_dict, '{0} was not called'.format(index_method))
+            self.assertIn(index_method, html_writer.call_dict, '{0} was not called'.format(index_method))
             self.assertEqual(len(output), 0)
 
     def test_option_t(self):
@@ -803,7 +803,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
             output, error = self.run_skool2html(option, catch_exit=0)
             self.assertEqual(error, '')
             self.assertEqual(output[0], '[Colours]')
-            self.assertTrue('[Titles]' in output)
+            self.assertIn('[Titles]', output)
 
     def test_option_r(self):
         for option in ('-r', '--ref-sections'):
