@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -87,7 +87,7 @@ def main(args):
                        help="Create default labels for unlabelled instructions")
     group.add_argument('-d', '--crlf', dest='crlf', action='store_true',
                        help="Use CR+LF to end lines")
-    group.add_argument('-D', '--decimal', dest='decimal', action='store_true',
+    group.add_argument('-D', '--decimal', dest='base', action='store_const', const=BASE_10,
                        help="Write the disassembly in decimal")
     group.add_argument('-f', '--fixes', dest='fix_mode', metavar='N', type=int, choices=range(4), default=0,
                        help="Apply fixes:\n"
@@ -95,23 +95,23 @@ def main(args):
                             "  N=1: @ofix only\n"
                             "  N=2: @ofix and @bfix\n"
                             "  N=3: @ofix, @bfix and @rfix (implies -r)")
-    group.add_argument('-H', '--hex', dest='hex', action='store_true',
+    group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16,
                        help="Write the disassembly in hexadecimal")
     group.add_argument('-i', '--inst-width', dest='inst_width', metavar='N', type=int,
                        help="Set instruction field width (default={})".format(DEF_INSTR_WIDTH))
-    group.add_argument('-l', '--lower', dest='lower', action='store_true',
+    group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER,
                        help="Write the disassembly in lower case")
     group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
                        help="Show path to skoolkit package directory and exit")
     group.add_argument('-q', '--quiet', dest='quiet', action='store_true',
                        help="Be quiet")
-    group.add_argument('-r', '--rsub', dest='rsub', action='store_true',
+    group.add_argument('-r', '--rsub', dest='asm_mode', action='store_const', const=3, default=1,
                        help="Use relocatability substitutions too (@rsub) (implies\n'-f 1')")
-    group.add_argument('-s', '--ssub', dest='ssub', action='store_true',
+    group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=1,
                        help="Use safe substitutions (@ssub)")
     group.add_argument('-t', '--tabs', dest='tabs', action='store_true',
                        help="Use tab to indent instructions (default indentation is\n2 spaces)")
-    group.add_argument('-u', '--upper', dest='upper', action='store_true',
+    group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER,
                        help="Write the disassembly in upper case")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
@@ -124,27 +124,12 @@ def main(args):
     if unknown_args or namespace.skoolfile is None:
         parser.exit(2, parser.format_help())
     properties = {}
-    case = None
-    base = None
-    asm_mode = 1
     if namespace.crlf:
         properties[CRLF] = '1'
     if namespace.inst_width is not None:
         properties[INSTRUCTION_WIDTH] = namespace.inst_width
     if namespace.tabs:
         properties[TAB] = '1'
-    if namespace.lower:
-        case = CASE_LOWER
-    elif namespace.upper:
-        case = CASE_UPPER
-    if namespace.decimal:
-        base = BASE_10
-    elif namespace.hex:
-        base = BASE_16
-    if namespace.rsub:
-        asm_mode = 3
-    elif namespace.ssub:
-        asm_mode = 2
-    parser_mode = (case, base, asm_mode, namespace.warn, namespace.fix_mode, namespace.create_labels)
-    writer_mode = (case == CASE_LOWER, namespace.warn)
+    parser_mode = (namespace.case, namespace.base, namespace.asm_mode, namespace.warn, namespace.fix_mode, namespace.create_labels)
+    writer_mode = (namespace.case == CASE_LOWER, namespace.warn)
     run(namespace.skoolfile, namespace.quiet, properties, parser_mode, writer_mode)
