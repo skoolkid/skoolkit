@@ -109,7 +109,7 @@ B 38912,512,16
 b 39424 Attributes for the bottom third of the screen during gameplay
 B 39424,256,16
 b 39680 {number_keys}
-b 39808 Attributes for the password screen
+b 39808 Attributes for the code entry screen
 B 39808,128,16
 t 39936 Source code remnants
 D 39936 The source code here corresponds to the code at #R35545.
@@ -136,9 +136,11 @@ T 39998,2,B1:1
 b 40000 {foot_barrel}
 b 40064 {maria}
 b 40192 {willy}
-b 40448 Password codes
-B 40448,256,16
-s 40704
+b 40448 Codes
+{codes}
+u 40627
+C 40627
+S 40704
 b 40960 Guardian definitions
 B 40960,1023,8
 b 41983 Index of first object
@@ -161,6 +163,16 @@ B 65410,16,8
 C 65426
 S 65517
 """.lstrip()
+
+def get_codes(snapshot):
+    lines = []
+    for i in range(179):
+        addr = 40448 + i
+        value = (snapshot[addr] + i) & 255
+        code = '{}{}{}{}'.format((value >> 6) + 1, ((value >> 4) & 3) + 1, ((value >> 2) & 3) + 1, (value & 3) + 1)
+        grid_loc = chr(65 + (i % 18)) + chr(48 + i // 18)
+        lines.append('B {},1 {}: {}'.format(addr, grid_loc, code))
+    return '\n'.join(lines)
 
 def get_udg_table(addr, fname, num=8, rows=1, animation='', delay=None):
     macros = []
@@ -371,6 +383,7 @@ def write_ctl(snapshot):
         foot_barrel=get_graphics(40000, 'Foot/barrel graphic data', 'fb', 2),
         maria=get_graphics(40064, 'Maria sprite graphic data', 'maria', 4),
         willy=get_graphics(40192, 'Willy sprite graphic data', 'willy', 8, 2, ('r', 'l')),
+        codes=get_codes(snapshot),
         toilet=get_graphics(42496, 'Toilet graphics', 'toilet', 4, 2, ('empty', 'full'), 10),
         guardians=get_guardian_graphics(),
         rooms=get_rooms(snapshot)

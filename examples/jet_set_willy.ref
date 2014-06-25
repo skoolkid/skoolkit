@@ -121,6 +121,11 @@ The room with the most objects is #R49152(The Off Licence) with 12.
 
 #ROOM49152
 
+[Changelog:YYYYMMDD]
+Included in SkoolKit 4.1.
+
+Added the code for each grid location to the entry at #R40448
+
 [Changelog:20131102]
 Included in SkoolKit 3.6.
 
