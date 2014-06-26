@@ -164,6 +164,46 @@ C 65426
 S 65517
 """.lstrip()
 
+GUARDIANS = {
+    43776: (4, ''),
+    43904: (4, ''),
+    44032: (4, ''),
+    44160: (4, ''),
+    44288: (4, ''),
+    44416: (4, ''),
+    44544: (4, ''),
+    44672: (4, ''),
+    44800: (4, ''),
+    44928: (4, ''),
+    45056: (4, ''),
+    45184: (2, ''),
+    45248: (2, ''),
+    45312: (8, 'This guardian is not used.'),
+    45568: (4, ''),
+    45696: (4, ''),
+    45824: (0, 'The next 256 bytes are unused.'),
+    46080: (8, ''),
+    46336: (8, ''),
+    46592: (8, ''),
+    46848: (2, ''),
+    46912: (2, ''),
+    46976: (4, ''),
+    47104: (8, ''),
+    47360: (4, ''),
+    47488: (4, ''),
+    47616: (4, ''),
+    47744: (4, ''),
+    47872: (4, ''),
+    48000: (4, ''),
+    48128: (8, ''),
+    48384: (8, ''),
+    48640: (4, ''),
+    48768: (4, ''),
+    48896: (4, ''),
+    49024: (2, ''),
+    49088: (2, '')
+}
+
 def get_codes(snapshot):
     lines = []
     for i in range(179):
@@ -208,10 +248,23 @@ def get_graphics(address, title, img_fname_prefix, num_sprites, rows=1, animatio
 
 def get_guardian_graphics():
     lines = ['Guardian graphics']
-    for a in range(43776, 49152, 256):
-        udg_table = get_udg_table(a, 'guardian{0}_'.format(a // 256))
-        lines.append('D {0} {1}'.format(a, udg_table))
-        lines.append('B {0},256,16'.format(a))
+    prev_page = 0
+    for a in sorted(GUARDIANS.keys()):
+        page = a // 256
+        if page > prev_page:
+            index = 0
+        else:
+            index += 1
+        prev_page = page
+        num, comment = GUARDIANS[a]
+        if comment:
+            lines.append('D {} {}'.format(a, comment))
+        if num:
+            udg_table = get_udg_table(a, 'guardian{}_{}_'.format(page, index), num)
+            lines.append('D {} {}'.format(a, udg_table))
+            lines.append('B {},{},16'.format(a, 32 * num))
+        else:
+            lines.append('S {},256'.format(a))
     return '\n'.join(lines)
 
 def get_rooms(snapshot):
