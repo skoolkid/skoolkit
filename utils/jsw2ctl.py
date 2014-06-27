@@ -108,7 +108,8 @@ b 38912 Attributes for the top two-thirds of the title screen
 B 38912,512,16
 b 39424 Attributes for the bottom third of the screen during gameplay
 B 39424,256,16
-b 39680 {number_keys}
+b 39680 Number key graphics
+{number_keys}
 b 39808 Attributes for the code entry screen
 B 39808,128,16
 t 39936 Source code remnants
@@ -133,9 +134,16 @@ T 39983,12,B1:2:B1:8
 W 39995
 B 39997
 T 39998,2,B1:1
-b 40000 {foot_barrel}
-b 40064 {maria}
-b 40192 {willy}
+b 40000 Foot/barrel graphic data
+D 40000 The foot appears as a guardian in #R56576(The Nightmare Room).
+{foot}
+D 40032 The barrel appears as a guardian in #R54272(Ballroom East) and #R57856(Top Landing).
+{barrel}
+b 40064 Maria sprite graphic data
+D 40064 Maria appears as a guardian in #R56576(The Nightmare Room).
+{maria}
+b 40192 Willy sprite graphic data
+{willy}
 b 40448 Codes
 {codes}
 u 40627
@@ -145,7 +153,8 @@ b 40960 Guardian definitions
 B 40960,1023,8
 b 41983 Index of first object
 b 41984 Object table
-b 42496 {toilet}
+b 42496 Toilet graphics
+{toilet}
 u 42624
 B 42624,128,16
 S 42752
@@ -165,43 +174,43 @@ S 65517
 """.lstrip()
 
 GUARDIANS = {
-    43776: (4, ''),
-    43904: (4, ''),
-    44032: (4, ''),
-    44160: (4, ''),
-    44288: (4, ''),
-    44416: (4, ''),
-    44544: (4, ''),
-    44672: (4, ''),
-    44800: (4, ''),
-    44928: (4, ''),
-    45056: (4, ''),
-    45184: (2, ''),
-    45248: (2, ''),
-    45312: (8, 'This guardian is not used.'),
-    45568: (4, ''),
-    45696: (4, ''),
-    45824: (0, 'The next 256 bytes are unused.'),
-    46080: (8, ''),
-    46336: (8, ''),
-    46592: (8, ''),
-    46848: (2, ''),
-    46912: (2, ''),
-    46976: (4, ''),
-    47104: (8, ''),
-    47360: (4, ''),
-    47488: (4, ''),
-    47616: (4, ''),
-    47744: (4, ''),
-    47872: (4, ''),
-    48000: (4, ''),
-    48128: (8, ''),
-    48384: (8, ''),
-    48640: (4, ''),
-    48768: (4, ''),
-    48896: (4, ''),
-    49024: (2, ''),
-    49088: (2, '')
+    43776: 4,
+    43904: 4,
+    44032: 4,
+    44160: 4,
+    44288: 4,
+    44416: 4,
+    44544: 4,
+    44672: 4,
+    44800: 4,
+    44928: 4,
+    45056: 4,
+    45184: 2,
+    45248: 2,
+    45312: 8,
+    45568: 4,
+    45696: 4,
+    45824: 0,
+    46080: 8,
+    46336: 8,
+    46592: 8,
+    46848: 2,
+    46912: 2,
+    46976: 4,
+    47104: 8,
+    47360: 4,
+    47488: 4,
+    47616: 4,
+    47744: 4,
+    47872: 4,
+    48000: 4,
+    48128: 8,
+    48384: 8,
+    48640: 4,
+    48768: 4,
+    48896: 4,
+    49024: 2,
+    49088: 2
 }
 
 def get_codes(snapshot):
@@ -214,21 +223,28 @@ def get_codes(snapshot):
         lines.append('B {},1 {}: {}'.format(addr, grid_loc, code))
     return '\n'.join(lines)
 
-def get_udg_table(addr, fname, num=8, rows=1, animation='', delay=None):
+def get_udg_table(addr, fname, num=8, rows=1, animation='', delay=None, attr=56):
     macros = []
     start = addr
     suffix = '*' if animation else ''
+    if isinstance(attr, int):
+        attrs = [attr] * num
+    else:
+        attrs = list(attr)
     for r in range(rows):
         macros.append([])
         frames = []
         end = start + (32 * num) // rows
         for b in range(start, end, 32):
-            frame = '{}{}'.format(fname, (b - addr) // 32)
+            if num == 1:
+                frame = fname
+            else:
+                frame = '{}{}'.format(fname, (b - addr) // 32)
             if r % 2:
                 frames.insert(0, frame)
             else:
                 frames.append(frame)
-            macros[-1].append('#UDGARRAY2,56,,2;{}-{}-1-16({}{})'.format(b, b + 17, frame, suffix))
+            macros[-1].append('#UDGARRAY2,{},,2;{}-{}-1-16({}{})'.format(attrs.pop(0), b, b + 17, frame, suffix))
         start = end
         if r < len(animation):
             if delay:
@@ -239,14 +255,40 @@ def get_udg_table(addr, fname, num=8, rows=1, animation='', delay=None):
         udgtable += ' {{ {} }}'.format(' | '.join(macros[r]))
     return udgtable + ' TABLE#'
 
-def get_graphics(address, title, img_fname_prefix, num_sprites, rows=1, animation='', delay=None):
-    lines = [title]
-    udg_table = get_udg_table(address, img_fname_prefix, num_sprites, rows, animation, delay)
+def get_graphics(address, img_fname_prefix, num_sprites, rows=1, animation='', delay=None, attr=56):
+    lines = []
+    udg_table = get_udg_table(address, img_fname_prefix, num_sprites, rows, animation, delay, attr)
     lines.append('D {0} {1}'.format(address, udg_table))
     lines.append('B {0},{1},16'.format(address, 32 * num_sprites))
     return '\n'.join(lines)
 
-def get_guardian_graphics():
+def get_guardian_graphics(snapshot):
+    rooms = {}
+    guardians = {}
+    attrs = {}
+    for room_num in range(61):
+        addr = 256 * (room_num + 192)
+        name = ''.join([chr(b) for b in snapshot[addr + 128:addr + 160]]).strip()
+        rooms[room_num] = '#R{}({})'.format(addr, name)
+        for a in range(addr + 240, addr + 256, 2):
+            num, start = snapshot[a:a + 2]
+            if num == 255:
+                break
+            def_addr = 40960 + num * 8
+            guardian_def = snapshot[def_addr:def_addr + 8]
+            guardian_type = guardian_def[0] & 7
+            if guardian_type & 3 in (1, 2):
+                sprite_addr = 256 * guardian_def[5] + (start & 224)
+                if sprite_addr >= 43776:
+                    while sprite_addr not in GUARDIANS:
+                        sprite_addr -= 32
+                    guardians.setdefault(sprite_addr, set()).add(room_num)
+                    b1 = guardian_def[1]
+                    bright = 8 * (b1 & 8)
+                    paper = snapshot[addr + 160] & 56
+                    ink = b1 & 7
+                    attrs.setdefault(sprite_addr, []).append(bright + paper + ink)
+
     lines = ['Guardian graphics']
     prev_page = 0
     for a in sorted(GUARDIANS.keys()):
@@ -256,11 +298,29 @@ def get_guardian_graphics():
         else:
             index += 1
         prev_page = page
-        num, comment = GUARDIANS[a]
-        if comment:
-            lines.append('D {} {}'.format(a, comment))
+        if a not in guardians:
+            if any(snapshot[a:a + 256]):
+                # 45312
+                comment = 'This guardian is not used.'
+                attr = 7
+            else:
+                # 45824
+                comment = 'The next 256 bytes are unused.'
+        else:
+            macros = [rooms[n] for n in sorted(guardians[a])]
+            if a == 45056:
+                attr = (3, 6, 5, 5)
+            else:
+                attr = attrs[a][0]
+            if len(macros) == 1:
+                room_links = macros[0]
+            else:
+                room_links = '{} and {}'.format(', '.join(macros[:-1]), macros[-1])
+            comment = 'This guardian appears in {}.'.format(room_links)
+        lines.append('D {} {}'.format(a, comment))
+        num = GUARDIANS[a]
         if num:
-            udg_table = get_udg_table(a, 'guardian{}_{}_'.format(page, index), num)
+            udg_table = get_udg_table(a, 'guardian{}_{}_'.format(page, index), num, attr=attr)
             lines.append('D {} {}'.format(a, udg_table))
             lines.append('B {},{},16'.format(a, 32 * num))
         else:
@@ -432,13 +492,14 @@ def get_rooms(snapshot):
 
 def write_ctl(snapshot):   
     sys.stdout.write(TEMPLATE.format(
-        number_keys=get_graphics(39680, 'Number key graphics', 'number_key', 4),
-        foot_barrel=get_graphics(40000, 'Foot/barrel graphic data', 'fb', 2),
-        maria=get_graphics(40064, 'Maria sprite graphic data', 'maria', 4),
-        willy=get_graphics(40192, 'Willy sprite graphic data', 'willy', 8, 2, ('r', 'l')),
+        number_keys=get_graphics(39680, 'number_key', 4),
+        foot=get_graphics(40000, 'foot', 1, attr=6),
+        barrel=get_graphics(40032, 'barrel', 1, attr=66),
+        maria=get_graphics(40064, 'maria', 4, attr=5),
+        willy=get_graphics(40192, 'willy', 8, 2, ('r', 'l'), attr=7),
         codes=get_codes(snapshot),
-        toilet=get_graphics(42496, 'Toilet graphics', 'toilet', 4, 2, ('empty', 'full'), 10),
-        guardians=get_guardian_graphics(),
+        toilet=get_graphics(42496, 'toilet', 4, 2, ('empty', 'full'), 10, attr=7),
+        guardians=get_guardian_graphics(snapshot),
         rooms=get_rooms(snapshot)
     ))
 

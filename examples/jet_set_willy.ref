@@ -124,6 +124,7 @@ The room with the most objects is #R49152(The Off Licence) with 12.
 [Changelog:YYYYMMDD]
 Included in SkoolKit 4.1.
 
+Listed the rooms in which each guardian appears (see #R40000, #R40064 and #R43776)
 Added the code for each grid location to the entry at #R40448
 
 [Changelog:20131102]
