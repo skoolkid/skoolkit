@@ -109,7 +109,8 @@ B 38912,512,16
 b 39424 Attributes for the bottom third of the screen during gameplay
 B 39424,256,16
 b 39680 Number key graphics
-{number_keys}
+D 39680 #UDGTABLE {{ #UDGARRAY2,65,,2;39680;39681,121;39696;39697(number_key0) | #UDGARRAY2,66,,2;39712;39713,122;39728;39729(number_key1) | #UDGARRAY2,3,,2;39744;39745,59;39760;39761(number_key2) | #UDGARRAY2,4,,2;39776;39777,60;39792;39793(number_key3) }} TABLE#
+B 39680,128,16
 b 39808 Attributes for the code entry screen
 B 39808,128,16
 t 39936 Source code remnants
@@ -492,7 +493,6 @@ def get_rooms(snapshot):
 
 def write_ctl(snapshot):   
     sys.stdout.write(TEMPLATE.format(
-        number_keys=get_graphics(39680, 'number_key', 4),
         foot=get_graphics(40000, 'foot', 1, attr=6),
         barrel=get_graphics(40032, 'barrel', 1, attr=66),
         maria=get_graphics(40064, 'maria', 4, attr=5),
