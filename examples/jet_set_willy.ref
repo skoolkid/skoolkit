@@ -107,6 +107,19 @@ There is one room in which a nontrivial conveyor graphic is defined, but not use
 { #R56269(The Chapel) | #UDG56270,7(conveyor27) }
 TABLE#
 
+[Fact:uniqueGuardians:Unique guardians]
+There are seven rooms that contain a unique guardian (that is, a guardian that does not appear in any other room).
+
+#UDGTABLE(gallery)
+{ #R49152(The Off Licence)    | #UDGARRAY2,69,,2;48768-48785-1-16(guardian190_4) }
+{ #R49408(The Bridge)         | #UDGARRAY2,68,,2;47488-47505-1-16(guardian185_4) }
+{ #R52736(Rescue Esmerelda)   | #UDGARRAY2,23,,2;45184-45201-1-16(guardian176_4) }
+{ #R55552(Cold Store)         | #UDGARRAY2,14,,2;48384-48401-1-16(guardian189_0) }
+{ #R56576(The Nightmare Room) | #UDGARRAY2,6,,2;40000-40017-1-16(foot) }
+{ #R59648(The Attic)          | #UDGARRAY2,3,,2;45056-45073-1-16(guardian176_0) #UDGARRAY2,5,,2;45120-45137-1-16(guardian176_2) }
+{ #R60672(Under the Drive)    | #UDGARRAY2,3,,2;44672-44689-1-16(guardian174_4) }
+TABLE#
+
 [Fact:emptiestRooms:The emptiest rooms]
 #R62720(Back Door) is the only room that has no objects, nasties or guardians.
 
@@ -124,6 +137,7 @@ The room with the most objects is #R49152(The Off Licence) with 12.
 [Changelog:YYYYMMDD]
 Included in SkoolKit 4.1.
 
+Added a trivia entry: #FACT#uniqueGuardians()
 Listed the rooms in which each guardian appears (see #R40000, #R40064 and #R43776)
 Listed the rooms in which each guardian definition is used (see #R40960)
 Added the code for each grid location to the entry at #R40448
