@@ -107,6 +107,18 @@ There is one room in which a nontrivial conveyor graphic is defined, but not use
 { #R56269(The Chapel) | #UDG56270,7(conveyor27) }
 TABLE#
 
+[Fact:unusedGuardian:Unused guardian]
+The guardian whose graphic data lives at #R45312 is unused.
+
+#UDGTABLE {
+    #UDGARRAY2,7,,2;45440-45457-1-16;45312-45329-1-16(guardian177_4-0) |
+    #UDGARRAY2,7,,2;45472-45489-1-16;45344-45361-1-16(guardian177_5-1) |
+    #UDGARRAY2,7,,2;45504-45521-1-16;45376-45393-1-16(guardian177_6-2) |
+    #UDGARRAY2,7,,2;45536-45553-1-16;45408-45425-1-16(guardian177_7-3)
+} TABLE#
+
+However, this guardian made an appearance later on in the room 'Macaroni Ted' in Jet Set Willy II.
+
 [Fact:uniqueGuardians:Unique guardians]
 There are seven rooms that contain a unique guardian (that is, a guardian that does not appear in any other room).
 
@@ -137,7 +149,9 @@ The room with the most objects is #R49152(The Off Licence) with 12.
 [Changelog:YYYYMMDD]
 Included in SkoolKit 4.1.
 
-Added a trivia entry: #FACT#uniqueGuardians()
+Added trivia entries:
+  #FACT#unusedGuardian()
+  #FACT#uniqueGuardians()
 Listed the rooms in which each guardian appears (see #R40000, #R40064 and #R43776)
 Listed the rooms in which each guardian definition is used (see #R40960)
 Added the code for each grid location to the entry at #R40448
