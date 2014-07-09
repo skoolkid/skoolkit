@@ -132,6 +132,22 @@ There are seven rooms that contain a unique guardian (that is, a guardian that d
 { #R60672(Under the Drive)    | #UDGARRAY2,3,,2;44672-44689-1-16(guardian174_4) }
 TABLE#
 
+[Fact:commonestGuardian:Commonest guardian]
+The commonest guardian is the bird, whose graphic data lives at #R48128.
+
+#UDGTABLE {
+    #UDGARRAY2,66,,2;48128-48145-1-16(guardian188_0) |
+    #UDGARRAY2,66,,2;48160-48177-1-16(guardian188_1) |
+    #UDGARRAY2,66,,2;48192-48209-1-16(guardian188_2) |
+    #UDGARRAY2,66,,2;48224-48241-1-16(guardian188_3) |
+    #UDGARRAY2,66,,2;48256-48273-1-16(guardian188_4) |
+    #UDGARRAY2,66,,2;48288-48305-1-16(guardian188_5) |
+    #UDGARRAY2,66,,2;48320-48337-1-16(guardian188_6) |
+    #UDGARRAY2,66,,2;48352-48369-1-16(guardian188_7)
+} TABLE#
+
+There are 23 instances of this guardian spread over 18 rooms: four in #R50176(The Drive), two in each of #R49408(The Bridge) and #R51200(Inside the MegaTrunk), and one in each of #R51968(The Hall), #R52224(Tree Top), #R52480(Out on a limb), #R52736(Rescue Esmerelda), #R52992(I'm sure I've seen this before..), #R53248(We must perform a Quirkafleeg), #R54272(Ballroom East), #R54784(To the Kitchens Main Stairway), #R58368(A bit of tree), #R58880(Priests' Hole), #R60672(Under the Drive), #R61440(Nomen Luni), #R61952(Watch Tower), #R62976(West  Wing) and #R63488(West Wing Roof).
+
 [Fact:emptiestRooms:The emptiest rooms]
 #R62720(Back Door) is the only room that has no objects, nasties or guardians.
 
@@ -152,6 +168,7 @@ Included in SkoolKit 4.1.
 Added trivia entries:
   #FACT#unusedGuardian()
   #FACT#uniqueGuardians()
+  #FACT#commonestGuardian()
 Listed the rooms in which each guardian appears (see #R40000, #R40064 and #R43776)
 Listed the rooms in which each guardian definition is used (see #R40960)
 Added the code for each grid location to the entry at #R40448
