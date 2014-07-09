@@ -176,6 +176,11 @@ The room with the most objects is #R49152(The Off Licence) with 12.
 
 #ROOM49152
 
+[Poke:infiniteLives:Infinite lives]
+To give Willy infinite lives:
+
+POKE #R35899,0
+
 [Changelog:YYYYMMDD]
 Included in SkoolKit 4.1.
 
@@ -185,6 +190,7 @@ Added trivia entries:
   #FACT#uniqueGuardians()
   #FACT#commonestGuardian()
 Documented a bug: #BUG#invalidGridLocation()
+Added a POKE: #POKE#infiniteLives()
 Listed the rooms in which each guardian appears (see #R40000, #R40064 and #R43776)
 Listed the rooms in which each guardian definition is used (see #R40960)
 Added the code for each grid location to the entry at #R40448
