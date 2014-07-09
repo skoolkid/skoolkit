@@ -62,6 +62,13 @@ StyleSheet=skoolkit.css;jet_set_willy.css
 119=0000445454542800
 121=00004444443C0438
 
+[Bug:invalidGridLocation:Invalid grid location]
+If the LSB of the system variable FRAMES (at 23672) is 142 when the game starts, the routine at #R34499 will ask for the code at the grid location 'D>', which doesn't exist on the code sheet.
+
+Should you ever need it, the code for 'D>' is 1444.
+
+POKE #R34555(34556),180
+
 [Fact:unusedGridLocation:Unused grid location]
 The routine at #R34499, which is responsible for randomly selecting one of the 180 grid locations on the code sheet by its index (0-179), never selects index 179 (R9); as a result, the code at grid location R9 is never asked for, even though it's present on the code sheet (it's 2423).
 
@@ -177,6 +184,7 @@ Added trivia entries:
   #FACT#unusedGuardian()
   #FACT#uniqueGuardians()
   #FACT#commonestGuardian()
+Documented a bug: #BUG#invalidGridLocation()
 Listed the rooms in which each guardian appears (see #R40000, #R40064 and #R43776)
 Listed the rooms in which each guardian definition is used (see #R40960)
 Added the code for each grid location to the entry at #R40448
