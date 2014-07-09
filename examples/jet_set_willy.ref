@@ -62,6 +62,13 @@ StyleSheet=skoolkit.css;jet_set_willy.css
 119=0000445454542800
 121=00004444443C0438
 
+[Fact:unusedGridLocation:Unused grid location]
+The routine at #R34499, which is responsible for randomly selecting one of the 180 grid locations on the code sheet by its index (0-179), never selects index 179 (R9); as a result, the code at grid location R9 is never asked for, even though it's present on the code sheet (it's 2423).
+
+To give the code at grid location R9 a chance of being asked for:
+
+POKE #R34555(34556),180
+
 [Fact:unusedObjects:Unused objects]
 There are five rooms in which nontrivial object graphics are defined, but not used.
 
@@ -166,6 +173,7 @@ The room with the most objects is #R49152(The Off Licence) with 12.
 Included in SkoolKit 4.1.
 
 Added trivia entries:
+  #FACT#unusedGridLocation()
   #FACT#unusedGuardian()
   #FACT#uniqueGuardians()
   #FACT#commonestGuardian()
