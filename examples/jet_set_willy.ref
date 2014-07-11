@@ -176,6 +176,15 @@ The room with the most objects is #R49152(The Off Licence) with 12.
 
 #ROOM49152
 
+[Poke:noCodeSheetRequired:No code sheet required]
+To make any combination work on the code entry screen:
+
+POKE #R34483,195
+
+Alternatively, to bypass the code entry screen altogether:
+
+POKE #R33796(33797),135: POKE #R33799(33800),202
+
 [Poke:infiniteLives:Infinite lives]
 To give Willy infinite lives:
 
@@ -190,7 +199,9 @@ Added trivia entries:
   #FACT#uniqueGuardians()
   #FACT#commonestGuardian()
 Documented a bug: #BUG#invalidGridLocation()
-Added a POKE: #POKE#infiniteLives()
+Added POKEs:
+  #POKE#noCodeSheetRequired()
+  #POKE#infiniteLives()
 Listed the rooms in which each guardian appears (see #R40000, #R40064 and #R43776)
 Listed the rooms in which each guardian definition is used (see #R40960)
 Added the code for each grid location to the entry at #R40448
