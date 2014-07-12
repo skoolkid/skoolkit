@@ -40,7 +40,7 @@ w 33280 Screen buffer address lookup table
 W 33280,256,16
 b 33536 Rope animation table
 B 33536,256,16
-c 33792 Start
+c 33792 The game has just loaded
 b 33824 Current room number
 b 33825 Conveyor data
 b 33841 Triangle UDGs
