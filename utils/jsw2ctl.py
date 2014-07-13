@@ -101,7 +101,9 @@ c 38455
 c 38528
 c 38545
 c 38562
+c 38601
 c 38622
+c 38644
 s 38680
 b 38912 Attributes for the top two-thirds of the title screen
 B 38912,512,16
