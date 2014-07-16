@@ -69,42 +69,44 @@ b 34299 Title screen tune data
 B 34299,100,16
 b 34399 In-game tune data
 B 34399,64,16
-c 34463
-c 34499
-c 34620
-c 34762
-c 35211
-c 35245
-c 35841
-c 35914
-c 36147
-c 36203
-c 36288
-c 36307
-c 36564
-c 37046
-c 37056
-c 37310
-c 37819
-c 37841
-c 37974
-c 38026
-c 38046
-c 38064
-c 38098
-c 38137
-c 38196
-c 38276
-c 38298
-c 38344
-c 38430
-c 38455
-c 38528
-c 38545
-c 38562
-c 38601
-c 38622
-c 38644
+c 34463 Give two chances to enter a correct code
+c 34499 Display the code entry screen
+c 34620 Read a code from the keyboard
+c 34762 Display the title screen and play the theme tune
+c 35211 Draw remaining lives
+c 35245 Main loop
+c 35841 Lose a life
+c 35914 Display the game over sequence
+c 36147 Draw the current room to the screen buffer at 28672
+c 36203 Fill the buffer at 24064 with attribute bytes for the current room
+c 36288 Copy a room attribute byte into the buffer at 24064
+c 36307 Move Willy (1)
+c 36564 Move Willy (2)
+c 37046 Kill Willy
+c 37056 Move guardians
+c 37310 Draw guardians to the screen buffer at 24576
+u 37819 Unused routine
+C 37819
+c 37841 Draw objects
+c 37974 Draw a sprite
+c 38026 Move Willy into the room to the left
+c 38046 Move Willy into the room to the right
+c 38064 Move Willy into the room above
+c 38098 Move Willy into the room below
+c 38137 Move conveyors
+c 38196 Deal with special rooms (Master Bedroom, The Bathroom)
+c 38276 Check whether Willy has reached the toilet
+c 38298 Animate the toilet in The Bathroom
+c 38344 Set the attribute bytes for Willy's sprite in the buffer at 23552
+c 38430 Set the attribute byte for a tile of Willy's sprite
+c 38455 Draw Willy to the screen buffer at 24576
+c 38528 Print a message
+c 38545 Print a single character
+c 38562 Play the theme tune
+c 38601 Check whether Enter or Fire is being pressed
+c 38622 Play an intro message sound effect
+u 38644 Unused routine
+C 38644
 s 38680
 b 38912 Attributes for the top two-thirds of the title screen
 B 38912,512,16

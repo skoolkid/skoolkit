@@ -202,6 +202,7 @@ Documented a bug: #BUG#invalidGridLocation()
 Added POKEs:
   #POKE#noCodeSheetRequired()
   #POKE#infiniteLives()
+Added routine titles
 Listed the rooms in which each guardian appears (see #R40000, #R40064 and #R43776)
 Listed the rooms in which each guardian definition is used (see #R40960)
 Added the code for each grid location to the entry at #R40448
