@@ -161,6 +161,9 @@ D 41856 The next 127 bytes are unused.
 B 41856,127,16
 b 41983 Index of first object
 b 41984 Object table
+D 41984 The location of object N (173<=N<=255) is defined by a pair of bytes at addresses 41984+N and 42240+N. The meaning of the bits in each byte-pair is as follows:
+D 41984 #TABLE(default,centre) {{ =h Bit(s) | =h Meaning }} {{ 15 | Most significant bit of the y-coordinate }} {{ 14 | Collection flag (reset=collected, set=uncollected) }} {{ 8-13 | Room number }} {{ 5-7 | Least significant bits of the y-coordinate }} {{ 0-4 | x-coordinate }} TABLE#
+{object_table}
 b 42496 Toilet graphics
 {toilet}
 u 42624
@@ -389,6 +392,23 @@ class JetSetWilly:
                 lines.append('S {},256'.format(a))
         return '\n'.join(lines)
 
+    def get_object_table(self):
+        lines = ['S 41984 Unused']
+        objects = {}
+        for a in range(42157, 42240):
+            b1, b2 = self.snapshot[a], self.snapshot[a + 256]
+            x, y = b2 & 31, 8 * (b1 >> 7) + b2 // 32
+            room_link = self._get_room_links([b1 & 63])
+            index = a % 256
+            objects[index] = (room_link, (x, y))
+            lines.append('B {} Object {} at ({},{}) in {}'.format(a, index, x, y, room_link))
+        lines.append('S 42240 Unused')
+        for a in range(42413, 42496):
+            index = a % 256
+            room_link, (x, y) = objects[index]
+            lines.append('B {} Object {} at ({},{}) in {}'.format(a, index, x, y, room_link))
+        return '\n'.join(lines)
+
     def get_rooms(self):
         lines = []
 
@@ -560,6 +580,7 @@ class JetSetWilly:
             willy=self.get_graphics(40192, 8, 7, 'willy', 2, ('r', 'l')),
             codes=self.get_codes(),
             guardian_defs=self.get_guardian_definitions(),
+            object_table=self.get_object_table(),
             toilet=self.get_graphics(42496, 4, 7, 'toilet', 2, ('empty', 'full'), 10),
             guardians=self.get_guardian_graphics(),
             rooms=self.get_rooms()
