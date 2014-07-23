@@ -64,7 +64,17 @@ t 34219 'Sorry, try code at location#SPACE5'
 g 34251 Game status buffer
 B 34251,26,16
 b 34277 WRITETYPER
-B 34277,22,2
+B 34277,b2
+B 34279,b2 W
+B 34281,b2 R
+B 34283,b2 I
+B 34285,b2 T
+B 34287,b2 E
+B 34289,b2 T
+B 34291,b2 Y
+B 34293,b2 P
+B 34295,b2 E
+B 34297,b2 R
 b 34299 Title screen tune data
 B 34299,100,16
 b 34399 In-game tune data
