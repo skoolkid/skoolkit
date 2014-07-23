@@ -30,9 +30,9 @@ TEMPLATE = """
 
 ; @start:32768
 ; @org:32768=32768
-b 32768 Room buffer
+g 32768 Room buffer
 S 32768,256
-b 33024 Guardian buffer
+g 33024 Guardian buffer
 S 33024,64
 B 33088 Terminator
 s 33089
@@ -41,7 +41,7 @@ W 33280,256,16
 b 33536 Rope animation table
 B 33536,256,16
 c 33792 The game has just loaded
-b 33824 Current room number
+g 33824 Current room number
 b 33825 Conveyor data
 b 33841 Triangle UDGs
 D 33841 #UDGTABLE {{ #UDG33841,56(triangle0) | #UDG33849,56(triangle1) | #UDG33857,56(triangle2) | #UDG33865,56(triangle3) }} TABLE#
