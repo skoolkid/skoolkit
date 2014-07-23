@@ -73,6 +73,7 @@ c 34463 Give two chances to enter a correct code
 c 34499 Display the code entry screen
 c 34620 Read a code from the keyboard
 c 34762 Display the title screen and play the theme tune
+c 35068 Start the game
 c 35211 Draw remaining lives
 c 35245 Main loop
 c 35841 Lose a life
