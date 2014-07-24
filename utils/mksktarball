@@ -59,17 +59,16 @@ mkdir -p $MANDIR
 
 rsync -aR \
   {bin2tap,skool2{asm,ctl,html,sft},sna2skool,tap2sna}.py \
-  skoolkit/{__init__,bin2tap,ctlparser,defaults,disassembler,image,refparser,pngwriter,gifwriter,sftparser,skool{{,2}{asm,ctl,html,sft},macro,parser},sna{,2}skool,snapshot,tap2sna,manicminer,jetsetwilly}.py \
-  examples/{48.rom.{ctl,ref},{manic_miner,jet_set_willy}.{ref,t2s},jet_set_willy{,-dark,-green,-plum}.css} \
+  skoolkit/{__init__,bin2tap,ctlparser,defaults,disassembler,image,refparser,pngwriter,gifwriter,sftparser,skool{{,2}{asm,ctl,html,sft},macro,parser},sna{,2}skool,snapshot,tap2sna,manicminer}.py \
+  examples/{48.rom.{ctl,ref},manic_miner.{ref,t2s}} \
   resources/{skoolkit{,-dark,-green,-plum,-spectrum,-wide}.css,spectrum.ttf{,.txt}} \
   tests/{skoolkittest,test_{bin2tap,ctlparser,disassembler,image,skool{{,2}{asm,ctl,html,sft},macro,parser},refparser,sftparser,skoolkit,sna{2,}skool,snapshot,tap2sna}}.py \
   COPYING MANIFEST.in \
   $ABSDIR
 cp -a $SETUP $ABSDIR/setup.py
 
-# examples/{manic_miner,jet_set_willy}.ctl
+# examples/manic_miner.ctl
 utils/mm2ctl.py snapshots/manic_miner.z80 > $ABSDIR/examples/manic_miner.ctl
-utils/jsw2ctl.py snapshots/jet_set_willy.z80 > $ABSDIR/examples/jet_set_willy.ctl
 
 # Documentation and man pages
 cd $SKOOLKIT_HOME/sphinx

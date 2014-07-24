@@ -5,6 +5,10 @@ Changelog
 -----
 * Fixed how the address '0' is rendered in HTML output when converted to
   decimal or hexadecimal
+* Removed the Jet Set Willy disassembly from the SkoolKit distribution; it is
+  now being developed separately here_
+
+.. _here: https://github.com/skoolkid/jetsetwilly
 
 4.0 (2014-05-25)
 ----------------

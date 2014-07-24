@@ -19,7 +19,6 @@ usage:
 	@echo "  man              build the man pages"
 	@echo "  clean            clean the documentation and man pages"
 	@echo "  mm               build the Manic Miner disassembly"
-	@echo "  jsw              build the Jet Set Willy disassembly"
 	@echo "  rom              build the Spectrum ROM disassembly"
 	@echo "  test[-all]       run core/all unit tests with current Python interpreter"
 	@echo "  test2.7[-all]    run core/all unit tests with Python 2.7"
@@ -33,7 +32,7 @@ usage:
 	@echo "  rpm              build a SkoolKit RPM package"
 	@echo "  DTD              download XHTML DTDs"
 	@echo "  XSD              download XHTML XSDs"
-	@echo "  snapshots        build snapshots of Manic Miner and Jet Set Willy"
+	@echo "  snapshot         build a snapshot of Manic Miner"
 	@echo ""
 	@echo "Environment variables:"
 	@echo "  THEMES           CSS theme(s) to use"
@@ -58,13 +57,6 @@ mm:
 	./sna2skool.py -c manic_miner.ctl snapshots/manic_miner.z80 > manic_miner.skool
 	./skool2html.py $(OPTIONS) examples/manic_miner.ref
 	rm manic_miner.skool manic_miner.ctl
-
-.PHONY: jsw
-jsw:
-	SKOOLKIT_HOME=`pwd` utils/jsw2ctl.py snapshots/jet_set_willy.z80 > jet_set_willy.ctl
-	./sna2skool.py -c jet_set_willy.ctl snapshots/jet_set_willy.z80 > jet_set_willy.skool
-	./skool2html.py $(OPTIONS) examples/jet_set_willy.ref
-	rm jet_set_willy.skool jet_set_willy.ctl
 
 .PHONY: rom
 rom:
@@ -156,7 +148,6 @@ XSD:
 	curl -s http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd | sed 's@http://www.w3.org/2001/xml.xsd@xml.xsd@' > XSD/xhtml1-strict.xsd
 	curl -s -o XSD/xml.xsd http://www.w3.org/2009/01/xml.xsd
 
-.PHONY: snapshots
-snapshots:
+.PHONY: snapshot
+snapshot:
 	./tap2sna.py -d snapshots @examples/manic_miner.t2s
-	./tap2sna.py -d snapshots @examples/jet_set_willy.t2s

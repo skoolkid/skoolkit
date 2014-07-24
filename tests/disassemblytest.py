@@ -15,9 +15,6 @@ PY3 = sys.version_info >= (3,)
 MM2CTL = '{0}/utils/mm2ctl.py'.format(SKOOLKIT_HOME)
 MMZ80 = '{0}/snapshots/manic_miner.z80'.format(SKOOLKIT_HOME)
 MMREF = '{}/examples/manic_miner.ref'.format(SKOOLKIT_HOME)
-JSW2CTL = '{0}/utils/jsw2ctl.py'.format(SKOOLKIT_HOME)
-JSWZ80 = '{0}/snapshots/jet_set_willy.z80'.format(SKOOLKIT_HOME)
-JSWREF = '{}/examples/jet_set_willy.ref'.format(SKOOLKIT_HOME)
 ROM = '/usr/share/spectrum-roms/48.rom'
 ROMCTL = '{}/examples/48.rom.ctl'.format(SKOOLKIT_HOME)
 ROMREF = '{}/examples/48.rom.ref'.format(SKOOLKIT_HOME)
@@ -38,23 +35,6 @@ Copying {cssfile} to {odir}/manic_miner/{cssfile}
   Writing manic_miner/buffers/gbuffer.html
   Writing manic_miner/reference/changelog.html
   Writing manic_miner/index.html"""
-
-OUTPUT_JSW = """Creating directory {odir}
-Using skool file: {skoolfile}
-Using ref file: {reffile}
-Parsing {skoolfile}
-Creating directory {odir}/jet_set_willy
-Copying {cssfile} to {odir}/jet_set_willy/{cssfile}
-  Writing disassembly files in jet_set_willy/asm
-  Writing jet_set_willy/maps/all.html
-  Writing jet_set_willy/maps/routines.html
-  Writing jet_set_willy/maps/data.html
-  Writing jet_set_willy/maps/messages.html
-  Writing jet_set_willy/maps/unused.html
-  Writing jet_set_willy/buffers/gbuffer.html
-  Writing jet_set_willy/reference/changelog.html
-  Writing jet_set_willy/reference/facts.html
-  Writing jet_set_willy/index.html"""
 
 OUTPUT_ROM = """Creating directory {odir}
 Using skool file: {skoolfile}
@@ -160,9 +140,6 @@ class DisassembliesTestCase(SkoolKitTestCase):
     def _write_mm_skool(self):
         return self._write_skool(MMZ80, 'manic_miner', MM2CTL)
 
-    def _write_jsw_skool(self):
-        return self._write_skool(JSWZ80, 'jet_set_willy', JSW2CTL)
-
     def _write_rom_skool(self):
         return self._write_skool(ROM, 'rom', ctlfile=ROMCTL, org=0)
 
@@ -180,9 +157,6 @@ class AsmTestCase(DisassembliesTestCase):
     def write_mm(self, options):
         self._test_asm(options, self._write_mm_skool(), False)
 
-    def write_jsw(self, options):
-        self._test_asm(options, self._write_jsw_skool(), False)
-
     def write_rom(self, options):
         self._test_asm(options, self._write_rom_skool(), False)
 
@@ -194,9 +168,6 @@ class CtlTestCase(DisassembliesTestCase):
 
     def write_mm(self, options):
         self._test_ctl(options, self._write_mm_skool())
-
-    def write_jsw(self, options):
-        self._test_ctl(options, self._write_jsw_skool())
 
     def write_rom(self, options):
         self._test_ctl(options, self._write_rom_skool())
@@ -260,9 +231,6 @@ class HtmlTestCase(DisassembliesTestCase):
     def write_mm(self, options):
         self._test_html('manic_miner', options, MMREF, OUTPUT_MM, self._write_mm_skool())
 
-    def write_jsw(self, options):
-        self._test_html('jet_set_willy', options, JSWREF, OUTPUT_JSW, self._write_jsw_skool())
-
     def write_rom(self, options):
         self._test_html('rom', options, ROMREF, OUTPUT_ROM, self._write_rom_skool())
 
@@ -282,9 +250,6 @@ class SftTestCase(DisassembliesTestCase):
 
     def write_mm(self, options):
         self._test_sft(options, self._write_mm_skool(), MMZ80)
-
-    def write_jsw(self, options):
-        self._test_sft(options, self._write_jsw_skool(), JSWZ80)
 
     def write_rom(self, options):
         self._test_sft(options, self._write_rom_skool(), ROM, 0)

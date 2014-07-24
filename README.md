@@ -33,8 +33,7 @@ See the [user manual](http://skoolkid.github.io/skoolkit/) for more details.
 Examples
 --------
 
-SkoolKit includes three (unfinished) example disassemblies:
+SkoolKit includes two (unfinished) example disassemblies:
 
 * [Manic Miner](http://skoolkid.github.io/skoolkit/examples/manic_miner/)
-* [Jet Set Willy](http://skoolkid.github.io/skoolkit/examples/jet_set_willy/)
 * [Spectrum ROM](http://skoolkid.github.io/skoolkit/examples/rom/)
