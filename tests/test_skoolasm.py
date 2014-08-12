@@ -1289,6 +1289,58 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(asm[13], ';        B Some other value')
         self.assertEqual(asm[14], '; Output:C The result')
 
+    def test_registers_in_non_code_blocks(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Byte',
+            ';',
+            '; .',
+            ';',
+            '; A Some value',
+            'b54321 DEFB 0',
+            '',
+            '; GSB entry',
+            ';',
+            '; .',
+            ';',
+            '; B Some value',
+            'g54322 DEFB 0',
+            '',
+            '; Space',
+            ';',
+            '; .',
+            ';',
+            '; C Some value',
+            's54323 DEFS 10',
+            '',
+            '; Message',
+            ';',
+            '; .',
+            ';',
+            '; D Some value',
+            't54333 DEFM "Hi"',
+            '',
+            '; Unused code',
+            ';',
+            '; .',
+            ';',
+            '; E Some value',
+            'u54335 LD HL,12345',
+            '',
+            '; Words',
+            ';',
+            '; .',
+            ';',
+            '; H Some value',
+            'w54338 DEFW 1,2'
+        ))
+        asm = self._get_asm(skool)
+
+        line_no = 2
+        for address, reg_name in ((54321, 'A'), (54322, 'B'), (54323, 'C'), (54333, 'D'), (54335, 'E'), (54338, 'H')):
+            self.assertEqual(asm[line_no], '; {} Some value'.format(reg_name))
+            line_no += 5
+
     def test_defm_upper(self):
         skool = '\n'.join((
             '; @start',

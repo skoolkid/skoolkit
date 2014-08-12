@@ -394,9 +394,10 @@ class SkoolParser:
             if ctl in DIRECTIVES:
                 desc, details, registers = self._parse_comment_block()
                 if ctl == 'c':
-                    map_entry = Routine(address, addr_str, ctl, desc, details, registers)
+                    map_entry_class = Routine
                 else:
-                    map_entry = Data(address, addr_str, ctl, desc, details)
+                    map_entry_class = Data
+                map_entry = map_entry_class(address, addr_str, ctl, desc, details, registers)
                 map_entry.ignoretua = self.mode.ignoretua
                 self.mode.ignoretua = False
                 map_entry.ignoredua = self.mode.ignoredua
@@ -1035,14 +1036,14 @@ class Comment:
         self.text = text
 
 class SkoolEntry:
-    def __init__(self, address, addr_str=None, ctl=None, description=None, details=()):
+    def __init__(self, address, addr_str=None, ctl=None, description=None, details=(), registers=()):
         self.asm_id = ''
         self.address = address
         self.addr_str = addr_str
         self.ctl = ctl
         self.description = description
         self.details = details
-        self.registers = []
+        self.registers = [Register(prefix, name, contents) for prefix, name, contents in registers]
         self.instructions = []
         self.mid_routine_comments = {}
         self.end_comment = ()
@@ -1083,11 +1084,6 @@ class RemoteEntry(SkoolEntry):
         return True
 
 class Routine(SkoolEntry):
-    def __init__(self, address, addr_str, ctl=None, description=None, details=None, registers=()):
-        SkoolEntry.__init__(self, address, addr_str, ctl, description, details)
-        for prefix, name, contents in registers:
-            self.registers.append(Register(prefix, name, contents))
-
     def is_routine(self):
         return True
 

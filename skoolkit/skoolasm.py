@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2014 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -127,7 +127,7 @@ class AsmWriter:
         self.print_comment_lines([self.entry.description], ignoreua=self.entry.ignoretua)
         if self.entry.details:
             self.print_comment_lines(self.entry.details, ignoreua=self.entry.ignoredua, started=True)
-        if self.entry.is_routine() and self.entry.registers:
+        if self.entry.registers:
             self.write_line(';')
             prefix_len = max([len(reg.prefix) for reg in self.entry.registers])
             if prefix_len:
