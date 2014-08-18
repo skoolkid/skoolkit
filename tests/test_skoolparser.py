@@ -1417,6 +1417,64 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(entry.asm_id, 'start')
         self.assertEqual(entry.address, 16384)
 
+    def test_references(self):
+        skool = '\n'.join((
+            '; Routine',
+            'c30000 CALL 30010',
+            ' 30003 JP NZ,30011',
+            ' 30004 LD BC,30012',
+            ' 30006 DJNZ 30013',
+            ' 30008 JR 30014',
+            '',
+            '; Routine',
+            'c30010 LD A,B',
+            ' 30011 LD A,C',
+            ' 30012 LD A,D',
+            ' 30013 LD A,E',
+            ' 30014 RET',
+            '',
+            '; Data',
+            'w30015 DEFW 30003'
+        ))
+        parser = self._get_parser(skool)
+        memory_map = parser.memory_map
+        self.assertEqual(len(memory_map), 3)
+        instructions = memory_map[0].instructions
+        self.assertEqual(len(instructions), 5)
+
+        ref_address = 30010
+        for instruction in instructions:
+            reference = instruction.reference
+            self.assertIsNotNone(reference)
+            self.assertEqual(reference.address, ref_address)
+            self.assertEqual(reference.entry.address, 30010)
+            ref_address += 1
+
+        instructions = memory_map[2].instructions
+        self.assertEqual(len(instructions), 1)
+        reference = instructions[0].reference
+        self.assertIsNotNone(reference)
+        self.assertEqual(reference.address, 30003)
+        self.assertEqual(reference.entry.address, 30000)
+
+    def test_references_to_ignored_entry(self):
+        skool = '\n'.join((
+            '; Routine',
+            'c30000 CALL 30010',
+            ' 30003 JP NZ,30010',
+            ' 30004 LD BC,30010',
+            ' 30006 DJNZ 30010',
+            ' 30008 JR 30010',
+            '',
+            '; Ignored',
+            'i30010'
+        ))
+        parser = self._get_parser(skool)
+        instructions = parser.memory_map[0].instructions
+        self.assertEqual(len(instructions), 5)
+        for instruction in instructions:
+            self.assertIsNone(instruction.reference)
+
     def test_set_directive(self):
         skool = '\n'.join((
             '; @start',

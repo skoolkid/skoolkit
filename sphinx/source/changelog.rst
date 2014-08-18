@@ -7,6 +7,8 @@ Changelog
   now included in the output of :ref:`skool2asm.py` and :ref:`skool2html.py`
 * Fixed how the address '0' is rendered in HTML output when converted to
   decimal or hexadecimal
+* Fixed the bug that creates a broken hyperlink in a DEFW statement or LD
+  instruction that refers to the address of an ignored entry
 * Removed the Jet Set Willy disassembly from the SkoolKit distribution; it is
   now being developed separately here_
 

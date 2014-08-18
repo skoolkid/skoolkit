@@ -292,8 +292,8 @@ class SkoolParser:
 
         self.snapshot = [0] * 65536  # 64K of Spectrum memory
         self.instructions = {}       # address -> [Instructions]
-        self.entries = {}            # address -> Routine/Data
-        self.memory_map = []         # Routines and Datas
+        self.entries = {}            # address -> SkoolEntry
+        self.memory_map = []         # SkoolEntry instances
         self.base_address = 65536
         self.header = []
         self.stack = []
@@ -393,11 +393,7 @@ class SkoolParser:
             ctl = instruction.ctl
             if ctl in DIRECTIVES:
                 desc, details, registers = self._parse_comment_block()
-                if ctl == 'c':
-                    map_entry_class = Routine
-                else:
-                    map_entry_class = Data
-                map_entry = map_entry_class(address, addr_str, ctl, desc, details, registers)
+                map_entry = SkoolEntry(address, addr_str, ctl, desc, details, registers)
                 map_entry.ignoretua = self.mode.ignoretua
                 self.mode.ignoretua = False
                 map_entry.ignoredua = self.mode.ignoredua
@@ -668,7 +664,9 @@ class SkoolParser:
                     other_instructions = self.instructions.get(address)
                     if other_instructions:
                         other_entry = other_instructions[0].container
-                        if (entry != other_entry or self.mode.asm_labels) and (other_entry.is_remote() or operation.startswith(('DEFW', 'LD ')) or other_entry.is_routine()):
+                        if (not other_entry.is_ignored() and
+                            (entry != other_entry or self.mode.asm_labels) and
+                            (other_entry.is_remote() or operation.startswith(('DEFW', 'LD ')) or other_entry.is_routine())):
                             instruction.set_reference(other_entry, address, addr_str)
                             if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR')):
                                 other_instructions[0].add_referrer(entry)
@@ -1055,11 +1053,14 @@ class SkoolEntry:
 
     def is_routine(self):
         """Return whether the entry is a routine (code block)."""
-        return False
+        return self.ctl == 'c'
 
     def is_remote(self):
         """Return whether the entry is a remote entry."""
         return False
+
+    def is_ignored(self):
+        return self.ctl == 'i'
 
     def add_instruction(self, instruction):
         instruction.container = self
@@ -1083,18 +1084,11 @@ class RemoteEntry(SkoolEntry):
     def is_remote(self):
         return True
 
-class Routine(SkoolEntry):
-    def is_routine(self):
-        return True
-
 class Register:
     def __init__(self, prefix, name, contents):
         self.prefix = prefix
         self.name = name
         self.contents = contents
-
-class Data(SkoolEntry):
-    pass
 
 class TableParser:
     def parse_text(self, text, index):
