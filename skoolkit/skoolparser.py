@@ -665,7 +665,6 @@ class SkoolParser:
                     if other_instructions:
                         other_entry = other_instructions[0].container
                         if (not other_entry.is_ignored() and
-                            (entry != other_entry or self.mode.asm_labels) and
                             (other_entry.is_remote() or operation.startswith(('DEFW', 'LD ')) or other_entry.is_routine())):
                             instruction.set_reference(other_entry, address, addr_str)
                             if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR')):
