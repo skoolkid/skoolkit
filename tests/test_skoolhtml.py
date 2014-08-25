@@ -31,6 +31,7 @@ REF_SECTIONS = {
 MINIMAL_REF_FILE = """
 [Game]
 Created=
+LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 [Paths]
 CodePath={}
@@ -39,6 +40,7 @@ CodePath={}
 METHOD_MINIMAL_REF_FILE = """
 [Game]
 Created=
+LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 [Paths]
 CodePath={ASMDIR}
@@ -49,6 +51,7 @@ UDGImagePath={UDGDIR}
 SKOOL_MACRO_MINIMAL_REF_FILE = """
 [Game]
 Created=
+LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 {REF_SECTIONS[PageHeaders]}
 [Paths]
@@ -2138,6 +2141,54 @@ class HtmlOutputTest(HtmlWriterTestCase):
         name = self.skoolfile[:-6]
         self.assertIn('<title>{}: {}</title>'.format(name, title), html)
         self.assertIn('<td class="page-header">{}</td>'.format(header), html)
+
+    def test_parameter_LinkInternalOperands_0(self):
+        ref = '[Game]\nLinkInternalOperands=0'
+        skool = '\n'.join((
+            '; Routine at 30000',
+            'c30000 CALL 30003',
+            ' 30003 JP 30006',
+            ' 30006 DJNZ 30006',
+            ' 30009 JR 30000'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+        self.assertFalse(writer.link_internal_operands)
+        writer.write_asm_entries()
+        html = self._read_file(join(ASMDIR, '30000.html'), True)
+        line_no = 49
+        for inst, address in (
+            ('CALL', 30003),
+            ('JP', 30006),
+            ('DJNZ', 30006),
+            ('JR', 30000)
+        ):
+            operation = '{} {}'.format(inst, address)
+            self.assertEqual(html[line_no], '<td class="instruction">{}</td>'.format(operation))
+            line_no += 6
+
+    def test_parameter_LinkInternalOperands_1(self):
+        ref = '[Game]\nLinkInternalOperands=1'
+        skool = '\n'.join((
+            '; Routine at 40000',
+            'c40000 CALL 40003',
+            ' 40003 JP 40006',
+            ' 40006 DJNZ 40006',
+            ' 40009 JR 40000'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+        self.assertTrue(writer.link_internal_operands)
+        writer.write_asm_entries()
+        html = self._read_file(join(ASMDIR, '40000.html'), True)
+        line_no = 49
+        for inst, address in (
+            ('CALL', 40003),
+            ('JP', 40006),
+            ('DJNZ', 40006),
+            ('JR', 40000)
+        ):
+            operation = '{0} <a class="link" href="40000.html#{1}">{1}</a>'.format(inst, address)
+            self.assertEqual(html[line_no], '<td class="instruction">{}</td>'.format(operation))
+            line_no += 6
 
     def test_parameter_LinkOperands(self):
         ref = '[Game]\nLinkOperands={}'

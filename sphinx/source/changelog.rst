@@ -5,6 +5,9 @@ Changelog
 -----
 * Added the ``--search`` option to :ref:`skool2html.py` (to add a directory to
   the resource search path)
+* Added the ``LinkInternalOperands`` parameter to the :ref:`ref-Game` section
+  (for specifying whether to hyperlink instruction operands that refer to an
+  address in the same entry)
 * Register sections in ``b``, ``g``, ``s``, ``t``, ``u`` and ``w`` blocks are
   now included in the output of :ref:`skool2asm.py` and :ref:`skool2html.py`
 * Fixed how the address '0' is rendered in HTML output when converted to

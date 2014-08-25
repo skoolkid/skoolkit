@@ -224,6 +224,9 @@ Recognised parameters are:
 * ``JavaScript`` - the base name of the JavaScript file to include in every
   page (default: None); multiple JavaScript files can be declared by separating
   their names with semicolons
+* ``LinkInternalOperands`` - ``1`` to hyperlink instruction operands that refer
+  to an address in the same entry as the instruction, or ``0`` to leave them
+  unlinked (default: ``0``)
 * ``LinkOperands`` - a comma-separated list of instruction types whose operands
   will be hyperlinked when possible (default: ``CALL,DEFW,DJNZ,JP,JR``); add
   ``LD`` to the list to enable the address operands of LD instructions to be
@@ -268,6 +271,8 @@ Recognised parameters are:
 |         | ``OutputRegisterTableHeader`` parameters; added the               |
 |         | ``Copyright``, ``Created`` and ``Release`` parameters (which used |
 |         | to live in the ``[Info]`` section in SkoolKit 3)                  |
++---------+-------------------------------------------------------------------+
+| 4.1     | Added the ``LinkInternalOperands`` parameter                      |
 +---------+-------------------------------------------------------------------+
 
 .. _ref-Glossary:

@@ -200,6 +200,7 @@ class HtmlWriter:
         self.game = self.game_vars.copy()
         link_operands = self.game_vars['LinkOperands']
         self.link_operands = tuple(op.upper() for op in link_operands.split(','))
+        self.link_internal_operands = self.game_vars['LinkInternalOperands'] != '0'
         self.js_files = ()
         global_js = self.game_vars.get('JavaScript')
         if global_js:
@@ -766,20 +767,23 @@ class HtmlWriter:
 
             operation, reference = instruction.operation, instruction.reference
             if reference and operation.upper().startswith(self.link_operands):
-                entry_address = reference.entry.address
-                if reference.address == entry_address:
-                    name = ''
-                else:
-                    name = '#{0}'.format(reference.address)
-                if reference.entry.asm_id:
-                    # This is a reference to an entry in another disassembly
-                    entry_file = FileInfo.asm_relpath(cwd, entry_address, self.get_code_path(reference.entry.asm_id))
-                else:
-                    # This is a reference to an entry in the same disassembly
-                    entry_file = FileInfo.asm_fname(entry_address)
-                link_text = self.parser.get_asm_label(reference.address) or reference.addr_str
-                link = self.format_link(entry_file + name, link_text)
-                operation = operation.replace(reference.addr_str, link)
+                asm_label = self.parser.get_asm_label(reference.address)
+                external_ref = entry != reference.entry
+                if external_ref or asm_label or self.link_internal_operands:
+                    entry_address = reference.entry.address
+                    if external_ref and reference.address == entry_address:
+                        name = ''
+                    else:
+                        name = '#{}'.format(reference.address)
+                    if reference.entry.asm_id:
+                        # This is a reference to an entry in another disassembly
+                        entry_file = FileInfo.asm_relpath(cwd, entry_address, self.get_code_path(reference.entry.asm_id))
+                    else:
+                        # This is a reference to an entry in the same disassembly
+                        entry_file = FileInfo.asm_fname(entry_address)
+                    link_text = asm_label or reference.addr_str
+                    link = self.format_link(entry_file + name, link_text)
+                    operation = operation.replace(reference.addr_str, link)
 
             comment = instruction.comment
             if comment:

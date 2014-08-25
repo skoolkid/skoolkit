@@ -54,6 +54,7 @@ Created=Created using <a class="link" href="http://pyskool.ca/?page_id=177">Skoo
 ; GameStatusBufferIncludes=
 InputRegisterTableHeader=Input
 ; JavaScript=
+LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 ; Logo=
 ; LogoImage=
