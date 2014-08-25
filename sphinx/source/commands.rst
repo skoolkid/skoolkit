@@ -229,6 +229,8 @@ list::
                           PREFIX and exit
     -R, --ref-file        Show the entire default ref file and exit
     -s, --search-dirs     Show the locations skool2html.py searches for resources
+    -S DIR, --search DIR  Add this directory to the resource search path; this
+                          option may be used multiple times
     -t, --time            Show timings
     -T THEME, --theme THEME
                           Use this CSS theme; this option may be used multiple
@@ -254,6 +256,7 @@ files, CSS files, JavaScript files, font files, and files listed in the
 * `~/.skoolkit`
 * `/usr/share/skoolkit`
 * `$PACKAGE_DIR/resources`
+* Any other directories specified by the ``-S``/``--search`` option
 
 where `$PACKAGE_DIR` is the directory in which the `skoolkit` package is
 installed (as shown by ``skool2html.py -p``). When you need a reminder of these
@@ -310,6 +313,8 @@ will use the following CSS files, if they exist, in the order listed:
 | 3.6     | Added the ``--join-css`` and ``--search-dirs`` options          |
 +---------+-----------------------------------------------------------------+
 | 4.0     | Added the ``--ref-sections`` and ``--ref-file`` options         |
++---------+-----------------------------------------------------------------+
+| 4.1     | Added the ``--search`` option                                   |
 +---------+-----------------------------------------------------------------+
 
 .. _skool2sft.py:

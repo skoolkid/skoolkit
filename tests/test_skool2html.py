@@ -542,6 +542,39 @@ class Skool2HtmlTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolKitError, 'Cannot copy {0} to {1}: {1} is not a directory'.format(resource, dest_dir)):
             self.run_skool2html('{} -d {} {}'.format(self._css_c(), self.odir, reffile))
 
+    def test_option_S(self):
+        resource_dir = self.make_directory()
+        css_fname = 'foo.css'
+        cssfile = self.write_text_file(path='{}/{}'.format(resource_dir, css_fname))
+        reffile = self.write_text_file('[Game]\nStyleSheet={}'.format(css_fname), suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        for option in ('-S', '--search'):
+            output, error = self.run_skool2html('{} {} -d {} {}'.format(option, resource_dir, self.odir, reffile))
+            self.assertEqual(error, '')
+            game_dir = os.path.join(self.odir, reffile[:-4])
+            self.assertTrue(os.path.isfile(os.path.join(game_dir, css_fname)))
+
+    def test_option_S_multiple(self):
+        css_fname = 'foo.css'
+        js_fname = 'bar.js'
+        ref = '\n'.join((
+            '[Game]',
+            'StyleSheet={}'.format(css_fname),
+            'JavaScript={}'.format(js_fname)
+        ))
+        reffile = self.write_text_file(ref, suffix='.ref')
+        resource_dir1 = self.make_directory()
+        resource_dir2 = self.make_directory()
+        resource_dir3 = self.make_directory()
+        cssfile = self.write_text_file(path='{}/{}'.format(resource_dir1, css_fname))
+        jsfile = self.write_text_file(path='{}/{}'.format(resource_dir2, js_fname))
+        self.write_text_file(path='{}/{}.skool'.format(resource_dir3, reffile[:-4]))
+        output, error = self.run_skool2html('-S {} --search {} -S {} -d {} {}'.format(resource_dir1, resource_dir2, resource_dir3, self.odir, reffile))
+        self.assertEqual(error, '')
+        game_dir = os.path.join(self.odir, reffile[:-4])
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, css_fname)))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, js_fname)))
+
     def test_option_s(self):
         exp_preamble = [
             'skool2html.py searches the following directories for skool files, ref files,',
@@ -556,7 +589,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
             os.path.join('.', 'resources'),
             os.path.join(os.path.expanduser('~'), '.skoolkit'),
             os.path.normpath('/usr/share/skoolkit'),
-            os.path.join(PACKAGE_DIR, 'resources')
+            os.path.join(PACKAGE_DIR, 'resources'),
+            'Any other directories specified by the -S/--search option'
         ]
         for option in ('-s', '--search-dirs'):
             output, error = self.run_skool2html(option, catch_exit=0)
@@ -630,9 +664,9 @@ class Skool2HtmlTest(SkoolKitTestCase):
             for pages in ('Page1', 'Page1,Page2'):
                 output, error = self.run_skool2html('{} {} {}'.format(option, pages, reffile))
                 self.assertEqual(error, '')
-                self.assertEqual(write_disassembly_args[3], pages.split(','))
+                self.assertEqual(write_disassembly_args[4], pages.split(','))
         output, error = self.run_skool2html(reffile)
-        self.assertEqual(write_disassembly_args[3], ['Page1', 'Page2'])
+        self.assertEqual(write_disassembly_args[4], ['Page1', 'Page2'])
 
     def test_option_w_m(self):
         exp_arg_list = [

@@ -3,6 +3,8 @@ Changelog
 
 4.1b1
 -----
+* Added the ``--search`` option to :ref:`skool2html.py` (to add a directory to
+  the resource search path)
 * Register sections in ``b``, ``g``, ``s``, ``t``, ``u`` and ``w`` blocks are
   now included in the output of :ref:`skool2asm.py` and :ref:`skool2html.py`
 * Fixed how the address '0' is rendered in HTML output when converted to

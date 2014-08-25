@@ -64,6 +64,10 @@ OPTIONS
 -s, --search-dirs
   Show the locations that ``skool2html.py`` searches for resources.
 
+-S, --search `DIR`
+  Add this directory to the resource search path; this option may be used
+  multiple times.
+
 -t, --time
   Show timings.
 
@@ -101,6 +105,7 @@ files, CSS files, JavaScript files, font files, and files listed in the
 | - ~/.skoolkit
 | - /usr/share/skoolkit
 | - $PACKAGE_DIR/resources
+| - Any other directories specified by the ``-S``/``--search`` option
 
 where $PACKAGE_DIR is the directory in which the skoolkit package is installed
 (as shown by ``skool2html.py -p``). When you need a reminder of these

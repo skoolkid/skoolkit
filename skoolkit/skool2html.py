@@ -63,6 +63,7 @@ def show_search_dirs():
         else:
             search_dir = os.path.normpath(search_dir)
         write_line(prefix + search_dir)
+    write_line(prefix + 'Any other directories specified by the -S/--search option')
     sys.exit(0)
 
 def show_ref_file():
@@ -89,12 +90,14 @@ def clock(operation, prefix, *args, **kwargs):
         notify('({0:0.2f}s)'.format(time.time() - go))
     return result
 
-def find(fname, search_dir=None):
-    if search_dir:
-        search_dirs = [search_dir]
+def find(fname, extra_search_dirs, first_search_dir=None):
+    if first_search_dir:
+        search_dirs = [first_search_dir]
     else:
         search_dirs = []
     search_dirs.extend(SEARCH_DIRS)
+    if extra_search_dirs:
+        search_dirs.extend(extra_search_dirs)
     for f in [os.path.join(d, fname) for d in search_dirs]:
         if isfile(f):
             return f
@@ -120,20 +123,20 @@ def copy_resource(fname, root_dir, dest_dir, indent=0):
         notify('{}Copying {} to {}'.format(indent * ' ', fname_n, dest_f))
         shutil.copy2(fname, dest_f)
 
-def copy_resources(search_dir, root_dir, fnames, dest_dir, themes=None, suffix=None, single_css=None, indent=0):
+def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, themes=None, suffix=None, single_css=None, indent=0):
     if not fnames:
         return
     files = []
     actual_files = []
     for fname in fnames.split(';'):
-        f = find(fname, search_dir)
+        f = find(fname, extra_search_dirs, search_dir)
         if f:
             files.append(f)
         else:
             raise SkoolKitError('{}: file not found'.format(normpath(fname)))
         if themes and fname.endswith(suffix):
             for theme in themes:
-                f = find('{0}-{1}{2}'.format(fname[:-len(suffix)], theme, suffix), search_dir)
+                f = find('{}-{}{}'.format(fname[:-len(suffix)], theme, suffix), extra_search_dirs, search_dir)
                 if f:
                     files.append(f)
         if not single_css:
@@ -160,11 +163,15 @@ def get_prefix(fname):
         return fname.rsplit('.', 1)[0]
     return fname
 
-def process_file(infile, topdir, files, case, base, pages, config_specs, new_images, css_theme, create_labels, asm_labels, single_css):
+def process_file(infile, topdir, options):
+    extra_search_dirs = options.search
+    case = options.case
+    pages = options.pages
+
     skoolfile_f = reffile_f = None
     ref_search_dir = ''
     if infile.endswith('.ref'):
-        reffile_f = find(infile)
+        reffile_f = find(infile, extra_search_dirs)
         if reffile_f:
             ref_search_dir = dirname(reffile_f)
             prefix = get_prefix(basename(reffile_f))
@@ -172,11 +179,11 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
         skoolfile_f = infile
         prefix = 'program'
     else:
-        skoolfile_f = find(infile)
+        skoolfile_f = find(infile, extra_search_dirs)
         if skoolfile_f:
             ref_search_dir = dirname(skoolfile_f)
             prefix = get_prefix(basename(skoolfile_f))
-            reffile_f = find('{}.ref'.format(prefix), ref_search_dir)
+            reffile_f = find('{}.ref'.format(prefix), extra_search_dirs, ref_search_dir)
             if reffile_f:
                 ref_search_dir = dirname(reffile_f)
     if skoolfile_f is reffile_f is None:
@@ -194,12 +201,12 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
     config = ref_parser.get_dictionary('Config')
     for oreffile_f in reffiles:
         ref_parser.parse(oreffile_f)
-    add_lines(ref_parser, config_specs)
+    add_lines(ref_parser, options.config_specs)
     config.update(ref_parser.get_dictionary('Config'))
 
     if skoolfile_f is None:
         skoolfile = config.get('SkoolFile', '{}.skool'.format(prefix))
-        skoolfile_f = find(skoolfile, ref_search_dir)
+        skoolfile_f = find(skoolfile, extra_search_dirs, ref_search_dir)
         if skoolfile_f is None:
             raise SkoolKitError('{}: file not found'.format(normpath(skoolfile)))
 
@@ -222,8 +229,8 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
         fname = 'standard input'
     else:
         fname = skoolfile_f
-    skool_parser = clock(SkoolParser, 'Parsing {0}'.format(fname), skoolfile_f, case=case, base=base, html=True, create_labels=create_labels, asm_labels=asm_labels)
-    file_info = FileInfo(topdir, game_dir, new_images)
+    skool_parser = clock(SkoolParser, 'Parsing {}'.format(fname), skoolfile_f, case=case, base=options.base, html=True, create_labels=options.create_labels, asm_labels=options.asm_labels)
+    file_info = FileInfo(topdir, game_dir, options.new_images)
     html_writer = html_writer_class(skool_parser, ref_parser, file_info, case)
 
     # Check that the specified pages exist
@@ -233,9 +240,9 @@ def process_file(infile, topdir, files, case, base, pages, config_specs, new_ima
             raise SkoolKitError('Invalid page ID: {0}'.format(page_id))
     pages = pages or all_page_ids
 
-    write_disassembly(html_writer, files, ref_search_dir, pages, css_theme, single_css)
+    write_disassembly(html_writer, options.files, ref_search_dir, extra_search_dirs, pages, options.themes, options.single_css)
 
-def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_css):
+def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, css_themes, single_css):
     game_dir = html_writer.file_info.game_dir
     paths = html_writer.paths
     game_vars = html_writer.game_vars
@@ -247,15 +254,15 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_c
         os.makedirs(odir)
 
     # Copy CSS, JavaScript and font files if necessary
-    html_writer.set_style_sheet(copy_resources(search_dir, odir, game_vars.get('StyleSheet'), paths.get('StyleSheetPath', ''), css_theme, '.css', single_css))
+    html_writer.set_style_sheet(copy_resources(search_dir, extra_search_dirs, odir, game_vars.get('StyleSheet'), paths.get('StyleSheetPath', ''), css_themes, '.css', single_css))
     js_path = paths.get('JavaScriptPath', '')
-    copy_resources(search_dir, odir, game_vars.get('JavaScript'), js_path)
-    copy_resources(search_dir, odir, game_vars.get('Font'), paths.get('FontPath', ''))
+    copy_resources(search_dir, extra_search_dirs, odir, game_vars.get('JavaScript'), js_path)
+    copy_resources(search_dir, extra_search_dirs, odir, game_vars.get('Font'), paths.get('FontPath', ''))
 
     # Copy resources named in the [Resources] section
     resources = html_writer.ref_parser.get_dictionary('Resources')
     for f, dest_dir in resources.items():
-        fname = find(f, search_dir)
+        fname = find(f, extra_search_dirs, search_dir)
         if not fname:
             raise SkoolKitError('Cannot copy resource "{}": file not found'.format(normpath(f)))
         copy_resource(fname, odir, dest_dir)
@@ -273,7 +280,7 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_c
     if 'P' in files:
         for page_id in pages:
             page_details = html_writer.pages[page_id]
-            copy_resources(search_dir, odir, page_details.get('JavaScript'), js_path, indent=2)
+            copy_resources(search_dir, extra_search_dirs, odir, page_details.get('JavaScript'), js_path, indent=2)
             clock(html_writer.write_page, '  Writing {}'.format(normpath(game_dir, paths[page_id])), page_id)
 
     # Write other files
@@ -292,7 +299,7 @@ def write_disassembly(html_writer, files, search_dir, pages, css_theme, single_c
     if 'o' in files:
         mode = html_writer.parser.mode
         for code_id, code in html_writer.other_code:
-            skoolfile = find(code['Source'], search_dir)
+            skoolfile = find(code['Source'], extra_search_dirs, search_dir)
             skool2_parser = clock(html_writer.parser.clone, '  Parsing {0}'.format(skoolfile), skoolfile)
             html_writer2 = html_writer.clone(skool2_parser, code_id)
             map_name = code['IndexPageId']
@@ -316,7 +323,7 @@ def run(files, options):
             os.makedirs(topdir)
 
     for infile in files:
-        process_file(infile, topdir, options.files, options.case, options.base, options.pages, options.config_specs, options.new_images, options.themes, options.create_labels, options.asm_labels, options.single_css)
+        process_file(infile, topdir, options)
 
 def main(args):
     global verbose, show_timings
@@ -365,6 +372,9 @@ def main(args):
                        help="Show the entire default ref file and exit")
     group.add_argument('-s', '--search-dirs', dest='search_dirs', action='store_true',
                        help="Show the locations skool2html.py searches for resources")
+    group.add_argument('-S', '--search', dest='search', metavar='DIR', action='append',
+                       help="Add this directory to the resource search path; this\n"
+                            "option may be used multiple times")
     group.add_argument('-t', '--time', dest='show_timings', action='store_true',
                        help="Show timings")
     group.add_argument('-T', '--theme', dest='themes', metavar='THEME', action='append',
