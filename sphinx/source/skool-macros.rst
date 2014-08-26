@@ -983,7 +983,7 @@ columns and rightmost two columns of pixels removed.
 
 Masks
 -----
-The ``#UDG`` and ``#UDGARRAY`` macros accept a ``mask`` parameter that
+The :ref:`UDG` and :ref:`UDGARRAY` macros accept a ``mask`` parameter that
 determines what kind of mask to apply to each UDG. The supported values are:
 
 * ``0`` - no mask
@@ -1019,9 +1019,11 @@ U  M  Result
 1  1  1 (ink)
 =  =  ===============
 
-By default, transparent bits in a masked image are rendered in bright green
+By default, transparent bits in masked images are rendered in bright green
 (#00fe00); this colour can be changed by modifying the ``TRANSPARENT``
-parameter in the :ref:`ref-Colours` section.
+parameter in the :ref:`ref-Colours` section. To make the transparent bits in
+masked images actually transparent, set ``GIFTransparency=1`` or ``PNGAlpha=0``
+in the :ref:`ref-ImageWriter` section.
 
 Snapshot macros
 ^^^^^^^^^^^^^^^
