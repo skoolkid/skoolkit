@@ -159,7 +159,7 @@ EntryTypes=t
 
 SECTIONS['MemoryMap:UnusedMap'] = """
 ; EntryDescriptions=0
-EntryTypes=suz
+EntryTypes=su
 ; Intro=
 LengthColumn=1
 PageByteColumns=1
