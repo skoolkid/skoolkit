@@ -48,7 +48,11 @@ def run(skoolfile, options, parser_mode, writer_mode):
 
     # Create the parser
     case, base, asm_mode, warn, fix_mode, create_labels = parser_mode
-    parser = clock('Parsed {0}'.format(skoolfile), SkoolParser, skoolfile, case=case, base=base, asm_mode=asm_mode, warnings=warn, fix_mode=fix_mode, create_labels=create_labels)
+    if skoolfile == '-':
+        fname = 'stdin'
+    else:
+        fname = skoolfile
+    parser = clock('Parsed {}'.format(fname), SkoolParser, skoolfile, case=case, base=base, asm_mode=asm_mode, warnings=warn, fix_mode=fix_mode, create_labels=create_labels)
 
     properties = {}
     if options.crlf:

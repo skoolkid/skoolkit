@@ -108,6 +108,16 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(asm[17], '  RET')      # No @ssub
         self.assertEqual(asm[21], '  LD A,0')   # @rsub-
 
+    def test_parse_stdin(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Do nothing',
+            'c60000 RET'
+        ))
+        self.write_stdin(skool)
+        output, error = self.run_skool2asm('-', err_lines=True)
+        self.assertEqual(error[0][:12], 'Parsed stdin')
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_skool2asm(option, err_lines=True, catch_exit=0)
