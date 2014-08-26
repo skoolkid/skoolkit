@@ -386,31 +386,31 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 1.0.7   | Added support for block titles, block descriptions, register      |
-|         | values, mid-block comments, block end comments, sub-block types   |
-|         | and instruction-level comments                                    |
-+---------+-------------------------------------------------------------------+
-| 2.0.6   | Added support for hexadecimal numbers                             |
-+---------+-------------------------------------------------------------------+
-| 2.1     | Added support for DEFB statement lengths                          |
-+---------+-------------------------------------------------------------------+
-| 2.1.1   | Added the ``M`` directive                                         |
-+---------+-------------------------------------------------------------------+
-| 2.1.2   | Added support for DEFM, DEFS and DEFW statement lengths           |
-+---------+-------------------------------------------------------------------+
-| 2.2     | Added support for the ``*`` notation in DEFB, DEFM, DEFS and DEFW |
-|         | statement length lists                                            |
-+---------+-------------------------------------------------------------------+
-| 2.4     | Added support for non-block ASM directives                        |
-+---------+-------------------------------------------------------------------+
-| 3.1.4   | Added support for DEFB and DEFM statements that contain both      |
-|         | strings and bytes                                                 |
-+---------+-------------------------------------------------------------------+
-| 3.6     | Added support for preserving blank comments that span two or more |
-|         | instructions                                                      |
-+---------+-------------------------------------------------------------------+
 | 3.7     | Added support for binary numbers; added support for specifying    |
 |         | the base of numeric values in DEFB, DEFM, DEFS and DEFW           |
 |         | statements; added the ``s`` and ``S`` directives and support for  |
 |         | DEFS statements with non-zero byte values                         |
++---------+-------------------------------------------------------------------+
+| 3.6     | Added support for preserving blank comments that span two or more |
+|         | instructions                                                      |
++---------+-------------------------------------------------------------------+
+| 3.1.4   | Added support for DEFB and DEFM statements that contain both      |
+|         | strings and bytes                                                 |
++---------+-------------------------------------------------------------------+
+| 2.4     | Added support for non-block ASM directives                        |
++---------+-------------------------------------------------------------------+
+| 2.2     | Added support for the ``*`` notation in DEFB, DEFM, DEFS and DEFW |
+|         | statement length lists                                            |
++---------+-------------------------------------------------------------------+
+| 2.1.2   | Added support for DEFM, DEFS and DEFW statement lengths           |
++---------+-------------------------------------------------------------------+
+| 2.1.1   | Added the ``M`` directive                                         |
++---------+-------------------------------------------------------------------+
+| 2.1     | Added support for DEFB statement lengths                          |
++---------+-------------------------------------------------------------------+
+| 2.0.6   | Added support for hexadecimal numbers                             |
++---------+-------------------------------------------------------------------+
+| 1.0.7   | Added support for block titles, block descriptions, register      |
+|         | values, mid-block comments, block end comments, sub-block types   |
+|         | and instruction-level comments                                    |
 +---------+-------------------------------------------------------------------+

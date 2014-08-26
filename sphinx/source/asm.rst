@@ -617,13 +617,13 @@ This ``@set`` directive sets the bullet character to '+'.
 +---------+---------------------------------------------------------------+
 | Version | Changes                                                       |
 +=========+===============================================================+
-| 3.2     | New                                                           |
+| 3.4     | Added the `handle-unsupported-macros` and                     |
+|         | `wrap-column-width-min` properties                            |
 +---------+---------------------------------------------------------------+
 | 3.3.1   | Added the `comment-width-min`, `indent`, `instruction-width`, |
 |         | `label-colons`, `line-width` and `warnings` properties        |
 +---------+---------------------------------------------------------------+
-| 3.4     | Added the `handle-unsupported-macros` and                     |
-|         | `wrap-column-width-min` properties                            |
+| 3.2     | New                                                           |
 +---------+---------------------------------------------------------------+
 
 .. _ssub:
@@ -685,8 +685,8 @@ documentation on :ref:`extending SkoolKit <extendingSkoolKit>`.
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
-| 3.1     | New                                                             |
-+---------+-----------------------------------------------------------------+
 | 3.3.1   | Added support for specifying a module outside the module search |
 |         | path                                                            |
++---------+-----------------------------------------------------------------+
+| 3.1     | New                                                             |
 +---------+-----------------------------------------------------------------+
