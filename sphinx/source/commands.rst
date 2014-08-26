@@ -93,6 +93,8 @@ assembler (see :ref:`supportedAssemblers`). For example::
     -u, --upper           Write the disassembly in upper case
     -V, --version         Show SkoolKit version number and exit
     -w, --no-warnings     Suppress warnings
+    -W CLASS, --writer CLASS
+                          Specify the ASM writer class to use
 
 See :ref:`asmModesAndDirectives` for a description of the ``@ssub`` and
 ``@rsub`` substitution modes, and the ``@ofix``, ``@bfix`` and ``@rfix`` bugfix
@@ -108,6 +110,8 @@ modes.
 | 2.2.2   | Added the ability to read a `skool` file from standard input |
 +---------+--------------------------------------------------------------+
 | 3.4     | Added the ``-V`` and ``-p`` options and the long options     |
++---------+--------------------------------------------------------------+
+| 4.1     | Added the ``--writer`` option                                |
 +---------+--------------------------------------------------------------+
 
 .. _skool2ctl.py:

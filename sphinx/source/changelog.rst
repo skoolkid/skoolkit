@@ -7,6 +7,8 @@ Changelog
   the resource search path)
 * Added the ``--writer`` option to :ref:`skool2html.py` (for specifying the
   HTML writer class to use)
+* Added the ``--writer`` option to :ref:`skool2asm.py` (for specifying the
+  ASM writer class to use)
 * Added the ``LinkInternalOperands`` parameter to the :ref:`ref-Game` section
   (for specifying whether to hyperlink instruction operands that refer to an
   address in the same entry)

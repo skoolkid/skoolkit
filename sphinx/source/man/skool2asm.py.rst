@@ -70,6 +70,10 @@ OPTIONS
 -w, --no-warnings
   Suppress warnings.
 
+-W, --writer `CLASS`
+  Specify the ASM writer class to use; this will override any @writer directive
+  in the skool file.
+
 EXAMPLES
 ========
 1. Convert ``game.skool`` into an ASM file named ``game.asm``:

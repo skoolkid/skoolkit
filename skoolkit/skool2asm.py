@@ -42,14 +42,21 @@ def clock(prefix, operation, *args, **kwargs):
     notify('{0} ({1:0.2f}s)'.format(prefix, stop - go))
     return result
 
-def run(skoolfile, be_quiet, properties, parser_mode, writer_mode):
+def run(skoolfile, options, parser_mode, writer_mode):
     global quiet
-    quiet = be_quiet
+    quiet = options.quiet
 
     # Create the parser
     case, base, asm_mode, warn, fix_mode, create_labels = parser_mode
     parser = clock('Parsed {0}'.format(skoolfile), SkoolParser, skoolfile, case=case, base=base, asm_mode=asm_mode, warnings=warn, fix_mode=fix_mode, create_labels=create_labels)
 
+    properties = {}
+    if options.crlf:
+        properties[CRLF] = '1'
+    if options.inst_width is not None:
+        properties[INSTRUCTION_WIDTH] = options.inst_width
+    if options.tabs:
+        properties[TAB] = '1'
     writer_properties = {}
     writer_properties.update(parser.properties)
     writer_properties.update(properties)
@@ -64,7 +71,7 @@ def run(skoolfile, be_quiet, properties, parser_mode, writer_mode):
         instr_width = DEF_INSTR_WIDTH
 
     # Write the ASM file
-    cls_name = parser.asm_writer_class
+    cls_name = options.writer or parser.asm_writer_class
     if cls_name:
         asm_writer_class = get_class(cls_name)
         notify('Using ASM writer {0}'.format(cls_name))
@@ -117,19 +124,14 @@ def main(args):
                        help='Show SkoolKit version number and exit')
     group.add_argument('-w', '--no-warnings', dest='warn', action='store_false',
                        help="Suppress warnings")
+    group.add_argument('-W', '--writer', dest='writer', metavar='CLASS',
+                       help="Specify the ASM writer class to use")
 
     namespace, unknown_args = parser.parse_known_args(args)
     if namespace.package_dir:
         show_package_dir()
     if unknown_args or namespace.skoolfile is None:
         parser.exit(2, parser.format_help())
-    properties = {}
-    if namespace.crlf:
-        properties[CRLF] = '1'
-    if namespace.inst_width is not None:
-        properties[INSTRUCTION_WIDTH] = namespace.inst_width
-    if namespace.tabs:
-        properties[TAB] = '1'
     parser_mode = (namespace.case, namespace.base, namespace.asm_mode, namespace.warn, namespace.fix_mode, namespace.create_labels)
     writer_mode = (namespace.case == CASE_LOWER, namespace.warn)
-    run(namespace.skoolfile, namespace.quiet, properties, parser_mode, writer_mode)
+    run(namespace.skoolfile, namespace, parser_mode, writer_mode)

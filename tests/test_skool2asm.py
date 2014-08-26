@@ -22,17 +22,20 @@ class Skool2AsmTest(SkoolKitTestCase):
     def test_default_option_values(self):
         self.mock(skool2asm, 'run', mock_run)
         skool2asm.main(('test.skool',))
-        fname, be_quiet, properties, parser_mode, writer_mode = run_args
+        fname, options, parser_mode, writer_mode = run_args
         self.assertEqual(fname, 'test.skool')
         case = base = None
         asm_mode = 1
         warn = True
         fix_mode = 0
         create_labels = False
+        self.assertFalse(options.crlf)
+        self.assertIsNone(options.inst_width)
+        self.assertFalse(options.quiet)
+        self.assertFalse(options.tabs)
+        self.assertIsNone(options.writer)
         self.assertEqual(parser_mode, (case, base, asm_mode, warn, fix_mode, create_labels))
-        self.assertTrue(len(properties) == 0)
         self.assertEqual(writer_mode, (False, warn))
-        self.assertFalse(be_quiet)
 
     def test_no_arguments(self):
         output, error = self.run_skool2asm('-x', catch_exit=2)
@@ -502,6 +505,28 @@ class Skool2AsmTest(SkoolKitTestCase):
         module_name = os.path.basename(module)[:-3]
         writer = '{0}:{1}.TestAsmWriter'.format(module_path, module_name)
         asm = self.get_asm(skool=skool.format(writer))
+        self.assertEqual(asm[0], message)
+
+    def test_option_W(self):
+        skool = '\n'.join((
+            '; @start',
+            '; @writer=SomeWriterThatWillBeOverridden',
+            '; Begin',
+            'c32768 RET',
+        ))
+        mod = '\n'.join((
+            'from skoolkit.skoolasm import AsmWriter',
+            '',
+            'class TestAsmWriter(AsmWriter):',
+            '    def write(self):',
+            "        self.write_line('{}')",
+        ))
+        message = 'Testing the -W option'
+        module = self.write_text_file(mod.format(message), suffix='.py')
+        module_path = os.path.dirname(module)
+        module_name = os.path.basename(module)[:-3]
+        writer = '{}:{}.TestAsmWriter'.format(module_path, module_name)
+        asm = self.get_asm('-W {}'.format(writer), skool)
         self.assertEqual(asm[0], message)
 
     def test_tab_property(self):
