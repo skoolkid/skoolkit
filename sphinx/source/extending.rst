@@ -17,7 +17,7 @@ files were written.
 
 One way to solve these problems is to add custom methods that could be called
 by a :ref:`call` macro. But where to add the methods? SkoolKit's core
-HTML-writing and ASM-writing classes are skoolkit.skoolhtml.HtmlWriter and
+HTML writer and ASM writer classes are skoolkit.skoolhtml.HtmlWriter and
 skoolkit.skoolasm.AsmWriter, so you could add the methods to those classes. But
 a better way is to subclass HtmlWriter and AsmWriter in a separate extension
 module, and add the methods there; then that extension module can be easily
@@ -87,6 +87,28 @@ parameter thus::
 and the ``@writer`` directive thus::
 
   ; @writer=~/.skoolkit:game.GameAsmWriter
+
+The HTML writer or ASM writer class can also be specified on the command line
+by using the ``-W``/``--writer`` option of :ref:`skool2html.py` or
+:ref:`skool2asm.py`. For example::
+
+  $ skool2html.py -W ~/.skoolkit:game.GameHtmlWriter game.skool
+
+Specifying the writer class this way will override any ``HtmlWriterClass``
+parameter in the `ref` file or ``@writer`` directive in the `skool` file.
+
+If you intend to distribute your extension module, and you want it to work
+however it ends up being used - as a module in the `skoolkit` package
+directory, or as a standalone module - you can use the following technique to
+import AsmWriter and HtmlWriter::
+
+  # Module that works both standalone and in the skoolkit package directory
+  try:
+      from .skoolhtml import HtmlWriter
+      from .skoolasm import AsmWriter
+  except (ValueError, SystemError, ImportError):
+      from skoolkit.skoolhtml import HtmlWriter
+      from skoolkit.skoolasm import AsmWriter
 
 #CALL methods
 -------------
