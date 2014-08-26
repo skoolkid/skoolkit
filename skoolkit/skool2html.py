@@ -167,6 +167,7 @@ def process_file(infile, topdir, options):
     extra_search_dirs = options.search
     case = options.case
     pages = options.pages
+    stdin = False
 
     skoolfile_f = reffile_f = None
     ref_search_dir = ''
@@ -176,6 +177,7 @@ def process_file(infile, topdir, options):
             ref_search_dir = dirname(reffile_f)
             prefix = get_prefix(basename(reffile_f))
     elif infile == '-':
+        stdin = True
         skoolfile_f = infile
         prefix = 'program'
     else:
@@ -211,22 +213,23 @@ def process_file(infile, topdir, options):
             raise SkoolKitError('{}: file not found'.format(normpath(skoolfile)))
 
     skoolfile_n = normpath(skoolfile_f)
-    notify('Using skool file: {}'.format(skoolfile_n))
+    if not stdin:
+        notify('Using skool file: {}'.format(skoolfile_n))
     if reffiles:
         if len(reffiles) > 1:
             suffix = 's'
         else:
             suffix = ''
         notify('Using ref file{0}: {1}'.format(suffix, ', '.join(reffiles)))
-    else:
+    elif not stdin:
         notify('Found no ref file for {}'.format(skoolfile_n))
 
     html_writer_class = get_class(config['HtmlWriterClass'])
     game_dir = config.get('GameDir', prefix)
 
     # Parse the skool file and initialise the writer
-    if skoolfile_f == '-':
-        fname = 'standard input'
+    if stdin:
+        fname = 'skool file from standard input'
     else:
         fname = skoolfile_f
     skool_parser = clock(SkoolParser, 'Parsing {}'.format(fname), skoolfile_f, case=case, base=options.base, html=True, create_labels=options.create_labels, asm_labels=options.asm_labels)

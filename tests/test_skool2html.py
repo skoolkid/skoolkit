@@ -296,10 +296,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
         game_dir = 'program'
         output, error = self.run_skool2html('{0} -d {1} -'.format(self._css_c(), self.odir))
         self.assertEqual(len(error), 0)
-        self.assertEqual(output[1], 'Using skool file: -')
-        self.assertEqual(output[2], 'Found no ref file for -')
-        self.assertEqual(output[3], 'Parsing standard input')
-        self.assertEqual(output[4], 'Creating directory {0}/{1}'.format(self.odir, game_dir))
+        self.assertEqual(output[1], 'Parsing skool file from standard input')
+        self.assertEqual(output[2], 'Creating directory {}/{}'.format(self.odir, game_dir))
         self.assertTrue(isfile(join(self.odir, game_dir, 'asm', '30000.html')))
 
     def test_output_dir_with_trailing_separator(self):
