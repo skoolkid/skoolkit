@@ -1260,7 +1260,7 @@ class HtmlWriter:
             container_address = container.address
         else:
             container_address = address
-        if address != container_address:
+        if not anchor and address != container_address:
             anchor = '#{}'.format(address)
         asm_label = self.parser.get_asm_label(address)
         ref_file = FileInfo.asm_relpath(cwd, container_address, code_path)

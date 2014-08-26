@@ -1267,6 +1267,10 @@ class SkoolMacroTest(HtmlWriterTestCase):
         output = writer.expand('#R24576', ASMDIR)
         self._assert_link_equals(output, '24576.html', '24576')
 
+        # Explicit anchor
+        output = writer.expand('#R24576#foo', ASMDIR)
+        self._assert_link_equals(output, '24576.html#foo', '24576')
+
         # Link text
         link_text = 'Testing1'
         output = writer.expand('#R24576({0})'.format(link_text), ASMDIR)
@@ -1283,6 +1287,10 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # Entry point reference
         output = writer.expand('#R24580', ASMDIR)
         self._assert_link_equals(output, '24579.html#24580', '6004')
+
+        # Entry point reference with explicit anchor
+        output = writer.expand('#R24580#bar', ASMDIR)
+        self._assert_link_equals(output, '24579.html#bar', '6004')
 
         # Non-existent reference
         prefix = ERROR_PREFIX.format('R')
