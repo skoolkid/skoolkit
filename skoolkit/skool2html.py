@@ -392,6 +392,9 @@ def main(args):
                             "  d = Disassembly files   t = Trivia\n"
                             "  i = Disassembly index   y = Glossary\n"
                             "  m = Memory maps\n")
+    group.add_argument('-W', '--writer', dest='writer', metavar='CLASS',
+                       help="Specify the HTML writer class to use; shorthand for\n"
+                            "'--config Config/HtmlWriterClass=CLASS'")
 
     start = time.time()
     namespace, unknown_args = parser.parse_known_args(args)
@@ -407,6 +410,8 @@ def main(args):
         parser.exit(2, parser.format_help())
     verbose, show_timings = namespace.verbose, namespace.show_timings
     namespace.config_specs = namespace.config_specs or []
+    if namespace.writer:
+        namespace.config_specs.append('Config/HtmlWriterClass={}'.format(namespace.writer))
     if namespace.pages:
         namespace.pages = namespace.pages.split(',')
     else:

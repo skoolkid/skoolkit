@@ -764,6 +764,15 @@ class Skool2HtmlTest(SkoolKitTestCase):
             with self.assertRaisesRegexp(SkoolKitError, 'Malformed SectionName/Line spec: {0}'.format(sl_spec)):
                 self.run_skool2html('{} {} {}'.format(option, sl_spec, reffile))
 
+    def test_option_W(self):
+        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
+        writer_class = '{}.TestHtmlWriter'.format(__name__)
+        skoolfile = self.write_text_file(suffix='.skool')
+        for option in ('-W', '--writer'):
+            output, error = self.run_skool2html('{} {} {}'.format(option, writer_class, skoolfile))
+            self.assertEqual(error, '')
+            self.assertEqual(html_writer.__class__, TestHtmlWriter)
+
     def test_option_T(self):
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
         skoolfile = self.write_text_file(path='{0}.skool'.format(reffile[:-4]))

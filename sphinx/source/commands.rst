@@ -244,6 +244,9 @@ list::
                             d = Disassembly files   t = Trivia
                             i = Disassembly index   y = Glossary
                             m = Memory maps
+    -W CLASS, --writer CLASS
+                          Specify the HTML writer class to use; shorthand for
+                          '--config Config/HtmlWriterClass=CLASS'
 
 `skool2html.py` searches the following directories for `skool` files, `ref`
 files, CSS files, JavaScript files, font files, and files listed in the
@@ -314,7 +317,7 @@ will use the following CSS files, if they exist, in the order listed:
 +---------+-----------------------------------------------------------------+
 | 4.0     | Added the ``--ref-sections`` and ``--ref-file`` options         |
 +---------+-----------------------------------------------------------------+
-| 4.1     | Added the ``--search`` option                                   |
+| 4.1     | Added the ``--search`` and ``--writer`` options                 |
 +---------+-----------------------------------------------------------------+
 
 .. _skool2sft.py:

@@ -92,6 +92,10 @@ OPTIONS
   |   ``i`` = Disassembly index   ``y`` = Glossary
   |   ``m`` = Memory maps
 
+-W, --writer `CLASS`
+  Specify the HTML writer class to use; this option is shorthand for
+  ``--config Config/HtmlWriterClass=CLASS``.
+
 FILES
 =====
 ``skool2html.py`` searches the following directories for skool files, ref
