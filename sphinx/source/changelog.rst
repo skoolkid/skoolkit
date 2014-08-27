@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.1b1
+4.1rc
 -----
 * Added the ``--search`` option to :ref:`skool2html.py` (to add a directory to
   the resource search path)
