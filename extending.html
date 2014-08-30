@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &mdash; SkoolKit 4.0 documentation</title>
+    <title>Extending SkoolKit &mdash; SkoolKit 4.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '4.0',
+        VERSION:     '4.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.1 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -100,7 +100,7 @@ the ASM disassembly so that you (or others) can keep track of when your ASM
 files were written.</p>
 <p>One way to solve these problems is to add custom methods that could be called
 by a <a class="reference internal" href="skool-macros.html#call"><em>#CALL</em></a> macro. But where to add the methods? SkoolKit&#8217;s core
-HTML-writing and ASM-writing classes are skoolkit.skoolhtml.HtmlWriter and
+HTML writer and ASM writer classes are skoolkit.skoolhtml.HtmlWriter and
 skoolkit.skoolasm.AsmWriter, so you could add the methods to those classes. But
 a better way is to subclass HtmlWriter and AsmWriter in a separate extension
 module, and add the methods there; then that extension module can be easily
@@ -163,6 +163,26 @@ parameter thus:</p>
 </div>
 <p>and the <tt class="docutils literal"><span class="pre">&#64;writer</span></tt> directive thus:</p>
 <div class="highlight-python"><pre>; @writer=~/.skoolkit:game.GameAsmWriter</pre>
+</div>
+<p>The HTML writer or ASM writer class can also be specified on the command line
+by using the <tt class="docutils literal"><span class="pre">-W</span></tt>/<tt class="docutils literal"><span class="pre">--writer</span></tt> option of <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> or
+<a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>. For example:</p>
+<div class="highlight-python"><pre>$ skool2html.py -W ~/.skoolkit:game.GameHtmlWriter game.skool</pre>
+</div>
+<p>Specifying the writer class this way will override any <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt>
+parameter in the <cite>ref</cite> file or <tt class="docutils literal"><span class="pre">&#64;writer</span></tt> directive in the <cite>skool</cite> file.</p>
+<p>If you intend to distribute your extension module, and you want it to work
+however it ends up being used - as a module in the <cite>skoolkit</cite> package
+directory, or as a standalone module - you can use the following technique to
+import AsmWriter and HtmlWriter:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Module that works both standalone and in the skoolkit package directory</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
+    <span class="kn">from</span> <span class="nn">.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
+<span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">SystemError</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
+    <span class="kn">from</span> <span class="nn">skoolkit.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
+</pre></div>
 </div>
 </div>
 <div class="section" id="call-methods">
@@ -892,7 +912,7 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

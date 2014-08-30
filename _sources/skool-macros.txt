@@ -115,9 +115,9 @@ the documentation on :ref:`extending SkoolKit <extendingSkoolKit>`.
 +---------+----------------------------+
 | Version | Changes                    |
 +=========+============================+
-| 2.1     | New                        |
-+---------+----------------------------+
 | 3.1     | Added support for ASM mode |
++---------+----------------------------+
+| 2.1     | New                        |
 +---------+----------------------------+
 
 .. _CHR:
@@ -300,10 +300,10 @@ In ASM mode, this instance of the ``#LINK`` macro expands to 'glossary'.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 2.1     | New                                                              |
-+---------+------------------------------------------------------------------+
 | 3.1.3   | If left blank, the link text defaults to the page's link text in |
 |         | HTML mode                                                        |
++---------+------------------------------------------------------------------+
+| 2.1     | New                                                              |
 +---------+------------------------------------------------------------------+
 
 .. _LIST:
@@ -418,11 +418,11 @@ routine at 25820 (or simply ``25820`` if that routine has no label).
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 2.0     | Added support for the ``@code`` notation                         |
-+---------+------------------------------------------------------------------+
 | 3.5     | Added the ability to resolve (in HTML mode) the address of an    |
 |         | entry point in another disassembly when an appropriate           |
 |         | :ref:`remote entry <rEntry>` is defined                          |
++---------+------------------------------------------------------------------+
+| 2.0     | Added support for the ``@code`` notation                         |
 +---------+------------------------------------------------------------------+
 
 .. _m-REFS:
@@ -449,9 +449,9 @@ See also :ref:`EREFS`.
 +---------+--------------------------------+
 | Version | Changes                        |
 +=========+================================+
-| 1.0.6   | Added the ``prefix`` parameter |
-+---------+--------------------------------+
 | 3.1     | Added support for ASM mode     |
++---------+--------------------------------+
+| 1.0.6   | Added the ``prefix`` parameter |
 +---------+--------------------------------+
 
 .. _REG:
@@ -671,14 +671,14 @@ starts at 49152.
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
-| 2.0.5   | Added the ``fname`` parameter and support for regular 8x8 fonts |
-+---------+-----------------------------------------------------------------+
-| 3.0     | Added image-cropping capabilities                               |
+| 4.0     | Added support for keyword arguments                             |
 +---------+-----------------------------------------------------------------+
 | 3.6     | Added the ``text`` parameter, and made the ``chars`` parameter  |
 |         | optional                                                        |
 +---------+-----------------------------------------------------------------+
-| 4.0     | Added support for keyword arguments                             |
+| 3.0     | Added image-cropping capabilities                               |
++---------+-----------------------------------------------------------------+
+| 2.0.5   | Added the ``fname`` parameter and support for regular 8x8 fonts |
 +---------+-----------------------------------------------------------------+
 
 .. _SCR:
@@ -721,13 +721,13 @@ For example::
 +---------+---------------------------------------------------------------+
 | Version | Changes                                                       |
 +=========+===============================================================+
-| 2.0.5   | Added the ``scale``, ``x``, ``y``, ``w``, ``h`` and ``fname`` |
-|         | parameters                                                    |
+| 4.0     | Added support for keyword arguments                           |
 +---------+---------------------------------------------------------------+
 | 3.0     | Added image-cropping capabilities and the ``df`` and ``af``   |
 |         | parameters                                                    |
 +---------+---------------------------------------------------------------+
-| 4.0     | Added support for keyword arguments                           |
+| 2.0.5   | Added the ``scale``, ``x``, ``y``, ``w``, ``h`` and ``fname`` |
+|         | parameters                                                    |
 +---------+---------------------------------------------------------------+
 
 .. _UDG:
@@ -784,20 +784,20 @@ or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
-| 2.0.5   | Added the ``fname`` parameter                                |
-+---------+--------------------------------------------------------------+
-| 2.1     | Added support for masks                                      |
-+---------+--------------------------------------------------------------+
-| 2.3.1   | Added the ``flip`` parameter                                 |
-+---------+--------------------------------------------------------------+
-| 2.4     | Added the ``rotate`` parameter                               |
-+---------+--------------------------------------------------------------+
-| 3.0     | Added image-cropping capabilities                            |
+| 4.0     | Added the ``mask`` parameter and support for AND-OR masking; |
+|         | added support for keyword arguments                          |
 +---------+--------------------------------------------------------------+
 | 3.1.2   | Made the ``attr`` parameter optional                         |
 +---------+--------------------------------------------------------------+
-| 4.0     | Added the ``mask`` parameter and support for AND-OR masking; |
-|         | added support for keyword arguments                          |
+| 3.0     | Added image-cropping capabilities                            |
++---------+--------------------------------------------------------------+
+| 2.4     | Added the ``rotate`` parameter                               |
++---------+--------------------------------------------------------------+
+| 2.3.1   | Added the ``flip`` parameter                                 |
++---------+--------------------------------------------------------------+
+| 2.1     | Added support for masks                                      |
++---------+--------------------------------------------------------------+
+| 2.0.5   | Added the ``fname`` parameter                                |
 +---------+--------------------------------------------------------------+
 
 .. _UDGARRAY:
@@ -890,24 +890,24 @@ named `base_sprite.png`.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 2.0.5   | New                                                               |
-+---------+-------------------------------------------------------------------+
-| 2.2.5   | Added support for masks                                           |
-+---------+-------------------------------------------------------------------+
-| 2.3.1   | Added the ``flip`` parameter                                      |
-+---------+-------------------------------------------------------------------+
-| 2.4     | Added the ``rotate`` parameter                                    |
-+---------+-------------------------------------------------------------------+
-| 3.0     | Added image-cropping capabilities                                 |
-+---------+-------------------------------------------------------------------+
-| 3.1.1   | Added support for UDG address ranges with horizontal and vertical |
-|         | steps                                                             |
+| 4.0     | Added the ``mask`` parameter and support for AND-OR masking;      |
+|         | added support for keyword arguments                               |
 +---------+-------------------------------------------------------------------+
 | 3.6     | Added support for creating an animated image from an arbitrary    |
 |         | sequence of frames                                                |
 +---------+-------------------------------------------------------------------+
-| 4.0     | Added the ``mask`` parameter and support for AND-OR masking;      |
-|         | added support for keyword arguments                               |
+| 3.1.1   | Added support for UDG address ranges with horizontal and vertical |
+|         | steps                                                             |
++---------+-------------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities                                 |
++---------+-------------------------------------------------------------------+
+| 2.4     | Added the ``rotate`` parameter                                    |
++---------+-------------------------------------------------------------------+
+| 2.3.1   | Added the ``flip`` parameter                                      |
++---------+-------------------------------------------------------------------+
+| 2.2.5   | Added support for masks                                           |
++---------+-------------------------------------------------------------------+
+| 2.0.5   | New                                                               |
 +---------+-------------------------------------------------------------------+
 
 Animation
@@ -983,7 +983,7 @@ columns and rightmost two columns of pixels removed.
 
 Masks
 -----
-The ``#UDG`` and ``#UDGARRAY`` macros accept a ``mask`` parameter that
+The :ref:`UDG` and :ref:`UDGARRAY` macros accept a ``mask`` parameter that
 determines what kind of mask to apply to each UDG. The supported values are:
 
 * ``0`` - no mask
@@ -1019,9 +1019,11 @@ U  M  Result
 1  1  1 (ink)
 =  =  ===============
 
-By default, transparent bits in a masked image are rendered in bright green
+By default, transparent bits in masked images are rendered in bright green
 (#00fe00); this colour can be changed by modifying the ``TRANSPARENT``
-parameter in the :ref:`ref-Colours` section.
+parameter in the :ref:`ref-Colours` section. To make the transparent bits in
+masked images actually transparent, set ``GIFTransparency=1`` or ``PNGAlpha=0``
+in the :ref:`ref-ImageWriter` section.
 
 Snapshot macros
 ^^^^^^^^^^^^^^^
@@ -1064,9 +1066,9 @@ This instance of the ``#POKES`` macro does ``POKE 32772,254`` and
 +---------+--------------------------------------+
 | Version | Changes                              |
 +=========+======================================+
-| 2.3.1   | Added support for multiple addresses |
-+---------+--------------------------------------+
 | 3.1     | Added support for ASM mode           |
++---------+--------------------------------------+
+| 2.3.1   | Added support for multiple addresses |
 +---------+--------------------------------------+
 
 .. _POPS:

@@ -48,11 +48,11 @@ used to store essential code or data.
 +---------+----------------------------------------------+
 | Version | Changes                                      |
 +=========+==============================================+
-| 1.3.1   | New                                          |
+| 3.4     | Added the ``-V`` option and the long options |
 +---------+----------------------------------------------+
 | 2.2.5   | Added the ``-p`` option                      |
 +---------+----------------------------------------------+
-| 3.4     | Added the ``-V`` option and the long options |
+| 1.3.1   | New                                          |
 +---------+----------------------------------------------+
 
 .. _skool2asm.py:
@@ -93,6 +93,8 @@ assembler (see :ref:`supportedAssemblers`). For example::
     -u, --upper           Write the disassembly in upper case
     -V, --version         Show SkoolKit version number and exit
     -w, --no-warnings     Suppress warnings
+    -W CLASS, --writer CLASS
+                          Specify the ASM writer class to use
 
 See :ref:`asmModesAndDirectives` for a description of the ``@ssub`` and
 ``@rsub`` substitution modes, and the ``@ofix``, ``@bfix`` and ``@rfix`` bugfix
@@ -101,13 +103,15 @@ modes.
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
-| 1.1     | Added the ``-c`` option                                      |
+| 4.1     | Added the ``--writer`` option                                |
 +---------+--------------------------------------------------------------+
-| 2.1.1   | Added the ``-u``, ``-D`` and ``-H`` options                  |
+| 3.4     | Added the ``-V`` and ``-p`` options and the long options     |
 +---------+--------------------------------------------------------------+
 | 2.2.2   | Added the ability to read a `skool` file from standard input |
 +---------+--------------------------------------------------------------+
-| 3.4     | Added the ``-V`` and ``-p`` options and the long options     |
+| 2.1.1   | Added the ``-u``, ``-D`` and ``-H`` options                  |
++---------+--------------------------------------------------------------+
+| 1.1     | Added the ``-c`` option                                      |
 +---------+--------------------------------------------------------------+
 
 .. _skool2ctl.py:
@@ -153,18 +157,18 @@ data definition entries and ASM block directives), consider using
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
-| 1.1     | New                                                          |
+| 3.7     | Added the ``--preserve-base`` option                         |
 +---------+--------------------------------------------------------------+
-| 2.0.6   | Added the ``-h`` option                                      |
-+---------+--------------------------------------------------------------+
-| 2.2.2   | Added the ability to read a `skool` file from standard input |
+| 3.4     | Added the ``-V`` option and the long options                 |
 +---------+--------------------------------------------------------------+
 | 2.4     | Added the ``-a`` option and the ability to preserve some ASM |
 |         | directives                                                   |
 +---------+--------------------------------------------------------------+
-| 3.4     | Added the ``-V`` option and the long options                 |
+| 2.2.2   | Added the ability to read a `skool` file from standard input |
 +---------+--------------------------------------------------------------+
-| 3.7     | Added the ``--preserve-base`` option                         |
+| 2.0.6   | Added the ``-h`` option                                      |
++---------+--------------------------------------------------------------+
+| 1.1     | New                                                          |
 +---------+--------------------------------------------------------------+
 
 .. _skool2html.py:
@@ -229,6 +233,8 @@ list::
                           PREFIX and exit
     -R, --ref-file        Show the entire default ref file and exit
     -s, --search-dirs     Show the locations skool2html.py searches for resources
+    -S DIR, --search DIR  Add this directory to the resource search path; this
+                          option may be used multiple times
     -t, --time            Show timings
     -T THEME, --theme THEME
                           Use this CSS theme; this option may be used multiple
@@ -242,6 +248,9 @@ list::
                             d = Disassembly files   t = Trivia
                             i = Disassembly index   y = Glossary
                             m = Memory maps
+    -W CLASS, --writer CLASS
+                          Specify the HTML writer class to use; shorthand for
+                          '--config Config/HtmlWriterClass=CLASS'
 
 `skool2html.py` searches the following directories for `skool` files, `ref`
 files, CSS files, JavaScript files, font files, and files listed in the
@@ -254,6 +263,7 @@ files, CSS files, JavaScript files, font files, and files listed in the
 * `~/.skoolkit`
 * `/usr/share/skoolkit`
 * `$PACKAGE_DIR/resources`
+* Any other directories specified by the ``-S``/``--search`` option
 
 where `$PACKAGE_DIR` is the directory in which the `skoolkit` package is
 installed (as shown by ``skool2html.py -p``). When you need a reminder of these
@@ -281,35 +291,37 @@ will use the following CSS files, if they exist, in the order listed:
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
-| 1.4     | Added the ``-V`` option                                         |
+| 4.1     | Added the ``--search`` and ``--writer`` options                 |
 +---------+-----------------------------------------------------------------+
-| 2.1     | Added the ``-o`` and ``-P`` options                             |
+| 4.0     | Added the ``--ref-sections`` and ``--ref-file`` options         |
 +---------+-----------------------------------------------------------------+
-| 2.1.1   | Added the ``-l``, ``-u``, ``-D`` and ``-H`` options             |
+| 3.6     | Added the ``--join-css`` and ``--search-dirs`` options          |
 +---------+-----------------------------------------------------------------+
-| 2.2     | No longer writes the Skool Daze and Back to Skool disassemblies |
-|         | by default; added the ``-d`` option                             |
+| 3.5     | Added support for multiple CSS themes                           |
 +---------+-----------------------------------------------------------------+
-| 2.2.2   | Added the ability to read a `skool` file from standard input    |
-+---------+-----------------------------------------------------------------+
-| 2.3.1   | Added support for reading multiple `ref` files per disassembly  |
-+---------+-----------------------------------------------------------------+
-| 3.0.2   | No longer shows timings by default; added the ``-t`` option     |
-+---------+-----------------------------------------------------------------+
-| 3.1     | Added the ``-c`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 3.2     | Added `~/.skoolkit` to the search path                          |
+| 3.4     | Added the ``-a`` and ``-C`` options and the long options        |
 +---------+-----------------------------------------------------------------+
 | 3.3.2   | Added `$PACKAGE_DIR/resources` to the search path; added the    |
 |         | ``-p`` and ``-T`` options                                       |
 +---------+-----------------------------------------------------------------+ 
-| 3.4     | Added the ``-a`` and ``-C`` options and the long options        |
+| 3.2     | Added `~/.skoolkit` to the search path                          |
 +---------+-----------------------------------------------------------------+
-| 3.5     | Added support for multiple CSS themes                           |
+| 3.1     | Added the ``-c`` option                                         |
 +---------+-----------------------------------------------------------------+
-| 3.6     | Added the ``--join-css`` and ``--search-dirs`` options          |
+| 3.0.2   | No longer shows timings by default; added the ``-t`` option     |
 +---------+-----------------------------------------------------------------+
-| 4.0     | Added the ``--ref-sections`` and ``--ref-file`` options         |
+| 2.3.1   | Added support for reading multiple `ref` files per disassembly  |
++---------+-----------------------------------------------------------------+
+| 2.2.2   | Added the ability to read a `skool` file from standard input    |
++---------+-----------------------------------------------------------------+
+| 2.2     | No longer writes the Skool Daze and Back to Skool disassemblies |
+|         | by default; added the ``-d`` option                             |
++---------+-----------------------------------------------------------------+
+| 2.1.1   | Added the ``-l``, ``-u``, ``-D`` and ``-H`` options             |
++---------+-----------------------------------------------------------------+
+| 2.1     | Added the ``-o`` and ``-P`` options                             |
++---------+-----------------------------------------------------------------+
+| 1.4     | Added the ``-V`` option                                         |
 +---------+-----------------------------------------------------------------+
 
 .. _skool2sft.py:
@@ -337,11 +349,11 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 +---------+----------------------------------------------+
 | Version | Changes                                      |
 +=========+==============================================+
-| 2.4     | New                                          |
+| 3.7     | Added the ``--preserve-base`` option         |
 +---------+----------------------------------------------+
 | 3.4     | Added the ``-V`` option and the long options |
 +---------+----------------------------------------------+
-| 3.7     | Added the ``--preserve-base`` option         |
+| 2.4     | New                                          |
 +---------+----------------------------------------------+
 
 .. _sna2skool.py:
@@ -419,31 +431,31 @@ formats.
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
-| 1.0.4   | Added the ``-g`` and ``-s`` options                             |
-+---------+-----------------------------------------------------------------+
-| 1.0.5   | Added the ``-t`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 2.0     | Added the ``-n``, ``-m`` and ``-z`` options                     |
-+---------+-----------------------------------------------------------------+
-| 2.0.1   | Added the ``-o``, ``-r`` and ``-l`` options, and the ability to |
-|         | read binary files                                               |
-+---------+-----------------------------------------------------------------+
-| 2.0.6   | Added the ``-h`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 2.1     | Added the ``-H`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 2.1.2   | Added the ``-L`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 2.4     | Added the ``-T`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 3.2     | Added the ``-p`` option, and the ability to read SZX snapshots  |
-|         | and 128K Z80 snapshots                                          |
+| 3.4     | Added the ``-V`` and ``-R`` options and the long options        |
 +---------+-----------------------------------------------------------------+
 | 3.3     | Added the ``-M`` option, along with support for code execution  |
 |         | maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the   |
 |         | ability to read 128K SNA snapshots                              |
 +---------+-----------------------------------------------------------------+
-| 3.4     | Added the ``-V`` and ``-R`` options and the long options        |
+| 3.2     | Added the ``-p`` option, and the ability to read SZX snapshots  |
+|         | and 128K Z80 snapshots                                          |
++---------+-----------------------------------------------------------------+
+| 2.4     | Added the ``-T`` option                                         |
++---------+-----------------------------------------------------------------+
+| 2.1.2   | Added the ``-L`` option                                         |
++---------+-----------------------------------------------------------------+
+| 2.1     | Added the ``-H`` option                                         |
++---------+-----------------------------------------------------------------+
+| 2.0.6   | Added the ``-h`` option                                         |
++---------+-----------------------------------------------------------------+
+| 2.0.1   | Added the ``-o``, ``-r`` and ``-l`` options, and the ability to |
+|         | read binary files                                               |
++---------+-----------------------------------------------------------------+
+| 2.0     | Added the ``-n``, ``-m`` and ``-z`` options                     |
++---------+-----------------------------------------------------------------+
+| 1.0.5   | Added the ``-t`` option                                         |
++---------+-----------------------------------------------------------------+
+| 1.0.4   | Added the ``-g`` and ``-s`` options                             |
 +---------+-----------------------------------------------------------------+
 
 .. _tap2sna.py:

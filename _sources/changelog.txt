@@ -1,6 +1,28 @@
 Changelog
 =========
 
+4.1 (2014-08-30)
+----------------
+* Added the ``--search`` option to :ref:`skool2html.py` (to add a directory to
+  the resource search path)
+* Added the ``--writer`` option to :ref:`skool2html.py` (for specifying the
+  HTML writer class to use)
+* Added the ``--writer`` option to :ref:`skool2asm.py` (for specifying the
+  ASM writer class to use)
+* Added the ``LinkInternalOperands`` parameter to the :ref:`ref-Game` section
+  (for specifying whether to hyperlink instruction operands that refer to an
+  address in the same entry)
+* Register sections in ``b``, ``g``, ``s``, ``t``, ``u`` and ``w`` blocks are
+  now included in the output of :ref:`skool2asm.py` and :ref:`skool2html.py`
+* Fixed how the address '0' is rendered in HTML output when converted to
+  decimal or hexadecimal
+* Fixed the bug that creates a broken hyperlink in a DEFW statement or LD
+  instruction that refers to the address of an ignored entry
+* Removed the Jet Set Willy disassembly from the SkoolKit distribution; it is
+  now being developed separately here_
+
+.. _here: https://github.com/skoolkid/jetsetwilly
+
 4.0 (2014-05-25)
 ----------------
 * Every HTML page is built from templates defined in :ref:`template` sections

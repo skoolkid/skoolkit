@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>What is SkoolKit? &mdash; SkoolKit 4.0 documentation</title>
+    <title>What is SkoolKit? &mdash; SkoolKit 4.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '4.0',
+        VERSION:     '4.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.1 documentation" href="index.html" />
     <link rel="next" title="Installing and using SkoolKit" href="usage.html" />
     <link rel="prev" title="SkoolKit manual" href="index.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="index.html" title="SkoolKit manual"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -103,19 +103,24 @@ developer- and assembler-friendly ASM version of the disassembly.</p>
 can be found on <a class="reference external" href="http://github.com/skoolkid/skoolkit">GitHub</a>.</p>
 <div class="section" id="features">
 <h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
-<p>Besides disassembling a Spectrum game into a list of Z80 instructions, SkoolKit
-can also:</p>
+<p>SkoolKit can:</p>
 <ul class="simple">
-<li>Build PNG or GIF images from graphic data in the game snapshot (using the
-<a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a>, <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a>, <a class="reference internal" href="skool-macros.html#font"><em>#FONT</em></a> and <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a> macros)</li>
-<li>Create hyperlinks between routines and data blocks that refer to each other
+<li>convert a TAP or TZX file into a &#8216;pristine&#8217; snapshot (using
+<a class="reference internal" href="commands.html#tap2sna-py"><em>tap2sna.py</em></a>)</li>
+<li>disassemble SNA, Z80 and SZX snapshots as well as raw memory files</li>
+<li>distinguish code from data by using a code execution map produced by an
+emulator</li>
+<li>build still and animated PNG/GIF images from graphic data in the game
+snapshot (using the <a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a>, <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a>, <a class="reference internal" href="skool-macros.html#font"><em>#FONT</em></a> and <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a>
+macros)</li>
+<li>create hyperlinks between routines and data blocks that refer to each other
 (by use of the <a class="reference internal" href="skool-macros.html#r"><em>#R</em></a> macro in annotations, and automatically in the
 operands of <tt class="docutils literal"><span class="pre">CALL</span></tt> and <tt class="docutils literal"><span class="pre">JP</span></tt> instructions)</li>
-<li>Neatly render lists of bugs, trivia and POKEs on separate pages (using
+<li>neatly render lists of bugs, trivia and POKEs on separate pages (using
 <a class="reference internal" href="ref-files.html#ref-bug"><em>[Bug:*:*]</em></a>, <a class="reference internal" href="ref-files.html#ref-fact"><em>[Fact:*:*]</em></a> and <a class="reference internal" href="ref-files.html#ref-poke"><em>[Poke:*:*]</em></a> sections in a <cite>ref</cite> file)</li>
-<li>Produce ASM files that include bugfixes declared in the <cite>skool</cite> file (with
+<li>produce ASM files that include bugfixes declared in the <cite>skool</cite> file (with
 <a class="reference internal" href="asm.html#ofix"><em>&#64;ofix</em></a>, <a class="reference internal" href="asm.html#bfix"><em>&#64;bfix</em></a> and other ASM directives)</li>
-<li>Produce TAP files from assembled code (using <a class="reference internal" href="commands.html#bin2tap-py"><em>bin2tap.py</em></a>)</li>
+<li>produce TAP files from assembled code (using <a class="reference internal" href="commands.html#bin2tap-py"><em>bin2tap.py</em></a>)</li>
 </ul>
 <p>For a demonstration of SkoolKit&#8217;s capabilities, take a look at the complete
 disassemblies of <a class="reference external" href="http://pyskool.ca/disassemblies/skool_daze/">Skool Daze</a>, <a class="reference external" href="http://pyskool.ca/disassemblies/back_to_skool/">Back to Skool</a> and <a class="reference external" href="http://pyskool.ca/disassemblies/contact_sam_cruise/">Contact Sam Cruise</a>. The
@@ -153,7 +158,7 @@ licence.</p>
         <li class="right" >
           <a href="index.html" title="SkoolKit manual"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

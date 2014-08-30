@@ -17,19 +17,24 @@ can be found on `GitHub <http://github.com/skoolkid/skoolkit>`__.
 
 Features
 --------
-Besides disassembling a Spectrum game into a list of Z80 instructions, SkoolKit
-can also:
+SkoolKit can:
 
-* Build PNG or GIF images from graphic data in the game snapshot (using the
-  :ref:`UDG`, :ref:`UDGARRAY`, :ref:`FONT` and :ref:`SCR` macros)
-* Create hyperlinks between routines and data blocks that refer to each other
+* convert a TAP or TZX file into a 'pristine' snapshot (using
+  :ref:`tap2sna.py`)
+* disassemble SNA, Z80 and SZX snapshots as well as raw memory files
+* distinguish code from data by using a code execution map produced by an
+  emulator
+* build still and animated PNG/GIF images from graphic data in the game
+  snapshot (using the :ref:`UDG`, :ref:`UDGARRAY`, :ref:`FONT` and :ref:`SCR`
+  macros)
+* create hyperlinks between routines and data blocks that refer to each other
   (by use of the :ref:`R` macro in annotations, and automatically in the
   operands of ``CALL`` and ``JP`` instructions)
-* Neatly render lists of bugs, trivia and POKEs on separate pages (using
+* neatly render lists of bugs, trivia and POKEs on separate pages (using
   :ref:`ref-Bug`, :ref:`ref-Fact` and :ref:`ref-Poke` sections in a `ref` file)
-* Produce ASM files that include bugfixes declared in the `skool` file (with
+* produce ASM files that include bugfixes declared in the `skool` file (with
   :ref:`ofix`, :ref:`bfix` and other ASM directives)
-* Produce TAP files from assembled code (using :ref:`bin2tap.py`)
+* produce TAP files from assembled code (using :ref:`bin2tap.py`)
 
 For a demonstration of SkoolKit's capabilities, take a look at the complete
 disassemblies of `Skool Daze`_, `Back to Skool`_ and `Contact Sam Cruise`_. The

@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &mdash; SkoolKit 4.0 documentation</title>
+    <title>Ref files &mdash; SkoolKit 4.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '4.0',
+        VERSION:     '4.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.1 documentation" href="index.html" />
     <link rel="next" title="HTML templates" href="html-templates.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -245,11 +245,11 @@ short 3-digit form)</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>2.0.5</td>
-<td>New</td>
-</tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added support for hexadecimal RGB triplets</td>
+</tr>
+<tr class="row-odd"><td>2.0.5</td>
+<td>New</td>
 </tr>
 </tbody>
 </table>
@@ -288,15 +288,15 @@ disassembly, see the documentation on
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>2.0</td>
-<td>New</td>
+<tr class="row-even"><td>3.3.1</td>
+<td>Added support to the <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt> parameter for specifying
+a module outside the module search path</td>
 </tr>
 <tr class="row-odd"><td>2.2.3</td>
 <td>Added the <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt> parameter</td>
 </tr>
-<tr class="row-even"><td>3.3.1</td>
-<td>Added support to the <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt> parameter for specifying
-a module outside the module search path</td>
+<tr class="row-even"><td>2.0</td>
+<td>New</td>
 </tr>
 </tbody>
 </table>
@@ -352,6 +352,9 @@ register tables on routine disassembly pages (default: &#8216;Input&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">JavaScript</span></tt> - the base name of the JavaScript file to include in every
 page (default: None); multiple JavaScript files can be declared by separating
 their names with semicolons</li>
+<li><tt class="docutils literal"><span class="pre">LinkInternalOperands</span></tt> - <tt class="docutils literal"><span class="pre">1</span></tt> to hyperlink instruction operands that refer
+to an address in the same entry as the instruction, or <tt class="docutils literal"><span class="pre">0</span></tt> to leave them
+unlinked (default: <tt class="docutils literal"><span class="pre">0</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">LinkOperands</span></tt> - a comma-separated list of instruction types whose operands
 will be hyperlinked when possible (default: <tt class="docutils literal"><span class="pre">CALL,DEFW,DJNZ,JP,JR</span></tt>); add
 <tt class="docutils literal"><span class="pre">LD</span></tt> to the list to enable the address operands of LD instructions to be
@@ -385,32 +388,35 @@ of the main index page (default: &#8216;RAM disassembly&#8217;)</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>2.0.3</td>
-<td>Added the <tt class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></tt> parameter</td>
+<tr class="row-even"><td>4.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">LinkInternalOperands</span></tt> parameter</td>
 </tr>
-<tr class="row-odd"><td>2.0.5</td>
-<td>Added the <tt class="docutils literal"><span class="pre">Logo</span></tt> parameter</td>
-</tr>
-<tr class="row-even"><td>3.1.2</td>
-<td>Added the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
-<tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> parameters</td>
-</tr>
-<tr class="row-odd"><td>3.4</td>
-<td>Added the <tt class="docutils literal"><span class="pre">LinkOperands</span></tt> parameter</td>
-</tr>
-<tr class="row-even"><td>3.5</td>
-<td>Added the <tt class="docutils literal"><span class="pre">Font</span></tt>, <tt class="docutils literal"><span class="pre">LogoImage</span></tt> and <tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parameters
-(all of which used to live in the <a class="reference internal" href="#paths"><em>[Paths]</em></a> section,
-<tt class="docutils literal"><span class="pre">LogoImage</span></tt> by the name <tt class="docutils literal"><span class="pre">Logo</span></tt>)</td>
-</tr>
-<tr class="row-odd"><td>3.7</td>
-<td>Added the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter</td>
-</tr>
-<tr class="row-even"><td>4.0</td>
+<tr class="row-odd"><td>4.0</td>
 <td>Set default values for the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
 <tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> parameters; added the
 <tt class="docutils literal"><span class="pre">Copyright</span></tt>, <tt class="docutils literal"><span class="pre">Created</span></tt> and <tt class="docutils literal"><span class="pre">Release</span></tt> parameters (which used
 to live in the <tt class="docutils literal"><span class="pre">[Info]</span></tt> section in SkoolKit 3)</td>
+</tr>
+<tr class="row-even"><td>3.7</td>
+<td>Added the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter</td>
+</tr>
+<tr class="row-odd"><td>3.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">Font</span></tt>, <tt class="docutils literal"><span class="pre">LogoImage</span></tt> and <tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parameters
+(all of which used to live in the <a class="reference internal" href="#paths"><em>[Paths]</em></a> section,
+<tt class="docutils literal"><span class="pre">LogoImage</span></tt> by the name <tt class="docutils literal"><span class="pre">Logo</span></tt>)</td>
+</tr>
+<tr class="row-even"><td>3.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">LinkOperands</span></tt> parameter</td>
+</tr>
+<tr class="row-odd"><td>3.1.2</td>
+<td>Added the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
+<tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> parameters</td>
+</tr>
+<tr class="row-even"><td>2.0.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">Logo</span></tt> parameter</td>
+</tr>
+<tr class="row-odd"><td>2.0.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></tt> parameter</td>
 </tr>
 </tbody>
 </table>
@@ -520,13 +526,13 @@ browsers.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>3.0</td>
-<td>New</td>
-</tr>
-<tr class="row-odd"><td>3.0.1</td>
+<tr class="row-even"><td>3.0.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">DefaultFormat</span></tt>, <tt class="docutils literal"><span class="pre">GIFEnableAnimation</span></tt>,
 <tt class="docutils literal"><span class="pre">GIFTransparency</span></tt>, <tt class="docutils literal"><span class="pre">PNGAlpha</span></tt> and <tt class="docutils literal"><span class="pre">PNGEnableAnimation</span></tt>
 parameters</td>
+</tr>
+<tr class="row-odd"><td>3.0</td>
+<td>New</td>
 </tr>
 </tbody>
 </table>
@@ -652,14 +658,14 @@ displayed alongside it.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>2.0.5</td>
-<td>New</td>
+<tr class="row-even"><td>2.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> page ID</td>
 </tr>
 <tr class="row-odd"><td>2.2.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> page ID</td>
 </tr>
-<tr class="row-even"><td>2.5</td>
-<td>Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> page ID</td>
+<tr class="row-even"><td>2.0.5</td>
+<td>New</td>
 </tr>
 </tbody>
 </table>
@@ -726,13 +732,13 @@ name matches the page ID, if one exists; otherwise, the stock
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>2.5</td>
-<td>New</td>
-</tr>
-<tr class="row-odd"><td>4.0</td>
+<tr class="row-even"><td>4.0</td>
 <td>Added the <tt class="docutils literal"><span class="pre">EntryDescriptions</span></tt> and <tt class="docutils literal"><span class="pre">LengthColumn</span></tt> parameters,
 and support for the <tt class="docutils literal"><span class="pre">G</span></tt> identifier in the <tt class="docutils literal"><span class="pre">EntryTypes</span></tt>
 parameter</td>
+</tr>
+<tr class="row-odd"><td>2.5</td>
+<td>New</td>
 </tr>
 </tbody>
 </table>
@@ -835,12 +841,12 @@ is used.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>2.1</td>
-<td>New</td>
-</tr>
-<tr class="row-odd"><td>3.5</td>
+<tr class="row-even"><td>3.5</td>
 <td>The <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter specifies the JavaScript file(s) to
 use</td>
+</tr>
+<tr class="row-odd"><td>2.1</td>
+<td>New</td>
 </tr>
 </tbody>
 </table>
@@ -995,23 +1001,23 @@ the <tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parame
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>2.0</td>
-<td>New</td>
+<tr class="row-even"><td>3.1.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">FontPath</span></tt> directory ID</td>
 </tr>
-<tr class="row-odd"><td>2.0.5</td>
-<td>Added the <tt class="docutils literal"><span class="pre">FontImagePath</span></tt> directory ID</td>
-</tr>
-<tr class="row-even"><td>2.1.1</td>
-<td>Added the <tt class="docutils literal"><span class="pre">CodePath</span></tt> directory ID</td>
-</tr>
-<tr class="row-odd"><td>2.2.5</td>
-<td>Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> file ID</td>
-</tr>
-<tr class="row-even"><td>2.5</td>
+<tr class="row-odd"><td>2.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> file ID</td>
 </tr>
-<tr class="row-odd"><td>3.1.1</td>
-<td>Added the <tt class="docutils literal"><span class="pre">FontPath</span></tt> directory ID</td>
+<tr class="row-even"><td>2.2.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> file ID</td>
+</tr>
+<tr class="row-odd"><td>2.1.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">CodePath</span></tt> directory ID</td>
+</tr>
+<tr class="row-even"><td>2.0.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">FontImagePath</span></tt> directory ID</td>
+</tr>
+<tr class="row-odd"><td>2.0</td>
+<td>New</td>
 </tr>
 </tbody>
 </table>
@@ -1153,17 +1159,17 @@ overridden in this section.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>2.0.5</td>
-<td>New</td>
+<tr class="row-even"><td>4.0</td>
+<td>Added the <tt class="docutils literal"><span class="pre">Asm-*</span></tt> page IDs</td>
 </tr>
-<tr class="row-odd"><td>2.2.5</td>
-<td>Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> page ID</td>
-</tr>
-<tr class="row-even"><td>2.5</td>
+<tr class="row-odd"><td>2.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> page ID</td>
 </tr>
-<tr class="row-odd"><td>4.0</td>
-<td>Added the <tt class="docutils literal"><span class="pre">Asm-*</span></tt> page IDs</td>
+<tr class="row-even"><td>2.2.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> page ID</td>
+</tr>
+<tr class="row-odd"><td>2.0.5</td>
+<td>New</td>
 </tr>
 </tbody>
 </table>
@@ -1231,7 +1237,7 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

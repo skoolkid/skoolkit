@@ -449,7 +449,7 @@ The parameters in the ``entry`` dictionary are:
   passed to :ref:`skool2html.py`)
 * ``byte`` - the LSB of the entry address
 * ``description`` - the entry description
-* ``exists`` - '1' if the entry exists, '0' otherwise
+* ``exists`` - '1'
 * ``href`` - the relative path to the disassembly page for the entry
 * ``label`` - the ASM label of the first instruction in the entry
 * ``labels`` - '1' if any instructions in the entry have an ASM label, '0'

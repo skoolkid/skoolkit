@@ -118,13 +118,13 @@ Revision history
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 2.4     | New                                                              |
-+---------+------------------------------------------------------------------+
-| 3.1.4   | Added support for DEFB and DEFM statements that contain both     |
-|         | strings and bytes                                                |
-+---------+------------------------------------------------------------------+
 | 3.7     | Added support for binary numbers; added support for specifying   |
 |         | the base of numeric values in DEFB, DEFM, DEFS and DEFW          |
 |         | statements; added the ``s`` and ``S`` directives and support for |
 |         | DEFS statements with non-zero byte values                        |
++---------+------------------------------------------------------------------+
+| 3.1.4   | Added support for DEFB and DEFM statements that contain both     |
+|         | strings and bytes                                                |
++---------+------------------------------------------------------------------+
+| 2.4     | New                                                              |
 +---------+------------------------------------------------------------------+

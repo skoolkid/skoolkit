@@ -244,15 +244,15 @@ Revision history
 +---------+---------------------------------------------------------------+
 | Version | Changes                                                       |
 +=========+===============================================================+
-| 2.0     | Added support for data definition entries and remote entries  |
-+---------+---------------------------------------------------------------+
-| 2.1     | Added support for hexadecimal numbers                         |
-+---------+---------------------------------------------------------------+
-| 2.4     | Added the ability to separate paragraphs and specify a blank  |
-|         | entry description by using a dot (``.``) on a line of its own |
+| 3.7     | Added support for binary numbers; added the ``s`` block type  |
 +---------+---------------------------------------------------------------+
 | 3.1.2   | Added support for 'Input' and 'Output' prefixes in register   |
 |         | sections                                                      |
 +---------+---------------------------------------------------------------+
-| 3.7     | Added support for binary numbers; added the ``s`` block type  |
+| 2.4     | Added the ability to separate paragraphs and specify a blank  |
+|         | entry description by using a dot (``.``) on a line of its own |
++---------+---------------------------------------------------------------+
+| 2.1     | Added support for hexadecimal numbers                         |
++---------+---------------------------------------------------------------+
+| 2.0     | Added support for data definition entries and remote entries  |
 +---------+---------------------------------------------------------------+
