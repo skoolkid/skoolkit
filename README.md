@@ -14,9 +14,6 @@ version of the disassembly.
 Features
 --------
 
-Besides disassembling a Spectrum game into a list of Z80 instructions, SkoolKit
-can also:
-
 SkoolKit can:
 
 * convert a TAP or TZX file into a 'pristine' snapshot (using ``tap2sna.py``)
