@@ -11,6 +11,14 @@ annotating the code - the common 'source' for both the reader-friendly HTML
 version of the disassembly, and the developer- and assembler-friendly ASM
 version of the disassembly.
 
+Requirements
+------------
+
+SkoolKit requires [Python](http://www.python.org/) 2.7 or 3.2+. If you're
+running Linux or one of the BSDs, you probably already have Python installed.
+If you're running Windows or Mac OS X, you can get Python
+[here](http://www.python.org/download/).
+
 Features
 --------
 
