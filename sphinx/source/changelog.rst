@@ -1,6 +1,9 @@
 Changelog
 =========
 
+4.2b1
+-----
+
 4.1 (2014-08-30)
 ----------------
 * Added the ``--search`` option to :ref:`skool2html.py` (to add a directory to
