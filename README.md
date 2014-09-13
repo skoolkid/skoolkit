@@ -40,11 +40,3 @@ SkoolKit can:
 * produce TAP files from assembled code (using ``bin2tap.py``)
 
 See the [user manual](http://skoolkid.github.io/skoolkit/) for more details.
-
-Examples
---------
-
-SkoolKit includes two (unfinished) example disassemblies:
-
-* [Manic Miner](http://skoolkid.github.io/skoolkit/examples/manic_miner/)
-* [Spectrum ROM](http://skoolkid.github.io/skoolkit/examples/rom/)

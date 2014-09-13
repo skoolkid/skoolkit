@@ -18,7 +18,6 @@ usage:
 	@echo "  doc              build the documentation"
 	@echo "  man              build the man pages"
 	@echo "  clean            clean the documentation and man pages"
-	@echo "  mm               build the Manic Miner disassembly"
 	@echo "  rom              build the Spectrum ROM disassembly"
 	@echo "  test[-all]       run core/all unit tests with current Python interpreter"
 	@echo "  test2.7[-all]    run core/all unit tests with Python 2.7"
@@ -32,7 +31,6 @@ usage:
 	@echo "  rpm              build a SkoolKit RPM package"
 	@echo "  DTD              download XHTML DTDs"
 	@echo "  XSD              download XHTML XSDs"
-	@echo "  snapshot         build a snapshot of Manic Miner"
 	@echo ""
 	@echo "Environment variables:"
 	@echo "  THEMES           CSS theme(s) to use"
@@ -50,13 +48,6 @@ man:
 .PHONY: clean
 clean:
 	$(MAKE) -C sphinx clean
-
-.PHONY: mm
-mm:
-	SKOOLKIT_HOME=`pwd` utils/mm2ctl.py snapshots/manic_miner.z80 > manic_miner.ctl
-	./sna2skool.py -c manic_miner.ctl snapshots/manic_miner.z80 > manic_miner.skool
-	./skool2html.py $(OPTIONS) examples/manic_miner.ref
-	rm manic_miner.skool manic_miner.ctl
 
 .PHONY: rom
 rom:
@@ -147,7 +138,3 @@ XSD:
 	mkdir XSD
 	curl -s http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd | sed 's@http://www.w3.org/2001/xml.xsd@xml.xsd@' > XSD/xhtml1-strict.xsd
 	curl -s -o XSD/xml.xsd http://www.w3.org/2009/01/xml.xsd
-
-.PHONY: snapshot
-snapshot:
-	./tap2sna.py -d snapshots @examples/manic_miner.t2s

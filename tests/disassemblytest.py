@@ -12,36 +12,18 @@ from skoolkittest import SkoolKitTestCase, SKOOLKIT_HOME
 
 PY3 = sys.version_info >= (3,)
 
-MM2CTL = '{0}/utils/mm2ctl.py'.format(SKOOLKIT_HOME)
-MMZ80 = '{0}/snapshots/manic_miner.z80'.format(SKOOLKIT_HOME)
-MMREF = '{}/examples/manic_miner.ref'.format(SKOOLKIT_HOME)
 ROM = '/usr/share/spectrum-roms/48.rom'
 ROMCTL = '{}/examples/48.rom.ctl'.format(SKOOLKIT_HOME)
 ROMREF = '{}/examples/48.rom.ref'.format(SKOOLKIT_HOME)
 
 XHTML_XSD = os.path.join(SKOOLKIT_HOME, 'XSD', 'xhtml1-strict.xsd')
 
-OUTPUT_MM = """Creating directory {odir}
-Using skool file: {skoolfile}
-Using ref file: {reffile}
-Parsing {skoolfile}
-Creating directory {odir}/manic_miner
-Copying {cssfile} to {odir}/manic_miner/{cssfile}
-  Writing disassembly files in manic_miner/asm
-  Writing manic_miner/maps/all.html
-  Writing manic_miner/maps/routines.html
-  Writing manic_miner/maps/data.html
-  Writing manic_miner/maps/messages.html
-  Writing manic_miner/buffers/gbuffer.html
-  Writing manic_miner/reference/changelog.html
-  Writing manic_miner/index.html"""
-
 OUTPUT_ROM = """Creating directory {odir}
 Using skool file: {skoolfile}
 Using ref file: {reffile}
 Parsing {skoolfile}
 Creating directory {odir}/rom
-Copying {cssfile} to {odir}/rom/{cssfile}
+Copying {SKOOLKIT_HOME}/resources/skoolkit.css to {odir}/rom/skoolkit.css
   Writing disassembly files in rom/asm
   Writing rom/maps/all.html
   Writing rom/maps/routines.html
@@ -137,9 +119,6 @@ class DisassembliesTestCase(SkoolKitTestCase):
         self.write_text_file(output, skoolfile)
         return skoolfile
 
-    def _write_mm_skool(self):
-        return self._write_skool(MMZ80, 'manic_miner', MM2CTL)
-
     def _write_rom_skool(self):
         return self._write_skool(ROM, 'rom', ctlfile=ROMCTL, org=0)
 
@@ -154,9 +133,6 @@ class AsmTestCase(DisassembliesTestCase):
             self.assertTrue(any([line.startswith('Parsed {}'.format(skoolfile)) for line in stderr]))
         self.assertTrue(stderr[-1].startswith('Wrote ASM to stdout'))
 
-    def write_mm(self, options):
-        self._test_asm(options, self._write_mm_skool(), False)
-
     def write_rom(self, options):
         self._test_asm(options, self._write_rom_skool(), False)
 
@@ -165,9 +141,6 @@ class CtlTestCase(DisassembliesTestCase):
         args = '{} {}'.format(options, skoolfile)
         output, stderr = self.run_skool2ctl(args)
         self.assertEqual(stderr, '')
-
-    def write_mm(self, options):
-        self._test_ctl(options, self._write_mm_skool())
 
     def write_rom(self, options):
         self._test_ctl(options, self._write_rom_skool())
@@ -204,32 +177,29 @@ class HtmlTestCase(DisassembliesTestCase):
                 for fname in orphans:
                     error_msg.append('  {}'.format(fname))
             if missing_files:
-                error_msg.append('Links to nonexistent files: {}'.format(len(missing_files)))
+                error_msg.append('Links to non-existent files: {}'.format(len(missing_files)))
                 for fname, link_dest in missing_files:
                     error_msg.append('  {} -> {}'.format(fname, link_dest))
             if missing_anchors:
-                error_msg.append('Links to nonexistent anchors: {}'.format(len(missing_anchors)))
+                error_msg.append('Links to non-existent anchors: {}'.format(len(missing_anchors)))
                 for fname, link_dest in missing_anchors:
                     error_msg.append('  {} -> {}'.format(fname, link_dest))
             self.fail('\n'.join(error_msg))
 
     def _test_html(self, html_dir, options, ref_file, exp_output, skoolfile):
-        cssfile = self.write_text_file(suffix='.css')
-        c_options = '-c Game/StyleSheet={0}'.format(cssfile)
-        c_options += ' -c Config/SkoolFile={0}'.format(skoolfile)
+        main_options = '-S {}/resources'.format(SKOOLKIT_HOME)
+        main_options += ' -c Config/SkoolFile={}'.format(skoolfile)
+        main_options += ' -d {}'.format(self.odir)
         shutil.rmtree(self.odir, True)
 
         # Write the disassembly
-        output, error = self.run_skool2html('{} -d {} {} {}'.format(c_options, self.odir, options, ref_file))
+        output, error = self.run_skool2html('{} {} {}'.format(main_options, options, ref_file))
         self.assertEqual(len(error), 0)
-        reps = {'odir': self.odir, 'cssfile': cssfile, 'skoolfile': skoolfile, 'reffile': ref_file}
+        reps = {'odir': self.odir, 'SKOOLKIT_HOME': SKOOLKIT_HOME, 'skoolfile': skoolfile, 'reffile': ref_file}
         self.assertEqual(output, exp_output.format(**reps).split('\n'))
 
         self._validate_xhtml()
         self._check_links()
-
-    def write_mm(self, options):
-        self._test_html('manic_miner', options, MMREF, OUTPUT_MM, self._write_mm_skool())
 
     def write_rom(self, options):
         self._test_html('rom', options, ROMREF, OUTPUT_ROM, self._write_rom_skool())
@@ -247,9 +217,6 @@ class SftTestCase(DisassembliesTestCase):
             options += ' -o {}'.format(org)
         output, stderr = self.run_sna2skool('{} {}'.format(options, snapshot))
         self.assert_output_equal(output, orig_skool[:-1])
-
-    def write_mm(self, options):
-        self._test_sft(options, self._write_mm_skool(), MMZ80)
 
     def write_rom(self, options):
         self._test_sft(options, self._write_rom_skool(), ROM, 0)

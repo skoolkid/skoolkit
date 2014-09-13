@@ -6,10 +6,7 @@
 build
 dist
 DTD
-examples/jet_set_willy.ctl
-examples/manic_miner.ctl
 MANIFEST
-snapshots
 tests/cover
 tests/test_disassemblies_*.py
 untracked
