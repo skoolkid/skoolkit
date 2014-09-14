@@ -12,11 +12,29 @@ from skoolkittest import SkoolKitTestCase, SKOOLKIT_HOME
 
 PY3 = sys.version_info >= (3,)
 
+HHZ80 = '{}/build/hungry_horace.z80'.format(SKOOLKIT_HOME)
+HHCTL = '{}/examples/hungry_horace.ctl'.format(SKOOLKIT_HOME)
+HHREF = '{}/examples/hungry_horace.ref'.format(SKOOLKIT_HOME)
+
 ROM = '/usr/share/spectrum-roms/48.rom'
 ROMCTL = '{}/examples/48.rom.ctl'.format(SKOOLKIT_HOME)
 ROMREF = '{}/examples/48.rom.ref'.format(SKOOLKIT_HOME)
 
 XHTML_XSD = os.path.join(SKOOLKIT_HOME, 'XSD', 'xhtml1-strict.xsd')
+
+OUTPUT_HH = """Creating directory {odir}
+Using skool file: {skoolfile}
+Using ref file: {reffile}
+Parsing {skoolfile}
+Creating directory {odir}/hungry_horace
+Copying {SKOOLKIT_HOME}/resources/skoolkit.css to {odir}/hungry_horace/skoolkit.css
+  Writing disassembly files in hungry_horace/asm
+  Writing hungry_horace/maps/all.html
+  Writing hungry_horace/maps/routines.html
+  Writing hungry_horace/maps/data.html
+  Writing hungry_horace/maps/messages.html
+  Writing hungry_horace/maps/unused.html
+  Writing hungry_horace/index.html"""
 
 OUTPUT_ROM = """Creating directory {odir}
 Using skool file: {skoolfile}
@@ -119,6 +137,9 @@ class DisassembliesTestCase(SkoolKitTestCase):
         self.write_text_file(output, skoolfile)
         return skoolfile
 
+    def _write_hh_skool(self):
+        return self._write_skool(HHZ80, 'hungry_horace', ctlfile=HHCTL)
+
     def _write_rom_skool(self):
         return self._write_skool(ROM, 'rom', ctlfile=ROMCTL, org=0)
 
@@ -133,6 +154,9 @@ class AsmTestCase(DisassembliesTestCase):
             self.assertTrue(any([line.startswith('Parsed {}'.format(skoolfile)) for line in stderr]))
         self.assertTrue(stderr[-1].startswith('Wrote ASM to stdout'))
 
+    def write_hh(self, options):
+        self._test_asm(options, self._write_hh_skool(), False)
+
     def write_rom(self, options):
         self._test_asm(options, self._write_rom_skool(), False)
 
@@ -141,6 +165,9 @@ class CtlTestCase(DisassembliesTestCase):
         args = '{} {}'.format(options, skoolfile)
         output, stderr = self.run_skool2ctl(args)
         self.assertEqual(stderr, '')
+
+    def write_hh(self, options):
+        self._test_ctl(options, self._write_hh_skool())
 
     def write_rom(self, options):
         self._test_ctl(options, self._write_rom_skool())
@@ -201,6 +228,9 @@ class HtmlTestCase(DisassembliesTestCase):
         self._validate_xhtml()
         self._check_links()
 
+    def write_hh(self, options):
+        self._test_html('hungry_horace', options, HHREF, OUTPUT_HH, self._write_hh_skool())
+
     def write_rom(self, options):
         self._test_html('rom', options, ROMREF, OUTPUT_ROM, self._write_rom_skool())
 
@@ -217,6 +247,9 @@ class SftTestCase(DisassembliesTestCase):
             options += ' -o {}'.format(org)
         output, stderr = self.run_sna2skool('{} {}'.format(options, snapshot))
         self.assert_output_equal(output, orig_skool[:-1])
+
+    def write_hh(self, options):
+        self._test_sft(options, self._write_hh_skool(), HHZ80)
 
     def write_rom(self, options):
         self._test_sft(options, self._write_rom_skool(), ROM, 0)

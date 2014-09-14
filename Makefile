@@ -18,6 +18,7 @@ usage:
 	@echo "  doc              build the documentation"
 	@echo "  man              build the man pages"
 	@echo "  clean            clean the documentation and man pages"
+	@echo "  hh               build the Hungry Horace disassembly"
 	@echo "  rom              build the Spectrum ROM disassembly"
 	@echo "  test[-all]       run core/all unit tests with current Python interpreter"
 	@echo "  test2.7[-all]    run core/all unit tests with Python 2.7"
@@ -48,6 +49,13 @@ man:
 .PHONY: clean
 clean:
 	$(MAKE) -C sphinx clean
+
+.PHONY: hh
+hh:
+	if [ ! -f build/hungry_horace.z80 ]; then ./tap2sna.py -d build @examples/hungry_horace.t2s; fi
+	./sna2skool.py -c examples/hungry_horace.ctl build/hungry_horace.z80 > hungry_horace.skool
+	./skool2html.py $(OPTIONS) examples/hungry_horace.ref
+	rm hungry_horace.skool
 
 .PHONY: rom
 rom:

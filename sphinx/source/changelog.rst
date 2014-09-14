@@ -2,9 +2,12 @@ Changelog
 =========
 
 4.1.1b1
------
+-------
+* Added example control and ref files for `Hungry Horace`_
 * Removed the Manic Miner disassembly from the SkoolKit distribution; it is now
   being developed separately `here <https://github.com/skoolkid/manicminer>`__
+
+.. _Hungry Horace: http://www.worldofspectrum.org/infoseekid.cgi?id=0002390
 
 4.1 (2014-08-30)
 ----------------

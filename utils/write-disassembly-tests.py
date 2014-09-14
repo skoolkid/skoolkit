@@ -7,7 +7,7 @@ def write_tests(class_name, options_list):
     print('from disassemblytest import {}Case'.format(class_name))
     print('')
     print('class {0}({0}Case):'.format(class_name))
-    for game in ('rom',):
+    for game in ('hh', 'rom'):
         for options in options_list:
             method_name_suffix = options.replace('-', '_').replace(' ', '')
             method_name = 'test_{}{}'.format(game, method_name_suffix)
