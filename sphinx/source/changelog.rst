@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.2b1
+4.1.1b1
 -----
 * Removed the Manic Miner disassembly from the SkoolKit distribution; it is now
   being developed separately `here <https://github.com/skoolkid/manicminer>`__
