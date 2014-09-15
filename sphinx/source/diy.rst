@@ -8,20 +8,20 @@ Spectrum game disassembly.
 Getting started
 ---------------
 The first thing to do is select a Spectrum game to disassemble. For the purpose
-of this discussion, we'll use `Manic Miner`_ (the original Bug Byte version).
-To build a pristine snapshot of the game, run the following command in the
-directory where SkoolKit was unpacked::
+of this discussion, we'll use `Hungry Horace`_. To build a pristine snapshot of
+the game, run the following command in the directory where SkoolKit was
+unpacked::
 
-  $ tap2sna.py @examples/manic_miner.t2s
+  $ tap2sna.py @examples/hungry_horace.t2s
 
 (If that doesn't work, or you prefer to make your own snapshot, just grab a
 copy of the game, load it in an emulator, and save a Z80 snapshot named
-`manic_miner.z80`.)
+`hungry_horace.z80`.)
 
 The next thing to do is create a `skool` file from this snapshot. Run the
 following command from the SkoolKit directory::
 
-  $ sna2skool.py manic_miner.z80 > manic_miner.skool
+  $ sna2skool.py hungry_horace.z80 > hungry_horace.skool
 
 Note that the '.skool' file name suffix is merely a convention, not a
 requirement. In general, any suffix besides '.ref' (which is used by
@@ -30,7 +30,7 @@ traditional three-letter suffix, then perhaps '.sks' (for 'SkoolKit source') or
 '.kit' would be more to your liking. However, for the purpose of this
 particular tutorial, it would be best to stick with '.skool'.
 
-Now take a look at `manic_miner.skool`. As you can see, by default,
+Now take a look at `hungry_horace.skool`. As you can see, by default,
 `sna2skool.py` disassembles everything from 16384 to 65535, treating it all as
 code. Needless to say, this is not particularly useful - unless you have no
 idea where the code and data blocks are yet, and want to use this disassembly
@@ -40,7 +40,7 @@ Once you have figured out where the code and data blocks are, it would be handy
 if you could supply `sna2skool.py` with this information, so that it can
 disassemble the blocks accordingly. That is where the control file comes in.
 
-.. _Manic Miner: http://www.worldofspectrum.org/infoseekid.cgi?id=0003012&loadpics=3
+.. _Hungry Horace: http://www.worldofspectrum.org/infoseekid.cgi?id=0002390
 
 The control file
 ----------------
@@ -52,71 +52,65 @@ annotations too, which will be interpreted as routine titles, descriptions,
 instruction-level comments or whatever else depending on the control directive
 they accompany.
 
-A control file for Manic Miner might start like this::
+A control file for Hungry Horace might start like this::
 
-  b 32768
-  b 33280 Miner Willy sprite data
-  b 33536
-  c 33792 The game has just loaded
-  b 33799
-  t 33816 'AIR'
+  b 16384 Loading screen
+  i 23296
+  c 24576 The game has just loaded
+  c 25167
   ...
 
 This control file declares that there is:
 
-* a data block at 32768
-* a data block at 33280 titled 'Miner Willy sprite data'
-* a data block at 33536
-* a code block (routine) at 33792 titled 'The game has just loaded'
-* a data block at 33799
-* a text block at 33816 titled 'AIR' (because that's what it contains)
+* a data block at 16384 titled 'Loading screen'
+* a block at 23296 that should be ignored
+* a code block (routine) at 24576 titled 'The game has just loaded'
+* another code block at 25167
 
 For more information on control file directives and their syntax, see
 :ref:`controlFiles`.
 
 A skeleton disassembly
 ----------------------
-So if we had a control file for Manic Miner, we could produce a much more
-useful `skool` file. As it happens, SkoolKit includes one: `manic_miner.ctl`.
+So if we had a control file for Hungry Horace, we could produce a much more
+useful `skool` file. As it happens, SkoolKit includes one: `hungry_horace.ctl`.
 You can use it with `sna2skool.py` thus::
 
-  $ sna2skool.py -c examples/manic_miner.ctl manic_miner.z80 > manic_miner.skool
+  $ sna2skool.py -c examples/hungry_horace.ctl hungry_horace.z80 > hungry_horace.skool
 
-This time, `manic_miner.skool` is split up into meaningful blocks, with code as
-code, data as data (DEFBs), and text as text (DEFMs). Much nicer.
+This time, `hungry_horace.skool` is split up into meaningful blocks, with code
+as code, data as data (DEFBs), and text as text (DEFMs). Much nicer.
 
 By default, `sna2skool.py` produces a disassembly with addresses and
 instruction operands in decimal notation. If you prefer to work in hexadecimal,
 however, use the ``-H`` option::
 
-  $ sna2skool.py -H -c examples/manic_miner.ctl manic_miner.z80 > manic_miner.skool
+  $ sna2skool.py -H -c examples/hungry_horace.ctl hungry_horace.z80 > hungry_horace.skool
 
 The next step is to create an HTML disassembly from this `skool` file::
 
-  $ skool2html.py manic_miner.skool
+  $ skool2html.py hungry_horace.skool
 
-(Don't worry about the warnings that are printed.) Now open
-`manic_miner/index.html` in a web browser. There's not much there, but it's a
-base from which you can start adding explanatory comments.
+Now open `hungry_horace/index.html` in a web browser. There's not much there,
+but it's a base from which you can start adding explanatory comments.
 
-In order to replace 'manic_miner' in the page titles and headers with something
-more appropriate, or add a game logo image, or otherwise customise the
-disassembly, we need to create a `ref` file. Again, as it happens, SkoolKit
-includes an example `ref` file for Manic Miner: `manic_miner.ref`. To use it
-with the `skool` file we've just created::
+In order to replace 'hungry_horace' in the page titles and headers with
+something more appropriate, or add a game logo image, or otherwise customise
+the disassembly, we need to create a `ref` file. Again, as it happens, SkoolKit
+includes an example `ref` file for Hungry Horace: `hungry_horace.ref`. To use
+it with the `skool` file we've just created::
 
-  $ skool2html.py examples/manic_miner.ref
+  $ skool2html.py examples/hungry_horace.ref
 
-Now the disassembly will sport a game logo image, and contain images of the
-caverns and the guardians that populate them.
+Now the disassembly will sport a game logo image.
 
 See :ref:`refFiles` for more information on how to use a `ref` file to
 configure and customise a disassembly.
 
 Generating a control file
 -------------------------
-If you are planning to create a disassembly of some game other than Manic
-Miner, you will need to create your own control file. To get started, you can
+If you are planning to create a disassembly of some game other than Hungry
+Horace, you will need to create your own control file. To get started, you can
 use the ``-g`` option with `sna2skool.py` to perform a rudimentary static code
 analysis of the snapshot file and generate a corresponding control file::
 
@@ -177,12 +171,12 @@ might be used for is easier if you’ve played the game to death already.
 
 Annotating the code and data in a `skool` file is done by adding comments just
 as you would in a regular ASM file. For example, you might add a comment to the
-instruction at 35136 in `manic_miner.skool` thus:
+instruction at 26429 in `hungry_horace.skool` thus:
 
 .. parsed-literal::
    :class: nonexistent
 
-    35136 DEC (HL)      ; Decrement the number of lives
+    26429 DEC A         ; Decrement the number of lives
 
 See the :ref:`skool file format <skoolFileFormat>` reference for a full
 description of the kinds of annotations that are supported in `skool` files.
@@ -213,31 +207,31 @@ data blocks, and all the annotations you carefully added to `game.skool`.
 Adding pokes, bugs and trivia
 -----------------------------
 Adding 'Pokes', 'Bugs', and 'Trivia' pages to a disassembly is done by adding
-``Poke``, ``Bug``, and ``Fact`` sections to the `ref` file. For any such
-sections that are present, `skool2html.py` will add links to the disassembly
-index page.
+:ref:`ref-Poke`, :ref:`ref-Bug`, and :ref:`ref-Fact` sections to the `ref`
+file. For any such sections that are present, `skool2html.py` will add links to
+the disassembly index page.
 
-For example, let's add a poke. Add the following lines to `manic_miner.ref`::
+For example, let's add a poke. Add the following lines to `hungry_horace.ref`::
 
   [Poke:infiniteLives:Infinite lives]
-  The following POKE gives Miner Willy infinite lives:
+  The following POKE gives Horace infinite lives:
 
-  POKE 35136,0
+  POKE 26429,0
 
 Now run `skool2html.py` again::
 
-  $ skool2html.py examples/manic_miner.ref
+  $ skool2html.py examples/hungry_horace.ref
 
-Open `manic_miner/index.html` and you will see a link to the 'Pokes' page in
+Open `hungry_horace/index.html` and you will see a link to the 'Pokes' page in
 the 'Reference' section.
 
 The format of a ``Bug`` or ``Fact`` section is the same, except that the
 section name prefix is ``Bug:`` or ``Fact:`` (instead of ``Poke:``) as
 appropriate.
 
-Add one ``Poke``, ``Bug`` or ``Fact`` section for each poke, bug or trivia item
-to be documented. Entries will appear on the 'Pokes', 'Bugs' or 'Trivia' page
-in the same order as the sections appear in the `ref` file.
+Add one ``Poke``, ``Bug`` or ``Fact`` section for each poke, bug or trivia
+entry to be documented. Entries will appear on the 'Pokes', 'Bugs' or 'Trivia'
+page in the same order as the sections appear in the `ref` file.
 
 See :ref:`refFiles` for more information on the format of the ``Poke``,
 ``Bug``, and ``Fact`` (and other) sections that may appear in a `ref` file.
