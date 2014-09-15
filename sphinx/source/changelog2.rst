@@ -61,7 +61,7 @@ SkoolKit 2.x changelog
   Cruise disassemblies from the SkoolKit distribution; they are now available
   as `separate downloads`_
 
-.. _separate downloads: http://pyskool.ca/?page_id=113
+.. _separate downloads: http://skoolkit.ca/?page_id=113
 
 2.2.5 (2011-10-17)
 ------------------

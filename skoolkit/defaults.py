@@ -48,7 +48,7 @@ HtmlWriterClass=skoolkit.skoolhtml.HtmlWriter
 
 SECTIONS['Game'] = """
 Copyright=
-Created=Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> $VERSION.
+Created=Created using <a class="link" href="http://skoolkit.ca/">SkoolKit</a> $VERSION.
 ; Font=
 ; Game=
 ; GameStatusBufferIncludes=

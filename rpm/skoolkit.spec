@@ -6,8 +6,8 @@ Release:        1%{?dist}
 Summary:        Tools for creating disassemblies of ZX Spectrum programs
 
 License:        GPLv3+
-URL:            http://pyskool.ca/?page_id=177
-Source0:        http://pyskool.ca/downloads/%{name}/%{name}-%{version}.tar.xz
+URL:            http://skoolkit.ca/
+Source0:        http://skoolkit.ca/downloads/%{name}/%{name}-%{version}.tar.xz
 
 BuildArch:      noarch
 BuildRequires:  python-devel

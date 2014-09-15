@@ -117,7 +117,7 @@ INDEX_HEADER = """<?xml version="1.0" encoding="utf-8" ?>
 BARE_FOOTER = """<div class="footer">
 <div class="release"></div>
 <div class="copyright"></div>
-<div class="created">Created using <a class="link" href="http://pyskool.ca/?page_id=177">SkoolKit</a> {0}.</div>
+<div class="created">Created using <a class="link" href="http://skoolkit.ca/">SkoolKit</a> {}.</div>
 </div>
 </body>
 </html>""".format(VERSION)

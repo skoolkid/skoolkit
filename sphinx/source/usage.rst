@@ -13,8 +13,8 @@ Installation
 There are various ways to install the latest stable release of SkoolKit:
 
 * from the zip archive or tarball available at
-  `pyskool.ca <http://pyskool.ca/?page_id=177>`_
-* from the DEB package or RPM package available at `pyskool.ca`_
+  `skoolkit.ca <http://skoolkit.ca/?page_id=177>`_
+* from the DEB package or RPM package available at `skoolkit.ca`_
 * from `PyPI <https://pypi.python.org/pypi/skoolkit>`_ by using
   `easy_install <https://pythonhosted.org/setuptools/easy_install.html>`_ or
   `pip <http://www.pip-installer.org/>`_

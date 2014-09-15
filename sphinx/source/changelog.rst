@@ -3,7 +3,8 @@ Changelog
 
 4.1.1b1
 -------
-* Added example control and ref files for `Hungry Horace`_
+* Updated links to SkoolKit's new home at `skoolkit.ca <http://skoolkit.ca>`_
+* Added example control and `ref` files for `Hungry Horace`_
 * Removed the Manic Miner disassembly from the SkoolKit distribution; it is now
   being developed separately `here <https://github.com/skoolkid/manicminer>`__
 

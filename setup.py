@@ -39,11 +39,13 @@ SkoolKit can:
 * produce TAP files from assembled code (using `bin2tap.py`)
 
 For a demonstration of SkoolKit's capabilities, take a look at the complete
-disassemblies of `Skool Daze`_, `Back to Skool`_ and `Contact Sam Cruise`_.
+disassemblies of `Skool Daze`_, `Back to Skool`_, `Contact Sam Cruise`_ and
+`Jet Set Willy`_.
 
-.. _Skool Daze: http://pyskool.ca/disassemblies/skool_daze/
-.. _Back to Skool: http://pyskool.ca/disassemblies/back_to_skool/
-.. _Contact Sam Cruise: http://pyskool.ca/disassemblies/contact_sam_cruise/
+.. _Skool Daze: http://skoolkit.ca/disassemblies/skool_daze/
+.. _Back to Skool: http://skoolkit.ca/disassemblies/back_to_skool/
+.. _Contact Sam Cruise: http://skoolkit.ca/disassemblies/contact_sam_cruise/
+.. _Jet Set Willy: http://skoolkit.ca/disassemblies/jet_set_willy/
 
 Quick start guide
 -----------------
@@ -66,8 +68,8 @@ To turn it into an ASM file that can be fed to an assembler::
 
   $ skool2asm.py game.skool > game.asm
 
-.. _documentation: http://pyskool.ca/docs/skoolkit/
-.. _control file: http://pyskool.ca/docs/skoolkit/control-files.html
+.. _documentation: http://skoolkit.ca/docs/skoolkit/
+.. _control file: http://skoolkit.ca/docs/skoolkit/control-files.html
 """
 
 PACKAGE_DIR = 'build/skoolkit-pkg'
@@ -83,7 +85,7 @@ setup(
     author='Richard Dymond',
     author_email='rjdymond@gmail.com',
     license='GPLv3',
-    url='http://pyskool.ca/?page_id=177',
+    url='http://skoolkit.ca/',
     description="A suite of tools for creating disassemblies of ZX Spectrum games",
     long_description=LONG_DESCRIPTION,
     packages=['skoolkit'],
