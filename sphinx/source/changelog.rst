@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.1.1b1
+4.1.1rc
 -------
 * Updated links to SkoolKit's new home at `skoolkit.ca <http://skoolkit.ca>`_
 * Added example control and `ref` files for `Hungry Horace`_
