@@ -1,8 +1,8 @@
 Changelog
 =========
 
-4.1.1rc
--------
+4.1.1 (2014-09-20)
+------------------
 * Updated links to SkoolKit's new home at `skoolkit.ca <http://skoolkit.ca>`_
 * Added example control and `ref` files for `Hungry Horace`_
 * Removed the Manic Miner disassembly from the SkoolKit distribution; it is now
