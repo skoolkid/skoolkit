@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Disassembly DIY &mdash; SkoolKit 4.1 documentation</title>
+    <title>Disassembly DIY &mdash; SkoolKit 4.1.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '4.1',
+        VERSION:     '4.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.1.1 documentation" href="index.html" />
     <link rel="next" title="Supported assemblers" href="assemblers.html" />
     <link rel="prev" title="Installing and using SkoolKit" href="usage.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -100,18 +100,18 @@ Spectrum game disassembly.</p>
 <div class="section" id="getting-started">
 <h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
 <p>The first thing to do is select a Spectrum game to disassemble. For the purpose
-of this discussion, we&#8217;ll use <a class="reference external" href="http://www.worldofspectrum.org/infoseekid.cgi?id=0003012&amp;loadpics=3">Manic Miner</a> (the original Bug Byte version).
-To build a pristine snapshot of the game, run the following command in the
-directory where SkoolKit was unpacked:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ tap2sna.py @examples/manic_miner.t2s
+of this discussion, we&#8217;ll use <a class="reference external" href="http://www.worldofspectrum.org/infoseekid.cgi?id=0002390">Hungry Horace</a>. To build a pristine snapshot of
+the game, run the following command in the directory where SkoolKit was
+unpacked:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ tap2sna.py @examples/hungry_horace.t2s
 </pre></div>
 </div>
 <p>(If that doesn&#8217;t work, or you prefer to make your own snapshot, just grab a
 copy of the game, load it in an emulator, and save a Z80 snapshot named
-<cite>manic_miner.z80</cite>.)</p>
+<cite>hungry_horace.z80</cite>.)</p>
 <p>The next thing to do is create a <cite>skool</cite> file from this snapshot. Run the
 following command from the SkoolKit directory:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py manic_miner.z80 &gt; manic_miner.skool
+<div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py hungry_horace.z80 &gt; hungry_horace.skool
 </pre></div>
 </div>
 <p>Note that the &#8216;.skool&#8217; file name suffix is merely a convention, not a
@@ -120,7 +120,7 @@ requirement. In general, any suffix besides &#8216;.ref&#8217; (which is used by
 traditional three-letter suffix, then perhaps &#8216;.sks&#8217; (for &#8216;SkoolKit source&#8217;) or
 &#8216;.kit&#8217; would be more to your liking. However, for the purpose of this
 particular tutorial, it would be best to stick with &#8216;.skool&#8217;.</p>
-<p>Now take a look at <cite>manic_miner.skool</cite>. As you can see, by default,
+<p>Now take a look at <cite>hungry_horace.skool</cite>. As you can see, by default,
 <cite>sna2skool.py</cite> disassembles everything from 16384 to 65535, treating it all as
 code. Needless to say, this is not particularly useful - unless you have no
 idea where the code and data blocks are yet, and want to use this disassembly
@@ -138,68 +138,62 @@ block, or <tt class="docutils literal"><span class="pre">b</span></tt> for a dat
 annotations too, which will be interpreted as routine titles, descriptions,
 instruction-level comments or whatever else depending on the control directive
 they accompany.</p>
-<p>A control file for Manic Miner might start like this:</p>
-<div class="highlight-none"><div class="highlight"><pre>b 32768
-b 33280 Miner Willy sprite data
-b 33536
-c 33792 The game has just loaded
-b 33799
-t 33816 &#39;AIR&#39;
+<p>A control file for Hungry Horace might start like this:</p>
+<div class="highlight-none"><div class="highlight"><pre>b 16384 Loading screen
+i 23296
+c 24576 The game has just loaded
+c 25167
 ...
 </pre></div>
 </div>
 <p>This control file declares that there is:</p>
 <ul class="simple">
-<li>a data block at 32768</li>
-<li>a data block at 33280 titled &#8216;Miner Willy sprite data&#8217;</li>
-<li>a data block at 33536</li>
-<li>a code block (routine) at 33792 titled &#8216;The game has just loaded&#8217;</li>
-<li>a data block at 33799</li>
-<li>a text block at 33816 titled &#8216;AIR&#8217; (because that&#8217;s what it contains)</li>
+<li>a data block at 16384 titled &#8216;Loading screen&#8217;</li>
+<li>a block at 23296 that should be ignored</li>
+<li>a code block (routine) at 24576 titled &#8216;The game has just loaded&#8217;</li>
+<li>another code block at 25167</li>
 </ul>
 <p>For more information on control file directives and their syntax, see
 <a class="reference internal" href="control-files.html#controlfiles"><em>Control files</em></a>.</p>
 </div>
 <div class="section" id="a-skeleton-disassembly">
 <h2>A skeleton disassembly<a class="headerlink" href="#a-skeleton-disassembly" title="Permalink to this headline">¶</a></h2>
-<p>So if we had a control file for Manic Miner, we could produce a much more
-useful <cite>skool</cite> file. As it happens, SkoolKit includes one: <cite>manic_miner.ctl</cite>.
+<p>So if we had a control file for Hungry Horace, we could produce a much more
+useful <cite>skool</cite> file. As it happens, SkoolKit includes one: <cite>hungry_horace.ctl</cite>.
 You can use it with <cite>sna2skool.py</cite> thus:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py -c examples/manic_miner.ctl manic_miner.z80 &gt; manic_miner.skool
+<div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py -c examples/hungry_horace.ctl hungry_horace.z80 &gt; hungry_horace.skool
 </pre></div>
 </div>
-<p>This time, <cite>manic_miner.skool</cite> is split up into meaningful blocks, with code as
-code, data as data (DEFBs), and text as text (DEFMs). Much nicer.</p>
+<p>This time, <cite>hungry_horace.skool</cite> is split up into meaningful blocks, with code
+as code, data as data (DEFBs), and text as text (DEFMs). Much nicer.</p>
 <p>By default, <cite>sna2skool.py</cite> produces a disassembly with addresses and
 instruction operands in decimal notation. If you prefer to work in hexadecimal,
 however, use the <tt class="docutils literal"><span class="pre">-H</span></tt> option:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py -H -c examples/manic_miner.ctl manic_miner.z80 &gt; manic_miner.skool
+<div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py -H -c examples/hungry_horace.ctl hungry_horace.z80 &gt; hungry_horace.skool
 </pre></div>
 </div>
 <p>The next step is to create an HTML disassembly from this <cite>skool</cite> file:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py manic_miner.skool
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py hungry_horace.skool
 </pre></div>
 </div>
-<p>(Don&#8217;t worry about the warnings that are printed.) Now open
-<cite>manic_miner/index.html</cite> in a web browser. There&#8217;s not much there, but it&#8217;s a
-base from which you can start adding explanatory comments.</p>
-<p>In order to replace &#8216;manic_miner&#8217; in the page titles and headers with something
-more appropriate, or add a game logo image, or otherwise customise the
-disassembly, we need to create a <cite>ref</cite> file. Again, as it happens, SkoolKit
-includes an example <cite>ref</cite> file for Manic Miner: <cite>manic_miner.ref</cite>. To use it
-with the <cite>skool</cite> file we&#8217;ve just created:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py examples/manic_miner.ref
+<p>Now open <cite>hungry_horace/index.html</cite> in a web browser. There&#8217;s not much there,
+but it&#8217;s a base from which you can start adding explanatory comments.</p>
+<p>In order to replace &#8216;hungry_horace&#8217; in the page titles and headers with
+something more appropriate, or add a game logo image, or otherwise customise
+the disassembly, we need to create a <cite>ref</cite> file. Again, as it happens, SkoolKit
+includes an example <cite>ref</cite> file for Hungry Horace: <cite>hungry_horace.ref</cite>. To use
+it with the <cite>skool</cite> file we&#8217;ve just created:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py examples/hungry_horace.ref
 </pre></div>
 </div>
-<p>Now the disassembly will sport a game logo image, and contain images of the
-caverns and the guardians that populate them.</p>
+<p>Now the disassembly will sport a game logo image.</p>
 <p>See <a class="reference internal" href="ref-files.html#reffiles"><em>Ref files</em></a> for more information on how to use a <cite>ref</cite> file to
 configure and customise a disassembly.</p>
 </div>
 <div class="section" id="generating-a-control-file">
 <h2>Generating a control file<a class="headerlink" href="#generating-a-control-file" title="Permalink to this headline">¶</a></h2>
-<p>If you are planning to create a disassembly of some game other than Manic
-Miner, you will need to create your own control file. To get started, you can
+<p>If you are planning to create a disassembly of some game other than Hungry
+Horace, you will need to create your own control file. To get started, you can
 use the <tt class="docutils literal"><span class="pre">-g</span></tt> option with <cite>sna2skool.py</cite> to perform a rudimentary static code
 analysis of the snapshot file and generate a corresponding control file:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py -g game.ctl game.z80 &gt; game.skool
@@ -257,8 +251,8 @@ figure out when, why and how it uses it.</li>
 might be used for is easier if you’ve played the game to death already.</p>
 <p>Annotating the code and data in a <cite>skool</cite> file is done by adding comments just
 as you would in a regular ASM file. For example, you might add a comment to the
-instruction at 35136 in <cite>manic_miner.skool</cite> thus:</p>
-<div class="nonexistent highlight-none"><div class="highlight"><pre> 35136 DEC (HL)      ; Decrement the number of lives
+instruction at 26429 in <cite>hungry_horace.skool</cite> thus:</p>
+<div class="nonexistent highlight-none"><div class="highlight"><pre> 26429 DEC A         ; Decrement the number of lives
 </pre></div>
 </div>
 <p>See the <a class="reference internal" href="skool-files.html#skoolfileformat"><em>skool file format</em></a> reference for a full
@@ -288,28 +282,28 @@ data blocks, and all the annotations you carefully added to <cite>game.skool</ci
 <div class="section" id="adding-pokes-bugs-and-trivia">
 <h2>Adding pokes, bugs and trivia<a class="headerlink" href="#adding-pokes-bugs-and-trivia" title="Permalink to this headline">¶</a></h2>
 <p>Adding &#8216;Pokes&#8217;, &#8216;Bugs&#8217;, and &#8216;Trivia&#8217; pages to a disassembly is done by adding
-<tt class="docutils literal"><span class="pre">Poke</span></tt>, <tt class="docutils literal"><span class="pre">Bug</span></tt>, and <tt class="docutils literal"><span class="pre">Fact</span></tt> sections to the <cite>ref</cite> file. For any such
-sections that are present, <cite>skool2html.py</cite> will add links to the disassembly
-index page.</p>
-<p>For example, let&#8217;s add a poke. Add the following lines to <cite>manic_miner.ref</cite>:</p>
+<a class="reference internal" href="ref-files.html#ref-poke"><em>[Poke:*:*]</em></a>, <a class="reference internal" href="ref-files.html#ref-bug"><em>[Bug:*:*]</em></a>, and <a class="reference internal" href="ref-files.html#ref-fact"><em>[Fact:*:*]</em></a> sections to the <cite>ref</cite>
+file. For any such sections that are present, <cite>skool2html.py</cite> will add links to
+the disassembly index page.</p>
+<p>For example, let&#8217;s add a poke. Add the following lines to <cite>hungry_horace.ref</cite>:</p>
 <div class="highlight-none"><div class="highlight"><pre>[Poke:infiniteLives:Infinite lives]
-The following POKE gives Miner Willy infinite lives:
+The following POKE gives Horace infinite lives:
 
-POKE 35136,0
+POKE 26429,0
 </pre></div>
 </div>
 <p>Now run <cite>skool2html.py</cite> again:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py examples/manic_miner.ref
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py examples/hungry_horace.ref
 </pre></div>
 </div>
-<p>Open <cite>manic_miner/index.html</cite> and you will see a link to the &#8216;Pokes&#8217; page in
+<p>Open <cite>hungry_horace/index.html</cite> and you will see a link to the &#8216;Pokes&#8217; page in
 the &#8216;Reference&#8217; section.</p>
 <p>The format of a <tt class="docutils literal"><span class="pre">Bug</span></tt> or <tt class="docutils literal"><span class="pre">Fact</span></tt> section is the same, except that the
 section name prefix is <tt class="docutils literal"><span class="pre">Bug:</span></tt> or <tt class="docutils literal"><span class="pre">Fact:</span></tt> (instead of <tt class="docutils literal"><span class="pre">Poke:</span></tt>) as
 appropriate.</p>
-<p>Add one <tt class="docutils literal"><span class="pre">Poke</span></tt>, <tt class="docutils literal"><span class="pre">Bug</span></tt> or <tt class="docutils literal"><span class="pre">Fact</span></tt> section for each poke, bug or trivia item
-to be documented. Entries will appear on the &#8216;Pokes&#8217;, &#8216;Bugs&#8217; or &#8216;Trivia&#8217; page
-in the same order as the sections appear in the <cite>ref</cite> file.</p>
+<p>Add one <tt class="docutils literal"><span class="pre">Poke</span></tt>, <tt class="docutils literal"><span class="pre">Bug</span></tt> or <tt class="docutils literal"><span class="pre">Fact</span></tt> section for each poke, bug or trivia
+entry to be documented. Entries will appear on the &#8216;Pokes&#8217;, &#8216;Bugs&#8217; or &#8216;Trivia&#8217;
+page in the same order as the sections appear in the <cite>ref</cite> file.</p>
 <p>See <a class="reference internal" href="ref-files.html#reffiles"><em>Ref files</em></a> for more information on the format of the <tt class="docutils literal"><span class="pre">Poke</span></tt>,
 <tt class="docutils literal"><span class="pre">Bug</span></tt>, and <tt class="docutils literal"><span class="pre">Fact</span></tt> (and other) sections that may appear in a <cite>ref</cite> file.</p>
 </div>
@@ -361,7 +355,7 @@ themes:</p>
         <li class="right" >
           <a href="usage.html" title="Installing and using SkoolKit"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

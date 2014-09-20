@@ -12,8 +12,8 @@ developer- and assembler-friendly ASM version of the disassembly.
 .. _Spectrum: http://en.wikipedia.org/wiki/ZX_Spectrum
 
 The latest stable release of SkoolKit can always be obtained from
-`pyskool.ca <http://pyskool.ca/?page_id=177>`__; the latest development version
-can be found on `GitHub <http://github.com/skoolkid/skoolkit>`__.
+`skoolkit.ca <http://skoolkit.ca/>`__; the latest development version can be
+found on `GitHub <http://github.com/skoolkid/skoolkit>`__.
 
 Features
 --------
@@ -37,15 +37,16 @@ SkoolKit can:
 * produce TAP files from assembled code (using :ref:`bin2tap.py`)
 
 For a demonstration of SkoolKit's capabilities, take a look at the complete
-disassemblies of `Skool Daze`_, `Back to Skool`_ and `Contact Sam Cruise`_. The
-latest stable releases of the source `skool` files for these disassemblies can
-always be obtained from `pyskool.ca <http://pyskool.ca/?page_id=113>`__; the
-latest development versions can be found on
-`GitHub <http://github.com/skoolkid/disassemblies>`__.
+disassemblies of `Skool Daze`_, `Back to Skool`_, `Contact Sam Cruise`_ and
+`Jet Set Willy`_. The latest stable releases of the source `skool` files for
+these disassemblies can always be obtained from
+`skoolkit.ca <http://skoolkit.ca/>`__; the latest development versions can be
+found on `GitHub <http://github.com/skoolkid/>`__.
 
-.. _Skool Daze: http://pyskool.ca/disassemblies/skool_daze/
-.. _Back to Skool: http://pyskool.ca/disassemblies/back_to_skool/
-.. _Contact Sam Cruise: http://pyskool.ca/disassemblies/contact_sam_cruise/
+.. _Skool Daze: http://skoolkit.ca/disassemblies/skool_daze/
+.. _Back to Skool: http://skoolkit.ca/disassemblies/back_to_skool/
+.. _Contact Sam Cruise: http://skoolkit.ca/disassemblies/contact_sam_cruise/
+.. _Jet Set Willy: http://skoolkit.ca/disassemblies/jet_set_willy/
 
 Licence
 -------
