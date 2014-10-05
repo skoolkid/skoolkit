@@ -1,6 +1,9 @@
 Changelog
 =========
 
+4.2b1
+-----
+
 4.1.1 (2014-09-20)
 ------------------
 * Updated links to SkoolKit's new home at `skoolkit.ca <http://skoolkit.ca>`_
