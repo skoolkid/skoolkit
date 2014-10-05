@@ -39,12 +39,13 @@ SkoolKit can:
 * produce TAP files from assembled code (using `bin2tap.py`)
 
 For a demonstration of SkoolKit's capabilities, take a look at the complete
-disassemblies of `Skool Daze`_, `Back to Skool`_, `Contact Sam Cruise`_ and
-`Jet Set Willy`_.
+disassemblies of `Skool Daze`_, `Back to Skool`_, `Contact Sam Cruise`_,
+`Manic Miner`_ and `Jet Set Willy`_.
 
 .. _Skool Daze: http://skoolkit.ca/disassemblies/skool_daze/
 .. _Back to Skool: http://skoolkit.ca/disassemblies/back_to_skool/
 .. _Contact Sam Cruise: http://skoolkit.ca/disassemblies/contact_sam_cruise/
+.. _Manic Miner: http://skoolkit.ca/disassemblies/manic_miner/
 .. _Jet Set Willy: http://skoolkit.ca/disassemblies/jet_set_willy/
 
 Quick start guide
