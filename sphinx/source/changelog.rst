@@ -3,6 +3,8 @@ Changelog
 
 4.2b1
 -----
+* Fixed the bug that prevents the expansion of skool macros in the intro text
+  of a :ref:`ref-Changelog` section
 
 4.1.1 (2014-09-20)
 ------------------

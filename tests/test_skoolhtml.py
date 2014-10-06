@@ -3768,7 +3768,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
     def test_write_changelog(self):
         ref = '\n'.join((
             '[Changelog:20120704]',
-            'Intro.',
+            'Documented many #BUG(bugs).',
             '',
             '1',
             '  2',
@@ -3793,7 +3793,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <div><a name="20120704"></a></div>
             <div class="changelog changelog-1">
             <div class="changelog-title">20120704</div>
-            <div class="changelog-desc">Intro.</div>
+            <div class="changelog-desc">Documented many <a class="link" href="bugs.html">bugs</a>.</div>
             <ul class="changelog">
             <li>1
             <ul class="changelog1">

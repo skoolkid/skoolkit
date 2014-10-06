@@ -692,7 +692,7 @@ class HtmlWriter:
                 't_anchor': self.format_anchor(title),
                 'num': 1 + j % 2,
                 'title': title,
-                'description': description,
+                'description': self.expand(description, cwd),
                 't_changelog_item_list': self._build_changelog_items(changelog_items)
             }
             entries.append(self.format_template('changelog_entry', t_changelog_entry_subs))
