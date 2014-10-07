@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import sys
 import os
 import argparse
@@ -61,12 +62,170 @@ MACHINES = {
     128: ('TS2068', 'TS2068', False),
 }
 
+TOKENS = {
+    165: 'RND',
+    166: 'INKEY$',
+    167: 'PI',
+    168: 'FN',
+    169: 'POINT',
+    170: 'SCREEN$',
+    171: 'ATTR',
+    172: 'AT',
+    173: 'TAB',
+    174: 'VAL$',
+    175: 'CODE',
+    176: 'VAL',
+    177: 'LEN',
+    178: 'SIN',
+    179: 'COS',
+    180: 'TAN',
+    181: 'ASN',
+    182: 'ACS',
+    183: 'ATN',
+    184: 'LN',
+    185: 'EXP',
+    186: 'INT',
+    187: 'SQR',
+    188: 'SGN',
+    189: 'ABS',
+    190: 'PEEK',
+    191: 'IN',
+    192: 'USR',
+    193: 'STR$',
+    194: 'CHR$',
+    195: 'NOT',
+    196: 'BIN',
+    197: 'OR',
+    198: 'AND',
+    199: '<=',
+    200: '>=',
+    201: '<>',
+    202: 'LINE',
+    203: 'THEN',
+    204: 'TO',
+    205: 'STEP',
+    206: 'DEF FN',
+    207: 'CAT',
+    208: 'FORMAT',
+    209: 'MOVE',
+    210: 'ERASE',
+    211: 'OPEN #',
+    212: 'CLOSE #',
+    213: 'MERGE',
+    214: 'VERIFY',
+    215: 'BEEP',
+    216: 'CIRCLE',
+    217: 'INK',
+    218: 'PAPER',
+    219: 'FLASH',
+    220: 'BRIGHT',
+    221: 'INVERSE',
+    222: 'OVER',
+    223: 'OUT',
+    224: 'LPRINT',
+    225: 'LLIST',
+    226: 'STOP',
+    227: 'READ',
+    228: 'DATA',
+    229: 'RESTORE',
+    230: 'NEW',
+    231: 'BORDER',
+    232: 'CONTINUE',
+    233: 'DIM',
+    234: 'REM',
+    235: 'FOR',
+    236: 'GO TO',
+    237: 'GO SUB',
+    238: 'INPUT',
+    239: 'LOAD',
+    240: 'LIST',
+    241: 'LET',
+    242: 'PAUSE',
+    243: 'NEXT',
+    244: 'POKE',
+    245: 'PRINT',
+    246: 'PLOT',
+    247: 'RUN',
+    248: 'SAVE',
+    249: 'RANDOMIZE',
+    250: 'IF',
+    251: 'CLS',
+    252: 'DRAW',
+    253: 'CLEAR',
+    254: 'RETURN',
+    255: 'COPY'
+}
+
+class BasicLister:
+    def list_basic(self, snapshot):
+        self.snapshot = snapshot
+        i = (snapshot[23635] + 256 * snapshot[23636]) or 23755
+        while i < len(snapshot) and snapshot[i] < 64:
+            self._write('{: 4} '.format(snapshot[i] * 256 + snapshot[i + 1]))
+            self.lspace = False
+            i = self._print_basic_line(i + 4)
+
+    def _print_basic_line(self, i):
+        while self.snapshot[i] != 13:
+            if self.snapshot[i] == 14:
+                self._write(self._get_fp_num(i))
+                i += 6
+            else:
+                self._write(self._get_chars(self.snapshot[i]))
+                i += 1
+        self._write('\n')
+        return i + 1
+
+    def _get_chars(self, code):
+        if code <= 32:
+            self.lspace = False
+            return self._get_char(code)
+        if code <= 164:
+            self.lspace = True
+            return self._get_char(code)
+        return self._get_token(code)
+
+    def _get_fp_num(self, i):
+        j = i - 1
+        num_str = ''
+        while chr(self.snapshot[j]) in '0123456789.':
+            num_str = chr(self.snapshot[j]) + num_str
+            j -= 1
+        if num_str and '.' not in num_str:
+            num = self.snapshot[i + 3] + 256 * self.snapshot[i + 4]
+            if num != int(num_str):
+                return '{{{}}}'.format(num)
+        return ''
+
+    def _get_char(self, code):
+        if code == 94:
+            return '↑'
+        if code == 96:
+            return '£'
+        if code == 127:
+            return '©'
+        if 32 <= code <= 126:
+            return chr(code)
+        return '{{0x{:02X}}}'.format(code)
+
+    def _get_token(self, code):
+        token = TOKENS[code]
+        if self.lspace and code >= 197 and token[0] >= 'A':
+            token = ' ' + token
+        self.lspace = True
+        if code < 168 or code == 203 or token[-1] in '#=>':
+            # RND, INKEY$, PI, THEN, '<=', '>=', '<>', 'OPEN #', 'CLOSE #'
+            return token
+        return token + ' '
+
+    def _write(self, text):
+        sys.stdout.write(text)
+
 def get_word(data, index):
     return data[index] + 256 * data[index + 1]
 
 def to_binary(b):
-    binstr = ["1" if b & 2 ** (n - 1) else "0" for n in range(8, 0, -1)]
-    return ''.join(binstr)
+    return '{:08b}'.format(b)
 
 def analyse_z80(z80file):
     # Read the Z80 file
@@ -333,6 +492,8 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
 group = parser.add_argument_group('Options')
+group.add_argument('--basic', action='store_true',
+                   help='List the BASIC program')
 group.add_argument('--find', metavar='A[,B...[-N]]',
                    help='Search for the byte sequence A,B... with distance N (default=1) between bytes')
 group.add_argument('--peek', metavar='A[-B[-C]]',
@@ -350,6 +511,8 @@ if namespace.find is not None:
     find(infile, namespace.find)
 elif namespace.peek is not None:
     peek(infile, namespace.peek)
+elif namespace.basic:
+    BasicLister().list_basic(get_snapshot(infile))
 elif snapshot_type == '.sna':
     analyse_sna(infile)
 elif snapshot_type == '.z80':
