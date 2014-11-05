@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+
+print_status() {
+  text=$1
+  quiet=${2:-0}
+  if [ $quiet -eq 0 ]; then
+    echo $text
+  fi
+}
+
+run_cmd() {
+  cmd=$1
+  out=$2
+  quiet=${3:-0}
+  error_out=$(mktemp)
+  if [ $quiet -eq 0 ]; then
+    echo -n "Writing $out..."
+  fi
+  if $cmd > $out 2> $error_out; then
+    if [ -s $error_out ]; then
+      print_status "done (with warnings)" $quiet
+    else
+      print_status "done" $quiet
+    fi
+  else
+    print_status "done (with errors)" $quiet
+  fi
+  rm -f $error_out
+}
+
+write_asms() {
+  for suffix in '' '-load' '-save' '-start'; do
+    skool=src/$(basename $skoolfile .skool)$suffix.skool
+    if [ ! -f "$skool" ]; then
+      continue
+    fi
+    for b in '' '-D' '-H'; do
+      for c in '' '-l' '-u'; do
+        for fix in '' '1' '2' '3'; do
+          if [ -n "$fix" ]; then
+            f="-f $fix"
+            infix="-f$fix"
+          else
+            f=""
+            infix=""
+          fi
+          for p in '' '-s' '-r'; do
+            run_cmd "./skool2asm.py -q $b $c $f $p $skool" $GAME$suffix$b$c$infix$p.asm
+          done
+        done
+      done
+    done
+  done
+}
+
+write_ctls() {
+  for b in '' '-h'; do
+    run_cmd "./skool2ctl.py $b src/$skoolfile" $GAME$b.ctl
+  done
+}
+
+write_html() {
+  reffile=$(basename $skoolfile .skool).ref
+
+  if [ "$GAME" = "jsw" ]; then
+    # Required by JSW 20140913
+    options="-c Config/HtmlWriterClass=skoolkit.jetsetwilly.JetSetWillyHtmlWriter"
+  fi
+
+  for b in '' '-D' '-H'; do
+    for c in '' '-u' '-l'; do
+      gamedir=$GAME$b$c
+      echo -n "Writing $gamedir HTML disassembly..."
+      ./skool2html.py $b $c -q -d html -c Config/GameDir=$gamedir $options src/$reffile
+      echo "done"
+    done
+  done
+}
+
+write_skools() {
+  ctl=/tmp/${GAME}.ctl
+  run_cmd "./skool2ctl.py src/$skoolfile" $ctl 1
+  for b in '' '-H'; do
+    for c in '' '-L'; do
+      run_cmd "./sna2skool.py -c $ctl $b $c $SNAPSHOT" $GAME$b$c.skool
+    done
+  done
+  rm -f $ctl
+}
+
+write_sfts() {
+  for b in '' '-h'; do
+    run_cmd "./skool2sft.py $b src/$skoolfile" $GAME$b.sft
+  done
+}
+
+usage() {
+  echo "Usage: $(basename $0) sd|bts|csc|mm|jsw TYPE [TYPE...]"
+  echo ""
+  echo "  TYPE can be one of: asm ctl html skool sft all"
+  exit 1
+}
+
+###############################################################################
+# Begin...
+###############################################################################
+[ -z "$2" ] && usage
+
+GAME=$1
+. $(dirname $0)/read-ddiffsrc $GAME
+skoolfile=$(basename $SKOOL)
+
+shift
+while [ "$1" != "" ]; do
+  case "$1" in
+    asm) write_asms ;;
+    ctl) write_ctls ;;
+    html) write_html ;;
+    skool) write_skools ;;
+    sft) write_sfts ;;
+    all)
+      write_asms
+      write_ctls
+      write_html
+      write_skools
+      write_sfts
+      ;;
+    *) echo "Skipping unknown file type: '$1'" ;;
+  esac
+  shift
+done

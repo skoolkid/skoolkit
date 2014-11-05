@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+RM_EMPTY_DIFFS=1
+DEF_PREFIX="X-"
+PREFIX=$DEF_PREFIX
+
+UTILS=$(dirname $0)
+[ "${UTILS:0:1}" = "/" ] || UTILS=$(pwd)/$UTILS
+ANALYSE_PNG=$UTILS/analyse-png.py
+ANALYSE_GIF=$UTILS/analyse-gif.py
+
+do_diff() {
+  [ -e $2 ] || return
+  infile=$(basename $1)
+  diff_type=html
+  for ext in .asm .ctl .skool .sft; do
+    if [ "${infile:$((${#infile} - ${#ext}))}" = $ext ]; then
+      diff_type=${ext:1}
+    fi
+  done
+  oldf=$1
+  newf=$2
+  ofile=$3
+  shift 3
+  diff_opts=$*
+  diff -Naur $diff_opts $oldf $newf > $ofile
+  if [ $RM_EMPTY_DIFFS -eq 1 ] && [ ! -s $ofile ]; then
+    rm $ofile
+  fi
+  if [ $CHECK_DIFFS -eq 1 ] && [ -f $ofile ]; then
+    xdiff=$(dirname $ofile)/$PREFIX$(basename $ofile)
+    exp_diffs_file=${EXP_DIFFS_FILE_PREFIX}exp-diffs-${diff_type}.txt
+    $UTILS/check-diffs.py $exp_diffs_file $ofile > $xdiff
+    if [ $RM_EMPTY_DIFFS -eq 1 ] && [ ! -s $xdiff ]; then
+      rm $xdiff
+    fi
+  fi
+}
+
+diff_files() {
+  file_type=$1
+  old=$2
+  new=$3
+  out=diffs-$file_type
+
+  rm -rf $out
+  mkdir -p $out
+  echo -n "Writing diffs to $out..."
+  for a in ${old}/*.$file_type; do
+    if [ ! -f "$a" ]; then
+      echo "no $file_type files in $old"
+      return
+    fi
+    b=$(basename $a)
+    do_diff $a ${new}/$b ${out}/$b.diff
+  done
+  echo "done"
+}
+
+diff_html() {
+  old=$1/html
+  new=$2/html
+  out=diffs-html
+
+  rm -rf $out
+  mkdir -p $out
+  echo -n "Writing diffs to $out..."
+  for d in $(ls -1 $new); do
+    diff_file=$out/$d.diff
+    do_diff $old/$d $new/$d $diff_file -x '*.png' -x '*.gif'
+    if [ -f $diff_file ]; then
+      grep '^+++ ' $diff_file | grep -o "$d/.*.html" > $out/$d.files
+    fi
+  done
+  echo "done"
+}
+
+diff_images() {
+  img_type=$1
+  [ $img_type = png ] && diff_cmd=$ANALYSE_PNG || diff_cmd=$ANALYSE_GIF
+  old=$2/html
+  new=$3/html
+  out=diffs-$img_type
+  cwd=$(pwd)
+
+  rm -rf $out
+  mkdir -p $out
+  echo -n "Writing diffs to $out..."
+  htmldir=$(ls -1 $new | head -1)
+  diff_file=$cwd/$out/$htmldir.txt
+  cd $old
+  find $htmldir -name "*.$img_type" | while read img; do
+    old_img=$cwd/$old/$img
+    new_img=$cwd/$new/$img
+    if [ -f $new_img ]; then
+      if ! cmp -s $old_img $new_img; then
+        $diff_cmd -d $old_img $new_img
+      fi
+    else
+      echo "$old_img"
+      echo "$new_img not found"
+    fi
+  done > $diff_file
+  [ -s $diff_file ] || rm $diff_file
+  cd $cwd
+  echo "done"
+}
+
+print_usage() {
+  cat >&2 << EOM
+Usage: $(basename $0) [options] DIR1 DIR2 TYPE [TYPE...]
+
+  Runs 'diff' on the ASM, CTL, GIF, HTML, PNG, SKOOL or SFT files in two
+  directories and outputs the results to suitably named files.
+
+  TYPE can be one of: asm ctl gif html png skool sft all
+
+Options:
+  -d DIR     Filter diff files through check-diffs.py using expected-diff files
+             in this directory
+  -e PREFIX  Use expected-diff files whose names start with this prefix
+             (requires '-d DIR'); the suffix is '-exp-diffs-TYPE.txt'
+  -k         Do not remove empty diff files
+  -p PREFIX  Name filtered diff files with this prefix (default: '$DEF_PREFIX')
+EOM
+  exit 1
+}
+
+###############################################################################
+# Begin...
+###############################################################################
+CHECK_DIFFS=0
+while getopts ":cd:e:p:k" opt; do
+  case $opt in
+    d) CHECK_DIFFS=1; DIFFS_DIR=$OPTARG ;;
+    e) EXP_DIFFS_FILE_PREFIX=${OPTARG}- ;;
+    p) PREFIX=$OPTARG ;;
+    k) RM_EMPTY_DIFFS=0 ;;
+    *) print_usage ;;
+  esac
+done
+
+if [ $# -lt 3 ]; then
+  print_usage
+fi
+
+shift $(($OPTIND - 1))
+
+OLD=$1
+NEW=$2
+
+if [ ! -d $OLD ]; then
+  echo "$OLD: directory not found"
+  exit 1
+fi
+if [ ! -d $NEW ]; then
+  echo "$NEW: directory not found"
+  exit 1
+fi
+
+shift 2
+
+while [ "$1" != "" ]; do
+  case "$1" in
+    asm) diff_files asm $OLD $NEW ;;
+    ctl) diff_files ctl $OLD $NEW ;;
+    gif) diff_images gif $OLD $NEW ;;
+    html) diff_html $OLD $NEW ;;
+    png) diff_images png $OLD $NEW ;;
+    skool) diff_files skool $OLD $NEW ;;
+    sft) diff_files sft $OLD $NEW ;;
+    all)
+      diff_files asm $OLD $NEW
+      diff_files ctl $OLD $NEW
+      diff_images gif $OLD $NEW
+      diff_html $OLD $NEW
+      diff_images png $OLD $NEW
+      diff_files skool $OLD $NEW
+      diff_files sft $OLD $NEW
+      ;;
+    *) echo "Skipping unknown file type: '$1'" ;;
+  esac
+  shift
+done

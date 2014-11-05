@@ -1,0 +1,242 @@
+#!/usr/bin/env bash
+set -e # Abort on errors
+
+usage() {
+  cat <<EOU
+Usage: $(basename $0) [options] sd|bts|csc|mm|jsw [TYPE [TYPE ...]]
+
+  Compares an old version of a disassembly with the current version. TYPE is
+  the type of disassembly to build and compare, which may be 'asm', 'ctl',
+  'gif', 'html', 'png', 'skool' or 'sft'; if TYPE is omitted, every type is
+  built and compared.
+
+  Details on the old disassembly version number and the version of SkoolKit to
+  use to build it are read from .ddiffsrc in the disassembly's home directory,
+  but may be overridden on the command line by using the '-v' and '-o' options.
+
+  Environment variables:
+    DISASSEMBLIES_HOME - home directory of the SD/BTS/CSC disassemblies
+    DISASSEMBLY_ARCHIVE - directory containing disassembly release tarballs
+    JETSETWILLY_HOME - home directory of the Jet Set Willy disassembly
+    MANICMINER_HOME - home directory of the Manic Miner disassembly
+    SKOOLKIT_ARCHIVE - directory containing SkoolKit release tarballs
+    SKOOLKIT_HOME - home directory of the skoolkit project
+
+Options:
+  -c X.Y.Z     Use this version of SkoolKit to build the current disassembly
+               (default is to use the current development version at
+               \$SKOOLKIT_HOME)
+  -n           Do not write the current version of the disassembly if the
+               'disassembly-current-X.Y.Z' directory already exists
+  -o x.y.z     Use this version of SkoolKit to build the old disassembly
+  -r           Write the old version of the disassembly even if the
+               'disassembly-YYYYMMDD-x.y.z' directory already exists
+  -t           Do not build a tarball of the current development version of
+               SkoolKit if 'skoolkit-DEV.tar.xz' (where DEV is the current
+               development version number) already exists
+  -v YYYYMMDD  Specify the version number of the old disassembly
+EOU
+  exit 1
+}
+
+banner() {
+  text=$1
+  template="----------------------------------------"
+  padding=${template:0:$(((78 - ${#text}) / 2))}
+  banner_text="$padding $text $padding"
+  while [ ${#banner_text} -lt 80 ]; do
+    banner_text="${banner_text}${template:0:1}"
+  done
+  echo $banner_text
+}
+
+clean_disassembly() {
+  d_dir=$1
+  [ -d "$d_dir" ] || return 0
+  shift
+  for diff_type in $*; do
+    if [ "$diff_type" = "html" ] || [ "$diff_type" = "gif" ] || [ "$diff_type" = "png" ]; then
+      rm -rf $d_dir/html
+    else
+      rm -f $d_dir/*.$diff_type
+    fi
+  done
+}
+
+write_files() {
+  for diff_type in $DIFF_TYPES; do
+    if [ $diff_type != "gif" ] && [ $diff_type != "png" ]; then
+      $UTILS/write-files $GAME $diff_type
+    fi
+  done
+}
+
+if [ -z "$DISASSEMBLY_ARCHIVE" ]; then
+    echo 'DISASSEMBLY_ARCHIVE is not set; aborting'
+    exit 1
+fi
+if [ ! -d "$DISASSEMBLY_ARCHIVE" ]; then
+    echo "DISASSEMBLY_ARCHIVE=$DISASSEMBLY_ARCHIVE: directory not found"
+    exit 1
+fi
+
+if [ -z "$SKOOLKIT_ARCHIVE" ]; then
+    echo 'SKOOLKIT_ARCHIVE is not set; aborting'
+    exit 1
+fi
+if [ ! -d "$SKOOLKIT_ARCHIVE" ]; then
+    echo "SKOOLKIT_ARCHIVE=$SKOOLKIT_ARCHIVE: directory not found"
+    exit 1
+fi
+
+if [ -z "$SKOOLKIT_HOME" ]; then
+  echo "Error: SKOOLKIT_HOME not defined."
+  exit 1
+fi
+if [ ! -d "$SKOOLKIT_HOME" ]; then
+  echo "Error: directory not found: $SKOOLKIT_HOME"
+  exit 1
+fi
+
+UTILS=$(dirname $0)
+[ "${UTILS:0:1}" = "/" ] || UTILS=$(pwd)/$UTILS
+WRITE_OLD=0
+WRITE_NEW=1
+BUILD_SK_TARBALL=1
+SKOOLKIT_VERSION=dev
+
+while getopts ":v:o:c:rnt" opt; do
+  case $opt in
+    v) OLD_DISASSEMBLY_VERSION=$OPTARG ;;
+    o) OLD_SKOOLKIT_VERSION=$OPTARG ;;
+    c) SKOOLKIT_VERSION=$OPTARG ;;
+    r) WRITE_OLD=1 ;;
+    n) WRITE_NEW=0 ;;
+    t) BUILD_SK_TARBALL=0 ;;
+    *) usage ;;
+  esac
+done
+
+shift $((OPTIND - 1))
+
+[ $# -lt 1 ] && usage
+
+GAME=$1
+
+. $(dirname $0)/read-ddiffsrc $GAME
+OLD_DISASSEMBLY_VERSION=${OLD_DISASSEMBLY_VERSION:-$OLD_VERSION}
+OLD_SKOOLKIT_VERSION=${OLD_SKOOLKIT_VERSION:-$SK_OLD_VERSION}
+
+if [ -z "$OLD_DISASSEMBLY_VERSION" ]; then
+  echo "Old disassembly version not specified in $rcpath or on the command line"
+  exit 1
+fi
+if [ -z "$OLD_SKOOLKIT_VERSION" ]; then
+  echo "Version of SkoolKit to use to build the old disassembly not specified"
+  echo "in $rcpath or on the command line"
+  exit 1
+fi
+if [ -z "$SKOOLKIT_VERSION" ]; then
+  echo "Version of SkoolKit to use to build the current disassembly not specified"
+  exit 1
+fi
+
+shift 1
+
+DIFF_TYPES=${*:-asm ctl gif html png skool sft}
+
+USE_SK_DEV=0
+if [ "$SKOOLKIT_VERSION" = "dev" ]; then
+  USE_SK_DEV=1
+  SKOOLKIT_VERSION=$($SKOOLKIT_HOME/skool2html.py -V 2>&1 | cut -f2 -d' ')
+fi
+
+OLD_SKOOLKIT_VERSION=${OLD_SKOOLKIT_VERSION:-$SKOOLKIT_VERSION}
+OLD_DIR=disassembly-${OLD_DISASSEMBLY_VERSION}-${OLD_SKOOLKIT_VERSION}
+if [ $WRITE_OLD -eq 1 ] || [ ! -d $OLD_DIR ]; then
+  WRITE_OLD=1
+  OLD_DISASSEMBLY_NAME=${GAME}-disassembly-${OLD_DISASSEMBLY_VERSION}
+  clean_disassembly $OLD_DIR $DIFF_TYPES
+  OLD_SKOOLKIT_VERSION_XY=$(echo ${OLD_SKOOLKIT_VERSION} | tr -d . | cut -c1-2)
+  OLD_SKOOLKIT_TAR=skoolkit-${OLD_SKOOLKIT_VERSION}.tar.xz
+  cp -np $SKOOLKIT_ARCHIVE/$OLD_SKOOLKIT_TAR .
+  DISASSEMBLY_TAR=${OLD_DISASSEMBLY_NAME}.tar.xz
+  cp -np $DISASSEMBLY_ARCHIVE/$DISASSEMBLY_TAR .
+  [ ! -d $OLD_DISASSEMBLY_NAME ] && tar xf $DISASSEMBLY_TAR
+  if [ ! -d $OLD_DIR ]; then
+    tar xf $OLD_SKOOLKIT_TAR
+    mv skoolkit-${OLD_SKOOLKIT_VERSION} $OLD_DIR
+    find $OLD_DISASSEMBLY_NAME -name '*.py' -exec cp {} $OLD_DIR/skoolkit \;
+    find $OLD_DISASSEMBLY_NAME -name '*.py' -exec cp {} $OLD_DIR \;
+    mkdir $OLD_DIR/src
+    find $OLD_DISASSEMBLY_NAME -name '*.skool' -exec cp {} $OLD_DIR/src \;
+    find $OLD_DISASSEMBLY_NAME -name '*.ref' -exec cp {} $OLD_DIR/src \;
+    find $OLD_DISASSEMBLY_NAME -name '*.js' -exec cp {} $OLD_DIR/src \;
+    find $OLD_DISASSEMBLY_NAME -name '*.css' -exec cp {} $OLD_DIR/src \;
+  fi
+fi
+
+NEW_DIR=disassembly-current-${SKOOLKIT_VERSION}
+if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
+  WRITE_NEW=1
+  clean_disassembly $NEW_DIR $DIFF_TYPES
+  mkdir -p $NEW_DIR
+  SKOOLKIT_VERSION_XY=$(echo ${SKOOLKIT_VERSION} | tr -d . | cut -c1-2)
+  SKOOLKIT_TAR=skoolkit-${SKOOLKIT_VERSION}.tar.xz
+  if [ $USE_SK_DEV -eq 1 ]; then
+    if [ $BUILD_SK_TARBALL -eq 1 ] || [ ! -f ${SKOOLKIT_TAR} ]; then
+      pushd $SKOOLKIT_HOME > /dev/null
+      echo "Building tarball for version $SKOOLKIT_VERSION of SkoolKit"
+      utils/mksktarball -q -t
+      popd > /dev/null
+      cp -p $SKOOLKIT_HOME/dist/${SKOOLKIT_TAR} .
+    fi
+  else
+    cp -np $SKOOLKIT_ARCHIVE/$SKOOLKIT_TAR .
+  fi
+  tar xf $SKOOLKIT_TAR
+  rsync -a skoolkit-${SKOOLKIT_VERSION}/ $NEW_DIR
+  rm -rf skoolkit-${SKOOLKIT_VERSION}
+  rm -rf $NEW_DIR/src
+  mkdir $NEW_DIR/src
+  cp -p $SKOOLFILES $REFFILES $CSSFILES $JSFILES $NEW_DIR/src
+  cp -p $MODULES $NEW_DIR
+  cp -p $MODULES $NEW_DIR/skoolkit
+fi
+
+if [ $WRITE_OLD -eq 1 ]; then
+  cd $OLD_DIR
+  banner "Writing $OLD_DISASSEMBLY_NAME using SkoolKit $OLD_SKOOLKIT_VERSION"
+  write_files
+  cd ..
+else
+  echo "Using existing old disassembly in $OLD_DIR"
+fi
+
+if [ $WRITE_NEW -eq 1 ]; then
+  cd $NEW_DIR
+  banner "Writing current version of ${GAME}-disassembly using SkoolKit $SKOOLKIT_VERSION"
+  write_files
+  cd ..
+else
+  echo "Using disassembly in $NEW_DIR"
+fi
+
+for diff_type in $DIFF_TYPES; do
+  rm -rf diffs-$diff_type
+done
+
+banner "Running diff-files"
+$UTILS/diff-files -d $DIFFS -e $GAME $OLD_DIR $NEW_DIR $DIFF_TYPES
+
+set +e # No longer abort on errors (the following 'ls' commands can fail)
+
+for diff_type in $DIFF_TYPES; do
+  echo
+  diff_dir=diffs-$diff_type
+  if [ $diff_type = "gif" ] || [ $diff_type = "png" ]; then
+    ls -al $diff_dir/*.txt
+  else
+    ls -al $diff_dir/X-*.diff
+  fi
+done

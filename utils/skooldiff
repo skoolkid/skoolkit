@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -e # Abort on errors
+
+usage() {
+  cat <<EOF
+Usage: $(basename $0) sd|bts|csc|mm|jsw
+
+  Compares the original skool file for a game with one generated from a skool
+  file template and a snapshot, and writes the differences to stdout.
+EOF
+  exit 1
+}
+
+if [ -z "$SKOOLKIT_HOME" ]; then
+  echo "Error: SKOOLKIT_HOME not defined."
+  exit 1
+fi
+if [ ! -d "$SKOOLKIT_HOME" ]; then
+  echo "Error: directory not found: $SKOOLKIT_HOME"
+  exit 1
+fi
+
+GAME=$1
+
+. $(dirname $0)/read-ddiffsrc $GAME
+
+SKOOL2=$GAME.skool
+SFT=$GAME.sft
+DIFF=$GAME.diff
+
+$SKOOLKIT_HOME/skool2sft.py $SKOOL > $SFT
+$SKOOLKIT_HOME/sna2skool.py -T $SFT $SNAPSHOT > $SKOOL2
+diff -u $SKOOL $SKOOL2 > $DIFF
+if [ -s $DIFF ]; then
+  cat $DIFF
+else
+  echo "No differences" 1>&2
+fi
