@@ -3,6 +3,8 @@
 # Runs pasmo over groups of ASM files created by 'write-files' to check for
 # differences in output.
 
+. $(dirname $0)/ddiffs-functions
+
 check() {
   baseasm=$1.asm
   if [ ! -f $baseasm ]; then
@@ -52,7 +54,7 @@ check() {
 }
 
 usage() {
-  echo "Usage: $(basename $0) sd|bts|csc|mm|jsw"
+  echo "Usage: $(basename $0) $GAMES"
   echo ""
   echo "  Check ASM files (created by 'write-files') for Skool Daze, Back to Skool,"
   echo "  Contact Sam Cruise, Manic Miner or Jet Set Willy."
@@ -63,18 +65,15 @@ usage() {
 # Begin...
 ###############################################################################
 game=$1
-case "$game" in
-  sd|bts|csc|mm|jsw) ;;
-  *) usage ;;
-esac
+read_ddiffsrc $game
 
 for suffix in '' '-load' '-save' '-start'; do
   [ -f "$game$suffix.asm" ] || continue
   for f in '' -f{1,2}; do
     check $game$suffix{,-H,-D}{,-l,-u}$f{,-s}
     echo ""
-    [ -n "$fails" ] && FAILS="$FAILS $fails"
-    [ -n "$diffs" ] && DIFFS="$DIFFS\n  $base:$diffs"
+    [ -n "$fails" ] && allfails="$allfails $fails"
+    [ -n "$diffs" ] && alldiffs="$alldiffs\n  $base:$diffs"
   done
 done
 for suffix in '' '-load' '-save' '-start'; do
@@ -82,22 +81,22 @@ for suffix in '' '-load' '-save' '-start'; do
   for f in -f{1,2,3}; do
     check $game$suffix{,-H,-D}{,-l,-u}$f-r
     echo ""
-    [ -n "$fails" ] && FAILS="$FAILS $fails"
-    [ -n "$diffs" ] && DIFFS="$DIFFS\n  $base:$diffs"
+    [ -n "$fails" ] && allfails="$allfails $fails"
+    [ -n "$diffs" ] && alldiffs="$alldiffs\n  $base:$diffs"
   done
 done
 
 echo "------------------------------------ SUMMARY -----------------------------------"
-if [ -n "$FAILS" ]; then
+if [ -n "$allfails" ]; then
   echo "Failed to assemble:"
-  for f in $FAILS; do
+  for f in $allfails; do
     echo "  $f"
   done
 else
   echo "Failed to assemble: None"
 fi
-if [ -n "$DIFFS" ]; then
-  echo -e "Differences:$DIFFS"
+if [ -n "$alldiffs" ]; then
+  echo -e "Differences:$alldiffs"
 else
   echo "Differences: None"
 fi

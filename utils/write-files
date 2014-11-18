@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+. $(dirname $0)/ddiffs-functions
+
 print_status() {
   text=$1
   quiet=${2:-0}
@@ -95,7 +97,7 @@ write_sfts() {
 }
 
 usage() {
-  echo "Usage: $(basename $0) sd|bts|csc|mm|jsw TYPE [TYPE...]"
+  echo "Usage: $(basename $0) $GAMES TYPE [TYPE...]"
   echo ""
   echo "  TYPE can be one of: asm ctl html skool sft all"
   exit 1
@@ -107,7 +109,7 @@ usage() {
 [ -z "$2" ] && usage
 
 GAME=$1
-. $(dirname $0)/read-ddiffsrc $GAME
+read_ddiffsrc $GAME
 skoolfile=$(basename $SKOOL)
 
 shift

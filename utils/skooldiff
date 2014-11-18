@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 set -e # Abort on errors
 
+. $(dirname $0)/ddiffs-functions
+
 usage() {
   cat <<EOF
-Usage: $(basename $0) sd|bts|csc|mm|jsw
+Usage: $(basename $0) $GAMES
 
   Compares the original skool file for a game with one generated from a skool
   file template and a snapshot, and writes the differences to stdout.
@@ -21,8 +23,7 @@ if [ ! -d "$SKOOLKIT_HOME" ]; then
 fi
 
 GAME=$1
-
-. $(dirname $0)/read-ddiffsrc $GAME
+read_ddiffsrc $GAME
 
 SKOOL2=$GAME.skool
 SFT=$GAME.sft

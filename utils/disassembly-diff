@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 set -e # Abort on errors
 
+. $(dirname $0)/ddiffs-functions
+
 usage() {
   cat <<EOU
-Usage: $(basename $0) [options] sd|bts|csc|mm|jsw [TYPE [TYPE ...]]
+Usage: $(basename $0) [options] $GAMES [TYPE [TYPE ...]]
 
   Compares an old version of a disassembly with the current version. TYPE is
   the type of disassembly to build and compare, which may be 'asm', 'ctl',
@@ -123,7 +125,7 @@ shift $((OPTIND - 1))
 
 GAME=$1
 
-. $(dirname $0)/read-ddiffsrc $GAME
+read_ddiffsrc $GAME
 OLD_DISASSEMBLY_VERSION=${OLD_DISASSEMBLY_VERSION:-$OLD_VERSION}
 OLD_SKOOLKIT_VERSION=${OLD_SKOOLKIT_VERSION:-$SK_OLD_VERSION}
 
