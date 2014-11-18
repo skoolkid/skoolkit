@@ -41,17 +41,18 @@ diff_files() {
   old=$2
   new=$3
   out=diffs-$file_type
+  subdir=$file_type
 
   rm -rf $out
   mkdir -p $out
   echo -n "Writing diffs to $out..."
-  for a in ${old}/*.$file_type; do
-    if [ ! -f "$a" ]; then
-      echo "no $file_type files in $old"
-      return
-    fi
+  if ! ls $old/$subdir/*.$file_type 2>&1 > /dev/null; then
+    echo "no $file_type files in $old/$subdir"
+    return
+  fi
+  for a in $old/$subdir/*.$file_type; do
     b=$(basename $a)
-    do_diff $a ${new}/$b ${out}/$b.diff
+    do_diff $a $new/$subdir/$b $out/$b.diff
   done
   echo "done"
 }
