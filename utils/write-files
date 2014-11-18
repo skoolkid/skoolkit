@@ -64,12 +64,6 @@ write_ctls() {
 
 write_html() {
   reffile=$(basename $skoolfile .skool).ref
-
-  if [ "$GAME" = "jsw" ]; then
-    # Required by JSW 20140913
-    options="-c Config/HtmlWriterClass=skoolkit.jetsetwilly.JetSetWillyHtmlWriter"
-  fi
-
   for b in '' '-D' '-H'; do
     for c in '' '-u' '-l'; do
       gamedir=$GAME$b$c
