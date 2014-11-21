@@ -986,41 +986,26 @@ class HtmlWriter:
                 self.macros[macro] = method
 
     def build_table(self, table):
-        table_class = table.table_class
-        html = []
-        if table_class:
-            class_attr = ' class="{0}"'.format(table_class)
-        else:
-            class_attr = ''
-        html.append('<table{0}>'.format(class_attr))
+        rows = []
         for row in table.rows:
-            html.append('<tr>')
+            cells = []
             for cell in row:
-                if cell.colspan > 1:
-                    colspan = ' colspan="{0}"'.format(cell.colspan)
-                else:
-                    colspan = ''
-                if cell.rowspan > 1:
-                    rowspan = ' rowspan="{0}"'.format(cell.rowspan)
-                else:
-                    rowspan = ''
+                cell_subs = {
+                    'colspan': cell.colspan,
+                    'rowspan': cell.rowspan,
+                    'contents': cell.contents
+                }
                 if cell.header:
-                    tag = 'th'
-                    td_class = ''
+                    cells.append(self.format_template('table_header_cell', cell_subs))
                 else:
-                    tag = 'td'
                     cell_class = cell.cell_class
                     if cell.transparent:
                         cell_class += " transparent"
-                    cell_class = cell_class.lstrip()
-                    if cell_class:
-                        td_class = ' class="{0}"'.format(cell_class)
-                    else:
-                        td_class = ''
-                html.append('<{0}{1}{2}{3}>{4}</{0}>'.format(tag, td_class, colspan, rowspan, cell.contents))
-            html.append('</tr>')
-        html.append('</table>')
-        return '\n'.join(html)
+                    cell_subs['class'] = cell_class.lstrip()
+                    cells.append(self.format_template('table_cell', cell_subs))
+            rows.append(self.format_template('table_row', {'cells': '\n'.join(cells)}))
+        table_subs = {'class': table.table_class, 'm_table_row': '\n'.join(rows)}
+        return self.format_template('table', table_subs)
 
     def build_list(self, list_obj):
         items = [self.format_template('list_item', {'item': i}) for i in list_obj.items]

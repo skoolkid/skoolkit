@@ -574,3 +574,82 @@ identifiers):
 To see the default ``stylesheet`` template, run the following command::
 
   $ skool2html.py -r Template:stylesheet
+
+.. _t_table:
+
+table
+-----
+The ``table`` template is used by the :ref:`TABLE` macro to format a table.
+
+It contains the following identifiers (in addition to the universal
+identifiers):
+
+* ``class`` - the CSS class name for the table
+* ``m_table_row`` - replaced by any number of copies of the :ref:`t_table_row`
+  subtemplate
+
+To see the default ``table`` template, run the following command::
+
+  $ skool2html.py -r Template:table$
+
+.. versionadded:: 4.2
+
+.. _t_table_cell:
+
+table_cell
+----------
+The ``table_cell`` template is the subtemplate used by the :ref:`t_table_row`
+template to format each non-header cell in the table row.
+
+It contains the following identifiers (in addition to the universal
+identifiers):
+
+* ``class`` - the CSS class name for the cell
+* ``colspan`` - the number of columns spanned by the cell
+* ``contents`` - the contents of the cell
+* ``rowspan`` - the number of rows spanned by the cell
+
+To see the default ``table_cell`` template, run the following command::
+
+  $ skool2html.py -r Template:table_cell
+
+.. versionadded:: 4.2
+
+.. _t_table_header_cell:
+
+table_header_cell
+-----------------
+The ``table_header_cell`` template is the subtemplate used by the
+:ref:`t_table_row` template to format each header cell in the table row.
+
+It contains the following identifiers (in addition to the universal
+identifiers):
+
+* ``colspan`` - the number of columns spanned by the cell
+* ``contents`` - the contents of the cell
+* ``rowspan`` - the number of rows spanned by the cell
+
+To see the default ``table_header_cell`` template, run the following command::
+
+  $ skool2html.py -r Template:table_header_cell
+
+.. versionadded:: 4.2
+
+.. _t_table_row:
+
+table_row
+---------
+The ``table_row`` template is the subtemplate used by the :ref:`t_table`
+template to format each row in the table.
+
+It contains the following identifier (in addition to the universal
+identifiers):
+
+* ``cells`` - replaced by one or more copies of the :ref:`t_table_cell` or
+  :ref:`t_table_header_cell` subtemplate
+
+To see the default ``table_row`` template, run the following command::
+
+  $ skool2html.py -r Template:table_row
+
+.. versionadded:: 4.2

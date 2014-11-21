@@ -27,6 +27,10 @@ REF_SECTIONS = {
     'Template_link': defaults.get_section('Template:link'),
     'Template_list': defaults.get_section('Template:list'),
     'Template_list_item': defaults.get_section('Template:list_item'),
+    'Template_table': defaults.get_section('Template:table'),
+    'Template_table_cell': defaults.get_section('Template:table_cell'),
+    'Template_table_header_cell': defaults.get_section('Template:table_header_cell'),
+    'Template_table_row': defaults.get_section('Template:table_row'),
     'Template_reg': defaults.get_section('Template:reg')
 }
 
@@ -69,6 +73,10 @@ Pokes={REFERENCE_DIR}/pokes.html
 {REF_SECTIONS[Template_list]}
 {REF_SECTIONS[Template_list_item]}
 {REF_SECTIONS[Template_reg]}
+{REF_SECTIONS[Template_table]}
+{REF_SECTIONS[Template_table_cell]}
+{REF_SECTIONS[Template_table_header_cell]}
+{REF_SECTIONS[Template_table_row]}
 [Titles]
 Asm-b=Data at
 Asm-c=Routine at
@@ -1685,20 +1693,20 @@ class SkoolMacroTest(HtmlWriterTestCase):
         html1 = """
             <table class="data">
             <tr>
-            <th>Col1</th>
-            <th>Col2</th>
-            <th colspan="2">Cols3+4</th>
+            <th colspan="1" rowspan="1">Col1</th>
+            <th colspan="1" rowspan="1">Col2</th>
+            <th colspan="2" rowspan="1">Cols3+4</th>
             </tr>
             <tr>
-            <td rowspan="2">X</td>
-            <td>Y</td>
-            <td>Za</td>
-            <td>Zb</td>
+            <td class="" colspan="1" rowspan="2">X</td>
+            <td class="" colspan="1" rowspan="1">Y</td>
+            <td class="" colspan="1" rowspan="1">Za</td>
+            <td class="" colspan="1" rowspan="1">Zb</td>
             </tr>
             <tr>
-            <td>Y2</td>
-            <td>Za2</td>
-            <td class="transparent"></td>
+            <td class="" colspan="1" rowspan="1">Y2</td>
+            <td class="" colspan="1" rowspan="1">Za2</td>
+            <td class="transparent" colspan="1" rowspan="1"></td>
             </tr>
             </table>
         """
@@ -1709,12 +1717,12 @@ class SkoolMacroTest(HtmlWriterTestCase):
             '{ Cell }'
         ))
         html2 = """
-            <table>
+            <table class="">
             <tr>
-            <th>Header</th>
+            <th colspan="1" rowspan="1">Header</th>
             </tr>
             <tr>
-            <td class="centre">Cell</td>
+            <td class="centre" colspan="1" rowspan="1">Cell</td>
             </tr>
             </table>
         """
@@ -1726,7 +1734,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
 
         # Empty table
         output = writer.expand('#TABLE TABLE#', ASMDIR)
-        self.assertEqual(output, '<table>\n</table>')
+        self.assertEqual(output, '<table class="">\n\n</table>')
 
     def test_macro_table_invalid(self):
         writer = self._get_writer()
@@ -2062,20 +2070,20 @@ class SkoolMacroTest(HtmlWriterTestCase):
         html = """
             <table class="data">
             <tr>
-            <th>Col1</th>
-            <th>Col2</th>
-            <th colspan="2">Cols3+4</th>
+            <th colspan="1" rowspan="1">Col1</th>
+            <th colspan="1" rowspan="1">Col2</th>
+            <th colspan="2" rowspan="1">Cols3+4</th>
             </tr>
             <tr>
-            <td rowspan="2">X</td>
-            <td>Y</td>
-            <td>Za</td>
-            <td>Zb</td>
+            <td class="" colspan="1" rowspan="2">X</td>
+            <td class="" colspan="1" rowspan="1">Y</td>
+            <td class="" colspan="1" rowspan="1">Za</td>
+            <td class="" colspan="1" rowspan="1">Zb</td>
             </tr>
             <tr>
-            <td>Y2</td>
-            <td>Za2</td>
-            <td class="transparent"></td>
+            <td class="" colspan="1" rowspan="1">Y2</td>
+            <td class="" colspan="1" rowspan="1">Za2</td>
+            <td class="transparent" colspan="1" rowspan="1"></td>
             </tr>
             </table>
         """
@@ -2085,7 +2093,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
 
         # Empty table
         output = writer.expand('#UDGTABLE UDGTABLE#', ASMDIR)
-        self.assertEqual(output, '<table>\n</table>')
+        self.assertEqual(output, '<table class="">\n\n</table>')
 
     def test_macro_udgtable_invalid(self):
         writer = self._get_writer()

@@ -539,6 +539,26 @@ SECTIONS['Template:stylesheet'] = """
 <link rel="stylesheet" type="text/css" href="{href}" />
 """
 
+SECTIONS['Template:table'] = """
+<table class="{class}">
+{m_table_row}
+</table>
+"""
+
+SECTIONS['Template:table_cell'] = """
+<td class="{class}" colspan="{colspan}" rowspan="{rowspan}">{contents}</td>
+"""
+
+SECTIONS['Template:table_header_cell'] = """
+<th colspan="{colspan}" rowspan="{rowspan}">{contents}</th>
+"""
+
+SECTIONS['Template:table_row'] = """
+<tr>
+{cells}
+</tr>
+"""
+
 SECTIONS['Titles'] = """
 Asm-b=Data at
 Asm-c=Routine at
