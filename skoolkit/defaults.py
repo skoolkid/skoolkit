@@ -492,6 +492,16 @@ SECTIONS['Template:link'] = """
 <a class="link" href="{href}">{link_text}</a>
 """
 
+SECTIONS['Template:list'] = """
+<ul class="{class}">
+{m_list_item}
+</ul>
+"""
+
+SECTIONS['Template:list_item'] = """
+<li>{item}</li>
+"""
+
 SECTIONS['Template:map_entry'] = """
 <tr>
 <td class="map-page-{MemoryMap[PageByteColumns]}">{entry[page]}</td>

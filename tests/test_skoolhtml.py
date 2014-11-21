@@ -25,6 +25,8 @@ REF_SECTIONS = {
     'PageHeaders': defaults.get_section('PageHeaders'),
     'Template_img': defaults.get_section('Template:img'),
     'Template_link': defaults.get_section('Template:link'),
+    'Template_list': defaults.get_section('Template:list'),
+    'Template_list_item': defaults.get_section('Template:list_item'),
     'Template_reg': defaults.get_section('Template:reg')
 }
 
@@ -64,6 +66,8 @@ Facts={REFERENCE_DIR}/facts.html
 Pokes={REFERENCE_DIR}/pokes.html
 {REF_SECTIONS[Template_img]}
 {REF_SECTIONS[Template_link]}
+{REF_SECTIONS[Template_list]}
+{REF_SECTIONS[Template_list_item]}
 {REF_SECTIONS[Template_reg]}
 [Titles]
 Asm-b=Data at
@@ -1117,7 +1121,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # List with no CSS class
         src = "{ Item 1 }"
         html = '\n'.join((
-            '<ul>',
+            '<ul class="">',
             '<li>Item 1</li>',
             '</ul>'
         ))
@@ -1126,7 +1130,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
 
         # Empty list
         output = writer.expand('#LIST LIST#', ASMDIR)
-        self.assertEqual(output, '<ul>\n</ul>')
+        self.assertEqual(output, '<ul class="">\n\n</ul>')
 
     def test_macro_list_invalid(self):
         writer = self._get_writer()

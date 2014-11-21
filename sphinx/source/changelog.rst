@@ -3,6 +3,8 @@ Changelog
 
 4.2b1
 -----
+* Added the :ref:`t_list` and :ref:`t_list_item` templates (for formatting
+  lists produced by the :ref:`LIST` macro)
 * Fixed the bug that prevents the expansion of skool macros in the intro text
   of a :ref:`ref-Changelog` section
 

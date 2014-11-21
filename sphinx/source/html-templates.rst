@@ -426,6 +426,43 @@ To see the default ``link`` template, run the following command::
 
   $ skool2html.py -r Template:link
 
+.. _t_list:
+
+list
+----
+The ``list`` template is used by the :ref:`LIST` macro to format a list.
+
+It contains the following identifiers (in addition to the universal
+identifiers):
+
+* ``class`` - the CSS class name for the list
+* ``m_list_item`` - replaced by any number of copies of the :ref:`t_list_item`
+  subtemplate
+
+To see the default ``list`` template, run the following command::
+
+  $ skool2html.py -r Template:list$
+
+.. versionadded:: 4.2
+
+.. _t_list_item:
+
+list_item
+---------
+The ``list_item`` template is the subtemplate used by the :ref:`t_list`
+template to format each item in the list.
+
+It contains the following identifier (in addition to the universal
+identifiers):
+
+* ``item`` - replaced by the text of the item
+
+To see the default ``list_item`` template, run the following command::
+
+  $ skool2html.py -r Template:list_item
+
+.. versionadded:: 4.2
+
 .. _t_map_entry:
 
 map_entry

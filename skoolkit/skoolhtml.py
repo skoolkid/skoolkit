@@ -1023,16 +1023,9 @@ class HtmlWriter:
         return '\n'.join(html)
 
     def build_list(self, list_obj):
-        html = []
-        if list_obj.css_class:
-            class_attr = ' class="{0}"'.format(list_obj.css_class)
-        else:
-            class_attr = ''
-        html.append('<ul{0}>'.format(class_attr))
-        for item in list_obj.items:
-            html.append('<li>{0}</li>'.format(item))
-        html.append('</ul>')
-        return '\n'.join(html)
+        items = [self.format_template('list_item', {'item': i}) for i in list_obj.items]
+        list_subs = {'class': list_obj.css_class, 'm_list_item': '\n'.join(items)}
+        return self.format_template('list', list_subs)
 
     def _get_udg_addresses(self, addr_spec, width):
         if type(addr_spec) is int:
