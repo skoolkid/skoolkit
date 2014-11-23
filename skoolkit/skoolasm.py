@@ -19,7 +19,7 @@
 import re
 import inspect
 
-from . import warn, write_text, wrap, get_chr, SkoolParsingError
+from . import warn, write_text, wrap, get_chr, SkoolKitError, SkoolParsingError
 from . import skoolmacro
 from .skoolmacro import MacroParsingError, UnsupportedMacroError
 from .skoolparser import TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
@@ -140,6 +140,8 @@ class AsmWriter:
         """Discard the current memory snapshot and replace it with the one that
         was most recently saved (by
         :meth:`~skoolkit.skoolasm.AsmWriter.push_snapshot`)."""
+        if len(self._snapshots) < 2:
+            raise SkoolKitError("Cannot pop snapshot when snapshot stack is empty")
         self.snapshot = self._snapshots.pop()[0]
 
     def push_snapshot(self, name=''):

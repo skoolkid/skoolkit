@@ -314,7 +314,10 @@ def parse_pokes(text, index, snapshot):
 
 def parse_pops(text, index, writer):
     # #POPS
-    writer.pop_snapshot()
+    try:
+        writer.pop_snapshot()
+    except SkoolKitError as e:
+        raise MacroParsingError(e.args[0])
     return index, ''
 
 def parse_pushs(text, index, writer):

@@ -694,6 +694,11 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(output, '')
         self.assertEqual(writer.snapshot[addr], byte)
 
+    def test_macro_pops_empty_stack(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('POPS')
+        self.assert_error(writer, '#POPS', 'Cannot pop snapshot when snapshot stack is empty', prefix)
+
     def test_macro_pushs(self):
         writer = self._get_writer()
         addr, byte = 32768, 64

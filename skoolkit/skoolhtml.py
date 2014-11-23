@@ -394,6 +394,8 @@ class HtmlWriter:
         """Discard the current memory snapshot and replace it with the one that
         was most recently saved (by
         :meth:`~skoolkit.skoolhtml.HtmlWriter.push_snapshot`)."""
+        if len(self._snapshots) < 2:
+            raise SkoolKitError("Cannot pop snapshot when snapshot stack is empty")
         self.snapshot = self._snapshots.pop()[0]
 
     def push_snapshot(self, name=''):
