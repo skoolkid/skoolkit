@@ -72,7 +72,7 @@ def get_chr(code):
 
 def get_class(name_spec):
     if ':' in name_spec:
-        path, name = name_spec.split(':')
+        path, name = name_spec.rsplit(':', 1)
         if path not in sys.path:
             sys.path.insert(0, os.path.expanduser(path))
     else:
