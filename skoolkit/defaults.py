@@ -455,10 +455,6 @@ SECTIONS['Template:changelog_entry'] = """
 </div>
 """
 
-SECTIONS['Template:changelog_item'] = """
-<li>{item}</li>
-"""
-
 SECTIONS['Template:changelog_item_list'] = """
 <ul class="changelog{indent}">
 {m_changelog_item}

@@ -3853,6 +3853,44 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal(join(REFERENCE_DIR, 'changelog.html'), subs)
 
+    def test_write_changelog_with_changelog_item_template(self):
+        # Test that the 'changelog_item' template is used if defined (instead
+        # of the default 'list_item' template)
+        ref = '\n'.join((
+            '[Changelog:20141123]',
+            '-',
+            '',
+            'Item 1',
+            'Item 2',
+            '',
+            '[Template:changelog_item]',
+            '<li>* {item}</li>'
+        ))
+        content = """
+            <ul class="contents">
+            <li><a class="link" href="#20141123">20141123</a></li>
+            </ul>
+            <div><a name="20141123"></a></div>
+            <div class="changelog changelog-1">
+            <div class="changelog-title">20141123</div>
+            <div class="changelog-desc"></div>
+            <ul class="changelog">
+            <li>* Item 1</li>
+            <li>* Item 2</li>
+            </ul>
+            </div>
+        """
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_changelog()
+        subs = {
+            'name': basename(self.skoolfile)[:-6],
+            'header': 'Changelog',
+            'path': '../',
+            'body_class': 'Changelog',
+            'content': content
+        }
+        self._assert_files_equal(join(REFERENCE_DIR, 'changelog.html'), subs)
+
     def test_write_changelog_with_custom_title_and_header_and_path(self):
         title = 'Log of changes'
         header = 'What has changed?'

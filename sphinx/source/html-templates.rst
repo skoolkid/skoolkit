@@ -274,32 +274,14 @@ To see the default ``changelog_entry`` template, run the following command::
 
   $ skool2html.py -r Template:changelog_entry
 
-.. _t_changelog_item:
-
-changelog_item
---------------
-The ``changelog_item`` template is the subtemplate used by the
-:ref:`t_changelog_item_list` subtemplate to format each item in a changelog
-item list.
-
-It contains the following identifier (in addition to the universal
-identifiers):
-
-* ``item`` - replaced by the text of the changelog item, or a copy of the
-  :ref:`t_changelog_item_list` subtemplate
-
-To see the default ``changelog_item`` template, run the following command::
-
-  $ skool2html.py -r Template:changelog_item$
-
 .. _t_changelog_item_list:
 
 changelog_item_list
 -------------------
 The ``changelog_item_list`` template is the subtemplate used by the
 :ref:`t_changelog_entry` subtemplate to format a list of changelog items, and
-also by the :ref:`t_changelog_item` subtemplate to format a list of subitems or
-subsubitems etc.
+also by the ``changelog_item`` or :ref:`t_list_item` subtemplate to format a
+list of subitems or subsubitems etc.
 
 It contains the following identifiers (in addition to the universal
 identifiers):
@@ -308,7 +290,8 @@ identifiers):
   the list of top-level items, '1' for a list of subitems, '2' for a list of
   subsubitems etc.
 * ``m_changelog_item`` - replaced by one or more copies of the
-  :ref:`t_changelog_item` subtemplate
+  ``changelog_item`` subtemplate if it exists, or the :ref:`t_list_item`
+  subtemplate otherwise
 
 To see the default ``changelog_item_list`` template, run the following
 command::
@@ -450,12 +433,14 @@ To see the default ``list`` template, run the following command::
 list_item
 ---------
 The ``list_item`` template is the subtemplate used by the :ref:`t_list`
-template to format each item in the list.
+template to format each item in the list, and also by the
+:ref:`t_changelog_item_list` subtemplate to format each item in a changelog
+item list.
 
 It contains the following identifier (in addition to the universal
 identifiers):
 
-* ``item`` - replaced by the text of the item
+* ``item`` - replaced by the text of the list item
 
 To see the default ``list_item`` template, run the following command::
 

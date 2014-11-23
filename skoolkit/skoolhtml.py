@@ -651,7 +651,7 @@ class HtmlWriter:
         for item, subitems in items:
             if subitems:
                 item = '{}\n{}\n'.format(item, self._build_changelog_items(subitems, level + 1))
-            changelog_items.append(self.format_template('changelog_item', {'item': item}))
+            changelog_items.append(self.format_template('changelog_item', {'item': item}, 'list_item'))
         if level > 0:
             indent = level
         else:
