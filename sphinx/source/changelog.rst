@@ -3,6 +3,9 @@ Changelog
 
 4.2b1
 -----
+* :ref:`skool2asm.py` now warns about unconverted addresses in register
+  descriptions, and the :ref:`ignoreua` directive can be used to suppress such
+  warnings
 * Added the :ref:`t_table`, :ref:`t_table_cell`, :ref:`t_table_header_cell` and
   :ref:`t_table_row` templates (for formatting tables produced by the
   :ref:`TABLE` macro)

@@ -1108,21 +1108,25 @@ class AsmWriterTest(SkoolKitTestCase):
             '; Routine at 32768',
             ';',
             '; Used by the routine at 32768.',
+            ';',
+            '; HL 32768',
             'c32768 LD A,B  ; This instruction is at 32768',
             '; This mid-routine comment is above 32769.',
             ' 32769 RET',
         ))
         self._get_asm(skool, warn=True)
         warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 8)
+        self.assertEqual(len(warnings), 10)
         self.assertEqual(warnings[0], 'WARNING: Comment contains address (32768) not converted to a label:')
         self.assertEqual(warnings[1], '; Routine at 32768')
         self.assertEqual(warnings[2], 'WARNING: Comment contains address (32768) not converted to a label:')
         self.assertEqual(warnings[3], '; Used by the routine at 32768.')
-        self.assertEqual(warnings[4], 'WARNING: Comment at 32768 contains address (32768) not converted to a label:')
-        self.assertEqual(warnings[5], '  LD A,B                  ; This instruction is at 32768')
-        self.assertEqual(warnings[6], 'WARNING: Comment above 32769 contains address (32769) not converted to a label:')
-        self.assertEqual(warnings[7], '; This mid-routine comment is above 32769.')
+        self.assertEqual(warnings[4], 'WARNING: Register description contains address (32768) not converted to a label:')
+        self.assertEqual(warnings[5], '; HL 32768')
+        self.assertEqual(warnings[6], 'WARNING: Comment at 32768 contains address (32768) not converted to a label:')
+        self.assertEqual(warnings[7], '  LD A,B                  ; This instruction is at 32768')
+        self.assertEqual(warnings[8], 'WARNING: Comment above 32769 contains address (32769) not converted to a label:')
+        self.assertEqual(warnings[9], '; This mid-routine comment is above 32769.')
 
     def test_warn_long_line(self):
         skool = '\n'.join((
@@ -1509,6 +1513,9 @@ class AsmWriterTest(SkoolKitTestCase):
             ';',
             '; @ignoreua',
             '; Description of routine at 32768.',
+            ';',
+            '; @ignoreua',
+            '; HL 32768',
             '; @ignoreua',
             'c32768 LD A,B ; This is the instruction at 32768',
             '; @ignoreua',

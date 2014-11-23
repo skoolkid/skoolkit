@@ -394,10 +394,8 @@ class SkoolParser:
             if ctl in DIRECTIVES:
                 desc, details, registers = self._parse_comment_block()
                 map_entry = SkoolEntry(address, addr_str, ctl, desc, details, registers)
-                map_entry.ignoretua = self.mode.ignoretua
-                self.mode.ignoretua = False
-                map_entry.ignoredua = self.mode.ignoredua
-                self.mode.ignoredua = False
+                map_entry.ignoreua.update(self.mode.entry_ignoreua)
+                self.mode.reset_entry_ignoreua()
                 self.entries[address] = map_entry
                 self.memory_map.append(map_entry)
                 self.comments[:] = []
@@ -444,7 +442,7 @@ class SkoolParser:
 
     def _add_end_comment(self, map_entry):
         map_entry.end_comment = self._join_comments(self.comments, True)
-        map_entry.ignoreecua = len(self.ignores) > 0
+        map_entry.ignoreua['e'] = len(self.ignores) > 0
 
     def _join_comments(self, comments, split=False):
         sections = [[]]
@@ -596,8 +594,9 @@ class SkoolParser:
             line_no += 1
         if index < 3:
             self._apply_ignores(section_ignores, index, line_no)
-        self.mode.ignoretua = section_ignores[0]
-        self.mode.ignoredua = section_ignores[1]
+        self.mode.entry_ignoreua['t'] = section_ignores[0]
+        self.mode.entry_ignoreua['d'] = section_ignores[1]
+        self.mode.entry_ignoreua['r'] = section_ignores[2]
         title = self._join_comments(sections[0])
         description = self._join_comments(sections[1], True)
         registers = self._parse_registers(sections[2])
@@ -750,8 +749,7 @@ class Mode:
         self.labels = []
         self.create_labels = create_labels
         self.asm_labels = asm_labels
-        self.ignoretua = False
-        self.ignoredua = False
+        self.entry_ignoreua = {}
         if self.lower:
             self.hex2fmt = '${0:02x}'
             self.hex4fmt = '${0:04x}'
@@ -761,6 +759,7 @@ class Mode:
             self.hex4fmt = '${0:04X}'
             self.addr_fmt = '{0:04X}'
         self.reset()
+        self.reset_entry_ignoreua()
 
     def reset(self):
         self.label = None
@@ -775,6 +774,10 @@ class Mode:
         self.ignoreua = False
         self.ignoremrcua = False
         self.org = None
+
+    def reset_entry_ignoreua(self):
+        for section in 'tdr':
+            self.entry_ignoreua[section] = False
 
     def start(self):
         self.started = True
@@ -1046,9 +1049,7 @@ class SkoolEntry:
         self.end_comment = ()
         self.referrers = []
         self.size = None
-        self.ignoretua = False
-        self.ignoredua = False
-        self.ignoreecua = False
+        self.ignoreua = {'t': False, 'd': False, 'r': False, 'e': False}
 
     def is_routine(self):
         """Return whether the entry is a routine (code block)."""

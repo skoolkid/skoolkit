@@ -124,24 +124,14 @@ class AsmWriter:
             self.write_line('')
 
     def print_entry(self):
-        self.print_comment_lines([self.entry.description], ignoreua=self.entry.ignoretua)
+        self.print_comment_lines([self.entry.description], ignoreua=self.entry.ignoreua['t'])
         if self.entry.details:
-            self.print_comment_lines(self.entry.details, ignoreua=self.entry.ignoredua, started=True)
+            self.print_comment_lines(self.entry.details, ignoreua=self.entry.ignoreua['d'], started=True)
         if self.entry.registers:
-            self.write_line(';')
-            prefix_len = max([len(reg.prefix) for reg in self.entry.registers])
-            if prefix_len:
-                prefix_len += 1
-            indent = ''.ljust(prefix_len)
-            for reg in self.entry.registers:
-                if reg.prefix:
-                    prefix = '{0}:'.format(reg.prefix).rjust(prefix_len)
-                else:
-                    prefix = indent
-                self.write_line('; {0}{1} {2}'.format(prefix, reg.name, self.expand(reg.contents)))
+            self.print_registers()
         self.print_instructions()
         if self.entry.end_comment:
-            self.print_comment_lines(self.entry.end_comment, ignoreua=self.entry.ignoreecua)
+            self.print_comment_lines(self.entry.end_comment, ignoreua=self.entry.ignoreua['e'])
 
     def write_line(self, s):
         write_text('{0}{1}'.format(s, self.end))
@@ -374,6 +364,25 @@ class AsmWriter:
                         else:
                             self.warn('Comment contains address ({0}) not converted to a label:\n; {1}'.format(uaddress, line))
                 self.write_line('; {0}'.format(line).rstrip())
+
+    def print_registers(self):
+        self.write_line(';')
+        prefix_len = max([len(reg.prefix) for reg in self.entry.registers])
+        if prefix_len:
+            prefix_len += 1
+        indent = ''.ljust(prefix_len)
+        for reg in self.entry.registers:
+            if reg.prefix:
+                prefix = '{}:'.format(reg.prefix).rjust(prefix_len)
+            else:
+                prefix = indent
+            reg_desc = self.expand(reg.contents)
+            line = '; {}{} {}'.format(prefix, reg.name, reg_desc)
+            if not self.entry.ignoreua['r']:
+                uaddress = self.find_unconverted_address(reg_desc)
+                if uaddress:
+                    self.warn('Register description contains address ({}) not converted to a label:\n{}'.format(uaddress, line))
+            self.write_line(line)
 
     def print_instruction_prefix(self, instruction):
         mid_routine_comment = instruction.get_mid_routine_comment()
