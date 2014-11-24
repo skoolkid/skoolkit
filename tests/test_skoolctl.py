@@ -55,7 +55,6 @@ c32768 NOP          ; Do nothing
 ; Mid-block comment
  32774 DEFM "Hello" ; T sub-block
 ; @keep
-; @ignoreua
  32779 DEFW 12345   ; W sub-block
  32781 defs 2       ; S sub-block
 ; @nolabel
@@ -198,7 +197,6 @@ B 32771,3,1,2 2-line B sub-block
 D 32774 Mid-block comment
 T 32774,5,5 T sub-block
 ; @keep:32779
-; @ignoreua:32779
 W 32779,2,2 W sub-block
 S 32781,2,2 S sub-block
 M 32783,12 Sub-block with instructions of various types and blank lines in the comment
@@ -289,7 +287,6 @@ B $8003,3,1,2 2-line B sub-block
 D $8006 Mid-block comment
 T $8006,5,5 T sub-block
 ; @keep:$800B
-; @ignoreua:$800B
 W $800B,2,2 W sub-block
 S $800D,2,2 S sub-block
 M $800F,12 Sub-block with instructions of various types and blank lines in the comment
@@ -622,6 +619,99 @@ class CtlWriterTest(SkoolKitTestCase):
             's 50000 DEFS statements in various bases',
             '  50000,4256,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170'
         ]
+        self.assertEqual(exp_ctl, ctl)
+
+    def test_ignoreua_directives(self):
+        skool = '\n'.join((
+            '; @ignoreua',
+            '; Routine at 30000',
+            'c30000 RET',
+            '',
+            '; Routine',
+            ';',
+            '; @ignoreua',
+            '; Description of the routine at 30001',
+            ';',
+            '; @ignoreua',
+            '; HL 30001',
+            '; @ignoreua',
+            'c30001 RET    ; Instruction-level comment at 30001',
+            '',
+            '; Routine',
+            'c30002 LD A,B',
+            '; @ignoreua',
+            '; Mid-block comment above 30003.',
+            '; @ignoreua',
+            ' 30003 RET    ; Instruction-level comment at 30003',
+            '',
+            '; Routine',
+            '; @ignoreua',
+            'c30004 LD A,C ; Instruction-level comment at 30004',
+            '; @ignoreua',
+            '; Mid-block comment above 30005.',
+            ' 30005 RET',
+            '; @ignoreua',
+            '; End comment for the routine at 30004.'
+        ))
+        exp_ctl = [
+            '; @ignoreua:30000:t',
+            'c 30000 Routine at 30000',
+            'c 30001 Routine',
+            '; @ignoreua:30001:d',
+            'D 30001 Description of the routine at 30001',
+            '; @ignoreua:30001:r',
+            'R 30001 HL 30001',
+            '; @ignoreua:30001:i',
+            '  30001 Instruction-level comment at 30001',
+            'c 30002 Routine',
+            '; @ignoreua:30003:m',
+            'D 30003 Mid-block comment above 30003.',
+            '; @ignoreua:30003:i',
+            '  30003 Instruction-level comment at 30003',
+            'c 30004 Routine',
+            '; @ignoreua:30004:i',
+            '  30004,1 Instruction-level comment at 30004',
+            '; @ignoreua:30005:m',
+            'D 30005 Mid-block comment above 30005.',
+            '; @ignoreua:30004:e',
+            'E 30004 End comment for the routine at 30004.'
+        ]
+        ctl = self._get_ctl(skool=skool)
+        self.assertEqual(exp_ctl, ctl)
+
+    def test_ignoreua_directives_hex(self):
+        skool = '\n'.join((
+            '; @ignoreua',
+            '; Routine at 40000',
+            ';',
+            '; @ignoreua',
+            '; Description of the routine at 40000',
+            ';',
+            '; @ignoreua',
+            '; HL 40000',
+            '; @ignoreua',
+            'c40000 LD A,B ; Instruction-level comment at 40000',
+            '; @ignoreua',
+            '; Mid-block comment above 40001.',
+            ' 40001 RET',
+            '; @ignoreua',
+            '; End comment for the routine at 40000.'
+        ))
+        exp_ctl = [
+            '; @ignoreua:$9C40:t',
+            'c $9C40 Routine at 40000',
+            '; @ignoreua:$9C40:d',
+            'D $9C40 Description of the routine at 40000',
+            '; @ignoreua:$9C40:r',
+            'R $9C40 HL 40000',
+            '; @ignoreua:$9C40:i',
+            '  $9C40,1 Instruction-level comment at 40000',
+            '; @ignoreua:$9C41:m',
+            'D $9C41 Mid-block comment above 40001.',
+            '; @ignoreua:$9C40:e',
+            'E $9C40 End comment for the routine at 40000.'
+        ]
+        ctl = self._get_ctl(write_hex=True, skool=skool)
         self.assertEqual(exp_ctl, ctl)
 
 if __name__ == '__main__':

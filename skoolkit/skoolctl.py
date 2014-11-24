@@ -28,12 +28,21 @@ BLOCK_COMMENTS = 'm'
 SUBBLOCKS = 's'
 COMMENTS = 'c'
 
-# Entry-level ASM directives
+# ASM directives
 AD_START = 'start'
 AD_WRITER = 'writer'
 AD_ORG = 'org'
 AD_END = 'end'
 AD_SET = 'set-'
+AD_IGNOREUA = 'ignoreua'
+
+# Comment types to which the @ignoreua directive may be applied
+TITLE = 't'
+DESCRIPTION = 'd'
+REGISTERS = 'r'
+MID_BLOCK = 'm'
+INSTRUCTION = 'i'
+END = 'e'
 
 def get_lengths(stmt_lengths):
     # Find subsequences of identical statement lengths and abbreviate them,
@@ -66,7 +75,7 @@ class CtlWriter:
         for entry in self.entries:
             self.write_entry(entry)
 
-    def _write_asm_directive(self, directive, address, value):
+    def _write_asm_directive(self, directive, address, value=None):
         if value is None:
             suffix = ''
         else:
@@ -77,12 +86,19 @@ class CtlWriter:
         if self.write_asm_dirs:
             self._write_asm_directive(directive, self.addr_str(entry.address, False), value)
 
+    def _write_entry_ignoreua_directive(self, entry, comment_type):
+        if entry.ignoreua[comment_type] and self.write_asm_dirs:
+            address = self.addr_str(entry.address, False)
+            self._write_asm_directive(AD_IGNOREUA, '{}:{}'.format(address, comment_type))
+
     def _write_instruction_asm_directives(self, instruction):
         if not self.write_asm_dirs:
             return
         address = self.addr_str(instruction.address, False)
         for directive, value in instruction.asm_directives:
             self._write_asm_directive(directive, address, value)
+        if instruction.ignoreua:
+            self._write_asm_directive(AD_IGNOREUA, '{}:{}'.format(address, INSTRUCTION))
 
     def write_entry(self, entry):
         if entry.start:
@@ -94,21 +110,31 @@ class CtlWriter:
         if entry.org:
             self._write_entry_asm_directive(entry, AD_ORG, entry.org)
         address = self.addr_str(entry.address)
+
+        self._write_entry_ignoreua_directive(entry, TITLE)
         if BLOCKS in self.elements:
             if BLOCK_TITLES in self.elements:
                 write_line('{0} {1} {2}'.format(entry.ctl, address, entry.description).rstrip())
             else:
                 write_line('{0} {1}'.format(entry.ctl, address))
+
+        self._write_entry_ignoreua_directive(entry, DESCRIPTION)
         if BLOCK_DESC in self.elements:
             for p in entry.details:
                 write_line('D {0} {1}'.format(address, p))
+
+        self._write_entry_ignoreua_directive(entry, REGISTERS)
         if REGISTERS in self.elements:
             for reg in entry.registers:
                 write_line('R {0} {1} {2}'.format(address, reg.name, reg.contents))
+
         self.write_body(entry)
+
+        self._write_entry_ignoreua_directive(entry, END)
         if BLOCK_COMMENTS in self.elements:
             for p in entry.end_comment:
                 write_line('E {0} {1}'.format(address, p))
+
         if entry.end:
             self._write_entry_asm_directive(entry, AD_END)
 
@@ -133,9 +159,12 @@ class CtlWriter:
 
         for k, (mrc, instructions) in enumerate(sections):
             if BLOCK_COMMENTS in self.elements and mrc:
-                address = instructions[0].address
+                first_instruction = instructions[0]
+                address_str = self.addr_str(first_instruction.address)
+                if first_instruction.ignoremrcua and self.write_asm_dirs:
+                    self._write_asm_directive(AD_IGNOREUA, '{}:{}'.format(address_str, MID_BLOCK))
                 for paragraph in mrc:
-                    write_line('D {0} {1}'.format(self.addr_str(address), paragraph))
+                    write_line('D {} {}'.format(address_str, paragraph))
 
             if SUBBLOCKS in self.elements:
                 sub_blocks = self.get_sub_blocks(instructions)
@@ -251,10 +280,11 @@ class SkoolParser:
         map_entry = None
         instruction = None
         comments = []
+        ignores = []
         address_comments = []
         for line in skoolfile:
             if line[0] == ';':
-                if self._parse_comment(line, comments):
+                if self._parse_comment(line, comments, ignores):
                     instruction = None
                 continue # pragma: no cover
 
@@ -287,8 +317,8 @@ class SkoolParser:
             addr_str = instruction.addr_str
             ctl = instruction.ctl
             if ctl in DIRECTIVES:
-                desc, details, registers = self._parse_comment_block(comments)
-                map_entry = Entry(address, addr_str, ctl, desc, details, registers)
+                desc, details, registers, ignoreua = self._parse_comment_block(comments, ignores)
+                map_entry = Entry(address, addr_str, ctl, desc, details, registers, ignoreua)
                 self.mode.apply_entry_asm_directives(map_entry)
                 self.memory_map.append(map_entry)
                 comments[:] = []
@@ -303,9 +333,16 @@ class SkoolParser:
                     mid_routine_comment = self._join_comments(comments, True)
                     map_entry.add_mid_routine_comment(instruction.label, mid_routine_comment)
                     comments[:] = []
+                    instruction.ignoremrcua = 0 in ignores
+                    instruction.ignoreua = any(ignores)
+                elif ignores:
+                    instruction.ignoreua = True
+
+            ignores[:] = []
 
         if comments and map_entry:
             map_entry.end_comment = self._join_comments(comments, True)
+            map_entry.ignoreua[END] = len(ignores) > 0
 
         self._parse_address_comments(address_comments)
 
@@ -324,18 +361,18 @@ class SkoolParser:
             return paragraphs[0]
         return ''
 
-    def _parse_comment(self, line, comments):
+    def _parse_comment(self, line, comments, ignores):
         """Parses a comment line. Returns False if the line contains an ASM (@)
         directive, and True otherwise."""
         comment = line[2:].rstrip()
         if comment.startswith('@'):
-            self._parse_asm_directive(comment[1:])
+            self._parse_asm_directive(comment[1:], ignores, len(comments))
             return False
         if self.mode.include:
             comments.append(comment)
         return True
 
-    def _parse_asm_directive(self, directive):
+    def _parse_asm_directive(self, directive, ignores, line_no):
         if parse_asm_block_directive(directive, self.stack):
             self.mode.include = True
             for _p, i in self.stack:
@@ -348,8 +385,10 @@ class SkoolParser:
             tag, sep, value = directive.rstrip().partition('=')
             if sep and tag in ('rsub', 'ssub', 'isub', 'bfix', 'ofix', 'label', 'rem'):
                 self.mode.add_instruction_asm_directive(tag, value)
-            elif not sep and tag in ('nolabel', 'nowarn', 'ignoreua', 'keep'):
+            elif not sep and tag in ('nolabel', 'nowarn', 'keep'):
                 self.mode.add_instruction_asm_directive(tag)
+            elif not sep and tag == AD_IGNOREUA:
+                ignores.append(line_no)
             elif sep and tag in (AD_ORG, AD_WRITER):
                 self.mode.add_entry_asm_directive(tag, value)
             elif sep and tag.startswith(AD_SET):
@@ -370,19 +409,34 @@ class SkoolParser:
         self.mode.apply_instruction_asm_directives(instruction)
         return instruction, address_comment
 
-    def _parse_comment_block(self, comments):
+    def _apply_ignores(self, ignores, section_ignores, index, line_no):
+        for i in ignores:
+            if i < line_no:
+                ignores.remove(i)
+                section_ignores[index] = True
+                return
+
+    def _parse_comment_block(self, comments, ignores):
         sections = [[], [], []]
+        section_ignores = [False, False, False]
+        line_no = 0
         index = 0
         last_line = ""
         for line in comments:
             if len(line) == 0:
                 if len(last_line) > 0:
+                    self._apply_ignores(ignores, section_ignores, index, line_no)
                     index += 1
-                continue # pragma: no cover
-            sections[index].append(line)
-            last_line = line
+            else:
+                sections[index].append(line)
+                last_line = line
+            line_no += 1
+        if index < 3:
+            self._apply_ignores(ignores, section_ignores, index, line_no)
+        title = self._join_comments(sections[0])
+        description = self._join_comments(sections[1], True)
         registers = [reg_line.split(None, 1) for reg_line in sections[2]]
-        return [self._join_comments(sections[0]), self._join_comments(sections[1], True), registers]
+        return title, description, registers, section_ignores
 
     def _parse_address_comments(self, comments):
         i = 0
@@ -439,6 +493,7 @@ class FakeInstruction:
         self.address = address
         self.comment = comment
         self.asm_directives = ()
+        self.ignoreua = False
 
 class Instruction:
     def __init__(self, label, address, operation, preserve_base):
@@ -453,6 +508,8 @@ class Instruction:
         self.container = None
         self.comment = None
         self.asm_directives = None
+        self.ignoreua = False
+        self.ignoremrcua = False
         self.inst_ctl = get_instruction_ctl(operation).lower()
         self.size = None
         self.length = None
@@ -472,13 +529,19 @@ class Instruction:
         return self.container.get_mid_routine_comment(self.label)
 
 class Entry:
-    def __init__(self, address, addr_str=None, ctl=None, description=None, details=(), registers=()):
+    def __init__(self, address, addr_str=None, ctl=None, description=None, details=(), registers=(), ignoreua=()):
         self.address = address
         self.addr_str = addr_str
         self.ctl = ctl
         self.description = description
         self.details = details
         self.registers = [Register(name, contents) for name, contents in registers]
+        self.ignoreua = {
+            TITLE: ignoreua[0],
+            DESCRIPTION: ignoreua[1],
+            REGISTERS: ignoreua[2],
+            END: False
+        }
         self.instructions = []
         self.mid_routine_comments = {}
         self.end_comment = ()
