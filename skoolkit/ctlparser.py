@@ -17,7 +17,10 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from . import warn, get_int_param, open_file
-from .skoolctl import AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET
+from .skoolctl import AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET, AD_IGNOREUA
+from .skoolctl import TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END
+
+COMMENT_TYPES = (TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 
 class CtlParserError(Exception):
     pass
@@ -73,6 +76,7 @@ class CtlParser:
         self.multiline_comments = {}
         self.entry_asm_directives = {}
         self.instruction_asm_directives = {}
+        self.ignoreua_directives = {}
 
     def parse_ctl(self, ctlfile):
         entry_ctl = None
@@ -163,17 +167,27 @@ class CtlParser:
                 asm_fields = content.split(':', 1)
                 if len(asm_fields) < 2:
                     raise CtlParserError("invalid ASM directive declaration")
+                directive = asm_fields[0][1:]
                 asm_fields[1] = asm_fields[1].split('=', 1)
+                addr_str = asm_fields[1][0]
+                if directive == AD_IGNOREUA:
+                    comment_type = 'i'
+                    if ':' in addr_str:
+                        addr_str, comment_type = addr_str.split(':', 1)
                 try:
-                    address = get_int_param(asm_fields[1][0])
+                    address = get_int_param(addr_str)
                 except ValueError:
                     raise CtlParserError("invalid ASM directive address")
-                directive = asm_fields[0][1:]
                 if len(asm_fields[1]) == 2:
                     value = asm_fields[1][1]
                 else:
                     value = None
-                asm_directive = (directive, address, value)
+                if directive == AD_IGNOREUA:
+                    if comment_type not in COMMENT_TYPES:
+                        raise CtlParserError("invalid @ignoreua directive address suffix: '{}:{}'".format(addr_str, comment_type))
+                    self.ignoreua_directives.setdefault(address, set()).add(comment_type)
+                else:
+                    asm_directive = (directive, address, value)
             elif first_char not in '#%;':
                 raise CtlParserError("invalid directive")
         return ctl, start, end, text, lengths, asm_directive

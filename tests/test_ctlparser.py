@@ -167,17 +167,18 @@ class CtlParserTest(SkoolKitTestCase):
 
     def test_invalid_lines(self):
         ctl_specs = [
-            ('  30000,1',        'blank directive with no containing block'),
-            ('B 30745,15,5:X10', 'invalid integer'),
-            ('T 30760,5,2:Y3',   'invalid integer'),
-            ('W 30765,5,1:B4',   'invalid integer'),
-            ('S 30770,10,T8:2',  'invalid integer'),
-            ('C 40000,Q',        'invalid integer'),
-            ('; @label:EDCBA=Z', 'invalid ASM directive address'),
-            ('; @label=Z',       'invalid ASM directive declaration'),
-            ('b 50000,20',       'extra parameters after address'),
-            ('d 50020',          'invalid directive'),
-            ('! 50030',          'invalid directive')
+            ('  30000,1',           'blank directive with no containing block'),
+            ('B 30745,15,5:X10',    'invalid integer'),
+            ('T 30760,5,2:Y3',      'invalid integer'),
+            ('W 30765,5,1:B4',      'invalid integer'),
+            ('S 30770,10,T8:2',     'invalid integer'),
+            ('C 40000,Q',           'invalid integer'),
+            ('; @label:EDCBA=Z',    'invalid ASM directive address'),
+            ('; @label=Z',          'invalid ASM directive declaration'),
+            ('b 50000,20',          'extra parameters after address'),
+            ('d 50020',             'invalid directive'),
+            ('! 50030',             'invalid directive'),
+            ('; @ignoreua:50000:f', "invalid @ignoreua directive address suffix: '50000:f'")
         ]
         ctls = [spec[0] for spec in ctl_specs]
         ctl_parser = CtlParser()
@@ -338,6 +339,43 @@ class CtlParserTest(SkoolKitTestCase):
             ]
         }
         self.assertEqual(exp_lengths, ctl_parser.lengths)
+
+    def test_ignoreua_directives(self):
+        ctl = '\n'.join((
+            '; @ignoreua:30000:t',
+            'c 30000 Routine at 30000',
+            'c 30001 Routine',
+            '; @ignoreua:30001:d',
+            'D 30001 Description of the routine at 30001',
+            '; @ignoreua:30001:r',
+            'R 30001 HL 30001',
+            '; @ignoreua:30001',
+            '  30001 Instruction-level comment at 30001',
+            'c 30002 Routine',
+            '; @ignoreua:30003:m',
+            'D 30003 Mid-block comment above 30003.',
+            '; @ignoreua:30003:i',
+            '  30003 Instruction-level comment at 30003',
+            'c 30004 Routine',
+            '; @ignoreua:30004:i',
+            '  30004,1 Instruction-level comment at 30004',
+            '; @ignoreua:30005:m',
+            'D 30005 Mid-block comment above 30005.',
+            '; @ignoreua:30004:e',
+            'E 30004 End comment for the routine at 30004.'
+        ))
+        ctl_parser = CtlParser()
+        ctlfile = self.write_text_file(ctl)
+        ctl_parser.parse_ctl(ctlfile)
+
+        exp_ignoreua_directives = {
+            30000: set(['t']),
+            30001: set(['d', 'i', 'r']),
+            30003: set(['m', 'i']),
+            30004: set(['e', 'i']),
+            30005: set(['m']),
+        }
+        self.assertEqual(exp_ignoreua_directives, ctl_parser.ignoreua_directives)
 
 if __name__ == '__main__':
     unittest.main()
