@@ -596,7 +596,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer = self._get_writer(snapshot, ctl)
         writer.write_skool(write_refs, False)
         skool = self.out.getvalue().split('\n')
-        self.assertEqual(skool[:len(exp_skool)], exp_skool)
+        self.assertEqual(exp_skool, skool[:len(exp_skool)])
 
     def test_write_skool(self):
         writer = self._get_writer(WRITER_SNAPSHOT, WRITER_CTL)
@@ -829,6 +829,82 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegexp(SkoolKitError, re.escape("No end marker found: #LIST { this list ha...")):
             writer.write_skool(0, False)
+
+    def test_ignoreua_directives(self):
+        ctl = '\n'.join((
+            '; @ignoreua:10000:t',
+            'c 10000 Routine at 10000',
+            '; @ignoreua:10000:d',
+            'D 10000 Description of the routine at 10000.',
+            '; @ignoreua:10000:r',
+            'R 10000 HL 10000',
+            '; @ignoreua:10000',
+            '  10000 Instruction-level comment at 10000',
+            '; @ignoreua:10001:m',
+            'D 10001 Mid-block comment above 10001.',
+            '; @ignoreua:10001:i',
+            '  10001 Instruction-level comment at 10001',
+            '; @ignoreua:10000:e',
+            'E 10000 End comment for the routine at 10000.',
+            'i 10002'
+        ))
+        exp_skool = [
+            '; @start',
+            '; @org=10000',
+            '; @ignoreua',
+            '; Routine at 10000',
+            ';',
+            '; @ignoreua',
+            '; Description of the routine at 10000.',
+            ';',
+            '; @ignoreua',
+            '; HL 10000',
+            '; @ignoreua',
+            'c10000 LD A,B        ; Instruction-level comment at 10000',
+            '; @ignoreua',
+            '; Mid-block comment above 10001.',
+            '; @ignoreua',
+            ' 10001 RET           ; Instruction-level comment at 10001',
+            '; @ignoreua',
+            '; End comment for the routine at 10000.'
+        ]
+        snapshot = [0] * 10000 + [120, 201]
+        writer = self._get_writer(snapshot, ctl)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')[:-2]
+        self.assertEqual(exp_skool, skool)
+
+    def test_ignoreua_directives_write_refs(self):
+        ctl = '\n'.join((
+            'c 10000 Routine at 10000',
+            '; @ignoreua:10000:d',
+            'D 10000 Description of the routine at 10000.',
+            'c 10002 Routine at 10002',
+            '; @ignoreua:10003:m',
+            'D 10003 Mid-block comment above 10003.',
+            'i 10005'
+        ))
+        exp_skool = [
+            '; @start',
+            '; @org=10000',
+            '; Routine at 10000',
+            ';',
+            '; @ignoreua',
+            '; Used by the routine at #R10002.',
+            '; .',
+            '; Description of the routine at 10000.',
+            'c10000 JR 10003      ;',
+            '',
+            '; Routine at 10002',
+            'c10002 LD A,B        ;',
+            '; @ignoreua',
+            '; This entry point is used by the routine at #R10000.',
+            '; .',
+            '; Mid-block comment above 10003.',
+            '*10003 JR 10000      ;',
+        ]
+        snapshot = [0] * 10000 + [24, 1, 120, 24, 251]
+        self._test_write_refs(snapshot, ctl, 1, exp_skool)
 
 class CtlWriterTest(SkoolKitTestCase):
     def test_decimal_addresses_below_10000(self):

@@ -225,6 +225,9 @@ class CtlParser:
                 if directive == asm_dir:
                     return True
 
+    def has_ignoreua_directive(self, address, comment_type):
+        return comment_type in self.ignoreua_directives.get(address, ())
+
     def get_blocks(self):
         # Create top-level blocks
         blocks = []

@@ -22,7 +22,8 @@ import os
 from . import warn, write_line, wrap, parse_int, open_file, read_bin_file, SkoolKitError
 from .skoolparser import get_address, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
 from .skoolasm import UDGTABLE_MARKER
-from .skoolctl import AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET
+from .skoolctl import (AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET, AD_IGNOREUA,
+                       TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 from .disassembler import Disassembler, HEX4FMT
 from .ctlparser import CtlParser
 
@@ -713,6 +714,7 @@ class Disassembly:
 
 class SkoolWriter:
     def __init__(self, snapshot, ctl_parser, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower):
+        self.ctl_parser = ctl_parser
         self.disassembly = Disassembly(snapshot, ctl_parser, True, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
         if asm_hex:
             if asm_lower:
@@ -722,8 +724,6 @@ class SkoolWriter:
         else:
             self.address_fmt = '{:05d}'
         self.asm_hex = asm_hex
-        self.has_start = ctl_parser.contains_entry_asm_directive(AD_START)
-        self.has_org = ctl_parser.contains_entry_asm_directive(AD_ORG)
 
     def address_str(self, address, pad=True):
         if self.asm_hex or pad:
@@ -731,103 +731,129 @@ class SkoolWriter:
         return str(address)
 
     def write_skool(self, write_refs, text):
-        if not self.has_start:
+        if not self.ctl_parser.contains_entry_asm_directive(AD_START):
             self.write_asm_directive(AD_START)
-            if not self.has_org:
+            if not self.ctl_parser.contains_entry_asm_directive(AD_ORG):
                 self.write_asm_directive(AD_ORG, self.address_str(self.disassembly.org, False))
         for entry_index, entry in enumerate(self.disassembly.entries):
-            if entry_index > 0:
+            if entry_index:
                 write_line('')
-            if entry.start:
-                self.write_asm_directive(AD_START)
-            if entry.writer:
-                self.write_asm_directive(AD_WRITER, entry.writer)
-            for name, value in entry.properties:
-                self.write_asm_directive('{0}{1}'.format(AD_SET, name), value)
-            if entry.org is not None:
-                self.write_asm_directive(AD_ORG, entry.org)
-            if entry.ctl == 'i':
-                end = entry.blocks[0].end
-                if end < 65536:
-                    if entry.title:
-                        self.write_comment(entry.title)
-                    write_line('{0}{1}'.format(entry.ctl, self.address_str(entry.blocks[0].start)))
-                continue # pragma: no cover
-            for block in entry.bad_blocks:
-                warn('Code block at {} overlaps the following block at {}'.format(self.address_str(block.start, False), self.address_str(block.end, False)))
-            if entry.title:
-                self.write_comment(entry.title)
-                wrote_desc = False
-                if entry.ctl == 'c' and write_refs > -1:
-                    referrers = entry.instructions[0].referrers
-                    if referrers and (write_refs == 1 or not entry.description):
-                        self.write_comment('')
-                        self.write_referrers('Used by the ', referrers)
-                        wrote_desc = True
-                if entry.description:
-                    if wrote_desc:
-                        self.write_comment('.')
-                    else:
-                        self.write_comment('')
-                    self.write_paragraphs(entry.description)
-                    wrote_desc = True
-                if entry.registers:
-                    if not wrote_desc:
-                        self.write_comment('')
-                        self.write_comment('.')
+            self._write_entry(entry, write_refs, text)
+
+    def _write_entry(self, entry, write_refs, show_text):
+        if entry.start:
+            self.write_asm_directive(AD_START)
+        if entry.writer:
+            self.write_asm_directive(AD_WRITER, entry.writer)
+        for name, value in entry.properties:
+            self.write_asm_directive('{}{}'.format(AD_SET, name), value)
+        if entry.org is not None:
+            self.write_asm_directive(AD_ORG, entry.org)
+        if self.ctl_parser.has_ignoreua_directive(entry.address, TITLE):
+            self.write_asm_directive(AD_IGNOREUA)
+
+        if entry.ctl == 'i':
+            end = entry.blocks[0].end
+            if end < 65536:
+                if entry.title:
+                    self.write_comment(entry.title)
+                write_line('{}{}'.format(entry.ctl, self.address_str(entry.blocks[0].start)))
+            return
+
+        for block in entry.bad_blocks:
+            warn('Code block at {} overlaps the following block at {}'.format(self.address_str(block.start, False), self.address_str(block.end, False)))
+
+        if entry.title:
+            self.write_comment(entry.title)
+            wrote_desc = False
+            ignoreua_d = self.ctl_parser.has_ignoreua_directive(entry.address, DESCRIPTION)
+            if entry.ctl == 'c' and write_refs > -1:
+                referrers = entry.instructions[0].referrers
+                if referrers and (write_refs == 1 or not entry.description):
                     self.write_comment('')
-                    for reg, desc in entry.registers:
-                        write_line('; {0} {1}'.format(reg, desc))
-            op_width = max((OP_WIDTH, entry.width()))
-            line_width = op_width + 8
-            first_block = True
-            for block in entry.blocks:
-                begun_header = False
-                if not first_block and entry.ctl == 'c' and write_refs > -1:
-                    referrers = block.instructions[0].referrers
-                    if referrers and (write_refs == 1 or not block.header):
-                        self.write_referrers('This entry point is used by the ', referrers)
-                        begun_header = True
-                if block.header:
-                    if begun_header:
-                        self.write_comment('.')
-                    self.write_paragraphs(block.header)
-                rowspan = len(block.instructions)
-                multi_line = rowspan > 1 and block.comment
-                if multi_line:
-                    if not block.comment.replace('.', ''):
-                        block.comment = block.comment[1:]
-                    block.comment = '{{{0}}}'.format(block.comment)
-                comment_lines = wrap(block.comment, max((77 - line_width, 10)))
-                if multi_line and len(comment_lines) < rowspan:
-                    comment_lines[-1] = comment_lines[-1][:-1]
-                    comment_lines.extend([''] * (rowspan - len(comment_lines) - 1))
-                    comment_lines.append('}')
-                for i, instruction in enumerate(block.instructions):
-                    ctl = instruction.ctl or ' '
-                    address = instruction.address
-                    operation = instruction.operation
-                    if block.comment:
-                        comment = comment_lines[i]
-                    elif text and entry.ctl != 't':
-                        comment = self.to_ascii(instruction.bytes)
-                    else:
-                        comment = ''
-                    if i > 0 and entry.ctl == 'c' and ctl == '*' and write_refs > -1:
-                        self.write_referrers('This entry point is used by the ', instruction.referrers)
-                    for directive, value in instruction.asm_directives:
-                        self.write_asm_directive(directive, value)
-                    if entry.ctl == 'c' or comment:
-                        write_line(('{0}{1} {2} ; {3}'.format(ctl, self.address_str(address), operation.ljust(op_width), comment)).rstrip())
-                    else:
-                        write_line(('{0}{1} {2}'.format(ctl, self.address_str(address), operation)).rstrip())
-                indent = ' ' * line_width
-                for j in range(i + 1, len(comment_lines)):
-                    write_line('{0}; {1}'.format(indent, comment_lines[j]))
-                first_block = False
-            self.write_paragraphs(entry.end_comment)
-            if entry.end:
-                self.write_asm_directive(AD_END)
+                    if ignoreua_d:
+                        self.write_asm_directive(AD_IGNOREUA)
+                    self.write_referrers('Used by the ', referrers)
+                    wrote_desc = True
+            if entry.description:
+                if wrote_desc:
+                    self.write_comment('.')
+                else:
+                    self.write_comment('')
+                    if ignoreua_d:
+                        self.write_asm_directive(AD_IGNOREUA)
+                self.write_paragraphs(entry.description)
+                wrote_desc = True
+            if entry.registers:
+                if not wrote_desc:
+                    self.write_comment('')
+                    self.write_comment('.')
+                self.write_comment('')
+                if self.ctl_parser.has_ignoreua_directive(entry.address, REGISTERS):
+                    self.write_asm_directive(AD_IGNOREUA)
+                for reg, desc in entry.registers:
+                    write_line('; {} {}'.format(reg, desc))
+
+        op_width = max((OP_WIDTH, entry.width()))
+        line_width = op_width + 8
+        first_block = True
+        for block in entry.blocks:
+            ignoreua_m = self.ctl_parser.has_ignoreua_directive(block.start, MID_BLOCK)
+            begun_header = False
+            if not first_block and entry.ctl == 'c' and write_refs > -1:
+                referrers = block.instructions[0].referrers
+                if referrers and (write_refs == 1 or not block.header):
+                    if ignoreua_m:
+                        self.write_asm_directive(AD_IGNOREUA)
+                    self.write_referrers('This entry point is used by the ', referrers)
+                    begun_header = True
+            if block.header:
+                if begun_header:
+                    self.write_comment('.')
+                elif ignoreua_m:
+                    self.write_asm_directive(AD_IGNOREUA)
+                self.write_paragraphs(block.header)
+            rowspan = len(block.instructions)
+            multi_line = rowspan > 1 and block.comment
+            if multi_line:
+                if not block.comment.replace('.', ''):
+                    block.comment = block.comment[1:]
+                block.comment = '{{{}}}'.format(block.comment)
+            comment_lines = wrap(block.comment, max((77 - line_width, 10)))
+            if multi_line and len(comment_lines) < rowspan:
+                comment_lines[-1] = comment_lines[-1][:-1]
+                comment_lines.extend([''] * (rowspan - len(comment_lines) - 1))
+                comment_lines.append('}')
+            for i, instruction in enumerate(block.instructions):
+                ctl = instruction.ctl or ' '
+                address = instruction.address
+                operation = instruction.operation
+                if block.comment:
+                    comment = comment_lines[i]
+                elif show_text and entry.ctl != 't':
+                    comment = self.to_ascii(instruction.bytes)
+                else:
+                    comment = ''
+                if i > 0 and entry.ctl == 'c' and ctl == '*' and write_refs > -1:
+                    self.write_referrers('This entry point is used by the ', instruction.referrers)
+                for directive, value in instruction.asm_directives:
+                    self.write_asm_directive(directive, value)
+                if self.ctl_parser.has_ignoreua_directive(instruction.address, INSTRUCTION):
+                    self.write_asm_directive(AD_IGNOREUA)
+                if entry.ctl == 'c' or comment:
+                    write_line(('{}{} {} ; {}'.format(ctl, self.address_str(address), operation.ljust(op_width), comment)).rstrip())
+                else:
+                    write_line(('{}{} {}'.format(ctl, self.address_str(address), operation)).rstrip())
+            indent = ' ' * line_width
+            for j in range(i + 1, len(comment_lines)):
+                write_line('{}; {}'.format(indent, comment_lines[j]))
+            first_block = False
+
+        if self.ctl_parser.has_ignoreua_directive(entry.address, END):
+            self.write_asm_directive(AD_IGNOREUA)
+        self.write_paragraphs(entry.end_comment)
+        if entry.end:
+            self.write_asm_directive(AD_END)
 
     def write_comment(self, text):
         if text:
