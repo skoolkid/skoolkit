@@ -3,6 +3,8 @@ Changelog
 
 4.2b1
 -----
+* Added support to control files for preserving the location of :ref:`ignoreua`
+  directives
 * :ref:`skool2asm.py` now warns about unconverted addresses in register
   descriptions, and the :ref:`ignoreua` directive can be used to suppress such
   warnings

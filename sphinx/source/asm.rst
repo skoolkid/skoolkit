@@ -255,8 +255,8 @@ See also :ref:`start`.
 The ``@ignoreua`` directive suppresses any warnings that would otherwise be
 reported concerning addresses not converted to labels in the comment that
 follows; the comment may be an entry title, an entry description, a register
-description, a mid-block comment, a block end comment, or an instruction-level
-comment. ::
+description section, a mid-block comment, a block end comment, or an
+instruction-level comment. ::
 
   ; @ignoreua
 
@@ -264,8 +264,7 @@ To apply the directive to an entry title::
 
   ; @ignoreua
   ; Prepare data at 32768
-  ;
-  ; This routine operates on the data in page 128.
+  c32768 LD A,(HL)
 
 If the ``@ignoreua`` directive were not present, a warning would be printed
 (during the rendering phase) about the entry title containing an address
@@ -277,12 +276,13 @@ To apply the directive to an entry description::
   ;
   ; @ignoreua
   ; This routine operates on the data at 32768.
+  c32768 LD A,(HL)
 
 If the ``@ignoreua`` directive were not present, a warning would be printed
 (during the rendering phase) about the entry description containing an address
 (32768) that has not been converted to a label.
 
-To apply the directive to a register description::
+To apply the directive to a register description section::
 
   ; Prepare data in page 128
   ;
@@ -290,6 +290,7 @@ To apply the directive to a register description::
   ;
   ; @ignoreua
   ; HL 32768
+  c32768 LD A,(HL)
 
 If the ``@ignoreua`` directive were not present, a warning would be printed
 (during the rendering phase) about the register description containing an
@@ -328,7 +329,7 @@ that has not been converted to a label.
 +---------+---------------------------------------------------------------+
 | Version | Changes                                                       |
 +=========+===============================================================+
-| 4.2     | Added support for register descriptions                       |
+| 4.2     | Added support for register description sections               |
 +---------+---------------------------------------------------------------+
 | 2.4.1   | Added support for entry titles, entry descriptions, mid-block |
 |         | comments and block end comments                               |

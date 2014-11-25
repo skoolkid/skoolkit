@@ -310,10 +310,30 @@ For example, to declare a :ref:`label` directive for the instruction at 32768::
 
   ; @label:32768=LOOP
 
+When declaring an :ref:`ignoreua` directive for anything other than an
+instruction-level comment, a suffix must be appended to the address to specify
+what the directive applies to::
+
+  ; @ignoreua:address:X
+
+where ``X`` is one of:
+
+* ``d`` - entry description
+* ``e`` - block end comment
+* ``i`` - instruction-level comment (default)
+* ``m`` - mid-block comment
+* ``r`` - register description section
+* ``t`` - entry title
+
+For example, to declare an :ref:`ignoreua` directive for the description of the
+routine at 49152::
+
+  ; @ignoreua:49152:d
+  D 49152 This is the description of the routine at 49152.
+
 Note that neither ASM block directives (such as the :ref:`bfixBlockDirectives`)
-nor the exact location of :ref:`org`, :ref:`writer`, :ref:`start`, :ref:`end`,
-:ref:`ignoreua` and :ref:`set` ASM directives can be preserved using this
-syntax.
+nor the exact location of :ref:`org`, :ref:`writer`, :ref:`start`, :ref:`end`
+and :ref:`set` directives can be preserved in a control file.
 
 Instruction-level comments
 --------------------------
@@ -369,13 +389,13 @@ directives). For example::
 Limitations
 -----------
 A control file can be useful in the early stages of developing a `skool` file
-for reorganising code and data blocks, but it cannot preserve the following
-elements:
+for reorganising code and data blocks, but it cannot preserve the following:
 
 * ASM block directives
-* the exact locations of `@org`, `@writer`, `@start`, `@end`, `@ignoreua` and
-  `@set` ASM directives
-* data definition entries ('d' blocks) and remote entries ('r' blocks)
+* the exact locations of :ref:`org`, :ref:`writer`, :ref:`start`, :ref:`end`
+  and :ref:`set` directives
+* :ref:`data definition entries <dEntry>` ('d' blocks) and
+  :ref:`remote entries <rEntry>` ('r' blocks)
 * comments that are not part of a code or data block
 
 :ref:`skoolFileTemplates`, however, can preserve all of these elements, and so
@@ -386,6 +406,9 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 4.2     | Added support for preserving the location of :ref:`ignoreua`      |
+|         | directives                                                        |
++---------+-------------------------------------------------------------------+
 | 3.7     | Added support for binary numbers; added support for specifying    |
 |         | the base of numeric values in DEFB, DEFM, DEFS and DEFW           |
 |         | statements; added the ``s`` and ``S`` directives and support for  |
