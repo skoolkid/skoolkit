@@ -126,7 +126,7 @@ class CtlWriter:
         self._write_entry_ignoreua_directive(entry, REGISTERS)
         if REGISTERS in self.elements:
             for reg in entry.registers:
-                write_line('R {0} {1} {2}'.format(address, reg.name, reg.contents))
+                write_line('R {} {} {}'.format(address, reg.name, reg.contents).rstrip())
 
         self.write_body(entry)
 
@@ -435,8 +435,31 @@ class SkoolParser:
             self._apply_ignores(ignores, section_ignores, index, line_no)
         title = self._join_comments(sections[0])
         description = self._join_comments(sections[1], True)
-        registers = [reg_line.split(None, 1) for reg_line in sections[2]]
+        registers = self._parse_registers(sections[2])
         return title, description, registers, section_ignores
+
+    def _parse_registers(self, lines):
+        registers = []
+        desc_lines = []
+        for line in lines:
+            s_line = line.strip()
+            if desc_lines and s_line.startswith('.'):
+                desc_lines.append(s_line[1:].lstrip())
+                continue
+            if desc_lines:
+                desc = (' '.join(desc_lines)).lstrip()
+                registers.append((reg, desc))
+                desc_lines[:] = []
+            elements = s_line.split(None, 1)
+            reg = elements[0]
+            if len(elements) > 1:
+                desc_lines.append(elements[1])
+            else:
+                desc_lines.append('')
+        if desc_lines:
+            desc = (' '.join(desc_lines)).lstrip()
+            registers.append((reg, desc))
+        return registers
 
     def _parse_address_comments(self, comments):
         i = 0

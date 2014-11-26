@@ -714,5 +714,29 @@ class CtlWriterTest(SkoolKitTestCase):
         ctl = self._get_ctl(write_hex=True, skool=skool)
         self.assertEqual(exp_ctl, ctl)
 
+    def test_registers(self):
+        skool = '\n'.join((
+            '; Routine',
+            ';',
+            '; .',
+            ';',
+            '; BC This register description is long enough that it needs to be',
+            ';   .split over two lines',
+            '; DE Short register description',
+            '; HL Another register description that is long enough to need',
+            '; .  splitting over two lines',
+            '; IX',
+            'c40000 RET'
+        ))
+        exp_ctl = [
+            'c 40000 Routine',
+            'R 40000 BC This register description is long enough that it needs to be split over two lines',
+            'R 40000 DE Short register description',
+            'R 40000 HL Another register description that is long enough to need splitting over two lines',
+            'R 40000 IX'
+        ]
+        ctl = self._get_ctl(skool=skool)
+        self.assertEqual(exp_ctl, ctl)
+
 if __name__ == '__main__':
     unittest.main()
