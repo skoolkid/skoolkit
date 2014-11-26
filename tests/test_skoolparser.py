@@ -1309,6 +1309,30 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertEqual(reg.name, reg_name)
             self.assertEqual(reg.contents, 'Some value')
 
+    def test_register_description_continuation_lines(self):
+        skool = '\n'.join((
+            '; Routine',
+            ';',
+            '; .',
+            ';',
+            '; BC This register description is long enough that it needs to be',
+            ';   .split over two lines',
+            '; DE Short register description',
+            '; HL Another register description that is long enough to need',
+            '; .  splitting over two lines',
+            'c40000 RET'
+        ))
+        parser = self._get_parser(skool, html=False)
+
+        registers = parser.entries[40000].registers
+        self.assertEqual(len(registers), 3)
+        self.assertEqual(registers[0].name, 'BC')
+        self.assertEqual(registers[0].contents, 'This register description is long enough that it needs to be split over two lines')
+        self.assertEqual(registers[1].name, 'DE')
+        self.assertEqual(registers[1].contents, 'Short register description')
+        self.assertEqual(registers[2].name, 'HL')
+        self.assertEqual(registers[2].contents, 'Another register description that is long enough to need splitting over two lines')
+
     def test_snapshot(self):
         skool = '\n'.join((
             '; Test snapshot building',

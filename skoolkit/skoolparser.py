@@ -604,20 +604,31 @@ class SkoolParser:
 
     def _parse_registers(self, lines):
         registers = []
+        desc_lines = []
         for line in lines:
+            s_line = line.strip()
+            if desc_lines and s_line.startswith('.'):
+                desc_lines.append(s_line[1:].lstrip())
+                continue
+            if desc_lines:
+                desc = (' '.join(desc_lines)).lstrip()
+                registers.append((prefix, reg, desc))
+                desc_lines[:] = []
             prefix = ''
-            elements = line.split(None, 1)
+            elements = s_line.split(None, 1)
             reg = elements[0]
             if len(elements) > 1:
-                desc = elements[1]
+                desc_lines.append(elements[1])
             else:
-                desc = ''
+                desc_lines.append('')
             if ':' in reg:
                 prefix, reg = reg.split(':', 1)
             if self.mode.lower:
                 reg = reg.lower()
             elif self.mode.upper:
                 reg = reg.upper()
+        if desc_lines:
+            desc = (' '.join(desc_lines)).lstrip()
             registers.append((prefix, reg, desc))
         return registers
 
