@@ -1083,8 +1083,13 @@ class HtmlWriter:
                 return join(self.paths[path_id], '{0}{1}'.format(fname, suffix))
             raise SkoolKitError("Unknown path ID '{0}' for image file '{1}'".format(path_id, fname))
 
-    def parse_image_params(self, text, index, num=0, defaults=(), path_id=DEF_IMG_PATH, fname='', chars='', ints=None, names=()):
-        """Parse a string of the form ``params[{x,y,width,height}][(fname)]``.
+    def parse_image_params(self, text, index, num=0, defaults=(),
+                           path_id=DEF_IMG_PATH, fname='', chars='', ints=None,
+                           names=(), frame=False, alt=False):
+        """Parse a string of the form:
+
+        ``params[{x,y,width,height}][(fname[*frame][|alt])]``
+
         The parameter string ``params`` may contain comma-separated values and
         is parsed until either the end is reached, or an invalid character is
         encountered. The default set of valid characters consists of the comma,
@@ -1108,13 +1113,19 @@ class HtmlWriter:
                      must evaluate to an integer.
         :param names: The names of the parameters; if not empty, keyword
                       arguments in the parameter string ``params`` are parsed.
+        :param frame: Whether to parse and return the frame name.
+        :param alt: Whether to parse and return the alt text.
         :return: A list of the form
-                 ``[end, image_path, crop_rect, value1, value2...]``, where:
+                 ``[end, image_path, frame, alt, crop_rect, value1, value2...]``,
+                 where:
 
                  * ``end`` is the index at which parsing terminated
                  * ``image_path`` is either the full path of the image file
                    (relative to the root directory of the disassembly) or
                    ``fname`` (if `path_id` is blank or `None`)
+                 * ``frame`` is the frame name (present only if `frame` is
+                   `True`)
+                 * ``alt`` is the alt text (present only if `alt` is `True`)
                  * ``crop_rect`` is ``(x, y, width, height)``
                  * ``value1``, ``value2`` etc. are the parameter values
         """
@@ -1135,12 +1146,25 @@ class HtmlWriter:
 
         if p_text:
             fname = p_text
+        alt_text = None
+        if alt and '|' in fname:
+            fname, alt_text = fname.split('|', 1)
+        frame_name = None
+        if frame and '*' in fname:
+            fname, frame_name = fname.split('*', 1)
+            if not frame_name:
+                frame_name = fname
         if path_id:
             img_path = self.image_path(fname, path_id)
         else:
             img_path = fname
 
-        return [end, img_path, (x, y, width, height)] + params
+        retval = [end, img_path, (x, y, width, height)] + params
+        if alt:
+            retval.insert(2, alt_text)
+        if frame:
+            retval.insert(2, frame_name)
+        return retval
 
     def _expand_item_macro(self, item, link_text, cwd, items, path_id):
         if item and link_text == '':
@@ -1303,6 +1327,9 @@ class HtmlWriter:
         end, frame_params, fname = skoolmacro.parse_params(text, index, except_chars=' (')
         if not fname:
             raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
+        alt = None
+        if '|' in fname:
+            fname, alt = fname.split('|', 1)
         img_path = self.image_path(fname, 'UDGImagePath')
         if self.need_image(img_path):
             frames = []
@@ -1324,7 +1351,7 @@ class HtmlWriter:
                 frame.delay = delay
                 frames.append(frame)
             self.write_animated_image(img_path, frames)
-        return end, self.img_element(cwd, img_path)
+        return end, self.img_element(cwd, img_path, alt)
 
     def expand_udgarray(self, text, index, cwd):
         # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];addr[,attr,step,inc][:addr[,step]];...[{x,y,width,height}](fname)
@@ -1335,22 +1362,22 @@ class HtmlWriter:
         udg_path_id = None
         param_names = ('width', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
         defaults = (56, 2, 1, 0, 0, 0, 1)
-        udg_array_params = self.parse_image_params(text, index, defaults=defaults, path_id=udg_path_id, names=param_names)
-        end, udg_path, crop_rect, width, attr, scale, step, inc, flip, rotate, mask = udg_array_params
+        udg_array_params = self.parse_image_params(text, index, defaults=defaults, path_id=udg_path_id, names=param_names, frame=True, alt=True)
+        end, udg_path, frame, alt, crop_rect, width, attr, scale, step, inc, flip, rotate, mask = udg_array_params
         udg_array = [[]]
         has_masks = False
         while end < len(text) and text[end] == ';':
             param_names = ('addr', 'attr', 'step', 'inc')
             defaults = (attr, step, inc)
-            udg_params = self.parse_image_params(text, end + 1, defaults=defaults, path_id=udg_path_id, chars='-x', ints=(1, 2, 3), names=param_names)
-            end, fname, crop_rect, udg_addr, udg_attr, udg_step, udg_inc = udg_params
+            udg_params = self.parse_image_params(text, end + 1, defaults=defaults, path_id=udg_path_id, chars='-x', ints=(1, 2, 3), names=param_names, frame=True, alt=True)
+            end, fname, frame, alt, crop_rect, udg_addr, udg_attr, udg_step, udg_inc = udg_params
             udg_addresses = self._get_udg_addresses(udg_addr, width)
             mask_addresses = []
             if end < len(text) and text[end] == ':':
                 param_names = ('addr', 'step')
                 defaults = (udg_step,)
-                mask_params = self.parse_image_params(text, end + 1, defaults=defaults, path_id=udg_path_id, chars='-x', ints=(1,), names=param_names)
-                end, fname, crop_rect, mask_addr, mask_step = mask_params
+                mask_params = self.parse_image_params(text, end + 1, defaults=defaults, path_id=udg_path_id, chars='-x', ints=(1,), names=param_names, frame=True, alt=True)
+                end, fname, frame, alt, crop_rect, mask_addr, mask_step = mask_params
                 if mask:
                     mask_addresses = self._get_udg_addresses(mask_addr, width)
             has_masks = has_masks or len(mask_addresses) > 0
@@ -1367,12 +1394,9 @@ class HtmlWriter:
         if not has_masks:
             mask = 0
 
-        if not fname:
-            raise MacroParsingError('Missing filename: #UDGARRAY{0}'.format(text[index:end]))
+        if not fname and frame is None:
+            raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
 
-        fname, sep, frame = fname.partition('*')
-        if sep and not frame:
-            frame = fname
         if not fname and not frame:
             raise MacroParsingError('Missing filename or frame ID: #UDGARRAY{}'.format(text[index:end]))
 
@@ -1388,7 +1412,7 @@ class HtmlWriter:
             if need_image:
                 self.write_image(img_path, udg_array, crop_rect, scale, mask)
         if img_path:
-            return end, self.img_element(cwd, img_path)
+            return end, self.img_element(cwd, img_path, alt)
         return end, ''
 
     def expand_udgtable(self, text, index, cwd):

@@ -2065,6 +2065,32 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self._assert_error(writer, '#UDGARRAY*foo(bar)', 'No such frame: "foo"', prefix)
         self._assert_error(writer, '#UDGARRAY*foo,qux(bar)', "Cannot parse integer 'qux' in parameter string: 'qux'", prefix)
 
+    def test_macro_udgarray_alt_text(self):
+        writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
+
+        fname = 'foo'
+        alt = 'bar'
+        output = writer.expand('#UDGARRAY1;0({}|{})'.format(fname, alt), ASMDIR)
+        self._assert_img_equals(output, alt, '../{}/{}.png'.format(UDGDIR, fname))
+
+        fname = 'baz'
+        frame = 'qux'
+        alt = 'xyzzy'
+        output = writer.expand('#UDGARRAY1;0({}*{}|{})'.format(fname, frame, alt), ASMDIR)
+        self._assert_img_equals(output, alt, '../{}/{}.png'.format(UDGDIR, fname))
+
+        fname = 'flip'
+        alt = 'flop*flup'
+        output = writer.expand('#UDGARRAY1;0({}|{})'.format(fname, alt), ASMDIR)
+        self._assert_img_equals(output, alt, '../{}/{}.png'.format(UDGDIR, fname))
+
+        fname = 'animated'
+        alt = 'Animated'
+        writer.expand('#UDGARRAY1;0(*frame1)', ASMDIR)
+        writer.expand('#UDGARRAY1;0(*frame2)', ASMDIR)
+        output = writer.expand('#UDGARRAY*frame1;frame2({}|{})'.format(fname, alt), ASMDIR)
+        self._assert_img_equals(output, alt, '../{}/{}.png'.format(UDGDIR, fname))
+
     def test_macro_udgtable(self):
         src = '\n'.join((
             '(data)',
