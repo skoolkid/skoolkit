@@ -378,13 +378,22 @@ class AsmWriter:
                 prefix = '{}:'.format(reg.prefix).rjust(prefix_len)
             else:
                 prefix = indent
+            reg_label = prefix + reg.name
             reg_desc = self.expand(reg.contents)
-            line = '; {}{} {}'.format(prefix, reg.name, reg_desc)
             if not self.entry.ignoreua['r']:
                 uaddress = self.find_unconverted_address(reg_desc)
                 if uaddress:
+                    line = '; {} {}'.format(reg_label, reg_desc)
                     self.warn('Register description contains address ({}) not converted to a label:\n{}'.format(uaddress, line))
-            self.write_line(line)
+            if reg_desc:
+                desc_indent = len(reg_label) + 1
+                desc_lines = wrap(reg_desc, self.desc_width - desc_indent)
+                self.write_line('; {} {}'.format(reg_label, desc_lines[0]))
+                desc_prefix = ''.ljust(desc_indent)
+                for line in desc_lines[1:]:
+                    self.write_line('; {}{}'.format(desc_prefix, line))
+            else:
+                self.write_line('; {}'.format(reg_label))
 
     def print_instruction_prefix(self, instruction):
         mid_routine_comment = instruction.get_mid_routine_comment()

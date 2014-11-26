@@ -1260,6 +1260,7 @@ class AsmWriterTest(SkoolKitTestCase):
             '; Input:a Some value',
             ';       b Some other value',
             '; Output:c The result',
+            ';        d',
             'c24605 RET',
         ))
         asm = self._get_asm(skool)
@@ -1272,6 +1273,33 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(asm[12], ';  Input:a Some value')
         self.assertEqual(asm[13], ';        b Some other value')
         self.assertEqual(asm[14], '; Output:c The result')
+        self.assertEqual(asm[15], ';        d')
+
+    def test_register_description_continuation_lines(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            ';',
+            '; .',
+            ';',
+            '; BC This register description is long enough that it needs to be',
+            ';   .split over two lines',
+            '; DE Short register description',
+            '; HL Another register description that is long enough to need',
+            '; .  splitting over two lines',
+            'c40000 RET'
+        ))
+        asm = self._get_asm(skool)
+
+        exp_asm = [
+            '; BC This register description is long enough that it needs to be split over',
+            ';    two lines',
+            '; DE Short register description',
+            '; HL Another register description that is long enough to need splitting over',
+            ';    two lines',
+            '  RET'
+        ]
+        self.assertEqual(exp_asm, asm[2:2 + len(exp_asm)])
 
     def test_registers_upper(self):
         skool = '\n'.join((
