@@ -28,6 +28,10 @@ from .disassembler import Disassembler, HEX4FMT
 from .ctlparser import CtlParser
 
 OP_WIDTH = 13
+COMMENT_WIDTH = 77
+
+REFS_PREFIX = 'Used by the '
+EREFS_PREFIX = 'This entry point is used by the '
 
 # The maximum number of distinct bytes that can be in a data block (as a
 # fraction of the block length)
@@ -765,35 +769,59 @@ class SkoolWriter:
 
         if entry.title:
             self.write_comment(entry.title)
-            wrote_desc = False
-            ignoreua_d = self.ctl_parser.has_ignoreua_directive(entry.address, DESCRIPTION)
-            if entry.ctl == 'c' and write_refs > -1:
-                referrers = entry.instructions[0].referrers
-                if referrers and (write_refs == 1 or not entry.description):
-                    self.write_comment('')
-                    if ignoreua_d:
-                        self.write_asm_directive(AD_IGNOREUA)
-                    self.write_referrers('Used by the ', referrers)
-                    wrote_desc = True
-            if entry.description:
-                if wrote_desc:
-                    self.write_comment('.')
-                else:
-                    self.write_comment('')
-                    if ignoreua_d:
-                        self.write_asm_directive(AD_IGNOREUA)
-                self.write_paragraphs(entry.description)
-                wrote_desc = True
+            wrote_desc = self._write_entry_description(entry, write_refs)
             if entry.registers:
-                if not wrote_desc:
-                    self.write_comment('')
-                    self.write_comment('.')
-                self.write_comment('')
-                if self.ctl_parser.has_ignoreua_directive(entry.address, REGISTERS):
-                    self.write_asm_directive(AD_IGNOREUA)
-                for reg, desc in entry.registers:
-                    write_line('; {} {}'.format(reg, desc))
+                self._write_registers(entry, wrote_desc)
 
+        self._write_body(entry, write_refs, show_text)
+
+        if self.ctl_parser.has_ignoreua_directive(entry.address, END):
+            self.write_asm_directive(AD_IGNOREUA)
+        self.write_paragraphs(entry.end_comment)
+        if entry.end:
+            self.write_asm_directive(AD_END)
+
+    def _write_entry_description(self, entry, write_refs):
+        wrote_desc = False
+        ignoreua_d = self.ctl_parser.has_ignoreua_directive(entry.address, DESCRIPTION)
+        if entry.ctl == 'c' and write_refs > -1:
+            referrers = entry.instructions[0].referrers
+            if referrers and (write_refs == 1 or not entry.description):
+                self.write_comment('')
+                if ignoreua_d:
+                    self.write_asm_directive(AD_IGNOREUA)
+                self.write_referrers(REFS_PREFIX, referrers)
+                wrote_desc = True
+        if entry.description:
+            if wrote_desc:
+                self.write_comment('.')
+            else:
+                self.write_comment('')
+                if ignoreua_d:
+                    self.write_asm_directive(AD_IGNOREUA)
+            self.write_paragraphs(entry.description)
+            wrote_desc = True
+        return wrote_desc
+
+    def _write_registers(self, entry, wrote_desc):
+        if not wrote_desc:
+            self.write_comment('')
+            self.write_comment('.')
+        self.write_comment('')
+        if self.ctl_parser.has_ignoreua_directive(entry.address, REGISTERS):
+            self.write_asm_directive(AD_IGNOREUA)
+        for reg, desc in entry.registers:
+            if desc:
+                desc_indent = len(reg) + 1
+                desc_lines = wrap(desc, COMMENT_WIDTH - desc_indent)
+                write_line('; {} {}'.format(reg, desc_lines[0]))
+                desc_prefix = '.'.ljust(desc_indent)
+                for line in desc_lines[1:]:
+                    write_line('; {}{}'.format(desc_prefix, line))
+            else:
+                write_line('; {}'.format(reg))
+
+    def _write_body(self, entry, write_refs, show_text):
         op_width = max((OP_WIDTH, entry.width()))
         line_width = op_width + 8
         first_block = True
@@ -805,7 +833,7 @@ class SkoolWriter:
                 if referrers and (write_refs == 1 or not block.header):
                     if ignoreua_m:
                         self.write_asm_directive(AD_IGNOREUA)
-                    self.write_referrers('This entry point is used by the ', referrers)
+                    self.write_referrers(EREFS_PREFIX, referrers)
                     begun_header = True
             if block.header:
                 if begun_header:
@@ -819,41 +847,40 @@ class SkoolWriter:
                 if not block.comment.replace('.', ''):
                     block.comment = block.comment[1:]
                 block.comment = '{{{}}}'.format(block.comment)
-            comment_lines = wrap(block.comment, max((77 - line_width, 10)))
+            comment_lines = wrap(block.comment, max((COMMENT_WIDTH - line_width, 10)))
             if multi_line and len(comment_lines) < rowspan:
                 comment_lines[-1] = comment_lines[-1][:-1]
                 comment_lines.extend([''] * (rowspan - len(comment_lines) - 1))
                 comment_lines.append('}')
-            for i, instruction in enumerate(block.instructions):
-                ctl = instruction.ctl or ' '
-                address = instruction.address
-                operation = instruction.operation
-                if block.comment:
-                    comment = comment_lines[i]
-                elif show_text and entry.ctl != 't':
-                    comment = self.to_ascii(instruction.bytes)
-                else:
-                    comment = ''
-                if i > 0 and entry.ctl == 'c' and ctl == '*' and write_refs > -1:
-                    self.write_referrers('This entry point is used by the ', instruction.referrers)
-                for directive, value in instruction.asm_directives:
-                    self.write_asm_directive(directive, value)
-                if self.ctl_parser.has_ignoreua_directive(instruction.address, INSTRUCTION):
-                    self.write_asm_directive(AD_IGNOREUA)
-                if entry.ctl == 'c' or comment:
-                    write_line(('{}{} {} ; {}'.format(ctl, self.address_str(address), operation.ljust(op_width), comment)).rstrip())
-                else:
-                    write_line(('{}{} {}'.format(ctl, self.address_str(address), operation)).rstrip())
+            self._write_instructions(entry, block, op_width, comment_lines, write_refs, show_text)
             indent = ' ' * line_width
-            for j in range(i + 1, len(comment_lines)):
+            for j in range(len(block.instructions), len(comment_lines)):
                 write_line('{}; {}'.format(indent, comment_lines[j]))
             first_block = False
 
-        if self.ctl_parser.has_ignoreua_directive(entry.address, END):
-            self.write_asm_directive(AD_IGNOREUA)
-        self.write_paragraphs(entry.end_comment)
-        if entry.end:
-            self.write_asm_directive(AD_END)
+    def _write_instructions(self, entry, block, op_width, comment_lines, write_refs, show_text):
+        index = 0
+        for instruction in block.instructions:
+            ctl = instruction.ctl or ' '
+            address = instruction.address
+            operation = instruction.operation
+            if block.comment:
+                comment = comment_lines[index]
+            elif show_text and entry.ctl != 't':
+                comment = self.to_ascii(instruction.bytes)
+            else:
+                comment = ''
+            if index > 0 and entry.ctl == 'c' and ctl == '*' and write_refs > -1:
+                self.write_referrers(EREFS_PREFIX, instruction.referrers)
+            for directive, value in instruction.asm_directives:
+                self.write_asm_directive(directive, value)
+            if self.ctl_parser.has_ignoreua_directive(instruction.address, INSTRUCTION):
+                self.write_asm_directive(AD_IGNOREUA)
+            if entry.ctl == 'c' or comment:
+                write_line(('{}{} {} ; {}'.format(ctl, self.address_str(address), operation.ljust(op_width), comment)).rstrip())
+            else:
+                write_line(('{}{} {}'.format(ctl, self.address_str(address), operation)).rstrip())
+            index += 1
 
     def write_comment(self, text):
         if text:
@@ -898,7 +925,7 @@ class SkoolWriter:
     def wrap(self, text):
         lines = []
         for line in self.parse_blocks(text):
-            lines.extend(wrap(line, 77))
+            lines.extend(wrap(line, COMMENT_WIDTH))
         return lines
 
     def parse_block(self, text, start):

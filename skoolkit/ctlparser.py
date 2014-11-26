@@ -102,9 +102,10 @@ class CtlParser:
                 elif ctl == 'E':
                     self.end_comments.setdefault(start, []).append(text)
                 elif ctl == 'R':
-                    fields = text.split(' ', 1)
-                    valid = len(fields) == 2
-                    if valid:
+                    if text:
+                        fields = text.split(' ', 1)
+                        if len(fields) == 1:
+                            fields.append('')
                         self.registers.setdefault(start, [])
                         self.registers[start].append(fields)
                 elif ctl == 'M':

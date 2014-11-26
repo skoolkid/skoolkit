@@ -906,6 +906,30 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [0] * 10000 + [24, 1, 120, 24, 251]
         self._test_write_refs(snapshot, ctl, 1, exp_skool)
 
+    def test_registers(self):
+        ctl = '\n'.join((
+            'c 00000 Routine',
+            'R 00000 BC This register description is long enough that it needs to be split over two lines',
+            'R 00000 DE Short register description',
+            'R 00000',
+            'R 00000 HL Another register description that is long enough to need splitting over two lines',
+            'R 00000 IX',
+            'i 00001'
+        ))
+        exp_skool = [
+            '; BC This register description is long enough that it needs to be split over',
+            '; .  two lines',
+            '; DE Short register description',
+            '; HL Another register description that is long enough to need splitting over',
+            '; .  two lines',
+            '; IX',
+            'c00000 NOP           ;'
+        ]
+        writer = self._get_writer([0], ctl)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')[:-2]
+        self.assertEqual(exp_skool, skool[6:])
+
 class CtlWriterTest(SkoolKitTestCase):
     def test_decimal_addresses_below_10000(self):
         ctls = {0: 'b', 1: 'c', 22: 't', 333: 'w', 4444: 's'}

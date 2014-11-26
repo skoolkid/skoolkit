@@ -377,5 +377,24 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self.assertEqual(exp_ignoreua_directives, ctl_parser.ignoreua_directives)
 
+    def test_registers(self):
+        ctl = '\n'.join((
+            'c 40000 Routine',
+            'R 40000 BC Important value',
+            'R 40000 DE',
+            'R 40000',
+            'R 40000 HL Another important value'
+        ))
+        ctl_parser = CtlParser()
+        ctlfile = self.write_text_file(ctl)
+        ctl_parser.parse_ctl(ctlfile)
+
+        exp_registers = [
+            ['BC', 'Important value'],
+            ['DE', ''],
+            ['HL', 'Another important value']
+        ]
+        self.assertEqual(exp_registers, ctl_parser.get_registers(40000))
+
 if __name__ == '__main__':
     unittest.main()
