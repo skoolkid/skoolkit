@@ -1144,15 +1144,16 @@ class HtmlWriter:
         else:
             x, y, width, height = defaults
 
-        if p_text:
-            fname = p_text
         alt_text = None
-        if alt and '|' in fname:
-            fname, alt_text = fname.split('|', 1)
         frame_name = None
-        if frame and '*' in fname:
-            fname, frame_name = fname.split('*', 1)
-            if not frame_name:
+        if p_text:
+            if alt and '|' in p_text:
+                p_text, alt_text = p_text.split('|', 1)
+            if frame and '*' in p_text:
+                p_text, frame_name = p_text.split('*', 1)
+            if p_text:
+                fname = p_text
+            if frame_name == '':
                 frame_name = fname
         if path_id:
             img_path = self.image_path(fname, path_id)
@@ -1281,12 +1282,12 @@ class HtmlWriter:
         # #SCR[scale,x,y,w,h,df,af][{x,y,width,height}][(fname)]
         param_names = ('scale', 'x', 'y', 'w', 'h', 'df', 'af')
         defaults = (1, 0, 0, 32, 24, 16384, 22528)
-        params = self.parse_image_params(text, index, defaults=defaults, path_id='ScreenshotImagePath', fname='scr', names=param_names)
-        end, scr_path, crop_rect, scale, x, y, w, h, df, af = params
+        params = self.parse_image_params(text, index, defaults=defaults, path_id='ScreenshotImagePath', fname='scr', names=param_names, alt=True)
+        end, scr_path, alt, crop_rect, scale, x, y, w, h, df, af = params
         if self.need_image(scr_path):
             udgs = self.screenshot(x, y, w, h, df, af)
             self.write_image(scr_path, udgs, crop_rect, scale)
-        return end, self.img_element(cwd, scr_path)
+        return end, self.img_element(cwd, scr_path, alt)
 
     def expand_space(self, text, index, cwd):
         end, num_sp = skoolmacro.parse_space(text, index)

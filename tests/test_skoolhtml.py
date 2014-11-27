@@ -1648,6 +1648,19 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self._assert_img_equals(output, 'scr', '../{}'.format(exp_img_path))
         self.assertEqual(writer.file_info.fname, exp_img_path)
 
+    def test_macro_scr_alt_text(self):
+        snapshot = [0] * 23296
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+
+        alt = 'An awesome screenshot'
+        output = writer.expand('#SCR(|{})'.format(alt), ASMDIR)
+        self._assert_img_equals(output, alt, '../images/scr/scr.png')
+
+        fname = 'screenshot'
+        alt = 'Another awesome screenshot'
+        output = writer.expand('#SCR({}|{})'.format(fname, alt), ASMDIR)
+        self._assert_img_equals(output, alt, '../images/scr/{}.png'.format(fname))
+
     def test_macro_scr_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
         prefix = ERROR_PREFIX.format('SCR')
