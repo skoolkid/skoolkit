@@ -1009,6 +1009,18 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self._assert_img_equals(output, img_fname, '../{}'.format(exp_img_path))
         self.assertEqual(writer.file_info.fname, exp_img_path)
 
+    def test_macro_font_alt_text(self):
+        writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
+
+        alt = 'Space'
+        output = writer.expand('#FONT:( )0(|{})'.format(alt), ASMDIR)
+        self._assert_img_equals(output, alt, '../images/font/font.png')
+
+        fname = 'space'
+        alt = 'Another space'
+        output = writer.expand('#FONT:( )0({}|{})'.format(fname, alt), ASMDIR)
+        self._assert_img_equals(output, alt, '../images/font/{}.png'.format(fname))
+
     def test_macro_font_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('FONT')

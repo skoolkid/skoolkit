@@ -1212,12 +1212,12 @@ class HtmlWriter:
 
         param_names = ('addr', 'chars', 'attr', 'scale')
         defaults = (len(message), 56, 2)
-        params = self.parse_image_params(text, index, defaults=defaults, path_id='FontImagePath', fname='font', names=param_names)
-        end, img_path, crop_rect, addr, chars, attr, scale = params
+        params = self.parse_image_params(text, index, defaults=defaults, path_id='FontImagePath', fname='font', names=param_names, alt=True)
+        end, img_path, alt, crop_rect, addr, chars, attr, scale = params
         if self.need_image(img_path):
             udg_array = self.get_font_udg_array(addr, attr, message[:chars])
             self.write_image(img_path, udg_array, crop_rect, scale)
-        return end, self.img_element(cwd, img_path)
+        return end, self.img_element(cwd, img_path, alt)
 
     def expand_html(self, text, index, cwd):
         return skoolmacro.parse_html(text, index)
