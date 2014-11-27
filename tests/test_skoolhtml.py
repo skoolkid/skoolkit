@@ -1844,6 +1844,18 @@ class SkoolMacroTest(HtmlWriterTestCase):
         writer.expand('#UDG0,mask=2:8', ASMDIR)
         self._check_image(writer.image_writer, udg_array, scale, mask=2)
 
+    def test_macro_udg_alt_text(self):
+        writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
+
+        fname = 'foo'
+        alt = 'bar'
+        output = writer.expand('#UDG0({}|{})'.format(fname, alt), ASMDIR)
+        self._assert_img_equals(output, alt, '../{}/{}.png'.format(UDGDIR, fname))
+
+        alt = 'An awesome UDG'
+        output = writer.expand('#UDG0(|{})'.format(alt), ASMDIR)
+        self._assert_img_equals(output, alt, '../{}/udg0_56x4.png'.format(UDGDIR))
+
     def test_macro_udg_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
         prefix = ERROR_PREFIX.format('UDG')

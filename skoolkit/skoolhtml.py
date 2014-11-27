@@ -1302,11 +1302,11 @@ class HtmlWriter:
         path_id = 'UDGImagePath'
         param_names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
         defaults = (56, 4, 1, 0, 0, 0, 1)
-        udg_params = self.parse_image_params(text, index, defaults=defaults, path_id=path_id, names=param_names)
-        end, udg_path, crop_rect, addr, attr, scale, step, inc, flip, rotate, mask = udg_params
+        udg_params = self.parse_image_params(text, index, defaults=defaults, path_id=path_id, names=param_names, alt=True)
+        end, udg_path, alt, crop_rect, addr, attr, scale, step, inc, flip, rotate, mask = udg_params
         if end < len(text) and text[end] == ':':
-            mask_params = self.parse_image_params(text, end + 1, defaults=(step,), path_id=path_id, names=('addr', 'step'))
-            end, udg_path, crop_rect, mask_addr, mask_step = mask_params
+            mask_params = self.parse_image_params(text, end + 1, defaults=(step,), path_id=path_id, names=('addr', 'step'), alt=True)
+            end, udg_path, alt, crop_rect, mask_addr, mask_step = mask_params
         else:
             mask_params = None
             mask = 0
@@ -1321,7 +1321,7 @@ class HtmlWriter:
             udg.flip(flip)
             udg.rotate(rotate)
             self.write_image(udg_path, [[udg]], crop_rect, scale, mask)
-        return end, self.img_element(cwd, udg_path)
+        return end, self.img_element(cwd, udg_path, alt)
 
     def _expand_udgarray_with_frames(self, text, index, cwd):
         end, frame_params, fname = skoolmacro.parse_params(text, index, except_chars=' (')
