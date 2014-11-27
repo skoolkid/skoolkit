@@ -5,6 +5,8 @@ Changelog
 -----
 * Added support to control files for preserving the location of :ref:`ignoreua`
   directives
+* Each :ref:`image macro <imageMacros>` now has the ability to specify alt text
+  for the ``<img>`` element it produces
 * Added support for splitting register descriptions over multiple lines
 * :ref:`skool2asm.py` now warns about unconverted addresses in register
   descriptions, and the :ref:`ignoreua` directive can be used to suppress such
