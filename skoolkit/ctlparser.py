@@ -77,6 +77,7 @@ class CtlParser:
         self.entry_asm_directives = {}
         self.instruction_asm_directives = {}
         self.ignoreua_directives = {}
+        self.loops = []
 
     def parse_ctl(self, ctlfile):
         entry_ctl = None
@@ -106,16 +107,24 @@ class CtlParser:
                         fields = text.split(' ', 1)
                         if len(fields) == 1:
                             fields.append('')
-                        self.registers.setdefault(start, [])
-                        self.registers[start].append(fields)
+                        self.registers.setdefault(start, []).append(fields)
                 elif ctl == 'M':
                     self.multiline_comments[start] = (end, text)
+                elif ctl == 'L':
+                    count = lengths[0][0]
+                    if count > 1:
+                        if len(lengths) > 1:
+                            repeat_entries = lengths[1][0]
+                        else:
+                            repeat_entries = 0
+                        self.loops.append((start, end, count, repeat_entries))
+                        self.subctls[start + count * (end - start + 1)] = None
                 else:
                     self.subctls[start] = ctl.lower()
                     self.instruction_comments[start] = text
                     if end:
                         self.subctls[end + 1] = None
-                if lengths:
+                if ctl != 'L' and lengths:
                     self.lengths[start] = lengths
             elif asm_directive:
                 directive, address, value = asm_directive
@@ -124,6 +133,7 @@ class CtlParser:
                 else:
                     self.instruction_asm_directives.setdefault(address, []).append((directive, value))
         f.close()
+        self._unroll_loops()
 
     def _parse_ctl_line(self, line, entry_ctl):
         ctl = start = end = text = asm_directive = None
@@ -131,7 +141,7 @@ class CtlParser:
         first_char = line[0]
         content = line[1:].lstrip()
         if content:
-            if first_char in ' bBcCDEgiMRsStTuwW':
+            if first_char in ' bBcCDEgiLMRsStTuwW':
                 fields = content.split(' ', 1)
                 ctl = first_char
                 if ctl == ' ':
@@ -162,6 +172,11 @@ class CtlParser:
                 else:
                     end = None
                 lengths = int_params[2:]
+                if ctl == 'L':
+                    if end is None:
+                        raise CtlParserError("loop length not specified")
+                    if not lengths:
+                        raise CtlParserError("loop count not specified")
                 if len(fields) > 1:
                     text = fields[1]
             elif first_char == ';' and content.startswith('@'):
@@ -192,6 +207,36 @@ class CtlParser:
             elif first_char not in '#%;':
                 raise CtlParserError("invalid directive")
         return ctl, start, end, text, lengths, asm_directive
+
+    def _unroll_loops(self):
+        for start, end, count, repeat_entries in self.loops:
+            for directives in (self.subctls, self.instruction_comments, self.lengths):
+                self._repeat_directives(directives, start, end, count)
+            self._repeat_multiline_comments(start, end, count)
+            mid_block_comments = {k: v for k, v in self.comments.items() if start <= k <= end and k not in self.ctls}
+            self._repeat_directives(mid_block_comments, start, end, count)
+            self.comments.update(mid_block_comments)
+            if repeat_entries:
+                for directives in (self.ctls, self.titles, self.registers, self.end_comments):
+                    self._repeat_directives(directives, start, end, count)
+                entry_descriptions = {k: v for k, v in self.comments.items() if start <= k <= end and k in self.ctls}
+                self._repeat_directives(entry_descriptions, start, end, count)
+                self.comments.update(entry_descriptions)
+
+    def _repeat_directives(self, directives, start, end, count):
+        interval = end - start + 1
+        repeated = {k: v for k, v in directives.items() if start <= k <= end}
+        for addr, value in repeated.items():
+            for i in range(1, count):
+                directives[addr + i * interval] = value
+
+    def _repeat_multiline_comments(self, start, end, count):
+        interval = end - start + 1
+        repeated = {k: v for k, v in self.multiline_comments.items() if start <= k <= end}
+        for addr, (mlc_end, comment) in repeated.items():
+            for i in range(1, count):
+                offset = i * interval
+                self.multiline_comments[addr + offset] = (mlc_end + offset, comment)
 
     def get_block_title(self, address):
         return self.titles.get(address)
