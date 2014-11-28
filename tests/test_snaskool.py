@@ -930,6 +930,46 @@ class SkoolWriterTest(SkoolKitTestCase):
         skool = self.out.getvalue().split('\n')[:-2]
         self.assertEqual(exp_skool, skool[6:])
 
+    def test_loop(self):
+        ctl = '\n'.join((
+            'b 00000 Two bytes and one word, times ten',
+            'B 00000,2',
+            'W 00002',
+            'L 00000,4,10',
+            'i 00040'
+        ))
+        writer = self._get_writer([0] * 40, ctl)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')[:-2]
+        address = 0
+        ctl = 'b'
+        for i in range(3, 23, 2):
+            self.assertEqual(skool[i], '{}{:05} DEFB 0,0'.format(ctl, address))
+            self.assertEqual(skool[i + 1], ' {:05} DEFW 0'.format(address + 2))
+            ctl = ' '
+            address += 4
+
+    def test_loop_with_entries(self):
+        ctl = '\n'.join((
+            'b 00000 A block of five pairs of bytes',
+            'B 00000,10,2',
+            'L 00000,10,3,1',
+            'i 00030'
+        ))
+        writer = self._get_writer([0] * 30, ctl)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')[:-2]
+        address = 0
+        index = 3
+        for i in range(3):
+            ctl = 'b'
+            for j in range(5):
+                self.assertEqual(skool[index], '{}{:05} DEFB 0,0'.format(ctl, address))
+                ctl = ' '
+                address += 2
+                index += 1
+            index += 2
+
 class CtlWriterTest(SkoolKitTestCase):
     def test_decimal_addresses_below_10000(self):
         ctls = {0: 'b', 1: 'c', 22: 't', 333: 'w', 4444: 's'}

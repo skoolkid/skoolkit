@@ -254,7 +254,8 @@ class CtlParser:
         return self.end_comments.get(address, ())
 
     def get_lengths(self, address):
-        return self.lengths.get(address)
+        if address in self.lengths:
+            return self.lengths[address][:]
 
     def get_multiline_comment(self, address):
         return self.multiline_comments.get(address, (None, None))

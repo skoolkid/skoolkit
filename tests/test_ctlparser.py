@@ -410,13 +410,13 @@ class CtlParserTest(SkoolKitTestCase):
             'D 30000 This entry description should not be repeated',
             'R 30000 HL This register should not be repeated',
             '  30000,5 Begin',
-            'B 30005,5',
+            'B 30005,5,1,2',
             'D 30010 A mid-block comment',
             'M 30010,10 A multi-line comment',
             'S 30010,6',
-            'W 30016,4',
+            'W 30016,4,4',
             '; @label:30020=END',
-            'T 30020,5 End',
+            'T 30020,5,4:B1 End',
             'E 30000 This end comment should not be repeated',
             'L {},{},{}'.format(start, length, count)
         ))
@@ -426,10 +426,20 @@ class CtlParserTest(SkoolKitTestCase):
 
         # Check B, C, S, T and W sub-blocks
         for a in range(start, end, length):
-            for offset, subctl in ((0, 'C'), (5, 'B'), (10, 'S'), (16, 'W'), (20, 'T')):
+            for offset, subctl, lengths in (
+                (0, 'C', None),
+                (5, 'B', [(1, None), (2, None)]),
+                (10, 'S', None),
+                (16, 'W', [(4, None)]),
+                (20, 'T', [(5, [(4, None), (1, 'B')])])
+            ):
                 address = a + offset
                 self.assertIn(address, ctl_parser.subctls)
                 self.assertEqual(ctl_parser.subctls[address], subctl.lower())
+                if lengths is None:
+                    self.assertNotIn(address, ctl_parser.lengths)
+                else:
+                    self.assertEqual(lengths, ctl_parser.lengths[address])
 
         # Check mid-block comments
         offset = 10
@@ -489,13 +499,13 @@ class CtlParserTest(SkoolKitTestCase):
             'D 40000 This entry description should be repeated',
             'R 40000 HL This register should be repeated',
             '  40000,5 Begin',
-            'B 40005,5',
+            'B 40005,5,1,2',
             'D 40010 A mid-block comment',
             'M 40010,10 A multi-line comment',
             'S 40010,6',
-            'W 40016,4',
+            'W 40016,4,4',
             '; @label:40020=END',
-            'T 40020,5 End',
+            'T 40020,5,4:B1 End',
             'E 40000 This end comment should be repeated',
             'L {},{},{},1'.format(start, length, count)
         ))
@@ -505,10 +515,20 @@ class CtlParserTest(SkoolKitTestCase):
 
         # Check B, C, S, T and W sub-blocks
         for a in range(start, end, length):
-            for offset, subctl in ((0, 'C'), (5, 'B'), (10, 'S'), (16, 'W'), (20, 'T')):
+            for offset, subctl, lengths in (
+                (0, 'C', None),
+                (5, 'B', [(1, None), (2, None)]),
+                (10, 'S', None),
+                (16, 'W', [(4, None)]),
+                (20, 'T', [(5, [(4, None), (1, 'B')])])
+            ):
                 address = a + offset
                 self.assertIn(address, ctl_parser.subctls)
                 self.assertEqual(ctl_parser.subctls[address], subctl.lower())
+                if lengths is None:
+                    self.assertNotIn(address, ctl_parser.lengths)
+                else:
+                    self.assertEqual(lengths, ctl_parser.lengths[address])
 
         # Check mid-block comments
         offset = 10
