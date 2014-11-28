@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import random
 import re
 from os.path import basename, isfile
 from posixpath import join
@@ -258,9 +257,7 @@ class MethodTest(HtmlWriterTestCase):
             self.assertEqual(cm.exception.args[0], 'Invalid colour spec: {}={}'.format(name, spec))
 
     def test_get_screenshot(self):
-        snapshot = [0] * 65536
-        for a in range(16384, 23296):
-            snapshot[a] = random.randint(0, 255)
+        snapshot = [0] * 16384 + [i & 255 for i in range(6912)]
         writer = self._get_writer(snapshot=snapshot)
         self._assert_scr_equal(writer)
         self._assert_scr_equal(writer, 1, 2, 12, 10)
