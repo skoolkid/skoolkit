@@ -3,6 +3,8 @@ Changelog
 
 4.2b1
 -----
+* Added support for :ref:`control directive loops <ctlLoops>` using the ``L``
+  directive
 * Added support to control files for preserving the location of :ref:`ignoreua`
   directives
 * Each :ref:`image macro <imageMacros>` now has the ability to specify alt text

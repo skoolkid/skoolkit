@@ -273,6 +273,64 @@ These statements can be encoded in a control file thus::
 
   S 60000,60,20:170,40:85
 
+.. _ctlLoops:
+
+Loops
+-----
+Sometimes the instructions and statements in a code or data block follow a
+repeating pattern. For example::
+
+  b 30000 Two bytes and one word, times ten
+  B 30000,2
+  W 30002
+  B 30004,2
+  W 30004
+  ...
+  B 30036,2
+  W 30038
+
+Repeating patterns like this can be expressed more succinctly as a loop by
+using the ``L`` directive, which has the following format::
+
+  L start,length,count[,blocks]
+
+where:
+
+* ``start`` is the loop start address
+* ``length`` is the length of the loop (the size of the address range to
+  repeat)
+* ``count`` is the number of times to repeat the loop (only values of 2 or more
+  make sense)
+* ``blocks`` is ``1`` to repeat block-level elements, or ``0`` to repeat only
+  sub-block elements (default: ``0``)
+
+So using the ``L`` directive, the body of the data block above can be expressed
+in three lines instead of 20::
+
+  b 30000 Two bytes and one word, times ten
+  B 30000,2
+  W 30002
+  L 30000,4,10
+
+The ``L`` directive can also be used to repeat entire blocks, by setting the
+``blocks`` argument to ``1``. For example::
+
+  b 40000 A block of five pairs of bytes
+  B 40000,10,2
+  L 40000,10,3,1
+
+is equivalent to::
+
+  b 40000 A block of five pairs of bytes
+  B 40000,10,2
+  b 40010 A block of five pairs of bytes
+  B 40010,10,2
+  b 40020 A block of five pairs of bytes
+  B 40020,10,2
+
+Note that ASM directives in the address range of an ``L`` directive loop are
+*not* repeated.
+
 Number bases
 ------------
 Numeric values in DEFB, DEFM, DEFS and DEFW statements are normally rendered in
@@ -406,8 +464,8 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 4.2     | Added support for preserving the location of :ref:`ignoreua`      |
-|         | directives                                                        |
+| 4.2     | Added the ``L`` directive and support for preserving the location |
+|         | of :ref:`ignoreua` directives                                     |
 +---------+-------------------------------------------------------------------+
 | 3.7     | Added support for binary numbers; added support for specifying    |
 |         | the base of numeric values in DEFB, DEFM, DEFS and DEFW           |
