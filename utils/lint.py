@@ -20,6 +20,7 @@ IGNORE_MSG_IDS = [
     'C0111', # Missing docstring
     'C0301', # Line too long
     'C0302', # Too many lines in module
+    'C1001', # Old-style class
     'R0201', # Method could be a function
     'R0902', # Too many instance attributes
     'R0903', # Too few public methods
@@ -32,13 +33,17 @@ IGNORE_MSG_IDS = [
     'W0142', # Used * or ** magic
     'W0201', # Attribute defined outside __init__
     'W0232', # Class has no __init__ method
+    'W0601', # Global variable undefined at the module level
     'W0603', # Using the global statement
     'W0631', # Using possibly undefined loop variable
+    'W0632', # Possible unbalanced tuple unpacking
+    'W0633', # Attempting to unpack a non-sequence
+    'W1401', # Anomalous backslash in string
 ]
 
 # pylint options
 OPTIONS = (
-    '-i y',
+    "--msg-template='{path}:{line}: [{msg_id}:{symbol}:{obj}] {msg}'",
 )
 
 ###############################################################################
@@ -70,14 +75,17 @@ if namespace.ignore_similarities:
 if namespace.ignore_unused:
     extra_ignores.append('W0612')
     extra_ignores.append('W0613')
-IGNORE_MSG_IDS.extend(extra_ignores)
 
-paths = 'skoolkit'
 if namespace.test:
     os.chdir('tests')
-    paths = ' '.join([m for m in os.listdir('.') if m.endswith('.py')])
-args = '{} {} -d {}'.format(paths, ' '.join(OPTIONS), ','.join(IGNORE_MSG_IDS))
-divider = '-' * 80
-sys.stdout.write('{}\npylint {}\n{}\n'.format(divider, args, divider))
+    args = [m for m in os.listdir('.') if m.endswith('.py')]
+    extra_ignores.append('F0401') # Unable to import 'skoolkit.*'
+else:
+    args = ['skoolkit']
+IGNORE_MSG_IDS.extend(extra_ignores)
 
-lint.Run(args.split())
+args.extend(OPTIONS)
+args.extend(('-d', ','.join(IGNORE_MSG_IDS)))
+print('{0}\npylint {1}\n{0}'.format('-' * 80, ' '.join(args)))
+
+lint.Run(args)
