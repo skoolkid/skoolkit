@@ -52,7 +52,7 @@ class RefParser:
                 section_lines.append(s_line)
         infile.close()
         self._add_section(section_name, section_lines)
- 
+
     def add_line(self, section_name, line):
         """Add a line to a section."""
         if section_name in self.sections:
