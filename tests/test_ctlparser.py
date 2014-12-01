@@ -41,10 +41,14 @@ B 30720,10,1,T3:2,1:T1*2
 T 30730-30744,10:B5"""
 
 class CtlParserTest(SkoolKitTestCase):
-    def test_parse_ctl(self):
+    def _get_ctl_parser(self, ctl):
         ctl_parser = CtlParser()
-        ctlfile = self.write_text_file(CTL)
+        ctlfile = self.write_text_file(ctl)
         ctl_parser.parse_ctl(ctlfile)
+        return ctl_parser
+
+    def test_parse_ctl(self):
+        ctl_parser = self._get_ctl_parser(CTL)
 
         exp_ctls = {
             30000: 'b',
@@ -203,9 +207,7 @@ class CtlParserTest(SkoolKitTestCase):
             'w 32769',
             '; This is a comment too'
         ))
-        ctl_parser = CtlParser()
-        ctlfile = self.write_text_file(ctl)
-        ctl_parser.parse_ctl(ctlfile)
+        ctl_parser = self._get_ctl_parser(ctl)
 
         self.assertEqual(self.err.getvalue(), '')
         self.assertEqual({32768: 'b', 32769: 'w'}, ctl_parser.ctls)
@@ -224,9 +226,7 @@ class CtlParserTest(SkoolKitTestCase):
             'T 40080,10,2:h8 2 text, 8 hex, one line',
             'T 40090,10,5,B5 5 text, 5 default'
         ))
-        ctl_parser = CtlParser()
-        ctlfile = self.write_text_file(ctl)
-        ctl_parser.parse_ctl(ctlfile)
+        ctl_parser = self._get_ctl_parser(ctl)
 
         exp_lengths = {
             40000: [(None, [(None, 'b')])],
@@ -269,9 +269,7 @@ class CtlParserTest(SkoolKitTestCase):
             '  40040,10,b2,4,h4 1 binary, 2 default, 2 hex',
             '  40050,10,b2:6:h2 1 binary, 3 default, 1 hex, one line',
         ))
-        ctl_parser = CtlParser()
-        ctlfile = self.write_text_file(ctl)
-        ctl_parser.parse_ctl(ctlfile)
+        ctl_parser = self._get_ctl_parser(ctl)
 
         exp_lengths = {
             40010: [(None, [(None, 'b')])],
@@ -305,9 +303,7 @@ class CtlParserTest(SkoolKitTestCase):
             '  50140,20,20:h$44',
             '  50160,12,10:h10,h2:2'
         ))
-        ctl_parser = CtlParser()
-        ctlfile = self.write_text_file(ctl)
-        ctl_parser.parse_ctl(ctlfile)
+        ctl_parser = self._get_ctl_parser(ctl)
 
         exp_lengths = {
             50010: [(None, [(None, 'b')])],
@@ -366,9 +362,7 @@ class CtlParserTest(SkoolKitTestCase):
             '; @ignoreua:30004:e',
             'E 30004 End comment for the routine at 30004.'
         ))
-        ctl_parser = CtlParser()
-        ctlfile = self.write_text_file(ctl)
-        ctl_parser.parse_ctl(ctlfile)
+        ctl_parser = self._get_ctl_parser(ctl)
 
         exp_ignoreua_directives = {
             30000: set(['t']),
@@ -387,9 +381,7 @@ class CtlParserTest(SkoolKitTestCase):
             'R 40000',
             'R 40000 HL Another important value'
         ))
-        ctl_parser = CtlParser()
-        ctlfile = self.write_text_file(ctl)
-        ctl_parser.parse_ctl(ctlfile)
+        ctl_parser = self._get_ctl_parser(ctl)
 
         exp_registers = [
             ['BC', 'Important value'],
@@ -420,9 +412,7 @@ class CtlParserTest(SkoolKitTestCase):
             'E 30000 This end comment should not be repeated',
             'L {},{},{}'.format(start, length, count)
         ))
-        ctl_parser = CtlParser()
-        ctlfile = self.write_text_file(ctl)
-        ctl_parser.parse_ctl(ctlfile)
+        ctl_parser = self._get_ctl_parser(ctl)
 
         # Check B, C, S, T and W sub-blocks
         for a in range(start, end, length):
@@ -509,9 +499,7 @@ class CtlParserTest(SkoolKitTestCase):
             'E 40000 This end comment should be repeated',
             'L {},{},{},1'.format(start, length, count)
         ))
-        ctl_parser = CtlParser()
-        ctlfile = self.write_text_file(ctl)
-        ctl_parser.parse_ctl(ctlfile)
+        ctl_parser = self._get_ctl_parser(ctl)
 
         # Check B, C, S, T and W sub-blocks
         for a in range(start, end, length):
@@ -571,6 +559,40 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual([('label', 'END')], asm_dirs[start + offset])
         for a in range(start + offset + length, end, length):
             self.assertNotIn(a, asm_dirs)
+
+    def test_loop_crossing_64k_boundary(self):
+        ctl = '\n'.join((
+            'u 65532',
+            'W 65532,2',
+            'L 65532,2,3'
+        ))
+        ctl_parser = self._get_ctl_parser(ctl)
+        warnings = self.err.getvalue().split('\n')
+
+        # Check warning
+        self.assertEqual(warnings[0], 'WARNING: Loop crosses 64K boundary:')
+        self.assertEqual(warnings[1], 'L 65532,2,3')
+
+        # Check that the W sub-block is repeated anyway
+        subctls = ctl_parser.subctls
+        self.assertIn(65534, subctls)
+        self.assertEqual(subctls[65534], 'w')
+
+    def test_loop_with_entries_crossing_64k_boundary(self):
+        ctl = '\n'.join((
+            'b 65534',
+            'L 65534,1,4,1'
+        ))
+        ctl_parser = self._get_ctl_parser(ctl)
+        warnings = self.err.getvalue().split('\n')
+
+        # Check warning
+        self.assertEqual(warnings[0], 'WARNING: Loop crosses 64K boundary:')
+        self.assertEqual(warnings[1], 'L 65534,1,4,1')
+
+        # Check that there is no block that starts past the boundary
+        blocks = ctl_parser.get_blocks()
+        self.assertEqual(blocks[-1].start, 65535)
 
 if __name__ == '__main__':
     unittest.main()

@@ -117,8 +117,11 @@ class CtlParser:
                             repeat_entries = lengths[1][0]
                         else:
                             repeat_entries = 0
+                        loop_end = start + count * (end - start + 1)
+                        if loop_end > 65536:
+                            warn('Loop crosses 64K boundary:\n{}'.format(s_line))
                         self.loops.append((start, end, count, repeat_entries))
-                        self.subctls[start + count * (end - start + 1)] = None
+                        self.subctls[loop_end] = None
                 else:
                     self.subctls[start] = ctl.lower()
                     self.instruction_comments[start] = text
@@ -278,7 +281,7 @@ class CtlParser:
     def get_blocks(self):
         # Create top-level blocks
         blocks = []
-        for address in sorted(self.ctls.keys()):
+        for address in sorted([k for k in self.ctls if k < 65536]):
             blocks.append(Block(self.ctls[address], address, True))
 
         # Set top-level block end addresses
