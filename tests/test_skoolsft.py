@@ -286,7 +286,7 @@ class SftWriterTest(SkoolKitTestCase):
         skoolfile = self.write_text_file(skool, suffix='.skool')
         writer = SftWriter(skoolfile, write_hex, preserve_base)
         writer.write()
-        sft =  self.out.getvalue().split('\n')[:-1]
+        sft = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(exp_sft, sft)
 
     def test_sftwriter(self):

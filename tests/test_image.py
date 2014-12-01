@@ -6,7 +6,7 @@ from collections import deque
 from io import BytesIO
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit.image import (ImageWriter, PngWriter, DEFAULT_FORMAT,
+from skoolkit.image import (ImageWriter, DEFAULT_FORMAT,
                             PNG_COMPRESSION_LEVEL, PNG_ENABLE_ANIMATION,
                             PNG_ALPHA, GIF_ENABLE_ANIMATION, GIF_TRANSPARENCY)
 from skoolkit.skoolhtml import Udg, Frame
@@ -62,7 +62,7 @@ IEND_CHUNK = [0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130]
 CRC_MASK = 4294967295
 
 GIF_HEADER = [71, 73, 70, 56, 57, 97]
-AEB =  [33, 255, 11, 78, 69, 84, 83, 67, 65, 80, 69, 50, 46, 48, 3, 1, 0, 0, 0]
+AEB = [33, 255, 11, 78, 69, 84, 83, 67, 65, 80, 69, 50, 46, 48, 3, 1, 0, 0, 0]
 GIF_FRAME_DELAY = 32
 GIF_TRAILER = 59
 

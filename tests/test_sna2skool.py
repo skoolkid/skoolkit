@@ -22,7 +22,7 @@ from skoolkit import sna2skool, SkoolKitError, VERSION
 #   7. Scan the disassembly for pairs of adjacent blocks that overlap, and mark
 #      the first block in each pair as data; also mark code blocks that have no
 #      terminal instruction as data.
-#   8. Mark any sequence of NOPs at the beginning of a code block as a separate 
+#   8. Mark any sequence of NOPs at the beginning of a code block as a separate
 #      zero block.
 TEST_BIN = (
     # Test that 'RET', 'JP nn' and 'JR d' create block boundaries.

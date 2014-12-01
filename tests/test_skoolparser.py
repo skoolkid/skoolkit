@@ -1350,7 +1350,7 @@ class SkoolParserTest(SkoolKitTestCase):
             ' 24616 DEFS 2'
         ))
         parser = self._get_parser(skool)
-        self.assertEqual(parser.snapshot[24591:24600], [1, 44, 1, 97, 98, 99, 7, 7, 7]) 
+        self.assertEqual(parser.snapshot[24591:24600], [1, 44, 1, 97, 98, 99, 7, 7, 7])
         self.assertEqual(parser.snapshot[24600:24609], [160, 44, 129, 97, 98, 17, 170, 170, 170])
         self.assertEqual(parser.snapshot[24609:24618], [15, 99, 15, 170, 240, 98, 99, 0, 0])
 
@@ -1677,7 +1677,8 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(warnings[0], 'WARNING: Unreplaced operand: 30000 JR 30002')
 
     def test_error_duplicate_label(self):
-        skool = '\n'.join(('; @start',
+        skool = '\n'.join((
+            '; @start',
             '; Start',
             '; @label=START',
             'c40000 RET',

@@ -116,7 +116,7 @@ class SkoolKitTestCase(TestCase):
         return self._write_file(bytearray(data), path, suffix, False)
 
     def write_stdin(self, contents):
-        sys.stdin = open(self.write_text_file(contents), 'rt')
+        sys.stdin = open(self.write_text_file(contents), 'r')
 
     def _get_z80_ram_block(self, data, compress, page=None):
         if compress:

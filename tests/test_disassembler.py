@@ -1960,7 +1960,7 @@ class DisassemblerTest(SkoolKitTestCase):
         data = [1, 0, 1, 1, 2, 2, 3, 255]
         snapshot = self._get_snapshot(start, data)
         disassembler = self._get_disassembler(snapshot)
-        
+
         instructions = disassembler.defw_range(start, start + len(data), False)
         self.assertEqual(len(instructions), 4)
         i = 0

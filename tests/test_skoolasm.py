@@ -377,7 +377,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def _test_reference_macro(self, macro, def_link_text):
         writer = self._get_writer()
-        for link_text in ('',  '()', '(testing)', '(testing (nested) parentheses)'):
+        for link_text in ('', '()', '(testing)', '(testing (nested) parentheses)'):
             for anchor in ('', '#name', '#foo$bar'):
                 output = writer.expand('#{}{}{}'.format(macro, anchor, link_text))
                 self.assertEqual(output, link_text[1:-1] or def_link_text)

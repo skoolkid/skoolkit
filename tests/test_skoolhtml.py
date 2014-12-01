@@ -8,7 +8,7 @@ from skoolkittest import SkoolKitTestCase, StringIO
 from skoolkit import VERSION, SkoolKitError, SkoolParsingError, defaults, skoolhtml
 from skoolkit.skoolmacro import MacroParsingError, UnsupportedMacroError
 from skoolkit.skoolhtml import HtmlWriter, FileInfo, Udg, Frame
-from skoolkit.skoolparser import SkoolParser, Register, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
+from skoolkit.skoolparser import SkoolParser, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
 from skoolkit.refparser import RefParser
 
 GAMEDIR = 'test'
@@ -222,7 +222,7 @@ class MethodTest(HtmlWriterTestCase):
     def _assert_scr_equal(self, game, x0=0, y0=0, w=32, h=24):
         snapshot = game.snapshot[:]
         scr = game.screenshot(x0, y0, w, h)
-        self.assertEqual(len(scr),  min((h, 24 - y0)))
+        self.assertEqual(len(scr), min((h, 24 - y0)))
         self.assertEqual(len(scr[0]), min((w, 32 - x0)))
         for j, row in enumerate(scr):
             for i, udg in enumerate(row):
