@@ -13,8 +13,6 @@ def parse_args(args):
     if not isfile(diff_file):
         sys.stderr.write('ERROR: {}: file not found\n'.format(diff_file))
         sys.exit(1)
-    if not isfile(exp_diffs_file):
-        exp_diffs_file = None
 
     return diff_file, exp_diffs_file
 
@@ -78,8 +76,7 @@ def remove_equivalent_defbs(lines1, lines2):
 
 def get_diffs(fname, options=None, fnames=False):
     diffs = []
-    if fname:
-        f = open(fname)
+    with open(fname) as f:
         cur_file = fname if fnames else None
         last = None
         for line in f:
@@ -105,14 +102,16 @@ def get_diffs(fname, options=None, fnames=False):
                 last = s_line[0]
             else:
                 last = None
-        f.close()
     return diffs
 
 def run(diff_file, exp_diffs_file):
     diffs = get_diffs(diff_file, fnames=True)
     options = {}
-    exp_diffs = get_diffs(exp_diffs_file, options)
-    for fname in options.get('Include', ()):
+    exp_diffs = []
+    if isfile(exp_diffs_file):
+        exp_diffs = get_diffs(exp_diffs_file, options)
+    includes = options.get('Include', ())
+    for fname in includes:
         included_file = os.path.join(os.path.dirname(exp_diffs_file), fname)
         exp_diffs.extend(get_diffs(included_file, options))
     ignore_case = options.get('IgnoreCase', False)
@@ -218,6 +217,30 @@ def run(diff_file, exp_diffs_file):
             lines.append('')
 
     if lines:
+        suffix = '' if isfile(exp_diffs_file) else ' (not found)'
+        print('+ Expected diffs file: {}{}'.format(exp_diffs_file, suffix))
+        print('+')
+        for directive, value in (
+            ('ExpIgnoreCase', ignore_exp_case),
+            ('IgnoreBlankLines', ignore_blank_lines),
+            ('IgnoreCase', ignore_case),
+            ('IgnoreDiffsContaining', ignore_strings),
+            ('IgnoreDiffsContainingRegex', ignore_regexes),
+            ('IgnoreEquivalentDEFBs', ignore_equivalent_defbs),
+            ('IgnoreFile', ignore_files),
+            ('IgnoreLeadingWhitespace', ignore_leading_whitespace),
+            ('IgnoreReverseSubstitution', rev_subs),
+            ('IgnoreSubstitution', subs),
+            ('IgnoreTrailingWhitespace', ignore_trailing_whitespace),
+            ('Include', includes),
+            ('RegexReplace', regex_subs)
+        ):
+            if isinstance(value, (list, tuple)):
+                for val in value:
+                    print('+ @{}={}'.format(directive, val))
+            else:
+                print('+ @{}={}'.format(directive, value))
+        print('')
         print('\n'.join(lines))
 
 def main():
