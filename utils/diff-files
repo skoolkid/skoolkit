@@ -28,7 +28,7 @@ do_diff() {
   fi
   if [ $CHECK_DIFFS -eq 1 ] && [ -f $ofile ]; then
     xdiff=$(dirname $ofile)/$PREFIX$(basename $ofile)
-    exp_diffs_file=${EXP_DIFFS_FILE_PREFIX}exp-diffs-${diff_type}.txt
+    exp_diffs_file=$DIFFS_DIR/${EXP_DIFFS_FILE_PREFIX}exp-diffs-${diff_type}.txt
     $UTILS/check-diffs.py $exp_diffs_file $ofile > $xdiff
     if [ $RM_EMPTY_DIFFS -eq 1 ] && [ ! -s $xdiff ]; then
       rm $xdiff
