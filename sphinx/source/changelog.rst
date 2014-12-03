@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.2b1
+4.2rc
 -----
 * Added support for :ref:`control directive loops <ctlLoops>` using the ``L``
   directive
