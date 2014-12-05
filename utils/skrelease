@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+set -e # Abort on errors
+
+# Check required environment variables
+if [ -z "$SKOOLKIT_HOME" ]; then
+  echo "Error: SKOOLKIT_HOME not defined."
+  exit 1
+fi
+if [ ! -d "$SKOOLKIT_HOME" ]; then
+  echo "Error: directory not found: $SKOOLKIT_HOME"
+  exit 1
+fi
+
+if [ -z "$MANICMINER_HOME" ]; then
+  echo "Error: MANICMINER_HOME not defined."
+  exit 1
+fi
+if [ ! -d "$MANICMINER_HOME" ]; then
+  echo "Error: directory not found: $MANICMINER_HOME"
+  exit 1
+fi
+
+if [ -z "$JETSETWILLY_HOME" ]; then
+  echo "Error: JETSETWILLY_HOME not defined."
+  exit 1
+fi
+if [ ! -d "$JETSETWILLY_HOME" ]; then
+  echo "Error: directory not found: $JETSETWILLY_HOME"
+  exit 1
+fi
+
+if [ -z "$DISASSEMBLIES_HOME" ]; then
+  echo "Error: DISASSEMBLIES_HOME not defined."
+  exit 1
+fi
+if [ ! -d "$DISASSEMBLIES_HOME" ]; then
+  echo "Error: directory not found: $DISASSEMBLIES_HOME"
+  exit 1
+fi
+
+# Run the disassemblies (MM/JSW/SD/BTS/CSC) tests
+test_disassemblies() {
+  mkdir -p $MANICMINER_HOME/build
+  mmlog=$MANICMINER_HOME/build/tests.log
+  mkdir -p $JETSETWILLY_HOME/build
+  jswlog=$JETSETWILLY_HOME/build/tests.log
+  mkdir -p $DISASSEMBLIES_HOME/build
+  sdbtscsclog=$DISASSEMBLIES_HOME/build/tests.log
+
+  targets=$(echo test{2.7,3.{2,3,4}})
+  make -C $MANICMINER_HOME $targets &> $mmlog &
+  PID1=$!
+  make -C $JETSETWILLY_HOME $targets &> $jswlog &
+  PID2=$!
+  make -C $DISASSEMBLIES_HOME $targets &> $sdbtscsclog &
+  PID3=$!
+
+  echo -n "Manic Miner tests: "
+  wait -n $PID1 && echo "OK" || echo "FAILED (see $mmlog)"
+
+  echo -n "Jet Set Willy tests: "
+  wait -n $PID2 && echo "OK" || echo "FAILED (see $jswlog)"
+
+  echo -n "SD/BTS/CSC tests: "
+  wait -n $PID3 && echo "OK" || echo "FAILED (see $sdbtscsclog)"
+}
+
+# Print usage information
+usage() {
+  cat >&2 <<EOM
+Usage: $(basename $0) COMMAND
+
+COMMAND may be one of:
+  dtests - run the disassemblies (MM/JSW/SD/BTS/CSC) tests
+EOM
+}
+
+# Parse command line
+case "$1" in
+  dtests) test_disassemblies ;;
+       *) usage ;;
+esac
