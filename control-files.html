@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Control files &mdash; SkoolKit 4.1.1 documentation</title>
+    <title>Control files &mdash; SkoolKit 4.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '4.1.1',
+        URL_ROOT:    './',
+        VERSION:     '4.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.1.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.2 documentation" href="index.html" />
     <link rel="next" title="Skool files" href="skool-files.html" />
     <link rel="prev" title="Parsing, rendering, and modes" href="parsing.html" /> 
   </head>
@@ -42,7 +40,7 @@
         <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.1.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -56,6 +54,7 @@
 <li><a class="reference internal" href="#block-end-comments">Block end comments</a></li>
 <li><a class="reference internal" href="#sub-block-syntax">Sub-block syntax</a></li>
 <li><a class="reference internal" href="#sub-block-lengths">Sub-block lengths</a></li>
+<li><a class="reference internal" href="#loops">Loops</a></li>
 <li><a class="reference internal" href="#number-bases">Number bases</a></li>
 <li><a class="reference internal" href="#asm-directives">ASM directives</a></li>
 <li><a class="reference internal" href="#instruction-level-comments">Instruction-level comments</a></li>
@@ -369,6 +368,62 @@ notation can also be combined with the &#8216;*&#8217; notation; for example:</p
 </pre></div>
 </div>
 </div>
+<div class="section" id="loops">
+<span id="ctlloops"></span><h2>Loops<a class="headerlink" href="#loops" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes the instructions and statements in a code or data block follow a
+repeating pattern. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>b 30000 Two bytes and one word, times ten
+B 30000,2
+W 30002
+B 30004,2
+W 30004
+...
+B 30036,2
+W 30038
+</pre></div>
+</div>
+<p>Repeating patterns like this can be expressed more succinctly as a loop by
+using the <tt class="docutils literal"><span class="pre">L</span></tt> directive, which has the following format:</p>
+<div class="highlight-none"><div class="highlight"><pre>L start,length,count[,blocks]
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">start</span></tt> is the loop start address</li>
+<li><tt class="docutils literal"><span class="pre">length</span></tt> is the length of the loop (the size of the address range to
+repeat)</li>
+<li><tt class="docutils literal"><span class="pre">count</span></tt> is the number of times to repeat the loop (only values of 2 or more
+make sense)</li>
+<li><tt class="docutils literal"><span class="pre">blocks</span></tt> is <tt class="docutils literal"><span class="pre">1</span></tt> to repeat block-level elements, or <tt class="docutils literal"><span class="pre">0</span></tt> to repeat only
+sub-block elements (default: <tt class="docutils literal"><span class="pre">0</span></tt>)</li>
+</ul>
+<p>So using the <tt class="docutils literal"><span class="pre">L</span></tt> directive, the body of the data block above can be expressed
+in three lines instead of 20:</p>
+<div class="highlight-none"><div class="highlight"><pre>b 30000 Two bytes and one word, times ten
+B 30000,2
+W 30002
+L 30000,4,10
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">L</span></tt> directive can also be used to repeat entire blocks, by setting the
+<tt class="docutils literal"><span class="pre">blocks</span></tt> argument to <tt class="docutils literal"><span class="pre">1</span></tt>. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>b 40000 A block of five pairs of bytes
+B 40000,10,2
+L 40000,10,3,1
+</pre></div>
+</div>
+<p>is equivalent to:</p>
+<div class="highlight-none"><div class="highlight"><pre>b 40000 A block of five pairs of bytes
+B 40000,10,2
+b 40010 A block of five pairs of bytes
+B 40010,10,2
+b 40020 A block of five pairs of bytes
+B 40020,10,2
+</pre></div>
+</div>
+<p>Note that ASM directives in the address range of an <tt class="docutils literal"><span class="pre">L</span></tt> directive loop are
+<em>not</em> repeated.</p>
+</div>
 <div class="section" id="number-bases">
 <h2>Number bases<a class="headerlink" href="#number-bases" title="Permalink to this headline">¶</a></h2>
 <p>Numeric values in DEFB, DEFM, DEFS and DEFW statements are normally rendered in
@@ -406,10 +461,30 @@ applies</li>
 <div class="highlight-none"><div class="highlight"><pre>; @label:32768=LOOP
 </pre></div>
 </div>
+<p>When declaring an <a class="reference internal" href="asm.html#ignoreua"><em>&#64;ignoreua</em></a> directive for anything other than an
+instruction-level comment, a suffix must be appended to the address to specify
+what the directive applies to:</p>
+<div class="highlight-none"><div class="highlight"><pre>; @ignoreua:address:X
+</pre></div>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">X</span></tt> is one of:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">d</span></tt> - entry description</li>
+<li><tt class="docutils literal"><span class="pre">e</span></tt> - block end comment</li>
+<li><tt class="docutils literal"><span class="pre">i</span></tt> - instruction-level comment (default)</li>
+<li><tt class="docutils literal"><span class="pre">m</span></tt> - mid-block comment</li>
+<li><tt class="docutils literal"><span class="pre">r</span></tt> - register description section</li>
+<li><tt class="docutils literal"><span class="pre">t</span></tt> - entry title</li>
+</ul>
+<p>For example, to declare an <a class="reference internal" href="asm.html#ignoreua"><em>&#64;ignoreua</em></a> directive for the description of the
+routine at 49152:</p>
+<div class="highlight-none"><div class="highlight"><pre>; @ignoreua:49152:d
+D 49152 This is the description of the routine at 49152.
+</pre></div>
+</div>
 <p>Note that neither ASM block directives (such as the <a class="reference internal" href="asm.html#bfixblockdirectives"><em>&#64;bfix block directives</em></a>)
-nor the exact location of <a class="reference internal" href="asm.html#org"><em>&#64;org</em></a>, <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a>, <a class="reference internal" href="asm.html#start"><em>&#64;start</em></a>, <a class="reference internal" href="asm.html#end"><em>&#64;end</em></a>,
-<a class="reference internal" href="asm.html#ignoreua"><em>&#64;ignoreua</em></a> and <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a> ASM directives can be preserved using this
-syntax.</p>
+nor the exact location of <a class="reference internal" href="asm.html#org"><em>&#64;org</em></a>, <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a>, <a class="reference internal" href="asm.html#start"><em>&#64;start</em></a>, <a class="reference internal" href="asm.html#end"><em>&#64;end</em></a>
+and <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a> directives can be preserved in a control file.</p>
 </div>
 <div class="section" id="instruction-level-comments">
 <h2>Instruction-level comments<a class="headerlink" href="#instruction-level-comments" title="Permalink to this headline">¶</a></h2>
@@ -465,13 +540,13 @@ directives). For example:</p>
 <div class="section" id="limitations">
 <h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h2>
 <p>A control file can be useful in the early stages of developing a <cite>skool</cite> file
-for reorganising code and data blocks, but it cannot preserve the following
-elements:</p>
+for reorganising code and data blocks, but it cannot preserve the following:</p>
 <ul class="simple">
 <li>ASM block directives</li>
-<li>the exact locations of <cite>&#64;org</cite>, <cite>&#64;writer</cite>, <cite>&#64;start</cite>, <cite>&#64;end</cite>, <cite>&#64;ignoreua</cite> and
-<cite>&#64;set</cite> ASM directives</li>
-<li>data definition entries (&#8216;d&#8217; blocks) and remote entries (&#8216;r&#8217; blocks)</li>
+<li>the exact locations of <a class="reference internal" href="asm.html#org"><em>&#64;org</em></a>, <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a>, <a class="reference internal" href="asm.html#start"><em>&#64;start</em></a>, <a class="reference internal" href="asm.html#end"><em>&#64;end</em></a>
+and <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a> directives</li>
+<li><a class="reference internal" href="skool-files.html#dentry"><em>data definition entries</em></a> (&#8216;d&#8217; blocks) and
+<a class="reference internal" href="skool-files.html#rentry"><em>remote entries</em></a> (&#8216;r&#8217; blocks)</li>
 <li>comments that are not part of a code or data block</li>
 </ul>
 <p><a class="reference internal" href="skool-file-templates.html#skoolfiletemplates"><em>Skool file templates</em></a>, however, can preserve all of these elements, and so
@@ -490,40 +565,44 @@ may be a better choice for <cite>skool</cite> files that contain any of them.</p
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>3.7</td>
+<tr class="row-even"><td>4.2</td>
+<td>Added the <tt class="docutils literal"><span class="pre">L</span></tt> directive and support for preserving the location
+of <a class="reference internal" href="asm.html#ignoreua"><em>&#64;ignoreua</em></a> directives</td>
+</tr>
+<tr class="row-odd"><td>3.7</td>
 <td>Added support for binary numbers; added support for specifying
 the base of numeric values in DEFB, DEFM, DEFS and DEFW
 statements; added the <tt class="docutils literal"><span class="pre">s</span></tt> and <tt class="docutils literal"><span class="pre">S</span></tt> directives and support for
 DEFS statements with non-zero byte values</td>
 </tr>
-<tr class="row-odd"><td>3.6</td>
+<tr class="row-even"><td>3.6</td>
 <td>Added support for preserving blank comments that span two or more
 instructions</td>
 </tr>
-<tr class="row-even"><td>3.1.4</td>
+<tr class="row-odd"><td>3.1.4</td>
 <td>Added support for DEFB and DEFM statements that contain both
 strings and bytes</td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
+<tr class="row-even"><td>2.4</td>
 <td>Added support for non-block ASM directives</td>
 </tr>
-<tr class="row-even"><td>2.2</td>
+<tr class="row-odd"><td>2.2</td>
 <td>Added support for the <tt class="docutils literal"><span class="pre">*</span></tt> notation in DEFB, DEFM, DEFS and DEFW
 statement length lists</td>
 </tr>
-<tr class="row-odd"><td>2.1.2</td>
+<tr class="row-even"><td>2.1.2</td>
 <td>Added support for DEFM, DEFS and DEFW statement lengths</td>
 </tr>
-<tr class="row-even"><td>2.1.1</td>
+<tr class="row-odd"><td>2.1.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">M</span></tt> directive</td>
 </tr>
-<tr class="row-odd"><td>2.1</td>
+<tr class="row-even"><td>2.1</td>
 <td>Added support for DEFB statement lengths</td>
 </tr>
-<tr class="row-even"><td>2.0.6</td>
+<tr class="row-odd"><td>2.0.6</td>
 <td>Added support for hexadecimal numbers</td>
 </tr>
-<tr class="row-odd"><td>1.0.7</td>
+<tr class="row-even"><td>1.0.7</td>
 <td>Added support for block titles, block descriptions, register
 values, mid-block comments, block end comments, sub-block types
 and instruction-level comments</td>
@@ -551,12 +630,12 @@ and instruction-level comments</td>
         <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.1.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2014, Richard Dymond.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

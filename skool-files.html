@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool files &mdash; SkoolKit 4.1.1 documentation</title>
+    <title>Skool files &mdash; SkoolKit 4.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '4.1.1',
+        URL_ROOT:    './',
+        VERSION:     '4.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.1.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.2 documentation" href="index.html" />
     <link rel="next" title="Skool file templates" href="skool-file-templates.html" />
     <link rel="prev" title="Control files" href="control-files.html" /> 
   </head>
@@ -42,7 +40,7 @@
         <li class="right" >
           <a href="control-files.html" title="Control files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.1.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -50,7 +48,11 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Skool files</a><ul>
-<li><a class="reference internal" href="#skool-file-format">Skool file format</a></li>
+<li><a class="reference internal" href="#skool-file-format">Skool file format</a><ul>
+<li><a class="reference internal" href="#entry-header-format">Entry header format</a></li>
+<li><a class="reference internal" href="#entry-line-format">Entry line format</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#braces-in-comments">Braces in comments</a></li>
 <li><a class="reference internal" href="#data-definition-entries">Data definition entries</a></li>
 <li><a class="reference internal" href="#remote-entries">Remote entries</a></li>
@@ -101,13 +103,71 @@ and data blocks of the program being disassembled, with accompanying comments
 <p>A <cite>skool</cite> file must be in a certain format to ensure that it is processed
 correctly by <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a>, <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>, <a class="reference internal" href="commands.html#skool2ctl-py"><em>skool2ctl.py</em></a> and
 <a class="reference internal" href="commands.html#skool2sft-py"><em>skool2sft.py</em></a>. The rules are as follows:</p>
-<ol class="arabic simple">
-<li>Entries (an &#8216;entry&#8217; being a routine or data block) must be separated by
-blank lines, and an entry must not contain any blank lines.</li>
-<li>Lines in an entry may start with one of <tt class="docutils literal"><span class="pre">;*</span> <span class="pre">bcdgirstuw</span></tt>, where:</li>
-</ol>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
+<li>entries (an &#8216;entry&#8217; being a routine or data block) must be separated by
+blank lines, and an entry must not contain any blank lines</li>
+<li>an entry header is a sequence of comment lines broken into three sections;
+see <a class="reference internal" href="#entryheaderformat"><em>Entry header format</em></a></li>
+<li>each line in an entry may start with one of the following characters:
+<tt class="docutils literal"><span class="pre">;*</span> <span class="pre">bcdgirstuw</span></tt>; see <a class="reference internal" href="#entrylineformat"><em>Entry line format</em></a></li>
+<li>tables (grids) have their own markup syntax; see <a class="reference internal" href="skool-macros.html#table"><em>#TABLE</em></a> for details</li>
+</ul>
+<div class="section" id="entry-header-format">
+<span id="entryheaderformat"></span><h3>Entry header format<a class="headerlink" href="#entry-header-format" title="Permalink to this headline">¶</a></h3>
+<p>An entry header is a sequence of comment lines broken into three sections:</p>
+<ul class="simple">
+<li>entry title</li>
+<li>entry description (optional)</li>
+<li>registers (optional)</li>
+</ul>
+<p>The sections are separated by an empty comment line, and paragraphs within
+the entry description must be separated by a comment line containing a dot
+(<tt class="docutils literal"><span class="pre">.</span></tt>) on its own. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; This is the entry title
+;
+; This is the first paragraph of the entry description.
+; .
+; This is the second paragraph of the entry description.
+;
+; A An important parameter
+; B Another important parameter
+</pre></div>
+</div>
+<p>If a register section is required, but an entry description is not, a blank
+entry description may be specified by using a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>; This is the title of an entry that has no description
+;
+; .
+;
+; A An important parameter
+; B Another important parameter
+</pre></div>
+</div>
+<p>Registers may be listed as shown above, or with colon-terminated prefixes
+(such as &#8216;Input:&#8217; and &#8216;Output:&#8217;, or simply &#8216;I:&#8217; and &#8216;O:&#8217;) to distinguish
+input values from output values:</p>
+<div class="highlight-none"><div class="highlight"><pre>;  Input:A An important parameter
+;        B Another important parameter
+; Output:C The result
+</pre></div>
+</div>
+<p>In the HTML version of the disassembly, input values and output values are
+shown in separate tables. If a register&#8217;s prefix begins with the letter &#8216;O&#8217;,
+it is regarded as an output value; if it begins with any other letter, it is
+regarded as an input value. If a register has no prefix, it will be placed in
+the same table as the previous register; if there is no previous register, it
+will be placed in the table of input values.</p>
+<p>If a register description is very long, it may be split over two or more lines
+by starting the second and subsequent lines with a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>; HL The description for this register is quite long, so it is split over two
+; .  lines for improved readability
+</pre></div>
+</div>
+</div>
+<div class="section" id="entry-line-format">
+<span id="entrylineformat"></span><h3>Entry line format<a class="headerlink" href="#entry-line-format" title="Permalink to this headline">¶</a></h3>
+<p>Each line in an entry may start with one of <tt class="docutils literal"><span class="pre">;*</span> <span class="pre">bcdgirstuw</span></tt>, where:</p>
+<ul class="simple">
 <li><tt class="docutils literal"><span class="pre">;</span></tt> begins a comment line</li>
 <li><tt class="docutils literal"><span class="pre">*</span></tt> denotes an entry point in a routine</li>
 <li><tt class="docutils literal"><span class="pre">b</span></tt> denotes the first instruction in a data block</li>
@@ -164,55 +224,7 @@ containing a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) 
 HTML version of the disassembly (generated by <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a>), and will
 have labels generated for them in the ASM version (generated by
 <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>).</p>
-</div></blockquote>
-<ol class="arabic simple" start="3">
-<li>Tables (grids) have their own markup syntax. See <a class="reference internal" href="skool-macros.html#table"><em>#TABLE</em></a> for details.</li>
-<li>Entry headers are a sequence of comment lines broken into three sections:</li>
-</ol>
-<blockquote>
-<div><ul class="simple">
-<li>Entry title</li>
-<li>Entry description (optional)</li>
-<li>Registers (optional)</li>
-</ul>
-<p>The sections are separated by an empty comment line, and paragraphs within
-the entry description must be separated by a comment line containing a dot
-(<tt class="docutils literal"><span class="pre">.</span></tt>) on its own. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre>; This is the entry title
-;
-; This is the first paragraph of the entry description.
-; .
-; This is the second paragraph of the entry description.
-;
-; A An important parameter
-; B Another important parameter
-</pre></div>
 </div>
-<p>If a register section is required, but an entry description is not, a blank
-entry description may be specified by using a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) thus:</p>
-<div class="highlight-none"><div class="highlight"><pre>; This is the title of an entry that has no description
-;
-; .
-;
-; A An important parameter
-; B Another important parameter
-</pre></div>
-</div>
-<p>Registers may be listed as shown above, or with colon-terminated prefixes
-(such as &#8216;Input:&#8217; and &#8216;Output:&#8217;, or simply &#8216;I:&#8217; and &#8216;O:&#8217;) to distinguish
-input values from output values:</p>
-<div class="highlight-none"><div class="highlight"><pre>;  Input:A An important parameter
-;        B Another important parameter
-; Output:C The result
-</pre></div>
-</div>
-<p>In the HTML version of the disassembly, input values and output values are
-shown in separate tables. If a register&#8217;s prefix begins with the letter &#8216;O&#8217;,
-it is regarded as an output value; if it begins with any other letter, it is
-regarded as an input value. If a register has no prefix, it will be placed in
-the same table as the previous register; if there is no previous register, it
-will be placed in the table of input values.</p>
-</div></blockquote>
 </div>
 <div class="section" id="braces-in-comments">
 <span id="bracesincomments"></span><h2>Braces in comments<a class="headerlink" href="#braces-in-comments" title="Permalink to this headline">¶</a></h2>
@@ -325,7 +337,7 @@ not defined):</p>
 <h2>Revision history<a class="headerlink" href="#revision-history" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="13%" />
+<col width="12%" />
 <col width="88%" />
 </colgroup>
 <thead valign="bottom">
@@ -334,21 +346,25 @@ not defined):</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>3.7</td>
+<tr class="row-even"><td>4.2</td>
+<td>Added support for splitting register descriptions over multiple
+lines</td>
+</tr>
+<tr class="row-odd"><td>3.7</td>
 <td>Added support for binary numbers; added the <tt class="docutils literal"><span class="pre">s</span></tt> block type</td>
 </tr>
-<tr class="row-odd"><td>3.1.2</td>
+<tr class="row-even"><td>3.1.2</td>
 <td>Added support for &#8216;Input&#8217; and &#8216;Output&#8217; prefixes in register
 sections</td>
 </tr>
-<tr class="row-even"><td>2.4</td>
+<tr class="row-odd"><td>2.4</td>
 <td>Added the ability to separate paragraphs and specify a blank
 entry description by using a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) on a line of its own</td>
 </tr>
-<tr class="row-odd"><td>2.1</td>
+<tr class="row-even"><td>2.1</td>
 <td>Added support for hexadecimal numbers</td>
 </tr>
-<tr class="row-even"><td>2.0</td>
+<tr class="row-odd"><td>2.0</td>
 <td>Added support for data definition entries and remote entries</td>
 </tr>
 </tbody>
@@ -374,12 +390,12 @@ entry description by using a dot (<tt class="docutils literal"><span class="pre"
         <li class="right" >
           <a href="control-files.html" title="Control files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.1.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2014, Richard Dymond.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

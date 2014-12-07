@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ASM modes and directives &mdash; SkoolKit 4.1.1 documentation</title>
+    <title>ASM modes and directives &mdash; SkoolKit 4.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '4.1.1',
+        URL_ROOT:    './',
+        VERSION:     '4.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.1.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.2 documentation" href="index.html" />
     <link rel="next" title="Extending SkoolKit" href="extending.html" />
     <link rel="prev" title="HTML templates" href="html-templates.html" /> 
   </head>
@@ -42,7 +40,7 @@
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.1.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -349,16 +347,16 @@ may be done thus:</p>
 <span id="id3"></span><h3>&#64;ignoreua<a class="headerlink" href="#ignoreua" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;ignoreua</span></tt> directive suppresses any warnings that would otherwise be
 reported concerning addresses not converted to labels in the comment that
-follows; the comment may be an entry title, an entry description, a mid-block
-comment, a block end comment, or an instruction-level comment.</p>
+follows; the comment may be an entry title, an entry description, a register
+description section, a mid-block comment, a block end comment, or an
+instruction-level comment.</p>
 <div class="highlight-none"><div class="highlight"><pre>; @ignoreua
 </pre></div>
 </div>
 <p>To apply the directive to an entry title:</p>
 <div class="highlight-none"><div class="highlight"><pre>; @ignoreua
 ; Prepare data at 32768
-;
-; This routine operates on the data in page 128.
+c32768 LD A,(HL)
 </pre></div>
 </div>
 <p>If the <tt class="docutils literal"><span class="pre">&#64;ignoreua</span></tt> directive were not present, a warning would be printed
@@ -369,11 +367,25 @@ comment, a block end comment, or an instruction-level comment.</p>
 ;
 ; @ignoreua
 ; This routine operates on the data at 32768.
+c32768 LD A,(HL)
 </pre></div>
 </div>
 <p>If the <tt class="docutils literal"><span class="pre">&#64;ignoreua</span></tt> directive were not present, a warning would be printed
 (during the rendering phase) about the entry description containing an address
 (32768) that has not been converted to a label.</p>
+<p>To apply the directive to a register description section:</p>
+<div class="highlight-none"><div class="highlight"><pre>; Prepare data in page 128
+;
+; This routine operates on the data in page 128.
+;
+; @ignoreua
+; HL 32768
+c32768 LD A,(HL)
+</pre></div>
+</div>
+<p>If the <tt class="docutils literal"><span class="pre">&#64;ignoreua</span></tt> directive were not present, a warning would be printed
+(during the rendering phase) about the register description containing an
+address (32768) that has not been converted to a label.</p>
 <p>To apply the directive to a mid-block comment:</p>
 <div class="highlight-none"><div class="highlight"><pre> 28913 LD L,A
 ; @ignoreua
@@ -412,7 +424,10 @@ that has not been converted to a label.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>2.4.1</td>
+<tr class="row-even"><td>4.2</td>
+<td>Added support for register description sections</td>
+</tr>
+<tr class="row-odd"><td>2.4.1</td>
 <td>Added support for entry titles, entry descriptions, mid-block
 comments and block end comments</td>
 </tr>
@@ -815,12 +830,12 @@ path</td>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.1.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2014, Richard Dymond.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

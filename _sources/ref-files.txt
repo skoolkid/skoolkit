@@ -51,6 +51,8 @@ name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
 Paragraphs must be separated by blank lines, and may contain HTML markup and
 :ref:`skool macros <skoolMacros>`.
 
+.. _ref-Changelog:
+
 [Changelog:\*]
 --------------
 Each ``Changelog:*`` section defines an entry on the 'Changelog' page. The

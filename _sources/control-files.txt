@@ -273,6 +273,64 @@ These statements can be encoded in a control file thus::
 
   S 60000,60,20:170,40:85
 
+.. _ctlLoops:
+
+Loops
+-----
+Sometimes the instructions and statements in a code or data block follow a
+repeating pattern. For example::
+
+  b 30000 Two bytes and one word, times ten
+  B 30000,2
+  W 30002
+  B 30004,2
+  W 30004
+  ...
+  B 30036,2
+  W 30038
+
+Repeating patterns like this can be expressed more succinctly as a loop by
+using the ``L`` directive, which has the following format::
+
+  L start,length,count[,blocks]
+
+where:
+
+* ``start`` is the loop start address
+* ``length`` is the length of the loop (the size of the address range to
+  repeat)
+* ``count`` is the number of times to repeat the loop (only values of 2 or more
+  make sense)
+* ``blocks`` is ``1`` to repeat block-level elements, or ``0`` to repeat only
+  sub-block elements (default: ``0``)
+
+So using the ``L`` directive, the body of the data block above can be expressed
+in three lines instead of 20::
+
+  b 30000 Two bytes and one word, times ten
+  B 30000,2
+  W 30002
+  L 30000,4,10
+
+The ``L`` directive can also be used to repeat entire blocks, by setting the
+``blocks`` argument to ``1``. For example::
+
+  b 40000 A block of five pairs of bytes
+  B 40000,10,2
+  L 40000,10,3,1
+
+is equivalent to::
+
+  b 40000 A block of five pairs of bytes
+  B 40000,10,2
+  b 40010 A block of five pairs of bytes
+  B 40010,10,2
+  b 40020 A block of five pairs of bytes
+  B 40020,10,2
+
+Note that ASM directives in the address range of an ``L`` directive loop are
+*not* repeated.
+
 Number bases
 ------------
 Numeric values in DEFB, DEFM, DEFS and DEFW statements are normally rendered in
@@ -310,10 +368,30 @@ For example, to declare a :ref:`label` directive for the instruction at 32768::
 
   ; @label:32768=LOOP
 
+When declaring an :ref:`ignoreua` directive for anything other than an
+instruction-level comment, a suffix must be appended to the address to specify
+what the directive applies to::
+
+  ; @ignoreua:address:X
+
+where ``X`` is one of:
+
+* ``d`` - entry description
+* ``e`` - block end comment
+* ``i`` - instruction-level comment (default)
+* ``m`` - mid-block comment
+* ``r`` - register description section
+* ``t`` - entry title
+
+For example, to declare an :ref:`ignoreua` directive for the description of the
+routine at 49152::
+
+  ; @ignoreua:49152:d
+  D 49152 This is the description of the routine at 49152.
+
 Note that neither ASM block directives (such as the :ref:`bfixBlockDirectives`)
-nor the exact location of :ref:`org`, :ref:`writer`, :ref:`start`, :ref:`end`,
-:ref:`ignoreua` and :ref:`set` ASM directives can be preserved using this
-syntax.
+nor the exact location of :ref:`org`, :ref:`writer`, :ref:`start`, :ref:`end`
+and :ref:`set` directives can be preserved in a control file.
 
 Instruction-level comments
 --------------------------
@@ -369,13 +447,13 @@ directives). For example::
 Limitations
 -----------
 A control file can be useful in the early stages of developing a `skool` file
-for reorganising code and data blocks, but it cannot preserve the following
-elements:
+for reorganising code and data blocks, but it cannot preserve the following:
 
 * ASM block directives
-* the exact locations of `@org`, `@writer`, `@start`, `@end`, `@ignoreua` and
-  `@set` ASM directives
-* data definition entries ('d' blocks) and remote entries ('r' blocks)
+* the exact locations of :ref:`org`, :ref:`writer`, :ref:`start`, :ref:`end`
+  and :ref:`set` directives
+* :ref:`data definition entries <dEntry>` ('d' blocks) and
+  :ref:`remote entries <rEntry>` ('r' blocks)
 * comments that are not part of a code or data block
 
 :ref:`skoolFileTemplates`, however, can preserve all of these elements, and so
@@ -386,6 +464,9 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 4.2     | Added the ``L`` directive and support for preserving the location |
+|         | of :ref:`ignoreua` directives                                     |
++---------+-------------------------------------------------------------------+
 | 3.7     | Added support for binary numbers; added support for specifying    |
 |         | the base of numeric values in DEFB, DEFM, DEFS and DEFW           |
 |         | statements; added the ``s`` and ``S`` directives and support for  |

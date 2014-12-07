@@ -261,6 +261,9 @@ image-creating skool macro.
    .. versionchanged:: 4.0
       Added the *names* parameter and support for keyword arguments.
 
+   .. versionchanged:: 4.2
+      Added the *frame* and *alt* parameters.
+
 Parsing ref files
 -----------------
 HtmlWriter provides some convenience methods for extracting text and data from

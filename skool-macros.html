@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool macros &mdash; SkoolKit 4.1.1 documentation</title>
+    <title>Skool macros &mdash; SkoolKit 4.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '4.1.1',
+        URL_ROOT:    './',
+        VERSION:     '4.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.1.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.2 documentation" href="index.html" />
     <link rel="next" title="Ref files" href="ref-files.html" />
     <link rel="prev" title="Skool file templates" href="skool-file-templates.html" /> 
   </head>
@@ -42,7 +40,7 @@
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.1.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -74,6 +72,7 @@
 <li><a class="reference internal" href="#scr">#SCR</a></li>
 <li><a class="reference internal" href="#udg">#UDG</a></li>
 <li><a class="reference internal" href="#udgarray">#UDGARRAY</a></li>
+<li><a class="reference internal" href="#alt-text">Alt text</a></li>
 <li><a class="reference internal" href="#animation">Animation</a></li>
 <li><a class="reference internal" href="#cropping">Cropping</a></li>
 <li><a class="reference internal" href="#masks">Masks</a></li>
@@ -859,17 +858,20 @@ starts at 49152.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.0</td>
+<tr class="row-even"><td>4.2</td>
+<td>Added the ability to specify alt text for the <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element</td>
+</tr>
+<tr class="row-odd"><td>4.0</td>
 <td>Added support for keyword arguments</td>
 </tr>
-<tr class="row-odd"><td>3.6</td>
+<tr class="row-even"><td>3.6</td>
 <td>Added the <tt class="docutils literal"><span class="pre">text</span></tt> parameter, and made the <tt class="docutils literal"><span class="pre">chars</span></tt> parameter
 optional</td>
 </tr>
-<tr class="row-even"><td>3.0</td>
+<tr class="row-odd"><td>3.0</td>
 <td>Added image-cropping capabilities</td>
 </tr>
-<tr class="row-odd"><td>2.0.5</td>
+<tr class="row-even"><td>2.0.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">fname</span></tt> parameter and support for regular 8x8 fonts</td>
 </tr>
 </tbody>
@@ -912,7 +914,7 @@ the directory defined by the <tt class="docutils literal"><span class="pre">Scre
 </div>
 <table border="1" class="docutils">
 <colgroup>
-<col width="13%" />
+<col width="12%" />
 <col width="88%" />
 </colgroup>
 <thead valign="bottom">
@@ -921,14 +923,17 @@ the directory defined by the <tt class="docutils literal"><span class="pre">Scre
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.0</td>
+<tr class="row-even"><td>4.2</td>
+<td>Added the ability to specify alt text for the <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element</td>
+</tr>
+<tr class="row-odd"><td>4.0</td>
 <td>Added support for keyword arguments</td>
 </tr>
-<tr class="row-odd"><td>3.0</td>
+<tr class="row-even"><td>3.0</td>
 <td>Added image-cropping capabilities and the <tt class="docutils literal"><span class="pre">df</span></tt> and <tt class="docutils literal"><span class="pre">af</span></tt>
 parameters</td>
 </tr>
-<tr class="row-even"><td>2.0.5</td>
+<tr class="row-odd"><td>2.0.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">scale</span></tt>, <tt class="docutils literal"><span class="pre">x</span></tt>, <tt class="docutils literal"><span class="pre">y</span></tt>, <tt class="docutils literal"><span class="pre">w</span></tt>, <tt class="docutils literal"><span class="pre">h</span></tt> and <tt class="docutils literal"><span class="pre">fname</span></tt>
 parameters</td>
 </tr>
@@ -986,8 +991,8 @@ element for the image of the UDG at 39144 (which will be named <cite>safe_key.pn
 or <cite>safe_key.gif</cite>), with attribute byte 6 (INK 6: PAPER 0).</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="13%" />
-<col width="87%" />
+<col width="12%" />
+<col width="88%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -995,26 +1000,29 @@ or <cite>safe_key.gif</cite>), with attribute byte 6 (INK 6: PAPER 0).</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.0</td>
+<tr class="row-even"><td>4.2</td>
+<td>Added the ability to specify alt text for the <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element</td>
+</tr>
+<tr class="row-odd"><td>4.0</td>
 <td>Added the <tt class="docutils literal"><span class="pre">mask</span></tt> parameter and support for AND-OR masking;
 added support for keyword arguments</td>
 </tr>
-<tr class="row-odd"><td>3.1.2</td>
+<tr class="row-even"><td>3.1.2</td>
 <td>Made the <tt class="docutils literal"><span class="pre">attr</span></tt> parameter optional</td>
 </tr>
-<tr class="row-even"><td>3.0</td>
+<tr class="row-odd"><td>3.0</td>
 <td>Added image-cropping capabilities</td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
+<tr class="row-even"><td>2.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">rotate</span></tt> parameter</td>
 </tr>
-<tr class="row-even"><td>2.3.1</td>
+<tr class="row-odd"><td>2.3.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">flip</span></tt> parameter</td>
 </tr>
-<tr class="row-odd"><td>2.1</td>
+<tr class="row-even"><td>2.1</td>
 <td>Added support for masks</td>
 </tr>
-<tr class="row-even"><td>2.0.5</td>
+<tr class="row-odd"><td>2.0.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">fname</span></tt> parameter</td>
 </tr>
 </tbody>
@@ -1116,35 +1124,49 @@ named <cite>base_sprite.png</cite>.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.0</td>
+<tr class="row-even"><td>4.2</td>
+<td>Added the ability to specify alt text for the <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element</td>
+</tr>
+<tr class="row-odd"><td>4.0</td>
 <td>Added the <tt class="docutils literal"><span class="pre">mask</span></tt> parameter and support for AND-OR masking;
 added support for keyword arguments</td>
 </tr>
-<tr class="row-odd"><td>3.6</td>
+<tr class="row-even"><td>3.6</td>
 <td>Added support for creating an animated image from an arbitrary
 sequence of frames</td>
 </tr>
-<tr class="row-even"><td>3.1.1</td>
+<tr class="row-odd"><td>3.1.1</td>
 <td>Added support for UDG address ranges with horizontal and vertical
 steps</td>
 </tr>
-<tr class="row-odd"><td>3.0</td>
+<tr class="row-even"><td>3.0</td>
 <td>Added image-cropping capabilities</td>
 </tr>
-<tr class="row-even"><td>2.4</td>
+<tr class="row-odd"><td>2.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">rotate</span></tt> parameter</td>
 </tr>
-<tr class="row-odd"><td>2.3.1</td>
+<tr class="row-even"><td>2.3.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">flip</span></tt> parameter</td>
 </tr>
-<tr class="row-even"><td>2.2.5</td>
+<tr class="row-odd"><td>2.2.5</td>
 <td>Added support for masks</td>
 </tr>
-<tr class="row-odd"><td>2.0.5</td>
+<tr class="row-even"><td>2.0.5</td>
 <td>New</td>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section" id="alt-text">
+<h3>Alt text<a class="headerlink" href="#alt-text" title="Permalink to this headline">¶</a></h3>
+<p>The value of the <tt class="docutils literal"><span class="pre">alt</span></tt> attribute in the <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element created by an image
+macro can be specified by appending a <tt class="docutils literal"><span class="pre">|</span></tt> character and the required text to
+the filename. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>#SCR(screenshot1|Screenshot 1)
+</pre></div>
+</div>
+<p>This <tt class="docutils literal"><span class="pre">#SCR</span></tt> macro creates an image named <cite>screenshot1.png</cite> with alt text
+&#8216;Screenshot 1&#8217;.</p>
 </div>
 <div class="section" id="animation">
 <h3>Animation<a class="headerlink" href="#animation" title="Permalink to this headline">¶</a></h3>
@@ -1433,12 +1455,12 @@ it must not start with a capital letter.</p>
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.1.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2014, Richard Dymond.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

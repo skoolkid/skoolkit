@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &mdash; SkoolKit 4.1.1 documentation</title>
+    <title>Extending SkoolKit &mdash; SkoolKit 4.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '4.1.1',
+        URL_ROOT:    './',
+        VERSION:     '4.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.1.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.2 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body>
@@ -38,7 +36,7 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.1.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -121,8 +119,9 @@ used with different versions of SkoolKit, and shared with other people.</p>
 First, place the extension module (let&#8217;s call it <cite>game.py</cite>) in the <cite>skoolkit</cite>
 package directory; to locate this directory, run <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> with the
 <tt class="docutils literal"><span class="pre">-p</span></tt> option:</p>
-<div class="highlight-python"><pre>$ skool2html.py -p
-/usr/lib/python2.7/dist-packages/skoolkit</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ skool2html.py -p
+/usr/lib/python2.7/dist-packages/skoolkit
+</pre></div>
 </div>
 <p>(The package directory may be different on your system.) With <cite>game.py</cite> in
 place, add the following line to the <a class="reference internal" href="ref-files.html#ref-config"><em>[Config]</em></a> section of your
@@ -140,7 +139,8 @@ class.</p>
 class when it&#8217;s run on your <cite>skool</cite> file, add the following <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a> ASM
 directive somewhere after the <tt class="docutils literal"><span class="pre">&#64;start</span></tt> directive, and before the <tt class="docutils literal"><span class="pre">&#64;end</span></tt>
 directive (if there is one):</p>
-<div class="highlight-python"><pre>; @writer=skoolkit.game.GameAsmWriter</pre>
+<div class="highlight-python"><div class="highlight"><pre>; @writer=skoolkit.game.GameAsmWriter
+</pre></div>
 </div>
 <p>The <cite>skoolkit</cite> package directory is a reasonable place for an extension module,
 but it could be placed in another package, or somewhere else as a standalone
@@ -159,15 +159,18 @@ module. For example, if you wanted to keep a standalone extension module in
 </div>
 <p>Then, assuming the extension module is <cite>game.py</cite>, set the <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt>
 parameter thus:</p>
-<div class="highlight-python"><pre>HtmlWriterClass=~/.skoolkit:game.GameHtmlWriter</pre>
+<div class="highlight-python"><div class="highlight"><pre>HtmlWriterClass=~/.skoolkit:game.GameHtmlWriter
+</pre></div>
 </div>
 <p>and the <tt class="docutils literal"><span class="pre">&#64;writer</span></tt> directive thus:</p>
-<div class="highlight-python"><pre>; @writer=~/.skoolkit:game.GameAsmWriter</pre>
+<div class="highlight-python"><div class="highlight"><pre>; @writer=~/.skoolkit:game.GameAsmWriter
+</pre></div>
 </div>
 <p>The HTML writer or ASM writer class can also be specified on the command line
 by using the <tt class="docutils literal"><span class="pre">-W</span></tt>/<tt class="docutils literal"><span class="pre">--writer</span></tt> option of <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> or
 <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>. For example:</p>
-<div class="highlight-python"><pre>$ skool2html.py -W ~/.skoolkit:game.GameHtmlWriter game.skool</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ skool2html.py -W ~/.skoolkit:game.GameHtmlWriter game.skool
+</pre></div>
 </div>
 <p>Specifying the writer class this way will override any <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt>
 parameter in the <cite>ref</cite> file or <tt class="docutils literal"><span class="pre">&#64;writer</span></tt> directive in the <cite>skool</cite> file.</p>
@@ -213,10 +216,11 @@ filename). The method (let&#8217;s call it <cite>sprite</cite>) would look somet
 </div>
 <p>With this method (and an appropriate implementation of the <cite>build_sprite</cite>
 method) in place, it&#8217;s possible to use a <tt class="docutils literal"><span class="pre">#CALL</span></tt> macro like this:</p>
-<div class="highlight-python"><pre>#UDGTABLE
+<div class="highlight-python"><div class="highlight"><pre>#UDGTABLE
 { #CALL:sprite(3,jumping) }
 { Sprite 3 (jumping) }
-TABLE#</pre>
+TABLE#
+</pre></div>
 </div>
 <p>Adding a <tt class="docutils literal"><span class="pre">#CALL</span></tt> method to the AsmWriter subclass is equally simple. The
 timestamp-creating method (let&#8217;s call it <cite>timestamp</cite>) would look something like
@@ -230,7 +234,8 @@ this:</p>
 </pre></div>
 </div>
 <p>With this method in place, it&#8217;s possible to use a <tt class="docutils literal"><span class="pre">#CALL</span></tt> macro like this:</p>
-<div class="highlight-python"><pre>; This ASM file was generated on #CALL:timestamp()</pre>
+<div class="highlight-python"><div class="highlight"><pre>; This ASM file was generated on #CALL:timestamp()
+</pre></div>
 </div>
 </div>
 <div class="section" id="skool-macros">
@@ -285,10 +290,11 @@ this:</p>
 </div>
 <p>With this method (and an appropriate implementation of the <cite>build_sprite</cite>
 method) in place, the <tt class="docutils literal"><span class="pre">#SPRITE</span></tt> macro might be used like this:</p>
-<div class="highlight-python"><pre>#UDGTABLE
+<div class="highlight-python"><div class="highlight"><pre>#UDGTABLE
 { #SPRITE3(jumping) }
 { Sprite 3 (jumping) }
-TABLE#</pre>
+TABLE#
+</pre></div>
 </div>
 <p>The <cite>expand_timestamp</cite> method on GameAsmWriter would look something like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">time</span>
@@ -337,9 +343,10 @@ are parsed.</li>
 </tr>
 </tbody>
 </table>
-<p class="versionchanged">
-<span class="versionmodified">Changed in version 4.0: </span>Added the <em>names</em> parameter and support for keyword arguments; <em>index</em>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 4.0: </span>Added the <em>names</em> parameter and support for keyword arguments; <em>index</em>
 defaults to 0.</p>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -377,17 +384,19 @@ considered valid.</li>
 </tr>
 </tbody>
 </table>
-<p class="versionchanged">
-<span class="versionmodified">Changed in version 3.6: </span>Added the <em>except_chars</em> and <em>only_chars</em> parameters.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 3.6: </span>Added the <em>except_chars</em> and <em>only_chars</em> parameters.</p>
+</div>
 </dd></dl>
 
 <p>HtmlWriter also provides a method for parsing the parameters of an
 image-creating skool macro.</p>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.parse_image_params">
-<tt class="descclassname">HtmlWriter.</tt><tt class="descname">parse_image_params</tt><big>(</big><em>text</em>, <em>index</em>, <em>num=0</em>, <em>defaults=()</em>, <em>path_id='UDGImagePath'</em>, <em>fname=''</em>, <em>chars=''</em>, <em>ints=None</em>, <em>names=()</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.parse_image_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse a string of the form <tt class="docutils literal"><span class="pre">params[{x,y,width,height}][(fname)]</span></tt>.
-The parameter string <tt class="docutils literal"><span class="pre">params</span></tt> may contain comma-separated values and
+<tt class="descclassname">HtmlWriter.</tt><tt class="descname">parse_image_params</tt><big>(</big><em>text</em>, <em>index</em>, <em>num=0</em>, <em>defaults=()</em>, <em>path_id='UDGImagePath'</em>, <em>fname=''</em>, <em>chars=''</em>, <em>ints=None</em>, <em>names=()</em>, <em>frame=False</em>, <em>alt=False</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.parse_image_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a string of the form:</p>
+<p><tt class="docutils literal"><span class="pre">params[{x,y,width,height}][(fname[*frame][|alt])]</span></tt></p>
+<p>The parameter string <tt class="docutils literal"><span class="pre">params</span></tt> may contain comma-separated values and
 is parsed until either the end is reached, or an invalid character is
 encountered. The default set of valid characters consists of the comma,
 &#8216;$&#8217;, the digits 0-9, and the letters A-F and a-f; if <cite>names</cite> is not
@@ -414,16 +423,22 @@ must evaluate to an integer; if <cite>None</cite>, every parameter
 must evaluate to an integer.</li>
 <li><strong>names</strong> &#8211; The names of the parameters; if not empty, keyword
 arguments in the parameter string <tt class="docutils literal"><span class="pre">params</span></tt> are parsed.</li>
+<li><strong>frame</strong> &#8211; Whether to parse and return the frame name.</li>
+<li><strong>alt</strong> &#8211; Whether to parse and return the alt text.</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A list of the form
-<tt class="docutils literal"><span class="pre">[end,</span> <span class="pre">image_path,</span> <span class="pre">crop_rect,</span> <span class="pre">value1,</span> <span class="pre">value2...]</span></tt>, where:</p>
+<tt class="docutils literal"><span class="pre">[end,</span> <span class="pre">image_path,</span> <span class="pre">frame,</span> <span class="pre">alt,</span> <span class="pre">crop_rect,</span> <span class="pre">value1,</span> <span class="pre">value2...]</span></tt>,
+where:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">end</span></tt> is the index at which parsing terminated</li>
 <li><tt class="docutils literal"><span class="pre">image_path</span></tt> is either the full path of the image file
 (relative to the root directory of the disassembly) or
 <tt class="docutils literal"><span class="pre">fname</span></tt> (if <cite>path_id</cite> is blank or <cite>None</cite>)</li>
+<li><tt class="docutils literal"><span class="pre">frame</span></tt> is the frame name (present only if <cite>frame</cite> is
+<cite>True</cite>)</li>
+<li><tt class="docutils literal"><span class="pre">alt</span></tt> is the alt text (present only if <cite>alt</cite> is <cite>True</cite>)</li>
 <li><tt class="docutils literal"><span class="pre">crop_rect</span></tt> is <tt class="docutils literal"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">width,</span> <span class="pre">height)</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">value1</span></tt>, <tt class="docutils literal"><span class="pre">value2</span></tt> etc. are the parameter values</li>
 </ul>
@@ -432,11 +447,16 @@ arguments in the parameter string <tt class="docutils literal"><span class="pre"
 </tr>
 </tbody>
 </table>
-<p class="versionchanged">
-<span class="versionmodified">Changed in version 3.6: </span>If <em>path_id</em> is blank or <em>None</em>, <tt class="docutils literal"><span class="pre">image_path</span></tt> is equal to <tt class="docutils literal"><span class="pre">fname</span></tt>;
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 3.6: </span>If <em>path_id</em> is blank or <em>None</em>, <tt class="docutils literal"><span class="pre">image_path</span></tt> is equal to <tt class="docutils literal"><span class="pre">fname</span></tt>;
 added the <em>ints</em> parameter.</p>
-<p class="versionchanged">
-<span class="versionmodified">Changed in version 4.0: </span>Added the <em>names</em> parameter and support for keyword arguments.</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 4.0: </span>Added the <em>names</em> parameter and support for keyword arguments.</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 4.2: </span>Added the <em>frame</em> and <em>alt</em> parameters.</p>
+</div>
 </dd></dl>
 
 </div>
@@ -677,11 +697,13 @@ second.</li>
 </tr>
 </tbody>
 </table>
-<p class="versionadded">
-<span class="versionmodified">New in version 3.6.</span></p>
-<p class="versionchanged">
-<span class="versionmodified">Changed in version 4.0: </span>The <em>mask</em> parameter specifies the type of mask to apply (see
+<div class="versionadded">
+<p><span class="versionmodified">New in version 3.6.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 4.0: </span>The <em>mask</em> parameter specifies the type of mask to apply (see
 <a class="reference internal" href="skool-macros.html#masks"><em>Masks</em></a>).</p>
+</div>
 </dd></dl>
 
 <p>HtmlWriter provides the following image-related convenience methods.</p>
@@ -756,9 +778,10 @@ the final image.</li>
 </tr>
 </tbody>
 </table>
-<p class="versionchanged">
-<span class="versionmodified">Changed in version 4.0: </span>The <em>mask</em> parameter specifies the type of mask to apply (see
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 4.0: </span>The <em>mask</em> parameter specifies the type of mask to apply (see
 <a class="reference internal" href="skool-macros.html#masks"><em>Masks</em></a>).</p>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -781,8 +804,9 @@ the image.</li>
 </tr>
 </tbody>
 </table>
-<p class="versionadded">
-<span class="versionmodified">New in version 3.6.</span></p>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 3.6.</span></p>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -912,12 +936,12 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.1.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2014, Richard Dymond.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>
