@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -e # Abort on errors
 
+###############################################################################
 # Check required environment variables
+###############################################################################
 if [ -z "$SKOOLKIT_HOME" ]; then
   echo "Error: SKOOLKIT_HOME not defined."
   exit 1
@@ -38,7 +40,9 @@ if [ ! -d "$DISASSEMBLIES_HOME" ]; then
   exit 1
 fi
 
+###############################################################################
 # Run the disassemblies (MM/JSW/SD/BTS/CSC) tests
+###############################################################################
 test_disassemblies() {
   mkdir -p $MANICMINER_HOME/build
   mmlog=$MANICMINER_HOME/build/tests.log
@@ -48,35 +52,87 @@ test_disassemblies() {
   sdbtscsclog=$DISASSEMBLIES_HOME/build/tests.log
 
   targets=$(echo test{2.7,3.{2,3,4}})
-  make -C $MANICMINER_HOME $targets &> $mmlog &
-  PID1=$!
-  make -C $JETSETWILLY_HOME $targets &> $jswlog &
-  PID2=$!
-  make -C $DISASSEMBLIES_HOME $targets &> $sdbtscsclog &
-  PID3=$!
+  make -C $MANICMINER_HOME $targets &> $mmlog & PID1=$!
+  make -C $JETSETWILLY_HOME $targets &> $jswlog & PID2=$!
+  make -C $DISASSEMBLIES_HOME $targets &> $sdbtscsclog & PID3=$!
 
   echo -n "Manic Miner tests: "
-  wait -n $PID1 && echo "OK" || echo "FAILED (see $mmlog)"
+  wait $PID1 && echo "OK" || echo "FAILED (see $mmlog)"
 
   echo -n "Jet Set Willy tests: "
-  wait -n $PID2 && echo "OK" || echo "FAILED (see $jswlog)"
+  wait $PID2 && echo "OK" || echo "FAILED (see $jswlog)"
 
   echo -n "SD/BTS/CSC tests: "
-  wait -n $PID3 && echo "OK" || echo "FAILED (see $sdbtscsclog)"
+  wait $PID3 && echo "OK" || echo "FAILED (see $sdbtscsclog)"
 }
 
+###############################################################################
+# Run disassembly-diff on the MM/JSW/SD/BTS/CSC disassemblies
+###############################################################################
+disassembly_diffs() {
+  mmdiffsdir=$MANICMINER_HOME/build/disassembly-diff
+  jswdiffsdir=$JETSETWILLY_HOME/build/disassembly-diff
+  sddiffsdir=$DISASSEMBLIES_HOME/build/sd-disassembly-diff
+  btsdiffsdir=$DISASSEMBLIES_HOME/build/bts-disassembly-diff
+  cscdiffsdir=$DISASSEMBLIES_HOME/build/csc-disassembly-diff
+  diffslog=diffs.log
+  skversion=$($SKOOLKIT_HOME/skool2html.py -V 2>&1 | cut -f2 -d' ')
+  DISASSEMBLY_DIFF="$SKOOLKIT_HOME/utils/disassembly-diff -t"
+
+  echo -n "Building tarball for version $skversion of SkoolKit: "
+  $SKOOLKIT_HOME/utils/mksktarball -q -t
+  echo "OK"
+  for d in $mmdiffsdir $jswdiffsdir $sddiffsdir $btsdiffsdir $cscdiffsdir; do
+    mkdir -p $d
+    cp -p $SKOOLKIT_HOME/dist/skoolkit-${skversion}.tar.xz $d
+    rm -rf $d/disassembly-current-*
+  done
+
+  (cd $mmdiffsdir; $DISASSEMBLY_DIFF mm &> $diffslog) & PIDmm=$!
+  (cd $jswdiffsdir; $DISASSEMBLY_DIFF jsw &> $diffslog) & PIDjsw=$!
+  (cd $sddiffsdir; $DISASSEMBLY_DIFF sd &> $diffslog) & PIDsd=$!
+  (cd $btsdiffsdir; $DISASSEMBLY_DIFF bts &> $diffslog) & PIDbts=$!
+  (cd $cscdiffsdir; $DISASSEMBLY_DIFF csc &> $diffslog) & PIDcsc=$!
+
+  echo -n "Manic Miner disassembly-diff: "
+  wait $PIDmm && echo -n "OK" || echo -n "FAILED"
+  echo " (see $mmdiffsdir/$diffslog)"
+
+  echo -n "Jet Set Willy disassembly-diff: "
+  wait $PIDjsw && echo -n "OK" || echo -n "FAILED"
+  echo " (see $jswdiffsdir/$diffslog)"
+
+  echo -n "Skool Daze disassembly-diff: "
+  wait $PIDsd && echo -n "OK" || echo -n "FAILED"
+  echo " (see $sddiffsdir/$diffslog)"
+
+  echo -n "Back to Skool disassembly-diff: "
+  wait $PIDbts && echo -n "OK" || echo -n "FAILED"
+  echo " (see $btsdiffsdir/$diffslog)"
+
+  echo -n "Contact Sam Cruise disassembly-diff: "
+  wait $PIDcsc && echo -n "OK" || echo -n "FAILED"
+  echo " (see $cscdiffsdir/$diffslog)"
+}
+
+###############################################################################
 # Print usage information
+###############################################################################
 usage() {
   cat >&2 <<EOM
 Usage: $(basename $0) COMMAND
 
 COMMAND may be one of:
   dtests - run the disassemblies (MM/JSW/SD/BTS/CSC) tests
+  ddiffs - run disassembly-diff on the MM/JSW/SD/BTS/CSC disassemblies
 EOM
 }
 
+###############################################################################
 # Parse command line
+###############################################################################
 case "$1" in
   dtests) test_disassemblies ;;
+  ddiffs) disassembly_diffs ;;
        *) usage ;;
 esac
