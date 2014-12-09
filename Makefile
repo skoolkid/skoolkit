@@ -65,7 +65,7 @@ rom:
 
 .PHONY: write-disassembly-tests
 write-disassembly-tests:
-	for t in asm ctl html sft; do utils/write-disassembly-tests.py $$t > tests/test_disassemblies_$$t.py; done
+	for t in asm ctl html sft; do tools/write-disassembly-tests.py $$t > tests/test_disassemblies_$$t.py; done
 
 .PHONY: remove-disassembly-tests
 remove-disassembly-tests:
@@ -125,19 +125,19 @@ test-cover-all: write-disassembly-tests
 
 .PHONY: release
 release:
-	SKOOLKIT_HOME=`pwd` utils/mksktarball
+	SKOOLKIT_HOME=`pwd` tools/mksktarball
 
 .PHONY: tarball
 tarball:
-	SKOOLKIT_HOME=`pwd` utils/mksktarball -t
+	SKOOLKIT_HOME=`pwd` tools/mksktarball -t
 
 .PHONY: deb
 deb:
-	SKOOLKIT_HOME=`pwd` utils/mkskpkg deb
+	SKOOLKIT_HOME=`pwd` tools/mkskpkg deb
 
 .PHONY: rpm
 rpm:
-	SKOOLKIT_HOME=`pwd` utils/mkskpkg rpm
+	SKOOLKIT_HOME=`pwd` tools/mkskpkg rpm
 
 DTD:
 	curl -s http://www.w3.org/TR/xhtml1/xhtml1.tgz | tar xzf - --strip-components=1 xhtml1-20020801/DTD

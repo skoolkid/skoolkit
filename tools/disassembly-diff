@@ -68,7 +68,7 @@ clean_disassembly() {
 write_files() {
   for diff_type in $DIFF_TYPES; do
     if [ $diff_type != "gif" ] && [ $diff_type != "png" ]; then
-      $UTILS/write-files $GAME $diff_type
+      $TOOLS/write-files $GAME $diff_type
     fi
   done
 }
@@ -100,8 +100,8 @@ if [ ! -d "$SKOOLKIT_HOME" ]; then
   exit 1
 fi
 
-UTILS=$(dirname $0)
-[ "${UTILS:0:1}" = "/" ] || UTILS=$(pwd)/$UTILS
+TOOLS=$(dirname $0)
+[ "${TOOLS:0:1}" = "/" ] || TOOLS=$(pwd)/$TOOLS
 WRITE_OLD=0
 WRITE_NEW=1
 BUILD_SK_TARBALL=1
@@ -189,7 +189,7 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
     if [ $BUILD_SK_TARBALL -eq 1 ] || [ ! -f ${SKOOLKIT_TAR} ]; then
       pushd $SKOOLKIT_HOME > /dev/null
       echo "Building tarball for version $SKOOLKIT_VERSION of SkoolKit"
-      utils/mksktarball -q -t
+      $TOOLS/mksktarball -q -t
       popd > /dev/null
       cp -p $SKOOLKIT_HOME/dist/${SKOOLKIT_TAR} .
     fi
@@ -229,7 +229,7 @@ for diff_type in $DIFF_TYPES; do
 done
 
 banner "Running diff-files"
-$UTILS/diff-files -d $DIFFS -e $GAME $OLD_DIR $NEW_DIR $DIFF_TYPES
+$TOOLS/diff-files -d $DIFFS -e $GAME $OLD_DIR $NEW_DIR $DIFF_TYPES
 
 set +e # No longer abort on errors (the following 'ls' commands can fail)
 

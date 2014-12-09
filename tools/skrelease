@@ -40,7 +40,7 @@ if [ ! -d "$DISASSEMBLIES_HOME" ]; then
   exit 1
 fi
 
-TOOLS=$SKOOLKIT_HOME/utils
+TOOLS=$SKOOLKIT_HOME/tools
 SKTMPDIR=$HOME/tmp
 
 ###############################################################################

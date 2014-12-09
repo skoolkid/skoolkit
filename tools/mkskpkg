@@ -29,7 +29,7 @@ if [ -f "dist/$SKOOLKIT_TAR" ]; then
   echo "Using existing $SKOOLKIT_TAR"
 else
   echo "Building $SKOOLKIT_TAR"
-  utils/mksktarball -q -t -p
+  tools/mksktarball -q -t -p
 fi
 
 if [ "$PKGTYPE" = "deb" ]; then
