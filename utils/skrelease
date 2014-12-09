@@ -40,6 +40,8 @@ if [ ! -d "$DISASSEMBLIES_HOME" ]; then
   exit 1
 fi
 
+TOOLS=$SKOOLKIT_HOME/utils
+
 ###############################################################################
 # Run the disassemblies (MM/JSW/SD/BTS/CSC) tests
 ###############################################################################
@@ -77,10 +79,10 @@ disassembly_diffs() {
   cscdiffsdir=$DISASSEMBLIES_HOME/build/csc-disassembly-diff
   diffslog=diffs.log
   skversion=$($SKOOLKIT_HOME/skool2html.py -V 2>&1 | cut -f2 -d' ')
-  DISASSEMBLY_DIFF="$SKOOLKIT_HOME/utils/disassembly-diff -t"
+  DISASSEMBLY_DIFF="$TOOLS/disassembly-diff -t"
 
   echo -n "Building tarball for version $skversion of SkoolKit: "
-  $SKOOLKIT_HOME/utils/mksktarball -q -t
+  $TOOLS/mksktarball -q -t
   echo "OK"
   for d in $mmdiffsdir $jswdiffsdir $sddiffsdir $btsdiffsdir $cscdiffsdir; do
     mkdir -p $d
@@ -116,6 +118,42 @@ disassembly_diffs() {
 }
 
 ###############################################################################
+# Run check-asms on the MM/JSW/SD/BTS/CSC disassemblies
+###############################################################################
+check_asms() {
+  skversion=$($SKOOLKIT_HOME/skool2html.py -V 2>&1 | cut -f2 -d' ')
+  asmsubdir=disassembly-current-$skversion/asm
+  mmasmdir=$MANICMINER_HOME/build/disassembly-diff/$asmsubdir
+  jswasmdir=$JETSETWILLY_HOME/build/disassembly-diff/$asmsubdir
+  sdasmdir=$DISASSEMBLIES_HOME/build/sd-disassembly-diff/$asmsubdir
+  btsasmdir=$DISASSEMBLIES_HOME/build/bts-disassembly-diff/$asmsubdir
+  cscasmdir=$DISASSEMBLIES_HOME/build/csc-disassembly-diff/$asmsubdir
+  asmlog=asm.log
+  CHECK_ASMS=$TOOLS/check-asms
+
+  (cd $mmasmdir; $CHECK_ASMS mm &> $asmlog) & PIDmm=$!
+  (cd $jswasmdir; $CHECK_ASMS jsw &> $asmlog) & PIDjsw=$!
+  (cd $sdasmdir; $CHECK_ASMS sd &> $asmlog) & PIDsd=$!
+  (cd $btsasmdir; $CHECK_ASMS bts &> $asmlog) & PIDbts=$!
+  (cd $cscasmdir; $CHECK_ASMS csc &> $asmlog) & PIDcsc=$!
+
+  echo -n "Manic Miner check-asms: "
+  wait $PIDmm && echo "OK" || echo "FAILED (see $mmasmdir/$asmlog)"
+
+  echo -n "Jet Set Willy check-asms: "
+  wait $PIDjsw && echo "OK" || echo "FAILED (see $jswasmdir/$asmlog)"
+
+  echo -n "Skool Daze check-asms: "
+  wait $PIDsd && echo "OK" || echo "FAILED (see $sdasmdir/$asmlog)"
+
+  echo -n "Back to Skool check-asms: "
+  wait $PIDbts && echo "OK" || echo "FAILED (see $btsasmdir/$asmlog)"
+
+  echo -n "Contact Sam Cruise check-asms: "
+  wait $PIDcsc && echo "OK" || echo "FAILED (see $cscasmdir/$asmlog)"
+}
+
+###############################################################################
 # Print usage information
 ###############################################################################
 usage() {
@@ -125,6 +163,7 @@ Usage: $(basename $0) COMMAND
 COMMAND may be one of:
   dtests - run the disassemblies (MM/JSW/SD/BTS/CSC) tests
   ddiffs - run disassembly-diff on the MM/JSW/SD/BTS/CSC disassemblies
+  asmchk - run check-asms on the MM/JSW/SD/BTS/CSC disassemblies
 EOM
 }
 
@@ -134,5 +173,6 @@ EOM
 case "$1" in
   dtests) test_disassemblies ;;
   ddiffs) disassembly_diffs ;;
+  asmchk) check_asms ;;
        *) usage ;;
 esac

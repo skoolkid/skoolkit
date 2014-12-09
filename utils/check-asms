@@ -87,7 +87,9 @@ for suffix in '' '-load' '-save' '-start'; do
 done
 
 echo "------------------------------------ SUMMARY -----------------------------------"
+code=0
 if [ -n "$allfails" ]; then
+  let code+=1
   echo "Failed to assemble:"
   for f in $allfails; do
     echo "  $f"
@@ -96,7 +98,9 @@ else
   echo "Failed to assemble: None"
 fi
 if [ -n "$alldiffs" ]; then
+  let code+=2
   echo -e "Differences:$alldiffs"
 else
   echo "Differences: None"
 fi
+exit $code
