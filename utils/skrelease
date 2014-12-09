@@ -41,6 +41,7 @@ if [ ! -d "$DISASSEMBLIES_HOME" ]; then
 fi
 
 TOOLS=$SKOOLKIT_HOME/utils
+SKTMPDIR=$HOME/tmp
 
 ###############################################################################
 # Run the disassemblies (MM/JSW/SD/BTS/CSC) tests
@@ -206,6 +207,115 @@ check_asms() {
 }
 
 ###############################################################################
+# Verify that 'setup.py install' works
+###############################################################################
+_create_venv() {
+  mkdir -p $SKTMPDIR
+  cd $(mktemp -d --tmpdir=$SKTMPDIR)
+  topdir=$(pwd)
+  venv=$topdir/venv
+  virtualenv --quiet $venv
+}
+
+_build_tarball() {
+  skversion=$($SKOOLKIT_HOME/skool2html.py -V 2>&1 | cut -f2 -d' ')
+  echo -n "Building tarball for version $skversion of SkoolKit: "
+  $TOOLS/mksktarball -q -t
+  echo "OK"
+}
+
+_install_skoolkit() {
+  method=$1
+
+  tar xf $SKOOLKIT_HOME/dist/skoolkit-$skversion.tar.xz -C $topdir
+  mv $topdir/skoolkit-$skversion{,-release}
+  cd $topdir/skoolkit-$skversion-release
+
+  if [[ "$method" = "2" ]]; then
+    echo -n "Building source distribution: "
+    logfile=$topdir/sdist.log
+    if ./setup.py sdist &> $logfile; then
+      echo "OK"
+    else
+      echo "FAILED (see $logfile)"
+      return 1
+    fi
+    tar xf dist/skoolkit-$skversion.tar.gz -C $topdir
+    cd $topdir/skoolkit-$skversion
+  fi
+
+  echo -n "Installing SkoolKit: "
+  logfile=$topdir/install.log
+  if $venv/bin/python setup.py install &> $logfile; then
+    echo "OK"
+  else
+    echo "FAILED (see $logfile)"
+    return 1
+  fi
+}
+
+_check_commands() {
+  for cmdname in {bin2tap,skool2{asm,ctl,html,sft},sna2skool,tap2sna}.py; do
+    echo -n "Running $cmdname: "
+    cmd=$venv/bin/$cmdname
+    if [[ ! -f $cmd ]]; then
+      echo "FAILED ($cmd not found)"
+      return 1
+    fi
+    logfile=$topdir/$cmdname.log
+    $cmd &> $logfile || :
+    firstword=$(head -n 1 $logfile | cut -f1 -d' ')
+    if [[ "$firstword" = "usage:" ]]; then
+      echo "OK"
+    else
+      echo "FAILED (see $logfile)"
+      return 1
+    fi
+  done
+}
+
+_check_files() {
+  expdir=$1
+  shift
+  expfiles=$*
+
+  echo -n "Checking $expdir: "
+  resourcesdir=$($venv/bin/skool2html.py -p)/$expdir
+  if [[ ! -d $resourcesdir ]]; then
+    echo "FAILED ($resourcesdir does not exist)"
+    return 1
+  fi
+  rcount=0
+  for f in $expfiles; do
+    resource=$resourcesdir/$f
+    if [[ ! -f $resource ]]; then
+      echo "FAILED ($f not found in $resourcesdir)"
+      return 1
+    fi
+    let rcount+=1
+  done
+  rlist=$topdir/$expdir.txt
+  ls -1 $resourcesdir > $rlist
+  numresources=$(cat $rlist | wc -l)
+  if [[ $numresources -ne $rcount ]]; then
+    echo "FAILED (unexpected files found; see $rlist)"
+    return 1
+  fi
+  echo "OK"
+}
+
+verify_setup() {
+  method=$1
+
+  _create_venv
+  _build_tarball
+  _install_skoolkit $method
+  _check_commands
+  _check_files resources skoolkit{,-dark,-green,-plum,-spectrum,-wide}.css spectrum.ttf{,.txt}
+  _check_files examples 48.rom.{ctl,ref} hungry_horace.{ctl,ref,t2s}
+}
+
+###############################################################################
 # Print usage information
 ###############################################################################
 usage() {
@@ -217,6 +327,8 @@ COMMAND may be one of:
   xhtmlv - run validate-xhtml on the ROM/HH/MM/JSW/SD/BTS/CSC disassemblies
   ddiffs - run disassembly-diff on the MM/JSW/SD/BTS/CSC disassemblies
   asmchk - run check-asms on the MM/JSW/SD/BTS/CSC disassemblies
+  setup1 - verify that 'setup.py install' works from a release tarball
+  setup2 - verify that 'setup.py install' works from an sdist tarball
 EOM
 }
 
@@ -228,5 +340,7 @@ case "$1" in
   xhtmlv) validate_xhtml ;;
   ddiffs) disassembly_diffs ;;
   asmchk) check_asms ;;
+  setup1) verify_setup 1 ;;
+  setup2) verify_setup 2 ;;
        *) usage ;;
 esac
