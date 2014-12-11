@@ -345,6 +345,22 @@ build_sdist() {
 }
 
 ###############################################################################
+# Verify that SkoolKit can be installed from PyPI
+###############################################################################
+check_pypi() {
+  cd $(mktemp -d --tmpdir=$HOME/tmp)
+  virtualenv --quiet venv
+  logfile=$(pwd)/install.log
+  echo -n "Installing SkoolKit from PyPI: "
+  if venv/bin/pip install skoolkit &> $logfile; then
+    echo "OK"
+  else
+    echo "FAILED (see $logfile)"
+    exit 1
+  fi
+}
+
+###############################################################################
 # Build a documentation zip archive for PyPI
 ###############################################################################
 build_doczip() {
@@ -391,6 +407,7 @@ Pre-release commands:
 
 Post-release commands:
   bsdist - build a source package for uploading to PyPI
+  ifpypi - verify that SkoolKit can be installed from PyPI
   doczip - build a documentation zip archive for PyPI
 EOM
 }
@@ -406,6 +423,7 @@ case "$1" in
   setup1) verify_setup 1 ;;
   setup2) verify_setup 2 ;;
   bsdist) build_sdist ;;
+  ifpypi) check_pypi ;;
   doczip) build_doczip ;;
        *) usage ;;
 esac
