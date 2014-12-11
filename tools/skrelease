@@ -345,6 +345,34 @@ build_sdist() {
 }
 
 ###############################################################################
+# Build a documentation zip archive for PyPI
+###############################################################################
+build_doczip() {
+  skversion=$($SKOOLKIT_HOME/skool2html.py -V 2>&1 | cut -f2 -d' ')
+  zipfile=$SKOOLKIT_HOME/dist/skoolkit-$skversion-docs.zip
+
+  cd $(mktemp -d --tmpdir=$HOME/tmp)
+  echo -n "Cloning local git repository: "
+  git clone -ql $SKOOLKIT_HOME
+  echo "OK"
+  logfile=$(pwd)/sphinx.log
+  cd skoolkit/sphinx
+  echo -n "Building documentation: "
+  if make html SPHINXOPTS='-D html_theme=nature' &> $logfile; then
+    echo "OK"
+  else
+    echo "FAILED (see $logfile)"
+    exit 1
+  fi
+  cd build/html
+  rm -rf .buildinfo _sources/man man objects.inv $zipfile
+  echo -n "Building zip archive: "
+  zip -9qr $zipfile .
+  echo "OK"
+  echo "Now upload $zipfile to PyPI"
+}
+
+###############################################################################
 # Print usage information
 ###############################################################################
 usage() {
@@ -363,6 +391,7 @@ Pre-release commands:
 
 Post-release commands:
   bsdist - build a source package for uploading to PyPI
+  doczip - build a documentation zip archive for PyPI
 EOM
 }
 
@@ -377,5 +406,6 @@ case "$1" in
   setup1) verify_setup 1 ;;
   setup2) verify_setup 2 ;;
   bsdist) build_sdist ;;
+  doczip) build_doczip ;;
        *) usage ;;
 esac
