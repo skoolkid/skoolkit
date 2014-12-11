@@ -316,19 +316,53 @@ verify_setup() {
 }
 
 ###############################################################################
+# Build a source package for uploading to PyPI
+###############################################################################
+build_sdist() {
+  skversion=$($SKOOLKIT_HOME/skool2html.py -V 2>&1 | cut -f2 -d' ')
+  sktarball=$SKOOLKIT_HOME/dist/skoolkit-$skversion.tar.xz
+  if [[ -f $sktarball ]]; then
+    echo "Found $sktarball"
+  else
+    echo -n "$sktarball not found; building it: "
+    $TOOLS/mksktarball -q -t
+    echo "OK"
+  fi
+  cd $(mktemp -d --tmpdir=$HOME/tmp)
+  logfile=$(pwd)/sdist.log
+  tar xf $sktarball
+  cd skoolkit-$skversion
+  echo -n "Building source package: "
+  if ./setup.py sdist &> $logfile; then
+    echo "OK"
+  else
+    echo "FAILED (see $logfile)"
+    exit 1
+  fi
+  sdist=skoolkit-$skversion.tar.gz
+  mv dist/$sdist $SKOOLKIT_HOME/dist
+  echo "Now upload $SKOOLKIT_HOME/dist/$sdist to PyPI"
+}
+
+###############################################################################
 # Print usage information
 ###############################################################################
 usage() {
   cat >&2 <<EOM
 Usage: $(basename $0) COMMAND
 
-COMMAND may be one of:
+SkoolKit testing and release tool.
+
+Pre-release commands:
   dtests - run the disassemblies (MM/JSW/SD/BTS/CSC) tests
   xhtmlv - run validate-xhtml on the ROM/HH/MM/JSW/SD/BTS/CSC disassemblies
   ddiffs - run disassembly-diff on the MM/JSW/SD/BTS/CSC disassemblies
   asmchk - run check-asms on the MM/JSW/SD/BTS/CSC disassemblies
   setup1 - verify that 'setup.py install' works from a release tarball
   setup2 - verify that 'setup.py install' works from an sdist tarball
+
+Post-release commands:
+  bsdist - build a source package for uploading to PyPI
 EOM
 }
 
@@ -342,5 +376,6 @@ case "$1" in
   asmchk) check_asms ;;
   setup1) verify_setup 1 ;;
   setup2) verify_setup 2 ;;
+  bsdist) build_sdist ;;
        *) usage ;;
 esac
