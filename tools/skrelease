@@ -44,6 +44,88 @@ TOOLS=$SKOOLKIT_HOME/tools
 SKTMPDIR=$HOME/tmp
 
 ###############################################################################
+# Utility functions
+###############################################################################
+_check_commands() {
+  path=$1
+  logdir=$2
+
+  for cmdname in {bin2tap,skool2{asm,ctl,html,sft},sna2skool,tap2sna}.py; do
+    echo -n "Running $cmdname: "
+    cmd=$path/$cmdname
+    if [[ ! -f $cmd ]]; then
+      echo "FAILED ($cmd not found)"
+      return 1
+    fi
+    logfile=$logdir/$cmdname.log
+    $cmd &> $logfile || :
+    firstword=$(head -n 1 $logfile | cut -f1 -d' ')
+    if [[ "$firstword" != "usage:" ]]; then
+      echo "FAILED (see $logfile)"
+      return 1
+    fi
+    echo "OK"
+  done
+}
+
+_check_man_pages() {
+  echo -n "Checking man pages: "
+  for cmdname in {bin2tap,skool2{asm,ctl,html,sft},sna2skool,tap2sna}.py; do
+    manpage=/usr/share/man/man1/$cmdname.1.gz
+    if [[ ! -f $manpage ]]; then
+      echo "FAILED ($manpage not found)"
+      return 1
+    fi
+  done
+  echo "OK"
+}
+
+_check_files() {
+  filetype=$1
+  expdir=$2
+  logdir=$3
+  shift 3
+  expfiles=$*
+
+  echo -n "Checking $filetype: "
+  if [[ ! -d $expdir ]]; then
+    echo "FAILED ($expdir does not exist)"
+    return 1
+  fi
+  rcount=0
+  for f in $expfiles; do
+    resource=$expdir/$f
+    if [[ ! -f $resource ]]; then
+      echo "FAILED ($f not found in $expdir)"
+      return 1
+    fi
+    let rcount+=1
+  done
+  rlist=$logdir/$filetype.txt
+  ls -1 $expdir > $rlist
+  numresources=$(cat $rlist | grep -v examples | wc -l)
+  if [[ $numresources -ne $rcount ]]; then
+    echo "FAILED (unexpected files found; see $rlist)"
+    return 1
+  fi
+  echo "OK"
+}
+
+_check_resources() {
+  rootdir=$1
+  logdir=$2
+
+  _check_files resources $rootdir $logdir skoolkit{,-dark,-green,-plum,-spectrum,-wide}.css spectrum.ttf{,.txt}
+}
+
+_check_examples() {
+  rootdir=$1
+  logdir=$2
+
+  _check_files examples $rootdir $logdir 48.rom.{ctl,ref} hungry_horace.{ctl,ref,t2s}
+}
+
+###############################################################################
 # Run the disassemblies (MM/JSW/SD/BTS/CSC) tests
 ###############################################################################
 test_disassemblies() {
@@ -254,65 +336,59 @@ _install_skoolkit() {
   fi
 }
 
-_check_commands() {
-  for cmdname in {bin2tap,skool2{asm,ctl,html,sft},sna2skool,tap2sna}.py; do
-    echo -n "Running $cmdname: "
-    cmd=$venv/bin/$cmdname
-    if [[ ! -f $cmd ]]; then
-      echo "FAILED ($cmd not found)"
-      return 1
-    fi
-    logfile=$topdir/$cmdname.log
-    $cmd &> $logfile || :
-    firstword=$(head -n 1 $logfile | cut -f1 -d' ')
-    if [[ "$firstword" = "usage:" ]]; then
-      echo "OK"
-    else
-      echo "FAILED (see $logfile)"
-      return 1
-    fi
-  done
-}
-
-_check_files() {
-  expdir=$1
-  shift
-  expfiles=$*
-
-  echo -n "Checking $expdir: "
-  resourcesdir=$($venv/bin/skool2html.py -p)/$expdir
-  if [[ ! -d $resourcesdir ]]; then
-    echo "FAILED ($resourcesdir does not exist)"
-    return 1
-  fi
-  rcount=0
-  for f in $expfiles; do
-    resource=$resourcesdir/$f
-    if [[ ! -f $resource ]]; then
-      echo "FAILED ($f not found in $resourcesdir)"
-      return 1
-    fi
-    let rcount+=1
-  done
-  rlist=$topdir/$expdir.txt
-  ls -1 $resourcesdir > $rlist
-  numresources=$(cat $rlist | wc -l)
-  if [[ $numresources -ne $rcount ]]; then
-    echo "FAILED (unexpected files found; see $rlist)"
-    return 1
-  fi
-  echo "OK"
-}
-
 verify_setup() {
   method=$1
 
   _create_venv
   _build_tarball
   _install_skoolkit $method
-  _check_commands
-  _check_files resources skoolkit{,-dark,-green,-plum,-spectrum,-wide}.css spectrum.ttf{,.txt}
-  _check_files examples 48.rom.{ctl,ref} hungry_horace.{ctl,ref,t2s}
+  _check_commands $venv/bin $topdir
+  packagedir=$($venv/bin/skool2html.py -p)
+  _check_resources $packagedir/resources $topdir
+  _check_examples $packagedir/examples $topdir
+}
+
+###############################################################################
+# Build, install and verify a DEB package
+###############################################################################
+build_deb() {
+  skversion=$($SKOOLKIT_HOME/skool2html.py -V 2>&1 | cut -f2 -d' ')
+  deb=$SKOOLKIT_HOME/dist/skoolkit_$skversion-1_all.deb
+  logdir=$SKOOLKIT_HOME/dist
+  mkdir -p $logdir
+
+  sudo dpkg -r skoolkit &> /dev/null
+
+  echo -n "Building skoolkit_$skversion-1_all.deb: "
+  logfile=$logdir/debuild.log
+  if ! make -C $SKOOLKIT_HOME deb &> $logfile; then
+    echo "FAILED (see $logfile)"
+    exit 1
+  fi
+  echo "OK"
+
+  echo -n "Installing skoolkit_$skversion-1_all.deb: "
+  logfile=$logdir/dpkg-i.log
+  if ! sudo dpkg -i $deb &> $logfile; then
+    echo "FAILED (see $logfile)"
+    exit 1
+  fi
+  echo "OK"
+
+  _check_commands /usr/bin $logdir
+  _check_man_pages
+  _check_resources /usr/share/skoolkit $logdir
+  _check_examples /usr/share/skoolkit/examples $logdir
+
+  echo -n "Uninstalling skoolkit: "
+  logfile=$logdir/dpkg-r.log
+  if ! sudo dpkg -r skoolkit > $logfile; then
+    echo "FAILED (see $logfile)"
+    exit 1
+  fi
+  echo "OK"
+
+  echo "Now upload $deb to skoolkit.ca"
 }
 
 ###############################################################################
@@ -406,6 +482,7 @@ Pre-release commands:
   setup2 - verify that 'setup.py install' works from an sdist tarball
 
 Post-release commands:
+  debpkg - build, install, verify and uninstall a DEB package
   bsdist - build a source package for uploading to PyPI
   ifpypi - verify that SkoolKit can be installed from PyPI
   doczip - build a documentation zip archive for PyPI
@@ -422,6 +499,7 @@ case "$1" in
   asmchk) check_asms ;;
   setup1) verify_setup 1 ;;
   setup2) verify_setup 2 ;;
+  debpkg) build_deb ;;
   bsdist) build_sdist ;;
   ifpypi) check_pypi ;;
   doczip) build_doczip ;;
