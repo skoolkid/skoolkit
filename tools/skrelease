@@ -542,6 +542,22 @@ build_doczip() {
 }
 
 ###############################################################################
+# Update the SkoolKit project on launchpad.net
+###############################################################################
+update_launchpad() {
+  echo -n "Checking files to upload: "
+  for f in skoolkit{-$VERSION{.tar.xz,.zip,-1.noarch.rpm},_$VERSION-1_all.deb}{,.asc}; do
+    fname=$SKOOLKIT_HOME/dist/$f
+    if [[ ! -f $fname ]]; then
+      echo "FAILED ($fname not found)"
+      exit 1
+    fi
+  done
+  echo "OK"
+  $TOOLS/lputil.py --production $VERSION
+}
+
+###############################################################################
 # Print usage information
 ###############################################################################
 usage() {
@@ -565,6 +581,7 @@ Post-release commands:
   bsdist - build a source package for uploading to PyPI
   ifpypi - verify that SkoolKit can be installed from PyPI
   doczip - build a documentation zip archive for PyPI
+  sklpad - update the SkoolKit project on launchpad.net
 EOM
 }
 
@@ -584,5 +601,6 @@ case "$1" in
   bsdist) build_sdist ;;
   ifpypi) check_pypi ;;
   doczip) build_doczip ;;
+  sklpad) update_launchpad ;;
        *) usage ;;
 esac
