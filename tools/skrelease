@@ -439,6 +439,39 @@ build_rpm() {
 }
 
 ###############################################################################
+# Prepare documentation on the gh-pages branch
+###############################################################################
+prepare_gh_pages() {
+  cd $(mktemp -d --tmpdir=$SKTMPDIR)
+  logfile=$(pwd)/sphinx.log
+  echo -n "Cloning skoolkit repository: "
+  git clone -q https://github.com/skoolkid/skoolkit
+  echo "OK"
+  cd skoolkit
+  echo -n "Building documentation: "
+  if ! make -C sphinx html SPHINXOPTS='-D html_theme=sphinxdoc' &> $logfile; then
+    echo "FAILED (see $logfile)"
+    exit 1
+  fi
+  echo "OK"
+  rm -rf sphinx/build/html/{.buildinfo,_sources/man,man,objects.inv}
+  git checkout -q gh-pages
+  rsync -a sphinx/build/html/ .
+  rm -rf skoolkit sphinx
+  echo
+  git status -bs
+  cat <<EOM
+
+Now:
+  \$ cd $(pwd)
+  # Remove any pages that are no longer used
+  # Add any new pages or files
+  \$ git ci -am "Update SkoolKit documentation to $VERSION"
+  \$ git push origin gh-pages
+EOM
+}
+
+###############################################################################
 # Build a source package for uploading to PyPI
 ###############################################################################
 build_sdist() {
@@ -528,6 +561,7 @@ Pre-release commands:
 Post-release commands:
   debpkg - build, install, verify and uninstall a DEB package
   rpmpkg - build, install, verify and uninstall an RPM package
+  ghdocs - prepare documentation on the gh-pages branch
   bsdist - build a source package for uploading to PyPI
   ifpypi - verify that SkoolKit can be installed from PyPI
   doczip - build a documentation zip archive for PyPI
@@ -546,6 +580,7 @@ case "$1" in
   setup2) verify_setup 2 ;;
   debpkg) build_deb ;;
   rpmpkg) build_rpm ;;
+  ghdocs) prepare_gh_pages ;;
   bsdist) build_sdist ;;
   ifpypi) check_pypi ;;
   doczip) build_doczip ;;
