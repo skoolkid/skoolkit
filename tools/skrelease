@@ -44,6 +44,7 @@ TOOLS=$SKOOLKIT_HOME/tools
 SKTMPDIR=$HOME/tmp
 VERSION=$($SKOOLKIT_HOME/skool2html.py -V 2>&1 | cut -f2 -d' ')
 TARBALL=$SKOOLKIT_HOME/dist/skoolkit-$VERSION.tar.xz
+SKOOLKIT_KEY=938CD04A
 
 ###############################################################################
 # Utility functions
@@ -482,7 +483,7 @@ build_sdist() {
     $TOOLS/mksktarball -q -t
     echo "OK"
   fi
-  cd $(mktemp -d --tmpdir=$HOME/tmp)
+  cd $(mktemp -d --tmpdir=$SKTMPDIR)
   logfile=$(pwd)/sdist.log
   tar xf $TARBALL
   cd skoolkit-$VERSION
@@ -502,7 +503,7 @@ build_sdist() {
 # Verify that SkoolKit can be installed from PyPI
 ###############################################################################
 check_pypi() {
-  cd $(mktemp -d --tmpdir=$HOME/tmp)
+  cd $(mktemp -d --tmpdir=$SKTMPDIR)
   virtualenv --quiet venv
   logfile=$(pwd)/install.log
   echo -n "Installing SkoolKit from PyPI: "
@@ -520,7 +521,7 @@ check_pypi() {
 build_doczip() {
   zipfile=$SKOOLKIT_HOME/dist/skoolkit-$VERSION-docs.zip
 
-  cd $(mktemp -d --tmpdir=$HOME/tmp)
+  cd $(mktemp -d --tmpdir=$SKTMPDIR)
   echo -n "Cloning local git repository: "
   git clone -ql $SKOOLKIT_HOME
   echo "OK"
@@ -539,6 +540,38 @@ build_doczip() {
   zip -9qr $zipfile .
   echo "OK"
   echo "Now upload $zipfile to PyPI"
+}
+
+###############################################################################
+# Build and upload a signed source package to the SkoolKit PPA
+###############################################################################
+upload_ppa_source() {
+  cd $(mktemp -d --tmpdir=$SKTMPDIR)
+  pkgtarball=$SKOOLKIT_HOME/dist/skoolkit-pkg-$VERSION.tar.xz
+  if [[ ! -f $pkgtarball ]]; then
+    echo -n "Building $(basename $pkgtarball): "
+    $TOOLS/mksktarball -q -t -p
+    echo "OK"
+  fi
+  cp -p $pkgtarball skoolkit_$VERSION.orig.tar.xz
+  tar xf skoolkit_$VERSION.orig.tar.xz
+  cd skoolkit-$VERSION
+  cp -a $SKOOLKIT_HOME/debian .
+  sed -i 's/ unstable; / precise; /g' debian/changelog
+  debuild -S -k$SKOOLKIT_KEY
+
+  dputconf=$HOME/.dput.cf
+  if ! grep '^\[skoolkit-ppa\]$' $dputconf &> /dev/null; then
+    cat >> $dputconf <<EOF
+[skoolkit-ppa]
+fqdn = ppa.launchpad.net
+method = ftp
+incoming = ~rjdymond/ppa/ubuntu/
+login = anonymous
+allow_unsigned_uploads = 0
+EOF
+  fi
+  dput skoolkit-ppa ../skoolkit_$VERSION-1_source.changes
 }
 
 ###############################################################################
@@ -581,6 +614,7 @@ Post-release commands:
   bsdist - build a source package for uploading to PyPI
   ifpypi - verify that SkoolKit can be installed from PyPI
   doczip - build a documentation zip archive for PyPI
+  ppadeb - build and upload a signed source package to the SkoolKit PPA
   sklpad - update the SkoolKit project on launchpad.net
 EOM
 }
@@ -601,6 +635,7 @@ case "$1" in
   bsdist) build_sdist ;;
   ifpypi) check_pypi ;;
   doczip) build_doczip ;;
+  ppadeb) upload_ppa_source ;;
   sklpad) update_launchpad ;;
        *) usage ;;
 esac
