@@ -578,8 +578,10 @@ EOF
 # Update the SkoolKit project on launchpad.net
 ###############################################################################
 update_launchpad() {
+  files=$(echo skoolkit{-$VERSION{.tar.xz,.zip,-1.noarch.rpm},_$VERSION-1_all.deb})
+
   echo -n "Checking files to upload: "
-  for f in skoolkit{-$VERSION{.tar.xz,.zip,-1.noarch.rpm},_$VERSION-1_all.deb}{,.asc}; do
+  for f in $files; do
     fname=$SKOOLKIT_HOME/dist/$f
     if [[ ! -f $fname ]]; then
       echo "FAILED ($fname not found)"
@@ -587,6 +589,21 @@ update_launchpad() {
     fi
   done
   echo "OK"
+
+  read -sp "Enter passphrase: " pp
+  echo -ne "\nSigning files: "
+  for fname in $files; do
+    f=$SKOOLKIT_HOME/dist/$fname
+    rm -f $f.asc
+    logfile=$f.log
+    if ! gpg -asb --batch --default-key $SKOOLKIT_KEY --passphrase $pp $f &> $logfile; then
+      echo "FAILED (see $logfile)"
+      exit 1
+    fi
+    rm -f $logfile
+  done
+  echo "OK"
+
   $TOOLS/lputil.py --production $VERSION
 }
 
