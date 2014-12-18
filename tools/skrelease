@@ -1,50 +1,54 @@
 #!/usr/bin/env bash
 set -e # Abort on errors
 
+SKTMPDIR=$HOME/tmp
+SKOOLKIT_KEY=938CD04A
+
 ###############################################################################
 # Check required environment variables
 ###############################################################################
-if [ -z "$SKOOLKIT_HOME" ]; then
-  echo "Error: SKOOLKIT_HOME not defined."
-  exit 1
-fi
-if [ ! -d "$SKOOLKIT_HOME" ]; then
-  echo "Error: directory not found: $SKOOLKIT_HOME"
-  exit 1
-fi
+_require_skoolkit() {
+  if [ -z "$SKOOLKIT_HOME" ]; then
+    echo "Error: SKOOLKIT_HOME not defined."
+    exit 1
+  fi
+  if [ ! -d "$SKOOLKIT_HOME" ]; then
+    echo "Error: directory not found: $SKOOLKIT_HOME"
+    exit 1
+  fi
+  TOOLS=$SKOOLKIT_HOME/tools
+  VERSION=$($SKOOLKIT_HOME/skool2html.py -V 2>&1 | cut -f2 -d' ')
+  TARBALL=$SKOOLKIT_HOME/dist/skoolkit-$VERSION.tar.xz
+}
 
-if [ -z "$MANICMINER_HOME" ]; then
-  echo "Error: MANICMINER_HOME not defined."
-  exit 1
-fi
-if [ ! -d "$MANICMINER_HOME" ]; then
-  echo "Error: directory not found: $MANICMINER_HOME"
-  exit 1
-fi
+_require_disassemblies() {
+  if [ -z "$MANICMINER_HOME" ]; then
+    echo "Error: MANICMINER_HOME not defined."
+    exit 1
+  fi
+  if [ ! -d "$MANICMINER_HOME" ]; then
+    echo "Error: directory not found: $MANICMINER_HOME"
+    exit 1
+  fi
 
-if [ -z "$JETSETWILLY_HOME" ]; then
-  echo "Error: JETSETWILLY_HOME not defined."
-  exit 1
-fi
-if [ ! -d "$JETSETWILLY_HOME" ]; then
-  echo "Error: directory not found: $JETSETWILLY_HOME"
-  exit 1
-fi
+  if [ -z "$JETSETWILLY_HOME" ]; then
+    echo "Error: JETSETWILLY_HOME not defined."
+    exit 1
+  fi
+  if [ ! -d "$JETSETWILLY_HOME" ]; then
+    echo "Error: directory not found: $JETSETWILLY_HOME"
+    exit 1
+  fi
 
-if [ -z "$DISASSEMBLIES_HOME" ]; then
-  echo "Error: DISASSEMBLIES_HOME not defined."
-  exit 1
-fi
-if [ ! -d "$DISASSEMBLIES_HOME" ]; then
-  echo "Error: directory not found: $DISASSEMBLIES_HOME"
-  exit 1
-fi
-
-TOOLS=$SKOOLKIT_HOME/tools
-SKTMPDIR=$HOME/tmp
-VERSION=$($SKOOLKIT_HOME/skool2html.py -V 2>&1 | cut -f2 -d' ')
-TARBALL=$SKOOLKIT_HOME/dist/skoolkit-$VERSION.tar.xz
-SKOOLKIT_KEY=938CD04A
+  if [ -z "$DISASSEMBLIES_HOME" ]; then
+    echo "Error: DISASSEMBLIES_HOME not defined."
+    exit 1
+  fi
+  if [ ! -d "$DISASSEMBLIES_HOME" ]; then
+    echo "Error: directory not found: $DISASSEMBLIES_HOME"
+    exit 1
+  fi
+}
 
 ###############################################################################
 # Utility functions
@@ -170,6 +174,9 @@ _uninstall_pkg() {
 # Run the disassemblies (MM/JSW/SD/BTS/CSC) tests
 ###############################################################################
 test_disassemblies() {
+  _require_skoolkit
+  _require_disassemblies
+
   mkdir -p $MANICMINER_HOME/build
   mmlog=$MANICMINER_HOME/build/tests.log
   mkdir -p $JETSETWILLY_HOME/build
@@ -236,6 +243,9 @@ _wait_validate_xhtml() {
 }
 
 validate_xhtml() {
+  _require_skoolkit
+  _require_disassemblies
+
   _run_validate_xhtml $SKOOLKIT_HOME rom rom & PIDrom=$!
   _run_validate_xhtml $SKOOLKIT_HOME hh hungry_horace & PIDhh=$!
   _run_validate_xhtml $MANICMINER_HOME mm manic_miner & PIDmm=$!
@@ -257,6 +267,9 @@ validate_xhtml() {
 # Run disassembly-diff on the MM/JSW/SD/BTS/CSC disassemblies
 ###############################################################################
 disassembly_diffs() {
+  _require_skoolkit
+  _require_disassemblies
+
   mmdiffsdir=$MANICMINER_HOME/build/disassembly-diff
   jswdiffsdir=$JETSETWILLY_HOME/build/disassembly-diff
   sddiffsdir=$DISASSEMBLIES_HOME/build/sd-disassembly-diff
@@ -305,6 +318,9 @@ disassembly_diffs() {
 # Run check-asms on the MM/JSW/SD/BTS/CSC disassemblies
 ###############################################################################
 check_asms() {
+  _require_skoolkit
+  _require_disassemblies
+
   asmsubdir=disassembly-current-$VERSION/asm
   mmasmdir=$MANICMINER_HOME/build/disassembly-diff/$asmsubdir
   jswasmdir=$JETSETWILLY_HOME/build/disassembly-diff/$asmsubdir
@@ -386,6 +402,8 @@ _install_skoolkit() {
 verify_setup() {
   method=$1
 
+  _require_skoolkit
+
   _create_venv
   _build_tarball
   _install_skoolkit $method
@@ -399,6 +417,8 @@ verify_setup() {
 # Build, install, verify and uninstall a DEB package
 ###############################################################################
 build_deb() {
+  _require_skoolkit
+
   debname=skoolkit_$VERSION-1_all.deb
   deb=$SKOOLKIT_HOME/dist/$debname
   logdir=$SKOOLKIT_HOME/dist
@@ -421,6 +441,8 @@ build_deb() {
 # Build, install, verify and uninstall an RPM package
 ###############################################################################
 build_rpm() {
+  _require_skoolkit
+
   rpmname=skoolkit-$VERSION-1.noarch.rpm
   rpm=$SKOOLKIT_HOME/dist/$rpmname
   logdir=$SKOOLKIT_HOME/dist
@@ -443,6 +465,8 @@ build_rpm() {
 # Prepare documentation on the gh-pages branch
 ###############################################################################
 prepare_gh_pages() {
+  _require_skoolkit
+
   cd $(mktemp -d --tmpdir=$SKTMPDIR)
   logfile=$(pwd)/sphinx.log
   echo -n "Cloning skoolkit repository: "
@@ -476,6 +500,8 @@ EOM
 # Build a source package for uploading to PyPI
 ###############################################################################
 build_sdist() {
+  _require_skoolkit
+
   if [[ -f $TARBALL ]]; then
     echo "Found $TARBALL"
   else
@@ -519,6 +545,8 @@ check_pypi() {
 # Build a documentation zip archive for PyPI
 ###############################################################################
 build_doczip() {
+  _require_skoolkit
+
   zipfile=$SKOOLKIT_HOME/dist/skoolkit-$VERSION-docs.zip
 
   cd $(mktemp -d --tmpdir=$SKTMPDIR)
@@ -546,6 +574,8 @@ build_doczip() {
 # Build and upload a signed source package to the SkoolKit PPA
 ###############################################################################
 upload_ppa_source() {
+  _require_skoolkit
+
   cd $(mktemp -d --tmpdir=$SKTMPDIR)
   pkgtarball=$SKOOLKIT_HOME/dist/skoolkit-pkg-$VERSION.tar.xz
   if [[ ! -f $pkgtarball ]]; then
@@ -578,6 +608,8 @@ EOF
 # Update the SkoolKit project on launchpad.net
 ###############################################################################
 update_launchpad() {
+  _require_skoolkit
+
   files=$(echo skoolkit{-$VERSION{.tar.xz,.zip,-1.noarch.rpm},_$VERSION-1_all.deb})
 
   echo -n "Checking files to upload: "
