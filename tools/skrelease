@@ -644,7 +644,7 @@ update_launchpad() {
 ###############################################################################
 usage() {
   cat >&2 <<EOM
-Usage: $(basename $0) COMMAND
+Usage: $(basename $0) COMMAND [COMMAND...]
 
 SkoolKit testing and release tool.
 
@@ -671,20 +671,27 @@ EOM
 ###############################################################################
 # Parse command line
 ###############################################################################
-case "$1" in
-  dtests) test_disassemblies ;;
-  xhtmlv) validate_xhtml ;;
-  ddiffs) disassembly_diffs ;;
-  asmchk) check_asms ;;
-  setup1) verify_setup 1 ;;
-  setup2) verify_setup 2 ;;
-  debpkg) build_deb ;;
-  rpmpkg) build_rpm ;;
-  ghdocs) prepare_gh_pages ;;
-  bsdist) build_sdist ;;
-  ifpypi) check_pypi ;;
-  doczip) build_doczip ;;
-  ppadeb) upload_ppa_source ;;
-  sklpad) update_launchpad ;;
-       *) usage ;;
-esac
+[[ -z "$1" ]] && usage
+numcommands=$#
+
+while [[ -n "$1" ]]; do
+  [[ $numcommands -ge 2 ]] && echo "*** Running command '$1' ***"
+  case "$1" in
+    dtests) test_disassemblies ;;
+    xhtmlv) validate_xhtml ;;
+    ddiffs) disassembly_diffs ;;
+    asmchk) check_asms ;;
+    setup1) verify_setup 1 ;;
+    setup2) verify_setup 2 ;;
+    debpkg) build_deb ;;
+    rpmpkg) build_rpm ;;
+    ghdocs) prepare_gh_pages ;;
+    bsdist) build_sdist ;;
+    ifpypi) check_pypi ;;
+    doczip) build_doczip ;;
+    ppadeb) upload_ppa_source ;;
+    sklpad) update_launchpad ;;
+         *) echo "*** Unknown command '$1' ***"; usage ;;
+  esac
+  shift
+done
