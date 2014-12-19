@@ -66,6 +66,20 @@ _exec() {
   echo "OK"
 }
 
+_wait() {
+  message=$1
+  pid=$2
+  failsuffix=$3
+  oksuffix=${4:-$failsuffix}
+
+  echo -n "${message}: "
+  if wait $pid; then
+    [[ "$oksuffix" = _ ]] && echo "OK" || echo "OK $oksuffix"
+  else
+    echo "FAILED $failsuffix"
+  fi
+}
+
 _check_commands() {
   path=$1
   logdir=$2
@@ -167,20 +181,11 @@ test_disassemblies() {
   make -C $DISASSEMBLIES_HOME test-bts-{2.7,3.{2,3,4}} &> $btslog & PIDbts=$!
   make -C $DISASSEMBLIES_HOME test-csc-{2.7,3.{2,3,4}} &> $csclog & PIDcsc=$!
 
-  echo -n "Manic Miner tests: "
-  wait $PIDmm && echo "OK" || echo "FAILED (see $mmlog)"
-
-  echo -n "Jet Set Willy tests: "
-  wait $PIDjsw && echo "OK" || echo "FAILED (see $jswlog)"
-
-  echo -n "Skool Daze tests: "
-  wait $PIDsd && echo "OK" || echo "FAILED (see $sdlog)"
-
-  echo -n "Back to Skool tests: "
-  wait $PIDbts && echo "OK" || echo "FAILED (see $btslog)"
-
-  echo -n "Contact Sam Cruise tests: "
-  wait $PIDcsc && echo "OK" || echo "FAILED (see $csclog)"
+  _wait "Manic Miner tests" $PIDmm "(see $mmlog)" _
+  _wait "Jet Set Willy tests" $PIDjsw "(see $jswlog)" _
+  _wait "Skool Daze tests" $PIDsd "(see $sdlog)" _
+  _wait "Back to Skool tests" $PIDbts "(see $btslog)" _
+  _wait "Contact Sam Cruise tests" $PIDcsc "(see $csclog)" _
 }
 
 ###############################################################################
@@ -268,25 +273,11 @@ disassembly_diffs() {
   (cd $btsdiffsdir; $DISASSEMBLY_DIFF bts &> $diffslog) & PIDbts=$!
   (cd $cscdiffsdir; $DISASSEMBLY_DIFF csc &> $diffslog) & PIDcsc=$!
 
-  echo -n "Manic Miner disassembly-diff: "
-  wait $PIDmm && echo -n "OK" || echo -n "FAILED"
-  echo " (see $mmdiffsdir/$diffslog)"
-
-  echo -n "Jet Set Willy disassembly-diff: "
-  wait $PIDjsw && echo -n "OK" || echo -n "FAILED"
-  echo " (see $jswdiffsdir/$diffslog)"
-
-  echo -n "Skool Daze disassembly-diff: "
-  wait $PIDsd && echo -n "OK" || echo -n "FAILED"
-  echo " (see $sddiffsdir/$diffslog)"
-
-  echo -n "Back to Skool disassembly-diff: "
-  wait $PIDbts && echo -n "OK" || echo -n "FAILED"
-  echo " (see $btsdiffsdir/$diffslog)"
-
-  echo -n "Contact Sam Cruise disassembly-diff: "
-  wait $PIDcsc && echo -n "OK" || echo -n "FAILED"
-  echo " (see $cscdiffsdir/$diffslog)"
+  _wait "Manic Miner disassembly-diff" $PIDmm "(see $mmdiffsdir/$diffslog)"
+  _wait "Jet Set Willy disassembly-diff" $PIDjsw "(see $jswdiffsdir/$diffslog)"
+  _wait "Skool Daze disassembly-diff" $PIDsd "(see $sddiffsdir/$diffslog)"
+  _wait "Back to Skool disassembly-diff" $PIDbts "(see $btsdiffsdir/$diffslog)"
+  _wait "Contact Sam Cruise disassembly-diff" $PIDcsc "(see $cscdiffsdir/$diffslog)"
 }
 
 ###############################################################################
@@ -311,20 +302,11 @@ check_asms() {
   (cd $btsasmdir; $CHECK_ASMS bts &> $asmlog) & PIDbts=$!
   (cd $cscasmdir; $CHECK_ASMS csc &> $asmlog) & PIDcsc=$!
 
-  echo -n "Manic Miner check-asms: "
-  wait $PIDmm && echo "OK" || echo "FAILED (see $mmasmdir/$asmlog)"
-
-  echo -n "Jet Set Willy check-asms: "
-  wait $PIDjsw && echo "OK" || echo "FAILED (see $jswasmdir/$asmlog)"
-
-  echo -n "Skool Daze check-asms: "
-  wait $PIDsd && echo "OK" || echo "FAILED (see $sdasmdir/$asmlog)"
-
-  echo -n "Back to Skool check-asms: "
-  wait $PIDbts && echo "OK" || echo "FAILED (see $btsasmdir/$asmlog)"
-
-  echo -n "Contact Sam Cruise check-asms: "
-  wait $PIDcsc && echo "OK" || echo "FAILED (see $cscasmdir/$asmlog)"
+  _wait "Manic Miner check-asms" $PIDmm "(see $mmasmdir/$asmlog)" _
+  _wait "Jet Set Willy check-asms" $PIDjsw "(see $jswasmdir/$asmlog)" _
+  _wait "Skool Daze check-asms" $PIDsd "(see $sdasmdir/$asmlog)" _
+  _wait "Back to Skool check-asms" $PIDbts "(see $btsasmdir/$asmlog)" _
+  _wait "Contact Sam Cruise check-asms" $PIDcsc "(see $cscasmdir/$asmlog)" _
 }
 
 ###############################################################################
