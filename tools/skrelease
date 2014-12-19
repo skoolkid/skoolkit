@@ -53,6 +53,19 @@ _require_disassemblies() {
 ###############################################################################
 # Utility functions
 ###############################################################################
+_exec() {
+  message=$1
+  command=$2
+  logfile=$3
+
+  echo -n "${message}: "
+  if ! $command &> $logfile; then
+    echo "FAILED (see $logfile)"
+    return 1
+  fi
+  echo "OK"
+}
+
 _check_commands() {
   path=$1
   logdir=$2
@@ -130,44 +143,6 @@ _check_examples() {
   logdir=$2
 
   _check_files examples $rootdir $logdir 48.rom.{ctl,ref} hungry_horace.{ctl,ref,t2s}
-}
-
-_build_pkg() {
-  pkgname=$1
-  target=$2
-  logfile=$3
-
-  echo -n "Building $pkgname: "
-  if ! make -C $SKOOLKIT_HOME $target &> $logfile; then
-    echo "FAILED (see $logfile)"
-    return 1
-  fi
-  echo "OK"
-}
-
-_install_pkg() {
-  pkg=$1
-  cmd=$2
-  logfile=$3
-
-  echo -n "Installing $(basename $pkgname): "
-  if ! sudo $cmd $pkg &> $logfile; then
-    echo "FAILED (see $logfile)"
-    return 1
-  fi
-  echo "OK"
-}
-
-_uninstall_pkg() {
-  cmd=$1
-  logfile=$2
-
-  echo -n "Uninstalling skoolkit: "
-  if ! sudo $cmd skoolkit &> $logfile; then
-    echo "FAILED (see $logfile)"
-    return 1
-  fi
-  echo "OK"
 }
 
 ###############################################################################
@@ -377,26 +352,12 @@ _install_skoolkit() {
   cd $topdir/skoolkit-$VERSION-release
 
   if [[ "$method" = "2" ]]; then
-    echo -n "Building source distribution: "
-    logfile=$topdir/sdist.log
-    if ./setup.py sdist &> $logfile; then
-      echo "OK"
-    else
-      echo "FAILED (see $logfile)"
-      return 1
-    fi
+    _exec "Building source distribution" "./setup.py sdist" $topdir/sdist.log
     tar xf dist/skoolkit-$VERSION.tar.gz -C $topdir
     cd $topdir/skoolkit-$VERSION
   fi
 
-  echo -n "Installing SkoolKit: "
-  logfile=$topdir/install.log
-  if $venv/bin/python setup.py install &> $logfile; then
-    echo "OK"
-  else
-    echo "FAILED (see $logfile)"
-    return 1
-  fi
+  _exec "Installing SkoolKit" "$venv/bin/python setup.py install" $topdir/install.log
 }
 
 verify_setup() {
@@ -426,13 +387,13 @@ build_deb() {
 
   sudo dpkg -r skoolkit &> /dev/null
 
-  _build_pkg $debname deb $logdir/debuild.log
-  _install_pkg $deb "dpkg -i" $logdir/dpkg-i.log
+  _exec "Building $debname" "make -C $SKOOLKIT_HOME deb" $logdir/debuild.log
+  _exec "Installing $debname" "sudo dpkg -i $deb" $logdir/dpkg-i.log
   _check_commands /usr/bin $logdir
   _check_man_pages
   _check_resources /usr/share/skoolkit $logdir
   _check_examples /usr/share/skoolkit/examples $logdir
-  _uninstall_pkg "dpkg -r" $logdir/dpkg-r.log
+  _exec "Uninstalling skoolkit" "sudo dpkg -r skoolkit" $logdir/dpkg-r.log
 
   echo "Now upload $deb to skoolkit.ca"
 }
@@ -450,13 +411,13 @@ build_rpm() {
 
   sudo rpm -e skoolkit &> /dev/null || true
 
-  _build_pkg $rpmname rpm $logdir/rpmbuild.log
-  _install_pkg $rpm "rpm -i" $logdir/rpm-i.log
+  _exec "Building $rpmname" "make -C $SKOOLKIT_HOME rpm" $logdir/rpmuild.log
+  _exec "Installing $rpmname" "sudo rpm -i $rpm" $logdir/rpm-i.log
   _check_commands /usr/bin $logdir
   _check_man_pages
   _check_resources /usr/share/skoolkit $logdir
   _check_examples /usr/share/skoolkit/examples $logdir
-  _uninstall_pkg "rpm -e" $logdir/rpm-e.log
+  _exec "Uninstalling skoolkit" "sudo rpm -e skoolkit" $logdir/rpm-e.log
 
   echo "Now upload $rpm to skoolkit.ca"
 }
@@ -473,12 +434,9 @@ prepare_gh_pages() {
   git clone -q https://github.com/skoolkid/skoolkit
   echo "OK"
   cd skoolkit
-  echo -n "Building documentation: "
-  if ! make -C sphinx html SPHINXOPTS='-D html_theme=sphinxdoc' &> $logfile; then
-    echo "FAILED (see $logfile)"
-    exit 1
-  fi
-  echo "OK"
+  sed -i 's/^\(SPHINXOPTS.*=\)$/\1 -D html_theme=sphinxdoc/' sphinx/Makefile
+  _exec "Building documentation" "make -C sphinx html" $logfile
+  git checkout -- sphinx/Makefile
   rm -rf sphinx/build/html/{.buildinfo,_sources/man,man,objects.inv}
   git checkout -q gh-pages
   rsync -a sphinx/build/html/ .
@@ -513,13 +471,7 @@ build_sdist() {
   logfile=$(pwd)/sdist.log
   tar xf $TARBALL
   cd skoolkit-$VERSION
-  echo -n "Building source package: "
-  if ./setup.py sdist &> $logfile; then
-    echo "OK"
-  else
-    echo "FAILED (see $logfile)"
-    exit 1
-  fi
+  _exec "Building source package" "./setup.py sdist" $logfile
   sdist=skoolkit-$VERSION.tar.gz
   mv dist/$sdist $SKOOLKIT_HOME/dist
   echo "Now upload $SKOOLKIT_HOME/dist/$sdist to PyPI"
@@ -531,14 +483,7 @@ build_sdist() {
 check_pypi() {
   cd $(mktemp -d --tmpdir=$SKTMPDIR)
   virtualenv --quiet venv
-  logfile=$(pwd)/install.log
-  echo -n "Installing SkoolKit from PyPI: "
-  if venv/bin/pip install skoolkit &> $logfile; then
-    echo "OK"
-  else
-    echo "FAILED (see $logfile)"
-    exit 1
-  fi
+  _exec "Installing SkoolKit from PyPI" "venv/bin/pip install skoolkit" $(pwd)/install.log
 }
 
 ###############################################################################
@@ -555,13 +500,8 @@ build_doczip() {
   echo "OK"
   logfile=$(pwd)/sphinx.log
   cd skoolkit/sphinx
-  echo -n "Building documentation: "
-  if make html SPHINXOPTS='-D html_theme=nature' &> $logfile; then
-    echo "OK"
-  else
-    echo "FAILED (see $logfile)"
-    exit 1
-  fi
+  sed -i 's/^\(SPHINXOPTS.*=\)$/\1 -D html_theme=nature/' Makefile
+  _exec "Building documentation" "make html" $logfile
   cd build/html
   rm -rf .buildinfo _sources/man man objects.inv $zipfile
   echo -n "Building zip archive: "
