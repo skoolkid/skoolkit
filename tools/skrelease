@@ -80,6 +80,23 @@ _wait() {
   fi
 }
 
+_cd_tmpdir() {
+  mkdir -p $SKTMPDIR
+  cd $(mktemp -d --tmpdir=$SKTMPDIR)
+}
+
+_create_venv() {
+  venvdir=${1:-venv}
+
+  _exec "Creating virtual environment" "virtualenv --quiet $venvdir" $(pwd)/venv.log
+}
+
+_build_tarball() {
+  echo -n "Building tarball for version $VERSION of SkoolKit: "
+  $TOOLS/mksktarball -q -t
+  echo "OK"
+}
+
 _check_commands() {
   path=$1
   logdir=$2
@@ -258,9 +275,7 @@ disassembly_diffs() {
   diffslog=diffs.log
   DISASSEMBLY_DIFF="$TOOLS/disassembly-diff -t"
 
-  echo -n "Building tarball for version $VERSION of SkoolKit: "
-  $TOOLS/mksktarball -q -t
-  echo "OK"
+  _build_tarball
   for d in $mmdiffsdir $jswdiffsdir $sddiffsdir $btsdiffsdir $cscdiffsdir; do
     mkdir -p $d
     cp -p $TARBALL $d
@@ -312,20 +327,6 @@ check_asms() {
 ###############################################################################
 # Verify that 'setup.py install' works
 ###############################################################################
-_create_venv() {
-  mkdir -p $SKTMPDIR
-  cd $(mktemp -d --tmpdir=$SKTMPDIR)
-  topdir=$(pwd)
-  venv=$topdir/venv
-  virtualenv --quiet $venv
-}
-
-_build_tarball() {
-  echo -n "Building tarball for version $VERSION of SkoolKit: "
-  $TOOLS/mksktarball -q -t
-  echo "OK"
-}
-
 _install_skoolkit() {
   method=$1
 
@@ -347,7 +348,10 @@ verify_setup() {
 
   _require_skoolkit
 
-  _create_venv
+  _cd_tmpdir
+  topdir=$(pwd)
+  venv=$topdir/venv
+  _create_venv $venv
   _build_tarball
   _install_skoolkit $method
   _check_commands $venv/bin $topdir
@@ -410,7 +414,7 @@ build_rpm() {
 prepare_gh_pages() {
   _require_skoolkit
 
-  cd $(mktemp -d --tmpdir=$SKTMPDIR)
+  _cd_tmpdir
   logfile=$(pwd)/sphinx.log
   echo -n "Cloning skoolkit repository: "
   git clone -q https://github.com/skoolkid/skoolkit
@@ -431,7 +435,7 @@ Now:
   \$ cd $(pwd)
   # Remove any pages that are no longer used
   # Add any new pages or files
-  \$ git ci -am "Update SkoolKit documentation to $VERSION"
+  \$ git commit -am "Update SkoolKit documentation to $VERSION"
   \$ git push origin gh-pages
 EOM
 }
@@ -442,14 +446,8 @@ EOM
 build_sdist() {
   _require_skoolkit
 
-  if [[ -f $TARBALL ]]; then
-    echo "Found $TARBALL"
-  else
-    echo -n "$TARBALL not found; building it: "
-    $TOOLS/mksktarball -q -t
-    echo "OK"
-  fi
-  cd $(mktemp -d --tmpdir=$SKTMPDIR)
+  [[ -f $TARBALL ]] && echo "Found $TARBALL" || _build_tarball
+  _cd_tmpdir
   logfile=$(pwd)/sdist.log
   tar xf $TARBALL
   cd skoolkit-$VERSION
@@ -463,8 +461,8 @@ build_sdist() {
 # Verify that SkoolKit can be installed from PyPI
 ###############################################################################
 check_pypi() {
-  cd $(mktemp -d --tmpdir=$SKTMPDIR)
-  virtualenv --quiet venv
+  _cd_tmpdir
+  _create_venv
   _exec "Installing SkoolKit from PyPI" "venv/bin/pip install skoolkit" $(pwd)/install.log
 }
 
@@ -476,7 +474,7 @@ build_doczip() {
 
   zipfile=$SKOOLKIT_HOME/dist/skoolkit-$VERSION-docs.zip
 
-  cd $(mktemp -d --tmpdir=$SKTMPDIR)
+  _cd_tmpdir
   echo -n "Cloning local git repository: "
   git clone -ql $SKOOLKIT_HOME
   echo "OK"
@@ -498,7 +496,7 @@ build_doczip() {
 upload_ppa_source() {
   _require_skoolkit
 
-  cd $(mktemp -d --tmpdir=$SKTMPDIR)
+  _cd_tmpdir
   pkgtarball=$SKOOLKIT_HOME/dist/skoolkit-pkg-$VERSION.tar.xz
   if [[ ! -f $pkgtarball ]]; then
     echo -n "Building $(basename $pkgtarball): "
