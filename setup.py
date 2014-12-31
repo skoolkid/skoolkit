@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from distutils.core import setup
-import shutil
 
 from skoolkit import VERSION
 
@@ -73,13 +72,6 @@ To turn it into an ASM file that can be fed to an assembler::
 .. _control file: http://skoolkit.ca/docs/skoolkit/control-files.html
 """
 
-PACKAGE_DIR = 'build/skoolkit-pkg'
-
-shutil.rmtree(PACKAGE_DIR, True)
-shutil.copytree('skoolkit', PACKAGE_DIR, ignore=shutil.ignore_patterns('*.pyc'))
-shutil.copytree('resources', '{0}/resources'.format(PACKAGE_DIR))
-shutil.copytree('examples', '{0}/examples'.format(PACKAGE_DIR))
-
 setup(
     name='skoolkit',
     version=VERSION,
@@ -90,8 +82,7 @@ setup(
     description="A suite of tools for creating disassemblies of ZX Spectrum games",
     long_description=LONG_DESCRIPTION,
     packages=['skoolkit'],
-    package_dir={'skoolkit': PACKAGE_DIR},
-    package_data={'skoolkit': ['resources/*', 'examples/*']},
+    package_data={'skoolkit': ['resources/*.css']},
     scripts=['bin2tap.py', 'skool2asm.py', 'skool2ctl.py', 'skool2html.py', 'skool2sft.py', 'sna2skool.py', 'tap2sna.py'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

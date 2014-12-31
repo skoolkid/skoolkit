@@ -1,3 +1,2 @@
-resources/* /usr/share/skoolkit
 examples/* /usr/share/skoolkit/examples
 man/man1/*.1 /usr/share/man/man1

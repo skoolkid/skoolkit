@@ -586,7 +586,6 @@ class Skool2HtmlTest(SkoolKitTestCase):
             'The current working directory',
             os.path.join('.', 'resources'),
             os.path.join(os.path.expanduser('~'), '.skoolkit'),
-            os.path.normpath('/usr/share/skoolkit'),
             os.path.join(PACKAGE_DIR, 'resources'),
             'Any other directories specified by the -S/--search option'
         ]

@@ -261,7 +261,6 @@ files, CSS files, JavaScript files, font files, and files listed in the
 * The current working directory
 * `./resources`
 * `~/.skoolkit`
-* `/usr/share/skoolkit`
 * `$PACKAGE_DIR/resources`
 * Any other directories specified by the ``-S``/``--search`` option
 

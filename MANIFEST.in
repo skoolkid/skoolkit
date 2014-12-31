@@ -1,7 +1,5 @@
 include COPYING
-recursive-include skoolkit *.py
 graft docs
 graft examples
 graft man
-graft resources
 graft tests

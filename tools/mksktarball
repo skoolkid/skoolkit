@@ -9,7 +9,6 @@ Usage: $(basename $0) [options]
 
 Options:
   -h  Show this help
-  -p  Use setup-pkg.py (for building a DEB or RPM package)
   -q  Be quiet
   -t  Write only the release tarball
 EOF
@@ -38,12 +37,10 @@ PKGDIR=$PKGNAME
 
 VERBOSE=1
 WRITE_ZIP=1
-SETUP=setup.py
 
 while getopts ":hpqt" opt; do
   case $opt in
     h) usage ;;
-    p) SETUP=setup-pkg.py; PKGNAME=skoolkit-pkg-$VERSION ;;
     q) VERBOSE=0 ;;
     t) WRITE_ZIP=0 ;;
   esac
@@ -61,11 +58,10 @@ rsync -aR \
   {bin2tap,skool2{asm,ctl,html,sft},sna2skool,tap2sna}.py \
   skoolkit/{__init__,bin2tap,ctlparser,defaults,disassembler,image,refparser,pngwriter,gifwriter,sftparser,skool{{,2}{asm,ctl,html,sft},macro,parser},sna{,2}skool,snapshot,tap2sna}.py \
   examples/48.rom.{ctl,ref} examples/hungry_horace.{ctl,ref,t2s} \
-  resources/skoolkit{,-dark,-green,-plum,-wide}.css \
+  skoolkit/resources/skoolkit{,-dark,-green,-plum,-wide}.css \
   tests/{skoolkittest,test_{bin2tap,ctlparser,disassembler,image,skool{{,2}{asm,ctl,html,sft},macro,parser},refparser,sftparser,skoolkit,sna{2,}skool,snapshot,tap2sna}}.py \
-  COPYING MANIFEST.in \
+  COPYING MANIFEST.in setup.py \
   $ABSDIR
-cp -a $SETUP $ABSDIR/setup.py
 
 # Documentation and man pages
 cd $SKOOLKIT_HOME/sphinx

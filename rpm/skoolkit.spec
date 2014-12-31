@@ -36,7 +36,6 @@ rm -rf $RPM_BUILD_ROOT
 install -d %{buildroot}%{_mandir}/man1
 cp -p man/man1/* %{buildroot}%{_mandir}/man1
 install -d %{buildroot}%{_datadir}/%{name}
-cp -p resources/* %{buildroot}%{_datadir}/%{name}
 cp -a examples %{buildroot}%{_datadir}/%{name}
 
 %files

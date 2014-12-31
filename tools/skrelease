@@ -154,7 +154,7 @@ _check_files() {
   done
   rlist=$logdir/$filetype.txt
   ls -1 $expdir > $rlist
-  numresources=$(cat $rlist | grep -v examples | wc -l)
+  numresources=$(cat $rlist | wc -l)
   if [[ $numresources -ne $rcount ]]; then
     echo "FAILED (unexpected files found; see $rlist)"
     return 1
@@ -357,7 +357,6 @@ verify_setup() {
   _check_commands $venv/bin $topdir
   packagedir=$($venv/bin/skool2html.py -p)
   _check_resources $packagedir/resources $topdir
-  _check_examples $packagedir/examples $topdir
 }
 
 ###############################################################################
@@ -377,7 +376,7 @@ build_deb() {
   _exec "Installing $debname" "sudo dpkg -i $deb" $logdir/dpkg-i.log
   _check_commands /usr/bin $logdir
   _check_man_pages
-  _check_resources /usr/share/skoolkit $logdir
+  _check_resources $(/usr/bin/skool2html.py -p)/resources $logdir
   _check_examples /usr/share/skoolkit/examples $logdir
   _exec "Uninstalling skoolkit" "sudo dpkg -r skoolkit" $logdir/dpkg-r.log
 
@@ -397,11 +396,11 @@ build_rpm() {
 
   sudo rpm -e skoolkit &> /dev/null || true
 
-  _exec "Building $rpmname" "make -C $SKOOLKIT_HOME rpm" $logdir/rpmuild.log
+  _exec "Building $rpmname" "make -C $SKOOLKIT_HOME rpm" $logdir/rpmbuild.log
   _exec "Installing $rpmname" "sudo rpm -i $rpm" $logdir/rpm-i.log
   _check_commands /usr/bin $logdir
   _check_man_pages
-  _check_resources /usr/share/skoolkit $logdir
+  _check_resources $(/usr/bin/skool2html.py -p)/resources $logdir
   _check_examples /usr/share/skoolkit/examples $logdir
   _exec "Uninstalling skoolkit" "sudo rpm -e skoolkit" $logdir/rpm-e.log
 
@@ -497,13 +496,8 @@ upload_ppa_source() {
   _require_skoolkit
 
   _cd_tmpdir
-  pkgtarball=$SKOOLKIT_HOME/dist/skoolkit-pkg-$VERSION.tar.xz
-  if [[ ! -f $pkgtarball ]]; then
-    echo -n "Building $(basename $pkgtarball): "
-    $TOOLS/mksktarball -q -t -p
-    echo "OK"
-  fi
-  cp -p $pkgtarball skoolkit_$VERSION.orig.tar.xz
+  [[ -f $TARBALL ]] && echo "Found $TARBALL" || _build_tarball
+  cp -p $TARBALL skoolkit_$VERSION.orig.tar.xz
   tar xf skoolkit_$VERSION.orig.tar.xz
   cd skoolkit-$VERSION
   cp -a $SKOOLKIT_HOME/debian .

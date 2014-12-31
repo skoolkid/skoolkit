@@ -27,7 +27,7 @@ Using skool file: {skoolfile}
 Using ref file: {reffile}
 Parsing {skoolfile}
 Creating directory {odir}/hungry_horace
-Copying {SKOOLKIT_HOME}/resources/skoolkit.css to {odir}/hungry_horace/skoolkit.css
+Copying {SKOOLKIT_HOME}/skoolkit/resources/skoolkit.css to {odir}/hungry_horace/skoolkit.css
   Writing disassembly files in hungry_horace/asm
   Writing hungry_horace/maps/all.html
   Writing hungry_horace/maps/routines.html
@@ -41,7 +41,7 @@ Using skool file: {skoolfile}
 Using ref file: {reffile}
 Parsing {skoolfile}
 Creating directory {odir}/rom
-Copying {SKOOLKIT_HOME}/resources/skoolkit.css to {odir}/rom/skoolkit.css
+Copying {SKOOLKIT_HOME}/skoolkit/resources/skoolkit.css to {odir}/rom/skoolkit.css
   Writing disassembly files in rom/asm
   Writing rom/maps/all.html
   Writing rom/maps/routines.html
@@ -214,8 +214,7 @@ class HtmlTestCase(DisassembliesTestCase):
             self.fail('\n'.join(error_msg))
 
     def _test_html(self, html_dir, options, ref_file, exp_output, skoolfile):
-        main_options = '-S {}/resources'.format(SKOOLKIT_HOME)
-        main_options += ' -c Config/SkoolFile={}'.format(skoolfile)
+        main_options = ' -c Config/SkoolFile={}'.format(skoolfile)
         main_options += ' -d {}'.format(self.odir)
         shutil.rmtree(self.odir, True)
 

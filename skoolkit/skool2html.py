@@ -40,7 +40,6 @@ SEARCH_DIRS = (
     '',
     'resources',
     os.path.expanduser('~/.skoolkit'),
-    '/usr/share/skoolkit',
     os.path.join(PACKAGE_DIR, 'resources')
 )
 
