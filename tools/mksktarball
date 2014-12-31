@@ -61,7 +61,7 @@ rsync -aR \
   {bin2tap,skool2{asm,ctl,html,sft},sna2skool,tap2sna}.py \
   skoolkit/{__init__,bin2tap,ctlparser,defaults,disassembler,image,refparser,pngwriter,gifwriter,sftparser,skool{{,2}{asm,ctl,html,sft},macro,parser},sna{,2}skool,snapshot,tap2sna}.py \
   examples/48.rom.{ctl,ref} examples/hungry_horace.{ctl,ref,t2s} \
-  resources/{skoolkit{,-dark,-green,-plum,-spectrum,-wide}.css,spectrum.ttf{,.txt}} \
+  resources/skoolkit{,-dark,-green,-plum,-wide}.css \
   tests/{skoolkittest,test_{bin2tap,ctlparser,disassembler,image,skool{{,2}{asm,ctl,html,sft},macro,parser},refparser,sftparser,skoolkit,sna{2,}skool,snapshot,tap2sna}}.py \
   COPYING MANIFEST.in \
   $ABSDIR

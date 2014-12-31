@@ -244,7 +244,6 @@ some alternative themes:
 * dark (dark colours): `skoolkit-dark.css`
 * green (mostly green): `skoolkit-green.css`
 * plum (mostly purple): `skoolkit-plum.css`
-* spectrum (Spectrum colours and font): `skoolkit-spectrum.css`
 * wide (wide comment fields on the disassembly pages, and wide boxes on the
   Changelog, Glossary, Trivia, Bugs and Pokes pages): `skoolkit-wide.css`
 
@@ -253,12 +252,6 @@ example, to use the 'dark' theme::
 
   $ skool2html.py -T dark game.skool
 
-To use the 'spectrum' theme, the spectrum font file must also be specified
-thus::
+Themes may be combined; for example, to use both the 'plum' and 'wide' themes::
 
-  $ skool2html.py -T spectrum -c Game/Font=spectrum.ttf game.skool
-
-Themes may also be combined; for example, to use both the 'dark' and 'wide'
-themes::
-
-  $ skool2html.py -T dark -T wide game.skool
+  $ skool2html.py -T plum -T wide game.skool

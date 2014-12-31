@@ -6,9 +6,6 @@ NOSETESTS34 = /usr/bin/python3.4 /usr/bin/nosetests
 OPTIONS = -d build/html -t
 
 OPTIONS += $(foreach theme,$(THEMES),-T $(theme))
-ifeq ($(findstring spectrum,$(THEMES)),spectrum)
-  OPTIONS += -c Game/Font=spectrum.ttf
-endif
 OPTIONS += $(HTML_OPTS)
 
 .PHONY: usage

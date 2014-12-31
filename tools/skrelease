@@ -166,7 +166,7 @@ _check_resources() {
   rootdir=$1
   logdir=$2
 
-  _check_files resources $rootdir $logdir skoolkit{,-dark,-green,-plum,-spectrum,-wide}.css spectrum.ttf{,.txt}
+  _check_files resources $rootdir $logdir skoolkit{,-dark,-green,-plum,-wide}.css
 }
 
 _check_examples() {
