@@ -2,7 +2,7 @@
 
 Name:           skoolkit
 Version:        4.2
-Release:        1%{?dist}
+Release:        1
 Summary:        Tools for creating disassemblies of ZX Spectrum programs
 
 License:        GPLv3+
