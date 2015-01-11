@@ -1,0 +1,75 @@
+#!/bin/bash -e
+
+declare -A SK_VERSIONS
+SK_VERSIONS=(
+  [20140920]=4.1.1
+)
+
+HHZ80=$SKOOLKIT_HOME/build/hungry_horace.z80
+
+if [[ $# -lt 2 ]]; then
+  echo "Usage: $(basename $0) VERSION SKOOLKIT_VERSION"
+  echo ""
+  echo "  Attempt to build a specific version of the Hungry Horace disassembly using a"
+  echo "  specific version of SkoolKit."
+  echo ""
+  echo "  VERSION must be one of:"
+  echo ""
+  for v in ${!SK_VERSIONS[@]}; do
+    echo "    $v"
+  done | sort -r | column -c 80
+  echo ""
+  echo "  Environment variables:"
+  echo "    SKOOLKIT_ARCHIVE - directory containing SkoolKit release tarballs"
+  exit 1
+fi
+
+if [[ -z "$SKOOLKIT_ARCHIVE" ]]; then
+    echo 'SKOOLKIT_ARCHIVE is not set; aborting'
+    exit 1
+fi
+if [[ ! -d "$SKOOLKIT_ARCHIVE" ]]; then
+    echo "SKOOLKIT_ARCHIVE=$SKOOLKIT_ARCHIVE: directory not found"
+    exit 1
+fi
+
+D_VERSION=$1
+SK_VERSION=$2
+
+D_SK_VERSION=${SK_VERSIONS[$D_VERSION]}
+if [[ -z "$D_SK_VERSION" ]]; then
+  echo "Disassembly version not recognised: $D_VERSION"
+  exit 1
+fi
+
+ODIR=hh-$D_VERSION-$SK_VERSION
+rm -rf $ODIR
+mkdir $ODIR
+cd $ODIR
+
+SK_DIR=skoolkit-$SK_VERSION
+tar xf $SKOOLKIT_ARCHIVE/$SK_DIR.tar.*
+SK_BUILD_DIR=$SK_DIR-build
+mv $SK_DIR $SK_BUILD_DIR
+
+D_SK_DIR=skoolkit-$D_SK_VERSION
+tar xf $SKOOLKIT_ARCHIVE/$D_SK_DIR.tar.*
+SK_SRC_DIR=$D_SK_DIR-src
+mv $D_SK_DIR $SK_SRC_DIR
+
+cp -p $SK_SRC_DIR/examples/hungry_horace.{ctl,ref} $SK_BUILD_DIR
+cd $SK_BUILD_DIR
+
+SKOOLFILE=hungry_horace.skool
+./sna2skool.py -c hungry_horace.ctl $HHZ80 > $SKOOLFILE
+
+SK_VERSION_INT=$(echo $SK_VERSION | tr -d . )0
+SK_VERSION_INT=${SK_VERSION_INT:0:3}
+HTMLDIR=../hungry_horace
+if [ $SK_VERSION_INT -lt 220 ]; then
+  ./skool2html.py -f $SKOOLFILE $HTMLDIR
+elif [ $SK_VERSION_INT -lt 302 ]; then
+  ./skool2html.py -d $HTMLDIR $SKOOLFILE
+else
+  ./skool2html.py -t -d $HTMLDIR $SKOOLFILE
+fi
