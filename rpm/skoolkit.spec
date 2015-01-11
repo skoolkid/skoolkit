@@ -1,7 +1,7 @@
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 
 Name:           skoolkit
-Version:        4.2
+Version:        %($SKOOLKIT_HOME/bin2tap.py --version 2>&1 | cut -f2 -d' ')
 Release:        1
 Summary:        Tools for creating disassemblies of ZX Spectrum programs
 
