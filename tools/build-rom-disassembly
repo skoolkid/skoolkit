@@ -8,7 +8,7 @@ SK_VERSIONS=(
 
 ROM=/usr/share/spectrum-roms/48.rom
 
-if [ $# -lt 2 ]; then
+if (($# < 2)); then
   echo "Usage: $(basename $0) VERSION SKOOLKIT_VERSION"
   echo ""
   echo "  Attempts to build a specific version of the Spectrum ROM disassembly using a"
@@ -25,11 +25,11 @@ if [ $# -lt 2 ]; then
   exit 1
 fi
 
-if [ -z "$SKOOLKIT_ARCHIVE" ]; then
+if [[ -z $SKOOLKIT_ARCHIVE ]]; then
     echo 'SKOOLKIT_ARCHIVE is not set; aborting'
     exit 1
 fi
-if [ ! -d "$SKOOLKIT_ARCHIVE" ]; then
+if [[ ! -d $SKOOLKIT_ARCHIVE ]]; then
     echo "SKOOLKIT_ARCHIVE=$SKOOLKIT_ARCHIVE: directory not found"
     exit 1
 fi
@@ -37,23 +37,19 @@ fi
 D_VERSION=$1
 SK_VERSION=$2
 
-SK_VERSION_INT=$(echo $SK_VERSION | tr -d . )0
+SK_VERSION_INT=$(echo $SK_VERSION | tr -d .)0
 SK_VERSION_INT=${SK_VERSION_INT:0:3}
 
-if [ $SK_VERSION_INT -lt 330 ]; then
+if (($SK_VERSION_INT < 330)); then
   echo "Building the 48K ROM disassembly is not supported with SkoolKit < 3.3"
   exit 1
 fi
 
 D_SK_VERSION=${SK_VERSIONS[$D_VERSION]}
-if [[ -z "$D_SK_VERSION" ]]; then
+if [[ -z $D_SK_VERSION ]]; then
   echo "Disassembly version not recognised: $D_VERSION"
   exit 1
 fi
-
-SK_DIR=skoolkit-$SK_VERSION
-odir=rom-$D_VERSION-$SK_VERSION
-rm -rf $SK_DIR $odir
 
 odir=rom-$D_VERSION-$SK_VERSION
 rm -rf $odir
@@ -65,18 +61,15 @@ tar xf $SKOOLKIT_ARCHIVE/$SK_DIR.tar.*
 SK_BUILD_DIR=${SK_DIR}-build
 mv $SK_DIR $SK_BUILD_DIR
 
-D_SK_VERSION_INT=$(echo $D_SK_VERSION | tr -d . )0
-D_SK_VERSION_INT=${D_SK_VERSION_INT:0:3}
 D_SK_DIR=skoolkit-$D_SK_VERSION
 tar xf $SKOOLKIT_ARCHIVE/$D_SK_DIR.tar.*
-D_DIR=$D_SK_DIR-src
-mv $D_SK_DIR $D_DIR
+SK_SRC_DIR=$D_SK_DIR-src
+mv $D_SK_DIR $SK_SRC_DIR
 
+cp -p $SK_SRC_DIR/examples/48.rom.{ctl,ref} $SK_BUILD_DIR
 cd $SK_BUILD_DIR
-rm -f *.ctl *.skool *.ref
-cp -a ../$D_DIR/examples/48.rom.{ctl,ref} .
 
-if [ $SK_VERSION_INT -lt 360 ]; then
+if (($SK_VERSION_INT < 360)); then
   binfile=48.rom.bin
   cp -p $ROM $binfile
 else
