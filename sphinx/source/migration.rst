@@ -11,7 +11,7 @@ disassembly to SkoolKit 4.
 [Info]
 ------
 The ``[Info]`` section, introduced in SkoolKit 2.0, is not supported in
-SkoolKit 4. If you have one in your `ref` file, copy its contents to the
+SkoolKit 4. If you have one in your `ref` file, move its contents to the
 :ref:`ref-Game` section.
 
 [Graphics]
@@ -37,7 +37,7 @@ SkoolKit 4. If you have one in your `ref` file, you can migrate it thus:
 
 [Page:\*]
 ---------
-The following parameters are no longer supported:
+In :ref:`page` sections, the following parameters are no longer supported:
 
 * ``BodyClass``
 * ``Link``
@@ -51,7 +51,7 @@ sections.
 
 [OtherCode:\*]
 --------------
-The following parameters are no longer supported:
+In :ref:`otherCode` sections, the following parameters are no longer supported:
 
 * ``Header``
 * ``Index``
