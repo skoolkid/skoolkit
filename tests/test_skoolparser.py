@@ -1185,7 +1185,40 @@ class SkoolParserTest(SkoolKitTestCase):
 
         self.assertEqual(parser.instructions[24588][0].comment.text, '#FONT:')
 
-    def test_empty_description(self):
+    def test_entry_title(self):
+        title = 'This is an entry title'
+        skool = '\n'.join((
+            '; {}'.format(title),
+            'c30000 RET'
+        ))
+        parser = self._get_parser(skool, html=False)
+        self.assertEqual(parser.entries[30000].description, title)
+
+    def test_entry_description(self):
+        description = 'This is an entry description'
+        skool = '\n'.join((
+            '; Routine at 30000',
+            ';',
+            '; {}'.format(description),
+            'c30000 RET'
+        ))
+        parser = self._get_parser(skool, html=False)
+        self.assertEqual([description], parser.entries[30000].details)
+
+    def test_multi_paragraph_entry_description(self):
+        description = ['Paragraph 1', 'Paragraph 2']
+        skool = '\n'.join((
+            '; Test a multi-paragraph description',
+            ';',
+            '; {}'.format(description[0]),
+            '; .',
+            '; {}'.format(description[1]),
+            'c40000 RET'
+        ))
+        parser = self._get_parser(skool, html=False)
+        self.assertEqual(description, parser.entries[40000].details)
+
+    def test_empty_entry_description(self):
         skool = '\n'.join((
             '; Test an empty description',
             ';',
@@ -1332,6 +1365,54 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(registers[1].contents, 'Short register description')
         self.assertEqual(registers[2].name, 'HL')
         self.assertEqual(registers[2].contents, 'Another register description that is long enough to need splitting over two lines')
+
+    def test_empty_register_section(self):
+        skool = '\n'.join((
+            '; Title',
+            ';',
+            '; Description',
+            ';',
+            '; .',
+            ';',
+            '; Start comment.',
+            'c49152 RET'
+        ))
+        parser = self._get_parser(skool, html=False)
+        self.assertEqual([], parser.entries[49152].registers)
+
+    def test_start_comment(self):
+        exp_start_comment = 'This is a start comment.'
+        skool = '\n'.join((
+            '; Test a start comment',
+            ';',
+            '; .',
+            ';',
+            '; .',
+            ';',
+            '; {}'.format(exp_start_comment),
+            'c50000 RET'
+        ))
+        parser = self._get_parser(skool, html=False)
+        start_comment = parser.entries[50000].get_mid_routine_comment('c50000')
+        self.assertEqual([exp_start_comment], start_comment)
+
+    def test_multi_paragraph_start_comment(self):
+        exp_start_comment = ['First paragraph.', 'Second paragraph.']
+        skool = '\n'.join((
+            '; Test a multi-paragraph start comment',
+            ';',
+            '; .',
+            ';',
+            '; .',
+            ';',
+            '; {}'.format(exp_start_comment[0]),
+            '; .',
+            '; {}'.format(exp_start_comment[1]),
+            'c50000 RET'
+        ))
+        parser = self._get_parser(skool, html=False)
+        start_comment = parser.entries[50000].get_mid_routine_comment('c50000')
+        self.assertEqual(exp_start_comment, start_comment)
 
     def test_snapshot(self):
         skool = '\n'.join((

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -392,8 +392,9 @@ class SkoolParser:
             addr_str = instruction.addr_str
             ctl = instruction.ctl
             if ctl in DIRECTIVES:
-                desc, details, registers = self._parse_comment_block()
+                start_comment, desc, details, registers = self._parse_comment_block()
                 map_entry = SkoolEntry(address, addr_str, ctl, desc, details, registers)
+                map_entry.add_mid_routine_comment(instruction.label, start_comment)
                 map_entry.ignoreua.update(self.mode.entry_ignoreua)
                 self.mode.reset_entry_ignoreua()
                 self.entries[address] = map_entry
@@ -578,35 +579,37 @@ class SkoolParser:
                 return
 
     def _parse_comment_block(self):
-        sections = [[], [], []]
-        section_ignores = [False, False, False]
+        sections = [[], [], [], []]
+        section_ignores = [False] * len(sections)
         line_no = 0
         index = 0
         last_line = ""
         for line in self.comments:
-            if len(line) == 0:
-                if len(last_line) > 0:
+            if not line:
+                if last_line:
                     self._apply_ignores(section_ignores, index, line_no)
-                    index += 1
+                    index = min(index + 1, len(sections) - 1)
             else:
                 sections[index].append(line)
                 last_line = line
             line_no += 1
-        if index < 3:
-            self._apply_ignores(section_ignores, index, line_no)
+        self._apply_ignores(section_ignores, index, line_no)
         self.mode.entry_ignoreua['t'] = section_ignores[0]
         self.mode.entry_ignoreua['d'] = section_ignores[1]
         self.mode.entry_ignoreua['r'] = section_ignores[2]
         title = self._join_comments(sections[0])
         description = self._join_comments(sections[1], True)
         registers = self._parse_registers(sections[2])
-        return [title, description, registers]
+        start_comment = self._join_comments(sections[3], True)
+        return start_comment, title, description, registers
 
     def _parse_registers(self, lines):
         registers = []
         desc_lines = []
         for line in lines:
             s_line = line.strip()
+            if s_line == '.':
+                continue
             if desc_lines and s_line.startswith('.'):
                 desc_lines.append(s_line[1:].lstrip())
                 continue
