@@ -1380,6 +1380,40 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool, html=False)
         self.assertEqual([], parser.entries[49152].registers)
 
+    def test_registers_html_escape(self):
+        skool = '\n'.join((
+            '; Title',
+            ';',
+            '; Description',
+            ';',
+            '; A Some value > 4',
+            '; B Some value < 8',
+            'c49152 RET'
+        ))
+        parser = self._get_parser(skool, html=True)
+
+        registers = parser.entries[49152].registers
+        self.assertEqual(len(registers), 2)
+        self.assertEqual(registers[0].contents, 'Some value &gt; 4')
+        self.assertEqual(registers[1].contents, 'Some value &lt; 8')
+
+    def test_registers_html_no_escape(self):
+        skool = '\n'.join((
+            '; Title',
+            ';',
+            '; Description',
+            ';',
+            '; A Some value > 8',
+            '; B Some value < 10',
+            'c32768 RET'
+        ))
+        parser = self._get_parser(skool, html=False)
+
+        registers = parser.entries[32768].registers
+        self.assertEqual(len(registers), 2)
+        self.assertEqual(registers[0].contents, 'Some value > 8')
+        self.assertEqual(registers[1].contents, 'Some value < 10')
+
     def test_start_comment(self):
         exp_start_comment = 'This is a start comment.'
         skool = '\n'.join((

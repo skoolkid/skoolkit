@@ -2305,12 +2305,30 @@ class HtmlOutputTest(HtmlWriterTestCase):
 
     def test_html_escape(self):
         # Check that HTML characters from the skool file are escaped
-        skool = 't24576 DEFM "<&>" ; a <= b & b >= c'
+        skool = '\n'.join((
+            '; Save & quit',
+            ';',
+            '; This routine saves & quits.',
+            ';',
+            '; A Some value >= 5',
+            ';',
+            '; First we save & quit.',
+            'c24576 CALL 32768',
+            '; Message: <&>',
+            ' 24579 DEFM "<&>" ; a <= b & b >= c',
+            '; </done>'
+        ))
         writer = self._get_writer(skool=skool)
         writer.write_entry(ASMDIR, 0, writer.paths['MemoryMap'])
         html = self._read_file(join(ASMDIR, '24576.html'))
+        self.assertIn('Save &amp; quit', html)
+        self.assertIn('This routine saves &amp; quits.', html)
+        self.assertIn('Some value &gt;= 5', html)
+        self.assertIn('First we save &amp; quit.', html)
+        self.assertIn('Message: &lt;&amp;&gt;', html)
         self.assertIn('DEFM "&lt;&amp;&gt;"', html)
         self.assertIn('a &lt;= b &amp; b &gt;= c', html)
+        self.assertIn('&lt;/done&gt;', html)
 
     def test_html_no_escape(self):
         # Check that HTML characters from the ref file are not escaped
