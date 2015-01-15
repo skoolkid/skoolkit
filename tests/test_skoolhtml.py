@@ -3090,6 +3090,74 @@ class HtmlOutputTest(HtmlWriterTestCase):
             self._assert_title_equals(path, title, headers[entry_type])
             address += 1
 
+    def test_block_start_comment(self):
+        start_comment = ('Start comment paragraph 1.', 'Paragraph 2.')
+        skool = '\n'.join((
+            '; Routine with a start comment',
+            ';',
+            '; .',
+            ';',
+            '; .',
+            ';',
+            '; {}',
+            '; .',
+            '; {}',
+            'c40000 RET'
+        )).format(*start_comment)
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">40000: Routine with a start comment</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <a name="40000"></a>
+            <div class="comments">
+            <div class="paragraph">
+            {}
+            </div>
+            <div class="paragraph">
+            {}
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><a name="40000"></a>40000</td>
+            <td class="instruction">RET</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """.format(*start_comment)
+        subs = {
+            'name': basename(self.skoolfile)[:-6],
+            'path': '../',
+            'header': 'Routines',
+            'title': 'Routine at 40000',
+            'body_class': 'Asm-c',
+            'up': 40000,
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '40000.html'), subs)
+
     def test_asm_labels(self):
         skool = '\n'.join((
             '; Routine with a label',
