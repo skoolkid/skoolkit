@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2010-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -17,7 +17,9 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from . import write_line, parse_int, open_file
-from .skoolparser import (DIRECTIVES, parse_asm_block_directive, get_instruction_ctl,
+from .skoolparser import (DIRECTIVES, Comment, Register,
+                          parse_comment_block, join_comments,
+                          parse_asm_block_directive, get_instruction_ctl,
                           get_defb_length, get_defm_length, get_defs_length, get_defw_length)
 
 BLOCKS = 'b'
@@ -126,7 +128,11 @@ class CtlWriter:
         self._write_entry_ignoreua_directive(entry, REGISTERS)
         if REGISTERS in self.elements:
             for reg in entry.registers:
-                write_line('R {} {} {}'.format(address, reg.name, reg.contents).rstrip())
+                if reg.prefix:
+                    name = '{}:{}'.format(reg.prefix, reg.name)
+                else:
+                    name = reg.name
+                write_line('R {} {} {}'.format(address, name, reg.contents).rstrip())
 
         self.write_body(entry)
 
@@ -149,10 +155,10 @@ class CtlWriter:
             return
 
         # Split the entry into sections separated by mid-routine comments
-        sections = [('', [first_instruction])]
-        for instruction in entry.instructions[1:]:
+        sections = []
+        for instruction in entry.instructions:
             mrc = instruction.get_mid_routine_comment()
-            if mrc:
+            if mrc or not sections:
                 sections.append((mrc, [instruction]))
             else:
                 sections[-1][1].append(instruction)
@@ -164,7 +170,7 @@ class CtlWriter:
                 if first_instruction.ignoremrcua and self.write_asm_dirs:
                     self._write_asm_directive(AD_IGNOREUA, '{}:{}'.format(address_str, MID_BLOCK))
                 for paragraph in mrc:
-                    write_line('D {} {}'.format(address_str, paragraph))
+                    write_line('N {} {}'.format(address_str, paragraph))
 
             if SUBBLOCKS in self.elements:
                 sub_blocks = self.get_sub_blocks(instructions)
@@ -296,7 +302,7 @@ class SkoolParser:
                 instruction = None
                 if comments:
                     if map_entry:
-                        map_entry.end_comment = self._join_comments(comments, True)
+                        map_entry.end_comment = join_comments(comments, True)
                     else:
                         self.header += comments
                 # Process an '@end' directive if one was found
@@ -317,8 +323,9 @@ class SkoolParser:
             addr_str = instruction.addr_str
             ctl = instruction.ctl
             if ctl in DIRECTIVES:
-                desc, details, registers, ignoreua = self._parse_comment_block(comments, ignores)
-                map_entry = Entry(address, addr_str, ctl, desc, details, registers, ignoreua)
+                start_comment, desc, details, registers = parse_comment_block(comments, ignores, self.mode)
+                map_entry = Entry(address, addr_str, ctl, desc, details, registers, self.mode.entry_ignoreua)
+                map_entry.add_mid_routine_comment(instruction.label, start_comment)
                 self.mode.apply_entry_asm_directives(map_entry)
                 self.memory_map.append(map_entry)
                 comments[:] = []
@@ -330,7 +337,7 @@ class SkoolParser:
                 address_comments.append([instruction, address_comment])
                 map_entry.add_instruction(instruction)
                 if comments:
-                    mid_routine_comment = self._join_comments(comments, True)
+                    mid_routine_comment = join_comments(comments, True)
                     map_entry.add_mid_routine_comment(instruction.label, mid_routine_comment)
                     comments[:] = []
                     instruction.ignoremrcua = 0 in ignores
@@ -341,25 +348,10 @@ class SkoolParser:
             ignores[:] = []
 
         if comments and map_entry:
-            map_entry.end_comment = self._join_comments(comments, True)
+            map_entry.end_comment = join_comments(comments, True)
             map_entry.ignoreua[END] = len(ignores) > 0
 
         self._parse_address_comments(address_comments)
-
-    def _join_comments(self, comments, split=False):
-        sections = [[]]
-        for line in comments:
-            s_line = line.strip()
-            if split and s_line == '.':
-                sections.append([])
-            elif s_line:
-                sections[-1].append(s_line)
-        paragraphs = [" ".join(section) for section in sections if section]
-        if split:
-            return paragraphs
-        if paragraphs:
-            return paragraphs[0]
-        return ''
 
     def _parse_comment(self, line, comments, ignores):
         """Parses a comment line. Returns False if the line contains an ASM (@)
@@ -409,58 +401,6 @@ class SkoolParser:
         self.mode.apply_instruction_asm_directives(instruction)
         return instruction, address_comment
 
-    def _apply_ignores(self, ignores, section_ignores, index, line_no):
-        for i in ignores:
-            if i < line_no:
-                ignores.remove(i)
-                section_ignores[index] = True
-                return
-
-    def _parse_comment_block(self, comments, ignores):
-        sections = [[], [], []]
-        section_ignores = [False, False, False]
-        line_no = 0
-        index = 0
-        last_line = ""
-        for line in comments:
-            if len(line) == 0:
-                if len(last_line) > 0:
-                    self._apply_ignores(ignores, section_ignores, index, line_no)
-                    index += 1
-            else:
-                sections[index].append(line)
-                last_line = line
-            line_no += 1
-        if index < 3:
-            self._apply_ignores(ignores, section_ignores, index, line_no)
-        title = self._join_comments(sections[0])
-        description = self._join_comments(sections[1], True)
-        registers = self._parse_registers(sections[2])
-        return title, description, registers, section_ignores
-
-    def _parse_registers(self, lines):
-        registers = []
-        desc_lines = []
-        for line in lines:
-            s_line = line.strip()
-            if desc_lines and s_line.startswith('.'):
-                desc_lines.append(s_line[1:].lstrip())
-                continue
-            if desc_lines:
-                desc = (' '.join(desc_lines)).lstrip()
-                registers.append((reg, desc))
-                desc_lines[:] = []
-            elements = s_line.split(None, 1)
-            reg = elements[0]
-            if len(elements) > 1:
-                desc_lines.append(elements[1])
-            else:
-                desc_lines.append('')
-        if desc_lines:
-            desc = (' '.join(desc_lines)).lstrip()
-            registers.append((reg, desc))
-        return registers
-
     def _parse_address_comments(self, comments):
         i = 0
         while i < len(comments):
@@ -477,7 +417,7 @@ class SkoolParser:
             else:
                 comment_lines.append(comment)
             rowspan = len(comment_lines)
-            address_comment = self._join_comments(comment_lines).strip()
+            address_comment = join_comments(comment_lines).strip()
             instruction.set_comment(rowspan, address_comment)
             i += 1
 
@@ -486,6 +426,10 @@ class Mode:
         self.include = True
         self.instruction_asm_directives = []
         self.entry_asm_directives = []
+        self.entry_ignoreua = {}
+        self.html = False
+        self.lower = False
+        self.upper = False
 
     def add_instruction_asm_directive(self, directive, value=None):
         self.instruction_asm_directives.append((directive, value))
@@ -552,17 +496,17 @@ class Instruction:
         return self.container.get_mid_routine_comment(self.label)
 
 class Entry:
-    def __init__(self, address, addr_str=None, ctl=None, description=None, details=(), registers=(), ignoreua=()):
+    def __init__(self, address, addr_str, ctl, description, details, registers, ignoreua):
         self.address = address
         self.addr_str = addr_str
         self.ctl = ctl
         self.description = description
         self.details = details
-        self.registers = [Register(name, contents) for name, contents in registers]
+        self.registers = [Register(prefix, name, desc) for prefix, name, desc in registers]
         self.ignoreua = {
-            TITLE: ignoreua[0],
-            DESCRIPTION: ignoreua[1],
-            REGISTERS: ignoreua[2],
+            TITLE: ignoreua['t'],
+            DESCRIPTION: ignoreua['d'],
+            REGISTERS: ignoreua['r'],
             END: False
         }
         self.instructions = []
@@ -586,13 +530,3 @@ class Entry:
 
     def add_property(self, name, value):
         self.properties.append((name, value))
-
-class Register:
-    def __init__(self, name, contents):
-        self.name = name
-        self.contents = contents
-
-class Comment:
-    def __init__(self, rowspan, text):
-        self.rowspan = rowspan
-        self.text = text

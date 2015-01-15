@@ -262,6 +262,106 @@ def parse_asm_block_directive(directive, stack):
         return True
     return False
 
+def _html_escape(text):
+    chunks = []
+    while 1:
+        search = re.search('(#HTML[^A-Z]|#FONT:.)', text)
+        if not search:
+            break
+        start, index = search.span()
+        delim1 = search.group()[-1]
+        delim2 = DELIMITERS.get(delim1, delim1)
+        end = text.find(delim2, index) + 1
+        if end < index:
+            end = len(text)
+        chunks.append(cgi.escape(text[:start]))
+        chunks.append(text[start:end])
+        text = text[end:]
+    chunks.append(cgi.escape(text))
+    return ''.join(chunks)
+
+def join_comments(comments, split=False, html=False):
+    sections = [[]]
+    for line in comments:
+        s_line = line.strip()
+        if split and s_line == '.':
+            sections.append([])
+        elif s_line:
+            sections[-1].append(s_line)
+    paragraphs = [" ".join(section) for section in sections if section]
+    if html:
+        paragraphs = [_html_escape(p) for p in paragraphs]
+    if split:
+        return paragraphs
+    if paragraphs:
+        return paragraphs[0]
+    return ''
+
+def _apply_ignores(ignores, section_ignores, index, line_no):
+    for i in ignores:
+        if i < line_no:
+            ignores.remove(i)
+            section_ignores[index] = True
+            return
+
+def _parse_registers(lines, mode):
+    registers = []
+    desc_lines = []
+    for line in lines:
+        s_line = line.strip()
+        if s_line == '.':
+            continue
+        if desc_lines and s_line.startswith('.'):
+            desc_lines.append(s_line[1:].lstrip())
+            continue
+        if desc_lines:
+            desc = ' '.join(desc_lines).lstrip()
+            registers.append((prefix, reg, desc))
+            desc_lines[:] = []
+        prefix = ''
+        elements = s_line.split(None, 1)
+        reg = elements[0]
+        if len(elements) > 1:
+            desc_lines.append(elements[1])
+        else:
+            desc_lines.append('')
+        if ':' in reg:
+            prefix, reg = reg.split(':', 1)
+        if mode.lower:
+            reg = reg.lower()
+        elif mode.upper:
+            reg = reg.upper()
+    if desc_lines:
+        desc = ' '.join(desc_lines).lstrip()
+        registers.append((prefix, reg, desc))
+    if mode.html:
+        return [(prefix, reg, _html_escape(desc)) for prefix, reg, desc in registers]
+    return registers
+
+def parse_comment_block(comments, ignores, mode):
+    sections = [[], [], [], []]
+    section_ignores = [False] * len(sections)
+    line_no = 0
+    index = 0
+    last_line = ""
+    for line in comments:
+        if line:
+            sections[index].append(line)
+            last_line = line
+        elif last_line:
+            _apply_ignores(ignores, section_ignores, index, line_no)
+            index = min(index + 1, len(sections) - 1)
+        line_no += 1
+    _apply_ignores(ignores, section_ignores, index, line_no)
+    mode.entry_ignoreua['t'] = section_ignores[0]
+    mode.entry_ignoreua['d'] = section_ignores[1]
+    mode.entry_ignoreua['r'] = section_ignores[2]
+    title = join_comments(sections[0], html=mode.html)
+    description = join_comments(sections[1], split=True, html=mode.html)
+    registers = _parse_registers(sections[2], mode)
+    start_comment = join_comments(sections[3], split=True, html=mode.html)
+    return start_comment, title, description, registers
+
 class SkoolParser:
     """Parses a `skool` file.
 
@@ -392,7 +492,7 @@ class SkoolParser:
             addr_str = instruction.addr_str
             ctl = instruction.ctl
             if ctl in DIRECTIVES:
-                start_comment, desc, details, registers = self._parse_comment_block()
+                start_comment, desc, details, registers = parse_comment_block(self.comments, self.ignores, self.mode)
                 map_entry = SkoolEntry(address, addr_str, ctl, desc, details, registers)
                 map_entry.add_mid_routine_comment(instruction.label, start_comment)
                 map_entry.ignoreua.update(self.mode.entry_ignoreua)
@@ -414,7 +514,7 @@ class SkoolParser:
                 instructions.append(instruction)
                 map_entry.add_instruction(instruction)
                 if self.comments:
-                    mid_routine_comment = self._join_comments(self.comments, True)
+                    mid_routine_comment = join_comments(self.comments, split=True, html=self.mode.html)
                     map_entry.add_mid_routine_comment(instruction.label, mid_routine_comment)
                     self.comments[:] = []
                     self.mode.ignoremrcua = 0 in self.ignores
@@ -442,43 +542,8 @@ class SkoolParser:
             self._substitute_labels()
 
     def _add_end_comment(self, map_entry):
-        map_entry.end_comment = self._join_comments(self.comments, True)
+        map_entry.end_comment = join_comments(self.comments, split=True, html=self.mode.html)
         map_entry.ignoreua['e'] = len(self.ignores) > 0
-
-    def _join_comments(self, comments, split=False):
-        sections = [[]]
-        for line in comments:
-            s_line = line.strip()
-            if split and s_line == '.':
-                sections.append([])
-            elif s_line:
-                sections[-1].append(s_line)
-        paragraphs = [" ".join(line for line in section) for section in sections if section]
-        if self.mode.html:
-            paragraphs = [self._html_escape(p) for p in paragraphs]
-        if split:
-            return paragraphs
-        if paragraphs:
-            return paragraphs[0]
-        return ''
-
-    def _html_escape(self, text):
-        chunks = []
-        while 1:
-            search = re.search('(#HTML[^A-Z]|#FONT:.)', text)
-            if not search:
-                break
-            start, index = search.span()
-            delim1 = search.group()[-1]
-            delim2 = DELIMITERS.get(delim1, delim1)
-            end = text.find(delim2, index) + 1
-            if end < index:
-                end = len(text)
-            chunks.append(cgi.escape(text[:start]))
-            chunks.append(text[start:end])
-            text = text[end:]
-        chunks.append(cgi.escape(text))
-        return ''.join(chunks)
 
     def _parse_comment(self, line):
         """Parse a comment line. Return False if the line contains an ASM (@)
@@ -571,70 +636,6 @@ class SkoolParser:
         instruction = Instruction(ctl + addr_str, address, operation)
         return instruction, address_comment
 
-    def _apply_ignores(self, section_ignores, index, line_no):
-        for i in self.ignores:
-            if i < line_no:
-                self.ignores.remove(i)
-                section_ignores[index] = True
-                return
-
-    def _parse_comment_block(self):
-        sections = [[], [], [], []]
-        section_ignores = [False] * len(sections)
-        line_no = 0
-        index = 0
-        last_line = ""
-        for line in self.comments:
-            if not line:
-                if last_line:
-                    self._apply_ignores(section_ignores, index, line_no)
-                    index = min(index + 1, len(sections) - 1)
-            else:
-                sections[index].append(line)
-                last_line = line
-            line_no += 1
-        self._apply_ignores(section_ignores, index, line_no)
-        self.mode.entry_ignoreua['t'] = section_ignores[0]
-        self.mode.entry_ignoreua['d'] = section_ignores[1]
-        self.mode.entry_ignoreua['r'] = section_ignores[2]
-        title = self._join_comments(sections[0])
-        description = self._join_comments(sections[1], True)
-        registers = self._parse_registers(sections[2])
-        start_comment = self._join_comments(sections[3], True)
-        return start_comment, title, description, registers
-
-    def _parse_registers(self, lines):
-        registers = []
-        desc_lines = []
-        for line in lines:
-            s_line = line.strip()
-            if s_line == '.':
-                continue
-            if desc_lines and s_line.startswith('.'):
-                desc_lines.append(s_line[1:].lstrip())
-                continue
-            if desc_lines:
-                desc = (' '.join(desc_lines)).lstrip()
-                registers.append((prefix, reg, desc))
-                desc_lines[:] = []
-            prefix = ''
-            elements = s_line.split(None, 1)
-            reg = elements[0]
-            if len(elements) > 1:
-                desc_lines.append(elements[1])
-            else:
-                desc_lines.append('')
-            if ':' in reg:
-                prefix, reg = reg.split(':', 1)
-            if self.mode.lower:
-                reg = reg.lower()
-            elif self.mode.upper:
-                reg = reg.upper()
-        if desc_lines:
-            desc = (' '.join(desc_lines)).lstrip()
-            registers.append((prefix, reg, desc))
-        return registers
-
     def _parse_address_comments(self, comments):
         i = 0
         while i < len(comments):
@@ -651,7 +652,7 @@ class SkoolParser:
             else:
                 comment_lines.append(comment)
             rowspan = len(comment_lines)
-            address_comment = self._join_comments(comment_lines).strip()
+            address_comment = join_comments(comment_lines, html=self.mode.html).strip()
             instruction.set_comment(rowspan, address_comment)
             i += 1
 

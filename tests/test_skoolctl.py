@@ -194,7 +194,7 @@ B 32769,2,2 1-line B sub-block
 ; @nowarn:32771
 ; @isub:32772=DEFB 0,1
 B 32771,3,1,2 2-line B sub-block
-D 32774 Mid-block comment
+N 32774 Mid-block comment
 T 32774,5,5 T sub-block
 ; @keep:32779
 W 32779,2,2 W sub-block
@@ -284,7 +284,7 @@ B $8001,2,2 1-line B sub-block
 ; @nowarn:$8003
 ; @isub:$8004=DEFB 0,1
 B $8003,3,1,2 2-line B sub-block
-D $8006 Mid-block comment
+N $8006 Mid-block comment
 T $8006,5,5 T sub-block
 ; @keep:$800B
 W $800B,2,2 W sub-block
@@ -544,7 +544,7 @@ class CtlWriterTest(SkoolKitTestCase):
         for line in TEST_CTL:
             if line[0] in DIRECTIVES:
                 test_ctl.append(line[:7])
-            elif line[0] in 'DE' and not line.startswith('D 32768'):
+            elif line[0] in 'NE':
                 test_ctl.append(line)
         self.assertEqual(test_ctl, ctl)
 
@@ -665,14 +665,14 @@ class CtlWriterTest(SkoolKitTestCase):
             '  30001 Instruction-level comment at 30001',
             'c 30002 Routine',
             '; @ignoreua:30003:m',
-            'D 30003 Mid-block comment above 30003.',
+            'N 30003 Mid-block comment above 30003.',
             '; @ignoreua:30003:i',
             '  30003 Instruction-level comment at 30003',
             'c 30004 Routine',
             '; @ignoreua:30004:i',
             '  30004,1 Instruction-level comment at 30004',
             '; @ignoreua:30005:m',
-            'D 30005 Mid-block comment above 30005.',
+            'N 30005 Mid-block comment above 30005.',
             '; @ignoreua:30004:e',
             'E 30004 End comment for the routine at 30004.'
         ]
@@ -707,7 +707,7 @@ class CtlWriterTest(SkoolKitTestCase):
             '; @ignoreua:$9C40:i',
             '  $9C40,1 Instruction-level comment at 40000',
             '; @ignoreua:$9C41:m',
-            'D $9C41 Mid-block comment above 40001.',
+            'N $9C41 Mid-block comment above 40001.',
             '; @ignoreua:$9C40:e',
             'E $9C40 End comment for the routine at 40000.'
         ]
@@ -734,6 +734,68 @@ class CtlWriterTest(SkoolKitTestCase):
             'R 40000 DE Short register description',
             'R 40000 HL Another register description that is long enough to need splitting over two lines',
             'R 40000 IX'
+        ]
+        ctl = self._get_ctl(skool=skool)
+        self.assertEqual(exp_ctl, ctl)
+
+    def test_register_prefixes(self):
+        skool = '\n'.join((
+            '; Test registers with prefixes',
+            ';',
+            '; .',
+            ';',
+            '; Input:A Some value',
+            ';       B Some other value',
+            '; Output:HL The result',
+            'c24576 RET'
+        ))
+        exp_ctl = [
+            'c 24576 Test registers with prefixes',
+            'R 24576 Input:A Some value',
+            'R 24576 B Some other value',
+            'R 24576 Output:HL The result'
+        ]
+        ctl = self._get_ctl(skool=skool)
+        self.assertEqual(exp_ctl, ctl)
+
+    def test_start_comment(self):
+        start_comment = 'This is a start comment.'
+        skool = '\n'.join((
+            '; Routine',
+            ';',
+            '; Description',
+            ';',
+            '; .',
+            ';',
+            '; {}'.format(start_comment),
+            'c50000 RET'
+        ))
+        exp_ctl = [
+            'c 50000 Routine',
+            'D 50000 Description',
+            'N 50000 {}'.format(start_comment)
+        ]
+        ctl = self._get_ctl(skool=skool)
+        self.assertEqual(exp_ctl, ctl)
+
+    def test_multi_paragraph_start_comment(self):
+        start_comment = ('Start comment paragraph 1.', 'Paragraph 2.')
+        skool = '\n'.join((
+            '; Routine',
+            ';',
+            '; .',
+            ';',
+            '; .',
+            ';',
+            '; {}',
+            '; .',
+            '; {}',
+            'c60000 RET'
+        )).format(*start_comment)
+        exp_ctl = [
+            'c 60000 Routine',
+            'N 60000 {}'.format(start_comment[0]),
+            'N 60000 {}'.format(start_comment[1])
         ]
         ctl = self._get_ctl(skool=skool)
         self.assertEqual(exp_ctl, ctl)
