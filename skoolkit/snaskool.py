@@ -767,13 +767,15 @@ class SkoolWriter:
         for block in entry.bad_blocks:
             warn('Code block at {} overlaps the following block at {}'.format(self.address_str(block.start, False), self.address_str(block.end, False)))
 
-        if entry.title:
-            self.write_comment(entry.title)
-            wrote_desc = self._write_entry_description(entry, write_refs)
-            if entry.registers:
-                self._write_registers(entry, wrote_desc)
+        self.write_comment(entry.title)
+        wrote_desc = self._write_entry_description(entry, write_refs)
+        if entry.registers:
+            if not wrote_desc:
+                self._write_empty_paragraph()
+                wrote_desc = True
+            self._write_registers(entry)
 
-        self._write_body(entry, write_refs, show_text)
+        self._write_body(entry, wrote_desc, write_refs, show_text)
 
         if self.ctl_parser.has_ignoreua_directive(entry.address, END):
             self.write_asm_directive(AD_IGNOREUA)
@@ -794,7 +796,7 @@ class SkoolWriter:
                 wrote_desc = True
         if entry.description:
             if wrote_desc:
-                self.write_comment('.')
+                self._write_paragraph_separator()
             else:
                 self.write_comment('')
                 if ignoreua_d:
@@ -803,10 +805,7 @@ class SkoolWriter:
             wrote_desc = True
         return wrote_desc
 
-    def _write_registers(self, entry, wrote_desc):
-        if not wrote_desc:
-            self.write_comment('')
-            self.write_comment('.')
+    def _write_registers(self, entry):
         self.write_comment('')
         if self.ctl_parser.has_ignoreua_directive(entry.address, REGISTERS):
             self.write_asm_directive(AD_IGNOREUA)
@@ -821,7 +820,7 @@ class SkoolWriter:
             else:
                 write_line('; {}'.format(reg))
 
-    def _write_body(self, entry, write_refs, show_text):
+    def _write_body(self, entry, wrote_desc, write_refs, show_text):
         op_width = max((OP_WIDTH, entry.width()))
         line_width = op_width + 8
         first_block = True
@@ -836,8 +835,14 @@ class SkoolWriter:
                     self.write_referrers(EREFS_PREFIX, referrers)
                     begun_header = True
             if block.header:
+                if first_block:
+                    if not wrote_desc:
+                        self._write_empty_paragraph()
+                    if not entry.registers:
+                        self._write_empty_paragraph()
+                    self.write_comment('')
                 if begun_header:
-                    self.write_comment('.')
+                    self._write_paragraph_separator()
                 elif ignoreua_m:
                     self.write_asm_directive(AD_IGNOREUA)
                 self.write_paragraphs(block.header)
@@ -889,11 +894,18 @@ class SkoolWriter:
         else:
             write_line(';')
 
+    def _write_empty_paragraph(self):
+        self.write_comment('')
+        self.write_comment('.')
+
+    def _write_paragraph_separator(self):
+        self.write_comment('.')
+
     def write_paragraphs(self, paragraphs):
         if paragraphs:
             for p in paragraphs[:-1]:
                 self.write_comment(p)
-                self.write_comment('.')
+                self._write_paragraph_separator()
             self.write_comment(paragraphs[-1])
 
     def write_referrers(self, prefix, referrers):

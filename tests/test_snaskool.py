@@ -930,6 +930,52 @@ class SkoolWriterTest(SkoolKitTestCase):
         skool = self.out.getvalue().split('\n')[:-2]
         self.assertEqual(exp_skool, skool[6:])
 
+    def test_start_comment(self):
+        ctl = '\n'.join((
+            'c 00000',
+            'N 00000 Start comment.',
+            'i 00001'
+        ))
+        exp_skool = [
+            '; Routine at 0',
+            ';',
+            '; .',
+            ';',
+            '; .',
+            ';',
+            '; Start comment.',
+            'c00000 NOP           ;'
+        ]
+        writer = self._get_writer([0], ctl)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')[:-2]
+        self.assertEqual(exp_skool, skool[2:])
+
+    def test_multi_paragraph_start_comment(self):
+        ctl = '\n'.join((
+            'c 00000 Routine',
+            'D 00000 Description.',
+            'N 00000 Start comment paragraph 1.',
+            'N 00000 Paragraph 2.',
+            'i 00001'
+        ))
+        exp_skool = [
+            '; Routine',
+            ';',
+            '; Description.',
+            ';',
+            '; .',
+            ';',
+            '; Start comment paragraph 1.',
+            '; .',
+            '; Paragraph 2.',
+            'c00000 NOP           ;'
+        ]
+        writer = self._get_writer([0], ctl)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')[:-2]
+        self.assertEqual(exp_skool, skool[2:])
+
     def test_loop(self):
         ctl = '\n'.join((
             'b 00000 Two bytes and one word, times ten',
