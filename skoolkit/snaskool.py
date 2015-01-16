@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -553,7 +553,7 @@ def generate_ctls(snapshot, start, code_map):
     return ctls
 
 class Entry:
-    def __init__(self, title, ctl, blocks, registers, end_comment, asm_directives):
+    def __init__(self, title, description, ctl, blocks, registers, end_comment, asm_directives):
         self.title = title
         self.ctl = ctl
         self.blocks = blocks
@@ -583,8 +583,7 @@ class Entry:
             elif directive.startswith(AD_SET):
                 self.properties.append((directive[len(AD_SET):], value))
         self.address = first_instruction.address
-        self.description = blocks[0].header
-        blocks[0].header = None
+        self.description = description
         self.next = None
         self.bad_blocks = []
         for block in self.blocks:
@@ -664,7 +663,7 @@ class Disassembly:
                         address += length
                 else:
                     instructions = self.disassembler.ignore(sub_block.start, sub_block.end)
-                sub_block.header = self.ctl_parser.get_block_comment(sub_block.start)
+                sub_block.header = self.ctl_parser.get_mid_block_comment(sub_block.start)
                 sub_block.comment = self.ctl_parser.get_instruction_comment(sub_block.start)
                 sub_block.instructions = instructions
                 for instruction in instructions:
@@ -685,10 +684,11 @@ class Disassembly:
                         sub_block.end = block.end
                         i += 1
 
+            description = self.ctl_parser.get_description(block.start)
             registers = self.ctl_parser.get_registers(block.start)
             end_comment = self.ctl_parser.get_end_comment(block.start)
             asm_directives = self.ctl_parser.get_entry_asm_directives(block.start)
-            entry = Entry(title, block.ctl, sub_blocks, registers, end_comment, asm_directives)
+            entry = Entry(title, description, block.ctl, sub_blocks, registers, end_comment, asm_directives)
             self.entry_map[entry.address] = entry
             self.entries.append(entry)
         for i, entry in enumerate(self.entries[1:]):

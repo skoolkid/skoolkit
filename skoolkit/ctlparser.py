@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -69,8 +69,9 @@ class CtlParser:
         self.subctls = {}
         self.titles = {}
         self.instruction_comments = {}
-        self.comments = {}
+        self.descriptions = {}
         self.registers = {}
+        self.mid_block_comments = {}
         self.end_comments = {}
         self.lengths = {}
         self.multiline_comments = {}
@@ -97,8 +98,11 @@ class CtlParser:
                     self.ctls[start] = ctl
                     entry_ctl = ctl
                     self.titles[start] = text
-                elif ctl == 'D':
-                    self.comments.setdefault(start, []).append(text)
+                elif ctl in 'D':
+                    self.descriptions.setdefault(start, []).append(text)
+                    self.subctls.setdefault(start, None)
+                elif ctl in 'N':
+                    self.mid_block_comments.setdefault(start, []).append(text)
                     self.subctls.setdefault(start, None)
                 elif ctl == 'E':
                     self.end_comments.setdefault(start, []).append(text)
@@ -136,6 +140,12 @@ class CtlParser:
                 else:
                     self.instruction_asm_directives.setdefault(address, []).append((directive, value))
         f.close()
+
+        # Relocate mid-block comments declared with a 'D' directive
+        for address in self.descriptions:
+            if address not in self.ctls:
+                self.mid_block_comments[address] = self.descriptions[address]
+
         self._unroll_loops()
 
     def _parse_ctl_line(self, line, entry_ctl):
@@ -144,7 +154,7 @@ class CtlParser:
         first_char = line[0]
         content = line[1:].lstrip()
         if content:
-            if first_char in ' bBcCDEgiLMRsStTuwW':
+            if first_char in ' bBcCDEgiLMNRsStTuwW':
                 fields = content.split(' ', 1)
                 ctl = first_char
                 if ctl == ' ':
@@ -213,18 +223,12 @@ class CtlParser:
 
     def _unroll_loops(self):
         for start, end, count, repeat_entries in self.loops:
-            for directives in (self.subctls, self.instruction_comments, self.lengths):
+            for directives in (self.subctls, self.mid_block_comments, self.instruction_comments, self.lengths):
                 self._repeat_directives(directives, start, end, count)
             self._repeat_multiline_comments(start, end, count)
-            mid_block_comments = {k: v for k, v in self.comments.items() if start <= k <= end and k not in self.ctls}
-            self._repeat_directives(mid_block_comments, start, end, count)
-            self.comments.update(mid_block_comments)
             if repeat_entries:
-                for directives in (self.ctls, self.titles, self.registers, self.end_comments):
+                for directives in (self.ctls, self.titles, self.descriptions, self.registers, self.end_comments):
                     self._repeat_directives(directives, start, end, count)
-                entry_descriptions = {k: v for k, v in self.comments.items() if start <= k <= end and k in self.ctls}
-                self._repeat_directives(entry_descriptions, start, end, count)
-                self.comments.update(entry_descriptions)
 
     def _repeat_directives(self, directives, start, end, count):
         interval = end - start + 1
@@ -244,11 +248,14 @@ class CtlParser:
     def get_block_title(self, address):
         return self.titles.get(address)
 
-    def get_block_comment(self, address):
-        return self.comments.get(address, ())
+    def get_description(self, address):
+        return self.descriptions.get(address, ())
 
     def get_registers(self, address):
         return self.registers.get(address, ())
+
+    def get_mid_block_comment(self, address):
+        return self.mid_block_comments.get(address, ())
 
     def get_instruction_comment(self, address):
         return self.instruction_comments.get(address) or ''

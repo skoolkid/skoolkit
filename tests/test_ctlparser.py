@@ -121,10 +121,10 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self.assertEqual(exp_instruction_comments, ctl_parser.instruction_comments)
 
-        exp_comments = {
+        exp_descriptions = {
             30100: ['Description of routine at 30100']
         }
-        self.assertEqual(exp_comments, ctl_parser.comments)
+        self.assertEqual(exp_descriptions, ctl_parser.descriptions)
 
         exp_registers = {
             30100: [['A', 'Some value'], ['BC', 'Some other value']]
@@ -390,6 +390,20 @@ class CtlParserTest(SkoolKitTestCase):
         ]
         self.assertEqual(exp_registers, ctl_parser.get_registers(40000))
 
+    def test_N_directive(self):
+        ctl = '\n'.join((
+            'c 40000 Routine',
+            'D 40000 Description.',
+            'N 40000 Paragraph 1.',
+            'N 40000 Paragraph 2.',
+            'N 40001 Mid-routine comment.'
+        ))
+        ctl_parser = self._get_ctl_parser(ctl)
+
+        self.assertEqual(['Description.'], ctl_parser.get_description(40000))
+        self.assertEqual(['Paragraph 1.', 'Paragraph 2.'], ctl_parser.get_mid_block_comment(40000))
+        self.assertEqual(['Mid-routine comment.'], ctl_parser.get_mid_block_comment(40001))
+
     def test_loop(self):
         start = 30000
         length = 25
@@ -427,55 +441,43 @@ class CtlParserTest(SkoolKitTestCase):
                 self.assertIn(address, ctl_parser.subctls)
                 self.assertEqual(ctl_parser.subctls[address], subctl.lower())
                 if lengths is None:
-                    self.assertNotIn(address, ctl_parser.lengths)
+                    self.assertIsNone(ctl_parser.get_lengths(address))
                 else:
-                    self.assertEqual(lengths, ctl_parser.lengths[address])
+                    self.assertEqual(lengths, ctl_parser.get_lengths(address))
 
         # Check mid-block comments
         offset = 10
         for a in range(start + offset, end, length):
-            self.assertIn(a, ctl_parser.comments)
-            self.assertEqual(['A mid-block comment'], ctl_parser.comments[a])
+            self.assertEqual(['A mid-block comment'], ctl_parser.get_mid_block_comment(a))
 
         # Check multi-line comments
         offset = 10
         for a in range(start + offset, end, length):
-            self.assertIn(a, ctl_parser.multiline_comments)
-            self.assertEqual((a + 9, 'A multi-line comment'), ctl_parser.multiline_comments[a])
+            self.assertEqual((a + 9, 'A multi-line comment'), ctl_parser.get_multiline_comment(a))
 
         # Check entry-level directives (c, D, E, R)
         ctls = ctl_parser.ctls
-        comments = ctl_parser.comments
-        registers = ctl_parser.registers
-        end_comments = ctl_parser.end_comments
         self.assertIn(start, ctls)
         self.assertEqual(ctls[start], 'c')
-        self.assertIn(start, comments)
-        self.assertEqual(['This entry description should not be repeated'], comments[start])
-        self.assertIn(start, registers)
-        self.assertEqual([['HL', 'This register should not be repeated']], registers[start])
-        self.assertIn(start, end_comments)
-        self.assertEqual(['This end comment should not be repeated'], end_comments[start])
+        self.assertEqual(['This entry description should not be repeated'], ctl_parser.get_description(start))
+        self.assertEqual([['HL', 'This register should not be repeated']], ctl_parser.get_registers(start))
+        self.assertEqual(['This end comment should not be repeated'], ctl_parser.get_end_comment(start))
         for a in range(start + length, end, length):
             self.assertNotIn(a, ctls)
-            self.assertNotIn(a, comments)
-            self.assertNotIn(a, registers)
-            self.assertNotIn(a, end_comments)
+            self.assertEqual((), ctl_parser.get_description(a))
+            self.assertEqual((), ctl_parser.get_registers(a))
+            self.assertEqual((), ctl_parser.get_end_comment(a))
 
         # Check entry-level ASM directives
-        entry_asm_dirs = ctl_parser.entry_asm_directives
-        self.assertIn(start, entry_asm_dirs)
-        self.assertEqual([('start', None), ('org', '30000')], entry_asm_dirs[start])
+        self.assertEqual([('start', None), ('org', '30000')], ctl_parser.get_entry_asm_directives(start))
         for a in range(start + length, end, length):
-            self.assertNotIn(a, entry_asm_dirs)
+            self.assertEqual((), ctl_parser.get_entry_asm_directives(a))
 
         # Check instruction-level ASM directives
         offset = 20
-        asm_dirs = ctl_parser.instruction_asm_directives
-        self.assertIn(start + offset, asm_dirs)
-        self.assertEqual([('label', 'END')], asm_dirs[start + offset])
+        self.assertEqual([('label', 'END')], ctl_parser.get_instruction_asm_directives(start + offset))
         for a in range(start + offset + length, end, length):
-            self.assertNotIn(a, asm_dirs)
+            self.assertEqual((), ctl_parser.get_instruction_asm_directives(a))
 
     def test_loop_including_entries(self):
         start = 40000
@@ -521,8 +523,7 @@ class CtlParserTest(SkoolKitTestCase):
         # Check mid-block comments
         offset = 10
         for a in range(start + offset, end, length):
-            self.assertIn(a, ctl_parser.comments)
-            self.assertEqual(['A mid-block comment'], ctl_parser.comments[a])
+            self.assertEqual(['A mid-block comment'], ctl_parser.get_mid_block_comment(a))
 
         # Check multi-line comments
         offset = 10
@@ -532,33 +533,23 @@ class CtlParserTest(SkoolKitTestCase):
 
         # Check entry-level directives (c, D, E, R)
         ctls = ctl_parser.ctls
-        comments = ctl_parser.comments
-        registers = ctl_parser.registers
-        end_comments = ctl_parser.end_comments
         for a in range(start, end, length):
             self.assertIn(a, ctls)
             self.assertEqual(ctls[a], 'c')
-            self.assertIn(a, comments)
-            self.assertEqual(['This entry description should be repeated'], comments[a])
-            self.assertIn(a, registers)
-            self.assertEqual([['HL', 'This register should be repeated']], registers[a])
-            self.assertIn(a, end_comments)
-            self.assertEqual(['This end comment should be repeated'], end_comments[a])
+            self.assertEqual(['This entry description should be repeated'], ctl_parser.get_description(a))
+            self.assertEqual([['HL', 'This register should be repeated']], ctl_parser.get_registers(a))
+            self.assertEqual(['This end comment should be repeated'], ctl_parser.get_end_comment(a))
 
         # Check entry-level ASM directives
-        entry_asm_dirs = ctl_parser.entry_asm_directives
-        self.assertIn(start, entry_asm_dirs)
-        self.assertEqual([('start', None), ('org', '40000')], entry_asm_dirs[start])
+        self.assertEqual([('start', None), ('org', '40000')], ctl_parser.get_entry_asm_directives(start))
         for a in range(start + length, end, length):
-            self.assertNotIn(a, entry_asm_dirs)
+            self.assertEqual((), ctl_parser.get_entry_asm_directives(a))
 
         # Check instruction-level ASM directives
         offset = 20
-        asm_dirs = ctl_parser.instruction_asm_directives
-        self.assertIn(start + offset, asm_dirs)
-        self.assertEqual([('label', 'END')], asm_dirs[start + offset])
+        self.assertEqual([('label', 'END')], ctl_parser.get_instruction_asm_directives(start + offset))
         for a in range(start + offset + length, end, length):
-            self.assertNotIn(a, asm_dirs)
+            self.assertEqual((), ctl_parser.get_instruction_asm_directives(a))
 
     def test_loop_crossing_64k_boundary(self):
         ctl = '\n'.join((

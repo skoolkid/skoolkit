@@ -233,7 +233,7 @@ class DisassemblyTest(SkoolKitTestCase):
         blocks = entry.blocks
         self.assertEqual(len(blocks), 1)
         block = blocks[0]
-        self.assertEqual(block.header, None)
+        self.assertEqual(block.header, ())
         self.assertEqual(block.comment, 'This is an instruction-level comment that spans two instructions')
         self.assertEqual(block.instructions, entry.instructions)
         self.assertEqual(block.end, 32770)
