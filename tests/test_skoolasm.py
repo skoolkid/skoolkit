@@ -1378,6 +1378,54 @@ class AsmWriterTest(SkoolKitTestCase):
             self.assertEqual(asm[line_no], '; {} Some value'.format(reg_name))
             line_no += 5
 
+    def test_start_comment(self):
+        start_comment = 'This is a start comment.'
+        skool = '\n'.join((
+            '; @start',
+            '; Test a start comment',
+            ';',
+            '; .',
+            ';',
+            '; .',
+            ';',
+            '; {}'.format(start_comment),
+            'c50000 RET'
+        ))
+        exp_asm = [
+            '; Test a start comment',
+            ';',
+            '; {}'.format(start_comment),
+            '  RET'
+        ]
+        asm = self._get_asm(skool)
+        self.assertEqual(exp_asm, asm[:len(exp_asm)])
+
+    def test_multi_paragraph_start_comment(self):
+        start_comment = ('First paragraph.', 'Second paragraph.')
+        skool = '\n'.join((
+            '; @start',
+            '; Test a multi-paragraph start comment',
+            ';',
+            '; .',
+            ';',
+            '; .',
+            ';',
+            '; {}'.format(start_comment[0]),
+            '; .',
+            '; {}'.format(start_comment[1]),
+            'c50000 RET'
+        ))
+        exp_asm = [
+            '; Test a multi-paragraph start comment',
+            ';',
+            '; {}'.format(start_comment[0]),
+            ';',
+            '; {}'.format(start_comment[1]),
+            '  RET'
+        ]
+        asm = self._get_asm(skool)
+        self.assertEqual(exp_asm, asm[:len(exp_asm)])
+
     def test_defm_upper(self):
         skool = '\n'.join((
             '; @start',

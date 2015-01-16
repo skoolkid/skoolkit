@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -395,9 +395,11 @@ class AsmWriter:
             else:
                 self.write_line('; {}'.format(reg_label))
 
-    def print_instruction_prefix(self, instruction):
+    def print_instruction_prefix(self, instruction, index):
         mid_routine_comment = instruction.get_mid_routine_comment()
         if mid_routine_comment:
+            if index == 0:
+                self.write_line(';')
             self.print_comment_lines(mid_routine_comment, instruction)
         if instruction.asm_label:
             self.write_line("{0}{1}".format(instruction.asm_label, self.label_suffix))
@@ -427,7 +429,7 @@ class AsmWriter:
             # instruction
             if lines or rowspan > 0:
                 if rowspan > 0:
-                    self.print_instruction_prefix(instruction)
+                    self.print_instruction_prefix(instruction, i)
                     operation = instruction.operation
                     rowspan -= 1
                     i += 1
