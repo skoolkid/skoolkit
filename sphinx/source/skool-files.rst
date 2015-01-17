@@ -17,7 +17,7 @@ correctly by :ref:`skool2html.py`, :ref:`skool2asm.py`, :ref:`skool2ctl.py` and
 * entries (an 'entry' being a routine or data block) must be separated by
   blank lines, and an entry must not contain any blank lines
 
-* an entry header is a sequence of comment lines broken into three sections;
+* an entry header is a sequence of comment lines broken into four sections;
   see :ref:`entryHeaderFormat`
 
 * each line in an entry may start with one of the following characters:
@@ -29,15 +29,16 @@ correctly by :ref:`skool2html.py`, :ref:`skool2asm.py`, :ref:`skool2ctl.py` and
 
 Entry header format
 ^^^^^^^^^^^^^^^^^^^
-An entry header is a sequence of comment lines broken into three sections:
+An entry header is a sequence of comment lines broken into four sections:
 
 * entry title
 * entry description (optional)
 * registers (optional)
+* start comment (optional)
 
 The sections are separated by an empty comment line, and paragraphs within
-the entry description must be separated by a comment line containing a dot
-(``.``) on its own. For example::
+the entry description and start comment must be separated by a comment line
+containing a dot (``.``) on its own. For example::
 
   ; This is the entry title
   ;
@@ -47,11 +48,25 @@ the entry description must be separated by a comment line containing a dot
   ;
   ; A An important parameter
   ; B Another important parameter
+  ;
+  ; This is the start comment above the first instruction in the entry.
 
-If a register section is required, but an entry description is not, a blank
-entry description may be specified by using a dot (``.``) thus::
+If a start comment is required but a register section is not, either append the
+start comment to the entry description, or specify a blank register section by
+using a dot (``.``) thus::
 
-  ; This is the title of an entry that has no description
+  ; This entry has a start comment but no register section
+  ;
+  ; This is the entry description.
+  ;
+  ; .
+  ;
+  ; This is the start comment above the first instruction in the entry.
+
+Likewise, if a register section is required but an entry description is not, a
+blank entry description may be specified by using a dot (``.``) thus::
+
+  ; This entry has a register section but no description
   ;
   ; .
   ;
@@ -120,7 +135,7 @@ The comment for a single instruction may span multiple lines thus::
                        ; we use two lines
 
 A comment may also be associated with more than one instruction by the use of
-braces ('{' and '}') to indicate the start and end points, thus::
+braces (``{`` and ``}``) to indicate the start and end points, thus::
 
   *24372 SUB D         ; {This comment applies to the two instructions at
    24373 JR NZ,24378   ; 24372 and 24373}
@@ -264,6 +279,8 @@ Revision history
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 4.3     | Added support for the start comment in entry headers            |
++---------+-----------------------------------------------------------------+
 | 4.2     | Added support for splitting register descriptions over multiple |
 |         | lines                                                           |
 +---------+-----------------------------------------------------------------+
