@@ -146,7 +146,7 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
                            t = block titles
                            d = block descriptions
                            r = registers
-                           m = mid-block comments and block end comments
+                           m = mid-block comments and block start/end comments
                            s = sub-block types and addresses
                            c = instruction-level comments
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2010-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -52,7 +52,7 @@ def main(args):
                             "  {1} = block titles\n"
                             "  {2} = block descriptions\n"
                             "  {3} = registers\n"
-                            "  {4} = mid-block comments and block end comments\n"
+                            "  {4} = mid-block comments and block start/end comments\n"
                             "  {5} = sub-block types and addresses\n"
                             "  {6} = instruction-level comments\n".format(BLOCKS, BLOCK_TITLES, BLOCK_DESC, REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS))
     namespace, unknown_args = parser.parse_known_args(args)
