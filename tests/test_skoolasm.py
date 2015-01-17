@@ -1586,24 +1586,94 @@ class AsmWriterTest(SkoolKitTestCase):
         asm = self._get_asm(skool, asm_mode=3)
         self.assertEqual(asm[1], '  INC HL')
 
-    def test_ignoreua_directive(self):
+    def test_ignoreua_directive_on_entry_title(self):
         skool = '\n'.join((
             '; @start',
             '; @ignoreua',
             '; Routine at 32768',
+            'c32768 RET'
+        ))
+        self._get_asm(skool, warn=True)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual(len(warnings), 0)
+
+    def test_ignoreua_directive_on_entry_description(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
             ';',
             '; @ignoreua',
             '; Description of routine at 32768.',
+            'c32768 RET'
+        ))
+        self._get_asm(skool, warn=True)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual(len(warnings), 0)
+
+    def test_ignoreua_directive_on_register_description(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            ';',
+            '; .',
             ';',
             '; @ignoreua',
             '; HL 32768',
+            'c32768 RET'
+        ))
+        self._get_asm(skool, warn=True)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual(len(warnings), 0)
+
+    def test_ignoreua_directive_on_start_comment(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            ';',
+            '; Description.',
+            ';',
+            '; .',
+            ';',
             '; @ignoreua',
-            'c32768 LD A,B ; This is the instruction at 32768',
+            '; Start comment for the routine at 32768.',
+            'c32768 RET'
+        ))
+        self._get_asm(skool, warn=True)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual(len(warnings), 0)
+
+    def test_ignoreua_directive_on_instruction_comment(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            '; @ignoreua',
+            'c32768 LD A,B ; This is the instruction at 32768'
+        ))
+        self._get_asm(skool, warn=True)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual(len(warnings), 0)
+
+    def test_ignoreua_directive_on_mid_block_comment(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            'c32768 LD A,B ;',
             '; @ignoreua',
             '; This is the mid-routine comment above 32769.',
+            ' 32769 RET'
+        ))
+        self._get_asm(skool, warn=True)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual(len(warnings), 0)
+
+    def test_ignoreua_directive_on_end_comment(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            'c32768 LD A,B ;',
             ' 32769 RET',
             '; @ignoreua',
-            '; This is the end comment after 32769.',
+            '; This is the end comment after 32769.'
         ))
         self._get_asm(skool, warn=True)
         warnings = self.err.getvalue().split('\n')[:-1]

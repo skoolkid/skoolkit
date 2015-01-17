@@ -356,6 +356,7 @@ def parse_comment_block(comments, ignores, mode):
     mode.entry_ignoreua['t'] = section_ignores[0]
     mode.entry_ignoreua['d'] = section_ignores[1]
     mode.entry_ignoreua['r'] = section_ignores[2]
+    mode.ignoremrcua = section_ignores[3]
     title = join_comments(sections[0], html=mode.html)
     description = join_comments(sections[1], split=True, html=mode.html)
     registers = _parse_registers(sections[2], mode)
