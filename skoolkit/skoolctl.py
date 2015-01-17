@@ -329,6 +329,7 @@ class SkoolParser:
                 self.mode.apply_entry_asm_directives(map_entry)
                 self.memory_map.append(map_entry)
                 comments[:] = []
+                instruction.ignoremrcua = self.mode.ignoremrcua
             elif ctl in 'dr':
                 # This is a data definition entry or a remote entry
                 map_entry = None

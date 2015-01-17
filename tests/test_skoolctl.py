@@ -679,6 +679,26 @@ class CtlWriterTest(SkoolKitTestCase):
         ctl = self._get_ctl(skool=skool)
         self.assertEqual(exp_ctl, ctl)
 
+    def test_ignoreua_directive_on_start_comment(self):
+        skool = '\n'.join((
+            '; Routine',
+            ';',
+            '; .',
+            ';',
+            '; .',
+            ';',
+            '; @ignoreua',
+            '; Start comment above 30000.',
+            'c30000 RET'
+        ))
+        exp_ctl = [
+            'c 30000 Routine',
+            '; @ignoreua:30000:m',
+            'N 30000 Start comment above 30000.'
+        ]
+        ctl = self._get_ctl(skool=skool)
+        self.assertEqual(exp_ctl, ctl)
+
     def test_ignoreua_directives_hex(self):
         skool = '\n'.join((
             '; @ignoreua',
