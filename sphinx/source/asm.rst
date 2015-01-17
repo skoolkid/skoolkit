@@ -255,8 +255,8 @@ See also :ref:`start`.
 The ``@ignoreua`` directive suppresses any warnings that would otherwise be
 reported concerning addresses not converted to labels in the comment that
 follows; the comment may be an entry title, an entry description, a register
-description section, a mid-block comment, a block end comment, or an
-instruction-level comment. ::
+description section, a block start comment, a mid-block comment, a block end
+comment, or an instruction-level comment. ::
 
   ; @ignoreua
 
@@ -276,7 +276,7 @@ To apply the directive to an entry description::
   ;
   ; @ignoreua
   ; This routine operates on the data at 32768.
-  c32768 LD A,(HL)
+  c49152 LD A,(HL)
 
 If the ``@ignoreua`` directive were not present, a warning would be printed
 (during the rendering phase) about the entry description containing an address
@@ -290,11 +290,27 @@ To apply the directive to a register description section::
   ;
   ; @ignoreua
   ; HL 32768
-  c32768 LD A,(HL)
+  c49152 LD A,(HL)
 
 If the ``@ignoreua`` directive were not present, a warning would be printed
 (during the rendering phase) about the register description containing an
 address (32768) that has not been converted to a label.
+
+To apply the directive to a block start comment::
+
+  ; Prepare data in page 128
+  ;
+  ; This routine operates on the data in page 128.
+  ;
+  ; HL 128*256
+  ;
+  ; @ignoreua
+  ; First pick up the byte at 32768.
+  c49152 LD A,(HL)
+
+If the ``@ignoreua`` directive were not present, a warning would be printed
+(during the rendering phase) about the start comment containing an address
+(32768) that has not been converted to a label.
 
 To apply the directive to a mid-block comment::
 
