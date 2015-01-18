@@ -44,6 +44,8 @@ c07890 RET
 ;
 ; A Some value
 ; B Another value
+;
+; Start comment
 ; @label=START
 c32768 NOP          ; Do nothing
 ; @bfix=DEFB 2,3
@@ -187,6 +189,7 @@ c 32768 Routine
 D 32768 Routine description
 R 32768 A Some value
 R 32768 B Another value
+N 32768 Start comment
 ; @label:32768=START
   32768,1 Do nothing
 ; @bfix:32769=DEFB 2,3
@@ -277,6 +280,7 @@ c $8000 Routine
 D $8000 Routine description
 R $8000 A Some value
 R $8000 B Another value
+N $8000 Start comment
 ; @label:$8000=START
   $8000,1 Do nothing
 ; @bfix:$8001=DEFB 2,3
