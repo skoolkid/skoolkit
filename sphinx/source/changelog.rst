@@ -3,6 +3,9 @@ Changelog
 
 4.3b1
 -----
+* Added support for block start comments (which appear after the register
+  section and before the first instruction in a routine or data block)
+* Fixed the bug that prevents register descriptions from being HTML-escaped
 
 4.2 (2014-12-07)
 ----------------
