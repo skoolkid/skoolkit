@@ -52,6 +52,7 @@ syntax also supports the declaration of the following things:
 
 * Block descriptions
 * Register values
+* Block start comments
 * Mid-block comments
 * Block end comments
 * Sub-block types and comments
@@ -82,18 +83,35 @@ one line per register with the ``R`` directive thus::
   R 24576 A An important value in the accumulator
   R 24576 DE Display file address
 
+Block start comments
+--------------------
+To declare a block start comment that will appear above the instruction at
+24576, use the ``N`` directive thus::
+
+  N 24576 And so this routine begins.
+
+If the start comment consists of two or more paragraphs, declare each one with
+a separate ``N`` directive::
+
+  N 24576 This is the first paragraph of the start comment.
+  N 24576 This is the second paragraph of the start comment.
+
 Mid-block comments
 ------------------
 To declare a mid-block comment that will appear above the instruction at 24592,
-use the ``D`` directive thus::
+use the ``N`` directive thus::
 
-  D 24592 The next section of code does something really important.
+  N 24592 The next section of code does something really important.
 
 If the mid-block comment consists of two or more paragraphs, declare each one
-with a separate ``D`` directive::
+with a separate ``N`` directive::
 
-  D 24592 This is the first paragraph of the mid-block comment.
-  D 24592 This is the second paragraph of the mid-block comment.
+  N 24592 This is the first paragraph of the mid-block comment.
+  N 24592 This is the second paragraph of the mid-block comment.
+
+.. note::
+   Using the ``D`` directive to declare mid-block comments is deprecated since
+   version 4.3. The ``D`` directive should be used only for block descriptions.
 
 Block end comments
 ------------------
@@ -379,7 +397,7 @@ where ``X`` is one of:
 * ``d`` - entry description
 * ``e`` - block end comment
 * ``i`` - instruction-level comment (default)
-* ``m`` - mid-block comment
+* ``m`` - block start comment or mid-block comment
 * ``r`` - register description section
 * ``t`` - entry title
 
@@ -464,6 +482,8 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 4.3     | Added the ``N`` directive and support for block start comments    |
++---------+-------------------------------------------------------------------+
 | 4.2     | Added the ``L`` directive and support for preserving the location |
 |         | of :ref:`ignoreua` directives                                     |
 +---------+-------------------------------------------------------------------+
