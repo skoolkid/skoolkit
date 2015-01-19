@@ -17,6 +17,7 @@ MAPS_DIR = 'maps'
 GRAPHICS_DIR = 'graphics'
 BUFFERS_DIR = 'buffers'
 REFERENCE_DIR = 'reference'
+FONTDIR = 'images/font'
 SCRDIR = 'images/scr'
 UDGDIR = 'images/udgs'
 
@@ -464,6 +465,17 @@ class MethodTest(HtmlWriterTestCase):
         writer = self._get_writer()
         with self.assertRaisesRegexp(MacroParsingError, "Unknown keyword argument: 'xyzzy=7'"):
             writer.parse_image_params('bar=1,xyzzy=7', 0, defaults=(1, 2), names=('foo', 'bar'))
+
+    def test_parse_image_params_blank_path_id(self):
+        writer = self._get_writer()
+
+        text = '1(foo/bar)'
+        end, img_path, crop_rect, val = writer.parse_image_params(text, 0, 1, path_id=None)
+        self.assertEqual(img_path, 'foo/bar')
+
+        text = '2(baz)'
+        end, img_path, crop_rect, val = writer.parse_image_params(text, 0, 1, path_id='')
+        self.assertEqual(img_path, 'baz')
 
     def test_image_path(self):
         writer = self._get_writer()
@@ -935,11 +947,11 @@ class SkoolMacroTest(HtmlWriterTestCase):
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
         output = writer.expand('#FONT32768,96', ASMDIR)
-        self._assert_img_equals(output, 'font', '../images/font/font.png')
+        self._assert_img_equals(output, 'font', '../{}/font.png'.format(FONTDIR))
 
         img_fname = 'font2'
         output = writer.expand('#FONT55584,96({0})'.format(img_fname), ASMDIR)
-        self._assert_img_equals(output, img_fname, '../images/font/{0}.png'.format(img_fname))
+        self._assert_img_equals(output, img_fname, '../{}/{}.png'.format(FONTDIR, img_fname))
 
         img_fname = 'font3'
         font_addr = 32768
@@ -955,7 +967,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
         values = (font_addr, len(chars), attr, scale, x, y, w, h, img_fname)
         macro = '#FONT{0},{1},{2},{3}{{{4},{5},{6},{7}}}({8})'.format(*values)
         output = writer.expand(macro, ASMDIR)
-        exp_img_fname = '../images/font/{}.png'.format(img_fname)
+        exp_img_fname = '../{}/{}.png'.format(FONTDIR, img_fname)
         self._assert_img_equals(output, img_fname, exp_img_fname)
         udg_array = [[Udg(4, char) for char in chars]]
         self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
@@ -977,7 +989,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
         message = ' !"%'
         macro = '#FONT:({})0({})'.format(message, img_fname)
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, img_fname, '../images/font/{}.png'.format(img_fname))
+        self._assert_img_equals(output, img_fname, '../{}/{}.png'.format(FONTDIR, img_fname))
         udg_array = [[]]
         for c in message:
             c_addr = 8 * (ord(c) - 32)
@@ -992,7 +1004,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
         for delim1, delim2 in (('{', '}'), ('[', ']'), ('*', '*'), ('@', '@')):
             macro = '#FONT:{}{}{}0,1,{},{}({})'.format(delim1, message, delim2, attr, scale, img_fname)
             output = writer.expand(macro, ASMDIR)
-            self._assert_img_equals(output, img_fname, '../images/font/{}.png'.format(img_fname))
+            self._assert_img_equals(output, img_fname, '../{}/{}.png'.format(FONTDIR, img_fname))
             self._check_image(writer.image_writer, udg_array, scale)
 
     def test_macro_font_with_custom_font_image_path(self):
@@ -1006,17 +1018,54 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self._assert_img_equals(output, img_fname, '../{}'.format(exp_img_path))
         self.assertEqual(writer.file_info.fname, exp_img_path)
 
+    def test_macro_font_frames(self):
+        char1 = [102] * 8
+        char2 = [34] * 8
+        char3 = [20] * 8
+        char4 = [243] * 8
+        snapshot = char1 + char2 + char3 + char4
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        file_info = writer.file_info
+
+        output = writer.expand('#FONT0,1(*char1)', ASMDIR)
+        self.assertEqual(output, '')
+        self.assertIsNone(file_info.fname)
+
+        output = writer.expand('#FONT8,1,7(char2*)', ASMDIR)
+        exp_image_path = '{}/char2.png'.format(FONTDIR)
+        self._assert_img_equals(output, 'char2', '../{}'.format(exp_image_path))
+        self.assertEqual(file_info.fname, exp_image_path)
+
+        output = writer.expand('#FONT16,1(char3*char3_frame)', ASMDIR)
+        exp_image_path = '{}/char3.png'.format(FONTDIR)
+        self._assert_img_equals(output, 'char3', '../{}'.format(exp_image_path))
+        self.assertEqual(file_info.fname, exp_image_path)
+
+        output = writer.expand('#FONT24,1,,3{1,2,16,16}(*)', ASMDIR)
+        exp_image_path = '{}/font.png'.format(FONTDIR)
+        self._assert_img_equals(output, 'font', '../{}'.format(exp_image_path))
+        self.assertEqual(file_info.fname, exp_image_path)
+
+        writer.expand('#UDGARRAY*char1;char2;char3_frame;font(chars)', ASMDIR)
+        exp_frames = [
+            Frame([[Udg(56, char1)]], scale=2),
+            Frame([[Udg(7, char2)]], scale=2),
+            Frame([[Udg(56, char3)]], scale=2),
+            Frame([[Udg(56, char4)]], scale=3, x=1, y=2, width=16, height=16)
+        ]
+        self._check_animated_image(writer.image_writer, exp_frames)
+
     def test_macro_font_alt_text(self):
         writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
 
         alt = 'Space'
         output = writer.expand('#FONT:( )0(|{})'.format(alt), ASMDIR)
-        self._assert_img_equals(output, alt, '../images/font/font.png')
+        self._assert_img_equals(output, alt, '../{}/font.png'.format(FONTDIR))
 
         fname = 'space'
         alt = 'Another space'
         output = writer.expand('#FONT:( )0({}|{})'.format(fname, alt), ASMDIR)
-        self._assert_img_equals(output, alt, '../images/font/{}.png'.format(fname))
+        self._assert_img_equals(output, alt, '../{}/{}.png'.format(FONTDIR, fname))
 
     def test_macro_font_invalid(self):
         writer = self._get_writer()
