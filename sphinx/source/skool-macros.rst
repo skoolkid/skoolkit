@@ -792,6 +792,8 @@ or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 4.3     | Added the ability to create frames                              |
++---------+-----------------------------------------------------------------+
 | 4.2     | Added the ability to specify alt text for the ``<img>`` element |
 +---------+-----------------------------------------------------------------+
 | 4.0     | Added the ``mask`` parameter and support for AND-OR masking;    |

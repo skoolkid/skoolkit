@@ -1949,6 +1949,43 @@ class SkoolMacroTest(HtmlWriterTestCase):
         writer.expand('#UDG0,mask=2:8', ASMDIR)
         self._check_image(writer.image_writer, udg_array, scale, mask=2)
 
+    def test_macro_udg_frames(self):
+        udg1 = [170] * 8
+        udg2 = [85] * 8
+        udg3 = [1] * 8
+        udg4 = [128] * 8
+        snapshot = udg1 + udg2 + udg3 + udg4
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        file_info = writer.file_info
+
+        output = writer.expand('#UDG0(*udg1)', ASMDIR)
+        self.assertEqual(output, '')
+        self.assertIsNone(file_info.fname)
+
+        output = writer.expand('#UDG8(udg2*)', ASMDIR)
+        exp_image_path = '{}/udg2.png'.format(UDGDIR)
+        self._assert_img_equals(output, 'udg2', '../{}'.format(exp_image_path))
+        self.assertEqual(file_info.fname, exp_image_path)
+
+        output = writer.expand('#UDG16(udg3*udg3_frame)', ASMDIR)
+        exp_image_path = '{}/udg3.png'.format(UDGDIR)
+        self._assert_img_equals(output, 'udg3', '../{}'.format(exp_image_path))
+        self.assertEqual(file_info.fname, exp_image_path)
+
+        output = writer.expand('#UDG24,4,6:0{5,6,32,32}(*)', ASMDIR)
+        exp_image_path = '{}/udg24_4x6.png'.format(UDGDIR)
+        self._assert_img_equals(output, 'udg24_4x6', '../{}'.format(exp_image_path))
+        self.assertEqual(file_info.fname, exp_image_path)
+
+        writer.expand('#UDGARRAY*udg1;udg2;udg3_frame;udg24_4x6(udgs.gif)', ASMDIR)
+        exp_frames = [
+            Frame([[Udg(56, udg1)]], scale=4),
+            Frame([[Udg(56, udg2)]], scale=4),
+            Frame([[Udg(56, udg3)]], scale=4),
+            Frame([[Udg(4, udg4, udg1)]], scale=6, mask=1, x=5, y=6, width=32, height=32)
+        ]
+        self._check_animated_image(writer.image_writer, exp_frames)
+
     def test_macro_udg_alt_text(self):
         writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
 
