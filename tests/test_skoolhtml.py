@@ -1706,6 +1706,40 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self._assert_img_equals(output, 'scr', '../{}'.format(exp_img_path))
         self.assertEqual(writer.file_info.fname, exp_img_path)
 
+    def test_macro_scr_frames(self):
+        snapshot = [n & 255 for n in range(2048)] + [1, 2, 3, 4]
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
+        file_info = writer.file_info
+        params = 'w=1,h=1,df=0,af=2048'
+
+        output = writer.expand('#SCRx=0,y=0,{}(*scr1)'.format(params), ASMDIR)
+        self.assertEqual(output, '')
+        self.assertIsNone(file_info.fname)
+
+        output = writer.expand('#SCRx=1,y=0,{}(scr2*)'.format(params), ASMDIR)
+        exp_image_path = '{}/scr2.png'.format(SCRDIR)
+        self._assert_img_equals(output, 'scr2', '../{}'.format(exp_image_path))
+        self.assertEqual(file_info.fname, exp_image_path)
+
+        output = writer.expand('#SCRx=2,y=0,{}(scr3*scr3_frame)'.format(params), ASMDIR)
+        exp_image_path = '{}/scr3.png'.format(SCRDIR)
+        self._assert_img_equals(output, 'scr3', '../{}'.format(exp_image_path))
+        self.assertEqual(file_info.fname, exp_image_path)
+
+        output = writer.expand('#SCRscale=2,x=3,y=0,{}{{2,3,8,8}}(*)'.format(params), ASMDIR)
+        exp_image_path = '{}/scr.png'.format(SCRDIR)
+        self._assert_img_equals(output, 'scr', '../{}'.format(exp_image_path))
+        self.assertEqual(file_info.fname, exp_image_path)
+
+        writer.expand('#UDGARRAY*scr1;scr2;scr3_frame;scr(scr.gif)', ASMDIR)
+        exp_frames = [
+            Frame([[Udg(1, snapshot[0:2048:256])]], scale=1),
+            Frame([[Udg(2, snapshot[1:2048:256])]], scale=1),
+            Frame([[Udg(3, snapshot[2:2048:256])]], scale=1),
+            Frame([[Udg(4, snapshot[3:2048:256])]], scale=2, x=2, y=3, width=8, height=8)
+        ]
+        self._check_animated_image(writer.image_writer, exp_frames)
+
     def test_macro_scr_alt_text(self):
         snapshot = [0] * 23296
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)

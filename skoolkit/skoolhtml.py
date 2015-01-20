@@ -1290,12 +1290,18 @@ class HtmlWriter:
         # #SCR[scale,x,y,w,h,df,af][{x,y,width,height}][(fname)]
         param_names = ('scale', 'x', 'y', 'w', 'h', 'df', 'af')
         defaults = (1, 0, 0, 32, 24, 16384, 22528)
-        params = self.parse_image_params(text, index, defaults=defaults, path_id='ScreenshotImagePath', fname='scr', names=param_names, alt=True)
-        end, scr_path, alt, crop_rect, scale, x, y, w, h, df, af = params
-        if self.need_image(scr_path):
+        params = self.parse_image_params(text, index, defaults=defaults, path_id='ScreenshotImagePath', fname='scr', names=param_names, frame=True, alt=True)
+        end, scr_path, frame, alt, crop_rect, scale, x, y, w, h, df, af = params
+        need_image = scr_path and self.need_image(scr_path)
+        if frame or need_image:
             udgs = self.screenshot(x, y, w, h, df, af)
-            self.write_image(scr_path, udgs, crop_rect, scale)
-        return end, self.img_element(cwd, scr_path, alt)
+            if need_image:
+                self.write_image(scr_path, udgs, crop_rect, scale)
+            if frame:
+                self.frames[frame] = Frame(udgs, scale, 0, *crop_rect)
+        if scr_path:
+            return end, self.img_element(cwd, scr_path, alt)
+        return end, ''
 
     def expand_space(self, text, index, cwd):
         end, num_sp = skoolmacro.parse_space(text, index)
