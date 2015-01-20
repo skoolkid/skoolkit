@@ -937,9 +937,8 @@ This ``#SCR`` macro creates an image named `screenshot1.png` with alt text
 
 Animation
 ---------
-The ``#UDGARRAY`` macro may be used to create an animated image from an
-arbitrary sequence of frames. To create a frame, the ``fname`` parameter must
-have one of the following forms:
+The image macros may be used to create the frames of an animated image. To
+create a frame, the ``fname`` parameter must have one of the following forms:
 
 * ``name*`` - writes an image file with this name, and also creates a frame
   with the same name
@@ -947,8 +946,8 @@ have one of the following forms:
   frame named `name2`
 * ``*name`` - writes no image file, but creates a frame with this name
 
-Then a special form of the ``#UDGARRAY`` macro is used to create the animated
-image from a set of frames::
+Then a special form of the ``#UDGARRAY`` macro creates the animated image from
+a set of frames::
 
   #UDGARRAY*FRAME1[;FRAME2;...](fname)
 
@@ -963,18 +962,16 @@ image from a set of frames::
 
 For example::
 
-  ; Sprite animation frames
-  ;
   ; #UDGTABLE {
-  ; #UDGARRAY2;64000-64024-8(sprite1*) |
-  ; #UDGARRAY2;64032-64056-8(sprite2*) |
-  ; #UDGARRAY2;64064-64088-8(sprite3*) |
-  ; #UDGARRAY*sprite1,50;sprite2;sprite3(sprite.gif)
+  ; #FONT:(hello)$3D00(hello*) |
+  ; #FONT:(there)$3D00(there*) |
+  ; #FONT:(peeps)$3D00(peeps*) |
+  ; #UDGARRAY*hello,50;there;peeps(hello_there_peeps.gif)
   ; } TABLE#
 
-The first three ``#UDGARRAY`` macros create the required frames (and write
-images of them); the last ``#UDGARRAY`` macro combines the three frames into a
-single animated image, with a delay of 0.5s between each frame.
+The ``#FONT`` macros create the required frames (and write images of them); the
+``#UDGARRAY`` macro combines the three frames into a single animated image,
+with a delay of 0.5s between each frame.
 
 .. _cropping:
 
