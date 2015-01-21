@@ -50,9 +50,8 @@ clean:
 .PHONY: hh
 hh:
 	if [ ! -f build/hungry_horace.z80 ]; then ./tap2sna.py -d build @examples/hungry_horace.t2s; fi
-	./sna2skool.py -c examples/hungry_horace.ctl build/hungry_horace.z80 > hungry_horace.skool
-	./skool2html.py $(OPTIONS) examples/hungry_horace.ref
-	rm hungry_horace.skool
+	./sna2skool.py -c examples/hungry_horace.ctl build/hungry_horace.z80 > build/hungry_horace.skool
+	./skool2html.py $(OPTIONS) -S build examples/hungry_horace.ref
 
 .PHONY: rom
 rom:
