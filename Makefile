@@ -56,9 +56,8 @@ hh:
 
 .PHONY: rom
 rom:
-	./sna2skool.py -o 0 -H -c examples/48.rom.ctl $(ROM) > 48.rom.skool
-	./skool2html.py $(OPTIONS) examples/48.rom.ref
-	rm 48.rom.skool
+	./sna2skool.py -o 0 -H -c examples/48.rom.ctl $(ROM) > build/48.rom.skool
+	./skool2html.py $(OPTIONS) -S build examples/48.rom.ref
 
 .PHONY: write-disassembly-tests
 write-disassembly-tests:
