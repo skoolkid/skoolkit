@@ -73,11 +73,11 @@ sS32793,10
 a32794 NOP
 
 ; Test a block ASM directive
-; @rsub-begin
+@rsub-begin
 bB32795,5
 ; @rsub+else
  32795 DEFS 6
-; @rsub+end
+@rsub+end
 
 ; Test complex DEFM statements
 tT32800,5,1:B1,2:B2*2
@@ -170,11 +170,11 @@ s32793 DEFS 10
 a32794 NOP
 
 ; Test a block ASM directive
-; @rsub-begin
+@rsub-begin
 b32795 DEFB 0,0,0,0,0
 ; @rsub+else
  32795 DEFS 6
-; @rsub+end
+@rsub+end
 
 ; Test complex DEFM statements
 t32800 DEFM "aaaaa"
@@ -257,11 +257,11 @@ s$8019 DEFS $0A
 a32794 NOP
 
 ; Test a block ASM directive
-; @rsub-begin
+@rsub-begin
 b$801B DEFB $00,$00,$00,$00,$00
 ; @rsub+else
  32795 DEFS 6
-; @rsub+end
+@rsub+end
 
 ; Test complex DEFM statements
 t$8020 DEFM "aaaaa"

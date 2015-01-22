@@ -124,6 +124,7 @@ class SftParser:
             if line.startswith('#'):
                 # This line is a skool file template comment
                 continue
+
             s_line = line.strip()
             if not s_line:
                 # This line is blank
@@ -131,14 +132,18 @@ class SftParser:
                 entry_ctl = None
                 continue
 
-            if line[0] == ';':
+            if line.startswith(';'):
                 # This line is an entry-level comment (which may contain an ASM
                 # directive)
+                comment = line[1:].strip()
+                if comment.startswith('@'):
+                    self._parse_asm_directive(comment[1:])
                 self.lines.append(VerbatimLine(line))
-                if line.startswith(';'):
-                    comment = line[1:].strip()
-                    if comment.startswith('@'):
-                        self._parse_asm_directive(comment[1:])
+                continue
+
+            if line.startswith('@'):
+                self.lines.append(VerbatimLine(line))
+                self._parse_asm_directive(line[1:].rstrip())
                 continue
 
             if not self.disassemble:
@@ -150,10 +155,10 @@ class SftParser:
             if entry_ctl is None and line.startswith(VERBATIM_BLOCKS):
                 entry_ctl = line[0]
             if entry_ctl in VERBATIM_BLOCKS:
-                self.lines.append(VerbatimLine(line))
                 if entry_ctl == 'd':
                     self._set_bytes(line)
-                continue # pragma: no cover
+                self.lines.append(VerbatimLine(line))
+                continue
 
             # Check whether the line starts with a valid character
             if line[0] not in VALID_CTLS:
