@@ -371,8 +371,8 @@ class OptionsTest(SkoolKitTestCase):
     def test_no_options(self):
         binfile = self._write_bin([201])
         lines = self._write_skool(binfile, 10)
-        self.assertEqual(lines[0], '; @start')
-        self.assertEqual(lines[1], '; @org=65535')
+        self.assertEqual(lines[0], '@start')
+        self.assertEqual(lines[1], '@org=65535')
         self.assertEqual(lines[2], '; Routine at 65535')
         self.assertEqual(lines[3][:10], 'c65535 RET')
 
@@ -413,8 +413,8 @@ class OptionsTest(SkoolKitTestCase):
         binfile = self._write_bin(data, ['c $FFFB'])
         for option in ('-H', '--skool-hex'):
             lines = self._write_skool('{0} {1}'.format(option, binfile), 5)
-            self.assertEqual(lines[0], '; @start')
-            self.assertEqual(lines[1], '; @org=$FFFB')
+            self.assertEqual(lines[0], '@start')
+            self.assertEqual(lines[1], '@org=$FFFB')
             self.assertEqual(lines[3][:15], 'c$FFFB LD A,$FE')
             self.assertEqual(lines[4][:15], ' $FFFD JP $8001')
 
@@ -424,8 +424,8 @@ class OptionsTest(SkoolKitTestCase):
         binfile = self._write_bin(data, ['c 65534', 'T 65535'])
         for option in ('-L', '--lower'):
             lines = self._write_skool('{0} {1}'.format(option, binfile), 5)
-            self.assertEqual(lines[0], '; @start')
-            self.assertEqual(lines[1], '; @org=65534')
+            self.assertEqual(lines[0], '@start')
+            self.assertEqual(lines[1], '@org=65534')
             self.assertEqual(lines[3][:10], 'c65534 nop')
             self.assertEqual(lines[4][:15], ' 65535 defm "A"')
 
@@ -434,8 +434,8 @@ class OptionsTest(SkoolKitTestCase):
         data.extend((195, 1, 128)) # $FFFD JP $8001
         binfile = self._write_bin(data, ['c $FFFB'])
         lines = self._write_skool('-HL {}'.format(binfile), 5)
-        self.assertEqual(lines[0], '; @start')
-        self.assertEqual(lines[1], '; @org=$fffb')
+        self.assertEqual(lines[0], '@start')
+        self.assertEqual(lines[1], '@org=$fffb')
         self.assertEqual(lines[3][:15], 'c$fffb ld a,$fe')
         self.assertEqual(lines[4][:15], ' $fffd jp $8001')
 
@@ -568,8 +568,8 @@ class OptionsTest(SkoolKitTestCase):
         defb = 'DEFB {0}'.format(','.join([str(b) for b in [0] * defb_len]))
         for option in ('-m', '--defb-mod'):
             lines = self._write_skool('{0} {1} {2}'.format(option, defb_mod, binfile), 6)
-            self.assertEqual(lines[0], '; @start')
-            self.assertEqual(lines[1], '; @org={0}'.format(org))
+            self.assertEqual(lines[0], '@start')
+            self.assertEqual(lines[1], '@org={0}'.format(org))
             self.assertEqual(lines[3], 'b{0} {1}'.format(org, first_defb))
             self.assertEqual(lines[4], ' {0} {1}'.format(org + first_defb_len, defb))
             self.assertEqual(lines[5], ' {0} {1}'.format(org + first_defb_len + defb_len, defb))
@@ -582,8 +582,8 @@ class OptionsTest(SkoolKitTestCase):
         defb = 'DEFB {0}'.format(','.join([str(b) for b in [0] * defb_len]))
         for option in ('-n', '--defb-size'):
             lines = self._write_skool('{0} {1} {2}'.format(option, defb_len, binfile), 6)
-            self.assertEqual(lines[0], '; @start')
-            self.assertEqual(lines[1], '; @org={0}'.format(org))
+            self.assertEqual(lines[0], '@start')
+            self.assertEqual(lines[1], '@org={0}'.format(org))
             for line in lines[3:6]:
                 self.assertEqual(line[7:], defb)
 
@@ -641,8 +641,8 @@ class OptionsTest(SkoolKitTestCase):
         defb = 'DEFB {0}'.format(','.join(['%03i' % b for b in data]))
         for option in ('-z', '--defb-zfill'):
             lines = self._write_skool('{0} {1}'.format(option, binfile), 4)
-            self.assertEqual(lines[0], '; @start')
-            self.assertEqual(lines[1], '; @org={0}'.format(org))
+            self.assertEqual(lines[0], '@start')
+            self.assertEqual(lines[1], '@org={0}'.format(org))
             self.assertEqual(lines[3], 'b{0} {1}'.format(org, defb))
 
     def test_sna(self):
@@ -652,8 +652,8 @@ class OptionsTest(SkoolKitTestCase):
         snafile = self.write_bin_file(data, suffix='.sna')
         self._write_ctl(['c 16384', 'i 16387'], snafile[:-4] + '.ctl')
         lines = self._write_skool(snafile, 4)
-        self.assertEqual(lines[0], '; @start')
-        self.assertEqual(lines[1], '; @org=16384')
+        self.assertEqual(lines[0], '@start')
+        self.assertEqual(lines[1], '@org=16384')
         self.assertEqual(lines[3][:16], 'c16384 LD BC,770')
 
     def test_unrecognised_snapshot_format_is_treated_as_binary(self):

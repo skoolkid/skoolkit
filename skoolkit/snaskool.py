@@ -922,7 +922,7 @@ class SkoolWriter:
             suffix = ''
         else:
             suffix = '={0}'.format(value)
-        write_line('; @{0}{1}'.format(directive, suffix))
+        write_line('@{}{}'.format(directive, suffix))
 
     def to_ascii(self, data):
         chars = ['[']

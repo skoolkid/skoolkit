@@ -127,10 +127,10 @@ D 32781 List intro text: #LIST { Item } LIST#
 i 32782 Final ignore block
 """
 
-SKOOL = """; @start
-; @writer=skoolkit.game.GameAsmWriter
-; @set-tab=1
-; @org=32768
+SKOOL = """@start
+@writer=skoolkit.game.GameAsmWriter
+@set-tab=1
+@org=32768
 ; Routine at 32768
 ;
 ; Routine description paragraph 1.
@@ -139,12 +139,12 @@ SKOOL = """; @start
 ;
 ; A Some value
 ; B Some other value
-; @label=START
+@label=START
 c32768 XOR A         ; {This is an instruction-level comment that spans two
  32769 RET           ; instructions and is too long to fit on two lines, so
                      ; extends to three}
 ; Routine end comment.
-; @end
+@end
 
 ; Routine with registers but no description
 ;
@@ -620,8 +620,8 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 30007'
         ))
         exp_skool = [
-            '; @start',
-            '; @org=30000',
+            '@start',
+            '@org=30000',
             '; Routine at 30000',
             'c30000 XOR A         ;',
             '*30001 LD (BC),A     ;',
@@ -656,8 +656,8 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 40012'
         ))
         exp_skool = [
-            '; @start',
-            '; @org=40000',
+            '@start',
+            '@org=40000',
             '; Routine at 40000',
             ';',
             '; Routine description.',
@@ -695,8 +695,8 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 50012'
         ))
         exp_skool = [
-            '; @start',
-            '; @org=50000',
+            '@start',
+            '@org=50000',
             '; Routine at 50000',
             ';',
             '; Used by the routine at #R50004.',
@@ -798,7 +798,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             self.clear_streams()
             writer.write_skool(0, False)
             skool = self.out.getvalue().split('\n')[:-1]
-            self.assertEqual(skool[1], '; @org={}'.format(org))
+            self.assertEqual(skool[1], '@org={}'.format(org))
 
     def test_no_table_end_marker(self):
         ctl = '\n'.join((
@@ -851,26 +851,26 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 10002'
         ))
         exp_skool = [
-            '; @start',
-            '; @org=10000',
-            '; @ignoreua',
+            '@start',
+            '@org=10000',
+            '@ignoreua',
             '; Routine at 10000',
             ';',
-            '; @ignoreua',
+            '@ignoreua',
             '; Description of the routine at 10000.',
             ';',
-            '; @ignoreua',
+            '@ignoreua',
             '; HL 10000',
             ';',
-            '; @ignoreua',
+            '@ignoreua',
             '; Start comment.',
-            '; @ignoreua',
+            '@ignoreua',
             'c10000 LD A,B        ; Instruction-level comment at 10000',
-            '; @ignoreua',
+            '@ignoreua',
             '; Mid-block comment above 10001.',
-            '; @ignoreua',
+            '@ignoreua',
             ' 10001 RET           ; Instruction-level comment at 10001',
-            '; @ignoreua',
+            '@ignoreua',
             '; End comment for the routine at 10000.'
         ]
         snapshot = [0] * 10000 + [120, 201]
@@ -890,11 +890,11 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 10005'
         ))
         exp_skool = [
-            '; @start',
-            '; @org=10000',
+            '@start',
+            '@org=10000',
             '; Routine at 10000',
             ';',
-            '; @ignoreua',
+            '@ignoreua',
             '; Used by the routine at #R10002.',
             '; .',
             '; Description of the routine at 10000.',
@@ -902,7 +902,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '',
             '; Routine at 10002',
             'c10002 LD A,B        ;',
-            '; @ignoreua',
+            '@ignoreua',
             '; This entry point is used by the routine at #R10000.',
             '; .',
             '; Mid-block comment above 10003.',
