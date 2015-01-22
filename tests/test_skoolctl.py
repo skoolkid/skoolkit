@@ -19,7 +19,7 @@ r24576 start
 c00000 RET
 
 ; Address with 1 digit
-; @label=START1
+@label=START1
 c00001 RET
 
 ; Address with 2 digits
@@ -27,7 +27,7 @@ c00001 RET
 c00033 RET
 
 ; Address with 3 digits
-; @label=START555
+@label=START555
 c00555 RET
 
 ; Address with 4 digits
@@ -35,9 +35,9 @@ c00555 RET
 c07890 RET
 
 ; @start
-; @writer=package.module.classname
+@writer=package.module.classname
 ; @set-bullet=+
-; @org=32768
+@org=32768
 ; Routine
 ;
 ; Routine description
@@ -46,26 +46,26 @@ c07890 RET
 ; B Another value
 ;
 ; Start comment
-; @label=START
+@label=START
 c32768 NOP          ; Do nothing
 ; @bfix=DEFB 2,3
  32769 DEFB 1,2     ; 1-line B sub-block
-; @nowarn
+@nowarn
  32771 defb 3       ; {2-line B sub-block
 ; @isub=DEFB 0,1
  32772 DEFB 4,5     ; }
 ; Mid-block comment
  32774 DEFM "Hello" ; T sub-block
-; @keep
+@keep
  32779 DEFW 12345   ; W sub-block
  32781 defs 2       ; S sub-block
 ; @nolabel
  32783 LD A,5       ; {Sub-block with instructions of various types
 ; @ofix=DEFB 2
  32785 DEFB 0       ;
-; @rsub=DEFW 0,1,2
+@rsub=DEFW 0,1,2
  32786 DEFW 0,1     ; and blank lines
-; @ssub=DEFM "Lo"
+@ssub=DEFM "Lo"
  32790 defm "H",105 ;
  32792 DEFS 3       ; in the comment}
  $801B RET          ; Instruction with a
@@ -120,11 +120,11 @@ b49179 DEFB 0,0
  49192 DEFB 0
 
 ; ASM block directives
-; @bfix-begin
+@bfix-begin
 b49193 DEFB 7
 ; @bfix+else
 c49193 NOP
-; @bfix+end
+@bfix+end
 
 ; Zero block
 s49194 DEFS 128
@@ -633,25 +633,25 @@ class CtlWriterTest(SkoolKitTestCase):
             '',
             '; Routine',
             ';',
-            '; @ignoreua',
+            '@ignoreua',
             '; Description of the routine at 30001',
             ';',
             '; @ignoreua',
             '; HL 30001',
-            '; @ignoreua',
+            '@ignoreua',
             'c30001 RET    ; Instruction-level comment at 30001',
             '',
             '; Routine',
             'c30002 LD A,B',
             '; @ignoreua',
             '; Mid-block comment above 30003.',
-            '; @ignoreua',
+            '@ignoreua',
             ' 30003 RET    ; Instruction-level comment at 30003',
             '',
             '; Routine',
             '; @ignoreua',
             'c30004 LD A,C ; Instruction-level comment at 30004',
-            '; @ignoreua',
+            '@ignoreua',
             '; Mid-block comment above 30005.',
             ' 30005 RET',
             '; @ignoreua',

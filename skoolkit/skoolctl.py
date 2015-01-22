@@ -294,6 +294,10 @@ class SkoolParser:
                     instruction = None
                 continue # pragma: no cover
 
+            if line.startswith('@'):
+                self._parse_asm_directive(line[1:].rstrip(), ignores, len(comments))
+                continue
+
             if not self.mode.include:
                 continue
 
