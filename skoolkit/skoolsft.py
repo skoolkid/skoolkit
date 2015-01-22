@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -22,7 +22,7 @@ from .skoolparser import (DIRECTIVES, parse_asm_block_directive, get_instruction
 from .skoolctl import get_lengths
 
 VALID_CTLS = DIRECTIVES + ' *'
-VERBATIM_BLOCKS = 'dir'
+VERBATIM_BLOCKS = ('d', 'i', 'r')
 
 class Line:
     def is_ctl_line(self):
@@ -110,11 +110,15 @@ class SftWriter:
         f = open_file(self.skoolfile)
         for line in f:
             if line.startswith(';'):
+                lines.append(VerbatimLine(line))
                 comment = line[1:].strip()
                 if comment.startswith('@'):
-                    lines.append(VerbatimLine(line))
                     self._parse_asm_directive(comment[1:])
-                    continue
+                continue # pragma: no cover
+            if line.startswith('@'):
+                lines.append(VerbatimLine(line))
+                self._parse_asm_directive(line[1:].rstrip())
+                continue
             if self.verbatim:
                 # This line is inside a '+' block, so include it as is
                 lines.append(VerbatimLine(line))
@@ -126,28 +130,21 @@ class SftWriter:
                 entry_ctl = None
                 continue
             # Check whether we're in a block that should be preserved verbatim
-            if entry_ctl is None and line[0] in VERBATIM_BLOCKS:
+            if entry_ctl is None and line.startswith(VERBATIM_BLOCKS):
                 entry_ctl = line[0]
-            if entry_ctl and entry_ctl in VERBATIM_BLOCKS:
+            if entry_ctl in VERBATIM_BLOCKS:
                 lines.append(VerbatimLine(line))
-                continue
-            if s_line[0] == ';':
-                if line[0] == ';':
-                    # This line is a comment
-                    lines.append(VerbatimLine(line))
-                else:
-                    # This line is a continuation of an instruction comment
-                    comment_index = line.index(';')
-                    lines.append(VerbatimLine(" ;{0} {1}".format(comment_index, line[comment_index + 1:].lstrip())))
-                continue
-            # Check whether the line starts with a valid character
-            if line[0] not in VALID_CTLS:
+            elif s_line.startswith(';'):
+                # This line is a continuation of an instruction comment
+                comment_index = line.index(';')
+                lines.append(VerbatimLine(" ;{} {}".format(comment_index, line[comment_index + 1:].lstrip())))
+            elif line[0] in VALID_CTLS:
+                # This line contains an instruction
+                ctl_line = self._parse_instruction(line)
+                lines.append(ctl_line)
+                ctl_lines.append(ctl_line)
+            else:
                 lines.append(VerbatimLine(line))
-                continue
-            # This line contains an instruction
-            ctl_line = self._parse_instruction(line)
-            lines.append(ctl_line)
-            ctl_lines.append(ctl_line)
         f.close()
         self._calculate_lengths(ctl_lines)
         return self._compress_blocks(lines)

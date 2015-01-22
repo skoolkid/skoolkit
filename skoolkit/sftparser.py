@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -147,9 +147,9 @@ class SftParser:
                 continue
 
             # Check whether we're in a block that should be restored verbatim
-            if entry_ctl is None and line[0] in VERBATIM_BLOCKS:
+            if entry_ctl is None and line.startswith(VERBATIM_BLOCKS):
                 entry_ctl = line[0]
-            if entry_ctl and entry_ctl in VERBATIM_BLOCKS:
+            if entry_ctl in VERBATIM_BLOCKS:
                 self.lines.append(VerbatimLine(line))
                 if entry_ctl == 'd':
                     self._set_bytes(line)

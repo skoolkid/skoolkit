@@ -14,8 +14,8 @@ d49152 DEFB 0 ; Comment 1
 r24576 other
  24579
 
-; @start
-; @org=32768
+@start
+@org=32768
 
 ; Routine
 ;
@@ -57,22 +57,22 @@ c32768 NOP          ; Do nothing
 
 ; Test ASM block directives
 b32796 DEFB 0
-; @bfix-begin
+@bfix-begin
  32797 DEFB 1
-; @bfix+else
+@bfix+else
        DEFB 101
-; @bfix+end
+@bfix+end
  32798 DEFB 2
 ; @isub+begin
        DEFB 102
 ; @isub-else
  32799 DEFB 3
 ; @isub-end
-; @ofix-begin
+@ofix-begin
  32800 DEFB 4
 ; @ofix+else
  32800 DEFB 104
-; @ofix+end
+@ofix+end
 ; @rfix+begin
        DEFB 205
 ; @rfix+end
@@ -102,7 +102,7 @@ w49158 DEFW 2
 
 ; Zero block
 s49162 DEFS 10
-; @end
+@end
 
 ; Block that starts with an invalid control character
 a49172 DEFB 0
@@ -137,8 +137,8 @@ d49152 DEFB 0 ; Comment 1
 r24576 other
  24579
 
-; @start
-; @org=32768
+@start
+@org=32768
 
 ; Routine
 ;
@@ -180,22 +180,22 @@ cC32768,1;20 Do nothing
 
 ; Test ASM block directives
 bB32796,1
-; @bfix-begin
+@bfix-begin
  B32797,1
-; @bfix+else
+@bfix+else
        DEFB 101
-; @bfix+end
+@bfix+end
  B32798,1
 ; @isub+begin
        DEFB 102
 ; @isub-else
  B32799,1
 ; @isub-end
-; @ofix-begin
+@ofix-begin
  B32800,1
 ; @ofix+else
  32800 DEFB 104
-; @ofix+end
+@ofix+end
 ; @rfix+begin
        DEFB 205
 ; @rfix+end
@@ -224,7 +224,7 @@ wW49158,2*2
 
 ; Zero block
 sS49162,10
-; @end
+@end
 
 ; Block that starts with an invalid control character
 a49172 DEFB 0
