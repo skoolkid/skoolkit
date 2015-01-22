@@ -1616,8 +1616,8 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_set_directive(self):
         skool = '\n'.join((
-            '; @start',
-            '; @set-prop1=1',
+            '@start',
+            '@set-prop1=1',
             '; @set-prop2=abc',
             '; Routine',
             'c30000 RET'
@@ -1782,7 +1782,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_warn_unreplaced_operand(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Start',
             'c30000 JR 30002'
         ))
@@ -1795,7 +1795,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = '\n'.join((
             '; @start',
             '; Start',
-            '; @label=START',
+            '@label=START',
             'c40000 RET',
             '',
             '; False start',
@@ -1807,11 +1807,11 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_asm_mode(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
             '; @rsub-begin',
-            '; @label=FOO',
-            '; @rsub+else',
+            '@label=FOO',
+            '@rsub+else',
             '; @label=BAR',
             '; @rsub+end',
             'c32768 RET'
@@ -1825,11 +1825,11 @@ class SkoolParserTest(SkoolKitTestCase):
             '; @start',
             '; Routine',
             'c30000 XOR A',
-            '; @rsub-begin',
+            '@rsub-begin',
             ' 30001 LD L,0',
             '; @rsub+else',
             '       LD HL,16384',
-            '; @rsub+end'
+            '@rsub+end'
         ))
         parser = self._get_parser(skool, asm_mode=3)
         entry = parser.entries[30000]
@@ -1841,7 +1841,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = '\n'.join((
             'c40000 LD A,B',
             '',
-            '; @start',
+            '@start',
             'c40001 LD A,C',
             '; @end',
             '',
@@ -1849,7 +1849,7 @@ class SkoolParserTest(SkoolKitTestCase):
             '',
             '; @start',
             'c40003 LD A,E',
-            '; @end',
+            '@end',
             '',
             'c40004 LD A,H'
         ))
@@ -1864,7 +1864,7 @@ class SkoolParserTest(SkoolKitTestCase):
         label = 'START'
         skool = '\n'.join((
             '; Routine',
-            '; @label={}'.format(label),
+            '@label={}'.format(label),
             'c49152 LD BC,0',
             ' 49155 RET'
         ))
@@ -1893,10 +1893,10 @@ class SkoolParserTest(SkoolKitTestCase):
             '; Routine',
             ';',
             '; @rem=These comments',
-            '; @rem=should be ignored.',
+            '@rem=should be ignored.',
             '; Foo.',
             '; @rem=And these',
-            '; @rem=ones too.',
+            '@rem=ones too.',
             'c50000 RET'
         ))
         parser = self._get_parser(skool, html=True)
@@ -1905,14 +1905,14 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_asm_mode_rem(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
             ';',
             '; @rem=These comments',
-            '; @rem=should be ignored.',
+            '@rem=should be ignored.',
             '; Foo.',
             '; @rem=And these',
-            '; @rem=ones too.',
+            '@rem=ones too.',
             'c50000 RET'
         ))
         parser = self._get_parser(skool, asm_mode=1)
@@ -1923,9 +1923,9 @@ class SkoolParserTest(SkoolKitTestCase):
         # @rsub-begin inside @rsub- block
         skool = '\n'.join((
             '; @rsub-begin',
-            '; @rsub-begin',
+            '@rsub-begin',
             '; @rsub-end',
-            '; @rsub-end',
+            '@rsub-end',
         ))
         error = "rsub-begin inside rsub- block"
         self.assert_error(skool, error)
@@ -1936,7 +1936,7 @@ class SkoolParserTest(SkoolKitTestCase):
             '; @bfix+begin',
             '; @isub+else',
             '; @isub+end',
-            '; @bfix+end',
+            '@bfix+end',
         ))
         error = "isub+else inside bfix+ block"
         self.assert_error(skool, error)
@@ -1944,7 +1944,7 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_dangling_ofix_else(self):
         # Dangling @ofix+else directive
         skool = '\n'.join((
-            '; @ofix+else',
+            '@ofix+else',
             '; @ofix+end',
         ))
         error = "ofix+else not inside block"
@@ -1960,7 +1960,7 @@ class SkoolParserTest(SkoolKitTestCase):
         # Mismatched begin/else/end (wrong infix)
         skool = '\n'.join((
             '; @rsub+begin',
-            '; @rsub-else',
+            '@rsub-else',
             '; @rsub+end',
         ))
         error = "rsub+end cannot end rsub- block"
@@ -1969,7 +1969,7 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_mismatched_begin_end(self):
         # Mismatched begin/end (different directive)
         skool = '\n'.join((
-            '; @ofix-begin',
+            '@ofix-begin',
             '; @bfix-end',
         ))
         error = "bfix-end cannot end ofix- block"

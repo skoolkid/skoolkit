@@ -841,8 +841,6 @@ class SkoolMacroTest(HtmlWriterTestCase):
 
     def test_macro_d(self):
         skool = '\n'.join((
-            '; @start',
-            '',
             '; First routine',
             'c32768 RET',
             '',
@@ -860,8 +858,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self.assertEqual(output, 'Second routine')
 
     def test_macro_d_invalid(self):
-        skool = '; @start\nc32770 RET'
-        writer = self._get_writer(skool=skool)
+        writer = self._get_writer(skool='c32770 RET')
         prefix = ERROR_PREFIX.format('D')
 
         # No parameter (1)
@@ -895,7 +892,6 @@ class SkoolMacroTest(HtmlWriterTestCase):
 
         # Entry point with more than one referrer
         skool = '\n'.join((
-            '; @start',
             '; First routine',
             'c30000 CALL 30004',
             '',
@@ -911,8 +907,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self.assertEqual(output, 'routines at <a class="link" href="30000.html">30000</a> and <a class="link" href="30005.html">30005</a>')
 
     def test_macro_erefs_invalid(self):
-        skool = '; @start\nc30005 JP 30004'
-        writer = self._get_writer(skool=skool)
+        writer = self._get_writer(skool='c30005 JP 30004')
         prefix = ERROR_PREFIX.format('EREFS')
 
         # No parameter (1)
