@@ -7,6 +7,9 @@ Changelog
   section and before the first instruction in a routine or data block)
 * The :ref:`font`, :ref:`scr` and :ref:`udg` macros now have the ability to
   create frames for an animated image
+* Writing an ASM directive in a skool file can now be done by starting a line
+  with ``@``; writing an ASM directive by starting a line with ``; @`` is
+  deprecated
 * Fixed the bug that prevents register descriptions from being HTML-escaped
 
 4.2 (2014-12-07)
