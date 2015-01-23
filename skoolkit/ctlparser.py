@@ -192,34 +192,59 @@ class CtlParser:
                         raise CtlParserError("loop count not specified")
                 if len(fields) > 1:
                     text = fields[1]
+            elif first_char == '@':
+                asm_directive = self._parse_asm_directive(content)
             elif first_char == ';' and content.startswith('@'):
-                asm_fields = content.split(':', 1)
-                if len(asm_fields) < 2:
-                    raise CtlParserError("invalid ASM directive declaration")
-                directive = asm_fields[0][1:]
-                asm_fields[1] = asm_fields[1].split('=', 1)
-                addr_str = asm_fields[1][0]
-                if directive == AD_IGNOREUA:
-                    comment_type = 'i'
-                    if ':' in addr_str:
-                        addr_str, comment_type = addr_str.split(':', 1)
-                try:
-                    address = get_int_param(addr_str)
-                except ValueError:
-                    raise CtlParserError("invalid ASM directive address")
-                if len(asm_fields[1]) == 2:
-                    value = asm_fields[1][1]
-                else:
-                    value = None
-                if directive == AD_IGNOREUA:
-                    if comment_type not in COMMENT_TYPES:
-                        raise CtlParserError("invalid @ignoreua directive address suffix: '{}:{}'".format(addr_str, comment_type))
-                    self.ignoreua_directives.setdefault(address, set()).add(comment_type)
-                else:
-                    asm_directive = (directive, address, value)
+                asm_directive = self._parse_old_style_asm_directive(content)
             elif first_char not in '#%;':
                 raise CtlParserError("invalid directive")
         return ctl, start, end, text, lengths, asm_directive
+
+    def _parse_asm_directive(self, content):
+        fields = [f.lstrip() for f in content.split(' ', 1)]
+        if len(fields) < 2:
+            raise CtlParserError("invalid ASM directive declaration")
+        try:
+            address = get_int_param(fields[0])
+        except ValueError:
+            raise CtlParserError("invalid ASM directive address")
+        try:
+            directive, value = [f.rstrip() for f in fields[1].split('=', 1)]
+        except ValueError:
+            directive, value = fields[1], None
+        comment_type = 'i'
+        if directive.startswith(AD_IGNOREUA + ':'):
+            directive, comment_type = directive.split(':', 1)
+        if directive != AD_IGNOREUA:
+            return directive, address, value
+        if comment_type not in COMMENT_TYPES:
+            raise CtlParserError("invalid @ignoreua directive suffix: '{}'".format(comment_type))
+        self.ignoreua_directives.setdefault(address, set()).add(comment_type)
+
+    def _parse_old_style_asm_directive(self, content):
+        asm_fields = content.split(':', 1)
+        if len(asm_fields) < 2:
+            raise CtlParserError("invalid ASM directive declaration")
+        directive = asm_fields[0][1:]
+        asm_fields[1] = asm_fields[1].split('=', 1)
+        addr_str = asm_fields[1][0]
+        if directive == AD_IGNOREUA:
+            comment_type = 'i'
+            if ':' in addr_str:
+                addr_str, comment_type = addr_str.split(':', 1)
+        try:
+            address = get_int_param(addr_str)
+        except ValueError:
+            raise CtlParserError("invalid ASM directive address")
+        if len(asm_fields[1]) == 2:
+            value = asm_fields[1][1]
+        else:
+            value = None
+        if directive != AD_IGNOREUA:
+            return directive, address, value
+        if comment_type not in COMMENT_TYPES:
+            raise CtlParserError("invalid @ignoreua directive address suffix: '{}:{}'".format(addr_str, comment_type))
+        self.ignoreua_directives.setdefault(address, set()).add(comment_type)
 
     def _unroll_loops(self):
         for start, end, count, repeat_entries in self.loops:
