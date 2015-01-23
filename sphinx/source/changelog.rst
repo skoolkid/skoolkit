@@ -10,6 +10,9 @@ Changelog
 * Writing an ASM directive in a skool file can now be done by starting a line
   with ``@``; writing an ASM directive by starting a line with ``; @`` is
   deprecated
+* Added the ``@`` directive for declaring ASM directives in a control file; the
+  old style of declaring ASM directives (``; @directive:address[=value]``) is
+  deprecated
 * Fixed the bug that prevents register descriptions from being HTML-escaped
 
 4.2 (2014-12-07)

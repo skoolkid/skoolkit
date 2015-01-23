@@ -371,9 +371,9 @@ will result in something like this in the corresponding skool file::
 ASM directives
 --------------
 To declare an ASM directive for a block or an individual instruction, use the
-following syntax::
+``@`` directive thus::
 
-  ; @directive:address[=value]
+  @ address directive[=value]
 
 where:
 
@@ -384,13 +384,13 @@ where:
 
 For example, to declare a :ref:`label` directive for the instruction at 32768::
 
-  ; @label:32768=LOOP
+  @ 32768 label=LOOP
 
 When declaring an :ref:`ignoreua` directive for anything other than an
-instruction-level comment, a suffix must be appended to the address to specify
-what the directive applies to::
+instruction-level comment, a suffix must be appended to the directive to
+specify the type of comment it applies to::
 
-  ; @ignoreua:address:X
+  @ address ignoreua:X
 
 where ``X`` is one of:
 
@@ -404,12 +404,16 @@ where ``X`` is one of:
 For example, to declare an :ref:`ignoreua` directive for the description of the
 routine at 49152::
 
-  ; @ignoreua:49152:d
+  @ 49152 ignoreua:d
   D 49152 This is the description of the routine at 49152.
 
 Note that neither ASM block directives (such as the :ref:`bfixBlockDirectives`)
 nor the exact location of :ref:`org`, :ref:`writer`, :ref:`start`, :ref:`end`
 and :ref:`set` directives can be preserved in a control file.
+
+.. note::
+   The old style of declaring ASM directives (``; @directive:address[=value]``)
+   is deprecated since version 4.3.
 
 Instruction-level comments
 --------------------------
@@ -454,9 +458,9 @@ at least one character other than a dot; such comments are preserved verbatim
 Control file comments
 ---------------------
 A comment may be added to a control file by starting a line with a hash
-character (``#``), a per cent sign (``%``), or a semicolon (so long as the next
-non-whitespace character is not ``@``, because ``; @`` is used to declare ASM
-directives). For example::
+character (``#``), a per cent sign (``%``), or a semicolon - so long as the
+next non-whitespace character is not ``@``, because ``; @`` is the deprecated
+(but still valid) way to declare an ASM directive. For example::
 
   # This is a comment
   % This is another comment
@@ -482,7 +486,8 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 4.3     | Added the ``N`` directive and support for block start comments    |
+| 4.3     | Added the ``@`` directive, the ``N`` directive and support for    |
+|         | block start comments                                              |
 +---------+-------------------------------------------------------------------+
 | 4.2     | Added the ``L`` directive and support for preserving the location |
 |         | of :ref:`ignoreua` directives                                     |
