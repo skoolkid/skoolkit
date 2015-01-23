@@ -82,25 +82,23 @@ class CtlWriter:
             suffix = ''
         else:
             suffix = '={0}'.format(value)
-        write_line('; @{0}:{1}{2}'.format(directive, address, suffix))
+        write_line('@ {} {}{}'.format(self.addr_str(address), directive, suffix))
 
     def _write_entry_asm_directive(self, entry, directive, value=None):
         if self.write_asm_dirs:
-            self._write_asm_directive(directive, self.addr_str(entry.address, False), value)
+            self._write_asm_directive(directive, entry.address, value)
 
     def _write_entry_ignoreua_directive(self, entry, comment_type):
         if entry.ignoreua[comment_type] and self.write_asm_dirs:
-            address = self.addr_str(entry.address, False)
-            self._write_asm_directive(AD_IGNOREUA, '{}:{}'.format(address, comment_type))
+            self._write_asm_directive('{}:{}'.format(AD_IGNOREUA, comment_type), entry.address)
 
     def _write_instruction_asm_directives(self, instruction):
-        if not self.write_asm_dirs:
-            return
-        address = self.addr_str(instruction.address, False)
-        for directive, value in instruction.asm_directives:
-            self._write_asm_directive(directive, address, value)
-        if instruction.ignoreua:
-            self._write_asm_directive(AD_IGNOREUA, '{}:{}'.format(address, INSTRUCTION))
+        if self.write_asm_dirs:
+            address = instruction.address
+            for directive, value in instruction.asm_directives:
+                self._write_asm_directive(directive, address, value)
+            if instruction.ignoreua:
+                self._write_asm_directive('{}:{}'.format(AD_IGNOREUA, INSTRUCTION), address)
 
     def write_entry(self, entry):
         if entry.start:
@@ -166,9 +164,9 @@ class CtlWriter:
         for k, (mrc, instructions) in enumerate(sections):
             if BLOCK_COMMENTS in self.elements and mrc:
                 first_instruction = instructions[0]
-                address_str = self.addr_str(first_instruction.address)
                 if first_instruction.ignoremrcua and self.write_asm_dirs:
-                    self._write_asm_directive(AD_IGNOREUA, '{}:{}'.format(address_str, MID_BLOCK))
+                    self._write_asm_directive('{}:{}'.format(AD_IGNOREUA, MID_BLOCK), first_instruction.address)
+                address_str = self.addr_str(first_instruction.address)
                 for paragraph in mrc:
                     write_line('N {} {}'.format(address_str, paragraph))
 
@@ -196,12 +194,10 @@ class CtlWriter:
                         if comment_text or ctl != entry_ctl or ctl != 'c':
                             self.write_sub_block(ctl, entry_ctl, comment_text, instructions, length)
 
-    def addr_str(self, address, pad=True):
+    def addr_str(self, address):
         if self.write_hex:
             return '${:04X}'.format(address)
-        if pad:
-            return '{:05d}'.format(address)
-        return str(address)
+        return '{:05d}'.format(address)
 
     def get_sub_blocks(self, instructions):
         # Split a block of instructions into sub-blocks by comment rowspan
@@ -276,7 +272,6 @@ class SkoolParser:
         self.preserve_base = preserve_base
         self.mode = Mode()
         self.memory_map = []
-        self.header = []
         self.stack = []
 
         with open_file(skoolfile) as f:
@@ -289,10 +284,15 @@ class SkoolParser:
         ignores = []
         address_comments = []
         for line in skoolfile:
-            if line[0] == ';':
-                if self._parse_comment(line, comments, ignores):
+            if line.startswith(';'):
+                comment = line[2:].rstrip()
+                if comment.startswith('@'):
+                    self._parse_asm_directive(comment[1:], ignores, len(comments))
+                else:
+                    if self.mode.include:
+                        comments.append(comment)
                     instruction = None
-                continue # pragma: no cover
+                continue
 
             if line.startswith('@'):
                 self._parse_asm_directive(line[1:].rstrip(), ignores, len(comments))
@@ -304,11 +304,8 @@ class SkoolParser:
             s_line = line.strip()
             if not s_line:
                 instruction = None
-                if comments:
-                    if map_entry:
-                        map_entry.end_comment = join_comments(comments, True)
-                    else:
-                        self.header += comments
+                if comments and map_entry:
+                    map_entry.end_comment = join_comments(comments, True)
                 # Process an '@end' directive if one was found
                 if self.mode.entry_asm_directives and map_entry:
                     self.mode.apply_entry_asm_directives(map_entry)
@@ -357,17 +354,6 @@ class SkoolParser:
             map_entry.ignoreua[END] = len(ignores) > 0
 
         self._parse_address_comments(address_comments)
-
-    def _parse_comment(self, line, comments, ignores):
-        """Parses a comment line. Returns False if the line contains an ASM (@)
-        directive, and True otherwise."""
-        comment = line[2:].rstrip()
-        if comment.startswith('@'):
-            self._parse_asm_directive(comment[1:], ignores, len(comments))
-            return False
-        if self.mode.include:
-            comments.append(comment)
-        return True
 
     def _parse_asm_directive(self, directive, ignores, line_no):
         if parse_asm_block_directive(directive, self.stack):

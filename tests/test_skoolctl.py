@@ -172,43 +172,43 @@ i49643
 """
 
 TEST_CTL = """c 00000 Address 0
-; @label:0=START0
+@ 00000 label=START0
 c 00001 Address with 1 digit
-; @label:1=START1
+@ 00001 label=START1
 c 00033 Address with 2 digits
-; @label:33=START33
+@ 00033 label=START33
 c 00555 Address with 3 digits
-; @label:555=START555
+@ 00555 label=START555
 c 07890 Address with 4 digits
-; @label:7890=START7890
-; @start:32768
-; @writer:32768=package.module.classname
-; @set-bullet:32768=+
-; @org:32768=32768
+@ 07890 label=START7890
+@ 32768 start
+@ 32768 writer=package.module.classname
+@ 32768 set-bullet=+
+@ 32768 org=32768
 c 32768 Routine
 D 32768 Routine description
 R 32768 A Some value
 R 32768 B Another value
 N 32768 Start comment
-; @label:32768=START
+@ 32768 label=START
   32768,1 Do nothing
-; @bfix:32769=DEFB 2,3
+@ 32769 bfix=DEFB 2,3
 B 32769,2,2 1-line B sub-block
-; @nowarn:32771
-; @isub:32772=DEFB 0,1
+@ 32771 nowarn
+@ 32772 isub=DEFB 0,1
 B 32771,3,1,2 2-line B sub-block
 N 32774 Mid-block comment
 T 32774,5,5 T sub-block
-; @keep:32779
+@ 32779 keep
 W 32779,2,2 W sub-block
 S 32781,2,2 S sub-block
 M 32783,12 Sub-block with instructions of various types and blank lines in the comment
-; @nolabel:32783
-; @ofix:32785=DEFB 2
+@ 32783 nolabel
+@ 32785 ofix=DEFB 2
 B 32785,1,1
-; @rsub:32786=DEFW 0,1,2
+@ 32786 rsub=DEFW 0,1,2
 W 32786,4,4
-; @ssub:32790=DEFM "Lo"
+@ 32790 ssub=DEFM "Lo"
 T 32790,2,1:B1
 S 32792,3,3
   32795 Instruction with a comment continuation line
@@ -216,7 +216,7 @@ E 32768 End comment paragraph 1.
 E 32768 End comment paragraph 2.
 i 32796 Ignore block
 b 49152 Data block
-; @rem:49152=Hello!
+@ 49152 rem=Hello!
   49152,1,1
 g 49153 Game status buffer entry
 W 49153,2,2
@@ -244,7 +244,7 @@ b 49193 ASM block directives
   49193,1,1
 s 49194 Zero block
   49194,384,128
-; @end:49194
+@ 49194 end
 b 49578 Complex DEFB statements
   49578,20,3:T5:2,T7:3
 t 49598 Complex DEFM statements
@@ -263,43 +263,43 @@ i 49643 Another ignore block
 E 49643 End comment on the final block.""".split('\n')
 
 TEST_CTL_HEX = """c $0000 Address 0
-; @label:$0000=START0
+@ $0000 label=START0
 c $0001 Address with 1 digit
-; @label:$0001=START1
+@ $0001 label=START1
 c $0021 Address with 2 digits
-; @label:$0021=START33
+@ $0021 label=START33
 c $022B Address with 3 digits
-; @label:$022B=START555
+@ $022B label=START555
 c $1ED2 Address with 4 digits
-; @label:$1ED2=START7890
-; @start:$8000
-; @writer:$8000=package.module.classname
-; @set-bullet:$8000=+
-; @org:$8000=32768
+@ $1ED2 label=START7890
+@ $8000 start
+@ $8000 writer=package.module.classname
+@ $8000 set-bullet=+
+@ $8000 org=32768
 c $8000 Routine
 D $8000 Routine description
 R $8000 A Some value
 R $8000 B Another value
 N $8000 Start comment
-; @label:$8000=START
+@ $8000 label=START
   $8000,1 Do nothing
-; @bfix:$8001=DEFB 2,3
+@ $8001 bfix=DEFB 2,3
 B $8001,2,2 1-line B sub-block
-; @nowarn:$8003
-; @isub:$8004=DEFB 0,1
+@ $8003 nowarn
+@ $8004 isub=DEFB 0,1
 B $8003,3,1,2 2-line B sub-block
 N $8006 Mid-block comment
 T $8006,5,5 T sub-block
-; @keep:$800B
+@ $800B keep
 W $800B,2,2 W sub-block
 S $800D,2,2 S sub-block
 M $800F,12 Sub-block with instructions of various types and blank lines in the comment
-; @nolabel:$800F
-; @ofix:$8011=DEFB 2
+@ $800F nolabel
+@ $8011 ofix=DEFB 2
 B $8011,1,1
-; @rsub:$8012=DEFW 0,1,2
+@ $8012 rsub=DEFW 0,1,2
 W $8012,4,4
-; @ssub:$8016=DEFM "Lo"
+@ $8016 ssub=DEFM "Lo"
 T $8016,2,1:B1
 S $8018,3,3
   $801B Instruction with a comment continuation line
@@ -307,7 +307,7 @@ E $8000 End comment paragraph 1.
 E $8000 End comment paragraph 2.
 i $801C Ignore block
 b $C000 Data block
-; @rem:$C000=Hello!
+@ $C000 rem=Hello!
   $C000,1,1
 g $C001 Game status buffer entry
 W $C001,2,2
@@ -335,7 +335,7 @@ b $C029 ASM block directives
   $C029,1,1
 s $C02A Zero block
   $C02A,384,128
-; @end:$C02A
+@ $C02A end
 b $C1AA Complex DEFB statements
   $C1AA,20,3:T5:2,T7:3
 t $C1BE Complex DEFM statements
@@ -524,7 +524,7 @@ class CtlWriterTest(SkoolKitTestCase):
 
     def test_default_elements_no_asm_dirs(self):
         ctl = self._get_ctl(write_asm_dirs=False)
-        test_ctl = [line for line in TEST_CTL if not line.startswith(';')]
+        test_ctl = [line for line in TEST_CTL if not line.startswith('@')]
         self.assertEqual(test_ctl, ctl)
 
     def test_wb(self):
@@ -658,26 +658,26 @@ class CtlWriterTest(SkoolKitTestCase):
             '; End comment for the routine at 30004.'
         ))
         exp_ctl = [
-            '; @ignoreua:30000:t',
+            '@ 30000 ignoreua:t',
             'c 30000 Routine at 30000',
             'c 30001 Routine',
-            '; @ignoreua:30001:d',
+            '@ 30001 ignoreua:d',
             'D 30001 Description of the routine at 30001',
-            '; @ignoreua:30001:r',
+            '@ 30001 ignoreua:r',
             'R 30001 HL 30001',
-            '; @ignoreua:30001:i',
+            '@ 30001 ignoreua:i',
             '  30001 Instruction-level comment at 30001',
             'c 30002 Routine',
-            '; @ignoreua:30003:m',
+            '@ 30003 ignoreua:m',
             'N 30003 Mid-block comment above 30003.',
-            '; @ignoreua:30003:i',
+            '@ 30003 ignoreua:i',
             '  30003 Instruction-level comment at 30003',
             'c 30004 Routine',
-            '; @ignoreua:30004:i',
+            '@ 30004 ignoreua:i',
             '  30004,1 Instruction-level comment at 30004',
-            '; @ignoreua:30005:m',
+            '@ 30005 ignoreua:m',
             'N 30005 Mid-block comment above 30005.',
-            '; @ignoreua:30004:e',
+            '@ 30004 ignoreua:e',
             'E 30004 End comment for the routine at 30004.'
         ]
         ctl = self._get_ctl(skool=skool)
@@ -697,7 +697,7 @@ class CtlWriterTest(SkoolKitTestCase):
         ))
         exp_ctl = [
             'c 30000 Routine',
-            '; @ignoreua:30000:m',
+            '@ 30000 ignoreua:m',
             'N 30000 Start comment above 30000.'
         ]
         ctl = self._get_ctl(skool=skool)
@@ -722,17 +722,17 @@ class CtlWriterTest(SkoolKitTestCase):
             '; End comment for the routine at 40000.'
         ))
         exp_ctl = [
-            '; @ignoreua:$9C40:t',
+            '@ $9C40 ignoreua:t',
             'c $9C40 Routine at 40000',
-            '; @ignoreua:$9C40:d',
+            '@ $9C40 ignoreua:d',
             'D $9C40 Description of the routine at 40000',
-            '; @ignoreua:$9C40:r',
+            '@ $9C40 ignoreua:r',
             'R $9C40 HL 40000',
-            '; @ignoreua:$9C40:i',
+            '@ $9C40 ignoreua:i',
             '  $9C40,1 Instruction-level comment at 40000',
-            '; @ignoreua:$9C41:m',
+            '@ $9C41 ignoreua:m',
             'N $9C41 Mid-block comment above 40001.',
-            '; @ignoreua:$9C40:e',
+            '@ $9C40 ignoreua:e',
             'E $9C40 End comment for the routine at 40000.'
         ]
         ctl = self._get_ctl(write_hex=True, skool=skool)
