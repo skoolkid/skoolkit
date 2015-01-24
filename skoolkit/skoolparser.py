@@ -462,9 +462,15 @@ class SkoolParser:
         address_comments = []
         for line in skoolfile:
             if line[0] == ';':
-                if self._parse_comment(line):
+                comment = line[2:].rstrip()
+                if comment.startswith('@'):
+                    self._parse_asm_directive(comment[1:])
+                else:
+                    if self.mode.started and self.mode.include:
+                        self.comments.append(comment)
+                        self.mode.ignoreua = False
                     instruction = None
-                continue # pragma: no cover
+                continue
 
             if line.startswith('@'):
                 self._parse_asm_directive(line[1:].rstrip())
@@ -549,18 +555,6 @@ class SkoolParser:
     def _add_end_comment(self, map_entry):
         map_entry.end_comment = join_comments(self.comments, split=True, html=self.mode.html)
         map_entry.ignoreua['e'] = len(self.ignores) > 0
-
-    def _parse_comment(self, line):
-        """Parse a comment line. Return False if the line contains an ASM (@)
-        directive, and True otherwise."""
-        comment = line[2:].rstrip()
-        if comment.startswith('@'):
-            self._parse_asm_directive(comment[1:])
-            return False
-        if self.mode.started and self.mode.include:
-            self.comments.append(comment)
-            self.mode.ignoreua = False
-        return True
 
     def _parse_asm_directive(self, directive):
         if self.mode.started:
