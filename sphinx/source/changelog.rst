@@ -5,6 +5,9 @@ Changelog
 -----
 * Added support for block start comments (which appear after the register
   section and before the first instruction in a routine or data block)
+* Added the ``CodeFiles`` parameter to the :ref:`paths` section (for specifying
+  the format of a disassembly page filename based on the address of the routine
+  or data block)
 * The :ref:`font`, :ref:`scr` and :ref:`udg` macros now have the ability to
   create frames for an animated image
 * Writing an ASM directive in a skool file can now be done by starting a line

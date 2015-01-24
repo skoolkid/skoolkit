@@ -740,47 +740,59 @@ where:
 
 Recognised file IDs and their default paths are:
 
-* ``Bugs`` - the 'Bugs' page (default: `reference/bugs.html`)
-* ``Changelog`` - the 'Changelog' page (default: `reference/changelog.html`)
-* ``DataMap`` - the 'Data' memory map page (default: `maps/data.html`)
-* ``Facts`` - the 'Trivia' page (default: `reference/facts.html`)
-* ``GameIndex`` - the disassembly home page (default: `index.html`)
+* ``Bugs`` - the 'Bugs' page (default: ``reference/bugs.html``)
+* ``Changelog`` - the 'Changelog' page (default: ``reference/changelog.html``)
+* ``CodeFiles`` - the format of the disassembly page filenames (default:
+  ``{address}.html``)
+* ``DataMap`` - the 'Data' memory map page (default: ``maps/data.html``)
+* ``Facts`` - the 'Trivia' page (default: ``reference/facts.html``)
+* ``GameIndex`` - the home page (default: ``index.html``)
 * ``GameStatusBuffer`` - the 'Game status buffer' page (default:
-  `buffers/gbuffer.html`)
-* ``Glossary`` - the 'Glossary' page (default: `reference/glossary.html`)
+  ``buffers/gbuffer.html``)
+* ``Glossary`` - the 'Glossary' page (default: ``reference/glossary.html``)
 * ``GraphicGlitches`` - the 'Graphic glitches' page (default:
-  `graphics/glitches.html`)
-* ``MemoryMap`` - the 'Everything' memory map page (default: `maps/all.html`)
+  ``graphics/glitches.html``)
+* ``MemoryMap`` - the 'Everything' memory map page (default: ``maps/all.html``)
 * ``MessagesMap`` - the 'Messages' memory map page (default:
-  `maps/messages.html`)
-* ``Pokes`` - the 'Pokes' page (default: `reference/pokes.html`)
+  ``maps/messages.html``)
+* ``Pokes`` - the 'Pokes' page (default: ``reference/pokes.html``)
 * ``RoutinesMap`` - the 'Routines' memory map page (default:
-  `maps/routines.html`)
+  ``maps/routines.html``)
 * ``UnusedMap`` - the 'Unused addresses' memory map page (default:
-  `maps/unused.html`)
+  ``maps/unused.html``)
 
 Recognised directory IDs and their default paths are:
 
-* ``CodePath`` - the directory in which the disassembly files will be written
-  (default: `asm`)
+* ``CodePath`` - the directory in which the disassembly pages are written
+  (default: ``asm``)
 * ``FontImagePath`` - the directory in which font images (created by the
-  :ref:`#FONT <FONT>` macro) will be placed (default: `images/font`)
-* ``FontPath`` - the directory in which to store font files specified by the
-  ``Font`` parameter in the :ref:`ref-Game` section (default: `.`)
-* ``JavaScriptPath`` - the directory in which to store JavaScript files
-  specified by the ``JavaScript`` parameter in the :ref:`ref-Game` section and
-  :ref:`Page` sections (default: `.`)
+  :ref:`#FONT <FONT>` macro) are placed (default: ``images/font``)
+* ``FontPath`` - the directory in which font files specified by the ``Font``
+  parameter in the :ref:`ref-Game` section are placed (default: ``.``)
+* ``JavaScriptPath`` - the directory in which JavaScript files specified by the
+  ``JavaScript`` parameter in the :ref:`ref-Game` section and :ref:`Page`
+  sections are placed (default: ``.``)
 * ``ScreenshotImagePath`` - the directory in which screenshot images (created
-  by the :ref:`#SCR <SCR>` macro) will be placed (default: `images/scr`)
-* ``StyleSheetPath`` - the directory in which to store CSS files specified by
-  the ``StyleSheet`` parameter in the :ref:`ref-Game` section (default: `.`)
+  by the :ref:`#SCR <SCR>` macro) are placed (default: ``images/scr``)
+* ``StyleSheetPath`` - the directory in which CSS files specified by the
+  ``StyleSheet`` parameter in the :ref:`ref-Game` section are placed (default:
+  ``.``)
 * ``UDGImagePath`` - the directory in which UDG images (created by the
-  :ref:`#UDG <UDG>` or :ref:`#UDGARRAY <UDGARRAY>` macro) will be placed
-  (default: `images/udgs`)
+  :ref:`#UDG <UDG>` or :ref:`#UDGARRAY <UDGARRAY>` macro) are placed (default:
+  ``images/udgs``)
+
+The ``CodeFiles`` parameter contains a standard Python format string that
+specifies the format of a disassembly page filename based on the address of the
+routine or data block. The default format string is ``{address}.html``, which
+produces decimal addresses (e.g. ``65280.html``); to produce 4-digit, upper
+case hexadecimal addresses instead (e.g. ``FF00.html``), change ``CodeFiles``
+to ``{address:04X}.html``.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 4.3     | Added the ``CodeFiles`` file ID                                   |
++---------+-------------------------------------------------------------------+
 | 3.1.1   | Added the ``FontPath`` directory ID                               |
 +---------+-------------------------------------------------------------------+
 | 2.5     | Added the ``UnusedMap`` file ID                                   |
