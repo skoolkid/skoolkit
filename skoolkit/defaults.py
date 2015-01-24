@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2014, 2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -207,6 +207,7 @@ StyleSheetPath=.
 UDGImagePath=images/udgs
 Bugs=reference/bugs.html
 Changelog=reference/changelog.html
+CodeFiles={address}.html
 DataMap=maps/data.html
 Facts=reference/facts.html
 GameIndex=index.html

@@ -129,6 +129,7 @@ class HtmlWriter:
 
         self.game_vars = self.get_dictionary('Game')
         self.paths = self.get_dictionary('Paths')
+        self.asm_fname_template = self.paths['CodeFiles']
         self.titles = self.get_dictionary('Titles')
         self.page_headers = self.get_dictionary('PageHeaders')
         links = self.get_dictionary('Links')
@@ -437,6 +438,15 @@ class HtmlWriter:
     def file_exists(self, fname):
         return self.file_info.file_exists(fname)
 
+    def relpath(self, cwd, target):
+        return posixpath.relpath(target, cwd)
+
+    def asm_fname(self, address, path=''):
+        return posixpath.normpath(join(path, self.asm_fname_template.format(address=address)))
+
+    def asm_relpath(self, cwd, address, path):
+        return self.relpath(cwd, join(path, self.asm_fname(address)))
+
     def join_paragraphs(self, paragraphs, cwd):
         lines = []
         for p in paragraphs:
@@ -536,7 +546,7 @@ class HtmlWriter:
             for page_id in page_list:
                 fname = self.paths.get(page_id)
                 if fname and self.file_exists(fname):
-                    link_file = FileInfo.relpath(cwd, fname)
+                    link_file = self.relpath(cwd, fname)
                     link_text = self.links[page_id]
                     links.append((link_file, link_text[0], link_text[1]))
             sections[section_id] = (header_text, links)
@@ -544,7 +554,7 @@ class HtmlWriter:
         for code_id, code in self.other_code:
             fname = self.paths[code['IndexPageId']]
             if self.file_exists(fname):
-                link_file = FileInfo.relpath(cwd, fname)
+                link_file = self.relpath(cwd, fname)
                 link_text = self.links[code['IndexPageId']]
                 other_code_links.append((link_file, link_text[0], link_text[1]))
         sections['OtherCode'] = ('Other code', other_code_links)
@@ -587,7 +597,7 @@ class HtmlWriter:
             'byte': entry.address % 256,
             'label': self.parser.get_asm_label(entry.address),
             'description': description,
-            'href': FileInfo.asm_relpath(cwd, entry.address, self.code_path),
+            'href': self.asm_relpath(cwd, entry.address, self.code_path),
             'size': entry.size,
             'title': self.expand(entry.description, cwd)
         }
@@ -604,7 +614,7 @@ class HtmlWriter:
         address = entry.address
         if address not in self.asm_entry_dicts:
             entry_dict = self._get_entry_dict(cwd, entry)
-            entry_dict['map_href'] = '{}#{}'.format(FileInfo.relpath(cwd, map_file), entry.address)
+            entry_dict['map_href'] = '{}#{}'.format(self.relpath(cwd, map_file), entry.address)
             self.asm_entry_dicts[address] = entry_dict
         return self.asm_entry_dicts[address]
 
@@ -740,7 +750,7 @@ class HtmlWriter:
 
     def write_entry(self, cwd, index, map_file):
         entry = self.memory_map[index]
-        fname = join(cwd, FileInfo.asm_fname(entry.address))
+        fname = join(cwd, self.asm_fname(entry.address))
         page_id = self._get_asm_page_id(self.code_id, entry.ctl)
         self._set_cwd(page_id, fname)
 
@@ -779,10 +789,10 @@ class HtmlWriter:
                         name = '#{}'.format(reference.address)
                     if reference.entry.asm_id:
                         # This is a reference to an entry in another disassembly
-                        entry_file = FileInfo.asm_relpath(cwd, entry_address, self.get_code_path(reference.entry.asm_id))
+                        entry_file = self.asm_relpath(cwd, entry_address, self.get_code_path(reference.entry.asm_id))
                     else:
                         # This is a reference to an entry in the same disassembly
-                        entry_file = FileInfo.asm_fname(entry_address)
+                        entry_file = self.asm_fname(entry_address)
                     link_text = asm_label or reference.addr_str
                     link = self.format_link(entry_file + name, link_text)
                     operation = operation.replace(reference.addr_str, link)
@@ -880,7 +890,7 @@ class HtmlWriter:
     def _set_cwd(self, page_id, fname):
         cwd = os.path.dirname(fname)
         self.skoolkit['page_id'] = page_id
-        self.skoolkit['index_href'] = FileInfo.relpath(cwd, self.paths[P_GAME_INDEX])
+        self.skoolkit['index_href'] = self.relpath(cwd, self.paths[P_GAME_INDEX])
         self.skoolkit['title'] = self.titles[page_id]
         self.skoolkit['page_header'] = self.page_headers[page_id]
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
@@ -890,7 +900,7 @@ class HtmlWriter:
         if cwd not in self.stylesheets:
             stylesheets = []
             for css_file in self.game_vars['StyleSheet'].split(';'):
-                t_stylesheet_subs = {'href': FileInfo.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}
+                t_stylesheet_subs = {'href': self.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}
                 stylesheets.append(self.format_template('stylesheet', t_stylesheet_subs))
             self.stylesheets[cwd] = '\n'.join(stylesheets)
 
@@ -903,7 +913,7 @@ class HtmlWriter:
             else:
                 js_files = self.js_files
             for js_file in js_files:
-                t_javascript_subs = {'src': FileInfo.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))}
+                t_javascript_subs = {'src': self.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))}
                 javascript.append(self.format_template('javascript', t_javascript_subs))
             self.javascript[js_key] = '\n'.join(javascript)
 
@@ -919,7 +929,7 @@ class HtmlWriter:
             else:
                 logo_image = self.game_vars.get('LogoImage')
                 if logo_image and self.file_exists(logo_image):
-                    self.logo[cwd] = self.format_img(self.game_name, FileInfo.relpath(cwd, logo_image))
+                    self.logo[cwd] = self.format_img(self.game_name, self.relpath(cwd, logo_image))
                 else:
                     self.logo[cwd] = self.game_name
         return self.logo[cwd]
@@ -1058,7 +1068,7 @@ class HtmlWriter:
         """
         if alt is None:
             alt = basename(image_path)[:-4]
-        return self.format_img(alt, FileInfo.relpath(cwd, image_path))
+        return self.format_img(alt, self.relpath(cwd, image_path))
 
     def image_path(self, fname, path_id=DEF_IMG_PATH):
         """Return the full path of an image file relative to the root directory
@@ -1177,7 +1187,7 @@ class HtmlWriter:
                     break
             else:
                 raise MacroParsingError("Cannot determine title of item '{}'".format(item))
-        href = FileInfo.relpath(cwd, self.paths[path_id])
+        href = self.relpath(cwd, self.paths[path_id])
         if item:
             href += '#' + item
         return self.format_link(href, link_text)
@@ -1236,7 +1246,7 @@ class HtmlWriter:
             raise MacroParsingError("Unknown page ID: {}".format(page_id))
         if link_text == '':
             link_text = self.links[page_id][0]
-        href = FileInfo.relpath(cwd, self.paths[page_id]) + anchor
+        href = self.relpath(cwd, self.paths[page_id]) + anchor
         return end, self.format_link(href, link_text)
 
     def expand_list(self, text, index, cwd):
@@ -1276,7 +1286,7 @@ class HtmlWriter:
         if not anchor and address != container_address:
             anchor = '#{}'.format(address)
         asm_label = self.parser.get_asm_label(address)
-        ref_file = FileInfo.asm_relpath(cwd, container_address, code_path)
+        ref_file = self.asm_relpath(cwd, container_address, code_path)
         return end, self.format_link(ref_file + anchor, link_text or asm_label or inst_addr_str)
 
     def expand_refs(self, text, index, cwd):
@@ -1497,18 +1507,6 @@ class FileInfo:
 
     def file_exists(self, fname):
         return isfile(join(self.odir, fname))
-
-    @classmethod
-    def relpath(cls, cwd, target):
-        return posixpath.relpath(target, cwd)
-
-    @classmethod
-    def asm_fname(cls, address, path=''):
-        return posixpath.normpath(join(path, '{0}.html'.format(address)))
-
-    @classmethod
-    def asm_relpath(cls, cwd, address, path):
-        return cls.relpath(cwd, join(path, cls.asm_fname(address)))
 
 class Udg(object):
     """Initialise the UDG.

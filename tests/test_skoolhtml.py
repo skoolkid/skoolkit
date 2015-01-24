@@ -41,6 +41,7 @@ LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
 [Paths]
 CodePath={}
+CodeFiles={{address}}.html
 """.format(ASMDIR)
 
 METHOD_MINIMAL_REF_FILE = """
@@ -52,6 +53,7 @@ LinkOperands=CALL,DEFW,DJNZ,JP,JR
 CodePath={ASMDIR}
 ScreenshotImagePath={SCRDIR}
 UDGImagePath={UDGDIR}
+CodeFiles={{address}}.html
 """.format(**locals())
 
 SKOOL_MACRO_MINIMAL_REF_FILE = """
@@ -66,6 +68,7 @@ FontImagePath=images/font
 ScreenshotImagePath={SCRDIR}
 UDGImagePath={UDGDIR}
 Bugs={REFERENCE_DIR}/bugs.html
+CodeFiles={{address}}.html
 Facts={REFERENCE_DIR}/facts.html
 Pokes={REFERENCE_DIR}/pokes.html
 {REF_SECTIONS[Template_img]}
@@ -1543,6 +1546,22 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # Other code with remote entry point
         output = writer.expand('#R49155@other', ASMDIR)
         self._assert_link_equals(output, '../other/49152.html#49155', 'C003')
+
+    def test_macro_r_with_custom_asm_filenames(self):
+        ref = '[Paths]\nCodeFiles={address:04X}.html'
+        skool = '\n'.join((
+            '; Data at 32768',
+            'b32768 DEFS 12345',
+            '',
+            '; Routine at 45113',
+            'c45113 RET'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        for address in (32768, 45113):
+            output = writer.expand('#R{}'.format(address), ASMDIR)
+            exp_asm_fname = '{:04X}.html'.format(address)
+            self._assert_link_equals(output, exp_asm_fname, str(address))
 
     def test_macro_r_invalid(self):
         writer = self._get_writer()
@@ -3223,6 +3242,23 @@ class HtmlOutputTest(HtmlWriterTestCase):
             self._assert_title_equals(path, title, headers[entry_type])
             address += 1
 
+    def test_write_asm_entries_with_custom_filenames(self):
+        ref = '[Paths]\nCodeFiles=asm-{address:04x}.html'
+        skool = '\n'.join((
+            '; Data',
+            'b30000 DEFS 10000',
+            '',
+            '; More data',
+            'b40000 DEFS 10000'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        for address in (30000, 40000):
+            path = '{}/asm-{:04x}.html'.format(ASMDIR, address)
+            title = 'Data at {}'.format(address)
+            self._assert_title_equals(path, title, 'Data')
+
     def test_block_start_comment(self):
         start_comment = ('Start comment paragraph 1.', 'Paragraph 2.')
         skool = '\n'.join((
@@ -4785,7 +4821,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref)
         cwd = 'subdir/subdir2'
         page = writer.format_page(page_id, cwd, {}).split('\n')
-        js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(global_js)))
+        js_path = writer.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(global_js)))
         self.assertEqual(page[0], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
     def test_format_page_with_multiple_global_js(self):
@@ -4803,7 +4839,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref)
         cwd = 'subdir/subdir2'
         page = writer.format_page(page_id, cwd, {}).split('\n')
-        js_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
+        js_paths = [writer.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
         self.assertEqual(page[0], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
         self.assertEqual(page[1], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
 
@@ -4819,7 +4855,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         cwd = 'subdir/subdir2'
         js = 'js/script.js'
         page = writer.format_page(page_id, cwd, {}, js=js).split('\n')
-        js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
+        js_path = writer.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
         self.assertEqual(page[0], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
     def test_format_page_with_multiple_local_js(self):
@@ -4835,7 +4871,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         js_files = ['js/script1.js', 'js/script2.js']
         js = ';'.join(js_files)
         page = writer.format_page(page_id, cwd, {}, js=js).split('\n')
-        js_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
+        js_paths = [writer.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
         self.assertEqual(page[0], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
         self.assertEqual(page[1], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
 
@@ -4857,7 +4893,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         cwd = 'subdir/subdir2'
         page = writer.format_page(page_id, cwd, {}, js=local_js).split('\n')
         for i, js in enumerate(global_js_files + local_js_files):
-            js_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
+            js_path = writer.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
             self.assertEqual(page[i], '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
     def test_format_page_with_single_css(self):
@@ -4874,7 +4910,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref)
         cwd = ''
         page = writer.format_page(page_id, cwd, {}).split('\n')
-        css_path = FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css)))
+        css_path = writer.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css)))
         self.assertEqual(page[0], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_path))
 
     def test_format_page_with_multiple_css(self):
@@ -4891,7 +4927,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref)
         cwd = ''
         page = writer.format_page(page_id, cwd, {}).split('\n')
-        css_paths = [FileInfo.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css))) for css in css_files]
+        css_paths = [writer.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css))) for css in css_files]
         self.assertEqual(page[0], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[0]))
         self.assertEqual(page[1], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[1]))
 
@@ -4964,7 +5000,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref, skool='')
         logo_image = self.write_bin_file(path=join(writer.file_info.odir, logo_image_fname))
         writer.write_page(page_id)
-        logo = FileInfo.relpath(cwd, logo_image_fname)
+        logo = writer.relpath(cwd, logo_image_fname)
         game_name = self.skoolfile[:-6]
         page = self._read_file(path, True)
         self.assertEqual(page[0], '<img alt="{}" src="{}" />'.format(game_name, logo))
