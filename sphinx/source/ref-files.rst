@@ -206,6 +206,8 @@ aspects of the HTML output. The parameters are in the format::
 
 Recognised parameters are:
 
+* ``AddressAnchor`` - the format of the anchors attached to instructions on
+  disassembly pages and entries on memory map pages (default: ``{address}``)
 * ``Copyright`` - the copyright message that appears in the footer of every
   page (default: '')
 * ``Created`` - the message indicating the software used to create the
@@ -251,9 +253,22 @@ Recognised parameters are:
 * ``TitleSuffix`` - the suffix to use after the game name or logo in the header
   of the main index page (default: 'RAM disassembly')
 
+The ``AddressAnchor`` parameter contains a standard Python format string that
+specifies the format of the anchors attached to instructions on disassembly
+pages and entries on memory map pages. The default format string is
+``{address}``, which produces decimal addresses (e.g. ``#65280``); to produce
+4-digit, lower case hexadecimal addresses instead (e.g. ``#ff00``), change
+``AddressAnchor`` to ``{address:04x}``.
+
+Note that an address anchor that starts with an upper case letter (e.g.
+``#FF00``) will be interpreted as a skool macro, and so any template that could
+produce such an anchor should be avoided.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 4.3     | Added the ``AddressAnchor`` parameter                             |
++---------+-------------------------------------------------------------------+
 | 4.1     | Added the ``LinkInternalOperands`` parameter                      |
 +---------+-------------------------------------------------------------------+
 | 4.0     | Set default values for the ``InputRegisterTableHeader`` and       |

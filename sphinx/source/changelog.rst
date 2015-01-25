@@ -8,6 +8,9 @@ Changelog
 * Added the ``CodeFiles`` parameter to the :ref:`paths` section (for specifying
   the format of a disassembly page filename based on the address of the routine
   or data block)
+* Added the ``AddressAnchor`` parameter to the :ref:`ref-game` section (for
+  specifying the format of the anchors attached to instructions on disassembly
+  pages and entries on memory map pages)
 * The :ref:`font`, :ref:`scr` and :ref:`udg` macros now have the ability to
   create frames for an animated image
 * Writing an ASM directive in a skool file can now be done by starting a line
