@@ -128,6 +128,7 @@ class HtmlWriter:
         self._create_macros()
 
         self.game_vars = self.get_dictionary('Game')
+        self.asm_anchor_template = self.game_vars['AddressAnchor']
         self.paths = self.get_dictionary('Paths')
         self.asm_fname_template = self.paths['CodeFiles']
         self.titles = self.get_dictionary('Titles')
@@ -447,6 +448,9 @@ class HtmlWriter:
     def asm_relpath(self, cwd, address, path):
         return self.relpath(cwd, join(path, self.asm_fname(address)))
 
+    def asm_anchor(self, address):
+        return self.asm_anchor_template.format(address=address)
+
     def join_paragraphs(self, paragraphs, cwd):
         lines = []
         for p in paragraphs:
@@ -614,7 +618,7 @@ class HtmlWriter:
         address = entry.address
         if address not in self.asm_entry_dicts:
             entry_dict = self._get_entry_dict(cwd, entry)
-            entry_dict['map_href'] = '{}#{}'.format(self.relpath(cwd, map_file), entry.address)
+            entry_dict['map_href'] = '{}#{}'.format(self.relpath(cwd, map_file), self.asm_anchor(entry.address))
             self.asm_entry_dicts[address] = entry_dict
         return self.asm_entry_dicts[address]
 
@@ -773,7 +777,7 @@ class HtmlWriter:
         for instruction in entry.instructions:
             mid_routine_comments = entry.get_mid_routine_comment(instruction.label)
             address = instruction.address
-            anchor = self.format_anchor(address)
+            anchor = self.format_anchor(self.asm_anchor(address))
             if mid_routine_comments:
                 lines.append(self.format_entry_comment(cwd, entry_dict, mid_routine_comments, anchor))
 
@@ -786,7 +790,7 @@ class HtmlWriter:
                     if external_ref and reference.address == entry_address:
                         name = ''
                     else:
-                        name = '#{}'.format(reference.address)
+                        name = '#{}'.format(self.asm_anchor(reference.address))
                     if reference.entry.asm_id:
                         # This is a reference to an entry in another disassembly
                         entry_file = self.asm_relpath(cwd, entry_address, self.get_code_path(reference.entry.asm_id))
@@ -864,7 +868,7 @@ class HtmlWriter:
         for entry in self.memory_map:
             if entry.ctl in entry_types or ('G' in entry_types and entry.address in self.gsb_includes):
                 t_map_entry_subs['entry'] = self._get_map_entry_dict(cwd, entry, desc)
-                t_map_entry_subs['t_anchor'] = self.format_anchor(entry.address)
+                t_map_entry_subs['t_anchor'] = self.format_anchor(self.asm_anchor(entry.address))
                 map_entries.append(self.format_template('map_entry', t_map_entry_subs))
 
         subs = {
@@ -1284,7 +1288,7 @@ class HtmlWriter:
         else:
             container_address = address
         if not anchor and address != container_address:
-            anchor = '#{}'.format(address)
+            anchor = '#{}'.format(self.asm_anchor(address))
         asm_label = self.parser.get_asm_label(address)
         ref_file = self.asm_relpath(cwd, container_address, code_path)
         return end, self.format_link(ref_file + anchor, link_text or asm_label or inst_addr_str)

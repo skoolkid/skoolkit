@@ -36,6 +36,7 @@ REF_SECTIONS = {
 
 MINIMAL_REF_FILE = """
 [Game]
+AddressAnchor={{address}}
 Created=
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
@@ -46,6 +47,7 @@ CodeFiles={{address}}.html
 
 METHOD_MINIMAL_REF_FILE = """
 [Game]
+AddressAnchor={{address}}
 Created=
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
@@ -58,6 +60,7 @@ CodeFiles={{address}}.html
 
 SKOOL_MACRO_MINIMAL_REF_FILE = """
 [Game]
+AddressAnchor={{address}}
 Created=
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
@@ -1563,6 +1566,18 @@ class SkoolMacroTest(HtmlWriterTestCase):
             exp_asm_fname = '{:04X}.html'.format(address)
             self._assert_link_equals(output, exp_asm_fname, str(address))
 
+    def test_macro_r_with_custom_asm_anchor(self):
+        ref = '[Game]\nAddressAnchor={address:04x}'
+        skool = '\n'.join((
+            '; Routine at 40000',
+            'c40000 LD A,B',
+            ' 40001 RET'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        output = writer.expand('#R40001', ASMDIR)
+        self._assert_link_equals(output, '40000.html#9c41', '40001')
+
     def test_macro_r_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('R')
@@ -2329,6 +2344,8 @@ class HtmlOutputTest(HtmlWriterTestCase):
             if s_line:
                 body_lines.append(s_line)
         js = subs.get('js')
+        subs.setdefault('name', basename(self.skoolfile)[:-6])
+        subs.setdefault('path', '../')
         subs.setdefault('script', '<script type="text/javascript" src="{}"></script>'.format(js) if js else '')
         subs.setdefault('title', subs['header'])
         subs.setdefault('logo', subs['name'])
@@ -2478,7 +2495,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             self.write_text_file(path=join(self.odir, GAMEDIR, f))
         writer.write_index()
         subs = {
-            'name': basename(self.skoolfile)[:-6],
             'header': 'Index',
             'header_prefix': 'The complete',
             'header_suffix': 'RAM disassembly',
@@ -2776,11 +2792,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             ' 30003',
         ))
         writer = self._get_writer(ref=ref, skool=skool)
-        name = basename(self.skoolfile)[:-6]
-        common_subs = {
-            'name': name,
-            'path': '../'
-        }
         writer.write_asm_entries()
 
         # Routine at 24576
@@ -2855,7 +2866,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'next': 24578,
             'content': content
         }
-        subs.update(common_subs)
         self._assert_files_equal(join(ASMDIR, '24576.html'), subs)
 
         # Data at 24578
@@ -2895,7 +2905,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'next': 24579,
             'content': content
         }
-        subs.update(common_subs)
         self._assert_files_equal(join(ASMDIR, '24578.html'), subs)
 
         # Routine at 24579
@@ -2935,7 +2944,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'next': 24581,
             'content': content
         }
-        subs.update(common_subs)
         self._assert_files_equal(join(ASMDIR, '24579.html'), subs)
 
         # Game status buffer entry at 24581
@@ -2975,7 +2983,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'next': 24583,
             'content': content
         }
-        subs.update(common_subs)
         self._assert_files_equal(join(ASMDIR, '24581.html'), subs)
 
         # Unused RAM at 24583
@@ -3015,7 +3022,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'next': 24584,
             'content': content
         }
-        subs.update(common_subs)
         self._assert_files_equal(join(ASMDIR, '24583.html'), subs)
 
         # Routine at 24584
@@ -3064,7 +3070,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'up': 24584,
             'content': content
         }
-        subs.update(common_subs)
         self._assert_files_equal(join(ASMDIR, '24584.html'), subs)
 
     def test_write_asm_entries_with_decimal_addresses_below_10000(self):
@@ -3108,15 +3113,12 @@ class HtmlOutputTest(HtmlWriterTestCase):
             ''
         ))
         common_subs = {
-            'path': '../',
             'body_class': 'Asm-c',
             'header': 'Routines'
         }
 
         for base in (None, BASE_10):
             writer = self._get_writer(skool=skool, base=BASE_10)
-            name = basename(self.skoolfile)[:-6]
-            common_subs['name'] = name
             writer.write_asm_entries()
 
             # Address 0
@@ -3259,6 +3261,73 @@ class HtmlOutputTest(HtmlWriterTestCase):
             title = 'Data at {}'.format(address)
             self._assert_title_equals(path, title, 'Data')
 
+    def test_write_asm_entries_with_custom_anchors(self):
+        ref = '\n'.join((
+            '[Game]',
+            'AddressAnchor={address:04X}',
+            'LinkInternalOperands=1'
+        ))
+        skool = '\n'.join((
+            '; Routine at 50000',
+            'c50000 LD A,B',
+            '; Jump back.',
+            ' 50001 JR 50000'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">50000: Routine at 50000</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><a name="C350"></a>50000</td>
+            <td class="instruction">LD A,B</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <a name="C351"></a>
+            <div class="comments">
+            <div class="paragraph">
+            Jump back.
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><a name="C351"></a>50001</td>
+            <td class="instruction">JR <a class="link" href="50000.html#C350">50000</a></td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 50000',
+            'body_class': 'Asm-c',
+            'up': 'C350',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
+
     def test_block_start_comment(self):
         start_comment = ('Start comment paragraph 1.', 'Paragraph 2.')
         skool = '\n'.join((
@@ -3317,8 +3386,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </table>
         """.format(*start_comment)
         subs = {
-            'name': basename(self.skoolfile)[:-6],
-            'path': '../',
             'header': 'Routines',
             'title': 'Routine at 40000',
             'body_class': 'Asm-c',
@@ -3343,11 +3410,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'w50008 DEFW 50000',
         ))
         writer = self._get_writer(skool=skool, asm_labels=True)
-        name = basename(self.skoolfile)[:-6]
-        common_subs = {
-            'name': name,
-            'path': '../'
-        }
         writer.write_asm_entries()
 
         # Routine at 50000
@@ -3398,7 +3460,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'next': 50005,
             'content': content
         }
-        subs.update(common_subs)
         self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
 
         # Routine at 50005
@@ -3438,7 +3499,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'next': 50008,
             'content': content
         }
-        subs.update(common_subs)
         self._assert_files_equal(join(ASMDIR, '50005.html'), subs)
 
         # DEFW statement at 50008
@@ -3477,7 +3537,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'up': 50008,
             'content': content
         }
-        subs.update(common_subs)
         self._assert_files_equal(join(ASMDIR, '50008.html'), subs)
 
     def test_write_map(self):
@@ -3504,10 +3563,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             't30018 DEFM "Hi"'
         ))
         writer = self._get_writer(skool=skool)
-        common_subs = {
-            'name': basename(self.skoolfile)[:-6],
-            'path': '../'
-        }
 
         # Memory map
         content = """
@@ -3605,7 +3660,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'header': 'Memory map',
             'content': content
         }
-        subs.update(common_subs)
         self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
         # Routines map
@@ -3638,7 +3692,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'header': 'Routines',
             'content': content
         }
-        subs.update(common_subs)
         self._assert_files_equal(join(MAPS_DIR, 'routines.html'), subs)
 
         # Data map
@@ -3682,7 +3735,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'header': 'Data',
             'content': content
         }
-        subs.update(common_subs)
         self._assert_files_equal(join(MAPS_DIR, 'data.html'), subs)
 
         # Messages map
@@ -3715,7 +3767,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'header': 'Messages',
             'content': content
         }
-        subs.update(common_subs)
         self._assert_files_equal(join(MAPS_DIR, 'messages.html'), subs)
 
         # Unused map
@@ -3759,8 +3810,43 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'header': 'Unused addresses',
             'content': content
         }
-        subs.update(common_subs)
         self._assert_files_equal(join(MAPS_DIR, 'unused.html'), subs)
+
+    def test_write_map_with_custom_asm_anchors(self):
+        ref = '[Game]\nAddressAnchor={address:04x}'
+        skool = '; Routine at 23456\nc23456 RET'
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page-1">Page</th>
+            <th class="map-byte-1">Byte</th>
+            <th>Address</th>
+            <th class="map-length-0">Length</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page-1">91</td>
+            <td class="map-byte-1">160</td>
+            <td class="map-c"><a name="5ba0"></a><a class="link" href="../asm/23456.html">23456</a></td>
+            <td class="map-length-0">42080</td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10">Routine at 23456</div>
+            <div class="map-entry-desc-0">
+            </div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer.write_map('MemoryMap')
+        subs = {
+            'body_class': 'MemoryMap',
+            'header': 'Memory map',
+            'content': content
+        }
+        self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
     def test_write_custom_map(self):
         skool = '\n'.join((
@@ -3845,8 +3931,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
         """.format(map_intro)
         writer.write_map(map_id)
         subs = {
-            'name': basename(self.skoolfile)[:-6],
-            'path': '../',
             'body_class': map_id,
             'header': map_title,
             'content': content
@@ -3895,8 +3979,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </table>
         """.format(intro)
         subs = {
-            'name': basename(self.skoolfile)[:-6],
-            'path': '../',
             'header': 'Memory map',
             'body_class': 'MemoryMap',
             'content': content
@@ -3949,8 +4031,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             writer = self._get_writer(skool=skool, base=base)
             writer.write_map('MemoryMap')
             subs = {
-                'name': basename(self.skoolfile)[:-6],
-                'path': '../',
                 'header': 'Memory map',
                 'body_class': 'MemoryMap',
                 'content': exp_content
@@ -4071,9 +4151,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </table>
         """.format(routine_title)
         subs = {
-            'name': basename(self.skoolfile)[:-6],
             'header': code_id,
-            'path': '../',
             'body_class': index_page_id,
             'content': content
         }
@@ -4147,9 +4225,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref, skool='')
         writer.write_changelog()
         subs = {
-            'name': basename(self.skoolfile)[:-6],
             'header': 'Changelog',
-            'path': '../',
             'body_class': 'Changelog',
             'content': content
         }
@@ -4185,9 +4261,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref, skool='')
         writer.write_changelog()
         subs = {
-            'name': basename(self.skoolfile)[:-6],
             'header': 'Changelog',
-            'path': '../',
             'body_class': 'Changelog',
             'content': content
         }
@@ -4245,9 +4319,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref, skool='')
         writer.write_glossary()
         subs = {
-            'name': basename(self.skoolfile)[:-6],
             'header': 'Glossary',
-            'path': '../',
             'body_class': 'Glossary',
             'content': content
         }
@@ -4287,7 +4359,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page(page_id)
         subs = {
-            'name': basename(self.skoolfile)[:-6],
             'title': 'Custom page',
             'header': 'Custom page',
             'path': '',
@@ -4318,7 +4389,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page(page_id)
         subs = {
-            'name': basename(self.skoolfile)[:-6],
             'title': page_id,
             'header': page_id,
             'path': '',
@@ -4352,9 +4422,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref, skool='')
         writer.write_bugs()
         subs = {
-            'name': basename(self.skoolfile)[:-6],
             'header': 'Bugs',
-            'path': '../',
             'body_class': 'Bugs',
             'content': content
         }
@@ -4412,9 +4480,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref, skool='')
         writer.write_facts()
         subs = {
-            'name': basename(self.skoolfile)[:-6],
             'header': 'Trivia',
-            'path': '../',
             'body_class': 'Facts',
             'content': content
         }
@@ -4453,9 +4519,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref, skool='')
         writer.write_pokes()
         subs = {
-            'name': basename(self.skoolfile)[:-6],
             'header': 'Pokes',
-            'path': '../',
             'body_class': 'Pokes',
             'content': html
         }
@@ -4494,9 +4558,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref, skool='')
         writer.write_graphic_glitches()
         subs = {
-            'name': basename(self.skoolfile)[:-6],
             'header': 'Graphic glitches',
-            'path': '../',
             'body_class': 'GraphicGlitches',
             'content': content
         }
@@ -4571,9 +4633,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(skool=skool)
         writer.write_map('GameStatusBuffer')
         subs = {
-            'name': basename(self.skoolfile)[:-6],
             'header': 'Game status buffer',
-            'path': '../',
             'body_class': 'GameStatusBuffer',
             'content': content
         }
@@ -4663,9 +4723,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_map('GameStatusBuffer')
         subs = {
-            'name': basename(self.skoolfile)[:-6],
             'header': 'Game status buffer',
-            'path': '../',
             'body_class': 'GameStatusBuffer',
             'content': content
         }
@@ -4797,8 +4855,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </table>
         """
         subs = {
-            'name': basename(self.skoolfile)[:-6],
-            'path': '../',
             'title': 'Routine at 24576',
             'body_class': 'Asm-c',
             'header': 'Routines',
