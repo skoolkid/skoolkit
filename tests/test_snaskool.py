@@ -586,11 +586,23 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         self.assertEqual(exp_instructions, actual_instructions)
 
+class MockOptions:
+    def __init__(self, line_width, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower):
+        self.line_width = line_width
+        self.defb_size = defb_size
+        self.defb_mod = defb_mod
+        self.zfill = zfill
+        self.defm_width = defm_width
+        self.asm_hex = asm_hex
+        self.asm_lower = asm_lower
+
 class SkoolWriterTest(SkoolKitTestCase):
-    def _get_writer(self, snapshot, ctl, defb_size=8, defb_mod=1, zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
+    def _get_writer(self, snapshot, ctl, line_width=79, defb_size=8, defb_mod=1, zfill=False, defm_width=66,
+                    asm_hex=False, asm_lower=False):
         ctl_parser = CtlParser()
         ctl_parser.parse_ctl(self.write_text_file(ctl))
-        return SkoolWriter(snapshot, ctl_parser, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
+        options = MockOptions(line_width, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
+        return SkoolWriter(snapshot, ctl_parser, options)
 
     def _test_write_refs(self, snapshot, ctl, write_refs, exp_skool):
         writer = self._get_writer(snapshot, ctl)
@@ -603,6 +615,80 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer.write_skool(0, False)
         skool = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(skool, SKOOL)
+
+    def test_line_width_short(self):
+        snapshot = [175, 201]
+        ctl = '\n'.join((
+            'c 00000 A routine at address 0 with a title that will be wrapped over two lines',
+            'D 00000 A description of the routine at address 0 that will be wrapped over two lines',
+            'R 00000 HL A description of the HL register for the routine at address 0 (also wrapped over two lines)',
+            'N 00000 A start comment for the routine at address 0 that will be wrapped over two lines',
+            '  00000 An instruction-level comment at address 0 that will be wrapped over two lines',
+            'N 00001 A mid-routine comment above the instruction at address 1 (again, wrapped over two lines)',
+            'E 00000 An end comment for the routine at address 0 that will be wrapped over two lines',
+            'i 00002'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; A routine at address 0 with a title that will be wrapped over',
+            '; two lines',
+            ';',
+            '; A description of the routine at address 0 that will be wrapped',
+            '; over two lines',
+            ';',
+            '; HL A description of the HL register for the routine at address',
+            '; .  0 (also wrapped over two lines)',
+            ';',
+            '; A start comment for the routine at address 0 that will be',
+            '; wrapped over two lines',
+            'c00000 XOR A         ; An instruction-level comment at address 0',
+            '                     ; that will be wrapped over two lines',
+            '; A mid-routine comment above the instruction at address 1',
+            '; (again, wrapped over two lines)',
+            ' 00001 RET           ;',
+            '; An end comment for the routine at address 0 that will be',
+            '; wrapped over two lines'
+        ]
+        writer = self._get_writer(snapshot, ctl, line_width=64)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')
+        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+
+    def test_line_width_long(self):
+        snapshot = [175, 201]
+        ctl = '\n'.join((
+            'c 00000 A routine at address zero with a 92-character title that will actually fit on a single line!',
+            'D 00000 A particularly long description of the routine at address 0 that, sadly, will not quite fit on one line',
+            'R 00000 HL A long description of the HL register for the routine at address 0 (on one line only)',
+            'N 00000 An extremely long start comment for the routine at address 0 that will, despite its extraordinary length (and large number of characters), take up only two lines',
+            '  00000 A long instruction-level comment that has no continuation line',
+            'N 00001 A rather long mid-routine comment above the instruction at address 1 that does not quite fit on one line',
+            'E 00000 A long end comment for the routine at address 0 that confines itself to one line',
+            'i 00002'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; A routine at address zero with a 92-character title that will actually fit on a single line!',
+            ';',
+            '; A particularly long description of the routine at address 0 that, sadly, will not quite fit',
+            '; on one line',
+            ';',
+            '; HL A long description of the HL register for the routine at address 0 (on one line only)',
+            ';',
+            '; An extremely long start comment for the routine at address 0 that will, despite its',
+            '; extraordinary length (and large number of characters), take up only two lines',
+            'c00000 XOR A         ; A long instruction-level comment that has no continuation line',
+            '; A rather long mid-routine comment above the instruction at address 1 that does not quite fit',
+            '; on one line',
+            ' 00001 RET           ;',
+            '; A long end comment for the routine at address 0 that confines itself to one line'
+        ]
+        writer = self._get_writer(snapshot, ctl, line_width=94)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')
+        self.assertEqual(exp_skool, skool[:len(exp_skool)])
 
     def test_write_refs_never(self):
         snapshot = [0] * 65536

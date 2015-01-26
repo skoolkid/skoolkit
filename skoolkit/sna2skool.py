@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -74,7 +74,7 @@ def run(snafile, options):
         if end < 65536:
             ctls[end] = 'i'
         ctl_parser.ctls = ctls
-    writer = SkoolWriter(snapshot, ctl_parser, options.defb_size, options.defb_mod, options.zfill, options.defm_width, options.asm_hex, options.asm_lower)
+    writer = SkoolWriter(snapshot, ctl_parser, options)
     writer.write_skool(options.write_refs, options.text)
 
 def main(args):
@@ -119,6 +119,8 @@ def main(args):
                        help='Use FILE as the skool file template')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
+    group.add_argument('-w', '--line-width', dest='line_width', metavar='W', type=int, default=79,
+                       help='Set the maximum line width of the skool file (default: 79)')
     group.add_argument('-z', '--defb-zfill', dest='zfill', action='store_true',
                        help='Pad decimal values in DEFB statements with leading zeroes')
 

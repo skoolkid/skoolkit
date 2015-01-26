@@ -404,6 +404,8 @@ list::
     -t, --text            Show ASCII text in the comment fields
     -T FILE, --sft FILE   Use FILE as the skool file template
     -V, --version         Show SkoolKit version number and exit
+    -w W, --line-width W  Set the maximum line width of the skool file (default:
+                          79)
     -z, --defb-zfill      Pad decimal values in DEFB statements with leading
                           zeroes
 
@@ -430,6 +432,8 @@ formats.
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 4.3     | Added the ``--line-width`` option                               |
++---------+-----------------------------------------------------------------+
 | 3.4     | Added the ``-V`` and ``-R`` options and the long options        |
 +---------+-----------------------------------------------------------------+
 | 3.3     | Added the ``-M`` option, along with support for code execution  |

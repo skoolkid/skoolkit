@@ -13,6 +13,8 @@ Changelog
   pages and entries on memory map pages)
 * The :ref:`font`, :ref:`scr` and :ref:`udg` macros now have the ability to
   create frames for an animated image
+* Added the ``--line-width`` option to :ref:`sna2skool.py` (for specifying the
+  maximum line width of the skool file)
 * Writing an ASM directive in a skool file can now be done by starting a line
   with ``@``; writing an ASM directive by starting a line with ``; @`` is
   deprecated

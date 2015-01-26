@@ -257,9 +257,10 @@ c 65498
 s 65499"""
 
 class MockSkoolWriter:
-    def __init__(self, *args, **kwargs):
+    def __init__(self, snapshot, ctl_parser, options):
         global mock_skool_writer
         mock_skool_writer = self
+        self.options = options
 
     def write_skool(self, write_refs, text):
         self.write_refs = write_refs
@@ -350,6 +351,7 @@ class OptionsTest(SkoolKitTestCase):
         self.assertEqual(options.write_refs, 0)
         self.assertEqual(options.defb_size, 8)
         self.assertEqual(options.defb_mod, 1)
+        self.assertEqual(options.line_width, 79)
         self.assertFalse(options.zfill)
 
     def test_invalid_option(self):
@@ -633,6 +635,15 @@ class OptionsTest(SkoolKitTestCase):
         for option in ('-t', '--text'):
             skool = self._write_skool('{0} {1}'.format(option, binfile), 10)
             self.assertIn('c65533 LD SP,12927   ; [1.2]', skool)
+
+    def test_option_w(self):
+        self.mock(sna2skool, 'SkoolWriter', MockSkoolWriter)
+        binfile = self.write_bin_file(suffix='.bin')
+        line_width = 120
+        for option in ('-w', '--line-width'):
+            output, error = self.run_sna2skool('{} {} {}'.format(option, line_width, binfile))
+            self.assertEqual(error, '')
+            self.assertEqual(mock_skool_writer.options.line_width, line_width)
 
     def test_option_z(self):
         data = [0, 1, 2, 3, 4, 5]

@@ -28,7 +28,8 @@ from .disassembler import Disassembler, HEX4FMT
 from .ctlparser import CtlParser
 
 OP_WIDTH = 13
-COMMENT_WIDTH = 77
+MIN_COMMENT_WIDTH = 10
+MIN_INSTRUCTION_COMMENT_WIDTH = 10
 
 REFS_PREFIX = 'Used by the '
 EREFS_PREFIX = 'This entry point is used by the '
@@ -717,17 +718,19 @@ class Disassembly:
         return self.address_fmt.format(address)
 
 class SkoolWriter:
-    def __init__(self, snapshot, ctl_parser, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower):
+    def __init__(self, snapshot, ctl_parser, options):
         self.ctl_parser = ctl_parser
-        self.disassembly = Disassembly(snapshot, ctl_parser, True, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
-        if asm_hex:
-            if asm_lower:
+        self.comment_width = max(options.line_width - 2, MIN_COMMENT_WIDTH)
+        self.disassembly = Disassembly(snapshot, ctl_parser, True, options.defb_size, options.defb_mod, options.zfill,
+                                       options.defm_width, options.asm_hex, options.asm_lower)
+        if options.asm_hex:
+            if options.asm_lower:
                 self.address_fmt = HEX4FMT.lower()
             else:
                 self.address_fmt = HEX4FMT
         else:
             self.address_fmt = '{:05d}'
-        self.asm_hex = asm_hex
+        self.asm_hex = options.asm_hex
 
     def address_str(self, address, pad=True):
         if self.asm_hex or pad:
@@ -812,7 +815,7 @@ class SkoolWriter:
         for reg, desc in entry.registers:
             if desc:
                 desc_indent = len(reg) + 1
-                desc_lines = wrap(desc, COMMENT_WIDTH - desc_indent)
+                desc_lines = wrap(desc, max(self.comment_width - desc_indent, MIN_COMMENT_WIDTH))
                 write_line('; {} {}'.format(reg, desc_lines[0]))
                 desc_prefix = '.'.ljust(desc_indent)
                 for line in desc_lines[1:]:
@@ -852,7 +855,7 @@ class SkoolWriter:
                 if not block.comment.replace('.', ''):
                     block.comment = block.comment[1:]
                 block.comment = '{{{}}}'.format(block.comment)
-            comment_lines = wrap(block.comment, max((COMMENT_WIDTH - line_width, 10)))
+            comment_lines = wrap(block.comment, max(self.comment_width - line_width, MIN_INSTRUCTION_COMMENT_WIDTH))
             if multi_line and len(comment_lines) < rowspan:
                 comment_lines[-1] = comment_lines[-1][:-1]
                 comment_lines.extend([''] * (rowspan - len(comment_lines) - 1))
@@ -937,7 +940,7 @@ class SkoolWriter:
     def wrap(self, text):
         lines = []
         for line in self.parse_blocks(text):
-            lines.extend(wrap(line, COMMENT_WIDTH))
+            lines.extend(wrap(line, self.comment_width))
         return lines
 
     def parse_block(self, text, start):

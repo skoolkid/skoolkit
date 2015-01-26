@@ -80,6 +80,10 @@ OPTIONS
 -V, --version
   Show the SkoolKit version number and exit.
 
+-w, --line-width `WIDTH`
+  Set the maximum line width of the skool file (79 by default). This option has
+  no effect when creating a skool file from a skool file template.
+
 -z, --defb-zfill
   Pad decimal values in DEFB statements with leading zeroes.
 
