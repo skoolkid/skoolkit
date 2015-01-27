@@ -1021,6 +1021,28 @@ class SkoolWriterTest(SkoolKitTestCase):
         skool = self.out.getvalue().split('\n')[:-2]
         self.assertEqual(exp_skool, skool[6:])
 
+    def test_registers_with_prefixes(self):
+        ctl = '\n'.join((
+            'c 00000 Routine',
+            'R 00000 Input:A An important parameter with a long description that will be split over two lines',
+            'R 00000 B Another important parameter',
+            'R 00000 Output:DE The result',
+            'R 00000 HL',
+            'i 00001'
+        ))
+        exp_skool = [
+            ';  Input:A An important parameter with a long description that will be split',
+            '; .        over two lines',
+            ';        B Another important parameter',
+            '; Output:DE The result',
+            ';        HL',
+            'c00000 NOP           ;'
+        ]
+        writer = self._get_writer([0], ctl)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')
+        self.assertEqual(exp_skool, skool[6:6 + len(exp_skool)])
+
     def test_start_comment(self):
         ctl = '\n'.join((
             'c 00000',

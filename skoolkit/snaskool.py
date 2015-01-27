@@ -812,7 +812,9 @@ class SkoolWriter:
         self.write_comment('')
         if self.ctl_parser.has_ignoreua_directive(entry.address, REGISTERS):
             self.write_asm_directive(AD_IGNOREUA)
+        max_indent = max([reg.find(':') for reg, desc in entry.registers])
         for reg, desc in entry.registers:
+            reg = reg.rjust(max_indent + len(reg) - reg.find(':'))
             if desc:
                 desc_indent = len(reg) + 1
                 desc_lines = wrap(desc, max(self.comment_width - desc_indent, MIN_COMMENT_WIDTH))
