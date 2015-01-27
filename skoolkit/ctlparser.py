@@ -38,12 +38,12 @@ def parse_params(ctl, params, lengths_index=2):
             else:
                 n, m = num, '1'
             if ctl in 'BSTW':
-                int_params += [_parse_sublengths(n, ctl, prefix)] * get_int_param(m)
+                int_params += (_parse_sublengths(n, ctl, prefix),) * get_int_param(m)
             else:
-                int_params += [(get_int_param(n), None)] * get_int_param(m)
+                int_params += ((get_int_param(n), None),) * get_int_param(m)
     if prefix and len(int_params) == lengths_index:
-        int_params.append((None, [(None, prefix)]))
-    return int_params
+        int_params.append((None, ((None, prefix),)))
+    return tuple(int_params)
 
 def _parse_sublengths(sublengths, subctl, default_prefix):
     length = 0
@@ -56,7 +56,7 @@ def _parse_sublengths(sublengths, subctl, default_prefix):
         return (length, None)
     if subctl == 'S':
         length = lengths[0][0]
-    return (length, lengths)
+    return (length, tuple(lengths))
 
 def _parse_length(length, subctl=None, default_prefix=None):
     if length.startswith(('b', 'd', 'h')) or (subctl in ('B', 'T') and length.startswith(('B', 'T'))):
@@ -150,7 +150,7 @@ class CtlParser:
 
     def _parse_ctl_line(self, line, entry_ctl):
         ctl = start = end = text = asm_directive = None
-        lengths = []
+        lengths = ()
         first_char = line[0]
         content = line[1:].lstrip()
         if content:
@@ -289,8 +289,7 @@ class CtlParser:
         return self.end_comments.get(address, ())
 
     def get_lengths(self, address):
-        if address in self.lengths:
-            return self.lengths[address][:]
+        return self.lengths.get(address, ())
 
     def get_multiline_comment(self, address):
         return self.multiline_comments.get(address, (None, None))

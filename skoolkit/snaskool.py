@@ -641,7 +641,7 @@ class Disassembly:
                     instructions = self.disassembler.disassemble(sub_block.start, sub_block.end)
                 elif sub_block.ctl in 'bgstuw':
                     address = sub_block.start
-                    lengths = self.ctl_parser.get_lengths(address)
+                    lengths = list(self.ctl_parser.get_lengths(address))
                     one_line = True
                     if not lengths:
                         lengths = [(None, None)]

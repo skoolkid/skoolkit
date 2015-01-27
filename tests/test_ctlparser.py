@@ -138,19 +138,19 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(exp_end_comments, ctl_parser.end_comments)
 
         exp_lengths = {
-            30050: [(5, [(3, None), (2, 'T')])],
-            30200: [(1, None)],
-            30450: [(7, [(4, None), (3, 'B')])],
-            30510: [(3, None)],
-            30530: list(zip([2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 3], [None] * 11)),
-            30560: list(zip([6, 5, 4, 3, 2, 1], [None] * 6)),
-            30720: [
+            30050: ((5, ((3, None), (2, 'T'))),),
+            30200: ((1, None),),
+            30450: ((7, ((4, None), (3, 'B'))),),
+            30510: ((3, None),),
+            30530: tuple(zip((2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 3), (None,) * 11)),
+            30560: tuple(zip((6, 5, 4, 3, 2, 1), (None,) * 6)),
+            30720: (
                 (1, None),
-                (5, [(3, 'T'), (2, None)]),
-                (2, [(1, None), (1, 'T')]),
-                (2, [(1, None), (1, 'T')])
-            ],
-            30730: [(15, [(10, None), (5, 'B')])]
+                (5, ((3, 'T'), (2, None))),
+                (2, ((1, None), (1, 'T'))),
+                (2, ((1, None), (1, 'T')))
+            ),
+            30730: ((15, ((10, None), (5, 'B'))),)
         }
         self.assertEqual(exp_lengths, ctl_parser.lengths)
 
@@ -232,33 +232,33 @@ class CtlParserTest(SkoolKitTestCase):
         ctl_parser = self._get_ctl_parser(ctl)
 
         exp_lengths = {
-            40000: [(None, [(None, 'b')])],
-            40010: [
-                (5, [(5, 'b')]),
-                (3, [(3, 'd')]),
-                (2, [(2, 'h')])
-            ],
-            40020: [(10, [(2, 'b'), (3, 'd'), (5, 'h')])],
-            40030: [
-                (6, [(6, 'b')]),
+            40000: ((None, ((None, 'b'),)),),
+            40010: (
+                (5, ((5, 'b'),)),
+                (3, ((3, 'd'),)),
+                (2, ((2, 'h'),))
+            ),
+            40020: ((10, ((2, 'b'), (3, 'd'), (5, 'h'))),),
+            40030: (
+                (6, ((6, 'b'),)),
                 (3, None),
-                (1, [(1, 'h')])
-            ],
-            40040: [(10, [(5, 'b'), (2, None), (3, 'h')])],
-            40050: [
+                (1, ((1, 'h'),))
+            ),
+            40040: ((10, ((5, 'b'), (2, None), (3, 'h'))),),
+            40050: (
                 (1, None),
-                (9, [(9, 'T')])
-            ],
-            40060: [(10, [(4, 'h'), (6, 'T')])],
-            40070: [
+                (9, ((9, 'T'),))
+            ),
+            40060: ((10, ((4, 'h'), (6, 'T'))),),
+            40070: (
                 (3, None),
-                (7, [(7, 'b')])
-            ],
-            40080: [(10, [(2, None), (8, 'h')])],
-            40090: [
+                (7, ((7, 'b'),))
+            ),
+            40080: ((10, ((2, None), (8, 'h'))),),
+            40090: (
                 (5, None),
-                (5, [(5, 'B')])
-            ],
+                (5, ((5, 'B'),))
+            ),
         }
         self.assertEqual(exp_lengths, ctl_parser.lengths)
 
@@ -275,19 +275,19 @@ class CtlParserTest(SkoolKitTestCase):
         ctl_parser = self._get_ctl_parser(ctl)
 
         exp_lengths = {
-            40010: [(None, [(None, 'b')])],
-            40020: [
-                (6, [(6, 'b')]),
-                (2, [(2, 'd')]),
-                (2, [(2, 'h')])
-            ],
-            40030: [(10, [(4, 'b'), (4, 'd'), (2, 'h')])],
-            40040: [
-                (2, [(2, 'b')]),
+            40010: ((None, ((None, 'b'),)),),
+            40020: (
+                (6, ((6, 'b'),)),
+                (2, ((2, 'd'),)),
+                (2, ((2, 'h'),))
+            ),
+            40030: ((10, ((4, 'b'), (4, 'd'), (2, 'h'))),),
+            40040: (
+                (2, ((2, 'b'),)),
                 (4, None),
-                (4, [(4, 'h')])
-            ],
-            40050: [(10, [(2, 'b'), (6, None), (2, 'h')])]
+                (4, ((4, 'h'),))
+            ),
+            40050: ((10, ((2, 'b'), (6, None), (2, 'h'))),)
         }
         self.assertEqual(exp_lengths, ctl_parser.lengths)
 
@@ -309,35 +309,35 @@ class CtlParserTest(SkoolKitTestCase):
         ctl_parser = self._get_ctl_parser(ctl)
 
         exp_lengths = {
-            50010: [(None, [(None, 'b')])],
-            50020: [(None, [(None, 'd')])],
-            50030: [(None, [(None, 'h')])],
-            50040: [
-                (5, [(5, 'b')]),
-                (5, [(5, 'd')]),
-                (5, [(5, 'h')])
-            ],
-            50060: [
-                (5, [(5, 'b')]),
-                (5, [(5, 'd')]),
-                (5, [(5, 'h')])
-            ],
-            50080: [
-                (5, [(5, 'b')]),
-                (5, [(5, 'd')]),
-                (5, [(5, 'h')])
-            ],
-            50100: [
-                (5, [(5, 'b')]),
-                (5, [(5, 'd')]),
+            50010: ((None, ((None, 'b'),)),),
+            50020: ((None, ((None, 'd'),)),),
+            50030: ((None, ((None, 'h'),)),),
+            50040: (
+                (5, ((5, 'b'),)),
+                (5, ((5, 'd'),)),
+                (5, ((5, 'h'),))
+            ),
+            50060: (
+                (5, ((5, 'b'),)),
+                (5, ((5, 'd'),)),
+                (5, ((5, 'h'),))
+            ),
+            50080: (
+                (5, ((5, 'b'),)),
+                (5, ((5, 'd'),)),
+                (5, ((5, 'h'),))
+            ),
+            50100: (
+                (5, ((5, 'b'),)),
+                (5, ((5, 'd'),)),
                 (5, None)
-            ],
-            50120: [(20, [(20, 'd'), (136, 'b')])],
-            50140: [(20, [(20, None), (68, 'h')])],
-            50160: [
-                (10, [(10, None), (10, 'h')]),
-                (2, [(2, 'h'), (2, None)]),
-            ]
+            ),
+            50120: ((20, ((20, 'd'), (136, 'b'))),),
+            50140: ((20, ((20, None), (68, 'h'))),),
+            50160: (
+                (10, ((10, None), (10, 'h'))),
+                (2, ((2, 'h'), (2, None))),
+            )
         }
         self.assertEqual(exp_lengths, ctl_parser.lengths)
 
@@ -434,19 +434,16 @@ class CtlParserTest(SkoolKitTestCase):
         # Check B, C, S, T and W sub-blocks
         for a in range(start, end, length):
             for offset, subctl, lengths in (
-                (0, 'C', None),
-                (5, 'B', [(1, None), (2, None)]),
-                (10, 'S', None),
-                (16, 'W', [(4, None)]),
-                (20, 'T', [(5, [(4, None), (1, 'B')])])
+                (0, 'C', ()),
+                (5, 'B', ((1, None), (2, None))),
+                (10, 'S', ()),
+                (16, 'W', ((4, None),)),
+                (20, 'T', ((5, ((4, None), (1, 'B'))),))
             ):
                 address = a + offset
                 self.assertIn(address, ctl_parser.subctls)
                 self.assertEqual(ctl_parser.subctls[address], subctl.lower())
-                if lengths is None:
-                    self.assertIsNone(ctl_parser.get_lengths(address))
-                else:
-                    self.assertEqual(lengths, ctl_parser.get_lengths(address))
+                self.assertEqual(lengths, ctl_parser.get_lengths(address))
 
         # Check mid-block comments
         offset = 10
@@ -509,19 +506,16 @@ class CtlParserTest(SkoolKitTestCase):
         # Check B, C, S, T and W sub-blocks
         for a in range(start, end, length):
             for offset, subctl, lengths in (
-                (0, 'C', None),
-                (5, 'B', [(1, None), (2, None)]),
-                (10, 'S', None),
-                (16, 'W', [(4, None)]),
-                (20, 'T', [(5, [(4, None), (1, 'B')])])
+                (0, 'C', ()),
+                (5, 'B', ((1, None), (2, None))),
+                (10, 'S', ()),
+                (16, 'W', ((4, None),)),
+                (20, 'T', ((5, ((4, None), (1, 'B'))),))
             ):
                 address = a + offset
                 self.assertIn(address, ctl_parser.subctls)
                 self.assertEqual(ctl_parser.subctls[address], subctl.lower())
-                if lengths is None:
-                    self.assertNotIn(address, ctl_parser.lengths)
-                else:
-                    self.assertEqual(lengths, ctl_parser.lengths[address])
+                self.assertEqual(lengths, ctl_parser.get_lengths(address))
 
         # Check mid-block comments
         offset = 10
