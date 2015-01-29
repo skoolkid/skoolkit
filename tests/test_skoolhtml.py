@@ -738,8 +738,8 @@ class SkoolMacroTest(HtmlWriterTestCase):
             output = writer.expand('#{}#name{}'.format(macro, suffix), ASMDIR)
             self._assert_link_equals(output, '../{}/{}.html#name'.format(REFERENCE_DIR, page), def_link_text, suffix)
 
-    def _assert_error(self, writer, text, error_msg=None, prefix=None):
-        with self.assertRaises(SkoolParsingError) as cm:
+    def _assert_error(self, writer, text, error_msg=None, prefix=None, error=SkoolParsingError):
+        with self.assertRaises(error) as cm:
             writer.expand(text, ASMDIR)
         if error_msg:
             if prefix:
@@ -1599,6 +1599,13 @@ class SkoolMacroTest(HtmlWriterTestCase):
 
         output = writer.expand('#R40001', ASMDIR)
         self._assert_link_equals(output, '40000.html#9c41', '40001')
+
+    def test_macro_r_with_invalid_asm_anchor(self):
+        ref = '[Game]\nAddressAnchor={address:j}'
+        skool = 'c40000 LD A,B\n 40001 RET'
+        writer = self._get_writer(ref=ref, skool=skool)
+        error_msg = "Cannot format anchor ({address:j}) with address=40001"
+        self._assert_error(writer, '#R40001', error_msg, error=SkoolKitError)
 
     def test_macro_r_invalid(self):
         writer = self._get_writer()
@@ -3350,6 +3357,14 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
 
+    def test_write_asm_entries_with_invalid_asm_anchor(self):
+        ref = '[Game]\nAddressAnchor={Address:04x}'
+        skool = 'c40000 RET'
+        writer = self._get_writer(ref=ref, skool=skool)
+        with self.assertRaises(SkoolKitError) as cm:
+            writer.write_asm_entries()
+        self.assertEqual(cm.exception.args[0], "Cannot format anchor ({Address:04x}) with address=40000")
+
     def test_block_start_comment(self):
         start_comment = ('Start comment paragraph 1.', 'Paragraph 2.')
         skool = '\n'.join((
@@ -3869,6 +3884,14 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'content': content
         }
         self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
+
+    def test_write_map_with_invalid_asm_anchor(self):
+        ref = '[Game]\nAddressAnchor={foo:04X}'
+        skool = 'c32768 RET'
+        writer = self._get_writer(ref=ref, skool=skool)
+        with self.assertRaises(SkoolKitError) as cm:
+            writer.write_map('MemoryMap')
+        self.assertEqual(cm.exception.args[0], "Cannot format anchor ({foo:04X}) with address=32768")
 
     def test_write_custom_map(self):
         skool = '\n'.join((

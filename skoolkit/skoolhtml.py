@@ -449,7 +449,10 @@ class HtmlWriter:
         return self.relpath(cwd, join(path, self.asm_fname(address)))
 
     def asm_anchor(self, address):
-        return self.asm_anchor_template.format(address=address)
+        try:
+            return self.asm_anchor_template.format(address=address)
+        except:
+            raise SkoolKitError("Cannot format anchor ({}) with address={}".format(self.asm_anchor_template, address))
 
     def join_paragraphs(self, paragraphs, cwd):
         lines = []
