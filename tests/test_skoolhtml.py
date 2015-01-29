@@ -540,6 +540,17 @@ class MethodTest(HtmlWriterTestCase):
         udg4_f.flip(3)
         self.assertEqual(udgs, [[udg4_f, udg3_f], [udg2_f, udg1_f]])
 
+    def test_flip_udgs_with_duplicates(self):
+        writer = self._get_writer()
+        base_udg = Udg(1, [2, 3, 5, 7, 11, 13, 17, 19])
+        udg = base_udg.copy()
+
+        udgs = [[udg, udg]]
+        writer.flip_udgs(udgs, 1)
+        udg_f = base_udg.copy()
+        udg_f.flip(1)
+        self.assertEqual([[udg_f, udg_f]], udgs)
+
     def test_rotate_udgs(self):
         writer = self._get_writer()
         udg1 = Udg(0, [1, 2, 4, 8, 16, 32, 64, 128], [1, 2, 4, 8, 16, 32, 64, 128])
@@ -577,6 +588,17 @@ class MethodTest(HtmlWriterTestCase):
         udg3_r.rotate(3)
         udg4_r.rotate(3)
         self.assertEqual(udgs, [[udg2_r, udg4_r], [udg1_r, udg3_r]])
+
+    def test_rotate_udgs_with_duplicates(self):
+        writer = self._get_writer()
+        base_udg = Udg(1, [2, 3, 5, 7, 11, 13, 17, 19])
+        udg = base_udg.copy()
+
+        udgs = [[udg, udg]]
+        writer.rotate_udgs(udgs, 1)
+        udg_r = base_udg.copy()
+        udg_r.rotate(1)
+        self.assertEqual([[udg_r], [udg_r]], udgs)
 
     def test_write_image(self):
         writer = self._get_writer(mock_file_info=True)

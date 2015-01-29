@@ -21,6 +21,8 @@ Changelog
 * Added the ``@`` directive for declaring ASM directives in a control file; the
   old style of declaring ASM directives (``; @directive:address[=value]``) is
   deprecated
+* Fixed the *flip_udgs()* and *rotate_udgs()* methods on HtmlWriter so that
+  they work with a UDG array that contains the same UDG in more than one place
 * Fixed the bug that prevents register descriptions from being HTML-escaped
 
 4.2 (2014-12-07)

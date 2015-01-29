@@ -489,9 +489,12 @@ class HtmlWriter:
         :param flip: 1 to flip horizontally, 2 to flip vertically, or 3 to flip
                      horizontally and vertically.
         """
+        flipped_udgs = set()
         for row in udgs:
             for udg in row:
-                udg.flip(flip)
+                if udg not in flipped_udgs:
+                    udg.flip(flip)
+                    flipped_udgs.add(udg)
         if flip & 1:
             for row in udgs:
                 row.reverse()
@@ -505,9 +508,12 @@ class HtmlWriter:
         :param udgs: The array of UDGs.
         :param rotate: The number of rotations to perform.
         """
+        rotated_udgs = set()
         for row in udgs:
             for udg in row:
-                udg.rotate(rotate)
+                if udg not in rotated_udgs:
+                    udg.rotate(rotate)
+                    rotated_udgs.add(udg)
         if rotate & 3 == 1:
             rotated = []
             for i in range(len(udgs[0])):
