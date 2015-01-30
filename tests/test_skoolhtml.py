@@ -1588,6 +1588,13 @@ class SkoolMacroTest(HtmlWriterTestCase):
             exp_asm_fname = '{:04X}.html'.format(address)
             self._assert_link_equals(output, exp_asm_fname, str(address))
 
+    def test_macro_r_with_invalid_filename_template(self):
+        ref = '[Paths]\nCodeFiles={Address}.html'
+        skool = 'b32768 DEFS 12345'
+        writer = self._get_writer(ref=ref, skool=skool)
+        error_msg = "Cannot format filename ({Address}.html) with address=32768"
+        self._assert_error(writer, '#R32768', error_msg, error=SkoolKitError)
+
     def test_macro_r_with_custom_asm_anchor(self):
         ref = '[Game]\nAddressAnchor={address:04x}'
         skool = '\n'.join((
@@ -3290,6 +3297,14 @@ class HtmlOutputTest(HtmlWriterTestCase):
             title = 'Data at {}'.format(address)
             self._assert_title_equals(path, title, 'Data')
 
+    def test_write_asm_entries_with_invalid_filename_template(self):
+        ref = '[Paths]\nCodeFiles={Address:04x}.html'
+        skool = 'b30000 DEFS 10000'
+        writer = self._get_writer(ref=ref, skool=skool)
+        with self.assertRaises(SkoolKitError) as cm:
+            writer.write_asm_entries()
+        self.assertEqual(cm.exception.args[0], "Cannot format filename ({Address:04x}.html) with address=30000")
+
     def test_write_asm_entries_with_custom_anchors(self):
         ref = '\n'.join((
             '[Game]',
@@ -3848,6 +3863,14 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'content': content
         }
         self._assert_files_equal(join(MAPS_DIR, 'unused.html'), subs)
+
+    def test_write_map_with_invalid_filename_template(self):
+        ref = '[Paths]\nCodeFiles={address:q}.html'
+        skool = 'c10000 RET'
+        writer = self._get_writer(ref=ref, skool=skool)
+        with self.assertRaises(SkoolKitError) as cm:
+            writer.write_map('MemoryMap')
+        self.assertEqual(cm.exception.args[0], "Cannot format filename ({address:q}.html) with address=10000")
 
     def test_write_map_with_custom_asm_anchors(self):
         ref = '[Game]\nAddressAnchor={address:04x}'

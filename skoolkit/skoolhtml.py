@@ -443,7 +443,10 @@ class HtmlWriter:
         return posixpath.relpath(target, cwd)
 
     def asm_fname(self, address, path=''):
-        return posixpath.normpath(join(path, self.asm_fname_template.format(address=address)))
+        try:
+            return posixpath.normpath(join(path, self.asm_fname_template.format(address=address)))
+        except:
+            raise SkoolKitError("Cannot format filename ({}) with address={}".format(self.asm_fname_template, address))
 
     def asm_relpath(self, cwd, address, path):
         return self.relpath(cwd, join(path, self.asm_fname(address)))
