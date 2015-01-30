@@ -363,6 +363,16 @@ def parse_comment_block(comments, ignores, mode):
     start_comment = join_comments(sections[3], split=True, html=mode.html)
     return start_comment, title, description, registers
 
+def parse_instruction(line):
+    ctl = line[0]
+    addr_str = line[1:6]
+    comment_index = line.find(';')
+    if comment_index < 0:
+        comment_index = len(line)
+    operation = line[7:comment_index].strip()
+    comment = line[comment_index + 1:].strip()
+    return ctl, addr_str, operation, comment
+
 class SkoolParser:
     """Parses a `skool` file.
 
@@ -622,18 +632,11 @@ class SkoolParser:
             self.mode.start()
 
     def _parse_instruction(self, line):
-        ctl = line[0]
-        addr_str = line[1:6]
-        address = parse_int(addr_str)
-        comment_index = line.find(';')
-        if comment_index < 0:
-            comment_index = len(line)
-        operation = line[7:comment_index].strip()
+        ctl, addr_str, operation, comment = parse_instruction(line)
         addr_str, operation = self.mode.apply_case(addr_str, operation)
         addr_str, operation = self.mode.apply_base(addr_str, operation)
-        address_comment = line[comment_index + 1:].strip()
-        instruction = Instruction(ctl + addr_str, address, operation)
-        return instruction, address_comment
+        instruction = Instruction(ctl, addr_str, operation)
+        return instruction, comment
 
     def _parse_address_comments(self, comments):
         i = 0
@@ -981,14 +984,14 @@ class Mode:
             return text.replace(num_str, hex_fmt.format(num))
 
 class Instruction:
-    def __init__(self, label, address, operation):
-        self.label = label
-        self.ctl = label[0]
-        if label[1].isdigit():
-            self.addr_str = label[1:]
+    def __init__(self, ctl, addr_str, operation):
+        self.ctl = ctl
+        if addr_str[0].isdigit():
+            self.addr_str = addr_str
         else:
-            self.addr_str = label[2:]
-        self.address = address
+            self.addr_str = addr_str[1:]
+        self.address = parse_int(addr_str)
+        self.label = ctl + addr_str
         self.operation = operation
         self.container = None
         self.reference = None
@@ -1000,10 +1003,10 @@ class Instruction:
         # If this instruction has no address, it was inserted between
         # @rsub+begin and @rsub+end; in that case, mark it as a subbed
         # instruction already
-        if address:
-            self.sub = None
-        else:
+        if self.address is None:
             self.sub = operation
+        else:
+            self.sub = None
         self.keep = False
         self.warn = True
         self.ignoreua = False

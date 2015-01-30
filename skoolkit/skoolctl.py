@@ -18,7 +18,7 @@
 
 from . import write_line, parse_int, open_file
 from .skoolparser import (DIRECTIVES, Comment, Register,
-                          parse_comment_block, join_comments,
+                          parse_comment_block, parse_instruction, join_comments,
                           parse_asm_block_directive, get_instruction_ctl,
                           get_defb_length, get_defm_length, get_defs_length, get_defw_length)
 
@@ -321,12 +321,11 @@ class SkoolParser:
             # This line contains an instruction
             instruction, address_comment = self._parse_instruction(line)
             address = instruction.address
-            addr_str = instruction.addr_str
             ctl = instruction.ctl
             if ctl in DIRECTIVES:
                 start_comment, desc, details, registers = parse_comment_block(comments, ignores, self.mode)
-                map_entry = Entry(address, addr_str, ctl, desc, details, registers, self.mode.entry_ignoreua)
-                map_entry.add_mid_routine_comment(instruction.label, start_comment)
+                map_entry = Entry(address, ctl, desc, details, registers, self.mode.entry_ignoreua)
+                map_entry.add_mid_routine_comment(instruction.address, start_comment)
                 self.mode.apply_entry_asm_directives(map_entry)
                 self.memory_map.append(map_entry)
                 comments[:] = []
@@ -340,7 +339,7 @@ class SkoolParser:
                 map_entry.add_instruction(instruction)
                 if comments:
                     mid_routine_comment = join_comments(comments, True)
-                    map_entry.add_mid_routine_comment(instruction.label, mid_routine_comment)
+                    map_entry.add_mid_routine_comment(instruction.address, mid_routine_comment)
                     comments[:] = []
                     instruction.ignoremrcua = 0 in ignores
                     instruction.ignoreua = any(ignores)
@@ -380,17 +379,10 @@ class SkoolParser:
                 self.mode.add_entry_asm_directive(tag)
 
     def _parse_instruction(self, line):
-        ctl = line[0]
-        addr_str = line[1:6]
-        address = parse_int(addr_str)
-        comment_index = line.find(';')
-        if comment_index < 0:
-            comment_index = len(line)
-        operation = line[7:comment_index].strip()
-        address_comment = line[comment_index + 1:].strip()
-        instruction = Instruction(ctl + addr_str, address, operation, self.preserve_base)
+        ctl, addr_str, operation, comment = parse_instruction(line)
+        instruction = Instruction(ctl, addr_str, operation, self.preserve_base)
         self.mode.apply_instruction_asm_directives(instruction)
-        return instruction, address_comment
+        return instruction, comment
 
     def _parse_address_comments(self, comments):
         i = 0
@@ -454,14 +446,9 @@ class FakeInstruction:
         self.ignoreua = False
 
 class Instruction:
-    def __init__(self, label, address, operation, preserve_base):
-        self.label = label
-        self.ctl = label[0]
-        if label[1].isdigit():
-            self.addr_str = label[1:]
-        else:
-            self.addr_str = label[2:]
-        self.address = address
+    def __init__(self, ctl, addr_str, operation, preserve_base):
+        self.ctl = ctl
+        self.address = parse_int(addr_str)
         self.operation = operation
         self.container = None
         self.comment = None
@@ -484,12 +471,11 @@ class Instruction:
         self.comment = Comment(rowspan, text)
 
     def get_mid_routine_comment(self):
-        return self.container.get_mid_routine_comment(self.label)
+        return self.container.get_mid_routine_comment(self.address)
 
 class Entry:
-    def __init__(self, address, addr_str, ctl, description, details, registers, ignoreua):
+    def __init__(self, address, ctl, description, details, registers, ignoreua):
         self.address = address
-        self.addr_str = addr_str
         self.ctl = ctl
         self.description = description
         self.details = details
