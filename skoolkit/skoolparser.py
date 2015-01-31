@@ -373,6 +373,26 @@ def parse_instruction(line):
     comment = line[comment_index + 1:].strip()
     return ctl, addr_str, operation, comment
 
+def parse_address_comments(comments, html=False):
+    i = 0
+    while i < len(comments):
+        instruction, comment = comments[i]
+        comment_lines = []
+        if comment and comment.strip()[0] == '{':
+            nesting = comment.count('{') - comment.count('}')
+            while nesting > 0:
+                comment_lines.append(comments[i][1])
+                i += 1
+                nesting += comments[i][1].count('{') - comments[i][1].count('}')
+            comment_lines.append(comments[i][1].strip('}'))
+            comment_lines[0] = comment_lines[0].strip('{')
+        else:
+            comment_lines.append(comment)
+        rowspan = len(comment_lines)
+        address_comment = join_comments(comment_lines, html=html).strip()
+        instruction.set_comment(rowspan, address_comment)
+        i += 1
+
 class SkoolParser:
     """Parses a `skool` file.
 
@@ -552,7 +572,7 @@ class SkoolParser:
             self._add_end_comment(map_entry)
 
         # Do some post-processing
-        self._parse_address_comments(address_comments)
+        parse_address_comments(address_comments, self.mode.html)
         self._calculate_references()
         if self.mode.asm_labels:
             self._generate_labels()
@@ -637,26 +657,6 @@ class SkoolParser:
         addr_str, operation = self.mode.apply_base(addr_str, operation)
         instruction = Instruction(ctl, addr_str, operation)
         return instruction, comment
-
-    def _parse_address_comments(self, comments):
-        i = 0
-        while i < len(comments):
-            instruction, comment = comments[i]
-            comment_lines = []
-            if comment and comment.strip()[0] == '{':
-                nesting = comment.count('{') - comment.count('}')
-                while nesting > 0:
-                    comment_lines.append(comments[i][1])
-                    i += 1
-                    nesting += comments[i][1].count('{') - comments[i][1].count('}')
-                comment_lines.append(comments[i][1].strip('}'))
-                comment_lines[0] = comment_lines[0].strip('{')
-            else:
-                comment_lines.append(comment)
-            rowspan = len(comment_lines)
-            address_comment = join_comments(comment_lines, html=self.mode.html).strip()
-            instruction.set_comment(rowspan, address_comment)
-            i += 1
 
     def _calculate_entry_sizes(self):
         for i, entry in enumerate(self.memory_map[:-1]):

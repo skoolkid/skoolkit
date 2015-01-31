@@ -18,7 +18,7 @@
 
 from . import write_line, parse_int, open_file
 from .skoolparser import (DIRECTIVES, Comment, Register,
-                          parse_comment_block, parse_instruction, join_comments,
+                          parse_comment_block, parse_instruction, parse_address_comments, join_comments,
                           parse_asm_block_directive, get_instruction_ctl,
                           get_defb_length, get_defm_length, get_defs_length, get_defw_length)
 
@@ -352,7 +352,7 @@ class SkoolParser:
             map_entry.end_comment = join_comments(comments, True)
             map_entry.ignoreua[END] = len(ignores) > 0
 
-        self._parse_address_comments(address_comments)
+        parse_address_comments(address_comments)
 
     def _parse_asm_directive(self, directive, ignores, line_no):
         if parse_asm_block_directive(directive, self.stack):
@@ -383,26 +383,6 @@ class SkoolParser:
         instruction = Instruction(ctl, addr_str, operation, self.preserve_base)
         self.mode.apply_instruction_asm_directives(instruction)
         return instruction, comment
-
-    def _parse_address_comments(self, comments):
-        i = 0
-        while i < len(comments):
-            instruction, comment = comments[i]
-            comment_lines = []
-            if comment and comment.strip()[0] == '{':
-                nesting = comment.count('{') - comment.count('}')
-                while nesting > 0:
-                    comment_lines.append(comments[i][1])
-                    i += 1
-                    nesting += comments[i][1].count('{') - comments[i][1].count('}')
-                comment_lines.append(comments[i][1].strip('}'))
-                comment_lines[0] = comment_lines[0].strip('{')
-            else:
-                comment_lines.append(comment)
-            rowspan = len(comment_lines)
-            address_comment = join_comments(comment_lines).strip()
-            instruction.set_comment(rowspan, address_comment)
-            i += 1
 
 class Mode:
     def __init__(self):
