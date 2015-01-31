@@ -31,10 +31,10 @@ try:
 except ImportError:         # pragma: no cover
     from io import StringIO # pragma: no cover
 
-from . import VERSION, warn, get_int_param, parse_int, SkoolKitError, SkoolParsingError
+from . import VERSION, warn, get_int_param, parse_int, SkoolKitError
 from . import skoolmacro
 from .image import ImageWriter
-from .skoolmacro import MacroParsingError, UnsupportedMacroError
+from .skoolmacro import MacroParsingError, expand_macros
 from .skoolparser import TableParser, ListParser, CASE_LOWER
 from .refparser import RefParser
 from .defaults import REF_FILE
@@ -1469,27 +1469,7 @@ class HtmlWriter:
         return self.expand_table(text, index, cwd)
 
     def expand(self, text, cwd):
-        if not text or text.find('#') < 0:
-            return text
-
-        while 1:
-            search = re.search('#[A-Z]+', text)
-            if not search:
-                break
-            marker = search.group()
-            if not marker in self.macros:
-                raise SkoolParsingError('Found unknown macro: {0}'.format(marker))
-            repf = self.macros[marker]
-            start, index = search.span()
-            try:
-                end, rep = repf(text, index, cwd)
-            except UnsupportedMacroError:
-                raise SkoolParsingError('Found unsupported macro: {0}'.format(marker))
-            except MacroParsingError as e:
-                raise SkoolParsingError('Error while parsing {0} macro: {1}'.format(marker, e.args[0]))
-            text = text[:start] + rep + text[end:]
-
-        return text
+        return expand_macros(self.macros, text, cwd)
 
 class FileInfo:
     """Utility class for file-related operations.

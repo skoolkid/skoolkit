@@ -269,27 +269,7 @@ class AsmWriter:
         raise UnsupportedMacroError()
 
     def expand(self, text):
-        if text.find('#') < 0:
-            return text
-
-        while 1:
-            search = re.search('#[A-Z]+', text)
-            if not search:
-                break
-            marker = search.group()
-            if not marker in self.macros:
-                raise SkoolParsingError('Found unknown macro: {0}'.format(marker))
-            repf = self.macros[marker]
-            start, index = search.span()
-            try:
-                end, rep = repf(text, index)
-            except UnsupportedMacroError:
-                raise SkoolParsingError('Found unsupported macro: {0}'.format(marker))
-            except MacroParsingError as e:
-                raise SkoolParsingError('Error while parsing {0} macro: {1}'.format(marker, e.args[0]))
-            text = "{0}{1}{2}".format(text[:start], rep, text[end:])
-
-        return text.strip()
+        return skoolmacro.expand_macros(self.macros, text).strip()
 
     def find_markers(self, block_indexes, text, marker, end_marker):
         index = 0

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -17,8 +17,9 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import inspect
+import re
 
-from . import get_int_param, parse_int, SkoolKitError
+from . import get_int_param, parse_int, SkoolKitError, SkoolParsingError
 
 DELIMITERS = {
     '(': ')',
@@ -190,6 +191,32 @@ class UnsupportedMacroError(SkoolKitError):
 
 class MacroParsingError(SkoolKitError):
     pass
+
+def expand_macros(macros, text, cwd=None):
+    if text.find('#') < 0:
+        return text
+
+    while 1:
+        search = re.search('#[A-Z]+', text)
+        if not search:
+            break
+        marker = search.group()
+        if not marker in macros:
+            raise SkoolParsingError('Found unknown macro: {}'.format(marker))
+        repf = macros[marker]
+        start, index = search.span()
+        try:
+            if cwd is None:
+                end, rep = repf(text, index)
+            else:
+                end, rep = repf(text, index, cwd)
+        except UnsupportedMacroError:
+            raise SkoolParsingError('Found unsupported macro: {}'.format(marker))
+        except MacroParsingError as e:
+            raise SkoolParsingError('Error while parsing {} macro: {}'.format(marker, e.args[0]))
+        text = text[:start] + rep + text[end:]
+
+    return text
 
 def parse_item_macro(text, index, macro, def_link_text):
     end, anchor, link_text = parse_params(text, index)
