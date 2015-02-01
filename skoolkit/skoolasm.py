@@ -17,7 +17,6 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import re
-import inspect
 
 from . import warn, write_text, wrap, get_chr, SkoolKitError, SkoolParsingError
 from . import skoolmacro
@@ -88,7 +87,7 @@ class AsmWriter:
 
         self.list_parser = ListParser()
 
-        self._create_macros()
+        self.macros = skoolmacro.get_macros(self)
 
     def _get_int_property(self, properties, name, default):
         try:
@@ -152,15 +151,6 @@ class AsmWriter:
         :param name: An optional name for the snapshot.
         """
         self._snapshots.append((self.snapshot[:], name))
-
-    def _create_macros(self):
-        self.macros = {}
-        prefix = 'expand_'
-        for name, method in inspect.getmembers(self, inspect.ismethod):
-            search = re.search('{0}[a-z]+'.format(prefix), name)
-            if search and name == search.group():
-                macro = '#{0}'.format(name[len(prefix):].upper())
-                self.macros[macro] = method
 
     def expand_bug(self, text, index):
         end, item, link_text = skoolmacro.parse_bug(text, index)

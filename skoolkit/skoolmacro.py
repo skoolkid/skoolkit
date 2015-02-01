@@ -192,6 +192,15 @@ class UnsupportedMacroError(SkoolKitError):
 class MacroParsingError(SkoolKitError):
     pass
 
+def get_macros(writer):
+    macros = {}
+    prefix = 'expand_'
+    for name, method in inspect.getmembers(writer, inspect.ismethod):
+        search = re.search('{}[a-z]+'.format(prefix), name)
+        if search and name == search.group():
+            macros['#' + name[len(prefix):].upper()] = method
+    return macros
+
 def expand_macros(macros, text, cwd=None):
     if text.find('#') < 0:
         return text

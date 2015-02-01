@@ -24,7 +24,6 @@ import re
 import posixpath
 import os.path
 from os.path import isfile, isdir, basename
-import inspect
 from collections import defaultdict
 try:
     from StringIO import StringIO
@@ -34,7 +33,7 @@ except ImportError:         # pragma: no cover
 from . import VERSION, warn, get_int_param, parse_int, SkoolKitError
 from . import skoolmacro
 from .image import ImageWriter
-from .skoolmacro import MacroParsingError, expand_macros
+from .skoolmacro import MacroParsingError, get_macros, expand_macros
 from .skoolparser import TableParser, ListParser, CASE_LOWER
 from .refparser import RefParser
 from .defaults import REF_FILE
@@ -125,7 +124,7 @@ class HtmlWriter:
 
         self.table_parser = TableParser()
         self.list_parser = ListParser()
-        self._create_macros()
+        self.macros = get_macros(self)
 
         self.game_vars = self.get_dictionary('Game')
         self.asm_anchor_template = self.game_vars['AddressAnchor']
@@ -1003,15 +1002,6 @@ class HtmlWriter:
         self.image_writer.write_image(frames, f, img_format)
         f.close()
         self.file_info.add_image(image_path)
-
-    def _create_macros(self):
-        self.macros = {}
-        prefix = 'expand_'
-        for name, method in inspect.getmembers(self, inspect.ismethod):
-            search = re.search('{0}[a-z]+'.format(prefix), name)
-            if search and name == search.group():
-                macro = '#{0}'.format(name[len(prefix):].upper())
-                self.macros[macro] = method
 
     def build_table(self, table):
         rows = []
