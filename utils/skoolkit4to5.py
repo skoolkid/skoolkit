@@ -8,6 +8,25 @@ def write(text):
 def info(text):
     sys.stderr.write(text + '\n')
 
+def _convert_ctl_asm_directive(line):
+    asm_fields = line[3:].rstrip().split(':', 1)
+    if len(asm_fields) < 2:
+        write(line)
+        return 0
+    directive = asm_fields[0]
+    asm_fields[1] = asm_fields[1].split('=', 1)
+    addr_str = asm_fields[1][0]
+    if directive == 'ignoreua':
+        comment_type = 'i'
+        if ':' in addr_str:
+            addr_str, comment_type = addr_str.split(':', 1)
+        write('@ {} {}:{}\n'.format(addr_str, directive, comment_type))
+    elif len(asm_fields[1]) == 2:
+        write('@ {} {}={}\n'.format(addr_str, directive, asm_fields[1][1]))
+    else:
+        write('@ {} {}\n'.format(addr_str, directive))
+    return 1
+
 def convert_skool(skoolfile_f):
     count = 0
     for line in skoolfile_f:
@@ -17,7 +36,19 @@ def convert_skool(skoolfile_f):
         else:
             write(line)
     if count:
-        info("Converted {} ASM directives".format(count))
+        info("Converted {} ASM directive(s)".format(count))
+    else:
+        info("No changes")
+
+def convert_ctl(ctlfile_f):
+    asm_dir_count = 0
+    for line in ctlfile_f:
+        if line.startswith('; @'):
+            asm_dir_count += _convert_ctl_asm_directive(line)
+        else:
+            write(line)
+    if asm_dir_count:
+        info("Converted {} ASM directive(s)".format(asm_dir_count))
     else:
         info("No changes")
 
@@ -38,7 +69,7 @@ def main(args):
     infile_l = infile.lower()
     with open(infile) as f:
         if infile_l.endswith('.ctl'):
-            raise NotImplementedError
+            convert_ctl(f)
         elif infile_l.endswith('.sft'):
             convert_sft(f)
         else:
