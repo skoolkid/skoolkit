@@ -16,11 +16,11 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from . import write_line, get_int_param, parse_int, open_file, SkoolKitError
+from . import write_line, get_int_param, parse_int, get_address_format, open_file, SkoolKitError
 from .skoolparser import set_bytes, parse_asm_block_directive
 from .skoolsft import VALID_CTLS, VERBATIM_BLOCKS
 from .ctlparser import parse_params
-from .disassembler import Disassembler, HEX4FMT
+from .disassembler import Disassembler
 
 class SftParsingError(SkoolKitError):
     pass
@@ -58,13 +58,7 @@ class SftParser:
         self.snapshot = snapshot
         self.disassembler = Disassembler(snapshot, zfill=zfill, asm_hex=asm_hex, asm_lower=asm_lower)
         self.sftfile = sftfile
-        if asm_hex:
-            if asm_lower:
-                self.address_fmt = HEX4FMT.lower()
-            else:
-                self.address_fmt = HEX4FMT
-        else:
-            self.address_fmt = '{:05d}'
+        self.address_fmt = get_address_format(asm_hex, asm_lower)
         self.stack = []
         self.disassemble = True
         self.lines = None

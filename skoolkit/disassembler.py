@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2010-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -15,8 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
-
-HEX4FMT = '${0:04X}'
 
 class Instruction:
     def __init__(self, address, operation, data):
@@ -54,15 +52,15 @@ class Disassembler:
         self.asm_lower = asm_lower
         self.defw_size = 2
         if asm_lower:
-            self.hex2fmt = '${0:02x}'
-            self.hex4fmt = HEX4FMT.lower()
+            self.hex2fmt = '${:02x}'
+            self.hex4fmt = '${:04x}'
             self.defb_inst = 'defb'
             self.defm_inst = 'defm'
             self.defs_inst = 'defs'
             self.defw_inst = 'defw'
         else:
-            self.hex2fmt = '${0:02X}'
-            self.hex4fmt = HEX4FMT
+            self.hex2fmt = '${:02X}'
+            self.hex4fmt = '${:04X}'
             self.defb_inst = 'DEFB'
             self.defm_inst = 'DEFM'
             self.defs_inst = 'DEFS'

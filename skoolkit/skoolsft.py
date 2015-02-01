@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from . import write_line, parse_int, open_file
+from . import write_line, get_int_param, get_address_format, open_file
 from .skoolparser import (DIRECTIVES, parse_asm_block_directive, get_instruction_ctl,
                           get_defb_length, get_defm_length, get_defs_length, get_defw_length)
 from .skoolctl import get_lengths
@@ -102,6 +102,7 @@ class SftWriter:
         self.preserve_base = preserve_base
         self.stack = []
         self.verbatim = False
+        self.address_fmt = get_address_format(write_hex)
 
     def _parse_skool(self):
         lines = []
@@ -151,8 +152,8 @@ class SftWriter:
 
     def _parse_instruction(self, line):
         ctl = line[0]
-        address = parse_int(line[1:6])
-        addr_str = self._addr_str(address)
+        address = get_int_param(line[1:6])
+        addr_str = self.address_fmt.format(address)
         comment_index = line.find(';', 7)
         if comment_index > 0:
             end = comment_index
@@ -199,12 +200,6 @@ class SftWriter:
         if prev_line:
             compressed.append(prev_line)
         return compressed
-
-    def _addr_str(self, address):
-        if address is not None:
-            if self.write_hex:
-                return '${0:04X}'.format(int(address))
-            return '{:05d}'.format(address)
 
     def write(self):
         for line in self._parse_skool():

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -66,6 +66,13 @@ def parse_int(num_str, default=None):
         return get_int_param(num_str)
     except ValueError:
         return default
+
+def get_address_format(hexadecimal=False, lower=False):
+    if hexadecimal:
+        if lower:
+            return '${:04x}'
+        return '${:04X}'
+    return '{:05d}'
 
 def get_chr(code):
     return chr(code) if PY3 else unichr(code).encode(ENCODING)

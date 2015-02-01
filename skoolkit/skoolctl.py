@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from . import write_line, parse_int, open_file
+from . import write_line, get_int_param, get_address_format, open_file
 from .skoolparser import (DIRECTIVES, Comment, Register,
                           parse_comment_block, parse_instruction, parse_address_comments, join_comments,
                           parse_asm_block_directive, get_instruction_ctl,
@@ -72,6 +72,7 @@ class CtlWriter:
         self.elements = elements
         self.write_hex = write_hex
         self.write_asm_dirs = write_asm_dirs
+        self.address_fmt = get_address_format(write_hex)
 
     def write(self):
         for entry in self.entries:
@@ -195,9 +196,7 @@ class CtlWriter:
                             self.write_sub_block(ctl, entry_ctl, comment_text, instructions, length)
 
     def addr_str(self, address):
-        if self.write_hex:
-            return '${:04X}'.format(address)
-        return '{:05d}'.format(address)
+        return self.address_fmt.format(address)
 
     def get_sub_blocks(self, instructions):
         # Split a block of instructions into sub-blocks by comment rowspan
@@ -428,7 +427,7 @@ class FakeInstruction:
 class Instruction:
     def __init__(self, ctl, addr_str, operation, preserve_base):
         self.ctl = ctl
-        self.address = parse_int(addr_str)
+        self.address = get_int_param(addr_str)
         self.operation = operation
         self.container = None
         self.comment = None

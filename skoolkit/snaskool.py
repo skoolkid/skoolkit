@@ -19,12 +19,12 @@
 import sys
 import os
 
-from . import warn, write_line, wrap, parse_int, open_file, read_bin_file, SkoolKitError
+from . import warn, write_line, wrap, parse_int, get_address_format, open_file, read_bin_file, SkoolKitError
 from .skoolparser import get_address, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
 from .skoolasm import UDGTABLE_MARKER
 from .skoolctl import (AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET, AD_IGNOREUA,
                        TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
-from .disassembler import Disassembler, HEX4FMT
+from .disassembler import Disassembler
 from .ctlparser import CtlParser
 
 OP_WIDTH = 13
@@ -410,10 +410,7 @@ def _generate_ctls_without_code_map(snapshot, start):
 
 def write_ctl(ctlfile, ctls, ctl_hex):
     # Write a control file
-    if ctl_hex:
-        addr_fmt = HEX4FMT
-    else:
-        addr_fmt = '{:05d}'
+    addr_fmt = get_address_format(ctl_hex)
     with open(ctlfile, 'w') as f:
         for address in sorted(ctls.keys()):
             f.write('{0} {1}\n'.format(ctls[address], addr_fmt.format(address)))
@@ -723,13 +720,7 @@ class SkoolWriter:
         self.comment_width = max(options.line_width - 2, MIN_COMMENT_WIDTH)
         self.disassembly = Disassembly(snapshot, ctl_parser, True, options.defb_size, options.defb_mod, options.zfill,
                                        options.defm_width, options.asm_hex, options.asm_lower)
-        if options.asm_hex:
-            if options.asm_lower:
-                self.address_fmt = HEX4FMT.lower()
-            else:
-                self.address_fmt = HEX4FMT
-        else:
-            self.address_fmt = '{:05d}'
+        self.address_fmt = get_address_format(options.asm_hex, options.asm_lower)
         self.asm_hex = options.asm_hex
 
     def address_str(self, address, pad=True):
