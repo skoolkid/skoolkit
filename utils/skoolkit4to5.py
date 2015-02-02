@@ -27,6 +27,12 @@ def _convert_ctl_asm_directive(line):
         write('@ {} {}\n'.format(addr_str, directive))
     return 1
 
+def _get_address(ctl_line):
+    addr_str = ctl_line[1:].lstrip().split(' ', 1)[0]
+    if addr_str.startswith('$'):
+        return int(addr_str[1:], 16)
+    return int(addr_str)
+
 def convert_skool(skoolfile_f):
     count = 0
     for line in skoolfile_f:
@@ -41,15 +47,29 @@ def convert_skool(skoolfile_f):
         info("No changes")
 
 def convert_ctl(ctlfile_f):
+    entry_addresses = set()
+    for line in ctlfile_f:
+        if line and line[0] in 'bcgistuw':
+            entry_addresses.add(_get_address(line))
+
+    ctlfile_f.seek(0)
+
+    d_dir_count = 0
     asm_dir_count = 0
     for line in ctlfile_f:
         if line.startswith('; @'):
             asm_dir_count += _convert_ctl_asm_directive(line)
+        elif line.startswith('D') and _get_address(line) not in entry_addresses:
+            write('N' + line[1:])
+            d_dir_count += 1
         else:
             write(line)
+
     if asm_dir_count:
         info("Converted {} ASM directive(s)".format(asm_dir_count))
-    else:
+    if d_dir_count:
+        info("Converted {} 'D' directive(s) to 'N'".format(d_dir_count))
+    if asm_dir_count + d_dir_count == 0:
         info("No changes")
 
 def convert_sft(sftfile_f):
