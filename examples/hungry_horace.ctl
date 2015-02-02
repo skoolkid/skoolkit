@@ -10,6 +10,8 @@
 b 16384 Loading screen
 B 16384,6912,16
 i 23296
+@ 24576 start
+@ 24576 org=24576
 c 24576 The game has just loaded
 c 25167
 c 25399

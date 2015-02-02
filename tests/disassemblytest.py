@@ -34,6 +34,7 @@ Copying {SKOOLKIT_HOME}/skoolkit/resources/skoolkit.css to {odir}/hungry_horace/
   Writing hungry_horace/maps/data.html
   Writing hungry_horace/maps/messages.html
   Writing hungry_horace/maps/unused.html
+  Writing hungry_horace/reference/changelog.html
   Writing hungry_horace/index.html"""
 
 OUTPUT_ROM = """Creating directory {odir}
