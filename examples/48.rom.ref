@@ -6,9 +6,18 @@
 GameDir=rom
 
 [Game]
+AddressAnchor={address:04X}
 Game=Spectrum ROM
 TitlePrefix=The Incomplete
 TitleSuffix=Disassembly
+
+[Paths]
+CodeFiles={address:04X}.html
+
+[Changelog:YYYYMMDD]
+Included in SkoolKit 4.3.
+
+Converted disassembly page filenames and address anchors to hexadecimal format
 
 [Changelog:20140308]
 Included in SkoolKit 3.7.
