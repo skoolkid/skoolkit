@@ -497,9 +497,9 @@ class HtmlWriter:
         flipped_udgs = set()
         for row in udgs:
             for udg in row:
-                if udg not in flipped_udgs:
+                if id(udg) not in flipped_udgs:
                     udg.flip(flip)
-                    flipped_udgs.add(udg)
+                    flipped_udgs.add(id(udg))
         if flip & 1:
             for row in udgs:
                 row.reverse()
@@ -516,9 +516,9 @@ class HtmlWriter:
         rotated_udgs = set()
         for row in udgs:
             for udg in row:
-                if udg not in rotated_udgs:
+                if id(udg) not in rotated_udgs:
                     udg.rotate(rotate)
-                    rotated_udgs.add(udg)
+                    rotated_udgs.add(id(udg))
         if rotate & 3 == 1:
             rotated = []
             for i in range(len(udgs[0])):
