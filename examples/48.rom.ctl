@@ -10,8 +10,9 @@
 ;   skool2html.py 48.rom.ref
 ;
 
-; @start:$0000
-; @set-handle-unsupported-macros:$0000=1
+@ $0000 start
+@ $0000 org=$0000
+@ $0000 set-handle-unsupported-macros=1
 c $0000 THE 'START'
 c $0008 THE 'ERROR' RESTART
 c $0010 THE 'PRINT A CHARACTER' RESTART
