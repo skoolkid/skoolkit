@@ -312,10 +312,11 @@ class SkoolParser:
                 map_entry = None
                 continue
 
-            if s_line[0] == ';' and map_entry and instruction:
-                # This is an instruction comment continuation line
-                address_comments[-1][1] = '{0} {1}'.format(address_comments[-1][1], s_line[1:].lstrip())
-                continue
+            if s_line.startswith(';'):
+                if map_entry and instruction:
+                    # This is an instruction comment continuation line
+                    address_comments[-1][1] = '{} {}'.format(address_comments[-1][1], s_line[1:].lstrip())
+                continue # pragma: no cover
 
             # This line contains an instruction
             instruction, address_comment = self._parse_instruction(line)
