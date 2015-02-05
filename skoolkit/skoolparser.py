@@ -665,6 +665,22 @@ class SkoolParser:
             last_entry = self.memory_map[-1]
             last_entry.size = 65536 - int(last_entry.address)
 
+    def _get_address_operand(self, operation):
+        if not operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ')):
+            return
+        if operation.startswith('LD'):
+            ld_args = [arg.strip() for arg in operation[3:].split(',', 1)]
+            if not set(ld_args) & {'A', 'BC', 'DE', 'HL', 'SP', 'IX', 'IY'}:
+                return
+            if 'A' in ld_args:
+                other_arg = ld_args[ld_args.index('A') - 1]
+                if not other_arg.startswith('('):
+                    return
+                other_arg = other_arg[1:].lstrip()
+                if other_arg and other_arg[0] not in '$%0123456789':
+                    return
+        return get_address(operation)
+
     def _calculate_references(self):
         # Parse operations for routine/data addresses
         for entry in self.memory_map:
@@ -672,10 +688,8 @@ class SkoolParser:
                 if instruction.keep:
                     continue
                 operation = instruction.operation.upper()
-                if operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ')):
-                    addr_str = get_address(operation)
-                    if not addr_str:
-                        continue
+                addr_str = self._get_address_operand(operation)
+                if addr_str:
                     address = parse_int(addr_str)
                     other_instructions = self.instructions.get(address)
                     if other_instructions:
@@ -720,7 +734,7 @@ class SkoolParser:
     def _label_operand(self, instruction):
         label_warn = instruction.sub is None and instruction.warn
         operation = instruction.operation
-        operand = get_address(operation)
+        operand = self._get_address_operand(operation.upper())
         if operand is None:
             return
         operand_int = get_int_param(operand)

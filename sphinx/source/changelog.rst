@@ -24,6 +24,8 @@ Changelog
 * Fixed the *flip_udgs()* and *rotate_udgs()* methods on HtmlWriter so that
   they work with a UDG array that contains the same UDG in more than one place
 * Fixed the bug that prevents register descriptions from being HTML-escaped
+* Fixed the erroneous substitution of address labels in instructions that have
+  8-bit numeric operands
 
 4.2 (2014-12-07)
 ----------------

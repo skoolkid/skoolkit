@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
+import re
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolParsingError
@@ -1790,6 +1791,123 @@ class SkoolParserTest(SkoolKitTestCase):
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0], 'WARNING: Unreplaced operand: 30000 JR 30002')
+
+    def test_label_substitution_for_address_operands(self):
+        skool = (
+            '@start',
+            '@label=START',
+            'c12345 LD BC,12345',
+            ' 12348 LD DE,$3039',
+            ' 12351 LD HL,12345',
+            ' 12354 LD SP,$3039',
+            ' 12357 LD IX,12345',
+            ' 12360 LD IY,$3039',
+            ' 12363 LD BC,(12345)',
+            ' 12367 LD DE,($3039)',
+            ' 12371 LD HL,(12345)',
+            ' 12374 LD SP,($3039)',
+            ' 12378 LD IX,(12345)',
+            ' 12382 LD IY,($3039)',
+            ' 12386 CALL 12345',
+            ' 12389 CALL NZ,$3039',
+            ' 12392 CALL Z,12345',
+            ' 12395 CALL NC,$3039',
+            ' 12398 CALL C,12345',
+            ' 12401 CALL PO,$3039',
+            ' 12404 CALL PE,12345',
+            ' 12407 CALL P,$3039',
+            ' 12410 CALL M,12345',
+            ' 12413 JP $3039',
+            ' 12416 JP NZ,12345',
+            ' 12419 JP Z,$3039',
+            ' 12422 JP NC,12345',
+            ' 12425 JP C,$3039',
+            ' 12428 JP PO,12345',
+            ' 12431 JP PE,$3039',
+            ' 12434 JP P,12345',
+            ' 12437 JP M,$3039',
+            ' 12440 JR 12345',
+            ' 12442 JR NZ,$3039',
+            ' 12444 JR Z,12345',
+            ' 12446 JR NC,$3039',
+            ' 12448 JR C,12345',
+            ' 12450 DJNZ $3039',
+            ' 12452 LD A,(12345)',
+            ' 12455 LD ($3039),A',
+            ' 12458 DEFW %0011000000111001'
+        )
+        parser = self._get_parser('\n'.join(skool), asm_mode=1)
+        instructions = parser.entries[12345].instructions
+        self.assertEqual(len(instructions[0].referrers), 1)
+        index = 2
+        for instruction in instructions:
+            exp_operation = re.sub('(12345|\$3039|%0011000000111001)', 'START', skool[index][7:])
+            self.assertEqual(instruction.operation, exp_operation)
+            self.assertIsNotNone(instruction.reference)
+            self.assertEqual(instruction.reference.address, 12345)
+            index += 1
+
+    def test_no_label_substitution_for_8_bit_numeric_operands(self):
+        skool = (
+            '@start',
+            '@label=START',
+            'c00032 LD A,32',
+            ' 00034 LD B,32',
+            ' 00036 LD C,32',
+            ' 00038 LD D,32',
+            ' 00040 LD E,32',
+            ' 00042 LD H,32',
+            ' 00044 LD L,32',
+            ' 00046 LD IXh,32',
+            ' 00049 LD IXl,32',
+            ' 00052 LD IYh,32',
+            ' 00055 LD IYl,32',
+            ' 00058 LD A,(IX+32)',
+            ' 00061 LD B,(IX-32)',
+            ' 00064 LD C,(IX+32)',
+            ' 00067 LD D,(IX-32)',
+            ' 00070 LD E,(IX+32)',
+            ' 00073 LD H,(IX-32)',
+            ' 00076 LD L,(IX+32)',
+            ' 00079 LD A,(IY-32)',
+            ' 00082 LD B,(IY+32)',
+            ' 00085 LD C,(IY-32)',
+            ' 00088 LD D,(IY+32)',
+            ' 00091 LD E,(IY-32)',
+            ' 00094 LD H,(IY+32)',
+            ' 00097 LD L,(IY-32)',
+            ' 00100 LD (IX+32),32',
+            ' 00104 LD (IY-32),32',
+            ' 00108 ADD A,32',
+            ' 00110 ADC A,32',
+            ' 00112 SBC A,32',
+            ' 00114 SUB 32',
+            ' 00116 AND 32',
+            ' 00118 XOR 32',
+            ' 00120 OR 32',
+            ' 00122 CP 32',
+            ' 00124 SET 0,(IX+32)',
+            ' 00127 RES 1,(IY-32)',
+            ' 00130 BIT 2,(IX-32)',
+            ' 00133 RL (IY+32)',
+            ' 00136 RLC (IX+32)',
+            ' 00139 RR (IY-32)',
+            ' 00142 RRC (IX-32)',
+            ' 00145 SLA (IY+32)',
+            ' 00148 SLL (IX+32)',
+            ' 00151 SRA (IY-32)',
+            ' 00154 SRL (IX-32)',
+            ' 00157 IN A,(32)',
+            ' 00159 OUT (32),A',
+        )
+        parser = self._get_parser('\n'.join(skool), asm_mode=1)
+        instructions = parser.entries[32].instructions
+        self.assertEqual(len(instructions[0].referrers), 0)
+        index = 2
+        for instruction in instructions:
+            self.assertEqual(instruction.operation, skool[index][7:])
+            self.assertIsNone(instruction.reference)
+            index += 1
 
     def test_error_duplicate_label(self):
         skool = '\n'.join((
