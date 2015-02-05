@@ -8,6 +8,7 @@ GameDir=rom
 [Game]
 AddressAnchor={address:04X}
 Game=Spectrum ROM
+LinkOperands=CALL,DEFW,DJNZ,JP,JR,RST
 TitlePrefix=The Incomplete
 TitleSuffix=Disassembly
 
@@ -18,6 +19,8 @@ CodeFiles={address:04X}.html
 Included in SkoolKit 4.3.
 
 Converted disassembly page filenames and address anchors to hexadecimal format
+
+Hyperlinked the operands of 'RST' instructions
 
 [Changelog:20140308]
 Included in SkoolKit 3.7.
