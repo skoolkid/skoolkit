@@ -1661,17 +1661,22 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = '\n'.join((
             '; @start',
             '; Routine',
-            'c32768 LD HL,32771',
+            'c32768 LD HL,32774',
+            ' 32771 ld de,32774',
             '',
             '; Next routine',
             '; @label=DOSTUFF',
-            'c32771 RET'
+            'c32774 RET'
         ))
         self._get_parser(skool, asm_mode=1, warnings=True)
         warnings = self.err.getvalue().split('\n')[:-1]
-        self.assertEqual(len(warnings), 2)
-        self.assertEqual(warnings[0], 'WARNING: LD operand replaced with routine label in unsubbed operation:')
-        self.assertEqual(warnings[1], '  32768 LD HL,32771 -> LD HL,DOSTUFF')
+        exp_warnings = [
+            'WARNING: LD operand replaced with routine label in unsubbed operation:',
+            '  32768 LD HL,32774 -> LD HL,DOSTUFF',
+            'WARNING: LD operand replaced with routine label in unsubbed operation:',
+            '  32771 ld de,32774 -> ld de,DOSTUFF'
+        ]
+        self.assertEqual(exp_warnings, warnings)
 
     def test_instruction_addr_str_no_base(self):
         skool = '\n'.join((
@@ -1908,6 +1913,48 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertEqual(instruction.operation, skool[index][7:])
             self.assertIsNone(instruction.reference)
             index += 1
+
+    def test_references_for_rst_instructions(self):
+        skool = (
+            '@start',
+            '; Restart routines',
+            '@label=RESTART0',
+            'c00000 DEFS 8',
+            '@label=RESTART8',
+            ' 00008 DEFS 8',
+            '@label=RESTART16',
+            ' 00016 DEFS 8',
+            '@label=RESTART24',
+            ' 00024 DEFS 8',
+            '@label=RESTART32',
+            ' 00032 DEFS 8',
+             '@label=RESTART40',
+           ' 00040 DEFS 8',
+            '@label=RESTART48',
+            ' 00048 DEFS 8',
+            '@label=RESTART56',
+            ' 00056 RET',
+            '',
+            '; RST instructions',
+            'c00057 RST 0',
+            ' 00058 RST $08',
+            ' 00059 RST 16',
+            ' 00060 RST $18',
+            ' 00061 RST 32',
+            ' 00062 RST $28',
+            ' 00063 RST 48',
+            ' 00064 RST $38',
+        )
+        parser = self._get_parser('\n'.join(skool), asm_mode=1)
+        self.assertEqual(len(parser.entries[0].instructions[0].referrers), 1)
+        index = 20
+        ref_address = 0
+        for instruction in parser.entries[57].instructions:
+            self.assertEqual(instruction.operation, skool[index][7:])
+            self.assertIsNotNone(instruction.reference)
+            self.assertEqual(instruction.reference.address, ref_address)
+            index += 1
+            ref_address += 8
 
     def test_error_duplicate_label(self):
         skool = '\n'.join((

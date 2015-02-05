@@ -704,7 +704,7 @@ class Disassembly:
             if entry.ctl == 'c':
                 for instruction in entry.instructions:
                     operation = instruction.operation
-                    if operation[:2].upper() in ('DJ', 'JR', 'JP', 'CA'):
+                    if operation.upper().startswith(('DJ', 'JR', 'JP', 'CA', 'RS')):
                         addr_str = get_address(operation)
                         if addr_str:
                             callee = self.instructions.get(parse_int(addr_str))

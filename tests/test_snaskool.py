@@ -355,6 +355,45 @@ class DisassemblyTest(SkoolKitTestCase):
         entry = entries[15]
         self.assertEqual(entry.address, 32837)
 
+    def test_referrers(self):
+        snapshot = [
+            201,       # 00000 RET
+            199,       # 00001 RST 0
+            16, 252,   # 00002 DJNZ 0
+            24, 250,   # 00004 JR 0
+            32, 248,   # 00006 JR NZ,0
+            40, 246,   # 00008 JR Z,0
+            48, 244,   # 00010 JR NC,0
+            56, 242,   # 00012 JR C,0
+            196, 0, 0, # 00014 CALL NZ,0
+            204, 0, 0, # 00017 CALL Z,0
+            205, 0, 0, # 00020 CALL 0
+            212, 0, 0, # 00023 CALL NC,0
+            220, 0, 0, # 00026 CALL C,0
+            228, 0, 0, # 00029 CALL PO,0
+            236, 0, 0, # 00032 CALL PE,0
+            244, 0, 0, # 00035 CALL P,0
+            252, 0, 0, # 00038 CALL M,0
+            194, 0, 0, # 00041 JP NZ,0
+            195, 0, 0, # 00044 JP 0
+            202, 0, 0, # 00047 JP Z,0
+            210, 0, 0, # 00050 JP NC,0
+            218, 0, 0, # 00053 JP C,0
+            226, 0, 0, # 00056 JP PO,0
+            234, 0, 0, # 00059 JP PE,0
+            242, 0, 0, # 00062 JP P,0
+            250, 0, 0  # 00065 JP M,0
+        ]
+        exp_ref_addresses = [1] + list(range(2, 14, 2)) + list(range(14, 68, 3))
+        ctls = ['c 00000'] + ['c {:05d}'.format(a) for a in exp_ref_addresses] + ['i 00068']
+        ctl_parser = CtlParser()
+        ctl_parser.parse_ctl(self.write_text_file('\n'.join(ctls)))
+        disassembly = Disassembly(snapshot, ctl_parser, True)
+
+        referrers = disassembly.entries[0].instructions[0].referrers
+        ref_addresses = set([entry.address for entry in referrers])
+        self.assertEqual(set(exp_ref_addresses), ref_addresses)
+
     def test_byte_formats(self):
         snapshot = [42] * 75
         ctl = '\n'.join((

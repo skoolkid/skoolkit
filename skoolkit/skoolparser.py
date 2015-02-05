@@ -666,7 +666,7 @@ class SkoolParser:
             last_entry.size = 65536 - int(last_entry.address)
 
     def _get_address_operand(self, operation):
-        if not operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ')):
+        if not operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ', 'RST')):
             return
         if operation.startswith('LD'):
             ld_args = [arg.strip() for arg in operation[3:].split(',', 1)]
@@ -697,7 +697,7 @@ class SkoolParser:
                         if (not other_entry.is_ignored() and
                             (other_entry.is_remote() or operation.startswith(('DEFW', 'LD ')) or other_entry.is_routine())):
                             instruction.set_reference(other_entry, address, addr_str)
-                            if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR')):
+                            if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')):
                                 other_instructions[0].add_referrer(entry)
 
     def _escape_instructions(self):
@@ -734,7 +734,10 @@ class SkoolParser:
     def _label_operand(self, instruction):
         label_warn = instruction.sub is None and instruction.warn
         operation = instruction.operation
-        operand = self._get_address_operand(operation.upper())
+        operation_u = operation.upper()
+        if operation_u.startswith('RST'):
+            return
+        operand = self._get_address_operand(operation_u)
         if operand is None:
             return
         operand_int = get_int_param(operand)
@@ -743,7 +746,7 @@ class SkoolParser:
             reference = instructions[0]
             if reference.asm_label:
                 rep = operation.replace(operand, reference.asm_label)
-                if reference.is_in_routine() and label_warn and operation.startswith('LD '):
+                if reference.is_in_routine() and label_warn and operation_u.startswith('LD '):
                     # Warn if a LD operand is replaced with a routine label in
                     # an unsubbed operation (will need @keep to retain operand,
                     # or @nowarn if the replacement is OK)
