@@ -55,6 +55,7 @@ hh:
 
 .PHONY: rom
 rom:
+	mkdir -p build
 	./sna2skool.py -o 0 -H -c examples/48.rom.ctl $(ROM) > build/48.rom.skool
 	./skool2html.py $(OPTIONS) -S build examples/48.rom.ref
 
