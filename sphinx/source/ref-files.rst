@@ -573,8 +573,8 @@ name matches the page ID, if one exists; otherwise, the stock
 
 [OtherCode:\*]
 --------------
-Each ``OtherCode:*`` section defines a secondary disassembly that will appear
-under 'Other code' on the main disassembly home page. The section names take
+An ``OtherCode:*`` section defines a secondary disassembly that will appear
+under 'Other code' on the main disassembly home page. The section name takes
 the form::
 
   [OtherCode:CodeID]
@@ -584,8 +584,8 @@ limited to the characters '$', '#', 0-9, A-Z and a-z. The unique ID may be used
 by the :ref:`R` macro when referring to routines or data blocks in the
 secondary disassembly from another disassembly.
 
-Each ``OtherCode:*`` section must contain a single parameter named ``Source``
-in the form::
+An ``OtherCode:*`` section must contain a single parameter named ``Source`` in
+the form::
 
   Source=fname
 
