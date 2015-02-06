@@ -3,6 +3,10 @@ import re
 from os.path import basename, isfile
 from posixpath import join
 import unittest
+try:
+    from mock import patch
+except ImportError:
+    from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase, StringIO
 from skoolkit import VERSION, SkoolKitError, SkoolParsingError, defaults, skoolhtml
@@ -215,7 +219,8 @@ class HtmlWriterTestCase(SkoolKitTestCase):
             file_info = MockFileInfo()
         else:
             file_info = FileInfo(self.odir, GAMEDIR, False)
-        self.mock(skoolhtml, 'ImageWriter', MockImageWriter)
+        patch.object(skoolhtml, 'ImageWriter', MockImageWriter).start()
+        self.addCleanup(patch.stopall)
         writer = HtmlWriter(skool_parser, ref_parser, file_info)
         if mock_write_file:
             writer.write_file = self._mock_write_file
@@ -224,7 +229,8 @@ class HtmlWriterTestCase(SkoolKitTestCase):
 class MethodTest(HtmlWriterTestCase):
     def setUp(self):
         HtmlWriterTestCase.setUp(self)
-        self.mock(skoolhtml, 'REF_FILE', METHOD_MINIMAL_REF_FILE)
+        patch.object(skoolhtml, 'REF_FILE', METHOD_MINIMAL_REF_FILE).start()
+        self.addCleanup(patch.stopall)
 
     def _assert_scr_equal(self, game, x0=0, y0=0, w=32, h=24):
         snapshot = game.snapshot[:]
@@ -309,67 +315,40 @@ class MethodTest(HtmlWriterTestCase):
         self.assertIn('TestMap', writer.memory_maps)
         self.assertEqual(writer.memory_maps['TestMap'], {'EntryTypes': 'w'})
 
+    @patch.object(skoolhtml, 'REF_FILE', MINIMAL_REF_FILE + '[Foo]\nBar')
     def test_get_section_from_default_ref_file(self):
-        default_ref = MINIMAL_REF_FILE + '[Foo]\nBar'
-        self.mock(skoolhtml, 'REF_FILE', default_ref)
         writer = self._get_writer(ref='')
         section = writer.get_section('Foo')
         self.assertEqual(section, 'Bar')
 
+    @patch.object(skoolhtml, 'REF_FILE', MINIMAL_REF_FILE + '[Foo]\nBar')
     def test_get_section_from_user_ref_file(self):
-        default_ref = MINIMAL_REF_FILE + '[Foo]\nBar'
-        self.mock(skoolhtml, 'REF_FILE', default_ref)
         writer = self._get_writer(ref='[Foo]\nBaz')
         section = writer.get_section('Foo')
         self.assertEqual(section, 'Baz')
 
+    @patch.object(skoolhtml, 'REF_FILE', MINIMAL_REF_FILE + '[Foo:a]\nBar\n[Foo:b]\nBaz\n[Foo:c]\nQux')
     def test_get_sections(self):
-        default_ref = '\n'.join((
-            '[Foo:a]',
-            'Bar',
-            '[Foo:b]',
-            'Baz',
-            '[Foo:c]',
-            'Qux'
-        ))
-        self.mock(skoolhtml, 'REF_FILE', MINIMAL_REF_FILE + default_ref)
         writer = self._get_writer(ref='[Foo:b]\nXyzzy')
-
         exp_sections = [('a', 'Bar'), ('b', 'Xyzzy'), ('c', 'Qux')]
         sections = writer.get_sections('Foo')
         self.assertEqual(exp_sections, sections)
 
+    @patch.object(skoolhtml, 'REF_FILE', MINIMAL_REF_FILE + '[Foo]\nBar=Baz')
     def test_get_dictionary_from_default_ref_file(self):
-        default_ref = MINIMAL_REF_FILE + '[Foo]\nBar=Baz'
-        self.mock(skoolhtml, 'REF_FILE', default_ref)
         writer = self._get_writer(ref='')
         foo = writer.get_dictionary('Foo')
         self.assertEqual({'Bar': 'Baz'}, foo)
 
+    @patch.object(skoolhtml, 'REF_FILE', MINIMAL_REF_FILE + '[Foo]\nBar=Baz\nQux=Xyzzy')
     def test_get_dictionary_from_user_ref_file(self):
-        default_ref = '\n'.join((
-            '[Foo]',
-            'Bar=Baz',
-            'Qux=Xyzzy'
-        ))
-        self.mock(skoolhtml, 'REF_FILE', MINIMAL_REF_FILE + default_ref)
         writer = self._get_writer(ref='[Foo]\nQux=Wibble')
         foo = writer.get_dictionary('Foo')
         self.assertEqual({'Bar': 'Baz', 'Qux': 'Wibble'}, foo)
 
+    @patch.object(skoolhtml, 'REF_FILE', MINIMAL_REF_FILE + '[Foo:a]\nBar=Baz\n[Foo:b]\nBaz=Qux\nQux=Xyzzy\n[Foo:c]\nXyzzy=Wobble')
     def test_get_dictionaries(self):
-        default_ref = '\n'.join((
-            '[Foo:a]',
-            'Bar=Baz',
-            '[Foo:b]',
-            'Baz=Qux',
-            'Qux=Xyzzy',
-            '[Foo:c]',
-            'Xyzzy=Wobble'
-        ))
-        self.mock(skoolhtml, 'REF_FILE', MINIMAL_REF_FILE + default_ref)
         writer = self._get_writer(ref='[Foo:b]\nBaz=Wibble')
-
         exp_dicts = [
             ('a', {'Bar': 'Baz'}),
             ('b', {'Baz': 'Wibble', 'Qux': 'Xyzzy'}),
@@ -667,7 +646,8 @@ class MethodTest(HtmlWriterTestCase):
 class SkoolMacroTest(HtmlWriterTestCase):
     def setUp(self):
         HtmlWriterTestCase.setUp(self)
-        self.mock(skoolhtml, 'REF_FILE', SKOOL_MACRO_MINIMAL_REF_FILE)
+        patch.object(skoolhtml, 'REF_FILE', SKOOL_MACRO_MINIMAL_REF_FILE).start()
+        self.addCleanup(patch.stopall)
 
     def _assert_html_equal(self, html, exp_html, eol=False, trim=False):
         lines = []

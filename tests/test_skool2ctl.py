@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 import unittest
+try:
+    from mock import patch
+except ImportError:
+    from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import skool2ctl, VERSION
@@ -28,8 +32,8 @@ class Skool2CtlTest(SkoolKitTestCase):
             self.assertEqual(len(output), 0)
             self.assertTrue(error.startswith('usage: skool2ctl.py'))
 
+    @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
     def test_default_option_values(self):
-        self.mock(skool2ctl, 'CtlWriter', MockCtlWriter)
         skoolfile = 'test.skool'
         skool2ctl.main((skoolfile,))
         infile, elements, write_hex, write_asm_dirs, preserve_base = mock_ctl_writer.args
@@ -45,8 +49,8 @@ class Skool2CtlTest(SkoolKitTestCase):
             output, error = self.run_skool2ctl(option, err_lines=True, catch_exit=0)
             self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
 
+    @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
     def test_option_w(self):
-        self.mock(skool2ctl, 'CtlWriter', MockCtlWriter)
         skoolfile = 'test.skool'
         for w in ('b', 't', 'd', 'r', 'm', 's', 'c', 'btd', ELEMENTS):
             for option in ('-w', '--write'):
@@ -59,8 +63,8 @@ class Skool2CtlTest(SkoolKitTestCase):
                 self.assertFalse(preserve_base)
                 self.assertTrue(mock_ctl_writer.write_called)
 
+    @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
     def test_option_h(self):
-        self.mock(skool2ctl, 'CtlWriter', MockCtlWriter)
         skoolfile = 'test.skool'
         for option in ('-h', '--hex'):
             skool2ctl.main((option, skoolfile))
@@ -72,8 +76,8 @@ class Skool2CtlTest(SkoolKitTestCase):
             self.assertFalse(preserve_base)
             self.assertTrue(mock_ctl_writer.write_called)
 
+    @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
     def test_option_a(self):
-        self.mock(skool2ctl, 'CtlWriter', MockCtlWriter)
         skoolfile = 'test.skool'
         for option in ('-a', '--no-asm-dirs'):
             skool2ctl.main((option, skoolfile))
@@ -85,8 +89,8 @@ class Skool2CtlTest(SkoolKitTestCase):
             self.assertFalse(preserve_base)
             self.assertTrue(mock_ctl_writer.write_called)
 
+    @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
     def test_option_b(self):
-        self.mock(skool2ctl, 'CtlWriter', MockCtlWriter)
         skoolfile = 'test.skool'
         for option in ('-b', '--preserve-base'):
             skool2ctl.main((option, skoolfile))

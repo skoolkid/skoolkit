@@ -2,6 +2,10 @@
 import os
 import unittest
 import textwrap
+try:
+    from mock import patch
+except ImportError:
+    from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 import skoolkit
@@ -19,8 +23,8 @@ class TestAsmWriter:
         write_text('OK')
 
 class Skool2AsmTest(SkoolKitTestCase):
+    @patch.object(skool2asm, 'run', mock_run)
     def test_default_option_values(self):
-        self.mock(skool2asm, 'run', mock_run)
         skool2asm.main(('test.skool',))
         fname, options, parser_mode, writer_mode = run_args
         self.assertEqual(fname, 'test.skool')

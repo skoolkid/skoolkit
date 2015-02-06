@@ -2,6 +2,10 @@
 import sys
 import os
 import unittest
+try:
+    from mock import patch
+except ImportError:
+    from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import bin2tap, VERSION
@@ -96,8 +100,8 @@ class Bin2TapTest(SkoolKitTestCase):
         exp_data.append(self._get_parity(exp_data))
         self.assertEqual(data, exp_data)
 
+    @patch.object(bin2tap, 'run', mock_run)
     def test_default_option_values(self):
-        self.mock(bin2tap, 'run', mock_run)
         data = [0] * 10
         binfile = self.write_bin_file(data, suffix='.bin')
         bin2tap.main((binfile,))

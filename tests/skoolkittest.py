@@ -45,20 +45,13 @@ class SkoolKitTestCase(TestCase):
         sys.stderr = self.err = Stream()
         self.tempfiles = []
         self.tempdirs = []
-        self.mocks = []
 
     def tearDown(self):
-        for obj, attr_name, attr in reversed(self.mocks):
-            setattr(obj, attr_name, attr)
         self.remove_files()
         sys.stdin.close()
         sys.stdin = self.stdin
         sys.stdout = self.stdout
         sys.stderr = self.stderr
-
-    def mock(self, obj, attr_name, mock):
-        self.mocks.append((obj, attr_name, getattr(obj, attr_name)))
-        setattr(obj, attr_name, mock)
 
     def remove_files(self):
         for f in self.tempfiles:

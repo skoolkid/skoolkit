@@ -3,6 +3,10 @@ import re
 import os
 from os.path import basename, isfile, join
 import unittest
+try:
+    from mock import patch
+except ImportError:
+    from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 import skoolkit
@@ -155,8 +159,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
         exp_arg_list = exp_arg_list or [()]
         self.assertEqual(arg_list, exp_arg_list, '{}: {} != {}'.format(method_name, arg_list, exp_arg_list))
 
+    @patch.object(skool2html, 'run', mock_run)
     def test_default_option_values(self):
-        self.mock(skool2html, 'run', mock_run)
         infiles = ['game1.ref', 'game2.skool']
         skool2html.main(infiles)
         files, options = run_args
@@ -273,8 +277,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(output[2], 'Using ref files: {0}, {1}'.format(reffile, reffile2))
         self.assertEqual(output[6], '  Writing disassembly files in {0}/{1}'.format(basename(prefix), code_path))
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_config_in_secondary_ref_file(self):
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         skoolfile = self.write_text_file(suffix='.skool')
         reffile1 = self.write_text_file(suffix='.ref')
         game_dir = 'foo'
@@ -314,8 +318,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(len(error), 0)
         self.assertEqual(output[3], 'Creating directory {0}'.format(name))
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_html_writer_class(self):
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         writer_module = '\n'.join((
             'import sys',
             'from skoolkit.skoolhtml import HtmlWriter',
@@ -353,8 +357,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertEqual(output[0], 'Using skool file: {0}'.format(skoolfile))
             self.assertTrue(isfile(join(self.odir, game_dir, 'asm', '40000.html')))
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_search_dirs(self):
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         subdir = self.make_directory()
         skool = '; Routine\nc30000 RET'
         skoolfile = self.write_text_file(skool, os.path.join(subdir, 'test-{}.skool'.format(os.getpid())))
@@ -375,8 +379,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(len(html_writer.entries), 1)
         self.assertIn(30000, html_writer.entries)
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_image_writer_options(self):
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         exp_iw_options = (
             ('DefaultFormat', 'gif'),
             ('GIFEnableAnimation', 0),
@@ -630,9 +634,9 @@ class Skool2HtmlTest(SkoolKitTestCase):
             with self.assertRaisesRegexp(SkoolKitError, error_msg):
                 self.run_skool2html('{} {} {} -d {} {}'.format(option, single_css, self._css_c(), self.odir, skoolfile))
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_option_a(self):
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
-        self.mock(skool2html, 'SkoolParser', MockSkoolParser)
         skoolfile = self.write_text_file(suffix='.skool')
         for option in ('-a', '--asm-labels'):
             output, error = self.run_skool2html('{} {}'.format(option, skoolfile))
@@ -640,21 +644,21 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertIs(mock_skool_parser.create_labels, False)
             self.assertIs(mock_skool_parser.asm_labels, True)
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_option_C(self):
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
-        self.mock(skool2html, 'SkoolParser', MockSkoolParser)
         skoolfile = self.write_text_file(suffix='.skool')
         for option in ('-C', '--create-labels'):
             output, error = self.run_skool2html('{} {}'.format(option, skoolfile))
             self.assertEqual(error, '')
             self.assertIs(mock_skool_parser.create_labels, True)
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_option_P(self):
         ref = '\n'.join((
             '[Page:Page1]',
             '[Page:Page2]'
         ))
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         reffile = self.write_text_file(ref, suffix='.ref')
         self.write_text_file(path='{}.skool'.format(reffile[:-4]))
         for option in ('-P', '--pages'):
@@ -742,8 +746,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
             search = re.search(pattern, done)
             self.assertIsNot(search, None, '"{0}" is not of the form "{1}"'.format(done, pattern))
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_option_c(self):
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         ref = TEST_WRITER_REF + '[Colours]\nRED=197,0,0'
         reffile = self.write_text_file(ref, suffix='.ref')
         self.write_text_file('', '{0}.skool'.format(reffile[:-4]))
@@ -761,8 +765,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
             with self.assertRaisesRegexp(SkoolKitError, 'Malformed SectionName/Line spec: {0}'.format(sl_spec)):
                 self.run_skool2html('{} {} {}'.format(option, sl_spec, reffile))
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_option_W(self):
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         writer_class = '{}.TestHtmlWriter'.format(__name__)
         skoolfile = self.write_text_file(suffix='.skool')
         for option in ('-W', '--writer'):
@@ -800,8 +804,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
         actual_css = html_writer.game_vars['StyleSheet'].split(';')
         self.assertEqual(actual_css, exp_css)
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_option_o(self):
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
         self.write_text_file('', '{0}.skool'.format(reffile[:-4]))
         for option in ('-o', '--rebuild-images'):
@@ -809,8 +813,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertEqual(error, '')
             self.assertTrue(html_writer.file_info.replace_images)
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_option_l(self):
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
         self.write_text_file('', '{0}.skool'.format(reffile[:-4]))
         for option in ('-l', '--lower'):
@@ -818,8 +822,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertEqual(error, '')
             self.assertEqual(html_writer.case, CASE_LOWER)
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_option_u(self):
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
         self.write_text_file('', '{0}.skool'.format(reffile[:-4]))
         for option in ('-u', '--upper'):
@@ -827,8 +831,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertEqual(error, '')
             self.assertEqual(html_writer.case, CASE_UPPER)
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_option_D(self):
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
         self.write_text_file('', '{0}.skool'.format(reffile[:-4]))
         for option in ('-D', '--decimal'):
@@ -836,8 +840,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
             self.assertEqual(error, '')
             self.assertTrue(html_writer.parser.mode.decimal)
 
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
     def test_option_H(self):
-        self.mock(skool2html, 'write_disassembly', mock_write_disassembly)
         reffile = self.write_text_file(TEST_WRITER_REF, suffix='.ref')
         self.write_text_file('', '{0}.skool'.format(reffile[:-4]))
         for option in ('-H', '--hex'):

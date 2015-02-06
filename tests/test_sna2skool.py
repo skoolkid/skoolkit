@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 import re
 import unittest
+try:
+    from mock import patch
+except ImportError:
+    from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import sna2skool, SkoolKitError, VERSION
@@ -333,8 +337,8 @@ class OptionsTest(SkoolKitTestCase):
             t_states = (t_states + 4) % 69888
         return log
 
+    @patch.object(sna2skool, 'run', mock_run)
     def test_default_option_values(self):
-        self.mock(sna2skool, 'run', mock_run)
         sna2skool.main(('test.sna',))
         snafile, options = run_args
         self.assertEqual(snafile, 'test.sna')
@@ -606,16 +610,16 @@ class OptionsTest(SkoolKitTestCase):
             lines = self._write_skool('-c {0} {1} 3 {2}'.format(ctlfile, option, z80file), 4)
             self.assertEqual(lines[3], 'c49152 RET           ;')
 
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_r(self):
-        self.mock(sna2skool, 'SkoolWriter', MockSkoolWriter)
         binfile = self.write_bin_file(suffix='.bin')
         for option in ('-r', '--no-erefs'):
             output, error = self.run_sna2skool('{} {}'.format(option, binfile))
             self.assertEqual(error, '')
             self.assertEqual(mock_skool_writer.write_refs, -1)
 
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_R(self):
-        self.mock(sna2skool, 'SkoolWriter', MockSkoolWriter)
         binfile = self.write_bin_file(suffix='.bin')
         for option in ('-R', '--erefs'):
             output, error = self.run_sna2skool('{} {}'.format(option, binfile))
@@ -636,8 +640,8 @@ class OptionsTest(SkoolKitTestCase):
             skool = self._write_skool('{0} {1}'.format(option, binfile), 10)
             self.assertIn('c65533 LD SP,12927   ; [1.2]', skool)
 
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_w(self):
-        self.mock(sna2skool, 'SkoolWriter', MockSkoolWriter)
         binfile = self.write_bin_file(suffix='.bin')
         line_width = 120
         for option in ('-w', '--line-width'):
@@ -687,8 +691,8 @@ class OptionsTest(SkoolKitTestCase):
         lines = self._write_skool('-c {0} {1}'.format(ctlfile, binfile), 3)
         self.assertEqual(lines[2], '; Control file')
 
+    @patch.object(sna2skool, 'run', mock_run)
     def test_default_sft_for_unrecognised_snapshot_format(self):
-        self.mock(sna2skool, 'run', mock_run)
         binfile = 'snapshot.foo'
         sftfile = self.write_text_file(path='{}.sft'.format(binfile))
         sna2skool.main((binfile,))
@@ -711,8 +715,8 @@ class OptionsTest(SkoolKitTestCase):
         lines = self._write_skool('-T {0} {1}'.format(sftfile, binfile), 1)
         self.assertEqual(lines[0], sft[0])
 
+    @patch.object(sna2skool, 'run', mock_run)
     def test_default_ctl_for_unrecognised_snapshot_format(self):
-        self.mock(sna2skool, 'run', mock_run)
         binfile = 'input.bar'
         ctlfile = self.write_text_file(path='{}.ctl'.format(binfile))
         sna2skool.main((binfile,))

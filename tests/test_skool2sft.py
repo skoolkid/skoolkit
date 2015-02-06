@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 import unittest
+try:
+    from mock import patch
+except ImportError:
+    from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import skool2sft, VERSION
@@ -26,8 +30,8 @@ class Skool2SftTest(SkoolKitTestCase):
             self.assertEqual(len(output), 0)
             self.assertTrue(error.startswith('usage: skool2sft.py'))
 
+    @patch.object(skool2sft, 'SftWriter', MockSftWriter)
     def test_default_option_values(self):
-        self.mock(skool2sft, 'SftWriter', MockSftWriter)
         skoolfile = 'test.skool'
         skool2sft.main((skoolfile,))
         infile, write_hex, preserve_base = mock_sft_writer.args
@@ -41,8 +45,8 @@ class Skool2SftTest(SkoolKitTestCase):
             output, error = self.run_skool2sft(option, err_lines=True, catch_exit=0)
             self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
 
+    @patch.object(skool2sft, 'SftWriter', MockSftWriter)
     def test_option_h(self):
-        self.mock(skool2sft, 'SftWriter', MockSftWriter)
         skoolfile = 'test.skool'
         for option in ('-h', '--hex'):
             skool2sft.main((option, skoolfile))
@@ -52,8 +56,8 @@ class Skool2SftTest(SkoolKitTestCase):
             self.assertFalse(preserve_base)
             self.assertTrue(mock_sft_writer.write_called)
 
+    @patch.object(skool2sft, 'SftWriter', MockSftWriter)
     def test_option_b(self):
-        self.mock(skool2sft, 'SftWriter', MockSftWriter)
         skoolfile = 'test.skool'
         for option in ('-b', '--preserve-base'):
             skool2sft.main((option, skoolfile))
