@@ -534,8 +534,9 @@ Recognised parameters and their default values are:
   * ``u`` - unused addresses
   * ``w`` - DEFW blocks
 
-* ``Intro`` - the text (HTML) displayed at the top of the memory map page
-  (default: '')
+* ``Intro`` - the text (which may contain HTML markup and
+  :ref:`skool macros <skoolMacros>`) displayed at the top of the memory map
+  page (default: '')
 * ``LengthColumn`` - ``1`` to display the 'Length' column, or ``0`` not to
   (default: ``0``)
 * ``PageByteColumns`` - ``1`` to display 'Page' and 'Byte' columns, or ``0``
