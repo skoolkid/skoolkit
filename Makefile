@@ -22,7 +22,7 @@ usage:
 	@echo "  test3.2[-all]    run core/all unit tests with Python 3.2"
 	@echo "  test3.3[-all]    run core/all unit tests with Python 3.3"
 	@echo "  test3.4[-all]    run core/all unit tests with Python 3.4"
-	@echo "  test-cover[-all] run core/all unit tests with coverage info"
+	@echo "  test-cover       run core unit tests with coverage info"
 	@echo "  release          build a SkoolKit release tarball and zip archive"
 	@echo "  tarball          build a SkoolKit release tarball"
 	@echo "  deb              build a SkoolKit Debian package"
@@ -109,12 +109,6 @@ test3.4-all: write-disassembly-tests
 
 .PHONY: test-cover
 test-cover: remove-disassembly-tests
-	rm -rf tests/cover
-	nosetests -w tests --with-coverage --cover-package=skoolkit --cover-html --cover-erase
-	@echo "Coverage info in tests/cover/index.html"
-
-.PHONY: test-cover-all
-test-cover-all: write-disassembly-tests
 	rm -rf tests/cover
 	nosetests -w tests --with-coverage --cover-package=skoolkit --cover-html --cover-erase
 	@echo "Coverage info in tests/cover/index.html"
