@@ -379,8 +379,6 @@ build_deb() {
   _check_resources $(/usr/bin/skool2html.py -p)/resources $logdir
   _check_examples /usr/share/skoolkit/examples $logdir
   _exec "Uninstalling skoolkit" "sudo dpkg -r skoolkit" $logdir/dpkg-r.log
-
-  echo "Now upload $deb to skoolkit.ca"
 }
 
 ###############################################################################
@@ -403,8 +401,6 @@ build_rpm() {
   _check_resources $(/usr/bin/skool2html.py -p)/resources $logdir
   _check_examples /usr/share/skoolkit/examples $logdir
   _exec "Uninstalling skoolkit" "sudo rpm -e skoolkit" $logdir/rpm-e.log
-
-  echo "Now upload $rpm to skoolkit.ca"
 }
 
 ###############################################################################
