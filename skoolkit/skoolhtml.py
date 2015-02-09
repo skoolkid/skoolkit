@@ -20,7 +20,6 @@
 Defines the :class:`FileInfo` and :class:`HtmlWriter` classes.
 """
 
-import re
 import posixpath
 import os.path
 from os.path import isfile, isdir, basename
