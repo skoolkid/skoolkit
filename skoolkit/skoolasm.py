@@ -119,7 +119,7 @@ class AsmWriter:
     def print_header(self, header):
         if header:
             for line in header:
-                self.write_line('; {0}'.format(self.expand(line)).rstrip())
+                self.write_line('; ' + line.rstrip())
             self.write_line('')
 
     def print_entry(self):

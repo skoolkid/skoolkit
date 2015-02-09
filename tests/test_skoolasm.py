@@ -1228,19 +1228,18 @@ class AsmWriterTest(SkoolKitTestCase):
             self.assertEqual(asm[1], '  {0} ; A=0'.format('DEFB 123'.ljust(width)))
 
     def test_header(self):
-        skool = '\n'.join((
+        skool = [
             '@start',
             '; Header line 1.',
-            '; Header line 2.',
+            ';   * Header line 2 (indented)',
+            ';   * Header line #THREE (also indented)',
+            '; See <http://skoolkit.ca/>.',
             '',
             '; Start',
-            'c32768 JP 49152',
-        ))
-        asm = self._get_asm(skool)
-        self.assertEqual(asm[0], '; Header line 1.')
-        self.assertEqual(asm[1], '; Header line 2.')
-        self.assertEqual(asm[2], '')
-        self.assertEqual(asm[3], '; Start')
+            'c32768 JP 49152'
+        ]
+        asm = self._get_asm('\n'.join(skool))
+        self.assertEqual(skool[1:-1], asm[:len(skool) - 2])
 
     def test_registers(self):
         skool = '\n'.join((
