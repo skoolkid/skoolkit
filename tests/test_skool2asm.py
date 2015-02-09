@@ -6,6 +6,10 @@ try:
     from mock import patch
 except ImportError:
     from unittest.mock import patch
+try:
+    from importlib import invalidate_caches
+except ImportError:
+    invalidate_caches = lambda: None
 
 from skoolkittest import SkoolKitTestCase
 import skoolkit
@@ -515,6 +519,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         ))
         message = 'Testing TestAsmWriter'
         module = self.write_text_file(mod.format(message), suffix='.py')
+        invalidate_caches()
         module_path = os.path.dirname(module)
         module_name = os.path.basename(module)[:-3]
         writer = '{0}:{1}.TestAsmWriter'.format(module_path, module_name)
@@ -537,6 +542,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         ))
         message = 'Testing the -W option'
         module = self.write_text_file(mod.format(message), suffix='.py')
+        invalidate_caches()
         module_path = os.path.dirname(module)
         module_name = os.path.basename(module)[:-3]
         writer = '{}:{}.TestAsmWriter'.format(module_path, module_name)
