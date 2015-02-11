@@ -1233,6 +1233,7 @@ class AsmWriterTest(SkoolKitTestCase):
             '; Header line 1.',
             ';   * Header line 2 (indented)',
             ';   * Header line #THREE (also indented)',
+            ';',
             '; See <http://skoolkit.ca/>.',
             '',
             '; Start',
