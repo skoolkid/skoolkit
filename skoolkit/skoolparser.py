@@ -665,21 +665,19 @@ class SkoolParser:
             last_entry = self.memory_map[-1]
             last_entry.size = 65536 - int(last_entry.address)
 
-    def _get_address_operand(self, operation):
-        if not operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ', 'RST')):
-            return
-        if operation.startswith('LD'):
+    def _is_8_bit_ld_instruction(self, operation):
+        if operation.startswith('LD '):
             ld_args = [arg.strip() for arg in operation[3:].split(',', 1)]
             if not set(ld_args) & {'A', 'BC', 'DE', 'HL', 'SP', 'IX', 'IY'}:
-                return
+                return True
             if 'A' in ld_args:
                 other_arg = ld_args[ld_args.index('A') - 1]
                 if not other_arg.startswith('('):
-                    return
+                    return True
                 other_arg = other_arg[1:].lstrip()
                 if other_arg and other_arg[0] not in '$%0123456789':
-                    return
-        return get_address(operation)
+                    return True
+        return False
 
     def _calculate_references(self):
         # Parse operations for routine/data addresses
@@ -688,17 +686,21 @@ class SkoolParser:
                 if instruction.keep:
                     continue
                 operation = instruction.operation.upper()
-                addr_str = self._get_address_operand(operation)
-                if addr_str:
-                    address = parse_int(addr_str)
-                    other_instructions = self.instructions.get(address)
-                    if other_instructions:
-                        other_entry = other_instructions[0].container
-                        if (not other_entry.is_ignored() and
-                            (other_entry.is_remote() or operation.startswith(('DEFW', 'LD ')) or other_entry.is_routine())):
-                            instruction.set_reference(other_entry, address, addr_str)
-                            if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')):
-                                other_instructions[0].add_referrer(entry)
+                if not operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ', 'RST')) or self._is_8_bit_ld_instruction(operation):
+                    continue
+                addr_str = get_address(operation)
+                if not addr_str:
+                    continue
+                address = parse_int(addr_str)
+                other_instructions = self.instructions.get(address)
+                if other_instructions:
+                    other_entry = other_instructions[0].container
+                    if other_entry.is_ignored():
+                        continue
+                    if other_entry.is_remote() or operation.startswith(('DEFW', 'LD ')) or other_entry.is_routine():
+                        instruction.set_reference(other_entry, address, addr_str)
+                        if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')):
+                            other_instructions[0].add_referrer(entry)
 
     def _escape_instructions(self):
         for entry in self.memory_map:
@@ -737,10 +739,13 @@ class SkoolParser:
         operation_u = operation.upper()
         if operation_u.startswith('RST'):
             return
-        operand = self._get_address_operand(operation_u)
+        operand = get_address(operation)
         if operand is None:
             return
         operand_int = get_int_param(operand)
+        if operand_int < 256 and (not operation_u.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD '))
+                                  or self._is_8_bit_ld_instruction(operation_u)):
+            return
         instructions = self.instructions.get(operand_int)
         if instructions:
             reference = instructions[0]

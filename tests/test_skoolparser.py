@@ -1597,6 +1597,79 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(reference.address, 30003)
         self.assertEqual(reference.entry.address, 30000)
 
+    def test_references_for_ld_instructions(self):
+        skool = '\n'.join((
+            'c00100 LD BC,100',
+            ' 00103 LD DE,100',
+            ' 00106 LD HL,100',
+            ' 00109 LD IX,100',
+            ' 00112 LD IY,100',
+            ' 00115 LD SP,100',
+            ' 00118 LD BC,(100)',
+            ' 00122 LD DE,(100)',
+            ' 00126 LD HL,(100)',
+            ' 00129 LD IX,(100)',
+            ' 00133 LD IY,(100)',
+            ' 00137 LD SP,(100)',
+            ' 00141 LD (100),BC',
+            ' 00145 LD (100),DE',
+            ' 00149 LD (100),HL',
+            ' 00152 LD (100),IX',
+            ' 00156 LD (100),IY',
+            ' 00160 LD (100),SP',
+            ' 00164 LD A,(100)',
+            ' 00167 LD (100),A'
+        ))
+        parser = self._get_parser(skool)
+
+        instructions = parser.memory_map[0].instructions
+        self.assertEqual(len(instructions[0].referrers), 0)
+        for instruction in instructions:
+            self.assertIsNotNone(instruction.reference)
+            self.assertEqual(instruction.reference.address, 100)
+
+    def test_references_for_rst_instructions(self):
+        skool = (
+            '@start',
+            '; Restart routines',
+            '@label=RESTART0',
+            'c00000 DEFS 8',
+            '@label=RESTART8',
+            ' 00008 DEFS 8',
+            '@label=RESTART16',
+            ' 00016 DEFS 8',
+            '@label=RESTART24',
+            ' 00024 DEFS 8',
+            '@label=RESTART32',
+            ' 00032 DEFS 8',
+             '@label=RESTART40',
+           ' 00040 DEFS 8',
+            '@label=RESTART48',
+            ' 00048 DEFS 8',
+            '@label=RESTART56',
+            ' 00056 RET',
+            '',
+            '; RST instructions',
+            'c00057 RST 0',
+            ' 00058 RST $08',
+            ' 00059 RST 16',
+            ' 00060 RST $18',
+            ' 00061 RST 32',
+            ' 00062 RST $28',
+            ' 00063 RST 48',
+            ' 00064 RST $38',
+        )
+        parser = self._get_parser('\n'.join(skool), asm_mode=1)
+        self.assertEqual(len(parser.entries[0].instructions[0].referrers), 1)
+        index = 20
+        ref_address = 0
+        for instruction in parser.entries[57].instructions:
+            self.assertEqual(instruction.operation, skool[index][7:])
+            self.assertIsNotNone(instruction.reference)
+            self.assertEqual(instruction.reference.address, ref_address)
+            index += 1
+            ref_address += 8
+
     def test_references_to_ignored_entry(self):
         skool = '\n'.join((
             '; Routine',
@@ -1801,160 +1874,168 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = (
             '@start',
             '@label=START',
-            'c12345 LD BC,12345',
-            ' 12348 LD DE,$3039',
-            ' 12351 LD HL,12345',
-            ' 12354 LD SP,$3039',
-            ' 12357 LD IX,12345',
-            ' 12360 LD IY,$3039',
-            ' 12363 LD BC,(12345)',
-            ' 12367 LD DE,($3039)',
-            ' 12371 LD HL,(12345)',
-            ' 12374 LD SP,($3039)',
-            ' 12378 LD IX,(12345)',
-            ' 12382 LD IY,($3039)',
-            ' 12386 CALL 12345',
-            ' 12389 CALL NZ,$3039',
-            ' 12392 CALL Z,12345',
-            ' 12395 CALL NC,$3039',
-            ' 12398 CALL C,12345',
-            ' 12401 CALL PO,$3039',
-            ' 12404 CALL PE,12345',
-            ' 12407 CALL P,$3039',
-            ' 12410 CALL M,12345',
-            ' 12413 JP $3039',
-            ' 12416 JP NZ,12345',
-            ' 12419 JP Z,$3039',
-            ' 12422 JP NC,12345',
-            ' 12425 JP C,$3039',
-            ' 12428 JP PO,12345',
-            ' 12431 JP PE,$3039',
-            ' 12434 JP P,12345',
-            ' 12437 JP M,$3039',
-            ' 12440 JR 12345',
-            ' 12442 JR NZ,$3039',
-            ' 12444 JR Z,12345',
-            ' 12446 JR NC,$3039',
-            ' 12448 JR C,12345',
-            ' 12450 DJNZ $3039',
-            ' 12452 LD A,(12345)',
-            ' 12455 LD ($3039),A',
-            ' 12458 DEFW %0011000000111001'
+            'c12445 LD BC,12445',
+            ' 12448 LD DE,$309D',
+            ' 12451 LD HL,12445',
+            ' 12454 LD SP,$309d',
+            ' 12457 LD IX,12445',
+            ' 12460 LD IY,$309D',
+            ' 12463 LD BC,(12445)',
+            ' 12467 LD DE,($309d)',
+            ' 12471 LD HL,(12445)',
+            ' 12474 LD SP,($309D)',
+            ' 12478 LD IX,(12445)',
+            ' 12482 LD IY,($309d)',
+            ' 12486 CALL 12445',
+            ' 12489 CALL NZ,$309D',
+            ' 12492 CALL Z,12445',
+            ' 12495 CALL NC,$309d',
+            ' 12498 CALL C,12445',
+            ' 12501 CALL PO,$309D',
+            ' 12504 CALL PE,12445',
+            ' 12507 CALL P,$309d',
+            ' 12510 CALL M,12445',
+            ' 12513 JP $309D',
+            ' 12516 JP NZ,12445',
+            ' 12519 JP Z,$309d',
+            ' 12522 JP NC,12445',
+            ' 12525 JP C,$309D',
+            ' 12528 JP PO,12445',
+            ' 12531 JP PE,$309d',
+            ' 12534 JP P,12445',
+            ' 12537 JP M,$309D',
+            ' 12540 JR 12445',
+            ' 12542 JR NZ,$309d',
+            ' 12544 JR Z,12445',
+            ' 12546 JR NC,$309D',
+            ' 12548 JR C,12445',
+            ' 12550 DJNZ $309d',
+            ' 12552 LD A,(12445)',
+            ' 12555 LD ($309D),A',
+            ' 12558 DEFW %0011000010011101'
         )
         parser = self._get_parser('\n'.join(skool), asm_mode=1)
-        instructions = parser.entries[12345].instructions
+        instructions = parser.entries[12445].instructions
         self.assertEqual(len(instructions[0].referrers), 1)
         index = 2
         for instruction in instructions:
-            exp_operation = re.sub('(12345|\$3039|%0011000000111001)', 'START', skool[index][7:])
+            exp_operation = re.sub('(12445|\$309[Dd]|%0011000010011101)', 'START', skool[index][7:])
             self.assertEqual(instruction.operation, exp_operation)
             self.assertIsNotNone(instruction.reference)
-            self.assertEqual(instruction.reference.address, 12345)
+            self.assertEqual(instruction.reference.address, 12445)
+            index += 1
+
+    def test_label_substitution_for_16_bit_ld_instruction_operands_below_256(self):
+        skool = (
+            '@start',
+            '@label=START',
+            'c00000 LD BC,0',
+            ' 00003 LD DE,$0000',
+            ' 00006 LD HL,0',
+            ' 00009 LD SP,$0000',
+            ' 00012 LD IX,0',
+            ' 00016 LD IY,$0000',
+            ' 00020 LD BC,(0)',
+            ' 00024 LD DE,($0000)',
+            ' 00028 LD HL,(0)',
+            ' 00031 LD SP,($0000)',
+            ' 00035 LD IX,(0)',
+            ' 00039 LD IY,($0000)',
+            ' 00043 LD A,(0)',
+            ' 00046 LD ($0000),A'
+        )
+        parser = self._get_parser('\n'.join(skool), asm_mode=1)
+
+        instructions = parser.memory_map[0].instructions
+        self.assertEqual(len(instructions[0].referrers), 0)
+        index = 2
+        for instruction in instructions:
+            exp_operation = re.sub('(0|\$0000|%0000000000000000)', 'START', skool[index][7:])
+            self.assertEqual(instruction.operation, exp_operation)
+            self.assertIsNotNone(instruction.reference)
+            self.assertEqual(instruction.reference.address, 0)
             index += 1
 
     def test_no_label_substitution_for_8_bit_numeric_operands(self):
         skool = (
             '@start',
+            '@label=DATA',
+            'b00124 DEFB 124,132,0,0,0,0,0,0',
+            '',
             '@label=START',
-            'c00032 LD A,32',
-            ' 00034 LD B,32',
-            ' 00036 LD C,32',
-            ' 00038 LD D,32',
-            ' 00040 LD E,32',
-            ' 00042 LD H,32',
-            ' 00044 LD L,32',
-            ' 00046 LD IXh,32',
-            ' 00049 LD IXl,32',
-            ' 00052 LD IYh,32',
-            ' 00055 LD IYl,32',
-            ' 00058 LD A,(IX+32)',
-            ' 00061 LD B,(IX-32)',
-            ' 00064 LD C,(IX+32)',
-            ' 00067 LD D,(IX-32)',
-            ' 00070 LD E,(IX+32)',
-            ' 00073 LD H,(IX-32)',
-            ' 00076 LD L,(IX+32)',
-            ' 00079 LD A,(IY-32)',
-            ' 00082 LD B,(IY+32)',
-            ' 00085 LD C,(IY-32)',
-            ' 00088 LD D,(IY+32)',
-            ' 00091 LD E,(IY-32)',
-            ' 00094 LD H,(IY+32)',
-            ' 00097 LD L,(IY-32)',
-            ' 00100 LD (IX+32),32',
-            ' 00104 LD (IY-32),32',
-            ' 00108 ADD A,32',
-            ' 00110 ADC A,32',
-            ' 00112 SBC A,32',
-            ' 00114 SUB 32',
-            ' 00116 AND 32',
-            ' 00118 XOR 32',
-            ' 00120 OR 32',
-            ' 00122 CP 32',
-            ' 00124 SET 0,(IX+32)',
-            ' 00127 RES 1,(IY-32)',
-            ' 00130 BIT 2,(IX-32)',
-            ' 00133 RL (IY+32)',
-            ' 00136 RLC (IX+32)',
-            ' 00139 RR (IY-32)',
-            ' 00142 RRC (IX-32)',
-            ' 00145 SLA (IY+32)',
-            ' 00148 SLL (IX+32)',
-            ' 00151 SRA (IY-32)',
-            ' 00154 SRL (IX-32)',
-            ' 00157 IN A,(32)',
-            ' 00159 OUT (32),A',
+            'c00132 LD A,132',
+            ' 00134 LD B,132',
+            ' 00136 LD C,132',
+            ' 00138 LD D,132',
+            ' 00140 LD E,132',
+            ' 00142 LD H,132',
+            ' 00144 LD L,132',
+            ' 00146 LD IXh,132',
+            ' 00149 LD IXl,132',
+            ' 00152 LD IYh,132',
+            ' 00155 LD IYl,132',
+            ' 00158 LD A,(IX+124)',
+            ' 00161 LD B,(IX-124)',
+            ' 00164 LD C,(IX+124)',
+            ' 00167 LD D,(IX-124)',
+            ' 00170 LD E,(IX+124)',
+            ' 00173 LD H,(IX-124)',
+            ' 00176 LD L,(IX+124)',
+            ' 00179 LD A,(IY-124)',
+            ' 00182 LD B,(IY+124)',
+            ' 00185 LD C,(IY-124)',
+            ' 00188 LD D,(IY+124)',
+            ' 00191 LD E,(IY-124)',
+            ' 00194 LD H,(IY+124)',
+            ' 00197 LD L,(IY-124)',
+            ' 00200 LD (IX+124),132',
+            ' 00204 LD (IY-124),132',
+            ' 00208 ADD A,132',
+            ' 00210 ADC A,132',
+            ' 00212 SBC A,132',
+            ' 00214 SUB 132',
+            ' 00216 AND 255',
+            ' 00218 XOR 255',
+            ' 00220 OR 255',
+            ' 00222 CP 255',
+            ' 00224 DEFB 255',
+            ' 00225 SET 0,(IX+124)',
+            ' 00228 RES 1,(IY-124)',
+            ' 00231 BIT 2,(IX-124)',
+            ' 00234 RL (IY+124)',
+            ' 00237 RLC (IX+124)',
+            ' 00240 RR (IY-124)',
+            ' 00243 RRC (IX-124)',
+            ' 00246 SLA (IY+124)',
+            ' 00249 SLL (IX+124)',
+            ' 00252 SRA (IY-124)',
+            '',
+            '@label=CONTINUE',
+            'c00255 SRL (IX-124)',
+            ' 00258 IN A,(132)',
+            ' 00260 OUT (132),A',
         )
         parser = self._get_parser('\n'.join(skool), asm_mode=1)
-        instructions = parser.entries[32].instructions
+
+        instruction = parser.entries[124].instructions[0]
+        self.assertEqual(len(instruction.referrers), 0)
+        self.assertEqual(instruction.operation, skool[2][7:])
+
+        instructions = parser.entries[132].instructions
         self.assertEqual(len(instructions[0].referrers), 0)
-        index = 2
+        index = 5
         for instruction in instructions:
             self.assertEqual(instruction.operation, skool[index][7:])
             self.assertIsNone(instruction.reference)
             index += 1
 
-    def test_references_for_rst_instructions(self):
-        skool = (
-            '@start',
-            '; Restart routines',
-            '@label=RESTART0',
-            'c00000 DEFS 8',
-            '@label=RESTART8',
-            ' 00008 DEFS 8',
-            '@label=RESTART16',
-            ' 00016 DEFS 8',
-            '@label=RESTART24',
-            ' 00024 DEFS 8',
-            '@label=RESTART32',
-            ' 00032 DEFS 8',
-             '@label=RESTART40',
-           ' 00040 DEFS 8',
-            '@label=RESTART48',
-            ' 00048 DEFS 8',
-            '@label=RESTART56',
-            ' 00056 RET',
-            '',
-            '; RST instructions',
-            'c00057 RST 0',
-            ' 00058 RST $08',
-            ' 00059 RST 16',
-            ' 00060 RST $18',
-            ' 00061 RST 32',
-            ' 00062 RST $28',
-            ' 00063 RST 48',
-            ' 00064 RST $38',
-        )
-        parser = self._get_parser('\n'.join(skool), asm_mode=1)
-        self.assertEqual(len(parser.entries[0].instructions[0].referrers), 1)
-        index = 20
-        ref_address = 0
-        for instruction in parser.entries[57].instructions:
+        instructions = parser.entries[255].instructions
+        self.assertEqual(len(instructions[0].referrers), 0)
+        index += 2
+        for instruction in instructions:
             self.assertEqual(instruction.operation, skool[index][7:])
-            self.assertIsNotNone(instruction.reference)
-            self.assertEqual(instruction.reference.address, ref_address)
+            self.assertIsNone(instruction.reference)
             index += 1
-            ref_address += 8
 
     def test_error_duplicate_label(self):
         skool = '\n'.join((
