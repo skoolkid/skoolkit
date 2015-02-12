@@ -240,5 +240,5 @@ for diff_type in $DIFF_TYPES; do
     ls -al $diff_dir/*.txt
   else
     ls -al $diff_dir/X-*.diff
-  fi
+  fi || echo "No $diff_type diffs found in $diff_dir"
 done
