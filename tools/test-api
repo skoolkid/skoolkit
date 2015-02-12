@@ -7,32 +7,34 @@ write_skool() {
   cat <<EOF
 ; @start
 ; @writer=skoolkit.game.GameAsmWriter
-; Test the GameAsmWriter.timestamp() method: #CALL:timestamp()
-; Test the TIMESTAMP macro: #TIMESTAMP
 
 ; Start
 ;
 ; @ignoreua
+; Test the timestamp() method: #CALL:timestamp()
+; .
+; Test the TIMESTAMP macro: #TIMESTAMP
+; .
 ; #UDGTABLE
 ; { #SPRITE3(jumping) }
-; { Created using SPRITE3(jumping)  }
+; { Created using #CHR(35)SPRITE3(jumping)  }
 ; TABLE#
 ; .
 ; #UDGTABLE
 ; { #CALL:sprite(3,jumping2) }
-; { Created using CALL:sprite(3,jumping2) }
+; { Created using #CHR(35)CALL:sprite(3,jumping2) }
 ; TABLE#
 ; .
 ; PEEK 32770 = #PEEK32770
 ; .
 ; #UDGTABLE
 ; { #INVERSE32768,56 }
-; { Created using INVERSE32768,56 }
+; { Created using #CHR(35)INVERSE32768,56 }
 ; TABLE#
 ; .
 ; #UDGTABLE
 ; { #CALL:countdown(countdown.gif) }
-; { Created using CALL:countdown(countdown.gif) }
+; { Created using #CHR(35)CALL:countdown(countdown.gif) }
 ; TABLE#
 b32768 DEFB 1,2,4,8,16,32,64,128
  32776 DEFB 0,60,70,74,82,98,60,0 ; '0'
@@ -101,6 +103,12 @@ class GameHtmlWriter(HtmlWriter):
             frames.append(Frame([[Udg(attr, self.snapshot[32776:32784])]], **kwargs))
             self.write_animated_image(img_path, frames)
         return self.img_element(cwd, img_path)
+
+    def timestamp(self, cwd):
+        return time.strftime("%a %d %b %Y %H:%M:%S %Z")
+
+    def expand_timestamp(self, text, index, cwd):
+        return index, time.strftime("%a %d %b %Y %H:%M:%S %Z")
 
 class GameAsmWriter(AsmWriter):
     def expand_peek(self, text, index):
