@@ -9,7 +9,6 @@ SkoolKit manual
    diy
    assemblers
    migration
-   info
    changelog
 
 Technical reference
