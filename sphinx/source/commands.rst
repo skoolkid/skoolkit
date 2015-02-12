@@ -124,8 +124,8 @@ skool2ctl.py
   $ skool2ctl.py game.skool > game.ctl
 
 In addition to block types and addresses, `game.ctl` will contain block titles,
-block descriptions, registers, mid-block comments, block end comments,
-sub-block types and addresses, instruction-level comments, and some
+block descriptions, registers, mid-block comments, block start and end
+comments, sub-block types and addresses, instruction-level comments, and some
 :ref:`ASM directives <asmDirectives>`.
 
 To list the options supported by `skool2ctl.py`, run it with no arguments::
