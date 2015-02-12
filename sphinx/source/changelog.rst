@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.3b1
+4.3rc
 -----
 * Added support for block start comments (which appear after the register
   section and before the first instruction in a routine or data block)
