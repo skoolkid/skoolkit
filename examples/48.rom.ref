@@ -15,7 +15,7 @@ TitleSuffix=Disassembly
 [Paths]
 CodeFiles={address:04X}.html
 
-[Changelog:YYYYMMDD]
+[Changelog:20150214]
 Included in SkoolKit 4.3.
 
 Converted disassembly page filenames and address anchors to hexadecimal format
