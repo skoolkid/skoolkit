@@ -25,7 +25,7 @@ that assembles.
 
 For example::
 
-  ; @isub=LD A,(32512)
+  @isub=LD A,(32512)
    25396 LD A,(m)
 
 This ``@isub`` directive ensures that ``LD A,(m)`` is replaced by the valid
@@ -46,7 +46,7 @@ removing or inserting any code.
 
 For example::
 
-  ; @ssub=LD (27015+1),A
+  @ssub=LD (27015+1),A
   *27012 LD (27016),A  ; Change the instruction below from SET 0,B to RES 0,B
                        ; or vice versa
    27015 SET 0,B
@@ -71,12 +71,12 @@ code.
 For example::
 
    23997 LD HL,32766
-  ; @ssub=LD (HL),24002%256
+  @ssub=LD (HL),24002%256
    24000 LD (HL),194
-  ; @rsub+begin
+  @rsub+begin
          INC L
          LD (HL),24002/256
-  ; @rsub+end
+  @rsub+end
    24002 XOR A
 
 This ``@rsub`` block directive inserts two instructions that ensure that the
@@ -84,8 +84,8 @@ address stored at 32766 will have the correct MSB as well as the correct LSB,
 regardless of where the code originally at 24002 now lives.
 
 ``@rsub`` mode is invoked by passing the ``-r`` option to
-:ref:`skool2asm.py <skool2asm.py>`. ``@rsub`` mode also implies ``@ofix`` mode;
-see below for a description of ``@ofix`` mode and the other bugfix modes.
+:ref:`skool2asm.py <skool2asm.py>`. ``@rsub`` mode also implies
+:ref:`ofixMode`.
 
 .. _bugfixModes:
 
@@ -104,11 +104,11 @@ instructions that have faulty operands.
 
 For example::
 
-  ; @ofix-begin
+  @ofix-begin
    27872 CALL 27633    ; This should be CALL 27634
-  ; @ofix+else
+  @ofix+else
          CALL 27634
-  ; @ofix+end
+  @ofix+end
 
 These ``@ofix`` block directives fix the faulty operand of the CALL
 instruction.
@@ -127,11 +127,11 @@ routines, routine entry points, or data blocks.
 
 For example::
 
-  ; @bfix-begin
+  @bfix-begin
    32205 JR Z,32232    ; This should be JR NZ,32232
-  ; @bfix+else
+  @bfix+else
          JR NZ,32232   ;
-  ; @bfix+end
+  @bfix+end
 
 ``@bfix`` mode is invoked by passing the ``-f 2`` option to
 :ref:`skool2asm.py <skool2asm.py>`.
@@ -147,18 +147,17 @@ moving code around (to make space for the fix).
 For example::
 
    28432 DEC HL
-  ; @rsub+begin
+  @rsub+begin
          LD A,H
          OR L
-  ; @rsub+end
+  @rsub+end
    28433 JP Z,29712
 
 These ``@rfix`` block directives insert some instructions to fix the faulty
 check on whether HL holds 0.
 
 ``@rfix`` mode is invoked by passing the ``-f 3`` option to
-:ref:`skool2asm.py <skool2asm.py>`. ``@rfix`` mode implies ``@rsub`` mode (see
-:ref:`rsubMode`).
+:ref:`skool2asm.py <skool2asm.py>`. ``@rfix`` mode implies :ref:`rsubMode`.
 
 .. _asmDirectives:
 
@@ -171,15 +170,16 @@ subsections.
 
 @bfix
 ^^^^^
-The ``@bfix`` directive makes an instruction substitution in ``@bfix`` mode. ::
+The ``@bfix`` directive makes an instruction substitution in :ref:`bfixMode`.
+::
 
-  ; @bfix=INSTRUCTION
+  @bfix=INSTRUCTION
 
 * ``INSTRUCTION`` is the replacement instruction
 
 For example::
 
-  ; @bfix=DEFM "Phosphorus"
+  @bfix=DEFM "Phosphorus"
   t57532 DEFM "Phosphorous"
 
 .. _bfixBlockDirectives:
@@ -187,48 +187,48 @@ For example::
 @bfix block directives
 ^^^^^^^^^^^^^^^^^^^^^^
 The ``@bfix`` block directives define a block of lines that will be inserted or
-removed in ``@bfix`` mode.
+removed in :ref:`bfixMode`.
 
 The syntax for defining a block that will be inserted in ``@bfix`` mode (but
 left out otherwise) is::
 
-  ; @bfix+begin
+  @bfix+begin
   ...                  ; Lines to be inserted
-  ; @bfix+end
+  @bfix+end
 
 The syntax for defining a block that will be removed in ``@bfix`` mode (but
 left in otherwise) is::
 
-  ; @bfix-begin
+  @bfix-begin
   ...                  ; Lines to be removed
-  ; @bfix-end
+  @bfix-end
 
 Typically, though, it is desirable to define a block that will be removed in
 ``@bfix`` mode right next to the block that will be inserted in its place. That
 may be done thus::
 
-  ; @bfix-begin
+  @bfix-begin
   ...                  ; Instructions to be removed
-  ; @bfix+else
+  @bfix+else
   ...                  ; Instructions to be inserted
-  ; @bfix+end
+  @bfix+end
 
 which is equivalent to::
 
-  ; @bfix-begin
+  @bfix-begin
   ...                  ; Instructions to be removed
-  ; @bfix-end
-  ; @bfix+begin
+  @bfix-end
+  @bfix+begin
   ...                  ; Instructions to be inserted
-  ; @bfix+end
+  @bfix+end
 
 For example::
 
-  ; @bfix-begin
+  @bfix-begin
    32205 JR Z,32232    ; This should be JR NZ,32232
-  ; @bfix+else
+  @bfix+else
          JR NZ,32232   ;
-  ; @bfix+end
+  @bfix+end
 
 .. _end:
 
@@ -236,9 +236,7 @@ For example::
 ^^^^
 The ``@end`` directive may be used to indicate where to stop parsing the
 `skool` file for the purpose of generating ASM output. Everything after the
-``@end`` directive is ignored. ::
-
-  ; @end
+``@end`` directive is ignored by :ref:`skool2asm.py`.
 
 See also :ref:`start`.
 
@@ -255,14 +253,12 @@ See also :ref:`start`.
 The ``@ignoreua`` directive suppresses any warnings that would otherwise be
 reported concerning addresses not converted to labels in the comment that
 follows; the comment may be an entry title, an entry description, a register
-description section, a mid-block comment, a block end comment, or an
-instruction-level comment. ::
-
-  ; @ignoreua
+description section, a block start comment, a mid-block comment, a block end
+comment, or an instruction-level comment.
 
 To apply the directive to an entry title::
 
-  ; @ignoreua
+  @ignoreua
   ; Prepare data at 32768
   c32768 LD A,(HL)
 
@@ -274,9 +270,9 @@ To apply the directive to an entry description::
 
   ; Prepare data in page 128
   ;
-  ; @ignoreua
+  @ignoreua
   ; This routine operates on the data at 32768.
-  c32768 LD A,(HL)
+  c49152 LD A,(HL)
 
 If the ``@ignoreua`` directive were not present, a warning would be printed
 (during the rendering phase) about the entry description containing an address
@@ -288,18 +284,34 @@ To apply the directive to a register description section::
   ;
   ; This routine operates on the data in page 128.
   ;
-  ; @ignoreua
+  @ignoreua
   ; HL 32768
-  c32768 LD A,(HL)
+  c49152 LD A,(HL)
 
 If the ``@ignoreua`` directive were not present, a warning would be printed
 (during the rendering phase) about the register description containing an
 address (32768) that has not been converted to a label.
 
+To apply the directive to a block start comment::
+
+  ; Prepare data in page 128
+  ;
+  ; This routine operates on the data in page 128.
+  ;
+  ; HL 128*256
+  ;
+  @ignoreua
+  ; First pick up the byte at 32768.
+  c49152 LD A,(HL)
+
+If the ``@ignoreua`` directive were not present, a warning would be printed
+(during the rendering phase) about the start comment containing an address
+(32768) that has not been converted to a label.
+
 To apply the directive to a mid-block comment::
 
    28913 LD L,A
-  ; @ignoreua
+  @ignoreua
   ; #REGhl now holds either 32522 or 32600.
    28914 LD B,(HL)
 
@@ -310,7 +322,7 @@ If the ``@ignoreua`` directive were not present, warnings would be printed
 To apply the directive to a block end comment::
 
    44159 JP 63152
-  ; @ignoreua
+  @ignoreua
   ; This routine continues at 63152.
 
 If the ``@ignoreua`` directive were not present, warnings would be printed
@@ -319,7 +331,7 @@ that has not been converted to a label.
 
 To apply the directive to an instruction-level comment::
 
-  ; @ignoreua
+  @ignoreua
    60159 LD C,A        ; #REGbc now holds 62818
 
 If the ``@ignoreua`` directive were not present, a warning would be printed
@@ -339,15 +351,16 @@ that has not been converted to a label.
 
 @isub
 ^^^^^
-The ``@isub`` directive makes an instruction substitution in ``@isub`` mode. ::
+The ``@isub`` directive makes an instruction substitution in :ref:`isubMode`.
+::
 
-  ; @isub=INSTRUCTION
+  @isub=INSTRUCTION
 
 * ``INSTRUCTION`` is the replacement instruction
 
 For example::
 
-  ; @isub=LD A,(32512)
+  @isub=LD A,(32512)
    25396 LD A,(m)
 
 This ``@isub`` directive ensures that ``LD A,(m)`` is replaced by the valid
@@ -358,7 +371,7 @@ instruction ``LD A,(32512)`` when rendering in ASM mode.
 @isub block directives
 ^^^^^^^^^^^^^^^^^^^^^^
 The ``@isub`` block directives define a block of lines that will be inserted or
-removed in ``@isub`` mode.
+removed in :ref:`isubMode`.
 
 The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 
@@ -368,13 +381,11 @@ The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 ^^^^^
 The ``@keep`` directive prevents the substitution of a label for the operand in
 the next instruction (but only when the instruction has not been replaced using
-an ``@isub`` or ``@ssub`` directive). ::
-
-  ; @keep
+an ``@isub`` or ``@ssub`` directive).
 
 For example::
 
-  ; @keep
+  @keep
    28328 LD BC,24576   ; #REGb=96, #REGc=0
 
 If the ``@keep`` directive were not present, the operand (24576) of the
@@ -388,13 +399,13 @@ pure data value, not a variable or routine address.
 ^^^^^^
 The ``@label`` directive sets the label for the next instruction. ::
 
-  ; @label=LABEL
+  @label=LABEL
 
 * ``LABEL`` is the label to apply
 
 For example::
 
-  ; @label=ENDGAME
+  @label=ENDGAME
   c24576 XOR A
 
 This sets the label for the routine at 24576 to ``ENDGAME``.
@@ -404,33 +415,31 @@ This sets the label for the routine at 24576 to ``ENDGAME``.
 @nolabel
 ^^^^^^^^
 The ``@nolabel`` directive prevents the next instruction from having a label
-automatically generated. ::
-
-  ; @nolabel
+automatically generated.
 
 For example::
 
-  ; @label=TOGGLE
+  @label=TOGGLE
   c48998 LD HL,32769
-  ; @bfix+begin
-  ; @label=LOOP
-  ; @bfix+end
+  @bfix+begin
+  @label=LOOP
+  @bfix+end
    49001 LD A,(HL)
-  ; @bfix+begin
-  ; @nolabel
-  ; @bfix+end
+  @bfix+begin
+  @nolabel
+  @bfix+end
   *49002 XOR L
    49003 LD (HL),A
    49004 INC L
-  ; @bfix-begin
+  @bfix-begin
    49005 JR NZ,49002
-  ; @bfix+else
+  @bfix+else
    49005 JR NZ,49001
-  ; @bfix+end
+  @bfix+end
 
 The ``@nolabel`` directive here prevents the instruction at 49002 from being
-labelled in ``@bfix`` mode (because no label is required; instead, the previous
-instruction at 49001 will be labelled).
+labelled in :ref:`bfixMode` (because no label is required; instead, the
+previous instruction at 49001 will be labelled).
 
 The output in ``@bfix`` mode will be::
 
@@ -466,13 +475,9 @@ reported for the next instruction concerning:
 * an operand not being replaced with a label (because the operand address has
   no label)
 
-::
-
-  ; @nowarn
-
 For example::
 
-  ; @nowarn
+  @nowarn
    25560 LD BC,25404   ; Point #REGbc at the routine at #R25404
 
 If this ``@nowarn`` directive were not present, a warning would be printed
@@ -482,15 +487,15 @@ data value).
 
 For another example::
 
-  ; @ofix-begin
-  ; @nowarn
+  @ofix-begin
+  @nowarn
    27872 CALL 27633    ; This should be CALL #R27634
-  ; @ofix+else
+  @ofix+else
          CALL 27634    ;
-  ; @ofix+end
+  @ofix+end
 
 If this ``@nowarn`` directive were not present, a warning would be printed
-(during the parsing phase, if not in ``@ofix`` mode) about the operand (27633)
+(during the parsing phase, if not in :ref:`ofixMode`) about the operand (27633)
 not being replaced with a label (usually you would want the operand of a CALL
 instruction to be replaced with a label, but not in this case).
 
@@ -498,15 +503,16 @@ instruction to be replaced with a label, but not in this case).
 
 @ofix
 ^^^^^
-The ``@ofix`` directive makes an instruction substitution in ``@ofix`` mode. ::
+The ``@ofix`` directive makes an instruction substitution in :ref:`ofixMode`.
+::
 
-  ; @ofix=INSTRUCTION
+  @ofix=INSTRUCTION
 
 * ``INSTRUCTION`` is the replacement instruction (with a corrected operand)
 
 For example::
 
-  ; @ofix=JR NZ,26067
+  @ofix=JR NZ,26067
    25989 JR NZ,26068
 
 This ``@ofix`` directive replaces the operand of the ``JR NZ`` instruction with
@@ -517,7 +523,7 @@ This ``@ofix`` directive replaces the operand of the ``JR NZ`` instruction with
 @ofix block directives
 ^^^^^^^^^^^^^^^^^^^^^^
 The ``@ofix`` block directives define a block of lines that will be inserted or
-removed in ``@ofix`` mode.
+removed in :ref:`ofixMode`.
 
 The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 
@@ -527,7 +533,7 @@ The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 ^^^^
 The ``@org`` directive inserts an ``ORG`` assembler directive. ::
 
-  ; @org=ADDRESS
+  @org=ADDRESS
 
 * ``ADDRESS`` is the ``ORG`` address
 
@@ -539,14 +545,14 @@ The ``@rem`` directive may be used to make an illuminating comment about a
 nearby section or other ASM directive in a `skool` file. The directive is
 ignored by the parser. ::
 
-  ; @rem=COMMENT
+  @rem=COMMENT
 
 * ``COMMENT`` is a suitably illuminating comment
 
 For example::
 
-  ; @rem=The next section of data MUST start at 64000
-  ; @org=64000
+  @rem=The next section of data MUST start at 64000
+  @org=64000
 
 +---------+-----------------------+
 | Version | Changes               |
@@ -559,7 +565,7 @@ For example::
 @rfix block directives
 ^^^^^^^^^^^^^^^^^^^^^^
 The ``@rfix`` block directives define a block of lines that will be inserted or
-removed in ``@rfix`` mode.
+removed in :ref:`rfixMode`.
 
 The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 
@@ -567,15 +573,16 @@ The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 
 @rsub
 ^^^^^
-The ``@rsub`` directive makes an instruction substitution in ``@rsub`` mode. ::
+The ``@rsub`` directive makes an instruction substitution in :ref:`rsubMode`.
+::
 
-  ; @rsub=INSTRUCTION
+  @rsub=INSTRUCTION
 
 * ``INSTRUCTION`` is the replacement instruction
 
 For example::
 
-  ; @rsub=INC BC
+  @rsub=INC BC
    30143 INC C         ; Point #REGbc at the next byte of data
 
 .. _rsubBlockDirectives:
@@ -583,7 +590,7 @@ For example::
 @rsub block directives
 ^^^^^^^^^^^^^^^^^^^^^^
 The ``@rsub`` block directives define a block of lines that will be inserted or
-removed in ``@rsub`` mode.
+removed in :ref:`rsubMode`.
 
 The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 
@@ -593,13 +600,13 @@ The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 ^^^^
 The ``@set`` directive sets a property on the ASM writer. ::
 
-  ; @set-name=value
+  @set-name=value
 
 * ``name`` is the property name
 * ``value`` is the property value
 
-``@set`` directives must be placed somewhere after the ``@start`` directive,
-and before the ``@end`` directive (if there is one).
+``@set`` directives must be placed somewhere after the :ref:`start` directive,
+and before the :ref:`end` directive (if there is one).
 
 Recognised property names and their default values are:
 
@@ -627,7 +634,7 @@ Recognised property names and their default values are:
 
 For example::
 
-  ; @set-bullet=+
+  @set-bullet=+
 
 This ``@set`` directive sets the bullet character to '+'.
 
@@ -647,15 +654,16 @@ This ``@set`` directive sets the bullet character to '+'.
 
 @ssub
 ^^^^^
-The ``@ssub`` directive makes an instruction substitution in ``@ssub`` mode. ::
+The ``@ssub`` directive makes an instruction substitution in :ref:`ssubMode`.
+::
 
-  ; @ssub=INSTRUCTION
+  @ssub=INSTRUCTION
 
 * ``INSTRUCTION`` is the replacement instruction
 
 For example::
 
-  ; @ssub=LD (27015+1),A
+  @ssub=LD (27015+1),A
   *27012 LD (27016),A  ; Change the instruction below from SET 0,B to RES 0,B
                        ; or vice versa
    27015 SET 0,B
@@ -671,9 +679,7 @@ instruction.)
 ^^^^^^
 The ``@start`` directive indicates where to start parsing the `skool` file for
 the purpose of generating ASM output. Everything before the ``@start``
-directive is ignored. ::
-
-  ; @start
+directive is ignored by :ref:`skool2asm.py`.
 
 See also :ref:`end`.
 
@@ -682,14 +688,14 @@ See also :ref:`end`.
 @writer
 ^^^^^^^
 The ``@writer`` directive specifies the name of the Python class to use to
-generate ASM output. It must be placed somewhere after the ``@start``
-directive, and before the ``@end`` directive (if there is one). ::
+generate ASM output. It must be placed somewhere after the :ref:`start`
+directive, and before the :ref:`end` directive (if there is one). ::
 
-  ; @writer=package.module.classname
+  @writer=package.module.classname
 
 or::
 
-  ; @writer=/path/to/moduledir:module.classname
+  @writer=/path/to/moduledir:module.classname
 
 The second of these forms may be used to specify a class in a module that is
 outside the module search path (e.g. a standalone module that is not part of

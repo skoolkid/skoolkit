@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Control files &mdash; SkoolKit 4.2 documentation</title>
+    <title>Control files &mdash; SkoolKit 4.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.2',
+        VERSION:     '4.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.3 documentation" href="index.html" />
     <link rel="next" title="Skool files" href="skool-files.html" />
     <link rel="prev" title="Parsing, rendering, and modes" href="parsing.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -50,6 +50,7 @@
 <li><a class="reference internal" href="#">Control files</a><ul>
 <li><a class="reference internal" href="#block-descriptions">Block descriptions</a></li>
 <li><a class="reference internal" href="#register-values">Register values</a></li>
+<li><a class="reference internal" href="#block-start-comments">Block start comments</a></li>
 <li><a class="reference internal" href="#mid-block-comments">Mid-block comments</a></li>
 <li><a class="reference internal" href="#block-end-comments">Block end comments</a></li>
 <li><a class="reference internal" href="#sub-block-syntax">Sub-block syntax</a></li>
@@ -147,6 +148,7 @@ syntax also supports the declaration of the following things:</p>
 <ul class="simple">
 <li>Block descriptions</li>
 <li>Register values</li>
+<li>Block start comments</li>
 <li>Mid-block comments</li>
 <li>Block end comments</li>
 <li>Sub-block types and comments</li>
@@ -178,18 +180,37 @@ R 24576 DE Display file address
 </pre></div>
 </div>
 </div>
+<div class="section" id="block-start-comments">
+<h2>Block start comments<a class="headerlink" href="#block-start-comments" title="Permalink to this headline">¶</a></h2>
+<p>To declare a block start comment that will appear above the instruction at
+24576, use the <tt class="docutils literal"><span class="pre">N</span></tt> directive thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>N 24576 And so this routine begins.
+</pre></div>
+</div>
+<p>If the start comment consists of two or more paragraphs, declare each one with
+a separate <tt class="docutils literal"><span class="pre">N</span></tt> directive:</p>
+<div class="highlight-none"><div class="highlight"><pre>N 24576 This is the first paragraph of the start comment.
+N 24576 This is the second paragraph of the start comment.
+</pre></div>
+</div>
+</div>
 <div class="section" id="mid-block-comments">
 <h2>Mid-block comments<a class="headerlink" href="#mid-block-comments" title="Permalink to this headline">¶</a></h2>
 <p>To declare a mid-block comment that will appear above the instruction at 24592,
-use the <tt class="docutils literal"><span class="pre">D</span></tt> directive thus:</p>
-<div class="highlight-none"><div class="highlight"><pre>D 24592 The next section of code does something really important.
+use the <tt class="docutils literal"><span class="pre">N</span></tt> directive thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>N 24592 The next section of code does something really important.
 </pre></div>
 </div>
 <p>If the mid-block comment consists of two or more paragraphs, declare each one
-with a separate <tt class="docutils literal"><span class="pre">D</span></tt> directive:</p>
-<div class="highlight-none"><div class="highlight"><pre>D 24592 This is the first paragraph of the mid-block comment.
-D 24592 This is the second paragraph of the mid-block comment.
+with a separate <tt class="docutils literal"><span class="pre">N</span></tt> directive:</p>
+<div class="highlight-none"><div class="highlight"><pre>N 24592 This is the first paragraph of the mid-block comment.
+N 24592 This is the second paragraph of the mid-block comment.
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Using the <tt class="docutils literal"><span class="pre">D</span></tt> directive to declare mid-block comments is deprecated since
+version 4.3. The <tt class="docutils literal"><span class="pre">D</span></tt> directive should be used only for block descriptions.</p>
 </div>
 </div>
 <div class="section" id="block-end-comments">
@@ -446,8 +467,8 @@ the statement length.</p>
 <div class="section" id="asm-directives">
 <h2>ASM directives<a class="headerlink" href="#asm-directives" title="Permalink to this headline">¶</a></h2>
 <p>To declare an ASM directive for a block or an individual instruction, use the
-following syntax:</p>
-<div class="highlight-none"><div class="highlight"><pre>; @directive:address[=value]
+<tt class="docutils literal"><span class="pre">&#64;</span></tt> directive thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>@ address directive[=value]
 </pre></div>
 </div>
 <p>where:</p>
@@ -458,13 +479,13 @@ applies</li>
 <li><tt class="docutils literal"><span class="pre">value</span></tt> is the value of the directive (if it requires one)</li>
 </ul>
 <p>For example, to declare a <a class="reference internal" href="asm.html#label"><em>&#64;label</em></a> directive for the instruction at 32768:</p>
-<div class="highlight-none"><div class="highlight"><pre>; @label:32768=LOOP
+<div class="highlight-none"><div class="highlight"><pre>@ 32768 label=LOOP
 </pre></div>
 </div>
 <p>When declaring an <a class="reference internal" href="asm.html#ignoreua"><em>&#64;ignoreua</em></a> directive for anything other than an
-instruction-level comment, a suffix must be appended to the address to specify
-what the directive applies to:</p>
-<div class="highlight-none"><div class="highlight"><pre>; @ignoreua:address:X
+instruction-level comment, a suffix must be appended to the directive to
+specify the type of comment it applies to:</p>
+<div class="highlight-none"><div class="highlight"><pre>@ address ignoreua:X
 </pre></div>
 </div>
 <p>where <tt class="docutils literal"><span class="pre">X</span></tt> is one of:</p>
@@ -472,19 +493,24 @@ what the directive applies to:</p>
 <li><tt class="docutils literal"><span class="pre">d</span></tt> - entry description</li>
 <li><tt class="docutils literal"><span class="pre">e</span></tt> - block end comment</li>
 <li><tt class="docutils literal"><span class="pre">i</span></tt> - instruction-level comment (default)</li>
-<li><tt class="docutils literal"><span class="pre">m</span></tt> - mid-block comment</li>
+<li><tt class="docutils literal"><span class="pre">m</span></tt> - block start comment or mid-block comment</li>
 <li><tt class="docutils literal"><span class="pre">r</span></tt> - register description section</li>
 <li><tt class="docutils literal"><span class="pre">t</span></tt> - entry title</li>
 </ul>
 <p>For example, to declare an <a class="reference internal" href="asm.html#ignoreua"><em>&#64;ignoreua</em></a> directive for the description of the
 routine at 49152:</p>
-<div class="highlight-none"><div class="highlight"><pre>; @ignoreua:49152:d
+<div class="highlight-none"><div class="highlight"><pre>@ 49152 ignoreua:d
 D 49152 This is the description of the routine at 49152.
 </pre></div>
 </div>
 <p>Note that neither ASM block directives (such as the <a class="reference internal" href="asm.html#bfixblockdirectives"><em>&#64;bfix block directives</em></a>)
 nor the exact location of <a class="reference internal" href="asm.html#org"><em>&#64;org</em></a>, <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a>, <a class="reference internal" href="asm.html#start"><em>&#64;start</em></a>, <a class="reference internal" href="asm.html#end"><em>&#64;end</em></a>
 and <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a> directives can be preserved in a control file.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The old style of declaring ASM directives (<tt class="docutils literal"><span class="pre">;</span> <span class="pre">&#64;directive:address[=value]</span></tt>)
+is deprecated since version 4.3.</p>
+</div>
 </div>
 <div class="section" id="instruction-level-comments">
 <h2>Instruction-level comments<a class="headerlink" href="#instruction-level-comments" title="Permalink to this headline">¶</a></h2>
@@ -528,9 +554,9 @@ at least one character other than a dot; such comments are preserved verbatim
 <div class="section" id="control-file-comments">
 <h2>Control file comments<a class="headerlink" href="#control-file-comments" title="Permalink to this headline">¶</a></h2>
 <p>A comment may be added to a control file by starting a line with a hash
-character (<tt class="docutils literal"><span class="pre">#</span></tt>), a per cent sign (<tt class="docutils literal"><span class="pre">%</span></tt>), or a semicolon (so long as the next
-non-whitespace character is not <tt class="docutils literal"><span class="pre">&#64;</span></tt>, because <tt class="docutils literal"><span class="pre">;</span> <span class="pre">&#64;</span></tt> is used to declare ASM
-directives). For example:</p>
+character (<tt class="docutils literal"><span class="pre">#</span></tt>), a per cent sign (<tt class="docutils literal"><span class="pre">%</span></tt>), or a semicolon - so long as the
+next non-whitespace character is not <tt class="docutils literal"><span class="pre">&#64;</span></tt>, because <tt class="docutils literal"><span class="pre">;</span> <span class="pre">&#64;</span></tt> is the deprecated
+(but still valid) way to declare an ASM directive. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre># This is a comment
 % This is another comment
 ; This is yet another comment
@@ -565,44 +591,48 @@ may be a better choice for <cite>skool</cite> files that contain any of them.</p
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.2</td>
+<tr class="row-even"><td>4.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">&#64;</span></tt> directive, the <tt class="docutils literal"><span class="pre">N</span></tt> directive and support for
+block start comments</td>
+</tr>
+<tr class="row-odd"><td>4.2</td>
 <td>Added the <tt class="docutils literal"><span class="pre">L</span></tt> directive and support for preserving the location
 of <a class="reference internal" href="asm.html#ignoreua"><em>&#64;ignoreua</em></a> directives</td>
 </tr>
-<tr class="row-odd"><td>3.7</td>
+<tr class="row-even"><td>3.7</td>
 <td>Added support for binary numbers; added support for specifying
 the base of numeric values in DEFB, DEFM, DEFS and DEFW
 statements; added the <tt class="docutils literal"><span class="pre">s</span></tt> and <tt class="docutils literal"><span class="pre">S</span></tt> directives and support for
 DEFS statements with non-zero byte values</td>
 </tr>
-<tr class="row-even"><td>3.6</td>
+<tr class="row-odd"><td>3.6</td>
 <td>Added support for preserving blank comments that span two or more
 instructions</td>
 </tr>
-<tr class="row-odd"><td>3.1.4</td>
+<tr class="row-even"><td>3.1.4</td>
 <td>Added support for DEFB and DEFM statements that contain both
 strings and bytes</td>
 </tr>
-<tr class="row-even"><td>2.4</td>
+<tr class="row-odd"><td>2.4</td>
 <td>Added support for non-block ASM directives</td>
 </tr>
-<tr class="row-odd"><td>2.2</td>
+<tr class="row-even"><td>2.2</td>
 <td>Added support for the <tt class="docutils literal"><span class="pre">*</span></tt> notation in DEFB, DEFM, DEFS and DEFW
 statement length lists</td>
 </tr>
-<tr class="row-even"><td>2.1.2</td>
+<tr class="row-odd"><td>2.1.2</td>
 <td>Added support for DEFM, DEFS and DEFW statement lengths</td>
 </tr>
-<tr class="row-odd"><td>2.1.1</td>
+<tr class="row-even"><td>2.1.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">M</span></tt> directive</td>
 </tr>
-<tr class="row-even"><td>2.1</td>
+<tr class="row-odd"><td>2.1</td>
 <td>Added support for DEFB statement lengths</td>
 </tr>
-<tr class="row-odd"><td>2.0.6</td>
+<tr class="row-even"><td>2.0.6</td>
 <td>Added support for hexadecimal numbers</td>
 </tr>
-<tr class="row-even"><td>1.0.7</td>
+<tr class="row-odd"><td>1.0.7</td>
 <td>Added support for block titles, block descriptions, register
 values, mid-block comments, block end comments, sub-block types
 and instruction-level comments</td>
@@ -630,11 +660,11 @@ and instruction-level comments</td>
         <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2014, Richard Dymond.
+        &copy; Copyright 2015, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

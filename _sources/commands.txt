@@ -124,8 +124,8 @@ skool2ctl.py
   $ skool2ctl.py game.skool > game.ctl
 
 In addition to block types and addresses, `game.ctl` will contain block titles,
-block descriptions, registers, mid-block comments, block end comments,
-sub-block types and addresses, instruction-level comments, and some
+block descriptions, registers, mid-block comments, block start and end
+comments, sub-block types and addresses, instruction-level comments, and some
 :ref:`ASM directives <asmDirectives>`.
 
 To list the options supported by `skool2ctl.py`, run it with no arguments::
@@ -146,7 +146,7 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
                            t = block titles
                            d = block descriptions
                            r = registers
-                           m = mid-block comments and block end comments
+                           m = mid-block comments and block start/end comments
                            s = sub-block types and addresses
                            c = instruction-level comments
 
@@ -261,7 +261,6 @@ files, CSS files, JavaScript files, font files, and files listed in the
 * The current working directory
 * `./resources`
 * `~/.skoolkit`
-* `/usr/share/skoolkit`
 * `$PACKAGE_DIR/resources`
 * Any other directories specified by the ``-S``/``--search`` option
 
@@ -405,6 +404,8 @@ list::
     -t, --text            Show ASCII text in the comment fields
     -T FILE, --sft FILE   Use FILE as the skool file template
     -V, --version         Show SkoolKit version number and exit
+    -w W, --line-width W  Set the maximum line width of the skool file (default:
+                          79)
     -z, --defb-zfill      Pad decimal values in DEFB statements with leading
                           zeroes
 
@@ -431,6 +432,8 @@ formats.
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 4.3     | Added the ``--line-width`` option                               |
++---------+-----------------------------------------------------------------+
 | 3.4     | Added the ``-V`` and ``-R`` options and the long options        |
 +---------+-----------------------------------------------------------------+
 | 3.3     | Added the ``-M`` option, along with support for code execution  |

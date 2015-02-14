@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &mdash; SkoolKit 4.2 documentation</title>
+    <title>Ref files &mdash; SkoolKit 4.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.2',
+        VERSION:     '4.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.3 documentation" href="index.html" />
     <link rel="next" title="HTML templates" href="html-templates.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -330,6 +330,8 @@ aspects of the HTML output. The parameters are in the format:</p>
 </div>
 <p>Recognised parameters are:</p>
 <ul class="simple">
+<li><tt class="docutils literal"><span class="pre">AddressAnchor</span></tt> - the format of the anchors attached to instructions on
+disassembly pages and entries on memory map pages (default: <tt class="docutils literal"><span class="pre">{address}</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">Copyright</span></tt> - the copyright message that appears in the footer of every
 page (default: &#8216;&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">Created</span></tt> - the message indicating the software used to create the
@@ -375,6 +377,15 @@ header of the main index page (default: &#8216;The complete&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">TitleSuffix</span></tt> - the suffix to use after the game name or logo in the header
 of the main index page (default: &#8216;RAM disassembly&#8217;)</li>
 </ul>
+<p>The <tt class="docutils literal"><span class="pre">AddressAnchor</span></tt> parameter contains a standard Python format string that
+specifies the format of the anchors attached to instructions on disassembly
+pages and entries on memory map pages. The default format string is
+<tt class="docutils literal"><span class="pre">{address}</span></tt>, which produces decimal addresses (e.g. <tt class="docutils literal"><span class="pre">#65280</span></tt>); to produce
+4-digit, lower case hexadecimal addresses instead (e.g. <tt class="docutils literal"><span class="pre">#ff00</span></tt>), change
+<tt class="docutils literal"><span class="pre">AddressAnchor</span></tt> to <tt class="docutils literal"><span class="pre">{address:04x}</span></tt>.</p>
+<p>Note that an address anchor that starts with an upper case letter (e.g.
+<tt class="docutils literal"><span class="pre">#FF00</span></tt>) will be interpreted as a skool macro, and so any template that could
+produce such an anchor should be avoided.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -386,34 +397,37 @@ of the main index page (default: &#8216;RAM disassembly&#8217;)</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.1</td>
+<tr class="row-even"><td>4.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">AddressAnchor</span></tt> parameter</td>
+</tr>
+<tr class="row-odd"><td>4.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">LinkInternalOperands</span></tt> parameter</td>
 </tr>
-<tr class="row-odd"><td>4.0</td>
+<tr class="row-even"><td>4.0</td>
 <td>Set default values for the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
 <tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> parameters; added the
 <tt class="docutils literal"><span class="pre">Copyright</span></tt>, <tt class="docutils literal"><span class="pre">Created</span></tt> and <tt class="docutils literal"><span class="pre">Release</span></tt> parameters (which used
 to live in the <tt class="docutils literal"><span class="pre">[Info]</span></tt> section in SkoolKit 3)</td>
 </tr>
-<tr class="row-even"><td>3.7</td>
+<tr class="row-odd"><td>3.7</td>
 <td>Added the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter</td>
 </tr>
-<tr class="row-odd"><td>3.5</td>
+<tr class="row-even"><td>3.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">Font</span></tt>, <tt class="docutils literal"><span class="pre">LogoImage</span></tt> and <tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parameters
 (all of which used to live in the <a class="reference internal" href="#paths"><em>[Paths]</em></a> section,
 <tt class="docutils literal"><span class="pre">LogoImage</span></tt> by the name <tt class="docutils literal"><span class="pre">Logo</span></tt>)</td>
 </tr>
-<tr class="row-even"><td>3.4</td>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">LinkOperands</span></tt> parameter</td>
 </tr>
-<tr class="row-odd"><td>3.1.2</td>
+<tr class="row-even"><td>3.1.2</td>
 <td>Added the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
 <tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> parameters</td>
 </tr>
-<tr class="row-even"><td>2.0.5</td>
+<tr class="row-odd"><td>2.0.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">Logo</span></tt> parameter</td>
 </tr>
-<tr class="row-odd"><td>2.0.3</td>
+<tr class="row-even"><td>2.0.3</td>
 <td>Added the <tt class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></tt> parameter</td>
 </tr>
 </tbody>
@@ -697,8 +711,9 @@ parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em><
 <li><tt class="docutils literal"><span class="pre">w</span></tt> - DEFW blocks</li>
 </ul>
 </li>
-<li><tt class="docutils literal"><span class="pre">Intro</span></tt> - the text (HTML) displayed at the top of the memory map page
-(default: &#8216;&#8217;)</li>
+<li><tt class="docutils literal"><span class="pre">Intro</span></tt> - the text (which may contain HTML markup and
+<a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>) displayed at the top of the memory map
+page (default: &#8216;&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">LengthColumn</span></tt> - <tt class="docutils literal"><span class="pre">1</span></tt> to display the &#8216;Length&#8217; column, or <tt class="docutils literal"><span class="pre">0</span></tt> not to
 (default: <tt class="docutils literal"><span class="pre">0</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">PageByteColumns</span></tt> - <tt class="docutils literal"><span class="pre">1</span></tt> to display &#8216;Page&#8217; and &#8216;Byte&#8217; columns, or <tt class="docutils literal"><span class="pre">0</span></tt>
@@ -743,8 +758,8 @@ parameter</td>
 </div>
 <div class="section" id="othercode">
 <span id="id5"></span><h2>[OtherCode:*]<a class="headerlink" href="#othercode" title="Permalink to this headline">¶</a></h2>
-<p>Each <tt class="docutils literal"><span class="pre">OtherCode:*</span></tt> section defines a secondary disassembly that will appear
-under &#8216;Other code&#8217; on the main disassembly home page. The section names take
+<p>An <tt class="docutils literal"><span class="pre">OtherCode:*</span></tt> section defines a secondary disassembly that will appear
+under &#8216;Other code&#8217; on the main disassembly home page. The section name takes
 the form:</p>
 <div class="highlight-none"><div class="highlight"><pre>[OtherCode:CodeID]
 </pre></div>
@@ -753,8 +768,8 @@ the form:</p>
 limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z. The unique ID may be used
 by the <a class="reference internal" href="skool-macros.html#r"><em>#R</em></a> macro when referring to routines or data blocks in the
 secondary disassembly from another disassembly.</p>
-<p>Each <tt class="docutils literal"><span class="pre">OtherCode:*</span></tt> section must contain a single parameter named <tt class="docutils literal"><span class="pre">Source</span></tt>
-in the form:</p>
+<p>An <tt class="docutils literal"><span class="pre">OtherCode:*</span></tt> section must contain a single parameter named <tt class="docutils literal"><span class="pre">Source</span></tt> in
+the form:</p>
 <div class="highlight-none"><div class="highlight"><pre>Source=fname
 </pre></div>
 </div>
@@ -950,44 +965,53 @@ of the disassembly</li>
 </ul>
 <p>Recognised file IDs and their default paths are:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">Bugs</span></tt> - the &#8216;Bugs&#8217; page (default: <cite>reference/bugs.html</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">Changelog</span></tt> - the &#8216;Changelog&#8217; page (default: <cite>reference/changelog.html</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">DataMap</span></tt> - the &#8216;Data&#8217; memory map page (default: <cite>maps/data.html</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">Facts</span></tt> - the &#8216;Trivia&#8217; page (default: <cite>reference/facts.html</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">GameIndex</span></tt> - the disassembly home page (default: <cite>index.html</cite>)</li>
+<li><tt class="docutils literal"><span class="pre">Bugs</span></tt> - the &#8216;Bugs&#8217; page (default: <tt class="docutils literal"><span class="pre">reference/bugs.html</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">Changelog</span></tt> - the &#8216;Changelog&#8217; page (default: <tt class="docutils literal"><span class="pre">reference/changelog.html</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">CodeFiles</span></tt> - the format of the disassembly page filenames (default:
+<tt class="docutils literal"><span class="pre">{address}.html</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">DataMap</span></tt> - the &#8216;Data&#8217; memory map page (default: <tt class="docutils literal"><span class="pre">maps/data.html</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">Facts</span></tt> - the &#8216;Trivia&#8217; page (default: <tt class="docutils literal"><span class="pre">reference/facts.html</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">GameIndex</span></tt> - the home page (default: <tt class="docutils literal"><span class="pre">index.html</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">GameStatusBuffer</span></tt> - the &#8216;Game status buffer&#8217; page (default:
-<cite>buffers/gbuffer.html</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">Glossary</span></tt> - the &#8216;Glossary&#8217; page (default: <cite>reference/glossary.html</cite>)</li>
+<tt class="docutils literal"><span class="pre">buffers/gbuffer.html</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">Glossary</span></tt> - the &#8216;Glossary&#8217; page (default: <tt class="docutils literal"><span class="pre">reference/glossary.html</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">GraphicGlitches</span></tt> - the &#8216;Graphic glitches&#8217; page (default:
-<cite>graphics/glitches.html</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">MemoryMap</span></tt> - the &#8216;Everything&#8217; memory map page (default: <cite>maps/all.html</cite>)</li>
+<tt class="docutils literal"><span class="pre">graphics/glitches.html</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">MemoryMap</span></tt> - the &#8216;Everything&#8217; memory map page (default: <tt class="docutils literal"><span class="pre">maps/all.html</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">MessagesMap</span></tt> - the &#8216;Messages&#8217; memory map page (default:
-<cite>maps/messages.html</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">Pokes</span></tt> - the &#8216;Pokes&#8217; page (default: <cite>reference/pokes.html</cite>)</li>
+<tt class="docutils literal"><span class="pre">maps/messages.html</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">Pokes</span></tt> - the &#8216;Pokes&#8217; page (default: <tt class="docutils literal"><span class="pre">reference/pokes.html</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">RoutinesMap</span></tt> - the &#8216;Routines&#8217; memory map page (default:
-<cite>maps/routines.html</cite>)</li>
+<tt class="docutils literal"><span class="pre">maps/routines.html</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">UnusedMap</span></tt> - the &#8216;Unused addresses&#8217; memory map page (default:
-<cite>maps/unused.html</cite>)</li>
+<tt class="docutils literal"><span class="pre">maps/unused.html</span></tt>)</li>
 </ul>
 <p>Recognised directory IDs and their default paths are:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">CodePath</span></tt> - the directory in which the disassembly files will be written
-(default: <cite>asm</cite>)</li>
+<li><tt class="docutils literal"><span class="pre">CodePath</span></tt> - the directory in which the disassembly pages are written
+(default: <tt class="docutils literal"><span class="pre">asm</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">FontImagePath</span></tt> - the directory in which font images (created by the
-<a class="reference internal" href="skool-macros.html#font"><em>#FONT</em></a> macro) will be placed (default: <cite>images/font</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">FontPath</span></tt> - the directory in which to store font files specified by the
-<tt class="docutils literal"><span class="pre">Font</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section (default: <cite>.</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">JavaScriptPath</span></tt> - the directory in which to store JavaScript files
-specified by the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section and
-<a class="reference internal" href="#page"><em>[Page:*]</em></a> sections (default: <cite>.</cite>)</li>
+<a class="reference internal" href="skool-macros.html#font"><em>#FONT</em></a> macro) are placed (default: <tt class="docutils literal"><span class="pre">images/font</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">FontPath</span></tt> - the directory in which font files specified by the <tt class="docutils literal"><span class="pre">Font</span></tt>
+parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section are placed (default: <tt class="docutils literal"><span class="pre">.</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">JavaScriptPath</span></tt> - the directory in which JavaScript files specified by the
+<tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section and <a class="reference internal" href="#page"><em>[Page:*]</em></a>
+sections are placed (default: <tt class="docutils literal"><span class="pre">.</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">ScreenshotImagePath</span></tt> - the directory in which screenshot images (created
-by the <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a> macro) will be placed (default: <cite>images/scr</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">StyleSheetPath</span></tt> - the directory in which to store CSS files specified by
-the <tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section (default: <cite>.</cite>)</li>
+by the <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a> macro) are placed (default: <tt class="docutils literal"><span class="pre">images/scr</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">StyleSheetPath</span></tt> - the directory in which CSS files specified by the
+<tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section are placed (default:
+<tt class="docutils literal"><span class="pre">.</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">UDGImagePath</span></tt> - the directory in which UDG images (created by the
-<a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a> or <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macro) will be placed
-(default: <cite>images/udgs</cite>)</li>
+<a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a> or <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macro) are placed (default:
+<tt class="docutils literal"><span class="pre">images/udgs</span></tt>)</li>
 </ul>
+<p>The <tt class="docutils literal"><span class="pre">CodeFiles</span></tt> parameter contains a standard Python format string that
+specifies the format of a disassembly page filename based on the address of the
+routine or data block. The default format string is <tt class="docutils literal"><span class="pre">{address}.html</span></tt>, which
+produces decimal addresses (e.g. <tt class="docutils literal"><span class="pre">65280.html</span></tt>); to produce 4-digit, upper
+case hexadecimal addresses instead (e.g. <tt class="docutils literal"><span class="pre">FF00.html</span></tt>), change <tt class="docutils literal"><span class="pre">CodeFiles</span></tt>
+to <tt class="docutils literal"><span class="pre">{address:04X}.html</span></tt>.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -999,22 +1023,25 @@ the <tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parame
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>3.1.1</td>
+<tr class="row-even"><td>4.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">CodeFiles</span></tt> file ID</td>
+</tr>
+<tr class="row-odd"><td>3.1.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">FontPath</span></tt> directory ID</td>
 </tr>
-<tr class="row-odd"><td>2.5</td>
+<tr class="row-even"><td>2.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> file ID</td>
 </tr>
-<tr class="row-even"><td>2.2.5</td>
+<tr class="row-odd"><td>2.2.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> file ID</td>
 </tr>
-<tr class="row-odd"><td>2.1.1</td>
+<tr class="row-even"><td>2.1.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">CodePath</span></tt> directory ID</td>
 </tr>
-<tr class="row-even"><td>2.0.5</td>
+<tr class="row-odd"><td>2.0.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">FontImagePath</span></tt> directory ID</td>
 </tr>
-<tr class="row-odd"><td>2.0</td>
+<tr class="row-even"><td>2.0</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1235,11 +1262,11 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2014, Richard Dymond.
+        &copy; Copyright 2015, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

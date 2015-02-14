@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool files &mdash; SkoolKit 4.2 documentation</title>
+    <title>Skool files &mdash; SkoolKit 4.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.2',
+        VERSION:     '4.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.3 documentation" href="index.html" />
     <link rel="next" title="Skool file templates" href="skool-file-templates.html" />
     <link rel="prev" title="Control files" href="control-files.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="control-files.html" title="Control files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -53,6 +53,7 @@
 <li><a class="reference internal" href="#entry-line-format">Entry line format</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#asm-directives">ASM directives</a></li>
 <li><a class="reference internal" href="#braces-in-comments">Braces in comments</a></li>
 <li><a class="reference internal" href="#data-definition-entries">Data definition entries</a></li>
 <li><a class="reference internal" href="#remote-entries">Remote entries</a></li>
@@ -106,23 +107,24 @@ correctly by <a class="reference internal" href="commands.html#skool2html-py"><e
 <ul class="simple">
 <li>entries (an &#8216;entry&#8217; being a routine or data block) must be separated by
 blank lines, and an entry must not contain any blank lines</li>
-<li>an entry header is a sequence of comment lines broken into three sections;
+<li>an entry header is a sequence of comment lines broken into four sections;
 see <a class="reference internal" href="#entryheaderformat"><em>Entry header format</em></a></li>
 <li>each line in an entry may start with one of the following characters:
-<tt class="docutils literal"><span class="pre">;*</span> <span class="pre">bcdgirstuw</span></tt>; see <a class="reference internal" href="#entrylineformat"><em>Entry line format</em></a></li>
+<tt class="docutils literal"><span class="pre">;*</span> <span class="pre">&#64;bcdgirstuw</span></tt>; see <a class="reference internal" href="#entrylineformat"><em>Entry line format</em></a></li>
 <li>tables (grids) have their own markup syntax; see <a class="reference internal" href="skool-macros.html#table"><em>#TABLE</em></a> for details</li>
 </ul>
 <div class="section" id="entry-header-format">
 <span id="entryheaderformat"></span><h3>Entry header format<a class="headerlink" href="#entry-header-format" title="Permalink to this headline">¶</a></h3>
-<p>An entry header is a sequence of comment lines broken into three sections:</p>
+<p>An entry header is a sequence of comment lines broken into four sections:</p>
 <ul class="simple">
 <li>entry title</li>
 <li>entry description (optional)</li>
 <li>registers (optional)</li>
+<li>start comment (optional)</li>
 </ul>
 <p>The sections are separated by an empty comment line, and paragraphs within
-the entry description must be separated by a comment line containing a dot
-(<tt class="docutils literal"><span class="pre">.</span></tt>) on its own. For example:</p>
+the entry description and start comment must be separated by a comment line
+containing a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) on its own. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>; This is the entry title
 ;
 ; This is the first paragraph of the entry description.
@@ -131,11 +133,25 @@ the entry description must be separated by a comment line containing a dot
 ;
 ; A An important parameter
 ; B Another important parameter
+;
+; This is the start comment above the first instruction in the entry.
 </pre></div>
 </div>
-<p>If a register section is required, but an entry description is not, a blank
-entry description may be specified by using a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) thus:</p>
-<div class="highlight-none"><div class="highlight"><pre>; This is the title of an entry that has no description
+<p>If a start comment is required but a register section is not, either append the
+start comment to the entry description, or specify a blank register section by
+using a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>; This entry has a start comment but no register section
+;
+; This is the entry description.
+;
+; .
+;
+; This is the start comment above the first instruction in the entry.
+</pre></div>
+</div>
+<p>Likewise, if a register section is required but an entry description is not, a
+blank entry description may be specified by using a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>; This entry has a register section but no description
 ;
 ; .
 ;
@@ -166,10 +182,11 @@ by starting the second and subsequent lines with a dot (<tt class="docutils lite
 </div>
 <div class="section" id="entry-line-format">
 <span id="entrylineformat"></span><h3>Entry line format<a class="headerlink" href="#entry-line-format" title="Permalink to this headline">¶</a></h3>
-<p>Each line in an entry may start with one of <tt class="docutils literal"><span class="pre">;*</span> <span class="pre">bcdgirstuw</span></tt>, where:</p>
+<p>Each line in an entry may start with one of <tt class="docutils literal"><span class="pre">;*</span> <span class="pre">&#64;bcdgirstuw</span></tt>, where:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">;</span></tt> begins a comment line</li>
 <li><tt class="docutils literal"><span class="pre">*</span></tt> denotes an entry point in a routine</li>
+<li><tt class="docutils literal"><span class="pre">&#64;</span></tt> begins an <a class="reference internal" href="#asm"><em>ASM directive</em></a></li>
 <li><tt class="docutils literal"><span class="pre">b</span></tt> denotes the first instruction in a data block</li>
 <li><tt class="docutils literal"><span class="pre">c</span></tt> denotes the first instruction in a code block (routine)</li>
 <li><tt class="docutils literal"><span class="pre">d</span></tt> denotes the first instruction in a
@@ -185,8 +202,8 @@ are all the same value (typically unused zeroes)</li>
 values (words)</li>
 <li>a space begins a line that does not require any of the markers listed above</li>
 </ul>
-<p>The format of a non-comment line is:</p>
-<div class="highlight-none"><div class="highlight"><pre>C##### INSTRUCTION ; comment
+<p>The format of a line containing an instruction is:</p>
+<div class="highlight-none"><div class="highlight"><pre>C##### INSTRUCTION[ ; comment]
 </pre></div>
 </div>
 <p>where:</p>
@@ -203,7 +220,7 @@ hexadecimal notation)</li>
 </pre></div>
 </div>
 <p>A comment may also be associated with more than one instruction by the use of
-braces (&#8216;{&#8216; and &#8216;}&#8217;) to indicate the start and end points, thus:</p>
+braces (<tt class="docutils literal"><span class="pre">{</span></tt> and <tt class="docutils literal"><span class="pre">}</span></tt>) to indicate the start and end points, thus:</p>
 <div class="highlight-none"><div class="highlight"><pre>*24372 SUB D         ; {This comment applies to the two instructions at
  24373 JR NZ,24378   ; 24372 and 24373}
 </pre></div>
@@ -224,6 +241,22 @@ containing a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) 
 HTML version of the disassembly (generated by <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a>), and will
 have labels generated for them in the ASM version (generated by
 <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>).</p>
+</div>
+</div>
+<div class="section" id="asm-directives">
+<span id="asm"></span><h2>ASM directives<a class="headerlink" href="#asm-directives" title="Permalink to this headline">¶</a></h2>
+<p>To write an ASM directive in a skool file, start a line with <tt class="docutils literal"><span class="pre">&#64;</span></tt>; for
+example:</p>
+<div class="highlight-none"><div class="highlight"><pre>; Start the game
+@label=START
+c24576 XOR A
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="asm.html#asmmodesanddirectives"><em>ASM modes and directives</em></a> for more details.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Writing an ASM directive by starting a line with <tt class="docutils literal"><span class="pre">;</span> <span class="pre">&#64;</span></tt> is deprecated since
+version 4.3.</p>
 </div>
 </div>
 <div class="section" id="braces-in-comments">
@@ -346,25 +379,29 @@ not defined):</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.2</td>
+<tr class="row-even"><td>4.3</td>
+<td>Added support for the start comment in entry headers; an ASM
+directive can be declared by starting a line with <tt class="docutils literal"><span class="pre">&#64;</span></tt></td>
+</tr>
+<tr class="row-odd"><td>4.2</td>
 <td>Added support for splitting register descriptions over multiple
 lines</td>
 </tr>
-<tr class="row-odd"><td>3.7</td>
+<tr class="row-even"><td>3.7</td>
 <td>Added support for binary numbers; added the <tt class="docutils literal"><span class="pre">s</span></tt> block type</td>
 </tr>
-<tr class="row-even"><td>3.1.2</td>
+<tr class="row-odd"><td>3.1.2</td>
 <td>Added support for &#8216;Input&#8217; and &#8216;Output&#8217; prefixes in register
 sections</td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
+<tr class="row-even"><td>2.4</td>
 <td>Added the ability to separate paragraphs and specify a blank
 entry description by using a dot (<tt class="docutils literal"><span class="pre">.</span></tt>) on a line of its own</td>
 </tr>
-<tr class="row-even"><td>2.1</td>
+<tr class="row-odd"><td>2.1</td>
 <td>Added support for hexadecimal numbers</td>
 </tr>
-<tr class="row-odd"><td>2.0</td>
+<tr class="row-even"><td>2.0</td>
 <td>Added support for data definition entries and remote entries</td>
 </tr>
 </tbody>
@@ -390,11 +427,11 @@ entry description by using a dot (<tt class="docutils literal"><span class="pre"
         <li class="right" >
           <a href="control-files.html" title="Control files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2014, Richard Dymond.
+        &copy; Copyright 2015, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

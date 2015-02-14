@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Commands &mdash; SkoolKit 4.2 documentation</title>
+    <title>Commands &mdash; SkoolKit 4.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.2',
+        VERSION:     '4.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.3 documentation" href="index.html" />
     <link rel="next" title="Parsing, rendering, and modes" href="parsing.html" />
     <link rel="prev" title="SkoolKit 1.x changelog" href="changelog1.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="changelog1.html" title="SkoolKit 1.x changelog"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -234,8 +234,8 @@ modes.</p>
 </pre></div>
 </div>
 <p>In addition to block types and addresses, <cite>game.ctl</cite> will contain block titles,
-block descriptions, registers, mid-block comments, block end comments,
-sub-block types and addresses, instruction-level comments, and some
+block descriptions, registers, mid-block comments, block start and end
+comments, sub-block types and addresses, instruction-level comments, and some
 <a class="reference internal" href="asm.html#asmdirectives"><em>ASM directives</em></a>.</p>
 <p>To list the options supported by <cite>skool2ctl.py</cite>, run it with no arguments:</p>
 <div class="highlight-none"><div class="highlight"><pre>usage: skool2ctl.py [options] FILE
@@ -254,7 +254,7 @@ Options:
                          t = block titles
                          d = block descriptions
                          r = registers
-                         m = mid-block comments and block end comments
+                         m = mid-block comments and block start/end comments
                          s = sub-block types and addresses
                          c = instruction-level comments
 </pre></div>
@@ -379,7 +379,6 @@ line</li>
 <li>The current working directory</li>
 <li><cite>./resources</cite></li>
 <li><cite>~/.skoolkit</cite></li>
-<li><cite>/usr/share/skoolkit</cite></li>
 <li><cite>$PACKAGE_DIR/resources</cite></li>
 <li>Any other directories specified by the <tt class="docutils literal"><span class="pre">-S</span></tt>/<tt class="docutils literal"><span class="pre">--search</span></tt> option</li>
 </ul>
@@ -554,6 +553,8 @@ Options:
   -t, --text            Show ASCII text in the comment fields
   -T FILE, --sft FILE   Use FILE as the skool file template
   -V, --version         Show SkoolKit version number and exit
+  -w W, --line-width W  Set the maximum line width of the skool file (default:
+                        79)
   -z, --defb-zfill      Pad decimal values in DEFB statements with leading
                         zeroes
 </pre></div>
@@ -586,41 +587,44 @@ formats.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>3.4</td>
+<tr class="row-even"><td>4.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--line-width</span></tt> option</td>
+</tr>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> and <tt class="docutils literal"><span class="pre">-R</span></tt> options and the long options</td>
 </tr>
-<tr class="row-odd"><td>3.3</td>
+<tr class="row-even"><td>3.3</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-M</span></tt> option, along with support for code execution
 maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the
 ability to read 128K SNA snapshots</td>
 </tr>
-<tr class="row-even"><td>3.2</td>
+<tr class="row-odd"><td>3.2</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-p</span></tt> option, and the ability to read SZX snapshots
 and 128K Z80 snapshots</td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
+<tr class="row-even"><td>2.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-T</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>2.1.2</td>
+<tr class="row-odd"><td>2.1.2</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-L</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>2.1</td>
+<tr class="row-even"><td>2.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-H</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>2.0.6</td>
+<tr class="row-odd"><td>2.0.6</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-h</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>2.0.1</td>
+<tr class="row-even"><td>2.0.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-o</span></tt>, <tt class="docutils literal"><span class="pre">-r</span></tt> and <tt class="docutils literal"><span class="pre">-l</span></tt> options, and the ability to
 read binary files</td>
 </tr>
-<tr class="row-even"><td>2.0</td>
+<tr class="row-odd"><td>2.0</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-n</span></tt>, <tt class="docutils literal"><span class="pre">-m</span></tt> and <tt class="docutils literal"><span class="pre">-z</span></tt> options</td>
 </tr>
-<tr class="row-odd"><td>1.0.5</td>
+<tr class="row-even"><td>1.0.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-t</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>1.0.4</td>
+<tr class="row-odd"><td>1.0.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-g</span></tt> and <tt class="docutils literal"><span class="pre">-s</span></tt> options</td>
 </tr>
 </tbody>
@@ -735,11 +739,11 @@ given on the command line.</p>
         <li class="right" >
           <a href="changelog1.html" title="SkoolKit 1.x changelog"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2014, Richard Dymond.
+        &copy; Copyright 2015, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

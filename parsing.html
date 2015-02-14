@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Parsing, rendering, and modes &mdash; SkoolKit 4.2 documentation</title>
+    <title>Parsing, rendering, and modes &mdash; SkoolKit 4.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.2',
+        VERSION:     '4.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.3 documentation" href="index.html" />
     <link rel="next" title="Control files" href="control-files.html" />
     <link rel="prev" title="Commands" href="commands.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="commands.html" title="Commands"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -135,11 +135,11 @@ the output if the corresponding ASM mode (<a class="reference internal" href="as
 output if the corresponding ASM mode is not in effect - which will always be
 the case when parsing in HTML mode.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre>; @bfix-begin
+<div class="highlight-none"><div class="highlight"><pre>@bfix-begin
  32459 CP 26  ; This is a bug; it should be &#39;CP 27&#39;
-; @bfix+else
+@bfix+else
        CP 27  ;
-; @bfix+end
+@bfix+end
 </pre></div>
 </div>
 <p>This instance of a <tt class="docutils literal"><span class="pre">&#64;bfix</span></tt> block directive defines two versions of a section
@@ -192,11 +192,11 @@ way are expanded to some appropriate plain text.</p>
         <li class="right" >
           <a href="commands.html" title="Commands"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2014, Richard Dymond.
+        &copy; Copyright 2015, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

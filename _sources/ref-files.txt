@@ -206,6 +206,8 @@ aspects of the HTML output. The parameters are in the format::
 
 Recognised parameters are:
 
+* ``AddressAnchor`` - the format of the anchors attached to instructions on
+  disassembly pages and entries on memory map pages (default: ``{address}``)
 * ``Copyright`` - the copyright message that appears in the footer of every
   page (default: '')
 * ``Created`` - the message indicating the software used to create the
@@ -251,9 +253,22 @@ Recognised parameters are:
 * ``TitleSuffix`` - the suffix to use after the game name or logo in the header
   of the main index page (default: 'RAM disassembly')
 
+The ``AddressAnchor`` parameter contains a standard Python format string that
+specifies the format of the anchors attached to instructions on disassembly
+pages and entries on memory map pages. The default format string is
+``{address}``, which produces decimal addresses (e.g. ``#65280``); to produce
+4-digit, lower case hexadecimal addresses instead (e.g. ``#ff00``), change
+``AddressAnchor`` to ``{address:04x}``.
+
+Note that an address anchor that starts with an upper case letter (e.g.
+``#FF00``) will be interpreted as a skool macro, and so any template that could
+produce such an anchor should be avoided.
+
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 4.3     | Added the ``AddressAnchor`` parameter                             |
++---------+-------------------------------------------------------------------+
 | 4.1     | Added the ``LinkInternalOperands`` parameter                      |
 +---------+-------------------------------------------------------------------+
 | 4.0     | Set default values for the ``InputRegisterTableHeader`` and       |
@@ -519,8 +534,9 @@ Recognised parameters and their default values are:
   * ``u`` - unused addresses
   * ``w`` - DEFW blocks
 
-* ``Intro`` - the text (HTML) displayed at the top of the memory map page
-  (default: '')
+* ``Intro`` - the text (which may contain HTML markup and
+  :ref:`skool macros <skoolMacros>`) displayed at the top of the memory map
+  page (default: '')
 * ``LengthColumn`` - ``1`` to display the 'Length' column, or ``0`` not to
   (default: ``0``)
 * ``PageByteColumns`` - ``1`` to display 'Page' and 'Byte' columns, or ``0``
@@ -557,8 +573,8 @@ name matches the page ID, if one exists; otherwise, the stock
 
 [OtherCode:\*]
 --------------
-Each ``OtherCode:*`` section defines a secondary disassembly that will appear
-under 'Other code' on the main disassembly home page. The section names take
+An ``OtherCode:*`` section defines a secondary disassembly that will appear
+under 'Other code' on the main disassembly home page. The section name takes
 the form::
 
   [OtherCode:CodeID]
@@ -568,8 +584,8 @@ limited to the characters '$', '#', 0-9, A-Z and a-z. The unique ID may be used
 by the :ref:`R` macro when referring to routines or data blocks in the
 secondary disassembly from another disassembly.
 
-Each ``OtherCode:*`` section must contain a single parameter named ``Source``
-in the form::
+An ``OtherCode:*`` section must contain a single parameter named ``Source`` in
+the form::
 
   Source=fname
 
@@ -740,47 +756,59 @@ where:
 
 Recognised file IDs and their default paths are:
 
-* ``Bugs`` - the 'Bugs' page (default: `reference/bugs.html`)
-* ``Changelog`` - the 'Changelog' page (default: `reference/changelog.html`)
-* ``DataMap`` - the 'Data' memory map page (default: `maps/data.html`)
-* ``Facts`` - the 'Trivia' page (default: `reference/facts.html`)
-* ``GameIndex`` - the disassembly home page (default: `index.html`)
+* ``Bugs`` - the 'Bugs' page (default: ``reference/bugs.html``)
+* ``Changelog`` - the 'Changelog' page (default: ``reference/changelog.html``)
+* ``CodeFiles`` - the format of the disassembly page filenames (default:
+  ``{address}.html``)
+* ``DataMap`` - the 'Data' memory map page (default: ``maps/data.html``)
+* ``Facts`` - the 'Trivia' page (default: ``reference/facts.html``)
+* ``GameIndex`` - the home page (default: ``index.html``)
 * ``GameStatusBuffer`` - the 'Game status buffer' page (default:
-  `buffers/gbuffer.html`)
-* ``Glossary`` - the 'Glossary' page (default: `reference/glossary.html`)
+  ``buffers/gbuffer.html``)
+* ``Glossary`` - the 'Glossary' page (default: ``reference/glossary.html``)
 * ``GraphicGlitches`` - the 'Graphic glitches' page (default:
-  `graphics/glitches.html`)
-* ``MemoryMap`` - the 'Everything' memory map page (default: `maps/all.html`)
+  ``graphics/glitches.html``)
+* ``MemoryMap`` - the 'Everything' memory map page (default: ``maps/all.html``)
 * ``MessagesMap`` - the 'Messages' memory map page (default:
-  `maps/messages.html`)
-* ``Pokes`` - the 'Pokes' page (default: `reference/pokes.html`)
+  ``maps/messages.html``)
+* ``Pokes`` - the 'Pokes' page (default: ``reference/pokes.html``)
 * ``RoutinesMap`` - the 'Routines' memory map page (default:
-  `maps/routines.html`)
+  ``maps/routines.html``)
 * ``UnusedMap`` - the 'Unused addresses' memory map page (default:
-  `maps/unused.html`)
+  ``maps/unused.html``)
 
 Recognised directory IDs and their default paths are:
 
-* ``CodePath`` - the directory in which the disassembly files will be written
-  (default: `asm`)
+* ``CodePath`` - the directory in which the disassembly pages are written
+  (default: ``asm``)
 * ``FontImagePath`` - the directory in which font images (created by the
-  :ref:`#FONT <FONT>` macro) will be placed (default: `images/font`)
-* ``FontPath`` - the directory in which to store font files specified by the
-  ``Font`` parameter in the :ref:`ref-Game` section (default: `.`)
-* ``JavaScriptPath`` - the directory in which to store JavaScript files
-  specified by the ``JavaScript`` parameter in the :ref:`ref-Game` section and
-  :ref:`Page` sections (default: `.`)
+  :ref:`#FONT <FONT>` macro) are placed (default: ``images/font``)
+* ``FontPath`` - the directory in which font files specified by the ``Font``
+  parameter in the :ref:`ref-Game` section are placed (default: ``.``)
+* ``JavaScriptPath`` - the directory in which JavaScript files specified by the
+  ``JavaScript`` parameter in the :ref:`ref-Game` section and :ref:`Page`
+  sections are placed (default: ``.``)
 * ``ScreenshotImagePath`` - the directory in which screenshot images (created
-  by the :ref:`#SCR <SCR>` macro) will be placed (default: `images/scr`)
-* ``StyleSheetPath`` - the directory in which to store CSS files specified by
-  the ``StyleSheet`` parameter in the :ref:`ref-Game` section (default: `.`)
+  by the :ref:`#SCR <SCR>` macro) are placed (default: ``images/scr``)
+* ``StyleSheetPath`` - the directory in which CSS files specified by the
+  ``StyleSheet`` parameter in the :ref:`ref-Game` section are placed (default:
+  ``.``)
 * ``UDGImagePath`` - the directory in which UDG images (created by the
-  :ref:`#UDG <UDG>` or :ref:`#UDGARRAY <UDGARRAY>` macro) will be placed
-  (default: `images/udgs`)
+  :ref:`#UDG <UDG>` or :ref:`#UDGARRAY <UDGARRAY>` macro) are placed (default:
+  ``images/udgs``)
+
+The ``CodeFiles`` parameter contains a standard Python format string that
+specifies the format of a disassembly page filename based on the address of the
+routine or data block. The default format string is ``{address}.html``, which
+produces decimal addresses (e.g. ``65280.html``); to produce 4-digit, upper
+case hexadecimal addresses instead (e.g. ``FF00.html``), change ``CodeFiles``
+to ``{address:04X}.html``.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 4.3     | Added the ``CodeFiles`` file ID                                   |
++---------+-------------------------------------------------------------------+
 | 3.1.1   | Added the ``FontPath`` directory ID                               |
 +---------+-------------------------------------------------------------------+
 | 2.5     | Added the ``UnusedMap`` file ID                                   |

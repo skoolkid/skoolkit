@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Changelog &mdash; SkoolKit 4.2 documentation</title>
+    <title>Changelog &mdash; SkoolKit 4.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.2',
+        VERSION:     '4.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,9 +23,9 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.3 documentation" href="index.html" />
     <link rel="next" title="SkoolKit 3.x changelog" href="changelog3.html" />
-    <link rel="prev" title="General info" href="info.html" /> 
+    <link rel="prev" title="Migrating from SkoolKit 3" href="migration.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,9 +38,9 @@
           <a href="changelog3.html" title="SkoolKit 3.x changelog"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="info.html" title="General info"
+          <a href="migration.html" title="Migrating from SkoolKit 3"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -48,18 +48,19 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">4.2 (2014-12-07)</a></li>
-<li><a class="reference internal" href="#id2">4.1.1 (2014-09-20)</a></li>
-<li><a class="reference internal" href="#id3">4.1 (2014-08-30)</a></li>
-<li><a class="reference internal" href="#id4">4.0 (2014-05-25)</a></li>
+<li><a class="reference internal" href="#id1">4.3 (2015-02-14)</a></li>
+<li><a class="reference internal" href="#id2">4.2 (2014-12-07)</a></li>
+<li><a class="reference internal" href="#id3">4.1.1 (2014-09-20)</a></li>
+<li><a class="reference internal" href="#id4">4.1 (2014-08-30)</a></li>
+<li><a class="reference internal" href="#id5">4.0 (2014-05-25)</a></li>
 <li><a class="reference internal" href="#older-versions">Older versions</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="info.html"
-                        title="previous chapter">General info</a></p>
+  <p class="topless"><a href="migration.html"
+                        title="previous chapter">Migrating from SkoolKit 3</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="changelog3.html"
                         title="next chapter">SkoolKit 3.x changelog</a></p>
@@ -92,7 +93,35 @@
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2>4.2 (2014-12-07)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>4.3 (2015-02-14)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added support for block start comments (which appear after the register
+section and before the first instruction in a routine or data block)</li>
+<li>Added the <tt class="docutils literal"><span class="pre">CodeFiles</span></tt> parameter to the <a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section (for specifying
+the format of a disassembly page filename based on the address of the routine
+or data block)</li>
+<li>Added the <tt class="docutils literal"><span class="pre">AddressAnchor</span></tt> parameter to the <a class="reference internal" href="ref-files.html#ref-game"><em>[Game]</em></a> section (for
+specifying the format of the anchors attached to instructions on disassembly
+pages and entries on memory map pages)</li>
+<li>The <a class="reference internal" href="skool-macros.html#font"><em>#FONT</em></a>, <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a> and <a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a> macros now have the ability to
+create frames for an animated image</li>
+<li>Added the <tt class="docutils literal"><span class="pre">--line-width</span></tt> option to <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> (for specifying the
+maximum line width of the skool file)</li>
+<li>Writing an ASM directive in a skool file can now be done by starting a line
+with <tt class="docutils literal"><span class="pre">&#64;</span></tt>; writing an ASM directive by starting a line with <tt class="docutils literal"><span class="pre">;</span> <span class="pre">&#64;</span></tt> is
+deprecated</li>
+<li>Added the <tt class="docutils literal"><span class="pre">&#64;</span></tt> directive for declaring ASM directives in a control file; the
+old style of declaring ASM directives (<tt class="docutils literal"><span class="pre">;</span> <span class="pre">&#64;directive:address[=value]</span></tt>) is
+deprecated</li>
+<li>Fixed the <em>flip_udgs()</em> and <em>rotate_udgs()</em> methods on HtmlWriter so that
+they work with a UDG array that contains the same UDG in more than one place</li>
+<li>Fixed the bug that prevents register descriptions from being HTML-escaped</li>
+<li>Fixed the erroneous substitution of address labels in instructions that have
+8-bit numeric operands</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>4.2 (2014-12-07)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added support for <a class="reference internal" href="control-files.html#ctlloops"><em>control directive loops</em></a> using the <tt class="docutils literal"><span class="pre">L</span></tt>
 directive</li>
@@ -113,8 +142,8 @@ lists produced by the <a class="reference internal" href="skool-macros.html#list
 of a <a class="reference internal" href="ref-files.html#ref-changelog"><em>[Changelog:*]</em></a> section</li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h2>4.1.1 (2014-09-20)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h2>4.1.1 (2014-09-20)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Updated links to SkoolKit&#8217;s new home at <a class="reference external" href="http://skoolkit.ca">skoolkit.ca</a></li>
 <li>Added example control and <cite>ref</cite> files for <a class="reference external" href="http://www.worldofspectrum.org/infoseekid.cgi?id=0002390">Hungry Horace</a></li>
@@ -122,8 +151,8 @@ of a <a class="reference internal" href="ref-files.html#ref-changelog"><em>[Chan
 being developed separately <a class="reference external" href="https://github.com/skoolkid/manicminer">here</a></li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>4.1 (2014-08-30)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>4.1 (2014-08-30)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <tt class="docutils literal"><span class="pre">--search</span></tt> option to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> (to add a directory to
 the resource search path)</li>
@@ -144,8 +173,8 @@ instruction that refers to the address of an ignored entry</li>
 now being developed separately <a class="reference external" href="https://github.com/skoolkid/jetsetwilly">here</a></li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>4.0 (2014-05-25)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>4.0 (2014-05-25)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Every HTML page is built from templates defined in <a class="reference internal" href="ref-files.html#template"><em>[Template:*]</em></a> sections
 in the <cite>ref</cite> file</li>
@@ -193,13 +222,13 @@ specifying whether to display the &#8216;Length&#8217; column on a memory map pa
           <a href="changelog3.html" title="SkoolKit 3.x changelog"
              >next</a> |</li>
         <li class="right" >
-          <a href="info.html" title="General info"
+          <a href="migration.html" title="Migrating from SkoolKit 3"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2014, Richard Dymond.
+        &copy; Copyright 2015, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

@@ -45,11 +45,11 @@ the case when parsing in HTML mode.
 
 For example::
 
-  ; @bfix-begin
+  @bfix-begin
    32459 CP 26  ; This is a bug; it should be 'CP 27'
-  ; @bfix+else
+  @bfix+else
          CP 27  ;
-  ; @bfix+end
+  @bfix+end
 
 This instance of a ``@bfix`` block directive defines two versions of a section
 of code. The first version (between ``@bfix-begin`` and ``@bfix+else``) will be

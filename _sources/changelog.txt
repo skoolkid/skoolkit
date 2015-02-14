@@ -1,6 +1,32 @@
 Changelog
 =========
 
+4.3 (2015-02-14)
+----------------
+* Added support for block start comments (which appear after the register
+  section and before the first instruction in a routine or data block)
+* Added the ``CodeFiles`` parameter to the :ref:`paths` section (for specifying
+  the format of a disassembly page filename based on the address of the routine
+  or data block)
+* Added the ``AddressAnchor`` parameter to the :ref:`ref-game` section (for
+  specifying the format of the anchors attached to instructions on disassembly
+  pages and entries on memory map pages)
+* The :ref:`font`, :ref:`scr` and :ref:`udg` macros now have the ability to
+  create frames for an animated image
+* Added the ``--line-width`` option to :ref:`sna2skool.py` (for specifying the
+  maximum line width of the skool file)
+* Writing an ASM directive in a skool file can now be done by starting a line
+  with ``@``; writing an ASM directive by starting a line with ``; @`` is
+  deprecated
+* Added the ``@`` directive for declaring ASM directives in a control file; the
+  old style of declaring ASM directives (``; @directive:address[=value]``) is
+  deprecated
+* Fixed the *flip_udgs()* and *rotate_udgs()* methods on HtmlWriter so that
+  they work with a UDG array that contains the same UDG in more than one place
+* Fixed the bug that prevents register descriptions from being HTML-escaped
+* Fixed the erroneous substitution of address labels in instructions that have
+  8-bit numeric operands
+
 4.2 (2014-12-07)
 ----------------
 * Added support for :ref:`control directive loops <ctlLoops>` using the ``L``

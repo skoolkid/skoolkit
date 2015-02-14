@@ -62,7 +62,7 @@ class when it's run on your `skool` file, add the following :ref:`writer` ASM
 directive somewhere after the ``@start`` directive, and before the ``@end``
 directive (if there is one)::
 
-  ; @writer=skoolkit.game.GameAsmWriter
+  @writer=skoolkit.game.GameAsmWriter
 
 The `skoolkit` package directory is a reasonable place for an extension module,
 but it could be placed in another package, or somewhere else as a standalone
@@ -86,7 +86,7 @@ parameter thus::
 
 and the ``@writer`` directive thus::
 
-  ; @writer=~/.skoolkit:game.GameAsmWriter
+  @writer=~/.skoolkit:game.GameAsmWriter
 
 The HTML writer or ASM writer class can also be specified on the command line
 by using the ``-W``/``--writer`` option of :ref:`skool2html.py` or

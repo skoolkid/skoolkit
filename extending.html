@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &mdash; SkoolKit 4.2 documentation</title>
+    <title>Extending SkoolKit &mdash; SkoolKit 4.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.2',
+        VERSION:     '4.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.3 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -139,7 +139,7 @@ class.</p>
 class when it&#8217;s run on your <cite>skool</cite> file, add the following <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a> ASM
 directive somewhere after the <tt class="docutils literal"><span class="pre">&#64;start</span></tt> directive, and before the <tt class="docutils literal"><span class="pre">&#64;end</span></tt>
 directive (if there is one):</p>
-<div class="highlight-python"><div class="highlight"><pre>; @writer=skoolkit.game.GameAsmWriter
+<div class="highlight-python"><div class="highlight"><pre>@writer=skoolkit.game.GameAsmWriter
 </pre></div>
 </div>
 <p>The <cite>skoolkit</cite> package directory is a reasonable place for an extension module,
@@ -163,7 +163,7 @@ parameter thus:</p>
 </pre></div>
 </div>
 <p>and the <tt class="docutils literal"><span class="pre">&#64;writer</span></tt> directive thus:</p>
-<div class="highlight-python"><div class="highlight"><pre>; @writer=~/.skoolkit:game.GameAsmWriter
+<div class="highlight-python"><div class="highlight"><pre>@writer=~/.skoolkit:game.GameAsmWriter
 </pre></div>
 </div>
 <p>The HTML writer or ASM writer class can also be specified on the command line
@@ -936,11 +936,11 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2014, Richard Dymond.
+        &copy; Copyright 2015, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
