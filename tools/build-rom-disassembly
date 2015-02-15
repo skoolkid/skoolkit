@@ -2,6 +2,7 @@
 
 declare -A SK_VERSIONS
 SK_VERSIONS=(
+  [20150214]=4.3
   [20140308]=3.7
   [20131102]=3.6
 )
@@ -39,11 +40,6 @@ SK_VERSION=$2
 
 SK_VERSION_INT=$(echo $SK_VERSION | tr -d .)0
 SK_VERSION_INT=${SK_VERSION_INT:0:3}
-
-if (($SK_VERSION_INT < 330)); then
-  echo "Building the 48K ROM disassembly is not supported with SkoolKit < 3.3"
-  exit 1
-fi
 
 D_SK_VERSION=${SK_VERSIONS[$D_VERSION]}
 if [[ -z $D_SK_VERSION ]]; then
