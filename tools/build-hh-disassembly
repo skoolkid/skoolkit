@@ -2,12 +2,13 @@
 
 declare -A SK_VERSIONS
 SK_VERSIONS=(
+  [20150214]=4.3
   [20140920]=4.1.1
 )
 
 HHZ80=$SKOOLKIT_HOME/build/hungry_horace.z80
 
-if [[ $# -lt 2 ]]; then
+if (($# < 2)); then
   echo "Usage: $(basename $0) VERSION SKOOLKIT_VERSION"
   echo ""
   echo "  Attempt to build a specific version of the Hungry Horace disassembly using a"
@@ -66,9 +67,9 @@ SKOOLFILE=hungry_horace.skool
 SK_VERSION_INT=$(echo $SK_VERSION | tr -d . )0
 SK_VERSION_INT=${SK_VERSION_INT:0:3}
 HTMLDIR=../hungry_horace
-if [ $SK_VERSION_INT -lt 220 ]; then
+if (($SK_VERSION_INT < 220)); then
   ./skool2html.py -f $SKOOLFILE $HTMLDIR
-elif [ $SK_VERSION_INT -lt 302 ]; then
+elif (($SK_VERSION_INT < 302)); then
   ./skool2html.py -d $HTMLDIR $SKOOLFILE
 else
   ./skool2html.py -t -d $HTMLDIR $SKOOLFILE
