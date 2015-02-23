@@ -1,0 +1,131 @@
+DTMPDIR=$HOME/tmp
+VERSION=$(grep ^Release= $REFFILE | grep -o '20.\{6\}')
+RELEASE=$GAME-disassembly-$VERSION
+SKOOLKIT_TOOLS=$SKOOLKIT_HOME/tools
+SKOOLKIT_VERSION=$(cd $SKOOLKIT_HOME; git tag | tail -n 1 | cut -c2-)
+
+###############################################################################
+# Check required environment variables
+###############################################################################
+_require_skoolkit_archive() {
+  if [[ -z $SKOOLKIT_ARCHIVE ]]; then
+    echo 'SKOOLKIT_ARCHIVE is not set; aborting'
+    exit 1
+  fi
+  if [[ ! -d $SKOOLKIT_ARCHIVE ]]; then
+    echo "SKOOLKIT_ARCHIVE=$SKOOLKIT_ARCHIVE: directory not found"
+    exit 1
+  fi
+}
+
+###############################################################################
+# Utility functions
+###############################################################################
+_exec() {
+  message=$1
+  command=$2
+  logfile=$3
+  failcode=$4
+
+  echo -n "${message}: "
+  if ! $command &> $logfile; then
+    if [[ -z "$failcode" ]] || [[ $? -eq "$failcode" ]]; then
+      echo "FAILED (see $logfile)"
+      return 1
+    fi
+  fi
+  echo "OK"
+}
+
+_cd_tmpdir() {
+  mkdir -p $DTMPDIR
+  cd $(mktemp -d --tmpdir=$DTMPDIR)
+}
+
+_unpack_skoolkit() {
+  _require_skoolkit_archive
+
+  tar xf $SKOOLKIT_ARCHIVE/skoolkit-$SKOOLKIT_VERSION.tar.xz
+  cd skoolkit-$SKOOLKIT_VERSION
+}
+
+_check_files() {
+  filetype=$1
+  expdir=$2
+  logdir=$3
+  shift 3
+  expfiles=$*
+
+  echo -n "Checking $filetype: "
+  if [[ ! -d $expdir ]]; then
+    echo "FAILED ($expdir does not exist)"
+    return 1
+  fi
+  rcount=0
+  for f in $expfiles; do
+    resource=$expdir/$f
+    if [[ ! -f $resource ]]; then
+      echo "FAILED ($f not found in $expdir)"
+      return 1
+    fi
+    let rcount+=1
+  done
+  rlist=$logdir/$(echo $filetype | tr ' ' _).txt
+  ls -1 $expdir | grep -Ev "^(html|$SRCDIR)$" > $rlist
+  numresources=$(cat $rlist | wc -l)
+  if [[ $numresources -ne $rcount ]]; then
+    echo "FAILED (unexpected files found; see $rlist)"
+    return 1
+  fi
+  echo "OK"
+}
+
+###############################################################################
+# Build the disassembly distribution tarball and zip archive
+###############################################################################
+build_tarball() {
+  _cd_tmpdir
+  logdir=$(pwd)
+  _unpack_skoolkit
+  _exec "Building tarball and zip archive" "$MKDTARBALL" $logdir/build.log
+  _exec "Validating XHTML" "$SKOOLKIT_TOOLS/validate-xhtml dist/$RELEASE/html" $logdir/validate-xhtml.log
+  _exec "Checking links" "$SKOOLKIT_TOOLS/check-links.py dist/$RELEASE/html" $logdir/check-links.log
+  _check_files "source files" dist/$RELEASE/$SRCDIR $logdir $SRCFILES
+  _check_files "txt files" dist/$RELEASE $logdir asm.txt readme.txt
+  less dist/$RELEASE/asm.txt
+  less dist/$RELEASE/readme.txt
+  mkdir -p $DIST
+  mv dist/$RELEASE.{tar.xz,zip} $DIST
+}
+
+###############################################################################
+# Print usage information
+###############################################################################
+usage() {
+  cat >&2 <<EOM
+Usage: $(basename $0) COMMAND [COMMAND...]
+
+$GAMENAME disassembly testing and release tool.
+
+Commands:
+  tarzip - build the disassembly distribution tarball and zip archive
+EOM
+  exit 1
+}
+
+###############################################################################
+# Parse command line
+###############################################################################
+parse_args() {
+  numcommands=$#
+  (($numcommands < 1)) && usage
+
+  while [[ -n "$1" ]]; do
+    [[ $numcommands -ge 2 ]] && echo "*** Running command '$1' ***"
+    case "$1" in
+      tarzip) build_tarball ;;
+           *) echo "*** Unknown command '$1' ***"; usage ;;
+    esac
+    shift
+  done
+}
