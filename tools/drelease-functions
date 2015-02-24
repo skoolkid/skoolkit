@@ -1,8 +1,11 @@
+BUILD=$DHOME/build
+DIST=$DHOME/dist
 DTMPDIR=$HOME/tmp
 VERSION=$(grep ^Release= $REFFILE | grep -o '20.\{6\}')
 RELEASE=$GAME-disassembly-$VERSION
 SKOOLKIT_TOOLS=$SKOOLKIT_HOME/tools
 SKOOLKIT_VERSION=$(cd $SKOOLKIT_HOME; git tag | tail -n 1 | cut -c2-)
+SKOOLKIT_TARBALL=$SKOOLKIT_ARCHIVE/skoolkit-$SKOOLKIT_VERSION.tar.xz
 
 ###############################################################################
 # Check required environment variables
@@ -28,7 +31,7 @@ _exec() {
   failcode=$4
 
   echo -n "${message}: "
-  if ! $command &> $logfile; then
+  if ! eval $command &> $logfile; then
     if [[ -z "$failcode" ]] || [[ $? -eq "$failcode" ]]; then
       echo "FAILED (see $logfile)"
       return 1
@@ -40,13 +43,6 @@ _exec() {
 _cd_tmpdir() {
   mkdir -p $DTMPDIR
   cd $(mktemp -d --tmpdir=$DTMPDIR)
-}
-
-_unpack_skoolkit() {
-  _require_skoolkit_archive
-
-  tar xf $SKOOLKIT_ARCHIVE/skoolkit-$SKOOLKIT_VERSION.tar.xz
-  cd skoolkit-$SKOOLKIT_VERSION
 }
 
 _check_files() {
@@ -86,7 +82,8 @@ _check_files() {
 build_tarball() {
   _cd_tmpdir
   logdir=$(pwd)
-  _unpack_skoolkit
+  tar xf $SKOOLKIT_TARBALL
+  cd skoolkit-$SKOOLKIT_VERSION
   _exec "Building tarball and zip archive" "$MKDTARBALL" $logdir/build.log
   _exec "Validating XHTML" "$SKOOLKIT_TOOLS/validate-xhtml dist/$RELEASE/html" $logdir/validate-xhtml.log
   _exec "Checking links" "$SKOOLKIT_TOOLS/check-links.py dist/$RELEASE/html" $logdir/check-links.log
@@ -96,6 +93,38 @@ build_tarball() {
   less dist/$RELEASE/readme.txt
   mkdir -p $DIST
   mv dist/$RELEASE.{tar.xz,zip} $DIST
+}
+
+###############################################################################
+# Update the HTML disassembly on the gh-pages branch
+###############################################################################
+update_ghpages() {
+  _require_skoolkit_archive
+
+  mkdir -p $BUILD
+  htmldir=$BUILD/html/$GAMEDIR
+  rm -rf $htmldir
+  tar xf $SKOOLKIT_TARBALL -C $BUILD
+  _exec "Building disassembly" "make -C $DHOME $GAME SKOOLKIT_HOME=$BUILD/skoolkit-$SKOOLKIT_VERSION HTML_OPTS='$GHHTMLOPTS'" $BUILD/$GAME-build.log
+
+  _cd_tmpdir
+  echo -n "Cloning $GHREPO repository: "
+  git clone -q https://github.com/skoolkid/$GHREPO
+  echo "OK"
+  cd $GHREPO
+  git checkout -q gh-pages
+  rsync -r $htmldir/ $GHGAMEDIR
+  echo
+  git status -bs
+  cat <<EOM
+
+Now:
+  \$ cd $(pwd)
+  # Remove any files that are no longer used
+  # Add any new files
+  \$ git commit -am "Update $GAMENAME disassembly to $VERSION"
+  \$ git push origin gh-pages
+EOM
 }
 
 ###############################################################################
@@ -109,6 +138,7 @@ $GAMENAME disassembly testing and release tool.
 
 Commands:
   tarzip - build the disassembly distribution tarball and zip archive
+  ghhtml - update the HTML disassembly on the gh-pages branch
 EOM
   exit 1
 }
@@ -124,6 +154,7 @@ parse_args() {
     [[ $numcommands -ge 2 ]] && echo "*** Running command '$1' ***"
     case "$1" in
       tarzip) build_tarball ;;
+      ghhtml) update_ghpages ;;
            *) echo "*** Unknown command '$1' ***"; usage ;;
     esac
     shift
