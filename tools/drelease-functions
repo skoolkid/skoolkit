@@ -1,3 +1,5 @@
+TESTPREFIX=${TESTPREFIX:-test}
+
 BUILD=$DHOME/build
 DIST=$DHOME/dist
 DTMPDIR=$HOME/tmp
@@ -5,7 +7,6 @@ VERSION=$(grep ^Release= $REFFILE | grep -o '20.\{6\}')
 RELEASE=$GAME-disassembly-$VERSION
 SKOOLKIT_TOOLS=$SKOOLKIT_HOME/tools
 SKOOLKIT_VERSION=$(cd $SKOOLKIT_HOME; git tag | tail -n 1 | cut -c2-)
-SKOOLKIT_TARBALL=$SKOOLKIT_ARCHIVE/skoolkit-$SKOOLKIT_VERSION.tar.xz
 
 ###############################################################################
 # Check required environment variables
@@ -19,6 +20,7 @@ _require_skoolkit_archive() {
     echo "SKOOLKIT_ARCHIVE=$SKOOLKIT_ARCHIVE: directory not found"
     exit 1
   fi
+  SKOOLKIT_TARBALL=$SKOOLKIT_ARCHIVE/skoolkit-$SKOOLKIT_VERSION.tar.xz
 }
 
 ###############################################################################
@@ -80,6 +82,8 @@ _check_files() {
 # Build the disassembly distribution tarball and zip archive
 ###############################################################################
 build_tarball() {
+  _require_skoolkit_archive
+
   _cd_tmpdir
   logdir=$(pwd)
   tar xf $SKOOLKIT_TARBALL
@@ -128,6 +132,21 @@ EOM
 }
 
 ###############################################################################
+# Run the disassembly tests
+###############################################################################
+test_disassembly() {
+  _require_skoolkit_archive
+
+  _cd_tmpdir
+  logdir=$(pwd)
+  tar xf $SKOOLKIT_TARBALL
+  cd skoolkit-$SKOOLKIT_VERSION
+  for v in 2.7 3.2 3.3 3.4; do
+    _exec "Running $GAMENAME disassembly tests (SkoolKit $SKOOLKIT_VERSION, Python $v)" "SKOOLKIT_HOME=$(pwd) make -C $DHOME $TESTPREFIX$v" $logdir/test$v.log
+  done
+}
+
+###############################################################################
 # Print usage information
 ###############################################################################
 usage() {
@@ -137,6 +156,7 @@ Usage: $(basename $0) COMMAND [COMMAND...]
 $GAMENAME disassembly testing and release tool.
 
 Commands:
+  dtests - run the disassembly tests
   tarzip - build the disassembly distribution tarball and zip archive
   ghhtml - update the HTML disassembly on the gh-pages branch
 EOM
@@ -153,6 +173,7 @@ parse_args() {
   while [[ -n "$1" ]]; do
     [[ $numcommands -ge 2 ]] && echo "*** Running command '$1' ***"
     case "$1" in
+      dtests) test_disassembly ;;
       tarzip) build_tarball ;;
       ghhtml) update_ghpages ;;
            *) echo "*** Unknown command '$1' ***"; usage ;;
