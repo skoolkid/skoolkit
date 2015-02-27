@@ -90,6 +90,14 @@ disassembly_diffs() {
 }
 
 ###############################################################################
+# Run check-asms on the disassembly
+###############################################################################
+check_asms() {
+  cd $DHOME/build/$DIFFSBUILD/disassembly-current-$SKOOLKIT_VERSION/asm
+  $SKOOLKIT_TOOLS/check-asms $GAME 2>&1 | tee ../check-asms.log
+}
+
+###############################################################################
 # Build the disassembly distribution tarball and zip archive
 ###############################################################################
 build_tarball() {
@@ -168,6 +176,7 @@ $GAMENAME disassembly testing and release tool.
 
 Commands:
   ddiffs - run disassembly-diff on the disassembly
+  asmchk - run check-asms on the disassembly
   dtests - run the disassembly tests
   tarzip - build the disassembly distribution tarball and zip archive
   ghhtml - update the HTML disassembly on the gh-pages branch
@@ -186,6 +195,7 @@ parse_args() {
     [[ $numcommands -ge 2 ]] && echo "*** Running command '$1' ***"
     case "$1" in
       ddiffs) disassembly_diffs ;;
+      asmchk) check_asms ;;
       dtests) test_disassembly ;;
       tarzip) build_tarball ;;
       ghhtml) update_ghpages ;;
