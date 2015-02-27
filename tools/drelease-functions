@@ -1,4 +1,5 @@
 TESTPREFIX=${TESTPREFIX:-test}
+DIFFSBUILD=${DIFFSBUILD:-disassembly-diff}
 
 BUILD=$DHOME/build
 DIST=$DHOME/dist
@@ -79,6 +80,16 @@ _check_files() {
 }
 
 ###############################################################################
+# Run disassembly-diff on the disassembly
+###############################################################################
+disassembly_diffs() {
+  diffsbuild=$DHOME/build/$DIFFSBUILD
+  mkdir -p $diffsbuild
+  cd $diffsbuild
+  $SKOOLKIT_TOOLS/disassembly-diff -c $SKOOLKIT_VERSION $GAME 2>&1 | tee diffs.log
+}
+
+###############################################################################
 # Build the disassembly distribution tarball and zip archive
 ###############################################################################
 build_tarball() {
@@ -156,6 +167,7 @@ Usage: $(basename $0) COMMAND [COMMAND...]
 $GAMENAME disassembly testing and release tool.
 
 Commands:
+  ddiffs - run disassembly-diff on the disassembly
   dtests - run the disassembly tests
   tarzip - build the disassembly distribution tarball and zip archive
   ghhtml - update the HTML disassembly on the gh-pages branch
@@ -173,6 +185,7 @@ parse_args() {
   while [[ -n "$1" ]]; do
     [[ $numcommands -ge 2 ]] && echo "*** Running command '$1' ***"
     case "$1" in
+      ddiffs) disassembly_diffs ;;
       dtests) test_disassembly ;;
       tarzip) build_tarball ;;
       ghhtml) update_ghpages ;;
