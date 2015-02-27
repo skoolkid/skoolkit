@@ -98,6 +98,20 @@ check_asms() {
 }
 
 ###############################################################################
+# Make a TAP file from an ASM file and load it
+###############################################################################
+check_tap() {
+  _require_skoolkit_archive
+
+  binfile=$DHOME/build/$DIFFSBUILD/disassembly-current-$SKOOLKIT_VERSION/asm/$1.bin
+  tapfile=$(basename $binfile .bin).tap
+  _cd_tmpdir
+  tar xf $SKOOLKIT_TARBALL
+  _exec "Writing $tapfile" "skoolkit-$SKOOLKIT_VERSION/bin2tap.py -t $tapfile $binfile" $(pwd)/bin2tap.log
+  fuse $tapfile
+}
+
+###############################################################################
 # Build the disassembly distribution tarball and zip archive
 ###############################################################################
 build_tarball() {
@@ -177,6 +191,7 @@ $GAMENAME disassembly testing and release tool.
 Commands:
   ddiffs - run disassembly-diff on the disassembly
   asmchk - run check-asms on the disassembly
+  mktap1 - make a TAP file from the base ASM file and load it
   dtests - run the disassembly tests
   tarzip - build the disassembly distribution tarball and zip archive
   ghhtml - update the HTML disassembly on the gh-pages branch
@@ -196,6 +211,7 @@ parse_args() {
     case "$1" in
       ddiffs) disassembly_diffs ;;
       asmchk) check_asms ;;
+      mktap1) check_tap $GAME ;;
       dtests) test_disassembly ;;
       tarzip) build_tarball ;;
       ghhtml) update_ghpages ;;
