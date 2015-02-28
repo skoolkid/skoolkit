@@ -31,9 +31,8 @@ DIFF=$GAME.diff
 
 $SKOOLKIT_HOME/skool2sft.py $SKOOL > $SFT
 $SKOOLKIT_HOME/sna2skool.py -T $SFT $SNAPSHOT > $SKOOL2
-diff -u $SKOOL $SKOOL2 > $DIFF
-if [ -s $DIFF ]; then
+if ! diff -u $SKOOL $SKOOL2 > $DIFF; then
   cat $DIFF
-else
-  echo "No differences" 1>&2
+  exit 1
 fi
+echo "No differences" 1>&2

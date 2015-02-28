@@ -112,6 +112,14 @@ check_tap() {
 }
 
 ###############################################################################
+# Run skooldiff on the disassembly
+###############################################################################
+skooldiff() {
+  _cd_tmpdir
+  _exec "Running skooldiff" "$SKOOLKIT_TOOLS/skooldiff $GAME" $(pwd)/skooldiff.log
+}
+
+###############################################################################
 # Build the disassembly distribution tarball and zip archive
 ###############################################################################
 build_tarball() {
@@ -193,6 +201,7 @@ Commands:
   asmchk - run check-asms on the disassembly
   mktap1 - make a TAP file from the base ASM file and load it
   mktap2 - make a TAP file from the base @rsub-mode ASM file and load it
+  skoold - run skooldiff on the disassembly
   dtests - run the disassembly tests
   tarzip - build the disassembly distribution tarball and zip archive
   ghhtml - update the HTML disassembly on the gh-pages branch
@@ -214,6 +223,7 @@ parse_args() {
       asmchk) check_asms ;;
       mktap1) check_tap $GAME ;;
       mktap2) check_tap $GAME-f1-r ;;
+      skoold) skooldiff ;;
       dtests) test_disassembly ;;
       tarzip) build_tarball ;;
       ghhtml) update_ghpages ;;
