@@ -192,6 +192,7 @@ Commands:
   ddiffs - run disassembly-diff on the disassembly
   asmchk - run check-asms on the disassembly
   mktap1 - make a TAP file from the base ASM file and load it
+  mktap2 - make a TAP file from the base @rsub-mode ASM file and load it
   dtests - run the disassembly tests
   tarzip - build the disassembly distribution tarball and zip archive
   ghhtml - update the HTML disassembly on the gh-pages branch
@@ -212,6 +213,7 @@ parse_args() {
       ddiffs) disassembly_diffs ;;
       asmchk) check_asms ;;
       mktap1) check_tap $GAME ;;
+      mktap2) check_tap $GAME-f1-r ;;
       dtests) test_disassembly ;;
       tarzip) build_tarball ;;
       ghhtml) update_ghpages ;;
