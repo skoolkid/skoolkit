@@ -1,44 +1,33 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import sys
-import os
+import argparse
 
-def parse_args(args):
-    show_lines = False
-    p_args = []
-    i = 0
-    while i < len(args):
-        arg = args[i]
-        if arg == '-v':
-            show_lines = True
-        elif arg.startswith('-'):
-            show_usage()
-        else:
-            p_args.append(arg)
-        i += 1
-    if len(p_args) != 1:
-        show_usage()
-    return show_lines, p_args[0]
+def run(infile, options):
+    c = 0
+    with open(infile) as f:
+        for line in f:
+            s = line.rstrip('\n')
+            if len(s) >= 80:
+                if options.print_lines:
+                    print(s)
+                c += 1
+    sys.stderr.write("{} line(s) of length >= 80 found\n".format(c))
+    return 1 if c else 0
 
-def show_usage():
-    sys.stderr.write("""Usage: {} [options] FILE
-
-  Count the lines of length 80 or more in FILE.
-
-Available options:
-  -v  Print lines of length 80 or more
-""".format(os.path.basename(sys.argv[0])))
-    sys.exit(1)
-
-show_lines, fname = parse_args(sys.argv[1:])
-
-c = 0
-with open(fname) as f:
-    for line in f:
-        s = line.rstrip('\n')
-        if len(s) >= 80:
-            if show_lines:
-                print(s)
-            c += 1
-sys.stderr.write("{} lines of length >= 80 found\n".format(c))
+###############################################################################
+# Begin
+###############################################################################
+parser = argparse.ArgumentParser(
+    usage='count80.py [options] FILE',
+    description="Count the lines of length 80 or more in FILE.",
+    add_help=False
+)
+parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
+group = parser.add_argument_group('Options')
+group.add_argument('-p', dest='print_lines', action='store_true',
+                   help='Print lines of length 80 or more')
+namespace, unknown_args = parser.parse_known_args()
+infile = namespace.infile
+if unknown_args or infile is None:
+    parser.exit(2, parser.format_help())
+sys.exit(run(infile, namespace))
