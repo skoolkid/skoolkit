@@ -5,16 +5,13 @@ import sys
 import os
 
 def parse_args(args):
-    show_80s = False
-    show_80_plus = False
+    show_lines = False
     p_args = []
     i = 0
     while i < len(args):
         arg = args[i]
         if arg == '-v':
-            show_80s = True
-        elif arg == '-V':
-            show_80_plus = True
+            show_lines = True
         elif arg.startswith('-'):
             show_usage()
         else:
@@ -22,7 +19,7 @@ def parse_args(args):
         i += 1
     if len(p_args) != 1:
         show_usage()
-    return show_80s, show_80_plus, p_args[0]
+    return show_lines, p_args[0]
 
 def show_usage():
     sys.stderr.write("""Usage: {} [options] FILE
@@ -30,26 +27,18 @@ def show_usage():
   Count the lines of length 80 or more in FILE.
 
 Available options:
-  -v  Print lines of length 80
-  -V  Print lines of length > 80
+  -v  Print lines of length 80 or more
 """.format(os.path.basename(sys.argv[0])))
     sys.exit(1)
 
-show_80s, show_80_plus, fname = parse_args(sys.argv[1:])
+show_lines, fname = parse_args(sys.argv[1:])
 
 c = 0
-d = 0
-f = open(fname)
-for line in f:
-    s = line.rstrip()
-    if len(s) == 80:
-        if show_80s:
-            print(s)
-        c += 1
-    elif len(s) > 80:
-        if show_80_plus:
-            print(s)
-        d += 1
-f.close()
-print("{} lines of length = 80 found".format(c))
-print("{} lines of length > 80 found".format(d))
+with open(fname) as f:
+    for line in f:
+        s = line.rstrip('\n')
+        if len(s) >= 80:
+            if show_lines:
+                print(s)
+            c += 1
+sys.stderr.write("{} lines of length >= 80 found\n".format(c))
