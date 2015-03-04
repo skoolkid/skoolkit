@@ -3,15 +3,24 @@ import sys
 import argparse
 
 def run(infile, options):
-    c = 0
+    ignore_lines = []
+    if options.ignore_lines:
+        with open(options.ignore_lines) as f:
+            ignore_lines = [line.rstrip('\n') for line in list(f)]
+    c = c_ignore = 0
     with open(infile) as f:
         for line in f:
-            s = line.rstrip('\n')
-            if len(s) >= 80:
-                if options.print_lines:
-                    print(s)
-                c += 1
-    sys.stderr.write("{} line(s) of length >= 80 found\n".format(c))
+            s_line = line.rstrip('\n')
+            if len(s_line) >= 80:
+                if s_line in ignore_lines:
+                    c_ignore += 1
+                else:
+                    if options.print_lines:
+                        print(s_line)
+                    c += 1
+    sys.stderr.write("{} line(s) of length >= 80 found\n".format(c + c_ignore))
+    if options.ignore_lines:
+        sys.stderr.write("{} line(s) of length >= 80 ignored\n".format(c_ignore))
     return 1 if c else 0
 
 ###############################################################################
@@ -24,6 +33,8 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
 group = parser.add_argument_group('Options')
+group.add_argument('-i', dest='ignore_lines', metavar='FILE',
+                   help='Ignore lines that match those in this file')
 group.add_argument('-p', dest='print_lines', action='store_true',
                    help='Print lines of length 80 or more')
 namespace, unknown_args = parser.parse_known_args()
