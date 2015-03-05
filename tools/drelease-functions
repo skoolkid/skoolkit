@@ -1,3 +1,5 @@
+SKOOLDIR=${SKOOLDIR:-$DHOME}
+SKOOLFILES=${SKOOLFILES:-$GAMEDIR.skool}
 TESTPREFIX=${TESTPREFIX:-test}
 DIFFSBUILD=${DIFFSBUILD:-disassembly-diff}
 
@@ -77,6 +79,18 @@ _check_files() {
     return 1
   fi
   echo "OK"
+}
+
+###############################################################################
+# Count lines of length 80 or more in the skool files
+###############################################################################
+count_lines() {
+  ignorefile=$SKOOLDIR/.clinesignore
+  [[ -f $ignorefile ]] && OPTIONS="-i $ignorefile"
+  _cd_tmpdir
+  for skoolfile in $SKOOLFILES; do
+    _exec "Counting lines of length 80 or more in $skoolfile" "$SKOOLKIT_TOOLS/count80.py $OPTIONS -p $SKOOLDIR/$skoolfile" $(pwd)/$skoolfile.log
+  done
 }
 
 ###############################################################################
@@ -197,6 +211,7 @@ Usage: $(basename $0) COMMAND [COMMAND...]
 $GAMENAME disassembly testing and release tool.
 
 Commands:
+  clines - count lines of length 80 or more in the skool file(s)
   ddiffs - run disassembly-diff on the disassembly
   asmchk - run check-asms on the disassembly
   mktap1 - make a TAP file from the base ASM file and load it
@@ -219,6 +234,7 @@ parse_args() {
   while [[ -n "$1" ]]; do
     [[ $numcommands -ge 2 ]] && echo "*** Running command '$1' ***"
     case "$1" in
+      clines) count_lines ;;
       ddiffs) disassembly_diffs ;;
       asmchk) check_asms ;;
       mktap1) check_tap $GAME ;;
