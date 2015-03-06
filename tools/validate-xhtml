@@ -27,7 +27,10 @@ if ! which $ONSGMLS > /dev/null; then
   exit 1
 fi
 
+retval=0
 DIR=${1:-.}
-find $DIR -name '*.html' | while read html; do
-  $ONSGMLS -s -wxml -c$DTD/xhtml.soc $html
+for html in $(find $DIR -name '*.html'); do
+  $ONSGMLS -s -wxml -c$DTD/xhtml.soc $html || retval=1
 done
+
+exit $retval
