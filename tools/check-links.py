@@ -90,3 +90,5 @@ for fname, link_dest in missing_files:
 print('Links to non-existent anchors: {}'.format(len(missing_anchors)))
 for fname, link_dest in missing_anchors:
     print('  {} -> {}'.format(fname, link_dest))
+
+sys.exit(1 if orphans or missing_files or missing_anchors else 0)
