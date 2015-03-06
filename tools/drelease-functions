@@ -85,11 +85,10 @@ _check_files() {
 # Count lines of length 80 or more in the skool files
 ###############################################################################
 count_lines() {
-  ignorefile=$SKOOLDIR/.clinesignore
-  [[ -f $ignorefile ]] && OPTIONS="-i $ignorefile"
   _cd_tmpdir
   for skoolfile in $SKOOLFILES; do
-    _exec "Counting lines of length 80 or more in $skoolfile" "$SKOOLKIT_TOOLS/count80.py $OPTIONS -p $SKOOLDIR/$skoolfile" $(pwd)/$skoolfile.log
+    cmd="$SKOOLKIT_TOOLS/count80.py -i $SKOOLDIR/.clinesignore -p $SKOOLDIR/$skoolfile"
+    _exec "Counting lines of length 80 or more in $skoolfile" "$cmd" $(pwd)/$skoolfile.log
   done
 }
 

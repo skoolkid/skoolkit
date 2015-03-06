@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 import sys
+import os.path
 import argparse
 
 def run(infile, options):
     ignore_lines = []
-    if options.ignore_lines:
+    if options.ignore_lines and os.path.isfile(options.ignore_lines):
         with open(options.ignore_lines) as f:
             ignore_lines = [line.rstrip('\n') for line in list(f)]
     c = c_ignore = 0
