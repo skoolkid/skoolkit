@@ -10,7 +10,37 @@ read_ddiffsrc() {
 
   RCFILE=.ddiffsrc
 
-  if [ "$GAME" = "mm" ]; then
+  if [ "$GAME" = "sd" ]; then
+    if [ -z "$SKOOLDAZE_HOME" ]; then
+      echo "Error: SKOOLDAZE_HOME not defined."
+      exit 1
+    fi
+    if [ ! -d "$SKOOLDAZE_HOME" ]; then
+      echo "Error: directory not found: $SKOOLDAZE_HOME"
+      exit 1
+    fi
+    rcpath=$SKOOLDAZE_HOME/$RCFILE
+  elif [ "$GAME" = "bts" ]; then
+    if [ -z "$BACKTOSKOOL_HOME" ]; then
+      echo "Error: BACKTOSKOOL_HOME not defined."
+      exit 1
+    fi
+    if [ ! -d "$BACKTOSKOOL_HOME" ]; then
+      echo "Error: directory not found: $BACKTOSKOOL_HOME"
+      exit 1
+    fi
+    rcpath=$BACKTOSKOOL_HOME/$RCFILE
+  elif [ "$GAME" = "csc" ]; then
+    if [ -z "$CONTACTSAMCRUISE_HOME" ]; then
+      echo "Error: CONTACTSAMCRUISE_HOME not defined."
+      exit 1
+    fi
+    if [ ! -d "$CONTACTSAMCRUISE_HOME" ]; then
+      echo "Error: directory not found: $CONTACTSAMCRUISE_HOME"
+      exit 1
+    fi
+    rcpath=$CONTACTSAMCRUISE_HOME/$RCFILE
+  elif [ "$GAME" = "mm" ]; then
     if [ -z "$MANICMINER_HOME" ]; then
       echo "Error: MANICMINER_HOME not defined."
       exit 1
@@ -30,22 +60,6 @@ read_ddiffsrc() {
       exit 1
     fi
     rcpath=$JETSETWILLY_HOME/$RCFILE
-  else
-    if [ -z "$DISASSEMBLIES_HOME" ]; then
-      echo "Error: DISASSEMBLIES_HOME not defined."
-      exit 1
-    fi
-    if [ ! -d "$DISASSEMBLIES_HOME" ]; then
-      echo "Error: directory not found: $DISASSEMBLIES_HOME"
-      exit 1
-    fi
-    if [ "$GAME" = "sd" ]; then
-      rcpath=$DISASSEMBLIES_HOME/skool_daze/$RCFILE
-    elif [ "$GAME" = "bts" ]; then
-      rcpath=$DISASSEMBLIES_HOME/back_to_skool/$RCFILE
-    elif [ "$GAME" = "csc" ]; then
-      rcpath=$DISASSEMBLIES_HOME/contact_sam_cruise/$RCFILE
-    fi
   fi
 
   if [ -f "$rcpath" ]; then
