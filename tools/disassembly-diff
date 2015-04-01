@@ -17,10 +17,12 @@ Usage: $(basename $0) [options] $GAMES [TYPE [TYPE ...]]
   but may be overridden on the command line by using the '-v' and '-o' options.
 
   Environment variables:
-    DISASSEMBLIES_HOME - home directory of the SD/BTS/CSC disassemblies
-    DISASSEMBLY_ARCHIVE - directory containing disassembly release tarballs
-    JETSETWILLY_HOME - home directory of the Jet Set Willy disassembly
+    SKOOLDAZE_HOME - home directory of the Skool Daze disassembly
+    BACKTOSKOOL_HOME - home directory of the Back to Skool disassembly
+    CONTACTSAMCRUISE_HOME - home directory of the Contact Sam Cruise disassembly
     MANICMINER_HOME - home directory of the Manic Miner disassembly
+    JETSETWILLY_HOME - home directory of the Jet Set Willy disassembly
+    DISASSEMBLY_ARCHIVE - directory containing disassembly release tarballs
     SKOOLKIT_ARCHIVE - directory containing SkoolKit release tarballs
     SKOOLKIT_HOME - home directory of the skoolkit project
 
