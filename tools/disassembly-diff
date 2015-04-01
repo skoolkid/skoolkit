@@ -231,7 +231,7 @@ for diff_type in $DIFF_TYPES; do
 done
 
 banner "Running diff-files"
-$TOOLS/diff-files -d $DIFFS -e $GAME $OLD_DIR $NEW_DIR $DIFF_TYPES
+$TOOLS/diff-files -d $DIFFS $OLD_DIR $NEW_DIR $DIFF_TYPES
 
 set +e # No longer abort on errors (the following 'ls' commands can fail)
 

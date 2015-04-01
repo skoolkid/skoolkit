@@ -28,7 +28,7 @@ do_diff() {
   fi
   if [ $CHECK_DIFFS -eq 1 ] && [ -f $ofile ]; then
     xdiff=$(dirname $ofile)/$PREFIX$(basename $ofile)
-    exp_diffs_file=$DIFFS_DIR/${EXP_DIFFS_FILE_PREFIX}exp-diffs-${diff_type}.txt
+    exp_diffs_file=$DIFFS_DIR/exp-diffs-${diff_type}.txt
     $UTILS/check-diffs.py $exp_diffs_file $ofile > $xdiff
     if [ $RM_EMPTY_DIFFS -eq 1 ] && [ ! -s $xdiff ]; then
       rm $xdiff
@@ -116,10 +116,8 @@ Usage: $(basename $0) [options] DIR1 DIR2 TYPE [TYPE...]
   TYPE can be one of: asm ctl gif html png skool sft all
 
 Options:
-  -d DIR     Filter diff files through check-diffs.py using expected-diff files
-             in this directory
-  -e PREFIX  Use expected-diff files whose names start with this prefix
-             (requires '-d DIR'); the suffix is '-exp-diffs-TYPE.txt'
+  -d DIR     Filter diff files through check-diffs.py using exp-diffs-TYPE.txt
+             files in this directory
   -k         Do not remove empty diff files
   -p PREFIX  Name filtered diff files with this prefix (default: '$DEF_PREFIX')
 EOM
@@ -133,7 +131,6 @@ CHECK_DIFFS=0
 while getopts ":cd:e:p:k" opt; do
   case $opt in
     d) CHECK_DIFFS=1; DIFFS_DIR=$OPTARG ;;
-    e) EXP_DIFFS_FILE_PREFIX=${OPTARG}- ;;
     p) PREFIX=$OPTARG ;;
     k) RM_EMPTY_DIFFS=0 ;;
     *) print_usage ;;
