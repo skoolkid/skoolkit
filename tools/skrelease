@@ -22,30 +22,48 @@ _require_skoolkit() {
 }
 
 _require_disassemblies() {
-  if [ -z "$MANICMINER_HOME" ]; then
+  if [[ -z $SKOOLDAZE_HOME ]]; then
+    echo "Error: SKOOLDAZE_HOME not defined."
+    exit 1
+  fi
+  if [[ ! -d $SKOOLDAZE_HOME ]]; then
+    echo "Error: directory not found: $SKOOLDAZE_HOME"
+    exit 1
+  fi
+
+  if [[ -z $BACKTOSKOOL_HOME ]]; then
+    echo "Error: BACKTOSKOOL_HOME not defined."
+    exit 1
+  fi
+  if [[ ! -d $BACKTOSKOOL_HOME ]]; then
+    echo "Error: directory not found: $BACKTOSKOOL_HOME"
+    exit 1
+  fi
+
+  if [[ -z $CONTACTSAMCRUISE_HOME ]]; then
+    echo "Error: CONTACTSAMCRUISE_HOME not defined."
+    exit 1
+  fi
+  if [[ ! -d $CONTACTSAMCRUISE_HOME ]]; then
+    echo "Error: directory not found: $CONTACTSAMCRUISE_HOME"
+    exit 1
+  fi
+
+  if [[ -z $MANICMINER_HOME ]]; then
     echo "Error: MANICMINER_HOME not defined."
     exit 1
   fi
-  if [ ! -d "$MANICMINER_HOME" ]; then
+  if [[ ! -d $MANICMINER_HOME ]]; then
     echo "Error: directory not found: $MANICMINER_HOME"
     exit 1
   fi
 
-  if [ -z "$JETSETWILLY_HOME" ]; then
+  if [[ -z $JETSETWILLY_HOME ]]; then
     echo "Error: JETSETWILLY_HOME not defined."
     exit 1
   fi
-  if [ ! -d "$JETSETWILLY_HOME" ]; then
+  if [[ ! -d $JETSETWILLY_HOME ]]; then
     echo "Error: directory not found: $JETSETWILLY_HOME"
-    exit 1
-  fi
-
-  if [ -z "$DISASSEMBLIES_HOME" ]; then
-    echo "Error: DISASSEMBLIES_HOME not defined."
-    exit 1
-  fi
-  if [ ! -d "$DISASSEMBLIES_HOME" ]; then
-    echo "Error: directory not found: $DISASSEMBLIES_HOME"
     exit 1
   fi
 }
@@ -187,16 +205,18 @@ test_disassemblies() {
   mmlog=$MANICMINER_HOME/build/tests.log
   mkdir -p $JETSETWILLY_HOME/build
   jswlog=$JETSETWILLY_HOME/build/tests.log
-  mkdir -p $DISASSEMBLIES_HOME/build
-  sdlog=$DISASSEMBLIES_HOME/build/sd-tests.log
-  btslog=$DISASSEMBLIES_HOME/build/bts-tests.log
-  csclog=$DISASSEMBLIES_HOME/build/csc-tests.log
+  mkdir -p $SKOOLDAZE_HOME/build
+  sdlog=$SKOOLDAZE_HOME/build/tests.log
+  mkdir -p $BACKTOSKOOL_HOME/build
+  btslog=$BACKTOSKOOL_HOME/build/tests.log
+  mkdir -p $CONTACTSAMCRUISE_HOME/build
+  csclog=$CONTACTSAMCRUISE_HOME/build/tests.log
 
   make -C $MANICMINER_HOME test{2.7,3.{2,3,4}} &> $mmlog & PIDmm=$!
   make -C $JETSETWILLY_HOME test{2.7,3.{2,3,4}} &> $jswlog & PIDjsw=$!
-  make -C $DISASSEMBLIES_HOME test-sd-{2.7,3.{2,3,4}} &> $sdlog & PIDsd=$!
-  make -C $DISASSEMBLIES_HOME test-bts-{2.7,3.{2,3,4}} &> $btslog & PIDbts=$!
-  make -C $DISASSEMBLIES_HOME test-csc-{2.7,3.{2,3,4}} &> $csclog & PIDcsc=$!
+  make -C $SKOOLDAZE_HOME test{2.7,3.{2,3,4}} &> $sdlog & PIDsd=$!
+  make -C $BACKTOSKOOL_HOME test{2.7,3.{2,3,4}} &> $btslog & PIDbts=$!
+  make -C $CONTACTSAMCRUISE_HOME test{2.7,3.{2,3,4}} &> $csclog & PIDcsc=$!
 
   _wait "Manic Miner tests" $PIDmm "(see $mmlog)" _
   _wait "Jet Set Willy tests" $PIDjsw "(see $jswlog)" _
@@ -247,17 +267,17 @@ validate_xhtml() {
   _run_validate_xhtml $SKOOLKIT_HOME hh hungry_horace & PIDhh=$!
   _run_validate_xhtml $MANICMINER_HOME mm manic_miner & PIDmm=$!
   _run_validate_xhtml $JETSETWILLY_HOME jsw jet_set_willy & PIDjsw=$!
-  _run_validate_xhtml $DISASSEMBLIES_HOME sd skool_daze & PIDsd=$!
-  _run_validate_xhtml $DISASSEMBLIES_HOME bts back_to_skool & PIDbts=$!
-  _run_validate_xhtml $DISASSEMBLIES_HOME csc contact_sam_cruise & PIDcsc=$!
+  _run_validate_xhtml $SKOOLDAZE_HOME sd skool_daze & PIDsd=$!
+  _run_validate_xhtml $BACKTOSKOOL_HOME bts back_to_skool & PIDbts=$!
+  _run_validate_xhtml $CONTACTSAMCRUISE_HOME csc contact_sam_cruise & PIDcsc=$!
 
   _wait_validate_xhtml "Spectrum ROM" $PIDrom $SKOOLKIT_HOME rom rom
   _wait_validate_xhtml "Hungry Horace" $PIDhh $SKOOLKIT_HOME hh hungry_horace
   _wait_validate_xhtml "Manic Miner" $PIDmm $MANICMINER_HOME mm manic_miner
   _wait_validate_xhtml "Jet Set Willy" $PIDjsw $JETSETWILLY_HOME jsw jet_set_willy
-  _wait_validate_xhtml "Skool Daze" $PIDsd $DISASSEMBLIES_HOME sd skool_daze
-  _wait_validate_xhtml "Back to Skool" $PIDbts $DISASSEMBLIES_HOME bts back_to_skool
-  _wait_validate_xhtml "Contact Sam Cruise" $PIDcsc $DISASSEMBLIES_HOME csc contact_sam_cruise
+  _wait_validate_xhtml "Skool Daze" $PIDsd $SKOOLDAZE_HOME sd skool_daze
+  _wait_validate_xhtml "Back to Skool" $PIDbts $BACKTOSKOOL_HOME bts back_to_skool
+  _wait_validate_xhtml "Contact Sam Cruise" $PIDcsc $CONTACTSAMCRUISE_HOME csc contact_sam_cruise
 }
 
 ###############################################################################
@@ -269,9 +289,9 @@ disassembly_diffs() {
 
   mmdiffsdir=$MANICMINER_HOME/build/disassembly-diff
   jswdiffsdir=$JETSETWILLY_HOME/build/disassembly-diff
-  sddiffsdir=$DISASSEMBLIES_HOME/build/sd-disassembly-diff
-  btsdiffsdir=$DISASSEMBLIES_HOME/build/bts-disassembly-diff
-  cscdiffsdir=$DISASSEMBLIES_HOME/build/csc-disassembly-diff
+  sddiffsdir=$SKOOLDAZE_HOME/build/disassembly-diff
+  btsdiffsdir=$BACKTOSKOOL_HOME/build/disassembly-diff
+  cscdiffsdir=$CONTACTSAMCRUISE_HOME/build/disassembly-diff
   diffslog=diffs.log
   DISASSEMBLY_DIFF="$TOOLS/disassembly-diff -t"
 
@@ -302,12 +322,12 @@ check_asms() {
   _require_skoolkit
   _require_disassemblies
 
-  asmsubdir=disassembly-current-$VERSION/asm
-  mmasmdir=$MANICMINER_HOME/build/disassembly-diff/$asmsubdir
-  jswasmdir=$JETSETWILLY_HOME/build/disassembly-diff/$asmsubdir
-  sdasmdir=$DISASSEMBLIES_HOME/build/sd-disassembly-diff/$asmsubdir
-  btsasmdir=$DISASSEMBLIES_HOME/build/bts-disassembly-diff/$asmsubdir
-  cscasmdir=$DISASSEMBLIES_HOME/build/csc-disassembly-diff/$asmsubdir
+  asmsubdir=build/disassembly-diff/disassembly-current-$VERSION/asm
+  mmasmdir=$MANICMINER_HOME/$asmsubdir
+  jswasmdir=$JETSETWILLY_HOME/$asmsubdir
+  sdasmdir=$SKOOLDAZE_HOME/$asmsubdir
+  btsasmdir=$BACKTOSKOOL_HOME/$asmsubdir
+  cscasmdir=$CONTACTSAMCRUISE_HOME/$asmsubdir
   asmlog=asm.log
   CHECK_ASMS=$TOOLS/check-asms
 
