@@ -1,7 +1,6 @@
 SKOOLDIR=${SKOOLDIR:-$DHOME}
 SKOOLFILES=${SKOOLFILES:-$GAMEDIR.skool}
-TESTPREFIX=${TESTPREFIX:-test}
-DIFFSBUILD=${DIFFSBUILD:-disassembly-diff}
+DIFFSBUILD=$DHOME/build/disassembly-diff
 
 BUILD=$DHOME/build
 DIST=$DHOME/dist
@@ -96,9 +95,8 @@ count_lines() {
 # Run disassembly-diff on the disassembly
 ###############################################################################
 disassembly_diffs() {
-  diffsbuild=$DHOME/build/$DIFFSBUILD
-  mkdir -p $diffsbuild
-  cd $diffsbuild
+  mkdir -p $DIFFSBUILD
+  cd $DIFFSBUILD
   $SKOOLKIT_TOOLS/disassembly-diff -c $SKOOLKIT_VERSION $* $GAME 2>&1 | tee diffs.log
 }
 
@@ -106,7 +104,7 @@ disassembly_diffs() {
 # Run check-asms on the disassembly
 ###############################################################################
 check_asms() {
-  cd $DHOME/build/$DIFFSBUILD/disassembly-current-$SKOOLKIT_VERSION/asm
+  cd $DIFFSBUILD/disassembly-current-$SKOOLKIT_VERSION/asm
   $SKOOLKIT_TOOLS/check-asms $GAME 2>&1 | tee ../check-asms.log
 }
 
@@ -116,7 +114,7 @@ check_asms() {
 check_tap() {
   _require_skoolkit_archive
 
-  binfile=$DHOME/build/$DIFFSBUILD/disassembly-current-$SKOOLKIT_VERSION/asm/$1.bin
+  binfile=$DIFFSBUILD/disassembly-current-$SKOOLKIT_VERSION/asm/$1.bin
   tapfile=$(basename $binfile .bin).tap
   _cd_tmpdir
   tar xf $SKOOLKIT_TARBALL
@@ -142,7 +140,7 @@ build_tarball() {
   logdir=$(pwd)
   tar xf $SKOOLKIT_TARBALL
   cd skoolkit-$SKOOLKIT_VERSION
-  _exec "Building tarball and zip archive" "$MKDTARBALL" $logdir/build.log
+  _exec "Building tarball and zip archive" "$DHOME/utils/mkdtarball" $logdir/build.log
   _exec "Validating XHTML" "$SKOOLKIT_TOOLS/validate-xhtml dist/$RELEASE/html" $logdir/validate-xhtml.log
   _exec "Checking links" "$SKOOLKIT_TOOLS/check-links.py dist/$RELEASE/html" $logdir/check-links.log
   _check_files "source files" dist/$RELEASE/$SRCDIR $logdir $SRCFILES
@@ -171,7 +169,7 @@ update_ghpages() {
   echo "OK"
   cd $GHREPO
   git checkout -q gh-pages
-  rsync -r $htmldir/ $GHGAMEDIR
+  rsync -r $htmldir/ .
   echo
   git status -bs
   cat <<EOM
@@ -196,7 +194,7 @@ test_disassembly() {
   tar xf $SKOOLKIT_TARBALL
   cd skoolkit-$SKOOLKIT_VERSION
   for v in 2.7 3.2 3.3 3.4; do
-    _exec "Running $GAMENAME disassembly tests (SkoolKit $SKOOLKIT_VERSION, Python $v)" "SKOOLKIT_HOME=$(pwd) make -C $DHOME $TESTPREFIX$v" $logdir/test$v.log
+    _exec "Running $GAMENAME disassembly tests (SkoolKit $SKOOLKIT_VERSION, Python $v)" "SKOOLKIT_HOME=$(pwd) make -C $DHOME test$v" $logdir/test$v.log
   done
 }
 
