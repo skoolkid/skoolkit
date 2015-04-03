@@ -8,8 +8,6 @@ read_ddiffsrc() {
     *) usage ;;
   esac
 
-  RCFILE=.ddiffsrc
-
   if [ "$GAME" = "sd" ]; then
     if [ -z "$SKOOLDAZE_HOME" ]; then
       echo "Error: SKOOLDAZE_HOME not defined."
@@ -19,7 +17,7 @@ read_ddiffsrc() {
       echo "Error: directory not found: $SKOOLDAZE_HOME"
       exit 1
     fi
-    rcpath=$SKOOLDAZE_HOME/$RCFILE
+    DHOME=$SKOOLDAZE_HOME
   elif [ "$GAME" = "bts" ]; then
     if [ -z "$BACKTOSKOOL_HOME" ]; then
       echo "Error: BACKTOSKOOL_HOME not defined."
@@ -29,7 +27,7 @@ read_ddiffsrc() {
       echo "Error: directory not found: $BACKTOSKOOL_HOME"
       exit 1
     fi
-    rcpath=$BACKTOSKOOL_HOME/$RCFILE
+    DHOME=$BACKTOSKOOL_HOME
   elif [ "$GAME" = "csc" ]; then
     if [ -z "$CONTACTSAMCRUISE_HOME" ]; then
       echo "Error: CONTACTSAMCRUISE_HOME not defined."
@@ -39,7 +37,7 @@ read_ddiffsrc() {
       echo "Error: directory not found: $CONTACTSAMCRUISE_HOME"
       exit 1
     fi
-    rcpath=$CONTACTSAMCRUISE_HOME/$RCFILE
+    DHOME=$CONTACTSAMCRUISE_HOME
   elif [ "$GAME" = "mm" ]; then
     if [ -z "$MANICMINER_HOME" ]; then
       echo "Error: MANICMINER_HOME not defined."
@@ -49,7 +47,7 @@ read_ddiffsrc() {
       echo "Error: directory not found: $MANICMINER_HOME"
       exit 1
     fi
-    rcpath=$MANICMINER_HOME/$RCFILE
+    DHOME=$MANICMINER_HOME
   elif [ "$GAME" = "jsw" ]; then
     if [ -z "$JETSETWILLY_HOME" ]; then
       echo "Error: JETSETWILLY_HOME not defined."
@@ -59,9 +57,10 @@ read_ddiffsrc() {
       echo "Error: directory not found: $JETSETWILLY_HOME"
       exit 1
     fi
-    rcpath=$JETSETWILLY_HOME/$RCFILE
+    DHOME=$JETSETWILLY_HOME
   fi
 
+  rcpath=$DHOME/.ddiffsrc
   if [ -f "$rcpath" ]; then
     . $rcpath
   else
