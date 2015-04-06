@@ -62,22 +62,27 @@ _check_files() {
     echo "FAILED ($expdir does not exist)"
     return 1
   fi
-  rcount=0
-  for f in $expfiles; do
-    resource=$expdir/$f
-    if [[ ! -f $resource ]]; then
-      echo "FAILED ($f not found in $expdir)"
-      return 1
-    fi
-    let rcount+=1
-  done
-  rlist=$logdir/$(echo $filetype | tr ' ' _).txt
-  ls -1 $expdir | grep -Ev "^(html|$SRCDIR)$" > $rlist
-  numresources=$(cat $rlist | wc -l)
-  if [[ $numresources -ne $rcount ]]; then
-    echo "FAILED (unexpected files found; see $rlist)"
+
+  prefix=$(echo $filetype | tr ' ' _)
+  elist=$logdir/$prefix-expected.txt
+  for f in $expfiles; do echo $f; done | sort > $elist
+  alist=$logdir/$prefix-actual.txt
+  ls -A1 $expdir | grep -Ev "^(html|$SRCDIR)$" | sort > $alist
+
+  missing=$logdir/$prefix-missing.txt
+  comm -23 $elist $alist > $missing
+  if [[ -s $missing ]]; then
+    echo "FAILED (expected files missing; see $missing)"
     return 1
   fi
+
+  extra=$logdir/$prefix-extra.txt
+  comm -13 $elist $alist > $extra
+  if [[ -s $extra ]]; then
+    echo "FAILED (unexpected files found; see $extra)"
+    return 1
+  fi
+
   echo "OK"
 }
 
