@@ -110,10 +110,6 @@ def run(diff_file, exp_diffs_file):
     exp_diffs = []
     if isfile(exp_diffs_file):
         exp_diffs = get_diffs(exp_diffs_file, options)
-    includes = options.get('Include', ())
-    for fname in includes:
-        included_file = os.path.join(os.path.dirname(exp_diffs_file), fname)
-        exp_diffs.extend(get_diffs(included_file, options))
     ignore_case = options.get('IgnoreCase', False)
     ignore_exp_case = options.get('ExpIgnoreCase', False)
     ignore_blank_lines = options.get('IgnoreBlankLines', False)
@@ -232,7 +228,6 @@ def run(diff_file, exp_diffs_file):
             ('IgnoreReverseSubstitution', rev_subs),
             ('IgnoreSubstitution', subs),
             ('IgnoreTrailingWhitespace', ignore_trailing_whitespace),
-            ('Include', includes),
             ('RegexReplace', regex_subs)
         ):
             if isinstance(value, (list, tuple)):
