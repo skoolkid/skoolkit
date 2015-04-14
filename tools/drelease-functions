@@ -67,7 +67,7 @@ _check_files() {
   elist=$logdir/$prefix-expected.txt
   for f in $expfiles; do echo $f; done | sort > $elist
   alist=$logdir/$prefix-actual.txt
-  ls -A1 $expdir | grep -Ev "^(html|$SRCDIR)$" | sort > $alist
+  ls -A1 $expdir | grep -Ev "^(html|sources)$" | sort > $alist
 
   missing=$logdir/$prefix-missing.txt
   comm -23 $elist $alist > $missing
@@ -146,10 +146,10 @@ build_tarball() {
   logdir=$(pwd)
   tar xf $SKOOLKIT_TARBALL
   cd skoolkit-$SKOOLKIT_VERSION
-  _exec "Building tarball and zip archive" "$DHOME/utils/mkdtarball" $logdir/build.log
+  _exec "Building tarball and zip archive" "$SKOOLKIT_TOOLS/mkdtarball $DHOME $GAME" $logdir/build.log
   _exec "Validating XHTML" "$SKOOLKIT_TOOLS/validate-xhtml dist/$RELEASE/html" $logdir/validate-xhtml.log
   _exec "Checking links" "$SKOOLKIT_TOOLS/check-links.py dist/$RELEASE/html" $logdir/check-links.log
-  _check_files "source files" dist/$RELEASE/$SRCDIR $logdir $SRCFILES
+  _check_files "source files" dist/$RELEASE/sources $logdir $SRCFILES
   _check_files "txt files" dist/$RELEASE $logdir asm.txt readme.txt
   less dist/$RELEASE/asm.txt
   less dist/$RELEASE/readme.txt
