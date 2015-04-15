@@ -28,7 +28,7 @@ def _convert_ctl_asm_directive(line):
     return 1
 
 def _get_address(ctl_line):
-    addr_str = ctl_line[1:].lstrip().split(' ', 1)[0]
+    addr_str = ctl_line[1:].lstrip().split(' ', 1)[0].split(',')[0].split('-')[0]
     if addr_str.startswith('$'):
         return int(addr_str[1:], 16)
     return int(addr_str)
