@@ -147,14 +147,17 @@ build_tarball() {
   tar xf $SKOOLKIT_TARBALL
   cd skoolkit-$SKOOLKIT_VERSION
   _exec "Building tarball and zip archive" "$SKOOLKIT_TOOLS/mkdtarball $DHOME $GAME" $logdir/build.log
-  _exec "Validating XHTML" "$SKOOLKIT_TOOLS/validate-xhtml dist/$RELEASE/html" $logdir/validate-xhtml.log
-  _exec "Checking links" "$SKOOLKIT_TOOLS/check-links.py dist/$RELEASE/html" $logdir/check-links.log
-  _check_files "source files" dist/$RELEASE/sources $logdir $SRCFILES
-  _check_files "txt files" dist/$RELEASE $logdir asm.txt readme.txt
-  less dist/$RELEASE/asm.txt
-  less dist/$RELEASE/readme.txt
+  root=dist/$RELEASE
+  _exec "Validating XHTML" "$SKOOLKIT_TOOLS/validate-xhtml $root/html" $logdir/validate-xhtml.log
+  _exec "Checking links" "$SKOOLKIT_TOOLS/check-links.py $root/html" $logdir/check-links.log
+  _check_files "source files" $root/sources $logdir $SRCFILES
+  _check_files "txt files" $root $logdir asm.txt readme.txt
+  _exec "Checking lines in asm.txt" "$SKOOLKIT_TOOLS/count80.py -p $root/asm.txt" $logdir/count80-asm.txt
+  _exec "Checking lines in readme.txt" "$SKOOLKIT_TOOLS/count80.py -p $root/readme.txt" $logdir/count80-readme.txt
+  less $root/asm.txt
+  less $root/readme.txt
   mkdir -p $DIST
-  mv dist/$RELEASE.{tar.xz,zip} $DIST
+  mv $root.{tar.xz,zip} $DIST
 }
 
 ###############################################################################
