@@ -75,22 +75,6 @@ the game will start automatically.
 EOF
 }
 
-copying() {
-  cat <<EOF
-The SkoolKit extension module ($MODULE) is licensed under the GNU
-General Public License, version 3. To view a copy of this licence, visit
-
-  http://www.gnu.org/licenses/
-
-The text of the disassembly itself (annotations, the contents of the Trivia,
-Bugs and Pokes pages etc.) is licensed under the Creative Commons
-Attribution-ShareAlike 3.0 Unported License. To view a copy of this licence,
-visit
-
-  http://creativecommons.org/licenses/by-sa/3.0/
-EOF
-}
-
 if (($# < 2)); then
   usage
 fi
@@ -120,9 +104,9 @@ rm -rf src
 mkdir src
 cp -p $DHOME/sources/*.skool src
 cp -p $DHOME/sources/*.ref src
-MODULE=$(basename $(ls -1 $DHOME/skoolkit/*.py))
-cp -p $DHOME/skoolkit/$MODULE src
-cp -p $DHOME/resources/* src
+cp -p $DHOME/sources/*.css src
+find $DHOME/sources -name '*.js' -exec cp -p {} src \;
+cp -p $DHOME/sources/*.py src
 
 DISTDIR=dist
 PKGNAME=$GAME-disassembly-$VERSION
@@ -141,7 +125,7 @@ echo "done"
 echo -n "Copying source files..."
 rm -f src/*.pyc
 cp -a src ${ABSDIR}/sources
-copying > ${ABSDIR}/sources/COPYING
+cp -p $DHOME/sources/COPYING $ABSDIR/sources
 readme > ${ABSDIR}/readme.txt
 asm_header > ${ABSDIR}/asm.txt
 echo "done"
