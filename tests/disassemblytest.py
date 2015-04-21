@@ -145,21 +145,22 @@ class DisassembliesTestCase(SkoolKitTestCase):
         return self._write_skool(ROM, 'rom', ctlfile=ROMCTL, org=0)
 
 class AsmTestCase(DisassembliesTestCase):
-    def _test_asm(self, options, skoolfile, clean=True):
-        args = '{} {}'.format(options, skoolfile)
-        output, stderr = self.run_skool2asm(args, err_lines=True)
+    def _test_asm(self, options, skoolfile, writer=None, clean=True):
+        if writer:
+            options += ' -W {}'.format(writer)
+        output, stderr = self.run_skool2asm('{} {}'.format(options, skoolfile), err_lines=True)
         if clean:
             self.assertTrue(stderr[0].startswith('Parsed {}'.format(skoolfile)))
-            self.assertEqual(len(stderr), 2)
+            self.assertEqual(len(stderr), 3 if writer else 2)
         else:
             self.assertTrue(any([line.startswith('Parsed {}'.format(skoolfile)) for line in stderr]))
         self.assertTrue(stderr[-1].startswith('Wrote ASM to stdout'))
 
     def write_hh(self, options):
-        self._test_asm(options, self._write_hh_skool(), False)
+        self._test_asm(options, self._write_hh_skool(), clean=False)
 
     def write_rom(self, options):
-        self._test_asm(options, self._write_rom_skool(), False)
+        self._test_asm(options, self._write_rom_skool(), clean=False)
 
 class CtlTestCase(DisassembliesTestCase):
     def _test_ctl(self, options, skoolfile):
@@ -214,7 +215,9 @@ class HtmlTestCase(DisassembliesTestCase):
                     error_msg.append('  {} -> {}'.format(fname, link_dest))
             self.fail('\n'.join(error_msg))
 
-    def _test_html(self, options, skoolfile, exp_output, ref_file=None):
+    def _test_html(self, options, skoolfile, exp_output, writer=None, ref_file=None):
+        if writer:
+            options += ' -W {}'.format(writer)
         if not ref_file:
             ref_file = skoolfile[:-5] + 'ref'
         shutil.rmtree(self.odir, True)
@@ -228,12 +231,12 @@ class HtmlTestCase(DisassembliesTestCase):
     def write_hh(self, options):
         skoolfile = self._write_hh_skool()
         options += ' -c Config/SkoolFile={}'.format(skoolfile)
-        self._test_html(options, skoolfile, OUTPUT_HH, HHREF)
+        self._test_html(options, skoolfile, OUTPUT_HH, ref_file=HHREF)
 
     def write_rom(self, options):
         skoolfile = self._write_rom_skool()
         options += ' -c Config/SkoolFile={}'.format(skoolfile)
-        self._test_html(options, skoolfile, OUTPUT_ROM, ROMREF)
+        self._test_html(options, skoolfile, OUTPUT_ROM, ref_file=ROMREF)
 
 class SftTestCase(DisassembliesTestCase):
     def _test_sft(self, options, skoolfile, snapshot, org=None):
