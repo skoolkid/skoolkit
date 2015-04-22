@@ -16,31 +16,48 @@ sys.path.insert(0, '{}/tests'.format(SKOOLKIT_HOME))
 import disassemblytest
 """.lstrip()
 
-def _write_tests(test_type, skool, snapshot, output, html_writer, asm_writer):
+def _write_tests(test_type, snapshot, output, skool, html_writer, asm_writer, ctl, org, ref, clean):
     print(PROLOGUE)
-    print("SKOOL = '{}'\n".format(skool))
     variables = []
-    if test_type == 'asm' and asm_writer:
-        print("ASM_WRITER = '{}'\n".format(asm_writer))
-        variables.append('ASM_WRITER')
+    if skool:
+        _add_variable(variables, 'SKOOL', skool)
+    else:
+        _add_variable(variables, 'SNAPSHOT', snapshot)
+        _add_variable(variables, 'CTL', ctl)
+        if org is not None:
+            _add_variable(variables, 'ORG', org)
+    if test_type == 'asm':
+        if asm_writer:
+            _add_variable(variables, 'WRITER', asm_writer)
+        if not clean:
+            _add_variable(variables, 'CLEAN', clean)
     elif test_type == 'html':
-        print('OUTPUT = """{}"""\n'.format(output))
-        variables.append('OUTPUT')
+        _add_variable(variables, 'OUTPUT', output, True)
         if html_writer:
-            print("HTML_WRITER = '{}'\n".format(html_writer))
-            variables.append('HTML_WRITER')
+            _add_variable(variables, 'WRITER', html_writer)
+        if ref:
+            _add_variable(variables, 'REF', ref)
     elif test_type == 'sft':
-        print("SNAPSHOT = '{}'\n".format(snapshot))
-        variables.append('SNAPSHOT')
+        _add_variable(variables, 'SNAPSHOT', snapshot)
     class_name = '{}TestCase'.format(test_type.capitalize())
     print('class {0}(disassemblytest.{0}):'.format(class_name))
     for options in OPTIONS_LISTS[test_type]:
         method_name_suffix = options.replace('-', '_').replace(' ', '')
         method_name = 'test_{}{}'.format(test_type, method_name_suffix)
-        args = ["'{}'".format(options.lstrip()), 'SKOOL'] + variables
+        args = ["'{}'".format(options.lstrip())] + ['{}={}'.format(v.lower(), v) for v in variables]
         print("    def {}(self):".format(method_name))
         print("        self._test_{}({})".format(test_type, ', '.join(args)))
         print("")
+
+def _add_variable(variables, name, value, multiline=False):
+    if name not in variables:
+        if not isinstance(value, str):
+            print("{} = {}\n".format(name, value))
+        elif multiline:
+            print('{} = """{}"""\n'.format(name, value))
+        else:
+            print("{} = '{}'\n".format(name, value))
+        variables.append(name)
 
 def _get_asm_options_list():
     options_list = []
@@ -76,8 +93,8 @@ OPTIONS_LISTS = {
 
 TEST_TYPES = sorted(OPTIONS_LISTS)
 
-def write_tests(skool, snapshot, output, html_writer=None, asm_writer=None):
+def write_tests(skool=None, snapshot=None, output=None, html_writer=None, asm_writer=None, ctl=None, org=None, ref=None, clean=True):
     if len(sys.argv) != 2 or sys.argv[1] not in TEST_TYPES:
         sys.stderr.write("Usage: {} {}\n".format(os.path.basename(sys.argv[0]), '|'.join(TEST_TYPES)))
         sys.exit(1)
-    _write_tests(sys.argv[1], skool, snapshot, output, html_writer, asm_writer)
+    _write_tests(sys.argv[1], snapshot, output, skool, html_writer, asm_writer, ctl, org, ref, clean)

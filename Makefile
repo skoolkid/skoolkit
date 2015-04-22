@@ -61,11 +61,15 @@ rom:
 
 .PHONY: write-disassembly-tests
 write-disassembly-tests:
-	for t in asm ctl html sft; do tools/write-disassembly-tests.py $$t > tests/test_disassemblies_$$t.py; done
+	for t in asm ctl html sft; do \
+	    tools/write-hh-tests.py $$t > tests/test_hh_$$t.py; \
+	    tools/write-rom-tests.py $$t > tests/test_rom_$$t.py; \
+	done
 
 .PHONY: remove-disassembly-tests
 remove-disassembly-tests:
-	rm -f tests/test_disassemblies_*.py*
+	rm -f tests/test_hh_*.py*
+	rm -f tests/test_rom_*.py*
 
 .PHONY: test
 test: remove-disassembly-tests

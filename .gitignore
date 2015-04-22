@@ -8,6 +8,7 @@ dist
 DTD
 MANIFEST
 tests/cover
-tests/test_disassemblies_*.py
+tests/test_hh_*.py
+tests/test_rom_*.py
 untracked
 XSD

@@ -1,56 +1,13 @@
 # -*- coding: utf-8 -*-
-import sys
 import os
 import shutil
-from subprocess import Popen, PIPE
 from lxml import etree
 from xml.dom.minidom import parse
 from xml.dom import Node
-from nose.plugins.skip import SkipTest
 
 from skoolkittest import SkoolKitTestCase, SKOOLKIT_HOME
 
-PY3 = sys.version_info >= (3,)
-
-HHZ80 = '{}/build/hungry_horace.z80'.format(SKOOLKIT_HOME)
-HHCTL = '{}/examples/hungry_horace.ctl'.format(SKOOLKIT_HOME)
-HHREF = '{}/examples/hungry_horace.ref'.format(SKOOLKIT_HOME)
-
-ROM = '/usr/share/spectrum-roms/48.rom'
-ROMCTL = '{}/examples/48.rom.ctl'.format(SKOOLKIT_HOME)
-ROMREF = '{}/examples/48.rom.ref'.format(SKOOLKIT_HOME)
-
 XHTML_XSD = os.path.join(SKOOLKIT_HOME, 'XSD', 'xhtml1-strict.xsd')
-
-OUTPUT_HH = """Creating directory {odir}
-Using skool file: {skoolfile}
-Using ref file: {reffile}
-Parsing {skoolfile}
-Creating directory {odir}/hungry_horace
-Copying {SKOOLKIT_HOME}/skoolkit/resources/skoolkit.css to {odir}/hungry_horace/skoolkit.css
-  Writing disassembly files in hungry_horace/asm
-  Writing hungry_horace/maps/all.html
-  Writing hungry_horace/maps/routines.html
-  Writing hungry_horace/maps/data.html
-  Writing hungry_horace/maps/messages.html
-  Writing hungry_horace/maps/unused.html
-  Writing hungry_horace/reference/changelog.html
-  Writing hungry_horace/index.html"""
-
-OUTPUT_ROM = """Creating directory {odir}
-Using skool file: {skoolfile}
-Using ref file: {reffile}
-Parsing {skoolfile}
-Creating directory {odir}/rom
-Copying {SKOOLKIT_HOME}/skoolkit/resources/skoolkit.css to {odir}/rom/skoolkit.css
-  Writing disassembly files in rom/asm
-  Writing rom/maps/all.html
-  Writing rom/maps/routines.html
-  Writing rom/maps/data.html
-  Writing rom/maps/messages.html
-  Writing rom/maps/unused.html
-  Writing rom/reference/changelog.html
-  Writing rom/index.html"""
 
 def _find_ids_and_hrefs(elements, doc_anchors, doc_hrefs):
     for node in elements:
@@ -109,70 +66,38 @@ def check_links(root_dir):
     return all_files, orphans, missing_files, missing_anchors
 
 class DisassembliesTestCase(SkoolKitTestCase):
-    def _run_cmd(self, cmd):
-        cmdline = cmd.split()
-        if sys.platform == 'win32':
-            cmdline.insert(0, 'python')
-        p = Popen(cmdline, stdout=PIPE, stderr=PIPE)
-        out, err = p.communicate()
-        if PY3:
-            out = out.decode()
-            err = err.decode()
-        return out, err
-
-    def _write_skool(self, snapshot, prefix, ctlutil=None, ctlfile=None, org=None):
+    def _write_skool(self, snapshot, ctl, org):
         if not os.path.isfile(snapshot):
-            raise SkipTest("{0} not found".format(snapshot))
+            self.fail("{} not found".format(snapshot))
         os.environ['SKOOLKIT_HOME'] = SKOOLKIT_HOME
-        if ctlutil:
-            output, error = self._run_cmd('{0} {1}'.format(ctlutil, snapshot))
-            self.assertEqual(len(error), 0)
-            ctlfile = '{0}-{1}.ctl'.format(prefix, os.getpid())
-            self.write_text_file(output, ctlfile)
-        options = '-c {}'.format(ctlfile)
+        options = '-c {}'.format(ctl)
         if org is not None:
             options += ' -o {}'.format(org)
         output, error = self.run_sna2skool('{} {}'.format(options, snapshot), out_lines=False)
         self.assertEqual(len(error), 0)
-        skoolfile = '{0}-{1}.skool'.format(prefix, os.getpid())
-        self.write_text_file(output, skoolfile)
-        return skoolfile
-
-    def _write_hh_skool(self):
-        return self._write_skool(HHZ80, 'hungry_horace', ctlfile=HHCTL)
-
-    def _write_rom_skool(self):
-        return self._write_skool(ROM, 'rom', ctlfile=ROMCTL, org=0)
+        return self.write_text_file(output)
 
 class AsmTestCase(DisassembliesTestCase):
-    def _test_asm(self, options, skoolfile, writer=None, clean=True):
+    def _test_asm(self, options, skool=None, snapshot=None, ctl=None, org=None, writer=None, clean=True):
+        if not skool:
+            skool = self._write_skool(snapshot, ctl, org)
         if writer:
             options += ' -W {}'.format(writer)
-        output, stderr = self.run_skool2asm('{} {}'.format(options, skoolfile), err_lines=True)
+        output, stderr = self.run_skool2asm('{} {}'.format(options, skool), err_lines=True)
         if clean:
-            self.assertTrue(stderr[0].startswith('Parsed {}'.format(skoolfile)))
+            self.assertTrue(stderr[0].startswith('Parsed {}'.format(skool)))
             self.assertEqual(len(stderr), 3 if writer else 2)
         else:
-            self.assertTrue(any([line.startswith('Parsed {}'.format(skoolfile)) for line in stderr]))
+            self.assertTrue(any([line.startswith('Parsed {}'.format(skool)) for line in stderr]))
         self.assertTrue(stderr[-1].startswith('Wrote ASM to stdout'))
 
-    def write_hh(self, options):
-        self._test_asm(options, self._write_hh_skool(), clean=False)
-
-    def write_rom(self, options):
-        self._test_asm(options, self._write_rom_skool(), clean=False)
-
 class CtlTestCase(DisassembliesTestCase):
-    def _test_ctl(self, options, skoolfile):
-        args = '{} {}'.format(options, skoolfile)
+    def _test_ctl(self, options, skool=None, snapshot=None, ctl=None, org=None):
+        if not skool:
+            skool = self._write_skool(snapshot, ctl, org)
+        args = '{} {}'.format(options, skool)
         output, stderr = self.run_skool2ctl(args)
         self.assertEqual(stderr, '')
-
-    def write_hh(self, options):
-        self._test_ctl(options, self._write_hh_skool())
-
-    def write_rom(self, options):
-        self._test_ctl(options, self._write_rom_skool())
 
 class HtmlTestCase(DisassembliesTestCase):
     def setUp(self):
@@ -215,34 +140,29 @@ class HtmlTestCase(DisassembliesTestCase):
                     error_msg.append('  {} -> {}'.format(fname, link_dest))
             self.fail('\n'.join(error_msg))
 
-    def _test_html(self, options, skoolfile, exp_output, writer=None, ref_file=None):
+    def _test_html(self, options, skool=None, snapshot=None, ctl=None, org=None, output=None, writer=None, ref=None):
+        if not skool:
+            skool = self._write_skool(snapshot, ctl, org)
+            options += ' -c Config/SkoolFile={}'.format(skool)
         if writer:
             options += ' -W {}'.format(writer)
-        if not ref_file:
-            ref_file = skoolfile[:-5] + 'ref'
+        if not ref:
+            ref = skool[:-5] + 'ref'
         shutil.rmtree(self.odir, True)
-        output, error = self.run_skool2html('-d {} {} {}'.format(self.odir, options, ref_file))
+        stdout, error = self.run_skool2html('-d {} {} {}'.format(self.odir, options, ref))
         self.assertEqual(error, '')
-        reps = {'odir': self.odir, 'SKOOLKIT_HOME': SKOOLKIT_HOME, 'skoolfile': skoolfile, 'reffile': ref_file}
-        self.assertEqual(output, exp_output.format(**reps).split('\n'))
+        reps = {'odir': self.odir, 'SKOOLKIT_HOME': SKOOLKIT_HOME, 'skoolfile': skool, 'reffile': ref}
+        self.assertEqual(output.format(**reps).split('\n'), stdout)
         self._validate_xhtml()
         self._check_links()
 
-    def write_hh(self, options):
-        skoolfile = self._write_hh_skool()
-        options += ' -c Config/SkoolFile={}'.format(skoolfile)
-        self._test_html(options, skoolfile, OUTPUT_HH, ref_file=HHREF)
-
-    def write_rom(self, options):
-        skoolfile = self._write_rom_skool()
-        options += ' -c Config/SkoolFile={}'.format(skoolfile)
-        self._test_html(options, skoolfile, OUTPUT_ROM, ref_file=ROMREF)
-
 class SftTestCase(DisassembliesTestCase):
-    def _test_sft(self, options, skoolfile, snapshot, org=None):
-        with open(skoolfile, 'rt') as f:
+    def _test_sft(self, options, skool=None, snapshot=None, ctl=None, org=None):
+        if not skool:
+            skool = self._write_skool(snapshot, ctl, org)
+        with open(skool, 'rt') as f:
             orig_skool = f.read().split('\n')
-        args = '{} {}'.format(options, skoolfile)
+        args = '{} {}'.format(options, skool)
         sft, stderr = self.run_skool2sft(args, out_lines=False)
         self.assertEqual(stderr, '')
         sftfile = self.write_text_file(sft)
@@ -251,9 +171,3 @@ class SftTestCase(DisassembliesTestCase):
             options += ' -o {}'.format(org)
         output, stderr = self.run_sna2skool('{} {}'.format(options, snapshot))
         self.assert_output_equal(output, orig_skool[:-1])
-
-    def write_hh(self, options):
-        self._test_sft(options, self._write_hh_skool(), HHZ80)
-
-    def write_rom(self, options):
-        self._test_sft(options, self._write_rom_skool(), ROM, 0)
