@@ -6,7 +6,7 @@ DIST=$DHOME/dist
 DTMPDIR=$HOME/tmp
 REFFILE=$DHOME/sources/$GAMEDIR.ref
 [[ -f $REFFILE ]] || REFFILE=$DHOME/sources/$GAME.ref
-VERSION=$(grep ^Release= $REFFILE | grep -o '20.\{6\}')
+VERSION=$(grep ^Release= $REFFILE | awk '{print $NF}')
 RELEASE=$GAME-disassembly-$VERSION
 SKOOLKIT_TOOLS=$SKOOLKIT_HOME/tools
 SKOOLKIT_VERSION=$(cd $SKOOLKIT_HOME; git tag | tail -n 1 | cut -c2-)
