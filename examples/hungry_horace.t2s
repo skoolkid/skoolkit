@@ -4,7 +4,7 @@
 ;
 ; to create a Z80 snapshot.
 
-ftp://ftp.worldofspectrum.org/pub/sinclair/games/h/HungryHorace.tzx.zip
+http://www.worldofspectrum.org/pub/sinclair/games/h/HungryHorace.tzx.zip
 hungry_horace.z80
 --state border=7
 --ram poke=23624,56 # BORDCR
