@@ -1,6 +1,9 @@
 Changelog
 =========
 
+4.4b1
+-----
+
 4.3 (2015-02-14)
 ----------------
 * Added support for block start comments (which appear after the register
