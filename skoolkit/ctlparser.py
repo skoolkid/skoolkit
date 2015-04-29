@@ -22,15 +22,17 @@ from .skoolctl import TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END
 
 COMMENT_TYPES = (TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 
+BASES = ('b', 'd', 'h', 'n')
+
 class CtlParserError(Exception):
     pass
 
-def parse_params(ctl, params, lengths_index=2):
+def parse_params(ctl, params, lengths_index=1):
     int_params = []
     prefix = None
     for i, num in enumerate(params):
         if i < lengths_index:
-            length, prefix = _parse_length(num)
+            length, prefix = _parse_length(num, required=False)
             int_params.append(length)
         else:
             if '*' in num:
@@ -58,10 +60,19 @@ def _parse_sublengths(sublengths, subctl, default_prefix):
         length = lengths[0][0]
     return (length, tuple(lengths))
 
-def _parse_length(length, subctl=None, default_prefix=None):
-    if length.startswith(('b', 'd', 'h')) or (subctl in ('B', 'T') and length.startswith(('B', 'T'))):
+def _parse_length(length, subctl=None, default_prefix=None, required=True):
+    if length.startswith(BASES):
+        prefix = length[0]
+        if length[1:].startswith(BASES):
+            prefix += length[1]
+        if required or len(length) > len(prefix):
+            return (get_int_param(length[len(prefix):]), prefix)
+        return (None, prefix)
+    if subctl in ('B', 'T') and length.startswith(('B', 'T')):
         return (get_int_param(length[1:]), length[0])
-    return (get_int_param(length), default_prefix)
+    if required or length:
+        return (get_int_param(length), default_prefix)
+    return (None, default_prefix)
 
 class CtlParser:
     def __init__(self):
@@ -172,19 +183,22 @@ class CtlParser:
                     params = fields[0].split(',')
                     use_length = len(params) > 1
                 try:
-                    int_params = parse_params(ctl, params)
+                    start = get_int_param(params[0])
+                except ValueError:
+                    raise CtlParserError("invalid address")
+                try:
+                    int_params = parse_params(ctl, params[1:])
                 except ValueError:
                     raise CtlParserError("invalid integer")
-                start = int_params[0]
-                if len(int_params) > 1:
+                if int_params:
                     if ctl.islower():
                         raise CtlParserError("extra parameters after address")
-                    end = int_params[1]
-                    if use_length:
+                    end = int_params[0]
+                    if use_length and end is not None:
                         end += start - 1
                 else:
                     end = None
-                lengths = int_params[2:]
+                lengths = int_params[1:]
                 if ctl == 'L':
                     if end is None:
                         raise CtlParserError("loop length not specified")

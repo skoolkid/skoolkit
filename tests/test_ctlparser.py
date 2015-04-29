@@ -176,12 +176,14 @@ class CtlParserTest(SkoolKitTestCase):
             ('T 30760,5,2:Y3',      'invalid integer'),
             ('W 30765,5,1:B4',      'invalid integer'),
             ('S 30770,10,T8:2',     'invalid integer'),
+            ('B 30780,10,h,5',      'invalid integer'),
             ('C 40000,Q',           'invalid integer'),
             ('; @label:EDCBA=Z',    'invalid ASM directive address'),
             ('@ FEDCB label=Z',     'invalid ASM directive address'),
             ('; @label=Z',          'invalid ASM directive declaration'),
             ('@ 49152',             'invalid ASM directive declaration'),
             ('b 50000,20',          'extra parameters after address'),
+            ('b b50010',            'invalid address'),
             ('d 50020',             'invalid directive'),
             ('! 50030',             'invalid directive'),
             ('; @ignoreua:50000:f', "invalid @ignoreua directive address suffix: '50000:f'"),
@@ -215,13 +217,34 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(self.err.getvalue(), '')
         self.assertEqual({32768: 'b', 32769: 'w'}, ctl_parser.ctls)
 
+    def test_bases(self):
+        ctl = '\n'.join((
+            'c 50000 Test numeric instruction operand bases',
+            '  50000,b',
+            '  50002,h2',
+            '  50006,hb',
+            '  50010,d',
+            '  50012,nb4'
+        ))
+        ctl_parser = self._get_ctl_parser(ctl)
+
+        exp_lengths = {
+            50000: ((None, ((None, 'b'),)),),
+            50002: ((None, ((None, 'h'),)),),
+            50006: ((None, ((None, 'hb'),)),),
+            50010: ((None, ((None, 'd'),)),),
+            50012: ((None, ((None, 'nb'),)),)
+        }
+        self.assertEqual(exp_lengths, ctl_parser.lengths)
+
     def test_byte_formats(self):
         ctl = '\n'.join((
             'b 40000 Test byte formats',
-            '  40000,b10 10 bytes in binary format',
+            '  40000,b 5 bytes in binary format',
+            '  40005,b5 5 more bytes in binary format',
             'B 40010,b10,5,d3,h2 5 binary, 3 decimal, 2 hex',
-            'B 40020,b10,2:d3:h5 2 binary, 3 decimal, 5 hex, one line',
-            '  40030,10,b6,3,h1 6 binary, 3 default, 1 hex',
+            'B 40020,b,2:d3:h5 2 binary, 3 decimal, 5 hex, one line',
+            '  40030,,b6,3,h1 6 binary, 3 default, 1 hex',
             '  40040,10,b5:2:h3 5 binary, 2 default, 3 hex, one line',
             '  40050,10,1,T9 1 default, 9 text',
             '  40060,10,h4:T6 4 hex, 6 text, one line',
@@ -233,6 +256,7 @@ class CtlParserTest(SkoolKitTestCase):
 
         exp_lengths = {
             40000: ((None, ((None, 'b'),)),),
+            40005: ((None, ((None, 'b'),)),),
             40010: (
                 (5, ((5, 'b'),)),
                 (3, ((3, 'd'),)),
