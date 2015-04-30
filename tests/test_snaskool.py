@@ -625,6 +625,79 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         self.assertEqual(exp_instructions, actual_instructions)
 
+    def test_byte_arg_bases(self):
+        snapshot = [
+            62, 5,      # 00000 LD A,5
+            6, 6,       # 00002 LD B,6
+            14, 7,      # 00004 LD C,7
+            22, 240,    # 00006 LD D,240
+            30, 128,    # 00008 LD E,128
+            38, 200,    # 00010 LD H,200
+            46, 100,    # 00012 LD L,100
+            221, 38, 1, # 00014 LD IXh,1
+            221, 46, 2, # 00017 LD IXl,2
+            253, 38, 3, # 00020 LD IYh,3
+            253, 46, 4, # 00023 LD IYl,4
+            54, 27,     # 00026 LD (HL),27
+            198, 32,    # 00028 ADD A,32
+            206, 33,    # 00030 ADC A,33
+            230, 34,    # 00032 AND 34
+            254, 35,    # 00034 CP 35
+            219, 254,   # 00036 IN A,(254)
+            246, 36,    # 00038 OR 36
+            211, 254,   # 00040 OUT (254),A
+            222, 37,    # 00042 SBC A,37
+            214, 38,    # 00044 SUB 38
+            238, 39     # 00046 XOR 39
+        ]
+        ctl = '\n'.join((
+            'c 00000',
+            '  00000,b',
+            '  00014,h',
+            '  00028,d',
+            '  00032,bd4',
+            '  00036,h4',
+            '  00040,d4',
+            '  00044,n4',
+            'i 00048'
+        ))
+        ctl_parser = CtlParser()
+        ctl_parser.parse_ctl(self.write_text_file(ctl))
+        disassembly = Disassembly(snapshot, ctl_parser, True, asm_hex=True)
+
+        entries = disassembly.entries
+        self.assertEqual(len(entries), 2)
+
+        entry = entries[0]
+        self.assertEqual(entry.address, 0)
+        instructions = entry.instructions
+        actual_instructions = [(i.address, i.operation) for i in instructions]
+        exp_instructions = [
+            (0, 'LD A,%00000101'),
+            (2, 'LD B,%00000110'),
+            (4, 'LD C,%00000111'),
+            (6, 'LD D,%11110000'),
+            (8, 'LD E,%10000000'),
+            (10, 'LD H,%11001000'),
+            (12, 'LD L,%01100100'),
+            (14, 'LD IXh,$01'),
+            (17, 'LD IXl,$02'),
+            (20, 'LD IYh,$03'),
+            (23, 'LD IYl,$04'),
+            (26, 'LD (HL),$1B'),
+            (28, 'ADD A,32'),
+            (30, 'ADC A,33'),
+            (32, 'AND %00100010'),
+            (34, 'CP %00100011'),
+            (36, 'IN A,($FE)'),
+            (38, 'OR $24'),
+            (40, 'OUT (254),A'),
+            (42, 'SBC A,37'),
+            (44, 'SUB $26'),
+            (46, 'XOR $27')
+        ]
+        self.assertEqual(exp_instructions, actual_instructions)
+
 class MockOptions:
     def __init__(self, line_width, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower):
         self.line_width = line_width

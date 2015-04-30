@@ -634,10 +634,15 @@ class Disassembly:
             elif block.ctl in 'us':
                 title = title or 'Unused'
             for sub_block in block.blocks:
+                address = sub_block.start
                 if sub_block.ctl in 'cBT':
-                    instructions = self.disassembler.disassemble(sub_block.start, sub_block.end)
+                    lengths = self.ctl_parser.get_lengths(address)
+                    if lengths:
+                        base = lengths[0][1][0][1]
+                    else:
+                        base = None
+                    instructions = self.disassembler.disassemble(sub_block.start, sub_block.end, base)
                 elif sub_block.ctl in 'bgstuw':
-                    address = sub_block.start
                     lengths = list(self.ctl_parser.get_lengths(address))
                     one_line = True
                     if not lengths:

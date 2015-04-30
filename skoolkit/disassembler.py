@@ -79,6 +79,8 @@ class Disassembler:
         }
 
     def num_str(self, num, num_bytes=0, base=None):
+        if base:
+            base = base[0]
         if base not in self.byte_formats:
             if self.asm_hex:
                 base = 'h'
@@ -91,16 +93,16 @@ class Disassembler:
             fmt = self.word_formats[base]
         return fmt.format(num)
 
-    def disassemble(self, start, end=65536):
+    def disassemble(self, start, end=65536, base=None):
         instructions = []
         address = start
         while address < end:
             byte = self.snapshot[address]
             decoder, template = self.ops[byte]
             if template is None:
-                operation, length = decoder(self, address)
+                operation, length = decoder(self, address, base)
             else:
-                operation, length = decoder(self, template, address)
+                operation, length = decoder(self, template, address, base)
             if address + length <= 65536:
                 if self.asm_lower:
                     operation = operation.lower()
@@ -208,16 +210,16 @@ class Disassembler:
             message += char
         return message
 
-    def no_arg(self, template, a):
+    def no_arg(self, template, a, base):
         return template, 1
 
-    def byte_arg(self, template, a):
-        return template.format(self.num_str(self.snapshot[a + 1], 1)), 2
+    def byte_arg(self, template, a, base):
+        return template.format(self.num_str(self.snapshot[a + 1], 1, base)), 2
 
-    def word_arg(self, template, a):
+    def word_arg(self, template, a, base):
         return template.format(self.num_str(self.snapshot[a + 1] + 256 * self.snapshot[a + 2], 2)), 3
 
-    def jr_arg(self, template, a):
+    def jr_arg(self, template, a, base):
         offset = self.snapshot[a + 1]
         if offset < 128:
             address = a + 2 + offset
@@ -227,7 +229,7 @@ class Disassembler:
             return template.format(self.num_str(address, 2)), 2
         return self.defb(a, 2)
 
-    def rst_arg(self, rst_address, a):
+    def rst_arg(self, rst_address, a, base):
         return 'RST {0}'.format(self.num_str(rst_address, 1)), 1
 
     def format_byte(self, value, base=None):
@@ -270,13 +272,13 @@ class Disassembler:
     def defb(self, a, length):
         return self.defb_dir(self.snapshot[a:a + length]), length
 
-    def defb4(self, a):
+    def defb4(self, a, base):
         return self.defb(a, 4)
 
-    def index(self, template, a):
+    def index(self, template, a, base):
         return template.format(self.index_offset(a)), 2
 
-    def index_arg(self, template, a):
+    def index_arg(self, template, a, base):
         return template.format(self.index_offset(a), self.num_str(self.snapshot[a + 2], 1)), 3
 
     def index_offset(self, a):
@@ -285,36 +287,36 @@ class Disassembler:
             return '+{0}'.format(self.num_str(i, 1))
         return '-{0}'.format(self.num_str(abs(i - 256), 1))
 
-    def cb_arg(self, a):
+    def cb_arg(self, a, base):
         return self.after_CB[self.snapshot[a + 1]], 2
 
-    def ed_arg(self, a):
+    def ed_arg(self, a, base):
         decoder, template = self.after_ED.get(self.snapshot[a + 1], (None, None))
         if template:
-            operation, length = decoder(self, template, a + 1)
+            operation, length = decoder(self, template, a + 1, base)
             return operation, length + 1
         if decoder:
-            return decoder(self, a)
+            return decoder(self, a, base)
         return self.defb(a, 2)
 
-    def dd_arg(self, a):
+    def dd_arg(self, a, base):
         decoder, template = self.after_DD.get(self.snapshot[a + 1], (None, None))
         if template:
-            operation, length = decoder(self, template, a + 1)
+            operation, length = decoder(self, template, a + 1, base)
             return operation, length + 1
         if decoder:
-            return decoder(self, a)
+            return decoder(self, a, base)
         # The instruction is unchanged by the DD prefix
         return self.defb(a, 1)
 
-    def fd_arg(self, a):
-        operation, length = self.dd_arg(a)
+    def fd_arg(self, a, base):
+        operation, length = self.dd_arg(a, base)
         return operation.replace('IX', 'IY'), length
 
-    def ddcb_arg(self, a):
+    def ddcb_arg(self, a, base):
         decoder, template = self.after_DDCB.get(self.snapshot[a + 3], (None, None))
         if template:
-            operation = decoder(self, template, a + 1)[0]
+            operation = decoder(self, template, a + 1, base)[0]
             return operation, 4
         return self.defb(a, 4)
 
