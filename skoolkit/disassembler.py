@@ -217,7 +217,7 @@ class Disassembler:
         return template.format(self.num_str(self.snapshot[a + 1], 1, base)), 2
 
     def word_arg(self, template, a, base):
-        return template.format(self.num_str(self.snapshot[a + 1] + 256 * self.snapshot[a + 2], 2)), 3
+        return template.format(self.num_str(self.snapshot[a + 1] + 256 * self.snapshot[a + 2], 2, base)), 3
 
     def jr_arg(self, template, a, base):
         offset = self.snapshot[a + 1]
