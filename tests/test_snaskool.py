@@ -209,6 +209,18 @@ b32781 DEFB 0
 """.split('\n')
 
 class DisassemblyTest(SkoolKitTestCase):
+    def _test_disassembly(self, snapshot, ctl, exp_instructions, **kwargs):
+        ctl_parser = CtlParser()
+        ctl_parser.parse_ctl(self.write_text_file(ctl))
+        disassembly = Disassembly(snapshot, ctl_parser, True, **kwargs)
+        entries = disassembly.entries
+        self.assertEqual(len(entries), 2)
+        entry = entries[0]
+        self.assertEqual(entry.address, 0)
+        instructions = entry.instructions
+        actual_instructions = [(i.address, i.operation) for i in instructions]
+        self.assertEqual(actual_instructions, exp_instructions)
+
     def test_disassembly(self):
         ctl_parser = CtlParser()
         ctl_parser.parse_ctl(self.write_text_file(DISASSEMBLY_CTL))
@@ -412,17 +424,6 @@ class DisassemblyTest(SkoolKitTestCase):
             'T 00070,5,B2:h3',
             'i 00075'
         ))
-        ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(self.write_text_file(ctl))
-        disassembly = Disassembly(snapshot, ctl_parser, True)
-
-        entries = disassembly.entries
-        self.assertEqual(len(entries), 2)
-
-        entry = entries[0]
-        self.assertEqual(entry.address, 0)
-        instructions = entry.instructions
-        actual_instructions = [(i.address, i.operation) for i in instructions]
         exp_instructions = [
             ( 0, 'DEFB %00101010,%00101010,%00101010,%00101010,%00101010'),
             ( 5, 'DEFB %00101010,%00101010,%00101010,%00101010,%00101010,%00101010,%00101010,%00101010'),
@@ -446,7 +447,7 @@ class DisassemblyTest(SkoolKitTestCase):
             (69, 'DEFM 42'),
             (70, 'DEFM 42,42,$2A,$2A,$2A')
         ]
-        self.assertEqual(actual_instructions, exp_instructions)
+        self._test_disassembly(snapshot, ctl, exp_instructions)
 
     def test_byte_formats_hex(self):
         snapshot = [85] * 4
@@ -455,19 +456,8 @@ class DisassemblyTest(SkoolKitTestCase):
             '  00000,4,b1:d1:h1:1',
             'i 00004'
         ))
-        ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(self.write_text_file(ctl))
-        disassembly = Disassembly(snapshot, ctl_parser, True, asm_hex=True)
-
-        entries = disassembly.entries
-        self.assertEqual(len(entries), 2)
-
-        entry = entries[0]
-        self.assertEqual(entry.address, 0)
-        instructions = entry.instructions
-        self.assertEqual(len(instructions), 1)
-        defb = instructions[0]
-        self.assertEqual(defb.operation, 'DEFB %01010101,85,$55,$55')
+        exp_instructions = [(0, 'DEFB %01010101,85,$55,$55')]
+        self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
     def test_word_formats(self):
         snapshot = [170, 53] * 32
@@ -485,17 +475,6 @@ class DisassemblyTest(SkoolKitTestCase):
             '  00056,8,4',
             'i 00064'
         ))
-        ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(self.write_text_file(ctl))
-        disassembly = Disassembly(snapshot, ctl_parser, True)
-
-        entries = disassembly.entries
-        self.assertEqual(len(entries), 2)
-
-        entry = entries[0]
-        self.assertEqual(entry.address, 0)
-        instructions = entry.instructions
-        actual_instructions = [(i.address, i.operation) for i in instructions]
         exp_instructions = [
             ( 0, 'DEFW 13738'),
             ( 2, 'DEFW 13738'),
@@ -517,7 +496,7 @@ class DisassemblyTest(SkoolKitTestCase):
             (56, 'DEFW 13738,13738'),
             (60, 'DEFW 13738,13738')
         ]
-        self.assertEqual(actual_instructions, exp_instructions)
+        self._test_disassembly(snapshot, ctl, exp_instructions)
 
     def test_word_formats_hex(self):
         snapshot = [240] * 8
@@ -526,24 +505,13 @@ class DisassemblyTest(SkoolKitTestCase):
             '  00000,8,b2,d2,h2,2',
             'i 00008'
         ))
-        ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(self.write_text_file(ctl))
-        disassembly = Disassembly(snapshot, ctl_parser, True, asm_hex=True)
-
-        entries = disassembly.entries
-        self.assertEqual(len(entries), 2)
-
-        entry = entries[0]
-        self.assertEqual(entry.address, 0)
-        instructions = entry.instructions
-        actual_instructions = [(i.address, i.operation) for i in instructions]
         exp_instructions = [
             (0, 'DEFW %1111000011110000'),
             (2, 'DEFW 61680'),
             (4, 'DEFW $F0F0'),
             (6, 'DEFW $F0F0')
         ]
-        self.assertEqual(exp_instructions, actual_instructions)
+        self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
     def test_s_directives(self):
         snapshot = []
@@ -561,17 +529,6 @@ class DisassemblyTest(SkoolKitTestCase):
             '  00968,56,16:b%10101010,40:h17',
             'i 01024'
         ))
-        ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(self.write_text_file(ctl))
-        disassembly = Disassembly(snapshot, ctl_parser, True)
-
-        entries = disassembly.entries
-        self.assertEqual(len(entries), 2)
-
-        entry = entries[0]
-        self.assertEqual(entry.address, 0)
-        instructions = entry.instructions
-        actual_instructions = [(i.address, i.operation) for i in instructions]
         exp_instructions = [
             (  0, 'DEFS 4'),
             (  4, 'DEFS %00000100'),
@@ -598,7 +555,7 @@ class DisassemblyTest(SkoolKitTestCase):
             (968, 'DEFS 16,%10101010'),
             (984, 'DEFS 40,$11')
         ]
-        self.assertEqual(exp_instructions, actual_instructions)
+        self._test_disassembly(snapshot, ctl, exp_instructions)
 
     def test_s_directives_hex(self):
         snapshot = []
@@ -607,23 +564,12 @@ class DisassemblyTest(SkoolKitTestCase):
             '  00000,14,d2:b1,h2:128,h10:2',
             'i 00014'
         ))
-        ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(self.write_text_file(ctl))
-        disassembly = Disassembly(snapshot, ctl_parser, True, asm_hex=True)
-
-        entries = disassembly.entries
-        self.assertEqual(len(entries), 2)
-
-        entry = entries[0]
-        self.assertEqual(entry.address, 0)
-        instructions = entry.instructions
-        actual_instructions = [(i.address, i.operation) for i in instructions]
         exp_instructions = [
             (0, 'DEFS 2,%00000001'),
             (2, 'DEFS 2,$80'),
             (4, 'DEFS $0A,2')
         ]
-        self.assertEqual(exp_instructions, actual_instructions)
+        self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
     def test_byte_arg_bases(self):
         snapshot = [
@@ -661,17 +607,6 @@ class DisassemblyTest(SkoolKitTestCase):
             '  00044,n4',
             'i 00048'
         ))
-        ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(self.write_text_file(ctl))
-        disassembly = Disassembly(snapshot, ctl_parser, True, asm_hex=True)
-
-        entries = disassembly.entries
-        self.assertEqual(len(entries), 2)
-
-        entry = entries[0]
-        self.assertEqual(entry.address, 0)
-        instructions = entry.instructions
-        actual_instructions = [(i.address, i.operation) for i in instructions]
         exp_instructions = [
             (0, 'LD A,%00000101'),
             (2, 'LD B,%00000110'),
@@ -696,7 +631,109 @@ class DisassemblyTest(SkoolKitTestCase):
             (44, 'SUB $26'),
             (46, 'XOR $27')
         ]
-        self.assertEqual(exp_instructions, actual_instructions)
+        self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
+
+    def test_index_bases(self):
+        snapshot = [
+            221, 126, 15,       # 00000 LD A,(IX+15)
+            253, 112, 233,      # 00003 LD (IY-23),B
+            221, 142, 243,      # 00006 ADC A,(IX-13)
+            253, 134, 120,      # 00009 ADD A,(IY+120)
+            221, 158, 47,       # 00012 SBC A,(IX+47)
+            253, 166, 251,      # 00015 AND (IY-5)
+            221, 190, 237,      # 00018 CP (IX-19)
+            253, 182, 102,      # 00021 OR (IY+102)
+            221, 150, 99,       # 00024 SUB (IX+99)
+            253, 174, 193,      # 00027 XOR (IY-63)
+            221, 53, 228,       # 00030 DEC (IX-28)
+            253, 52, 7,         # 00033 INC (IY+7)
+            221, 203, 77, 22,   # 00036 RL (IX+77)
+            253, 203, 164, 6,   # 00040 RLC (IY-92)
+            221, 203, 238, 30,  # 00044 RR (IX-18)
+            253, 203, 55, 14,   # 00048 RRC (IY+55)
+            221, 203, 26, 38,   # 00052 SLA (IX+26)
+            253, 203, 158, 54,  # 00056 SLL (IY-98)
+            221, 203, 253, 46,  # 00060 SRA (IX-3)
+            253, 203, 19, 62,   # 00064 SRL (IY+19)
+            221, 203, 33, 70,   # 00068 BIT 0,(IX+33)
+            253, 203, 175, 142, # 00072 RES 1,(IY-81)
+            221, 203, 192, 214, # 00076 SET 2,(IX-64)
+        ]
+        ctl = '\n'.join((
+            'c 00000',
+            '  00000,h',
+            '  00009,b',
+            '  00018,d',
+            '  00027,h6',
+            '  00033,b7',
+            '  00040,d12',
+            '  00052,bn',
+            '  00060,nb',
+            '  00068,dn8',
+            '  00076,nb4',
+            'i 00080',
+        ))
+        exp_instructions = [
+            (0, 'LD A,(IX+$0F)'),
+            (3, 'LD (IY-$17),B'),
+            (6, 'ADC A,(IX-$0D)'),
+            (9, 'ADD A,(IY+%01111000)'),
+            (12, 'SBC A,(IX+%00101111)'),
+            (15, 'AND (IY-%00000101)'),
+            (18, 'CP (IX-19)'),
+            (21, 'OR (IY+102)'),
+            (24, 'SUB (IX+99)'),
+            (27, 'XOR (IY-$3F)'),
+            (30, 'DEC (IX-$1C)'),
+            (33, 'INC (IY+%00000111)'),
+            (36, 'RL (IX+%01001101)'),
+            (40, 'RLC (IY-92)'),
+            (44, 'RR (IX-18)'),
+            (48, 'RRC (IY+55)'),
+            (52, 'SLA (IX+%00011010)'),
+            (56, 'SLL (IY-%01100010)'),
+            (60, 'SRA (IX-$03)'),
+            (64, 'SRL (IY+$13)'),
+            (68, 'BIT 0,(IX+33)'),
+            (72, 'RES 1,(IY-81)'),
+            (76, 'SET 2,(IX-$40)'),
+        ]
+        self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
+
+    def test_index_arg_bases(self):
+        snapshot = [
+            221, 54, 45, 87,   # 00000 LD (IX+45),87
+            253, 54, 54, 78,   # 00004 LD (IY+54),78
+            221, 54, 254, 234, # 00008 LD (IX-2),234
+            253, 54, 149, 19,  # 00012 LD (IY-107),19
+            221, 54, 13, 255,  # 00016 LD (IX+13),255
+            253, 54, 36, 109,  # 00020 LD (IY+36),109
+            221, 54, 194, 111, # 00024 LD (IX-62),111
+            253, 54, 183, 199, # 00028 LD (IY-73),199
+        ]
+        ctl = '\n'.join((
+            'c 00000',
+            '  00000,d',
+            '  00004,db',
+            '  00008,b4',
+            '  00012,bd4',
+            '  00016,n',
+            '  00020,dn',
+            '  00024,nd',
+            '  00028,nn',
+            'i 00032',
+        ))
+        exp_instructions = [
+            (0, 'LD (IX+45),87'),
+            (4, 'LD (IY+54),%01001110'),
+            (8, 'LD (IX-%00000010),%11101010'),
+            (12, 'LD (IY-%01101011),19'),
+            (16, 'LD (IX+$0D),$FF'),
+            (20, 'LD (IY+36),$6D'),
+            (24, 'LD (IX-$3E),111'),
+            (28, 'LD (IY-$49),$C7'),
+        ]
+        self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
 class MockOptions:
     def __init__(self, line_width, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower):

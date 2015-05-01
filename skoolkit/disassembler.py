@@ -276,16 +276,20 @@ class Disassembler:
         return self.defb(a, 4)
 
     def index(self, template, a, base):
-        return template.format(self.index_offset(a)), 2
+        return template.format(self.index_offset(a, base)), 2
 
     def index_arg(self, template, a, base):
-        return template.format(self.index_offset(a), self.num_str(self.snapshot[a + 2], 1)), 3
+        if base:
+            arg_base = base[-1]
+        else:
+            arg_base = None
+        return template.format(self.index_offset(a, base), self.num_str(self.snapshot[a + 2], 1, arg_base)), 3
 
-    def index_offset(self, a):
+    def index_offset(self, a, base):
         i = self.snapshot[a + 1]
         if i < 128:
-            return '+{0}'.format(self.num_str(i, 1))
-        return '-{0}'.format(self.num_str(abs(i - 256), 1))
+            return '+{}'.format(self.num_str(i, 1, base))
+        return '-{}'.format(self.num_str(abs(i - 256), 1, base))
 
     def cb_arg(self, a, base):
         return self.after_CB[self.snapshot[a + 1]], 2
