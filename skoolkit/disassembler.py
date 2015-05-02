@@ -226,7 +226,7 @@ class Disassembler:
         else:
             address = a + offset - 254
         if 0 <= address < 65536:
-            return template.format(self.num_str(address, 2)), 2
+            return template.format(self.num_str(address, 2, base)), 2
         return self.defb(a, 2)
 
     def rst_arg(self, rst_address, a, base):

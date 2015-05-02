@@ -836,6 +836,47 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
+    def test_jr_arg_bases(self):
+        snapshot = [
+            16, 254, # 00000 DJNZ 0
+            24, 0,   # 00002 JR 4
+            32, 252, # 00004 JR NZ,2
+            32, 2,   # 00006 JR NZ,10
+            40, 2,   # 00008 JR Z,12
+            48, 250, # 00010 JR NC,6
+            56, 250, # 00012 JR C,8
+            16, 252, # 00014 DJNZ 12
+            24, 252, # 00016 JR 14
+            32, 254, # 00018 JR NZ,18
+        ]
+        ctl = '\n'.join((
+            'c 00000',
+            '  00000,d',
+            '  00002,b',
+            '  00004,h',
+            '  00006,n',
+            '  00008,d2',
+            '  00010,b2',
+            '  00012,h2',
+            '  00014,n2',
+            '  00016,dn2',
+            '  00018,nd2',
+            'i 00020',
+        ))
+        exp_instructions = [
+            (0, 'DJNZ 0'),
+            (2, 'JR %0000000000000100'),
+            (4, 'JR NZ,$0002'),
+            (6, 'JR NZ,$000A'),
+            (8, 'JR Z,12'),
+            (10, 'JR NC,%0000000000000110'),
+            (12, 'JR C,$0008'),
+            (14, 'DJNZ $000C'),
+            (16, 'JR 14'),
+            (18, 'JR NZ,$0012'),
+        ]
+        self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
+
 class MockOptions:
     def __init__(self, line_width, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower):
         self.line_width = line_width
