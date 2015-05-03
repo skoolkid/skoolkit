@@ -230,7 +230,7 @@ class Disassembler:
         return self.defb(a, 2)
 
     def rst_arg(self, rst_address, a, base):
-        return 'RST {0}'.format(self.num_str(rst_address, 1)), 1
+        return 'RST {}'.format(self.num_str(rst_address, 1, base)), 1
 
     def format_byte(self, value, base=None):
         if base not in self.byte_formats:

@@ -877,6 +877,47 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
+    def test_rst_arg_bases(self):
+        snapshot = [
+            199, # 00000 RST 0
+            207, # 00001 RST 8
+            215, # 00002 RST 16
+            223, # 00003 RST 24
+            231, # 00004 RST 32
+            239, # 00005 RST 40
+            247, # 00006 RST 48
+            255, # 00007 RST 56
+            199, # 00008 RST 0
+            207, # 00009 RST 8
+        ]
+        ctl = '\n'.join((
+            'c 00000',
+            '  00000,b',
+            '  00001,n',
+            '  00002,h',
+            '  00003,d',
+            '  00004,b1',
+            '  00005,n1',
+            '  00006,h1',
+            '  00007,d1',
+            '  00008,dn1',
+            '  00009,nd1',
+            'i 00010',
+        ))
+        exp_instructions = [
+            (0, 'RST %00000000'),
+            (1, 'RST $08'),
+            (2, 'RST $10'),
+            (3, 'RST 24'),
+            (4, 'RST %00100000'),
+            (5, 'RST $28'),
+            (6, 'RST $30'),
+            (7, 'RST 56'),
+            (8, 'RST 0'),
+            (9, 'RST $08'),
+        ]
+        self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
+
 class MockOptions:
     def __init__(self, line_width, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower):
         self.line_width = line_width
