@@ -19,7 +19,7 @@
 from . import write_line, get_int_param, get_address_format, open_file
 from .skoolparser import (DIRECTIVES, Comment, Register,
                           parse_comment_block, parse_instruction, parse_address_comments, join_comments,
-                          parse_asm_block_directive, get_instruction_ctl,
+                          parse_asm_block_directive, get_instruction_ctl, get_operand_bases,
                           get_defb_length, get_defm_length, get_defs_length, get_defw_length)
 
 BLOCKS = 'b'
@@ -176,23 +176,24 @@ class CtlWriter:
                 for j, (ctl, instructions) in enumerate(sub_blocks):
                     for instruction in instructions:
                         self._write_instruction_asm_directives(instruction)
+                    first_instruction = instructions[0]
                     if ctl != 'M' or COMMENTS in self.elements:
                         length = None
                         if ctl == 'M':
-                            offset = instructions[0].comment.rowspan + 1
+                            offset = first_instruction.comment.rowspan + 1
                         else:
                             offset = 1
                         if j + offset < len(sub_blocks):
-                            length = int(sub_blocks[j + offset][1][0].address) - int(instructions[0].address)
+                            length = int(sub_blocks[j + offset][1][0].address) - int(first_instruction.address)
                         elif k + 1 < len(sections):
-                            length = int(sections[k + 1][1][0].address) - int(instructions[0].address)
+                            length = int(sections[k + 1][1][0].address) - int(first_instruction.address)
                         comment_text = ''
-                        comment = instructions[0].comment
+                        comment = first_instruction.comment
                         if comment and COMMENTS in self.elements:
                             comment_text = comment.text
                             if comment.rowspan > 1 and not comment_text.replace('.', ''):
                                 comment_text = '.' + comment_text
-                        if comment_text or ctl != entry_ctl or ctl != 'c':
+                        if comment_text or ctl != entry_ctl or ctl != 'c' or first_instruction.bases:
                             self.write_sub_block(ctl, entry_ctl, comment_text, instructions, length)
 
     def addr_str(self, address):
@@ -204,36 +205,43 @@ class CtlWriter:
         sub_blocks = []
         i = 0
         prev_ctl = ''
+        prev_bases = ''
         while i < len(instructions):
             instruction = instructions[i]
             comment = instruction.comment
             ctl = instruction.inst_ctl
+            bases = instruction.bases
             if comment and (comment.rowspan > 1 or comment.text):
                 inst_ctls = set()
+                inst_bases = set()
                 for inst in instructions[i:i + comment.rowspan]:
                     inst_ctls.add(inst.inst_ctl)
-                if len(inst_ctls) > 1:
+                    inst_bases.add(inst.bases)
+                if len(inst_ctls) > 1 or len(inst_bases) > 1:
                     # We've found a set of two or more instructions of various
-                    # types with a single comment, so add a commented 'M'
-                    # sub-block and commentless sub-blocks for the instructions
+                    # types or bases with a single comment, so add a commented
+                    # 'M' sub-block and commentless sub-blocks for the
+                    # instructions
                     sub_blocks.append(('M', [FakeInstruction(instruction.address, instruction.comment)]))
                     instruction.comment = None
                     sub_blocks += self.get_sub_blocks(instructions[i:i + comment.rowspan])
                 else:
                     # We've found a set of one or more instructions of the same
-                    # type with a comment, so add a new sub-block
+                    # type and base with a comment, so add a new sub-block
                     sub_blocks.append((ctl, instructions[i:i + comment.rowspan]))
                 prev_ctl = ''
-            elif ctl == prev_ctl:
-                # This instruction is commentless and is of the same type as
-                # the previous instruction (which was also commentless), so add
-                # it to the current sub-block
+                prev_bases = ''
+            elif ctl == prev_ctl and bases == prev_bases:
+                # This instruction is commentless and is of the same type and
+                # base as the previous instruction (which is also commentless),
+                # so add it to the current sub-block
                 sub_blocks[-1][1].append(instruction)
             else:
-                # This instruction is commentless but of a different type from
-                # the previous instruction, so start a new sub-block
+                # This instruction is commentless but of a different type or
+                # base from the previous instruction, so start a new sub-block
                 sub_blocks.append((ctl, [instruction]))
                 prev_ctl = ctl
+                prev_bases = bases
             if comment:
                 i += comment.rowspan
             else:
@@ -245,7 +253,9 @@ class CtlWriter:
             sub_block_ctl = ' '
         else:
             sub_block_ctl = ctl.upper()
-        address = self.addr_str(instructions[0].address)
+        first_instruction = instructions[0]
+        address = self.addr_str(first_instruction.address)
+        bases = first_instruction.bases
         lengths = ''
 
         if ctl in 'bstw':
@@ -261,9 +271,11 @@ class CtlWriter:
             lengths = ',' + get_lengths(stmt_lengths)
 
         if length:
-            write_line('{0} {1},{2}{3} {4}'.format(sub_block_ctl, address, length, lengths, comment).rstrip())
+            write_line('{} {},{}{}{} {}'.format(sub_block_ctl, address, bases, length, lengths, comment).rstrip())
         else:
-            write_line('{0} {1} {2}'.format(sub_block_ctl, address, comment).rstrip())
+            if bases:
+                bases = ',' + bases
+            write_line('{} {}{} {}'.format(sub_block_ctl, address, bases, comment).rstrip())
 
 class SkoolParser:
     def __init__(self, skoolfile, preserve_base):
@@ -424,6 +436,7 @@ class FakeInstruction:
         self.comment = comment
         self.asm_directives = ()
         self.ignoreua = False
+        self.bases = ''
 
 class Instruction:
     def __init__(self, ctl, addr_str, operation, preserve_base):
@@ -436,6 +449,7 @@ class Instruction:
         self.ignoreua = False
         self.ignoremrcua = False
         self.inst_ctl = get_instruction_ctl(operation).lower()
+        self.bases = ''
         self.size = None
         self.length = None
         if self.inst_ctl == 'b':
@@ -446,6 +460,8 @@ class Instruction:
             self.size, self.length = get_defw_length(operation[5:], preserve_base)
         elif self.inst_ctl == 's':
             self.size, self.length = get_defs_length(operation[5:], preserve_base)
+        else:
+            self.bases = get_operand_bases(operation, preserve_base)
 
     def set_comment(self, rowspan, text):
         self.comment = Comment(rowspan, text)

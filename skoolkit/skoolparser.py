@@ -87,12 +87,37 @@ def get_instruction_ctl(op):
         return 'S'
     return 'C'
 
-def _get_base(item, preserve_base):
+def _get_base(item, preserve_base=True):
     if item.startswith('%'):
         return 'b'
     if item.startswith('$') and preserve_base:
         return 'h'
     return 'd'
+
+def get_operand_bases(operation, preserve_base):
+    if preserve_base:
+        base_fmt = {'b': 'b', 'd': 'd', 'h': 'h'}
+    else:
+        base_fmt = {'b': 'b', 'd': 'n', 'h': 'n'}
+    elements = operation.upper().split(None, 1)
+    if len(elements) < 2:
+        return ''
+    operands = [e.replace(' ', '').replace('\t', '') for e in elements[1].split(',', 1)]
+    if elements[0] in ('BIT', 'RES', 'SET'):
+        operands = operands[1:]
+    bases = ''
+    for operand in operands:
+        if operand.startswith(('(IX+', '(IX-', '(IY+', '(IY-')):
+            num = operand[4:]
+        elif operand.startswith('('):
+            num = operand[1:]
+        else:
+            num = operand
+        if num.startswith(('%', '$', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')):
+            bases += base_fmt[_get_base(num)]
+    if bases in ('n', 'nn'):
+        return ''
+    return bases
 
 def get_defb_length(item_str, preserve_base, defb=True):
     if defb:
