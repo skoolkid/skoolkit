@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -35,7 +35,7 @@ def main(args):
     parser.add_argument('skoolfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('-b', '--preserve-base', action='store_true', dest='preserve_base',
-                       help="Preserve the base of decimal and hexadecimal values in DEFB, DEFM, DEFS and DEFW statements")
+                       help="Preserve the base of decimal and hexadecimal values in instruction operands and DEFB/DEFM/DEFS/DEFW statements")
     group.add_argument('-h', '--hex', action='store_true', dest='write_hex',
                        help='Write addresses in hexadecimal format')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
