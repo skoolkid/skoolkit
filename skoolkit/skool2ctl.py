@@ -39,7 +39,7 @@ def main(args):
                        help='Do not write ASM directives')
     group.add_argument('-b', '--preserve-base', action='store_true', dest='preserve_base',
                        help="Preserve the base of decimal and hexadecimal values in\n"
-                            "DEFB, DEFM, DEFS and DEFW statements")
+                            "instruction operands and DEFB/DEFM/DEFS/DEFW statements")
     group.add_argument('-h', '--hex', action='store_true', dest='write_hex',
                        help='Write addresses in hexadecimal format')
     group.add_argument('-V', '--version', action='version',

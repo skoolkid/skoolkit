@@ -138,7 +138,7 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
   Options:
     -a, --no-asm-dirs    Do not write ASM directives
     -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
-                         DEFB, DEFM, DEFS and DEFW statements
+                         instruction operands and DEFB/DEFM/DEFS/DEFW statements
     -h, --hex            Write addresses in hexadecimal format
     -V, --version        Show SkoolKit version number and exit
     -w X, --write X      Write only these elements, where X is one or more of:
