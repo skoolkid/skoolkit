@@ -17,25 +17,24 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from . import write_line, get_int_param, get_address_format, open_file
-from .skoolparser import (DIRECTIVES, parse_asm_block_directive, get_instruction_ctl,
+from .skoolparser import (DIRECTIVES, parse_asm_block_directive, get_instruction_ctl, get_operand_bases,
                           get_defb_length, get_defm_length, get_defs_length, get_defw_length)
 from .skoolctl import get_lengths
 
 VALID_CTLS = DIRECTIVES + ' *'
 VERBATIM_BLOCKS = ('d', 'i', 'r')
 
-class Line:
-    def is_ctl_line(self):
-        return False
-
-class VerbatimLine(Line):
+class VerbatimLine:
     def __init__(self, text):
         self.text = text.rstrip('\r\n')
 
     def __str__(self):
         return self.text
 
-class ControlLine(Line):
+    def is_ctl_line(self):
+        return False
+
+class ControlLine:
     def __init__(self, ctl, address, addr_str, operation, comment_index, comment, preserve_base):
         self.ctl = ctl
         self.address = address
@@ -45,6 +44,10 @@ class ControlLine(Line):
         self.operation = operation
         self.preserve_base = preserve_base
         self.inst_ctl = get_instruction_ctl(operation)
+        if self.inst_ctl == 'C':
+            self.bases = get_operand_bases(operation, preserve_base)
+        else:
+            self.bases = ''
         self.lengths = None
 
     def __str__(self):
@@ -53,7 +56,8 @@ class ControlLine(Line):
             comment_index = ';{0}'.format(self.comment_index)
         else:
             comment_index = ''
-        return "{0}{1}{2},{3}{4}{5}".format(self.ctl, self.inst_ctl, self.addr_str, self._get_lengths(), comment_index, comment)
+        return "{}{}{},{}{}{}{}".format(self.ctl, self.inst_ctl, self.addr_str, self.bases,
+                                        self._get_lengths(), comment_index, comment)
 
     def _get_lengths(self):
         # Find subsequences of identical statement lengths and abbreviate them,
@@ -187,7 +191,8 @@ class SftWriter:
             if line.is_ctl_line() and not line.comment and (line.ctl == ' ' or line.ctl in DIRECTIVES):
                 if prev_line is None:
                     prev_line = line
-                elif prev_line.inst_ctl == line.inst_ctl and prev_line.comment_index == line.comment_index and line.address == prev_line.end():
+                elif (prev_line.inst_ctl == line.inst_ctl and prev_line.bases == line.bases
+                      and prev_line.comment_index == line.comment_index and prev_line.end() == line.address):
                     prev_line.add_length(line)
                 else:
                     compressed.append(prev_line)
