@@ -30,27 +30,28 @@ class CtlParserError(Exception):
 def parse_params(ctl, params, lengths_index=1):
     int_params = []
     prefix = None
-    for i, num in enumerate(params):
+    for i, param in enumerate(params):
         if i < lengths_index:
-            length, prefix = _parse_length(num, required=False)
+            length, prefix = _parse_length(param, required=False)
             int_params.append(length)
         else:
-            if '*' in num:
-                n, m = num.split('*', 1)
+            if '*' in param:
+                n, m = param.split('*', 1)
             else:
-                n, m = num, '1'
-            if ctl in 'BSTW':
-                int_params += (_parse_sublengths(n, ctl, prefix),) * get_int_param(m)
-            else:
-                int_params += ((get_int_param(n), None),) * get_int_param(m)
+                n, m = param, '1'
+            int_params += (_parse_sublengths(n, ctl, prefix),) * get_int_param(m)
     if prefix and len(int_params) == lengths_index:
         int_params.append((None, ((None, prefix),)))
     return tuple(int_params)
 
-def _parse_sublengths(sublengths, subctl, default_prefix):
+def _parse_sublengths(spec, subctl, default_prefix):
     length = 0
     lengths = []
-    for num in sublengths.split(':'):
+    if subctl == 'C':
+        sublengths = [spec]
+    else:
+        sublengths = spec.split(':')
+    for num in sublengths:
         sublength, prefix = _parse_length(num, subctl, default_prefix)
         lengths.append((sublength, prefix))
         length += sublength
