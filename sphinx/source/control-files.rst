@@ -226,9 +226,9 @@ which would give::
   24589 DEFB 10,11,12 ; }
 
 That is, in a ``B`` directive, the desired DEFB statement lengths may be given
-as a comma-separated list of numbers following the sub-block length parameter,
-and the final number in the list is used for all remaining data in the block.
-So, for example::
+as a comma-separated list of "sublengths" following the main length parameter,
+and the final sublength in the list is used for all remaining data in the
+block. So, for example::
 
   B 24580,12,1,2,3 Interesting data
 
@@ -240,8 +240,15 @@ would give::
   24586 DEFB 7,8,9
   24589 DEFB 10,11,12 ; }
 
-If the statement length list contains sequences of two or more identical
-lengths, as in::
+Note that even if sublengths are specified, the main length parameter can be
+omitted (by leaving it blank) if the sub-block is implicitly terminated by the
+next sub-block. For example::
+
+  B 24580,,1,2,3 No need to specify the main length parameter here...
+  B 24592,10 ...because this sub-block implies that it must be 12
+
+If the sublength list contains sequences of two or more identical lengths, as
+in::
 
   B 24580,21,2,2,2,2,2,2,1,1,1,3
 
@@ -268,7 +275,7 @@ DEFB and DEFM statements may contain both bytes and strings; for example::
 
 Such statements can be encoded in a control file thus::
 
-  T 40000,4,3:B1
+  T 40000,,3:B1
   B 40004,3,1:T2
 
 That is, the length of a string in a DEFB statement is prefixed by ``T``, the
@@ -351,22 +358,67 @@ Note that ASM directives in the address range of an ``L`` directive loop are
 
 Number bases
 ------------
-Numeric values in DEFB, DEFM, DEFS and DEFW statements are normally rendered in
-either decimal or hexadecimal, depending on the options passed to
-:ref:`sna2skool.py`. To force a numeric value to be rendered in a specific
-base, attach a ``b`` (binary), ``d`` (decimal) or ``h`` (hexadecimal) prefix to
-the statement length.
+Numeric values in instruction operands and DEFB, DEFM, DEFS and DEFW statements
+are normally rendered in either decimal or hexadecimal, depending on the
+options passed to :ref:`sna2skool.py`. To force a numeric value to be rendered
+in a specific base, attach a ``b`` (binary), ``d`` (decimal) or ``h``
+(hexadecimal) prefix to the relevant length or sublength parameter on the
+``B``, ``C``, ``S``, ``T`` or ``W`` directive.
 
 For example::
 
+  C 30000,b
+  C 30002,h2
+
+will result in something like this::
+
+  30000 LD A,%10001111
+  30002 LD B,$8F
+
+and::
+
   B 40000,8,b1:d2:h1,d1,b1,h2
 
-will result in something like this in the corresponding skool file::
+will result in something like this::
 
   40000 DEFB %10101010,23,43,$5F
   40004 DEFB 56
   40005 DEFB %11110000
   40006 DEFB $2B,$80
+
+Note that attaching a prefix to the main length parameter sets the default base
+for any sublength parameters that follow. So::
+
+  B 40000,b,1:d2,1
+  B 40004,h4,1:b1:d1,1
+
+will result in something like this::
+
+  40000 DEFB %01010101,32,57
+  40003 DEFB %00001111
+  40004 DEFB $0F,%11110000,93
+  40007 DEFB $A0
+
+Some instructions have two numeric operands. To specify a different base for
+each one, use two prefixes::
+
+  C 30000,hb4
+
+which will result in something like this::
+
+  30000 LD (IX+$0A),%10000001
+
+To use the default base for one operand, and a specific base for the other, use
+the ``n`` (none) prefix to denote the default base. So if the default base is
+decimal, then::
+
+  C 30000,nb
+  C 30004,hn4
+
+will result in something like this::
+
+  30000 LD (IX+10),%10000001
+  30004 LD (IX+$0B),130
 
 ASM directives
 --------------
@@ -486,6 +538,9 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 4.4     | Added support for specifying the base of numeric values in        |
+|         | instruction operands                                              |
++---------+-------------------------------------------------------------------+
 | 4.3     | Added the ``@`` directive, the ``N`` directive and support for    |
 |         | block start comments                                              |
 +---------+-------------------------------------------------------------------+

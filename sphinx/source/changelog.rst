@@ -3,6 +3,8 @@ Changelog
 
 4.4b1
 -----
+* Added support to control files and skool file templates for specifying the
+  base of numeric values in instruction operands
 
 4.3 (2015-02-14)
 ----------------
