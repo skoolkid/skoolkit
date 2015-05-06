@@ -369,6 +369,16 @@ c60000 LD A,5                    ; Decimal
  60256 OUT (254),A
 """
 
+TEST_CHARACTER_OPERANDS_SKOOL = """; Instruction operands as characters
+c61000 LD A,"@"
+ 61002 ADD A,"#"
+ 61004 SUB "B"
+ 61006 AND 7
+ 61008 CP "~"
+ 61010 LD HL,"."
+ 61013 LD (IX+$02),"="
+"""
+
 class SftWriterTest(SkoolKitTestCase):
     def _test_sft(self, skool, exp_sft, write_hex=False, preserve_base=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')
@@ -599,6 +609,26 @@ class SftWriterTest(SkoolKitTestCase):
             ' C60256,d1',
         ]
         self._test_sft(TEST_OPERAND_BASES_SKOOL, exp_sft, preserve_base=True)
+
+    def test_character_operands_no_base(self):
+        exp_sft = [
+            '; Instruction operands as characters',
+            'cC61000,c6',
+            ' C61006,2',
+            ' C61008,c5',
+            ' C61013,nc1',
+        ]
+        self._test_sft(TEST_CHARACTER_OPERANDS_SKOOL, exp_sft, preserve_base=False)
+
+    def test_character_operands_preserve_base(self):
+        exp_sft = [
+            '; Instruction operands as characters',
+            'cC61000,c6',
+            ' C61006,d2',
+            ' C61008,c5',
+            ' C61013,hc1',
+        ]
+        self._test_sft(TEST_CHARACTER_OPERANDS_SKOOL, exp_sft, preserve_base=True)
 
 if __name__ == '__main__':
     unittest.main()

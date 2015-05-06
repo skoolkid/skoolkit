@@ -115,6 +115,8 @@ def get_operand_bases(operation, preserve_base):
             num = operand
         if num.startswith(('%', '$', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')):
             bases += base_fmt[_get_base(num)]
+        elif num.startswith('"'):
+            bases += 'c'
     if bases in ('n', 'nn'):
         return ''
     return bases

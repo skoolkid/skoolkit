@@ -598,12 +598,26 @@ c60000 LD A,5                    ; Decimal
  60256 OUT (254),A
 """
 
+TEST_CHARACTER_OPERANDS_SKOOL = """; Instruction operands as characters
+c61000 LD A,"@"
+ 61002 ADD A,"#"
+ 61004 SUB "B"
+ 61006 AND 7
+ 61008 CP "~"
+ 61010 LD HL,"."
+ 61013 LD (IX+$02),"="
+"""
+
 class CtlWriterTest(SkoolKitTestCase):
     def _get_ctl(self, elements='btdrmsc', write_hex=False, write_asm_dirs=True, skool=TEST_SKOOL, preserve_base=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')
         writer = CtlWriter(skoolfile, elements, write_hex, write_asm_dirs, preserve_base)
         writer.write()
         return self.out.getvalue().split('\n')[:-1]
+
+    def _test_ctl(self, skool, exp_ctl, preserve_base=False):
+        ctl = self._get_ctl(skool=skool, preserve_base=preserve_base)
+        self.assertEqual(exp_ctl, ctl)
 
     def test_default_elements(self):
         self.assertEqual(TEST_CTL, self._get_ctl())
@@ -665,57 +679,50 @@ class CtlWriterTest(SkoolKitTestCase):
         self.assertEqual(test_ctl, ctl)
 
     def test_byte_formats_no_base(self):
-        ctl = self._get_ctl(skool=TEST_BYTE_FORMATS_SKOOL, preserve_base=False)
         exp_ctl = [
             'b 30000 Binary and mixed-base DEFB/DEFM statements',
             '  30000,30,b1:2,2:b2:3,b2,3,5,T5,b1:T2:2',
             'T 30030,30,b1:B2,B2:b2:B3,b2,B3,B5,5,b1:2:B2'
         ]
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(TEST_BYTE_FORMATS_SKOOL, exp_ctl, preserve_base=False)
 
     def test_byte_formats_preserve_base(self):
-        ctl = self._get_ctl(skool=TEST_BYTE_FORMATS_SKOOL, preserve_base=True)
         exp_ctl = [
             'b 30000 Binary and mixed-base DEFB/DEFM statements',
             '  30000,30,b1:h1:d1,h2:b2:d3,b2,d3,h5,T5,b1:T2:d1:h1',
             'T 30030,30,b1:h1:d1,h2:b2:d3,b2,d3,h5,5,b1:2:d1:h1'
         ]
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(TEST_BYTE_FORMATS_SKOOL, exp_ctl, preserve_base=True)
 
     def test_word_formats_no_base(self):
-        ctl = self._get_ctl(skool=TEST_WORD_FORMATS_SKOOL, preserve_base=False)
         exp_ctl = [
             'w 40000 Binary and mixed-base DEFW statements',
             '  40000,68,b4,6,8,2:b2:2,4:b2:4*2,4*4,b4'
         ]
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(TEST_WORD_FORMATS_SKOOL, exp_ctl, preserve_base=False)
 
     def test_word_formats_preserve_base(self):
-        ctl = self._get_ctl(skool=TEST_WORD_FORMATS_SKOOL, preserve_base=True)
         exp_ctl = [
             'w 40000 Binary and mixed-base DEFW statements',
             '  40000,68,b4,d6,h8,d2:b2:h2,h4:b2:d4*2,d4*2,h4*2,b4'
         ]
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(TEST_WORD_FORMATS_SKOOL, exp_ctl, preserve_base=True)
 
     def test_s_directives_no_base(self):
-        ctl = self._get_ctl(skool=TEST_S_DIRECTIVES_SKOOL, preserve_base=False)
         exp_ctl = [
             's 50000 DEFS statements in various bases',
             '  50000,4256,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170'
         ]
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(TEST_S_DIRECTIVES_SKOOL, exp_ctl, preserve_base=False)
 
     def test_s_directives_preserve_base(self):
-        ctl = self._get_ctl(skool=TEST_S_DIRECTIVES_SKOOL, preserve_base=True)
         exp_ctl = [
             's 50000 DEFS statements in various bases',
             '  50000,4256,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170'
         ]
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(TEST_S_DIRECTIVES_SKOOL, exp_ctl, preserve_base=True)
 
     def test_operand_bases_no_base(self):
-        ctl = self._get_ctl(skool=TEST_OPERAND_BASES_SKOOL, preserve_base=False)
         exp_ctl = [
             'c 60000 Operations in various bases',
             '  60000,2 Decimal',
@@ -754,10 +761,9 @@ class CtlWriterTest(SkoolKitTestCase):
             '  60218,6 No operands',
             '  60228,b4',
         ]
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=False)
 
     def test_operand_bases_preserve_base(self):
-        ctl = self._get_ctl(skool=TEST_OPERAND_BASES_SKOOL, preserve_base=True)
         exp_ctl = [
             'c 60000 Operations in various bases',
             '  60000,d2 Decimal',
@@ -843,7 +849,26 @@ class CtlWriterTest(SkoolKitTestCase):
             '  60252,h4',
             '  60256,d',
         ]
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=True)
+
+    def test_character_operands_no_base(self):
+        exp_ctl = [
+            'c 61000 Instruction operands as characters',
+            '  61000,c6',
+            '  61008,c5',
+            '  61013,nc',
+        ]
+        self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=False)
+
+    def test_character_operands_preserve_base(self):
+        exp_ctl = [
+            'c 61000 Instruction operands as characters',
+            '  61000,c6',
+            '  61006,d2',
+            '  61008,c5',
+            '  61013,hc',
+        ]
+        self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=True)
 
     def test_ignoreua_directives(self):
         skool = '\n'.join((
