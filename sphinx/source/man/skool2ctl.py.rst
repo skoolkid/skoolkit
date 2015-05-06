@@ -21,8 +21,8 @@ OPTIONS
 
 -b, --preserve-base
   Preserve the base of decimal and hexadecimal values in instruction operands
-  and DEFB, DEFM, DEFS and DEFW statements. (By default, only binary values are
-  preserved.)
+  and DEFB, DEFM, DEFS and DEFW statements. (By default, only binary values and
+  character values are preserved.)
 
 -h, --hex
   Write addresses in hexadecimal format.
