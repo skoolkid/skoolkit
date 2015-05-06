@@ -22,7 +22,7 @@ from .skoolctl import TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END
 
 COMMENT_TYPES = (TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 
-BASES = ('b', 'd', 'h', 'n')
+BASES = ('b', 'c', 'd', 'h', 'n')
 
 class CtlParserError(Exception):
     pass

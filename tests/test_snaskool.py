@@ -918,6 +918,44 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
+    def test_character_operands(self):
+        snapshot = [
+            62, 32,         # 00000 LD A,32
+            198, 42,        # 00002 ADD A,42
+            214, 33,        # 00004 SUB 33
+            254, 63,        # 00006 CP 63
+            54, 65,         # 00008 LD (HL),65
+            221, 54, 2, 66, # 00010 LD (IX+2),66
+            33, 67, 0,      # 00014 LD HL,67
+            6, 31,          # 00017 LD B,31
+            14, 94,         # 00019 LD C,94
+            22, 96,         # 00021 LD D,96
+            30, 128,        # 00023 LD E,128
+            1, 0, 1,        # 00025 LD BC,256
+        ]
+        ctl = '\n'.join((
+            'c 00000',
+            '  00000,c',
+            '  00010,nc',
+            '  00014,c',
+            'i 00028',
+        ))
+        exp_instructions = [
+            (0, 'LD A," "'),
+            (2, 'ADD A,"*"'),
+            (4, 'SUB "!"'),
+            (6, 'CP "?"'),
+            (8, 'LD (HL),"A"'),
+            (10, 'LD (IX+2),"B"'),
+            (14, 'LD HL,"C"'),
+            (17, 'LD B,31'),
+            (19, 'LD C,94'),
+            (21, 'LD D,96'),
+            (23, 'LD E,128'),
+            (25, 'LD BC,256'),
+        ]
+        self._test_disassembly(snapshot, ctl, exp_instructions)
+
 class MockOptions:
     def __init__(self, line_width, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower):
         self.line_width = line_width

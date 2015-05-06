@@ -769,5 +769,41 @@ class SftParserTest(SkoolKitTestCase):
         ]
         self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
 
+    def test_character_operands(self):
+        snapshot = [
+            62, 32,         # 00000 LD A,32
+            198, 42,        # 00002 ADD A,42
+            214, 33,        # 00004 SUB 33
+            254, 63,        # 00006 CP 63
+            54, 65,         # 00008 LD (HL),65
+            221, 54, 2, 66, # 00010 LD (IX+2),66
+            33, 67, 0,      # 00014 LD HL,67
+            6, 31,          # 00017 LD B,31
+            14, 94,         # 00019 LD C,94
+            22, 96,         # 00021 LD D,96
+            30, 128,        # 00023 LD E,128
+            1, 0, 1,        # 00025 LD BC,256
+        ]
+        sft = '\n'.join((
+            'cC00000,c10',
+            ' C00010,nc4',
+            ' C00014,c14',
+        ))
+        exp_skool = [
+            'c00000 LD A," "',
+            ' 00002 ADD A,"*"',
+            ' 00004 SUB "!"',
+            ' 00006 CP "?"',
+            ' 00008 LD (HL),"A"',
+            ' 00010 LD (IX+2),"B"',
+            ' 00014 LD HL,"C"',
+            ' 00017 LD B,31',
+            ' 00019 LD C,94',
+            ' 00021 LD D,96',
+            ' 00023 LD E,128',
+            ' 00025 LD BC,256',
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
 if __name__ == '__main__':
     unittest.main()

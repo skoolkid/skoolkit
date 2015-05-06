@@ -78,20 +78,21 @@ class Disassembler:
             'd': '{}'
         }
 
-    def num_str(self, num, num_bytes=0, base=None):
+    def num_str(self, value, num_bytes=0, base=None):
         if base:
             base = base[0]
+        if base == 'c' and 32 <= value < 127 and value not in (94, 96):
+            return '"{}"'.format(chr(value))
         if base not in self.byte_formats:
             if self.asm_hex:
                 base = 'h'
             else:
                 base = 'd'
-        fmt = self.byte_formats[base]
-        if num_bytes == 0 and num < 10 and base == 'h':
-            fmt = '{}'
-        elif num > 255 or num_bytes > 1:
-            fmt = self.word_formats[base]
-        return fmt.format(num)
+        if num_bytes == 0 and value < 10 and base == 'h':
+            return str(value)
+        if value > 255 or num_bytes > 1:
+            return self.word_formats[base].format(value)
+        return self.byte_formats[base].format(value)
 
     def disassemble(self, start, end=65536, base=None):
         instructions = []
@@ -132,22 +133,14 @@ class Disassembler:
             instructions.append(self.defb_line(i - len(data) + 1, data, sublengths))
         return instructions
 
-    def _format_word(self, value, base):
-        if base not in self.word_formats:
-            if self.asm_hex:
-                base = 'h'
-            else:
-                base = 'd'
-        return self.word_formats[base].format(value)
-
     def _defw_items(self, data, sublengths):
         items = []
         if sublengths and sublengths[0][0]:
             i = 0
-            for length, ctl in sublengths:
+            for length, base in sublengths:
                 for j in range(i, i + length, 2):
                     word = data[j] + 256 * data[j + 1]
-                    items.append(self._format_word(word, ctl))
+                    items.append(self.num_str(word, 2, base))
                 i += length
         else:
             base = None
@@ -155,7 +148,7 @@ class Disassembler:
                 base = sublengths[0][1]
             for j in range(0, len(data), 2):
                 word = data[j] + 256 * data[j + 1]
-                items.append(self._format_word(word, base))
+                items.append(self.num_str(word, 2, base))
         return ','.join(items)
 
     def defw_range(self, start, end, one_line, sublengths=None):
