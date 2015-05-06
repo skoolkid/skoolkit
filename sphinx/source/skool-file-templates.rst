@@ -87,17 +87,17 @@ These statements may be preserved in a skool file template thus::
 
   bB40000,b1:d2:h1,d1,b1,h2
 
-Instruction operands may also contain numeric values in various bases. For
-example::
+Instruction operands may also contain numeric values in various bases or as
+characters. For example::
 
   c50000 LD A,%00011000
-   50002 LD B,24
+   50002 LD B,"!"
    50004 LD (IX+$1A),%00001111
 
 These instructions may be preserved in a skool file template thus::
 
   cC50000,b2
-   C50002,d2
+   C50002,c2
    C50004,hb4
 
 Skool file template comments
@@ -131,8 +131,8 @@ Revision history
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 4.4     | Added support for specifying the base of numeric values in       |
-|         | instruction operands                                             |
+| 4.4     | Added support for specifying that numeric values in instruction  |
+|         | operands be rendered as characters or in a specific base         |
 +---------+------------------------------------------------------------------+
 | 3.7     | Added support for binary numbers; added support for specifying   |
 |         | the base of numeric values in DEFB, DEFM, DEFS and DEFW          |

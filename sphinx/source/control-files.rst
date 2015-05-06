@@ -360,20 +360,21 @@ Number bases
 ------------
 Numeric values in instruction operands and DEFB, DEFM, DEFS and DEFW statements
 are normally rendered in either decimal or hexadecimal, depending on the
-options passed to :ref:`sna2skool.py`. To force a numeric value to be rendered
-in a specific base, attach a ``b`` (binary), ``d`` (decimal) or ``h``
+options passed to :ref:`sna2skool.py`. To render a numeric value in an
+instruction operand as a character, or a numeric value anywhere in a specific
+base, attach a ``b`` (binary), ``c`` (character), ``d`` (decimal) or ``h``
 (hexadecimal) prefix to the relevant length or sublength parameter on the
 ``B``, ``C``, ``S``, ``T`` or ``W`` directive.
 
 For example::
 
   C 30000,b
-  C 30002,h2
+  C 30002,c
 
 will result in something like this::
 
   30000 LD A,%10001111
-  30002 LD B,$8F
+  30002 LD B,"?"
 
 and::
 
@@ -538,8 +539,8 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 4.4     | Added support for specifying the base of numeric values in        |
-|         | instruction operands                                              |
+| 4.4     | Added support for specifying that numeric values in instruction   |
+|         | operands be rendered as characters or in a specific base          |
 +---------+-------------------------------------------------------------------+
 | 4.3     | Added the ``@`` directive, the ``N`` directive and support for    |
 |         | block start comments                                              |
