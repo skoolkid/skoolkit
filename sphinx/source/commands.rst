@@ -378,6 +378,7 @@ list::
 
   Options:
     -c FILE, --ctl FILE   Use FILE as the control file
+    -e ADDR, --end ADDR   Stop disassembling at this address (default=65536)
     -g FILE, --generate-ctl FILE
                           Generate a control file in FILE
     -h, --ctl-hex         Write hexadecimal addresses in the generated control
@@ -399,8 +400,7 @@ list::
     -r, --no-erefs        Don't add comments that list entry point referrers
     -R, --erefs           Always add comments that list entry point referrers
     -s ADDR, --start ADDR
-                          Specify the address at which to start disassembling
-                          (default=16384)
+                          Start disassembling at this address (default=16384)
     -t, --text            Show ASCII text in the comment fields
     -T FILE, --sft FILE   Use FILE as the skool file template
     -V, --version         Show SkoolKit version number and exit
@@ -432,6 +432,8 @@ formats.
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 4.4     | Added the ``--end`` option                                      |
++---------+-----------------------------------------------------------------+
 | 4.3     | Added the ``--line-width`` option                               |
 +---------+-----------------------------------------------------------------+
 | 3.4     | Added the ``-V`` and ``-R`` options and the long options        |

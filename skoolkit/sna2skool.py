@@ -26,6 +26,7 @@ from .sftparser import SftParser
 from .ctlparser import CtlParser
 
 START = 16384
+END = 65536
 DEFB_SIZE = 8
 DEFM_SIZE = 66
 
@@ -48,7 +49,7 @@ def run(snafile, options):
         snapshot = [0] * org
         snapshot.extend(ram)
         start = max(org, options.start)
-    end = len(snapshot)
+    end = min(options.end, len(snapshot))
 
     # Pad out the end of the snapshot to avoid disassembly errors when an
     # instruction crosses the 64K boundary
@@ -87,6 +88,8 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--ctl', dest='ctlfile', metavar='FILE',
                        help='Use FILE as the control file')
+    group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=int, default=END,
+                       help='Stop disassembling at this address (default={})'.format(END))
     group.add_argument('-g', '--generate-ctl', dest='genctlfile', metavar='FILE',
                        help='Generate a control file in FILE')
     group.add_argument('-h', '--ctl-hex', dest='ctl_hex', action='store_true',
@@ -112,7 +115,7 @@ def main(args):
     group.add_argument('-R', '--erefs', dest='write_refs', action='store_const', const=1, default=0,
                        help="Always add comments that list entry point referrers")
     group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=int, default=START,
-                       help='Specify the address at which to start disassembling (default={})'.format(START))
+                       help='Start disassembling at this address (default={})'.format(START))
     group.add_argument('-t', '--text', dest='text', action='store_true',
                        help='Show ASCII text in the comment fields')
     group.add_argument('-T', '--sft', dest='sftfile', metavar='FILE',

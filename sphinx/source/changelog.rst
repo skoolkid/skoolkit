@@ -7,6 +7,8 @@ Changelog
   numeric values in instruction operands be rendered as characters or in a
   specific base
 * Added support for :ref:`ssubBlockDirectives`
+* Added the ``--end`` option to :ref:`sna2skool.py` (for specifying the address
+  at which to stop disassembling)
 
 4.3 (2015-02-14)
 ----------------

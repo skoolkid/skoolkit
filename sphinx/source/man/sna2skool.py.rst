@@ -20,6 +20,9 @@ OPTIONS
   (minus the .ctl suffix) matches the input snapshot name (minus
   the .bin, .sna, .szx or .z80 suffix, if any) will be used, if present.
 
+-e, --end `ADDR`
+  Stop disassembling at this address; the default end address is 65536.
+
 -g, --generate-ctl `FILE`
   Generate a control file in `FILE`.
 
@@ -66,8 +69,7 @@ OPTIONS
   in a control file.
 
 -s, --start `ADDR`
-  Specify the address at which to start disassembling; the default start
-  address is 16384.
+  Start disassembling at this address; the default start address is 16384.
 
 -t, --text
   Show ASCII text in the comment fields of the disassembly.

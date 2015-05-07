@@ -264,6 +264,7 @@ class MockSkoolWriter:
     def __init__(self, snapshot, ctl_parser, options):
         global mock_skool_writer
         mock_skool_writer = self
+        self.ctl_parser = ctl_parser
         self.options = options
 
     def write_skool(self, write_refs, text):
@@ -468,6 +469,16 @@ class OptionsTest(SkoolKitTestCase):
         for option in ('-c', '--ctl'):
             lines = self._write_skool('{0} {1} {2}'.format(option, ctlfile, binfile), 10)
             self.assertEqual(self._get_first_address(lines), str(org))
+
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_e(self):
+        binfile = self.write_bin_file([0] * 3)
+        for option, value in (('-e', 65534), ('--end', 65535)):
+            output, error = self.run_sna2skool('{} {} {}'.format(option, value, binfile))
+            self.assertEqual(error, '')
+            ctls = mock_skool_writer.ctl_parser.ctls
+            self.assertIn(value, ctls)
+            self.assertEqual(ctls[value], 'i')
 
     def test_option_g(self):
         ctlfile = self.write_text_file()
