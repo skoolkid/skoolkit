@@ -265,7 +265,7 @@ def parse_asm_block_directive(directive, stack):
     prefix = directive[:4]
     infix = directive[len(prefix):len(prefix) + 1]
     suffix = directive[len(prefix) + len(infix):].rstrip()
-    if prefix in ('ofix', 'bfix', 'rfix', 'isub', 'rsub') and infix in '+-' and suffix in ('begin', 'else', 'end'):
+    if prefix in ('ofix', 'bfix', 'rfix', 'isub', 'ssub', 'rsub') and infix in '+-' and suffix in ('begin', 'else', 'end'):
         if stack:
             cur_op = stack[-1]
         else:
@@ -630,6 +630,8 @@ class SkoolParser:
                         do_op = self.mode.do_rfixes
                     elif p == 'isub':
                         do_op = self.mode.asm
+                    elif p == 'ssub':
+                        do_op = self.mode.do_ssubs
                     elif p == 'rsub':
                         do_op = self.mode.do_rsubs
                     if do_op:

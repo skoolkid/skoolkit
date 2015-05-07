@@ -2149,6 +2149,31 @@ class SkoolParserTest(SkoolKitTestCase):
         entry = parser.get_entry(50000)
         self.assertEqual(entry.details, ['Foo.'])
 
+    def test_html_mode_ssub_directive(self):
+        skool = '\n'.join((
+            '; Routine',
+            '@ssub=INC DE',
+            'c50000 INC E',
+        ))
+        parser = self._get_parser(skool, html=True)
+        instruction = parser.get_entry(50000).instructions[0]
+        self.assertEqual(instruction.operation, 'INC E')
+
+    def test_html_mode_ssub_block_directive(self):
+        skool = '\n'.join((
+            '; Routine',
+            '@ssub-begin',
+            'c50000 LD L,24 ; 24 is the LSB',
+            '@ssub+else',
+            'c50000 LD L,50003%256 ; This is the LSB',
+            '@ssub+end',
+            ' 50002 RET',
+        ))
+        parser = self._get_parser(skool, html=True)
+        instruction = parser.get_entry(50000).instructions[0]
+        self.assertEqual(instruction.operation, 'LD L,24')
+        self.assertEqual(instruction.comment.text, '24 is the LSB')
+
     def test_asm_mode_rem(self):
         skool = '\n'.join((
             '@start',
@@ -2164,6 +2189,39 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool, asm_mode=1)
         entry = parser.get_entry(50000)
         self.assertEqual(entry.details, ['Foo.'])
+
+    def test_asm_mode_ssub_directive(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine',
+            '@ssub=INC DE',
+            'c50000 INC E',
+        ))
+        for asm_mode, exp_op in ((1, 'INC E'), (2, 'INC DE'), (3, 'INC DE')):
+            parser = self._get_parser(skool, asm_mode=asm_mode)
+            instruction = parser.get_entry(50000).instructions[0]
+            self.assertEqual(instruction.operation, exp_op)
+
+    def test_asm_mode_ssub_block_directive(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            '@ssub-begin',
+            'c50000 LD L,24 ; 24 is the LSB',
+            '@ssub+else',
+            'c50000 LD L,50003%256 ; This is the LSB',
+            '@ssub+end',
+            ' 50002 RET',
+        ))
+        for asm_mode, exp_operation, exp_comment in (
+                (1, 'LD L,24', '24 is the LSB'),
+                (2, 'LD L,50003%256', 'This is the LSB'),
+                (3, 'LD L,50003%256', 'This is the LSB')
+        ):
+            parser = self._get_parser(skool, asm_mode=asm_mode)
+            instruction = parser.get_entry(50000).instructions[0]
+            self.assertEqual(instruction.operation, exp_operation)
+            self.assertEqual(instruction.comment.text, exp_comment)
 
     def test_rsub_minus_inside_rsub_minus(self):
         # @rsub-begin inside @rsub- block

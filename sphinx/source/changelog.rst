@@ -6,6 +6,7 @@ Changelog
 * Added support to control files and skool file templates for specifying that
   numeric values in instruction operands be rendered as characters or in a
   specific base
+* Added support for :ref:`ssubBlockDirectives`
 
 4.3 (2015-02-14)
 ----------------

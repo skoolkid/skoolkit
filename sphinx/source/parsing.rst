@@ -34,14 +34,15 @@ following:
 * :ref:`ofixBlockDirectives`
 * :ref:`rfixBlockDirectives`
 * :ref:`rsubBlockDirectives`
+* :ref:`ssubBlockDirectives`
 
 The reason that the block directives are processed is that they may define two
 different versions of a section of code or data: first, a version to include in
 the output if the corresponding ASM mode (:ref:`@bfix <bfixMode>`,
 :ref:`@isub <isubMode>`, :ref:`@ofix <ofixMode>`, :ref:`@rfix <rfixMode>`,
-:ref:`@rsub <rsubMode>`) is in effect; and second, a version to include in the
-output if the corresponding ASM mode is not in effect - which will always be
-the case when parsing in HTML mode.
+:ref:`@rsub <rsubMode>`, :ref:`@ssub <ssubMode>`) is in effect; and second, a
+version to include in the output if the corresponding ASM mode is not in
+effect - which will always be the case when parsing in HTML mode.
 
 For example::
 
