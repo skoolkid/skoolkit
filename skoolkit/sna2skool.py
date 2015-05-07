@@ -64,7 +64,7 @@ def run(snafile, options):
     ctl_parser = CtlParser()
     if options.genctlfile:
         # Generate a control file
-        ctls = generate_ctls(snapshot, start, options.code_map)
+        ctls = generate_ctls(snapshot, start, end, options.code_map)
         write_ctl(options.genctlfile, ctls, options.ctl_hex)
         ctl_parser.ctls = ctls
     elif options.ctlfile:

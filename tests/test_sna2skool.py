@@ -125,7 +125,8 @@ s 65500
 c 65502
 b 65503
 c 65508
-b 65509"""
+b 65509
+i 65520"""
 
 TEST_CTL_G_HEX = '\n'.join(['{0} ${1:04X}'.format(line[0], int(line[2:7])) for line in TEST_CTL_G.split('\n')])
 
@@ -258,7 +259,7 @@ s 65486
 c 65491
 b 65492
 c 65498
-s 65499"""
+i 65499"""
 
 class MockSkoolWriter:
     def __init__(self, snapshot, ctl_parser, options):
@@ -491,7 +492,69 @@ class OptionsTest(SkoolKitTestCase):
             self.assertEqual(skool[84], '; Data block at {0}'.format(TEST_BIN_ORG + 103))
             with open(ctlfile, 'r') as f:
                 lines = [line.rstrip() for line in f]
-            self.assert_output_equal(lines, TEST_CTL_G.split('\n'))
+            self.assertEqual(TEST_CTL_G.split('\n'), lines)
+
+    def test_option_g_with_end_address_after_ret(self):
+        ctlfile = self.write_text_file()
+        data = [
+            62, 7, # 30000 LD A,7
+            201,   # 30002 RET
+            6, 8,  # 30003 LD B,8
+            201    # 30005 RET
+        ]
+        binfile = self.write_bin_file(data)
+        output, error = self.run_sna2skool('-g {} -o 30000 -e 30003 {}'.format(ctlfile, binfile))
+        self.assertEqual(error, '')
+        with open(ctlfile, 'r') as f:
+            gen_ctl = [line.rstrip() for line in f]
+        self.assertEqual(['c 30000', 'i 30003'], gen_ctl)
+
+    def test_option_g_with_end_address_not_after_ret(self):
+        ctlfile = self.write_text_file()
+        data = [
+            62, 7, # 30000 LD A,7
+            201,   # 30002 RET
+            6, 8,  # 30003 LD B,8
+            201    # 30005 RET
+        ]
+        binfile = self.write_bin_file(data)
+        output, error = self.run_sna2skool('-g {} -o 30000 -e 30005 {}'.format(ctlfile, binfile))
+        self.assertEqual(error, '')
+        with open(ctlfile, 'r') as f:
+            gen_ctl = [line.rstrip() for line in f]
+        self.assertEqual(['c 30000', 'b 30003', 'i 30005'], gen_ctl)
+
+    def test_options_g_and_M_with_end_address_after_ret(self):
+        ctlfile = self.write_text_file()
+        data = [
+            62, 7, # 30000 LD A,7
+            201,   # 30002 RET
+            6, 8,  # 30003 LD B,8
+            201    # 30005 RET
+        ]
+        binfile = self.write_bin_file(data)
+        mapfile = self.write_bin_file(self._create_map([30000, 30002, 30003, 30005]))
+        output, error = self.run_sna2skool('-g {} -M {} -o 30000 -e 30003 {}'.format(ctlfile, mapfile, binfile))
+        self.assertEqual(error, 'Reading {}\n'.format(mapfile))
+        with open(ctlfile, 'r') as f:
+            gen_ctl = [line.rstrip() for line in f]
+        self.assertEqual(['c 30000', 'i 30003'], gen_ctl)
+
+    def test_options_g_and_M_with_end_address_not_after_ret(self):
+        ctlfile = self.write_text_file()
+        data = [
+            62, 7, # 30000 LD A,7
+            201,   # 30002 RET
+            6, 8,  # 30003 LD B,8
+            201    # 30005 RET
+        ]
+        binfile = self.write_bin_file(data)
+        mapfile = self.write_bin_file(self._create_map([30000, 30002, 30003, 30005]))
+        output, error = self.run_sna2skool('-g {} -M {} -o 30000 -e 30005 {}'.format(ctlfile, mapfile, binfile))
+        self.assertEqual(error, 'Reading {}\n'.format(mapfile))
+        with open(ctlfile, 'r') as f:
+            gen_ctl = [line.rstrip() for line in f]
+        self.assertEqual(['c 30000', 'c 30003', 'i 30005'], gen_ctl)
 
     def _test_option_M(self, code_map, z80=False):
         ctlfile = self.write_text_file()
@@ -510,7 +573,7 @@ class OptionsTest(SkoolKitTestCase):
             self.assertEqual(skool[99], '; Data block at {0}'.format(TEST_MAP_BIN_ORG + 92))
             with open(ctlfile, 'r') as f:
                 lines = [line.rstrip() for line in f]
-            self.assert_output_equal(lines, TEST_MAP_CTL_G.split('\n'))
+            self.assertEqual(TEST_MAP_CTL_G.split('\n'), lines)
 
     def test_option_M_z80(self):
         self._test_option_M(self._create_map(TEST_MAP), True)
@@ -562,7 +625,7 @@ class OptionsTest(SkoolKitTestCase):
             self._write_skool('-g {0} {1} -o {2} {3}'.format(ctlfile, option, TEST_BIN_ORG, binfile))
             with open(ctlfile, 'r') as f:
                 lines = [line.rstrip() for line in f]
-            self.assert_output_equal(lines, TEST_CTL_G_HEX.split('\n'))
+            self.assertEqual(TEST_CTL_G_HEX.split('\n'), lines)
 
     def test_option_l(self):
         bin_len = 16

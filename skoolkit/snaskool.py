@@ -57,7 +57,7 @@ TEXT_GAP_MAX = 8
 class CodeMapError(SkoolKitError):
     pass
 
-def _get_code_blocks(snapshot, start, fname):
+def _get_code_blocks(snapshot, start, end, fname):
     if os.path.isdir(fname):
         raise SkoolKitError('{0} is a directory'.format(fname))
     try:
@@ -74,9 +74,9 @@ def _get_code_blocks(snapshot, start, fname):
         addresses = []
         data = read_bin_file(fname)
         address = start & 65528
-        for b in data[start // 8:]:
+        for b in data[start // 8:end // 8 + 1]:
             for i in range(8):
-                if b & 1 and address >= start:
+                if b & 1 and start <= address < end:
                     addresses.append(address)
                 b >>= 1
                 address += 1
@@ -84,7 +84,7 @@ def _get_code_blocks(snapshot, start, fname):
         sys.stderr.write('Reading {0}: '.format(fname))
         sys.stderr.flush()
         with open_file(fname) as f:
-            addresses = _get_addresses(f, fname, size, start)
+            addresses = _get_addresses(f, fname, size, start, end)
     sys.stderr.write('\n')
 
     code_blocks = []
@@ -99,7 +99,7 @@ def _get_code_blocks(snapshot, start, fname):
 
     return code_blocks
 
-def _get_addresses(f, fname, size, start):
+def _get_addresses(f, fname, size, start, end):
     addresses = set()
     base = 16
     i = 1
@@ -160,14 +160,11 @@ def _get_addresses(f, fname, size, start):
                 if address is not None:
                     if address < 0 or address > 65535:
                         raise CodeMapError('{0}, line {1}: Address out of range: {2}'.format(fname, i, s_line))
-                    if address >= start:
+                    if start <= address < end:
                         addresses.add(address)
         i += 1
 
-    addresses = list(addresses)
-    addresses.sort()
-
-    return addresses
+    return sorted(addresses)
 
 def _is_terminal_instruction(instruction):
     data = instruction.bytes
@@ -209,7 +206,7 @@ def _find_terminal_instruction(disassembler, ctls, start, end=65536, ctl=None):
             break
     return address
 
-def _generate_ctls_with_code_map(snapshot, start, code_map):
+def _generate_ctls_with_code_map(snapshot, start, end, code_map):
     # (1) Use the code map to create an initial set of 'c' ctls, and mark all
     #     unexecuted blocks as 'U' (unknown)
     # (2) Where a 'c' block doesn't end with a RET/JP/JR, extend it up to the
@@ -226,10 +223,10 @@ def _generate_ctls_with_code_map(snapshot, start, code_map):
 
     # (1) Mark all executed blocks as 'c' and unexecuted blocks as 'U'
     # (unknown)
-    ctls = {start: 'U'}
-    for address, length in _get_code_blocks(snapshot, start, code_map):
+    ctls = {start: 'U', end: 'i'}
+    for address, length in _get_code_blocks(snapshot, start, end, code_map):
         ctls[address] = 'c'
-        if address + length < 65536:
+        if address + length < end:
             ctls[address + length] = 'U'
 
     # (2) Where a 'c' block doesn't end with a RET/JP/JR, extend it up to the
@@ -237,11 +234,11 @@ def _generate_ctls_with_code_map(snapshot, start, code_map):
     disassembler = Disassembler(snapshot)
     while 1:
         done = True
-        for ctl, start, end in _get_blocks(ctls):
+        for ctl, b_start, b_end in _get_blocks(ctls):
             if ctl == 'c':
-                if _is_terminal_instruction(disassembler.disassemble(start, end)[-1]):
+                if _is_terminal_instruction(disassembler.disassemble(b_start, b_end)[-1]):
                     continue
-                if _find_terminal_instruction(disassembler, ctls, end) < 65536:
+                if _find_terminal_instruction(disassembler, ctls, b_end, end) < end:
                     done = False
                     break
         if done:
@@ -262,10 +259,10 @@ def _generate_ctls_with_code_map(snapshot, start, code_map):
                         if ctls[referrer.address] == 'c':
                             ctls[instruction.address] = 'c'
                             if entry.next:
-                                end = entry.next.address
+                                e_end = entry.next.address
                             else:
-                                end = 65536
-                            _find_terminal_instruction(disassembler, ctls, instruction.address, end, entry.ctl)
+                                e_end = 65536
+                            _find_terminal_instruction(disassembler, ctls, instruction.address, e_end, entry.ctl)
                             disassembly.remove_entry(entry.address)
                             done = False
                             break
@@ -277,13 +274,13 @@ def _generate_ctls_with_code_map(snapshot, start, code_map):
             break
 
     # (4) Split 'c' blocks on RET/JP/JR
-    for ctl, address, end in _get_blocks(ctls):
+    for ctl, b_address, b_end in _get_blocks(ctls):
         if ctl == 'c':
-            next_address = _find_terminal_instruction(disassembler, ctls, address, end, 'c')
-            if next_address < end:
-                disassembly.remove_entry(address)
-                while next_address < end:
-                    next_address = _find_terminal_instruction(disassembler, ctls, next_address, end, 'c')
+            next_address = _find_terminal_instruction(disassembler, ctls, b_address, b_end, 'c')
+            if next_address < b_end:
+                disassembly.remove_entry(b_address)
+                while next_address < b_end:
+                    next_address = _find_terminal_instruction(disassembler, ctls, next_address, b_end, 'c')
 
     # (5) Scan the disassembly for pairs of adjacent blocks where the start
     # address of the second block is JRed or JPed to from the first block, and
@@ -305,41 +302,40 @@ def _generate_ctls_with_code_map(snapshot, start, code_map):
             break
 
     # (6) Examine the 'U' blocks for text/data
-    for ctl, start, end in _get_blocks(ctls):
+    for ctl, b_start, b_end in _get_blocks(ctls):
         if ctl == 'U':
-            ctls[start] = 'b'
-            for t_start, t_end in _get_text_blocks(snapshot, start, end):
+            ctls[b_start] = 'b'
+            for t_start, t_end in _get_text_blocks(snapshot, b_start, b_end):
                 ctls[t_start] = 't'
-                if t_end < end:
+                if t_end < b_end:
                     ctls[t_end] = 'b'
 
     # (7) Mark data blocks of all zeroes with 's'
-    for ctl, start, end in _get_blocks(ctls):
+    for ctl, b_start, b_end in _get_blocks(ctls):
         if ctl == 'b':
-            z_end = start
-            while z_end < end and snapshot[z_end] == 0:
+            z_end = b_start
+            while z_end < b_end and snapshot[z_end] == 0:
                 z_end += 1
-            if z_end > start:
-                ctls[start] = 's'
-                if z_end < end:
+            if z_end > b_start:
+                ctls[b_start] = 's'
+                if z_end < b_end:
                     ctls[z_end] = 'b'
 
     return ctls
 
-def _generate_ctls_without_code_map(snapshot, start):
-    ctls = {}
-    ctls[start] = 'c'
+def _generate_ctls_without_code_map(snapshot, start, end):
+    ctls = {start: 'c', end: 'i'}
 
     # Look for potential 'RET', 'JR d' and 'JP nn' instructions and assume that
     # they end a block (after which another block follows); note that we don't
-    # bother examining the byte at 65535 because no block can follow it
-    for address in range(start, 65535):
+    # bother examining the final byte because no block can follow it
+    for address in range(start, end - 1):
         b = snapshot[address]
         if b == 201:
             ctls[address + 1] = 'c'
-        elif b == 195 and address < 65533:
+        elif b == 195 and address < end - 3:
             ctls[address + 3] = 'c'
-        elif b == 24 and address < 65534:
+        elif b == 24 and address < end - 2:
             ctls[address + 2] = 'c'
 
     ctl_parser = CtlParser()
@@ -366,10 +362,12 @@ def _generate_ctls_without_code_map(snapshot, start):
     for entry in disassembly.entries[:-1]:
         last_instr = entry.instructions[-1].operation
         if last_instr != 'RET' and not (last_instr[:2] in ('JP', 'JR') and last_instr[3:].isdigit()):
-            del ctls[entry.next.address]
-            disassembly.remove_entry(entry.address)
-            disassembly.remove_entry(entry.next.address)
-            changed = True
+            next_address = entry.next.address
+            if next_address < end:
+                del ctls[entry.next.address]
+                disassembly.remove_entry(entry.address)
+                disassembly.remove_entry(entry.next.address)
+                changed = True
     if changed:
         disassembly.build()
 
@@ -532,11 +530,11 @@ def _analyse_blocks(disassembly):
                 if z_end < end:
                     ctls[z_end] = 'c'
 
-def generate_ctls(snapshot, start, code_map):
+def generate_ctls(snapshot, start, end, code_map):
     if code_map:
-        ctls = _generate_ctls_with_code_map(snapshot, start, code_map)
+        ctls = _generate_ctls_with_code_map(snapshot, start, end, code_map)
     else:
-        ctls = _generate_ctls_without_code_map(snapshot, start)
+        ctls = _generate_ctls_without_code_map(snapshot, start, end)
 
     # Join any adjacent data and zero blocks
     blocks = _get_blocks(ctls)
