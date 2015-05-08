@@ -1510,10 +1510,18 @@ class CtlWriterTest(SkoolKitTestCase):
             's 04444'
         ]
         ctlfile = self.write_bin_file()
-        write_ctl(ctlfile, ctls, False)
+        write_ctl(ctlfile, ctls, 0)
         with open(ctlfile, 'r') as f:
-            lines = [line.rstrip() for line in f]
-        self.assertEqual(lines, exp_ctl)
+            ctl = [line.rstrip() for line in f]
+        self.assertEqual(exp_ctl, ctl)
+
+    def test_lower_case_hexadecimal_addresses(self):
+        ctls = {57005: 'c', 64181: 'b'}
+        ctlfile = self.write_bin_file()
+        write_ctl(ctlfile, ctls, -1)
+        with open(ctlfile, 'r') as f:
+            ctl = [line.rstrip() for line in f]
+        self.assertEqual(['c $dead', 'b $fab5'], ctl)
 
 if __name__ == '__main__':
     unittest.main()

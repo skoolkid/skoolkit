@@ -494,6 +494,7 @@ class OptionsTest(SkoolKitTestCase):
                 lines = [line.rstrip() for line in f]
             self.assertEqual(TEST_CTL_G.split('\n'), lines)
 
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_g_with_end_address_after_ret(self):
         ctlfile = self.write_text_file()
         data = [
@@ -509,6 +510,7 @@ class OptionsTest(SkoolKitTestCase):
             gen_ctl = [line.rstrip() for line in f]
         self.assertEqual(['c 30000', 'i 30003'], gen_ctl)
 
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_g_with_end_address_not_after_ret(self):
         ctlfile = self.write_text_file()
         data = [
@@ -524,6 +526,7 @@ class OptionsTest(SkoolKitTestCase):
             gen_ctl = [line.rstrip() for line in f]
         self.assertEqual(['c 30000', 'b 30003', 'i 30005'], gen_ctl)
 
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_options_g_and_M_with_end_address_after_ret(self):
         ctlfile = self.write_text_file()
         data = [
@@ -540,6 +543,7 @@ class OptionsTest(SkoolKitTestCase):
             gen_ctl = [line.rstrip() for line in f]
         self.assertEqual(['c 30000', 'i 30003'], gen_ctl)
 
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_options_g_and_M_with_end_address_not_after_ret(self):
         ctlfile = self.write_text_file()
         data = [
@@ -555,6 +559,21 @@ class OptionsTest(SkoolKitTestCase):
         with open(ctlfile, 'r') as f:
             gen_ctl = [line.rstrip() for line in f]
         self.assertEqual(['c 30000', 'c 30003', 'i 30005'], gen_ctl)
+
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_options_g_and_M_with_end_address_65536(self):
+        ctlfile = self.write_text_file()
+        data = [
+            62, 7, # 65533 LD A,7
+            201,   # 65535 RET
+        ]
+        binfile = self.write_bin_file(data)
+        mapfile = self.write_bin_file(self._create_map([65533, 65535]))
+        output, error = self.run_sna2skool('-g {} -M {} {}'.format(ctlfile, mapfile, binfile))
+        self.assertEqual(error, 'Reading {}\n'.format(mapfile))
+        with open(ctlfile, 'r') as f:
+            gen_ctl = [line.rstrip() for line in f]
+        self.assertEqual(['c 65533'], gen_ctl)
 
     def _test_option_M(self, code_map, z80=False):
         ctlfile = self.write_text_file()
@@ -618,14 +637,29 @@ class OptionsTest(SkoolKitTestCase):
             with self.assertRaisesRegexp(SkoolKitError, '{}: Unrecognised format'.format(code_map_file)):
                 self._write_skool('-g {0} -M {1} {2}'.format(ctlfile, code_map_file, binfile))
 
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_h(self):
-        ctlfile = self.write_text_file()
-        binfile = self.write_bin_file(TEST_BIN, suffix='.bin')
+        binfile = self.write_bin_file([201], suffix='.bin')
         for option in ('-h', '--ctl-hex'):
-            self._write_skool('-g {0} {1} -o {2} {3}'.format(ctlfile, option, TEST_BIN_ORG, binfile))
+            ctlfile = self.write_text_file()
+            self._write_skool('-g {} {} -o 64206 {}'.format(ctlfile, option, binfile))
             with open(ctlfile, 'r') as f:
-                lines = [line.rstrip() for line in f]
-            self.assertEqual(TEST_CTL_G_HEX.split('\n'), lines)
+                gen_ctl = [line.rstrip() for line in f]
+            self.assertEqual(['c $FACE', 'i $FACF'], gen_ctl)
+
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_i(self):
+        data = [
+            62, 7, # 65533 LD A,7
+            201,   # 65535 RET
+        ]
+        binfile = self.write_bin_file(data)
+        for option in ('-i', '--ctl-hex-lower'):
+            ctlfile = self.write_text_file()
+            self._write_skool('-g {} {} {}'.format(ctlfile, option, binfile))
+            with open(ctlfile, 'r') as f:
+                gen_ctl = [line.rstrip() for line in f]
+            self.assertEqual(['c $fffd'], gen_ctl)
 
     def test_option_l(self):
         bin_len = 16

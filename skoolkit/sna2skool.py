@@ -92,10 +92,12 @@ def main(args):
                        help='Stop disassembling at this address (default={})'.format(END))
     group.add_argument('-g', '--generate-ctl', dest='genctlfile', metavar='FILE',
                        help='Generate a control file in FILE')
-    group.add_argument('-h', '--ctl-hex', dest='ctl_hex', action='store_true',
-                       help='Write hexadecimal addresses in the generated control file')
+    group.add_argument('-h', '--ctl-hex', dest='ctl_hex', action='store_const', const=1, default=0,
+                       help='Write upper case hexadecimal addresses in the generated control file')
     group.add_argument('-H', '--skool-hex', dest='asm_hex', action='store_true',
                        help='Write hexadecimal addresses and operands in the disassembly')
+    group.add_argument('-i', '--ctl-hex-lower', dest='ctl_hex', action='store_const', const=-1, default=0,
+                       help='Write lower case hexadecimal addresses in the generated control file')
     group.add_argument('-l', '--defm-size', dest='defm_width', metavar='L', type=int, default=DEFM_SIZE,
                        help='Set the maximum number of characters per DEFM statement to L (default={})'.format(DEFM_SIZE))
     group.add_argument('-L', '--lower', dest='asm_lower', action='store_true',

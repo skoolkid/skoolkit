@@ -387,10 +387,12 @@ list::
     -e ADDR, --end ADDR   Stop disassembling at this address (default=65536)
     -g FILE, --generate-ctl FILE
                           Generate a control file in FILE
-    -h, --ctl-hex         Write hexadecimal addresses in the generated control
-                          file
+    -h, --ctl-hex         Write upper case hexadecimal addresses in the
+                          generated control file
     -H, --skool-hex       Write hexadecimal addresses and operands in the
                           disassembly
+    -i, --ctl-hex-lower   Write lower case hexadecimal addresses in the
+                          generated control file
     -l L, --defm-size L   Set the maximum number of characters per DEFM
                           statement to L (default=66)
     -L, --lower           Write the disassembly in lower case
@@ -438,7 +440,7 @@ formats.
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
-| 4.4     | Added the ``--end`` option                                      |
+| 4.4     | Added the ``--ctl-hex-lower`` and ``--end`` options             |
 +---------+-----------------------------------------------------------------+
 | 4.3     | Added the ``--line-width`` option                               |
 +---------+-----------------------------------------------------------------+

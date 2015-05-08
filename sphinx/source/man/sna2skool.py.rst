@@ -27,10 +27,13 @@ OPTIONS
   Generate a control file in `FILE`.
 
 -h, --ctl-hex
-  Write hexadecimal addresses in the generated control file.
+  Write upper case hexadecimal addresses in the generated control file.
 
 -H, --skool-hex
   Write hexadecimal addresses and operands in the disassembly.
+
+-i, --ctl-hex-lower
+  Write lower case hexadecimal addresses in the generated control file.
 
 -l, --defm-size `CHARS`
   Set the maximum number of characters that may appear in a DEFM statement; the

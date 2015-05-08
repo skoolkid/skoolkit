@@ -223,7 +223,9 @@ def _generate_ctls_with_code_map(snapshot, start, end, code_map):
 
     # (1) Mark all executed blocks as 'c' and unexecuted blocks as 'U'
     # (unknown)
-    ctls = {start: 'U', end: 'i'}
+    ctls = {start: 'U'}
+    if end < 65536:
+        ctls[end] = 'i'
     for address, length in _get_code_blocks(snapshot, start, end, code_map):
         ctls[address] = 'c'
         if address + length < end:
@@ -324,7 +326,9 @@ def _generate_ctls_with_code_map(snapshot, start, end, code_map):
     return ctls
 
 def _generate_ctls_without_code_map(snapshot, start, end):
-    ctls = {start: 'c', end: 'i'}
+    ctls = {start: 'c'}
+    if end < 65536:
+        ctls[end] = 'i'
 
     # Look for potential 'RET', 'JR d' and 'JP nn' instructions and assume that
     # they end a block (after which another block follows); note that we don't
@@ -408,9 +412,9 @@ def _generate_ctls_without_code_map(snapshot, start, end):
 
 def write_ctl(ctlfile, ctls, ctl_hex):
     # Write a control file
-    addr_fmt = get_address_format(ctl_hex)
+    addr_fmt = get_address_format(ctl_hex, ctl_hex < 0)
     with open(ctlfile, 'w') as f:
-        for address in sorted(ctls.keys()):
+        for address in sorted(ctls):
             f.write('{0} {1}\n'.format(ctls[address], addr_fmt.format(address)))
 
 def _check_for_data(snapshot, start, end):
