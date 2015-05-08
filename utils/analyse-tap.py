@@ -33,7 +33,7 @@ def get_str(data):
 def get_block_info(data, i):
     # http://www.worldofspectrum.org/TZXformat.html
     block_id = data[i]
-    header = "Unknown block"
+    header = "Unknown"
     info = []
     tape_data = []
     i += 1
@@ -41,7 +41,7 @@ def get_block_info(data, i):
         # Standard speed data block
         length = get_word(data, i + 2)
         tape_data = data[i + 4:i + 4 + length]
-        header = "Standard speed data block"
+        header = "Standard speed data"
         data_type = "Unknown"
         name = ""
         if tape_data[0] == 0:
@@ -58,7 +58,7 @@ def get_block_info(data, i):
         # Turbo speed data block
         length = get_word3(data, i + 15)
         tape_data = data[i + 18:i + 18 + length]
-        header = "Turbo speed data block"
+        header = "Turbo speed data"
         info.append("Length: {}".format(length))
         i += 18 + length
     elif block_id == 18:
@@ -155,12 +155,14 @@ def analyse_tzx(tzx):
         sys.exit(1)
 
     print('Version: {}.{}'.format(tzx[8], tzx[9]))
+    block_num = 1
     i = 10
     while i < len(tzx):
         i, block_id, header, info = get_block_info(tzx, i)
-        print("{} (0x{:02X})".format(header, block_id))
+        print("{}: {} (0x{:02X})".format(block_num, header, block_id))
         for line in info:
             print('  ' + line)
+        block_num += 1
 
 ###############################################################################
 
