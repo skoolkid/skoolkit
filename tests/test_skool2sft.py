@@ -36,7 +36,7 @@ class Skool2SftTest(SkoolKitTestCase):
         skool2sft.main((skoolfile,))
         infile, write_hex, preserve_base = mock_sft_writer.args
         self.assertEqual(infile, skoolfile)
-        self.assertFalse(write_hex)
+        self.assertEqual(write_hex, 0)
         self.assertFalse(preserve_base)
         self.assertTrue(mock_sft_writer.write_called)
 
@@ -52,7 +52,18 @@ class Skool2SftTest(SkoolKitTestCase):
             skool2sft.main((option, skoolfile))
             infile, write_hex, preserve_base = mock_sft_writer.args
             self.assertEqual(infile, skoolfile)
-            self.assertTrue(write_hex)
+            self.assertEqual(write_hex, 1)
+            self.assertFalse(preserve_base)
+            self.assertTrue(mock_sft_writer.write_called)
+
+    @patch.object(skool2sft, 'SftWriter', MockSftWriter)
+    def test_option_l(self):
+        skoolfile = 'test.skool'
+        for option in ('-l', '--hex-lower'):
+            skool2sft.main((option, skoolfile))
+            infile, write_hex, preserve_base = mock_sft_writer.args
+            self.assertEqual(infile, skoolfile)
+            self.assertEqual(write_hex, -1)
             self.assertFalse(preserve_base)
             self.assertTrue(mock_sft_writer.write_called)
 
@@ -63,7 +74,7 @@ class Skool2SftTest(SkoolKitTestCase):
             skool2sft.main((option, skoolfile))
             infile, write_hex, preserve_base = mock_sft_writer.args
             self.assertEqual(infile, skoolfile)
-            self.assertFalse(write_hex)
+            self.assertEqual(write_hex, 0)
             self.assertTrue(preserve_base)
             self.assertTrue(mock_sft_writer.write_called)
 

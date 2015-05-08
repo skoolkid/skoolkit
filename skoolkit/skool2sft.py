@@ -36,8 +36,10 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-b', '--preserve-base', action='store_true', dest='preserve_base',
                        help="Preserve the base of decimal and hexadecimal values in instruction operands and DEFB/DEFM/DEFS/DEFW statements")
-    group.add_argument('-h', '--hex', action='store_true', dest='write_hex',
-                       help='Write addresses in hexadecimal format')
+    group.add_argument('-h', '--hex', action='store_const', dest='write_hex', const=1, default=0,
+                       help='Write addresses in upper case hexadecimal format')
+    group.add_argument('-l', '--hex-lower', action='store_const', dest='write_hex', const=-1, default=0,
+                       help='Write addresses in lower case hexadecimal format')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
     namespace, unknown_args = parser.parse_known_args(args)

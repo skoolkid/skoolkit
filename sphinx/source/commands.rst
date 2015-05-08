@@ -342,12 +342,15 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
   Options:
     -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
                          instruction operands and DEFB/DEFM/DEFS/DEFW statements
-    -h, --hex            Write addresses in hexadecimal format
+    -h, --hex            Write addresses in upper case hexadecimal format
+    -l, --hex-lower      Write addresses in lower case hexadecimal format
     -V, --version        Show SkoolKit version number and exit
 
 +---------+----------------------------------------------+
 | Version | Changes                                      |
 +=========+==============================================+
+| 4.4     | Added the ``--hex-lower`` option             |
++---------+----------------------------------------------+
 | 3.7     | Added the ``--preserve-base`` option         |
 +---------+----------------------------------------------+
 | 3.4     | Added the ``-V`` option and the long options |

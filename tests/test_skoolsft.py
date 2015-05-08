@@ -380,7 +380,7 @@ c61000 LD A,"@"
 """
 
 class SftWriterTest(SkoolKitTestCase):
-    def _test_sft(self, skool, exp_sft, write_hex=False, preserve_base=False):
+    def _test_sft(self, skool, exp_sft, write_hex=0, preserve_base=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')
         writer = SftWriter(skoolfile, write_hex, preserve_base)
         writer.write()
@@ -391,7 +391,10 @@ class SftWriterTest(SkoolKitTestCase):
         self._test_sft(TEST_SKOOL, TEST_SFT)
 
     def test_write_hex(self):
-        self._test_sft('c40177 RET', ['cC$9CF1,1'], write_hex=True)
+        self._test_sft('c40177 RET', ['cC$9CF1,1'], write_hex=1)
+
+    def test_write_hex_lower(self):
+        self._test_sft('c40177 RET', ['cC$9cf1,1'], write_hex=-1)
 
     def test_decimal_addresses_below_10000(self):
         skool = '\n'.join((

@@ -22,7 +22,10 @@ OPTIONS
   character values are preserved.)
 
 -h, --hex
-  Write addresses in hexadecimal format.
+  Write addresses in upper case hexadecimal format.
+
+-l, --hex-lower
+  Write addresses in lower case hexadecimal format.
 
 -V, --version
   Show the SkoolKit version number and exit.

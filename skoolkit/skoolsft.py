@@ -100,13 +100,12 @@ class ControlLine:
         return True
 
 class SftWriter:
-    def __init__(self, skoolfile, write_hex=False, preserve_base=False):
+    def __init__(self, skoolfile, write_hex=0, preserve_base=False):
         self.skoolfile = skoolfile
-        self.write_hex = write_hex
         self.preserve_base = preserve_base
         self.stack = []
         self.verbatim = False
-        self.address_fmt = get_address_format(write_hex)
+        self.address_fmt = get_address_format(write_hex, write_hex < 0)
 
     def _parse_skool(self):
         lines = []

@@ -9,6 +9,8 @@ Changelog
 * Added support for :ref:`ssubBlockDirectives`
 * Added the ``--end`` option to :ref:`sna2skool.py` (for specifying the address
   at which to stop disassembling)
+* Added the ``--hex-lower`` option to :ref:`skool2sft.py` (for writing
+  addresses in lower case hexadecimal format)
 
 4.3 (2015-02-14)
 ----------------
