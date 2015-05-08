@@ -69,7 +69,11 @@ def get_block_info(data, i):
         i += 2 * data[i] + 1
     elif block_id == 20:
         # Pure data block
-        i += get_word3(data, i + 7) + 10
+        length = get_word3(data, i + 7)
+        tape_data = data[i + 10:i + 10 + length]
+        header = "Pure data"
+        info.append("Length: {}".format(length))
+        i += length + 10
     elif block_id == 21:
         # Direct recording block
         i += get_word3(data, i + 5) + 8
@@ -84,10 +88,14 @@ def get_block_info(data, i):
         i += 2
     elif block_id == 33:
         # Group start
-        i += data[i] + 1
+        length = data[i]
+        name = ''.join([chr(b) for b in data[i + 1:i + 1 + length]])
+        header = "Group start"
+        info.append("Name: {}".format(name.rstrip()))
+        i += length + 1
     elif block_id == 34:
         # Group end
-        pass
+        header = "Group end"
     elif block_id == 35:
         # Jump to block
         i += 2
