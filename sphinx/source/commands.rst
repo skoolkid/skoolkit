@@ -139,7 +139,8 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
     -a, --no-asm-dirs    Do not write ASM directives
     -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
                          instruction operands and DEFB/DEFM/DEFS/DEFW statements
-    -h, --hex            Write addresses in hexadecimal format
+    -h, --hex            Write addresses in upper case hexadecimal format
+    -l, --hex-lower      Write addresses in lower case hexadecimal format
     -V, --version        Show SkoolKit version number and exit
     -w X, --write X      Write only these elements, where X is one or more of:
                            b = block types and addresses
@@ -157,6 +158,8 @@ data definition entries and ASM block directives), consider using
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
+| 4.4     | Added the ``--hex-lower`` option                             |
++---------+--------------------------------------------------------------+
 | 3.7     | Added the ``--preserve-base`` option                         |
 +---------+--------------------------------------------------------------+
 | 3.4     | Added the ``-V`` option and the long options                 |

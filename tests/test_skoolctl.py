@@ -609,21 +609,21 @@ c61000 LD A,"@"
 """
 
 class CtlWriterTest(SkoolKitTestCase):
-    def _get_ctl(self, elements='btdrmsc', write_hex=False, write_asm_dirs=True, skool=TEST_SKOOL, preserve_base=False):
+    def _get_ctl(self, elements='btdrmsc', write_hex=0, write_asm_dirs=True, skool=TEST_SKOOL, preserve_base=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')
         writer = CtlWriter(skoolfile, elements, write_hex, write_asm_dirs, preserve_base)
         writer.write()
         return self.out.getvalue().split('\n')[:-1]
 
-    def _test_ctl(self, skool, exp_ctl, preserve_base=False):
-        ctl = self._get_ctl(skool=skool, preserve_base=preserve_base)
+    def _test_ctl(self, skool, exp_ctl, write_hex=0, preserve_base=False):
+        ctl = self._get_ctl(skool=skool, write_hex=write_hex, preserve_base=preserve_base)
         self.assertEqual(exp_ctl, ctl)
 
     def test_default_elements(self):
         self.assertEqual(TEST_CTL, self._get_ctl())
 
     def test_default_elements_hex(self):
-        self.assertEqual(TEST_CTL_HEX, self._get_ctl(write_hex=True))
+        self.assertEqual(TEST_CTL_HEX, self._get_ctl(write_hex=1))
 
     def test_default_elements_no_asm_dirs(self):
         ctl = self._get_ctl(write_asm_dirs=False)
@@ -677,6 +677,9 @@ class CtlWriterTest(SkoolKitTestCase):
         ctl = self._get_ctl('bt', write_asm_dirs=False)
         test_ctl = [line for line in TEST_CTL if line[0] in DIRECTIVES]
         self.assertEqual(test_ctl, ctl)
+
+    def test_hex_lower(self):
+        self._test_ctl('c40177 RET', ['c $9cf1'], write_hex=-1)
 
     def test_byte_formats_no_base(self):
         exp_ctl = [
@@ -980,7 +983,7 @@ class CtlWriterTest(SkoolKitTestCase):
             '@ $9C40 ignoreua:e',
             'E $9C40 End comment for the routine at 40000.'
         ]
-        ctl = self._get_ctl(write_hex=True, skool=skool)
+        ctl = self._get_ctl(write_hex=1, skool=skool)
         self.assertEqual(exp_ctl, ctl)
 
     def test_registers(self):

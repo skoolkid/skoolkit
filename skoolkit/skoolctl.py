@@ -66,13 +66,12 @@ def get_lengths(stmt_lengths):
     return ','.join(length_params)
 
 class CtlWriter:
-    def __init__(self, skoolfile, elements='btdrmsc', write_hex=False, write_asm_dirs=True, preserve_base=False):
+    def __init__(self, skoolfile, elements='btdrmsc', write_hex=0, write_asm_dirs=True, preserve_base=False):
         parser = SkoolParser(skoolfile, preserve_base)
         self.entries = parser.memory_map
         self.elements = elements
-        self.write_hex = write_hex
         self.write_asm_dirs = write_asm_dirs
-        self.address_fmt = get_address_format(write_hex)
+        self.address_fmt = get_address_format(write_hex, write_hex < 0)
 
     def write(self):
         for entry in self.entries:

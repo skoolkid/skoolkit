@@ -39,7 +39,7 @@ class Skool2CtlTest(SkoolKitTestCase):
         infile, elements, write_hex, write_asm_dirs, preserve_base = mock_ctl_writer.args
         self.assertEqual(infile, skoolfile)
         self.assertEqual(elements, ELEMENTS)
-        self.assertFalse(write_hex)
+        self.assertEqual(write_hex, 0)
         self.assertTrue(write_asm_dirs)
         self.assertFalse(preserve_base)
         self.assertTrue(mock_ctl_writer.write_called)
@@ -58,7 +58,7 @@ class Skool2CtlTest(SkoolKitTestCase):
                 infile, elements, write_hex, write_asm_dirs, preserve_base = mock_ctl_writer.args
                 self.assertEqual(infile, skoolfile)
                 self.assertEqual(elements, w)
-                self.assertFalse(write_hex)
+                self.assertEqual(write_hex, 0)
                 self.assertTrue(write_asm_dirs)
                 self.assertFalse(preserve_base)
                 self.assertTrue(mock_ctl_writer.write_called)
@@ -71,7 +71,20 @@ class Skool2CtlTest(SkoolKitTestCase):
             infile, elements, write_hex, write_asm_dirs, preserve_base = mock_ctl_writer.args
             self.assertEqual(infile, skoolfile)
             self.assertEqual(elements, ELEMENTS)
-            self.assertTrue(write_hex)
+            self.assertEqual(write_hex, 1)
+            self.assertTrue(write_asm_dirs)
+            self.assertFalse(preserve_base)
+            self.assertTrue(mock_ctl_writer.write_called)
+
+    @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
+    def test_option_l(self):
+        skoolfile = 'test.skool'
+        for option in ('-l', '--hex-lower'):
+            skool2ctl.main((option, skoolfile))
+            infile, elements, write_hex, write_asm_dirs, preserve_base = mock_ctl_writer.args
+            self.assertEqual(infile, skoolfile)
+            self.assertEqual(elements, ELEMENTS)
+            self.assertEqual(write_hex, -1)
             self.assertTrue(write_asm_dirs)
             self.assertFalse(preserve_base)
             self.assertTrue(mock_ctl_writer.write_called)
@@ -84,7 +97,7 @@ class Skool2CtlTest(SkoolKitTestCase):
             infile, elements, write_hex, write_asm_dirs, preserve_base = mock_ctl_writer.args
             self.assertEqual(infile, skoolfile)
             self.assertEqual(elements, ELEMENTS)
-            self.assertFalse(write_hex)
+            self.assertEqual(write_hex, 0)
             self.assertFalse(write_asm_dirs)
             self.assertFalse(preserve_base)
             self.assertTrue(mock_ctl_writer.write_called)
@@ -97,7 +110,7 @@ class Skool2CtlTest(SkoolKitTestCase):
             infile, elements, write_hex, write_asm_dirs, preserve_base = mock_ctl_writer.args
             self.assertEqual(infile, skoolfile)
             self.assertEqual(elements, ELEMENTS)
-            self.assertFalse(write_hex)
+            self.assertEqual(write_hex, 0)
             self.assertTrue(write_asm_dirs)
             self.assertTrue(preserve_base)
             self.assertTrue(mock_ctl_writer.write_called)
