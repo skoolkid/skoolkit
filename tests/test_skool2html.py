@@ -215,7 +215,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         cssfile = self.write_text_file(suffix='.css')
         output, error = self.run_skool2html('-c Game/StyleSheet={0} -d {1} {2}'.format(cssfile, self.odir, skoolfile))
         self.assertEqual(len(error), 0)
-        self.assert_output_equal(output, exp_output.format(self.odir, game_name, cssfile).split('\n'), True)
+        self.assertEqual(exp_output.format(self.odir, game_name, cssfile).split('\n'), output)
 
     def test_nonexistent_skool_file(self):
         skoolfile = 'xyz.skool'

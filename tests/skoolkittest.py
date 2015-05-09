@@ -171,18 +171,6 @@ class SkoolKitTestCase(TestCase):
                 z80 += self._get_z80_ram_block(data, compress, bank + 3)
         return model, self.write_bin_file(z80, suffix='.z80')
 
-    def assert_output_equal(self, output, expected, prefixes=False):
-        for i, line in enumerate(expected):
-            if i < len(output):
-                if prefixes:
-                    self.assertEqual(output[i][:len(line)], line)
-                else:
-                    self.assertEqual(output[i], line)
-        if len(output) > len(expected):
-            self.fail("Unexpected extra line in output: '%s'" % output[len(expected)])
-        elif len(expected) > len(output):
-            self.fail("Expected lines missing from output, starting with: '%s'" % expected[len(output)])
-
     def to_lines(self, text, strip_cr):
         # Use rstrip() to remove '\r' characters (useful on Windows)
         if strip_cr:

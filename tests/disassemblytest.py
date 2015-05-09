@@ -170,4 +170,4 @@ class SftTestCase(DisassembliesTestCase):
         if org is not None:
             options += ' -o {}'.format(org)
         output, stderr = self.run_sna2skool('{} {}'.format(options, snapshot))
-        self.assert_output_equal(output, orig_skool[:-1])
+        self.assertEqual(orig_skool[:-1], output)
