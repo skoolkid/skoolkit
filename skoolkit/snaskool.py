@@ -624,7 +624,7 @@ class Disassembly:
                 for instruction in entry.instructions:
                     self.instructions[instruction.address] = instruction
                 continue
-            title = self.ctl_parser.get_block_title(block.start)
+            title = block.title
             if block.ctl == 'c':
                 title = title or 'Routine at {0}'.format(self.address_str(block.start))
             elif block.ctl in 'bw':
@@ -638,11 +638,10 @@ class Disassembly:
             for sub_block in block.blocks:
                 address = sub_block.start
                 if sub_block.ctl in 'cBT':
-                    lengths = self.ctl_parser.get_lengths(address)
-                    base = lengths[0][1]
+                    base = sub_block.sublengths[0][1]
                     instructions = self.disassembler.disassemble(sub_block.start, sub_block.end, base)
                 elif sub_block.ctl in 'bgstuw':
-                    sublengths = self.ctl_parser.get_lengths(address)
+                    sublengths = sub_block.sublengths
                     if sublengths[0][0]:
                         length = sum([s[0] for s in sublengths])
                     else:
@@ -661,8 +660,6 @@ class Disassembly:
                         address += length
                 else:
                     instructions = self.disassembler.ignore(sub_block.start, sub_block.end)
-                sub_block.header = self.ctl_parser.get_mid_block_comment(sub_block.start)
-                sub_block.comment = self.ctl_parser.get_instruction_comment(sub_block.start)
                 sub_block.instructions = instructions
                 for instruction in instructions:
                     self.instructions[instruction.address] = instruction
@@ -674,7 +671,7 @@ class Disassembly:
                 sub_block = block.blocks[i]
                 i += 1
                 sub_blocks.append(sub_block)
-                end, comment = self.ctl_parser.get_multiline_comment(sub_block.start)
+                end, comment = sub_block.multiline_comment
                 if comment is not None:
                     sub_block.comment = comment
                     while i < len(block.blocks) and (end is None or block.blocks[i].start <= end):
@@ -682,11 +679,8 @@ class Disassembly:
                         sub_block.end = block.end
                         i += 1
 
-            description = self.ctl_parser.get_description(block.start)
-            registers = self.ctl_parser.get_registers(block.start)
-            end_comment = self.ctl_parser.get_end_comment(block.start)
-            asm_directives = self.ctl_parser.get_entry_asm_directives(block.start)
-            entry = Entry(title, description, block.ctl, sub_blocks, registers, end_comment, asm_directives)
+            entry = Entry(title, block.description, block.ctl, sub_blocks,
+                          block.registers, block.end_comment, block.asm_directives)
             self.entry_map[entry.address] = entry
             self.entries.append(entry)
         for i, entry in enumerate(self.entries[1:]):

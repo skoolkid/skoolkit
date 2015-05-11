@@ -291,35 +291,8 @@ class CtlParser:
                 offset = i * interval
                 self.multiline_comments[addr + offset] = (mlc_end + offset, comment)
 
-    def get_block_title(self, address):
-        return self.titles.get(address)
-
-    def get_description(self, address):
-        return self.descriptions.get(address, ())
-
-    def get_registers(self, address):
-        return self.registers.get(address, ())
-
-    def get_mid_block_comment(self, address):
-        return self.mid_block_comments.get(address, ())
-
-    def get_instruction_comment(self, address):
-        return self.instruction_comments.get(address) or ''
-
-    def get_end_comment(self, address):
-        return self.end_comments.get(address, ())
-
-    def get_lengths(self, address):
-        return self.lengths.get(address, ((None, None),))
-
-    def get_multiline_comment(self, address):
-        return self.multiline_comments.get(address, (None, None))
-
     def get_instruction_asm_directives(self, address):
         return self.instruction_asm_directives.get(address, ())
-
-    def get_entry_asm_directives(self, address):
-        return self.entry_asm_directives.get(address, ())
 
     def contains_entry_asm_directive(self, asm_dir):
         for entry_asm_dir in self.entry_asm_directives.values():
@@ -334,7 +307,13 @@ class CtlParser:
         # Create top-level blocks
         blocks = []
         for address in sorted([k for k in self.ctls if k < 65536]):
-            blocks.append(Block(self.ctls[address], address, True))
+            block = Block(self.ctls[address], address)
+            block.asm_directives = self.entry_asm_directives.get(address, ())
+            block.title = self.titles.get(address)
+            block.description = self.descriptions.get(address, ())
+            block.registers = self.registers.get(address, ())
+            block.end_comment = self.end_comments.get(address, ())
+            blocks.append(block)
 
         # Set top-level block end addresses
         for i, block in enumerate(blocks[1:]):
@@ -342,7 +321,7 @@ class CtlParser:
         blocks[-1].end = 65536
 
         # Create sub-blocks
-        for sub_address in sorted(self.subctls.keys()):
+        for sub_address in sorted(self.subctls):
             for block in blocks:
                 if block.start <= sub_address < block.end:
                     block.add_block(self.subctls[sub_address], sub_address)
@@ -354,22 +333,27 @@ class CtlParser:
                 block.blocks[i].end = sub_block.start
             block.blocks[-1].end = block.end
 
+        # Set sub-block attributes
+        for block in blocks:
+            for sub_block in block.blocks:
+                sub_address = sub_block.start
+                sub_block.sublengths = self.lengths.get(sub_address, ((None, None),))
+                sub_block.header = self.mid_block_comments.get(sub_address, ())
+                sub_block.comment = self.instruction_comments.get(sub_address) or ''
+                sub_block.multiline_comment = self.multiline_comments.get(sub_address, (None, None))
+
         return blocks
 
 class Block:
-    def __init__(self, ctl, start, top=False):
+    def __init__(self, ctl, start, top=True):
         self.ctl = ctl
         self.start = start
-        self.end = None
-        self.header = None
-        self.comment = None
-        self.instructions = None
         if top:
-            self.blocks = [Block(ctl, start)]
+            self.blocks = [Block(ctl, start, False)]
 
     def add_block(self, ctl, start):
         real_ctl = ctl or self.ctl
         if start == self.start:
             self.blocks[0].ctl = real_ctl
         else:
-            self.blocks.append(Block(real_ctl, start))
+            self.blocks.append(Block(real_ctl, start, False))
