@@ -1908,18 +1908,19 @@ class DisassemblerTest(SkoolKitTestCase):
         snapshot = self._get_snapshot(32768, (97, 98, 99, 94, 96, 65, 66, 67, 127))
         disassembler = self._get_disassembler(snapshot)
 
-        instructions = disassembler.defb_range(32768, 32777)
+        sublengths = ((None, None),)
+        instructions = disassembler.defb_range(32768, 32777, sublengths)
         self.assertEqual(len(instructions), 2)
         operations = [i.operation for i in instructions]
         self.assertEqual(operations, ['DEFB 97,98,99,94,96,65,66,67', 'DEFB 127'])
 
         sublengths = [(3, 'T'), (2, None), (3, 'T'), (1, None)]
-        instructions = disassembler.defb_range(32768, 32777, sublengths=sublengths)
+        instructions = disassembler.defb_range(32768, 32777, sublengths)
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0].operation, 'DEFB "abc",94,96,"ABC",127')
 
         sublengths = [(3, 'T'), (2, 'B'), (3, 'X'), (1, None)]
-        instructions = disassembler.defb_range(32768, 32777, sublengths=sublengths)
+        instructions = disassembler.defb_range(32768, 32777, sublengths)
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0].operation, 'DEFB "abc",94,96,"ABC",127')
 
@@ -1927,22 +1928,23 @@ class DisassemblerTest(SkoolKitTestCase):
         snapshot = self._get_snapshot(32768, (97, 98, 99, 94, 96, 65, 66, 67, 127))
         disassembler = self._get_disassembler(snapshot)
 
-        instructions = disassembler.defm_range(32768, 32771)
+        sublengths = ((None, None),)
+        instructions = disassembler.defm_range(32768, 32771, sublengths)
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0].operation, 'DEFM "abc"')
 
-        instructions = disassembler.defm_range(32768, 32777)
+        instructions = disassembler.defm_range(32768, 32777, sublengths)
         self.assertEqual(len(instructions), 5)
         operations = [i.operation for i in instructions]
         self.assertEqual(operations, ['DEFM "abc"', 'DEFB 94', 'DEFB 96', 'DEFM "ABC"', 'DEFB 127'])
 
         sublengths = [(3, None), (2, 'B'), (3, None), (1, 'B')]
-        instructions = disassembler.defm_range(32768, 32777, sublengths=sublengths)
+        instructions = disassembler.defm_range(32768, 32777, sublengths)
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0].operation, 'DEFM "abc",94,96,"ABC",127')
 
         sublengths = [(3, 'T'), (2, 'X'), (3, None), (1, 'B')]
-        instructions = disassembler.defm_range(32768, 32777, sublengths=sublengths)
+        instructions = disassembler.defm_range(32768, 32777, sublengths)
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0].operation, 'DEFM "abc",94,96,"ABC",127')
 
@@ -1961,7 +1963,8 @@ class DisassemblerTest(SkoolKitTestCase):
         snapshot = self._get_snapshot(start, data)
         disassembler = self._get_disassembler(snapshot)
 
-        instructions = disassembler.defw_range(start, start + len(data), False)
+        sublengths = ((None, None),)
+        instructions = disassembler.defw_range(start, start + len(data), sublengths)
         self.assertEqual(len(instructions), 4)
         i = 0
         for address in range(start, start + len(data), 2):
@@ -1972,7 +1975,8 @@ class DisassemblerTest(SkoolKitTestCase):
             self.assertEqual(defw.bytes, defw_data)
             i += 1
 
-        instructions = disassembler.defw_range(start, start + len(data), True)
+        sublengths = ((8, None),)
+        instructions = disassembler.defw_range(start, start + len(data), sublengths)
         self.assertEqual(len(instructions), 1)
         defw = instructions[0]
         self.assertEqual(defw.address, start)

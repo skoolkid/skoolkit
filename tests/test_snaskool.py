@@ -219,7 +219,7 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(entry.address, 0)
         instructions = entry.instructions
         actual_instructions = [(i.address, i.operation) for i in instructions]
-        self.assertEqual(actual_instructions, exp_instructions)
+        self.assertEqual(exp_instructions, actual_instructions)
 
     def test_disassembly(self):
         ctl_parser = CtlParser()

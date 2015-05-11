@@ -113,8 +113,8 @@ class Disassembler:
             address += length
         return instructions
 
-    def defb_range(self, start, end, one_line=False, sublengths=None):
-        if one_line or (sublengths and sublengths[0][0]) or end - start <= self.defb_size:
+    def defb_range(self, start, end, sublengths):
+        if sublengths[0][0] or end - start <= self.defb_size:
             return [self.defb_line(start, self.snapshot[start:end], sublengths)]
         instructions = []
         data = []
@@ -135,27 +135,20 @@ class Disassembler:
 
     def _defw_items(self, data, sublengths):
         items = []
-        if sublengths and sublengths[0][0]:
-            i = 0
-            for length, base in sublengths:
-                for j in range(i, i + length, 2):
-                    word = data[j] + 256 * data[j + 1]
-                    items.append(self.num_str(word, 2, base))
-                i += length
-        else:
-            base = None
-            if sublengths:
-                base = sublengths[0][1]
-            for j in range(0, len(data), 2):
+        i = 0
+        for length, base in sublengths:
+            for j in range(i, i + length, 2):
                 word = data[j] + 256 * data[j + 1]
                 items.append(self.num_str(word, 2, base))
+            i += length
         return ','.join(items)
 
-    def defw_range(self, start, end, one_line, sublengths=None):
-        if one_line:
+    def defw_range(self, start, end, sublengths):
+        if sublengths[0][0]:
             step = end - start
         else:
             step = self.defw_size
+            sublengths = ((step, sublengths[0][1]),)
         instructions = []
         for address in range(start, end, step):
             data = self.snapshot[address:address + step]
@@ -163,8 +156,8 @@ class Disassembler:
             instructions.append(Instruction(address, defw_dir, data))
         return instructions
 
-    def defm_range(self, start, end, one_line=False, sublengths=None):
-        if sublengths:
+    def defm_range(self, start, end, sublengths):
+        if sublengths[0][0]:
             data = self.snapshot[start:end]
             item_str = self.defb_items(data, sublengths, False)
             return [Instruction(start, '{0} {1}'.format(self.defm_inst, item_str), data)]
@@ -176,19 +169,16 @@ class Disassembler:
                 msg.append(byte)
             else:
                 if msg:
-                    instructions.extend(self.defm_lines(i - len(msg), msg, one_line))
+                    instructions.extend(self.defm_lines(i - len(msg), msg))
                     msg[:] = []
                 instructions.append(self.defb_line(i, [byte]))
         if msg:
-            instructions.extend(self.defm_lines(i - len(msg) + 1, msg, one_line))
+            instructions.extend(self.defm_lines(i - len(msg) + 1, msg))
         return instructions
 
     def defs(self, start, end, sublengths):
         size = end - start
-        if sublengths:
-            items = [self.num_str(value or size, base=base) for value, base in sublengths]
-        else:
-            items = [self.num_str(size)]
+        items = [self.num_str(value or size, base=base) for value, base in sublengths]
         return Instruction(start, '{} {}'.format(self.defs_inst, ','.join(items)), self.snapshot[start:end])
 
     def ignore(self, start, end):
@@ -234,7 +224,7 @@ class Disassembler:
         return self.byte_formats[base].format(value)
 
     def defb_items(self, data, sublengths, defb=True):
-        if sublengths and sublengths[0][0]:
+        if sublengths[0][0]:
             items = []
             i = 0
             for length, ctl in sublengths:
@@ -253,13 +243,11 @@ class Disassembler:
                     items.append(','.join([(self.format_byte(b, ctl)) for b in chunk]))
                 i += length
         else:
-            base = None
-            if sublengths:
-                base = sublengths[0][1]
+            base = sublengths[0][1]
             items = [self.format_byte(b, base) for b in data]
         return ','.join(items)
 
-    def defb_dir(self, data, sublengths=None):
+    def defb_dir(self, data, sublengths=((None, None),)):
         return '{0} {1}'.format(self.defb_inst, self.defb_items(data, sublengths))
 
     def defb(self, a, length):
@@ -317,16 +305,14 @@ class Disassembler:
             return operation, 4
         return self.defb(a, 4)
 
-    def defb_line(self, address, data, sublengths=None):
+    def defb_line(self, address, data, sublengths=((None, None),)):
         return Instruction(address, self.defb_dir(data, sublengths), data)
 
     def defm_line(self, address, data):
         message = self.get_message(data)
         return Instruction(address, '{0} "{1}"'.format(self.defm_inst, message), data)
 
-    def defm_lines(self, address, data, one_line):
-        if one_line:
-            return [self.defm_line(address, data)]
+    def defm_lines(self, address, data):
         lines = []
         for i in range(0, len(data), self.defm_width):
             lines.append(self.defm_line(address + i, data[i:i + self.defm_width]))

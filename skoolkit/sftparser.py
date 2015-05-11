@@ -169,19 +169,16 @@ class SftParser:
                 for length, sublengths in lengths:
                     end = start + length
                     if inst_ctl == 'C':
-                        if sublengths:
-                            base = sublengths[0][1]
-                        else:
-                            base = None
+                        base = sublengths[0][1]
                         instructions += self.disassembler.disassemble(start, end, base)
                     elif inst_ctl == 'W':
-                        instructions += self.disassembler.defw_range(start, end, True, sublengths)
+                        instructions += self.disassembler.defw_range(start, end, sublengths)
                     elif inst_ctl == 'T':
-                        instructions += self.disassembler.defm_range(start, end, True, sublengths)
+                        instructions += self.disassembler.defm_range(start, end, sublengths)
                     elif inst_ctl == 'S':
                         instructions.append(self.disassembler.defs(start, end, sublengths))
                     else:
-                        instructions += self.disassembler.defb_range(start, end, True, sublengths)
+                        instructions += self.disassembler.defb_range(start, end, sublengths)
                     start += length
                 for instruction in instructions:
                     address = self.address_fmt.format(instruction.address)

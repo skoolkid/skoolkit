@@ -56,7 +56,7 @@ def _parse_sublengths(spec, subctl, default_prefix):
         lengths.append((sublength, prefix))
         length += sublength
     if len(lengths) == 1 and prefix is None:
-        return (length, None)
+        return (length, ((length, None),))
     if subctl == 'S':
         length = lengths[0][0]
     return (length, tuple(lengths))
@@ -144,7 +144,13 @@ class CtlParser:
                     if end:
                         self.subctls[end + 1] = None
                 if ctl != 'L' and lengths:
-                    self.lengths[start] = lengths
+                    address = start
+                    subctl = self.subctls[start]
+                    for length, sublengths in lengths:
+                        self.lengths[address] = sublengths
+                        self.subctls[address] = subctl
+                        if length is not None:
+                            address += length
             elif asm_directive:
                 directive, address, value = asm_directive
                 if directive in (AD_ORG, AD_WRITER, AD_START, AD_END) or directive.startswith(AD_SET):
@@ -304,7 +310,7 @@ class CtlParser:
         return self.end_comments.get(address, ())
 
     def get_lengths(self, address):
-        return self.lengths.get(address, ())
+        return self.lengths.get(address, ((None, None),))
 
     def get_multiline_comment(self, address):
         return self.multiline_comments.get(address, (None, None))

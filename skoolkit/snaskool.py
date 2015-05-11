@@ -639,32 +639,25 @@ class Disassembly:
                 address = sub_block.start
                 if sub_block.ctl in 'cBT':
                     lengths = self.ctl_parser.get_lengths(address)
-                    if lengths:
-                        base = lengths[0][1][0][1]
-                    else:
-                        base = None
+                    base = lengths[0][1]
                     instructions = self.disassembler.disassemble(sub_block.start, sub_block.end, base)
                 elif sub_block.ctl in 'bgstuw':
-                    lengths = list(self.ctl_parser.get_lengths(address))
-                    one_line = True
-                    if not lengths:
-                        lengths = [(None, None)]
+                    sublengths = self.ctl_parser.get_lengths(address)
+                    if sublengths[0][0]:
+                        length = sum([s[0] for s in sublengths])
+                    else:
+                        length = sub_block.end - sub_block.start
                     instructions = []
                     while address < sub_block.end:
-                        if lengths:
-                            length, sublengths = lengths.pop(0)
-                        if length is None:
-                            one_line = False
-                            length = sub_block.end - sub_block.start
-                        end = min((address + length, sub_block.end))
+                        end = min(address + length, sub_block.end)
                         if sub_block.ctl == 't':
-                            instructions += self.disassembler.defm_range(address, end, one_line, sublengths)
+                            instructions += self.disassembler.defm_range(address, end, sublengths)
                         elif sub_block.ctl == 'w':
-                            instructions += self.disassembler.defw_range(address, end, one_line, sublengths)
+                            instructions += self.disassembler.defw_range(address, end, sublengths)
                         elif sub_block.ctl == 's':
                             instructions.append(self.disassembler.defs(address, end, sublengths))
                         else:
-                            instructions += self.disassembler.defb_range(address, end, one_line, sublengths)
+                            instructions += self.disassembler.defb_range(address, end, sublengths)
                         address += length
                 else:
                     instructions = self.disassembler.ignore(sub_block.start, sub_block.end)
