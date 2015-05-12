@@ -144,13 +144,16 @@ class CtlParser:
                     if end:
                         self.subctls[end + 1] = None
                 if ctl != 'L' and lengths:
-                    address = start
-                    subctl = self.subctls[start]
-                    for length, sublengths in lengths:
-                        self.lengths[address] = sublengths
-                        self.subctls[address] = subctl
-                        if length is not None:
+                    self.lengths[start] = lengths[0][1]
+                    if len(lengths) > 1:
+                        address = start + lengths[0][0]
+                        subctl = self.subctls[start]
+                        for length, sublengths in lengths[1:]:
+                            self.lengths[address] = sublengths
+                            self.subctls[address] = subctl
                             address += length
+                        if text:
+                            self.multiline_comments[start] = (address, text)
             elif asm_directive:
                 directive, address, value = asm_directive
                 if directive in (AD_ORG, AD_WRITER, AD_START, AD_END) or directive.startswith(AD_SET):

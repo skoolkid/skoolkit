@@ -48,7 +48,8 @@ T 32770,4,2
 t 32774 Yo
 ; Entry #4
 b 32776
-B 32776,12,3*4
+B 32776,6,2 This comment spans three DEFB statements
+B 32782,6,3,3 This comment spans two DEFB statements
 ; Entry #5
 b 32788 Important byte
 ; Entry #6
@@ -77,7 +78,7 @@ c 32814 Refers to the routine at 32768
 b 32817
 T 32817,5,2:B3
 B 32822,5,2:T2:1
-T 32827,10,2:B1*2,1:B1
+T 32827,,2:B1*2,1:B1 This comment spans four DEFM statements
 ; Entry 16
 i 32837
 """
@@ -281,9 +282,18 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(entry.address, 32776)
         self.assertEqual(entry.title, 'Data block at {0}'.format(entry.address))
         instructions = entry.instructions
-        self.assertEqual(len(instructions), 4)
-        self.assertEqual(instructions[0].operation, 'DEFB 0,0,0')
+        self.assertEqual(len(instructions), 5)
+        self.assertEqual(instructions[0].operation, 'DEFB 0,0')
+        self.assertEqual(instructions[1].operation, 'DEFB 0,0')
+        self.assertEqual(instructions[2].operation, 'DEFB 0,0')
         self.assertEqual(instructions[3].operation, 'DEFB 0,0,0')
+        self.assertEqual(instructions[4].operation, 'DEFB 0,0,0')
+        blocks = entry.blocks
+        self.assertEqual(len(blocks), 2)
+        self.assertEqual(blocks[0].comment, 'This comment spans three DEFB statements')
+        self.assertEqual(instructions[:3], blocks[0].instructions)
+        self.assertEqual(blocks[1].comment, 'This comment spans two DEFB statements')
+        self.assertEqual(instructions[3:], blocks[1].instructions)
 
         # Entry #5 (32788)
         entry = entries[4]
@@ -362,6 +372,12 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(instructions[3].operation, 'DEFM "cd",2')
         self.assertEqual(instructions[4].operation, 'DEFM "e",3')
         self.assertEqual(instructions[5].operation, 'DEFM "f",4')
+        blocks = entry.blocks
+        self.assertEqual(len(blocks), 3)
+        block3 = blocks[2]
+        self.assertEqual(block3.start, 32827)
+        self.assertEqual(block3.comment, 'This comment spans four DEFM statements')
+        self.assertEqual(instructions[2:], block3.instructions)
 
         # Entry #16 (32837)
         entry = entries[15]
