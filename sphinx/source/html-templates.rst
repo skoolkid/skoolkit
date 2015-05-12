@@ -224,8 +224,7 @@ identifiers):
 * ``label`` - the instruction's ASM label
 * ``operation`` - the assembly language operation (e.g. 'LD A,B'), with operand
   hyperlinked if appropriate
-* ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate (with
-  the instruction's address in decimal format as the anchor name)
+* ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate
 
 To see the default ``asm_instruction`` template, run the following command::
 
