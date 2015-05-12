@@ -158,49 +158,30 @@ If the length parameter is omitted from an ``M`` directive, the comment is
 assumed to cover all sub-blocks from the given start address to the end of the
 top-level block.
 
-Three bits of sub-block syntax left. First,  the blank sub-block directive::
+If a sub-block directive is left blank, then it is taken to be of the same type
+as the containing block. So::
 
   c 24576 A great routine
     24580,11 A great section of code at 24580
 
-This is equivalent to::
+is equivalent to::
 
   c 24576 A great routine
   C 24580,11 A great section of code at 24580
 
-That is, the the type of a blank sub-block directive is taken to be the same as
-that of the parent block.
-
-Next, the address range::
-
-  c 24576 A great routine
-    24580-24590 A great section of code at 24580
-
-This is equivalent to::
-
-  c 24576 A great routine
-    24580,11 A great section of code at 24580
-
-That is, you can specify the extent of a sub-block using either an address
-range, or an address and a length.
-
-Finally, the implicit sub-block extent::
+If the length parameter is omitted from a sub-block directive, then it is
+assumed to end where the next sub-block starts. So in::
 
   c 24576 A great routine
     24580 A great section of code at 24580
     24588,10 Another great section of code at 24590
 
-This is equivalent to::
+the sub-block at 24580 has length 8, because it is implicitly terminated by the
+following sub-block at 24588.
 
-  c 24576 A great routine
-    24580,8 A great section of code at 24580
-    24588,10 Another great section of code at 24588
-
-But the declaration of the length (8) of the sub-block at 24580 is redundant,
-because the sub-block is implicitly terminated by the declaration of the
-sub-block at 24588 that follows. This is exactly how top-level block
-declarations work: each top-level block is implicitly terminated by the
-declaration of the next one.
+.. note::
+   Using start and end addresses to specify the address range for a sub-block
+   directive (e.g. ``C 24580-24587``) is deprecated since version 4.4.
 
 Sub-block lengths
 -----------------
