@@ -32,7 +32,7 @@ class Bin2TapTest(SkoolKitTestCase):
         with open(tapfile, 'rb') as f:
             tap = f.read()
         if PY3:
-            return [b for b in tap]
+            return list(tap)
         return [ord(c) for c in tap]
 
     def _get_word(self, num):
@@ -44,7 +44,7 @@ class Bin2TapTest(SkoolKitTestCase):
             parity ^= b
         return parity
 
-    def _check_tap(self, tap_data, bin_data, org=None, start=None, stack=None, name=TEST_BIN):
+    def _check_tap(self, tap_data, bin_data, org=None, start=None, stack=None, binfile=TEST_BIN):
         if org is None:
             org = 65536 - len(bin_data)
         if start is None:
@@ -52,6 +52,9 @@ class Bin2TapTest(SkoolKitTestCase):
         if stack is None:
             stack = org
 
+        name = os.path.basename(binfile)
+        if name.lower().endswith('.bin'):
+            name = name[:-4]
         title = [ord(c) for c in name[:10].ljust(10)]
 
         # BASIC loader header
@@ -140,8 +143,16 @@ class Bin2TapTest(SkoolKitTestCase):
         binfile = self.write_bin_file(bin_data, suffix='.ram')
         tapfile = '{0}.tap'.format(binfile)
         tap_data = self._run(binfile, tapfile=tapfile)
-        self._check_tap(tap_data, bin_data, name=binfile)
+        self._check_tap(tap_data, bin_data, binfile=binfile)
         os.remove(tapfile)
+
+    def test_bin_in_subdirectory(self):
+        bin_data = [1]
+        subdir = self.make_directory()
+        binfile = self.write_bin_file(bin_data, '{}/game.bin'.format(subdir))
+        tapfile = binfile[:-4] + '.tap'
+        tap_data = self._run(binfile, tapfile=tapfile)
+        self._check_tap(tap_data, bin_data, binfile=binfile)
 
     def test_option_V(self):
         for option in ('-V', '--version'):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2010-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2013, 2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import os.path
 import argparse
 
 from . import read_bin_file, VERSION
@@ -117,8 +118,11 @@ def run(ram, org, start, stack, binfile, tapfile):
     data.extend(ram)                  # Data
     data.append(get_parity(data))
 
-    tap_data = get_basic_loader(binfile)
-    tap_data.extend(get_data_loader(binfile, org, length, start, stack))
+    title = os.path.basename(binfile)
+    if title.lower().endswith('.bin'):
+        title = title[:-4]
+    tap_data = get_basic_loader(title)
+    tap_data.extend(get_data_loader(title, org, length, start, stack))
     tap_data.extend(data)
 
     with open(tapfile, 'wb') as f:
