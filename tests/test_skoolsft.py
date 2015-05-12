@@ -379,6 +379,15 @@ c61000 LD A,"@"
  61013 LD (IX+$02),"="
 """
 
+TEST_OPERANDS_WITH_COMMAS_SKOOL = """; Instruction operands that contain commas
+c62000 LD A,","
+ 62002 LD A,(IY+",")
+ 62005 LD (IX+","),B
+ 62008 LD (IX+0),","
+ 62012 LD (IY+","),$45
+ 62016 LD (IX+","),","
+"""
+
 class SftWriterTest(SkoolKitTestCase):
     def _test_sft(self, skool, exp_sft, write_hex=0, preserve_base=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')
@@ -632,6 +641,26 @@ class SftWriterTest(SkoolKitTestCase):
             ' C61013,hc1',
         ]
         self._test_sft(TEST_CHARACTER_OPERANDS_SKOOL, exp_sft, preserve_base=True)
+
+    def test_operands_with_commas_no_base(self):
+        exp_sft = [
+            '; Instruction operands that contain commas',
+            'cC62000,c8',
+            ' C62008,nc4',
+            ' C62012,cn4',
+            ' C62016,cc1'
+        ]
+        self._test_sft(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_sft, preserve_base=False)
+
+    def test_operands_with_commas_preserve_base(self):
+        exp_sft = [
+            '; Instruction operands that contain commas',
+            'cC62000,c8',
+            ' C62008,dc4',
+            ' C62012,ch4',
+            ' C62016,cc1'
+        ]
+        self._test_sft(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_sft, preserve_base=True)
 
 if __name__ == '__main__':
     unittest.main()

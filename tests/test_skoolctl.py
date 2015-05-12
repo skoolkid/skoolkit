@@ -608,6 +608,15 @@ c61000 LD A,"@"
  61013 LD (IX+$02),"="
 """
 
+TEST_OPERANDS_WITH_COMMAS_SKOOL = """; Instruction operands that contain commas
+c62000 LD A,","
+ 62002 LD A,(IY+",")
+ 62005 LD (IX+","),B
+ 62008 LD (IX+0),","
+ 62012 LD (IY+","),$45
+ 62016 LD (IX+","),","
+"""
+
 class CtlWriterTest(SkoolKitTestCase):
     def _get_ctl(self, elements='btdrmsc', write_hex=0, write_asm_dirs=True, skool=TEST_SKOOL, preserve_base=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')
@@ -872,6 +881,26 @@ class CtlWriterTest(SkoolKitTestCase):
             '  61013,hc',
         ]
         self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=True)
+
+    def test_operands_with_commas_no_base(self):
+        exp_ctl = [
+            'c 62000 Instruction operands that contain commas',
+            '  62000,c8',
+            '  62008,nc4',
+            '  62012,cn4',
+            '  62016,cc'
+        ]
+        self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=False)
+
+    def test_operands_with_commas_preserve_base(self):
+        exp_ctl = [
+            'c 62000 Instruction operands that contain commas',
+            '  62000,c8',
+            '  62008,dc4',
+            '  62012,ch4',
+            '  62016,cc'
+        ]
+        self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=True)
 
     def test_ignoreua_directives(self):
         skool = '\n'.join((

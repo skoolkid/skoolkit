@@ -105,6 +105,9 @@ def get_operand_bases(operation, preserve_base):
     operands = [e.replace(' ', '').replace('\t', '') for e in elements[1].split(',', 1)]
     if elements[0] in ('BIT', 'RES', 'SET'):
         operands = operands[1:]
+    elif len(operands) == 2 and ',' in operands[1] and operands[0].endswith('"'):
+        lhs, rhs = operands[1].split(',', 1)
+        operands = [operands[0] + ',' + lhs, rhs]
     bases = ''
     for operand in operands:
         if operand.startswith(('(IX+', '(IX-', '(IY+', '(IY-')):
