@@ -36,6 +36,8 @@ write_skool() {
 ; { #CALL:countdown(countdown.gif) }
 ; { Created using #CHR(35)CALL:countdown(countdown.gif) }
 ; TABLE#
+; .
+; #CALL:copyright() 2015 Me
 b32768 DEFB 1,2,4,8,16,32,64,128
  32776 DEFB 0,60,70,74,82,98,60,0 ; '0'
  32784 DEFB 0,24,40,8,8,8,62,0    ; '1'
@@ -110,6 +112,9 @@ class GameHtmlWriter(HtmlWriter):
     def expand_timestamp(self, text, index, cwd):
         return index, time.strftime("%a %d %b %Y %H:%M:%S %Z")
 
+    def copyright(self, cwd):
+        return self.expand('#CHR169', cwd)
+
 class GameAsmWriter(AsmWriter):
     def expand_peek(self, text, index):
         end, address = parse_ints(text, index, 1)
@@ -120,6 +125,9 @@ class GameAsmWriter(AsmWriter):
 
     def expand_timestamp(self, text, index):
         return index, time.strftime("%a %d %b %Y %H:%M:%S %Z")
+
+    def copyright(self):
+        return self.expand('#CHR169')
 EOF
 }
 

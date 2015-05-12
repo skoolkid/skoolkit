@@ -264,6 +264,17 @@ image-creating skool macro.
    .. versionchanged:: 4.2
       Added the *frame* and *alt* parameters.
 
+.. _ext-ExpandingMacros:
+
+Expanding skool macros
+----------------------
+Both HtmlWriter and AsmWriter provide methods for expanding skool macros. These
+are useful for basing a ``#CALL`` method or custom macro on an existing macro.
+
+.. automethod:: skoolkit.skoolhtml.HtmlWriter.expand
+
+.. automethod:: skoolkit.skoolasm.AsmWriter.expand
+
 Parsing ref files
 -----------------
 HtmlWriter provides some convenience methods for extracting text and data from

@@ -259,6 +259,7 @@ class AsmWriter:
         raise UnsupportedMacroError()
 
     def expand(self, text):
+        """Return `text` with skool macros expanded."""
         return skoolmacro.expand_macros(self.macros, text).strip()
 
     def find_markers(self, block_indexes, text, marker, end_marker):

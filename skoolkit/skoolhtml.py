@@ -1458,6 +1458,10 @@ class HtmlWriter:
         return self.expand_table(text, index, cwd)
 
     def expand(self, text, cwd):
+        """Return `text` with skool macros expanded. `cwd` is the current
+        working directory, which is required by macros that create images or
+        hyperlinks.
+        """
         return expand_macros(self.macros, text, cwd)
 
 class FileInfo:
