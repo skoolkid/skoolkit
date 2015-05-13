@@ -94,20 +94,33 @@ def _get_base(item, preserve_base=True):
         return 'h'
     return 'd'
 
+def split_operation(operation):
+    elements = operation.split(None, 1)
+    if len(elements) < 2:
+        return elements
+    op = elements[0].upper()
+    if op in ('DEFB', 'DEFM'):
+        return [elements[0]] + get_defb_item_list(elements[1])
+    if op in ('DEFW', 'DEFS'):
+        return [elements[0]] + elements[1].split(',')
+    operands = elements[1].split(',', 1)
+    if len(operands) == 2 and ',' in operands[1] and operands[0].endswith('"'):
+        lhs, rhs = operands[1].split(',', 1)
+        operands = [operands[0] + ',' + lhs, rhs]
+    return [elements[0]] + operands
+
 def get_operand_bases(operation, preserve_base):
+    elements = [e.replace(' ', '').replace('\t', '').upper() for e in split_operation(operation)]
+    if not elements:
+        return ''
     if preserve_base:
         base_fmt = {'b': 'b', 'd': 'd', 'h': 'h'}
     else:
         base_fmt = {'b': 'b', 'd': 'n', 'h': 'n'}
-    elements = operation.upper().split(None, 1)
-    if len(elements) < 2:
-        return ''
-    operands = [e.replace(' ', '').replace('\t', '') for e in elements[1].split(',', 1)]
     if elements[0] in ('BIT', 'RES', 'SET'):
-        operands = operands[1:]
-    elif len(operands) == 2 and ',' in operands[1] and operands[0].endswith('"'):
-        lhs, rhs = operands[1].split(',', 1)
-        operands = [operands[0] + ',' + lhs, rhs]
+        operands = elements[2:]
+    else:
+        operands = elements[1:]
     bases = ''
     for operand in operands:
         if operand.startswith(('(IX+', '(IX-', '(IY+', '(IY-')):
@@ -945,77 +958,64 @@ class Mode:
         return addr_str, operation
 
     def convert(self, operation):
-        ops = operation.upper().split(None, 1)
-        if len(ops) > 1:
-            ops[1:] = ops[1].split(',')
-        ops = [op.strip() for op in ops]
+        elements = split_operation(operation)
+        op = elements[0].upper()
 
-        index = byte = None
-        if len(ops) == 2:
-            # RL/RR/RRC/RLC/SLA/SRA/SLL/SRL/INC/DEC/AND/OR/XOR/SUB/CP (I[XY]+d)
-            index = self.get_index(operation)
-        elif len(ops) == 3:
-            index = self.get_index(operation)
-            if index:
-                # LD (I[XY]+d),n; LD (I[XY]+d),r
-                byte = parse_int(ops[2])
-            else:
-                # LD r,(I[XY]+d); BIT/SET/RES n,(I[XY]+d);
-                # ADD/ADC/SBC A,(I[XY]+d)
-                index = self.get_index(operation)
-        if index:
-            return self.replace_index(operation, index, byte)
-
-        if ops[0] in ('DEFB', 'DEFM'):
-            directive, item_str = operation.split(None, 1)
+        if op in ('DEFB', 'DEFM'):
             items = []
-            for item in get_defb_item_list(item_str):
+            for item in elements[1:]:
                 if item.startswith('"'):
                     items.append(item)
                 else:
                     items.append(self.replace_byte(item, False))
-            return '{0} {1}'.format(directive, ','.join(items))
+            return '{} {}'.format(elements[0], ','.join(items))
 
-        if ops[0] == 'DEFS':
-            directive = operation.split(None, 1)[0]
-            data = [self.replace_byte(b, False) for b in ops[1:]]
-            return '{0} {1}'.format(directive, ','.join(data))
+        if op == 'DEFS':
+            data = [self.replace_byte(b, False) for b in elements[1:]]
+            return '{} {}'.format(elements[0], ','.join(data))
 
-        if ops[0] == 'DEFW':
-            directive = operation.split(None, 1)[0]
-            words = [self.replace_address(w, False) for w in ops[1:]]
-            return '{0} {1}'.format(directive, ','.join(words))
+        if op == 'DEFW':
+            words = [self.replace_address(w, False) for w in elements[1:]]
+            return '{} {}'.format(elements[0], ','.join(words))
 
-        if ops[0] in ('CALL', 'DJNZ', 'JP', 'JR'):
+        # Instructions containing '(I[XY]+d)'
+        index = self.get_index(operation)
+        if index:
+            if len(elements) == 3:
+                return self.replace_index(operation, index, parse_int(elements[2]))
+            return self.replace_index(operation, index)
+
+        if op in ('CALL', 'DJNZ', 'JP', 'JR'):
             # CALL [*,]nn, DJNZ nn, JP [*,]nn, JR [*,]nn
             return self.replace_address(operation)
 
-        if ops[0] in ('AND', 'OR', 'XOR', 'SUB', 'CP', 'IN', 'OUT', 'ADD', 'ADC', 'SBC', 'RST'):
+        if op in ('AND', 'OR', 'XOR', 'SUB', 'CP', 'IN', 'OUT', 'ADD', 'ADC', 'SBC', 'RST'):
             # AND n; OR n; XOR n; SUB n; CP n; IN (n),A; OUT (n),A; ADD A,n;
             # ADC A,n; SBC A,n; RST n
             return self.replace_byte(operation)
 
-        if ops[0] == 'LD':
-            if ops[1] in ('A', 'B', 'C', 'D', 'E', 'H', 'L', 'IXL', 'IXH', 'IYL', 'IYH', '(HL)') and not ops[2].startswith('('):
+        if op == 'LD' and len(elements) == 3:
+            operands = [e.replace(' ', '').replace('\t', '').upper() for e in elements[1:]]
+            if operands[0] in ('A', 'B', 'C', 'D', 'E', 'H', 'L', 'IXL', 'IXH', 'IYL', 'IYH', '(HL)') and not operands[1].startswith('('):
                 # LD r,n; LD (HL),n
                 return self.replace_byte(operation)
-            addr_ld_reg = ('A', 'BC', 'DE', 'HL', 'IX', 'IY', 'SP')
-            if ops[1] in addr_ld_reg or ops[2] in addr_ld_reg:
+            if not set(('A', 'BC', 'DE', 'HL', 'IX', 'IY', 'SP')).isdisjoint(operands):
                 # LD A,(nn); LD (nn),A; LD rr,nn; LD rr,(nn); LD (nn),rr
                 return self.replace_address(operation)
 
         return operation
 
     def get_index(self, op):
-        return re.search('\([Ii][XYxy] *[\+-].*\)', op)
+        match = re.search('\([Ii][XYxy] *[\+-].*\)', op)
+        if match:
+            return match.group()
 
-    def replace_index(self, operation, index, byte):
-        match = index.group()
+    def replace_index(self, operation, index, byte=None):
+        if byte is None:
+            return operation.replace(index, self.replace_byte(index))
         marker = '_'
-        operation = operation.replace(match, marker)
-        if byte is not None:
-            operation = self.replace_byte(operation)
-        return operation.replace(marker, self.replace_byte(match))
+        operation = self.replace_byte(operation.replace(index, marker))
+        return operation.replace(marker, self.replace_byte(index))
 
     def replace_byte(self, text, check_prefix=True):
         return self.replace_number(text, 2, check_prefix)
