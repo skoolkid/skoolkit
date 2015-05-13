@@ -1230,9 +1230,15 @@ class TableParser:
                         end = len(cell)
                     for span in cell[1:end].split(','):
                         if span[0] == 'c':
-                            colspan = int(span[1:])
+                            try:
+                                colspan = int(span[1:])
+                            except ValueError:
+                                raise SkoolParsingError("Invalid colspan indicator: '{}'".format(span))
                         elif span[0] == 'r':
-                            rowspan = int(span[1:])
+                            try:
+                                rowspan = int(span[1:])
+                            except ValueError:
+                                raise SkoolParsingError("Invalid rowspan indicator: '{}'".format(span))
                         elif span[0] == 'h':
                             header = True
                         elif span[0] == 't':

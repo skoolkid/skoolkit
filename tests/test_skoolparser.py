@@ -4,7 +4,7 @@ import re
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolParsingError
-from skoolkit.skoolparser import SkoolParser, set_bytes, BASE_10, BASE_16, CASE_LOWER
+from skoolkit.skoolparser import SkoolParser, TableParser, set_bytes, BASE_10, BASE_16, CASE_LOWER
 
 TEST_BASE_CONVERSION_SKOOL = """
 c30000 LD A,%11101011
@@ -2353,6 +2353,18 @@ class SkoolParserTest(SkoolKitTestCase):
         ))
         error = "bfix-end cannot end ofix- block"
         self.assert_error(skool, error, asm_mode=1)
+
+class TableParserTest(SkoolKitTestCase):
+    def assert_error(self, text, error):
+        with self.assertRaises(SkoolParsingError) as cm:
+            TableParser().parse_text(text, 0)
+        self.assertEqual(cm.exception.args[0], error)
+
+    def test_invalid_colspan_indicator(self):
+        self.assert_error('#TABLE { =cX Hi } TABLE#', "Invalid colspan indicator: 'cX'")
+
+    def test_invalid_rowspan_indicator(self):
+        self.assert_error('#TABLE { =rY Hi } TABLE#', "Invalid rowspan indicator: 'rY'")
 
 if __name__ == '__main__':
     unittest.main()
