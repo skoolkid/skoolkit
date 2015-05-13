@@ -704,11 +704,17 @@ class SkoolParser:
         return instruction, comment
 
     def _calculate_entry_sizes(self):
-        for i, entry in enumerate(self.memory_map[:-1]):
-            entry.size = int(self.memory_map[i + 1].address) - int(entry.address)
-        if self.memory_map:
-            last_entry = self.memory_map[-1]
-            last_entry.size = 65536 - int(last_entry.address)
+        for i, entry in enumerate(self.memory_map):
+            if entry.address is None:
+                raise SkoolParsingError("Invalid address: '{}'".format(entry.addr_str))
+            if i + 1 < len(self.memory_map):
+                next_entry = self.memory_map[i + 1]
+                end = next_entry.address
+                if end is None:
+                    raise SkoolParsingError("Invalid address: '{}'".format(next_entry.addr_str))
+            else:
+                end = 65536
+            entry.size = end - entry.address
 
     def _is_8_bit_ld_instruction(self, operation):
         if operation.startswith('LD '):

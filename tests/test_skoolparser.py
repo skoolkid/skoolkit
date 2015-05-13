@@ -1154,10 +1154,35 @@ class SkoolParserTest(SkoolKitTestCase):
         skoolfile = self.write_text_file(contents, suffix='.skool')
         return SkoolParser(skoolfile, *args, **kwargs)
 
-    def assert_error(self, skool, error):
+    def assert_error(self, skool, error, *args, **kwargs):
         with self.assertRaises(SkoolParsingError) as cm:
-            self._get_parser('; @start\n' + skool, asm_mode=1)
+            self._get_parser(skool, *args, **kwargs)
         self.assertEqual(cm.exception.args[0], error)
+
+    def test_invalid_entry_address(self):
+        self.assert_error('c3000f RET', "Invalid address: '3000f'", html=True)
+
+    def test_invalid_address_for_second_entry(self):
+        skool = '\n'.join((
+            'c40000 RET',
+            '',
+            'c4000f RET'
+        ))
+        self.assert_error(skool, "Invalid address: '4000f'", html=True)
+
+    def test_entry_sizes(self):
+        skool = '\n'.join((
+            'c65500 RET',
+            '',
+            'c65501 JP 65500'
+            '',
+            'i65504'
+        ))
+        entries = self._get_parser(skool, html=True).memory_map
+        self.assertEqual(len(entries), 3)
+        self.assertEqual(entries[0].size, 1)
+        self.assertEqual(entries[1].size, 3)
+        self.assertEqual(entries[2].size, 32)
 
     def test_html_escape(self):
         skool = 'c24576 NOP ; Return if X<=Y & Y>=Z'
@@ -2271,58 +2296,63 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_rsub_minus_inside_rsub_minus(self):
         # @rsub-begin inside @rsub- block
         skool = '\n'.join((
+            '@start',
             '; @rsub-begin',
             '@rsub-begin',
             '; @rsub-end',
             '@rsub-end',
         ))
         error = "rsub-begin inside rsub- block"
-        self.assert_error(skool, error)
+        self.assert_error(skool, error, asm_mode=1)
 
     def test_isub_plus_inside_bfix_plus(self):
         # @isub+else inside @bfix+ block
         skool = '\n'.join((
+            '@start',
             '; @bfix+begin',
             '; @isub+else',
             '; @isub+end',
             '@bfix+end',
         ))
         error = "isub+else inside bfix+ block"
-        self.assert_error(skool, error)
+        self.assert_error(skool, error, asm_mode=1)
 
     def test_dangling_ofix_else(self):
         # Dangling @ofix+else directive
         skool = '\n'.join((
+            '@start',
             '@ofix+else',
             '; @ofix+end',
         ))
         error = "ofix+else not inside block"
-        self.assert_error(skool, error)
+        self.assert_error(skool, error, asm_mode=1)
 
     def test_dangling_rfix_end(self):
         # Dangling @rfix+end directive
-        skool = '; @rfix+end'
+        skool = '@start\n; @rfix+end'
         error = "rfix+end has no matching start directive"
-        self.assert_error(skool, error)
+        self.assert_error(skool, error, asm_mode=1)
 
     def test_wrong_end_infix(self):
         # Mismatched begin/else/end (wrong infix)
         skool = '\n'.join((
+            '@start',
             '; @rsub+begin',
             '@rsub-else',
             '; @rsub+end',
         ))
         error = "rsub+end cannot end rsub- block"
-        self.assert_error(skool, error)
+        self.assert_error(skool, error, asm_mode=1)
 
     def test_mismatched_begin_end(self):
         # Mismatched begin/end (different directive)
         skool = '\n'.join((
+            '@start',
             '@ofix-begin',
             '; @bfix-end',
         ))
         error = "bfix-end cannot end ofix- block"
-        self.assert_error(skool, error)
+        self.assert_error(skool, error, asm_mode=1)
 
 if __name__ == '__main__':
     unittest.main()
