@@ -2,6 +2,7 @@
 import unittest
 
 from skoolkittest import SkoolKitTestCase
+from skoolkit import SkoolParsingError
 from skoolkit.skoolctl import CtlWriter
 
 DIRECTIVES = 'bcgistuw'
@@ -627,6 +628,11 @@ class CtlWriterTest(SkoolKitTestCase):
     def _test_ctl(self, skool, exp_ctl, write_hex=0, preserve_base=False):
         ctl = self._get_ctl(skool=skool, write_hex=write_hex, preserve_base=preserve_base)
         self.assertEqual(exp_ctl, ctl)
+
+    def test_invalid_address(self):
+        with self.assertRaises(SkoolParsingError) as cm:
+            CtlWriter(self.write_text_file('c3000f RET'))
+        self.assertEqual(cm.exception.args[0], "Invalid address (3000f):\nc3000f RET")
 
     def test_default_elements(self):
         self.assertEqual(TEST_CTL, self._get_ctl())

@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from . import write_line, get_int_param, get_address_format, open_file
+from . import write_line, get_int_param, get_address_format, open_file, SkoolParsingError
 from .skoolparser import (DIRECTIVES, Comment, Register,
                           parse_comment_block, parse_instruction, parse_address_comments, join_comments,
                           parse_asm_block_directive, get_instruction_ctl, get_operand_bases,
@@ -183,9 +183,9 @@ class CtlWriter:
                         else:
                             offset = 1
                         if j + offset < len(sub_blocks):
-                            length = int(sub_blocks[j + offset][1][0].address) - int(first_instruction.address)
+                            length = sub_blocks[j + offset][1][0].address - first_instruction.address
                         elif k + 1 < len(sections):
-                            length = int(sections[k + 1][1][0].address) - int(first_instruction.address)
+                            length = sections[k + 1][1][0].address - first_instruction.address
                         comment_text = ''
                         comment = first_instruction.comment
                         if comment and COMMENTS in self.elements:
@@ -391,7 +391,11 @@ class SkoolParser:
 
     def _parse_instruction(self, line):
         ctl, addr_str, operation, comment = parse_instruction(line)
-        instruction = Instruction(ctl, addr_str, operation, self.preserve_base)
+        try:
+            address = get_int_param(addr_str)
+        except ValueError:
+            raise SkoolParsingError("Invalid address ({}):\n{}".format(addr_str, line.rstrip()))
+        instruction = Instruction(ctl, address, operation, self.preserve_base)
         self.mode.apply_instruction_asm_directives(instruction)
         return instruction, comment
 
@@ -438,9 +442,9 @@ class FakeInstruction:
         self.bases = ''
 
 class Instruction:
-    def __init__(self, ctl, addr_str, operation, preserve_base):
+    def __init__(self, ctl, address, operation, preserve_base):
         self.ctl = ctl
-        self.address = get_int_param(addr_str)
+        self.address = address
         self.operation = operation
         self.container = None
         self.comment = None
