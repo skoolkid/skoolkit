@@ -191,9 +191,19 @@ class BasicLister:
         while chr(self.snapshot[j]) in '0123456789.':
             num_str = chr(self.snapshot[j]) + num_str
             j -= 1
-        if num_str and '.' not in num_str:
-            num = self.snapshot[i + 3] + 256 * self.snapshot[i + 4]
-            if num != int(num_str):
+        if num_str:
+            if self.snapshot[i + 1] == 0:
+                sign = -1 if self.snapshot[i + 2] else 1
+                num = sign * get_word(self.snapshot, i + 3)
+            else:
+                exponent = self.snapshot[i + 1] - 160
+                sign = -1 if self.snapshot[i + 2] & 128 else 1
+                mantissa = float(16777216 * (self.snapshot[i + 2] | 128)
+                                 + 65536 * self.snapshot[i + 3]
+                                 + 256 * self.snapshot[i + 4]
+                                 + self.snapshot[i + 5])
+                num = sign * mantissa * (2 ** exponent)
+            if num and abs(1 - float(num_str) / num) > 1e-10:
                 return '{{{}}}'.format(num)
         return ''
 
