@@ -2,6 +2,7 @@
 import unittest
 
 from skoolkittest import SkoolKitTestCase
+from skoolkit import SkoolParsingError
 from skoolkit.skoolsft import SftWriter
 
 TEST_SKOOL = r"""; Dangling comment not associated with any entry
@@ -395,6 +396,12 @@ class SftWriterTest(SkoolKitTestCase):
         writer.write()
         sft = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(exp_sft, sft)
+
+    def test_invalid_address(self):
+        writer = SftWriter(self.write_text_file('c4000f RET'))
+        with self.assertRaises(SkoolParsingError) as cm:
+            writer.write()
+        self.assertEqual(cm.exception.args[0], "Invalid address (4000f):\nc4000f RET")
 
     def test_sftwriter(self):
         self._test_sft(TEST_SKOOL, TEST_SFT)

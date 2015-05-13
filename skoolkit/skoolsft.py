@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from . import write_line, get_int_param, get_address_format, open_file
+from . import write_line, get_int_param, get_address_format, open_file, SkoolParsingError
 from .skoolparser import (DIRECTIVES, parse_asm_block_directive, get_instruction_ctl, get_operand_bases,
                           get_defb_length, get_defm_length, get_defs_length, get_defw_length)
 from .skoolctl import get_lengths
@@ -155,7 +155,10 @@ class SftWriter:
 
     def _parse_instruction(self, line):
         ctl = line[0]
-        address = get_int_param(line[1:6])
+        try:
+            address = get_int_param(line[1:6])
+        except ValueError:
+            raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
         addr_str = self.address_fmt.format(address)
         comment_index = line.find(';', 7)
         if comment_index > 0:
