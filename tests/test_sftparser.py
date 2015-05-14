@@ -771,7 +771,7 @@ class SftParserTest(SkoolKitTestCase):
 
     def test_character_operands(self):
         snapshot = [
-            62, 32,         # 00000 LD A,32
+            62, 34,         # 00000 LD A,34
             198, 42,        # 00002 ADD A,42
             214, 33,        # 00004 SUB 33
             254, 63,        # 00006 CP 63
@@ -790,7 +790,7 @@ class SftParserTest(SkoolKitTestCase):
             ' C00014,c14',
         ))
         exp_skool = [
-            'c00000 LD A," "',
+            'c00000 LD A,"\\""',
             ' 00002 ADD A,"*"',
             ' 00004 SUB "!"',
             ' 00006 CP "?"',

@@ -82,6 +82,8 @@ class Disassembler:
         if base:
             base = base[0]
         if base == 'c' and 32 <= value < 127 and value not in (94, 96):
+            if value == 34:
+                return r'"\""'
             return '"{}"'.format(chr(value))
         if base not in self.byte_formats:
             if self.asm_hex:
