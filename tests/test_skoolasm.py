@@ -151,10 +151,10 @@ TEST_HEX_ASM_UPPER = r"""
   LD E,$0F
   LD H,$10
   LD L,$11
-  LD IXL,$12
-  LD IXH,$13
-  LD IYL,$14
-  LD IYH,$15
+  LD IXl,$12
+  LD IXh,$13
+  LD IYl,$14
+  LD IYh,$15
   LD (HL),$16
   AND B
   DEFB $00,$01,$11,$AB
@@ -310,10 +310,10 @@ TEST_DECIMAL_ASM_UPPER = r"""
   LD E,15
   LD H,16
   LD L,17
-  LD IXL,18
-  LD IXH,19
-  LD IYL,20
-  LD IYH,21
+  LD IXl,18
+  LD IXh,19
+  LD IYl,20
+  LD IYh,21
   LD (HL),22
   AND B
   DEFB 0,1,17,171

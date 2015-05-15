@@ -930,6 +930,9 @@ class Mode:
             addr_str = addr_str.upper()
         if self.lower or self.upper:
             operation = convert_case(operation, self.lower)
+            if self.upper and not operation.startswith(('DEFB', 'DEFM', 'DEFS', 'DEFW')):
+                operation = re.sub('(I[XY])H', r'\1h', operation)
+                operation = re.sub('(I[XY])L', r'\1l', operation)
         return addr_str, operation
 
     def apply_base(self, addr_str, operation):
