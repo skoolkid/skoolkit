@@ -937,7 +937,7 @@ class DisassemblyTest(SkoolKitTestCase):
     def test_character_operands(self):
         snapshot = [
             62, 34,         # 00000 LD A,34
-            198, 42,        # 00002 ADD A,42
+            198, 92,        # 00002 ADD A,42
             214, 33,        # 00004 SUB 33
             254, 63,        # 00006 CP 63
             54, 65,         # 00008 LD (HL),65
@@ -958,7 +958,7 @@ class DisassemblyTest(SkoolKitTestCase):
         ))
         exp_instructions = [
             (0, 'LD A,"\\""'),
-            (2, 'ADD A,"*"'),
+            (2, 'ADD A,"\\\\"'),
             (4, 'SUB "!"'),
             (6, 'CP "?"'),
             (8, 'LD (HL),"A"'),
