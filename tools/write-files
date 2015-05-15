@@ -57,7 +57,7 @@ write_asms() {
 }
 
 write_ctls() {
-  for b in '' '-h'; do
+  for b in '' '-h' '-l'; do
     run_cmd "./skool2ctl.py $b src/$skoolfile" ctl/$GAME$b.ctl
   done
 }
@@ -86,7 +86,7 @@ write_skools() {
 }
 
 write_sfts() {
-  for b in '' '-h'; do
+  for b in '' '-h' '-l'; do
     run_cmd "./skool2sft.py $b src/$skoolfile" sft/$GAME$b.sft
   done
 }
