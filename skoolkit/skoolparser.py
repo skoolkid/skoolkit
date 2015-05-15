@@ -20,6 +20,7 @@ import cgi
 import re
 
 from . import warn, wrap, get_int_param, parse_int, open_file, SkoolParsingError
+from .disassembler import convert_case
 from .skoolmacro import DELIMITERS
 
 DIRECTIVES = 'bcgistuw'
@@ -925,28 +926,10 @@ class Mode:
     def apply_case(self, addr_str, operation):
         if self.lower:
             addr_str = addr_str.lower()
-            if operation.lower().startswith(('defb', 'defm')):
-                items = []
-                for item in get_defb_item_list(operation[4:]):
-                    if item.startswith('"'):
-                        items.append(item)
-                    else:
-                        items.append(item.lower())
-                operation = '{0} {1}'.format(operation[:4].lower(), ','.join(items))
-            else:
-                operation = operation.lower()
         elif self.upper:
             addr_str = addr_str.upper()
-            if operation.upper().startswith(('DEFB', 'DEFM')):
-                items = []
-                for item in get_defb_item_list(operation[4:]):
-                    if item.startswith('"'):
-                        items.append(item)
-                    else:
-                        items.append(item.upper())
-                operation = '{0} {1}'.format(operation[:4].upper(), ','.join(items))
-            else:
-                operation = operation.upper()
+        if self.lower or self.upper:
+            operation = convert_case(operation, self.lower)
         return addr_str, operation
 
     def apply_base(self, addr_str, operation):

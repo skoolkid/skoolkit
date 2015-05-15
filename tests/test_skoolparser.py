@@ -4,7 +4,7 @@ import re
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolParsingError
-from skoolkit.skoolparser import SkoolParser, TableParser, set_bytes, BASE_10, BASE_16, CASE_LOWER
+from skoolkit.skoolparser import SkoolParser, TableParser, set_bytes, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
 
 TEST_BASE_CONVERSION_SKOOL = """
 c30000 LD A,%11101011
@@ -1928,6 +1928,40 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(TEST_BASE_CONVERSION_SKOOL, base=BASE_16)
         for line in TEST_BASE_CONVERSION_HEX:
             self.assertEqual(parser.get_instruction(int(line[:5])).operation, line[6:])
+
+    def test_lower_case_conversion_with_character_operands(self):
+        skool = '\n'.join((
+            'c54000 LD A,"A"',
+            ' 54002 LD B,(IX+"B")',
+            ' 54005 LD (IY+"C"),C',
+            ' 54008 LD (IX+"\\""),"D"',
+        ))
+        exp_instructions = (
+            (54000, 'ld a,"A"'),
+            (54002, 'ld b,(ix+"B")'),
+            (54005, 'ld (iy+"C"),c'),
+            (54008, 'ld (ix+"\\""),"D"'),
+        )
+        parser = self._get_parser(skool, case=CASE_LOWER)
+        for address, operation in exp_instructions:
+            self.assertEqual(parser.get_instruction(address).operation, operation)
+
+    def test_upper_case_conversion_with_character_operands(self):
+        skool = '\n'.join((
+            'c54000 ld a,"a"',
+            ' 54002 ld b,(ix+"b")',
+            ' 54005 ld (iy+"c"),c',
+            ' 54008 ld (ix+"\\""),"d"',
+        ))
+        exp_instructions = (
+            (54000, 'LD A,"a"'),
+            (54002, 'LD B,(IX+"b")'),
+            (54005, 'LD (IY+"c"),C'),
+            (54008, 'LD (IX+"\\""),"d"'),
+        )
+        parser = self._get_parser(skool, case=CASE_UPPER)
+        for address, operation in exp_instructions:
+            self.assertEqual(parser.get_instruction(address).operation, operation)
 
     def test_warn_unreplaced_operand(self):
         skool = '\n'.join((

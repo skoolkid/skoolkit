@@ -1997,5 +1997,55 @@ class DisassemblerTest(SkoolKitTestCase):
         self.assertEqual(disassembler.num_str(10, 2), '$000A')
         self.assertEqual(disassembler.num_str(256, 2), '$0100')
 
+    def test_lower_case_conversion_with_character_operands(self):
+        snapshot = [
+            62, 65,          # 00000 LD A,"A"
+            221, 70, 66,     # 00002 LD B,(IX+"B")
+            253, 113, 67,    # 00005 LD (IY+"C"),C
+            221, 54, 34, 68, # 00008 LD (IX+"\""),"D"
+        ]
+        exp_instructions = (
+            (0, 'ld a,"A"'),
+            (2, 'ld b,(ix+"B")'),
+            (5, 'ld (iy+"C"),c'),
+            (8, 'ld (ix+"\\""),"D"'),
+        )
+        disassembler = self._get_disassembler(snapshot, asm_lower=True)
+        instructions = disassembler.disassemble(0, 12, 'c')
+        self.assertEqual(len(instructions), len(exp_instructions))
+        for instruction, (address, operation) in zip(instructions, exp_instructions):
+            self.assertEqual(instruction.address, address)
+            self.assertEqual(instruction.operation, operation)
+
+    def test_lower_case_conversion_of_defb_statement(self):
+        snapshot = [65, 255]
+        disassembler = self._get_disassembler(snapshot, asm_lower=True)
+        sublengths = ((1, 'T'), (1, 'h'))
+        instructions = disassembler.defb_range(0, 2, sublengths)
+        self.assertEqual(len(instructions), 1)
+        self.assertEqual(instructions[0].operation, 'defb "A",$ff')
+
+    def test_lower_case_conversion_of_defm_statement(self):
+        snapshot = [34, 65, 34, 255]
+        disassembler = self._get_disassembler(snapshot, asm_lower=True)
+        sublengths = ((3, None), (1, 'h'))
+        instructions = disassembler.defm_range(0, 4, sublengths)
+        self.assertEqual(len(instructions), 1)
+        self.assertEqual(instructions[0].operation, r'defm "\"A\"",$ff')
+
+    def test_lower_case_conversion_of_defs_statement(self):
+        disassembler = self._get_disassembler(asm_lower=True)
+        sublengths = ((None, 'h'), (15, 'h'))
+        instruction = disassembler.defs(0, 255, sublengths)
+        self.assertEqual(instruction.operation, 'defs $ff,$0f')
+
+    def test_lower_case_conversion_of_defw_statement(self):
+        snapshot = [255, 255]
+        disassembler = self._get_disassembler(snapshot, asm_lower=True)
+        sublengths = ((None, 'h'),)
+        instructions = disassembler.defw_range(0, 2, sublengths)
+        self.assertEqual(len(instructions), 1)
+        self.assertEqual(instructions[0].operation, 'defw $ffff')
+
 if __name__ == '__main__':
     unittest.main()

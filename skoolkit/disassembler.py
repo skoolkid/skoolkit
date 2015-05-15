@@ -16,6 +16,28 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+def convert_case(operation, lower=True):
+    i = 0
+    converted = ''
+    convert = True
+    while i < len(operation):
+        c = operation[i]
+        if c == '"':
+            convert = not convert
+        elif c == '\\' and not convert:
+            converted += operation[i:i + 2]
+            i += 2
+            continue
+        if convert:
+            if lower:
+                converted += c.lower()
+            else:
+                converted += c.upper()
+        else:
+            converted += c
+        i += 1
+    return converted
+
 class Instruction:
     def __init__(self, address, operation, data):
         self.address = address
@@ -51,30 +73,16 @@ class Disassembler:
         self.asm_hex = asm_hex
         self.asm_lower = asm_lower
         self.defw_size = 2
-        if asm_lower:
-            self.hex2fmt = '${:02x}'
-            self.hex4fmt = '${:04x}'
-            self.defb_inst = 'defb'
-            self.defm_inst = 'defm'
-            self.defs_inst = 'defs'
-            self.defw_inst = 'defw'
-        else:
-            self.hex2fmt = '${:02X}'
-            self.hex4fmt = '${:04X}'
-            self.defb_inst = 'DEFB'
-            self.defm_inst = 'DEFM'
-            self.defs_inst = 'DEFS'
-            self.defw_inst = 'DEFW'
         self.byte_formats = {
             'b': '%{:08b}',
-            'h': self.hex2fmt,
+            'h': '${:02X}',
             'd': '{}'
         }
         if self.zfill:
             self.byte_formats['d'] = '{:03d}'
         self.word_formats = {
             'b': '%{:016b}',
-            'h': self.hex4fmt,
+            'h': '${:04X}',
             'd': '{}'
         }
 
@@ -108,7 +116,7 @@ class Disassembler:
                 operation, length = decoder(self, template, address, base)
             if address + length <= 65536:
                 if self.asm_lower:
-                    operation = operation.lower()
+                    operation = convert_case(operation)
                 instructions.append(Instruction(address, operation, self.snapshot[address:address + length]))
             else:
                 instructions.append(self.defb_line(address, self.snapshot[address:65536]))
@@ -154,7 +162,9 @@ class Disassembler:
         instructions = []
         for address in range(start, end, step):
             data = self.snapshot[address:address + step]
-            defw_dir = '{} {}'.format(self.defw_inst, self._defw_items(data, sublengths))
+            defw_dir = 'DEFW {}'.format(self._defw_items(data, sublengths))
+            if self.asm_lower:
+                defw_dir = convert_case(defw_dir)
             instructions.append(Instruction(address, defw_dir, data))
         return instructions
 
@@ -162,7 +172,10 @@ class Disassembler:
         if sublengths[0][0]:
             data = self.snapshot[start:end]
             item_str = self.defb_items(data, sublengths, False)
-            return [Instruction(start, '{0} {1}'.format(self.defm_inst, item_str), data)]
+            defm_dir = 'DEFM {}'.format(item_str)
+            if self.asm_lower:
+                defm_dir = convert_case(defm_dir)
+            return [Instruction(start, defm_dir, data)]
         instructions = []
         msg = []
         for i in range(start, end):
@@ -181,7 +194,10 @@ class Disassembler:
     def defs(self, start, end, sublengths):
         size = end - start
         items = [self.num_str(value or size, base=base) for value, base in sublengths]
-        return Instruction(start, '{} {}'.format(self.defs_inst, ','.join(items)), self.snapshot[start:end])
+        defs_dir = 'DEFS {}'.format(','.join(items))
+        if self.asm_lower:
+            defs_dir = convert_case(defs_dir)
+        return Instruction(start, defs_dir, self.snapshot[start:end])
 
     def ignore(self, start, end):
         return [Instruction(start, '', self.snapshot[start:end])]
@@ -250,7 +266,10 @@ class Disassembler:
         return ','.join(items)
 
     def defb_dir(self, data, sublengths=((None, None),)):
-        return '{0} {1}'.format(self.defb_inst, self.defb_items(data, sublengths))
+        defb_dir = 'DEFB {}'.format(self.defb_items(data, sublengths))
+        if self.asm_lower:
+            defb_dir = convert_case(defb_dir)
+        return defb_dir
 
     def defb(self, a, length):
         return self.defb_dir(self.snapshot[a:a + length]), length
@@ -311,8 +330,10 @@ class Disassembler:
         return Instruction(address, self.defb_dir(data, sublengths), data)
 
     def defm_line(self, address, data):
-        message = self.get_message(data)
-        return Instruction(address, '{0} "{1}"'.format(self.defm_inst, message), data)
+        defm_dir = 'DEFM "{}"'.format(self.get_message(data))
+        if self.asm_lower:
+            defm_dir = convert_case(defm_dir)
+        return Instruction(address, defm_dir, data)
 
     def defm_lines(self, address, data):
         lines = []
