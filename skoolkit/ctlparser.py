@@ -153,7 +153,7 @@ class CtlParser:
                             self.subctls[address] = subctl
                             address += length
                         if text:
-                            self.multiline_comments[start] = (address, text)
+                            self.multiline_comments[start] = (address - 1, text)
             elif asm_directive:
                 directive, address, value = asm_directive
                 if directive in (AD_ORG, AD_WRITER, AD_START, AD_END) or directive.startswith(AD_SET):

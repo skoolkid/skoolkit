@@ -70,14 +70,15 @@ s 32799
 S 32799,10,5
 ; Entry #13
 s 32809 Block of zeroes
-M 32809,5 A DEFS followed by two NOPs
-C 32812,2
+M 32809,4 A DEFS and a NOP
+C 32812,1
+C 32813,1 Another NOP
 ; Entry #14
 c 32814 Refers to the routine at 32768
 ; Entry #15
 b 32817
 T 32817,5,2:B3
-B 32822,5,2:T2:1
+B 32822,5,2:T2,1 This comment spans two DEFB statements
 T 32827,,2:B1*2,1:B1 This comment spans four DEFM statements
 ; Entry 16
 i 32837
@@ -352,9 +353,17 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(instructions[1].operation, 'NOP')
         self.assertEqual(instructions[2].operation, 'NOP')
         blocks = entry.blocks
-        self.assertEqual(len(blocks), 1)
-        block = blocks[0]
-        self.assertEqual(block.comment, 'A DEFS followed by two NOPs')
+        self.assertEqual(len(blocks), 2)
+        block1 = blocks[0]
+        self.assertEqual(block1.start, 32809)
+        self.assertEqual(block1.end, 32813)
+        self.assertEqual(instructions[:2], block1.instructions)
+        self.assertEqual(block1.comment, 'A DEFS and a NOP')
+        block2 = blocks[1]
+        self.assertEqual(block2.start, block1.end)
+        self.assertEqual(block2.end, 32814)
+        self.assertEqual(instructions[2:], block2.instructions)
+        self.assertEqual(block2.comment, 'Another NOP')
 
         # Entry #14 (32814)
         entry = entries[13]
@@ -365,19 +374,31 @@ class DisassemblyTest(SkoolKitTestCase):
         entry = entries[14]
         self.assertEqual(entry.address, 32817)
         instructions = entry.instructions
-        self.assertEqual(len(instructions), 6)
+        self.assertEqual(len(instructions), 7)
         self.assertEqual(instructions[0].operation, 'DEFM "Hi",1,2,3')
-        self.assertEqual(instructions[1].operation, 'DEFB 4,5,"Lo",6')
-        self.assertEqual(instructions[2].operation, 'DEFM "ab",1')
-        self.assertEqual(instructions[3].operation, 'DEFM "cd",2')
-        self.assertEqual(instructions[4].operation, 'DEFM "e",3')
-        self.assertEqual(instructions[5].operation, 'DEFM "f",4')
+        self.assertEqual(instructions[1].operation, 'DEFB 4,5,"Lo"')
+        self.assertEqual(instructions[2].operation, 'DEFB 6')
+        self.assertEqual(instructions[3].operation, 'DEFM "ab",1')
+        self.assertEqual(instructions[4].operation, 'DEFM "cd",2')
+        self.assertEqual(instructions[5].operation, 'DEFM "e",3')
+        self.assertEqual(instructions[6].operation, 'DEFM "f",4')
         blocks = entry.blocks
         self.assertEqual(len(blocks), 3)
+        block1 = blocks[0]
+        self.assertEqual(block1.start, 32817)
+        self.assertEqual(block1.end, 32822)
+        self.assertEqual(block1.comment, '')
+        self.assertEqual(instructions[:1], block1.instructions)
+        block2 = blocks[1]
+        self.assertEqual(block2.start, block1.end)
+        self.assertEqual(block2.end, 32827)
+        self.assertEqual(block2.comment, 'This comment spans two DEFB statements')
+        self.assertEqual(instructions[1:3], block2.instructions)
         block3 = blocks[2]
-        self.assertEqual(block3.start, 32827)
+        self.assertEqual(block3.start, block2.end)
+        self.assertEqual(block3.end, 32837)
         self.assertEqual(block3.comment, 'This comment spans four DEFM statements')
-        self.assertEqual(instructions[2:], block3.instructions)
+        self.assertEqual(instructions[3:], block3.instructions)
 
         # Entry #16 (32837)
         entry = entries[15]

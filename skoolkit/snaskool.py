@@ -675,8 +675,9 @@ class Disassembly:
                 if comment is not None:
                     sub_block.comment = comment
                     while i < len(block.blocks) and (end is None or block.blocks[i].start <= end):
-                        sub_block.instructions += block.blocks[i].instructions
-                        sub_block.end = block.end
+                        next_sub_block = block.blocks[i]
+                        sub_block.instructions += next_sub_block.instructions
+                        sub_block.end = next_sub_block.end
                         i += 1
 
             entry = Entry(title, block.description, block.ctl, sub_blocks,
