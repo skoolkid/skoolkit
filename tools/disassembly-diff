@@ -203,10 +203,9 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
   rm -rf skoolkit-${SKOOLKIT_VERSION}
   rm -rf $NEW_DIR/src
   mkdir $NEW_DIR/src
-  cp -p $DHOME/sources/*.skool $DHOME/sources/*.ref $DHOME/resources/*.css $NEW_DIR/src
-  find $DHOME/resources -name '*.js' -exec cp -p {} $NEW_DIR/src \;
-  cp -p $DHOME/skoolkit/*.py $NEW_DIR
-  cp -p $DHOME/skoolkit/*.py $NEW_DIR/skoolkit
+  cp -p $DHOME/sources/*.skool $DHOME/sources/*.ref $DHOME/sources/*.css $NEW_DIR/src
+  find $DHOME/sources -name '*.js' -exec cp -p {} $NEW_DIR/src \;
+  cp -p $DHOME/sources/*.py $NEW_DIR
 fi
 
 if [ $WRITE_OLD -eq 1 ]; then
