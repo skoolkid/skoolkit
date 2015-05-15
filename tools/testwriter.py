@@ -71,7 +71,7 @@ def _get_asm_options_list():
 def _get_ctl_options_list():
     options_list = []
     for w in ('', '-w b', '-w bt', '-w btd', '-w btdr', '-w btdrm', '-w btdrms', '-w btdrmsc'):
-        for h in ('', '-h'):
+        for h in ('', '-h', '-l'):
             for a in ('', '-a'):
                 for b in ('', '-b'):
                     options_list.append('{} {} {} {}'.format(w, h, a, b).strip())
@@ -88,7 +88,7 @@ OPTIONS_LISTS = {
     'asm': _get_asm_options_list(),
     'ctl': _get_ctl_options_list(),
     'html': _get_html_options_list(),
-    'sft': ('', '-h', '-b', '-h -b')
+    'sft': ('', '-h', '-l', '-b', '-h -b', '-l -b')
 }
 
 TEST_TYPES = sorted(OPTIONS_LISTS)
