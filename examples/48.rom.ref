@@ -15,6 +15,18 @@ TitleSuffix=Disassembly
 [Paths]
 CodeFiles={address:04X}.html
 
+[MemoryMap:MemoryMap]
+PageByteColumns=0
+
+[MemoryMap:DataMap]
+EntryTypes=bw
+PageByteColumns=0
+
+[MemoryMap:UnusedMap]
+EntryTypes=su
+LengthColumn=1
+PageByteColumns=0
+
 [Changelog:20150214]
 Included in SkoolKit 4.3.
 
