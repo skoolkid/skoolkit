@@ -27,6 +27,11 @@ EntryTypes=su
 LengthColumn=1
 PageByteColumns=0
 
+[Changelog:YYYYMMDD]
+Included in SkoolKit 4.4.
+
+Revealed the 'scroll?' message at #R$0CF9
+
 [Changelog:20150214]
 Included in SkoolKit 4.3.
 
