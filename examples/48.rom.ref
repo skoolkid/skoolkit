@@ -32,6 +32,8 @@ Included in SkoolKit 4.4.
 
 Added character operands where appropriate (e.g. see #R$0A69)
 
+Reformatted the #LINK:DataMap(data tables)
+
 Revealed the 'scroll?' message at #R$0CF9
 
 [Changelog:20150214]
