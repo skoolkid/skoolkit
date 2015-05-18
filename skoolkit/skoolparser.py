@@ -407,10 +407,24 @@ def parse_comment_block(comments, ignores, mode):
     start_comment = join_comments(sections[3], split=True, html=mode.html)
     return start_comment, title, description, registers
 
+def find_comment(line):
+    i = 6
+    quoted = False
+    while i < len(line):
+        c = line[i]
+        if c == ';' and not quoted:
+            return i
+        if c == '\\' and quoted:
+            i += 1
+        elif c == '"':
+            quoted = not quoted
+        i += 1
+    return -1
+
 def parse_instruction(line):
     ctl = line[0]
     addr_str = line[1:6]
-    comment_index = line.find(';')
+    comment_index = find_comment(line)
     if comment_index < 0:
         comment_index = len(line)
     operation = line[7:comment_index].strip()

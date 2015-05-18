@@ -669,5 +669,30 @@ class SftWriterTest(SkoolKitTestCase):
         ]
         self._test_sft(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_sft, preserve_base=True)
 
+    def test_semicolons_in_instructions(self):
+        skool = '\n'.join((
+            'c60000 CP ";"             ; First comment',
+            ' 60002 LD A,";"           ; Comment 2',
+            ' 60004 LD B,(IX+";")      ; Comment 3',
+            ' 60007 LD (IX+";"),C      ; Comment 4',
+            ' 60010 LD (IX+";"),";"    ; Comment 5',
+           r' 60014 LD (IX+"\""),";"   ; Comment 6',
+           r' 60018 LD (IX+"\\"),";"   ; Comment 7',
+            ' 60022 DEFB 5,"hi;",6     ; Comment 8',
+            ' 60027 DEFM ";0;",0       ; Last comment'
+        ))
+        exp_sft = [
+            'cC60000,c2;26 First comment',
+            ' C60002,c2;26 Comment 2',
+            ' C60004,c3;26 Comment 3',
+            ' C60007,c3;26 Comment 4',
+            ' C60010,cc4;26 Comment 5',
+            ' C60014,cc4;26 Comment 6',
+            ' C60018,cc4;26 Comment 7',
+            ' B60022,1:T3:1;26 Comment 8',
+            ' T60027,3:B1;26 Last comment',
+        ]
+        self._test_sft(skool, exp_sft)
+
 if __name__ == '__main__':
     unittest.main()

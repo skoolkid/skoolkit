@@ -1963,6 +1963,36 @@ class SkoolParserTest(SkoolKitTestCase):
         for address, operation in exp_instructions:
             self.assertEqual(parser.get_instruction(address).operation, operation)
 
+    def test_semicolons_in_instructions(self):
+        skool = '\n'.join((
+            'c60000 CP ";"             ; 60000',
+            ' 60002 LD A,";"           ; 60002',
+            ' 60004 LD B,(IX+";")      ; 60004',
+            ' 60007 LD (IX+";"),C      ; 60007',
+            ' 60010 LD (IX+";"),";"    ; 60010',
+            ' 60014 LD (IX+"\\""),";"  ; 60014',
+            ' 60018 LD (IX+"\\\\"),";" ; 60018',
+            ' 60022 DEFB 5,"hi;",6     ; 60022',
+            ' 60027 DEFM ";0;",0       ; 60027'
+        ))
+        exp_instructions = (
+            (60000, 'CP ";"'),
+            (60002, 'LD A,";"'),
+            (60004, 'LD B,(IX+";")'),
+            (60007, 'LD (IX+";"),C'),
+            (60010, 'LD (IX+";"),";"'),
+            (60014, 'LD (IX+"\\""),";"'),
+            (60018, 'LD (IX+"\\\\"),";"'),
+            (60022, 'DEFB 5,"hi;",6'),
+            (60027, 'DEFM ";0;",0')
+        )
+        parser = self._get_parser(skool)
+        for address, operation in exp_instructions:
+            instruction = parser.get_instruction(address)
+            self.assertEqual(instruction.operation, operation)
+            self.assertIsNotNone(instruction.comment)
+            self.assertEqual(instruction.comment.text, str(address))
+
     def test_warn_unreplaced_operand(self):
         skool = '\n'.join((
             '@start',

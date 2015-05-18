@@ -13,6 +13,7 @@ Changelog
   addresses in lower case hexadecimal format in the generated control file)
 * Added the ``--hex-lower`` option to :ref:`skool2ctl.py` and
   :ref:`skool2sft.py` (for writing addresses in lower case hexadecimal format)
+* Fixed the parsing of DEFB and DEFM statements that contain semicolons
 * Fixed the base conversion of ``LD (HL),n`` instructions that contain
   extraneous whitespace (e.g. ``LD ( HL ),5``)
 

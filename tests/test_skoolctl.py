@@ -908,6 +908,32 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=True)
 
+    def test_semicolons_in_instructions(self):
+        skool = '\n'.join((
+            'c60000 CP ";"             ; First comment',
+            ' 60002 LD A,";"           ; Comment 2',
+            ' 60004 LD B,(IX+";")      ; Comment 3',
+            ' 60007 LD (IX+";"),C      ; Comment 4',
+            ' 60010 LD (IX+";"),";"    ; Comment 5',
+            ' 60014 LD (IX+"\\""),";"  ; Comment 6',
+            ' 60018 LD (IX+"\\\\"),";" ; Comment 7',
+            ' 60022 DEFB 5,"hi;",6     ; Comment 8',
+            ' 60027 DEFM ";0;",0       ; Last comment'
+        ))
+        exp_ctl = [
+            'c 60000',
+            '  60000,c2 First comment',
+            '  60002,c2 Comment 2',
+            '  60004,c3 Comment 3',
+            '  60007,c3 Comment 4',
+            '  60010,cc4 Comment 5',
+            '  60014,cc4 Comment 6',
+            '  60018,cc4 Comment 7',
+            'B 60022,5,1:T3:1 Comment 8',
+            'T 60027,4,3:B1 Last comment',
+        ]
+        self._test_ctl(skool, exp_ctl)
+
     def test_ignoreua_directives(self):
         skool = '\n'.join((
             '; @ignoreua',

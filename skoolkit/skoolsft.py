@@ -18,7 +18,7 @@
 
 from . import write_line, get_int_param, get_address_format, open_file, SkoolParsingError
 from .skoolparser import (DIRECTIVES, parse_asm_block_directive, get_instruction_ctl, get_operand_bases,
-                          get_defb_length, get_defm_length, get_defs_length, get_defw_length)
+                          find_comment, get_defb_length, get_defm_length, get_defs_length, get_defw_length)
 from .skoolctl import get_lengths
 
 VALID_CTLS = DIRECTIVES + ' *'
@@ -160,7 +160,7 @@ class SftWriter:
         except ValueError:
             raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
         addr_str = self.address_fmt.format(address)
-        comment_index = line.find(';', 7)
+        comment_index = find_comment(line)
         if comment_index > 0:
             end = comment_index
         else:
