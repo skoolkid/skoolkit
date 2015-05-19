@@ -146,8 +146,8 @@ are the upper case equivalents of the directives used to mark top-level blocks
 declarations are taken as instruction-level comments and will appear as such in
 the resultant `skool` file.
 
-If an instruction-level comment spans a group of two or more sub-blocks of
-different types, it must be declared with an ``M`` directive::
+If an instruction-level comment spans a group of two or more sub-blocks, it
+must be declared with an ``M`` directive::
 
   M 40000,21 This comment covers the following 3 sub-blocks
   B 40000,3
@@ -158,23 +158,20 @@ If the length parameter is omitted from an ``M`` directive, the comment is
 assumed to cover all sub-blocks from the given start address to the end of the
 top-level block.
 
-If a sub-block directive is left blank, then it is taken to be of the same type
-as the containing block. So::
+If a sub-block directive is left blank, then it is assumed to be of the same
+type as the containing block. So in::
 
   c 24576 A great routine
-    24580,11 A great section of code at 24580
+    24580,8 A great section of code at 24580
 
-is equivalent to::
-
-  c 24576 A great routine
-  C 24580,11 A great section of code at 24580
+the sub-block at 24580 is assumed to be of type ``C``.
 
 If the length parameter is omitted from a sub-block directive, then it is
 assumed to end where the next sub-block starts. So in::
 
   c 24576 A great routine
     24580 A great section of code at 24580
-    24588,10 Another great section of code at 24590
+    24588,10 Another great section of code at 24588
 
 the sub-block at 24580 has length 8, because it is implicitly terminated by the
 following sub-block at 24588.
