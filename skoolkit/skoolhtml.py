@@ -792,7 +792,8 @@ class HtmlWriter:
                 lines.append(self.format_entry_comment(cwd, entry_dict, mid_routine_comments, anchor))
 
             operation, reference = instruction.operation, instruction.reference
-            if reference and operation.upper().startswith(self.link_operands):
+            operation_u = operation.upper()
+            if reference and operation_u.startswith(self.link_operands):
                 asm_label = self.parser.get_asm_label(reference.address)
                 external_ref = entry != reference.entry
                 if external_ref or asm_label or self.link_internal_operands:
@@ -807,7 +808,10 @@ class HtmlWriter:
                     else:
                         # This is a reference to an entry in the same disassembly
                         entry_file = self.asm_fname(entry_address)
-                    link_text = asm_label or reference.addr_str
+                    if asm_label and not operation_u.startswith('RST'):
+                        link_text = asm_label
+                    else:
+                        link_text = reference.addr_str
                     link = self.format_link(entry_file + name, link_text)
                     operation = operation.replace(reference.addr_str, link)
 

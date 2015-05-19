@@ -16,6 +16,7 @@ Changelog
 * Fixed the parsing of DEFB and DEFM statements that contain semicolons
 * Fixed the base conversion of ``LD (HL),n`` instructions that contain
   extraneous whitespace (e.g. ``LD ( HL ),5``)
+* Fixed the erroneous replacement of RST operands with labels in HTML output
 
 4.3 (2015-02-14)
 ----------------

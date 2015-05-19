@@ -3571,6 +3571,67 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal(join(ASMDIR, '50008.html'), subs)
 
+    def test_asm_labels_and_rst_instructions(self):
+        ref = '\n'.join((
+            '[Game]',
+            'LinkOperands=CALL,DEFW,DJNZ,JP,JR,RST'
+        ))
+        skool = '\n'.join((
+            '; Start',
+            'c00000 RST 8  ; This operand should not be replaced by a label',
+            ' 00001 DEFS 7',
+            '',
+            '; Restart routine at 8',
+            '@label=DONOTHING',
+            'c00008 RET'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool, asm_labels=True)
+        writer.write_asm_entries()
+
+        # Routine at 00000
+        content = """
+            <div class="description">00000: Start</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><a name="0"></a>00000</td>
+            <td class="instruction">RST <a class="link" href="8.html">8</a></td>
+            <td class="comment-11" rowspan="1">This operand should not be replaced by a label</td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><a name="1"></a>00001</td>
+            <td class="instruction">DEFS 7</td>
+            <td class="comment-11" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 00000',
+            'body_class': 'Asm-c',
+            'up': 0,
+            'next': 8,
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '0.html'), subs)
+
     def test_write_map(self):
         skool = '\n'.join((
             '; Routine',
