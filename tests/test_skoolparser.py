@@ -1160,15 +1160,7 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(cm.exception.args[0], error)
 
     def test_invalid_entry_address(self):
-        self.assert_error('c3000f RET', "Invalid address: '3000f'", html=True)
-
-    def test_invalid_address_for_second_entry(self):
-        skool = '\n'.join((
-            'c40000 RET',
-            '',
-            'c4000f RET'
-        ))
-        self.assert_error(skool, "Invalid address: '4000f'", html=True)
+        self.assert_error('c3000f RET', "Invalid address: '3000f'")
 
     def test_entry_sizes(self):
         skool = '\n'.join((

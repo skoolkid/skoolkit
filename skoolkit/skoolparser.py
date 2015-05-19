@@ -591,6 +591,8 @@ class SkoolParser:
             addr_str = instruction.addr_str
             ctl = instruction.ctl
             if ctl in DIRECTIVES:
+                if address is None:
+                    raise SkoolParsingError("Invalid address: '{}'".format(addr_str))
                 start_comment, desc, details, registers = parse_comment_block(self.comments, self.ignores, self.mode)
                 map_entry = SkoolEntry(address, addr_str, ctl, desc, details, registers)
                 map_entry.add_mid_routine_comment(instruction.label, start_comment)
@@ -720,13 +722,9 @@ class SkoolParser:
 
     def _calculate_entry_sizes(self):
         for i, entry in enumerate(self.memory_map):
-            if entry.address is None:
-                raise SkoolParsingError("Invalid address: '{}'".format(entry.addr_str))
             if i + 1 < len(self.memory_map):
                 next_entry = self.memory_map[i + 1]
                 end = next_entry.address
-                if end is None:
-                    raise SkoolParsingError("Invalid address: '{}'".format(next_entry.addr_str))
             else:
                 end = 65536
             entry.size = end - entry.address
