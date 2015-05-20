@@ -211,7 +211,7 @@ def analyse_tap(tap):
 # Begin
 ###############################################################################
 parser = argparse.ArgumentParser(
-    usage="analyse-tap.py file",
+    usage="tapinfo.py file",
     description="Show the blocks in a TAP or TZX file.",
     add_help=False
 )

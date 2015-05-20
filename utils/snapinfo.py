@@ -496,7 +496,7 @@ def peek(infile, addr_range):
 # Begin
 ###############################################################################
 parser = argparse.ArgumentParser(
-    usage='analyse-sna.py [options] file',
+    usage='snapinfo.py [options] file',
     description="Analyse an SNA, SZX or Z80 snapshot.",
     add_help=False
 )
