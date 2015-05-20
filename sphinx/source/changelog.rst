@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.4b1
+4.4rc
 -----
 * Added support to control files and skool file templates for specifying that
   numeric values in instruction operands be rendered as characters or in a
