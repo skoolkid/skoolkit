@@ -132,7 +132,9 @@ class SkoolKitTestCase(TestCase):
         if page is not None:
             length = len(block) if compress else 65535
             return [length % 256, length // 256, page] + block
-        return block + [0, 237, 237, 0]
+        if compress:
+            return block + [0, 237, 237, 0]
+        return block
 
     def write_z80(self, ram, version=3, compress=False, machine_id=0, modify=False, out_7ffd=0, pages={}):
         model = 1

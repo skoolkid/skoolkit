@@ -1,8 +1,8 @@
 Changelog
 =========
 
-4.4rc
------
+4.4rc2
+------
 * Added support to control files and skool file templates for specifying that
   numeric values in instruction operands be rendered as characters or in a
   specific base
@@ -17,6 +17,8 @@ Changelog
 * Fixed the base conversion of ``LD (HL),n`` instructions that contain
   extraneous whitespace (e.g. ``LD ( HL ),5``)
 * Fixed the erroneous replacement of RST operands with labels in HTML output
+* Fixed the handling of uncompressed version 1 Z80 snapshots by
+  :ref:`sna2skool.py`
 
 4.3 (2015-02-14)
 ----------------

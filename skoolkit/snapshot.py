@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2013 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2013, 2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -63,9 +63,9 @@ def _read_z80(data, page=None):
         header_size = 32 + data[30]
     header = data[:header_size]
     if version == 1:
-        if header[12] & 32 == 0:
-            return data[header_size:-4]
-        return _decompress_block(data[header_size:-4])
+        if header[12] & 32:
+            return _decompress_block(data[header_size:-4])
+        return data[header_size:]
     machine_id = data[34]
     extension = ()
     if (version == 2 and machine_id < 2) or (version == 3 and machine_id in (0, 1, 3)):
