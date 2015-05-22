@@ -33,11 +33,17 @@ def read_z80(z80file):
     return list(header), get_snapshot(z80file)
 
 def write_z80(header, snapshot, fname):
-    z80 = header[:]
-    for bank, data in ((5, snapshot[16384:32768]), (1, snapshot[32768:49152]), (2, snapshot[49152:])):
-        z80 += get_z80_ram_block(data, bank + 3)
+    if len(header) == 30:
+        if header[12] & 32:
+            ram = get_z80_ram_block(snapshot[16384:], 0)[3:] + [0, 237, 237, 0]
+        else:
+            ram = snapshot[16384:]
+    else:
+        ram = []
+        for bank, data in ((5, snapshot[16384:32768]), (1, snapshot[32768:49152]), (2, snapshot[49152:])):
+            ram += get_z80_ram_block(data, bank + 3)
     with open(fname, 'wb') as f:
-        f.write(bytearray(z80))
+        f.write(bytearray(header + ram))
 
 def run(infile, options, outfile):
     header, snapshot = read_z80(infile)
