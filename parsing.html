@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Parsing, rendering, and modes &mdash; SkoolKit 4.3 documentation</title>
+    <title>Parsing, rendering, and modes &mdash; SkoolKit 4.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.3',
+        VERSION:     '4.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.4 documentation" href="index.html" />
     <link rel="next" title="Control files" href="control-files.html" />
     <link rel="prev" title="Commands" href="commands.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="commands.html" title="Commands"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -126,14 +126,15 @@ following:</p>
 <li><a class="reference internal" href="asm.html#ofixblockdirectives"><em>&#64;ofix block directives</em></a></li>
 <li><a class="reference internal" href="asm.html#rfixblockdirectives"><em>&#64;rfix block directives</em></a></li>
 <li><a class="reference internal" href="asm.html#rsubblockdirectives"><em>&#64;rsub block directives</em></a></li>
+<li><a class="reference internal" href="asm.html#ssubblockdirectives"><em>&#64;ssub block directives</em></a></li>
 </ul>
 <p>The reason that the block directives are processed is that they may define two
 different versions of a section of code or data: first, a version to include in
 the output if the corresponding ASM mode (<a class="reference internal" href="asm.html#bfixmode"><em>&#64;bfix</em></a>,
 <a class="reference internal" href="asm.html#isubmode"><em>&#64;isub</em></a>, <a class="reference internal" href="asm.html#ofixmode"><em>&#64;ofix</em></a>, <a class="reference internal" href="asm.html#rfixmode"><em>&#64;rfix</em></a>,
-<a class="reference internal" href="asm.html#rsubmode"><em>&#64;rsub</em></a>) is in effect; and second, a version to include in the
-output if the corresponding ASM mode is not in effect - which will always be
-the case when parsing in HTML mode.</p>
+<a class="reference internal" href="asm.html#rsubmode"><em>&#64;rsub</em></a>, <a class="reference internal" href="asm.html#ssubmode"><em>&#64;ssub</em></a>) is in effect; and second, a
+version to include in the output if the corresponding ASM mode is not in
+effect - which will always be the case when parsing in HTML mode.</p>
 <p>For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>@bfix-begin
  32459 CP 26  ; This is a bug; it should be &#39;CP 27&#39;
@@ -192,7 +193,7 @@ way are expanded to some appropriate plain text.</p>
         <li class="right" >
           <a href="commands.html" title="Commands"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

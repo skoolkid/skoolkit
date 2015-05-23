@@ -673,6 +673,21 @@ This ``@ssub`` directive replaces ``LD (27016),A`` with ``LD (27015+1),A``; the
 (``27016`` cannot be replaced by a label, since it is not the address of an
 instruction.)
 
+.. _ssubBlockDirectives:
+
+@ssub block directives
+^^^^^^^^^^^^^^^^^^^^^^
+The ``@ssub`` block directives define a block of lines that will be inserted or
+removed in :ref:`ssubMode`.
+
+The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 4.4     | New     |
++---------+---------+
+
 .. _start:
 
 @start

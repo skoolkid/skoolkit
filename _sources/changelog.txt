@@ -1,6 +1,25 @@
 Changelog
 =========
 
+4.4 (2015-05-23)
+----------------
+* Added support to control files and skool file templates for specifying that
+  numeric values in instruction operands be rendered as characters or in a
+  specific base
+* Added support for :ref:`ssubBlockDirectives`
+* Added the ``--end`` option to :ref:`sna2skool.py` (for specifying the address
+  at which to stop disassembling)
+* Added the ``--ctl-hex-lower`` option to :ref:`sna2skool.py` (for writing
+  addresses in lower case hexadecimal format in the generated control file)
+* Added the ``--hex-lower`` option to :ref:`skool2ctl.py` and
+  :ref:`skool2sft.py` (for writing addresses in lower case hexadecimal format)
+* Fixed the parsing of DEFB and DEFM statements that contain semicolons
+* Fixed the base conversion of ``LD (HL),n`` instructions that contain
+  extraneous whitespace (e.g. ``LD ( HL ),5``)
+* Fixed the erroneous replacement of RST operands with labels in HTML output
+* Fixed the handling of uncompressed version 1 Z80 snapshots by
+  :ref:`sna2skool.py`
+
 4.3 (2015-02-14)
 ----------------
 * Added support for block start comments (which appear after the register

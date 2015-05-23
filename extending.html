@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &mdash; SkoolKit 4.3 documentation</title>
+    <title>Extending SkoolKit &mdash; SkoolKit 4.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.3',
+        VERSION:     '4.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.4 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -48,6 +48,7 @@
 <li><a class="reference internal" href="#call-methods">#CALL methods</a></li>
 <li><a class="reference internal" href="#skool-macros">Skool macros</a></li>
 <li><a class="reference internal" href="#parsing-skool-macros">Parsing skool macros</a></li>
+<li><a class="reference internal" href="#expanding-skool-macros">Expanding skool macros</a></li>
 <li><a class="reference internal" href="#parsing-ref-files">Parsing ref files</a></li>
 <li><a class="reference internal" href="#memory-snapshots">Memory snapshots</a></li>
 <li><a class="reference internal" href="#graphics">Graphics</a></li>
@@ -457,6 +458,25 @@ added the <em>ints</em> parameter.</p>
 <div class="versionchanged">
 <p><span class="versionmodified">Changed in version 4.2: </span>Added the <em>frame</em> and <em>alt</em> parameters.</p>
 </div>
+</dd></dl>
+
+</div>
+<div class="section" id="expanding-skool-macros">
+<span id="ext-expandingmacros"></span><h2>Expanding skool macros<a class="headerlink" href="#expanding-skool-macros" title="Permalink to this headline">¶</a></h2>
+<p>Both HtmlWriter and AsmWriter provide methods for expanding skool macros. These
+are useful for basing a <tt class="docutils literal"><span class="pre">#CALL</span></tt> method or custom macro on an existing macro.</p>
+<dl class="method">
+<dt id="skoolkit.skoolhtml.HtmlWriter.expand">
+<tt class="descclassname">HtmlWriter.</tt><tt class="descname">expand</tt><big>(</big><em>text</em>, <em>cwd</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.expand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>text</cite> with skool macros expanded. <cite>cwd</cite> is the current
+working directory, which is required by macros that create images or
+hyperlinks.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="skoolkit.skoolasm.AsmWriter.expand">
+<tt class="descclassname">AsmWriter.</tt><tt class="descname">expand</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#skoolkit.skoolasm.AsmWriter.expand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>text</cite> with skool macros expanded.</p>
 </dd></dl>
 
 </div>
@@ -936,7 +956,7 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

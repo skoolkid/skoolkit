@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>HTML templates &mdash; SkoolKit 4.3 documentation</title>
+    <title>HTML templates &mdash; SkoolKit 4.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.3',
+        VERSION:     '4.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.4 documentation" href="index.html" />
     <link rel="next" title="ASM modes and directives" href="asm.html" />
     <link rel="prev" title="Ref files" href="ref-files.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -278,7 +278,8 @@ identifiers):</p>
 <div class="section" id="asm-comment">
 <span id="t-asm-comment"></span><h2>asm_comment<a class="headerlink" href="#asm-comment" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">asm_comment</span></tt> template is the subtemplate used by the <a class="reference internal" href="#t-asm"><em>Asm</em></a>
-full-page template to format mid-block comments and block end comments.</p>
+full-page template to format block start comments, mid-block comments and block
+end comments.</p>
 <p>It contains the following identifiers (in addition to the universal
 identifiers):</p>
 <ul class="simple">
@@ -286,10 +287,9 @@ identifiers):</p>
 map entry (see <a class="reference internal" href="#t-asm"><em>Asm</em></a>)</li>
 <li><tt class="docutils literal"><span class="pre">m_paragraph</span></tt> - replaced by one or more copies of the <a class="reference internal" href="#t-paragraph"><em>paragraph</em></a>
 subtemplate</li>
-<li><tt class="docutils literal"><span class="pre">t_anchor</span></tt> - replaced by a copy of the <a class="reference internal" href="#t-anchor"><em>anchor</em></a> subtemplate (with
-the address of the next instruction in decimal format as the anchor name when
-formatting a mid-block comment), or by an empty string (when formatting a
-block end comment)</li>
+<li><tt class="docutils literal"><span class="pre">t_anchor</span></tt> - replaced by a copy of the <a class="reference internal" href="#t-anchor"><em>anchor</em></a> subtemplate (when
+formatting a block start comment or a mid-block comment), or by an empty
+string (when formatting a block end comment)</li>
 </ul>
 <p>To see the default <tt class="docutils literal"><span class="pre">asm_comment</span></tt> template, run the following command:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:asm_comment
@@ -317,8 +317,7 @@ that contains the instruction (see <a class="reference internal" href="#t-asm"><
 <li><tt class="docutils literal"><span class="pre">label</span></tt> - the instruction&#8217;s ASM label</li>
 <li><tt class="docutils literal"><span class="pre">operation</span></tt> - the assembly language operation (e.g. &#8216;LD A,B&#8217;), with operand
 hyperlinked if appropriate</li>
-<li><tt class="docutils literal"><span class="pre">t_anchor</span></tt> - replaced by a copy of the <a class="reference internal" href="#t-anchor"><em>anchor</em></a> subtemplate (with
-the instruction&#8217;s address in decimal format as the anchor name)</li>
+<li><tt class="docutils literal"><span class="pre">t_anchor</span></tt> - replaced by a copy of the <a class="reference internal" href="#t-anchor"><em>anchor</em></a> subtemplate</li>
 </ul>
 <p>To see the default <tt class="docutils literal"><span class="pre">asm_instruction</span></tt> template, run the following command:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:asm_instruction
@@ -720,7 +719,7 @@ identifiers):</p>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

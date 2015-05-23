@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool file templates &mdash; SkoolKit 4.3 documentation</title>
+    <title>Skool file templates &mdash; SkoolKit 4.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.3',
+        VERSION:     '4.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.4 documentation" href="index.html" />
     <link rel="next" title="Skool macros" href="skool-macros.html" />
     <link rel="prev" title="Skool files" href="skool-files.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -133,9 +133,9 @@ file, as in:</p>
 </div>
 <div class="section" id="sub-block-syntax">
 <h2>Sub-block syntax<a class="headerlink" href="#sub-block-syntax" title="Permalink to this headline">¶</a></h2>
-<p>The syntax for specifying <tt class="docutils literal"><span class="pre">B</span></tt>, <tt class="docutils literal"><span class="pre">S</span></tt>, <tt class="docutils literal"><span class="pre">T</span></tt> and <tt class="docutils literal"><span class="pre">W</span></tt> sub-blocks is analogous
-to the syntax used in <a class="reference internal" href="control-files.html#controlfiles"><em>control files</em></a>. A brief summary of
-the syntax is given here.</p>
+<p>The syntax for specifying <tt class="docutils literal"><span class="pre">B</span></tt>, <tt class="docutils literal"><span class="pre">C</span></tt>, <tt class="docutils literal"><span class="pre">S</span></tt>, <tt class="docutils literal"><span class="pre">T</span></tt> and <tt class="docutils literal"><span class="pre">W</span></tt> sub-blocks is
+analogous to the syntax used in <a class="reference internal" href="control-files.html#controlfiles"><em>control files</em></a>. A brief
+summary of the syntax is given here.</p>
 <p>Sequences of DEFB statements can be declared on a single line thus:</p>
 <div class="highlight-none"><div class="highlight"><pre>bB40960,8*2,5
 </pre></div>
@@ -160,7 +160,7 @@ statements.</p>
 </pre></div>
 </div>
 <p>DEFB, DEFM, DEFS and DEFW statements may contain numeric values in various
-bases; for example:</p>
+bases. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>b40000 DEFB %10101010,23,43,$5F
  40004 DEFB 56
  40005 DEFB %11110000
@@ -169,6 +169,19 @@ bases; for example:</p>
 </div>
 <p>These statements may be preserved in a skool file template thus:</p>
 <div class="highlight-none"><div class="highlight"><pre>bB40000,b1:d2:h1,d1,b1,h2
+</pre></div>
+</div>
+<p>Instruction operands may also contain numeric values in various bases or as
+characters. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>c50000 LD A,%00011000
+ 50002 LD B,&quot;!&quot;
+ 50004 LD (IX+$1A),%00001111
+</pre></div>
+</div>
+<p>These instructions may be preserved in a skool file template thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>cC50000,b2
+ C50002,c2
+ C50004,hb4
 </pre></div>
 </div>
 </div>
@@ -210,17 +223,21 @@ that it overrides.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>3.7</td>
+<tr class="row-even"><td>4.4</td>
+<td>Added support for specifying that numeric values in instruction
+operands be rendered as characters or in a specific base</td>
+</tr>
+<tr class="row-odd"><td>3.7</td>
 <td>Added support for binary numbers; added support for specifying
 the base of numeric values in DEFB, DEFM, DEFS and DEFW
 statements; added the <tt class="docutils literal"><span class="pre">s</span></tt> and <tt class="docutils literal"><span class="pre">S</span></tt> directives and support for
 DEFS statements with non-zero byte values</td>
 </tr>
-<tr class="row-odd"><td>3.1.4</td>
+<tr class="row-even"><td>3.1.4</td>
 <td>Added support for DEFB and DEFM statements that contain both
 strings and bytes</td>
 </tr>
-<tr class="row-even"><td>2.4</td>
+<tr class="row-odd"><td>2.4</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -246,7 +263,7 @@ strings and bytes</td>
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

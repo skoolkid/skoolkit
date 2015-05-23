@@ -138,8 +138,9 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
   Options:
     -a, --no-asm-dirs    Do not write ASM directives
     -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
-                         DEFB, DEFM, DEFS and DEFW statements
-    -h, --hex            Write addresses in hexadecimal format
+                         instruction operands and DEFB/DEFM/DEFS/DEFW statements
+    -h, --hex            Write addresses in upper case hexadecimal format
+    -l, --hex-lower      Write addresses in lower case hexadecimal format
     -V, --version        Show SkoolKit version number and exit
     -w X, --write X      Write only these elements, where X is one or more of:
                            b = block types and addresses
@@ -157,6 +158,8 @@ data definition entries and ASM block directives), consider using
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
+| 4.4     | Added the ``--hex-lower`` option                             |
++---------+--------------------------------------------------------------+
 | 3.7     | Added the ``--preserve-base`` option                         |
 +---------+--------------------------------------------------------------+
 | 3.4     | Added the ``-V`` option and the long options                 |
@@ -341,13 +344,16 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 
   Options:
     -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
-                         DEFB, DEFM, DEFS and DEFW statements
-    -h, --hex            Write addresses in hexadecimal format
+                         instruction operands and DEFB/DEFM/DEFS/DEFW statements
+    -h, --hex            Write addresses in upper case hexadecimal format
+    -l, --hex-lower      Write addresses in lower case hexadecimal format
     -V, --version        Show SkoolKit version number and exit
 
 +---------+----------------------------------------------+
 | Version | Changes                                      |
 +=========+==============================================+
+| 4.4     | Added the ``--hex-lower`` option             |
++---------+----------------------------------------------+
 | 3.7     | Added the ``--preserve-base`` option         |
 +---------+----------------------------------------------+
 | 3.4     | Added the ``-V`` option and the long options |
@@ -378,12 +384,15 @@ list::
 
   Options:
     -c FILE, --ctl FILE   Use FILE as the control file
+    -e ADDR, --end ADDR   Stop disassembling at this address (default=65536)
     -g FILE, --generate-ctl FILE
                           Generate a control file in FILE
-    -h, --ctl-hex         Write hexadecimal addresses in the generated control
-                          file
+    -h, --ctl-hex         Write upper case hexadecimal addresses in the
+                          generated control file
     -H, --skool-hex       Write hexadecimal addresses and operands in the
                           disassembly
+    -i, --ctl-hex-lower   Write lower case hexadecimal addresses in the
+                          generated control file
     -l L, --defm-size L   Set the maximum number of characters per DEFM
                           statement to L (default=66)
     -L, --lower           Write the disassembly in lower case
@@ -399,8 +408,7 @@ list::
     -r, --no-erefs        Don't add comments that list entry point referrers
     -R, --erefs           Always add comments that list entry point referrers
     -s ADDR, --start ADDR
-                          Specify the address at which to start disassembling
-                          (default=16384)
+                          Start disassembling at this address (default=16384)
     -t, --text            Show ASCII text in the comment fields
     -T FILE, --sft FILE   Use FILE as the skool file template
     -V, --version         Show SkoolKit version number and exit
@@ -432,6 +440,8 @@ formats.
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 4.4     | Added the ``--ctl-hex-lower`` and ``--end`` options             |
++---------+-----------------------------------------------------------------+
 | 4.3     | Added the ``--line-width`` option                               |
 +---------+-----------------------------------------------------------------+
 | 3.4     | Added the ``-V`` and ``-R`` options and the long options        |

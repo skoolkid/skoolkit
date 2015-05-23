@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ASM modes and directives &mdash; SkoolKit 4.3 documentation</title>
+    <title>ASM modes and directives &mdash; SkoolKit 4.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.3',
+        VERSION:     '4.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.4 documentation" href="index.html" />
     <link rel="next" title="Extending SkoolKit" href="extending.html" />
     <link rel="prev" title="HTML templates" href="html-templates.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -80,6 +80,7 @@
 <li><a class="reference internal" href="#rsub-block-directives">&#64;rsub block directives</a></li>
 <li><a class="reference internal" href="#set">&#64;set</a></li>
 <li><a class="reference internal" href="#ssub">&#64;ssub</a></li>
+<li><a class="reference internal" href="#ssub-block-directives">&#64;ssub block directives</a></li>
 <li><a class="reference internal" href="#start">&#64;start</a></li>
 <li><a class="reference internal" href="#writer">&#64;writer</a></li>
 </ul>
@@ -759,6 +760,28 @@ ASM output (after parsing the <cite>skool</cite> file), or <tt class="docutils l
 (<tt class="docutils literal"><span class="pre">27016</span></tt> cannot be replaced by a label, since it is not the address of an
 instruction.)</p>
 </div>
+<div class="section" id="ssub-block-directives">
+<span id="ssubblockdirectives"></span><h3>&#64;ssub block directives<a class="headerlink" href="#ssub-block-directives" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">&#64;ssub</span></tt> block directives define a block of lines that will be inserted or
+removed in <a class="reference internal" href="#ssubmode"><em>&#64;ssub mode</em></a>.</p>
+<p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><em>&#64;bfix block directives</em></a>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>4.4</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="start">
 <span id="id15"></span><h3>&#64;start<a class="headerlink" href="#start" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;start</span></tt> directive indicates where to start parsing the <cite>skool</cite> file for
@@ -826,7 +849,7 @@ path</td>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

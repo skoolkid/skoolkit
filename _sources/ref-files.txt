@@ -261,8 +261,8 @@ pages and entries on memory map pages. The default format string is
 ``AddressAnchor`` to ``{address:04x}``.
 
 Note that an address anchor that starts with an upper case letter (e.g.
-``#FF00``) will be interpreted as a skool macro, and so any template that could
-produce such an anchor should be avoided.
+``#FF00``) will be interpreted as a skool macro, and so any format string that
+could produce such an anchor should be avoided.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |

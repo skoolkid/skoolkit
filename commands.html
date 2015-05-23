@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Commands &mdash; SkoolKit 4.3 documentation</title>
+    <title>Commands &mdash; SkoolKit 4.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.3',
+        VERSION:     '4.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.4 documentation" href="index.html" />
     <link rel="next" title="Parsing, rendering, and modes" href="parsing.html" />
     <link rel="prev" title="SkoolKit 1.x changelog" href="changelog1.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="changelog1.html" title="SkoolKit 1.x changelog"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -246,8 +246,9 @@ be a regular file, or &#39;-&#39; for standard input.
 Options:
   -a, --no-asm-dirs    Do not write ASM directives
   -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
-                       DEFB, DEFM, DEFS and DEFW statements
-  -h, --hex            Write addresses in hexadecimal format
+                       instruction operands and DEFB/DEFM/DEFS/DEFW statements
+  -h, --hex            Write addresses in upper case hexadecimal format
+  -l, --hex-lower      Write addresses in lower case hexadecimal format
   -V, --version        Show SkoolKit version number and exit
   -w X, --write X      Write only these elements, where X is one or more of:
                          b = block types and addresses
@@ -273,23 +274,26 @@ data definition entries and ASM block directives), consider using
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>3.7</td>
+<tr class="row-even"><td>4.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--hex-lower</span></tt> option</td>
+</tr>
+<tr class="row-odd"><td>3.7</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--preserve-base</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option and the long options</td>
 </tr>
-<tr class="row-even"><td>2.4</td>
+<tr class="row-odd"><td>2.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-a</span></tt> option and the ability to preserve some ASM
 directives</td>
 </tr>
-<tr class="row-odd"><td>2.2.2</td>
+<tr class="row-even"><td>2.2.2</td>
 <td>Added the ability to read a <cite>skool</cite> file from standard input</td>
 </tr>
-<tr class="row-even"><td>2.0.6</td>
+<tr class="row-odd"><td>2.0.6</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-h</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>1.1</td>
+<tr class="row-even"><td>1.1</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -480,8 +484,9 @@ FILE may be a regular file, or &#39;-&#39; for standard input.
 
 Options:
   -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
-                       DEFB, DEFM, DEFS and DEFW statements
-  -h, --hex            Write addresses in hexadecimal format
+                       instruction operands and DEFB/DEFM/DEFS/DEFW statements
+  -h, --hex            Write addresses in upper case hexadecimal format
+  -l, --hex-lower      Write addresses in lower case hexadecimal format
   -V, --version        Show SkoolKit version number and exit
 </pre></div>
 </div>
@@ -496,13 +501,16 @@ Options:
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>3.7</td>
+<tr class="row-even"><td>4.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--hex-lower</span></tt> option</td>
+</tr>
+<tr class="row-odd"><td>3.7</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--preserve-base</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option and the long options</td>
 </tr>
-<tr class="row-even"><td>2.4</td>
+<tr class="row-odd"><td>2.4</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -527,12 +535,15 @@ file.
 
 Options:
   -c FILE, --ctl FILE   Use FILE as the control file
+  -e ADDR, --end ADDR   Stop disassembling at this address (default=65536)
   -g FILE, --generate-ctl FILE
                         Generate a control file in FILE
-  -h, --ctl-hex         Write hexadecimal addresses in the generated control
-                        file
+  -h, --ctl-hex         Write upper case hexadecimal addresses in the
+                        generated control file
   -H, --skool-hex       Write hexadecimal addresses and operands in the
                         disassembly
+  -i, --ctl-hex-lower   Write lower case hexadecimal addresses in the
+                        generated control file
   -l L, --defm-size L   Set the maximum number of characters per DEFM
                         statement to L (default=66)
   -L, --lower           Write the disassembly in lower case
@@ -548,8 +559,7 @@ Options:
   -r, --no-erefs        Don&#39;t add comments that list entry point referrers
   -R, --erefs           Always add comments that list entry point referrers
   -s ADDR, --start ADDR
-                        Specify the address at which to start disassembling
-                        (default=16384)
+                        Start disassembling at this address (default=16384)
   -t, --text            Show ASCII text in the comment fields
   -T FILE, --sft FILE   Use FILE as the skool file template
   -V, --version         Show SkoolKit version number and exit
@@ -587,44 +597,47 @@ formats.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.3</td>
+<tr class="row-even"><td>4.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--ctl-hex-lower</span></tt> and <tt class="docutils literal"><span class="pre">--end</span></tt> options</td>
+</tr>
+<tr class="row-odd"><td>4.3</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--line-width</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> and <tt class="docutils literal"><span class="pre">-R</span></tt> options and the long options</td>
 </tr>
-<tr class="row-even"><td>3.3</td>
+<tr class="row-odd"><td>3.3</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-M</span></tt> option, along with support for code execution
 maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the
 ability to read 128K SNA snapshots</td>
 </tr>
-<tr class="row-odd"><td>3.2</td>
+<tr class="row-even"><td>3.2</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-p</span></tt> option, and the ability to read SZX snapshots
 and 128K Z80 snapshots</td>
 </tr>
-<tr class="row-even"><td>2.4</td>
+<tr class="row-odd"><td>2.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-T</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>2.1.2</td>
+<tr class="row-even"><td>2.1.2</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-L</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>2.1</td>
+<tr class="row-odd"><td>2.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-H</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>2.0.6</td>
+<tr class="row-even"><td>2.0.6</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-h</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>2.0.1</td>
+<tr class="row-odd"><td>2.0.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-o</span></tt>, <tt class="docutils literal"><span class="pre">-r</span></tt> and <tt class="docutils literal"><span class="pre">-l</span></tt> options, and the ability to
 read binary files</td>
 </tr>
-<tr class="row-odd"><td>2.0</td>
+<tr class="row-even"><td>2.0</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-n</span></tt>, <tt class="docutils literal"><span class="pre">-m</span></tt> and <tt class="docutils literal"><span class="pre">-z</span></tt> options</td>
 </tr>
-<tr class="row-even"><td>1.0.5</td>
+<tr class="row-odd"><td>1.0.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-t</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>1.0.4</td>
+<tr class="row-even"><td>1.0.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-g</span></tt> and <tt class="docutils literal"><span class="pre">-s</span></tt> options</td>
 </tr>
 </tbody>
@@ -739,7 +752,7 @@ given on the command line.</p>
         <li class="right" >
           <a href="changelog1.html" title="SkoolKit 1.x changelog"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

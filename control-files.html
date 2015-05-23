@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Control files &mdash; SkoolKit 4.3 documentation</title>
+    <title>Control files &mdash; SkoolKit 4.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.3',
+        VERSION:     '4.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.4 documentation" href="index.html" />
     <link rel="next" title="Skool files" href="skool-files.html" />
     <link rel="prev" title="Parsing, rendering, and modes" href="parsing.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -246,8 +246,8 @@ are the upper case equivalents of the directives used to mark top-level blocks
 (<tt class="docutils literal"><span class="pre">b</span></tt>, <tt class="docutils literal"><span class="pre">t</span></tt>, <tt class="docutils literal"><span class="pre">c</span></tt> and <tt class="docutils literal"><span class="pre">s</span></tt>). The comments at the end of these sub-block
 declarations are taken as instruction-level comments and will appear as such in
 the resultant <cite>skool</cite> file.</p>
-<p>If an instruction-level comment spans a group of two or more sub-blocks of
-different types, it must be declared with an <tt class="docutils literal"><span class="pre">M</span></tt> directive:</p>
+<p>If an instruction-level comment spans a group of two or more sub-blocks, it
+must be declared with an <tt class="docutils literal"><span class="pre">M</span></tt> directive:</p>
 <div class="highlight-none"><div class="highlight"><pre>M 40000,21 This comment covers the following 3 sub-blocks
 B 40000,3
 W 40003,10
@@ -257,47 +257,27 @@ T 40013,8
 <p>If the length parameter is omitted from an <tt class="docutils literal"><span class="pre">M</span></tt> directive, the comment is
 assumed to cover all sub-blocks from the given start address to the end of the
 top-level block.</p>
-<p>Three bits of sub-block syntax left. First,  the blank sub-block directive:</p>
-<div class="highlight-none"><div class="highlight"><pre>c 24576 A great routine
-  24580,11 A great section of code at 24580
-</pre></div>
-</div>
-<p>This is equivalent to:</p>
-<div class="highlight-none"><div class="highlight"><pre>c 24576 A great routine
-C 24580,11 A great section of code at 24580
-</pre></div>
-</div>
-<p>That is, the the type of a blank sub-block directive is taken to be the same as
-that of the parent block.</p>
-<p>Next, the address range:</p>
-<div class="highlight-none"><div class="highlight"><pre>c 24576 A great routine
-  24580-24590 A great section of code at 24580
-</pre></div>
-</div>
-<p>This is equivalent to:</p>
-<div class="highlight-none"><div class="highlight"><pre>c 24576 A great routine
-  24580,11 A great section of code at 24580
-</pre></div>
-</div>
-<p>That is, you can specify the extent of a sub-block using either an address
-range, or an address and a length.</p>
-<p>Finally, the implicit sub-block extent:</p>
-<div class="highlight-none"><div class="highlight"><pre>c 24576 A great routine
-  24580 A great section of code at 24580
-  24588,10 Another great section of code at 24590
-</pre></div>
-</div>
-<p>This is equivalent to:</p>
+<p>If a sub-block directive is left blank, then it is assumed to be of the same
+type as the containing block. So in:</p>
 <div class="highlight-none"><div class="highlight"><pre>c 24576 A great routine
   24580,8 A great section of code at 24580
+</pre></div>
+</div>
+<p>the sub-block at 24580 is assumed to be of type <tt class="docutils literal"><span class="pre">C</span></tt>.</p>
+<p>If the length parameter is omitted from a sub-block directive, then it is
+assumed to end where the next sub-block starts. So in:</p>
+<div class="highlight-none"><div class="highlight"><pre>c 24576 A great routine
+  24580 A great section of code at 24580
   24588,10 Another great section of code at 24588
 </pre></div>
 </div>
-<p>But the declaration of the length (8) of the sub-block at 24580 is redundant,
-because the sub-block is implicitly terminated by the declaration of the
-sub-block at 24588 that follows. This is exactly how top-level block
-declarations work: each top-level block is implicitly terminated by the
-declaration of the next one.</p>
+<p>the sub-block at 24580 has length 8, because it is implicitly terminated by the
+following sub-block at 24588.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Using start and end addresses to specify the address range for a sub-block
+directive (e.g. <tt class="docutils literal"><span class="pre">C</span> <span class="pre">24580-24587</span></tt>) is deprecated since version 4.4.</p>
+</div>
 </div>
 <div class="section" id="sub-block-lengths">
 <h2>Sub-block lengths<a class="headerlink" href="#sub-block-lengths" title="Permalink to this headline">¶</a></h2>
@@ -323,9 +303,9 @@ bytes each? That can be achieved with:</p>
 </pre></div>
 </div>
 <p>That is, in a <tt class="docutils literal"><span class="pre">B</span></tt> directive, the desired DEFB statement lengths may be given
-as a comma-separated list of numbers following the sub-block length parameter,
-and the final number in the list is used for all remaining data in the block.
-So, for example:</p>
+as a comma-separated list of &#8220;sublengths&#8221; following the main length parameter,
+and the final sublength in the list is used for all remaining data in the
+block. So, for example:</p>
 <div class="highlight-none"><div class="highlight"><pre>B 24580,12,1,2,3 Interesting data
 </pre></div>
 </div>
@@ -337,8 +317,15 @@ So, for example:</p>
 24589 DEFB 10,11,12 ; }
 </pre></div>
 </div>
-<p>If the statement length list contains sequences of two or more identical
-lengths, as in:</p>
+<p>Note that even if sublengths are specified, the main length parameter can be
+omitted (by leaving it blank) if the sub-block is implicitly terminated by the
+next sub-block. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>B 24580,,1,2,3 No need to specify the main length parameter here...
+B 24592,10 ...because this sub-block implies that it must be 12
+</pre></div>
+</div>
+<p>If the sublength list contains sequences of two or more identical lengths, as
+in:</p>
 <div class="highlight-none"><div class="highlight"><pre>B 24580,21,2,2,2,2,2,2,1,1,1,3
 </pre></div>
 </div>
@@ -364,7 +351,7 @@ example:</p>
 </pre></div>
 </div>
 <p>Such statements can be encoded in a control file thus:</p>
-<div class="highlight-none"><div class="highlight"><pre>T 40000,4,3:B1
+<div class="highlight-none"><div class="highlight"><pre>T 40000,,3:B1
 B 40004,3,1:T2
 </pre></div>
 </div>
@@ -447,20 +434,66 @@ B 40020,10,2
 </div>
 <div class="section" id="number-bases">
 <h2>Number bases<a class="headerlink" href="#number-bases" title="Permalink to this headline">¶</a></h2>
-<p>Numeric values in DEFB, DEFM, DEFS and DEFW statements are normally rendered in
-either decimal or hexadecimal, depending on the options passed to
-<a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a>. To force a numeric value to be rendered in a specific
-base, attach a <tt class="docutils literal"><span class="pre">b</span></tt> (binary), <tt class="docutils literal"><span class="pre">d</span></tt> (decimal) or <tt class="docutils literal"><span class="pre">h</span></tt> (hexadecimal) prefix to
-the statement length.</p>
+<p>Numeric values in instruction operands and DEFB, DEFM, DEFS and DEFW statements
+are normally rendered in either decimal or hexadecimal, depending on the
+options passed to <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a>. To render a numeric value in an
+instruction operand as a character, or a numeric value anywhere in a specific
+base, attach a <tt class="docutils literal"><span class="pre">b</span></tt> (binary), <tt class="docutils literal"><span class="pre">c</span></tt> (character), <tt class="docutils literal"><span class="pre">d</span></tt> (decimal) or <tt class="docutils literal"><span class="pre">h</span></tt>
+(hexadecimal) prefix to the relevant length or sublength parameter on the
+<tt class="docutils literal"><span class="pre">B</span></tt>, <tt class="docutils literal"><span class="pre">C</span></tt>, <tt class="docutils literal"><span class="pre">S</span></tt>, <tt class="docutils literal"><span class="pre">T</span></tt> or <tt class="docutils literal"><span class="pre">W</span></tt> directive.</p>
 <p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>C 30000,b
+C 30002,c
+</pre></div>
+</div>
+<p>will result in something like this:</p>
+<div class="highlight-none"><div class="highlight"><pre>30000 LD A,%10001111
+30002 LD B,&quot;?&quot;
+</pre></div>
+</div>
+<p>and:</p>
 <div class="highlight-none"><div class="highlight"><pre>B 40000,8,b1:d2:h1,d1,b1,h2
 </pre></div>
 </div>
-<p>will result in something like this in the corresponding skool file:</p>
+<p>will result in something like this:</p>
 <div class="highlight-none"><div class="highlight"><pre>40000 DEFB %10101010,23,43,$5F
 40004 DEFB 56
 40005 DEFB %11110000
 40006 DEFB $2B,$80
+</pre></div>
+</div>
+<p>Note that attaching a prefix to the main length parameter sets the default base
+for any sublength parameters that follow. So:</p>
+<div class="highlight-none"><div class="highlight"><pre>B 40000,b,1:d2,1
+B 40004,h4,1:b1:d1,1
+</pre></div>
+</div>
+<p>will result in something like this:</p>
+<div class="highlight-none"><div class="highlight"><pre>40000 DEFB %01010101,32,57
+40003 DEFB %00001111
+40004 DEFB $0F,%11110000,93
+40007 DEFB $A0
+</pre></div>
+</div>
+<p>Some instructions have two numeric operands. To specify a different base for
+each one, use two prefixes:</p>
+<div class="highlight-none"><div class="highlight"><pre>C 30000,hb4
+</pre></div>
+</div>
+<p>which will result in something like this:</p>
+<div class="highlight-none"><div class="highlight"><pre>30000 LD (IX+$0A),%10000001
+</pre></div>
+</div>
+<p>To use the default base for one operand, and a specific base for the other, use
+the <tt class="docutils literal"><span class="pre">n</span></tt> (none) prefix to denote the default base. So if the default base is
+decimal, then:</p>
+<div class="highlight-none"><div class="highlight"><pre>C 30000,nb
+C 30004,hn4
+</pre></div>
+</div>
+<p>will result in something like this:</p>
+<div class="highlight-none"><div class="highlight"><pre>30000 LD (IX+10),%10000001
+30004 LD (IX+$0B),130
 </pre></div>
 </div>
 </div>
@@ -591,48 +624,52 @@ may be a better choice for <cite>skool</cite> files that contain any of them.</p
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.3</td>
+<tr class="row-even"><td>4.4</td>
+<td>Added support for specifying that numeric values in instruction
+operands be rendered as characters or in a specific base</td>
+</tr>
+<tr class="row-odd"><td>4.3</td>
 <td>Added the <tt class="docutils literal"><span class="pre">&#64;</span></tt> directive, the <tt class="docutils literal"><span class="pre">N</span></tt> directive and support for
 block start comments</td>
 </tr>
-<tr class="row-odd"><td>4.2</td>
+<tr class="row-even"><td>4.2</td>
 <td>Added the <tt class="docutils literal"><span class="pre">L</span></tt> directive and support for preserving the location
 of <a class="reference internal" href="asm.html#ignoreua"><em>&#64;ignoreua</em></a> directives</td>
 </tr>
-<tr class="row-even"><td>3.7</td>
+<tr class="row-odd"><td>3.7</td>
 <td>Added support for binary numbers; added support for specifying
 the base of numeric values in DEFB, DEFM, DEFS and DEFW
 statements; added the <tt class="docutils literal"><span class="pre">s</span></tt> and <tt class="docutils literal"><span class="pre">S</span></tt> directives and support for
 DEFS statements with non-zero byte values</td>
 </tr>
-<tr class="row-odd"><td>3.6</td>
+<tr class="row-even"><td>3.6</td>
 <td>Added support for preserving blank comments that span two or more
 instructions</td>
 </tr>
-<tr class="row-even"><td>3.1.4</td>
+<tr class="row-odd"><td>3.1.4</td>
 <td>Added support for DEFB and DEFM statements that contain both
 strings and bytes</td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
+<tr class="row-even"><td>2.4</td>
 <td>Added support for non-block ASM directives</td>
 </tr>
-<tr class="row-even"><td>2.2</td>
+<tr class="row-odd"><td>2.2</td>
 <td>Added support for the <tt class="docutils literal"><span class="pre">*</span></tt> notation in DEFB, DEFM, DEFS and DEFW
 statement length lists</td>
 </tr>
-<tr class="row-odd"><td>2.1.2</td>
+<tr class="row-even"><td>2.1.2</td>
 <td>Added support for DEFM, DEFS and DEFW statement lengths</td>
 </tr>
-<tr class="row-even"><td>2.1.1</td>
+<tr class="row-odd"><td>2.1.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">M</span></tt> directive</td>
 </tr>
-<tr class="row-odd"><td>2.1</td>
+<tr class="row-even"><td>2.1</td>
 <td>Added support for DEFB statement lengths</td>
 </tr>
-<tr class="row-even"><td>2.0.6</td>
+<tr class="row-odd"><td>2.0.6</td>
 <td>Added support for hexadecimal numbers</td>
 </tr>
-<tr class="row-odd"><td>1.0.7</td>
+<tr class="row-even"><td>1.0.7</td>
 <td>Added support for block titles, block descriptions, register
 values, mid-block comments, block end comments, sub-block types
 and instruction-level comments</td>
@@ -660,7 +697,7 @@ and instruction-level comments</td>
         <li class="right" >
           <a href="parsing.html" title="Parsing, rendering, and modes"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
