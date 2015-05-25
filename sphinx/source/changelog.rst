@@ -1,6 +1,9 @@
 Changelog
 =========
 
+4.5b1
+-----
+
 4.4 (2015-05-23)
 ----------------
 * Added support to control files and skool file templates for specifying that
