@@ -173,8 +173,11 @@ class CtlWriter:
             if SUBBLOCKS in self.elements:
                 sub_blocks = self.get_sub_blocks(instructions)
                 for j, (ctl, instructions) in enumerate(sub_blocks):
+                    has_bases = False
                     for instruction in instructions:
                         self._write_instruction_asm_directives(instruction)
+                        if instruction.bases:
+                            has_bases = True
                     first_instruction = instructions[0]
                     if ctl != 'M' or COMMENTS in self.elements:
                         length = None
@@ -192,7 +195,7 @@ class CtlWriter:
                             comment_text = comment.text
                             if comment.rowspan > 1 and not comment_text.replace('.', ''):
                                 comment_text = '.' + comment_text
-                        if comment_text or ctl != entry_ctl or ctl != 'c' or first_instruction.bases:
+                        if comment_text or ctl != entry_ctl or ctl != 'c' or has_bases:
                             self.write_sub_block(ctl, entry_ctl, comment_text, instructions, length)
 
     def addr_str(self, address):
@@ -204,43 +207,36 @@ class CtlWriter:
         sub_blocks = []
         i = 0
         prev_ctl = ''
-        prev_bases = ''
         while i < len(instructions):
             instruction = instructions[i]
             comment = instruction.comment
             ctl = instruction.inst_ctl
-            bases = instruction.bases
             if comment and (comment.rowspan > 1 or comment.text):
                 inst_ctls = set()
-                inst_bases = set()
                 for inst in instructions[i:i + comment.rowspan]:
                     inst_ctls.add(inst.inst_ctl)
-                    inst_bases.add(inst.bases)
-                if len(inst_ctls) > 1 or len(inst_bases) > 1:
+                if len(inst_ctls) > 1:
                     # We've found a set of two or more instructions of various
-                    # types or bases with a single comment, so add a commented
-                    # 'M' sub-block and commentless sub-blocks for the
-                    # instructions
+                    # types with a single comment, so add a commented 'M'
+                    # sub-block and commentless sub-blocks for the instructions
                     sub_blocks.append(('M', [FakeInstruction(instruction.address, instruction.comment)]))
                     instruction.comment = None
                     sub_blocks += self.get_sub_blocks(instructions[i:i + comment.rowspan])
                 else:
                     # We've found a set of one or more instructions of the same
-                    # type and base with a comment, so add a new sub-block
+                    # type with a comment, so add a new sub-block
                     sub_blocks.append((ctl, instructions[i:i + comment.rowspan]))
                 prev_ctl = ''
-                prev_bases = ''
-            elif ctl == prev_ctl and bases == prev_bases:
-                # This instruction is commentless and is of the same type and
-                # base as the previous instruction (which is also commentless),
-                # so add it to the current sub-block
+            elif ctl == prev_ctl:
+                # This instruction is commentless and is of the same type as
+                # the previous instruction (which is also commentless), so add
+                # it to the current sub-block
                 sub_blocks[-1][1].append(instruction)
             else:
-                # This instruction is commentless but of a different type or
-                # base from the previous instruction, so start a new sub-block
+                # This instruction is commentless but of a different type from
+                # the previous instruction, so start a new sub-block
                 sub_blocks.append((ctl, [instruction]))
                 prev_ctl = ctl
-                prev_bases = bases
             if comment:
                 i += comment.rowspan
             else:
@@ -252,29 +248,45 @@ class CtlWriter:
             sub_block_ctl = ' '
         else:
             sub_block_ctl = ctl.upper()
-        first_instruction = instructions[0]
-        address = self.addr_str(first_instruction.address)
-        bases = first_instruction.bases
+        start = instructions[0].address
+        address = self.addr_str(start)
         lengths = ''
 
-        if ctl in 'bstw':
-            # Find the byte lengths of each line in a 'B', 'S', 'T' or 'W'
-            # sub-block
+        if ctl == 'c':
+            # Compute the sublengths for a 'C' sub-block
+            sublengths = []
+            for i, instruction in enumerate(instructions):
+                if i < len(instructions) - 1:
+                    sublength = instructions[i + 1].address - instruction.address
+                elif length:
+                    sublength = start + length - instruction.address
+                else:
+                    sublength = 0
+                bases = instruction.bases
+                if sublengths and bases == sublengths[-1][0]:
+                    sublengths[-1][1] += sublength
+                else:
+                    sublengths.append([bases, sublength])
+            if len(sublengths) > 1:
+                lengths = ',' + ','.join(['{}{}'.format(bases, sublength) for bases, sublength in sublengths])
+            elif sublengths[0][1]:
+                length = '{}{}'.format(*sublengths[0])
+            else:
+                length = sublengths[0][0]
+        elif ctl in 'bstw':
+            # Compute the sublengths for a 'B', 'S', 'T' or 'W' sub-block
             length = 0
-            stmt_lengths = []
-            for stmt in instructions:
-                length += stmt.size
-                stmt_lengths.append(stmt.length)
-            while len(stmt_lengths) > 1 and stmt_lengths[-1] == stmt_lengths[-2]:
-                stmt_lengths.pop()
-            lengths = ',' + get_lengths(stmt_lengths)
+            sublengths = []
+            for statement in instructions:
+                length += statement.size
+                sublengths.append(statement.length)
+            while len(sublengths) > 1 and sublengths[-1] == sublengths[-2]:
+                sublengths.pop()
+            lengths = ',' + get_lengths(sublengths)
 
-        if length:
-            write_line('{} {},{}{}{} {}'.format(sub_block_ctl, address, bases, length, lengths, comment).rstrip())
-        else:
-            if bases:
-                bases = ',' + bases
-            write_line('{} {}{} {}'.format(sub_block_ctl, address, bases, comment).rstrip())
+        if length or lengths:
+            length = ',{}'.format(length or '')
+        write_line('{} {}{}{} {}'.format(sub_block_ctl, address, length, lengths, comment).rstrip())
 
 class SkoolParser:
     def __init__(self, skoolfile, preserve_base):

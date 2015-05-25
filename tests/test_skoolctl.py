@@ -744,8 +744,7 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'c 60000 Operations in various bases',
             '  60000,2 Decimal',
-            'M 60002,4 Binary, hexadecimal',
-            '  60002,b2',
+            '  60002,4,b2,2 Binary, hexadecimal',
             '  60006,b2 Space',
             '  60008,2 Tab',
             '  60010,2 Another tab',
@@ -753,31 +752,11 @@ class CtlWriterTest(SkoolKitTestCase):
             '  60014,3 Two spaces',
             '  60017,b3 Two spaces, two spaces',
             '  60020,3 Tab, tab',
-            '  60023,b3',
-            '  60029,b3',
+            '  60023,9,b3,3,b3',
             '  60032,6 Hexadecimal, decimal',
-            '  60044,b3',
-            '  60050,nb4',
-            '  60058,bn4',
-            '  60066,b2',
-            '  60071,b3',
-            '  60080,b4',
-            '  60091,b4',
-            '  60102,b4',
-            '  60114,b3',
-            '  60125,b3',
-            '  60136,b4',
-            '  60144,b2',
-            '  60149,b3',
-            '  60157,b2',
-            '  60163,b2',
-            '  60168,b3',
-            '  60177,b3',
-            '  60186,b4',
-            '  60198,b4',
-            '  60210,b4',
+            '  60038,180,6,b3,3,nb4,4,bn4,4,b2,3,b3,6,b4,7,b4,7,b4,8,b3,8,b3,8,b4,4,b2,3,b3,5,b2,4,b2,3,b3,6,b3,6,b4,8,b4,8,b4,4',
             '  60218,6 No operands',
-            '  60228,b4',
+            '  60224,,4,b4,24',
         ]
         self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=False)
 
@@ -785,9 +764,7 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'c 60000 Operations in various bases',
             '  60000,d2 Decimal',
-            'M 60002,4 Binary, hexadecimal',
-            '  60002,b2',
-            '  60004,h2',
+            '  60002,4,b2,h2 Binary, hexadecimal',
             '  60006,b2 Space',
             '  60008,h2 Tab',
             '  60010,d2 Another tab',
@@ -795,116 +772,39 @@ class CtlWriterTest(SkoolKitTestCase):
             '  60014,d3 Two spaces',
             '  60017,b3 Two spaces, two spaces',
             '  60020,h3 Tab, tab',
-            '  60023,b3',
-            '  60026,d3',
-            '  60029,b3',
-            'M 60032,6 Hexadecimal, decimal',
-            '  60032,h3',
-            '  60035,d3',
-            '  60038,d3',
-            '  60041,h3',
-            '  60044,b3',
-            '  60047,h3',
-            '  60050,hb4',
-            '  60054,dh4',
-            '  60058,bd4',
-            '  60062,hh4',
-            '  60066,b2',
-            '  60068,h3',
-            '  60071,b3',
-            '  60074,d3',
-            '  60077,h3',
-            '  60080,b4',
-            '  60084,d4',
-            '  60088,h3',
-            '  60091,b4',
-            '  60095,d4',
-            '  60099,h3',
-            '  60102,b4',
-            '  60106,d4',
-            '  60110,h4',
-            '  60114,b3',
-            '  60117,d4',
-            '  60121,h4',
-            '  60125,b3',
-            '  60128,d4',
-            '  60132,h4',
-            '  60136,b4',
-            '  60140,d2',
-            '  60142,h2',
-            '  60144,b2',
-            '  60146,h3',
-            '  60149,b3',
-            '  60152,d3',
-            '  60155,h2',
-            '  60157,b2',
-            '  60159,d2',
-            '  60161,h2',
-            '  60163,b2',
-            '  60165,h3',
-            '  60168,b3',
-            '  60171,d3',
-            '  60174,h3',
-            '  60177,b3',
-            '  60180,d3',
-            '  60183,h3',
-            '  60186,b4',
-            '  60190,d4',
-            '  60194,h4',
-            '  60198,b4',
-            '  60202,d4',
-            '  60206,h4',
-            '  60210,b4',
-            '  60214,d4',
+            '  60023,9,b3,d3,b3',
+            '  60032,6,h3,d3 Hexadecimal, decimal',
+            '  60038,180,d3,h3,b3,h3,hb4,dh4,bd4,hh4,b2,h3,b3,d3,h3,b4,d4,h3,b4,d4,h3,b4,d4,h4,b3,d4,h4,b3,d4,h4,b4,d2,h2,b2,h3,b3,d3,h2,b2,d2,h2,b2,h3,b3,d3,h3,b3,d3,h3,b4,d4,h4,b4,d4,h4,b4,d4',
             '  60218,6 No operands',
-            '  60224,h4',
-            '  60228,b4',
-            '  60232,d7',
-            '  60239,h5',
-            '  60244,d2',
-            '  60246,h3',
-            '  60249,d3',
-            '  60252,h4',
-            '  60256,d',
+            '  60224,,h4,b4,d7,h5,d2,h3,d3,h4,d0'
         ]
         self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=True)
 
     def test_character_operands_no_base(self):
         exp_ctl = [
             'c 61000 Instruction operands as characters',
-            '  61000,c6',
-            '  61008,c5',
-            '  61013,nc',
+            '  61000,,c6,2,c5,nc0',
         ]
         self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=False)
 
     def test_character_operands_preserve_base(self):
         exp_ctl = [
             'c 61000 Instruction operands as characters',
-            '  61000,c6',
-            '  61006,d2',
-            '  61008,c5',
-            '  61013,hc',
+            '  61000,,c6,d2,c5,hc0',
         ]
         self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=True)
 
     def test_operands_with_commas_no_base(self):
         exp_ctl = [
             'c 62000 Instruction operands that contain commas',
-            '  62000,c8',
-            '  62008,nc4',
-            '  62012,cn4',
-            '  62016,cc'
+            '  62000,,c8,nc4,cn4,cc0'
         ]
         self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=False)
 
     def test_operands_with_commas_preserve_base(self):
         exp_ctl = [
             'c 62000 Instruction operands that contain commas',
-            '  62000,c8',
-            '  62008,dc4',
-            '  62012,ch4',
-            '  62016,cc'
+            '  62000,,c8,dc4,ch4,cc0'
         ]
         self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=True)
 
