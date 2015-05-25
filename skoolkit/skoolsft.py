@@ -42,13 +42,20 @@ class ControlLine:
         self.comment_index = comment_index
         self.comment = comment
         self.operation = operation
-        self.preserve_base = preserve_base
         self.inst_ctl = get_instruction_ctl(operation)
         if self.inst_ctl == 'C':
-            self.bases = get_operand_bases(operation, preserve_base)
+            size = 1
+            length = [get_operand_bases(operation, preserve_base), size]
+        elif self.inst_ctl == 'B':
+            size, length = get_defb_length(self.operation[5:], preserve_base)
+        elif self.inst_ctl == 'T':
+            size, length = get_defm_length(self.operation[5:], preserve_base)
+        elif self.inst_ctl == 'W':
+            size, length = get_defw_length(self.operation[5:], preserve_base)
         else:
-            self.bases = ''
-        self.lengths = None
+            size, length = get_defs_length(self.operation[5:], preserve_base)
+        self.end = address + size
+        self.lengths = [length]
 
     def __str__(self):
         comment = ' {0}'.format(self.comment).rstrip()
@@ -56,45 +63,29 @@ class ControlLine:
             comment_index = ';{0}'.format(self.comment_index)
         else:
             comment_index = ''
-        return "{}{}{},{}{}{}{}".format(self.ctl, self.inst_ctl, self.addr_str, self.bases,
-                                        self._get_lengths(), comment_index, comment)
+        return "{}{}{},{}{}{}".format(self.ctl, self.inst_ctl, self.addr_str,
+                                      self._get_lengths(), comment_index, comment)
 
     def _get_lengths(self):
+        if self.inst_ctl == 'C':
+            return ','.join(['{}{}'.format(bases, length) for bases, length in self.lengths])
         # Find subsequences of identical statement lengths and abbreviate them,
         # e.g. '16,16,16,8,8,4' -> '16*3,8*2,4'
-        if self.inst_ctl == 'C':
-            return self.size
         return get_lengths(self.lengths)
 
-    def calculate_length(self, next_ctl_line):
-        if self.inst_ctl == 'C':
-            if next_ctl_line:
-                length = next_ctl_line.address - self.address
-            else:
-                length = -1
-            if length < 0 or length > 4:
-                length = 1
-            self.size = length
-            self.lengths = [str(length)]
-        elif self.inst_ctl == 'B':
-            self.size, length = get_defb_length(self.operation[5:], self.preserve_base)
-            self.lengths = [length]
-        elif self.inst_ctl == 'T':
-            self.size, length = get_defm_length(self.operation[5:], self.preserve_base)
-            self.lengths = [length]
-        elif self.inst_ctl == 'W':
-            self.size, length = get_defw_length(self.operation[5:], self.preserve_base)
-            self.lengths = [length]
-        else:
-            self.size, length = get_defs_length(self.operation[5:], self.preserve_base)
-            self.lengths = [length]
+    def calculate_length(self, next_ctl_address):
+        length = next_ctl_address - self.address
+        if length < 0 or length > 4:
+            length = 1
+        self.end += length - 1
+        self.lengths[0][1] = length
 
     def add_length(self, ctl_line):
-        self.size += ctl_line.size
-        self.lengths.append(ctl_line.lengths[0])
-
-    def end(self):
-        return self.address + self.size
+        self.end = ctl_line.end
+        if self.inst_ctl == 'C' and self.lengths[-1][0] == ctl_line.lengths[0][0]:
+            self.lengths[-1][1] += ctl_line.lengths[0][1]
+        else:
+            self.lengths.append(ctl_line.lengths[0])
 
     def is_ctl_line(self):
         return True
@@ -178,12 +169,9 @@ class SftWriter:
                     break
 
     def _calculate_lengths(self, ctl_lines):
-        for i, ctl_line in enumerate(ctl_lines):
-            if i < len(ctl_lines) - 1:
-                next_ctl_line = ctl_lines[i + 1]
-            else:
-                next_ctl_line = None
-            ctl_line.calculate_length(next_ctl_line)
+        for i, ctl_line in enumerate(ctl_lines[:-1]):
+            if ctl_line.inst_ctl == 'C':
+                ctl_line.calculate_length(ctl_lines[i + 1].address)
 
     def _compress_blocks(self, lines):
         """Compress sequences of commentless lines into a single line."""
@@ -193,8 +181,8 @@ class SftWriter:
             if line.is_ctl_line() and not line.comment and (line.ctl == ' ' or line.ctl in DIRECTIVES):
                 if prev_line is None:
                     prev_line = line
-                elif (prev_line.inst_ctl == line.inst_ctl and prev_line.bases == line.bases
-                      and prev_line.comment_index == line.comment_index and prev_line.end() == line.address):
+                elif (prev_line.inst_ctl == line.inst_ctl
+                      and prev_line.comment_index == line.comment_index and prev_line.end == line.address):
                     prev_line.add_length(line)
                 else:
                     compressed.append(prev_line)

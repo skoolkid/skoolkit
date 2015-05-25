@@ -486,58 +486,14 @@ class SftWriterTest(SkoolKitTestCase):
             ' C60014,3;33 Two spaces',
             ' C60017,b3;33 Two spaces, two spaces',
             ' C60020,3;31 Tab, tab',
-            ' C60023,b3',
-            ' C60026,3',
-            ' C60029,b3',
+            ' C60023,b3,3,b3',
             ' C60032,3;33 {Hexadecimal, decimal',
             ' C60035,3;33 }',
-            ' C60038,6',
-            ' C60044,b3',
-            ' C60047,3',
-            ' C60050,nb4',
-            ' C60054,4',
-            ' C60058,bn4',
-            ' C60062,4',
-            ' C60066,b2',
-            ' C60068,3',
-            ' C60071,b3',
-            ' C60074,6',
-            ' C60080,b4',
-            ' C60084,7',
-            ' C60091,b4',
-            ' C60095,7',
-            ' C60102,b4',
-            ' C60106,8',
-            ' C60114,b3',
-            ' C60117,8',
-            ' C60125,b3',
-            ' C60128,8',
-            ' C60136,b4',
-            ' C60140,4',
-            ' C60144,b2',
-            ' C60146,3',
-            ' C60149,b3',
-            ' C60152,5',
-            ' C60157,b2',
-            ' C60159,4',
-            ' C60163,b2',
-            ' C60165,3',
-            ' C60168,b3',
-            ' C60171,6',
-            ' C60177,b3',
-            ' C60180,6',
-            ' C60186,b4',
-            ' C60190,8',
-            ' C60198,b4',
-            ' C60202,8',
-            ' C60210,b4',
-            ' C60214,4',
+            ' C60038,6,b3,3,nb4,4,bn4,4,b2,3,b3,6,b4,7,b4,7,b4,8,b3,8,b3,8,b4,4,b2,3,b3,5,b2,4,b2,3,b3,6,b3,6,b4,8,b4,8,b4,4',
             ' C60218,2;33 {No operands',
             ' C60220,2;33',
             ' C60222,2;33 }',
-            ' C60224,4',
-            ' C60228,b4',
-            ' C60232,25',
+            ' C60224,4,b4,25'
         ]
         self._test_sft(TEST_OPERAND_BASES_SKOOL, exp_sft, preserve_base=False)
 
@@ -554,118 +510,42 @@ class SftWriterTest(SkoolKitTestCase):
             ' C60014,d3;33 Two spaces',
             ' C60017,b3;33 Two spaces, two spaces',
             ' C60020,h3;31 Tab, tab',
-            ' C60023,b3',
-            ' C60026,d3',
-            ' C60029,b3',
+            ' C60023,b3,d3,b3',
             ' C60032,h3;33 {Hexadecimal, decimal',
             ' C60035,d3;33 }',
-            ' C60038,d3',
-            ' C60041,h3',
-            ' C60044,b3',
-            ' C60047,h3',
-            ' C60050,hb4',
-            ' C60054,dh4',
-            ' C60058,bd4',
-            ' C60062,hh4',
-            ' C60066,b2',
-            ' C60068,h3',
-            ' C60071,b3',
-            ' C60074,d3',
-            ' C60077,h3',
-            ' C60080,b4',
-            ' C60084,d4',
-            ' C60088,h3',
-            ' C60091,b4',
-            ' C60095,d4',
-            ' C60099,h3',
-            ' C60102,b4',
-            ' C60106,d4',
-            ' C60110,h4',
-            ' C60114,b3',
-            ' C60117,d4',
-            ' C60121,h4',
-            ' C60125,b3',
-            ' C60128,d4',
-            ' C60132,h4',
-            ' C60136,b4',
-            ' C60140,d2',
-            ' C60142,h2',
-            ' C60144,b2',
-            ' C60146,h3',
-            ' C60149,b3',
-            ' C60152,d3',
-            ' C60155,h2',
-            ' C60157,b2',
-            ' C60159,d2',
-            ' C60161,h2',
-            ' C60163,b2',
-            ' C60165,h3',
-            ' C60168,b3',
-            ' C60171,d3',
-            ' C60174,h3',
-            ' C60177,b3',
-            ' C60180,d3',
-            ' C60183,h3',
-            ' C60186,b4',
-            ' C60190,d4',
-            ' C60194,h4',
-            ' C60198,b4',
-            ' C60202,d4',
-            ' C60206,h4',
-            ' C60210,b4',
-            ' C60214,d4',
+            ' C60038,d3,h3,b3,h3,hb4,dh4,bd4,hh4,b2,h3,b3,d3,h3,b4,d4,h3,b4,d4,h3,b4,d4,h4,b3,d4,h4,b3,d4,h4,b4,d2,h2,b2,h3,b3,d3,h2,b2,d2,h2,b2,h3,b3,d3,h3,b3,d3,h3,b4,d4,h4,b4,d4,h4,b4,d4',
             ' C60218,2;33 {No operands',
             ' C60220,2;33',
             ' C60222,2;33 }',
-            ' C60224,h4',
-            ' C60228,b4',
-            ' C60232,d7',
-            ' C60239,h5',
-            ' C60244,d2',
-            ' C60246,h3',
-            ' C60249,d3',
-            ' C60252,h4',
-            ' C60256,d1',
+            ' C60224,h4,b4,d7,h5,d2,h3,d3,h4,d1'
         ]
         self._test_sft(TEST_OPERAND_BASES_SKOOL, exp_sft, preserve_base=True)
 
     def test_character_operands_no_base(self):
         exp_sft = [
             '; Instruction operands as characters',
-            'cC61000,c6',
-            ' C61006,2',
-            ' C61008,c5',
-            ' C61013,nc1',
+            'cC61000,c6,2,c5,nc1'
         ]
         self._test_sft(TEST_CHARACTER_OPERANDS_SKOOL, exp_sft, preserve_base=False)
 
     def test_character_operands_preserve_base(self):
         exp_sft = [
             '; Instruction operands as characters',
-            'cC61000,c6',
-            ' C61006,d2',
-            ' C61008,c5',
-            ' C61013,hc1',
+            'cC61000,c6,d2,c5,hc1'
         ]
         self._test_sft(TEST_CHARACTER_OPERANDS_SKOOL, exp_sft, preserve_base=True)
 
     def test_operands_with_commas_no_base(self):
         exp_sft = [
             '; Instruction operands that contain commas',
-            'cC62000,c8',
-            ' C62008,nc4',
-            ' C62012,cn4',
-            ' C62016,cc1'
+            'cC62000,c8,nc4,cn4,cc1'
         ]
         self._test_sft(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_sft, preserve_base=False)
 
     def test_operands_with_commas_preserve_base(self):
         exp_sft = [
             '; Instruction operands that contain commas',
-            'cC62000,c8',
-            ' C62008,dc4',
-            ' C62012,ch4',
-            ' C62016,cc1'
+            'cC62000,c8,dc4,ch4,cc1'
         ]
         self._test_sft(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_sft, preserve_base=True)
 
@@ -691,6 +571,28 @@ class SftWriterTest(SkoolKitTestCase):
             ' C60018,cc4;26 Comment 7',
             ' B60022,1:T3:1;26 Comment 8',
             ' T60027,3:B1;26 Last comment',
+        ]
+        self._test_sft(skool, exp_sft)
+
+    def test_large_gap_between_instructions(self):
+        skool = '\n'.join((
+            'c25000 LD A,B',
+            ' 26000 LD C,D'
+        ))
+        exp_sft = [
+            'cC25000,1',
+            ' C26000,1',
+        ]
+        self._test_sft(skool, exp_sft)
+
+    def test_instructions_in_wrong_order(self):
+        skool = '\n'.join((
+            'c26000 LD C,D',
+            ' 25000 LD A,B'
+        ))
+        exp_sft = [
+            'cC26000,1',
+            ' C25000,1',
         ]
         self._test_sft(skool, exp_sft)
 
