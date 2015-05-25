@@ -464,13 +464,10 @@ class SftParserTest(SkoolKitTestCase):
         ]
         sft = '\n'.join((
             'cC00000,b6',
-            ' C00006,d6',
-            ' C00012,h8',
+            ' C00006,d6,h8',
             ' C00020,n6',
             ' C00026,bn6',
-            ' C00032,nb8',
-            ' C00038,bd4',
-            ' C00042,hb6',
+            ' C00032,nb6,bd4,hb6',
         ))
         exp_skool = [
             'c00000 LD A,%00000101',
@@ -490,7 +487,6 @@ class SftParserTest(SkoolKitTestCase):
             ' 00032 AND 34',
             ' 00034 CP 35',
             ' 00036 IN A,(254)',
-            ' 00038 OR 36',
             ' 00038 OR %00100100',
             ' 00040 OUT (%11111110),A',
             ' 00042 SBC A,$25',
@@ -527,17 +523,12 @@ class SftParserTest(SkoolKitTestCase):
         ]
         sft = '\n'.join((
             'cC00000,n6',
-            ' C00006,h6',
-            ' C00012,b6',
-            ' C00018,d6',
+            ' C00006,h6,b6,d6',
             ' C00024,hn6',
             ' C00030,bn6',
             ' C00036,dn8',
             ' C00044,nn8',
-            ' C00052,hd8',
-            ' C00060,bd8',
-            ' C00068,dd8',
-            ' C00076,nd4',
+            ' C00052,hd8,bd8,dd8,nd4',
         ))
         exp_skool = [
             'c$0000 LD A,(IX+$0F)',
@@ -580,12 +571,10 @@ class SftParserTest(SkoolKitTestCase):
         sft = '\n'.join((
             'cC00000,b4',
             ' C00004,n4',
-            ' C00008,h4',
-            ' C00012,d4',
+            ' C00008,h4,d4',
             ' C00016,hb4',
             ' C00020,hn4',
-            ' C00024,nh4',
-            ' C00028,hh4',
+            ' C00024,nh4,hh4',
         ))
         exp_skool = [
             'c00000 LD (IX+%00101101),%01010111',
@@ -614,15 +603,10 @@ class SftParserTest(SkoolKitTestCase):
         ]
         sft = '\n'.join((
             'cC00000,h2',
-            ' C00002,b2',
-            ' C00004,d2',
-            ' C00006,n2',
+            ' C00002,b2,d2,n2',
             ' C00008,dh2',
             ' C00010,hd2',
-            ' C00012,dn2',
-            ' C00014,nd2',
-            ' C00016,bb2',
-            ' C00018,nn2',
+            ' C00012,dn2,nd2,bb2,nn2',
         ))
         exp_skool = [
             'c$0000 DJNZ $0000',
@@ -651,11 +635,7 @@ class SftParserTest(SkoolKitTestCase):
         sft = '\n'.join((
             'cC00000,h1',
             ' C00001,n1',
-            ' C00002,d1',
-            ' C00003,b1',
-            ' C00004,dn1',
-            ' C00005,nd1',
-            ' C00006,b1'
+            ' C00002,d1,b1,dn1,nd1,b1'
         ))
         exp_skool = [
             'c$0000 RST $00',
@@ -712,17 +692,12 @@ class SftParserTest(SkoolKitTestCase):
         sft = '\n'.join((
             'cC00000,n9',
             ' C00009,d11',
-            ' C00020,b11',
-            ' C00031,h11',
-            ' C00042,dn7',
+            ' C00020,b11,h11,dn7',
             ' C00049,nd8',
             ' C00057,dh7',
             ' C00064,hd8',
             ' C00072,db6',
-            ' C00078,bd6',
-            ' C00084,hb6',
-            ' C00090,bh6',
-            ' C00096,dd6',
+            ' C00078,bd6,hb6,bh6,dd6',
             ' C00102,hh6',
             ' C00108,bb6',
             ' C00114,nn12',
@@ -784,11 +759,7 @@ class SftParserTest(SkoolKitTestCase):
             30, 128,        # 00023 LD E,128
             1, 0, 1,        # 00025 LD BC,256
         ]
-        sft = '\n'.join((
-            'cC00000,c10',
-            ' C00010,nc4',
-            ' C00014,c14',
-        ))
+        sft = 'cC00000,c10,nc4,c14'
         exp_skool = [
             'c00000 LD A,"\\""',
             ' 00002 ADD A,"\\\\"',

@@ -254,10 +254,10 @@ class CtlParserTest(SkoolKitTestCase):
             '  50000,b',
             '  50002,h2',
             '  50006,hb',
-            '  50010,d',
-            '  50012,nb4',
-            '  50016,c',
-            '  50018,dc4'
+            '  50010,6,d2,nb4',
+            '  50016,,c2,dc4',
+            '  50022,6,b2',
+            '  50028,b6,n2,2,h2'
         ))
         ctl_parser = self._get_ctl_parser(ctl)
 
@@ -265,10 +265,14 @@ class CtlParserTest(SkoolKitTestCase):
             50000: ((None, 'b'),),
             50002: ((None, 'h'),),
             50006: ((None, 'hb'),),
-            50010: ((None, 'd'),),
-            50012: ((None, 'nb'),),
-            50016: ((None, 'c'),),
-            50018: ((None, 'dc'),)
+            50010: ((2, 'd'),),
+            50012: ((4, 'nb'),),
+            50016: ((2, 'c'),),
+            50018: ((4, 'dc'),),
+            50022: ((2, 'b'),),
+            50028: ((2, 'n'),),
+            50030: ((2, 'b'),),
+            50032: ((2, 'h'),)
         }
         self.assertEqual(exp_lengths, ctl_parser.lengths)
 

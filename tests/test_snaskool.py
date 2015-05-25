@@ -15,17 +15,16 @@ DISASSEMBLY_SNAPSHOT[32768:32776] = [
     76, 111,    # 32772 DEFM "Lo"
     89, 111     # 32774 DEFM "Yo"
 ]
-DISASSEMBLY_SNAPSHOT[32814:32817] = [
-    195, 0, 128 # 32814 JP 32768
-]
-
-DISASSEMBLY_SNAPSHOT[32817:32827] = [
+DISASSEMBLY_SNAPSHOT[32814:32841] = [
+    195, 0, 128,      # 32814 JP 32768
     72, 105, 1, 2, 3, # 32817 DEFM "Hi",1,2,3
     4, 5, 76, 111, 6, # 32822 DEFB 4,5,"Lo",6
     97, 98, 1,        # 32827 DEFM "ab',1
     99, 100, 2,       # 32830 DEFM "cd",2
-    101, 3,           # 32832 DEFM "e",3
-    102, 4            # 32834 DEFM "f",4
+    101, 3,           # 32833 DEFM "e",3
+    102, 4,           # 32835 DEFM "f",4
+    62, 38,           # 32837 LD A,"&"
+    6, 1              # 32839 LD B,%00000001
 ]
 
 DISASSEMBLY_CTL = """; @start:32768
@@ -81,7 +80,10 @@ T 32817,5,2:B3
 B 32822,5,2:T2,1 This comment spans two DEFB statements
 T 32827,,2:B1*2,1:B1 This comment spans four DEFM statements
 ; Entry 16
-i 32837
+c 32837
+  32837,,c2,b2 This comment spans two instructions with different operand bases
+; Entry 17
+i 32841
 """
 
 WRITER_SNAPSHOT = [0] * 65536
@@ -229,7 +231,7 @@ class DisassemblyTest(SkoolKitTestCase):
         disassembly = Disassembly(DISASSEMBLY_SNAPSHOT, ctl_parser, True)
 
         entries = disassembly.entries
-        self.assertEqual(len(entries), 16)
+        self.assertEqual(len(entries), 17)
 
         # Entry #1 (32768)
         entry = entries[0]
@@ -403,6 +405,21 @@ class DisassemblyTest(SkoolKitTestCase):
         # Entry #16 (32837)
         entry = entries[15]
         self.assertEqual(entry.address, 32837)
+        instructions = entry.instructions
+        self.assertEqual(len(instructions), 2)
+        self.assertEqual(instructions[0].operation, 'LD A,"&"')
+        self.assertEqual(instructions[1].operation, 'LD B,%00000001')
+        blocks = entry.blocks
+        self.assertEqual(len(blocks), 1)
+        block1 = blocks[0]
+        self.assertEqual(block1.start, 32837)
+        self.assertEqual(block1.end, 32841)
+        self.assertEqual(block1.comment, 'This comment spans two instructions with different operand bases')
+        self.assertEqual(instructions, block1.instructions)
+
+        # Entry #17 (32841)
+        entry = entries[16]
+        self.assertEqual(entry.address, 32841)
 
     def test_referrers(self):
         snapshot = [
@@ -635,8 +652,8 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         ctl = '\n'.join((
             'c 00000',
-            '  00000,b',
-            '  00014,h',
+            '  00000,b14,8,h2,4',
+            '  00014,,h12,d2',
             '  00028,d',
             '  00032,bd4',
             '  00036,h4',
@@ -649,14 +666,14 @@ class DisassemblyTest(SkoolKitTestCase):
             (2, 'LD B,%00000110'),
             (4, 'LD C,%00000111'),
             (6, 'LD D,%11110000'),
-            (8, 'LD E,%10000000'),
+            (8, 'LD E,$80'),
             (10, 'LD H,%11001000'),
             (12, 'LD L,%01100100'),
             (14, 'LD IXh,$01'),
             (17, 'LD IXl,$02'),
             (20, 'LD IYh,$03'),
             (23, 'LD IYl,$04'),
-            (26, 'LD (HL),$1B'),
+            (26, 'LD (HL),27'),
             (28, 'ADD A,32'),
             (30, 'ADC A,33'),
             (32, 'AND %00100010'),
@@ -698,9 +715,9 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         ctl = '\n'.join((
             'c 00000',
-            '  00000,h',
-            '  00009,b',
-            '  00018,d',
+            '  00000,h,3,d3',
+            '  00009,b9,3,d3,3',
+            '  00018,,3,d6',
             '  00027,h6',
             '  00033,b7',
             '  00040,d12',
@@ -712,12 +729,12 @@ class DisassemblyTest(SkoolKitTestCase):
         ))
         exp_instructions = [
             (0, 'LD A,(IX+$0F)'),
-            (3, 'LD (IY-$17),B'),
-            (6, 'ADC A,(IX-$0D)'),
+            (3, 'LD (IY-23),B'),
+            (6, 'ADC A,(IX-13)'),
             (9, 'ADD A,(IY+%01111000)'),
-            (12, 'SBC A,(IX+%00101111)'),
+            (12, 'SBC A,(IX+47)'),
             (15, 'AND (IY-%00000101)'),
-            (18, 'CP (IX-19)'),
+            (18, 'CP (IX-$13)'),
             (21, 'OR (IY+102)'),
             (24, 'SUB (IX+99)'),
             (27, 'XOR (IY-$3F)'),
@@ -756,8 +773,7 @@ class DisassemblyTest(SkoolKitTestCase):
             '  00012,bd4',
             '  00016,n',
             '  00020,dn',
-            '  00024,nd',
-            '  00028,nn',
+            '  00024,,nd4,nn4',
             'i 00032',
         ))
         exp_instructions = [
@@ -815,9 +831,9 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         ctl = '\n'.join((
             'c 00000',
-            '  00000,h',
-            '  00009,b',
-            '  00020,d',
+            '  00000,h9,d3,h3',
+            '  00009,b,3,d4,4',
+            '  00020,,3,d8',
             '  00031,n',
             '  00042,h7',
             '  00049,d8',
@@ -832,13 +848,13 @@ class DisassemblyTest(SkoolKitTestCase):
             'i 00126',
         ))
         exp_instructions = [
-            (0, 'LD BC,$0001'),
+            (0, 'LD BC,1'),
             (3, 'LD DE,$000C'),
             (6, 'LD HL,$007B'),
             (9, 'LD SP,%0000010011010010'),
-            (12, 'LD IX,%0011000000111001'),
+            (12, 'LD IX,12345'),
             (16, 'LD IY,%0101101110100000'),
-            (20, 'LD A,(34567)'),
+            (20, 'LD A,($8707)'),
             (23, 'LD BC,(45678)'),
             (27, 'LD DE,(56789)'),
             (31, 'LD HL,($FF98)'),
@@ -896,8 +912,7 @@ class DisassemblyTest(SkoolKitTestCase):
             '  00010,b2',
             '  00012,h2',
             '  00014,n2',
-            '  00016,dn2',
-            '  00018,nd2',
+            '  00016,,dn2,nd2',
             'i 00020',
         ))
         exp_instructions = [
@@ -933,10 +948,7 @@ class DisassemblyTest(SkoolKitTestCase):
             '  00001,n',
             '  00002,h',
             '  00003,d',
-            '  00004,b1',
-            '  00005,n1',
-            '  00006,h1',
-            '  00007,d1',
+            '  00004,4,b1,n1,h1,d1',
             '  00008,dn1',
             '  00009,nd1',
             'i 00010',
