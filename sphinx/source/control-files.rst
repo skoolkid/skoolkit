@@ -234,8 +234,9 @@ then it may be abbreviated thus::
 
   B 24580,21,2*6,1*3,3
 
-The same syntax can be used for ``S``, ``T``, ``W`` sub-blocks too. For
-example::
+Sublengths can be used on ``C``, ``S``, ``T`` and ``W`` directives too (though
+on ``C`` directives they are really only useful for specifying
+:ref:`number bases <numberBases>`). For example::
 
   S 32768,100,25 Four 25-byte chunks of zeroes
 
@@ -334,6 +335,8 @@ is equivalent to::
 Note that ASM directives in the address range of an ``L`` directive loop are
 *not* repeated.
 
+.. _numberBases:
+
 Number bases
 ------------
 Numeric values in instruction operands and DEFB, DEFM, DEFS and DEFW statements
@@ -391,8 +394,7 @@ To use the default base for one operand, and a specific base for the other, use
 the ``n`` (none) prefix to denote the default base. So if the default base is
 decimal, then::
 
-  C 30000,nb
-  C 30004,hn4
+  C 30000,,nb4,hn4
 
 will result in something like this::
 
