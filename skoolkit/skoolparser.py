@@ -22,6 +22,7 @@ import re
 from . import warn, wrap, get_int_param, parse_int, open_file, SkoolParsingError
 from .disassembler import convert_case
 from .skoolmacro import DELIMITERS
+from .z80 import split_operation
 
 DIRECTIVES = 'bcgistuw'
 
@@ -94,30 +95,6 @@ def _get_base(item, preserve_base=True):
     if item.startswith('$') and preserve_base:
         return 'h'
     return 'd'
-
-def split_operation(operation):
-    elements = operation.split(None, 1)
-    if len(elements) < 2:
-        return elements
-    i = 0
-    quoted = False
-    operands_str = elements.pop()
-    elements.append('')
-    while i < len(operands_str):
-        c = operands_str[i]
-        if c == '"':
-            quoted = not quoted
-        elif c == '\\' and quoted:
-            elements[-1] += operands_str[i:i + 2]
-            i += 2
-            continue
-        elif c == ',' and not quoted:
-            elements.append('')
-            i += 1
-            continue
-        elements[-1] += c
-        i += 1
-    return elements
 
 def get_operand_bases(operation, preserve_base):
     elements = [e.replace(' ', '').replace('\t', '').upper() for e in split_operation(operation)]

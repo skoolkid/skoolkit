@@ -19,7 +19,6 @@
 from functools import partial
 
 from . import get_int_param, parse_int
-from .skoolparser import split_operation
 
 REG = ('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')
 REG_PAIRS = ('BC', 'DE', 'HL', 'SP')
@@ -457,6 +456,30 @@ def _assemble(operation, address):
         return a(address, *parts[1:])
     except:
         return
+
+def split_operation(operation):
+    elements = operation.split(None, 1)
+    if len(elements) < 2:
+        return elements
+    i = 0
+    quoted = False
+    operands_str = elements.pop()
+    elements.append('')
+    while i < len(operands_str):
+        c = operands_str[i]
+        if c == '"':
+            quoted = not quoted
+        elif c == '\\' and quoted:
+            elements[-1] += operands_str[i:i + 2]
+            i += 2
+            continue
+        elif c == ',' and not quoted:
+            elements.append('')
+            i += 1
+            continue
+        elements[-1] += c
+        i += 1
+    return elements
 
 def get_size(operation, address):
     return len(assemble(operation, address))
