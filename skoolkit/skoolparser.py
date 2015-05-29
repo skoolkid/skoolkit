@@ -99,16 +99,25 @@ def split_operation(operation):
     elements = operation.split(None, 1)
     if len(elements) < 2:
         return elements
-    op = elements[0].upper()
-    if op in ('DEFB', 'DEFM'):
-        return [elements[0]] + get_defb_item_list(elements[1])
-    if op in ('DEFW', 'DEFS'):
-        return [elements[0]] + elements[1].split(',')
-    operands = elements[1].split(',', 1)
-    if len(operands) == 2 and ',' in operands[1] and operands[0].endswith('"'):
-        lhs, rhs = operands[1].split(',', 1)
-        operands = [operands[0] + ',' + lhs, rhs]
-    return [elements[0]] + operands
+    i = 0
+    quoted = False
+    operands_str = elements.pop()
+    elements.append('')
+    while i < len(operands_str):
+        c = operands_str[i]
+        if c == '"':
+            quoted = not quoted
+        elif c == '\\' and quoted:
+            elements[-1] += operands_str[i:i + 2]
+            i += 2
+            continue
+        elif c == ',' and not quoted:
+            elements.append('')
+            i += 1
+            continue
+        elements[-1] += c
+        i += 1
+    return elements
 
 def get_operand_bases(operation, preserve_base):
     elements = [e.replace(' ', '').replace('\t', '').upper() for e in split_operation(operation)]
