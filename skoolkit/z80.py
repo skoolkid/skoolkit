@@ -479,10 +479,10 @@ def split_operation(operation):
             continue
         elements[-1] += c
         i += 1
-    return elements
+    return [e.strip() for e in elements]
 
 def get_size(operation, address):
     return len(assemble(operation, address))
 
-def assemble(operation, address):
+def assemble(operation, address=None):
     return _assemble(operation, address) or ()

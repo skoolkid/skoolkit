@@ -22,7 +22,7 @@ import re
 from . import warn, wrap, get_int_param, parse_int, open_file, SkoolParsingError
 from .disassembler import convert_case
 from .skoolmacro import DELIMITERS
-from .z80 import split_operation
+from .z80 import assemble, split_operation
 
 DIRECTIVES = 'bcgistuw'
 
@@ -234,35 +234,9 @@ def get_defs_length(item_str, preserve_base):
     return size, ':'.join(lengths)
 
 def set_bytes(snapshot, address, operation):
-    directive = operation[:4].upper()
-
-    if directive in ('DEFB', 'DEFM'):
-        for item in get_defb_item_list(operation[5:]):
-            if item.startswith('"'):
-                i = 1
-                while i < len(item) - 1:
-                    if item[i] == '\\':
-                        i += 1
-                    snapshot[address] = ord(item[i])
-                    i += 1
-                    address += 1
-            else:
-                snapshot[address] = parse_int(item, 0)
-                address += 1
-        return
-
-    args = [parse_int(v, 0) for v in operation[5:].split(',')]
-    if directive == 'DEFS':
-        span = args[0]
-        if len(args) > 1:
-            value = args[1]
-        else:
-            value = 0
-        snapshot[address:address + span] = [value] * span
-    elif directive == 'DEFW':
-        for arg in args:
-            snapshot[address:address + 2] = [arg % 256, arg // 256]
-            address += 2
+    if operation[:5].upper() in ('DEFB ', 'DEFM ', 'DEFS ', 'DEFW '):
+        data = assemble(operation)
+        snapshot[address:address + len(data)] = data
 
 def parse_asm_block_directive(directive, stack):
     prefix = directive[:4]
