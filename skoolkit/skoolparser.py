@@ -124,8 +124,9 @@ def get_operand_bases(operation, preserve_base):
         return ''
     return bases
 
-def get_defb_length(item_str, preserve_base, defb=True):
-    if defb:
+def get_defb_length(operation, preserve_base):
+    parts = split_operation(operation)
+    if parts.pop(0).upper() == 'DEFB':
         byte_fmt = FORMAT_NO_BASE
         text_fmt = 'T{}'
     else:
@@ -137,7 +138,7 @@ def get_defb_length(item_str, preserve_base, defb=True):
     lengths = []
     length = 0
     prev_base = None
-    for item in get_defb_item_list(item_str) + ['""']:
+    for item in parts + ['""']:
         if item.startswith('"'):
             if length:
                 lengths.append(byte_fmt[prev_base].format(length))
@@ -163,39 +164,6 @@ def get_defb_length(item_str, preserve_base, defb=True):
             length += 1
             prev_base = cur_base
     return full_length, ':'.join(lengths)
-
-def get_defm_length(item_str, preserve_base):
-    return get_defb_length(item_str, preserve_base, False)
-
-def get_defb_item_list(item_str):
-    items = []
-    i = 0
-    while i < len(item_str):
-        char = item_str[i]
-        if char.isspace() or char == ',':
-            i += 1
-        elif char == '"':
-            item = char
-            i += 1
-            while i < len(item_str):
-                msg_char = item_str[i]
-                item += msg_char
-                if msg_char == '\\':
-                    item += item_str[i + 1]
-                    i += 2
-                elif msg_char == '"':
-                    items.append(item)
-                    i += 1
-                    break
-                else:
-                    i += 1
-        else:
-            end = item_str.find(',', i + 1)
-            if end < 0:
-                end = len(item_str)
-            items.append(item_str[i:end])
-            i = end + 1
-    return items
 
 def get_defw_length(item_str, preserve_base):
     if preserve_base:

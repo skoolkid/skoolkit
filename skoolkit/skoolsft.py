@@ -18,7 +18,7 @@
 
 from . import write_line, get_int_param, get_address_format, open_file, SkoolParsingError
 from .skoolparser import (DIRECTIVES, parse_asm_block_directive, get_instruction_ctl, get_operand_bases,
-                          find_comment, get_defb_length, get_defm_length, get_defs_length, get_defw_length)
+                          find_comment, get_defb_length, get_defs_length, get_defw_length)
 from .skoolctl import get_lengths
 
 VALID_CTLS = DIRECTIVES + ' *'
@@ -47,9 +47,9 @@ class ControlLine:
             size = 1
             length = [get_operand_bases(operation, preserve_base), size]
         elif self.inst_ctl == 'B':
-            size, length = get_defb_length(self.operation[5:], preserve_base)
+            size, length = get_defb_length(self.operation, preserve_base)
         elif self.inst_ctl == 'T':
-            size, length = get_defm_length(self.operation[5:], preserve_base)
+            size, length = get_defb_length(self.operation, preserve_base)
         elif self.inst_ctl == 'W':
             size, length = get_defw_length(self.operation[5:], preserve_base)
         else:

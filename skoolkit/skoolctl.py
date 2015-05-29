@@ -20,7 +20,7 @@ from . import write_line, get_int_param, get_address_format, open_file, SkoolPar
 from .skoolparser import (DIRECTIVES, Comment, Register,
                           parse_comment_block, parse_instruction, parse_address_comments, join_comments,
                           parse_asm_block_directive, get_instruction_ctl, get_operand_bases,
-                          get_defb_length, get_defm_length, get_defs_length, get_defw_length)
+                          get_defb_length, get_defs_length, get_defw_length)
 
 BLOCKS = 'b'
 BLOCK_TITLES = 't'
@@ -468,9 +468,9 @@ class Instruction:
         self.size = None
         self.length = None
         if self.inst_ctl == 'b':
-            self.size, self.length = get_defb_length(operation[5:], preserve_base)
+            self.size, self.length = get_defb_length(operation, preserve_base)
         elif self.inst_ctl == 't':
-            self.size, self.length = get_defm_length(operation[5:], preserve_base)
+            self.size, self.length = get_defb_length(operation, preserve_base)
         elif self.inst_ctl == 'w':
             self.size, self.length = get_defw_length(operation[5:], preserve_base)
         elif self.inst_ctl == 's':
