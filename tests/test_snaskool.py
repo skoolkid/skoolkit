@@ -514,7 +514,7 @@ class DisassemblyTest(SkoolKitTestCase):
         self._test_disassembly(snapshot, ctl, exp_instructions, asm_hex=True)
 
     def test_word_formats(self):
-        snapshot = [170, 53] * 32
+        snapshot = [170, 53] * 32 + [33, 0] * 2
         ctl = '\n'.join((
             'w 00000',
             '  00000,4',
@@ -527,7 +527,8 @@ class DisassemblyTest(SkoolKitTestCase):
             '  00040,8,b2,4,h2',
             'W 00048,8,b2:2:h4',
             '  00056,8,4',
-            'i 00064'
+            '  00064,4,c2:2',
+            'i 00068'
         ))
         exp_instructions = [
             ( 0, 'DEFW 13738'),
@@ -548,7 +549,8 @@ class DisassemblyTest(SkoolKitTestCase):
             (46, 'DEFW $35AA'),
             (48, 'DEFW %0011010110101010,13738,$35AA,$35AA'),
             (56, 'DEFW 13738,13738'),
-            (60, 'DEFW 13738,13738')
+            (60, 'DEFW 13738,13738'),
+            (64, 'DEFW "!",33')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions)
 

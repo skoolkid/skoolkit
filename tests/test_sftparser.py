@@ -369,7 +369,7 @@ class SftParserTest(SkoolKitTestCase):
         self._test_disassembly(sft, exp_skool, snapshot, asm_hex=True)
 
     def test_word_formats(self):
-        snapshot = [205, 85] * 20
+        snapshot = [205, 85] * 20 + [32, 0] * 2
         sft = '\n'.join((
             'wW00000,4',
             ' W00004,b4',
@@ -377,7 +377,8 @@ class SftParserTest(SkoolKitTestCase):
             ' W00012,h4',
             ' W00016,2,d2,h4',
             ' W00024,b4:2:h2',
-            ' W00032,b2,4,h2'
+            ' W00032,b2,4,h2',
+            ' W00040,c2:2'
         ))
         exp_skool = [
             'w00000 DEFW 21965,21965',
@@ -390,7 +391,8 @@ class SftParserTest(SkoolKitTestCase):
             ' 00024 DEFW %0101010111001101,%0101010111001101,21965,$55CD',
             ' 00032 DEFW %0101010111001101',
             ' 00034 DEFW 21965,21965',
-            ' 00038 DEFW $55CD'
+            ' 00038 DEFW $55CD',
+            ' 00040 DEFW " ",32'
         ]
         self._test_disassembly(sft, exp_skool, snapshot)
 

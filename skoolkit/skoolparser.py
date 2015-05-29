@@ -44,6 +44,7 @@ BASE_16 = 16
 
 FORMAT_NO_BASE = {
     'b': 'b{}',
+    'c': 'c{}',
     'd': '{}',
     'h': '{}'
 }
@@ -56,6 +57,7 @@ FORMAT_DEFM_NO_BASE = {
 
 FORMAT_PRESERVE_BASE = {
     'b': 'b{}',
+    'c': 'c{}',
     'd': 'd{}',
     'h': 'h{}'
 }
@@ -92,6 +94,8 @@ def get_instruction_ctl(op):
 def _get_base(item, preserve_base=True):
     if item.startswith('%'):
         return 'b'
+    if item.startswith('"'):
+        return 'c'
     if item.startswith('$') and preserve_base:
         return 'h'
     return 'd'
@@ -165,7 +169,7 @@ def get_defb_length(operation, preserve_base):
             prev_base = cur_base
     return full_length, ':'.join(lengths)
 
-def get_defw_length(item_str, preserve_base):
+def get_defw_length(operation, preserve_base):
     if preserve_base:
         word_fmt = FORMAT_PRESERVE_BASE
     else:
@@ -174,8 +178,7 @@ def get_defw_length(item_str, preserve_base):
     lengths = []
     length = 0
     prev_base = None
-    for item in item_str.split(','):
-        item = item.strip()
+    for item in split_operation(operation)[1:]:
         cur_base = _get_base(item, preserve_base)
         if prev_base != cur_base and length:
             lengths.append(word_fmt[prev_base].format(length))

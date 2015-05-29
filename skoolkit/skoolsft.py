@@ -51,7 +51,7 @@ class ControlLine:
         elif self.inst_ctl == 'T':
             size, length = get_defb_length(self.operation, preserve_base)
         elif self.inst_ctl == 'W':
-            size, length = get_defw_length(self.operation[5:], preserve_base)
+            size, length = get_defw_length(self.operation, preserve_base)
         else:
             size, length = get_defs_length(self.operation[5:], preserve_base)
         self.end = address + size

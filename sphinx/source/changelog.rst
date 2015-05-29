@@ -3,6 +3,8 @@ Changelog
 
 4.5b1
 -----
+* Added support for characters in DEFW statements (e.g. ``DEFW "!"``, which is
+  equivalent to ``DEFW 33``)
 
 4.4 (2015-05-23)
 ----------------
