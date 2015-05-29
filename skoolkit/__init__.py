@@ -59,6 +59,10 @@ def get_int_param(num_str):
         return int(num_str[1:], 16)
     if num_str.startswith('%'):
         return int(num_str[1:], 2)
+    if num_str.startswith('"') and num_str.endswith('"'):
+        if num_str.startswith('"\\'):
+            return ord(num_str[2:-1])
+        return ord(num_str[1:-1])
     return int(num_str)
 
 def parse_int(num_str, default=None):
