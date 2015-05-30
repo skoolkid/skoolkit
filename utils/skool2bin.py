@@ -17,7 +17,7 @@ else:
         sys.exit(1)
 
 from skoolkit import SkoolKitError, SkoolParsingError, open_file, info, warn, error, get_int_param
-from skoolkit.skoolparser import parse_asm_block_directive, find_comment
+from skoolkit.skoolparser import parse_asm_block_directive, find_unquoted
 from skoolkit.skoolsft import VALID_CTLS, VERBATIM_BLOCKS
 from skoolkit.z80 import assemble
 
@@ -68,7 +68,7 @@ class BinWriter:
             address = get_int_param(line[1:6])
         except ValueError:
             raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
-        comment_index = find_comment(line)
+        comment_index = find_unquoted(line, ';', 6)
         if comment_index > 0:
             end = comment_index
         else:

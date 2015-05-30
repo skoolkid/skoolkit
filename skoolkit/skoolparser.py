@@ -336,26 +336,26 @@ def parse_comment_block(comments, ignores, mode):
     start_comment = join_comments(sections[3], split=True, html=mode.html)
     return start_comment, title, description, registers
 
-def find_comment(line):
-    i = 6
+def find_unquoted(text, char, index=0, end=False):
+    i = index
     quoted = False
-    while i < len(line):
-        c = line[i]
-        if c == ';' and not quoted:
+    while i < len(text):
+        c = text[i]
+        if c == char and not quoted:
             return i
         if c == '\\' and quoted:
             i += 1
         elif c == '"':
             quoted = not quoted
         i += 1
+    if end:
+        return len(text)
     return -1
 
 def parse_instruction(line):
     ctl = line[0]
     addr_str = line[1:6]
-    comment_index = find_comment(line)
-    if comment_index < 0:
-        comment_index = len(line)
+    comment_index = find_unquoted(line, ';', 6, True)
     operation = line[7:comment_index].strip()
     comment = line[comment_index + 1:].strip()
     return ctl, addr_str, operation, comment
