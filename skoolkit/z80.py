@@ -446,7 +446,7 @@ def _assemble(operation, address):
         if directive == 'DEFW':
             return _assemble_defw(items)
 
-    parts = split_operation(_convert_case(operation))
+    parts = split_operation(operation, True)
     try:
         a = MNEMONICS[parts[0]]
         if isinstance(a, tuple):
@@ -457,7 +457,9 @@ def _assemble(operation, address):
     except:
         return
 
-def split_operation(operation):
+def split_operation(operation, tidy=False):
+    if tidy:
+        operation = _convert_case(operation)
     elements = operation.split(None, 1)
     if len(elements) < 2:
         return elements

@@ -101,13 +101,13 @@ def _get_base(item, preserve_base=True):
     return 'd'
 
 def get_operand_bases(operation, preserve_base):
-    elements = [e.replace(' ', '').replace('\t', '').upper() for e in split_operation(operation)]
+    elements = split_operation(operation, True)
     if not elements:
         return ''
     if preserve_base:
-        base_fmt = {'b': 'b', 'd': 'd', 'h': 'h'}
+        base_fmt = {'b': 'b', 'c': 'c', 'd': 'd', 'h': 'h'}
     else:
-        base_fmt = {'b': 'b', 'd': 'n', 'h': 'n'}
+        base_fmt = {'b': 'b', 'c': 'c', 'd': 'n', 'h': 'n'}
     if elements[0] in ('BIT', 'RES', 'SET'):
         operands = elements[2:]
     else:
@@ -120,10 +120,8 @@ def get_operand_bases(operation, preserve_base):
             num = operand[1:]
         else:
             num = operand
-        if num.startswith(('%', '$', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')):
+        if num.startswith(('"', '%', '$', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')):
             bases += base_fmt[_get_base(num)]
-        elif num.startswith('"'):
-            bases += 'c'
     if bases in ('n', 'nn'):
         return ''
     return bases
