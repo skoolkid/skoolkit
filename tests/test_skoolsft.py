@@ -280,6 +280,7 @@ s50000 DEFS %0000000111110100
  51500 DEFS $07D0
  53500 DEFS 500,%10101010
  54000 DEFS $0100,170
+ 54256 DEFS 256,","
 """
 
 TEST_OPERAND_BASES_SKOOL = """; Operations in various bases
@@ -462,14 +463,14 @@ class SftWriterTest(SkoolKitTestCase):
     def test_s_directives_no_base(self):
         exp_sft = [
             '; DEFS statements in various bases',
-            'sS50000,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170'
+            'sS50000,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170,256:c","'
         ]
         self._test_sft(TEST_S_DIRECTIVES_SKOOL, exp_sft, preserve_base=False)
 
     def test_s_directives_preserve_base(self):
         exp_sft = [
             '; DEFS statements in various bases',
-            'sS50000,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170'
+            'sS50000,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170,d256:c","'
         ]
         self._test_sft(TEST_S_DIRECTIVES_SKOOL, exp_sft, preserve_base=True)
 

@@ -5,6 +5,7 @@ Changelog
 -----
 * Added support for characters in DEFW statements (e.g. ``DEFW "!"``, which is
   equivalent to ``DEFW 33``)
+* Added support for characters in DEFS statements (e.g. ``DEFS 10,"!"``)
 
 4.4 (2015-05-23)
 ----------------

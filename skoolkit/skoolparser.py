@@ -190,14 +190,14 @@ def get_defw_length(operation, preserve_base):
     full_length += length
     return full_length, ':'.join(lengths)
 
-def get_defs_length(item_str, preserve_base):
+def get_defs_length(operation, preserve_base):
     if preserve_base:
         fmt = FORMAT_PRESERVE_BASE
     else:
         fmt = FORMAT_NO_BASE
     size = None
     lengths = []
-    for item in item_str.split(',', 1):
+    for item in split_operation(operation)[1:3]:
         if size is None:
             size = get_int_param(item)
         base = _get_base(item, preserve_base)

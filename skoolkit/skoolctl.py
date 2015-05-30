@@ -474,7 +474,7 @@ class Instruction:
         elif self.inst_ctl == 'w':
             self.size, self.length = get_defw_length(operation, preserve_base)
         elif self.inst_ctl == 's':
-            self.size, self.length = get_defs_length(operation[5:], preserve_base)
+            self.size, self.length = get_defs_length(operation, preserve_base)
         else:
             self.bases = get_operand_bases(operation, preserve_base)
 
