@@ -19,6 +19,7 @@
 from functools import partial
 
 from . import get_int_param, parse_int
+from .textutils import split_unquoted
 
 REG = ('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')
 REG_PAIRS = ('BC', 'DE', 'HL', 'SP')
@@ -463,25 +464,7 @@ def split_operation(operation, tidy=False):
     elements = operation.split(None, 1)
     if len(elements) < 2:
         return elements
-    i = 0
-    quoted = False
-    operands_str = elements.pop()
-    elements.append('')
-    while i < len(operands_str):
-        c = operands_str[i]
-        if c == '"':
-            quoted = not quoted
-        elif c == '\\' and quoted:
-            elements[-1] += operands_str[i:i + 2]
-            i += 2
-            continue
-        elif c == ',' and not quoted:
-            elements.append('')
-            i += 1
-            continue
-        elements[-1] += c
-        i += 1
-    return [e.strip() for e in elements]
+    return [elements[0]] + [e.strip() for e in split_unquoted(elements[1], ',')]
 
 def get_size(operation, address):
     return len(assemble(operation, address))
