@@ -643,7 +643,10 @@ class Disassembly:
                 elif sub_block.ctl in 'bgstuw':
                     sublengths = sub_block.sublengths
                     if sublengths[0][0]:
-                        length = sum([s[0] for s in sublengths])
+                        if sub_block.ctl == 's':
+                            length = sublengths[0][0]
+                        else:
+                            length = sum([s[0] for s in sublengths])
                     else:
                         length = sub_block.end - sub_block.start
                     instructions = []
