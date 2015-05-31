@@ -18,8 +18,9 @@
 
 from . import write_line, get_int_param, get_address_format, open_file, SkoolParsingError
 from .skoolparser import (DIRECTIVES, parse_asm_block_directive, get_instruction_ctl, get_operand_bases,
-                          find_unquoted, get_defb_length, get_defs_length, get_defw_length)
+                          get_defb_length, get_defs_length, get_defw_length)
 from .skoolctl import get_lengths
+from .textutils import find_unquoted
 
 VALID_CTLS = DIRECTIVES + ' *'
 VERBATIM_BLOCKS = ('d', 'i', 'r')

@@ -17,7 +17,8 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from . import write_line, get_int_param, parse_int, get_address_format, open_file, SkoolKitError
-from .skoolparser import set_bytes, parse_asm_block_directive, find_unquoted, split_unquoted
+from .textutils import find_unquoted, split_unquoted
+from .skoolparser import set_bytes, parse_asm_block_directive
 from .skoolsft import VALID_CTLS, VERBATIM_BLOCKS
 from .ctlparser import parse_params
 from .disassembler import Disassembler

@@ -22,6 +22,7 @@ import re
 from . import warn, wrap, get_int_param, parse_int, open_file, SkoolParsingError
 from .disassembler import convert_case
 from .skoolmacro import DELIMITERS
+from .textutils import partition_unquoted
 from .z80 import assemble, split_operation
 
 DIRECTIVES = 'bcgistuw'
@@ -335,53 +336,6 @@ def parse_comment_block(comments, ignores, mode):
     registers = _parse_registers(sections[2], mode)
     start_comment = join_comments(sections[3], split=True, html=mode.html)
     return start_comment, title, description, registers
-
-def split_unquoted(text, sep, maxsplit=0):
-    i = 0
-    quoted = False
-    elements = ['']
-    while i < len(text):
-        c = text[i]
-        if c == '"':
-            quoted = not quoted
-        elif c == '\\' and quoted:
-            elements[-1] += text[i:i + 2]
-            i += 2
-            continue
-        elif c == sep and not quoted:
-            i += 1
-            if len(elements) == maxsplit > 0:
-                elements.append(text[i:])
-                break
-            elements.append('')
-            continue
-        elements[-1] += c
-        i += 1
-    return elements
-
-def partition_unquoted(text, sep, default=''):
-    parts = split_unquoted(text, sep, 1)
-    if len(parts) == 2:
-        return (parts[0], sep, parts[1])
-    return (text, '', default)
-
-def find_unquoted(text, char, start=0, end=None, neg=False):
-    i = start
-    if end is None:
-        end = len(text)
-    quoted = False
-    while i < end:
-        c = text[i]
-        if c == char and not quoted:
-            return i
-        if c == '\\' and quoted:
-            i += 1
-        elif c == '"':
-            quoted = not quoted
-        i += 1
-    if neg:
-        return -1
-    return end
 
 def parse_instruction(line):
     ctl = line[0]
