@@ -77,10 +77,9 @@ class SftParser:
             inst_ctl = line[1]
             comma_index = line.index(',', 2)
             start = get_int_param(line[2:comma_index])
-            i = find_unquoted(line.rstrip(), ' ', comma_index + 1, True)
-            j = line.find(';', comma_index + 1, i)
-            if j < 0:
-                j = i
+            i = find_unquoted(line.rstrip(), ' ', comma_index + 1)
+            j = find_unquoted(line, ';', comma_index + 1, i)
+            if j == i:
                 comment_index = -1
             else:
                 comment_index = get_int_param(line[j + 1:i])

@@ -365,10 +365,12 @@ def partition_unquoted(text, sep, default=''):
         return (parts[0], sep, parts[1])
     return (text, '', default)
 
-def find_unquoted(text, char, index=0, end=False):
-    i = index
+def find_unquoted(text, char, start=0, end=None, neg=False):
+    i = start
+    if end is None:
+        end = len(text)
     quoted = False
-    while i < len(text):
+    while i < end:
         c = text[i]
         if c == char and not quoted:
             return i
@@ -377,17 +379,15 @@ def find_unquoted(text, char, index=0, end=False):
         elif c == '"':
             quoted = not quoted
         i += 1
-    if end:
-        return len(text)
-    return -1
+    if neg:
+        return -1
+    return end
 
 def parse_instruction(line):
     ctl = line[0]
     addr_str = line[1:6]
-    comment_index = find_unquoted(line, ';', 6, True)
-    operation = line[7:comment_index].strip()
-    comment = line[comment_index + 1:].strip()
-    return ctl, addr_str, operation, comment
+    operation, sep, comment = partition_unquoted(line[6:], ';')
+    return ctl, addr_str, operation.strip(), comment.strip()
 
 def parse_address_comments(comments, html=False):
     i = 0

@@ -151,7 +151,7 @@ class SftWriter:
         except ValueError:
             raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
         addr_str = self.address_fmt.format(address)
-        comment_index = find_unquoted(line, ';', 6)
+        comment_index = find_unquoted(line, ';', 6, neg=True)
         if comment_index > 0:
             end = comment_index
         else:

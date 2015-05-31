@@ -413,7 +413,7 @@ class SftParserTest(SkoolKitTestCase):
             ' S00010,b10,d10,h10',
             ' S00040,10',
             ' S00050,b300,d300,h300',
-            ' S00950,50:c"&"',
+            ' S00950,20:c";",30:c"&"',
             ' S01000,5:c"*"*2,10:c" "'
         ))
         exp_skool = [
@@ -428,7 +428,8 @@ class SftParserTest(SkoolKitTestCase):
             ' 00050 DEFS %0000000100101100',
             ' 00350 DEFS 300',
             ' 00650 DEFS $012C',
-            ' 00950 DEFS 50,"&"',
+            ' 00950 DEFS 20,";"',
+            ' 00970 DEFS 30,"&"',
             ' 01000 DEFS 5,"*"',
             ' 01005 DEFS 5,"*"',
             ' 01010 DEFS 10," "'
