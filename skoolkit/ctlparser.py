@@ -48,7 +48,7 @@ def _parse_sublengths(spec, subctl, default_prefix):
     if subctl == 'C':
         sublengths = [spec]
     else:
-        sublengths = spec.split(':')
+        sublengths = split_unquoted(spec, ':')
     for num in sublengths:
         sublength, prefix = _parse_length(num, subctl, default_prefix)
         lengths.append((sublength, prefix))
