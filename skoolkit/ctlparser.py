@@ -186,9 +186,9 @@ class CtlParser:
                 use_length = False
                 if '-' in fields[0]:
                     params = fields[0].split('-', 1)
-                    params[1:] = params[1].split(',')
+                    params[1:] = split_unquoted(params[1], ',')
                 else:
-                    params = fields[0].split(',')
+                    params = split_unquoted(fields[0], ',')
                     use_length = len(params) > 1
                 try:
                     start = get_int_param(params[0])
