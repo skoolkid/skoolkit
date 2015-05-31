@@ -336,6 +336,29 @@ def parse_comment_block(comments, ignores, mode):
     start_comment = join_comments(sections[3], split=True, html=mode.html)
     return start_comment, title, description, registers
 
+def split_unquoted(text, sep, maxsplit=0):
+    i = 0
+    quoted = False
+    elements = ['']
+    while i < len(text):
+        c = text[i]
+        if c == '"':
+            quoted = not quoted
+        elif c == '\\' and quoted:
+            elements[-1] += text[i:i + 2]
+            i += 2
+            continue
+        elif c == sep and not quoted:
+            i += 1
+            if len(elements) == maxsplit > 0:
+                elements.append(text[i:])
+                break
+            elements.append('')
+            continue
+        elements[-1] += c
+        i += 1
+    return elements
+
 def find_unquoted(text, char, index=0, end=False):
     i = index
     quoted = False

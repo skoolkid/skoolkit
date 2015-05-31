@@ -17,7 +17,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from . import write_line, get_int_param, parse_int, get_address_format, open_file, SkoolKitError
-from .skoolparser import set_bytes, parse_asm_block_directive
+from .skoolparser import set_bytes, parse_asm_block_directive, find_unquoted
 from .skoolsft import VALID_CTLS, VERBATIM_BLOCKS
 from .ctlparser import parse_params
 from .disassembler import Disassembler
@@ -77,9 +77,7 @@ class SftParser:
             inst_ctl = line[1]
             comma_index = line.index(',', 2)
             start = get_int_param(line[2:comma_index])
-            i = line.find(' ', comma_index + 1)
-            if i < 0:
-                i = len(line.rstrip())
+            i = find_unquoted(line.rstrip(), ' ', comma_index + 1, True)
             j = line.find(';', comma_index + 1, i)
             if j < 0:
                 j = i

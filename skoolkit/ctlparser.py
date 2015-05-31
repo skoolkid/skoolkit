@@ -19,6 +19,7 @@
 from . import warn, get_int_param, open_file
 from .skoolctl import AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET, AD_IGNOREUA
 from .skoolctl import TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END
+from .skoolparser import split_unquoted
 
 COMMENT_TYPES = (TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 
@@ -176,7 +177,7 @@ class CtlParser:
         content = line[1:].lstrip()
         if content:
             if first_char in ' bBcCDEgiLMNRsStTuwW':
-                fields = content.split(' ', 1)
+                fields = split_unquoted(content, ' ', 1)
                 ctl = first_char
                 if ctl == ' ':
                     if entry_ctl is None:
