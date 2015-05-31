@@ -80,16 +80,18 @@ Such statements are preserved in a skool file template thus::
    T30010,B2,1:B2
 
 DEFB, DEFM, DEFS and DEFW statements may contain numeric values in various
-bases. For example::
+bases or as characters. For example::
 
   b40000 DEFB %10101010,23,43,$5F
    40004 DEFB 56
    40005 DEFB %11110000
    40006 DEFB $2B,$80
+   40008 DEFS 8,"!"
 
 These statements may be preserved in a skool file template thus::
 
   bB40000,b1:d2:h1,d1,b1,h2
+   S40008,8:c"!"
 
 Instruction operands may also contain numeric values in various bases or as
 characters. For example::
@@ -135,8 +137,11 @@ Revision history
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 4.5     | Added support for specifying character values in DEFS statements |
++---------+------------------------------------------------------------------+
 | 4.4     | Added support for specifying that numeric values in instruction  |
-|         | operands be rendered as characters or in a specific base         |
+|         | operands be rendered as characters or in a specific base; added  |
+|         | support for specifying character values in DEFW statements       |
 +---------+------------------------------------------------------------------+
 | 3.7     | Added support for binary numbers; added support for specifying   |
 |         | the base of numeric values in DEFB, DEFM, DEFS and DEFW          |

@@ -341,11 +341,10 @@ Number bases
 ------------
 Numeric values in instruction operands and DEFB, DEFM, DEFS and DEFW statements
 are normally rendered in either decimal or hexadecimal, depending on the
-options passed to :ref:`sna2skool.py`. To render a numeric value in an
-instruction operand as a character, or a numeric value anywhere in a specific
-base, attach a ``b`` (binary), ``c`` (character), ``d`` (decimal) or ``h``
-(hexadecimal) prefix to the relevant length or sublength parameter on the
-``B``, ``C``, ``S``, ``T`` or ``W`` directive.
+options passed to :ref:`sna2skool.py`. To render a numeric value in a specific
+base or as a character, attach a ``b`` (binary), ``c`` (character), ``d``
+(decimal) or ``h`` (hexadecimal) prefix to the relevant length or sublength
+parameter on the ``B``, ``C``, ``S``, ``T`` or ``W`` directive.
 
 For example::
 
@@ -360,6 +359,7 @@ will result in something like this::
 and::
 
   B 40000,8,b1:d2:h1,d1,b1,h2
+  S 40008,8,8:c"!"
 
 will result in something like this::
 
@@ -367,6 +367,7 @@ will result in something like this::
   40004 DEFB 56
   40005 DEFB %11110000
   40006 DEFB $2B,$80
+  40008 DEFS 8,"!"
 
 Note that attaching a prefix to the main length parameter sets the default base
 for any sublength parameters that follow. So::
@@ -519,8 +520,11 @@ Revision history
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 4.5     | Added support for specifying character values in DEFS statements  |
++---------+-------------------------------------------------------------------+
 | 4.4     | Added support for specifying that numeric values in instruction   |
-|         | operands be rendered as characters or in a specific base          |
+|         | operands be rendered as characters or in a specific base; added   |
+|         | support for specifying character values in DEFW statements        |
 +---------+-------------------------------------------------------------------+
 | 4.3     | Added the ``@`` directive, the ``N`` directive and support for    |
 |         | block start comments                                              |
