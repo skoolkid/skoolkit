@@ -3,8 +3,8 @@ Changelog
 
 4.5b1
 -----
-* Added support for characters in DEFW statements (e.g. ``DEFW "!"``, which is
-  equivalent to ``DEFW 33``)
+* Added support to :ref:`skool2ctl.py` and :ref:`skool2sft.py` for preserving
+  characters in DEFW statements (e.g. ``DEFW "!"``)
 * Added support for characters in DEFS statements (e.g. ``DEFS 10,"!"``)
 
 4.4 (2015-05-23)
