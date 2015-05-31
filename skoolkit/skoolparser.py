@@ -359,6 +359,12 @@ def split_unquoted(text, sep, maxsplit=0):
         i += 1
     return elements
 
+def partition_unquoted(text, sep, default=''):
+    parts = split_unquoted(text, sep, 1)
+    if len(parts) == 2:
+        return (parts[0], sep, parts[1])
+    return (text, '', default)
+
 def find_unquoted(text, char, index=0, end=False):
     i = index
     quoted = False

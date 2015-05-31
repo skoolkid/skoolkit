@@ -19,7 +19,7 @@
 from . import warn, get_int_param, open_file
 from .skoolctl import AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET, AD_IGNOREUA
 from .skoolctl import TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END
-from .skoolparser import split_unquoted
+from .skoolparser import partition_unquoted, split_unquoted
 
 COMMENT_TYPES = (TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 
@@ -36,10 +36,7 @@ def parse_params(ctl, params, lengths_index=1):
             length, prefix = _parse_length(param, required=False)
             int_params.append(length)
         else:
-            if '*' in param:
-                n, m = param.split('*', 1)
-            else:
-                n, m = param, '1'
+            n, sep, m = partition_unquoted(param, '*', '1')
             int_params += (_parse_sublengths(n, ctl, prefix),) * get_int_param(m)
     if prefix and len(int_params) == lengths_index:
         int_params.append((None, ((None, prefix),)))
