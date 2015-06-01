@@ -1480,6 +1480,16 @@ RELATIVE_JUMPS = (
     (125, 'DJNZ 65535', (16, 128))
 )
 
+UNUSUAL_WHITESPACE = (
+    ('LD ( HL ), 5', (54, 5)),
+    ('LD B, ( HL )', (70,)),
+    ('LD\tA, " "', (62, 32)),
+    ('LD  A, ( 16384 )', (58, 0, 64)),
+    ('LD C, ( IX + 0 )', (221, 78, 0)),
+    ('LD\t( IX + 0 ), D', (221, 114, 0)),
+    ('XOR\tE', (171,))
+)
+
 DEFB_DEFM = (
     ('1,2', (1, 2)),
     ('"ABC"', (65, 66, 67)),
@@ -1526,18 +1536,18 @@ class Z80Test(SkoolKitTestCase):
         length = get_size(operation, address)
         self.assertEqual(exp_length, length, "get_size('{}', {}) failed".format(operation, address))
 
-    def _test_assembly(self, operation, exp_data=(), address=0):
+    def _test_assembly(self, operation, exp_data=(), address=0, test_lower=False):
         self._test_operation(operation, exp_data, address)
-        if '"' not in operation:
+        if test_lower:
             self._test_operation(operation.lower(), exp_data, address)
 
     def test_all_instructions(self):
         for operation, exp_data in OPERATIONS:
-            self._test_assembly(operation, exp_data, 16384)
+            self._test_assembly(operation, exp_data, 16384, True)
 
     def test_hexadecimal_operands(self):
         for operation, exp_data in HEXADECIMAL_OPERANDS:
-            self._test_assembly(operation, exp_data, 16384)
+            self._test_assembly(operation, exp_data, 16384, True)
 
     def test_binary_operands(self):
         for operation, exp_data in BINARY_OPERANDS:
@@ -1554,6 +1564,10 @@ class Z80Test(SkoolKitTestCase):
     def test_relative_jumps_across_64k_boundary(self):
         for address, operation, exp_data in RELATIVE_JUMPS:
             self._test_assembly(operation, exp_data, address)
+
+    def test_unusual_whitespace(self):
+        for operation, exp_data in UNUSUAL_WHITESPACE:
+            self._test_assembly(operation, exp_data)
 
     def test_defb(self):
         for items, exp_data in DEFB_DEFM:
