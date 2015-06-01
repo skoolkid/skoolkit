@@ -17,8 +17,9 @@ else:
         sys.exit(1)
 
 from skoolkit import SkoolKitError, SkoolParsingError, open_file, info, warn, error, get_int_param
-from skoolkit.skoolparser import parse_asm_block_directive, find_unquoted
+from skoolkit.skoolparser import parse_asm_block_directive
 from skoolkit.skoolsft import VALID_CTLS, VERBATIM_BLOCKS
+from skoolkit.textutils import find_unquoted
 from skoolkit.z80 import assemble
 
 class BinWriter:
