@@ -172,13 +172,13 @@ def _assemble_jr(address, op1, op2=None):
 def _assemble_ld(address, op1, op2):
     if op1 in REG:
         op1_index = _reg_index(op1)
-        if op2 in REG:
+        if op2 in REG and not (op1 == op2 == '(HL)'):
             # LD r,r'; LD r,(HL)
             return (64 + 8 * op1_index + _reg_index(op2),)
-        if op2.startswith('(I'):
+        if op2.startswith('(I') and  op1 != '(HL)':
             # LD r,(I{X,Y}+d)
             return (_index_code(op2), 70 + 8 * op1_index, _parse_offset(op2))
-        if op2 in INDEX_REG:
+        if op2 in INDEX_REG and op1 not in ('H', 'L', '(HL)'):
             # LD r,I{X,Y}{h,l}
             return (_index_code(op2), 68 + 8 * op1_index + (_index_reg_index(op2) % 2))
         if op1 == 'A':
@@ -201,7 +201,7 @@ def _assemble_ld(address, op1, op2):
 
     if op1 in INDEX_REG:
         index1 = _index_reg_index(op1)
-        if op2 in INDEX_REG:
+        if op2 in INDEX_REG and op1[1] == op2[1]:
             # LD IX{h,l},IX{h,l}; LD IY{h,l},IY{h,l}
             index2 = _index_reg_index(op2)
             return (_index_code(op1), 100 + 8 * (index1 % 2) + (index2 % 2))
@@ -213,7 +213,7 @@ def _assemble_ld(address, op1, op2):
 
     if op1.startswith('(I'):
         offset = _parse_offset(op1)
-        if op2 in REG:
+        if op2 in REG and op2 != '(HL)':
             # LD (I{X,Y}+d),r
             return (_index_code(op1), 112 + _reg_index(op2), offset)
         # LD (I{X,Y}+d),n
