@@ -586,8 +586,9 @@ class DisassemblyTest(SkoolKitTestCase):
             '  01024,32,16:c";",16:c"?"',
             '  01056,8,4:c",",4:c" "',
             '  01064,10,3:c"*"*2,4:c":"',
-            '  01074,16,8:c34',
-            'i 01090'
+            '  01074,16,8:c43',
+            '  01090,10,4:c"\\"",6:c"\\\\"',
+            'i 01100'
         ))
         exp_instructions = [
             (  0, 'DEFS 4'),
@@ -621,8 +622,10 @@ class DisassemblyTest(SkoolKitTestCase):
             (1064, 'DEFS 3,"*"'),
             (1067, 'DEFS 3,"*"'),
             (1070, 'DEFS 4,":"'),
-            (1074, 'DEFS 8,"\\""'),
-            (1082, 'DEFS 8,"\\""')
+            (1074, 'DEFS 8,"+"'),
+            (1082, 'DEFS 8,"+"'),
+            (1090, 'DEFS 4,"\\""'),
+            (1094, 'DEFS 6,"\\\\"')
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions)
 

@@ -274,13 +274,16 @@ w40000 DEFW %1111000000001111,%1111000000001111
  40064 DEFW %1101010111110101,%0000000000000001
 """
 
-TEST_S_DIRECTIVES_SKOOL = """; DEFS statements in various bases
+TEST_S_DIRECTIVES_SKOOL = r"""; DEFS statements in various bases
 s50000 DEFS %0000000111110100
  50500 DEFS 1000
  51500 DEFS $07D0
  53500 DEFS 500,%10101010
  54000 DEFS $0100,170
- 54256 DEFS 256,","
+ 54256 DEFS 256,"\""          ; {Tricky characters
+ 54512 DEFS 88,"\\"           ;
+ 54600 DEFS 50,","            ;
+ 54650 DEFS 50,";"            ; }
 """
 
 TEST_OPERAND_BASES_SKOOL = """; Operations in various bases
@@ -463,14 +466,20 @@ class SftWriterTest(SkoolKitTestCase):
     def test_s_directives_no_base(self):
         exp_sft = [
             '; DEFS statements in various bases',
-            'sS50000,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170,256:c","'
+            'sS50000,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170',
+            ' S54256,256:c"\\"";30 {Tricky characters',
+            ' S54512,88:c"\\\\",50:c",";30',
+            ' S54650,50:c";";30 }'
         ]
         self._test_sft(TEST_S_DIRECTIVES_SKOOL, exp_sft, preserve_base=False)
 
     def test_s_directives_preserve_base(self):
         exp_sft = [
             '; DEFS statements in various bases',
-            'sS50000,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170,d256:c","'
+            'sS50000,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170',
+            ' S54256,d256:c"\\"";30 {Tricky characters',
+            ' S54512,d88:c"\\\\",d50:c",";30',
+            ' S54650,d50:c";";30 }'
         ]
         self._test_sft(TEST_S_DIRECTIVES_SKOOL, exp_sft, preserve_base=True)
 

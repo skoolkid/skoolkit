@@ -414,7 +414,8 @@ class SftParserTest(SkoolKitTestCase):
             ' S00040,10',
             ' S00050,b300,d300,h300',
             ' S00950,10:c",",10:c";",30:c"&"',
-            ' S01000,5:c"*"*2,10:c" ",15:c":"'
+            ' S01000,5:c"*"*2,10:c" ",15:c":"',
+            ' S01035,4:c"\\"",6:c"\\\\"'
         ))
         exp_skool = [
             's00000 DEFS 1',
@@ -434,7 +435,9 @@ class SftParserTest(SkoolKitTestCase):
             ' 01000 DEFS 5,"*"',
             ' 01005 DEFS 5,"*"',
             ' 01010 DEFS 10," "',
-            ' 01020 DEFS 15,":"'
+            ' 01020 DEFS 15,":"',
+            ' 01035 DEFS 4,"\\""',
+            ' 01039 DEFS 6,"\\\\"'
         ]
         self._test_disassembly(sft, exp_skool)
 
