@@ -1267,6 +1267,12 @@ CHARACTER_OPERANDS = (
     ('XOR "?"', (238, 63))
 )
 
+TRICKY_CHARACTER_OPERANDS = (
+    ('ADC A,","', (206, 44)),
+    ('ADD A,"\\""', (198, 34)),
+    ('AND "\\\\"', (230, 92))
+)
+
 INVALID_OPERATIONS = (
     'LD H,IXh',
     'LD H,IXl',
@@ -1555,6 +1561,10 @@ class Z80Test(SkoolKitTestCase):
 
     def test_character_operands(self):
         for operation, exp_data in CHARACTER_OPERANDS:
+            self._test_assembly(operation, exp_data)
+
+    def test_tricky_character_operands(self):
+        for operation, exp_data in TRICKY_CHARACTER_OPERANDS:
             self._test_assembly(operation, exp_data)
 
     def test_invalid_instructions(self):
