@@ -26,19 +26,21 @@ REG_PAIRS = ('BC', 'DE', 'HL', 'SP')
 INDEX_REG = ('IXH', 'IXL', 'IYH', 'IYL')
 INDEX_REG_PAIRS = ('IX', 'IY')
 
-def _parse_num(num):
-    if num.startswith("(") and num.endswith(")"):
-        return get_int_param(num[1:-1])
+def _parse_num(num, brackets):
+    if brackets:
+        if num.startswith("(") and num.endswith(")"):
+            return get_int_param(num[1:-1])
+        raise ValueError
     return get_int_param(num)
 
-def _parse_byte(num, limit=256):
-    value = _parse_num(num)
+def _parse_byte(num, limit=256, brackets=False):
+    value = _parse_num(num, brackets)
     if 0 <= value < limit:
         return value
     raise ValueError
 
-def _parse_word(num):
-    value = _parse_num(num)
+def _parse_word(num, brackets=False):
+    value = _parse_num(num, brackets)
     if 0 <= value < 65536:
         return value
     raise ValueError
@@ -91,9 +93,11 @@ def _assemble_add(address, op1, op2):
         return _arithmetic_a(128, address, op2)
     if op1 == 'HL':
         return (9 + 16 * _reg_pair_index(op2),)
-    if op2 in INDEX_REG_PAIRS:
-        return (_index_code(op1), 41)
-    return (_index_code(op1), 9 + 16 * _reg_pair_index(op2))
+    if op1 in INDEX_REG_PAIRS:
+        if op1 == op2:
+            return (_index_code(op1), 41)
+        if op2 != 'HL':
+            return (_index_code(op1), 9 + 16 * _reg_pair_index(op2))
 
 def _bit_res_set(base_code, address, op1, op2):
     bit_offset = base_code + 8 * _parse_byte(op1, 8)
@@ -141,15 +145,17 @@ def _assemble_ex(address, op1, op2):
     if op1 == '(SP)':
         if op2 == 'HL':
             return (227,)
-        return (_index_code(op2), 227)
+        if op2 in INDEX_REG_PAIRS:
+            return (_index_code(op2), 227)
 
 def _assemble_im(address, op):
     return (237, 70 + (0, 16, 24)[_parse_byte(op, 3)])
 
 def _assemble_in(address, op1, op2):
-    if op2 == '(C)':
+    if op2 == '(C)' and op1 != '(HL)':
         return (237, 64 + 8 * _reg_index(op1))
-    return (219, _parse_byte(op2))
+    if op1 == 'A':
+        return (219, _parse_byte(op2, brackets=True))
 
 def _assemble_jp(address, op1, op2=None):
     if op2 is None:
@@ -185,7 +191,7 @@ def _assemble_ld(address, op1, op2):
             if op2.startswith('('):
                 try:
                     # LD A,(nn)
-                    addr = _parse_word(op2)
+                    addr = _parse_word(op2, True)
                     return (58, addr % 256, addr // 256)
                 except ValueError:
                     # LD A,(BC); LD A,(DE)
@@ -222,7 +228,7 @@ def _assemble_ld(address, op1, op2):
     if op1 in REG_PAIRS:
         op1_index = _reg_pair_index(op1)
         if op2.startswith('('):
-            addr = _parse_word(op2)
+            addr = _parse_word(op2, True)
             lsb, msb = addr % 256, addr // 256
             if op1 == 'HL':
                 # LD HL,(nn)
@@ -241,7 +247,7 @@ def _assemble_ld(address, op1, op2):
 
     if op1 in INDEX_REG_PAIRS:
         if op2.startswith('('):
-            addr = _parse_word(op2)
+            addr = _parse_word(op2, True)
             # LD I{X,Y},(nn)
             return (_index_code(op1), 42, addr % 256, addr // 256)
         # LD I{X,Y},nn
@@ -252,12 +258,12 @@ def _assemble_ld(address, op1, op2):
         if op2 == 'A':
             try:
                 # LD (nn),A
-                addr = _parse_word(op1)
+                addr = _parse_word(op1, True)
                 return (50, addr % 256, addr // 256)
             except ValueError:
                 # LD (BC),A; LD (DE),A
                 return (2 + 16 * ('(BC)', '(DE)').index(op1),)
-        addr = _parse_word(op1)
+        addr = _parse_word(op1, True)
         lsb, msb = addr % 256, addr // 256
         if op2 == 'HL':
             # LD (nn),HL
@@ -273,16 +279,15 @@ def _assemble_ld(address, op1, op2):
         return (237, 71 + 8 * ('I', 'R').index(op1))
 
 def _assemble_out(address, op1, op2):
-    if op1 == '(C)':
+    if op1 == '(C)' and op2 != '(HL)':
         return (237, 65 + 8 * _reg_index(op2))
     if op2 == 'A':
-        return (211, _parse_byte(op1))
+        return (211, _parse_byte(op1, brackets=True))
 
 def _pop_push(base_code, address, op):
-    try:
-        return (base_code + 16 * ('BC', 'DE', 'HL', 'AF').index(op),)
-    except ValueError:
+    if op in INDEX_REG_PAIRS:
         return (_index_code(op), base_code + 32)
+    return (base_code + 16 * ('BC', 'DE', 'HL', 'AF').index(op),)
 
 def _assemble_ret(address, op1=None):
     if op1 is None:
