@@ -1921,6 +1921,27 @@ class SkoolParserTest(SkoolKitTestCase):
         for line in TEST_BASE_CONVERSION_HEX:
             self.assertEqual(parser.get_instruction(int(line[:5])).operation, line[6:])
 
+    def test_base_conversion_retains_whitespace(self):
+        skool = '\n'.join((
+            'c40000 LD A, 10',
+            ' 40002 LD ( HL ), 20',
+            ' 40004 DEFB 17, "1"',
+            ' 40006 DEFM 89, "2"',
+            ' 40008 DEFS 8, "3"',
+            ' 40016 DEFW 0, "4"'
+        ))
+        exp_instructions = (
+            (40000, 'LD A, $0A'),
+            (40002, 'LD ( HL ), $14'),
+            (40004, 'DEFB $11, "1"'),
+            (40006, 'DEFM $59, "2"'),
+            (40008, 'DEFS $08, "3"'),
+            (40016, 'DEFW $0000, "4"')
+        )
+        parser = self._get_parser(skool, base=BASE_16)
+        for address, operation in exp_instructions:
+            self.assertEqual(parser.get_instruction(address).operation, operation)
+
     def test_lower_case_conversion_with_character_operands(self):
         skool = '\n'.join((
             'c54000 LD A,"A"',

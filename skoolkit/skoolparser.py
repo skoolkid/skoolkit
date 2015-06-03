@@ -874,25 +874,22 @@ class Mode:
         return addr_str, operation
 
     def convert(self, operation):
-        elements = split_operation(operation)
-        op = elements[0].upper()
-
-        if op in ('DEFB', 'DEFM'):
+        if operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW ')):
+            elements = split_operation(operation, strip=False)
+            if elements[0].upper() == 'DEFW':
+                convert_method = self.replace_address
+            else:
+                convert_method = self.replace_byte
             items = []
             for item in elements[1:]:
-                if item.startswith('"'):
+                if item.lstrip().startswith('"'):
                     items.append(item)
                 else:
-                    items.append(self.replace_byte(item, False))
+                    items.append(convert_method(item, False))
             return '{} {}'.format(elements[0], ','.join(items))
 
-        if op == 'DEFS':
-            data = [self.replace_byte(b, False) for b in elements[1:]]
-            return '{} {}'.format(elements[0], ','.join(data))
-
-        if op == 'DEFW':
-            words = [self.replace_address(w, False) for w in elements[1:]]
-            return '{} {}'.format(elements[0], ','.join(words))
+        elements = split_operation(operation, tidy=True)
+        op = elements[0]
 
         # Instructions containing '(I[XY]+d)'
         index = self.get_index(operation)
@@ -902,16 +899,13 @@ class Mode:
             return self.replace_index(operation, index)
 
         if op in ('CALL', 'DJNZ', 'JP', 'JR'):
-            # CALL [*,]nn, DJNZ nn, JP [*,]nn, JR [*,]nn
             return self.replace_address(operation)
 
         if op in ('AND', 'OR', 'XOR', 'SUB', 'CP', 'IN', 'OUT', 'ADD', 'ADC', 'SBC', 'RST'):
-            # AND n; OR n; XOR n; SUB n; CP n; IN (n),A; OUT (n),A; ADD A,n;
-            # ADC A,n; SBC A,n; RST n
             return self.replace_byte(operation)
 
         if op == 'LD' and len(elements) == 3:
-            operands = [e.replace(' ', '').replace('\t', '').upper() for e in elements[1:]]
+            operands = elements[1:]
             if operands[0] in ('A', 'B', 'C', 'D', 'E', 'H', 'L', 'IXL', 'IXH', 'IYL', 'IYH', '(HL)') and not operands[1].startswith('('):
                 # LD r,n; LD (HL),n
                 return self.replace_byte(operation)
