@@ -160,7 +160,7 @@ class SftTestCase(DisassembliesTestCase):
     def _test_sft(self, options, skool=None, snapshot=None, ctl=None, org=None):
         if not skool:
             skool = self._write_skool(snapshot, ctl, org)
-        with open(skool, 'rt') as f:
+        with open(skool) as f:
             orig_skool = f.read().split('\n')
         args = '{} {}'.format(options, skool)
         sft, stderr = self.run_skool2sft(args, out_lines=False)
