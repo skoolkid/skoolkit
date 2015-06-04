@@ -186,7 +186,7 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(exp_lengths, ctl_parser.lengths)
 
         exp_multiline_comments = {
-            30012: (30026, 'This comment covers the following two sub-blocks')
+            30012: (30027, 'This comment covers the following two sub-blocks')
         }
         self.assertEqual(exp_multiline_comments, ctl_parser.multiline_comments)
 
@@ -518,7 +518,7 @@ class CtlParserTest(SkoolKitTestCase):
         # Check multi-line comments
         offset = 10
         for a in range(start + offset, end, length):
-            self.assertEqual((a + 9, 'A multi-line comment'), sub_block_map[a].multiline_comment)
+            self.assertEqual((a + offset, 'A multi-line comment'), sub_block_map[a].multiline_comment)
 
         # Check entry-level directives (c, D, E, R)
         ctls = ctl_parser.ctls
@@ -596,7 +596,7 @@ class CtlParserTest(SkoolKitTestCase):
         offset = 10
         for a in range(start + offset, end, length):
             self.assertIn(a, ctl_parser.multiline_comments)
-            self.assertEqual((a + 9, 'A multi-line comment'), ctl_parser.multiline_comments[a])
+            self.assertEqual((a + offset, 'A multi-line comment'), ctl_parser.multiline_comments[a])
 
         # Check entry-level directives (c, D, E, R)
         ctls = ctl_parser.ctls
@@ -651,6 +651,30 @@ class CtlParserTest(SkoolKitTestCase):
         # Check that there is no block that starts past the boundary
         blocks = ctl_parser.get_blocks()
         self.assertEqual(blocks[-1].start, 65535)
+
+    def test_terminate_multiline_comments(self):
+        ctl = '\n'.join((
+            'c 30000',
+            'M 30000 No length specified, should end at 30002',
+            'c 30002',
+            'M 30002 No length specified, should end at 30003',
+            'N 30003 This comment implicitly terminates the M directive above',
+            'c 30004',
+            'M 30004,5 Excessive length specified, should end at 30006',
+            'c 30006',
+            'M 30006,2 Excessive length specified, should end at 30007',
+            'N 30007 This comment implicitly terminates the M directive above',
+            'c 30008'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+        m_comment_end_map = {s.start: s.multiline_comment[0] for b in blocks for s in b.blocks if s.multiline_comment}
+        exp_end_map = {
+            30000: 30002,
+            30002: 30003,
+            30004: 30006,
+            30006: 30007
+        }
+        self.assertEqual(exp_end_map, m_comment_end_map)
 
 if __name__ == '__main__':
     unittest.main()

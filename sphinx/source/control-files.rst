@@ -154,9 +154,9 @@ must be declared with an ``M`` directive::
   W 40003,10
   T 40013,8
 
-If the length parameter is omitted from an ``M`` directive, the comment is
-assumed to cover all sub-blocks from the given start address to the end of the
-top-level block.
+An ``M`` directive with no length parameter covers all sub-blocks from the
+given start address to either the next mid-block comment or the end of the
+containing block (whichever is closer).
 
 If a sub-block directive is left blank, then it is assumed to be of the same
 type as the containing block. So in::

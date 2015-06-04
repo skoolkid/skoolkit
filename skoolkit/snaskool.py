@@ -674,10 +674,9 @@ class Disassembly:
                 sub_block = block.blocks[i]
                 i += 1
                 sub_blocks.append(sub_block)
-                end, comment = sub_block.multiline_comment
-                if comment is not None:
-                    sub_block.comment = comment
-                    while i < len(block.blocks) and (end is None or block.blocks[i].start <= end):
+                if sub_block.multiline_comment is not None:
+                    end, sub_block.comment = sub_block.multiline_comment
+                    while i < len(block.blocks) and block.blocks[i].start < end:
                         next_sub_block = block.blocks[i]
                         sub_block.instructions += next_sub_block.instructions
                         sub_block.end = next_sub_block.end

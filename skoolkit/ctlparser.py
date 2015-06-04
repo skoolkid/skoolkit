@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import bisect
+
 from . import warn, get_int_param, open_file
 from .skoolctl import AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET, AD_IGNOREUA
 from .skoolctl import TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END
@@ -131,7 +133,7 @@ class CtlParser:
                             repeat_entries = lengths[1][0]
                         else:
                             repeat_entries = 0
-                        loop_end = start + count * (end - start + 1)
+                        loop_end = start + count * (end - start)
                         if loop_end > 65536:
                             warn('Loop crosses 64K boundary:\n{}'.format(s_line))
                         self.loops.append((start, end, count, repeat_entries))
@@ -140,7 +142,7 @@ class CtlParser:
                     self.subctls[start] = ctl.lower()
                     self.instruction_comments[start] = text
                     if end:
-                        self.subctls[end + 1] = None
+                        self.subctls[end] = None
                 if ctl != 'L' and lengths:
                     self.lengths[start] = lengths[0][1]
                     if len(lengths) > 1:
@@ -151,7 +153,7 @@ class CtlParser:
                             self.subctls[address] = subctl
                             address += length
                         if text:
-                            self.multiline_comments[start] = (address - 1, text)
+                            self.multiline_comments[start] = (address, text)
             elif asm_directive:
                 directive, address, value = asm_directive
                 if directive in (AD_ORG, AD_WRITER, AD_START, AD_END) or directive.startswith(AD_SET):
@@ -165,6 +167,7 @@ class CtlParser:
             if address not in self.ctls:
                 self.mid_block_comments[address] = self.descriptions[address]
 
+        self._terminate_multiline_comments()
         self._unroll_loops()
 
     def _parse_ctl_line(self, line, entry_ctl):
@@ -202,8 +205,11 @@ class CtlParser:
                     if ctl.islower():
                         raise CtlParserError("extra parameters after address")
                     end = int_params[0]
-                    if use_length and end is not None:
-                        end += start - 1
+                    if end is not None:
+                        if use_length:
+                            end += start
+                        else:
+                            end += 1
                 else:
                     end = None
                 lengths = int_params[1:]
@@ -268,6 +274,13 @@ class CtlParser:
             raise CtlParserError("invalid @ignoreua directive address suffix: '{}:{}'".format(addr_str, comment_type))
         self.ignoreua_directives.setdefault(address, set()).add(comment_type)
 
+    def _terminate_multiline_comments(self):
+        addresses = sorted(set(self.ctls) | set(self.mid_block_comments) | {65536})
+        for address, (end, text) in self.multiline_comments.items():
+            max_end = addresses[bisect.bisect_right(addresses, address)]
+            if end is None or end > max_end:
+                self.multiline_comments[address] = (max_end, text)
+
     def _unroll_loops(self):
         for start, end, count, repeat_entries in self.loops:
             for directives in (self.subctls, self.mid_block_comments, self.instruction_comments, self.lengths):
@@ -278,15 +291,15 @@ class CtlParser:
                     self._repeat_directives(directives, start, end, count)
 
     def _repeat_directives(self, directives, start, end, count):
-        interval = end - start + 1
-        repeated = {k: v for k, v in directives.items() if start <= k <= end}
+        interval = end - start
+        repeated = {k: v for k, v in directives.items() if start <= k < end}
         for addr, value in repeated.items():
             for i in range(1, count):
                 directives[addr + i * interval] = value
 
     def _repeat_multiline_comments(self, start, end, count):
-        interval = end - start + 1
-        repeated = {k: v for k, v in self.multiline_comments.items() if start <= k <= end}
+        interval = end - start
+        repeated = {k: v for k, v in self.multiline_comments.items() if start <= k < end}
         for addr, (mlc_end, comment) in repeated.items():
             for i in range(1, count):
                 offset = i * interval
@@ -341,7 +354,7 @@ class CtlParser:
                 sub_block.sublengths = self.lengths.get(sub_address, ((None, None),))
                 sub_block.header = self.mid_block_comments.get(sub_address, ())
                 sub_block.comment = self.instruction_comments.get(sub_address) or ''
-                sub_block.multiline_comment = self.multiline_comments.get(sub_address, (None, None))
+                sub_block.multiline_comment = self.multiline_comments.get(sub_address)
 
         return blocks
 

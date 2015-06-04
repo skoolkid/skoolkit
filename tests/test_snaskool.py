@@ -1566,6 +1566,33 @@ class SkoolWriterTest(SkoolKitTestCase):
                 index += 1
             index += 2
 
+    def test_overlong_multiline_comment_ends_at_mid_block_comment(self):
+        snapshot = [
+            62,  # 00000 DEFB 62
+            0,   # 00001 NOP
+            201, # 00002 RET
+        ]
+        ctl = '\n'.join((
+            'c 00000',
+            'M 00000,3 This is really LD A,0',
+            'B 00000,1',
+            'N 00002 This comment should not be swallowed by the overlong M directive.',
+            'i 00003',
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            'c00000 DEFB 62       ; {This is really LD A,0',
+            ' 00001 NOP           ; }',
+            '; This comment should not be swallowed by the overlong M directive.',
+            ' 00002 RET           ;',
+        ]
+        writer = self._get_writer(snapshot, ctl)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')
+        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+
 class CtlWriterTest(SkoolKitTestCase):
     def test_decimal_addresses_below_10000(self):
         ctls = {0: 'b', 1: 'c', 22: 't', 333: 'w', 4444: 's'}
