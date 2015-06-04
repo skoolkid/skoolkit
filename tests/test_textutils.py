@@ -54,7 +54,7 @@ class TextUtilsTest(SkoolKitTestCase):
         kwargs_str = ', '.join(['{}={!r}'.format(k, v) for k, v in kwargs.items()])
         if kwargs_str:
             kwargs_str = ', ' + kwargs_str
-        msg = "{}({}{}) failed".format(func.func_name, args_str, kwargs_str)
+        msg = "{}({}{}) failed".format(func.__name__, args_str, kwargs_str)
         self.assertEqual(exp_result, func(*args, **kwargs), msg)
 
     def test_find_unquoted(self):
