@@ -213,7 +213,7 @@ W 32786,4,4
 @ 32790 ssub=DEFM "Lo"
 T 32790,2,1:B1
 S 32792,3,3
-  32795 Instruction with a comment continuation line
+  32795,1 Instruction with a comment continuation line
 E 32768 End comment paragraph 1.
 E 32768 End comment paragraph 2.
 i 32796 Ignore block
@@ -230,16 +230,16 @@ w 49158 Word block
   49158,4,2
 b 49162 Data block beginning with a 1-byte sub-block
   49162,1,1
-C 49163
+C 49163,1
 t 49164 Text block beginning with a 1-byte sub-block
   49164,1,1
-C 49165
+C 49165,1
 w 49166 Word block beginning with a 2-byte sub-block
   49166,2,2
-C 49168
+C 49168,1
 s 49169 Zero block
   49169,9,9
-C 49178
+C 49178,1
 b 49179 Data block with sub-block lengths amenable to abbreviation (2*3,3*2,1)
   49179,14,2*3,3*2,1
 b 49193 ASM block directives
@@ -260,7 +260,7 @@ c 49635 Routine with an empty multi-instruction comment and instruction comments
   49637,2 ...and so on
   49639,2 ....
   49641,1 ...
-  49642 ...until the end
+  49642,1 ...until the end
 i 49643 Another ignore block
 E 49643 End comment on the final block.""".split('\n')
 
@@ -304,7 +304,7 @@ W $8012,4,4
 @ $8016 ssub=DEFM "Lo"
 T $8016,2,1:B1
 S $8018,3,3
-  $801B Instruction with a comment continuation line
+  $801B,1 Instruction with a comment continuation line
 E $8000 End comment paragraph 1.
 E $8000 End comment paragraph 2.
 i $801C Ignore block
@@ -321,16 +321,16 @@ w $C006 Word block
   $C006,4,2
 b $C00A Data block beginning with a 1-byte sub-block
   $C00A,1,1
-C $C00B
+C $C00B,1
 t $C00C Text block beginning with a 1-byte sub-block
   $C00C,1,1
-C $C00D
+C $C00D,1
 w $C00E Word block beginning with a 2-byte sub-block
   $C00E,2,2
-C $C010
+C $C010,1
 s $C011 Zero block
   $C011,9,9
-C $C01A
+C $C01A,1
 b $C01B Data block with sub-block lengths amenable to abbreviation (2*3,3*2,1)
   $C01B,14,2*3,3*2,1
 b $C029 ASM block directives
@@ -351,7 +351,7 @@ c $C1E3 Routine with an empty multi-instruction comment and instruction comments
   $C1E5,2 ...and so on
   $C1E7,2 ....
   $C1E9,1 ...
-  $C1EA ...until the end
+  $C1EA,1 ...until the end
 i $C1EB Another ignore block
 E $C1EB End comment on the final block.""".split('\n')
 
@@ -383,16 +383,16 @@ w 49158
   49158,4,2
 b 49162
   49162,1,1
-C 49163
+C 49163,1
 t 49164
   49164,1,1
-C 49165
+C 49165,1
 w 49166
   49166,2,2
-C 49168
+C 49168,1
 s 49169
   49169,9,9
-C 49178
+C 49178,1
 b 49179
   49179,14,2*3,3*2,1
 b 49193
@@ -426,7 +426,7 @@ B 32785,1,1
 W 32786,4,4
 T 32790,2,1:B1
 S 32792,3,3
-  32795 Instruction with a comment continuation line
+  32795,1 Instruction with a comment continuation line
 i 32796
 b 49152
   49152,1,1
@@ -440,16 +440,16 @@ w 49158
   49158,4,2
 b 49162
   49162,1,1
-C 49163
+C 49163,1
 t 49164
   49164,1,1
-C 49165
+C 49165,1
 w 49166
   49166,2,2
-C 49168
+C 49168,1
 s 49169
   49169,9,9
-C 49178
+C 49178,1
 b 49179
   49179,14,2*3,3*2,1
 b 49193
@@ -468,7 +468,7 @@ c 49635
   49637,2 ...and so on
   49639,2 ....
   49641,1 ...
-  49642 ...until the end
+  49642,1 ...until the end
 i 49643""".split('\n')
 
 TEST_BYTE_FORMATS_SKOOL = """; Binary and mixed-base DEFB/DEFM statements
@@ -762,7 +762,7 @@ class CtlWriterTest(SkoolKitTestCase):
             '  60032,6 Hexadecimal, decimal',
             '  60038,180,6,b3,3,nb4,4,bn4,4,b2,3,b3,6,b4,7,b4,7,b4,8,b3,8,b3,8,b4,4,b2,3,b3,5,b2,4,b2,3,b3,6,b3,6,b4,8,b4,8,b4,4',
             '  60218,6 No operands',
-            '  60224,,4,b4,24',
+            '  60224,34,4,b4,26',
         ]
         self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=False)
 
@@ -782,35 +782,35 @@ class CtlWriterTest(SkoolKitTestCase):
             '  60032,6,h3,d3 Hexadecimal, decimal',
             '  60038,180,d3,h3,b3,h3,hb4,dh4,bd4,hh4,b2,h3,b3,d3,h3,b4,d4,h3,b4,d4,h3,b4,d4,h4,b3,d4,h4,b3,d4,h4,b4,d2,h2,b2,h3,b3,d3,h2,b2,d2,h2,b2,h3,b3,d3,h3,b3,d3,h3,b4,d4,h4,b4,d4,h4,b4,d4',
             '  60218,6 No operands',
-            '  60224,,h4,b4,d7,h5,d2,h3,d3,h4,d0'
+            '  60224,34,h4,b4,d7,h5,d2,h3,d3,h4,d2'
         ]
         self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=True)
 
     def test_character_operands_no_base(self):
         exp_ctl = [
             'c 61000 Instruction operands as characters',
-            '  61000,,c6,2,c5,nc0',
+            '  61000,17,c6,2,c5,nc4',
         ]
         self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=False)
 
     def test_character_operands_preserve_base(self):
         exp_ctl = [
             'c 61000 Instruction operands as characters',
-            '  61000,,c6,d2,c5,hc0',
+            '  61000,17,c6,d2,c5,hc4',
         ]
         self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=True)
 
     def test_operands_with_commas_no_base(self):
         exp_ctl = [
             'c 62000 Instruction operands that contain commas',
-            '  62000,,c8,nc4,cn4,cc0'
+            '  62000,20,c8,nc4,cn4,cc4'
         ]
         self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=False)
 
     def test_operands_with_commas_preserve_base(self):
         exp_ctl = [
             'c 62000 Instruction operands that contain commas',
-            '  62000,,c8,dc4,ch4,cc0'
+            '  62000,20,c8,dc4,ch4,cc4'
         ]
         self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=True)
 
@@ -881,12 +881,12 @@ class CtlWriterTest(SkoolKitTestCase):
             '@ 30001 ignoreua:r',
             'R 30001 HL 30001',
             '@ 30001 ignoreua:i',
-            '  30001 Instruction-level comment at 30001',
+            '  30001,1 Instruction-level comment at 30001',
             'c 30002 Routine',
             '@ 30003 ignoreua:m',
             'N 30003 Mid-block comment above 30003.',
             '@ 30003 ignoreua:i',
-            '  30003 Instruction-level comment at 30003',
+            '  30003,1 Instruction-level comment at 30003',
             'c 30004 Routine',
             '@ 30004 ignoreua:i',
             '  30004,1 Instruction-level comment at 30004',

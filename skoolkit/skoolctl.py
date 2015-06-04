@@ -21,6 +21,7 @@ from .skoolparser import (DIRECTIVES, Comment, Register,
                           parse_comment_block, parse_instruction, parse_address_comments, join_comments,
                           parse_asm_block_directive, get_instruction_ctl, get_operand_bases,
                           get_defb_length, get_defs_length, get_defw_length)
+from .z80 import get_size
 
 BLOCKS = 'b'
 BLOCK_TITLES = 't'
@@ -180,15 +181,11 @@ class CtlWriter:
                             has_bases = True
                     first_instruction = instructions[0]
                     if ctl != 'M' or COMMENTS in self.elements:
-                        length = None
                         if ctl == 'M':
                             offset = first_instruction.comment.rowspan + 1
-                        else:
-                            offset = 1
-                        if j + offset < len(sub_blocks):
                             length = sub_blocks[j + offset][1][0].address - first_instruction.address
-                        elif k + 1 < len(sections):
-                            length = sections[k + 1][1][0].address - first_instruction.address
+                        else:
+                            length = None
                         comment_text = ''
                         comment = first_instruction.comment
                         if comment and COMMENTS in self.elements:
@@ -243,50 +240,41 @@ class CtlWriter:
                 i += 1
         return sub_blocks
 
-    def write_sub_block(self, ctl, entry_ctl, comment, instructions, length):
-        if ctl == entry_ctl:
-            sub_block_ctl = ' '
-        else:
-            sub_block_ctl = ctl.upper()
-        start = instructions[0].address
-        address = self.addr_str(start)
-        lengths = ''
-
+    def write_sub_block(self, ctl, entry_ctl, comment, instructions, lengths):
+        length = 0
+        sublengths = []
         if ctl == 'c':
             # Compute the sublengths for a 'C' sub-block
-            sublengths = []
             for i, instruction in enumerate(instructions):
+                addr = instruction.address
                 if i < len(instructions) - 1:
-                    sublength = instructions[i + 1].address - instruction.address
-                elif length:
-                    sublength = start + length - instruction.address
+                    sublength = instructions[i + 1].address - addr
                 else:
-                    sublength = 0
+                    sublength = get_size(instruction.operation, addr)
+                length += sublength
                 bases = instruction.bases
                 if sublengths and bases == sublengths[-1][0]:
                     sublengths[-1][1] += sublength
                 else:
                     sublengths.append([bases, sublength])
+            lengths = ','.join(['{}{}'.format(*s) for s in sublengths])
             if len(sublengths) > 1:
-                lengths = ',' + ','.join(['{}{}'.format(bases, sublength) for bases, sublength in sublengths])
-            elif sublengths[0][1]:
-                length = '{}{}'.format(*sublengths[0])
-            else:
-                length = sublengths[0][0]
+                lengths = '{},{}'.format(length, lengths)
         elif ctl in 'bstw':
             # Compute the sublengths for a 'B', 'S', 'T' or 'W' sub-block
-            length = 0
-            sublengths = []
             for statement in instructions:
                 length += statement.size
                 sublengths.append(statement.length)
             while len(sublengths) > 1 and sublengths[-1] == sublengths[-2]:
                 sublengths.pop()
-            lengths = ',' + get_lengths(sublengths)
+            lengths = '{},{}'.format(length, get_lengths(sublengths))
 
-        if length or lengths:
-            length = ',{}'.format(length or '')
-        write_line('{} {}{}{} {}'.format(sub_block_ctl, address, length, lengths, comment).rstrip())
+        if ctl == entry_ctl:
+            sub_block_ctl = ' '
+        else:
+            sub_block_ctl = ctl.upper()
+        address = self.addr_str(instructions[0].address)
+        write_line('{} {},{} {}'.format(sub_block_ctl, address, lengths, comment).rstrip())
 
 class SkoolParser:
     def __init__(self, skoolfile, preserve_base):
