@@ -35,11 +35,10 @@ def find(fname):
         return fname
 
 def run(snafile, options):
-    start = options.start
-
     # Read the snapshot file
     if snafile[-4:].lower() in ('.sna', '.szx', '.z80'):
         snapshot = get_snapshot(snafile, options.page)
+        start = max(START, options.start)
     else:
         ram = read_bin_file(snafile)
         if options.org is None:
@@ -69,12 +68,11 @@ def run(snafile, options):
         ctl_parser.ctls = ctls
     elif options.ctlfile:
         # Use a control file
-        ctl_parser.parse_ctl(options.ctlfile)
+        ctl_parser.parse_ctl(options.ctlfile, options.start, options.end)
     else:
-        ctls = {start: 'c'}
+        ctl_parser.ctls = {start: 'c'}
         if end < 65536:
-            ctls[end] = 'i'
-        ctl_parser.ctls = ctls
+            ctl_parser.ctls[end] = 'i'
     writer = SkoolWriter(snapshot, ctl_parser, options)
     writer.write_skool(options.write_refs, options.text)
 
@@ -116,7 +114,7 @@ def main(args):
                        help="Don't add comments that list entry point referrers")
     group.add_argument('-R', '--erefs', dest='write_refs', action='store_const', const=1, default=0,
                        help="Always add comments that list entry point referrers")
-    group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=int, default=START,
+    group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=int, default=0,
                        help='Start disassembling at this address (default={})'.format(START))
     group.add_argument('-t', '--text', dest='text', action='store_true',
                        help='Show ASCII text in the comment fields')

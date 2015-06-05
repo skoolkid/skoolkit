@@ -2,9 +2,9 @@
 import re
 import unittest
 try:
-    from mock import patch
+    from mock import patch, Mock
 except ImportError:
-    from unittest.mock import patch
+    from unittest.mock import patch, Mock
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import sna2skool, SkoolKitError, VERSION
@@ -261,6 +261,18 @@ b 65492
 c 65498
 i 65499"""
 
+mock_get_snapshot = Mock(return_value=[0] * 65536)
+
+class MockCtlParser:
+    def __init__(self):
+        global mock_ctl_parser
+        mock_ctl_parser = self
+
+    def parse_ctl(self, ctlfile, min_address, max_address):
+        self.ctlfile = ctlfile
+        self.min_address = min_address
+        self.max_address = max_address
+
 class MockSkoolWriter:
     def __init__(self, snapshot, ctl_parser, options):
         global mock_skool_writer
@@ -344,15 +356,16 @@ class OptionsTest(SkoolKitTestCase):
         sna2skool.main(('test.sna',))
         snafile, options = run_args
         self.assertEqual(snafile, 'test.sna')
-        self.assertEqual(options.ctlfile, None)
-        self.assertEqual(options.sftfile, None)
-        self.assertEqual(options.genctlfile, None)
+        self.assertIsNone(options.ctlfile)
+        self.assertIsNone(options.sftfile)
+        self.assertIsNone(options.genctlfile)
         self.assertFalse(options.ctl_hex)
         self.assertFalse(options.asm_hex)
         self.assertFalse(options.asm_lower)
-        self.assertEqual(options.start, 16384)
-        self.assertEqual(options.org, None)
-        self.assertEqual(options.page, None)
+        self.assertEqual(options.start, 0)
+        self.assertEqual(options.end, 65536)
+        self.assertIsNone(options.org)
+        self.assertIsNone(options.page)
         self.assertFalse(options.text)
         self.assertEqual(options.write_refs, 0)
         self.assertEqual(options.defb_size, 8)
@@ -480,6 +493,18 @@ class OptionsTest(SkoolKitTestCase):
             ctls = mock_skool_writer.ctl_parser.ctls
             self.assertIn(value, ctls)
             self.assertEqual(ctls[value], 'i')
+
+    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_options_e_and_c(self):
+        ctlfile = 'test.ctl'
+        end = 34576
+        output, error = self.run_sna2skool('-c {} -e {} test.sna'.format(ctlfile, end))
+        self.assertEqual(error, '')
+        self.assertEqual(mock_ctl_parser.ctlfile, ctlfile)
+        self.assertEqual(mock_ctl_parser.min_address, 0)
+        self.assertEqual(mock_ctl_parser.max_address, end)
 
     def test_option_g(self):
         ctlfile = self.write_text_file()
@@ -741,6 +766,31 @@ class OptionsTest(SkoolKitTestCase):
         for option in ('-s', '--start'):
             lines = self._write_skool('{0} {1} {2}'.format(option, start, binfile), 10)
             self.assertTrue(self._get_first_address(lines) == start)
+
+    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_options_s_and_c(self):
+        ctlfile = 'test.ctl'
+        start = 12345
+        output, error = self.run_sna2skool('-c {} -s {} test.sna'.format(ctlfile, start))
+        self.assertEqual(error, '')
+        self.assertEqual(mock_ctl_parser.ctlfile, ctlfile)
+        self.assertEqual(mock_ctl_parser.min_address, start)
+        self.assertEqual(mock_ctl_parser.max_address, 65536)
+
+    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_options_s_and_e_and_c(self):
+        ctlfile = 'test.ctl'
+        start = 12345
+        end = 23456
+        output, error = self.run_sna2skool('-c {} -s {} -e {} test.z80'.format(ctlfile, start, end))
+        self.assertEqual(error, '')
+        self.assertEqual(mock_ctl_parser.ctlfile, ctlfile)
+        self.assertEqual(mock_ctl_parser.min_address, start)
+        self.assertEqual(mock_ctl_parser.max_address, end)
 
     def test_option_t(self):
         binfile = self._write_bin([49, 127, 50])

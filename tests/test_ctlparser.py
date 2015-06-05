@@ -41,10 +41,10 @@ B 30720,10,1,T3:2,1:T1*2
 T 30730-30744,10:B5"""
 
 class CtlParserTest(SkoolKitTestCase):
-    def _get_ctl_parser(self, ctl):
+    def _get_ctl_parser(self, ctl, min_address=0, max_address=65536):
         ctl_parser = CtlParser()
         ctlfile = self.write_text_file(ctl)
-        ctl_parser.parse_ctl(ctlfile)
+        ctl_parser.parse_ctl(ctlfile, min_address, max_address)
         return ctl_parser
 
     def test_parse_ctl(self):
@@ -194,6 +194,169 @@ class CtlParserTest(SkoolKitTestCase):
             30000: [('start', None)]
         }
         self.assertEqual(exp_entry_asm_directives, ctl_parser.entry_asm_directives)
+
+        exp_instruction_asm_directives = {
+            30101: [('label', 'LOOP')]
+        }
+        self.assertEqual(exp_instruction_asm_directives, ctl_parser.instruction_asm_directives)
+
+    def test_parse_ctl_with_min_address(self):
+        ctl_parser = self._get_ctl_parser(CTL, 30700)
+
+        exp_ctls = {30700: 's'}
+        self.assertEqual(exp_ctls, ctl_parser.ctls)
+
+        exp_subctls = {
+            30720: 'b',
+            30721: 'b',
+            30726: 'b',
+            30728: 'b',
+            30730: 't',
+            30745: None
+        }
+        self.assertEqual(exp_subctls, ctl_parser.subctls)
+
+        exp_titles = {30700: 'Zeroes at 30700'}
+        self.assertEqual(exp_titles, ctl_parser.titles)
+
+        exp_instruction_comments = {
+            30720: None,
+            30730: None
+        }
+        self.assertEqual(exp_instruction_comments, ctl_parser.instruction_comments)
+
+        self.assertEqual({}, ctl_parser.descriptions)
+
+        self.assertEqual({}, ctl_parser.registers)
+
+        self.assertEqual({}, ctl_parser.end_comments)
+
+        exp_lengths = {
+            30720: ((1, None),),
+            30721: ((3, 'T'), (2, None)),
+            30726: ((1, None), (1, 'T')),
+            30728: ((1, None), (1, 'T')),
+            30730: ((10, None), (5, 'B'))
+        }
+        self.assertEqual(exp_lengths, ctl_parser.lengths)
+
+        self.assertEqual({}, ctl_parser.multiline_comments)
+
+        self.assertEqual({}, ctl_parser.entry_asm_directives)
+
+        self.assertEqual({}, ctl_parser.instruction_asm_directives)
+
+    def test_parse_ctl_with_max_address(self):
+        ctl_parser = self._get_ctl_parser(CTL, max_address=30200)
+
+        exp_ctls = {
+            30000: 'b',
+            30100: 'c',
+            30200: 'i'
+        }
+        self.assertEqual(exp_ctls, ctl_parser.ctls)
+
+        exp_subctls = {
+            30002: 't',
+            30012: 'w',
+            30020: 'c',
+            30027: None,
+            30050: 'b',
+            30055: None,
+            30100: None,
+        }
+        self.assertEqual(exp_subctls, ctl_parser.subctls)
+
+        exp_titles = {
+            30000: 'Data at 30000',
+            30100: 'Routine at 30100',
+        }
+        self.assertEqual(exp_titles, ctl_parser.titles)
+
+        exp_instruction_comments = {
+            30002: 'Message in the data block',
+            30012: None,
+            30020: None,
+            30050: 'Complex DEFB with a blank directive',
+        }
+        self.assertEqual(exp_instruction_comments, ctl_parser.instruction_comments)
+
+        exp_descriptions = {
+            30100: ['Description of routine at 30100']
+        }
+        self.assertEqual(exp_descriptions, ctl_parser.descriptions)
+
+        exp_registers = {
+            30100: [['A', 'Some value'], ['BC', 'Some other value']]
+        }
+        self.assertEqual(exp_registers, ctl_parser.registers)
+
+        exp_end_comments = {
+            30100: ['First paragraph of the end comment for the routine at 30100',
+                    'Second paragraph of the end comment for the routine at 30100']
+        }
+        self.assertEqual(exp_end_comments, ctl_parser.end_comments)
+
+        exp_lengths = {
+            30050: ((3, None), (2, 'T')),
+        }
+        self.assertEqual(exp_lengths, ctl_parser.lengths)
+
+        exp_multiline_comments = {
+            30012: (30027, 'This comment covers the following two sub-blocks')
+        }
+        self.assertEqual(exp_multiline_comments, ctl_parser.multiline_comments)
+
+        exp_entry_asm_directives = {
+            30000: [('start', None)]
+        }
+        self.assertEqual(exp_entry_asm_directives, ctl_parser.entry_asm_directives)
+
+        exp_instruction_asm_directives = {
+            30101: [('label', 'LOOP')]
+        }
+        self.assertEqual(exp_instruction_asm_directives, ctl_parser.instruction_asm_directives)
+
+    def test_parse_ctl_with_min_and_max_addresses(self):
+        ctl_parser = self._get_ctl_parser(CTL, 30100, 30300)
+
+        exp_ctls = {30100: 'c', 30200: 'g', 30300: 'i'}
+        self.assertEqual(exp_ctls, ctl_parser.ctls)
+
+        exp_subctls = {30100: None, 30200: 'b', 30210: None}
+        self.assertEqual(exp_subctls, ctl_parser.subctls)
+
+        exp_titles = {
+            30100: 'Routine at 30100',
+            30200: 'Game status buffer entry at 30200'
+        }
+        self.assertEqual(exp_titles, ctl_parser.titles)
+
+        exp_instruction_comments = {30200: "Blank directive in a 'g' block"}
+        self.assertEqual(exp_instruction_comments, ctl_parser.instruction_comments)
+
+        exp_descriptions = {
+            30100: ['Description of routine at 30100']
+        }
+        self.assertEqual(exp_descriptions, ctl_parser.descriptions)
+
+        exp_registers = {
+            30100: [['A', 'Some value'], ['BC', 'Some other value']]
+        }
+        self.assertEqual(exp_registers, ctl_parser.registers)
+
+        exp_end_comments = {
+            30100: ['First paragraph of the end comment for the routine at 30100',
+                    'Second paragraph of the end comment for the routine at 30100']
+        }
+        self.assertEqual(exp_end_comments, ctl_parser.end_comments)
+
+        exp_lengths = {30200: ((1, None),)}
+        self.assertEqual(exp_lengths, ctl_parser.lengths)
+
+        self.assertEqual({}, ctl_parser.multiline_comments)
+
+        self.assertEqual({}, ctl_parser.entry_asm_directives)
 
         exp_instruction_asm_directives = {
             30101: [('label', 'LOOP')]

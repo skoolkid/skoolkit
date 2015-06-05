@@ -92,7 +92,7 @@ class CtlParser:
         self.ignoreua_directives = {}
         self.loops = []
 
-    def parse_ctl(self, ctlfile):
+    def parse_ctl(self, ctlfile, min_address=0, max_address=65536):
         entry_ctl = None
         f = open_file(ctlfile)
         for line_no, line in enumerate(f, 1):
@@ -169,6 +169,8 @@ class CtlParser:
 
         self._terminate_multiline_comments()
         self._unroll_loops()
+        if min_address or max_address < 65536:
+            self._trim(min_address or 0, max_address)
 
     def _parse_ctl_line(self, line, entry_ctl):
         ctl = start = end = text = asm_directive = None
@@ -304,6 +306,26 @@ class CtlParser:
             for i in range(1, count):
                 offset = i * interval
                 self.multiline_comments[addr + offset] = (mlc_end + offset, comment)
+
+    def _trim(self, start, end):
+        for d in (
+                'ctls',
+                'subctls',
+                'titles',
+                'instruction_comments',
+                'descriptions',
+                'registers',
+                'mid_block_comments',
+                'end_comments',
+                'lengths',
+                'multiline_comments',
+                'entry_asm_directives',
+                'instruction_asm_directives',
+                'ignoreua_directives'
+            ):
+            setattr(self, d, {k: v for k, v in getattr(self, d).items() if start <= k < end})
+        if end < 65536:
+            self.ctls[end] = 'i'
 
     def get_instruction_asm_directives(self, address):
         return self.instruction_asm_directives.get(address, ())
