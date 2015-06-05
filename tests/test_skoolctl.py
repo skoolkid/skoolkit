@@ -1039,5 +1039,27 @@ class CtlWriterTest(SkoolKitTestCase):
         ctl = self._get_ctl(skool=skool)
         self.assertEqual(exp_ctl, ctl)
 
+    def test_M_directives(self):
+        skool = '\n'.join((
+            'c30000 LD A,B   ; {Regular M directive',
+            ' 30001 DEFB 0   ; (should have an explicit length)}',
+            ' 30002 SUB D    ; {M directive just before a mid-block comment',
+            ' 30003 DEFB 0   ; (should have an explicit length)}',
+            '; Mid-block comment.',
+            ' 30004 XOR H    ; {M directive extending to the end of the block',
+            ' 30005 DEFB 0   ; (no explicit length)}',
+        ))
+        exp_ctl = [
+            'c 30000',
+            'M 30000,2 Regular M directive (should have an explicit length)',
+            'B 30001,1,1',
+            'M 30002,2 M directive just before a mid-block comment (should have an explicit length)',
+            'B 30003,1,1',
+            'N 30004 Mid-block comment.',
+            'M 30004 M directive extending to the end of the block (no explicit length)',
+            'B 30005,1,1',
+        ]
+        self.assertEqual(exp_ctl, self._get_ctl(skool=skool))
+
 if __name__ == '__main__':
     unittest.main()

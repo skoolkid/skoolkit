@@ -183,7 +183,12 @@ class CtlWriter:
                     if ctl != 'M' or COMMENTS in self.elements:
                         if ctl == 'M':
                             offset = first_instruction.comment.rowspan + 1
-                            length = sub_blocks[j + offset][1][0].address - first_instruction.address
+                            if j + offset < len(sub_blocks):
+                                length = sub_blocks[j + offset][1][0].address - first_instruction.address
+                            elif k + 1 < len(sections):
+                                length = sections[k + 1][1][0].address - first_instruction.address
+                            else:
+                                length = ''
                         else:
                             length = None
                         comment_text = ''
@@ -274,7 +279,9 @@ class CtlWriter:
         else:
             sub_block_ctl = ctl.upper()
         address = self.addr_str(instructions[0].address)
-        write_line('{} {},{} {}'.format(sub_block_ctl, address, lengths, comment).rstrip())
+        if lengths:
+            lengths = ',{}'.format(lengths)
+        write_line('{} {}{} {}'.format(sub_block_ctl, address, lengths, comment).rstrip())
 
 class SkoolParser:
     def __init__(self, skoolfile, preserve_base):
