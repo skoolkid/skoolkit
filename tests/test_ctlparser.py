@@ -91,9 +91,12 @@ class CtlParserTest(SkoolKitTestCase):
         multiline_comments = {s.start: s.multiline_comment for b in blocks for s in b.blocks}
         self.assertEqual(exp_multiline_comments, multiline_comments)
 
-    def _check_instruction_asm_directives(self, exp_instruction_asm_directives, ctl_parser):
-        for address, exp_directives in exp_instruction_asm_directives.items():
-            self.assertEqual(exp_directives, ctl_parser.get_instruction_asm_directives(address))
+    def _check_instruction_asm_directives(self, exp_directives, blocks):
+        directives = {}
+        for b in blocks:
+            for s in b.blocks:
+                directives.update(s.asm_directives)
+        self.assertEqual(exp_directives, directives)
 
     def _check_ignoreua_directives(self, exp_ignoreua_directives, ctl_parser):
         for address, exp_directives in exp_ignoreua_directives.items():
@@ -392,7 +395,7 @@ class CtlParserTest(SkoolKitTestCase):
         exp_instruction_asm_directives = {
             30101: [('label', 'LOOP')]
         }
-        self._check_instruction_asm_directives(exp_instruction_asm_directives, ctl_parser)
+        self._check_instruction_asm_directives(exp_instruction_asm_directives, blocks)
 
     def test_parse_ctl_with_min_address(self):
         ctl_parser = self._get_ctl_parser(CTL, 30700)
@@ -460,7 +463,7 @@ class CtlParserTest(SkoolKitTestCase):
         exp_entry_asm_directives = {30700: ()}
         self._check_entry_asm_directives(exp_entry_asm_directives, blocks)
 
-        self._check_instruction_asm_directives({}, ctl_parser)
+        self._check_instruction_asm_directives({}, blocks)
 
     def test_parse_ctl_with_max_address(self):
         ctl_parser = self._get_ctl_parser(CTL, max_address=30200)
@@ -565,7 +568,7 @@ class CtlParserTest(SkoolKitTestCase):
         exp_instruction_asm_directives = {
             30101: [('label', 'LOOP')]
         }
-        self._check_instruction_asm_directives(exp_instruction_asm_directives, ctl_parser)
+        self._check_instruction_asm_directives(exp_instruction_asm_directives, blocks)
 
     def test_parse_ctl_with_min_and_max_addresses(self):
         ctl_parser = self._get_ctl_parser(CTL, 30100, 30300)
@@ -650,7 +653,7 @@ class CtlParserTest(SkoolKitTestCase):
         exp_instruction_asm_directives = {
             30101: [('label', 'LOOP')]
         }
-        self._check_instruction_asm_directives(exp_instruction_asm_directives, ctl_parser)
+        self._check_instruction_asm_directives(exp_instruction_asm_directives, blocks)
 
     def test_invalid_lines(self):
         ctl_specs = [
@@ -993,10 +996,8 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual([('start', None), ('org', '30000')], block.asm_directives)
 
         # Check instruction-level ASM directives
-        offset = 20
-        self.assertEqual([('label', 'END')], ctl_parser.get_instruction_asm_directives(start + offset))
-        for a in range(start + offset + length, end, length):
-            self.assertEqual((), ctl_parser.get_instruction_asm_directives(a))
+        exp_directives = {start + 20: [('label', 'END')]}
+        self._check_instruction_asm_directives(exp_directives, blocks)
 
     def test_loop_including_entries(self):
         start = 40000
@@ -1083,10 +1084,8 @@ class CtlParserTest(SkoolKitTestCase):
             self.assertEqual((), block.asm_directives)
 
         # Check instruction-level ASM directives
-        offset = 20
-        self.assertEqual([('label', 'END')], ctl_parser.get_instruction_asm_directives(start + offset))
-        for a in range(start + offset + length, end, length):
-            self.assertEqual((), ctl_parser.get_instruction_asm_directives(a))
+        exp_directives = {start + 20: [('label', 'END')]}
+        self._check_instruction_asm_directives(exp_directives, blocks)
 
     def test_loop_crossing_64k_boundary(self):
         ctl = '\n'.join((

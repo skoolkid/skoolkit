@@ -310,9 +310,6 @@ class CtlParser:
                 offset = i * interval
                 self.multiline_comments[addr + offset] = (mlc_end + offset, comment)
 
-    def get_instruction_asm_directives(self, address):
-        return self.instruction_asm_directives.get(address, ())
-
     def contains_entry_asm_directive(self, asm_dir):
         for entry_asm_dir in self.entry_asm_directives.values():
             for (directive, value) in entry_asm_dir:
@@ -353,6 +350,7 @@ class CtlParser:
             block.blocks[-1].end = block.end
 
         # Set sub-block attributes
+        asm_directives = tuple(self.instruction_asm_directives.items())
         for block in blocks:
             for sub_block in block.blocks:
                 sub_address = sub_block.start
@@ -360,6 +358,7 @@ class CtlParser:
                 sub_block.header = self.mid_block_comments.get(sub_address, ())
                 sub_block.comment = self.instruction_comments.get(sub_address) or ''
                 sub_block.multiline_comment = self.multiline_comments.get(sub_address)
+                sub_block.asm_directives = dict([d for d in asm_directives if sub_address <= d[0] < sub_block.end])
 
         return blocks
 

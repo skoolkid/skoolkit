@@ -666,7 +666,7 @@ class Disassembly:
                 sub_block.instructions = instructions
                 for instruction in instructions:
                     self.instructions[instruction.address] = instruction
-                    instruction.asm_directives = self.ctl_parser.get_instruction_asm_directives(instruction.address)
+                    instruction.asm_directives = sub_block.asm_directives.get(instruction.address, ())
 
             sub_blocks = []
             i = 0
