@@ -107,8 +107,11 @@ class CtlParser:
             if ctl:
                 ctl = ctl.strip()
                 if ctl.islower():
-                    self.ctls[start] = ctl
                     entry_ctl = ctl
+                if not min_address <= start < max_address:
+                    continue
+                if ctl.islower():
+                    self.ctls[start] = ctl
                     self.titles[start] = text
                 elif ctl in 'D':
                     self.descriptions.setdefault(start, []).append(text)
@@ -169,8 +172,8 @@ class CtlParser:
 
         self._terminate_multiline_comments()
         self._unroll_loops()
-        if min_address or max_address < 65536:
-            self._trim(min_address or 0, max_address)
+        if max_address < 65536:
+            self.ctls[max_address] = 'i'
 
     def _parse_ctl_line(self, line, entry_ctl):
         ctl = start = end = text = asm_directive = None
@@ -306,26 +309,6 @@ class CtlParser:
             for i in range(1, count):
                 offset = i * interval
                 self.multiline_comments[addr + offset] = (mlc_end + offset, comment)
-
-    def _trim(self, start, end):
-        for d in (
-                'ctls',
-                'subctls',
-                'titles',
-                'instruction_comments',
-                'descriptions',
-                'registers',
-                'mid_block_comments',
-                'end_comments',
-                'lengths',
-                'multiline_comments',
-                'entry_asm_directives',
-                'instruction_asm_directives',
-                'ignoreua_directives'
-            ):
-            setattr(self, d, {k: v for k, v in getattr(self, d).items() if start <= k < end})
-        if end < 65536:
-            self.ctls[end] = 'i'
 
     def get_instruction_asm_directives(self, address):
         return self.instruction_asm_directives.get(address, ())
