@@ -248,8 +248,7 @@ def _generate_ctls_with_code_map(snapshot, start, end, code_map):
 
     # (3) Mark entry points in 'U' blocks that are CALLed or JPed to from 'c'
     # blocks with 'c'
-    ctl_parser = CtlParser()
-    ctl_parser.ctls = ctls
+    ctl_parser = CtlParser(ctls)
     disassembly = Disassembly(snapshot, ctl_parser)
     while 1:
         disassembly.build(True)
@@ -342,8 +341,7 @@ def _generate_ctls_without_code_map(snapshot, start, end):
         elif b == 24 and address < end - 2:
             ctls[address + 2] = 'c'
 
-    ctl_parser = CtlParser()
-    ctl_parser.ctls = ctls
+    ctl_parser = CtlParser(ctls)
     disassembly = Disassembly(snapshot, ctl_parser)
 
     # Scan the disassembly for pairs of adjacent blocks that overlap, and join
@@ -406,7 +404,7 @@ def _generate_ctls_without_code_map(snapshot, start, end):
             ctls[instruction.address] = 'c'
 
     # See which blocks marked as code look like text or data
-    _analyse_blocks(disassembly)
+    _analyse_blocks(disassembly, ctls)
 
     return ctls
 
@@ -482,9 +480,8 @@ def _get_blocks(ctls):
     blocks[-1][2] = 65536
     return blocks
 
-def _analyse_blocks(disassembly):
+def _analyse_blocks(disassembly, ctls):
     snapshot = disassembly.disassembler.snapshot
-    ctls = disassembly.ctl_parser.ctls
 
     # See which blocks marked as code look like text or data
     while 1:

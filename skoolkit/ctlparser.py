@@ -78,21 +78,21 @@ def _parse_length(length, subctl=None, default_prefix=None, required=True):
     return (None, default_prefix)
 
 class CtlParser:
-    def __init__(self):
-        self.ctls = {}
-        self.subctls = {}
-        self.titles = {}
-        self.instruction_comments = {}
-        self.descriptions = {}
-        self.registers = {}
-        self.mid_block_comments = {}
-        self.end_comments = {}
-        self.lengths = {}
-        self.multiline_comments = {}
-        self.entry_asm_directives = {}
-        self.instruction_asm_directives = {}
-        self.ignoreua_directives = {}
-        self.loops = []
+    def __init__(self, ctls=None):
+        self._ctls = ctls or {}
+        self._subctls = {}
+        self._titles = {}
+        self._instruction_comments = {}
+        self._descriptions = {}
+        self._registers = {}
+        self._mid_block_comments = {}
+        self._end_comments = {}
+        self._lengths = {}
+        self._multiline_comments = {}
+        self._entry_asm_directives = {}
+        self._instruction_asm_directives = {}
+        self._ignoreua_directives = {}
+        self._loops = []
 
     def parse_ctl(self, ctlfile, min_address=0, max_address=65536):
         entry_ctl = None
@@ -113,24 +113,24 @@ class CtlParser:
                 if not min_address <= start < max_address:
                     continue
                 if ctl.islower():
-                    self.ctls[start] = ctl
-                    self.titles[start] = text
+                    self._ctls[start] = ctl
+                    self._titles[start] = text
                 elif ctl in 'D':
-                    self.descriptions.setdefault(start, []).append(text)
-                    self.subctls.setdefault(start, None)
+                    self._descriptions.setdefault(start, []).append(text)
+                    self._subctls.setdefault(start, None)
                 elif ctl in 'N':
-                    self.mid_block_comments.setdefault(start, []).append(text)
-                    self.subctls.setdefault(start, None)
+                    self._mid_block_comments.setdefault(start, []).append(text)
+                    self._subctls.setdefault(start, None)
                 elif ctl == 'E':
-                    self.end_comments.setdefault(start, []).append(text)
+                    self._end_comments.setdefault(start, []).append(text)
                 elif ctl == 'R':
                     if text:
                         fields = text.split(' ', 1)
                         if len(fields) == 1:
                             fields.append('')
-                        self.registers.setdefault(start, []).append(fields)
+                        self._registers.setdefault(start, []).append(fields)
                 elif ctl == 'M':
-                    self.multiline_comments[start] = (end, text)
+                    self._multiline_comments[start] = (end, text)
                 elif ctl == 'L':
                     count = lengths[0][0]
                     if count > 1:
@@ -141,41 +141,41 @@ class CtlParser:
                         loop_end = start + count * (end - start)
                         if loop_end > 65536:
                             warn('Loop crosses 64K boundary:\n{}'.format(s_line))
-                        self.loops.append((start, end, count, repeat_entries))
-                        self.subctls[loop_end] = None
+                        self._loops.append((start, end, count, repeat_entries))
+                        self._subctls[loop_end] = None
                 else:
-                    self.subctls[start] = ctl.lower()
-                    self.instruction_comments[start] = text
+                    self._subctls[start] = ctl.lower()
+                    self._instruction_comments[start] = text
                     if end:
-                        self.subctls[end] = None
+                        self._subctls[end] = None
                 if ctl != 'L' and lengths:
-                    self.lengths[start] = lengths[0][1]
+                    self._lengths[start] = lengths[0][1]
                     if len(lengths) > 1:
                         address = start + lengths[0][0]
-                        subctl = self.subctls[start]
+                        subctl = self._subctls[start]
                         for length, sublengths in lengths[1:]:
-                            self.lengths[address] = sublengths
-                            self.subctls[address] = subctl
+                            self._lengths[address] = sublengths
+                            self._subctls[address] = subctl
                             address += length
                         if text:
-                            self.multiline_comments[start] = (address, text)
+                            self._multiline_comments[start] = (address, text)
             elif asm_directive:
                 directive, address, value = asm_directive
                 if directive in (AD_ORG, AD_WRITER, AD_START, AD_END) or directive.startswith(AD_SET):
-                    self.entry_asm_directives.setdefault(address, []).append((directive, value))
+                    self._entry_asm_directives.setdefault(address, []).append((directive, value))
                 else:
-                    self.instruction_asm_directives.setdefault(address, []).append((directive, value))
+                    self._instruction_asm_directives.setdefault(address, []).append((directive, value))
         f.close()
 
         # Relocate mid-block comments declared with a 'D' directive
-        for address in self.descriptions:
-            if address not in self.ctls:
-                self.mid_block_comments[address] = self.descriptions[address]
+        for address in self._descriptions:
+            if address not in self._ctls:
+                self._mid_block_comments[address] = self._descriptions[address]
 
         self._terminate_multiline_comments()
         self._unroll_loops()
         if max_address < 65536:
-            self.ctls[max_address] = 'i'
+            self._ctls[max_address] = 'i'
 
     def _parse_ctl_line(self, line, entry_ctl):
         ctl = start = end = text = asm_directive = None
@@ -254,7 +254,7 @@ class CtlParser:
             return directive, address, value
         if comment_type not in COMMENT_TYPES:
             raise CtlParserError("invalid @ignoreua directive suffix: '{}'".format(comment_type))
-        self.ignoreua_directives.setdefault(address, set()).add(comment_type)
+        self._ignoreua_directives.setdefault(address, set()).add(comment_type)
 
     def _parse_old_style_asm_directive(self, content):
         asm_fields = content.split(':', 1)
@@ -279,22 +279,22 @@ class CtlParser:
             return directive, address, value
         if comment_type not in COMMENT_TYPES:
             raise CtlParserError("invalid @ignoreua directive address suffix: '{}:{}'".format(addr_str, comment_type))
-        self.ignoreua_directives.setdefault(address, set()).add(comment_type)
+        self._ignoreua_directives.setdefault(address, set()).add(comment_type)
 
     def _terminate_multiline_comments(self):
-        addresses = sorted(set(self.ctls) | set(self.mid_block_comments) | {65536})
-        for address, (end, text) in self.multiline_comments.items():
+        addresses = sorted(set(self._ctls) | set(self._mid_block_comments) | {65536})
+        for address, (end, text) in self._multiline_comments.items():
             max_end = addresses[bisect.bisect_right(addresses, address)]
             if end is None or end > max_end:
-                self.multiline_comments[address] = (max_end, text)
+                self._multiline_comments[address] = (max_end, text)
 
     def _unroll_loops(self):
-        for start, end, count, repeat_entries in self.loops:
-            for directives in (self.subctls, self.mid_block_comments, self.instruction_comments, self.lengths):
+        for start, end, count, repeat_entries in self._loops:
+            for directives in (self._subctls, self._mid_block_comments, self._instruction_comments, self._lengths):
                 self._repeat_directives(directives, start, end, count)
             self._repeat_multiline_comments(start, end, count)
             if repeat_entries:
-                for directives in (self.ctls, self.titles, self.descriptions, self.registers, self.end_comments):
+                for directives in (self._ctls, self._titles, self._descriptions, self._registers, self._end_comments):
                     self._repeat_directives(directives, start, end, count)
 
     def _repeat_directives(self, directives, start, end, count):
@@ -306,23 +306,23 @@ class CtlParser:
 
     def _repeat_multiline_comments(self, start, end, count):
         interval = end - start
-        repeated = {k: v for k, v in self.multiline_comments.items() if start <= k < end}
+        repeated = {k: v for k, v in self._multiline_comments.items() if start <= k < end}
         for addr, (mlc_end, comment) in repeated.items():
             for i in range(1, count):
                 offset = i * interval
-                self.multiline_comments[addr + offset] = (mlc_end + offset, comment)
+                self._multiline_comments[addr + offset] = (mlc_end + offset, comment)
 
     def get_blocks(self):
         # Create top-level blocks
         blocks = []
-        for address in sorted([k for k in self.ctls if k < 65536]):
-            block = Block(self.ctls[address], address)
-            block.asm_directives = self.entry_asm_directives.get(address, ())
-            block.ignoreua_directives = tuple(self.ignoreua_directives.get(address, set()).intersection(ENTRY_COMMENT_TYPES))
-            block.title = self.titles.get(address)
-            block.description = self.descriptions.get(address, ())
-            block.registers = self.registers.get(address, ())
-            block.end_comment = self.end_comments.get(address, ())
+        for address in sorted([k for k in self._ctls if k < 65536]):
+            block = Block(self._ctls[address], address)
+            block.asm_directives = self._entry_asm_directives.get(address, ())
+            block.ignoreua_directives = tuple(self._ignoreua_directives.get(address, set()).intersection(ENTRY_COMMENT_TYPES))
+            block.title = self._titles.get(address)
+            block.description = self._descriptions.get(address, ())
+            block.registers = self._registers.get(address, ())
+            block.end_comment = self._end_comments.get(address, ())
             blocks.append(block)
 
         # Set top-level block end addresses
@@ -331,10 +331,10 @@ class CtlParser:
         blocks[-1].end = 65536
 
         # Create sub-blocks
-        for sub_address in sorted(self.subctls):
+        for sub_address in sorted(self._subctls):
             for block in blocks:
                 if block.start <= sub_address < block.end:
-                    block.add_block(self.subctls[sub_address], sub_address)
+                    block.add_block(self._subctls[sub_address], sub_address)
                     break
 
         # Set sub-block end addresses
@@ -344,17 +344,17 @@ class CtlParser:
             block.blocks[-1].end = block.end
 
         # Set sub-block attributes
-        asm_directives = tuple(self.instruction_asm_directives.items())
+        asm_directives = tuple(self._instruction_asm_directives.items())
         for block in blocks:
             for sub_block in block.blocks:
                 sub_address = sub_block.start
-                sub_block.sublengths = self.lengths.get(sub_address, ((None, None),))
-                sub_block.header = self.mid_block_comments.get(sub_address, ())
-                sub_block.comment = self.instruction_comments.get(sub_address) or ''
-                sub_block.multiline_comment = self.multiline_comments.get(sub_address)
+                sub_block.sublengths = self._lengths.get(sub_address, ((None, None),))
+                sub_block.header = self._mid_block_comments.get(sub_address, ())
+                sub_block.comment = self._instruction_comments.get(sub_address) or ''
+                sub_block.multiline_comment = self._multiline_comments.get(sub_address)
                 sub_block.asm_directives = dict([d for d in asm_directives if sub_address <= d[0] < sub_block.end])
                 sub_block.ignoreua_directives = {}
-                for addr, dirs in self.ignoreua_directives.items():
+                for addr, dirs in self._ignoreua_directives.items():
                     if sub_address <= addr < sub_block.end:
                         sub_block.ignoreua_directives[addr] = tuple(dirs.difference(ENTRY_COMMENT_TYPES))
 

@@ -264,8 +264,9 @@ i 65499"""
 mock_get_snapshot = Mock(return_value=[0] * 65536)
 
 class MockCtlParser:
-    def __init__(self):
+    def __init__(self, ctls=None):
         global mock_ctl_parser
+        self.ctls = ctls
         mock_ctl_parser = self
 
     def parse_ctl(self, ctlfile, min_address, max_address):
@@ -484,6 +485,7 @@ class OptionsTest(SkoolKitTestCase):
             lines = self._write_skool('{0} {1} {2}'.format(option, ctlfile, binfile), 10)
             self.assertEqual(self._get_first_address(lines), str(org))
 
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_e(self):
         binfile = self.write_bin_file([0] * 3)

@@ -60,19 +60,20 @@ def run(snafile, options):
         writer.write_skool()
         return
 
-    ctl_parser = CtlParser()
     if options.genctlfile:
         # Generate a control file
         ctls = generate_ctls(snapshot, start, end, options.code_map)
         write_ctl(options.genctlfile, ctls, options.ctl_hex)
-        ctl_parser.ctls = ctls
+        ctl_parser = CtlParser(ctls)
     elif options.ctlfile:
         # Use a control file
+        ctl_parser = CtlParser()
         ctl_parser.parse_ctl(options.ctlfile, options.start, options.end)
     else:
-        ctl_parser.ctls = {start: 'c'}
+        ctls = {start: 'c'}
         if end < 65536:
-            ctl_parser.ctls[end] = 'i'
+            ctls[end] = 'i'
+        ctl_parser = CtlParser(ctls)
     writer = SkoolWriter(snapshot, ctl_parser, options)
     writer.write_skool(options.write_refs, options.text)
 
