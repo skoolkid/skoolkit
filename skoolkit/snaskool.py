@@ -553,7 +553,7 @@ def generate_ctls(snapshot, start, end, code_map):
     return ctls
 
 class Entry:
-    def __init__(self, title, description, ctl, blocks, registers, end_comment, asm_directives):
+    def __init__(self, title, description, ctl, blocks, registers, end_comment, asm_directives, ignoreua_directives):
         self.title = title
         self.ctl = ctl
         self.blocks = blocks
@@ -582,6 +582,7 @@ class Entry:
                 self.end = True
             elif directive.startswith(AD_SET):
                 self.properties.append((directive[len(AD_SET):], value))
+        self.ignoreua_directives = ignoreua_directives
         self.address = first_instruction.address
         self.description = description
         self.next = None
@@ -593,6 +594,9 @@ class Entry:
 
     def width(self):
         return max([len(i.operation) for i in self.instructions])
+
+    def has_ignoreua_directive(self, comment_type):
+        return comment_type in self.ignoreua_directives
 
 class Disassembly:
     def __init__(self, snapshot, ctl_parser, final=False, defb_size=8, defb_mod=1, zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
@@ -683,7 +687,8 @@ class Disassembly:
                         i += 1
 
             entry = Entry(title, block.description, block.ctl, sub_blocks,
-                          block.registers, block.end_comment, block.asm_directives)
+                          block.registers, block.end_comment, block.asm_directives,
+                          block.ignoreua_directives)
             self.entry_map[entry.address] = entry
             self.entries.append(entry)
         for i, entry in enumerate(self.entries[1:]):
@@ -744,7 +749,7 @@ class SkoolWriter:
             self.write_asm_directive('{}{}'.format(AD_SET, name), value)
         if entry.org is not None:
             self.write_asm_directive(AD_ORG, entry.org)
-        if self.ctl_parser.has_ignoreua_directive(entry.address, TITLE):
+        if entry.has_ignoreua_directive(TITLE):
             self.write_asm_directive(AD_IGNOREUA)
 
         if entry.ctl == 'i':
@@ -768,7 +773,7 @@ class SkoolWriter:
 
         self._write_body(entry, wrote_desc, write_refs, show_text)
 
-        if self.ctl_parser.has_ignoreua_directive(entry.address, END):
+        if entry.has_ignoreua_directive(END):
             self.write_asm_directive(AD_IGNOREUA)
         self.write_paragraphs(entry.end_comment)
         if entry.end:
@@ -776,7 +781,7 @@ class SkoolWriter:
 
     def _write_entry_description(self, entry, write_refs):
         wrote_desc = False
-        ignoreua_d = self.ctl_parser.has_ignoreua_directive(entry.address, DESCRIPTION)
+        ignoreua_d = entry.has_ignoreua_directive(DESCRIPTION)
         if entry.ctl == 'c' and write_refs > -1:
             referrers = entry.instructions[0].referrers
             if referrers and (write_refs == 1 or not entry.description):
@@ -798,7 +803,7 @@ class SkoolWriter:
 
     def _write_registers(self, entry):
         self.write_comment('')
-        if self.ctl_parser.has_ignoreua_directive(entry.address, REGISTERS):
+        if entry.has_ignoreua_directive(REGISTERS):
             self.write_asm_directive(AD_IGNOREUA)
         max_indent = max([reg.find(':') for reg, desc in entry.registers])
         for reg, desc in entry.registers:
@@ -818,7 +823,7 @@ class SkoolWriter:
         line_width = op_width + 8
         first_block = True
         for block in entry.blocks:
-            ignoreua_m = self.ctl_parser.has_ignoreua_directive(block.start, MID_BLOCK)
+            ignoreua_m = block.has_ignoreua_directive(block.start, MID_BLOCK)
             begun_header = False
             if not first_block and entry.ctl == 'c' and write_refs > -1:
                 referrers = block.instructions[0].referrers
@@ -872,7 +877,7 @@ class SkoolWriter:
                 self.write_referrers(EREFS_PREFIX, instruction.referrers)
             for directive, value in instruction.asm_directives:
                 self.write_asm_directive(directive, value)
-            if self.ctl_parser.has_ignoreua_directive(instruction.address, INSTRUCTION):
+            if block.has_ignoreua_directive(instruction.address, INSTRUCTION):
                 self.write_asm_directive(AD_IGNOREUA)
             if entry.ctl == 'c' or comment:
                 write_line(('{}{} {} ; {}'.format(ctl, self.address_str(address), operation.ljust(op_width), comment)).rstrip())

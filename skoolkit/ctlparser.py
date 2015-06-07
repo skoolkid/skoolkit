@@ -25,6 +25,8 @@ from .textutils import partition_unquoted, split_unquoted
 
 COMMENT_TYPES = (TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 
+ENTRY_COMMENT_TYPES = (TITLE, DESCRIPTION, REGISTERS, END)
+
 BASES = ('b', 'c', 'd', 'h', 'n')
 
 class CtlParserError(Exception):
@@ -316,15 +318,13 @@ class CtlParser:
                 if directive == asm_dir:
                     return True
 
-    def has_ignoreua_directive(self, address, comment_type):
-        return comment_type in self.ignoreua_directives.get(address, ())
-
     def get_blocks(self):
         # Create top-level blocks
         blocks = []
         for address in sorted([k for k in self.ctls if k < 65536]):
             block = Block(self.ctls[address], address)
             block.asm_directives = self.entry_asm_directives.get(address, ())
+            block.ignoreua_directives = tuple(self.ignoreua_directives.get(address, set()).intersection(ENTRY_COMMENT_TYPES))
             block.title = self.titles.get(address)
             block.description = self.descriptions.get(address, ())
             block.registers = self.registers.get(address, ())
@@ -359,6 +359,10 @@ class CtlParser:
                 sub_block.comment = self.instruction_comments.get(sub_address) or ''
                 sub_block.multiline_comment = self.multiline_comments.get(sub_address)
                 sub_block.asm_directives = dict([d for d in asm_directives if sub_address <= d[0] < sub_block.end])
+                sub_block.ignoreua_directives = {}
+                for addr, dirs in self.ignoreua_directives.items():
+                    if sub_address <= addr < sub_block.end:
+                        sub_block.ignoreua_directives[addr] = tuple(dirs.difference(ENTRY_COMMENT_TYPES))
 
         return blocks
 
@@ -375,3 +379,6 @@ class Block:
             self.blocks[0].ctl = real_ctl
         else:
             self.blocks.append(Block(real_ctl, start, False))
+
+    def has_ignoreua_directive(self, address, comment_type):
+        return comment_type in self.ignoreua_directives.get(address, ())

@@ -98,13 +98,16 @@ class CtlParserTest(SkoolKitTestCase):
                 directives.update(s.asm_directives)
         self.assertEqual(exp_directives, directives)
 
-    def _check_ignoreua_directives(self, exp_ignoreua_directives, ctl_parser):
-        for address, exp_directives in exp_ignoreua_directives.items():
-            directives = set()
-            for comment_type in 'deimrt':
-                if ctl_parser.has_ignoreua_directive(address, comment_type):
-                    directives.add(comment_type)
-            self.assertEqual(exp_directives, directives)
+    def _check_ignoreua_directives(self, exp_entry_directives, exp_other_directives, blocks):
+        entry_directives = {}
+        other_directives = {}
+        for b in blocks:
+            entry_directives[b.start] = sorted(b.ignoreua_directives)
+            for s in b.blocks:
+                for address, dirs in s.ignoreua_directives.items():
+                    other_directives[address] = sorted(dirs)
+        self.assertEqual(exp_entry_directives, entry_directives)
+        self.assertEqual(exp_other_directives, other_directives)
 
     def test_parse_ctl(self):
         ctl_parser = self._get_ctl_parser(CTL)
@@ -878,16 +881,22 @@ class CtlParserTest(SkoolKitTestCase):
             '; @ignoreua:30004:e',
             'E 30004 End comment for the routine at 30004.'
         ))
-        ctl_parser = self._get_ctl_parser(ctl)
+        blocks = self._get_ctl_parser(ctl).get_blocks()
 
-        exp_ignoreua_directives = {
-            30000: set(['t']),
-            30001: set(['d', 'i', 'r']),
-            30003: set(['m', 'i']),
-            30004: set(['e', 'i']),
-            30005: set(['m']),
+        exp_entry_directives = {
+            30000: ['t'],
+            30001: ['d', 'r'],
+            30002: [],
+            30004: ['e']
         }
-        self._check_ignoreua_directives(exp_ignoreua_directives, ctl_parser)
+        exp_other_directives = {
+            30000: [],
+            30001: ['i'],
+            30003: ['i', 'm'],
+            30004: ['i'],
+            30005: ['m']
+        }
+        self._check_ignoreua_directives(exp_entry_directives, exp_other_directives, blocks)
 
     def test_registers(self):
         ctl = '\n'.join((
