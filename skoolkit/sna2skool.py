@@ -70,10 +70,7 @@ def run(snafile, options):
         ctl_parser = CtlParser()
         ctl_parser.parse_ctl(options.ctlfile, options.start, options.end)
     else:
-        ctls = {start: 'c'}
-        if end < 65536:
-            ctls[end] = 'i'
-        ctl_parser = CtlParser(ctls)
+        ctl_parser = CtlParser({start: 'c', end: 'i'})
     writer = SkoolWriter(snapshot, ctl_parser, options)
     writer.write_skool(options.write_refs, options.text)
 

@@ -475,8 +475,7 @@ class CtlParserTest(SkoolKitTestCase):
 
         exp_ctls = {
             30000: 'b',
-            30100: 'c',
-            30200: 'i'
+            30100: 'c'
         }
         self._check_ctls(exp_ctls, blocks)
 
@@ -488,15 +487,13 @@ class CtlParserTest(SkoolKitTestCase):
             30027: 'b',
             30050: 'b',
             30055: 'b',
-            30100: 'c',
-            30200: 'i'
+            30100: 'c'
         }
         self._check_subctls(exp_subctls, blocks)
 
         exp_titles = {
             30000: 'Data at 30000',
-            30100: 'Routine at 30100',
-            30200: None
+            30100: 'Routine at 30100'
         }
         self._check_titles(exp_titles, blocks)
 
@@ -508,30 +505,26 @@ class CtlParserTest(SkoolKitTestCase):
             30027: '',
             30050: 'Complex DEFB with a blank directive',
             30055: '',
-            30100: '',
-            30200: ''
+            30100: ''
         }
         self._check_instruction_comments(exp_instruction_comments, blocks)
 
         exp_descriptions = {
             30000: (),
-            30100: ['Description of routine at 30100'],
-            30200: ()
+            30100: ['Description of routine at 30100']
         }
         self._check_descriptions(exp_descriptions, blocks)
 
         exp_registers = {
             30000: (),
-            30100: [['A', 'Some value'], ['BC', 'Some other value']],
-            30200: ()
+            30100: [['A', 'Some value'], ['BC', 'Some other value']]
         }
         self._check_registers(exp_registers, blocks)
 
         exp_end_comments = {
             30000: (),
             30100: ['First paragraph of the end comment for the routine at 30100',
-                    'Second paragraph of the end comment for the routine at 30100'],
-            30200: ()
+                    'Second paragraph of the end comment for the routine at 30100']
         }
         self._check_end_comments(exp_end_comments, blocks)
 
@@ -543,8 +536,7 @@ class CtlParserTest(SkoolKitTestCase):
             30027: ((None, None),),
             30050: ((3, None), (2, 'T')),
             30055: ((None, None),),
-            30100: ((None, None),),
-            30200: ((None, None),)
+            30100: ((None, None),)
         }
         self._check_sublengths(exp_sublengths, blocks)
 
@@ -556,15 +548,13 @@ class CtlParserTest(SkoolKitTestCase):
             30027: None,
             30050: None,
             30055: None,
-            30100: None,
-            30200: None
+            30100: None
         }
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
         exp_entry_asm_directives = {
             30000: [('start', None)],
-            30100: (),
-            30200: ()
+            30100: ()
         }
         self._check_entry_asm_directives(exp_entry_asm_directives, blocks)
 
@@ -580,76 +570,66 @@ class CtlParserTest(SkoolKitTestCase):
 
         exp_ctls = {
             30100: 'c',
-            30200: 'g',
-            30300: 'i'
+            30200: 'g'
         }
         self._check_ctls(exp_ctls, blocks)
 
         exp_subctls = {
             30100: 'c',
             30200: 'b',
-            30210: 'g',
-            30300: 'i'
+            30210: 'g'
         }
         self._check_subctls(exp_subctls, blocks)
 
         exp_titles = {
             30100: 'Routine at 30100',
-            30200: 'Game status buffer entry at 30200',
-            30300: None
+            30200: 'Game status buffer entry at 30200'
         }
         self._check_titles(exp_titles, blocks)
 
         exp_instruction_comments = {
             30100: '',
             30200: "Blank directive in a 'g' block",
-            30210: '',
-            30300: ''
+            30210: ''
         }
         self._check_instruction_comments(exp_instruction_comments, blocks)
 
         exp_descriptions = {
             30100: ['Description of routine at 30100'],
-            30200: (),
-            30300: ()
+            30200: ()
         }
         self._check_descriptions(exp_descriptions, blocks)
 
         exp_registers = {
             30100: [['A', 'Some value'], ['BC', 'Some other value']],
-            30200: (),
-            30300: ()
+            30200: ()
         }
         self._check_registers(exp_registers, blocks)
 
         exp_end_comments = {
             30100: ['First paragraph of the end comment for the routine at 30100',
                     'Second paragraph of the end comment for the routine at 30100'],
-            30200: (),
-            30300: ()
+            30200: ()
         }
         self._check_end_comments(exp_end_comments, blocks)
 
         exp_sublengths = {
             30100: ((None, None),),
             30200: ((1, None),),
-            30210: ((None, None),),
-            30300: ((None, None),)
+            30210: ((None, None),)
         }
         self._check_sublengths(exp_sublengths, blocks)
 
         exp_multiline_comments = {
             30100: None,
             30200: None,
-            30210: None,
-            30300: None
+            30210: None
         }
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
         exp_entry_asm_directives = {
             30100: (),
-            30200: (),
-            30300: ()
+            30200: ()
         }
         self._check_entry_asm_directives(exp_entry_asm_directives, blocks)
 
@@ -1128,6 +1108,46 @@ class CtlParserTest(SkoolKitTestCase):
         # Check that there is no block that starts past the boundary
         blocks = ctl_parser.get_blocks()
         self.assertEqual(blocks[-1].start, 65535)
+
+    def test_loop_is_trimmed_by_max_address(self):
+        ctl = '\n'.join((
+            'b 30000',
+            'B 30000,5',
+            'T 30005,5',
+            'L 30000,10,3'
+        ))
+        blocks = self._get_ctl_parser(ctl, max_address=30020).get_blocks()
+
+        exp_subctls = {
+            30000: 'b',
+            30005: 't',
+            30010: 'b',
+            30015: 't'
+        }
+        self._check_subctls(exp_subctls, blocks)
+
+    def test_loop_with_entries_is_trimmed_by_max_address(self):
+        ctl = '\n'.join((
+            'b 30000',
+            'B 30000,5',
+            'T 30005,5',
+            'L 30000,10,3,1'
+        ))
+        blocks = self._get_ctl_parser(ctl, max_address=30020).get_blocks()
+
+        exp_ctls = {
+            30000: 'b',
+            30010: 'b'
+        }
+        self._check_ctls(exp_ctls, blocks)
+
+        exp_subctls = {
+            30000: 'b',
+            30005: 't',
+            30010: 'b',
+            30015: 't'
+        }
+        self._check_subctls(exp_subctls, blocks)
 
     def test_terminate_multiline_comments(self):
         ctl = '\n'.join((

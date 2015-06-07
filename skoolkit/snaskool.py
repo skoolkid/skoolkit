@@ -223,9 +223,7 @@ def _generate_ctls_with_code_map(snapshot, start, end, code_map):
 
     # (1) Mark all executed blocks as 'c' and unexecuted blocks as 'U'
     # (unknown)
-    ctls = {start: 'U'}
-    if end < 65536:
-        ctls[end] = 'i'
+    ctls = {start: 'U', end: 'i'}
     for address, length in _get_code_blocks(snapshot, start, end, code_map):
         ctls[address] = 'c'
         if address + length < end:
@@ -325,9 +323,7 @@ def _generate_ctls_with_code_map(snapshot, start, end, code_map):
     return ctls
 
 def _generate_ctls_without_code_map(snapshot, start, end):
-    ctls = {start: 'c'}
-    if end < 65536:
-        ctls[end] = 'i'
+    ctls = {start: 'c', end: 'i'}
 
     # Look for potential 'RET', 'JR d' and 'JP nn' instructions and assume that
     # they end a block (after which another block follows); note that we don't
@@ -412,7 +408,7 @@ def write_ctl(ctlfile, ctls, ctl_hex):
     # Write a control file
     addr_fmt = get_address_format(ctl_hex, ctl_hex < 0)
     with open(ctlfile, 'w') as f:
-        for address in sorted(ctls):
+        for address in [a for a in sorted(ctls) if a < 65536]:
             f.write('{0} {1}\n'.format(ctls[address], addr_fmt.format(address)))
 
 def _check_for_data(snapshot, start, end):
@@ -474,10 +470,10 @@ def _get_text_blocks(snapshot, start, end):
 
 def _get_blocks(ctls):
     # Determine the block start and end addresses
-    blocks = [[ctls[address], address, None] for address in sorted(ctls.keys())]
+    blocks = [[ctls[address], address, None] for address in sorted(ctls)]
     for i, block in enumerate(blocks[1:]):
         blocks[i][2] = block[1]
-    blocks[-1][2] = 65536
+    blocks.pop()
     return blocks
 
 def _analyse_blocks(disassembly, ctls):
@@ -515,8 +511,8 @@ def _analyse_blocks(disassembly, ctls):
     # the first block in each pair as data; also mark code blocks that have no
     # terminal instruction as data
     disassembly.build()
-    for entry in disassembly.entries[:-1]:
-        if entry.bad_blocks or (entry.ctl == 'c' and not _is_terminal_instruction(entry.instructions[-1])):
+    for entry in disassembly.entries:
+        if entry.bad_blocks or (ctls[entry.address] == 'c' and not _is_terminal_instruction(entry.instructions[-1])):
             ctls[entry.address] = 'b'
 
     # Mark any NOP sequences at the beginning of a code block as a separate

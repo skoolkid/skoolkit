@@ -173,9 +173,8 @@ class CtlParser:
                 self._mid_block_comments[address] = self._descriptions[address]
 
         self._terminate_multiline_comments()
-        self._unroll_loops()
-        if max_address < 65536:
-            self._ctls[max_address] = 'i'
+        self._unroll_loops(max_address)
+        self._ctls[max_address] = 'i'
 
     def _parse_ctl_line(self, line, entry_ctl):
         ctl = start = end = text = asm_directive = None
@@ -288,35 +287,45 @@ class CtlParser:
             if end is None or end > max_end:
                 self._multiline_comments[address] = (max_end, text)
 
-    def _unroll_loops(self):
+    def _unroll_loops(self, max_address):
         for start, end, count, repeat_entries in self._loops:
             for directives in (self._subctls, self._mid_block_comments, self._instruction_comments, self._lengths):
-                self._repeat_directives(directives, start, end, count)
-            self._repeat_multiline_comments(start, end, count)
+                self._repeat_directives(directives, start, end, count, max_address)
+            self._repeat_multiline_comments(start, end, count, max_address)
             if repeat_entries:
                 for directives in (self._ctls, self._titles, self._descriptions, self._registers, self._end_comments):
-                    self._repeat_directives(directives, start, end, count)
+                    self._repeat_directives(directives, start, end, count, max_address)
 
-    def _repeat_directives(self, directives, start, end, count):
+    def _repeat_directives(self, directives, start, end, count, max_address):
         interval = end - start
         repeated = {k: v for k, v in directives.items() if start <= k < end}
         for addr, value in repeated.items():
             for i in range(1, count):
-                directives[addr + i * interval] = value
+                address = addr + i * interval
+                if address < max_address:
+                    directives[address] = value
+                else:
+                    break
 
-    def _repeat_multiline_comments(self, start, end, count):
+    def _repeat_multiline_comments(self, start, end, count, max_address):
         interval = end - start
         repeated = {k: v for k, v in self._multiline_comments.items() if start <= k < end}
         for addr, (mlc_end, comment) in repeated.items():
             for i in range(1, count):
                 offset = i * interval
-                self._multiline_comments[addr + offset] = (mlc_end + offset, comment)
+                address = addr + offset
+                if address < max_address:
+                    self._multiline_comments[address] = (mlc_end + offset, comment)
+                else:
+                    break
 
     def get_blocks(self):
         # Create top-level blocks
         blocks = []
-        for address in sorted([k for k in self._ctls if k < 65536]):
+        block_addresses = sorted(self._ctls)
+        for i, address in enumerate(block_addresses[:-1]):
             block = Block(self._ctls[address], address)
+            block.end = block_addresses[i + 1]
             block.asm_directives = self._entry_asm_directives.get(address, ())
             block.ignoreua_directives = tuple(self._ignoreua_directives.get(address, set()).intersection(ENTRY_COMMENT_TYPES))
             block.title = self._titles.get(address)
@@ -324,11 +333,6 @@ class CtlParser:
             block.registers = self._registers.get(address, ())
             block.end_comment = self._end_comments.get(address, ())
             blocks.append(block)
-
-        # Set top-level block end addresses
-        for i, block in enumerate(blocks[1:]):
-            blocks[i].end = block.start
-        blocks[-1].end = 65536
 
         # Create sub-blocks
         for sub_address in sorted(self._subctls):
