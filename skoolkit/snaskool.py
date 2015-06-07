@@ -582,6 +582,7 @@ class Entry:
                 self.end = True
             elif directive.startswith(AD_SET):
                 self.properties.append((directive[len(AD_SET):], value))
+        self.asm_directives = asm_directives
         self.ignoreua_directives = ignoreua_directives
         self.address = first_instruction.address
         self.description = description
@@ -630,13 +631,13 @@ class Disassembly:
                 continue
             title = block.title
             if block.ctl == 'c':
-                title = title or 'Routine at {0}'.format(self.address_str(block.start))
+                title = title or 'Routine at {}'.format(self._address_str(block.start))
             elif block.ctl in 'bw':
-                title = title or 'Data block at {0}'.format(self.address_str(block.start))
+                title = title or 'Data block at {}'.format(self._address_str(block.start))
             elif block.ctl == 't':
-                title = title or 'Message at {0}'.format(self.address_str(block.start))
+                title = title or 'Message at {}'.format(self._address_str(block.start))
             elif block.ctl == 'g':
-                title = title or 'Game status buffer entry at {0}'.format(self.address_str(block.start))
+                title = title or 'Game status buffer entry at {}'.format(self._address_str(block.start))
             elif block.ctl in 'us':
                 title = title or 'Unused'
             for sub_block in block.blocks:
@@ -698,6 +699,12 @@ class Disassembly:
         if address in self.entry_map:
             del self.entry_map[address]
 
+    def contains_entry_asm_directive(self, asm_dir):
+        for entry in self.entries:
+            for directive, value in entry.asm_directives:
+                if directive == asm_dir:
+                    return True
+
     def _calculate_references(self):
         for entry in self.entries:
             for instruction in entry.instructions:
@@ -713,12 +720,11 @@ class Disassembly:
                             if callee:
                                 callee.add_referrer(entry)
 
-    def address_str(self, address):
+    def _address_str(self, address):
         return self.address_fmt.format(address)
 
 class SkoolWriter:
     def __init__(self, snapshot, ctl_parser, options):
-        self.ctl_parser = ctl_parser
         self.comment_width = max(options.line_width - 2, MIN_COMMENT_WIDTH)
         self.disassembly = Disassembly(snapshot, ctl_parser, True, options.defb_size, options.defb_mod, options.zfill,
                                        options.defm_width, options.asm_hex, options.asm_lower)
@@ -731,9 +737,9 @@ class SkoolWriter:
         return str(address)
 
     def write_skool(self, write_refs, text):
-        if not self.ctl_parser.contains_entry_asm_directive(AD_START):
+        if not self.disassembly.contains_entry_asm_directive(AD_START):
             self.write_asm_directive(AD_START)
-            if not self.ctl_parser.contains_entry_asm_directive(AD_ORG):
+            if not self.disassembly.contains_entry_asm_directive(AD_ORG):
                 self.write_asm_directive(AD_ORG, self.address_str(self.disassembly.org, False))
         for entry_index, entry in enumerate(self.disassembly.entries):
             if entry_index:

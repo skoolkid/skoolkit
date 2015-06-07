@@ -312,12 +312,6 @@ class CtlParser:
                 offset = i * interval
                 self.multiline_comments[addr + offset] = (mlc_end + offset, comment)
 
-    def contains_entry_asm_directive(self, asm_dir):
-        for entry_asm_dir in self.entry_asm_directives.values():
-            for (directive, value) in entry_asm_dir:
-                if directive == asm_dir:
-                    return True
-
     def get_blocks(self):
         # Create top-level blocks
         blocks = []
