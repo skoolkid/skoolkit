@@ -33,6 +33,9 @@ class VerbatimLine:
     def __str__(self):
         return self.text
 
+    def is_trimmable(self):
+        return len(self.text) > 0
+
 class InstructionLine:
     def __init__(self, ctl=None, address=None, operation=None, comment_index=-1, comment=None):
         self.ctl = ctl
@@ -53,6 +56,9 @@ class InstructionLine:
         if self.comment:
             return "{0}; {1}".format(indent, self.comment)
         return "{0};".format(indent)
+
+    def is_trimmable(self):
+        return False
 
 class SftParser:
     def __init__(self, snapshot, sftfile, zfill=False, asm_hex=False, asm_lower=False):
@@ -109,7 +115,7 @@ class SftParser:
             operation = line[7:comment_index].strip()
             set_bytes(self.snapshot, address, operation)
 
-    def _parse_sft(self):
+    def _parse_sft(self, max_address):
         self.lines = []
         entry_ctl = None
         f = open_file(self.sftfile)
@@ -164,6 +170,10 @@ class SftParser:
                 raise SftParsingError("Invalid line: {0}".format(line.split()[0]))
             if start is not None:
                 # This line contains a control directive
+                if start >= max_address:
+                    while self.lines[-1].is_trimmable():
+                        self.lines.pop()
+                    break
                 instructions = []
                 for length, sublengths in lengths:
                     end = start + length
@@ -188,7 +198,7 @@ class SftParser:
                 self.lines.append(InstructionLine(comment_index=comment_index, comment=comment))
         f.close()
 
-    def write_skool(self):
-        self._parse_sft()
+    def write_skool(self, max_address=65536):
+        self._parse_sft(max_address)
         for line in self.lines:
             write_line(str(line))

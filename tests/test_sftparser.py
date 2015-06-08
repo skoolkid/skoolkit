@@ -277,14 +277,14 @@ b$802F DEFB $61,$61,"a"
 """.split('\n')
 
 class SftParserTest(SkoolKitTestCase):
-    def _parse_sft(self, sft, snapshot=(), asm_hex=False, asm_lower=False):
+    def _parse_sft(self, sft, snapshot=(), asm_hex=False, asm_lower=False, max_address=65536):
         sftfile = self.write_text_file(sft, suffix='.sft')
         writer = SftParser(snapshot[:], sftfile, asm_hex=asm_hex, asm_lower=asm_lower)
-        writer.write_skool()
+        writer.write_skool(max_address)
         return writer.snapshot, self.out.getvalue().split('\n')
 
-    def _test_disassembly(self, sft, exp_skool, snapshot=(), asm_hex=False):
-        skool = self._parse_sft(sft, snapshot, asm_hex)[1][:-1]
+    def _test_disassembly(self, sft, exp_skool, snapshot=(), asm_hex=False, asm_lower=False, max_address=65536):
+        skool = self._parse_sft(sft, snapshot, asm_hex, asm_lower, max_address)[1][:-1]
         self.assertEqual(exp_skool, skool)
 
     def test_write_skool(self):
@@ -789,6 +789,46 @@ class SftParserTest(SkoolKitTestCase):
             ' 00025 LD BC,256',
         ]
         self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_max_address_at_mid_block_comment(self):
+        snapshot = [
+            120, # 00000 LD A,B
+            201, # 00001 RET
+        ]
+        sft = '\n'.join((
+            '; Routine',
+            'cC00000,1;15 We are only interested',
+            ' ;15 in this instruction',
+            '; This comment is past the end address.',
+            ' C00001,1;15 And so is this instruction',
+        ))
+        exp_skool = [
+            '; Routine',
+            'c00000 LD A,B  ; We are only interested',
+            '               ; in this instruction',
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot, max_address=1)
+
+    def test_max_address_after_block_end_comment(self):
+        snapshot = [
+            120, # 00000 LD A,B
+            201, # 00001 RET
+        ]
+        sft = '\n'.join((
+            '; We are only interested in this entry',
+            'cC00000,1',
+            '; The only interesting entry ends here.',
+            '',
+            '; This entry is of no interest',
+            'cC00001,1',
+        ))
+        exp_skool = [
+            '; We are only interested in this entry',
+            'c00000 LD A,B',
+            '; The only interesting entry ends here.',
+            '',
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot, max_address=1)
 
 if __name__ == '__main__':
     unittest.main()

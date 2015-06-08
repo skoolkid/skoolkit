@@ -274,6 +274,19 @@ class MockCtlParser:
         self.min_address = min_address
         self.max_address = max_address
 
+class MockSftParser:
+    def __init__(self, snapshot, sftfile, zfill, asm_hex, asm_lower):
+        global mock_sft_parser
+        self.snapshot = snapshot
+        self.sftfile = sftfile
+        self.zfill = zfill
+        self.asm_hex = asm_hex
+        self.asm_lower = asm_lower
+        mock_sft_parser = self
+
+    def write_skool(self, max_address):
+        self.max_address = max_address
+
 class MockSkoolWriter:
     def __init__(self, snapshot, ctl_parser, options):
         global mock_skool_writer
@@ -507,6 +520,16 @@ class OptionsTest(SkoolKitTestCase):
         self.assertEqual(mock_ctl_parser.ctlfile, ctlfile)
         self.assertEqual(mock_ctl_parser.min_address, 0)
         self.assertEqual(mock_ctl_parser.max_address, end)
+
+    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'SftParser', MockSftParser)
+    def test_options_e_and_T(self):
+        sftfile = 'test.sft'
+        end = 45678
+        output, error = self.run_sna2skool('-T {} -e {} test.sna'.format(sftfile, end))
+        self.assertEqual(error, '')
+        self.assertEqual(mock_sft_parser.sftfile, sftfile)
+        self.assertEqual(mock_sft_parser.max_address, end)
 
     def test_option_g(self):
         ctlfile = self.write_text_file()
