@@ -79,6 +79,10 @@ class CtlParserTest(SkoolKitTestCase):
         subctls = {s.start: s.ctl for b in blocks for s in b.blocks}
         self.assertEqual(exp_subctls, subctls)
 
+    def _check_mid_block_comments(self, exp_mid_block_comments, blocks):
+        mid_block_comments = {s.start: s.header for b in blocks for s in b.blocks if s.header}
+        self.assertEqual(exp_mid_block_comments, mid_block_comments)
+
     def _check_instruction_comments(self, exp_instruction_comments, blocks):
         instruction_comments = {s.start: s.comment for b in blocks for s in b.blocks}
         self.assertEqual(exp_instruction_comments, instruction_comments)
@@ -1112,25 +1116,69 @@ class CtlParserTest(SkoolKitTestCase):
     def test_loop_is_trimmed_by_max_address(self):
         ctl = '\n'.join((
             'b 30000',
+            'N 30000 A comment',
+            'M 30000,10 Some bytes and text',
             'B 30000,5',
-            'T 30005,5',
-            'L 30000,10,3'
+            'T 30005,5,4:B1',
+            'B 30010,10 Some more bytes',
+            'L 30000,20,3'
         ))
-        blocks = self._get_ctl_parser(ctl, max_address=30020).get_blocks()
+        blocks = self._get_ctl_parser(ctl, max_address=30040).get_blocks()
 
         exp_subctls = {
             30000: 'b',
             30005: 't',
             30010: 'b',
-            30015: 't'
+            30020: 'b',
+            30025: 't',
+            30030: 'b'
         }
         self._check_subctls(exp_subctls, blocks)
 
+        exp_mid_block_comments = {
+            30000: ['A comment'],
+            30020: ['A comment']
+        }
+        self._check_mid_block_comments(exp_mid_block_comments, blocks)
+
+        exp_instruction_comments = {
+            30000: '',
+            30005: '',
+            30010: 'Some more bytes',
+            30020: '',
+            30025: '',
+            30030: 'Some more bytes'
+        }
+        self._check_instruction_comments(exp_instruction_comments, blocks)
+
+        exp_multiline_comments = {
+            30000: (30010, 'Some bytes and text'),
+            30005: None,
+            30010: None,
+            30020: (30030, 'Some bytes and text'),
+            30025: None,
+            30030: None,
+        }
+        self._check_multiline_comments(exp_multiline_comments, blocks)
+
+        exp_sublengths = {
+            30000: ((None, None),),
+            30005: ((4, None), (1, 'B')),
+            30010: ((None, None),),
+            30020: ((None, None),),
+            30025: ((4, None), (1, 'B')),
+            30030: ((None, None),)
+        }
+        self._check_sublengths(exp_sublengths, blocks)
+
     def test_loop_with_entries_is_trimmed_by_max_address(self):
         ctl = '\n'.join((
-            'b 30000',
+            'b 30000 A block of bytes',
+            'D 30000 This is a block of bytes',
+            'R 30000 A 0',
             'B 30000,5',
             'T 30005,5',
+            'E 30000 The end',
             'L 30000,10,3,1'
         ))
         blocks = self._get_ctl_parser(ctl, max_address=30020).get_blocks()
@@ -1148,6 +1196,24 @@ class CtlParserTest(SkoolKitTestCase):
             30015: 't'
         }
         self._check_subctls(exp_subctls, blocks)
+
+        exp_descriptions = {
+            30000: ['This is a block of bytes'],
+            30010: ['This is a block of bytes']
+        }
+        self._check_descriptions(exp_descriptions, blocks)
+
+        exp_registers = {
+            30000: [['A', '0']],
+            30010: [['A', '0']]
+        }
+        self._check_registers(exp_registers, blocks)
+
+        exp_end_comments = {
+            30000: ['The end'],
+            30010: ['The end']
+        }
+        self._check_end_comments(exp_end_comments, blocks)
 
     def test_terminate_multiline_comments(self):
         ctl = '\n'.join((
