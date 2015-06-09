@@ -178,10 +178,6 @@ class SftParser:
                 # This line contains a control directive
                 if start >= min_address > 0 and start_index < 0:
                     start_index = len(lines)
-                if start >= max_address:
-                    while lines[-1].is_trimmable():
-                        lines.pop()
-                    break
                 instructions = []
                 for length, sublengths in lengths:
                     end = start + length
@@ -197,10 +193,18 @@ class SftParser:
                     else:
                         instructions += self.disassembler.defb_range(start, end, sublengths)
                     start += length
+                done = False
                 for instruction in instructions:
+                    if instruction.address >= max_address:
+                        while lines and lines[-1].is_trimmable():
+                            lines.pop()
+                        done = True
+                        break
                     address = self.address_fmt.format(instruction.address)
                     lines.append(InstructionLine(ctl, address, instruction.operation, comment_index, comment))
                     ctl = ' '
+                if done:
+                    break
             else:
                 # This line is an instruction-level comment continuation line
                 lines.append(InstructionLine(comment_index=comment_index, comment=comment))

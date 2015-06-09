@@ -830,6 +830,27 @@ class SftParserTest(SkoolKitTestCase):
         ]
         self._test_disassembly(sft, exp_skool, snapshot, max_address=1)
 
+    def test_max_address_between_two_directives(self):
+        snapshot = [0] * 4
+        sft = '\n'.join((
+            '; Data at 0',
+            'bB00000,1*2',
+            '',
+            '; Data at 2',
+            'bB00002,1',
+        ))
+        exp_skool = [
+            '; Data at 0',
+            'b00000 DEFB 0',
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot, max_address=1)
+
+    def test_max_address_gives_no_content(self):
+        snapshot = [0] * 3
+        sft = 'bB00001,1*2'
+        exp_skool = []
+        self._test_disassembly(sft, exp_skool, snapshot, max_address=1)
+
     def test_min_address_at_first_instruction_in_entry(self):
         snapshot = [0] * 4
         sft = '\n'.join((
