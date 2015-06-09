@@ -284,7 +284,8 @@ class MockSftParser:
         self.asm_lower = asm_lower
         mock_sft_parser = self
 
-    def write_skool(self, max_address):
+    def write_skool(self, min_address, max_address):
+        self.min_address = min_address
         self.max_address = max_address
 
 class MockSkoolWriter:
@@ -529,6 +530,7 @@ class OptionsTest(SkoolKitTestCase):
         output, error = self.run_sna2skool('-T {} -e {} test.sna'.format(sftfile, end))
         self.assertEqual(error, '')
         self.assertEqual(mock_sft_parser.sftfile, sftfile)
+        self.assertEqual(mock_sft_parser.min_address, 0)
         self.assertEqual(mock_sft_parser.max_address, end)
 
     def test_option_g(self):
@@ -816,6 +818,29 @@ class OptionsTest(SkoolKitTestCase):
         self.assertEqual(mock_ctl_parser.ctlfile, ctlfile)
         self.assertEqual(mock_ctl_parser.min_address, start)
         self.assertEqual(mock_ctl_parser.max_address, end)
+
+    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'SftParser', MockSftParser)
+    def test_options_s_and_T(self):
+        sftfile = 'test.sft'
+        start = 45678
+        output, error = self.run_sna2skool('-T {} -s {} test.sna'.format(sftfile, start))
+        self.assertEqual(error, '')
+        self.assertEqual(mock_sft_parser.sftfile, sftfile)
+        self.assertEqual(mock_sft_parser.min_address, start)
+        self.assertEqual(mock_sft_parser.max_address, 65536)
+
+    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'SftParser', MockSftParser)
+    def test_options_s_and_e_and_T(self):
+        sftfile = 'test.sft'
+        start = 23456
+        end = 34567
+        output, error = self.run_sna2skool('-T {} -s {} -e {} test.sna'.format(sftfile, start, end))
+        self.assertEqual(error, '')
+        self.assertEqual(mock_sft_parser.sftfile, sftfile)
+        self.assertEqual(mock_sft_parser.min_address, start)
+        self.assertEqual(mock_sft_parser.max_address, end)
 
     def test_option_t(self):
         binfile = self._write_bin([49, 127, 50])

@@ -277,14 +277,14 @@ b$802F DEFB $61,$61,"a"
 """.split('\n')
 
 class SftParserTest(SkoolKitTestCase):
-    def _parse_sft(self, sft, snapshot=(), asm_hex=False, asm_lower=False, max_address=65536):
+    def _parse_sft(self, sft, snapshot=(), asm_hex=False, asm_lower=False, min_address=0, max_address=65536):
         sftfile = self.write_text_file(sft, suffix='.sft')
         writer = SftParser(snapshot[:], sftfile, asm_hex=asm_hex, asm_lower=asm_lower)
-        writer.write_skool(max_address)
+        writer.write_skool(min_address, max_address)
         return writer.snapshot, self.out.getvalue().split('\n')
 
-    def _test_disassembly(self, sft, exp_skool, snapshot=(), asm_hex=False, asm_lower=False, max_address=65536):
-        skool = self._parse_sft(sft, snapshot, asm_hex, asm_lower, max_address)[1][:-1]
+    def _test_disassembly(self, sft, exp_skool, snapshot=(), asm_hex=False, asm_lower=False, min_address=0, max_address=65536):
+        skool = self._parse_sft(sft, snapshot, asm_hex, asm_lower, min_address, max_address)[1][:-1]
         self.assertEqual(exp_skool, skool)
 
     def test_write_skool(self):
@@ -829,6 +829,103 @@ class SftParserTest(SkoolKitTestCase):
             '',
         ]
         self._test_disassembly(sft, exp_skool, snapshot, max_address=1)
+
+    def test_min_address_at_first_instruction_in_entry(self):
+        snapshot = [0] * 4
+        sft = '\n'.join((
+            '; Data at 0',
+            'bB00000,1',
+            '',
+            '; Data at 1',
+            'bB00001,1*2',
+            '',
+            '; Data at 3',
+            'bB00003,1',
+        ))
+        exp_skool = [
+            '; Data at 1',
+            'b00001 DEFB 0',
+            ' 00002 DEFB 0',
+            '',
+            '; Data at 3',
+            'b00003 DEFB 0',
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot, min_address=1)
+
+    def test_min_address_at_second_instruction_in_entry(self):
+        snapshot = [0] * 5
+        sft = '\n'.join((
+            '; Data at 0',
+            'bB00000,1',
+            '',
+            '; Data at 1',
+            'bB00001,1',
+            ' W00002,2',
+            '',
+            '; Data at 4',
+            'bB00004,1',
+        ))
+        exp_skool = [
+            '; Data at 4',
+            'b00004 DEFB 0',
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot, min_address=2)
+
+    def test_min_address_between_two_directives(self):
+        snapshot = [0] * 4
+        sft = '\n'.join((
+            '; Data at 0',
+            'bB00000,1',
+            '',
+            '; Data at 1',
+            'bB00001,1*2',
+            '',
+            '; Data at 3',
+            'bB00003,1',
+        ))
+        exp_skool = [
+            '; Data at 3',
+            'b00003 DEFB 0',
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot, min_address=2)
+
+    def test_min_address_and_max_address(self):
+        snapshot = [0] * 4
+        sft = '\n'.join((
+            '; Data at 0',
+            'bB00000,1',
+            '',
+            '; Data at 1',
+            'bB00001,1',
+            '',
+            '; Data at 2',
+            'bB00002,1',
+            '; Mid-block comment at 3.',
+            ' B00003,1',
+        ))
+        exp_skool = [
+            '; Data at 1',
+            'b00001 DEFB 0',
+            '',
+            '; Data at 2',
+            'b00002 DEFB 0',
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot, min_address=1, max_address=3)
+
+    def test_min_address_and_max_address_give_no_content(self):
+        snapshot = [0] * 4
+        sft = '\n'.join((
+            '; Data at 0',
+            'bB00000,1',
+            '',
+            '; Data at 1',
+            'bB00001,1*2',
+            '',
+            '; Data at 3',
+            'bB00003,1',
+        ))
+        exp_skool = []
+        self._test_disassembly(sft, exp_skool, snapshot, min_address=2, max_address=3)
 
 if __name__ == '__main__':
     unittest.main()

@@ -18,7 +18,7 @@
 
 from . import write_line, get_int_param, parse_int, get_address_format, open_file, SkoolKitError
 from .textutils import find_unquoted, split_unquoted
-from .skoolparser import set_bytes, parse_asm_block_directive
+from .skoolparser import DIRECTIVES, set_bytes, parse_asm_block_directive
 from .skoolsft import VALID_CTLS, VERBATIM_BLOCKS
 from .ctlparser import parse_params
 from .disassembler import Disassembler
@@ -35,6 +35,9 @@ class VerbatimLine:
 
     def is_trimmable(self):
         return len(self.text) > 0
+
+    def is_blank(self):
+        return self.text == ''
 
 class InstructionLine:
     def __init__(self, ctl=None, address=None, operation=None, comment_index=-1, comment=None):
@@ -60,6 +63,9 @@ class InstructionLine:
     def is_trimmable(self):
         return False
 
+    def is_blank(self):
+        return False
+
 class SftParser:
     def __init__(self, snapshot, sftfile, zfill=False, asm_hex=False, asm_lower=False):
         self.snapshot = snapshot
@@ -68,7 +74,6 @@ class SftParser:
         self.address_fmt = get_address_format(asm_hex, asm_lower)
         self.stack = []
         self.disassemble = True
-        self.lines = None
 
     def _parse_instruction(self, line):
         ctl = line[0]
@@ -115,8 +120,9 @@ class SftParser:
             operation = line[7:comment_index].strip()
             set_bytes(self.snapshot, address, operation)
 
-    def _parse_sft(self, max_address):
-        self.lines = []
+    def _parse_sft(self, min_address, max_address):
+        start_index = -1
+        lines = []
         entry_ctl = None
         f = open_file(self.sftfile)
         for line in f:
@@ -127,7 +133,7 @@ class SftParser:
             s_line = line.strip()
             if not s_line:
                 # This line is blank
-                self.lines.append(VerbatimLine(line))
+                lines.append(VerbatimLine(line))
                 entry_ctl = None
                 continue
 
@@ -137,17 +143,17 @@ class SftParser:
                 comment = line[1:].strip()
                 if comment.startswith('@'):
                     self._parse_asm_directive(comment[1:])
-                self.lines.append(VerbatimLine(line))
+                lines.append(VerbatimLine(line))
                 continue
 
             if line.startswith('@'):
-                self.lines.append(VerbatimLine(line))
+                lines.append(VerbatimLine(line))
                 self._parse_asm_directive(line[1:].rstrip())
                 continue
 
             if not self.disassemble:
                 # This line is inside a '+' block, so include it as is
-                self.lines.append(VerbatimLine(line))
+                lines.append(VerbatimLine(line))
                 continue
 
             # Check whether we're in a block that should be restored verbatim
@@ -156,12 +162,12 @@ class SftParser:
             if entry_ctl in VERBATIM_BLOCKS:
                 if entry_ctl == 'd':
                     self._set_bytes(line)
-                self.lines.append(VerbatimLine(line))
+                lines.append(VerbatimLine(line))
                 continue
 
             # Check whether the line starts with a valid character
             if line[0] not in VALID_CTLS:
-                self.lines.append(VerbatimLine(line))
+                lines.append(VerbatimLine(line))
                 continue
 
             try:
@@ -170,9 +176,11 @@ class SftParser:
                 raise SftParsingError("Invalid line: {0}".format(line.split()[0]))
             if start is not None:
                 # This line contains a control directive
+                if start >= min_address > 0 and start_index < 0:
+                    start_index = len(lines)
                 if start >= max_address:
-                    while self.lines[-1].is_trimmable():
-                        self.lines.pop()
+                    while lines[-1].is_trimmable():
+                        lines.pop()
                     break
                 instructions = []
                 for length, sublengths in lengths:
@@ -191,14 +199,25 @@ class SftParser:
                     start += length
                 for instruction in instructions:
                     address = self.address_fmt.format(instruction.address)
-                    self.lines.append(InstructionLine(ctl, address, instruction.operation, comment_index, comment))
+                    lines.append(InstructionLine(ctl, address, instruction.operation, comment_index, comment))
                     ctl = ' '
             else:
                 # This line is an instruction-level comment continuation line
-                self.lines.append(InstructionLine(comment_index=comment_index, comment=comment))
+                lines.append(InstructionLine(comment_index=comment_index, comment=comment))
         f.close()
 
-    def write_skool(self, max_address=65536):
-        self._parse_sft(max_address)
-        for line in self.lines:
+        if start_index < 0:
+            return lines
+        if start_index < len(lines):
+            if str(lines[start_index])[0] in DIRECTIVES:
+                while start_index > 0 and not lines[start_index].is_blank():
+                    start_index -= 1
+            else:
+                while start_index < len(lines) and not lines[start_index].is_blank():
+                    start_index += 1
+            return lines[start_index + 1:]
+        return []
+
+    def write_skool(self, min_address=0, max_address=65536):
+        for line in self._parse_sft(min_address, max_address):
             write_line(str(line))

@@ -57,7 +57,7 @@ def run(snafile, options):
     if options.sftfile:
         # Use a skool file template
         writer = SftParser(snapshot, options.sftfile, options.zfill, options.asm_hex, options.asm_lower)
-        writer.write_skool(options.end)
+        writer.write_skool(options.start, options.end)
         return
 
     if options.genctlfile:
