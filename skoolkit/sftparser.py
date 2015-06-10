@@ -34,6 +34,9 @@ class VerbatimLine:
         return self.text
 
     def is_trimmable(self):
+        if ((self.text.startswith('@') or (self.text.startswith(';') and self.text[1:].lstrip().startswith('@')))
+             and self.text.endswith(('+end', '-end'))):
+            return False
         return len(self.text) > 0
 
     def is_blank(self):

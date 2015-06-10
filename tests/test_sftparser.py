@@ -845,6 +845,27 @@ class SftParserTest(SkoolKitTestCase):
         ]
         self._test_disassembly(sft, exp_skool, snapshot, max_address=1)
 
+    def test_max_address_after_asm_block_directive(self):
+        snapshot = [0] * 3
+        sft = '\n'.join((
+            'bB00000,1',
+            '@isub-begin',
+            ' B00001,1',
+            '@isub+else',
+            '       DEFB 1',
+            '@isub+end',
+            ' B00002,1',
+        ))
+        exp_skool = [
+            'b00000 DEFB 0',
+            '@isub-begin',
+            ' 00001 DEFB 0',
+            '@isub+else',
+            '       DEFB 1',
+            '@isub+end',
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot, max_address=2)
+
     def test_max_address_gives_no_content(self):
         snapshot = [0] * 3
         sft = 'bB00001,1*2'
