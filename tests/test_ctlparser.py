@@ -8,7 +8,9 @@ CTL = """; Test control file for parse_ctl
 
 ; @start:30000
 b $7530 Data at 30000
+N 30000 Block start comment
 T 30002,10 Message in the data block
+N 30012 Mid-block comment
 M 30012,15 This comment covers the following two sub-blocks
 W 30012-30019
 C 30020,7
@@ -38,6 +40,7 @@ w 30600 Words at 30600
 S 30620,7
 s 30700 Zeroes at 30700
 B 30720,10,1,T3:2,1:T1*2
+N 30730 Another mid-block comment
 T 30730-30744,10:B5"""
 
 class CtlParserTest(SkoolKitTestCase):
@@ -80,7 +83,7 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(exp_subctls, subctls)
 
     def _check_mid_block_comments(self, exp_mid_block_comments, blocks):
-        mid_block_comments = {s.start: s.header for b in blocks for s in b.blocks if s.header}
+        mid_block_comments = {s.start: s.header for b in blocks for s in b.blocks}
         self.assertEqual(exp_mid_block_comments, mid_block_comments)
 
     def _check_instruction_comments(self, exp_instruction_comments, blocks):
@@ -181,6 +184,58 @@ class CtlParserTest(SkoolKitTestCase):
             30745: 's'
         }
         self._check_subctls(exp_subctls, blocks)
+
+        exp_mid_block_comments = {
+            30000: ['Block start comment'],
+            30002: (),
+            30012: ['Mid-block comment'],
+            30020: (),
+            30027: (),
+            30050: (),
+            30055: (),
+            30100: (),
+            30200: (),
+            30210: (),
+            30300: (),
+            30400: (),
+            30450: (),
+            30457: (),
+            30500: (),
+            30502: (),
+            30505: (),
+            30510: (),
+            30522: (),
+            30530: (),
+            30532: (),
+            30534: (),
+            30536: (),
+            30538: (),
+            30540: (),
+            30542: (),
+            30544: (),
+            30545: (),
+            30546: (),
+            30547: (),
+            30550: (),
+            30560: (),
+            30566: (),
+            30571: (),
+            30575: (),
+            30578: (),
+            30580: (),
+            30581: (),
+            30600: (),
+            30620: (),
+            30627: (),
+            30700: (),
+            30720: (),
+            30721: (),
+            30726: (),
+            30728: (),
+            30730: ['Another mid-block comment'],
+            30745: ()
+        }
+        self._check_mid_block_comments(exp_mid_block_comments, blocks)
 
         exp_titles = {
             30000: 'Data at 30000',
@@ -422,6 +477,17 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._check_subctls(exp_subctls, blocks)
 
+        exp_mid_block_comments = {
+            30700: (),
+            30720: (),
+            30721: (),
+            30726: (),
+            30728: (),
+            30730: ['Another mid-block comment'],
+            30745: ()
+        }
+        self._check_mid_block_comments(exp_mid_block_comments, blocks)
+
         exp_titles = {30700: 'Zeroes at 30700'}
         self._check_titles(exp_titles, blocks)
 
@@ -494,6 +560,18 @@ class CtlParserTest(SkoolKitTestCase):
             30100: 'c'
         }
         self._check_subctls(exp_subctls, blocks)
+
+        exp_mid_block_comments = {
+            30000: ['Block start comment'],
+            30002: (),
+            30012: ['Mid-block comment'],
+            30020: (),
+            30027: (),
+            30050: (),
+            30055: (),
+            30100: ()
+        }
+        self._check_mid_block_comments(exp_mid_block_comments, blocks)
 
         exp_titles = {
             30000: 'Data at 30000',
@@ -584,6 +662,13 @@ class CtlParserTest(SkoolKitTestCase):
             30210: 'g'
         }
         self._check_subctls(exp_subctls, blocks)
+
+        exp_mid_block_comments = {
+            30100: (),
+            30200: (),
+            30210: ()
+        }
+        self._check_mid_block_comments(exp_mid_block_comments, blocks)
 
         exp_titles = {
             30100: 'Routine at 30100',
@@ -1137,7 +1222,11 @@ class CtlParserTest(SkoolKitTestCase):
 
         exp_mid_block_comments = {
             30000: ['A comment'],
-            30020: ['A comment']
+            30005: (),
+            30010: (),
+            30020: ['A comment'],
+            30025: (),
+            30030: ()
         }
         self._check_mid_block_comments(exp_mid_block_comments, blocks)
 
