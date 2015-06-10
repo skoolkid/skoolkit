@@ -21,6 +21,7 @@ from .skoolparser import (DIRECTIVES, parse_asm_block_directive, get_instruction
                           get_defb_length, get_defs_length, get_defw_length)
 from .skoolctl import get_lengths
 from .textutils import find_unquoted
+from .z80 import get_size
 
 VALID_CTLS = DIRECTIVES + ' *'
 VERBATIM_BLOCKS = ('d', 'i', 'r')
@@ -45,7 +46,7 @@ class ControlLine:
         self.operation = operation
         self.inst_ctl = get_instruction_ctl(operation)
         if self.inst_ctl == 'C':
-            size = 1
+            size = get_size(operation, address)
             length = [get_operand_bases(operation, preserve_base), size]
         elif self.inst_ctl == 'B':
             size, length = get_defb_length(self.operation, preserve_base)
@@ -69,17 +70,10 @@ class ControlLine:
 
     def _get_lengths(self):
         if self.inst_ctl == 'C':
-            return ','.join(['{}{}'.format(bases, length) for bases, length in self.lengths])
+            return ','.join(['{}{}'.format(bases, length or 1) for bases, length in self.lengths])
         # Find subsequences of identical statement lengths and abbreviate them,
         # e.g. '16,16,16,8,8,4' -> '16*3,8*2,4'
         return get_lengths(self.lengths)
-
-    def calculate_length(self, next_ctl_address):
-        length = next_ctl_address - self.address
-        if length < 0 or length > 4:
-            length = 1
-        self.end += length - 1
-        self.lengths[0][1] = length
 
     def add_length(self, ctl_line):
         self.end = ctl_line.end
@@ -142,7 +136,6 @@ class SftWriter:
             else:
                 lines.append(VerbatimLine(line))
         f.close()
-        self._calculate_lengths(ctl_lines)
         return self._compress_blocks(lines)
 
     def _parse_instruction(self, line):
@@ -168,11 +161,6 @@ class SftWriter:
                 if i != '-':
                     self.verbatim = True
                     break
-
-    def _calculate_lengths(self, ctl_lines):
-        for i, ctl_line in enumerate(ctl_lines[:-1]):
-            if ctl_line.inst_ctl == 'C':
-                ctl_line.calculate_length(ctl_lines[i + 1].address)
 
     def _compress_blocks(self, lines):
         """Compress sequences of commentless lines into a single line."""

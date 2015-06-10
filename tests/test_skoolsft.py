@@ -503,7 +503,7 @@ class SftWriterTest(SkoolKitTestCase):
             ' C60218,2;33 {No operands',
             ' C60220,2;33',
             ' C60222,2;33 }',
-            ' C60224,4,b4,25'
+            ' C60224,4,b4,26'
         ]
         self._test_sft(TEST_OPERAND_BASES_SKOOL, exp_sft, preserve_base=False)
 
@@ -527,35 +527,35 @@ class SftWriterTest(SkoolKitTestCase):
             ' C60218,2;33 {No operands',
             ' C60220,2;33',
             ' C60222,2;33 }',
-            ' C60224,h4,b4,d7,h5,d2,h3,d3,h4,d1'
+            ' C60224,h4,b4,d7,h5,d2,h3,d3,h4,d2'
         ]
         self._test_sft(TEST_OPERAND_BASES_SKOOL, exp_sft, preserve_base=True)
 
     def test_character_operands_no_base(self):
         exp_sft = [
             '; Instruction operands as characters',
-            'cC61000,c6,2,c5,nc1'
+            'cC61000,c6,2,c5,nc4'
         ]
         self._test_sft(TEST_CHARACTER_OPERANDS_SKOOL, exp_sft, preserve_base=False)
 
     def test_character_operands_preserve_base(self):
         exp_sft = [
             '; Instruction operands as characters',
-            'cC61000,c6,d2,c5,hc1'
+            'cC61000,c6,d2,c5,hc4'
         ]
         self._test_sft(TEST_CHARACTER_OPERANDS_SKOOL, exp_sft, preserve_base=True)
 
     def test_operands_with_commas_no_base(self):
         exp_sft = [
             '; Instruction operands that contain commas',
-            'cC62000,c8,nc4,cn4,cc1'
+            'cC62000,c8,nc4,cn4,cc4'
         ]
         self._test_sft(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_sft, preserve_base=False)
 
     def test_operands_with_commas_preserve_base(self):
         exp_sft = [
             '; Instruction operands that contain commas',
-            'cC62000,c8,dc4,ch4,cc1'
+            'cC62000,c8,dc4,ch4,cc4'
         ]
         self._test_sft(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_sft, preserve_base=True)
 
@@ -584,26 +584,48 @@ class SftWriterTest(SkoolKitTestCase):
         ]
         self._test_sft(skool, exp_sft)
 
-    def test_large_gap_between_instructions(self):
+    def test_gap_between_instructions(self):
         skool = '\n'.join((
-            'c25000 LD A,B',
+            'c25000 LD A,10',
             ' 26000 LD C,D'
         ))
         exp_sft = [
-            'cC25000,1',
+            'cC25000,2',
             ' C26000,1',
         ]
         self._test_sft(skool, exp_sft)
 
     def test_instructions_in_wrong_order(self):
         skool = '\n'.join((
-            'c26000 LD C,D',
+            'c26000 LD C,10',
             ' 25000 LD A,B'
         ))
         exp_sft = [
-            'cC26000,1',
+            'cC26000,2',
             ' C25000,1',
         ]
+        self._test_sft(skool, exp_sft)
+
+    def test_invalid_instruction_has_size_one_and_is_not_compressed(self):
+        skool = '\n'.join((
+            'c30000 LD A,n  ;',
+            ' 30002 INC A   ;',
+            ' 30003 SUB B   ;',
+            ' 30004 RET     ;',
+        ))
+        exp_sft = [
+            'cC30000,1;15',
+            ' C30002,3;15',
+        ]
+        self._test_sft(skool, exp_sft)
+
+    def test_compression_of_commentless_defb_sequence(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0     ;',
+            ' 40001 DEFB 0,0   ;',
+            ' 40003 DEFB 0,0,0 ;',
+        ))
+        exp_sft = ['bB40000,1,2,3;18']
         self._test_sft(skool, exp_sft)
 
 if __name__ == '__main__':
