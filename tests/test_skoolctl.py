@@ -895,8 +895,7 @@ class CtlWriterTest(SkoolKitTestCase):
             '@ 30004 ignoreua:e',
             'E 30004 End comment for the routine at 30004.'
         ]
-        ctl = self._get_ctl(skool=skool)
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(skool, exp_ctl)
 
     def test_ignoreua_directive_on_start_comment(self):
         skool = '\n'.join((
@@ -915,8 +914,7 @@ class CtlWriterTest(SkoolKitTestCase):
             '@ 30000 ignoreua:m',
             'N 30000 Start comment above 30000.'
         ]
-        ctl = self._get_ctl(skool=skool)
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(skool, exp_ctl)
 
     def test_ignoreua_directives_hex(self):
         skool = '\n'.join((
@@ -950,8 +948,7 @@ class CtlWriterTest(SkoolKitTestCase):
             '@ $9C40 ignoreua:e',
             'E $9C40 End comment for the routine at 40000.'
         ]
-        ctl = self._get_ctl(write_hex=1, skool=skool)
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(skool, exp_ctl, write_hex=1)
 
     def test_registers(self):
         skool = '\n'.join((
@@ -974,8 +971,7 @@ class CtlWriterTest(SkoolKitTestCase):
             'R 40000 HL Another register description that is long enough to need splitting over two lines',
             'R 40000 IX'
         ]
-        ctl = self._get_ctl(skool=skool)
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(skool, exp_ctl)
 
     def test_register_prefixes(self):
         skool = '\n'.join((
@@ -994,8 +990,7 @@ class CtlWriterTest(SkoolKitTestCase):
             'R 24576 B Some other value',
             'R 24576 Output:HL The result'
         ]
-        ctl = self._get_ctl(skool=skool)
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(skool, exp_ctl)
 
     def test_start_comment(self):
         start_comment = 'This is a start comment.'
@@ -1014,8 +1009,7 @@ class CtlWriterTest(SkoolKitTestCase):
             'D 50000 Description',
             'N 50000 {}'.format(start_comment)
         ]
-        ctl = self._get_ctl(skool=skool)
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(skool, exp_ctl)
 
     def test_multi_paragraph_start_comment(self):
         start_comment = ('Start comment paragraph 1.', 'Paragraph 2.')
@@ -1036,8 +1030,7 @@ class CtlWriterTest(SkoolKitTestCase):
             'N 60000 {}'.format(start_comment[0]),
             'N 60000 {}'.format(start_comment[1])
         ]
-        ctl = self._get_ctl(skool=skool)
-        self.assertEqual(exp_ctl, ctl)
+        self._test_ctl(skool, exp_ctl)
 
     def test_M_directives(self):
         skool = '\n'.join((
@@ -1059,7 +1052,19 @@ class CtlWriterTest(SkoolKitTestCase):
             'M 30004 M directive extending to the end of the block (no explicit length)',
             'B 30005,1,1',
         ]
-        self.assertEqual(exp_ctl, self._get_ctl(skool=skool))
+        self._test_ctl(skool, exp_ctl)
+
+    def test_instructions_in_wrong_order(self):
+        skool = '\n'.join((
+            'c30002 LD B,%00000010',
+            ' 30004 LD C,3',
+            ' 30000 LD A,"1"',
+        ))
+        exp_ctl = [
+            'c 30000',
+            '  30000,6,c2,b2,2',
+        ]
+        self._test_ctl(skool, exp_ctl)
 
 if __name__ == '__main__':
     unittest.main()

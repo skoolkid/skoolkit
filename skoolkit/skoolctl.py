@@ -342,7 +342,7 @@ class SkoolParser:
             ctl = instruction.ctl
             if ctl in DIRECTIVES:
                 start_comment, desc, details, registers = parse_comment_block(comments, ignores, self.mode)
-                map_entry = Entry(address, ctl, desc, details, registers, self.mode.entry_ignoreua)
+                map_entry = Entry(ctl, desc, details, registers, self.mode.entry_ignoreua)
                 map_entry.add_mid_routine_comment(instruction.address, start_comment)
                 self.mode.apply_entry_asm_directives(map_entry)
                 self.memory_map.append(map_entry)
@@ -369,6 +369,9 @@ class SkoolParser:
         if comments and map_entry:
             map_entry.end_comment = join_comments(comments, True)
             map_entry.ignoreua[END] = len(ignores) > 0
+
+        for entry in self.memory_map:
+            entry.sort_instructions()
 
         parse_address_comments(address_comments)
 
@@ -480,8 +483,7 @@ class Instruction:
         return self.container.get_mid_routine_comment(self.address)
 
 class Entry:
-    def __init__(self, address, ctl, description, details, registers, ignoreua):
-        self.address = address
+    def __init__(self, ctl, description, details, registers, ignoreua):
         self.ctl = ctl
         self.description = description
         self.details = details
@@ -500,6 +502,10 @@ class Entry:
         self.start = False
         self.end = False
         self.properties = []
+
+    def sort_instructions(self):
+        self.instructions.sort(key=lambda i: i.address)
+        self.address = self.instructions[0].address
 
     def add_instruction(self, instruction):
         instruction.container = self
