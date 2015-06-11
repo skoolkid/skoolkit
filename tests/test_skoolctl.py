@@ -760,9 +760,9 @@ class CtlWriterTest(SkoolKitTestCase):
             '  60020,3 Tab, tab',
             '  60023,9,b3,3,b3',
             '  60032,6 Hexadecimal, decimal',
-            '  60038,180,6,b3,3,nb4,4,bn4,4,b2,3,b3,6,b4,7,b4,7,b4,8,b3,8,b3,8,b4,4,b2,3,b3,5,b2,4,b2,3,b3,6,b3,6,b4,8,b4,8,b4,4',
+            '  60044,170,b3,3,nb4,4,bn4,4,b2,3,b3,6,b4,7,b4,7,b4,8,b3,8,b3,8,b4,4,b2,3,b3,5,b2,4,b2,3,b3,6,b3,6,b4,8,b4,8,b4',
             '  60218,6 No operands',
-            '  60224,34,4,b4,26',
+            '  60228,b4',
         ]
         self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=False)
 
@@ -1062,7 +1062,7 @@ class CtlWriterTest(SkoolKitTestCase):
         ))
         exp_ctl = [
             'c 30000',
-            '  30000,6,c2,b2,2',
+            '  30000,4,c2,b2',
         ]
         self._test_ctl(skool, exp_ctl)
 
@@ -1074,6 +1074,22 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'c 40000',
             '  40000,b2',
+        ]
+        self._test_ctl(skool, exp_ctl)
+
+    def test_commentless_C_directive_in_c_block_is_trimmed(self):
+        skool = '\n'.join((
+            'c50000 LD A,1    ; {Do stuff',
+            ' 50002 LD B,"!"  ;',
+            ' 50004 LD C,3    ; }',
+            ' 50006 LD D,4    ;',
+            ' 50008 LD E,"$"  ;',
+            ' 50010 LD H,6    ;',
+        ))
+        exp_ctl = [
+            'c 50000',
+            '  50000,6,2,c2,2 Do stuff',
+            '  50008,c2'
         ]
         self._test_ctl(skool, exp_ctl)
 

@@ -248,6 +248,7 @@ class CtlWriter:
     def write_sub_block(self, ctl, entry_ctl, comment, instructions, lengths):
         length = 0
         sublengths = []
+        address = instructions[0].address
         if ctl == 'c':
             # Compute the sublengths for a 'C' sub-block
             for i, instruction in enumerate(instructions):
@@ -263,6 +264,13 @@ class CtlWriter:
                         sublengths[-1][1] += sublength
                     else:
                         sublengths.append([bases, sublength])
+            if not comment and len(sublengths) > 1 and entry_ctl == 'c':
+                if not sublengths[-1][0]:
+                    length -= sublengths.pop()[1]
+                if not sublengths[0][0]:
+                    sublength = sublengths.pop(0)[1]
+                    length -= sublength
+                    address += sublength
             lengths = ','.join(['{}{}'.format(*s) for s in sublengths])
             if len(sublengths) > 1:
                 lengths = '{},{}'.format(length, lengths)
@@ -279,10 +287,10 @@ class CtlWriter:
             sub_block_ctl = ' '
         else:
             sub_block_ctl = ctl.upper()
-        address = self.addr_str(instructions[0].address)
+        addr_str = self.addr_str(address)
         if lengths:
             lengths = ',{}'.format(lengths)
-        write_line('{} {}{} {}'.format(sub_block_ctl, address, lengths, comment).rstrip())
+        write_line('{} {}{} {}'.format(sub_block_ctl, addr_str, lengths, comment).rstrip())
 
 class SkoolParser:
     def __init__(self, skoolfile, preserve_base):
