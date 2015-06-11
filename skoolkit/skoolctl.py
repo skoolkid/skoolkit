@@ -256,12 +256,13 @@ class CtlWriter:
                     sublength = instructions[i + 1].address - addr
                 else:
                     sublength = get_size(instruction.operation, addr)
-                length += sublength
-                bases = instruction.bases
-                if sublengths and bases == sublengths[-1][0]:
-                    sublengths[-1][1] += sublength
-                else:
-                    sublengths.append([bases, sublength])
+                if sublength > 0:
+                    length += sublength
+                    bases = instruction.bases
+                    if sublengths and bases == sublengths[-1][0]:
+                        sublengths[-1][1] += sublength
+                    else:
+                        sublengths.append([bases, sublength])
             lengths = ','.join(['{}{}'.format(*s) for s in sublengths])
             if len(sublengths) > 1:
                 lengths = '{},{}'.format(length, lengths)

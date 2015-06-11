@@ -1066,5 +1066,16 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self._test_ctl(skool, exp_ctl)
 
+    def test_invalid_instruction_at_end_of_entry_is_excluded_from_sublengths(self):
+        skool = '\n'.join((
+            'c40000 LD A,%00001111',
+            ' 40002 SBC IX,DE',
+        ))
+        exp_ctl = [
+            'c 40000',
+            '  40000,b2',
+        ]
+        self._test_ctl(skool, exp_ctl)
+
 if __name__ == '__main__':
     unittest.main()
