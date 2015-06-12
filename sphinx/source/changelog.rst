@@ -6,6 +6,8 @@ Changelog
 * Added support to :ref:`tap2sna.py` for TZX block type 0x14 (pure data)
 * Added support to :ref:`tap2sna.py` for loading the first and last bytes of a
   tape block (which are usually, but not always, the flag and parity bytes)
+* Added support to :ref:`tap2sna.py` for modifying memory with XOR and ADD
+  operations
 * Added support to :ref:`skool2ctl.py` and :ref:`skool2sft.py` for preserving
   characters in DEFW statements (e.g. ``DEFW "!"``)
 * Added support for characters in DEFS statements (e.g. ``DEFS 10,"!"``)

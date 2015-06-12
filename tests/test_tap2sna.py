@@ -261,6 +261,24 @@ class Tap2SnaTest(SkoolKitTestCase):
         snapshot = self._get_snapshot(start, data, '--ram poke={}-{},{}'.format(poke_addr_start, poke_addr_end, poke_val))
         self.assertEqual(snapshot[poke_addr_start:poke_addr_end + 1], [poke_val] * len(data))
 
+    def test_ram_poke_address_range_with_xor(self):
+        start = 30000
+        data = [1, 2, 3]
+        end = start + len(data) - 1
+        xor_val = 129
+        snapshot = self._get_snapshot(start, data, '--ram poke={}-{},^{}'.format(start, end, xor_val))
+        exp_data = [b ^ xor_val for b in data]
+        self.assertEqual(exp_data, snapshot[start:end + 1])
+
+    def test_ram_poke_address_range_with_add(self):
+        start = 40000
+        data = [100, 200, 32]
+        end = start + len(data) - 1
+        add_val = 130
+        snapshot = self._get_snapshot(start, data, '--ram poke={}-{},+{}'.format(start, end, add_val))
+        exp_data = [(b + add_val) & 255 for b in data]
+        self.assertEqual(exp_data, snapshot[start:end + 1])
+
     def test_ram_poke_address_range_with_step(self):
         start = 16384
         data = [2, 9, 2]

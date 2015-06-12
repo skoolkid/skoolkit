@@ -193,7 +193,15 @@ def move(snapshot, param_str):
 
 def poke(snapshot, param_str):
     addr, val = param_str.split(',', 1)
-    value = get_int_param(val)
+    if val.startswith('^'):
+        value = get_int_param(val[1:])
+        poke_f = lambda b: b ^ value
+    elif val.startswith('+'):
+        value = get_int_param(val[1:])
+        poke_f = lambda b: (b + value) & 255
+    else:
+        value = get_int_param(val)
+        poke_f = lambda b: value
     step = 1
     if '-' in addr:
         addr1, addr2 = addr.split('-', 1)
@@ -207,7 +215,7 @@ def poke(snapshot, param_str):
         addr2 = addr1
     addr2 += 1
     for a in range(addr1, addr2, step):
-        snapshot[a] = value
+        snapshot[a] = poke_f(snapshot[a])
 
 def _get_ram(blocks, options):
     snapshot = [0] * 65536
@@ -466,19 +474,20 @@ another, or POKE a single address or range of addresses with a given value.
 
   --ram move=32512,256,32768  # Move 32512-32767 to 32768-33023
 
---ram poke=a[-b[-c]],v
+--ram poke=a[-b[-c]],[^+]v
 
   Do POKE N,v for N in {a, a+c, a+2c..., b}.
 
   a - the first address to POKE
   b - the last address to POKE (optional; default=a)
   c - step (optional; default=1)
-  v - the value to POKE
+  v - the value to POKE; prefix the value with '^' to perform an XOR operation,
+      or '+' to perform an ADD operation
 
   For example:
 
   --ram poke=24576,16        # POKE 24576,16
-  --ram poke=30000-30002,0   # POKE 30000,0: POKE 30001,0: POKE 30002,0
+  --ram poke=30000-30002,^85 # Perform 'XOR 85' on addresses 30000-30002
   --ram poke=40000-40004-2,1 # POKE 40000,1: POKE 40002,1: POKE 40004,1
 """.lstrip())
 

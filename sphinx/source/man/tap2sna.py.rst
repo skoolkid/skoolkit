@@ -106,7 +106,7 @@ The ``--ram`` option can be used to POKE values into the snapshot before saving
 it.
 
 |
-|  ``--ram poke=A[-B[-C]],V``
+|  ``--ram poke=A[-B[-C]],[^+]V``
 
 This does ``POKE N,V`` for ``N`` in ``{A, A+C, A+2C..., B}``, where:
 
@@ -116,13 +116,14 @@ This does ``POKE N,V`` for ``N`` in ``{A, A+C, A+2C..., B}``, where:
 
 ``C`` is the step (optional; default=1)
 
-``V`` is the value to POKE
+``V`` is the value to POKE; prefix the value with '^' to perform an XOR
+operation, or '+' to perform an ADD operation
 
 For example:
 
 |
 |  ``--ram poke=24576,16``        # POKE 24576,16
-|  ``--ram poke=30000-30002,0``   # POKE 30000,0: POKE 30001,0: POKE 30002,0
+|  ``--ram poke=30000-30002,^85`` # Perform 'XOR 85' on addresses 30000-30002
 |  ``--ram poke=40000-40004-2,1`` # POKE 40000,1: POKE 40002,1: POKE 40004,1
 
 REGISTERS

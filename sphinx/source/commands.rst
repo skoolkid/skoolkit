@@ -518,9 +518,9 @@ the appropriate addresses. For example::
 
 loads the third block on the tape at address 30000, and ignores all other
 blocks. The ``--ram`` option can also be used to move blocks of bytes from one
-location to another, and POKE values into individual addresses or address
-ranges before the snapshot is saved. For more information on the operations
-that the ``--ram`` option can perform, run::
+location to another, POKE values into individual addresses or address ranges,
+and modify memory with XOR and ADD operations before the snapshot is saved. For
+more information on the operations that the ``--ram`` option can perform, run::
 
   $ tap2sna.py --ram help
 
@@ -547,10 +547,12 @@ then::
 will create `game.z80` as if the arguments specified in `game.t2s` had been
 given on the command line.
 
-+---------+---------------------------------------------------+
-| Version | Changes                                           |
-+=========+===================================================+
-| 4.5     | Added support for TZX block type 0x14 (pure data) |
-+---------+---------------------------------------------------+
-| 3.5     | New                                               |
-+---------+---------------------------------------------------+
++---------+----------------------------------------------------------------+
+| Version | Changes                                                        |
++=========+================================================================+
+| 4.5     | Added support for TZX block type 0x14 (pure data), for loading |
+|         | the first and last bytes of a tape block, and for modifying    |
+|         | memory with XOR and ADD operations                             |
++---------+----------------------------------------------------------------+
+| 3.5     | New                                                            |
++---------+----------------------------------------------------------------+
