@@ -30,6 +30,7 @@ except ImportError:                    # pragma: no cover
     from urllib.parse import urlparse  # pragma: no cover
 
 from . import VERSION, SkoolKitError, get_int_param, open_file, write_line
+from .snapshot import make_z80_ram_block
 
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
@@ -40,24 +41,6 @@ class SkoolKitArgumentParser(argparse.ArgumentParser):
 
 class TapeError(Exception):
     pass
-
-def get_z80_ram_block(data, page):
-    block = []
-    prev_b = data[0]
-    count = 1
-    for b in data[1:] + [-1]:
-        if b == prev_b:
-            if count < 255:
-                count += 1
-                continue
-        if count > 4 or (prev_b == 237 and count > 1):
-            block += [237, 237, count, prev_b]
-        else:
-            block += [prev_b] * count
-        prev_b = b
-        count = 1
-    length = len(block)
-    return [length % 256, length // 256, page] + block
 
 Z80_REGISTERS = {
     'a': 0,
@@ -90,7 +73,7 @@ Z80_REGISTERS = {
     'pc': 32
 }
 
-def get_z80(ram, options):
+def _get_z80(ram, options):
     # http://www.worldofspectrum.org/faq/reference/z80format.htm
     z80 = [0] * 86
     z80[30] = 54 # Indicate a v3 Z80 snapshot
@@ -140,28 +123,30 @@ def get_z80(ram, options):
 
     banks = ((5, ram[:16384]), (1, ram[16384:32768]), (2, ram[32768:49152]))
     for bank, data in banks:
-        z80 += get_z80_ram_block(data, bank + 3)
+        z80 += make_z80_ram_block(data, bank + 3)
     return z80
 
-def write_z80(ram, options, fname):
+def _write_z80(ram, options, fname):
     parent_dir = os.path.dirname(fname)
     if parent_dir and not os.path.isdir(parent_dir):
         os.makedirs(parent_dir)
     write_line('Writing {0}'.format(fname))
     with open(fname, 'wb') as f:
-        f.write(bytearray(get_z80(ram, options)))
+        f.write(bytearray(_get_z80(ram, options)))
 
-def get_int_params(param_str, num):
+def _get_int_params(param_str, num, leave=()):
     params = []
-    for n in param_str.split(','):
-        if n:
+    for index, n in enumerate(param_str.split(',')):
+        if index in leave:
+            params.append(n)
+        elif n:
             params.append(get_int_param(n))
         else:
             params.append(None)
     params += [None] * (num - len(params))
     return params[:num]
 
-def load_block(snapshot, block, start, length=None, step=None, offset=None, inc=None, index=1):
+def _load_block(snapshot, block, start, length=None, step=None, offset=None, inc=None, index=1):
     if length is None:
         data = block[index:-1]
     else:
@@ -181,34 +166,50 @@ def load_block(snapshot, block, start, length=None, step=None, offset=None, inc=
         i &= 65535
     return len(data)
 
-def do_ram_operation(snapshot, counters, blocks, op_type, param_str):
-    if op_type == 'load':
-        block_num, start, length, step, offset, inc = get_int_params(param_str, 6)
-        index = counters.setdefault(block_num, 1)
-        length = load_block(snapshot, blocks[block_num - 1], start, length, step, offset, inc, index)
-        counters[block_num] += length
-    elif op_type == 'move':
-        src, length, dest = get_int_params(param_str, 3)
-        snapshot[dest:dest + length] = snapshot[src:src + length]
-    elif op_type == 'poke':
-        addr, val = param_str.split(',', 1)
-        value = get_int_param(val)
-        step = 1
-        if '-' in addr:
-            addr1, addr2 = addr.split('-', 1)
-            addr1 = get_int_param(addr1)
-            if '-' in addr2:
-                addr2, step = [get_int_param(i) for i in addr2.split('-', 1)]
-            else:
-                addr2 = get_int_param(addr2)
-        else:
-            addr1 = get_int_param(addr)
-            addr2 = addr1
-        addr2 += 1
-        for a in range(addr1, addr2, step):
-            snapshot[a] = value
+def _load(snapshot, counters, blocks, param_str):
+    block_num, start, length, step, offset, inc = _get_int_params(param_str, 6, (0,))
+    default_index = 1
+    load_last = False
+    if block_num.startswith('+'):
+        block_num = block_num[1:]
+        default_index = 0
+    if block_num.endswith('+'):
+        block_num = block_num[:-1]
+        load_last = True
+    block_num = get_int_param(block_num)
+    index = counters.setdefault(block_num, default_index)
+    try:
+        block = blocks[block_num - 1]
+    except IndexError:
+        raise TapeError("Block {} not found".format(block_num))
+    if length is None and load_last:
+        length = len(block) - index
+    length = _load_block(snapshot, block, start, length, step, offset, inc, index)
+    counters[block_num] += length
 
-def get_ram(blocks, options):
+def move(snapshot, param_str):
+    src, length, dest = _get_int_params(param_str, 3)
+    snapshot[dest:dest + length] = snapshot[src:src + length]
+
+def poke(snapshot, param_str):
+    addr, val = param_str.split(',', 1)
+    value = get_int_param(val)
+    step = 1
+    if '-' in addr:
+        addr1, addr2 = addr.split('-', 1)
+        addr1 = get_int_param(addr1)
+        if '-' in addr2:
+            addr2, step = [get_int_param(i) for i in addr2.split('-', 1)]
+        else:
+            addr2 = get_int_param(addr2)
+    else:
+        addr1 = get_int_param(addr)
+        addr2 = addr1
+    addr2 += 1
+    for a in range(addr1, addr2, step):
+        snapshot[a] = value
+
+def _get_ram(blocks, options):
     snapshot = [0] * 65536
 
     operations = []
@@ -238,40 +239,45 @@ def get_ram(blocks, options):
                     raise TapeError('Unknown block type ({0}) in header block {1}'.format(block_type, block_num))
             elif start is not None:
                 # Data
-                load_block(snapshot, block, start)
+                _load_block(snapshot, block, start)
                 start = None
 
     counters = {}
     for op_type, param_str in operations:
         try:
-            do_ram_operation(snapshot, counters, blocks, op_type, param_str)
+            if op_type == 'load':
+                _load(snapshot, counters, blocks, param_str)
+            elif op_type == 'move':
+                move(snapshot, param_str)
+            elif op_type == 'poke':
+                poke(snapshot, param_str)
         except ValueError:
             raise SkoolKitError("Cannot parse integer: {}={}".format(op_type, param_str))
 
     return snapshot[16384:]
 
-def get_word(data, index):
+def _get_word(data, index):
     return data[index] + 256 * data[index + 1]
 
-def get_word3(data, index):
-    return get_word(data, index) + 65536 * data[index + 2]
+def _get_word3(data, index):
+    return _get_word(data, index) + 65536 * data[index + 2]
 
-def get_dword(data, index):
-    return get_word3(data, index) + 16777216 * data[index + 3]
+def _get_dword(data, index):
+    return _get_word3(data, index) + 16777216 * data[index + 3]
 
-def get_tzx_block(data, i):
+def _get_tzx_block(data, i):
     # http://www.worldofspectrum.org/TZXformat.html
     block_id = data[i]
     tape_data = None
     i += 1
     if block_id == 16:
         # Standard speed data block
-        length = get_word(data, i + 2)
+        length = _get_word(data, i + 2)
         tape_data = data[i + 4:i + 4 + length]
         i += 4 + length
     elif block_id == 17:
         # Turbo speed data block
-        length = get_word3(data, i + 15)
+        length = _get_word3(data, i + 15)
         tape_data = data[i + 18:i + 18 + length]
         i += 18 + length
     elif block_id == 18:
@@ -282,18 +288,18 @@ def get_tzx_block(data, i):
         i += 2 * data[i] + 1
     elif block_id == 20:
         # Pure data block
-        length = get_word3(data, i + 7)
+        length = _get_word3(data, i + 7)
         tape_data = data[i + 10:i + 10 + length]
         i += 10 + length
     elif block_id == 21:
         # Direct recording block
-        i += get_word3(data, i + 5) + 8
+        i += _get_word3(data, i + 5) + 8
     elif block_id == 24:
         # CSW recording block
-        i += get_dword(data, i) + 4
+        i += _get_dword(data, i) + 4
     elif block_id == 25:
         # Generalized data block
-        i += get_dword(data, i) + 4
+        i += _get_dword(data, i) + 4
     elif block_id == 32:
         # Pause (silence) or 'Stop the tape' command
         i += 2
@@ -314,13 +320,13 @@ def get_tzx_block(data, i):
         pass
     elif block_id == 38:
         # Call sequence
-        i += get_word(data, i) * 2 + 2
+        i += _get_word(data, i) * 2 + 2
     elif block_id == 39:
         # Return from sequence
         pass
     elif block_id == 40:
         # Select block
-        i += get_word(data, i) + 2
+        i += _get_word(data, i) + 2
     elif block_id == 42:
         # Stop the tape if in 48K mode
         i += 4
@@ -335,13 +341,13 @@ def get_tzx_block(data, i):
         i += data[i + 1] + 2
     elif block_id == 50:
         # Archive info
-        i += get_word(data, i) + 2
+        i += _get_word(data, i) + 2
     elif block_id == 51:
         # Hardware type
         i += data[i] * 3 + 1
     elif block_id == 53:
         # Custom info block
-        i += get_dword(data, i + 16) + 20
+        i += _get_dword(data, i + 16) + 20
     elif block_id == 90:
         # "Glue" block
         i += 9
@@ -349,18 +355,18 @@ def get_tzx_block(data, i):
         raise TapeError('Unknown TZX block ID: 0x{:X}'.format(block_id))
     return i, tape_data
 
-def get_tzx_blocks(data):
+def _get_tzx_blocks(data):
     signature = ''.join(chr(b) for b in data[:7])
     if signature != 'ZXTape!':
         raise TapeError("Not a TZX file")
     i = 10
     blocks = []
     while i < len(data):
-        i, tape_data = get_tzx_block(data, i)
+        i, tape_data = _get_tzx_block(data, i)
         blocks.append(tape_data)
     return blocks
 
-def get_tap_blocks(tap):
+def _get_tap_blocks(tap):
     blocks = []
     i = 0
     while i < len(tap):
@@ -370,12 +376,12 @@ def get_tap_blocks(tap):
         i += block_len
     return blocks
 
-def get_tape_blocks(tape_type, tape):
+def _get_tape_blocks(tape_type, tape):
     if tape_type.lower() == 'tzx':
-        return get_tzx_blocks(tape)
-    return get_tap_blocks(tape)
+        return _get_tzx_blocks(tape)
+    return _get_tap_blocks(tape)
 
-def get_tape(urlstring, member=None):
+def _get_tape(urlstring, member=None):
     url = urlparse(urlstring)
     if url.scheme:
         write_line('Downloading {0}'.format(urlstring))
@@ -411,7 +417,7 @@ def get_tape(urlstring, member=None):
     f.close()
     return tape_type, data
 
-def print_ram_help():
+def _print_ram_help():
     sys.stdout.write("""
 Usage: --ram load=block,start[,length,step,offset,inc]
        --ram move=src,size,dest
@@ -420,7 +426,7 @@ Usage: --ram load=block,start[,length,step,offset,inc]
 Load data from a tape block, move a block of bytes from one location to
 another, or POKE a single address or range of addresses with a given value.
 
---ram load=block,start[,length,step,offset,inc]
+--ram load=[+]block[+],start[,length,step,offset,inc]
 
   By default, tap2sna.py loads bytes from every data block on the tape, using
   the start address given in the corresponding header. For tapes that contain
@@ -428,7 +434,10 @@ another, or POKE a single address or range of addresses with a given value.
   blocks, '--ram load' can be used to load bytes from specific blocks at the
   appropriate addresses.
 
-  block  - the tape block number (the first block is 1, the next is 2, etc.)
+  block  - the tape block number (the first block is 1, the next is 2, etc.);
+           attach a '+' prefix to load the first byte of the block (usually the
+           flag byte), and a '+' suffix to load the last byte (usually the
+           parity byte)
   start  - the destination address at which to start loading
   length - the number of bytes to load (optional; default is the number of
            bytes remaining in the block)
@@ -473,7 +482,7 @@ another, or POKE a single address or range of addresses with a given value.
   --ram poke=40000-40004-2,1 # POKE 40000,1: POKE 40002,1: POKE 40004,1
 """.lstrip())
 
-def print_reg_help():
+def _print_reg_help():
     reg_names = ', '.join(sorted(Z80_REGISTERS.keys()))
     sys.stdout.write("""
 Usage: --reg name=value
@@ -492,7 +501,7 @@ Recognised register names are:
   {}
 """.format('\n  '.join(textwrap.wrap(reg_names, 70))).lstrip())
 
-def print_state_help():
+def _print_state_help():
     sys.stdout.write("""
 Usage: --state name=value
 
@@ -503,11 +512,11 @@ Set a hardware state attribute. Recognised names and their default values are:
   im     - interrupt mode (default=1)
 """.lstrip())
 
-def make_z80(url, namespace, z80):
-    tape_type, tape = get_tape(url)
-    tape_blocks = get_tape_blocks(tape_type, tape)
-    ram = get_ram(tape_blocks, namespace)
-    write_z80(ram, namespace, z80)
+def _make_z80(url, namespace, z80):
+    tape_type, tape = _get_tape(url)
+    tape_blocks = _get_tape_blocks(tape_type, tape)
+    ram = _get_ram(tape_blocks, namespace)
+    _write_z80(ram, namespace, z80)
 
 def main(args):
     parser = SkoolKitArgumentParser(
@@ -537,13 +546,13 @@ def main(args):
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
     if 'help' in namespace.ram_ops:
-        print_ram_help()
+        _print_ram_help()
         return
     if 'help' in namespace.reg:
-        print_reg_help()
+        _print_reg_help()
         return
     if 'help' in namespace.state:
-        print_state_help()
+        _print_state_help()
         return
     if unknown_args or len(namespace.args) != 2:
         parser.exit(2, parser.format_help())
@@ -552,7 +561,7 @@ def main(args):
         z80 = os.path.join(namespace.output_dir, z80)
     if namespace.force or not os.path.isfile(z80):
         try:
-            make_z80(url, namespace, z80)
+            _make_z80(url, namespace, z80)
         except Exception as e:
             raise SkoolKitError("Error while getting snapshot {0}: {1}".format(os.path.basename(z80), e.args[0]))
     else:

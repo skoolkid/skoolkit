@@ -126,6 +126,13 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.run_tap2sna('{} {}'.format(tap_fname, z80_fname))
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: {}: file not found'.format(z80_fname, tap_fname))
 
+    def test_load_nonexistent_block(self):
+        tapfile = self._write_tap([_create_tap_data_block([1])])
+        block_num = 2
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tap2sna('--ram load={},16384 {} test.z80'.format(block_num, tapfile))
+        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot test.z80: Block {} not found'.format(block_num))
+
     def test_zip_archive_with_no_tape_file(self):
         archive_fname = self.write_bin_file(suffix='.zip')
         with ZipFile(archive_fname, 'w') as archive:
@@ -357,6 +364,44 @@ class Tap2SnaTest(SkoolKitTestCase):
         snapshot = self._get_snapshot(start, blocks=[block], tzx=True)
         self.assertEqual(data, snapshot[start:start + len(data)])
 
+    def test_load_first_byte_of_block(self):
+        data = [1, 2, 3, 4, 5]
+        block = [20] # Block ID
+        block.extend([0] * 7)
+        length = len(data)
+        block.extend((length % 256, length // 256, 0))
+        block.extend(data)
+        start = 16389
+        load_options = '--ram load=+1,{}'.format(start)
+        snapshot = self._get_snapshot(load_options=load_options, blocks=[block], tzx=True)
+        exp_data = data[:-1]
+        self.assertEqual(exp_data, snapshot[start:start + len(exp_data)])
+
+    def test_load_last_byte_of_block(self):
+        data = [1, 2, 3, 4, 5]
+        block = [20] # Block ID
+        block.extend([0] * 7)
+        length = len(data)
+        block.extend((length % 256, length // 256, 0))
+        block.extend(data)
+        start = 16390
+        load_options = '--ram load=1+,{}'.format(start)
+        snapshot = self._get_snapshot(load_options=load_options, blocks=[block], tzx=True)
+        exp_data = data[1:]
+        self.assertEqual(exp_data, snapshot[start:start + len(exp_data)])
+
+    def test_load_first_and_last_bytes_of_block(self):
+        data = [1, 2, 3, 4, 5]
+        block = [20] # Block ID
+        block.extend([0] * 7)
+        length = len(data)
+        block.extend((length % 256, length // 256, 0))
+        block.extend(data)
+        start = 16391
+        load_options = '--ram load=+1+,{}'.format(start)
+        snapshot = self._get_snapshot(load_options=load_options, blocks=[block], tzx=True)
+        self.assertEqual(data, snapshot[start:start + len(data)])
+
     def test_tzx_with_unsupported_blocks(self):
         blocks = []
         blocks.append((18, 0, 0, 0, 0)) # 0x12 Pure Tone
@@ -523,7 +568,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(snapshot[start:start + len(data)], data)
 
     @patch.object(tap2sna, 'urlopen', Mock(return_value=BytesIO(bytearray(_create_tap_data_block([2, 3])))))
-    @patch.object(tap2sna, 'write_z80', mock_write_z80)
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
     def test_remote_download(self):
         data = [2, 3]
         start = 17000

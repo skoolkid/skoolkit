@@ -51,12 +51,14 @@ blocks, the ``--ram`` option can be used to load bytes from specific blocks at
 the appropriate addresses. The syntax is:
 
 |
-|  ``--ram load=block,start[,length,step,offset,inc]``
+|  ``--ram load=[+]block[+],start[,length,step,offset,inc]``
 
 where the parameters have the following meanings:
 
 ``block``
-  The tape block number; the first block is 1, the next is 2, etc.
+  The tape block number; the first block is 1, the next is 2, etc. Attach a '+'
+  prefix to load the first byte of the block (which is usually the flag byte),
+  and a '+' suffix to load the last byte (which is usually the parity byte).
 
 ``start``
   The destination address at which to start loading.

@@ -37,6 +37,24 @@ def get_snapshot(fname, page=None):
     mem.extend(ram)
     return mem
 
+def make_z80_ram_block(data, page):
+    block = []
+    prev_b = data[0]
+    count = 1
+    for b in data[1:] + [-1]:
+        if b == prev_b:
+            if count < 255:
+                count += 1
+                continue
+        if count > 4 or (prev_b == 237 and count > 1):
+            block += [237, 237, count, prev_b]
+        else:
+            block += [prev_b] * count
+        prev_b = b
+        count = 1
+    length = len(block)
+    return [length % 256, length // 256, page] + block
+
 def _read_sna(data, page=None):
     if len(data) <= 49179 or page is None:
         return data[27:49179]

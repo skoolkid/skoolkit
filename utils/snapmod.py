@@ -16,8 +16,8 @@ else:
         sys.stderr.write('Error: SKOOLKIT_HOME is not set, and SkoolKit is not installed\n')
         sys.exit(1)
 
-from skoolkit.tap2sna import do_ram_operation, get_z80_ram_block
-from skoolkit.snapshot import get_snapshot
+from skoolkit.tap2sna import move, poke
+from skoolkit.snapshot import get_snapshot, make_z80_ram_block
 
 def get_word(data, index):
     return data[index] + 256 * data[index + 1]
@@ -35,22 +35,22 @@ def read_z80(z80file):
 def write_z80(header, snapshot, fname):
     if len(header) == 30:
         if header[12] & 32:
-            ram = get_z80_ram_block(snapshot[16384:], 0)[3:] + [0, 237, 237, 0]
+            ram = make_z80_ram_block(snapshot[16384:], 0)[3:] + [0, 237, 237, 0]
         else:
             ram = snapshot[16384:]
     else:
         ram = []
         for bank, data in ((5, snapshot[16384:32768]), (1, snapshot[32768:49152]), (2, snapshot[49152:])):
-            ram += get_z80_ram_block(data, bank + 3)
+            ram += make_z80_ram_block(data, bank + 3)
     with open(fname, 'wb') as f:
         f.write(bytearray(header + ram))
 
 def run(infile, options, outfile):
     header, snapshot = read_z80(infile)
     for spec in options.moves:
-        do_ram_operation(snapshot, None, None, 'move', spec)
+        move(snapshot, spec)
     for spec in options.pokes:
-        do_ram_operation(snapshot, None, None, 'poke', spec)
+        poke(snapshot, spec)
     write_z80(header, snapshot, namespace.outfile)
 
 ###############################################################################
