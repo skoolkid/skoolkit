@@ -262,7 +262,7 @@ def get_dword(data, index):
 def get_tzx_block(data, i):
     # http://www.worldofspectrum.org/TZXformat.html
     block_id = data[i]
-    tape_data = []
+    tape_data = None
     i += 1
     if block_id == 16:
         # Standard speed data block
@@ -345,7 +345,7 @@ def get_tzx_block(data, i):
         i += 9
     else:
         raise TapeError('Unknown TZX block ID: 0x{:X}'.format(block_id))
-    return i, block_id, tape_data
+    return i, tape_data
 
 def get_tzx_blocks(data):
     signature = ''.join(chr(b) for b in data[:7])
@@ -354,9 +354,8 @@ def get_tzx_blocks(data):
     i = 10
     blocks = []
     while i < len(data):
-        i, block_id, tape_data = get_tzx_block(data, i)
-        if block_id in (16, 17):
-            blocks.append(tape_data)
+        i, tape_data = get_tzx_block(data, i)
+        blocks.append(tape_data)
     return blocks
 
 def get_tap_blocks(tap):

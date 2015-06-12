@@ -379,7 +379,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         block.extend(data_block)
         blocks.append(block)
         start = 16388
-        snapshot = self._get_snapshot(start, blocks=blocks, tzx=True)
+        load_options = '--ram load={},{}'.format(len(blocks), start)
+        snapshot = self._get_snapshot(load_options=load_options, blocks=blocks, tzx=True)
         self.assertEqual(snapshot[start:start + len(data)], data)
 
     def test_tzx_with_unknown_block(self):
