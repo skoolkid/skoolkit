@@ -321,7 +321,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.run_tap2sna('{} {}'.format(tzxfile, z80file))
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: Not a TZX file'.format(z80file))
 
-    def test_tzx_block_0x10(self):
+    def test_tzx_block_type_0x10(self):
         data = [1, 2, 4]
         block = [16] # Block ID
         block.extend((0, 0)) # Pause duration
@@ -331,9 +331,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         block.extend(data_block)
         start = 16386
         snapshot = self._get_snapshot(start, blocks=[block], tzx=True)
-        self.assertEqual(snapshot[start:start + len(data)], data)
+        self.assertEqual(data, snapshot[start:start + len(data)])
 
-    def test_tzx_block_0x11(self):
+    def test_tzx_block_type_0x11(self):
         data = [2, 3, 5]
         block = [17] # Block ID
         block.extend([0] * 15)
@@ -343,13 +343,24 @@ class Tap2SnaTest(SkoolKitTestCase):
         block.extend(data_block)
         start = 16387
         snapshot = self._get_snapshot(start, blocks=[block], tzx=True)
-        self.assertEqual(snapshot[start:start + len(data)], data)
+        self.assertEqual(data, snapshot[start:start + len(data)])
+
+    def test_tzx_block_type_0x14(self):
+        data = [7, 11, 13]
+        block = [20] # Block ID
+        block.extend([0] * 7)
+        data_block = _create_data_block(data)
+        length = len(data_block)
+        block.extend((length % 256, length // 256, 0))
+        block.extend(data_block)
+        start = 16388
+        snapshot = self._get_snapshot(start, blocks=[block], tzx=True)
+        self.assertEqual(data, snapshot[start:start + len(data)])
 
     def test_tzx_with_unsupported_blocks(self):
         blocks = []
         blocks.append((18, 0, 0, 0, 0)) # 0x12 Pure Tone
         blocks.append((19, 2, 0, 0, 0, 0)) # 0x13 Pulse sequence
-        blocks.append([20] + [0] * 7 + [1, 0, 0, 0]) # 0x14 Pure Data Block
         blocks.append([21] + [0] * 5 + [1, 0, 0, 0]) # 0x15 Direct Recording
         blocks.append([24, 11] + [0] * 14) # 0x18 CSW Recording
         blocks.append([25, 20] + [0] * 23) # 0x19 Generalized Data Block

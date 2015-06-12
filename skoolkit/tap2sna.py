@@ -282,7 +282,9 @@ def get_tzx_block(data, i):
         i += 2 * data[i] + 1
     elif block_id == 20:
         # Pure data block
-        i += get_word3(data, i + 7) + 10
+        length = get_word3(data, i + 7)
+        tape_data = data[i + 10:i + 10 + length]
+        i += 10 + length
     elif block_id == 21:
         # Direct recording block
         i += get_word3(data, i + 5) + 8

@@ -201,8 +201,8 @@ given on the command line.
 
 TZX SUPPORT
 ===========
-Support for TZX files is limited to block types 0x10 (Standard Speed Data
-Block) and 0x11 (Turbo Speed Data Block).
+Support for TZX files is limited to block types 0x10 (standard speed data),
+0x11 (turbo speed data) and 0x14 (pure data).
 
 EXAMPLES
 ========

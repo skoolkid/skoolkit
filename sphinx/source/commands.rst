@@ -505,8 +505,8 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           times.
     -V, --version         Show SkoolKit version number and exit.
 
-Note that support for TZX files is limited to block types 0x10 (Standard Speed
-Data Block) and 0x11 (Turbo Speed Data Block).
+Note that support for TZX files is limited to block types 0x10 (standard speed
+data), 0x11 (turbo speed data) and 0x14 (pure data).
 
 By default, `tap2sna.py` loads bytes from every data block on the tape, using
 the start address given in the corresponding header. For tapes that contain
@@ -547,8 +547,10 @@ then::
 will create `game.z80` as if the arguments specified in `game.t2s` had been
 given on the command line.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 3.5     | New     |
-+---------+---------+
++---------+---------------------------------------------------+
+| Version | Changes                                           |
++=========+===================================================+
+| 4.5     | Added support for TZX block type 0x14 (pure data) |
++---------+---------------------------------------------------+
+| 3.5     | New                                               |
++---------+---------------------------------------------------+

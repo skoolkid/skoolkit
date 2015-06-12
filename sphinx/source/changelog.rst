@@ -3,6 +3,7 @@ Changelog
 
 4.5b1
 -----
+* Added support to :ref:`tap2sna.py` for TZX block type 0x14 (pure data)
 * Added support to :ref:`skool2ctl.py` and :ref:`skool2sft.py` for preserving
   characters in DEFW statements (e.g. ``DEFW "!"``)
 * Added support for characters in DEFS statements (e.g. ``DEFS 10,"!"``)
