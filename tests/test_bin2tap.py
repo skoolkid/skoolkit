@@ -44,6 +44,9 @@ class Bin2TapTest(SkoolKitTestCase):
             parity ^= b
         return parity
 
+    def _get_str(self, chars):
+        return [ord(c) for c in chars]
+
     def _check_tap(self, tap_data, bin_data, org=None, start=None, stack=None, binfile=TEST_BIN):
         if org is None:
             org = 65536 - len(bin_data)
@@ -63,7 +66,7 @@ class Bin2TapTest(SkoolKitTestCase):
         exp_header += title
         exp_header += [27, 0, 10, 0, 27, 0]
         exp_header.append(self._get_parity(exp_header))
-        self.assertEqual(basic_loader_header, exp_header)
+        self.assertEqual(exp_header, basic_loader_header)
 
         # BASIC loader data
         basic_loader_data = tap_data[21:52]
@@ -71,7 +74,7 @@ class Bin2TapTest(SkoolKitTestCase):
         exp_data += [0, 10, 5, 0, 239, 34, 34, 175, 13] # 10 LOAD ""CODE
         exp_data += [0, 20, 14, 0, 249, 192, 50, 51, 50, 57, 54, 14, 0, 0, 0, 91, 0, 13] # 20 RANDOMIZE USR 23296
         exp_data.append(self._get_parity(exp_data))
-        self.assertEqual(basic_loader_data, exp_data)
+        self.assertEqual(exp_data, basic_loader_data)
 
         # Code loader header
         code_loader_header = tap_data[52:73]
@@ -79,7 +82,7 @@ class Bin2TapTest(SkoolKitTestCase):
         exp_header += title
         exp_header += [19, 0, 0, 91, 0, 0]
         exp_header.append(self._get_parity(exp_header))
-        self.assertEqual(code_loader_header, exp_header)
+        self.assertEqual(exp_header, code_loader_header)
 
         # Code loader data
         code_loader_data = tap_data[73:96]
@@ -101,15 +104,77 @@ class Bin2TapTest(SkoolKitTestCase):
         exp_data.append(255)
         exp_data.extend(bin_data)
         exp_data.append(self._get_parity(exp_data))
-        self.assertEqual(data, exp_data)
+        self.assertEqual(exp_data, data)
+
+    def _check_tap_with_clear_command(self, tap_data, bin_data, clear, org=None, start=None, binfile=TEST_BIN):
+        if org is None:
+            org = 65536 - len(bin_data)
+        if start is None:
+            start = org
+
+        name = os.path.basename(binfile)
+        if name.lower().endswith('.bin'):
+            name = name[:-4]
+        title = self._get_str(name[:10].ljust(10))
+
+        # BASIC loader data
+        exp_data = [0, 0, 255]
+        clear_addr = self._get_str('"{}"'.format(clear))
+        start_addr = self._get_str('"{}"'.format(start))
+        line_length = 12 + len(clear_addr) + len(start_addr)
+        exp_data += [0, 10, line_length, 0]
+        exp_data += [253, 176] + clear_addr       # CLEAR VAL "address"
+        exp_data.append(58)                       # :
+        exp_data += [239, 34, 34, 175]            # LOAD ""CODE
+        exp_data.append(58)                       # :
+        exp_data += [249, 192, 176] + start_addr  # RANDOMIZE USR VAL "address"
+        exp_data.append(13)                       # ENTER
+        exp_data.append(self._get_parity(exp_data))
+        length = len(exp_data)
+        loader_length = length - 4
+        exp_data[0] = length - 2
+        index = 21 + length
+        basic_loader_data = tap_data[21:index]
+        self.assertEqual(exp_data, basic_loader_data)
+
+        # BASIC loader header
+        basic_loader_header = tap_data[:21]
+        exp_header = [19, 0, 0, 0]
+        exp_header += title
+        exp_header += self._get_word(loader_length)
+        exp_header += [10, 0]
+        exp_header += self._get_word(loader_length)
+        exp_header.append(self._get_parity(exp_header))
+        self.assertEqual(exp_header, basic_loader_header)
+
+        # Code loader header
+        code_loader_header = tap_data[index:index + 21]
+        exp_header = [19, 0, 0, 3]
+        exp_header += title
+        exp_header += self._get_word(len(bin_data))
+        exp_header += self._get_word(org)
+        exp_header += [0, 0]
+        exp_header.append(self._get_parity(exp_header))
+        self.assertEqual(exp_header, code_loader_header)
+        index = index + 21
+
+        # Data
+        data = tap_data[index:]
+        exp_data = []
+        exp_data.extend(self._get_word(len(bin_data) + 2))
+        exp_data.append(255)
+        exp_data.extend(bin_data)
+        exp_data.append(self._get_parity(exp_data))
+        self.assertEqual(exp_data, data)
 
     @patch.object(bin2tap, 'run', mock_run)
     def test_default_option_values(self):
         data = [0] * 10
         binfile = self.write_bin_file(data, suffix='.bin')
         bin2tap.main((binfile,))
-        ram, org, start, stack, infile, tapfile = run_args
+        ram, clear, org, start, stack, infile, tapfile = run_args
         self.assertEqual(ram, bytearray(data))
+        self.assertIsNone(clear)
         self.assertEqual(org, 65536 - len(data))
         self.assertEqual(start, org)
         self.assertEqual(stack, org)
@@ -158,6 +223,15 @@ class Bin2TapTest(SkoolKitTestCase):
         for option in ('-V', '--version'):
             output, error = self.run_bin2tap(option, err_lines=True, catch_exit=0)
             self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
+
+    def test_option_c(self):
+        org = 40000
+        bin_data = list(range(25))
+        clear = org - 1
+        start = org + 10
+        for option in ('-c', '--clear'):
+            tap_data = self._run('{} {} -o {} -s {} {}'.format(option, clear, org, start, TEST_BIN), bin_data)
+            self._check_tap_with_clear_command(tap_data, bin_data, clear, org, start)
 
     def test_option_o(self):
         org = 40000

@@ -15,6 +15,10 @@ exported from a Spectrum emulator) into a TAP file.
 
 OPTIONS
 =======
+-c, --clear `N`
+  Use a ``CLEAR N`` command in the BASIC loader, and leave the stack pointer
+  alone. This option overrides the ``--stack`` option.
+
 -o, --org `ORG`
   Set the origin address; the default origin address is 65536 minus the length
   of FILE.bin.
@@ -43,6 +47,12 @@ the tape loading routine for correct operation upon returning. Stack operations
 will overwrite the bytes in the address range `STACK`-14 to `STACK`-1
 inclusive, so those addresses should not be used to store essential code or
 data.
+
+If the binary file contains a program that returns to BASIC, you should use the
+``--clear`` option to add a CLEAR command to the BASIC loader. This option
+leaves the stack pointer alone, enabling the program to return to BASIC without
+crashing. The lowest usable address with the ``--clear`` option on a bare 48K
+Spectrum is 23952 ($5D90).
 
 EXAMPLES
 ========

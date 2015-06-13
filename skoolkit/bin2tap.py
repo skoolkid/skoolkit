@@ -21,109 +21,106 @@ import argparse
 
 from . import read_bin_file, VERSION
 
-def get_str(chars):
+def _get_str(chars):
     return [ord(c) for c in chars]
 
-def get_word(word):
+def _get_word(word):
     return (word % 256, word // 256)
 
-def get_parity(data):
+def _make_tap_block(data, header=False):
+    if header:
+        flag = 0
+    else:
+        flag = 255
+    block = [0, 0, flag]
+    block.extend(data)
     parity = 0
-    for b in data[2:]:
+    for b in block:
         parity ^= b
-    return parity
+    block.append(parity)
+    block[:2] = _get_word(len(block) - 2)
+    return block
 
-def get_basic_loader(title):
-    header = []
-    header.extend(get_word(19))                  # Length of header block
-    header.append(0)                             # Header block marker
-    header.append(0)                             # BASIC program follows
-    header.extend(get_str(title[:10].ljust(10))) # Title padded with spaces
-    header.extend(get_word(27))                  # Length of entire data block
-    header.extend(get_word(10))                  # RUN 10 after LOADing
-    header.extend(get_word(27))                  # Length of BASIC program only
-    header.append(get_parity(header))
+def _get_header(title, length, start=None, line=None):
+    data = _get_str(title[:10].ljust(10))   # Title padded with spaces
+    data.extend(_get_word(length))          # Length of data block
+    if line is None:
+        data.insert(0, 3)                   # CODE block follows
+        data.extend(_get_word(start))       # Start address
+        data.extend((0, 0))                 # Unused
+    else:
+        data.insert(0, 0)                   # BASIC program follows
+        data.extend(_get_word(line))        # RUN this line after LOADing
+        data.extend(_get_word(length))      # Length of BASIC program only
+    return _make_tap_block(data, True)
 
-    data = []
-    data.extend(get_word(29))     # Length of data block
-    data.append(255)              # Data block marker
-    data.extend((0, 10))          # Line 10
-    data.extend(get_word(5))      # Length of line 10
-    data.append(239)              # LOAD
-    data.extend((34, 34))         # ""
-    data.append(175)              # CODE
-    data.append(13)               # ENTER
-    data.extend((0, 20))          # Line 20
-    data.extend(get_word(14))     # Length of line 20
-    data.append(249)              # RANDOMIZE
-    data.append(192)              # USR
-    data.extend(get_str("23296")) # 23296
-    data.append(14)               # Floating-point number marker
-    data.extend((0, 0))           # 23296 in
-    data.extend(get_word(23296))  # floating-point
-    data.append(0)                # form
-    data.append(13)               # ENTER
-    data.append(get_parity(data))
+def _get_basic_loader(title, clear, start):
+    data = [0, 10]                          # Line 10
+    if clear is None:
+        data.extend((5, 0))                 # Length of line 10
+        data.extend((239, 34, 34, 175))     # LOAD ""CODE
+        data.append(13)                     # ENTER
+        data.extend((0, 20))                # Line 20
+        data.extend((14, 0))                # Length of line 20
+        data.extend((249, 192))             # RANDOMIZE USR
+        data.extend(_get_str("23296"))      # 23296
+        data.append(14)                     # Floating-point number marker
+        data.extend((0, 0, 0, 91, 0))       # 23296 in floating-point form
+    else:
+        clear_addr = '"{}"'.format(clear)
+        start_addr = '"{}"'.format(start)
+        line_length = 12 + len(clear_addr) + len(start_addr)
+        data.extend(_get_word(line_length)) # Length of line 10
+        data.extend((253, 176))             # CLEAR VAL
+        data.extend(_get_str(clear_addr))   # "address"
+        data.append(58)                     # :
+        data.extend((239, 34, 34, 175))     # LOAD ""CODE
+        data.append(58)                     # :
+        data.extend((249, 192, 176))        # RANDOMIZE USR VAL
+        data.extend(_get_str(start_addr))   # "address"
+    data.append(13)                         # ENTER
 
-    return header + data
+    return _get_header(title, len(data), line=10) + _make_tap_block(data)
 
-def get_data_loader(title, org, length, start, stack):
-    data = []
-    data.append(255)                            # Data block marker
-    data.extend((221, 33))                      # LD IX,ORG
-    data.extend(get_word(org))
+def _get_data_loader(title, org, length, start, stack):
+    data = [221, 33]                            # LD IX,ORG
+    data.extend(_get_word(org))
     data.append(17)                             # LD DE,LENGTH
-    data.extend(get_word(length))
+    data.extend(_get_word(length))
     data.append(55)                             # SCF
     data.append(159)                            # SBC A,A
     data.append(49)                             # LD SP,STACK
-    data.extend(get_word(stack))
+    data.extend(_get_word(stack))
     data.append(1)                              # LD BC,START
-    data.extend(get_word(start))
+    data.extend(_get_word(start))
     data.append(197)                            # PUSH BC
     data.extend((195, 86, 5))                   # JP 1366
-    data = list(get_word(len(data) + 1)) + data # Prepend length of data block
-    data.append(get_parity(data))
 
-    header = []
-    header.extend(get_word(19))                  # Length of header block
-    header.append(0)                             # Header block marker
-    header.append(3)                             # CODE block follows
-    header.extend(get_str(title[:10].ljust(10))) # Title padded with spaces
-    header.extend(get_word(len(data) - 4))       # Length of data in data block
-    header.extend(get_word(23296))               # Start address
-    header.extend(get_word(0))                   # Unused
-    header.append(get_parity(header))
+    return _get_header(title, len(data), 23296) + _make_tap_block(data)
 
-    return header + data
-
-def run(ram, org, start, stack, binfile, tapfile):
-    length = len(ram)
-
-    stack_contents = get_word(1343) + get_word(start)
-    stack_size = len(stack_contents)
-    index = stack - org - stack_size
-    if -stack_size < index < length:
-        # If the main data block overwrites the stack, make sure that SA/LD-RET
-        # (1343) and the start address are ready to be popped off the stack
-        # when loading has finished
-        for byte in stack_contents:
-            if 0 <= index < length:
-                ram[index] = byte
-                index += 1
-
-    data = []
-    data.extend(get_word(length + 2)) # Length of main data block
-    data.append(255)                  # Data block marker
-    data.extend(ram)                  # Data
-    data.append(get_parity(data))
-
+def run(ram, clear, org, start, stack, binfile, tapfile):
     title = os.path.basename(binfile)
     if title.lower().endswith('.bin'):
         title = title[:-4]
-    tap_data = get_basic_loader(title)
-    tap_data.extend(get_data_loader(title, org, length, start, stack))
-    tap_data.extend(data)
+    tap_data = _get_basic_loader(title, clear, start)
+
+    length = len(ram)
+    if clear is None:
+        stack_contents = _get_word(1343) + _get_word(start)
+        stack_size = len(stack_contents)
+        index = stack - org - stack_size
+        if -stack_size < index < length:
+            # If the main data block overwrites the stack, make sure that
+            # SA/LD-RET (1343) and the start address are ready to be popped off
+            # the stack when loading has finished
+            for byte in stack_contents:
+                if 0 <= index < length:
+                    ram[index] = byte
+                    index += 1
+        tap_data.extend(_get_data_loader(title, org, length, start, stack))
+    else:
+        tap_data.extend(_get_header(title, length, org))
+    tap_data.extend(_make_tap_block(ram))
 
     with open(tapfile, 'wb') as f:
         f.write(bytearray(tap_data))
@@ -136,6 +133,8 @@ def main(args):
     )
     parser.add_argument('binfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-c', '--clear', dest='clear', metavar='N', type=int,
+                       help="Use a 'CLEAR N' command in the BASIC loader and leave the stack pointer alone")
     group.add_argument('-o', '--org', dest='org', metavar='ORG', type=int,
                        help="Set the origin address (default: 65536 minus the length of FILE.bin)")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=int,
@@ -153,6 +152,7 @@ def main(args):
         parser.exit(2, parser.format_help())
     ram = read_bin_file(binfile)
     length = len(ram)
+    clear = namespace.clear
     org = namespace.org or 65536 - length
     start = namespace.start or org
     stack = namespace.stack or org
@@ -164,4 +164,4 @@ def main(args):
         else:
             prefix = binfile
         tapfile = prefix + ".tap"
-    run(ram, org, start, stack, binfile, tapfile)
+    run(ram, clear, org, start, stack, binfile, tapfile)
