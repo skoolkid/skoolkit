@@ -26,6 +26,9 @@ OPTIONS
 -D, --decimal
   Write the disassembly in decimal.
 
+-E, --end `ADDR`
+  Stop converting at this address.
+
 -f, --fixes `N`
   Apply fixes; `N` may be one of:
 
@@ -57,6 +60,9 @@ OPTIONS
 
 -s, --ssub
   Apply safe substitutions (@ssub).
+
+-S, --start `ADDR`
+  Start converting at this address.
 
 -t, --tabs
   Use tab to indent instructions; the default indentation is 2 spaces.

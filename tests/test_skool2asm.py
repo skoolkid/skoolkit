@@ -19,6 +19,40 @@ def mock_run(*args):
     global run_args
     run_args = args
 
+class MockSkoolParser:
+    def __init__(self, skoolfile, case, base, asm_mode, warnings, fix_mode, html,
+                 create_labels, asm_labels, min_address, max_address):
+        global mock_skool_parser
+        mock_skool_parser = self
+        self.skoolfile = skoolfile
+        self.case = case
+        self.base = base
+        self.asm_mode = asm_mode
+        self.warnings = warnings
+        self.fix_mode = fix_mode
+        self.html = html
+        self.create_labels = create_labels
+        self.asm_labels = asm_labels
+        self.min_address = min_address
+        self.max_address = max_address
+        self.properties = {}
+        self.asm_writer_class = ''
+
+class MockAsmWriter:
+    def __init__(self, parser, crlf, tab, properties, lower, instr_width, show_warnings):
+        global mock_asm_writer
+        mock_asm_writer = self
+        self.parser = parser
+        self.crlf = crlf
+        self.tab = tab
+        self.properties = properties
+        self.lower = lower
+        self.instr_width = instr_width
+        self.show_warnings = show_warnings
+
+    def write(self):
+        pass
+
 class TestAsmWriter:
     def __init__(self, *args):
         pass
@@ -29,21 +63,49 @@ class TestAsmWriter:
 class Skool2AsmTest(SkoolKitTestCase):
     @patch.object(skool2asm, 'run', mock_run)
     def test_default_option_values(self):
-        skool2asm.main(('test.skool',))
-        fname, options, parser_mode, writer_mode = run_args
-        self.assertEqual(fname, 'test.skool')
-        case = base = None
-        asm_mode = 1
-        warn = True
-        fix_mode = 0
-        create_labels = False
+        skoolfile = 'test.skool'
+        skool2asm.main((skoolfile,))
+        fname, options = run_args
+        self.assertEqual(fname, skoolfile)
         self.assertFalse(options.crlf)
         self.assertIsNone(options.inst_width)
         self.assertFalse(options.quiet)
         self.assertFalse(options.tabs)
         self.assertIsNone(options.writer)
-        self.assertEqual(parser_mode, (case, base, asm_mode, warn, fix_mode, create_labels))
-        self.assertEqual(writer_mode, (False, warn))
+        self.assertIsNone(options.case)
+        self.assertIsNone(options.base)
+        self.assertEqual(options.asm_mode, 1)
+        self.assertTrue(options.warn)
+        self.assertEqual(options.fix_mode, 0)
+        self.assertFalse(options.create_labels)
+        self.assertEqual(options.start, 0)
+        self.assertEqual(options.end, 65536)
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_default_option_values_are_passed(self):
+        skoolfile = 'test.skool'
+        skool2asm.main((skoolfile,))
+
+        self.assertEqual(mock_skool_parser.skoolfile, skoolfile)
+        self.assertIsNone(mock_skool_parser.case)
+        self.assertIsNone(mock_skool_parser.base)
+        self.assertEqual(mock_skool_parser.asm_mode, 1)
+        self.assertTrue(mock_skool_parser.warnings)
+        self.assertEqual(mock_skool_parser.fix_mode, 0)
+        self.assertFalse(mock_skool_parser.html)
+        self.assertFalse(mock_skool_parser.create_labels)
+        self.assertTrue(mock_skool_parser.asm_labels)
+        self.assertEqual(mock_skool_parser.min_address, 0)
+        self.assertEqual(mock_skool_parser.max_address, 65536)
+
+        self.assertIs(mock_asm_writer.parser, mock_skool_parser)
+        self.assertFalse(mock_asm_writer.crlf)
+        self.assertFalse(mock_asm_writer.tab)
+        self.assertFalse(mock_asm_writer.lower)
+        self.assertEqual({}, mock_asm_writer.properties)
+        self.assertEqual(mock_asm_writer.instr_width, 23)
+        self.assertTrue(mock_asm_writer.show_warnings)
 
     def test_no_arguments(self):
         output, error = self.run_skool2asm('-x', catch_exit=2)
@@ -125,6 +187,32 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.write_stdin(skool)
         output, error = self.run_skool2asm('-', err_lines=True)
         self.assertEqual(error[0][:12], 'Parsed stdin')
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_option_S(self):
+        for option, start in (('-S', 30000), ('--start', 40000)):
+            output, error = self.run_skool2asm('-q {} {} test-S.skool'.format(option, start))
+            self.assertEqual(error, '')
+            self.assertEqual(mock_skool_parser.min_address, start)
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_option_E(self):
+        for option, end in (('-E', 50000), ('--end', 60000)):
+            output, error = self.run_skool2asm('-q {} {} test-E.skool'.format(option, end))
+            self.assertEqual(error, '')
+            self.assertEqual(mock_skool_parser.max_address, end)
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_options_S_and_E(self):
+        start = 24576
+        end = 32768
+        output, error = self.run_skool2asm('-q -S {} -E {} test-S-and-E.skool'.format(start, end))
+        self.assertEqual(error, '')
+        self.assertEqual(mock_skool_parser.min_address, start)
+        self.assertEqual(mock_skool_parser.max_address, end)
 
     def test_option_V(self):
         for option in ('-V', '--version'):

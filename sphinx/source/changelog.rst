@@ -10,6 +10,7 @@ Changelog
   operations
 * Added the ``--clear`` option to :ref:`bin2tap.py` (to use a CLEAR command in
   the BASIC loader and leave the stack pointer alone)
+* Added the ``--start`` and ``--end`` options to :ref:`skool2asm.py`
 * Added support to :ref:`skool2ctl.py` and :ref:`skool2sft.py` for preserving
   characters in DEFW statements (e.g. ``DEFW "!"``)
 * Added support for characters in DEFS statements (e.g. ``DEFS 10,"!"``)

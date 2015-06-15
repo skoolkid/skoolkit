@@ -385,7 +385,8 @@ class SkoolParser:
                           instructions.
     :param asm_labels: Whether to parse `@label` directives.
     """
-    def __init__(self, skoolfile, case=None, base=None, asm_mode=0, warnings=False, fix_mode=0, html=False, create_labels=False, asm_labels=True):
+    def __init__(self, skoolfile, case=None, base=None, asm_mode=0, warnings=False, fix_mode=0, html=False,
+                 create_labels=False, asm_labels=True, min_address=0, max_address=65536):
         self.skoolfile = skoolfile
         self.mode = Mode(case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels)
         self.case = case
@@ -404,7 +405,7 @@ class SkoolParser:
         self.properties = {}
 
         with open_file(skoolfile) as f:
-            self._parse_skool(f)
+            self._parse_skool(f, min_address, max_address)
 
     def clone(self, skoolfile):
         return SkoolParser(
@@ -456,7 +457,7 @@ class SkoolParser:
     def convert_address_operand(self, operand):
         return self.mode.convert_address_operand(operand)
 
-    def _parse_skool(self, skoolfile):
+    def _parse_skool(self, skoolfile, min_address, max_address):
         map_entry = None
         instruction = None
         address_comments = []
@@ -544,6 +545,18 @@ class SkoolParser:
             self._add_end_comment(map_entry)
 
         # Do some post-processing
+        if min_address > 0 or max_address < 65536:
+            self.memory_map = [e for e in self.memory_map if min_address <= e.address < max_address]
+            self.entries = {k: v for k, v in self.entries.items() if min_address <= k < max_address}
+            if self.entries:
+                self.base_address = min(self.entries)
+                last_entry = self.entries[max(self.entries)]
+                last_entry.instructions = [i for i in last_entry.instructions if i.address < max_address]
+            else:
+                self.base_address = max_address
+            self.instructions = {k: v for k, v in self.instructions.items() if self.base_address <= k < max_address}
+            address_comments = [c for c in address_comments if self.base_address <= c[0].address < max_address]
+
         parse_address_comments(address_comments, self.mode.html)
         self._calculate_references()
         if self.mode.asm_labels:

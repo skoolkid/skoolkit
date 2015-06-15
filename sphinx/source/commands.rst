@@ -75,15 +75,16 @@ assembler (see :ref:`supportedAssemblers`). For example::
 
 `skool2asm.py` supports many options; run it with no arguments to see a list::
 
-  usage: skool2asm.py [options] file
+  usage: skool2asm.py [options] FILE
 
-  Convert a skool file into an ASM file, written to standard output. FILE may be
-  a regular file, or '-' for standard input.
+  Convert a skool file into an ASM file and write it to standard output. FILE may
+  be a regular file, or '-' for standard input.
 
   Options:
     -c, --create-labels   Create default labels for unlabelled instructions
     -d, --crlf            Use CR+LF to end lines
     -D, --decimal         Write the disassembly in decimal
+    -E ADDR, --end ADDR   Stop converting at this address
     -f N, --fixes N       Apply fixes:
                             N=0: None (default)
                             N=1: @ofix only
@@ -94,9 +95,11 @@ assembler (see :ref:`supportedAssemblers`). For example::
     -l, --lower           Write the disassembly in lower case
     -p, --package-dir     Show path to skoolkit package directory and exit
     -q, --quiet           Be quiet
-    -r, --rsub            Use relocatability substitutions too (@rsub) (implies
-                          '-f 1')
-    -s, --ssub            Use safe substitutions (@ssub)
+    -r, --rsub            Apply safe substitutions (@ssub) and relocatability
+                          substitutions (@rsub) (implies '-f 1')
+    -s, --ssub            Apply safe substitutions (@ssub)
+    -S ADDR, --start ADDR
+                          Start converting at this address
     -t, --tabs            Use tab to indent instructions (default indentation is
                           2 spaces)
     -u, --upper           Write the disassembly in upper case
@@ -112,6 +115,8 @@ modes.
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
+| 4.5     | Added the ``--start`` and ``--end`` options                  |
++---------+--------------------------------------------------------------+
 | 4.1     | Added the ``--writer`` option                                |
 +---------+--------------------------------------------------------------+
 | 3.4     | Added the ``-V`` and ``-p`` options and the long options     |

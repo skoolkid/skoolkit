@@ -2431,6 +2431,93 @@ class SkoolParserTest(SkoolKitTestCase):
         error = "bfix-end cannot end ofix- block"
         self.assert_error(skool, error, asm_mode=1)
 
+    def test_min_address(self):
+        skool = '\n'.join((
+            'b30000 DEFB 0',
+            '',
+            'b30001 DEFB 1',
+            '',
+            'b30002 DEFB 2',
+        ))
+        parser = self._get_parser(skool, min_address=30001)
+        self.assertEqual([30001, 30002], [e.address for e in parser.memory_map])
+        self.assertEqual([30001, 30002], sorted(parser.entries))
+        self.assertEqual(parser.base_address, 30001)
+        self.assertEqual([30001, 30002], sorted(parser.instructions))
+
+    def test_min_address_between_entries(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            ' 40001 DEFB 1',
+            ' 40002 DEFB 2',
+            '',
+            'b40003 DEFB 3',
+        ))
+        parser = self._get_parser(skool, min_address=40001)
+        self.assertEqual([40003], [e.address for e in parser.memory_map])
+        self.assertEqual([40003], sorted(parser.entries))
+        self.assertEqual(parser.base_address, 40003)
+        self.assertEqual([40003], sorted(parser.instructions))
+
+    def test_max_address(self):
+        skool = '\n'.join((
+            'b30000 DEFB 0',
+            '',
+            'b30001 DEFB 1',
+            '',
+            'b30002 DEFB 2',
+        ))
+        parser = self._get_parser(skool, max_address=30002)
+        self.assertEqual([30000, 30001], [e.address for e in parser.memory_map])
+        self.assertEqual([30000, 30001], sorted(parser.entries))
+        self.assertEqual(parser.base_address, 30000)
+        self.assertEqual([30000, 30001], sorted(parser.instructions))
+
+    def test_max_address_between_entries(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '',
+            'b40001 DEFB 1',
+            ' 40002 DEFB 2',
+            ' 40003 DEFB 3',
+            '',
+            'b40004 DEFB 4',
+        ))
+        parser = self._get_parser(skool, max_address=40003)
+        self.assertEqual([40000, 40001], [e.address for e in parser.memory_map])
+        self.assertEqual([40000, 40001], sorted(parser.entries))
+        self.assertEqual(parser.entries[40001].instructions[-1].address, 40002)
+        self.assertEqual(parser.base_address, 40000)
+        self.assertEqual([40000, 40001, 40002], sorted(parser.instructions))
+
+    def test_min_and_max_address(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '',
+            'b40001 DEFB 1',
+            '',
+            'b40002 DEFB 2',
+            '',
+            'b40003 DEFB 3',
+        ))
+        parser = self._get_parser(skool, min_address=40001, max_address=40003)
+        self.assertEqual([40001, 40002], [e.address for e in parser.memory_map])
+        self.assertEqual([40001, 40002], sorted(parser.entries))
+        self.assertEqual(parser.base_address, 40001)
+        self.assertEqual([40001, 40002], sorted(parser.instructions))
+
+    def test_min_and_max_address_gives_no_content(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            ' 40001 DEFB 1',
+            '',
+            'b40002 DEFB 2',
+        ))
+        parser = self._get_parser(skool, min_address=40001, max_address=40002)
+        self.assertEqual(len(parser.memory_map), 0)
+        self.assertEqual(len(parser.entries), 0)
+        self.assertEqual(len(parser.instructions), 0)
+
 class TableParserTest(SkoolKitTestCase):
     def assert_error(self, text, error):
         with self.assertRaises(SkoolParsingError) as cm:
