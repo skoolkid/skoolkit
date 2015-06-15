@@ -217,7 +217,7 @@ latex_documents = [
 _authors = [u'Richard Dymond']
 man_pages = [
     ('man/bin2tap.py', 'bin2tap.py',
-     u'convert a binary snapshot file into a TAP file', _authors, 1),
+     u'convert a binary file or snapshot into a TAP file', _authors, 1),
     ('man/skool2asm.py', 'skool2asm.py',
      u'convert a skool file to ASM format', _authors, 1),
     ('man/skool2ctl.py', 'skool2ctl.py',

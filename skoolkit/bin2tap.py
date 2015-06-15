@@ -20,6 +20,7 @@ import os.path
 import argparse
 
 from . import read_bin_file, VERSION
+from .snapshot import get_snapshot
 
 def _get_str(chars):
     return [ord(c) for c in chars]
@@ -100,7 +101,7 @@ def _get_data_loader(title, org, length, start, stack):
 
 def run(ram, clear, org, start, stack, binfile, tapfile):
     title = os.path.basename(binfile)
-    if title.lower().endswith('.bin'):
+    if title.lower().endswith(('.bin', '.sna', '.szx', '.z80')):
         title = title[:-4]
     tap_data = _get_basic_loader(title, clear, start)
 
@@ -127,41 +128,45 @@ def run(ram, clear, org, start, stack, binfile, tapfile):
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage='bin2tap.py [options] FILE.bin',
-        description="Convert a binary snapshot file into a TAP file.",
+        usage='bin2tap.py [options] FILE',
+        description="Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a TAP file.",
         add_help=False
     )
-    parser.add_argument('binfile', help=argparse.SUPPRESS, nargs='?')
+    parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--clear', dest='clear', metavar='N', type=int,
                        help="Use a 'CLEAR N' command in the BASIC loader and leave the stack pointer alone")
+    group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=int, default=65536,
+                       help="Set the end address when reading a snapshot")
     group.add_argument('-o', '--org', dest='org', metavar='ORG', type=int,
-                       help="Set the origin address (default: 65536 minus the length of FILE.bin)")
+                       help="Set the origin address (default: 16384 for a snapshot, otherwise 65536 minus the length of FILE)")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=int,
                        help="Set the stack pointer (default: ORG)")
     group.add_argument('-s', '--start', dest='start', metavar='START', type=int,
                        help="Set the start address to JP to (default: ORG)")
     group.add_argument('-t', '--tapfile', dest='tapfile', metavar='TAPFILE',
-                       help="Set the TAP filename (default: FILE.tap)")
+                       help="Set the TAP filename")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
 
     namespace, unknown_args = parser.parse_known_args(args)
-    binfile = namespace.binfile
-    if unknown_args or binfile is None:
+    infile = namespace.infile
+    if unknown_args or infile is None:
         parser.exit(2, parser.format_help())
-    ram = read_bin_file(binfile)
-    length = len(ram)
+    if infile.lower().endswith(('.sna', '.szx', '.z80')):
+        org = namespace.org or 16384
+        ram = get_snapshot(infile)[org:namespace.end]
+    else:
+        ram = read_bin_file(infile)
+        org = namespace.org or 65536 - len(ram)
     clear = namespace.clear
-    org = namespace.org or 65536 - length
     start = namespace.start or org
     stack = namespace.stack or org
     tapfile = namespace.tapfile
     if tapfile is None:
-        suffix = '.bin'
-        if binfile.endswith(suffix):
-            prefix = binfile[:-len(suffix)]
+        if infile.lower().endswith(('.bin', '.sna', '.szx', '.z80')):
+            prefix = infile[:-4]
         else:
-            prefix = binfile
+            prefix = infile
         tapfile = prefix + ".tap"
-    run(ram, clear, org, start, stack, binfile, tapfile)
+    run(ram, clear, org, start, stack, infile, tapfile)

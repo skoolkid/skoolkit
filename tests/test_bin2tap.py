@@ -47,7 +47,7 @@ class Bin2TapTest(SkoolKitTestCase):
     def _get_str(self, chars):
         return [ord(c) for c in chars]
 
-    def _check_tap(self, tap_data, bin_data, org=None, start=None, stack=None, binfile=TEST_BIN):
+    def _check_tap(self, tap_data, bin_data, org=None, start=None, stack=None, infile=TEST_BIN):
         if org is None:
             org = 65536 - len(bin_data)
         if start is None:
@@ -55,8 +55,8 @@ class Bin2TapTest(SkoolKitTestCase):
         if stack is None:
             stack = org
 
-        name = os.path.basename(binfile)
-        if name.lower().endswith('.bin'):
+        name = os.path.basename(infile)
+        if name.lower().endswith(('.bin', '.sna', '.szx', '.z80')):
             name = name[:-4]
         title = [ord(c) for c in name[:10].ljust(10)]
 
@@ -106,14 +106,14 @@ class Bin2TapTest(SkoolKitTestCase):
         exp_data.append(self._get_parity(exp_data))
         self.assertEqual(exp_data, data)
 
-    def _check_tap_with_clear_command(self, tap_data, bin_data, clear, org=None, start=None, binfile=TEST_BIN):
+    def _check_tap_with_clear_command(self, tap_data, bin_data, clear, org=None, start=None, infile=TEST_BIN):
         if org is None:
             org = 65536 - len(bin_data)
         if start is None:
             start = org
 
-        name = os.path.basename(binfile)
-        if name.lower().endswith('.bin'):
+        name = os.path.basename(infile)
+        if name.lower().endswith(('.bin', '.sna', '.szx', '.z80')):
             name = name[:-4]
         title = self._get_str(name[:10].ljust(10))
 
@@ -208,7 +208,7 @@ class Bin2TapTest(SkoolKitTestCase):
         binfile = self.write_bin_file(bin_data, suffix='.ram')
         tapfile = '{0}.tap'.format(binfile)
         tap_data = self._run(binfile, tapfile=tapfile)
-        self._check_tap(tap_data, bin_data, binfile=binfile)
+        self._check_tap(tap_data, bin_data, infile=binfile)
         os.remove(tapfile)
 
     def test_bin_in_subdirectory(self):
@@ -217,7 +217,7 @@ class Bin2TapTest(SkoolKitTestCase):
         binfile = self.write_bin_file(bin_data, '{}/game.bin'.format(subdir))
         tapfile = binfile[:-4] + '.tap'
         tap_data = self._run(binfile, tapfile=tapfile)
-        self._check_tap(tap_data, bin_data, binfile=binfile)
+        self._check_tap(tap_data, bin_data, infile=binfile)
 
     def test_option_V(self):
         for option in ('-V', '--version'):
@@ -274,6 +274,28 @@ class Bin2TapTest(SkoolKitTestCase):
             org % 256, org // 256 # start=org
         ]
         self._check_tap(tap_data, bin_data, stack=stack)
+
+    def test_option_e_with_z80(self):
+        ram = [0] * 49152
+        data = list(range(20))
+        org = 32768
+        end = org + len(data)
+        ram[org - 16384:end - 16384] = data
+        z80 = self.write_z80(ram)[1]
+        tapfile = z80[:-4] + '.tap'
+        tap_data = self._run('-o {} -e {} {}'.format(org, end, z80), tapfile=tapfile)
+        self._check_tap(tap_data, data, infile=z80)
+
+    def test_option_end_with_sna(self):
+        ram = [0] * 49152
+        data = list(range(15))
+        org = 40000
+        end = org + len(data)
+        ram[org - 16384:end - 16384] = data
+        sna = self.write_bin_file([0] * 27 + ram, suffix='.sna')
+        tapfile = sna[:-4] + '.tap'
+        tap_data = self._run('-o {} --end {} {}'.format(org, end, sna), tapfile=tapfile)
+        self._check_tap(tap_data, data, infile=sna)
 
 if __name__ == '__main__':
     unittest.main()

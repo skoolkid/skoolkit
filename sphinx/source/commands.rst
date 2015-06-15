@@ -7,8 +7,8 @@ Commands
 
 bin2tap.py
 ----------
-`bin2tap.py` converts a binary (raw memory) file into a TAP file that can be
-loaded into an emulator. For example::
+`bin2tap.py` converts a binary (raw memory) file or a SNA, SZX or Z80 snapshot
+into a TAP file. For example::
 
   $ bin2tap.py game.bin
 
@@ -18,21 +18,23 @@ of code to run) and the stack pointer are set to 65536 minus the length of
 `game.bin`. These values can be changed by passing options to `bin2tap.py`. Run
 it with no arguments to see the list of available options::
 
-  usage: bin2tap.py [options] FILE.bin
+  usage: bin2tap.py [options] FILE
 
-  Convert a binary snapshot file into a TAP file.
+  Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a TAP
+  file.
 
   Options:
     -c N, --clear N       Use a 'CLEAR N' command in the BASIC loader and leave
                           the stack pointer alone
-    -o ORG, --org ORG     Set the origin address (default: 65536 minus the
-                          length of FILE.bin)
+    -e ADDR, --end ADDR   Set the end address when reading a snapshot
+    -o ORG, --org ORG     Set the origin address (default: 16384 for a snapshot,
+                          otherwise 65536 minus the length of FILE)
     -p STACK, --stack STACK
                           Set the stack pointer (default: ORG)
     -s START, --start START
                           Set the start address to JP to (default: ORG)
     -t TAPFILE, --tapfile TAPFILE
-                          Set the TAP filename (default: FILE.tap)
+                          Set the TAP filename
     -V, --version         Show SkoolKit version number and exit
 
 Note that the ROM tape loading routine at 1366 ($0556) and the load routine
@@ -46,23 +48,24 @@ operation upon returning. Stack operations will overwrite the bytes in the
 address range STACK-14 to STACK-1 inclusive, so those addresses should not be
 used to store essential code or data.
 
-If the binary file contains a program that returns to BASIC, you should use the
+If the input file contains a program that returns to BASIC, you should use the
 ``--clear`` option to add a CLEAR command to the BASIC loader. This option
 leaves the stack pointer alone, enabling the program to return to BASIC without
 crashing. The lowest usable address with the ``--clear`` option on a bare 48K
 Spectrum is 23952 ($5D90).
 
-+---------+----------------------------------------------+
-| Version | Changes                                      |
-+=========+==============================================+
-| 4.5     | Added the ``--clear`` option                 |
-+---------+----------------------------------------------+
-| 3.4     | Added the ``-V`` option and the long options |
-+---------+----------------------------------------------+
-| 2.2.5   | Added the ``-p`` option                      |
-+---------+----------------------------------------------+
-| 1.3.1   | New                                          |
-+---------+----------------------------------------------+
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 4.5     | Added the ``--clear`` and ``--end`` options, and the ability to |
+|         | convert SNA, SZX and Z80 snapshots                              |
++---------+-----------------------------------------------------------------+
+| 3.4     | Added the ``-V`` option and the long options                    |
++---------+-----------------------------------------------------------------+
+| 2.2.5   | Added the ``-p`` option                                         |
++---------+-----------------------------------------------------------------+
+| 1.3.1   | New                                                             |
++---------+-----------------------------------------------------------------+
 
 .. _skool2asm.py:
 
