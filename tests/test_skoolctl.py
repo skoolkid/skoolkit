@@ -623,14 +623,16 @@ c62000 LD A,","
 """
 
 class CtlWriterTest(SkoolKitTestCase):
-    def _get_ctl(self, elements='btdrmsc', write_hex=0, write_asm_dirs=True, skool=TEST_SKOOL, preserve_base=False):
+    def _get_ctl(self, elements='btdrmsc', write_hex=0, write_asm_dirs=True, skool=TEST_SKOOL,
+                 preserve_base=False, min_address=0, max_address=65536):
         skoolfile = self.write_text_file(skool, suffix='.skool')
-        writer = CtlWriter(skoolfile, elements, write_hex, write_asm_dirs, preserve_base)
+        writer = CtlWriter(skoolfile, elements, write_hex, write_asm_dirs, preserve_base, min_address, max_address)
         writer.write()
         return self.out.getvalue().split('\n')[:-1]
 
-    def _test_ctl(self, skool, exp_ctl, write_hex=0, preserve_base=False):
-        ctl = self._get_ctl(skool=skool, write_hex=write_hex, preserve_base=preserve_base)
+    def _test_ctl(self, skool, exp_ctl, write_hex=0, preserve_base=False, min_address=0, max_address=65536):
+        ctl = self._get_ctl(skool=skool, write_hex=write_hex, preserve_base=preserve_base,
+                            min_address=min_address, max_address=max_address)
         self.assertEqual(exp_ctl, ctl)
 
     def test_invalid_address(self):
@@ -1092,6 +1094,121 @@ class CtlWriterTest(SkoolKitTestCase):
             '  50008,c2'
         ]
         self._test_ctl(skool, exp_ctl)
+
+    def test_min_address(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '',
+            '; Data at 40001',
+            'b40001 DEFB 1',
+            '',
+            'b40002 DEFB 2',
+        ))
+        exp_ctl = [
+            'b 40001 Data at 40001',
+            '  40001,1,1',
+            'b 40002',
+            '  40002,1,1',
+        ]
+        self._test_ctl(skool, exp_ctl, min_address=40001)
+
+    def test_min_address_between_entries(self):
+        skool = '\n'.join((
+            'c40000 LD A,B',
+            '; Mid-block comment.',
+            ' 40001 INC A',
+            ' 40002 RET',
+            '',
+            '; Routine at 40003',
+            'c40003 RET',
+            '',
+            'c40004 RET',
+        ))
+        exp_ctl = [
+            'c 40003 Routine at 40003',
+            'c 40004',
+        ]
+        self._test_ctl(skool, exp_ctl, min_address=40001)
+
+    def test_min_address_gives_no_content(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '',
+            'b40001 DEFB 1',
+        ))
+        exp_ctl = []
+        self._test_ctl(skool, exp_ctl, min_address=40002)
+
+    def test_max_address(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '',
+            'b40001 DEFB 1',
+            '; End comment.',
+            '',
+            'b40002 DEFB 2',
+        ))
+        exp_ctl = [
+            'b 40000',
+            '  40000,1,1',
+            'b 40001',
+            '  40001,1,1',
+            'E 40001 End comment.',
+        ]
+        self._test_ctl(skool, exp_ctl, max_address=40002)
+
+    def test_max_address_at_mid_block_comment(self):
+        skool = '\n'.join((
+            'c50000 RET',
+            '',
+            'c50001 LD A,B',
+            ' 50002 INC A',
+            '; And here we return.',
+            ' 50003 RET',
+        ))
+        exp_ctl = [
+            'c 50000',
+            'c 50001',
+        ]
+        self._test_ctl(skool, exp_ctl, max_address=50003)
+
+    def test_max_address_gives_no_content(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '',
+            'b40001 DEFB 1',
+        ))
+        exp_ctl = []
+        self._test_ctl(skool, exp_ctl, max_address=40000)
+
+    def test_min_and_max_address(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '',
+            'b40001 DEFB 1',
+            '',
+            'b40002 DEFB 2',
+            '',
+            'b40003 DEFB 3',
+        ))
+        exp_ctl = [
+            'b 40001',
+            '  40001,1,1',
+            'b 40002',
+            '  40002,1,1',
+        ]
+        self._test_ctl(skool, exp_ctl, min_address=40001, max_address=40003)
+
+    def test_min_and_max_address_give_no_content(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '',
+            'b40001 DEFB 1',
+            '',
+            'b40002 DEFB 2',
+        ))
+        exp_ctl = []
+        self._test_ctl(skool, exp_ctl, min_address=40001, max_address=40001)
 
 if __name__ == '__main__':
     unittest.main()

@@ -11,9 +11,15 @@ from skoolkit import skool2ctl, VERSION
 ELEMENTS = 'btdrmsc'
 
 class MockCtlWriter:
-    def __init__(self, *args):
+    def __init__(self, skoolfile, elements, write_hex, write_asm_dirs, preserve_base, min_address, max_address):
         global mock_ctl_writer
-        self.args = args
+        self.skoolfile = skoolfile
+        self.elements = elements
+        self.write_hex = write_hex
+        self.write_asm_dirs = write_asm_dirs
+        self.preserve_base = preserve_base
+        self.min_address = min_address
+        self.max_address = max_address
         self.write_called = False
         mock_ctl_writer = self
 
@@ -36,12 +42,13 @@ class Skool2CtlTest(SkoolKitTestCase):
     def test_default_option_values(self):
         skoolfile = 'test.skool'
         skool2ctl.main((skoolfile,))
-        infile, elements, write_hex, write_asm_dirs, preserve_base = mock_ctl_writer.args
-        self.assertEqual(infile, skoolfile)
-        self.assertEqual(elements, ELEMENTS)
-        self.assertEqual(write_hex, 0)
-        self.assertTrue(write_asm_dirs)
-        self.assertFalse(preserve_base)
+        self.assertEqual(mock_ctl_writer.skoolfile, skoolfile)
+        self.assertEqual(mock_ctl_writer.elements, ELEMENTS)
+        self.assertEqual(mock_ctl_writer.write_hex, 0)
+        self.assertTrue(mock_ctl_writer.write_asm_dirs)
+        self.assertFalse(mock_ctl_writer.preserve_base)
+        self.assertEqual(mock_ctl_writer.min_address, 0)
+        self.assertEqual(mock_ctl_writer.max_address, 65536)
         self.assertTrue(mock_ctl_writer.write_called)
 
     def test_option_V(self):
@@ -55,12 +62,13 @@ class Skool2CtlTest(SkoolKitTestCase):
         for w in ('b', 't', 'd', 'r', 'm', 's', 'c', 'btd', ELEMENTS):
             for option in ('-w', '--write'):
                 skool2ctl.main((option, w, skoolfile))
-                infile, elements, write_hex, write_asm_dirs, preserve_base = mock_ctl_writer.args
-                self.assertEqual(infile, skoolfile)
-                self.assertEqual(elements, w)
-                self.assertEqual(write_hex, 0)
-                self.assertTrue(write_asm_dirs)
-                self.assertFalse(preserve_base)
+                self.assertEqual(mock_ctl_writer.skoolfile, skoolfile)
+                self.assertEqual(mock_ctl_writer.elements, w)
+                self.assertEqual(mock_ctl_writer.write_hex, 0)
+                self.assertTrue(mock_ctl_writer.write_asm_dirs)
+                self.assertFalse(mock_ctl_writer.preserve_base)
+                self.assertEqual(mock_ctl_writer.min_address, 0)
+                self.assertEqual(mock_ctl_writer.max_address, 65536)
                 self.assertTrue(mock_ctl_writer.write_called)
 
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
@@ -68,12 +76,13 @@ class Skool2CtlTest(SkoolKitTestCase):
         skoolfile = 'test.skool'
         for option in ('-h', '--hex'):
             skool2ctl.main((option, skoolfile))
-            infile, elements, write_hex, write_asm_dirs, preserve_base = mock_ctl_writer.args
-            self.assertEqual(infile, skoolfile)
-            self.assertEqual(elements, ELEMENTS)
-            self.assertEqual(write_hex, 1)
-            self.assertTrue(write_asm_dirs)
-            self.assertFalse(preserve_base)
+            self.assertEqual(mock_ctl_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_ctl_writer.elements, ELEMENTS)
+            self.assertEqual(mock_ctl_writer.write_hex, 1)
+            self.assertTrue(mock_ctl_writer.write_asm_dirs)
+            self.assertFalse(mock_ctl_writer.preserve_base)
+            self.assertEqual(mock_ctl_writer.min_address, 0)
+            self.assertEqual(mock_ctl_writer.max_address, 65536)
             self.assertTrue(mock_ctl_writer.write_called)
 
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
@@ -81,12 +90,13 @@ class Skool2CtlTest(SkoolKitTestCase):
         skoolfile = 'test.skool'
         for option in ('-l', '--hex-lower'):
             skool2ctl.main((option, skoolfile))
-            infile, elements, write_hex, write_asm_dirs, preserve_base = mock_ctl_writer.args
-            self.assertEqual(infile, skoolfile)
-            self.assertEqual(elements, ELEMENTS)
-            self.assertEqual(write_hex, -1)
-            self.assertTrue(write_asm_dirs)
-            self.assertFalse(preserve_base)
+            self.assertEqual(mock_ctl_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_ctl_writer.elements, ELEMENTS)
+            self.assertEqual(mock_ctl_writer.write_hex, -1)
+            self.assertTrue(mock_ctl_writer.write_asm_dirs)
+            self.assertFalse(mock_ctl_writer.preserve_base)
+            self.assertEqual(mock_ctl_writer.min_address, 0)
+            self.assertEqual(mock_ctl_writer.max_address, 65536)
             self.assertTrue(mock_ctl_writer.write_called)
 
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
@@ -94,12 +104,13 @@ class Skool2CtlTest(SkoolKitTestCase):
         skoolfile = 'test.skool'
         for option in ('-a', '--no-asm-dirs'):
             skool2ctl.main((option, skoolfile))
-            infile, elements, write_hex, write_asm_dirs, preserve_base = mock_ctl_writer.args
-            self.assertEqual(infile, skoolfile)
-            self.assertEqual(elements, ELEMENTS)
-            self.assertEqual(write_hex, 0)
-            self.assertFalse(write_asm_dirs)
-            self.assertFalse(preserve_base)
+            self.assertEqual(mock_ctl_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_ctl_writer.elements, ELEMENTS)
+            self.assertEqual(mock_ctl_writer.write_hex, 0)
+            self.assertFalse(mock_ctl_writer.write_asm_dirs)
+            self.assertFalse(mock_ctl_writer.preserve_base)
+            self.assertEqual(mock_ctl_writer.min_address, 0)
+            self.assertEqual(mock_ctl_writer.max_address, 65536)
             self.assertTrue(mock_ctl_writer.write_called)
 
     @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
@@ -107,13 +118,57 @@ class Skool2CtlTest(SkoolKitTestCase):
         skoolfile = 'test.skool'
         for option in ('-b', '--preserve-base'):
             skool2ctl.main((option, skoolfile))
-            infile, elements, write_hex, write_asm_dirs, preserve_base = mock_ctl_writer.args
-            self.assertEqual(infile, skoolfile)
-            self.assertEqual(elements, ELEMENTS)
-            self.assertEqual(write_hex, 0)
-            self.assertTrue(write_asm_dirs)
-            self.assertTrue(preserve_base)
+            self.assertEqual(mock_ctl_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_ctl_writer.elements, ELEMENTS)
+            self.assertEqual(mock_ctl_writer.write_hex, 0)
+            self.assertTrue(mock_ctl_writer.write_asm_dirs)
+            self.assertTrue(mock_ctl_writer.preserve_base)
+            self.assertEqual(mock_ctl_writer.min_address, 0)
+            self.assertEqual(mock_ctl_writer.max_address, 65536)
             self.assertTrue(mock_ctl_writer.write_called)
+
+    @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
+    def test_option_S(self):
+        skoolfile = 'test.skool'
+        for option, start in (('-S', 30000), ('--start', 40000)):
+            skool2ctl.main((option, str(start), skoolfile))
+            self.assertEqual(mock_ctl_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_ctl_writer.elements, ELEMENTS)
+            self.assertEqual(mock_ctl_writer.write_hex, 0)
+            self.assertTrue(mock_ctl_writer.write_asm_dirs)
+            self.assertFalse(mock_ctl_writer.preserve_base)
+            self.assertTrue(mock_ctl_writer.write_called)
+            self.assertEqual(mock_ctl_writer.min_address, start)
+            self.assertEqual(mock_ctl_writer.max_address, 65536)
+
+    @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
+    def test_option_E(self):
+        skoolfile = 'test.skool'
+        for option, end in (('-E', 40000), ('--end', 50000)):
+            skool2ctl.main((option, str(end), skoolfile))
+            self.assertEqual(mock_ctl_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_ctl_writer.elements, ELEMENTS)
+            self.assertEqual(mock_ctl_writer.write_hex, 0)
+            self.assertTrue(mock_ctl_writer.write_asm_dirs)
+            self.assertFalse(mock_ctl_writer.preserve_base)
+            self.assertTrue(mock_ctl_writer.write_called)
+            self.assertEqual(mock_ctl_writer.min_address, 0)
+            self.assertEqual(mock_ctl_writer.max_address, end)
+
+    @patch.object(skool2ctl, 'CtlWriter', MockCtlWriter)
+    def test_options_S_and_E(self):
+        skoolfile = 'test.skool'
+        start = 24576
+        end = 32768
+        skool2ctl.main(('-S', str(start), '-E', str(end), skoolfile))
+        self.assertEqual(mock_ctl_writer.skoolfile, skoolfile)
+        self.assertEqual(mock_ctl_writer.elements, ELEMENTS)
+        self.assertEqual(mock_ctl_writer.write_hex, 0)
+        self.assertTrue(mock_ctl_writer.write_asm_dirs)
+        self.assertFalse(mock_ctl_writer.preserve_base)
+        self.assertTrue(mock_ctl_writer.write_called)
+        self.assertEqual(mock_ctl_writer.min_address, start)
+        self.assertEqual(mock_ctl_writer.max_address, end)
 
     def test_run(self):
         skool = '\n'.join((

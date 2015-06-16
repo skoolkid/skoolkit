@@ -22,14 +22,15 @@ from . import VERSION
 from .skoolctl import CtlWriter, BLOCKS, BLOCK_TITLES, BLOCK_DESC, REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS
 
 def run(skoolfile, options):
-    writer = CtlWriter(skoolfile, options.elements, options.write_hex, options.write_asm_dirs, options.preserve_base)
+    writer = CtlWriter(skoolfile, options.elements, options.write_hex, options.write_asm_dirs,
+                       options.preserve_base, options.start, options.end)
     writer.write()
 
 def main(args):
     parser = argparse.ArgumentParser(
         usage='skool2ctl.py [options] FILE',
-        description="Convert a skool file into a control file, written to standard output. FILE may\n"
-                    "be a regular file, or '-' for standard input.",
+        description="Convert a skool file into a control file and write it to standard output. FILE\n"
+                    "may be a regular file, or '-' for standard input.",
         formatter_class=argparse.RawTextHelpFormatter,
         add_help=False
     )
@@ -40,10 +41,14 @@ def main(args):
     group.add_argument('-b', '--preserve-base', action='store_true', dest='preserve_base',
                        help="Preserve the base of decimal and hexadecimal values in\n"
                             "instruction operands and DEFB/DEFM/DEFS/DEFW statements")
+    group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=int, default=65536,
+                       help="Stop converting at this address")
     group.add_argument('-h', '--hex', action='store_const', dest='write_hex', const=1, default=0,
                        help='Write addresses in upper case hexadecimal format')
     group.add_argument('-l', '--hex-lower', action='store_const', dest='write_hex', const=-1, default=0,
                        help='Write addresses in lower case hexadecimal format')
+    group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=int, default=0,
+                       help="Start converting at this address")
     group.add_argument('-V', '--version', action='version',
                        version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')

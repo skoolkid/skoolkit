@@ -149,24 +149,27 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
 
   usage: skool2ctl.py [options] FILE
 
-  Convert a skool file into a control file, written to standard output. FILE may
-  be a regular file, or '-' for standard input.
+  Convert a skool file into a control file and write it to standard output. FILE
+  may be a regular file, or '-' for standard input.
 
   Options:
-    -a, --no-asm-dirs    Do not write ASM directives
-    -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
-                         instruction operands and DEFB/DEFM/DEFS/DEFW statements
-    -h, --hex            Write addresses in upper case hexadecimal format
-    -l, --hex-lower      Write addresses in lower case hexadecimal format
-    -V, --version        Show SkoolKit version number and exit
-    -w X, --write X      Write only these elements, where X is one or more of:
-                           b = block types and addresses
-                           t = block titles
-                           d = block descriptions
-                           r = registers
-                           m = mid-block comments and block start/end comments
-                           s = sub-block types and addresses
-                           c = instruction-level comments
+    -a, --no-asm-dirs     Do not write ASM directives
+    -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
+                          instruction operands and DEFB/DEFM/DEFS/DEFW statements
+    -E ADDR, --end ADDR   Stop converting at this address
+    -h, --hex             Write addresses in upper case hexadecimal format
+    -l, --hex-lower       Write addresses in lower case hexadecimal format
+    -S ADDR, --start ADDR
+                          Start converting at this address
+    -V, --version         Show SkoolKit version number and exit
+    -w X, --write X       Write only these elements, where X is one or more of:
+                            b = block types and addresses
+                            t = block titles
+                            d = block descriptions
+                            r = registers
+                            m = mid-block comments and block start/end comments
+                            s = sub-block types and addresses
+                            c = instruction-level comments
 
 If you need to preserve any elements that control files do not support (such as
 data definition entries and ASM block directives), consider using
@@ -175,6 +178,8 @@ data definition entries and ASM block directives), consider using
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
+| 4.5     | Added the ``--start`` and ``--end`` options                  |
++---------+--------------------------------------------------------------+
 | 4.4     | Added the ``--hex-lower`` option                             |
 +---------+--------------------------------------------------------------+
 | 3.7     | Added the ``--preserve-base`` option                         |

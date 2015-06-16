@@ -67,8 +67,9 @@ def get_lengths(stmt_lengths):
     return ','.join(length_params)
 
 class CtlWriter:
-    def __init__(self, skoolfile, elements='btdrmsc', write_hex=0, write_asm_dirs=True, preserve_base=False):
-        parser = SkoolParser(skoolfile, preserve_base)
+    def __init__(self, skoolfile, elements='btdrmsc', write_hex=0, write_asm_dirs=True,
+                 preserve_base=False, min_address=0, max_address=65536):
+        parser = SkoolParser(skoolfile, preserve_base, min_address, max_address)
         self.entries = parser.memory_map
         self.elements = elements
         self.write_asm_dirs = write_asm_dirs
@@ -293,7 +294,7 @@ class CtlWriter:
         write_line('{} {}{} {}'.format(sub_block_ctl, addr_str, lengths, comment).rstrip())
 
 class SkoolParser:
-    def __init__(self, skoolfile, preserve_base):
+    def __init__(self, skoolfile, preserve_base, min_address, max_address):
         self.skoolfile = skoolfile
         self.preserve_base = preserve_base
         self.mode = Mode()
@@ -301,9 +302,9 @@ class SkoolParser:
         self.stack = []
 
         with open_file(skoolfile) as f:
-            self._parse_skool(f)
+            self._parse_skool(f, min_address, max_address)
 
-    def _parse_skool(self, skoolfile):
+    def _parse_skool(self, skoolfile, min_address, max_address):
         map_entry = None
         instruction = None
         comments = []
@@ -348,6 +349,11 @@ class SkoolParser:
             # This line contains an instruction
             instruction, address_comment = self._parse_instruction(line)
             address = instruction.address
+            if address < min_address:
+                continue
+            if address >= max_address:
+                map_entry = None
+                break
             ctl = instruction.ctl
             if ctl in DIRECTIVES:
                 start_comment, desc, details, registers = parse_comment_block(comments, ignores, self.mode)
