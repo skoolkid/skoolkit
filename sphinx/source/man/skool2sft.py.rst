@@ -21,11 +21,17 @@ OPTIONS
   and DEFB, DEFM, DEFS and DEFW statements. (By default, only binary values and
   character values are preserved.)
 
+-E, --end `ADDR`
+  Stop converting at this address.
+
 -h, --hex
   Write addresses in upper case hexadecimal format.
 
 -l, --hex-lower
   Write addresses in lower case hexadecimal format.
+
+-S, --start `ADDR`
+  Start converting at this address.
 
 -V, --version
   Show the SkoolKit version number and exit.

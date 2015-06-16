@@ -12,7 +12,8 @@ Changelog
   the BASIC loader and leave the stack pointer alone)
 * Added the ``--end`` option to :ref:`bin2tap.py` and the ability to convert
   SNA, SZX and Z80 snapshots
-* Added the ``--start`` and ``--end`` options to :ref:`skool2asm.py`
+* Added ``--start`` and ``--end`` options to :ref:`skool2asm.py` and
+  :ref:`skool2sft.py`
 * Added support to :ref:`skool2ctl.py` and :ref:`skool2sft.py` for preserving
   characters in DEFW statements (e.g. ``DEFW "!"``)
 * Added support for characters in DEFS statements (e.g. ``DEFS 10,"!"``)

@@ -36,6 +36,15 @@ class VerbatimLine:
     def is_ctl_line(self):
         return False
 
+    def is_trimmable(self):
+        if ((self.text.startswith('@') or (self.text.startswith(';') and self.text[1:].lstrip().startswith('@')))
+             and self.text.endswith(('+end', '-end'))):
+            return False
+        return len(self.text) > 0
+
+    def is_blank(self):
+        return self.text == ''
+
 class ControlLine:
     def __init__(self, ctl, address, addr_str, operation, comment_index, comment, preserve_base):
         self.ctl = ctl
@@ -85,6 +94,12 @@ class ControlLine:
     def is_ctl_line(self):
         return True
 
+    def is_trimmable(self):
+        return False
+
+    def is_blank(self):
+        return False
+
 class SftWriter:
     def __init__(self, skoolfile, write_hex=0, preserve_base=False):
         self.skoolfile = skoolfile
@@ -93,7 +108,8 @@ class SftWriter:
         self.verbatim = False
         self.address_fmt = get_address_format(write_hex, write_hex < 0)
 
-    def _parse_skool(self):
+    def _parse_skool(self, min_address, max_address):
+        start_index = -1
         lines = []
         ctl_lines = []
         entry_ctl = None
@@ -131,11 +147,31 @@ class SftWriter:
             elif line[0] in VALID_CTLS:
                 # This line contains an instruction
                 ctl_line = self._parse_instruction(line)
+                if ctl_line.address >= max_address:
+                    while lines and lines[-1].is_trimmable():
+                        lines.pop()
+                    while lines and lines[-1].is_blank():
+                        lines.pop()
+                    break
+                if ctl_line.address >= min_address > 0 and start_index < 0:
+                    start_index = len(lines)
                 lines.append(ctl_line)
                 ctl_lines.append(ctl_line)
             else:
                 lines.append(VerbatimLine(line))
         f.close()
+
+        if min_address > 0:
+            if start_index < 0:
+                return []
+            if start_index < len(lines):
+                if str(lines[start_index])[0] in DIRECTIVES:
+                    while start_index > 0 and not lines[start_index].is_blank():
+                        start_index -= 1
+                else:
+                    while start_index < len(lines) and not lines[start_index].is_blank():
+                        start_index += 1
+                return self._compress_blocks(lines[start_index + 1:])
         return self._compress_blocks(lines)
 
     def _parse_instruction(self, line):
@@ -185,6 +221,6 @@ class SftWriter:
             compressed.append(prev_line)
         return compressed
 
-    def write(self):
-        for line in self._parse_skool():
+    def write(self, min_address=0, max_address=65536):
+        for line in self._parse_skool(min_address, max_address):
             write_line(str(line))

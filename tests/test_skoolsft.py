@@ -394,10 +394,10 @@ c62000 LD A,","
 """
 
 class SftWriterTest(SkoolKitTestCase):
-    def _test_sft(self, skool, exp_sft, write_hex=0, preserve_base=False):
+    def _test_sft(self, skool, exp_sft, write_hex=0, preserve_base=False, min_address=0, max_address=65536):
         skoolfile = self.write_text_file(skool, suffix='.skool')
         writer = SftWriter(skoolfile, write_hex, preserve_base)
-        writer.write()
+        writer.write(min_address, max_address)
         sft = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(exp_sft, sft)
 
@@ -627,6 +627,142 @@ class SftWriterTest(SkoolKitTestCase):
         ))
         exp_sft = ['bB40000,1,2,3;18']
         self._test_sft(skool, exp_sft)
+
+    def test_min_address(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '',
+            '; Data at 40001',
+            'b40001 DEFB 1',
+            '',
+            'b40002 DEFB 2',
+        ))
+        exp_sft = [
+            '; Data at 40001',
+            'bB40001,1',
+            '',
+            'bB40002,1',
+        ]
+        self._test_sft(skool, exp_sft, min_address=40001)
+
+    def test_min_address_between_entries(self):
+        skool = '\n'.join((
+            'c40000 LD A,B',
+            '; Mid-block comment.',
+            ' 40001 INC A',
+            ' 40002 RET',
+            '',
+            '; Routine at 40003',
+            'c40003 RET',
+            '',
+            'c40004 RET',
+        ))
+        exp_sft = [
+            '; Routine at 40003',
+            'cC40003,1',
+            '',
+            'cC40004,1',
+        ]
+        self._test_sft(skool, exp_sft, min_address=40001)
+
+    def test_min_address_gives_no_content(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '',
+            'b40001 DEFB 1',
+        ))
+        exp_sft = []
+        self._test_sft(skool, exp_sft, min_address=40002)
+
+    def test_max_address(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '',
+            'b40001 DEFB 1',
+            '; End comment.',
+            '',
+            'b40002 DEFB 2',
+        ))
+        exp_sft = [
+            'bB40000,1',
+            '',
+            'bB40001,1',
+            '; End comment.',
+        ]
+        self._test_sft(skool, exp_sft, max_address=40002)
+
+    def test_max_address_at_mid_block_comment(self):
+        skool = '\n'.join((
+            'c50000 RET',
+            '',
+            'c50001 LD A,B',
+            ' 50002 INC A',
+            '; And here we return.',
+            ' 50003 RET',
+        ))
+        exp_sft = [
+            'cC50000,1',
+            '',
+            'cC50001,2',
+        ]
+        self._test_sft(skool, exp_sft, max_address=50003)
+
+    def test_max_address_gives_no_content(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '',
+            'b40001 DEFB 1',
+        ))
+        exp_sft = []
+        self._test_sft(skool, exp_sft, max_address=40000)
+
+    def test_min_and_max_address(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '',
+            'b40001 DEFB 1',
+            '',
+            'b40002 DEFB 2',
+            '',
+            'b40003 DEFB 3',
+        ))
+        exp_sft = [
+            'bB40001,1',
+            '',
+            'bB40002,1',
+        ]
+        self._test_sft(skool, exp_sft, min_address=40001, max_address=40003)
+
+    def test_min_and_max_address_give_no_content(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '',
+            'b40001 DEFB 1',
+            '',
+            'b40002 DEFB 2',
+        ))
+        exp_sft = []
+        self._test_sft(skool, exp_sft, min_address=40001, max_address=40001)
+
+    def test_max_address_after_asm_block_directive(self):
+        skool = '\n'.join((
+            'c30000 LD A,(HL)',
+            '@ssub-begin',
+            ' 30001 INC L',
+            '@ssub+else',
+            '       INC HL',
+            '@ssub+end',
+            ' 30002 RET',
+        ))
+        exp_sft = [
+            'cC30000,1',
+            '@ssub-begin',
+            ' C30001,1',
+            '@ssub+else',
+            '       INC HL',
+            '@ssub+end',
+        ]
+        self._test_sft(skool, exp_sft, max_address=30002)
 
 if __name__ == '__main__':
     unittest.main()
