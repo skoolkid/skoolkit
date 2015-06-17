@@ -32,6 +32,8 @@ Included in SkoolKit 4.5.
 
 Added <i>@label</i> directives, <i>@ssub</i> directives, <i>@nowarn</i> directives, and more <i>@keep</i> directives
 
+Replaced DEFB statements with DEFS statements in the #LINK:UnusedMap(unused areas)
+
 Revealed the calculator literals in the routine at #R$3449
 
 [Changelog:20150523]
