@@ -2212,6 +2212,25 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertIsNone(instruction.reference)
             index += 1
 
+    def test_no_label_substitution_in_defs_statements(self):
+        skool = (
+            '@start',
+            '@label=SPACE1',
+            's00010 DEFS 9990,10',
+            '',
+            '@label=SPACE2',
+            's10000 DEFS 10000,255',
+        )
+        parser = self._get_parser('\n'.join(skool), asm_mode=1)
+
+        instruction = parser.instructions[10][0]
+        self.assertEqual(len(instruction.referrers), 0)
+        self.assertEqual(instruction.operation, skool[2][7:])
+
+        instruction = parser.instructions[10000][0]
+        self.assertEqual(len(instruction.referrers), 0)
+        self.assertEqual(instruction.operation, skool[5][7:])
+
     def test_error_duplicate_label(self):
         skool = '\n'.join((
             '; @start',

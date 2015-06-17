@@ -732,7 +732,7 @@ class SkoolParser:
         label_warn = instruction.sub is None and instruction.warn
         operation = instruction.operation
         operation_u = operation.upper()
-        if operation_u.startswith('RST'):
+        if operation_u.startswith(('RST', 'DEFS')):
             return
         operand = get_address(operation)
         if operand is None:
