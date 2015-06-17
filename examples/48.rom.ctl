@@ -141,12 +141,17 @@ t $0095 THE TOKEN TABLE
   $01F6,5,4:B1
   $01FB,6,5:B1
   $0201,4,3:B1
-@ $0205 label=KEY_TABLES
+@ $0205 label=KEYTABLE_A
 b $0205 THE KEY TABLES
+@ $022C label=KEYTABLE_B
   $022C
+@ $0246 label=KEYTABLE_C
   $0246
+@ $0260 label=KEYTABLE_D
   $0260
+@ $026A label=KEYTABLE_E
   $026A
+@ $0284 label=KEYTABLE_F
   $0284
 @ $028E label=KEY_SCAN
 c $028E THE 'KEYBOARD SCANNING' SUBROUTINE
@@ -167,17 +172,22 @@ c $031E THE 'K-TEST' SUBROUTINE
 @ $032C label=K_MAIN
 @ $0333 label=K_DECODE
 c $0333 THE 'KEYBOARD DECODING' SUBROUTINE
+@ $0341 ssub=LD HL,$022C-$41
 @ $0341 label=K_E_LET
 @ $034A label=K_LOOK_UP
+@ $034F ssub=LD HL,$026A-$41
 @ $034F label=K_KLC_LET
 @ $0367 label=K_DIGIT
   $0367,c2
+@ $0370 ssub=LD HL,$0284-$30
   $0377,c2
 @ $0382 label=K_8_9
+@ $0389 ssub=LD HL,$0260-$30
 @ $0389 label=K_GRA_DGT
   $038C,c2
   $0390,c2
 @ $039D label=K_KLC_DGT
+@ $03A1 ssub=LD HL,$0260-$30
   $03AF,c2
 @ $03B2 label=K_AT_CHAR
   $03B2,c2
@@ -209,11 +219,13 @@ c $04AA THE 'PROGRAM NAME' SUBROUTINE (ZX81)
 @ $04C2 nowarn
 @ $04C2 label=SA_BYTES
 c $04C2 THE 'SA-BYTES' SUBROUTINE
-@ $04F6 keep
+@ $04C6 keep
+@ $04CD keep
 @ $04D0 label=SA_FLAG
 @ $04D8 label=SA_LEADER
 @ $04EA label=SA_SYNC_1
 @ $04F2 label=SA_SYNC_2
+@ $04F6 keep
 @ $04FE label=SA_LOOP
 @ $0505 label=SA_LOOP_P
 @ $0507 label=SA_START
@@ -232,9 +244,9 @@ B $0553,1
 @ $0556 label=LD_BYTES
 c $0556 THE 'LD-BYTES' SUBROUTINE
 @ $055E nowarn
-@ $0571 keep
 @ $056B label=LD_BREAK
 @ $056C label=LD_START
+@ $0571 keep
 @ $0574 label=LD_WAIT
 @ $0580 label=LD_LEADER
 @ $058F label=LD_SYNC
@@ -252,15 +264,17 @@ c $05E3 THE 'LD-EDGE-2' AND 'LD-EDGE-1' SUBROUTINES
 @ $05ED label=LD_SAMPLE
 @ $0605 label=SAVE_ETC
 c $0605 THE 'SAVE, LOAD, VERIFY & MERGE' COMMAND ROUTINES
+@ $0616 keep
 @ $0621 label=SA_SPACE
   $0627,c2
 @ $0629 label=SA_BLANK
 @ $0642 label=REPORT_F
 B $0643,1
-@ $0667 keep
 @ $0644 label=SA_NULL
+@ $0648 keep
 @ $064B label=SA_NAME
 @ $0652 label=SA_DATA
+@ $0667 keep
 @ $0670 label=REPORT_2
 B $0671,1
 @ $0672 label=SA_V_OLD
@@ -279,8 +293,11 @@ B $0671,1
 @ $0723 label=SA_LINE_1
 @ $073A label=SA_TYPE_0
 @ $075A label=SA_ALL
+@ $0762 keep
 @ $0767 label=LD_LOOK_H
+@ $0769 keep
 @ $078A label=LD_TYPE
+@ $078E ssub=LD DE,$09C1-1
 @ $07A6 label=LD_NAME
 @ $07AD label=LD_CH_PR
 @ $07CB label=VR_CONTRL
@@ -294,8 +311,8 @@ c $0802 THE 'LOAD A DATA BLOCK' SUBROUTINE
 B $0807,1
 @ $0808 label=LD_CONTRL
 c $0808 THE 'LOAD' CONTROL ROUTINE
-@ $0825 keep
 @ $0819 label=LD_CONT_1
+@ $0825 keep
 @ $0825 label=LD_CONT_2
 @ $082E label=LD_DATA
 @ $084C label=LD_DATA_1
@@ -322,10 +339,12 @@ c $092C THE 'MERGE A LINE OR A VARIABLE' SUBROUTINE
 @ $0958 label=ME_ENT_3
 @ $0970 label=SA_CONTRL
 c $0970 THE 'SAVE' CONTROL ROUTINE
+@ $0986 keep
 @ $0991 label=SA_1_SEC
 @ $09A1 label=CASSETTE
 t $09A1 THE CASSETTE MESSAGES
   $09A2,31,30:B1
+@ $09C1 label=BLOCK_HDR
   $09C1,10,B1:8:B1
   $09CB,15,B1:13:B1
   $09DA,18,B1:16:B1
@@ -354,11 +373,11 @@ c $0A69 THE 'PRINT A QUESTION MARK' SUBROUTINE
 @ $0A6D label=PO_TV_2
 c $0A6D THE 'CONTROL CHARACTERS WITH OPERANDS' ROUTINE
 @ $0A75 nowarn
-@ $0A7A nowarn
-@ $0A87 nowarn
 @ $0A75 label=PO_2_OPER
+@ $0A7A nowarn
 @ $0A7A label=PO_1_OPER
 @ $0A7D label=PO_TV_1
+@ $0A87 nowarn
 @ $0A87 label=PO_CONT
 @ $0AAC label=PO_AT_ERR
 @ $0ABF label=PO_AT_SET
@@ -415,8 +434,8 @@ c $0C55 THE 'TEST FOR SCROLL' SUBROUTINE
 @ $0C5A nowarn
 @ $0C86 label=REPORT_5
 B $0C87,1
-@ $0CA1 nowarn
 @ $0C88 label=PO_SCR_2
+@ $0CA1 nowarn
 @ $0CD2 label=PO_SCR_3
 @ $0CF0 label=PO_SCR_3A
 @ $0CF8 label=SCROLL
@@ -433,33 +452,35 @@ c $0D4D THE 'TEMPORARY COLOUR ITEMS' SUBROUTINE
 @ $0D65 label=TEMPS_2
 @ $0D6B label=CLS
 c $0D6B THE 'CLS COMMAND' ROUTINE
-@ $0D9C nowarn
-@ $0DA4 nowarn
-@ $0DAA keep
 @ $0D6E label=CLS_LOWER
 @ $0D87 label=CLS_1
 @ $0D89 label=CLS_2
 @ $0D8E label=CLS_3
 @ $0D94 label=CL_CHAN
+@ $0D9C nowarn
 @ $0DA0 label=CL_CHAN_A
+@ $0DA4 nowarn
+@ $0DAA keep
 @ $0DAF label=CL_ALL
 c $0DAF THE 'CLEARING THE WHOLE DISPLAY AREA' SUBROUTINE
 @ $0DAF keep
 @ $0DCC nowarn
+@ $0DD6 keep
 @ $0DD9 label=CL_SET
 c $0DD9 THE 'CL-SET' SUBROUTINE
 @ $0DEE label=CL_SET_1
 @ $0DF4 label=CL_SET_2
 @ $0DFE label=CL_SC_ALL
 c $0DFE THE 'SCROLLING' SUBROUTINE
-@ $0E13 keep
 @ $0E00 label=CL_SCROLL
 @ $0E05 label=CL_SCR_1
+@ $0E13 keep
 @ $0E19 label=CL_SCR_3
 @ $0E44 label=CL_LINE
 c $0E44 THE 'CLEAR LINES' SUBROUTINE
 @ $0E4A label=CL_LINE_1
 @ $0E4D label=CL_LINE_2
+@ $0E5E keep
 @ $0E80 label=CL_LINE_3
 @ $0E88 label=CL_ATTR
 c $0E88 THE 'CL-ATTR' SUBROUTINE
@@ -487,20 +508,22 @@ B $0F0B,1
 @ $0F2C label=EDITOR
 c $0F2C THE 'EDITOR' ROUTINES
 @ $0F30 nowarn
-@ $0F48 nowarn
-@ $0F58 keep
 @ $0F30 label=ED_AGAIN
 @ $0F38 label=ED_LOOP
+@ $0F41 keep
+@ $0F48 nowarn
+@ $0F58 keep
 @ $0F6C label=ED_CONTR
 @ $0F81 label=ADD_CHAR
 c $0F81 THE 'ADD-CHAR' SUBROUTINE
-@ $0F95 nowarn
 @ $0F8B label=ADD_CH_1
 @ $0F92 label=ED_KEYS
+@ $0F95 nowarn
 b $0FA0 THE 'EDITING KEYS' TABLE
   $0FA0,9,1
 @ $0FA9 label=ED_EDIT
 c $0FA9 THE 'EDIT KEY' SUBROUTINE
+@ $0FC3 keep
 @ $0FF3 label=ED_DOWN
 c $0FF3 THE 'CURSOR DOWN EDITING' SUBROUTINE
 @ $1001 label=ED_STOP
@@ -534,14 +557,14 @@ c $1097 THE 'CLEAR-SP' SUBROUTINE
 @ $10A8 label=KEY_INPUT
 c $10A8 THE 'KEYBOARD INPUT' SUBROUTINE
   $10C5,c2
-@ $1108 nowarn
-@ $1110 nowarn
 @ $10DB label=KEY_M_CL
 @ $10E6 label=KEY_MODE
 @ $10F4 label=KEY_FLAG
 @ $10FA label=KEY_CONTR
 @ $1105 label=KEY_DATA
+@ $1108 nowarn
 @ $110D label=KEY_NEXT
+@ $1110 nowarn
 @ $1113 label=KEY_CHAN
 @ $111B label=KEY_DONE_2
 @ $111D label=ED_COPY
@@ -558,31 +581,38 @@ c $1190 THE 'SET-HL' AND 'SET-DE' SUBROUTINES
 @ $1195 label=SET_DE
 @ $11A7 label=REMOVE_FP
 c $11A7 THE 'REMOVE-FP' SUBROUTINE
+@ $11AA keep
 @ $11B7 label=NEW
 c $11B7 THE 'NEW COMMAND' ROUTINE
-@ $1203 nowarn
-@ $1206 keep
-@ $1270 keep
-@ $1282 keep
 @ $11CB label=START_NEW
 @ $11DA label=RAM_CHECK
 @ $11DC label=RAM_FILL
 @ $11E2 label=RAM_READ
 @ $11EF label=RAM_DONE
+@ $1203 nowarn
+@ $1206 keep
+@ $1212 keep
 @ $1219 label=RAM_SET
+@ $121C ssub=LD HL,$3D00-$100
+@ $123E keep
+@ $1270 keep
+@ $1282 keep
+@ $1296 ssub=LD DE,$1539-1
 @ $12A2 label=MAIN_EXEC
 c $12A2 THE 'MAIN EXECUTION' LOOP
-@ $1314 keep
-@ $1320 keep
 @ $12A9 label=MAIN_1
 @ $12AC label=MAIN_2
 @ $12CF label=MAIN_3
 @ $1303 label=MAIN_4
 @ $1313 label=MAIN_G
+@ $1314 keep
+@ $1320 keep
 @ $133C label=MAIN_5
   $133F,c2
+@ $134A ssub=LD DE,$1537-1
   $1357,c2
 @ $1373 label=MAIN_6
+@ $1376 keep
 @ $1376 label=MAIN_7
 @ $1384 label=MAIN_8
 @ $1386 label=MAIN_9
@@ -616,7 +646,9 @@ t $1391 THE REPORT MESSAGES
   $1508,14,13:B1
   $1516,15,14:B1
   $1525,18,17:B1
+@ $1537 label=COMMA_SPC
   $1537,2,1:B1
+@ $1539 label=COPYRIGHT
   $1539,28,B1:26:B1
 @ $1555 label=REPORT_G
 c $1555 Report G - No room for line
@@ -676,8 +708,8 @@ c $1664 THE 'POINTERS' SUBROUTINE
 @ $168F label=LINE_ZERO
 c $168F THE 'COLLECT A LINE NUMBER' SUBROUTINE
 B $168F,2
-@ $1692 nowarn
 @ $1691 label=LINE_NO_A
+@ $1692 nowarn
 @ $1695 label=LINE_NO
 @ $169E label=RESERVE
 c $169E THE 'RESERVE' SUBROUTINE
@@ -734,6 +766,7 @@ c $1789 THE 'OPEN-P' SUBROUTINE
 c $1793 THE 'CAT, ERASE, FORMAT & MOVE' COMMAND ROUTINES
 @ $1795 label=AUTO_LIST
 c $1795 THE 'LIST & LLIST' COMMAND ROUTINES
+@ $17C3 keep
 @ $17CE label=AUTO_L_1
 @ $17E1 label=AUTO_L_2
 @ $17E4 label=AUTO_L_3
@@ -927,9 +960,9 @@ c $1B28 THE STATEMENT LOOP
 @ $1B29 label=STMT_L_1
   $1B39,c2
 @ $1B3D nowarn
-@ $1B5A nowarn
 @ $1B52 label=SCAN_LOOP
 @ $1B55 label=GET_PARAM
+@ $1B5A nowarn
 @ $1B6F label=SEPARATOR
 c $1B6F THE 'SEPARATOR' SUBROUTINE
 @ $1B76 label=STMT_RET
@@ -1014,6 +1047,7 @@ c $1D03 THE 'FOR' COMMAND ROUTINE
 B $1D14,2,1
 @ $1D16 label=F_REORDER
 B $1D17,6,1
+@ $1D27 keep
 @ $1D34 label=F_L_S
 B $1D36,3,1
 @ $1D64 label=F_LOOP
@@ -1028,6 +1062,7 @@ c $1D86 THE 'LOOK-PROG' SUBROUTINE
 @ $1DAB label=NEXT
 c $1DAB THE 'NEXT' COMMAND ROUTINE
 B $1DBE,6,1
+@ $1DCB keep
 @ $1DD8 label=REPORT_1
 B $1DD9,1
 @ $1DDA label=NEXT_LOOP
@@ -1052,6 +1087,7 @@ c $1E27 THE 'DATA' COMMAND ROUTINE
 @ $1E37 label=DATA_2
 @ $1E39 label=PASS_BY
 c $1E39 THE 'PASS-BY' SUBROUTINE
+@ $1E3C keep
 @ $1E42 label=RESTORE
 c $1E42 THE 'RESTORE' COMMAND ROUTINE
 @ $1E45 label=REST_RUN
@@ -1083,11 +1119,13 @@ c $1EA1 THE 'RUN' COMMAND ROUTINE
 c $1EAC THE 'CLEAR' COMMAND ROUTINE
 @ $1EAF label=CLEAR_RUN
 @ $1EB7 label=CLEAR_1
+@ $1EC9 keep
 @ $1EDA label=REPORT_M
 B $1EDB,1
 @ $1EDC label=CLEAR_2
 @ $1EED label=GO_SUB
 c $1EED THE 'GO SUB' COMMAND ROUTINE
+@ $1F02 keep
 @ $1F05 label=TEST_ROOM
 c $1F05 THE 'TEST-ROOM' SUBROUTINE
 @ $1F0C keep
@@ -1117,6 +1155,7 @@ c $1F60 THE 'DEF FN' COMMAND ROUTINE
 @ $1F89 label=DEF_FN_4
   $1F8E,c2
 @ $1F94 label=DEF_FN_5
+@ $1F95 keep
   $1F9F,c2
 @ $1FA6 label=DEF_FN_6
   $1FA6,c2
@@ -1163,15 +1202,15 @@ c $2089 THE 'INPUT' COMMAND ROUTINE
 @ $20C1 label=IN_ITEM_1
   $20C6,c2
   $20CF,c2
-@ $210A keep
 @ $20D8 label=IN_ITEM_2
 @ $20ED label=IN_ITEM_3
 @ $20FA label=IN_PROMPT
+@ $210A keep
 @ $211A label=IN_PR_1
 @ $211C label=IN_PR_2
   $2124,c2
-@ $213A nowarn
 @ $2129 label=IN_PR_3
+@ $213A nowarn
 @ $213A label=IN_VAR_1
 @ $2148 label=IN_VAR_2
 @ $215E label=IN_VAR_3
@@ -1294,14 +1333,14 @@ c $24FB THE 'SCANNING' SUBROUTINE
 @ $252D label=S_RPORT_C
 @ $2530 label=SYNTAX_Z
 c $2530 THE 'SYNTAX-Z' SUBROUTINE
-@ $2574 keep
-@ $253B keep
-@ $256C keep
 @ $2535 label=S_SCRN_S
+@ $253B keep
 @ $254F label=S_SCRN_LP
 @ $255A label=S_SC_MTCH
 @ $255D label=S_SC_ROWS
+@ $256C keep
 @ $2573 label=S_SCR_NXT
+@ $2574 keep
 @ $257D label=S_SCR_STO
 @ $2580 label=S_ATTR_S
 @ $2596 label=SCANFUNC
@@ -1309,8 +1348,8 @@ b $2596 THE SCANNING FUNCTION TABLE
   $2596,25,T1:1*4,2*8,1
 @ $25AF label=S_U_PLUS
 c $25AF THE SCANNING FUNCTION ROUTINES
-@ $25B6 keep
 @ $25B3 label=S_QUOTE
+@ $25B6 keep
 @ $25BE label=S_Q_AGAIN
 @ $25CB label=S_Q_COPY
   $25CF,c2
@@ -1326,6 +1365,7 @@ B $2605,18,1*9,3,1
 @ $2627 label=S_PI
 B $262D,2,1
 @ $2630 label=S_PI_END
+@ $2634 keep
 @ $2634 label=S_INKEY
   $2638,c2
 @ $2658 keep
@@ -1337,12 +1377,14 @@ B $262D,2,1
 @ $2684 label=S_ALPHNUM
   $2689,c2
 @ $268D label=S_DECIMAL
+@ $2696 keep
 @ $26B5 label=S_STK_DEC
 @ $26B6 label=S_SD_SKIP
 @ $26C3 label=S_NUMERIC
 @ $26C9 label=S_LETTER
 c $26C9 THE SCANNING VARIABLE ROUTINE
 @ $26DD label=S_CONT_1
+@ $26DF keep
 @ $26DF label=S_NEGATE
   $26E2,c2
 @ $26E6 keep
@@ -1352,8 +1394,8 @@ c $26C9 THE SCANNING VARIABLE ROUTINE
 @ $2712 label=S_CONT_2
 @ $2713 label=S_CONT_3
   $2713,c2
-@ $272F nowarn
 @ $2723 label=S_OPERTR
+@ $272F nowarn
 @ $2734 label=S_LOOP
 @ $274C label=S_STK_LST
 B $2757,2,1
@@ -1384,17 +1426,19 @@ c $27BD THE 'SCANNING FUNCTION' SUBROUTINE
 @ $27F4 label=SF_SYN_EN
 @ $27F7 label=SF_RUN
 @ $2802 label=SF_ARGMT1
+@ $2808 keep
 @ $2808 label=SF_FND_DF
 @ $2812 label=REPORT_P
 B $2813,1
 @ $2814 label=SF_CP_DEF
   $2820,c2
 @ $2825 label=SF_NOT_FD
+@ $2827 keep
 @ $2831 label=SF_VALUES
   $283F,c2
-@ $2865 keep
 @ $2843 label=SF_ARG_LP
 @ $2852 label=SF_ARG_VL
+@ $2865 keep
   $2874,c2
   $287A,c2
 @ $2885 label=SF_R_BR_2
@@ -1445,8 +1489,8 @@ c $2996 THE 'STK-VAR' SUBROUTINE
   $29D2,c2
 @ $29D8 label=SV_CLOSE
   $29D8,c2
-@ $29E7 keep
 @ $29E0 label=SV_CH_ADD
+@ $29E7 keep
 @ $29E7 label=SV_COUNT
 @ $29EA label=SV_LOOP
   $29F3,c2
@@ -1455,8 +1499,8 @@ c $2996 THE 'STK-VAR' SUBROUTINE
   $2A1C,c2
 @ $2A20 label=REPORT_3
 B $2A21,1
-@ $2A24 keep
 @ $2A22 label=SV_NUMBER
+@ $2A24 keep
 @ $2A2C label=SV_ELEM
   $2A3D,c2
   $2A41,c2
@@ -1472,8 +1516,8 @@ c $2A52 THE 'SLICING' SUBROUTINE
 @ $2A81 label=SL_SECOND
   $2A84,c2
   $2A90,c2
-@ $2A9C keep
 @ $2A94 label=SL_DEFINE
+@ $2A9C keep
 @ $2AA8 label=SL_OVER
 @ $2AB1 label=STK_ST_0
 c $2AB1 THE 'STK-STORE' SUBROUTINE
@@ -1502,6 +1546,7 @@ c $2AFF THE 'LET' COMMAND ROUTINE
 B $2B5B,2,1
 @ $2B5E keep
 @ $2B66 label=L_EXISTS
+@ $2B6C keep
 @ $2B72 label=L_DELETE
   $2B89,c2
 @ $2B9B label=L_LENGTH
@@ -1519,10 +1564,10 @@ c $2BEA THE 'L-FIRST' SUBROUTINE
 c $2BF1 THE 'STK-FETCH' SUBROUTINE
 @ $2C02 label=DIM
 c $2C02 THE 'DIM' COMMAND ROUTINE
-@ $2C24 keep
 @ $2C05 label=D_RPORT_C
 @ $2C15 label=D_RUN
 @ $2C1F label=D_LETTER
+@ $2C24 keep
 @ $2C2D label=D_SIZE
 @ $2C2E label=D_NO_LOOP
   $2C42,c2
@@ -1634,6 +1679,7 @@ B $2E3A,6,1
 @ $2ECB label=PF_MORE
 B $2ECC,3,1
 @ $2ECF label=PF_FRACTN
+@ $2EEC keep
 @ $2EEC label=PF_FR_DGT
 @ $2EEF label=PF_FR_EXX
 @ $2F0C label=PF_ROUND
@@ -1665,10 +1711,10 @@ c $2F9B THE 'PREPARE TO ADD' SUBROUTINE
 c $2FBA THE 'FETCH TWO NUMBERS' SUBROUTINE
 @ $2FDD label=SHIFT_FP
 c $2FDD THE 'SHIFT ADDEND' SUBROUTINE
-@ $3000 keep
 @ $2FE5 label=ONE_SHIFT
 @ $2FF9 label=ADDEND_0
 @ $2FFB label=ZEROS_4_5
+@ $3000 keep
 @ $3004 label=ADD_BACK
 c $3004 THE 'ADD-BACK' SUBROUTINE
 @ $300D label=ALL_ADDED
@@ -1756,7 +1802,6 @@ B $32C5,18,3,4,2,5,4
 w $32D7 THE TABLE OF ADDRESSES
 @ $335B label=CALCULATE
 c $335B THE 'CALCULATE' SUBROUTINE
-@ $3397 nowarn
 @ $335E label=GEN_ENT_1
 @ $3362 label=GEN_ENT_2
 @ $3365 label=RE_ENTRY
@@ -1764,6 +1809,7 @@ c $335B THE 'CALCULATE' SUBROUTINE
 @ $3380 label=FIRST_3D
 @ $338C label=DOUBLE_A
 @ $338E label=ENT_TABLE
+@ $3397 nowarn
 @ $33A1 label=delete
 @ $33A2 label=fp_calc_2
 c $33A2 THE 'SINGLE OPERATION' SUBROUTINE
@@ -1781,8 +1827,8 @@ c $33C6 THE 'STACK LITERALS' SUBROUTINE
 @ $33F1 label=STK_ZEROS
 @ $33F7 label=SKIP_CONS
 c $33F7 THE 'SKIP CONSTANTS' SUBROUTINE
-@ $33FB keep
 @ $33F8 label=SKIP_NEXT
+@ $33FB keep
 @ $3406 label=LOC_MEM
 c $3406 THE 'MEMORY LOCATION' SUBROUTINE
 @ $340F label=get_mem_0
@@ -1864,8 +1910,8 @@ c $35C9 THE 'CHR$' FUNCTION
 B $35DD,1
 @ $35DE label=val
 c $35DE THE 'VAL' AND 'VAL$' FUNCTION
-@ $361F keep
 @ $360C label=V_RPORT_C
+@ $361F keep
 @ $361F label=str
 c $361F THE 'STR$' FUNCTION
 @ $3645 label=read_in
@@ -1952,6 +1998,7 @@ B $385D,16,1
 @ $386A label=ONE
 @ $386C label=LAST
 u $386E
+@ $3D00 label=CHARSET
 b $3D00 Character set
   $3D00,8,b1 #UDG$3D00
   $3D08,8,b1 #UDG$3D08

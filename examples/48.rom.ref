@@ -30,7 +30,7 @@ PageByteColumns=0
 [Changelog:YYYYMMDD]
 Included in SkoolKit 4.5.
 
-Added <i>@label</i> directives, <i>@nowarn</i> directives, and more <i>@keep</i> directives
+Added <i>@label</i> directives, <i>@ssub</i> directives, <i>@nowarn</i> directives, and more <i>@keep</i> directives
 
 Revealed the calculator literals in the routine at #R$3449
 
