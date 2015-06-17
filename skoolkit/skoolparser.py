@@ -744,17 +744,17 @@ class SkoolParser:
                     # Warn if a LD operand is replaced with a routine label in
                     # an unsubbed operation (will need @keep to retain operand,
                     # or @nowarn if the replacement is OK)
-                    self.warn('LD operand replaced with routine label in unsubbed operation:\n  {0} {1} -> {2}'.format(instruction.address, operation, rep))
+                    self.warn('LD operand replaced with routine label in unsubbed operation:\n  {} {} -> {}'.format(instruction.addr_str, operation, rep))
                 instruction.operation = rep
             elif instruction.warn and instruction.is_in_routine():
                 # Warn if we cannot find a label to replace the operand of this
                 # routine instruction (will need @nowarn if this is OK)
-                self.warn('Found no label for operand: {0} {1}'.format(instruction.address, operation))
+                self.warn('Found no label for operand: {} {}'.format(instruction.addr_str, operation))
         elif label_warn and self.mode.do_ssubs and operand_int >= self.base_address:
             # Warn if the operand is at or above the base address of the
             # disassembly (where code might be) but doesn't refer to the
             # address of an instruction (will need @nowarn if this is OK)
-            self.warn('Unreplaced operand: {0} {1}'.format(instruction.address, operation))
+            self.warn('Unreplaced operand: {} {}'.format(instruction.addr_str, operation))
 
 class Mode:
     def __init__(self, case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels):

@@ -2017,6 +2017,24 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0], 'WARNING: Unreplaced operand: 30000 JR 30002')
 
+    def test_address_strings_in_warnings(self):
+        skool = '\n'.join((
+            '@start',
+            '@label=START',
+            'c$8000 LD HL,$8003',
+            ' $8003 LD DE,$8000',
+            ' $8006 CALL $8001',
+        ))
+        self._get_parser(skool, asm_mode=2, warnings=True)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        exp_warnings = [
+            'WARNING: Found no label for operand: 8000 LD HL,$8003',
+            'WARNING: LD operand replaced with routine label in unsubbed operation:',
+            '  8003 LD DE,$8000 -> LD DE,START',
+            'WARNING: Unreplaced operand: 8006 CALL $8001',
+        ]
+        self.assertEqual(exp_warnings, warnings)
+
     def test_label_substitution_for_address_operands(self):
         skool = (
             '@start',
