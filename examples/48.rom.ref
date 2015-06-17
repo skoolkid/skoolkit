@@ -27,6 +27,11 @@ EntryTypes=su
 LengthColumn=1
 PageByteColumns=0
 
+[Changelog:YYYYMMDD]
+Included in SkoolKit 4.5.
+
+Revealed the calculator literals in the routine at #R$3449
+
 [Changelog:20150523]
 Included in SkoolKit 4.4.
 
