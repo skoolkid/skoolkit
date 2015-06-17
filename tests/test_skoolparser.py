@@ -2010,12 +2010,22 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = '\n'.join((
             '@start',
             '; Start',
-            'c30000 JR 30002'
+            'c30000 JR 30001'
         ))
         self._get_parser(skool, asm_mode=2, warnings=True)
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 1)
-        self.assertEqual(warnings[0], 'WARNING: Unreplaced operand: 30000 JR 30002')
+        self.assertEqual(warnings[0], 'WARNING: Unreplaced operand: 30000 JR 30001')
+
+    def test_no_warning_for_operands_outside_disassembly_address_range(self):
+        skool = '\n'.join((
+            '@start',
+            'c30000 JR 29999',
+            ' 30002 LD HL,(30005)'
+        ))
+        self._get_parser(skool, asm_mode=2, warnings=True)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual([], warnings)
 
     def test_address_strings_in_warnings(self):
         skool = '\n'.join((

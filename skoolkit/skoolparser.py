@@ -23,7 +23,7 @@ from . import warn, wrap, get_int_param, parse_int, open_file, SkoolParsingError
 from .disassembler import convert_case
 from .skoolmacro import DELIMITERS
 from .textutils import partition_unquoted
-from .z80 import assemble, split_operation
+from .z80 import assemble, get_size, split_operation
 
 DIRECTIVES = 'bcgistuw'
 
@@ -397,6 +397,7 @@ class SkoolParser:
         self.entries = {}            # address -> SkoolEntry
         self.memory_map = []         # SkoolEntry instances
         self.base_address = 65536
+        self.end_address = 0
         self.header = []
         self.stack = []
         self.comments = []
@@ -544,7 +545,6 @@ class SkoolParser:
         if self.comments and map_entry:
             self._add_end_comment(map_entry)
 
-        # Do some post-processing
         if min_address > 0 or max_address < 65536:
             self.memory_map = [e for e in self.memory_map if min_address <= e.address < max_address]
             self.entries = {k: v for k, v in self.entries.items() if min_address <= k < max_address}
@@ -557,6 +557,12 @@ class SkoolParser:
             self.instructions = {k: v for k, v in self.instructions.items() if self.base_address <= k < max_address}
             address_comments = [c for c in address_comments if self.base_address <= c[0].address < max_address]
 
+        if self.instructions:
+            end_address = max(self.instructions)
+            last_instruction = self.instructions[end_address][0]
+            self.end_address = end_address + (get_size(last_instruction.operation, end_address) or 1)
+
+        # Do some post-processing
         parse_address_comments(address_comments, self.mode.html)
         self._calculate_references()
         if self.mode.asm_labels:
@@ -750,8 +756,8 @@ class SkoolParser:
                 # Warn if we cannot find a label to replace the operand of this
                 # routine instruction (will need @nowarn if this is OK)
                 self.warn('Found no label for operand: {} {}'.format(instruction.addr_str, operation))
-        elif label_warn and self.mode.do_ssubs and operand_int >= self.base_address:
-            # Warn if the operand is at or above the base address of the
+        elif label_warn and self.mode.do_ssubs and self.base_address <= operand_int < self.end_address:
+            # Warn if the operand is inside the address range of the
             # disassembly (where code might be) but doesn't refer to the
             # address of an instruction (will need @nowarn if this is OK)
             self.warn('Unreplaced operand: {} {}'.format(instruction.addr_str, operation))
