@@ -525,8 +525,8 @@ class SkoolParser:
 
             if map_entry:
                 address_comments.append([instruction, address_comment])
-                instructions = self.instructions.setdefault(address, [])
-                instructions.append(instruction)
+                if address is not None:
+                    self.instructions.setdefault(address, []).append(instruction)
                 map_entry.add_instruction(instruction)
                 if self.comments:
                     mid_routine_comment = join_comments(self.comments, split=True, html=self.mode.html)
