@@ -286,6 +286,17 @@ class Bin2TapTest(SkoolKitTestCase):
         tap_data = self._run('-o {} -e {} {}'.format(org, end, z80), tapfile=tapfile)
         self._check_tap(tap_data, data, infile=z80)
 
+    def test_option_e_with_szx(self):
+        ram = [0] * 49152
+        data = list(range(17))
+        org = 50000
+        end = org + len(data)
+        ram[org - 16384:end - 16384] = data
+        szx = self.write_szx(ram)
+        tapfile = szx[:-4] + '.tap'
+        tap_data = self._run('-o {} -e {} {}'.format(org, end, szx), tapfile=tapfile)
+        self._check_tap(tap_data, data, infile=szx)
+
     def test_option_end_with_sna(self):
         ram = [0] * 49152
         data = list(range(15))

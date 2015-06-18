@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import zlib
 import unittest
 
 from skoolkittest import SkoolKitTestCase
@@ -162,52 +161,8 @@ class Z80Test(SnapshotTest):
             get_snapshot(z80_file)
 
 class SZXTest(SnapshotTest):
-    def _get_szx_header(self, machine_id=1, ch7ffd=0, specregs=True):
-        header = [90, 88, 83, 84] # ZXST
-        header.extend((1, 4)) # Version 1.4
-        header.append(machine_id) # 0=16K, 1=48K, 2+=128K
-        header.append(0) # Flags
-        if specregs:
-            header.extend((83, 80, 67, 82)) # SPCR
-            header.extend((8, 0, 0, 0)) # Size
-            header.append(0) # Border
-            header.append(ch7ffd) # Last OUT to port $7FFD
-            header.extend((0, 0, 0, 0, 0, 0))
-        return header
-
-    def _get_zxstrampage(self, page, compress, data):
-        if compress:
-            # PY: No need to convert to bytes and bytearray in Python 3
-            ram = bytearray(zlib.compress(bytes(bytearray(data)), 9))
-        else:
-            ram = data
-        ramp = [82, 65, 77, 80] # RAMP
-        size = len(ram) + 3
-        ramp.extend((size % 256, size // 256, 0, 0))
-        ramp.extend((1 if compress else 0, 0))
-        ramp.append(page)
-        ramp.extend(ram)
-        return ramp
-
     def _test_szx(self, exp_ram, compress, machine_id=1, ch7ffd=0, pages={}, page=None):
-        szx = self._get_szx_header(machine_id, ch7ffd)
-        rampages = {5: self._get_zxstrampage(5, compress, exp_ram[:16384])}
-        if machine_id >= 1:
-            # 48K and 128K
-            rampages[2] = self._get_zxstrampage(2, compress, exp_ram[16384:32768])
-            if machine_id == 1:
-                # 48K
-                rampages[0] = self._get_zxstrampage(0, compress, exp_ram[32768:])
-            else:
-                # 128K
-                rampages[ch7ffd & 7] = self._get_zxstrampage(ch7ffd & 7, compress, exp_ram[32768:])
-                for bank, data in pages.items():
-                    rampages[bank] = self._get_zxstrampage(bank, compress, data)
-                for bank in set(range(8)) - set(rampages.keys()):
-                    rampages[bank] = self._get_zxstrampage(bank, compress, [0] * 16384)
-        for rampage in rampages.values():
-            szx.extend(rampage)
-        tmp_szx = self.write_bin_file(szx, suffix='.szx')
+        tmp_szx = self.write_szx(exp_ram, compress, machine_id, ch7ffd, pages)
         snapshot = get_snapshot(tmp_szx, page)
         self._check_ram(snapshot[16384:], exp_ram, machine_id, ch7ffd, pages, page)
 

@@ -9,6 +9,7 @@ from os.path import abspath, dirname
 from shutil import rmtree
 import glob
 import tempfile
+import zlib
 from unittest import TestCase
 
 SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
@@ -172,6 +173,53 @@ class SkoolKitTestCase(TestCase):
             for bank, data in banks.items():
                 z80 += self._get_z80_ram_block(data, compress, bank + 3)
         return model, self.write_bin_file(z80, suffix='.z80')
+
+    def _get_szx_header(self, machine_id=1, ch7ffd=0, specregs=True):
+        header = [90, 88, 83, 84] # ZXST
+        header.extend((1, 4)) # Version 1.4
+        header.append(machine_id) # 0=16K, 1=48K, 2+=128K
+        header.append(0) # Flags
+        if specregs:
+            header.extend((83, 80, 67, 82)) # SPCR
+            header.extend((8, 0, 0, 0)) # Size
+            header.append(0) # Border
+            header.append(ch7ffd) # Last OUT to port $7FFD
+            header.extend((0, 0, 0, 0, 0, 0))
+        return header
+
+    def _get_zxstrampage(self, page, compress, data):
+        if compress:
+            # PY: No need to convert to bytes and bytearray in Python 3
+            ram = bytearray(zlib.compress(bytes(bytearray(data)), 9))
+        else:
+            ram = data
+        ramp = [82, 65, 77, 80] # RAMP
+        size = len(ram) + 3
+        ramp.extend((size % 256, size // 256, 0, 0))
+        ramp.extend((1 if compress else 0, 0))
+        ramp.append(page)
+        ramp.extend(ram)
+        return ramp
+
+    def write_szx(self, exp_ram, compress=True, machine_id=1, ch7ffd=0, pages={}):
+        szx = self._get_szx_header(machine_id, ch7ffd)
+        rampages = {5: self._get_zxstrampage(5, compress, exp_ram[:16384])}
+        if machine_id >= 1:
+            # 48K and 128K
+            rampages[2] = self._get_zxstrampage(2, compress, exp_ram[16384:32768])
+            if machine_id == 1:
+                # 48K
+                rampages[0] = self._get_zxstrampage(0, compress, exp_ram[32768:])
+            else:
+                # 128K
+                rampages[ch7ffd & 7] = self._get_zxstrampage(ch7ffd & 7, compress, exp_ram[32768:])
+                for bank, data in pages.items():
+                    rampages[bank] = self._get_zxstrampage(bank, compress, data)
+                for bank in set(range(8)) - set(rampages):
+                    rampages[bank] = self._get_zxstrampage(bank, compress, [0] * 16384)
+        for rampage in rampages.values():
+            szx.extend(rampage)
+        return self.write_bin_file(szx, suffix='.szx')
 
     def to_lines(self, text, strip_cr):
         # Use rstrip() to remove '\r' characters (useful on Windows)
