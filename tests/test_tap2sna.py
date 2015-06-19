@@ -12,6 +12,14 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit import tap2sna, VERSION, SkoolKitError
 from skoolkit.snapshot import get_snapshot
 
+Z80_REGISTERS = {
+    'a': 0, 'f': 1, 'bc': 2, 'c': 2, 'b': 3, 'hl': 4, 'l': 4, 'h': 5,
+    'sp': 8, 'i': 10, 'r': 11, 'de': 13, 'e': 13, 'd': 14, '^bc': 15,
+    '^c': 15, '^b': 16, '^de': 17, '^e': 17, '^d': 18, '^hl': 19,
+    '^l': 19, '^h': 20, '^a': 21, '^f': 22, 'iy': 23, 'ix': 25,
+    'pc': 32
+}
+
 def mock_write_z80(ram, namespace, z80):
     global snapshot
     snapshot = [0] * 16384 + ram
@@ -466,14 +474,31 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.run_tap2sna('{} {}'.format(tzxfile, z80file))
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: Unknown TZX block ID: 0x{:X}'.format(z80file, block_id))
 
-    def test_reg(self):
-        z80_registers = {
-            'a': 0, 'f': 1, 'bc': 2, 'c': 2, 'b': 3, 'hl': 4, 'l': 4, 'h': 5,
-            'sp': 8, 'i': 10, 'r': 11, 'de': 13, 'e': 13, 'd': 14, '^bc': 15,
-            '^c': 15, '^b': 16, '^de': 17, '^e': 17, '^d': 18, '^hl': 19,
-            '^l': 19, '^h': 20, '^a': 21, '^f': 22, 'iy': 23, 'ix': 25,
-            'pc': 32
+    def test_default_register_values(self):
+        block = _create_tap_data_block([0])
+        tapfile = self._write_tap([block])
+        z80file = self.write_bin_file(suffix='.z80')
+        exp_reg_values = {
+            'a': 0, 'f': 0, 'bc': 0, 'de': 0, 'hl': 0, 'i': 63, 'r': 0,
+            '^bc': 0, '^de': 0, '^hl': 0, 'ix': 0, 'iy': 23610, 'sp': 0, 'pc': 0
         }
+
+        output, error = self.run_tap2sna('--force --ram load=1,16384 {} {}'.format(tapfile, z80file))
+        self.assertEqual(error, '')
+        with open(z80file, 'rb') as f:
+            z80_header = bytearray(f.read(34))
+        for reg, exp_value in exp_reg_values.items():
+            offset = Z80_REGISTERS[reg]
+            size = len(reg) - 1 if reg.startswith('^') else len(reg)
+            if size == 1:
+                value = z80_header[offset]
+            else:
+                value = z80_header[offset] + 256 * z80_header[offset + 1]
+            self.assertEqual(value, exp_value)
+            if reg == 'r' and exp_value & 128:
+                self.assertEqual(z80_header[12] & 1, 1)
+
+    def test_reg(self):
         block = _create_tap_data_block([1])
         tapfile = self._write_tap([block])
         z80file = self.write_bin_file(suffix='.z80')
@@ -490,7 +515,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             with open(z80file, 'rb') as f:
                 z80_header = bytearray(f.read(34))
             for reg, exp_value in reg_dict.items():
-                offset = z80_registers[reg]
+                offset = Z80_REGISTERS[reg]
                 size = len(reg) - 1 if reg.startswith('^') else len(reg)
                 if size == 1:
                     value = z80_header[offset]
@@ -522,11 +547,23 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(output[0], 'Usage: --reg name=value')
         self.assertEqual(error, '')
 
+    def test_default_state(self):
+        block = _create_tap_data_block([0])
+        tapfile = self._write_tap([block])
+        z80file = self.write_bin_file(suffix='.z80')
+        output, error = self.run_tap2sna('--force --ram load=1,16384 {} {}'.format(tapfile, z80file))
+        self.assertEqual(error, '')
+        with open(z80file, 'rb') as f:
+            z80_header = bytearray(f.read(30))
+        self.assertEqual(z80_header[12] & 14, 0) # border=0
+        self.assertEqual(z80_header[27], 1) # iff=1
+        self.assertEqual(z80_header[29] & 3, 1) # im=1
+
     def test_state_iff(self):
         block = _create_tap_data_block([0])
         tapfile = self._write_tap([block])
         z80file = self.write_bin_file(suffix='.z80')
-        iff_value = 1
+        iff_value = 0
         output, error = self.run_tap2sna('--force --ram load=1,16384 --state iff={} {} {}'.format(iff_value, tapfile, z80file))
         self.assertEqual(error, '')
         with open(z80file, 'rb') as f:

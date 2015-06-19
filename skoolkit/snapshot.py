@@ -18,7 +18,39 @@
 
 import zlib
 
-from . import read_bin_file, SkoolKitError
+from . import get_int_param, read_bin_file, SkoolKitError
+
+# http://www.worldofspectrum.org/faq/reference/z80format.htm
+Z80_REGISTERS = {
+    'a': 0,
+    'f': 1,
+    'bc': 2,
+    'c': 2,
+    'b': 3,
+    'hl': 4,
+    'l': 4,
+    'h': 5,
+    'sp': 8,
+    'i': 10,
+    'r': 11,
+    'de': 13,
+    'e': 13,
+    'd': 14,
+    '^bc': 15,
+    '^c': 15,
+    '^b': 16,
+    '^de': 17,
+    '^e': 17,
+    '^d': 18,
+    '^hl': 19,
+    '^l': 19,
+    '^h': 20,
+    '^a': 21,
+    '^f': 22,
+    'iy': 23,
+    'ix': 25,
+    'pc': 32
+}
 
 def get_snapshot(fname, page=None):
     ext = fname[-4:].lower()
@@ -36,6 +68,47 @@ def get_snapshot(fname, page=None):
     mem = [0] * 16384
     mem.extend(ram)
     return mem
+
+def set_z80_registers(z80, *specs):
+    for spec in specs:
+        reg, sep, val = spec.lower().partition('=')
+        if sep:
+            if reg.startswith('^'):
+                size = len(reg) - 1
+            else:
+                size = len(reg)
+            offset = Z80_REGISTERS.get(reg, -1)
+            if offset >= 0:
+                try:
+                    value = get_int_param(val)
+                except ValueError:
+                    raise SkoolKitError("Cannot parse register value: {}".format(spec))
+                lsb, msb = value % 256, (value & 65535) // 256
+                if size == 1:
+                    z80[offset] = lsb
+                elif size == 2:
+                    z80[offset:offset + 2] = [lsb, msb]
+                if reg == 'r' and lsb & 128:
+                    z80[12] |= 1
+            else:
+                raise SkoolKitError('Invalid register: {}'.format(spec))
+
+def set_z80_state(z80, *specs):
+    for spec in specs:
+        name, sep, val = spec.lower().partition('=')
+        try:
+            if name == 'iff':
+                z80[27] = get_int_param(val) & 255
+            elif name == 'im':
+                z80[29] &= 252 # Clear bits 0 and 1
+                z80[29] |= get_int_param(val) & 3
+            elif name == 'border':
+                z80[12] &= 241 # Clear bits 1-3
+                z80[12] |= (get_int_param(val) & 7) * 2 # Border colour
+            else:
+                raise SkoolKitError("Invalid parameter: {}".format(spec))
+        except ValueError:
+            raise SkoolKitError("Cannot parse integer: {}".format(spec))
 
 def make_z80_ram_block(data, page):
     block = []

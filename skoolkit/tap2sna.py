@@ -30,7 +30,7 @@ except ImportError:                    # pragma: no cover
     from urllib.parse import urlparse  # pragma: no cover
 
 from . import VERSION, SkoolKitError, get_int_param, open_file, write_line
-from .snapshot import make_z80_ram_block
+from .snapshot import Z80_REGISTERS, set_z80_registers, set_z80_state, make_z80_ram_block
 
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
@@ -42,87 +42,14 @@ class SkoolKitArgumentParser(argparse.ArgumentParser):
 class TapeError(Exception):
     pass
 
-Z80_REGISTERS = {
-    'a': 0,
-    'f': 1,
-    'bc': 2,
-    'c': 2,
-    'b': 3,
-    'hl': 4,
-    'l': 4,
-    'h': 5,
-    'sp': 8,
-    'i': 10,
-    'r': 11,
-    'de': 13,
-    'e': 13,
-    'd': 14,
-    '^bc': 15,
-    '^c': 15,
-    '^b': 16,
-    '^de': 17,
-    '^e': 17,
-    '^d': 18,
-    '^hl': 19,
-    '^l': 19,
-    '^h': 20,
-    '^a': 21,
-    '^f': 22,
-    'iy': 23,
-    'ix': 25,
-    'pc': 32
-}
-
 def _get_z80(ram, options):
-    # http://www.worldofspectrum.org/faq/reference/z80format.htm
     z80 = [0] * 86
     z80[30] = 54 # Indicate a v3 Z80 snapshot
-
-    z80[10] = 63 # I=63 (interrupt page address register)
-    z80[23:25] = [58, 92] # IY=23610
-    z80[27] = 1 # Enable interrupts
-    z80[29] = 1 # IM 1
-    for spec in options.reg:
-        reg, sep, val = spec.lower().partition('=')
-        if sep:
-            if reg.startswith('^'):
-                size = len(reg) - 1
-            else:
-                size = len(reg)
-            offset = Z80_REGISTERS.get(reg, -1)
-            if offset >= 0:
-                try:
-                    value = get_int_param(val)
-                except ValueError:
-                    raise SkoolKitError("Cannot parse register value: {}".format(spec))
-                lsb, msb = value % 256, (value & 65535) // 256
-                if size == 1:
-                    z80[offset] = lsb
-                elif size == 2:
-                    z80[offset:offset + 2] = [lsb, msb]
-                if reg == 'r' and lsb & 128:
-                    z80[12] |= 1
-            else:
-                raise SkoolKitError('Invalid register: {}'.format(spec))
-
-    for spec in options.state:
-        name, sep, val = spec.lower().partition('=')
-        try:
-            if name == 'iff':
-                z80[27] = get_int_param(val) & 255
-            elif name == 'im':
-                z80[29] &= 252 # Clear bits 0 and 1
-                z80[29] |= get_int_param(val) & 3
-            elif name == 'border':
-                z80[12] &= 241 # Clear bits 1-3
-                z80[12] |= (get_int_param(val) & 7) * 2 # Border colour
-            else:
-                raise SkoolKitError("Invalid parameter: {}".format(spec))
-        except ValueError:
-            raise SkoolKitError("Cannot parse integer: {}".format(spec))
-
-    banks = ((5, ram[:16384]), (1, ram[16384:32768]), (2, ram[32768:49152]))
-    for bank, data in banks:
+    set_z80_registers(z80, 'i=63', 'iy=23610')
+    set_z80_registers(z80, *options.reg)
+    set_z80_state(z80, 'iff=1', 'im=1')
+    set_z80_state(z80, *options.state)
+    for bank, data in ((5, ram[:16384]), (1, ram[16384:32768]), (2, ram[32768:49152])):
         z80 += make_z80_ram_block(data, bank + 3)
     return z80
 
