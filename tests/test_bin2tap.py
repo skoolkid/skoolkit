@@ -61,23 +61,31 @@ class Bin2TapTest(SkoolKitTestCase):
         title = [ord(c) for c in name[:10].ljust(10)]
 
         # BASIC loader header
-        basic_loader_header = tap_data[:21]
+        i, j = 0, 21
+        basic_loader_header = tap_data[i:j]
+        loader_length = 20
         exp_header = [19, 0, 0, 0]
         exp_header += title
-        exp_header += [27, 0, 10, 0, 27, 0]
+        exp_header += [loader_length, 0, 10, 0, loader_length, 0]
         exp_header.append(self._get_parity(exp_header))
         self.assertEqual(exp_header, basic_loader_header)
 
         # BASIC loader data
-        basic_loader_data = tap_data[21:52]
-        exp_data = [29, 0, 255]
-        exp_data += [0, 10, 5, 0, 239, 34, 34, 175, 13] # 10 LOAD ""CODE
-        exp_data += [0, 20, 14, 0, 249, 192, 50, 51, 50, 57, 54, 14, 0, 0, 0, 91, 0, 13] # 20 RANDOMIZE USR 23296
+        i, j = j, j + loader_length + 4
+        basic_loader_data = tap_data[i:j]
+        start_addr = self._get_str('"23296"')
+        exp_data = [loader_length + 2, 0, 255]
+        exp_data += [0, 10, 16, 0]
+        exp_data += [239, 34, 34, 175]            # LOAD ""CODE
+        exp_data.append(58)                       # :
+        exp_data += [249, 192, 176] + start_addr  # RANDOMIZE USR VAL "23296"
+        exp_data.append(13)                       # ENTER
         exp_data.append(self._get_parity(exp_data))
         self.assertEqual(exp_data, basic_loader_data)
 
         # Code loader header
-        code_loader_header = tap_data[52:73]
+        i, j = j, j + 21
+        code_loader_header = tap_data[i:j]
         exp_header = [19, 0, 0, 3]
         exp_header += title
         exp_header += [19, 0, 0, 91, 0, 0]
@@ -85,7 +93,8 @@ class Bin2TapTest(SkoolKitTestCase):
         self.assertEqual(exp_header, code_loader_header)
 
         # Code loader data
-        code_loader_data = tap_data[73:96]
+        i, j = j, j + 23
+        code_loader_data = tap_data[i:j]
         exp_data = [21, 0, 255, 221, 33]
         exp_data.extend(self._get_word(org))
         exp_data.append(17)
@@ -98,7 +107,7 @@ class Bin2TapTest(SkoolKitTestCase):
         exp_data.append(self._get_parity(exp_data))
 
         # Data
-        data = tap_data[96:]
+        data = tap_data[j:]
         exp_data = []
         exp_data.extend(self._get_word(len(bin_data) + 2))
         exp_data.append(255)

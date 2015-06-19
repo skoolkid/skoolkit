@@ -58,15 +58,8 @@ def _get_header(title, length, start=None, line=None):
 def _get_basic_loader(title, clear, start):
     data = [0, 10]                          # Line 10
     if clear is None:
-        data.extend((5, 0))                 # Length of line 10
-        data.extend((239, 34, 34, 175))     # LOAD ""CODE
-        data.append(13)                     # ENTER
-        data.extend((0, 20))                # Line 20
-        data.extend((14, 0))                # Length of line 20
-        data.extend((249, 192))             # RANDOMIZE USR
-        data.extend(_get_str("23296"))      # 23296
-        data.append(14)                     # Floating-point number marker
-        data.extend((0, 0, 0, 91, 0))       # 23296 in floating-point form
+        start_addr = '"23296"'
+        data.extend((16, 0))                # Length of line 10
     else:
         clear_addr = '"{}"'.format(clear)
         start_addr = '"{}"'.format(start)
@@ -75,10 +68,10 @@ def _get_basic_loader(title, clear, start):
         data.extend((253, 176))             # CLEAR VAL
         data.extend(_get_str(clear_addr))   # "address"
         data.append(58)                     # :
-        data.extend((239, 34, 34, 175))     # LOAD ""CODE
-        data.append(58)                     # :
-        data.extend((249, 192, 176))        # RANDOMIZE USR VAL
-        data.extend(_get_str(start_addr))   # "address"
+    data.extend((239, 34, 34, 175))         # LOAD ""CODE
+    data.append(58)                         # :
+    data.extend((249, 192, 176))            # RANDOMIZE USR VAL
+    data.extend(_get_str(start_addr))       # "address"
     data.append(13)                         # ENTER
 
     return _get_header(title, len(data), line=10) + _make_tap_block(data)
