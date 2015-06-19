@@ -39,16 +39,12 @@ class MockSkoolParser:
         self.asm_writer_class = ''
 
 class MockAsmWriter:
-    def __init__(self, parser, crlf, tab, properties, lower, instr_width, show_warnings):
+    def __init__(self, parser, properties, lower):
         global mock_asm_writer
         mock_asm_writer = self
         self.parser = parser
-        self.crlf = crlf
-        self.tab = tab
         self.properties = properties
         self.lower = lower
-        self.instr_width = instr_width
-        self.show_warnings = show_warnings
 
     def write(self):
         pass
@@ -100,12 +96,8 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(mock_skool_parser.max_address, 65536)
 
         self.assertIs(mock_asm_writer.parser, mock_skool_parser)
-        self.assertFalse(mock_asm_writer.crlf)
-        self.assertFalse(mock_asm_writer.tab)
         self.assertFalse(mock_asm_writer.lower)
         self.assertEqual({}, mock_asm_writer.properties)
-        self.assertEqual(mock_asm_writer.instr_width, 23)
-        self.assertTrue(mock_asm_writer.show_warnings)
 
     def test_no_arguments(self):
         output, error = self.run_skool2asm('-x', catch_exit=2)

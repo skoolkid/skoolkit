@@ -25,10 +25,12 @@ from .skoolparser import TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER
 
 UDGTABLE_MARKER = '#UDGTABLE'
 
+DEF_INSTRUCTION_WIDTH = 23
+
 class AsmWriter:
-    def __init__(self, parser, crlf, tab, properties, lower, instr_width, show_warnings):
+    def __init__(self, parser, properties, lower):
         self.parser = parser
-        self.show_warnings = show_warnings
+        self.show_warnings = self._get_int_property(properties, 'warnings', 1)
 
         # Build a label dictionary
         self.labels = {}
@@ -51,24 +53,22 @@ class AsmWriter:
         self.lower = lower
 
         # Field widths (line = indent + instruction + ' ; ' + comment)
-        if tab:
+        if self._get_int_property(properties, 'tab', 0):
             self.indent_width = 8
+            self.indent = '\t'
         else:
             self.indent_width = self._get_int_property(properties, 'indent', 2)
-        self.instr_width = instr_width
+            self.indent = ' ' * self.indent_width
+        self.instr_width = self._get_int_property(properties, 'instruction-width', DEF_INSTRUCTION_WIDTH)
         self.min_comment_width = self._get_int_property(properties, 'comment-width-min', 10)
         self.line_width = self._get_int_property(properties, 'line-width', 79)
         self.desc_width = self.line_width - 2
 
-        # Line terminator and indent
-        if crlf:
+        # Line terminator
+        if self._get_int_property(properties, 'crlf', 0):
             self.end = '\r\n'
         else:
             self.end = '\n'
-        if tab:
-            self.indent = '\t'
-        else:
-            self.indent = ' ' * self.indent_width
 
         # Label suffix
         if self._get_int_property(properties, 'label-colons', 1):

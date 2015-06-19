@@ -21,13 +21,7 @@ import time
 
 from . import info, get_class, VERSION, show_package_dir
 from .skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, BASE_16
-from .skoolasm import AsmWriter
-
-DEF_INSTR_WIDTH = 23
-
-TAB = 'tab'
-CRLF = 'crlf'
-INSTRUCTION_WIDTH = 'instruction-width'
+from .skoolasm import AsmWriter, DEF_INSTRUCTION_WIDTH
 
 def clock(quiet, prefix, operation, *args, **kwargs):
     go = time.time()
@@ -57,23 +51,14 @@ def run(skoolfile, options):
         asm_writer_class = AsmWriter
     properties = dict(parser.properties)
     if options.crlf:
-        properties[CRLF] = '1'
+        properties['crlf'] = '1'
     if options.inst_width is not None:
-        properties[INSTRUCTION_WIDTH] = options.inst_width
+        properties['instruction-width'] = options.inst_width
     if options.tabs:
-        properties[TAB] = '1'
-    crlf = properties.get(CRLF, '0') != '0'
-    tab = properties.get(TAB, '0') != '0'
-    lower = options.case == CASE_LOWER
-    try:
-        instr_width = int(properties.get(INSTRUCTION_WIDTH, DEF_INSTR_WIDTH))
-    except ValueError:
-        instr_width = DEF_INSTR_WIDTH
-    if options.warn:
-        show_warnings = properties.get('warnings', '1') != '0'
-    else:
-        show_warnings = False
-    asm_writer = asm_writer_class(parser, crlf, tab, properties, lower, instr_width, show_warnings)
+        properties['tab'] = '1'
+    if not options.warn:
+        properties['warnings'] = '0'
+    asm_writer = asm_writer_class(parser, properties, options.case == CASE_LOWER)
     clock(options.quiet, 'Wrote ASM to stdout', asm_writer.write)
 
 def main(args):
@@ -103,7 +88,7 @@ def main(args):
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16,
                        help="Write the disassembly in hexadecimal")
     group.add_argument('-i', '--inst-width', dest='inst_width', metavar='N', type=int,
-                       help="Set instruction field width (default={})".format(DEF_INSTR_WIDTH))
+                       help="Set instruction field width (default={})".format(DEF_INSTRUCTION_WIDTH))
     group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER,
                        help="Write the disassembly in lower case")
     group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',

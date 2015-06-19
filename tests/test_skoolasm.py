@@ -337,7 +337,12 @@ class AsmWriterTest(SkoolKitTestCase):
     def _get_writer(self, skool='', crlf=False, tab=False, case=None, base=None, instr_width=23, warn=False, asm_mode=1, fix_mode=0):
         skoolfile = self.write_text_file(skool, suffix='.skool')
         skool_parser = SkoolParser(skoolfile, case=case, base=base, asm_mode=asm_mode, fix_mode=fix_mode)
-        return AsmWriter(skool_parser, crlf, tab, skool_parser.properties, case == CASE_LOWER, instr_width, warn)
+        properties = dict(skool_parser.properties)
+        properties['crlf'] = '1' if crlf else '0'
+        properties['tab'] = '1' if tab else '0'
+        properties['instruction-width'] = instr_width
+        properties['warnings'] = '1' if warn else '0'
+        return AsmWriter(skool_parser, properties, case == CASE_LOWER)
 
     def _get_asm(self, skool, crlf=False, tab=False, case=None, base=None, instr_width=23, warn=False, asm_mode=1, fix_mode=0):
         self.clear_streams()
@@ -1730,7 +1735,12 @@ class TableMacroTest(SkoolKitTestCase):
     def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')
         skool_parser = SkoolParser(skoolfile, asm_mode=1)
-        return AsmWriter(skool_parser, crlf, tab, skool_parser.properties, False, instr_width, warn)
+        properties = dict(skool_parser.properties)
+        properties['crlf'] = '1' if crlf else '0'
+        properties['tab'] = '1' if tab else '0'
+        properties['instruction-width'] = instr_width
+        properties['warnings'] = '1' if warn else '0'
+        return AsmWriter(skool_parser, properties, False)
 
     def assert_error(self, skool, error):
         self.clear_streams()
@@ -2198,7 +2208,12 @@ class ListMacroTest(SkoolKitTestCase):
     def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')
         skool_parser = SkoolParser(skoolfile, asm_mode=1)
-        return AsmWriter(skool_parser, crlf, tab, skool_parser.properties, False, instr_width, warn)
+        properties = dict(skool_parser.properties)
+        properties['crlf'] = '1' if crlf else '0'
+        properties['tab'] = '1' if tab else '0'
+        properties['instruction-width'] = instr_width
+        properties['warnings'] = '1' if warn else '0'
+        return AsmWriter(skool_parser, properties, False)
 
     def assert_error(self, skool, error):
         self.clear_streams()
