@@ -3,10 +3,9 @@ Changelog
 
 4.5b1
 -----
-* Added support to :ref:`tap2sna.py` for TZX block type 0x14 (pure data)
-* Added support to :ref:`tap2sna.py` for loading the first and last bytes of a
-  tape block (which are usually, but not always, the flag and parity bytes)
-* Added support to :ref:`tap2sna.py` for modifying memory with XOR and ADD
+* Added support to :ref:`tap2sna.py` for TZX block type 0x14 (pure data), for
+  loading the first and last bytes of a tape block (which are usually, but not
+  always, the flag and parity bytes), and for modifying memory with XOR and ADD
   operations
 * Added the ``--clear`` option to :ref:`bin2tap.py` (to use a CLEAR command in
   the BASIC loader and leave the stack pointer alone)
@@ -14,9 +13,14 @@ Changelog
   SNA, SZX and Z80 snapshots
 * Added ``--start`` and ``--end`` options to :ref:`skool2asm.py`,
   :ref:`skool2ctl.py` and :ref:`skool2sft.py`
+* The ``--start`` and ``--end`` options of :ref:`sna2skool.py` now take effect
+  when reading a control file or a skool file template
 * Added support to :ref:`skool2ctl.py` and :ref:`skool2sft.py` for preserving
   characters in DEFW statements (e.g. ``DEFW "!"``)
 * Added support for characters in DEFS statements (e.g. ``DEFS 10,"!"``)
+* Fixed the erroneous replacement of DEFS operands with labels
+* Fixed the handling of terminal compound sublengths on 'S' directives (e.g.
+  ``S 30000,10,5:32``)
 
 4.4 (2015-05-23)
 ----------------
