@@ -115,15 +115,21 @@ class SkoolKitTestCase(TestCase):
     def _get_z80_ram_block(self, data, compress, page=None):
         if compress:
             block = []
-            prev_b = data[0]
-            count = 1
-            for b in data[1:] + [-1]:
-                if b == prev_b:
+            prev_b = None
+            count = 0
+            for b in data + [-1]:
+                if b == prev_b or prev_b is None:
+                    prev_b = b
                     if count < 255:
                         count += 1
                         continue
                 if count > 4 or (prev_b == 237 and count > 1):
                     block += [237, 237, count, prev_b]
+                elif prev_b == 237:
+                    block += [237, b]
+                    prev_b = None
+                    count = 0
+                    continue
                 else:
                     block += [prev_b] * count
                 prev_b = b

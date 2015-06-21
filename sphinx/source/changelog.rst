@@ -18,6 +18,8 @@ Changelog
 * Added support to :ref:`skool2ctl.py` and :ref:`skool2sft.py` for preserving
   characters in DEFW statements (e.g. ``DEFW "!"``)
 * Added support for characters in DEFS statements (e.g. ``DEFS 10,"!"``)
+* Fixed how :ref:`tap2sna.py` compresses a RAM block that contains a single
+  ``ED`` followed by five or more identical values (e.g. ``ED0101010101``)
 * Fixed the erroneous replacement of DEFS operands with labels
 * Fixed the handling of terminal compound sublengths on 'S' directives (e.g.
   ``S 30000,10,5:32``)

@@ -207,7 +207,7 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     def test_ram_load(self):
         start = 16384
-        data = [1, 2, 3]
+        data = [237, 1, 1, 1, 1, 1]
         snapshot = self._get_snapshot(start, data)
         self.assertEqual(snapshot[start:start + len(data)], data)
 

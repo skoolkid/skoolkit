@@ -2,7 +2,7 @@
 import unittest
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit.snapshot import get_snapshot, SnapshotError
+from skoolkit.snapshot import get_snapshot, make_z80_ram_block, SnapshotError
 
 class SnapshotTest(SkoolKitTestCase):
     def _check_ram(self, ram, exp_ram, model, out_7ffd, pages, page):
@@ -159,6 +159,19 @@ class Z80Test(SnapshotTest):
         z80_file = self.write_bin_file(z80, suffix='.z80')
         with self.assertRaisesRegexp(SnapshotError, 'Found ED ED 00 0B'):
             get_snapshot(z80_file)
+
+class Z80CompressionTest(SkoolKitTestCase):
+    def test_single_ED_followed_by_five_identical_values(self):
+        data = [237, 1, 1, 1, 1, 1]
+        block = make_z80_ram_block(data, 0)
+        exp_data = [len(data), 0, 0] + data
+        self.assertEqual(exp_data, block)
+
+    def test_single_ED_followed_by_six_identical_values(self):
+        data = [237, 2, 2, 2, 2, 2, 2]
+        block = make_z80_ram_block(data, 0)
+        exp_data = [6, 0, 0, 237, 2, 237, 237, 5, 2]
+        self.assertEqual(exp_data, block)
 
 class SZXTest(SnapshotTest):
     def _test_szx(self, exp_ram, compress, machine_id=1, ch7ffd=0, pages={}, page=None):
