@@ -19,28 +19,12 @@
 from . import write_line, get_int_param, parse_int, get_address_format, open_file, SkoolKitError
 from .textutils import find_unquoted, split_unquoted
 from .skoolparser import DIRECTIVES, set_bytes, parse_asm_block_directive
-from .skoolsft import VALID_CTLS, VERBATIM_BLOCKS
+from .skoolsft import VALID_CTLS, VERBATIM_BLOCKS, VerbatimLine
 from .ctlparser import parse_params
 from .disassembler import Disassembler
 
 class SftParsingError(SkoolKitError):
     pass
-
-class VerbatimLine:
-    def __init__(self, text):
-        self.text = text.rstrip('\r\n')
-
-    def __str__(self):
-        return self.text
-
-    def is_trimmable(self):
-        if ((self.text.startswith('@') or (self.text.startswith(';') and self.text[1:].lstrip().startswith('@')))
-             and self.text.endswith(('+end', '-end'))):
-            return False
-        return len(self.text) > 0
-
-    def is_blank(self):
-        return self.text == ''
 
 class InstructionLine:
     def __init__(self, ctl=None, address=None, operation=None, comment_index=-1, comment=None):
