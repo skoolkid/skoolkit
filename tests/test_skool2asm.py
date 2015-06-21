@@ -14,6 +14,7 @@ except ImportError:
 from skoolkittest import SkoolKitTestCase
 import skoolkit
 from skoolkit import skool2asm, write_text, SkoolKitError, VERSION
+from skoolkit.skoolparser import BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
 
 def mock_run(*args):
     global run_args
@@ -57,6 +58,12 @@ class TestAsmWriter:
         write_text('OK')
 
 class Skool2AsmTest(SkoolKitTestCase):
+    def _get_asm(self, skool, args='', out_lines=True, err_lines=True, strip_cr=True):
+        skoolfile = self.write_text_file(skool, suffix='.skool')
+        output, error = self.run_skool2asm('{} {}'.format(args, skoolfile), out_lines, err_lines, strip_cr)
+        self.assertEqual('Wrote ASM to stdout', error[-1][:19], 'Error(s) while running skool2asm.main() with args "{}"'.format(args))
+        return output
+
     @patch.object(skool2asm, 'run', mock_run)
     def test_default_option_values(self):
         skoolfile = 'test.skool'
@@ -160,7 +167,7 @@ class Skool2AsmTest(SkoolKitTestCase):
             ' 24603 XOR A',
             '; @rsub+end',
         ))
-        asm = self.get_asm(skool=skool)
+        asm = self._get_asm(skool)
         self.assertEqual(asm[0], '  ORG 24593') # no crlf, tabs or lower case
         self.assertEqual(asm[4], '  LD A,B')    # No @ofix
         self.assertEqual(asm[5], '  LD B,A')    # @ofix-
@@ -218,346 +225,114 @@ class Skool2AsmTest(SkoolKitTestCase):
             self.assertEqual(len(output), 1)
             self.assertEqual(output[0], os.path.dirname(skoolkit.__file__))
 
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_q(self):
-        skool = '\n'.join((
-            '; @start',
-            '; Do nothing',
-            'c30000 RET',
-        ))
-        skoolfile = self.write_text_file(skool, suffix='.skool')
         for option in ('-q', '--quiet'):
-            output, error = self.run_skool2asm('{0} {1}'.format(option, skoolfile))
+            output, error = self.run_skool2asm('{} test-q.skool'.format(option))
             self.assertEqual(error, '')
 
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_w(self):
-        skool = '\n'.join((
-            '; @start',
-            '; Routine at 24576',
-            ';',
-            '; Used by the routine at 24576.',
-            'c24576 JP 24576',
-        ))
-        skoolfile = self.write_text_file(skool, suffix='.skool')
         for option in ('-w', '--no-warnings'):
-            output, error = self.run_skool2asm('-q {0} {1}'.format(option, skoolfile))
-            self.assertEqual(error, '')
+            output, error = self.run_skool2asm('-q {} test-w.skool'.format(option))
+            self.assertEqual(mock_skool_parser.warnings, False)
+            self.assertEqual({'warnings': '0'}, mock_asm_writer.properties)
+            mock_asm_writer.properties = None
 
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_d(self):
-        skool = '\n'.join((
-            '; @start',
-            '; Begin',
-            'c$8000 RET',
-        ))
         for option in ('-d', '--crlf'):
-            asm = self.get_asm(option, skool, strip_cr=False)
-            self.assertEqual(asm[0][-1], '\r')
+            output, error = self.run_skool2asm('-q {} test-d.skool'.format(option))
+            self.assertEqual({'crlf': '1'}, mock_asm_writer.properties)
+            mock_asm_writer.properties = None
 
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_t(self):
-        skool = '\n'.join((
-            '; @start',
-            '; @org=24576',
-            '',
-            '; Routine',
-            'c24576 RET',
-        ))
         for option in ('-t', '--tabs'):
-            asm = self.get_asm(option, skool)
-            self.assertEqual(asm[0], '\tORG 24576')
-            self.assertEqual(asm[3], '\tRET')
+            output, error = self.run_skool2asm('-q {} test-t.skool'.format(option))
+            self.assertEqual({'tab': '1'}, mock_asm_writer.properties)
+            mock_asm_writer.properties = None
 
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_l(self):
-        skool = '\n'.join((
-            '; @start',
-            '; @org=24576',
-            '',
-            '; Routine',
-            '; @label=DOSTUFF',
-            'c24576 NOP',
-        ))
         for option in ('-l', '--lower'):
-            asm = self.get_asm(option, skool)
-            self.assertEqual(asm[0], '  org 24576')
-            self.assertEqual(asm[3], 'DOSTUFF:') # Labels unaffected
-            self.assertEqual(asm[4], '  nop')
+            output, error = self.run_skool2asm('-q {} test-l.skool'.format(option))
+            self.assertEqual(mock_skool_parser.case, CASE_LOWER)
+            mock_skool_parser.case = None
+            self.assertTrue(mock_asm_writer.lower)
+            mock_asm_writer.lower = None
 
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_u(self):
-        skool = '\n'.join((
-            '; @start',
-            '; Start the game',
-            '; @label=start',
-            'c49152 nop',
-        ))
         for option in ('-u', '--upper'):
-            asm = self.get_asm(option, skool)
-            self.assertEqual(asm[1], 'start:') # Labels unaffected
-            self.assertEqual(asm[2], '  NOP')
+            output, error = self.run_skool2asm('-q {} test-u.skool'.format(option))
+            self.assertEqual(mock_skool_parser.case, CASE_UPPER)
+            mock_skool_parser.case = None
+            self.assertFalse(mock_asm_writer.lower)
+            mock_asm_writer.lower = True
 
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_D(self):
-        skool = '\n'.join((
-            '; @start',
-            '; Begin',
-            'c$8000 JP $ABCD',
-        ))
         for option in ('-D', '--decimal'):
-            asm = self.get_asm(option, skool)
-            self.assertEqual(asm[1], '  JP 43981')
+            output, error = self.run_skool2asm('-q {} test-D.skool'.format(option))
+            self.assertEqual(mock_skool_parser.base, BASE_10)
+            mock_skool_parser.base = None
 
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_H(self):
-        skool = '\n'.join((
-            '; @start',
-            '; Begin',
-            'c$8000 JP 56506',
-        ))
         for option in ('-H', '--hex'):
-            asm = self.get_asm(option, skool)
-            self.assertEqual(asm[1], '  JP $DCBA')
+            output, error = self.run_skool2asm('-q {} test-H.skool'.format(option))
+            self.assertEqual(mock_skool_parser.base, BASE_16)
+            mock_skool_parser.base = None
 
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_i(self):
-        skool = '\n'.join((
-            '; @start',
-            '; Do nothing',
-            'c50000 RET ; Return',
-        ))
         width = 30
         for option in ('-i', '--inst-width'):
-            asm = self.get_asm('{0} {1}'.format(option, width), skool)
-            self.assertEqual(asm[1].find(';'), width + 3)
+            output, error = self.run_skool2asm('-q {} {} test-u.skool'.format(option, width))
+            self.assertEqual({'instruction-width': width}, mock_asm_writer.properties)
+            mock_asm_writer.properties = None
 
-    def test_option_f0(self):
-        skool = '\n'.join((
-            '; @start',
-            "; Let's test some @ofix directives",
-            'c24593 NOP',
-            '; @ofix=LD A,C',
-            ' 24594 LD A,B',
-            '; @ofix-begin',
-            ' 24595 LD B,A',
-            '; @ofix+else',
-            ' 24595 LD B,C',
-            '; @ofix+end',
-            '',
-            "; Let's test some @bfix directives",
-            'c24596 NOP',
-            '; @bfix=LD C,B',
-            ' 24597 LD C,A',
-            '; @bfix-begin',
-            ' 24598 LD D,A',
-            '; @bfix+else',
-            ' 24598 LD D,B',
-            '; @bfix+end',
-            '',
-            "; Let's test the @rfix block directive",
-            'c24599 NOP',
-            '; @rfix-begin',
-            ' 24600 LD E,A',
-            '; @rfix+else',
-            ' 24600 LD E,B',
-            '; @rfix+end',
-        ))
-        for option in ('-f', '--fixes'):
-            asm = self.get_asm('{0} 0'.format(option), skool)
-            self.assertEqual(asm[2], '  LD A,B')
-            self.assertEqual(asm[3], '  LD B,A')
-            self.assertEqual(asm[7], '  LD C,A')
-            self.assertEqual(asm[8], '  LD D,A')
-            self.assertEqual(asm[12], '  LD E,A')
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_option_f(self):
+        for option, value in (('-f', 1), ('--fixes', 2)):
+            output, error = self.run_skool2asm('-q {} {} test-u.skool'.format(option, value))
+            self.assertEqual(mock_skool_parser.fix_mode, value)
+            mock_skool_parser.fix_mode = None
 
-    def test_option_f1(self):
-        skool = '\n'.join((
-            '; @start',
-            "; Let's test some @ofix directives",
-            'c24593 NOP',
-            '; @ofix=LD A,C',
-            ' 24594 LD A,B',
-            '; @ofix-begin',
-            ' 24595 LD B,A',
-            '; @ofix+else',
-            ' 24595 LD B,C',
-            '; @ofix+end',
-            '',
-            "; Let's test some @bfix directives",
-            'c24596 NOP',
-            '; @bfix=LD C,B',
-            ' 24597 LD C,A',
-            '; @bfix-begin',
-            ' 24598 LD D,A',
-            '; @bfix+else',
-            ' 24598 LD D,B',
-            '; @bfix+end',
-            '',
-            "; Let's test the @rfix block directive",
-            'c24599 NOP',
-            '; @rfix-begin',
-            ' 24600 LD E,A',
-            '; @rfix+else',
-            ' 24600 LD E,B',
-            '; @rfix+end',
-        ))
-        for option in ('-f', '--fixes'):
-            asm = self.get_asm('{0} 1'.format(option), skool)
-            self.assertEqual(asm[2], '  LD A,C')
-            self.assertEqual(asm[3], '  LD B,C')
-            self.assertEqual(asm[7], '  LD C,A')
-            self.assertEqual(asm[8], '  LD D,A')
-            self.assertEqual(asm[12], '  LD E,A')
-
-    def test_option_f2(self):
-        skool = '\n'.join((
-            '; @start',
-            "; Let's test some @ofix directives",
-            'c24593 NOP',
-            '; @ofix=LD A,C',
-            ' 24594 LD A,B',
-            '; @ofix-begin',
-            ' 24595 LD B,A',
-            '; @ofix+else',
-            ' 24595 LD B,C',
-            '; @ofix+end',
-            '',
-            "; Let's test some @bfix directives",
-            'c24596 NOP',
-            '; @bfix=LD C,B',
-            ' 24597 LD C,A',
-            '; @bfix-begin',
-            ' 24598 LD D,A',
-            '; @bfix+else',
-            ' 24598 LD D,B',
-            '; @bfix+end',
-            '',
-            "; Let's test the @rfix block directive",
-            'c24599 NOP',
-            '; @rfix-begin',
-            ' 24600 LD E,A',
-            '; @rfix+else',
-            ' 24600 LD E,B',
-            '; @rfix+end',
-        ))
-        for option in ('-f', '--fixes'):
-            asm = self.get_asm('{0} 2'.format(option), skool)
-            self.assertEqual(asm[2], '  LD A,C')
-            self.assertEqual(asm[3], '  LD B,C')
-            self.assertEqual(asm[7], '  LD C,B')
-            self.assertEqual(asm[8], '  LD D,B')
-            self.assertEqual(asm[12], '  LD E,A')
-
-    def test_option_f3(self):
-        skool = '\n'.join((
-            '; @start',
-            "; Let's test some @ofix directives",
-            'c24593 NOP',
-            '; @ofix=LD A,C',
-            ' 24594 LD A,B',
-            '; @ofix-begin',
-            ' 24595 LD B,A',
-            '; @ofix+else',
-            ' 24595 LD B,C',
-            '; @ofix+end',
-            '',
-            "; Let's test some @bfix directives",
-            'c24596 NOP',
-            '; @bfix=LD C,B',
-            ' 24597 LD C,A',
-            '; @bfix-begin',
-            ' 24598 LD D,A',
-            '; @bfix+else',
-            ' 24598 LD D,B',
-            '; @bfix+end',
-            '',
-            "; Let's test the @rfix block directive",
-            'c24599 NOP',
-            '; @rfix-begin',
-            ' 24600 LD E,A',
-            '; @rfix+else',
-            ' 24600 LD E,B',
-            '; @rfix+end',
-        ))
-        for option in ('-f', '--fixes'):
-            asm = self.get_asm('{0} 3'.format(option), skool)
-            self.assertEqual(asm[2], '  LD A,C')
-            self.assertEqual(asm[3], '  LD B,C')
-            self.assertEqual(asm[7], '  LD C,B')
-            self.assertEqual(asm[8], '  LD D,B')
-            self.assertEqual(asm[12], '  LD E,B')
-
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_s(self):
-        skool = '\n'.join((
-            '; @start',
-            "; Let's test the @ssub directive",
-            '; @ssub=JP (HL)',
-            'c24601 RET',
-        ))
         for option in ('-s', '--ssub'):
-            asm = self.get_asm(option, skool)
-            self.assertEqual(asm[1], '  JP (HL)')
+            output, error = self.run_skool2asm('-q {} test-s.skool'.format(option))
+            self.assertEqual(mock_skool_parser.asm_mode, 2)
+            mock_skool_parser.asm_mode = None
 
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_r(self):
-        skool = '\n'.join((
-            '; @start',
-            "; Let's test some @ofix directives",
-            'c24593 NOP',
-            '; @ofix=LD A,C',
-            ' 24594 LD A,B',
-            '; @ofix-begin',
-            ' 24595 LD B,A',
-            '; @ofix+else',
-            ' 24595 LD B,C',
-            '; @ofix+end',
-            '',
-            "; Let's test some @bfix directives",
-            'c24596 NOP',
-            '; @bfix=LD C,B',
-            ' 24597 LD C,A',
-            '; @bfix-begin',
-            ' 24598 LD D,A',
-            '; @bfix+else',
-            ' 24598 LD D,B',
-            '; @bfix+end',
-            '',
-            "; Let's test the @rfix block directive",
-            'c24599 NOP',
-            '; @rfix-begin',
-            ' 24600 LD E,A',
-            '; @rfix+else',
-            ' 24600 LD E,B',
-            '; @rfix+end',
-            '',
-            "; Let's test the @ssub directive",
-            '; @ssub=JP (HL)',
-            'c24601 RET',
-            '',
-            "; Let's test the @rsub block directive",
-            'c24602 NOP',
-            '; @rsub-begin',
-            ' 24603 LD A,0',
-            '; @rsub+else',
-            ' 24603 XOR A',
-            '; @rsub+end',
-        ))
         for option in ('-r', '--rsub'):
-            asm = self.get_asm(option, skool)
-            self.assertEqual(asm[2], '  LD A,C')   # @ofix
-            self.assertEqual(asm[3], '  LD B,C')   # @ofix+
-            self.assertEqual(asm[7], '  LD C,A')   # No @bfix
-            self.assertEqual(asm[8], '  LD D,A')   # @bfix-
-            self.assertEqual(asm[12], '  LD E,A')  # @rfix-
-            self.assertEqual(asm[15], '  JP (HL)') # @ssub
-            self.assertEqual(asm[19], '  XOR A')   # @rsub+
+            output, error = self.run_skool2asm('-q {} test-r.skool'.format(option))
+            self.assertEqual(mock_skool_parser.asm_mode, 3)
+            mock_skool_parser.asm_mode = None
 
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_c(self):
-        skool = '\n'.join((
-            '; @start',
-            '; Begin',
-            'c32768 JR 32770',
-            '',
-            '; End',
-            'c32770 JR 32768',
-        ))
         for option in ('-c', '--create-labels'):
-            asm = self.get_asm(option, skool)
-            self.assertEqual(asm[1], 'L32768:')
-            self.assertEqual(asm[2], '  JR L32770')
-            self.assertEqual(asm[5], 'L32770:')
-            self.assertEqual(asm[6], '  JR L32768')
+            output, error = self.run_skool2asm('-q {} test-c.skool'.format(option))
+            self.assertTrue(mock_skool_parser.create_labels)
+            mock_skool_parser.create_labels = None
 
     def test_writer(self):
         skool = '\n'.join((
@@ -586,7 +361,7 @@ class Skool2AsmTest(SkoolKitTestCase):
             self.run_skool2asm(skoolfile)
 
         # Test a writer that exists
-        asm = self.get_asm(skool=skool.format('test_skool2asm.TestAsmWriter'))
+        asm = self._get_asm(skool.format('test_skool2asm.TestAsmWriter'))
         self.assertEqual(asm[0], 'OK')
 
         # Test a writer in a module that is not in the search path
@@ -603,7 +378,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         module_path = os.path.dirname(module)
         module_name = os.path.basename(module)[:-3]
         writer = '{0}:{1}.TestAsmWriter'.format(module_path, module_name)
-        asm = self.get_asm(skool=skool.format(writer))
+        asm = self._get_asm(skool.format(writer))
         self.assertEqual(asm[0], message)
 
     def test_option_W(self):
@@ -626,7 +401,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         module_path = os.path.dirname(module)
         module_name = os.path.basename(module)[:-3]
         writer = '{}:{}.TestAsmWriter'.format(module_path, module_name)
-        asm = self.get_asm('-W {}'.format(writer), skool)
+        asm = self._get_asm(skool, '-W {}'.format(writer))
         self.assertEqual(asm[0], message)
 
     def test_tab_property(self):
@@ -639,15 +414,15 @@ class Skool2AsmTest(SkoolKitTestCase):
         property_name = 'tab'
 
         # tab=0
-        asm = self.get_asm(skool=skool.format(property_name, '0'))
+        asm = self._get_asm(skool.format(property_name, '0'))
         self.assertEqual(asm[1], '  DEFB 0                  ; Comment')
 
         # tab=1
-        asm = self.get_asm(skool=skool.format(property_name, '1'))
+        asm = self._get_asm(skool.format(property_name, '1'))
         self.assertEqual(asm[1], '\tDEFB 0                  ; Comment')
 
         # tab=0, overridden by '-t' option
-        asm = self.get_asm('-t', skool=skool.format(property_name, '0'))
+        asm = self._get_asm(skool.format(property_name, '0'), '-t')
         self.assertEqual(asm[1], '\tDEFB 0                  ; Comment')
 
     def test_crlf_property(self):
@@ -660,15 +435,15 @@ class Skool2AsmTest(SkoolKitTestCase):
         property_name = 'crlf'
 
         # crlf=0
-        asm = self.get_asm(skool=skool.format(property_name, '0'), strip_cr=False)
+        asm = self._get_asm(skool.format(property_name, '0'), strip_cr=False)
         self.assertEqual(asm[1], '  DEFB 0                  ; Comment')
 
         # crlf=1
-        asm = self.get_asm(skool=skool.format(property_name, '1'), strip_cr=False)
+        asm = self._get_asm(skool.format(property_name, '1'), strip_cr=False)
         self.assertEqual(asm[1], '  DEFB 0                  ; Comment\r')
 
         # crlf=0, overridden by '-d' option
-        asm = self.get_asm('-d', skool=skool.format(property_name, '0'), strip_cr=False)
+        asm = self._get_asm(skool.format(property_name, '0'), '-d', strip_cr=False)
         self.assertEqual(asm[1], '  DEFB 0                  ; Comment\r')
 
     def test_indent_property(self):
@@ -679,7 +454,7 @@ class Skool2AsmTest(SkoolKitTestCase):
             'b40000 DEFB 0 ; Comment',
         ))
         for indent in (1, 5, 'x'):
-            asm = self.get_asm(skool=skool.format('indent', indent))
+            asm = self._get_asm(skool.format('indent', indent))
             try:
                 indent_size = int(indent)
             except ValueError:
@@ -730,12 +505,12 @@ class Skool2AsmTest(SkoolKitTestCase):
                 width = int(value)
             except ValueError:
                 width = 23
-            asm = self.get_asm(skool=skool.format(property_name, value))
+            asm = self._get_asm(skool.format(property_name, value))
             self.assertEqual(asm[1], '  {0} ; Comment'.format('DEFB 0'.ljust(width)))
 
         # instruction-width=27, overridden by '-i'
         for width in (20, 25, 30):
-            asm = self.get_asm('-i {0}'.format(width), skool=skool.format(property_name, 27))
+            asm = self._get_asm(skool.format(property_name, 27), '-i {}'.format(width))
             self.assertEqual(asm[1], '  {0} ; Comment'.format('DEFB 0'.ljust(width)))
 
     def test_line_width_property(self):
@@ -750,7 +525,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         instruction = '  RET'.ljust(len(indent))
         comment = 'This is a fairly long instruction comment, which makes it suitable for testing various line widths'
         for width in (65, 80, 95, 'x'):
-            asm = self.get_asm(skool=skool.format(width))
+            asm = self._get_asm(skool.format(width))
             try:
                 line_width = int(width)
             except ValueError:
@@ -772,7 +547,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         line_width = 79
         comment = 'This comment should have the designated minimum width'
         for width in (10, 15, 20, 'x'):
-            asm = self.get_asm(skool=skool.format(width, comment))
+            asm = self._get_asm(skool.format(width, comment))
             try:
                 comment_width_min = int(width)
             except ValueError:
@@ -801,7 +576,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         ))
         text = 'This wrappable text should have the designated minimum width'
         for width in (10, 18, 26, 'Z'):
-            asm = self.get_asm(skool=skool.format(width, text))
+            asm = self._get_asm(skool.format(width, text))
             try:
                 wrap_column_width_min = int(width)
             except ValueError:
@@ -811,32 +586,6 @@ class Skool2AsmTest(SkoolKitTestCase):
             exp_lines = ['; | {} |'.format(line.ljust(actual_width)) for line in text_lines]
             for line_no, exp_line in enumerate(exp_lines, 3):
                 self.assertEqual(asm[line_no][:len(exp_line)], exp_line)
-
-    def test_no_html_escape(self):
-        skool = '\n'.join((
-            '; @start',
-            '; Text',
-            't24576 DEFM "&<>" ; a <= b & b >= c',
-        ))
-        asm = self.get_asm(skool=skool)
-        self.assertEqual(asm[1], '  DEFM "&<>"              ; a <= b & b >= c')
-
-    def test_macro_expansion(self):
-        skool = '\n'.join((
-            '; @start',
-            '; Data',
-            'b$6003 DEFB 123 ; #REGa=0',
-            " $6004 DEFB $23 ; '#'",
-        ))
-        asm = self.get_asm(skool=skool)
-        self.assertEqual(asm[1], '  DEFB 123                ; A=0')
-        self.assertEqual(asm[2], "  DEFB $23                ; '#'")
-
-    def get_asm(self, args='', skool='', out_lines=True, err_lines=True, strip_cr=True):
-        skoolfile = self.write_text_file(skool, suffix='.skool')
-        output, error = self.run_skool2asm('{0} {1}'.format(args, skoolfile), out_lines, err_lines, strip_cr)
-        self.assertEqual('Wrote ASM to stdout', error[-1][:19], 'Error(s) while running skool2asm.main() with args "{0}"'.format(args))
-        return output
 
 if __name__ == '__main__':
     unittest.main()

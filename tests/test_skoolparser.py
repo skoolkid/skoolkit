@@ -1750,6 +1750,23 @@ class SkoolParserTest(SkoolKitTestCase):
         for instruction in instructions:
             self.assertIsNone(instruction.reference)
 
+    def test_create_labels(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Begin',
+            'c32768 JR 32770',
+            '',
+            '; End',
+            'c32770 JR 32768',
+        ))
+        parser = self._get_parser(skool, create_labels=True)
+        instruction = parser.get_entry(32768).instructions[0]
+        self.assertEqual(instruction.asm_label, 'L32768')
+        self.assertEqual(instruction.operation, 'JR L32770')
+        instruction = parser.get_entry(32770).instructions[0]
+        self.assertEqual(instruction.asm_label, 'L32770')
+        self.assertEqual(instruction.operation, 'JR L32768')
+
     def test_set_directive(self):
         skool = '\n'.join((
             '@start',
@@ -2044,6 +2061,15 @@ class SkoolParserTest(SkoolKitTestCase):
             'WARNING: Unreplaced operand: 8006 CALL $8001',
         ]
         self.assertEqual(exp_warnings, warnings)
+
+    def test_suppress_warnings(self):
+        skool = '\n'.join((
+            '@start',
+            'c30000 JR 30001 ; This would normally trigger an unreplaced operand warning'
+        ))
+        self._get_parser(skool, asm_mode=2, warnings=False)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual(len(warnings), 0)
 
     def test_label_substitution_for_address_operands(self):
         skool = (
@@ -2416,6 +2442,170 @@ class SkoolParserTest(SkoolKitTestCase):
             instruction = parser.get_entry(50000).instructions[0]
             self.assertEqual(instruction.operation, exp_operation)
             self.assertEqual(instruction.comment.text, exp_comment)
+
+    def test_fix_mode_0(self):
+        skool = '\n'.join((
+            '; @start',
+            "; Let's test some @ofix directives",
+            'c24593 NOP',
+            '; @ofix=LD A,C',
+            ' 24594 LD A,B',
+            '; @ofix-begin',
+            ' 24595 LD B,A',
+            '; @ofix+else',
+            ' 24595 LD B,C',
+            '; @ofix+end',
+            '',
+            "; Let's test some @bfix directives",
+            'c24596 NOP',
+            '; @bfix=LD C,B',
+            ' 24597 LD C,A',
+            '; @bfix-begin',
+            ' 24598 LD D,A',
+            '; @bfix+else',
+            ' 24598 LD D,B',
+            '; @bfix+end',
+            '',
+            "; Let's test the @rfix block directive",
+            'c24599 NOP',
+            '; @rfix-begin',
+            ' 24600 LD E,A',
+            '; @rfix+else',
+            ' 24600 LD E,B',
+            '; @rfix+end',
+        ))
+        parser = self._get_parser(skool, asm_mode=1, fix_mode=0)
+        instructions = parser.get_entry(24593).instructions
+        self.assertEqual(instructions[1].operation, 'LD A,B')
+        self.assertEqual(instructions[2].operation, 'LD B,A')
+        instructions = parser.get_entry(24596).instructions
+        self.assertEqual(instructions[1].operation, 'LD C,A')
+        self.assertEqual(instructions[2].operation, 'LD D,A')
+        instructions = parser.get_entry(24599).instructions
+        self.assertEqual(instructions[1].operation, 'LD E,A')
+
+    def test_fix_mode_1(self):
+        skool = '\n'.join((
+            '; @start',
+            "; Let's test some @ofix directives",
+            'c24593 NOP',
+            '; @ofix=LD A,C',
+            ' 24594 LD A,B',
+            '; @ofix-begin',
+            ' 24595 LD B,A',
+            '; @ofix+else',
+            ' 24595 LD B,C',
+            '; @ofix+end',
+            '',
+            "; Let's test some @bfix directives",
+            'c24596 NOP',
+            '; @bfix=LD C,B',
+            ' 24597 LD C,A',
+            '; @bfix-begin',
+            ' 24598 LD D,A',
+            '; @bfix+else',
+            ' 24598 LD D,B',
+            '; @bfix+end',
+            '',
+            "; Let's test the @rfix block directive",
+            'c24599 NOP',
+            '; @rfix-begin',
+            ' 24600 LD E,A',
+            '; @rfix+else',
+            ' 24600 LD E,B',
+            '; @rfix+end',
+        ))
+        parser = self._get_parser(skool, asm_mode=1, fix_mode=1)
+        instructions = parser.get_entry(24593).instructions
+        self.assertEqual(instructions[1].operation, 'LD A,C')
+        self.assertEqual(instructions[2].operation, 'LD B,C')
+        instructions = parser.get_entry(24596).instructions
+        self.assertEqual(instructions[1].operation, 'LD C,A')
+        self.assertEqual(instructions[2].operation, 'LD D,A')
+        instructions = parser.get_entry(24599).instructions
+        self.assertEqual(instructions[1].operation, 'LD E,A')
+
+    def test_fix_mode_2(self):
+        skool = '\n'.join((
+            '; @start',
+            "; Let's test some @ofix directives",
+            'c24593 NOP',
+            '; @ofix=LD A,C',
+            ' 24594 LD A,B',
+            '; @ofix-begin',
+            ' 24595 LD B,A',
+            '; @ofix+else',
+            ' 24595 LD B,C',
+            '; @ofix+end',
+            '',
+            "; Let's test some @bfix directives",
+            'c24596 NOP',
+            '; @bfix=LD C,B',
+            ' 24597 LD C,A',
+            '; @bfix-begin',
+            ' 24598 LD D,A',
+            '; @bfix+else',
+            ' 24598 LD D,B',
+            '; @bfix+end',
+            '',
+            "; Let's test the @rfix block directive",
+            'c24599 NOP',
+            '; @rfix-begin',
+            ' 24600 LD E,A',
+            '; @rfix+else',
+            ' 24600 LD E,B',
+            '; @rfix+end',
+        ))
+        parser = self._get_parser(skool, asm_mode=1, fix_mode=2)
+        instructions = parser.get_entry(24593).instructions
+        self.assertEqual(instructions[1].operation, 'LD A,C')
+        self.assertEqual(instructions[2].operation, 'LD B,C')
+        instructions = parser.get_entry(24596).instructions
+        self.assertEqual(instructions[1].operation, 'LD C,B')
+        self.assertEqual(instructions[2].operation, 'LD D,B')
+        instructions = parser.get_entry(24599).instructions
+        self.assertEqual(instructions[1].operation, 'LD E,A')
+
+    def test_fix_mode_3(self):
+        skool = '\n'.join((
+            '; @start',
+            "; Let's test some @ofix directives",
+            'c24593 NOP',
+            '; @ofix=LD A,C',
+            ' 24594 LD A,B',
+            '; @ofix-begin',
+            ' 24595 LD B,A',
+            '; @ofix+else',
+            ' 24595 LD B,C',
+            '; @ofix+end',
+            '',
+            "; Let's test some @bfix directives",
+            'c24596 NOP',
+            '; @bfix=LD C,B',
+            ' 24597 LD C,A',
+            '; @bfix-begin',
+            ' 24598 LD D,A',
+            '; @bfix+else',
+            ' 24598 LD D,B',
+            '; @bfix+end',
+            '',
+            "; Let's test the @rfix block directive",
+            'c24599 NOP',
+            '; @rfix-begin',
+            ' 24600 LD E,A',
+            '; @rfix+else',
+            ' 24600 LD E,B',
+            '; @rfix+end',
+        ))
+        parser = self._get_parser(skool, asm_mode=3, fix_mode=3)
+        instructions = parser.get_entry(24593).instructions
+        self.assertEqual(instructions[1].operation, 'LD A,C')
+        self.assertEqual(instructions[2].operation, 'LD B,C')
+        instructions = parser.get_entry(24596).instructions
+        self.assertEqual(instructions[1].operation, 'LD C,B')
+        self.assertEqual(instructions[2].operation, 'LD D,B')
+        instructions = parser.get_entry(24599).instructions
+        self.assertEqual(instructions[1].operation, 'LD E,B')
 
     def test_rsub_minus_inside_rsub_minus(self):
         # @rsub-begin inside @rsub- block

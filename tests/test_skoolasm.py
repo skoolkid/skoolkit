@@ -414,6 +414,17 @@ class AsmWriterTest(SkoolKitTestCase):
     def _test_call_no_retval(self, *args):
         return
 
+    def test_macros_are_expanded(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Data',
+            'b$6003 DEFB 123 ; #REGa=0',
+            " $6004 DEFB $23 ; '#'",
+        ))
+        asm = self._get_asm(skool)
+        self.assertEqual(asm[1], '  DEFB 123                ; A=0')
+        self.assertEqual(asm[2], "  DEFB $23                ; '#'")
+
     def test_macro_bug(self):
         self._test_reference_macro('BUG', 'bug')
 
@@ -1164,6 +1175,16 @@ class AsmWriterTest(SkoolKitTestCase):
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual(len(warnings), 1)
         self.assertEqual(warnings[0], 'WARNING: Table in entry at 50000 is 91 characters wide')
+
+    def test_suppress_warnings(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine at 24576',
+            'c24576 JP 24576 ; VeryLongWordThatWouldNormallyTriggerALongLineWarning',
+        ))
+        self._get_asm(skool, warn=False)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual(len(warnings), 0)
 
     def test_option_crlf(self):
         skool = '\n'.join((
