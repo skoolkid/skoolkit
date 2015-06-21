@@ -17,11 +17,9 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from . import write_line, get_int_param, get_address_format, open_file, SkoolParsingError
-from .skoolparser import (DIRECTIVES, Comment, Register,
-                          parse_comment_block, parse_instruction, parse_address_comments, join_comments,
-                          parse_asm_block_directive, get_instruction_ctl, get_operand_bases,
-                          get_defb_length, get_defs_length, get_defw_length)
-from .z80 import get_size
+from .skoolparser import (DIRECTIVES, Comment, Register, parse_comment_block, parse_instruction,
+                          parse_address_comments, join_comments, parse_asm_block_directive)
+from .z80 import get_size, split_operation
 
 BLOCKS = 'b'
 BLOCK_TITLES = 't'
@@ -46,6 +44,143 @@ REGISTERS = 'r'
 MID_BLOCK = 'm'
 INSTRUCTION = 'i'
 END = 'e'
+
+FORMAT_NO_BASE = {
+    'b': 'b{}',
+    'c': 'c{}',
+    'd': '{}',
+    'h': '{}'
+}
+
+FORMAT_PRESERVE_BASE = {
+    'b': 'b{}',
+    'c': 'c{}',
+    'd': 'd{}',
+    'h': 'h{}'
+}
+
+def _get_base(item, preserve_base=True):
+    if item.startswith('%'):
+        return 'b'
+    if item.startswith('"'):
+        return 'c'
+    if item.startswith('$') and preserve_base:
+        return 'h'
+    return 'd'
+
+def get_operand_bases(operation, preserve_base):
+    elements = split_operation(operation, True)
+    if not elements:
+        return ''
+    if preserve_base:
+        base_fmt = {'b': 'b', 'c': 'c', 'd': 'd', 'h': 'h'}
+    else:
+        base_fmt = {'b': 'b', 'c': 'c', 'd': 'n', 'h': 'n'}
+    if elements[0] in ('BIT', 'RES', 'SET'):
+        operands = elements[2:]
+    else:
+        operands = elements[1:]
+    bases = ''
+    for operand in operands:
+        if operand.startswith(('(IX+', '(IX-', '(IY+', '(IY-')):
+            num = operand[4:]
+        elif operand.startswith('('):
+            num = operand[1:]
+        else:
+            num = operand
+        if num.startswith(('"', '%', '$', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')):
+            bases += base_fmt[_get_base(num)]
+    if bases in ('n', 'nn'):
+        return ''
+    return bases
+
+def get_instruction_ctl(op):
+    op = op.upper()
+    if op.startswith('DEFB'):
+        return 'B'
+    if op.startswith('DEFW'):
+        return 'W'
+    if op.startswith('DEFM'):
+        return 'T'
+    if op.startswith('DEFS'):
+        return 'S'
+    return 'C'
+
+def get_defb_length(operation, preserve_base):
+    parts = split_operation(operation)
+    if parts.pop(0).upper() == 'DEFB':
+        byte_fmt = FORMAT_NO_BASE
+        text_fmt = 'T{}'
+    else:
+        byte_fmt = {'b': 'b{}', 'd': 'B{}', 'h': 'B{}'}
+        text_fmt = '{}'
+    if preserve_base:
+        byte_fmt = FORMAT_PRESERVE_BASE
+    full_length = 0
+    lengths = []
+    length = 0
+    prev_base = None
+    for item in parts + ['""']:
+        if item.startswith('"'):
+            if length:
+                lengths.append(byte_fmt[prev_base].format(length))
+                full_length += length
+                length = 0
+                prev_base = None
+            i = 1
+            while i < len(item) - 1:
+                if item[i] == '\\':
+                    i += 1
+                i += 1
+                length += 1
+            if length:
+                lengths.append(text_fmt.format(length))
+                full_length += length
+                length = 0
+        else:
+            cur_base = _get_base(item, preserve_base)
+            if prev_base != cur_base and length:
+                lengths.append(byte_fmt[prev_base].format(length))
+                full_length += length
+                length = 0
+            length += 1
+            prev_base = cur_base
+    return full_length, ':'.join(lengths)
+
+def get_defw_length(operation, preserve_base):
+    if preserve_base:
+        word_fmt = FORMAT_PRESERVE_BASE
+    else:
+        word_fmt = FORMAT_NO_BASE
+    full_length = 0
+    lengths = []
+    length = 0
+    prev_base = None
+    for item in split_operation(operation)[1:]:
+        cur_base = _get_base(item, preserve_base)
+        if prev_base != cur_base and length:
+            lengths.append(word_fmt[prev_base].format(length))
+            full_length += length
+            length = 0
+        length += 2
+        prev_base = cur_base
+    lengths.append(word_fmt[prev_base].format(length))
+    full_length += length
+    return full_length, ':'.join(lengths)
+
+def get_defs_length(operation, preserve_base):
+    if preserve_base:
+        fmt = FORMAT_PRESERVE_BASE
+    else:
+        fmt = FORMAT_NO_BASE
+    size = None
+    lengths = []
+    for item in split_operation(operation)[1:3]:
+        if size is None:
+            size = get_int_param(item)
+        base = _get_base(item, preserve_base)
+        lengths.append(fmt[base].format(item))
+    return size, ':'.join(lengths)
 
 def get_lengths(stmt_lengths):
     # Find subsequences of identical statement lengths and abbreviate them,
