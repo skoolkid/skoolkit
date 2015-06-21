@@ -20,10 +20,9 @@ import cgi
 import re
 
 from . import warn, wrap, get_int_param, parse_int, open_file, SkoolParsingError
-from .disassembler import convert_case
 from .skoolmacro import DELIMITERS
 from .textutils import partition_unquoted
-from .z80 import assemble, get_size, split_operation
+from .z80 import assemble, convert_case, get_size, split_operation
 
 DIRECTIVES = 'bcgistuw'
 

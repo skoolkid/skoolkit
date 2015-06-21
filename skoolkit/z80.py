@@ -416,7 +416,7 @@ def _assemble_defw(items):
         data.extend((arg % 256, arg // 256))
     return tuple(data)
 
-def _convert_case(operation):
+def convert_case(operation, lower=True, trim=False):
     i = 0
     converted = ''
     convert = True
@@ -431,9 +431,11 @@ def _convert_case(operation):
             continue
         if convert:
             if c.isspace():
-                if leave_spaces:
+                if not trim or leave_spaces:
                     converted += ' '
                     leave_spaces = False
+            elif lower:
+                converted += c.lower()
             else:
                 converted += c.upper()
         else:
@@ -444,7 +446,7 @@ def _convert_case(operation):
 def _assemble(operation, address):
     if operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW ')):
         parts = split_operation(operation)
-        directive, items = parts[0].upper(), parts[1:]
+        directive, items = parts[0], parts[1:]
         if directive in ('DEFB', 'DEFM'):
             return _assemble_defb(items)
         if directive == 'DEFS':
@@ -465,7 +467,7 @@ def _assemble(operation, address):
 
 def split_operation(operation, tidy=False, strip=True):
     if tidy:
-        operation = _convert_case(operation)
+        operation = convert_case(operation, False, True)
     elements = operation.split(None, 1)
     if len(elements) < 2:
         return elements

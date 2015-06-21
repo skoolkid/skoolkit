@@ -16,27 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-def convert_case(operation, lower=True):
-    i = 0
-    converted = ''
-    convert = True
-    while i < len(operation):
-        c = operation[i]
-        if c == '"':
-            convert = not convert
-        elif c == '\\' and not convert:
-            converted += operation[i:i + 2]
-            i += 2
-            continue
-        if convert:
-            if lower:
-                converted += c.lower()
-            else:
-                converted += c.upper()
-        else:
-            converted += c
-        i += 1
-    return converted
+from .z80 import convert_case
 
 class Instruction:
     def __init__(self, address, operation, data):
