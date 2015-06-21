@@ -301,6 +301,18 @@ class SftParserTest(SkoolKitTestCase):
         snapshot, skool = self._parse_sft('bB19132,1', [0] * 19133, asm_hex=True, asm_lower=True)
         self.assertEqual(skool[0], 'b$4abc defb $00')
 
+    def test_data_definition_entry(self):
+        skool = '\n'.join((
+            'd00000 DEFB 5,"a,b",6',
+            ' 00005 DEFM "a;b"',
+            ' 00008 DEFW 28527',
+            ' 00010 DEFS 2,255',
+        ))
+        end = 12
+        snapshot, skool = self._parse_sft(skool, [0] * end)
+        exp_data = [5, 97, 44, 98, 6, 97, 59, 98, 111, 111, 255, 255]
+        self.assertEqual(exp_data, snapshot[0:end])
+
     def test_invalid_line(self):
         for line in (
             "b",

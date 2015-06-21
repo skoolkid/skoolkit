@@ -101,9 +101,7 @@ class SftParser:
     def _set_bytes(self, line):
         address = parse_int(line[1:6])
         if address is not None:
-            comment_index = line.find(';')
-            if comment_index < 0:
-                comment_index = len(line)
+            comment_index = find_unquoted(line, ';')
             operation = line[7:comment_index].strip()
             set_bytes(self.snapshot, address, operation)
 
