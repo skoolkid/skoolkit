@@ -1593,6 +1593,112 @@ class SkoolWriterTest(SkoolKitTestCase):
         skool = self.out.getvalue().split('\n')
         self.assertEqual(exp_skool, skool[:len(exp_skool)])
 
+    def test_lower_case_hexadecimal(self):
+        snapshot = [0] * 10 + [255]
+        ctl = '\n'.join((
+            'b 00010',
+            'i 00011'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=$000a',
+            '; Data block at 000a',
+            'b$000a defb $ff'
+        ]
+        writer = self._get_writer(snapshot, ctl, asm_hex=True, asm_lower=True)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')
+        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+
+    def test_defm_width(self):
+        snapshot = [65] * 4
+        ctl = '\n'.join((
+            't 00000',
+            'i 00004'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Message at 0',
+            't00000 DEFM "AA"',
+            ' 00002 DEFM "AA"'
+        ]
+        writer = self._get_writer(snapshot, ctl, defm_width=2)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')
+        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+
+    def test_defb_mod(self):
+        snapshot = [0] * 14
+        ctl = '\n'.join((
+            'b 00002',
+            'i 00014'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=2',
+            '; Data block at 2',
+            'b00002 DEFB 0,0',
+            ' 00004 DEFB 0,0,0,0,0,0,0,0',
+            ' 00012 DEFB 0,0'
+        ]
+        writer = self._get_writer(snapshot, ctl, defb_mod=4)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')
+        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+
+    def test_defb_size(self):
+        snapshot = [0] * 5
+        ctl = '\n'.join((
+            'b 00000',
+            'i 00005'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Data block at 0',
+            'b00000 DEFB 0,0,0',
+            ' 00003 DEFB 0,0'
+        ]
+        writer = self._get_writer(snapshot, ctl, defb_size=3)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')
+        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+
+    def test_zfill(self):
+        snapshot = [0] * 5
+        ctl = '\n'.join((
+            'b 00000',
+            'i 00005'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Data block at 0',
+            'b00000 DEFB 000,000,000,000,000'
+        ]
+        writer = self._get_writer(snapshot, ctl, zfill=True)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')
+        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+
+    def test_show_text(self):
+        snapshot = [49, 127, 50]
+        ctl = '\n'.join((
+            'c 00000',
+            'i 00003'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            'c00000 LD SP,12927   ; [1.2]',
+        ]
+        writer = self._get_writer(snapshot, ctl)
+        writer.write_skool(0, True)
+        skool = self.out.getvalue().split('\n')
+        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+
 class CtlWriterTest(SkoolKitTestCase):
     def test_decimal_addresses_below_10000(self):
         ctls = {0: 'b', 1: 'c', 22: 't', 333: 'w', 4444: 's'}

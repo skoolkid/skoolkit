@@ -2033,6 +2033,14 @@ class DisassemblerTest(SkoolKitTestCase):
         self.assertEqual(len(instructions), 1)
         self.assertEqual(instructions[0].operation, r'defm "\"A\"",$ff')
 
+    def test_lower_case_conversion_of_defm_statement_no_sublengths(self):
+        snapshot = [65, 66]
+        disassembler = self._get_disassembler(snapshot, asm_lower=True)
+        sublengths = ((None, None),)
+        instructions = disassembler.defm_range(0, 2, sublengths)
+        self.assertEqual(len(instructions), 1)
+        self.assertEqual(instructions[0].operation, 'defm "AB"')
+
     def test_lower_case_conversion_of_defs_statement(self):
         disassembler = self._get_disassembler(asm_lower=True)
         sublengths = ((None, 'h'), (15, 'h'))
