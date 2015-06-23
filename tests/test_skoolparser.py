@@ -1732,6 +1732,19 @@ class SkoolParserTest(SkoolKitTestCase):
             index += 1
             ref_address += 8
 
+    def test_references_to_data_block(self):
+        skool = '\n'.join((
+            '@start',
+            'c40000 LD HL,40005',
+            '',
+            'w40003 DEFW 40005',
+            '',
+            'b40005 DEFB 0'
+        ))
+        memory_map = self._get_parser(skool, asm_mode=1).memory_map
+        self.assertEqual(memory_map[0].instructions[0].reference.address, 40005)
+        self.assertEqual(memory_map[1].instructions[0].reference.address, 40005)
+
     def test_references_to_ignored_entry(self):
         skool = '\n'.join((
             '; Routine',
