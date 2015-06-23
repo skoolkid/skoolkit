@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -32,9 +32,6 @@ from .skoolhtml import FileInfo
 from .skoolparser import SkoolParser, CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
 from .refparser import RefParser
 from . import defaults
-
-verbose = True
-show_timings = False
 
 SEARCH_DIRS = (
     '',
@@ -299,7 +296,6 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
     if 'p' in files and html_writer.pokes:
         clock(html_writer.write_pokes, '  Writing {}'.format(normpath(game_dir, paths['Pokes'])))
     if 'o' in files:
-        mode = html_writer.parser.mode
         for code_id, code in html_writer.other_code:
             skoolfile = find(code['Source'], extra_search_dirs, search_dir)
             skool2_parser = clock(html_writer.parser.clone, '  Parsing {0}'.format(skoolfile), skoolfile)
