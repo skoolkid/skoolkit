@@ -203,20 +203,24 @@ def parse_address_comments(comments, html=False):
     i = 0
     while i < len(comments):
         instruction, comment = comments[i]
-        comment_lines = []
-        if comment and comment.strip()[0] == '{':
-            nesting = comment.count('{') - comment.count('}')
-            while nesting > 0:
-                comment_lines.append(comments[i][1])
-                i += 1
-                nesting += comments[i][1].count('{') - comments[i][1].count('}')
-            comment_lines.append(comments[i][1].strip('}'))
-            comment_lines[0] = comment_lines[0].strip('{')
-        else:
-            comment_lines.append(comment)
-        rowspan = len(comment_lines)
-        address_comment = join_comments(comment_lines, html=html).strip()
-        instruction.set_comment(rowspan, address_comment)
+        if instruction:
+            comment_lines = []
+            if comment.startswith('{'):
+                comment_lines.append(comment.strip('{'))
+                nesting = comment.count('{') - comment.count('}')
+                while nesting > 0:
+                    i += 1
+                    if i >= len(comments) or comments[i][0] is None:
+                        break
+                    comment = comments[i][1]
+                    comment_lines.append(comment)
+                    nesting += comment.count('{') - comment.count('}')
+                comment_lines[-1] = comment_lines[-1].strip('}')
+            else:
+                comment_lines.append(comment)
+            rowspan = len(comment_lines)
+            address_comment = join_comments(comment_lines, html=html).strip()
+            instruction.set_comment(rowspan, address_comment)
         i += 1
 
 class SkoolParser:
@@ -328,6 +332,7 @@ class SkoolParser:
                         self.comments.append(comment)
                         self.mode.ignoreua = False
                     instruction = None
+                    address_comments.append((None, None))
                 continue
 
             if line.startswith('@'):
@@ -340,6 +345,7 @@ class SkoolParser:
             s_line = line.strip()
             if not s_line:
                 instruction = None
+                address_comments.append((None, None))
                 if self.comments:
                     if map_entry:
                         self._add_end_comment(map_entry)
@@ -411,7 +417,7 @@ class SkoolParser:
             else:
                 self.base_address = max_address
             self.instructions = {k: v for k, v in self.instructions.items() if self.base_address <= k < max_address}
-            address_comments = [c for c in address_comments if self.base_address <= c[0].address < max_address]
+            address_comments = [c for c in address_comments if c[0] is None or self.base_address <= c[0].address < max_address]
 
         if self.instructions:
             end_address = max(self.instructions)

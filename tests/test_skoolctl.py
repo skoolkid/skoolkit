@@ -1210,5 +1210,25 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = []
         self._test_ctl(skool, exp_ctl, min_address=40001, max_address=40001)
 
+    def test_unmatched_opening_braces_in_instruction_comments(self):
+        skool = '\n'.join((
+            'b50000 DEFB 0 ; {The unmatched {opening brace} in this comment should be',
+            ' 50001 DEFB 0 ; implicitly closed by the end of this entry',
+            '',
+            'b50002 DEFB 0 ; {The unmatched {opening brace} in this comment should be',
+            ' 50003 DEFB 0 ; implicitly closed by the following mid-block comment',
+            '; Here is the mid-block comment.',
+            ' 50004 DEFB 0 ; The closing brace in this comment is unmatched}',
+        ))
+        exp_ctl = [
+            'b 50000',
+            '  50000,2,1 The unmatched {opening brace} in this comment should be implicitly closed by the end of this entry',
+            'b 50002',
+            '  50002,2,1 The unmatched {opening brace} in this comment should be implicitly closed by the following mid-block comment',
+            'N 50004 Here is the mid-block comment.',
+            '  50004,1,1 The closing brace in this comment is unmatched}',
+        ]
+        self._test_ctl(skool, exp_ctl)
+
 if __name__ == '__main__':
     unittest.main()

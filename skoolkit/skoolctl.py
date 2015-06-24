@@ -454,6 +454,7 @@ class SkoolParser:
                     if self.mode.include:
                         comments.append(comment)
                     instruction = None
+                    address_comments.append((None, None))
                 continue
 
             if line.startswith('@'):
@@ -466,6 +467,7 @@ class SkoolParser:
             s_line = line.strip()
             if not s_line:
                 instruction = None
+                address_comments.append((None, None))
                 if comments and map_entry:
                     map_entry.end_comment = join_comments(comments, True)
                 # Process an '@end' directive if one was found
