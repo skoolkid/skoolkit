@@ -21,6 +21,8 @@ Changelog
 * Fixed how :ref:`tap2sna.py` compresses a RAM block that contains a single
   ``ED`` followed by five or more identical values (e.g. ``ED0101010101``)
 * Fixed the erroneous replacement of DEFS operands with labels
+* Fixed how instruction-level comments that contain braces are restored from a
+  control file
 * Fixed the handling of terminal compound sublengths on 'S' directives (e.g.
   ``S 30000,10,5:32``)
 

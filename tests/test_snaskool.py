@@ -1699,6 +1699,85 @@ class SkoolWriterTest(SkoolKitTestCase):
         skool = self.out.getvalue().split('\n')
         self.assertEqual(exp_skool, skool[:len(exp_skool)])
 
+    def test_braces_in_instruction_comments(self):
+        snapshot = [0] * 39
+        ctl = '\n'.join((
+            'b 00000',
+            '  00000,1,1 {unmatched opening brace',
+            '  00001,1,1 unmatched closing brace}',
+            '  00002,1,1 {matched braces}',
+            '  00003,2,1 {unmatched opening brace',
+            '  00005,2,1 unmatched closing brace}',
+            '  00007,2,1 {matched braces}',
+            '  00009,2,1 { unmatched opening brace with a space',
+            '  00011,2,1 unmatched closing brace with a space }',
+            '  00013,2,1 { matched braces with spaces }',
+            '  00015,1,1 {{unmatched opening braces}',
+            '  00016,1,1 {unmatched closing braces}}',
+            '  00017,1,1 {{matched pairs of braces}}',
+            '  00018,2,1 {{unmatched opening braces}',
+            '  00020,2,1 {unmatched closing braces}}',
+            '  00022,2,1 {{matched pairs of braces}}',
+            '  00024,2,1 {{{unmatched opening braces on a comment that spans two lines}}',
+            '  00026,2,1 {{unmatched closing braces on a comment that spans two lines}}}',
+            '  00028,2,1 {{{matched pairs of braces on a comment that spans two lines}}}',
+            '  00030,1,1 unmatched {opening brace in the middle',
+            '  00031,1,1 unmatched closing brace} in the middle',
+            '  00032,1,1 matched {braces} in the middle',
+            '  00033,2,1 unmatched {opening brace in the middle',
+            '  00035,2,1 unmatched closing brace} in the middle',
+            '  00037,2,1 matched {{braces}} in the middle',
+            'i 00039'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Data block at 0',
+            'b00000 DEFB 0        ; { {unmatched opening brace}}',
+            ' 00001 DEFB 0        ; unmatched closing brace}',
+            ' 00002 DEFB 0        ; { {matched braces} }',
+            ' 00003 DEFB 0        ; { {unmatched opening brace',
+            ' 00004 DEFB 0        ; }}',
+            ' 00005 DEFB 0        ; {{unmatched closing brace}',
+            ' 00006 DEFB 0        ; }',
+            ' 00007 DEFB 0        ; { {matched braces}',
+            ' 00008 DEFB 0        ; }',
+            ' 00009 DEFB 0        ; { { unmatched opening brace with a space',
+            ' 00010 DEFB 0        ; }}',
+            ' 00011 DEFB 0        ; {{unmatched closing brace with a space }',
+            ' 00012 DEFB 0        ; }',
+            ' 00013 DEFB 0        ; { { matched braces with spaces }',
+            ' 00014 DEFB 0        ; }',
+            ' 00015 DEFB 0        ; { {{unmatched opening braces} }}',
+            ' 00016 DEFB 0        ; { {unmatched closing braces}} }',
+            ' 00017 DEFB 0        ; { {{matched pairs of braces}} }',
+            ' 00018 DEFB 0        ; { {{unmatched opening braces}',
+            ' 00019 DEFB 0        ; }}',
+            ' 00020 DEFB 0        ; {{ {unmatched closing braces}}',
+            ' 00021 DEFB 0        ; }',
+            ' 00022 DEFB 0        ; { {{matched pairs of braces}}',
+            ' 00023 DEFB 0        ; }',
+            ' 00024 DEFB 0        ; { {{{unmatched opening braces on a comment that spans',
+            ' 00025 DEFB 0        ; two lines}} }}',
+            ' 00026 DEFB 0        ; {{ {{unmatched closing braces on a comment that spans',
+            ' 00027 DEFB 0        ; two lines}}} }',
+            ' 00028 DEFB 0        ; { {{{matched pairs of braces on a comment that spans two',
+            ' 00029 DEFB 0        ; lines}}} }',
+            ' 00030 DEFB 0        ; unmatched {opening brace in the middle',
+            ' 00031 DEFB 0        ; unmatched closing brace} in the middle',
+            ' 00032 DEFB 0        ; matched {braces} in the middle',
+            ' 00033 DEFB 0        ; {unmatched {opening brace in the middle',
+            ' 00034 DEFB 0        ; }}',
+            ' 00035 DEFB 0        ; {{unmatched closing brace} in the middle',
+            ' 00036 DEFB 0        ; }',
+            ' 00037 DEFB 0        ; {matched {{braces}} in the middle',
+            ' 00038 DEFB 0        ; }',
+        ]
+        writer = self._get_writer(snapshot, ctl)
+        writer.write_skool(0, False)
+        skool = self.out.getvalue().split('\n')
+        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+
 class CtlWriterTest(SkoolKitTestCase):
     def test_decimal_addresses_below_10000(self):
         ctls = {0: 'b', 1: 'c', 22: 't', 333: 'w', 4444: 's'}

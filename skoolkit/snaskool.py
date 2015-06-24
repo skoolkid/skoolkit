@@ -817,6 +817,31 @@ class SkoolWriter:
             else:
                 write_line('; {}'.format(reg))
 
+    def _format_block_comment(self, block, width):
+        rowspan = len(block.instructions)
+        comment = block.comment
+        multi_line = rowspan > 1 and comment
+        if multi_line and not comment.replace('.', ''):
+            comment = comment[1:]
+        if multi_line or comment.startswith('{'):
+            balance = comment.count('{') - comment.count('}')
+            if multi_line and balance < 0:
+                opening = '{' * (1 - balance)
+            else:
+                opening = '{'
+            if comment.startswith('{'):
+                opening = opening + ' '
+            closing = '}' * max(1 + balance, 1)
+            if comment.endswith('}'):
+                closing = ' ' + closing
+            comment = opening + comment + closing
+        comment_lines = wrap(comment, width)
+        if multi_line and len(comment_lines) < rowspan:
+            comment_lines[-1] = comment_lines[-1][:-len(closing)]
+            comment_lines.extend([''] * (rowspan - len(comment_lines) - 1))
+            comment_lines.append(closing.lstrip())
+        return comment_lines
+
     def _write_body(self, entry, wrote_desc, write_refs, show_text):
         op_width = max((OP_WIDTH, entry.width()))
         line_width = op_width + 8
@@ -843,17 +868,8 @@ class SkoolWriter:
                 elif ignoreua_m:
                     self.write_asm_directive(AD_IGNOREUA)
                 self.write_paragraphs(block.header)
-            rowspan = len(block.instructions)
-            multi_line = rowspan > 1 and block.comment
-            if multi_line:
-                if not block.comment.replace('.', ''):
-                    block.comment = block.comment[1:]
-                block.comment = '{{{}}}'.format(block.comment)
-            comment_lines = wrap(block.comment, max(self.comment_width - line_width, MIN_INSTRUCTION_COMMENT_WIDTH))
-            if multi_line and len(comment_lines) < rowspan:
-                comment_lines[-1] = comment_lines[-1][:-1]
-                comment_lines.extend([''] * (rowspan - len(comment_lines) - 1))
-                comment_lines.append('}')
+            comment_width = max(self.comment_width - line_width, MIN_INSTRUCTION_COMMENT_WIDTH)
+            comment_lines = self._format_block_comment(block, comment_width)
             self._write_instructions(entry, block, op_width, comment_lines, write_refs, show_text)
             indent = ' ' * line_width
             for j in range(len(block.instructions), len(comment_lines)):
