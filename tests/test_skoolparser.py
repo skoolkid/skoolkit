@@ -1972,6 +1972,52 @@ class SkoolParserTest(SkoolKitTestCase):
         for line in TEST_BASE_CONVERSION_HEX:
             self.assertEqual(parser.get_instruction(int(line[:5])).operation, line[6:])
 
+    def test_base_conversion_hexadecimal_lower_case(self):
+        skool = '\n'.join((
+            'c32768 LD A,10',
+            ' 32770 LD B,$AF',
+            ' 32772 LD C,%01010101',
+            ' 32774 LD D,"A"',
+            ' 32776 DEFB 10,$AF',
+            ' 32778 DEFW 32778,$ABCD',
+            ' 32782 DEFS 10,$FF'
+        ))
+        exp_instructions = (
+            (32768, 'ld a,$0a'),
+            (32770, 'ld b,$af'),
+            (32772, 'ld c,%01010101'),
+            (32774, 'ld d,"A"'),
+            (32776, 'defb $0a,$af'),
+            (32778, 'defw $800a,$abcd'),
+            (32782, 'defs $0a,$ff')
+        )
+        parser = self._get_parser(skool, base=BASE_16, case=CASE_LOWER)
+        for address, exp_operation in exp_instructions:
+            self.assertEqual(parser.get_instruction(address).operation, exp_operation)
+
+    def test_base_conversion_hexadecimal_upper_case(self):
+        skool = '\n'.join((
+            'c32768 ld a,10',
+            ' 32770 ld b,$af',
+            ' 32772 ld c,%01010101',
+            ' 32774 ld d,"a"',
+            ' 32776 defb 10,$af',
+            ' 32778 defw 32778,$abcd',
+            ' 32782 defs 10,$ff'
+        ))
+        exp_instructions = (
+            (32768, 'LD A,$0A'),
+            (32770, 'LD B,$AF'),
+            (32772, 'LD C,%01010101'),
+            (32774, 'LD D,"a"'),
+            (32776, 'DEFB $0A,$AF'),
+            (32778, 'DEFW $800A,$ABCD'),
+            (32782, 'DEFS $0A,$FF')
+        )
+        parser = self._get_parser(skool, base=BASE_16, case=CASE_UPPER)
+        for address, exp_operation in exp_instructions:
+            self.assertEqual(parser.get_instruction(address).operation, exp_operation)
+
     def test_base_conversion_retains_whitespace(self):
         skool = '\n'.join((
             'c40000 LD A, 10',
@@ -2026,6 +2072,87 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool, case=CASE_UPPER)
         for address, operation in exp_instructions:
             self.assertEqual(parser.get_instruction(address).operation, operation)
+
+    def test_upper_case_conversion_with_index_registers(self):
+        skool = '\n'.join((
+            'c55000 ld ixl,a',
+            ' 55002 ld ixh,b',
+            ' 55004 ld iyl,c',
+            ' 55006 ld iyh,d'
+        ))
+        exp_instructions = (
+            (55000, 'LD IXl,A'),
+            (55002, 'LD IXh,B'),
+            (55004, 'LD IYl,C'),
+            (55006, 'LD IYh,D')
+        )
+        parser = self._get_parser(skool, case=CASE_UPPER)
+        for address, operation in exp_instructions:
+            self.assertEqual(parser.get_instruction(address).operation, operation)
+
+    def test_registers_upper(self):
+        skool = '\n'.join((
+            '; Test parsing of register blocks in upper case mode',
+            ';',
+            '; .',
+            ';',
+            '; Input:a Some value',
+            ';       b Some other value',
+            '; Output:c The result',
+            'c24605 RET',
+        ))
+        exp_registers = (
+            ('Input', 'A', 'Some value'),
+            ('', 'B', 'Some other value'),
+            ('Output', 'C', 'The result')
+        )
+        parser = self._get_parser(skool, case=CASE_UPPER)
+        registers = parser.get_entry(24605).registers
+        for reg, (prefix, name, contents) in zip(registers, exp_registers):
+            self.assertEqual(reg.prefix, prefix)
+            self.assertEqual(reg.name, name)
+            self.assertEqual(reg.contents, contents)
+
+    def test_registers_lower(self):
+        skool = '\n'.join((
+            '; Test parsing of register blocks in lower case mode',
+            ';',
+            '; .',
+            ';',
+            '; Input:A Some value',
+            ';       B Some other value',
+            '; Output:C The result',
+            'c24605 RET',
+        ))
+        exp_registers = (
+            ('Input', 'a', 'Some value'),
+            ('', 'b', 'Some other value'),
+            ('Output', 'c', 'The result')
+        )
+        parser = self._get_parser(skool, case=CASE_LOWER)
+        registers = parser.get_entry(24605).registers
+        for reg, (prefix, name, contents) in zip(registers, exp_registers):
+            self.assertEqual(reg.prefix, prefix)
+            self.assertEqual(reg.name, name)
+            self.assertEqual(reg.contents, contents)
+
+    def test_defm_upper(self):
+        skool = '\n'.join((
+            't32768 DEFM "AbCdEfG"',
+            ' 32775 defm "hIjKlMn"',
+        ))
+        parser = self._get_parser(skool, case=CASE_UPPER)
+        self.assertEqual(parser.get_instruction(32768).operation, 'DEFM "AbCdEfG"')
+        self.assertEqual(parser.get_instruction(32775).operation, 'DEFM "hIjKlMn"')
+
+    def test_defm_lower(self):
+        skool = '\n'.join((
+            't32768 DEFM "AbCdEfG"',
+            ' 32775 defm "hIjKlMn"',
+        ))
+        parser = self._get_parser(skool, case=CASE_LOWER)
+        self.assertEqual(parser.get_instruction(32768).operation, 'defm "AbCdEfG"')
+        self.assertEqual(parser.get_instruction(32775).operation, 'defm "hIjKlMn"')
 
     def test_semicolons_in_instructions(self):
         skool = '\n'.join((
@@ -2359,6 +2486,46 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertNotIn(40002, entries)
         self.assertIn(40003, entries)
         self.assertNotIn(40004, entries)
+
+    def test_isub_directive(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine',
+            '; @isub=LD A,(32512)',
+            'c60000 LD A,(m)',
+        ))
+        for asm_mode in (1, 2, 3):
+            parser = self._get_parser(skool, asm_mode=asm_mode)
+            self.assertEqual(parser.get_instruction(60000).operation, 'LD A,(32512)')
+
+    def test_isub_block_directive(self):
+        skool = '\n'.join((
+            '; @start',
+            '; Routine',
+            ';',
+            '@isub+begin',
+            '; Actual description.',
+            '; @isub-else',
+            '; Other description.',
+            '@isub-end',
+            'c24576 RET',
+        ))
+        for asm_mode in (1, 2, 3):
+            parser = self._get_parser(skool, asm_mode=asm_mode)
+            self.assertEqual(['Actual description.'], parser.get_entry(24576).details)
+
+    def test_rsub_directive(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine',
+            '; @rsub=INC HL',
+            'c23456 INC L',
+        ))
+        for asm_mode in (1, 2):
+            parser = self._get_parser(skool, asm_mode=asm_mode)
+            self.assertEqual(parser.get_instruction(23456).operation, 'INC L')
+        parser = self._get_parser(skool, asm_mode=3)
+        self.assertEqual(parser.get_instruction(23456).operation, 'INC HL')
 
     def test_html_mode_label(self):
         label = 'START'

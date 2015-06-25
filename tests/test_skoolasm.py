@@ -7,324 +7,6 @@ from skoolkit import SkoolParsingError
 from skoolkit.skoolasm import AsmWriter
 from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, BASE_16
 
-TEST_HEX = r"""; @start
-; @org=32767
-; Routine
-c32768 ld a,(ix+17)
- 32772 DEFW 0,1,17,273,43981
- 32782 LD (IY-25),124
- 32783 AND 0
- 32785 OR 1
- 32787 XOR 2
- 32789 SUB 3
- 32791 CP 4
- 32793 IN A,(5)
- 32795 OUT (6),A
- 32797 ADD A,7
- 32799 ADC A,8
- 32801 SBC A,9
- 32803 RST 56
- 32804 LD A,11
- 32806 LD B,12
- 32808 LD C,13
- 32810 LD D,14
- 32812 LD E,15
- 32814 LD H,16
- 32816 LD L,17
- 32818 LD IXL,18
- 32821 LD IXH,19
- 32824 LD IYL,20
- 32827 LD IYH,21
- 32830 LD (HL),22
- 32832 AND B
- 32833 DEFB 0,1,17,171
- 32837 LD A,(30874)
- 32840 DAA
- 32841 defb 23,"\"Hi!\"",127
- 32848 DEFM "C:\\>",171
- 32853 DEFS 10
- 32863 DEFS 2748,254
-"""
-
-TEST_HEX_ASM = r"""
-  ORG $7FFF
-
-; Routine
-  ld a,(ix+$11)
-  DEFW $0000,$0001,$0011,$0111,$ABCD
-  LD (IY-$19),$7C
-  AND $00
-  OR $01
-  XOR $02
-  SUB $03
-  CP $04
-  IN A,($05)
-  OUT ($06),A
-  ADD A,$07
-  ADC A,$08
-  SBC A,$09
-  RST $38
-  LD A,$0B
-  LD B,$0C
-  LD C,$0D
-  LD D,$0E
-  LD E,$0F
-  LD H,$10
-  LD L,$11
-  LD IXL,$12
-  LD IXH,$13
-  LD IYL,$14
-  LD IYH,$15
-  LD (HL),$16
-  AND B
-  DEFB $00,$01,$11,$AB
-  LD A,($789A)
-  DAA
-  defb $17,"\"Hi!\"",$7F
-  DEFM "C:\\>",$AB
-  DEFS $0A
-  DEFS $0ABC,$FE
-""".split('\n')[1:-1]
-
-TEST_HEX_ASM_LOWER = r"""
-  org $7fff
-
-; Routine
-  ld a,(ix+$11)
-  defw $0000,$0001,$0011,$0111,$abcd
-  ld (iy-$19),$7c
-  and $00
-  or $01
-  xor $02
-  sub $03
-  cp $04
-  in a,($05)
-  out ($06),a
-  add a,$07
-  adc a,$08
-  sbc a,$09
-  rst $38
-  ld a,$0b
-  ld b,$0c
-  ld c,$0d
-  ld d,$0e
-  ld e,$0f
-  ld h,$10
-  ld l,$11
-  ld ixl,$12
-  ld ixh,$13
-  ld iyl,$14
-  ld iyh,$15
-  ld (hl),$16
-  and b
-  defb $00,$01,$11,$ab
-  ld a,($789a)
-  daa
-  defb $17,"\"Hi!\"",$7f
-  defm "C:\\>",$ab
-  defs $0a
-  defs $0abc,$fe
-""".split('\n')[1:-1]
-
-TEST_HEX_ASM_UPPER = r"""
-  ORG $7FFF
-
-; Routine
-  LD A,(IX+$11)
-  DEFW $0000,$0001,$0011,$0111,$ABCD
-  LD (IY-$19),$7C
-  AND $00
-  OR $01
-  XOR $02
-  SUB $03
-  CP $04
-  IN A,($05)
-  OUT ($06),A
-  ADD A,$07
-  ADC A,$08
-  SBC A,$09
-  RST $38
-  LD A,$0B
-  LD B,$0C
-  LD C,$0D
-  LD D,$0E
-  LD E,$0F
-  LD H,$10
-  LD L,$11
-  LD IXl,$12
-  LD IXh,$13
-  LD IYl,$14
-  LD IYh,$15
-  LD (HL),$16
-  AND B
-  DEFB $00,$01,$11,$AB
-  LD A,($789A)
-  DAA
-  DEFB $17,"\"Hi!\"",$7F
-  DEFM "C:\\>",$AB
-  DEFS $0A
-  DEFS $0ABC,$FE
-""".split('\n')[1:-1]
-
-TEST_DECIMAL = r"""; @start
-; @org=$8000
-; Routine
-c32768 ld a,(ix+$11)
- 32772 DEFW $0000,$0001,$0011,$0111,$ABCD
- 32782 LD (IY-$19),$7C
- 32783 AND $00
- 32785 OR $01
- 32787 XOR $02
- 32789 SUB $03
- 32791 CP $04
- 32793 IN A,($05)
- 32795 OUT ($06),A
- 32797 ADD A,$07
- 32799 ADC A,$08
- 32801 SBC A,$09
- 32803 RST $38
- 32804 LD A,$0B
- 32806 LD B,$0C
- 32808 LD C,$0D
- 32810 LD D,$0E
- 32812 LD E,$0F
- 32814 LD H,$10
- 32816 LD L,$11
- 32818 LD IXL,$12
- 32821 LD IXH,$13
- 32824 LD IYL,$14
- 32827 LD IYH,$15
- 32830 LD (HL),$16
- 32832 AND B
- 32833 DEFB $00,$01,$11,$AB
- 32837 LD A,($789A)
- 32840 DAA
- 32841 defb $17,"\"Hi!\"",$7f
- 32848 DEFM "C:\\>",$AB
- 32853 DEFS $0A
- 32863 DEFS $0ABC,$FE
-"""
-
-TEST_DECIMAL_ASM = r"""
-  ORG 32768
-
-; Routine
-  ld a,(ix+17)
-  DEFW 0,1,17,273,43981
-  LD (IY-25),124
-  AND 0
-  OR 1
-  XOR 2
-  SUB 3
-  CP 4
-  IN A,(5)
-  OUT (6),A
-  ADD A,7
-  ADC A,8
-  SBC A,9
-  RST 56
-  LD A,11
-  LD B,12
-  LD C,13
-  LD D,14
-  LD E,15
-  LD H,16
-  LD L,17
-  LD IXL,18
-  LD IXH,19
-  LD IYL,20
-  LD IYH,21
-  LD (HL),22
-  AND B
-  DEFB 0,1,17,171
-  LD A,(30874)
-  DAA
-  defb 23,"\"Hi!\"",127
-  DEFM "C:\\>",171
-  DEFS 10
-  DEFS 2748,254
-""".split('\n')[1:-1]
-
-TEST_DECIMAL_ASM_LOWER = r"""
-  org 32768
-
-; Routine
-  ld a,(ix+17)
-  defw 0,1,17,273,43981
-  ld (iy-25),124
-  and 0
-  or 1
-  xor 2
-  sub 3
-  cp 4
-  in a,(5)
-  out (6),a
-  add a,7
-  adc a,8
-  sbc a,9
-  rst 56
-  ld a,11
-  ld b,12
-  ld c,13
-  ld d,14
-  ld e,15
-  ld h,16
-  ld l,17
-  ld ixl,18
-  ld ixh,19
-  ld iyl,20
-  ld iyh,21
-  ld (hl),22
-  and b
-  defb 0,1,17,171
-  ld a,(30874)
-  daa
-  defb 23,"\"Hi!\"",127
-  defm "C:\\>",171
-  defs 10
-  defs 2748,254
-""".split('\n')[1:-1]
-
-TEST_DECIMAL_ASM_UPPER = r"""
-  ORG 32768
-
-; Routine
-  LD A,(IX+17)
-  DEFW 0,1,17,273,43981
-  LD (IY-25),124
-  AND 0
-  OR 1
-  XOR 2
-  SUB 3
-  CP 4
-  IN A,(5)
-  OUT (6),A
-  ADD A,7
-  ADC A,8
-  SBC A,9
-  RST 56
-  LD A,11
-  LD B,12
-  LD C,13
-  LD D,14
-  LD E,15
-  LD H,16
-  LD L,17
-  LD IXl,18
-  LD IXh,19
-  LD IYl,20
-  LD IYh,21
-  LD (HL),22
-  AND B
-  DEFB 0,1,17,171
-  LD A,(30874)
-  DAA
-  DEFB 23,"\"Hi!\"",127
-  DEFM "C:\\>",171
-  DEFS 10
-  DEFS 2748,254
-""".split('\n')[1:-1]
-
 ERROR_PREFIX = 'Error while parsing #{0} macro'
 
 def get_chr(code):
@@ -1327,31 +1009,6 @@ class AsmWriterTest(SkoolKitTestCase):
         ]
         self.assertEqual(exp_asm, asm[2:2 + len(exp_asm)])
 
-    def test_registers_upper(self):
-        skool = '\n'.join((
-            '; @start',
-            '; Test parsing of register blocks (1)',
-            ';',
-            '; Traditional.',
-            ';',
-            '; A Some value',
-            '; B Some other value',
-            'c24604 RET',
-            '',
-            '; Test parsing of register blocks (2)',
-            ';',
-            '; With prefixes.',
-            ';',
-            '; Input:a Some value',
-            ';       b Some other value',
-            '; Output:c The result',
-            'c24605 RET',
-        ))
-        asm = self._get_asm(skool, case=CASE_UPPER)
-        self.assertEqual(asm[12], ';  Input:A Some value')
-        self.assertEqual(asm[13], ';        B Some other value')
-        self.assertEqual(asm[14], '; Output:C The result')
-
     def test_registers_in_non_code_blocks(self):
         skool = '\n'.join((
             '@start',
@@ -1452,32 +1109,6 @@ class AsmWriterTest(SkoolKitTestCase):
         asm = self._get_asm(skool)
         self.assertEqual(exp_asm, asm[:len(exp_asm)])
 
-    def test_defm_upper(self):
-        skool = '\n'.join((
-            '; @start',
-            '; Message 1',
-            't32768 DEFM "AbCdEfG"',
-            '',
-            '; Message 2',
-            't32775 defm "hIjKlMn"',
-        ))
-        asm = self._get_asm(skool, case=CASE_UPPER)
-        self.assertEqual(asm[1], '  DEFM "AbCdEfG"')
-        self.assertEqual(asm[4], '  DEFM "hIjKlMn"')
-
-    def test_defm_lower(self):
-        skool = '\n'.join((
-            '@start',
-            '; Message 1',
-            't32768 DEFM "AbCdEfG"',
-            '',
-            '; Message 2',
-            't32775 defm "hIjKlMn"',
-        ))
-        asm = self._get_asm(skool, case=CASE_LOWER)
-        self.assertEqual(asm[1], '  defm "AbCdEfG"')
-        self.assertEqual(asm[4], '  defm "hIjKlMn"')
-
     def test_empty_description(self):
         skool = '\n'.join((
             '; @start',
@@ -1532,85 +1163,41 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(asm[3], 'START_0:')
         self.assertEqual(asm[5], 'START_1:')
 
-    def test_decimal(self):
-        asm = self._get_asm(TEST_DECIMAL, base=BASE_10)
-        self.assertEqual(asm[:-1], TEST_DECIMAL_ASM)
-
-    def test_decimal_lower(self):
-        asm = self._get_asm(TEST_DECIMAL, base=BASE_10, case=CASE_LOWER)
-        self.assertEqual(asm[:-1], TEST_DECIMAL_ASM_LOWER)
-
-    def test_decimal_upper(self):
-        asm = self._get_asm(TEST_DECIMAL, base=BASE_10, case=CASE_UPPER)
-        self.assertEqual(asm[:-1], TEST_DECIMAL_ASM_UPPER)
-
-    def test_hex(self):
-        asm = self._get_asm(TEST_HEX, base=BASE_16)
-        self.assertEqual(asm[:-1], TEST_HEX_ASM)
-
-    def test_hex_lower(self):
-        asm = self._get_asm(TEST_HEX, base=BASE_16, case=CASE_LOWER)
-        self.assertEqual(asm[:-1], TEST_HEX_ASM_LOWER)
-
-    def test_hex_upper(self):
-        asm = self._get_asm(TEST_HEX, base=BASE_16, case=CASE_UPPER)
-        self.assertEqual(asm[:-1], TEST_HEX_ASM_UPPER)
-
-    def test_end_directive(self):
-        skool = '\n'.join((
-            '; @start',
-            '; Routine',
-            'c40000 RET',
-            '; @end',
-            '',
-            '; More code',
-            'c40001 NOP',
-        ))
-        asm = self._get_asm(skool)
-        self.assertEqual(len(asm), 3)
-        self.assertEqual(asm[1], '  RET')
-        self.assertEqual(asm[2], '')
-
-    def test_isub_directive(self):
+    def test_org_address_converted_to_decimal(self):
         skool = '\n'.join((
             '@start',
-            '; Routine',
-            '; @isub=LD A,(32512)',
-            'c60000 LD A,(m)',
+            '@org=$8000',
+            'c$8000 RET'
         ))
-        for asm_mode in (1, 2, 3):
-            asm = self._get_asm(skool, asm_mode=asm_mode)
-            self.assertEqual(asm[1], '  LD A,(32512)')
+        asm = self._get_asm(skool, base=BASE_10)
+        self.assertEqual(asm[0], '  ORG 32768')
 
-    def test_isub_block_directive(self):
-        skool = '\n'.join((
-            '; @start',
-            '; Routine',
-            ';',
-            '@isub+begin',
-            '; Actual description.',
-            '; @isub-else',
-            '; Other description.',
-            '@isub-end',
-            'c24576 RET',
-        ))
-        for asm_mode in (1, 2, 3):
-            asm = self._get_asm(skool)
-            self.assertEqual(asm[2], '; Actual description.')
-            self.assertEqual(asm[3], '  RET')
-
-    def test_rsub_directive(self):
+    def test_org_address_converted_to_hex(self):
         skool = '\n'.join((
             '@start',
-            '; Routine',
-            '; @rsub=INC HL',
-            'c23456 INC L',
+            '@org=32778',
+            'c32778 RET'
         ))
-        for asm_mode in (1, 2):
-            asm = self._get_asm(skool, asm_mode=asm_mode)
-            self.assertEqual(asm[1], '  INC L')
-        asm = self._get_asm(skool, asm_mode=3)
-        self.assertEqual(asm[1], '  INC HL')
+        asm = self._get_asm(skool, base=BASE_16)
+        self.assertEqual(asm[0], '  ORG $800A')
+
+    def test_org_address_converted_to_lower_case_hex(self):
+        skool = '\n'.join((
+            '@start',
+            '@org=61613',
+            'c61613 RET'
+        ))
+        asm = self._get_asm(skool, base=BASE_16, case=CASE_LOWER)
+        self.assertEqual(asm[0], '  org $f0ad')
+
+    def test_org_address_converted_to_upper_case_hex(self):
+        skool = '\n'.join((
+            '@start',
+            '@org=$f0ad',
+            'c$f0ad RET'
+        ))
+        asm = self._get_asm(skool, base=BASE_16, case=CASE_UPPER)
+        self.assertEqual(asm[0], '  ORG $F0AD')
 
     def test_ignoreua_directive_on_entry_title(self):
         skool = '\n'.join((
