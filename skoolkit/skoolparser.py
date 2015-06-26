@@ -253,7 +253,7 @@ class SkoolParser:
         self.base = base
 
         self.snapshot = [0] * 65536  # 64K of Spectrum memory
-        self.instructions = {}       # address -> [Instructions]
+        self._instructions = {}      # address -> [Instructions]
         self.entries = {}            # address -> SkoolEntry
         self.memory_map = []         # SkoolEntry instances
         self.base_address = 65536
@@ -287,7 +287,7 @@ class SkoolParser:
 
     def get_instruction(self, address, asm_id=''):
         """Return the instruction at `address`."""
-        for instruction in self.instructions.get(address, []):
+        for instruction in self._instructions.get(address, ()):
             if instruction.container.asm_id.lower() == asm_id.lower():
                 return instruction
 
@@ -388,7 +388,7 @@ class SkoolParser:
             if map_entry:
                 address_comments.append([instruction, address_comment])
                 if address is not None:
-                    self.instructions.setdefault(address, []).append(instruction)
+                    self._instructions.setdefault(address, []).append(instruction)
                 map_entry.add_instruction(instruction)
                 if self.comments:
                     mid_routine_comment = join_comments(self.comments, split=True, html=self.mode.html)
@@ -416,12 +416,12 @@ class SkoolParser:
                 last_entry.instructions = [i for i in last_entry.instructions if i.address < max_address]
             else:
                 self.base_address = max_address
-            self.instructions = {k: v for k, v in self.instructions.items() if self.base_address <= k < max_address}
+            self._instructions = {k: v for k, v in self._instructions.items() if self.base_address <= k < max_address}
             address_comments = [c for c in address_comments if c[0] is None or self.base_address <= c[0].address < max_address]
 
-        if self.instructions:
-            end_address = max(self.instructions)
-            last_instruction = self.instructions[end_address][0]
+        if self.memory_map:
+            end_address = max([i.address for e in self.memory_map for i in e.instructions])
+            last_instruction = self.get_instruction(end_address)
             self.end_address = end_address + (get_size(last_instruction.operation, end_address) or 1)
 
         # Do some post-processing
@@ -549,15 +549,15 @@ class SkoolParser:
                 if not addr_str:
                     continue
                 address = parse_int(addr_str)
-                other_instructions = self.instructions.get(address)
-                if other_instructions:
-                    other_entry = other_instructions[0].container
+                other_instruction = self._instructions.get(address, (None,))[0]
+                if other_instruction:
+                    other_entry = other_instruction.container
                     if other_entry.is_ignored():
                         continue
                     if other_entry.is_remote() or operation.startswith(('DEFW', 'LD ')) or other_entry.is_routine():
                         instruction.set_reference(other_entry, address, addr_str)
                         if operation.startswith(('CALL', 'DJNZ', 'JP', 'JR', 'RST')):
-                            other_instructions[0].add_referrer(entry)
+                            other_instruction.add_referrer(entry)
 
     def _escape_instructions(self):
         for entry in self.memory_map:
@@ -603,9 +603,8 @@ class SkoolParser:
         if operand_int < 256 and (not operation_u.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD '))
                                   or self._is_8_bit_ld_instruction(operation_u)):
             return
-        instructions = self.instructions.get(operand_int)
-        if instructions:
-            reference = instructions[0]
+        reference = self.get_instruction(operand_int)
+        if reference:
             if reference.asm_label:
                 rep = operation.replace(operand, reference.asm_label)
                 if reference.is_in_routine() and label_warn and operation_u.startswith('LD '):

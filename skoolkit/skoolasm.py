@@ -34,10 +34,11 @@ class AsmWriter:
 
         # Build a label dictionary
         self.labels = {}
-        for address, instructions in parser.instructions.items():
-            label = instructions[0].asm_label
-            if label:
-                self.labels[address] = label
+        for entry in self.parser.memory_map:
+            for instruction in entry.instructions:
+                label = instruction.asm_label
+                if label:
+                    self.labels[instruction.address] = label
 
         # Determine the base and end addresses
         self.base_address = 16384
