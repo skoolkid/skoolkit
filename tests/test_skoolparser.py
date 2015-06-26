@@ -1179,13 +1179,13 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_html_escape(self):
         skool = 'c24576 NOP ; Return if X<=Y & Y>=Z'
         parser = self._get_parser(skool, html=True)
-        inst = parser.instructions[24576][0]
+        inst = parser.get_instruction(24576)
         self.assertEqual(inst.comment.text, 'Return if X&lt;=Y &amp; Y&gt;=Z')
 
     def test_html_no_escape(self):
         skool = 'c49152 NOP ; Return if X<=Y & Y>=Z'
         parser = self._get_parser(skool, html=False)
-        inst = parser.instructions[49152][0]
+        inst = parser.get_instruction(49152)
         self.assertEqual(inst.comment.text, 'Return if X<=Y & Y>=Z')
 
     def test_html_macro(self):
@@ -1213,7 +1213,7 @@ class SkoolParserTest(SkoolKitTestCase):
             '[': ']',
             '{': '}'
         }
-        text = parser.instructions[24577][0].comment.text
+        text = parser.get_instruction(24577).comment.text
         lines = []
         for i, delim1 in enumerate('([{@!%*_-+', 1):
             delim2 = delimiters.get(delim1, delim1)
@@ -1223,7 +1223,7 @@ class SkoolParserTest(SkoolKitTestCase):
         lines.append('#HTML:This macro is <em>unterminated</em>')
         self.assertEqual(text, ' '.join(lines))
 
-        self.assertEqual(parser.instructions[24588][0].comment.text, '#HTML')
+        self.assertEqual(parser.get_instruction(24588).comment.text, '#HTML')
 
     def test_font_macro_text_parameter(self):
         macros = (
@@ -1243,10 +1243,10 @@ class SkoolParserTest(SkoolKitTestCase):
         )).format(*macros)
         parser = self._get_parser(skool, html=True)
 
-        text = parser.instructions[24577][0].comment.text
+        text = parser.get_instruction(24577).comment.text
         self.assertEqual(text, ' '.join(macros))
 
-        self.assertEqual(parser.instructions[24588][0].comment.text, '#FONT:')
+        self.assertEqual(parser.get_instruction(24588).comment.text, '#FONT:')
 
     def test_entry_title(self):
         title = 'This is an entry title'
@@ -1255,7 +1255,7 @@ class SkoolParserTest(SkoolKitTestCase):
             'c30000 RET'
         ))
         parser = self._get_parser(skool, html=False)
-        self.assertEqual(parser.entries[30000].description, title)
+        self.assertEqual(parser.get_entry(30000).description, title)
 
     def test_entry_description(self):
         description = 'This is an entry description'
@@ -1266,7 +1266,7 @@ class SkoolParserTest(SkoolKitTestCase):
             'c30000 RET'
         ))
         parser = self._get_parser(skool, html=False)
-        self.assertEqual([description], parser.entries[30000].details)
+        self.assertEqual([description], parser.get_entry(30000).details)
 
     def test_multi_paragraph_entry_description(self):
         description = ['Paragraph 1', 'Paragraph 2']
@@ -1279,7 +1279,7 @@ class SkoolParserTest(SkoolKitTestCase):
             'c40000 RET'
         ))
         parser = self._get_parser(skool, html=False)
-        self.assertEqual(description, parser.entries[40000].details)
+        self.assertEqual(description, parser.get_entry(40000).details)
 
     def test_empty_entry_description(self):
         skool = '\n'.join((
@@ -1291,7 +1291,7 @@ class SkoolParserTest(SkoolKitTestCase):
             'c25600 RET'
         ))
         parser = self._get_parser(skool, html=False)
-        entry = parser.entries[25600]
+        entry = parser.get_entry(25600)
         self.assertEqual(entry.details, [])
         registers = entry.registers
         self.assertEqual(len(registers), 1)
@@ -1321,7 +1321,7 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool, html=False)
 
         # Traditional
-        registers = parser.entries[24589].registers
+        registers = parser.get_entry(24589).registers
         self.assertEqual(len(registers), 3)
         reg_a = registers[0]
         self.assertEqual(reg_a.prefix, '')
@@ -1337,7 +1337,7 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(reg_c.contents, '')
 
         # With prefixes
-        registers = parser.entries[24590].registers
+        registers = parser.get_entry(24590).registers
         self.assertEqual(len(registers), 3)
         reg_a = registers[0]
         self.assertEqual(reg_a.prefix, 'Input')
@@ -1399,7 +1399,7 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool, html=False)
 
         for address, reg_name in ((54321, 'A'), (54322, 'B'), (54323, 'C'), (54333, 'D'), (54335, 'E'), (54338, 'H')):
-            registers = parser.entries[address].registers
+            registers = parser.get_entry(address).registers
             self.assertEqual(len(registers), 1)
             reg = registers[0]
             self.assertEqual(reg.name, reg_name)
@@ -1420,7 +1420,7 @@ class SkoolParserTest(SkoolKitTestCase):
         ))
         parser = self._get_parser(skool, html=False)
 
-        registers = parser.entries[40000].registers
+        registers = parser.get_entry(40000).registers
         self.assertEqual(len(registers), 3)
         self.assertEqual(registers[0].name, 'BC')
         self.assertEqual(registers[0].contents, 'This register description is long enough that it needs to be split over two lines')
@@ -1441,7 +1441,7 @@ class SkoolParserTest(SkoolKitTestCase):
             'c49152 RET'
         ))
         parser = self._get_parser(skool, html=False)
-        self.assertEqual([], parser.entries[49152].registers)
+        self.assertEqual([], parser.get_entry(49152).registers)
 
     def test_registers_html_escape(self):
         skool = '\n'.join((
@@ -1455,7 +1455,7 @@ class SkoolParserTest(SkoolKitTestCase):
         ))
         parser = self._get_parser(skool, html=True)
 
-        registers = parser.entries[49152].registers
+        registers = parser.get_entry(49152).registers
         self.assertEqual(len(registers), 2)
         self.assertEqual(registers[0].contents, 'Some value &gt; 4')
         self.assertEqual(registers[1].contents, 'Some value &lt; 8')
@@ -1472,7 +1472,7 @@ class SkoolParserTest(SkoolKitTestCase):
         ))
         parser = self._get_parser(skool, html=False)
 
-        registers = parser.entries[32768].registers
+        registers = parser.get_entry(32768).registers
         self.assertEqual(len(registers), 2)
         self.assertEqual(registers[0].contents, 'Some value > 8')
         self.assertEqual(registers[1].contents, 'Some value < 10')
@@ -1490,7 +1490,7 @@ class SkoolParserTest(SkoolKitTestCase):
             'c50000 RET'
         ))
         parser = self._get_parser(skool, html=False)
-        start_comment = parser.entries[50000].get_mid_routine_comment('c50000')
+        start_comment = parser.get_instruction(50000).get_mid_routine_comment()
         self.assertEqual([exp_start_comment], start_comment)
 
     def test_multi_paragraph_start_comment(self):
@@ -1508,7 +1508,7 @@ class SkoolParserTest(SkoolKitTestCase):
             'c50000 RET'
         ))
         parser = self._get_parser(skool, html=False)
-        start_comment = parser.entries[50000].get_mid_routine_comment('c50000')
+        start_comment = parser.get_instruction(50000).get_mid_routine_comment()
         self.assertEqual(exp_start_comment, start_comment)
 
     def test_snapshot(self):
@@ -1539,7 +1539,7 @@ class SkoolParserTest(SkoolKitTestCase):
             ' 32769 DEFB 0 ; }'
         ))
         parser = self._get_parser(skool)
-        comment = parser.instructions[32768][0].comment.text
+        comment = parser.get_instruction(32768).comment.text
         self.assertEqual(comment, 'These bytes are {REALLY} {{IMPORTANT}}!')
 
     def test_braces_in_comments(self):
@@ -1565,7 +1565,7 @@ class SkoolParserTest(SkoolKitTestCase):
             (30008, '{{Unmatched opening braces')
         )
         for address, exp_text in exp_comments:
-            text = parser.instructions[address][0].comment.text
+            text = parser.get_instruction(address).comment.text
             self.assertEqual(text, exp_text)
 
     def test_unmatched_opening_braces_in_instruction_comments(self):
@@ -1585,7 +1585,7 @@ class SkoolParserTest(SkoolKitTestCase):
             (50004, 1, 'The closing brace in this comment is unmatched}')
         )
         for address, exp_rowspan, exp_text in exp_comments:
-            comment = parser.instructions[address][0].comment
+            comment = parser.get_instruction(address).comment
             self.assertEqual(comment.text, exp_text)
             self.assertEqual(comment.rowspan, exp_rowspan)
 
@@ -1743,10 +1743,10 @@ class SkoolParserTest(SkoolKitTestCase):
             ' 00064 RST $38',
         )
         parser = self._get_parser('\n'.join(skool), asm_mode=1)
-        self.assertEqual(len(parser.entries[0].instructions[0].referrers), 1)
+        self.assertEqual(len(parser.get_entry(0).instructions[0].referrers), 1)
         index = 20
         ref_address = 0
-        for instruction in parser.entries[57].instructions:
+        for instruction in parser.get_entry(57).instructions:
             self.assertEqual(instruction.operation, skool[index][7:])
             self.assertIsNotNone(instruction.reference)
             self.assertEqual(instruction.reference.address, ref_address)
@@ -1793,13 +1793,29 @@ class SkoolParserTest(SkoolKitTestCase):
             '; End',
             'c32770 JR 32768',
         ))
-        parser = self._get_parser(skool, create_labels=True)
+        parser = self._get_parser(skool, create_labels=True, asm_labels=True)
         instruction = parser.get_entry(32768).instructions[0]
         self.assertEqual(instruction.asm_label, 'L32768')
         self.assertEqual(instruction.operation, 'JR L32770')
         instruction = parser.get_entry(32770).instructions[0]
         self.assertEqual(instruction.asm_label, 'L32770')
         self.assertEqual(instruction.operation, 'JR L32768')
+
+    def test_create_no_labels(self):
+        skool = '\n'.join((
+            '@start',
+            '@label=START',
+            'c32768 JR 32770',
+            '',
+            'c32770 JR 32768',
+        ))
+        parser = self._get_parser(skool, create_labels=False, asm_labels=True)
+        instruction = parser.get_entry(32768).instructions[0]
+        self.assertEqual(instruction.asm_label, 'START')
+        self.assertEqual(instruction.operation, 'JR 32770')
+        instruction = parser.get_entry(32770).instructions[0]
+        self.assertIsNone(instruction.asm_label)
+        self.assertEqual(instruction.operation, 'JR START')
 
     def test_set_directive(self):
         skool = '\n'.join((
@@ -2036,6 +2052,21 @@ class SkoolParserTest(SkoolKitTestCase):
             (40016, 'DEFW $0000, "4"')
         )
         parser = self._get_parser(skool, base=BASE_16)
+        for address, operation in exp_instructions:
+            self.assertEqual(parser.get_instruction(address).operation, operation)
+
+    def test_no_case_conversion(self):
+        skool = '\n'.join((
+            'c54000 LD A,0',
+            ' 54002 ld b,1',
+            ' 54004 Ret',
+        ))
+        exp_instructions = (
+            (54000, 'LD A,0'),
+            (54002, 'ld b,1'),
+            (54004, 'Ret'),
+        )
+        parser = self._get_parser(skool, case=None)
         for address, operation in exp_instructions:
             self.assertEqual(parser.get_instruction(address).operation, operation)
 
@@ -2276,8 +2307,8 @@ class SkoolParserTest(SkoolKitTestCase):
             ' 12555 LD ($309D),A',
             ' 12558 DEFW %0011000010011101'
         )
-        parser = self._get_parser('\n'.join(skool), asm_mode=1)
-        instructions = parser.entries[12445].instructions
+        parser = self._get_parser('\n'.join(skool), asm_mode=1, asm_labels=True)
+        instructions = parser.get_entry(12445).instructions
         self.assertEqual(len(instructions[0].referrers), 1)
         index = 2
         for instruction in instructions:
@@ -2306,7 +2337,7 @@ class SkoolParserTest(SkoolKitTestCase):
             ' 00043 LD A,(0)',
             ' 00046 LD ($0000),A'
         )
-        parser = self._get_parser('\n'.join(skool), asm_mode=1)
+        parser = self._get_parser('\n'.join(skool), asm_mode=1, asm_labels=True)
 
         instructions = parser.memory_map[0].instructions
         self.assertEqual(len(instructions[0].referrers), 0)
@@ -2377,13 +2408,13 @@ class SkoolParserTest(SkoolKitTestCase):
             ' 00258 IN A,(132)',
             ' 00260 OUT (132),A',
         )
-        parser = self._get_parser('\n'.join(skool), asm_mode=1)
+        parser = self._get_parser('\n'.join(skool), asm_mode=1, asm_labels=True)
 
-        instruction = parser.entries[124].instructions[0]
+        instruction = parser.get_entry(124).instructions[0]
         self.assertEqual(len(instruction.referrers), 0)
         self.assertEqual(instruction.operation, skool[2][7:])
 
-        instructions = parser.entries[132].instructions
+        instructions = parser.get_entry(132).instructions
         self.assertEqual(len(instructions[0].referrers), 0)
         index = 5
         for instruction in instructions:
@@ -2391,7 +2422,7 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertIsNone(instruction.reference)
             index += 1
 
-        instructions = parser.entries[255].instructions
+        instructions = parser.get_entry(255).instructions
         self.assertEqual(len(instructions[0].referrers), 0)
         index += 2
         for instruction in instructions:
@@ -2408,13 +2439,13 @@ class SkoolParserTest(SkoolKitTestCase):
             '@label=SPACE2',
             's10000 DEFS 10000,255',
         )
-        parser = self._get_parser('\n'.join(skool), asm_mode=1)
+        parser = self._get_parser('\n'.join(skool), asm_mode=1, asm_labels=True)
 
-        instruction = parser.instructions[10][0]
+        instruction = parser.get_instruction(10)
         self.assertEqual(len(instruction.referrers), 0)
         self.assertEqual(instruction.operation, skool[2][7:])
 
-        instruction = parser.instructions[10000][0]
+        instruction = parser.get_instruction(10000)
         self.assertEqual(len(instruction.referrers), 0)
         self.assertEqual(instruction.operation, skool[5][7:])
 
@@ -2430,7 +2461,7 @@ class SkoolParserTest(SkoolKitTestCase):
             'c40001 RET'
         ))
         with self.assertRaisesRegexp(SkoolParsingError, 'Duplicate label START at 40001'):
-            self._get_parser(skool, asm_mode=1)
+            self._get_parser(skool, asm_mode=1, asm_labels=True)
 
     def test_asm_mode(self):
         skool = '\n'.join((
@@ -2444,7 +2475,7 @@ class SkoolParserTest(SkoolKitTestCase):
             'c32768 RET'
         ))
         for asm_mode, exp_label in ((0, 'FOO'), (1, 'FOO'), (2, 'FOO'), (3, 'BAR')):
-            parser = self._get_parser(skool, asm_mode=asm_mode)
+            parser = self._get_parser(skool, asm_mode=asm_mode, asm_labels=True)
             self.assertEqual(parser.get_instruction(32768).asm_label, exp_label)
 
     def test_rsub_no_address(self):
@@ -2459,7 +2490,7 @@ class SkoolParserTest(SkoolKitTestCase):
             '@rsub+end'
         ))
         parser = self._get_parser(skool, asm_mode=3)
-        entry = parser.entries[30000]
+        entry = parser.get_entry(30000)
         instruction = entry.instructions[1]
         self.assertEqual(instruction.operation, 'LD HL,16384')
         self.assertEqual(instruction.sub, instruction.operation)
@@ -2527,6 +2558,14 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool, asm_mode=3)
         self.assertEqual(parser.get_instruction(23456).operation, 'INC HL')
 
+    def test_no_asm_labels(self):
+        skool = '\n'.join((
+            '@label=START',
+            'c49152 RET'
+        ))
+        parser = self._get_parser(skool, asm_labels=False)
+        self.assertIsNone(parser.get_instruction(49152).asm_label)
+
     def test_html_mode_label(self):
         label = 'START'
         skool = '\n'.join((
@@ -2535,7 +2574,7 @@ class SkoolParserTest(SkoolKitTestCase):
             'c49152 LD BC,0',
             ' 49155 RET'
         ))
-        parser = self._get_parser(skool, html=True)
+        parser = self._get_parser(skool, html=True, asm_labels=True)
         entry = parser.get_entry(49152)
         self.assertEqual(entry.instructions[0].asm_label, label)
         self.assertIsNone(entry.instructions[1].asm_label)
@@ -2879,9 +2918,13 @@ class SkoolParserTest(SkoolKitTestCase):
         ))
         parser = self._get_parser(skool, min_address=30001)
         self.assertEqual([30001, 30002], [e.address for e in parser.memory_map])
-        self.assertEqual([30001, 30002], sorted(parser.entries))
+        self.assertIsNone(parser.get_entry(30000))
+        self.assertIsNotNone(parser.get_entry(30001))
+        self.assertIsNotNone(parser.get_entry(30002))
         self.assertEqual(parser.base_address, 30001)
-        self.assertEqual([30001, 30002], sorted(parser.instructions))
+        self.assertIsNone(parser.get_instruction(30000))
+        self.assertIsNotNone(parser.get_instruction(30001))
+        self.assertIsNotNone(parser.get_instruction(30002))
 
     def test_min_address_between_entries(self):
         skool = '\n'.join((
@@ -2893,9 +2936,13 @@ class SkoolParserTest(SkoolKitTestCase):
         ))
         parser = self._get_parser(skool, min_address=40001)
         self.assertEqual([40003], [e.address for e in parser.memory_map])
-        self.assertEqual([40003], sorted(parser.entries))
+        self.assertIsNone(parser.get_entry(40000))
+        self.assertIsNotNone(parser.get_entry(40003))
         self.assertEqual(parser.base_address, 40003)
-        self.assertEqual([40003], sorted(parser.instructions))
+        self.assertIsNone(parser.get_instruction(40000))
+        self.assertIsNone(parser.get_instruction(40001))
+        self.assertIsNone(parser.get_instruction(40002))
+        self.assertIsNotNone(parser.get_instruction(40003))
 
     def test_max_address(self):
         skool = '\n'.join((
@@ -2907,9 +2954,13 @@ class SkoolParserTest(SkoolKitTestCase):
         ))
         parser = self._get_parser(skool, max_address=30002)
         self.assertEqual([30000, 30001], [e.address for e in parser.memory_map])
-        self.assertEqual([30000, 30001], sorted(parser.entries))
+        self.assertIsNotNone(parser.get_entry(30000))
+        self.assertIsNotNone(parser.get_entry(30001))
+        self.assertIsNone(parser.get_entry(30002))
         self.assertEqual(parser.base_address, 30000)
-        self.assertEqual([30000, 30001], sorted(parser.instructions))
+        self.assertIsNotNone(parser.get_instruction(30000))
+        self.assertIsNotNone(parser.get_instruction(30001))
+        self.assertIsNone(parser.get_instruction(30002))
 
     def test_max_address_between_entries(self):
         skool = '\n'.join((
@@ -2923,10 +2974,16 @@ class SkoolParserTest(SkoolKitTestCase):
         ))
         parser = self._get_parser(skool, max_address=40003)
         self.assertEqual([40000, 40001], [e.address for e in parser.memory_map])
-        self.assertEqual([40000, 40001], sorted(parser.entries))
-        self.assertEqual(parser.entries[40001].instructions[-1].address, 40002)
+        self.assertIsNotNone(parser.get_entry(40000))
+        self.assertIsNotNone(parser.get_entry(40001))
+        self.assertIsNone(parser.get_entry(40004))
+        self.assertEqual(parser.get_entry(40001).instructions[-1].address, 40002)
         self.assertEqual(parser.base_address, 40000)
-        self.assertEqual([40000, 40001, 40002], sorted(parser.instructions))
+        self.assertIsNotNone(parser.get_instruction(40000))
+        self.assertIsNotNone(parser.get_instruction(40001))
+        self.assertIsNotNone(parser.get_instruction(40002))
+        self.assertIsNone(parser.get_instruction(40003))
+        self.assertIsNone(parser.get_instruction(40004))
 
     def test_min_and_max_address(self):
         skool = '\n'.join((
@@ -2940,9 +2997,15 @@ class SkoolParserTest(SkoolKitTestCase):
         ))
         parser = self._get_parser(skool, min_address=40001, max_address=40003)
         self.assertEqual([40001, 40002], [e.address for e in parser.memory_map])
-        self.assertEqual([40001, 40002], sorted(parser.entries))
+        self.assertIsNone(parser.get_entry(40000))
+        self.assertIsNotNone(parser.get_entry(40001))
+        self.assertIsNotNone(parser.get_entry(40002))
+        self.assertIsNone(parser.get_entry(40003))
         self.assertEqual(parser.base_address, 40001)
-        self.assertEqual([40001, 40002], sorted(parser.instructions))
+        self.assertIsNone(parser.get_instruction(40000))
+        self.assertIsNotNone(parser.get_instruction(40001))
+        self.assertIsNotNone(parser.get_instruction(40002))
+        self.assertIsNone(parser.get_instruction(40003))
 
     def test_min_and_max_address_gives_no_content(self):
         skool = '\n'.join((
@@ -2953,8 +3016,11 @@ class SkoolParserTest(SkoolKitTestCase):
         ))
         parser = self._get_parser(skool, min_address=40001, max_address=40002)
         self.assertEqual(len(parser.memory_map), 0)
-        self.assertEqual(len(parser.entries), 0)
-        self.assertEqual(len(parser.instructions), 0)
+        self.assertIsNone(parser.get_entry(40000))
+        self.assertIsNone(parser.get_entry(40002))
+        self.assertIsNone(parser.get_instruction(40000))
+        self.assertIsNone(parser.get_instruction(40001))
+        self.assertIsNone(parser.get_instruction(40002))
 
 class TableParserTest(SkoolKitTestCase):
     def assert_error(self, text, error):
