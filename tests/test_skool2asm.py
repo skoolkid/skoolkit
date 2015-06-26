@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import unittest
-import textwrap
 try:
     from mock import patch
 except ImportError:
@@ -446,21 +445,6 @@ class Skool2AsmTest(SkoolKitTestCase):
         asm = self._get_asm(skool.format(property_name, '0'), '-d', strip_cr=False)
         self.assertEqual(asm[1], '  DEFB 0                  ; Comment\r')
 
-    def test_indent_property(self):
-        skool = '\n'.join((
-            '; @start',
-            '; @set-{}={}',
-            '; Data',
-            'b40000 DEFB 0 ; Comment',
-        ))
-        for indent in (1, 5, 'x'):
-            asm = self._get_asm(skool.format('indent', indent))
-            try:
-                indent_size = int(indent)
-            except ValueError:
-                indent_size = 2
-            self.assertEqual(asm[1], '{0}DEFB 0                  ; Comment'.format(' ' * indent_size))
-
     def test_warnings_property(self):
         skool = '\n'.join((
             '; @start',
@@ -512,80 +496,6 @@ class Skool2AsmTest(SkoolKitTestCase):
         for width in (20, 25, 30):
             asm = self._get_asm(skool.format(property_name, 27), '-i {}'.format(width))
             self.assertEqual(asm[1], '  {0} ; Comment'.format('DEFB 0'.ljust(width)))
-
-    def test_line_width_property(self):
-        skool = '\n'.join((
-            '; @start',
-            '; @set-line-width={}',
-            '; Routine',
-            'c49152 RET ; This is a fairly long instruction comment, which makes it suitable',
-            '           ; for testing various line widths',
-        ))
-        indent = ' ' * 25
-        instruction = '  RET'.ljust(len(indent))
-        comment = 'This is a fairly long instruction comment, which makes it suitable for testing various line widths'
-        for width in (65, 80, 95, 'x'):
-            asm = self._get_asm(skool.format(width))
-            try:
-                line_width = int(width)
-            except ValueError:
-                line_width = 79
-            comment_lines = textwrap.wrap(comment, line_width - len(instruction) - 3)
-            exp_lines = [instruction + ' ; ' + comment_lines[0]]
-            for comment_line in comment_lines[1:]:
-                exp_lines.append('{0} ; {1}'.format(indent, comment_line))
-            for line_no, exp_line in enumerate(exp_lines, 1):
-                self.assertEqual(asm[line_no], exp_line)
-
-    def test_comment_width_min_property(self):
-        skool = '\n'.join((
-            '; @start',
-            '; @set-comment-width-min={}',
-            '; Data',
-            'c35000 DEFB 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255 ; {}',
-        ))
-        line_width = 79
-        comment = 'This comment should have the designated minimum width'
-        for width in (10, 15, 20, 'x'):
-            asm = self._get_asm(skool.format(width, comment))
-            try:
-                comment_width_min = int(width)
-            except ValueError:
-                comment_width_min = 10
-            instruction, sep, comment_line = asm[1].partition(';')
-            instr_width = len(instruction)
-            indent = ' ' * instr_width
-            comment_width = line_width - 2 - instr_width
-            comment_lines = textwrap.wrap(comment, max((comment_width, comment_width_min)))
-            exp_lines = [instruction + '; ' + comment_lines[0]]
-            for comment_line in comment_lines[1:]:
-                exp_lines.append('{0}; {1}'.format(indent, comment_line))
-            for line_no, exp_line in enumerate(exp_lines, 1):
-                self.assertEqual(asm[line_no], exp_line)
-
-    def test_wrap_column_width_min_property(self):
-        skool = '\n'.join((
-            '; @start',
-            '; @set-wrap-column-width-min={}',
-            '; Routine',
-            ';',
-            '; #TABLE(,:w)',
-            '; {{ {} | An unwrappable column whose contents extend the table width beyond 80 characters }}',
-            '; TABLE#',
-            'c40000 RET',
-        ))
-        text = 'This wrappable text should have the designated minimum width'
-        for width in (10, 18, 26, 'Z'):
-            asm = self._get_asm(skool.format(width, text))
-            try:
-                wrap_column_width_min = int(width)
-            except ValueError:
-                wrap_column_width_min = 10
-            text_lines = textwrap.wrap(text, wrap_column_width_min)
-            actual_width = max([len(line) for line in text_lines])
-            exp_lines = ['; | {} |'.format(line.ljust(actual_width)) for line in text_lines]
-            for line_no, exp_line in enumerate(exp_lines, 3):
-                self.assertEqual(asm[line_no][:len(exp_line)], exp_line)
 
 if __name__ == '__main__':
     unittest.main()
