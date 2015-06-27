@@ -289,22 +289,22 @@ class CtlWriter:
             # Don't write any sub-blocks for an empty 'i' entry
             return
 
-        # Split the entry into sections separated by mid-routine comments
+        # Split the entry into sections separated by mid-block comments
         sections = []
         for instruction in entry.instructions:
-            mrc = instruction.get_mid_routine_comment()
-            if mrc or not sections:
-                sections.append((mrc, [instruction]))
+            mbc = instruction.mid_block_comment
+            if mbc or not sections:
+                sections.append((mbc, [instruction]))
             else:
                 sections[-1][1].append(instruction)
 
-        for k, (mrc, instructions) in enumerate(sections):
-            if BLOCK_COMMENTS in self.elements and mrc:
+        for k, (mbc, instructions) in enumerate(sections):
+            if BLOCK_COMMENTS in self.elements and mbc:
                 first_instruction = instructions[0]
                 if first_instruction.ignoremrcua and self.write_asm_dirs:
                     self._write_asm_directive('{}:{}'.format(AD_IGNOREUA, MID_BLOCK), first_instruction.address)
                 address_str = self.addr_str(first_instruction.address)
-                for paragraph in mrc:
+                for paragraph in mbc:
                     write_line('N {} {}'.format(address_str, paragraph))
 
             if SUBBLOCKS in self.elements:
@@ -495,7 +495,7 @@ class SkoolParser:
             if ctl in DIRECTIVES:
                 start_comment, desc, details, registers = parse_comment_block(comments, ignores, self.mode)
                 map_entry = Entry(ctl, desc, details, registers, self.mode.entry_ignoreua)
-                map_entry.add_mid_routine_comment(instruction.address, start_comment)
+                instruction.mid_block_comment = start_comment
                 self.mode.apply_entry_asm_directives(map_entry)
                 self.memory_map.append(map_entry)
                 comments[:] = []
@@ -508,8 +508,7 @@ class SkoolParser:
                 address_comments.append([instruction, address_comment])
                 map_entry.add_instruction(instruction)
                 if comments:
-                    mid_routine_comment = join_comments(comments, True)
-                    map_entry.add_mid_routine_comment(instruction.address, mid_routine_comment)
+                    instruction.mid_block_comment = join_comments(comments, True)
                     comments[:] = []
                     instruction.ignoremrcua = 0 in ignores
                     instruction.ignoreua = any(ignores)
@@ -608,7 +607,7 @@ class Instruction:
         self.ctl = ctl
         self.address = address
         self.operation = operation
-        self.container = None
+        self.mid_block_comment = None
         self.comment = None
         self.asm_directives = None
         self.ignoreua = False
@@ -631,9 +630,6 @@ class Instruction:
     def set_comment(self, rowspan, text):
         self.comment = Comment(rowspan, text)
 
-    def get_mid_routine_comment(self):
-        return self.container.get_mid_routine_comment(self.address)
-
 class Entry:
     def __init__(self, ctl, description, details, registers, ignoreua):
         self.ctl = ctl
@@ -647,7 +643,6 @@ class Entry:
             END: False
         }
         self.instructions = []
-        self.mid_routine_comments = {}
         self.end_comment = ()
         self.org = None
         self.writer = None
@@ -660,14 +655,7 @@ class Entry:
         self.address = self.instructions[0].address
 
     def add_instruction(self, instruction):
-        instruction.container = self
         self.instructions.append(instruction)
-
-    def get_mid_routine_comment(self, address):
-        return self.mid_routine_comments.get(address, ())
-
-    def add_mid_routine_comment(self, address, text):
-        self.mid_routine_comments[address] = text
 
     def add_property(self, name, value):
         self.properties.append((name, value))
