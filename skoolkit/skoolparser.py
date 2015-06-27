@@ -254,7 +254,7 @@ class SkoolParser:
 
         self.snapshot = [0] * 65536  # 64K of Spectrum memory
         self._instructions = {}      # address -> [Instructions]
-        self.entries = {}            # address -> SkoolEntry
+        self._entries = {}           # address -> SkoolEntry
         self.memory_map = []         # SkoolEntry instances
         self.base_address = 65536
         self.end_address = 0
@@ -283,7 +283,7 @@ class SkoolParser:
 
     def get_entry(self, address):
         """Return the routine or data block that starts at `address`."""
-        return self.entries.get(address)
+        return self._entries.get(address)
 
     def get_instruction(self, address, asm_id=''):
         """Return the instruction at `address`."""
@@ -374,7 +374,7 @@ class SkoolParser:
                 map_entry.add_mid_routine_comment(instruction.label, start_comment)
                 map_entry.ignoreua.update(self.mode.entry_ignoreua)
                 self.mode.reset_entry_ignoreua()
-                self.entries[address] = map_entry
+                self._entries[address] = map_entry
                 self.memory_map.append(map_entry)
                 self.comments[:] = []
                 self.base_address = min((address, self.base_address))
@@ -409,10 +409,10 @@ class SkoolParser:
 
         if min_address > 0 or max_address < 65536:
             self.memory_map = [e for e in self.memory_map if min_address <= e.address < max_address]
-            self.entries = {k: v for k, v in self.entries.items() if min_address <= k < max_address}
-            if self.entries:
-                self.base_address = min(self.entries)
-                last_entry = self.entries[max(self.entries)]
+            self._entries = {k: v for k, v in self._entries.items() if min_address <= k < max_address}
+            if self._entries:
+                self.base_address = min(self._entries)
+                last_entry = self._entries[max(self._entries)]
                 last_entry.instructions = [i for i in last_entry.instructions if i.address < max_address]
             else:
                 self.base_address = max_address
@@ -577,7 +577,7 @@ class SkoolParser:
     def _generate_labels(self):
         """Generate labels for mid-routine entry points (based on the label of
            the main entry point)."""
-        for entry in self.entries.values():
+        for entry in self._entries.values():
             instructions = entry.instructions
             if instructions:
                 main_label = instructions[0].asm_label

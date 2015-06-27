@@ -115,7 +115,6 @@ class HtmlWriter:
 
         self.snapshot = self.parser.snapshot
         self._snapshots = [(self.snapshot, '')]
-        self.entries = self.parser.entries
         self.asm_entry_dicts = {}
         self.map_entry_dicts = {}
         self.nonexistent_entry_dict = defaultdict(lambda: '', exists=0)
@@ -172,7 +171,7 @@ class HtmlWriter:
         self.gsb_includes = []
         for addr_str in self.game_vars.get('GameStatusBufferIncludes', '').split(','):
             address = parse_int(addr_str)
-            if address in self.entries:
+            if self.get_entry(address):
                 self.gsb_includes.append(address)
 
         self.main_memory_maps = []
@@ -1299,7 +1298,7 @@ class HtmlWriter:
         return end, self.format_link(ref_file + anchor, link_text or asm_label or inst_addr_str)
 
     def expand_refs(self, text, index, cwd):
-        return skoolmacro.parse_refs(text, index, self.entries)
+        return skoolmacro.parse_refs(text, index, self.parser)
 
     def expand_reg(self, text, index, cwd):
         end, reg = skoolmacro.parse_reg(text, index, self.case == CASE_LOWER)

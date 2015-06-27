@@ -84,7 +84,6 @@ class AsmWriter:
 
         self.snapshot = self.parser.snapshot
         self._snapshots = [(self.snapshot, '')]
-        self.entries = self.parser.entries
 
         self.list_parser = ListParser()
 
@@ -225,7 +224,7 @@ class AsmWriter:
         return end, label
 
     def expand_refs(self, text, index):
-        return skoolmacro.parse_refs(text, index, self.entries)
+        return skoolmacro.parse_refs(text, index, self.parser)
 
     def expand_reg(self, text, index):
         return skoolmacro.parse_reg(text, index, self.lower)

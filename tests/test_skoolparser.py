@@ -2511,12 +2511,12 @@ class SkoolParserTest(SkoolKitTestCase):
             '',
             'c40004 LD A,H'
         ))
-        entries = self._get_parser(skool, asm_mode=1).entries
-        self.assertNotIn(40000, entries)
-        self.assertIn(40001, entries)
-        self.assertNotIn(40002, entries)
-        self.assertIn(40003, entries)
-        self.assertNotIn(40004, entries)
+        parser = self._get_parser(skool, asm_mode=1)
+        self.assertIsNone(parser.get_entry(40000))
+        self.assertIsNotNone(parser.get_entry(40001))
+        self.assertIsNone(parser.get_entry(40002))
+        self.assertIsNotNone(parser.get_entry(40003))
+        self.assertIsNone(parser.get_entry(40004))
 
     def test_isub_directive(self):
         skool = '\n'.join((

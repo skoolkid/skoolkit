@@ -155,12 +155,15 @@ PREV_UP_NEXT = """<table class="asm-navigation">
 ERROR_PREFIX = 'Error while parsing #{0} macro'
 
 class MockSkoolParser:
-    def __init__(self, snapshot=None, entries=(), memory_map=()):
+    def __init__(self, snapshot=None, entries=None, memory_map=()):
         self.snapshot = snapshot
-        self.entries = entries
+        self.entries = entries or {}
         self.memory_map = memory_map
         self.skoolfile = ''
         self.base = None
+
+    def get_entry(self, address):
+        return self.entries.get(address)
 
 class MockFileInfo:
     def __init__(self):

@@ -386,7 +386,7 @@ def parse_r(text, index):
         raise MacroParsingError("Invalid address: {}".format(addr_str))
     return end, addr_str, address, code_id, anchor, link_text
 
-def parse_refs(text, index, entries):
+def parse_refs(text, index, entry_holder):
     # #REFSaddr[(prefix)]
     end, addr_str, prefix = parse_params(text, index, '')
     if not addr_str:
@@ -395,7 +395,7 @@ def parse_refs(text, index, entries):
         address = get_int_param(addr_str)
     except ValueError:
         raise MacroParsingError("Invalid address: {}".format(addr_str))
-    entry = entries.get(address)
+    entry = entry_holder.get_entry(address)
     if not entry:
         raise MacroParsingError('No entry at {}'.format(addr_str))
     referrers = [ref.address for ref in entry.referrers]

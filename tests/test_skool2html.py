@@ -84,6 +84,9 @@ class MockSkoolParser:
         self.memory_map = []
         mock_skool_parser = self
 
+    def get_entry(self, address):
+        return self.entries.get(address)
+
 class Skool2HtmlTest(SkoolKitTestCase):
     def setUp(self):
         global html_writer
@@ -301,7 +304,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(len(error), 0)
         self.assertEqual(output[1], 'Parsing skool file from standard input')
         self.assertEqual(output[2], 'Creating directory {}/{}'.format(self.odir, game_dir))
-        self.assertIn(30000, html_writer.parser.entries)
+        self.assertIsNotNone(html_writer.get_entry(30000))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
