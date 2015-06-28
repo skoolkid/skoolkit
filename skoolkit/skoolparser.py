@@ -371,7 +371,7 @@ class SkoolParser:
                     raise SkoolParsingError("Invalid address: '{}'".format(addr_str))
                 start_comment, desc, details, registers = parse_comment_block(self.comments, self.ignores, self.mode)
                 map_entry = SkoolEntry(address, addr_str, ctl, desc, details, registers)
-                map_entry.add_mid_routine_comment(instruction.label, start_comment)
+                instruction.mid_block_comment = start_comment
                 map_entry.ignoreua.update(self.mode.entry_ignoreua)
                 self.mode.reset_entry_ignoreua()
                 self._entries[address] = map_entry
@@ -391,8 +391,7 @@ class SkoolParser:
                     self._instructions.setdefault(address, []).append(instruction)
                 map_entry.add_instruction(instruction)
                 if self.comments:
-                    mid_routine_comment = join_comments(self.comments, split=True, html=self.mode.html)
-                    map_entry.add_mid_routine_comment(instruction.label, mid_routine_comment)
+                    instruction.mid_block_comment = join_comments(self.comments, split=True, html=self.mode.html)
                     self.comments[:] = []
                     self.mode.ignoremrcua = 0 in self.ignores
 
@@ -832,13 +831,15 @@ class Instruction:
         self.ctl = ctl
         if addr_str[0].isdigit():
             self.addr_str = addr_str
+            self.addr_base = BASE_10
         else:
             self.addr_str = addr_str[1:]
+            self.addr_base = BASE_16
         self.address = parse_int(addr_str)
-        self.label = ctl + addr_str
         self.operation = operation
         self.container = None
         self.reference = None
+        self.mid_block_comment = None
         self.comment = None
         self.referrers = []
         self.asm_label = None
@@ -874,14 +875,11 @@ class Instruction:
     def is_in_routine(self):
         return self.container.is_routine()
 
-    def get_mid_routine_comment(self):
-        return self.container.get_mid_routine_comment(self.label)
-
     def html_escape(self):
         self.operation = cgi.escape(self.operation)
 
     def get_addr_str(self, base):
-        if (base is None and self.label[1].isdigit()) or base == BASE_10:
+        if (base is None and self.addr_base == BASE_10) or base == BASE_10:
             return re.sub('^0{1,4}', '', self.addr_str)
         return self.addr_str
 
@@ -906,7 +904,6 @@ class SkoolEntry:
         self.details = details
         self.registers = [Register(prefix, name, contents) for prefix, name, contents in registers]
         self.instructions = []
-        self.mid_routine_comments = {}
         self.end_comment = ()
         self.referrers = []
         self.size = None
@@ -926,12 +923,6 @@ class SkoolEntry:
     def add_instruction(self, instruction):
         instruction.container = self
         self.instructions.append(instruction)
-
-    def get_mid_routine_comment(self, address):
-        return self.mid_routine_comments.get(address, ())
-
-    def add_mid_routine_comment(self, address, text):
-        self.mid_routine_comments[address] = text
 
     def add_referrer(self, routine):
         if routine not in self.referrers:

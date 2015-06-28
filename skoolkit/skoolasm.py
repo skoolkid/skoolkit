@@ -367,11 +367,10 @@ class AsmWriter:
                 self.write_line('; {}'.format(reg_label))
 
     def print_instruction_prefix(self, instruction, index):
-        mid_routine_comment = instruction.get_mid_routine_comment()
-        if mid_routine_comment:
+        if instruction.mid_block_comment:
             if index == 0:
                 self.write_line(';')
-            self.print_comment_lines(mid_routine_comment, instruction)
+            self.print_comment_lines(instruction.mid_block_comment, instruction)
         if instruction.asm_label:
             self.write_line("{0}{1}".format(instruction.asm_label, self.label_suffix))
 

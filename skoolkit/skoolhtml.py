@@ -784,11 +784,10 @@ class HtmlWriter:
         lines = []
         instruction_subs = {'entry': entry_dict}
         for instruction in entry.instructions:
-            mid_routine_comments = entry.get_mid_routine_comment(instruction.label)
             address = instruction.address
             anchor = self.format_anchor(self.asm_anchor(address))
-            if mid_routine_comments:
-                lines.append(self.format_entry_comment(cwd, entry_dict, mid_routine_comments, anchor))
+            if instruction.mid_block_comment:
+                lines.append(self.format_entry_comment(cwd, entry_dict, instruction.mid_block_comment, anchor))
 
             operation, reference = instruction.operation, instruction.reference
             operation_u = operation.upper()

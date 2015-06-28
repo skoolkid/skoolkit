@@ -1490,7 +1490,7 @@ class SkoolParserTest(SkoolKitTestCase):
             'c50000 RET'
         ))
         parser = self._get_parser(skool, html=False)
-        start_comment = parser.get_instruction(50000).get_mid_routine_comment()
+        start_comment = parser.get_instruction(50000).mid_block_comment
         self.assertEqual([exp_start_comment], start_comment)
 
     def test_multi_paragraph_start_comment(self):
@@ -1508,7 +1508,7 @@ class SkoolParserTest(SkoolKitTestCase):
             'c50000 RET'
         ))
         parser = self._get_parser(skool, html=False)
-        start_comment = parser.get_instruction(50000).get_mid_routine_comment()
+        start_comment = parser.get_instruction(50000).mid_block_comment
         self.assertEqual(exp_start_comment, start_comment)
 
     def test_snapshot(self):
@@ -3021,6 +3021,45 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNone(parser.get_instruction(40000))
         self.assertIsNone(parser.get_instruction(40001))
         self.assertIsNone(parser.get_instruction(40002))
+
+    def test_duplicate_instruction_addresses(self):
+        skool = '\n'.join((
+            'c32768 LD A,10',
+            ' 32770 LD B,11  ; Comment 1',
+            '; First the instruction at 32772 looks like this.',
+            ' 32772 LD HL,0  ; Comment 2',
+            '; Then it looks like this.',
+            ' 32772 LD BC,0  ; Comment 3',
+            '; And then 32770 onwards looks like this.',
+            ' 32770 LD C,12  ; Comment 4',
+            ' 32772 RET',
+        ))
+        instructions = self._get_parser(skool).get_entry(32768).instructions
+
+        self.assertEqual(instructions[1].address, 32770)
+        self.assertEqual(instructions[1].operation, 'LD B,11')
+        self.assertIsNone(instructions[1].mid_block_comment)
+        self.assertEqual(instructions[1].comment.text, 'Comment 1')
+
+        self.assertEqual(instructions[2].address, 32772)
+        self.assertEqual(instructions[2].operation, 'LD HL,0')
+        self.assertEqual(['First the instruction at 32772 looks like this.'], instructions[2].mid_block_comment)
+        self.assertEqual(instructions[2].comment.text, 'Comment 2')
+
+        self.assertEqual(instructions[3].address, 32772)
+        self.assertEqual(instructions[3].operation, 'LD BC,0')
+        self.assertEqual(['Then it looks like this.'], instructions[3].mid_block_comment)
+        self.assertEqual(instructions[3].comment.text, 'Comment 3')
+
+        self.assertEqual(instructions[4].address, 32770)
+        self.assertEqual(instructions[4].operation, 'LD C,12')
+        self.assertEqual(['And then 32770 onwards looks like this.'], instructions[4].mid_block_comment)
+        self.assertEqual(instructions[4].comment.text, 'Comment 4')
+
+        self.assertEqual(instructions[5].address, 32772)
+        self.assertEqual(instructions[5].operation, 'RET')
+        self.assertIsNone(instructions[5].mid_block_comment)
+        self.assertEqual(instructions[5].comment.text, '')
 
 class TableParserTest(SkoolKitTestCase):
     def assert_error(self, text, error):
