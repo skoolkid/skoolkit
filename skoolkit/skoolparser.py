@@ -311,7 +311,7 @@ class SkoolParser:
     def get_instruction_addr_str(self, address, asm_id=''):
         instruction = self.get_instruction(address, asm_id)
         if instruction:
-            return instruction.get_addr_str(self.base)
+            return instruction.get_addr_str()
         if asm_id:
             return self.mode.get_addr_str(address)
 
@@ -878,8 +878,8 @@ class Instruction:
     def html_escape(self):
         self.operation = cgi.escape(self.operation)
 
-    def get_addr_str(self, base):
-        if (base is None and self.addr_base == BASE_10) or base == BASE_10:
+    def get_addr_str(self):
+        if self.addr_base == BASE_10:
             return re.sub('^0{1,4}', '', self.addr_str)
         return self.addr_str
 
