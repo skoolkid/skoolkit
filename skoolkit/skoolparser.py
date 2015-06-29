@@ -419,7 +419,7 @@ class SkoolParser:
             address_comments = [c for c in address_comments if c[0] is None or self.base_address <= c[0].address < max_address]
 
         if self.memory_map:
-            end_address = max([i.address for e in self.memory_map for i in e.instructions])
+            end_address = max([i.address for e in self.memory_map for i in e.instructions if i.address is not None])
             last_instruction = self.get_instruction(end_address)
             self.end_address = end_address + (get_size(last_instruction.operation, end_address) or 1)
 
