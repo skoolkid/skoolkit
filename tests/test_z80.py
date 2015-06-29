@@ -1372,18 +1372,22 @@ class Z80Test(SkoolKitTestCase):
     def test_defb(self):
         for items, exp_data in DEFB_DEFM:
             self._test_assembly('DEFB {}'.format(items), exp_data)
+            self._test_assembly('defb {}'.format(items), exp_data)
 
     def test_defm(self):
         for items, exp_data in DEFB_DEFM:
             self._test_assembly('DEFM {}'.format(items), exp_data)
+            self._test_assembly('defm {}'.format(items), exp_data)
 
     def test_defw(self):
         for items, exp_data in DEFW:
             self._test_assembly('DEFW {}'.format(items), exp_data)
+            self._test_assembly('defw {}'.format(items), exp_data)
 
     def test_defs(self):
         for items, exp_data in DEFS:
             self._test_assembly('DEFS {}'.format(items), exp_data)
+            self._test_assembly('defs {}'.format(items), exp_data)
 
     def test_invalid_instructions(self):
         invalid_operations = (

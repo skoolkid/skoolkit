@@ -446,7 +446,7 @@ def convert_case(operation, lower=True, trim=False):
 def _assemble(operation, address):
     if operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW ')):
         parts = split_operation(operation)
-        directive, items = parts[0], parts[1:]
+        directive, items = parts[0].upper(), parts[1:]
         if directive in ('DEFB', 'DEFM'):
             return _assemble_defb(items)
         if directive == 'DEFS':
