@@ -2944,6 +2944,21 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNone(parser.get_instruction(40002))
         self.assertIsNotNone(parser.get_instruction(40003))
 
+    def test_min_address_with_addressless_instruction(self):
+        skool = '\n'.join((
+            '@start',
+            'c32768 LD A,B',
+            '@rsub+begin',
+            '       INC A   ; This instruction should be retained',
+            '@rsub+end',
+            ' 32770 RET',
+        ))
+        parser = self._get_parser(skool, asm_mode=3, min_address=32768)
+        instructions = parser.get_entry(32768).instructions
+        self.assertEqual(len(instructions), 3)
+        self.assertEqual(instructions[1].operation, 'INC A')
+        self.assertEqual(instructions[1].comment.text, 'This instruction should be retained')
+
     def test_max_address(self):
         skool = '\n'.join((
             'b30000 DEFB 0',
@@ -2984,6 +2999,21 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNotNone(parser.get_instruction(40002))
         self.assertIsNone(parser.get_instruction(40003))
         self.assertIsNone(parser.get_instruction(40004))
+
+    def test_max_address_with_addressless_instruction(self):
+        skool = '\n'.join((
+            '@start',
+            'c32768 LD A,B',
+            '@rsub+begin',
+            '       INC A   ; This instruction should be retained',
+            '@rsub+end',
+            ' 32770 RET',
+        ))
+        parser = self._get_parser(skool, asm_mode=3, max_address=32771)
+        instructions = parser.get_entry(32768).instructions
+        self.assertEqual(len(instructions), 3)
+        self.assertEqual(instructions[1].operation, 'INC A')
+        self.assertEqual(instructions[1].comment.text, 'This instruction should be retained')
 
     def test_min_and_max_address(self):
         skool = '\n'.join((

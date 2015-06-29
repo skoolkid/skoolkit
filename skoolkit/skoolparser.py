@@ -412,11 +412,11 @@ class SkoolParser:
             if self._entries:
                 self.base_address = min(self._entries)
                 last_entry = self._entries[max(self._entries)]
-                last_entry.instructions = [i for i in last_entry.instructions if i.address < max_address]
+                last_entry.instructions = [i for i in last_entry.instructions if i.address is None or i.address < max_address]
             else:
                 self.base_address = max_address
             self._instructions = {k: v for k, v in self._instructions.items() if self.base_address <= k < max_address}
-            address_comments = [c for c in address_comments if c[0] is None or self.base_address <= c[0].address < max_address]
+            address_comments = [c for c in address_comments if c[0] is None or c[0].address is None or self.base_address <= c[0].address < max_address]
 
         if self.memory_map:
             end_address = max([i.address for e in self.memory_map for i in e.instructions if i.address is not None])
