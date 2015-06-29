@@ -823,7 +823,7 @@ class HtmlWriter:
                 comment_text = ''
                 annotated = 0
             instruction_subs['address'] = instruction.addr_str
-            instruction_subs['called'] = 1 + int(instruction.ctl in 'c*!')
+            instruction_subs['called'] = 1 + int(instruction.ctl in 'c*')
             instruction_subs['label'] = instruction.asm_label or ''
             instruction_subs['operation'] = operation
             instruction_subs['comment'] = comment_text
