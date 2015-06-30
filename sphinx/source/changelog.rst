@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.5b1
+4.5rc
 -----
 * Added support to :ref:`tap2sna.py` for TZX block type 0x14 (pure data), for
   loading the first and last bytes of a tape block (which are usually, but not
