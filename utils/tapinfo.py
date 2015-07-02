@@ -33,15 +33,13 @@ def get_str(data):
 def get_block_info(data, i):
     # http://www.worldofspectrum.org/TZXformat.html
     block_id = data[i]
-    header = "Unknown"
     info = []
     tape_data = []
     i += 1
     if block_id == 16:
-        # Standard speed data block
+        header = 'Standard speed data'
         length = get_word(data, i + 2)
         tape_data = data[i + 4:i + 4 + length]
-        header = "Standard speed data"
         data_type = "Unknown"
         name = ""
         if tape_data[0] == 0:
@@ -55,80 +53,76 @@ def get_block_info(data, i):
         info.append("Length: {}".format(length))
         i += 4 + length
     elif block_id == 17:
-        # Turbo speed data block
+        header = 'Turbo speed data'
         length = get_word3(data, i + 15)
         tape_data = data[i + 18:i + 18 + length]
-        header = "Turbo speed data"
         info.append("Length: {}".format(length))
         i += 18 + length
     elif block_id == 18:
-        # Pure tone
+        header = 'Pure tone'
+        info.append('Pulse length: {} T-states'.format(get_word(data, i)))
+        info.append('Pulses: {}'.format(get_word(data, i + 2)))
         i += 4
     elif block_id == 19:
-        # Sequence of pulses of various lengths
+        header = 'Pulse sequence'
+        info.append('Pulses: {}'.format(data[i]))
         i += 2 * data[i] + 1
     elif block_id == 20:
-        # Pure data block
+        header = 'Pure data'
         length = get_word3(data, i + 7)
         tape_data = data[i + 10:i + 10 + length]
-        header = "Pure data"
         info.append("Length: {}".format(length))
         i += length + 10
     elif block_id == 21:
-        # Direct recording block
+        header = 'Direct recording'
         i += get_word3(data, i + 5) + 8
     elif block_id == 24:
-        # CSW recording block
+        header = 'CSW recording'
         i += get_dword(data, i) + 4
     elif block_id == 25:
-        # Generalized data block
+        header = 'Generalized data'
         i += get_dword(data, i) + 4
     elif block_id == 32:
-        # Pause (silence) or 'Stop the tape' command
+        header = "Pause (silence) or 'Stop the tape' command"
         i += 2
     elif block_id == 33:
-        # Group start
+        header = 'Group start'
         length = data[i]
         name = ''.join([chr(b) for b in data[i + 1:i + 1 + length]])
-        header = "Group start"
         info.append("Name: {}".format(name.rstrip()))
         i += length + 1
     elif block_id == 34:
-        # Group end
-        header = "Group end"
+        header = 'Group end'
     elif block_id == 35:
-        # Jump to block
+        header = 'Jump to block'
         i += 2
     elif block_id == 36:
-        # Loop start
+        header = 'Loop start'
         i += 2
     elif block_id == 37:
-        # Loop end
-        pass
+        header = 'Loop end'
     elif block_id == 38:
-        # Call sequence
+        header = 'Call sequence'
         i += get_word(data, i) * 2 + 2
     elif block_id == 39:
-        # Return from sequence
-        pass
+        header = 'Return from sequence'
     elif block_id == 40:
-        # Select block
+        header = 'Select block'
         i += get_word(data, i) + 2
     elif block_id == 42:
-        # Stop the tape if in 48K mode
+        header = 'Stop the tape if in 48K mode'
         i += 4
     elif block_id == 43:
-        # Set signal level
+        header = 'Set signal level'
         i += 5
     elif block_id == 48:
-        # Text description
+        header = 'Text description'
         i += data[i] + 1
     elif block_id == 49:
-        # Message block
+        header = 'Message'
         i += data[i + 1] + 2
     elif block_id == 50:
-        # Archive info
-        header = "Archive info"
+        header = 'Archive info'
         num_strings = data[i + 2]
         j = i + 3
         for k in range(num_strings):
@@ -137,13 +131,13 @@ def get_block_info(data, i):
             j += 2 + str_len
         i += get_word(data, i) + 2
     elif block_id == 51:
-        # Hardware type
+        header = 'Hardware type'
         i += data[i] * 3 + 1
     elif block_id == 53:
-        # Custom info block
+        header = 'Custom info'
         i += get_dword(data, i + 16) + 20
     elif block_id == 90:
-        # "Glue" block
+        header = '"Glue" block'
         i += 9
     else:
         sys.stderr.write('Unknown block ID {} at index {}\n'.format(block_id, i - 1))
@@ -171,8 +165,6 @@ def analyse_tzx(tzx):
         for line in info:
             print('  ' + line)
         block_num += 1
-
-###############################################################################
 
 def analyse_tap(tap):
     i = 0
@@ -207,28 +199,28 @@ def analyse_tap(tap):
         i += block_len + 2
         block_num += 1
 
-###############################################################################
-# Begin
-###############################################################################
-parser = argparse.ArgumentParser(
-    usage="tapinfo.py file",
-    description="Show the blocks in a TAP or TZX file.",
-    add_help=False
-)
-parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
-namespace, unknown_args = parser.parse_known_args()
-if unknown_args or namespace.infile is None:
-    parser.exit(2, parser.format_help())
-infile = namespace.infile
-tape_type = infile[-4:].lower()
-if tape_type not in ('.tap', '.tzx'):
-    sys.stderr.write('Error: unrecognized tape type\n')
-    sys.exit(1)
+def main(args):
+    parser = argparse.ArgumentParser(
+        usage="tapinfo.py file",
+        description="Show the blocks in a TAP or TZX file.",
+        add_help=False
+    )
+    parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
+    namespace, unknown_args = parser.parse_known_args(args)
+    if unknown_args or namespace.infile is None:
+        parser.exit(2, parser.format_help())
+    infile = namespace.infile
+    tape_type = infile[-4:].lower()
+    if tape_type not in ('.tap', '.tzx'):
+        sys.stderr.write('Error: unrecognized tape type\n')
+        sys.exit(1)
 
-with open(infile, 'rb') as f:
-    tape = bytearray(f.read())
+    with open(infile, 'rb') as f:
+        tape = bytearray(f.read())
 
-if tape_type == '.tap':
-    analyse_tap(tape)
-else:
-    analyse_tzx(tape)
+    if tape_type == '.tap':
+        analyse_tap(tape)
+    else:
+        analyse_tzx(tape)
+
+main(sys.argv[1:])
