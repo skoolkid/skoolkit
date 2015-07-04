@@ -7,31 +7,34 @@ Commands
 
 bin2tap.py
 ----------
-`bin2tap.py` converts a binary file produced by an assembler (see
-:ref:`supportedAssemblers`) into a TAP file that can be loaded into an
-emulator. For example::
+`bin2tap.py` converts a binary (raw memory) file or a SNA, SZX or Z80 snapshot
+into a TAP file. For example::
 
   $ bin2tap.py game.bin
 
 will create a file called `game.tap`. By default, the origin address (the
 address of the first byte of code or data), the start address (the first byte
 of code to run) and the stack pointer are set to 65536 minus the length of
-`game.bin`. These defaults can be changed by passing options to `bin2tap.py`.
-Run it with no arguments to see the list of available options::
+`game.bin`. These values can be changed by passing options to `bin2tap.py`. Run
+it with no arguments to see the list of available options::
 
-  usage: bin2tap.py [options] FILE.bin
+  usage: bin2tap.py [options] FILE
 
-  Convert a binary snapshot file into a TAP file.
+  Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a TAP
+  file.
 
   Options:
-    -o ORG, --org ORG     Set the origin address (default: 65536 minus the
-                          length of FILE.bin)
+    -c N, --clear N       Use a 'CLEAR N' command in the BASIC loader and leave
+                          the stack pointer alone
+    -e ADDR, --end ADDR   Set the end address when reading a snapshot
+    -o ORG, --org ORG     Set the origin address (default: 16384 for a snapshot,
+                          otherwise 65536 minus the length of FILE)
     -p STACK, --stack STACK
                           Set the stack pointer (default: ORG)
     -s START, --start START
                           Set the start address to JP to (default: ORG)
     -t TAPFILE, --tapfile TAPFILE
-                          Set the TAP filename (default: FILE.tap)
+                          Set the TAP filename
     -V, --version         Show SkoolKit version number and exit
 
 Note that the ROM tape loading routine at 1366 ($0556) and the load routine
@@ -45,15 +48,24 @@ operation upon returning. Stack operations will overwrite the bytes in the
 address range STACK-14 to STACK-1 inclusive, so those addresses should not be
 used to store essential code or data.
 
-+---------+----------------------------------------------+
-| Version | Changes                                      |
-+=========+==============================================+
-| 3.4     | Added the ``-V`` option and the long options |
-+---------+----------------------------------------------+
-| 2.2.5   | Added the ``-p`` option                      |
-+---------+----------------------------------------------+
-| 1.3.1   | New                                          |
-+---------+----------------------------------------------+
+If the input file contains a program that returns to BASIC, you should use the
+``--clear`` option to add a CLEAR command to the BASIC loader. This option
+leaves the stack pointer alone, enabling the program to return to BASIC without
+crashing. The lowest usable address with the ``--clear`` option on a bare 48K
+Spectrum is 23952 ($5D90).
+
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 4.5     | Added the ``--clear`` and ``--end`` options, and the ability to |
+|         | convert SNA, SZX and Z80 snapshots                              |
++---------+-----------------------------------------------------------------+
+| 3.4     | Added the ``-V`` option and the long options                    |
++---------+-----------------------------------------------------------------+
+| 2.2.5   | Added the ``-p`` option                                         |
++---------+-----------------------------------------------------------------+
+| 1.3.1   | New                                                             |
++---------+-----------------------------------------------------------------+
 
 .. _skool2asm.py:
 
@@ -66,15 +78,16 @@ assembler (see :ref:`supportedAssemblers`). For example::
 
 `skool2asm.py` supports many options; run it with no arguments to see a list::
 
-  usage: skool2asm.py [options] file
+  usage: skool2asm.py [options] FILE
 
-  Convert a skool file into an ASM file, written to standard output. FILE may be
-  a regular file, or '-' for standard input.
+  Convert a skool file into an ASM file and write it to standard output. FILE may
+  be a regular file, or '-' for standard input.
 
   Options:
     -c, --create-labels   Create default labels for unlabelled instructions
     -d, --crlf            Use CR+LF to end lines
     -D, --decimal         Write the disassembly in decimal
+    -E ADDR, --end ADDR   Stop converting at this address
     -f N, --fixes N       Apply fixes:
                             N=0: None (default)
                             N=1: @ofix only
@@ -85,9 +98,11 @@ assembler (see :ref:`supportedAssemblers`). For example::
     -l, --lower           Write the disassembly in lower case
     -p, --package-dir     Show path to skoolkit package directory and exit
     -q, --quiet           Be quiet
-    -r, --rsub            Use relocatability substitutions too (@rsub) (implies
-                          '-f 1')
-    -s, --ssub            Use safe substitutions (@ssub)
+    -r, --rsub            Apply safe substitutions (@ssub) and relocatability
+                          substitutions (@rsub) (implies '-f 1')
+    -s, --ssub            Apply safe substitutions (@ssub)
+    -S ADDR, --start ADDR
+                          Start converting at this address
     -t, --tabs            Use tab to indent instructions (default indentation is
                           2 spaces)
     -u, --upper           Write the disassembly in upper case
@@ -103,6 +118,8 @@ modes.
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
+| 4.5     | Added the ``--start`` and ``--end`` options                  |
++---------+--------------------------------------------------------------+
 | 4.1     | Added the ``--writer`` option                                |
 +---------+--------------------------------------------------------------+
 | 3.4     | Added the ``-V`` and ``-p`` options and the long options     |
@@ -132,24 +149,27 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
 
   usage: skool2ctl.py [options] FILE
 
-  Convert a skool file into a control file, written to standard output. FILE may
-  be a regular file, or '-' for standard input.
+  Convert a skool file into a control file and write it to standard output. FILE
+  may be a regular file, or '-' for standard input.
 
   Options:
-    -a, --no-asm-dirs    Do not write ASM directives
-    -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
-                         instruction operands and DEFB/DEFM/DEFS/DEFW statements
-    -h, --hex            Write addresses in upper case hexadecimal format
-    -l, --hex-lower      Write addresses in lower case hexadecimal format
-    -V, --version        Show SkoolKit version number and exit
-    -w X, --write X      Write only these elements, where X is one or more of:
-                           b = block types and addresses
-                           t = block titles
-                           d = block descriptions
-                           r = registers
-                           m = mid-block comments and block start/end comments
-                           s = sub-block types and addresses
-                           c = instruction-level comments
+    -a, --no-asm-dirs     Do not write ASM directives
+    -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
+                          instruction operands and DEFB/DEFM/DEFS/DEFW statements
+    -E ADDR, --end ADDR   Stop converting at this address
+    -h, --hex             Write addresses in upper case hexadecimal format
+    -l, --hex-lower       Write addresses in lower case hexadecimal format
+    -S ADDR, --start ADDR
+                          Start converting at this address
+    -V, --version         Show SkoolKit version number and exit
+    -w X, --write X       Write only these elements, where X is one or more of:
+                            b = block types and addresses
+                            t = block titles
+                            d = block descriptions
+                            r = registers
+                            m = mid-block comments and block start/end comments
+                            s = sub-block types and addresses
+                            c = instruction-level comments
 
 If you need to preserve any elements that control files do not support (such as
 data definition entries and ASM block directives), consider using
@@ -158,6 +178,8 @@ data definition entries and ASM block directives), consider using
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
+| 4.5     | Added the ``--start`` and ``--end`` options                  |
++---------+--------------------------------------------------------------+
 | 4.4     | Added the ``--hex-lower`` option                             |
 +---------+--------------------------------------------------------------+
 | 3.7     | Added the ``--preserve-base`` option                         |
@@ -339,19 +361,25 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 
   usage: skool2sft.py [options] FILE
 
-  Convert a skool file into a skool file template, written to standard output.
-  FILE may be a regular file, or '-' for standard input.
+  Convert a skool file into a skool file template and write it to standard
+  output. FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
-                         instruction operands and DEFB/DEFM/DEFS/DEFW statements
-    -h, --hex            Write addresses in upper case hexadecimal format
-    -l, --hex-lower      Write addresses in lower case hexadecimal format
-    -V, --version        Show SkoolKit version number and exit
+    -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
+                          instruction operands and DEFB/DEFM/DEFS/DEFW
+                          statements
+    -E ADDR, --end ADDR   Stop converting at this address
+    -h, --hex             Write addresses in upper case hexadecimal format
+    -l, --hex-lower       Write addresses in lower case hexadecimal format
+    -S ADDR, --start ADDR
+                          Start converting at this address
+    -V, --version         Show SkoolKit version number and exit
 
 +---------+----------------------------------------------+
 | Version | Changes                                      |
 +=========+==============================================+
+| 4.5     | Added the ``--start`` and ``--end`` options  |
++---------+----------------------------------------------+
 | 4.4     | Added the ``--hex-lower`` option             |
 +---------+----------------------------------------------+
 | 3.7     | Added the ``--preserve-base`` option         |
@@ -505,8 +533,8 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
                           times.
     -V, --version         Show SkoolKit version number and exit.
 
-Note that support for TZX files is limited to block types 0x10 (Standard Speed
-Data Block) and 0x11 (Turbo Speed Data Block).
+Note that support for TZX files is limited to block types 0x10 (standard speed
+data), 0x11 (turbo speed data) and 0x14 (pure data).
 
 By default, `tap2sna.py` loads bytes from every data block on the tape, using
 the start address given in the corresponding header. For tapes that contain
@@ -518,9 +546,9 @@ the appropriate addresses. For example::
 
 loads the third block on the tape at address 30000, and ignores all other
 blocks. The ``--ram`` option can also be used to move blocks of bytes from one
-location to another, and POKE values into individual addresses or address
-ranges before the snapshot is saved. For more information on the operations
-that the ``--ram`` option can perform, run::
+location to another, POKE values into individual addresses or address ranges,
+and modify memory with XOR and ADD operations before the snapshot is saved. For
+more information on the operations that the ``--ram`` option can perform, run::
 
   $ tap2sna.py --ram help
 
@@ -547,8 +575,12 @@ then::
 will create `game.z80` as if the arguments specified in `game.t2s` had been
 given on the command line.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 3.5     | New     |
-+---------+---------+
++---------+----------------------------------------------------------------+
+| Version | Changes                                                        |
++=========+================================================================+
+| 4.5     | Added support for TZX block type 0x14 (pure data), for loading |
+|         | the first and last bytes of a tape block, and for modifying    |
+|         | memory with XOR and ADD operations                             |
++---------+----------------------------------------------------------------+
+| 3.5     | New                                                            |
++---------+----------------------------------------------------------------+

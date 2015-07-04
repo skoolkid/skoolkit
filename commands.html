@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Commands &mdash; SkoolKit 4.4 documentation</title>
+    <title>Commands &mdash; SkoolKit 4.5 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.4',
+        VERSION:     '4.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.5 documentation" href="index.html" />
     <link rel="next" title="Parsing, rendering, and modes" href="parsing.html" />
     <link rel="prev" title="SkoolKit 1.x changelog" href="changelog1.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="changelog1.html" title="SkoolKit 1.x changelog"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -95,30 +95,33 @@
 <span id="id1"></span><h1>Commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="bin2tap-py">
 <span id="id2"></span><h2>bin2tap.py<a class="headerlink" href="#bin2tap-py" title="Permalink to this headline">¶</a></h2>
-<p><cite>bin2tap.py</cite> converts a binary file produced by an assembler (see
-<a class="reference internal" href="assemblers.html#supportedassemblers"><em>Supported assemblers</em></a>) into a TAP file that can be loaded into an
-emulator. For example:</p>
+<p><cite>bin2tap.py</cite> converts a binary (raw memory) file or a SNA, SZX or Z80 snapshot
+into a TAP file. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ bin2tap.py game.bin
 </pre></div>
 </div>
 <p>will create a file called <cite>game.tap</cite>. By default, the origin address (the
 address of the first byte of code or data), the start address (the first byte
 of code to run) and the stack pointer are set to 65536 minus the length of
-<cite>game.bin</cite>. These defaults can be changed by passing options to <cite>bin2tap.py</cite>.
-Run it with no arguments to see the list of available options:</p>
-<div class="highlight-none"><div class="highlight"><pre>usage: bin2tap.py [options] FILE.bin
+<cite>game.bin</cite>. These values can be changed by passing options to <cite>bin2tap.py</cite>. Run
+it with no arguments to see the list of available options:</p>
+<div class="highlight-none"><div class="highlight"><pre>usage: bin2tap.py [options] FILE
 
-Convert a binary snapshot file into a TAP file.
+Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a TAP
+file.
 
 Options:
-  -o ORG, --org ORG     Set the origin address (default: 65536 minus the
-                        length of FILE.bin)
+  -c N, --clear N       Use a &#39;CLEAR N&#39; command in the BASIC loader and leave
+                        the stack pointer alone
+  -e ADDR, --end ADDR   Set the end address when reading a snapshot
+  -o ORG, --org ORG     Set the origin address (default: 16384 for a snapshot,
+                        otherwise 65536 minus the length of FILE)
   -p STACK, --stack STACK
                         Set the stack pointer (default: ORG)
   -s START, --start START
                         Set the start address to JP to (default: ORG)
   -t TAPFILE, --tapfile TAPFILE
-                        Set the TAP filename (default: FILE.tap)
+                        Set the TAP filename
   -V, --version         Show SkoolKit version number and exit
 </pre></div>
 </div>
@@ -132,10 +135,15 @@ those bytes with the values required by the tape loading routine for correct
 operation upon returning. Stack operations will overwrite the bytes in the
 address range STACK-14 to STACK-1 inclusive, so those addresses should not be
 used to store essential code or data.</p>
+<p>If the input file contains a program that returns to BASIC, you should use the
+<tt class="docutils literal"><span class="pre">--clear</span></tt> option to add a CLEAR command to the BASIC loader. This option
+leaves the stack pointer alone, enabling the program to return to BASIC without
+crashing. The lowest usable address with the <tt class="docutils literal"><span class="pre">--clear</span></tt> option on a bare 48K
+Spectrum is 23952 ($5D90).</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="16%" />
-<col width="84%" />
+<col width="12%" />
+<col width="88%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -143,13 +151,17 @@ used to store essential code or data.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>3.4</td>
+<tr class="row-even"><td>4.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--clear</span></tt> and <tt class="docutils literal"><span class="pre">--end</span></tt> options, and the ability to
+convert SNA, SZX and Z80 snapshots</td>
+</tr>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option and the long options</td>
 </tr>
-<tr class="row-odd"><td>2.2.5</td>
+<tr class="row-even"><td>2.2.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-p</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>1.3.1</td>
+<tr class="row-odd"><td>1.3.1</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -163,15 +175,16 @@ assembler (see <a class="reference internal" href="assemblers.html#supportedasse
 </pre></div>
 </div>
 <p><cite>skool2asm.py</cite> supports many options; run it with no arguments to see a list:</p>
-<div class="highlight-none"><div class="highlight"><pre>usage: skool2asm.py [options] file
+<div class="highlight-none"><div class="highlight"><pre>usage: skool2asm.py [options] FILE
 
-Convert a skool file into an ASM file, written to standard output. FILE may be
-a regular file, or &#39;-&#39; for standard input.
+Convert a skool file into an ASM file and write it to standard output. FILE may
+be a regular file, or &#39;-&#39; for standard input.
 
 Options:
   -c, --create-labels   Create default labels for unlabelled instructions
   -d, --crlf            Use CR+LF to end lines
   -D, --decimal         Write the disassembly in decimal
+  -E ADDR, --end ADDR   Stop converting at this address
   -f N, --fixes N       Apply fixes:
                           N=0: None (default)
                           N=1: @ofix only
@@ -182,9 +195,11 @@ Options:
   -l, --lower           Write the disassembly in lower case
   -p, --package-dir     Show path to skoolkit package directory and exit
   -q, --quiet           Be quiet
-  -r, --rsub            Use relocatability substitutions too (@rsub) (implies
-                        &#39;-f 1&#39;)
-  -s, --ssub            Use safe substitutions (@ssub)
+  -r, --rsub            Apply safe substitutions (@ssub) and relocatability
+                        substitutions (@rsub) (implies &#39;-f 1&#39;)
+  -s, --ssub            Apply safe substitutions (@ssub)
+  -S ADDR, --start ADDR
+                        Start converting at this address
   -t, --tabs            Use tab to indent instructions (default indentation is
                         2 spaces)
   -u, --upper           Write the disassembly in upper case
@@ -208,19 +223,22 @@ modes.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.1</td>
+<tr class="row-even"><td>4.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--start</span></tt> and <tt class="docutils literal"><span class="pre">--end</span></tt> options</td>
+</tr>
+<tr class="row-odd"><td>4.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--writer</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> and <tt class="docutils literal"><span class="pre">-p</span></tt> options and the long options</td>
 </tr>
-<tr class="row-even"><td>2.2.2</td>
+<tr class="row-odd"><td>2.2.2</td>
 <td>Added the ability to read a <cite>skool</cite> file from standard input</td>
 </tr>
-<tr class="row-odd"><td>2.1.1</td>
+<tr class="row-even"><td>2.1.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-u</span></tt>, <tt class="docutils literal"><span class="pre">-D</span></tt> and <tt class="docutils literal"><span class="pre">-H</span></tt> options</td>
 </tr>
-<tr class="row-even"><td>1.1</td>
+<tr class="row-odd"><td>1.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-c</span></tt> option</td>
 </tr>
 </tbody>
@@ -240,24 +258,27 @@ comments, sub-block types and addresses, instruction-level comments, and some
 <p>To list the options supported by <cite>skool2ctl.py</cite>, run it with no arguments:</p>
 <div class="highlight-none"><div class="highlight"><pre>usage: skool2ctl.py [options] FILE
 
-Convert a skool file into a control file, written to standard output. FILE may
-be a regular file, or &#39;-&#39; for standard input.
+Convert a skool file into a control file and write it to standard output. FILE
+may be a regular file, or &#39;-&#39; for standard input.
 
 Options:
-  -a, --no-asm-dirs    Do not write ASM directives
-  -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
-                       instruction operands and DEFB/DEFM/DEFS/DEFW statements
-  -h, --hex            Write addresses in upper case hexadecimal format
-  -l, --hex-lower      Write addresses in lower case hexadecimal format
-  -V, --version        Show SkoolKit version number and exit
-  -w X, --write X      Write only these elements, where X is one or more of:
-                         b = block types and addresses
-                         t = block titles
-                         d = block descriptions
-                         r = registers
-                         m = mid-block comments and block start/end comments
-                         s = sub-block types and addresses
-                         c = instruction-level comments
+  -a, --no-asm-dirs     Do not write ASM directives
+  -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
+                        instruction operands and DEFB/DEFM/DEFS/DEFW statements
+  -E ADDR, --end ADDR   Stop converting at this address
+  -h, --hex             Write addresses in upper case hexadecimal format
+  -l, --hex-lower       Write addresses in lower case hexadecimal format
+  -S ADDR, --start ADDR
+                        Start converting at this address
+  -V, --version         Show SkoolKit version number and exit
+  -w X, --write X       Write only these elements, where X is one or more of:
+                          b = block types and addresses
+                          t = block titles
+                          d = block descriptions
+                          r = registers
+                          m = mid-block comments and block start/end comments
+                          s = sub-block types and addresses
+                          c = instruction-level comments
 </pre></div>
 </div>
 <p>If you need to preserve any elements that control files do not support (such as
@@ -274,26 +295,29 @@ data definition entries and ASM block directives), consider using
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.4</td>
+<tr class="row-even"><td>4.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--start</span></tt> and <tt class="docutils literal"><span class="pre">--end</span></tt> options</td>
+</tr>
+<tr class="row-odd"><td>4.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--hex-lower</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>3.7</td>
+<tr class="row-even"><td>3.7</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--preserve-base</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>3.4</td>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option and the long options</td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
+<tr class="row-even"><td>2.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-a</span></tt> option and the ability to preserve some ASM
 directives</td>
 </tr>
-<tr class="row-even"><td>2.2.2</td>
+<tr class="row-odd"><td>2.2.2</td>
 <td>Added the ability to read a <cite>skool</cite> file from standard input</td>
 </tr>
-<tr class="row-odd"><td>2.0.6</td>
+<tr class="row-even"><td>2.0.6</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-h</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>1.1</td>
+<tr class="row-odd"><td>1.1</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -479,15 +503,19 @@ by default; added the <tt class="docutils literal"><span class="pre">-d</span></
 <p>To list the options supported by <cite>skool2sft.py</cite>, run it with no arguments:</p>
 <div class="highlight-none"><div class="highlight"><pre>usage: skool2sft.py [options] FILE
 
-Convert a skool file into a skool file template, written to standard output.
-FILE may be a regular file, or &#39;-&#39; for standard input.
+Convert a skool file into a skool file template and write it to standard
+output. FILE may be a regular file, or &#39;-&#39; for standard input.
 
 Options:
-  -b, --preserve-base  Preserve the base of decimal and hexadecimal values in
-                       instruction operands and DEFB/DEFM/DEFS/DEFW statements
-  -h, --hex            Write addresses in upper case hexadecimal format
-  -l, --hex-lower      Write addresses in lower case hexadecimal format
-  -V, --version        Show SkoolKit version number and exit
+  -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
+                        instruction operands and DEFB/DEFM/DEFS/DEFW
+                        statements
+  -E ADDR, --end ADDR   Stop converting at this address
+  -h, --hex             Write addresses in upper case hexadecimal format
+  -l, --hex-lower       Write addresses in lower case hexadecimal format
+  -S ADDR, --start ADDR
+                        Start converting at this address
+  -V, --version         Show SkoolKit version number and exit
 </pre></div>
 </div>
 <table border="1" class="docutils">
@@ -501,16 +529,19 @@ Options:
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.4</td>
+<tr class="row-even"><td>4.5</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--start</span></tt> and <tt class="docutils literal"><span class="pre">--end</span></tt> options</td>
+</tr>
+<tr class="row-odd"><td>4.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--hex-lower</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>3.7</td>
+<tr class="row-even"><td>3.7</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--preserve-base</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>3.4</td>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option and the long options</td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
+<tr class="row-even"><td>2.4</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -675,8 +706,8 @@ Options:
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
-<p>Note that support for TZX files is limited to block types 0x10 (Standard Speed
-Data Block) and 0x11 (Turbo Speed Data Block).</p>
+<p>Note that support for TZX files is limited to block types 0x10 (standard speed
+data), 0x11 (turbo speed data) and 0x14 (pure data).</p>
 <p>By default, <cite>tap2sna.py</cite> loads bytes from every data block on the tape, using
 the start address given in the corresponding header. For tapes that contain
 headerless data blocks, headers with incorrect start addresses, or irrelevant
@@ -687,9 +718,9 @@ the appropriate addresses. For example:</p>
 </div>
 <p>loads the third block on the tape at address 30000, and ignores all other
 blocks. The <tt class="docutils literal"><span class="pre">--ram</span></tt> option can also be used to move blocks of bytes from one
-location to another, and POKE values into individual addresses or address
-ranges before the snapshot is saved. For more information on the operations
-that the <tt class="docutils literal"><span class="pre">--ram</span></tt> option can perform, run:</p>
+location to another, POKE values into individual addresses or address ranges,
+and modify memory with XOR and ADD operations before the snapshot is saved. For
+more information on the operations that the <tt class="docutils literal"><span class="pre">--ram</span></tt> option can perform, run:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ tap2sna.py --ram help
 </pre></div>
 </div>
@@ -717,8 +748,8 @@ game.z80
 given on the command line.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="12%" />
+<col width="88%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -726,7 +757,12 @@ given on the command line.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>3.5</td>
+<tr class="row-even"><td>4.5</td>
+<td>Added support for TZX block type 0x14 (pure data), for loading
+the first and last bytes of a tape block, and for modifying
+memory with XOR and ADD operations</td>
+</tr>
+<tr class="row-odd"><td>3.5</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -752,7 +788,7 @@ given on the command line.</p>
         <li class="right" >
           <a href="changelog1.html" title="SkoolKit 1.x changelog"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

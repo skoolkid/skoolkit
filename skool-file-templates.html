@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool file templates &mdash; SkoolKit 4.4 documentation</title>
+    <title>Skool file templates &mdash; SkoolKit 4.5 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.4',
+        VERSION:     '4.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.5 documentation" href="index.html" />
     <link rel="next" title="Skool macros" href="skool-macros.html" />
     <link rel="prev" title="Skool files" href="skool-files.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -101,9 +101,9 @@ existing <cite>skool</cite> file; the <a class="reference internal" href="comman
 <div class="section" id="skool-file-template-format">
 <span id="skoolfiletemplateformat"></span><h2>Skool file template format<a class="headerlink" href="#skool-file-template-format" title="Permalink to this headline">¶</a></h2>
 <p>A skool file template has the same layout as a <cite>skool</cite> file, except that the
-lines in &#8216;b&#8217;, &#8216;c&#8217;, &#8216;g&#8217;, &#8216;s&#8217;, &#8216;t&#8217;, &#8216;u&#8217; and &#8216;w&#8217; blocks that correspond to Z80
-instructions look like this:</p>
-<div class="highlight-none"><div class="highlight"><pre>xX#####,n[;c[ comment]]
+lines in <tt class="docutils literal"><span class="pre">b</span></tt>, <tt class="docutils literal"><span class="pre">c</span></tt>, <tt class="docutils literal"><span class="pre">g</span></tt>, <tt class="docutils literal"><span class="pre">s</span></tt>, <tt class="docutils literal"><span class="pre">t</span></tt>, <tt class="docutils literal"><span class="pre">u</span></tt> and <tt class="docutils literal"><span class="pre">w</span></tt> blocks that
+correspond to Z80 instructions look like this:</p>
+<div class="highlight-none"><div class="highlight"><pre>xX#####,N[;c[ comment]]
 </pre></div>
 </div>
 <p>where:</p>
@@ -113,7 +113,8 @@ instructions look like this:</p>
 <li><tt class="docutils literal"><span class="pre">X</span></tt> is one of the characters <tt class="docutils literal"><span class="pre">BCSTW</span></tt> (with the same meaning as in a
 <a class="reference internal" href="control-files.html#controlfiles"><em>control file</em></a>)</li>
 <li><tt class="docutils literal"><span class="pre">#####</span></tt> is the address at which to start disassembling</li>
-<li><tt class="docutils literal"><span class="pre">n</span></tt> is the number of bytes to disassemble</li>
+<li><tt class="docutils literal"><span class="pre">N</span></tt> is the number of bytes to disassemble (or a list of sublengths; see
+<a class="reference internal" href="#sftsubblocksyntax"><em>Sub-block syntax</em></a>)</li>
 <li><tt class="docutils literal"><span class="pre">c</span></tt> is the index of the column in which the comment marker (<tt class="docutils literal"><span class="pre">;</span></tt>) appears
 in the line (if it does appear)</li>
 <li><tt class="docutils literal"><span class="pre">comment</span></tt>, if present, is the instruction-level comment for the line on
@@ -132,11 +133,12 @@ file, as in:</p>
 </div>
 </div>
 <div class="section" id="sub-block-syntax">
-<h2>Sub-block syntax<a class="headerlink" href="#sub-block-syntax" title="Permalink to this headline">¶</a></h2>
+<span id="sftsubblocksyntax"></span><h2>Sub-block syntax<a class="headerlink" href="#sub-block-syntax" title="Permalink to this headline">¶</a></h2>
 <p>The syntax for specifying <tt class="docutils literal"><span class="pre">B</span></tt>, <tt class="docutils literal"><span class="pre">C</span></tt>, <tt class="docutils literal"><span class="pre">S</span></tt>, <tt class="docutils literal"><span class="pre">T</span></tt> and <tt class="docutils literal"><span class="pre">W</span></tt> sub-blocks is
 analogous to the syntax used in <a class="reference internal" href="control-files.html#controlfiles"><em>control files</em></a>. A brief
 summary of the syntax is given here.</p>
-<p>Sequences of DEFB statements can be declared on a single line thus:</p>
+<p>Sequences of DEFB statements can be declared on a single line by a
+comma-separated list of sublengths thus:</p>
 <div class="highlight-none"><div class="highlight"><pre>bB40960,8*2,5
 </pre></div>
 </div>
@@ -160,15 +162,17 @@ statements.</p>
 </pre></div>
 </div>
 <p>DEFB, DEFM, DEFS and DEFW statements may contain numeric values in various
-bases. For example:</p>
+bases or as characters. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>b40000 DEFB %10101010,23,43,$5F
  40004 DEFB 56
  40005 DEFB %11110000
  40006 DEFB $2B,$80
+ 40008 DEFS 8,&quot;!&quot;
 </pre></div>
 </div>
 <p>These statements may be preserved in a skool file template thus:</p>
 <div class="highlight-none"><div class="highlight"><pre>bB40000,b1:d2:h1,d1,b1,h2
+ S40008,8:c&quot;!&quot;
 </pre></div>
 </div>
 <p>Instruction operands may also contain numeric values in various bases or as
@@ -178,10 +182,10 @@ characters. For example:</p>
  50004 LD (IX+$1A),%00001111
 </pre></div>
 </div>
-<p>These instructions may be preserved in a skool file template thus:</p>
-<div class="highlight-none"><div class="highlight"><pre>cC50000,b2
- C50002,c2
- C50004,hb4
+<p>These instructions may be preserved in a skool file template by using <tt class="docutils literal"><span class="pre">b</span></tt>
+(binary), <tt class="docutils literal"><span class="pre">c</span></tt> (character), <tt class="docutils literal"><span class="pre">d</span></tt> (decimal) and <tt class="docutils literal"><span class="pre">h</span></tt> (hexadecimal) prefixes
+on sublength parameters thus:</p>
+<div class="highlight-none"><div class="highlight"><pre>cC50000,b2,c2,hb4
 </pre></div>
 </div>
 </div>
@@ -223,21 +227,25 @@ that it overrides.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.4</td>
-<td>Added support for specifying that numeric values in instruction
-operands be rendered as characters or in a specific base</td>
+<tr class="row-even"><td>4.5</td>
+<td>Added support for specifying character values in DEFS statements</td>
 </tr>
-<tr class="row-odd"><td>3.7</td>
+<tr class="row-odd"><td>4.4</td>
+<td>Added support for specifying that numeric values in instruction
+operands be rendered as characters or in a specific base; added
+support for specifying character values in DEFW statements</td>
+</tr>
+<tr class="row-even"><td>3.7</td>
 <td>Added support for binary numbers; added support for specifying
 the base of numeric values in DEFB, DEFM, DEFS and DEFW
 statements; added the <tt class="docutils literal"><span class="pre">s</span></tt> and <tt class="docutils literal"><span class="pre">S</span></tt> directives and support for
 DEFS statements with non-zero byte values</td>
 </tr>
-<tr class="row-even"><td>3.1.4</td>
+<tr class="row-odd"><td>3.1.4</td>
 <td>Added support for DEFB and DEFM statements that contain both
 strings and bytes</td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
+<tr class="row-even"><td>2.4</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -263,7 +271,7 @@ strings and bytes</td>
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

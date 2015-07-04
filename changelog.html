@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Changelog &mdash; SkoolKit 4.4 documentation</title>
+    <title>Changelog &mdash; SkoolKit 4.5 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.4',
+        VERSION:     '4.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 4.5 documentation" href="index.html" />
     <link rel="next" title="SkoolKit 3.x changelog" href="changelog3.html" />
     <link rel="prev" title="Migrating from SkoolKit 3" href="migration.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 3"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -48,12 +48,13 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">4.4 (2015-05-23)</a></li>
-<li><a class="reference internal" href="#id2">4.3 (2015-02-14)</a></li>
-<li><a class="reference internal" href="#id3">4.2 (2014-12-07)</a></li>
-<li><a class="reference internal" href="#id4">4.1.1 (2014-09-20)</a></li>
-<li><a class="reference internal" href="#id5">4.1 (2014-08-30)</a></li>
-<li><a class="reference internal" href="#id6">4.0 (2014-05-25)</a></li>
+<li><a class="reference internal" href="#id1">4.5 (2015-07-04)</a></li>
+<li><a class="reference internal" href="#id2">4.4 (2015-05-23)</a></li>
+<li><a class="reference internal" href="#id3">4.3 (2015-02-14)</a></li>
+<li><a class="reference internal" href="#id4">4.2 (2014-12-07)</a></li>
+<li><a class="reference internal" href="#id5">4.1.1 (2014-09-20)</a></li>
+<li><a class="reference internal" href="#id6">4.1 (2014-08-30)</a></li>
+<li><a class="reference internal" href="#id7">4.0 (2014-05-25)</a></li>
 <li><a class="reference internal" href="#older-versions">Older versions</a></li>
 </ul>
 </li>
@@ -94,7 +95,34 @@
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2>4.4 (2015-05-23)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>4.5 (2015-07-04)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added support to <a class="reference internal" href="commands.html#tap2sna-py"><em>tap2sna.py</em></a> for TZX block type 0x14 (pure data), for
+loading the first and last bytes of a tape block (which are usually, but not
+always, the flag and parity bytes), and for modifying memory with XOR and ADD
+operations</li>
+<li>Added the <tt class="docutils literal"><span class="pre">--clear</span></tt> option to <a class="reference internal" href="commands.html#bin2tap-py"><em>bin2tap.py</em></a> (to use a CLEAR command in
+the BASIC loader and leave the stack pointer alone)</li>
+<li>Added the <tt class="docutils literal"><span class="pre">--end</span></tt> option to <a class="reference internal" href="commands.html#bin2tap-py"><em>bin2tap.py</em></a> and the ability to convert
+SNA, SZX and Z80 snapshots</li>
+<li>Added <tt class="docutils literal"><span class="pre">--start</span></tt> and <tt class="docutils literal"><span class="pre">--end</span></tt> options to <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>,
+<a class="reference internal" href="commands.html#skool2ctl-py"><em>skool2ctl.py</em></a> and <a class="reference internal" href="commands.html#skool2sft-py"><em>skool2sft.py</em></a></li>
+<li>The <tt class="docutils literal"><span class="pre">--start</span></tt> and <tt class="docutils literal"><span class="pre">--end</span></tt> options of <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> now take effect
+when reading a control file or a skool file template</li>
+<li>Added support to <a class="reference internal" href="commands.html#skool2ctl-py"><em>skool2ctl.py</em></a> and <a class="reference internal" href="commands.html#skool2sft-py"><em>skool2sft.py</em></a> for preserving
+characters in DEFW statements (e.g. <tt class="docutils literal"><span class="pre">DEFW</span> <span class="pre">&quot;!&quot;</span></tt>)</li>
+<li>Added support for characters in DEFS statements (e.g. <tt class="docutils literal"><span class="pre">DEFS</span> <span class="pre">10,&quot;!&quot;</span></tt>)</li>
+<li>Fixed how <a class="reference internal" href="commands.html#tap2sna-py"><em>tap2sna.py</em></a> compresses a RAM block that contains a single
+<tt class="docutils literal"><span class="pre">ED</span></tt> followed by five or more identical values (e.g. <tt class="docutils literal"><span class="pre">ED0101010101</span></tt>)</li>
+<li>Fixed the erroneous replacement of DEFS operands with labels</li>
+<li>Fixed how instruction-level comments that contain braces are restored from a
+control file</li>
+<li>Fixed the handling of terminal compound sublengths on &#8216;S&#8217; directives (e.g.
+<tt class="docutils literal"><span class="pre">S</span> <span class="pre">30000,10,5:32</span></tt>)</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>4.4 (2015-05-23)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added support to control files and skool file templates for specifying that
 numeric values in instruction operands be rendered as characters or in a
@@ -114,8 +142,8 @@ extraneous whitespace (e.g. <tt class="docutils literal"><span class="pre">LD</s
 <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a></li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h2>4.3 (2015-02-14)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h2>4.3 (2015-02-14)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added support for block start comments (which appear after the register
 section and before the first instruction in a routine or data block)</li>
@@ -142,8 +170,8 @@ they work with a UDG array that contains the same UDG in more than one place</li
 8-bit numeric operands</li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>4.2 (2014-12-07)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>4.2 (2014-12-07)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added support for <a class="reference internal" href="control-files.html#ctlloops"><em>control directive loops</em></a> using the <tt class="docutils literal"><span class="pre">L</span></tt>
 directive</li>
@@ -164,8 +192,8 @@ lists produced by the <a class="reference internal" href="skool-macros.html#list
 of a <a class="reference internal" href="ref-files.html#ref-changelog"><em>[Changelog:*]</em></a> section</li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>4.1.1 (2014-09-20)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>4.1.1 (2014-09-20)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Updated links to SkoolKit&#8217;s new home at <a class="reference external" href="http://skoolkit.ca">skoolkit.ca</a></li>
 <li>Added example control and <cite>ref</cite> files for <a class="reference external" href="http://www.worldofspectrum.org/infoseekid.cgi?id=0002390">Hungry Horace</a></li>
@@ -173,8 +201,8 @@ of a <a class="reference internal" href="ref-files.html#ref-changelog"><em>[Chan
 being developed separately <a class="reference external" href="https://github.com/skoolkid/manicminer">here</a></li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h2>4.1 (2014-08-30)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h2>4.1 (2014-08-30)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <tt class="docutils literal"><span class="pre">--search</span></tt> option to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> (to add a directory to
 the resource search path)</li>
@@ -195,8 +223,8 @@ instruction that refers to the address of an ignored entry</li>
 now being developed separately <a class="reference external" href="https://github.com/skoolkid/jetsetwilly">here</a></li>
 </ul>
 </div>
-<div class="section" id="id6">
-<h2>4.0 (2014-05-25)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id7">
+<h2>4.0 (2014-05-25)<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Every HTML page is built from templates defined in <a class="reference internal" href="ref-files.html#template"><em>[Template:*]</em></a> sections
 in the <cite>ref</cite> file</li>
@@ -246,7 +274,7 @@ specifying whether to display the &#8216;Length&#8217; column on a memory map pa
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 3"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 4.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
