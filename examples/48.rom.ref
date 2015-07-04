@@ -27,7 +27,7 @@ EntryTypes=su
 LengthColumn=1
 PageByteColumns=0
 
-[Changelog:YYYYMMDD]
+[Changelog:20150704]
 Included in SkoolKit 4.5.
 
 Added <i>@label</i> directives, <i>@ssub</i> directives, <i>@nowarn</i> directives, and more <i>@keep</i> directives
