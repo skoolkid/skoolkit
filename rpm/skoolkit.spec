@@ -46,6 +46,9 @@ cp -a examples %{buildroot}%{_datadir}/%{name}
 %{python_sitelib}/*
 
 %changelog
+* Sat Jul 04 2015 Richard Dymond <rjdymond@gmail.com> 4.5-1
+- Updated to 4.5
+
 * Sat May 23 2015 Richard Dymond <rjdymond@gmail.com> 4.4-1
 - Updated to 4.4
 
