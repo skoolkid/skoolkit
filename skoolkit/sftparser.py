@@ -115,19 +115,14 @@ class SftParser:
                 # This line is a skool file template comment
                 continue
 
-            s_line = line.strip()
-            if not s_line:
+            if not line.strip():
                 # This line is blank
                 lines.append(VerbatimLine(line))
                 entry_ctl = None
                 continue
 
             if line.startswith(';'):
-                # This line is an entry-level comment (which may contain an ASM
-                # directive)
-                comment = line[1:].strip()
-                if comment.startswith('@'):
-                    self._parse_asm_directive(comment[1:])
+                # This line is an entry-level comment
                 lines.append(VerbatimLine(line))
                 continue
 

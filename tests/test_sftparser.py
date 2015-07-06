@@ -41,7 +41,7 @@ bB$25aa,1
 ;
 ; A Some value
 ; B Some other value
-; @label=START
+@label=START
 cC32768,2
 
 ; Test code disassembly with a comment marker but no comment
@@ -75,7 +75,7 @@ a32794 NOP
 ; Test a block ASM directive
 @rsub-begin
 bB32795,5
-; @rsub+else
+@rsub+else
  32795 DEFS 6
 @rsub+end
 
@@ -135,7 +135,7 @@ b09642 DEFB 42
 ;
 ; A Some value
 ; B Some other value
-; @label=START
+@label=START
 c32768 CPL
  32769 RET
 
@@ -172,7 +172,7 @@ a32794 NOP
 ; Test a block ASM directive
 @rsub-begin
 b32795 DEFB 0,0,0,0,0
-; @rsub+else
+@rsub+else
  32795 DEFS 6
 @rsub+end
 
@@ -222,7 +222,7 @@ b$25AA DEFB $2A
 ;
 ; A Some value
 ; B Some other value
-; @label=START
+@label=START
 c$8000 CPL
  $8001 RET
 
@@ -259,7 +259,7 @@ a32794 NOP
 ; Test a block ASM directive
 @rsub-begin
 b$801B DEFB $00,$00,$00,$00,$00
-; @rsub+else
+@rsub+else
  32795 DEFS 6
 @rsub+end
 
