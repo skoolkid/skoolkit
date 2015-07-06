@@ -1,6 +1,9 @@
 Changelog
 =========
 
+5.0b1
+-----
+
 4.5 (2015-07-04)
 ----------------
 * Added support to :ref:`tap2sna.py` for TZX block type 0x14 (pure data), for
