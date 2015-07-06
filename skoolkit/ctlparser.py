@@ -167,11 +167,6 @@ class CtlParser:
                     self._instruction_asm_directives.setdefault(address, []).append((directive, value))
         f.close()
 
-        # Relocate mid-block comments declared with a 'D' directive
-        for address in self._descriptions:
-            if address not in self._ctls:
-                self._mid_block_comments[address] = self._descriptions[address]
-
         self._terminate_multiline_comments()
         self._unroll_loops(max_address)
         self._ctls[max_address] = 'i'

@@ -1173,7 +1173,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         ctl = '\n'.join((
             'c 40000',
             'D 40000 Routine description.',
-            'D 40001 Mid-routine comment.',
+            'N 40001 Mid-routine comment.',
             'c 40002',
             'c 40004',
             'i 40012'
@@ -1212,7 +1212,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         ctl = '\n'.join((
             'c 50000',
             'D 50000 Routine description.',
-            'D 50001 Mid-routine comment.',
+            'N 50001 Mid-routine comment.',
             'c 50002',
             'c 50004',
             'i 50012'
@@ -1366,7 +1366,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; @ignoreua:10000',
             '  10000 Instruction-level comment at 10000',
             '; @ignoreua:10001:m',
-            'D 10001 Mid-block comment above 10001.',
+            'N 10001 Mid-block comment above 10001.',
             '; @ignoreua:10001:i',
             '  10001 Instruction-level comment at 10001',
             '; @ignoreua:10000:e',
@@ -1409,7 +1409,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             'D 10000 Description of the routine at 10000.',
             'c 10002 Routine at 10002',
             '; @ignoreua:10003:m',
-            'D 10003 Mid-block comment above 10003.',
+            'N 10003 Mid-block comment above 10003.',
             'i 10005'
         ))
         exp_skool = [

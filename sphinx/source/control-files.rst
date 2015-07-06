@@ -109,10 +109,6 @@ with a separate ``N`` directive::
   N 24592 This is the first paragraph of the mid-block comment.
   N 24592 This is the second paragraph of the mid-block comment.
 
-.. note::
-   Using the ``D`` directive to declare mid-block comments is deprecated since
-   version 4.3. The ``D`` directive should be used only for block descriptions.
-
 Block end comments
 ------------------
 To declare a comment that will appear at the end of the routine at 24576, use
