@@ -223,8 +223,6 @@ class CtlParser:
                     text = fields[1]
             elif first_char == '@':
                 asm_directive = self._parse_asm_directive(content)
-            elif first_char == ';' and content.startswith('@'):
-                asm_directive = self._parse_old_style_asm_directive(content)
             elif first_char not in '#%;':
                 raise CtlParserError("invalid directive")
         return ctl, start, end, text, lengths, asm_directive
@@ -248,31 +246,6 @@ class CtlParser:
             return directive, address, value
         if comment_type not in COMMENT_TYPES:
             raise CtlParserError("invalid @ignoreua directive suffix: '{}'".format(comment_type))
-        self._ignoreua_directives.setdefault(address, set()).add(comment_type)
-
-    def _parse_old_style_asm_directive(self, content):
-        asm_fields = content.split(':', 1)
-        if len(asm_fields) < 2:
-            raise CtlParserError("invalid ASM directive declaration")
-        directive = asm_fields[0][1:]
-        asm_fields[1] = asm_fields[1].split('=', 1)
-        addr_str = asm_fields[1][0]
-        if directive == AD_IGNOREUA:
-            comment_type = 'i'
-            if ':' in addr_str:
-                addr_str, comment_type = addr_str.split(':', 1)
-        try:
-            address = get_int_param(addr_str)
-        except ValueError:
-            raise CtlParserError("invalid ASM directive address")
-        if len(asm_fields[1]) == 2:
-            value = asm_fields[1][1]
-        else:
-            value = None
-        if directive != AD_IGNOREUA:
-            return directive, address, value
-        if comment_type not in COMMENT_TYPES:
-            raise CtlParserError("invalid @ignoreua directive address suffix: '{}:{}'".format(addr_str, comment_type))
         self._ignoreua_directives.setdefault(address, set()).add(comment_type)
 
     def _terminate_multiline_comments(self):

@@ -6,7 +6,7 @@ from skoolkit.ctlparser import CtlParser
 
 CTL = """; Test control file for parse_ctl
 
-; @start:30000
+@ 30000 start
 b $7530 Data at 30000
 N 30000 Block start comment
 T 30002,10 Message in the data block
@@ -20,7 +20,7 @@ c 30100 Routine at 30100
 D 30100 Description of routine at 30100
 R 30100 A Some value
 R 30100 BC Some other value
-; @label:$7595=LOOP
+@ $7595 label=LOOP
 E 30100 First paragraph of the end comment for the routine at 30100
 E 30100 Second paragraph of the end comment for the routine at 30100
 % This is another control file comment
@@ -736,15 +736,12 @@ class CtlParserTest(SkoolKitTestCase):
             ('S 30770,10,T8:2',     'invalid integer'),
             ('B 30780,10,h,5',      'invalid integer'),
             ('C 40000,Q',           'invalid integer'),
-            ('; @label:EDCBA=Z',    'invalid ASM directive address'),
             ('@ FEDCB label=Z',     'invalid ASM directive address'),
-            ('; @label=Z',          'invalid ASM directive declaration'),
             ('@ 49152',             'invalid ASM directive declaration'),
             ('b 50000,20',          'extra parameters after address'),
             ('b b50010',            'invalid address'),
             ('d 50020',             'invalid directive'),
             ('! 50030',             'invalid directive'),
-            ('; @ignoreua:50000:f', "invalid @ignoreua directive address suffix: '50000:f'"),
             ('@ 50000 ignoreua:g',  "invalid @ignoreua directive suffix: 'g'"),
             ('L 51000',             'loop length not specified'),
             ('L 51000,10',          'loop count not specified')
@@ -928,26 +925,26 @@ class CtlParserTest(SkoolKitTestCase):
 
     def test_ignoreua_directives(self):
         ctl = '\n'.join((
-            '; @ignoreua:30000:t',
+            '@ 30000 ignoreua:t',
             'c 30000 Routine at 30000',
             'c 30001 Routine',
             '@ 30001 ignoreua:d',
             'D 30001 Description of the routine at 30001',
-            '; @ignoreua:30001:r',
+            '@ 30001 ignoreua:r',
             'R 30001 HL 30001',
             '@ 30001 ignoreua',
             '  30001 Instruction-level comment at 30001',
             'c 30002 Routine',
-            '; @ignoreua:30003:m',
+            '@ 30003 ignoreua:m',
             'N 30003 Mid-block comment above 30003.',
             '@ 30003 ignoreua:i',
             '  30003 Instruction-level comment at 30003',
             'c 30004 Routine',
-            '; @ignoreua:30004:i',
+            '@ 30004 ignoreua:i',
             '  30004,1 Instruction-level comment at 30004',
             '@ 30005 ignoreua:m',
             'N 30005 Mid-block comment above 30005.',
-            '; @ignoreua:30004:e',
+            '@ 30004 ignoreua:e',
             'E 30004 End comment for the routine at 30004.'
         ))
         blocks = self._get_ctl_parser(ctl).get_blocks()
@@ -1011,7 +1008,7 @@ class CtlParserTest(SkoolKitTestCase):
         end = start + length * count
         ctl = '\n'.join((
             '@ 30000 start',
-            '; @org:30000=30000',
+            '@ 30000 org=30000',
             'c 30000 This entry should not be repeated',
             'D 30000 This entry description should not be repeated',
             'R 30000 HL This register should not be repeated',
@@ -1083,7 +1080,7 @@ class CtlParserTest(SkoolKitTestCase):
         count = 3
         end = start + length * count
         ctl = '\n'.join((
-            '; @start:40000',
+            '@ 40000 start',
             '@ 40000 org=40000',
             'c 40000 This entry should be repeated',
             'D 40000 This entry description should be repeated',
@@ -1094,7 +1091,7 @@ class CtlParserTest(SkoolKitTestCase):
             'M 40010,10 A multi-line comment',
             'S 40010,6',
             'W 40016,4,4',
-            '; @label:40020=END',
+            '@ 40020 label=END',
             'T 40020,5,4:B1 End',
             'E 40000 This end comment should be repeated',
             'L {},{},{},1'.format(start, length, count)

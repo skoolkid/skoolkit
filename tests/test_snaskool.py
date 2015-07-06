@@ -27,10 +27,10 @@ DISASSEMBLY_SNAPSHOT[32814:32841] = [
     6, 1              # 32839 LD B,%00000001
 ]
 
-DISASSEMBLY_CTL = """; @start:32768
-; @writer:32768=skoolkit.game.GameAsmWriter
-; @org:32768=32768
-; @label:32768=START
+DISASSEMBLY_CTL = """@ 32768 start
+@ 32768 writer=skoolkit.game.GameAsmWriter
+@ 32768 org=32768
+@ 32768 label=START
 ; Entry #1
 c 32768
 D 32768 Routine description paragraph 1.
@@ -39,7 +39,7 @@ R 32768 A Some value
 R 32768 B Some other value
   32768,2 This is an instruction-level comment that spans two instructions
 E 32768 Routine end comment.
-; @end:32768
+@ 32768 end
 ; Entry #2
 t 32770
 T 32770,4,2
@@ -100,11 +100,11 @@ WRITER_SNAPSHOT[32768:32781] = [
     24, 248  # 32779 JR 32773
 ]
 
-WRITER_CTL = """; @start:32768
-; @writer:32768=skoolkit.game.GameAsmWriter
-; @set-tab:32768=1
-; @org:32768=32768
-; @label:32768=START
+WRITER_CTL = """@ 32768 start
+@ 32768 writer=skoolkit.game.GameAsmWriter
+@ 32768 set-tab=1
+@ 32768 org=32768
+@ 32768 label=START
 c 32768
 D 32768 Routine description paragraph 1.
 D 32768 Routine description paragraph 2.
@@ -112,7 +112,7 @@ R 32768 A Some value
 R 32768 B Some other value
   32768,2 This is an instruction-level comment that spans two instructions and is too long to fit on two lines, so extends to three
 E 32768 Routine end comment.
-; @end:32768
+@ 32768 end
 c 32770 Routine with registers but no description
 R 32770 HL Some value
 R 32770 BC Some other value
@@ -1355,21 +1355,21 @@ class SkoolWriterTest(SkoolKitTestCase):
 
     def test_ignoreua_directives(self):
         ctl = '\n'.join((
-            '; @ignoreua:10000:t',
+            '@ 10000 ignoreua:t',
             'c 10000 Routine at 10000',
-            '; @ignoreua:10000:d',
+            '@ 10000 ignoreua:d',
             'D 10000 Description of the routine at 10000.',
-            '; @ignoreua:10000:r',
+            '@ 10000 ignoreua:r',
             'R 10000 HL 10000',
-            '; @ignoreua:10000:m',
+            '@ 10000 ignoreua:m',
             'N 10000 Start comment.',
-            '; @ignoreua:10000',
+            '@ 10000 ignoreua',
             '  10000 Instruction-level comment at 10000',
-            '; @ignoreua:10001:m',
+            '@ 10001 ignoreua:m',
             'N 10001 Mid-block comment above 10001.',
-            '; @ignoreua:10001:i',
+            '@ 10001 ignoreua:i',
             '  10001 Instruction-level comment at 10001',
-            '; @ignoreua:10000:e',
+            '@ 10000 ignoreua:e',
             'E 10000 End comment for the routine at 10000.',
             'i 10002'
         ))
@@ -1405,10 +1405,10 @@ class SkoolWriterTest(SkoolKitTestCase):
     def test_ignoreua_directives_write_refs(self):
         ctl = '\n'.join((
             'c 10000 Routine at 10000',
-            '; @ignoreua:10000:d',
+            '@ 10000 ignoreua:d',
             'D 10000 Description of the routine at 10000.',
             'c 10002 Routine at 10002',
-            '; @ignoreua:10003:m',
+            '@ 10003 ignoreua:m',
             'N 10003 Mid-block comment above 10003.',
             'i 10005'
         ))

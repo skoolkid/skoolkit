@@ -441,10 +441,6 @@ Note that neither ASM block directives (such as the :ref:`bfixBlockDirectives`)
 nor the exact location of :ref:`org`, :ref:`writer`, :ref:`start`, :ref:`end`
 and :ref:`set` directives can be preserved in a control file.
 
-.. note::
-   The old style of declaring ASM directives (``; @directive:address[=value]``)
-   is deprecated since version 4.3.
-
 Instruction-level comments
 --------------------------
 One limitation of storing instruction-level comments as shown so far is that
@@ -488,9 +484,8 @@ at least one character other than a dot; such comments are preserved verbatim
 Control file comments
 ---------------------
 A comment may be added to a control file by starting a line with a hash
-character (``#``), a per cent sign (``%``), or a semicolon - so long as the
-next non-whitespace character is not ``@``, because ``; @`` is the deprecated
-(but still valid) way to declare an ASM directive. For example::
+character (``#``), a per cent sign (``%``), or a semicolon (``;``). For
+example::
 
   # This is a comment
   % This is another comment
