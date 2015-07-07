@@ -1786,7 +1786,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_create_labels(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Begin',
             'c32768 JR 32770',
             '',
@@ -1821,7 +1821,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = '\n'.join((
             '@start',
             '@set-prop1=1',
-            '; @set-prop2=abc',
+            '@set-prop2=abc',
             '; Routine',
             'c30000 RET'
         ))
@@ -1861,13 +1861,13 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_warn_ld_operand(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
             'c32768 LD HL,32774',
             ' 32771 ld de,32774',
             '',
             '; Next routine',
-            '; @label=DOSTUFF',
+            '@label=DOSTUFF',
             'c32774 RET'
         ))
         self._get_parser(skool, asm_mode=1, warnings=True)
@@ -2451,13 +2451,13 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_error_duplicate_label(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Start',
             '@label=START',
             'c40000 RET',
             '',
             '; False start',
-            '; @label=START',
+            '@label=START',
             'c40001 RET'
         ))
         with self.assertRaisesRegexp(SkoolParsingError, 'Duplicate label START at 40001'):
@@ -2467,11 +2467,11 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = '\n'.join((
             '@start',
             '; Routine',
-            '; @rsub-begin',
+            '@rsub-begin',
             '@label=FOO',
             '@rsub+else',
-            '; @label=BAR',
-            '; @rsub+end',
+            '@label=BAR',
+            '@rsub+end',
             'c32768 RET'
         ))
         for asm_mode, exp_label in ((0, 'FOO'), (1, 'FOO'), (2, 'FOO'), (3, 'BAR')):
@@ -2480,12 +2480,12 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_rsub_no_address(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
             'c30000 XOR A',
             '@rsub-begin',
             ' 30001 LD L,0',
-            '; @rsub+else',
+            '@rsub+else',
             '       LD HL,16384',
             '@rsub+end'
         ))
@@ -2501,11 +2501,11 @@ class SkoolParserTest(SkoolKitTestCase):
             '',
             '@start',
             'c40001 LD A,C',
-            '; @end',
+            '@end',
             '',
             'c40002 LD A,D',
             '',
-            '; @start',
+            '@start',
             'c40003 LD A,E',
             '@end',
             '',
@@ -2522,7 +2522,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = '\n'.join((
             '@start',
             '; Routine',
-            '; @isub=LD A,(32512)',
+            '@isub=LD A,(32512)',
             'c60000 LD A,(m)',
         ))
         for asm_mode in (1, 2, 3):
@@ -2531,12 +2531,12 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_isub_block_directive(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
             ';',
             '@isub+begin',
             '; Actual description.',
-            '; @isub-else',
+            '@isub-else',
             '; Other description.',
             '@isub-end',
             'c24576 RET',
@@ -2549,7 +2549,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = '\n'.join((
             '@start',
             '; Routine',
-            '; @rsub=INC HL',
+            '@rsub=INC HL',
             'c23456 INC L',
         ))
         for asm_mode in (1, 2):
@@ -2583,7 +2583,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = '\n'.join((
             '; Routine',
             'c40000 LD HL,40006',
-            '; @keep',
+            '@keep',
             ' 40003 LD DE,40006',
             '',
             '; Another routine',
@@ -2598,10 +2598,10 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = '\n'.join((
             '; Routine',
             ';',
-            '; @rem=These comments',
+            '@rem=These comments',
             '@rem=should be ignored.',
             '; Foo.',
-            '; @rem=And these',
+            '@rem=And these',
             '@rem=ones too.',
             'c50000 RET'
         ))
@@ -2639,10 +2639,10 @@ class SkoolParserTest(SkoolKitTestCase):
             '@start',
             '; Routine',
             ';',
-            '; @rem=These comments',
+            '@rem=These comments',
             '@rem=should be ignored.',
             '; Foo.',
-            '; @rem=And these',
+            '@rem=And these',
             '@rem=ones too.',
             'c50000 RET'
         ))
@@ -2664,7 +2664,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_asm_mode_ssub_block_directive(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
             '@ssub-begin',
             'c50000 LD L,24 ; 24 is the LSB',
@@ -2685,34 +2685,34 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_fix_mode_0(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             "; Let's test some @ofix directives",
             'c24593 NOP',
-            '; @ofix=LD A,C',
+            '@ofix=LD A,C',
             ' 24594 LD A,B',
-            '; @ofix-begin',
+            '@ofix-begin',
             ' 24595 LD B,A',
-            '; @ofix+else',
+            '@ofix+else',
             ' 24595 LD B,C',
-            '; @ofix+end',
+            '@ofix+end',
             '',
             "; Let's test some @bfix directives",
             'c24596 NOP',
-            '; @bfix=LD C,B',
+            '@bfix=LD C,B',
             ' 24597 LD C,A',
-            '; @bfix-begin',
+            '@bfix-begin',
             ' 24598 LD D,A',
-            '; @bfix+else',
+            '@bfix+else',
             ' 24598 LD D,B',
-            '; @bfix+end',
+            '@bfix+end',
             '',
             "; Let's test the @rfix block directive",
             'c24599 NOP',
-            '; @rfix-begin',
+            '@rfix-begin',
             ' 24600 LD E,A',
-            '; @rfix+else',
+            '@rfix+else',
             ' 24600 LD E,B',
-            '; @rfix+end',
+            '@rfix+end',
         ))
         parser = self._get_parser(skool, asm_mode=1, fix_mode=0)
         instructions = parser.get_entry(24593).instructions
@@ -2726,34 +2726,34 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_fix_mode_1(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             "; Let's test some @ofix directives",
             'c24593 NOP',
-            '; @ofix=LD A,C',
+            '@ofix=LD A,C',
             ' 24594 LD A,B',
-            '; @ofix-begin',
+            '@ofix-begin',
             ' 24595 LD B,A',
-            '; @ofix+else',
+            '@ofix+else',
             ' 24595 LD B,C',
-            '; @ofix+end',
+            '@ofix+end',
             '',
             "; Let's test some @bfix directives",
             'c24596 NOP',
-            '; @bfix=LD C,B',
+            '@bfix=LD C,B',
             ' 24597 LD C,A',
-            '; @bfix-begin',
+            '@bfix-begin',
             ' 24598 LD D,A',
-            '; @bfix+else',
+            '@bfix+else',
             ' 24598 LD D,B',
-            '; @bfix+end',
+            '@bfix+end',
             '',
             "; Let's test the @rfix block directive",
             'c24599 NOP',
-            '; @rfix-begin',
+            '@rfix-begin',
             ' 24600 LD E,A',
-            '; @rfix+else',
+            '@rfix+else',
             ' 24600 LD E,B',
-            '; @rfix+end',
+            '@rfix+end',
         ))
         parser = self._get_parser(skool, asm_mode=1, fix_mode=1)
         instructions = parser.get_entry(24593).instructions
@@ -2767,34 +2767,34 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_fix_mode_2(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             "; Let's test some @ofix directives",
             'c24593 NOP',
-            '; @ofix=LD A,C',
+            '@ofix=LD A,C',
             ' 24594 LD A,B',
-            '; @ofix-begin',
+            '@ofix-begin',
             ' 24595 LD B,A',
-            '; @ofix+else',
+            '@ofix+else',
             ' 24595 LD B,C',
-            '; @ofix+end',
+            '@ofix+end',
             '',
             "; Let's test some @bfix directives",
             'c24596 NOP',
-            '; @bfix=LD C,B',
+            '@bfix=LD C,B',
             ' 24597 LD C,A',
-            '; @bfix-begin',
+            '@bfix-begin',
             ' 24598 LD D,A',
-            '; @bfix+else',
+            '@bfix+else',
             ' 24598 LD D,B',
-            '; @bfix+end',
+            '@bfix+end',
             '',
             "; Let's test the @rfix block directive",
             'c24599 NOP',
-            '; @rfix-begin',
+            '@rfix-begin',
             ' 24600 LD E,A',
-            '; @rfix+else',
+            '@rfix+else',
             ' 24600 LD E,B',
-            '; @rfix+end',
+            '@rfix+end',
         ))
         parser = self._get_parser(skool, asm_mode=1, fix_mode=2)
         instructions = parser.get_entry(24593).instructions
@@ -2808,34 +2808,34 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_fix_mode_3(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             "; Let's test some @ofix directives",
             'c24593 NOP',
-            '; @ofix=LD A,C',
+            '@ofix=LD A,C',
             ' 24594 LD A,B',
-            '; @ofix-begin',
+            '@ofix-begin',
             ' 24595 LD B,A',
-            '; @ofix+else',
+            '@ofix+else',
             ' 24595 LD B,C',
-            '; @ofix+end',
+            '@ofix+end',
             '',
             "; Let's test some @bfix directives",
             'c24596 NOP',
-            '; @bfix=LD C,B',
+            '@bfix=LD C,B',
             ' 24597 LD C,A',
-            '; @bfix-begin',
+            '@bfix-begin',
             ' 24598 LD D,A',
-            '; @bfix+else',
+            '@bfix+else',
             ' 24598 LD D,B',
-            '; @bfix+end',
+            '@bfix+end',
             '',
             "; Let's test the @rfix block directive",
             'c24599 NOP',
-            '; @rfix-begin',
+            '@rfix-begin',
             ' 24600 LD E,A',
-            '; @rfix+else',
+            '@rfix+else',
             ' 24600 LD E,B',
-            '; @rfix+end',
+            '@rfix+end',
         ))
         parser = self._get_parser(skool, asm_mode=3, fix_mode=3)
         instructions = parser.get_entry(24593).instructions
@@ -2851,9 +2851,9 @@ class SkoolParserTest(SkoolKitTestCase):
         # @rsub-begin inside @rsub- block
         skool = '\n'.join((
             '@start',
-            '; @rsub-begin',
             '@rsub-begin',
-            '; @rsub-end',
+            '@rsub-begin',
+            '@rsub-end',
             '@rsub-end',
         ))
         error = "rsub-begin inside rsub- block"
@@ -2863,9 +2863,9 @@ class SkoolParserTest(SkoolKitTestCase):
         # @isub+else inside @bfix+ block
         skool = '\n'.join((
             '@start',
-            '; @bfix+begin',
-            '; @isub+else',
-            '; @isub+end',
+            '@bfix+begin',
+            '@isub+else',
+            '@isub+end',
             '@bfix+end',
         ))
         error = "isub+else inside bfix+ block"
@@ -2876,14 +2876,14 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = '\n'.join((
             '@start',
             '@ofix+else',
-            '; @ofix+end',
+            '@ofix+end',
         ))
         error = "ofix+else not inside block"
         self.assert_error(skool, error, asm_mode=1)
 
     def test_dangling_rfix_end(self):
         # Dangling @rfix+end directive
-        skool = '@start\n; @rfix+end'
+        skool = '@start\n@rfix+end'
         error = "rfix+end has no matching start directive"
         self.assert_error(skool, error, asm_mode=1)
 
@@ -2891,9 +2891,9 @@ class SkoolParserTest(SkoolKitTestCase):
         # Mismatched begin/else/end (wrong infix)
         skool = '\n'.join((
             '@start',
-            '; @rsub+begin',
+            '@rsub+begin',
             '@rsub-else',
-            '; @rsub+end',
+            '@rsub+end',
         ))
         error = "rsub+end cannot end rsub- block"
         self.assert_error(skool, error, asm_mode=1)
@@ -2903,7 +2903,7 @@ class SkoolParserTest(SkoolKitTestCase):
         skool = '\n'.join((
             '@start',
             '@ofix-begin',
-            '; @bfix-end',
+            '@bfix-end',
         ))
         error = "bfix-end cannot end ofix- block"
         self.assert_error(skool, error, asm_mode=1)

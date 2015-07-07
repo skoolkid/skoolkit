@@ -114,7 +114,7 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     def test_parse_stdin(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Do nothing',
             'c60000 RET'
         ))
@@ -302,8 +302,8 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     def test_writer(self):
         skool = '\n'.join((
-            '; @start',
-            '; @writer={}',
+            '@start',
+            '@writer={}',
             '; Begin',
             'c24576 RET',
         ))
@@ -334,8 +334,8 @@ class Skool2AsmTest(SkoolKitTestCase):
     @patch.object(skool2asm, 'get_class', Mock(return_value=MockAsmWriter))
     def test_option_W(self):
         skool = '\n'.join((
-            '; @start',
-            '; @writer=SomeWriterThatWillBeOverridden',
+            '@start',
+            '@writer=SomeWriterThatWillBeOverridden',
             'c32768 RET',
         ))
         skoolfile = self.write_text_file(skool, suffix='.skool')
@@ -347,8 +347,8 @@ class Skool2AsmTest(SkoolKitTestCase):
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_tab_property(self):
         skool = '\n'.join((
-            '; @start',
-            '; @set-tab={}',
+            '@start',
+            '@set-tab={}',
             '; Data',
             'b40000 DEFB 0 ; Comment',
         ))
@@ -371,8 +371,8 @@ class Skool2AsmTest(SkoolKitTestCase):
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_crlf_property(self):
         skool = '\n'.join((
-            '; @start',
-            '; @set-crlf={}',
+            '@start',
+            '@set-crlf={}',
             '; Data',
             'b40000 DEFB 0 ; Comment',
         ))
@@ -395,8 +395,8 @@ class Skool2AsmTest(SkoolKitTestCase):
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_warnings_property(self):
         skool = '\n'.join((
-            '; @start',
-            '; @set-warnings={}',
+            '@start',
+            '@set-warnings={}',
             '; Routine at 25000',
             ';',
             '; Used by the routine at 25000.',
@@ -420,8 +420,8 @@ class Skool2AsmTest(SkoolKitTestCase):
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_instruction_width_property(self):
         skool = '\n'.join((
-            '; @start',
-            '; @set-instruction-width={}',
+            '@start',
+            '@set-instruction-width={}',
             '; Data',
             'b40000 DEFB 0 ; Comment',
         ))

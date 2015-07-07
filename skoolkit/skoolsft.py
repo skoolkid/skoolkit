@@ -37,8 +37,7 @@ class VerbatimLine:
         return False
 
     def is_trimmable(self):
-        if ((self.text.startswith('@') or (self.text.startswith(';') and self.text[1:].lstrip().startswith('@')))
-             and self.text.endswith(('+end', '-end'))):
+        if (self.text.startswith('@') and self.text.endswith(('+end', '-end'))):
             return False
         return len(self.text) > 0
 
@@ -117,10 +116,7 @@ class SftWriter:
         for line in f:
             if line.startswith(';'):
                 lines.append(VerbatimLine(line))
-                comment = line[1:].strip()
-                if comment.startswith('@'):
-                    self._parse_asm_directive(comment[1:])
-                continue # pragma: no cover
+                continue
             if line.startswith('@'):
                 lines.append(VerbatimLine(line))
                 self._parse_asm_directive(line[1:].rstrip())

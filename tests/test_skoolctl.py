@@ -17,7 +17,7 @@ d49153 DEFW 0       ; A comment over two lines
 r24576 start
 
 ; Address 0
-; @label=START0
+@label=START0
 c00000 RET
 
 ; Address with 1 digit
@@ -25,7 +25,7 @@ c00000 RET
 c00001 RET
 
 ; Address with 2 digits
-; @label=START33
+@label=START33
 c00033 RET
 
 ; Address with 3 digits
@@ -33,12 +33,12 @@ c00033 RET
 c00555 RET
 
 ; Address with 4 digits
-; @label=START7890
+@label=START7890
 c07890 RET
 
-; @start
+@start
 @writer=package.module.classname
-; @set-bullet=+
+@set-bullet=+
 @org=32768
 ; Routine
 ;
@@ -50,20 +50,20 @@ c07890 RET
 ; Start comment
 @label=START
 c32768 NOP          ; Do nothing
-; @bfix=DEFB 2,3
+@bfix=DEFB 2,3
  32769 DEFB 1,2     ; 1-line B sub-block
 @nowarn
  32771 defb 3       ; {2-line B sub-block
-; @isub=DEFB 0,1
+@isub=DEFB 0,1
  32772 DEFB 4,5     ; }
 ; Mid-block comment
  32774 DEFM "Hello" ; T sub-block
 @keep
  32779 DEFW 12345   ; W sub-block
  32781 defs 2       ; S sub-block
-; @nolabel
+@nolabel
  32783 LD A,5       ; {Sub-block with instructions of various types
-; @ofix=DEFB 2
+@ofix=DEFB 2
  32785 DEFB 0       ;
 @rsub=DEFW 0,1,2
  32786 DEFW 0,1     ; and blank lines
@@ -80,7 +80,7 @@ c32768 NOP          ; Do nothing
 i32796
 
 ; Data block
-; @rem=Hello!
+@rem=Hello!
 b49152 DEFB 0
 
 ; Game status buffer entry
@@ -124,7 +124,7 @@ b49179 DEFB 0,0
 ; ASM block directives
 @bfix-begin
 b49193 DEFB 7
-; @bfix+else
+@bfix+else
 c49193 NOP
 @bfix+end
 
@@ -132,7 +132,7 @@ c49193 NOP
 s49194 DEFS 128
  49322 DEFS 128
  49450 DEFS 128
-; @end
+@end
 
 ; Complex DEFB statements
 b49578 DEFB 1,2,3,"Hello",5,6
@@ -844,7 +844,7 @@ class CtlWriterTest(SkoolKitTestCase):
 
     def test_ignoreua_directives(self):
         skool = '\n'.join((
-            '; @ignoreua',
+            '@ignoreua',
             '; Routine at 30000',
             'c30000 RET',
             '',
@@ -853,25 +853,25 @@ class CtlWriterTest(SkoolKitTestCase):
             '@ignoreua',
             '; Description of the routine at 30001',
             ';',
-            '; @ignoreua',
+            '@ignoreua',
             '; HL 30001',
             '@ignoreua',
             'c30001 RET    ; Instruction-level comment at 30001',
             '',
             '; Routine',
             'c30002 LD A,B',
-            '; @ignoreua',
+            '@ignoreua',
             '; Mid-block comment above 30003.',
             '@ignoreua',
             ' 30003 RET    ; Instruction-level comment at 30003',
             '',
             '; Routine',
-            '; @ignoreua',
+            '@ignoreua',
             'c30004 LD A,C ; Instruction-level comment at 30004',
             '@ignoreua',
             '; Mid-block comment above 30005.',
             ' 30005 RET',
-            '; @ignoreua',
+            '@ignoreua',
             '; End comment for the routine at 30004.'
         ))
         exp_ctl = [
@@ -907,7 +907,7 @@ class CtlWriterTest(SkoolKitTestCase):
             ';',
             '; .',
             ';',
-            '; @ignoreua',
+            '@ignoreua',
             '; Start comment above 30000.',
             'c30000 RET'
         ))
@@ -920,20 +920,20 @@ class CtlWriterTest(SkoolKitTestCase):
 
     def test_ignoreua_directives_hex(self):
         skool = '\n'.join((
-            '; @ignoreua',
+            '@ignoreua',
             '; Routine at 40000',
             ';',
-            '; @ignoreua',
+            '@ignoreua',
             '; Description of the routine at 40000',
             ';',
-            '; @ignoreua',
+            '@ignoreua',
             '; HL 40000',
-            '; @ignoreua',
+            '@ignoreua',
             'c40000 LD A,B ; Instruction-level comment at 40000',
-            '; @ignoreua',
+            '@ignoreua',
             '; Mid-block comment above 40001.',
             ' 40001 RET',
-            '; @ignoreua',
+            '@ignoreua',
             '; End comment for the routine at 40000.'
         ))
         exp_ctl = [

@@ -99,7 +99,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_macros_are_expanded(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Data',
             'b$6003 DEFB 123 ; #REGa=0',
             " $6004 DEFB $23 ; '#'",
@@ -213,7 +213,7 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(output, 'Second routine')
 
     def test_macro_d_invalid(self):
-        skool = '; @start\nc32770 RET'
+        skool = '@start\nc32770 RET'
         writer = self._get_writer(skool)
         prefix = ERROR_PREFIX.format('D')
 
@@ -253,7 +253,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_macro_erefs_invalid(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; First routine',
             'c30000 CALL 30004',
             '',
@@ -426,7 +426,7 @@ class AsmWriterTest(SkoolKitTestCase):
             '',
             'c11118 LD A,L',
             '',
-            '; @label=DOSTUFF',
+            '@label=DOSTUFF',
             'c24576 LD HL,0',
             '',
             'b$6003 DEFB 123'
@@ -494,7 +494,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_macro_r_other_code(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             'c49152 LD HL,0',
             ' $c003 RET',
             '',
@@ -558,7 +558,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_macro_r_hex(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             'c24580 RET',
             '',
             'r49152 other',
@@ -600,7 +600,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_macro_r_decimal(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             'c$8000 LD A,B',
             '',
             'r$C000 other'
@@ -782,8 +782,8 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_property_comment_width_min(self):
         skool = '\n'.join((
-            '; @start',
-            '; @set-comment-width-min={}',
+            '@start',
+            '@set-comment-width-min={}',
             '; Data',
             'c35000 DEFB 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255 ; {}',
         ))
@@ -808,13 +808,13 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_property_indent(self):
         skool = '\n'.join((
-            '; @start',
-            '; @set-{}={}',
+            '@start',
+            '@set-indent={}',
             '; Data',
             'b40000 DEFB 0 ; Comment',
         ))
         for indent in (1, 5, 'x'):
-            asm = self._get_asm(skool.format('indent', indent))
+            asm = self._get_asm(skool.format(indent))
             try:
                 indent_size = int(indent)
             except ValueError:
@@ -823,9 +823,9 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_property_label_colons(self):
         skool = '\n'.join((
-            '; @start',
-            '; @set-label-colons={}',
-            '; @label=START',
+            '@start',
+            '@set-label-colons={}',
+            '@label=START',
             'c30000 RET'
         ))
 
@@ -839,8 +839,8 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_property_line_width(self):
         skool = '\n'.join((
-            '; @start',
-            '; @set-line-width={}',
+            '@start',
+            '@set-line-width={}',
             '; Routine',
             'c49152 RET ; This is a fairly long instruction comment, which makes it suitable',
             '           ; for testing various line widths',
@@ -863,8 +863,8 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_property_wrap_column_width_min(self):
         skool = '\n'.join((
-            '; @start',
-            '; @set-wrap-column-width-min={}',
+            '@start',
+            '@set-wrap-column-width-min={}',
             '; Routine',
             ';',
             '; #TABLE(,:w)',
@@ -897,7 +897,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_warn_unconverted_addresses(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine at 32768',
             ';',
             '; Used by the routine at 32768.',
@@ -935,7 +935,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_warn_wide_table(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
             ';',
             '; #TABLE',
@@ -950,7 +950,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_suppress_warnings(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine at 24576',
             'c24576 JP 24576 ; VeryLongWordThatWouldNormallyTriggerALongLineWarning',
         ))
@@ -969,7 +969,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_option_tab(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
             'c32768 LD A,B',
             ' 32769 RET',
@@ -1017,7 +1017,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_option_instr_width(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Data',
             'b$6003 DEFB 123 ; #REGa=0',
         ))
@@ -1042,7 +1042,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_registers(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Test parsing of register blocks (1)',
             ';',
             '; Traditional.',
@@ -1154,7 +1154,7 @@ class AsmWriterTest(SkoolKitTestCase):
     def test_start_comment(self):
         start_comment = 'This is a start comment.'
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Test a start comment',
             ';',
             '; .',
@@ -1201,7 +1201,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_empty_description(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Test an empty description',
             ';',
             '; #HTML(#UDG32768)',
@@ -1230,7 +1230,7 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_end_comment(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Start',
             'c49152 RET',
             '; End comment.',
@@ -1243,7 +1243,7 @@ class AsmWriterTest(SkoolKitTestCase):
         skool = '\n'.join((
             '@start',
             '; Routine',
-            '; @label=START',
+            '@label=START',
             'c40000 LD A,B',
             '*40001 LD C,D',
             '*40002 RET',
@@ -1291,8 +1291,8 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_ignoreua_directive_on_entry_title(self):
         skool = '\n'.join((
-            '; @start',
-            '; @ignoreua',
+            '@start',
+            '@ignoreua',
             '; Routine at 32768',
             'c32768 RET'
         ))
@@ -1315,12 +1315,12 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_ignoreua_directive_on_register_description(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
             ';',
             '; .',
             ';',
-            '; @ignoreua',
+            '@ignoreua',
             '; HL 32768',
             'c32768 RET'
         ))
@@ -1347,9 +1347,9 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_ignoreua_directive_on_instruction_comment(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
-            '; @ignoreua',
+            '@ignoreua',
             'c32768 LD A,B ; This is the instruction at 32768'
         ))
         self._get_asm(skool, warn=True)
@@ -1371,11 +1371,11 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_ignoreua_directive_on_end_comment(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
             'c32768 LD A,B ;',
             ' 32769 RET',
-            '; @ignoreua',
+            '@ignoreua',
             '; This is the end comment after 32769.'
         ))
         self._get_asm(skool, warn=True)
@@ -1386,14 +1386,14 @@ class AsmWriterTest(SkoolKitTestCase):
         skool = '\n'.join((
             '@start',
             '; Routine',
-            '; @nowarn',
+            '@nowarn',
             'c30000 LD HL,30003',
             '',
             '; Routine',
             '@label=NEXT',
             '@nowarn',
             'c30003 CALL 30000',
-            '; @nowarn',
+            '@nowarn',
             ' 30006 CALL 30001',
         ))
         for asm_mode in (1, 2, 3):
@@ -1403,13 +1403,13 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_keep_directive(self):
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
             '@keep',
             'c30000 LD HL,30003',
             '',
             '; Routine',
-            '; @label=NEXT',
+            '@label=NEXT',
             'c30003 RET',
         ))
         asm = self._get_asm(skool)
@@ -1421,7 +1421,7 @@ class AsmWriterTest(SkoolKitTestCase):
             '; Start',
             '@label=START',
             'c32768 LD A,B',
-            '; @nolabel',
+            '@nolabel',
             '*32769 RET',
         ))
         asm = self._get_asm(skool)
@@ -1878,7 +1878,7 @@ class TableMacroTest(SkoolKitTestCase):
     def test_no_closing_bracket_in_css_class_list(self):
         # No closing ')' in CSS class list
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
             ';',
             '; #TABLE(class1,class2,',
@@ -1912,7 +1912,7 @@ class TableMacroTest(SkoolKitTestCase):
     def test_no_space_before_closing_brace(self):
         # No space before the closing '}'
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
             ';',
             '; #TABLE',
@@ -2003,7 +2003,7 @@ class ListMacroTest(SkoolKitTestCase):
     def test_no_space_after_opening_brace(self):
         # No space after the opening '{'
         skool = '\n'.join((
-            '; @start',
+            '@start',
             '; Routine',
             ';',
             '; #LIST',

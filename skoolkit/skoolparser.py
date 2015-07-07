@@ -323,16 +323,12 @@ class SkoolParser:
         instruction = None
         address_comments = []
         for line in skoolfile:
-            if line[0] == ';':
-                comment = line[2:].rstrip()
-                if comment.startswith('@'):
-                    self._parse_asm_directive(comment[1:])
-                else:
-                    if self.mode.started and self.mode.include:
-                        self.comments.append(comment)
-                        self.mode.ignoreua = False
-                    instruction = None
-                    address_comments.append((None, None))
+            if line.startswith(';'):
+                if self.mode.started and self.mode.include:
+                    self.comments.append(line[2:].rstrip())
+                    self.mode.ignoreua = False
+                instruction = None
+                address_comments.append((None, None))
                 continue
 
             if line.startswith('@'):

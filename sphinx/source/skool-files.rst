@@ -172,10 +172,6 @@ example::
 
 See :ref:`asmModesAndDirectives` for more details.
 
-.. note::
-   Writing an ASM directive by starting a line with ``; @`` is deprecated since
-   version 4.3.
-
 .. _bracesInComments:
 
 Braces in comments

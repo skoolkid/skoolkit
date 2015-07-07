@@ -36,9 +36,6 @@ class BinWriter:
         f = open_file(skoolfile)
         for line in f:
             if line.startswith(';'):
-                comment = line[1:].strip()
-                if comment.startswith('@'):
-                    self._parse_asm_directive(comment[1:])
                 continue
             if line.startswith('@'):
                 self._parse_asm_directive(line[1:].rstrip())

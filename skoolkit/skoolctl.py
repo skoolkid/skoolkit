@@ -447,14 +447,10 @@ class SkoolParser:
         address_comments = []
         for line in skoolfile:
             if line.startswith(';'):
-                comment = line[2:].rstrip()
-                if comment.startswith('@'):
-                    self._parse_asm_directive(comment[1:], ignores, len(comments))
-                else:
-                    if self.mode.include:
-                        comments.append(comment)
-                    instruction = None
-                    address_comments.append((None, None))
+                if self.mode.include:
+                    comments.append(line[2:].rstrip())
+                instruction = None
+                address_comments.append((None, None))
                 continue
 
             if line.startswith('@'):

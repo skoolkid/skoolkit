@@ -3432,7 +3432,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
     def test_asm_labels(self):
         skool = '\n'.join((
             '; Routine with a label',
-            '; @label=START',
+            '@label=START',
             'c50000 LD B,5     ; Loop 5 times',
             '*50002 DJNZ 50002',
             ' 50004 RET',
@@ -3441,7 +3441,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'c50005 JP 50000',
             '',
             '; DEFW statement with a @keep directive',
-            '; @keep',
+            '@keep',
             'w50008 DEFW 50000',
         ))
         writer = self._get_writer(skool=skool, asm_labels=True)

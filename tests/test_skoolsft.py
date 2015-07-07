@@ -20,33 +20,33 @@ r24576 other
 
 ; Routine
 ;
-; @ignoredua
+@ignoredua
 ; Routine description
 ;
 ; A Some value
 ; B Another value
-; @label=START
-; @isub=DI
+@label=START
+@isub=DI
 c32768 NOP          ; Do nothing
-; @bfix=DEFB 1,3
+@bfix=DEFB 1,3
  32769 DEFB 1,2     ; 1-line B sub-block
-; @ignoreua
+@ignoreua
  32771 DEFB 3       ; {2-line B sub-block
-; @ssub=DEFB 5,6
+@ssub=DEFB 5,6
  32772 DEFB 4,5     ; }
-; @ignoremrcua
+@ignoremrcua
 ; Mid-block comment
  32774 DEFM "Hello" ; T sub-block
-; @keep
+@keep
  32779 DEFW 12345   ; W sub-block
-; @nowarn
+@nowarn
  32781 DEFS 2       ; S sub-block
-; @nolabel
-; @ofix=LD A,6
+@nolabel
+@ofix=LD A,6
 *32783 LD A,5       ; {Sub-block with instructions of various types
-; @rem=Hello!
+@rem=Hello!
  32785 DEFB 0       ;
-; @rsub=DEFB 3
+@rsub=DEFB 3
  32786 DEFW 0,1     ;
  32790 DEFM "Hi"    ;
  32792 DEFS 3       ; }
@@ -64,22 +64,22 @@ b32796 DEFB 0
        DEFB 101
 @bfix+end
  32798 DEFB 2
-; @isub+begin
+@isub+begin
        DEFB 102
-; @isub-else
+@isub-else
  32799 DEFB 3
-; @isub-end
+@isub-end
 @ofix-begin
  32800 DEFB 4
-; @ofix+else
+@ofix+else
  32800 DEFB 104
 @ofix+end
-; @rfix+begin
+@rfix+begin
        DEFB 205
-; @rfix+end
-; @rsub-begin
+@rfix+end
+@rsub-begin
  32802 DEFB 5
-; @rsub-end
+@rsub-end
 
 ; Ignore block
 i32803 DEFB 56  ; Set 32803 to 56
@@ -143,33 +143,33 @@ r24576 other
 
 ; Routine
 ;
-; @ignoredua
+@ignoredua
 ; Routine description
 ;
 ; A Some value
 ; B Another value
-; @label=START
-; @isub=DI
+@label=START
+@isub=DI
 cC32768,1;20 Do nothing
-; @bfix=DEFB 1,3
+@bfix=DEFB 1,3
  B32769,2;20 1-line B sub-block
-; @ignoreua
+@ignoreua
  B32771,1;20 {2-line B sub-block
-; @ssub=DEFB 5,6
+@ssub=DEFB 5,6
  B32772,2;20 }
-; @ignoremrcua
+@ignoremrcua
 ; Mid-block comment
  T32774,5;20 T sub-block
-; @keep
+@keep
  W32779,2;20 W sub-block
-; @nowarn
+@nowarn
  S32781,2;20 S sub-block
-; @nolabel
-; @ofix=LD A,6
+@nolabel
+@ofix=LD A,6
 *C32783,2;20 {Sub-block with instructions of various types
-; @rem=Hello!
+@rem=Hello!
  B32785,1;20
-; @rsub=DEFB 3
+@rsub=DEFB 3
  W32786,4;20
  T32790,2;20
  S32792,3;20 }
@@ -187,22 +187,22 @@ bB32796,1
        DEFB 101
 @bfix+end
  B32798,1
-; @isub+begin
+@isub+begin
        DEFB 102
-; @isub-else
+@isub-else
  B32799,1
-; @isub-end
+@isub-end
 @ofix-begin
  B32800,1
-; @ofix+else
+@ofix+else
  32800 DEFB 104
 @ofix+end
-; @rfix+begin
+@rfix+begin
        DEFB 205
-; @rfix+end
-; @rsub-begin
+@rfix+end
+@rsub-begin
  B32802,1
-; @rsub-end
+@rsub-end
 
 ; Ignore block
 i32803 DEFB 56  ; Set 32803 to 56
