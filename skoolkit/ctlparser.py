@@ -187,13 +187,7 @@ class CtlParser:
                         ctl = entry_ctl.upper()
                     else:
                         ctl = 'B'
-                use_length = False
-                if '-' in fields[0]:
-                    params = fields[0].split('-', 1)
-                    params[1:] = split_unquoted(params[1], ',')
-                else:
-                    params = split_unquoted(fields[0], ',')
-                    use_length = len(params) > 1
+                params = split_unquoted(fields[0], ',')
                 try:
                     start = get_int_param(params[0])
                 except ValueError:
@@ -205,14 +199,9 @@ class CtlParser:
                 if int_params:
                     if ctl.islower():
                         raise CtlParserError("extra parameters after address")
-                    end = int_params[0]
-                    if end is not None:
-                        if use_length:
-                            end += start
-                        else:
-                            end += 1
-                else:
-                    end = None
+                    length = int_params[0]
+                    if length is not None:
+                        end = start + length
                 lengths = int_params[1:]
                 if ctl == 'L':
                     if end is None:

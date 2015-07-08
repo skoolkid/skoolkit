@@ -12,7 +12,7 @@ N 30000 Block start comment
 T 30002,10 Message in the data block
 N 30012 Mid-block comment
 M 30012,15 This comment covers the following two sub-blocks
-W 30012-30019
+W 30012,8
 C 30020,7
   30050,5,3:T2 Complex DEFB with a blank directive
 # This is a control file comment
@@ -33,7 +33,7 @@ u 30500 Unused block at 30500
   30500,2 Blank directive in a 'u' block
 B 30502,3
 B 30510,12,3
-B 30530-30549,2*7,1*3,3
+B 30530,20,2*7,1*3,3
 B 30560,21,6,5,4,3,2,1
 ; This is yet another control file comment
 w 30600 Words at 30600
@@ -41,7 +41,7 @@ S 30620,7
 s 30700 Zeroes at 30700
 B 30720,10,1,T3:2,1:T1*2
 N 30730 Another mid-block comment
-T 30730-30744,10:B5"""
+T 30730,15,10:B5"""
 
 class CtlParserTest(SkoolKitTestCase):
     def _get_ctl_parser(self, ctl, min_address=0, max_address=65536):

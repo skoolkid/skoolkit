@@ -172,10 +172,6 @@ assumed to end where the next sub-block starts. So in::
 the sub-block at 24580 has length 8, because it is implicitly terminated by the
 following sub-block at 24588.
 
-.. note::
-   Using start and end addresses to specify the address range for a sub-block
-   directive (e.g. ``C 24580-24587``) is deprecated since version 4.4.
-
 Sub-block lengths
 -----------------
 Normally, a ``B`` sub-block declared thus::
