@@ -315,11 +315,6 @@ def run(files, options):
         topdir = ''
     else:
         topdir = normpath(options.output_dir)
-        if not isdir(topdir):
-            # Create the top-level directory
-            notify('Creating directory {0}'.format(topdir))
-            os.makedirs(topdir)
-
     for infile in files:
         process_file(infile, topdir, options)
 

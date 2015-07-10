@@ -18,8 +18,7 @@ CTL = '{}/examples/48.rom.ctl'.format(SKOOLKIT_HOME)
 
 REF = '{}/examples/48.rom.ref'.format(SKOOLKIT_HOME)
 
-OUTPUT = """Creating directory {odir}
-Using skool file: {skoolfile}
+OUTPUT = """Using skool file: {skoolfile}
 Using ref file: {reffile}
 Parsing {skoolfile}
 Creating directory {odir}/rom
