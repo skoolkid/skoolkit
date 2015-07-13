@@ -83,7 +83,16 @@ setup(
     long_description=LONG_DESCRIPTION,
     packages=['skoolkit'],
     package_data={'skoolkit': ['resources/*.css']},
-    scripts=['bin2tap.py', 'skool2asm.py', 'skool2ctl.py', 'skool2html.py', 'skool2sft.py', 'sna2skool.py', 'tap2sna.py'],
+    scripts=[
+        'bin2tap.py',
+        'skool2asm.py',
+        'skool2bin.py',
+        'skool2ctl.py',
+        'skool2html.py',
+        'skool2sft.py',
+        'sna2skool.py',
+        'tap2sna.py'
+    ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',

@@ -3,6 +3,8 @@ Changelog
 
 5.0b1
 -----
+* Added the :ref:`skool2bin.py` command (for converting a skool file into a
+  binary file)
 
 4.5 (2015-07-04)
 ----------------

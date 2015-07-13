@@ -131,6 +131,35 @@ modes.
 | 1.1     | Added the ``-c`` option                                      |
 +---------+--------------------------------------------------------------+
 
+.. _skool2bin.py:
+
+skool2bin.py
+------------
+`skool2bin.py` converts a `skool` file into a binary (raw memory) file. For
+example::
+
+  $ skool2bin.py game.skool
+
+To list the options supported by `skool2bin.py`, run it with no arguments::
+
+  usage: skool2bin.py [options] file.skool [file.bin]
+
+  Convert a skool file into a binary (raw memory) file. 'file.skool' may be a
+  regular file, or '-' for standard input. If 'file.bin' is not given, it
+  defaults to the name of the input file with '.skool' replaced by '.bin'.
+
+  Options:
+    -E ADDR, --end ADDR   Stop converting at this address
+    -S ADDR, --start ADDR
+                          Start converting at this address
+    -V, --version         Show SkoolKit version number and exit
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.0     | New     |
++---------+---------+
+
 .. _skool2ctl.py:
 
 skool2ctl.py

@@ -220,6 +220,8 @@ man_pages = [
      u'convert a binary file or snapshot into a TAP file', _authors, 1),
     ('man/skool2asm.py', 'skool2asm.py',
      u'convert a skool file to ASM format', _authors, 1),
+    ('man/skool2bin.py', 'skool2bin.py',
+     u'convert a skool file into a binary (raw memory) file', _authors, 1),
     ('man/skool2ctl.py', 'skool2ctl.py',
      u'convert a skool file into a control file', _authors, 1),
     ('man/skool2html.py', 'skool2html.py',

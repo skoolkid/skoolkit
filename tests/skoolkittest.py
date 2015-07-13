@@ -14,7 +14,7 @@ from unittest import TestCase
 
 SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
-from skoolkit import bin2tap, skool2asm, skool2ctl, skool2html, skool2sft, sna2skool, tap2sna
+from skoolkit import bin2tap, skool2asm, skool2bin, skool2ctl, skool2html, skool2sft, sna2skool, tap2sna
 
 class Stream:
     def __init__(self):
@@ -254,6 +254,9 @@ class SkoolKitTestCase(TestCase):
 
     def run_skool2asm(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=None):
         return self._run_skoolkit_command(skool2asm.main, args, out_lines, err_lines, strip_cr, catch_exit)
+
+    def run_skool2bin(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=None):
+        return self._run_skoolkit_command(skool2bin.main, args, out_lines, err_lines, strip_cr, catch_exit)
 
     def run_skool2ctl(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=None):
         return self._run_skoolkit_command(skool2ctl.main, args, out_lines, err_lines, strip_cr, catch_exit)

@@ -1,21 +1,25 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Copyright 2015 Richard Dymond (rjdymond@gmail.com)
+#
+# This file is part of SkoolKit.
+#
+# SkoolKit is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# SkoolKit is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# SkoolKit. If not, see <http://www.gnu.org/licenses/>.
+
 import sys
-import os
 import argparse
 
-SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
-if SKOOLKIT_HOME:
-    if not os.path.isdir(SKOOLKIT_HOME):
-        sys.stderr.write('SKOOLKIT_HOME={}: directory not found\n'.format(SKOOLKIT_HOME))
-        sys.exit(1)
-    sys.path.insert(0, SKOOLKIT_HOME)
-else:
-    try:
-        import skoolkit
-    except ImportError:
-        sys.stderr.write('Error: SKOOLKIT_HOME is not set, and SkoolKit is not installed\n')
-        sys.exit(1)
-
+from . import VERSION
 from skoolkit import SkoolKitError, SkoolParsingError, open_file, info, warn, error, get_int_param
 from skoolkit.skoolparser import parse_asm_block_directive
 from skoolkit.skoolsft import VALID_CTLS, VERBATIM_BLOCKS
@@ -67,11 +71,7 @@ class BinWriter:
         except ValueError:
             raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
         comment_index = find_unquoted(line, ';', 6)
-        if comment_index > 0:
-            end = comment_index
-        else:
-            end = len(line)
-        operation = line[7:end].strip()
+        operation = line[7:comment_index].strip()
         data = assemble(operation, address)
         if data:
             end_address = address + len(data)
@@ -89,11 +89,11 @@ class BinWriter:
                     self.verbatim = True
                     break
 
-    def write(self, binfile, origin, end):
-        if origin is None:
+    def write(self, binfile, start, end):
+        if start is None:
             base_address = self.base_address
         else:
-            base_address = origin
+            base_address = start
         if end is None:
             end_address = self.end_address
         else:
@@ -101,15 +101,15 @@ class BinWriter:
         data = self.snapshot[base_address:end_address]
         with open(binfile, 'wb') as f:
             f.write(bytearray(data))
-        info("Wrote {}: origin={}, end={}, size={}".format(binfile, base_address, end_address, len(data)))
+        info("Wrote {}: start={}, end={}, size={}".format(binfile, base_address, end_address, len(data)))
 
 def run(skoolfile, binfile, options):
     binwriter = BinWriter(skoolfile)
-    binwriter.write(binfile, options.origin, options.end)
+    binwriter.write(binfile, options.start, options.end)
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage='{} [options] file.skool [file.bin]'.format(os.path.basename(sys.argv[0])),
+        usage='skool2bin.py [options] file.skool [file.bin]',
         description="Convert a skool file into a binary (raw memory) file. "
                     "'file.skool' may be a regular file, or '-' for standard input. "
                     "If 'file.bin' is not given, it defaults to the name of the input file with '.skool' replaced by '.bin'.",
@@ -118,10 +118,12 @@ def main(args):
     parser.add_argument('skoolfile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('binfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-e', dest='end', metavar='ADDR', type=int,
-                       help='Use this end address (default is the end address of the skool file)')
-    group.add_argument('-o', dest='origin', metavar='ADDR', type=int,
-                       help='Use this origin address (default is the base address of the skool file)')
+    group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=int,
+                       help='Stop converting at this address')
+    group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=int,
+                       help='Start converting at this address')
+    group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit')
     namespace, unknown_args = parser.parse_known_args(args)
     skoolfile = namespace.skoolfile
     if unknown_args or skoolfile is None:
@@ -131,14 +133,8 @@ def main(args):
     if binfile is None:
         if skoolfile.lower().endswith('.skool'):
             binfile = skoolfile[:-6] + '.bin'
+        elif skoolfile == '-':
+            binfile = 'program.bin'
         else:
             binfile = skoolfile + '.bin'
     run(skoolfile, binfile, namespace)
-
-###############################################################################
-# Begin
-###############################################################################
-try:
-    main(sys.argv[1:])
-except SkoolKitError as e:
-    error(e.args[0])

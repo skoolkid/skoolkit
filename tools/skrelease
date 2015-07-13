@@ -3,6 +3,7 @@ set -e # Abort on errors
 
 SKTMPDIR=$HOME/tmp
 SKOOLKIT_KEY=938CD04A
+COMMANDS=$(echo {bin2tap,skool2{asm,bin,ctl,html,sft},sna2skool,tap2sna}.py)
 
 ###############################################################################
 # Check required environment variables
@@ -119,7 +120,7 @@ _check_commands() {
   path=$1
   logdir=$2
 
-  for cmdname in {bin2tap,skool2{asm,ctl,html,sft},sna2skool,tap2sna}.py; do
+  for cmdname in $COMMANDS; do
     echo -n "Running $cmdname: "
     cmd=$path/$cmdname
     if [[ ! -f $cmd ]]; then
@@ -139,7 +140,7 @@ _check_commands() {
 
 _check_man_pages() {
   echo -n "Checking man pages: "
-  for cmdname in {bin2tap,skool2{asm,ctl,html,sft},sna2skool,tap2sna}.py; do
+  for cmdname in $COMMANDS; do
     manpage=/usr/share/man/man1/$cmdname.1.gz
     if [[ ! -f $manpage ]]; then
       echo "FAILED ($manpage not found)"
