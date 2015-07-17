@@ -19,7 +19,7 @@
 import argparse
 from os.path import isfile
 
-from . import read_bin_file, VERSION
+from . import info, read_bin_file, VERSION
 from .snaskool import SkoolWriter, generate_ctls, write_ctl
 from .snapshot import get_snapshot
 from .sftparser import SftParser
@@ -56,6 +56,7 @@ def run(snafile, options):
 
     if options.sftfile:
         # Use a skool file template
+        info('Using skool file template: {}'.format(options.sftfile))
         writer = SftParser(snapshot, options.sftfile, options.zfill, options.asm_hex, options.asm_lower)
         writer.write_skool(options.start, options.end)
         return
@@ -67,6 +68,7 @@ def run(snafile, options):
         ctl_parser = CtlParser(ctls)
     elif options.ctlfile:
         # Use a control file
+        info('Using control file: {}'.format(options.ctlfile))
         ctl_parser = CtlParser()
         ctl_parser.parse_ctl(options.ctlfile, options.start, options.end)
     else:

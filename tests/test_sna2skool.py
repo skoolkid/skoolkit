@@ -457,8 +457,8 @@ class OptionsTest(SkoolKitTestCase):
     def test_option_T(self):
         sftfile = 'test-T.ctl'
         for option in ('-T', '--sft'):
-            output, error = self.run_sna2skool('{} {} test.sna'.format(option, sftfile))
-            self.assertEqual(error, '')
+            output, error = self.run_sna2skool('{} {} test.sna'.format(option, sftfile), err_lines=True)
+            self.assertEqual(['Using skool file template: {}'.format(sftfile)], error)
             self.assertEqual(mock_sft_parser.sftfile, sftfile)
             self.assertTrue(mock_sft_parser.wrote_skool)
 
@@ -468,8 +468,8 @@ class OptionsTest(SkoolKitTestCase):
     def test_option_c(self):
         ctlfile = 'test-c.ctl'
         for option in ('-c', '--ctl'):
-            output, error = self.run_sna2skool('{} {} test.sna'.format(option, ctlfile))
-            self.assertEqual(error, '')
+            output, error = self.run_sna2skool('{} {} test.sna'.format(option, ctlfile), err_lines=True)
+            self.assertEqual(['Using control file: {}'.format(ctlfile)], error)
             self.assertEqual(mock_ctl_parser.ctlfile, ctlfile)
             self.assertTrue(mock_skool_writer.wrote_skool)
 
@@ -491,8 +491,8 @@ class OptionsTest(SkoolKitTestCase):
     def test_options_e_and_c(self):
         ctlfile = 'test.ctl'
         end = 34576
-        output, error = self.run_sna2skool('-c {} -e {} test.sna'.format(ctlfile, end))
-        self.assertEqual(error, '')
+        output, error = self.run_sna2skool('-c {} -e {} test.sna'.format(ctlfile, end), err_lines=True)
+        self.assertEqual(['Using control file: {}'.format(ctlfile)], error)
         self.assertEqual(mock_ctl_parser.ctlfile, ctlfile)
         self.assertEqual(mock_ctl_parser.min_address, 0)
         self.assertEqual(mock_ctl_parser.max_address, end)
@@ -503,8 +503,8 @@ class OptionsTest(SkoolKitTestCase):
     def test_options_e_and_T(self):
         sftfile = 'test.sft'
         end = 45678
-        output, error = self.run_sna2skool('-T {} -e {} test.sna'.format(sftfile, end))
-        self.assertEqual(error, '')
+        output, error = self.run_sna2skool('-T {} -e {} test.sna'.format(sftfile, end), err_lines=True)
+        self.assertEqual(['Using skool file template: {}'.format(sftfile)], error)
         self.assertEqual(mock_sft_parser.sftfile, sftfile)
         self.assertEqual(mock_sft_parser.min_address, 0)
         self.assertEqual(mock_sft_parser.max_address, end)
@@ -795,8 +795,8 @@ class OptionsTest(SkoolKitTestCase):
     def test_options_s_and_c(self):
         ctlfile = 'test.ctl'
         start = 12345
-        output, error = self.run_sna2skool('-c {} -s {} test.sna'.format(ctlfile, start))
-        self.assertEqual(error, '')
+        output, error = self.run_sna2skool('-c {} -s {} test.sna'.format(ctlfile, start), err_lines=True)
+        self.assertEqual(['Using control file: {}'.format(ctlfile)], error)
         self.assertEqual(mock_ctl_parser.ctlfile, ctlfile)
         self.assertEqual(mock_ctl_parser.min_address, start)
         self.assertEqual(mock_ctl_parser.max_address, 65536)
@@ -809,8 +809,8 @@ class OptionsTest(SkoolKitTestCase):
         ctlfile = 'test.ctl'
         start = 12345
         end = 23456
-        output, error = self.run_sna2skool('-c {} -s {} -e {} test.z80'.format(ctlfile, start, end))
-        self.assertEqual(error, '')
+        output, error = self.run_sna2skool('-c {} -s {} -e {} test.z80'.format(ctlfile, start, end), err_lines=True)
+        self.assertEqual(['Using control file: {}'.format(ctlfile)], error)
         self.assertEqual(mock_ctl_parser.ctlfile, ctlfile)
         self.assertEqual(mock_ctl_parser.min_address, start)
         self.assertEqual(mock_ctl_parser.max_address, end)
@@ -821,8 +821,8 @@ class OptionsTest(SkoolKitTestCase):
     def test_options_s_and_T(self):
         sftfile = 'test.sft'
         start = 45678
-        output, error = self.run_sna2skool('-T {} -s {} test.sna'.format(sftfile, start))
-        self.assertEqual(error, '')
+        output, error = self.run_sna2skool('-T {} -s {} test.sna'.format(sftfile, start), err_lines=True)
+        self.assertEqual(['Using skool file template: {}'.format(sftfile)], error)
         self.assertEqual(mock_sft_parser.sftfile, sftfile)
         self.assertEqual(mock_sft_parser.min_address, start)
         self.assertEqual(mock_sft_parser.max_address, 65536)
@@ -833,8 +833,8 @@ class OptionsTest(SkoolKitTestCase):
         sftfile = 'test.sft'
         start = 23456
         end = 34567
-        output, error = self.run_sna2skool('-T {} -s {} -e {} test.sna'.format(sftfile, start, end))
-        self.assertEqual(error, '')
+        output, error = self.run_sna2skool('-T {} -s {} -e {} test.sna'.format(sftfile, start, end), err_lines=True)
+        self.assertEqual(['Using skool file template: {}'.format(sftfile)], error)
         self.assertEqual(mock_sft_parser.sftfile, sftfile)
         self.assertEqual(mock_sft_parser.min_address, start)
         self.assertEqual(mock_sft_parser.max_address, end)
