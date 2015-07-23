@@ -5,6 +5,8 @@ Changelog
 -----
 * Added the :ref:`skool2bin.py` command (for converting a skool file into a
   binary file)
+* Added the :ref:`tapinfo.py` command (for showing information on the blocks in
+  a TAP or TZX file)
 
 4.5 (2015-07-04)
 ----------------

@@ -1,6 +1,24 @@
-#!/usr/bin/env python
-import sys
+# -*- coding: utf-8 -*-
+
+# Copyright 2013, 2015 Richard Dymond (rjdymond@gmail.com)
+#
+# This file is part of SkoolKit.
+#
+# SkoolKit is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# SkoolKit is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# SkoolKit. If not, see <http://www.gnu.org/licenses/>.
+
 import argparse
+
+from skoolkit import VERSION, SkoolKitError
 
 ARCHIVE_INFO = {
     0: "Full title",
@@ -127,8 +145,7 @@ def _get_block_info(data, i):
         header = '"Glue" block'
         i += 9
     else:
-        sys.stderr.write('Unknown block ID {} at index {}\n'.format(block_id, i - 1))
-        sys.exit(1)
+        raise SkoolKitError('Unknown block ID: 0x{:02X}'.format(block_id))
     return i, block_id, header, info, tape_data
 
 def _print_info(text):
@@ -161,10 +178,8 @@ def _print_block(index, data, info=(), block_id=None, header=None):
         _print_info(line)
 
 def _analyse_tzx(tzx):
-    signature = _get_str(tzx[:7])
-    if signature != 'ZXTape!':
-        sys.stderr.write("Error: not a TZX file\n")
-        sys.exit(1)
+    if _get_str(tzx[:7]) != 'ZXTape!':
+        raise SkoolKitError("Not a TZX file")
 
     print('Version: {}.{}'.format(tzx[8], tzx[9]))
     block_num = 1
@@ -186,19 +201,21 @@ def _analyse_tap(tap):
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage="tapinfo.py file",
+        usage="tapinfo.py FILE",
         description="Show the blocks in a TAP or TZX file.",
         add_help=False
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
+    group = parser.add_argument_group('Options')
+    group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit')
     namespace, unknown_args = parser.parse_known_args(args)
     if unknown_args or namespace.infile is None:
         parser.exit(2, parser.format_help())
     infile = namespace.infile
     tape_type = infile[-4:].lower()
     if tape_type not in ('.tap', '.tzx'):
-        sys.stderr.write('Error: unrecognized tape type\n')
-        sys.exit(1)
+        raise SkoolKitError('Unrecognised tape type')
 
     with open(infile, 'rb') as f:
         tape = bytearray(f.read())
@@ -207,5 +224,3 @@ def main(args):
         _analyse_tap(tape)
     else:
         _analyse_tzx(tape)
-
-main(sys.argv[1:])

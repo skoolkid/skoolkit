@@ -91,7 +91,8 @@ setup(
         'skool2html.py',
         'skool2sft.py',
         'sna2skool.py',
-        'tap2sna.py'
+        'tap2sna.py',
+        'tapinfo.py'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

@@ -231,7 +231,9 @@ man_pages = [
     ('man/sna2skool.py', 'sna2skool.py',
      u'convert a snapshot into a skool file', _authors, 1),
     ('man/tap2sna.py', 'tap2sna.py',
-     u'convert a TAP or TZX file into a snapshot file', _authors, 1)
+     u'convert a TAP or TZX file into a snapshot file', _authors, 1),
+    ('man/tapinfo.py', 'tapinfo.py',
+     u'show the blocks in a TAP or TZX file', _authors, 1)
 ]
 
 # If true, show URL addresses after external links.

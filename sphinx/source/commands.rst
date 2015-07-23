@@ -574,10 +574,12 @@ the appropriate addresses. For example::
   $ tap2sna.py --ram load=3,30000 game.tzx game.z80
 
 loads the third block on the tape at address 30000, and ignores all other
-blocks. The ``--ram`` option can also be used to move blocks of bytes from one
-location to another, POKE values into individual addresses or address ranges,
-and modify memory with XOR and ADD operations before the snapshot is saved. For
-more information on the operations that the ``--ram`` option can perform, run::
+blocks. (To see information on the blocks in a TAP or TZX file, use the
+:ref:`tapinfo.py` command.) The ``--ram`` option can also be used to move
+blocks of bytes from one location to another, POKE values into individual
+addresses or address ranges, and modify memory with XOR and ADD operations
+before the snapshot is saved. For more information on the operations that the
+``--ram`` option can perform, run::
 
   $ tap2sna.py --ram help
 
@@ -613,3 +615,27 @@ given on the command line.
 +---------+----------------------------------------------------------------+
 | 3.5     | New                                                            |
 +---------+----------------------------------------------------------------+
+
+.. _tapinfo.py:
+
+tapinfo.py
+----------
+`tapinfo.py` shows information on the blocks in a TAP or TZX file. For
+example::
+
+  $ tapinfo.py game.tzx
+
+To list the options supported by `tapinfo.py`, run it with no arguments::
+
+  usage: tapinfo.py FILE
+
+  Show the blocks in a TAP or TZX file.
+
+  Options:
+    -V, --version  Show SkoolKit version number and exit
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.0     | New     |
++---------+---------+
