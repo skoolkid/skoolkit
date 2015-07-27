@@ -29,13 +29,12 @@ try:
 except ImportError:         # pragma: no cover
     from io import StringIO # pragma: no cover
 
-from . import VERSION, warn, get_int_param, parse_int, SkoolKitError
-from . import skoolmacro
-from .image import ImageWriter
-from .skoolmacro import MacroParsingError, get_macros, expand_macros
-from .skoolparser import TableParser, ListParser, CASE_LOWER
-from .refparser import RefParser
-from .defaults import REF_FILE
+from skoolkit import skoolmacro, SkoolKitError, warn, get_int_param, parse_int, VERSION
+from skoolkit.defaults import REF_FILE
+from skoolkit.image import ImageWriter
+from skoolkit.refparser import RefParser
+from skoolkit.skoolmacro import MacroParsingError, get_macros, expand_macros
+from skoolkit.skoolparser import TableParser, ListParser, CASE_LOWER
 
 #: The ID of the main disassembly.
 MAIN_CODE_ID = 'main'

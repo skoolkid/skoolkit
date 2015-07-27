@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from . import write_line, get_int_param, get_address_format, open_file, SkoolParsingError
-from .skoolparser import DIRECTIVES, parse_asm_block_directive
-from .skoolctl import (get_instruction_ctl, get_lengths, get_operand_bases,
-                       get_defb_length, get_defs_length, get_defw_length)
-from .textutils import find_unquoted
-from .z80 import get_size
+from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
+from skoolkit.skoolctl import (get_instruction_ctl, get_lengths, get_operand_bases,
+                               get_defb_length, get_defs_length, get_defw_length)
+from skoolkit.skoolparser import parse_asm_block_directive, DIRECTIVES
+from skoolkit.textutils import find_unquoted
+from skoolkit.z80 import get_size
 
 VALID_CTLS = DIRECTIVES + ' *'
 VERBATIM_BLOCKS = ('d', 'i', 'r')

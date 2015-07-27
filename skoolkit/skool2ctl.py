@@ -18,8 +18,8 @@
 
 import argparse
 
-from . import VERSION
-from .skoolctl import CtlWriter, BLOCKS, BLOCK_TITLES, BLOCK_DESC, REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS
+from skoolkit import VERSION
+from skoolkit.skoolctl import CtlWriter, BLOCKS, BLOCK_TITLES, BLOCK_DESC, REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS
 
 def run(skoolfile, options):
     writer = CtlWriter(skoolfile, options.elements, options.write_hex, options.write_asm_dirs,

@@ -18,8 +18,8 @@
 
 import argparse
 
-from . import VERSION
-from .skoolsft import SftWriter
+from skoolkit import VERSION
+from skoolkit.skoolsft import SftWriter
 
 def run(skoolfile, options):
     writer = SftWriter(skoolfile, options.write_hex, options.preserve_base)

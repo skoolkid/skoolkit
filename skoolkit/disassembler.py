@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from .z80 import convert_case
+from skoolkit.z80 import convert_case
 
 class Instruction:
     def __init__(self, address, operation, data):

@@ -18,8 +18,8 @@
 
 from functools import partial
 
-from . import get_int_param, parse_int
-from .textutils import split_unquoted
+from skoolkit import get_int_param, parse_int
+from skoolkit.textutils import split_unquoted
 
 REG = ('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')
 REG_PAIRS = ('BC', 'DE', 'HL', 'SP')

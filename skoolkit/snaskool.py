@@ -19,13 +19,13 @@
 import sys
 import os
 
-from . import warn, write_line, wrap, parse_int, get_address_format, open_file, read_bin_file, SkoolKitError
-from .skoolparser import get_address, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
-from .skoolasm import UDGTABLE_MARKER
-from .skoolctl import (AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET, AD_IGNOREUA,
-                       TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
-from .disassembler import Disassembler
-from .ctlparser import CtlParser
+from skoolkit import SkoolKitError, warn, write_line, wrap, parse_int, get_address_format, open_file, read_bin_file
+from skoolkit.ctlparser import CtlParser
+from skoolkit.disassembler import Disassembler
+from skoolkit.skoolasm import UDGTABLE_MARKER
+from skoolkit.skoolctl import (AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET, AD_IGNOREUA,
+                               TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
+from skoolkit.skoolparser import get_address, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
 
 OP_WIDTH = 13
 MIN_COMMENT_WIDTH = 10

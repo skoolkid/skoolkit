@@ -16,10 +16,10 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from . import write_line, get_int_param, get_address_format, open_file, SkoolParsingError
-from .skoolparser import (DIRECTIVES, Comment, Register, parse_comment_block, parse_instruction,
-                          parse_address_comments, join_comments, parse_asm_block_directive)
-from .z80 import get_size, split_operation
+from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
+from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction, parse_address_comments,
+                                  join_comments, parse_asm_block_directive, DIRECTIVES)
+from skoolkit.z80 import get_size, split_operation
 
 BLOCKS = 'b'
 BLOCK_TITLES = 't'

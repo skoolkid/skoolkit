@@ -29,8 +29,8 @@ except ImportError:                    # pragma: no cover
     from urllib.request import urlopen # pragma: no cover
     from urllib.parse import urlparse  # pragma: no cover
 
-from . import VERSION, SkoolKitError, get_int_param, open_file, write_line
-from .snapshot import Z80_REGISTERS, set_z80_registers, set_z80_state, make_z80_ram_block
+from skoolkit import SkoolKitError, get_int_param, open_file, write_line, VERSION
+from skoolkit.snapshot import set_z80_registers, set_z80_state, make_z80_ram_block, Z80_REGISTERS
 
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):

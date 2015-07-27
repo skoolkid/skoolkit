@@ -19,7 +19,7 @@
 import inspect
 import re
 
-from . import get_int_param, parse_int, SkoolKitError, SkoolParsingError
+from skoolkit import SkoolKitError, SkoolParsingError, get_int_param, parse_int
 
 DELIMITERS = {
     '(': ')',

@@ -19,8 +19,8 @@
 import os.path
 import argparse
 
-from . import read_bin_file, VERSION
-from .snapshot import get_snapshot
+from skoolkit import read_bin_file, VERSION
+from skoolkit.snapshot import get_snapshot
 
 def _get_str(chars):
     return [ord(c) for c in chars]

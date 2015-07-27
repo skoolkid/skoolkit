@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from . import open_file
+from skoolkit import open_file
 
 class RefParser:
     """Parses `ref` files."""

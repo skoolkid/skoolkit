@@ -19,11 +19,11 @@
 import argparse
 from os.path import isfile
 
-from . import info, read_bin_file, VERSION
-from .snaskool import SkoolWriter, generate_ctls, write_ctl
-from .snapshot import get_snapshot
-from .sftparser import SftParser
-from .ctlparser import CtlParser
+from skoolkit import info, read_bin_file, VERSION
+from skoolkit.ctlparser import CtlParser
+from skoolkit.sftparser import SftParser
+from skoolkit.snapshot import get_snapshot
+from skoolkit.snaskool import SkoolWriter, generate_ctls, write_ctl
 
 START = 16384
 END = 65536

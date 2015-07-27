@@ -27,11 +27,10 @@ try:
 except ImportError:         # pragma: no cover
     from io import StringIO # pragma: no cover
 
-from . import PACKAGE_DIR, VERSION, show_package_dir, write, write_line, get_class, normpath, SkoolKitError
-from .skoolhtml import FileInfo
-from .skoolparser import SkoolParser, CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
-from .refparser import RefParser
-from . import defaults
+from skoolkit import defaults, SkoolKitError, show_package_dir, write, write_line, get_class, normpath, PACKAGE_DIR, VERSION
+from skoolkit.refparser import RefParser
+from skoolkit.skoolhtml import FileInfo
+from skoolkit.skoolparser import SkoolParser, CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
 
 SEARCH_DIRS = (
     '',

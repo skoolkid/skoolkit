@@ -19,9 +19,9 @@
 import argparse
 import time
 
-from . import info, get_class, VERSION, show_package_dir
-from .skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, BASE_16
-from .skoolasm import AsmWriter, DEF_INSTRUCTION_WIDTH
+from skoolkit import info, get_class, show_package_dir, VERSION
+from skoolkit.skoolasm import AsmWriter, DEF_INSTRUCTION_WIDTH
+from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, BASE_16
 
 def clock(quiet, prefix, operation, *args, **kwargs):
     go = time.time()

@@ -11,9 +11,9 @@ While creating a disassembly of a game, you may find that SkoolKit's suite of
 :ref:`skool macros <skoolMacros>` is inadequate for certain tasks. For example,
 the game might have large tile-based sprites that you want to create images of
 for the HTML disassembly, and composing long :ref:`udgArray` macros for them
-would be too tedious. Or you might want to insert a timestamp in the header of
-the ASM disassembly so that you (or others) can keep track of when your ASM
-files were written.
+would be too tedious. Or you might want to insert a timestamp somewhere in the
+ASM disassembly so that you (or others) can keep track of when your ASM files
+were written.
 
 One way to solve these problems is to add custom methods that could be called
 by a :ref:`call` macro. But where to add the methods? SkoolKit's core
@@ -25,9 +25,8 @@ used with different versions of SkoolKit, and shared with other people.
 
 A minimal extension module would look like this::
 
-  # Extension module in the skoolkit package directory
-  from .skoolhtml import HtmlWriter
-  from .skoolasm import AsmWriter
+  from skoolkit.skoolhtml import HtmlWriter
+  from skoolkit.skoolasm import AsmWriter
 
   class GameHtmlWriter(HtmlWriter):
       pass
@@ -66,21 +65,9 @@ directive (if there is one)::
 
 The `skoolkit` package directory is a reasonable place for an extension module,
 but it could be placed in another package, or somewhere else as a standalone
-module. For example, if you wanted to keep a standalone extension module in
-`~/.skoolkit`, it should look like this::
-
-  # Standalone extension module
-  from skoolkit.skoolhtml import HtmlWriter
-  from skoolkit.skoolasm import AsmWriter
-
-  class GameHtmlWriter(HtmlWriter):
-      pass
-
-  class GameAsmWriter(AsmWriter):
-      pass
-
-Then, assuming the extension module is `game.py`, set the ``HtmlWriterClass``
-parameter thus::
+module. For example, if you wanted to keep a standalone extension module named
+`game.py` in `~/.skoolkit`, you should set the ``HtmlWriterClass`` parameter
+thus::
 
   HtmlWriterClass=~/.skoolkit:game.GameHtmlWriter
 
@@ -96,19 +83,6 @@ by using the ``-W``/``--writer`` option of :ref:`skool2html.py` or
 
 Specifying the writer class this way will override any ``HtmlWriterClass``
 parameter in the `ref` file or ``@writer`` directive in the `skool` file.
-
-If you intend to distribute your extension module, and you want it to work
-however it ends up being used - as a module in the `skoolkit` package
-directory, or as a standalone module - you can use the following technique to
-import AsmWriter and HtmlWriter::
-
-  # Module that works both standalone and in the skoolkit package directory
-  try:
-      from .skoolhtml import HtmlWriter
-      from .skoolasm import AsmWriter
-  except (ValueError, SystemError, ImportError):
-      from skoolkit.skoolhtml import HtmlWriter
-      from skoolkit.skoolasm import AsmWriter
 
 #CALL methods
 -------------
@@ -128,7 +102,7 @@ Let's say your sprite-image-creating method will accept two parameters (in
 addition to `cwd`): `sprite_id` (the sprite identifier) and  `fname` (the image
 filename). The method (let's call it `sprite`) would look something like this::
 
-  from .skoolhtml import HtmlWriter
+  from skoolkit.skoolhtml import HtmlWriter
 
   class GameHtmlWriter(HtmlWriter):
       def sprite(self, cwd, sprite_id, fname):
@@ -151,7 +125,7 @@ timestamp-creating method (let's call it `timestamp`) would look something like
 this::
 
   import time
-  from .skoolasm import AsmWriter
+  from skoolkit.skoolasm import AsmWriter
 
   class GameAsmWriter(AsmWriter):
       def timestamp(self):
@@ -203,7 +177,7 @@ expanded.
 The `expand_sprite` method on GameHtmlWriter may therefore look something like
 this::
 
-  from .skoolhtml import HtmlWriter
+  from skoolkit.skoolhtml import HtmlWriter
 
   class GameHtmlWriter(HtmlWriter):
       # #SPRITEspriteId[{x,y,width,height}](fname)
@@ -225,7 +199,7 @@ method) in place, the ``#SPRITE`` macro might be used like this::
 The `expand_timestamp` method on GameAsmWriter would look something like this::
 
   import time
-  from .skoolasm import AsmWriter
+  from skoolkit.skoolasm import AsmWriter
 
   class GameAsmWriter(AsmWriter):
       def expand_timestamp(self, text, index):
@@ -294,9 +268,9 @@ that is populated with the contents of any ``DEFB``, ``DEFM``, ``DEFS`` and
 A simple ``#PEEK`` macro that expands to the value of the byte at a given
 address might be implemented by using `snapshot` like this::
 
-  from .skoolhtml import HtmlWriter
-  from .skoolasm import AsmWriter
-  from .skoolmacro import parse_ints
+  from skoolkit.skoolhtml import HtmlWriter
+  from skoolkit.skoolasm import AsmWriter
+  from skoolkit.skoolmacro import parse_ints
 
   class GameHtmlWriter(HtmlWriter):
       # #PEEKaddress
@@ -333,8 +307,8 @@ and an optional mask.
 A simple ``#INVERSE`` macro that creates an inverse image of a UDG might be
 implemented like this::
 
-  from .skoolhtml import HtmlWriter, Udg
-  from .skoolmacro import parse_ints
+  from skoolkit.skoolhtml import HtmlWriter, Udg
+  from skoolkit.skoolmacro import parse_ints
 
   class GameHtmlWriter(HtmlWriter):
       # #INVERSEaddress,attr
@@ -396,7 +370,7 @@ that is the `init()` method.
 
 For example::
 
-  from .skoolhtml import HtmlWriter
+  from skoolkit.skoolhtml import HtmlWriter
 
   class GameHtmlWriter(HtmlWriter):
       def init(self):

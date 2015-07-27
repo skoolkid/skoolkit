@@ -18,10 +18,9 @@
 
 import re
 
-from . import warn, write_text, wrap, get_chr, SkoolKitError, SkoolParsingError
-from . import skoolmacro
-from .skoolmacro import MacroParsingError, UnsupportedMacroError
-from .skoolparser import TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
+from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, warn, write_text, wrap, get_chr
+from skoolkit.skoolmacro import MacroParsingError, UnsupportedMacroError
+from skoolkit.skoolparser import TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
 
 UDGTABLE_MARKER = '#UDGTABLE'
 

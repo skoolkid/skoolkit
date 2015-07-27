@@ -19,8 +19,7 @@
 import sys
 import argparse
 
-from . import VERSION
-from skoolkit import SkoolKitError, SkoolParsingError, open_file, info, warn, error, get_int_param
+from skoolkit import SkoolKitError, SkoolParsingError, open_file, info, warn, error, get_int_param, VERSION
 from skoolkit.skoolparser import parse_asm_block_directive
 from skoolkit.skoolsft import VALID_CTLS, VERBATIM_BLOCKS
 from skoolkit.textutils import find_unquoted

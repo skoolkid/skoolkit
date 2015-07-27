@@ -18,10 +18,10 @@
 
 import bisect
 
-from . import warn, get_int_param, open_file
-from .skoolctl import AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET, AD_IGNOREUA
-from .skoolctl import TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END
-from .textutils import partition_unquoted, split_unquoted
+from skoolkit import warn, get_int_param, open_file
+from skoolkit.skoolctl import (AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET, AD_IGNOREUA,
+                               TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
+from skoolkit.textutils import partition_unquoted, split_unquoted
 
 COMMENT_TYPES = (TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 

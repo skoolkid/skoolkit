@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012-2014 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2015 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -20,8 +20,8 @@
 Defines the :class:`ImageWriter` class.
 """
 
-from .pngwriter import PngWriter
-from .gifwriter import GifWriter
+from skoolkit.gifwriter import GifWriter
+from skoolkit.pngwriter import PngWriter
 
 #: Colour name for the transparent colour used in masked images.
 TRANSPARENT = 'TRANSPARENT'

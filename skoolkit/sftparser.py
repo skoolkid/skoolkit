@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-from . import write_line, get_int_param, parse_int, get_address_format, open_file, SkoolKitError
-from .textutils import find_unquoted, split_unquoted
-from .skoolparser import DIRECTIVES, set_bytes, parse_asm_block_directive
-from .skoolsft import VALID_CTLS, VERBATIM_BLOCKS, VerbatimLine
-from .ctlparser import parse_params
-from .disassembler import Disassembler
+from skoolkit import SkoolKitError, write_line, get_int_param, parse_int, get_address_format, open_file
+from skoolkit.ctlparser import parse_params
+from skoolkit.disassembler import Disassembler
+from skoolkit.skoolparser import set_bytes, parse_asm_block_directive, DIRECTIVES
+from skoolkit.skoolsft import VerbatimLine, VALID_CTLS, VERBATIM_BLOCKS
+from skoolkit.textutils import find_unquoted, split_unquoted
 
 class SftParsingError(SkoolKitError):
     pass

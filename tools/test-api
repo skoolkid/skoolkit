@@ -5,12 +5,12 @@
 
 write_skool() {
   cat <<EOF
-; @start
-; @writer=skoolkit.game.GameAsmWriter
+@start
+@writer=skoolkit.game.GameAsmWriter
 
 ; Start
 ;
-; @ignoreua
+@ignoreua
 ; Test the timestamp() method: #CALL:timestamp()
 ; .
 ; Test the TIMESTAMP macro: #TIMESTAMP
@@ -57,9 +57,9 @@ write_module() {
   cat <<EOF
 import time
 
-from .skoolhtml import HtmlWriter, Udg, Frame
-from .skoolasm import AsmWriter
-from .skoolmacro import parse_ints
+from skoolkit.skoolhtml import HtmlWriter, Udg, Frame
+from skoolkit.skoolasm import AsmWriter
+from skoolkit.skoolmacro import parse_ints
 
 class GameHtmlWriter(HtmlWriter):
     def sprite(self, cwd, sprite_id, fname):
