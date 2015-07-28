@@ -59,7 +59,7 @@ rsync -aR \
   skoolkit/{__init__,bin2tap,ctlparser,defaults,disassembler,image,refparser,pngwriter,gifwriter,sftparser,skool{{,2}{asm,ctl,html,sft},2bin,macro,parser},sna{,2}skool,snapshot,tap{2sna,info},textutils,z80}.py \
   examples/48.rom.{ctl,ref} examples/hungry_horace.{ctl,ref,t2s} \
   skoolkit/resources/skoolkit{,-dark,-green,-plum,-wide}.css \
-  tests/{skoolkittest,test_{bin2tap,ctlparser,disassembler,image,skool{{,2}{asm,ctl,html,sft},2bin,macro,parser},refparser,sftparser,skoolkit,sna{2,}skool,snapshot,tap2sna,textutils,z80}}.py \
+  tests/{skoolkittest,test_{bin2tap,ctlparser,disassembler,image,skool{{,2}{asm,ctl,html,sft},2bin,macro,parser},refparser,sftparser,skoolkit,sna{2,}skool,snapshot,tap{2sna,info},textutils,z80}}.py \
   COPYING MANIFEST.in setup.py \
   $ABSDIR
 

@@ -172,7 +172,7 @@ def _print_block(index, data, info=(), block_id=None, header=None):
         if len(data) > 14:
             data_summary = "{} ... {}".format(_bytes_to_str(data[:7]), _bytes_to_str(data[-7:]))
         else:
-            data_summary = _bytes_to_str(tape_data)
+            data_summary = _bytes_to_str(data)
         _print_info("Data: {}".format(data_summary))
     for line in info:
         _print_info(line)
@@ -218,7 +218,7 @@ def main(args):
         raise SkoolKitError('Unrecognised tape type')
 
     with open(infile, 'rb') as f:
-        tape = bytearray(f.read())
+        tape = bytearray(f.read()) # PY: 'tape = f.read()' in Python 3
 
     if tape_type == '.tap':
         _analyse_tap(tape)

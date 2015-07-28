@@ -14,7 +14,36 @@ from unittest import TestCase
 
 SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
-from skoolkit import bin2tap, skool2asm, skool2bin, skool2ctl, skool2html, skool2sft, sna2skool, tap2sna
+from skoolkit import bin2tap, skool2asm, skool2bin, skool2ctl, skool2html, skool2sft, sna2skool, tap2sna, tapinfo
+
+def get_parity(data):
+    parity = 0
+    for b in data:
+        parity ^= b
+    return parity
+
+def create_header_block(title='', start=0, length=0, data_type=3):
+    header = [0, data_type]
+    header.extend([ord(c) for c in title[:10].ljust(10)])
+    header.extend((length % 256, length // 256))
+    header.extend((start % 256, start // 256))
+    header.extend((0, 0))
+    header.append(get_parity(header))
+    return header
+
+def create_data_block(data):
+    parity = 0
+    for b in data:
+        parity ^= b
+    return [255] + data + [get_parity(data)]
+
+def create_tap_data_block(data):
+    data_block = create_data_block(data)
+    length = len(data_block)
+    return [length % 256, length // 256] + data_block
+
+def create_tap_header_block(title='', start=0, length=0, data_type=3):
+    return [19, 0] + create_header_block(title, start, length, data_type)
 
 class Stream:
     def __init__(self):
@@ -272,3 +301,6 @@ class SkoolKitTestCase(TestCase):
 
     def run_tap2sna(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=None):
         return self._run_skoolkit_command(tap2sna.main, args, out_lines, err_lines, strip_cr, catch_exit)
+
+    def run_tapinfo(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=None):
+        return self._run_skoolkit_command(tapinfo.main, args, out_lines, err_lines, strip_cr, catch_exit)
