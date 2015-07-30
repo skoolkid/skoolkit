@@ -18,7 +18,7 @@
 
 import argparse
 
-from skoolkit import VERSION, SkoolKitError
+from skoolkit import SkoolKitError, get_word, get_word3, get_dword, VERSION
 
 ARCHIVE_INFO = {
     0: "Full title",
@@ -32,15 +32,6 @@ ARCHIVE_INFO = {
     8: "Origin",
     255: "Comment(s)"
 }
-
-def _get_word(data, index):
-    return data[index] + 256 * data[index + 1]
-
-def _get_word3(data, index):
-    return _get_word(data, index) + 65536 * data[index + 2]
-
-def _get_dword(data, index):
-    return _get_word3(data, index) + 16777216 * data[index + 3]
 
 def _bytes_to_str(data):
     return ', '.join(str(b) for b in data)
@@ -56,18 +47,18 @@ def _get_block_info(data, i):
     i += 1
     if block_id == 16:
         header = 'Standard speed data'
-        length = _get_word(data, i + 2)
+        length = get_word(data, i + 2)
         tape_data = data[i + 4:i + 4 + length]
         i += 4 + length
     elif block_id == 17:
         header = 'Turbo speed data'
-        length = _get_word3(data, i + 15)
+        length = get_word3(data, i + 15)
         tape_data = data[i + 18:i + 18 + length]
         i += 18 + length
     elif block_id == 18:
         header = 'Pure tone'
-        info.append('Pulse length: {} T-states'.format(_get_word(data, i)))
-        info.append('Pulses: {}'.format(_get_word(data, i + 2)))
+        info.append('Pulse length: {} T-states'.format(get_word(data, i)))
+        info.append('Pulses: {}'.format(get_word(data, i + 2)))
         i += 4
     elif block_id == 19:
         header = 'Pulse sequence'
@@ -75,18 +66,18 @@ def _get_block_info(data, i):
         i += 2 * data[i] + 1
     elif block_id == 20:
         header = 'Pure data'
-        length = _get_word3(data, i + 7)
+        length = get_word3(data, i + 7)
         tape_data = data[i + 10:i + 10 + length]
         i += length + 10
     elif block_id == 21:
         header = 'Direct recording'
-        i += _get_word3(data, i + 5) + 8
+        i += get_word3(data, i + 5) + 8
     elif block_id == 24:
         header = 'CSW recording'
-        i += _get_dword(data, i) + 4
+        i += get_dword(data, i) + 4
     elif block_id == 25:
         header = 'Generalized data'
-        i += _get_dword(data, i) + 4
+        i += get_dword(data, i) + 4
     elif block_id == 32:
         header = "Pause (silence) or 'Stop the tape' command"
         i += 2
@@ -108,12 +99,12 @@ def _get_block_info(data, i):
         header = 'Loop end'
     elif block_id == 38:
         header = 'Call sequence'
-        i += _get_word(data, i) * 2 + 2
+        i += get_word(data, i) * 2 + 2
     elif block_id == 39:
         header = 'Return from sequence'
     elif block_id == 40:
         header = 'Select block'
-        i += _get_word(data, i) + 2
+        i += get_word(data, i) + 2
     elif block_id == 42:
         header = 'Stop the tape if in 48K mode'
         i += 4
@@ -134,13 +125,13 @@ def _get_block_info(data, i):
             str_len = data[j + 1]
             info.append("{}: {}".format(ARCHIVE_INFO.get(data[j], data[j]), _get_str(data[j + 2:j + 2 + str_len])))
             j += 2 + str_len
-        i += _get_word(data, i) + 2
+        i += get_word(data, i) + 2
     elif block_id == 51:
         header = 'Hardware type'
         i += data[i] * 3 + 1
     elif block_id == 53:
         header = 'Custom info'
-        i += _get_dword(data, i + 16) + 20
+        i += get_dword(data, i + 16) + 20
     elif block_id == 90:
         header = '"Glue" block'
         i += 9
@@ -194,7 +185,7 @@ def _analyse_tap(tap):
     block_num = 1
     indent = '   '
     while i < len(tap):
-        block_len = _get_word(tap, i)
+        block_len = get_word(tap, i)
         _print_block(block_num, tap[i + 2:i + 2 + block_len])
         i += block_len + 2
         block_num += 1

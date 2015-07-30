@@ -125,6 +125,15 @@ def read_bin_file(fname):
 def normpath(*paths):
     return posixpath.normpath(posixpath.join(*[p.replace('\\', '/') for p in paths]))
 
+def get_word(data, index):
+    return data[index] + 256 * data[index + 1]
+
+def get_word3(data, index):
+    return get_word(data, index) + 65536 * data[index + 2]
+
+def get_dword(data, index):
+    return get_word3(data, index) + 16777216 * data[index + 3]
+
 class SkoolKitError(Exception):
     pass
 

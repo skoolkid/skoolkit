@@ -29,7 +29,7 @@ except ImportError:                    # pragma: no cover
     from urllib.request import urlopen # pragma: no cover
     from urllib.parse import urlparse  # pragma: no cover
 
-from skoolkit import SkoolKitError, get_int_param, open_file, write_line, VERSION
+from skoolkit import SkoolKitError, get_int_param, get_word, get_word3, get_dword, open_file, write_line, VERSION
 from skoolkit.snapshot import set_z80_registers, set_z80_state, make_z80_ram_block, Z80_REGISTERS
 
 class SkoolKitArgumentParser(argparse.ArgumentParser):
@@ -191,15 +191,6 @@ def _get_ram(blocks, options):
 
     return snapshot[16384:]
 
-def _get_word(data, index):
-    return data[index] + 256 * data[index + 1]
-
-def _get_word3(data, index):
-    return _get_word(data, index) + 65536 * data[index + 2]
-
-def _get_dword(data, index):
-    return _get_word3(data, index) + 16777216 * data[index + 3]
-
 def _get_tzx_block(data, i):
     # http://www.worldofspectrum.org/TZXformat.html
     block_id = data[i]
@@ -207,12 +198,12 @@ def _get_tzx_block(data, i):
     i += 1
     if block_id == 16:
         # Standard speed data block
-        length = _get_word(data, i + 2)
+        length = get_word(data, i + 2)
         tape_data = data[i + 4:i + 4 + length]
         i += 4 + length
     elif block_id == 17:
         # Turbo speed data block
-        length = _get_word3(data, i + 15)
+        length = get_word3(data, i + 15)
         tape_data = data[i + 18:i + 18 + length]
         i += 18 + length
     elif block_id == 18:
@@ -223,18 +214,18 @@ def _get_tzx_block(data, i):
         i += 2 * data[i] + 1
     elif block_id == 20:
         # Pure data block
-        length = _get_word3(data, i + 7)
+        length = get_word3(data, i + 7)
         tape_data = data[i + 10:i + 10 + length]
         i += 10 + length
     elif block_id == 21:
         # Direct recording block
-        i += _get_word3(data, i + 5) + 8
+        i += get_word3(data, i + 5) + 8
     elif block_id == 24:
         # CSW recording block
-        i += _get_dword(data, i) + 4
+        i += get_dword(data, i) + 4
     elif block_id == 25:
         # Generalized data block
-        i += _get_dword(data, i) + 4
+        i += get_dword(data, i) + 4
     elif block_id == 32:
         # Pause (silence) or 'Stop the tape' command
         i += 2
@@ -255,13 +246,13 @@ def _get_tzx_block(data, i):
         pass
     elif block_id == 38:
         # Call sequence
-        i += _get_word(data, i) * 2 + 2
+        i += get_word(data, i) * 2 + 2
     elif block_id == 39:
         # Return from sequence
         pass
     elif block_id == 40:
         # Select block
-        i += _get_word(data, i) + 2
+        i += get_word(data, i) + 2
     elif block_id == 42:
         # Stop the tape if in 48K mode
         i += 4
@@ -276,13 +267,13 @@ def _get_tzx_block(data, i):
         i += data[i + 1] + 2
     elif block_id == 50:
         # Archive info
-        i += _get_word(data, i) + 2
+        i += get_word(data, i) + 2
     elif block_id == 51:
         # Hardware type
         i += data[i] * 3 + 1
     elif block_id == 53:
         # Custom info block
-        i += _get_dword(data, i + 16) + 20
+        i += get_dword(data, i + 16) + 20
     elif block_id == 90:
         # "Glue" block
         i += 9
