@@ -1620,7 +1620,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self._assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)
 
         # Non-existent other code reference
-        self._assert_error(writer, '#R24576@nonexistent', "Could not find code path for 'nonexistent' disassembly", prefix)
+        self._assert_error(writer, '#R24576@nonexistent', "Cannot find code path for 'nonexistent' disassembly", error=SkoolKitError)
 
     def test_macro_refs(self):
         # One referrer
@@ -3362,6 +3362,29 @@ class HtmlOutputTest(HtmlWriterTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             writer.write_asm_entries()
         self.assertEqual(cm.exception.args[0], "Cannot format anchor ({Address:04x}) with address=40000")
+
+    def test_write_asm_entries_with_missing_OtherCode_section(self):
+        skool = '\n'.join((
+            'c30000 JP 50000',
+            '',
+            'r50000 save'
+        ))
+        writer = self._get_writer(skool=skool)
+        with self.assertRaises(SkoolKitError) as cm:
+            writer.write_asm_entries()
+        self.assertEqual(cm.exception.args[0], "Cannot find code path for 'save' disassembly")
+
+    def test_write_asm_entries_with_missing_OtherCode_Source_parameter(self):
+        ref = '[OtherCode:load]\nFoo=Bar'
+        skool = '\n'.join((
+            'c30000 JP 50000',
+            '',
+            'r50000 load'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+        with self.assertRaises(SkoolKitError) as cm:
+            writer.write_asm_entries()
+        self.assertEqual(cm.exception.args[0], "Cannot find code path for 'load' disassembly")
 
     def test_block_start_comment(self):
         start_comment = ('Start comment paragraph 1.', 'Paragraph 2.')

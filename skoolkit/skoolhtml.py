@@ -298,6 +298,7 @@ class HtmlWriter:
         for c_id, code in self.other_code:
             if c_id.lower() == code_id.lower():
                 return self.paths[code['CodePathId']]
+        raise SkoolKitError("Cannot find code path for '{}' disassembly".format(code_id))
 
     def _get_asm_page_id(self, code_id, entry_type):
         if code_id == MAIN_CODE_ID:
@@ -1277,8 +1278,6 @@ class HtmlWriter:
         end, addr_str, address, code_id, anchor, link_text = skoolmacro.parse_r(text, index)
         if code_id:
             code_path = self.get_code_path(code_id)
-            if code_path is None:
-                raise MacroParsingError("Could not find code path for '{}' disassembly".format(code_id))
         else:
             code_path = self.code_path
         container = self.parser.get_container(address, code_id)
