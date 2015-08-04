@@ -297,6 +297,8 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
     if 'o' in files:
         for code_id, code in html_writer.other_code:
             skoolfile = find(code['Source'], extra_search_dirs, search_dir)
+            if not skoolfile:
+                raise SkoolKitError('{}: file not found'.format(normpath(code['Source'])))
             skool2_parser = clock(html_writer.parser.clone, '  Parsing {0}'.format(skoolfile), skoolfile)
             html_writer2 = html_writer.clone(skool2_parser, code_id)
             map_name = code['IndexPageId']

@@ -217,6 +217,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(skoolfile)):
             self.run_skool2html('-d {} {}'.format(self.odir, reffile))
 
+    def test_nonexistent_secondary_skool_file(self):
+        skoolfile = 'save.skool'
+        ref = '[OtherCode:save]\nSource={}'.format(skoolfile)
+        reffile = self.write_text_file(ref, suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(skoolfile)):
+            self.run_skool2html('-w o -d {} {}'.format(self.odir, reffile))
+
     def test_nonexistent_ref_file(self):
         reffile = 'zyx.ref'
         with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(reffile)):
