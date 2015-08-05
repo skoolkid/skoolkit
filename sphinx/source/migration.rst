@@ -47,6 +47,25 @@ and in a `skool` file (or skool file template) by starting a line with ``@``::
 
   @label=START
 
+HTML templates
+--------------
+In SkoolKit 4:
+
+* the default full-page :ref:`htmlTemplates` use the XHTML 1.0 Strict DOCTYPE
+* the :ref:`t_anchor` template uses an ``<a>`` element with a ``name``
+  attribute
+
+In SkoolKit 5:
+
+* the default full-page :ref:`htmlTemplates` have been converted to HTML5
+* the :ref:`t_anchor` template uses a ``<span>`` element with an ``id``
+  attribute
+
+If you're not using any custom HTML templates, then no changes are required.
+But if you are using any custom full-page templates or a custom ``anchor``
+template, you should ensure that they are consistent (i.e. produce valid HTML5
+or XHTML 1.0 as required when used in combination).
+
 skoolkit4to5.py
 ---------------
 The `skoolkit4to5.py`_ script may be used to convert a control file, `skool`

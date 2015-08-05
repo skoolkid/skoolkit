@@ -97,14 +97,11 @@ Asm-u=Unused RAM at
 Asm-w=Data at
 """.format(**locals())
 
-HEADER = """<?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+HEADER = """<!DOCTYPE html>
+<html>
 <head>
 <title>{name}: {title}</title>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta charset="utf-8" />
 <link rel="stylesheet" type="text/css" href="{path}skoolkit.css" />
 {script}
 </head>
@@ -116,14 +113,11 @@ HEADER = """<?xml version="1.0" encoding="utf-8" ?>
 </tr>
 </table>"""
 
-INDEX_HEADER = """<?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+INDEX_HEADER = """<!DOCTYPE html>
+<html>
 <head>
 <title>{name}: {title}</title>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta charset="utf-8" />
 <link rel="stylesheet" type="text/css" href="{path}skoolkit.css" />
 {script}
 </head>
@@ -2410,7 +2404,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         self.assertFalse(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '30000.html'), True)
-        line_no = 49
+        line_no = 46
         for inst, address in (
             ('CALL', 30003),
             ('JP', 30006),
@@ -2434,7 +2428,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
         self.assertTrue(writer.link_internal_operands)
         writer.write_asm_entries()
         html = self._read_file(join(ASMDIR, '40000.html'), True)
-        line_no = 49
+        line_no = 46
         for inst, address in (
             ('CALL', 40003),
             ('JP', 40006),
@@ -2466,7 +2460,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             writer.write_asm_entries()
             html = self._read_file(join(ASMDIR, '32769.html'), True)
             link = '<a class="link" href="32768.html">32768</a>'
-            line_no = 49
+            line_no = 46
             for prefix in ('CALL ', 'DEFW ', 'DJNZ ', 'JP ', 'JR ', 'LD HL,'):
                 inst_type = prefix.split()[0]
                 exp_html = prefix + (link if inst_type in link_operands else '32768')
@@ -2846,13 +2840,13 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-2"><a name="24576"></a>24576</td>
+            <td class="address-2"><span id="24576"></span>24576</td>
             <td class="instruction">LD A,B</td>
             <td class="comment-11" rowspan="1">Comment for instruction at 24576</td>
             </tr>
             <tr>
             <td class="routine-comment" colspan="4">
-            <a name="24577"></a>
+            <span id="24577"></span>
             <div class="comments">
             <div class="paragraph">
             Mid-routine comment above 24577.
@@ -2862,7 +2856,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-2"><a name="24577"></a>24577</td>
+            <td class="address-2"><span id="24577"></span>24577</td>
             <td class="instruction">RET</td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
@@ -2909,7 +2903,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-1"><a name="24578"></a>24578</td>
+            <td class="address-1"><span id="24578"></span>24578</td>
             <td class="instruction">DEFB 0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -2948,7 +2942,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-2"><a name="24579"></a>24579</td>
+            <td class="address-2"><span id="24579"></span>24579</td>
             <td class="instruction">JR <a class="link" href="24576.html#24577">24577</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -2987,7 +2981,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-1"><a name="24581"></a>24581</td>
+            <td class="address-1"><span id="24581"></span>24581</td>
             <td class="instruction">DEFW 123</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3026,7 +3020,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-1"><a name="24583"></a>24583</td>
+            <td class="address-1"><span id="24583"></span>24583</td>
             <td class="instruction">DEFB 0</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3069,13 +3063,13 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-2"><a name="24584"></a>24584</td>
+            <td class="address-2"><span id="24584"></span>24584</td>
             <td class="instruction">CALL <a class="link" href="../start/30000.html">30000</a></td>
             <td class="comment-11" rowspan="2">Comment for the instructions at 24584 and 24587</td>
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-1"><a name="24587"></a>24587</td>
+            <td class="address-1"><span id="24587"></span>24587</td>
             <td class="instruction">JP <a class="link" href="../start/30000.html#30003">30003</a></td>
             <td class="comment-01" rowspan="1"></td>
             </tr>
@@ -3124,7 +3118,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             '</tr>',
             '<tr>',
             '<td class="asm-label-0"></td>',
-            '<td class="address-2"><a name="{address}"></a>{address:05d}</td>',
+            '<td class="address-2"><span id="{address}"></span>{address:05d}</td>',
             '<td class="instruction">RET</td>',
             '<td class="comment-10" rowspan="1"></td>',
             '</tr>',
@@ -3324,13 +3318,13 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-2"><a name="C350"></a>50000</td>
+            <td class="address-2"><span id="C350"></span>50000</td>
             <td class="instruction">LD A,B</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="routine-comment" colspan="4">
-            <a name="C351"></a>
+            <span id="C351"></span>
             <div class="comments">
             <div class="paragraph">
             Jump back.
@@ -3340,7 +3334,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-1"><a name="C351"></a>50001</td>
+            <td class="address-1"><span id="C351"></span>50001</td>
             <td class="instruction">JR <a class="link" href="50000.html#C350">50000</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3424,7 +3418,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="routine-comment" colspan="4">
-            <a name="40000"></a>
+            <span id="40000"></span>
             <div class="comments">
             <div class="paragraph">
             {}
@@ -3437,7 +3431,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-2"><a name="40000"></a>40000</td>
+            <td class="address-2"><span id="40000"></span>40000</td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3492,19 +3486,19 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-1">START</td>
-            <td class="address-2"><a name="50000"></a>50000</td>
+            <td class="address-2"><span id="50000"></span>50000</td>
             <td class="instruction">LD B,5</td>
             <td class="comment-11" rowspan="1">Loop 5 times</td>
             </tr>
             <tr>
             <td class="asm-label-1">START_0</td>
-            <td class="address-2"><a name="50002"></a>50002</td>
+            <td class="address-2"><span id="50002"></span>50002</td>
             <td class="instruction">DJNZ <a class="link" href="50000.html#50002">START_0</a></td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
             <tr>
             <td class="asm-label-1"></td>
-            <td class="address-1"><a name="50004"></a>50004</td>
+            <td class="address-1"><span id="50004"></span>50004</td>
             <td class="instruction">RET</td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
@@ -3542,7 +3536,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-2"><a name="50005"></a>50005</td>
+            <td class="address-2"><span id="50005"></span>50005</td>
             <td class="instruction">JP <a class="link" href="50000.html">START</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3581,7 +3575,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-1"><a name="50008"></a>50008</td>
+            <td class="address-1"><span id="50008"></span>50008</td>
             <td class="instruction">DEFW 50000</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -3636,13 +3630,13 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-2"><a name="0"></a>00000</td>
+            <td class="address-2"><span id="0"></span>00000</td>
             <td class="instruction">RST <a class="link" href="8.html">8</a></td>
             <td class="comment-11" rowspan="1">This operand should not be replaced by a label</td>
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-1"><a name="1"></a>00001</td>
+            <td class="address-1"><span id="1"></span>00001</td>
             <td class="instruction">DEFS 7</td>
             <td class="comment-11" rowspan="1"></td>
             </tr>
@@ -3697,7 +3691,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">48</td>
-            <td class="map-c"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
+            <td class="map-c"><span id="30000"></span><a class="link" href="../asm/30000.html">30000</a></td>
             <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10">Routine</div>
@@ -3708,7 +3702,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">49</td>
-            <td class="map-b"><a name="30001"></a><a class="link" href="../asm/30001.html">30001</a></td>
+            <td class="map-b"><span id="30001"></span><a class="link" href="../asm/30001.html">30001</a></td>
             <td class="map-length-0">2</td>
             <td class="map-b-desc">
             <div class="map-entry-title-10">Bytes</div>
@@ -3719,7 +3713,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">51</td>
-            <td class="map-w"><a name="30003"></a><a class="link" href="../asm/30003.html">30003</a></td>
+            <td class="map-w"><span id="30003"></span><a class="link" href="../asm/30003.html">30003</a></td>
             <td class="map-length-0">4</td>
             <td class="map-w-desc">
             <div class="map-entry-title-10">Words</div>
@@ -3730,7 +3724,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">55</td>
-            <td class="map-g"><a name="30007"></a><a class="link" href="../asm/30007.html">30007</a></td>
+            <td class="map-g"><span id="30007"></span><a class="link" href="../asm/30007.html">30007</a></td>
             <td class="map-length-0">1</td>
             <td class="map-g-desc">
             <div class="map-entry-title-10">GSB entry</div>
@@ -3741,7 +3735,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">56</td>
-            <td class="map-u"><a name="30008"></a><a class="link" href="../asm/30008.html">30008</a></td>
+            <td class="map-u"><span id="30008"></span><a class="link" href="../asm/30008.html">30008</a></td>
             <td class="map-length-0">1</td>
             <td class="map-u-desc">
             <div class="map-entry-title-10">Unused</div>
@@ -3752,7 +3746,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">57</td>
-            <td class="map-s"><a name="30009"></a><a class="link" href="../asm/30009.html">30009</a></td>
+            <td class="map-s"><span id="30009"></span><a class="link" href="../asm/30009.html">30009</a></td>
             <td class="map-length-0">9</td>
             <td class="map-s-desc">
             <div class="map-entry-title-10">Zeroes</div>
@@ -3763,7 +3757,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">66</td>
-            <td class="map-t"><a name="30018"></a><a class="link" href="../asm/30018.html">30018</a></td>
+            <td class="map-t"><span id="30018"></span><a class="link" href="../asm/30018.html">30018</a></td>
             <td class="map-length-0">35518</td>
             <td class="map-t-desc">
             <div class="map-entry-title-10">Text</div>
@@ -3795,7 +3789,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-0">117</td>
             <td class="map-byte-0">48</td>
-            <td class="map-c"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
+            <td class="map-c"><span id="30000"></span><a class="link" href="../asm/30000.html">30000</a></td>
             <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10">Routine</div>
@@ -3827,7 +3821,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">49</td>
-            <td class="map-b"><a name="30001"></a><a class="link" href="../asm/30001.html">30001</a></td>
+            <td class="map-b"><span id="30001"></span><a class="link" href="../asm/30001.html">30001</a></td>
             <td class="map-length-0">2</td>
             <td class="map-b-desc">
             <div class="map-entry-title-10">Bytes</div>
@@ -3838,7 +3832,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">51</td>
-            <td class="map-w"><a name="30003"></a><a class="link" href="../asm/30003.html">30003</a></td>
+            <td class="map-w"><span id="30003"></span><a class="link" href="../asm/30003.html">30003</a></td>
             <td class="map-length-0">4</td>
             <td class="map-w-desc">
             <div class="map-entry-title-10">Words</div>
@@ -3870,7 +3864,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-0">117</td>
             <td class="map-byte-0">66</td>
-            <td class="map-t"><a name="30018"></a><a class="link" href="../asm/30018.html">30018</a></td>
+            <td class="map-t"><span id="30018"></span><a class="link" href="../asm/30018.html">30018</a></td>
             <td class="map-length-0">35518</td>
             <td class="map-t-desc">
             <div class="map-entry-title-10">Text</div>
@@ -3902,7 +3896,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">56</td>
-            <td class="map-u"><a name="30008"></a><a class="link" href="../asm/30008.html">30008</a></td>
+            <td class="map-u"><span id="30008"></span><a class="link" href="../asm/30008.html">30008</a></td>
             <td class="map-length-1">1</td>
             <td class="map-u-desc">
             <div class="map-entry-title-10">Unused</div>
@@ -3913,7 +3907,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-1">117</td>
             <td class="map-byte-1">57</td>
-            <td class="map-s"><a name="30009"></a><a class="link" href="../asm/30009.html">30009</a></td>
+            <td class="map-s"><span id="30009"></span><a class="link" href="../asm/30009.html">30009</a></td>
             <td class="map-length-1">9</td>
             <td class="map-s-desc">
             <div class="map-entry-title-10">Zeroes</div>
@@ -3957,7 +3951,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-1">91</td>
             <td class="map-byte-1">160</td>
-            <td class="map-c"><a name="5ba0"></a><a class="link" href="../asm/23456.html">23456</a></td>
+            <td class="map-c"><span id="5ba0"></span><a class="link" href="../asm/23456.html">23456</a></td>
             <td class="map-length-0">42080</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10">Routine at 23456</div>
@@ -4040,7 +4034,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-0">117</td>
             <td class="map-byte-0">48</td>
-            <td class="map-c"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
+            <td class="map-c"><span id="30000"></span><a class="link" href="../asm/30000.html">30000</a></td>
             <td class="map-length-1">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-11">Routine</div>
@@ -4054,7 +4048,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-0">117</td>
             <td class="map-byte-0">51</td>
-            <td class="map-g"><a name="30003"></a><a class="link" href="../asm/30003.html">30003</a></td>
+            <td class="map-g"><span id="30003"></span><a class="link" href="../asm/30003.html">30003</a></td>
             <td class="map-length-1">1</td>
             <td class="map-g-desc">
             <div class="map-entry-title-11">GSB entry</div>
@@ -4103,7 +4097,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-1">128</td>
             <td class="map-byte-1">0</td>
-            <td class="map-c"><a name="32768"></a><a class="link" href="../asm/32768.html">32768</a></td>
+            <td class="map-c"><span id="32768"></span><a class="link" href="../asm/32768.html">32768</a></td>
             <td class="map-length-0">32768</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10">Code</div>
@@ -4150,7 +4144,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
                 '<tr>',
                 '<td class="map-page-1">{}</td>'.format(address // 256),
                 '<td class="map-byte-1">{}</td>'.format(address % 256),
-                '<td class="map-c"><a name="{0}"></a><a class="link" href="../asm/{0}.html">{0:05d}</a></td>'.format(address),
+                '<td class="map-c"><span id="{0}"></span><a class="link" href="../asm/{0}.html">{0:05d}</a></td>'.format(address),
                 '<td class="map-length-0">{}</td>'.format(length),
                 '<td class="map-c-desc">',
                 '<div class="map-entry-title-10"></div>',
@@ -4275,7 +4269,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-0">255</td>
             <td class="map-byte-0">255</td>
-            <td class="map-c"><a name="65535"></a><a class="link" href="65535.html">65535</a></td>
+            <td class="map-c"><span id="65535"></span><a class="link" href="65535.html">65535</a></td>
             <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10">{}</div>
@@ -4317,7 +4311,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <li><a class="link" href="#20120703">20120703</a></li>
             <li><a class="link" href="#20120702">20120702</a></li>
             </ul>
-            <div><a name="20120704"></a></div>
+            <div><span id="20120704"></span></div>
             <div class="changelog changelog-1">
             <div class="changelog-title">20120704</div>
             <div class="changelog-desc">Documented many <a class="link" href="bugs.html">bugs</a>.</div>
@@ -4335,7 +4329,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </li>
             </ul>
             </div>
-            <div><a name="20120703"></a></div>
+            <div><span id="20120703"></span></div>
             <div class="changelog changelog-2">
             <div class="changelog-title">20120703</div>
             <div class="changelog-desc"></div>
@@ -4351,7 +4345,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </li>
             </ul>
             </div>
-            <div><a name="20120702"></a></div>
+            <div><span id="20120702"></span></div>
             <div class="changelog changelog-1">
             <div class="changelog-title">20120702</div>
             <div class="changelog-desc">Initial release</div>
@@ -4383,7 +4377,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <ul class="contents">
             <li><a class="link" href="#20141123">20141123</a></li>
             </ul>
-            <div><a name="20141123"></a></div>
+            <div><span id="20141123"></span></div>
             <div class="changelog changelog-1">
             <div class="changelog-title">20141123</div>
             <div class="changelog-desc"></div>
@@ -4433,14 +4427,14 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <li><a class="link" href="#term1">Term1</a></li>
             <li><a class="link" href="#term2">Term2</a></li>
             </ul>
-            <div><a name="term1"></a></div>
+            <div><span id="term1"></span></div>
             <div class="box box-1">
             <div class="box-title">Term1</div>
             <div class="paragraph">
             Definition 1.
             </div>
             </div>
-            <div><a name="term2"></a></div>
+            <div><span id="term2"></span></div>
             <div class="box box-2">
             <div class="box-title">Term2</div>
             <div class="paragraph">
@@ -4543,7 +4537,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <ul class="contents">
             <li><a class="link" href="#b1">Showstopper</a></li>
             </ul>
-            <div><a name="b1"></a></div>
+            <div><span id="b1"></span></div>
             <div class="box box-1">
             <div class="box-title">Showstopper</div>
             <div class="paragraph">
@@ -4594,7 +4588,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <li><a class="link" href="#f1">Interesting fact</a></li>
             <li><a class="link" href="#f2">Another interesting fact</a></li>
             </ul>
-            <div><a name="f1"></a></div>
+            <div><span id="f1"></span></div>
             <div class="box box-1">
             <div class="box-title">Interesting fact</div>
             <div class="paragraph">
@@ -4604,7 +4598,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             Goodbye.
             </div>
             </div>
-            <div><a name="f2"></a></div>
+            <div><span id="f2"></span></div>
             <div class="box box-2">
             <div class="box-title">Another interesting fact</div>
             <div class="paragraph">
@@ -4642,7 +4636,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <ul class="contents">
             <li><a class="link" href="#p1">Infinite everything</a></li>
             </ul>
-            <div><a name="p1"></a></div>
+            <div><span id="p1"></span></div>
             <div class="box box-1">
             <div class="box-title">Infinite everything</div>
             <div class="paragraph">
@@ -4682,7 +4676,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <ul class="contents">
             <li><a class="link" href="#g0">Wrong arms</a></li>
             </ul>
-            <div><a name="g0"></a></div>
+            <div><span id="g0"></span></div>
             <div class="box box-1">
             <div class="box-title">Wrong arms</div>
             <div class="paragraph">
@@ -4741,7 +4735,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-0">117</td>
             <td class="map-byte-0">48</td>
-            <td class="map-g"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
+            <td class="map-g"><span id="30000"></span><a class="link" href="../asm/30000.html">30000</a></td>
             <td class="map-length-1">1</td>
             <td class="map-g-desc">
             <div class="map-entry-title-11">GSB entry 1</div>
@@ -4755,7 +4749,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-0">117</td>
             <td class="map-byte-0">49</td>
-            <td class="map-g"><a name="30001"></a><a class="link" href="../asm/30001.html">30001</a></td>
+            <td class="map-g"><span id="30001"></span><a class="link" href="../asm/30001.html">30001</a></td>
             <td class="map-length-1">2</td>
             <td class="map-g-desc">
             <div class="map-entry-title-11">GSB entry 2</div>
@@ -4809,7 +4803,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-0">117</td>
             <td class="map-byte-0">48</td>
-            <td class="map-g"><a name="30000"></a><a class="link" href="../asm/30000.html">30000</a></td>
+            <td class="map-g"><span id="30000"></span><a class="link" href="../asm/30000.html">30000</a></td>
             <td class="map-length-1">1</td>
             <td class="map-g-desc">
             <div class="map-entry-title-11">GSB entry 1</div>
@@ -4823,7 +4817,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-0">117</td>
             <td class="map-byte-0">49</td>
-            <td class="map-g"><a name="30001"></a><a class="link" href="../asm/30001.html">30001</a></td>
+            <td class="map-g"><span id="30001"></span><a class="link" href="../asm/30001.html">30001</a></td>
             <td class="map-length-1">2</td>
             <td class="map-g-desc">
             <div class="map-entry-title-11">GSB entry 2</div>
@@ -4834,7 +4828,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-0">117</td>
             <td class="map-byte-0">51</td>
-            <td class="map-t"><a name="30003"></a><a class="link" href="../asm/30003.html">30003</a></td>
+            <td class="map-t"><span id="30003"></span><a class="link" href="../asm/30003.html">30003</a></td>
             <td class="map-length-1">1</td>
             <td class="map-t-desc">
             <div class="map-entry-title-11">Message ID</div>
@@ -4845,7 +4839,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="map-page-0">117</td>
             <td class="map-byte-0">52</td>
-            <td class="map-t"><a name="30004"></a><a class="link" href="../asm/30004.html">30004</a></td>
+            <td class="map-t"><span id="30004"></span><a class="link" href="../asm/30004.html">30004</a></td>
             <td class="map-length-1">1</td>
             <td class="map-t-desc">
             <div class="map-entry-title-11">Another message ID</div>
@@ -4983,7 +4977,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-2"><a name="24576"></a>24576</td>
+            <td class="address-2"><span id="24576"></span>24576</td>
             <td class="instruction">RET</td>
             <td class="comment-11" rowspan="1">Done</td>
             </tr>

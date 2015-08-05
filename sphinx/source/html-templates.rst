@@ -166,12 +166,12 @@ To see the default ``Reference`` template, run the following command::
 anchor
 ------
 The ``anchor`` template is the subtemplate used to format a page anchor (by
-default, an ``<a>`` element with a ``name`` attribute).
+default, a ``<span>`` element with an ``id`` attribute).
 
 It contains the following identifier (in addition to the universal
 identifiers):
 
-* ``anchor`` - the value of the ``name`` attribute
+* ``anchor`` - the value of the ``id`` attribute
 
 To see the default ``anchor`` template, run the following command::
 

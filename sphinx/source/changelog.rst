@@ -7,6 +7,7 @@ Changelog
   binary file)
 * Added the :ref:`tapinfo.py` command (for showing information on the blocks in
   a TAP or TZX file)
+* Converted the :ref:`htmlTemplates` from XHTML 1.0 to HTML5
 
 4.5 (2015-07-04)
 ----------------

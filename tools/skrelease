@@ -227,61 +227,6 @@ test_disassemblies() {
 }
 
 ###############################################################################
-# Run validate-xhtml on the ROM/HH/MM/JSW/SD/BTS/CSC disassemblies
-###############################################################################
-_run_validate_xhtml() {
-  projhome=$1
-  target=$2
-  htmldir=$3
-
-  builddir=$projhome/build/html
-  buildlog=$builddir/$target.log
-  htmllog=$builddir/$htmldir.log
-  rm -rf $builddir/$htmldir $buildlog $htmllog
-  mkdir -p $builddir
-  make -C $projhome $target &> $buildlog &&
-  $TOOLS/validate-xhtml $builddir/$htmldir &> $htmllog
-}
-
-_wait_validate_xhtml() {
-  name=$1
-  pid=$2
-  projhome=$3
-  target=$4
-  htmldir=$5
-
-  builddir=$projhome/build/html
-  htmllog=$builddir/$htmldir.log
-  echo -n "$name validate-xhtml: "
-  if wait $pid; then
-    [[ -s $htmllog ]] && echo "VALIDATION FAILED (see $htmllog)" || echo "OK"
-  else
-    echo "BUILD FAILED (see $builddir/$target.log)"
-  fi
-}
-
-validate_xhtml() {
-  _require_skoolkit
-  _require_disassemblies
-
-  _run_validate_xhtml $SKOOLKIT_HOME rom rom & PIDrom=$!
-  _run_validate_xhtml $SKOOLKIT_HOME hh hungry_horace & PIDhh=$!
-  _run_validate_xhtml $MANICMINER_HOME mm manic_miner & PIDmm=$!
-  _run_validate_xhtml $JETSETWILLY_HOME jsw jet_set_willy & PIDjsw=$!
-  _run_validate_xhtml $SKOOLDAZE_HOME sd skool_daze & PIDsd=$!
-  _run_validate_xhtml $BACKTOSKOOL_HOME bts back_to_skool & PIDbts=$!
-  _run_validate_xhtml $CONTACTSAMCRUISE_HOME csc contact_sam_cruise & PIDcsc=$!
-
-  _wait_validate_xhtml "Spectrum ROM" $PIDrom $SKOOLKIT_HOME rom rom
-  _wait_validate_xhtml "Hungry Horace" $PIDhh $SKOOLKIT_HOME hh hungry_horace
-  _wait_validate_xhtml "Manic Miner" $PIDmm $MANICMINER_HOME mm manic_miner
-  _wait_validate_xhtml "Jet Set Willy" $PIDjsw $JETSETWILLY_HOME jsw jet_set_willy
-  _wait_validate_xhtml "Skool Daze" $PIDsd $SKOOLDAZE_HOME sd skool_daze
-  _wait_validate_xhtml "Back to Skool" $PIDbts $BACKTOSKOOL_HOME bts back_to_skool
-  _wait_validate_xhtml "Contact Sam Cruise" $PIDcsc $CONTACTSAMCRUISE_HOME csc contact_sam_cruise
-}
-
-###############################################################################
 # Run disassembly-diff on the MM/JSW/SD/BTS/CSC disassemblies
 ###############################################################################
 disassembly_diffs() {
@@ -581,7 +526,6 @@ SkoolKit testing and release tool.
 
 Pre-release commands:
   dtests - run the disassemblies (MM/JSW/SD/BTS/CSC) tests
-  xhtmlv - run validate-xhtml on the ROM/HH/MM/JSW/SD/BTS/CSC disassemblies
   ddiffs - run disassembly-diff on the MM/JSW/SD/BTS/CSC disassemblies
   asmchk - run check-asms on the MM/JSW/SD/BTS/CSC disassemblies
   setup1 - verify that 'setup.py install' works from a release tarball
@@ -609,7 +553,6 @@ while [[ -n "$1" ]]; do
   [[ $numcommands -ge 2 ]] && echo "*** Running command '$1' ***"
   case "$1" in
     dtests) test_disassemblies ;;
-    xhtmlv) validate_xhtml ;;
     ddiffs) disassembly_diffs ;;
     asmchk) check_asms ;;
     setup1) verify_setup 1 ;;
