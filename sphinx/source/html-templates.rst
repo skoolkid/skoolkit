@@ -34,6 +34,7 @@ are available in every full-page template:
   :ref:`t_javascript` subtemplate
 * ``m_stylesheet`` - replaced by one or more copies of the :ref:`t_stylesheet`
   subtemplate
+* ``t_footer`` - replaced by a copy of the :ref:`t_footer` subtemplate
 
 .. _t_Asm:
 
@@ -315,6 +316,19 @@ identifiers):
 To see the default ``contents_list_item`` template, run the following command::
 
   $ skool2html.py -r Template:contents_list_item
+
+.. _t_footer:
+
+footer
+------
+The ``footer`` template is the subtemplate used by the full-page templates to
+format the ``<footer>`` element of a page.
+
+To see the default ``footer`` template, run the following command::
+
+  $ skool2html.py -r Template:footer
+
+.. versionadded:: 5.0
 
 .. _t_img:
 

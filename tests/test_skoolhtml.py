@@ -130,11 +130,11 @@ INDEX_HEADER = """<!DOCTYPE html>
 </tr>
 </table>"""
 
-BARE_FOOTER = """<div class="footer">
+BARE_FOOTER = """<footer>
 <div class="release"></div>
 <div class="copyright"></div>
 <div class="created">Created using <a class="link" href="http://skoolkit.ca/">SkoolKit</a> {}.</div>
-</div>
+</footer>
 </body>
 </html>""".format(VERSION)
 
@@ -2733,11 +2733,11 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'Release={}'
         )).format(c, created, release)
         footer = '\n'.join((
-            '<div class="footer">',
+            '<footer>',
             '<div class="release">{}</div>',
             '<div class="copyright">{}</div>',
             '<div class="created">{}</div>',
-            '</div>',
+            '</footer>',
             '</body>',
             '</html>'
         )).format(release, c, created)
@@ -4510,6 +4510,24 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer.write_page(page_id)
         path = '{}.html'.format(page_id)
         self.assertEqual('<foo>{}</foo>'.format(content), self.files[path])
+
+    def test_write_page_using_footer_template(self):
+        page_id = 'PageWithCustomFooter'
+        content = 'hey'
+        footer = '<footer>Notes</footer>'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'PageContent={1}',
+            '[Template:{0}]',
+            '<bar>{{content}}</bar>',
+            '{{t_footer}}',
+            '[Template:footer]',
+            footer
+        )).format(page_id, content)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        path = '{}.html'.format(page_id)
+        self.assertEqual('<bar>{}</bar>\n{}'.format(content, footer), self.files[path])
 
     def test_write_page_with_no_page_section(self):
         page_id = 'page'

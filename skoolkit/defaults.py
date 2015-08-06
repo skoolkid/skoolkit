@@ -275,11 +275,7 @@ SECTIONS['Template:Asm'] = """
 <td class="next"><span class="next-{next_entry[exists]}">Next: <a class="link" href="{next_entry[href]}">{next_entry[address]}</a></span></td>
 </tr>
 </table>
-<div class="footer">
-<div class="release">{Game[Release]}</div>
-<div class="copyright">{Game[Copyright]}</div>
-<div class="created">{Game[Created]}</div>
-</div>
+{t_footer}
 </body>
 </html>
 """
@@ -302,11 +298,7 @@ SECTIONS['Template:GameIndex'] = """
 </tr>
 </table>
 {m_index_section}
-<div class="footer">
-<div class="release">{Game[Release]}</div>
-<div class="copyright">{Game[Copyright]}</div>
-<div class="created">{Game[Created]}</div>
-</div>
+{t_footer}
 </body>
 </html>
 """
@@ -338,11 +330,7 @@ SECTIONS['Template:MemoryMap'] = """
 </tr>
 {m_map_entry}
 </table>
-<div class="footer">
-<div class="release">{Game[Release]}</div>
-<div class="copyright">{Game[Copyright]}</div>
-<div class="created">{Game[Created]}</div>
-</div>
+{t_footer}
 </body>
 </html>
 """
@@ -364,11 +352,7 @@ SECTIONS['Template:Page'] = """
 </tr>
 </table>
 {content}
-<div class="footer">
-<div class="release">{Game[Release]}</div>
-<div class="copyright">{Game[Copyright]}</div>
-<div class="created">{Game[Created]}</div>
-</div>
+{t_footer}
 </body>
 </html>
 """
@@ -393,11 +377,7 @@ SECTIONS['Template:Reference'] = """
 {m_contents_list_item}
 </ul>
 {entries}
-<div class="footer">
-<div class="release">{Game[Release]}</div>
-<div class="copyright">{Game[Copyright]}</div>
-<div class="created">{Game[Created]}</div>
-</div>
+{t_footer}
 </body>
 </html>
 """
@@ -450,6 +430,14 @@ SECTIONS['Template:changelog_item_list'] = """
 
 SECTIONS['Template:contents_list_item'] = """
 <li><a class="link" href="{href}">{title}</a></li>
+"""
+
+SECTIONS['Template:footer'] = """
+<footer>
+<div class="release">{Game[Release]}</div>
+<div class="copyright">{Game[Copyright]}</div>
+<div class="created">{Game[Created]}</div>
+</footer>
 """
 
 SECTIONS['Template:img'] = """

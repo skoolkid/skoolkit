@@ -49,22 +49,37 @@ and in a `skool` file (or skool file template) by starting a line with ``@``::
 
 HTML templates
 --------------
+If you are using any custom :ref:`htmlTemplates` - in particular the full-page
+templates or the :ref:`t_anchor` template - there are some changes to be aware
+of.
+
 In SkoolKit 4:
 
-* the default full-page :ref:`htmlTemplates` use the XHTML 1.0 Strict DOCTYPE
-* the :ref:`t_anchor` template uses an ``<a>`` element with a ``name``
-  attribute
+* the default full-page templates use the XHTML 1.0 Strict DOCTYPE
+* every full-page template contains its own copy of the page footer
+* the ``anchor`` template uses an ``<a>`` element with a ``name`` attribute
 
 In SkoolKit 5:
 
-* the default full-page :ref:`htmlTemplates` have been converted to HTML5
-* the :ref:`t_anchor` template uses a ``<span>`` element with an ``id``
-  attribute
+* the default full-page templates have been converted to HTML5
+* every full-page template uses the :ref:`t_footer` template to format the page
+  footer
+* the ``anchor`` template uses a ``<span>`` element with an ``id`` attribute
 
-If you're not using any custom HTML templates, then no changes are required.
-But if you are using any custom full-page templates or a custom ``anchor``
-template, you should ensure that they are consistent (i.e. produce valid HTML5
-or XHTML 1.0 as required when used in combination).
+This means that if you are using any custom full-page templates or a custom
+``anchor`` template, you should ensure that they are consistent (i.e. produce
+valid HTML5 or XHTML 1.0 as required when used in combination).
+
+In addition, if you are using any custom full-page templates, you should either
+replace the page footer (the ``<div class="footer">`` element) with a
+``{t_footer}`` replacement field, or reinstate the CSS rule for ``div.footer``
+from SkoolKit 4::
+
+  div.footer {
+    clear: both;
+    margin-top: 10px;
+    text-align: center;
+  }
 
 skoolkit4to5.py
 ---------------

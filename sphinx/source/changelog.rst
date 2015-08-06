@@ -8,6 +8,8 @@ Changelog
 * Added the :ref:`tapinfo.py` command (for showing information on the blocks in
   a TAP or TZX file)
 * Converted the :ref:`htmlTemplates` from XHTML 1.0 to HTML5
+* Added the :ref:`t_footer` template (for formatting the ``<footer>`` element
+  of a page)
 
 4.5 (2015-07-04)
 ----------------

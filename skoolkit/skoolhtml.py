@@ -935,6 +935,7 @@ class HtmlWriter:
 
         subs['m_stylesheet'] = self.stylesheets[cwd]
         subs['m_javascript'] = self.javascript[js_key]
+        subs['t_footer'] = self.format_template('footer', {})
         return self.format_template(page_id, subs, default)
 
     def _get_logo(self, cwd):
