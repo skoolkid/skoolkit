@@ -47,17 +47,19 @@ and in a `skool` file (or skool file template) by starting a line with ``@``::
 
   @label=START
 
-HTML templates
---------------
+HTML templates and CSS
+----------------------
 If you are using any custom :ref:`htmlTemplates` - in particular the full-page
-templates or the :ref:`t_anchor` template - there are some changes to be aware
-of.
+templates or the :ref:`t_anchor` template - or custom CSS, there are some
+changes to be aware of.
 
 In SkoolKit 4:
 
 * the default full-page templates use the XHTML 1.0 Strict DOCTYPE
 * every full-page template contains its own copy of the page footer
 * the ``anchor`` template uses an ``<a>`` element with a ``name`` attribute
+* every ``<a>`` element that defines a hyperlink has a ``class="link"``
+  attribute
 
 In SkoolKit 5:
 
@@ -65,6 +67,8 @@ In SkoolKit 5:
 * every full-page template uses the :ref:`t_footer` template to format the page
   footer
 * the ``anchor`` template uses a ``<span>`` element with an ``id`` attribute
+* the ``class="link"`` attribute has been removed from every ``<a>`` element
+  that defines a hyperlink
 
 This means that if you are using any custom full-page templates or a custom
 ``anchor`` template, you should ensure that they are consistent (i.e. produce
@@ -80,6 +84,16 @@ from SkoolKit 4::
     margin-top: 10px;
     text-align: center;
   }
+
+And finally, if you have defined any custom CSS rules for hyperlinks, you
+should remove the 'link' class from the selectors. For example, this CSS rule
+from `skoolkit.css` in SkoolKit 4::
+
+  a.link { color: #ffff00; }
+
+has become this in SkoolKit 5::
+
+  a { color: #ffff00; }
 
 skoolkit4to5.py
 ---------------

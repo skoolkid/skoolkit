@@ -49,7 +49,7 @@ HtmlWriterClass=skoolkit.skoolhtml.HtmlWriter
 SECTIONS['Game'] = """
 AddressAnchor={address}
 Copyright=
-Created=Created using <a class="link" href="http://skoolkit.ca/">SkoolKit</a> $VERSION.
+Created=Created using <a href="http://skoolkit.ca/">SkoolKit</a> $VERSION.
 ; Font=
 ; Game=
 ; GameStatusBufferIncludes=
@@ -234,15 +234,15 @@ SECTIONS['Template:Asm'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
-<td class="logo"><a class="link" href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
+<td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
 <td class="page-header">{SkoolKit[page_header]}</td>
 </tr>
 </table>
 <table class="asm-navigation">
 <tr>
-<td class="prev"><span class="prev-{prev_entry[exists]}">Prev: <a class="link" href="{prev_entry[href]}">{prev_entry[address]}</a></span></td>
-<td class="up">Up: <a class="link" href="{entry[map_href]}">Map</a></td>
-<td class="next"><span class="next-{next_entry[exists]}">Next: <a class="link" href="{next_entry[href]}">{next_entry[address]}</a></span></td>
+<td class="prev"><span class="prev-{prev_entry[exists]}">Prev: <a href="{prev_entry[href]}">{prev_entry[address]}</a></span></td>
+<td class="up">Up: <a href="{entry[map_href]}">Map</a></td>
+<td class="next"><span class="next-{next_entry[exists]}">Next: <a href="{next_entry[href]}">{next_entry[address]}</a></span></td>
 </tr>
 </table>
 <div class="description">{entry[address]}: {entry[title]}</div>
@@ -270,9 +270,9 @@ SECTIONS['Template:Asm'] = """
 </table>
 <table class="asm-navigation">
 <tr>
-<td class="prev"><span class="prev-{prev_entry[exists]}">Prev: <a class="link" href="{prev_entry[href]}">{prev_entry[address]}</a></span></td>
-<td class="up">Up: <a class="link" href="{entry[map_href]}">Map</a></td>
-<td class="next"><span class="next-{next_entry[exists]}">Next: <a class="link" href="{next_entry[href]}">{next_entry[address]}</a></span></td>
+<td class="prev"><span class="prev-{prev_entry[exists]}">Prev: <a href="{prev_entry[href]}">{prev_entry[address]}</a></span></td>
+<td class="up">Up: <a href="{entry[map_href]}">Map</a></td>
+<td class="next"><span class="next-{next_entry[exists]}">Next: <a href="{next_entry[href]}">{next_entry[address]}</a></span></td>
 </tr>
 </table>
 {t_footer}
@@ -315,7 +315,7 @@ SECTIONS['Template:MemoryMap'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
-<td class="logo"><a class="link" href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
+<td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
 <td class="page-header">{SkoolKit[page_header]}</td>
 </tr>
 </table>
@@ -347,7 +347,7 @@ SECTIONS['Template:Page'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
-<td class="logo"><a class="link" href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
+<td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
 <td class="page-header">{SkoolKit[page_header]}</td>
 </tr>
 </table>
@@ -369,7 +369,7 @@ SECTIONS['Template:Reference'] = """
 <body class="{SkoolKit[page_id]}">
 <table class="header">
 <tr>
-<td class="logo"><a class="link" href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
+<td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
 <td class="page-header">{SkoolKit[page_header]}</td>
 </tr>
 </table>
@@ -429,7 +429,7 @@ SECTIONS['Template:changelog_item_list'] = """
 """
 
 SECTIONS['Template:contents_list_item'] = """
-<li><a class="link" href="{href}">{title}</a></li>
+<li><a href="{href}">{title}</a></li>
 """
 
 SECTIONS['Template:footer'] = """
@@ -452,7 +452,7 @@ SECTIONS['Template:index_section'] = """
 """
 
 SECTIONS['Template:index_section_item'] = """
-<li><a class="link" href="{href}">{link_text}</a>{other_text}</li>
+<li><a href="{href}">{link_text}</a>{other_text}</li>
 """
 
 SECTIONS['Template:javascript'] = """
@@ -460,7 +460,7 @@ SECTIONS['Template:javascript'] = """
 """
 
 SECTIONS['Template:link'] = """
-<a class="link" href="{href}">{link_text}</a>
+<a href="{href}">{link_text}</a>
 """
 
 SECTIONS['Template:list'] = """
@@ -477,7 +477,7 @@ SECTIONS['Template:map_entry'] = """
 <tr>
 <td class="map-page-{MemoryMap[PageByteColumns]}">{entry[page]}</td>
 <td class="map-byte-{MemoryMap[PageByteColumns]}">{entry[byte]}</td>
-<td class="map-{entry[type]}">{t_anchor}<a class="link" href="{entry[href]}">{entry[address]}</a></td>
+<td class="map-{entry[type]}">{t_anchor}<a href="{entry[href]}">{entry[address]}</a></td>
 <td class="map-length-{MemoryMap[LengthColumn]}">{entry[size]}</td>
 <td class="map-{entry[type]}-desc">
 <div class="map-entry-title-1{MemoryMap[EntryDescriptions]}">{entry[title]}</div>

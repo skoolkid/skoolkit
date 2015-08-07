@@ -2,10 +2,10 @@ body {
   color: #ffffff;
   background-color: #193300;
 }
-a.link {
+a {
   color: #ffff00;
 }
-a.link:hover {
+a:hover {
   color: #ff00ff;
 }
 div.box-1, div.changelog-1 {
