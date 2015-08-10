@@ -60,9 +60,8 @@ def get_address(operation, check_prefix=True):
         return search.group()[index:]
 
 def set_bytes(snapshot, address, operation):
-    if operation[:5].upper() in ('DEFB ', 'DEFM ', 'DEFS ', 'DEFW '):
-        data = assemble(operation)
-        snapshot[address:address + len(data)] = data
+    data = assemble(operation, address)
+    snapshot[address:address + len(data)] = data
 
 def parse_asm_block_directive(directive, stack):
     prefix = directive[:4]
@@ -397,7 +396,7 @@ class SkoolParser:
             # Set bytes in the snapshot if the instruction is DEF{B,M,S,W}
             if address is not None:
                 operation = instruction.operation
-                if operation[:4].upper() in ('DEFB', 'DEFM', 'DEFS', 'DEFW'):
+                if self.mode.assemble or operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW ')):
                     set_bytes(self.snapshot, address, operation)
         if self.comments and map_entry:
             self._add_end_comment(map_entry)
@@ -471,6 +470,11 @@ class SkoolParser:
                 self.mode.label = directive[6:].rstrip()
             elif directive.startswith('keep'):
                 self.mode.keep = True
+            elif directive.startswith('assemble='):
+                try:
+                    self.mode.assemble = int(directive[9:])
+                except ValueError:
+                    pass
 
             if self.mode.asm:
                 if directive.startswith('rsub='):
@@ -630,6 +634,7 @@ class Mode:
         self.warn = warnings
         self.started = asm_mode == 0
         self.include = self.started
+        self.assemble = 0
         self.fix_mode = fix_mode
         self.do_rfixes = fix_mode >= 3
         self.do_rsubs = asm_mode >= 3 or self.do_rfixes

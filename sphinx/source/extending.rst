@@ -262,8 +262,8 @@ HtmlWriter provides some convenience methods for extracting text and data from
 Memory snapshots
 ----------------
 The `snapshot` attribute on HtmlWriter and AsmWriter is a 65536-element list
-that is populated with the contents of any ``DEFB``, ``DEFM``, ``DEFS`` and
-``DEFW`` statements in the `skool` file.
+that represents the 64K of the Spectrum's memory; it is populated when the
+`skool` file is being parsed.
 
 A simple ``#PEEK`` macro that expands to the value of the byte at a given
 address might be implemented by using `snapshot` like this::

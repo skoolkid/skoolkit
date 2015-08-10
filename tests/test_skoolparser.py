@@ -2634,6 +2634,31 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instruction.operation, 'LD L,24')
         self.assertEqual(instruction.comment.text, '24 is the LSB')
 
+    def test_html_mode_assemble(self):
+        skool = '\n'.join((
+            'c30000 LD A,1',
+            '@assemble=1',
+            ' 30002 LD A,2',
+            '@assemble=0',
+            ' 30004 LD A,3'
+        ))
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual([0, 0, 62, 2, 0, 0], snapshot[30000:30006])
+
+    def test_html_mode_assemble_bad_values(self):
+        skool = '\n'.join((
+            '@assemble=1',
+            'c40000 LD A,4',
+            '@assemble=off',
+            ' 40002 LD A,5',
+            '@assemble=0',
+            ' 40004 LD A,6',
+            '@assemble=on',
+            ' 40006 LD A,7'
+        ))
+        snapshot = self._get_parser(skool, html=True).snapshot
+        self.assertEqual([62, 4, 62, 5, 0, 0, 0, 0], snapshot[40000:40008])
+
     def test_asm_mode_rem(self):
         skool = '\n'.join((
             '@start',
