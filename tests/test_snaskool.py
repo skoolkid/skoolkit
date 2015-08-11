@@ -1041,11 +1041,11 @@ class SkoolWriterTest(SkoolKitTestCase):
         options = MockOptions(line_width, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
         return SkoolWriter(snapshot, ctl_parser, options)
 
-    def _test_write_refs(self, snapshot, ctl, write_refs, exp_skool):
-        writer = self._get_writer(snapshot, ctl)
-        writer.write_skool(write_refs, False)
-        skool = self.out.getvalue().split('\n')
-        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+    def _test_write_skool(self, snapshot, ctl, exp_skool, write_refs=0, show_text=False, **kwargs):
+        writer = self._get_writer(snapshot, ctl, **kwargs)
+        writer.write_skool(write_refs, show_text)
+        skool = self.out.getvalue().rstrip().split('\n')
+        self.assertEqual(exp_skool, skool)
 
     def test_write_skool(self):
         writer = self._get_writer(WRITER_SNAPSHOT, WRITER_CTL)
@@ -1087,10 +1087,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; An end comment for the routine at address 0 that will be',
             '; wrapped over two lines'
         ]
-        writer = self._get_writer(snapshot, ctl, line_width=64)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')
-        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+        self._test_write_skool(snapshot, ctl, exp_skool, line_width=64)
 
     def test_line_width_long(self):
         snapshot = [175, 201]
@@ -1122,10 +1119,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             ' 00001 RET           ;',
             '; A long end comment for the routine at address 0 that confines itself to one line'
         ]
-        writer = self._get_writer(snapshot, ctl, line_width=94)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')
-        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+        self._test_write_skool(snapshot, ctl, exp_skool, line_width=94)
 
     def test_write_refs_never(self):
         snapshot = [0] * 65536
@@ -1156,7 +1150,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; Routine at 30005',
             'c30005 JR 30001      ;'
         ]
-        self._test_write_refs(snapshot, ctl, -1, exp_skool)
+        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=-1)
 
     def test_write_refs_default(self):
         snapshot = [0] * 65536
@@ -1193,9 +1187,15 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; Used by the routine at #R40004.',
             'c40002 XOR A         ;',
             '; This entry point is used by the routine at #R40004.',
-            '*40003 RET           ;'
+            '*40003 RET           ;',
+            '',
+            '; Routine at 40004',
+            'c40004 JR 40000      ;',
+            ' 40006 JR 40001      ;',
+            ' 40008 JR 40002      ;',
+            ' 40010 JR 40003      ;'
         ]
-        self._test_write_refs(snapshot, ctl, 0, exp_skool)
+        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=0)
 
     def test_write_refs_always(self):
         snapshot = [0] * 65536
@@ -1236,9 +1236,15 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; Used by the routine at #R50004.',
             'c50002 XOR A         ;',
             '; This entry point is used by the routine at #R50004.',
-            '*50003 RET           ;'
+            '*50003 RET           ;',
+            '',
+            '; Routine at 50004',
+            'c50004 JR 50000      ;',
+            ' 50006 JR 50001      ;',
+            ' 50008 JR 50002      ;',
+            ' 50010 JR 50003      ;'
         ]
-        self._test_write_refs(snapshot, ctl, 1, exp_skool)
+        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=1)
 
     def test_bad_blocks(self):
         snapshot = [0] * 65537
@@ -1397,10 +1403,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; End comment for the routine at 10000.'
         ]
         snapshot = [0] * 10000 + [120, 201]
-        writer = self._get_writer(snapshot, ctl)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')[:-2]
-        self.assertEqual(exp_skool, skool)
+        self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ignoreua_directives_write_refs(self):
         ctl = '\n'.join((
@@ -1432,7 +1435,26 @@ class SkoolWriterTest(SkoolKitTestCase):
             '*10003 JR 10000      ;',
         ]
         snapshot = [0] * 10000 + [24, 1, 120, 24, 251]
-        self._test_write_refs(snapshot, ctl, 1, exp_skool)
+        self._test_write_skool(snapshot, ctl, exp_skool, 1)
+
+    def test_assemble_directives(self):
+        ctl = '\n'.join((
+            'c 00000',
+            '@ 00001 assemble=1',
+            '@ 00002 assemble=0',
+            'i 00003'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            'c00000 NOP           ;',
+            '@assemble=1',
+            ' 00001 NOP           ;',
+            '@assemble=0',
+            ' 00002 NOP           ;'
+        ]
+        self._test_write_skool([0] * 3, ctl, exp_skool)
 
     def test_registers(self):
         ctl = '\n'.join((
@@ -1445,6 +1467,12 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 00001'
         ))
         exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine',
+            ';',
+            '; .',
+            ';',
             '; BC This register description is long enough that it needs to be split over',
             '; .  two lines',
             '; DE Short register description',
@@ -1453,10 +1481,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; IX',
             'c00000 NOP           ;'
         ]
-        writer = self._get_writer([0], ctl)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')[:-2]
-        self.assertEqual(exp_skool, skool[6:])
+        self._test_write_skool([0], ctl, exp_skool)
 
     def test_registers_with_prefixes(self):
         ctl = '\n'.join((
@@ -1468,6 +1493,12 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 00001'
         ))
         exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine',
+            ';',
+            '; .',
+            ';',
             ';  Input:A An important parameter with a long description that will be split',
             '; .        over two lines',
             ';        B Another important parameter',
@@ -1475,10 +1506,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             ';        HL',
             'c00000 NOP           ;'
         ]
-        writer = self._get_writer([0], ctl)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')
-        self.assertEqual(exp_skool, skool[6:6 + len(exp_skool)])
+        self._test_write_skool([0], ctl, exp_skool)
 
     def test_start_comment(self):
         ctl = '\n'.join((
@@ -1487,6 +1515,8 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 00001'
         ))
         exp_skool = [
+            '@start',
+            '@org=0',
             '; Routine at 0',
             ';',
             '; .',
@@ -1496,10 +1526,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; Start comment.',
             'c00000 NOP           ;'
         ]
-        writer = self._get_writer([0], ctl)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')[:-2]
-        self.assertEqual(exp_skool, skool[2:])
+        self._test_write_skool([0], ctl, exp_skool)
 
     def test_multi_paragraph_start_comment(self):
         ctl = '\n'.join((
@@ -1510,6 +1537,8 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 00001'
         ))
         exp_skool = [
+            '@start',
+            '@org=0',
             '; Routine',
             ';',
             '; Description.',
@@ -1521,10 +1550,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; Paragraph 2.',
             'c00000 NOP           ;'
         ]
-        writer = self._get_writer([0], ctl)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')[:-2]
-        self.assertEqual(exp_skool, skool[2:])
+        self._test_write_skool([0], ctl, exp_skool)
 
     def test_loop(self):
         ctl = '\n'.join((
@@ -1588,10 +1614,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; This comment should not be swallowed by the overlong M directive.',
             ' 00002 RET           ;',
         ]
-        writer = self._get_writer(snapshot, ctl)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')
-        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+        self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_lower_case_hexadecimal(self):
         snapshot = [0] * 10 + [255]
@@ -1605,10 +1628,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; Data block at 000a',
             'b$000a defb $ff'
         ]
-        writer = self._get_writer(snapshot, ctl, asm_hex=True, asm_lower=True)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')
-        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+        self._test_write_skool(snapshot, ctl, exp_skool, asm_hex=True, asm_lower=True)
 
     def test_defm_width(self):
         snapshot = [65] * 4
@@ -1623,10 +1643,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             't00000 DEFM "AA"',
             ' 00002 DEFM "AA"'
         ]
-        writer = self._get_writer(snapshot, ctl, defm_width=2)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')
-        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+        self._test_write_skool(snapshot, ctl, exp_skool, defm_width=2)
 
     def test_defb_mod(self):
         snapshot = [0] * 14
@@ -1642,10 +1659,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             ' 00004 DEFB 0,0,0,0,0,0,0,0',
             ' 00012 DEFB 0,0'
         ]
-        writer = self._get_writer(snapshot, ctl, defb_mod=4)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')
-        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+        self._test_write_skool(snapshot, ctl, exp_skool, defb_mod=4)
 
     def test_defb_size(self):
         snapshot = [0] * 5
@@ -1660,10 +1674,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             'b00000 DEFB 0,0,0',
             ' 00003 DEFB 0,0'
         ]
-        writer = self._get_writer(snapshot, ctl, defb_size=3)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')
-        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+        self._test_write_skool(snapshot, ctl, exp_skool, defb_size=3)
 
     def test_zfill(self):
         snapshot = [0] * 5
@@ -1677,10 +1688,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; Data block at 0',
             'b00000 DEFB 000,000,000,000,000'
         ]
-        writer = self._get_writer(snapshot, ctl, zfill=True)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')
-        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+        self._test_write_skool(snapshot, ctl, exp_skool, zfill=True)
 
     def test_show_text(self):
         snapshot = [49, 127, 50]
@@ -1694,10 +1702,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; Routine at 0',
             'c00000 LD SP,12927   ; [1.2]',
         ]
-        writer = self._get_writer(snapshot, ctl)
-        writer.write_skool(0, True)
-        skool = self.out.getvalue().split('\n')
-        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+        self._test_write_skool(snapshot, ctl, exp_skool, show_text=True)
 
     def test_braces_in_instruction_comments(self):
         snapshot = [0] * 39
@@ -1773,10 +1778,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             ' 00037 DEFB 0        ; {matched {{braces}} in the middle',
             ' 00038 DEFB 0        ; }',
         ]
-        writer = self._get_writer(snapshot, ctl)
-        writer.write_skool(0, False)
-        skool = self.out.getvalue().split('\n')
-        self.assertEqual(exp_skool, skool[:len(exp_skool)])
+        self._test_write_skool(snapshot, ctl, exp_skool)
 
 class CtlWriterTest(SkoolKitTestCase):
     def test_decimal_addresses_below_10000(self):

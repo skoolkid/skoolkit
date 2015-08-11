@@ -433,10 +433,6 @@ routine at 49152::
   @ 49152 ignoreua:d
   D 49152 This is the description of the routine at 49152.
 
-Note that neither ASM block directives (such as the :ref:`bfixBlockDirectives`)
-nor the exact location of :ref:`org`, :ref:`writer`, :ref:`start`, :ref:`end`
-and :ref:`set` directives can be preserved in a control file.
-
 Instruction-level comments
 --------------------------
 One limitation of storing instruction-level comments as shown so far is that
@@ -493,8 +489,8 @@ A control file can be useful in the early stages of developing a `skool` file
 for reorganising code and data blocks, but it cannot preserve the following:
 
 * ASM block directives
-* the exact locations of :ref:`org`, :ref:`writer`, :ref:`start`, :ref:`end`
-  and :ref:`set` directives
+* the exact locations of :ref:`org`, :ref:`writer`, :ref:`assemble`,
+  :ref:`start`, :ref:`end` and :ref:`set` directives
 * :ref:`data definition entries <dEntry>` ('d' blocks) and
   :ref:`remote entries <rEntry>` ('r' blocks)
 * comments that are not part of a code or data block

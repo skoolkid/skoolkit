@@ -533,7 +533,7 @@ class SkoolParser:
 
         if self.mode.include:
             tag, sep, value = directive.rstrip().partition('=')
-            if sep and tag in ('rsub', 'ssub', 'isub', 'bfix', 'ofix', 'label', 'rem'):
+            if sep and tag in ('rsub', 'ssub', 'isub', 'bfix', 'ofix', 'assemble', 'label', 'rem'):
                 self.mode.add_instruction_asm_directive(tag, value)
             elif not sep and tag in ('nolabel', 'nowarn', 'keep'):
                 self.mode.add_instruction_asm_directive(tag)

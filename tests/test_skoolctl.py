@@ -952,6 +952,21 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self._test_ctl(skool, exp_ctl, write_hex=1)
 
+    def test_assemble_directives(self):
+        skool = '\n'.join((
+            'c30000 LD A,1',
+            '@assemble=1',
+            ' 30002 LD B,2',
+            '@assemble=0',
+            ' 30004 LD C,3'
+        ))
+        exp_ctl = [
+            'c 30000',
+            '@ 30002 assemble=1',
+            '@ 30004 assemble=0'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
     def test_registers(self):
         skool = '\n'.join((
             '; Routine',
