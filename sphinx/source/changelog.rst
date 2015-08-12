@@ -11,6 +11,8 @@ Changelog
 * Added the :ref:`t_footer` template (for formatting the ``<footer>`` element
   of a page)
 * Added the :ref:`assemble` ASM directive
+* Added the ``--set`` option to :ref:`skool2asm.py` (for setting ASM writer
+  property values)
 
 4.5 (2015-07-04)
 ----------------

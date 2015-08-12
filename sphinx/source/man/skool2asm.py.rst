@@ -50,6 +50,10 @@ OPTIONS
 -p, --package-dir
   Show the path to the skoolkit package directory and exit.
 
+-P, --set `property=value`
+  Set the value of an ASM writer property; this option may be used multiple
+  times.
+
 -q, --quiet
   Be quiet. This option suppresses both the timing information, and the message
   about the AsmWriter class being used, but does not suppress warnings.

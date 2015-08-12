@@ -344,6 +344,16 @@ class Skool2AsmTest(SkoolKitTestCase):
             self.assertTrue(mock_asm_writer.wrote)
             mock_asm_writer.wrote = False
 
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_option_P(self):
+        for option, prop, value in (('-P', 'crlf', '1'), ('--set', 'bullet', '+')):
+            output, error = self.run_skool2asm('-q {} {}={} test-P.skool'.format(option, prop, value))
+            self.assertEqual({prop: value}, mock_asm_writer.properties)
+            self.assertTrue(mock_asm_writer.wrote)
+            mock_asm_writer.properties = None
+            mock_asm_writer.wrote = False
+
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_tab_property(self):
         skool = '\n'.join((

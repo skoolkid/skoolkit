@@ -97,6 +97,8 @@ assembler (see :ref:`supportedAssemblers`). For example::
     -i N, --inst-width N  Set instruction field width (default=23)
     -l, --lower           Write the disassembly in lower case
     -p, --package-dir     Show path to skoolkit package directory and exit
+    -P p=v, --set p=v     Set the value of ASM writer property 'p' to 'v'; this
+                          option may be used multiple times
     -q, --quiet           Be quiet
     -r, --rsub            Apply safe substitutions (@ssub) and relocatability
                           substitutions (@rsub) (implies '-f 1')
@@ -115,9 +117,14 @@ See :ref:`asmModesAndDirectives` for a description of the ``@ssub`` and
 ``@rsub`` substitution modes, and the ``@ofix``, ``@bfix`` and ``@rfix`` bugfix
 modes.
 
+See the :ref:`set` directive for information on the ASM writer properties that
+can be set by the ``--set`` option.
+
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
+| 5.0     | Added the ``--set`` option                                   |
++---------+--------------------------------------------------------------+
 | 4.5     | Added the ``--start`` and ``--end`` options                  |
 +---------+--------------------------------------------------------------+
 | 4.1     | Added the ``--writer`` option                                |

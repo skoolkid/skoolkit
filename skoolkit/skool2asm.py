@@ -50,6 +50,10 @@ def run(skoolfile, options):
     else:
         asm_writer_class = AsmWriter
     properties = dict(parser.properties)
+    for spec in options.properties:
+        name, sep, value = spec.partition('=')
+        if sep:
+            properties[name] = value
     if options.crlf:
         properties['crlf'] = '1'
     if options.inst_width is not None:
@@ -93,6 +97,8 @@ def main(args):
                        help="Write the disassembly in lower case")
     group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
                        help="Show path to skoolkit package directory and exit")
+    group.add_argument('-P', '--set', dest='properties', metavar='p=v', action='append', default=[],
+                       help="Set the value of ASM writer property 'p' to 'v'; this\noption may be used multiple times")
     group.add_argument('-q', '--quiet', dest='quiet', action='store_true',
                        help="Be quiet")
     group.add_argument('-r', '--rsub', dest='asm_mode', action='store_const', const=3, default=1,
