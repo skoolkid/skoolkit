@@ -95,6 +95,25 @@ has become this in SkoolKit 5::
 
   a { color: #ffff00; }
 
+skool2asm.py
+------------
+In SkoolKit 4 and earlier versions, :ref:`skool2asm.py` sported the
+``-d/--crlf`` option (to use CR+LF to end lines instead of the system default),
+the ``-i/--inst-width`` option (to set the width of the instruction field), and
+the ``-t/--tabs`` option (to use tab to indent instructions). These options
+have been removed in SkoolKit 5, but their effects can be achieved with the
+new ``-P/--set`` option:
+
++--------------------+-------------------------------+
+| SkoolKit 4         | SkoolKit 5                    |
++====================+===============================+
+| ``--crlf``         | ``--set crlf=1``              |
++--------------------+-------------------------------+
+| ``--inst-width N`` | ``--set instruction-width=N`` |
++--------------------+-------------------------------+
+| ``--tabs``         | ``--set tab=1``               |
++--------------------+-------------------------------+
+
 skoolkit4to5.py
 ---------------
 The `skoolkit4to5.py`_ script may be used to convert a control file, `skool`

@@ -19,10 +19,6 @@ OPTIONS
 -c, --create-labels
   Create default labels for unlabelled instructions.
 
--d, --crlf
-  Use CR+LF to end lines, instead of the system default (CR+LF is the default
-  on Windows).
-
 -D, --decimal
   Write the disassembly in decimal.
 
@@ -40,9 +36,6 @@ OPTIONS
 
 -H, --hex
   Write the disassembly in hexadecimal.
-
--i, --inst-width `N`
-  Set the width of the instruction field; the default width is 23 characters.
 
 -l, --lower
   Write the disassembly in lower case.
@@ -67,9 +60,6 @@ OPTIONS
 
 -S, --start `ADDR`
   Start converting at this address.
-
--t, --tabs
-  Use tab to indent instructions; the default indentation is 2 spaces.
 
 -u, --upper
   Write the disassembly in upper case.

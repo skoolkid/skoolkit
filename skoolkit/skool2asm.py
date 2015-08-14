@@ -54,12 +54,6 @@ def run(skoolfile, options):
         name, sep, value = spec.partition('=')
         if sep:
             properties[name] = value
-    if options.crlf:
-        properties['crlf'] = '1'
-    if options.inst_width is not None:
-        properties['instruction-width'] = options.inst_width
-    if options.tabs:
-        properties['tab'] = '1'
     if not options.warn:
         properties['warnings'] = '0'
     asm_writer = asm_writer_class(parser, properties, options.case == CASE_LOWER)
@@ -77,8 +71,6 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--create-labels', dest='create_labels', action='store_true',
                        help="Create default labels for unlabelled instructions")
-    group.add_argument('-d', '--crlf', dest='crlf', action='store_true',
-                       help="Use CR+LF to end lines")
     group.add_argument('-D', '--decimal', dest='base', action='store_const', const=BASE_10,
                        help="Write the disassembly in decimal")
     group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=int, default=65536,
@@ -91,8 +83,6 @@ def main(args):
                             "  N=3: @ofix, @bfix and @rfix (implies -r)")
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16,
                        help="Write the disassembly in hexadecimal")
-    group.add_argument('-i', '--inst-width', dest='inst_width', metavar='N', type=int,
-                       help="Set instruction field width (default={})".format(DEF_INSTRUCTION_WIDTH))
     group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER,
                        help="Write the disassembly in lower case")
     group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
@@ -107,8 +97,6 @@ def main(args):
                        help="Apply safe substitutions (@ssub)")
     group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=int, default=0,
                        help="Start converting at this address")
-    group.add_argument('-t', '--tabs', dest='tabs', action='store_true',
-                       help="Use tab to indent instructions (default indentation is\n2 spaces)")
     group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER,
                        help="Write the disassembly in upper case")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),

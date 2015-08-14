@@ -59,10 +59,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         skool2asm.main((skoolfile,))
         fname, options = run_args
         self.assertEqual(fname, skoolfile)
-        self.assertFalse(options.crlf)
-        self.assertIsNone(options.inst_width)
         self.assertFalse(options.quiet)
-        self.assertFalse(options.tabs)
         self.assertIsNone(options.writer)
         self.assertIsNone(options.case)
         self.assertIsNone(options.base)
@@ -187,26 +184,6 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
-    def test_option_d(self):
-        for option in ('-d', '--crlf'):
-            output, error = self.run_skool2asm('-q {} test-d.skool'.format(option))
-            self.assertEqual({'crlf': '1'}, mock_asm_writer.properties)
-            self.assertTrue(mock_asm_writer.wrote)
-            mock_asm_writer.properties = None
-            mock_asm_writer.wrote = False
-
-    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
-    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
-    def test_option_t(self):
-        for option in ('-t', '--tabs'):
-            output, error = self.run_skool2asm('-q {} test-t.skool'.format(option))
-            self.assertEqual({'tab': '1'}, mock_asm_writer.properties)
-            self.assertTrue(mock_asm_writer.wrote)
-            mock_asm_writer.properties = None
-            mock_asm_writer.wrote = False
-
-    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
-    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_l(self):
         for option in ('-l', '--lower'):
             output, error = self.run_skool2asm('-q {} test-l.skool'.format(option))
@@ -247,17 +224,6 @@ class Skool2AsmTest(SkoolKitTestCase):
             self.assertEqual(mock_skool_parser.base, BASE_16)
             self.assertTrue(mock_asm_writer.wrote)
             mock_skool_parser.base = None
-            mock_asm_writer.wrote = False
-
-    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
-    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
-    def test_option_i(self):
-        width = 30
-        for option in ('-i', '--inst-width'):
-            output, error = self.run_skool2asm('-q {} {} test-u.skool'.format(option, width))
-            self.assertEqual({'instruction-width': width}, mock_asm_writer.properties)
-            self.assertTrue(mock_asm_writer.wrote)
-            mock_asm_writer.properties = None
             mock_asm_writer.wrote = False
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
@@ -371,10 +337,10 @@ class Skool2AsmTest(SkoolKitTestCase):
             mock_asm_writer.properties = None
             mock_asm_writer.wrote = False
 
-        # tab=0, overridden by '-t' option
+        # tab=0, overridden by --set option
         tab = '0'
         skoolfile = self.write_text_file(skool.format(tab), suffix='.skool')
-        self.run_skool2asm('-t {}'.format(skoolfile))
+        self.run_skool2asm('--set tab=1 {}'.format(skoolfile))
         self.assertEqual(mock_asm_writer.properties['tab'], '1')
         self.assertTrue(mock_asm_writer.wrote)
 
@@ -395,10 +361,10 @@ class Skool2AsmTest(SkoolKitTestCase):
             mock_asm_writer.properties = None
             mock_asm_writer.wrote = False
 
-        # crlf=0, overridden by '-d' option
+        # crlf=0, overridden by --set option
         crlf = '0'
         skoolfile = self.write_text_file(skool.format(crlf), suffix='.skool')
-        self.run_skool2asm('-d {}'.format(skoolfile))
+        self.run_skool2asm('--set crlf=1 {}'.format(skoolfile))
         self.assertEqual(mock_asm_writer.properties['crlf'], '1')
         self.assertTrue(mock_asm_writer.wrote)
 
@@ -444,10 +410,10 @@ class Skool2AsmTest(SkoolKitTestCase):
             mock_asm_writer.properties = None
             mock_asm_writer.wrote = False
 
-        # instruction-width=27, overridden by '-i' option
+        # instruction-width=27, overridden by --set option
         skoolfile = self.write_text_file(skool.format(27), suffix='.skool')
-        width = 20
-        self.run_skool2asm('-i {} {}'.format(width, skoolfile))
+        width = '20'
+        self.run_skool2asm('--set instruction-width={} {}'.format(width, skoolfile))
         self.assertEqual(mock_asm_writer.properties['instruction-width'], width)
         self.assertTrue(mock_asm_writer.wrote)
 

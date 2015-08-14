@@ -85,7 +85,6 @@ assembler (see :ref:`supportedAssemblers`). For example::
 
   Options:
     -c, --create-labels   Create default labels for unlabelled instructions
-    -d, --crlf            Use CR+LF to end lines
     -D, --decimal         Write the disassembly in decimal
     -E ADDR, --end ADDR   Stop converting at this address
     -f N, --fixes N       Apply fixes:
@@ -94,7 +93,6 @@ assembler (see :ref:`supportedAssemblers`). For example::
                             N=2: @ofix and @bfix
                             N=3: @ofix, @bfix and @rfix (implies -r)
     -H, --hex             Write the disassembly in hexadecimal
-    -i N, --inst-width N  Set instruction field width (default=23)
     -l, --lower           Write the disassembly in lower case
     -p, --package-dir     Show path to skoolkit package directory and exit
     -P p=v, --set p=v     Set the value of ASM writer property 'p' to 'v'; this
@@ -105,8 +103,6 @@ assembler (see :ref:`supportedAssemblers`). For example::
     -s, --ssub            Apply safe substitutions (@ssub)
     -S ADDR, --start ADDR
                           Start converting at this address
-    -t, --tabs            Use tab to indent instructions (default indentation is
-                          2 spaces)
     -u, --upper           Write the disassembly in upper case
     -V, --version         Show SkoolKit version number and exit
     -w, --no-warnings     Suppress warnings
