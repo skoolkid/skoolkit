@@ -2236,6 +2236,17 @@ class SkoolParserTest(SkoolKitTestCase):
         warnings = self.err.getvalue().split('\n')[:-1]
         self.assertEqual([], warnings)
 
+    def test_no_warning_for_remote_entry_address_operand_inside_disassembly_address_range(self):
+        skool = '\n'.join((
+            '@start',
+            'c30000 JP 30001',
+            '',
+            'r30001 save'
+        ))
+        self._get_parser(skool, asm_mode=2, warnings=True)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual([], warnings)
+
     def test_address_strings_in_warnings(self):
         skool = '\n'.join((
             '@start',

@@ -616,11 +616,14 @@ class SkoolParser:
                 # Warn if we cannot find a label to replace the operand of this
                 # routine instruction (will need @nowarn if this is OK)
                 self.warn('Found no label for operand: {} {}'.format(instruction.addr_str, operation))
-        elif label_warn and self.mode.do_ssubs and self.base_address <= operand_int < self.end_address:
-            # Warn if the operand is inside the address range of the
-            # disassembly (where code might be) but doesn't refer to the
-            # address of an instruction (will need @nowarn if this is OK)
-            self.warn('Unreplaced operand: {} {}'.format(instruction.addr_str, operation))
+        else:
+            references = self._instructions.get(operand_int)
+            is_local = not (references and references[0].container.is_remote())
+            if is_local and label_warn and self.mode.do_ssubs and self.base_address <= operand_int < self.end_address:
+                # Warn if the operand is inside the address range of the
+                # disassembly (where code might be) but doesn't refer to the
+                # address of an instruction (will need @nowarn if this is OK)
+                self.warn('Unreplaced operand: {} {}'.format(instruction.addr_str, operation))
 
 class Mode:
     def __init__(self, case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels):
