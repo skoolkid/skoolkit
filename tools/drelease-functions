@@ -148,7 +148,6 @@ build_tarball() {
   cd skoolkit-$SKOOLKIT_VERSION
   _exec "Building tarball and zip archive" "$SKOOLKIT_TOOLS/mkdtarball $DHOME $GAME" $logdir/build.log
   root=dist/$RELEASE
-  _exec "Validating XHTML" "$SKOOLKIT_TOOLS/validate-xhtml $root/html" $logdir/validate-xhtml.log
   _exec "Checking links" "$SKOOLKIT_TOOLS/check-links.py $root/html" $logdir/check-links.log
   _check_files "source files" $root/sources $logdir $SRCFILES
   _check_files "txt files" $root $logdir asm.txt readme.txt
