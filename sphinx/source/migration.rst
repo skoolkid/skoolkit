@@ -117,8 +117,8 @@ new ``-P/--set`` option:
 skoolkit4to5.py
 ---------------
 The `skoolkit4to5.py`_ script may be used to convert a control file, `skool`
-file or skool file template that is compatible with SkoolKit 4 into a file that
-will work with SkoolKit 5. For example, to convert `game.skool`::
+file, skool file template or CSS file that is compatible with SkoolKit 4 into a
+file that will work with SkoolKit 5. For example, to convert `game.skool`::
 
   $ skoolkit4to5.py game.skool > game5.skool
 

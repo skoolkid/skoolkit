@@ -85,6 +85,10 @@ def convert_ctl(ctlfile_f):
 def convert_sft(sftfile_f):
     convert_skool(sftfile_f)
 
+def convert_css(cssfile_f):
+    css = cssfile_f.read()
+    write(css.replace('a.link', 'a'))
+
 def main(args):
     parser = argparse.ArgumentParser(
         usage='skoolkit4to5.py FILE',
@@ -102,6 +106,8 @@ def main(args):
             convert_ctl(f)
         elif infile_l.endswith('.sft'):
             convert_sft(f)
+        elif infile_l.endswith('.css'):
+            convert_css(f)
         else:
             convert_skool(f)
 
