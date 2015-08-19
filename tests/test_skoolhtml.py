@@ -223,6 +223,23 @@ class HtmlWriterTestCase(SkoolKitTestCase):
             writer.write_file = self._mock_write_file
         return writer
 
+class HtmlWriterTest(HtmlWriterTestCase):
+    def test_OtherCode_Source_parameter(self):
+        ref = '\n'.join((
+            '[OtherCode:load]',
+            '[OtherCode:save]',
+            'Source=save.sks'
+        ))
+        writer = self._get_writer(ref=ref)
+        self.assertEqual(len(writer.other_code), 2)
+        i = 0
+        for exp_code_id, exp_source in (('load', 'load.skool'), ('save', 'save.sks')):
+            code_id, code = writer.other_code[i]
+            self.assertEqual(code_id, exp_code_id)
+            self.assertIn('Source', code)
+            self.assertEqual(code['Source'], exp_source)
+            i += 1
+
 class MethodTest(HtmlWriterTestCase):
     def setUp(self):
         HtmlWriterTestCase.setUp(self)
@@ -3367,18 +3384,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             writer.write_asm_entries()
         self.assertEqual(cm.exception.args[0], "Cannot find code path for 'save' disassembly")
-
-    def test_write_asm_entries_with_missing_OtherCode_Source_parameter(self):
-        ref = '[OtherCode:load]\nFoo=Bar'
-        skool = '\n'.join((
-            'c30000 JP 50000',
-            '',
-            'r50000 load'
-        ))
-        writer = self._get_writer(ref=ref, skool=skool)
-        with self.assertRaises(SkoolKitError) as cm:
-            writer.write_asm_entries()
-        self.assertEqual(cm.exception.args[0], "Cannot find code path for 'load' disassembly")
 
     def test_block_start_comment(self):
         start_comment = ('Start comment paragraph 1.', 'Paragraph 2.')

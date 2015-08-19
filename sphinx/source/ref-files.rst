@@ -584,13 +584,14 @@ limited to the characters '$', '#', 0-9, A-Z and a-z. The unique ID may be used
 by the :ref:`R` macro when referring to routines or data blocks in the
 secondary disassembly from another disassembly.
 
-An ``OtherCode:*`` section must contain a single parameter named ``Source`` in
-the form::
+An ``OtherCode:*`` section may either be empty or contain a single parameter
+named ``Source`` in the form::
 
   Source=fname
 
 where ``fname`` is the path to the `skool` file from which to generate the
-secondary disassembly.
+secondary disassembly. If the ``Source`` parameter is not provided, its value
+defaults to `CodeID.skool`.
 
 When a secondary disassembly named ``CodeID`` is defined, the following page
 and directory IDs become available for use in the :ref:`paths`, :ref:`titles`,
@@ -608,11 +609,13 @@ disassembly pages are written in a directory named `CodeID`.
 Note that the index page is a memory map page, and as such can be configured by
 creating a :ref:`memoryMap` section (``MemoryMap:CodeID-Index``) for it.
 
-+---------+-------------------------------------+
-| Version | Changes                             |
-+=========+=====================================+
-| 2.0     | New                                 |
-+---------+-------------------------------------+
++---------+----------------------------------------+
+| Version | Changes                                |
++=========+========================================+
+| 5.0     | Made the ``Source`` parameter optional |
++---------+----------------------------------------+
+| 2.0     | New                                    |
++---------+----------------------------------------+
 
 .. _page:
 

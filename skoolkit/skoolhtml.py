@@ -153,19 +153,19 @@ class HtmlWriter:
         self.other_code = []
         other_code_indexes = set()
         for c_id, code in self.get_dictionaries('OtherCode'):
-            if code.get('Source'):
-                self.other_code.append((c_id, code))
-                index_page_id = code['IndexPageId'] = '{}-Index'.format(c_id)
-                other_code_indexes.add(index_page_id)
-                self.paths.setdefault(index_page_id, '{0}/{0}.html'.format(c_id))
-                self.titles.setdefault(index_page_id, c_id)
-                code_path_id = code['CodePathId'] = '{}-CodePath'.format(c_id)
-                self.paths.setdefault(code_path_id, c_id)
-                for entry_type in 'bcgstuw':
-                    asm_page_id = self._get_asm_page_id(c_id, entry_type)
-                    default_asm_page_id = self._get_asm_page_id(MAIN_CODE_ID, entry_type)
-                    self.titles.setdefault(asm_page_id, self.titles[default_asm_page_id])
-                    self.page_headers.setdefault(asm_page_id, self.page_headers[default_asm_page_id])
+            code.setdefault('Source', '{}.skool'.format(c_id))
+            self.other_code.append((c_id, code))
+            index_page_id = code['IndexPageId'] = '{}-Index'.format(c_id)
+            other_code_indexes.add(index_page_id)
+            self.paths.setdefault(index_page_id, '{0}/{0}.html'.format(c_id))
+            self.titles.setdefault(index_page_id, c_id)
+            code_path_id = code['CodePathId'] = '{}-CodePath'.format(c_id)
+            self.paths.setdefault(code_path_id, c_id)
+            for entry_type in 'bcgstuw':
+                asm_page_id = self._get_asm_page_id(c_id, entry_type)
+                default_asm_page_id = self._get_asm_page_id(MAIN_CODE_ID, entry_type)
+                self.titles.setdefault(asm_page_id, self.titles[default_asm_page_id])
+                self.page_headers.setdefault(asm_page_id, self.page_headers[default_asm_page_id])
 
         self.gsb_includes = []
         for addr_str in self.game_vars.get('GameStatusBufferIncludes', '').split(','):
