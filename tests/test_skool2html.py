@@ -933,5 +933,120 @@ class Skool2HtmlTest(SkoolKitTestCase):
                 headers = [line[1:-1] for line in output if line.startswith('[') and line.endswith(']')]
                 self.assertEqual(exp_headers, headers)
 
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    def test_Config_RefFiles_parameter(self):
+        ref1 = '\n'.join((
+            '[Game]',
+            'Game=Foo'
+        ))
+        ref1file = self.write_text_file(ref1, suffix='.ref')
+        ref2 = '\n'.join((
+            '[ImageWriter]',
+            'DefaultFormat=gif'
+        ))
+        ref2file = self.write_text_file(ref2, suffix='.ref')
+        ref = '\n'.join((
+            '[Config]',
+            'RefFiles={};{}'.format(ref1file, ref2file)
+        ))
+        reffile = self.write_text_file(ref, suffix='.ref')
+        exp_reffiles = (reffile, ref1file, ref2file)
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html(reffile)
+        self.assertEqual(error, '')
+        self.assertEqual(output[1], 'Using ref files: {}'.format(', '.join(exp_reffiles)))
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(html_writer.game_vars['Game'], 'Foo')
+        self.assertEqual(html_writer.image_writer.default_format, 'gif')
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    def test_Config_RefFiles_parameter_contains_ref_file_already_parsed(self):
+        prefix = self.write_text_file(suffix='.skool')[:-6]
+        ref1 = '\n'.join((
+            '[Paths]',
+            'CodePath=code'
+        ))
+        ref1file = self.write_text_file(ref1, suffix='.ref')
+        ref2 = '\n'.join((
+            '[Game]',
+            'Game=Bar'
+        ))
+        ref2file = self.write_text_file(ref2, path='{}-auto.ref'.format(prefix))
+        ref = '\n'.join((
+            '[Config]',
+            'RefFiles={};{}'.format(ref1file, ref2file)
+        ))
+        reffile = self.write_text_file(ref, path='{}.ref'.format(prefix))
+        exp_reffiles = (reffile, ref2file, ref1file)
+        output, error = self.run_skool2html(reffile)
+        self.assertEqual(error, '')
+        self.assertEqual(output[1], 'Using ref files: {}'.format(', '.join(exp_reffiles)))
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(html_writer.game_vars['Game'], 'Bar')
+        self.assertEqual(html_writer.paths['CodePath'], 'code')
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    def test_Config_RefFiles_parameter_contains_nonexistent_file(self):
+        ref1 = '\n'.join((
+            '[Paths]',
+            'CodePath=disassembly'
+        ))
+        ref1file = self.write_text_file(ref1, suffix='.ref')
+        ref = '\n'.join((
+            '[Config]',
+            'RefFiles={};nonexistent.ref'.format(ref1file)
+        ))
+        reffile = self.write_text_file(ref, suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        exp_reffiles = (reffile, ref1file)
+        output, error = self.run_skool2html(reffile)
+        self.assertEqual(error, '')
+        self.assertEqual(output[1], 'Using ref files: {}'.format(', '.join(exp_reffiles)))
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(html_writer.paths['CodePath'], 'disassembly')
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    def test_Config_RefFiles_parameter_via_option_c(self):
+        ref = '\n'.join((
+            '[Game]',
+            'Copyright=(C) 2015 me'
+        ))
+        reffile = self.write_text_file(ref, suffix='.ref')
+        skoolfile = self.write_text_file(suffix='.skool')
+        output, error = self.run_skool2html('-c Config/RefFiles={} {}'.format(reffile, skoolfile))
+        self.assertEqual(error, '')
+        self.assertEqual(output[1], 'Using ref file: {}'.format(reffile))
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(html_writer.game_vars['Copyright'], '(C) 2015 me')
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    def test_option_c_modifies_extra_ref_files(self):
+        extra_ref = '\n'.join((
+            '[Game]',
+            'Game=Qux'
+        ))
+        extra_reffile = self.write_text_file(extra_ref, suffix='.ref')
+        ref = '\n'.join((
+            '[Config]',
+            'RefFiles={}'.format(extra_reffile)
+        ))
+        reffile = self.write_text_file(ref, suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('-c Game/Game=Baz {}'.format(reffile))
+        self.assertEqual(error, '')
+        self.assertEqual(output[1], 'Using ref files: {}, {}'.format(reffile, extra_reffile))
+        html_writer = write_disassembly_args[0]
+        self.assertEqual(html_writer.game_vars['Game'], 'Baz')
+
 if __name__ == '__main__':
     unittest.main()

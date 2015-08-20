@@ -248,11 +248,12 @@ conversion process.
 
   $ skool2html.py game.ref
 
-In this case, the `skool` file declared in the :ref:`ref-Config` section of
-`game.ref` will be used; if no `skool` file is declared in `game.ref`,
-`game.skool` will be used if it exists. In addition, any existing files besides
-`game.ref` that are named `game*.ref` (e.g. `game-bugs.ref`, `game-pokes.ref`
-and so on) will also be used.
+In this case, the `skool` file declared in the :ref:`ref-Config` section will
+be used; if no `skool` file is declared, `game.skool` will be used if it
+exists. In addition, any existing files besides `game.ref` that are named
+`game*.ref` (e.g. `game-bugs.ref`, `game-pokes.ref` and so on) will also be
+used, along with any extra files named in the ``RefFiles`` parameter in the
+:ref:`ref-Config` section.
 
 If an input file's name ends with '.ref', it will be treated as a `ref` file;
 otherwise it will be treated as a `skool` file.

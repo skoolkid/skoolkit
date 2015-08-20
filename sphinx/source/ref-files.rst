@@ -151,6 +151,9 @@ Recognised parameters are:
   the class is in a module that is not in the module search path (e.g. a
   standalone module that is not part of an installed package), the module's
   location may be specified thus: ``/path/to/moduledir:module.classname``
+* ``RefFiles`` - a semicolon-separated list of extra `ref` files to use (in
+  addition to the one named on the :ref:`skool2html.py` command line, and any
+  others with the same filename prefix)
 * ``SkoolFile`` - the name of the main `skool` file to use if not given on the
   :ref:`skool2html.py <skool2html.py>` command line; if not specified, the
   `skool` file with the same base name as the `ref` file will be used
@@ -162,6 +165,8 @@ disassembly, see the documentation on
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 5.0     | Added the ``RefFiles`` parameter                                  |
++---------+-------------------------------------------------------------------+
 | 3.3.1   | Added support to the ``HtmlWriterClass`` parameter for specifying |
 |         | a module outside the module search path                           |
 +---------+-------------------------------------------------------------------+

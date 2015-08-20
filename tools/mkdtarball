@@ -5,12 +5,13 @@ set -e
 
 usage() {
   cat <<EOF
-Usage: $(basename $0) DHOME GAME
+Usage: $(basename $0) DHOME REFFILE GAME
 
   Create a release tarball and zip archive of a disassembly.
 
 Arguments:
   DHOME - disassembly home directory
+  REFFILE - name of the main ref file
   GAME - tarball/zip filename prefix (the suffix is '-disassembly-VERSION')
 EOF
   exit 1
@@ -75,15 +76,15 @@ the game will start automatically.
 EOF
 }
 
-if (($# < 2)); then
+if (($# < 3)); then
   usage
 fi
 
 DHOME=$1
-GAME=$2
+REFFILE=$2
+GAME=$3
 
-PREFIX=$(basename $(ls -1 $DHOME/sources/*.ref | grep -v '/.*-.*.ref') .ref)
-REFFILE=$PREFIX.ref
+PREFIX=$(basename $REFFILE .ref)
 
 # Determine the SkoolKit version number
 if [[ ! -f skool2html.py ]]; then

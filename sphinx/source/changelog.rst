@@ -13,6 +13,8 @@ Changelog
 * Added the :ref:`assemble` ASM directive
 * Added the ``--set`` option to :ref:`skool2asm.py` (for setting ASM writer
   property values)
+* Added the ``RefFiles`` parameter to the :ref:`ref-Config` section (for
+  specifying extra `ref` files to use)
 
 4.5 (2015-07-04)
 ----------------

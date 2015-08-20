@@ -187,19 +187,28 @@ def process_file(infile, topdir, options):
         raise SkoolKitError('{}: file not found'.format(normpath(infile)))
 
     reffiles = []
+    if reffile_f:
+        reffiles.append(normpath(reffile_f))
     base_ref = prefix + '.ref'
     for f in sorted(os.listdir(ref_search_dir or '.')):
         if isfile(os.path.join(ref_search_dir, f)) and f.endswith('.ref') and f.startswith(prefix) and f != base_ref:
             reffiles.append(normpath(ref_search_dir, f))
-    if reffile_f:
-        reffiles.insert(0, normpath(reffile_f))
     ref_parser = RefParser()
     ref_parser.parse(StringIO(defaults.get_section('Config')))
     config = ref_parser.get_dictionary('Config')
     for oreffile_f in reffiles:
         ref_parser.parse(oreffile_f)
-    add_lines(ref_parser, options.config_specs)
+    add_lines(ref_parser, options.config_specs, 'Config')
     config.update(ref_parser.get_dictionary('Config'))
+    extra_reffiles = config.get('RefFiles')
+    if extra_reffiles:
+        for f in extra_reffiles.split(';'):
+            if isfile(os.path.join(ref_search_dir, f)):
+                ref_f = normpath(ref_search_dir, f)
+                if ref_f not in reffiles:
+                    reffiles.append(ref_f)
+                    ref_parser.parse(ref_f)
+    add_lines(ref_parser, options.config_specs)
 
     if skoolfile_f is None:
         skoolfile = config.get('SkoolFile', '{}.skool'.format(prefix))

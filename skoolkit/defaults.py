@@ -41,9 +41,10 @@ SECTIONS['Colours'] = """
 """
 
 SECTIONS['Config'] = """
-HtmlWriterClass=skoolkit.skoolhtml.HtmlWriter
-; SkoolFile=
 ; GameDir=
+HtmlWriterClass=skoolkit.skoolhtml.HtmlWriter
+; RefFiles=
+; SkoolFile=
 """
 
 SECTIONS['Game'] = """
