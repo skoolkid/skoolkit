@@ -140,6 +140,8 @@ will use the following CSS files, if they exist, in the order listed:
 |   game.css
 |   game-dark.css
 |   game-wide.css
+|   dark.css
+|   wide.css
 
 EXAMPLES
 ========

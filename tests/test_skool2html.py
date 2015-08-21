@@ -836,13 +836,15 @@ class Skool2HtmlTest(SkoolKitTestCase):
         skoolfile = self.write_text_file(suffix='.skool')
         cssfile1 = self.write_text_file(suffix='.css')
         cssfile2 = self.write_text_file(suffix='.css')
-        theme = 'blue'
+        cssfile4 = self.write_text_file(suffix='.css')
+        theme = cssfile4[:-4]
         cssfile3 = self.write_text_file(path='{0}-{1}.css'.format(cssfile2[:-4], theme))
         stylesheet = 'Game/StyleSheet={0};{1}'.format(cssfile1, cssfile2)
+        exp_css_files = (cssfile1, cssfile2, cssfile3, cssfile4)
         for option in ('-T', '--theme'):
             output, error = self.run_skool2html('-d {} -c {} {} {} {}'.format(self.odir, stylesheet, option, theme, skoolfile))
             self.assertEqual(error, '')
-            self.assertEqual(html_writer.game_vars['StyleSheet'], '{};{};{}'.format(cssfile1, cssfile2, cssfile3))
+            self.assertEqual(html_writer.game_vars['StyleSheet'], ';'.join(exp_css_files))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)

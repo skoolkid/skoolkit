@@ -118,11 +118,12 @@ def copy_resource(fname, root_dir, dest_dir, indent=0):
         notify('{}Copying {} to {}'.format(indent * ' ', fname_n, dest_f))
         shutil.copy2(fname, dest_f)
 
-def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, themes=None, suffix=None, single_css=None, indent=0):
+def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, themes=(), suffix=None, single_css=None, indent=0):
     if not fnames:
         return
+
     files = []
-    actual_files = []
+
     for fname in fnames.split(';'):
         f = find(fname, extra_search_dirs, search_dir)
         if f:
@@ -134,11 +135,12 @@ def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, th
                 f = find('{}-{}{}'.format(fname[:-len(suffix)], theme, suffix), extra_search_dirs, search_dir)
                 if f:
                     files.append(f)
-        if not single_css:
-            for f in files:
-                copy_resource(f, root_dir, dest_dir, indent)
-                actual_files.append(basename(f))
-            files = []
+
+    for theme in themes:
+        f = find('{}{}'.format(theme, suffix), extra_search_dirs, search_dir)
+        if f:
+            files.append(f)
+
     if single_css:
         dest_css = normpath(root_dir, dest_dir, single_css)
         if isdir(dest_css):
@@ -151,7 +153,10 @@ def copy_resources(search_dir, extra_search_dirs, root_dir, fnames, dest_dir, th
                         css.write(line)
                 css.write('\n')
         return single_css
-    return ';'.join(actual_files)
+
+    for f in files:
+        copy_resource(f, root_dir, dest_dir, indent)
+    return ';'.join([basename(f) for f in files])
 
 def get_prefix(fname):
     if '.' in fname:
@@ -380,7 +385,7 @@ def main(args):
                             "option may be used multiple times")
     group.add_argument('-t', '--time', dest='show_timings', action='store_true',
                        help="Show timings")
-    group.add_argument('-T', '--theme', dest='themes', metavar='THEME', action='append',
+    group.add_argument('-T', '--theme', dest='themes', metavar='THEME', action='append', default=[],
                        help="Use this CSS theme; this option may be used multiple\ntimes")
     group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER,
                        help="Write the disassembly in upper case")
