@@ -79,7 +79,12 @@ def _get_block_info(data, i):
         header = 'Generalized data'
         i += get_dword(data, i) + 4
     elif block_id == 32:
-        header = "Pause (silence) or 'Stop the tape' command"
+        duration = get_word(data, i)
+        if duration:
+            header = "Pause (silence)"
+            info.append('Duration: {}ms'.format(duration))
+        else:
+            header = "'Stop the tape' command"
         i += 2
     elif block_id == 33:
         header = 'Group start'

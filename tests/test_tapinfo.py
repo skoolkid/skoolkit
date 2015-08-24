@@ -189,10 +189,19 @@ class TapinfoTest(SkoolKitTestCase):
         exp_output = ['1: Generalized data (0x19)']
         self._test_tzx_block(block, exp_output)
 
-    def test_tzx_block_0x20(self):
+    def test_tzx_block_0x20_stop_the_tape(self):
         block = [32] # Block ID
-        block.extend((0, 10)) # Pause duration
-        exp_output = ["1: Pause (silence) or 'Stop the tape' command (0x20)"]
+        block.extend((0, 0))
+        exp_output = ["1: 'Stop the tape' command (0x20)"]
+        self._test_tzx_block(block, exp_output)
+
+    def test_tzx_block_0x20_pause(self):
+        block = [32] # Block ID
+        block.extend((100, 0)) # Pause duration
+        exp_output = [
+            '1: Pause (silence) (0x20)',
+            '  Duration: 100ms'
+        ]
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x21(self):
