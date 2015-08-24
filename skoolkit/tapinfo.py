@@ -84,7 +84,7 @@ def _get_block_info(data, i):
     elif block_id == 33:
         header = 'Group start'
         length = data[i]
-        name = ''.join([chr(b) for b in data[i + 1:i + 1 + length]])
+        name = _get_str(data[i + 1:i + 1 + length])
         info.append("Name: {}".format(name.rstrip()))
         i += length + 1
     elif block_id == 34:
@@ -113,7 +113,9 @@ def _get_block_info(data, i):
         i += 5
     elif block_id == 48:
         header = 'Text description'
-        i += data[i] + 1
+        length = data[i]
+        info.append('Text: {}'.format(_get_str(data[i + 1:i + 1 + length])))
+        i += length + 1
     elif block_id == 49:
         header = 'Message'
         i += data[i + 1] + 2

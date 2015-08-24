@@ -262,8 +262,11 @@ class TapinfoTest(SkoolKitTestCase):
 
     def test_tzx_block_0x30(self):
         block = [48] # Block ID
-        block.extend((1, 65))
-        exp_output = ['1: Text description (0x30)']
+        block.extend((3, 65, 66, 67))
+        exp_output = [
+            '1: Text description (0x30)',
+            '  Text: ABC'
+        ]
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x31(self):
