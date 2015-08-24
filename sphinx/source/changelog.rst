@@ -15,6 +15,8 @@ Changelog
   property values)
 * Added the ``RefFiles`` parameter to the :ref:`ref-Config` section (for
   specifying extra `ref` files to use)
+* Added support to :ref:`sna2skool.py` for reading SpecEmu's 64K code execution
+  map files
 
 4.5 (2015-07-04)
 ----------------

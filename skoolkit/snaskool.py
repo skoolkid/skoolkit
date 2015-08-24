@@ -80,6 +80,15 @@ def _get_code_blocks(snapshot, start, end, fname):
                     addresses.append(address)
                 b >>= 1
                 address += 1
+    elif size == 65536:
+        # Assume this is a SpecEmu map file
+        sys.stderr.write('Reading {}'.format(fname))
+        sys.stderr.flush()
+        addresses = []
+        data = read_bin_file(fname)
+        for address in range(start, end):
+            if data[address] & 1:
+                addresses.append(address)
     else:
         sys.stderr.write('Reading {0}: '.format(fname))
         sys.stderr.flush()

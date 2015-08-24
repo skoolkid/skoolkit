@@ -309,7 +309,7 @@ def mock_run(*args):
     run_args = args
 
 class OptionsTest(SkoolKitTestCase):
-    def _create_map(self, addresses):
+    def _create_z80_map(self, addresses):
         bits = []
         map_data = []
         for a in range(65536):
@@ -317,6 +317,12 @@ class OptionsTest(SkoolKitTestCase):
             if len(bits) == 8:
                 map_data.append(int(''.join(reversed(bits)), 2))
                 bits = []
+        return map_data
+
+    def _create_specemu_map(self, addresses):
+        map_data = [0] * 65536
+        for address in addresses:
+            map_data[address] = 1
         return map_data
 
     def _create_fuse_profile(self, addresses):
@@ -569,7 +575,7 @@ class OptionsTest(SkoolKitTestCase):
             201    # 30005 RET
         ]
         binfile = self.write_bin_file(data)
-        mapfile = self.write_bin_file(self._create_map([30000, 30002, 30003, 30005]))
+        mapfile = self.write_bin_file(self._create_z80_map([30000, 30002, 30003, 30005]))
         output, error = self.run_sna2skool('-g {} -M {} -o 30000 -e 30003 {}'.format(ctlfile, mapfile, binfile))
         self.assertEqual(error, 'Reading {}\n'.format(mapfile))
         with open(ctlfile, 'r') as f:
@@ -588,7 +594,7 @@ class OptionsTest(SkoolKitTestCase):
             201    # 30005 RET
         ]
         binfile = self.write_bin_file(data)
-        mapfile = self.write_bin_file(self._create_map([30000, 30002, 30003, 30005]))
+        mapfile = self.write_bin_file(self._create_z80_map([30000, 30002, 30003, 30005]))
         output, error = self.run_sna2skool('-g {} -M {} -o 30000 -e 30005 {}'.format(ctlfile, mapfile, binfile))
         self.assertEqual(error, 'Reading {}\n'.format(mapfile))
         with open(ctlfile, 'r') as f:
@@ -605,7 +611,7 @@ class OptionsTest(SkoolKitTestCase):
             201,   # 65535 RET
         ]
         binfile = self.write_bin_file(data)
-        mapfile = self.write_bin_file(self._create_map([65533, 65535]))
+        mapfile = self.write_bin_file(self._create_z80_map([65533, 65535]))
         output, error = self.run_sna2skool('-g {} -M {} {}'.format(ctlfile, mapfile, binfile))
         self.assertEqual(error, 'Reading {}\n'.format(mapfile))
         with open(ctlfile, 'r') as f:
@@ -615,10 +621,10 @@ class OptionsTest(SkoolKitTestCase):
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
-    def _test_option_M(self, code_map, option, z80=False):
+    def _test_option_M(self, code_map, option, map_file=False):
         ctlfile = self.write_text_file()
         binfile = self.write_bin_file(TEST_MAP_BIN, suffix='.bin')
-        if z80:
+        if map_file:
             code_map_file = self.write_bin_file(code_map, suffix='.map')
             exp_error = 'Reading {}\n'.format(code_map_file)
         else:
@@ -634,13 +640,16 @@ class OptionsTest(SkoolKitTestCase):
         self.assertTrue(mock_skool_writer.wrote_skool)
 
     def test_option_M_z80(self):
-        self._test_option_M(self._create_map(TEST_MAP), '-M', True)
+        self._test_option_M(self._create_z80_map(TEST_MAP), '-M', True)
 
     def test_option_M_fuse(self):
         self._test_option_M(self._create_fuse_profile(TEST_MAP), '--map')
 
-    def test_option_M_specemu(self):
+    def test_option_M_specemu_log(self):
         self._test_option_M(self._create_specemu_log(TEST_MAP), '-M')
+
+    def test_option_M_specemu_map(self):
+        self._test_option_M(self._create_specemu_map(TEST_MAP), '-M', True)
 
     def test_option_M_spud(self):
         self._test_option_M(self._create_spud_log(TEST_MAP), '--map')
@@ -940,7 +949,7 @@ class OptionsTest(SkoolKitTestCase):
             201,           # 65534 RET
             233            # 65535 JP (HL)
         )
-        code_map = self._create_map((65531, 65534))
+        code_map = self._create_z80_map((65531, 65534))
         code_map_file = self.write_bin_file(code_map, suffix='.map')
         binfile = self.write_bin_file(data, suffix='.bin')
         self.run_sna2skool('-g test.ctl -M {} {}'.format(code_map_file, binfile))

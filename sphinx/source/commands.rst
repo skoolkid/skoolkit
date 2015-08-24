@@ -497,15 +497,17 @@ supported file formats are:
 
 * Profiles created by the Fuse emulator
 * Code execution logs created by the SpecEmu, Spud and Zero emulators
-* Map files created by the Z80 emulator
+* Map files created by the SpecEmu and Z80 emulators
 
 If the file specified by the ``-M`` option is 8192 bytes long, it is assumed to
-be a Z80 map file; otherwise it is assumed to be in one of the other supported
-formats.
+be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
+file; otherwise it is assumed to be in one of the other supported formats.
 
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 5.0     | Added support for SpecEmu's 64K code execution map files        |
++---------+-----------------------------------------------------------------+
 | 4.4     | Added the ``--ctl-hex-lower`` and ``--end`` options             |
 +---------+-----------------------------------------------------------------+
 | 4.3     | Added the ``--line-width`` option                               |
