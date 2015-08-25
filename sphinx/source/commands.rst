@@ -153,6 +153,7 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
 
   Options:
     -E ADDR, --end ADDR   Stop converting at this address
+    -i, --isub            Apply instruction substitutions (@isub)
     -S ADDR, --start ADDR
                           Start converting at this address
     -V, --version         Show SkoolKit version number and exit

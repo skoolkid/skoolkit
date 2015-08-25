@@ -20,6 +20,9 @@ OPTIONS
 -E, --end `ADDR`
   Stop converting at this address.
 
+-i, --isub
+  Apply instruction substitutions (@isub).
+
 -S, --start `ADDR`
   Start converting at this address.
 

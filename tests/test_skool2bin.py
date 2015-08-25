@@ -12,10 +12,11 @@ from skoolkit import SkoolKitError, VERSION, skool2bin
 PY3 = sys.version_info >= (3,)
 
 class MockBinWriter:
-    def __init__(self, skoolfile):
+    def __init__(self, skoolfile, asm_mode):
         global mock_bin_writer
         mock_bin_writer = self
         self.skoolfile = skoolfile
+        self.asm_mode = asm_mode
         self.binfile = None
         self.start = None
         self.end = None
@@ -50,6 +51,7 @@ class Skool2BinTest(SkoolKitTestCase):
         output, error = self.run_skool2bin(skoolfile)
         self.assertEqual(len(error), 0)
         self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
+        self.assertEqual(mock_bin_writer.asm_mode, 0)
         self.assertEqual(mock_bin_writer.binfile, exp_binfile)
         self.assertIsNone(mock_bin_writer.start)
         self.assertIsNone(mock_bin_writer.end)
@@ -76,9 +78,23 @@ class Skool2BinTest(SkoolKitTestCase):
             output, error = self.run_skool2bin('{} {} {}'.format(option, value, skoolfile))
             self.assertEqual(len(error), 0)
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertEqual(mock_bin_writer.end, value)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_option_i(self):
+        skoolfile = 'test-i.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option in ('-i', '--isub'):
+            output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
+            self.assertEqual(len(error), 0)
+            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_bin_writer.asm_mode, 1)
+            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
+            self.assertIsNone(mock_bin_writer.start)
+            self.assertIsNone(mock_bin_writer.end)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_S(self):
@@ -88,6 +104,7 @@ class Skool2BinTest(SkoolKitTestCase):
             output, error = self.run_skool2bin('{} {} {}'.format(option, value, skoolfile))
             self.assertEqual(len(error), 0)
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_bin_writer.asm_mode, 0)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertEqual(mock_bin_writer.start, value)
             self.assertIsNone(mock_bin_writer.end)
@@ -98,7 +115,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
 
 class BinWriterTest(SkoolKitTestCase):
-    def _test_write(self, skool, base_address, exp_data, exp_err=None, start=None, end=None):
+    def _test_write(self, skool, base_address, exp_data, exp_err=None, asm_mode=0, start=None, end=None):
         if skool is None:
             skoolfile = '-'
             binfile = self.write_bin_file(suffix='.bin')
@@ -106,7 +123,7 @@ class BinWriterTest(SkoolKitTestCase):
             skoolfile = self.write_text_file(skool, suffix='.skool')
             binfile = skoolfile[:-6] + '.bin'
             self.tempfiles.append(binfile)
-        bin_writer = skool2bin.BinWriter(skoolfile)
+        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode)
         bin_writer.write(binfile, start, end)
         with open(binfile, 'rb') as f:
             data = f.read()
@@ -187,6 +204,20 @@ class BinWriterTest(SkoolKitTestCase):
             ' 32770 RET'
         ))
         self._test_write(skool, 32769, [168], start=32769, end=32770)
+
+    def test_isub_mode(self):
+        skool = '\n'.join((
+            '@isub+begin',
+            'c39997 JP 40000',
+            '@isub+end',
+            '',
+            'c40000 XOR A',
+            '@isub=LD B,1',
+            ' 40001 LD B,n',
+            ' 40003 RET',
+        ))
+        exp_data = [195, 64, 156, 175, 6, 1, 201]
+        self._test_write(skool, 39997, exp_data, asm_mode=1)
 
 if __name__ == '__main__':
     unittest.main()
