@@ -99,6 +99,7 @@ def _get_block_info(data, i):
         i += 2
     elif block_id == 36:
         header = 'Loop start'
+        info.append('Repetitions: {}'.format(get_word(data, i)))
         i += 2
     elif block_id == 37:
         header = 'Loop end'

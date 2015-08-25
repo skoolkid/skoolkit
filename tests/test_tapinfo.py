@@ -228,8 +228,11 @@ class TapinfoTest(SkoolKitTestCase):
 
     def test_tzx_block_0x24(self):
         block = [36] # Block ID
-        block.extend((1, 0)) # Number of repetitions
-        exp_output = ['1: Loop start (0x24)']
+        block.extend((7, 0)) # Number of repetitions
+        exp_output = [
+            '1: Loop start (0x24)',
+            '  Repetitions: 7'
+        ]
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x25(self):
