@@ -5,14 +5,10 @@ set -e
 
 usage() {
   cat <<EOF
-Usage: $(basename $0) DHOME REFFILE GAME
+Usage: $(basename $0) DHOME
 
-  Create a release tarball and zip archive of a disassembly.
-
-Arguments:
-  DHOME - disassembly home directory
-  REFFILE - name of the main ref file
-  GAME - tarball/zip filename prefix (the suffix is '-disassembly-VERSION')
+  Create a release tarball and zip archive of a disassembly. DHOME is the
+  disassembly home directory.
 EOF
   exit 1
 }
@@ -66,6 +62,11 @@ Now $PREFIX.asm can be assembled using pasmo (http://pasmo.speccy.org/):
 
   $ pasmo $PREFIX.asm $PREFIX.bin
 
+Alternatively, $PREFIX.skool can be converted to a binary file by the
+skool2bin.py utility, included with SkoolKit:
+
+  $ ./skool2bin.py $SKOOL2BINOPTS $PREFIX.skool
+
 To create a TAP file from $PREFIX.bin, use the bin2tap.py utility,
 included with SkoolKit:
 
@@ -76,13 +77,23 @@ the game will start automatically.
 EOF
 }
 
-if (($# < 3)); then
+if (($# < 1)); then
   usage
 fi
 
 DHOME=$1
-REFFILE=$2
-GAME=$3
+if [[ ! -d $DHOME ]]; then
+  echo "Error: directory not found: $DHOME"
+  exit 1
+fi
+
+DRELEASERC=$DHOME/.dreleaserc
+if [[ ! -f $DRELEASERC ]]; then
+  echo "Error: file not found: $DRELEASERC"
+  exit 1
+fi
+
+. $DRELEASERC
 
 PREFIX=$(basename $REFFILE .ref)
 

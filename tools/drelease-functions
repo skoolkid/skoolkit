@@ -4,9 +4,7 @@ DIFFSBUILD=$DHOME/build/disassembly-diff
 BUILD=$DHOME/build
 DIST=$DHOME/dist
 DTMPDIR=$HOME/tmp
-REFFILE=$DHOME/sources/$GAMEDIR.ref
-[[ -f $REFFILE ]] || REFFILE=$DHOME/sources/$GAME.ref
-VERSION=$(grep ^Release= $REFFILE | awk '{print $NF}')
+VERSION=$(grep ^Release= $DHOME/sources/$REFFILE | awk '{print $NF}')
 RELEASE=$GAME-disassembly-$VERSION
 SKOOLKIT_TOOLS=$SKOOLKIT_HOME/tools
 SKOOLKIT_VERSION=$(cd $SKOOLKIT_HOME; git tag | tail -n 1 | cut -c2-)
@@ -146,7 +144,7 @@ build_tarball() {
   logdir=$(pwd)
   tar xf $SKOOLKIT_TARBALL
   cd skoolkit-$SKOOLKIT_VERSION
-  _exec "Building tarball and zip archive" "$SKOOLKIT_TOOLS/mkdtarball $DHOME $(basename $REFFILE) $GAME" $logdir/build.log
+  _exec "Building tarball and zip archive" "$SKOOLKIT_TOOLS/mkdtarball $DHOME" $logdir/build.log
   root=dist/$RELEASE
   _exec "Checking links" "$SKOOLKIT_TOOLS/check-links.py $root/html" $logdir/check-links.log
   _check_files "source files" $root/sources $logdir $SRCFILES
