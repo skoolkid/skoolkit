@@ -39,7 +39,7 @@ def _bytes_to_str(data):
 def _get_str(data):
     return ''.join(chr(b) for b in data)
 
-def _get_block_info(data, i):
+def _get_block_info(data, i, block_num):
     # http://www.worldofspectrum.org/TZXformat.html
     block_id = data[i]
     info = []
@@ -96,6 +96,10 @@ def _get_block_info(data, i):
         header = 'Group end'
     elif block_id == 35:
         header = 'Jump to block'
+        offset = get_word(data, i)
+        if offset > 32767:
+            offset -= 65536
+        info.append('Destination block: {}'.format(block_num + offset))
         i += 2
     elif block_id == 36:
         header = 'Loop start'
@@ -184,7 +188,7 @@ def _analyse_tzx(tzx):
     block_num = 1
     i = 10
     while i < len(tzx):
-        i, block_id, header, info, tape_data = _get_block_info(tzx, i)
+        i, block_id, header, info, tape_data = _get_block_info(tzx, i, block_num)
         _print_block(block_num, tape_data, info, block_id, header)
         block_num += 1
 

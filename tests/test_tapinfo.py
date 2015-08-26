@@ -8,12 +8,12 @@ from skoolkit import tapinfo, SkoolKitError, get_word, VERSION
 
 TZX_DATA_BLOCK = (16, 0, 0, 3, 0, 255, 0, 0)
 
-TZX_DATA_BLOCK_DESC = [
-    '2: Standard speed data (0x10)',
-    '  Type: Data block',
-    '  Length: 3',
-    '  Data: 255, 0, 0'
-]
+TZX_DATA_BLOCK_DESC = """
+{}: Standard speed data (0x10)
+  Type: Data block
+  Length: 3
+  Data: 255, 0, 0
+""".strip()
 
 def _get_archive_info(text_id, text):
     return [text_id, len(text)] + [ord(c) for c in text]
@@ -26,11 +26,12 @@ class TapinfoTest(SkoolKitTestCase):
             tzx_data.extend(block)
         return self.write_bin_file(tzx_data, suffix='.tzx')
 
-    def _test_tzx_block(self, block, exp_output):
-        tzxfile = self._write_tzx([block, TZX_DATA_BLOCK])
+    def _test_tzx_block(self, data, exp_output, blocks=1):
+        tzxfile = self._write_tzx([data, TZX_DATA_BLOCK])
         output, error = self.run_tapinfo(tzxfile)
         self.assertEqual(len(error), 0)
-        self.assertEqual(['Version: 1.20'] + exp_output + TZX_DATA_BLOCK_DESC, output)
+        final_block = TZX_DATA_BLOCK_DESC.format(blocks + 1).split('\n')
+        self.assertEqual(['Version: 1.20'] + exp_output + final_block, output)
 
     def test_no_arguments(self):
         output, error = self.run_tapinfo(catch_exit=2)
@@ -221,10 +222,17 @@ class TapinfoTest(SkoolKitTestCase):
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x23(self):
-        block = [35] # Block ID
-        block.extend((1, 0)) # Jump offset
-        exp_output = ['1: Jump to block (0x23)']
-        self._test_tzx_block(block, exp_output)
+        blocks = [35] # Block ID
+        blocks.extend((1, 0)) # Jump offset (1)
+        blocks.append(35) # Block ID
+        blocks.extend((255, 255)) # Jump offset (-1)
+        exp_output = [
+            '1: Jump to block (0x23)',
+            '  Destination block: 2',
+            '2: Jump to block (0x23)',
+            '  Destination block: 1'
+        ]
+        self._test_tzx_block(blocks, exp_output, 2)
 
     def test_tzx_block_0x24(self):
         block = [36] # Block ID
