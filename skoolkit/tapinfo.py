@@ -37,7 +37,22 @@ def _bytes_to_str(data):
     return ', '.join(str(b) for b in data)
 
 def _get_str(data):
-    return ''.join(chr(b) for b in data)
+    text = ''
+    for b in data:
+        if b == 13:
+            char = '\\n'
+        elif b == 94:
+            char = '↑'
+        elif b == 96:
+            char = '£'
+        elif b == 127:
+            char = '©'
+        elif 32 <= b < 127:
+            char = chr(b)
+        else:
+            char = '?'
+        text += char
+    return text
 
 def _get_block_info(data, i, block_num):
     # http://www.worldofspectrum.org/TZXformat.html
@@ -128,7 +143,9 @@ def _get_block_info(data, i, block_num):
         i += length + 1
     elif block_id == 49:
         header = 'Message'
-        i += data[i + 1] + 2
+        length = data[i + 1]
+        info.append('Message: {}'.format(_get_str(data[i + 2:i + 2 + length])))
+        i += length + 2
     elif block_id == 50:
         header = 'Archive info'
         num_strings = data[i + 2]

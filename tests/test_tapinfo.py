@@ -282,17 +282,20 @@ class TapinfoTest(SkoolKitTestCase):
 
     def test_tzx_block_0x30(self):
         block = [48] # Block ID
-        block.extend((3, 65, 66, 67))
+        block.extend((3, 65, 94, 67))
         exp_output = [
             '1: Text description (0x30)',
-            '  Text: ABC'
+            '  Text: A↑C'
         ]
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x31(self):
         block = [49] # Block ID
-        block.extend((1, 1, 65))
-        exp_output = ['1: Message (0x31)']
+        block.extend((1, 8, 127, 32, 49, 57, 56, 53, 8, 54))
+        exp_output = [
+            '1: Message (0x31)',
+            '  Message: © 1985?6'
+        ]
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x32(self):
@@ -304,10 +307,10 @@ class TapinfoTest(SkoolKitTestCase):
             (3, '1985'),
             (4, 'English'),
             (5, 'Arcade'),
-            (6, '5.95'),
+            (6, '\x605.95'),
             (7, 'None'),
             (8, 'Big bang'),
-            (255, 'This is an awesome game'),
+            (255, 'This is an awesome game\x0dYes it is!'),
             (128, 'Unknown')
         )
         archive_info = [len(strings)]
@@ -324,10 +327,10 @@ class TapinfoTest(SkoolKitTestCase):
             '  Year of publication: 1985',
             '  Language: English',
             '  Game/utility type: Arcade',
-            '  Price: 5.95',
+            '  Price: £5.95',
             '  Protection scheme/loader: None',
             '  Origin: Big bang',
-            '  Comment(s): This is an awesome game',
+            '  Comment(s): This is an awesome game\\nYes it is!',
             '  128: Unknown'
         ]
         self._test_tzx_block(block, exp_output)
