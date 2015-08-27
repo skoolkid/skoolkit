@@ -379,6 +379,88 @@ class TapinfoTest(SkoolKitTestCase):
         exp_output = ['1: "Glue" block (0x5A)']
         self._test_tzx_block(block, exp_output)
 
+    def test_option_b(self):
+        blocks = []
+
+        block1 = [16] # Block ID (0x10)
+        block1.extend((0, 0)) # Pause duration
+        data = [0, 1]
+        data_block = create_data_block(data)
+        length = len(data_block)
+        block1.extend((length % 256, length // 256))
+        block1.extend(data_block)
+        blocks.append(block1)
+
+        block2 = [17] # Block ID (0x11)
+        block2.extend([0] * 15)
+        data = [2, 3]
+        data_block = create_data_block(data)
+        block2.extend((len(data_block), 0, 0))
+        block2.extend(data_block)
+        blocks.append(block2)
+
+        block3 = [42] # Block ID (0x2A)
+        block3.extend((0, 0, 0, 0))
+        blocks.append(block3)
+
+        tzxfile = self._write_tzx(blocks)
+        exp_output = [
+            'Version: 1.20',
+            '1: Standard speed data (0x10)',
+            '  Type: Data block',
+            '  Length: 4',
+            '  Data: 255, 0, 1, 1',
+            '3: Stop the tape if in 48K mode (0x2A)'
+        ]
+
+        for option in ('-b', '--tzx-blocks'):
+            output, error = self.run_tapinfo('{} 10,2a {}'.format(option, tzxfile))
+            self.assertEqual(len(error), 0)
+            self.assertEqual(exp_output, output)
+
+    def test_option_b_with_invalid_block_id(self):
+        blocks = []
+
+        block1 = [16] # Block ID (0x10)
+        block1.extend((0, 0)) # Pause duration
+        data = [0, 1]
+        data_block = create_data_block(data)
+        length = len(data_block)
+        block1.extend((length % 256, length // 256))
+        block1.extend(data_block)
+        blocks.append(block1)
+
+        block2 = [42] # Block ID (0x2A)
+        block2.extend((0, 0, 0, 0))
+        blocks.append(block2)
+
+        tzxfile = self._write_tzx(blocks)
+        exp_output = [
+            'Version: 1.20',
+            '1: Standard speed data (0x10)',
+            '  Type: Data block',
+            '  Length: 4',
+            '  Data: 255, 0, 1, 1'
+        ]
+
+        output, error = self.run_tapinfo('-b 10,2z {}'.format(tzxfile))
+        self.assertEqual(len(error), 0)
+        self.assertEqual(exp_output, output)
+
+    def test_option_b_with_single_invalid_block_id(self):
+        blocks = []
+
+        block1 = [42] # Block ID (0x2A)
+        block1.extend((0, 0, 0, 0))
+        blocks.append(block1)
+
+        tzxfile = self._write_tzx(blocks)
+        exp_output = ['Version: 1.20']
+
+        output, error = self.run_tapinfo('-b 2z {}'.format(tzxfile))
+        self.assertEqual(len(error), 0)
+        self.assertEqual(exp_output, output)
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_tapinfo(option, err_lines=True, catch_exit=0)

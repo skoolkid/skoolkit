@@ -644,7 +644,10 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
   Show the blocks in a TAP or TZX file.
 
   Options:
-    -V, --version  Show SkoolKit version number and exit
+    -b IDs, --tzx-blocks IDs
+                          Show TZX blocks with these IDs only; 'IDs' is a comma-
+                          separated list of hexadecimal block IDs, e.g. 10,11,2a
+    -V, --version         Show SkoolKit version number and exit
 
 +---------+---------+
 | Version | Changes |

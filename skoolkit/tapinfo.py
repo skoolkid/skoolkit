@@ -212,16 +212,25 @@ def _print_block(index, data, info=(), block_id=None, header=None):
     for line in info:
         _print_info(line)
 
-def _analyse_tzx(tzx):
+def _analyse_tzx(tzx, options):
     if _get_str(tzx[:7]) != 'ZXTape!':
         raise SkoolKitError("Not a TZX file")
+
+    block_ids = set()
+    if options.block_ids:
+        for block_id in options.block_ids.split(','):
+            try:
+                block_ids.add(int(block_id, 16))
+            except ValueError:
+                block_ids.add(-1)
 
     print('Version: {}.{}'.format(tzx[8], tzx[9]))
     block_num = 1
     i = 10
     while i < len(tzx):
         i, block_id, header, info, tape_data = _get_block_info(tzx, i, block_num)
-        _print_block(block_num, tape_data, info, block_id, header)
+        if not block_ids or block_id in block_ids:
+            _print_block(block_num, tape_data, info, block_id, header)
         block_num += 1
 
 def _analyse_tap(tap):
@@ -242,6 +251,9 @@ def main(args):
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-b', '--tzx-blocks', dest='block_ids', metavar='IDs',
+                       help="Show TZX blocks with these IDs only; "
+                            "'IDs' is a comma-separated list of hexadecimal block IDs, e.g. 10,11,2a")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
     namespace, unknown_args = parser.parse_known_args(args)
@@ -258,4 +270,4 @@ def main(args):
     if tape_type == '.tap':
         _analyse_tap(tape)
     else:
-        _analyse_tzx(tape)
+        _analyse_tzx(tape, namespace)
