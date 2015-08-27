@@ -129,6 +129,13 @@ def _get_block_info(data, i, block_num):
         header = 'Return from sequence'
     elif block_id == 40:
         header = 'Select block'
+        index = i + 3
+        for j in range(data[i + 2]):
+            offset = get_word(data, index)
+            length = data[index + 2]
+            text = _get_str(data[index + 3:index + 3 + length])
+            info.append('Option {} (block {}): {}'.format(j + 1, block_num + offset, text))
+            index += length + 3
         i += get_word(data, i) + 2
     elif block_id == 42:
         header = 'Stop the tape if in 48K mode'

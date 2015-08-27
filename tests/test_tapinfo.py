@@ -262,9 +262,26 @@ class TapinfoTest(SkoolKitTestCase):
 
     def test_tzx_block_0x28(self):
         block = [40] # Block ID
-        block.extend((10, 0))
-        block.extend([0] * block[1])
-        exp_output = ['1: Select block (0x28)']
+        block.extend((0, 0))
+        block.append(2) # Number of selections
+
+        block.extend((1, 0)) # Offset
+        text = '48K'
+        block.append(len(text))
+        block.extend([ord(c) for c in text])
+
+        block.extend((2, 0)) # Offset
+        text = '128K'
+        block.append(len(text))
+        block.extend([ord(c) for c in text])
+
+        block[1] = len(block) - 3 # Length
+
+        exp_output = [
+            '1: Select block (0x28)',
+            '  Option 1 (block 2): 48K',
+            '  Option 2 (block 3): 128K'
+        ]
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x2A(self):
