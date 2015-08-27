@@ -158,6 +158,14 @@ class BinWriterTest(SkoolKitTestCase):
         ))
         self._test_write(skool, 30000, [201, 62, 10, 201])
 
+    def test_write_i_block(self):
+        skool = '\n'.join((
+            'i29999 DEFB 128',
+            '',
+            'c30000 RET'
+        ))
+        self._test_write(skool, 29999, [128, 201])
+
     def test_nonexistent_skool_file(self):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_skool2bin('nonexistent.skool')

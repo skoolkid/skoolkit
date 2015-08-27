@@ -21,9 +21,11 @@ import argparse
 
 from skoolkit import SkoolKitError, SkoolParsingError, open_file, info, warn, error, get_int_param, VERSION
 from skoolkit.skoolparser import parse_asm_block_directive
-from skoolkit.skoolsft import VALID_CTLS, VERBATIM_BLOCKS
+from skoolkit.skoolsft import VALID_CTLS
 from skoolkit.textutils import find_unquoted
 from skoolkit.z80 import assemble
+
+SKIP_BLOCKS = ('d', 'r')
 
 class BinWriter:
     def __init__(self, skoolfile, asm_mode=0):
@@ -52,10 +54,10 @@ class BinWriter:
                 # This line is blank
                 entry_ctl = None
                 continue
-            # Check whether we're in a verbatim block
-            if entry_ctl is None and line.startswith(VERBATIM_BLOCKS):
+            # Check whether we're in a block that can be skipped
+            if entry_ctl is None and line.startswith(SKIP_BLOCKS):
                 entry_ctl = line[0]
-            if entry_ctl in VERBATIM_BLOCKS:
+            if entry_ctl in SKIP_BLOCKS:
                 continue
             if s_line.startswith(';'):
                 # This line is a continuation of an instruction comment
