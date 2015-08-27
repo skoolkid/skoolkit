@@ -299,19 +299,23 @@ class TapinfoTest(SkoolKitTestCase):
 
     def test_tzx_block_0x30(self):
         block = [48] # Block ID
-        block.extend((3, 65, 94, 67))
+        block.extend((0, 65, 94, 67, 13, 33))
+        block[1] = len(block) - 2
         exp_output = [
             '1: Text description (0x30)',
-            '  Text: A↑C'
+            '  Text: A↑C',
+            '        !'
         ]
         self._test_tzx_block(block, exp_output)
 
     def test_tzx_block_0x31(self):
         block = [49] # Block ID
-        block.extend((1, 8, 127, 32, 49, 57, 56, 53, 8, 54))
+        block.extend((1, 0, 127, 32, 49, 57, 56, 53, 8, 54, 13, 77, 101))
+        block[2] = len(block) - 3
         exp_output = [
             '1: Message (0x31)',
-            '  Message: © 1985?6'
+            '  Message: © 1985?6',
+            '           Me'
         ]
         self._test_tzx_block(block, exp_output)
 
@@ -347,7 +351,8 @@ class TapinfoTest(SkoolKitTestCase):
             '  Price: £5.95',
             '  Protection scheme/loader: None',
             '  Origin: Big bang',
-            '  Comment(s): This is an awesome game\\nYes it is!',
+            '  Comment(s): This is an awesome game',
+            '              Yes it is!',
             '  128: Unknown'
         ]
         self._test_tzx_block(block, exp_output)

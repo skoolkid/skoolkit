@@ -40,7 +40,7 @@ def _get_str(data):
     text = ''
     for b in data:
         if b == 13:
-            char = '\\n'
+            char = '\n'
         elif b == 94:
             char = '↑'
         elif b == 96:
@@ -53,6 +53,15 @@ def _get_str(data):
             char = '?'
         text += char
     return text
+
+def _format_text(prefix, data, start, length):
+    text = _get_str(data[start:start + length]).split('\n')
+    lines = ['{}: {}'.format(prefix, text[0])]
+    if len(text) > 1:
+        indent = ' ' * len(prefix)
+        for line in text[1:]:
+            lines.append('{}  {}'.format(indent, line))
+    return lines
 
 def _get_block_info(data, i, block_num):
     # http://www.worldofspectrum.org/TZXformat.html
@@ -104,8 +113,7 @@ def _get_block_info(data, i, block_num):
     elif block_id == 33:
         header = 'Group start'
         length = data[i]
-        name = _get_str(data[i + 1:i + 1 + length])
-        info.append("Name: {}".format(name.rstrip()))
+        info.extend(_format_text('Name', data, i + 1, length))
         i += length + 1
     elif block_id == 34:
         header = 'Group end'
@@ -133,8 +141,8 @@ def _get_block_info(data, i, block_num):
         for j in range(data[i + 2]):
             offset = get_word(data, index)
             length = data[index + 2]
-            text = _get_str(data[index + 3:index + 3 + length])
-            info.append('Option {} (block {}): {}'.format(j + 1, block_num + offset, text))
+            prefix = 'Option {} (block {})'.format(j + 1, block_num + offset)
+            info.extend(_format_text(prefix, data, index + 3, length))
             index += length + 3
         i += get_word(data, i) + 2
     elif block_id == 42:
@@ -146,12 +154,12 @@ def _get_block_info(data, i, block_num):
     elif block_id == 48:
         header = 'Text description'
         length = data[i]
-        info.append('Text: {}'.format(_get_str(data[i + 1:i + 1 + length])))
+        info.extend(_format_text('Text', data, i + 1, length))
         i += length + 1
     elif block_id == 49:
         header = 'Message'
         length = data[i + 1]
-        info.append('Message: {}'.format(_get_str(data[i + 2:i + 2 + length])))
+        info.extend(_format_text('Message', data, i + 2, length))
         i += length + 2
     elif block_id == 50:
         header = 'Archive info'
@@ -159,7 +167,7 @@ def _get_block_info(data, i, block_num):
         j = i + 3
         for k in range(num_strings):
             str_len = data[j + 1]
-            info.append("{}: {}".format(ARCHIVE_INFO.get(data[j], data[j]), _get_str(data[j + 2:j + 2 + str_len])))
+            info.extend(_format_text(ARCHIVE_INFO.get(data[j], str(data[j])), data, j + 2, str_len))
             j += 2 + str_len
         i += get_word(data, i) + 2
     elif block_id == 51:
