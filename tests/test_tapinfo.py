@@ -18,6 +18,24 @@ TZX_DATA_BLOCK_DESC = """
 def _get_archive_info(text_id, text):
     return [text_id, len(text)] + [ord(c) for c in text]
 
+def _create_tzx_header_block(title='', data_type=3):
+    block = [16] # Block ID
+    block.extend((0, 0)) # Pause duration
+    data_block = create_header_block(title, data_type=data_type)
+    length = len(data_block)
+    block.extend((length % 256, length // 256))
+    block.extend(data_block)
+    return block
+
+def _create_tzx_data_block(data):
+    block = [16] # Block ID
+    block.extend((0, 0)) # Pause duration
+    data_block = create_data_block(data)
+    length = len(data_block)
+    block.extend((length % 256, length // 256))
+    block.extend(data_block)
+    return block
+
 class TapinfoTest(SkoolKitTestCase):
     def _write_tzx(self, blocks):
         tzx_data = [ord(c) for c in "ZXTape!"]
@@ -52,41 +70,40 @@ class TapinfoTest(SkoolKitTestCase):
         data = [1, 2, 4]
         tap_data = create_tap_header_block('test_tap', 32768, len(data))
         tap_data.extend(create_tap_data_block(data))
+        tap_data.extend(create_tap_header_block('numbers', data_type=1))
+        tap_data.extend(create_tap_data_block([8, 16, 32]))
         tapfile = self.write_bin_file(tap_data, suffix='.tap')
         output, error = self.run_tapinfo(tapfile)
         self.assertEqual(len(error), 0)
         exp_output = [
             '1:',
             '  Type: Header block',
-            '  Name: test_tap',
+            '  Bytes: test_tap',
+            '  CODE: 32768,3',
             '  Length: 19',
             '  Data: 0, 3, 116, 101, 115, 116, 95 ... 3, 0, 0, 128, 0, 0, 172',
             '2:',
             '  Type: Data block',
             '  Length: 5',
-            '  Data: 255, 1, 2, 4, 7'
+            '  Data: 255, 1, 2, 4, 7',
+            '3:',
+            '  Type: Header block',
+            '  Number array: numbers',
+            '  Length: 19',
+            '  Data: 0, 1, 110, 117, 109, 98, 101 ... 0, 0, 0, 0, 0, 0, 81',
+            '4:',
+            '  Type: Data block',
+            '  Length: 5',
+            '  Data: 255, 8, 16, 32, 56'
         ]
         self.assertEqual(exp_output, output)
 
     def test_tzx_file(self):
-        data = [1, 4, 16]
         blocks = []
-
-        block = [16] # Block ID
-        block.extend((0, 0)) # Pause duration
-        data_block = create_header_block('TEST_tzx', 49152, len(data))
-        length = len(data_block)
-        block.extend((length % 256, length // 256))
-        block.extend(data_block)
-        blocks.append(block)
-
-        block = [16] # Block ID
-        block.extend((0, 0)) # Pause duration
-        data_block = create_data_block(data)
-        length = len(data_block)
-        block.extend((length % 256, length // 256))
-        block.extend(data_block)
-        blocks.append(block)
+        blocks.append(_create_tzx_header_block('TEST_tzx', data_type=0))
+        blocks.append(_create_tzx_data_block([1, 4, 16]))
+        blocks.append(_create_tzx_header_block('characters', data_type=2))
+        blocks.append(_create_tzx_data_block([64, 0]))
 
         tzxfile = self._write_tzx(blocks)
         output, error = self.run_tapinfo(tzxfile)
@@ -95,13 +112,22 @@ class TapinfoTest(SkoolKitTestCase):
             'Version: 1.20',
             '1: Standard speed data (0x10)',
             '  Type: Header block',
-            '  Name: TEST_tzx',
+            '  Program: TEST_tzx',
             '  Length: 19',
-            '  Data: 0, 3, 84, 69, 83, 84, 95 ... 3, 0, 0, 192, 0, 0, 255',
+            '  Data: 0, 0, 84, 69, 83, 84, 95 ... 0, 0, 0, 0, 0, 0, 63',
             '2: Standard speed data (0x10)',
             '  Type: Data block',
             '  Length: 5',
-            '  Data: 255, 1, 4, 16, 21'
+            '  Data: 255, 1, 4, 16, 21',
+            '3: Standard speed data (0x10)',
+            '  Type: Header block',
+            '  Character array: characters',
+            '  Length: 19',
+            '  Data: 0, 2, 99, 104, 97, 114, 97 ... 0, 0, 0, 0, 0, 0, 8',
+            '4: Standard speed data (0x10)',
+            '  Type: Data block',
+            '  Length: 4',
+            '  Data: 255, 64, 0, 64'
         ]
         self.assertEqual(exp_output, output)
 
@@ -382,14 +408,7 @@ class TapinfoTest(SkoolKitTestCase):
     def test_option_b(self):
         blocks = []
 
-        block1 = [16] # Block ID (0x10)
-        block1.extend((0, 0)) # Pause duration
-        data = [0, 1]
-        data_block = create_data_block(data)
-        length = len(data_block)
-        block1.extend((length % 256, length // 256))
-        block1.extend(data_block)
-        blocks.append(block1)
+        blocks.append(_create_tzx_data_block([0, 1]))
 
         block2 = [17] # Block ID (0x11)
         block2.extend([0] * 15)
@@ -421,14 +440,7 @@ class TapinfoTest(SkoolKitTestCase):
     def test_option_b_with_invalid_block_id(self):
         blocks = []
 
-        block1 = [16] # Block ID (0x10)
-        block1.extend((0, 0)) # Pause duration
-        data = [0, 1]
-        data_block = create_data_block(data)
-        length = len(data_block)
-        block1.extend((length % 256, length // 256))
-        block1.extend(data_block)
-        blocks.append(block1)
+        blocks.append(_create_tzx_data_block([0, 1]))
 
         block2 = [42] # Block ID (0x2A)
         block2.extend((0, 0, 0, 0))

@@ -193,15 +193,30 @@ def _print_block(index, data, info=(), block_id=None, header=None):
         print("{}: {} (0x{:02X})".format(index, header, block_id))
     if data and block_id in (None, 16):
         data_type = "Unknown"
-        name = ""
-        if data[0] == 0:
-            data_type = "Header block"
-            name = _get_str(data[2:12])
+        name_str = None
+        start = None
+        if len(data) == 19 and data[0] == 0:
+            block_type = data[1]
+            if block_type == 0:
+                name_str = 'Program'
+            elif block_type == 1:
+                name_str = 'Number array'
+            elif block_type == 2:
+                name_str = 'Character array'
+            elif block_type == 3:
+                name_str = 'Bytes'
+                size = get_word(data, 12)
+                start = get_word(data, 14)
+            if name_str:
+                data_type = "Header block"
+                name = _get_str(data[2:12])
         elif data[0] == 255:
             data_type = "Data block"
         _print_info("Type: {}".format(data_type))
-        if name:
-            _print_info("Name: {}".format(name))
+        if name_str:
+            _print_info("{}: {}".format(name_str, name))
+        if start is not None:
+            _print_info("CODE: {},{}".format(start, size))
     if data:
         _print_info("Length: {}".format(len(data)))
         if len(data) > 14:
