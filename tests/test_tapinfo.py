@@ -389,6 +389,23 @@ class TapinfoTest(SkoolKitTestCase):
         ]
         self._test_tzx_block(block, exp_output)
 
+    def test_tzx_block_0x32_truncated(self):
+        block = [50] # Block ID
+        strings = (
+            (0, 'Awesome game'),
+            (1, 'Awesome Software')
+        )
+        archive_info = [len(strings)]
+        for text_id, text in strings:
+            archive_info.extend(_get_archive_info(text_id, text))
+        length = len(archive_info)
+        block.extend((length % 256, length // 256))
+        block.extend(archive_info[:10])
+
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tapinfo(self._write_tzx([block]))
+        self.assertEqual(cm.exception.args[0], 'Unexpected end of file')
+
     def test_tzx_block_0x33(self):
         block = [51] # Block ID
         block.append(2) # Number of machines

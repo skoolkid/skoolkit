@@ -166,7 +166,10 @@ def _get_block_info(data, i, block_num):
         num_strings = data[i + 2]
         j = i + 3
         for k in range(num_strings):
-            str_len = data[j + 1]
+            try:
+                str_len = data[j + 1]
+            except IndexError:
+                raise SkoolKitError('Unexpected end of file')
             info.extend(_format_text(ARCHIVE_INFO.get(data[j], str(data[j])), data, j + 2, str_len))
             j += 2 + str_len
         i += get_word(data, i) + 2
