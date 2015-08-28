@@ -137,6 +137,12 @@ class TapinfoTest(SkoolKitTestCase):
             self.run_tapinfo(invalid_tzx)
         self.assertEqual(cm.exception.args[0], 'Not a TZX file')
 
+    def test_tzx_with_no_version_number(self):
+        tzx = self.write_text_file('ZXTape!\x1a', suffix='.tzx')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_tapinfo(tzx)
+        self.assertEqual(cm.exception.args[0], 'TZX version number not found')
+
     def test_tzx_with_unknown_block(self):
         block_id = 26
         block = [block_id, 0]

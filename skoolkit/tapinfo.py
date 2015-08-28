@@ -228,8 +228,13 @@ def _print_block(index, data, info=(), block_id=None, header=None):
         _print_info(line)
 
 def _analyse_tzx(tzx, options):
-    if _get_str(tzx[:7]) != 'ZXTape!':
+    if tzx[:8] != bytearray((90, 88, 84, 97, 112, 101, 33, 26)):
         raise SkoolKitError("Not a TZX file")
+
+    try:
+        print('Version: {}.{}'.format(tzx[8], tzx[9]))
+    except IndexError:
+        raise SkoolKitError('TZX version number not found')
 
     block_ids = set()
     if options.block_ids:
@@ -239,7 +244,6 @@ def _analyse_tzx(tzx, options):
             except ValueError:
                 block_ids.add(-1)
 
-    print('Version: {}.{}'.format(tzx[8], tzx[9]))
     block_num = 1
     i = 10
     while i < len(tzx):
