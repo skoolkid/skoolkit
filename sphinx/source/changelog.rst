@@ -156,7 +156,6 @@ Changelog
   (for specifying whether to display entry descriptions on a memory map page)
 * Added the ``LengthColumn`` parameter to the :ref:`memoryMap` section (for
   specifying whether to display the 'Length' column on a memory map page)
-* Added documentation on :ref:`migrating from SkoolKit 3 <migrating>`
 
 Older versions
 --------------
