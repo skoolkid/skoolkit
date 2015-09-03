@@ -4,15 +4,18 @@ import sys
 import os
 import argparse
 
-# Use the current development version of SkoolKit
 SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
-if not SKOOLKIT_HOME:
-    sys.stderr.write('SKOOLKIT_HOME is not set; aborting\n')
-    sys.exit(1)
-if not os.path.isdir(SKOOLKIT_HOME):
-    sys.stderr.write('SKOOLKIT_HOME={}; directory not found\n'.format(SKOOLKIT_HOME))
-    sys.exit(1)
-sys.path.insert(0, SKOOLKIT_HOME)
+if SKOOLKIT_HOME:
+    if not os.path.isdir(SKOOLKIT_HOME):
+        sys.stderr.write('SKOOLKIT_HOME={}: directory not found\n'.format(SKOOLKIT_HOME))
+        sys.exit(1)
+    sys.path.insert(0, SKOOLKIT_HOME)
+else:
+    try:
+        import skoolkit
+    except ImportError:
+        sys.stderr.write('Error: SKOOLKIT_HOME is not set, and SkoolKit is not installed\n')
+        sys.exit(1)
 
 from skoolkit.snapshot import get_snapshot
 from skoolkit import get_int_param
