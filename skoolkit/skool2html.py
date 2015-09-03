@@ -367,10 +367,8 @@ def main(args):
     group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
                        help="Show path to skoolkit package directory and exit")
     group.add_argument('-P', '--pages', dest='pages', metavar='PAGES',
-                       help="Write only these custom pages (when '-w P' is\n"
-                            "specified); PAGES should be a comma-separated list of\n"
-                            "IDs of pages defined in [Page:*] sections in the ref\n"
-                            "file(s)")
+                       help="Write only these custom pages (when using '--write P');\n"
+                            "PAGES is a comma-separated list of page IDs")
     group.add_argument('-q', '--quiet', dest='verbose', action='store_false',
                        help="Be quiet")
     group.add_argument('-r', '--ref-sections', dest='ref_sections', metavar='PREFIX',

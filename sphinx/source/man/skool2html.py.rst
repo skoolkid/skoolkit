@@ -49,8 +49,8 @@ OPTIONS
   Show the path to the skoolkit package directory and exit.
 
 -P, --pages `PAGES`
-  Specify the custom pages to write; `PAGES` should be a comma-separated list
-  of IDs of pages defined in ``[Page:*]`` sections in the ref file(s).
+  Write only these custom pages (when using ``--write P``); `PAGES` is a
+  comma-separated list of page IDs.
 
 -q, --quiet
   Be quiet.

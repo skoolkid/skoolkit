@@ -282,10 +282,8 @@ list::
     -o, --rebuild-images  Overwrite existing image files
     -p, --package-dir     Show path to skoolkit package directory and exit
     -P PAGES, --pages PAGES
-                          Write only these custom pages (when '-w P' is
-                          specified); PAGES should be a comma-separated list of
-                          IDs of pages defined in [Page:*] sections in the ref
-                          file(s)
+                          Write only these custom pages (when using '--write P');
+                          PAGES is a comma-separated list of page IDs
     -q, --quiet           Be quiet
     -r PREFIX, --ref-sections PREFIX
                           Show default ref file sections whose names start with
