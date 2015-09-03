@@ -197,7 +197,7 @@ class CtlParser:
                 except ValueError:
                     raise CtlParserError("invalid integer")
                 if int_params:
-                    if ctl.islower():
+                    if ctl not in 'BCLMSTW':
                         raise CtlParserError("extra parameters after address")
                     length = int_params[0]
                     if length is not None:
