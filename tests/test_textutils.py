@@ -22,7 +22,7 @@ TEST_FIND = (
     (('c",",d', ','), {'start': 5}, 6),
     (('c",",d', ','), {'start': 5, 'neg': True}, -1),
 )
- 
+
 
 TEST_SPLIT = (
     # args, result
