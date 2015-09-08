@@ -135,6 +135,9 @@ With this method in place, it's possible to use a ``#CALL`` macro like this::
 
   ; This ASM file was generated on #CALL:timestamp()
 
+Note that if the return value of a ``#CALL`` method contains skool macros, then
+they will be expanded.
+
 Skool macros
 ------------
 Another way to add a custom method is to implement it as a skool macro. The
@@ -204,6 +207,9 @@ The `expand_timestamp` method on GameAsmWriter would look something like this::
   class GameAsmWriter(AsmWriter):
       def expand_timestamp(self, text, index):
           return index, time.strftime("%a %d %b %Y %H:%M:%S %Z")
+
+Note that if the ``string`` part of the return value of a skool macro method
+contains skool macros, then they will be expanded.
 
 .. _ext-MacroParsing:
 
