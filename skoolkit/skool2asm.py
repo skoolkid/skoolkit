@@ -20,7 +20,7 @@ import argparse
 import time
 
 from skoolkit import info, get_class, show_package_dir, VERSION
-from skoolkit.skoolasm import AsmWriter, DEF_INSTRUCTION_WIDTH
+from skoolkit.skoolasm import AsmWriter
 from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, BASE_16
 
 def clock(quiet, prefix, operation, *args, **kwargs):

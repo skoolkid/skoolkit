@@ -16,10 +16,9 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import argparse
 
-from skoolkit import SkoolKitError, SkoolParsingError, open_file, info, warn, error, get_int_param, VERSION
+from skoolkit import SkoolParsingError, open_file, info, warn, get_int_param, VERSION
 from skoolkit.skoolparser import parse_asm_block_directive
 from skoolkit.skoolsft import VALID_CTLS
 from skoolkit.textutils import find_unquoted
