@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import sys
 import unittest
 
-from skoolkittest import (SkoolKitTestCase, get_parity, create_header_block,
-                          create_data_block, create_tap_header_block, create_tap_data_block)
-from skoolkit import tapinfo, SkoolKitError, get_word, VERSION
+from skoolkittest import (SkoolKitTestCase, create_header_block, create_data_block,
+                          create_tap_header_block, create_tap_data_block)
+from skoolkit import SkoolKitError, get_word, VERSION
 
 TZX_DATA_BLOCK = (16, 0, 0, 3, 0, 255, 0, 0)
 

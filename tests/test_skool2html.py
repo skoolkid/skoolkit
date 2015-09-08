@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
-import os
-from os.path import basename, isfile, join
+import os.path
 import unittest
 try:
     from mock import patch, Mock
@@ -281,7 +280,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         output, error = self.run_skool2html('-d {} {}'.format(self.odir, reffile))
         self.assertEqual(len(error), 0)
         self.assertEqual(output[1], 'Using ref files: {}, {}'.format(reffile, reffile2))
-        self.assertEqual(output[5], '  Writing disassembly files in {}/{}'.format(basename(prefix), code_path))
+        self.assertEqual(output[5], '  Writing disassembly files in {}/{}'.format(os.path.basename(prefix), code_path))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
@@ -325,7 +324,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_no_output_dir(self):
         skoolfile = self.write_text_file(suffix='.skool')
-        name = basename(skoolfile[:-6])
+        name = os.path.basename(skoolfile[:-6])
         self.tempdirs.append(name)
         output, error = self.run_skool2html(skoolfile)
         self.assertEqual(len(error), 0)
@@ -345,7 +344,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         module_path = os.path.join(module_dir, 'testmod.py')
         message = 'Initialising TestHtmlWriter'
         module = self.write_text_file(writer_module.format(message), path=module_path)
-        module_name = basename(module)[:-3]
+        module_name = os.path.basename(module)[:-3]
         reffile = self.write_text_file(ref.format(module_dir, module_name), suffix='.ref')
         name = reffile[:-4]
         self.write_text_file('', '{0}.skool'.format(name))
