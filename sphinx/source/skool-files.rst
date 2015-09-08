@@ -172,6 +172,16 @@ example::
 
 See :ref:`asmModesAndDirectives` for more details.
 
+Escaping characters
+-------------------
+Backslash (``\``) and double quote (``"``) characters in string and character
+operands must be escaped by preceding them with a backslash. For example::
+
+  c32768 LD A,"\""     ; LD A,34
+   32770 LD B,"\\"     ; LD B,92
+
+This ensures that SkoolKit or an assembler can parse such operands correctly.
+
 .. _bracesInComments:
 
 Braces in comments
