@@ -258,7 +258,6 @@ def _analyse_tzx(tzx, options):
 def _analyse_tap(tap):
     i = 0
     block_num = 1
-    indent = '   '
     while i < len(tap):
         block_len = get_word(tap, i)
         _print_block(block_num, tap[i + 2:i + 2 + block_len])
