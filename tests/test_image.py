@@ -471,16 +471,6 @@ class ImageWriterTest:
 
     def test_unmasked_bd1_cropped(self):
         # Unmasked image, bit depth 1, cropped
-        udg = Udg(30, (240,) * 8)
-        udg_array = [[udg] * 2] * 2
-        self._test_image(udg_array, width=11)
-        self._test_image(udg_array, height=12)
-        self._test_image(udg_array, x=5)
-        self._test_image(udg_array, y=7)
-        self._test_image(udg_array, x=1, y=2, width=9, height=11)
-
-    def test_unmasked_bd1_cropped(self):
-        # Unmasked image, bit depth 1, cropped
         udg = Udg(5, (148,) * 8)
         udg_array = [[udg] * 2] * 2
         self._test_image(udg_array, width=11)
@@ -502,17 +492,6 @@ class ImageWriterTest:
         self._test_image(udg_array)
         self._test_image(udg_array, scale=2)
         return udg_array
-
-    def test_unmasked_bd2_cropped(self):
-        # Unmasked image, bit depth 2, cropped
-        udg1 = Udg(30, (170,) * 8)
-        udg2 = Udg(28, (81,) * 8)
-        udg_array = [[udg1, udg2]] * 2
-        self._test_image(udg_array, height=12)
-        self._test_image(udg_array, x=5)
-        self._test_image(udg_array, width=11)
-        self._test_image(udg_array, y=7)
-        self._test_image(udg_array, x=1, y=2, width=10, height=11)
 
     def test_unmasked_bd2_cropped(self):
         # Unmasked image, bit depth 2, cropped
@@ -576,18 +555,6 @@ class ImageWriterTest:
         udg8 = Udg(110, (15,) * 8) # bright cyan, bright yellow
         udg_array = [[udg1, udg2, udg3, udg4, udg5, udg6, udg7, udg8]]
         self._test_image(udg_array)
-
-    def test_unmasked_bd4_cropped(self):
-        # Unmasked image, bit depth 4, cropped
-        udg1 = Udg(30, (170,) * 8)
-        udg2 = Udg(28, (81,) * 8)
-        udg3 = Udg(5, (129,) * 8)
-        udg_array = [[udg1, udg2], [udg3, udg1]]
-        self._test_image(udg_array, height=9)
-        self._test_image(udg_array, x=3)
-        self._test_image(udg_array, width=11)
-        self._test_image(udg_array, y=7)
-        self._test_image(udg_array, x=2, y=1, width=11, height=9)
 
     def test_unmasked_bd4_cropped(self):
         # Unmasked image, bit depth 4, cropped
