@@ -16,20 +16,20 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+from collections import OrderedDict
+
 from skoolkit import open_file
 
 class RefParser:
     """Parses `ref` files."""
     def __init__(self):
-        self.ref = []
-        self.sections = {}
+        self._sections = OrderedDict()
 
     def _add_section(self, section_name, section_lines):
         if section_name:
             while section_lines and not section_lines[-1]:
                 section_lines.pop()
-            self.ref.append((section_name, section_lines))
-            self.sections[section_name] = section_lines
+            self._sections[section_name] = section_lines
 
     def parse(self, reffile):
         """Parse a `ref` file. This method may be called as many times as
@@ -55,23 +55,21 @@ class RefParser:
 
     def add_line(self, section_name, line):
         """Add a line to a section."""
-        if section_name in self.sections:
-            self.sections[section_name].append(line)
+        if section_name in self._sections:
+            self._sections[section_name].append(line)
         else:
-            section_lines = [line]
-            self.ref.append((section_name, section_lines))
-            self.sections[section_name] = section_lines
+            self._sections[section_name] = [line]
 
     def has_section(self, section_name):
         """Return whether there is any section named `section_name`."""
-        return section_name in self.sections
+        return section_name in self._sections
 
     def has_sections(self, section_type):
         """Return whether there are any sections whose names start with
         `section_type` followed by a colon.
         """
         prefix = section_type + ':'
-        for section_name in self.sections:
+        for section_name in self._sections:
             if section_name.startswith(prefix):
                 return True
         return False
@@ -80,7 +78,7 @@ class RefParser:
         """Return a dictionary built from the contents of a section. Each line
         in the section should be of the form ``X=Y``.
         """
-        return self._get_dictionary(self.sections.get(section_name, ()))
+        return self._get_dictionary(self._sections.get(section_name, ()))
 
     def get_dictionaries(self, section_type):
         """Return a list of 2-tuples of the form ``(suffix, dict)`` derived
@@ -93,7 +91,7 @@ class RefParser:
         sep = ':'
         prefix = section_type + sep
         dictionaries = []
-        for section_name, lines in self.ref:
+        for section_name, lines in self._sections.items():
             if section_name.startswith(prefix):
                 section_id = section_name.split(sep, 1)[1]
                 dictionaries.append((section_id, self._get_dictionary(lines)))
@@ -109,7 +107,7 @@ class RefParser:
                       list of lines; otherwise return the contents (or each
                       paragraph) as a single string.
         """
-        contents = self.sections.get(section_name, ())
+        contents = self._sections.get(section_name, ())
         if paragraphs:
             return self._get_paragraphs(contents, lines)
         if lines:
@@ -135,7 +133,7 @@ class RefParser:
         sep = ':'
         prefix = section_type + sep
         items = []
-        for section_name, _contents in self.ref:
+        for section_name in self._sections:
             if section_name.startswith(prefix):
                 contents = self.get_section(section_name, paragraphs, lines)
                 elements = section_name.split(sep, 2)
