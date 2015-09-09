@@ -20,7 +20,7 @@ run_cmd() {
     echo -n "Writing $out..."
   fi
   if $cmd > $out 2> $error_out; then
-    if [ -s $error_out ]; then
+    if grep -q ^WARNING: $error_out; then
       print_status "done (with warnings)" $quiet
     else
       print_status "done" $quiet
