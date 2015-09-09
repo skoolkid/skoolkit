@@ -1,7 +1,7 @@
 Changelog
 =========
 
-5.0b1
+5.0rc
 -----
 * Added the :ref:`skool2bin.py` command (for converting a skool file into a
   binary file)
