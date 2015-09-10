@@ -14,10 +14,11 @@ run_cmd() {
   cmd=$1
   out=$2
   quiet=${3:-0}
+  outfile=${4:-$out}
   error_out=$(mktemp)
-  mkdir -p $(dirname $out)
+  mkdir -p $(dirname $outfile)
   if [ $quiet -eq 0 ]; then
-    echo -n "Writing $out..."
+    echo -n "Writing $outfile..."
   fi
   if $cmd > $out 2> $error_out; then
     if grep -q ^WARNING: $error_out; then
@@ -62,6 +63,13 @@ write_ctls() {
   done
 }
 
+write_genctls() {
+  for b in '' '-h' '-i'; do
+    genctlfile=genctl/$GAME$b.ctl
+    run_cmd "./sna2skool.py $b -g $genctlfile $SNAPSHOT" /dev/null 0 $genctlfile
+  done
+}
+
 write_html() {
   reffile=$(basename $skoolfile .skool).ref
   for b in '' '-D' '-H'; do
@@ -94,7 +102,7 @@ write_sfts() {
 usage() {
   echo "Usage: $(basename $0) $GAMES TYPE [TYPE...]"
   echo ""
-  echo "  TYPE can be one of: asm ctl html skool sft all"
+  echo "  TYPE can be one of: asm ctl genctl html skool sft all"
   exit 1
 }
 
@@ -112,12 +120,14 @@ while [ "$1" != "" ]; do
   case "$1" in
     asm) write_asms ;;
     ctl) write_ctls ;;
+    genctl) write_genctls ;;
     html) write_html ;;
     skool) write_skools ;;
     sft) write_sfts ;;
     all)
       write_asms
       write_ctls
+      write_genctls
       write_html
       write_skools
       write_sfts

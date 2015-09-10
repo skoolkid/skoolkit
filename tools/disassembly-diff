@@ -8,7 +8,7 @@ usage() {
 Usage: $(basename $0) [options] $GAMES [TYPE [TYPE ...]]
 
   Compares an old version of a disassembly with the current version. TYPE is
-  the type of disassembly to build and compare, which may be 'asm', 'ctl',
+  the type of files to build and compare, which may be 'asm', 'ctl', 'genctl',
   'gif', 'html', 'png', 'skool' or 'sft'; if TYPE is omitted, every type is
   built and compared.
 
@@ -147,7 +147,7 @@ fi
 
 shift 1
 
-DIFF_TYPES=${*:-asm ctl gif html png skool sft}
+DIFF_TYPES=${*:-asm ctl genctl gif html png skool sft}
 
 USE_SK_DEV=0
 if [ "$SKOOLKIT_VERSION" = "dev" ]; then
