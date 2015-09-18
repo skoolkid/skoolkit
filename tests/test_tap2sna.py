@@ -8,7 +8,9 @@ try:
 except ImportError:
     from unittest.mock import patch, Mock
 
-from skoolkittest import SkoolKitTestCase, get_parity, create_data_block, create_tap_header_block, create_tap_data_block
+from skoolkittest import (SkoolKitTestCase, get_parity, create_data_block,
+                          create_tap_header_block, create_tap_data_block,
+                          create_tzx_header_block, create_tzx_data_block)
 from skoolkit import tap2sna, VERSION, SkoolKitError
 from skoolkit.snapshot import get_snapshot
 
@@ -122,54 +124,47 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.run_tap2sna('{} {}'.format(archive_fname, z80_fname))
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: No TAP or TZX file found'.format(z80_fname))
 
-    def test_standard_load(self):
-        basic_header = []
-        basic_header.append(0)        # Header block marker
-        basic_header.append(0)        # BASIC program follows
-        basic_header.extend([0] * 10)
-        basic_header.extend((1, 0))   # Length
-        basic_header.extend([0] * 4)
-        basic_header.append(get_parity(basic_header))
-        basic_data = [1]
-        blocks = [[19, 0] + basic_header, create_tap_data_block(basic_data)]
+    def test_standard_load_from_tap_file(self):
+        basic_data = [1, 2, 3]
         code_start = 32768
-        code_header = create_tap_header_block(start=code_start)
-        code = [2]
-        blocks.append(code_header)
-        blocks.append(create_tap_data_block(code))
+        code = [4, 5]
+        blocks = [
+            create_tap_header_block(data_type=0),
+            create_tap_data_block(basic_data),
+            create_tap_header_block(start=code_start),
+            create_tap_data_block(code)
+        ]
 
         tapfile = self._write_tap(blocks)
         z80file = self.write_bin_file(suffix='.z80')
         output, error = self.run_tap2sna('--force {} {}'.format(tapfile, z80file))
         self.assertEqual(error, '')
         snapshot = get_snapshot(z80file)
-        self.assertEqual(snapshot[23755:23755 + len(basic_data)], basic_data)
-        self.assertEqual(snapshot[code_start:code_start + len(code)], code)
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
 
     def test_standard_load_ignores_headerless_block(self):
         code_start = 16384
-        code_header = create_tap_header_block(start=code_start)
         code = [2]
-        blocks = [code_header, create_tap_data_block(code)]
-        blocks.append(create_tap_data_block([23]))
+        blocks = [
+            create_tap_header_block(start=code_start),
+            create_tap_data_block(code),
+            create_tap_data_block([23])
+        ]
 
         tapfile = self._write_tap(blocks)
         z80file = self.write_bin_file(suffix='.z80')
         output, error = self.run_tap2sna('--force {} {}'.format(tapfile, z80file))
         self.assertEqual(error, '')
         snapshot = get_snapshot(z80file)
-        self.assertEqual(snapshot[code_start:code_start + len(code)], code)
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
 
     def test_standard_load_with_unknown_block_type(self):
         block_type = 1 # Array of numbers
-        header = []
-        header.extend((19, 0))    # Length of header block
-        header.append(0)          # Header block marker
-        header.append(block_type)
-        header.extend([0] * 16)
-        header.append(get_parity(header))
-        data = [1]
-        blocks = [header, create_tap_data_block(data)]
+        blocks = [
+            create_tap_header_block(data_type=block_type),
+            create_tap_data_block([1])
+        ]
 
         tapfile = self._write_tap(blocks)
         z80file = self.write_bin_file(suffix='.z80')
@@ -177,40 +172,60 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.run_tap2sna('--force {} {}'.format(tapfile, z80file))
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: Unknown block type ({}) in header block 1'.format(z80file, block_type))
 
+    def test_standard_load_from_tzx_file(self):
+        basic_data = [6, 7]
+        code_start = 49152
+        code = [8, 9, 10]
+        blocks = [
+            [48, 3, 65, 66, 67], # Text description block (0x30): ABC
+            create_tzx_header_block(data_type=0),
+            create_tzx_data_block(basic_data),
+            create_tzx_header_block(start=code_start),
+            create_tzx_data_block(code)
+        ]
+
+        tzxfile = self._write_tzx(blocks)
+        z80file = self.write_bin_file(suffix='.z80')
+        output, error = self.run_tap2sna('--force {} {}'.format(tzxfile, z80file))
+        self.assertEqual(error, '')
+        snapshot = get_snapshot(z80file)
+        self.assertEqual(basic_data, snapshot[23755:23755 + len(basic_data)])
+        self.assertEqual(code, snapshot[code_start:code_start + len(code)])
+
     def test_ram_load(self):
         start = 16384
         data = [237, 1, 1, 1, 1, 1]
         snapshot = self._get_snapshot(start, data)
-        self.assertEqual(snapshot[start:start + len(data)], data)
+        self.assertEqual(data, snapshot[start:start + len(data)])
 
     def test_ram_load_with_length(self):
         start = 16384
         data = [1, 2, 3, 4]
         length = 2
         snapshot = self._get_snapshot(start, data, load_options='--ram load=1,{},{}'.format(start, length))
-        self.assertEqual(snapshot[start:start + length], data[:length])
-        self.assertEqual(snapshot[start + length:start + len(data)], [0] * (len(data) - length))
+        self.assertEqual(data[:length], snapshot[start:start + length])
+        self.assertEqual([0] * (len(data) - length), snapshot[start + length:start + len(data)])
 
     def test_ram_load_with_step(self):
         start = 16385
         data = [5, 4, 3]
         step = 2
         snapshot = self._get_snapshot(start, data, load_options='--ram load=1,{},,{}'.format(start, step))
-        self.assertEqual(snapshot[start:start + len(data) * step:step], data)
+        self.assertEqual(data, snapshot[start:start + len(data) * step:step])
 
     def test_ram_load_with_offset(self):
         start = 16384
         data = [15, 16, 17]
         offset = 5
         snapshot = self._get_snapshot(start, data, load_options='--ram load=1,{},,,{}'.format(start, offset))
-        self.assertEqual(snapshot[start + offset:start + offset + len(data)], data)
+        self.assertEqual(data, snapshot[start + offset:start + offset + len(data)])
 
     def test_ram_load_with_increment(self):
         start = 65534
         data = [8, 9, 10]
         inc = 65533
         snapshot = self._get_snapshot(start, data, load_options='--ram load=1,{},,,,{}'.format(start, inc))
-        self.assertEqual(snapshot[65533:], [data[2]] + data[:2])
+        self.assertEqual([data[2]] + data[:2], snapshot[65533:])
 
     def test_ram_load_wraparound_with_step(self):
         start = 65535
@@ -229,7 +244,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         poke_addr = 16386
         poke_val = 255
         snapshot = self._get_snapshot(start, data, '--ram poke={},{}'.format(poke_addr, poke_val))
-        self.assertEqual(snapshot[start:start + 2], data[:2])
+        self.assertEqual(data[:2], snapshot[start:start + 2])
         self.assertEqual(snapshot[poke_addr], poke_val)
 
     def test_ram_poke_address_range(self):
@@ -239,7 +254,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         poke_addr_end = 16383 + len(data)
         poke_val = 254
         snapshot = self._get_snapshot(start, data, '--ram poke={}-{},{}'.format(poke_addr_start, poke_addr_end, poke_val))
-        self.assertEqual(snapshot[poke_addr_start:poke_addr_end + 1], [poke_val] * len(data))
+        self.assertEqual([poke_val] * len(data), snapshot[poke_addr_start:poke_addr_end + 1])
 
     def test_ram_poke_address_range_with_xor(self):
         start = 30000
@@ -260,14 +275,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(exp_data, snapshot[start:end + 1])
 
     def test_ram_poke_address_range_with_step(self):
-        start = 16384
-        data = [2, 9, 2]
-        poke_addr_start = 16384
-        poke_addr_end = 16386
-        poke_step = 2
-        poke_val = 253
-        snapshot = self._get_snapshot(start, data, '--ram poke={}-{}-{},{}'.format(poke_addr_start, poke_addr_end, poke_step, poke_val))
-        self.assertEqual(snapshot[poke_addr_start:poke_addr_end + 1:poke_step], [poke_val] * (1 + (poke_addr_end + 1 - poke_addr_start) // poke_step))
+        snapshot = self._get_snapshot(16384, [2, 9, 2], '--ram poke=16384-16386-2,253')
+        self.assertEqual([253, 9, 253], snapshot[16384:16387])
 
     def test_ram_poke_hex_address(self):
         address, value = 16385, 253
@@ -284,8 +293,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         size = len(data)
         dest = 16387
         snapshot = self._get_snapshot(start, data, '--ram move={},{},{}'.format(src, size, dest))
-        self.assertEqual(snapshot[start:start + len(data)], data)
-        self.assertEqual(snapshot[dest:dest + len(data)], data)
+        self.assertEqual(data, snapshot[start:start + len(data)])
+        self.assertEqual(data, snapshot[dest:dest + len(data)])
 
     def test_ram_move_hex_address(self):
         src, size, dest = 16384, 1, 16385
@@ -317,7 +326,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(output[1], 'Writing {}'.format(z80file))
         self.assertEqual(error, '')
         snapshot = get_snapshot(z80file)
-        self.assertEqual(snapshot[start:start + len(data)], data)
+        self.assertEqual(data, snapshot[start:start + len(data)])
 
     def test_invalid_tzx_file(self):
         tzxfile = self.write_bin_file([1, 2, 3], suffix='.tzx')
@@ -328,13 +337,8 @@ class Tap2SnaTest(SkoolKitTestCase):
 
     def test_tzx_block_type_0x10(self):
         data = [1, 2, 4]
-        block = [16] # Block ID
-        block.extend((0, 0)) # Pause duration
-        data_block = create_data_block(data)
-        length = len(data_block)
-        block.extend((length % 256, length // 256))
-        block.extend(data_block)
         start = 16386
+        block = create_tzx_data_block(data)
         snapshot = self._get_snapshot(start, blocks=[block], tzx=True)
         self.assertEqual(data, snapshot[start:start + len(data)])
 
@@ -425,17 +429,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         blocks.append([53] + [32] * 16 + [1] + [0] * 4) # 0x35 Custom info block
         blocks.append([90] + [0] * 9) # 0x5A "Glue" block
         data = [2, 4, 6]
-        block = [16] # Block ID
-        block.extend((0, 0)) # Pause duration
-        data_block = create_data_block(data)
-        length = len(data_block)
-        block.extend((length % 256, length // 256))
-        block.extend(data_block)
-        blocks.append(block)
+        blocks.append(create_tzx_data_block(data))
         start = 16388
         load_options = '--ram load={},{}'.format(len(blocks), start)
         snapshot = self._get_snapshot(load_options=load_options, blocks=blocks, tzx=True)
-        self.assertEqual(snapshot[start:start + len(data)], data)
+        self.assertEqual(data, snapshot[start:start + len(data)])
 
     def test_tzx_with_unknown_block(self):
         block_id = 22
@@ -592,7 +590,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         ))
         args_file = self.write_text_file(args, suffix='.t2s')
         snapshot = self._get_snapshot(start, data, '@{}'.format(args_file))
-        self.assertEqual(snapshot[start:start + len(data)], data)
+        self.assertEqual(data, snapshot[start:start + len(data)])
 
     @patch.object(tap2sna, 'urlopen', Mock(return_value=BytesIO(bytearray(create_tap_data_block([2, 3])))))
     @patch.object(tap2sna, '_write_z80', mock_write_z80)
@@ -603,7 +601,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna('--ram load=1,{} {} test.z80'.format(start, url))
         self.assertEqual(output[0], 'Downloading {}'.format(url))
         self.assertEqual(error, '')
-        self.assertEqual(snapshot[start:start + len(data)], data)
+        self.assertEqual(data, snapshot[start:start + len(data)])
 
     def test_no_clobber(self):
         block = create_tap_data_block([0])

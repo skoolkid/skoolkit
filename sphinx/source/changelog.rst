@@ -1,8 +1,8 @@
 Changelog
 =========
 
-5.0rc
------
+5.0rc2
+------
 * Added the :ref:`skool2bin.py` command (for converting a skool file into a
   binary file)
 * Added the :ref:`tapinfo.py` command (for showing information on the blocks in
@@ -17,6 +17,7 @@ Changelog
   specifying extra `ref` files to use)
 * Added support to :ref:`sna2skool.py` for reading SpecEmu's 64K code execution
   map files
+* Fixed how :ref:`tap2sna.py` does a standard load from a TZX file
 
 4.5 (2015-07-04)
 ----------------

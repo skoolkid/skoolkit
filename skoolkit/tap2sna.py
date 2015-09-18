@@ -161,21 +161,22 @@ def _get_ram(blocks, options):
     if standard_load:
         start = None
         for block_num, block in enumerate(blocks, 1):
-            if block[0] == 0:
-                # Header
-                block_type = block[1]
-                if block_type == 3:
-                    # Bytes
-                    start = block[14] + 256 * block[15]
-                elif block_type == 0:
-                    # Program
-                    start = 23755
-                else:
-                    raise TapeError('Unknown block type ({0}) in header block {1}'.format(block_type, block_num))
-            elif start is not None:
-                # Data
-                _load_block(snapshot, block, start)
-                start = None
+            if block:
+                if block[0] == 0:
+                    # Header
+                    block_type = block[1]
+                    if block_type == 3:
+                        # Bytes
+                        start = block[14] + 256 * block[15]
+                    elif block_type == 0:
+                        # Program
+                        start = 23755
+                    else:
+                        raise TapeError('Unknown block type ({}) in header block {}'.format(block_type, block_num))
+                elif start is not None:
+                    # Data
+                    _load_block(snapshot, block, start)
+                    start = None
 
     counters = {}
     for op_type, param_str in operations:

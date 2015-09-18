@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from skoolkittest import (SkoolKitTestCase, create_header_block, create_data_block,
-                          create_tap_header_block, create_tap_data_block)
+from skoolkittest import (SkoolKitTestCase, create_data_block,
+                          create_tap_header_block, create_tap_data_block,
+                          create_tzx_header_block, create_tzx_data_block)
 from skoolkit import SkoolKitError, get_word, VERSION
 
 TZX_DATA_BLOCK = (16, 0, 0, 3, 0, 255, 0, 0)
@@ -16,24 +17,6 @@ TZX_DATA_BLOCK_DESC = """
 
 def _get_archive_info(text_id, text):
     return [text_id, len(text)] + [ord(c) for c in text]
-
-def _create_tzx_header_block(title='', data_type=3):
-    block = [16] # Block ID
-    block.extend((0, 0)) # Pause duration
-    data_block = create_header_block(title, data_type=data_type)
-    length = len(data_block)
-    block.extend((length % 256, length // 256))
-    block.extend(data_block)
-    return block
-
-def _create_tzx_data_block(data):
-    block = [16] # Block ID
-    block.extend((0, 0)) # Pause duration
-    data_block = create_data_block(data)
-    length = len(data_block)
-    block.extend((length % 256, length // 256))
-    block.extend(data_block)
-    return block
 
 class TapinfoTest(SkoolKitTestCase):
     def _write_tzx(self, blocks):
@@ -99,10 +82,10 @@ class TapinfoTest(SkoolKitTestCase):
 
     def test_tzx_file(self):
         blocks = []
-        blocks.append(_create_tzx_header_block('TEST_tzx', data_type=0))
-        blocks.append(_create_tzx_data_block([1, 4, 16]))
-        blocks.append(_create_tzx_header_block('characters', data_type=2))
-        blocks.append(_create_tzx_data_block([64, 0]))
+        blocks.append(create_tzx_header_block('TEST_tzx', data_type=0))
+        blocks.append(create_tzx_data_block([1, 4, 16]))
+        blocks.append(create_tzx_header_block('characters', data_type=2))
+        blocks.append(create_tzx_data_block([64, 0]))
 
         tzxfile = self._write_tzx(blocks)
         output, error = self.run_tapinfo(tzxfile)
@@ -430,7 +413,7 @@ class TapinfoTest(SkoolKitTestCase):
     def test_option_b(self):
         blocks = []
 
-        blocks.append(_create_tzx_data_block([0, 1]))
+        blocks.append(create_tzx_data_block([0, 1]))
 
         block2 = [17] # Block ID (0x11)
         block2.extend([0] * 15)
@@ -462,7 +445,7 @@ class TapinfoTest(SkoolKitTestCase):
     def test_option_b_with_invalid_block_id(self):
         blocks = []
 
-        blocks.append(_create_tzx_data_block([0, 1]))
+        blocks.append(create_tzx_data_block([0, 1]))
 
         block2 = [42] # Block ID (0x2A)
         block2.extend((0, 0, 0, 0))
