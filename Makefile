@@ -11,26 +11,26 @@ OPTIONS += $(HTML_OPTS)
 
 .PHONY: usage
 usage:
-	@echo "Supported targets:"
-	@echo "  usage            show this help"
-	@echo "  doc              build the documentation"
-	@echo "  man              build the man pages"
-	@echo "  clean            clean the documentation and man pages"
-	@echo "  hh               build the Hungry Horace disassembly"
-	@echo "  rom              build the Spectrum ROM disassembly"
-	@echo "  test[-all]       run core/all tests with current Python interpreter"
-	@echo "  test2.7[-all]    run core/all tests with Python 2.7"
-	@echo "  test3.X[-all]    run core/all tests with Python 3.X (2<=X<=5)"
-	@echo "  test-cover       run core tests with coverage info"
-	@echo "  release          build a SkoolKit release tarball and zip archive"
-	@echo "  tarball          build a SkoolKit release tarball"
-	@echo "  deb              build a SkoolKit Debian package"
-	@echo "  rpm              build a SkoolKit RPM package"
+	@echo "Targets:"
+	@echo "  usage         show this help"
+	@echo "  doc           build the documentation"
+	@echo "  man           build the man pages"
+	@echo "  clean         clean the documentation and man pages"
+	@echo "  hh            build the Hungry Horace disassembly"
+	@echo "  rom           build the Spectrum ROM disassembly"
+	@echo "  test[-all]    run core/all tests with current Python interpreter"
+	@echo "  test27[-all]  run core/all tests with Python 2.7"
+	@echo "  test3X[-all]  run core/all tests with Python 3.X (2<=X<=5)"
+	@echo "  test-cover    run core tests with coverage info"
+	@echo "  release       build a SkoolKit release tarball and zip archive"
+	@echo "  tarball       build a SkoolKit release tarball"
+	@echo "  deb           build a SkoolKit Debian package"
+	@echo "  rpm           build a SkoolKit RPM package"
 	@echo ""
-	@echo "Environment variables:"
-	@echo "  THEMES           CSS theme(s) to use"
-	@echo "  HTML_OPTS        options passed to skool2html.py"
-	@echo "  ROM              path to the Spectrum ROM dump"
+	@echo "Variables:"
+	@echo "  THEMES     CSS theme(s) to use"
+	@echo "  HTML_OPTS  options passed to skool2html.py"
+	@echo "  ROM        path to the Spectrum ROM dump"
 
 .PHONY: doc
 doc:
@@ -76,45 +76,13 @@ test: remove-disassembly-tests
 test-all: write-disassembly-tests
 	nosetests -w tests
 
-.PHONY: test2.7
-test2.7: remove-disassembly-tests
-	$(NOSETESTS27) -w tests
+.PHONY: test%
+test%: remove-disassembly-tests
+	$(NOSETESTS$*) -w tests
 
-.PHONY: test2.7-all
-test2.7-all: write-disassembly-tests
-	$(NOSETESTS27) -w tests
-
-.PHONY: test3.2
-test3.2: remove-disassembly-tests
-	$(NOSETESTS32) -w tests
-
-.PHONY: test3.2-all
-test3.2-all: write-disassembly-tests
-	$(NOSETESTS32) -w tests
-
-.PHONY: test3.3
-test3.3: remove-disassembly-tests
-	$(NOSETESTS33) -w tests
-
-.PHONY: test3.3-all
-test3.3-all: write-disassembly-tests
-	$(NOSETESTS33) -w tests
-
-.PHONY: test3.4
-test3.4: remove-disassembly-tests
-	$(NOSETESTS34) -w tests
-
-.PHONY: test3.4-all
-test3.4-all: write-disassembly-tests
-	$(NOSETESTS34) -w tests
-
-.PHONY: test3.5
-test3.5: remove-disassembly-tests
-	$(NOSETESTS35) -w tests
-
-.PHONY: test3.5-all
-test3.5-all: write-disassembly-tests
-	$(NOSETESTS35) -w tests
+.PHONY: test%-all
+test%-all: write-disassembly-tests
+	$(NOSETESTS$*) -w tests
 
 .PHONY: test-cover
 test-cover: remove-disassembly-tests
