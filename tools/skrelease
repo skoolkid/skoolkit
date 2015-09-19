@@ -212,12 +212,13 @@ test_disassemblies() {
   btslog=$BACKTOSKOOL_HOME/build/tests.log
   mkdir -p $CONTACTSAMCRUISE_HOME/build
   csclog=$CONTACTSAMCRUISE_HOME/build/tests.log
+  targets="test27 test32 test33 test34 test35"
 
-  make -C $MANICMINER_HOME test{2.7,3.{2,3,4}} &> $mmlog & PIDmm=$!
-  make -C $JETSETWILLY_HOME test{2.7,3.{2,3,4}} &> $jswlog & PIDjsw=$!
-  make -C $SKOOLDAZE_HOME test{2.7,3.{2,3,4}} &> $sdlog & PIDsd=$!
-  make -C $BACKTOSKOOL_HOME test{2.7,3.{2,3,4}} &> $btslog & PIDbts=$!
-  make -C $CONTACTSAMCRUISE_HOME test{2.7,3.{2,3,4}} &> $csclog & PIDcsc=$!
+  make -C $MANICMINER_HOME $targets &> $mmlog & PIDmm=$!
+  make -C $JETSETWILLY_HOME $targets &> $jswlog & PIDjsw=$!
+  make -C $SKOOLDAZE_HOME $targets &> $sdlog & PIDsd=$!
+  make -C $BACKTOSKOOL_HOME $targets &> $btslog & PIDbts=$!
+  make -C $CONTACTSAMCRUISE_HOME $targets &> $csclog & PIDcsc=$!
 
   _wait "Manic Miner tests" $PIDmm "(see $mmlog)" _
   _wait "Jet Set Willy tests" $PIDjsw "(see $jswlog)" _

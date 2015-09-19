@@ -167,7 +167,10 @@ update_ghpages() {
   htmldir=$BUILD/html/$GAMEDIR
   rm -rf $htmldir
   tar xf $SKOOLKIT_TARBALL -C $BUILD
-  _exec "Building disassembly" "make -C $DHOME $GAME SKOOLKIT_HOME=$BUILD/skoolkit-$SKOOLKIT_VERSION HTML_OPTS='$GHHTMLOPTS'" $BUILD/$GAME-build.log
+  skdir=$BUILD/skoolkit-$SKOOLKIT_VERSION
+  mkdir $skdir/tools
+  cp -p $SKOOLKIT_TOOLS/disassembly.mk $skdir/tools
+  _exec "Building disassembly" "make -C $DHOME html SKOOLKIT_HOME=$skdir HTML_OPTS='$GHHTMLOPTS'" $BUILD/$GAME-build.log
 
   _cd_tmpdir
   echo -n "Cloning $GHREPO repository: "
@@ -199,8 +202,11 @@ test_disassembly() {
   logdir=$(pwd)
   tar xf $SKOOLKIT_TARBALL
   cd skoolkit-$SKOOLKIT_VERSION
-  for v in 2.7 3.2 3.3 3.4; do
-    _exec "Running $GAMENAME disassembly tests (SkoolKit $SKOOLKIT_VERSION, Python $v)" "SKOOLKIT_HOME=$(pwd) make -C $DHOME test$v" $logdir/test$v.log
+  cp -p $SKOOLKIT_HOME/tests/disassemblytest.py tests
+  mkdir tools
+  cp -p $SKOOLKIT_TOOLS/{disassembly.mk,testwriter.py} tools
+  for v in 27 32 33 34 35; do
+    _exec "Running $GAMENAME disassembly tests (SkoolKit $SKOOLKIT_VERSION, Python ${v:0:1}.${v:1})" "SKOOLKIT_HOME=$(pwd) make -C $DHOME test$v" $logdir/test$v.log
   done
 }
 
