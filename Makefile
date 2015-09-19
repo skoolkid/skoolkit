@@ -3,6 +3,7 @@ NOSETESTS27 = /usr/bin/python2.7 /usr/bin/nosetests
 NOSETESTS32 = $(HOME)/Python/Python3.2/bin/nosetests
 NOSETESTS33 = $(HOME)/Python/Python3.3/bin/nosetests
 NOSETESTS34 = /usr/bin/python3.4 /usr/bin/nosetests
+NOSETESTS35 = $(HOME)/Python/Python3.5/bin/nosetests
 OPTIONS = -d build/html -t
 
 OPTIONS += $(foreach theme,$(THEMES),-T $(theme))
@@ -17,12 +18,10 @@ usage:
 	@echo "  clean            clean the documentation and man pages"
 	@echo "  hh               build the Hungry Horace disassembly"
 	@echo "  rom              build the Spectrum ROM disassembly"
-	@echo "  test[-all]       run core/all unit tests with current Python interpreter"
-	@echo "  test2.7[-all]    run core/all unit tests with Python 2.7"
-	@echo "  test3.2[-all]    run core/all unit tests with Python 3.2"
-	@echo "  test3.3[-all]    run core/all unit tests with Python 3.3"
-	@echo "  test3.4[-all]    run core/all unit tests with Python 3.4"
-	@echo "  test-cover       run core unit tests with coverage info"
+	@echo "  test[-all]       run core/all tests with current Python interpreter"
+	@echo "  test2.7[-all]    run core/all tests with Python 2.7"
+	@echo "  test3.X[-all]    run core/all tests with Python 3.X (2<=X<=5)"
+	@echo "  test-cover       run core tests with coverage info"
 	@echo "  release          build a SkoolKit release tarball and zip archive"
 	@echo "  tarball          build a SkoolKit release tarball"
 	@echo "  deb              build a SkoolKit Debian package"
@@ -108,6 +107,14 @@ test3.4: remove-disassembly-tests
 .PHONY: test3.4-all
 test3.4-all: write-disassembly-tests
 	$(NOSETESTS34) -w tests
+
+.PHONY: test3.5
+test3.5: remove-disassembly-tests
+	$(NOSETESTS35) -w tests
+
+.PHONY: test3.5-all
+test3.5-all: write-disassembly-tests
+	$(NOSETESTS35) -w tests
 
 .PHONY: test-cover
 test-cover: remove-disassembly-tests
