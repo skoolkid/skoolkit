@@ -165,9 +165,9 @@ update_ghpages() {
 
   mkdir -p $BUILD
   htmldir=$BUILD/html/$GAMEDIR
-  rm -rf $htmldir
-  tar xf $SKOOLKIT_TARBALL -C $BUILD
   skdir=$BUILD/skoolkit-$SKOOLKIT_VERSION
+  rm -rf $htmldir $skdir
+  tar xf $SKOOLKIT_TARBALL -C $BUILD
   mkdir $skdir/tools
   cp -p $SKOOLKIT_TOOLS/disassembly.mk $skdir/tools
   _exec "Building disassembly" "make -C $DHOME html SKOOLKIT_HOME=$skdir HTML_OPTS='$GHHTMLOPTS'" $BUILD/$GAME-build.log
