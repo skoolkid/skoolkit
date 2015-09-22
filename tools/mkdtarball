@@ -51,29 +51,29 @@ The ASM disassembly can be built by following these steps:
 
 1. Download and unpack SkoolKit $SK_VERSION.
 
-2. Copy '$PREFIX.skool' from the 'sources' subdirectory in this archive
-   to the directory where SkoolKit was unpacked.
+2. Copy '$GAME.skool' from the 'sources' subdirectory in this archive to the
+   directory where SkoolKit was unpacked.
 
 3. Change to the directory where SkoolKit was unpacked and run this command:
 
-  $ ./skool2asm.py $PREFIX.skool > $PREFIX.asm
+  $ ./skool2asm.py $GAME.skool > $GAME.asm
 
-Now $PREFIX.asm can be assembled using pasmo (http://pasmo.speccy.org/):
+Now $GAME.asm can be assembled using pasmo (http://pasmo.speccy.org/):
 
-  $ pasmo $PREFIX.asm $PREFIX.bin
+  $ pasmo $GAME.asm $GAME.bin
 
-Alternatively, $PREFIX.skool can be converted to a binary file by the
-skool2bin.py utility, included with SkoolKit:
+Alternatively, $GAME.skool can be converted to a binary file by the skool2bin.py
+utility, included with SkoolKit:
 
-  $ ./skool2bin.py $SKOOL2BINOPTS $PREFIX.skool
+  $ ./skool2bin.py $SKOOL2BINOPTS $GAME.skool
 
-To create a TAP file from $PREFIX.bin, use the bin2tap.py utility,
-included with SkoolKit:
+To create a TAP file from $GAME.bin, use the bin2tap.py utility, included with
+SkoolKit:
 
-  $ ./bin2tap.py $PREFIX.bin
+  $ ./bin2tap.py $GAME.bin
 
-The resultant TAP file, $PREFIX.tap, can be loaded into an emulator, and
-the game will start automatically.
+The resultant TAP file, $GAME.tap, can be loaded into an emulator, and the game
+will start automatically.
 EOF
 }
 
@@ -95,7 +95,7 @@ fi
 
 . $DRELEASERC
 
-PREFIX=$(basename $REFFILE .ref)
+REFFILE=$GAME.ref
 
 # Determine the SkoolKit version number
 if [[ ! -f skool2html.py ]]; then

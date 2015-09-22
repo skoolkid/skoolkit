@@ -1,10 +1,10 @@
-SKOOLFILES=${SKOOLFILES:-$GAMEDIR.skool}
 DIFFSBUILD=$DHOME/build/disassembly-diff
 
 BUILD=$DHOME/build
 DIST=$DHOME/dist
 DTMPDIR=$HOME/tmp
-VERSION=$(grep ^Release= $DHOME/sources/$REFFILE | awk '{print $NF}')
+REF=$DHOME/sources/$GAME.ref
+VERSION=$(grep ^Release= $REF | awk '{print $NF}')
 RELEASE=$GAME-disassembly-$VERSION
 SKOOLKIT_TOOLS=$SKOOLKIT_HOME/tools
 SKOOLKIT_VERSION=$(cd $SKOOLKIT_HOME; git tag | tail -n 1 | cut -c2-)
@@ -89,9 +89,11 @@ _check_files() {
 ###############################################################################
 count_lines() {
   _cd_tmpdir
-  for skoolfile in $SKOOLFILES; do
-    cmd="$SKOOLKIT_TOOLS/count80.py -i $DHOME/sources/.clinesignore -p $DHOME/sources/$skoolfile"
-    _exec "Counting lines of length 80 or more in $skoolfile" "$cmd" $(pwd)/$skoolfile.log
+  for f in $SRCFILES; do
+    if [[ $f = *.skool ]]; then
+      cmd="$SKOOLKIT_TOOLS/count80.py -i $DHOME/sources/.clinesignore -p $DHOME/sources/$f"
+      _exec "Counting lines of length 80 or more in $f" "$cmd" $(pwd)/$f.log
+    fi
   done
 }
 
@@ -164,7 +166,7 @@ update_ghpages() {
   _require_skoolkit_archive
 
   mkdir -p $BUILD
-  htmldir=$BUILD/html/$GAMEDIR
+  htmldir=$BUILD/html/$(grep ^GameDir= $REF | cut -c9-)
   skdir=$BUILD/skoolkit-$SKOOLKIT_VERSION
   rm -rf $htmldir $skdir
   tar xf $SKOOLKIT_TARBALL -C $BUILD
