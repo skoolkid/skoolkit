@@ -25,12 +25,23 @@ fi
 GAME=$1
 read_ddiffsrc $GAME
 
+if [ "$GAME" = "rom" ]; then
+  SKOOL=$SKOOLKIT_HOME/build/48.rom.skool
+  SNA2SKOOL_OPTS="-o 0 -H"
+  $SKOOLKIT_HOME/sna2skool.py $SNA2SKOOL_OPTS -c $SKOOLKIT_HOME/examples/48.rom.ctl $SNAPSHOT > $SKOOL
+elif [ "$GAME" = "hh" ]; then
+  SKOOL=$SKOOLKIT_HOME/build/hungry_horace.skool
+  $SKOOLKIT_HOME/sna2skool.py -c $SKOOLKIT_HOME/examples/hungry_horace.ctl $SNAPSHOT > $SKOOL
+else
+  SKOOL=$(ls -1 $DHOME/sources/*.skool | grep -Ev '/(load|save|start).skool')
+fi
+
 SKOOL2=$GAME.skool
 SFT=$GAME.sft
 DIFF=$GAME.diff
 
 $SKOOLKIT_HOME/skool2sft.py $SKOOL > $SFT
-$SKOOLKIT_HOME/sna2skool.py -T $SFT $SNAPSHOT > $SKOOL2
+$SKOOLKIT_HOME/sna2skool.py $SNA2SKOOL_OPTS -T $SFT $SNAPSHOT > $SKOOL2
 if ! diff -u $SKOOL $SKOOL2 > $DIFF; then
   cat $DIFF
   exit 1
