@@ -66,7 +66,7 @@ write_ctls() {
 write_genctls() {
   for b in '' '-h' '-i'; do
     genctlfile=genctl/$GAME$b.ctl
-    run_cmd "./sna2skool.py $b -g $genctlfile $SNAPSHOT" /dev/null 0 $genctlfile
+    run_cmd "./sna2skool.py $sna2skool_opts $b -g $genctlfile $SNAPSHOT" /dev/null 0 $genctlfile
   done
 }
 
@@ -87,7 +87,7 @@ write_skools() {
   run_cmd "./skool2ctl.py src/$skoolfile" $ctl 1
   for b in '' '-H'; do
     for c in '' '-L'; do
-      run_cmd "./sna2skool.py -c $ctl $b $c $SNAPSHOT" skool/$GAME$b$c.skool
+      run_cmd "./sna2skool.py $sna2skool_opts -c $ctl $b $c $SNAPSHOT" skool/$GAME$b$c.skool
     done
   done
   rm -f $ctl
@@ -113,7 +113,8 @@ usage() {
 
 GAME=$1
 read_ddiffsrc $GAME
-skoolfile=$(basename $SKOOL)
+skoolfile=$(basename $(ls -1 src/*.skool | grep -Ev '/.*(load|save|start).skool'))
+[ "$GAME" = "rom" ] && sna2skool_opts="-o 0"
 
 shift
 while [ "$1" != "" ]; do

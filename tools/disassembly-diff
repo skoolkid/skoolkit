@@ -161,22 +161,31 @@ if [ $WRITE_OLD -eq 1 ] || [ ! -d $OLD_DIR ]; then
   WRITE_OLD=1
   OLD_DISASSEMBLY_NAME=${GAME}-disassembly-${OLD_DISASSEMBLY_VERSION}
   clean_disassembly $OLD_DIR $DIFF_TYPES
-  OLD_SKOOLKIT_VERSION_XY=$(echo ${OLD_SKOOLKIT_VERSION} | tr -d . | cut -c1-2)
   OLD_SKOOLKIT_TAR=skoolkit-${OLD_SKOOLKIT_VERSION}.tar.xz
   cp -np $SKOOLKIT_ARCHIVE/$OLD_SKOOLKIT_TAR .
   DISASSEMBLY_TAR=${OLD_DISASSEMBLY_NAME}.tar.xz
-  cp -np $DISASSEMBLY_ARCHIVE/$DISASSEMBLY_TAR .
-  [ ! -d $OLD_DISASSEMBLY_NAME ] && tar xf $DISASSEMBLY_TAR
+  if [ -f $DISASSEMBLY_ARCHIVE/$DISASSEMBLY_TAR ]; then
+    cp -np $DISASSEMBLY_ARCHIVE/$DISASSEMBLY_TAR .
+    [ ! -d $OLD_DISASSEMBLY_NAME ] && tar xf $DISASSEMBLY_TAR
+  fi
   if [ ! -d $OLD_DIR ]; then
     tar xf $OLD_SKOOLKIT_TAR
     mv skoolkit-${OLD_SKOOLKIT_VERSION} $OLD_DIR
-    find $OLD_DISASSEMBLY_NAME -name '*.py' -exec cp {} $OLD_DIR/skoolkit \;
-    find $OLD_DISASSEMBLY_NAME -name '*.py' -exec cp {} $OLD_DIR \;
     mkdir $OLD_DIR/src
-    find $OLD_DISASSEMBLY_NAME -name '*.skool' -exec cp {} $OLD_DIR/src \;
-    find $OLD_DISASSEMBLY_NAME -name '*.ref' -exec cp {} $OLD_DIR/src \;
-    find $OLD_DISASSEMBLY_NAME -name '*.js' -exec cp {} $OLD_DIR/src \;
-    find $OLD_DISASSEMBLY_NAME -name '*.css' -exec cp {} $OLD_DIR/src \;
+    if [ "$GAME" = "rom" ]; then
+      $OLD_DIR/sna2skool.py -o 0 -H -c $OLD_DIR/examples/48.rom.ctl $SNAPSHOT > $OLD_DIR/src/48.rom.skool
+      cp -p $OLD_DIR/examples/48.rom.ref $OLD_DIR/src
+    elif [ "$GAME" = "hh" ]; then
+      $OLD_DIR/sna2skool.py -c $OLD_DIR/examples/hungry_horace.ctl $SNAPSHOT > $OLD_DIR/src/hungry_horace.skool
+      cp -p $OLD_DIR/examples/hungry_horace.ref $OLD_DIR/src
+    else
+      find $OLD_DISASSEMBLY_NAME -name '*.py' -exec cp {} $OLD_DIR/skoolkit \;
+      find $OLD_DISASSEMBLY_NAME -name '*.py' -exec cp {} $OLD_DIR \;
+      find $OLD_DISASSEMBLY_NAME -name '*.skool' -exec cp {} $OLD_DIR/src \;
+      find $OLD_DISASSEMBLY_NAME -name '*.ref' -exec cp {} $OLD_DIR/src \;
+      find $OLD_DISASSEMBLY_NAME -name '*.js' -exec cp {} $OLD_DIR/src \;
+      find $OLD_DISASSEMBLY_NAME -name '*.css' -exec cp {} $OLD_DIR/src \;
+    fi
   fi
 fi
 
@@ -185,7 +194,6 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
   WRITE_NEW=1
   clean_disassembly $NEW_DIR $DIFF_TYPES
   mkdir -p $NEW_DIR
-  SKOOLKIT_VERSION_XY=$(echo ${SKOOLKIT_VERSION} | tr -d . | cut -c1-2)
   SKOOLKIT_TAR=skoolkit-${SKOOLKIT_VERSION}.tar.xz
   if [ $USE_SK_DEV -eq 1 ]; then
     if [ $BUILD_SK_TARBALL -eq 1 ] || [ ! -f ${SKOOLKIT_TAR} ]; then
@@ -203,9 +211,17 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
   rm -rf skoolkit-${SKOOLKIT_VERSION}
   rm -rf $NEW_DIR/src
   mkdir $NEW_DIR/src
-  cp -p $DHOME/sources/*.skool $DHOME/sources/*.ref $DHOME/sources/*.css $NEW_DIR/src
-  find $DHOME/sources -name '*.js' -exec cp -p {} $NEW_DIR/src \;
-  cp -p $DHOME/sources/*.py $NEW_DIR
+  if [ "$GAME" = "rom" ]; then
+    $NEW_DIR/sna2skool.py -o 0 -H -c $NEW_DIR/examples/48.rom.ctl $SNAPSHOT > $NEW_DIR/src/48.rom.skool
+    cp -p $NEW_DIR/examples/48.rom.ref $NEW_DIR/src
+  elif [ "$GAME" = "hh" ]; then
+    $NEW_DIR/sna2skool.py -c $NEW_DIR/examples/hungry_horace.ctl $SNAPSHOT > $NEW_DIR/src/hungry_horace.skool
+    cp -p $NEW_DIR/examples/hungry_horace.ref $NEW_DIR/src
+  else
+    cp -p $DHOME/sources/*.skool $DHOME/sources/*.ref $DHOME/sources/*.css $NEW_DIR/src
+    find $DHOME/sources -name '*.js' -exec cp -p {} $NEW_DIR/src \;
+    cp -p $DHOME/sources/*.py $NEW_DIR
+  fi
 fi
 
 if [ $WRITE_OLD -eq 1 ]; then
@@ -231,7 +247,8 @@ for diff_type in $DIFF_TYPES; do
 done
 
 banner "Running diff-files"
-$TOOLS/diff-files -d $DHOME/diffs $OLD_DIR $NEW_DIR $DIFF_TYPES
+[ -d $DHOME/diffs ] && EXP_DIFFS_DIR=$DHOME/diffs || EXP_DIFFS_DIR=$DHOME/diffs-$GAME
+$TOOLS/diff-files -d $EXP_DIFFS_DIR $OLD_DIR $NEW_DIR $DIFF_TYPES
 
 set +e # No longer abort on errors (the following 'ls' commands can fail)
 
