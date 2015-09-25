@@ -56,8 +56,8 @@ check() {
 usage() {
   echo "Usage: $(basename $0) $GAMES"
   echo ""
-  echo "  Check ASM files (created by 'write-files') for Skool Daze, Back to Skool,"
-  echo "  Contact Sam Cruise, Manic Miner or Jet Set Willy."
+  echo "  Assembles all the ASM files for a disassembly and checks that the output is"
+  echo "  identical where expected (e.g. between decimal and hexadecimal versions)."
   exit 1
 }
 
