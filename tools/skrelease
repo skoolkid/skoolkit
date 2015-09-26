@@ -234,6 +234,8 @@ disassembly_diffs() {
   _require_skoolkit
   _require_disassemblies
 
+  romdiffsdir=$SKOOLKIT_HOME/build/rom-disassembly-diff
+  hhdiffsdir=$SKOOLKIT_HOME/build/hh-disassembly-diff
   mmdiffsdir=$MANICMINER_HOME/build/disassembly-diff
   jswdiffsdir=$JETSETWILLY_HOME/build/disassembly-diff
   sddiffsdir=$SKOOLDAZE_HOME/build/disassembly-diff
@@ -243,18 +245,22 @@ disassembly_diffs() {
   DISASSEMBLY_DIFF="$TOOLS/disassembly-diff -t"
 
   _build_tarball
-  for d in $mmdiffsdir $jswdiffsdir $sddiffsdir $btsdiffsdir $cscdiffsdir; do
+  for d in $romdiffsdir $hhdiffsdir $mmdiffsdir $jswdiffsdir $sddiffsdir $btsdiffsdir $cscdiffsdir; do
     mkdir -p $d
     cp -p $TARBALL $d
     rm -rf $d/disassembly-current-*
   done
 
+  (cd $romdiffsdir; $DISASSEMBLY_DIFF rom &> $diffslog) & PIDrom=$!
+  (cd $hhdiffsdir; $DISASSEMBLY_DIFF hh &> $diffslog) & PIDhh=$!
   (cd $mmdiffsdir; $DISASSEMBLY_DIFF mm &> $diffslog) & PIDmm=$!
   (cd $jswdiffsdir; $DISASSEMBLY_DIFF jsw &> $diffslog) & PIDjsw=$!
   (cd $sddiffsdir; $DISASSEMBLY_DIFF sd &> $diffslog) & PIDsd=$!
   (cd $btsdiffsdir; $DISASSEMBLY_DIFF bts &> $diffslog) & PIDbts=$!
   (cd $cscdiffsdir; $DISASSEMBLY_DIFF csc &> $diffslog) & PIDcsc=$!
 
+  _wait "Spectrum ROM disassembly-diff" $PIDrom "(see $romdiffsdir/$diffslog)"
+  _wait "Hungry Horace disassembly-diff" $PIDhh "(see $hhdiffsdir/$diffslog)"
   _wait "Manic Miner disassembly-diff" $PIDmm "(see $mmdiffsdir/$diffslog)"
   _wait "Jet Set Willy disassembly-diff" $PIDjsw "(see $jswdiffsdir/$diffslog)"
   _wait "Skool Daze disassembly-diff" $PIDsd "(see $sddiffsdir/$diffslog)"
@@ -527,7 +533,7 @@ SkoolKit testing and release tool.
 
 Pre-release commands:
   dtests - run the disassemblies (MM/JSW/SD/BTS/CSC) tests
-  ddiffs - run disassembly-diff on the MM/JSW/SD/BTS/CSC disassemblies
+  ddiffs - run disassembly-diff on the ROM/HH/MM/JSW/SD/BTS/CSC disassemblies
   asmchk - run check-asms on the MM/JSW/SD/BTS/CSC disassemblies
   setup1 - verify that 'setup.py install' works from a release tarball
   setup2 - verify that 'setup.py install' works from an sdist tarball
