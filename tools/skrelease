@@ -275,6 +275,8 @@ check_asms() {
   _require_skoolkit
   _require_disassemblies
 
+  romasmdir=$SKOOLKIT_HOME/build/rom-disassembly-diff/disassembly-current-$VERSION/asm
+  hhasmdir=$SKOOLKIT_HOME/build/hh-disassembly-diff/disassembly-current-$VERSION/asm
   asmsubdir=build/disassembly-diff/disassembly-current-$VERSION/asm
   mmasmdir=$MANICMINER_HOME/$asmsubdir
   jswasmdir=$JETSETWILLY_HOME/$asmsubdir
@@ -284,12 +286,16 @@ check_asms() {
   asmlog=asm.log
   CHECK_ASMS=$TOOLS/check-asms
 
+  (cd $romasmdir; $CHECK_ASMS rom &> $asmlog) & PIDrom=$!
+  (cd $hhasmdir; $CHECK_ASMS hh &> $asmlog) & PIDhh=$!
   (cd $mmasmdir; $CHECK_ASMS mm &> $asmlog) & PIDmm=$!
   (cd $jswasmdir; $CHECK_ASMS jsw &> $asmlog) & PIDjsw=$!
   (cd $sdasmdir; $CHECK_ASMS sd &> $asmlog) & PIDsd=$!
   (cd $btsasmdir; $CHECK_ASMS bts &> $asmlog) & PIDbts=$!
   (cd $cscasmdir; $CHECK_ASMS csc &> $asmlog) & PIDcsc=$!
 
+  _wait "Spectrum ROM check-asms" $PIDrom "(see $romasmdir/$asmlog)" _
+  _wait "Hungry Horace check-asms" $PIDhh "(see $hhasmdir/$asmlog)" _
   _wait "Manic Miner check-asms" $PIDmm "(see $mmasmdir/$asmlog)" _
   _wait "Jet Set Willy check-asms" $PIDjsw "(see $jswasmdir/$asmlog)" _
   _wait "Skool Daze check-asms" $PIDsd "(see $sdasmdir/$asmlog)" _
@@ -534,7 +540,7 @@ SkoolKit testing and release tool.
 Pre-release commands:
   dtests - run the disassemblies (MM/JSW/SD/BTS/CSC) tests
   ddiffs - run disassembly-diff on the ROM/HH/MM/JSW/SD/BTS/CSC disassemblies
-  asmchk - run check-asms on the MM/JSW/SD/BTS/CSC disassemblies
+  asmchk - run check-asms on the ROM/HH/MM/JSW/SD/BTS/CSC disassemblies
   setup1 - verify that 'setup.py install' works from a release tarball
   setup2 - verify that 'setup.py install' works from an sdist tarball
 
