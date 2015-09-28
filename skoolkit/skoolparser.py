@@ -47,11 +47,7 @@ def get_address(operation, check_prefix=True):
         prefixes = '[ ,(+-]'
     else:
         prefixes = ''
-    search = re.search('{}\$[0-9A-Fa-f]+'.format(prefixes), operation)
-    if not search:
-        search = re.search('{}%[01]+'.format(prefixes), operation)
-    if not search:
-        search = re.search('{}[0-9]+'.format(prefixes), operation)
+    search = re.search(prefixes + '(\$[0-9A-Fa-f]+|%[01]+|[0-9]+)', operation)
     if search:
         if check_prefix:
             index = 1

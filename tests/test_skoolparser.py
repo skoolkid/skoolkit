@@ -2360,6 +2360,18 @@ class SkoolParserTest(SkoolKitTestCase):
             self.assertEqual(instruction.reference.address, 0)
             index += 1
 
+    def test_label_substitution_for_complex_operand(self):
+        skool = '\n'.join((
+            '@start',
+            '@label=START',
+            '@ssub=LD HL,32768+$0A',
+            'c32768 LD HL,32778'
+        ))
+        parser = self._get_parser(skool, asm_mode=2, asm_labels=True)
+
+        instruction = parser.get_instruction(32768)
+        self.assertEqual(instruction.operation, 'LD HL,START+$0A')
+
     def test_no_label_substitution_for_8_bit_numeric_operands(self):
         skool = (
             '@start',
