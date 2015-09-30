@@ -1,4 +1,4 @@
-for vname in DHOME GAME GAMENAME SKOOLKIT_ARCHIVE SRCFILES; do
+for vname in DHOME GAME SKOOLKIT_ARCHIVE SRCFILES; do
   value=$(eval echo \$$vname)
   if [[ -z $value ]]; then
     echo "$vname is not set; aborting"
@@ -19,6 +19,7 @@ DIFFSBUILD=$BUILD/disassembly-diff
 DIST=$DHOME/dist
 DTMPDIR=$HOME/tmp
 REF=$DHOME/sources/$GAME.ref
+GAMENAME=$(grep ^Game= $REF | cut -c6-)
 VERSION=$(grep ^Release= $REF | awk '{print $NF}')
 RELEASE=$GAME-disassembly-$VERSION
 SKOOLKIT_TOOLS=$SKOOLKIT_HOME/tools
