@@ -1,4 +1,4 @@
-for vname in DHOME GAME GAMENAME GHREPO SKOOLKIT_ARCHIVE SRCFILES; do
+for vname in DHOME GAME GAMENAME SKOOLKIT_ARCHIVE SRCFILES; do
   value=$(eval echo \$$vname)
   if [[ -z $value ]]; then
     echo "$vname is not set; aborting"
@@ -161,7 +161,9 @@ build_tarball() {
 ###############################################################################
 update_ghpages() {
   mkdir -p $BUILD
-  htmldir=$BUILD/html/$(grep ^GameDir= $REF | cut -c9-)
+  gamedir=$(grep ^GameDir= $REF | cut -c9-)
+  ghrepo=$(echo $gamedir | tr -d _)
+  htmldir=$BUILD/html/$gamedir
   skdir=$BUILD/skoolkit-$SKOOLKIT_VERSION
   rm -rf $htmldir $skdir
   tar xf $SKOOLKIT_TARBALL -C $BUILD
@@ -170,10 +172,10 @@ update_ghpages() {
   _exec "Building disassembly" "make -C $DHOME html SKOOLKIT_HOME=$skdir HTML_OPTS='$GHHTMLOPTS'" $BUILD/$GAME-build.log
 
   _cd_tmpdir
-  echo -n "Cloning $GHREPO repository: "
-  git clone -q https://github.com/skoolkid/$GHREPO
+  echo -n "Cloning $ghrepo repository: "
+  git clone -q https://github.com/skoolkid/$ghrepo
   echo "OK"
-  cd $GHREPO
+  cd $ghrepo
   git checkout -q gh-pages
   rsync -r $htmldir/ .
   echo
