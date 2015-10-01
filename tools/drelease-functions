@@ -22,6 +22,9 @@ REF=$DHOME/sources/$GAME.ref
 GAMENAME=$(grep ^Game= $REF | cut -c6-)
 VERSION=$(grep ^Release= $REF | awk '{print $NF}')
 RELEASE=$GAME-disassembly-$VERSION
+[[ -n $GHTHEME ]] && GHHTMLOPTS="-T $GHTHEME "
+GHHTMLOPTS+="-j style.css -H -c Paths/CodeFiles={address:04X}.html -c Game/AddressAnchor={address:04x} "
+GHHTMLOPTS+="-c MemoryMap:MemoryMap/PageByteColumns=0 -c MemoryMap:DataMap/PageByteColumns=0 -c MemoryMap:UnusedMap/PageByteColumns=0"
 SKOOLKIT_TOOLS=$SKOOLKIT_HOME/tools
 SKOOLKIT_VERSION=$(cd $SKOOLKIT_HOME; git tag | tail -n 1 | cut -c2-)
 SKOOLKIT_TARBALL=$SKOOLKIT_ARCHIVE/skoolkit-$SKOOLKIT_VERSION.tar.xz
