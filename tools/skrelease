@@ -228,7 +228,7 @@ test_disassemblies() {
 }
 
 ###############################################################################
-# Run disassembly-diff on the MM/JSW/SD/BTS/CSC disassemblies
+# Run disassembly-diff on the ROM/HH/MM/JSW/SD/BTS/CSC disassemblies
 ###############################################################################
 disassembly_diffs() {
   _require_skoolkit
@@ -269,7 +269,7 @@ disassembly_diffs() {
 }
 
 ###############################################################################
-# Run check-asms on the MM/JSW/SD/BTS/CSC disassemblies
+# Run check-asms on the ROM/HH/MM/JSW/SD/BTS/CSC disassemblies
 ###############################################################################
 check_asms() {
   _require_skoolkit
