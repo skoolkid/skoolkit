@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>HTML templates &mdash; SkoolKit 4.5 documentation</title>
+    <title>HTML templates &mdash; SkoolKit 5.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.5',
+        VERSION:     '5.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.5 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.0 documentation" href="index.html" />
     <link rel="next" title="ASM modes and directives" href="asm.html" />
     <link rel="prev" title="Ref files" href="ref-files.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -60,6 +60,7 @@
 <li><a class="reference internal" href="#changelog-entry">changelog_entry</a></li>
 <li><a class="reference internal" href="#changelog-item-list">changelog_item_list</a></li>
 <li><a class="reference internal" href="#contents-list-item">contents_list_item</a></li>
+<li><a class="reference internal" href="#footer">footer</a></li>
 <li><a class="reference internal" href="#img">img</a></li>
 <li><a class="reference internal" href="#index-section">index_section</a></li>
 <li><a class="reference internal" href="#index-section-item">index_section_item</a></li>
@@ -144,6 +145,7 @@ are available in every full-page template:</p>
 <a class="reference internal" href="#t-javascript"><em>javascript</em></a> subtemplate</li>
 <li><tt class="docutils literal"><span class="pre">m_stylesheet</span></tt> - replaced by one or more copies of the <a class="reference internal" href="#t-stylesheet"><em>stylesheet</em></a>
 subtemplate</li>
+<li><tt class="docutils literal"><span class="pre">t_footer</span></tt> - replaced by a copy of the <a class="reference internal" href="#t-footer"><em>footer</em></a> subtemplate</li>
 </ul>
 <div class="section" id="asm">
 <span id="t-asm"></span><h2>Asm<a class="headerlink" href="#asm" title="Permalink to this headline">¶</a></h2>
@@ -264,11 +266,11 @@ glitches&#8217; pages)</li>
 <div class="section" id="anchor">
 <span id="t-anchor"></span><h2>anchor<a class="headerlink" href="#anchor" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">anchor</span></tt> template is the subtemplate used to format a page anchor (by
-default, an <tt class="docutils literal"><span class="pre">&lt;a&gt;</span></tt> element with a <tt class="docutils literal"><span class="pre">name</span></tt> attribute).</p>
+default, a <tt class="docutils literal"><span class="pre">&lt;span&gt;</span></tt> element with an <tt class="docutils literal"><span class="pre">id</span></tt> attribute).</p>
 <p>It contains the following identifier (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">anchor</span></tt> - the value of the <tt class="docutils literal"><span class="pre">name</span></tt> attribute</li>
+<li><tt class="docutils literal"><span class="pre">anchor</span></tt> - the value of the <tt class="docutils literal"><span class="pre">id</span></tt> attribute</li>
 </ul>
 <p>To see the default <tt class="docutils literal"><span class="pre">anchor</span></tt> template, run the following command:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:anchor
@@ -400,6 +402,18 @@ identifiers):</p>
 <p>To see the default <tt class="docutils literal"><span class="pre">contents_list_item</span></tt> template, run the following command:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:contents_list_item
 </pre></div>
+</div>
+</div>
+<div class="section" id="footer">
+<span id="t-footer"></span><h2>footer<a class="headerlink" href="#footer" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">footer</span></tt> template is the subtemplate used by the full-page templates to
+format the <tt class="docutils literal"><span class="pre">&lt;footer&gt;</span></tt> element of a page.</p>
+<p>To see the default <tt class="docutils literal"><span class="pre">footer</span></tt> template, run the following command:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:footer
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 5.0.</span></p>
 </div>
 </div>
 <div class="section" id="img">
@@ -719,7 +733,7 @@ identifiers):</p>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

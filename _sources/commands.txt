@@ -85,7 +85,6 @@ assembler (see :ref:`supportedAssemblers`). For example::
 
   Options:
     -c, --create-labels   Create default labels for unlabelled instructions
-    -d, --crlf            Use CR+LF to end lines
     -D, --decimal         Write the disassembly in decimal
     -E ADDR, --end ADDR   Stop converting at this address
     -f N, --fixes N       Apply fixes:
@@ -94,17 +93,16 @@ assembler (see :ref:`supportedAssemblers`). For example::
                             N=2: @ofix and @bfix
                             N=3: @ofix, @bfix and @rfix (implies -r)
     -H, --hex             Write the disassembly in hexadecimal
-    -i N, --inst-width N  Set instruction field width (default=23)
     -l, --lower           Write the disassembly in lower case
     -p, --package-dir     Show path to skoolkit package directory and exit
+    -P p=v, --set p=v     Set the value of ASM writer property 'p' to 'v'; this
+                          option may be used multiple times
     -q, --quiet           Be quiet
     -r, --rsub            Apply safe substitutions (@ssub) and relocatability
                           substitutions (@rsub) (implies '-f 1')
     -s, --ssub            Apply safe substitutions (@ssub)
     -S ADDR, --start ADDR
                           Start converting at this address
-    -t, --tabs            Use tab to indent instructions (default indentation is
-                          2 spaces)
     -u, --upper           Write the disassembly in upper case
     -V, --version         Show SkoolKit version number and exit
     -w, --no-warnings     Suppress warnings
@@ -115,9 +113,14 @@ See :ref:`asmModesAndDirectives` for a description of the ``@ssub`` and
 ``@rsub`` substitution modes, and the ``@ofix``, ``@bfix`` and ``@rfix`` bugfix
 modes.
 
+See the :ref:`set` directive for information on the ASM writer properties that
+can be set by the ``--set`` option.
+
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
+| 5.0     | Added the ``--set`` option                                   |
++---------+--------------------------------------------------------------+
 | 4.5     | Added the ``--start`` and ``--end`` options                  |
 +---------+--------------------------------------------------------------+
 | 4.1     | Added the ``--writer`` option                                |
@@ -130,6 +133,36 @@ modes.
 +---------+--------------------------------------------------------------+
 | 1.1     | Added the ``-c`` option                                      |
 +---------+--------------------------------------------------------------+
+
+.. _skool2bin.py:
+
+skool2bin.py
+------------
+`skool2bin.py` converts a `skool` file into a binary (raw memory) file. For
+example::
+
+  $ skool2bin.py game.skool
+
+To list the options supported by `skool2bin.py`, run it with no arguments::
+
+  usage: skool2bin.py [options] file.skool [file.bin]
+
+  Convert a skool file into a binary (raw memory) file. 'file.skool' may be a
+  regular file, or '-' for standard input. If 'file.bin' is not given, it
+  defaults to the name of the input file with '.skool' replaced by '.bin'.
+
+  Options:
+    -E ADDR, --end ADDR   Stop converting at this address
+    -i, --isub            Apply instruction substitutions (@isub)
+    -S ADDR, --start ADDR
+                          Start converting at this address
+    -V, --version         Show SkoolKit version number and exit
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.0     | New     |
++---------+---------+
 
 .. _skool2ctl.py:
 
@@ -216,11 +249,12 @@ conversion process.
 
   $ skool2html.py game.ref
 
-In this case, the `skool` file declared in the :ref:`ref-Config` section of
-`game.ref` will be used; if no `skool` file is declared in `game.ref`,
-`game.skool` will be used if it exists. In addition, any existing files besides
-`game.ref` that are named `game*.ref` (e.g. `game-bugs.ref`, `game-pokes.ref`
-and so on) will also be used.
+In this case, the `skool` file declared in the :ref:`ref-Config` section will
+be used; if no `skool` file is declared, `game.skool` will be used if it
+exists. In addition, any existing files besides `game.ref` that are named
+`game*.ref` (e.g. `game-bugs.ref`, `game-pokes.ref` and so on) will also be
+used, along with any extra files named in the ``RefFiles`` parameter in the
+:ref:`ref-Config` section.
 
 If an input file's name ends with '.ref', it will be treated as a `ref` file;
 otherwise it will be treated as a `skool` file.
@@ -248,10 +282,8 @@ list::
     -o, --rebuild-images  Overwrite existing image files
     -p, --package-dir     Show path to skoolkit package directory and exit
     -P PAGES, --pages PAGES
-                          Write only these custom pages (when '-w P' is
-                          specified); PAGES should be a comma-separated list of
-                          IDs of pages defined in [Page:*] sections in the ref
-                          file(s)
+                          Write only these custom pages (when using '--write P');
+                          PAGES is a comma-separated list of page IDs
     -q, --quiet           Be quiet
     -r PREFIX, --ref-sections PREFIX
                           Show default ref file sections whose names start with
@@ -311,42 +343,47 @@ will use the following CSS files, if they exist, in the order listed:
 * `game.css`
 * `game-dark.css`
 * `game-wide.css`
+* `dark.css`
+* `wide.css`
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 4.1     | Added the ``--search`` and ``--writer`` options                 |
-+---------+-----------------------------------------------------------------+
-| 4.0     | Added the ``--ref-sections`` and ``--ref-file`` options         |
-+---------+-----------------------------------------------------------------+
-| 3.6     | Added the ``--join-css`` and ``--search-dirs`` options          |
-+---------+-----------------------------------------------------------------+
-| 3.5     | Added support for multiple CSS themes                           |
-+---------+-----------------------------------------------------------------+
-| 3.4     | Added the ``-a`` and ``-C`` options and the long options        |
-+---------+-----------------------------------------------------------------+
-| 3.3.2   | Added `$PACKAGE_DIR/resources` to the search path; added the    |
-|         | ``-p`` and ``-T`` options                                       |
-+---------+-----------------------------------------------------------------+ 
-| 3.2     | Added `~/.skoolkit` to the search path                          |
-+---------+-----------------------------------------------------------------+
-| 3.1     | Added the ``-c`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 3.0.2   | No longer shows timings by default; added the ``-t`` option     |
-+---------+-----------------------------------------------------------------+
-| 2.3.1   | Added support for reading multiple `ref` files per disassembly  |
-+---------+-----------------------------------------------------------------+
-| 2.2.2   | Added the ability to read a `skool` file from standard input    |
-+---------+-----------------------------------------------------------------+
-| 2.2     | No longer writes the Skool Daze and Back to Skool disassemblies |
-|         | by default; added the ``-d`` option                             |
-+---------+-----------------------------------------------------------------+
-| 2.1.1   | Added the ``-l``, ``-u``, ``-D`` and ``-H`` options             |
-+---------+-----------------------------------------------------------------+
-| 2.1     | Added the ``-o`` and ``-P`` options                             |
-+---------+-----------------------------------------------------------------+
-| 1.4     | Added the ``-V`` option                                         |
-+---------+-----------------------------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.0     | The ``--theme`` option also looks for a CSS file whose base name |
+|         | matches the theme name                                           |
++---------+------------------------------------------------------------------+
+| 4.1     | Added the ``--search`` and ``--writer`` options                  |
++---------+------------------------------------------------------------------+
+| 4.0     | Added the ``--ref-sections`` and ``--ref-file`` options          |
++---------+------------------------------------------------------------------+
+| 3.6     | Added the ``--join-css`` and ``--search-dirs`` options           |
++---------+------------------------------------------------------------------+
+| 3.5     | Added support for multiple CSS themes                            |
++---------+------------------------------------------------------------------+
+| 3.4     | Added the ``-a`` and ``-C`` options and the long options         |
++---------+------------------------------------------------------------------+
+| 3.3.2   | Added `$PACKAGE_DIR/resources` to the search path; added the     |
+|         | ``-p`` and ``-T`` options                                        |
++---------+------------------------------------------------------------------+
+| 3.2     | Added `~/.skoolkit` to the search path                           |
++---------+------------------------------------------------------------------+
+| 3.1     | Added the ``-c`` option                                          |
++---------+------------------------------------------------------------------+
+| 3.0.2   | No longer shows timings by default; added the ``-t`` option      |
++---------+------------------------------------------------------------------+
+| 2.3.1   | Added support for reading multiple `ref` files per disassembly   |
++---------+------------------------------------------------------------------+
+| 2.2.2   | Added the ability to read a `skool` file from standard input     |
++---------+------------------------------------------------------------------+
+| 2.2     | No longer writes the Skool Daze and Back to Skool disassemblies  |
+|         | by default; added the ``-d`` option                              |
++---------+------------------------------------------------------------------+
+| 2.1.1   | Added the ``-l``, ``-u``, ``-D`` and ``-H`` options              |
++---------+------------------------------------------------------------------+
+| 2.1     | Added the ``-o`` and ``-P`` options                              |
++---------+------------------------------------------------------------------+
+| 1.4     | Added the ``-V`` option                                          |
++---------+------------------------------------------------------------------+
 
 .. _skool2sft.py:
 
@@ -459,15 +496,17 @@ supported file formats are:
 
 * Profiles created by the Fuse emulator
 * Code execution logs created by the SpecEmu, Spud and Zero emulators
-* Map files created by the Z80 emulator
+* Map files created by the SpecEmu and Z80 emulators
 
 If the file specified by the ``-M`` option is 8192 bytes long, it is assumed to
-be a Z80 map file; otherwise it is assumed to be in one of the other supported
-formats.
+be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
+file; otherwise it is assumed to be in one of the other supported formats.
 
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 5.0     | Added support for SpecEmu's 64K code execution map files        |
++---------+-----------------------------------------------------------------+
 | 4.4     | Added the ``--ctl-hex-lower`` and ``--end`` options             |
 +---------+-----------------------------------------------------------------+
 | 4.3     | Added the ``--line-width`` option                               |
@@ -545,10 +584,12 @@ the appropriate addresses. For example::
   $ tap2sna.py --ram load=3,30000 game.tzx game.z80
 
 loads the third block on the tape at address 30000, and ignores all other
-blocks. The ``--ram`` option can also be used to move blocks of bytes from one
-location to another, POKE values into individual addresses or address ranges,
-and modify memory with XOR and ADD operations before the snapshot is saved. For
-more information on the operations that the ``--ram`` option can perform, run::
+blocks. (To see information on the blocks in a TAP or TZX file, use the
+:ref:`tapinfo.py` command.) The ``--ram`` option can also be used to move
+blocks of bytes from one location to another, POKE values into individual
+addresses or address ranges, and modify memory with XOR and ADD operations
+before the snapshot is saved. For more information on the operations that the
+``--ram`` option can perform, run::
 
   $ tap2sna.py --ram help
 
@@ -584,3 +625,30 @@ given on the command line.
 +---------+----------------------------------------------------------------+
 | 3.5     | New                                                            |
 +---------+----------------------------------------------------------------+
+
+.. _tapinfo.py:
+
+tapinfo.py
+----------
+`tapinfo.py` shows information on the blocks in a TAP or TZX file. For
+example::
+
+  $ tapinfo.py game.tzx
+
+To list the options supported by `tapinfo.py`, run it with no arguments::
+
+  usage: tapinfo.py FILE
+
+  Show the blocks in a TAP or TZX file.
+
+  Options:
+    -b IDs, --tzx-blocks IDs
+                          Show TZX blocks with these IDs only; 'IDs' is a comma-
+                          separated list of hexadecimal block IDs, e.g. 10,11,2a
+    -V, --version         Show SkoolKit version number and exit
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.0     | New     |
++---------+---------+

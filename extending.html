@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &mdash; SkoolKit 4.5 documentation</title>
+    <title>Extending SkoolKit &mdash; SkoolKit 5.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.5',
+        VERSION:     '5.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.5 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.0 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -94,9 +94,9 @@
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a> is inadequate for certain tasks. For example,
 the game might have large tile-based sprites that you want to create images of
 for the HTML disassembly, and composing long <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macros for them
-would be too tedious. Or you might want to insert a timestamp in the header of
-the ASM disassembly so that you (or others) can keep track of when your ASM
-files were written.</p>
+would be too tedious. Or you might want to insert a timestamp somewhere in the
+ASM disassembly so that you (or others) can keep track of when your ASM files
+were written.</p>
 <p>One way to solve these problems is to add custom methods that could be called
 by a <a class="reference internal" href="skool-macros.html#call"><em>#CALL</em></a> macro. But where to add the methods? SkoolKit&#8217;s core
 HTML writer and ASM writer classes are skoolkit.skoolhtml.HtmlWriter and
@@ -105,9 +105,8 @@ a better way is to subclass HtmlWriter and AsmWriter in a separate extension
 module, and add the methods there; then that extension module can be easily
 used with different versions of SkoolKit, and shared with other people.</p>
 <p>A minimal extension module would look like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># Extension module in the skoolkit package directory</span>
-<span class="kn">from</span> <span class="nn">.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
-<span class="kn">from</span> <span class="nn">.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
+<span class="kn">from</span> <span class="nn">skoolkit.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
 
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
     <span class="k">pass</span>
@@ -145,21 +144,9 @@ directive (if there is one):</p>
 </div>
 <p>The <cite>skoolkit</cite> package directory is a reasonable place for an extension module,
 but it could be placed in another package, or somewhere else as a standalone
-module. For example, if you wanted to keep a standalone extension module in
-<cite>~/.skoolkit</cite>, it should look like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># Standalone extension module</span>
-<span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
-<span class="kn">from</span> <span class="nn">skoolkit.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
-
-<span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
-    <span class="k">pass</span>
-
-<span class="k">class</span> <span class="nc">GameAsmWriter</span><span class="p">(</span><span class="n">AsmWriter</span><span class="p">):</span>
-    <span class="k">pass</span>
-</pre></div>
-</div>
-<p>Then, assuming the extension module is <cite>game.py</cite>, set the <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt>
-parameter thus:</p>
+module. For example, if you wanted to keep a standalone extension module named
+<cite>game.py</cite> in <cite>~/.skoolkit</cite>, you should set the <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt> parameter
+thus:</p>
 <div class="highlight-python"><div class="highlight"><pre>HtmlWriterClass=~/.skoolkit:game.GameHtmlWriter
 </pre></div>
 </div>
@@ -175,19 +162,6 @@ by using the <tt class="docutils literal"><span class="pre">-W</span></tt>/<tt c
 </div>
 <p>Specifying the writer class this way will override any <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt>
 parameter in the <cite>ref</cite> file or <tt class="docutils literal"><span class="pre">&#64;writer</span></tt> directive in the <cite>skool</cite> file.</p>
-<p>If you intend to distribute your extension module, and you want it to work
-however it ends up being used - as a module in the <cite>skoolkit</cite> package
-directory, or as a standalone module - you can use the following technique to
-import AsmWriter and HtmlWriter:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># Module that works both standalone and in the skoolkit package directory</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
-    <span class="kn">from</span> <span class="nn">.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
-<span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">SystemError</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
-    <span class="kn">from</span> <span class="nn">skoolkit.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
-</pre></div>
-</div>
 </div>
 <div class="section" id="call-methods">
 <h2>#CALL methods<a class="headerlink" href="#call-methods" title="Permalink to this headline">¶</a></h2>
@@ -204,7 +178,7 @@ created).</p>
 <p>Let&#8217;s say your sprite-image-creating method will accept two parameters (in
 addition to <cite>cwd</cite>): <cite>sprite_id</cite> (the sprite identifier) and  <cite>fname</cite> (the image
 filename). The method (let&#8217;s call it <cite>sprite</cite>) would look something like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">sprite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">sprite_id</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
@@ -227,7 +201,7 @@ TABLE#
 timestamp-creating method (let&#8217;s call it <cite>timestamp</cite>) would look something like
 this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
+<span class="kn">from</span> <span class="nn">skoolkit.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
 
 <span class="k">class</span> <span class="nc">GameAsmWriter</span><span class="p">(</span><span class="n">AsmWriter</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -238,6 +212,8 @@ this:</p>
 <div class="highlight-python"><div class="highlight"><pre>; This ASM file was generated on #CALL:timestamp()
 </pre></div>
 </div>
+<p>Note that if the return value of a <tt class="docutils literal"><span class="pre">#CALL</span></tt> method contains skool macros, then
+they will be expanded.</p>
 </div>
 <div class="section" id="skool-macros">
 <h2>Skool macros<a class="headerlink" href="#skool-macros" title="Permalink to this headline">¶</a></h2>
@@ -277,7 +253,7 @@ parameter string, and <tt class="docutils literal"><span class="pre">string</spa
 expanded.</p>
 <p>The <cite>expand_sprite</cite> method on GameHtmlWriter may therefore look something like
 this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
     <span class="c"># #SPRITEspriteId[{x,y,width,height}](fname)</span>
@@ -299,13 +275,15 @@ TABLE#
 </div>
 <p>The <cite>expand_timestamp</cite> method on GameAsmWriter would look something like this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
+<span class="kn">from</span> <span class="nn">skoolkit.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
 
 <span class="k">class</span> <span class="nc">GameAsmWriter</span><span class="p">(</span><span class="n">AsmWriter</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">expand_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%a </span><span class="si">%d</span><span class="s"> %b %Y %H:%M:%S %Z&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Note that if the <tt class="docutils literal"><span class="pre">string</span></tt> part of the return value of a skool macro method
+contains skool macros, then they will be expanded.</p>
 </div>
 <div class="section" id="parsing-skool-macros">
 <span id="ext-macroparsing"></span><h2>Parsing skool macros<a class="headerlink" href="#parsing-skool-macros" title="Permalink to this headline">¶</a></h2>
@@ -555,13 +533,13 @@ that section; each line in the section should be of the form <tt class="docutils
 <div class="section" id="memory-snapshots">
 <h2>Memory snapshots<a class="headerlink" href="#memory-snapshots" title="Permalink to this headline">¶</a></h2>
 <p>The <cite>snapshot</cite> attribute on HtmlWriter and AsmWriter is a 65536-element list
-that is populated with the contents of any <tt class="docutils literal"><span class="pre">DEFB</span></tt>, <tt class="docutils literal"><span class="pre">DEFM</span></tt>, <tt class="docutils literal"><span class="pre">DEFS</span></tt> and
-<tt class="docutils literal"><span class="pre">DEFW</span></tt> statements in the <cite>skool</cite> file.</p>
+that represents the 64K of the Spectrum&#8217;s memory; it is populated when the
+<cite>skool</cite> file is being parsed.</p>
 <p>A simple <tt class="docutils literal"><span class="pre">#PEEK</span></tt> macro that expands to the value of the byte at a given
 address might be implemented by using <cite>snapshot</cite> like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
-<span class="kn">from</span> <span class="nn">.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
-<span class="kn">from</span> <span class="nn">.skoolmacro</span> <span class="kn">import</span> <span class="n">parse_ints</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
+<span class="kn">from</span> <span class="nn">skoolkit.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
+<span class="kn">from</span> <span class="nn">skoolkit.skoolmacro</span> <span class="kn">import</span> <span class="n">parse_ints</span>
 
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
     <span class="c"># #PEEKaddress</span>
@@ -637,8 +615,8 @@ and an optional mask.</p>
 
 <p>A simple <tt class="docutils literal"><span class="pre">#INVERSE</span></tt> macro that creates an inverse image of a UDG might be
 implemented like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span><span class="p">,</span> <span class="n">Udg</span>
-<span class="kn">from</span> <span class="nn">.skoolmacro</span> <span class="kn">import</span> <span class="n">parse_ints</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span><span class="p">,</span> <span class="n">Udg</span>
+<span class="kn">from</span> <span class="nn">skoolkit.skoolmacro</span> <span class="kn">import</span> <span class="n">parse_ints</span>
 
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
     <span class="c"># #INVERSEaddress,attr</span>
@@ -930,7 +908,7 @@ subclasses may override it.</p>
 </dd></dl>
 
 <p>For example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -956,7 +934,7 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

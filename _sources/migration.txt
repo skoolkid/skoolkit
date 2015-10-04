@@ -1,196 +1,125 @@
 .. _migrating:
 
-Migrating from SkoolKit 3
+Migrating from SkoolKit 4
 =========================
-SkoolKit 4 includes some changes that make it incompatible with SkoolKit 3. If
-you have developed a disassembly using SkoolKit 3 and find that `skool2html.py`
-no longer works with your `skool` files or `ref` files, or produces broken
-output, look through the following sections for tips on how to migrate your
-disassembly to SkoolKit 4.
+SkoolKit 5 includes some changes that make it incompatible with SkoolKit 4. If
+you have developed a disassembly using SkoolKit 4 and find that the SkoolKit
+commands no longer work with your control files or `skool` files, or produce
+broken output, look through the following sections for tips on how to migrate
+your disassembly to SkoolKit 5.
 
-[Info]
-------
-The ``[Info]`` section, introduced in SkoolKit 2.0, is not supported in
-SkoolKit 4. If you have one in your `ref` file, move its contents to the
-:ref:`ref-Game` section.
+D directives
+------------
+In SkoolKit 4, the ``D`` directive in a control file could be used to define a
+block description or a mid-block comment. In SkoolKit 5, the ``D`` directive
+defines block descriptions only; to define a mid-block comment, use the ``N``
+directive instead.
 
-[Graphics]
-----------
-The ``[Graphics]`` section, introduced in SkoolKit 2.0.5, is not supported in
-SkoolKit 4. If you have one in your `ref` file, you can migrate it thus:
+Address ranges in control directives
+------------------------------------
+In SkoolKit 4, the extent of a sub-block directive in a control file could be
+specified by an address range; for example::
 
-* Rename the ``[Graphics]`` section ``[PageContent:Graphics]``
+  B 40000-40009
 
-* Create a ``[Paths]`` section if you don't already have one, and add a line
-  for the Graphics page::
+In SkoolKit 5, address ranges are no longer supported, and this directive must
+be rewritten with a length parameter::
 
-    [Paths]
-    Graphics=graphics/graphics.html
+  B 40000,10
 
-* Create an ``[Index:Graphics:Graphics]`` section if you don't already have
-  one, and add the Graphics page ID (to make a link to it appear on the
-  disassembly index page); for example::
-
-    [Index:Graphics:Graphics]
-    Graphics
-    GraphicGlitches
-
-[Page:\*]
----------
-In :ref:`page` sections, the following parameters are no longer supported:
-
-* ``BodyClass``
-* ``Link``
-* ``Path``
-* ``Title``
-
-The CSS class for the ``<body>`` element of a custom page is now set to the
-page ID. The path, title, header and link text for a custom page can be defined
-in the :ref:`paths`, :ref:`titles`, :ref:`pageHeaders` and :ref:`links`
-sections.
-
-[OtherCode:\*]
+ASM directives
 --------------
-In :ref:`otherCode` sections, the following parameters are no longer supported:
+In SkoolKit 4, ASM directives could be declared in a control file or a `skool`
+file by starting a line with ``; @``; for example, in a control file::
 
-* ``Header``
-* ``Index``
-* ``IndexPageId``
-* ``Link``
-* ``Path``
-* ``Title``
+  ; @label:24576=START
 
-The paths, titles, headers and link text for the pages in a secondary
-disassembly can be defined in the :ref:`paths`, :ref:`titles`,
-:ref:`pageHeaders` and :ref:`links` sections; see the documentation on
-:ref:`otherCode` sections for more details.
+and in a `skool` file (or skool file template)::
 
-'z' and 'Z' directives
+  ; @label=START
+
+This syntax is no longer supported. In SkoolKit 5, ASM directives must be
+declared in a control file by using the ``@`` directive::
+
+  @ 24576 label=START
+
+and in a `skool` file (or skool file template) by starting a line with ``@``::
+
+  @label=START
+
+HTML templates and CSS
 ----------------------
-The 'z' and 'Z' control directives (and the corresponding 'z' blocks in `skool`
-files) are not supported in SkoolKit 4; they should be replaced by 's' and 'S'
-directives.
+If you are using any custom :ref:`htmlTemplates` - in particular the full-page
+templates or the :ref:`t_anchor` template - or custom CSS, there are some
+changes to be aware of.
 
-Register table headers
-----------------------
-Input and output register table headers on disassembly pages are now displayed
-by default, with header text 'Input' and 'Output'.
+In SkoolKit 4:
 
-To hide the register table headers (as was the default behaviour in SkoolKit
-3), use the following CSS rule::
+* the default full-page templates use the XHTML 1.0 Strict DOCTYPE
+* every full-page template contains its own copy of the page footer
+* the ``anchor`` template uses an ``<a>`` element with a ``name`` attribute
+* every ``<a>`` element that defines a hyperlink has a ``class="link"``
+  attribute
 
-  tr.asm-input-header, tr.asm-output-header {display: none;}
+In SkoolKit 5:
 
-CSS selectors
--------------
-The `class` attributes of many HTML elements have changed in SkoolKit 4.
+* the default full-page templates have been converted to HTML5
+* every full-page template uses the :ref:`t_footer` template to format the page
+  footer
+* the ``anchor`` template uses a ``<span>`` element with an ``id`` attribute
+* the ``class="link"`` attribute has been removed from every ``<a>`` element
+  that defines a hyperlink
 
-The following table lists the selectors that appeared in the CSS files in
-SkoolKit 3, and their replacements (if any) in SkoolKit 4.
+This means that if you are using any custom full-page templates or a custom
+``anchor`` template, you should ensure that they are consistent (i.e. produce
+valid HTML5 or XHTML 1.0 as required when used in combination).
 
-=========================  ==========
-SkoolKit 3                 SkoolKit 4
-=========================  ==========
-a.link
-a.link:hover
-div.box
-div.box1                   div.box-1
-div.box2                   div.box-2
-div.boxTitle               div.box-title
-div.changelog
-div.changelog1             div.changelog-1
-div.changelog2             div.changelog-2
-div.changelogDesc          div.changelog-desc
-div.changelogTitle         div.changelog-title
-div.comments
-div.description
-div.details
-div.footer
-div.gbufDesc               div.map-entry-title-11
-div.headerText             div.section-header
-div.mapIntro               div.map-intro
-div.paragraph
-span.register
-table.dataDisassembly      table.disassembly
-table.default
-table.disassembly
-table.gbuffer              table.map
-table.header
-table.input                table.input-1
-table.map
-table.output               table.output-1
-table.prevNext             table.asm-navigation
-td.address                 td.address-1
-td.asmLabel                td.asm-label-1
-td.centre
-td.comment                 td.comment-11
-td.data                    td.map-b, td.map-w
-td.dataComment             td.comment-11
-td.dataDesc                td.map-b-desc, td.map-w-desc
-td.gbufAddress             td.map-b, td.map-c, td.map-g, td.map-s, td.map-t, td.map-u, td.map-w
-td.gbuffer                 td.map-g
-td.gbufferDesc             td.map-g-desc
-td.gbufLength              td.map-length-1
-td.headerText              td.page-header
-td.instruction
-td.label                   td.address-2
-td.mapByte                 td.map-byte-1
-td.mapPage                 td.map-page-1
-td.message                 td.map-t
-td.messageDesc             td.map-t-desc
-td.next
-td.prev
-td.register
-td.routine                 td.map-c
-td.routineComment          td.routine-comment
-td.routineDesc             td.map-c-desc
-td.transparent
-td.transparentComment      td.comment-10
-td.transparentDataComment  td.comment-10
-td.unused                  td.map-s, td.map-u
-td.unusedDesc              td.map-s-desc, td.map-u-desc
-td.up
-ul.changelog
-ul.indexList               ul.index-list
-ul.linkList                ul.contents
-=========================  ==========
+In addition, if you are using any custom full-page templates, you should either
+replace the page footer (the ``<div class="footer">`` element) with a
+``{t_footer}`` replacement field, or reinstate the CSS rule for ``div.footer``
+from SkoolKit 4::
 
-The following table lists selectors for the classes that were unstyled (i.e.
-did not appear in any CSS files) in SkoolKit 3, and their replacements (if any)
-in SkoolKit 4.
+  div.footer {
+    clear: both;
+    margin-top: 10px;
+    text-align: center;
+  }
 
-===================  ==========
-SkoolKit 3           SkoolKit 4
-===================  ==========
-body.bugs            body.Bugs
-body.changelog       body.Changelog
-body.disassembly     body.Asm-b, body.Asm-c, body.Asm-g, body.Asm-s, body.Asm-t, body.Asm-u, body.Asm-w
-body.facts           body.Facts
-body.gbuffer         body.GameStatusBuffer
-body.glossary        body.Glossary
-body.main            body.GameIndex
-body.map             body.DataMap, body.MemoryMap, body.MessagesMap, body.RoutinesMap, body.UnusedMap
-body.pokes           body.Pokes
-div.copyright
-div.created
-div.gbufDetails      div.map-entry-desc-1
-div.release
-td.gbufDesc          td.map-b-desc, td.map-c-desc, td.map-g-desc, td.map-s-desc, td.map-t-desc, td.map-u-desc, td.map-w-desc
-td.headerLogo        td.logo
-td.registerContents  td.register-desc
-===================  ==========
+And finally, if you have defined any custom CSS rules for hyperlinks, you
+should remove the 'link' class from the selectors. For example, this CSS rule
+from `skoolkit.css` in SkoolKit 4::
 
-skoolkit3to4.py
+  a.link { color: #ffff00; }
+
+has become this in SkoolKit 5::
+
+  a { color: #ffff00; }
+
+skool2asm.py
+------------
+In SkoolKit 4 and earlier versions, :ref:`skool2asm.py` sported the
+``-d/--crlf`` option (to use CR+LF to end lines instead of the system default),
+the ``-i/--inst-width`` option (to set the width of the instruction field), and
+the ``-t/--tabs`` option (to use tab to indent instructions). These options
+have been removed in SkoolKit 5, but their effects can be achieved with the
+new ``-P/--set`` option:
+
++--------------------+-------------------------------+
+| SkoolKit 4         | SkoolKit 5                    |
++====================+===============================+
+| ``--crlf``         | ``--set crlf=1``              |
++--------------------+-------------------------------+
+| ``--inst-width N`` | ``--set instruction-width=N`` |
++--------------------+-------------------------------+
+| ``--tabs``         | ``--set tab=1``               |
++--------------------+-------------------------------+
+
+skoolkit4to5.py
 ---------------
-The `skoolkit3to4.py`_ script may be used to convert a `skool` file, `ref`
-file, control file, skool file template or CSS file that is compatible with
-SkoolKit 3 into a file that will work with SkoolKit 4. For example, to convert
-`game.ref`::
+The `skoolkit4to5.py`_ script may be used to convert a control file, `skool`
+file, skool file template or CSS file that is compatible with SkoolKit 4 into a
+file that will work with SkoolKit 5. For example, to convert `game.skool`::
 
-  $ skoolkit3to4.py game.ref > game4.ref
+  $ skoolkit4to5.py game.skool > game5.skool
 
-Note, however, that `skoolkit3to4.py` converts a CSS file by simply replacing
-each selector that is used in SkoolKit 3 with its SkoolKit 4 equivalent(s),
-which means that complex CSS rules may not be converted correctly.
-
-.. _skoolkit3to4.py: https://github.com/skoolkid/skoolkit/raw/master/utils/skoolkit3to4.py
+.. _skoolkit4to5.py: https://github.com/skoolkid/skoolkit/raw/master/utils/skoolkit4to5.py

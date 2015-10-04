@@ -109,10 +109,6 @@ with a separate ``N`` directive::
   N 24592 This is the first paragraph of the mid-block comment.
   N 24592 This is the second paragraph of the mid-block comment.
 
-.. note::
-   Using the ``D`` directive to declare mid-block comments is deprecated since
-   version 4.3. The ``D`` directive should be used only for block descriptions.
-
 Block end comments
 ------------------
 To declare a comment that will appear at the end of the routine at 24576, use
@@ -175,10 +171,6 @@ assumed to end where the next sub-block starts. So in::
 
 the sub-block at 24580 has length 8, because it is implicitly terminated by the
 following sub-block at 24588.
-
-.. note::
-   Using start and end addresses to specify the address range for a sub-block
-   directive (e.g. ``C 24580-24587``) is deprecated since version 4.4.
 
 Sub-block lengths
 -----------------
@@ -441,14 +433,6 @@ routine at 49152::
   @ 49152 ignoreua:d
   D 49152 This is the description of the routine at 49152.
 
-Note that neither ASM block directives (such as the :ref:`bfixBlockDirectives`)
-nor the exact location of :ref:`org`, :ref:`writer`, :ref:`start`, :ref:`end`
-and :ref:`set` directives can be preserved in a control file.
-
-.. note::
-   The old style of declaring ASM directives (``; @directive:address[=value]``)
-   is deprecated since version 4.3.
-
 Instruction-level comments
 --------------------------
 One limitation of storing instruction-level comments as shown so far is that
@@ -492,9 +476,8 @@ at least one character other than a dot; such comments are preserved verbatim
 Control file comments
 ---------------------
 A comment may be added to a control file by starting a line with a hash
-character (``#``), a per cent sign (``%``), or a semicolon - so long as the
-next non-whitespace character is not ``@``, because ``; @`` is the deprecated
-(but still valid) way to declare an ASM directive. For example::
+character (``#``), a per cent sign (``%``), or a semicolon (``;``). For
+example::
 
   # This is a comment
   % This is another comment
@@ -506,8 +489,8 @@ A control file can be useful in the early stages of developing a `skool` file
 for reorganising code and data blocks, but it cannot preserve the following:
 
 * ASM block directives
-* the exact locations of :ref:`org`, :ref:`writer`, :ref:`start`, :ref:`end`
-  and :ref:`set` directives
+* the exact locations of :ref:`org`, :ref:`writer`, :ref:`assemble`,
+  :ref:`start`, :ref:`end` and :ref:`set` directives
 * :ref:`data definition entries <dEntry>` ('d' blocks) and
   :ref:`remote entries <rEntry>` ('r' blocks)
 * comments that are not part of a code or data block

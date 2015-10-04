@@ -166,6 +166,43 @@ ASM directives
 The ASM directives recognised by SkoolKit are described in the following
 subsections.
 
+.. _assemble:
+
+@assemble
+^^^^^^^^^
+The ``@assemble`` directive controls whether assembly language instructions
+are converted into byte values for the purpose of populating the memory
+snapshot. ::
+
+  @assemble=N
+
+* ``N`` is ``1`` to start converting at the next instruction, or ``0`` to stop
+
+For example::
+
+  ; The eight bytes of code in this routine are also used as UDG data.
+  ; .
+  ; #HTML(#UDG44919)
+  @assemble=1
+  c44919 LD DE,46572   ;
+   44922 CP 200        ;
+   44924 JP 45429      ;
+  @assemble=0
+
+The ``@assemble=1`` directive is required to define the bytes for addresses
+44919-44926. If it were not present, the memory snapshot would contain zeroes
+at those addresses, and the image created by the ``#UDG`` macro would be blank.
+
+Note that ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements are always
+converted into byte values and inserted into the memory snapshot; the
+``@assemble`` directive is only required for assembly language instructions.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.0     | New     |
++---------+---------+
+
 .. _bfix:
 
 @bfix

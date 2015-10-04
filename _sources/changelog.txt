@@ -1,6 +1,24 @@
 Changelog
 =========
 
+5.0 (2015-10-04)
+----------------
+* Added the :ref:`skool2bin.py` command (for converting a skool file into a
+  binary file)
+* Added the :ref:`tapinfo.py` command (for showing information on the blocks in
+  a TAP or TZX file)
+* Converted the :ref:`htmlTemplates` from XHTML 1.0 to HTML5
+* Added the :ref:`t_footer` template (for formatting the ``<footer>`` element
+  of a page)
+* Added the :ref:`assemble` ASM directive
+* Added the ``--set`` option to :ref:`skool2asm.py` (for setting ASM writer
+  property values)
+* Added the ``RefFiles`` parameter to the :ref:`ref-Config` section (for
+  specifying extra `ref` files to use)
+* Added support to :ref:`sna2skool.py` for reading SpecEmu's 64K code execution
+  map files
+* Fixed how :ref:`tap2sna.py` does a standard load from a TZX file
+
 4.5 (2015-07-04)
 ----------------
 * Added support to :ref:`tap2sna.py` for TZX block type 0x14 (pure data), for
@@ -139,7 +157,6 @@ Changelog
   (for specifying whether to display entry descriptions on a memory map page)
 * Added the ``LengthColumn`` parameter to the :ref:`memoryMap` section (for
   specifying whether to display the 'Length' column on a memory map page)
-* Added documentation on :ref:`migrating from SkoolKit 3 <migrating>`
 
 Older versions
 --------------
