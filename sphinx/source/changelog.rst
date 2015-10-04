@@ -1,8 +1,8 @@
 Changelog
 =========
 
-5.0rc3
-------
+5.0 (2015-10-04)
+----------------
 * Added the :ref:`skool2bin.py` command (for converting a skool file into a
   binary file)
 * Added the :ref:`tapinfo.py` command (for showing information on the blocks in
