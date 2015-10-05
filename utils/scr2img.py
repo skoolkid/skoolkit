@@ -102,7 +102,7 @@ group.add_argument('-n', dest='animated', action='store_false',
 group.add_argument('-p', dest='pokes', metavar='a[-b[-c]],v', action='append', default=[],
                    help='POKE N,v for N in {a, a+c, a+2c..., b} (this option may be used multiple times)')
 group.add_argument('-s', dest='scale', type=int, default=1,
-                   help="Set scale to N (default=1)")
+                   help="Set the scale of the image (default=1)")
 group.add_argument('-w', dest='wh', metavar='W,H', default='32,24',
                    help="Set width and height to (W,H)")
 group.add_argument('-x', dest='xy', metavar='X,Y', default='0,0',
