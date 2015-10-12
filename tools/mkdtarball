@@ -145,7 +145,8 @@ echo "done"
 cd $DISTDIR
 
 echo "Creating ${DISTDIR}/${PKGNAME}.tar.xz"
-tar acf ${PKGNAME}.tar.xz $PKGNAME
+tar cf ${PKGNAME}.tar $PKGNAME
+xz -9 ${PKGNAME}.tar
 
 echo "Creating ${DISTDIR}/${PKGNAME}.zip"
 zip -9qr ${PKGNAME}.zip $PKGNAME
