@@ -18,6 +18,8 @@ CTL = '{}/examples/hungry_horace.ctl'.format(SKOOLKIT_HOME)
 
 REF = '{}/examples/hungry_horace.ref'.format(SKOOLKIT_HOME)
 
+HTML_WRITER = '{}/examples:hungryhorace.HungryHoraceHtmlWriter'.format(SKOOLKIT_HOME)
+
 OUTPUT = """Using skool file: {skoolfile}
 Using ref file: {reffile}
 Parsing {skoolfile}
@@ -32,4 +34,4 @@ Copying {SKOOLKIT_HOME}/skoolkit/resources/skoolkit.css to {odir}/hungry_horace/
   Writing hungry_horace/reference/changelog.html
   Writing hungry_horace/index.html"""
 
-write_tests(snapshot=SNAPSHOT, output=OUTPUT, ctl=CTL, ref=REF, clean=False)
+write_tests(snapshot=SNAPSHOT, output=OUTPUT, html_writer=HTML_WRITER, ctl=CTL, ref=REF, clean=False)

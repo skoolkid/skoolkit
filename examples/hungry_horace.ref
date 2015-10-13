@@ -2,9 +2,18 @@
 ; SkoolKit ref file for Hungry Horace
 ;
 
+[Config]
+HtmlWriterClass=:hungryhorace.HungryHoraceHtmlWriter
+
 [Game]
 Game=Hungry Horace
 Logo=#SCR1,2,14,26,8(/images/logo)
+
+[Changelog:YYYYMMDD]
+Included in SkoolKit 5.1.
+
+Added images of #R29431(maze 1), #R28663(maze 2), #R30199(maze 3) and #R30967(maze 4)
+Added images of the #R31735(maze tiles)
 
 [Changelog:20150214]
 Included in SkoolKit 4.3.
