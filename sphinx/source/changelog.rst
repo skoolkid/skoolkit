@@ -1,6 +1,9 @@
 Changelog
 =========
 
+5.1b1
+-----
+
 5.0 (2015-10-04)
 ----------------
 * Added the :ref:`skool2bin.py` command (for converting a skool file into a
