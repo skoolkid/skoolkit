@@ -2541,6 +2541,57 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNotNone(parser.get_entry(40003))
         self.assertIsNone(parser.get_entry(40004))
 
+    def test_replace_directive(self):
+        skool = '\n'.join((
+            '@replace=/#COPY/#CHR169/',
+            r'@replace=/#BIGUDG(\d+)/#UDG\1,57,8',
+            '@replace=@/gap/@#SPACE10@',
+            r'@replace=/~(\w+)~/Register \1/',
+            r'@replace=:/(\d+)/:comment \1',
+            '; Game #COPY 1984',
+            ';',
+            '; Image: #HTML[#BIGUDG32768]',
+            '; .',
+            '; 10 spaces: "/gap/"',
+            ';',
+            '; A ~A~',
+            '; B ~B~',
+            ';',
+            '; Start /1/',
+            '; .',
+            '; Start /2/',
+            'c32768 LD A,10  ; Instruction-level /1/',
+            '; Mid-block /1/',
+            '; .',
+            '; Mid-block /2/',
+            ' 32769 RET      ; Instruction-level /2/',
+            '; End /1/',
+            '; .',
+            '; End /2/'
+        ))
+        entry = self._get_parser(skool).get_entry(32768)
+        self.assertEqual(entry.description, 'Game #CHR169 1984')
+        self.assertEqual(['Image: #HTML[#UDG32768,57,8]', '10 spaces: "#SPACE10"'], entry.details)
+        self.assertEqual(entry.registers[0].contents, 'Register A')
+        self.assertEqual(entry.registers[1].contents, 'Register B')
+        instruction1 = entry.instructions[0]
+        self.assertEqual(['Start comment 1', 'Start comment 2'], instruction1.mid_block_comment)
+        self.assertEqual(instruction1.comment.text, 'Instruction-level comment 1')
+        instruction2 = entry.instructions[1]
+        self.assertEqual(['Mid-block comment 1', 'Mid-block comment 2'], instruction2.mid_block_comment)
+        self.assertEqual(instruction2.comment.text, 'Instruction-level comment 2')
+        self.assertEqual(['End comment 1', 'End comment 2'], entry.end_comment)
+
+    def test_replace_directive_with_no_pattern_or_replacement(self):
+        skool = '\n'.join((
+            '@replace=',
+            '@replace=/pattern with no replacement',
+            '; Test pattern with no replacement',
+            'c32768 RET'
+        ))
+        entry = self._get_parser(skool).get_entry(32768)
+        self.assertEqual(entry.description, 'Test pattern with no replacement')
+
     def test_isub_directive(self):
         skool = '\n'.join((
             '@start',

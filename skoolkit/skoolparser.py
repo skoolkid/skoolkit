@@ -259,6 +259,7 @@ class SkoolParser:
         self.ignores = []
         self.asm_writer_class = None
         self.properties = {}
+        self._replacements = []
 
         with open_file(skoolfile) as f:
             self._parse_skool(f, min_address, max_address)
@@ -416,6 +417,7 @@ class SkoolParser:
 
         # Do some post-processing
         parse_address_comments(address_comments, self.mode.html)
+        self.apply_replacements(self.memory_map)
         self._calculate_references()
         if self.mode.asm_labels:
             self._generate_labels()
@@ -424,6 +426,23 @@ class SkoolParser:
             self._escape_instructions()
         else:
             self._substitute_labels()
+
+    def _add_replacement(self, s):
+        try:
+            elements = s[1:].split(s[0])
+            self._replacements.append((elements[0], elements[1]))
+        except IndexError:
+            pass
+
+    def apply_replacements(self, items):
+        if self._replacements:
+            for item in items:
+                item.apply_replacements(self._replace)
+
+    def _replace(self, text):
+        for pattern, rep in self._replacements:
+            text = re.sub(pattern, rep, text)
+        return text
 
     def _add_end_comment(self, map_entry):
         map_entry.end_comment = join_comments(self.comments, split=True, html=self.mode.html)
@@ -466,6 +485,8 @@ class SkoolParser:
                 self.mode.label = directive[6:].rstrip()
             elif directive.startswith('keep'):
                 self.mode.keep = True
+            elif directive.startswith('replace='):
+                self._add_replacement(directive[8:])
             elif directive.startswith('assemble='):
                 try:
                     self.mode.assemble = int(directive[9:])
@@ -883,6 +904,10 @@ class Instruction:
             return re.sub('^0{1,4}', '', self.addr_str)
         return self.addr_str
 
+    def apply_replacements(self, repf):
+        self.mid_block_comment = [repf(p) for p in self.mid_block_comment]
+        self.comment.apply_replacements(repf)
+
 class Reference:
     def __init__(self, entry, address, addr_str):
         self.entry = entry
@@ -893,6 +918,9 @@ class Comment:
     def __init__(self, rowspan, text):
         self.rowspan = rowspan
         self.text = text
+
+    def apply_replacements(self, repf):
+        self.text = repf(self.text)
 
 class SkoolEntry:
     def __init__(self, address, addr_str=None, ctl=None, description=None, details=(), registers=()):
@@ -928,6 +956,15 @@ class SkoolEntry:
         if routine not in self.referrers:
             self.referrers.append(routine)
 
+    def apply_replacements(self, repf):
+        self.description = repf(self.description)
+        self.details = [repf(p) for p in self.details]
+        for reg in self.registers:
+            reg.apply_replacements(repf)
+        for i in self.instructions:
+            i.apply_replacements(repf)
+        self.end_comment = [repf(p) for p in self.end_comment]
+
 class RemoteEntry(SkoolEntry):
     def __init__(self, asm_id, address):
         SkoolEntry.__init__(self, address)
@@ -941,6 +978,9 @@ class Register:
         self.prefix = prefix
         self.name = name
         self.contents = contents
+
+    def apply_replacements(self, repf):
+        self.contents = repf(self.contents)
 
 class TableParser:
     def parse_text(self, text, index):
