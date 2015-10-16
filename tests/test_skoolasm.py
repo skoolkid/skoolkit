@@ -746,6 +746,12 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.expand('#SUM(2,3)')
         self.assertEqual(output, '5')
 
+    def test_macro_sum_nested(self):
+        writer = self._get_writer()
+
+        output = writer.expand('#CHR#SUM48,9')
+        self.assertEqual(output, '9')
+
     def test_macro_sum_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('SUM')

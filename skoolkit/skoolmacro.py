@@ -206,7 +206,11 @@ def expand_macros(macros, text, cwd=None):
         return text
 
     while 1:
-        search = re.search('#[A-Z]+', text)
+        search = None
+        for m in re.finditer('#SUM(?![A-Z])', text):
+            search = m
+        if not search:
+            search = re.search('#[A-Z]+', text)
         if not search:
             break
         marker = search.group()
