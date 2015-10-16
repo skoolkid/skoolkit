@@ -1852,6 +1852,31 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # No closing bracket
         self._assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)
 
+    def test_macro_sum(self):
+        writer = self._get_writer()
+
+        output = writer.expand('#SUM1,2', ASMDIR)
+        self.assertEqual(output, '3')
+
+        output = writer.expand('#SUM(2,3)', ASMDIR)
+        self.assertEqual(output, '5')
+
+    def test_macro_sum_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('SUM')
+
+        # Not enough parameters
+        self._assert_error(writer, '#SUM1', "Not enough parameters (expected 2): '1'", prefix)
+        self._assert_error(writer, '#SUM(2)', "Not enough parameters (expected 2): '2'", prefix)
+
+        # Invalid integer
+        self._assert_error(writer, '#SUM1$2,3', "Cannot parse integer '1$2' in parameter string: '1$2,3'", prefix)
+        self._assert_error(writer, '#SUM(1$2,3)', "Cannot parse integer '1$2' in parameter string: '1$2,3'", prefix)
+
+        # No closing bracket
+        self._assert_error(writer, '#SUM(3,4', "No closing bracket: (3,4", prefix)
+        self._assert_error(writer, '#SUM(4,5,6)', "No closing bracket: (4,5", prefix)
+
     def test_macro_table(self):
         src1 = '\n'.join((
             '(data)',
