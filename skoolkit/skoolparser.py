@@ -905,8 +905,10 @@ class Instruction:
         return self.addr_str
 
     def apply_replacements(self, repf):
-        self.mid_block_comment = [repf(p) for p in self.mid_block_comment]
-        self.comment.apply_replacements(repf)
+        if self.mid_block_comment:
+            self.mid_block_comment = [repf(p) for p in self.mid_block_comment]
+        if self.comment:
+            self.comment.apply_replacements(repf)
 
 class Reference:
     def __init__(self, entry, address, addr_str):
