@@ -181,6 +181,9 @@ class AsmWriter:
             return end, ''
         raise UnsupportedMacroError()
 
+    def expand_for(self, text, index):
+        return skoolmacro.parse_for(text, index)
+
     def expand_html(self, text, index):
         end, message = skoolmacro.parse_html(text, index)
         return end, ''

@@ -295,6 +295,59 @@ class AsmWriterTest(SkoolKitTestCase):
         self._test_unsupported_macro(writer, '#FONT:@bar', "No terminating delimiter: @bar")
         self._test_unsupported_macro(writer, '#FONT0(foo', "No closing bracket: (foo")
 
+    def test_macro_for(self):
+        writer = self._get_writer()
+
+        output = writer.expand('#FOR1,3(n,n)')
+        self.assertEqual(output, '123')
+
+        output = writer.expand('#FOR1,5,2[$n,:$n]')
+        self.assertEqual(output, ':1:3:5')
+
+        output = writer.expand('1, #FOR4,10,3{@n,@n, }13')
+        self.assertEqual(output, '1, 4, 7, 10, 13')
+
+        output = writer.expand('(1)#FOR5,13,4/n,, (n)/')
+        self.assertEqual(output, '(1), (5), (9), (13)')
+
+    def test_macro_for_nested(self):
+        writer = self._get_writer()
+
+        output = writer.expand('#FOR1,3(&n,#FOR4,6[&m,&m.&n ])')
+        self.assertEqual(output, '4.1 5.1 6.1 4.2 5.2 6.2 4.3 5.3 6.3')
+
+    def test_macro_for_with_nested_macro(self):
+        writer = self._get_writer()
+        writer.snapshot[0:3] = [1, 2, 3]
+
+        output = writer.expand('#FOR0,2(n,[#SUM10,n])')
+        self.assertEqual(output, '[10][11][12]')
+
+        output = writer.expand('#FOR0,2(m,{#PEEKm})')
+        self.assertEqual(output, '{1}{2}{3}')
+
+    def test_macro_for_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('FOR')
+
+        # No parameters
+        self._assert_error(writer, '#FOR', 'No parameters (expected 2)', prefix)
+
+        # Not enough parameters
+        self._assert_error(writer, '#FOR0', "Not enough parameters (expected 2): '0'", prefix)
+
+        # No variable parameter
+        self._assert_error(writer, '#FOR0,1', 'No variable or string parameter', prefix)
+
+        # No string parameter
+        self._assert_error(writer, '#FOR0,1(n)', "No string parameter: (n)", prefix)
+
+        # Invalid integer
+        self._assert_error(writer, '#FOR0,1$2(n,n)', "Cannot parse integer '1$2' in parameter string: '0,1$2'", prefix)
+
+        # No terminating delimiter
+        self._assert_error(writer, '#FOR0,1(n,n', 'No terminating delimiter: (n,n', prefix)
+
     def test_macro_html(self):
         writer = self._get_writer()
         delimiters = {

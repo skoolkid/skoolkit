@@ -175,9 +175,9 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
             params[i] = defaults[i - req]
     return params
 
-def get_text_param(text, index):
+def get_text_param(text, index, error=None):
     if index >= len(text):
-        raise MacroParsingError("No text parameter")
+        raise MacroParsingError(error or "No text parameter")
     delim1 = text[index]
     delim2 = DELIMITERS.get(delim1, delim1)
     start = index + 1
@@ -207,10 +207,13 @@ def expand_macros(macros, text, cwd=None):
 
     while 1:
         search = None
-        for m in re.finditer('#(PEEK|SUM)(?![A-Z])', text):
+        for m in re.finditer('#FOR(?![A-Z])', text):
             search = m
         if not search:
-            search = re.search('#[A-Z]+', text)
+            for m in re.finditer('#(PEEK|SUM)(?![A-Z])', text):
+                search = m
+            if not search:
+                search = re.search('#[A-Z]+', text)
         if not search:
             break
         marker = search.group()
@@ -315,6 +318,16 @@ def parse_erefs(text, index, entry_holder):
 def parse_fact(text, index):
     # #FACT[#name][(link text)]
     return parse_item_macro(text, index, '#FACT', 'fact')
+
+def parse_for(text, index):
+    # #FORstart,stop[,step](var,string)
+    range_end, start, stop, step = parse_ints(text, index, 3, (1,))
+    end, args = get_text_param(text, range_end, 'No variable or string parameter')
+    try:
+        var, s = args.split(',', 1)
+    except ValueError:
+        raise MacroParsingError("No string parameter: {}".format(text[range_end:end]))
+    return end, ''.join([s.replace(var, str(n)) for n in range(start, stop + 1, step)])
 
 def parse_html(text, index):
     # #HTML(text)

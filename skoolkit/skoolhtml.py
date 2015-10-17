@@ -1245,6 +1245,9 @@ class HtmlWriter:
             return end, self.img_element(cwd, img_path, alt)
         return end, ''
 
+    def expand_for(self, text, index, cwd):
+        return skoolmacro.parse_for(text, index)
+
     def expand_html(self, text, index, cwd):
         return skoolmacro.parse_html(text, index)
 
