@@ -207,7 +207,7 @@ def expand_macros(macros, text, cwd=None):
 
     while 1:
         search = None
-        for m in re.finditer('#SUM(?![A-Z])', text):
+        for m in re.finditer('#(PEEK|SUM)(?![A-Z])', text):
             search = m
         if not search:
             search = re.search('#[A-Z]+', text)
@@ -336,6 +336,17 @@ def parse_link(text, index):
     if sep:
         anchor = sep + anchor
     return end, page_id, anchor, link_text
+
+def parse_peek(text, index, snapshot):
+    # #PEEKaddr or #PEEK(addr)
+    if index < len(text) and text[index] == '(':
+        offset = 1
+    else:
+        offset = 0
+    end, addr = parse_ints(text, index + offset, 1)
+    if offset and (end >= len(text) or text[end] != ')'):
+        raise MacroParsingError("No closing bracket: {}".format(text[index:end]))
+    return end + offset, str(snapshot[addr & 65535])
 
 def parse_poke(text, index):
     # #POKE[#name][(link text)]

@@ -191,6 +191,9 @@ class AsmWriter:
             raise MacroParsingError("Blank link text: #LINK{}".format(text[index:end]))
         return end, link_text
 
+    def expand_peek(self, text, index):
+        return skoolmacro.parse_peek(text, index, self.snapshot)
+
     def expand_poke(self, text, index):
         end, item, link_text = skoolmacro.parse_poke(text, index)
         return end, link_text or 'poke'

@@ -1221,6 +1221,41 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # No end marker
         self._assert_error(writer, '#LIST { Item }', 'No end marker: #LIST { Item }...')
 
+    def test_macro_peek(self):
+        writer = self._get_writer(snapshot=[1, 2, 3])
+
+        output = writer.expand('#PEEK0', ASMDIR)
+        self.assertEqual(output, '1')
+
+        output = writer.expand('#PEEK($0001)', ASMDIR)
+        self.assertEqual(output, '2')
+
+        # Address is taken modulo 65536
+        output = writer.expand('#PEEK65538', ASMDIR)
+        self.assertEqual(output, '3')
+
+    def test_macro_peek_nested(self):
+        writer = self._get_writer(snapshot=[100])
+
+        output = writer.expand('#SUM#PEEK0,1', ASMDIR)
+        self.assertEqual(output, '101')
+
+    def test_macro_peek_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('PEEK')
+
+        # No parameters
+        self._assert_error(writer, '#PEEK', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#PEEK()', "No parameters (expected 1)", prefix)
+
+        # Invalid integer
+        self._assert_error(writer, '#PEEK1$2', "Cannot parse integer '1$2' in parameter string: '1$2'", prefix)
+        self._assert_error(writer, '#PEEK(1$2)', "Cannot parse integer '1$2' in parameter string: '1$2'", prefix)
+
+        # No closing bracket
+        self._assert_error(writer, '#PEEK(3', "No closing bracket: (3", prefix)
+        self._assert_error(writer, '#PEEK(4,5)', "No closing bracket: (4", prefix)
+
     def test_macro_poke(self):
         self._test_reference_macro('POKE', 'poke', 'pokes')
 

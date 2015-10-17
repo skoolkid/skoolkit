@@ -1262,6 +1262,9 @@ class HtmlWriter:
         end, list_obj = self.list_parser.parse_text(text, index)
         return end, self.build_list(list_obj)
 
+    def expand_peek(self, text, index, cwd):
+        return skoolmacro.parse_peek(text, index, self.snapshot)
+
     def expand_poke(self, text, index, cwd):
         end, item, link_text = skoolmacro.parse_poke(text, index)
         return end, self._expand_item_macro(item, link_text, cwd, self.pokes, P_POKES)

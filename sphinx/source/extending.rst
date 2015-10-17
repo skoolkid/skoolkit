@@ -271,25 +271,6 @@ The `snapshot` attribute on HtmlWriter and AsmWriter is a 65536-element list
 that represents the 64K of the Spectrum's memory; it is populated when the
 `skool` file is being parsed.
 
-A simple ``#PEEK`` macro that expands to the value of the byte at a given
-address might be implemented by using `snapshot` like this::
-
-  from skoolkit.skoolhtml import HtmlWriter
-  from skoolkit.skoolasm import AsmWriter
-  from skoolkit.skoolmacro import parse_ints
-
-  class GameHtmlWriter(HtmlWriter):
-      # #PEEKaddress
-      def expand_peek(self, text, index, cwd):
-          end, address = parse_ints(text, index, 1)
-          return end, str(self.snapshot[address])
-
-  class GameAsmWriter(AsmWriter):
-      # #PEEKaddress
-      def expand_peek(self, text, index):
-          end, address = parse_ints(text, index, 1)
-          return end, str(self.snapshot[address])
-
 HtmlWriter also provides some methods for saving and restoring memory
 snapshots, which can be useful for temporarily changing graphic data or the
 contents of data tables. These methods are described below.
