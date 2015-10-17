@@ -13,6 +13,7 @@ i 23296
 @ 24576 start
 @ 24576 org=24576
 @ 24576 replace=/#sprite(\d+),(\d+)/#UDGARRAY2,\2;\1-#SUM\1,24-8
+@ 24576 replace=/#fruit(\d+)/#UDGARRAY2;#SUM\1,1,#PEEK\1;#SUM\1,10,#PEEK#SUM\1,9;#SUM\1,19,#PEEK#SUM\1,18;#SUM\1,28,#PEEK#SUM\1,27
 @ 24576 set-handle-unsupported-macros=1
 c 24576 The game has just loaded
 c 25167
@@ -77,8 +78,8 @@ D 31735 #UDGTABLE { #UDG31735 | #UDG31743,61 | #UDG31751,60 | #UDG31759 | #UDG31
 t 31815
 b 31841
 b 31868 Cherry and strawberry graphics
-B 31868,36,9 #UDGARRAY2;31869,60;31878,60;31887,58;31896,58(cherry)
-B 31904,36,9 #UDGARRAY2;31905,60;31914,60;31923,58;31932,58(strawberry)
+B 31868,36,9 #fruit31868(cherry)
+B 31904,36,9 #fruit31904(strawberry)
 b 31940
 b 31943 Horace graphics
 B 31943 #sprite31943,57(horace0)
