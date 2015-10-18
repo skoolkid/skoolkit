@@ -852,10 +852,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # Blank parameter
         self._assert_error(writer, '#CHR()', "Invalid integer: ''", prefix)
 
-        # Invalid parameter (1)
-        self._assert_error(writer, '#CHR2$', "Cannot parse integer '2$' in parameter string: '2$'", prefix)
-
-        # Invalid parameter (2)
+        # Invalid parameter
         self._assert_error(writer, '#CHR(x)', "Invalid integer: 'x'", prefix)
 
         # No closing bracket
@@ -888,9 +885,6 @@ class SkoolMacroTest(HtmlWriterTestCase):
 
         # No parameter (2)
         self._assert_error(writer, '#Dx', 'No parameters (expected 1)', prefix)
-
-        # Invalid parameter
-        self._assert_error(writer, '#D234$', "Cannot parse integer '234$' in parameter string: '234$'", prefix)
 
         # Descriptionless entry
         self._assert_error(writer, '#D32770', 'Entry at 32770 has no description', prefix)
@@ -937,9 +931,6 @@ class SkoolMacroTest(HtmlWriterTestCase):
 
         # No parameter (2)
         self._assert_error(writer, '#EREFSx', 'No parameters (expected 1)', prefix)
-
-        # Invalid parameter
-        self._assert_error(writer, '#EREFS2$2', "Cannot parse integer '2$2' in parameter string: '2$2'", prefix)
 
         # Entry point with no referrers
         address = 30005
@@ -1097,9 +1088,6 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # Too many parameters
         self._assert_error(writer, '#FONT0,1,2,3,4,5', "Too many parameters (expected 4): '0,1,2,3,4,5'", prefix)
 
-        # Invalid parameter
-        self._assert_error(writer, '#FONT0,1$,2', "Cannot parse integer '1$' in parameter string: '0,1$,2'", prefix)
-
         # No closing bracket
         self._assert_error(writer, '#FONT(foo', 'No closing bracket: (foo', prefix)
 
@@ -1154,9 +1142,6 @@ class SkoolMacroTest(HtmlWriterTestCase):
 
         # No string parameter
         self._assert_error(writer, '#FOR0,1(n)', "No string parameter: (n)", prefix)
-
-        # Invalid integer
-        self._assert_error(writer, '#FOR0,1$2(n,n)', "Cannot parse integer '1$2' in parameter string: '0,1$2'", prefix)
 
         # No terminating delimiter
         self._assert_error(writer, '#FOR0,1(n,n', 'No terminating delimiter: (n,n', prefix)
@@ -1300,10 +1285,6 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self._assert_error(writer, '#PEEK', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#PEEK()', "No parameters (expected 1)", prefix)
 
-        # Invalid integer
-        self._assert_error(writer, '#PEEK1$2', "Cannot parse integer '1$2' in parameter string: '1$2'", prefix)
-        self._assert_error(writer, '#PEEK(1$2)', "Cannot parse integer '1$2' in parameter string: '1$2'", prefix)
-
         # No closing bracket
         self._assert_error(writer, '#PEEK(3', "No closing bracket: (3", prefix)
         self._assert_error(writer, '#PEEK(4,5)', "No closing bracket: (4", prefix)
@@ -1354,9 +1335,6 @@ class SkoolMacroTest(HtmlWriterTestCase):
 
         # Not enough parameters (2)
         self._assert_error(writer, '#POKES0,1;1', "Not enough parameters (expected 2): '1'", prefix)
-
-        # Invalid parameter
-        self._assert_error(writer, '#POKES40000,2$2', "Cannot parse integer '2$2' in parameter string: '40000,2$2'", prefix)
 
     def test_macro_pops(self):
         writer = self._get_writer(snapshot=[0] * 65536)
@@ -1909,9 +1887,6 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # No closing bracket
         self._assert_error(writer, '#SCR(foo', 'No closing bracket: (foo', prefix)
 
-        # Invalid parameter
-        self._assert_error(writer, '#SCR0,1,2$,3', "Cannot parse integer '2$' in parameter string: '0,1,2$,3'", prefix)
-
     def test_macro_space(self):
         writer = self._get_writer()
 
@@ -1930,11 +1905,8 @@ class SkoolMacroTest(HtmlWriterTestCase):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('SPACE')
 
-        # Invalid integer
-        self._assert_error(writer, '#SPACE5$3', "Cannot parse integer '5$3' in parameter string: '5$3'", prefix)
-
         # Invalid integer in brackets
-        self._assert_error(writer, '#SPACE(5$3)', "Invalid integer: '5$3'", prefix)
+        self._assert_error(writer, '#SPACE(x)', "Invalid integer: 'x'", prefix)
 
         # No closing bracket
         self._assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)
@@ -1961,10 +1933,6 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # Not enough parameters
         self._assert_error(writer, '#SUM1', "Not enough parameters (expected 2): '1'", prefix)
         self._assert_error(writer, '#SUM(2)', "Not enough parameters (expected 2): '2'", prefix)
-
-        # Invalid integer
-        self._assert_error(writer, '#SUM1$2,3', "Cannot parse integer '1$2' in parameter string: '1$2,3'", prefix)
-        self._assert_error(writer, '#SUM(1$2,3)', "Cannot parse integer '1$2' in parameter string: '1$2,3'", prefix)
 
         # No closing bracket
         self._assert_error(writer, '#SUM(3,4', "No closing bracket: (3,4", prefix)
@@ -2185,9 +2153,6 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # Too many parameters
         self._assert_error(writer, '#UDG0,1,2,3,4,5,6,7,8,9', "Too many parameters (expected 8): '0,1,2,3,4,5,6,7,8,9'", prefix)
 
-        # Invalid parameter
-        self._assert_error(writer, '#UDG0$,1,2', "Cannot parse integer '0$' in parameter string: '0$,1,2'", prefix)
-
         # No closing bracket
         self._assert_error(writer, '#UDG0(foo', 'No closing bracket: (foo', prefix)
 
@@ -2313,9 +2278,6 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # No parameters
         self._assert_error(writer, '#UDGARRAY', 'No parameters (expected 1)', prefix)
 
-        # Invalid parameter
-        self._assert_error(writer, '#UDGARRAY1,5$,4;0(bar)', "Cannot parse integer '5$' in parameter string: '1,5$,4'", prefix)
-
         # Invalid UDG address range spec (1)
         self._assert_error(writer, '#UDGARRAY1;0-1$(bar)', 'Invalid address range specification: 0-1$', prefix)
 
@@ -2394,7 +2356,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self._assert_error(writer, '#UDGARRAY*foo()', 'Missing filename: #UDGARRAY*foo()', prefix)
         self._assert_error(writer, '#UDGARRAY*foo(bar', 'No closing bracket: (bar', prefix)
         self._assert_error(writer, '#UDGARRAY*foo(bar)', 'No such frame: "foo"', prefix)
-        self._assert_error(writer, '#UDGARRAY*foo,qux(bar)', "Cannot parse integer 'qux' in parameter string: 'qux'", prefix)
+        self._assert_error(writer, '#UDGARRAY*foo,qux(bar)', "No parameters (expected 1)", prefix)
 
     def test_macro_udgarray_alt_text(self):
         writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)

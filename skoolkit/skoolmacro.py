@@ -19,13 +19,15 @@
 import inspect
 import re
 
-from skoolkit import SkoolKitError, SkoolParsingError, get_int_param, parse_int
+from skoolkit import SkoolKitError, SkoolParsingError, get_int_param
 
 DELIMITERS = {
     '(': ')',
     '[': ']',
     '{': '}'
 }
+
+PARAM = '([a-z]+=)?[-+]?(\d+|\$[0-9a-fA-F]+)([-+*/](\d+|\$[0-9a-fA-F]+))*'
 
 def parse_ints(text, index=0, num=0, defaults=(), names=()):
     """Parse a string of comma-separated integer parameters. The string will be
@@ -46,18 +48,16 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
              * ``end`` is the index at which parsing terminated
              * ``value1``, ``value2`` etc. are the parameter values
     """
-    end = index
-    num_params = 1
-    valid_chars = '$0123456789abcdefABCDEF,'
-    if names:
-        valid_chars += 'ghijklmnopqrstuvwxyz='
-    while end < len(text) and text[end] in valid_chars:
-        if text[end] == ',':
-            if num_params == num:
-                break
-            num_params += 1
-        end += 1
-    return [end] + get_params(text[index:end], num, defaults, names=names)
+    if num > 0:
+        pattern = '{0}(,({0})?){{,{1}}}'.format(PARAM, num - 1)
+    else:
+        pattern = '{0}(,({0})?)*'.format(PARAM)
+    match = re.match(pattern, text[index:])
+    if match:
+        params = match.group()
+    else:
+        params = ''
+    return [index + len(params)] + get_params(params, num, defaults, names=names)
 
 def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars=''):
     """Parse a string of the form ``params[(p_text)]``. The parameter string
@@ -108,6 +108,12 @@ def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars
         p_text = text[index + 1:end - 1]
     return end, params, p_text
 
+def evaluate(param):
+    try:
+        return eval(re.sub('\$([0-9a-fA-F]+)', r'int("\1",16)', param).replace('/', '//'))
+    except:
+        return None
+
 def get_params(param_string, num=0, defaults=(), ints=None, names=()):
     params = []
     named_params = {}
@@ -136,7 +142,7 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
             else:
                 value = p
             if value:
-                param = parse_int(value)
+                param = evaluate(value)
                 if param is None:
                     if ints is None or index in ints:
                         raise MacroParsingError("Cannot parse integer '{}' in parameter string: '{}'".format(value, param_string))

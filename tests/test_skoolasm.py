@@ -183,9 +183,6 @@ class AsmWriterTest(SkoolKitTestCase):
         # Blank parameter
         self._assert_error(writer, '#CHR()', "Invalid integer: ''", prefix)
 
-        # Invalid parameter (1)
-        self._assert_error(writer, '#CHR2$', "Cannot parse integer '2$' in parameter string: '2$'", prefix)
-
         # Invalid parameter (2)
         self._assert_error(writer, '#CHR(x,y)', "Invalid integer: 'x,y'", prefix)
 
@@ -222,9 +219,6 @@ class AsmWriterTest(SkoolKitTestCase):
 
         # No parameter (2)
         self._assert_error(writer, '#Dx', 'No parameters (expected 1)', prefix)
-
-        # Invalid parameter
-        self._assert_error(writer, '#D234$', "Cannot parse integer '234$' in parameter string: '234$'", prefix)
 
         # Descriptionless entry
         self._assert_error(writer, '#D32770', 'Entry at 32770 has no description', prefix)
@@ -272,9 +266,6 @@ class AsmWriterTest(SkoolKitTestCase):
 
         # No parameter (2)
         self._assert_error(writer, '#EREFSx', 'No parameters (expected 1)', prefix)
-
-        # Invalid parameter
-        self._assert_error(writer, '#EREFS2$2', "Cannot parse integer '2$2' in parameter string: '2$2'", prefix)
 
         # Entry point with no referrers
         address = 30005
@@ -341,9 +332,6 @@ class AsmWriterTest(SkoolKitTestCase):
 
         # No string parameter
         self._assert_error(writer, '#FOR0,1(n)', "No string parameter: (n)", prefix)
-
-        # Invalid integer
-        self._assert_error(writer, '#FOR0,1$2(n,n)', "Cannot parse integer '1$2' in parameter string: '0,1$2'", prefix)
 
         # No terminating delimiter
         self._assert_error(writer, '#FOR0,1(n,n', 'No terminating delimiter: (n,n', prefix)
@@ -426,10 +414,6 @@ class AsmWriterTest(SkoolKitTestCase):
         self._assert_error(writer, '#PEEK', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#PEEK()', "No parameters (expected 1)", prefix)
 
-        # Invalid integer
-        self._assert_error(writer, '#PEEK1$2', "Cannot parse integer '1$2' in parameter string: '1$2'", prefix)
-        self._assert_error(writer, '#PEEK(1$2)', "Cannot parse integer '1$2' in parameter string: '1$2'", prefix)
-
         # No closing bracket
         self._assert_error(writer, '#PEEK(3', "No closing bracket: (3", prefix)
         self._assert_error(writer, '#PEEK(4,5)', "No closing bracket: (4", prefix)
@@ -469,9 +453,6 @@ class AsmWriterTest(SkoolKitTestCase):
 
         # Not enough parameters (2)
         self._assert_error(writer, '#POKES0,1;1', "Not enough parameters (expected 2): '1'", prefix)
-
-        # Invalid parameter
-        self._assert_error(writer, '#POKES40000,2$2', "Cannot parse integer '2$2' in parameter string: '40000,2$2'", prefix)
 
     def test_macro_pops(self):
         writer = self._get_writer()
@@ -818,9 +799,6 @@ class AsmWriterTest(SkoolKitTestCase):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('SPACE')
 
-        # Invalid integer
-        self._assert_error(writer, '#SPACE5$3', "Cannot parse integer '5$3' in parameter string: '5$3'", prefix)
-
         # Invalid integer in brackets
         self._assert_error(writer, '#SPACE(5$3)', "Invalid integer: '5$3'", prefix)
 
@@ -849,10 +827,6 @@ class AsmWriterTest(SkoolKitTestCase):
         # Not enough parameters
         self._assert_error(writer, '#SUM1', "Not enough parameters (expected 2): '1'", prefix)
         self._assert_error(writer, '#SUM(2)', "Not enough parameters (expected 2): '2'", prefix)
-
-        # Invalid integer
-        self._assert_error(writer, '#SUM1$2,3', "Cannot parse integer '1$2' in parameter string: '1$2,3'", prefix)
-        self._assert_error(writer, '#SUM(1$2,3)', "Cannot parse integer '1$2' in parameter string: '1$2,3'", prefix)
 
         # No closing bracket
         self._assert_error(writer, '#SUM(3,4', "No closing bracket: (3,4", prefix)

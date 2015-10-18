@@ -43,6 +43,10 @@ class SkoolMacroTest(SkoolKitTestCase):
         self.assertEqual((p1, p2), (1, 2))
         self.assertEqual(end, len(text) - len(junk))
 
+        # Test with arithmetic expressions
+        text = '-1,1+1,5-2,10-3*2,2+7/2'
+        self.assertEqual([len(text), -1, 2, 3, 4, 5], parse_ints(text, 0, 5))
+
     def test_parse_ints_with_kwargs(self):
         for param_string, defaults, names, exp_params in (
             ('1,baz=3', (2, 4, 6), ('foo', 'bar', 'baz', 'qux'), [1, 2, 3, 6]),
@@ -58,14 +62,6 @@ class SkoolMacroTest(SkoolKitTestCase):
     def test_parse_ints_with_kwargs_not_enough_parameters(self):
         with self.assertRaisesRegexp(MacroParsingError, "Missing required argument 'a'"):
             parse_ints('b=4,c=5', defaults=(2, 3), names=('a', 'b', 'c'))
-
-    def test_parse_ints_invalid_integer(self):
-        with self.assertRaisesRegexp(MacroParsingError, re.escape("Cannot parse integer '3$0' in parameter string: '1,3$0'")):
-            parse_ints('1,3$0', num=2)
-
-    def test_parse_ints_invalid_kwarg_integer(self):
-        with self.assertRaisesRegexp(MacroParsingError, "Cannot parse integer '3x' in parameter string: '1,baz=3x'"):
-            parse_ints('1,baz=3x', defaults=(2, 3), names=('foo', 'bar', 'baz'))
 
     def test_parse_ints_non_kwarg_after_kwarg(self):
         with self.assertRaisesRegexp(MacroParsingError, "Non-keyword argument after keyword argument: '3'"):
