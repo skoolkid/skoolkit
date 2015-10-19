@@ -12,8 +12,8 @@ B 16384,6912,16
 i 23296
 @ 24576 start
 @ 24576 org=24576
-@ 24576 replace=/#sprite(\d+),(\d+)/#UDGARRAY2,\2;\1-#SUM\1,24-8
-@ 24576 replace=/#fruit(\d+)/#UDGARRAY2;#SUM\1,1,#PEEK\1;#SUM\1,10,#PEEK#SUM\1,9;#SUM\1,19,#PEEK#SUM\1,18;#SUM\1,28,#PEEK#SUM\1,27
+@ 24576 replace=/#sprite(\d+),(\d+)/#UDGARRAY2,\2;\1-\1+24-8
+@ 24576 replace=/#fruit(\d+)/#UDGARRAY2;\1+1,#PEEK\1;\1+10,#PEEK\1+9;\1+19,#PEEK\1+18;\1+28,#PEEK\1+27
 @ 24576 set-handle-unsupported-macros=1
 c 24576 The game has just loaded
 c 25167
