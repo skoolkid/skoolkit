@@ -1305,9 +1305,6 @@ class HtmlWriter:
         end, num_sp = skoolmacro.parse_space(text, index)
         return end, '&#160;' * num_sp
 
-    def expand_sum(self, text, index, cwd):
-        return skoolmacro.parse_sum(text, index)
-
     def expand_table(self, text, index, cwd):
         # #TABLE[(class[,col1class[,col2class...]])]<rows>TABLE#
         end, table = self.table_parser.parse_text(text, index)

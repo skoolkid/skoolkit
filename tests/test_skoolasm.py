@@ -307,12 +307,9 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.expand('#FOR1,3(&n,#FOR4,6[&m,&m.&n ])')
         self.assertEqual(output, '4.1 5.1 6.1 4.2 5.2 6.2 4.3 5.3 6.3')
 
-    def test_macro_for_with_nested_macro(self):
+    def test_macro_for_with_nested_peek_macro(self):
         writer = self._get_writer()
         writer.snapshot[0:3] = [1, 2, 3]
-
-        output = writer.expand('#FOR0,2(n,[#SUM10,n])')
-        self.assertEqual(output, '[10][11][12]')
 
         output = writer.expand('#FOR0,2(m,{#PEEKm})')
         self.assertEqual(output, '{1}{2}{3}')
@@ -453,9 +450,9 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_macro_peek_nested(self):
         writer = self._get_writer()
-        writer.snapshot[0] = 100
+        writer.snapshot[:2] = [2, 0, 101]
 
-        output = writer.expand('#SUM#PEEK0,1')
+        output = writer.expand('#PEEK#PEEK0+256*#PEEK1')
         self.assertEqual(output, '101')
 
     def test_macro_peek_invalid(self):
@@ -856,33 +853,6 @@ class AsmWriterTest(SkoolKitTestCase):
 
         # No closing bracket
         self._assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)
-
-    def test_macro_sum(self):
-        writer = self._get_writer()
-
-        output = writer.expand('#SUM1,2')
-        self.assertEqual(output, '3')
-
-        output = writer.expand('#SUM(2,3)')
-        self.assertEqual(output, '5')
-
-    def test_macro_sum_nested(self):
-        writer = self._get_writer()
-
-        output = writer.expand('#CHR#SUM48,9')
-        self.assertEqual(output, '9')
-
-    def test_macro_sum_invalid(self):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format('SUM')
-
-        # Not enough parameters
-        self._assert_error(writer, '#SUM1', "Not enough parameters (expected 2): '1'", prefix)
-        self._assert_error(writer, '#SUM(2)', "Not enough parameters (expected 2): '2'", prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#SUM(3,4', "No closing bracket: (3,4", prefix)
-        self._assert_error(writer, '#SUM(4,5,6)', "No closing bracket: (4,5", prefix)
 
     def test_macro_udg(self):
         writer = self._get_writer()

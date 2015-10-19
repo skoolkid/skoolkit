@@ -248,9 +248,6 @@ class AsmWriter:
         end, num_sp = skoolmacro.parse_space(text, index)
         return end, ' ' * num_sp
 
-    def expand_sum(self, text, index):
-        return skoolmacro.parse_sum(text, index)
-
     def expand_udg(self, text, index):
         # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:addr[,step]][{x,y,width,height}][(fname)]
         if self.handle_unsupported_macros:

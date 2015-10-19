@@ -255,7 +255,7 @@ def expand_macros(macros, text, cwd=None):
         for m in re.finditer('#FOR(?![A-Z])', text):
             search = m
         if not search:
-            for m in re.finditer('#(MAP|PEEK|SUM)(?![A-Z])', text):
+            for m in re.finditer('#(MAP|PEEK)(?![A-Z])', text):
                 search = m
             if not search:
                 search = re.search('#[A-Z]+', text)
@@ -524,14 +524,3 @@ def parse_space(text, index):
         except ValueError:
             raise MacroParsingError("Invalid integer: '{}'".format(num_str))
     return parse_ints(text, index, 1, (1,))
-
-def parse_sum(text, index):
-    # #SUMa,b or #SUM(a,b)
-    if index < len(text) and text[index] == '(':
-        offset = 1
-    else:
-        offset = 0
-    end, a, b = parse_ints(text, index + offset, 2)
-    if offset and (end >= len(text) or text[end] != ')'):
-        raise MacroParsingError("No closing bracket: {}".format(text[index:end]))
-    return end + offset, str(a + b)
