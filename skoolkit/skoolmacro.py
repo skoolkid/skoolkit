@@ -27,7 +27,13 @@ DELIMITERS = {
     '{': '}'
 }
 
-PARAM = '([a-z]+=)?[-+]?(\d+|\$[0-9a-fA-F]+)([-+*/](\d+|\$[0-9a-fA-F]+))*'
+INTEGER = '(\d+|\$[0-9a-fA-F]+)'
+
+PARAM = '([a-z]+=)?[-+]?{0}([-+*/]{0})*'.format(INTEGER)
+
+ADDR_RANGE_PARAM = '({0}([+*/]{0})*|\([-+]?{0}([-+*/]{0})*\))'.format(INTEGER)
+
+ADDR_RANGE = '{0}(-{0}){{,3}}(x{1})?'.format(ADDR_RANGE_PARAM, INTEGER)
 
 def parse_ints(text, index=0, num=0, defaults=(), names=()):
     """Parse a string of comma-separated integer parameters. The string will be
@@ -107,6 +113,39 @@ def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars
             raise MacroParsingError('No closing bracket: {}'.format(text[p_index:]))
         p_text = text[index + 1:end - 1]
     return end, params, p_text
+
+def get_address_range(text, index):
+    match = re.match(ADDR_RANGE, text[index:])
+    if match:
+        spec = match.group()
+        return index + len(spec), spec
+    return index, None
+
+def parse_address_range(spec, width):
+    num = 1
+    addr = spec
+    if 'x' in addr:
+        addr, num = spec.split('x', 1)
+        num = evaluate(num)
+
+    elements = [evaluate(m.group()) for m in re.finditer(ADDR_RANGE_PARAM, addr)]
+    if len(elements) < 2:
+        elements.append(elements[0])
+    if len(elements) < 3:
+        elements.append(1)
+    if len(elements) < 4:
+        elements.append(elements[2] * width)
+
+    address, end_address, h_step, v_step = elements
+    addresses = []
+    while address <= end_address:
+        addresses.append(address)
+        if len(addresses) % width:
+            address += h_step
+        else:
+            address += v_step - (width - 1) * h_step
+
+    return addresses * num
 
 def evaluate(param):
     try:

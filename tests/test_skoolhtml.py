@@ -424,6 +424,11 @@ class MethodTest(HtmlWriterTestCase):
         with self.assertRaisesRegexp(MacroParsingError, re.escape("Not enough parameters (expected 2): '0'")):
             writer.parse_image_params('0(x)', 0, 2)
 
+    def test_parse_image_params_invalid_integer(self):
+        writer = self._get_writer()
+        with self.assertRaisesRegexp(MacroParsingError, re.escape("Cannot parse integer '0$2' in parameter string: '1,0$2'")):
+            writer.parse_image_params('1,0$2', 0, 2)
+
     def test_parse_image_params_with_kwargs(self):
         writer = self._get_writer()
 
@@ -2223,14 +2228,27 @@ class SkoolMacroTest(HtmlWriterTestCase):
         snapshot[udg_addr:udg_addr + 8 * step:step] = udg_data
         snapshot[mask_addr:mask_addr + 8 * step:step] = udg_mask
         params = 'attr={attr},step={step},inc={inc},mask={mask},scale={scale}'
-        udg_spec = ';addr={udg_addr}x4,step={step}'
-        mask_spec = ':step={step},addr={mask_addr}x4'
+        udg_spec = ';{udg_addr}x4,step={step}'
+        mask_spec = ':{mask_addr}x4,step={step}'
         crop = '{{x={x},y={y},width={w},height={h}}}'
         macro = ('#UDGARRAY{width},' + params + udg_spec + mask_spec + crop + '({fname})').format(**locals())
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
         udg_array = [[Udg(attr, udg_data, udg_mask)] * width] * 2
         self._check_image(writer.image_writer, udg_array, scale, mask, x, y, w, h)
+
+        # Arithmetic expressions in address range specifications
+        udg_fname = 'test_udg_array7'
+        udg1 = Udg(56, [128, 64, 32, 16, 8, 4, 2, 1])
+        udg2 = Udg(56, [64, 32, 16, 8, 4, 2, 1, 128])
+        udg3 = Udg(56, [32, 16, 8, 4, 2, 1, 128, 64])
+        udg_addr = '40000-40000+8*2-(10-2)'
+        snapshot[40000:40008] = udg1.data
+        snapshot[40008:40016] = udg2.data
+        snapshot[40016:40024] = udg3.data
+        output = writer.expand('#UDGARRAY3;{}({})'.format(udg_addr, udg_fname), ASMDIR)
+        self._assert_img_equals(output, udg_fname, '../{}/{}.png'.format(UDGDIR, udg_fname))
+        self._check_image(writer.image_writer, [[udg1, udg2, udg3]])
 
     def test_macro_udgarray_with_custom_udg_image_path(self):
         font_path = 'udg_images'
@@ -2278,29 +2296,11 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # No parameters
         self._assert_error(writer, '#UDGARRAY', 'No parameters (expected 1)', prefix)
 
-        # Invalid UDG address range spec (1)
-        self._assert_error(writer, '#UDGARRAY1;0-1$(bar)', 'Invalid address range specification: 0-1$', prefix)
+        # Missing UDG address range spec
+        self._assert_error(writer, '#UDGARRAY1;(foo)', 'Expected UDG address range specification: #UDGARRAY1;', prefix)
 
-        # Invalid UDG address range spec (2)
-        self._assert_error(writer, '#UDGARRAY1;0-1x2x2(bar)', 'Invalid address range specification: 0-1x2x2', prefix)
-
-        # Invalid UDG address range spec (3)
-        self._assert_error(writer, '#UDGARRAY1;0-1-2-3-4x5(bar)', 'Invalid address range specification: 0-1-2-3-4x5', prefix)
-
-        # Invalid UDG spec
-        self._assert_error(writer, '#UDGARRAY1;0,5-(bar)', "Cannot parse integer '5-' in parameter string: '0,5-'", prefix)
-
-        # Invalid mask address range spec (1)
-        self._assert_error(writer, '#UDGARRAY1;0-2:0-2$(bar)', 'Invalid address range specification: 0-2$', prefix)
-
-        # Invalid mask address range spec (2)
-        self._assert_error(writer, '#UDGARRAY1;0-1x2:2-3x2x2(bar)', 'Invalid address range specification: 2-3x2x2', prefix)
-
-        # Invalid mask address range spec (3)
-        self._assert_error(writer, '#UDGARRAY1;0-1-2-3x9:4-5-6-7-8x9(bar)', 'Invalid address range specification: 4-5-6-7-8x9', prefix)
-
-        # Invalid UDG mask spec
-        self._assert_error(writer, '#UDGARRAY1;0,5:8,1x(bar)', "Cannot parse integer '1x' in parameter string: '8,1x'", prefix)
+        # Missing mask address range spec
+        self._assert_error(writer, '#UDGARRAY1;0:(foo)', 'Expected mask address range specification: #UDGARRAY1;0:', prefix)
 
         # Missing filename (1)
         self._assert_error(writer, '#UDGARRAY1;0', 'Missing filename: #UDGARRAY1;0', prefix)
@@ -4983,22 +4983,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
         self.assertNotIn('ExistingPage', writer.page_ids)
         self.assertIn('ExistingPage', writer.paths)
         self.assertTrue(writer.paths['ExistingPage'], 'asm/32768.html')
-
-    def test_get_udg_addresses(self):
-        writer = self._get_writer(snapshot=())
-        addr_specs = [
-            (0, 1, [0]),
-            ('1', 1, [1]),
-            ('2x3', 1, [2] * 3),
-            ('0-3', 1, [0, 1, 2, 3]),
-            ('0-2x3', 1, [0, 1, 2] * 3),
-            ('0-6-2', 1, [0, 2, 4, 6]),
-            ('0-6-3x2', 1, [0, 3, 6] * 2),
-            ('0-49-1-16', 2, [0, 1, 16, 17, 32, 33, 48, 49]),
-            ('0-528-8-256x4', 3, [0, 8, 16, 256, 264, 272, 512, 520, 528] * 4)
-        ]
-        for addr_spec, width, exp_addresses in addr_specs:
-            self.assertEqual(writer._get_udg_addresses(addr_spec, width), exp_addresses)
 
     def test_get_snapshot_name(self):
         writer = self._get_writer()

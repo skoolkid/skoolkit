@@ -3,7 +3,7 @@ import re
 import unittest
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit.skoolmacro import parse_ints, parse_params, MacroParsingError
+from skoolkit.skoolmacro import parse_ints, parse_params, parse_address_range, MacroParsingError
 
 class SkoolMacroTest(SkoolKitTestCase):
     def test_parse_ints_without_kwargs(self):
@@ -121,6 +121,31 @@ class SkoolMacroTest(SkoolKitTestCase):
         text = '*foo,3(bar,$4){baz}* etc.'
         result = parse_params(text, 0, except_chars=' ')
         self.assertEqual(result, (text.index(' '), '*foo,3(bar,$4){baz}*', None))
+
+    def test_parse_address_range(self):
+        addr_specs = [
+            ('1', 1, [1]),
+            ('2x3', 1, [2] * 3),
+            ('0-3', 1, [0, 1, 2, 3]),
+            ('0-2x3', 1, [0, 1, 2] * 3),
+            ('0-6-2', 1, [0, 2, 4, 6]),
+            ('0-6-3x2', 1, [0, 3, 6] * 2),
+            ('0-49-1-16', 2, [0, 1, 16, 17, 32, 33, 48, 49]),
+            ('0-528-8-256x4', 3, [0, 8, 16, 256, 264, 272, 512, 520, 528] * 4),
+
+            ('1+3', 1, [4]),
+            ('(1+3)', 1, [4]),
+            ('1-1+1', 2, [1, 2]),
+            ('1-(3-1)', 2, [1, 2]),
+            ('0-16-4*2', 3, [0, 8, 16]),
+            ('0-16-(4*2)', 3, [0, 8, 16]),
+            ('0-17-1-8+8', 2, [0, 1, 16, 17]),
+            ('0-17-1-(8+8)', 2, [0, 1, 16, 17]),
+            ('1x7/3', 2, [1, 1]),
+            ('1x(1+1)', 2, [1, 1])
+        ]
+        for addr_spec, width, exp_addresses in addr_specs:
+            self.assertEqual(exp_addresses, parse_address_range(addr_spec, width))
 
 if __name__ == '__main__':
     unittest.main()

@@ -1032,37 +1032,6 @@ class HtmlWriter:
         list_subs = {'class': list_obj.css_class, 'm_list_item': '\n'.join(items)}
         return self.format_template('list', list_subs)
 
-    def _get_udg_addresses(self, addr_spec, width):
-        if type(addr_spec) is int:
-            return [addr_spec]
-        num = 1
-        addr = addr_spec
-        if 'x' in addr:
-            addr, num = addr_spec.split('x', 1)
-            try:
-                num = get_int_param(num)
-            except ValueError:
-                raise MacroParsingError("Invalid address range specification: {}".format(addr_spec))
-        try:
-            elements = [get_int_param(n) for n in addr.split('-', 3)]
-        except ValueError:
-            raise MacroParsingError("Invalid address range specification: {}".format(addr_spec))
-        if len(elements) < 2:
-            elements.append(elements[0])
-        if len(elements) < 3:
-            elements.append(1)
-        if len(elements) < 4:
-            elements.append(elements[2] * width)
-        address, end_address, h_step, v_step = elements
-        addresses = []
-        while address <= end_address:
-            addresses.append(address)
-            if len(addresses) % width:
-                address += h_step
-            else:
-                address += v_step - (width - 1) * h_step
-        return addresses * num
-
     def img_element(self, cwd, image_path, alt=None):
         """Return an ``<img .../>`` element for an image file.
 
@@ -1151,8 +1120,12 @@ class HtmlWriter:
         if names:
             valid_chars += 'ghijklmnopqrstuvwxyz='
             num = len(names)
-        end, param_string, p_text = skoolmacro.parse_params(text, index, only_chars=valid_chars)
-        params = skoolmacro.get_params(param_string, num, defaults, ints, names)
+        if num or (index < len(text) and text[index] == '('):
+            end, param_string, p_text = skoolmacro.parse_params(text, index, only_chars=valid_chars)
+            params = skoolmacro.get_params(param_string, num, defaults, ints, names)
+        else:
+            end, param_string, p_text = index, '', None
+            params = []
 
         defaults = (0, 0, None, None)
         if end < len(text) and text[end] == '{':
@@ -1417,19 +1390,29 @@ class HtmlWriter:
         udg_array = [[]]
         has_masks = False
         while end < len(text) and text[end] == ';':
-            param_names = ('addr', 'attr', 'step', 'inc')
+            param_names = ('attr', 'step', 'inc')
             defaults = (attr, step, inc)
-            udg_params = self.parse_image_params(text, end + 1, defaults=defaults, chars='-x', ints=(1, 2, 3), names=param_names, **kwargs)
-            end, img_path, frame, alt, crop_rect, udg_addr, udg_attr, udg_step, udg_inc = udg_params
-            udg_addresses = self._get_udg_addresses(udg_addr, width)
+            end, udg_addr = skoolmacro.get_address_range(text, end + 1)
+            if udg_addr is None:
+                raise MacroParsingError('Expected UDG address range specification: #UDGARRAY{}'.format(text[index:end]))
+            if end < len(text) and text[end] == ',':
+                end += 1
+            end, udg_attr, udg_step, udg_inc = skoolmacro.parse_ints(text, end, defaults=defaults, names=param_names)
+            end, img_path, frame, alt, crop_rect = self.parse_image_params(text, end, **kwargs)
+            udg_addresses = skoolmacro.parse_address_range(udg_addr, width)
             mask_addresses = []
             if end < len(text) and text[end] == ':':
-                param_names = ('addr', 'step')
+                param_names = ('step',)
                 defaults = (udg_step,)
-                mask_params = self.parse_image_params(text, end + 1, defaults=defaults, chars='-x', ints=(1,), names=param_names, **kwargs)
-                end, img_path, frame, alt, crop_rect, mask_addr, mask_step = mask_params
+                end, mask_addr = skoolmacro.get_address_range(text, end + 1)
+                if mask_addr is None:
+                    raise MacroParsingError('Expected mask address range specification: #UDGARRAY{}'.format(text[index:end]))
+                if end < len(text) and text[end] == ',':
+                    end += 1
+                end, mask_step = skoolmacro.parse_ints(text, end, defaults=defaults, names=param_names)
+                end, img_path, frame, alt, crop_rect = self.parse_image_params(text, end, **kwargs)
                 if mask:
-                    mask_addresses = self._get_udg_addresses(mask_addr, width)
+                    mask_addresses = skoolmacro.parse_address_range(mask_addr, width)
             has_masks = has_masks or len(mask_addresses) > 0
             mask_addresses += [None] * (len(udg_addresses) - len(mask_addresses))
             for u, m in zip(udg_addresses, mask_addresses):
