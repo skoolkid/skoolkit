@@ -255,7 +255,7 @@ def expand_macros(macros, text, cwd=None):
         for m in re.finditer('#FOR(?![A-Z])', text):
             search = m
         if not search:
-            for m in re.finditer('#(PEEK|SUM)(?![A-Z])', text):
+            for m in re.finditer('#(MAP|PEEK|SUM)(?![A-Z])', text):
                 search = m
             if not search:
                 search = re.search('#[A-Z]+', text)
@@ -394,6 +394,22 @@ def parse_link(text, index):
     if sep:
         anchor = sep + anchor
     return end, page_id, anchor, link_text
+
+def parse_map(text, index):
+    # #MAPvalue(default,k1:v1[,k2:v2...])
+    end, value = parse_ints(text, index, 1)
+    if end >= len(text) or text[end] != '(':
+        raise MacroParsingError("No mappings provided: {}".format(text[index:end]))
+    closing = text.find(')', end + 1)
+    if closing < 0:
+        raise MacroParsingError("No closing bracket: {}".format(text[index:]))
+    default, _, mappings = text[end + 1:closing].partition(',')
+    m = {}
+    if mappings:
+        for pair in mappings.split(','):
+            k, v = pair.split(':', 1)
+            m[evaluate(k)] = v
+    return closing + 1, m.get(value, default)
 
 def parse_peek(text, index, snapshot):
     # #PEEKaddr or #PEEK(addr)

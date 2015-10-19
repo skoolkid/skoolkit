@@ -385,6 +385,58 @@ class AsmWriterTest(SkoolKitTestCase):
         # Blank link text
         self._assert_error(writer, '#LINK:PageID()', 'Blank link text: #LINK:PageID()', prefix)
 
+    def test_macro_map(self):
+        writer = self._get_writer()
+
+        # Key exists
+        output = writer.expand('#MAP2(?,1:a,2:b,3:c)')
+        self.assertEqual(output, 'b')
+
+        # Key doesn't exist
+        output = writer.expand('#MAP0(?,1:a,2:b,3:c)')
+        self.assertEqual(output, '?')
+
+        # No keys
+        output = writer.expand('#MAP5(*)')
+        self.assertEqual(output, '*')
+
+        # Blank default value and no keys
+        output = writer.expand('#MAP2()')
+        self.assertEqual(output, '')
+
+    def test_macro_map_nested(self):
+        writer = self._get_writer()
+
+        output = writer.expand('#MAP#MAP0(5,0:10,1:20)(,5:x,10:y,20:z)')
+        self.assertEqual(output, 'y')
+
+        output = writer.expand('#MAP3(1,2:Y,#MAP8(3,7:Q):Z)')
+        self.assertEqual(output, 'Z')
+
+    def test_macro_map_with_nested_peek_macro(self):
+        writer = self._get_writer()
+        writer.snapshot[0] = 23
+
+        output = writer.expand('#MAP#PEEK0(a,23:b,5:c)')
+        self.assertEqual(output, 'b')
+
+        output = writer.expand('#MAP23(1,#PEEK0:2,5:3)')
+        self.assertEqual(output, '2')
+
+    def test_macro_map_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('MAP')
+
+        # No parameters
+        self._assert_error(writer, '#MAP', "No parameters (expected 1)", prefix)
+
+        # No mappings
+        self._assert_error(writer, '#MAP0', "No mappings provided: 0", prefix)
+        self._assert_error(writer, '#MAP0 ()', "No mappings provided: 0", prefix)
+
+        # No closing bracket
+        self._assert_error(writer, '#MAP0(1,2:3', "No closing bracket: 0(1,2:3", prefix)
+
     def test_macro_peek(self):
         writer = self._get_writer()
         writer.snapshot[32768:32771] = [1, 2, 3]
