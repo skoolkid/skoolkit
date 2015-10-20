@@ -86,6 +86,9 @@ class MockSkoolParser:
     def get_entry(self, address):
         return self.entries.get(address)
 
+    def make_replacements(self, item):
+        pass
+
 class Skool2HtmlTest(SkoolKitTestCase):
     def setUp(self):
         global html_writer

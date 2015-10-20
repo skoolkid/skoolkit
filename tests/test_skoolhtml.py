@@ -159,6 +159,9 @@ class MockSkoolParser:
     def get_entry(self, address):
         return self.entries.get(address)
 
+    def make_replacements(self, item):
+        pass
+
 class MockFileInfo:
     def __init__(self):
         self.fname = None
@@ -239,6 +242,20 @@ class HtmlWriterTest(HtmlWriterTestCase):
             self.assertIn('Source', code)
             self.assertEqual(code['Source'], exp_source)
             i += 1
+
+    def test_replace_directive(self):
+        ref = '\n'.join((
+            '[Test]',
+            'Hello @all.',
+            'Goodbye @all.'
+        ))
+        skool = '\n'.join((
+            '@replace=/@all/everyone',
+            'c32768 RET'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+        section = writer.get_section('Test', lines=True)
+        self.assertEqual(['Hello everyone.', 'Goodbye everyone.'], section)
 
 class MethodTest(HtmlWriterTestCase):
     def setUp(self):

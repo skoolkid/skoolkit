@@ -100,6 +100,7 @@ class HtmlWriter:
     def __init__(self, skool_parser, ref_parser, file_info=None, case=None, code_id=MAIN_CODE_ID):
         self.parser = skool_parser
         self.ref_parser = ref_parser
+        skool_parser.make_replacements(ref_parser)
         self.defaults = RefParser()
         self.defaults.parse(StringIO(REF_FILE))
         self.file_info = file_info

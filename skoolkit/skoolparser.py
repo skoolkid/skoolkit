@@ -417,7 +417,7 @@ class SkoolParser:
 
         # Do some post-processing
         parse_address_comments(address_comments, self.mode.html)
-        self.apply_replacements(self.memory_map)
+        self.make_replacements(self)
         self._calculate_references()
         if self.mode.asm_labels:
             self._generate_labels()
@@ -434,10 +434,13 @@ class SkoolParser:
         except IndexError:
             pass
 
-    def apply_replacements(self, items):
+    def apply_replacements(self, repf):
+        for entry in self.memory_map:
+            entry.apply_replacements(repf)
+
+    def make_replacements(self, item):
         if self._replacements:
-            for item in items:
-                item.apply_replacements(self._replace)
+            item.apply_replacements(self._replace)
 
     def _replace(self, text):
         for pattern, rep in self._replacements:

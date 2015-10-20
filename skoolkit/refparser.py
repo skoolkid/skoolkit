@@ -60,6 +60,10 @@ class RefParser:
         else:
             self._sections[section_name] = [line]
 
+    def apply_replacements(self, repf):
+        for name in self._sections:
+            self._sections[name] = [repf(line) for line in self._sections[name]]
+
     def has_section(self, section_name):
         """Return whether there is any section named `section_name`."""
         return section_name in self._sections
