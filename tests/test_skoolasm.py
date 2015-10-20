@@ -289,17 +289,45 @@ class AsmWriterTest(SkoolKitTestCase):
     def test_macro_for(self):
         writer = self._get_writer()
 
+        # Default step
         output = writer.expand('#FOR1,3(n,n)')
         self.assertEqual(output, '123')
 
-        output = writer.expand('#FOR1,5,2[$n,:$n]')
-        self.assertEqual(output, ':1:3:5')
+        # Step
+        output = writer.expand('#FOR1,5,2(n,n)')
+        self.assertEqual(output, '135')
 
-        output = writer.expand('1, #FOR4,10,3{@n,@n, }13')
-        self.assertEqual(output, '1, 4, 7, 10, 13')
-
-        output = writer.expand('(1)#FOR5,13,4/n,, (n)/')
+        # Commas in output
+        output = writer.expand('(1)#FOR5,13,4//n/, (n)//')
         self.assertEqual(output, '(1), (5), (9), (13)')
+
+        # Alternative delimiters
+        delimiters = {'[': ']', '{': '}'}
+        for delim1 in '[{/|':
+            delim2 = delimiters.get(delim1, delim1)
+            output = writer.expand('1; #FOR4,10,3{}@n,@n; {}13'.format(delim1, delim2))
+            self.assertEqual(output, '1; 4; 7; 10; 13')
+
+        # Arithmetic expression in 'start' parameter
+        output = writer.expand('#FOR10-9,3(n,n)')
+        self.assertEqual(output, '123')
+
+        # Arithmetic expression in 'stop' parameter
+        output = writer.expand('#FOR1,6/2(n,n)')
+        self.assertEqual(output, '123')
+
+        # Arithmetic expression in 'step' parameter
+        output = writer.expand('#FOR1,13,2*3(n,[n])')
+        self.assertEqual(output, '[1][7][13]')
+
+    def test_macro_for_with_separator(self):
+        writer = self._get_writer()
+
+        output = writer.expand('{ #FOR1,5(n,n, | ) }')
+        self.assertEqual(output, '{ 1 | 2 | 3 | 4 | 5 }')
+
+        output = writer.expand('#FOR6,10//n/(n)/, //')
+        self.assertEqual(output, '(6), (7), (8), (9), (10)')
 
     def test_macro_for_nested(self):
         writer = self._get_writer()
@@ -310,7 +338,7 @@ class AsmWriterTest(SkoolKitTestCase):
     def test_macro_for_with_nested_map_macro(self):
         writer = self._get_writer()
 
-        output = writer.expand('#FOR0,2(m,{#MAPm[,0:2,1:3,2:5]})')
+        output = writer.expand('#FOR0,2//m/{#MAPm[,0:2,1:3,2:5]}//')
         self.assertEqual(output, '{2}{3}{5}')
 
     def test_macro_for_with_nested_peek_macro(self):
@@ -330,11 +358,9 @@ class AsmWriterTest(SkoolKitTestCase):
         # Not enough parameters
         self._assert_error(writer, '#FOR0', "Not enough parameters (expected 2): '0'", prefix)
 
-        # No variable parameter
-        self._assert_error(writer, '#FOR0,1', 'No variable or string parameter', prefix)
-
-        # No string parameter
-        self._assert_error(writer, '#FOR0,1(n)', "No string parameter: (n)", prefix)
+        # No variable name
+        self._assert_error(writer, '#FOR0,1', 'No variable name: 0,1', prefix)
+        self._assert_error(writer, '#FOR0,1()', "No variable name: 0,1()", prefix)
 
         # No terminating delimiter
         self._assert_error(writer, '#FOR0,1(n,n', 'No terminating delimiter: (n,n', prefix)
@@ -398,6 +424,10 @@ class AsmWriterTest(SkoolKitTestCase):
         # Key doesn't exist
         output = writer.expand('#MAP0(?,1:a,2:b,3:c)')
         self.assertEqual(output, '?')
+
+        # Blank default and no keys
+        output = writer.expand('#MAP1()')
+        self.assertEqual(output, '')
 
         # No keys
         output = writer.expand('#MAP5(*)')

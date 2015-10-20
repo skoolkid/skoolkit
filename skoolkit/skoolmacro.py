@@ -220,16 +220,23 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
             params[i] = defaults[i - req]
     return params
 
-def get_text_param(text, index, error=None):
+def get_text_param(text, index, split=False, error=None):
     if index >= len(text) or text[index].isspace():
         raise MacroParsingError(error or "No text parameter")
+    sep = ','
     delim1 = text[index]
     delim2 = DELIMITERS.get(delim1, delim1)
-    start = index + 1
+    if split and delim1 == delim2 and index + 1 < len(text) and text[index + 1] == delim1:
+        sep = delim1
+        delim1 = delim2 = delim1 + delim1
+    start = index + len(delim1)
     end = text.find(delim2, start)
     if end < start:
         raise MacroParsingError("No terminating delimiter: {}".format(text[index:]))
-    return end + 1, text[start:end]
+    args = text[start:end]
+    if args and split:
+        args = args.split(sep)
+    return end + len(delim2), args
 
 class UnsupportedMacroError(SkoolKitError):
     pass
@@ -365,14 +372,13 @@ def parse_fact(text, index):
     return parse_item_macro(text, index, '#FACT', 'fact')
 
 def parse_for(text, index):
-    # #FORstart,stop[,step](var,string)
-    range_end, start, stop, step = parse_ints(text, index, 3, (1,))
-    end, args = get_text_param(text, range_end, 'No variable or string parameter')
-    try:
-        var, s = args.split(',', 1)
-    except ValueError:
-        raise MacroParsingError("No string parameter: {}".format(text[range_end:end]))
-    return end, ''.join([s.replace(var, str(n)) for n in range(start, stop + 1, step)])
+    # #FORstart,stop[,step](var,string[,sep])
+    end, start, stop, step = parse_ints(text, index, 3, (1,))
+    end, args = get_text_param(text, end, True, 'No variable name: {}'.format(text[index:end]))
+    if not args:
+        raise MacroParsingError("No variable name: {}".format(text[index:end]))
+    var, s, sep = (args + [''] * (3 - len(args)))[:3]
+    return end, sep.join([s.replace(var, str(n)) for n in range(start, stop + 1, step)])
 
 def parse_html(text, index):
     # #HTML(text)
@@ -398,11 +404,14 @@ def parse_link(text, index):
 def parse_map(text, index):
     # #MAPvalue(default,k1:v1[,k2:v2...])
     end, value = parse_ints(text, index, 1)
-    end, args = get_text_param(text, end, "No mappings provided: {}".format(text[index:end]))
-    default, _, mappings = args.partition(',')
+    end, args = get_text_param(text, end, True, "No mappings provided: {}".format(text[index:end]))
+    if args:
+        default = args.pop(0)
+    else:
+        default = ''
     m = {}
-    if mappings:
-        for pair in mappings.split(','):
+    if args:
+        for pair in args:
             k, v = pair.split(':', 1)
             m[evaluate(k)] = v
     return end, m.get(value, default)

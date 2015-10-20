@@ -13,7 +13,7 @@ i 23296
 @ 24576 start
 @ 24576 org=24576
 @ 24576 replace=/#sprite(\d+),(\d+)/#UDGARRAY2,\2;\1-\1+24-8
-@ 24576 replace=/#fruit(\d+)/#UDGARRAY2#FOR\1,\1+27,9(n,;n+1,#PEEKn)
+@ 24576 replace=/#fruit(\d+)/#UDGARRAY2#FOR\1,\1+27,9||n|;n+1,#PEEKn||
 @ 24576 set-handle-unsupported-macros=1
 c 24576 The game has just loaded
 c 25167
