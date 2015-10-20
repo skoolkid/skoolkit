@@ -1123,6 +1123,12 @@ class SkoolMacroTest(HtmlWriterTestCase):
         output = writer.expand('#FOR1,3(&n,#FOR4,6[&m,&n.&m ])', ASMDIR)
         self.assertEqual(output, '1.4 1.5 1.6 2.4 2.5 2.6 3.4 3.5 3.6 ')
 
+    def test_macro_for_with_nested_map_macro(self):
+        writer = self._get_writer()
+
+        output = writer.expand('#FOR0,2(m,{#MAPm[,0:2,1:3,2:5]})', ASMDIR)
+        self.assertEqual(output, '{2}{3}{5}')
+
     def test_macro_for_with_nested_peek_macro(self):
         writer = self._get_writer(snapshot=[1, 2, 3])
 
@@ -1279,6 +1285,17 @@ class SkoolMacroTest(HtmlWriterTestCase):
         output = writer.expand('#MAP2()', ASMDIR)
         self.assertEqual(output, '')
 
+        # Arithmetic expression in 'value' parameter
+        output = writer.expand('#MAP2*3+8/2-4(?,6:OK)', ASMDIR)
+        self.assertEqual(output, 'OK')
+
+        # Alternative delimiters
+        delimiters = {'[': ']', '{': '}'}
+        for delim1 in '[{/|':
+            delim2 = delimiters.get(delim1, delim1)
+            output = writer.expand('#MAP1{}?,0:A,1:OK,2:C{}'.format(delim1, delim2), ASMDIR)
+            self.assertEqual(output, 'OK')
+
     def test_macro_map_nested(self):
         writer = self._get_writer()
 
@@ -1309,7 +1326,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self._assert_error(writer, '#MAP0 ()', "No mappings provided: 0", prefix)
 
         # No closing bracket
-        self._assert_error(writer, '#MAP0(1,2:3', "No closing bracket: 0(1,2:3", prefix)
+        self._assert_error(writer, '#MAP0(1,2:3', "No terminating delimiter: (1,2:3", prefix)
 
     def test_macro_peek(self):
         writer = self._get_writer(snapshot=[1, 2, 3])

@@ -221,7 +221,7 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
     return params
 
 def get_text_param(text, index, error=None):
-    if index >= len(text):
+    if index >= len(text) or text[index].isspace():
         raise MacroParsingError(error or "No text parameter")
     delim1 = text[index]
     delim2 = DELIMITERS.get(delim1, delim1)
@@ -398,18 +398,14 @@ def parse_link(text, index):
 def parse_map(text, index):
     # #MAPvalue(default,k1:v1[,k2:v2...])
     end, value = parse_ints(text, index, 1)
-    if end >= len(text) or text[end] != '(':
-        raise MacroParsingError("No mappings provided: {}".format(text[index:end]))
-    closing = text.find(')', end + 1)
-    if closing < 0:
-        raise MacroParsingError("No closing bracket: {}".format(text[index:]))
-    default, _, mappings = text[end + 1:closing].partition(',')
+    end, args = get_text_param(text, end, "No mappings provided: {}".format(text[index:end]))
+    default, _, mappings = args.partition(',')
     m = {}
     if mappings:
         for pair in mappings.split(','):
             k, v = pair.split(':', 1)
             m[evaluate(k)] = v
-    return closing + 1, m.get(value, default)
+    return end, m.get(value, default)
 
 def parse_peek(text, index, snapshot):
     # #PEEKaddr or #PEEK(addr)
