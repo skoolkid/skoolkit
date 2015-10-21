@@ -1110,8 +1110,14 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # Too many parameters
         self._assert_error(writer, '#FONT0,1,2,3,4,5', "Too many parameters (expected 4): '0,1,2,3,4,5'", prefix)
 
+        # Too many parameters in cropping specification
+        self._assert_error(writer, '#FONT0{0,0,23,14,5}(foo)', "Too many parameters (expected 4): '0,0,23,14,5'", prefix)
+
+        # No closing brace on cropping specification
+        self._assert_error(writer, '#FONT0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
+
         # No closing bracket
-        self._assert_error(writer, '#FONT(foo', 'No closing bracket: (foo', prefix)
+        self._assert_error(writer, '#FONT0(foo', 'No closing bracket: (foo', prefix)
 
         # Empty message
         self._assert_error(writer, '#FONT:()0', 'Empty message: ()', prefix)

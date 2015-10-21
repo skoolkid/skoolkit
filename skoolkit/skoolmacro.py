@@ -408,6 +408,20 @@ def parse_fact(text, index):
     # #FACT[#name][(link text)]
     return parse_item_macro(text, index, '#FACT', 'fact')
 
+def parse_font(text, index):
+    # #FONT[:(text)]addr[,chars,attr,scale][{x,y,width,height}][(fname)]
+    if index < len(text) and text[index] == ':':
+        index, message = get_text_param(text, index + 1)
+        if not message:
+            raise MacroParsingError("Empty message: {}".format(text[index - 2:index]))
+    else:
+        message = ''.join([chr(n) for n in range(32, 128)])
+    names = ('addr', 'chars', 'attr', 'scale')
+    defaults = (len(message), 56, 2)
+    end, crop_rect, fname, frame, alt, params = parse_image_macro(text, index, defaults, names, 'font')
+    params.insert(0, message)
+    return end, crop_rect, fname, frame, alt, params
+
 def parse_for(text, index):
     # #FORstart,stop[,step](var,string[,sep])
     end, start, stop, step = parse_ints(text, index, 3, (1,))

@@ -1196,18 +1196,9 @@ class HtmlWriter:
         return end, self._expand_item_macro(item, link_text, cwd, self.facts, P_FACTS)
 
     def expand_font(self, text, index, cwd):
-        # #FONT[:(text)]addr[,chars,attr,scale][{x,y,width,height}][(fname)]
-        if index < len(text) and text[index] == ':':
-            index, message = skoolmacro.get_text_param(text, index + 1)
-            if not message:
-                raise MacroParsingError("Empty message: {}".format(text[index - 2:index]))
-        else:
-            message = ''.join([chr(n) for n in range(32, 128)])
-
-        param_names = ('addr', 'chars', 'attr', 'scale')
-        defaults = (len(message), 56, 2)
-        params = self.parse_image_params(text, index, defaults=defaults, path_id='FontImagePath', fname='font', names=param_names, frame=True, alt=True)
-        end, img_path, frame, alt, crop_rect, addr, chars, attr, scale = params
+        end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)
+        message, addr, chars, attr, scale = params
+        img_path = self.image_path(fname, 'FontImagePath')
         need_image = img_path and self.need_image(img_path)
         if frame or need_image:
             udg_array = self.get_font_udg_array(addr, attr, message[:chars])

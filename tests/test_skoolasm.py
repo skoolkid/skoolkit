@@ -276,9 +276,10 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_macro_font(self):
         writer = self._get_writer()
-        self._test_unsupported_macro(writer, '#FONT55584,,,,1{1,2}')
+        self._test_unsupported_macro(writer, '#FONT55584,,,1{1,2}')
         self._test_unsupported_macro(writer, '#FONT:[foo]0,,5')
-        self._test_unsupported_macro(writer, '#FONTaddr=32768,3,scale=4{x=1,width=26}(chars)')
+        self._test_unsupported_macro(writer, '#FONT32768,3,scale=4{x=1,width=26}(chars)')
+        self._test_unsupported_macro(writer, '#FONT32768+1,10-6,7*8,4/2(foo)')
 
     def test_macro_font_invalid(self):
         writer = self._get_writer()

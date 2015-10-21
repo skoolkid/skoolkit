@@ -173,12 +173,8 @@ class AsmWriter:
         return end, link_text or 'fact'
 
     def expand_font(self, text, index):
-        # #FONT[:(text)]addr[,chars,attr,scale][{x,y,width,height}][(fname)]
         if self.handle_unsupported_macros:
-            if index < len(text) and text[index] == ':':
-                index, message = skoolmacro.get_text_param(text, index + 1)
-            end, params, p_text = skoolmacro.parse_params(text, index, chars='=,{}')
-            return end, ''
+            return skoolmacro.parse_font(text, index)[0], ''
         raise UnsupportedMacroError()
 
     def expand_for(self, text, index):
