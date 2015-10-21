@@ -645,3 +645,31 @@ def parse_udgarray(text, index, udg_class=None, snapshot=None):
     end, crop_rect = _parse_crop_spec(text, end)
     end, fname, frame, alt = _parse_image_fname(text, end)
     return end, crop_rect, fname, frame, alt, (udg_array, scale, flip, rotate, mask)
+
+def parse_udgarray_with_frames(text, index, frame_map=None):
+    # #UDGARRAY*frame1[,delay];frame2[,delay];...(fname)
+    end, frame_params, fname = parse_params(text, index, except_chars=' (')
+    if not fname:
+        raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
+    alt = None
+    if '|' in fname:
+        fname, alt = fname.split('|', 1)
+    frames = []
+    default_delay = 32 # 0.32s
+    for frame_param in frame_params[1:].split(';'):
+        elements = frame_param.rsplit(',', 1)
+        if len(elements) == 2:
+            frame_id = elements[0]
+            delay = default_delay = parse_ints(elements[1], names=('delay',))[1]
+        else:
+            frame_id = frame_param
+            delay = default_delay
+        if not frame_id:
+            raise MacroParsingError('Missing frame ID: #UDGARRAY{}'.format(text[index:end]))
+        if frame_map is not None:
+            if frame_id not in frame_map:
+                raise MacroParsingError('No such frame: "{}"'.format(frame_id))
+            frame = frame_map[frame_id]
+            frame.delay = delay
+            frames.append(frame)
+    return end, fname, alt, frames

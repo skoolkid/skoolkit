@@ -1328,33 +1328,9 @@ class HtmlWriter:
         return end, ''
 
     def _expand_udgarray_with_frames(self, text, index, cwd):
-        # #UDGARRAY*frame1[,delay];frame2[,delay];...(fname)
-        end, frame_params, fname = skoolmacro.parse_params(text, index, except_chars=' (')
-        if not fname:
-            raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
-        alt = None
-        if '|' in fname:
-            fname, alt = fname.split('|', 1)
+        end, fname, alt, frames = skoolmacro.parse_udgarray_with_frames(text, index, self.frames)
         img_path = self.image_path(fname, 'UDGImagePath')
         if self.need_image(img_path):
-            frames = []
-            default_delay = 32 # 0.32s
-            for frame_param in frame_params[1:].split(';'):
-                elements = frame_param.rsplit(',', 1)
-                if len(elements) == 2:
-                    frame_id = elements[0]
-                    delay = default_delay = skoolmacro.parse_ints(elements[1], names=('delay',))[1]
-                else:
-                    frame_id = frame_param
-                    delay = default_delay
-                if not frame_id:
-                    raise MacroParsingError('Missing frame ID: #UDGARRAY{}'.format(text[index:end]))
-                try:
-                    frame = self.frames[frame_id]
-                except KeyError:
-                    raise MacroParsingError('No such frame: "{}"'.format(frame_id))
-                frame.delay = delay
-                frames.append(frame)
             self.write_animated_image(img_path, frames)
         return end, self.img_element(cwd, img_path, alt)
 

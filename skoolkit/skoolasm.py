@@ -248,11 +248,9 @@ class AsmWriter:
         raise UnsupportedMacroError()
 
     def expand_udgarray(self, text, index):
-        # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];addr[,attr,step,inc][:addr[,step]];...[{x,y,width,height}](fname)
-        # #UDGARRAY*frame1[,delay];frame2[,delay];...(fname)
         if self.handle_unsupported_macros:
             if index < len(text) and text[index] == '*':
-                end, params, p_text = skoolmacro.parse_params(text, index, except_chars=' (')
+                end = skoolmacro.parse_udgarray_with_frames(text, index)[0]
             else:
                 end = skoolmacro.parse_udgarray(text, index)[0]
             return end, ''
