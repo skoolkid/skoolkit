@@ -114,6 +114,12 @@ def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars
         p_text = text[index + 1:end - 1]
     return end, params, p_text
 
+def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
+    result = parse_ints(text, index, defaults=defaults, names=names)
+    end, crop_rect = _parse_crop_spec(text, result[0])
+    end, fname, frame, alt = _parse_image_fname(text, end, fname)
+    return end, crop_rect, fname, frame, alt, result[1:]
+
 def get_address_range(text, index):
     match = re.match(ADDR_RANGE, text[index:])
     if match:
@@ -147,7 +153,7 @@ def parse_address_range(spec, width):
 
     return addresses * num
 
-def parse_crop_spec(text, index):
+def _parse_crop_spec(text, index):
     defaults = (0, 0, None, None)
     if index < len(text) and text[index] == '{':
         param_names = ('x', 'y', 'width', 'height')
@@ -157,14 +163,13 @@ def parse_crop_spec(text, index):
         raise MacroParsingError("No closing brace on cropping specification: {}".format(text[index:]))
     return index, defaults
 
-def parse_image_fname(text, index):
+def _parse_image_fname(text, index, fname=''):
     if index >= len(text) or text[index] != '(':
-        return index, None, None, None
+        return index, fname, None, None
     end = text.find(')', index)
     if end < 0:
         raise MacroParsingError('No closing bracket: {}'.format(text[index:]))
     p_text = text[index + 1:end]
-    fname = ''
     alt = frame = None
     if p_text:
         if '|' in p_text:
@@ -552,6 +557,12 @@ def parse_reg(text, index, lower):
         return end, reg.lower()
     return end, reg.upper()
 
+def parse_scr(text, index):
+    # #SCR[scale,x,y,w,h,df,af][{x,y,width,height}][(fname)]
+    names = ('scale', 'x', 'y', 'w', 'h', 'df', 'af')
+    defaults = (1, 0, 0, 32, 24, 16384, 22528)
+    return parse_image_macro(text, index, defaults, names, 'scr')
+
 def parse_space(text, index):
     # #SPACE[num] or #SPACE([num])
     if index < len(text) and text[index] == '(':
@@ -572,6 +583,6 @@ def parse_udg(text, index):
     else:
         mask_addr = mask_step = None
         mask = 0
-    end, crop_rect = parse_crop_spec(text, end)
-    end, fname, frame, alt = parse_image_fname(text, end)
-    return end, (addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step, crop_rect, fname, frame, alt)
+    end, crop_rect = _parse_crop_spec(text, end)
+    end, fname, frame, alt = _parse_image_fname(text, end)
+    return end, crop_rect, fname, frame, alt, (addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step)

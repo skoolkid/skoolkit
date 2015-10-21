@@ -1286,11 +1286,9 @@ class HtmlWriter:
         return end, self.format_template('reg', {'reg': reg})
 
     def expand_scr(self, text, index, cwd):
-        # #SCR[scale,x,y,w,h,df,af][{x,y,width,height}][(fname)]
-        param_names = ('scale', 'x', 'y', 'w', 'h', 'df', 'af')
-        defaults = (1, 0, 0, 32, 24, 16384, 22528)
-        params = self.parse_image_params(text, index, defaults=defaults, path_id='ScreenshotImagePath', fname='scr', names=param_names, frame=True, alt=True)
-        end, scr_path, frame, alt, crop_rect, scale, x, y, w, h, df, af = params
+        end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(text, index)
+        scale, x, y, w, h, df, af = params
+        scr_path = self.image_path(fname, 'ScreenshotImagePath')
         need_image = scr_path and self.need_image(scr_path)
         if frame or need_image:
             udgs = self.screenshot(x, y, w, h, df, af)
@@ -1312,8 +1310,8 @@ class HtmlWriter:
         return end, self.build_table(table)
 
     def expand_udg(self, text, index, cwd):
-        end, udg_params = skoolmacro.parse_udg(text, index)
-        addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step, crop_rect, fname, frame, alt = udg_params
+        end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udg(text, index)
+        addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step = params
         udg_path = self.image_path(fname, 'UDGImagePath')
         if not udg_path and not frame:
             udg_fname = 'udg{}_{}x{}'.format(addr, attr, scale)

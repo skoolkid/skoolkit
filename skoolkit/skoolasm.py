@@ -238,10 +238,8 @@ class AsmWriter:
         return skoolmacro.parse_reg(text, index, self.lower)
 
     def expand_scr(self, text, index):
-        # #SCR[scale,x,y,w,h,df,af][{x,y,width,height}][(fname)]
         if self.handle_unsupported_macros:
-            end, params, p_text = skoolmacro.parse_params(text, index, chars='=,{}')
-            return end, ''
+            return skoolmacro.parse_scr(text, index)[0], ''
         raise UnsupportedMacroError()
 
     def expand_space(self, text, index):
@@ -250,8 +248,7 @@ class AsmWriter:
 
     def expand_udg(self, text, index):
         if self.handle_unsupported_macros:
-            end, udg_params = skoolmacro.parse_udg(text, index)
-            return end, ''
+            return skoolmacro.parse_udg(text, index)[0], ''
         raise UnsupportedMacroError()
 
     def expand_udgarray(self, text, index):
