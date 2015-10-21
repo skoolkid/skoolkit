@@ -1312,18 +1312,9 @@ class HtmlWriter:
         return end, self.build_table(table)
 
     def expand_udg(self, text, index, cwd):
-        # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:addr[,step]][{x,y,width,height}][(fname)]
-        path_id = 'UDGImagePath'
-        param_names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
-        defaults = (56, 4, 1, 0, 0, 0, 1)
-        udg_params = self.parse_image_params(text, index, defaults=defaults, path_id=path_id, names=param_names, frame=True, alt=True)
-        end, udg_path, frame, alt, crop_rect, addr, attr, scale, step, inc, flip, rotate, mask = udg_params
-        if end < len(text) and text[end] == ':':
-            mask_params = self.parse_image_params(text, end + 1, defaults=(step,), path_id=path_id, names=('addr', 'step'), frame=True, alt=True)
-            end, udg_path, frame, alt, crop_rect, mask_addr, mask_step = mask_params
-        else:
-            mask_params = None
-            mask = 0
+        end, udg_params = skoolmacro.parse_udg(text, index)
+        addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step, crop_rect, fname, frame, alt = udg_params
+        udg_path = self.image_path(fname, 'UDGImagePath')
         if not udg_path and not frame:
             udg_fname = 'udg{}_{}x{}'.format(addr, attr, scale)
             udg_path = self.image_path(udg_fname)
@@ -1333,7 +1324,7 @@ class HtmlWriter:
         if frame or need_image:
             udg_bytes = [(self.snapshot[addr + n * step] + inc) % 256 for n in range(8)]
             mask_bytes = None
-            if mask and mask_params:
+            if mask and mask_addr is not None:
                 mask_bytes = self.snapshot[mask_addr:mask_addr + 8 * mask_step:mask_step]
             udg = Udg(attr, udg_bytes, mask_bytes)
             udg.flip(flip)

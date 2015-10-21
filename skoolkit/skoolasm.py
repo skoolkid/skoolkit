@@ -249,9 +249,8 @@ class AsmWriter:
         return end, ' ' * num_sp
 
     def expand_udg(self, text, index):
-        # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:addr[,step]][{x,y,width,height}][(fname)]
         if self.handle_unsupported_macros:
-            end, params, p_text = skoolmacro.parse_params(text, index, chars='=,:{}')
+            end, udg_params = skoolmacro.parse_udg(text, index)
             return end, ''
         raise UnsupportedMacroError()
 

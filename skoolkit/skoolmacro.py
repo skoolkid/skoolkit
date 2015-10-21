@@ -147,6 +147,38 @@ def parse_address_range(spec, width):
 
     return addresses * num
 
+def parse_crop_spec(text, index):
+    defaults = (0, 0, None, None)
+    if index < len(text) and text[index] == '{':
+        param_names = ('x', 'y', 'width', 'height')
+        end, x, y, width, height = parse_ints(text, index + 1, defaults=defaults, names=param_names)
+        if end < len(text) and text[end] == '}':
+            return end + 1, (x, y, width, height)
+        raise MacroParsingError("No closing brace on cropping specification: {}".format(text[index:]))
+    return index, defaults
+
+def parse_image_fname(text, index):
+    if index >= len(text) or text[index] != '(':
+        return index, None, None, None
+    end = text.find(')', index)
+    if end < 0:
+        raise MacroParsingError('No closing bracket: {}'.format(text[index:]))
+    p_text = text[index + 1:end]
+    fname = ''
+    alt = frame = None
+    if p_text:
+        if '|' in p_text:
+            p_text, alt = p_text.split('|', 1)
+        if '*' in p_text:
+            p_text, frame = p_text.split('*', 1)
+        if p_text:
+            fname = p_text
+        elif frame:
+            fname = ''
+        if frame == '':
+            frame = fname
+    return end + 1, fname, frame, alt
+
 def evaluate(param):
     try:
         return eval(re.sub('\$([0-9a-fA-F]+)', r'int("\1",16)', param).replace('/', '//'))
@@ -529,3 +561,17 @@ def parse_space(text, index):
         except ValueError:
             raise MacroParsingError("Invalid integer: '{}'".format(num_str))
     return parse_ints(text, index, 1, (1,))
+
+def parse_udg(text, index):
+    # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:addr[,step]][{x,y,width,height}][(fname)]
+    param_names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
+    defaults = (56, 4, 1, 0, 0, 0, 1)
+    end, addr, attr, scale, step, inc, flip, rotate, mask = parse_ints(text, index, defaults=defaults, names=param_names)
+    if end < len(text) and text[end] == ':':
+        end, mask_addr, mask_step = parse_ints(text, end + 1, defaults=(step,), names=('addr', 'step'))
+    else:
+        mask_addr = mask_step = None
+        mask = 0
+    end, crop_rect = parse_crop_spec(text, end)
+    end, fname, frame, alt = parse_image_fname(text, end)
+    return end, (addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step, crop_rect, fname, frame, alt)
