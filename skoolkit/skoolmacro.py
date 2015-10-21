@@ -589,9 +589,9 @@ def parse_space(text, index):
 
 def parse_udg(text, index):
     # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:addr[,step]][{x,y,width,height}][(fname)]
-    param_names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
+    names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
     defaults = (56, 4, 1, 0, 0, 0, 1)
-    end, addr, attr, scale, step, inc, flip, rotate, mask = parse_ints(text, index, defaults=defaults, names=param_names)
+    end, addr, attr, scale, step, inc, flip, rotate, mask = parse_ints(text, index, defaults=defaults, names=names)
     if end < len(text) and text[end] == ':':
         end, mask_addr, mask_step = parse_ints(text, end + 1, defaults=(step,), names=('addr', 'step'))
     else:
@@ -600,3 +600,48 @@ def parse_udg(text, index):
     end, crop_rect = _parse_crop_spec(text, end)
     end, fname, frame, alt = _parse_image_fname(text, end)
     return end, crop_rect, fname, frame, alt, (addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step)
+
+def parse_udgarray(text, index, udg_class=None, snapshot=None):
+    # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];addr[,attr,step,inc][:addr[,step]];...[{x,y,width,height}](fname)
+    names = ('width', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
+    defaults = (56, 2, 1, 0, 0, 0, 1)
+    end, width, attr, scale, step, inc, flip, rotate, mask = parse_ints(text, index, defaults=defaults, names=names)
+    udg_array = [[]]
+    has_masks = False
+    while end < len(text) and text[end] == ';':
+        names = ('attr', 'step', 'inc')
+        defaults = (attr, step, inc)
+        end, udg_addr = get_address_range(text, end + 1)
+        if udg_addr is None:
+            raise MacroParsingError('Expected UDG address range specification: #UDGARRAY{}'.format(text[index:end]))
+        if end < len(text) and text[end] == ',':
+            end += 1
+        end, udg_attr, udg_step, udg_inc = parse_ints(text, end, defaults=defaults, names=names)
+        udg_addresses = parse_address_range(udg_addr, width)
+        mask_addresses = []
+        if end < len(text) and text[end] == ':':
+            end, mask_addr = get_address_range(text, end + 1)
+            if mask_addr is None:
+                raise MacroParsingError('Expected mask address range specification: #UDGARRAY{}'.format(text[index:end]))
+            if end < len(text) and text[end] == ',':
+                end += 1
+            end, mask_step = parse_ints(text, end, defaults=(udg_step,), names=('step',))
+            if mask:
+                mask_addresses = parse_address_range(mask_addr, width)
+        if udg_class:
+            has_masks = has_masks or len(mask_addresses) > 0
+            mask_addresses += [None] * (len(udg_addresses) - len(mask_addresses))
+            for u, m in zip(udg_addresses, mask_addresses):
+                udg_bytes = [(snapshot[u + n * udg_step] + udg_inc) % 256 for n in range(8)]
+                udg = udg_class(udg_attr, udg_bytes)
+                if m is not None and mask:
+                    udg.mask = [snapshot[m + n * mask_step] for n in range(8)]
+                if len(udg_array[-1]) == width:
+                    udg_array.append([udg])
+                else:
+                    udg_array[-1].append(udg)
+    if not has_masks:
+        mask = 0
+    end, crop_rect = _parse_crop_spec(text, end)
+    end, fname, frame, alt = _parse_image_fname(text, end)
+    return end, crop_rect, fname, frame, alt, (udg_array, scale, flip, rotate, mask)

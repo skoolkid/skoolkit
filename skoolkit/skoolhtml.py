@@ -1328,6 +1328,7 @@ class HtmlWriter:
         return end, ''
 
     def _expand_udgarray_with_frames(self, text, index, cwd):
+        # #UDGARRAY*frame1[,delay];frame2[,delay];...(fname)
         end, frame_params, fname = skoolmacro.parse_params(text, index, except_chars=' (')
         if not fname:
             raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
@@ -1358,55 +1359,12 @@ class HtmlWriter:
         return end, self.img_element(cwd, img_path, alt)
 
     def expand_udgarray(self, text, index, cwd):
-        # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];addr[,attr,step,inc][:addr[,step]];...[{x,y,width,height}](fname)
-        # #UDGARRAY*frame1[,delay];frame2[,delay];...(fname)
         if index < len(text) and text[index] == '*':
             return self._expand_udgarray_with_frames(text, index, cwd)
 
-        param_names = ('width', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
-        defaults = (56, 2, 1, 0, 0, 0, 1)
-        kwargs = {'path_id': 'UDGImagePath', 'frame': True, 'alt': True}
-        udg_array_params = self.parse_image_params(text, index, defaults=defaults, names=param_names, **kwargs)
-        end, img_path, frame, alt, crop_rect, width, attr, scale, step, inc, flip, rotate, mask = udg_array_params
-        udg_array = [[]]
-        has_masks = False
-        while end < len(text) and text[end] == ';':
-            param_names = ('attr', 'step', 'inc')
-            defaults = (attr, step, inc)
-            end, udg_addr = skoolmacro.get_address_range(text, end + 1)
-            if udg_addr is None:
-                raise MacroParsingError('Expected UDG address range specification: #UDGARRAY{}'.format(text[index:end]))
-            if end < len(text) and text[end] == ',':
-                end += 1
-            end, udg_attr, udg_step, udg_inc = skoolmacro.parse_ints(text, end, defaults=defaults, names=param_names)
-            end, img_path, frame, alt, crop_rect = self.parse_image_params(text, end, **kwargs)
-            udg_addresses = skoolmacro.parse_address_range(udg_addr, width)
-            mask_addresses = []
-            if end < len(text) and text[end] == ':':
-                param_names = ('step',)
-                defaults = (udg_step,)
-                end, mask_addr = skoolmacro.get_address_range(text, end + 1)
-                if mask_addr is None:
-                    raise MacroParsingError('Expected mask address range specification: #UDGARRAY{}'.format(text[index:end]))
-                if end < len(text) and text[end] == ',':
-                    end += 1
-                end, mask_step = skoolmacro.parse_ints(text, end, defaults=defaults, names=param_names)
-                end, img_path, frame, alt, crop_rect = self.parse_image_params(text, end, **kwargs)
-                if mask:
-                    mask_addresses = skoolmacro.parse_address_range(mask_addr, width)
-            has_masks = has_masks or len(mask_addresses) > 0
-            mask_addresses += [None] * (len(udg_addresses) - len(mask_addresses))
-            for u, m in zip(udg_addresses, mask_addresses):
-                udg_bytes = [(self.snapshot[u + n * udg_step] + udg_inc) % 256 for n in range(8)]
-                udg = Udg(udg_attr, udg_bytes)
-                if m is not None:
-                    udg.mask = [self.snapshot[m + n * mask_step] for n in range(8)]
-                if len(udg_array[-1]) == width:
-                    udg_array.append([udg])
-                else:
-                    udg_array[-1].append(udg)
-        if not has_masks:
-            mask = 0
+        end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgarray(text, index, Udg, self.snapshot)
+        udg_array, scale, flip, rotate, mask = params
+        img_path = self.image_path(fname, 'UDGImagePath')
 
         if not img_path and frame is None:
             raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))

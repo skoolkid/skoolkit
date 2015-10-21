@@ -2414,6 +2414,18 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # Missing filename (2)
         self._assert_error(writer, '#UDGARRAY1;0{0,0}1(foo)', 'Missing filename: #UDGARRAY1;0{0,0}', prefix)
 
+        # Too many parameters in UDG specification
+        self._assert_error(writer, '#UDGARRAY1;32768,1,2,3,4', "Too many parameters (expected 3): '1,2,3,4'", prefix)
+
+        # Too many parameters in mask specification
+        self._assert_error(writer, '#UDGARRAY1;32768:32769,1,2', "Too many parameters (expected 1): '1,2'", prefix)
+
+        # Too many parameters in cropping specification
+        self._assert_error(writer, '#UDGARRAY1;0{0,0,23,14,5}(foo)', "Too many parameters (expected 4): '0,0,23,14,5'", prefix)
+
+        # No closing brace on cropping specification
+        self._assert_error(writer, '#UDGARRAY1;0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
+
         # No closing bracket
         self._assert_error(writer, '#UDGARRAY1;0(foo', 'No closing bracket: (foo', prefix)
 

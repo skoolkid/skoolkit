@@ -254,7 +254,7 @@ class AsmWriter:
             if index < len(text) and text[index] == '*':
                 end, params, p_text = skoolmacro.parse_params(text, index, except_chars=' (')
             else:
-                end, params, p_text = skoolmacro.parse_params(text, index, chars='=,:;-{}')
+                end = skoolmacro.parse_udgarray(text, index)[0]
             return end, ''
         raise UnsupportedMacroError()
 
