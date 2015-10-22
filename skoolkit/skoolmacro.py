@@ -35,7 +35,7 @@ ADDR_RANGE_PARAM = '({0}([+*/]{0})*|\([-+]?{0}([-+*/]{0})*\))'.format(INTEGER)
 
 ADDR_RANGE = '{0}(-{0}){{,3}}(x{1})?'.format(ADDR_RANGE_PARAM, INTEGER)
 
-def parse_ints(text, index=0, num=0, defaults=(), names=()):
+def parse_ints(text, index=0, num=0, defaults=(), names=(), brackets=False):
     """Parse a string of comma-separated integer parameters. The string will be
     parsed until either the end is reached, or an invalid character is
     encountered. The set of valid characters consists of the comma, '$', the
@@ -54,6 +54,8 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
              * ``end`` is the index at which parsing terminated
              * ``value1``, ``value2`` etc. are the parameter values
     """
+    if brackets and index < len(text) and text[index] == '(':
+        return _parse_ints_in_brackets(text, index, num, defaults, names)
     if num > 0:
         pattern = '{0}(,({0})?){{,{1}}}'.format(PARAM, num - 1)
     else:
@@ -64,6 +66,15 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
     else:
         params = ''
     return [index + len(params)] + get_params(params, num, defaults, names=names)
+
+def _parse_ints_in_brackets(text, index, num, defaults, names):
+    end = text.find(')', index + 1)
+    if end < 0:
+        raise MacroParsingError("No closing bracket: {}".format(text[index:]))
+    params = text[index + 1:end]
+    if re.match('({0}(,({0})?)*)?$'.format(PARAM), params):
+        return [end + 1] + get_params(params, num, defaults, names=names)
+    raise MacroParsingError("Invalid integer(s) in parameter string: ({})".format(params))
 
 def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars=''):
     """Parse a string of the form ``params[(p_text)]``. The parameter string
@@ -368,15 +379,7 @@ def parse_call(text, index, writer, cwd=None):
 
 def parse_chr(text, index):
     # #CHRnum or #CHR(num)
-    if index < len(text) and text[index] == '(':
-        end, _, num_str = parse_params(text, index)
-        try:
-            num = get_int_param(num_str)
-        except ValueError:
-            raise MacroParsingError("Invalid integer: '{}'".format(num_str))
-    else:
-        end, num = parse_ints(text, index, 1)
-    return end, num
+    return parse_ints(text, index, 1, brackets=True)
 
 def parse_d(text, index, entry_holder):
     # #Daddr

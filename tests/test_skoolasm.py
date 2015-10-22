@@ -173,6 +173,12 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.expand('#CHR(163)1985')
         self.assertEqual(output, '{0}1985'.format(get_chr(163)))
 
+        output = writer.expand('#CHR65+3*2-9/3')
+        self.assertEqual(output, 'D')
+
+        output = writer.expand('#CHR(65+3*2-9/3)')
+        self.assertEqual(output, 'D')
+
     def test_macro_chr_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('CHR')
@@ -181,10 +187,13 @@ class AsmWriterTest(SkoolKitTestCase):
         self._assert_error(writer, '#CHR', 'No parameters (expected 1)', prefix)
 
         # Blank parameter
-        self._assert_error(writer, '#CHR()', "Invalid integer: ''", prefix)
+        self._assert_error(writer, '#CHR()', "No parameters (expected 1)", prefix)
 
-        # Invalid parameter (2)
-        self._assert_error(writer, '#CHR(x,y)', "Invalid integer: 'x,y'", prefix)
+        # Invalid parameter
+        self._assert_error(writer, '#CHR(x,y)', "Invalid integer(s) in parameter string: (x,y)", prefix)
+
+        # Too many parameters
+        self._assert_error(writer, '#CHR(1,2)', "Too many parameters (expected 1): '1,2'", prefix)
 
         # No closing bracket
         self._assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)

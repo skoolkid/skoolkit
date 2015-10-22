@@ -864,6 +864,12 @@ class SkoolMacroTest(HtmlWriterTestCase):
         output = writer.expand('#CHR(163)1984', ASMDIR)
         self.assertEqual(output, '&#163;1984')
 
+        output = writer.expand('#CHR65+3*2-9/3', ASMDIR)
+        self.assertEqual(output, '&#68;')
+
+        output = writer.expand('#CHR(65+3*2-9/3)', ASMDIR)
+        self.assertEqual(output, '&#68;')
+
     def test_macro_chr_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('CHR')
@@ -872,10 +878,13 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self._assert_error(writer, '#CHR', 'No parameters (expected 1)', prefix)
 
         # Blank parameter
-        self._assert_error(writer, '#CHR()', "Invalid integer: ''", prefix)
+        self._assert_error(writer, '#CHR()', "No parameters (expected 1)", prefix)
 
         # Invalid parameter
-        self._assert_error(writer, '#CHR(x)', "Invalid integer: 'x'", prefix)
+        self._assert_error(writer, '#CHR(x)', "Invalid integer(s) in parameter string: (x)", prefix)
+
+        # Too many parameters
+        self._assert_error(writer, '#CHR(1,2)', "Too many parameters (expected 1): '1,2'", prefix)
 
         # No closing bracket
         self._assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)
