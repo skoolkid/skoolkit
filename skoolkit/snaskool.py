@@ -23,7 +23,7 @@ from skoolkit import SkoolKitError, warn, write_line, wrap, parse_int, get_addre
 from skoolkit.ctlparser import CtlParser
 from skoolkit.disassembler import Disassembler
 from skoolkit.skoolasm import UDGTABLE_MARKER
-from skoolkit.skoolctl import (AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET, AD_IGNOREUA,
+from skoolkit.skoolctl import (AD_START, AD_ORG, AD_END, AD_IGNOREUA,
                                TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 from skoolkit.skoolparser import get_address, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
 
@@ -568,22 +568,6 @@ class Entry:
         first_instruction.ctl = ctl
         self.registers = registers
         self.end_comment = end_comment
-        self.start = None
-        self.writer = None
-        self.org = None
-        self.end = None
-        self.properties = []
-        for directive, value in asm_directives:
-            if directive == AD_START:
-                self.start = True
-            elif directive == AD_WRITER:
-                self.writer = value
-            elif directive == AD_ORG:
-                self.org = value
-            elif directive == AD_END:
-                self.end = True
-            elif directive.startswith(AD_SET):
-                self.properties.append((directive[len(AD_SET):], value))
         self.asm_directives = asm_directives
         self.ignoreua_directives = ignoreua_directives
         self.address = first_instruction.address
@@ -749,14 +733,12 @@ class SkoolWriter:
             self._write_entry(entry, write_refs, text)
 
     def _write_entry(self, entry, write_refs, show_text):
-        if entry.start:
-            self.write_asm_directive(AD_START)
-        if entry.writer:
-            self.write_asm_directive(AD_WRITER, entry.writer)
-        for name, value in entry.properties:
-            self.write_asm_directive('{}{}'.format(AD_SET, name), value)
-        if entry.org is not None:
-            self.write_asm_directive(AD_ORG, entry.org)
+        has_end_directive = False
+        for directive, value in entry.asm_directives:
+            if directive == AD_END:
+                has_end_directive = True
+            else:
+                self.write_asm_directive(directive, value)
         if entry.has_ignoreua_directive(TITLE):
             self.write_asm_directive(AD_IGNOREUA)
 
@@ -784,7 +766,7 @@ class SkoolWriter:
         if entry.has_ignoreua_directive(END):
             self.write_asm_directive(AD_IGNOREUA)
         self.write_paragraphs(entry.end_comment)
-        if entry.end:
+        if has_end_directive:
             self.write_asm_directive(AD_END)
 
     def _write_entry_description(self, entry, write_refs):

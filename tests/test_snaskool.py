@@ -29,6 +29,7 @@ DISASSEMBLY_SNAPSHOT[32814:32841] = [
 
 DISASSEMBLY_CTL = """@ 32768 start
 @ 32768 writer=skoolkit.game.GameAsmWriter
+@ 32768 replace=/#copy/#CHR(169)
 @ 32768 org=32768
 @ 32768 label=START
 ; Entry #1
@@ -103,6 +104,7 @@ WRITER_SNAPSHOT[32768:32781] = [
 WRITER_CTL = """@ 32768 start
 @ 32768 writer=skoolkit.game.GameAsmWriter
 @ 32768 set-tab=1
+@ 32768 replace=/foo/bar
 @ 32768 org=32768
 @ 32768 label=START
 c 32768
@@ -134,6 +136,7 @@ i 32782 Final ignore block
 SKOOL = """@start
 @writer=skoolkit.game.GameAsmWriter
 @set-tab=1
+@replace=/foo/bar
 @org=32768
 ; Routine at 32768
 ;
@@ -241,10 +244,14 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(entry.ctl, 'c')
         self.assertEqual(entry.registers, [['A', 'Some value'], ['B', 'Some other value']])
         self.assertEqual(entry.end_comment, ['Routine end comment.'])
-        self.assertEqual(entry.start, True)
-        self.assertEqual(entry.end, True)
-        self.assertEqual(entry.writer, 'skoolkit.game.GameAsmWriter')
-        self.assertEqual(entry.org, '32768')
+        exp_asm_directives = [
+            ('start', None),
+            ('writer', 'skoolkit.game.GameAsmWriter'),
+            ('replace', '/#copy/#CHR(169)'),
+            ('org', '32768'),
+            ('end', None)
+        ]
+        self.assertEqual(exp_asm_directives, entry.asm_directives)
 
         blocks = entry.blocks
         self.assertEqual(len(blocks), 1)
@@ -1051,7 +1058,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer = self._get_writer(WRITER_SNAPSHOT, WRITER_CTL)
         writer.write_skool(0, False)
         skool = self.out.getvalue().split('\n')[:-1]
-        self.assertEqual(skool, SKOOL)
+        self.assertEqual(SKOOL, skool)
 
     def test_line_width_short(self):
         snapshot = [175, 201]

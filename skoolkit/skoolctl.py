@@ -34,8 +34,9 @@ AD_START = 'start'
 AD_WRITER = 'writer'
 AD_ORG = 'org'
 AD_END = 'end'
-AD_SET = 'set-'
 AD_REPLACE = 'replace'
+ENTRY_ASM_DIRECTIVES = (AD_START, AD_WRITER, AD_ORG, AD_END, AD_REPLACE)
+AD_SET = 'set-'
 AD_IGNOREUA = 'ignoreua'
 
 # Comment types to which the @ignoreua directive may be applied

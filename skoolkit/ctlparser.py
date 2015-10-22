@@ -19,7 +19,7 @@
 import bisect
 
 from skoolkit import warn, get_int_param, open_file
-from skoolkit.skoolctl import (AD_START, AD_WRITER, AD_ORG, AD_END, AD_SET, AD_IGNOREUA,
+from skoolkit.skoolctl import (ENTRY_ASM_DIRECTIVES, AD_SET, AD_IGNOREUA,
                                TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 from skoolkit.textutils import partition_unquoted, split_unquoted
 
@@ -161,7 +161,7 @@ class CtlParser:
                             self._multiline_comments[start] = (address, text)
             elif asm_directive:
                 directive, address, value = asm_directive
-                if directive in (AD_ORG, AD_WRITER, AD_START, AD_END) or directive.startswith(AD_SET):
+                if directive in ENTRY_ASM_DIRECTIVES or directive.startswith(AD_SET):
                     self._entry_asm_directives.setdefault(address, []).append((directive, value))
                 else:
                     self._instruction_asm_directives.setdefault(address, []).append((directive, value))
