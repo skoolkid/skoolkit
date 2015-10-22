@@ -967,6 +967,18 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self._test_ctl(skool, exp_ctl)
 
+    def test_replace_directive(self):
+        skool = '\n'.join((
+            '@replace=/foo/bar',
+            '; Routine',
+            'c32768 RET'
+        ))
+        exp_ctl = [
+            '@ 32768 replace=/foo/bar',
+            'c 32768 Routine'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
     def test_registers(self):
         skool = '\n'.join((
             '; Routine',

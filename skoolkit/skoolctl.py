@@ -35,6 +35,7 @@ AD_WRITER = 'writer'
 AD_ORG = 'org'
 AD_END = 'end'
 AD_SET = 'set-'
+AD_REPLACE = 'replace'
 AD_IGNOREUA = 'ignoreua'
 
 # Comment types to which the @ignoreua directive may be applied
@@ -240,12 +241,8 @@ class CtlWriter:
     def write_entry(self, entry):
         if entry.start:
             self._write_entry_asm_directive(entry, AD_START)
-        if entry.writer:
-            self._write_entry_asm_directive(entry, AD_WRITER, entry.writer)
-        for name, value in entry.properties:
-            self._write_entry_asm_directive(entry, '{0}{1}'.format(AD_SET, name), value)
-        if entry.org:
-            self._write_entry_asm_directive(entry, AD_ORG, entry.org)
+        for directive, value in entry.asm_directives:
+            self._write_entry_asm_directive(entry, directive, value)
         address = self.addr_str(entry.address)
 
         self._write_entry_ignoreua_directive(entry, TITLE)
@@ -539,9 +536,7 @@ class SkoolParser:
                 self.mode.add_instruction_asm_directive(tag)
             elif not sep and tag == AD_IGNOREUA:
                 ignores.append(line_no)
-            elif sep and tag in (AD_ORG, AD_WRITER):
-                self.mode.add_entry_asm_directive(tag, value)
-            elif sep and tag.startswith(AD_SET):
+            elif sep and (tag in (AD_ORG, AD_WRITER, AD_REPLACE) or tag.startswith(AD_SET)):
                 self.mode.add_entry_asm_directive(tag, value)
             elif not sep and tag in (AD_START, AD_END):
                 self.mode.add_entry_asm_directive(tag)
@@ -578,16 +573,12 @@ class Mode:
 
     def apply_entry_asm_directives(self, entry):
         for directive, value in self.entry_asm_directives:
-            if directive == AD_ORG:
-                entry.org = value
-            elif directive == AD_WRITER:
-                entry.writer = value
-            elif directive == AD_START:
+            if directive == AD_START:
                 entry.start = True
             elif directive == AD_END:
                 entry.end = True
-            elif directive.startswith(AD_SET):
-                entry.add_property(directive[len(AD_SET):], value)
+            else:
+                entry.add_asm_directive(directive, value)
         self.entry_asm_directives = []
 
 class FakeInstruction:
@@ -640,11 +631,9 @@ class Entry:
         }
         self.instructions = []
         self.end_comment = ()
-        self.org = None
-        self.writer = None
         self.start = False
         self.end = False
-        self.properties = []
+        self.asm_directives = []
 
     def sort_instructions(self):
         self.instructions.sort(key=lambda i: i.address)
@@ -653,5 +642,5 @@ class Entry:
     def add_instruction(self, instruction):
         self.instructions.append(instruction)
 
-    def add_property(self, name, value):
-        self.properties.append((name, value))
+    def add_asm_directive(self, name, value):
+        self.asm_directives.append((name, value))
