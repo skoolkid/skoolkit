@@ -2038,24 +2038,38 @@ class SkoolMacroTest(HtmlWriterTestCase):
 
     def test_macro_space(self):
         writer = self._get_writer()
+        space = '&#160;'
 
         output = writer.expand('#SPACE', ASMDIR)
-        self.assertEqual(output, '&#160;')
+        self.assertEqual(output, space)
 
-        num = 10
-        output = writer.expand('#SPACE{0}'.format(num), ASMDIR)
-        self.assertEqual(output, '&#160;' * num)
+        output = writer.expand('#SPACE10', ASMDIR)
+        self.assertEqual(output, space * 10)
 
-        num = 7
-        output = writer.expand('1#SPACE({0})1'.format(num), ASMDIR)
-        self.assertEqual(output, '1{0}1'.format('&#160;' * num))
+        output = writer.expand('1#SPACE(7)1', ASMDIR)
+        self.assertEqual(output, '1{}1'.format(space * 7))
+
+        output = writer.expand('"#SPACE(5$3)"', ASMDIR)
+        self.assertEqual(output, '"{}(5$3)"'.format(space))
+
+        output = writer.expand('|#SPACE2+2|', ASMDIR)
+        self.assertEqual(output, '|{}+2|'.format(space * 2))
+
+        output = writer.expand('|#SPACE3-1|', ASMDIR)
+        self.assertEqual(output, '|{}-1|'.format(space * 3))
+
+        output = writer.expand('|#SPACE2*2|', ASMDIR)
+        self.assertEqual(output, '|{}*2|'.format(space * 2))
+
+        output = writer.expand('|#SPACE3/3|', ASMDIR)
+        self.assertEqual(output, '|{}/3|'.format(space * 3))
+
+        output = writer.expand('|#SPACE(1+3*2-10/2)|', ASMDIR)
+        self.assertEqual(output, '|{}|'.format(space * 2))
 
     def test_macro_space_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('SPACE')
-
-        # Invalid integer in brackets
-        self._assert_error(writer, '#SPACE(x)', "Invalid integer: 'x'", prefix)
 
         # No closing bracket
         self._assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)

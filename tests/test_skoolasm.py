@@ -914,12 +914,27 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.expand('1#SPACE(3)1')
         self.assertEqual(output, '1   1')
 
+        output = writer.expand('"#SPACE(5$3)"')
+        self.assertEqual(output, '" (5$3)"')
+
+        output = writer.expand('|#SPACE2+2|')
+        self.assertEqual(output, '|  +2|')
+
+        output = writer.expand('|#SPACE3-1|')
+        self.assertEqual(output, '|   -1|')
+
+        output = writer.expand('|#SPACE2*2|')
+        self.assertEqual(output, '|  *2|')
+
+        output = writer.expand('|#SPACE3/3|')
+        self.assertEqual(output, '|   /3|')
+
+        output = writer.expand('|#SPACE(1+3*2-10/2)|')
+        self.assertEqual(output, '|  |')
+
     def test_macro_space_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('SPACE')
-
-        # Invalid integer in brackets
-        self._assert_error(writer, '#SPACE(5$3)', "Invalid integer: '5$3'", prefix)
 
         # No closing bracket
         self._assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)
