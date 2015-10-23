@@ -864,8 +864,17 @@ class SkoolMacroTest(HtmlWriterTestCase):
         output = writer.expand('#CHR(163)1984', ASMDIR)
         self.assertEqual(output, '&#163;1984')
 
-        output = writer.expand('#CHR65+3*2-9/3', ASMDIR)
-        self.assertEqual(output, '&#68;')
+        output = writer.expand('#CHR65+3', ASMDIR)
+        self.assertEqual(output, '&#65;+3')
+
+        output = writer.expand('#CHR65*2', ASMDIR)
+        self.assertEqual(output, '&#65;*2')
+
+        output = writer.expand('#CHR65-9', ASMDIR)
+        self.assertEqual(output, '&#65;-9')
+
+        output = writer.expand('#CHR65/5', ASMDIR)
+        self.assertEqual(output, '&#65;/5')
 
         output = writer.expand('#CHR(65+3*2-9/3)', ASMDIR)
         self.assertEqual(output, '&#68;')
@@ -1157,15 +1166,15 @@ class SkoolMacroTest(HtmlWriterTestCase):
             self.assertEqual(output, '1; 4; 7; 10; 13')
 
         # Arithmetic expression in 'start' parameter
-        output = writer.expand('#FOR10-9,3(n,n)', ASMDIR)
+        output = writer.expand('#FOR(10-9,3)(n,n)', ASMDIR)
         self.assertEqual(output, '123')
 
         # Arithmetic expression in 'stop' parameter
-        output = writer.expand('#FOR1,6/2(n,n)', ASMDIR)
+        output = writer.expand('#FOR(1,6/2)(n,n)', ASMDIR)
         self.assertEqual(output, '123')
 
         # Arithmetic expression in 'step' parameter
-        output = writer.expand('#FOR1,13,2*3(n,[n])', ASMDIR)
+        output = writer.expand('#FOR(1,13,2*3)(n,[n])', ASMDIR)
         self.assertEqual(output, '[1][7][13]')
 
     def test_macro_for_with_separator(self):
@@ -1348,7 +1357,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self.assertEqual(output, '')
 
         # Arithmetic expression in 'value' parameter
-        output = writer.expand('#MAP2*3+8/2-4(?,6:OK)', ASMDIR)
+        output = writer.expand('#MAP(2*3+8/2-4)(?,6:OK)', ASMDIR)
         self.assertEqual(output, 'OK')
 
         # Alternative delimiters
@@ -1404,9 +1413,9 @@ class SkoolMacroTest(HtmlWriterTestCase):
         self.assertEqual(output, '3')
 
     def test_macro_peek_nested(self):
-        writer = self._get_writer(snapshot=[2, 0, 101])
+        writer = self._get_writer(snapshot=[1, 2, 101])
 
-        output = writer.expand('#PEEK#PEEK0+256*#PEEK1', ASMDIR)
+        output = writer.expand('#PEEK(#PEEK0+1)', ASMDIR)
         self.assertEqual(output, '101')
 
     def test_macro_peek_invalid(self):
@@ -1419,7 +1428,9 @@ class SkoolMacroTest(HtmlWriterTestCase):
 
         # No closing bracket
         self._assert_error(writer, '#PEEK(3', "No closing bracket: (3", prefix)
-        self._assert_error(writer, '#PEEK(4,5)', "No closing bracket: (4", prefix)
+
+        # Too many parameters
+        self._assert_error(writer, '#PEEK(4,5)', "Too many parameters (expected 1): '4,5'", prefix)
 
     def test_macro_poke(self):
         self._test_reference_macro('POKE', 'poke', 'pokes')

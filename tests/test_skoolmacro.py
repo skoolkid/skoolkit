@@ -7,44 +7,56 @@ from skoolkit.skoolmacro import parse_ints, parse_params, parse_address_range, M
 
 class SkoolMacroTest(SkoolKitTestCase):
     def test_parse_ints_without_kwargs(self):
-        # Test with the exact number of parameters
+        # Exact number of parameters
         text = '1,$2,3'
         end, p1, p2, p3 = parse_ints(text, 0, 3)
-        self.assertEqual((p1, p2, p3), (1, 2, 3))
+        self.assertEqual((1, 2, 3), (p1, p2, p3))
         self.assertEqual(end, len(text))
 
-        # Test with default parameter values
+        # Default parameter values
         text = '$1,2,3'
         end, p1, p2, p3, p4, p5 = parse_ints(text, 0, 5, (4, 5))
-        self.assertEqual((p1, p2, p3, p4, p5), (1, 2, 3, 4, 5))
+        self.assertEqual((1, 2, 3, 4, 5), (p1, p2, p3, p4, p5))
         self.assertEqual(end, len(text))
 
-        # Test with more than enough parameters
+        # More than enough parameters
         text = '1,2,3'
         end, p1, p2 = parse_ints(text, 0, 2)
-        self.assertEqual((p1, p2), (1, 2))
+        self.assertEqual((1, 2), (p1, p2))
         self.assertEqual(end, 3)
 
-        # Test with blank parameters
+        # Blank parameters
         text = '1,,$a,'
         end, p1, p2, p3, p4 = parse_ints(text, 0, 4)
-        self.assertEqual((p1, p2, p3, p4), (1, None, 10, None))
+        self.assertEqual((1, None, 10, None), (p1, p2, p3, p4))
         self.assertEqual(end, len(text))
 
-        # Test with an empty parameter string
+        # Empty parameter string
         end, p1 = parse_ints('', 0, 1, (1,))
         self.assertEqual(p1, 1)
         self.assertEqual(end, 0)
 
-        # Test with adjacent non-numeric characters
+        # Empty parameter string in brackets
+        end, p1 = parse_ints('()', 0, 1, (1,))
+        self.assertEqual(p1, 1)
+        self.assertEqual(end, 2)
+
+        # Invalid parameter string in brackets when every parameter is optional
+        defaults = (4, 5, 6)
+        names = ('foo', 'bar', 'baz')
+        exp_result = [0, 4, 5, 6]
+        self.assertEqual(exp_result, parse_ints('(sprite)', 0, 3, defaults))
+        self.assertEqual(exp_result, parse_ints('(logo)', defaults=defaults, names=names))
+
+        # Adjacent non-numeric characters
         junk = 'xyz'
         text = '1,2{0}'.format(junk)
         end, p1, p2 = parse_ints(text, 0, 2)
-        self.assertEqual((p1, p2), (1, 2))
+        self.assertEqual((1, 2), (p1, p2))
         self.assertEqual(end, len(text) - len(junk))
 
-        # Test with arithmetic expressions
-        text = '-1,1+1,5-2,10-3*2,2+7/2'
+        # Arithmetic expressions
+        text = '(-1,1+1,5-2,10-3*2,2+7/2)'
         self.assertEqual([len(text), -1, 2, 3, 4, 5], parse_ints(text, 0, 5))
 
     def test_parse_ints_with_kwargs(self):

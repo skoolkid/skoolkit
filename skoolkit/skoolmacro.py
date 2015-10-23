@@ -29,13 +29,15 @@ DELIMITERS = {
 
 INTEGER = '(\d+|\$[0-9a-fA-F]+)'
 
+SIMPLE_PARAM = '([a-z]+=)?{}'.format(INTEGER)
+
 PARAM = '([a-z]+=)?[-+]?{0}([-+*/]{0})*'.format(INTEGER)
 
 ADDR_RANGE_PARAM = '({0}([+*/]{0})*|\([-+]?{0}([-+*/]{0})*\))'.format(INTEGER)
 
 ADDR_RANGE = '{0}(-{0}){{,3}}(x{1})?'.format(ADDR_RANGE_PARAM, INTEGER)
 
-def parse_ints(text, index=0, num=0, defaults=(), names=(), brackets=False):
+def parse_ints(text, index=0, num=0, defaults=(), names=()):
     """Parse a string of comma-separated integer parameters. The string will be
     parsed until either the end is reached, or an invalid character is
     encountered. The set of valid characters consists of the comma, '$', the
@@ -54,12 +56,12 @@ def parse_ints(text, index=0, num=0, defaults=(), names=(), brackets=False):
              * ``end`` is the index at which parsing terminated
              * ``value1``, ``value2`` etc. are the parameter values
     """
-    if brackets and index < len(text) and text[index] == '(':
+    if index < len(text) and text[index] == '(':
         return _parse_ints_in_brackets(text, index, num, defaults, names)
-    if num > 0:
-        pattern = '{0}(,({0})?){{,{1}}}'.format(PARAM, num - 1)
+    if names:
+        pattern = '{0}(,({0})?)*'.format(SIMPLE_PARAM)
     else:
-        pattern = '{0}(,({0})?)*'.format(PARAM)
+        pattern = '{0}(,({0})?){{,{1}}}'.format(SIMPLE_PARAM, num - 1)
     match = re.match(pattern, text[index:])
     if match:
         params = match.group()
@@ -74,6 +76,8 @@ def _parse_ints_in_brackets(text, index, num, defaults, names):
     params = text[index + 1:end]
     if re.match('({0}(,({0})?)*)?$'.format(PARAM), params):
         return [end + 1] + get_params(params, num, defaults, names=names)
+    if len(defaults) == max(num, len(names)) > 0:
+        return [index] + list(defaults)
     raise MacroParsingError("Invalid integer(s) in parameter string: ({})".format(params))
 
 def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars=''):
@@ -379,7 +383,7 @@ def parse_call(text, index, writer, cwd=None):
 
 def parse_chr(text, index):
     # #CHRnum or #CHR(num)
-    return parse_ints(text, index, 1, brackets=True)
+    return parse_ints(text, index, 1)
 
 def parse_d(text, index, entry_holder):
     # #Daddr
@@ -472,14 +476,8 @@ def parse_map(text, index):
 
 def parse_peek(text, index, snapshot):
     # #PEEKaddr or #PEEK(addr)
-    if index < len(text) and text[index] == '(':
-        offset = 1
-    else:
-        offset = 0
-    end, addr = parse_ints(text, index + offset, 1)
-    if offset and (end >= len(text) or text[end] != ')'):
-        raise MacroParsingError("No closing bracket: {}".format(text[index:end]))
-    return end + offset, str(snapshot[addr & 65535])
+    end, addr = parse_ints(text, index, 1)
+    return end, str(snapshot[addr & 65535])
 
 def parse_poke(text, index):
     # #POKE[#name][(link text)]
@@ -618,8 +616,9 @@ def parse_udgarray(text, index, udg_class=None, snapshot=None):
         if udg_addr is None:
             raise MacroParsingError('Expected UDG address range specification: #UDGARRAY{}'.format(text[index:end]))
         if end < len(text) and text[end] == ',':
-            end += 1
-        end, udg_attr, udg_step, udg_inc = parse_ints(text, end, defaults=defaults, names=names)
+            end, udg_attr, udg_step, udg_inc = parse_ints(text, end + 1, defaults=defaults, names=names)
+        else:
+            udg_attr, udg_step, udg_inc = defaults
         udg_addresses = parse_address_range(udg_addr, width)
         mask_addresses = []
         if end < len(text) and text[end] == ':':
@@ -627,8 +626,9 @@ def parse_udgarray(text, index, udg_class=None, snapshot=None):
             if mask_addr is None:
                 raise MacroParsingError('Expected mask address range specification: #UDGARRAY{}'.format(text[index:end]))
             if end < len(text) and text[end] == ',':
-                end += 1
-            end, mask_step = parse_ints(text, end, defaults=(udg_step,), names=('step',))
+                end, mask_step = parse_ints(text, end + 1, defaults=(udg_step,), names=('step',))
+            else:
+                mask_step = udg_step
             if mask:
                 mask_addresses = parse_address_range(mask_addr, width)
         if udg_class:

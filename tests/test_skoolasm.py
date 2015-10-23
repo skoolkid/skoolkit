@@ -173,8 +173,17 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.expand('#CHR(163)1985')
         self.assertEqual(output, '{0}1985'.format(get_chr(163)))
 
-        output = writer.expand('#CHR65+3*2-9/3')
-        self.assertEqual(output, 'D')
+        output = writer.expand('#CHR65+3')
+        self.assertEqual(output, 'A+3')
+
+        output = writer.expand('#CHR65*2')
+        self.assertEqual(output, 'A*2')
+
+        output = writer.expand('#CHR65-9')
+        self.assertEqual(output, 'A-9')
+
+        output = writer.expand('#CHR65/5')
+        self.assertEqual(output, 'A/5')
 
         output = writer.expand('#CHR(65+3*2-9/3)')
         self.assertEqual(output, 'D')
@@ -288,7 +297,7 @@ class AsmWriterTest(SkoolKitTestCase):
         self._test_unsupported_macro(writer, '#FONT55584,,,1{1,2}')
         self._test_unsupported_macro(writer, '#FONT:[foo]0,,5')
         self._test_unsupported_macro(writer, '#FONT32768,3,scale=4{x=1,width=26}(chars)')
-        self._test_unsupported_macro(writer, '#FONT32768+1,10-6,7*8,4/2(foo)')
+        self._test_unsupported_macro(writer, '#FONT(32768+1,10-6,7*8,4/2)(foo)')
 
     def test_macro_font_invalid(self):
         writer = self._get_writer()
@@ -319,15 +328,15 @@ class AsmWriterTest(SkoolKitTestCase):
             self.assertEqual(output, '1; 4; 7; 10; 13')
 
         # Arithmetic expression in 'start' parameter
-        output = writer.expand('#FOR10-9,3(n,n)')
+        output = writer.expand('#FOR(10-9,3)(n,n)')
         self.assertEqual(output, '123')
 
         # Arithmetic expression in 'stop' parameter
-        output = writer.expand('#FOR1,6/2(n,n)')
+        output = writer.expand('#FOR(1,6/2)(n,n)')
         self.assertEqual(output, '123')
 
         # Arithmetic expression in 'step' parameter
-        output = writer.expand('#FOR1,13,2*3(n,[n])')
+        output = writer.expand('#FOR(1,13,2*3)(n,[n])')
         self.assertEqual(output, '[1][7][13]')
 
     def test_macro_for_with_separator(self):
@@ -448,7 +457,7 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(output, '')
 
         # Arithmetic expression in 'value' parameter
-        output = writer.expand('#MAP2*3+8/2-4(?,6:OK)')
+        output = writer.expand('#MAP(2*3+8/2-4)(?,6:OK)')
         self.assertEqual(output, 'OK')
 
         # Alternative delimiters
@@ -507,9 +516,10 @@ class AsmWriterTest(SkoolKitTestCase):
 
     def test_macro_peek_nested(self):
         writer = self._get_writer()
-        writer.snapshot[:2] = [2, 0, 101]
+        writer.snapshot[:2] = [1, 1]
+        writer.snapshot[257] = 101
 
-        output = writer.expand('#PEEK#PEEK0+256*#PEEK1')
+        output = writer.expand('#PEEK(#PEEK0+256*#PEEK1)')
         self.assertEqual(output, '101')
 
     def test_macro_peek_invalid(self):
@@ -522,7 +532,9 @@ class AsmWriterTest(SkoolKitTestCase):
 
         # No closing bracket
         self._assert_error(writer, '#PEEK(3', "No closing bracket: (3", prefix)
-        self._assert_error(writer, '#PEEK(4,5)', "No closing bracket: (4", prefix)
+
+        # Too many parameters
+        self._assert_error(writer, '#PEEK(4,5)', "Too many parameters (expected 1): '4,5'", prefix)
 
     def test_macro_poke(self):
         self._test_reference_macro('POKE', 'poke')
@@ -884,7 +896,7 @@ class AsmWriterTest(SkoolKitTestCase):
         writer = self._get_writer()
         self._test_unsupported_macro(writer, '#SCR2(fname)')
         self._test_unsupported_macro(writer, '#SCR2,w=8,h=8{x=1,width=62}(fname)')
-        self._test_unsupported_macro(writer, '#SCR2+2,4-1,3*3,4/2(foo*bar|baz)')
+        self._test_unsupported_macro(writer, '#SCR(2+2,4-1,3*3,4/2)(foo*bar|baz)')
 
     def test_macro_scr_invalid(self):
         writer = self._get_writer()
@@ -916,7 +928,7 @@ class AsmWriterTest(SkoolKitTestCase):
         writer = self._get_writer()
         self._test_unsupported_macro(writer, '#UDG39144,6(safe_key)')
         self._test_unsupported_macro(writer, '#UDG65432,scale=2,mask=2:65440{y=2,height=14}(key)')
-        self._test_unsupported_macro(writer, '#UDG0+1,3-2,4*5,8/2(key*)')
+        self._test_unsupported_macro(writer, '#UDG(0+1,3-2,4*5,8/2)(key*)')
 
     def test_macro_udg_invalid(self):
         writer = self._get_writer()
@@ -928,7 +940,7 @@ class AsmWriterTest(SkoolKitTestCase):
         self._test_unsupported_macro(writer, '#UDGARRAY4,mask=2,step=256;33008-33023:33024-33039{x=1,width=126}(sprite)')
         self._test_unsupported_macro(writer, '#UDGARRAY*foo,2*10;bar,1+19;baz,25-5;qux,40/2(logo|Logo)')
         self._test_unsupported_macro(writer, '#UDGARRAY*foo,delay=2;bar(baz)')
-        self._test_unsupported_macro(writer, '#UDGARRAY3-2,1+5,2*2,16/2;256*128x3(baz)')
+        self._test_unsupported_macro(writer, '#UDGARRAY(3-2,1+5,2*2,16/2);256*128x3(baz)')
 
     def test_macro_udgarray_invalid(self):
         writer = self._get_writer()
