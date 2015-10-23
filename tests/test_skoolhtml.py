@@ -2444,6 +2444,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
 
         # Missing filename
         self._assert_error(writer, '#UDGARRAY1;0', 'Missing filename: #UDGARRAY1;0', prefix)
+        self._assert_error(writer, '#UDGARRAY1;0()', 'Missing filename: #UDGARRAY1;0()', prefix)
         self._assert_error(writer, '#UDGARRAY1;0{0,0}1(foo)', 'Missing filename: #UDGARRAY1;0{0,0}', prefix)
 
         # Missing filename or frame ID

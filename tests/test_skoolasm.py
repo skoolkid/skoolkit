@@ -961,6 +961,9 @@ class AsmWriterTest(SkoolKitTestCase):
         writer = self._get_writer()
         self._test_unsupported_macro(writer, '#UDGARRAY1;0(qux', "No closing bracket: (qux")
         self._test_unsupported_macro(writer, '#UDGARRAY*xyzzy;foo(wibble', "No closing bracket: (wibble")
+        self._test_unsupported_macro(writer, '#UDGARRAY1;0', 'Missing filename: #UDGARRAY1;0')
+        self._test_unsupported_macro(writer, '#UDGARRAY1;0()', 'Missing filename: #UDGARRAY1;0()')
+        self._test_unsupported_macro(writer, '#UDGARRAY1;0(*)', 'Missing filename or frame ID: #UDGARRAY1;0(*)')
 
     def test_macro_udgtable(self):
         writer = self._get_writer()

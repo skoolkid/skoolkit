@@ -641,6 +641,10 @@ def parse_udgarray(text, index, udg_class=None, snapshot=None):
         mask = 0
     end, crop_rect = _parse_crop_spec(text, end)
     end, fname, frame, alt = _parse_image_fname(text, end)
+    if not fname and frame is None:
+        raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
+    if not fname and not frame:
+        raise MacroParsingError('Missing filename or frame ID: #UDGARRAY{}'.format(text[index:end]))
     return end, crop_rect, fname, frame, alt, (udg_array, scale, flip, rotate, mask)
 
 def parse_udgarray_with_frames(text, index, frame_map=None):

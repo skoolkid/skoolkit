@@ -1342,12 +1342,6 @@ class HtmlWriter:
         udg_array, scale, flip, rotate, mask = params
         img_path = self.image_path(fname, 'UDGImagePath')
 
-        if not img_path and frame is None:
-            raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
-
-        if not img_path and not frame:
-            raise MacroParsingError('Missing filename or frame ID: #UDGARRAY{}'.format(text[index:end]))
-
         need_image = img_path and self.need_image(img_path)
         if frame or need_image:
             if flip:
