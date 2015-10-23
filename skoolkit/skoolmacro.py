@@ -651,28 +651,42 @@ def parse_udgarray(text, index, udg_class=None, snapshot=None):
 
 def parse_udgarray_with_frames(text, index, frame_map=None):
     # #UDGARRAY*frame1[,delay];frame2[,delay];...(fname)
-    end, frame_params, fname = parse_params(text, index, except_chars=' (')
+    params = []
+    delay = 32 # 0.32s
+    end = index
+    while end == index or (end < len(text) and text[end] == ';'):
+        end += 1
+        match = re.match('[^\s,;(]+', text[end:])
+        if match:
+            frame_id = match.group()
+            end += len(frame_id)
+            if end < len(text) and text[end] == ',':
+                end, delay = parse_ints(text, end + 1, names=('delay',))
+            params.append((frame_id, delay))
+
+    fname = None
+    if end < len(text) and text[end] == '(':
+        fname_end = text.find(')', end + 1)
+        if fname_end < 0:
+            raise MacroParsingError('No closing bracket: {}'.format(text[end:]))
+        fname = text[end + 1:fname_end]
+        end = fname_end + 1
     if not fname:
         raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
     alt = None
     if '|' in fname:
         fname, alt = fname.split('|', 1)
+
+    if not params:
+        raise MacroParsingError("No frames specified: #UDGARRAY{}".format(text[index:end]))
+
     frames = []
-    default_delay = 32 # 0.32s
-    for frame_param in frame_params[1:].split(';'):
-        elements = frame_param.rsplit(',', 1)
-        if len(elements) == 2:
-            frame_id = elements[0]
-            delay = default_delay = parse_ints(elements[1], names=('delay',))[1]
-        else:
-            frame_id = frame_param
-            delay = default_delay
-        if not frame_id:
-            raise MacroParsingError('Missing frame ID: #UDGARRAY{}'.format(text[index:end]))
-        if frame_map is not None:
+    if frame_map is not None:
+        for frame_id, delay in params:
             if frame_id not in frame_map:
                 raise MacroParsingError('No such frame: "{}"'.format(frame_id))
             frame = frame_map[frame_id]
             frame.delay = delay
             frames.append(frame)
+
     return end, fname, alt, frames

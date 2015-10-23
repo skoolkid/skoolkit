@@ -2428,11 +2428,12 @@ class SkoolMacroTest(HtmlWriterTestCase):
         # Missing mask address range spec
         self._assert_error(writer, '#UDGARRAY1;0:(foo)', 'Expected mask address range specification: #UDGARRAY1;0:', prefix)
 
-        # Missing filename (1)
+        # Missing filename
         self._assert_error(writer, '#UDGARRAY1;0', 'Missing filename: #UDGARRAY1;0', prefix)
-
-        # Missing filename (2)
         self._assert_error(writer, '#UDGARRAY1;0{0,0}1(foo)', 'Missing filename: #UDGARRAY1;0{0,0}', prefix)
+
+        # Missing filename or frame ID
+        self._assert_error(writer, '#UDGARRAY1;0(*)', 'Missing filename or frame ID: #UDGARRAY1;0(*)', prefix)
 
         # Too many parameters in UDG specification
         self._assert_error(writer, '#UDGARRAY1;32768,1,2,3,4', "Too many parameters (expected 3): '1,2,3,4'", prefix)
@@ -2473,14 +2474,13 @@ class SkoolMacroTest(HtmlWriterTestCase):
         output = writer.expand(macro3, ASMDIR)
         self._assert_img_equals(output, 'baz', '../{}/baz.png'.format(UDGDIR))
         delay1 = 93
-        delay3 = 47
         fname = 'test_udg_array_frames'
-        macro4 = '#UDGARRAY*foo,{};bar;qux,delay={}({})'.format(delay1, delay3, fname)
+        macro4 = '#UDGARRAY*foo,{};bar;qux,(delay=5+8*2-12/3)({})'.format(delay1, fname)
         output = writer.expand(macro4, ASMDIR)
         self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
         frame1 = Frame([[udg1]], 2, delay=delay1)
         frame2 = Frame([[udg2]], 2, delay=delay1)
-        frame3 = Frame([[udg3]], 2, delay=delay3)
+        frame3 = Frame([[udg3]], 2, delay=17)
         frames = [frame1, frame2, frame3]
         self._check_animated_image(writer.image_writer, frames)
 
@@ -2488,8 +2488,7 @@ class SkoolMacroTest(HtmlWriterTestCase):
         writer = self._get_writer(snapshot=[0] * 8)
         prefix = ERROR_PREFIX.format('UDGARRAY')
 
-        self._assert_error(writer, '#UDGARRAY1;0(*)', 'Missing filename or frame ID: #UDGARRAY1;0(*)', prefix)
-        self._assert_error(writer, '#UDGARRAY*,3(foo)', 'Missing frame ID: #UDGARRAY*,3(foo)', prefix)
+        self._assert_error(writer, '#UDGARRAY*(bar)', 'No frames specified: #UDGARRAY*(bar)', prefix)
         self._assert_error(writer, '#UDGARRAY*foo', 'Missing filename: #UDGARRAY*foo', prefix)
         self._assert_error(writer, '#UDGARRAY*foo()', 'Missing filename: #UDGARRAY*foo()', prefix)
         self._assert_error(writer, '#UDGARRAY*foo(bar', 'No closing bracket: (bar', prefix)
