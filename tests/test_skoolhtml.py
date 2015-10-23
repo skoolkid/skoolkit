@@ -1875,9 +1875,13 @@ class SkoolMacroTest(HtmlWriterTestCase):
         writer = self._get_writer(skool=skool)
 
         # Some referrers
-        for address in ('24579', '$6003'):
+        for address in ('24579', '$6003', '(24579+1-2*2+6/2)'):
             output = writer.expand('#REFS{}'.format(address), ASMDIR)
             self.assertEqual(output, 'routines at <a href="24581.html">24581</a>, <a href="24584.html">24584</a> and <a href="24590.html">24590</a>')
+
+        # Prefix
+        output = writer.expand('#REFS24579(Exploited by the)', ASMDIR)
+        self.assertEqual(output, 'Exploited by the routines at <a href="24581.html">24581</a>, <a href="24584.html">24584</a> and <a href="24590.html">24590</a>')
 
         # No referrers
         output = writer.expand('#REFS24576', ASMDIR)
@@ -1888,10 +1892,8 @@ class SkoolMacroTest(HtmlWriterTestCase):
         prefix = ERROR_PREFIX.format('REFS')
 
         # No address
-        self._assert_error(writer, '#REFS', "No address", prefix)
-
-        # Invalid address
-        self._assert_error(writer, '#REFS3$56', "Invalid address: 3$56", prefix)
+        self._assert_error(writer, '#REFS', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#REFSx', "No parameters (expected 1)", prefix)
 
         # No closing bracket
         self._assert_error(writer, '#REFS34567(foo', "No closing bracket: (foo", prefix)

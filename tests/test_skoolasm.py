@@ -849,9 +849,13 @@ class AsmWriterTest(SkoolKitTestCase):
         writer = self._get_writer(skool)
 
         # Some referrers
-        for address in ('24581', '$6005'):
+        for address in ('24581', '$6005', '(24581+1-2*2+6/2)'):
             output = writer.expand('#REFS{}'.format(address))
             self.assertEqual(output, 'routines at 24583, 24586 and 24589')
+
+        # Prefix
+        output = writer.expand('#REFS24581(Exploited by the)')
+        self.assertEqual(output, 'Exploited by the routines at 24583, 24586 and 24589')
 
         # No referrers
         output = writer.expand('#REFS24586')
@@ -862,10 +866,8 @@ class AsmWriterTest(SkoolKitTestCase):
         prefix = ERROR_PREFIX.format('REFS')
 
         # No address
-        self._assert_error(writer, '#REFS', "No address", prefix)
-
-        # Invalid address
-        self._assert_error(writer, '#REFS3$56', "Invalid address: 3$56", prefix)
+        self._assert_error(writer, '#REFS', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#REFSx', "No parameters (expected 1)", prefix)
 
         # No closing bracket
         self._assert_error(writer, '#REFS34567(foo', "No closing bracket: (foo", prefix)

@@ -70,12 +70,9 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
     return [index + len(params)] + get_params(params, num, defaults, names=names)
 
 def _parse_ints_in_brackets(text, index, num, defaults, names):
-    end = text.find(')', index + 1)
-    if end < 0:
-        raise MacroParsingError("No closing bracket: {}".format(text[index:]))
-    params = text[index + 1:end]
+    end, params = _parse_brackets(text, index)
     if re.match('({0}(,({0})?)*)?$'.format(PARAM), params):
-        return [end + 1] + get_params(params, num, defaults, names=names)
+        return [end] + get_params(params, num, defaults, names=names)
     if len(defaults) == max(num, len(names)) > 0:
         return [index] + list(defaults)
     raise MacroParsingError("Invalid integer(s) in parameter string: ({})".format(params))
@@ -112,22 +109,8 @@ def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars
         valid_chars = '$#' + chars
         while index < len(text) and (text[index].isalnum() or text[index] in valid_chars):
             index += 1
-    params = text[start:index]
-    end = index
-    if index < len(text) and text[index] == '(':
-        p_index = index
-        depth = 1
-        end += 1
-        while end < len(text) and depth > 0:
-            if text[end] == ')':
-                depth -= 1
-            elif text[end] == '(':
-                depth += 1
-            end += 1
-        if depth > 0:
-            raise MacroParsingError('No closing bracket: {}'.format(text[p_index:]))
-        p_text = text[index + 1:end - 1]
-    return end, params, p_text
+    end, p_text = _parse_brackets(text, index, p_text)
+    return end, text[start:index], p_text
 
 def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
     result = parse_ints(text, index, defaults=defaults, names=names)
@@ -179,12 +162,9 @@ def _parse_crop_spec(text, index):
     return index, defaults
 
 def _parse_image_fname(text, index, fname=''):
-    if index >= len(text) or text[index] != '(':
+    end, p_text = _parse_brackets(text, index)
+    if p_text is None:
         return index, fname, None, None
-    end = text.find(')', index)
-    if end < 0:
-        raise MacroParsingError('No closing bracket: {}'.format(text[index:]))
-    p_text = text[index + 1:end]
     alt = frame = None
     if p_text:
         if '|' in p_text:
@@ -197,7 +177,22 @@ def _parse_image_fname(text, index, fname=''):
             fname = ''
         if frame == '':
             frame = fname
-    return end + 1, fname, frame, alt
+    return end, fname, frame, alt
+
+def _parse_brackets(text, index, default=None):
+    if index >= len(text) or text[index] != '(':
+        return index, default
+    depth = 1
+    end = index + 1
+    while end < len(text) and depth > 0:
+        if text[end] == ')':
+            depth -= 1
+        elif text[end] == '(':
+            depth += 1
+        end += 1
+    if depth > 0:
+        raise MacroParsingError('No closing bracket: {}'.format(text[index:]))
+    return end, text[index + 1:end - 1]
 
 def evaluate(param):
     try:
@@ -534,16 +529,11 @@ def parse_r(text, index):
 
 def parse_refs(text, index, entry_holder):
     # #REFSaddr[(prefix)]
-    end, addr_str, prefix = parse_params(text, index, '')
-    if not addr_str:
-        raise MacroParsingError("No address")
-    try:
-        address = get_int_param(addr_str)
-    except ValueError:
-        raise MacroParsingError("Invalid address: {}".format(addr_str))
+    end, address = parse_ints(text, index, 1)
+    end, prefix = _parse_brackets(text, end, '')
     entry = entry_holder.get_entry(address)
     if not entry:
-        raise MacroParsingError('No entry at {}'.format(addr_str))
+        raise MacroParsingError('No entry at {}'.format(address))
     referrers = [ref.address for ref in entry.referrers]
     if referrers:
         referrers.sort()
@@ -662,13 +652,7 @@ def parse_udgarray_with_frames(text, index, frame_map=None):
                 end, delay = parse_ints(text, end + 1, names=('delay',))
             params.append((frame_id, delay))
 
-    fname = None
-    if end < len(text) and text[end] == '(':
-        fname_end = text.find(')', end + 1)
-        if fname_end < 0:
-            raise MacroParsingError('No closing bracket: {}'.format(text[end:]))
-        fname = text[end + 1:fname_end]
-        end = fname_end + 1
+    end, fname = _parse_brackets(text, end)
     if not fname:
         raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
     alt = None
