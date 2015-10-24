@@ -981,5 +981,19 @@ class SftParserTest(SkoolKitTestCase):
         exp_skool = []
         self._test_disassembly(sft, exp_skool, snapshot, min_address=2, max_address=3)
 
+    def test_replace_directive(self):
+        snapshot = [127, 32, 49, 57, 56, 52]
+        sft = '\n'.join((
+            '@replace=/#copy/#CHR169',
+            '; Message',
+            'tT00000,B1:5;25 #copy 1984',
+        ))
+        exp_skool = [
+            '@replace=/#copy/#CHR169',
+            '; Message',
+            't00000 DEFM 127," 1984"  ; #copy 1984',
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
 if __name__ == '__main__':
     unittest.main()
