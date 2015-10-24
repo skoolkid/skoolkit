@@ -650,6 +650,10 @@ class AsmWriterTest(SkoolKitTestCase):
         output = writer.expand('#R24576')
         self.assertEqual(output, 'DOSTUFF')
 
+        # Arithmetic expression for address
+        output = writer.expand('#R(96*256+2-10/5)')
+        self.assertEqual(output, 'DOSTUFF')
+
         # Link text
         link_text = 'Testing1'
         output = writer.expand('#R24576({0})'.format(link_text))
@@ -812,20 +816,13 @@ class AsmWriterTest(SkoolKitTestCase):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('R')
 
-        # No address (1)
-        self._assert_error(writer, '#R', "No address", prefix)
-
-        # No address (2)
-        self._assert_error(writer, '#R@main', "No address", prefix)
-
-        # No address (3)
-        self._assert_error(writer, '#R#bar', "No address", prefix)
-
-        # No address (4)
-        self._assert_error(writer, '#R(baz)', "No address", prefix)
+        # No address
+        self._assert_error(writer, '#R', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#R@main', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#R#bar', "No parameters (expected 1)", prefix)
 
         # Invalid address
-        self._assert_error(writer, '#R20$5', "Invalid address: 20$5", prefix)
+        self._assert_error(writer, '#R(baz)', "Invalid integer(s) in parameter string: (baz)", prefix)
 
         # No closing bracket
         self._assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)

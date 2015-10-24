@@ -19,7 +19,7 @@
 import inspect
 import re
 
-from skoolkit import SkoolKitError, SkoolParsingError, get_int_param
+from skoolkit import SkoolKitError, SkoolParsingError
 
 DELIMITERS = {
     '(': ')',
@@ -507,24 +507,21 @@ def parse_pushs(text, index, writer):
 
 def parse_r(text, index):
     # #Raddr[@code][#anchor][(link text)]
-    end, params, link_text = parse_params(text, index, chars='@')
-    anchor = ''
-    anchor_index = params.find('#')
-    if anchor_index >= 0:
-        anchor = params[anchor_index:]
-        params = params[:anchor_index]
-    code_id = ''
-    code_id_index = params.find('@')
-    if code_id_index >= 0:
-        code_id = params[code_id_index + 1:]
-        params = params[:code_id_index]
-    addr_str = params
-    if not addr_str:
-        raise MacroParsingError("No address")
-    try:
-        address = get_int_param(addr_str)
-    except ValueError:
-        raise MacroParsingError("Invalid address: {}".format(addr_str))
+    end, address = parse_ints(text, index, 1)
+    addr_str = text[index:end]
+    match = re.match('@[a-zA-Z0-9$]*', text[end:])
+    if match:
+        code_id = match.group()[1:]
+        end += len(code_id) + 1
+    else:
+        code_id = ''
+    match = re.match('#[a-zA-Z0-9$#]*', text[end:])
+    if match:
+        anchor = match.group()
+        end += len(anchor)
+    else:
+        anchor = ''
+    end, link_text = _parse_brackets(text, end)
     return end, addr_str, address, code_id, anchor, link_text
 
 def parse_refs(text, index, entry_holder):
