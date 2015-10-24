@@ -27,13 +27,17 @@ DELIMITERS = {
     '{': '}'
 }
 
-INTEGER = '(\d+|\$[0-9a-fA-F]+)'
+SIMPLE_INTEGER = '(\d+|\$[0-9a-fA-F]+)'
 
-SIMPLE_PARAM = '([a-z]+=)?{}'.format(INTEGER)
+INTEGER = '[-+]?{0}([-+*/]{0})*'.format(SIMPLE_INTEGER)
 
-PARAM = '([a-z]+=)?[-+]?{0}([-+*/]{0})*'.format(INTEGER)
+PARAM_NAME = '[a-z]+'
 
-ADDR_RANGE_PARAM = '({0}([+*/]{0})*|\([-+]?{0}([-+*/]{0})*\))'.format(INTEGER)
+SIMPLE_PARAM = '({}=)?{}'.format(PARAM_NAME, SIMPLE_INTEGER)
+
+PARAM = '({}=)?{}'.format(PARAM_NAME, INTEGER)
+
+ADDR_RANGE_PARAM = '({0}([+*/]{0})*|\({1}\))'.format(SIMPLE_INTEGER, INTEGER)
 
 ADDR_RANGE = '{0}(-{0}){{,3}}(x{1})?'.format(ADDR_RANGE_PARAM, INTEGER)
 

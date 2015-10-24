@@ -2376,12 +2376,12 @@ class SkoolMacroTest(HtmlWriterTestCase):
         udg_array = [[Udg(attr, udg_data, udg_mask)] * width] * 2
         self._check_image(writer.image_writer, udg_array, scale, mask, x, y, w, h)
 
-        # Arithmetic expressions in address range specifications
+        # Arithmetic expressions in address range specification
         udg_fname = 'test_udg_array7'
         udg1 = Udg(56, [128, 64, 32, 16, 8, 4, 2, 1])
         udg2 = Udg(56, [64, 32, 16, 8, 4, 2, 1, 128])
         udg3 = Udg(56, [32, 16, 8, 4, 2, 1, 128, 64])
-        udg_addr = '40000-40000+8*2-(10-2)'
+        udg_addr = '40000-40000+8*2-(10-2)x2-1'
         snapshot[40000:40008] = udg1.data
         snapshot[40008:40016] = udg2.data
         snapshot[40016:40024] = udg3.data
