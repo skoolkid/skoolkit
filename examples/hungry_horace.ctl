@@ -8,6 +8,7 @@
 ;
 
 b 16384 Loading screen
+D 16384 #SCR(loading)
 B 16384,6912,16
 i 23296
 @ 24576 start

@@ -12,6 +12,7 @@ Logo=#SCR1,2,14,26,8(/images/logo)
 [Changelog:YYYYMMDD]
 Included in SkoolKit 5.1.
 
+Added an image of the #R16384(loading screen)
 Added images of #R29431(maze 1), #R28663(maze 2), #R30199(maze 3) and #R30967(maze 4)
 Added images of the #R31735(maze tiles)
 Added images of #R31943(Horace)
