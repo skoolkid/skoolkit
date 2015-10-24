@@ -764,5 +764,18 @@ class SftWriterTest(SkoolKitTestCase):
         ]
         self._test_sft(skool, exp_sft, max_address=30002)
 
+    def test_replace_directive(self):
+        skool = '\n'.join((
+            '@replace=/#copy/#CHR169',
+            '; Message',
+            't32768 DEFM 127," 1984"  ; #copy 1984',
+        ))
+        exp_sft = [
+            '@replace=/#copy/#CHR169',
+            '; Message',
+            'tT32768,B1:5;25 #copy 1984',
+        ]
+        self._test_sft(skool, exp_sft)
+
 if __name__ == '__main__':
     unittest.main()
