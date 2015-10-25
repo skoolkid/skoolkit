@@ -269,7 +269,7 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
             params[i] = defaults[i - req]
     return params
 
-def get_text_param(text, index, split=False, error=None):
+def parse_text(text, index, split=False, error=None):
     if index >= len(text) or text[index].isspace():
         raise MacroParsingError(error or "No text parameter")
     sep = ','
@@ -425,7 +425,7 @@ def parse_fact(text, index):
 def parse_font(text, index):
     # #FONT[:(text)]addr[,chars,attr,scale][{x,y,width,height}][(fname)]
     if index < len(text) and text[index] == ':':
-        index, message = get_text_param(text, index + 1)
+        index, message = parse_text(text, index + 1)
         if not message:
             raise MacroParsingError("Empty message: {}".format(text[index - 2:index]))
     else:
@@ -439,7 +439,7 @@ def parse_font(text, index):
 def parse_for(text, index):
     # #FORstart,stop[,step](var,string[,sep])
     end, start, stop, step = parse_ints(text, index, 3, (1,))
-    end, args = get_text_param(text, end, True, 'No variable name: {}'.format(text[index:end]))
+    end, args = parse_text(text, end, True, 'No variable name: {}'.format(text[index:end]))
     if not args:
         raise MacroParsingError("No variable name: {}".format(text[index:end]))
     var, s, sep = (args + [''] * (3 - len(args)))[:3]
@@ -447,8 +447,8 @@ def parse_for(text, index):
 
 def parse_foreach(text, index):
     # #FOREACH([v1,v2,...])(var,string[,sep,fsep])
-    end, values = get_text_param(text, index, True, 'No values')
-    end, args = get_text_param(text, end, True, 'No variable name: {}'.format(text[index:end]))
+    end, values = parse_text(text, index, True, 'No values')
+    end, args = parse_text(text, end, True, 'No variable name: {}'.format(text[index:end]))
     if not args:
         raise MacroParsingError("No variable name: {}".format(text[index:end]))
     if not values:
@@ -463,7 +463,7 @@ def parse_foreach(text, index):
 
 def parse_html(text, index):
     # #HTML(text)
-    return get_text_param(text, index)
+    return parse_text(text, index)
 
 def parse_link(text, index):
     # #LINK:PageId[#name](link text)
@@ -485,7 +485,7 @@ def parse_link(text, index):
 def parse_map(text, index):
     # #MAPvalue(default,k1:v1[,k2:v2...])
     end, value = parse_ints(text, index, 1)
-    end, args = get_text_param(text, end, True, "No mappings provided: {}".format(text[index:end]))
+    end, args = parse_text(text, end, True, "No mappings provided: {}".format(text[index:end]))
     if args:
         default = args.pop(0)
     else:
