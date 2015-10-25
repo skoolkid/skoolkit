@@ -16,15 +16,28 @@ def get_chr(code):
     except NameError:
         return chr(code)
 
+class MockSkoolParser:
+    def __init__(self, snapshot=None):
+        self.snapshot = snapshot
+        self.memory_map = ()
+
+    def get_entry(self, address):
+        return None
+
 class AsmWriterTest(SkoolKitTestCase):
-    def _get_writer(self, skool='', crlf=False, tab=False, case=None, base=None, instr_width=23, warn=False, asm_mode=1, fix_mode=0):
-        skoolfile = self.write_text_file(skool, suffix='.skool')
-        skool_parser = SkoolParser(skoolfile, case=case, base=base, asm_mode=asm_mode, fix_mode=fix_mode)
-        properties = dict(skool_parser.properties)
-        properties['crlf'] = '1' if crlf else '0'
-        properties['tab'] = '1' if tab else '0'
-        properties['instruction-width'] = instr_width
-        properties['warnings'] = '1' if warn else '0'
+    def _get_writer(self, skool=None, crlf=False, tab=False, case=None, base=None,
+                    instr_width=23, warn=False, asm_mode=1, fix_mode=0, snapshot=()):
+        if skool is None:
+            skool_parser = MockSkoolParser(snapshot)
+            properties = {}
+        else:
+            skoolfile = self.write_text_file(skool, suffix='.skool')
+            skool_parser = SkoolParser(skoolfile, case=case, base=base, asm_mode=asm_mode, fix_mode=fix_mode)
+            properties = dict(skool_parser.properties)
+            properties['crlf'] = '1' if crlf else '0'
+            properties['tab'] = '1' if tab else '0'
+            properties['instruction-width'] = instr_width
+            properties['warnings'] = '1' if warn else '0'
         return AsmWriter(skool_parser, properties, case == CASE_LOWER)
 
     def _get_asm(self, skool, crlf=False, tab=False, case=None, base=None, instr_width=23, warn=False, asm_mode=1, fix_mode=0):
@@ -321,8 +334,7 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(writer.expand('#EVAL(#MAP5(0,1:1,5:10))'), '10')
 
     def test_macro_eval_with_nested_peek_macro(self):
-        writer = self._get_writer()
-        writer.snapshot[:2] = [2, 1]
+        writer = self._get_writer(snapshot=(2, 1))
         self.assertEqual(writer.expand('#EVAL(#PEEK0+256*#PEEK1)'), '258')
 
     def test_macro_eval_invalid(self):
@@ -408,8 +420,7 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(output, '{2}{3}{5}')
 
     def test_macro_for_with_nested_peek_macro(self):
-        writer = self._get_writer()
-        writer.snapshot[0:3] = [1, 2, 3]
+        writer = self._get_writer(snapshot=(1, 2, 3))
 
         output = writer.expand('#FOR0,2(m,{#PEEKm})')
         self.assertEqual(output, '{1}{2}{3}')
@@ -524,8 +535,7 @@ class AsmWriterTest(SkoolKitTestCase):
         self.assertEqual(output, 'Z')
 
     def test_macro_map_with_nested_peek_macro(self):
-        writer = self._get_writer()
-        writer.snapshot[0] = 23
+        writer = self._get_writer(snapshot=[23])
 
         output = writer.expand('#MAP#PEEK0(a,23:b,5:c)')
         self.assertEqual(output, 'b')
@@ -548,22 +558,20 @@ class AsmWriterTest(SkoolKitTestCase):
         self._assert_error(writer, '#MAP0(1,2:3', "No terminating delimiter: (1,2:3", prefix)
 
     def test_macro_peek(self):
-        writer = self._get_writer()
-        writer.snapshot[32768:32771] = [1, 2, 3]
+        writer = self._get_writer(snapshot=(1, 2, 3))
 
-        output = writer.expand('#PEEK32768')
+        output = writer.expand('#PEEK0')
         self.assertEqual(output, '1')
 
-        output = writer.expand('#PEEK($8001)')
+        output = writer.expand('#PEEK($0001)')
         self.assertEqual(output, '2')
 
         # Address is taken modulo 65536
-        output = writer.expand('#PEEK98306')
+        output = writer.expand('#PEEK65538')
         self.assertEqual(output, '3')
 
     def test_macro_peek_nested(self):
-        writer = self._get_writer()
-        writer.snapshot[:2] = [1, 1]
+        writer = self._get_writer(snapshot=[1] * 258)
         writer.snapshot[257] = 101
 
         output = writer.expand('#PEEK(#PEEK0+256*#PEEK1)')
@@ -587,27 +595,27 @@ class AsmWriterTest(SkoolKitTestCase):
         self._test_reference_macro('POKE', 'poke')
 
     def test_macro_pokes(self):
-        writer = self._get_writer()
+        writer = self._get_writer(snapshot=[0] * 20)
         snapshot = writer.snapshot
 
-        output = writer.expand('#POKES32768,255')
+        output = writer.expand('#POKES0,255')
         self.assertEqual(output, '')
-        self.assertEqual(snapshot[32768], 255)
+        self.assertEqual(snapshot[0], 255)
 
-        output = writer.expand('#POKES32768,254,10')
+        output = writer.expand('#POKES0,254,10')
         self.assertEqual(output, '')
-        self.assertEqual(snapshot[32768:32778], [254] * 10)
+        self.assertEqual([254] * 10, snapshot[0:10])
 
-        output = writer.expand('#POKES32768,253,20,2')
+        output = writer.expand('#POKES0,253,10,2')
         self.assertEqual(output, '')
-        self.assertEqual(snapshot[32768:32808:2], [253] * 20)
+        self.assertEqual([253] * 10, snapshot[0:20:2])
 
-        output = writer.expand('#POKES49152,1;49153,2')
+        output = writer.expand('#POKES1,1;2,2')
         self.assertEqual(output, '')
-        self.assertEqual(snapshot[49152:49154], [1, 2])
+        self.assertEqual([1, 2], snapshot[1:3])
 
     def test_macro_pokes_invalid(self):
-        writer = self._get_writer()
+        writer = self._get_writer(snapshot=[0])
         prefix = ERROR_PREFIX.format('POKES')
 
         # No parameters (1)
@@ -620,8 +628,8 @@ class AsmWriterTest(SkoolKitTestCase):
         self._assert_error(writer, '#POKES0,1;1', "Not enough parameters (expected 2): '1'", prefix)
 
     def test_macro_pops(self):
-        writer = self._get_writer()
-        addr, byte = 49152, 128
+        writer = self._get_writer(snapshot=[0, 0])
+        addr, byte = 1, 128
         writer.snapshot[addr] = byte
         writer.push_snapshot('test')
         writer.snapshot[addr] = (byte + 127) % 256
@@ -635,8 +643,8 @@ class AsmWriterTest(SkoolKitTestCase):
         self._assert_error(writer, '#POPS', 'Cannot pop snapshot when snapshot stack is empty', prefix)
 
     def test_macro_pushs(self):
-        writer = self._get_writer()
-        addr, byte = 32768, 64
+        writer = self._get_writer(snapshot=[0])
+        addr, byte = 0, 64
         for name in ('test', '#foo', 'foo$abcd', ''):
             for suffix in ('', '(bar)', ':baz'):
                 writer.snapshot[addr] = byte
