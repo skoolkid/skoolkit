@@ -59,6 +59,7 @@ SK_SRC_DIR=$D_SK_DIR-src
 mv $D_SK_DIR $SK_SRC_DIR
 
 cp -p $SK_SRC_DIR/examples/hungry_horace.{ctl,ref} $SK_BUILD_DIR
+find $SK_SRC_DIR/examples -name hungryhorace.py -exec cp -p {} $SK_BUILD_DIR \;
 cd $SK_BUILD_DIR
 
 SKOOLFILE=hungry_horace.skool
