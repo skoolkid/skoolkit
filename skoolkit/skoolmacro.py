@@ -311,7 +311,7 @@ def expand_macros(macros, text, *args):
         for m in re.finditer('#FOR(?![A-Z])', text):
             search = m
         if not search:
-            for m in re.finditer('#(MAP|PEEK)(?![A-Z])', text):
+            for m in re.finditer('#(EVAL|MAP|PEEK)(?![A-Z])', text):
                 search = m
             if not search:
                 search = re.search('#[A-Z]+', text)
@@ -404,6 +404,19 @@ def parse_erefs(text, index, entry_holder):
     addr = ereferrers[-1]
     rep += '#R{}'.format(addr)
     return end, rep
+
+def parse_eval(text, index):
+    # #EVAL(arg[,base,width])
+    end, value, base, width = parse_ints(text, index, 3, (10, 1))
+    if base == 2:
+        value = '{:0{}b}'.format(value, width)
+    elif base == 10:
+        value = '{:0{}}'.format(value, width)
+    elif base == 16:
+        value = '{:0{}X}'.format(value, width)
+    else:
+        raise MacroParsingError("Invalid base ({}): {}".format(base, text[index:end]))
+    return end, value
 
 def parse_fact(text, index):
     # #FACT[#name][(link text)]

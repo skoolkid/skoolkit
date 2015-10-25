@@ -168,6 +168,9 @@ class AsmWriter:
     def expand_erefs(self, text, index):
         return skoolmacro.parse_erefs(text, index, self.parser)
 
+    def expand_eval(self, text, index):
+        return skoolmacro.parse_eval(text, index)
+
     def expand_fact(self, text, index):
         end, item, link_text = skoolmacro.parse_fact(text, index)
         return end, link_text or 'fact'

@@ -976,6 +976,52 @@ class SkoolMacroTest(HtmlWriterTestCase):
         address = 30005
         self._assert_error(writer, '#EREFS30005', 'Entry point at 30005 has no referrers', prefix)
 
+    def test_macro_eval(self):
+        writer = self._get_writer()
+
+        # Decimal
+        self.assertEqual(writer.expand('#EVAL5'), '5')
+        self.assertEqual(writer.expand('#EVAL(5+2*3-$12/3)'), '5')
+        self.assertEqual(writer.expand('#EVAL5,10'), '5')
+        self.assertEqual(writer.expand('#EVAL5,,5'), '00005')
+
+        # Hexadecimal
+        self.assertEqual(writer.expand('#EVAL10,16'), 'A')
+        self.assertEqual(writer.expand('#EVAL(31+2*3-$12/3,16)'), '1F')
+        self.assertEqual(writer.expand('#EVAL10,16,2'), '0A')
+
+        # Binary
+        self.assertEqual(writer.expand('#EVAL10,2'), '1010')
+        self.assertEqual(writer.expand('#EVAL(15+2*3-$12/3,2)'), '1111')
+        self.assertEqual(writer.expand('#EVAL16,2,8'), '00010000')
+
+    def test_macro_eval_nested(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#EVAL(1+#EVAL(23-7)/5)'), '4')
+
+    def test_macro_eval_with_nested_for_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#EVAL(#FOR1,4(n,n,*))'), '24')
+
+    def test_macro_eval_with_nested_map_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#EVAL(#MAP5(0,1:1,5:10))'), '10')
+
+    def test_macro_eval_with_nested_peek_macro(self):
+        writer = self._get_writer(snapshot=[2, 1])
+        self.assertEqual(writer.expand('#EVAL(#PEEK0+256*#PEEK1)'), '258')
+
+    def test_macro_eval_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('EVAL')
+
+        self._assert_error(writer, '#EVAL', 'No parameters (expected 1)', prefix)
+        self._assert_error(writer, '#EVALx', 'No parameters (expected 1)', prefix)
+        self._assert_error(writer, '#EVAL(1,x)', 'Invalid integer(s) in parameter string: (1,x)', prefix)
+        self._assert_error(writer, '#EVAL(1,,x)', 'Invalid integer(s) in parameter string: (1,,x)', prefix)
+        self._assert_error(writer, '#EVAL(1,10,5,8)', "Too many parameters (expected 3): '1,10,5,8'", prefix)
+        self._assert_error(writer, '#EVAL5,3', 'Invalid base (3): 5,3', prefix)
+
     def test_macro_fact(self):
         self._test_reference_macro('FACT', 'fact', 'facts')
 

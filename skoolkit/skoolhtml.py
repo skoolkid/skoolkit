@@ -1191,6 +1191,9 @@ class HtmlWriter:
     def expand_erefs(self, text, index, cwd):
         return skoolmacro.parse_erefs(text, index, self)
 
+    def expand_eval(self, text, index, cwd):
+        return skoolmacro.parse_eval(text, index)
+
     def expand_fact(self, text, index, cwd):
         end, item, link_text = skoolmacro.parse_fact(text, index)
         return end, self._expand_item_macro(item, link_text, cwd, self.facts, P_FACTS)
