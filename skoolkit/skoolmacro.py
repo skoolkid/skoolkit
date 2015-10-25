@@ -481,12 +481,9 @@ def parse_poke(text, index):
 
 def parse_pokes(text, index, snapshot):
     # #POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
-    defaults = (1, 1)
-    max_params = 4
-    end, addr, byte, length, step = parse_ints(text, index, max_params, defaults)
-    snapshot[addr:addr + length * step:step] = [byte] * length
-    while end < len(text) and text[end] == ';':
-        end, addr, byte, length, step = parse_ints(text, end + 1, max_params, defaults)
+    end = index - 1
+    while end < index or (end < len(text) and text[end] == ';'):
+        end, addr, byte, length, step = parse_ints(text, end + 1, 4, (1, 1))
         snapshot[addr:addr + length * step:step] = [byte] * length
     return end, ''
 
