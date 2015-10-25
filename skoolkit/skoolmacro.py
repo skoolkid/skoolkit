@@ -304,7 +304,7 @@ def get_macros(writer):
             macros['#' + name[len(prefix):].upper()] = method
     return macros
 
-def expand_macros(macros, text, cwd=None):
+def expand_macros(macros, text, *args):
     if text.find('#') < 0:
         return text
 
@@ -325,10 +325,7 @@ def expand_macros(macros, text, cwd=None):
         repf = macros[marker]
         start, index = search.span()
         try:
-            if cwd is None:
-                end, rep = repf(text, index)
-            else:
-                end, rep = repf(text, index, cwd)
+            end, rep = repf(text, index, *args)
         except UnsupportedMacroError:
             raise SkoolParsingError('Found unsupported macro: {}'.format(marker))
         except MacroParsingError as e:

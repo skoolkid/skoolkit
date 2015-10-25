@@ -248,10 +248,13 @@ image-creating skool macro.
 
 Expanding skool macros
 ----------------------
-Both HtmlWriter and AsmWriter provide methods for expanding skool macros. These
-are useful for basing a ``#CALL`` method or custom macro on an existing macro.
+HtmlWriter and AsmWriter each provide a method for expanding skool macros. This
+is useful for basing a ``#CALL`` method or custom macro on an existing macro.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.expand
+
+   .. versionchanged:: 5.1
+      The *cwd* parameter is optional.
 
 .. automethod:: skoolkit.skoolasm.AsmWriter.expand
 
