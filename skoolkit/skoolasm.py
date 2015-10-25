@@ -183,6 +183,9 @@ class AsmWriter:
     def expand_for(self, text, index):
         return skoolmacro.parse_for(text, index)
 
+    def expand_foreach(self, text, index):
+        return skoolmacro.parse_foreach(text, index)
+
     def expand_html(self, text, index):
         end, message = skoolmacro.parse_html(text, index)
         return end, ''

@@ -308,7 +308,7 @@ def expand_macros(macros, text, *args):
 
     while 1:
         search = None
-        for m in re.finditer('#FOR(?![A-Z])', text):
+        for m in re.finditer('#(FOR|FOREACH)(?![A-Z])', text):
             search = m
         if not search:
             for m in re.finditer('#(EVAL|MAP|PEEK)(?![A-Z])', text):
@@ -444,6 +444,22 @@ def parse_for(text, index):
         raise MacroParsingError("No variable name: {}".format(text[index:end]))
     var, s, sep = (args + [''] * (3 - len(args)))[:3]
     return end, sep.join([s.replace(var, str(n)) for n in range(start, stop + 1, step)])
+
+def parse_foreach(text, index):
+    # #FOREACH([v1,v2,...])(var,string[,sep,fsep])
+    end, values = get_text_param(text, index, True, 'No values')
+    end, args = get_text_param(text, end, True, 'No variable name: {}'.format(text[index:end]))
+    if not args:
+        raise MacroParsingError("No variable name: {}".format(text[index:end]))
+    if not values:
+        return end, ''
+    args += [''] * (3 - len(args))
+    if len(args) == 3:
+        args.append(args[2])
+    var, s, sep, fsep = args[:4]
+    if len(values) == 1:
+        return end, s.replace(var, values[0])
+    return end, fsep.join((sep.join([s.replace(var, v) for v in values[:-1]]), s.replace(var, values[-1])))
 
 def parse_html(text, index):
     # #HTML(text)

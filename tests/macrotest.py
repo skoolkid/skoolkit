@@ -188,6 +188,111 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOR0,1()', "No variable name: 0,1()", prefix)
         self._assert_error(writer, '#FOR0,1(n,n', 'No terminating delimiter: (n,n', prefix)
 
+    def test_macro_foreach(self):
+        writer = self._get_writer()
+
+        # No values
+        output = writer.expand('#FOREACH()($s,$s)')
+        self.assertEqual(output, '')
+
+        # One value
+        output = writer.expand('#FOREACH(a)($s,[$s])')
+        self.assertEqual(output, '[a]')
+
+        # Two values
+        output = writer.expand('#FOREACH(a,b)($s,<$s>)')
+        self.assertEqual(output, '<a><b>')
+
+        # Three values
+        output = writer.expand('#FOREACH(a,b,c)($s,*$s*)')
+        self.assertEqual(output, '*a**b**c*')
+
+        # Values containing commas
+        output = writer.expand('#FOREACH//a,/b,/c//($s,$s)')
+        self.assertEqual(output, 'a,b,c')
+
+    def test_macro_foreach_with_separator(self):
+        writer = self._get_writer()
+
+        # No values
+        output = writer.expand('#FOREACH()($s,$s,.)')
+        self.assertEqual(output, '')
+
+        # One value
+        output = writer.expand('#FOREACH(a)($s,$s,.)')
+        self.assertEqual(output, 'a')
+
+        # Two values
+        output = writer.expand('#FOREACH(a,b)($s,$s,+)')
+        self.assertEqual(output, 'a+b')
+
+        # Three values
+        output = writer.expand('#FOREACH(a,b,c)($s,$s,-)')
+        self.assertEqual(output, 'a-b-c')
+
+        # Separator contains a comma
+        output = writer.expand('#FOREACH(a,b,c)//$s/[$s]/, //')
+        self.assertEqual(output, '[a], [b], [c]')
+
+    def test_macro_foreach_with_final_separator(self):
+        writer = self._get_writer()
+
+        # No values
+        output = writer.expand('#FOREACH()($s,$s,+,-)')
+        self.assertEqual(output, '')
+
+        # One value
+        output = writer.expand('#FOREACH(a)($s,$s,+,-)')
+        self.assertEqual(output, 'a')
+
+        # Two values
+        output = writer.expand('#FOREACH(a,b)($s,$s,+,-)')
+        self.assertEqual(output, 'a-b')
+
+        # Three values
+        output = writer.expand('#FOREACH(a,b,c)//$s/$s/, / and //')
+        self.assertEqual(output, 'a, b and c')
+
+    def test_macro_foreach_nested(self):
+        writer = self._get_writer()
+
+        output = writer.expand('#FOREACH(0,1)||n|#FOREACH(a,n)($s,[$s])|, ||')
+        self.assertEqual(output, '[a][0], [a][1]')
+
+    def test_macro_foreach_with_nested_eval_macro(self):
+        writer = self._get_writer()
+
+        output = writer.expand('#FOREACH(0,1,2)||n|#EVAL(n+1)|, ||')
+        self.assertEqual(output, '1, 2, 3')
+
+    def test_macro_foreach_with_nested_for_macro(self):
+        writer = self._get_writer()
+
+        output = writer.expand('#FOREACH(0,1,2)||n|#FOR5,6//m/m.n/, //|, ||')
+        self.assertEqual(output, '5.0, 6.0, 5.1, 6.1, 5.2, 6.2')
+
+    def test_macro_foreach_with_nested_map_macro(self):
+        writer = self._get_writer()
+
+        output = writer.expand('#FOREACH(0,1,2)||n|#MAPn(c,0:a,1:b)||')
+        self.assertEqual(output, 'abc')
+
+    def test_macro_foreach_with_nested_peek_macro(self):
+        writer = self._get_writer(snapshot=(1, 2, 3))
+
+        output = writer.expand('#FOREACH(0,1,2)(n,n+#PEEKn,+)')
+        self.assertEqual(output, '0+1+1+2+2+3')
+
+    def test_macro_foreach_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('FOREACH')
+
+        self._assert_error(writer, '#FOREACH', 'No values', prefix)
+        self._assert_error(writer, '#FOREACH()', 'No variable name: ()', prefix)
+        self._assert_error(writer, '#FOREACH()()', 'No variable name: ()()', prefix)
+        self._assert_error(writer, '#FOREACH(a,b[$s,$s]', 'No terminating delimiter: (a,b[$s,$s]', prefix)
+        self._assert_error(writer, '#FOREACH(a,b)($s,$s', 'No terminating delimiter: ($s,$s', prefix)
+
     def test_macro_map(self):
         writer = self._get_writer()
 
