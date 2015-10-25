@@ -122,18 +122,16 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
     end, fname, frame, alt = _parse_image_fname(text, end, fname)
     return end, crop_rect, fname, frame, alt, result[1:]
 
-def get_address_range(text, index):
+def parse_address_range(text, index, width):
     match = re.match(ADDR_RANGE, text[index:])
-    if match:
-        spec = match.group()
-        return index + len(spec), spec
-    return index, None
+    if not match:
+        return index, None
+    addr = match.group()
+    end = index + len(addr)
 
-def parse_address_range(spec, width):
     num = 1
-    addr = spec
     if 'x' in addr:
-        addr, num = spec.split('x', 1)
+        addr, num = addr.split('x', 1)
         num = evaluate(num)
 
     elements = [evaluate(m.group()) for m in re.finditer(ADDR_RANGE_PARAM, addr)]
@@ -153,7 +151,7 @@ def parse_address_range(spec, width):
         else:
             address += v_step - (width - 1) * h_step
 
-    return addresses * num
+    return end, addresses * num
 
 def _parse_crop_spec(text, index):
     defaults = (0, 0, None, None)
@@ -591,25 +589,24 @@ def parse_udgarray(text, index, udg_class=None, snapshot=None):
     while end < len(text) and text[end] == ';':
         names = ('attr', 'step', 'inc')
         defaults = (attr, step, inc)
-        end, udg_addr = get_address_range(text, end + 1)
-        if udg_addr is None:
+        end, udg_addresses = parse_address_range(text, end + 1, width)
+        if udg_addresses is None:
             raise MacroParsingError('Expected UDG address range specification: #UDGARRAY{}'.format(text[index:end]))
         if end < len(text) and text[end] == ',':
             end, udg_attr, udg_step, udg_inc = parse_ints(text, end + 1, defaults=defaults, names=names)
         else:
             udg_attr, udg_step, udg_inc = defaults
-        udg_addresses = parse_address_range(udg_addr, width)
         mask_addresses = []
         if end < len(text) and text[end] == ':':
-            end, mask_addr = get_address_range(text, end + 1)
-            if mask_addr is None:
+            end, mask_addresses = parse_address_range(text, end + 1, width)
+            if mask_addresses is None:
                 raise MacroParsingError('Expected mask address range specification: #UDGARRAY{}'.format(text[index:end]))
+            if not mask:
+                mask_addresses = []
             if end < len(text) and text[end] == ',':
                 end, mask_step = parse_ints(text, end + 1, defaults=(udg_step,), names=('step',))
             else:
                 mask_step = udg_step
-            if mask:
-                mask_addresses = parse_address_range(mask_addr, width)
         if udg_class:
             has_masks = has_masks or len(mask_addresses) > 0
             mask_addresses += [None] * (len(udg_addresses) - len(mask_addresses))

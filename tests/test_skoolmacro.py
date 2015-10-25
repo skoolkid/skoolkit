@@ -154,10 +154,12 @@ class SkoolMacroTest(SkoolKitTestCase):
             ('0-17-1-8+8', 2, [0, 1, 16, 17]),
             ('0-17-1-(8+8)', 2, [0, 1, 16, 17]),
             ('1x7/3', 2, [1, 1]),
-            ('1x(1+1)', 2, [1, 1])
+            ('1x1+1', 2, [1, 1])
         ]
-        for addr_spec, width, exp_addresses in addr_specs:
-            self.assertEqual(exp_addresses, parse_address_range(addr_spec, width))
+        for spec, width, exp_addresses in addr_specs:
+            end, addresses = parse_address_range(spec, 0, width)
+            self.assertEqual(end, len(spec), spec)
+            self.assertEqual(exp_addresses, addresses)
 
 if __name__ == '__main__':
     unittest.main()

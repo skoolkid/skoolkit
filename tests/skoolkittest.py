@@ -85,6 +85,7 @@ class Stream:
 
 class SkoolKitTestCase(TestCase):
     def setUp(self):
+        self.longMessage = True
         self.maxDiff = None
         self.stdin = sys.stdin
         self.stdout = sys.stdout
