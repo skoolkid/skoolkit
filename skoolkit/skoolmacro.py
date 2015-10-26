@@ -333,13 +333,15 @@ def expand_macros(macros, text, *args):
     return text
 
 def parse_item_macro(text, index, macro, def_link_text):
-    end, anchor, link_text = parse_params(text, index)
-    if anchor and anchor[0] != '#':
-        raise MacroParsingError("Malformed macro: {}{}".format(macro, text[index:end]))
+    end = index
+    anchor = ''
+    match = re.match('#[a-zA-Z0-9$#]*', text[end:])
+    if match:
+        anchor = match.group()
+        end += match.span()[1]
+    end, link_text = _parse_brackets(text, end, def_link_text)
     if anchor == '#':
         raise MacroParsingError("No item name: {}{}".format(macro, text[index:end]))
-    if link_text is None:
-        link_text = def_link_text
     return end, anchor[1:], link_text
 
 def parse_bug(text, index):

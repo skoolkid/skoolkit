@@ -770,9 +770,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         # Non-existent item
         self._assert_error(writer, '#{}#nonexistentItem()'.format(macro), "Cannot determine title of item 'nonexistentItem'", prefix)
 
-        # Malformed item name
-        self._assert_error(writer, '#{}bad#name()'.format(macro), "Malformed macro: #{}bad#name()".format(macro), prefix)
-
         # No item name
         self._assert_error(writer, '#{}#(foo)'.format(macro), "No item name: #{}#(foo)".format(macro), prefix)
 
