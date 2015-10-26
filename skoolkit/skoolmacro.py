@@ -437,13 +437,18 @@ def parse_font(text, index):
     return end, crop_rect, fname, frame, alt, params
 
 def parse_for(text, index):
-    # #FORstart,stop[,step](var,string[,sep])
+    # #FORstart,stop[,step](var,string[,sep,fsep])
     end, start, stop, step = parse_ints(text, index, 3, (1,))
     end, args = parse_text(text, end, True, 'No variable name: {}'.format(text[index:end]))
     if not args:
         raise MacroParsingError("No variable name: {}".format(text[index:end]))
-    var, s, sep = (args + [''] * (3 - len(args)))[:3]
-    return end, sep.join([s.replace(var, str(n)) for n in range(start, stop + 1, step)])
+    args += [''] * (3 - len(args))
+    if len(args) == 3:
+        args.append(args[2])
+    var, s, sep, fsep = args[:4]
+    if start == stop:
+        return end, s.replace(var, str(start))
+    return end, fsep.join((sep.join([s.replace(var, str(n)) for n in range(start, stop, step)]), s.replace(var, str(stop))))
 
 def parse_foreach(text, index):
     # #FOREACH([v1,v2,...])(var,string[,sep,fsep])

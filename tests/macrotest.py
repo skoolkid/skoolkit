@@ -154,11 +154,32 @@ class CommonSkoolMacroTest:
     def test_macro_for_with_separator(self):
         writer = self._get_writer()
 
+        # One value
+        output = writer.expand('#FOR1,1($s,$s,+)')
+        self.assertEqual(output, '1')
+
+        # More than one value
         output = writer.expand('{ #FOR1,5(n,n, | ) }')
         self.assertEqual(output, '{ 1 | 2 | 3 | 4 | 5 }')
 
+        # Separator contains a comma
         output = writer.expand('#FOR6,10//n/(n)/, //')
         self.assertEqual(output, '(6), (7), (8), (9), (10)')
+
+    def test_macro_for_with_final_separator(self):
+        writer = self._get_writer()
+
+        # One value
+        output = writer.expand('#FOR1,1($s,$s,+,-)')
+        self.assertEqual(output, '1')
+
+        # Two values
+        output = writer.expand('#FOR1,2($s,$s,+,-)')
+        self.assertEqual(output, '1-2')
+
+        # Three values
+        output = writer.expand('#FOR1,3//$s/$s/, / and //')
+        self.assertEqual(output, '1, 2 and 3')
 
     def test_macro_for_nested(self):
         writer = self._get_writer()
