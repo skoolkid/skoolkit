@@ -763,18 +763,12 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
                 error_msg = '{}: {}'.format(prefix, error_msg)
             self.assertEqual(cm.exception.args[0], error_msg)
 
+    def _test_invalid_image_macro(self, writer, macro, error_msg, prefix):
+        self._assert_error(writer, macro, error_msg, prefix)
+
     def _test_invalid_reference_macro(self, macro):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format(macro)
-
-        # Non-existent item
+        writer, prefix = CommonSkoolMacroTest._test_invalid_reference_macro(self, macro)
         self._assert_error(writer, '#{}#nonexistentItem()'.format(macro), "Cannot determine title of item 'nonexistentItem'", prefix)
-
-        # No item name
-        self._assert_error(writer, '#{}#(foo)'.format(macro), "No item name: #{}#(foo)".format(macro), prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#{}(foo'.format(macro), "No closing bracket: (foo", prefix)
 
     def _test_call(self, cwd, arg1, arg2, arg3=None):
         # Method used to test the #CALL macro
@@ -796,9 +790,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer.bugs = [(anchor, title, None)]
         output = writer.expand('#BUG#{0}()'.format(anchor), ASMDIR)
         self._assert_link_equals(output, '../reference/bugs.html#{0}'.format(anchor), title)
-
-    def test_macro_bug_invalid(self):
-        self._test_invalid_reference_macro('BUG')
 
     def test_macro_chr(self):
         writer = self._get_writer()
@@ -823,25 +814,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         output = writer.expand('#CHR(65+3*2-9/3)')
         self.assertEqual(output, '&#68;')
-
-    def test_macro_chr_invalid(self):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format('CHR')
-
-        # No parameter
-        self._assert_error(writer, '#CHR', 'No parameters (expected 1)', prefix)
-
-        # Blank parameter
-        self._assert_error(writer, '#CHR()', "No parameters (expected 1)", prefix)
-
-        # Invalid parameter
-        self._assert_error(writer, '#CHR(x)', "Invalid integer(s) in parameter string: (x)", prefix)
-
-        # Too many parameters
-        self._assert_error(writer, '#CHR(1,2)', "Too many parameters (expected 1): '1,2'", prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)
 
     def test_macro_erefs(self):
         # Entry point with one referrer
@@ -873,20 +845,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#EREFS30004', ASMDIR)
         self.assertEqual(output, 'routines at <a href="30000.html">30000</a> and <a href="30005.html">30005</a>')
 
-    def test_macro_erefs_invalid(self):
-        writer = self._get_writer(skool='c30005 JP 30004')
-        prefix = ERROR_PREFIX.format('EREFS')
-
-        # No parameter (1)
-        self._assert_error(writer, '#EREFS', 'No parameters (expected 1)', prefix)
-
-        # No parameter (2)
-        self._assert_error(writer, '#EREFSx', 'No parameters (expected 1)', prefix)
-
-        # Entry point with no referrers
-        address = 30005
-        self._assert_error(writer, '#EREFS30005', 'Entry point at 30005 has no referrers', prefix)
-
     def test_macro_fact(self):
         self._test_reference_macro('FACT', 'fact', 'facts')
 
@@ -897,9 +855,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer.facts = [(anchor, title, None)]
         output = writer.expand('#FACT#{0}()'.format(anchor), ASMDIR)
         self._assert_link_equals(output, '../reference/facts.html#{0}'.format(anchor), title)
-
-    def test_macro_fact_invalid(self):
-        self._test_invalid_reference_macro('FACT')
 
     def test_macro_font(self):
         snapshot = [0] * 65536
@@ -1026,34 +981,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#FONT:( )0({}|{})'.format(fname, alt), ASMDIR)
         self._assert_img_equals(output, alt, '../{}/{}.png'.format(FONTDIR, fname))
 
-    def test_macro_font_invalid(self):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format('FONT')
-
-        # No parameters
-        self._assert_error(writer, '#FONT', 'No parameters (expected 1)', prefix)
-
-        # No text parameter
-        self._assert_error(writer, '#FONT:', 'No text parameter', prefix)
-
-        # Too many parameters
-        self._assert_error(writer, '#FONT0,1,2,3,4,5', "Too many parameters (expected 4): '0,1,2,3,4,5'", prefix)
-
-        # Too many parameters in cropping specification
-        self._assert_error(writer, '#FONT0{0,0,23,14,5}(foo)', "Too many parameters (expected 4): '0,0,23,14,5'", prefix)
-
-        # No closing brace on cropping specification
-        self._assert_error(writer, '#FONT0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#FONT0(foo', 'No closing bracket: (foo', prefix)
-
-        # Empty message
-        self._assert_error(writer, '#FONT:()0', 'Empty message: ()', prefix)
-
-        # No terminating text delimiter
-        self._assert_error(writer, '#FONT:[hi)0', 'No terminating delimiter: [hi)0', prefix)
-
     def test_macro_html(self):
         writer = self._get_writer()
 
@@ -1070,16 +997,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         output = writer.expand('#HTML?#CHR169?')
         self.assertEqual(output, '&#169;')
-
-    def test_macro_html_invalid(self):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format('HTML')
-
-        # No text parameter
-        self._assert_error(writer, '#HTML', 'No text parameter', prefix)
-
-        # Unterminated
-        self._assert_error(writer, '#HTML:unterminated', 'No terminating delimiter: :unterminated', prefix)
 
     def test_macro_link(self):
         ref = '\n'.join((
@@ -1107,29 +1024,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, '../page2.html#anchor~1', 'Custom page 2')
 
     def test_macro_link_invalid(self):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format('LINK')
-
-        # No parameters
-        self._assert_error(writer, '#LINK', 'No parameters', prefix)
-
-        # No page ID (1)
-        self._assert_error(writer, '#LINK:', 'No page ID: #LINK:', prefix)
-
-        # No page ID (2)
-        self._assert_error(writer, '#LINK:(text)', 'No page ID: #LINK:(text)', prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#LINK:(text', 'No closing bracket: (text', prefix)
-
-        # Malformed macro
-        self._assert_error(writer, '#LINKpageID(text)', 'Malformed macro: #LINKp...', prefix)
-
-        # Unknown page ID
+        writer, prefix = CommonSkoolMacroTest.test_macro_link_invalid(self)
         self._assert_error(writer, '#LINK:nonexistentPageID(text)', 'Unknown page ID: nonexistentPageID', prefix)
-
-        # No link text
-        self._assert_error(writer, '#LINK:Bugs', 'No link text: #LINK:Bugs', prefix)
 
     def test_macro_list(self):
         writer = self._get_writer()
@@ -1176,9 +1072,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer.pokes = [(anchor, title, None)]
         output = writer.expand('#POKE#{0}()'.format(anchor), ASMDIR)
         self._assert_link_equals(output, '../reference/pokes.html#{0}'.format(anchor), title)
-
-    def test_macro_poke_invalid(self):
-        self._test_invalid_reference_macro('POKE')
 
     def test_macro_r(self):
         skool = '\n'.join((
@@ -1493,19 +1386,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_error(writer, '#R40001', error_msg, error=SkoolKitError)
 
     def test_macro_r_invalid(self):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format('R')
-
-        # No address
-        self._assert_error(writer, '#R', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#R@main', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#R#bar', "No parameters (expected 1)", prefix)
-
-        # Invalid address
-        self._assert_error(writer, '#R(baz)', "Invalid integer(s) in parameter string: (baz)", prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)
+        writer, prefix = CommonSkoolMacroTest.test_macro_r_invalid(self)
 
         # Non-existent other code reference
         self._assert_error(writer, '#R24576@nonexistent', "Cannot find code path for 'nonexistent' disassembly", error=SkoolKitError)
@@ -1556,20 +1437,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#REFS24576', ASMDIR)
         self.assertEqual(output, 'Not used directly by any other routines')
 
-    def test_macro_refs_invalid(self):
-        writer = self._get_writer(skool='')
-        prefix = ERROR_PREFIX.format('REFS')
-
-        # No address
-        self._assert_error(writer, '#REFS', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#REFSx', "No parameters (expected 1)", prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#REFS34567(foo', "No closing bracket: (foo", prefix)
-
-        # Non-existent entry
-        self._assert_error(writer, '#REFS40000', "No entry at 40000", prefix)
-
     def test_macro_reg(self):
         # Lower case
         writer = self._get_writer()
@@ -1582,19 +1449,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         for reg in ("a", "b", "c", "d", "e", "h", "l", "i", "r", "ixl", "ixh", "iyl", "iyh", "b'", "c'", "d'", "e'", "h'", "l'", "bc", "de", "hl", "sp", "ix", "iy", "bc'", "de'", "hl'"):
             output = writer.expand('#REG{}'.format(reg))
             self.assertEqual(output, '<span class="register">{0}</span>'.format(reg.upper()))
-
-    def test_macro_reg_invalid(self):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format('REG')
-
-        # Missing register argument (1)
-        self._assert_error(writer, '#REG', 'Missing register argument', prefix)
-
-        # Missing register argument (2)
-        self._assert_error(writer, '#REGq', 'Missing register argument', prefix)
-
-        # Bad register argument
-        self._assert_error(writer, '#REGabcd', 'Bad register: "abcd"', prefix)
 
     def test_macro_scr(self):
         snapshot = [0] * 65536
@@ -1691,22 +1545,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#SCR({}|{})'.format(fname, alt), ASMDIR)
         self._assert_img_equals(output, alt, '../images/scr/{}.png'.format(fname))
 
-    def test_macro_scr_invalid(self):
-        writer = self._get_writer(snapshot=[0] * 8)
-        prefix = ERROR_PREFIX.format('SCR')
-
-        # Too many parameters
-        self._assert_error(writer, '#SCR0,1,2,3,4,5,6,7,8', "Too many parameters (expected 7): '0,1,2,3,4,5,6,7,8'", prefix)
-
-        # Too many parameters in cropping specification
-        self._assert_error(writer, '#SCR{0,0,23,14,5}(foo)', "Too many parameters (expected 4): '0,0,23,14,5'", prefix)
-
-        # No closing brace on cropping specification
-        self._assert_error(writer, '#SCR{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#SCR(foo', 'No closing bracket: (foo', prefix)
-
     def test_macro_space(self):
         writer = self._get_writer()
         space = '&#160;'
@@ -1737,13 +1575,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         output = writer.expand('|#SPACE(1+3*2-10/2)|')
         self.assertEqual(output, '|{}|'.format(space * 2))
-
-    def test_macro_space_invalid(self):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format('SPACE')
-
-        # No closing bracket
-        self._assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)
 
     def test_macro_table(self):
         src1 = '\n'.join((
@@ -1950,28 +1781,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#UDG0(|{})'.format(alt), ASMDIR)
         self._assert_img_equals(output, alt, '../{}/udg0_56x4.png'.format(UDGDIR))
 
-    def test_macro_udg_invalid(self):
-        writer = self._get_writer(snapshot=[0] * 8)
-        prefix = ERROR_PREFIX.format('UDG')
-
-        # No parameters
-        self._assert_error(writer, '#UDG', 'No parameters (expected 1)', prefix)
-
-        # Too many parameters
-        self._assert_error(writer, '#UDG0,1,2,3,4,5,6,7,8,9', "Too many parameters (expected 8): '0,1,2,3,4,5,6,7,8,9'", prefix)
-
-        # Too many parameters in mask specification
-        self._assert_error(writer, '#UDG0:1,2,3', "Too many parameters (expected 2): '1,2,3'", prefix)
-
-        # Too many parameters in cropping specification
-        self._assert_error(writer, '#UDG0{0,0,23,14,5}(foo)', "Too many parameters (expected 4): '0,0,23,14,5'", prefix)
-
-        # No closing brace on cropping specification
-        self._assert_error(writer, '#UDG0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#UDG0(foo', 'No closing bracket: (foo', prefix)
-
     def test_macro_udgarray(self):
         snapshot = [0] * 65536
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
@@ -2100,42 +1909,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer.expand('#UDGARRAY1,mask=2;0:8(udgarray)', ASMDIR)
         self._check_image(writer.image_writer, udg_array, scale, mask=2)
 
-    def test_macro_udgarray_invalid(self):
-        writer = self._get_writer(snapshot=[0] * 8)
-        prefix = ERROR_PREFIX.format('UDGARRAY')
-
-        # No parameters
-        self._assert_error(writer, '#UDGARRAY', 'No parameters (expected 1)', prefix)
-
-        # Missing UDG address range spec
-        self._assert_error(writer, '#UDGARRAY1;(foo)', 'Expected UDG address range specification: #UDGARRAY1;', prefix)
-
-        # Missing mask address range spec
-        self._assert_error(writer, '#UDGARRAY1;0:(foo)', 'Expected mask address range specification: #UDGARRAY1;0:', prefix)
-
-        # Missing filename
-        self._assert_error(writer, '#UDGARRAY1;0', 'Missing filename: #UDGARRAY1;0', prefix)
-        self._assert_error(writer, '#UDGARRAY1;0()', 'Missing filename: #UDGARRAY1;0()', prefix)
-        self._assert_error(writer, '#UDGARRAY1;0{0,0}1(foo)', 'Missing filename: #UDGARRAY1;0{0,0}', prefix)
-
-        # Missing filename or frame ID
-        self._assert_error(writer, '#UDGARRAY1;0(*)', 'Missing filename or frame ID: #UDGARRAY1;0(*)', prefix)
-
-        # Too many parameters in UDG specification
-        self._assert_error(writer, '#UDGARRAY1;32768,1,2,3,4', "Too many parameters (expected 3): '1,2,3,4'", prefix)
-
-        # Too many parameters in mask specification
-        self._assert_error(writer, '#UDGARRAY1;32768:32769,1,2', "Too many parameters (expected 1): '1,2'", prefix)
-
-        # Too many parameters in cropping specification
-        self._assert_error(writer, '#UDGARRAY1;0{0,0,23,14,5}(foo)', "Too many parameters (expected 4): '0,0,23,14,5'", prefix)
-
-        # No closing brace on cropping specification
-        self._assert_error(writer, '#UDGARRAY1;0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#UDGARRAY1;0(foo', 'No closing bracket: (foo', prefix)
-
     def test_macro_udgarray_frames(self):
         snapshot = [0] * 65536
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
@@ -2171,15 +1944,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._check_animated_image(writer.image_writer, frames)
 
     def test_macro_udgarray_frames_invalid(self):
-        writer = self._get_writer(snapshot=[0] * 8)
-        prefix = ERROR_PREFIX.format('UDGARRAY')
-
-        self._assert_error(writer, '#UDGARRAY*(bar)', 'No frames specified: #UDGARRAY*(bar)', prefix)
-        self._assert_error(writer, '#UDGARRAY*foo', 'Missing filename: #UDGARRAY*foo', prefix)
-        self._assert_error(writer, '#UDGARRAY*foo()', 'Missing filename: #UDGARRAY*foo()', prefix)
-        self._assert_error(writer, '#UDGARRAY*foo(bar', 'No closing bracket: (bar', prefix)
+        writer, prefix = CommonSkoolMacroTest.test_macro_udgarray_frames_invalid(self)
         self._assert_error(writer, '#UDGARRAY*foo(bar)', 'No such frame: "foo"', prefix)
-        self._assert_error(writer, '#UDGARRAY*foo,qux(bar)', "No parameters (expected 1)", prefix)
 
     def test_macro_udgarray_alt_text(self):
         writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)

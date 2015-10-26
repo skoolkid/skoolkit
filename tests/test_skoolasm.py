@@ -77,6 +77,9 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             prefix = ERROR_PREFIX.format(macro[1:])
             self._assert_error(writer, text, error_msg, prefix)
 
+    def _test_invalid_image_macro(self, writer, macro, error_msg, prefix):
+        self._test_unsupported_macro(writer, macro, error_msg)
+
     def _test_reference_macro(self, macro, def_link_text):
         writer = self._get_writer()
         for link_text in ('', '()', '(testing)', '(testing (nested) parentheses)'):
@@ -87,22 +90,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         for suffix in ',;:.!)?/"\'':
             output = writer.expand('#{}#name{}'.format(macro, suffix))
             self.assertEqual(output, def_link_text + suffix)
-
-    def _test_invalid_reference_macro(self, macro):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format(macro)
-
-        # Non-existent item
-        self._assert_error(writer, '#{}#nonexistentItem()'.format(macro), "Cannot determine title of item 'nonexistentItem'", prefix)
-
-        # Malformed item name
-        self._assert_error(writer, '#{}bad#name()'.format(macro), "Malformed macro: #{}bad#name()".format(macro), prefix)
-
-        # No item name
-        self._assert_error(writer, '#{}#(foo)'.format(macro), "No item name: #{}#(foo)".format(macro), prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#{}(foo'.format(macro), "No closing bracket: (foo", prefix)
 
     def _test_call(self, arg1, arg2, arg3=None):
         # Method used to test the #CALL macro
@@ -149,25 +136,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         output = writer.expand('#CHR(65+3*2-9/3)')
         self.assertEqual(output, 'D')
 
-    def test_macro_chr_invalid(self):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format('CHR')
-
-        # No parameter
-        self._assert_error(writer, '#CHR', 'No parameters (expected 1)', prefix)
-
-        # Blank parameter
-        self._assert_error(writer, '#CHR()', "No parameters (expected 1)", prefix)
-
-        # Invalid parameter
-        self._assert_error(writer, '#CHR(x,y)', "Invalid integer(s) in parameter string: (x,y)", prefix)
-
-        # Too many parameters
-        self._assert_error(writer, '#CHR(1,2)', "Too many parameters (expected 1): '1,2'", prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)
-
     def test_macro_erefs(self):
         skool = '\n'.join((
             '@start',
@@ -187,32 +155,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             output = writer.expand('#EREFS{}'.format(address))
             self.assertEqual(output, 'routines at 30000 and 30005')
 
-    def test_macro_erefs_invalid(self):
-        skool = '\n'.join((
-            '@start',
-            '; First routine',
-            'c30000 CALL 30004',
-            '',
-            '; Second routine',
-            'c30003 LD A,B',
-            ' 30004 LD B,C',
-            '',
-            '; Third routine',
-            'c30005 JP 30004',
-        ))
-        writer = self._get_writer(skool)
-        prefix = ERROR_PREFIX.format('EREFS')
-
-        # No parameter (1)
-        self._assert_error(writer, '#EREFS', 'No parameters (expected 1)', prefix)
-
-        # No parameter (2)
-        self._assert_error(writer, '#EREFSx', 'No parameters (expected 1)', prefix)
-
-        # Entry point with no referrers
-        address = 30005
-        self._assert_error(writer, '#EREFS30005', 'Entry point at 30005 has no referrers', prefix)
-
     def test_macro_fact(self):
         self._test_reference_macro('FACT', 'fact')
 
@@ -222,12 +164,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_unsupported_macro(writer, '#FONT:[foo]0,,5')
         self._test_unsupported_macro(writer, '#FONT32768,3,scale=4{x=1,width=26}(chars)')
         self._test_unsupported_macro(writer, '#FONT(32768+1,10-6,7*8,4/2)(foo)')
-
-    def test_macro_font_invalid(self):
-        writer = self._get_writer()
-
-        self._test_unsupported_macro(writer, '#FONT:@bar', "No terminating delimiter: @bar")
-        self._test_unsupported_macro(writer, '#FONT0(foo', "No closing bracket: (foo")
 
     def test_macro_html(self):
         writer = self._get_writer()
@@ -242,10 +178,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
                 output = writer.expand('#HTML{0}{1}{2}'.format(delim1, text, delim2))
                 self.assertEqual(output, '')
 
-        # Unterminated #HTML macro
-        prefix = ERROR_PREFIX.format('HTML')
-        self._assert_error(writer, '#HTML:unterminated', 'No terminating delimiter: :unterminated', prefix)
-
     def test_macro_link(self):
         writer = self._get_writer()
 
@@ -254,28 +186,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(output, link_text)
 
     def test_macro_link_invalid(self):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format('LINK')
-
-        # No parameters
-        self._assert_error(writer, '#LINK', 'No parameters', prefix)
-
-        # No page ID (1)
-        self._assert_error(writer, '#LINK:', 'No page ID: #LINK:', prefix)
-
-        # No page ID (2)
-        self._assert_error(writer, '#LINK:(text)', 'No page ID: #LINK:(text)', prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#LINK:(text', 'No closing bracket: (text', prefix)
-
-        # Malformed #LINK macro
-        self._assert_error(writer, '#LINKpageID', 'Malformed macro: #LINKp...', prefix)
-
-        # No link text
-        self._assert_error(writer, '#LINK:PageID', 'No link text: #LINK:PageID', prefix)
-
-        # Blank link text
+        writer, prefix = CommonSkoolMacroTest.test_macro_link_invalid(self)
         self._assert_error(writer, '#LINK:PageID()', 'Blank link text: #LINK:PageID()', prefix)
 
     def test_macro_poke(self):
@@ -493,21 +404,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         output = writer.expand('#R$c000@main')
         self.assertEqual(output, '49152')
 
-    def test_macro_r_invalid(self):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format('R')
-
-        # No address
-        self._assert_error(writer, '#R', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#R@main', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#R#bar', "No parameters (expected 1)", prefix)
-
-        # Invalid address
-        self._assert_error(writer, '#R(baz)', "Invalid integer(s) in parameter string: (baz)", prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)
-
     def test_macro_refs(self):
         skool = '\n'.join((
             '@start',
@@ -539,48 +435,17 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         output = writer.expand('#REFS24586')
         self.assertEqual(output, 'Not used directly by any other routines')
 
-    def test_macro_refs_invalid(self):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format('REFS')
-
-        # No address
-        self._assert_error(writer, '#REFS', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#REFSx', "No parameters (expected 1)", prefix)
-
-        # No closing bracket
-        self._assert_error(writer, '#REFS34567(foo', "No closing bracket: (foo", prefix)
-
-        # Non-existent entry
-        self._assert_error(writer, '#REFS40000', "No entry at 40000", prefix)
-
     def test_macro_reg(self):
         writer = self._get_writer()
         for reg in ("a", "b", "c", "d", "e", "h", "l", "i", "r", "ixl", "ixh", "iyl", "iyh", "b'", "c'", "d'", "e'", "h'", "l'", "bc", "de", "hl", "sp", "ix", "iy", "bc'", "de'", "hl'"):
             output = writer.expand('#REG{0}'.format(reg))
             self.assertEqual(output, reg.upper())
 
-    def test_macro_reg_invalid(self):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format('REG')
-
-        # Missing register argument (1)
-        self._assert_error(writer, '#REG', 'Missing register argument', prefix)
-
-        # Missing register argument (2)
-        self._assert_error(writer, '#REGq', 'Missing register argument', prefix)
-
-        # Bad register argument
-        self._assert_error(writer, '#REGabcd', 'Bad register: "abcd"', prefix)
-
     def test_macro_scr(self):
         writer = self._get_writer()
         self._test_unsupported_macro(writer, '#SCR2(fname)')
         self._test_unsupported_macro(writer, '#SCR2,w=8,h=8{x=1,width=62}(fname)')
         self._test_unsupported_macro(writer, '#SCR(2+2,4-1,3*3,4/2)(foo*bar|baz)')
-
-    def test_macro_scr_invalid(self):
-        writer = self._get_writer()
-        self._test_unsupported_macro(writer, '#SCR0(bar', "No closing bracket: (bar")
 
     def test_macro_space(self):
         writer = self._get_writer()
@@ -612,22 +477,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         output = writer.expand('|#SPACE(1+3*2-10/2)|')
         self.assertEqual(output, '|  |')
 
-    def test_macro_space_invalid(self):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format('SPACE')
-
-        # No closing bracket
-        self._assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)
-
     def test_macro_udg(self):
         writer = self._get_writer()
         self._test_unsupported_macro(writer, '#UDG39144,6(safe_key)')
         self._test_unsupported_macro(writer, '#UDG65432,scale=2,mask=2:65440{y=2,height=14}(key)')
         self._test_unsupported_macro(writer, '#UDG(0+1,3-2,4*5,8/2)(key*)')
-
-    def test_macro_udg_invalid(self):
-        writer = self._get_writer()
-        self._test_unsupported_macro(writer, '#UDG0(baz', "No closing bracket: (baz")
 
     def test_macro_udgarray(self):
         writer = self._get_writer()
@@ -636,14 +490,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_unsupported_macro(writer, '#UDGARRAY*foo,(2*10);bar,(1+19);baz,(25-5);qux,(40/2)(logo|Logo)')
         self._test_unsupported_macro(writer, '#UDGARRAY*foo,delay=2;bar(baz)')
         self._test_unsupported_macro(writer, '#UDGARRAY(3-2,1+5,2*2,16/2);256*128x3+1(baz)')
-
-    def test_macro_udgarray_invalid(self):
-        writer = self._get_writer()
-        self._test_unsupported_macro(writer, '#UDGARRAY1;0(qux', "No closing bracket: (qux")
-        self._test_unsupported_macro(writer, '#UDGARRAY*xyzzy;foo(wibble', "No closing bracket: (wibble")
-        self._test_unsupported_macro(writer, '#UDGARRAY1;0', 'Missing filename: #UDGARRAY1;0')
-        self._test_unsupported_macro(writer, '#UDGARRAY1;0()', 'Missing filename: #UDGARRAY1;0()')
-        self._test_unsupported_macro(writer, '#UDGARRAY1;0(*)', 'Missing filename or frame ID: #UDGARRAY1;0(*)')
 
     def test_macro_udgtable(self):
         writer = self._get_writer()

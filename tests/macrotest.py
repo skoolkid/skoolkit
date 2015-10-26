@@ -3,6 +3,15 @@
 ERROR_PREFIX = 'Error while parsing #{} macro'
 
 class CommonSkoolMacroTest:
+    def _test_invalid_reference_macro(self, macro):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format(macro)
+
+        self._assert_error(writer, '#{}#(foo)'.format(macro), "No item name: #{}#(foo)".format(macro), prefix)
+        self._assert_error(writer, '#{}(foo'.format(macro), "No closing bracket: (foo", prefix)
+
+        return writer, prefix
+
     def _check_call(self, writer, params, *args):
         macro = '#CALL:test_call({})'.format(params)
         if writer.needs_cwd():
@@ -10,6 +19,9 @@ class CommonSkoolMacroTest:
             self.assertEqual(writer.expand(macro, cwd), writer.test_call(*((cwd,) + args)))
         else:
             self.assertEqual(writer.expand(macro), writer.test_call(*args))
+
+    def test_macro_bug_invalid(self):
+        self._test_invalid_reference_macro('BUG')
 
     def test_macro_call(self):
         writer = self._get_writer(warn=True)
@@ -53,6 +65,17 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#CALL:test_call(1)')
         self._assert_error(writer, '#CALL:test_call(1,2,3,4)')
 
+    def test_macro_chr_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('CHR')
+
+        self._assert_error(writer, '#CHR', 'No parameters (expected 1)', prefix)
+        self._assert_error(writer, '#CHRx', 'No parameters (expected 1)', prefix)
+        self._assert_error(writer, '#CHR()', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#CHR(x,y)', "Invalid integer(s) in parameter string: (x,y)", prefix)
+        self._assert_error(writer, '#CHR(1,2)', "Too many parameters (expected 1): '1,2'", prefix)
+        self._assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)
+
     def test_macro_d(self):
         skool = '\n'.join((
             '@start',
@@ -82,6 +105,14 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#Dx', 'No parameters (expected 1)', prefix)
         self._assert_error(writer, '#D32770', 'Entry at 32770 has no description', prefix)
         self._assert_error(writer, '#D32771', 'Cannot determine description for non-existent entry at 32771', prefix)
+
+    def test_macro_erefs_invalid(self):
+        writer = self._get_writer(skool='@start\nc30005 JP 30004')
+        prefix = ERROR_PREFIX.format('EREFS')
+
+        self._assert_error(writer, '#EREFS', 'No parameters (expected 1)', prefix)
+        self._assert_error(writer, '#EREFSx', 'No parameters (expected 1)', prefix)
+        self._assert_error(writer, '#EREFS30005', 'Entry point at 30005 has no referrers', prefix)
 
     def test_macro_eval(self):
         writer = self._get_writer()
@@ -128,6 +159,22 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#EVAL(1,,x)', 'Invalid integer(s) in parameter string: (1,,x)', prefix)
         self._assert_error(writer, '#EVAL(1,10,5,8)', "Too many parameters (expected 3): '1,10,5,8'", prefix)
         self._assert_error(writer, '#EVAL5,3', 'Invalid base (3): 5,3', prefix)
+
+    def test_macro_fact_invalid(self):
+        self._test_invalid_reference_macro('FACT')
+
+    def test_macro_font_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('FONT')
+
+        self._test_invalid_image_macro(writer, '#FONT', 'No parameters (expected 1)', prefix)
+        self._test_invalid_image_macro(writer, '#FONT:', 'No text parameter', prefix)
+        self._test_invalid_image_macro(writer, '#FONT0,1,2,3,4,5', "Too many parameters (expected 4): '0,1,2,3,4,5'", prefix)
+        self._test_invalid_image_macro(writer, '#FONT0{0,0,23,14,5}(foo)', "Too many parameters (expected 4): '0,0,23,14,5'", prefix)
+        self._test_invalid_image_macro(writer, '#FONT0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
+        self._test_invalid_image_macro(writer, '#FONT0(foo', 'No closing bracket: (foo', prefix)
+        self._test_invalid_image_macro(writer, '#FONT:()0', 'Empty message: ()', prefix)
+        self._test_invalid_image_macro(writer, '#FONT:[hi)0', 'No terminating delimiter: [hi)0', prefix)
 
     def test_macro_for(self):
         writer = self._get_writer()
@@ -326,6 +373,26 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOREACH(a,b[$s,$s]', 'No terminating delimiter: (a,b[$s,$s]', prefix)
         self._assert_error(writer, '#FOREACH(a,b)($s,$s', 'No terminating delimiter: ($s,$s', prefix)
 
+    def test_macro_html_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('HTML')
+
+        self._assert_error(writer, '#HTML', 'No text parameter', prefix)
+        self._assert_error(writer, '#HTML:unterminated', 'No terminating delimiter: :unterminated', prefix)
+
+    def test_macro_link_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('LINK')
+
+        self._assert_error(writer, '#LINK', 'No parameters', prefix)
+        self._assert_error(writer, '#LINK:', 'No page ID: #LINK:', prefix)
+        self._assert_error(writer, '#LINK:(text)', 'No page ID: #LINK:(text)', prefix)
+        self._assert_error(writer, '#LINK:(text', 'No closing bracket: (text', prefix)
+        self._assert_error(writer, '#LINKpageID', 'Malformed macro: #LINKp...', prefix)
+        self._assert_error(writer, '#LINK:Bugs', 'No link text: #LINK:Bugs', prefix)
+
+        return writer, prefix
+
     def test_macro_map(self):
         writer = self._get_writer()
 
@@ -416,6 +483,9 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#PEEK(3', "No closing bracket: (3", prefix)
         self._assert_error(writer, '#PEEK(4,5)', "Too many parameters (expected 1): '4,5'", prefix)
 
+    def test_macro_poke_invalid(self):
+        self._test_invalid_reference_macro('POKE')
+
     def test_macro_pokes(self):
         writer = self._get_writer(snapshot=[0] * 20)
         snapshot = writer.snapshot
@@ -471,3 +541,87 @@ class CommonSkoolMacroTest:
                 writer.snapshot[addr] = (byte + 127) % 256
                 writer.pop_snapshot()
                 self.assertEqual(writer.snapshot[addr], byte)
+
+    def test_macro_r_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('R')
+
+        self._assert_error(writer, '#R', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#R@main', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#R#bar', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#R(baz)', "Invalid integer(s) in parameter string: (baz)", prefix)
+        self._assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)
+
+        return writer, prefix
+
+    def test_macro_refs_invalid(self):
+        writer = self._get_writer(skool='')
+        prefix = ERROR_PREFIX.format('REFS')
+
+        self._assert_error(writer, '#REFS', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#REFSx', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#REFS34567(foo', "No closing bracket: (foo", prefix)
+        self._assert_error(writer, '#REFS40000', "No entry at 40000", prefix)
+
+    def test_macro_reg_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('REG')
+
+        self._assert_error(writer, '#REG', 'Missing register argument', prefix)
+        self._assert_error(writer, '#REGq', 'Missing register argument', prefix)
+        self._assert_error(writer, '#REGabcd', 'Bad register: "abcd"', prefix)
+
+    def test_macro_scr_invalid(self):
+        writer = self._get_writer(snapshot=[0] * 8)
+        prefix = ERROR_PREFIX.format('SCR')
+
+        self._test_invalid_image_macro(writer, '#SCR0,1,2,3,4,5,6,7,8', "Too many parameters (expected 7): '0,1,2,3,4,5,6,7,8'", prefix)
+        self._test_invalid_image_macro(writer, '#SCR{0,0,23,14,5}(foo)', "Too many parameters (expected 4): '0,0,23,14,5'", prefix)
+        self._test_invalid_image_macro(writer, '#SCR{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
+        self._test_invalid_image_macro(writer, '#SCR(foo', 'No closing bracket: (foo', prefix)
+
+    def test_macro_space_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('SPACE')
+
+        self._assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)
+
+    def test_macro_udg_invalid(self):
+        writer = self._get_writer(snapshot=[0] * 8)
+        prefix = ERROR_PREFIX.format('UDG')
+
+        self._test_invalid_image_macro(writer, '#UDG', 'No parameters (expected 1)', prefix)
+        self._test_invalid_image_macro(writer, '#UDG0,1,2,3,4,5,6,7,8,9', "Too many parameters (expected 8): '0,1,2,3,4,5,6,7,8,9'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG0:1,2,3', "Too many parameters (expected 2): '1,2,3'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG0{0,0,23,14,5}(foo)', "Too many parameters (expected 4): '0,0,23,14,5'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
+        self._test_invalid_image_macro(writer, '#UDG0(foo', 'No closing bracket: (foo', prefix)
+
+    def test_macro_udgarray_invalid(self):
+        writer = self._get_writer(snapshot=[0] * 8)
+        prefix = ERROR_PREFIX.format('UDGARRAY')
+
+        self._test_invalid_image_macro(writer, '#UDGARRAY', 'No parameters (expected 1)', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;(foo)', 'Expected UDG address range specification: #UDGARRAY1;', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0:(foo)', 'Expected mask address range specification: #UDGARRAY1;0:', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0', 'Missing filename: #UDGARRAY1;0', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0()', 'Missing filename: #UDGARRAY1;0()', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0{0,0}1(foo)', 'Missing filename: #UDGARRAY1;0{0,0}', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0(*)', 'Missing filename or frame ID: #UDGARRAY1;0(*)', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;32768,1,2,3,4', "Too many parameters (expected 3): '1,2,3,4'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;32768:32769,1,2', "Too many parameters (expected 1): '1,2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0{0,0,23,14,5}(foo)', "Too many parameters (expected 4): '0,0,23,14,5'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0(foo', 'No closing bracket: (foo', prefix)
+
+    def test_macro_udgarray_frames_invalid(self):
+        writer = self._get_writer(snapshot=[0] * 8)
+        prefix = ERROR_PREFIX.format('UDGARRAY')
+
+        self._test_invalid_image_macro(writer, '#UDGARRAY*(bar)', 'No frames specified: #UDGARRAY*(bar)', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY*foo', 'Missing filename: #UDGARRAY*foo', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY*foo()', 'Missing filename: #UDGARRAY*foo()', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY*foo(bar', 'No closing bracket: (bar', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY*foo,qux(bar)', "No parameters (expected 1)", prefix)
+
+        return writer, prefix
