@@ -3,17 +3,29 @@
 ERROR_PREFIX = 'Error while parsing #{} macro'
 
 class CommonSkoolMacroTest:
+    def _check_call(self, writer, params, *args):
+        macro = '#CALL:test_call({})'.format(params)
+        if writer.needs_cwd():
+            cwd = '<cwd>'
+            self.assertEqual(writer.expand(macro, cwd), writer.test_call(*((cwd,) + args)))
+        else:
+            self.assertEqual(writer.expand(macro), writer.test_call(*args))
+
     def test_macro_call(self):
         writer = self._get_writer(warn=True)
         writer.test_call = self._test_call
 
         # All arguments given
-        output = writer.expand('#CALL:test_call(10,t,5)')
-        self.assertEqual(output, self._test_call(10, 't', 5))
+        self._check_call(writer, '10,t,5', 10, 't', 5)
 
         # One argument omitted
-        output = writer.expand('#CALL:test_call(7,,test2)')
-        self.assertEqual(output, self._test_call(7, None, 'test2'))
+        self._check_call(writer, '7,,test2', 7, None, 'test2')
+
+        # Arithmetic expressions
+        self._check_call(writer, '7+2*5,12-4/2', 17, 10, None)
+
+        # Non-arithmetic Python expressions
+        self._check_call(writer, '"a"+"b",None,sys.exit()', '"a"+"b"', 'None', 'sys.exit()')
 
         # No return value
         writer.test_call_no_retval = self._test_call_no_retval

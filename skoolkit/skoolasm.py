@@ -151,6 +151,9 @@ class AsmWriter:
         """
         self._snapshots.append((self.snapshot[:], name))
 
+    def needs_cwd(self):
+        return False
+
     def expand_bug(self, text, index):
         end, item, link_text = skoolmacro.parse_bug(text, index)
         return end, link_text or 'bug'

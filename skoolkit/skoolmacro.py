@@ -355,19 +355,36 @@ def parse_call(text, index, writer, cwd=None):
         raise MacroParsingError("No parameters")
     if text[index] != ':':
         raise MacroParsingError("Malformed macro: {}{}...".format(macro, text[index]))
-    end, method_name, arg_string = parse_params(text, index + 1, chars='_')
-    if not method_name:
+
+    end = index + 1
+    match = re.match('[a-zA-Z_][a-zA-Z0-9_]*', text[end:])
+    if match:
+        method_name = match.group()
+        end += match.span()[1]
+    else:
         raise MacroParsingError("No method name")
+    end, arg_string = _parse_brackets(text, end)
+
     if not hasattr(writer, method_name):
         writer.warn("Unknown method name in {} macro: {}".format(macro, method_name))
         return end, ''
     method = getattr(writer, method_name)
     if not inspect.ismethod(method):
         raise MacroParsingError("Uncallable method name: {}".format(method_name))
+
     if arg_string is None:
         raise MacroParsingError("No argument list specified: {}{}".format(macro, text[index:end]))
-    args = get_params(arg_string, ints=())
-    if cwd is not None:
+    args = []
+    int_pattern = INTEGER + '$'
+    for arg in arg_string.split(','):
+        if re.match(int_pattern, arg):
+            args.append(evaluate(arg))
+        elif arg:
+            args.append(arg)
+        else:
+            args.append(None)
+
+    if writer.needs_cwd():
         args.insert(0, cwd)
     try:
         retval = method(*args)

@@ -1161,6 +1161,9 @@ class HtmlWriter:
             retval.insert(2, frame_name)
         return retval
 
+    def needs_cwd(self):
+        return True
+
     def _expand_item_macro(self, item, link_text, cwd, items, path_id):
         if item and link_text == '':
             for name, title, contents in items:
