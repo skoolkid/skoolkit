@@ -477,14 +477,19 @@ def parse_link(text, index):
         raise MacroParsingError("No parameters")
     if text[index] != ':':
         raise MacroParsingError("Malformed macro: {}{}...".format(macro, text[index]))
-    end, param_str, link_text = parse_params(text, index + 1, except_chars=' (')
-    if not param_str:
+    end = index + 1
+    page_id = None
+    match = re.match('[^(\s]+', text[end:])
+    if match:
+        page_id, sep, anchor = match.group().partition('#')
+        if sep:
+            anchor = sep + anchor
+        end += match.span()[1]
+    end, link_text = _parse_brackets(text, end)
+    if not page_id:
         raise MacroParsingError("No page ID: {}{}".format(macro, text[index:end]))
     if link_text is None:
         raise MacroParsingError("No link text: {}{}".format(macro, text[index:end]))
-    page_id, sep, anchor = param_str.partition('#')
-    if sep:
-        anchor = sep + anchor
     return end, page_id, anchor, link_text
 
 def parse_map(text, index):
