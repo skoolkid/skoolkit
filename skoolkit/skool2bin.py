@@ -92,6 +92,8 @@ class BinWriter:
             for p, i in self.stack:
                 if p == 'isub':
                     do_op = self.asm_mode > 0
+                elif p == 'ssub':
+                    do_op = self.asm_mode > 1
                 else:
                     do_op = False
                 if do_op:
@@ -99,10 +101,12 @@ class BinWriter:
                 else:
                     self.include = i == '-'
                 if not self.include:
-                    break
+                    return
         if not self.include:
             return
         if directive.startswith('isub=') and self.asm_mode > 0:
+            self.sub = directive[5:].rstrip()
+        elif directive.startswith('ssub=') and self.asm_mode > 1:
             self.sub = directive[5:].rstrip()
 
     def write(self, binfile, start, end):
@@ -138,6 +142,8 @@ def main(args):
                        help='Stop converting at this address')
     group.add_argument('-i', '--isub', dest='asm_mode', action='store_const', const=1, default=0,
                        help="Apply instruction substitutions (@isub)")
+    group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=0,
+                       help="Apply instruction substitutions (@isub) and safe substitutions (@ssub)")
     group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=int,
                        help='Start converting at this address')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),

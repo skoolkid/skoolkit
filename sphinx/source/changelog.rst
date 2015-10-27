@@ -3,6 +3,8 @@ Changelog
 
 5.1b1
 -----
+* Added the ``--ssub`` option to :ref:`skool2bin.py` (for parsing the skool
+  file in ``@ssub`` mode)
 * The :ref:`R` macro now converts an anchor that matches the entry address to
   the format specified by the ``AddressAnchor`` parameter (making it easier to
   link to the first instruction in an entry when using a custom anchor format)

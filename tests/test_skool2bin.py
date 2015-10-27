@@ -97,6 +97,19 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertIsNone(mock_bin_writer.end)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_option_s(self):
+        skoolfile = 'test-s.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option in ('-s', '--ssub'):
+            output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
+            self.assertEqual(len(error), 0)
+            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_bin_writer.asm_mode, 2)
+            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
+            self.assertIsNone(mock_bin_writer.start)
+            self.assertIsNone(mock_bin_writer.end)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_S(self):
         skoolfile = 'test-S.skool'
         exp_binfile = skoolfile[:-6] + '.bin'
@@ -221,11 +234,32 @@ class BinWriterTest(SkoolKitTestCase):
             '',
             'c40000 XOR A',
             '@isub=LD B,1',
+            '@ssub=LD B,2',
             ' 40001 LD B,n',
             ' 40003 RET',
         ))
         exp_data = [195, 64, 156, 175, 6, 1, 201]
         self._test_write(skool, 39997, exp_data, asm_mode=1)
+
+    def test_ssub_mode(self):
+        skool = '\n'.join((
+            '@ssub-begin',
+            'c50000 INC L',
+            '@ssub+else',
+            'c50000 INC HL',
+            '@ssub+end',
+            '@ssub=INC DE',
+            ' 50001 INC E',
+            '@rsub-begin',
+            ' 50002 RET',
+            '@rsub+else',
+            '; The following @ssub directive should be ignored.',
+            '@ssub=RET P',
+            ' 50002 JP 32768',
+            '@rsub+end',
+        ))
+        exp_data = [35, 19, 201]
+        self._test_write(skool, 50000, exp_data, asm_mode=2)
 
 if __name__ == '__main__':
     unittest.main()

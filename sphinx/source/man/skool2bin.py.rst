@@ -23,6 +23,9 @@ OPTIONS
 -i, --isub
   Apply instruction substitutions (@isub).
 
+-s, --ssub
+  Apply instruction substitutions (@isub) and safe substitutions (@ssub).
+
 -S, --start `ADDR`
   Start converting at this address.
 

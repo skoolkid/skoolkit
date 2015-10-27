@@ -154,15 +154,19 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
   Options:
     -E ADDR, --end ADDR   Stop converting at this address
     -i, --isub            Apply instruction substitutions (@isub)
+    -s, --ssub            Apply instruction substitutions (@isub) and safe
+                          substitutions (@ssub)
     -S ADDR, --start ADDR
                           Start converting at this address
     -V, --version         Show SkoolKit version number and exit
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.0     | New     |
-+---------+---------+
++---------+-----------------------------+
+| Version | Changes                     |
++=========+=============================+
+| 5.1     | Added the ``--ssub`` option |
++---------+-----------------------------+
+| 5.0     | New                         |
++---------+-----------------------------+
 
 .. _skool2ctl.py:
 
