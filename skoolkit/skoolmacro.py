@@ -43,6 +43,18 @@ ADDR_RANGE_PARAM = '({0}([+*/]{0})*|\({1}\))'.format(SIMPLE_INTEGER, INTEGER)
 
 ADDR_RANGE = '{0}(-{0}){{,3}}(x{1})?'.format(ADDR_RANGE_PARAM, INTEGER)
 
+class UnsupportedMacroError(SkoolKitError):
+    pass
+
+class MacroParsingError(SkoolKitError):
+    pass
+
+class MissingParameterError(MacroParsingError):
+    pass
+
+class TooManyParametersError(MacroParsingError):
+    pass
+
 def parse_ints(text, index=0, num=0, defaults=(), names=()):
     """Parse a string of comma-separated integer parameters. The string will be
     parsed until either the end is reached, or an invalid character is
@@ -250,13 +262,13 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
         for i in range(req):
             req_name = names[i]
             if req_name not in named_params:
-                raise MacroParsingError("Missing required argument '{}'".format(req_name))
+                raise MissingParameterError("Missing required argument '{}'".format(req_name))
     elif index < req:
         if params:
-            raise MacroParsingError("Not enough parameters (expected {}): '{}'".format(req, param_string))
-        raise MacroParsingError("No parameters (expected {})".format(req))
+            raise MissingParameterError("Not enough parameters (expected {}): '{}'".format(req, param_string))
+        raise MissingParameterError("No parameters (expected {})".format(req))
     if index > num > 0:
-        raise MacroParsingError("Too many parameters (expected {}): '{}'".format(num, param_string))
+        raise TooManyParametersError("Too many parameters (expected {}): '{}'".format(num, param_string))
 
     if names:
         for i in range(req, num):
@@ -288,12 +300,6 @@ def parse_text(text, index, split=False, error=None):
     if args and split:
         args = args.split(sep)
     return end + len(delim2), args
-
-class UnsupportedMacroError(SkoolKitError):
-    pass
-
-class MacroParsingError(SkoolKitError):
-    pass
 
 def get_macros(writer):
     macros = {}
@@ -707,7 +713,10 @@ def parse_udgarray_with_frames(text, index, frame_map=None):
             frame_id = match.group()
             end += len(frame_id)
             if end < len(text) and text[end] == ',':
-                end, delay = parse_ints(text, end + 1, names=('delay',))
+                try:
+                    end, delay = parse_ints(text, end + 1, names=('delay',))
+                except MissingParameterError:
+                    raise MissingParameterError("Missing 'delay' parameter for frame '{}'".format(frame_id))
             params.append((frame_id, delay))
 
     end, fname = _parse_brackets(text, end)
