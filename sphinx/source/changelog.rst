@@ -3,6 +3,9 @@ Changelog
 
 5.1b1
 -----
+* The :ref:`R` macro now converts an anchor that matches the entry address to
+  the format specified by the ``AddressAnchor`` parameter (making it easier to
+  link to the first instruction in an entry when using a custom anchor format)
 
 5.0 (2015-10-04)
 ----------------

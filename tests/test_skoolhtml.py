@@ -1378,6 +1378,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#R40001', ASMDIR)
         self._assert_link_equals(output, '40000.html#9c41', '40001')
 
+    def test_macro_r_converts_entry_address_to_custom_asm_anchor(self):
+        ref = '[Game]\nAddressAnchor={address:04x}'
+        writer = self._get_writer(ref=ref, skool='c40000 RET')
+
+        output = writer.expand('#R40000#40000', ASMDIR)
+        self._assert_link_equals(output, '40000.html#9c40', '40000')
+
     def test_macro_r_with_invalid_asm_anchor(self):
         ref = '[Game]\nAddressAnchor={address:j}'
         skool = 'c40000 LD A,B\n 40001 RET'

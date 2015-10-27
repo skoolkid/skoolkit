@@ -415,15 +415,27 @@ disassembly page for the routine at 25820.
 In ASM mode, this instance of the ``#R`` macro expands to the label for the
 routine at 25820 (or simply ``25820`` if that routine has no label).
 
-+---------+------------------------------------------------------------------+
-| Version | Changes                                                          |
-+=========+==================================================================+
-| 3.5     | Added the ability to resolve (in HTML mode) the address of an    |
-|         | entry point in another disassembly when an appropriate           |
-|         | :ref:`remote entry <rEntry>` is defined                          |
-+---------+------------------------------------------------------------------+
-| 2.0     | Added support for the ``@code`` notation                         |
-+---------+------------------------------------------------------------------+
+To create a hyperlink to the first instruction in a routine or data block, use
+an anchor that evaluates to the address of that instruction. For example::
+
+  ; See the #R40000#40000(first item) in the data table at 40000.
+
+In HTML mode, the anchor of this ``#R`` macro (40000) is converted to the
+format specified by the ``AddressAnchor`` parameter in the :ref:`ref-Game`
+section.
+
++---------+---------------------------------------------------------------+
+| Version | Changes                                                       |
++=========+===============================================================+
+| 5.1     | An anchor that matches the entry address is converted to the  |
+|         | format specified by the ``AddressAnchor`` parameter           |
++---------+---------------------------------------------------------------+
+| 3.5     | Added the ability to resolve (in HTML mode) the address of an |
+|         | entry point in another disassembly when an appropriate        |
+|         | :ref:`remote entry <rEntry>` is defined                       |
++---------+---------------------------------------------------------------+
+| 2.0     | Added support for the ``@code`` notation                      |
++---------+---------------------------------------------------------------+
 
 .. _m-REFS:
 

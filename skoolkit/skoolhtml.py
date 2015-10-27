@@ -1272,6 +1272,11 @@ class HtmlWriter:
             container_address = container.address
         else:
             container_address = address
+        try:
+            if skoolmacro.evaluate(anchor[1:]) == container_address:
+                anchor = '#{}'.format(self.asm_anchor(container_address))
+        except ValueError:
+            pass
         if not anchor and address != container_address:
             anchor = '#{}'.format(self.asm_anchor(address))
         asm_label = self.parser.get_asm_label(address)
