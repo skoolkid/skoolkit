@@ -170,8 +170,11 @@ def parse_address_range(text, index, width):
 def _parse_crop_spec(text, index):
     defaults = (0, 0, None, None)
     if index < len(text) and text[index] == '{':
-        param_names = ('x', 'y', 'width', 'height')
-        end, x, y, width, height = parse_ints(text, index + 1, defaults=defaults, names=param_names)
+        names = ('x', 'y', 'width', 'height')
+        try:
+            end, x, y, width, height = parse_ints(text, index + 1, defaults=defaults, names=names)
+        except TooManyParametersError as e:
+            raise TooManyParametersError("Too many parameters in cropping specification (expected 4 at most): {{{}}}".format(e[1]))
         if end < len(text) and text[end] == '}':
             return end + 1, (x, y, width, height)
         raise MacroParsingError("No closing brace on cropping specification: {}".format(text[index:]))
@@ -268,7 +271,7 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
             raise MissingParameterError("Not enough parameters (expected {}): '{}'".format(req, param_string))
         raise MissingParameterError("No parameters (expected {})".format(req))
     if index > num > 0:
-        raise TooManyParametersError("Too many parameters (expected {}): '{}'".format(num, param_string))
+        raise TooManyParametersError("Too many parameters (expected {}): '{}'".format(num, param_string), param_string)
 
     if names:
         for i in range(req, num):
