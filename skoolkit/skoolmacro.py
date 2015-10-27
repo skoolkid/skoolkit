@@ -31,6 +31,8 @@ SIMPLE_INTEGER = '(\d+|\$[0-9a-fA-F]+)'
 
 INTEGER = '[-+]?{0}([-+*/]{0})*'.format(SIMPLE_INTEGER)
 
+INT = '({0}|\({0}\))$'.format(INTEGER)
+
 PARAM_NAME = '[a-z]+'
 
 SIMPLE_PARAM = '({}=)?{}'.format(PARAM_NAME, SIMPLE_INTEGER)
@@ -197,10 +199,9 @@ def _parse_brackets(text, index, default=None):
     return end, text[index + 1:end - 1]
 
 def evaluate(param):
-    try:
+    if re.match(INT, param):
         return eval(re.sub('\$([0-9a-fA-F]+)', r'int("\1",16)', param).replace('/', '//'))
-    except:
-        return None
+    raise ValueError
 
 def get_params(param_string, num=0, defaults=(), ints=None, names=()):
     params = []
@@ -230,8 +231,9 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
             else:
                 value = p
             if value:
-                param = evaluate(value)
-                if param is None:
+                try:
+                    param = evaluate(value)
+                except ValueError:
                     if ints is None or index in ints:
                         raise MacroParsingError("Cannot parse integer '{}' in parameter string: '{}'".format(value, param_string))
                     param = value
@@ -375,14 +377,14 @@ def parse_call(text, index, writer, cwd=None):
     if arg_string is None:
         raise MacroParsingError("No argument list specified: {}{}".format(macro, text[index:end]))
     args = []
-    int_pattern = INTEGER + '$'
     for arg in arg_string.split(','):
-        if re.match(int_pattern, arg):
+        try:
             args.append(evaluate(arg))
-        elif arg:
-            args.append(arg)
-        else:
-            args.append(None)
+        except ValueError:
+            if arg:
+                args.append(arg)
+            else:
+                args.append(None)
 
     if writer.needs_cwd():
         args.insert(0, cwd)
@@ -513,8 +515,8 @@ def parse_link(text, index):
 
 def parse_map(text, index):
     # #MAPvalue(default,k1:v1[,k2:v2...])
-    end, value = parse_ints(text, index, 1)
-    end, args = parse_text(text, end, True, "No mappings provided: {}".format(text[index:end]))
+    args_index, value = parse_ints(text, index, 1)
+    end, args = parse_text(text, args_index, True, "No mappings provided: {}".format(text[index:args_index]))
     if args:
         default = args.pop(0)
     else:
@@ -522,8 +524,14 @@ def parse_map(text, index):
     m = {}
     if args:
         for pair in args:
-            k, v = pair.split(':', 1)
-            m[evaluate(k)] = v
+            if ':' in pair:
+                k, v = pair.split(':', 1)
+            else:
+                k = v = pair
+            try:
+                m[evaluate(k)] = v
+            except ValueError:
+                raise MacroParsingError("Invalid key ({}): {}".format(k, text[args_index:end]))
     return end, m.get(value, default)
 
 def parse_peek(text, index, snapshot):

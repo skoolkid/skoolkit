@@ -416,6 +416,10 @@ class CommonSkoolMacroTest:
         output = writer.expand('#MAP2()')
         self.assertEqual(output, '')
 
+        # Key without value (defaults to key)
+        output = writer.expand('#MAP7(0,1,7)')
+        self.assertEqual(output, '7')
+
         # Arithmetic expression in 'value' parameter
         output = writer.expand('#MAP(2*3+8/2-4)(?,6:OK)')
         self.assertEqual(output, 'OK')
@@ -453,6 +457,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#MAP0', "No mappings provided: 0", prefix)
         self._assert_error(writer, '#MAP0 ()', "No mappings provided: 0", prefix)
         self._assert_error(writer, '#MAP0(1,2:3', "No terminating delimiter: (1,2:3", prefix)
+        self._assert_error(writer, '#MAP0(1,x1:3)', "Invalid key (x1): (1,x1:3)", prefix)
 
     def test_macro_peek(self):
         writer = self._get_writer(snapshot=(1, 2, 3))
