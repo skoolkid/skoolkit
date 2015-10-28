@@ -97,6 +97,8 @@ class BinWriter:
                     do_op = self.asm_mode > 1
                 elif p == 'ofix':
                     do_op = self.fix_mode > 0
+                elif p == 'bfix':
+                    do_op = self.fix_mode > 1
                 else:
                     do_op = False
                 if do_op:
@@ -112,6 +114,8 @@ class BinWriter:
         elif directive.startswith('ssub=') and self.asm_mode > 1:
             self.sub = directive[5:].rstrip()
         elif directive.startswith('ofix=') and self.fix_mode > 0:
+            self.sub = directive[5:].rstrip()
+        elif directive.startswith('bfix=') and self.fix_mode > 1:
             self.sub = directive[5:].rstrip()
 
     def write(self, binfile, start, end):
@@ -143,14 +147,16 @@ def main(args):
     parser.add_argument('skoolfile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('binfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-b', '--bfix', dest='fix_mode', action='store_const', const=2, default=0,
+                       help="Apply @ofix and @bfix directives")
     group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=int,
                        help='Stop converting at this address')
     group.add_argument('-i', '--isub', dest='asm_mode', action='store_const', const=1, default=0,
-                       help="Apply instruction substitutions (@isub)")
+                       help="Apply @isub directives")
     group.add_argument('-o', '--ofix', dest='fix_mode', action='store_const', const=1, default=0,
                        help="Apply @ofix directives")
     group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=0,
-                       help="Apply instruction substitutions (@isub) and safe substitutions (@ssub)")
+                       help="Apply @isub and @ssub directives")
     group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=int,
                        help='Start converting at this address')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),

@@ -73,6 +73,20 @@ class Skool2BinTest(SkoolKitTestCase):
         self.assertEqual(mock_bin_writer.binfile, 'program.bin')
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_option_b(self):
+        skoolfile = 'test-b.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option in ('-b', '--bfix'):
+            output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
+            self.assertEqual(len(error), 0)
+            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_bin_writer.asm_mode, 0)
+            self.assertEqual(mock_bin_writer.fix_mode, 2)
+            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
+            self.assertIsNone(mock_bin_writer.start)
+            self.assertIsNone(mock_bin_writer.end)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_E(self):
         skoolfile = 'test-E.skool'
         exp_binfile = skoolfile[:-6] + '.bin'
@@ -307,6 +321,33 @@ class BinWriterTest(SkoolKitTestCase):
         ))
         exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1]
         self._test_write(skool, 60000, exp_data, fix_mode=1)
+
+    def test_bfix_mode(self):
+        skool = '\n'.join((
+            '@ofix-begin',
+            'c60000 LD A,1',
+            '@ofix+else',
+            'c60000 LD A,2',
+            '@ofix+end',
+            '@bfix-begin',
+            ' 60002 LD B,1',
+            '@bfix+else',
+            ' 60002 LD B,2',
+            '@bfix+end',
+            '@rfix-begin',
+            ' 60004 LD C,1',
+            '@rfix+else',
+            ' 60004 LD C,2',
+            '@rfix+end',
+            '@ofix=LD D,2',
+            ' 60006 LD D,1',
+            '@bfix=LD E,2',
+            ' 60008 LD E,1',
+            '@rfix=LD H,2',
+            ' 60010 LD H,1',
+        ))
+        exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1]
+        self._test_write(skool, 60000, exp_data, fix_mode=2)
 
 if __name__ == '__main__':
     unittest.main()

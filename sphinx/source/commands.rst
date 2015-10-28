@@ -152,22 +152,22 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
   defaults to the name of the input file with '.skool' replaced by '.bin'.
 
   Options:
+    -b, --bfix            Apply @ofix and @bfix directives
     -E ADDR, --end ADDR   Stop converting at this address
-    -i, --isub            Apply instruction substitutions (@isub)
+    -i, --isub            Apply @isub directives
     -o, --ofix            Apply @ofix directives
-    -s, --ssub            Apply instruction substitutions (@isub) and safe
-                          substitutions (@ssub)
+    -s, --ssub            Apply @isub and @ssub directives
     -S ADDR, --start ADDR
                           Start converting at this address
     -V, --version         Show SkoolKit version number and exit
 
-+---------+-----------------------------+
-| Version | Changes                     |
-+=========+=============================+
-| 5.1     | Added the ``--ssub`` option |
-+---------+-----------------------------+
-| 5.0     | New                         |
-+---------+-----------------------------+
++---------+---------------------------------------------------------+
+| Version | Changes                                                 |
++=========+=========================================================+
+| 5.1     | Added the ``--bfix``, ``--ofix`` and ``--ssub`` options |
++---------+---------------------------------------------------------+
+| 5.0     | New                                                     |
++---------+---------------------------------------------------------+
 
 .. _skool2ctl.py:
 

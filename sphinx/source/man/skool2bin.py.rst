@@ -17,17 +17,20 @@ not given, it defaults to the name of the input file with '.skool' replaced by
 
 OPTIONS
 =======
+-b, --bfix
+  Apply @ofix and @bfix directives.
+
 -E, --end `ADDR`
   Stop converting at this address.
 
 -i, --isub
-  Apply instruction substitutions (@isub).
+  Apply @isub directives.
 
 -o, --ofix
   Apply @ofix directives.
 
 -s, --ssub
-  Apply instruction substitutions (@isub) and safe substitutions (@ssub).
+  Apply @isub and @ssub directives.
 
 -S, --start `ADDR`
   Start converting at this address.
