@@ -3439,7 +3439,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <td class="map-page-1">117</td>
             <td class="map-byte-1">66</td>
             <td class="map-t"><span id="30018"></span><a href="../asm/30018.html">30018</a></td>
-            <td class="map-length-0">35518</td>
+            <td class="map-length-0">2</td>
             <td class="map-t-desc">
             <div class="map-entry-title-10">Text</div>
             <div class="map-entry-desc-0">
@@ -3546,7 +3546,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <td class="map-page-0">117</td>
             <td class="map-byte-0">66</td>
             <td class="map-t"><span id="30018"></span><a href="../asm/30018.html">30018</a></td>
-            <td class="map-length-0">35518</td>
+            <td class="map-length-0">2</td>
             <td class="map-t-desc">
             <div class="map-entry-title-10">Text</div>
             <div class="map-entry-desc-0">
@@ -3633,7 +3633,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <td class="map-page-1">91</td>
             <td class="map-byte-1">160</td>
             <td class="map-c"><span id="5ba0"></span><a href="../asm/23456.html">23456</a></td>
-            <td class="map-length-0">42080</td>
+            <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10">Routine at 23456</div>
             <div class="map-entry-desc-0">
@@ -3779,7 +3779,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <td class="map-page-1">128</td>
             <td class="map-byte-1">0</td>
             <td class="map-c"><span id="32768"></span><a href="../asm/32768.html">32768</a></td>
-            <td class="map-length-0">32768</td>
+            <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10">Code</div>
             <div class="map-entry-desc-0">
@@ -3820,13 +3820,13 @@ class HtmlOutputTest(HtmlWriterTestCase):
             '<th>Description</th>',
             '</tr>\n'
         ))
-        for address, length in ((0, 2), (2, 42), (44, 622), (666, 8222), (8888, 56648)):
+        for address in (0, 2, 44, 666, 8888):
             exp_content += '\n'.join((
                 '<tr>',
                 '<td class="map-page-1">{}</td>'.format(address // 256),
                 '<td class="map-byte-1">{}</td>'.format(address % 256),
                 '<td class="map-c"><span id="{0}"></span><a href="../asm/{0}.html">{0:05d}</a></td>'.format(address),
-                '<td class="map-length-0">{}</td>'.format(length),
+                '<td class="map-length-0">1</td>',
                 '<td class="map-c-desc">',
                 '<div class="map-entry-title-10"></div>',
                 '<div class="map-entry-desc-0">',

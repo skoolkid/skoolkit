@@ -533,13 +533,10 @@ class SkoolParser:
         return instruction, comment
 
     def _calculate_entry_sizes(self):
-        for i, entry in enumerate(self.memory_map):
-            if i + 1 < len(self.memory_map):
-                next_entry = self.memory_map[i + 1]
-                end = next_entry.address
-            else:
-                end = 65536
-            entry.size = end - entry.address
+        for entry in self.memory_map:
+            address = max([i.address for i in entry.instructions if i.address is not None])
+            last_instruction = self.get_instruction(address)
+            entry.size = address + (get_size(last_instruction.operation, address) or 1) - entry.address
 
     def _is_8_bit_ld_instruction(self, operation):
         if operation.startswith('LD '):

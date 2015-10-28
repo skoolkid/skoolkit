@@ -1164,17 +1164,57 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_entry_sizes(self):
         skool = '\n'.join((
+            'c65500 LD A,1',
+            ' 65502 RET',
+            '',
+            'c65503 JP 65500'
+        ))
+        entries = self._get_parser(skool, html=True).memory_map
+        self.assertEqual(len(entries), 2)
+        self.assertEqual(entries[0].size, 3)
+        self.assertEqual(entries[1].size, 3)
+
+    def test_entry_sizes_with_instructionless_entry(self):
+        skool = '\n'.join((
             'c65500 RET',
             '',
-            'c65501 JP 65500'
+            'i65501',
             '',
-            'i65504'
+            'c65510 JP 65500'
         ))
         entries = self._get_parser(skool, html=True).memory_map
         self.assertEqual(len(entries), 3)
         self.assertEqual(entries[0].size, 1)
-        self.assertEqual(entries[1].size, 3)
-        self.assertEqual(entries[2].size, 32)
+        self.assertEqual(entries[1].size, 1)
+        self.assertEqual(entries[2].size, 3)
+
+    def test_entry_sizes_with_gaps_between_entries(self):
+        skool = '\n'.join((
+            'c65500 LD A,B',
+            ' 65501 RET',
+            '',
+            't65510 DEFM "Hi"',
+            ' 65512 DEFM "Lo"',
+            '',
+            'b65520 DEFB 1,2,3',
+            ' 65523 DEFB 4,5,6'
+        ))
+        entries = self._get_parser(skool, html=True).memory_map
+        self.assertEqual(len(entries), 3)
+        self.assertEqual(entries[0].size, 2)
+        self.assertEqual(entries[1].size, 4)
+        self.assertEqual(entries[2].size, 6)
+
+    def test_entry_sizes_with_entries_out_of_order(self):
+        skool = '\n'.join((
+            'c65501 JP 65500',
+            '',
+            'c65500 RET'
+        ))
+        entries = self._get_parser(skool, html=True).memory_map
+        self.assertEqual(len(entries), 2)
+        self.assertEqual(entries[0].size, 3)
+        self.assertEqual(entries[1].size, 1)
 
     def test_html_escape(self):
         skool = 'c24576 NOP ; Return if X<=Y & Y>=Z'
