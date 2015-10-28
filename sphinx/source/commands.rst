@@ -154,6 +154,7 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
   Options:
     -E ADDR, --end ADDR   Stop converting at this address
     -i, --isub            Apply instruction substitutions (@isub)
+    -o, --ofix            Apply @ofix directives
     -s, --ssub            Apply instruction substitutions (@isub) and safe
                           substitutions (@ssub)
     -S ADDR, --start ADDR

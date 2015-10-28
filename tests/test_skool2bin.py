@@ -12,11 +12,12 @@ from skoolkit import SkoolKitError, VERSION, skool2bin
 PY3 = sys.version_info >= (3,)
 
 class MockBinWriter:
-    def __init__(self, skoolfile, asm_mode):
+    def __init__(self, skoolfile, asm_mode, fix_mode):
         global mock_bin_writer
         mock_bin_writer = self
         self.skoolfile = skoolfile
         self.asm_mode = asm_mode
+        self.fix_mode = fix_mode
         self.binfile = None
         self.start = None
         self.end = None
@@ -52,6 +53,7 @@ class Skool2BinTest(SkoolKitTestCase):
         self.assertEqual(len(error), 0)
         self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
         self.assertEqual(mock_bin_writer.asm_mode, 0)
+        self.assertEqual(mock_bin_writer.fix_mode, 0)
         self.assertEqual(mock_bin_writer.binfile, exp_binfile)
         self.assertIsNone(mock_bin_writer.start)
         self.assertIsNone(mock_bin_writer.end)
@@ -79,6 +81,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(len(error), 0)
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
             self.assertEqual(mock_bin_writer.asm_mode, 0)
+            self.assertEqual(mock_bin_writer.fix_mode, 0)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertEqual(mock_bin_writer.end, value)
@@ -92,6 +95,21 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(len(error), 0)
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
             self.assertEqual(mock_bin_writer.asm_mode, 1)
+            self.assertEqual(mock_bin_writer.fix_mode, 0)
+            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
+            self.assertIsNone(mock_bin_writer.start)
+            self.assertIsNone(mock_bin_writer.end)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_option_o(self):
+        skoolfile = 'test-o.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option in ('-o', '--ofix'):
+            output, error = self.run_skool2bin('{} {}'.format(option, skoolfile))
+            self.assertEqual(len(error), 0)
+            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_bin_writer.asm_mode, 0)
+            self.assertEqual(mock_bin_writer.fix_mode, 1)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -105,6 +123,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(len(error), 0)
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
             self.assertEqual(mock_bin_writer.asm_mode, 2)
+            self.assertEqual(mock_bin_writer.fix_mode, 0)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertIsNone(mock_bin_writer.start)
             self.assertIsNone(mock_bin_writer.end)
@@ -118,6 +137,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(len(error), 0)
             self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
             self.assertEqual(mock_bin_writer.asm_mode, 0)
+            self.assertEqual(mock_bin_writer.fix_mode, 0)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertEqual(mock_bin_writer.start, value)
             self.assertIsNone(mock_bin_writer.end)
@@ -128,7 +148,7 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
 
 class BinWriterTest(SkoolKitTestCase):
-    def _test_write(self, skool, base_address, exp_data, exp_err=None, asm_mode=0, start=None, end=None):
+    def _test_write(self, skool, base_address, exp_data, exp_err=None, asm_mode=0, fix_mode=0, start=None, end=None):
         if skool is None:
             skoolfile = '-'
             binfile = self.write_bin_file(suffix='.bin')
@@ -136,7 +156,7 @@ class BinWriterTest(SkoolKitTestCase):
             skoolfile = self.write_text_file(skool, suffix='.skool')
             binfile = skoolfile[:-6] + '.bin'
             self.tempfiles.append(binfile)
-        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode)
+        bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode)
         bin_writer.write(binfile, start, end)
         with open(binfile, 'rb') as f:
             data = f.read()
@@ -260,6 +280,33 @@ class BinWriterTest(SkoolKitTestCase):
         ))
         exp_data = [35, 19, 201]
         self._test_write(skool, 50000, exp_data, asm_mode=2)
+
+    def test_ofix_mode(self):
+        skool = '\n'.join((
+            '@ofix-begin',
+            'c60000 LD A,1',
+            '@ofix+else',
+            'c60000 LD A,2',
+            '@ofix+end',
+            '@bfix-begin',
+            ' 60002 LD B,1',
+            '@bfix+else',
+            ' 60002 LD B,2',
+            '@bfix+end',
+            '@rfix-begin',
+            ' 60004 LD C,1',
+            '@rfix+else',
+            ' 60004 LD C,2',
+            '@rfix+end',
+            '@ofix=LD D,2',
+            ' 60006 LD D,1',
+            '@bfix=LD E,2',
+            ' 60008 LD E,1',
+            '@rfix=LD H,2',
+            ' 60010 LD H,1',
+        ))
+        exp_data = [62, 2, 6, 1, 14, 1, 22, 2, 30, 1, 38, 1]
+        self._test_write(skool, 60000, exp_data, fix_mode=1)
 
 if __name__ == '__main__':
     unittest.main()

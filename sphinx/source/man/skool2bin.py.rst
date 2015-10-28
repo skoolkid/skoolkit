@@ -23,6 +23,9 @@ OPTIONS
 -i, --isub
   Apply instruction substitutions (@isub).
 
+-o, --ofix
+  Apply @ofix directives.
+
 -s, --ssub
   Apply instruction substitutions (@isub) and safe substitutions (@ssub).
 

@@ -27,8 +27,9 @@ from skoolkit.z80 import assemble
 SKIP_BLOCKS = ('d', 'r')
 
 class BinWriter:
-    def __init__(self, skoolfile, asm_mode=0):
+    def __init__(self, skoolfile, asm_mode=0, fix_mode=0):
         self.asm_mode = asm_mode
+        self.fix_mode = fix_mode
         self.snapshot = [0] * 65536
         self.base_address = len(self.snapshot)
         self.end_address = 0
@@ -94,6 +95,8 @@ class BinWriter:
                     do_op = self.asm_mode > 0
                 elif p == 'ssub':
                     do_op = self.asm_mode > 1
+                elif p == 'ofix':
+                    do_op = self.fix_mode > 0
                 else:
                     do_op = False
                 if do_op:
@@ -107,6 +110,8 @@ class BinWriter:
         if directive.startswith('isub=') and self.asm_mode > 0:
             self.sub = directive[5:].rstrip()
         elif directive.startswith('ssub=') and self.asm_mode > 1:
+            self.sub = directive[5:].rstrip()
+        elif directive.startswith('ofix=') and self.fix_mode > 0:
             self.sub = directive[5:].rstrip()
 
     def write(self, binfile, start, end):
@@ -124,7 +129,7 @@ class BinWriter:
         info("Wrote {}: start={}, end={}, size={}".format(binfile, base_address, end_address, len(data)))
 
 def run(skoolfile, binfile, options):
-    binwriter = BinWriter(skoolfile, options.asm_mode)
+    binwriter = BinWriter(skoolfile, options.asm_mode, options.fix_mode)
     binwriter.write(binfile, options.start, options.end)
 
 def main(args):
@@ -142,6 +147,8 @@ def main(args):
                        help='Stop converting at this address')
     group.add_argument('-i', '--isub', dest='asm_mode', action='store_const', const=1, default=0,
                        help="Apply instruction substitutions (@isub)")
+    group.add_argument('-o', '--ofix', dest='fix_mode', action='store_const', const=1, default=0,
+                       help="Apply @ofix directives")
     group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=0,
                        help="Apply instruction substitutions (@isub) and safe substitutions (@ssub)")
     group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=int,
