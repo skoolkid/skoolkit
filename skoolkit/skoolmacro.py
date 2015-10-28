@@ -313,26 +313,44 @@ def get_macros(writer):
             macros['#' + name[len(prefix):].upper()] = method
     return macros
 
+def _rfind_macro(text, macro):
+    index = len(text)
+    m_len = len(macro)
+    max_index = index - m_len
+    while 1:
+        index = text.rfind(macro, 0, index)
+        if index < 0 or index == max_index or text[index + m_len] not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
+            return index
+
+def _rfind_macros(text, *macros):
+    index = -1
+    macro = None
+    for m in macros:
+        m_index = _rfind_macro(text, m)
+        if m_index > index:
+            index = m_index
+            macro = m
+    if macro:
+        return macro, index, index + len(macro)
+
 def expand_macros(macros, text, *args):
     if text.find('#') < 0:
         return text
 
     while 1:
-        search = None
-        for m in re.finditer('#(FOR|FOREACH)(?![A-Z])', text):
-            search = m
+        search = _rfind_macros(text, '#FOR', '#FOREACH')
         if not search:
-            for m in re.finditer('#(EVAL|MAP|PEEK)(?![A-Z])', text):
-                search = m
+            search = _rfind_macros(text, '#EVAL', '#MAP', '#PEEK')
             if not search:
                 search = re.search('#[A-Z]+', text)
+                if search:
+                    search = (search.group(),) + search.span()
         if not search:
             break
-        marker = search.group()
+        marker, start, index = search
         if not marker in macros:
             raise SkoolParsingError('Found unknown macro: {}'.format(marker))
         repf = macros[marker]
-        start, index = search.span()
         try:
             end, rep = repf(text, index, *args)
         except UnsupportedMacroError:
