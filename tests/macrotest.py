@@ -90,11 +90,21 @@ class CommonSkoolMacroTest:
         ))
         writer = self._get_writer(skool=skool)
 
+        # Decimal address
         output = writer.expand('#D32768')
         self.assertEqual(output, 'First routine')
 
+        # Hexadecimal address
         output = writer.expand('#D$8001')
         self.assertEqual(output, 'Second routine')
+
+        # Arithmetic expression
+        output = writer.expand('#D($8000+2*3-15/3)')
+        self.assertEqual(output, 'Second routine')
+
+        # Adjacent characters
+        self.assertEqual(writer.expand('1+#D32768+1'), '1+First routine+1')
+        self.assertEqual(writer.expand('+1#D(32768)1+'), '+1First routine1+')
 
     def test_macro_d_invalid(self):
         skool = '@start\nc32770 RET'
