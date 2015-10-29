@@ -16,10 +16,13 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+from collections import defaultdict
 import inspect
 import re
 
 from skoolkit import SkoolKitError, SkoolParsingError
+
+_map_cache = {}
 
 DELIMITERS = {
     '(': ')',
@@ -544,11 +547,14 @@ def parse_map(text, index):
     # #MAPvalue(default,k1:v1[,k2:v2...])
     args_index, value = parse_ints(text, index, 1)
     end, args = parse_text(text, args_index, True, "No mappings provided: {}".format(text[index:args_index]))
+    map_id = text[args_index:end]
+    if map_id in _map_cache:
+        return end, _map_cache[map_id][value]
     if args:
         default = args.pop(0)
     else:
         default = ''
-    m = {}
+    m = defaultdict(lambda: default)
     if args:
         for pair in args:
             if ':' in pair:
@@ -559,7 +565,8 @@ def parse_map(text, index):
                 m[evaluate(k)] = v
             except ValueError:
                 raise MacroParsingError("Invalid key ({}): {}".format(k, text[args_index:end]))
-    return end, m.get(value, default)
+    _map_cache[map_id] = m
+    return end, m[value]
 
 def parse_peek(text, index, snapshot):
     # #PEEKaddr or #PEEK(addr)
