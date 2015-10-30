@@ -380,12 +380,6 @@ class HtmlWriter:
         """Return the routine or data block that starts at `address`."""
         return self.parser.get_entry(address)
 
-    def get_entry_point_refs(self, address):
-        """Return the addresses of the routines and data blocks that contain
-        instructions that refer to `address`.
-        """
-        return self.parser.get_entry_point_refs(address)
-
     def get_snapshot_name(self):
         """Return the name of the current memory snapshot."""
         return self._snapshots[-1][1]
@@ -1192,7 +1186,7 @@ class HtmlWriter:
         return skoolmacro.parse_d(text, index, self)
 
     def expand_erefs(self, text, index, cwd):
-        return skoolmacro.parse_erefs(text, index, self)
+        return skoolmacro.parse_erefs(text, index, self.parser)
 
     def expand_eval(self, text, index, cwd):
         return skoolmacro.parse_eval(text, index)
@@ -1220,7 +1214,7 @@ class HtmlWriter:
         return skoolmacro.parse_for(text, index)
 
     def expand_foreach(self, text, index, cwd):
-        return skoolmacro.parse_foreach(text, index)
+        return skoolmacro.parse_foreach(text, index, self.parser)
 
     def expand_html(self, text, index, cwd):
         return skoolmacro.parse_html(text, index)

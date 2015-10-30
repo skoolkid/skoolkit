@@ -373,6 +373,25 @@ class CommonSkoolMacroTest:
         output = writer.expand('#FOREACH(0,1,2)(n,n+#PEEKn,+)')
         self.assertEqual(output, '0+1+1+2+2+3')
 
+    def test_macro_foreach_with_eref(self):
+        skool = '\n'.join((
+            '@start',
+            'c30000 CALL 30004',
+            '',
+            'c30003 LD A,B',
+            ' 30004 LD B,C',
+            '',
+            'c30005 JP 30004',
+            '',
+            'c30008 JR 30004'
+        ))
+        writer = self._get_writer(skool=skool)
+
+        cwd = ('asm',) if writer.needs_cwd() else ()
+        output = writer.expand(*(('#FOREACH(EREF30004)||addr|#Raddr|, | and ||',) + cwd))
+        exp_output = writer.expand(*(('#R30000, #R30005 and #R30008',) + cwd))
+        self.assertEqual(output, exp_output)
+
     def test_macro_foreach_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('FOREACH')

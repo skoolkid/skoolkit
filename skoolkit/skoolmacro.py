@@ -501,12 +501,16 @@ def parse_for(text, index):
         return end, s.replace(var, str(start))
     return end, fsep.join((sep.join([s.replace(var, str(n)) for n in range(start, stop, step)]), s.replace(var, str(stop))))
 
-def parse_foreach(text, index):
+def parse_foreach(text, index, entry_holder):
     # #FOREACH([v1,v2,...])(var,string[,sep,fsep])
     end, values = parse_text(text, index, True, 'No values')
     end, args = parse_text(text, end, True, 'No variable name: {}'.format(text[index:end]))
     if not args:
         raise MacroParsingError("No variable name: {}".format(text[index:end]))
+    if len(values) == 1:
+        value = values[0]
+        if re.match('EREF{}'.format(INT), value):
+            values = [str(a) for a in entry_holder.get_entry_point_refs(evaluate(value[4:]))]
     if not values:
         return end, ''
     args += [''] * (3 - len(args))
