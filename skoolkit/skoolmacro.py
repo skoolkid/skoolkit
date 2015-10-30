@@ -511,6 +511,12 @@ def parse_foreach(text, index, entry_holder):
         value = values[0]
         if re.match('EREF{}'.format(INT), value):
             values = [str(a) for a in entry_holder.get_entry_point_refs(evaluate(value[4:]))]
+        elif re.match('REF{}'.format(INT), value):
+            address = evaluate(value[3:])
+            entry = entry_holder.get_entry(address)
+            if not entry:
+                raise MacroParsingError('No entry at {}: {}'.format(address, value))
+            values = [str(addr) for addr in sorted([ref.address for ref in entry.referrers])]
     if not values:
         return end, ''
     args += [''] * (3 - len(args))

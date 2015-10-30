@@ -388,8 +388,50 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(skool=skool)
 
         cwd = ('asm',) if writer.needs_cwd() else ()
-        output = writer.expand(*(('#FOREACH(EREF30004)||addr|#Raddr|, | and ||',) + cwd))
         exp_output = writer.expand(*(('#R30000, #R30005 and #R30008',) + cwd))
+        macro_t = '#FOREACH[EREF{}]||addr|#Raddr|, | and ||'
+
+        # Decimal address
+        output = writer.expand(*((macro_t.format(30004),) + cwd))
+        self.assertEqual(output, exp_output)
+
+        # Hexadecimal address
+        output = writer.expand(*((macro_t.format('$7534'),) + cwd))
+        self.assertEqual(output, exp_output)
+
+        # Arithmetic expression
+        output = writer.expand(*((macro_t.format('30000+8*8-$78/2'),) + cwd))
+        self.assertEqual(output, exp_output)
+
+    def test_macro_foreach_with_ref(self):
+        skool = '\n'.join((
+            '@start',
+            '; Used by the routines at 9, 89 and 789',
+            'c00001 LD A,B',
+            ' 00002 RET',
+            '',
+            'c00009 CALL 1',
+            '',
+            'c00089 CALL 1',
+            '',
+            'c00789 JP 2'
+        ))
+        writer = self._get_writer(skool=skool)
+
+        cwd = ('asm',) if writer.needs_cwd() else ()
+        exp_output = writer.expand(*(('#R9, #R89 and #R789',) + cwd))
+        macro_t = '#FOREACH[REF{}]||addr|#Raddr|, | and ||'
+
+        # Decimal address
+        output = writer.expand(*((macro_t.format(1),) + cwd))
+        self.assertEqual(output, exp_output)
+
+        # Hexadecimal address
+        output = writer.expand(*((macro_t.format('$0001'),) + cwd))
+        self.assertEqual(output, exp_output)
+
+        # Arithmetic expression
+        output = writer.expand(*((macro_t.format('(1+5*5-$64/4)'),) + cwd))
         self.assertEqual(output, exp_output)
 
     def test_macro_foreach_invalid(self):
@@ -401,6 +443,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOREACH()()', 'No variable name: ()()', prefix)
         self._assert_error(writer, '#FOREACH(a,b[$s,$s]', 'No terminating delimiter: (a,b[$s,$s]', prefix)
         self._assert_error(writer, '#FOREACH(a,b)($s,$s', 'No terminating delimiter: ($s,$s', prefix)
+        self._assert_error(writer, '#FOREACH(REF$81A4)(n,n)', 'No entry at 33188: REF$81A4', prefix)
 
     def test_macro_html_invalid(self):
         writer = self._get_writer()
