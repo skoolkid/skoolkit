@@ -505,21 +505,30 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(snapshot=[0] * 20)
         snapshot = writer.snapshot
 
+        # addr, byte
         output = writer.expand('#POKES0,255')
         self.assertEqual(output, '')
         self.assertEqual(snapshot[0], 255)
 
+        # addr, byte, length
         output = writer.expand('#POKES0,254,10')
         self.assertEqual(output, '')
         self.assertEqual([254] * 10, snapshot[0:10])
 
+        # addr, byte, length, step
         output = writer.expand('#POKES0,253,10,2')
         self.assertEqual(output, '')
         self.assertEqual([253] * 10, snapshot[0:20:2])
 
+        # Two POKEs
         output = writer.expand('#POKES1,1;2,2')
         self.assertEqual(output, '')
         self.assertEqual([1, 2], snapshot[1:3])
+
+        # Arithmetic expressions
+        output = writer.expand('#POKES(0+2,3*4,8-2,12/4)')
+        self.assertEqual(output, '')
+        self.assertEqual([12] * 6, snapshot[2:18:3])
 
     def test_macro_pokes_invalid(self):
         writer = self._get_writer(snapshot=[0])
