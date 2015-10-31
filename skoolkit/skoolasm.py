@@ -193,6 +193,9 @@ class AsmWriter:
         end, message = skoolmacro.parse_html(text, index)
         return end, ''
 
+    def expand_if(self, text, index):
+        return skoolmacro.parse_if(text, index)
+
     def expand_link(self, text, index):
         end, page_id, anchor, link_text = skoolmacro.parse_link(text, index)
         if not link_text:

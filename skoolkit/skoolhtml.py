@@ -1219,6 +1219,9 @@ class HtmlWriter:
     def expand_html(self, text, index, cwd):
         return skoolmacro.parse_html(text, index)
 
+    def expand_if(self, text, index, cwd):
+        return skoolmacro.parse_if(text, index)
+
     def expand_link(self, text, index, cwd):
         end, page_id, anchor, link_text = skoolmacro.parse_link(text, index)
         if page_id not in self.paths:

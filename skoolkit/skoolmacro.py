@@ -36,6 +36,10 @@ INTEGER = '[-+]?{0}([-+*/]{0})*'.format(SIMPLE_INTEGER)
 
 INT = '({0}|\({0}\))$'.format(INTEGER)
 
+CONDITION = '{0}((==|!=|<|>|<=|>=){0})?'.format(INTEGER)
+
+EXPRESSION = '({0}|\({0}\))'.format(CONDITION)
+
 PARAM_NAME = '[a-z]+'
 
 SIMPLE_PARAM = '({}=)?{}'.format(PARAM_NAME, SIMPLE_INTEGER)
@@ -149,9 +153,9 @@ def parse_address_range(text, index, width):
     num = 1
     if 'x' in addr:
         addr, num = addr.split('x', 1)
-        num = evaluate(num)
+        num = evaluate(num, True)
 
-    elements = [evaluate(m.group()) for m in re.finditer(ADDR_RANGE_PARAM, addr)]
+    elements = [evaluate(m.group(), True) for m in re.finditer(ADDR_RANGE_PARAM, addr)]
     if len(elements) < 2:
         elements.append(elements[0])
     if len(elements) < 3:
@@ -216,8 +220,8 @@ def _parse_brackets(text, index, default=None):
         raise MacroParsingError('No closing bracket: {}'.format(text[index:]))
     return end, text[index + 1:end - 1]
 
-def evaluate(param):
-    if re.match(INT, param):
+def evaluate(param, safe=False):
+    if safe or re.match(INT, param):
         return eval(re.sub('\$([0-9a-fA-F]+)', r'int("\1",16)', param).replace('/', '//'))
     raise ValueError
 
@@ -343,7 +347,7 @@ def expand_macros(macros, text, *args):
     while 1:
         search = _rfind_macros(text, '#FOR', '#FOREACH')
         if not search:
-            search = _rfind_macros(text, '#EVAL', '#MAP', '#PEEK')
+            search = _rfind_macros(text, '#EVAL', '#IF', '#MAP', '#PEEK')
             if not search:
                 search = re.search('#[A-Z]+', text)
                 if search:
@@ -510,9 +514,9 @@ def parse_foreach(text, index, entry_holder):
     if len(values) == 1:
         value = values[0]
         if re.match('EREF{}'.format(INT), value):
-            values = [str(a) for a in entry_holder.get_entry_point_refs(evaluate(value[4:]))]
+            values = [str(a) for a in entry_holder.get_entry_point_refs(evaluate(value[4:], True))]
         elif re.match('REF{}'.format(INT), value):
-            address = evaluate(value[3:])
+            address = evaluate(value[3:], True)
             entry = entry_holder.get_entry(address)
             if not entry:
                 raise MacroParsingError('No entry at {}: {}'.format(address, value))
@@ -533,6 +537,26 @@ def parse_foreach(text, index, entry_holder):
 def parse_html(text, index):
     # #HTML(text)
     return parse_text(text, index)
+
+def parse_if(text, index):
+    # #IFexpr(true,false)
+    match = re.match(EXPRESSION, text[index:])
+    if match:
+        expr = match.group()
+        value = evaluate(expr, True)
+        end = index + len(expr)
+    else:
+        raise MacroParsingError("No valid expression found: '#IF{}'".format(text[index:]))
+    end, args = parse_text(text, end, True, "No output strings: {}".format(text[index:end]))
+    if not args:
+        raise MacroParsingError("No output strings: {}".format(text[index:end]))
+    if len(args) < 2:
+        raise MacroParsingError("Only one output string (expected 2): {}".format(text[index:end]))
+    if len(args) > 2:
+        raise MacroParsingError("Too many output strings (expected 2): {}".format(text[index:end]))
+    if value:
+        return end, args[0]
+    return end, args[1]
 
 def parse_link(text, index):
     # #LINK:PageId[#name](link text)

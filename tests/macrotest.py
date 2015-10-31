@@ -497,6 +497,73 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#HTML', 'No text parameter', prefix)
         self._assert_error(writer, '#HTML:unterminated', 'No terminating delimiter: :unterminated', prefix)
 
+    def test_macro_if(self):
+        writer = self._get_writer()
+
+        # Integers
+        self.assertEqual(writer.expand('#IF1(Yes,No)'), 'Yes')
+        self.assertEqual(writer.expand('#IF(0)(Yes,No)'), 'No')
+
+        # Arithmetic expressions
+        self.assertEqual(writer.expand('#IF(1+2*3+4/2)(On,Off)'), 'On')
+        self.assertEqual(writer.expand('#IF1+2*3-49/7(On,Off)'), 'Off')
+
+        # Equalities and inequalities
+        self.assertEqual(writer.expand('#IF0==0||(True)|(False)||'), '(True)')
+        self.assertEqual(writer.expand('#IF(0!=0)||(True)|(False)||'), '(False)')
+        self.assertEqual(writer.expand('#IF(1<2)||(True)|(False)||'), '(True)')
+        self.assertEqual(writer.expand('#IF1>2||(True)|(False)||'), '(False)')
+        self.assertEqual(writer.expand('#IF3<=4||(True)|(False)||'), '(True)')
+        self.assertEqual(writer.expand('#IF(3>=4)||(True)|(False)||'), '(False)')
+
+        # Arithmetic expressions in equalities and inequalities
+        self.assertEqual(writer.expand('#IF(1+2==6-3)||(Y)|(N)||'), '(Y)')
+        self.assertEqual(writer.expand('#IF1+2!=6-3||(Y)|(N)||'), '(N)')
+        self.assertEqual(writer.expand('#IF3*3<4*5||(Y)|(N)||'), '(Y)')
+        self.assertEqual(writer.expand('#IF(3*3>4*5)||(Y)|(N)||'), '(N)')
+        self.assertEqual(writer.expand('#IF(12/6<=12/4)||(Y)|(N)||'), '(Y)')
+        self.assertEqual(writer.expand('#IF12/6>=12/4||(Y)|(N)||'), '(N)')
+
+        # Multi-line output strings
+        self.assertEqual(writer.expand('#IF1(foo\nbar,baz\nqux)'), 'foo\nbar')
+        self.assertEqual(writer.expand('#IF0(foo\nbar,baz\nqux)'), 'baz\nqux')
+
+    def test_macro_if_nested(self):
+        writer = self._get_writer()
+
+        self.assertEqual(writer.expand('#IF#IF5>3(2<1,1)(Y,N)'), 'N')
+        self.assertEqual(writer.expand('#IF5>3(#IF1||T,F|Y,N||)'), 'T')
+
+    def test_macro_if_with_nested_eval_macro(self):
+        writer = self._get_writer()
+
+        self.assertEqual(writer.expand('#IF#EVAL(1+1)>1(Y,N)'), 'Y')
+        self.assertEqual(writer.expand('#IF3<1(#EVAL(2+2),#EVAL(3*3))'), '9')
+
+    def test_macro_if_with_nested_map_macro(self):
+        writer = self._get_writer()
+
+        self.assertEqual(writer.expand('#IF#MAP1(0,1:2)>1(Y,N)'), 'Y')
+        self.assertEqual(writer.expand('#IF1(#MAP2(N,2:y),n)'), 'y')
+
+    def test_macro_if_with_nested_peek_macro(self):
+        writer = self._get_writer(snapshot=[10])
+
+        self.assertEqual(writer.expand('#IF#PEEK0>5(>5,<=5)'), '>5')
+        self.assertEqual(writer.expand('#IF0(#PEEK0,[#PEEK0])'), '[10]')
+
+    def test_macro_if_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('IF')
+
+        self._assert_error(writer, '#IF', "No valid expression found: '#IF'", prefix)
+        self._assert_error(writer, '#IFx', "No valid expression found: '#IFx'", prefix)
+        self._assert_error(writer, '#IF(0)', "No output strings: (0)", prefix)
+        self._assert_error(writer, '#IF(0)()', "No output strings: (0)()", prefix)
+        self._assert_error(writer, '#IF(0)(true)', "Only one output string (expected 2): (0)(true)", prefix)
+        self._assert_error(writer, '#IF(0)(true,false,other)', "Too many output strings (expected 2): (0)(true,false,other)", prefix)
+        self._assert_error(writer, '#IF1(true,false', "No terminating delimiter: (true,false", prefix)
+
     def test_macro_link_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('LINK')
