@@ -517,6 +517,9 @@ def parse_foreach(text, index, entry_holder):
             if not entry:
                 raise MacroParsingError('No entry at {}: {}'.format(address, value))
             values = [str(addr) for addr in sorted([ref.address for ref in entry.referrers])]
+        elif re.match('ENTRY[a-z]*$', value):
+            types = value[5:]
+            values = [str(e.address) for e in entry_holder.memory_map if not types or e.ctl in types]
     if not values:
         return end, ''
     args += [''] * (3 - len(args))

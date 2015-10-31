@@ -373,6 +373,51 @@ class CommonSkoolMacroTest:
         output = writer.expand('#FOREACH(0,1,2)(n,n+#PEEKn,+)')
         self.assertEqual(output, '0+1+1+2+2+3')
 
+    def test_macro_foreach_with_entry(self):
+        skool = '\n'.join((
+            '@start',
+            'b30000 DEFB 1,2,3',
+            '',
+            'c30003 RET',
+            '',
+            'g30004 DEFB 0',
+            '',
+            's30005 DEFS 5',
+            '',
+            'c30010 RET',
+            '',
+            'b30011 DEFB 4,5,6',
+            '',
+            't30014 DEFM "Hey"',
+            '',
+            'u30017 DEFS 3',
+            '',
+            'w30020 DEFW 10000,20000',
+            '',
+            'c30024 RET',
+        ))
+        writer = self._get_writer(skool=skool)
+
+        # All entries
+        output = writer.expand('#FOREACH(ENTRY)||e|e|, ||')
+        self.assertEqual(output, '30000, 30003, 30004, 30005, 30010, 30011, 30014, 30017, 30020, 30024')
+
+        # Just code
+        output = writer.expand('#FOREACH(ENTRYc)||e|e|, ||')
+        self.assertEqual(output, '30003, 30010, 30024')
+
+        # Code and text
+        output = writer.expand('#FOREACH(ENTRYct)||e|e|, ||')
+        self.assertEqual(output, '30003, 30010, 30014, 30024')
+
+        # Everything but code and text
+        output = writer.expand('#FOREACH(ENTRYbgsuw)||e|e|, ||')
+        self.assertEqual(output, '30000, 30004, 30005, 30011, 30017, 30020')
+
+        # Non-existent
+        output = writer.expand('#FOREACH(ENTRYq)||e|e|, ||')
+        self.assertEqual(output, '')
+
     def test_macro_foreach_with_eref(self):
         skool = '\n'.join((
             '@start',
