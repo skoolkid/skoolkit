@@ -197,8 +197,8 @@ class CommonSkoolMacroTest:
         output = writer.expand('#FOR1,5,2(n,n)')
         self.assertEqual(output, '135')
 
-        # Commas in output
-        output = writer.expand('(1)#FOR5,13,4//n/, (n)//')
+        # Brackets and commas in output
+        output = writer.expand('(1)#FOR5,13,4(n,\, (n\))')
         self.assertEqual(output, '(1), (5), (9), (13)')
 
         # Alternative delimiters
@@ -315,7 +315,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '*a**b**c*')
 
         # Values containing commas
-        output = writer.expand('#FOREACH//a,/b,/c//($s,$s)')
+        output = writer.expand('#FOREACH(a\,,b\,,c)($s,$s)')
         self.assertEqual(output, 'a,b,c')
 
     def test_macro_foreach_with_separator(self):

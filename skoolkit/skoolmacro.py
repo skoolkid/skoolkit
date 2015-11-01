@@ -305,12 +305,24 @@ def parse_text(text, index, split=False, error=None):
         sep = delim1
         delim1 = delim2 = delim1 + delim1
     start = index + len(delim1)
-    end = text.find(delim2, start)
+    if delim1 == '(':
+        match = re.search(r'(?<=[^\\])\)', text[index:])
+        if match:
+            end = index + match.span()[0]
+        else:
+            end = -1
+    else:
+        end = text.find(delim2, start)
     if end < start:
         raise MacroParsingError("No terminating delimiter: {}".format(text[index:]))
     args = text[start:end]
+    if delim1 == '(':
+        args = args.replace('\\)', ')')
     if args and split:
-        args = args.split(sep)
+        if sep == ',':
+            args = [s.replace('\\,', ',') for s in re.split(r'^,|(?<=[^\\]),', args)]
+        else:
+            args = args.split(sep)
     return end + len(delim2), args
 
 def get_macros(writer):
