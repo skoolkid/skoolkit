@@ -295,6 +295,15 @@ class BinWriterTest(SkoolKitTestCase):
         exp_data = [35, 19, 201]
         self._test_write(skool, 50000, exp_data, asm_mode=2)
 
+    def test_ssub_overrides_isub(self):
+        skool = '\n'.join((
+            '@ssub=LD A,2',
+            '@isub=LD A,1',
+            'c30000 LD A,0',
+        ))
+        exp_data = [62, 2]
+        self._test_write(skool, 30000, exp_data, asm_mode=2)
+
     def test_ofix_mode(self):
         skool = '\n'.join((
             '@ofix-begin',
@@ -348,6 +357,15 @@ class BinWriterTest(SkoolKitTestCase):
         ))
         exp_data = [62, 2, 6, 2, 14, 1, 22, 2, 30, 2, 38, 1]
         self._test_write(skool, 60000, exp_data, fix_mode=2)
+
+    def test_bfix_overrides_ofix(self):
+        skool = '\n'.join((
+            '@bfix=LD B,2',
+            '@ofix=LD B,1',
+            'c30000 LD B,0',
+        ))
+        exp_data = [6, 2]
+        self._test_write(skool, 30000, exp_data, fix_mode=2)
 
 if __name__ == '__main__':
     unittest.main()

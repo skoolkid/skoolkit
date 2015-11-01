@@ -35,7 +35,7 @@ class BinWriter:
         self.end_address = 0
         self.stack = []
         self.include = True
-        self.sub = None
+        self.subs = [None] * 4
         self._parse_skool(skoolfile)
 
     def _parse_skool(self, skoolfile):
@@ -72,9 +72,11 @@ class BinWriter:
             address = get_int_param(line[1:6])
         except ValueError:
             raise SkoolParsingError("Invalid address ({}):\n{}".format(line[1:6], line.rstrip()))
-        if self.sub:
-            operation = self.sub
-            self.sub = None
+        for sub in self.subs:
+            if sub is not None:
+                operation = sub
+                self.subs = [None] * 4
+                break
         else:
             comment_index = find_unquoted(line, ';', 6)
             operation = line[7:comment_index].strip()
@@ -110,13 +112,13 @@ class BinWriter:
         if not self.include:
             return
         if directive.startswith('isub=') and self.asm_mode > 0:
-            self.sub = directive[5:].rstrip()
+            self.subs[3] = directive[5:].rstrip()
         elif directive.startswith('ssub=') and self.asm_mode > 1:
-            self.sub = directive[5:].rstrip()
+            self.subs[2] = directive[5:].rstrip()
         elif directive.startswith('ofix=') and self.fix_mode > 0:
-            self.sub = directive[5:].rstrip()
+            self.subs[1] = directive[5:].rstrip()
         elif directive.startswith('bfix=') and self.fix_mode > 1:
-            self.sub = directive[5:].rstrip()
+            self.subs[0] = directive[5:].rstrip()
 
     def write(self, binfile, start, end):
         if start is None:
