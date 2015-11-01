@@ -108,5 +108,4 @@ B 32519 #sprite32519,58(bell0)
 B 32551 #sprite32551,58(bell1)
 B 32583 #sprite32583,58(bell2)
 B 32615 #sprite32615,58(bell3)
-b 32647
-i 32768
+i 32647
