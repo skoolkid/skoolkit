@@ -202,11 +202,13 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '(1), (5), (9), (13)')
 
         # Alternative delimiters
-        delimiters = {'[': ']', '{': '}'}
-        for delim1 in '[{/|':
-            delim2 = delimiters.get(delim1, delim1)
+        for delim1, delim2 in (('[', ']'), ('{', '}')):
             output = writer.expand('1; #FOR4,10,3{}@n,@n; {}13'.format(delim1, delim2))
             self.assertEqual(output, '1; 4; 7; 10; 13')
+
+        # Alternative separator
+        output = writer.expand('1, #FOR4,10,3/|@n|@n, |/13')
+        self.assertEqual(output, '1, 4, 7, 10, 13')
 
         # Arithmetic expression in 'start' parameter
         output = writer.expand('#FOR(10-9,3)(n,n)')
@@ -632,11 +634,13 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, 'OK')
 
         # Alternative delimiters
-        delimiters = {'[': ']', '{': '}'}
-        for delim1 in '[{/|':
-            delim2 = delimiters.get(delim1, delim1)
+        for delim1, delim2 in (('[', ']'), ('{', '}')):
             output = writer.expand('#MAP1{}?,0:A,1:OK,2:C{}'.format(delim1, delim2))
             self.assertEqual(output, 'OK')
+
+        # Alternative separator
+        output = writer.expand('#MAP1|;?;0:A;1:Oh, OK;2:C;|')
+        self.assertEqual(output, 'Oh, OK')
 
     def test_macro_map_nested(self):
         writer = self._get_writer()

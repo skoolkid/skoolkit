@@ -301,9 +301,10 @@ def parse_text(text, index, split=False, error=None):
     sep = ','
     delim1 = text[index]
     delim2 = DELIMITERS.get(delim1, delim1)
-    if split and delim1 == delim2 and index + 1 < len(text) and text[index + 1] == delim1:
-        sep = delim1
-        delim1 = delim2 = delim1 + delim1
+    if split and delim1 == delim2 and index + 1 < len(text):
+        sep = text[index + 1]
+        delim1 += sep
+        delim2 = sep + delim2
     start = index + len(delim1)
     if delim1 == '(':
         match = re.search(r'(?<=[^\\])\)', text[index:])
