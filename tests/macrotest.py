@@ -256,16 +256,28 @@ class CommonSkoolMacroTest:
         output = writer.expand('#FOR1,3(&n,#FOR4,6[&m,&m.&n, ], )')
         self.assertEqual(output, '4.1 5.1 6.1 4.2 5.2 6.2 4.3 5.3 6.3')
 
+    def test_macro_for_with_nested_eval_macro(self):
+        writer = self._get_writer()
+
+        output = writer.expand('#FOR:0,2//m/{#EVAL(m+1)}//')
+        self.assertEqual(output, '{1}{2}{3}')
+
+    def test_macro_for_with_nested_foreach_macro(self):
+        writer = self._get_writer()
+
+        output = writer.expand('#FOR0,2//m/[#FOREACH(1,2,3)(n,m+n,-)]//')
+        self.assertEqual(output, '[0+1-0+2-0+3][1+1-1+2-1+3][2+1-2+2-2+3]')
+
     def test_macro_for_with_nested_map_macro(self):
         writer = self._get_writer()
 
-        output = writer.expand('#FOR0,2//m/{#MAPm[,0:2,1:3,2:5]}//')
+        output = writer.expand('#FOR:0,2//m/{#MAPm[,0:2,1:3,2:5]}//')
         self.assertEqual(output, '{2}{3}{5}')
 
     def test_macro_for_with_nested_peek_macro(self):
         writer = self._get_writer(snapshot=(1, 2, 3))
 
-        output = writer.expand('#FOR0,2(m,{#PEEKm})')
+        output = writer.expand('#FOR:0,2(m,{#PEEKm})')
         self.assertEqual(output, '{1}{2}{3}')
 
     def test_macro_for_invalid(self):
@@ -273,10 +285,15 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('FOR')
 
         self._assert_error(writer, '#FOR', 'No parameters (expected 2)', prefix)
+        self._assert_error(writer, '#FOR:', 'No parameters (expected 2)', prefix)
         self._assert_error(writer, '#FOR0', "Not enough parameters (expected 2): '0'", prefix)
+        self._assert_error(writer, '#FOR:0', "Not enough parameters (expected 2): '0'", prefix)
         self._assert_error(writer, '#FOR0,1', 'No variable name: 0,1', prefix)
+        self._assert_error(writer, '#FOR:0,1', 'No variable name: 0,1', prefix)
         self._assert_error(writer, '#FOR0,1()', "No variable name: 0,1()", prefix)
+        self._assert_error(writer, '#FOR:0,1()', "No variable name: 0,1()", prefix)
         self._assert_error(writer, '#FOR0,1(n,n', 'No terminating delimiter: (n,n', prefix)
+        self._assert_error(writer, '#FOR:0,1(n,n', 'No terminating delimiter: (n,n', prefix)
 
     def test_macro_foreach(self):
         writer = self._get_writer()
@@ -352,7 +369,7 @@ class CommonSkoolMacroTest:
     def test_macro_foreach_with_nested_eval_macro(self):
         writer = self._get_writer()
 
-        output = writer.expand('#FOREACH(0,1,2)||n|#EVAL(n+1)|, ||')
+        output = writer.expand('#FOREACH:(0,1,2)||n|#EVAL(n+1)|, ||')
         self.assertEqual(output, '1, 2, 3')
 
     def test_macro_foreach_with_nested_for_macro(self):
@@ -364,13 +381,13 @@ class CommonSkoolMacroTest:
     def test_macro_foreach_with_nested_map_macro(self):
         writer = self._get_writer()
 
-        output = writer.expand('#FOREACH(0,1,2)||n|#MAPn(c,0:a,1:b)||')
+        output = writer.expand('#FOREACH:(0,1,2)||n|#MAPn(c,0:a,1:b)||')
         self.assertEqual(output, 'abc')
 
     def test_macro_foreach_with_nested_peek_macro(self):
         writer = self._get_writer(snapshot=(1, 2, 3))
 
-        output = writer.expand('#FOREACH(0,1,2)(n,n+#PEEKn,+)')
+        output = writer.expand('#FOREACH:(0,1,2)(n,n+#PEEKn,+)')
         self.assertEqual(output, '0+1+1+2+2+3')
 
     def test_macro_foreach_with_entry(self):
@@ -484,11 +501,17 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('FOREACH')
 
         self._assert_error(writer, '#FOREACH', 'No values', prefix)
+        self._assert_error(writer, '#FOREACH:', 'No values', prefix)
         self._assert_error(writer, '#FOREACH()', 'No variable name: ()', prefix)
+        self._assert_error(writer, '#FOREACH:()', 'No variable name: ()', prefix)
         self._assert_error(writer, '#FOREACH()()', 'No variable name: ()()', prefix)
+        self._assert_error(writer, '#FOREACH:()()', 'No variable name: ()()', prefix)
         self._assert_error(writer, '#FOREACH(a,b[$s,$s]', 'No terminating delimiter: (a,b[$s,$s]', prefix)
+        self._assert_error(writer, '#FOREACH:(a,b[$s,$s]', 'No terminating delimiter: (a,b[$s,$s]', prefix)
         self._assert_error(writer, '#FOREACH(a,b)($s,$s', 'No terminating delimiter: ($s,$s', prefix)
+        self._assert_error(writer, '#FOREACH:(a,b)($s,$s', 'No terminating delimiter: ($s,$s', prefix)
         self._assert_error(writer, '#FOREACH(REF$81A4)(n,n)', 'No entry at 33188: REF$81A4', prefix)
+        self._assert_error(writer, '#FOREACH:(REF$81A4)(n,n)', 'No entry at 33188: REF$81A4', prefix)
 
     def test_macro_html_invalid(self):
         writer = self._get_writer()

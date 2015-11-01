@@ -24,6 +24,8 @@ from skoolkit import SkoolKitError, SkoolParsingError
 
 _map_cache = {}
 
+MACRO_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
 DELIMITERS = {
     '(': ')',
     '[': ']',
@@ -326,7 +328,7 @@ def _rfind_macro(text, macro):
     max_index = index - m_len
     while 1:
         index = text.rfind(macro, 0, index)
-        if index < 0 or index == max_index or text[index + m_len] not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
+        if index < 0 or index == max_index or macro[-1] not in MACRO_CHARS or text[index + m_len] not in MACRO_CHARS:
             return index
 
 def _rfind_macros(text, *macros):
@@ -345,9 +347,11 @@ def expand_macros(macros, text, *args):
         return text
 
     while 1:
-        search = _rfind_macros(text, '#FOR', '#FOREACH')
-        if not search:
-            search = _rfind_macros(text, '#EVAL', '#IF', '#MAP', '#PEEK')
+        search = _rfind_macros(text, '#FOR:', '#FOREACH:')
+        if search:
+            search = (search[0][:-1], search[1], search[2])
+        else:
+            search = _rfind_macros(text, '#EVAL', '#FOR', '#FOREACH', '#IF', '#MAP', '#PEEK')
             if not search:
                 search = re.search('#[A-Z]+', text)
                 if search:
@@ -492,7 +496,7 @@ def parse_font(text, index):
     return end, crop_rect, fname, frame, alt, params
 
 def parse_for(text, index):
-    # #FORstart,stop[,step](var,string[,sep,fsep])
+    # #FOR[:]start,stop[,step](var,string[,sep,fsep])
     end, start, stop, step = parse_ints(text, index, 3, (1,))
     end, args = parse_text(text, end, True, 'No variable name: {}'.format(text[index:end]))
     if not args:
@@ -506,7 +510,7 @@ def parse_for(text, index):
     return end, fsep.join((sep.join([s.replace(var, str(n)) for n in range(start, stop, step)]), s.replace(var, str(stop))))
 
 def parse_foreach(text, index, entry_holder):
-    # #FOREACH([v1,v2,...])(var,string[,sep,fsep])
+    # #FOREACH[:]([v1,v2,...])(var,string[,sep,fsep])
     end, values = parse_text(text, index, True, 'No values')
     end, args = parse_text(text, end, True, 'No variable name: {}'.format(text[index:end]))
     if not args:
