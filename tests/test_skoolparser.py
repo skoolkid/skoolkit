@@ -2622,6 +2622,26 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instruction2.comment.text, 'Instruction-level comment 2')
         self.assertEqual(['End comment 1', 'End comment 2'], entry.end_comment)
 
+    def test_replace_directive_with_special_sequence_i(self):
+        skool = '\n'.join((
+            r'@replace=/#udg\((\i)\)/#UDG(\1,58)',
+            '; Routine at 35516',
+            ';',
+            '; #udg(35516)',
+            '; .',
+            '; #udg($8abc)',
+            '; .',
+            '; #udg($8ABC+5*3-30/2)',
+            'b35516 DEFS 8,85'
+        ))
+        entry = self._get_parser(skool).get_entry(35516)
+        exp_details = [
+            '#UDG(35516,58)',
+            '#UDG($8abc,58)',
+            '#UDG($8ABC+5*3-30/2,58)'
+        ]
+        self.assertEqual(exp_details, entry.details)
+
     def test_replace_directive_with_no_pattern_or_replacement(self):
         skool = '\n'.join((
             '@replace=',

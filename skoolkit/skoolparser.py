@@ -20,7 +20,7 @@ import cgi
 import re
 
 from skoolkit import SkoolParsingError, warn, wrap, get_int_param, parse_int, open_file
-from skoolkit.skoolmacro import DELIMITERS
+from skoolkit.skoolmacro import DELIMITERS, INTEGER
 from skoolkit.textutils import partition_unquoted
 from skoolkit.z80 import assemble, convert_case, get_size, split_operation
 
@@ -430,7 +430,7 @@ class SkoolParser:
     def _add_replacement(self, s):
         try:
             elements = s[1:].split(s[0])
-            self._replacements.append((elements[0], elements[1]))
+            self._replacements.append((elements[0].replace('\\i', INTEGER), elements[1]))
         except IndexError:
             pass
 
