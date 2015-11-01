@@ -2,9 +2,6 @@
 ; SkoolKit ref file for Hungry Horace
 ;
 
-[Config]
-HtmlWriterClass=:hungryhorace.HungryHoraceHtmlWriter
-
 [Game]
 Game=Hungry Horace
 Logo=#SCR1,2,14,26,8(/images/logo)

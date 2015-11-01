@@ -13,6 +13,7 @@ B 16384,6912,16
 i 23296
 @ 24576 start
 @ 24576 org=24576
+@ 24576 replace=/#maze(\d+)/#UDGARRAY32#FOR:(\1,\1+767)||n|;31735+8*#PEEKn,#MAP#PEEKn(61,2:60,3:56)||
 @ 24576 replace=/#sprite(\d+),(\d+)/#UDGARRAY2,\2;\1-\1+24-8
 @ 24576 replace=/#fruit(\d+)/#UDGARRAY2#FOR:(\1,\1+27,9)||n|;n+1,#PEEKn||
 @ 24576 set-handle-unsupported-macros=1
@@ -64,16 +65,16 @@ c 27927
 c 27982
 b 28070
 b 28663 Maze 2 layout
-D 28663 #HTML[#CALL:maze(28663,maze2)]
+D 28663 #maze28663(maze2)
 B 28663,768,32
 b 29431 Maze 1 layout
-D 29431 #HTML[#CALL:maze(29431,maze1)]
+D 29431 #maze29431(maze1)
 B 29431,768,32
 b 30199 Maze 3 layout
-D 30199 #HTML[#CALL:maze(30199,maze3)]
+D 30199 #maze30199(maze3)
 B 30199,768,32
 b 30967 Maze 4 layout
-D 30967 #HTML[#CALL:maze(30967,maze4)]
+D 30967 #maze30967(maze4)
 B 30967,768,32
 b 31735 Maze tiles
 D 31735 #UDGTABLE { #FOR:31735,31807,8//n/#UDGn,#MAPn(61,31751:60,31759:56)/ | // } TABLE#

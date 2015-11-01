@@ -189,13 +189,10 @@ _check_resources() {
 }
 
 _check_examples() {
-  pkgtype=$1
-  rootdir=$2
-  logdir=$3
+  rootdir=$1
+  logdir=$2
 
-  example_files=$(echo 48.rom.{ctl,ref} hungry_horace.{ctl,ref,t2s} hungryhorace.py{,c})
-  [[ $pkgtype = "rpm" ]] && example_files+=" hungryhorace.pyo"
-  _check_files examples $rootdir $logdir $example_files
+  _check_files examples $rootdir $logdir 48.rom.{ctl,ref} hungry_horace.{ctl,ref,t2s}
 }
 
 ###############################################################################
@@ -359,7 +356,7 @@ build_deb() {
   _check_commands /usr/bin $logdir
   _check_man_pages
   _check_resources $(/usr/bin/skool2html.py -p)/resources $logdir
-  _check_examples deb /usr/share/skoolkit/examples $logdir
+  _check_examples /usr/share/skoolkit/examples $logdir
   _exec "Uninstalling skoolkit" "sudo dpkg -r skoolkit" $logdir/dpkg-r.log
 }
 
@@ -381,7 +378,7 @@ build_rpm() {
   _check_commands /usr/bin $logdir
   _check_man_pages
   _check_resources $(/usr/bin/skool2html.py -p)/resources $logdir
-  _check_examples rpm /usr/share/skoolkit/examples $logdir
+  _check_examples /usr/share/skoolkit/examples $logdir
   _exec "Uninstalling skoolkit" "sudo rpm -e skoolkit" $logdir/rpm-e.log
 }
 

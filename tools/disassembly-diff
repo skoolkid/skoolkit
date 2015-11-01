@@ -178,7 +178,6 @@ if [ $WRITE_OLD -eq 1 ] || [ ! -d $OLD_DIR ]; then
     elif [ "$GAME" = "hh" ]; then
       $OLD_DIR/sna2skool.py -c $OLD_DIR/examples/hungry_horace.ctl $SNAPSHOT > $OLD_DIR/src/hungry_horace.skool
       cp -p $OLD_DIR/examples/hungry_horace.ref $OLD_DIR/src
-      find $OLD_DIR/examples -name hungryhorace.py -exec cp -p {} $OLD_DIR \;
     else
       find $OLD_DISASSEMBLY_NAME -name '*.py' -exec cp {} $OLD_DIR/skoolkit \;
       find $OLD_DISASSEMBLY_NAME -name '*.py' -exec cp {} $OLD_DIR \;
@@ -218,7 +217,6 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
   elif [ "$GAME" = "hh" ]; then
     $NEW_DIR/sna2skool.py -c $NEW_DIR/examples/hungry_horace.ctl $SNAPSHOT > $NEW_DIR/src/hungry_horace.skool
     cp -p $NEW_DIR/examples/hungry_horace.ref $NEW_DIR/src
-    cp -p $NEW_DIR/examples/hungryhorace.py $NEW_DIR
   else
     cp -p $DHOME/sources/*.skool $DHOME/sources/*.ref $DHOME/sources/*.css $NEW_DIR/src
     find $DHOME/sources -name '*.js' -exec cp -p {} $NEW_DIR/src \;
