@@ -437,7 +437,8 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
     def test_macro_reg(self):
         writer = self._get_writer()
-        for reg in ("a", "b", "c", "d", "e", "h", "l", "i", "r", "ixl", "ixh", "iyl", "iyh", "b'", "c'", "d'", "e'", "h'", "l'", "bc", "de", "hl", "sp", "ix", "iy", "bc'", "de'", "hl'"):
+        for reg in ('a', 'b', 'c', 'd', 'e', 'h', 'l', "a'", "b'", "c'", "d'", "e'", "h'", "l'", 'af', 'bc', 'de', 'hl',
+                    "af'", "bc'", "de'", "hl'", 'ix', 'iy', 'ixh', 'iyh', 'ixl', 'iyl', 'i', 'r', 'sp', 'pc'):
             output = writer.expand('#REG{0}'.format(reg))
             self.assertEqual(output, reg.upper())
 

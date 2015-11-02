@@ -697,16 +697,15 @@ def parse_refs(text, index, entry_holder):
 
 def parse_reg(text, index, lower):
     # #REGreg
-    end = index
-    while end < len(text) and text[end] in "abcdefhlirspxy'":
-        end += 1
-    reg = text[index:end]
-    if not reg:
+    if index >= len(text):
         raise MacroParsingError('Missing register argument')
-    if len(reg) > 3:
-        raise MacroParsingError('Bad register: "{}"'.format(reg))
+    match = re.match("(af?|bc?|c|de?|e|hl?|l)'?|i[xy][lh]?|i|pc|r|sp", text[index:])
+    if not match:
+        raise MacroParsingError('Bad register: "{}"'.format(text[index:]))
+    reg = match.group()
+    end = index + len(reg)
     if lower:
-        return end, reg.lower()
+        return end, reg
     return end, reg.upper()
 
 def parse_scr(text, index):

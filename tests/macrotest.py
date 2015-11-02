@@ -793,8 +793,9 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('REG')
 
         self._assert_error(writer, '#REG', 'Missing register argument', prefix)
-        self._assert_error(writer, '#REGq', 'Missing register argument', prefix)
-        self._assert_error(writer, '#REGabcd', 'Bad register: "abcd"', prefix)
+        self._assert_error(writer, '#REGq', 'Bad register: "q"', prefix)
+        self._assert_error(writer, "#REG'a", 'Bad register: "\'a"', prefix)
+        self._assert_error(writer, "#REGxil", 'Bad register: "xil"', prefix)
 
     def test_macro_scr_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)

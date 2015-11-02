@@ -475,13 +475,18 @@ element containing a register name. ::
 
   #REGreg
 
-* ``reg`` is the name of the register (e.g. 'a', 'bc')
+* ``reg`` is the name of the register
 
 In ASM mode, the ``#REG`` macro expands to the name of the register.
 
-The register name must contain 1, 2 or 3 of the following characters::
+The register name must be one of the following::
 
-  abcdefhlirspxy'
+  a b c d e h l
+  a' b' c' d' e' h' l'
+  af bc de hl
+  af' bc' de' hl'
+  ix iy ixh iyh ixl iyl
+  i r sp pc
 
 For example:
 
@@ -489,6 +494,12 @@ For example:
    :class: nonexistent
 
     24623 LD C,31       ; #REGbc'=31
+
++---------+-----------------------------------------------------+
+| Version | Changes                                             |
++=========+=====================================================+
+| 5.1     | The ``reg`` parameter must be a valid register name |
++---------+-----------------------------------------------------+
 
 .. _SPACE:
 
