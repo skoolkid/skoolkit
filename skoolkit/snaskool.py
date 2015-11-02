@@ -626,6 +626,8 @@ class Disassembly:
                 title = title or 'Game status buffer entry at {}'.format(self._address_str(block.start))
             elif block.ctl in 'us':
                 title = title or 'Unused'
+            elif block.ctl == 'i' and (block.description or block.registers or block.blocks[0].header):
+                title = title or 'Ignored'
             for sub_block in block.blocks:
                 address = sub_block.start
                 if sub_block.ctl in 'cBT':
@@ -742,24 +744,22 @@ class SkoolWriter:
         if entry.has_ignoreua_directive(TITLE):
             self.write_asm_directive(AD_IGNOREUA)
 
-        if entry.ctl == 'i':
-            end = entry.blocks[0].end
-            if end < 65536:
-                if entry.title:
-                    self.write_comment(entry.title)
-                write_line('{}{}'.format(entry.ctl, self.address_str(entry.blocks[0].start)))
+        if entry.ctl == 'i' and entry.blocks[-1].end >= 65536 and not entry.title and all([b.ctl == 'i' for b in entry.blocks]):
             return
 
         for block in entry.bad_blocks:
             warn('Code block at {} overlaps the following block at {}'.format(self.address_str(block.start, False), self.address_str(block.end, False)))
 
-        self.write_comment(entry.title)
-        wrote_desc = self._write_entry_description(entry, write_refs)
-        if entry.registers:
-            if not wrote_desc:
-                self._write_empty_paragraph()
-                wrote_desc = True
-            self._write_registers(entry)
+        if entry.title:
+            self.write_comment(entry.title)
+            wrote_desc = self._write_entry_description(entry, write_refs)
+            if entry.registers:
+                if not wrote_desc:
+                    self._write_empty_paragraph()
+                    wrote_desc = True
+                self._write_registers(entry)
+        else:
+            wrote_desc = False
 
         self._write_body(entry, wrote_desc, write_refs, show_text)
 

@@ -130,7 +130,7 @@ D 32781 #UDGTABLE { #SCR } TABLE#
 D 32781 This is a screenshot: #UDGTABLE { #SCR } UDGTABLE# Isn't it nice?
 D 32781 #LIST { Item 1 } { Item 2 } LIST#
 D 32781 List intro text: #LIST { Item } LIST#
-i 32782 Final ignore block
+i 32782
 """
 
 SKOOL = """@start
@@ -1784,6 +1784,176 @@ class SkoolWriterTest(SkoolKitTestCase):
             ' 00036 DEFB 0        ; }',
             ' 00037 DEFB 0        ; {matched {{braces}} in the middle',
             ' 00038 DEFB 0        ; }',
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_ignore_blocks_with_no_title_and_no_sub_blocks(self):
+        snapshot = [0] * 3
+        ctl = '\n'.join((
+            'b 00000',
+            'i 00001',
+            'b 00002',
+            'i 00003'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Data block at 0',
+            'b00000 DEFB 0',
+            '',
+            'i00001',
+            '',
+            '; Data block at 2',
+            'b00002 DEFB 0'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_ignore_blocks_with_title_but_no_sub_blocks(self):
+        snapshot = [0] * 3
+        ctl = '\n'.join((
+            'b 00000',
+            'i 00001 The middle',
+            'b 00002',
+            'i 00003 The end'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Data block at 0',
+            'b00000 DEFB 0',
+            '',
+            '; The middle',
+            'i00001',
+            '',
+            '; Data block at 2',
+            'b00002 DEFB 0',
+            '',
+            '; The end',
+            'i00003'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_ignore_blocks_with_sub_block_but_no_title(self):
+        snapshot = [0] * 3
+        ctl = '\n'.join((
+            'b 00000',
+            'i 00001',
+            'B 00001',
+            'b 00002',
+            'i 00003',
+            'S 00003'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Data block at 0',
+            'b00000 DEFB 0',
+            '',
+            'i00001 DEFB 0',
+            '',
+            '; Data block at 2',
+            'b00002 DEFB 0',
+            '',
+            'i00003 DEFS 65533'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_ignore_blocks_with_title_and_sub_block(self):
+        snapshot = [0] * 3
+        ctl = '\n'.join((
+            'b 00000',
+            'i 00001 The middle',
+            'S 00001',
+            'b 00002',
+            'i 00003 The end',
+            'D 00003 Unused from here on out.',
+            'S 00003'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Data block at 0',
+            'b00000 DEFB 0',
+            '',
+            '; The middle',
+            'i00001 DEFS 1',
+            '',
+            '; Data block at 2',
+            'b00002 DEFB 0',
+            '',
+            '; The end',
+            ';',
+            '; Unused from here on out.',
+            'i00003 DEFS 65533'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_ignore_block_with_description_but_no_title(self):
+        snapshot = [0] * 3
+        ctl = '\n'.join((
+            'b 00000',
+            'i 00001',
+            'D 00001 Unused from here on out.'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Data block at 0',
+            'b00000 DEFB 0',
+            '',
+            '; Ignored',
+            ';',
+            '; Unused from here on out.',
+            'i00001'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_ignore_block_with_registers_but_no_title(self):
+        snapshot = [0, 201]
+        ctl = '\n'.join((
+            'b 00000',
+            'i 00001',
+            'R 00001 A 0',
+            'C 00001,1',
+            'S 00002'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Data block at 0',
+            'b00000 DEFB 0',
+            '',
+            '; Ignored',
+            ';',
+            '; .',
+            ';',
+            '; A 0',
+            'i00001 RET',
+            ' 00002 DEFS 65534'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_ignore_block_with_start_comment_but_no_title(self):
+        snapshot = [0]
+        ctl = '\n'.join((
+            'b 00000',
+            'i 00001',
+            'N 00001 It ends here.'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Data block at 0',
+            'b00000 DEFB 0',
+            '',
+            '; Ignored',
+            ';',
+            '; .',
+            ';',
+            '; .',
+            ';',
+            '; It ends here.',
+            'i00001'
         ]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
