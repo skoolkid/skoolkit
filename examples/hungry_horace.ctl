@@ -11,6 +11,7 @@ b 16384 Loading screen
 D 16384 #SCR(loading)
 B 16384,6912,16
 i 23296
+S 23296
 @ 24576 start
 @ 24576 org=24576
 @ 24576 replace=/#maze(\d+)/#UDGARRAY32#FOR:(\1,\1+767)||n|;31735+8*#PEEKn,#MAP#PEEKn(61,2:60,3:56)||
