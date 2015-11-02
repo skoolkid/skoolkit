@@ -159,6 +159,22 @@ class Tap2SnaTest(SkoolKitTestCase):
         snapshot = get_snapshot(z80file)
         self.assertEqual(code, snapshot[code_start:code_start + len(code)])
 
+    def test_standard_load_ignores_truncated_header_block(self):
+        code_start = 30000
+        code = [2, 3, 4]
+        length = len(code)
+        blocks = [
+            create_tap_header_block(start=code_start)[:-1],
+            create_tap_data_block(code),
+        ]
+
+        tapfile = self._write_tap(blocks)
+        z80file = self.write_bin_file(suffix='.z80')
+        output, error = self.run_tap2sna('--force {} {}'.format(tapfile, z80file))
+        self.assertEqual(error, '')
+        snapshot = get_snapshot(z80file)
+        self.assertEqual([0] * length, snapshot[code_start:code_start + length])
+
     def test_standard_load_with_unknown_block_type(self):
         block_type = 1 # Array of numbers
         blocks = [

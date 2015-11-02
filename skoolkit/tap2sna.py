@@ -162,7 +162,7 @@ def _get_ram(blocks, options):
         start = None
         for block_num, block in enumerate(blocks, 1):
             if block:
-                if block[0] == 0:
+                if block[0] == 0 and len(block) >= 19:
                     # Header
                     block_type = block[1]
                     if block_type == 3:
@@ -173,7 +173,7 @@ def _get_ram(blocks, options):
                         start = 23755
                     else:
                         raise TapeError('Unknown block type ({}) in header block {}'.format(block_type, block_num))
-                elif start is not None:
+                elif block[0] == 255 and start is not None:
                     # Data
                     _load_block(snapshot, block, start)
                     start = None
