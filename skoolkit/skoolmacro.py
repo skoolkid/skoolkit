@@ -428,14 +428,15 @@ def parse_call(text, index, writer, cwd=None):
     if arg_string is None:
         raise MacroParsingError("No argument list specified: {}{}".format(macro, text[index:end]))
     args = []
-    for arg in arg_string.split(','):
-        try:
-            args.append(evaluate(arg))
-        except ValueError:
-            if arg:
-                args.append(arg)
-            else:
-                args.append(None)
+    if arg_string:
+        for arg in arg_string.split(','):
+            try:
+                args.append(evaluate(arg))
+            except ValueError:
+                if arg:
+                    args.append(arg)
+                else:
+                    args.append(None)
 
     if writer.needs_cwd():
         args.insert(0, cwd)

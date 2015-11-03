@@ -39,6 +39,11 @@ class CommonSkoolMacroTest:
         # Non-arithmetic Python expressions
         self._check_call(writer, '"a"+"b",None,sys.exit()', '"a"+"b"', 'None', 'sys.exit()')
 
+        # No arguments
+        writer.test_call_no_args = self._test_call_no_args
+        output = writer.expand('#CALL:test_call_no_args()')
+        self.assertEqual(output, 'OK')
+
         # No return value
         writer.test_call_no_retval = self._test_call_no_retval
         output = writer.expand('#CALL:test_call_no_retval(1,2)')

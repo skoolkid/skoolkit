@@ -777,6 +777,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def _test_call_no_retval(self, *args):
         return
 
+    def _test_call_no_args(self, cwd):
+        return 'OK'
+
     def _unsupported_macro(self, *args):
         raise UnsupportedMacroError()
 
