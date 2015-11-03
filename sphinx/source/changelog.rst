@@ -9,6 +9,8 @@ Changelog
 * The :ref:`R` macro now converts an anchor that matches the entry address to
   the format specified by the ``AddressAnchor`` parameter (making it easier to
   link to the first instruction in an entry when using a custom anchor format)
+* :ref:`skool2ctl.py` now appends a terminal ``i`` directive if the skool file
+  ends before 65536
 
 5.0 (2015-10-04)
 ----------------

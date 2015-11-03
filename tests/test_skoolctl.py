@@ -700,13 +700,19 @@ class CtlWriterTest(SkoolKitTestCase):
         self.assertEqual(test_ctl, ctl)
 
     def test_hex_lower(self):
-        self._test_ctl('c40177 RET', ['c $9cf1'], write_hex=-1)
+        skool = 'c40177 RET'
+        exp_ctl = [
+            'c $9cf1',
+            'i $9cf2'
+        ]
+        self._test_ctl(skool, exp_ctl, write_hex=-1)
 
     def test_byte_formats_no_base(self):
         exp_ctl = [
             'b 30000 Binary and mixed-base DEFB/DEFM statements',
             '  30000,30,b1:2,2:b2:3,b2,3,5,T5,b1:T2:2',
-            'T 30030,30,b1:B2,B2:b2:B3,b2,B3,B5,5,b1:2:B2'
+            'T 30030,30,b1:B2,B2:b2:B3,b2,B3,B5,5,b1:2:B2',
+            'i 30060'
         ]
         self._test_ctl(TEST_BYTE_FORMATS_SKOOL, exp_ctl, preserve_base=False)
 
@@ -714,21 +720,24 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'b 30000 Binary and mixed-base DEFB/DEFM statements',
             '  30000,30,b1:h1:d1,h2:b2:d3,b2,d3,h5,T5,b1:T2:d1:h1',
-            'T 30030,30,b1:h1:d1,h2:b2:d3,b2,d3,h5,5,b1:2:d1:h1'
+            'T 30030,30,b1:h1:d1,h2:b2:d3,b2,d3,h5,5,b1:2:d1:h1',
+            'i 30060'
         ]
         self._test_ctl(TEST_BYTE_FORMATS_SKOOL, exp_ctl, preserve_base=True)
 
     def test_word_formats_no_base(self):
         exp_ctl = [
             'w 40000 Binary and mixed-base DEFW statements',
-            '  40000,68,b4,2:c2:2,8,2:b2:2,4:b2:4*2,4*4,b4'
+            '  40000,68,b4,2:c2:2,8,2:b2:2,4:b2:4*2,4*4,b4',
+            'i 40068'
         ]
         self._test_ctl(TEST_WORD_FORMATS_SKOOL, exp_ctl, preserve_base=False)
 
     def test_word_formats_preserve_base(self):
         exp_ctl = [
             'w 40000 Binary and mixed-base DEFW statements',
-            '  40000,68,b4,d2:c2:d2,h8,d2:b2:h2,h4:b2:d4*2,d4*2,h4*2,b4'
+            '  40000,68,b4,d2:c2:d2,h8,d2:b2:h2,h4:b2:d4*2,d4*2,h4*2,b4',
+            'i 40068'
         ]
         self._test_ctl(TEST_WORD_FORMATS_SKOOL, exp_ctl, preserve_base=True)
 
@@ -736,7 +745,8 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             's 50000 DEFS statements in various bases',
             '  50000,4256,b%0000000111110100,1000,$07D0,500:b%10101010,$0100:170',
-            '  54256,444,256:c"\\"",88:c"\\\\",50:c",",50:c";" Tricky characters'
+            '  54256,444,256:c"\\"",88:c"\\\\",50:c",",50:c";" Tricky characters',
+            'i 54700'
         ]
         self._test_ctl(TEST_S_DIRECTIVES_SKOOL, exp_ctl, preserve_base=False)
 
@@ -744,7 +754,8 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             's 50000 DEFS statements in various bases',
             '  50000,4256,b%0000000111110100,d1000,h$07D0,d500:b%10101010,h$0100:d170',
-            '  54256,444,d256:c"\\"",d88:c"\\\\",d50:c",",d50:c";" Tricky characters'
+            '  54256,444,d256:c"\\"",d88:c"\\\\",d50:c",",d50:c";" Tricky characters',
+            'i 54700'
         ]
         self._test_ctl(TEST_S_DIRECTIVES_SKOOL, exp_ctl, preserve_base=True)
 
@@ -765,6 +776,7 @@ class CtlWriterTest(SkoolKitTestCase):
             '  60044,170,b3,3,nb4,4,bn4,4,b2,3,b3,6,b4,7,b4,7,b4,8,b3,8,b3,8,b4,4,b2,3,b3,5,b2,4,b2,3,b3,6,b3,6,b4,8,b4,8,b4',
             '  60218,6 No operands',
             '  60228,b4',
+            'i 60258'
         ]
         self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=False)
 
@@ -784,7 +796,8 @@ class CtlWriterTest(SkoolKitTestCase):
             '  60032,6,h3,d3 Hexadecimal, decimal',
             '  60038,180,d3,h3,b3,h3,hb4,dh4,bd4,hh4,b2,h3,b3,d3,h3,b4,d4,h3,b4,d4,h3,b4,d4,h4,b3,d4,h4,b3,d4,h4,b4,d2,h2,b2,h3,b3,d3,h2,b2,d2,h2,b2,h3,b3,d3,h3,b3,d3,h3,b4,d4,h4,b4,d4,h4,b4,d4',
             '  60218,6 No operands',
-            '  60224,34,h4,b4,d7,h5,d2,h3,d3,h4,d2'
+            '  60224,34,h4,b4,d7,h5,d2,h3,d3,h4,d2',
+            'i 60258'
         ]
         self._test_ctl(TEST_OPERAND_BASES_SKOOL, exp_ctl, preserve_base=True)
 
@@ -792,6 +805,7 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'c 61000 Instruction operands as characters',
             '  61000,17,c6,2,c5,nc4',
+            'i 61017'
         ]
         self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=False)
 
@@ -799,20 +813,23 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'c 61000 Instruction operands as characters',
             '  61000,17,c6,d2,c5,hc4',
+            'i 61017'
         ]
         self._test_ctl(TEST_CHARACTER_OPERANDS_SKOOL, exp_ctl, preserve_base=True)
 
     def test_operands_with_commas_no_base(self):
         exp_ctl = [
             'c 62000 Instruction operands that contain commas',
-            '  62000,20,c8,nc4,cn4,cc4'
+            '  62000,20,c8,nc4,cn4,cc4',
+            'i 62020'
         ]
         self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=False)
 
     def test_operands_with_commas_preserve_base(self):
         exp_ctl = [
             'c 62000 Instruction operands that contain commas',
-            '  62000,20,c8,dc4,ch4,cc4'
+            '  62000,20,c8,dc4,ch4,cc4',
+            'i 62020'
         ]
         self._test_ctl(TEST_OPERANDS_WITH_COMMAS_SKOOL, exp_ctl, preserve_base=True)
 
@@ -839,6 +856,7 @@ class CtlWriterTest(SkoolKitTestCase):
             '  60018,cc4 Comment 7',
             'B 60022,5,1:T3:1 Comment 8',
             'T 60027,4,3:B1 Last comment',
+            'i 60031'
         ]
         self._test_ctl(skool, exp_ctl)
 
@@ -895,7 +913,8 @@ class CtlWriterTest(SkoolKitTestCase):
             '@ 30005 ignoreua:m',
             'N 30005 Mid-block comment above 30005.',
             '@ 30004 ignoreua:e',
-            'E 30004 End comment for the routine at 30004.'
+            'E 30004 End comment for the routine at 30004.',
+            'i 30006'
         ]
         self._test_ctl(skool, exp_ctl)
 
@@ -914,7 +933,8 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'c 30000 Routine',
             '@ 30000 ignoreua:m',
-            'N 30000 Start comment above 30000.'
+            'N 30000 Start comment above 30000.',
+            'i 30001'
         ]
         self._test_ctl(skool, exp_ctl)
 
@@ -948,7 +968,8 @@ class CtlWriterTest(SkoolKitTestCase):
             '@ $9C41 ignoreua:m',
             'N $9C41 Mid-block comment above 40001.',
             '@ $9C40 ignoreua:e',
-            'E $9C40 End comment for the routine at 40000.'
+            'E $9C40 End comment for the routine at 40000.',
+            'i $9C42'
         ]
         self._test_ctl(skool, exp_ctl, write_hex=1)
 
@@ -963,7 +984,8 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'c 30000',
             '@ 30002 assemble=1',
-            '@ 30004 assemble=0'
+            '@ 30004 assemble=0',
+            'i 30006'
         ]
         self._test_ctl(skool, exp_ctl)
 
@@ -975,7 +997,8 @@ class CtlWriterTest(SkoolKitTestCase):
         ))
         exp_ctl = [
             '@ 32768 replace=/foo/bar',
-            'c 32768 Routine'
+            'c 32768 Routine',
+            'i 32769'
         ]
         self._test_ctl(skool, exp_ctl)
 
@@ -998,7 +1021,8 @@ class CtlWriterTest(SkoolKitTestCase):
             'R 40000 BC This register description is long enough that it needs to be split over two lines',
             'R 40000 DE Short register description',
             'R 40000 HL Another register description that is long enough to need splitting over two lines',
-            'R 40000 IX'
+            'R 40000 IX',
+            'i 40001'
         ]
         self._test_ctl(skool, exp_ctl)
 
@@ -1017,7 +1041,8 @@ class CtlWriterTest(SkoolKitTestCase):
             'c 24576 Test registers with prefixes',
             'R 24576 Input:A Some value',
             'R 24576 B Some other value',
-            'R 24576 Output:HL The result'
+            'R 24576 Output:HL The result',
+            'i 24577'
         ]
         self._test_ctl(skool, exp_ctl)
 
@@ -1036,7 +1061,8 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'c 50000 Routine',
             'D 50000 Description',
-            'N 50000 {}'.format(start_comment)
+            'N 50000 {}'.format(start_comment),
+            'i 50001'
         ]
         self._test_ctl(skool, exp_ctl)
 
@@ -1057,7 +1083,8 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'c 60000 Routine',
             'N 60000 {}'.format(start_comment[0]),
-            'N 60000 {}'.format(start_comment[1])
+            'N 60000 {}'.format(start_comment[1]),
+            'i 60001'
         ]
         self._test_ctl(skool, exp_ctl)
 
@@ -1080,6 +1107,7 @@ class CtlWriterTest(SkoolKitTestCase):
             'N 30004 Mid-block comment.',
             'M 30004 M directive extending to the end of the block (no explicit length)',
             'B 30005,1,1',
+            'i 30006'
         ]
         self._test_ctl(skool, exp_ctl)
 
@@ -1092,6 +1120,7 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'c 30000',
             '  30000,4,c2,b2',
+            'i 30006'
         ]
         self._test_ctl(skool, exp_ctl)
 
@@ -1103,6 +1132,7 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'c 40000',
             '  40000,b2',
+            'i 40003'
         ]
         self._test_ctl(skool, exp_ctl)
 
@@ -1118,7 +1148,8 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'c 50000',
             '  50000,6,2,c2,2 Do stuff',
-            '  50008,c2'
+            '  50008,c2',
+            'i 50012'
         ]
         self._test_ctl(skool, exp_ctl)
 
@@ -1136,6 +1167,7 @@ class CtlWriterTest(SkoolKitTestCase):
             '  40001,1,1',
             'b 40002',
             '  40002,1,1',
+            'i 40003'
         ]
         self._test_ctl(skool, exp_ctl, min_address=40001)
 
@@ -1154,6 +1186,7 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'c 40003 Routine at 40003',
             'c 40004',
+            'i 40005'
         ]
         self._test_ctl(skool, exp_ctl, min_address=40001)
 
@@ -1181,6 +1214,7 @@ class CtlWriterTest(SkoolKitTestCase):
             'b 40001',
             '  40001,1,1',
             'E 40001 End comment.',
+            'i 40002'
         ]
         self._test_ctl(skool, exp_ctl, max_address=40002)
 
@@ -1196,6 +1230,7 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = [
             'c 50000',
             'c 50001',
+            'i 50003'
         ]
         self._test_ctl(skool, exp_ctl, max_address=50003)
 
@@ -1223,6 +1258,7 @@ class CtlWriterTest(SkoolKitTestCase):
             '  40001,1,1',
             'b 40002',
             '  40002,1,1',
+            'i 40003'
         ]
         self._test_ctl(skool, exp_ctl, min_address=40001, max_address=40003)
 
@@ -1254,6 +1290,7 @@ class CtlWriterTest(SkoolKitTestCase):
             '  50002,2,1 The unmatched {opening brace} in this comment should be implicitly closed by the following mid-block comment',
             'N 50004 Here is the mid-block comment.',
             '  50004,1,1 The closing brace in this comment is unmatched}',
+            'i 50005'
         ]
         self._test_ctl(skool, exp_ctl)
 

@@ -206,15 +206,16 @@ def get_lengths(stmt_lengths):
 class CtlWriter:
     def __init__(self, skoolfile, elements='btdrmsc', write_hex=0, write_asm_dirs=True,
                  preserve_base=False, min_address=0, max_address=65536):
-        parser = SkoolParser(skoolfile, preserve_base, min_address, max_address)
-        self.entries = parser.memory_map
+        self.parser = SkoolParser(skoolfile, preserve_base, min_address, max_address)
         self.elements = elements
         self.write_asm_dirs = write_asm_dirs
         self.address_fmt = get_address_format(write_hex, write_hex < 0)
 
     def write(self):
-        for entry in self.entries:
+        for entry in self.parser.memory_map:
             self.write_entry(entry)
+        if self.parser.end_address < 65536:
+            write_line('i {}'.format(self.addr_str(self.parser.end_address)))
 
     def _write_asm_directive(self, directive, address, value=None):
         if value is None:
@@ -433,6 +434,7 @@ class SkoolParser:
         self.mode = Mode()
         self.memory_map = []
         self.stack = []
+        self.end_address = 65536
 
         with open_file(skoolfile) as f:
             self._parse_skool(f, min_address, max_address)
@@ -515,8 +517,18 @@ class SkoolParser:
             map_entry.end_comment = join_comments(comments, True)
             map_entry.ignoreua[END] = len(ignores) > 0
 
+        last_entry = None
+        last_instruction = None
         for entry in self.memory_map:
             entry.sort_instructions()
+            if last_entry is None or last_entry.address < entry.address:
+                last_entry = entry
+            end_instruction = entry.instructions[-1]
+            if last_instruction is None or last_instruction.address < end_instruction.address:
+                last_instruction = end_instruction
+        if last_entry is not None and last_entry.ctl != 'i':
+            address = last_instruction.address
+            self.end_address = address + (get_size(last_instruction.operation, address) or 1)
 
         parse_address_comments(address_comments)
 

@@ -173,13 +173,12 @@ class Skool2CtlTest(SkoolKitTestCase):
     def test_run(self):
         skool = '\n'.join((
             '; Test skool file for skool2ctl testing',
-            'c32768 RET'
+            'c65535 RET'
         ))
         skoolfile = self.write_text_file(skool, suffix='.skool')
         output, error = self.run_skool2ctl(skoolfile)
         self.assertEqual(len(error), 0)
-        self.assertEqual(len(output), 1)
-        self.assertEqual(output[0], 'c 32768 Test skool file for skool2ctl testing')
+        self.assertEqual(['c 65535 Test skool file for skool2ctl testing'], output)
 
 if __name__ == '__main__':
     unittest.main()
