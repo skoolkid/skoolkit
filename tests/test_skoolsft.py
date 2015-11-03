@@ -205,8 +205,8 @@ bB32796,1
 @rsub-end
 
 ; Ignore block
-i32803 DEFB 56  ; Set 32803 to 56
- 32804 DEFW 512
+iB32803,1;16 Set 32803 to 56
+ W32804,2
 
 ; Data block
 bB49152,1
@@ -240,7 +240,7 @@ tT49193,5:B5,B1:7:B2
 bB49213,1:T2*2,1,2:T1*3
 
 ; Another ignore block
-i49229""".split('\n')
+iI49229""".split('\n')
 
 TEST_BYTE_FORMATS_SKOOL = """; Binary and mixed-base DEFB/DEFM statements
 b30000 DEFB %10111101,$42,26
@@ -774,6 +774,55 @@ class SftWriterTest(SkoolKitTestCase):
             '@replace=/#copy/#CHR169',
             '; Message',
             'tT32768,B1:5;25 #copy 1984',
+        ]
+        self._test_sft(skool, exp_sft)
+
+    def test_i_block_with_no_instruction(self):
+        skool = 'i40000'
+        exp_sft = ['iI40000']
+        self._test_sft(skool, exp_sft)
+
+    def test_i_block_with_no_instruction_hex(self):
+        skool = 'i40000'
+        exp_sft = ['iI$9C40']
+        self._test_sft(skool, exp_sft, write_hex=1)
+
+    def test_i_block_with_no_instruction_hex_lower(self):
+        skool = 'i40000'
+        exp_sft = ['iI$9c40']
+        self._test_sft(skool, exp_sft, write_hex=-1)
+
+    def test_i_block_with_no_instruction_and_a_comment(self):
+        skool = 'i40000 ; Ignored'
+        exp_sft = ['iI40000;7 Ignored']
+        self._test_sft(skool, exp_sft)
+
+    def test_i_block_with_one_instruction(self):
+        skool = 'i40000 DEFS 20'
+        exp_sft = ['iS40000,20']
+        self._test_sft(skool, exp_sft)
+
+    def test_i_block_with_one_instruction_and_a_comment(self):
+        skool = 'i40000 DEFS 20 ; Ignored'
+        exp_sft = ['iS40000,20;15 Ignored']
+        self._test_sft(skool, exp_sft)
+
+    def test_i_block_with_two_instructions(self):
+        skool = '\n'.join((
+            'i40000 DEFS 20',
+            ' 40020 DEFS 30'
+        ))
+        exp_sft = ['iS40000,20,30']
+        self._test_sft(skool, exp_sft)
+
+    def test_i_block_with_two_instructions_and_comments(self):
+        skool = '\n'.join((
+            'i40000 DEFB 0 ; Ignored',
+            ' 40001 DEFW 0 ; Also ignored'
+        ))
+        exp_sft = [
+            'iB40000,1;14 Ignored',
+            ' W40001,2;14 Also ignored'
         ]
         self._test_sft(skool, exp_sft)
 

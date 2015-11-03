@@ -11,6 +11,9 @@ Changelog
   link to the first instruction in an entry when using a custom anchor format)
 * :ref:`skool2ctl.py` now appends a terminal ``i`` directive if the skool file
   ends before 65536
+* :ref:`skool2sft.py` now preserves ``i`` blocks in the same way as code and
+  data blocks (instead of verbatim), which enables their conversion to decimal
+  or hexadecimal when restored from a skool file template
 
 5.0 (2015-10-04)
 ----------------

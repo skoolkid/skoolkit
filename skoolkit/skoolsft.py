@@ -24,7 +24,7 @@ from skoolkit.textutils import find_unquoted
 from skoolkit.z80 import get_size
 
 VALID_CTLS = DIRECTIVES + ' *'
-VERBATIM_BLOCKS = ('d', 'i', 'r')
+VERBATIM_BLOCKS = ('d', 'r')
 
 class VerbatimLine:
     def __init__(self, text):
@@ -52,20 +52,23 @@ class ControlLine:
         self.comment_index = comment_index
         self.comment = comment
         self.operation = operation
-        self.inst_ctl = get_instruction_ctl(operation)
-        if self.inst_ctl == 'C':
-            size = get_size(operation, address)
-            length = [get_operand_bases(operation, preserve_base), size]
-        elif self.inst_ctl == 'B':
-            size, length = get_defb_length(self.operation, preserve_base)
-        elif self.inst_ctl == 'T':
-            size, length = get_defb_length(self.operation, preserve_base)
-        elif self.inst_ctl == 'W':
-            size, length = get_defw_length(self.operation, preserve_base)
+        if operation:
+            self.inst_ctl = get_instruction_ctl(operation)
+            if self.inst_ctl == 'C':
+                size = get_size(operation, address)
+                length = [get_operand_bases(operation, preserve_base), size]
+            elif self.inst_ctl == 'B':
+                size, length = get_defb_length(self.operation, preserve_base)
+            elif self.inst_ctl == 'T':
+                size, length = get_defb_length(self.operation, preserve_base)
+            elif self.inst_ctl == 'W':
+                size, length = get_defw_length(self.operation, preserve_base)
+            else:
+                size, length = get_defs_length(self.operation, preserve_base)
+            self.end = address + size
+            self.lengths = [length]
         else:
-            size, length = get_defs_length(self.operation, preserve_base)
-        self.end = address + size
-        self.lengths = [length]
+            self.inst_ctl = 'I'
 
     def __str__(self):
         comment = ' {0}'.format(self.comment).rstrip()
@@ -73,6 +76,8 @@ class ControlLine:
             comment_index = ';{0}'.format(self.comment_index)
         else:
             comment_index = ''
+        if self.inst_ctl == 'I':
+            return "{}I{}{}{}".format(self.ctl, self.addr_str, comment_index, comment)
         return "{}{}{},{}{}{}".format(self.ctl, self.inst_ctl, self.addr_str,
                                       self._get_lengths(), comment_index, comment)
 
