@@ -58,6 +58,9 @@ class UnsupportedMacroError(SkoolKitError):
 class MacroParsingError(SkoolKitError):
     pass
 
+class NoParametersError(MacroParsingError):
+    pass
+
 class MissingParameterError(MacroParsingError):
     pass
 
@@ -295,12 +298,14 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
             params[i] = defaults[i - req]
     return params
 
-def parse_text(text, index, split=False, error=None):
+def parse_text(text, index, num=0, defaults=()):
     if index >= len(text) or text[index].isspace():
-        raise MacroParsingError(error or "No text parameter")
+        raise NoParametersError("No text parameter", index)
+
     sep = ','
     delim1 = text[index]
     delim2 = DELIMITERS.get(delim1, delim1)
+    split = num != 1
     if split and delim1 == delim2 and index + 1 < len(text):
         sep = text[index + 1]
         delim1 += sep
@@ -316,15 +321,33 @@ def parse_text(text, index, split=False, error=None):
         end = text.find(delim2, start)
     if end < start:
         raise MacroParsingError("No terminating delimiter: {}".format(text[index:]))
-    args = text[start:end]
+
+    param_string = text[start:end]
+    end += len(delim2)
     if delim1 == '(':
-        args = args.replace('\\)', ')')
-    if args and split:
-        if sep == ',':
-            args = [s.replace('\\,', ',') for s in re.split(r'^,|(?<=[^\\]),', args)]
+        param_string = param_string.replace('\\)', ')')
+
+    if split:
+        if param_string:
+            if sep == ',':
+                args = [s.replace('\\,', ',') for s in re.split(r'^,|(?<=[^\\]),', param_string)]
+            else:
+                args = param_string.split(sep)
         else:
-            args = args.split(sep)
-    return end + len(delim2), args
+            args = []
+    else:
+        args = param_string
+
+    if num > 1:
+        if len(args) > num:
+            raise TooManyParametersError("Too many parameters (expected {}): '{}'".format(num, param_string), end)
+        req = num - len(defaults)
+        if len(args) < req:
+            raise MissingParameterError("Not enough parameters (expected {}): '{}'".format(req, param_string), end, args)
+        while len(args) < num:
+            args.append(defaults[len(args) - req])
+
+    return end, args
 
 def get_macros(writer):
     macros = {}
@@ -498,7 +521,7 @@ def parse_fact(text, index):
 def parse_font(text, index):
     # #FONT[:(text)]addr[,chars,attr,scale][{x,y,width,height}][(fname)]
     if index < len(text) and text[index] == ':':
-        index, message = parse_text(text, index + 1)
+        index, message = parse_text(text, index + 1, 1)
         if not message:
             raise MacroParsingError("Empty message: {}".format(text[index - 2:index]))
     else:
@@ -512,23 +535,26 @@ def parse_font(text, index):
 def parse_for(text, index):
     # #FOR[:]start,stop[,step](var,string[,sep,fsep])
     end, start, stop, step = parse_ints(text, index, 3, (1,))
-    end, args = parse_text(text, end, True, 'No variable name: {}'.format(text[index:end]))
-    if not args:
-        raise MacroParsingError("No variable name: {}".format(text[index:end]))
-    args += [''] * (3 - len(args))
-    if len(args) == 3:
-        args.append(args[2])
-    var, s, sep, fsep = args[:4]
+    try:
+        end, (var, s, sep, fsep) = parse_text(text, end, 4, ('', None))
+    except (NoParametersError, MissingParameterError) as e:
+        raise MacroParsingError("No variable name: {}".format(text[index:e[1]]))
+    if fsep is None:
+        fsep = sep
     if start == stop:
         return end, s.replace(var, str(start))
     return end, fsep.join((sep.join([s.replace(var, str(n)) for n in range(start, stop, step)]), s.replace(var, str(stop))))
 
 def parse_foreach(text, index, entry_holder):
     # #FOREACH[:]([v1,v2,...])(var,string[,sep,fsep])
-    end, values = parse_text(text, index, True, 'No values')
-    end, args = parse_text(text, end, True, 'No variable name: {}'.format(text[index:end]))
-    if not args:
-        raise MacroParsingError("No variable name: {}".format(text[index:end]))
+    try:
+        end, values = parse_text(text, index)
+    except NoParametersError:
+        raise NoParametersError("No values")
+    try:
+        end, (var, s, sep, fsep) = parse_text(text, end, 4, ('', None))
+    except (NoParametersError, MissingParameterError) as e:
+        raise MacroParsingError("No variable name: {}".format(text[index:e[1]]))
     if len(values) == 1:
         value = values[0]
         if re.match('EREF{}'.format(INT), value):
@@ -544,17 +570,15 @@ def parse_foreach(text, index, entry_holder):
             values = [str(e.address) for e in entry_holder.memory_map if not types or e.ctl in types]
     if not values:
         return end, ''
-    args += [''] * (3 - len(args))
-    if len(args) == 3:
-        args.append(args[2])
-    var, s, sep, fsep = args[:4]
+    if fsep is None:
+        fsep = sep
     if len(values) == 1:
         return end, s.replace(var, values[0])
     return end, fsep.join((sep.join([s.replace(var, v) for v in values[:-1]]), s.replace(var, values[-1])))
 
 def parse_html(text, index):
     # #HTML(text)
-    return parse_text(text, index)
+    return parse_text(text, index, 1)
 
 def parse_if(text, index):
     # #IFexpr(true,false)
@@ -565,16 +589,19 @@ def parse_if(text, index):
         end = index + len(expr)
     else:
         raise MacroParsingError("No valid expression found: '#IF{}'".format(text[index:]))
-    end, args = parse_text(text, end, True, "No output strings: {}".format(text[index:end]))
-    if not args:
-        raise MacroParsingError("No output strings: {}".format(text[index:end]))
-    if len(args) < 2:
-        raise MacroParsingError("Only one output string (expected 2): {}".format(text[index:end]))
-    if len(args) > 2:
-        raise MacroParsingError("Too many output strings (expected 2): {}".format(text[index:end]))
+    try:
+        end, (true, false) = parse_text(text, end, 2)
+    except NoParametersError:
+        raise NoParametersError("No output strings: {}".format(text[index:end]))
+    except MissingParameterError as e:
+        if len(e[2]) == 0:
+            raise MissingParameterError("No output strings: {}".format(text[index:e[1]]))
+        raise MacroParsingError("Only one output string (expected 2): {}".format(text[index:e[1]]))
+    except TooManyParametersError as e:
+        raise MacroParsingError("Too many output strings (expected 2): {}".format(text[index:e[1]]))
     if value:
-        return end, args[0]
-    return end, args[1]
+        return end, true
+    return end, false
 
 def parse_link(text, index):
     # #LINK:PageId[#name](link text)
@@ -601,7 +628,10 @@ def parse_link(text, index):
 def parse_map(text, index):
     # #MAPvalue(default,k1:v1[,k2:v2...])
     args_index, value = parse_ints(text, index, 1)
-    end, args = parse_text(text, args_index, True, "No mappings provided: {}".format(text[index:args_index]))
+    try:
+        end, args = parse_text(text, args_index)
+    except NoParametersError:
+        raise NoParametersError("No mappings provided: {}".format(text[index:args_index]))
     map_id = text[args_index:end]
     if map_id in _map_cache:
         return end, _map_cache[map_id][value]
