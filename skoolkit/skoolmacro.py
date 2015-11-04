@@ -311,32 +311,18 @@ def parse_strings(text, index=0, num=0, defaults=()):
         delim1 += sep
         delim2 = sep + delim2
     start = index + len(delim1)
-    if delim1 == '(':
-        match = re.search(r'(?<=[^\\])\)', text[index:])
-        if match:
-            end = index + match.span()[0]
-        else:
-            end = -1
-    else:
-        end = text.find(delim2, start)
+    end = text.find(delim2, start)
     if end < start:
         raise MacroParsingError("No terminating delimiter: {}".format(text[index:]))
-
     param_string = text[start:end]
     end += len(delim2)
-    if delim1 == '(':
-        param_string = param_string.replace('\\)', ')')
 
-    if split:
-        if param_string:
-            if sep == ',':
-                args = [s.replace('\\,', ',') for s in re.split(r'^,|(?<=[^\\]),', param_string)]
-            else:
-                args = param_string.split(sep)
-        else:
-            args = []
-    else:
+    if not split:
         args = param_string
+    elif param_string:
+        args = param_string.split(sep)
+    else:
+        args = []
 
     if num > 1:
         if len(args) > num:
