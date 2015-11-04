@@ -20,7 +20,7 @@ from skoolkit import SkoolKitError, write_line, get_int_param, parse_int, get_ad
 from skoolkit.ctlparser import parse_params
 from skoolkit.disassembler import Disassembler
 from skoolkit.skoolparser import set_bytes, parse_asm_block_directive, DIRECTIVES
-from skoolkit.skoolsft import VerbatimLine, VALID_CTLS, VERBATIM_BLOCKS
+from skoolkit.skoolsft import VerbatimLine, VALID_CTLS
 from skoolkit.textutils import find_unquoted, split_unquoted
 
 class SftParsingError(SkoolKitError):
@@ -36,13 +36,16 @@ class InstructionLine:
 
     def __str__(self):
         if self.address:
-            op_width = self.comment_index - 8
+            if self.operation:
+                operation = self.operation + ' ' * max(1, (self.comment_index - 7 - len(self.operation)))
+            else:
+                operation = ' ' * (self.comment_index - 7)
             if self.comment:
-                return "{0}{1} {2} ; {3}".format(self.ctl, self.address, self.operation.ljust(op_width), self.comment)
+                return "{}{} {}; {}".format(self.ctl, self.address, operation, self.comment)
             if self.comment_index > 0:
-                return "{0}{1} {2} ;".format(self.ctl, self.address, self.operation.ljust(op_width))
-            return "{0}{1} {2}".format(self.ctl, self.address, self.operation)
-        indent = ''.ljust(self.comment_index)
+                return "{}{} {};".format(self.ctl, self.address, operation)
+            return "{}{} {}".format(self.ctl, self.address, self.operation).rstrip()
+        indent = ' ' * self.comment_index
         if self.comment:
             return "{0}; {1}".format(indent, self.comment)
         return "{0};".format(indent)
@@ -74,19 +77,24 @@ class SftParser:
             comment_index = get_int_param(line[2:i])
         else:
             inst_ctl = line[1]
-            comma_index = line.index(',', 2)
-            start = get_int_param(line[2:comma_index])
-            i = find_unquoted(line.rstrip(), ' ', comma_index + 1)
-            j = find_unquoted(line, ';', comma_index + 1, i)
+            if inst_ctl == 'I':
+                i = find_unquoted(line.rstrip(), ' ', 2)
+                address_end = j = find_unquoted(line, ';', 2, i)
+            else:
+                address_end = line.index(',', 2)
+                i = find_unquoted(line.rstrip(), ' ', address_end + 1)
+                j = find_unquoted(line, ';', address_end + 1, i)
+            start = get_int_param(line[2:address_end])
             if j == i:
                 comment_index = -1
             else:
                 comment_index = get_int_param(line[j + 1:i])
-            if j > comma_index + 1:
-                params = split_unquoted(line[comma_index + 1:j], ',')
+            if j > address_end + 1:
+                params = split_unquoted(line[address_end + 1:j], ',')
                 lengths = parse_params(inst_ctl, params, 0)
-            else:
+            elif inst_ctl != 'I':
                 raise ValueError
+
         comment = line[i:].strip()
         return ctl, inst_ctl, start, lengths, comment_index, comment
 
@@ -108,7 +116,7 @@ class SftParser:
     def _parse_sft(self, min_address, max_address):
         start_index = -1
         lines = []
-        entry_ctl = None
+        v_block_ctl = None
         f = open_file(self.sftfile)
         for line in f:
             if line.startswith('#'):
@@ -118,7 +126,7 @@ class SftParser:
             if not line.strip():
                 # This line is blank
                 lines.append(VerbatimLine(line))
-                entry_ctl = None
+                v_block_ctl = None
                 continue
 
             if line.startswith(';'):
@@ -137,10 +145,10 @@ class SftParser:
                 continue
 
             # Check whether we're in a block that should be restored verbatim
-            if entry_ctl is None and line.startswith(VERBATIM_BLOCKS):
-                entry_ctl = line[0]
-            if entry_ctl in VERBATIM_BLOCKS:
-                if entry_ctl == 'd':
+            if v_block_ctl is None and line[0] in 'dr' or (line[0] == 'i' and line[1] in '$0123456789'):
+                v_block_ctl = line[0]
+            if v_block_ctl:
+                if v_block_ctl == 'd':
                     self._set_bytes(line)
                 lines.append(VerbatimLine(line))
                 continue
@@ -173,18 +181,21 @@ class SftParser:
                     else:
                         instructions += self.disassembler.defb_range(start, end, sublengths)
                     start += length
-                done = False
-                for instruction in instructions:
-                    if instruction.address >= max_address:
-                        while lines and lines[-1].is_trimmable():
-                            lines.pop()
-                        done = True
+                if instructions:
+                    done = False
+                    for instruction in instructions:
+                        if instruction.address >= max_address:
+                            while lines and lines[-1].is_trimmable():
+                                lines.pop()
+                            done = True
+                            break
+                        address = self.address_fmt.format(instruction.address)
+                        lines.append(InstructionLine(ctl, address, instruction.operation, comment_index, comment))
+                        ctl = ' '
+                    if done:
                         break
-                    address = self.address_fmt.format(instruction.address)
-                    lines.append(InstructionLine(ctl, address, instruction.operation, comment_index, comment))
-                    ctl = ' '
-                if done:
-                    break
+                else:
+                    lines.append(InstructionLine(ctl, start, '', comment_index, comment))
             else:
                 # This line is an instruction-level comment continuation line
                 lines.append(InstructionLine(comment_index=comment_index, comment=comment))
