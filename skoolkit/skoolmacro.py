@@ -298,7 +298,7 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
             params[i] = defaults[i - req]
     return params
 
-def parse_text(text, index, num=0, defaults=()):
+def parse_strings(text, index=0, num=0, defaults=()):
     if index >= len(text) or text[index].isspace():
         raise NoParametersError("No text parameter", index)
 
@@ -521,7 +521,7 @@ def parse_fact(text, index):
 def parse_font(text, index):
     # #FONT[:(text)]addr[,chars,attr,scale][{x,y,width,height}][(fname)]
     if index < len(text) and text[index] == ':':
-        index, message = parse_text(text, index + 1, 1)
+        index, message = parse_strings(text, index + 1, 1)
         if not message:
             raise MacroParsingError("Empty message: {}".format(text[index - 2:index]))
     else:
@@ -536,7 +536,7 @@ def parse_for(text, index):
     # #FOR[:]start,stop[,step](var,string[,sep,fsep])
     end, start, stop, step = parse_ints(text, index, 3, (1,))
     try:
-        end, (var, s, sep, fsep) = parse_text(text, end, 4, ('', None))
+        end, (var, s, sep, fsep) = parse_strings(text, end, 4, ('', None))
     except (NoParametersError, MissingParameterError) as e:
         raise MacroParsingError("No variable name: {}".format(text[index:e[1]]))
     if fsep is None:
@@ -548,11 +548,11 @@ def parse_for(text, index):
 def parse_foreach(text, index, entry_holder):
     # #FOREACH[:]([v1,v2,...])(var,string[,sep,fsep])
     try:
-        end, values = parse_text(text, index)
+        end, values = parse_strings(text, index)
     except NoParametersError:
         raise NoParametersError("No values")
     try:
-        end, (var, s, sep, fsep) = parse_text(text, end, 4, ('', None))
+        end, (var, s, sep, fsep) = parse_strings(text, end, 4, ('', None))
     except (NoParametersError, MissingParameterError) as e:
         raise MacroParsingError("No variable name: {}".format(text[index:e[1]]))
     if len(values) == 1:
@@ -578,7 +578,7 @@ def parse_foreach(text, index, entry_holder):
 
 def parse_html(text, index):
     # #HTML(text)
-    return parse_text(text, index, 1)
+    return parse_strings(text, index, 1)
 
 def parse_if(text, index):
     # #IFexpr(true,false)
@@ -590,7 +590,7 @@ def parse_if(text, index):
     else:
         raise MacroParsingError("No valid expression found: '#IF{}'".format(text[index:]))
     try:
-        end, (true, false) = parse_text(text, end, 2)
+        end, (true, false) = parse_strings(text, end, 2)
     except NoParametersError:
         raise NoParametersError("No output strings: {}".format(text[index:end]))
     except MissingParameterError as e:
@@ -629,7 +629,7 @@ def parse_map(text, index):
     # #MAPvalue(default,k1:v1[,k2:v2...])
     args_index, value = parse_ints(text, index, 1)
     try:
-        end, args = parse_text(text, args_index)
+        end, args = parse_strings(text, args_index)
     except NoParametersError:
         raise NoParametersError("No mappings provided: {}".format(text[index:args_index]))
     map_id = text[args_index:end]
