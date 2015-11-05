@@ -319,19 +319,17 @@ def parse_strings(text, index=0, num=0, defaults=()):
     param_string = text[start:end]
     end += len(delim2)
 
-    if not split:
-        args = param_string
-    elif param_string:
+    if split:
         args = param_string.split(sep)
     else:
-        args = []
+        args = param_string
 
     if num > 1:
         if len(args) > num:
             raise TooManyParametersError("Too many parameters (expected {}): '{}'".format(num, param_string), end)
         req = num - len(defaults)
         if len(args) < req:
-            raise MissingParameterError("Not enough parameters (expected {}): '{}'".format(req, param_string), end, args)
+            raise MissingParameterError("Not enough parameters (expected {}): '{}'".format(req, param_string), end)
         while len(args) < num:
             args.append(defaults[len(args) - req])
 
@@ -578,18 +576,18 @@ def parse_if(text, index):
     else:
         raise MacroParsingError("No valid expression found: '#IF{}'".format(text[index:]))
     try:
-        end, (true, false) = parse_strings(text, end, 2)
+        end, (s_true, s_false) = parse_strings(text, end, 2, (None,))
     except NoParametersError:
         raise NoParametersError("No output strings: {}".format(text[index:end]))
-    except MissingParameterError as e:
-        if len(e[2]) == 0:
-            raise MissingParameterError("No output strings: {}".format(text[index:e[1]]))
-        raise MacroParsingError("Only one output string (expected 2): {}".format(text[index:e[1]]))
     except TooManyParametersError as e:
         raise MacroParsingError("Too many output strings (expected 2): {}".format(text[index:e[1]]))
+    if s_false is None:
+        if not s_true:
+            raise MissingParameterError("No output strings: {}".format(text[index:end]))
+        raise MacroParsingError("Only one output string (expected 2): {}".format(text[index:end]))
     if value:
-        return end, true
-    return end, false
+        return end, s_true
+    return end, s_false
 
 def parse_link(text, index):
     # #LINK:PageId[#name](link text)
@@ -623,10 +621,7 @@ def parse_map(text, index):
     map_id = text[args_index:end]
     if map_id in _map_cache:
         return end, _map_cache[map_id][value]
-    if args:
-        default = args.pop(0)
-    else:
-        default = ''
+    default = args.pop(0)
     m = defaultdict(lambda: default)
     if args:
         for pair in args:

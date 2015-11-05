@@ -107,13 +107,13 @@ class SkoolMacroTest(SkoolKitTestCase):
         self.assertEqual((11, ['foo', 'bar']), parse_strings('||foo|bar||', num=2))
 
         # Three strings, default values
-        self.assertEqual((2, ['foo', 'bar', 'baz']), parse_strings('()', num=3, defaults=('foo', 'bar', 'baz')))
+        self.assertEqual((2, ['', 'bar', 'baz']), parse_strings('()', num=3, defaults=('bar', 'baz')))
         self.assertEqual((5, ['foo', 'bar', 'baz']), parse_strings('{foo}', num=3, defaults=('bar', 'baz')))
         self.assertEqual((9, ['foo', 'bar', 'baz']), parse_strings('[foo,bar]', num=3, defaults=('baz',)))
         self.assertEqual((8, ['foo', '', 'baz']), parse_strings(':;foo;;:', num=3, defaults=('bim', 'baz')))
 
         # Unlimited strings
-        self.assertEqual((2, []), parse_strings('()', num=0))
+        self.assertEqual((2, ['']), parse_strings('()', num=0))
         self.assertEqual((5, ['foo']), parse_strings('(foo)', num=0))
         self.assertEqual((9, ['foo', 'bar']), parse_strings('{foo,bar}', num=0))
         self.assertEqual((13, ['foo', 'bar', 'baz']), parse_strings('[foo,bar,baz]', num=0))
