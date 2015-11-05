@@ -230,7 +230,7 @@ def evaluate(param, safe=False):
         return eval(re.sub('\$([0-9a-fA-F]+)', r'int("\1",16)', param).replace('/', '//'))
     raise ValueError
 
-def get_params(param_string, num=0, defaults=(), ints=None, names=()):
+def get_params(param_string, num=0, defaults=(), ints=None, names=(), safe=True):
     params = []
     named_params = {}
     index = 0
@@ -259,7 +259,7 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=()):
                 value = p
             if value:
                 try:
-                    param = evaluate(value)
+                    param = evaluate(value, safe)
                 except ValueError:
                     if ints is None or index in ints:
                         raise MacroParsingError("Cannot parse integer '{}' in parameter string: '{}'".format(value, param_string))
