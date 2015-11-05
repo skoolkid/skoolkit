@@ -100,7 +100,7 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
     return [index + len(params)] + get_params(params, num, defaults, names=names)
 
 def _parse_ints_in_brackets(text, index, num, defaults, names):
-    end, params = _parse_brackets(text, index)
+    end, params = parse_strings(text, index, 1)
     if re.match('({0}(,({0})?)*)?$'.format(PARAM), params):
         return [end] + get_params(params, num, defaults, names=names)
     if len(defaults) == max(num, len(names)) > 0:
@@ -313,6 +313,8 @@ def parse_strings(text, index=0, num=0, defaults=()):
     start = index + len(delim1)
     end = text.find(delim2, start)
     if end < start:
+        if delim1 in DELIMITERS:
+            raise MacroParsingError("No closing bracket: {}".format(text[index:]))
         raise MacroParsingError("No terminating delimiter: {}".format(text[index:]))
     param_string = text[start:end]
     end += len(delim2)

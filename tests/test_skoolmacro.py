@@ -134,15 +134,15 @@ class SkoolMacroTest(SkoolKitTestCase):
 
     def test_parse_strings_no_terminating_delimiter(self):
         text = '(foo'
-        with self.assertRaisesRegexp(MacroParsingError, re.escape("No terminating delimiter: {}".format(text))):
+        with self.assertRaisesRegexp(MacroParsingError, re.escape("No closing bracket: {}".format(text))):
             parse_strings(text)
 
         text = '{foo)'
-        with self.assertRaisesRegexp(MacroParsingError, re.escape("No terminating delimiter: {}".format(text))):
+        with self.assertRaisesRegexp(MacroParsingError, re.escape("No closing bracket: {}".format(text))):
             parse_strings(text)
 
         text = '[foo}'
-        with self.assertRaisesRegexp(MacroParsingError, re.escape("No terminating delimiter: {}".format(text))):
+        with self.assertRaisesRegexp(MacroParsingError, re.escape("No closing bracket: {}".format(text))):
             parse_strings(text)
 
         text = '/foo,bar/'

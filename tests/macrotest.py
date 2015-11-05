@@ -189,7 +189,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#FONT0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
         self._test_invalid_image_macro(writer, '#FONT0(foo', 'No closing bracket: (foo', prefix)
         self._test_invalid_image_macro(writer, '#FONT:()0', 'Empty message: ()', prefix)
-        self._test_invalid_image_macro(writer, '#FONT:[hi)0', 'No terminating delimiter: [hi)0', prefix)
+        self._test_invalid_image_macro(writer, '#FONT:[hi)0', 'No closing bracket: [hi)0', prefix)
 
     def test_macro_for(self):
         writer = self._get_writer()
@@ -299,8 +299,8 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOR:0,1', 'No variable name: 0,1', prefix)
         self._assert_error(writer, '#FOR0,1()', "No variable name: 0,1()", prefix)
         self._assert_error(writer, '#FOR:0,1()', "No variable name: 0,1()", prefix)
-        self._assert_error(writer, '#FOR0,1(n,n', 'No terminating delimiter: (n,n', prefix)
-        self._assert_error(writer, '#FOR:0,1(n,n', 'No terminating delimiter: (n,n', prefix)
+        self._assert_error(writer, '#FOR0,1(n,n', 'No closing bracket: (n,n', prefix)
+        self._assert_error(writer, '#FOR:0,1(n,n', 'No closing bracket: (n,n', prefix)
 
     def test_macro_foreach(self):
         writer = self._get_writer()
@@ -513,10 +513,10 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#FOREACH:()', 'No variable name: ()', prefix)
         self._assert_error(writer, '#FOREACH()()', 'No variable name: ()()', prefix)
         self._assert_error(writer, '#FOREACH:()()', 'No variable name: ()()', prefix)
-        self._assert_error(writer, '#FOREACH(a,b[$s,$s]', 'No terminating delimiter: (a,b[$s,$s]', prefix)
-        self._assert_error(writer, '#FOREACH:(a,b[$s,$s]', 'No terminating delimiter: (a,b[$s,$s]', prefix)
-        self._assert_error(writer, '#FOREACH(a,b)($s,$s', 'No terminating delimiter: ($s,$s', prefix)
-        self._assert_error(writer, '#FOREACH:(a,b)($s,$s', 'No terminating delimiter: ($s,$s', prefix)
+        self._assert_error(writer, '#FOREACH(a,b[$s,$s]', 'No closing bracket: (a,b[$s,$s]', prefix)
+        self._assert_error(writer, '#FOREACH:(a,b[$s,$s]', 'No closing bracket: (a,b[$s,$s]', prefix)
+        self._assert_error(writer, '#FOREACH(a,b)($s,$s', 'No closing bracket: ($s,$s', prefix)
+        self._assert_error(writer, '#FOREACH:(a,b)($s,$s', 'No closing bracket: ($s,$s', prefix)
         self._assert_error(writer, '#FOREACH(REF$81A4)(n,n)', 'No entry at 33188: REF$81A4', prefix)
         self._assert_error(writer, '#FOREACH:(REF$81A4)(n,n)', 'No entry at 33188: REF$81A4', prefix)
 
@@ -592,7 +592,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#IF(0)()', "No output strings: (0)()", prefix)
         self._assert_error(writer, '#IF(0)(true)', "Only one output string (expected 2): (0)(true)", prefix)
         self._assert_error(writer, '#IF(0)(true,false,other)', "Too many output strings (expected 2): (0)(true,false,other)", prefix)
-        self._assert_error(writer, '#IF1(true,false', "No terminating delimiter: (true,false", prefix)
+        self._assert_error(writer, '#IF1(true,false', "No closing bracket: (true,false", prefix)
 
     def test_macro_link_invalid(self):
         writer = self._get_writer()
@@ -672,7 +672,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#MAP', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#MAP0', "No mappings provided: 0", prefix)
         self._assert_error(writer, '#MAP0 ()', "No mappings provided: 0", prefix)
-        self._assert_error(writer, '#MAP0(1,2:3', "No terminating delimiter: (1,2:3", prefix)
+        self._assert_error(writer, '#MAP0(1,2:3', "No closing bracket: (1,2:3", prefix)
         self._assert_error(writer, '#MAP0(1,x1:3)', "Invalid key (x1): (1,x1:3)", prefix)
 
     def test_macro_peek(self):
