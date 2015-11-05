@@ -3,7 +3,8 @@ import re
 import unittest
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit.skoolmacro import parse_ints, parse_params, parse_address_range, MacroParsingError
+from skoolkit.skoolmacro import (parse_ints, parse_strings, parse_params, parse_address_range,
+                                 MacroParsingError, NoParametersError, MissingParameterError, TooManyParametersError)
 
 class SkoolMacroTest(SkoolKitTestCase):
     def test_parse_ints_without_kwargs(self):
@@ -82,6 +83,95 @@ class SkoolMacroTest(SkoolKitTestCase):
     def test_parse_ints_unknown_kwarg(self):
         with self.assertRaisesRegexp(MacroParsingError, "Unknown keyword argument: 'qux=2'"):
             parse_ints('foo=1,qux=2', names=('foo', 'bar'))
+
+    def test_parse_strings(self):
+        # One string, blank
+        self.assertEqual((2, ''), parse_strings('()', num=1))
+        self.assertEqual((2, ''), parse_strings('{}', num=1))
+        self.assertEqual((2, ''), parse_strings('[]', num=1))
+        self.assertEqual((2, ''), parse_strings('//', num=1))
+        self.assertEqual((2, ''), parse_strings('||', num=1))
+
+        # One string, not blank
+        self.assertEqual((5, 'foo'), parse_strings('(foo)', num=1))
+        self.assertEqual((5, 'bar'), parse_strings('{bar}', num=1))
+        self.assertEqual((5, 'baz'), parse_strings('[baz]', num=1))
+        self.assertEqual((5, 'qux'), parse_strings('/qux/', num=1))
+        self.assertEqual((7, 'xyzzy'), parse_strings('|xyzzy|', num=1))
+
+        # Two strings
+        self.assertEqual((9, ['foo', 'bar']), parse_strings('(foo,bar)', num=2))
+        self.assertEqual((9, ['foo', 'bar']), parse_strings('{foo,bar}', num=2))
+        self.assertEqual((9, ['foo', 'bar']), parse_strings('[foo,bar]', num=2))
+        self.assertEqual((11, ['foo', 'bar']), parse_strings('/,foo,bar,/', num=2))
+        self.assertEqual((11, ['foo', 'bar']), parse_strings('||foo|bar||', num=2))
+
+        # Three strings, default values
+        self.assertEqual((2, ['foo', 'bar', 'baz']), parse_strings('()', num=3, defaults=('foo', 'bar', 'baz')))
+        self.assertEqual((5, ['foo', 'bar', 'baz']), parse_strings('{foo}', num=3, defaults=('bar', 'baz')))
+        self.assertEqual((9, ['foo', 'bar', 'baz']), parse_strings('[foo,bar]', num=3, defaults=('baz',)))
+        self.assertEqual((8, ['foo', '', 'baz']), parse_strings(':;foo;;:', num=3, defaults=('bim', 'baz')))
+
+        # Unlimited strings
+        self.assertEqual((2, []), parse_strings('()', num=0))
+        self.assertEqual((5, ['foo']), parse_strings('(foo)', num=0))
+        self.assertEqual((9, ['foo', 'bar']), parse_strings('{foo,bar}', num=0))
+        self.assertEqual((13, ['foo', 'bar', 'baz']), parse_strings('[foo,bar,baz]', num=0))
+        self.assertEqual((19, ['foo', 'bar', 'baz', 'qux']), parse_strings('/ foo bar baz qux /', num=0))
+        self.assertEqual((19, ['foo', '', 'baz', '', 'xyzzy']), parse_strings('|;foo;;baz;;xyzzy;|', num=0))
+
+    def test_parse_strings_no_parameters(self):
+        msg = "No text parameter"
+
+        with self.assertRaisesRegexp(NoParametersError, msg):
+            parse_strings('')
+
+        with self.assertRaisesRegexp(NoParametersError, msg):
+            parse_strings(' (')
+
+        with self.assertRaisesRegexp(NoParametersError, msg):
+            parse_strings('\t{')
+
+    def test_parse_strings_no_terminating_delimiter(self):
+        text = '(foo'
+        with self.assertRaisesRegexp(MacroParsingError, re.escape("No terminating delimiter: {}".format(text))):
+            parse_strings(text)
+
+        text = '{foo)'
+        with self.assertRaisesRegexp(MacroParsingError, re.escape("No terminating delimiter: {}".format(text))):
+            parse_strings(text)
+
+        text = '[foo}'
+        with self.assertRaisesRegexp(MacroParsingError, re.escape("No terminating delimiter: {}".format(text))):
+            parse_strings(text)
+
+        text = '/foo,bar/'
+        with self.assertRaisesRegexp(MacroParsingError, "No terminating delimiter: {}".format(text)):
+            parse_strings(text)
+
+        text = '//foo/bar/'
+        with self.assertRaisesRegexp(MacroParsingError, "No terminating delimiter: {}".format(text)):
+            parse_strings(text)
+
+    def test_parse_strings_too_many_parameters(self):
+        text = '(foo,bar,baz)'
+        with self.assertRaises(TooManyParametersError) as e:
+            parse_strings(text, num=2)
+            self.assertEqual(e[0], "Too many parameters (expected 2): '{}'".format(text[1:-1]))
+            self.assertEqual(e[1], len(text))
+
+    def test_parse_strings_missing_parameters(self):
+        text = '(foo,bar)'
+        with self.assertRaises(MissingParameterError) as e:
+            parse_strings(text, num=3)
+            self.assertEqual(e[0], "Not enough parameters (expected 3): '{}'".format(text[1:-1]))
+            self.assertEqual(e[1], len(text))
+
+        text = '{foo,bar}'
+        with self.assertRaises(MissingParameterError) as e:
+            parse_strings(text, num=5, defaults=('qux',))
+            self.assertEqual(e[0], "Not enough parameters (expected 4): '{}'".format(text[1:-1]))
+            self.assertEqual(e[1], len(text))
 
     def test_parse_params_default_valid_characters(self):
         text = '$5B'
