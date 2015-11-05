@@ -558,6 +558,12 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#IF1(foo\nbar,baz\nqux)'), 'foo\nbar')
         self.assertEqual(writer.expand('#IF0(foo\nbar,baz\nqux)'), 'baz\nqux')
 
+        # No 'false' parameter
+        self.assertEqual(writer.expand('#IF1(aye)'), 'aye')
+        self.assertEqual(writer.expand('#IF0(aye)'), '')
+        self.assertEqual(writer.expand('#IF1()'), '')
+        self.assertEqual(writer.expand('#IF0()'), '')
+
     def test_macro_if_nested(self):
         writer = self._get_writer()
 
@@ -589,8 +595,6 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#IF', "No valid expression found: '#IF'", prefix)
         self._assert_error(writer, '#IFx', "No valid expression found: '#IFx'", prefix)
         self._assert_error(writer, '#IF(0)', "No output strings: (0)", prefix)
-        self._assert_error(writer, '#IF(0)()', "No output strings: (0)()", prefix)
-        self._assert_error(writer, '#IF(0)(true)', "Only one output string (expected 2): (0)(true)", prefix)
         self._assert_error(writer, '#IF(0)(true,false,other)', "Too many output strings (expected 2): (0)(true,false,other)", prefix)
         self._assert_error(writer, '#IF1(true,false', "No closing bracket: (true,false", prefix)
 

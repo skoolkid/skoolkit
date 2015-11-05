@@ -567,7 +567,7 @@ def parse_html(text, index):
     return parse_strings(text, index, 1)
 
 def parse_if(text, index):
-    # #IFexpr(true,false)
+    # #IFexpr(true[,false])
     match = re.match(EXPRESSION, text[index:])
     if match:
         expr = match.group()
@@ -576,15 +576,11 @@ def parse_if(text, index):
     else:
         raise MacroParsingError("No valid expression found: '#IF{}'".format(text[index:]))
     try:
-        end, (s_true, s_false) = parse_strings(text, end, 2, (None,))
+        end, (s_true, s_false) = parse_strings(text, end, 2, ('',))
     except NoParametersError:
         raise NoParametersError("No output strings: {}".format(text[index:end]))
     except TooManyParametersError as e:
         raise MacroParsingError("Too many output strings (expected 2): {}".format(text[index:e[1]]))
-    if s_false is None:
-        if not s_true:
-            raise MissingParameterError("No output strings: {}".format(text[index:end]))
-        raise MacroParsingError("Only one output string (expected 2): {}".format(text[index:end]))
     if value:
         return end, s_true
     return end, s_false
