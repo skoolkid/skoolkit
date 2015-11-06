@@ -38,9 +38,7 @@ INTEGER = '[-+]?{0}([-+*/]{0})*'.format(SIMPLE_INTEGER)
 
 INT = '({0}|\({0}\))$'.format(INTEGER)
 
-CONDITION = '{0}((==|!=|<|>|<=|>=){0})?'.format(INTEGER)
-
-EXPRESSION = '({0}|\({0}\))'.format(CONDITION)
+CONDITION = '{0}(([=!]=|[<>]=?){0})?'.format(INTEGER)
 
 PARAM_NAME = '[a-z]+'
 
@@ -50,7 +48,41 @@ PARAM = '({}=)?{}'.format(PARAM_NAME, INTEGER)
 
 ADDR_RANGE_PARAM = '({0}([+*/]{0})*|\({1}\))'.format(SIMPLE_INTEGER, INTEGER)
 
-ADDR_RANGE = '{0}(-{0}){{,3}}(x{1})?'.format(ADDR_RANGE_PARAM, INTEGER)
+RE_ADDR_RANGE = re.compile('{0}(-{0}){{,3}}(x{1})?'.format(ADDR_RANGE_PARAM, INTEGER))
+
+RE_ADDR_RANGE_PARAM = re.compile(ADDR_RANGE_PARAM)
+
+RE_ANCHOR = re.compile('#[a-zA-Z0-9$#]*')
+
+RE_CODE_ID = re.compile('@[a-zA-Z0-9$]*')
+
+RE_ENTRY = re.compile('ENTRY[a-z]*$')
+
+RE_EREF = re.compile('EREF{}'.format(INT))
+
+RE_EXPRESSION = re.compile('({0}|\({0}\))'.format(CONDITION))
+
+RE_FRAME_ID = re.compile('[^\s,;(]+')
+
+RE_HEX_INT = re.compile('\$([0-9a-fA-F]+)')
+
+RE_INT = re.compile(INT)
+
+RE_MACRO = re.compile('#[A-Z]+')
+
+RE_MACRO_METHOD = re.compile('expand_([a-z]+)$')
+
+RE_METHOD_NAME = re.compile('[a-zA-Z_][a-zA-Z0-9_]*')
+
+RE_NAMED_PARAMS = re.compile('{0}(,({0})?)*'.format(SIMPLE_PARAM))
+
+RE_LINK_PARAMS = re.compile('[^(\s]+')
+
+RE_PARAMS = re.compile('({0}(,({0})?)*)?$'.format(PARAM))
+
+RE_REF = re.compile('REF{}'.format(INT))
+
+RE_REGISTER = re.compile("(af?|bc?|c|de?|e|hl?|l)'?|i[xy][lh]?|i|pc|r|sp")
 
 class UnsupportedMacroError(SkoolKitError):
     pass
@@ -89,10 +121,10 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
     if index < len(text) and text[index] == '(':
         return _parse_ints_in_brackets(text, index, num, defaults, names)
     if names:
-        pattern = '{0}(,({0})?)*'.format(SIMPLE_PARAM)
+        match = RE_NAMED_PARAMS.match(text, index)
     else:
         pattern = '{0}(,({0})?){{,{1}}}'.format(SIMPLE_PARAM, num - 1)
-    match = re.match(pattern, text[index:])
+        match = re.match(pattern, text[index:])
     if match:
         params = match.group()
     else:
@@ -101,7 +133,7 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
 
 def _parse_ints_in_brackets(text, index, num, defaults, names):
     end, params = parse_strings(text, index, 1)
-    if re.match('({0}(,({0})?)*)?$'.format(PARAM), params):
+    if RE_PARAMS.match(params):
         return [end] + get_params(params, num, defaults, names=names)
     if len(defaults) == max(num, len(names)) > 0:
         return [index] + list(defaults)
@@ -149,7 +181,7 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
     return end, crop_rect, fname, frame, alt, result[1:]
 
 def parse_address_range(text, index, width):
-    match = re.match(ADDR_RANGE, text[index:])
+    match = RE_ADDR_RANGE.match(text, index)
     if not match:
         return index, None
     addr = match.group()
@@ -160,7 +192,7 @@ def parse_address_range(text, index, width):
         addr, num = addr.split('x', 1)
         num = evaluate(num, True)
 
-    elements = [evaluate(m.group(), True) for m in re.finditer(ADDR_RANGE_PARAM, addr)]
+    elements = [evaluate(m.group(), True) for m in RE_ADDR_RANGE_PARAM.finditer(addr)]
     if len(elements) < 2:
         elements.append(elements[0])
     if len(elements) < 3:
@@ -226,8 +258,8 @@ def _parse_brackets(text, index, default=None):
     return end, text[index + 1:end - 1]
 
 def evaluate(param, safe=False):
-    if safe or re.match(INT, param):
-        return eval(re.sub('\$([0-9a-fA-F]+)', r'int("\1",16)', param).replace('/', '//'))
+    if safe or RE_INT.match(param):
+        return eval(RE_HEX_INT.sub(r'int("\1",16)', param).replace('/', '//'))
     raise ValueError
 
 def get_params(param_string, num=0, defaults=(), ints=None, names=(), safe=True):
@@ -337,11 +369,10 @@ def parse_strings(text, index=0, num=0, defaults=()):
 
 def get_macros(writer):
     macros = {}
-    prefix = 'expand_'
     for name, method in inspect.getmembers(writer, inspect.ismethod):
-        search = re.search('{}[a-z]+'.format(prefix), name)
-        if search and name == search.group():
-            macros['#' + name[len(prefix):].upper()] = method
+        match = RE_MACRO_METHOD.match(name)
+        if match:
+            macros['#' + match.group(1).upper()] = method
     return macros
 
 def _rfind_macro(text, macro):
@@ -375,7 +406,7 @@ def expand_macros(macros, text, *args):
         else:
             search = _rfind_macros(text, '#EVAL', '#FOR', '#FOREACH', '#IF', '#MAP', '#PEEK')
             if not search:
-                search = re.search('#[A-Z]+', text)
+                search = RE_MACRO.search(text)
                 if search:
                     search = (search.group(),) + search.span()
         if not search:
@@ -397,10 +428,10 @@ def expand_macros(macros, text, *args):
 def parse_item_macro(text, index, macro, def_link_text):
     end = index
     anchor = ''
-    match = re.match('#[a-zA-Z0-9$#]*', text[end:])
+    match = RE_ANCHOR.match(text, end)
     if match:
         anchor = match.group()
-        end += match.span()[1]
+        end += len(anchor)
     end, link_text = _parse_brackets(text, end, def_link_text)
     if anchor == '#':
         raise MacroParsingError("No item name: {}{}".format(macro, text[index:end]))
@@ -419,10 +450,10 @@ def parse_call(text, index, writer, cwd=None):
         raise MacroParsingError("Malformed macro: {}{}...".format(macro, text[index]))
 
     end = index + 1
-    match = re.match('[a-zA-Z_][a-zA-Z0-9_]*', text[end:])
+    match = RE_METHOD_NAME.match(text, end)
     if match:
         method_name = match.group()
-        end += match.span()[1]
+        end += len(method_name)
     else:
         raise MacroParsingError("No method name")
     end, arg_string = _parse_brackets(text, end)
@@ -543,15 +574,15 @@ def parse_foreach(text, index, entry_holder):
         raise MacroParsingError("No variable name: {}".format(text[index:e[1]]))
     if len(values) == 1:
         value = values[0]
-        if re.match('EREF{}'.format(INT), value):
+        if RE_EREF.match(value):
             values = [str(a) for a in entry_holder.get_entry_point_refs(evaluate(value[4:], True))]
-        elif re.match('REF{}'.format(INT), value):
+        elif RE_REF.match(value):
             address = evaluate(value[3:], True)
             entry = entry_holder.get_entry(address)
             if not entry:
                 raise MacroParsingError('No entry at {}: {}'.format(address, value))
             values = [str(addr) for addr in sorted([ref.address for ref in entry.referrers])]
-        elif re.match('ENTRY[a-z]*$', value):
+        elif RE_ENTRY.match(value):
             types = value[5:]
             values = [str(e.address) for e in entry_holder.memory_map if not types or e.ctl in types]
     if not values:
@@ -568,7 +599,7 @@ def parse_html(text, index):
 
 def parse_if(text, index):
     # #IFexpr(true[,false])
-    match = re.match(EXPRESSION, text[index:])
+    match = RE_EXPRESSION.match(text, index)
     if match:
         expr = match.group()
         value = evaluate(expr, True)
@@ -594,12 +625,12 @@ def parse_link(text, index):
         raise MacroParsingError("Malformed macro: {}{}...".format(macro, text[index]))
     end = index + 1
     page_id = None
-    match = re.match('[^(\s]+', text[end:])
+    match = RE_LINK_PARAMS.match(text, end)
     if match:
         page_id, sep, anchor = match.group().partition('#')
         if sep:
             anchor = sep + anchor
-        end += match.span()[1]
+        end = match.end()
     end, link_text = _parse_brackets(text, end)
     if not page_id:
         raise MacroParsingError("No page ID: {}{}".format(macro, text[index:end]))
@@ -669,13 +700,13 @@ def parse_r(text, index):
     # #Raddr[@code][#anchor][(link text)]
     end, address = parse_ints(text, index, 1)
     addr_str = text[index:end]
-    match = re.match('@[a-zA-Z0-9$]*', text[end:])
+    match = RE_CODE_ID.match(text, end)
     if match:
         code_id = match.group()[1:]
         end += len(code_id) + 1
     else:
         code_id = ''
-    match = re.match('#[a-zA-Z0-9$#]*', text[end:])
+    match = RE_ANCHOR.match(text, end)
     if match:
         anchor = match.group()
         end += len(anchor)
@@ -709,14 +740,12 @@ def parse_reg(text, index, lower):
     # #REGreg
     if index >= len(text):
         raise MacroParsingError('Missing register argument')
-    match = re.match("(af?|bc?|c|de?|e|hl?|l)'?|i[xy][lh]?|i|pc|r|sp", text[index:])
+    match = RE_REGISTER.match(text, index)
     if not match:
         raise MacroParsingError('Bad register: "{}"'.format(text[index:]))
-    reg = match.group()
-    end = index + len(reg)
     if lower:
-        return end, reg
-    return end, reg.upper()
+        return match.end(), match.group()
+    return match.end(), match.group().upper()
 
 def parse_scr(text, index):
     # #SCR[scale,x,y,w,h,df,af][{x,y,width,height}][(fname)]
@@ -799,7 +828,7 @@ def parse_udgarray_with_frames(text, index, frame_map=None):
     end = index
     while end == index or (end < len(text) and text[end] == ';'):
         end += 1
-        match = re.match('[^\s,;(]+', text[end:])
+        match = RE_FRAME_ID.match(text, end)
         if match:
             frame_id = match.group()
             end += len(frame_id)
