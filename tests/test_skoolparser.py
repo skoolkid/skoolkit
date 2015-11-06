@@ -2652,6 +2652,22 @@ class SkoolParserTest(SkoolKitTestCase):
         entry = self._get_parser(skool).get_entry(32768)
         self.assertEqual(entry.description, 'Test pattern with no replacement')
 
+    def test_replace_directive_with_invalid_pattern(self):
+        skool = '\n'.join((
+            '@replace=/[abc/xyz',
+            '; Routine',
+            'c32768 RET',
+        ))
+        self.assert_error(skool, "Failed to replace '[abc' with 'xyz': unexpected end of regular expression")
+
+    def test_replace_directive_with_invalid_replacement(self):
+        skool = '\n'.join((
+            r'@replace=/Routine/\1',
+            '; Routine',
+            'c32768 RET',
+        ))
+        self.assert_error(skool, r"Failed to replace 'Routine' with '\1': invalid group reference")
+
     def test_isub_directive(self):
         skool = '\n'.join((
             '@start',

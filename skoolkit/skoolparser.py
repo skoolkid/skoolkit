@@ -444,7 +444,10 @@ class SkoolParser:
 
     def _replace(self, text):
         for pattern, rep in self._replacements:
-            text = re.sub(pattern, rep, text)
+            try:
+                text = re.sub(pattern, rep, text)
+            except Exception as e:
+                raise SkoolParsingError("Failed to replace '{}' with '{}': {}".format(pattern, rep, e[0]))
         return text
 
     def _add_end_comment(self, map_entry):
