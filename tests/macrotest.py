@@ -34,7 +34,9 @@ class CommonSkoolMacroTest:
         self._check_call(writer, '7,,test2', 7, None, 'test2')
 
         # Arithmetic expressions
-        self._check_call(writer, '7+2*5,12-4/2', 17, 10, None)
+        self._check_call(writer, '7+2*5,12-4/2,3**3', 17, 10, 27)
+        self._check_call(writer, '6&3|5,7^5,4%2', 7, 2, 0)
+        self._check_call(writer, '1<<4,16>>4', 16, 1, None)
 
         # Non-arithmetic Python expressions
         self._check_call(writer, '"a"+"b",None,sys.exit()', '"a"+"b"', 'None', 'sys.exit()')
@@ -537,6 +539,11 @@ class CommonSkoolMacroTest:
         # Arithmetic expressions
         self.assertEqual(writer.expand('#IF(1+2*3+4/2)(On,Off)'), 'On')
         self.assertEqual(writer.expand('#IF1+2*3-49/7(On,Off)'), 'Off')
+        self.assertEqual(writer.expand('#IF2&5|1(On,Off)'), 'On')
+        self.assertEqual(writer.expand('#IF(7^7)(On,Off)'), 'Off')
+        self.assertEqual(writer.expand('#IF3%2(On,Off)'), 'On')
+        self.assertEqual(writer.expand('#IF(2>>2)(On,Off)'), 'Off')
+        self.assertEqual(writer.expand('#IF1<<2(On,Off)'), 'On')
 
         # Equalities and inequalities
         self.assertEqual(writer.expand('#IF0==0||(True)|(False)||'), '(True)')
@@ -549,10 +556,11 @@ class CommonSkoolMacroTest:
         # Arithmetic expressions in equalities and inequalities
         self.assertEqual(writer.expand('#IF(1+2==6-3)||(Y)|(N)||'), '(Y)')
         self.assertEqual(writer.expand('#IF1+2!=6-3||(Y)|(N)||'), '(N)')
-        self.assertEqual(writer.expand('#IF3*3<4*5||(Y)|(N)||'), '(Y)')
-        self.assertEqual(writer.expand('#IF(3*3>4*5)||(Y)|(N)||'), '(N)')
-        self.assertEqual(writer.expand('#IF(12/6<=12/4)||(Y)|(N)||'), '(Y)')
-        self.assertEqual(writer.expand('#IF12/6>=12/4||(Y)|(N)||'), '(N)')
+        self.assertEqual(writer.expand('#IF3*3<4**5||(Y)|(N)||'), '(Y)')
+        self.assertEqual(writer.expand('#IF(3&3>4|5)||(Y)|(N)||'), '(N)')
+        self.assertEqual(writer.expand('#IF(12/6<=12^4)||(Y)|(N)||'), '(Y)')
+        self.assertEqual(writer.expand('#IF12%6>=12/4||(Y)|(N)||'), '(N)')
+        self.assertEqual(writer.expand('#IF1<<3>16>>2||(Y)|(N)||'), '(Y)')
 
         # Multi-line output strings
         self.assertEqual(writer.expand('#IF1(foo\nbar,baz\nqux)'), 'foo\nbar')
@@ -639,8 +647,22 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '7')
 
         # Arithmetic expression in 'value' parameter
-        output = writer.expand('#MAP(2*3+8/2-4)(?,6:OK)')
-        self.assertEqual(output, 'OK')
+        self.assertEqual(writer.expand('#MAP(2*3+8/2-4)(?,6:OK)'), 'OK')
+        self.assertEqual(writer.expand('#MAP(4**3)(?,64:OK)'), 'OK')
+        self.assertEqual(writer.expand('#MAP(5&3|4)(?,5:OK)'), 'OK')
+        self.assertEqual(writer.expand('#MAP(5^7)(?,2:OK)'), 'OK')
+        self.assertEqual(writer.expand('#MAP(4%3)(?,1:OK)'), 'OK')
+        self.assertEqual(writer.expand('#MAP(2<<2)(?,8:OK)'), 'OK')
+        self.assertEqual(writer.expand('#MAP(4>>2)(?,1:OK)'), 'OK')
+
+        # Arithmetic expression in mapping key
+        self.assertEqual(writer.expand('#MAP6(?,2*3+8/2-4:OK)'), 'OK')
+        self.assertEqual(writer.expand('#MAP64(?,4**3:OK)'), 'OK')
+        self.assertEqual(writer.expand('#MAP5(?,5&3|4:OK)'), 'OK')
+        self.assertEqual(writer.expand('#MAP2(?,5^7:OK)'), 'OK')
+        self.assertEqual(writer.expand('#MAP1(?,4%3:OK)'), 'OK')
+        self.assertEqual(writer.expand('#MAP8(?,2<<2:OK)'), 'OK')
+        self.assertEqual(writer.expand('#MAP1(?,4>>2:OK)'), 'OK')
 
         # Alternative delimiters
         for delim1, delim2 in (('[', ']'), ('{', '}')):

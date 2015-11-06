@@ -56,9 +56,17 @@ class SkoolMacroTest(SkoolKitTestCase):
         self.assertEqual((1, 2), (p1, p2))
         self.assertEqual(end, len(text) - len(junk))
 
-        # Arithmetic expressions
-        text = '(-1,1+1,5-2,10-3*2,2+7/2)'
-        self.assertEqual([len(text), -1, 2, 3, 4, 5], parse_ints(text, 0, 5))
+        # Arithmetic expressions: +, -, *, /, **
+        text = '(-1,1+1,5-2,10-3*2,2+7/2,3**2)'
+        self.assertEqual([len(text), -1, 2, 3, 4, 5, 9], parse_ints(text, 0, 6))
+
+        # Arithmetic expressions: &, |, ^, %
+        text = '(6&3,8|4,7^2,10%3)'
+        self.assertEqual([len(text), 2, 12, 5, 1], parse_ints(text, 0, 4))
+
+        # Arithmetic expressions: <<, >>
+        text = '(1<<5,96>>3)'
+        self.assertEqual([len(text), 32, 12], parse_ints(text, 0, 2))
 
     def test_parse_ints_with_kwargs(self):
         for param_string, defaults, names, exp_params in (

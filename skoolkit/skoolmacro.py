@@ -34,7 +34,7 @@ DELIMITERS = {
 
 SIMPLE_INTEGER = '(\d+|\$[0-9a-fA-F]+)'
 
-INTEGER = '[-+]?{0}([-+*/]{0})*'.format(SIMPLE_INTEGER)
+INTEGER = '[-+]?{0}(([-+/&|^%]|\*\*?|<<|>>){0})*'.format(SIMPLE_INTEGER)
 
 INT = '({0}|\({0}\))$'.format(INTEGER)
 
