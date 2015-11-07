@@ -463,9 +463,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         output = writer.expand('1#SPACE(3)1')
         self.assertEqual(output, '1   1')
 
-        output = writer.expand('"#SPACE(5$3)"')
-        self.assertEqual(output, '" (5$3)"')
-
         output = writer.expand('|#SPACE2+2|')
         self.assertEqual(output, '|  +2|')
 
@@ -493,7 +490,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_unsupported_macro(writer, '#UDGARRAY4,mask=2,step=256;33008-33023:33024-33039{x=1,width=126}(sprite)')
         self._test_unsupported_macro(writer, '#UDGARRAY*foo,(2*10);bar,(1+19);baz,(25-5);qux,(40/2)(logo|Logo)')
         self._test_unsupported_macro(writer, '#UDGARRAY*foo,delay=2;bar(baz)')
-        self._test_unsupported_macro(writer, '#UDGARRAY(3-2,1+5,2*2,16/2);256*128x3+1(baz)')
+        self._test_unsupported_macro(writer, '#UDGARRAY(3-2,1+5,2*2,16/2);(256*128)x(3+1)(baz)')
 
     def test_macro_udgtable(self):
         writer = self._get_writer()

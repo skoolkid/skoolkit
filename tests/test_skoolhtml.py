@@ -1569,9 +1569,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('1#SPACE(7)1')
         self.assertEqual(output, '1{}1'.format(space * 7))
 
-        output = writer.expand('"#SPACE(5$3)"')
-        self.assertEqual(output, '"{}(5$3)"'.format(space))
-
         output = writer.expand('|#SPACE2+2|')
         self.assertEqual(output, '|{}+2|'.format(space * 2))
 
@@ -1873,7 +1870,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg1 = Udg(56, [128, 64, 32, 16, 8, 4, 2, 1])
         udg2 = Udg(56, [64, 32, 16, 8, 4, 2, 1, 128])
         udg3 = Udg(56, [32, 16, 8, 4, 2, 1, 128, 64])
-        udg_addr = '40000-40000+8*2-(10-2)x2-1'
+        udg_addr = '40000-(40000+8*2)-(10-2)x(2-1)'
         snapshot[40000:40008] = udg1.data
         snapshot[40008:40016] = udg2.data
         snapshot[40016:40024] = udg3.data

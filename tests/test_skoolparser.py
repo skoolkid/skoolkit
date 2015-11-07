@@ -2631,14 +2631,14 @@ class SkoolParserTest(SkoolKitTestCase):
             '; .',
             '; #udg($8abc)',
             '; .',
-            '; #udg($8ABC+5*3-30/2)',
+            '; #udg($8ABC)',
             'b35516 DEFS 8,85'
         ))
         entry = self._get_parser(skool).get_entry(35516)
         exp_details = [
             '#UDG(35516,58)',
             '#UDG($8abc,58)',
-            '#UDG($8ABC+5*3-30/2,58)'
+            '#UDG($8ABC,58)'
         ]
         self.assertEqual(exp_details, entry.details)
 

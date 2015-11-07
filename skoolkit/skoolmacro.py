@@ -32,41 +32,21 @@ DELIMITERS = {
     '{': '}'
 }
 
-SIMPLE_INTEGER = '(\d+|\$[0-9a-fA-F]+)'
+AE_CHARS = frozenset(' !=+-*/<>&|^%$ABCDEFabcdef0123456789()')
 
-INTEGER = '[-+]?{0}(([-+/&|^%]|\*\*?|<<|>>){0})*'.format(SIMPLE_INTEGER)
-
-INT = '({0}|\({0}\))$'.format(INTEGER)
-
-CONDITION = '{0}(([=!]=|[<>]=?){0})?'.format(INTEGER)
+INTEGER = '(\d+|\$[0-9a-fA-F]+)'
 
 PARAM_NAME = '[a-z]+'
 
-SIMPLE_PARAM = '({}=)?{}'.format(PARAM_NAME, SIMPLE_INTEGER)
-
 PARAM = '({}=)?{}'.format(PARAM_NAME, INTEGER)
-
-ADDR_RANGE_PARAM = '({0}([+*/]{0})*|\({1}\))'.format(SIMPLE_INTEGER, INTEGER)
-
-RE_ADDR_RANGE = re.compile('{0}(-{0}){{,3}}(x{1})?'.format(ADDR_RANGE_PARAM, INTEGER))
-
-RE_ADDR_RANGE_PARAM = re.compile(ADDR_RANGE_PARAM)
 
 RE_ANCHOR = re.compile('#[a-zA-Z0-9$#]*')
 
 RE_CODE_ID = re.compile('@[a-zA-Z0-9$]*')
 
-RE_ENTRY = re.compile('ENTRY[a-z]*$')
-
-RE_EREF = re.compile('EREF{}'.format(INT))
-
-RE_EXPRESSION = re.compile('({0}|\({0}\))'.format(CONDITION))
-
 RE_FRAME_ID = re.compile('[^\s,;(]+')
 
 RE_HEX_INT = re.compile('\$([0-9a-fA-F]+)')
-
-RE_INT = re.compile(INT)
 
 RE_MACRO = re.compile('#[A-Z]+')
 
@@ -74,13 +54,11 @@ RE_MACRO_METHOD = re.compile('expand_([a-z]+)$')
 
 RE_METHOD_NAME = re.compile('[a-zA-Z_][a-zA-Z0-9_]*')
 
-RE_NAMED_PARAMS = re.compile('{0}(,({0})?)*'.format(SIMPLE_PARAM))
+RE_NAMED_PARAMS = re.compile('{0}(,({0})?)*'.format(PARAM))
 
 RE_LINK_PARAMS = re.compile('[^(\s]+')
 
-RE_PARAMS = re.compile('({0}(,({0})?)*)?$'.format(PARAM))
-
-RE_REF = re.compile('REF{}'.format(INT))
+RE_PARAM_NAME = re.compile('{}='.format(PARAM_NAME))
 
 RE_REGISTER = re.compile("(af?|bc?|c|de?|e|hl?|l)'?|i[xy][lh]?|i|pc|r|sp")
 
@@ -97,6 +75,9 @@ class MissingParameterError(MacroParsingError):
     pass
 
 class TooManyParametersError(MacroParsingError):
+    pass
+
+class InvalidParameterError(MacroParsingError):
     pass
 
 def parse_ints(text, index=0, num=0, defaults=(), names=()):
@@ -119,25 +100,18 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
              * ``value1``, ``value2`` etc. are the parameter values
     """
     if index < len(text) and text[index] == '(':
-        return _parse_ints_in_brackets(text, index, num, defaults, names)
+        end, params = parse_brackets(text, index)
+        return [end] + get_params(params, num, defaults, names, False)
     if names:
         match = RE_NAMED_PARAMS.match(text, index)
     else:
-        pattern = '{0}(,({0})?){{,{1}}}'.format(SIMPLE_PARAM, num - 1)
+        pattern = '{0}(,({0})?){{,{1}}}'.format(PARAM, num - 1)
         match = re.match(pattern, text[index:])
     if match:
         params = match.group()
     else:
         params = ''
-    return [index + len(params)] + get_params(params, num, defaults, names=names)
-
-def _parse_ints_in_brackets(text, index, num, defaults, names):
-    end, params = parse_strings(text, index, 1)
-    if RE_PARAMS.match(params):
-        return [end] + get_params(params, num, defaults, names=names)
-    if len(defaults) == max(num, len(names)) > 0:
-        return [index] + list(defaults)
-    raise MacroParsingError("Invalid integer(s) in parameter string: ({})".format(params))
+    return [index + len(params)] + get_params(params, num, defaults, names)
 
 def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars=''):
     """Parse a string of the form ``params[(p_text)]``. The parameter string
@@ -171,28 +145,40 @@ def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars
         valid_chars = '$#' + chars
         while index < len(text) and (text[index].isalnum() or text[index] in valid_chars):
             index += 1
-    end, p_text = _parse_brackets(text, index, p_text)
+    end, p_text = parse_brackets(text, index, p_text)
     return end, text[start:index], p_text
 
 def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
-    result = parse_ints(text, index, defaults=defaults, names=names)
+    try:
+        result = parse_ints(text, index, defaults=defaults, names=names)
+    except InvalidParameterError:
+        if len(defaults) != len(names):
+            raise
+        result = [index] + list(defaults)
     end, crop_rect = _parse_crop_spec(text, result[0])
     end, fname, frame, alt = _parse_image_fname(text, end, fname)
     return end, crop_rect, fname, frame, alt, result[1:]
 
 def parse_address_range(text, index, width):
-    match = RE_ADDR_RANGE.match(text, index)
-    if not match:
+    elements = []
+    end = index - 1
+    while end < index or (len(elements) < 4 and end < len(text) and text[end] == '-'):
+        end += 1
+        try:
+            end, value = parse_ints(text, end, 1)
+        except MacroParsingError:
+            break
+        elements.append(value)
+    if not elements:
         return index, None
-    addr = match.group()
-    end = index + len(addr)
 
     num = 1
-    if 'x' in addr:
-        addr, num = addr.split('x', 1)
-        num = evaluate(num, True)
+    if end < len(text) and text[end] == 'x':
+        try:
+            end, num = parse_ints(text, end + 1, 1)
+        except MacroParsingError:
+            raise MacroParsingError("Invalid multiplier in address range specification: {}".format(text[index:]))
 
-    elements = [evaluate(m.group(), True) for m in RE_ADDR_RANGE_PARAM.finditer(addr)]
     if len(elements) < 2:
         elements.append(elements[0])
     if len(elements) < 3:
@@ -225,7 +211,7 @@ def _parse_crop_spec(text, index):
     return index, defaults
 
 def _parse_image_fname(text, index, fname=''):
-    end, p_text = _parse_brackets(text, index)
+    end, p_text = parse_brackets(text, index)
     if p_text is None:
         return index, fname, None, None
     alt = frame = None
@@ -242,7 +228,7 @@ def _parse_image_fname(text, index, fname=''):
             frame = fname
     return end, fname, frame, alt
 
-def _parse_brackets(text, index, default=None):
+def parse_brackets(text, index, default=None):
     if index >= len(text) or text[index] != '(':
         return index, default
     depth = 1
@@ -258,11 +244,14 @@ def _parse_brackets(text, index, default=None):
     return end, text[index + 1:end - 1]
 
 def evaluate(param, safe=False):
-    if safe or RE_INT.match(param):
-        return eval(RE_HEX_INT.sub(r'int("\1",16)', param).replace('/', '//'))
+    if safe or set(param) <= AE_CHARS:
+        try:
+            return int(eval(RE_HEX_INT.sub(r'int("\1",16)', param).replace('/', '//')))
+        except:
+            pass
     raise ValueError
 
-def get_params(param_string, num=0, defaults=(), ints=None, names=(), safe=True):
+def get_params(param_string, num=0, defaults=(), names=(), safe=True, ints=None):
     params = []
     named_params = {}
     index = 0
@@ -276,17 +265,19 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=(), safe=True)
             else:
                 name = index
             if p and names:
-                param_name, eq, value = p.partition('=')
-                if not eq:
+                match = RE_PARAM_NAME.match(p)
+                if match:
+                    name = match.group()[:-1]
+                    if name in names:
+                        value = p[len(name) + 1:]
+                        index = names.index(name)
+                        has_named_param = True
+                    else:
+                        raise MacroParsingError("Unknown keyword argument: '{}'".format(p))
+                else:
                     if has_named_param:
                         raise MacroParsingError("Non-keyword argument after keyword argument: '{}'".format(p))
-                    value = param_name
-                elif param_name in names:
-                    name = param_name
-                    index = names.index(name)
-                    has_named_param = True
-                else:
-                    raise MacroParsingError("Unknown keyword argument: '{}'".format(p))
+                    value = p
             else:
                 value = p
             if value:
@@ -294,7 +285,7 @@ def get_params(param_string, num=0, defaults=(), ints=None, names=(), safe=True)
                     param = evaluate(value, safe)
                 except ValueError:
                     if ints is None or index in ints:
-                        raise MacroParsingError("Cannot parse integer '{}' in parameter string: '{}'".format(value, param_string))
+                        raise InvalidParameterError("Cannot parse integer '{}' in parameter string: '{}'".format(value, param_string))
                     param = value
                 if names and name:
                     named_params[name] = param
@@ -432,7 +423,7 @@ def parse_item_macro(text, index, macro, def_link_text):
     if match:
         anchor = match.group()
         end += len(anchor)
-    end, link_text = _parse_brackets(text, end, def_link_text)
+    end, link_text = parse_brackets(text, end, def_link_text)
     if anchor == '#':
         raise MacroParsingError("No item name: {}{}".format(macro, text[index:end]))
     return end, anchor[1:], link_text
@@ -456,7 +447,7 @@ def parse_call(text, index, writer, cwd=None):
         end += len(method_name)
     else:
         raise MacroParsingError("No method name")
-    end, arg_string = _parse_brackets(text, end)
+    end, arg_string = parse_brackets(text, end)
 
     if not hasattr(writer, method_name):
         writer.warn("Unknown method name in {} macro: {}".format(macro, method_name))
@@ -574,15 +565,21 @@ def parse_foreach(text, index, entry_holder):
         raise MacroParsingError("No variable name: {}".format(text[index:e[1]]))
     if len(values) == 1:
         value = values[0]
-        if RE_EREF.match(value):
-            values = [str(a) for a in entry_holder.get_entry_point_refs(evaluate(value[4:], True))]
-        elif RE_REF.match(value):
-            address = evaluate(value[3:], True)
-            entry = entry_holder.get_entry(address)
-            if not entry:
-                raise MacroParsingError('No entry at {}: {}'.format(address, value))
-            values = [str(addr) for addr in sorted([ref.address for ref in entry.referrers])]
-        elif RE_ENTRY.match(value):
+        if value.startswith('EREF'):
+            try:
+                values = [str(a) for a in entry_holder.get_entry_point_refs(evaluate(value[4:]))]
+            except ValueError:
+                pass
+        elif value.startswith('REF'):
+            try:
+                address = evaluate(value[3:])
+                entry = entry_holder.get_entry(address)
+                if not entry:
+                    raise MacroParsingError('No entry at {}: {}'.format(address, value))
+                values = [str(addr) for addr in sorted([ref.address for ref in entry.referrers])]
+            except ValueError:
+                pass
+        elif value.startswith('ENTRY'):
             types = value[5:]
             values = [str(e.address) for e in entry_holder.memory_map if not types or e.ctl in types]
     if not values:
@@ -599,12 +596,9 @@ def parse_html(text, index):
 
 def parse_if(text, index):
     # #IFexpr(true[,false])
-    match = RE_EXPRESSION.match(text, index)
-    if match:
-        expr = match.group()
-        value = evaluate(expr, True)
-        end = index + len(expr)
-    else:
+    try:
+        end, value = parse_ints(text, index, 1)
+    except MacroParsingError:
         raise MacroParsingError("No valid expression found: '#IF{}'".format(text[index:]))
     try:
         end, (s_true, s_false) = parse_strings(text, end, 2, ('',))
@@ -631,7 +625,7 @@ def parse_link(text, index):
         if sep:
             anchor = sep + anchor
         end = match.end()
-    end, link_text = _parse_brackets(text, end)
+    end, link_text = parse_brackets(text, end)
     if not page_id:
         raise MacroParsingError("No page ID: {}{}".format(macro, text[index:end]))
     if link_text is None:
@@ -712,13 +706,13 @@ def parse_r(text, index):
         end += len(anchor)
     else:
         anchor = ''
-    end, link_text = _parse_brackets(text, end)
+    end, link_text = parse_brackets(text, end)
     return end, addr_str, address, code_id, anchor, link_text
 
 def parse_refs(text, index, entry_holder):
     # #REFSaddr[(prefix)]
     end, address = parse_ints(text, index, 1)
-    end, prefix = _parse_brackets(text, end, '')
+    end, prefix = parse_brackets(text, end, '')
     entry = entry_holder.get_entry(address)
     if not entry:
         raise MacroParsingError('No entry at {}'.format(address))
@@ -839,7 +833,7 @@ def parse_udgarray_with_frames(text, index, frame_map=None):
                     raise MissingParameterError("Missing 'delay' parameter for frame '{}'".format(frame_id))
             params.append((frame_id, delay))
 
-    end, fname = _parse_brackets(text, end)
+    end, fname = parse_brackets(text, end)
     if not fname:
         raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
     alt = None

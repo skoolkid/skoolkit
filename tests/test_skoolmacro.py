@@ -42,13 +42,6 @@ class SkoolMacroTest(SkoolKitTestCase):
         self.assertEqual(p1, 1)
         self.assertEqual(end, 2)
 
-        # Invalid parameter string in brackets when every parameter is optional
-        defaults = (4, 5, 6)
-        names = ('foo', 'bar', 'baz')
-        exp_result = [0, 4, 5, 6]
-        self.assertEqual(exp_result, parse_ints('(sprite)', 0, 3, defaults))
-        self.assertEqual(exp_result, parse_ints('(logo)', defaults=defaults, names=names))
-
         # Adjacent non-numeric characters
         junk = 'xyz'
         text = '1,2{0}'.format(junk)
@@ -67,6 +60,18 @@ class SkoolMacroTest(SkoolKitTestCase):
         # Arithmetic expressions: <<, >>
         text = '(1<<5,96>>3)'
         self.assertEqual([len(text), 32, 12], parse_ints(text, 0, 2))
+
+        # Arithmetic expressions: ==, !=, >, <, >=, <=
+        text = '(1==1,1!=1,5>4,5<4,6>=3,6<=3)'
+        self.assertEqual([len(text), 1, 0, 1, 0, 1, 0], parse_ints(text, 0, 6))
+
+        # Arithmetic expressions: (, )
+        text = '(1+(1+1)/2,(2+2)*3-1)'
+        self.assertEqual([len(text), 2, 11], parse_ints(text, 0, 2))
+
+        # Arithmetic expressions: spaces
+        text = '(1 - (1 + 1) / 2, (2 + 2) * 3 + 1)'
+        self.assertEqual([len(text), 0, 13], parse_ints(text, 0, 2))
 
     def test_parse_ints_with_kwargs(self):
         for param_string, defaults, names, exp_params in (
@@ -243,16 +248,13 @@ class SkoolMacroTest(SkoolKitTestCase):
             ('0-49-1-16', 2, [0, 1, 16, 17, 32, 33, 48, 49]),
             ('0-528-8-256x4', 3, [0, 8, 16, 256, 264, 272, 512, 520, 528] * 4),
 
-            ('1+3', 1, [4]),
             ('(1+3)', 1, [4]),
-            ('1-1+1', 2, [1, 2]),
+            ('1-(1+1)', 2, [1, 2]),
             ('1-(3-1)', 2, [1, 2]),
-            ('0-16-4*2', 3, [0, 8, 16]),
             ('0-16-(4*2)', 3, [0, 8, 16]),
-            ('0-17-1-8+8', 2, [0, 1, 16, 17]),
             ('0-17-1-(8+8)', 2, [0, 1, 16, 17]),
-            ('1x7/3', 2, [1, 1]),
-            ('1x1+1', 2, [1, 1])
+            ('1x(7/3)', 2, [1, 1]),
+            ('1x(1+1)', 2, [1, 1])
         ]
         for spec, width, exp_addresses in addr_specs:
             end, addresses = parse_address_range(spec, 0, width)

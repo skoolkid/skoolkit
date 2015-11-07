@@ -1117,7 +1117,7 @@ class HtmlWriter:
             num = len(names)
         if num or (index < len(text) and text[index] == '('):
             end, param_string, p_text = skoolmacro.parse_params(text, index, only_chars=valid_chars)
-            params = skoolmacro.get_params(param_string, num, defaults, ints, names, False)
+            params = skoolmacro.get_params(param_string, num, defaults, names, False, ints)
         else:
             end, param_string, p_text = index, '', None
             params = []

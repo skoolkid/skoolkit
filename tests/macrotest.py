@@ -79,7 +79,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#CHR', 'No parameters (expected 1)', prefix)
         self._assert_error(writer, '#CHRx', 'No parameters (expected 1)', prefix)
         self._assert_error(writer, '#CHR()', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#CHR(x,y)', "Invalid integer(s) in parameter string: (x,y)", prefix)
+        self._assert_error(writer, '#CHR(x,y)', "Cannot parse integer 'x' in parameter string: 'x,y'", prefix)
         self._assert_error(writer, '#CHR(1,2)', "Too many parameters (expected 1): '1,2'", prefix)
         self._assert_error(writer, '#CHR(2 ...', 'No closing bracket: (2 ...', prefix)
 
@@ -172,8 +172,8 @@ class CommonSkoolMacroTest:
 
         self._assert_error(writer, '#EVAL', 'No parameters (expected 1)', prefix)
         self._assert_error(writer, '#EVALx', 'No parameters (expected 1)', prefix)
-        self._assert_error(writer, '#EVAL(1,x)', 'Invalid integer(s) in parameter string: (1,x)', prefix)
-        self._assert_error(writer, '#EVAL(1,,x)', 'Invalid integer(s) in parameter string: (1,,x)', prefix)
+        self._assert_error(writer, '#EVAL(1,x)', "Cannot parse integer 'x' in parameter string: '1,x'", prefix)
+        self._assert_error(writer, '#EVAL(1,,x)', "Cannot parse integer 'x' in parameter string: '1,,x'", prefix)
         self._assert_error(writer, '#EVAL(1,10,5,8)', "Too many parameters (expected 3): '1,10,5,8'", prefix)
         self._assert_error(writer, '#EVAL5,3', 'Invalid base (3): 5,3', prefix)
 
@@ -186,6 +186,7 @@ class CommonSkoolMacroTest:
 
         self._test_invalid_image_macro(writer, '#FONT', 'No parameters (expected 1)', prefix)
         self._test_invalid_image_macro(writer, '#FONT:', 'No text parameter', prefix)
+        self._test_invalid_image_macro(writer, '#FONT(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
         self._test_invalid_image_macro(writer, '#FONT0,1,2,3,4,5', "Too many parameters (expected 4): '0,1,2,3,4,5'", prefix)
         self._test_invalid_image_macro(writer, '#FONT0{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
         self._test_invalid_image_macro(writer, '#FONT0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
@@ -474,6 +475,11 @@ class CommonSkoolMacroTest:
         output = writer.expand(*((macro_t.format('30000+8*8-$78/2'),) + cwd))
         self.assertEqual(output, exp_output)
 
+    def test_macro_foreach_with_eref_invalid(self):
+        writer = self._get_writer(skool='')
+        self.assertEqual(writer.expand('#FOREACH(EREFx)(n,n)'), 'EREFx')
+        self.assertEqual(writer.expand('#FOREACH[EREF(x)](n,n)'), 'EREF(x)')
+
     def test_macro_foreach_with_ref(self):
         skool = '\n'.join((
             '@start',
@@ -504,6 +510,11 @@ class CommonSkoolMacroTest:
         # Arithmetic expression
         output = writer.expand(*((macro_t.format('(1+5*5-$64/4)'),) + cwd))
         self.assertEqual(output, exp_output)
+
+    def test_macro_foreach_with_ref_invalid(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#FOREACH(REFx)(n,n)'), 'REFx')
+        self.assertEqual(writer.expand('#FOREACH[REF(x)](n,n)'), 'REF(x)')
 
     def test_macro_foreach_invalid(self):
         writer = self._get_writer()
@@ -538,29 +549,33 @@ class CommonSkoolMacroTest:
 
         # Arithmetic expressions
         self.assertEqual(writer.expand('#IF(1+2*3+4/2)(On,Off)'), 'On')
-        self.assertEqual(writer.expand('#IF1+2*3-49/7(On,Off)'), 'Off')
-        self.assertEqual(writer.expand('#IF2&5|1(On,Off)'), 'On')
+        self.assertEqual(writer.expand('#IF(1+2*3-49/7)(On,Off)'), 'Off')
+        self.assertEqual(writer.expand('#IF(2&5|1)(On,Off)'), 'On')
         self.assertEqual(writer.expand('#IF(7^7)(On,Off)'), 'Off')
-        self.assertEqual(writer.expand('#IF3%2(On,Off)'), 'On')
+        self.assertEqual(writer.expand('#IF(3%2)(On,Off)'), 'On')
         self.assertEqual(writer.expand('#IF(2>>2)(On,Off)'), 'Off')
-        self.assertEqual(writer.expand('#IF1<<2(On,Off)'), 'On')
+        self.assertEqual(writer.expand('#IF(1<<2)(On,Off)'), 'On')
 
         # Equalities and inequalities
-        self.assertEqual(writer.expand('#IF0==0||(True)|(False)||'), '(True)')
+        self.assertEqual(writer.expand('#IF(0==0)||(True)|(False)||'), '(True)')
         self.assertEqual(writer.expand('#IF(0!=0)||(True)|(False)||'), '(False)')
         self.assertEqual(writer.expand('#IF(1<2)||(True)|(False)||'), '(True)')
-        self.assertEqual(writer.expand('#IF1>2||(True)|(False)||'), '(False)')
-        self.assertEqual(writer.expand('#IF3<=4||(True)|(False)||'), '(True)')
+        self.assertEqual(writer.expand('#IF(1>2)||(True)|(False)||'), '(False)')
+        self.assertEqual(writer.expand('#IF(3<=4)||(True)|(False)||'), '(True)')
         self.assertEqual(writer.expand('#IF(3>=4)||(True)|(False)||'), '(False)')
 
         # Arithmetic expressions in equalities and inequalities
         self.assertEqual(writer.expand('#IF(1+2==6-3)||(Y)|(N)||'), '(Y)')
-        self.assertEqual(writer.expand('#IF1+2!=6-3||(Y)|(N)||'), '(N)')
-        self.assertEqual(writer.expand('#IF3*3<4**5||(Y)|(N)||'), '(Y)')
+        self.assertEqual(writer.expand('#IF(1+2!=6-3)||(Y)|(N)||'), '(N)')
+        self.assertEqual(writer.expand('#IF(3*3<4**5)||(Y)|(N)||'), '(Y)')
         self.assertEqual(writer.expand('#IF(3&3>4|5)||(Y)|(N)||'), '(N)')
         self.assertEqual(writer.expand('#IF(12/6<=12^4)||(Y)|(N)||'), '(Y)')
-        self.assertEqual(writer.expand('#IF12%6>=12/4||(Y)|(N)||'), '(N)')
-        self.assertEqual(writer.expand('#IF1<<3>16>>2||(Y)|(N)||'), '(Y)')
+        self.assertEqual(writer.expand('#IF(12%6>=12/4)||(Y)|(N)||'), '(N)')
+        self.assertEqual(writer.expand('#IF(1<<3>16>>2)||(Y)|(N)||'), '(Y)')
+
+        # Arithmetic expressions with brackets and spaces
+        self.assertEqual(writer.expand('#IF(3+(2*6)/4>(9-3)/3)||(Y)|(N)||'), '(Y)')
+        self.assertEqual(writer.expand('#IF( 3 + (2 * 6) / 4 < (9 - 3) / 3 )||(Y)|(N)||'), '(N)')
 
         # Multi-line output strings
         self.assertEqual(writer.expand('#IF1(foo\nbar,baz\nqux)'), 'foo\nbar')
@@ -575,25 +590,25 @@ class CommonSkoolMacroTest:
     def test_macro_if_nested(self):
         writer = self._get_writer()
 
-        self.assertEqual(writer.expand('#IF#IF5>3(2<1,1)(Y,N)'), 'N')
-        self.assertEqual(writer.expand('#IF5>3(#IF1||T,F|Y,N||)'), 'T')
+        self.assertEqual(writer.expand('#IF(#IF(5>3)(2<1,1))(Y,N)'), 'N')
+        self.assertEqual(writer.expand('#IF(5>3)(#IF1||T,F|Y,N||)'), 'T')
 
     def test_macro_if_with_nested_eval_macro(self):
         writer = self._get_writer()
 
-        self.assertEqual(writer.expand('#IF#EVAL(1+1)>1(Y,N)'), 'Y')
-        self.assertEqual(writer.expand('#IF3<1(#EVAL(2+2),#EVAL(3*3))'), '9')
+        self.assertEqual(writer.expand('#IF(#EVAL(1+1)>1)(Y,N)'), 'Y')
+        self.assertEqual(writer.expand('#IF(3<1)(#EVAL(2+2),#EVAL(3*3))'), '9')
 
     def test_macro_if_with_nested_map_macro(self):
         writer = self._get_writer()
 
-        self.assertEqual(writer.expand('#IF#MAP1(0,1:2)>1(Y,N)'), 'Y')
+        self.assertEqual(writer.expand('#IF(#MAP1(0,1:2)>1)(Y,N)'), 'Y')
         self.assertEqual(writer.expand('#IF1(#MAP2(N,2:y),n)'), 'y')
 
     def test_macro_if_with_nested_peek_macro(self):
         writer = self._get_writer(snapshot=[10])
 
-        self.assertEqual(writer.expand('#IF#PEEK0>5(>5,<=5)'), '>5')
+        self.assertEqual(writer.expand('#IF(#PEEK0>5)(>5,<=5)'), '>5')
         self.assertEqual(writer.expand('#IF0(#PEEK0,[#PEEK0])'), '[10]')
 
     def test_macro_if_invalid(self):
@@ -805,7 +820,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#R', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#R@main', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#R#bar', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#R(baz)', "Invalid integer(s) in parameter string: (baz)", prefix)
+        self._assert_error(writer, '#R(baz)', "Cannot parse integer 'baz' in parameter string: 'baz'", prefix)
         self._assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)
 
         return writer, prefix
@@ -842,12 +857,14 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('SPACE')
 
         self._assert_error(writer, '#SPACE(2', "No closing bracket: (2", prefix)
+        self._assert_error(writer, '#SPACE(5$3)', "Cannot parse integer '5$3' in parameter string: '5$3'", prefix)
 
     def test_macro_udg_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
         prefix = ERROR_PREFIX.format('UDG')
 
         self._test_invalid_image_macro(writer, '#UDG', 'No parameters (expected 1)', prefix)
+        self._test_invalid_image_macro(writer, '#UDG(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
         self._test_invalid_image_macro(writer, '#UDG0,1,2,3,4,5,6,7,8,9', "Too many parameters (expected 8): '0,1,2,3,4,5,6,7,8,9'", prefix)
         self._test_invalid_image_macro(writer, '#UDG0:1,2,3', "Too many parameters (expected 2): '1,2,3'", prefix)
         self._test_invalid_image_macro(writer, '#UDG0{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
@@ -859,6 +876,7 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('UDGARRAY')
 
         self._test_invalid_image_macro(writer, '#UDGARRAY', 'No parameters (expected 1)', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;(foo)', 'Expected UDG address range specification: #UDGARRAY1;', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0:(foo)', 'Expected mask address range specification: #UDGARRAY1;0:', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0', 'Missing filename: #UDGARRAY1;0', prefix)
@@ -867,6 +885,7 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0(*)', 'Missing filename or frame ID: #UDGARRAY1;0(*)', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;32768,1,2,3,4', "Too many parameters (expected 3): '1,2,3,4'", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;32768:32769,1,2', "Too many parameters (expected 1): '1,2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;32768xJ', "Invalid multiplier in address range specification: 32768xJ", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0(foo', 'No closing bracket: (foo', prefix)
