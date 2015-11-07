@@ -899,8 +899,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
 
         # Keyword arguments, arithmetic expressions
-        values = ('128*256', '1+(3+1)/2', '(1 + 1) * 2', '7&2', '1', '2', '3', '4', img_fname)
-        macro = '#FONT({0}, scale={3}, chars = {1}, attr={2}){{x={4},y={5},width={6},height={7}}}({8})'.format(*values)
+        values = ('128*256', '1+(3+1)/2', '(1 + 1) * 2', '7&2', '2*2-3', '(8 + 8) / 8', '6>>1', '2<<1', img_fname)
+        macro = '#FONT({0}, scale={3}, chars = {1}, attr={2}){{x={4}, y = {5}, width={6},height ={7}}}({8})'.format(*values)
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, img_fname, exp_img_fname)
         self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)

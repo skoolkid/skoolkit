@@ -200,14 +200,15 @@ def parse_address_range(text, index, width):
 def _parse_crop_spec(text, index):
     defaults = (0, 0, None, None)
     if index < len(text) and text[index] == '{':
+        end = text.find('}', index + 1)
+        if end < 0:
+            raise MacroParsingError("No closing brace on cropping specification: {}".format(text[index:]))
+        crop_spec = '({})'.format(text[index + 1:end])
         names = ('x', 'y', 'width', 'height')
         try:
-            end, x, y, width, height = parse_ints(text, index + 1, defaults=defaults, names=names)
+            return end + 1, tuple(parse_ints(crop_spec, defaults=defaults, names=names)[1:])
         except TooManyParametersError as e:
             raise TooManyParametersError("Too many parameters in cropping specification (expected 4 at most): {{{}}}".format(e[1]))
-        if end < len(text) and text[end] == '}':
-            return end + 1, (x, y, width, height)
-        raise MacroParsingError("No closing brace on cropping specification: {}".format(text[index:]))
     return index, defaults
 
 def _parse_image_fname(text, index, fname=''):
