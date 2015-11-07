@@ -58,7 +58,7 @@ RE_NAMED_PARAMS = re.compile('{0}(,({0})?)*'.format(PARAM))
 
 RE_LINK_PARAMS = re.compile('[^(\s]+')
 
-RE_PARAM_NAME = re.compile('{}='.format(PARAM_NAME))
+RE_PARAM_NAME = re.compile('\s*{}\s*='.format(PARAM_NAME))
 
 RE_REGISTER = re.compile("(af?|bc?|c|de?|e|hl?|l)'?|i[xy][lh]?|i|pc|r|sp")
 
@@ -267,9 +267,9 @@ def get_params(param_string, num=0, defaults=(), names=(), safe=True, ints=None)
             if p and names:
                 match = RE_PARAM_NAME.match(p)
                 if match:
-                    name = match.group()[:-1]
+                    name = match.group()[:-1].strip()
                     if name in names:
-                        value = p[len(name) + 1:]
+                        value = p[match.end():]
                         index = names.index(name)
                         has_named_param = True
                     else:

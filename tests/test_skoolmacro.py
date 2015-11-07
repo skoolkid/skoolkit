@@ -81,6 +81,17 @@ class SkoolMacroTest(SkoolKitTestCase):
             params = parse_ints(param_string, defaults=defaults, names=names)[1:]
             self.assertEqual(exp_params, params)
 
+        # Arithmetic expressions with brackets
+        text = '(foo=1+(3-2)*4,baz=(1^255)+1)'
+        names = ('foo', 'bar', 'baz')
+        defaults = (2, 3)
+        self.assertEqual([len(text), 5, 2, 255], parse_ints(text, defaults=defaults, names=names))
+
+        # Arithmetic expressions with spaces
+        text = '(foo = 12 / 3, bar = 34 & 15, baz = 7 | 8)'
+        names = ('foo', 'bar', 'baz')
+        self.assertEqual([len(text), 4, 2, 15], parse_ints(text, names=names))
+
     def test_parse_ints_not_enough_parameters(self):
         with self.assertRaisesRegexp(MacroParsingError, re.escape("Not enough parameters (expected 4): '1,2,$3'")):
             parse_ints('1,2,$3', num=4)

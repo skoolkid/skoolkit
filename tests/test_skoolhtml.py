@@ -863,13 +863,16 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot = [0] * 65536
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
+        # Default filename
         output = writer.expand('#FONT32768,96', ASMDIR)
         self._assert_img_equals(output, 'font', '../{}/font.png'.format(FONTDIR))
 
+        # Filename specified
         img_fname = 'font2'
         output = writer.expand('#FONT55584,96({0})'.format(img_fname), ASMDIR)
         self._assert_img_equals(output, img_fname, '../{}/{}.png'.format(FONTDIR, img_fname))
 
+        # Every parameter
         img_fname = 'font3'
         font_addr = 32768
         char1 = [1, 2, 3, 4, 5, 6, 7, 8]
@@ -889,7 +892,15 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg_array = [[Udg(4, char) for char in chars]]
         self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
 
+        # Keyword arguments
         macro = '#FONTscale={3},chars={1},addr={0},attr={2}{{x={4},y={5},width={6},height={7}}}({8})'.format(*values)
+        output = writer.expand(macro, ASMDIR)
+        self._assert_img_equals(output, img_fname, exp_img_fname)
+        self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
+
+        # Keyword arguments, arithmetic expressions
+        values = ('128*256', '1+(3+1)/2', '(1 + 1) * 2', '7&2', '1', '2', '3', '4', img_fname)
+        macro = '#FONT({0}, scale={3}, chars = {1}, attr={2}){{x={4},y={5},width={6},height={7}}}({8})'.format(*values)
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, img_fname, exp_img_fname)
         self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
