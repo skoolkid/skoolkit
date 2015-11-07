@@ -233,14 +233,12 @@ def parse_brackets(text, index, default=None):
         return index, default
     depth = 1
     end = index + 1
-    while end < len(text) and depth > 0:
-        if text[end] == ')':
-            depth -= 1
-        elif text[end] == '(':
-            depth += 1
-        end += 1
-    if depth > 0:
-        raise MacroParsingError('No closing bracket: {}'.format(text[index:]))
+    while depth > 0:
+        i = text.find(')', end)
+        if i < 0:
+            raise MacroParsingError('No closing bracket: {}'.format(text[index:]))
+        depth += text.count('(', end, i) - 1
+        end = i + 1
     return end, text[index + 1:end - 1]
 
 def evaluate(param, safe=False):
