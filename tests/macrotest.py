@@ -474,7 +474,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, exp_output)
 
         # Arithmetic expression
-        output = writer.expand(*((macro_t.format('30000+8*8-$78/2'),) + cwd))
+        output = writer.expand(*((macro_t.format('30000 + 8 * (7 + 1) - ($79 - 1) / 2'),) + cwd))
         self.assertEqual(output, exp_output)
 
     def test_macro_foreach_with_eref_invalid(self):
@@ -510,7 +510,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, exp_output)
 
         # Arithmetic expression
-        output = writer.expand(*((macro_t.format('(1+5*5-$64/4)'),) + cwd))
+        output = writer.expand(*((macro_t.format('(1 + 5 * (2 + 3) - ($63 + 1) / 4)'),) + cwd))
         self.assertEqual(output, exp_output)
 
     def test_macro_foreach_with_ref_invalid(self):
