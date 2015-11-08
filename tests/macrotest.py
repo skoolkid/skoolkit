@@ -37,6 +37,7 @@ class CommonSkoolMacroTest:
         self._check_call(writer, '7+2*5,12-4/2,3**3', 17, 10, 27)
         self._check_call(writer, '6&3|5,7^5,4%2', 7, 2, 0)
         self._check_call(writer, '1<<4,16>>4', 16, 1, None)
+        self._check_call(writer, '1 + 1, (3 + 5) / 2, 4 * (9 - 7)', 2, 4, 8)
 
         # Non-arithmetic Python expressions
         self._check_call(writer, '"a"+"b",None,sys.exit()', '"a"+"b"', 'None', 'sys.exit()')
