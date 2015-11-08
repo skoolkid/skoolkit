@@ -138,18 +138,18 @@ class CommonSkoolMacroTest:
 
         # Decimal
         self.assertEqual(writer.expand('#EVAL5'), '5')
-        self.assertEqual(writer.expand('#EVAL(5+2*3-$12/3)'), '5')
+        self.assertEqual(writer.expand('#EVAL(5 + 2 * (2 + 1) - ($13 - 1) / 3)'), '5')
         self.assertEqual(writer.expand('#EVAL5,10'), '5')
         self.assertEqual(writer.expand('#EVAL5,,5'), '00005')
 
         # Hexadecimal
         self.assertEqual(writer.expand('#EVAL10,16'), 'A')
-        self.assertEqual(writer.expand('#EVAL(31+2*3-$12/3,16)'), '1F')
+        self.assertEqual(writer.expand('#EVAL(31 + 2 * (4 - 1) - ($11 + 1) / 3, 16)'), '1F')
         self.assertEqual(writer.expand('#EVAL10,16,2'), '0A')
 
         # Binary
         self.assertEqual(writer.expand('#EVAL10,2'), '1010')
-        self.assertEqual(writer.expand('#EVAL(15+2*3-$12/3,2)'), '1111')
+        self.assertEqual(writer.expand('#EVAL(15 + 2 * (5 - 2) - ($10 + 2) / 3, 2)'), '1111')
         self.assertEqual(writer.expand('#EVAL16,2,8'), '00010000')
 
     def test_macro_eval_nested(self):
