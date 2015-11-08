@@ -221,15 +221,15 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '1, 4, 7, 10, 13')
 
         # Arithmetic expression in 'start' parameter
-        output = writer.expand('#FOR(10-9,3)(n,n)')
+        output = writer.expand('#FOR(10 - (20 + 7) / 3, 3)(n,n)')
         self.assertEqual(output, '123')
 
         # Arithmetic expression in 'stop' parameter
-        output = writer.expand('#FOR(1,6/2)(n,n)')
+        output = writer.expand('#FOR(1, (5 + 1) / 2)(n,n)')
         self.assertEqual(output, '123')
 
         # Arithmetic expression in 'step' parameter
-        output = writer.expand('#FOR(1,13,2*3)(n,[n])')
+        output = writer.expand('#FOR(1, 13, 2 * (1 + 2))(n,[n])')
         self.assertEqual(output, '[1][7][13]')
 
     def test_macro_for_with_separator(self):
