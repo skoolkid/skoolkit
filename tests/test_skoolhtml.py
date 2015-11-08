@@ -1500,9 +1500,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool=skool)
 
         # Some referrers
-        for address in ('24579', '$6003', '(24579+1-2*2+6/2)'):
-            output = writer.expand('#REFS{}'.format(address), ASMDIR)
-            self.assertEqual(output, 'routines at <a href="24581.html">24581</a>, <a href="24584.html">24584</a> and <a href="24590.html">24590</a>')
+        exp_output = 'routines at <a href="24581.html">24581</a>, <a href="24584.html">24584</a> and <a href="24590.html">24590</a>'
+        self.assertEqual(writer.expand('#REFS24579', ASMDIR), exp_output)
+        self.assertEqual(writer.expand('#REFS$6003', ASMDIR), exp_output)
+        self.assertEqual(writer.expand('#REFS($6003 + 1 - 2 * 2 + (5 + 1) / 2)', ASMDIR), exp_output)
 
         # Prefix
         output = writer.expand('#REFS24579(Exploited by the)', ASMDIR)

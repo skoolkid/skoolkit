@@ -428,9 +428,10 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(skool)
 
         # Some referrers
-        for address in ('24581', '$6005', '(24581+1-2*2+6/2)'):
-            output = writer.expand('#REFS{}'.format(address))
-            self.assertEqual(output, 'routines at 24583, 24586 and 24589')
+        exp_output = 'routines at 24583, 24586 and 24589'
+        self.assertEqual(writer.expand('#REFS24581'), exp_output)
+        self.assertEqual(writer.expand('#REFS$6005'), exp_output)
+        self.assertEqual(writer.expand('#REFS($6005 + 1 - 2 * 2 + (5 + 1) / 2)'), exp_output)
 
         # Prefix
         output = writer.expand('#REFS24581(Exploited by the)')
