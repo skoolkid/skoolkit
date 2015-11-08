@@ -1625,34 +1625,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#SCR({}|{})'.format(fname, alt), ASMDIR)
         self._assert_img_equals(output, alt, '../images/scr/{}.png'.format(fname))
 
-    def test_macro_space(self):
-        writer = self._get_writer()
-        space = '&#160;'
-
-        output = writer.expand('#SPACE')
-        self.assertEqual(output, space)
-
-        output = writer.expand('#SPACE10')
-        self.assertEqual(output, space * 10)
-
-        output = writer.expand('1#SPACE(7)1')
-        self.assertEqual(output, '1{}1'.format(space * 7))
-
-        output = writer.expand('|#SPACE2+2|')
-        self.assertEqual(output, '|{}+2|'.format(space * 2))
-
-        output = writer.expand('|#SPACE3-1|')
-        self.assertEqual(output, '|{}-1|'.format(space * 3))
-
-        output = writer.expand('|#SPACE2*2|')
-        self.assertEqual(output, '|{}*2|'.format(space * 2))
-
-        output = writer.expand('|#SPACE3/3|')
-        self.assertEqual(output, '|{}/3|'.format(space * 3))
-
-        output = writer.expand('|#SPACE(1+3*2-10/2)|')
-        self.assertEqual(output, '|{}|'.format(space * 2))
-
     def test_macro_table(self):
         src1 = '\n'.join((
             '(data)',

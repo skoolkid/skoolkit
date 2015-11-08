@@ -442,33 +442,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_unsupported_macro(writer, '#SCR2,w=8,h=8{x=1,width=62}(fname)')
         self._test_unsupported_macro(writer, '#SCR(2+2, 4-1, (2+1)*3, 4/2){1^1, y = 2**2}(foo*bar|baz)')
 
-    def test_macro_space(self):
-        writer = self._get_writer()
-
-        output = writer.expand('"#SPACE"')
-        self.assertEqual(output, '" "')
-
-        output = writer.expand('"#SPACE5"')
-        self.assertEqual(output, '"     "')
-
-        output = writer.expand('1#SPACE(3)1')
-        self.assertEqual(output, '1   1')
-
-        output = writer.expand('|#SPACE2+2|')
-        self.assertEqual(output, '|  +2|')
-
-        output = writer.expand('|#SPACE3-1|')
-        self.assertEqual(output, '|   -1|')
-
-        output = writer.expand('|#SPACE2*2|')
-        self.assertEqual(output, '|  *2|')
-
-        output = writer.expand('|#SPACE3/3|')
-        self.assertEqual(output, '|   /3|')
-
-        output = writer.expand('|#SPACE(1+3*2-10/2)|')
-        self.assertEqual(output, '|  |')
-
     def test_macro_udg(self):
         writer = self._get_writer()
         self._test_unsupported_macro(writer, '#UDG39144,6(safe_key)')

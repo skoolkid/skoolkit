@@ -858,6 +858,20 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#SCR{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
         self._test_invalid_image_macro(writer, '#SCR(foo', 'No closing bracket: (foo', prefix)
 
+    def test_macro_space(self):
+        writer = self._get_writer()
+        space = '&#160;' if writer.needs_cwd() else ' '
+
+        self.assertEqual(writer.expand('#SPACE'), space.strip())
+        self.assertEqual(writer.expand('"#SPACE10"'), '"{}"'.format(space * 10))
+        self.assertEqual(writer.expand('1#SPACE(7)1'), '1{}1'.format(space * 7))
+        self.assertEqual(writer.expand('|#SPACE2+2|'), '|{}+2|'.format(space * 2))
+        self.assertEqual(writer.expand('|#SPACE3-1|'), '|{}-1|'.format(space * 3))
+        self.assertEqual(writer.expand('|#SPACE2*2|'), '|{}*2|'.format(space * 2))
+        self.assertEqual(writer.expand('|#SPACE3/3|'), '|{}/3|'.format(space * 3))
+        self.assertEqual(writer.expand('|#SPACE(1+3*2-10/2)|'), '|{}|'.format(space * 2))
+        self.assertEqual(writer.expand('|#SPACE($01 + 3 * 2 - (7 + 3) / 2)|'), '|{}|'.format(space * 2))
+
     def test_macro_space_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('SPACE')
