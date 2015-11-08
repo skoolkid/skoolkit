@@ -780,7 +780,7 @@ class CommonSkoolMacroTest:
         self.assertEqual([1, 2], snapshot[1:3])
 
         # Arithmetic expressions
-        output = writer.expand('#POKES(0+2,3*4,8-2,12/4)')
+        output = writer.expand('#POKES(1 + 1, 3 * 4, 10 - (1 + 1) * 2, (11 + 1) / 4)')
         self.assertEqual(output, '')
         self.assertEqual([12] * 6, snapshot[2:18:3])
 
