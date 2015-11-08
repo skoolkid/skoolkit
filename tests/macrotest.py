@@ -578,6 +578,11 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#IF(3+(2*6)/4>(9-3)/3)||(Y)|(N)||'), '(Y)')
         self.assertEqual(writer.expand('#IF( 3 + (2 * 6) / 4 < (9 - 3) / 3 )||(Y)|(N)||'), '(N)')
 
+        # Arithmetic expressions with && and ||
+        self.assertEqual(writer.expand('#IF(5>4&&2!=3)(T,F)'), 'T')
+        self.assertEqual(writer.expand('#IF(4 > 5 || 3 < 3)(T,F)'), 'F')
+        self.assertEqual(writer.expand('#IF(2==2&&4>5||3<4)(T,F)'), 'T')
+
         # Multi-line output strings
         self.assertEqual(writer.expand('#IF1(foo\nbar,baz\nqux)'), 'foo\nbar')
         self.assertEqual(writer.expand('#IF0(foo\nbar,baz\nqux)'), 'baz\nqux')

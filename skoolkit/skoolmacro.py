@@ -245,7 +245,7 @@ def parse_brackets(text, index, default=None):
 def evaluate(param, safe=False):
     if safe or set(param) <= AE_CHARS:
         try:
-            return int(eval(RE_HEX_INT.sub(r'int("\1",16)', param).replace('/', '//')))
+            return int(eval(RE_HEX_INT.sub(r'int("\1",16)', param).replace('/', '//').replace('&&', ' and ').replace('||', ' or ')))
         except:
             pass
     raise ValueError
