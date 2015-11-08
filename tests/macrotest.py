@@ -669,7 +669,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '7')
 
         # Arithmetic expression in 'value' parameter
-        self.assertEqual(writer.expand('#MAP(2*3+8/2-4)(?,6:OK)'), 'OK')
+        self.assertEqual(writer.expand('#MAP(2 * (2 + 1) + (11 - 3) / 2 - 4)(?,6:OK)'), 'OK')
         self.assertEqual(writer.expand('#MAP(4**3)(?,64:OK)'), 'OK')
         self.assertEqual(writer.expand('#MAP(5&3|4)(?,5:OK)'), 'OK')
         self.assertEqual(writer.expand('#MAP(5^7)(?,2:OK)'), 'OK')
@@ -678,7 +678,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#MAP(4>>2)(?,1:OK)'), 'OK')
 
         # Arithmetic expression in mapping key
-        self.assertEqual(writer.expand('#MAP6(?,2*3+8/2-4:OK)'), 'OK')
+        self.assertEqual(writer.expand('#MAP6||?|(1 + 1) * 3 + (12 - 4) / 2 - 4:OK||'), 'OK')
         self.assertEqual(writer.expand('#MAP64(?,4**3:OK)'), 'OK')
         self.assertEqual(writer.expand('#MAP5(?,5&3|4:OK)'), 'OK')
         self.assertEqual(writer.expand('#MAP2(?,5^7:OK)'), 'OK')
