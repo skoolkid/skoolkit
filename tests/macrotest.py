@@ -107,7 +107,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, 'Second routine')
 
         # Arithmetic expression
-        output = writer.expand('#D($8000+2*3-15/3)')
+        output = writer.expand('#D($8000 + 2 * 3 - (10 + 5) / 3)')
         self.assertEqual(output, 'Second routine')
 
         # Adjacent characters
