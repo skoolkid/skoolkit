@@ -492,7 +492,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_unsupported_macro(writer, '#UDGARRAY4,mask=2,step=256;33008-33023:33024-33039{x=1,width=126}(sprite)')
         self._test_unsupported_macro(writer, '#UDGARRAY*foo,(2*10);bar,(1+19);baz,(25-5);qux,(40/2)(logo|Logo)')
         self._test_unsupported_macro(writer, '#UDGARRAY*foo,delay=2;bar(baz)')
-        self._test_unsupported_macro(writer, '#UDGARRAY(3-2,1+5,2*2,16/2);(256*128)x(3+1)(baz)')
+        self._test_unsupported_macro(writer, '#UDGARRAY(3-2, (1+5)*8, 2*2, 16/2);(256*128)x(3+1){x=(1+2)*3, y = (8 - 4) / 2}(baz)')
 
     def test_macro_udgtable(self):
         writer = self._get_writer()

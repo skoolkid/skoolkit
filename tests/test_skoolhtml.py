@@ -1930,18 +1930,22 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg_array = [[Udg(attr, udg_data, udg_mask)] * width] * 2
         self._check_image(writer.image_writer, udg_array, scale, mask, x, y, w, h)
 
-        # Arithmetic expressions in address range specification
+        # Arithmetic expressions
         udg_fname = 'test_udg_array7'
-        udg1 = Udg(56, [128, 64, 32, 16, 8, 4, 2, 1])
-        udg2 = Udg(56, [64, 32, 16, 8, 4, 2, 1, 128])
-        udg3 = Udg(56, [32, 16, 8, 4, 2, 1, 128, 64])
-        udg_addr = '40000-(40000+8*2)-(10-2)x(2-1)'
+        udg1 = Udg(40, [128, 64, 32, 16, 8, 4, 2, 1])
+        udg2 = Udg(40, [64, 32, 16, 8, 4, 2, 1, 128])
+        udg3 = Udg(40, [32, 16, 8, 4, 2, 1, 128, 64])
+        udg_addr = '40000-(40000+(4+4)*2)-(10-2)x(2-1)'
         snapshot[40000:40008] = udg1.data
         snapshot[40008:40016] = udg2.data
         snapshot[40016:40024] = udg3.data
-        output = writer.expand('#UDGARRAY3;{}({})'.format(udg_addr, udg_fname), ASMDIR)
+        scale = 2
+        mask = 0
+        x, y, w, h = 3, 4, 42, 8
+        crop = '{x=1+2,y = (1 + 1) * 2, width = 6 * 7, height=2**3}'
+        output = writer.expand('#UDGARRAY(2+1,(4 + 1) * 8);{}{}({})'.format(udg_addr, crop, udg_fname), ASMDIR)
         self._assert_img_equals(output, udg_fname, '../{}/{}.png'.format(UDGDIR, udg_fname))
-        self._check_image(writer.image_writer, [[udg1, udg2, udg3]])
+        self._check_image(writer.image_writer, [[udg1, udg2, udg3]], scale, mask, x, y, w, h)
 
     def test_macro_udgarray_with_custom_udg_image_path(self):
         font_path = 'udg_images'
