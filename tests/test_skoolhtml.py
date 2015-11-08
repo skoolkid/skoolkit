@@ -1201,7 +1201,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, '24576.html', '24576')
 
         # Arithmetic expression for address
-        output = writer.expand('#R(96*256-5+10/2)', ASMDIR)
+        output = writer.expand('#R(96 * $100 - 5 + (8 + 2) / 2)', ASMDIR)
         self._assert_link_equals(output, '24576.html', '24576')
 
         # Explicit anchor

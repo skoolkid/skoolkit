@@ -248,7 +248,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(output, 'DOSTUFF')
 
         # Arithmetic expression for address
-        output = writer.expand('#R(96*256+2-10/5)')
+        output = writer.expand('#R(96 * $100 + 2 - (9 + 1) / 5)')
         self.assertEqual(output, 'DOSTUFF')
 
         # Link text
