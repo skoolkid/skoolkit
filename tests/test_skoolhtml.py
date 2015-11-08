@@ -404,6 +404,7 @@ class MethodTest(HtmlWriterTestCase):
         writer = self._get_writer()
         def_crop_rect = (0, 0, None, None)
 
+        # No filename or cropping specification
         text = '1,2,$3'
         end, img_path, crop_rect, p1, p2, p3 = writer.parse_image_params(text, 0, 3)
         self.assertEqual(img_path, None)
@@ -411,6 +412,7 @@ class MethodTest(HtmlWriterTestCase):
         self.assertEqual((p1, p2, p3), (1, 2, 3))
         self.assertEqual(end, len(text))
 
+        # Cropping specification but no filename
         text = '4,$a,6{0,1,24,32}'
         end, img_path, crop_rect, p1, p2, p3, p4, p5 = writer.parse_image_params(text, 0, 5, (7, 8))
         self.assertEqual(img_path, None)
@@ -418,6 +420,7 @@ class MethodTest(HtmlWriterTestCase):
         self.assertEqual((p1, p2, p3, p4, p5), (4, 10, 6, 7, 8))
         self.assertEqual(end, len(text))
 
+        # Filename but no cropping specification
         text = '$ff,8,9(img)'
         end, img_path, crop_rect, p1, p2, p3 = writer.parse_image_params(text, 0, 3)
         self.assertEqual(img_path, 'images/udgs/img.png')
@@ -425,11 +428,47 @@ class MethodTest(HtmlWriterTestCase):
         self.assertEqual((p1, p2, p3), (255, 8, 9))
         self.assertEqual(end, len(text))
 
+        # Filename and cropping specification
         text = '0,1{1,2}(scr)'
         end, img_path, crop_rect, p1, p2 = writer.parse_image_params(text, 0, 2, path_id='ScreenshotImagePath')
         self.assertEqual(img_path, 'images/scr/scr.png')
         self.assertEqual(crop_rect, (1, 2, None, None))
         self.assertEqual((p1, p2), (0, 1))
+        self.assertEqual(end, len(text))
+
+        # No integer parameters expected
+        text = '1,2(img)'
+        end, img_path, crop_rect = writer.parse_image_params(text, 0, 0)
+        self.assertEqual(img_path, None)
+        self.assertEqual(crop_rect, def_crop_rect)
+        self.assertEqual(end, 0)
+
+        # Frame and alt text
+        text = '1(img*f1|Hello)'
+        end, img_path, frame, alt, crop_rect, p1 = writer.parse_image_params(text, 0, 1, frame=True, alt=True)
+        self.assertEqual(img_path, 'images/udgs/img.png')
+        self.assertEqual(frame, 'f1')
+        self.assertEqual(alt, 'Hello')
+        self.assertEqual(p1, 1)
+        self.assertEqual(crop_rect, def_crop_rect)
+        self.assertEqual(end, len(text))
+
+        # Default frame name
+        text = '1(img*)'
+        end, img_path, frame, crop_rect, p1 = writer.parse_image_params(text, 0, 1, frame=True)
+        self.assertEqual(img_path, 'images/udgs/img.png')
+        self.assertEqual(frame, 'img')
+        self.assertEqual(p1, 1)
+        self.assertEqual(crop_rect, def_crop_rect)
+        self.assertEqual(end, len(text))
+
+        # Frame but no image file
+        text = '1(*f1)'
+        end, img_path, frame, crop_rect, p1 = writer.parse_image_params(text, 0, 1, frame=True)
+        self.assertEqual(img_path, None)
+        self.assertEqual(frame, 'f1')
+        self.assertEqual(p1, 1)
+        self.assertEqual(crop_rect, def_crop_rect)
         self.assertEqual(end, len(text))
 
     def test_parse_image_params_too_many_parameters(self):
