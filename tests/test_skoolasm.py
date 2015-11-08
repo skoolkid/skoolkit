@@ -154,9 +154,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         ))
         writer = self._get_writer(skool)
 
-        for address in ('30004', '$7534'):
-            output = writer.expand('#EREFS{}'.format(address))
-            self.assertEqual(output, 'routines at 30000 and 30005')
+        exp_output = 'routines at 30000 and 30005'
+        self.assertEqual(writer.expand('#EREFS30004'), exp_output)
+        self.assertEqual(writer.expand('#EREFS$7534'), exp_output)
+        self.assertEqual(writer.expand('#EREFS(30004+2*3-(8+4)/2)'), exp_output)
+        self.assertEqual(writer.expand('#EREFS($7534 - 6 + (7 - 5) * 3)'), exp_output)
 
     def test_macro_fact(self):
         self._test_reference_macro('FACT', 'fact')

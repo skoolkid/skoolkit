@@ -129,6 +129,7 @@ class CommonSkoolMacroTest:
 
         self._assert_error(writer, '#EREFS', 'No parameters (expected 1)', prefix)
         self._assert_error(writer, '#EREFSx', 'No parameters (expected 1)', prefix)
+        self._assert_error(writer, '#EREFS(0,1)', "Too many parameters (expected 1): '0,1'", prefix)
         self._assert_error(writer, '#EREFS30005', 'Entry point at 30005 has no referrers', prefix)
 
     def test_macro_eval(self):

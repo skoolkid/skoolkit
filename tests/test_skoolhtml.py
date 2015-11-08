@@ -884,8 +884,12 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             'c30005 JP 30004',
         ))
         writer = self._get_writer(skool=skool)
-        output = writer.expand('#EREFS30004', ASMDIR)
-        self.assertEqual(output, 'routines at <a href="30000.html">30000</a> and <a href="30005.html">30005</a>')
+
+        exp_output = 'routines at <a href="30000.html">30000</a> and <a href="30005.html">30005</a>'
+        self.assertEqual(writer.expand('#EREFS30004', ASMDIR), exp_output)
+        self.assertEqual(writer.expand('#EREFS$7534', ASMDIR), exp_output)
+        self.assertEqual(writer.expand('#EREFS(30004+2*3-(8+4)/2)', ASMDIR), exp_output)
+        self.assertEqual(writer.expand('#EREFS($7534 - 6 + (7 - 5) * 3)', ASMDIR), exp_output)
 
     def test_macro_fact(self):
         self._test_reference_macro('FACT', 'fact', 'facts')
