@@ -1034,6 +1034,17 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#FONT:( )0({}|{})'.format(fname, alt), ASMDIR)
         self._assert_img_equals(output, alt, '../{}/{}.png'.format(FONTDIR, fname))
 
+    def test_macro_foreach_entry_omits_i_blocks(self):
+        skool = '\n'.join((
+            'i23296 DEFS 1280',
+            '',
+            'c24576 RET'
+        ))
+        writer = self._get_writer(skool=skool)
+
+        output = writer.expand('#FOREACH(ENTRY)(n,n, )')
+        self.assertEqual(output, '24576')
+
     def test_macro_html(self):
         writer = self._get_writer()
 
