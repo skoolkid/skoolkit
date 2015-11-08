@@ -732,6 +732,9 @@ class CommonSkoolMacroTest:
         output = writer.expand('#PEEK($0001)')
         self.assertEqual(output, '2')
 
+        # Arithmetic expression
+        self.assertEqual(writer.expand('#PEEK($0001 + (5 + 3) / 2 - (14 - 2) / 3)'), '2')
+
         # Address is taken modulo 65536
         output = writer.expand('#PEEK65538')
         self.assertEqual(output, '3')
