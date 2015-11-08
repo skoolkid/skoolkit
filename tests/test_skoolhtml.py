@@ -836,26 +836,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_chr(self):
         writer = self._get_writer()
 
-        output = writer.expand('#CHR169')
-        self.assertEqual(output, '&#169;')
-
-        output = writer.expand('#CHR(163)1984')
-        self.assertEqual(output, '&#163;1984')
-
-        output = writer.expand('#CHR65+3')
-        self.assertEqual(output, '&#65;+3')
-
-        output = writer.expand('#CHR65*2')
-        self.assertEqual(output, '&#65;*2')
-
-        output = writer.expand('#CHR65-9')
-        self.assertEqual(output, '&#65;-9')
-
-        output = writer.expand('#CHR65/5')
-        self.assertEqual(output, '&#65;/5')
-
-        output = writer.expand('#CHR(65+3*2-9/3)')
-        self.assertEqual(output, '&#68;')
+        self.assertEqual(writer.expand('#CHR169'), '&#169;')
+        self.assertEqual(writer.expand('#CHR(163)1984'), '&#163;1984')
+        self.assertEqual(writer.expand('#CHR65+3'), '&#65;+3')
+        self.assertEqual(writer.expand('#CHR65*2'), '&#65;*2')
+        self.assertEqual(writer.expand('#CHR65-9'), '&#65;-9')
+        self.assertEqual(writer.expand('#CHR65/5'), '&#65;/5')
+        self.assertEqual(writer.expand('#CHR(65+3*2-9/3)'), '&#68;')
+        self.assertEqual(writer.expand('#CHR($42 + 3 * 2 - (2 + 7) / 3)'), '&#69;')
 
     def test_macro_erefs(self):
         # Entry point with one referrer

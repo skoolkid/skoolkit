@@ -118,26 +118,14 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def test_macro_chr(self):
         writer = self._get_writer()
 
-        output = writer.expand('#CHR169')
-        self.assertEqual(output, get_chr(169))
-
-        output = writer.expand('#CHR(163)1985')
-        self.assertEqual(output, '{0}1985'.format(get_chr(163)))
-
-        output = writer.expand('#CHR65+3')
-        self.assertEqual(output, 'A+3')
-
-        output = writer.expand('#CHR65*2')
-        self.assertEqual(output, 'A*2')
-
-        output = writer.expand('#CHR65-9')
-        self.assertEqual(output, 'A-9')
-
-        output = writer.expand('#CHR65/5')
-        self.assertEqual(output, 'A/5')
-
-        output = writer.expand('#CHR(65+3*2-9/3)')
-        self.assertEqual(output, 'D')
+        self.assertEqual(writer.expand('#CHR169'), get_chr(169))
+        self.assertEqual(writer.expand('#CHR(163)1985'), '{0}1985'.format(get_chr(163)))
+        self.assertEqual(writer.expand('#CHR65+3'), 'A+3')
+        self.assertEqual(writer.expand('#CHR65*2'), 'A*2')
+        self.assertEqual(writer.expand('#CHR65-9'), 'A-9')
+        self.assertEqual(writer.expand('#CHR65/5'), 'A/5')
+        self.assertEqual(writer.expand('#CHR(65+3*2-9/3)'), 'D')
+        self.assertEqual(writer.expand('#CHR($42 + 3 * 2 - (5 + 4) / 3)'), 'E')
 
     def test_macro_erefs(self):
         skool = '\n'.join((
