@@ -1766,6 +1766,22 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg_array = [[Udg(attr, udg_data, udg_mask)]]
         self._check_image(writer.image_writer, udg_array, scale, mask, x, y, width, height)
 
+        # Arithmetic expressions
+        fname = 'test_udg4'
+        addr = 49152
+        scale = 4
+        mask = 0
+        x, y, w, h = 1, 2, 4, 3
+        udg_data = [240] * 8
+        snapshot[addr:addr + 8] = udg_data
+        params = '(192*256, attr = (2 + 2) / 2)'
+        crop = '{1*1, 4/2, 2**2, 1+(7+5)/6}'
+        macro = '#UDG{}{}({})'.format(params, crop, fname)
+        output = writer.expand(macro, ASMDIR)
+        self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
+        udg_array = [[Udg(2, udg_data)]]
+        self._check_image(writer.image_writer, udg_array, scale, mask, x, y, w, h)
+
     def test_macro_udg_with_custom_udg_image_path(self):
         font_path = 'graphics/udgs'
         ref = '[Paths]\nUDGImagePath={}'.format(font_path)
