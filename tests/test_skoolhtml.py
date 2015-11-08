@@ -1564,6 +1564,21 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg_array = [[Udg(attr, data)]]
         self._check_image(writer.image_writer, udg_array, scale)
 
+        # Arithmetic expressions
+        fname = 'scr5'
+        scale = 3
+        df = 0
+        af = 6144
+        data = snapshot[df:df + 2048:256] = [85] * 8
+        attr = snapshot[af] = 57
+        crop = (1, 2, 17, 14)
+        crop_spec = '{5-4, 2 * 1, width=(2+2)*4+1, height = 7*2}'
+        macro = '#SCR(2+1, 0*1, 5-5, (1 + 1) / 2, 1**1, 1^1, 24*256){}({})'.format(crop_spec, fname)
+        output = writer.expand(macro, ASMDIR)
+        self._assert_img_equals(output, fname, '../images/scr/{}.png'.format(fname))
+        udg_array = [[Udg(attr, data)]]
+        self._check_image(writer.image_writer, udg_array, scale, 0, *crop)
+
     def test_macro_scr_with_custom_screenshot_path(self):
         scr_path = 'graphics/screenshots'
         ref = '[Paths]\nScreenshotImagePath={}'.format(scr_path)

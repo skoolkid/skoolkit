@@ -451,7 +451,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         writer = self._get_writer()
         self._test_unsupported_macro(writer, '#SCR2(fname)')
         self._test_unsupported_macro(writer, '#SCR2,w=8,h=8{x=1,width=62}(fname)')
-        self._test_unsupported_macro(writer, '#SCR(2+2,4-1,3*3,4/2)(foo*bar|baz)')
+        self._test_unsupported_macro(writer, '#SCR(2+2, 4-1, (2+1)*3, 4/2){1^1, y = 2**2}(foo*bar|baz)')
 
     def test_macro_space(self):
         writer = self._get_writer()
