@@ -152,13 +152,21 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#EVAL(15 + 2 * (5 - 2) - ($10 + 2) / 3, 2)'), '1111')
         self.assertEqual(writer.expand('#EVAL16,2,8'), '00010000')
 
-    def test_macro_eval_nested(self):
+    def test_macro_eval_with_nested_eval_macro(self):
         writer = self._get_writer()
         self.assertEqual(writer.expand('#EVAL(1+#EVAL(23-7)/5)'), '4')
 
     def test_macro_eval_with_nested_for_macro(self):
         writer = self._get_writer()
         self.assertEqual(writer.expand('#EVAL(#FOR1,4(n,n,*))'), '24')
+
+    def test_macro_eval_with_nested_foreach_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#EVAL(#FOREACH(1,2,3,4)(n,n,*))'), '24')
+
+    def test_macro_eval_with_nested_if_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#EVAL(1+#IF(5>4)(10,20))'), '11')
 
     def test_macro_eval_with_nested_map_macro(self):
         writer = self._get_writer()
@@ -262,35 +270,32 @@ class CommonSkoolMacroTest:
         output = writer.expand('#FOR1,3//$s/$s/, / and //')
         self.assertEqual(output, '1, 2 and 3')
 
-    def test_macro_for_nested(self):
+    def test_macro_for_with_nested_eval_macro(self):
         writer = self._get_writer()
+        self.assertEqual(writer.expand('#FOR:0,2//m/{#EVAL(m+1)}//'), '{1}{2}{3}')
 
+    def test_macro_for_with_nested_for_macro(self):
+        writer = self._get_writer()
         output = writer.expand('#FOR1,3(&n,#FOR4,6[&m,&m.&n, ], )')
         self.assertEqual(output, '4.1 5.1 6.1 4.2 5.2 6.2 4.3 5.3 6.3')
 
-    def test_macro_for_with_nested_eval_macro(self):
-        writer = self._get_writer()
-
-        output = writer.expand('#FOR:0,2//m/{#EVAL(m+1)}//')
-        self.assertEqual(output, '{1}{2}{3}')
-
     def test_macro_for_with_nested_foreach_macro(self):
         writer = self._get_writer()
-
         output = writer.expand('#FOR0,2//m/[#FOREACH(1,2,3)(n,m+n,-)]//')
         self.assertEqual(output, '[0+1-0+2-0+3][1+1-1+2-1+3][2+1-2+2-2+3]')
 
+    def test_macro_for_with_nested_if_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#FOR:0,2//m/#IFm([m],{m})//'), '{0}[1][2]')
+        self.assertEqual(writer.expand('#FOR0,2//m/#IF0([m],{m})//'), '{0}{1}{2}')
+
     def test_macro_for_with_nested_map_macro(self):
         writer = self._get_writer()
-
-        output = writer.expand('#FOR:0,2//m/{#MAPm[,0:2,1:3,2:5]}//')
-        self.assertEqual(output, '{2}{3}{5}')
+        self.assertEqual(writer.expand('#FOR:0,2//m/{#MAPm[,0:2,1:3,2:5]}//'), '{2}{3}{5}')
 
     def test_macro_for_with_nested_peek_macro(self):
         writer = self._get_writer(snapshot=(1, 2, 3))
-
-        output = writer.expand('#FOR:0,2(m,{#PEEKm})')
-        self.assertEqual(output, '{1}{2}{3}')
+        self.assertEqual(writer.expand('#FOR:0,2(m,{#PEEKm})'), '{1}{2}{3}')
 
     def test_macro_for_invalid(self):
         writer = self._get_writer()
@@ -372,35 +377,31 @@ class CommonSkoolMacroTest:
         output = writer.expand('#FOREACH(a,b,c)//$s/$s/, / and //')
         self.assertEqual(output, 'a, b and c')
 
-    def test_macro_foreach_nested(self):
-        writer = self._get_writer()
-
-        output = writer.expand('#FOREACH(0,1)||n|#FOREACH(a,n)($s,[$s])|, ||')
-        self.assertEqual(output, '[a][0], [a][1]')
-
     def test_macro_foreach_with_nested_eval_macro(self):
         writer = self._get_writer()
-
-        output = writer.expand('#FOREACH:(0,1,2)||n|#EVAL(n+1)|, ||')
-        self.assertEqual(output, '1, 2, 3')
+        self.assertEqual(writer.expand('#FOREACH:(0,1,2)||n|#EVAL(n+1)|, ||'), '1, 2, 3')
 
     def test_macro_foreach_with_nested_for_macro(self):
         writer = self._get_writer()
-
         output = writer.expand('#FOREACH(0,1,2)||n|#FOR5,6//m/m.n/, //|, ||')
         self.assertEqual(output, '5.0, 6.0, 5.1, 6.1, 5.2, 6.2')
 
+    def test_macro_foreach_with_nested_foreach_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#FOREACH(0,1)||n|#FOREACH(a,n)($s,[$s])|, ||'), '[a][0], [a][1]')
+
+    def test_macro_foreach_with_nested_if_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#FOREACH:(0,1,2)//m/#IFm([m],{m})//'), '{0}[1][2]')
+        self.assertEqual(writer.expand('#FOREACH(0,1,2)//m/#IF1([m],{m})//'), '[0][1][2]')
+
     def test_macro_foreach_with_nested_map_macro(self):
         writer = self._get_writer()
-
-        output = writer.expand('#FOREACH:(0,1,2)||n|#MAPn(c,0:a,1:b)||')
-        self.assertEqual(output, 'abc')
+        self.assertEqual(writer.expand('#FOREACH:(0,1,2)||n|#MAPn(c,0:a,1:b)||'), 'abc')
 
     def test_macro_foreach_with_nested_peek_macro(self):
         writer = self._get_writer(snapshot=(1, 2, 3))
-
-        output = writer.expand('#FOREACH:(0,1,2)(n,n+#PEEKn,+)')
-        self.assertEqual(output, '0+1+1+2+2+3')
+        self.assertEqual(writer.expand('#FOREACH:(0,1,2)(n,n+#PEEKn,+)'), '0+1+1+2+2+3')
 
     def test_macro_foreach_with_entry(self):
         skool = '\n'.join((
@@ -594,27 +595,33 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#IF1()'), '')
         self.assertEqual(writer.expand('#IF0()'), '')
 
-    def test_macro_if_nested(self):
-        writer = self._get_writer()
-
-        self.assertEqual(writer.expand('#IF(#IF(5>3)(2<1,1))(Y,N)'), 'N')
-        self.assertEqual(writer.expand('#IF(5>3)(#IF1||T,F|Y,N||)'), 'T')
-
     def test_macro_if_with_nested_eval_macro(self):
         writer = self._get_writer()
-
         self.assertEqual(writer.expand('#IF(#EVAL(1+1)>1)(Y,N)'), 'Y')
         self.assertEqual(writer.expand('#IF(3<1)(#EVAL(2+2),#EVAL(3*3))'), '9')
 
+    def test_macro_if_with_nested_for_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#IF(#FOR0,2(n,n,+))(Y,N)'), 'Y')
+        self.assertEqual(writer.expand('#IF1(#FOR1,2(n,Y),N)'), 'YY')
+
+    def test_macro_if_with_nested_foreach_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#IF(#FOREACH(0,1,2)(n,n,+))(Y,N)'), 'Y')
+        self.assertEqual(writer.expand('#IF1(#FOREACH(1,2)(n,Y),N)'), 'YY')
+
+    def test_macro_if_with_nested_if_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#IF(#IF(5>3)(2<1,1))(Y,N)'), 'N')
+        self.assertEqual(writer.expand('#IF(5>3)(#IF1||T,F|Y,N||)'), 'T')
+
     def test_macro_if_with_nested_map_macro(self):
         writer = self._get_writer()
-
         self.assertEqual(writer.expand('#IF(#MAP1(0,1:2)>1)(Y,N)'), 'Y')
         self.assertEqual(writer.expand('#IF1(#MAP2(N,2:y),n)'), 'y')
 
     def test_macro_if_with_nested_peek_macro(self):
         writer = self._get_writer(snapshot=[10])
-
         self.assertEqual(writer.expand('#IF(#PEEK0>5)(>5,<=5)'), '>5')
         self.assertEqual(writer.expand('#IF0(#PEEK0,[#PEEK0])'), '[10]')
 
@@ -695,23 +702,37 @@ class CommonSkoolMacroTest:
         output = writer.expand('#MAP1|;?;0:A;1:Oh, OK;2:C;|')
         self.assertEqual(output, 'Oh, OK')
 
-    def test_macro_map_nested(self):
+    def test_macro_map_with_nested_eval_macro(self):
         writer = self._get_writer()
+        self.assertEqual(writer.expand('#MAP#EVAL(1+1)(a,1:b,2:c)'), 'c')
+        self.assertEqual(writer.expand('#MAP2(a,1:b,#EVAL(1+1):c)'), 'c')
 
-        output = writer.expand('#MAP#MAP0(5,0:10,1:20)(,5:x,10:y,20:z)')
-        self.assertEqual(output, 'y')
+    def test_macro_map_with_nested_for_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#MAP(#FOR0,1(n,n,+))(a,1:b,2:c)'), 'b')
+        self.assertEqual(writer.expand('#MAP2(a,1:b,#FOR1,2(n,n,*):c)'), 'c')
+        self.assertEqual(writer.expand('#MAP2(?,#FOR0,2||n|n:n|,||)'), '2')
 
-        output = writer.expand('#MAP3(1,2:Y,#MAP8(3,7:Q):Z)')
-        self.assertEqual(output, 'Z')
+    def test_macro_map_with_nested_foreach_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#MAP(#FOREACH(0,1)(n,n,+))(a,1:b,2:c)'), 'b')
+        self.assertEqual(writer.expand('#MAP2(a,1:b,#FOREACH(1,2)(n,n,*):c)'), 'c')
+        self.assertEqual(writer.expand('#MAP2(?,#FOREACH(0,1,2)||n|n:n|,||)'), '2')
+
+    def test_macro_map_with_nested_if_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#MAP#IF(1>2)(1,2)(a,1:b,2:c)'), 'c')
+        self.assertEqual(writer.expand('#MAP1(a,#IF1(1,2):b,2:c)'), 'b')
+
+    def test_macro_map_with_nested_map_macro(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#MAP#MAP0(5,0:10,1:20)(,5:x,10:y,20:z)'), 'y')
+        self.assertEqual(writer.expand('#MAP3(1,2:Y,#MAP8(3,7:Q):Z)'), 'Z')
 
     def test_macro_map_with_nested_peek_macro(self):
         writer = self._get_writer(snapshot=[23])
-
-        output = writer.expand('#MAP#PEEK0(a,23:b,5:c)')
-        self.assertEqual(output, 'b')
-
-        output = writer.expand('#MAP23(1,#PEEK0:2,5:3)')
-        self.assertEqual(output, '2')
+        self.assertEqual(writer.expand('#MAP#PEEK0(a,23:b,5:c)'), 'b')
+        self.assertEqual(writer.expand('#MAP23(1,#PEEK0:2,5:3)'), '2')
 
     def test_macro_map_invalid(self):
         writer = self._get_writer()
@@ -739,12 +760,30 @@ class CommonSkoolMacroTest:
         output = writer.expand('#PEEK65538')
         self.assertEqual(output, '3')
 
-    def test_macro_peek_nested(self):
+    def test_macro_peek_with_nested_eval_macro(self):
+        writer = self._get_writer(snapshot=(1, 2))
+        self.assertEqual(writer.expand('#PEEK#EVAL(0+1)'), '2')
+
+    def test_macro_peek_with_nested_for_macro(self):
+        writer = self._get_writer(snapshot=(1, 2))
+        self.assertEqual(writer.expand('#PEEK(#FOR0,1(n,n,+))'), '2')
+
+    def test_macro_peek_with_nested_foreach_macro(self):
+        writer = self._get_writer(snapshot=(1, 2))
+        self.assertEqual(writer.expand('#PEEK(#FOREACH(0,1)(n,n,+))'), '2')
+
+    def test_macro_peek_with_nested_if_macro(self):
+        writer = self._get_writer(snapshot=(1, 2))
+        self.assertEqual(writer.expand('#PEEK#IF1(1,0)'), '2')
+
+    def test_macro_peek_with_nested_map_macro(self):
+        writer = self._get_writer(snapshot=(1, 2))
+        self.assertEqual(writer.expand('#PEEK#MAP1(2,0:1,1:0)'), '1')
+
+    def test_macro_peek_with_nested_peek_macro(self):
         writer = self._get_writer(snapshot=[1] * 258)
         writer.snapshot[257] = 101
-
-        output = writer.expand('#PEEK(#PEEK0+256*#PEEK1)')
-        self.assertEqual(output, '101')
+        self.assertEqual(writer.expand('#PEEK(#PEEK0+256*#PEEK1)'), '101')
 
     def test_macro_peek_invalid(self):
         writer = self._get_writer()
