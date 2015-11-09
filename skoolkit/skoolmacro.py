@@ -208,7 +208,7 @@ def _parse_crop_spec(text, index):
         try:
             return end + 1, tuple(parse_ints(crop_spec, defaults=defaults, names=names)[1:])
         except TooManyParametersError as e:
-            raise TooManyParametersError("Too many parameters in cropping specification (expected 4 at most): {{{}}}".format(e[1]))
+            raise TooManyParametersError("Too many parameters in cropping specification (expected 4 at most): {{{}}}".format(e.args[1]))
     return index, defaults
 
 def _parse_image_fname(text, index, fname=''):
@@ -545,7 +545,7 @@ def parse_for(text, index):
     try:
         end, (var, s, sep, fsep) = parse_strings(text, end, 4, ('', None))
     except (NoParametersError, MissingParameterError) as e:
-        raise MacroParsingError("No variable name: {}".format(text[index:e[1]]))
+        raise MacroParsingError("No variable name: {}".format(text[index:e.args[1]]))
     if fsep is None:
         fsep = sep
     if start == stop:
@@ -561,7 +561,7 @@ def parse_foreach(text, index, entry_holder):
     try:
         end, (var, s, sep, fsep) = parse_strings(text, end, 4, ('', None))
     except (NoParametersError, MissingParameterError) as e:
-        raise MacroParsingError("No variable name: {}".format(text[index:e[1]]))
+        raise MacroParsingError("No variable name: {}".format(text[index:e.args[1]]))
     if len(values) == 1:
         value = values[0]
         if value.startswith('EREF'):
@@ -604,7 +604,7 @@ def parse_if(text, index):
     except NoParametersError:
         raise NoParametersError("No output strings: {}".format(text[index:end]))
     except TooManyParametersError as e:
-        raise MacroParsingError("Too many output strings (expected 2): {}".format(text[index:e[1]]))
+        raise MacroParsingError("Too many output strings (expected 2): {}".format(text[index:e.args[1]]))
     if value:
         return end, s_true
     return end, s_false
