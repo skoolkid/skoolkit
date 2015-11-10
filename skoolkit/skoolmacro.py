@@ -54,7 +54,7 @@ RE_MACRO_METHOD = re.compile('expand_([a-z]+)$')
 
 RE_METHOD_NAME = re.compile('[a-zA-Z_][a-zA-Z0-9_]*')
 
-RE_NAMED_PARAMS = re.compile('{0}(,({0})?)*'.format(PARAM))
+RE_NAMED_PARAMS = re.compile('{0}?(,({0})?)*'.format(PARAM))
 
 RE_LINK_PARAMS = re.compile('[^(\s]+')
 
@@ -105,7 +105,7 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
     if names:
         match = RE_NAMED_PARAMS.match(text, index)
     else:
-        pattern = '{0}(,({0})?){{,{1}}}'.format(PARAM, num - 1)
+        pattern = '{0}?(,({0})?){{,{1}}}'.format(PARAM, num - 1)
         match = re.match(pattern, text[index:])
     if match:
         params = match.group()

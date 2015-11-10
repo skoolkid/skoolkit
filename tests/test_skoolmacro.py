@@ -32,6 +32,11 @@ class SkoolMacroTest(SkoolKitTestCase):
         self.assertEqual((1, None, 10, None), (p1, p2, p3, p4))
         self.assertEqual(end, len(text))
 
+        # First parameter optional and omitted
+        end, p1, p2, p3 = parse_ints(',1,2', 0, 3, (0, 5, 10))
+        self.assertEqual((0, 1, 2), (p1, p2, p3))
+        self.assertEqual(end, 4)
+
         # Empty parameter string
         end, p1 = parse_ints('', 0, 1, (1,))
         self.assertEqual(p1, 1)
@@ -80,6 +85,11 @@ class SkoolMacroTest(SkoolKitTestCase):
         ):
             params = parse_ints(param_string, defaults=defaults, names=names)[1:]
             self.assertEqual(exp_params, params)
+
+        # First parameter optional and omitted
+        end, p, q, r = parse_ints(',r=2', defaults=(0, 5, 10), names=('p', 'q', 'r'))
+        self.assertEqual((0, 5, 2), (p, q, r))
+        self.assertEqual(end, 4)
 
         # Arithmetic expressions with brackets
         text = '(foo=1+(3-2)*4,baz=(1^255)+1)'

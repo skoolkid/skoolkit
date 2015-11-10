@@ -1531,9 +1531,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         attr = 48
         snapshot[16384:18432:256] = data
         snapshot[22528] = attr
-        scale = 2
+        scale = 1
         x, y, w, h = 1, 2, 5, 6
-        macro = '#SCR{0},0,0,1,1{{{1},{2},{3},{4}}}({5})'.format(scale, x, y, w, h, scr_fname)
+        macro = '#SCR,0,0,1,1{{{},{},{},{}}}({})'.format(x, y, w, h, scr_fname)
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, scr_fname, '../images/scr/{0}.png'.format(scr_fname))
         udg_array = [[Udg(attr, data)]]
