@@ -1746,16 +1746,18 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fname = 'test_udg4'
         addr = 49152
         scale = 4
-        mask = 0
+        mask = 1
         x, y, w, h = 1, 2, 4, 3
         udg_data = [240] * 8
-        snapshot[addr:addr + 8] = udg_data
+        mask_data = [248] * 8
+        snapshot[addr:addr + 8] = udg_data + mask_data
         params = '(192*256, attr = (2 + 2) / 2)'
+        mask_spec = '(192*256+8,(8-6)/2)'
         crop = '{1*1, 4/2, 2**2, 1+(7+5)/6}'
-        macro = '#UDG{}{}({})'.format(params, crop, fname)
+        macro = '#UDG{}:{}{}({})'.format(params, mask_spec, crop, fname)
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
-        udg_array = [[Udg(2, udg_data)]]
+        udg_array = [[Udg(2, udg_data, mask_data)]]
         self._check_image(writer.image_writer, udg_array, scale, mask, x, y, w, h)
 
     def test_macro_udg_with_custom_udg_image_path(self):
@@ -1922,7 +1924,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg_array = [[Udg(attr, udg_data, udg_mask)] * width] * 2
         self._check_image(writer.image_writer, udg_array, scale, mask, x, y, w, h)
 
-        # Arithmetic expressions
+        # Arithmetic expressions: main params, UDG address range, cropping spec
         udg_fname = 'test_udg_array7'
         udg1 = Udg(40, [128, 64, 32, 16, 8, 4, 2, 1])
         udg2 = Udg(40, [64, 32, 16, 8, 4, 2, 1, 128])
@@ -1938,6 +1940,18 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#UDGARRAY(2+1,(4 + 1) * 8);{}{}({})'.format(udg_addr, crop, udg_fname), ASMDIR)
         self._assert_img_equals(output, udg_fname, '../{}/{}.png'.format(UDGDIR, udg_fname))
         self._check_image(writer.image_writer, [[udg1, udg2, udg3]], scale, mask, x, y, w, h)
+
+        # Arithmetic expressions: UDG spec, mask spec
+        udg_fname = 'test_udg_array8'
+        udg = Udg(40, [240] * 8, [248] * 8)
+        snapshot[30000:30016] = udg.data + udg.mask
+        udg_spec = '(10000*3),((2+3)*8, inc=5-5)'
+        mask_spec = '(10000*3+8),((12-8)/4)'
+        scale = 2
+        mask = 1
+        output = writer.expand('#UDGARRAY1;{}:{}({})'.format(udg_spec, mask_spec, udg_fname), ASMDIR)
+        self._assert_img_equals(output, udg_fname, '../{}/{}.png'.format(UDGDIR, udg_fname))
+        self._check_image(writer.image_writer, [[udg]], scale, mask)
 
     def test_macro_udgarray_with_custom_udg_image_path(self):
         font_path = 'udg_images'
