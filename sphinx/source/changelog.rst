@@ -3,6 +3,15 @@ Changelog
 
 5.1b1
 -----
+* Added the :ref:`EVAL` macro (which evaluates an arithmetic expression)
+* Added the :ref:`FOR` macro (which iterates over a range of integers)
+* Added the :ref:`FOREACH` macro (which iterates over an arbitrary sequence of
+  strings)
+* Added the :ref:`IF` macro (which evaluates an arithmetic expression and acts
+  on its truth value)
+* Added the :ref:`MAP` macro (which maps an integer to an arbitrary string)
+* Added the :ref:`PEEK` macro (which retrieves the contents of an address in
+  the memory snapshot)
 * Added the ``--bfix``,  ``--ofix`` and ``--ssub`` options to
   :ref:`skool2bin.py` (for parsing the skool file in ``@bfix``, ``@ofix`` and
   ``@ssub`` mode)

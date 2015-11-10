@@ -509,7 +509,7 @@ def parse_erefs(text, index, entry_holder):
     return end, rep
 
 def parse_eval(text, index):
-    # #EVAL(arg[,base,width])
+    # #EVALexpr[,base,width]
     end, value, base, width = parse_ints(text, index, 3, (10, 1))
     if base == 2:
         value = '{:0{}b}'.format(value, width)
@@ -632,7 +632,7 @@ def parse_link(text, index):
     return end, page_id, anchor, link_text
 
 def parse_map(text, index):
-    # #MAPvalue(default,k1:v1[,k2:v2...])
+    # #MAPvalue(default[,k1:v1,k2:v2...])
     args_index, value = parse_ints(text, index, 1)
     try:
         end, args = parse_strings(text, args_index)
@@ -657,7 +657,7 @@ def parse_map(text, index):
     return end, m[value]
 
 def parse_peek(text, index, snapshot):
-    # #PEEKaddr or #PEEK(addr)
+    # #PEEKaddr
     end, addr = parse_ints(text, index, 1)
     return end, str(snapshot[addr & 65535])
 

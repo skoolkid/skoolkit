@@ -38,6 +38,226 @@ examples above), or in hexadecimal notation (prefixed by ``$``)::
 
   #UDG$98E8,$06
 
+SMPL macros
+^^^^^^^^^^^
+The macros described in this section constitute the Skool Macro Programming
+Language (SMPL). They are expanded from right to left before non-SMPL macros
+are expanded, which means they can be used to programmatically specify values
+in the parameter string of any macro.
+
+.. _EVAL:
+
+#EVAL
+-----
+The ``#EVAL`` macro expands to the value of an arithmetic expression. ::
+
+  #EVALexpr[,base,width]
+
+* ``expr`` is the arithmetic expression
+* ``base`` is the number base in which the value is expressed: ``2``, ``10``
+  (the default) or ``16``
+* ``width`` is the minimum number of digits in the output (default: ``1``);
+  the value will be padded with leading zeroes if necessary
+
+For example::
+
+  ; The following mask byte is #EVAL#PEEK29435,2,8.
+   29435 DEFB 62
+
+This instance of the ``#EVAL`` macro expands to ``00111110`` (62 in binary).
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.1     | New     |
++---------+---------+
+
+.. _FOR:
+
+#FOR
+----
+The ``#FOR`` macro expands to a sequence of strings based on a range of
+integers. ::
+
+  #FOR[:]start,stop[,step](var,string[,sep,fsep])
+
+* ``start`` is first integer in the range
+* ``stop`` is the final integer in the range
+* ``step`` is the gap between each integer in the range (default: ``1``)
+* ``var`` is the variable name; for each integer in the range, it evaluates to
+  that integer
+* ``string`` is the output string that is evaluated for each integer in the
+  range; wherever the variable name (``var``) appears, its value is substituted
+* ``sep`` is the separator placed between each output string (default: the
+  empty string)
+* ``fsep`` is the separator placed between the final two output strings
+  (default: ``sep``)
+
+For example::
+
+  ; The next three bytes (#FOR:31734,31736||n|#PEEKn|, | and ||) define the
+  ; item locations.
+   31734 DEFB 24,17,156
+
+This instance of the ``#FOR`` macro expands to ``24, 17 and 156``.
+
+If the first character after ``#FOR`` is a colon (``:``), the macro is expanded
+before any other macro (including SMPL macros). Otherwise, the ``#FOR`` macro
+is expanded at the same time as other SMPL macros.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.1     | New     |
++---------+---------+
+
+.. _FOREACH:
+
+#FOREACH
+--------
+
+The ``#FOREACH`` macro expands to a sequence of output strings based on a
+sequence of input strings. ::
+
+  #FOREACH[:]([s1,s2,...])(var,string[,sep,fsep])
+
+or::
+
+  #FOREACH[:](svar)(var,string[,sep,fsep])
+
+* ``s1``, ``s2``  etc. are the input strings
+* ``svar`` is a special variable that expands to a specific sequence of input
+  strings (see below)
+* ``var`` is the variable name; for each input string, it evaluates to that
+  string
+* ``string`` is the output string that is evaluated for each input string;
+  wherever the variable name (``var``) appears, its value is substituted
+* ``sep`` is the separator placed between each output string (default: the
+  empty string)
+* ``fsep`` is the separator placed between the final two output strings
+  (default: ``sep``)
+
+For example::
+
+  ; The next three bytes (#FOREACH:(31734,31735,31736)||n|#PEEKn|, | and ||)
+  ; define the item locations.
+   31734 DEFB 24,17,156
+
+This instance of the ``#FOREACH`` macro expands to ``24, 17 and 156``.
+
+If the first character after ``#FOREACH`` is a colon (``:``), the macro is
+expanded before any other macro (including SMPL macros). Otherwise, the
+``#FOREACH`` macro is expanded at the same time as other SMPL macros.
+
+The ``#FOREACH`` macro recognises certain special variables, each one of which
+expands to a specific sequence of strings. The special variables are:
+
+* ``ENTRY[types]`` - the addresses of every entry of the specified type(s) in
+  the memory map; if ``types`` is not given, every type is included
+* ``EREFaddr`` - the addresses of the routines that jump to or call a given
+  instruction (at ``addr``)
+* ``REFaddr`` - the addresses of the routines that jump to or call a given
+  routine (at ``addr``), or jump to or call any entry point within that routine
+
+For example::
+
+  ; The messages can be found at #FOREACH(ENTRYt)||n|n|, | and ||.
+
+This instance of the ``#FOREACH`` macro expands to a list of the addresses of
+the entries of type ``t`` (text).
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.1     | New     |
++---------+---------+
+
+.. _IF:
+
+#IF
+---
+The ``#IF`` macro expands to an arbitrary string based on the truth value of an
+arithmetic expression. ::
+
+  #IFexpr(true[,false])
+
+* ``expr`` is the arithmetic expression
+* ``true`` is the output string when ``expr`` is true
+* ``false`` is the output string when ``expr`` is false (default: the empty
+  string)
+
+For example::
+
+  ; #FOR:0,7||n|#IF(#PEEK47134 & 2**(7-n))(X,O)||
+   47134 DEFB 170
+
+This instance of the ``#IF`` macro is used (in combination with a ``#FOR``
+macro and a ``#PEEK`` macro) to display the contents of the address 47134 in
+the memory snapshot in binary format with ``X`` for one and ``O`` for zero:
+``XOXOXOXO``.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.1     | New     |
++---------+---------+
+
+.. _MAP:
+
+#MAP
+----
+The ``#MAP`` macro expands to a value from a map of key-value pairs whose keys
+are integers. ::
+
+  #MAPkey(default[,k1:v1,k2:v2...])
+
+* ``key`` is the integer to look up in the map
+* ``default`` is the default output string (used when ``key`` is not found in
+  the map)
+* ``k1:v1``, ``k2:v2`` etc. are the key-value pairs in the map
+
+For example::
+
+  ; The next three bytes specify the directions that are available from here:
+  ; #FOR:56112,56114||$n|#MAP#PEEK$n(?,0:left,1:right,2:up,3:down)|, | and ||.
+   56112 DEFB 0,1,3
+
+This instance of the ``#MAP`` macro is used (in combination with a ``#FOR``
+macro and a ``#PEEK`` macro) to display a list of directions available based on
+the contents of addresses 56112-56114: ``left, right and down``.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.1     | New     |
++---------+---------+
+
+.. _PEEK:
+
+#PEEK
+-----
+The ``#PEEK`` macro expands to the contents of an address in the memory
+snapshot. ::
+
+  #PEEKaddr
+
+* ``addr`` is the address
+
+For example::
+
+  ; At the start of the game, the number of lives remaining is #PEEK33879.
+
+This instance of the ``#PEEK`` macro expands to the contents of the address
+33879 in the memory snapshot.
+
+See also :ref:`POKES`.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.1     | New     |
++---------+---------+
+
 General macros
 ^^^^^^^^^^^^^^
 
@@ -1107,6 +1327,8 @@ For example::
 
 This instance of the ``#POKES`` macro does ``POKE 32772,254`` and
 ``POKE 32775,136``, which fixes a graphic glitch in the UDG at 32768.
+
+See also :ref:`PEEK`.
 
 +---------+--------------------------------------+
 | Version | Changes                              |
