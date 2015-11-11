@@ -64,6 +64,38 @@ Parentheses and spaces are also permitted in an arithmetic expression::
 
   #IF(1 == 2 || (1 <= 2 && 2 < 3))(Yes,No)
 
+.. _stringParameters:
+
+String parameters
+^^^^^^^^^^^^^^^^^
+Where a macro requires a single string parameter consisting of arbitrary text,
+it must be enclosed in parentheses, square brackets, braces, or any character
+(besides whitespace) that doesn't appear in the text itself::
+
+  (text)
+  [text]
+  {text}
+  /text/
+  |text|
+
+Where a macro requires multiple string parameters consisting of arbitrary text,
+they must be enclosed in parentheses, square brackets or braces and be
+separated by commas::
+
+  (string1,string2)
+  [string1,string2]
+  {string1,string2}
+
+Alternatively, an arbitrary delimiter - ``d``, which cannot be whitespace - and
+separator - ``s``, which can be whitespace - may be used. (They can be the same
+character.) The string parameters must open with ``ds``, be separated by ``s``,
+and close with ``sd``::
+
+  //same/delimiter/and/separator//
+  | different delimiter and separator |
+
+This form is required if any of the strings contain a comma.
+
 SMPL macros
 ^^^^^^^^^^^
 The macros described in this section constitute the Skool Macro Programming
@@ -90,7 +122,7 @@ For example::
   ; The following mask byte is #EVAL#PEEK29435,2,8.
    29435 DEFB 62
 
-This instance of the ``#EVAL`` macro expands to ``00111110`` (62 in binary).
+This instance of the ``#EVAL`` macro expands to '00111110' (62 in binary).
 
 +---------+---------+
 | Version | Changes |
@@ -125,11 +157,14 @@ For example::
   ; item locations.
    31734 DEFB 24,17,156
 
-This instance of the ``#FOR`` macro expands to ``24, 17 and 156``.
+This instance of the ``#FOR`` macro expands to '24, 17 and 156'.
 
 If the first character after ``#FOR`` is a colon (``:``), the macro is expanded
 before any other macro (including SMPL macros). Otherwise, the ``#FOR`` macro
 is expanded at the same time as other SMPL macros.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``var``, ``string``, ``sep`` and ``fsep`` parameters.
 
 +---------+---------+
 | Version | Changes |
@@ -169,7 +204,7 @@ For example::
   ; define the item locations.
    31734 DEFB 24,17,156
 
-This instance of the ``#FOREACH`` macro expands to ``24, 17 and 156``.
+This instance of the ``#FOREACH`` macro expands to '24, 17 and 156'.
 
 If the first character after ``#FOREACH`` is a colon (``:``), the macro is
 expanded before any other macro (including SMPL macros). Otherwise, the
@@ -191,6 +226,9 @@ For example::
 
 This instance of the ``#FOREACH`` macro expands to a list of the addresses of
 the entries of type ``t`` (text).
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``var``, ``string``, ``sep`` and ``fsep`` parameters.
 
 +---------+---------+
 | Version | Changes |
@@ -219,8 +257,11 @@ For example::
 
 This instance of the ``#IF`` macro is used (in combination with a ``#FOR``
 macro and a ``#PEEK`` macro) to display the contents of the address 47134 in
-the memory snapshot in binary format with ``X`` for one and ``O`` for zero:
-``XOXOXOXO``.
+the memory snapshot in binary format with 'X' for one and 'O' for zero:
+XOXOXOXO.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``true`` and ``false`` output strings.
 
 +---------+---------+
 | Version | Changes |
@@ -250,7 +291,10 @@ For example::
 
 This instance of the ``#MAP`` macro is used (in combination with a ``#FOR``
 macro and a ``#PEEK`` macro) to display a list of directions available based on
-the contents of addresses 56112-56114: ``left, right and down``.
+the contents of addresses 56112-56114: 'left, right and down'.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+default output string and the key-value pairs.
 
 +---------+---------+
 | Version | Changes |
@@ -500,19 +544,14 @@ escaped) from a `skool` file. For example::
 
   ; #HTML(For more information, go <a href="http://example.com/">here</a>.)
 
-If ``text`` contains a closing bracket - ``)`` - then the macro will not expand
-as required. In that case, square brackets, braces or any character that does
-not appear in ``text`` (except for an upper case letter) may be used as
-delimiters::
-
-  #HTML[text]
-  #HTML{text}
-  #HTML@text@
-
 ``text`` may contain other skool macros, which will be expanded before
 rendering. For example::
 
   ; #HTML[The UDG defined here (32768) looks like this: #UDG32768,4,1]
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``text`` parameter. Note that if an alternative delimiter is used, it must not
+be an upper case letter.
 
 See also :ref:`UDGTABLE`.
 
@@ -926,14 +965,6 @@ of text rendered in the game font. ::
   '`.gif`' will be appended (depending on the default image format specified in
   the :ref:`ref-ImageWriter` section of the `ref` file) if not present
 
-If ``text`` contains a closing bracket - ``)`` - then the macro will not expand
-as required. In that case, square brackets, braces or any character that does
-not appear in ``text`` may be used as delimiters; for example::
-
-  #FONT:[(0) OK]$3D00
-  #FONT:{(0) OK}$3D00
-  #FONT:/(0) OK/$3D00
-
 If an image with the given filename doesn't already exist, it will be created.
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly; otherwise the filename is taken to be relative to
@@ -947,8 +978,11 @@ For example::
   ; #HTML[#FONT:(0123456789)49152]
 
 In HTML mode, this instance of the ``#FONT`` macro expands to an ``<img>``
-element for the image of the digits 0-9 in the 8*8 font whose graphic data
+element for the image of the digits 0-9 in the 8x8 font whose graphic data
 starts at 49152.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``text`` parameter.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
