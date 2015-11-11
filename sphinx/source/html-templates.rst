@@ -83,6 +83,11 @@ are:
 * ``title`` - the title of the entry
 * ``type`` - the block type of the entry ('b', 'c', 'g', 's', 't', 'u' or 'w')
 
+The ``entry`` dictionary also contains the following parameters:
+
+* ``input`` - '1' if there are input register values defined, '0' otherwise
+* ``output`` - '1' if there are output register values defined, '0' otherwise
+
 To see the default ``Asm`` template, run the following command::
 
   $ skool2html.py -r Template:Asm
