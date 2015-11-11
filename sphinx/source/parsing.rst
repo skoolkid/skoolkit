@@ -22,7 +22,7 @@ the parsing is being done: HTML mode or ASM mode.
 HTML mode
 ^^^^^^^^^
 HTML mode is used when the target output format is HTML, as is the case when
-running `skool2html.py`. In HTML mode, most ASM directives are ignored because
+running `skool2html.py`. In HTML mode, some ASM directives are ignored because
 they are irrelevant to the purpose of creating the HTML version of the
 disassembly. The only ASM directives that are processed in HTML mode are the
 following:
@@ -30,6 +30,7 @@ following:
 * :ref:`assemble`
 * :ref:`keep`
 * :ref:`label`
+* :ref:`replace`
 * :ref:`bfixBlockDirectives`
 * :ref:`isubBlockDirectives`
 * :ref:`ofixBlockDirectives`

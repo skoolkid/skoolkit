@@ -597,6 +597,39 @@ For example::
 | 2.4     | The ``=`` is required |
 +---------+-----------------------+
 
+.. _replace:
+
+@replace
+^^^^^^^^
+The ``@replace`` directive replaces strings that match a regular expression in
+`skool` file annotations and `ref` file sections. ::
+
+  @replace=/pattern/repl
+
+* ``pattern`` is the regular expression
+* ``repl`` is the replacement string
+
+For example::
+
+  @replace=/#copy/#CHR(169)
+
+This ``@replace`` directive replaces all instances of ``#copy`` with
+``#CHR(169)``.
+
+If ``/`` appears anywhere in ``pattern`` or ``repl``, then an alternative
+separator should be used; for example::
+
+  @replace=|n/a|not applicable
+
+Note that string replacements specified by ``@replace`` directives are made
+before skool macros are expanded.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.1     | New     |
++---------+---------+
+
 .. _rfixBlockDirectives:
 
 @rfix block directives
