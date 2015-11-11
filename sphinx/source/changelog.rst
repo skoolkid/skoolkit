@@ -14,6 +14,7 @@ Changelog
 * Added the :ref:`MAP` macro (which maps an integer to an arbitrary string)
 * Added the :ref:`PEEK` macro (which retrieves the contents of an address in
   the memory snapshot)
+* Added support for arithmetic expressions in numeric macro parameters
 * Added the ``--bfix``,  ``--ofix`` and ``--ssub`` options to
   :ref:`skool2bin.py` (for parsing the skool file in ``@bfix``, ``@ofix`` and
   ``@ssub`` mode)

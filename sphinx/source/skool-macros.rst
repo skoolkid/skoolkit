@@ -6,6 +6,8 @@ Skool macros
 an appropriate piece of HTML markup (when rendering in HTML mode), or to an
 appropriate piece of plain text (when rendering in ASM mode).
 
+Syntax
+^^^^^^
 Skool macros have the following general form::
 
   #MACROrparam1,rparam2,...[,oparam1,oparam2,...]
@@ -33,10 +35,34 @@ is equivalent to::
 
   #UDG30115,56,2
 
-Numeric parameters may be given in decimal notation (as already shown in the
-examples above), or in hexadecimal notation (prefixed by ``$``)::
+Numeric parameters
+^^^^^^^^^^^^^^^^^^
+Numeric parameters may be written in decimal notation::
 
-  #UDG$98E8,$06
+  #UDG51673,17
+
+or in hexadecimal notation (prefixed by ``$``)::
+
+  #UDG$C9D9,$11
+
+Wherever a sequence of numeric parameters appears in a macro, that sequence
+may optionally be enclosed in parentheses: ``(`` and ``)``. Parentheses are
+`required` if any numeric parameter is written as an arithmetic expression::
+
+  #UDG(51456+217,2*8+1)
+
+The following operators are permitted in an arithmetic expression:
+
+* arithmetic operators: ``+``, ``-``, ``*``, ``/``, ``%`` (modulo), ``**``
+  (power)
+* bitwise operators: ``&`` (AND), ``|`` (OR), ``^`` (XOR)
+* bit shift operators: ``>>``, ``<<``
+* Boolean operators: ``&&`` (and), ``||`` (or)
+* comparison operators: ``==``, ``!=``, ``>``, ``<``, ``>=``, ``<=``
+
+Parentheses and spaces are also permitted in an arithmetic expression::
+
+  #IF(1 == 2 || (1 <= 2 && 2 < 3))(Yes,No)
 
 SMPL macros
 ^^^^^^^^^^^
@@ -323,22 +349,25 @@ defined by the :ref:`writer` ASM directive in the `skool` file). ::
 
 For example::
 
-  ; The byte at address 32768 is #CALL:peek(32768).
+  ; The word at address 32768 is #CALL:word(32768).
 
-This instance of the ``#CALL`` macro expands to the return value of the `peek`
+This instance of the ``#CALL`` macro expands to the return value of the `word`
 method (on the `HtmlWriter` or `AsmWriter` subclass being used) when called
 with the argument ``32768``.
 
 For information on writing methods that may be called by a ``#CALL`` macro, see
 the documentation on :ref:`extending SkoolKit <extendingSkoolKit>`.
 
-+---------+----------------------------+
-| Version | Changes                    |
-+=========+============================+
-| 3.1     | Added support for ASM mode |
-+---------+----------------------------+
-| 2.1     | New                        |
-+---------+----------------------------+
++---------+------------------------------------------------------------+
+| Version | Changes                                                    |
++=========+============================================================+
+| 5.1     | Added support for arithmetic expressions in numeric method |
+|         | arguments                                                  |
++---------+------------------------------------------------------------+
+| 3.1     | Added support for ASM mode                                 |
++---------+------------------------------------------------------------+
+| 2.1     | New                                                        |
++---------+------------------------------------------------------------+
 
 .. _CHR:
 
@@ -350,10 +379,6 @@ encoding. ::
 
   #CHRnum
 
-or::
-
-  #CHR(num)
-
 For example:
 
 .. parsed-literal::
@@ -364,11 +389,13 @@ For example:
 In HTML mode, this instance of the ``#CHR`` macro expands to ``&#169;``. In ASM
 mode, it expands to the copyright symbol.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 3.1     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 5.1     | Added support for arithmetic expressions in the ``num`` parameter |
++---------+-------------------------------------------------------------------+
+| 3.1     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _D:
 
@@ -391,6 +418,13 @@ For example::
 
 This instance of the ``#D`` macro expands to the title of the routine at 27126.
 
++---------+----------------------------------------------------------+
+| Version | Changes                                                  |
++=========+==========================================================+
+| 5.1     | Added support for arithmetic expressions in the ``addr`` |
+|         | parameter                                                |
++---------+----------------------------------------------------------+
+
 .. _EREFS:
 
 #EREFS
@@ -405,11 +439,14 @@ routines that jump to or call a given address. ::
 
 See also :ref:`m-REFS`.
 
-+---------+----------------------------+
-| Version | Changes                    |
-+=========+============================+
-| 3.1     | Added support for ASM mode |
-+---------+----------------------------+
++---------+----------------------------------------------------------+
+| Version | Changes                                                  |
++=========+==========================================================+
+| 5.1     | Added support for arithmetic expressions in the ``addr`` |
+|         | parameter                                                |
++---------+----------------------------------------------------------+
+| 3.1     | Added support for ASM mode                               |
++---------+----------------------------------------------------------+
 
 .. _FACT:
 
@@ -648,7 +685,8 @@ section.
 | Version | Changes                                                       |
 +=========+===============================================================+
 | 5.1     | An anchor that matches the entry address is converted to the  |
-|         | format specified by the ``AddressAnchor`` parameter           |
+|         | format specified by the ``AddressAnchor`` parameter; added    |
+|         | support for arithmetic expressions in the ``addr`` parameter  |
 +---------+---------------------------------------------------------------+
 | 3.5     | Added the ability to resolve (in HTML mode) the address of an |
 |         | entry point in another disassembly when an appropriate        |
@@ -678,13 +716,16 @@ If there are no references, the macro expands to the following text::
 
 See also :ref:`EREFS`.
 
-+---------+--------------------------------+
-| Version | Changes                        |
-+=========+================================+
-| 3.1     | Added support for ASM mode     |
-+---------+--------------------------------+
-| 1.0.6   | Added the ``prefix`` parameter |
-+---------+--------------------------------+
++---------+----------------------------------------------------------+
+| Version | Changes                                                  |
++=========+==========================================================+
+| 5.1     | Added support for arithmetic expressions in the ``addr`` |
+|         | parameter                                                |
++---------+----------------------------------------------------------+
+| 3.1     | Added support for ASM mode                               |
++---------+----------------------------------------------------------+
+| 1.0.6   | Added the ``prefix`` parameter                           |
++---------+----------------------------------------------------------+
 
 .. _REG:
 
@@ -730,10 +771,6 @@ mode) or spaces (in ASM mode). ::
 
   #SPACE[num]
 
-or::
-
-  #SPACE([num])
-
 * ``num`` is the number of spaces required (default: 1)
 
 For example::
@@ -754,11 +791,13 @@ text where necessary. For example::
   ; 'Score:#SPACE(5)0'
   t49152 DEFM "Score:     0"
 
-+---------+------------------------------------------------+
-| Version | Changes                                        |
-+=========+================================================+
-| 2.4.1   | Added support for the ``#SPACE([num])`` syntax |
-+---------+------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 5.1     | Added support for arithmetic expressions in the ``num`` parameter |
++---------+-------------------------------------------------------------------+
+| 2.4.1   | Added support for the ``#SPACE([num])`` syntax                    |
++---------+-------------------------------------------------------------------+
 
 .. _TABLE:
 
@@ -911,22 +950,24 @@ In HTML mode, this instance of the ``#FONT`` macro expands to an ``<img>``
 element for the image of the digits 0-9 in the 8*8 font whose graphic data
 starts at 49152.
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 4.3     | Added the ability to create frames                              |
-+---------+-----------------------------------------------------------------+
-| 4.2     | Added the ability to specify alt text for the ``<img>`` element |
-+---------+-----------------------------------------------------------------+
-| 4.0     | Added support for keyword arguments                             |
-+---------+-----------------------------------------------------------------+
-| 3.6     | Added the ``text`` parameter, and made the ``chars`` parameter  |
-|         | optional                                                        |
-+---------+-----------------------------------------------------------------+
-| 3.0     | Added image-cropping capabilities                               |
-+---------+-----------------------------------------------------------------+
-| 2.0.5   | Added the ``fname`` parameter and support for regular 8x8 fonts |
-+---------+-----------------------------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Add support for arithmetic expressions in the numeric parameters |
++---------+------------------------------------------------------------------+
+| 4.3     | Added the ability to create frames                               |
++---------+------------------------------------------------------------------+
+| 4.2     | Added the ability to specify alt text for the ``<img>`` element  |
++---------+------------------------------------------------------------------+
+| 4.0     | Added support for keyword arguments                              |
++---------+------------------------------------------------------------------+
+| 3.6     | Added the ``text`` parameter, and made the ``chars`` parameter   |
+|         | optional                                                         |
++---------+------------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities                                |
++---------+------------------------------------------------------------------+
+| 2.0.5   | Added the ``fname`` parameter and support for regular 8x8 fonts  |
++---------+------------------------------------------------------------------+
 
 .. _SCR:
 
@@ -965,21 +1006,23 @@ For example::
   ; { #SCR(loading) | This is the loading screen. }
   ; TABLE#
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 4.3     | Added the ability to create frames                              |
-+---------+-----------------------------------------------------------------+
-| 4.2     | Added the ability to specify alt text for the ``<img>`` element |
-+---------+-----------------------------------------------------------------+
-| 4.0     | Added support for keyword arguments                             |
-+---------+-----------------------------------------------------------------+
-| 3.0     | Added image-cropping capabilities and the ``df`` and ``af``     |
-|         | parameters                                                      |
-+---------+-----------------------------------------------------------------+
-| 2.0.5   | Added the ``scale``, ``x``, ``y``, ``w``, ``h`` and ``fname``   |
-|         | parameters                                                      |
-+---------+-----------------------------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Add support for arithmetic expressions in the numeric parameters |
++---------+------------------------------------------------------------------+
+| 4.3     | Added the ability to create frames                               |
++---------+------------------------------------------------------------------+
+| 4.2     | Added the ability to specify alt text for the ``<img>`` element  |
++---------+------------------------------------------------------------------+
+| 4.0     | Added support for keyword arguments                              |
++---------+------------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities and the ``df`` and ``af``      |
+|         | parameters                                                       |
++---------+------------------------------------------------------------------+
+| 2.0.5   | Added the ``scale``, ``x``, ``y``, ``w``, ``h`` and ``fname``    |
+|         | parameters                                                       |
++---------+------------------------------------------------------------------+
 
 .. _UDG:
 
@@ -1032,28 +1075,30 @@ In HTML mode, this instance of the ``#UDG`` macro expands to an ``<img>``
 element for the image of the UDG at 39144 (which will be named `safe_key.png`
 or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 4.3     | Added the ability to create frames                              |
-+---------+-----------------------------------------------------------------+
-| 4.2     | Added the ability to specify alt text for the ``<img>`` element |
-+---------+-----------------------------------------------------------------+
-| 4.0     | Added the ``mask`` parameter and support for AND-OR masking;    |
-|         | added support for keyword arguments                             |
-+---------+-----------------------------------------------------------------+
-| 3.1.2   | Made the ``attr`` parameter optional                            |
-+---------+-----------------------------------------------------------------+
-| 3.0     | Added image-cropping capabilities                               |
-+---------+-----------------------------------------------------------------+
-| 2.4     | Added the ``rotate`` parameter                                  |
-+---------+-----------------------------------------------------------------+
-| 2.3.1   | Added the ``flip`` parameter                                    |
-+---------+-----------------------------------------------------------------+
-| 2.1     | Added support for masks                                         |
-+---------+-----------------------------------------------------------------+
-| 2.0.5   | Added the ``fname`` parameter                                   |
-+---------+-----------------------------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Add support for arithmetic expressions in the numeric parameters |
++---------+------------------------------------------------------------------+
+| 4.3     | Added the ability to create frames                               |
++---------+------------------------------------------------------------------+
+| 4.2     | Added the ability to specify alt text for the ``<img>`` element  |
++---------+------------------------------------------------------------------+
+| 4.0     | Added the ``mask`` parameter and support for AND-OR masking;     |
+|         | added support for keyword arguments                              |
++---------+------------------------------------------------------------------+
+| 3.1.2   | Made the ``attr`` parameter optional                             |
++---------+------------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities                                |
++---------+------------------------------------------------------------------+
+| 2.4     | Added the ``rotate`` parameter                                   |
++---------+------------------------------------------------------------------+
+| 2.3.1   | Added the ``flip`` parameter                                     |
++---------+------------------------------------------------------------------+
+| 2.1     | Added support for masks                                          |
++---------+------------------------------------------------------------------+
+| 2.0.5   | Added the ``fname`` parameter                                    |
++---------+------------------------------------------------------------------+
 
 .. _UDGARRAY:
 
@@ -1145,6 +1190,8 @@ named `base_sprite.png`.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 5.1     | Add support for arithmetic expressions in the numeric parameters  |
++---------+-------------------------------------------------------------------+
 | 4.2     | Added the ability to specify alt text for the ``<img>`` element   |
 +---------+-------------------------------------------------------------------+
 | 4.0     | Added the ``mask`` parameter and support for AND-OR masking;      |
@@ -1330,13 +1377,15 @@ This instance of the ``#POKES`` macro does ``POKE 32772,254`` and
 
 See also :ref:`PEEK`.
 
-+---------+--------------------------------------+
-| Version | Changes                              |
-+=========+======================================+
-| 3.1     | Added support for ASM mode           |
-+---------+--------------------------------------+
-| 2.3.1   | Added support for multiple addresses |
-+---------+--------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Add support for arithmetic expressions in the numeric parameters |
++---------+------------------------------------------------------------------+
+| 3.1     | Added support for ASM mode                                       |
++---------+------------------------------------------------------------------+
+| 2.3.1   | Added support for multiple addresses                             |
++---------+------------------------------------------------------------------+
 
 .. _POPS:
 
