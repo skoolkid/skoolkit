@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from skoolkit.skoolparser import CASE_LOWER
+
 ERROR_PREFIX = 'Error while parsing #{} macro'
+
+def nest_macros(writer, template, value):
+    if not writer.snapshot:
+        writer.snapshot = [0]
+    nested_macros = '#FOREACH()(_,#FOR1,1(_,#MAP1(#IF#EVAL(1+#PEEK0)({}))))'.format(value)
+    return template.format(nested_macros)
 
 class CommonSkoolMacroTest:
     def _test_invalid_reference_macro(self, macro):
@@ -38,6 +46,11 @@ class CommonSkoolMacroTest:
         self._check_call(writer, '6&3|5,7^5,4%2', 7, 2, 0)
         self._check_call(writer, '1<<4,16>>4', 16, 1, None)
         self._check_call(writer, '1 + 1, (3 + 5) / 2, 4 * (9 - 7)', 2, 4, 8)
+
+        # Nested macros
+        value = 12345
+        params = nest_macros(writer, '{0},{0}+1,{0}+2', value)
+        self._check_call(writer, params, value, value + 1, value + 2)
 
         # Non-arithmetic Python expressions
         self._check_call(writer, '"a"+"b",None,sys.exit()', '"a"+"b"', 'None', 'sys.exit()')
@@ -109,6 +122,10 @@ class CommonSkoolMacroTest:
         # Arithmetic expression
         output = writer.expand('#D($8000 + 2 * 3 - (10 + 5) / 3)')
         self.assertEqual(output, 'Second routine')
+
+        # Nested macros
+        output = writer.expand(nest_macros(writer, '#D{}', 32768))
+        self.assertEqual(output, 'First routine')
 
         # Adjacent characters
         self.assertEqual(writer.expand('1+#D32768+1'), '1+First routine+1')
@@ -826,6 +843,11 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '')
         self.assertEqual([12] * 6, snapshot[2:18:3])
 
+        # Nested macros
+        output = writer.expand(nest_macros(writer, '#POKES{},1', 0))
+        self.assertEqual(output, '')
+        self.assertEqual(writer.snapshot[0], 1)
+
     def test_macro_pokes_invalid(self):
         writer = self._get_writer(snapshot=[0])
         prefix = ERROR_PREFIX.format('POKES')
@@ -858,9 +880,17 @@ class CommonSkoolMacroTest:
                 output = writer.expand('#PUSHS{}{}'.format(name, suffix))
                 self.assertEqual(output, suffix)
                 self.assertEqual(writer.snapshot[addr], byte)
+                if hasattr(writer, 'get_snapshot_name'):
+                    self.assertEqual(writer.get_snapshot_name(), name)
                 writer.snapshot[addr] = (byte + 127) % 256
                 writer.pop_snapshot()
                 self.assertEqual(writer.snapshot[addr], byte)
+
+        name = 'testnestedSMPLmacros'
+        output = writer.expand(nest_macros(writer, '#PUSHS{}', name))
+        self.assertEqual(output, '')
+        if hasattr(writer, 'get_snapshot_name'):
+            self.assertEqual(writer.get_snapshot_name(), name)
 
     def test_macro_r_invalid(self):
         writer = self._get_writer()
@@ -882,6 +912,25 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#REFSx', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#REFS34567(foo', "No closing bracket: (foo", prefix)
         self._assert_error(writer, '#REFS40000', "No entry at 40000", prefix)
+
+    def test_macro_reg(self):
+        writer = self._get_writer()
+        template = '<span class="register">{}</span>' if writer.needs_cwd() else '{}'
+
+        # Upper case, all registers
+        for reg in ('a', 'b', 'c', 'd', 'e', 'h', 'l', "a'", "b'", "c'", "d'", "e'", "h'", "l'", 'af', 'bc', 'de', 'hl',
+                    "af'", "bc'", "de'", "hl'", 'ix', 'iy', 'ixh', 'iyh', 'ixl', 'iyl', 'i', 'r', 'sp', 'pc'):
+            output = writer.expand('#REG{}'.format(reg))
+            self.assertEqual(output, template.format(reg.upper()))
+
+        # Nested macros
+        output = writer.expand(nest_macros(writer, '#REG{}', 'hl'))
+        self.assertEqual(output, template.format('HL'))
+
+        # Lower case
+        writer = self._get_writer(case=CASE_LOWER)
+        output = writer.expand('#REGhl')
+        self.assertEqual(output, template.format('hl'))
 
     def test_macro_reg_invalid(self):
         writer = self._get_writer()
@@ -914,6 +963,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('|#SPACE3/3|'), '|{}/3|'.format(space * 3))
         self.assertEqual(writer.expand('|#SPACE(1+3*2-10/2)|'), '|{}|'.format(space * 2))
         self.assertEqual(writer.expand('|#SPACE($01 + 3 * 2 - (7 + 3) / 2)|'), '|{}|'.format(space * 2))
+        self.assertEqual(writer.expand(nest_macros(writer, '"#SPACE{}"', 5)), '"{}"'.format(space * 5))
 
     def test_macro_space_invalid(self):
         writer = self._get_writer()
