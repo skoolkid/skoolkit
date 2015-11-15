@@ -42,18 +42,10 @@ BASE_10 = 10
 #: Force hexadecimal.
 BASE_16 = 16
 
-def get_address(operation, check_prefix=True):
-    if check_prefix:
-        prefixes = '[ ,(+-]'
-    else:
-        prefixes = ''
-    search = re.search(prefixes + '(\$[0-9A-Fa-f]+|%[01]+|[0-9]+)', operation)
+def get_address(operation):
+    search = re.search('(\A|[\s,(+-])(\$[0-9A-Fa-f]+|%[01]+|\d+)', operation)
     if search:
-        if check_prefix:
-            index = 1
-        else:
-            index = 0
-        return search.group()[index:]
+        return search.group(2)
 
 def set_bytes(snapshot, address, operation):
     data = assemble(operation, address)
@@ -788,7 +780,7 @@ class Mode:
                 if item.lstrip().startswith('"'):
                     items.append(item)
                 else:
-                    items.append(convert_method(item, False))
+                    items.append(convert_method(item))
             return '{} {}'.format(elements[0], ','.join(items))
 
         elements = split_operation(operation, tidy=True)
@@ -830,14 +822,14 @@ class Mode:
         operation = self.replace_byte(operation.replace(index, marker))
         return operation.replace(marker, self.replace_byte(index))
 
-    def replace_byte(self, text, check_prefix=True):
-        return self.replace_number(text, 2, check_prefix)
+    def replace_byte(self, text):
+        return self.replace_number(text, 2)
 
-    def replace_address(self, text, check_prefix=True):
-        return self.replace_number(text, 4, check_prefix)
+    def replace_address(self, text):
+        return self.replace_number(text, 4)
 
-    def replace_number(self, text, digits, check_prefix):
-        num_str = get_address(text, check_prefix)
+    def replace_number(self, text, digits):
+        num_str = get_address(text)
         if num_str is None or num_str.startswith('%'):
             return text
         num = parse_int(num_str)

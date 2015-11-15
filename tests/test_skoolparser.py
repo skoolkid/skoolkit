@@ -2095,6 +2095,27 @@ class SkoolParserTest(SkoolKitTestCase):
         for address, operation in exp_instructions:
             self.assertEqual(parser.get_instruction(address).operation, operation)
 
+    def test_base_conversion_on_non_numeric_operands_containing_digits(self):
+        skool = '\n'.join((
+            'b40000 DEFB b1',
+            ' 40001 DEFB b_2',
+            ' 40002 DEFW w1',
+            ' 40004 DEFW w_2',
+            ' 40006 LD HL,v1',
+            ' 40009 LD HL,v_2'
+        ))
+        exp_instructions = (
+            (40000, 'DEFB b1'),
+            (40001, 'DEFB b_2'),
+            (40002, 'DEFW w1'),
+            (40004, 'DEFW w_2'),
+            (40006, 'LD HL,v1'),
+            (40009, 'LD HL,v_2')
+        )
+        parser = self._get_parser(skool, base=BASE_16)
+        for address, operation in exp_instructions:
+            self.assertEqual(parser.get_instruction(address).operation, operation)
+
     def test_no_case_conversion(self):
         skool = '\n'.join((
             'c54000 LD A,0',
