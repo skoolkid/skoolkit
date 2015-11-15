@@ -20,7 +20,7 @@ import cgi
 import re
 
 from skoolkit import SkoolParsingError, warn, wrap, get_int_param, parse_int, open_file
-from skoolkit.skoolmacro import DELIMITERS, INTEGER
+from skoolkit.skoolmacro import DELIMITERS, INTEGER, ClosingBracketError, parse_brackets
 from skoolkit.textutils import partition_unquoted
 from skoolkit.z80 import assemble, convert_case, get_size, split_operation
 
@@ -988,31 +988,25 @@ class Register:
         self.contents = repf(self.contents)
 
 class TableParser:
-    def parse_text(self, text, index):
+    def parse_text(self, writer, text, index, *cwd):
         try:
             end = text.index(TABLE_END_MARKER, index) + len(TABLE_END_MARKER)
         except ValueError:
             marker = text[text.rindex('#', 0, index):index]
             raise SkoolParsingError("Missing table end marker: {}{}...".format(marker, text[index:index + 15]))
-        return end, self.parse_table(text[index:end])
+        return end, self.parse_table(writer, text[index:end], *cwd)
 
-    def parse_table(self, table_def):
+    def parse_table(self, writer, table_def, *cwd):
         text = table_def
         for ws_char in '\n\r\t':
             text = text.replace(ws_char, ' ')
 
-        index = 0
-        classes = []
-        if text[index] == '(':
-            end = text.find(')', index)
-            if end < 0:
-                raise SkoolParsingError("Cannot find closing ')' in table CSS class list:\n{0}".format(table_def))
-            classes = [c.strip() for c in text[index + 1:end].split(',')]
-            index = end + 1
-        if classes:
-            table_class = classes[0]
-        else:
-            table_class = ''
+        try:
+            index, params = parse_brackets(text, default='')
+        except ClosingBracketError:
+            raise SkoolParsingError("Cannot find closing ')' in table CSS class list:\n{}".format(table_def))
+        classes = [c.strip() for c in writer.expand(params, *cwd).split(',')]
+        table_class = classes[0]
         column_classes = classes[1:]
         wrap_columns = []
         for i, column_class in enumerate(column_classes):
@@ -1021,6 +1015,8 @@ class TableParser:
                 wrap_columns.append(i)
         table = Table(table_class, wrap_columns)
 
+        text = writer.expand(text[index:], *cwd)
+        index = 0
         prev_spans = {}
         while text.find('{', index) >= 0:
             row = []
@@ -1197,28 +1193,27 @@ class Cell:
         return max([len(line) for line in self.contents])
 
 class ListParser:
-    def parse_text(self, text, index):
+    def parse_text(self, writer, text, index, *cwd):
         try:
             end = text.index(LIST_END_MARKER, index) + len(LIST_END_MARKER)
         except ValueError:
             raise SkoolParsingError("No end marker: #LIST{}...".format(text[index:index + 15]))
-        return end, self.parse_list(text[index:end])
+        return end, self.parse_list(writer, text[index:end], *cwd)
 
-    def parse_list(self, list_def):
+    def parse_list(self, writer, list_def, *cwd):
         text = list_def
         for ws_char in '\n\r\t':
             text = text.replace(ws_char, ' ')
 
-        index = 0
-        css_class = ''
-        if text[index] == '(':
-            end = text.find(')', index)
-            if end < 0:
-                raise SkoolParsingError("Cannot find closing ')' in parameter list:\n{0}".format(list_def))
-            css_class = text[index + 1:end].strip()
-            index = end + 1
+        try:
+            index, params = parse_brackets(text, default='')
+        except ClosingBracketError:
+            raise SkoolParsingError("Cannot find closing ')' in parameter list:\n{}".format(list_def))
+        css_class = writer.expand(params, *cwd).strip()
         list_obj = List(css_class)
 
+        text = writer.expand(text[index:], *cwd)
+        index = 0
         while text.find('{', index) >= 0:
             item_start = text.find('{ ', index)
             if item_start < 0:

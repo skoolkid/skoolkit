@@ -3267,9 +3267,14 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instructions[5].comment.text, '')
 
 class TableParserTest(SkoolKitTestCase):
+    class MockWriter:
+        def expand(self, text):
+            return text
+    mock_writer = MockWriter()
+
     def assert_error(self, text, error):
         with self.assertRaises(SkoolParsingError) as cm:
-            TableParser().parse_text(text, 0)
+            TableParser().parse_text(self.mock_writer, text, 0)
         self.assertEqual(cm.exception.args[0], error)
 
     def test_invalid_colspan_indicator(self):

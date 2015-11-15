@@ -77,7 +77,7 @@ class AsmWriter:
             self.label_suffix = ''
 
         min_col_width = self._get_int_property(properties, 'wrap-column-width-min', 10)
-        self.table_writer = TableWriter(self.desc_width, min_col_width)
+        self.table_writer = TableWriter(self, self.desc_width, min_col_width)
 
         self.handle_unsupported_macros = self._get_int_property(properties, 'handle-unsupported-macros', 0)
 
@@ -251,8 +251,7 @@ class AsmWriter:
         raise UnsupportedMacroError()
 
     def expand_space(self, text, index):
-        end, num_sp = skoolmacro.parse_space(text, index)
-        return end, ' ' * num_sp
+        return skoolmacro.parse_space(text, index, ' ')
 
     def expand_udg(self, text, index):
         if self.handle_unsupported_macros:
@@ -270,7 +269,7 @@ class AsmWriter:
 
     def expand(self, text):
         """Return `text` with skool macros expanded."""
-        return skoolmacro.expand_macros(self.macros, text).strip()
+        return skoolmacro.expand_macros(self, text).strip()
 
     def find_markers(self, block_indexes, text, marker, end_marker):
         index = 0
@@ -310,14 +309,14 @@ class AsmWriter:
         lines = []
         for block in self.extract_blocks(text):
             if block.startswith(TABLE_MARKER):
-                table_lines = self.table_writer.format_table(self.expand(block[len(TABLE_MARKER):]))
+                table_lines = self.table_writer.format_table(block[len(TABLE_MARKER):].lstrip())
                 if table_lines:
                     table_width = max([len(line) for line in table_lines])
                     if table_width > width:
                         self.warn('Table in entry at {0} is {1} characters wide'.format(self.entry.address, table_width))
                     lines.extend(table_lines)
             elif block.startswith(LIST_MARKER):
-                list_obj = self.list_parser.parse_list(self.expand(block[len(LIST_MARKER):]))
+                list_obj = self.list_parser.parse_list(self, block[len(LIST_MARKER):].lstrip())
                 for item in list_obj.items:
                     item_lines = []
                     bullet = self.bullet
@@ -440,7 +439,8 @@ class AsmWriter:
             lines = wrap(self.expand(instruction.comment.text), max((comment_width, self.min_comment_width)))
 
 class TableWriter:
-    def __init__(self, max_width, min_col_width):
+    def __init__(self, asm_writer, max_width, min_col_width):
+        self.asm_writer = asm_writer
         self.max_width = max_width
         self.min_col_width = min_col_width
         self.table = None
@@ -448,7 +448,7 @@ class TableWriter:
         self.cell_matrix = None
 
     def format_table(self, text):
-        self.table = self.table_parser.parse_table(text)
+        self.table = self.table_parser.parse_table(self.asm_writer, text)
         self.table.cell_padding = 3
         self.table.prepare_cells()
         self.table.reduce_width(self.max_width, self.min_col_width)

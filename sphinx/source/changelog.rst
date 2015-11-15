@@ -5,6 +5,8 @@ Changelog
 -----
 * Added the :ref:`replace` ASM directive (which replaces strings that match a
   regular expression in skool file annotations and `ref` file sections)
+* Added the :ref:`hash` macro (which expands macros in another macro's
+  parameter string)
 * Added the :ref:`EVAL` macro (which evaluates an arithmetic expression)
 * Added the :ref:`FOR` macro (which iterates over a range of integers)
 * Added the :ref:`FOREACH` macro (which iterates over an arbitrary sequence of

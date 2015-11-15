@@ -47,9 +47,10 @@ or in hexadecimal notation (prefixed by ``$``)::
 
 Wherever a sequence of numeric parameters appears in a macro, that sequence
 may optionally be enclosed in parentheses: ``(`` and ``)``. Parentheses are
-`required` if any numeric parameter is written as an arithmetic expression::
+`required` if any numeric parameter is written as an expression containing
+arithmetic operations or skool macros::
 
-  #UDG(51456+217,2*8+1)
+  #UDG(51672+1,#PEEK51672)
 
 The following operators are permitted in an arithmetic expression:
 
@@ -69,12 +70,15 @@ Parentheses and spaces are also permitted in an arithmetic expression::
 String parameters
 ^^^^^^^^^^^^^^^^^
 Where a macro requires a single string parameter consisting of arbitrary text,
-it must be enclosed in parentheses, square brackets, braces, or any character
-(besides whitespace) that doesn't appear in the text itself::
+it must be enclosed in parentheses, square brackets or braces::
 
   (text)
   [text]
   {text}
+
+If ``text`` contains unbalanced brackets, any non-whitespace character that is
+not present in ``text`` may be used as an alternative delimiter. For example::
+
   /text/
   |text|
 
@@ -89,7 +93,7 @@ separated by commas::
 Alternatively, an arbitrary delimiter - ``d``, which cannot be whitespace - and
 separator - ``s``, which can be whitespace - may be used. (They can be the same
 character.) The string parameters must open with ``ds``, be separated by ``s``,
-and close with ``sd``::
+and close with ``sd``. For example::
 
   //same/delimiter/and/separator//
   | different delimiter and separator |
@@ -99,9 +103,32 @@ This form is required if any of the strings contain a comma.
 SMPL macros
 ^^^^^^^^^^^
 The macros described in this section constitute the Skool Macro Programming
-Language (SMPL). They are expanded from right to left before non-SMPL macros
-are expanded, which means they can be used to programmatically specify values
-in the parameter string of any macro.
+Language (SMPL). They can be used to programmatically specify values in the
+parameter string of any macro.
+
+.. _hash:
+
+#()
+---
+The ``#()`` macro expands the skool macros in its sole string parameter. ::
+
+  #(text)
+
+It takes effect only when it immediately follows another skool macro; in that
+case, it is expanded `before` that macro. For example::
+
+  #UDGARRAY#(2#FOR37159,37168,9||n|;(n+1),#PEEKn||)(item)
+
+This instance of the ``#()`` macro expands the ``#FOR`` macro first, giving::
+
+  2;(37159+1),#PEEK37159;(37168+1),#PEEK37168
+
+It then expands the ``#PEEK`` macros, ultimately forming the parameters of the
+``#UDGARRAY`` macro.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``text`` parameter. Note that if an alternative delimiter is used, it must not
+be an alphanumeric character (A-Z, a-z, 0-9).
 
 .. _EVAL:
 
@@ -119,7 +146,7 @@ The ``#EVAL`` macro expands to the value of an arithmetic expression. ::
 
 For example::
 
-  ; The following mask byte is #EVAL#PEEK29435,2,8.
+  ; The following mask byte is #EVAL(#PEEK29435,2,8).
    29435 DEFB 62
 
 This instance of the ``#EVAL`` macro expands to '00111110' (62 in binary).
@@ -137,7 +164,7 @@ This instance of the ``#EVAL`` macro expands to '00111110' (62 in binary).
 The ``#FOR`` macro expands to a sequence of strings based on a range of
 integers. ::
 
-  #FOR[:]start,stop[,step](var,string[,sep,fsep])
+  #FORstart,stop[,step](var,string[,sep,fsep])
 
 * ``start`` is first integer in the range
 * ``stop`` is the final integer in the range
@@ -153,15 +180,11 @@ integers. ::
 
 For example::
 
-  ; The next three bytes (#FOR:31734,31736||n|#PEEKn|, | and ||) define the
+  ; The next three bytes (#FOR31734,31736||n|#PEEKn|, | and ||) define the
   ; item locations.
    31734 DEFB 24,17,156
 
 This instance of the ``#FOR`` macro expands to '24, 17 and 156'.
-
-If the first character after ``#FOR`` is a colon (``:``), the macro is expanded
-before any other macro (including SMPL macros). Otherwise, the ``#FOR`` macro
-is expanded at the same time as other SMPL macros.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``var``, ``string``, ``sep`` and ``fsep`` parameters.
@@ -180,11 +203,11 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 The ``#FOREACH`` macro expands to a sequence of output strings based on a
 sequence of input strings. ::
 
-  #FOREACH[:]([s1,s2,...])(var,string[,sep,fsep])
+  #FOREACH([s1,s2,...])(var,string[,sep,fsep])
 
 or::
 
-  #FOREACH[:](svar)(var,string[,sep,fsep])
+  #FOREACH(svar)(var,string[,sep,fsep])
 
 * ``s1``, ``s2``  etc. are the input strings
 * ``svar`` is a special variable that expands to a specific sequence of input
@@ -200,15 +223,11 @@ or::
 
 For example::
 
-  ; The next three bytes (#FOREACH:(31734,31735,31736)||n|#PEEKn|, | and ||)
+  ; The next three bytes (#FOREACH(31734,31735,31736)||n|#PEEKn|, | and ||)
   ; define the item locations.
    31734 DEFB 24,17,156
 
 This instance of the ``#FOREACH`` macro expands to '24, 17 and 156'.
-
-If the first character after ``#FOREACH`` is a colon (``:``), the macro is
-expanded before any other macro (including SMPL macros). Otherwise, the
-``#FOREACH`` macro is expanded at the same time as other SMPL macros.
 
 The ``#FOREACH`` macro recognises certain special variables, each one of which
 expands to a specific sequence of strings. The special variables are:
@@ -252,7 +271,7 @@ arithmetic expression. ::
 
 For example::
 
-  ; #FOR:0,7||n|#IF(#PEEK47134 & 2**(7-n))(X,O)||
+  ; #FOR0,7||n|#IF(#PEEK47134 & 2**(7-n))(X,O)||
    47134 DEFB 170
 
 This instance of the ``#IF`` macro is used (in combination with a ``#FOR``
@@ -286,7 +305,7 @@ are integers. ::
 For example::
 
   ; The next three bytes specify the directions that are available from here:
-  ; #FOR:56112,56114||$n|#MAP#PEEK$n(?,0:left,1:right,2:up,3:down)|, | and ||.
+  ; #FOR56112,56114||q|#MAP(#PEEKq)(?,0:left,1:right,2:up,3:down)|, | and ||.
    56112 DEFB 0,1,3
 
 This instance of the ``#MAP`` macro is used (in combination with a ``#FOR``
@@ -445,8 +464,8 @@ mode, it expands to the copyright symbol.
 
 #D
 --
-The ``#D`` (Description) macro expands to the title of an entry (a routine or
-data block) in the memory map. ::
+The ``#D`` macro expands to the title of an entry (a routine or data block) in
+the memory map. ::
 
   #Daddr
 
@@ -473,9 +492,9 @@ This instance of the ``#D`` macro expands to the title of the routine at 27126.
 
 #EREFS
 ------
-The ``#EREFS`` (Entry point REFerenceS) macro expands to a comma-separated
-sequence of hyperlinks to (in HTML mode) or addresses of (in ASM mode) the
-routines that jump to or call a given address. ::
+The ``#EREFS`` macro expands to a comma-separated sequence of hyperlinks to (in
+HTML mode) or addresses of (in ASM mode) the routines that jump to or call a
+given address. ::
 
   #EREFSaddr
 
@@ -679,9 +698,9 @@ See also :ref:`BUG` and :ref:`FACT`.
 
 #R
 --
-In HTML mode, the ``#R`` (Reference) macro expands to a hyperlink (``<a>``
-element) to the disassembly page for a routine or data block, or to a line at a
-given address within that page. ::
+In HTML mode, the ``#R`` macro expands to a hyperlink (``<a>`` element) to the
+disassembly page for a routine or data block, or to a line at a given address
+within that page. ::
 
   #Raddr[@code][#name][(link text)]
 
@@ -738,10 +757,9 @@ section.
 
 #REFS
 -----
-The ``#REFS`` (REFerenceS) macro expands to a comma-separated sequence of
-hyperlinks to (in HTML mode) or addresses of (in ASM mode) the routines that
-jump to or call a given routine, or jump to or call any entry point within that
-routine. ::
+The ``#REFS`` macro expands to a comma-separated sequence of hyperlinks to (in
+HTML mode) or addresses of (in ASM mode) the routines that jump to or call a
+given routine, or jump to or call any entry point within that routine. ::
 
   #REFSaddr[(prefix)]
 
@@ -770,8 +788,8 @@ See also :ref:`EREFS`.
 
 #REG
 ----
-In HTML mode, the ``#REG`` (REGister) macro expands to a styled ``<span>``
-element containing a register name. ::
+In HTML mode, the ``#REG`` macro expands to a styled ``<span>`` element
+containing a register name. ::
 
   #REGreg
 
@@ -1007,10 +1025,10 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 
 #SCR
 ----
-In HTML mode, the ``#SCR`` (SCReenshot) macro expands to an ``<img>`` element
-for an image constructed from the display file and attribute file (or suitably
-arranged graphic data and attribute bytes elsewhere in memory) of the current
-memory snapshot (in turn constructed from the contents of the `skool` file). ::
+In HTML mode, the ``#SCR`` macro expands to an ``<img>`` element for an image
+constructed from the display file and attribute file (or suitably arranged
+graphic data and attribute bytes elsewhere in memory) of the current memory
+snapshot (in turn constructed from the contents of the `skool` file). ::
 
   #SCR[scale,x,y,w,h,df,af][{CROP}][(fname)]
 
@@ -1382,8 +1400,7 @@ file. Each macro expands to an empty string.
 
 #POKES
 ------
-The ``#POKES`` (POKE Snapshot) macro POKEs values into the current memory
-snapshot. ::
+The ``#POKES`` macro POKEs values into the current memory snapshot. ::
 
   #POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
 
@@ -1425,8 +1442,8 @@ See also :ref:`PEEK`.
 
 #POPS
 -----
-The ``#POPS`` (POP Snapshot) macro removes the current memory snapshot and
-replaces it with the one that was previously saved by a ``#PUSHS`` macro. ::
+The ``#POPS`` macro removes the current memory snapshot and replaces it with
+the one that was previously saved by a ``#PUSHS`` macro. ::
 
   #POPS
 
@@ -1440,8 +1457,8 @@ replaces it with the one that was previously saved by a ``#PUSHS`` macro. ::
 
 #PUSHS
 ------
-The ``#PUSHS`` (PUSH Snapshot) macro saves the current memory snapshot, and
-replaces it with an identical copy with a given name. ::
+The ``#PUSHS`` macro saves the current memory snapshot, and replaces it with an
+identical copy with a given name. ::
 
   #PUSHS[name]
 

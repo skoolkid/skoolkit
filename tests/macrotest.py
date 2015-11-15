@@ -4,18 +4,18 @@ from skoolkit.skoolparser import CASE_LOWER
 
 ERROR_PREFIX = 'Error while parsing #{} macro'
 
-def nest_macros(writer, template, value):
+def nest_macros(writer, template, *values):
     if not writer.snapshot:
         writer.snapshot = [0]
-    nested_macros = '#FOREACH()(_,#FOR1,1(_,#MAP1(#IF#EVAL(1+#PEEK0)({}))))'.format(value)
-    return template.format(nested_macros)
+    nested_macros = ['#FOREACH()@@__@#FOR1,1!!_!#MAP1[#IF(#EVAL(1+#PEEK0))({})]!!@@'.format(v) for v in values]
+    return template.format(*nested_macros)
 
 class CommonSkoolMacroTest:
     def _test_invalid_reference_macro(self, macro):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format(macro)
 
-        self._assert_error(writer, '#{}#(foo)'.format(macro), "No item name: #{}#(foo)".format(macro), prefix)
+        self._assert_error(writer, '#{}#'.format(macro), "No item name: #{}#".format(macro), prefix)
         self._assert_error(writer, '#{}(foo'.format(macro), "No closing bracket: (foo", prefix)
 
         return writer, prefix
@@ -124,7 +124,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, 'Second routine')
 
         # Nested macros
-        output = writer.expand(nest_macros(writer, '#D{}', 32768))
+        output = writer.expand(nest_macros(writer, '#D({})', 32768))
         self.assertEqual(output, 'First routine')
 
         # Adjacent characters
@@ -257,6 +257,11 @@ class CommonSkoolMacroTest:
         output = writer.expand('#FOR(1, 13, 2 * (1 + 2))(n,[n])')
         self.assertEqual(output, '[1][7][13]')
 
+        # Nested macros
+        self.assertEqual(writer.expand(nest_macros(writer, '#FOR({},3)(n,n)', 1)), '123')
+        self.assertEqual(writer.expand(nest_macros(writer, '#FOR(1,{})(n,n)', 3)), '123')
+        self.assertEqual(writer.expand(nest_macros(writer, '#FOR(1,3,{})(n,n)', 2)), '13')
+
     def test_macro_for_with_separator(self):
         writer = self._get_writer()
 
@@ -287,47 +292,15 @@ class CommonSkoolMacroTest:
         output = writer.expand('#FOR1,3//$s/$s/, / and //')
         self.assertEqual(output, '1, 2 and 3')
 
-    def test_macro_for_with_nested_eval_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#FOR:0,2//m/{#EVAL(m+1)}//'), '{1}{2}{3}')
-
-    def test_macro_for_with_nested_for_macro(self):
-        writer = self._get_writer()
-        output = writer.expand('#FOR1,3(&n,#FOR4,6[&m,&m.&n, ], )')
-        self.assertEqual(output, '4.1 5.1 6.1 4.2 5.2 6.2 4.3 5.3 6.3')
-
-    def test_macro_for_with_nested_foreach_macro(self):
-        writer = self._get_writer()
-        output = writer.expand('#FOR0,2//m/[#FOREACH(1,2,3)(n,m+n,-)]//')
-        self.assertEqual(output, '[0+1-0+2-0+3][1+1-1+2-1+3][2+1-2+2-2+3]')
-
-    def test_macro_for_with_nested_if_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#FOR:0,2//m/#IFm([m],{m})//'), '{0}[1][2]')
-        self.assertEqual(writer.expand('#FOR0,2//m/#IF0([m],{m})//'), '{0}{1}{2}')
-
-    def test_macro_for_with_nested_map_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#FOR:0,2//m/{#MAPm[,0:2,1:3,2:5]}//'), '{2}{3}{5}')
-
-    def test_macro_for_with_nested_peek_macro(self):
-        writer = self._get_writer(snapshot=(1, 2, 3))
-        self.assertEqual(writer.expand('#FOR:0,2(m,{#PEEKm})'), '{1}{2}{3}')
-
     def test_macro_for_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('FOR')
 
         self._assert_error(writer, '#FOR', 'No parameters (expected 2)', prefix)
-        self._assert_error(writer, '#FOR:', 'No parameters (expected 2)', prefix)
         self._assert_error(writer, '#FOR0', "Not enough parameters (expected 2): '0'", prefix)
-        self._assert_error(writer, '#FOR:0', "Not enough parameters (expected 2): '0'", prefix)
         self._assert_error(writer, '#FOR0,1', 'No variable name: 0,1', prefix)
-        self._assert_error(writer, '#FOR:0,1', 'No variable name: 0,1', prefix)
         self._assert_error(writer, '#FOR0,1()', "No variable name: 0,1()", prefix)
-        self._assert_error(writer, '#FOR:0,1()', "No variable name: 0,1()", prefix)
         self._assert_error(writer, '#FOR0,1(n,n', 'No closing bracket: (n,n', prefix)
-        self._assert_error(writer, '#FOR:0,1(n,n', 'No closing bracket: (n,n', prefix)
 
     def test_macro_foreach(self):
         writer = self._get_writer()
@@ -396,7 +369,7 @@ class CommonSkoolMacroTest:
 
     def test_macro_foreach_with_nested_eval_macro(self):
         writer = self._get_writer()
-        self.assertEqual(writer.expand('#FOREACH:(0,1,2)||n|#EVAL(n+1)|, ||'), '1, 2, 3')
+        self.assertEqual(writer.expand('#FOREACH(0,1,2)||n|#EVAL(n+1)|, ||'), '1, 2, 3')
 
     def test_macro_foreach_with_nested_for_macro(self):
         writer = self._get_writer()
@@ -409,16 +382,16 @@ class CommonSkoolMacroTest:
 
     def test_macro_foreach_with_nested_if_macro(self):
         writer = self._get_writer()
-        self.assertEqual(writer.expand('#FOREACH:(0,1,2)//m/#IFm([m],{m})//'), '{0}[1][2]')
+        self.assertEqual(writer.expand('#FOREACH(0,1,2)//m/#IFm([m],{m})//'), '{0}[1][2]')
         self.assertEqual(writer.expand('#FOREACH(0,1,2)//m/#IF1([m],{m})//'), '[0][1][2]')
 
     def test_macro_foreach_with_nested_map_macro(self):
         writer = self._get_writer()
-        self.assertEqual(writer.expand('#FOREACH:(0,1,2)||n|#MAPn(c,0:a,1:b)||'), 'abc')
+        self.assertEqual(writer.expand('#FOREACH(0,1,2)||n|#MAPn(c,0:a,1:b)||'), 'abc')
 
     def test_macro_foreach_with_nested_peek_macro(self):
         writer = self._get_writer(snapshot=(1, 2, 3))
-        self.assertEqual(writer.expand('#FOREACH:(0,1,2)(n,n+#PEEKn,+)'), '0+1+1+2+2+3')
+        self.assertEqual(writer.expand('#FOREACH(0,1,2)(n,n+#PEEKn,+)'), '0+1+1+2+2+3')
 
     def test_macro_foreach_with_entry(self):
         skool = '\n'.join((
@@ -541,17 +514,11 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('FOREACH')
 
         self._assert_error(writer, '#FOREACH', 'No values', prefix)
-        self._assert_error(writer, '#FOREACH:', 'No values', prefix)
         self._assert_error(writer, '#FOREACH()', 'No variable name: ()', prefix)
-        self._assert_error(writer, '#FOREACH:()', 'No variable name: ()', prefix)
         self._assert_error(writer, '#FOREACH()()', 'No variable name: ()()', prefix)
-        self._assert_error(writer, '#FOREACH:()()', 'No variable name: ()()', prefix)
         self._assert_error(writer, '#FOREACH(a,b[$s,$s]', 'No closing bracket: (a,b[$s,$s]', prefix)
-        self._assert_error(writer, '#FOREACH:(a,b[$s,$s]', 'No closing bracket: (a,b[$s,$s]', prefix)
         self._assert_error(writer, '#FOREACH(a,b)($s,$s', 'No closing bracket: ($s,$s', prefix)
-        self._assert_error(writer, '#FOREACH:(a,b)($s,$s', 'No closing bracket: ($s,$s', prefix)
         self._assert_error(writer, '#FOREACH(REF$81A4)(n,n)', 'No entry at 33188: REF$81A4', prefix)
-        self._assert_error(writer, '#FOREACH:(REF$81A4)(n,n)', 'No entry at 33188: REF$81A4', prefix)
 
     def test_macro_html_invalid(self):
         writer = self._get_writer()
@@ -602,6 +569,9 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#IF(4 > 5 || 3 < 3)(T,F)'), 'F')
         self.assertEqual(writer.expand('#IF(2==2&&4>5||3<4)(T,F)'), 'T')
 
+        # Nested macros
+        self.assertEqual(writer.expand(nest_macros(writer, '#IF({})(y,n)', 1)), 'y')
+
         # Multi-line output strings
         self.assertEqual(writer.expand('#IF1(foo\nbar,baz\nqux)'), 'foo\nbar')
         self.assertEqual(writer.expand('#IF0(foo\nbar,baz\nqux)'), 'baz\nqux')
@@ -611,36 +581,6 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#IF0(aye)'), '')
         self.assertEqual(writer.expand('#IF1()'), '')
         self.assertEqual(writer.expand('#IF0()'), '')
-
-    def test_macro_if_with_nested_eval_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#IF(#EVAL(1+1)>1)(Y,N)'), 'Y')
-        self.assertEqual(writer.expand('#IF(3<1)(#EVAL(2+2),#EVAL(3*3))'), '9')
-
-    def test_macro_if_with_nested_for_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#IF(#FOR0,2(n,n,+))(Y,N)'), 'Y')
-        self.assertEqual(writer.expand('#IF1(#FOR1,2(n,Y),N)'), 'YY')
-
-    def test_macro_if_with_nested_foreach_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#IF(#FOREACH(0,1,2)(n,n,+))(Y,N)'), 'Y')
-        self.assertEqual(writer.expand('#IF1(#FOREACH(1,2)(n,Y),N)'), 'YY')
-
-    def test_macro_if_with_nested_if_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#IF(#IF(5>3)(2<1,1))(Y,N)'), 'N')
-        self.assertEqual(writer.expand('#IF(5>3)(#IF1||T,F|Y,N||)'), 'T')
-
-    def test_macro_if_with_nested_map_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#IF(#MAP1(0,1:2)>1)(Y,N)'), 'Y')
-        self.assertEqual(writer.expand('#IF1(#MAP2(N,2:y),n)'), 'y')
-
-    def test_macro_if_with_nested_peek_macro(self):
-        writer = self._get_writer(snapshot=[10])
-        self.assertEqual(writer.expand('#IF(#PEEK0>5)(>5,<=5)'), '>5')
-        self.assertEqual(writer.expand('#IF0(#PEEK0,[#PEEK0])'), '[10]')
 
     def test_macro_if_invalid(self):
         writer = self._get_writer()
@@ -710,6 +650,12 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#MAP8(?,2<<2:OK)'), 'OK')
         self.assertEqual(writer.expand('#MAP1(?,4>>2:OK)'), 'OK')
 
+        # Nested macros
+        self.assertEqual(writer.expand(nest_macros(writer, '#MAP({})(0,1:2)', 1)), '2')
+        self.assertEqual(writer.expand(nest_macros(writer, '#MAP0//{}/1:2//', 3)), '3')
+        self.assertEqual(writer.expand(nest_macros(writer, '#MAP#(1//0/{}:2//)', 1)), '2')
+        self.assertEqual(writer.expand(nest_macros(writer, '#MAP1//0/1:{}//', 2)), '2')
+
         # Alternative delimiters
         for delim1, delim2 in (('[', ']'), ('{', '}')):
             output = writer.expand('#MAP1{}?,0:A,1:OK,2:C{}'.format(delim1, delim2))
@@ -718,38 +664,6 @@ class CommonSkoolMacroTest:
         # Alternative separator
         output = writer.expand('#MAP1|;?;0:A;1:Oh, OK;2:C;|')
         self.assertEqual(output, 'Oh, OK')
-
-    def test_macro_map_with_nested_eval_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#MAP#EVAL(1+1)(a,1:b,2:c)'), 'c')
-        self.assertEqual(writer.expand('#MAP2(a,1:b,#EVAL(1+1):c)'), 'c')
-
-    def test_macro_map_with_nested_for_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#MAP(#FOR0,1(n,n,+))(a,1:b,2:c)'), 'b')
-        self.assertEqual(writer.expand('#MAP2(a,1:b,#FOR1,2(n,n,*):c)'), 'c')
-        self.assertEqual(writer.expand('#MAP2(?,#FOR0,2||n|n:n|,||)'), '2')
-
-    def test_macro_map_with_nested_foreach_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#MAP(#FOREACH(0,1)(n,n,+))(a,1:b,2:c)'), 'b')
-        self.assertEqual(writer.expand('#MAP2(a,1:b,#FOREACH(1,2)(n,n,*):c)'), 'c')
-        self.assertEqual(writer.expand('#MAP2(?,#FOREACH(0,1,2)||n|n:n|,||)'), '2')
-
-    def test_macro_map_with_nested_if_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#MAP#IF(1>2)(1,2)(a,1:b,2:c)'), 'c')
-        self.assertEqual(writer.expand('#MAP1(a,#IF1(1,2):b,2:c)'), 'b')
-
-    def test_macro_map_with_nested_map_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#MAP#MAP0(5,0:10,1:20)(,5:x,10:y,20:z)'), 'y')
-        self.assertEqual(writer.expand('#MAP3(1,2:Y,#MAP8(3,7:Q):Z)'), 'Z')
-
-    def test_macro_map_with_nested_peek_macro(self):
-        writer = self._get_writer(snapshot=[23])
-        self.assertEqual(writer.expand('#MAP#PEEK0(a,23:b,5:c)'), 'b')
-        self.assertEqual(writer.expand('#MAP23(1,#PEEK0:2,5:3)'), '2')
 
     def test_macro_map_invalid(self):
         writer = self._get_writer()
@@ -762,7 +676,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#MAP0(1,x1:3)', "Invalid key (x1): (1,x1:3)", prefix)
 
     def test_macro_peek(self):
-        writer = self._get_writer(snapshot=(1, 2, 3))
+        writer = self._get_writer(snapshot=[1, 2, 3])
 
         output = writer.expand('#PEEK0')
         self.assertEqual(output, '1')
@@ -777,30 +691,8 @@ class CommonSkoolMacroTest:
         output = writer.expand('#PEEK65538')
         self.assertEqual(output, '3')
 
-    def test_macro_peek_with_nested_eval_macro(self):
-        writer = self._get_writer(snapshot=(1, 2))
-        self.assertEqual(writer.expand('#PEEK#EVAL(0+1)'), '2')
-
-    def test_macro_peek_with_nested_for_macro(self):
-        writer = self._get_writer(snapshot=(1, 2))
-        self.assertEqual(writer.expand('#PEEK(#FOR0,1(n,n,+))'), '2')
-
-    def test_macro_peek_with_nested_foreach_macro(self):
-        writer = self._get_writer(snapshot=(1, 2))
-        self.assertEqual(writer.expand('#PEEK(#FOREACH(0,1)(n,n,+))'), '2')
-
-    def test_macro_peek_with_nested_if_macro(self):
-        writer = self._get_writer(snapshot=(1, 2))
-        self.assertEqual(writer.expand('#PEEK#IF1(1,0)'), '2')
-
-    def test_macro_peek_with_nested_map_macro(self):
-        writer = self._get_writer(snapshot=(1, 2))
-        self.assertEqual(writer.expand('#PEEK#MAP1(2,0:1,1:0)'), '1')
-
-    def test_macro_peek_with_nested_peek_macro(self):
-        writer = self._get_writer(snapshot=[1] * 258)
-        writer.snapshot[257] = 101
-        self.assertEqual(writer.expand('#PEEK(#PEEK0+256*#PEEK1)'), '101')
+        # Nested macros
+        self.assertEqual(writer.expand(nest_macros(writer, '#PEEK({})', 2)), '3')
 
     def test_macro_peek_invalid(self):
         writer = self._get_writer()
@@ -844,9 +736,14 @@ class CommonSkoolMacroTest:
         self.assertEqual([12] * 6, snapshot[2:18:3])
 
         # Nested macros
-        output = writer.expand(nest_macros(writer, '#POKES{},1', 0))
+        output = writer.expand(nest_macros(writer, '#POKES({},1)', 0))
         self.assertEqual(output, '')
         self.assertEqual(writer.snapshot[0], 1)
+
+        # #() macro
+        output = writer.expand('#POKES#(#FOR0,19||n|n,n|;||)')
+        self.assertEqual(output, '')
+        self.assertEqual(list(range(20)), writer.snapshot[0:20])
 
     def test_macro_pokes_invalid(self):
         writer = self._get_writer(snapshot=[0])
@@ -875,7 +772,7 @@ class CommonSkoolMacroTest:
         writer = self._get_writer(snapshot=[0])
         addr, byte = 0, 64
         for name in ('test', '#foo', 'foo$abcd', ''):
-            for suffix in ('', '(bar)', ':baz'):
+            for suffix in ('', ';bar', ':baz'):
                 writer.snapshot[addr] = byte
                 output = writer.expand('#PUSHS{}{}'.format(name, suffix))
                 self.assertEqual(output, suffix)
@@ -887,7 +784,7 @@ class CommonSkoolMacroTest:
                 self.assertEqual(writer.snapshot[addr], byte)
 
         name = 'testnestedSMPLmacros'
-        output = writer.expand(nest_macros(writer, '#PUSHS{}', name))
+        output = writer.expand(nest_macros(writer, '#PUSHS#({})', name))
         self.assertEqual(output, '')
         if hasattr(writer, 'get_snapshot_name'):
             self.assertEqual(writer.get_snapshot_name(), name)
@@ -924,7 +821,7 @@ class CommonSkoolMacroTest:
             self.assertEqual(output, template.format(reg.upper()))
 
         # Nested macros
-        output = writer.expand(nest_macros(writer, '#REG{}', 'hl'))
+        output = writer.expand(nest_macros(writer, '#REG#({})', 'hl'))
         self.assertEqual(output, template.format('HL'))
 
         # Lower case
@@ -938,8 +835,9 @@ class CommonSkoolMacroTest:
 
         self._assert_error(writer, '#REG', 'Missing register argument', prefix)
         self._assert_error(writer, '#REGq', 'Bad register: "q"', prefix)
+        self._assert_error(writer, '#REG(q)', 'Bad register: "(q)"', prefix)
         self._assert_error(writer, "#REG'a", 'Bad register: "\'a"', prefix)
-        self._assert_error(writer, "#REGxil", 'Bad register: "xil"', prefix)
+        self._assert_error(writer, "#REG(xil)", 'Bad register: "(xil)"', prefix)
 
     def test_macro_scr_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
@@ -963,7 +861,9 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('|#SPACE3/3|'), '|{}/3|'.format(space * 3))
         self.assertEqual(writer.expand('|#SPACE(1+3*2-10/2)|'), '|{}|'.format(space * 2))
         self.assertEqual(writer.expand('|#SPACE($01 + 3 * 2 - (7 + 3) / 2)|'), '|{}|'.format(space * 2))
-        self.assertEqual(writer.expand(nest_macros(writer, '"#SPACE{}"', 5)), '"{}"'.format(space * 5))
+        self.assertEqual(writer.expand(nest_macros(writer, '"#SPACE({})"', 5)), '"{}"'.format(space * 5))
+        self.assertEqual(writer.expand('<#SPACE#(#EVAL3)>'), '<{}>'.format(space * 3))
+        self.assertEqual(writer.expand('<#SPACE#(#(2))>'), '<{}>'.format(space * 2))
 
     def test_macro_space_invalid(self):
         writer = self._get_writer()

@@ -1239,7 +1239,7 @@ class HtmlWriter:
 
     def expand_list(self, text, index, cwd):
         # #LIST[(class)]<items>LIST#
-        end, list_obj = self.list_parser.parse_text(text, index)
+        end, list_obj = self.list_parser.parse_text(self, text, index, cwd)
         return end, self.build_list(list_obj)
 
     def expand_map(self, text, index, cwd):
@@ -1309,12 +1309,11 @@ class HtmlWriter:
         return end, ''
 
     def expand_space(self, text, index, cwd):
-        end, num_sp = skoolmacro.parse_space(text, index)
-        return end, '&#160;' * num_sp
+        return skoolmacro.parse_space(text, index, '&#160;')
 
     def expand_table(self, text, index, cwd):
         # #TABLE[(class[,col1class[,col2class...]])]<rows>TABLE#
-        end, table = self.table_parser.parse_text(text, index)
+        end, table = self.table_parser.parse_text(self, text, index, cwd)
         return end, self.build_table(table)
 
     def expand_udg(self, text, index, cwd):
@@ -1381,7 +1380,7 @@ class HtmlWriter:
         working directory, which is required by macros that create images or
         hyperlinks.
         """
-        return expand_macros(self.macros, text, cwd)
+        return expand_macros(self, text, cwd)
 
 class FileInfo:
     """Utility class for file-related operations.

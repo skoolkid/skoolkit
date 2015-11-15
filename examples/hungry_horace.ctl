@@ -14,9 +14,9 @@ i 23296
 S 23296
 @ 24576 start
 @ 24576 org=24576
-@ 24576 replace=/#maze(\d+)/#UDGARRAY32#FOR:(\1,\1+767)||n|;(31735+8*#PEEKn),#MAP#PEEKn(61,2:60,3:56)||
+@ 24576 replace=/#maze(\d+)/#UDGARRAY#(32#FOR(\1,\1+767)||n|;(31735+8*#PEEKn),#MAP(#PEEKn)(61,2:60,3:56)||)
 @ 24576 replace=/#sprite(\d+),(\d+)/#UDGARRAY2,\2;\1-(\1+24)-8
-@ 24576 replace=/#fruit(\d+)/#UDGARRAY2#FOR:(\1,\1+27,9)||n|;(n+1),#PEEKn||
+@ 24576 replace=/#fruit(\d+)/#UDGARRAY#(2#FOR(\1,\1+27,9)||n|;(n+1),#PEEKn||)
 @ 24576 set-handle-unsupported-macros=1
 c 24576 The game has just loaded
 c 25167
@@ -78,7 +78,7 @@ b 30967 Maze 4 layout
 D 30967 #maze30967(maze4)
 B 30967,768,32
 b 31735 Maze tiles
-D 31735 #UDGTABLE { #FOR:31735,31807,8//n/#UDGn,#MAPn(61,31751:60,31759:56)/ | // } TABLE#
+D 31735 #UDGTABLE { #FOR31735,31807,8//n/#UDG(n,#MAPn(61,31751:60,31759:56))/ | // } TABLE#
 t 31815 PASSES#SPACE(3)SCORE#SPACE(7)BEST
 b 31841
 b 31868 Cherry and strawberry graphics

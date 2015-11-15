@@ -91,6 +91,11 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             output = writer.expand('#{}#name{}'.format(macro, suffix))
             self.assertEqual(output, def_link_text + suffix)
 
+        anchor = 'testingNestedSmplMacros'
+        link_text = 'OK'
+        output = writer.expand(nest_macros(writer, '#{}#(#{{}})({})'.format(macro, link_text), anchor))
+        self.assertEqual(output, link_text)
+
         link_text = 'testing nested SMPL macros'
         output = writer.expand(nest_macros(writer, '#{}({{}})'.format(macro), link_text))
         self.assertEqual(output, link_text)
@@ -130,7 +135,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#CHR65/5'), 'A/5')
         self.assertEqual(writer.expand('#CHR(65+3*2-9/3)'), 'D')
         self.assertEqual(writer.expand('#CHR($42 + 3 * 2 - (5 + 4) / 3)'), 'E')
-        self.assertEqual(writer.expand(nest_macros(writer, '#CHR{}', 70)), 'F')
+        self.assertEqual(writer.expand(nest_macros(writer, '#CHR({})', 70)), 'F')
 
     def test_macro_erefs(self):
         skool = '\n'.join((
@@ -152,7 +157,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#EREFS$7534'), exp_output)
         self.assertEqual(writer.expand('#EREFS(30004+2*3-(8+4)/2)'), exp_output)
         self.assertEqual(writer.expand('#EREFS($7534 - 6 + (7 - 5) * 3)'), exp_output)
-        self.assertEqual(writer.expand(nest_macros(writer, '#EREFS{}', 30004)), exp_output)
+        self.assertEqual(writer.expand(nest_macros(writer, '#EREFS({})', 30004)), exp_output)
 
     def test_macro_fact(self):
         self._test_reference_macro('FACT', 'fact')
@@ -163,7 +168,9 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_unsupported_macro(writer, '#FONT:[foo]0,,5')
         self._test_unsupported_macro(writer, '#FONT32768,3,scale=4{x=1,width=26}(chars)')
         self._test_unsupported_macro(writer, '#FONT(32768+1, 10-6, (3+4)*8, 4/2){(7+2)**2, width=8*3}(foo)')
-        self._test_unsupported_macro(writer, nest_macros(writer, '#FONT{}(bar)', 0))
+        self._test_unsupported_macro(writer, nest_macros(writer, '#FONT({})(bar)', 0))
+        self._test_unsupported_macro(writer, nest_macros(writer, '#FONT32768{{x={}}}(bar)', 3))
+        self._test_unsupported_macro(writer, nest_macros(writer, '#FONT32768({})', 'baz'))
 
     def test_macro_html(self):
         writer = self._get_writer()
@@ -187,6 +194,16 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
 
         link_text = 'test nested SMPL macros'
         output = writer.expand(nest_macros(writer, '#LINK:Page({})', link_text))
+        self.assertEqual(output, link_text)
+
+        anchor = 'testNestedSmplMacros'
+        link_text = 'Testing2'
+        output = writer.expand(nest_macros(writer, '#LINK#(:Page#{{}})({})'.format(link_text), anchor))
+        self.assertEqual(output, link_text)
+
+        page_id = 'TestNestedSmplMacros'
+        link_text = 'Testing3'
+        output = writer.expand(nest_macros(writer, '#LINK#(:{{}})({})'.format(link_text), page_id))
         self.assertEqual(output, link_text)
 
     def test_macro_link_invalid(self):
@@ -250,8 +267,8 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         output = writer.expand('#R(96 * $100 + 2 - (9 + 1) / 5)')
         self.assertEqual(output, 'DOSTUFF')
 
-        # Nested macros
-        output = writer.expand(nest_macros(writer, '#R{}', 24576))
+        # Nested macros: address
+        output = writer.expand(nest_macros(writer, '#R({})', 24576))
         self.assertEqual(output, 'DOSTUFF')
 
         # Link text
@@ -259,8 +276,17 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         output = writer.expand('#R24576({0})'.format(link_text))
         self.assertEqual(output, link_text)
 
+        # Nested macros: link text
+        link_text = 'Testing2'
+        output = writer.expand(nest_macros(writer, '#R24576({})', link_text))
+        self.assertEqual(output, link_text)
+
         # Anchor
         output = writer.expand('#R24576#foo')
+        self.assertEqual(output, 'DOSTUFF')
+
+        # Nested macros: anchor
+        output = writer.expand(nest_macros(writer, '#R#(24576#{})', 'bar'))
         self.assertEqual(output, 'DOSTUFF')
 
         # Anchor and link text
@@ -320,6 +346,10 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         link_text = 'Testing2'
         output = writer.expand('#R32768@other#testing({0})'.format(link_text))
         self.assertEqual(output, link_text)
+
+        # Nested macros: other code with remote entry
+        output = writer.expand(nest_macros(writer, '#R#(49152@{})', 'other'))
+        self.assertEqual(output, 'c000')
 
     def test_macro_r_lower(self):
         skool = '\n'.join((
@@ -435,7 +465,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#REFS24581'), exp_output)
         self.assertEqual(writer.expand('#REFS$6005'), exp_output)
         self.assertEqual(writer.expand('#REFS($6005 + 1 - 2 * 2 + (5 + 1) / 2)'), exp_output)
-        self.assertEqual(writer.expand(nest_macros(writer, '#REFS{}', 24581)), exp_output)
+        self.assertEqual(writer.expand(nest_macros(writer, '#REFS({})', 24581)), exp_output)
 
         # Prefix
         output = writer.expand('#REFS24581(Exploited by the)')
@@ -451,7 +481,9 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_unsupported_macro(writer, '#SCR,1,1(fname)')
         self._test_unsupported_macro(writer, '#SCR2,w=8,h=8{x=1,width=62}(fname)')
         self._test_unsupported_macro(writer, '#SCR(2+2, 4-1, (2+1)*3, 4/2){1^1, y = 2**2}(foo*bar|baz)')
-        self._test_unsupported_macro(writer, nest_macros(writer, '#SCR{}(fname)', 2))
+        self._test_unsupported_macro(writer, nest_macros(writer, '#SCR({})(fname)', 2))
+        self._test_unsupported_macro(writer, nest_macros(writer, '#SCR2{{y={}}}(fname)', 2))
+        self._test_unsupported_macro(writer, nest_macros(writer, '#SCR2({})', 'fname'))
 
     def test_macro_udg(self):
         writer = self._get_writer()
@@ -459,7 +491,9 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_unsupported_macro(writer, '#UDG65432,scale=2,mask=2:65440{y=2,height=14}(key)')
         self._test_unsupported_macro(writer, '#UDG(0+1, 3-2, (2+2)*5, step=8/2){(7+1)*10, height=2**4}(key*)')
         self._test_unsupported_macro(writer, '#UDG62197:(62197+256,8*(8+8))(item*|Item)')
-        self._test_unsupported_macro(writer, nest_macros(writer, '#UDG{}(item)', 54173))
+        self._test_unsupported_macro(writer, nest_macros(writer, '#UDG({}):({})(item)', 30000, 30008))
+        self._test_unsupported_macro(writer, nest_macros(writer, '#UDG30000{{width={}}}(item)', 25))
+        self._test_unsupported_macro(writer, nest_macros(writer, '#UDG30000({})', 'fname'))
 
     def test_macro_udgarray(self):
         writer = self._get_writer()
@@ -470,7 +504,12 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self._test_unsupported_macro(writer, '#UDGARRAY2;0-8-8:(2**(2+2)),((8+8)*8)(baz*qux)')
         self._test_unsupported_macro(writer, '#UDGARRAY*foo,(2*10);bar,(1+19);baz,(25-5);qux,(40/2)(logo|Logo)')
         self._test_unsupported_macro(writer, '#UDGARRAY*foo,delay=2;bar(baz)')
-        self._test_unsupported_macro(writer, nest_macros(writer, '#UDGARRAY1;{}(thing)', 32768))
+        self._test_unsupported_macro(writer, nest_macros(writer, '#UDGARRAY2;({})-({})-({})-({})x({})(thing)', 32768, 32785, 1, 16, 1))
+        self._test_unsupported_macro(writer, nest_macros(writer, '#UDGARRAY1;32768-32785-1-16:({})-({})-({})-({})x({})(thing)', 32800, 32817, 1, 16, 1))
+        self._test_unsupported_macro(writer, nest_macros(writer, '#UDGARRAY1;32768,({}):32776,({})(thing)', 5, 2))
+        self._test_unsupported_macro(writer, nest_macros(writer, '#UDGARRAY1;0{{x={}}}(thing)', 3))
+        self._test_unsupported_macro(writer, nest_macros(writer, '#UDGARRAY1;0({})', 'fname'))
+        self._test_unsupported_macro(writer, '#UDGARRAY#(2#FOR0,8,8||n|;n||)(thing)')
 
     def test_macro_udgtable(self):
         writer = self._get_writer()

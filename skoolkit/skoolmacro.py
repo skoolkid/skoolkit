@@ -24,6 +24,10 @@ from skoolkit import SkoolKitError, SkoolParsingError
 
 _map_cache = {}
 
+_writer = None
+
+_cwd = ()
+
 MACRO_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 DELIMITERS = {
@@ -43,6 +47,8 @@ PARAM = '({}=)?{}'.format(PARAM_NAME, INTEGER)
 RE_ANCHOR = re.compile('#[a-zA-Z0-9$#]*')
 
 RE_CODE_ID = re.compile('@[a-zA-Z0-9$]*')
+
+RE_EXPAND = re.compile('#[^A-Za-z0-9\s]')
 
 RE_FRAME_ID = re.compile('[^\s,;(]+')
 
@@ -80,6 +86,9 @@ class TooManyParametersError(MacroParsingError):
 class InvalidParameterError(MacroParsingError):
     pass
 
+class ClosingBracketError(MacroParsingError):
+    pass
+
 def parse_ints(text, index=0, num=0, defaults=(), names=()):
     """Parse a string of comma-separated integer parameters. The string will be
     parsed until either the end is reached, or an invalid character is
@@ -101,16 +110,15 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
     """
     if index < len(text) and text[index] == '(':
         end, params = parse_brackets(text, index)
+        if _writer:
+            params = _writer.expand(params, *_cwd)
         return [end] + get_params(params, num, defaults, names, False)
     if names:
         match = RE_NAMED_PARAMS.match(text, index)
     else:
         pattern = '{0}?(,({0})?){{,{1}}}'.format(PARAM, num - 1)
         match = re.match(pattern, text[index:])
-    if match:
-        params = match.group()
-    else:
-        params = ''
+    params = match.group()
     return [index + len(params)] + get_params(params, num, defaults, names)
 
 def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars=''):
@@ -229,16 +237,16 @@ def _parse_image_fname(text, index, fname=''):
             frame = fname
     return end, fname, frame, alt
 
-def parse_brackets(text, index, default=None):
-    if index >= len(text) or text[index] != '(':
+def parse_brackets(text, index=0, default=None, opening='(', closing=')'):
+    if index >= len(text) or text[index] != opening:
         return index, default
     depth = 1
     end = index + 1
     while depth > 0:
-        i = text.find(')', end)
+        i = text.find(closing, end)
         if i < 0:
-            raise MacroParsingError('No closing bracket: {}'.format(text[index:]))
-        depth += text.count('(', end, i) - 1
+            raise ClosingBracketError('No closing bracket: {}'.format(text[index:]))
+        depth += text.count(opening, end, i) - 1
         end = i + 1
     return end, text[index + 1:end - 1]
 
@@ -332,14 +340,15 @@ def parse_strings(text, index=0, num=0, defaults=()):
         sep = text[index + 1]
         delim1 += sep
         delim2 = sep + delim2
-    start = index + len(delim1)
-    end = text.find(delim2, start)
-    if end < start:
-        if delim1 in DELIMITERS:
-            raise MacroParsingError("No closing bracket: {}".format(text[index:]))
-        raise MacroParsingError("No terminating delimiter: {}".format(text[index:]))
-    param_string = text[start:end]
-    end += len(delim2)
+    if delim1 in DELIMITERS:
+        end, param_string = parse_brackets(text, index, opening=delim1, closing=delim2)
+    else:
+        start = index + len(delim1)
+        end = text.find(delim2, start)
+        if end < start:
+            raise MacroParsingError("No terminating delimiter: {}".format(text[index:]))
+        param_string = text[start:end]
+        end += len(delim2)
 
     if split:
         args = param_string.split(sep)
@@ -365,48 +374,30 @@ def get_macros(writer):
             macros['#' + match.group(1).upper()] = method
     return macros
 
-def _rfind_macro(text, macro):
-    index = len(text)
-    m_len = len(macro)
-    max_index = index - m_len
-    while 1:
-        index = text.rfind(macro, 0, index)
-        if index < 0 or index == max_index or macro[-1] not in MACRO_CHARS or text[index + m_len] not in MACRO_CHARS:
-            return index
+def expand_macros(writer, text, *cwd):
+    global _writer, _cwd
+    _writer = writer
+    _cwd = cwd
 
-def _rfind_macros(text, *macros):
-    index = -1
-    macro = None
-    for m in macros:
-        m_index = _rfind_macro(text, m)
-        if m_index > index:
-            index = m_index
-            macro = m
-    if macro:
-        return macro, index, index + len(macro)
-
-def expand_macros(macros, text, *args):
     if text.find('#') < 0:
         return text
 
     while 1:
-        search = _rfind_macros(text, '#FOR:', '#FOREACH:')
-        if search:
-            search = (search[0][:-1], search[1], search[2])
-        else:
-            search = _rfind_macros(text, '#EVAL', '#FOR', '#FOREACH', '#IF', '#MAP', '#PEEK')
-            if not search:
-                search = RE_MACRO.search(text)
-                if search:
-                    search = (search.group(),) + search.span()
+        search = RE_MACRO.search(text)
         if not search:
             break
-        marker, start, index = search
-        if not marker in macros:
+        marker = search.group()
+        if marker not in writer.macros:
             raise SkoolParsingError('Found unknown macro: {}'.format(marker))
-        repf = macros[marker]
+        start, index = search.span()
+
+        while RE_EXPAND.match(text, index):
+            end, expr = parse_strings(text, index + 1, 1)
+            text = text[:index] + expand_macros(writer, expr, *cwd) + text[end:]
+
+        repf = writer.macros[marker]
         try:
-            end, rep = repf(text, index, *args)
+            end, rep = repf(text, index, *cwd)
         except UnsupportedMacroError:
             raise SkoolParsingError('Found unsupported macro: {}'.format(marker))
         except MacroParsingError as e:
@@ -459,7 +450,7 @@ def parse_call(text, index, writer, cwd=None):
         raise MacroParsingError("No argument list specified: {}{}".format(macro, text[index:end]))
     args = []
     if arg_string:
-        for arg in arg_string.split(','):
+        for arg in writer.expand(arg_string).split(','):
             try:
                 args.append(evaluate(arg))
             except ValueError:
@@ -540,7 +531,7 @@ def parse_font(text, index):
     return end, crop_rect, fname, frame, alt, params
 
 def parse_for(text, index):
-    # #FOR[:]start,stop[,step](var,string[,sep,fsep])
+    # #FORstart,stop[,step](var,string[,sep,fsep])
     end, start, stop, step = parse_ints(text, index, 3, (1,))
     try:
         end, (var, s, sep, fsep) = parse_strings(text, end, 4, ('', None))
@@ -553,7 +544,7 @@ def parse_for(text, index):
     return end, fsep.join((sep.join([s.replace(var, str(n)) for n in range(start, stop, step)]), s.replace(var, str(stop))))
 
 def parse_foreach(text, index, entry_holder):
-    # #FOREACH[:]([v1,v2,...])(var,string[,sep,fsep])
+    # #FOREACH([v1,v2,...])(var,string[,sep,fsep])
     try:
         end, values = parse_strings(text, index)
     except NoParametersError:
@@ -746,9 +737,10 @@ def parse_scr(text, index):
     defaults = (1, 0, 0, 32, 24, 16384, 22528)
     return parse_image_macro(text, index, defaults, names, 'scr')
 
-def parse_space(text, index):
+def parse_space(text, index, space):
     # #SPACE[num] or #SPACE([num])
-    return parse_ints(text, index, 1, (1,))
+    end, num = parse_ints(text, index, 1, (1,))
+    return end, space * num
 
 def parse_udg(text, index):
     # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:addr[,step]][{x,y,width,height}][(fname)]
