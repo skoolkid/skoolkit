@@ -16,17 +16,18 @@ existing `skool` file; the :ref:`sna2skool.py` command can then generate a
 Skool file template format
 --------------------------
 A skool file template has the same layout as a `skool` file, except that the
-lines in ``b``, ``c``, ``g``, ``s``, ``t``, ``u`` and ``w`` blocks that
+lines in ``b``, ``c``, ``g``, ``i``, ``s``, ``t``, ``u`` and ``w`` blocks that
 correspond to Z80 instructions look like this::
 
   xX#####,N[;c[ comment]]
 
 where:
 
-* ``x`` is one of the characters ``* bcgstuw`` (with the same meaning as in a
+* ``x`` is one of the characters ``* bcgistuw`` (with the same meaning as in a
   :ref:`skool file <skoolFiles>`)
 * ``X`` is one of the characters ``BCSTW`` (with the same meaning as in a
-  :ref:`control file <controlFiles>`)
+  :ref:`control file <controlFiles>`), or ``I`` (meaning the instruction field
+  is blank, as may be the case in the first line of an ``i`` block)
 * ``#####`` is the address at which to start disassembling
 * ``N`` is the number of bytes to disassemble (or a list of sublengths; see
   :ref:`sftSubblockSyntax`)
@@ -113,8 +114,8 @@ Any line that begins with a hash character (``#``) is ignored by
 
 Data definition entries
 -----------------------
-In the same way as `skool2html.py` uses data definition entries ('d' blocks) in
-a `skool` file to insert data into the memory snapshot it constructs,
+In the same way as `skool2html.py` uses data definition entries (``d`` blocks)
+in a `skool` file to insert data into the memory snapshot it constructs,
 `sna2skool.py` uses data definition entries in a skool file template to replace
 data in the snapshot given on the command line. This feature can be used to
 make sure that a 'volatile' part of memory is set to a specific value before
@@ -129,27 +130,30 @@ that its contents are set to 0 so that it will disassemble to ``DEFB 0``
   ; Number of lives
   bB32400,1
 
-Note that in order to take effect, a 'd' block must appear before the block
+Note that in order to take effect, a ``d`` block must appear before the block
 that it overrides.
 
 Revision history
 ----------------
-+---------+------------------------------------------------------------------+
-| Version | Changes                                                          |
-+=========+==================================================================+
-| 4.5     | Added support for specifying character values in DEFS statements |
-+---------+------------------------------------------------------------------+
-| 4.4     | Added support for specifying that numeric values in instruction  |
-|         | operands be rendered as characters or in a specific base; added  |
-|         | support for specifying character values in DEFW statements       |
-+---------+------------------------------------------------------------------+
-| 3.7     | Added support for binary numbers; added support for specifying   |
-|         | the base of numeric values in DEFB, DEFM, DEFS and DEFW          |
-|         | statements; added the ``s`` and ``S`` directives and support for |
-|         | DEFS statements with non-zero byte values                        |
-+---------+------------------------------------------------------------------+
-| 3.1.4   | Added support for DEFB and DEFM statements that contain both     |
-|         | strings and bytes                                                |
-+---------+------------------------------------------------------------------+
-| 2.4     | New                                                              |
-+---------+------------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 5.1     | Added support for preserving ``i`` blocks in the same way as code |
+|         | and data blocks (instead of verbatim)                             |
++---------+-------------------------------------------------------------------+
+| 4.5     | Added support for specifying character values in DEFS statements  |
++---------+-------------------------------------------------------------------+
+| 4.4     | Added support for specifying that numeric values in instruction   |
+|         | operands be rendered as characters or in a specific base; added   |
+|         | support for specifying character values in DEFW statements        |
++---------+-------------------------------------------------------------------+
+| 3.7     | Added support for binary numbers; added support for specifying    |
+|         | the base of numeric values in DEFB, DEFM, DEFS and DEFW           |
+|         | statements; added the ``s`` and ``S`` directives and support for  |
+|         | DEFS statements with non-zero byte values                         |
++---------+-------------------------------------------------------------------+
+| 3.1.4   | Added support for DEFB and DEFM statements that contain both      |
+|         | strings and bytes                                                 |
++---------+-------------------------------------------------------------------+
+| 2.4     | New                                                               |
++---------+-------------------------------------------------------------------+
