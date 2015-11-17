@@ -504,6 +504,10 @@ given address. ::
 
 See also :ref:`m-REFS`.
 
+.. note::
+   The ``#EREFS`` macro is deprecated since version 5.1. Consider using the
+   special variable ``EREFaddr`` with the :ref:`FOREACH` macro instead.
+
 +---------+----------------------------------------------------------+
 | Version | Changes                                                  |
 +=========+==========================================================+
@@ -774,6 +778,10 @@ If there are no references, the macro expands to the following text::
   Not used directly by any other routines
 
 See also :ref:`EREFS`.
+
+.. note::
+   The ``#REFS`` macro is deprecated since version 5.1. Consider using the
+   special variable ``REFaddr`` with the :ref:`FOREACH` macro instead.
 
 +---------+----------------------------------------------------------+
 | Version | Changes                                                  |
