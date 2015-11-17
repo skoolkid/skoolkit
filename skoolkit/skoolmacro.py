@@ -261,6 +261,20 @@ def _parse_image_fname(text, index, fname=''):
     return end, fname, frame, alt
 
 def parse_brackets(text, index=0, default=None, opening='(', closing=')'):
+    """Parse a single string parameter enclosed either in parentheses or by an
+    arbitrary pair of delimiters.
+
+    :param text: The text to parse.
+    :param index: The index at which to start parsing.
+    :param default: The default value if no string parameter is found.
+    :param opening: The opening delimiter.
+    :param closing: The closing delimiter.
+    :return: A tuple of the form ``(end, param)``, where:
+
+             * ``end`` is the index at which parsing terminated
+             * ``param`` is the string parameter (or `default` if none is
+               found)
+    """
     if index >= len(text) or text[index] != opening:
         return index, default
     depth = 1

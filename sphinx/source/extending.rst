@@ -230,6 +230,10 @@ to parse the parameters of a skool macro.
 
    .. versionadded:: 5.1
 
+.. autofunction:: skoolkit.skoolmacro.parse_brackets
+
+   .. versionadded:: 5.1
+
 .. autofunction:: skoolkit.skoolmacro.parse_params
 
    .. versionchanged:: 3.6
