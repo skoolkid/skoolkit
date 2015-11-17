@@ -35,6 +35,8 @@ is equivalent to::
 
   #UDG30115,56,2
 
+.. _numericParameters:
+
 Numeric parameters
 ^^^^^^^^^^^^^^^^^^
 Numeric parameters may be written in decimal notation::

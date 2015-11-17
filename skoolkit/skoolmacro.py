@@ -90,11 +90,10 @@ class ClosingBracketError(MacroParsingError):
     pass
 
 def parse_ints(text, index=0, num=0, defaults=(), names=()):
-    """Parse a string of comma-separated integer parameters. The string will be
-    parsed until either the end is reached, or an invalid character is
-    encountered. The set of valid characters consists of the comma, '$', the
-    digits 0-9, and the letters A-F and a-f; if `names` is not empty, the set
-    of valid characters also includes '=' and the letters g-z.
+    """Parse a sequence of comma-separated integer parameters, optionally
+    enclosed in parentheses. If parentheses are used, the parameters may be
+    expressed using arithmetic operators and skool macros. See
+    :ref:`numericParameters` for more details.
 
     :param text: The text to parse.
     :param index: The index at which to start parsing.
@@ -102,7 +101,8 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
                 number of elements in `names` if that list is not empty.
     :param defaults: The default values of the optional parameters.
     :param names: The names of the parameters; if not empty, keyword arguments
-                  are parsed.
+                  are parsed. Parameter names are restricted to lower case
+                  letters (a-z).
     :return: A list of the form ``[end, value1, value2...]``, where:
 
              * ``end`` is the index at which parsing terminated
