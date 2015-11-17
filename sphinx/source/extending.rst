@@ -226,6 +226,10 @@ to parse the parameters of a skool macro.
       Added the *names* parameter and support for keyword arguments; *index*
       defaults to 0.
 
+.. autofunction:: skoolkit.skoolmacro.parse_strings
+
+   .. versionadded:: 5.1
+
 .. autofunction:: skoolkit.skoolmacro.parse_params
 
    .. versionchanged:: 3.6

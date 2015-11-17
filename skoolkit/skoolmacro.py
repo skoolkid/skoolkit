@@ -352,6 +352,22 @@ def get_params(param_string, num=0, defaults=(), names=(), safe=True, ints=None)
     return params
 
 def parse_strings(text, index=0, num=0, defaults=()):
+    """Parse a sequence of comma-separated string parameters. The sequence must
+    be enclosed in parentheses, square brackets or braces. If the sequence
+    itself contains commas or unmatched brackets, then an alternative delimiter
+    and separator may be used; see :ref:`stringParameters` for more details.
+
+    :param text: The text to parse.
+    :param index: The index at which to start parsing.
+    :param num: The maximum number of parameters to parse; if 0, all parameters
+                are parsed.
+    :param defaults: The default values of the optional parameters.
+    :return: A tuple of the form ``(end, result)``, where:
+
+             * ``end`` is the index at which parsing terminated
+             * ``result`` is either the single parameter itself (when `num` is
+               1), or a list of the parameters
+    """
     if index >= len(text) or text[index].isspace():
         raise NoParametersError("No text parameter", index)
 
