@@ -59,7 +59,7 @@ import time
 
 from skoolkit.skoolhtml import HtmlWriter, Udg, Frame
 from skoolkit.skoolasm import AsmWriter
-from skoolkit.skoolmacro import parse_ints
+from skoolkit.skoolmacro import parse_ints, parse_image_macro
 
 class GameHtmlWriter(HtmlWriter):
     def sprite(self, cwd, sprite_id, fname):
@@ -70,14 +70,15 @@ class GameHtmlWriter(HtmlWriter):
             self.write_image(img_path, udgs)
         return self.img_element(cwd, img_path)
 
-    # #SPRITEspriteId{X,Y,W,H}(fname)
+    # #SPRITEid[{x,y,width,height}](fname)
     def expand_sprite(self, text, index, cwd):
-        end, img_path, crop_rect, sprite_id = self.parse_image_params(text, index, 1)
+        end, crop_rect, fname, frame, alt, (sprite_id,) = parse_image_macro(text, index, names=['id'])
+        img_path = self.image_path(fname)
         if self.need_image(img_path):
             # Build udgs for the sprite
             udgs = [[Udg(4, self.snapshot[32768:32776])]] * 2
             self.write_image(img_path, udgs, crop_rect)
-        return end, self.img_element(cwd, img_path)
+        return end, self.img_element(cwd, img_path, alt)
 
     # #WORDaddress
     def expand_word(self, text, index, cwd):

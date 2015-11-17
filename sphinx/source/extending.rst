@@ -181,15 +181,17 @@ The `expand_sprite` method on GameHtmlWriter may therefore look something like
 this::
 
   from skoolkit.skoolhtml import HtmlWriter
+  from skoolkit.skoolmacro import parse_image_macro
 
   class GameHtmlWriter(HtmlWriter):
-      # #SPRITEspriteId[{x,y,width,height}](fname)
+      # #SPRITEid[{x,y,width,height}](fname)
       def expand_sprite(self, text, index, cwd):
-          end, img_path, crop_rect, sprite_id = self.parse_image_params(text, index, 1)
+          end, crop_rect, fname, frame, alt, (sprite_id,) = parse_image_macro(text, index, names=['id'])
+          img_path = self.image_path(fname)
           if self.need_image(img_path):
               udgs = self.build_sprite(sprite_id)
               self.write_image(img_path, udgs, crop_rect)
-          return end, self.img_element(cwd, img_path)
+          return end, self.img_element(cwd, img_path, alt)
 
 With this method (and an appropriate implementation of the `build_sprite`
 method) in place, the ``#SPRITE`` macro might be used like this::
@@ -229,20 +231,13 @@ to parse the parameters of a skool macro.
    .. versionchanged:: 3.6
       Added the *except_chars* and *only_chars* parameters.
 
-HtmlWriter also provides a method for parsing the parameters of an
-image-creating skool macro.
+.. autofunction:: skoolkit.skoolmacro.parse_image_macro
 
-.. automethod:: skoolkit.skoolhtml.HtmlWriter.parse_image_params
+   .. versionadded:: 5.1
 
-   .. versionchanged:: 3.6
-      If *path_id* is blank or *None*, ``image_path`` is equal to ``fname``;
-      added the *ints* parameter.
-
-   .. versionchanged:: 4.0
-      Added the *names* parameter and support for keyword arguments.
-
-   .. versionchanged:: 4.2
-      Added the *frame* and *alt* parameters.
+.. note::
+   The :meth:`parse_image_params` method on HtmlWriter is deprecated since
+   version 5.1. Use :func:`~skoolkit.skoolmacro.parse_image_macro` instead.
 
 .. _ext-ExpandingMacros:
 

@@ -1071,6 +1071,7 @@ class HtmlWriter:
                 return join(self.paths[path_id], '{0}{1}'.format(fname, suffix))
             raise SkoolKitError("Unknown path ID '{0}' for image file '{1}'".format(path_id, fname))
 
+    # Deprecated
     def parse_image_params(self, text, index, num=0, defaults=(),
                            path_id=DEF_IMG_PATH, fname='', chars='', ints=None,
                            names=(), frame=False, alt=False):

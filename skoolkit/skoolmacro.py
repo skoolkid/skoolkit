@@ -157,6 +157,29 @@ def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars
     return end, text[start:index], p_text
 
 def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
+    """Parse a string of the form:
+
+    ``[params][{x,y,width,height}][(fname[*frame][|alt])]``
+
+    The parameter string ``params`` may contain comma-separated integer values,
+    and may optionally be enclosed in parentheses. Parentheses are *required*
+    if any parameter is expressed using arithmetic operations or skool macros.
+
+    :param text: The text to parse.
+    :param index: The index at which to start parsing.
+    :param defaults: The default values of the optional parameters.
+    :param names: The names of the parameters.
+    :param fname: The default base name of the image file.
+    :return: A tuple of the form
+             ``(end, crop_rect, fname, frame, alt, values)``, where:
+
+             * ``end`` is the index at which parsing terminated
+             * ``crop_rect`` is ``(x, y, width, height)``
+             * ``fname`` is the base name of the image file
+             * ``frame`` is the frame name (`None` if no frame is specified)
+             * ``alt`` is the alt text (`None` if no alt text is specified)
+             * ``values`` is a list of the parameter values
+    """
     try:
         result = parse_ints(text, index, defaults=defaults, names=names)
     except InvalidParameterError:
