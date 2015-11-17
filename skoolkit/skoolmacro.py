@@ -89,6 +89,7 @@ class InvalidParameterError(MacroParsingError):
 class ClosingBracketError(MacroParsingError):
     pass
 
+# API
 def parse_ints(text, index=0, num=0, defaults=(), names=()):
     """Parse a sequence of comma-separated integer parameters, optionally
     enclosed in parentheses. If parentheses are used, the parameters may be
@@ -121,6 +122,125 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
     params = match.group()
     return [index + len(params)] + get_params(params, num, defaults, names)
 
+# API
+def parse_strings(text, index=0, num=0, defaults=()):
+    """Parse a sequence of comma-separated string parameters. The sequence must
+    be enclosed in parentheses, square brackets or braces. If the sequence
+    itself contains commas or unmatched brackets, then an alternative delimiter
+    and separator may be used; see :ref:`stringParameters` for more details.
+
+    :param text: The text to parse.
+    :param index: The index at which to start parsing.
+    :param num: The maximum number of parameters to parse; if 0, all parameters
+                are parsed.
+    :param defaults: The default values of the optional parameters.
+    :return: A tuple of the form ``(end, result)``, where:
+
+             * ``end`` is the index at which parsing terminated
+             * ``result`` is either the single parameter itself (when `num` is
+               1), or a list of the parameters
+    """
+    if index >= len(text) or text[index].isspace():
+        raise NoParametersError("No text parameter", index)
+
+    sep = ','
+    delim1 = text[index]
+    delim2 = DELIMITERS.get(delim1, delim1)
+    split = num != 1
+    if split and delim1 == delim2 and index + 1 < len(text):
+        sep = text[index + 1]
+        delim1 += sep
+        delim2 = sep + delim2
+    if delim1 in DELIMITERS:
+        end, param_string = parse_brackets(text, index, opening=delim1, closing=delim2)
+    else:
+        start = index + len(delim1)
+        end = text.find(delim2, start)
+        if end < start:
+            raise MacroParsingError("No terminating delimiter: {}".format(text[index:]))
+        param_string = text[start:end]
+        end += len(delim2)
+
+    if split:
+        args = param_string.split(sep)
+    else:
+        args = param_string
+
+    if num > 1:
+        if len(args) > num:
+            raise TooManyParametersError("Too many parameters (expected {}): '{}'".format(num, param_string), end)
+        req = num - len(defaults)
+        if len(args) < req:
+            raise MissingParameterError("Not enough parameters (expected {}): '{}'".format(req, param_string), end)
+        while len(args) < num:
+            args.append(defaults[len(args) - req])
+
+    return end, args
+
+# API
+def parse_brackets(text, index=0, default=None, opening='(', closing=')'):
+    """Parse a single string parameter enclosed either in parentheses or by an
+    arbitrary pair of delimiters.
+
+    :param text: The text to parse.
+    :param index: The index at which to start parsing.
+    :param default: The default value if no string parameter is found.
+    :param opening: The opening delimiter.
+    :param closing: The closing delimiter.
+    :return: A tuple of the form ``(end, param)``, where:
+
+             * ``end`` is the index at which parsing terminated
+             * ``param`` is the string parameter (or `default` if none is
+               found)
+    """
+    if index >= len(text) or text[index] != opening:
+        return index, default
+    depth = 1
+    end = index + 1
+    while depth > 0:
+        i = text.find(closing, end)
+        if i < 0:
+            raise ClosingBracketError('No closing bracket: {}'.format(text[index:]))
+        depth += text.count(opening, end, i) - 1
+        end = i + 1
+    return end, text[index + 1:end - 1]
+
+# API
+def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
+    """Parse a string of the form:
+
+    ``[params][{x,y,width,height}][(fname[*frame][|alt])]``
+
+    The parameter string ``params`` may contain comma-separated integer values,
+    and may optionally be enclosed in parentheses. Parentheses are *required*
+    if any parameter is expressed using arithmetic operations or skool macros.
+
+    :param text: The text to parse.
+    :param index: The index at which to start parsing.
+    :param defaults: The default values of the optional parameters.
+    :param names: The names of the parameters.
+    :param fname: The default base name of the image file.
+    :return: A tuple of the form
+             ``(end, crop_rect, fname, frame, alt, values)``, where:
+
+             * ``end`` is the index at which parsing terminated
+             * ``crop_rect`` is ``(x, y, width, height)``
+             * ``fname`` is the base name of the image file
+             * ``frame`` is the frame name (`None` if no frame is specified)
+             * ``alt`` is the alt text (`None` if no alt text is specified)
+             * ``values`` is a list of the parameter values
+    """
+    try:
+        result = parse_ints(text, index, defaults=defaults, names=names)
+    except InvalidParameterError:
+        if len(defaults) != len(names):
+            raise
+        result = [index] + list(defaults)
+    end, crop_rect = _parse_crop_spec(text, result[0])
+    end, fname, frame, alt = _parse_image_fname(text, end, fname)
+    return end, crop_rect, fname, frame, alt, result[1:]
+
+# Deprecated
 def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars=''):
     """Parse a string of the form ``params[(p_text)]``. The parameter string
     ``params`` will be parsed until either the end is reached, or an invalid
@@ -155,40 +275,6 @@ def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars
             index += 1
     end, p_text = parse_brackets(text, index, p_text)
     return end, text[start:index], p_text
-
-def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
-    """Parse a string of the form:
-
-    ``[params][{x,y,width,height}][(fname[*frame][|alt])]``
-
-    The parameter string ``params`` may contain comma-separated integer values,
-    and may optionally be enclosed in parentheses. Parentheses are *required*
-    if any parameter is expressed using arithmetic operations or skool macros.
-
-    :param text: The text to parse.
-    :param index: The index at which to start parsing.
-    :param defaults: The default values of the optional parameters.
-    :param names: The names of the parameters.
-    :param fname: The default base name of the image file.
-    :return: A tuple of the form
-             ``(end, crop_rect, fname, frame, alt, values)``, where:
-
-             * ``end`` is the index at which parsing terminated
-             * ``crop_rect`` is ``(x, y, width, height)``
-             * ``fname`` is the base name of the image file
-             * ``frame`` is the frame name (`None` if no frame is specified)
-             * ``alt`` is the alt text (`None` if no alt text is specified)
-             * ``values`` is a list of the parameter values
-    """
-    try:
-        result = parse_ints(text, index, defaults=defaults, names=names)
-    except InvalidParameterError:
-        if len(defaults) != len(names):
-            raise
-        result = [index] + list(defaults)
-    end, crop_rect = _parse_crop_spec(text, result[0])
-    end, fname, frame, alt = _parse_image_fname(text, end, fname)
-    return end, crop_rect, fname, frame, alt, result[1:]
 
 def parse_address_range(text, index, width):
     elements = []
@@ -259,33 +345,6 @@ def _parse_image_fname(text, index, fname=''):
         if frame == '':
             frame = fname
     return end, fname, frame, alt
-
-def parse_brackets(text, index=0, default=None, opening='(', closing=')'):
-    """Parse a single string parameter enclosed either in parentheses or by an
-    arbitrary pair of delimiters.
-
-    :param text: The text to parse.
-    :param index: The index at which to start parsing.
-    :param default: The default value if no string parameter is found.
-    :param opening: The opening delimiter.
-    :param closing: The closing delimiter.
-    :return: A tuple of the form ``(end, param)``, where:
-
-             * ``end`` is the index at which parsing terminated
-             * ``param`` is the string parameter (or `default` if none is
-               found)
-    """
-    if index >= len(text) or text[index] != opening:
-        return index, default
-    depth = 1
-    end = index + 1
-    while depth > 0:
-        i = text.find(closing, end)
-        if i < 0:
-            raise ClosingBracketError('No closing bracket: {}'.format(text[index:]))
-        depth += text.count(opening, end, i) - 1
-        end = i + 1
-    return end, text[index + 1:end - 1]
 
 def evaluate(param, safe=False):
     if safe or set(param) <= AE_CHARS:
@@ -364,60 +423,6 @@ def get_params(param_string, num=0, defaults=(), names=(), safe=True, ints=None)
         if params[i] is None:
             params[i] = defaults[i - req]
     return params
-
-def parse_strings(text, index=0, num=0, defaults=()):
-    """Parse a sequence of comma-separated string parameters. The sequence must
-    be enclosed in parentheses, square brackets or braces. If the sequence
-    itself contains commas or unmatched brackets, then an alternative delimiter
-    and separator may be used; see :ref:`stringParameters` for more details.
-
-    :param text: The text to parse.
-    :param index: The index at which to start parsing.
-    :param num: The maximum number of parameters to parse; if 0, all parameters
-                are parsed.
-    :param defaults: The default values of the optional parameters.
-    :return: A tuple of the form ``(end, result)``, where:
-
-             * ``end`` is the index at which parsing terminated
-             * ``result`` is either the single parameter itself (when `num` is
-               1), or a list of the parameters
-    """
-    if index >= len(text) or text[index].isspace():
-        raise NoParametersError("No text parameter", index)
-
-    sep = ','
-    delim1 = text[index]
-    delim2 = DELIMITERS.get(delim1, delim1)
-    split = num != 1
-    if split and delim1 == delim2 and index + 1 < len(text):
-        sep = text[index + 1]
-        delim1 += sep
-        delim2 = sep + delim2
-    if delim1 in DELIMITERS:
-        end, param_string = parse_brackets(text, index, opening=delim1, closing=delim2)
-    else:
-        start = index + len(delim1)
-        end = text.find(delim2, start)
-        if end < start:
-            raise MacroParsingError("No terminating delimiter: {}".format(text[index:]))
-        param_string = text[start:end]
-        end += len(delim2)
-
-    if split:
-        args = param_string.split(sep)
-    else:
-        args = param_string
-
-    if num > 1:
-        if len(args) > num:
-            raise TooManyParametersError("Too many parameters (expected {}): '{}'".format(num, param_string), end)
-        req = num - len(defaults)
-        if len(args) < req:
-            raise MissingParameterError("Not enough parameters (expected {}): '{}'".format(req, param_string), end)
-        while len(args) < num:
-            args.append(defaults[len(args) - req])
-
-    return end, args
 
 def get_macros(writer):
     macros = {}
