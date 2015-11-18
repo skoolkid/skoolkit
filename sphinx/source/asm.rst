@@ -147,10 +147,10 @@ moving code around (to make space for the fix).
 For example::
 
    28432 DEC HL
-  @rsub+begin
+  @rfix+begin
          LD A,H
          OR L
-  @rsub+end
+  @rfix+end
    28433 JP Z,29712
 
 These ``@rfix`` block directives insert some instructions to fix the faulty
