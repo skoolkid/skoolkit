@@ -175,7 +175,8 @@ whether it is implemented on a subclass of AsmWriter or HtmlWriter:
 A skool macro method must return a 2-tuple of the form ``(end, string)``, where
 ``end`` is the index of the character after the last character of the macro's
 parameter string, and ``string`` is the HTML or text to which the macro will be
-expanded.
+expanded. Note that if ``string`` itself contains skool macros, then they will
+be expanded.
 
 The `expand_sprite` method on GameHtmlWriter may therefore look something like
 this::
@@ -188,10 +189,8 @@ this::
       def expand_sprite(self, text, index, cwd):
           end, crop_rect, fname, frame, alt, (sprite_id,) = parse_image_macro(text, index, names=['id'])
           img_path = self.image_path(fname)
-          if self.need_image(img_path):
-              udgs = self.build_sprite(sprite_id)
-              self.write_image(img_path, udgs, crop_rect)
-          return end, self.img_element(cwd, img_path, alt)
+          udgs = self.build_sprite(sprite_id)
+          return end, self.handle_image(udgs, img_path, cwd, alt, crop_rect, frame=frame)
 
 With this method (and an appropriate implementation of the `build_sprite`
 method) in place, the ``#SPRITE`` macro might be used like this::
@@ -209,9 +208,6 @@ The `expand_timestamp` method on GameAsmWriter would look something like this::
   class GameAsmWriter(AsmWriter):
       def expand_timestamp(self, text, index):
           return index, time.strftime("%a %d %b %Y %H:%M:%S %Z")
-
-Note that if the ``string`` part of the return value of a skool macro method
-contains skool macros, then they will be expanded.
 
 .. _ext-MacroParsing:
 
@@ -311,7 +307,7 @@ implemented like this::
       # #INVERSEaddress,attr
       def expand_inverse(self, text, index, cwd):
           end, address, attr = parse_ints(text, index, 2)
-          img_path = self.image_path('inverse{0}_{1}'.format(address, attr))
+          img_path = self.image_path('inverse{}_{}'.format(address, attr))
           if self.need_image(img_path):
               udg_data = [b ^ 255 for b in self.snapshot[address:address + 8]]
               udg = Udg(attr, udg_data)
@@ -348,11 +344,15 @@ HtmlWriter provides the following image-related convenience methods.
       The *mask* parameter specifies the type of mask to apply (see
       :ref:`masks`).
 
+.. automethod:: skoolkit.skoolhtml.HtmlWriter.img_element
+.. automethod:: skoolkit.skoolhtml.HtmlWriter.handle_image
+
+   .. versionadded:: 5.1
+
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.write_animated_image
 
    .. versionadded:: 3.6
 
-.. automethod:: skoolkit.skoolhtml.HtmlWriter.img_element
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.screenshot
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.flip_udgs
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.rotate_udgs

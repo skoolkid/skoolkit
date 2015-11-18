@@ -18,23 +18,23 @@ write_skool() {
 ; Test the snapshot attribute: the word at 32768 is #WORD32768
 ; .
 ; #UDGTABLE
-; { #SPRITE3(jumping) }
-; { Created using #CHR(35)SPRITE3(jumping)  }
+; { #SPRITE4(j4*)        | #SPRITE6(*j6)        | #UDGARRAY*j4;j6(anim.gif) }
+; { #CHR(35)SPRITE4(j4*) | #CHR(35)SPRITE6(*j6) | #CHR(35)UDGARRAY*j4;j6(anim.gif) }
 ; TABLE#
 ; .
 ; #UDGTABLE
-; { #CALL:sprite(3,jumping2) }
-; { Created using #CHR(35)CALL:sprite(3,jumping2) }
+; { #CALL:sprite(3,j3) }
+; { #CHR(35)CALL:sprite(3,j3) }
 ; TABLE#
 ; .
 ; #UDGTABLE
 ; { #INVERSE32768,56 }
-; { Created using #CHR(35)INVERSE32768,56 }
+; { #CHR(35)INVERSE32768,56 }
 ; TABLE#
 ; .
 ; #UDGTABLE
 ; { #CALL:countdown(countdown.gif) }
-; { Created using #CHR(35)CALL:countdown(countdown.gif) }
+; { #CHR(35)CALL:countdown(countdown.gif) }
 ; TABLE#
 ; .
 ; #CALL:copyright() 2015 Me
@@ -62,23 +62,20 @@ from skoolkit.skoolasm import AsmWriter
 from skoolkit.skoolmacro import parse_ints, parse_image_macro
 
 class GameHtmlWriter(HtmlWriter):
-    def sprite(self, cwd, sprite_id, fname):
+    def sprite(self, cwd, attr, fname):
         img_path = self.image_path(fname)
         if self.need_image(img_path):
             # Build udgs for the sprite
-            udgs = [[Udg(4, self.snapshot[32768:32776])]]
+            udgs = [[Udg(attr, self.snapshot[32768:32776])]]
             self.write_image(img_path, udgs)
         return self.img_element(cwd, img_path)
 
-    # #SPRITEid[{x,y,width,height}](fname)
+    # #SPRITEattr[{x,y,width,height}](fname)
     def expand_sprite(self, text, index, cwd):
-        end, crop_rect, fname, frame, alt, (sprite_id,) = parse_image_macro(text, index, names=['id'])
+        end, crop_rect, fname, frame, alt, (attr,) = parse_image_macro(text, index, names=['attr'])
         img_path = self.image_path(fname)
-        if self.need_image(img_path):
-            # Build udgs for the sprite
-            udgs = [[Udg(4, self.snapshot[32768:32776])]] * 2
-            self.write_image(img_path, udgs, crop_rect)
-        return end, self.img_element(cwd, img_path, alt)
+        udgs = [[Udg(attr, self.snapshot[32768:32776])]] * 2
+        return end, self.handle_image(udgs, img_path, cwd, alt, crop_rect, frame=frame)
 
     # #WORDaddress
     def expand_word(self, text, index, cwd):

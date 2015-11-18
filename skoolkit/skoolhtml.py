@@ -230,6 +230,7 @@ class HtmlWriter:
 
         self.init()
 
+    # API
     def init(self):
         """Perform post-initialisation operations. This method is called after
         `__init__()` has completed. By default the method does nothing, but
@@ -306,6 +307,7 @@ class HtmlWriter:
             return 'Asm-{}'.format(entry_type)
         return '{}-Asm-{}'.format(code_id, entry_type)
 
+    # API
     def get_dictionary(self, section_name):
         """Return a dictionary built from the contents of a `ref` file section.
         Each line in the section should be of the form ``X=Y``.
@@ -314,6 +316,7 @@ class HtmlWriter:
         dictionary.update(self.ref_parser.get_dictionary(section_name))
         return dictionary
 
+    # API
     def get_dictionaries(self, section_type):
         """Return a list of 2-tuples of the form ``(suffix, dict)`` derived
         from `ref` file sections whose names start with `section_type` followed
@@ -333,6 +336,7 @@ class HtmlWriter:
                 dictionaries.append((suffix, dictionary))
         return dictionaries
 
+    # API
     def get_section(self, section_name, paragraphs=False, lines=False):
         """Return the contents of a `ref` file section.
 
@@ -347,6 +351,7 @@ class HtmlWriter:
             return self.ref_parser.get_section(section_name, paragraphs, lines)
         return self.defaults.get_section(section_name, paragraphs, lines)
 
+    # API
     def get_sections(self, section_type, paragraphs=False, lines=False):
         """Return a list of 2-tuples of the form ``(suffix, contents)`` or
         3-tuples of the form ``(infix, suffix, contents)`` derived from
@@ -386,10 +391,12 @@ class HtmlWriter:
         """
         return self.parser.get_entry_point_refs(address)
 
+    # API
     def get_snapshot_name(self):
         """Return the name of the current memory snapshot."""
         return self._snapshots[-1][1]
 
+    # API
     def pop_snapshot(self):
         """Discard the current memory snapshot and replace it with the one that
         was most recently saved (by
@@ -398,6 +405,7 @@ class HtmlWriter:
             raise SkoolKitError("Cannot pop snapshot when snapshot stack is empty")
         self.snapshot = self._snapshots.pop()[0]
 
+    # API
     def push_snapshot(self, name=''):
         """Save the current memory snapshot for later retrieval (by
         :meth:`~skoolkit.skoolhtml.HtmlWriter.pop_snapshot`), and put a copy in
@@ -422,6 +430,7 @@ class HtmlWriter:
     def get_page_ids(self):
         return self.page_ids
 
+    # API
     def need_image(self, image_path):
         """Return whether an image file needs to be created. This will be true
         only if the file doesn't already exist, or all images are being
@@ -466,6 +475,7 @@ class HtmlWriter:
         address = df_addr + 2048 * (row // 8) + 32 * (row % 8) + col
         return Udg(attr, self.snapshot[address:address + 2048:256])
 
+    # API
     def screenshot(self, x=0, y=0, w=32, h=24, df_addr=16384, af_addr=22528):
         """Return a two-dimensional array of tiles (instances of
         :class:`~skoolkit.skoolhtml.Udg`) built from the display file and
@@ -485,6 +495,7 @@ class HtmlWriter:
             scr_udgs.append([self._get_screen_udg(r, c, df_addr, af_addr) for c in range(x, x + width)])
         return scr_udgs
 
+    # API
     def flip_udgs(self, udgs, flip=1):
         """Flip a 2D array of UDGs (instances of
         :class:`~skoolkit.skoolhtml.Udg`).
@@ -505,6 +516,7 @@ class HtmlWriter:
         if flip & 2:
             udgs.reverse()
 
+    # API
     def rotate_udgs(self, udgs, rotate=1):
         """Rotate a 2D array of UDGs (instances of
         :class:`~skoolkit.skoolhtml.Udg`) 90 degrees clockwise.
@@ -969,6 +981,43 @@ class HtmlWriter:
             return 'gif'
         raise SkoolKitError('Unsupported image file format: {}'.format(image_path))
 
+    # API
+    def handle_image(self, udgs, image_path='', cwd=None, alt=None, crop_rect=(), scale=2, mask=0, frame=''):
+        """Create a frame for an image, and write an image file if required.
+        This is a convenience method that calls
+        :meth:`~skoolkit.skoolhtml.HtmlWriter.need_image`,
+        :meth:`~skoolkit.skoolhtml.HtmlWriter.write_image` and
+        :meth:`~skoolkit.skoolhtml.HtmlWriter.img_element` as appropriate.
+
+        :param udgs: The two-dimensional array of tiles (instances of
+                     :class:`~skoolkit.skoolhtml.Udg`) from which to build the
+                     image, or a function that returns the array of tiles.
+        :param image_path: The full path of the file to which to write the
+                           image (relative to the root directory of the
+                           disassembly).
+        :param cwd: The current working directory (from which the relative path
+                    of the image file will be computed).
+        :param alt: The alt text to use for the image.
+        :param crop_rect: The cropping rectangle: ``(x, y, width, height)``.
+        :param scale: The scale of the image.
+        :param mask: The type of mask to apply to the tiles: 0 (no mask), 1
+                     (OR-AND mask), or 2 (AND-OR mask).
+        :param frame: The name of the frame to create; if blank, no frame is
+                      created.
+        :return: The ``<img .../>`` element, or an empty string if no image is
+                 created.
+        """
+        if callable(udgs):
+           udgs = udgs()
+        if frame:
+            self.frames[frame] = Frame(udgs, scale, mask, *crop_rect)
+        if image_path:
+            if self.need_image(image_path):
+                self.write_image(image_path, udgs, crop_rect, scale, mask)
+            return self.img_element(cwd, image_path, alt)
+        return ''
+
+    # API
     def write_image(self, image_path, udgs, crop_rect=(), scale=2, mask=0):
         """Create an image and write it to a file.
 
@@ -990,6 +1039,7 @@ class HtmlWriter:
         frame = Frame(udgs, scale, mask, *crop_rect)
         self.write_animated_image(image_path, [frame])
 
+    # API
     def write_animated_image(self, image_path, frames):
         """Create an animated image and write it to a file.
 
@@ -1033,6 +1083,7 @@ class HtmlWriter:
         list_subs = {'class': list_obj.css_class, 'm_list_item': '\n'.join(items)}
         return self.format_template('list', list_subs)
 
+    # API
     def img_element(self, cwd, image_path, alt=None):
         """Return an ``<img .../>`` element for an image file.
 
@@ -1048,6 +1099,7 @@ class HtmlWriter:
             alt = basename(image_path)[:-4]
         return self.format_img(alt, self.relpath(cwd, image_path))
 
+    # API
     def image_path(self, fname, path_id=DEF_IMG_PATH):
         """Return the full path of an image file relative to the root directory
         of the disassembly. If `fname` does not end with '.png' or '.gif', an
@@ -1206,16 +1258,8 @@ class HtmlWriter:
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)
         message, addr, chars, attr, scale = params
         img_path = self.image_path(fname, 'FontImagePath')
-        need_image = img_path and self.need_image(img_path)
-        if frame or need_image:
-            udg_array = self.get_font_udg_array(addr, attr, message[:chars])
-            if need_image:
-                self.write_image(img_path, udg_array, crop_rect, scale)
-            if frame:
-                self.frames[frame] = Frame(udg_array, scale, 0, *crop_rect)
-        if img_path:
-            return end, self.img_element(cwd, img_path, alt)
-        return end, ''
+        udgs_f = lambda: self.get_font_udg_array(addr, attr, message[:chars])
+        return end, self.handle_image(udgs_f, img_path, cwd, alt, crop_rect, scale, 0, frame)
 
     def expand_for(self, text, index, cwd):
         return skoolmacro.parse_for(text, index)
@@ -1298,16 +1342,8 @@ class HtmlWriter:
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(text, index)
         scale, x, y, w, h, df, af = params
         scr_path = self.image_path(fname, 'ScreenshotImagePath')
-        need_image = scr_path and self.need_image(scr_path)
-        if frame or need_image:
-            udgs = self.screenshot(x, y, w, h, df, af)
-            if need_image:
-                self.write_image(scr_path, udgs, crop_rect, scale)
-            if frame:
-                self.frames[frame] = Frame(udgs, scale, 0, *crop_rect)
-        if scr_path:
-            return end, self.img_element(cwd, scr_path, alt)
-        return end, ''
+        scr_f = lambda: self.screenshot(x, y, w, h, df, af)
+        return end, self.handle_image(scr_f, scr_path, cwd, alt, crop_rect, scale, 0, frame)
 
     def expand_space(self, text, index, cwd):
         return skoolmacro.parse_space(text, index, '&#160;')
@@ -1316,6 +1352,16 @@ class HtmlWriter:
         # #TABLE[(class[,col1class[,col2class...]])]<rows>TABLE#
         end, table = self.table_parser.parse_text(self, text, index, cwd)
         return end, self.build_table(table)
+
+    def _build_udg(self, addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step):
+        udg_bytes = [(self.snapshot[addr + n * step] + inc) % 256 for n in range(8)]
+        mask_bytes = None
+        if mask and mask_addr is not None:
+            mask_bytes = self.snapshot[mask_addr:mask_addr + 8 * mask_step:mask_step]
+        udg = Udg(attr, udg_bytes, mask_bytes)
+        udg.flip(flip)
+        udg.rotate(rotate)
+        return [[udg]]
 
     def expand_udg(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udg(text, index)
@@ -1326,23 +1372,8 @@ class HtmlWriter:
             udg_path = self.image_path(udg_fname)
             if frame == '':
                 frame = udg_fname
-        need_image = udg_path and self.need_image(udg_path)
-        if frame or need_image:
-            udg_bytes = [(self.snapshot[addr + n * step] + inc) % 256 for n in range(8)]
-            mask_bytes = None
-            if mask and mask_addr is not None:
-                mask_bytes = self.snapshot[mask_addr:mask_addr + 8 * mask_step:mask_step]
-            udg = Udg(attr, udg_bytes, mask_bytes)
-            udg.flip(flip)
-            udg.rotate(rotate)
-            udg_array = [[udg]]
-            if need_image:
-                self.write_image(udg_path, udg_array, crop_rect, scale, mask)
-            if frame:
-                self.frames[frame] = Frame(udg_array, scale, mask, *crop_rect)
-        if udg_path:
-            return end, self.img_element(cwd, udg_path, alt)
-        return end, ''
+        udg_f = lambda: self._build_udg(addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step)
+        return end, self.handle_image(udg_f, udg_path, cwd, alt, crop_rect, scale, mask, frame)
 
     def _expand_udgarray_with_frames(self, text, index, cwd):
         end, fname, alt, frames = skoolmacro.parse_udgarray_with_frames(text, index, self.frames)
@@ -1351,6 +1382,13 @@ class HtmlWriter:
             self.write_animated_image(img_path, frames)
         return end, self.img_element(cwd, img_path, alt)
 
+    def _adjust_udgarray(self, udg_array, flip, rotate):
+        if flip:
+            self.flip_udgs(udg_array, flip)
+        if rotate:
+            self.rotate_udgs(udg_array, rotate)
+        return udg_array
+
     def expand_udgarray(self, text, index, cwd):
         if index < len(text) and text[index] == '*':
             return self._expand_udgarray_with_frames(text, index, cwd)
@@ -1358,24 +1396,13 @@ class HtmlWriter:
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgarray(text, index, Udg, self.snapshot)
         udg_array, scale, flip, rotate, mask = params
         img_path = self.image_path(fname, 'UDGImagePath')
-
-        need_image = img_path and self.need_image(img_path)
-        if frame or need_image:
-            if flip:
-                self.flip_udgs(udg_array, flip)
-            if rotate:
-                self.rotate_udgs(udg_array, rotate)
-            if frame:
-                self.frames[frame] = Frame(udg_array, scale, mask, *crop_rect)
-            if need_image:
-                self.write_image(img_path, udg_array, crop_rect, scale, mask)
-        if img_path:
-            return end, self.img_element(cwd, img_path, alt)
-        return end, ''
+        udgs_f = lambda: self._adjust_udgarray(udg_array, flip, rotate)
+        return end, self.handle_image(udgs_f, img_path, cwd, alt, crop_rect, scale, mask, frame)
 
     def expand_udgtable(self, text, index, cwd):
         return self.expand_table(text, index, cwd)
 
+    # API
     def expand(self, text, cwd=None):
         """Return `text` with skool macros expanded. `cwd` is the current
         working directory, which is required by macros that create images or
@@ -1452,6 +1479,7 @@ class Udg(object):
         rotated.reverse()
         return rotated
 
+    # API
     def flip(self, flip=1):
         """Flip the UDG.
 
@@ -1468,6 +1496,7 @@ class Udg(object):
             if self.mask:
                 self.mask.reverse()
 
+    # API
     def rotate(self, rotate=1):
         """Rotate the UDG 90 degrees clockwise.
 
