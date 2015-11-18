@@ -61,6 +61,8 @@ CodePath={ASMDIR}
 ScreenshotImagePath={SCRDIR}
 UDGImagePath={UDGDIR}
 CodeFiles={{address}}.html
+[Template:img]
+<img alt="{{alt}}" src="{{src}}" />
 """.format(**locals())
 
 SKOOL_MACRO_MINIMAL_REF_FILE = """
@@ -669,7 +671,7 @@ class MethodTest(HtmlWriterTestCase):
         self.assertEqual(image_writer.udg_array, udgs)
         self.assertEqual(image_writer.img_format, 'png')
         self.assertEqual(image_writer.scale, 2)
-        self.assertFalse(image_writer.mask)
+        self.assertEqual(image_writer.mask, 0)
         self.assertEqual(image_writer.x, 0)
         self.assertEqual(image_writer.y, 0)
         self.assertEqual(image_writer.width, 16)
@@ -718,6 +720,32 @@ class MethodTest(HtmlWriterTestCase):
         image_path = 'images/test_animated.jpg'
         with self.assertRaisesRegexp(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
             writer.write_animated_image(image_path, None)
+
+    def test_handle_image_with_tile_array(self):
+        writer = self._get_writer(mock_file_info=True)
+        image_writer = writer.image_writer
+        file_info = writer.file_info
+
+        udgs = [[Udg(0, (0,) * 8)]]
+        image_path = 'images/test_handle_image.png'
+        cwd = ASMDIR
+        alt = 'test handle_image() '
+        x, y, width, height = 1, 2, 3, 4
+        scale = 4
+        mask = 2
+        frame = 'handle_image'
+        writer.handle_image(udgs, image_path, cwd, alt, (x, y, width, height), scale, mask, frame)
+        self.assertEqual(file_info.fname, image_path)
+        self.assertEqual(file_info.mode, 'wb')
+        self.assertEqual(image_writer.udg_array, udgs)
+        self.assertEqual(image_writer.img_format, 'png')
+        self.assertEqual(image_writer.scale, scale)
+        self.assertEqual(image_writer.mask, mask)
+        self.assertEqual(image_writer.x, x)
+        self.assertEqual(image_writer.y, y)
+        self.assertEqual(image_writer.width, width)
+        self.assertEqual(image_writer.height, height)
+        self.assertIn(frame, writer.frames)
 
 class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def setUp(self):
