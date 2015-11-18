@@ -20,7 +20,6 @@ r24576 other
 
 ; Routine
 ;
-@ignoredua
 ; Routine description
 ;
 ; A Some value
@@ -34,7 +33,6 @@ c32768 NOP          ; Do nothing
  32771 DEFB 3       ; {2-line B sub-block
 @ssub=DEFB 5,6
  32772 DEFB 4,5     ; }
-@ignoremrcua
 ; Mid-block comment
  32774 DEFM "Hello" ; T sub-block
 @keep
@@ -143,7 +141,6 @@ r24576 other
 
 ; Routine
 ;
-@ignoredua
 ; Routine description
 ;
 ; A Some value
@@ -157,7 +154,6 @@ cC32768,1;20 Do nothing
  B32771,1;20 {2-line B sub-block
 @ssub=DEFB 5,6
  B32772,2;20 }
-@ignoremrcua
 ; Mid-block comment
  T32774,5;20 T sub-block
 @keep
