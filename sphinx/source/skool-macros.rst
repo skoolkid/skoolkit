@@ -314,6 +314,11 @@ This instance of the ``#MAP`` macro is used (in combination with a ``#FOR``
 macro and a ``#PEEK`` macro) to display a list of directions available based on
 the contents of addresses 56112-56114: 'left, right and down'.
 
+Note that the keys (``k1``, ``k2`` etc.) may be expressed using arithmetic
+operations. They may also be expressed using skool macros, but in that case the
+*entire* parameter string of the ``#MAP`` macro must be enclosed by a
+:ref:`hash` macro.
+
 See :ref:`stringParameters` for details on alternative ways to supply the
 default output string and the key-value pairs.
 
