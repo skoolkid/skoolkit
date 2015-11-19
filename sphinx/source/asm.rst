@@ -624,6 +624,8 @@ separator should be used; for example::
 Note that string replacements specified by ``@replace`` directives are made
 before skool macros are expanded.
 
+See also :ref:`definingMacrosWithReplace`.
+
 +---------+---------+
 | Version | Changes |
 +=========+=========+

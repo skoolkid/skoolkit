@@ -1495,3 +1495,55 @@ it must not start with a capital letter.
 +=========+============================+
 | 3.1     | Added support for ASM mode |
 +---------+----------------------------+
+
+.. _definingMacrosWithReplace:
+
+Defining macros with @replace
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+By using the :ref:`replace` directive, it is possible to define new macros
+based on existing ones without writing any Python code. Some examples are given
+below.
+
+#asm
+----
+There is the :ref:`HTML` macro for inserting content in HTML mode only, but
+there is no corresponding macro for inserting content in ASM mode only. The
+following ``@replace`` directive defines an ``#asm`` macro to fill that gap::
+
+  @replace=/#asm(\(.*\))/#IF(#HTML(1)0<1)\1
+
+For example::
+
+  #asm(This text appears only in ASM mode.)
+
+#tile
+-----
+Suppose the game you're disassembling arranges tiles in groups of nine bytes:
+the attribute byte first, followed by the eight graphic bytes. If there is a
+tile at 32768, then::
+
+  #UDG(32769,#PEEK32768)
+
+will create an image of it. If you want to create several tile images, this
+syntax can get cumbersome; it would be easier if you could supply just the
+address of the attribute byte. The following ``@replace`` directive defines a
+``#tile`` macro that creates a tile image given an attribute byte address::
+
+  @replace=/#tile\i/#UDG(\1+1,#PEEK\1)
+
+Now you can create an image of the tile at 32768 like this::
+
+  #tile32768
+
+#tiles
+------
+If you have several nine-byte tiles arranged one after the other, you might
+want to create images of all of them in a single row of a ``#UDGTABLE``. The
+following ``@replace`` directive defines a ``#tiles`` macro for this purpose::
+
+  @replace=/#tiles\i,\i/#FOR(\1,\1+9*(\2-1),9);;n;#UDG(n+1,#PEEKn); | ;;
+
+Now you can create a ``#UDGTABLE`` of images of a series of 10 tiles starting
+at 32768 like this::
+
+  #UDGTABLE { #tiles32768,10 } TABLE#
