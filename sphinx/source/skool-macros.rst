@@ -1134,11 +1134,15 @@ The mask specification (``MASK``) takes the form::
 * ``step`` is the interval between successive mask bytes (defaults to the value
   of ``step`` for the UDG)
 
-If an image with the given filename doesn't already exist, it will be created.
-If ``fname`` starts with a '/', the filename is taken to be relative to the
-root of the HTML disassembly; otherwise the filename is taken to be relative to
-the directory defined by the ``UDGImagePath`` parameter in the :ref:`paths`
-section of the `ref` file.
+Note that if any of the parameters in the mask specification is expressed using
+arithmetic operations or skool macros, then the entire specification must be
+enclosed in parentheses.
+
+If an image with the given filename (``fname``) doesn't already exist, it will
+be created.  If ``fname`` starts with a '/', the filename is taken to be
+relative to the root of the HTML disassembly; otherwise the filename is taken
+to be relative to the directory defined by the ``UDGImagePath`` parameter in
+the :ref:`paths` section of the `ref` file.
 
 For example::
 
@@ -1245,11 +1249,25 @@ As many UDG specifications as required may be supplied, separated by
 semicolons; the UDGs will be arranged in a rectangular array with the given
 width.
 
-If an image with the given filename doesn't already exist, it will be created.
-If ``fname`` starts with a '/', the filename is taken to be relative to the
-root of the HTML disassembly; otherwise the filename is taken to be relative to
-the directory defined by the ``UDGImagePath`` parameter in the :ref:`paths`
-section of the `ref` file.
+Note that, like the main parameters of a ``#UDGARRAY`` macro (up to but not
+including the first semicolon), if any of the following parts of the parameter
+string is expressed using arithmetic operations or skool macros, then that part
+must be enclosed in parentheses:
+
+* any of the 1-5 parts of a UDG address range specification (separated by ``-``
+  and ``x``)
+* the part of a UDG specification after the comma that follows the address
+  range
+* any of the 1-5 parts of a mask address range specification (separated by
+  ``-`` and ``x``)
+* the part of a mask specification after the comma that follows the address
+  range
+
+If an image with the given filename (``fname``) doesn't already exist, it will
+be created.  If ``fname`` starts with a '/', the filename is taken to be
+relative to the root of the HTML disassembly; otherwise the filename is taken
+to be relative to the directory defined by the ``UDGImagePath`` parameter in
+the :ref:`paths` section of the `ref` file.
 
 For example::
 
