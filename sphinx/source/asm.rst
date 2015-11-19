@@ -621,6 +621,16 @@ separator should be used; for example::
 
   @replace=|n/a|not applicable
 
+As a convenience for dealing with decimal and hexadecimal numbers, wherever
+``\i`` appears in ``pattern``, it is replaced by a regular expression group
+that matches a decimal number or a hexadecimal number preceded by ``$``. For
+example::
+
+  @replace=/#udg\i,\i/#UDG(\1,#PEEK\2)
+
+This ``@replace`` directive would replace ``#udg$a001,40960`` with
+``#UDG($a001,#PEEK40960)``.
+
 Note that string replacements specified by ``@replace`` directives are made
 before skool macros are expanded.
 
