@@ -18,14 +18,14 @@ unpacked::
 copy of the game, load it in an emulator, and save a Z80 snapshot named
 `hungry_horace.z80`.)
 
-The next thing to do is create a `skool` file from this snapshot. Run the
+The next thing to do is create a skool file from this snapshot. Run the
 following command from the SkoolKit directory::
 
   $ sna2skool.py hungry_horace.z80 > hungry_horace.skool
 
 Note that the '.skool' file name suffix is merely a convention, not a
 requirement. In general, any suffix besides '.ref' (which is used by
-`skool2html.py` to identify `ref` files) will do. If you are fond of the
+`skool2html.py` to identify ref files) will do. If you are fond of the
 traditional three-letter suffix, then perhaps '.sks' (for 'SkoolKit source') or
 '.kit' would be more to your liking. However, for the purpose of this
 particular tutorial, it would be best to stick with '.skool'.
@@ -73,7 +73,7 @@ For more information on control file directives and their syntax, see
 A skeleton disassembly
 ----------------------
 So if we had a control file for Hungry Horace, we could produce a much more
-useful `skool` file. As it happens, SkoolKit includes one: `hungry_horace.ctl`.
+useful skool file. As it happens, SkoolKit includes one: `hungry_horace.ctl`.
 You can use it with `sna2skool.py` thus::
 
   $ sna2skool.py -c examples/hungry_horace.ctl hungry_horace.z80 > hungry_horace.skool
@@ -87,7 +87,7 @@ however, use the ``-H`` option::
 
   $ sna2skool.py -H -c examples/hungry_horace.ctl hungry_horace.z80 > hungry_horace.skool
 
-The next step is to create an HTML disassembly from this `skool` file::
+The next step is to create an HTML disassembly from this skool file::
 
   $ skool2html.py hungry_horace.skool
 
@@ -96,16 +96,16 @@ but it's a base from which you can start adding explanatory comments.
 
 In order to replace 'hungry_horace' in the page titles and headers with
 something more appropriate, or add a game logo image, or otherwise customise
-the disassembly, we need to create a `ref` file. Again, as it happens, SkoolKit
-includes an example `ref` file for Hungry Horace: `hungry_horace.ref`. To use
-it with the `skool` file we've just created::
+the disassembly, we need to create a ref file. Again, as it happens, SkoolKit
+includes an example ref file for Hungry Horace: `hungry_horace.ref`. To use it
+with the skool file we've just created::
 
   $ skool2html.py examples/hungry_horace.ref
 
 Now the disassembly will sport a game logo image.
 
-See :ref:`refFiles` for more information on how to use a `ref` file to
-configure and customise a disassembly.
+See :ref:`refFiles` for more information on how to use a ref file to configure
+and customise a disassembly.
 
 Generating a control file
 -------------------------
@@ -118,7 +118,7 @@ analysis of the snapshot file and generate a corresponding control file::
 
 This will do a reasonable job of splitting the snapshot into blocks, but won't
 be 100% accurate (except by accident); you will need to examine the resultant
-`skool` file (`game.skool` in this case) to see which blocks have been
+skool file (`game.skool` in this case) to see which blocks have been
 incorrectly marked as text, data or code, and then edit the generated control
 file (`game.ctl`) accordingly.
 
@@ -138,10 +138,10 @@ supports playing back RZX files, you could grab a recording of your chosen game
 from the `RZX Archive <http://rzxarchive.co.uk/>`_, and set the emulator's
 profiler or tracer going while the recording plays back.
 
-By default, `sna2skool.py` generates a control file and a `skool` file with
+By default, `sna2skool.py` generates a control file and a skool file with
 addresses and instruction operands in decimal notation. If you prefer to work
 in hexadecimal, however, use the ``-h`` option to produce a hexadecimal control
-file, and the ``-H`` option to produce a hexadecimal `skool` file::
+file, and the ``-H`` option to produce a hexadecimal skool file::
 
   $ sna2skool.py -h -H -g game.ctl game.z80 > game.skool
 
@@ -149,7 +149,7 @@ Developing the skool file
 -------------------------
 When you're happy that your control file does a decent job of distinguishing
 the code blocks from the data blocks in your memory snapshot, it's time to
-start work on the `skool` file.
+start work on the skool file.
 
 Figuring out what the code blocks do and what the data blocks contain can be a
 time-consuming job. It's probably not a good idea to go through each block one
@@ -169,8 +169,8 @@ like this:
 It also goes without saying that figuring out what a piece of code or data
 might be used for is easier if you’ve played the game to death already.
 
-Annotating the code and data in a `skool` file is done by adding comments just
-as you would in a regular ASM file. For example, you might add a comment to the
+Annotating the code and data in a skool file is done by adding comments just as
+you would in a regular ASM file. For example, you might add a comment to the
 instruction at 26429 in `hungry_horace.skool` thus:
 
 .. parsed-literal::
@@ -179,25 +179,24 @@ instruction at 26429 in `hungry_horace.skool` thus:
     26429 DEC A         ; Decrement the number of lives
 
 See the :ref:`skool file format <skoolFileFormat>` reference for a full
-description of the kinds of annotations that are supported in `skool` files.
+description of the kinds of annotations that are supported in skool files.
 Note also that SkoolKit supports many :ref:`skool macros <skoolMacros>` that
 can be used in comments and will be converted into hyperlinks and images (for
 example) in the HTML version of the disassembly.
 
 As you become more familiar with the layout of the code and data blocks in the
 disassembly, you may find that some blocks need to be split up, joined, or
-otherwise reorganised. You could do this manually in the `skool` file itself,
-or you could regenerate the `skool` file from a new control file. To ensure
-that you don't lose all the annotations you've already added to the `skool`
-file, though, you should use :ref:`skool2ctl.py <skool2ctl.py>` to preserve
-them.
+otherwise reorganised. You could do this manually in the skool file itself, or
+you could regenerate the skool file from a new control file. To ensure that you
+don't lose all the annotations you've already added to the skool file, though,
+you should use :ref:`skool2ctl.py <skool2ctl.py>` to preserve them.
 
 First, create a control file that keeps your annotations intact::
 
   $ skool2ctl.py game.skool > game-2.ctl
 
 Now edit `game-2.ctl` to fit your better understanding of the layout of the
-code and data blocks. Then generate a new `skool` file::
+code and data blocks. Then generate a new skool file::
 
   $ sna2skool.py -c game-2.ctl game.z80 > game-2.skool
 
@@ -207,9 +206,9 @@ data blocks, and all the annotations you carefully added to `game.skool`.
 Adding pokes, bugs and trivia
 -----------------------------
 Adding 'Pokes', 'Bugs', and 'Trivia' pages to a disassembly is done by adding
-:ref:`ref-Poke`, :ref:`ref-Bug`, and :ref:`ref-Fact` sections to the `ref`
-file. For any such sections that are present, `skool2html.py` will add links to
-the disassembly index page.
+:ref:`ref-Poke`, :ref:`ref-Bug`, and :ref:`ref-Fact` sections to the ref file.
+For any such sections that are present, `skool2html.py` will add links to the
+disassembly index page.
 
 For example, let's add a poke. Add the following lines to `hungry_horace.ref`::
 
@@ -231,10 +230,10 @@ appropriate.
 
 Add one ``Poke``, ``Bug`` or ``Fact`` section for each poke, bug or trivia
 entry to be documented. Entries will appear on the 'Pokes', 'Bugs' or 'Trivia'
-page in the same order as the sections appear in the `ref` file.
+page in the same order as the sections appear in the ref file.
 
 See :ref:`refFiles` for more information on the format of the ``Poke``,
-``Bug``, and ``Fact`` (and other) sections that may appear in a `ref` file.
+``Bug``, and ``Fact`` (and other) sections that may appear in a ref file.
 
 Themes
 ------

@@ -45,20 +45,20 @@ package directory; to locate this directory, run :ref:`skool2html.py` with the
 
 (The package directory may be different on your system.) With `game.py` in
 place, add the following line to the :ref:`ref-Config` section of your
-disassembly's `ref` file::
+disassembly's ref file::
 
   HtmlWriterClass=skoolkit.game.GameHtmlWriter
 
-If you don't have a `ref` file yet, create one (ideally named `game.ref`,
-assuming the `skool` file is `game.skool`); if the `ref` file doesn't have a
+If you don't have a ref file yet, create one (ideally named `game.ref`,
+assuming the skool file is `game.skool`); if the ref file doesn't have a
 ``[Config]`` section yet, add one.
 
-Now whenever :ref:`skool2html.py` is run on your `skool` file (or `ref` file),
+Now whenever :ref:`skool2html.py` is run on your skool file (or ref file),
 SkoolKit will use the GameHtmlWriter class instead of the core HtmlWriter
 class.
 
 To get :ref:`skool2asm.py` to use GameAsmWriter instead of the core AsmWriter
-class when it's run on your `skool` file, add the following :ref:`writer` ASM
+class when it's run on your skool file, add the following :ref:`writer` ASM
 directive somewhere after the ``@start`` directive, and before the ``@end``
 directive (if there is one)::
 
@@ -83,7 +83,7 @@ by using the ``-W``/``--writer`` option of :ref:`skool2html.py` or
   $ skool2html.py -W ~/.skoolkit:game.GameHtmlWriter game.skool
 
 Specifying the writer class this way will override any ``HtmlWriterClass``
-parameter in the `ref` file or ``@writer`` directive in the `skool` file.
+parameter in the ref file or ``@writer`` directive in the skool file.
 
 #CALL methods
 -------------
@@ -265,7 +265,7 @@ is useful for basing a ``#CALL`` method or custom macro on an existing macro.
 Parsing ref files
 -----------------
 HtmlWriter provides some convenience methods for extracting text and data from
-`ref` files. These methods are described below.
+ref files. These methods are described below.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_section
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_sections
@@ -276,7 +276,7 @@ Memory snapshots
 ----------------
 The `snapshot` attribute on HtmlWriter and AsmWriter is a 65536-element list
 that represents the 64K of the Spectrum's memory; it is populated when the
-`skool` file is being parsed.
+skool file is being parsed.
 
 HtmlWriter also provides some methods for saving and restoring memory
 snapshots, which can be useful for temporarily changing graphic data or the
@@ -361,8 +361,8 @@ HtmlWriter provides the following image-related convenience methods.
 HtmlWriter initialisation
 -------------------------
 If your HtmlWriter subclass needs to perform some initialisation tasks, such as
-creating instance variables, or parsing `ref` file sections, the place to do
-that is the `init()` method.
+creating instance variables, or parsing ref file sections, the place to do that
+is the `init()` method.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.init
 

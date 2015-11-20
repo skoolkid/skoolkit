@@ -4,7 +4,7 @@ Changelog
 5.1b1
 -----
 * Added the :ref:`replace` ASM directive (which replaces strings that match a
-  regular expression in skool file annotations and `ref` file sections)
+  regular expression in skool file annotations and ref file sections)
 * Added the :ref:`hash` macro (which expands macros in another macro's
   parameter string)
 * Added the :ref:`EVAL` macro (which evaluates an arithmetic expression)
@@ -42,7 +42,7 @@ Changelog
 * Added the ``--set`` option to :ref:`skool2asm.py` (for setting ASM writer
   property values)
 * Added the ``RefFiles`` parameter to the :ref:`ref-Config` section (for
-  specifying extra `ref` files to use)
+  specifying extra ref files to use)
 * Added support to :ref:`sna2skool.py` for reading SpecEmu's 64K code execution
   map files
 * Fixed how :ref:`tap2sna.py` does a standard load from a TZX file
@@ -140,7 +140,7 @@ Changelog
 4.1.1 (2014-09-20)
 ------------------
 * Updated links to SkoolKit's new home at `skoolkit.ca <http://skoolkit.ca>`_
-* Added example control and `ref` files for `Hungry Horace`_
+* Added example control and ref files for `Hungry Horace`_
 * Removed the Manic Miner disassembly from the SkoolKit distribution; it is now
   being developed separately `here <https://github.com/skoolkid/manicminer>`__
 
@@ -171,15 +171,15 @@ Changelog
 4.0 (2014-05-25)
 ----------------
 * Every HTML page is built from templates defined in :ref:`template` sections
-  in the `ref` file
+  in the ref file
 * Added support for keyword arguments to the :ref:`FONT`, :ref:`SCR`,
   :ref:`UDG` and :ref:`UDGARRAY` macros
 * Added the ``mask`` parameter to the :ref:`UDG` and :ref:`UDGARRAY` macros
   (for specifying the type of mask to apply)
 * Added support for defining page headers in the :ref:`pageHeaders` section of
-  the `ref` file
+  the ref file
 * Added the ``--ref-file`` and ``--ref-sections`` options to
-  :ref:`skool2html.py` (to show the entire default `ref` file or individual
+  :ref:`skool2html.py` (to show the entire default ref file or individual
   sections of it)
 * Added the ``EntryDescriptions`` parameter to the :ref:`memoryMap` section
   (for specifying whether to display entry descriptions on a memory map page)

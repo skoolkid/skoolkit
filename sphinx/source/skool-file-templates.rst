@@ -2,20 +2,20 @@
 
 Skool file templates
 ====================
-A skool file template defines the basic structure of a `skool` file, but,
-unlike a `skool` file, contains directives on how to disassemble a program into
-Z80 instructions instead of the Z80 instructions themselves. The directives are
+A skool file template defines the basic structure of a skool file, but, unlike
+a skool file, contains directives on how to disassemble a program into Z80
+instructions instead of the Z80 instructions themselves. The directives are
 similar to those that may appear in a control file.
 
 The :ref:`skool2sft.py` command can generate a skool file template from an
-existing `skool` file; the :ref:`sna2skool.py` command can then generate a
-`skool` file from the template and an appropriate snapshot.
+existing skool file; the :ref:`sna2skool.py` command can then generate a skool
+file from the template and an appropriate snapshot.
 
 .. _skoolFileTemplateFormat:
 
 Skool file template format
 --------------------------
-A skool file template has the same layout as a `skool` file, except that the
+A skool file template has the same layout as a skool file, except that the
 lines in ``b``, ``c``, ``g``, ``i``, ``s``, ``t``, ``u`` and ``w`` blocks that
 correspond to Z80 instructions look like this::
 
@@ -36,8 +36,8 @@ where:
 * ``comment``, if present, is the instruction-level comment for the line on
   which the instruction occurs
 
-If a comment for a single instruction spans two or more lines in a `skool`
-file, as in::
+If a comment for a single instruction spans two or more lines in a skool file,
+as in::
 
   c24296 CALL 57935    ; This comment is too long to fit on a single line, so
                        ; we use two lines
@@ -110,12 +110,12 @@ on sublength parameters thus::
 Skool file template comments
 ----------------------------
 Any line that begins with a hash character (``#``) is ignored by
-`sna2skool.py`, and will not show up in the `skool` file.
+`sna2skool.py`, and will not show up in the skool file.
 
 Data definition entries
 -----------------------
 In the same way as `skool2html.py` uses data definition entries (``d`` blocks)
-in a `skool` file to insert data into the memory snapshot it constructs,
+in a skool file to insert data into the memory snapshot it constructs,
 `sna2skool.py` uses data definition entries in a skool file template to replace
 data in the snapshot given on the command line. This feature can be used to
 make sure that a 'volatile' part of memory is set to a specific value before

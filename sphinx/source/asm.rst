@@ -2,10 +2,10 @@
 
 ASM modes and directives
 ========================
-A `skool` file may contain directives that are processed during the parsing
+A skool file may contain directives that are processed during the parsing
 phase. Exactly how a directive is processed (and whether it is executed)
-depends on the 'substitution mode' and 'bugfix mode' in which the `skool` file
-is being parsed.
+depends on the 'substitution mode' and 'bugfix mode' in which the skool file is
+being parsed.
 
 .. _substitutionModes:
 
@@ -271,9 +271,9 @@ For example::
 
 @end
 ^^^^
-The ``@end`` directive may be used to indicate where to stop parsing the
-`skool` file for the purpose of generating ASM output. Everything after the
-``@end`` directive is ignored by :ref:`skool2asm.py`.
+The ``@end`` directive may be used to indicate where to stop parsing the skool
+file for the purpose of generating ASM output. Everything after the ``@end``
+directive is ignored by :ref:`skool2asm.py`.
 
 See also :ref:`start`.
 
@@ -579,8 +579,8 @@ The ``@org`` directive inserts an ``ORG`` assembler directive. ::
 @rem
 ^^^^
 The ``@rem`` directive may be used to make an illuminating comment about a
-nearby section or other ASM directive in a `skool` file. The directive is
-ignored by the parser. ::
+nearby section or other ASM directive in a skool file. The directive is ignored
+by the parser. ::
 
   @rem=COMMENT
 
@@ -602,7 +602,7 @@ For example::
 @replace
 ^^^^^^^^
 The ``@replace`` directive replaces strings that match a regular expression in
-`skool` file annotations and `ref` file sections. ::
+skool file annotations and ref file sections. ::
 
   @replace=/pattern/repl
 
@@ -709,7 +709,7 @@ Recognised property names and their default values are:
 * ``tab`` - ``1`` to use a tab character to indent instructions, or ``0`` to
   use spaces (default: ``0``)
 * ``warnings`` - ``1`` to print any warnings that are produced while writing
-  ASM output (after parsing the `skool` file), or ``0`` to suppress them
+  ASM output (after parsing the skool file), or ``0`` to suppress them
   (default: ``1``)
 * ``wrap-column-width-min`` - the minimum width of a wrappable table column
   (default: ``10``)
@@ -774,7 +774,7 @@ The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 
 @start
 ^^^^^^
-The ``@start`` directive indicates where to start parsing the `skool` file for
+The ``@start`` directive indicates where to start parsing the skool file for
 the purpose of generating ASM output. Everything before the ``@start``
 directive is ignored by :ref:`skool2asm.py`.
 

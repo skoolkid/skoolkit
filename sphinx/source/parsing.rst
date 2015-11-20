@@ -1,20 +1,20 @@
 Parsing, rendering, and modes
 =============================
 The following subsections explain at a high level the two phases involved in
-transforming a `skool` file (and its related `ref` files, if any exist) into
-HTML or ASM format by using :ref:`skool2html.py` or :ref:`skool2asm.py`:
-parsing and rendering.
+transforming a skool file (and its related ref files, if any exist) into HTML
+or ASM format by using :ref:`skool2html.py` or :ref:`skool2asm.py`: parsing and
+rendering.
 
 Parsing
 -------
-In the first phase, the `skool` file is parsed. Parsing a `skool` file entails
+In the first phase, the skool file is parsed. Parsing a skool file entails
 reading each line of the file, and processing any relevant
 :ref:`ASM directives <asmDirectives>` that are found along the way.
 
 After an ASM directive has been processed, it is discarded, so that it cannot
 be 'seen' during the rendering phase. The purpose of the ASM directives is to
-transform the `skool` file into something suitable for rendering (in either
-HTML or ASM format) later on.
+transform the skool file into something suitable for rendering (in either HTML
+or ASM format) later on.
 
 Whether a particular ASM directive is processed depends on the mode in which
 the parsing is being done: HTML mode or ASM mode.
@@ -66,19 +66,19 @@ running `skool2asm.py`. In ASM mode, all ASM directives are processed.
 
 Rendering
 ---------
-In the second phase, the `skool` file (stripped of all its ASM directives
-during the parsing phase) is 'rendered' - as either HTML or ASM, depending on
-the mode.
+In the second phase, the skool file (stripped of all its ASM directives during
+the parsing phase) is 'rendered' - as either HTML or ASM, depending on the
+mode.
 
 HTML mode
 ^^^^^^^^^
-HTML mode is used to render the `skool` file (and its related `ref` file, if
-one exists) as a bunch of HTML files. During rendering, any
+HTML mode is used to render the skool file (and its related ref file, if one
+exists) as a bunch of HTML files. During rendering, any
 :ref:`skool macros <skoolMacros>` found along the way are expanded to the
 required HTML markup.
 
 ASM mode
 ^^^^^^^^
-ASM mode is used to render the `skool` file as a single, assembler-ready ASM
+ASM mode is used to render the skool file as a single, assembler-ready ASM
 file. During rendering, any :ref:`skool macros <skoolMacros>` found along the
 way are expanded to some appropriate plain text.

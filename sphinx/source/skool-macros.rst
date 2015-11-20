@@ -2,8 +2,8 @@
 
 Skool macros
 ============
-`skool` files and `ref` files may contain skool macros that are 'expanded' to
-an appropriate piece of HTML markup (when rendering in HTML mode), or to an
+Skool files and ref files may contain skool macros that are 'expanded' to an
+appropriate piece of HTML markup (when rendering in HTML mode), or to an
 appropriate piece of plain text (when rendering in ASM mode).
 
 Syntax
@@ -406,11 +406,11 @@ See also :ref:`FACT` and :ref:`POKE`.
 In HTML mode, the ``#CALL`` macro expands to the return value of a method on
 the `HtmlWriter` class or subclass that is being used to create the HTML
 disassembly (as defined by the ``HtmlWriterClass`` parameter in the
-:ref:`ref-Config` section of the `ref` file).
+:ref:`ref-Config` section of the ref file).
 
 In ASM mode, the ``#CALL`` macro expands to the return value of a method on the
 `AsmWriter` class or subclass that is being used to generate the ASM output (as
-defined by the :ref:`writer` ASM directive in the `skool` file). ::
+defined by the :ref:`writer` ASM directive in the skool file). ::
 
   #CALL:methodName(args)
 
@@ -571,7 +571,7 @@ string (in ASM mode). ::
   #HTML(text)
 
 The ``#HTML`` macro may be used to render HTML (which would otherwise be
-escaped) from a `skool` file. For example::
+escaped) from a skool file. For example::
 
   ; #HTML(For more information, go <a href="http://example.com/">here</a>.)
 
@@ -606,14 +606,14 @@ another page. ::
 * ``link text`` is the link text to use
 
 In HTML mode, if the link text is blank, the page's link text (as defined in
-the :ref:`links` section or the relevant :ref:`page` section of the `ref` file)
+the :ref:`links` section or the relevant :ref:`page` section of the ref file)
 is substituted.
 
 In ASM mode, the ``#LINK`` macro expands to the link text.
 
 The page IDs that may be used are the same as the file IDs that may be used in
-the :ref:`paths` section of a `ref` file, or the page IDs defined by
-:ref:`page` sections.
+the :ref:`paths` section of a ref file, or the page IDs defined by :ref:`page`
+sections.
 
 For example::
 
@@ -999,13 +999,13 @@ of text rendered in the game font. ::
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (default: '`font`'); '`.png`' or
   '`.gif`' will be appended (depending on the default image format specified in
-  the :ref:`ref-ImageWriter` section of the `ref` file) if not present
+  the :ref:`ref-ImageWriter` section of the ref file) if not present
 
 If an image with the given filename doesn't already exist, it will be created.
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly; otherwise the filename is taken to be relative to
 the directory defined by the ``FontImagePath`` parameter in the :ref:`paths`
-section of the `ref` file.
+section of the ref file.
 
 For example::
 
@@ -1047,7 +1047,7 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 In HTML mode, the ``#SCR`` macro expands to an ``<img>`` element for an image
 constructed from the display file and attribute file (or suitably arranged
 graphic data and attribute bytes elsewhere in memory) of the current memory
-snapshot (in turn constructed from the contents of the `skool` file). ::
+snapshot (in turn constructed from the contents of the skool file). ::
 
   #SCR[scale,x,y,w,h,df,af][{CROP}][(fname)]
 
@@ -1063,13 +1063,13 @@ snapshot (in turn constructed from the contents of the `skool` file). ::
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (default: '`scr`'); '`.png`' or
   '`.gif`' will be appended (depending on the default image format specified in
-  the :ref:`ref-ImageWriter` section of the `ref` file) if not present
+  the :ref:`ref-ImageWriter` section of the ref file) if not present
 
 If an image with the given filename doesn't already exist, it will be created.
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly; otherwise the filename is taken to be relative to
 the directory defined by the ``ScreenshotImagePath`` parameter in the
-:ref:`paths` section of the `ref` file.
+:ref:`paths` section of the ref file.
 
 For example::
 
@@ -1129,7 +1129,7 @@ of a UDG (an 8x8 block of pixels). ::
 * ``fname`` is the name of the image file (if not given, a name based on
   ``addr``, ``attr`` and ``scale`` will be generated); '`.png`' or '`.gif`'
   will be appended (depending on the default image format specified in the
-  :ref:`ref-ImageWriter` section of the `ref` file) if not present
+  :ref:`ref-ImageWriter` section of the ref file) if not present
 
 The mask specification (``MASK``) takes the form::
 
@@ -1147,7 +1147,7 @@ If an image with the given filename (``fname``) doesn't already exist, it will
 be created.  If ``fname`` starts with a '/', the filename is taken to be
 relative to the root of the HTML disassembly; otherwise the filename is taken
 to be relative to the directory defined by the ``UDGImagePath`` parameter in
-the :ref:`paths` section of the `ref` file.
+the :ref:`paths` section of the ref file.
 
 For example::
 
@@ -1209,7 +1209,7 @@ image of an array of UDGs (8x8 blocks of pixels). ::
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file; '`.png`' or '`.gif`' will be
   appended (depending on the default image format specified in the
-  :ref:`ref-ImageWriter` section of the `ref` file) if not present
+  :ref:`ref-ImageWriter` section of the ref file) if not present
 
 ``SPEC1``, ``SPEC2`` etc. are UDG specifications for the sets of UDGs that make
 up the array. Each UDG specification has the form::
@@ -1273,7 +1273,7 @@ If an image with the given filename (``fname``) doesn't already exist, it will
 be created.  If ``fname`` starts with a '/', the filename is taken to be
 relative to the root of the HTML disassembly; otherwise the filename is taken
 to be relative to the directory defined by the ``UDGImagePath`` parameter in
-the :ref:`paths` section of the `ref` file.
+the :ref:`paths` section of the ref file.
 
 For example::
 
@@ -1441,7 +1441,7 @@ Snapshot macros
 ^^^^^^^^^^^^^^^
 The :ref:`POKES`, :ref:`POPS` and :ref:`PUSHS` macros (described in the
 following sections) may be used to manipulate the memory snapshot that is built
-from the ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements in the `skool`
+from the ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements in the skool
 file. Each macro expands to an empty string.
 
 .. _POKES:

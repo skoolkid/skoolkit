@@ -211,9 +211,9 @@ def parse_address_comments(comments, html=False):
         i += 1
 
 class SkoolParser:
-    """Parses a `skool` file.
+    """Parses a skool file.
 
-    :param skoolfile: The name of the `skool` file to parse.
+    :param skoolfile: The name of the skool file to parse.
     :param case: :data:`~skoolkit.skoolparser.CASE_UPPER` to force upper case,
                  :data:`~skoolkit.skoolparser.CASE_LOWER` to force lower case,
                  or `None` to leave case unchanged.

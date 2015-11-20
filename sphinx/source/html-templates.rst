@@ -3,12 +3,12 @@
 HTML templates
 ==============
 Every page in an HTML disassembly is built from a single full-page template and
-several subtemplates defined by :ref:`template` sections in the `ref` file.
+several subtemplates defined by :ref:`template` sections in the ref file.
 
 A template may contain 'replacement fields' - identifiers enclosed by braces
 (``{`` and ``}``) - that are replaced by appropriate content (typically derived
-from the `skool` file or a `ref` file section) when the template is formatted.
-The following 'universal' identifiers are available in every template:
+from the skool file or a ref file section) when the template is formatted. The
+following 'universal' identifiers are available in every template:
 
 * ``Game`` - a dictionary of the parameters in the :ref:`ref-game` section
 * ``SkoolKit`` - a dictionary of parameters relevant to the page currently
@@ -64,8 +64,8 @@ The parameters in the ``prev_entry``, ``entry`` and ``next_entry`` dictionaries
 are:
 
 * ``address`` - the address of the entry (may be in decimal or hexadecimal
-  format, depending on how it appears in the `skool` file, and the options
-  passed to :ref:`skool2html.py`)
+  format, depending on how it appears in the skool file, and the options passed
+  to :ref:`skool2html.py`)
 * ``annotated`` - '1' if any instructions in the entry have a non-empty comment
   field, '0' otherwise
 * ``byte`` - the LSB of the entry address
@@ -218,7 +218,7 @@ It contains the following identifiers (in addition to the universal
 identifiers):
 
 * ``address`` - the address of the instruction (may be in decimal or
-  hexadecimal format, depending on how it appears in the `skool` file, and the
+  hexadecimal format, depending on how it appears in the skool file, and the
   options passed to :ref:`skool2html.py`)
 * ``annotated`` - '1' if the instruction has a comment field, '0' otherwise
 * ``called`` - '2' if the instruction is an entry point, '1' otherwise
@@ -248,7 +248,7 @@ It contains the following identifiers (in addition to the universal
 identifiers):
 
 * ``description`` - the register's description (as it appears in the register
-  section for the current entry in the `skool` file)
+  section for the current entry in the skool file)
 * ``entry`` - a dictionary of parameters corresponding to the current memory
   map entry (see :ref:`t_Asm`)
 * ``name`` - the register's name (e.g. 'HL')
@@ -485,8 +485,8 @@ identifiers):
 The parameters in the ``entry`` dictionary are:
 
 * ``address`` - the address of the entry (may be in decimal or hexadecimal
-  format, depending on how it appears in the `skool` file, and the options
-  passed to :ref:`skool2html.py`)
+  format, depending on how it appears in the skool file, and the options passed
+  to :ref:`skool2html.py`)
 * ``byte`` - the LSB of the entry address
 * ``description`` - the entry description
 * ``exists`` - '1'

@@ -71,7 +71,7 @@ Spectrum is 23952 ($5D90).
 
 skool2asm.py
 ------------
-`skool2asm.py` converts a `skool` file into an ASM file that can be fed to an
+`skool2asm.py` converts a skool file into an ASM file that can be fed to an
 assembler (see :ref:`supportedAssemblers`). For example::
 
   $ skool2asm.py game.skool > game.asm
@@ -127,7 +127,7 @@ can be set by the ``--set`` option.
 +---------+--------------------------------------------------------------+
 | 3.4     | Added the ``-V`` and ``-p`` options and the long options     |
 +---------+--------------------------------------------------------------+
-| 2.2.2   | Added the ability to read a `skool` file from standard input |
+| 2.2.2   | Added the ability to read a skool file from standard input   |
 +---------+--------------------------------------------------------------+
 | 2.1.1   | Added the ``-u``, ``-D`` and ``-H`` options                  |
 +---------+--------------------------------------------------------------+
@@ -138,7 +138,7 @@ can be set by the ``--set`` option.
 
 skool2bin.py
 ------------
-`skool2bin.py` converts a `skool` file into a binary (raw memory) file. For
+`skool2bin.py` converts a skool file into a binary (raw memory) file. For
 example::
 
   $ skool2bin.py game.skool
@@ -173,8 +173,8 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
 
 skool2ctl.py
 ------------
-`skool2ctl.py` converts a `skool` file into a
-:ref:`control file <controlFiles>`. For example::
+`skool2ctl.py` converts a skool file into a :ref:`control file <controlFiles>`.
+For example::
 
   $ skool2ctl.py game.skool > game.ctl
 
@@ -213,35 +213,35 @@ If you need to preserve any elements that control files do not support (such as
 data definition entries and ASM block directives), consider using
 :ref:`skool2sft.py` to create a skool file template instead.
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 5.1     | A terminal ``i`` directive is appended if the `skool` file ends |
-|         | before 65536                                                    |
-+---------+-----------------------------------------------------------------+
-| 4.5     | Added the ``--start`` and ``--end`` options                     |
-+---------+-----------------------------------------------------------------+
-| 4.4     | Added the ``--hex-lower`` option                                |
-+---------+-----------------------------------------------------------------+
-| 3.7     | Added the ``--preserve-base`` option                            |
-+---------+-----------------------------------------------------------------+
-| 3.4     | Added the ``-V`` option and the long options                    |
-+---------+-----------------------------------------------------------------+
-| 2.4     | Added the ``-a`` option and the ability to preserve some ASM    |
-|         | directives                                                      |
-+---------+-----------------------------------------------------------------+
-| 2.2.2   | Added the ability to read a `skool` file from standard input    |
-+---------+-----------------------------------------------------------------+
-| 2.0.6   | Added the ``-h`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 1.1     | New                                                             |
-+---------+-----------------------------------------------------------------+
++---------+---------------------------------------------------------------+
+| Version | Changes                                                       |
++=========+===============================================================+
+| 5.1     | A terminal ``i`` directive is appended if the skool file ends |
+|         | before 65536                                                  |
++---------+---------------------------------------------------------------+
+| 4.5     | Added the ``--start`` and ``--end`` options                   |
++---------+---------------------------------------------------------------+
+| 4.4     | Added the ``--hex-lower`` option                              |
++---------+---------------------------------------------------------------+
+| 3.7     | Added the ``--preserve-base`` option                          |
++---------+---------------------------------------------------------------+
+| 3.4     | Added the ``-V`` option and the long options                  |
++---------+---------------------------------------------------------------+
+| 2.4     | Added the ``-a`` option and the ability to preserve some ASM  |
+|         | directives                                                    |
++---------+---------------------------------------------------------------+
+| 2.2.2   | Added the ability to read a skool file from standard input    |
++---------+---------------------------------------------------------------+
+| 2.0.6   | Added the ``-h`` option                                       |
++---------+---------------------------------------------------------------+
+| 1.1     | New                                                           |
++---------+---------------------------------------------------------------+
 
 .. _skool2html.py:
 
 skool2html.py
 -------------
-`skool2html.py` converts a `skool` file (and its associated `ref` files, if any
+`skool2html.py` converts a skool file (and its associated ref files, if any
 exist) into a browsable disassembly in HTML format.
 
 For example::
@@ -253,19 +253,19 @@ named `game*.ref` (e.g. `game.ref`, `game-bugs.ref`, `game-pokes.ref` and so
 on) also exist, they will be used to provide further information to the
 conversion process.
 
-`skool2html.py` can operate directly on `ref` files, too. For example::
+`skool2html.py` can operate directly on ref files, too. For example::
 
   $ skool2html.py game.ref
 
-In this case, the `skool` file declared in the :ref:`ref-Config` section will
-be used; if no `skool` file is declared, `game.skool` will be used if it
-exists. In addition, any existing files besides `game.ref` that are named
-`game*.ref` (e.g. `game-bugs.ref`, `game-pokes.ref` and so on) will also be
-used, along with any extra files named in the ``RefFiles`` parameter in the
+In this case, the skool file declared in the :ref:`ref-Config` section will be
+used; if no skool file is declared, `game.skool` will be used if it exists.  In
+addition, any existing files besides `game.ref` that are named `game*.ref`
+(e.g. `game-bugs.ref`, `game-pokes.ref` and so on) will also be used, along
+with any extra files named in the ``RefFiles`` parameter in the
 :ref:`ref-Config` section.
 
-If an input file's name ends with '.ref', it will be treated as a `ref` file;
-otherwise it will be treated as a `skool` file.
+If an input file's name ends with '.ref', it will be treated as a ref file;
+otherwise it will be treated as a skool file.
 
 `skool2html.py` supports several options; run it with no arguments to see a
 list::
@@ -317,12 +317,11 @@ list::
                           Specify the HTML writer class to use; shorthand for
                           '--config Config/HtmlWriterClass=CLASS'
 
-`skool2html.py` searches the following directories for `skool` files, `ref`
-files, CSS files, JavaScript files, font files, and files listed in the
-:ref:`resources` section of the `ref` file:
+`skool2html.py` searches the following directories for skool files, ref files,
+CSS files, JavaScript files, font files, and files listed in the
+:ref:`resources` section of the ref file:
 
-* The directory that contains the `skool` or `ref` file named on the command
-  line
+* The directory that contains the skool or ref file named on the command line
 * The current working directory
 * `./resources`
 * `~/.skoolkit`
@@ -379,9 +378,9 @@ will use the following CSS files, if they exist, in the order listed:
 +---------+------------------------------------------------------------------+
 | 3.0.2   | No longer shows timings by default; added the ``-t`` option      |
 +---------+------------------------------------------------------------------+
-| 2.3.1   | Added support for reading multiple `ref` files per disassembly   |
+| 2.3.1   | Added support for reading multiple ref files per disassembly     |
 +---------+------------------------------------------------------------------+
-| 2.2.2   | Added the ability to read a `skool` file from standard input     |
+| 2.2.2   | Added the ability to read a skool file from standard input       |
 +---------+------------------------------------------------------------------+
 | 2.2     | No longer writes the Skool Daze and Back to Skool disassemblies  |
 |         | by default; added the ``-d`` option                              |
@@ -397,7 +396,7 @@ will use the following CSS files, if they exist, in the order listed:
 
 skool2sft.py
 ------------
-`skool2sft.py`  converts a `skool` file into a
+`skool2sft.py`  converts a skool file into a
 :ref:`skool file template <skoolFileTemplates>`. For example::
 
   $ skool2sft.py game.skool > game.sft
@@ -442,7 +441,7 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 sna2skool.py
 ------------
 `sna2skool.py` converts a binary (raw memory) file or a SNA, SZX or Z80
-snapshot into a `skool` file. For example::
+snapshot into a skool file. For example::
 
   $ sna2skool.py game.z80 > game.skool
 

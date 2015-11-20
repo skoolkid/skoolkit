@@ -84,12 +84,12 @@ def join(*path_components):
     return '/'.join([c for c in path_components if c.replace('/', '')])
 
 class HtmlWriter:
-    """Converts a `skool` file and its associated `ref` files to HTML.
+    """Converts a skool file and its associated ref files to HTML.
 
     :type skool_parser: :class:`~skoolkit.skoolparser.SkoolParser`
-    :param skool_parser: The `skool` file parser to use.
+    :param skool_parser: The skool file parser to use.
     :type ref_parser: :class:`~skoolkit.refparser.RefParser`
-    :param ref_parser: The `ref` file parser to use.
+    :param ref_parser: The ref file parser to use.
     :type file_info: :class:`FileInfo`
     :param file_info: The `FileInfo` object to use.
     :param case: The case in which to render register names produced by the
@@ -309,7 +309,7 @@ class HtmlWriter:
 
     # API
     def get_dictionary(self, section_name):
-        """Return a dictionary built from the contents of a `ref` file section.
+        """Return a dictionary built from the contents of a ref file section.
         Each line in the section should be of the form ``X=Y``.
         """
         dictionary = self.defaults.get_dictionary(section_name)
@@ -319,7 +319,7 @@ class HtmlWriter:
     # API
     def get_dictionaries(self, section_type):
         """Return a list of 2-tuples of the form ``(suffix, dict)`` derived
-        from `ref` file sections whose names start with `section_type` followed
+        from ref file sections whose names start with `section_type` followed
         by a colon. ``suffix`` is the part of the section name that follows the
         first colon, and ``dict`` is a dictionary built from the contents of
         that section; each line in the section should be of the form ``X=Y``.
@@ -338,7 +338,7 @@ class HtmlWriter:
 
     # API
     def get_section(self, section_name, paragraphs=False, lines=False):
-        """Return the contents of a `ref` file section.
+        """Return the contents of a ref file section.
 
         :param section_name: The section name.
         :param paragraphs: If `True`, return the contents as a list of
@@ -354,8 +354,8 @@ class HtmlWriter:
     # API
     def get_sections(self, section_type, paragraphs=False, lines=False):
         """Return a list of 2-tuples of the form ``(suffix, contents)`` or
-        3-tuples of the form ``(infix, suffix, contents)`` derived from
-        `ref` file sections whose names start with `section_type` followed by a
+        3-tuples of the form ``(infix, suffix, contents)`` derived from ref
+        file sections whose names start with `section_type` followed by a
         colon. ``suffix`` is the part of the section name that follows either
         the first colon (when there is only one) or the second colon (when
         there is more than one); ``infix`` is the part of the section name
@@ -1110,7 +1110,7 @@ class HtmlWriter:
 
         :param fname: The name of the image file.
         :param path_id: The ID of the target directory (as defined in the
-                        :ref:`paths` section of the `ref` file).
+                        :ref:`paths` section of the ref file).
         """
         if fname:
             if fname[-4:].lower() in ('.png', '.gif'):
@@ -1145,7 +1145,7 @@ class HtmlWriter:
                     empty.
         :param defaults: The default values of the optional parameters.
         :param path_id: The ID of the target directory for the image file (as
-                        defined in the :ref:`paths` section of the `ref` file).
+                        defined in the :ref:`paths` section of the ref file).
         :param fname: The default base name of the image file.
         :param chars: Characters to consider valid in addition to those in the
                       default set.

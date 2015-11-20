@@ -21,7 +21,7 @@ from collections import OrderedDict
 from skoolkit import open_file
 
 class RefParser:
-    """Parses `ref` files."""
+    """Parses ref files."""
     def __init__(self):
         self._sections = OrderedDict()
 
@@ -32,10 +32,10 @@ class RefParser:
             self._sections[section_name] = section_lines
 
     def parse(self, reffile):
-        """Parse a `ref` file. This method may be called as many times as
-        required to collect sections from multiple `ref` files.
+        """Parse a ref file. This method may be called as many times as
+        required to collect sections from multiple ref files.
 
-        :param reffile: The name of the `ref` file to parse.
+        :param reffile: The name of the ref file to parse.
         """
         section_name = None
         section_lines = []

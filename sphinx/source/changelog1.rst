@@ -73,7 +73,7 @@ Made the following changes to `sna2skool.py`:
 ------------------
 * `sna2skool.py` copes with instructions that cross the 64K boundary
 * `skool2html.py` writes the 'Game status buffer', 'Glossary', 'Trivia', 'Bugs'
-  and 'Pokes' pages for a `skool` file specified by the ``-f`` option (in
+  and 'Pokes' pages for a skool file specified by the ``-f`` option (in
   addition to the disassembly files and memory maps)
 
 1.0.2 (2010-01-31)

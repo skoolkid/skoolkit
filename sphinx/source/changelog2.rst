@@ -4,15 +4,15 @@ SkoolKit 2.x changelog
 ======================
 2.5 (2012-02-22)
 ----------------
-* Added support for :ref:`memoryMap` sections in `ref` files (for defining the
+* Added support for :ref:`memoryMap` sections in ref files (for defining the
   properties of memory map pages); removed support for the ``[MapDetails]``
   section accordingly
 * Added support for multiple style sheets per HTML disassembly (by separating
   file names with a semicolon in the ``StyleSheet`` parameter in the
-  :ref:`paths` section of the `ref` file)
+  :ref:`paths` section of the ref file)
 * Added support for multiple JavaScript files per HTML disassembly (by
   separating file names with a semicolon in the ``JavaScript`` parameter in the
-  :ref:`paths` section of the `ref` file)
+  :ref:`paths` section of the ref file)
 
 2.4.1 (2012-01-30)
 ------------------
@@ -31,14 +31,13 @@ SkoolKit 2.x changelog
   control files
 * Enhanced the :ref:`UDG` and :ref:`UDGARRAY` macros so that images can be
   rotated
-* Added the ability to separate paragraphs in a `skool` file by using a dot
+* Added the ability to separate paragraphs in a skool file by using a dot
   (``.``) on a line of its own; removed support for the redundant ``#P`` macro
   accordingly
 
 2.3.1 (2011-11-15)
 ------------------
-* Added support to :ref:`skool2html.py` for multiple `ref` files per
-  disassembly
+* Added support to :ref:`skool2html.py` for multiple ref files per disassembly
 * Enhanced the :ref:`UDG` and :ref:`UDGARRAY` macros so that images can be
   flipped horizontally and vertically
 * Enhanced the :ref:`POKES` macro so that multiple pokes may be specified
@@ -71,8 +70,8 @@ SkoolKit 2.x changelog
   skool macros so that nested parentheses are handled correctly
 * Fixed the handling of version 1 Z80 snapshots by :ref:`sna2skool.py`
 * Added support for the ``IndexPageId`` and ``Link`` parameters in
-  ``[OtherCode:*]`` sections of the `ref` file
-* Reintroduced support for ``[Changelog:*]`` sections in `ref` files
+  ``[OtherCode:*]`` sections of the ref file
+* Reintroduced support for ``[Changelog:*]`` sections in ref files
 * Added 'Changelog' pages to the Skool Daze, Back to Skool and Contact Sam
   Cruise disassemblies
 * Updated the Contact Sam Cruise disassembly
@@ -168,7 +167,7 @@ Updated the Contact Sam Cruise disassembly; it is now 'complete'.
 * Added the :ref:`LINK` macro (for creating hyperlinks to other pages in an
   HTML disassembly)
 * Added the ability to define custom pages in an HTML disassembly using
-  ``[Page:*]`` and ``[PageContent:*]`` sections in the `ref` file
+  ``[Page:*]`` and ``[PageContent:*]`` sections in the ref file
 * Added the ``-o`` option to :ref:`skool2html.py <skool2html.py>` (to overwrite
   existing image files)
 * Optional parameters in any position in a skool macro may be left blank
@@ -196,15 +195,15 @@ Updated the Contact Sam Cruise disassembly; it is now 'complete'.
 * Enhanced the :ref:`SCR` macro so that it can take screenshots of rectangular
   portions of the screen
 * The contents of the 'Other graphics' page of a disassembly are now defined in
-  the ``[Graphics]`` section of the `ref` file
+  the ``[Graphics]`` section of the ref file
 * Added the ability to define the layout of the disassembly index page in the
-  ``[Index]`` and ``[Index:*:*]`` sections of the `ref` file
+  ``[Index]`` and ``[Index:*:*]`` sections of the ref file
 * Added the ability to define page titles in the ``[Titles]`` section of the
-  `ref` file
+  ref file
 * Added the ability to define page link text in the ``[Links]`` section of the
-  `ref` file
+  ref file
 * Added the ability to define the image colour palette in the ``[Colours]``
-  section of the `ref` file
+  section of the ref file
 * Fixed the bug in :ref:`sna2skool.py <sna2skool.py>` that prevented it from
   generating a control file for a snapshot with the final byte of a 'RET',
   'JR d', or 'JP nn' instruction at 65535
@@ -221,14 +220,14 @@ Updated the incomplete Contact Sam Cruise disassembly.
 2.0.2 (2010-12-01)
 ------------------
 * Fixed the ``#EREFS``, ``#REFS`` and ``#TAPS`` macros
-* Fixed the bug where the end comment for the last entry in a `skool` file is
-  not parsed
+* Fixed the bug where the end comment for the last entry in a skool file is not
+  parsed
 * Updated the incomplete Contact Sam Cruise disassembly
 
 2.0.1 (2010-11-28)
 ------------------
 * Added the ``-r`` option to :ref:`skool2html.py <skool2html.py>` (for
-  specifying a `ref` file)
+  specifying a ref file)
 * Added the ``-o``, ``-r``, and ``-l`` options to
   :ref:`sna2skool.py <sna2skool.py>`, along with the ability to read binary
   (raw memory) files
