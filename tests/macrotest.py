@@ -169,29 +169,10 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#EVAL(15 + 2 * (5 - 2) - ($10 + 2) / 3, 2)'), '1111')
         self.assertEqual(writer.expand('#EVAL16,2,8'), '00010000')
 
-    def test_macro_eval_with_nested_eval_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#EVAL(1+#EVAL(23-7)/5)'), '4')
-
-    def test_macro_eval_with_nested_for_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#EVAL(#FOR1,4(n,n,*))'), '24')
-
-    def test_macro_eval_with_nested_foreach_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#EVAL(#FOREACH(1,2,3,4)(n,n,*))'), '24')
-
-    def test_macro_eval_with_nested_if_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#EVAL(1+#IF(5>4)(10,20))'), '11')
-
-    def test_macro_eval_with_nested_map_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#EVAL(#MAP5(0,1:1,5:10))'), '10')
-
-    def test_macro_eval_with_nested_peek_macro(self):
-        writer = self._get_writer(snapshot=(2, 1))
-        self.assertEqual(writer.expand('#EVAL(#PEEK0+256*#PEEK1)'), '258')
+        # Nested macros
+        self.assertEqual(writer.expand(nest_macros(writer, '#EVAL({})', '5+5')), '10')
+        self.assertEqual(writer.expand(nest_macros(writer, '#EVAL(5+5,{})', '8+8')), 'A')
+        self.assertEqual(writer.expand(nest_macros(writer, '#EVAL(5+5,16,{})', '1+1')), '0A')
 
     def test_macro_eval_invalid(self):
         writer = self._get_writer()
@@ -261,6 +242,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand(nest_macros(writer, '#FOR({},3)(n,n)', 1)), '123')
         self.assertEqual(writer.expand(nest_macros(writer, '#FOR(1,{})(n,n)', 3)), '123')
         self.assertEqual(writer.expand(nest_macros(writer, '#FOR(1,3,{})(n,n)', 2)), '13')
+        self.assertEqual(writer.expand(nest_macros(writer, '#FOR(1,3)||n|{}||', 'n')), '123')
 
     def test_macro_for_with_separator(self):
         writer = self._get_writer()
@@ -325,6 +307,10 @@ class CommonSkoolMacroTest:
         output = writer.expand('#FOREACH//a,/b,/c//($s,$s)')
         self.assertEqual(output, 'a,b,c')
 
+        # Nested macros
+        output = writer.expand(nest_macros(writer, '#FOREACH(0,1,2)||n|({})||', 'n'))
+        self.assertEqual(output, '(0)(1)(2)')
+
     def test_macro_foreach_with_separator(self):
         writer = self._get_writer()
 
@@ -366,32 +352,6 @@ class CommonSkoolMacroTest:
         # Three values
         output = writer.expand('#FOREACH(a,b,c)//$s/$s/, / and //')
         self.assertEqual(output, 'a, b and c')
-
-    def test_macro_foreach_with_nested_eval_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#FOREACH(0,1,2)||n|#EVAL(n+1)|, ||'), '1, 2, 3')
-
-    def test_macro_foreach_with_nested_for_macro(self):
-        writer = self._get_writer()
-        output = writer.expand('#FOREACH(0,1,2)||n|#FOR5,6//m/m.n/, //|, ||')
-        self.assertEqual(output, '5.0, 6.0, 5.1, 6.1, 5.2, 6.2')
-
-    def test_macro_foreach_with_nested_foreach_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#FOREACH(0,1)||n|#FOREACH(a,n)($s,[$s])|, ||'), '[a][0], [a][1]')
-
-    def test_macro_foreach_with_nested_if_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#FOREACH(0,1,2)//m/#IFm([m],{m})//'), '{0}[1][2]')
-        self.assertEqual(writer.expand('#FOREACH(0,1,2)//m/#IF1([m],{m})//'), '[0][1][2]')
-
-    def test_macro_foreach_with_nested_map_macro(self):
-        writer = self._get_writer()
-        self.assertEqual(writer.expand('#FOREACH(0,1,2)||n|#MAPn(c,0:a,1:b)||'), 'abc')
-
-    def test_macro_foreach_with_nested_peek_macro(self):
-        writer = self._get_writer(snapshot=(1, 2, 3))
-        self.assertEqual(writer.expand('#FOREACH(0,1,2)(n,n+#PEEKn,+)'), '0+1+1+2+2+3')
 
     def test_macro_foreach_with_entry(self):
         skool = '\n'.join((
@@ -571,6 +531,8 @@ class CommonSkoolMacroTest:
 
         # Nested macros
         self.assertEqual(writer.expand(nest_macros(writer, '#IF({})(y,n)', 1)), 'y')
+        self.assertEqual(writer.expand(nest_macros(writer, '#IF1||{}|n||', 'y')), 'y')
+        self.assertEqual(writer.expand(nest_macros(writer, '#IF0||y|{}||', 'n')), 'n')
 
         # Multi-line output strings
         self.assertEqual(writer.expand('#IF1(foo\nbar,baz\nqux)'), 'foo\nbar')
