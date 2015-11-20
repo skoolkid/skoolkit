@@ -428,16 +428,16 @@ with the argument ``32768``.
 For information on writing methods that may be called by a ``#CALL`` macro, see
 the documentation on :ref:`extending SkoolKit <extendingSkoolKit>`.
 
-+---------+------------------------------------------------------------+
-| Version | Changes                                                    |
-+=========+============================================================+
-| 5.1     | Added support for arithmetic expressions in numeric method |
-|         | arguments                                                  |
-+---------+------------------------------------------------------------+
-| 3.1     | Added support for ASM mode                                 |
-+---------+------------------------------------------------------------+
-| 2.1     | New                                                        |
-+---------+------------------------------------------------------------+
++---------+--------------------------------------------------------------+
+| Version | Changes                                                      |
++=========+==============================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in |
+|         | numeric method arguments                                     |
++---------+--------------------------------------------------------------+
+| 3.1     | Added support for ASM mode                                   |
++---------+--------------------------------------------------------------+
+| 2.1     | New                                                          |
++---------+--------------------------------------------------------------+
 
 .. _CHR:
 
@@ -459,13 +459,14 @@ For example:
 In HTML mode, this instance of the ``#CHR`` macro expands to ``&#169;``. In ASM
 mode, it expands to the copyright symbol.
 
-+---------+-------------------------------------------------------------------+
-| Version | Changes                                                           |
-+=========+===================================================================+
-| 5.1     | Added support for arithmetic expressions in the ``num`` parameter |
-+---------+-------------------------------------------------------------------+
-| 3.1     | New                                                               |
-+---------+-------------------------------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | ``num`` parameter                                                |
++---------+------------------------------------------------------------------+
+| 3.1     | New                                                              |
++---------+------------------------------------------------------------------+
 
 .. _D:
 
@@ -488,12 +489,12 @@ For example::
 
 This instance of the ``#D`` macro expands to the title of the routine at 27126.
 
-+---------+----------------------------------------------------------+
-| Version | Changes                                                  |
-+=========+==========================================================+
-| 5.1     | Added support for arithmetic expressions in the ``addr`` |
-|         | parameter                                                |
-+---------+----------------------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | ``addr`` parameter                                               |
++---------+------------------------------------------------------------------+
 
 .. _EREFS:
 
@@ -513,14 +514,14 @@ See also :ref:`m-REFS`.
    The ``#EREFS`` macro is deprecated since version 5.1. Consider using the
    special variable ``EREFaddr`` with the :ref:`FOREACH` macro instead.
 
-+---------+----------------------------------------------------------+
-| Version | Changes                                                  |
-+=========+==========================================================+
-| 5.1     | Added support for arithmetic expressions in the ``addr`` |
-|         | parameter                                                |
-+---------+----------------------------------------------------------+
-| 3.1     | Added support for ASM mode                               |
-+---------+----------------------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | ``addr`` parameter                                               |
++---------+------------------------------------------------------------------+
+| 3.1     | Added support for ASM mode                                       |
++---------+------------------------------------------------------------------+
 
 .. _FACT:
 
@@ -755,7 +756,8 @@ section.
 +=========+===============================================================+
 | 5.1     | An anchor that matches the entry address is converted to the  |
 |         | format specified by the ``AddressAnchor`` parameter; added    |
-|         | support for arithmetic expressions in the ``addr`` parameter  |
+|         | support for arithmetic expressions and skool macros in the    |
+|         | ``addr`` parameter                                            |
 +---------+---------------------------------------------------------------+
 | 3.5     | Added the ability to resolve (in HTML mode) the address of an |
 |         | entry point in another disassembly when an appropriate        |
@@ -788,16 +790,16 @@ See also :ref:`EREFS`.
    The ``#REFS`` macro is deprecated since version 5.1. Consider using the
    special variable ``REFaddr`` with the :ref:`FOREACH` macro instead.
 
-+---------+----------------------------------------------------------+
-| Version | Changes                                                  |
-+=========+==========================================================+
-| 5.1     | Added support for arithmetic expressions in the ``addr`` |
-|         | parameter                                                |
-+---------+----------------------------------------------------------+
-| 3.1     | Added support for ASM mode                               |
-+---------+----------------------------------------------------------+
-| 1.0.6   | Added the ``prefix`` parameter                           |
-+---------+----------------------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | ``addr`` parameter                                               |
++---------+------------------------------------------------------------------+
+| 3.1     | Added support for ASM mode                                       |
++---------+------------------------------------------------------------------+
+| 1.0.6   | Added the ``prefix`` parameter                                   |
++---------+------------------------------------------------------------------+
 
 .. _REG:
 
@@ -863,13 +865,14 @@ text where necessary. For example::
   ; 'Score:#SPACE(5)0'
   t49152 DEFM "Score:     0"
 
-+---------+-------------------------------------------------------------------+
-| Version | Changes                                                           |
-+=========+===================================================================+
-| 5.1     | Added support for arithmetic expressions in the ``num`` parameter |
-+---------+-------------------------------------------------------------------+
-| 2.4.1   | Added support for the ``#SPACE([num])`` syntax                    |
-+---------+-------------------------------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | ``num`` parameter                                                |
++---------+------------------------------------------------------------------+
+| 2.4.1   | Added support for the ``#SPACE([num])`` syntax                   |
++---------+------------------------------------------------------------------+
 
 .. _TABLE:
 
@@ -1020,7 +1023,8 @@ See :ref:`stringParameters` for details on alternative ways to supply the
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 5.1     | Add support for arithmetic expressions in the numeric parameters |
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | numeric parameters                                               |
 +---------+------------------------------------------------------------------+
 | 4.3     | Added the ability to create frames                               |
 +---------+------------------------------------------------------------------+
@@ -1084,7 +1088,8 @@ For example::
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 5.1     | Add support for arithmetic expressions in the numeric parameters |
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | numeric parameters                                               |
 +---------+------------------------------------------------------------------+
 | 4.3     | Added the ability to create frames                               |
 +---------+------------------------------------------------------------------+
@@ -1157,7 +1162,8 @@ or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 5.1     | Add support for arithmetic expressions in the numeric parameters |
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | numeric parameters                                               |
 +---------+------------------------------------------------------------------+
 | 4.3     | Added the ability to create frames                               |
 +---------+------------------------------------------------------------------+
@@ -1283,7 +1289,8 @@ named `base_sprite.png`.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 5.1     | Add support for arithmetic expressions in the numeric parameters  |
+| 5.1     | Added support for arithmetic expressions and skool macros in the  |
+|         | numeric parameters                                                |
 +---------+-------------------------------------------------------------------+
 | 4.2     | Added the ability to specify alt text for the ``<img>`` element   |
 +---------+-------------------------------------------------------------------+
@@ -1472,7 +1479,8 @@ See also :ref:`PEEK`.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 5.1     | Add support for arithmetic expressions in the numeric parameters |
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | numeric parameters                                               |
 +---------+------------------------------------------------------------------+
 | 3.1     | Added support for ASM mode                                       |
 +---------+------------------------------------------------------------------+
