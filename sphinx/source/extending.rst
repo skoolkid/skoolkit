@@ -248,20 +248,6 @@ to parse the parameters of a skool macro.
    The :meth:`parse_image_params` method on HtmlWriter is deprecated since
    version 5.1. Use :func:`~skoolkit.skoolmacro.parse_image_macro` instead.
 
-.. _ext-ExpandingMacros:
-
-Expanding skool macros
-----------------------
-HtmlWriter and AsmWriter each provide a method for expanding skool macros. This
-is useful for basing a ``#CALL`` method or custom macro on an existing macro.
-
-.. automethod:: skoolkit.skoolhtml.HtmlWriter.expand
-
-   .. versionchanged:: 5.1
-      The *cwd* parameter is optional.
-
-.. automethod:: skoolkit.skoolasm.AsmWriter.expand
-
 Parsing ref files
 -----------------
 HtmlWriter provides some convenience methods for extracting text and data from
