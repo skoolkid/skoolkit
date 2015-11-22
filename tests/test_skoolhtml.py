@@ -824,11 +824,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         anchor = 'testingNestedSmplMacros'
         link_text = 'OK'
-        output = writer.expand(nest_macros(writer, '#{}#(#{{}})({})'.format(macro, link_text), anchor), ASMDIR)
+        output = writer.expand(nest_macros('#{}#(#{{}})({})'.format(macro, link_text), anchor), ASMDIR)
         self._assert_link_equals(output, '../{}/{}.html#{}'.format(REFERENCE_DIR, page, anchor), link_text)
 
         link_text = 'testing nested SMPL macros'
-        output = writer.expand(nest_macros(writer, '#{}({{}})'.format(macro), link_text), ASMDIR)
+        output = writer.expand(nest_macros('#{}({{}})'.format(macro), link_text), ASMDIR)
         self._assert_link_equals(output, '../{}/{}.html'.format(REFERENCE_DIR, page), link_text)
 
     def _assert_error(self, writer, text, error_msg=None, prefix=None, error=SkoolParsingError):
@@ -881,7 +881,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#CHR65/5'), '&#65;/5')
         self.assertEqual(writer.expand('#CHR(65+3*2-9/3)'), '&#68;')
         self.assertEqual(writer.expand('#CHR($42 + 3 * 2 - (2 + 7) / 3)'), '&#69;')
-        self.assertEqual(writer.expand(nest_macros(writer, '#CHR({})', 70)), '&#70;')
+        self.assertEqual(writer.expand(nest_macros('#CHR({})', 70)), '&#70;')
 
     def test_macro_erefs(self):
         # Entry point with one referrer
@@ -916,7 +916,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#EREFS$7534', ASMDIR), exp_output)
         self.assertEqual(writer.expand('#EREFS(30004+2*3-(8+4)/2)', ASMDIR), exp_output)
         self.assertEqual(writer.expand('#EREFS($7534 - 6 + (7 - 5) * 3)', ASMDIR), exp_output)
-        self.assertEqual(writer.expand(nest_macros(writer, '#EREFS({})', 30004), ASMDIR), exp_output)
+        self.assertEqual(writer.expand(nest_macros('#EREFS({})', 30004), ASMDIR), exp_output)
 
     def test_macro_fact(self):
         self._test_reference_macro('FACT', 'fact', 'facts')
@@ -978,7 +978,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         # Nested macros
         x = 5
         fname = 'nested'
-        output = writer.expand(nest_macros(writer, '#FONT({},1){{x={}}}({})', font_addr, x, fname), ASMDIR)
+        output = writer.expand(nest_macros('#FONT({},1){{x={}}}({})', font_addr, x, fname), ASMDIR)
         self._assert_img_equals(output, fname, '../{}/{}.png'.format(FONTDIR, fname))
         self._check_image(writer.image_writer, [[Udg(56, char1)]], 2, x=x, width=11)
 
@@ -1101,7 +1101,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(output, '&#169;')
 
         text = 'tested nested SMPL macros'
-        output = writer.expand(nest_macros(writer, '#HTML/{}/', text))
+        output = writer.expand(nest_macros('#HTML/{}/', text))
         self.assertEqual(output, text)
 
     def test_macro_link(self):
@@ -1130,17 +1130,17 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, '../page2.html#anchor~1', 'Custom page 2')
 
         link_text = 'test nested SMPL macros'
-        output = writer.expand(nest_macros(writer, '#LINK:page2({})', link_text), ASMDIR)
+        output = writer.expand(nest_macros('#LINK:page2({})', link_text), ASMDIR)
         self._assert_link_equals(output, '../page2.html', link_text)
 
         anchor = 'testNestedSmplMacros'
         link_text = 'Testing2'
-        output = writer.expand(nest_macros(writer, '#LINK#(:page2#{{}})({})'.format(link_text), anchor), ASMDIR)
+        output = writer.expand(nest_macros('#LINK#(:page2#{{}})({})'.format(link_text), anchor), ASMDIR)
         self._assert_link_equals(output, '../page2.html#{}'.format(anchor), link_text)
 
         page_id = 'page2'
         link_text = 'Testing3'
-        output = writer.expand(nest_macros(writer, '#LINK#(:{{}})({})'.format(link_text), page_id), ASMDIR)
+        output = writer.expand(nest_macros('#LINK#(:{{}})({})'.format(link_text), page_id), ASMDIR)
         self._assert_link_equals(output, '../page2.html', link_text)
 
     def test_macro_link_invalid(self):
@@ -1178,7 +1178,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         # Nested macros
         css_class = 'someclass'
-        output = writer.expand(nest_macros(writer, '#LIST({}){{ A }}LIST#', css_class))
+        output = writer.expand(nest_macros('#LIST({}){{ A }}LIST#', css_class))
         self.assertEqual(output, '<ul class="{}">\n<li>A</li>\n</ul>'.format(css_class))
 
     def test_macro_list_invalid(self):
@@ -1262,7 +1262,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, '24576.html', '24576')
 
         # Nested macros: address
-        output = writer.expand(nest_macros(writer, '#R({})', 24576), ASMDIR)
+        output = writer.expand(nest_macros('#R({})', 24576), ASMDIR)
         self._assert_link_equals(output, '24576.html', '24576')
 
         # Explicit anchor
@@ -1270,7 +1270,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, '24576.html#foo', '24576')
 
         # Nested macros: anchor
-        output = writer.expand(nest_macros(writer, '#R#(24576#{})', 'bar'), ASMDIR)
+        output = writer.expand(nest_macros('#R#(24576#{})', 'bar'), ASMDIR)
         self._assert_link_equals(output, '24576.html#bar', '24576')
 
         # Link text
@@ -1280,7 +1280,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         # Nested macros: link text
         link_text = 'Testing2'
-        output = writer.expand(nest_macros(writer, '#R24576({})', link_text), ASMDIR)
+        output = writer.expand(nest_macros('#R24576({})', link_text), ASMDIR)
         self._assert_link_equals(output, '24576.html', link_text)
 
         # Different current working directory
@@ -1344,7 +1344,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_link_equals(output, '../other/32768.html#{0}'.format(anchor), link_text)
 
         # Nested macros: other code with remote entry
-        output = writer.expand(nest_macros(writer, '#R#(49152@{})', 'other'), ASMDIR)
+        output = writer.expand(nest_macros('#R#(49152@{})', 'other'), ASMDIR)
         self._assert_link_equals(output, '../other/49152.html', 'C000')
 
     def test_macro_r_decimal(self):
@@ -1578,7 +1578,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#REFS24579', ASMDIR), exp_output)
         self.assertEqual(writer.expand('#REFS$6003', ASMDIR), exp_output)
         self.assertEqual(writer.expand('#REFS($6003 + 1 - 2 * 2 + (5 + 1) / 2)', ASMDIR), exp_output)
-        self.assertEqual(writer.expand(nest_macros(writer, '#REFS({})', 24579), ASMDIR), exp_output)
+        self.assertEqual(writer.expand(nest_macros('#REFS({})', 24579), ASMDIR), exp_output)
 
         # Prefix
         output = writer.expand('#REFS24579(Exploited by the)', ASMDIR)
@@ -1645,7 +1645,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         scale = 4
         x = 2
         fname = 'nested'
-        output = writer.expand(nest_macros(writer, '#SCR({},,,1,1){{x={}}}({})', scale, x, fname), ASMDIR)
+        output = writer.expand(nest_macros('#SCR({},,,1,1){{x={}}}({})', scale, x, fname), ASMDIR)
         self._assert_img_equals(output, fname, '../{}/{}.png'.format(SCRDIR, fname))
         udg_array = [[Udg(snapshot[22528], snapshot[16384:18432:256])]]
         self._check_image(writer.image_writer, udg_array, scale, x=x, width=30)
@@ -1766,7 +1766,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         # Nested macros
         css_class = 'someclass'
-        output = writer.expand(nest_macros(writer, '#TABLE({}){{ A }}TABLE#', css_class))
+        output = writer.expand(nest_macros('#TABLE({}){{ A }}TABLE#', css_class))
         self.assertEqual(output, '<table class="{}">\n<tr>\n<td class="" colspan="1" rowspan="1">A</td>\n</tr>\n</table>'.format(css_class))
 
     def test_macro_table_invalid(self):
@@ -1859,7 +1859,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fname = 'nested'
         udg = Udg(56, [137] * 8, [241] * 8)
         snapshot[addr:addr + 16] = udg.data + udg.mask
-        macro = nest_macros(writer, '#UDG({}):({}){{y={}}}({})', addr, addr + 8, y, fname)
+        macro = nest_macros('#UDG({}):({}){{y={}}}({})', addr, addr + 8, y, fname)
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
         self._check_image(writer.image_writer, [[udg]], scale, mask, y=y, height=28)
@@ -2065,7 +2065,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fname = 'nested'
         udg = Udg(56, [45] * 8, [173] * 8)
         snapshot[udg_addr:udg_addr + 16] = udg.data + udg.mask
-        macro = nest_macros(writer, '#UDGARRAY1;({0})-({0})-({1})-({1})x({1}):({2})-({2})-({1})-({1})x({1}){{x={3}}}({4})', udg_addr, 1, udg_addr + 8, x, fname)
+        macro = nest_macros('#UDGARRAY1;({0})-({0})-({1})-({1})x({1}):({2})-({2})-({1})-({1})x({1}){{x={3}}}({4})', udg_addr, 1, udg_addr + 8, x, fname)
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
         self._check_image(writer.image_writer, [[udg]], scale, mask, x, width=15)
@@ -2220,7 +2220,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         # Nested macros
         css_class = 'someclass'
-        output = writer.expand(nest_macros(writer, '#UDGTABLE({}){{ A }}UDGTABLE#', css_class))
+        output = writer.expand(nest_macros('#UDGTABLE({}){{ A }}UDGTABLE#', css_class))
         self.assertEqual(output, '<table class="{}">\n<tr>\n<td class="" colspan="1" rowspan="1">A</td>\n</tr>\n</table>'.format(css_class))
 
     def test_macro_udgtable_invalid(self):

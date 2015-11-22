@@ -4,10 +4,8 @@ from skoolkit.skoolparser import CASE_LOWER
 
 ERROR_PREFIX = 'Error while parsing #{} macro'
 
-def nest_macros(writer, template, *values):
-    if not writer.snapshot:
-        writer.snapshot = [0]
-    nested_macros = ['#FOREACH()@@__@#FOR1,1!!_!#MAP1[#IF(#EVAL(1+#PEEK0))({})]!!@@'.format(v) for v in values]
+def nest_macros(template, *values):
+    nested_macros = ['#IF(#EVAL1)({})'.format(v) for v in values]
     return template.format(*nested_macros)
 
 class CommonSkoolMacroTest:
@@ -49,7 +47,7 @@ class CommonSkoolMacroTest:
 
         # Nested macros
         value = 12345
-        params = nest_macros(writer, '{0},{0}+1,{0}+2', value)
+        params = nest_macros('{0},{0}+1,{0}+2', value)
         self._check_call(writer, params, value, value + 1, value + 2)
 
         # Non-arithmetic Python expressions
@@ -124,7 +122,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, 'Second routine')
 
         # Nested macros
-        output = writer.expand(nest_macros(writer, '#D({})', 32768))
+        output = writer.expand(nest_macros('#D({})', 32768))
         self.assertEqual(output, 'First routine')
 
         # Adjacent characters
@@ -170,9 +168,9 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#EVAL16,2,8'), '00010000')
 
         # Nested macros
-        self.assertEqual(writer.expand(nest_macros(writer, '#EVAL({})', '5+5')), '10')
-        self.assertEqual(writer.expand(nest_macros(writer, '#EVAL(5+5,{})', '8+8')), 'A')
-        self.assertEqual(writer.expand(nest_macros(writer, '#EVAL(5+5,16,{})', '1+1')), '0A')
+        self.assertEqual(writer.expand(nest_macros('#EVAL({})', '5+5')), '10')
+        self.assertEqual(writer.expand(nest_macros('#EVAL(5+5,{})', '8+8')), 'A')
+        self.assertEqual(writer.expand(nest_macros('#EVAL(5+5,16,{})', '1+1')), '0A')
 
     def test_macro_eval_invalid(self):
         writer = self._get_writer()
@@ -239,10 +237,10 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '[1][7][13]')
 
         # Nested macros
-        self.assertEqual(writer.expand(nest_macros(writer, '#FOR({},3)(n,n)', 1)), '123')
-        self.assertEqual(writer.expand(nest_macros(writer, '#FOR(1,{})(n,n)', 3)), '123')
-        self.assertEqual(writer.expand(nest_macros(writer, '#FOR(1,3,{})(n,n)', 2)), '13')
-        self.assertEqual(writer.expand(nest_macros(writer, '#FOR(1,3)||n|{}||', 'n')), '123')
+        self.assertEqual(writer.expand(nest_macros('#FOR({},3)(n,n)', 1)), '123')
+        self.assertEqual(writer.expand(nest_macros('#FOR(1,{})(n,n)', 3)), '123')
+        self.assertEqual(writer.expand(nest_macros('#FOR(1,3,{})(n,n)', 2)), '13')
+        self.assertEqual(writer.expand(nest_macros('#FOR(1,3)||n|{}||', 'n')), '123')
 
     def test_macro_for_with_separator(self):
         writer = self._get_writer()
@@ -308,7 +306,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, 'a,b,c')
 
         # Nested macros
-        output = writer.expand(nest_macros(writer, '#FOREACH(0,1,2)||n|({})||', 'n'))
+        output = writer.expand(nest_macros('#FOREACH(0,1,2)||n|({})||', 'n'))
         self.assertEqual(output, '(0)(1)(2)')
 
     def test_macro_foreach_with_separator(self):
@@ -530,9 +528,9 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#IF(2==2&&4>5||3<4)(T,F)'), 'T')
 
         # Nested macros
-        self.assertEqual(writer.expand(nest_macros(writer, '#IF({})(y,n)', 1)), 'y')
-        self.assertEqual(writer.expand(nest_macros(writer, '#IF1||{}|n||', 'y')), 'y')
-        self.assertEqual(writer.expand(nest_macros(writer, '#IF0||y|{}||', 'n')), 'n')
+        self.assertEqual(writer.expand(nest_macros('#IF({})(y,n)', 1)), 'y')
+        self.assertEqual(writer.expand(nest_macros('#IF1||{}|n||', 'y')), 'y')
+        self.assertEqual(writer.expand(nest_macros('#IF0||y|{}||', 'n')), 'n')
 
         # Multi-line output strings
         self.assertEqual(writer.expand('#IF1(foo\nbar,baz\nqux)'), 'foo\nbar')
@@ -613,10 +611,10 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#MAP1(?,4>>2:OK)'), 'OK')
 
         # Nested macros
-        self.assertEqual(writer.expand(nest_macros(writer, '#MAP({})(0,1:2)', 1)), '2')
-        self.assertEqual(writer.expand(nest_macros(writer, '#MAP0//{}/1:2//', 3)), '3')
-        self.assertEqual(writer.expand(nest_macros(writer, '#MAP#(1//0/{}:2//)', 1)), '2')
-        self.assertEqual(writer.expand(nest_macros(writer, '#MAP1//0/1:{}//', 2)), '2')
+        self.assertEqual(writer.expand(nest_macros('#MAP({})(0,1:2)', 1)), '2')
+        self.assertEqual(writer.expand(nest_macros('#MAP0//{}/1:2//', 3)), '3')
+        self.assertEqual(writer.expand(nest_macros('#MAP#(1//0/{}:2//)', 1)), '2')
+        self.assertEqual(writer.expand(nest_macros('#MAP1//0/1:{}//', 2)), '2')
 
         # Alternative delimiters
         for delim1, delim2 in (('[', ']'), ('{', '}')):
@@ -654,7 +652,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(output, '3')
 
         # Nested macros
-        self.assertEqual(writer.expand(nest_macros(writer, '#PEEK({})', 2)), '3')
+        self.assertEqual(writer.expand(nest_macros('#PEEK({})', 2)), '3')
 
     def test_macro_peek_invalid(self):
         writer = self._get_writer()
@@ -698,7 +696,7 @@ class CommonSkoolMacroTest:
         self.assertEqual([12] * 6, snapshot[2:18:3])
 
         # Nested macros
-        output = writer.expand(nest_macros(writer, '#POKES({},1)', 0))
+        output = writer.expand(nest_macros('#POKES({},1)', 0))
         self.assertEqual(output, '')
         self.assertEqual(writer.snapshot[0], 1)
 
@@ -746,7 +744,7 @@ class CommonSkoolMacroTest:
                 self.assertEqual(writer.snapshot[addr], byte)
 
         name = 'testnestedSMPLmacros'
-        output = writer.expand(nest_macros(writer, '#PUSHS#({})', name))
+        output = writer.expand(nest_macros('#PUSHS#({})', name))
         self.assertEqual(output, '')
         if hasattr(writer, 'get_snapshot_name'):
             self.assertEqual(writer.get_snapshot_name(), name)
@@ -783,7 +781,7 @@ class CommonSkoolMacroTest:
             self.assertEqual(output, template.format(reg.upper()))
 
         # Nested macros
-        output = writer.expand(nest_macros(writer, '#REG#({})', 'hl'))
+        output = writer.expand(nest_macros('#REG#({})', 'hl'))
         self.assertEqual(output, template.format('HL'))
 
         # Lower case
@@ -823,7 +821,7 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('|#SPACE3/3|'), '|{}/3|'.format(space * 3))
         self.assertEqual(writer.expand('|#SPACE(1+3*2-10/2)|'), '|{}|'.format(space * 2))
         self.assertEqual(writer.expand('|#SPACE($01 + 3 * 2 - (7 + 3) / 2)|'), '|{}|'.format(space * 2))
-        self.assertEqual(writer.expand(nest_macros(writer, '"#SPACE({})"', 5)), '"{}"'.format(space * 5))
+        self.assertEqual(writer.expand(nest_macros('"#SPACE({})"', 5)), '"{}"'.format(space * 5))
         self.assertEqual(writer.expand('<#SPACE#(#EVAL3)>'), '<{}>'.format(space * 3))
         self.assertEqual(writer.expand('<#SPACE#(#(2))>'), '<{}>'.format(space * 2))
 
