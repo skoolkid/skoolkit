@@ -493,7 +493,12 @@ def peek(infile, addr_range):
         addr1 = addr2 = get_int_param(addr_range)
     snapshot = get_snapshot(infile)
     for a in range(addr1, addr2 + 1, step):
-        print('{}: {}'.format(a, snapshot[a]))
+        value = snapshot[a]
+        if 32 <= value <= 126:
+            char = chr(value)
+        else:
+            char = ''
+        print('{0:>5}: {1:>3}  {1:02X}  {1:08b}  {2}'.format(a, value, char))
 
 ###############################################################################
 # Begin
