@@ -480,25 +480,26 @@ def find(infile, byte_seq):
         if snapshot[a:a + offset:step] == byte_values:
             print("{}-{}-{}: {}".format(a, a + offset - step, step, byte_seq))
 
-def peek(infile, addr_range):
-    step = 1
-    if '-' in addr_range:
-        addr1, addr2 = addr_range.split('-', 1)
-        addr1 = get_int_param(addr1)
-        if '-' in addr2:
-            addr2, step = [get_int_param(i) for i in addr2.split('-', 1)]
-        else:
-            addr2 = get_int_param(addr2)
-    else:
-        addr1 = addr2 = get_int_param(addr_range)
+def peek(infile, specs):
     snapshot = get_snapshot(infile)
-    for a in range(addr1, addr2 + 1, step):
-        value = snapshot[a]
-        if 32 <= value <= 126:
-            char = chr(value)
+    for addr_range in specs:
+        step = 1
+        if '-' in addr_range:
+            addr1, addr2 = addr_range.split('-', 1)
+            addr1 = get_int_param(addr1)
+            if '-' in addr2:
+                addr2, step = [get_int_param(i) for i in addr2.split('-', 1)]
+            else:
+                addr2 = get_int_param(addr2)
         else:
-            char = ''
-        print('{0:>5}: {1:>3}  {1:02X}  {1:08b}  {2}'.format(a, value, char))
+            addr1 = addr2 = get_int_param(addr_range)
+        for a in range(addr1, addr2 + 1, step):
+            value = snapshot[a]
+            if 32 <= value <= 126:
+                char = chr(value)
+            else:
+                char = ''
+            print('{0:>5}: {1:>3}  {1:02X}  {1:08b}  {2}'.format(a, value, char))
 
 ###############################################################################
 # Begin
@@ -514,8 +515,8 @@ group.add_argument('--basic', action='store_true',
                    help='List the BASIC program')
 group.add_argument('--find', metavar='A[,B...[-N]]',
                    help='Search for the byte sequence A,B... with distance N (default=1) between bytes')
-group.add_argument('--peek', metavar='A[-B[-C]]',
-                   help='Show the contents of addresses A TO B STEP C')
+group.add_argument('--peek', metavar='A[-B[-C]]', action='append',
+                   help='Show the contents of addresses A TO B STEP C; this option may be used multiple times')
 namespace, unknown_args = parser.parse_known_args()
 if unknown_args or namespace.infile is None:
     parser.exit(2, parser.format_help())
