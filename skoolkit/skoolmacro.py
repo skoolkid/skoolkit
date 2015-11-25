@@ -333,6 +333,8 @@ def _parse_image_fname(text, index, fname=''):
     if p_text is None:
         return index, fname, None, None
     alt = frame = None
+    if _writer:
+        p_text = _writer.expand(p_text, *_cwd)
     if p_text:
         if '|' in p_text:
             p_text, alt = p_text.split('|', 1)

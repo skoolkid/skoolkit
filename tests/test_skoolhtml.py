@@ -778,11 +778,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
                 self.assertEqual(udg.data, exp_udg.data)
                 self.assertEqual(udg.mask, exp_udg.mask)
 
-    def _check_image(self, image_writer, udg_array, scale=2, mask=0, x=0, y=0, width=None, height=None):
+    def _check_image(self, writer, udg_array, scale=2, mask=0, x=0, y=0, width=None, height=None, path=None):
+        self.assertEqual(writer.file_info.fname, path)
         if width is None:
             width = 8 * len(udg_array[0]) * scale
         if height is None:
             height = 8 * len(udg_array) * scale
+        image_writer = writer.image_writer
         self.assertEqual(image_writer.scale, scale)
         self.assertEqual(image_writer.mask, mask)
         self.assertEqual(image_writer.x, x)
@@ -934,16 +936,25 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
         # Default filename
+        fname = 'font'
+        exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         output = writer.expand('#FONT32768,96', ASMDIR)
-        self._assert_img_equals(output, 'font', '../{}/font.png'.format(FONTDIR))
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
         # Filename specified
-        img_fname = 'font2'
-        output = writer.expand('#FONT55584,96({0})'.format(img_fname), ASMDIR)
-        self._assert_img_equals(output, img_fname, '../{}/{}.png'.format(FONTDIR, img_fname))
+        fname = 'font2'
+        exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#FONT55584,96({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
         # Every parameter
-        img_fname = 'font3'
+        fname = 'font3'
+        exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         font_addr = 32768
         char1 = [1, 2, 3, 4, 5, 6, 7, 8]
         char2 = [8, 7, 6, 5, 4, 3, 2, 1]
@@ -954,33 +965,34 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         attr = 4
         scale = 2
         x, y, w, h = 1, 2, 3, 4
-        values = (font_addr, len(chars), attr, scale, x, y, w, h, img_fname)
+        values = (font_addr, len(chars), attr, scale, x, y, w, h, fname)
         macro = '#FONT{0},{1},{2},{3}{{{4},{5},{6},{7}}}({8})'.format(*values)
         output = writer.expand(macro, ASMDIR)
-        exp_img_fname = '../{}/{}.png'.format(FONTDIR, img_fname)
-        self._assert_img_equals(output, img_fname, exp_img_fname)
+        self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(4, char) for char in chars]]
-        self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
+        self._check_image(writer, udg_array, scale, False, x, y, w, h, exp_image_path)
 
         # Keyword arguments
         macro = '#FONTscale={3},chars={1},addr={0},attr={2}{{x={4},y={5},width={6},height={7}}}({8})'.format(*values)
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, img_fname, exp_img_fname)
-        self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, udg_array, scale, False, x, y, w, h, exp_image_path)
 
         # Keyword arguments, arithmetic expressions
-        values = ('128*256', '1+(3+1)/2', '(1 + 1) * 2', '7&2', '2*2-3', '(8 + 8) / 8', '6>>1', '2<<1', img_fname)
+        values = ('128*256', '1+(3+1)/2', '(1 + 1) * 2', '7&2', '2*2-3', '(8 + 8) / 8', '6>>1', '2<<1', fname)
         macro = '#FONT({0}, scale={3}, chars = {1}, attr={2}){{x={4}, y = {5}, width={6},height ={7}}}({8})'.format(*values)
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, img_fname, exp_img_fname)
-        self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, udg_array, scale, False, x, y, w, h, exp_image_path)
 
         # Nested macros
-        x = 5
         fname = 'nested'
+        exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        x = 5
         output = writer.expand(nest_macros('#FONT({},1){{x={}}}({})', font_addr, x, fname), ASMDIR)
-        self._assert_img_equals(output, fname, '../{}/{}.png'.format(FONTDIR, fname))
-        self._check_image(writer.image_writer, [[Udg(56, char1)]], 2, x=x, width=11)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, [[Udg(56, char1)]], 2, x=x, width=11, path=exp_image_path)
 
     def test_macro_font_text(self):
         snapshot = [1, 2, 3, 4, 5, 6, 7, 8] # ' '
@@ -990,16 +1002,18 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot.extend((1, 3, 5, 7, 9, 11, 13, 15)) # ')'
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
-        img_fname = 'message'
+        fname = 'message'
+        exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         message = ' !"%'
-        macro = '#FONT:({})0({})'.format(message, img_fname)
+        macro = '#FONT:({})0({})'.format(message, fname)
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, img_fname, '../{}/{}.png'.format(FONTDIR, img_fname))
+        self._assert_img_equals(output, fname, exp_src)
         udg_array = [[]]
         for c in message:
             c_addr = 8 * (ord(c) - 32)
             udg_array[0].append(Udg(56, snapshot[c_addr:c_addr + 8]))
-        self._check_image(writer.image_writer, udg_array)
+        self._check_image(writer, udg_array, path=exp_image_path)
 
         message = ')!!!!'
         attr = 43
@@ -1007,21 +1021,22 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         c_addr = 8 * (ord(message[0]) - 32)
         udg_array = [[Udg(attr, snapshot[c_addr:c_addr + 8])]]
         for delim1, delim2 in (('{', '}'), ('[', ']'), ('*', '*'), ('@', '@')):
-            macro = '#FONT:{}{}{}0,1,{},{}({})'.format(delim1, message, delim2, attr, scale, img_fname)
+            macro = '#FONT:{}{}{}0,1,{},{}({})'.format(delim1, message, delim2, attr, scale, fname)
             output = writer.expand(macro, ASMDIR)
-            self._assert_img_equals(output, img_fname, '../{}/{}.png'.format(FONTDIR, img_fname))
-            self._check_image(writer.image_writer, udg_array, scale)
+            self._assert_img_equals(output, fname, exp_src)
+            self._check_image(writer, udg_array, scale, path=exp_image_path)
 
     def test_macro_font_with_custom_font_image_path(self):
         font_path = 'graphics/font'
         ref = '[Paths]\nFontImagePath={}'.format(font_path)
         writer = self._get_writer(ref=ref, snapshot=[0] * 16, mock_file_info=True)
-        img_fname = 'text'
-        exp_img_path = '{}/{}.png'.format(font_path, img_fname)
 
-        output = writer.expand('#FONT:(!!!)0({})'.format(img_fname), ASMDIR)
-        self._assert_img_equals(output, img_fname, '../{}'.format(exp_img_path))
-        self.assertEqual(writer.file_info.fname, exp_img_path)
+        fname = 'text'
+        exp_image_path = '{}/{}.png'.format(font_path, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#FONT:(!!!)0({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
     def test_macro_font_frames(self):
         char1 = [102] * 8
@@ -1036,19 +1051,25 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(output, '')
         self.assertIsNone(file_info.fname)
 
-        output = writer.expand('#FONT8,1,7(char2*)', ASMDIR)
-        exp_image_path = '{}/char2.png'.format(FONTDIR)
-        self._assert_img_equals(output, 'char2', '../{}'.format(exp_image_path))
+        fname = 'char2'
+        exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#FONT8,1,7({}*)'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(file_info.fname, exp_image_path)
 
-        output = writer.expand('#FONT16,1(char3*char3_frame)', ASMDIR)
-        exp_image_path = '{}/char3.png'.format(FONTDIR)
-        self._assert_img_equals(output, 'char3', '../{}'.format(exp_image_path))
+        fname = 'char3'
+        exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#FONT16,1({}*char3_frame)'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(file_info.fname, exp_image_path)
 
+        fname = 'font'
+        exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         output = writer.expand('#FONT24,1,,3{1,2,16,16}(*)', ASMDIR)
-        exp_image_path = '{}/font.png'.format(FONTDIR)
-        self._assert_img_equals(output, 'font', '../{}'.format(exp_image_path))
+        self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(file_info.fname, exp_image_path)
 
         writer.expand('#UDGARRAY*char1;char2;char3_frame;font(chars)', ASMDIR)
@@ -1063,14 +1084,21 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def test_macro_font_alt_text(self):
         writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
 
+        fname = 'font'
+        exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         alt = 'Space'
         output = writer.expand('#FONT:( )0(|{})'.format(alt), ASMDIR)
-        self._assert_img_equals(output, alt, '../{}/font.png'.format(FONTDIR))
+        self._assert_img_equals(output, alt, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
         fname = 'space'
+        exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         alt = 'Another space'
         output = writer.expand('#FONT:( )0({}|{})'.format(fname, alt), ASMDIR)
-        self._assert_img_equals(output, alt, '../{}/{}.png'.format(FONTDIR, fname))
+        self._assert_img_equals(output, alt, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
     def test_macro_foreach_entry_omits_i_blocks(self):
         skool = '\n'.join((
@@ -1592,42 +1620,55 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot = [0] * 65536
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
+        fname = 'scr'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         output = writer.expand('#SCR', ASMDIR)
-        self._assert_img_equals(output, 'scr', '../{}/scr.png'.format(SCRDIR))
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
-        scr_fname = 'scr2'
-        output = writer.expand('#SCR2,0,0,10,10({0})'.format(scr_fname), ASMDIR)
-        self._assert_img_equals(output, scr_fname, '../{}/{}.png'.format(SCRDIR, scr_fname))
+        fname = 'scr2'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#SCR2,0,0,10,10({0})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
-        scr_fname = 'scr3'
+        fname = 'scr3'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         data = [128, 64, 32, 16, 8, 4, 2, 1]
         attr = 48
         snapshot[16384:18432:256] = data
         snapshot[22528] = attr
         scale = 1
         x, y, w, h = 1, 2, 5, 6
-        macro = '#SCR,0,0,1,1{{{},{},{},{}}}({})'.format(x, y, w, h, scr_fname)
+        macro = '#SCR,0,0,1,1{{{},{},{},{}}}({})'.format(x, y, w, h, fname)
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, scr_fname, '../{}/{}.png'.format(SCRDIR, scr_fname))
+        self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, data)]]
-        self._check_image(writer.image_writer, udg_array, scale, False, x, y, w, h)
+        self._check_image(writer, udg_array, scale, False, x, y, w, h, exp_image_path)
 
-        scr_fname = 'scr4'
+        fname = 'scr4'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         scale = 3
         x, y, w, h = 0, 0, 1, 1
         df = 0
         af = 32768
         data = snapshot[df:df + 2048:256] = [170] * 8
         attr = snapshot[af] = 56
-        values = {'scale': scale, 'x': x, 'y': y, 'w': w, 'h': h, 'df': df, 'af': af, 'fname': scr_fname}
+        values = {'scale': scale, 'x': x, 'y': y, 'w': w, 'h': h, 'df': df, 'af': af, 'fname': fname}
         macro = '#SCRx={x},h={h},af={af},scale={scale},y={y},df={df},w={w}({fname})'.format(**values)
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, scr_fname, '../{}/{}.png'.format(SCRDIR, scr_fname))
+        self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, data)]]
-        self._check_image(writer.image_writer, udg_array, scale)
+        self._check_image(writer, udg_array, scale, path=exp_image_path)
 
         # Arithmetic expressions
         fname = 'scr5'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         scale = 3
         df = 0
         af = 6144
@@ -1637,28 +1678,32 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         crop_spec = '{5-4, 2 * 1, width=(2+2)*4+1, height = 7*2}'
         macro = '#SCR(2+1, 0*1, 5-5, (1 + 1) / 2, 1**1, 1^1, 24*256){}({})'.format(crop_spec, fname)
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, fname, '../images/scr/{}.png'.format(fname))
+        self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, data)]]
-        self._check_image(writer.image_writer, udg_array, scale, 0, *crop)
+        self._check_image(writer, udg_array, scale, 0, *crop, path=exp_image_path)
 
         # Nested macros
+        fname = 'nested'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         scale = 4
         x = 2
-        fname = 'nested'
         output = writer.expand(nest_macros('#SCR({},,,1,1){{x={}}}({})', scale, x, fname), ASMDIR)
-        self._assert_img_equals(output, fname, '../{}/{}.png'.format(SCRDIR, fname))
+        self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(snapshot[22528], snapshot[16384:18432:256])]]
-        self._check_image(writer.image_writer, udg_array, scale, x=x, width=30)
+        self._check_image(writer, udg_array, scale, x=x, width=30, path=exp_image_path)
 
     def test_macro_scr_with_custom_screenshot_path(self):
         scr_path = 'graphics/screenshots'
         ref = '[Paths]\nScreenshotImagePath={}'.format(scr_path)
         writer = self._get_writer(ref=ref, snapshot=[0] * 23296, mock_file_info=True)
-        exp_img_path = '{}/scr.png'.format(scr_path)
 
+        fname = 'scr'
+        exp_image_path = '{}/{}.png'.format(scr_path, fname)
+        exp_src = '../{}'.format(exp_image_path)
         output = writer.expand('#SCR', ASMDIR)
-        self._assert_img_equals(output, 'scr', '../{}'.format(exp_img_path))
-        self.assertEqual(writer.file_info.fname, exp_img_path)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
     def test_macro_scr_frames(self):
         snapshot = [n & 255 for n in range(2048)] + [1, 2, 3, 4]
@@ -1670,19 +1715,25 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(output, '')
         self.assertIsNone(file_info.fname)
 
-        output = writer.expand('#SCRx=1,y=0,{}(scr2*)'.format(params), ASMDIR)
-        exp_image_path = '{}/scr2.png'.format(SCRDIR)
-        self._assert_img_equals(output, 'scr2', '../{}'.format(exp_image_path))
+        fname = 'scr2'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#SCRx=1,y=0,{}({}*)'.format(params, fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(file_info.fname, exp_image_path)
 
-        output = writer.expand('#SCRx=2,y=0,{}(scr3*scr3_frame)'.format(params), ASMDIR)
-        exp_image_path = '{}/scr3.png'.format(SCRDIR)
-        self._assert_img_equals(output, 'scr3', '../{}'.format(exp_image_path))
+        fname = 'scr3'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#SCRx=2,y=0,{}({}*scr3_frame)'.format(params, fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(file_info.fname, exp_image_path)
 
+        fname = 'scr'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         output = writer.expand('#SCRscale=2,x=3,y=0,{}{{2,3,8,8}}(*)'.format(params), ASMDIR)
-        exp_image_path = '{}/scr.png'.format(SCRDIR)
-        self._assert_img_equals(output, 'scr', '../{}'.format(exp_image_path))
+        self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(file_info.fname, exp_image_path)
 
         writer.expand('#UDGARRAY*scr1;scr2;scr3_frame;scr(scr.gif)', ASMDIR)
@@ -1698,14 +1749,21 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot = [0] * 23296
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
+        fname = 'scr'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         alt = 'An awesome screenshot'
         output = writer.expand('#SCR(|{})'.format(alt), ASMDIR)
-        self._assert_img_equals(output, alt, '../images/scr/scr.png')
+        self._assert_img_equals(output, alt, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
         fname = 'screenshot'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         alt = 'Another awesome screenshot'
         output = writer.expand('#SCR({}|{})'.format(fname, alt), ASMDIR)
-        self._assert_img_equals(output, alt, '../images/scr/{}.png'.format(fname))
+        self._assert_img_equals(output, alt, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
     def test_macro_table(self):
         src1 = '\n'.join((
@@ -1780,19 +1838,30 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         snapshot = [0] * 65536
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
-        udg_fname = 'udg32768_56x4'
+        fname = 'udg32768_56x4'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         output = writer.expand('#UDG32768', ASMDIR)
-        self._assert_img_equals(output, udg_fname, '../{0}/{1}.png'.format(UDGDIR, udg_fname))
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
-        udg_fname = 'udg40000_2x3'
+        fname = 'udg40000_2x3'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         output = writer.expand('#UDG40000,2,3', ASMDIR)
-        self._assert_img_equals(output, udg_fname, '../{0}/{1}.png'.format(UDGDIR, udg_fname))
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
-        udg_fname = 'test_udg'
-        output = writer.expand('#UDG32768,2,6,1,0:49152,2({0})'.format(udg_fname), ASMDIR)
-        self._assert_img_equals(output, udg_fname, '../{0}/{1}.png'.format(UDGDIR, udg_fname))
+        fname = 'test_udg'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDG32768,2,6,1,0:49152,2({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
-        udg_fname = 'test_udg2'
+        fname = 'test_udg2'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         udg_addr = 32768
         attr = 2
         scale = 1
@@ -1804,13 +1873,15 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg_mask = [255] * 8
         snapshot[udg_addr:udg_addr + 8 * step:step] = udg_data
         snapshot[mask_addr:mask_addr + 8 * step:step] = udg_mask
-        macro = '#UDG{0},{1},{2},{3},{4}:{5},{6}{{{7},{8},{9},{10}}}({11})'.format(udg_addr, attr, scale, step, inc, mask_addr, step, x, y, w, h, udg_fname)
+        macro = '#UDG{0},{1},{2},{3},{4}:{5},{6}{{{7},{8},{9},{10}}}({11})'.format(udg_addr, attr, scale, step, inc, mask_addr, step, x, y, w, h, fname)
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, udg_fname, '../{0}/{1}.png'.format(UDGDIR, udg_fname))
+        self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, udg_data, udg_mask)]]
-        self._check_image(writer.image_writer, udg_array, scale, 1, x, y, w, h)
+        self._check_image(writer, udg_array, scale, 1, x, y, w, h, exp_image_path)
 
         fname = 'test_udg3'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         addr = 49152
         attr = 2
         scale = 1
@@ -1829,12 +1900,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         crop = '{{x={x},y={y},width={width},height={height}}}'
         macro = ('#UDG' + params + mask_spec + crop + '({fname})').format(**locals())
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
+        self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, udg_data, udg_mask)]]
-        self._check_image(writer.image_writer, udg_array, scale, mask, x, y, width, height)
+        self._check_image(writer, udg_array, scale, mask, x, y, width, height, exp_image_path)
 
         # Arithmetic expressions
         fname = 'test_udg4'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         addr = 49152
         scale = 4
         mask = 1
@@ -1847,33 +1920,36 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         crop = '{1*1, 4/2, 2**2, 1+(7+5)/6}'
         macro = '#UDG{}:{}{}({})'.format(params, mask_spec, crop, fname)
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
+        self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(2, udg_data, mask_data)]]
-        self._check_image(writer.image_writer, udg_array, scale, mask, x, y, w, h)
+        self._check_image(writer, udg_array, scale, mask, x, y, w, h, exp_image_path)
 
         # Nested macros
+        fname = 'nested'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         addr = 23296
         scale = 4
         mask = 1
         y = 4
-        fname = 'nested'
         udg = Udg(56, [137] * 8, [241] * 8)
         snapshot[addr:addr + 16] = udg.data + udg.mask
         macro = nest_macros('#UDG({}):({}){{y={}}}({})', addr, addr + 8, y, fname)
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
-        self._check_image(writer.image_writer, [[udg]], scale, mask, y=y, height=28)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, [[udg]], scale, mask, y=y, height=28, path=exp_image_path)
 
     def test_macro_udg_with_custom_udg_image_path(self):
-        font_path = 'graphics/udgs'
-        ref = '[Paths]\nUDGImagePath={}'.format(font_path)
+        udg_path = 'graphics/udgs'
+        ref = '[Paths]\nUDGImagePath={}'.format(udg_path)
         writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_file_info=True)
-        img_fname = 'udg0'
-        exp_img_path = '{}/{}.png'.format(font_path, img_fname)
 
-        output = writer.expand('#UDG0({})'.format(img_fname), ASMDIR)
-        self._assert_img_equals(output, img_fname, '../{}'.format(exp_img_path))
-        self.assertEqual(writer.file_info.fname, exp_img_path)
+        fname = 'udg0'
+        exp_image_path = '{}/{}.png'.format(udg_path, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDG0({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
     def test_macro_udg_with_mask(self):
         udg_data = [240] * 8
@@ -1884,24 +1960,32 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(snapshot=udg_data + udg_mask, mock_file_info=True)
 
         # No mask parameter, no mask defined
-        writer.expand('#UDG0', ASMDIR)
-        self._check_image(writer.image_writer, udg_array_no_mask, scale, mask=0)
+        fname = 'udg0_56x4'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDG0', ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, udg_array_no_mask, scale, mask=0, path=exp_image_path)
 
         # mask=1, no mask defined
-        writer.expand('#UDG0,mask=1', ASMDIR)
-        self._check_image(writer.image_writer, udg_array_no_mask, scale, mask=0)
+        output = writer.expand('#UDG0,mask=1', ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, udg_array_no_mask, scale, mask=0, path=exp_image_path)
 
         # mask=0, mask defined
-        writer.expand('#UDG0,mask=0:8', ASMDIR)
-        self._check_image(writer.image_writer, udg_array_no_mask, scale, mask=0)
+        output = writer.expand('#UDG0,mask=0:8', ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, udg_array_no_mask, scale, mask=0, path=exp_image_path)
 
         # No mask parameter, mask defined
-        writer.expand('#UDG0:8', ASMDIR)
-        self._check_image(writer.image_writer, udg_array, scale, mask=1)
+        output = writer.expand('#UDG0:8', ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, udg_array, scale, mask=1, path=exp_image_path)
 
         # mask=2, mask defined
-        writer.expand('#UDG0,mask=2:8', ASMDIR)
-        self._check_image(writer.image_writer, udg_array, scale, mask=2)
+        output = writer.expand('#UDG0,mask=2:8', ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, udg_array, scale, mask=2, path=exp_image_path)
 
     def test_macro_udg_frames(self):
         udg1 = [170] * 8
@@ -1916,19 +2000,25 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(output, '')
         self.assertIsNone(file_info.fname)
 
+        fname = 'udg2'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         output = writer.expand('#UDG8(udg2*)', ASMDIR)
-        exp_image_path = '{}/udg2.png'.format(UDGDIR)
-        self._assert_img_equals(output, 'udg2', '../{}'.format(exp_image_path))
+        self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(file_info.fname, exp_image_path)
 
-        output = writer.expand('#UDG16(udg3*udg3_frame)', ASMDIR)
-        exp_image_path = '{}/udg3.png'.format(UDGDIR)
-        self._assert_img_equals(output, 'udg3', '../{}'.format(exp_image_path))
+        fname = 'udg3'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDG16({}*udg3_frame)'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(file_info.fname, exp_image_path)
 
+        fname = 'udg24_4x6'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         output = writer.expand('#UDG24,4,6:0{5,6,32,32}(*)', ASMDIR)
-        exp_image_path = '{}/udg24_4x6.png'.format(UDGDIR)
-        self._assert_img_equals(output, 'udg24_4x6', '../{}'.format(exp_image_path))
+        self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(file_info.fname, exp_image_path)
 
         writer.expand('#UDGARRAY*udg1;udg2;udg3_frame;udg24_4x6(udgs.gif)', ASMDIR)
@@ -1944,27 +2034,42 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
 
         fname = 'foo'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         alt = 'bar'
         output = writer.expand('#UDG0({}|{})'.format(fname, alt), ASMDIR)
-        self._assert_img_equals(output, alt, '../{}/{}.png'.format(UDGDIR, fname))
+        self._assert_img_equals(output, alt, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
+        fname = 'udg0_56x4'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         alt = 'An awesome UDG'
         output = writer.expand('#UDG0(|{})'.format(alt), ASMDIR)
-        self._assert_img_equals(output, alt, '../{}/udg0_56x4.png'.format(UDGDIR))
+        self._assert_img_equals(output, alt, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
     def test_macro_udgarray(self):
         snapshot = [0] * 65536
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
-        udg_fname = 'test_udg_array'
-        output = writer.expand('#UDGARRAY8;32768-32784-1-8({0})'.format(udg_fname), ASMDIR)
-        self._assert_img_equals(output, udg_fname, '../{0}/{1}.png'.format(UDGDIR, udg_fname))
+        fname = 'test_udg_array'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY8;32768-32784-1-8({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
-        udg_fname = 'test_udg_array2'
-        output = writer.expand('#UDGARRAY8,56,2,256,0;32768;32769;32770;32771;32772x12({0})'.format(udg_fname), ASMDIR)
-        self._assert_img_equals(output, udg_fname, '../{0}/{1}.png'.format(UDGDIR, udg_fname))
+        fname = 'test_udg_array2'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY8,56,2,256,0;32768;32769;32770;32771;32772x12({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
-        udg_fname = 'test_udg_array3'
+        fname = 'test_udg_array3'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         udg_addr = 32768
         mask_addr = 32769
         width = 2
@@ -1977,34 +2082,40 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         udg_mask = [255] * 8
         snapshot[udg_addr:udg_addr + 8 * step:step] = udg_data
         snapshot[mask_addr:mask_addr + 8 * step:step] = udg_mask
-        macro = '#UDGARRAY{0},{1},{2},{3},{4};{5}x4:{6}x4{{{7},{8},{9},{10}}}({11})'.format(width, attr, scale, step, inc, udg_addr, mask_addr, x, y, w, h, udg_fname)
+        macro = '#UDGARRAY{},{},{},{},{};{}x4:{}x4{{{},{},{},{}}}({})'.format(width, attr, scale, step, inc, udg_addr, mask_addr, x, y, w, h, fname)
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, udg_fname, '../{0}/{1}.png'.format(UDGDIR, udg_fname))
+        self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, udg_data, udg_mask)] * width] * 2
-        self._check_image(writer.image_writer, udg_array, scale, True, x, y, w, h)
+        self._check_image(writer, udg_array, scale, True, x, y, w, h, exp_image_path)
 
         # Flip
-        udg_fname = 'test_udg_array4'
+        fname = 'test_udg_array4'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         udg = Udg(56, [128, 64, 32, 16, 8, 4, 2, 1])
         udg_addr = 40000
         snapshot[udg_addr:udg_addr + 8] = udg.data
-        output = writer.expand('#UDGARRAY1,,,,,1;{0}({1})'.format(udg_addr, udg_fname), ASMDIR)
-        self._assert_img_equals(output, udg_fname, '../{0}/{1}.png'.format(UDGDIR, udg_fname))
+        output = writer.expand('#UDGARRAY1,,,,,1;{}({})'.format(udg_addr, fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
         udg.flip(1)
-        self._check_image(writer.image_writer, [[udg]], 2, False, 0, 0, 16, 16)
+        self._check_image(writer, [[udg]], 2, False, 0, 0, 16, 16, exp_image_path)
 
         # Rotate
-        udg_fname = 'test_udg_array5'
+        fname = 'test_udg_array5'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         udg = Udg(56, [128, 64, 32, 16, 8, 4, 2, 1])
         udg_addr = 50000
         snapshot[udg_addr:udg_addr + 8] = udg.data
-        output = writer.expand('#UDGARRAY1,,,,,,2;{0}({1})'.format(udg_addr, udg_fname), ASMDIR)
-        self._assert_img_equals(output, udg_fname, '../{0}/{1}.png'.format(UDGDIR, udg_fname))
+        output = writer.expand('#UDGARRAY1,,,,,,2;{}({})'.format(udg_addr, fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
         udg.rotate(2)
-        self._check_image(writer.image_writer, [[udg]], 2, False, 0, 0, 16, 16)
+        self._check_image(writer, [[udg]], 2, False, 0, 0, 16, 16, exp_image_path)
 
         # Keyword arguments
         fname = 'test_udg_array6'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         udg_addr = 32768
         mask_addr = 32769
         width = 2
@@ -2024,12 +2135,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         crop = '{{x={x},y={y},width={w},height={h}}}'
         macro = ('#UDGARRAY{width},' + params + udg_spec + mask_spec + crop + '({fname})').format(**locals())
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
+        self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, udg_data, udg_mask)] * width] * 2
-        self._check_image(writer.image_writer, udg_array, scale, mask, x, y, w, h)
+        self._check_image(writer, udg_array, scale, mask, x, y, w, h, exp_image_path)
 
         # Arithmetic expressions: main params, UDG address range, cropping spec
-        udg_fname = 'test_udg_array7'
+        fname = 'test_udg_array7'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         udg1 = Udg(40, [128, 64, 32, 16, 8, 4, 2, 1])
         udg2 = Udg(40, [64, 32, 16, 8, 4, 2, 1, 128])
         udg3 = Udg(40, [32, 16, 8, 4, 2, 1, 128, 64])
@@ -2041,55 +2154,62 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         mask = 0
         x, y, w, h = 3, 4, 42, 8
         crop = '{x=1+2,y = (1 + 1) * 2, width = 6 * 7, height=2**3}'
-        output = writer.expand('#UDGARRAY(2+1,(4 + 1) * 8);{}{}({})'.format(udg_addr, crop, udg_fname), ASMDIR)
-        self._assert_img_equals(output, udg_fname, '../{}/{}.png'.format(UDGDIR, udg_fname))
-        self._check_image(writer.image_writer, [[udg1, udg2, udg3]], scale, mask, x, y, w, h)
+        output = writer.expand('#UDGARRAY(2+1,(4 + 1) * 8);{}{}({})'.format(udg_addr, crop, fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, [[udg1, udg2, udg3]], scale, mask, x, y, w, h, exp_image_path)
 
         # Arithmetic expressions: UDG spec, mask spec
-        udg_fname = 'test_udg_array8'
+        fname = 'test_udg_array8'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         udg = Udg(40, [240] * 8, [248] * 8)
         snapshot[30000:30016] = udg.data + udg.mask
         udg_spec = '(10000*3),((2+3)*8, inc=5-5)'
         mask_spec = '(10000*3+8),((12-8)/4)'
         scale = 2
         mask = 1
-        output = writer.expand('#UDGARRAY1;{}:{}({})'.format(udg_spec, mask_spec, udg_fname), ASMDIR)
-        self._assert_img_equals(output, udg_fname, '../{}/{}.png'.format(UDGDIR, udg_fname))
-        self._check_image(writer.image_writer, [[udg]], scale, mask)
+        output = writer.expand('#UDGARRAY1;{}:{}({})'.format(udg_spec, mask_spec, fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, [[udg]], scale, mask, path=exp_image_path)
 
         # Nested macros
+        fname = 'nested'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         udg_addr = 23296
         scale = 2
         mask = 1
         x = 1
-        fname = 'nested'
         udg = Udg(56, [45] * 8, [173] * 8)
         snapshot[udg_addr:udg_addr + 16] = udg.data + udg.mask
         macro = nest_macros('#UDGARRAY1;({0})-({0})-({1})-({1})x({1}):({2})-({2})-({1})-({1})x({1}){{x={3}}}({4})', udg_addr, 1, udg_addr + 8, x, fname)
         output = writer.expand(macro, ASMDIR)
-        self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
-        self._check_image(writer.image_writer, [[udg]], scale, mask, x, width=15)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, [[udg]], scale, mask, x, width=15, path=exp_image_path)
 
         # #() macro
+        fname = 'thing'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         udg1 = Udg(43, [17] * 8)
         udg2 = Udg(5, [178] * 8)
         snapshot[20000:20018] = [udg1.attr] + udg1.data + [udg2.attr] + udg2.data
         scale = 2
-        fname = 'thing'
         output = writer.expand('#UDGARRAY#(2#FOR20000,20009,9||n|;(n+1),#PEEKn||)({})'.format(fname), ASMDIR)
-        self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
-        self._check_image(writer.image_writer, [[udg1, udg2]], scale)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, [[udg1, udg2]], scale, path=exp_image_path)
 
     def test_macro_udgarray_with_custom_udg_image_path(self):
-        font_path = 'udg_images'
-        ref = '[Paths]\nUDGImagePath={}'.format(font_path)
+        udg_path = 'udg_images'
+        ref = '[Paths]\nUDGImagePath={}'.format(udg_path)
         writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_file_info=True)
-        img_fname = 'udgarray0'
-        exp_img_path = '{}/{}.png'.format(font_path, img_fname)
 
-        output = writer.expand('#UDGARRAY1;0({})'.format(img_fname), ASMDIR)
-        self._assert_img_equals(output, img_fname, '../{}'.format(exp_img_path))
-        self.assertEqual(writer.file_info.fname, exp_img_path)
+        fname = 'udgarray0'
+        exp_image_path = '{}/{}.png'.format(udg_path, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY1;0({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
     def test_macro_udgarray_with_mask(self):
         udg_data = [15] * 8
@@ -2100,24 +2220,44 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(snapshot=udg_data + udg_mask, mock_file_info=True)
 
         # No mask parameter, no mask defined
-        writer.expand('#UDGARRAY1;0(udgarray)', ASMDIR)
-        self._check_image(writer.image_writer, udg_array_no_mask, scale, mask=0)
+        fname = 'udgarray'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY1;0({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, udg_array_no_mask, scale, mask=0, path=exp_image_path)
 
         # mask=1, no mask defined
-        writer.expand('#UDGARRAY1,mask=1;0(udgarray)', ASMDIR)
-        self._check_image(writer.image_writer, udg_array_no_mask, scale, mask=0)
+        fname = 'udgarray2'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY1,mask=1;0({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, udg_array_no_mask, scale, mask=0, path=exp_image_path)
 
         # mask=0, mask defined
-        writer.expand('#UDGARRAY1,mask=0;0:8(udgarray)', ASMDIR)
-        self._check_image(writer.image_writer, udg_array_no_mask, scale, mask=0)
+        fname = 'udgarray3'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY1,mask=0;0:8({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, udg_array_no_mask, scale, mask=0, path=exp_image_path)
 
         # No mask parameter, mask defined
-        writer.expand('#UDGARRAY1;0:8(udgarray)', ASMDIR)
-        self._check_image(writer.image_writer, udg_array, scale, mask=1)
+        fname = 'udgarray4'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY1;0:8({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, udg_array, scale, mask=1, path=exp_image_path)
 
         # mask=2, mask defined
-        writer.expand('#UDGARRAY1,mask=2;0:8(udgarray)', ASMDIR)
-        self._check_image(writer.image_writer, udg_array, scale, mask=2)
+        fname = 'udgarray5'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY1,mask=2;0:8({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, udg_array, scale, mask=2, path=exp_image_path)
 
     def test_macro_udgarray_frames(self):
         snapshot = [0] * 65536
@@ -2136,17 +2276,33 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         macro1 = '#UDGARRAY1;{},{}(*foo)'.format(udg1_addr, udg1.attr)
         macro2 = '#UDGARRAY1;{},{}(bar*)'.format(udg2_addr, udg2.attr)
         macro3 = '#UDGARRAY1;{},{}(baz*qux)'.format(udg3_addr, udg3.attr)
+
         output = writer.expand(macro1, ASMDIR)
         self.assertEqual(output, '')
+
+        fname = 'bar'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         output = writer.expand(macro2, ASMDIR)
-        self._assert_img_equals(output, 'bar', '../{}/bar.png'.format(UDGDIR))
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        fname = 'baz'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         output = writer.expand(macro3, ASMDIR)
-        self._assert_img_equals(output, 'baz', '../{}/baz.png'.format(UDGDIR))
-        delay1 = 93
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
         fname = 'test_udg_array_frames'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        delay1 = 93
         macro4 = '#UDGARRAY*foo,{};bar;qux,(delay=5+8*2-12/3)({})'.format(delay1, fname)
         output = writer.expand(macro4, ASMDIR)
-        self._assert_img_equals(output, fname, '../{}/{}.png'.format(UDGDIR, fname))
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
         frame1 = Frame([[udg1]], 2, delay=delay1)
         frame2 = Frame([[udg2]], 2, delay=delay1)
         frame3 = Frame([[udg3]], 2, delay=17)
@@ -2161,27 +2317,39 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
 
         fname = 'foo'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         alt = 'bar'
         output = writer.expand('#UDGARRAY1;0({}|{})'.format(fname, alt), ASMDIR)
-        self._assert_img_equals(output, alt, '../{}/{}.png'.format(UDGDIR, fname))
+        self._assert_img_equals(output, alt, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
         fname = 'baz'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         frame = 'qux'
         alt = 'xyzzy'
         output = writer.expand('#UDGARRAY1;0({}*{}|{})'.format(fname, frame, alt), ASMDIR)
-        self._assert_img_equals(output, alt, '../{}/{}.png'.format(UDGDIR, fname))
+        self._assert_img_equals(output, alt, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
         fname = 'flip'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         alt = 'flop*flup'
         output = writer.expand('#UDGARRAY1;0({}|{})'.format(fname, alt), ASMDIR)
-        self._assert_img_equals(output, alt, '../{}/{}.png'.format(UDGDIR, fname))
+        self._assert_img_equals(output, alt, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
         fname = 'animated'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
         alt = 'Animated'
         writer.expand('#UDGARRAY1;0(*frame1)', ASMDIR)
         writer.expand('#UDGARRAY1;0(*frame2)', ASMDIR)
         output = writer.expand('#UDGARRAY*frame1;frame2({}|{})'.format(fname, alt), ASMDIR)
-        self._assert_img_equals(output, alt, '../{}/{}.png'.format(UDGDIR, fname))
+        self._assert_img_equals(output, alt, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
     def test_macro_udgtable(self):
         src = '\n'.join((
