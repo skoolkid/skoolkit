@@ -23,54 +23,30 @@ Defines the :class:`ImageWriter` class.
 from skoolkit.gifwriter import GifWriter
 from skoolkit.pngwriter import PngWriter
 
-#: Colour name for the transparent colour used in masked images.
 TRANSPARENT = 'TRANSPARENT'
-#: Colour name for black.
 BLACK = 'BLACK'
-#: Colour name for blue.
 BLUE = 'BLUE'
-#: Colour name for red.
 RED = 'RED'
-#: Colour name for magenta.
 MAGENTA = 'MAGENTA'
-#: Colour name for green.
 GREEN = 'GREEN'
-#: Colour name for cyan.
 CYAN = 'CYAN'
-#: Colour name for yellow.
 YELLOW = 'YELLOW'
-#: Colour name for white.
 WHITE = 'WHITE'
-#: Colour name for bright blue.
 BRIGHT_BLUE = 'BRIGHT_BLUE'
-#: Colour name for bright red.
 BRIGHT_RED = 'BRIGHT_RED'
-#: Colour name for bright magenta.
 BRIGHT_MAGENTA = 'BRIGHT_MAGENTA'
-#: Colour name for bright green.
 BRIGHT_GREEN = 'BRIGHT_GREEN'
-#: Colour name for bright cyan.
 BRIGHT_CYAN = 'BRIGHT_CYAN'
-#: Colour name for bright yellow.
 BRIGHT_YELLOW = 'BRIGHT_YELLOW'
-#: Colour name for bright white.
 BRIGHT_WHITE = 'BRIGHT_WHITE'
 
-#: Option name that specifies the default image format.
+DEFAULT_ANIMATION_FORMAT = 'DefaultAnimationFormat'
 DEFAULT_FORMAT = 'DefaultFormat'
-#: Option name that specifies the PNG compression level.
-PNG_COMPRESSION_LEVEL = 'PNGCompressionLevel'
-#: Option name that specifies the PNG alpha value.
-PNG_ALPHA = 'PNGAlpha'
-#: Option name that specifies whether to create animated PNGs in APNG format
-#: for images that contain flashing cells.
-PNG_ENABLE_ANIMATION = 'PNGEnableAnimation'
-#: Option name that specifies whether to create animated GIFs for images that
-#: contain flashing cells.
 GIF_ENABLE_ANIMATION = 'GIFEnableAnimation'
-#: Option name that specifies whether to create transparent GIFs for masked
-#: images.
 GIF_TRANSPARENCY = 'GIFTransparency'
+PNG_ALPHA = 'PNGAlpha'
+PNG_COMPRESSION_LEVEL = 'PNGCompressionLevel'
+PNG_ENABLE_ANIMATION = 'PNGEnableAnimation'
 
 PNG_FORMAT = 'png'
 GIF_FORMAT = 'gif'
@@ -87,7 +63,7 @@ class ImageWriter:
         self.options = self._get_default_options()
         if options:
             for k, v in options.items():
-                if k == DEFAULT_FORMAT:
+                if k in (DEFAULT_ANIMATION_FORMAT, DEFAULT_FORMAT):
                     self.options[k] = v
                 else:
                     try:
@@ -100,6 +76,7 @@ class ImageWriter:
         self._create_colours(full_palette)
         self._create_attr_index()
         self.default_format = self.options[DEFAULT_FORMAT]
+        self.default_animation_format = self.options.get(DEFAULT_ANIMATION_FORMAT, self.default_format)
         self.animation = {
             PNG_FORMAT: self.options[PNG_ENABLE_ANIMATION],
             GIF_FORMAT: self.options[GIF_ENABLE_ANIMATION]
@@ -126,6 +103,15 @@ class ImageWriter:
             has_trans = has_trans or frame.has_trans
         palette, attr_map = self._get_palette(colours, attrs, has_trans)
         self.writers[img_format].write_image(frames, img_file, palette, attr_map, has_trans, flash_rect)
+
+    def select_format(self, frames):
+        if frames and self.default_animation_format != self.default_format:
+            if len(frames) > 1:
+                return self.default_animation_format
+            f_colours, f_attrs, flash_rect = self._get_colours(frames[0], True)
+            if flash_rect:
+                return self.default_animation_format
+        return self.default_format
 
     def _get_default_palette(self):
         return  {
@@ -327,6 +313,8 @@ class ImageWriter:
                     max_x = max(x, max_x)
                     max_y = max(y, max_y)
                     flashing = True
+                    colours.add(ink)
+                    colours.add(paper)
                 if udg.mask:
                     has_masks = 1
                 else:

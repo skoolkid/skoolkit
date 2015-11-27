@@ -21,6 +21,8 @@ Changelog
 * Added the ``--bfix``,  ``--ofix`` and ``--ssub`` options to
   :ref:`skool2bin.py` (for parsing the skool file in ``@bfix``, ``@ofix`` and
   ``@ssub`` mode)
+* Added the ``DefaultAnimationFormat`` parameter to the :ref:`ref-ImageWriter`
+  section (for specifying the default format for animated images)
 * The :ref:`R` macro now converts an anchor that matches the entry address to
   the format specified by the ``AddressAnchor`` parameter (making it easier to
   link to the first instruction in an entry when using a custom anchor format)
@@ -29,6 +31,8 @@ Changelog
 * :ref:`skool2sft.py` now preserves ``i`` blocks in the same way as code and
   data blocks (instead of verbatim), which enables their conversion to decimal
   or hexadecimal when restored from a skool file template
+* Fixed how the colours in flashing blank tiles are detected when writing an
+  uncropped image file
 
 5.0 (2015-10-04)
 ----------------

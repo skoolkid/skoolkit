@@ -182,16 +182,16 @@ be expanded.
 The `expand_sprite` method on GameHtmlWriter may therefore look something like
 this::
 
-  from skoolkit.skoolhtml import HtmlWriter
+  from skoolkit.skoolhtml import HtmlWriter, Frame
   from skoolkit.skoolmacro import parse_image_macro
 
   class GameHtmlWriter(HtmlWriter):
       # #SPRITEid[{x,y,width,height}](fname)
       def expand_sprite(self, text, index, cwd):
           end, crop_rect, fname, frame, alt, (sprite_id,) = parse_image_macro(text, index, names=['id'])
-          img_path = self.image_path(fname)
           udgs = self.build_sprite(sprite_id)
-          return end, self.handle_image(udgs, img_path, cwd, alt, crop_rect, frame=frame)
+          frames = [Frame(udgs, 2, 0, *crop_rect, name=frame)]
+          return end, self.handle_image(frames, fname, cwd, alt)
 
 With this method (and an appropriate implementation of the `build_sprite`
 method) in place, the ``#SPRITE`` macro might be used like this::
@@ -321,9 +321,16 @@ The Frame class represents a single frame of an animated image.
       The *mask* parameter specifies the type of mask to apply (see
       :ref:`masks`).
 
+   .. versionchanged:: 5.1
+      Added the *name* parameter.
+
 HtmlWriter provides the following image-related convenience methods.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.image_path
+
+   .. versionchanged:: 5.1
+      Added the *frames* parameter.
+
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.need_image
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.write_image
 
@@ -332,13 +339,13 @@ HtmlWriter provides the following image-related convenience methods.
       :ref:`masks`).
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.img_element
-.. automethod:: skoolkit.skoolhtml.HtmlWriter.handle_image
-
-   .. versionadded:: 5.1
-
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.write_animated_image
 
    .. versionadded:: 3.6
+
+.. automethod:: skoolkit.skoolhtml.HtmlWriter.handle_image
+
+   .. versionadded:: 5.1
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.screenshot
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.flip_udgs

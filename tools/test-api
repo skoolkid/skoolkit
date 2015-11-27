@@ -73,9 +73,9 @@ class GameHtmlWriter(HtmlWriter):
     # #SPRITEattr[{x,y,width,height}](fname)
     def expand_sprite(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, (attr,) = parse_image_macro(text, index, names=['attr'])
-        img_path = self.image_path(fname)
         udgs = [[Udg(attr, self.snapshot[32768:32776])]] * 2
-        return end, self.handle_image(udgs, img_path, cwd, alt, crop_rect, frame=frame)
+        frames = [Frame(udgs, 2, 0, *crop_rect, name=frame)]
+        return end, self.handle_image(frames, fname, cwd, alt)
 
     # #WORDaddress
     def expand_word(self, text, index, cwd):

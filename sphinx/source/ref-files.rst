@@ -355,8 +355,10 @@ SkoolKit's image creation library. The parameters are in the format::
 
 Recognised parameters are:
 
-* ``DefaultFormat`` - the default image format; valid values are ``png`` (the
-  default) and ``gif``
+* ``DefaultAnimationFormat`` - the default format for animated images: ``png``
+  or ``gif``; if not specified, ``DefaultFormat`` is used
+* ``DefaultFormat`` - the default image format: ``png`` (the default) or
+  ``gif``
 * ``GIFEnableAnimation`` - ``1`` to create animated GIFs for images that
   contain flashing cells, or ``0`` to create plain (unanimated) GIFs for such
   images (default: ``1``)
@@ -392,6 +394,8 @@ browsers.
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
+| 5.1     | Added the ``DefaultAnimationFormat`` parameter               |
++---------+--------------------------------------------------------------+
 | 3.0.1   | Added the ``DefaultFormat``, ``GIFEnableAnimation``,         |
 |         | ``GIFTransparency``, ``PNGAlpha`` and ``PNGEnableAnimation`` |
 |         | parameters                                                   |

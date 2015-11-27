@@ -982,38 +982,32 @@ class HtmlWriter:
         raise SkoolKitError('Unsupported image file format: {}'.format(image_path))
 
     # API
-    def handle_image(self, udgs, image_path='', cwd=None, alt=None, crop_rect=(), scale=2, mask=0, frame=''):
-        """Create a frame for an image, and write an image file if required.
-        This is a convenience method that calls
+    def handle_image(self, frames, fname='', cwd=None, alt=None, path_id=DEF_IMG_PATH):
+        """Register a named frame for an image, and write an image file if
+        required. This is a convenience method that calls
+        :meth:`~skoolkit.skoolhtml.HtmlWriter.image_path`,
         :meth:`~skoolkit.skoolhtml.HtmlWriter.need_image`,
-        :meth:`~skoolkit.skoolhtml.HtmlWriter.write_image` and
+        :meth:`~skoolkit.skoolhtml.HtmlWriter.write_animated_image` and
         :meth:`~skoolkit.skoolhtml.HtmlWriter.img_element` as appropriate.
 
-        :param udgs: The two-dimensional array of tiles (instances of
-                     :class:`~skoolkit.skoolhtml.Udg`) from which to build the
-                     image, or a function that returns the array of tiles.
-        :param image_path: The full path of the file to which to write the
-                           image (relative to the root directory of the
-                           disassembly).
+        :param frames: The list of frames (instances of
+                       :class:`~skoolkit.skoolhtml.Frame`) from which to build
+                       the image.
+        :param fname: The name of the image file.
         :param cwd: The current working directory (from which the relative path
                     of the image file will be computed).
         :param alt: The alt text to use for the image.
-        :param crop_rect: The cropping rectangle: ``(x, y, width, height)``.
-        :param scale: The scale of the image.
-        :param mask: The type of mask to apply to the tiles: 0 (no mask), 1
-                     (OR-AND mask), or 2 (AND-OR mask).
-        :param frame: The name of the frame to create; if blank, no frame is
-                      created.
+        :param path_id: The ID of the target directory (as defined in the
+                        :ref:`paths` section of the ref file).
         :return: The ``<img .../>`` element, or an empty string if no image is
                  created.
         """
-        if callable(udgs):
-           udgs = udgs()
-        if frame:
-            self.frames[frame] = Frame(udgs, scale, mask, *crop_rect)
+        if len(frames) == 1:
+            self.frames[frames[0].name] = frames[0]
+        image_path = self.image_path(fname, path_id, frames)
         if image_path:
             if self.need_image(image_path):
-                self.write_image(image_path, udgs, crop_rect, scale, mask)
+                self.write_animated_image(image_path, frames)
             return self.img_element(cwd, image_path, alt)
         return ''
 
@@ -1041,7 +1035,7 @@ class HtmlWriter:
 
     # API
     def write_animated_image(self, image_path, frames):
-        """Create an animated image and write it to a file.
+        """Create an image and write it to a file.
 
         :param image_path: The full path of the file to which to write the
                            image (relative to the root directory of the
@@ -1100,7 +1094,7 @@ class HtmlWriter:
         return self.format_img(alt, self.relpath(cwd, image_path))
 
     # API
-    def image_path(self, fname, path_id=DEF_IMG_PATH):
+    def image_path(self, fname, path_id=DEF_IMG_PATH, frames=()):
         """Return the full path of an image file relative to the root directory
         of the disassembly. If `fname` does not end with '.png' or '.gif', an
         appropriate suffix will be appended (depending on the default image
@@ -1111,12 +1105,17 @@ class HtmlWriter:
         :param fname: The name of the image file.
         :param path_id: The ID of the target directory (as defined in the
                         :ref:`paths` section of the ref file).
+        :param frames: The list of frames (instances of
+                       :class:`~skoolkit.skoolhtml.Frame`) that define the
+                       image. If supplied, it is used to determine whether the
+                       image is animated, and select the appropriate filename
+                       suffix accordingly.
         """
         if fname:
             if fname[-4:].lower() in ('.png', '.gif'):
                 suffix = ''
             else:
-                suffix = '.{0}'.format(self.default_image_format)
+                suffix = '.' + self.image_writer.select_format(frames)
             if fname[0] == '/':
                 return '{0}{1}'.format(fname[1:], suffix)
             if path_id in self.paths:
@@ -1257,9 +1256,9 @@ class HtmlWriter:
     def expand_font(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)
         message, addr, chars, attr, scale = params
-        img_path = self.image_path(fname, 'FontImagePath')
-        udgs_f = lambda: self.get_font_udg_array(addr, attr, message[:chars])
-        return end, self.handle_image(udgs_f, img_path, cwd, alt, crop_rect, scale, 0, frame)
+        udgs = self.get_font_udg_array(addr, attr, message[:chars])
+        frames = [Frame(udgs, scale, 0, *crop_rect, name=frame)]
+        return end, self.handle_image(frames, fname, cwd, alt, 'FontImagePath')
 
     def expand_for(self, text, index, cwd):
         return skoolmacro.parse_for(text, index)
@@ -1341,9 +1340,9 @@ class HtmlWriter:
     def expand_scr(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(text, index)
         scale, x, y, w, h, df, af = params
-        scr_path = self.image_path(fname, 'ScreenshotImagePath')
-        scr_f = lambda: self.screenshot(x, y, w, h, df, af)
-        return end, self.handle_image(scr_f, scr_path, cwd, alt, crop_rect, scale, 0, frame)
+        udgs = self.screenshot(x, y, w, h, df, af)
+        frames = [Frame(udgs, scale, 0, *crop_rect, name=frame)]
+        return end, self.handle_image(frames, fname, cwd, alt, 'ScreenshotImagePath')
 
     def expand_space(self, text, index, cwd):
         return skoolmacro.parse_space(text, index, '&#160;')
@@ -1366,38 +1365,30 @@ class HtmlWriter:
     def expand_udg(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udg(text, index)
         addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step = params
-        udg_path = self.image_path(fname, 'UDGImagePath')
-        if not udg_path and not frame:
-            udg_fname = 'udg{}_{}x{}'.format(addr, attr, scale)
-            udg_path = self.image_path(udg_fname)
+        udgs = self._build_udg(addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step)
+        if not fname and not frame:
+            fname = 'udg{}_{}x{}'.format(addr, attr, scale)
             if frame == '':
-                frame = udg_fname
-        udg_f = lambda: self._build_udg(addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step)
-        return end, self.handle_image(udg_f, udg_path, cwd, alt, crop_rect, scale, mask, frame)
+                frame = fname
+        frames = [Frame(udgs, scale, mask, *crop_rect, name=frame)]
+        return end, self.handle_image(frames, fname, cwd, alt)
 
     def _expand_udgarray_with_frames(self, text, index, cwd):
         end, fname, alt, frames = skoolmacro.parse_udgarray_with_frames(text, index, self.frames)
-        img_path = self.image_path(fname, 'UDGImagePath')
-        if self.need_image(img_path):
-            self.write_animated_image(img_path, frames)
-        return end, self.img_element(cwd, img_path, alt)
-
-    def _adjust_udgarray(self, udg_array, flip, rotate):
-        if flip:
-            self.flip_udgs(udg_array, flip)
-        if rotate:
-            self.rotate_udgs(udg_array, rotate)
-        return udg_array
+        return end, self.handle_image(frames, fname, cwd, alt)
 
     def expand_udgarray(self, text, index, cwd):
         if index < len(text) and text[index] == '*':
             return self._expand_udgarray_with_frames(text, index, cwd)
 
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgarray(text, index, Udg, self.snapshot)
-        udg_array, scale, flip, rotate, mask = params
-        img_path = self.image_path(fname, 'UDGImagePath')
-        udgs_f = lambda: self._adjust_udgarray(udg_array, flip, rotate)
-        return end, self.handle_image(udgs_f, img_path, cwd, alt, crop_rect, scale, mask, frame)
+        udgs, scale, flip, rotate, mask = params
+        if flip:
+            self.flip_udgs(udgs, flip)
+        if rotate:
+            self.rotate_udgs(udgs, rotate)
+        frames = [Frame(udgs, scale, mask, *crop_rect, name=frame)]
+        return end, self.handle_image(frames, fname, cwd, alt)
 
     def expand_udgtable(self, text, index, cwd):
         return self.expand_table(text, index, cwd)
@@ -1530,8 +1521,9 @@ class Frame(object):
                    used.
     :param delay: The delay between this frame and the next in 1/100ths of a
                   second.
+    :param name: The name of this frame.
     """
-    def __init__(self, udgs, scale=1, mask=0, x=0, y=0, width=None, height=None, delay=32):
+    def __init__(self, udgs, scale=1, mask=0, x=0, y=0, width=None, height=None, delay=32, name=''):
         self._udgs = udgs
         self._scale = scale
         self.mask = int(mask)
@@ -1542,6 +1534,7 @@ class Frame(object):
         self._width = min(width or self._full_width, self._full_width - x)
         self._height = min(height or self._full_height, self._full_height - y)
         self.delay = delay
+        self.name = name
         self._tiles = len(udgs[0]) * len(udgs)
 
     def swap_colours(self, tx=0, ty=0, tw=None, th=None, x=0, y=0, width=None, height=None):

@@ -479,6 +479,18 @@ class ImageWriterTest:
         self._test_image(udg_array, y=7)
         self._test_image(udg_array, x=1, y=2, width=9, height=11)
 
+    def test_unmasked_bd1_blank_flashing(self):
+        # Unmasked image, bit depth 1, 1 UDG
+        udg = Udg(129, (0,) * 8)
+        udg_array = [[udg]]
+        self._test_image(udg_array)
+
+    def test_unmasked_bd1_blank_flashing_cropped(self):
+        # Unmasked image, bit depth 1, 1 UDG, cropped
+        udg = Udg(129, (0,) * 8)
+        udg_array = [[udg]]
+        self._test_image(udg_array, x=2)
+
     def test_unmasked_bd1_flashing(self):
         # Unmasked image, bit depth 1, 2 UDGs
         udg = Udg(177, (164,) * 8)
@@ -503,6 +515,20 @@ class ImageWriterTest:
         self._test_image(udg_array, x=5)
         self._test_image(udg_array, y=7)
         self._test_image(udg_array, x=1, y=2, width=10, height=11)
+
+    def test_unmasked_bd2_blank_flashing(self):
+        # Unmasked image, bit depth 2, 2 UDGs
+        udg1 = Udg(129, (0,) * 8)
+        udg2 = Udg(130, (255,) * 8)
+        udg_array = [[udg1, udg2]]
+        self._test_image(udg_array)
+
+    def test_unmasked_bd2_blank_flashing_cropped(self):
+        # Unmasked image, bit depth 2, 2 UDGs, cropped
+        udg1 = Udg(129, (0,) * 8)
+        udg2 = Udg(130, (255,) * 8)
+        udg_array = [[udg1, udg2]]
+        self._test_image(udg_array, y=3)
 
     def test_unmasked_bd2_flashing(self):
         # Unmasked image, bit depth 2, flashing, scales 1-2
@@ -567,6 +593,22 @@ class ImageWriterTest:
         self._test_image(udg_array, x=3)
         self._test_image(udg_array, y=7)
         self._test_image(udg_array, x=2, y=1, width=11, height=9)
+
+    def test_unmasked_bd4_blank_flashing(self):
+        # Unmasked image, bit depth 4, 3 UDGs
+        udg1 = Udg(129, (0,) * 8)
+        udg2 = Udg(147, (255,) * 8)
+        udg3 = Udg(165, (0,) * 8)
+        udg_array = [[udg1, udg2, udg3]]
+        self._test_image(udg_array)
+
+    def test_unmasked_bd4_blank_flashing_cropped(self):
+        # Unmasked image, bit depth 4, 3 UDGs, cropped
+        udg1 = Udg(129, (0,) * 8)
+        udg2 = Udg(147, (255,) * 8)
+        udg3 = Udg(165, (0,) * 8)
+        udg_array = [[udg1, udg2, udg3]]
+        self._test_image(udg_array, width=17)
 
     def test_unmasked_bd4_flashing(self):
         # Unmasked image, bit depth 4, flashing

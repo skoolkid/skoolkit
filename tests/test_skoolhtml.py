@@ -11,6 +11,7 @@ except ImportError:
 from skoolkittest import SkoolKitTestCase, StringIO
 from macrotest import CommonSkoolMacroTest, nest_macros
 from skoolkit import VERSION, SkoolKitError, SkoolParsingError, defaults, skoolhtml
+from skoolkit.image import ImageWriter
 from skoolkit.skoolmacro import MacroParsingError, UnsupportedMacroError
 from skoolkit.skoolhtml import HtmlWriter, FileInfo, Udg, Frame
 from skoolkit.skoolparser import SkoolParser, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
@@ -182,12 +183,7 @@ class MockFileInfo:
     def need_image(self, image_path):
         return True
 
-class MockImageWriter:
-    def __init__(self, palette, options):
-        self.palette = palette
-        self.options = options
-        self.default_format = 'png'
-
+class TestImageWriter(ImageWriter):
     def write_image(self, frames, img_file, img_format):
         self.frames = frames
         self.img_format = img_format
@@ -222,7 +218,7 @@ class HtmlWriterTestCase(SkoolKitTestCase):
             file_info = MockFileInfo()
         else:
             file_info = FileInfo(self.odir, GAMEDIR, False)
-        patch.object(skoolhtml, 'ImageWriter', MockImageWriter).start()
+        patch.object(skoolhtml, 'ImageWriter', TestImageWriter).start()
         self.addCleanup(patch.stopall)
         writer = HtmlWriter(skool_parser, ref_parser, file_info, case)
         if mock_write_file:
@@ -282,15 +278,15 @@ class MethodTest(HtmlWriterTestCase):
     def test_colour_parsing(self):
         # Valid colours
         exp_colours = (
-            ('RED', '#C40000', (196, 0, 0)),
-            ('WHITE', '#cde', (204, 221, 238)),
-            ('YELLOW', '198,197,0', (198, 197, 0))
+            (3, 'RED', '#C40000', (196, 0, 0)),
+            (8, 'WHITE', '#cde', (204, 221, 238)),
+            (7, 'YELLOW', '198,197,0', (198, 197, 0))
         )
         colours = ['[Colours]']
-        colours.extend(['{}={}'.format(name, spec) for name, spec, rgb in exp_colours])
+        colours.extend(['{}={}'.format(name, spec) for index, name, spec, rgb in exp_colours])
         writer = self._get_writer(ref='\n'.join(colours))
-        for name, spec, rgb in exp_colours:
-            self.assertEqual(writer.image_writer.palette[name], rgb)
+        for index, name, spec, rgb in exp_colours:
+            self.assertEqual(writer.image_writer.colours[index], rgb)
 
         # Invalid colours
         bad_colours = (
@@ -721,32 +717,6 @@ class MethodTest(HtmlWriterTestCase):
         with self.assertRaisesRegexp(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
             writer.write_animated_image(image_path, None)
 
-    def test_handle_image_with_tile_array(self):
-        writer = self._get_writer(mock_file_info=True)
-        image_writer = writer.image_writer
-        file_info = writer.file_info
-
-        udgs = [[Udg(0, (0,) * 8)]]
-        image_path = 'images/test_handle_image.png'
-        cwd = ASMDIR
-        alt = 'test handle_image() '
-        x, y, width, height = 1, 2, 3, 4
-        scale = 4
-        mask = 2
-        frame = 'handle_image'
-        writer.handle_image(udgs, image_path, cwd, alt, (x, y, width, height), scale, mask, frame)
-        self.assertEqual(file_info.fname, image_path)
-        self.assertEqual(file_info.mode, 'wb')
-        self.assertEqual(image_writer.udg_array, udgs)
-        self.assertEqual(image_writer.img_format, 'png')
-        self.assertEqual(image_writer.scale, scale)
-        self.assertEqual(image_writer.mask, mask)
-        self.assertEqual(image_writer.x, x)
-        self.assertEqual(image_writer.y, y)
-        self.assertEqual(image_writer.width, width)
-        self.assertEqual(image_writer.height, height)
-        self.assertIn(frame, writer.frames)
-
 class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def setUp(self):
         HtmlWriterTestCase.setUp(self)
@@ -1035,6 +1005,34 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_image_path = '{}/{}.png'.format(font_path, fname)
         exp_src = '../{}'.format(exp_image_path)
         output = writer.expand('#FONT:(!!!)0({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+    def test_macro_font_with_custom_default_animation_format(self):
+        ref = '[ImageWriter]\nDefaultAnimationFormat=gif'
+        writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_file_info=True)
+
+        # No flash
+        fname = 'font_no_flash'
+        exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#FONT0,1,56({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        # Flash: different INK and PAPER
+        fname = 'font_flash1'
+        exp_image_path = '{}/{}.gif'.format(FONTDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#FONT0,1,184({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        # Flash: same INK and PAPER
+        fname = 'font_flash2'
+        exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#FONT0,1,128({})'.format(fname), ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
@@ -1705,6 +1703,48 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
+    def test_macro_scr_with_custom_default_animation_format(self):
+        ref = '[ImageWriter]\nDefaultAnimationFormat=gif'
+        snapshot = [0] * 2050
+        af = 2048
+        writer = self._get_writer(ref=ref, snapshot=snapshot, mock_file_info=True)
+
+        # No flash
+        fname = 'scr_no_flash'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        snapshot[af] = 56
+        output = writer.expand('#SCRw=1,h=1,df=0,af={}({})'.format(af, fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        # Flash: different INK and PAPER
+        fname = 'scr_flash1'
+        exp_image_path = '{}/{}.gif'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        snapshot[af] = 184
+        output = writer.expand('#SCRw=1,h=1,df=0,af={}({})'.format(af, fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        # Flash: same INK and PAPER
+        fname = 'scr_flash2'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        snapshot[af] = 128
+        output = writer.expand('#SCRw=1,h=1,df=0,af={}({})'.format(af, fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        # Flash: cropped
+        fname = 'scr_flash3'
+        exp_image_path = '{}/{}.png'.format(SCRDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        snapshot[af:af + 2] = [184, 56]
+        output = writer.expand('#SCRw=2,h=1,df=0,af={}{{8}}({})'.format(af, fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
     def test_macro_scr_frames(self):
         snapshot = [n & 255 for n in range(2048)] + [1, 2, 3, 4]
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
@@ -1948,6 +1988,34 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         exp_image_path = '{}/{}.png'.format(udg_path, fname)
         exp_src = '../{}'.format(exp_image_path)
         output = writer.expand('#UDG0({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+    def test_macro_udg_with_custom_default_animation_format(self):
+        ref = '[ImageWriter]\nDefaultAnimationFormat=gif'
+        writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_file_info=True)
+
+        # No flash
+        fname = 'udg_no_flash'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDG0,56({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        # Flash: different INK and PAPER
+        fname = 'udg_flash1'
+        exp_image_path = '{}/{}.gif'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDG0,184({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        # Flash: same INK and PAPER
+        fname = 'udg_flash2'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDG0,128({})'.format(fname), ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
@@ -2211,6 +2279,42 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
+    def test_macro_udgarray_with_custom_default_animation_format(self):
+        ref = '[ImageWriter]\nDefaultAnimationFormat=gif'
+        writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_file_info=True)
+
+        # No flash
+        fname = 'udgarray_no_flash'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY1,56;0({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        # Flash: different INK and PAPER
+        fname = 'udgarray_flash1'
+        exp_image_path = '{}/{}.gif'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY1,184;0({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        # Flash: same INK and PAPER
+        fname = 'udgarray_flash2'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY1,128;0({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        # Flash: cropped
+        fname = 'udgarray_flash3'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY2;0,184;0,56{{16}}({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
     def test_macro_udgarray_with_mask(self):
         udg_data = [15] * 8
         udg_mask = [31] * 8
@@ -2308,6 +2412,29 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         frame3 = Frame([[udg3]], 2, delay=17)
         frames = [frame1, frame2, frame3]
         self._check_animated_image(writer.image_writer, frames)
+
+    def test_macro_udgarray_frames_with_custom_default_animation_format(self):
+        ref = '[ImageWriter]\nDefaultAnimationFormat=gif'
+        writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_file_info=True)
+
+        writer.expand('#UDG0,1(*frame1)')
+        writer.expand('#UDG0,2(*frame2)')
+
+        # One frame
+        fname = 'one_frame'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY*frame1({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+        # Two frames
+        fname = 'two_frames'
+        exp_image_path = '{}/{}.gif'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY*frame1;frame2({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
     def test_macro_udgarray_frames_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_udgarray_frames_invalid(self)
