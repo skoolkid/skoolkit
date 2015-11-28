@@ -108,9 +108,18 @@ class ImageWriter:
         if frames and self.default_animation_format != self.default_format:
             if len(frames) > 1:
                 return self.default_animation_format
-            f_colours, f_attrs, flash_rect = self._get_colours(frames[0], True)
-            if flash_rect:
-                return self.default_animation_format
+            frame = frames[0]
+            x0, y0 = frame.x, frame.y
+            inc = 8 * frame.scale
+            min_col = x0 // inc
+            max_col = (x0 + frame.width) // inc
+            min_row = y0 // inc
+            max_row = (y0 + frame.height) // inc
+            for row in frame.udgs[min_row:max_row + 1]:
+                for udg in row[min_col:max_col + 1]:
+                    attr = udg.attr
+                    if attr & 128 and attr & 7 != (attr & 56) // 8:
+                        return self.default_animation_format
         return self.default_format
 
     def _get_default_palette(self):
