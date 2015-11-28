@@ -555,6 +555,45 @@ class MethodTest(HtmlWriterTestCase):
         with self.assertRaisesRegexp(SkoolKitError, "Unknown path ID '{}' for image file '{}'".format(path_id, fname)):
             writer.image_path(fname, path_id)
 
+    def test_image_path_with_frames(self):
+        ref = '\n'.join((
+            '[ImageWriter]',
+            'DefaultAnimationFormat=gif',
+            'DefaultFormat=png'
+        ))
+        writer = self._get_writer(ref=ref)
+        udg_path = writer.paths['UDGImagePath']
+
+        # One frame, no flash
+        udgs = [[Udg(1, (0,) * 8)]]
+        img_path = writer.image_path('img', frames=[Frame(udgs)])
+        self.assertEqual(img_path, '{}/img.png'.format(udg_path))
+
+        # One frame, flashing, same INK and PAPER
+        udgs = [[Udg(128, (0,) * 8)]]
+        img_path = writer.image_path('img', frames=[Frame(udgs)])
+        self.assertEqual(img_path, '{}/img.png'.format(udg_path))
+
+        # One frame, flashing, different INK and PAPER
+        udgs = [[Udg(129, (0,) * 8)]]
+        img_path = writer.image_path('img', frames=[Frame(udgs)])
+        self.assertEqual(img_path, '{}/img.gif'.format(udg_path))
+
+        # One frame, flashing, fully cropped
+        udgs = [[Udg(129, (0,) * 8), Udg(0, (0,) * 8)]]
+        img_path = writer.image_path('img', frames=[Frame(udgs, 1, 0, 8)])
+        self.assertEqual(img_path, '{}/img.png'.format(udg_path))
+
+        # One frame, flashing, partly cropped
+        udgs = [[Udg(129, (0,) * 8), Udg(0, (0,) * 8)]]
+        img_path = writer.image_path('img', frames=[Frame(udgs, 1, 0, 4)])
+        self.assertEqual(img_path, '{}/img.gif'.format(udg_path))
+
+        # Two frames
+        udgs = [[Udg(0, (0,) * 8)]]
+        img_path = writer.image_path('img', frames=[Frame(udgs)] * 2)
+        self.assertEqual(img_path, '{}/img.gif'.format(udg_path))
+
     def test_flip_udgs(self):
         writer = self._get_writer()
         udg1 = Udg(0, [1, 2, 4, 8, 16, 32, 64, 128], [1, 2, 4, 8, 16, 32, 64, 128])
