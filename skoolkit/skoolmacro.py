@@ -116,9 +116,11 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
         return [end] + get_params(params, num, defaults, names, False)
     if names:
         match = RE_NAMED_PARAMS.match(text, index)
-    else:
+    elif num > 0:
         pattern = '{0}?(,({0})?){{,{1}}}'.format(PARAM, num - 1)
         match = re.match(pattern, text[index:])
+    else:
+        return [index]
     params = match.group()
     return [index + len(params)] + get_params(params, num, defaults, names)
 

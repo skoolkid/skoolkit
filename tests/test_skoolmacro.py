@@ -8,6 +8,11 @@ from skoolkit.skoolmacro import (parse_ints, parse_strings, parse_params, parse_
 
 class SkoolMacroTest(SkoolKitTestCase):
     def test_parse_ints_without_kwargs(self):
+        # No parameters expected
+        self.assertEqual([0], parse_ints('', 0))
+        self.assertEqual([0], parse_ints('{not a param}', 0))
+        self.assertEqual([0], parse_ints('xxx', 0))
+
         # Exact number of parameters
         text = '1,$2,3'
         end, p1, p2, p3 = parse_ints(text, 0, 3)
