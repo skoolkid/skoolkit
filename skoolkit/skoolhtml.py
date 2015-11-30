@@ -1256,7 +1256,7 @@ class HtmlWriter:
     def expand_font(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)
         message, addr, chars, attr, scale = params
-        udgs = self.get_font_udg_array(addr, attr, message[:chars])
+        udgs = lambda: self.get_font_udg_array(addr, attr, message[:chars])
         frames = [Frame(udgs, scale, 0, *crop_rect, name=frame)]
         return end, self.handle_image(frames, fname, cwd, alt, 'FontImagePath')
 
@@ -1340,7 +1340,7 @@ class HtmlWriter:
     def expand_scr(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(text, index)
         scale, x, y, w, h, df, af = params
-        udgs = self.screenshot(x, y, w, h, df, af)
+        udgs = lambda: self.screenshot(x, y, w, h, df, af)
         frames = [Frame(udgs, scale, 0, *crop_rect, name=frame)]
         return end, self.handle_image(frames, fname, cwd, alt, 'ScreenshotImagePath')
 
@@ -1365,7 +1365,7 @@ class HtmlWriter:
     def expand_udg(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udg(text, index)
         addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step = params
-        udgs = self._build_udg(addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step)
+        udgs = lambda: self._build_udg(addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step)
         if not fname and not frame:
             fname = 'udg{}_{}x{}'.format(addr, attr, scale)
             if frame == '':
@@ -1377,16 +1377,20 @@ class HtmlWriter:
         end, fname, alt, frames = skoolmacro.parse_udgarray_with_frames(text, index, self.frames)
         return end, self.handle_image(frames, fname, cwd, alt)
 
+    def _adjust_udgarray(self, udgs, flip, rotate):
+        if flip:
+            self.flip_udgs(udgs, flip)
+        if rotate:
+            self.rotate_udgs(udgs, rotate)
+        return udgs
+
     def expand_udgarray(self, text, index, cwd):
         if index < len(text) and text[index] == '*':
             return self._expand_udgarray_with_frames(text, index, cwd)
 
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgarray(text, index, Udg, self.snapshot)
-        udgs, scale, flip, rotate, mask = params
-        if flip:
-            self.flip_udgs(udgs, flip)
-        if rotate:
-            self.rotate_udgs(udgs, rotate)
+        udg_array, scale, flip, rotate, mask = params
+        udgs = lambda: self._adjust_udgarray(udg_array, flip, rotate)
         frames = [Frame(udgs, scale, mask, *crop_rect, name=frame)]
         return end, self.handle_image(frames, fname, cwd, alt)
 
@@ -1507,7 +1511,7 @@ class Frame(object):
 
     :param udgs: The two-dimensional array of tiles (instances of
                  :class:`~skoolkit.skoolhtml.Udg`) from which to build the
-                 frame.
+                 frame, or a function that returns the array of tiles.
     :param scale: The scale of the frame.
     :param mask: The type of mask to apply to the tiles in the frame: 0 (no
                  mask), 1 (OR-AND mask), or 2 (AND-OR mask).
@@ -1529,13 +1533,10 @@ class Frame(object):
         self.mask = int(mask)
         self._x = x
         self._y = y
-        self._full_width = 8 * len(udgs[0]) * scale
-        self._full_height = 8 * len(udgs) * scale
-        self._width = min(width or self._full_width, self._full_width - x)
-        self._height = min(height or self._full_height, self._full_height - y)
+        self._width = width
+        self._height = height
         self.delay = delay
         self.name = name
-        self._tiles = len(udgs[0]) * len(udgs)
 
     def swap_colours(self, tx=0, ty=0, tw=None, th=None, x=0, y=0, width=None, height=None):
         # Swap paper and ink in UDGs that are flashing
@@ -1553,6 +1554,8 @@ class Frame(object):
 
     @property
     def udgs(self):
+        if callable(self._udgs):
+            self._udgs = self._udgs()
         return self._udgs
 
     @property
@@ -1568,17 +1571,27 @@ class Frame(object):
         return self._y
 
     @property
+    def full_width(self):
+        return 8 * len(self.udgs[0]) * self.scale
+
+    @property
     def width(self):
-        return self._width
+        full_width = self.full_width
+        return min(self._width or full_width, full_width - self.x)
+
+    @property
+    def full_height(self):
+        return 8 * len(self.udgs) * self.scale
 
     @property
     def height(self):
-        return self._height
+        full_height = self.full_height
+        return min(self._height or full_height, full_height - self.y)
 
     @property
     def cropped(self):
-        return self._width != self._full_width or self._height != self._full_height
+        return self.width != self.full_width or self.height != self.full_height
 
     @property
     def tiles(self):
-        return self._tiles
+        return len(self.udgs[0]) * len(self.udgs)

@@ -322,7 +322,8 @@ The Frame class represents a single frame of an animated image.
       :ref:`masks`).
 
    .. versionchanged:: 5.1
-      Added the *name* parameter.
+      The *udgs* parameter can be a function that returns the array of tiles;
+      added the *name* parameter.
 
 HtmlWriter provides the following image-related convenience methods.
 
