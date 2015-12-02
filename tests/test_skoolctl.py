@@ -1002,6 +1002,101 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self._test_ctl(skool, exp_ctl)
 
+    def test_isub_block_directives(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '@isub-begin',
+            ' 40001 DEFW 0',
+            '@isub+else',
+            ' 40001 DEFS 2',
+            '@isub+end',
+            ' 40003 DEFM "a"'
+        ))
+        exp_ctl = [
+            'b 40000',
+            '  40000,1,1',
+            'W 40001,2,2',
+            'T 40003,1,1',
+            'i 40004'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
+    def test_ssub_block_directives(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '@ssub+begin',
+            ' 40001 DEFW 0',
+            '@ssub-else',
+            ' 40001 DEFS 2',
+            '@ssub-end',
+            ' 40003 DEFM "a"'
+        ))
+        exp_ctl = [
+            'b 40000',
+            '  40000,1,1',
+            'S 40001,2,2',
+            'T 40003,1,1',
+            'i 40004'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
+    def test_rsub_block_directives(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '@rsub-begin',
+            ' 40001 DEFW 0',
+            '@rsub+else',
+            ' 40001 DEFS 2',
+            '@rsub+end',
+            ' 40003 DEFM "a"'
+        ))
+        exp_ctl = [
+            'b 40000',
+            '  40000,1,1',
+            'W 40001,2,2',
+            'T 40003,1,1',
+            'i 40004'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
+    def test_ofix_block_directives(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '@ofix+begin',
+            ' 40001 DEFW 0',
+            '@ofix-else',
+            ' 40001 DEFS 2',
+            '@ofix-end',
+            ' 40003 DEFM "a"'
+        ))
+        exp_ctl = [
+            'b 40000',
+            '  40000,1,1',
+            'S 40001,2,2',
+            'T 40003,1,1',
+            'i 40004'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
+    def test_rfix_block_directives(self):
+        skool = '\n'.join((
+            'b40000 DEFB 0',
+            '@rfix-begin',
+            ' 40001 DEFW 0',
+            '@rfix+else',
+            ' 40001 DEFS 2',
+            '@rfix+end',
+            ' 40003 DEFM "a"'
+        ))
+        exp_ctl = [
+            'b 40000',
+            '  40000,1,1',
+            'W 40001,2,2',
+            'T 40003,1,1',
+            'i 40004'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
     def test_registers(self):
         skool = '\n'.join((
             '; Routine',
