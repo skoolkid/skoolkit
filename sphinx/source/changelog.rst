@@ -5,17 +5,9 @@ Changelog
 -----
 * Added the :ref:`replace` ASM directive (which replaces strings that match a
   regular expression in skool file annotations and ref file sections)
-* Added the :ref:`hash` macro (which expands macros in another macro's
-  parameter string)
-* Added the :ref:`EVAL` macro (which evaluates an arithmetic expression)
-* Added the :ref:`FOR` macro (which iterates over a range of integers)
-* Added the :ref:`FOREACH` macro (which iterates over an arbitrary sequence of
-  strings)
-* Added the :ref:`IF` macro (which evaluates an arithmetic expression and acts
-  on its truth value)
-* Added the :ref:`MAP` macro (which maps an integer to an arbitrary string)
-* Added the :ref:`PEEK` macro (which retrieves the contents of an address in
-  the memory snapshot)
+* Added the :ref:`hash`, :ref:`EVAL`, :ref:`FOR`, :ref:`FOREACH`, :ref:`IF`,
+  :ref:`MAP` and :ref:`PEEK` macros (which can be used to programmatically
+  specify the parameters of any macro)
 * Added support for arithmetic expressions and skool macros in numeric macro
   parameters
 * Added the ``--bfix``,  ``--ofix`` and ``--ssub`` options to
