@@ -3,8 +3,9 @@ import re
 import unittest
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit.skoolmacro import (parse_ints, parse_strings, parse_image_macro, parse_params, parse_address_range,
-                                 MacroParsingError, NoParametersError, MissingParameterError, TooManyParametersError)
+from skoolkit.skoolmacro import (parse_ints, parse_strings, parse_brackets, parse_image_macro, parse_params,
+                                 parse_address_range, MacroParsingError, NoParametersError, MissingParameterError,
+                                 TooManyParametersError)
 
 class SkoolMacroTest(SkoolKitTestCase):
     def test_parse_ints_without_kwargs(self):
@@ -211,6 +212,35 @@ class SkoolMacroTest(SkoolKitTestCase):
             parse_strings(text, num=5, defaults=('qux',))
             self.assertEqual(e[0], "Not enough parameters (expected 4): '{}'".format(text[1:-1]))
             self.assertEqual(e[1], len(text))
+
+    def test_parse_brackets(self):
+        self.assertEqual((0, None), parse_brackets(''))
+        self.assertEqual((0, None), parse_brackets('xxx'))
+        self.assertEqual((5, ''), parse_brackets('...()...', 3))
+        self.assertEqual((5, 'foo'), parse_brackets('(foo)'))
+
+    def test_parse_brackets_with_default_value(self):
+        self.assertEqual((0, 'bar'), parse_brackets('', default='bar'))
+        self.assertEqual((0, 'bar'), parse_brackets('xxx', default='bar'))
+        self.assertEqual((2, ''), parse_brackets('()', default='bar'))
+        self.assertEqual((5, 'foo'), parse_brackets('(foo)', default='bar'))
+
+    def test_parse_brackets_with_custom_delimiters(self):
+        self.assertEqual((0, None), parse_brackets('', opening='<', closing='>'))
+        self.assertEqual((0, None), parse_brackets('xxx', opening='<', closing='>'))
+        self.assertEqual((0, None), parse_brackets('()', opening='<', closing='>'))
+        self.assertEqual((0, None), parse_brackets('(foo)', opening='<', closing='>'))
+        self.assertEqual((2, ''), parse_brackets('<>', opening='<', closing='>'))
+        self.assertEqual((5, 'foo'), parse_brackets('<foo>', opening='<', closing='>'))
+        self.assertEqual((5, 'bar'), parse_brackets('[bar]', opening='[', closing=']'))
+
+    def test_parse_brackets_with_default_value_and_custom_delimiters(self):
+        self.assertEqual((0, 'bar'), parse_brackets('', 0, 'bar', '<', '>'))
+        self.assertEqual((1, 'bar'), parse_brackets('xxx', 1, 'bar', '<', '>'))
+        self.assertEqual((0, 'bar'), parse_brackets('()', 0, 'bar', '<', '>'))
+        self.assertEqual((0, 'bar'), parse_brackets('(foo)', 0, 'bar', '<', '>'))
+        self.assertEqual((2, ''), parse_brackets('<>', 0, 'bar', '<', '>'))
+        self.assertEqual((5, 'foo'), parse_brackets('<foo>', 0, 'bar', '<', '>'))
 
     def test_parse_image_macro_with_no_parameters_expected(self):
         # No parameters, no cropping spec, no filename
