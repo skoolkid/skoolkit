@@ -3,7 +3,7 @@ import re
 import unittest
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit.skoolmacro import (parse_ints, parse_strings, parse_params, parse_address_range,
+from skoolkit.skoolmacro import (parse_ints, parse_strings, parse_image_macro, parse_params, parse_address_range,
                                  MacroParsingError, NoParametersError, MissingParameterError, TooManyParametersError)
 
 class SkoolMacroTest(SkoolKitTestCase):
@@ -211,6 +211,219 @@ class SkoolMacroTest(SkoolKitTestCase):
             parse_strings(text, num=5, defaults=('qux',))
             self.assertEqual(e[0], "Not enough parameters (expected 4): '{}'".format(text[1:-1]))
             self.assertEqual(e[1], len(text))
+
+    def test_parse_image_macro_with_no_parameters_expected(self):
+        # No parameters, no cropping spec, no filename
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('xxx')
+        self.assertEqual(end, 0)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, '')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([], values)
+
+        # No parameters, no cropping spec, filename
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('#FOO(image)', 4)
+        self.assertEqual(end, 11)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, 'image')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([], values)
+
+        # No parameters, cropping spec, no filename
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('{1,2,3,4}')
+        self.assertEqual(end, 9)
+        self.assertEqual(crop_rect, (1, 2, 3, 4))
+        self.assertEqual(fname, '')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([], values)
+
+    def test_parse_image_macro_with_parameters(self):
+        # One required parameter
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('#BAR1', 4, names=('arg',))
+        self.assertEqual(end, 5)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, '')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([1], values)
+
+        # Two required parameters
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1,2', names=('arga', 'argb'))
+        self.assertEqual(end, 3)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, '')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([1, 2], values)
+
+        # One required parameter, one optional and omitted
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1', defaults=(2,), names=('arga', 'argb'))
+        self.assertEqual(end, 1)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, '')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([1, 2], values)
+
+        # One required parameter, two optional, second omitted
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1,,3', defaults=(2, 3), names=('arga', 'argb', 'argc'))
+        self.assertEqual(end, 4)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, '')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([1, 2, 3], values)
+
+        # One required parameter, two optional, second omitted, third named
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1,argc=3', defaults=(2, 3), names=('arga', 'argb', 'argc'))
+        self.assertEqual(end, 8)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, '')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([1, 2, 3], values)
+
+        # Two optional parameters omitted, filename
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('(logo)', defaults=(1, 2), names=('arga', 'argb'))
+        self.assertEqual(end, 6)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, 'logo')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([1, 2], values)
+
+    def test_parse_image_macro_with_cropping_spec(self):
+        # Cropping spec with all parameters omitted
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1{}', names=('a',))
+        self.assertEqual(end, 3)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, '')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([1], values)
+
+        # Cropping spec with some parameters omitted
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('#BAZ1{1,2}', 4, names=('a',))
+        self.assertEqual(end, 10)
+        self.assertEqual(crop_rect, (1, 2, None, None))
+        self.assertEqual(fname, '')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([1], values)
+
+        # Cropping spec with some parameters omitted, one named
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1{1,width=5}', names=('a',))
+        self.assertEqual(end, 12)
+        self.assertEqual(crop_rect, (1, 0, 5, None))
+        self.assertEqual(fname, '')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([1], values)
+
+        # Cropping spec with all parameters named
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1{width=5,height=6,x=1,y=2}', names=('a',))
+        self.assertEqual(end, 27)
+        self.assertEqual(crop_rect, (1, 2, 5, 6))
+        self.assertEqual(fname, '')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([1], values)
+
+    def test_parse_image_macro_with_filename(self):
+        # No default filename, no filename specified
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1', names=('a',))
+        self.assertEqual(end, 1)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, '')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([1], values)
+
+        # No default filename, filename specified
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1(image)', names=('a',))
+        self.assertEqual(end, 8)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, 'image')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([1], values)
+
+        # Default filename, no filename specified
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1', names=('a',), fname='image')
+        self.assertEqual(end, 1)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, 'image')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([1], values)
+
+        # Default filename, filename specified
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1(logo)', names=('a',), fname='image')
+        self.assertEqual(end, 7)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, 'logo')
+        self.assertIsNone(frame)
+        self.assertIsNone(alt)
+        self.assertEqual([1], values)
+
+    def test_parse_image_macro_with_frame(self):
+        # Implicit frame name
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1(logo*)', names=('a',))
+        self.assertEqual(end, 8)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, 'logo')
+        self.assertEqual(frame, fname)
+        self.assertIsNone(alt)
+        self.assertEqual([1], values)
+
+        # Explicit frame name
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1(logo*frame1)', names=('a',))
+        self.assertEqual(end, 14)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, 'logo')
+        self.assertEqual(frame, 'frame1')
+        self.assertIsNone(alt)
+        self.assertEqual([1], values)
+
+        # Explicit frame name, no filename
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1(*frame1)', names=('a',))
+        self.assertEqual(end, 10)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, '')
+        self.assertEqual(frame, 'frame1')
+        self.assertIsNone(alt)
+        self.assertEqual([1], values)
+
+    def test_parse_image_macro_with_alt_text(self):
+        # Alt text
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1(logo|Logo)', names=('a',))
+        self.assertEqual(end, 12)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, 'logo')
+        self.assertIsNone(frame)
+        self.assertEqual(alt, 'Logo')
+        self.assertEqual([1], values)
+
+        # Filename, implicit frame name, alt text
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1(logo*|Logo)', names=('a',))
+        self.assertEqual(end, 13)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, 'logo')
+        self.assertEqual(frame, fname)
+        self.assertEqual(alt, 'Logo')
+        self.assertEqual([1], values)
+
+        # Filename, explicit frame name, alt text
+        end, crop_rect, fname, frame, alt, values = parse_image_macro('1(logo*frame1|Logo)', names=('a',))
+        self.assertEqual(end, 19)
+        self.assertEqual(crop_rect, (0, 0, None, None))
+        self.assertEqual(fname, 'logo')
+        self.assertEqual(frame, 'frame1')
+        self.assertEqual(alt, 'Logo')
+        self.assertEqual([1], values)
 
     def test_parse_params_default_valid_characters(self):
         text = '$5B'
