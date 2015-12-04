@@ -29,7 +29,7 @@ try:
 except ImportError:         # pragma: no cover
     from io import StringIO # pragma: no cover
 
-from skoolkit import skoolmacro, SkoolKitError, warn, get_int_param, parse_int, VERSION
+from skoolkit import skoolmacro, SkoolKitError, warn, parse_int, VERSION
 from skoolkit.defaults import REF_FILE
 from skoolkit.image import ImageWriter
 from skoolkit.refparser import RefParser
