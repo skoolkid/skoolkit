@@ -14,9 +14,9 @@ i 23296
 S 23296
 @ 24576 start
 @ 24576 org=24576
-@ 24576 replace=/#maze(\d+)/#UDGARRAY#(32#FOR(\1,\1+767)||n|;(31735+8*#PEEKn),#MAP(#PEEKn)(61,2:60,3:56)||)
-@ 24576 replace=/#sprite(\d+),(\d+)/#UDGARRAY2,\2;\1-(\1+24)-8
-@ 24576 replace=/#fruit(\d+)/#UDGARRAY#(2#FOR(\1,\1+27,9)||n|;(n+1),#PEEKn||)
+@ 24576 replace=/#maze\i/#UDGARRAY#(32#FOR(\1,\1+767)||n|;(31735+8*#PEEKn),#MAP(#PEEKn)(61,2:60,3:56)||)
+@ 24576 replace=/#sprite\i,\i/#UDGARRAY2,\2;\1-(\1+24)-8
+@ 24576 replace=/#fruit\i/#UDGARRAY#(2#FOR(\1,\1+27,9)||n|;(n+1),#PEEKn||)
 @ 24576 set-handle-unsupported-macros=1
 c 24576 The game has just loaded
 c 25167
