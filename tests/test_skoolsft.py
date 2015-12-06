@@ -16,6 +16,19 @@ r24576 other
  24579
 
 @start
+@replace=/#copy/#CHR169
+@set-bullet=.
+@set-comment-width-min=13
+@set-crlf=1
+@set-handle-unsupported-macros=1
+@set-indent=3
+@set-instruction-width=30
+@set-label-colons=0
+@set-line-width=119
+@set-tab=1
+@set-warnings=0
+@set-wrap-column-width-min=15
+@writer=:game.GameAsmWriter
 @org=32768
 
 ; Routine
@@ -25,6 +38,7 @@ r24576 other
 ; A Some value
 ; B Another value
 @label=START
+@assemble=1
 @isub=DI
 c32768 NOP          ; Do nothing
 @bfix=DEFB 1,3
@@ -50,6 +64,7 @@ c32768 NOP          ; Do nothing
  32792 DEFS 3       ; }
  32795 RET          ; Return
                     ; comment continuation line
+@assemble=0
 ; End comment paragraph 1.
 ; .
 ; End comment paragraph 2.
@@ -137,6 +152,19 @@ r24576 other
  24579
 
 @start
+@replace=/#copy/#CHR169
+@set-bullet=.
+@set-comment-width-min=13
+@set-crlf=1
+@set-handle-unsupported-macros=1
+@set-indent=3
+@set-instruction-width=30
+@set-label-colons=0
+@set-line-width=119
+@set-tab=1
+@set-warnings=0
+@set-wrap-column-width-min=15
+@writer=:game.GameAsmWriter
 @org=32768
 
 ; Routine
@@ -146,6 +174,7 @@ r24576 other
 ; A Some value
 ; B Another value
 @label=START
+@assemble=1
 @isub=DI
 cC32768,1;20 Do nothing
 @bfix=DEFB 1,3
@@ -171,6 +200,7 @@ cC32768,1;20 Do nothing
  S32792,3;20 }
  C32795,1;20 Return
  ;20 comment continuation line
+@assemble=0
 ; End comment paragraph 1.
 ; .
 ; End comment paragraph 2.
@@ -759,19 +789,6 @@ class SftWriterTest(SkoolKitTestCase):
             '@ssub+end',
         ]
         self._test_sft(skool, exp_sft, max_address=30002)
-
-    def test_replace_directive(self):
-        skool = '\n'.join((
-            '@replace=/#copy/#CHR169',
-            '; Message',
-            't32768 DEFM 127," 1984"  ; #copy 1984',
-        ))
-        exp_sft = [
-            '@replace=/#copy/#CHR169',
-            '; Message',
-            'tT32768,B1:5;25 #copy 1984',
-        ]
-        self._test_sft(skool, exp_sft)
 
     def test_i_block_with_no_instruction(self):
         skool = 'i40000'
