@@ -41,7 +41,6 @@ bB$25aa,1
 ;
 ; A Some value
 ; B Some other value
-@label=START
 cC32768,2
 
 ; Test code disassembly with a comment marker but no comment
@@ -72,18 +71,11 @@ sS32793,10
 ; Test an invalid control directive
 a32794 NOP
 
-; Test a block ASM directive
-@rsub-begin
-bB32795,5
-@rsub+else
- 32795 DEFS 6
-@rsub+end
-
 ; Test complex DEFM statements
-tT32800,5,1:B1,2:B2*2
+tT32795,5,1:B1,2:B2*2
 
 ; Test complex DEFB statements
-bB32815,2:T1,1:T2*2,1
+bB32810,2:T1,1:T2*2,1
 """
 
 TEST_SNAPSHOT = [0] * 32826
@@ -100,7 +92,7 @@ TEST_SNAPSHOT[32770] = 55  # 32770 SCF
 TEST_SNAPSHOT[32771] = 63  # 32771 CCF
 TEST_SNAPSHOT[32772] = 118 # 32772 HALT
 TEST_SNAPSHOT[32784:32789] = [ord(c) for c in "Hello"]
-TEST_SNAPSHOT[32800:32825] = [ord('a')] * 25
+TEST_SNAPSHOT[32795:32820] = [ord('a')] * 25
 
 TEST_SKOOL = """; Test processing of a data definition entry
 d24576 DEFB 128
@@ -135,7 +127,6 @@ b09642 DEFB 42
 ;
 ; A Some value
 ; B Some other value
-@label=START
 c32768 CPL
  32769 RET
 
@@ -169,24 +160,17 @@ s32793 DEFS 10
 ; Test an invalid control directive
 a32794 NOP
 
-; Test a block ASM directive
-@rsub-begin
-b32795 DEFB 0,0,0,0,0
-@rsub+else
- 32795 DEFS 6
-@rsub+end
-
 ; Test complex DEFM statements
-t32800 DEFM "aaaaa"
- 32805 DEFM "a",97
- 32807 DEFM "aa",97,97
- 32811 DEFM "aa",97,97
+t32795 DEFM "aaaaa"
+ 32800 DEFM "a",97
+ 32802 DEFM "aa",97,97
+ 32806 DEFM "aa",97,97
 
 ; Test complex DEFB statements
-b32815 DEFB 97,97,"a"
- 32818 DEFB 97,"aa"
- 32821 DEFB 97,"aa"
- 32824 DEFB 97
+b32810 DEFB 97,97,"a"
+ 32813 DEFB 97,"aa"
+ 32816 DEFB 97,"aa"
+ 32819 DEFB 97
 """.split('\n')
 
 TEST_SKOOL_HEX = """; Test processing of a data definition entry
@@ -222,7 +206,6 @@ b$25AA DEFB $2A
 ;
 ; A Some value
 ; B Some other value
-@label=START
 c$8000 CPL
  $8001 RET
 
@@ -256,24 +239,17 @@ s$8019 DEFS $0A
 ; Test an invalid control directive
 a32794 NOP
 
-; Test a block ASM directive
-@rsub-begin
-b$801B DEFB $00,$00,$00,$00,$00
-@rsub+else
- 32795 DEFS 6
-@rsub+end
-
 ; Test complex DEFM statements
-t$8020 DEFM "aaaaa"
- $8025 DEFM "a",$61
- $8027 DEFM "aa",$61,$61
- $802B DEFM "aa",$61,$61
+t$801B DEFM "aaaaa"
+ $8020 DEFM "a",$61
+ $8022 DEFM "aa",$61,$61
+ $8026 DEFM "aa",$61,$61
 
 ; Test complex DEFB statements
-b$802F DEFB $61,$61,"a"
- $8032 DEFB $61,"aa"
- $8035 DEFB $61,"aa"
- $8038 DEFB $61
+b$802A DEFB $61,$61,"a"
+ $802D DEFB $61,"aa"
+ $8030 DEFB $61,"aa"
+ $8033 DEFB $61
 """.split('\n')
 
 class SftParserTest(SkoolKitTestCase):
@@ -981,7 +957,239 @@ class SftParserTest(SkoolKitTestCase):
         exp_skool = []
         self._test_disassembly(sft, exp_skool, snapshot, min_address=2, max_address=3)
 
-    def test_replace_directive(self):
+    def test_asm_directive_assemble(self):
+        snapshot = [201]
+        sft = '\n'.join((
+            '@assemble=1',
+            'cC00000,1',
+            '@assemble=0'
+        ))
+        exp_skool = [
+            '@assemble=1',
+            'c00000 RET',
+            '@assemble=0'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_bfix(self):
+        snapshot = [192]
+        sft = '\n'.join((
+            '@bfix=RET Z',
+            'cC00000,1'
+        ))
+        exp_skool = [
+            '@bfix=RET Z',
+            'c00000 RET NZ'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_bfix_block(self):
+        snapshot = [192]
+        sft = '\n'.join((
+            '@bfix-begin',
+            'cC00000,1',
+            '@bfix+else',
+            'c00000 RET Z',
+            '@bfix+end'
+        ))
+        exp_skool = [
+            '@bfix-begin',
+            'c00000 RET NZ',
+            '@bfix+else',
+            'c00000 RET Z',
+            '@bfix+end'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_end(self):
+        snapshot = [201]
+        sft = '\n'.join((
+            'cC00000,1',
+            '@end'
+        ))
+        exp_skool = [
+            'c00000 RET',
+            '@end'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_ignoreua(self):
+        snapshot = [120, 201]
+        sft = '\n'.join((
+            '@ignoreua',
+            '; Title',
+            ';',
+            '@ignoreua',
+            '; Description.',
+            ';',
+            '@ignoreua',
+            '; HL Some value',
+            ';',
+            '@ignoreua',
+            '; Start comment.',
+            '@ignoreua',
+            'cC00000,1;20 Comment',
+            '@ignoreua',
+            '; Mid-block comment.',
+            ' C00001,1',
+            '@ignoreua',
+            '; End comment.'
+        ))
+        exp_skool = [
+            '@ignoreua',
+            '; Title',
+            ';',
+            '@ignoreua',
+            '; Description.',
+            ';',
+            '@ignoreua',
+            '; HL Some value',
+            ';',
+            '@ignoreua',
+            '; Start comment.',
+            '@ignoreua',
+            'c00000 LD A,B       ; Comment',
+            '@ignoreua',
+            '; Mid-block comment.',
+            ' 00001 RET',
+            '@ignoreua',
+            '; End comment.'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_isub(self):
+        snapshot = [192]
+        sft = '\n'.join((
+            '@isub=RET Z',
+            'cC00000,1'
+        ))
+        exp_skool = [
+            '@isub=RET Z',
+            'c00000 RET NZ'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_isub_block(self):
+        snapshot = [192]
+        sft = '\n'.join((
+            '@isub+begin',
+            'c00000 RET Z',
+            '@isub-else',
+            'cC00000,1',
+            '@isub-end'
+        ))
+        exp_skool = [
+            '@isub+begin',
+            'c00000 RET Z',
+            '@isub-else',
+            'c00000 RET NZ',
+            '@isub-end'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_keep(self):
+        snapshot = [1, 0, 0]
+        sft = '\n'.join((
+            '@keep',
+            'cC00000,3'
+        ))
+        exp_skool = [
+            '@keep',
+            'c00000 LD BC,0'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_label(self):
+        snapshot = [201]
+        sft = '\n'.join((
+            '@label=START',
+            'cC00000,1'
+        ))
+        exp_skool = [
+            '@label=START',
+            'c00000 RET'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_nolabel(self):
+        snapshot = [201]
+        sft = '\n'.join((
+            '@nolabel',
+            'cC00000,1'
+        ))
+        exp_skool = [
+            '@nolabel',
+            'c00000 RET'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_nowarn(self):
+        snapshot = [1, 0, 0]
+        sft = '\n'.join((
+            '@nowarn',
+            'cC00000,3'
+        ))
+        exp_skool = [
+            '@nowarn',
+            'c00000 LD BC,0'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_ofix(self):
+        snapshot = [62, 0]
+        sft = '\n'.join((
+            '@ofix=LD A,1',
+            'cC00000,2'
+        ))
+        exp_skool = [
+            '@ofix=LD A,1',
+            'c00000 LD A,0'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_ofix_block(self):
+        snapshot = [62, 0]
+        sft = '\n'.join((
+            '@ofix-begin',
+            'cC00000,2',
+            '@ofix+else',
+            'c00000 LD A,1',
+            '@ofix+end'
+        ))
+        exp_skool = [
+            '@ofix-begin',
+            'c00000 LD A,0',
+            '@ofix+else',
+            'c00000 LD A,1',
+            '@ofix+end'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_org(self):
+        snapshot = [201]
+        sft = '\n'.join((
+            '@org=0',
+            'cC00000,1'
+        ))
+        exp_skool = [
+            '@org=0',
+            'c00000 RET'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_rem(self):
+        snapshot = [201]
+        sft = '\n'.join((
+            '@rem=This is where it starts',
+            'cC00000,1'
+        ))
+        exp_skool = [
+            '@rem=This is where it starts',
+            'c00000 RET'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_replace(self):
         snapshot = [127, 32, 49, 57, 56, 52]
         sft = '\n'.join((
             '@replace=/#copy/#CHR169',
@@ -992,6 +1200,140 @@ class SftParserTest(SkoolKitTestCase):
             '@replace=/#copy/#CHR169',
             '; Message',
             't00000 DEFM 127," 1984"  ; #copy 1984',
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_rfix_block(self):
+        snapshot = [14, 0]
+        sft = '\n'.join((
+            '@rfix+begin',
+            'c00000 LD BC,0',
+            '@rfix-else',
+            'cC00000,2',
+            '@rfix-end'
+        ))
+        exp_skool = [
+            '@rfix+begin',
+            'c00000 LD BC,0',
+            '@rfix-else',
+            'c00000 LD C,0',
+            '@rfix-end'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_rsub(self):
+        snapshot = [14, 0]
+        sft = '\n'.join((
+            '@rsub=LD BC,0',
+            'cC00000,2'
+        ))
+        exp_skool = [
+            '@rsub=LD BC,0',
+            'c00000 LD C,0'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_rsub_block(self):
+        snapshot = [14, 0]
+        sft = '\n'.join((
+            '@rsub-begin',
+            'cC00000,2',
+            '@rsub+else',
+            'c00000 LD BC,0',
+            '@rsub+end'
+        ))
+        exp_skool = [
+            '@rsub-begin',
+            'c00000 LD C,0',
+            '@rsub+else',
+            'c00000 LD BC,0',
+            '@rsub+end'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_set(self):
+        snapshot = [201]
+        sft = '\n'.join((
+            '@set-bullet=.',
+            '@set-comment-width-min=13',
+            '@set-crlf=1',
+            '@set-handle-unsupported-macros=1',
+            '@set-indent=3',
+            '@set-instruction-width=30',
+            '@set-label-colons=0',
+            '@set-line-width=119',
+            '@set-tab=1',
+            '@set-warnings=0',
+            '@set-wrap-column-width-min=15',
+            'cC00000,1'
+        ))
+        exp_skool = [
+            '@set-bullet=.',
+            '@set-comment-width-min=13',
+            '@set-crlf=1',
+            '@set-handle-unsupported-macros=1',
+            '@set-indent=3',
+            '@set-instruction-width=30',
+            '@set-label-colons=0',
+            '@set-line-width=119',
+            '@set-tab=1',
+            '@set-warnings=0',
+            '@set-wrap-column-width-min=15',
+            'c00000 RET'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_ssub(self):
+        snapshot = [14, 0]
+        sft = '\n'.join((
+            '@ssub=LD B,0',
+            'cC00000,2'
+        ))
+        exp_skool = [
+            '@ssub=LD B,0',
+            'c00000 LD C,0'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_ssub_block(self):
+        snapshot = [14, 0]
+        sft = '\n'.join((
+            '@ssub+begin',
+            'c00000 LD C,1',
+            '@ssub-else',
+            'cC00000,2',
+            '@ssub-end'
+        ))
+        exp_skool = [
+            '@ssub+begin',
+            'c00000 LD C,1',
+            '@ssub-else',
+            'c00000 LD C,0',
+            '@ssub-end'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_start(self):
+        snapshot = [201]
+        sft = '\n'.join((
+            '@start',
+            'cC00000,1'
+        ))
+        exp_skool = [
+            '@start',
+            'c00000 RET'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_asm_directive_writer(self):
+        snapshot = [201]
+        sft = '\n'.join((
+            '@writer=:game.GameAsmWriter',
+            'cC00000,1'
+        ))
+        exp_skool = [
+            '@writer=:game.GameAsmWriter',
+            'c00000 RET'
         ]
         self._test_disassembly(sft, exp_skool, snapshot)
 
