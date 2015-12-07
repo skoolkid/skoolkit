@@ -86,9 +86,7 @@ test%-all: write-disassembly-tests
 
 .PHONY: test-cover
 test-cover: remove-disassembly-tests
-	rm -rf tests/cover
-	nosetests -w tests --with-coverage --cover-package=skoolkit --cover-html --cover-erase
-	@echo "Coverage info in tests/cover/index.html"
+	nosetests -w tests --with-coverage --cover-package=skoolkit --cover-erase
 
 .PHONY: release
 release:
