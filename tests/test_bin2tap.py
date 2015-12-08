@@ -12,18 +12,14 @@ from skoolkit import bin2tap, VERSION
 
 PY3 = sys.version_info >= (3,)
 
-TEST_FNAME = 'test-tap'
-TEST_BIN = '{0}.bin'.format(TEST_FNAME)
-TEST_TAP = '{0}.tap'.format(TEST_FNAME)
-
 def mock_run(*args):
     global run_args
     run_args = args
 
 class Bin2TapTest(SkoolKitTestCase):
-    def _run(self, args, data=None, tapfile=TEST_TAP):
-        if data is not None:
-            self.write_bin_file(data, TEST_BIN)
+    def _run(self, args, tapfile=None):
+        if tapfile is None:
+            tapfile = args.split()[-1][:-4] + '.tap'
         output, error = self.run_bin2tap(args)
         self.assertEqual(output, [])
         self.assertEqual(error, '')
@@ -47,7 +43,7 @@ class Bin2TapTest(SkoolKitTestCase):
     def _get_str(self, chars):
         return [ord(c) for c in chars]
 
-    def _check_tap(self, tap_data, bin_data, org=None, start=None, stack=None, infile=TEST_BIN):
+    def _check_tap(self, tap_data, bin_data, infile, org=None, start=None, stack=None):
         if org is None:
             org = 65536 - len(bin_data)
         if start is None:
@@ -115,7 +111,7 @@ class Bin2TapTest(SkoolKitTestCase):
         exp_data.append(self._get_parity(exp_data))
         self.assertEqual(exp_data, data)
 
-    def _check_tap_with_clear_command(self, tap_data, bin_data, clear, org=None, start=None, infile=TEST_BIN):
+    def _check_tap_with_clear_command(self, tap_data, bin_data, infile, clear, org=None, start=None):
         if org is None:
             org = 65536 - len(bin_data)
         if start is None:
@@ -196,7 +192,7 @@ class Bin2TapTest(SkoolKitTestCase):
         self.assertTrue(error.startswith('usage: bin2tap.py'))
 
     def test_invalid_option(self):
-        output, error = self.run_bin2tap('-x {0}'.format(TEST_BIN), catch_exit=2)
+        output, error = self.run_bin2tap('-x test_invalid_option.bin', catch_exit=2)
         self.assertEqual(len(output), 0)
         self.assertTrue(error.startswith('usage: bin2tap.py'))
 
@@ -209,24 +205,24 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_no_options(self):
         bin_data = [1, 2, 3, 4, 5]
-        tap_data = self._run(TEST_BIN, bin_data)
-        self._check_tap(tap_data, bin_data)
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
+        tap_data = self._run(binfile)
+        self._check_tap(tap_data, bin_data, binfile)
 
     def test_nonstandard_bin_name(self):
         bin_data = [0]
         binfile = self.write_bin_file(bin_data, suffix='.ram')
         tapfile = '{0}.tap'.format(binfile)
-        tap_data = self._run(binfile, tapfile=tapfile)
-        self._check_tap(tap_data, bin_data, infile=binfile)
+        tap_data = self._run(binfile, tapfile)
+        self._check_tap(tap_data, bin_data, binfile)
         os.remove(tapfile)
 
     def test_bin_in_subdirectory(self):
         bin_data = [1]
         subdir = self.make_directory()
         binfile = self.write_bin_file(bin_data, '{}/game.bin'.format(subdir))
-        tapfile = binfile[:-4] + '.tap'
-        tap_data = self._run(binfile, tapfile=tapfile)
-        self._check_tap(tap_data, bin_data, infile=binfile)
+        tap_data = self._run(binfile)
+        self._check_tap(tap_data, bin_data, binfile)
 
     def test_option_V(self):
         for option in ('-V', '--version'):
@@ -236,53 +232,59 @@ class Bin2TapTest(SkoolKitTestCase):
     def test_option_c(self):
         org = 40000
         bin_data = list(range(25))
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
         clear = org - 1
         start = org + 10
         for option in ('-c', '--clear'):
-            tap_data = self._run('{} {} -o {} -s {} {}'.format(option, clear, org, start, TEST_BIN), bin_data)
-            self._check_tap_with_clear_command(tap_data, bin_data, clear, org, start)
+            tap_data = self._run('{} {} -o {} -s {} {}'.format(option, clear, org, start, binfile))
+            self._check_tap_with_clear_command(tap_data, bin_data, binfile, clear, org, start)
 
     def test_option_o(self):
         org = 40000
         bin_data = [i for i in range(50)]
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
         for option in ('-o', '--org'):
-            tap_data = self._run('{0} {1} {2}'.format(option, org, TEST_BIN), bin_data)
-            self._check_tap(tap_data, bin_data, org=org)
+            tap_data = self._run('{} {} {}'.format(option, org, binfile))
+            self._check_tap(tap_data, bin_data, binfile, org=org)
 
     def test_option_s(self):
         bin_data = [i for i in range(100)]
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
         start = 65536 - len(bin_data) // 2
         for option in ('-s', '--start'):
-            tap_data = self._run('{0} {1} {2}'.format(option, start, TEST_BIN), bin_data)
-            self._check_tap(tap_data, bin_data, start=start)
+            tap_data = self._run('{} {} {}'.format(option, start, binfile))
+            self._check_tap(tap_data, bin_data, binfile, start=start)
 
     def test_option_p(self):
         stack = 32768
         bin_data = [i for i in range(64)]
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
         for option in ('-p', '--stack'):
-            tap_data = self._run('{0} {1} {2}'.format(option, stack, TEST_BIN), bin_data)
-            self._check_tap(tap_data, bin_data, stack=stack)
+            tap_data = self._run('{} {} {}'.format(option, stack, binfile))
+            self._check_tap(tap_data, bin_data, binfile, stack=stack)
 
     def test_option_t(self):
         tapfile = 'testtap-{0}.tap'.format(os.getpid())
         self.tempfiles.append(tapfile)
         bin_data = [i for i in range(32)]
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
         for option in ('-t', '--tapfile'):
-            tap_data = self._run('{0} {1} {2}'.format(option, tapfile, TEST_BIN), bin_data, tapfile)
-            self._check_tap(tap_data, bin_data)
+            tap_data = self._run('{} {} {}'.format(option, tapfile, binfile), tapfile)
+            self._check_tap(tap_data, bin_data, binfile)
             os.remove(tapfile)
 
     def test_data_overwrites_stack(self):
         bin_data = [0] * 10
+        binfile = self.write_bin_file(bin_data, suffix='.bin')
         org = 65536 - len(bin_data)
         index = 5
         stack = org + index
-        tap_data = self._run('-p {0} {1}'.format(stack, TEST_BIN), bin_data)
+        tap_data = self._run('-p {} {}'.format(stack, binfile))
         bin_data[index - 4:index] = [
             63, 5,                # 1343 (SA/LD-RET)
             org % 256, org // 256 # start=org
         ]
-        self._check_tap(tap_data, bin_data, stack=stack)
+        self._check_tap(tap_data, bin_data, binfile, stack=stack)
 
     def test_option_e_with_z80(self):
         ram = [0] * 49152
@@ -291,9 +293,8 @@ class Bin2TapTest(SkoolKitTestCase):
         end = org + len(data)
         ram[org - 16384:end - 16384] = data
         z80 = self.write_z80(ram)[1]
-        tapfile = z80[:-4] + '.tap'
-        tap_data = self._run('-o {} -e {} {}'.format(org, end, z80), tapfile=tapfile)
-        self._check_tap(tap_data, data, infile=z80)
+        tap_data = self._run('-o {} -e {} {}'.format(org, end, z80))
+        self._check_tap(tap_data, data, z80)
 
     def test_option_e_with_szx(self):
         ram = [0] * 49152
@@ -302,9 +303,8 @@ class Bin2TapTest(SkoolKitTestCase):
         end = org + len(data)
         ram[org - 16384:end - 16384] = data
         szx = self.write_szx(ram)
-        tapfile = szx[:-4] + '.tap'
-        tap_data = self._run('-o {} -e {} {}'.format(org, end, szx), tapfile=tapfile)
-        self._check_tap(tap_data, data, infile=szx)
+        tap_data = self._run('-o {} -e {} {}'.format(org, end, szx))
+        self._check_tap(tap_data, data, szx)
 
     def test_option_end_with_sna(self):
         ram = [0] * 49152
@@ -313,9 +313,8 @@ class Bin2TapTest(SkoolKitTestCase):
         end = org + len(data)
         ram[org - 16384:end - 16384] = data
         sna = self.write_bin_file([0] * 27 + ram, suffix='.sna')
-        tapfile = sna[:-4] + '.tap'
-        tap_data = self._run('-o {} --end {} {}'.format(org, end, sna), tapfile=tapfile)
-        self._check_tap(tap_data, data, infile=sna)
+        tap_data = self._run('-o {} --end {} {}'.format(org, end, sna))
+        self._check_tap(tap_data, data, sna)
 
 if __name__ == '__main__':
     unittest.main()
