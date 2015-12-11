@@ -8,7 +8,7 @@ try:
 except ImportError:
     from unittest.mock import patch, Mock
 
-from skoolkittest import (SkoolKitTestCase, get_parity, create_data_block,
+from skoolkittest import (SkoolKitTestCase, create_data_block,
                           create_tap_header_block, create_tap_data_block,
                           create_tzx_header_block, create_tzx_data_block)
 from skoolkit import tap2sna, VERSION, SkoolKitError
