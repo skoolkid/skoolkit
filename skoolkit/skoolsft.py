@@ -37,7 +37,7 @@ class VerbatimLine:
         return False
 
     def is_trimmable(self):
-        if (self.text.startswith('@') and self.text.endswith(('+end', '-end'))):
+        if self.text.startswith('@') and self.text.endswith(('+end', '-end')):
             return False
         return len(self.text) > 0
 

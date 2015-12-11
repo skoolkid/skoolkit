@@ -178,7 +178,7 @@ def _assemble_jr(address, op1, op2=None):
 def _assemble_ld(address, op1, op2):
     if op1 in REG:
         op1_index = _reg_index(op1)
-        if op2 in REG and not (op1 == op2 == '(HL)'):
+        if op2 in REG and not op1 == op2 == '(HL)':
             # LD r,r'; LD r,(HL)
             return (64 + 8 * op1_index + _reg_index(op2),)
         if op2.startswith('(I') and  op1 != '(HL)':
