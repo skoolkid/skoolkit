@@ -1155,9 +1155,8 @@ class SkoolParserTest(SkoolKitTestCase):
         return SkoolParser(skoolfile, *args, **kwargs)
 
     def assert_error(self, skool, error, *args, **kwargs):
-        with self.assertRaises(SkoolParsingError) as cm:
+        with self.assertRaisesRegexp(SkoolParsingError, error):
             self._get_parser(skool, *args, **kwargs)
-        self.assertEqual(cm.exception.args[0], error)
 
     def test_invalid_entry_address(self):
         self.assert_error('c3000f RET', "Invalid address: '3000f'")
@@ -2679,7 +2678,7 @@ class SkoolParserTest(SkoolKitTestCase):
             '; Routine',
             'c32768 RET',
         ))
-        self.assert_error(skool, "Failed to replace '[abc' with 'xyz': unexpected end of regular expression")
+        self.assert_error(skool, "Failed to replace '\[abc' with 'xyz': (unexpected end of regular expression|unterminated character set at position 0)")
 
     def test_replace_directive_with_invalid_replacement(self):
         skool = '\n'.join((
@@ -2687,7 +2686,7 @@ class SkoolParserTest(SkoolKitTestCase):
             '; Routine',
             'c32768 RET',
         ))
-        self.assert_error(skool, r"Failed to replace 'Routine' with '\1': invalid group reference")
+        self.assert_error(skool, r"Failed to replace 'Routine' with '\\1': invalid group reference")
 
     def test_isub_directive(self):
         skool = '\n'.join((
@@ -3064,7 +3063,7 @@ class SkoolParserTest(SkoolKitTestCase):
             '@isub+end',
             '@bfix+end',
         ))
-        error = "isub+else inside bfix+ block"
+        error = "isub\+else inside bfix\+ block"
         self.assert_error(skool, error, asm_mode=1)
 
     def test_dangling_ofix_else(self):
@@ -3074,13 +3073,13 @@ class SkoolParserTest(SkoolKitTestCase):
             '@ofix+else',
             '@ofix+end',
         ))
-        error = "ofix+else not inside block"
+        error = "ofix\+else not inside block"
         self.assert_error(skool, error, asm_mode=1)
 
     def test_dangling_rfix_end(self):
         # Dangling @rfix+end directive
         skool = '@start\n@rfix+end'
-        error = "rfix+end has no matching start directive"
+        error = "rfix\+end has no matching start directive"
         self.assert_error(skool, error, asm_mode=1)
 
     def test_wrong_end_infix(self):
@@ -3091,7 +3090,7 @@ class SkoolParserTest(SkoolKitTestCase):
             '@rsub-else',
             '@rsub+end',
         ))
-        error = "rsub+end cannot end rsub- block"
+        error = "rsub\+end cannot end rsub- block"
         self.assert_error(skool, error, asm_mode=1)
 
     def test_mismatched_begin_end(self):
