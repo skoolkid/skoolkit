@@ -1,7 +1,7 @@
 Changelog
 =========
 
-5.1b1
+5.1rc
 -----
 * Added the :ref:`replace` ASM directive (which replaces strings that match a
   regular expression in skool file annotations and ref file sections)
