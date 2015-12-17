@@ -17,7 +17,7 @@ else:
         sys.exit(1)
 
 from skoolkit.tap2sna import move, poke
-from skoolkit.snapshot import get_snapshot, make_z80_ram_block
+from skoolkit.snapshot import get_snapshot, make_z80_ram_block, set_z80_registers
 
 def get_word(data, index):
     return data[index] + 256 * data[index + 1]
@@ -51,6 +51,7 @@ def run(infile, options, outfile):
         move(snapshot, spec)
     for spec in options.pokes:
         poke(snapshot, spec)
+    set_z80_registers(header, *options.reg)
     write_z80(header, snapshot, namespace.outfile)
 
 ###############################################################################
@@ -68,6 +69,8 @@ group.add_argument('-m', dest='moves', metavar='src,size,dest', action='append',
                    help='Move a block of bytes of the given size from src to dest (this option may be used multiple times)')
 group.add_argument('-p', dest='pokes', metavar='a[-b[-c]],v', action='append', default=[],
                    help='POKE N,v for N in {a, a+c, a+2c..., b} (this option may be used multiple times)')
+group.add_argument('-r', dest='reg', metavar='name=value', action='append', default=[],
+                   help="Set the value of a register (this option may be used multiple times)")
 namespace, unknown_args = parser.parse_known_args()
 if unknown_args or None in (namespace.infile, namespace.outfile):
     parser.exit(2, parser.format_help())
