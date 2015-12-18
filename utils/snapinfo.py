@@ -234,6 +234,33 @@ class BasicLister:
     def _write(self, text):
         sys.stdout.write(text)
 
+class Registers:
+    def get_lines(self):
+        lines = []
+        width = 9
+        flags = "SZ5H3PNC"
+        lines.append("PC={}".format(self.pc))
+        lines.append("SP={}".format(self.sp))
+        lines.append("I={}".format(self.i))
+        lines.append("R={}".format(self.r))
+        lines.append("A={:<{}} A'={}".format(self.a, width, self.a2))
+        lines.append("  {0:<{1}}    {0}".format(flags, width))
+        f = to_binary(self.f)
+        f2 = to_binary(self.f2)
+        lines.append("F={:<{}} F'={}".format(f, width, f2))
+        lines.append("B={:<{}} B'={}".format(self.bc // 256, width, self.bc2 // 256))
+        lines.append("C={:<{}} C'={}".format(self.bc % 256, width, self.bc2 % 256))
+        lines.append("BC={:<{}} BC'={}".format(self.bc, width - 1, self.bc2))
+        lines.append("D={:<{}} D'={}".format(self.de // 256, width, self.de2 // 256))
+        lines.append("E={:<{}} E'={}".format(self.de % 256, width, self.de2 % 256))
+        lines.append("DE={:<{}} DE'={}".format(self.de, width - 1, self.de2))
+        lines.append("H={:<{}} H'={}".format(self.hl // 256, width, self.hl2 // 256))
+        lines.append("L={:<{}} L'={}".format(self.hl % 256, width, self.hl2 % 256))
+        lines.append("HL={:<{}} HL'={}".format(self.hl, width - 1, self.hl2))
+        lines.append("IX={}".format(self.ix))
+        lines.append("IY={}".format(self.iy))
+        return lines
+
 def get_word(data, index):
     return data[index] + 256 * data[index + 1]
 
@@ -282,27 +309,29 @@ def analyse_z80(z80file):
         print('Port $7FFD: {} - bank {} (block {}) paged into 49152-65535'.format(header[35], bank, bank + 3))
 
     # Print register contents
-    width = 11
-    flags = "SZ5H3PNC"
-    print('Registers:')
+    reg = Registers()
+    reg.a = header[0]
+    reg.f = header[1]
+    reg.bc = get_word(header, 2)
+    reg.hl = get_word(header, 4)
     if version == 1:
-        print('  PC={}'.format(get_word(header, 6)))
+        reg.pc = get_word(header, 6)
     else:
-        print('  PC={}'.format(get_word(header, 32)))
-    print('  SP={}'.format(get_word(header, 8)))
-    print('  I={}'.format(header[10]))
-    print('  R={}'.format(header[11]))
-    print("  {} A'={}".format('A={}'.format(header[0]).ljust(width), header[21]))
-    print("    {}    {}".format(flags.ljust(width - 2), flags))
-    print("  {} F'={}".format('F={}'.format(to_binary(header[1])).ljust(width), to_binary(header[22])))
-    print("  {} B'={}".format('B={}'.format(header[3]).ljust(width), header[16]))
-    print("  {} C'={}".format('C={}'.format(header[2]).ljust(width), header[15]))
-    print("  {} D'={}".format('D={}'.format(header[14]).ljust(width), header[18]))
-    print("  {} E'={}".format('E={}'.format(header[13]).ljust(width), header[17]))
-    print("  {} H'={}".format('H={}'.format(header[5]).ljust(width), header[20]))
-    print("  {} L'={}".format('L={}'.format(header[4]).ljust(width), header[19]))
-    print('  IX={}'.format(get_word(header, 25)))
-    print('  IY={}'.format(get_word(header, 23)))
+        reg.pc = get_word(header, 32)
+    reg.sp = get_word(header, 8)
+    reg.i = header[10]
+    reg.r = 128 * (header[12] & 1) + (header[11] & 127)
+    reg.de = get_word(header, 13)
+    reg.bc2 = get_word(header, 15)
+    reg.de2 = get_word(header, 17)
+    reg.hl2 = get_word(header, 19)
+    reg.a2 = header[21]
+    reg.f2 = header[22]
+    reg.iy = get_word(header, 23)
+    reg.ix = get_word(header, 25)
+    print('Registers:')
+    for line in reg.get_lines():
+        print('  ' + line)
 
     # Print RAM block info
     if version == 1:
@@ -382,26 +411,26 @@ def print_spcr(block, variables):
 
 def print_z80r(block, variables):
     lines = []
-    width = 11
-    flags = "SZ5H3PNC"
     lines.append('Interrupts: {}abled'.format('en' if block[27] else 'dis'))
     lines.append('Interrupt mode: {}'.format(block[28]))
-    lines.append('PC={}'.format(get_word(block, 22)))
-    lines.append('SP={}'.format(get_word(block, 20)))
-    lines.append('I={}'.format(block[24]))
-    lines.append('R={}'.format(block[25]))
-    lines.append("{} A'={}".format('A={}'.format(block[9]).ljust(width), block[1]))
-    lines.append("  {}    {}".format(flags.ljust(width - 2), flags))
-    lines.append("{} F'={}".format('F={}'.format(to_binary(block[8])).ljust(width), to_binary(block[0])))
-    lines.append("{} B'={}".format('B={}'.format(block[11]).ljust(width), block[3]))
-    lines.append("{} C'={}".format('C={}'.format(block[10]).ljust(width), block[2]))
-    lines.append("{} D'={}".format('D={}'.format(block[13]).ljust(width), block[5]))
-    lines.append("{} E'={}".format('E={}'.format(block[12]).ljust(width), block[4]))
-    lines.append("{} H'={}".format('H={}'.format(block[15]).ljust(width), block[7]))
-    lines.append("{} L'={}".format('L={}'.format(block[14]).ljust(width), block[6]))
-    lines.append('IX={}'.format(get_word(block, 16)))
-    lines.append('IY={}'.format(get_word(block, 18)))
-    return lines
+    reg = Registers()
+    reg.f = block[0]
+    reg.a = block[1]
+    reg.bc = get_word(block, 2)
+    reg.de = get_word(block, 4)
+    reg.hl = get_word(block, 6)
+    reg.f2 = block[8]
+    reg.a2 = block[9]
+    reg.bc2 = get_word(block, 10)
+    reg.de2 = get_word(block, 12)
+    reg.hl2 = get_word(block, 14)
+    reg.ix = get_word(block, 16)
+    reg.iy = get_word(block, 18)
+    reg.sp = get_word(block, 20)
+    reg.pc = get_word(block, 22)
+    reg.i = block[24]
+    reg.r = block[25]
+    return lines + reg.get_lines()
 
 SZX_BLOCK_PRINTERS = {
     'RAMP': print_ramp,
@@ -445,27 +474,25 @@ def analyse_sna(snafile):
     print('Interrupts: {}abled'.format('en' if sna[19] & 4 else 'dis'))
     print('Interrupt mode: {}'.format(sna[25]))
     print('Border: {}'.format(sna[26] & 7))
-    width = 11
-    flags = "SZ5H3PNC"
-    lines = []
-    sp = get_word(sna, 23)
-    lines.append('PC=(SP)={}'.format(get_word(sna, sp - 16357)))
-    lines.append('SP={}'.format(sp))
-    lines.append('I={}'.format(sna[0]))
-    lines.append('R={}'.format(sna[20]))
-    lines.append("{} A'={}".format('A={}'.format(sna[22]).ljust(width), sna[8]))
-    lines.append("  {}    {}".format(flags.ljust(width - 2), flags))
-    lines.append("{} F'={}".format('F={}'.format(to_binary(sna[21])).ljust(width), to_binary(sna[7])))
-    lines.append("{} B'={}".format('B={}'.format(sna[14]).ljust(width), sna[6]))
-    lines.append("{} C'={}".format('C={}'.format(sna[13]).ljust(width), sna[5]))
-    lines.append("{} D'={}".format('D={}'.format(sna[12]).ljust(width), sna[4]))
-    lines.append("{} E'={}".format('E={}'.format(sna[11]).ljust(width), sna[3]))
-    lines.append("{} H'={}".format('H={}'.format(sna[10]).ljust(width), sna[2]))
-    lines.append("{} L'={}".format('L={}'.format(sna[9]).ljust(width), sna[1]))
-    lines.append('IX={}'.format(get_word(sna, 17)))
-    lines.append('IY={}'.format(get_word(sna, 15)))
+    reg = Registers()
+    reg.i = sna[0]
+    reg.hl2 = get_word(sna, 1)
+    reg.de2 = get_word(sna, 3)
+    reg.bc2 = get_word(sna, 5)
+    reg.f2 = sna[7]
+    reg.a2 = sna[8]
+    reg.hl = get_word(sna, 9)
+    reg.de = get_word(sna, 11)
+    reg.bc = get_word(sna, 13)
+    reg.iy = get_word(sna, 15)
+    reg.ix = get_word(sna, 17)
+    reg.r = sna[20]
+    reg.f = sna[21]
+    reg.a = sna[22]
+    reg.sp = get_word(sna, 23)
+    reg.pc = get_word(sna, reg.sp - 16357)
     print('Registers:')
-    for line in lines:
+    for line in reg.get_lines():
         print('  ' + line)
 
 def find(infile, byte_seq):
