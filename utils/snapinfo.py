@@ -235,31 +235,45 @@ class BasicLister:
         sys.stdout.write(text)
 
 class Registers:
+    reg_map = {
+        'b': 'bc', 'c': 'bc', 'b2': 'bc2', 'c2': 'bc2',
+        'd': 'de', 'e': 'de', 'd2': 'de2', 'e2': 'de2',
+        'h': 'hl', 'l': 'hl', 'h2': 'hl2', 'l2': 'hl2'
+    }
+
     def get_lines(self):
         lines = []
-        width = 9
-        flags = "SZ5H3PNC"
-        lines.append("PC={}".format(self.pc))
-        lines.append("SP={}".format(self.sp))
-        lines.append("I={}".format(self.i))
-        lines.append("R={}".format(self.r))
-        lines.append("A={:<{}} A'={}".format(self.a, width, self.a2))
-        lines.append("  {0:<{1}}    {0}".format(flags, width))
-        f = to_binary(self.f)
-        f2 = to_binary(self.f2)
-        lines.append("F={:<{}} F'={}".format(f, width, f2))
-        lines.append("B={:<{}} B'={}".format(self.bc // 256, width, self.bc2 // 256))
-        lines.append("C={:<{}} C'={}".format(self.bc % 256, width, self.bc2 % 256))
-        lines.append("BC={:<{}} BC'={}".format(self.bc, width - 1, self.bc2))
-        lines.append("D={:<{}} D'={}".format(self.de // 256, width, self.de2 // 256))
-        lines.append("E={:<{}} E'={}".format(self.de % 256, width, self.de2 % 256))
-        lines.append("DE={:<{}} DE'={}".format(self.de, width - 1, self.de2))
-        lines.append("H={:<{}} H'={}".format(self.hl // 256, width, self.hl2 // 256))
-        lines.append("L={:<{}} L'={}".format(self.hl % 256, width, self.hl2 % 256))
-        lines.append("HL={:<{}} HL'={}".format(self.hl, width - 1, self.hl2))
-        lines.append("IX={}".format(self.ix))
-        lines.append("IY={}".format(self.iy))
+        sep = ' ' * 4
+        for row in (
+            ('pc', 'sp'), ('ix', 'iy'), ('i', 'r'),
+            ('b', 'b2'), ('c', 'c2'), ('bc', 'bc2'),
+            ('d', 'd2'), ('e', 'e2'), ('de', 'de2'),
+            ('h', 'h2'), ('l', 'l2'), ('hl', 'hl2'),
+            ('a', 'a2')
+        ):
+            lines.append(self._reg(sep, *row))
+        lines.append("  {0}    {1}   {0}".format("SZ5H3PNC", sep))
+        lines.append("F {:08b}    {}F' {:08b}".format(self.f, sep, self.f2))
         return lines
+
+    def _reg(self, sep, *registers):
+        strings = []
+        for reg in registers:
+            name = reg.upper().replace('2', "'")
+            size = len(name) - 1 if name.endswith("'") else len(name)
+            value = self._get_value(reg)
+            strings.append("{0:<3} {1:>5} {2:<{3}}{1:0{4}X}".format(name, value, "", (2 - size) * 2, size * 2))
+        return sep.join(strings)
+
+    def _get_value(self, register):
+        try:
+            return getattr(self, register)
+        except AttributeError:
+            reg_pair = self.reg_map[register]
+            word = getattr(self, reg_pair)
+            if register[0] == reg_pair[0]:
+                return word // 256
+            return word % 256
 
 def get_word(data, index):
     return data[index] + 256 * data[index + 1]
