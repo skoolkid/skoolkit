@@ -542,7 +542,8 @@ class Tap2SnaTest(SkoolKitTestCase):
         with open(z80file, 'rb') as f:
             z80_header = bytearray(f.read(30))
         self.assertEqual(z80_header[12] & 14, 0) # border=0
-        self.assertEqual(z80_header[27], 1) # iff=1
+        self.assertEqual(z80_header[27], 1) # iff1=1
+        self.assertEqual(z80_header[28], 1) # iff2=1
         self.assertEqual(z80_header[29] & 3, 1) # im=1
 
     def test_state_iff(self):
@@ -553,8 +554,9 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna('--force --ram load=1,16384 --state iff={} {} {}'.format(iff_value, tapfile, z80file))
         self.assertEqual(error, '')
         with open(z80file, 'rb') as f:
-            z80_header = bytearray(f.read(28))
+            z80_header = bytearray(f.read(29))
         self.assertEqual(z80_header[27], iff_value)
+        self.assertEqual(z80_header[28], iff_value)
 
     def test_state_iff_bad_value(self):
         self._test_bad_spec('--state', 'iff=fa', 'Cannot parse integer')

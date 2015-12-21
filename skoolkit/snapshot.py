@@ -98,7 +98,7 @@ def set_z80_state(z80, *specs):
         name, sep, val = spec.lower().partition('=')
         try:
             if name == 'iff':
-                z80[27] = get_int_param(val) & 255
+                z80[27] = z80[28] = get_int_param(val) & 255
             elif name == 'im':
                 z80[29] &= 252 # Clear bits 0 and 1
                 z80[29] |= get_int_param(val) & 3

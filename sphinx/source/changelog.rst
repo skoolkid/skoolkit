@@ -1,8 +1,8 @@
 Changelog
 =========
 
-5.1rc
------
+5.1rc2
+------
 * Added the :ref:`replace` ASM directive (which replaces strings that match a
   regular expression in skool file annotations and ref file sections)
 * Added the :ref:`hash`, :ref:`EVAL`, :ref:`FOR`, :ref:`FOREACH`, :ref:`IF`,
