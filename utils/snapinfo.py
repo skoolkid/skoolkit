@@ -302,7 +302,7 @@ def analyse_z80(z80file):
             block_dict = BLOCK_ADDRESSES_128K
             bank = header[35] & 7
     print('Machine: {}'.format(machine))
-    print('Interrupts: {}abled'.format('en' if header[27] else 'dis'))
+    print('Interrupts: {}abled'.format('en' if header[28] else 'dis'))
     print('Interrupt mode: {}'.format(header[29] & 3))
     print('Border: {}'.format((header[12] // 2) & 7))
     if bank is not None:
