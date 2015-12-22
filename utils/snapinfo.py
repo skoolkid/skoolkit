@@ -24,14 +24,14 @@ from skoolkit import get_int_param
 # http://www.worldofspectrum.org/faq/reference/128kreference.htm
 
 BLOCK_ADDRESSES_48K = {
-    4: '32768-49151',
-    5: '49152-65535',
-    8: '16384-32767'
+    4: '32768-49151 8000-BFFF',
+    5: '49152-65535 C000-FFFF',
+    8: '16384-32767 4000-7FFF'
 }
 
 BLOCK_ADDRESSES_128K = {
-    5: '32768-49151',
-    8: '16384-32767'
+    5: '32768-49151 8000-BFFF',
+    8: '16384-32767 4000-7FFF'
 }
 
 V2_MACHINES = {
@@ -320,7 +320,7 @@ def analyse_z80(z80file):
     print('Interrupt mode: {}'.format(header[29] & 3))
     print('Border: {}'.format((header[12] // 2) & 7))
     if bank is not None:
-        print('Port $7FFD: {} - bank {} (block {}) paged into 49152-65535'.format(header[35], bank, bank + 3))
+        print('Port $7FFD: {} - bank {} (block {}) paged into 49152-65535 C000-FFFF'.format(header[35], bank, bank + 3))
 
     # Print register contents
     reg = Registers()
@@ -351,7 +351,7 @@ def analyse_z80(z80file):
     if version == 1:
         block_len = len(ram_blocks)
         prefix = '' if header[12] & 32 else 'un'
-        print('48K RAM block (16384-65535): {} bytes ({}compressed)'.format(block_len, prefix))
+        print('48K RAM block (16384-65535 4000-FFFF): {} bytes ({}compressed)'.format(block_len, prefix))
     else:
         i = 0
         while i < len(ram_blocks):
@@ -360,7 +360,7 @@ def analyse_z80(z80file):
             addr_range = block_dict.get(page_num)
             if addr_range is None:
                 if page_num == bank + 3:
-                    addr_range = '49152-65535'
+                    addr_range = '49152-65535 C000-FFFF'
             if addr_range:
                 addr_range = ' ({})'.format(addr_range)
             else:
@@ -404,13 +404,13 @@ def print_ramp(block, variables):
     machine_id = variables['chMachineId']
     addresses = ''
     if page == 5:
-        addresses = '16384-32767'
+        addresses = '16384-32767 4000-7FFF'
     elif page == 2:
-        addresses = '32768-49151'
+        addresses = '32768-49151 8000-BFFF'
     elif machine_id > 1 and page == variables['ch7ffd'] & 7:
-        addresses = '49152-65535'
+        addresses = '49152-65535 C000-FFFF'
     if addresses:
-        addresses += ' - '
+        addresses += ': '
     lines.append("RAM: {}{} bytes, {}".format(addresses, len(ram), compressed))
     return lines
 
@@ -420,7 +420,7 @@ def print_spcr(block, variables):
     ch7ffd = block[1]
     variables['ch7ffd'] = ch7ffd
     bank = ch7ffd & 7
-    lines.append('Port $7FFD: {} (bank {} paged into 49152-65535)'.format(ch7ffd, bank))
+    lines.append('Port $7FFD: {} (bank {} paged into 49152-65535 C000-FFFF)'.format(ch7ffd, bank))
     return lines
 
 def print_z80r(block, variables):
@@ -519,7 +519,7 @@ def find(infile, byte_seq):
     snapshot = get_snapshot(infile)
     for a in range(16384, 65537 - offset):
         if snapshot[a:a + offset:step] == byte_values:
-            print("{}-{}-{}: {}".format(a, a + offset - step, step, byte_seq))
+            print("{0}-{1}-{2} {0:04X}-{1:04X}-{2}: {3}".format(a, a + offset - step, step, byte_seq))
 
 def peek(infile, specs):
     snapshot = get_snapshot(infile)
@@ -540,7 +540,7 @@ def peek(infile, specs):
                 char = chr(value)
             else:
                 char = ''
-            print('{0:>5}: {1:>3}  {1:02X}  {1:08b}  {2}'.format(a, value, char))
+            print('{0:>5} {0:04X}: {1:>3}  {1:02X}  {1:08b}  {2}'.format(a, value, char))
 
 ###############################################################################
 # Begin
