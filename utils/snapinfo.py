@@ -521,6 +521,14 @@ def find(infile, byte_seq):
         if snapshot[a:a + offset:step] == byte_values:
             print("{0}-{1}-{2} {0:04X}-{1:04X}-{2}: {3}".format(a, a + offset - step, step, byte_seq))
 
+def find_text(infile, text):
+    size = len(text)
+    byte_values = [ord(c) for c in text]
+    snapshot = get_snapshot(infile)
+    for a in range(16384, 65536 - size + 1):
+        if snapshot[a:a + size] == byte_values:
+            print("{0}-{1} {0:04X}-{1:04X}: {2}".format(a, a + size - 1, text))
+
 def peek(infile, specs):
     snapshot = get_snapshot(infile)
     for addr_range in specs:
@@ -556,6 +564,8 @@ group.add_argument('--basic', action='store_true',
                    help='List the BASIC program')
 group.add_argument('--find', metavar='A[,B...[-N]]',
                    help='Search for the byte sequence A,B... with distance N (default=1) between bytes')
+group.add_argument('--find-text', dest='text', metavar='TEXT',
+                   help='Search for a text string')
 group.add_argument('--peek', metavar='A[-B[-C]]', action='append',
                    help='Show the contents of addresses A TO B STEP C; this option may be used multiple times')
 namespace, unknown_args = parser.parse_known_args()
@@ -569,6 +579,8 @@ if snapshot_type not in ('.sna', '.szx', '.z80'):
 
 if namespace.find is not None:
     find(infile, namespace.find)
+elif namespace.text is not None:
+    find_text(infile, namespace.text)
 elif namespace.peek is not None:
     peek(infile, namespace.peek)
 elif namespace.basic:
