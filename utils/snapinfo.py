@@ -560,14 +560,14 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
 group = parser.add_argument_group('Options')
-group.add_argument('--basic', action='store_true',
+group.add_argument('-b', '--basic', action='store_true',
                    help='List the BASIC program')
-group.add_argument('--find', metavar='A[,B...[-N]]',
+group.add_argument('-f', '--find', metavar='A[,B...[-N]]',
                    help='Search for the byte sequence A,B... with distance N (default=1) between bytes')
-group.add_argument('--find-text', dest='text', metavar='TEXT',
-                   help='Search for a text string')
-group.add_argument('--peek', metavar='A[-B[-C]]', action='append',
+group.add_argument('-p', '--peek', metavar='A[-B[-C]]', action='append',
                    help='Show the contents of addresses A TO B STEP C; this option may be used multiple times')
+group.add_argument('-t', '--find-text', dest='text', metavar='TEXT',
+                   help='Search for a text string')
 namespace, unknown_args = parser.parse_known_args()
 if unknown_args or namespace.infile is None:
     parser.exit(2, parser.format_help())
