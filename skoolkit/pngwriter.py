@@ -742,7 +742,11 @@ class PngWriter:
             for i in range(8):
                 scanline = bytearray((0,))
                 for udg in row:
-                    byte = udg.data[i] ^ (attr_map[udg.attr & 127][0] * 255)
+                    paper, ink = attr_map[udg.attr & 127]
+                    if ink == paper:
+                        byte = paper * 255
+                    else:
+                        byte = udg.data[i] ^ (paper * 255)
                     if scale == 1:
                         scanline.append(byte)
                         continue

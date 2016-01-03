@@ -1,7 +1,7 @@
 Changelog
 =========
 
-5.1rc2
+5.1rc3
 ------
 * Added the :ref:`replace` ASM directive (which replaces strings that match a
   regular expression in skool file annotations and ref file sections)
@@ -25,6 +25,8 @@ Changelog
   or hexadecimal when restored from a skool file template
 * Fixed how the colours in flashing blank tiles are detected when writing an
   uncropped image file
+* Fixed how a 2-colour PNG image is created when it contains an attribute with
+  equal INK and PAPER colours
 
 5.0 (2015-10-04)
 ----------------
