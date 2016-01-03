@@ -505,6 +505,15 @@ class ImageWriterTest:
         self._test_image(udg_array, scale=2)
         return udg_array
 
+    def test_unmasked_bd1_scaled_two_attributes(self):
+        # Unmasked image, bit depth 1, scales 1-2, 2 UDGs, 2 attributes using same colour
+        udg1 = Udg(4, (255, 0,) * 4)
+        udg2 = Udg(36, (255, 0,) * 4)
+        udg_array = [[udg1], [udg2]]
+        self._test_image(udg_array)
+        self._test_image(udg_array, scale=2)
+        return udg_array
+
     def test_unmasked_bd2_cropped(self):
         # Unmasked image, bit depth 2, cropped
         udg1 = Udg(30, (170,) * 8)
