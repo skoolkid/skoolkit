@@ -482,12 +482,34 @@ def analyse_szx(szxfile):
 
 # http://www.worldofspectrum.org/faq/reference/formats.htm#SNA
 
+def _print_ram_banks(sna):
+    bank = sna[49181] & 7
+    print('RAM bank 5 (16384 bytes: 16384-32767 4000-7FFF)')
+    print('RAM bank 2 (16384 bytes: 32768-49151 8000-BFFF)')
+    print('RAM bank {} (16384 bytes: 49152-65535 C000-FFFF)'.format(bank))
+    size = len(sna) - 49183
+    for b in sorted({0, 1, 3, 4, 6, 7} - {bank}):
+        prefix = 'RAM bank {}'.format(b)
+        if size >= 16384:
+            desc = '16384 bytes'
+        elif size > 0:
+            desc = 'truncated: {} bytes'.format(size)
+        else:
+            desc = 'missing'
+        print('RAM bank {} ({})'.format(b, desc))
+        size -= 16384
+
 def analyse_sna(snafile):
     with open(snafile, 'rb') as f:
-        sna = bytearray(f.read(49179))
+        sna = bytearray(f.read(147487))
+    is128 = len(sna) > 49179
+
+    print('RAM: {}K'.format(128 if is128 else 48))
     print('Interrupts: {}abled'.format('en' if sna[19] & 4 else 'dis'))
     print('Interrupt mode: {}'.format(sna[25]))
     print('Border: {}'.format(sna[26] & 7))
+
+    # Print register contents
     reg = Registers()
     reg.i = sna[0]
     reg.hl2 = get_word(sna, 1)
@@ -504,10 +526,16 @@ def analyse_sna(snafile):
     reg.f = sna[21]
     reg.a = sna[22]
     reg.sp = get_word(sna, 23)
-    reg.pc = get_word(sna, reg.sp - 16357)
+    if is128:
+        reg.pc = get_word(sna, 49179)
+    else:
+        reg.pc = get_word(sna, reg.sp - 16357)
     print('Registers:')
     for line in reg.get_lines():
         print('  ' + line)
+
+    if is128:
+        _print_ram_banks(sna)
 
 def find(infile, byte_seq):
     step = 1
