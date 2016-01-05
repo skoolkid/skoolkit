@@ -66,11 +66,13 @@ parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
 parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
 group = parser.add_argument_group('Options')
 group.add_argument('-m', dest='moves', metavar='src,size,dest', action='append', default=[],
-                   help='Move a block of bytes of the given size from src to dest (this option may be used multiple times)')
-group.add_argument('-p', dest='pokes', metavar='a[-b[-c]],v', action='append', default=[],
-                   help='POKE N,v for N in {a, a+c, a+2c..., b} (this option may be used multiple times)')
+                   help='Move a block of bytes of the given size from src to dest. This option may be used multiple times.')
+group.add_argument('-p', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append', default=[],
+                   help="POKE N,v for N in {a, a+c, a+2c..., b}. "
+                        "Prefix 'v' with '^' to perform an XOR operation, or '+' to perform an ADD operation. "
+                        "This option may be used multiple times.")
 group.add_argument('-r', dest='reg', metavar='name=value', action='append', default=[],
-                   help="Set the value of a register (this option may be used multiple times)")
+                   help="Set the value of a register. This option may be used multiple times.")
 namespace, unknown_args = parser.parse_known_args()
 if unknown_args or None in (namespace.infile, namespace.outfile):
     parser.exit(2, parser.format_help())
