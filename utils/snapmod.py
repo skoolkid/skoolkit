@@ -52,7 +52,7 @@ def run(infile, options, outfile):
     for spec in options.pokes:
         poke(snapshot, spec)
     set_z80_registers(header, *options.reg)
-    write_z80(header, snapshot, namespace.outfile)
+    write_z80(header, snapshot, outfile)
 
 ###############################################################################
 # Begin
@@ -65,6 +65,8 @@ parser = argparse.ArgumentParser(
 parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
 parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
 group = parser.add_argument_group('Options')
+group.add_argument('-f', dest='force', action='store_true',
+                   help="Overwrite an existing snapshot")
 group.add_argument('-m', dest='moves', metavar='src,size,dest', action='append', default=[],
                    help='Move a block of bytes of the given size from src to dest. This option may be used multiple times.')
 group.add_argument('-p', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append', default=[],
@@ -80,4 +82,7 @@ if namespace.infile[-4:].lower() != '.z80':
     sys.stderr.write('Error: unrecognised input snapshot type\n')
     sys.exit(1)
 
-run(namespace.infile, namespace, namespace.outfile)
+if namespace.force or not os.path.isfile(namespace.outfile):
+    run(namespace.infile, namespace, namespace.outfile)
+else:
+    print('{}: file already exists; use -f to overwrite'.format(namespace.outfile))
