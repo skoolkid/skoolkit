@@ -16,11 +16,9 @@ else:
         sys.stderr.write('Error: SKOOLKIT_HOME is not set, and SkoolKit is not installed\n')
         sys.exit(1)
 
+from skoolkit import get_word
 from skoolkit.tap2sna import move, poke
 from skoolkit.snapshot import get_snapshot, make_z80_ram_block, set_z80_registers
-
-def get_word(data, index):
-    return data[index] + 256 * data[index + 1]
 
 def read_z80(z80file):
     with open(z80file, 'rb') as f:
@@ -58,7 +56,7 @@ def run(infile, options, outfile):
 # Begin
 ###############################################################################
 parser = argparse.ArgumentParser(
-    usage='snapmod.py [options] in.z80 out.z80',
+    usage='snapmod.py [options] in.z80 [out.z80]',
     description="Modify a 48K Z80 snapshot.",
     add_help=False
 )
@@ -76,13 +74,17 @@ group.add_argument('-p', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append
 group.add_argument('-r', dest='reg', metavar='name=value', action='append', default=[],
                    help="Set the value of a register. This option may be used multiple times.")
 namespace, unknown_args = parser.parse_known_args()
-if unknown_args or None in (namespace.infile, namespace.outfile):
+infile = namespace.infile
+outfile = namespace.outfile
+if unknown_args or infile is None:
     parser.exit(2, parser.format_help())
-if namespace.infile[-4:].lower() != '.z80':
+if not infile.lower().endswith('.z80'):
     sys.stderr.write('Error: unrecognised input snapshot type\n')
     sys.exit(1)
 
-if namespace.force or not os.path.isfile(namespace.outfile):
-    run(namespace.infile, namespace, namespace.outfile)
+if outfile is None:
+    outfile = infile
+if namespace.force or not os.path.isfile(outfile):
+    run(infile, namespace, outfile)
 else:
-    print('{}: file already exists; use -f to overwrite'.format(namespace.outfile))
+    print('{}: file already exists; use -f to overwrite'.format(outfile))
