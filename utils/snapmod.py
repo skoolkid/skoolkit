@@ -18,7 +18,7 @@ else:
 
 from skoolkit import get_word
 from skoolkit.tap2sna import move, poke
-from skoolkit.snapshot import get_snapshot, make_z80_ram_block, set_z80_registers
+from skoolkit.snapshot import get_snapshot, make_z80_ram_block, set_z80_registers, set_z80_state
 
 def read_z80(z80file):
     with open(z80file, 'rb') as f:
@@ -50,6 +50,7 @@ def run(infile, options, outfile):
     for spec in options.pokes:
         poke(snapshot, spec)
     set_z80_registers(header, *options.reg)
+    set_z80_state(header, *options.state)
     write_z80(header, snapshot, outfile)
 
 ###############################################################################
@@ -73,6 +74,8 @@ group.add_argument('-p', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append
                         "This option may be used multiple times.")
 group.add_argument('-r', dest='reg', metavar='name=value', action='append', default=[],
                    help="Set the value of a register. This option may be used multiple times.")
+group.add_argument('-s', dest='state', metavar='name=value', action='append', default=[],
+                   help="Set a hardware state attribute (border, iff, im). This option may be used multiple times.")
 namespace, unknown_args = parser.parse_known_args()
 infile = namespace.infile
 outfile = namespace.outfile
