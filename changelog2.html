@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>SkoolKit 2.x changelog &mdash; SkoolKit 5.0 documentation</title>
+    <title>SkoolKit 2.x changelog &mdash; SkoolKit 5.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.0',
+        VERSION:     '5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.1 documentation" href="index.html" />
     <link rel="up" title="Changelog" href="changelog.html" />
     <link rel="next" title="SkoolKit 1.x changelog" href="changelog1.html" />
     <link rel="prev" title="SkoolKit 3.x changelog" href="changelog3.html" /> 
@@ -41,7 +41,7 @@
         <li class="right" >
           <a href="changelog3.html" title="SkoolKit 3.x changelog"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li>
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li>
           <li><a href="changelog.html" accesskey="U">Changelog</a> &raquo;</li> 
       </ul>
     </div>
@@ -112,15 +112,15 @@
 <div class="section" id="id1">
 <h2>2.5 (2012-02-22)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Added support for <a class="reference internal" href="ref-files.html#memorymap"><em>[MemoryMap:*]</em></a> sections in <cite>ref</cite> files (for defining the
+<li>Added support for <a class="reference internal" href="ref-files.html#memorymap"><em>[MemoryMap:*]</em></a> sections in ref files (for defining the
 properties of memory map pages); removed support for the <tt class="docutils literal"><span class="pre">[MapDetails]</span></tt>
 section accordingly</li>
 <li>Added support for multiple style sheets per HTML disassembly (by separating
 file names with a semicolon in the <tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parameter in the
-<a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the <cite>ref</cite> file)</li>
+<a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the ref file)</li>
 <li>Added support for multiple JavaScript files per HTML disassembly (by
 separating file names with a semicolon in the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter in the
-<a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the <cite>ref</cite> file)</li>
+<a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the ref file)</li>
 </ul>
 </div>
 <div class="section" id="id2">
@@ -143,7 +143,7 @@ be useful to distinguish it from adjacent text where necessary</li>
 control files</li>
 <li>Enhanced the <a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a> and <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macros so that images can be
 rotated</li>
-<li>Added the ability to separate paragraphs in a <cite>skool</cite> file by using a dot
+<li>Added the ability to separate paragraphs in a skool file by using a dot
 (<tt class="docutils literal"><span class="pre">.</span></tt>) on a line of its own; removed support for the redundant <tt class="docutils literal"><span class="pre">#P</span></tt> macro
 accordingly</li>
 </ul>
@@ -151,8 +151,7 @@ accordingly</li>
 <div class="section" id="id4">
 <h2>2.3.1 (2011-11-15)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Added support to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> for multiple <cite>ref</cite> files per
-disassembly</li>
+<li>Added support to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> for multiple ref files per disassembly</li>
 <li>Enhanced the <a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a> and <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macros so that images can be
 flipped horizontally and vertically</li>
 <li>Enhanced the <a class="reference internal" href="skool-macros.html#pokes"><em>#POKES</em></a> macro so that multiple pokes may be specified</li>
@@ -187,8 +186,8 @@ as <a class="reference external" href="http://skoolkit.ca/?page_id=113">separate
 skool macros so that nested parentheses are handled correctly</li>
 <li>Fixed the handling of version 1 Z80 snapshots by <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a></li>
 <li>Added support for the <tt class="docutils literal"><span class="pre">IndexPageId</span></tt> and <tt class="docutils literal"><span class="pre">Link</span></tt> parameters in
-<tt class="docutils literal"><span class="pre">[OtherCode:*]</span></tt> sections of the <cite>ref</cite> file</li>
-<li>Reintroduced support for <tt class="docutils literal"><span class="pre">[Changelog:*]</span></tt> sections in <cite>ref</cite> files</li>
+<tt class="docutils literal"><span class="pre">[OtherCode:*]</span></tt> sections of the ref file</li>
+<li>Reintroduced support for <tt class="docutils literal"><span class="pre">[Changelog:*]</span></tt> sections in ref files</li>
 <li>Added &#8216;Changelog&#8217; pages to the Skool Daze, Back to Skool and Contact Sam
 Cruise disassemblies</li>
 <li>Updated the Contact Sam Cruise disassembly</li>
@@ -298,7 +297,7 @@ more sub-blocks of different types may be declared with an <tt class="docutils l
 <li>Added the <a class="reference internal" href="skool-macros.html#link"><em>#LINK</em></a> macro (for creating hyperlinks to other pages in an
 HTML disassembly)</li>
 <li>Added the ability to define custom pages in an HTML disassembly using
-<tt class="docutils literal"><span class="pre">[Page:*]</span></tt> and <tt class="docutils literal"><span class="pre">[PageContent:*]</span></tt> sections in the <cite>ref</cite> file</li>
+<tt class="docutils literal"><span class="pre">[Page:*]</span></tt> and <tt class="docutils literal"><span class="pre">[PageContent:*]</span></tt> sections in the ref file</li>
 <li>Added the <tt class="docutils literal"><span class="pre">-o</span></tt> option to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> (to overwrite
 existing image files)</li>
 <li>Optional parameters in any position in a skool macro may be left blank</li>
@@ -330,15 +329,15 @@ well as the Skool game fonts</li>
 <li>Enhanced the <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a> macro so that it can take screenshots of rectangular
 portions of the screen</li>
 <li>The contents of the &#8216;Other graphics&#8217; page of a disassembly are now defined in
-the <tt class="docutils literal"><span class="pre">[Graphics]</span></tt> section of the <cite>ref</cite> file</li>
+the <tt class="docutils literal"><span class="pre">[Graphics]</span></tt> section of the ref file</li>
 <li>Added the ability to define the layout of the disassembly index page in the
-<tt class="docutils literal"><span class="pre">[Index]</span></tt> and <tt class="docutils literal"><span class="pre">[Index:*:*]</span></tt> sections of the <cite>ref</cite> file</li>
+<tt class="docutils literal"><span class="pre">[Index]</span></tt> and <tt class="docutils literal"><span class="pre">[Index:*:*]</span></tt> sections of the ref file</li>
 <li>Added the ability to define page titles in the <tt class="docutils literal"><span class="pre">[Titles]</span></tt> section of the
-<cite>ref</cite> file</li>
+ref file</li>
 <li>Added the ability to define page link text in the <tt class="docutils literal"><span class="pre">[Links]</span></tt> section of the
-<cite>ref</cite> file</li>
+ref file</li>
 <li>Added the ability to define the image colour palette in the <tt class="docutils literal"><span class="pre">[Colours]</span></tt>
-section of the <cite>ref</cite> file</li>
+section of the ref file</li>
 <li>Fixed the bug in <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> that prevented it from
 generating a control file for a snapshot with the final byte of a &#8216;RET&#8217;,
 &#8216;JR d&#8217;, or &#8216;JP nn&#8217; instruction at 65535</li>
@@ -357,8 +356,8 @@ generating a control file for a snapshot with the final byte of a &#8216;RET&#82
 <h2>2.0.2 (2010-12-01)<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Fixed the <tt class="docutils literal"><span class="pre">#EREFS</span></tt>, <tt class="docutils literal"><span class="pre">#REFS</span></tt> and <tt class="docutils literal"><span class="pre">#TAPS</span></tt> macros</li>
-<li>Fixed the bug where the end comment for the last entry in a <cite>skool</cite> file is
-not parsed</li>
+<li>Fixed the bug where the end comment for the last entry in a skool file is not
+parsed</li>
 <li>Updated the incomplete Contact Sam Cruise disassembly</li>
 </ul>
 </div>
@@ -366,7 +365,7 @@ not parsed</li>
 <h2>2.0.1 (2010-11-28)<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <tt class="docutils literal"><span class="pre">-r</span></tt> option to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> (for
-specifying a <cite>ref</cite> file)</li>
+specifying a ref file)</li>
 <li>Added the <tt class="docutils literal"><span class="pre">-o</span></tt>, <tt class="docutils literal"><span class="pre">-r</span></tt>, and <tt class="docutils literal"><span class="pre">-l</span></tt> options to
 <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a>, along with the ability to read binary
 (raw memory) files</li>
@@ -411,12 +410,12 @@ macros and skool directives</li>
         <li class="right" >
           <a href="changelog3.html" title="SkoolKit 3.x changelog"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li>
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li>
           <li><a href="changelog.html" >Changelog</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2015, Richard Dymond.
+        &copy; Copyright 2016, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

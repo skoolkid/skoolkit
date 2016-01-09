@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool file templates &mdash; SkoolKit 4.5 documentation</title>
+    <title>Skool file templates &mdash; SkoolKit 5.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.5',
+        VERSION:     '5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 4.5 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.1 documentation" href="index.html" />
     <link rel="next" title="Skool macros" href="skool-macros.html" />
     <link rel="prev" title="Skool files" href="skool-files.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -91,27 +91,28 @@
             
   <div class="section" id="skool-file-templates">
 <span id="skoolfiletemplates"></span><h1>Skool file templates<a class="headerlink" href="#skool-file-templates" title="Permalink to this headline">¶</a></h1>
-<p>A skool file template defines the basic structure of a <cite>skool</cite> file, but,
-unlike a <cite>skool</cite> file, contains directives on how to disassemble a program into
-Z80 instructions instead of the Z80 instructions themselves. The directives are
+<p>A skool file template defines the basic structure of a skool file, but, unlike
+a skool file, contains directives on how to disassemble a program into Z80
+instructions instead of the Z80 instructions themselves. The directives are
 similar to those that may appear in a control file.</p>
 <p>The <a class="reference internal" href="commands.html#skool2sft-py"><em>skool2sft.py</em></a> command can generate a skool file template from an
-existing <cite>skool</cite> file; the <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> command can then generate a
-<cite>skool</cite> file from the template and an appropriate snapshot.</p>
+existing skool file; the <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> command can then generate a skool
+file from the template and an appropriate snapshot.</p>
 <div class="section" id="skool-file-template-format">
 <span id="skoolfiletemplateformat"></span><h2>Skool file template format<a class="headerlink" href="#skool-file-template-format" title="Permalink to this headline">¶</a></h2>
-<p>A skool file template has the same layout as a <cite>skool</cite> file, except that the
-lines in <tt class="docutils literal"><span class="pre">b</span></tt>, <tt class="docutils literal"><span class="pre">c</span></tt>, <tt class="docutils literal"><span class="pre">g</span></tt>, <tt class="docutils literal"><span class="pre">s</span></tt>, <tt class="docutils literal"><span class="pre">t</span></tt>, <tt class="docutils literal"><span class="pre">u</span></tt> and <tt class="docutils literal"><span class="pre">w</span></tt> blocks that
+<p>A skool file template has the same layout as a skool file, except that the
+lines in <tt class="docutils literal"><span class="pre">b</span></tt>, <tt class="docutils literal"><span class="pre">c</span></tt>, <tt class="docutils literal"><span class="pre">g</span></tt>, <tt class="docutils literal"><span class="pre">i</span></tt>, <tt class="docutils literal"><span class="pre">s</span></tt>, <tt class="docutils literal"><span class="pre">t</span></tt>, <tt class="docutils literal"><span class="pre">u</span></tt> and <tt class="docutils literal"><span class="pre">w</span></tt> blocks that
 correspond to Z80 instructions look like this:</p>
 <div class="highlight-none"><div class="highlight"><pre>xX#####,N[;c[ comment]]
 </pre></div>
 </div>
 <p>where:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">x</span></tt> is one of the characters <tt class="docutils literal"><span class="pre">*</span> <span class="pre">bcgstuw</span></tt> (with the same meaning as in a
+<li><tt class="docutils literal"><span class="pre">x</span></tt> is one of the characters <tt class="docutils literal"><span class="pre">*</span> <span class="pre">bcgistuw</span></tt> (with the same meaning as in a
 <a class="reference internal" href="skool-files.html#skoolfiles"><em>skool file</em></a>)</li>
 <li><tt class="docutils literal"><span class="pre">X</span></tt> is one of the characters <tt class="docutils literal"><span class="pre">BCSTW</span></tt> (with the same meaning as in a
-<a class="reference internal" href="control-files.html#controlfiles"><em>control file</em></a>)</li>
+<a class="reference internal" href="control-files.html#controlfiles"><em>control file</em></a>), or <tt class="docutils literal"><span class="pre">I</span></tt> (meaning the instruction field
+is blank, as may be the case in the first line of an <tt class="docutils literal"><span class="pre">i</span></tt> block)</li>
 <li><tt class="docutils literal"><span class="pre">#####</span></tt> is the address at which to start disassembling</li>
 <li><tt class="docutils literal"><span class="pre">N</span></tt> is the number of bytes to disassemble (or a list of sublengths; see
 <a class="reference internal" href="#sftsubblocksyntax"><em>Sub-block syntax</em></a>)</li>
@@ -120,8 +121,8 @@ in the line (if it does appear)</li>
 <li><tt class="docutils literal"><span class="pre">comment</span></tt>, if present, is the instruction-level comment for the line on
 which the instruction occurs</li>
 </ul>
-<p>If a comment for a single instruction spans two or more lines in a <cite>skool</cite>
-file, as in:</p>
+<p>If a comment for a single instruction spans two or more lines in a skool file,
+as in:</p>
 <div class="highlight-none"><div class="highlight"><pre>c24296 CALL 57935    ; This comment is too long to fit on a single line, so
                      ; we use two lines
 </pre></div>
@@ -192,12 +193,12 @@ on sublength parameters thus:</p>
 <div class="section" id="skool-file-template-comments">
 <h2>Skool file template comments<a class="headerlink" href="#skool-file-template-comments" title="Permalink to this headline">¶</a></h2>
 <p>Any line that begins with a hash character (<tt class="docutils literal"><span class="pre">#</span></tt>) is ignored by
-<cite>sna2skool.py</cite>, and will not show up in the <cite>skool</cite> file.</p>
+<cite>sna2skool.py</cite>, and will not show up in the skool file.</p>
 </div>
 <div class="section" id="data-definition-entries">
 <h2>Data definition entries<a class="headerlink" href="#data-definition-entries" title="Permalink to this headline">¶</a></h2>
-<p>In the same way as <cite>skool2html.py</cite> uses data definition entries (&#8216;d&#8217; blocks) in
-a <cite>skool</cite> file to insert data into the memory snapshot it constructs,
+<p>In the same way as <cite>skool2html.py</cite> uses data definition entries (<tt class="docutils literal"><span class="pre">d</span></tt> blocks)
+in a skool file to insert data into the memory snapshot it constructs,
 <cite>sna2skool.py</cite> uses data definition entries in a skool file template to replace
 data in the snapshot given on the command line. This feature can be used to
 make sure that a &#8216;volatile&#8217; part of memory is set to a specific value before
@@ -211,7 +212,7 @@ that its contents are set to 0 so that it will disassemble to <tt class="docutil
 bB32400,1
 </pre></div>
 </div>
-<p>Note that in order to take effect, a &#8216;d&#8217; block must appear before the block
+<p>Note that in order to take effect, a <tt class="docutils literal"><span class="pre">d</span></tt> block must appear before the block
 that it overrides.</p>
 </div>
 <div class="section" id="revision-history">
@@ -227,25 +228,29 @@ that it overrides.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.5</td>
+<tr class="row-even"><td>5.1</td>
+<td>Added support for preserving <tt class="docutils literal"><span class="pre">i</span></tt> blocks in the same way as code
+and data blocks (instead of verbatim)</td>
+</tr>
+<tr class="row-odd"><td>4.5</td>
 <td>Added support for specifying character values in DEFS statements</td>
 </tr>
-<tr class="row-odd"><td>4.4</td>
+<tr class="row-even"><td>4.4</td>
 <td>Added support for specifying that numeric values in instruction
 operands be rendered as characters or in a specific base; added
 support for specifying character values in DEFW statements</td>
 </tr>
-<tr class="row-even"><td>3.7</td>
+<tr class="row-odd"><td>3.7</td>
 <td>Added support for binary numbers; added support for specifying
 the base of numeric values in DEFB, DEFM, DEFS and DEFW
 statements; added the <tt class="docutils literal"><span class="pre">s</span></tt> and <tt class="docutils literal"><span class="pre">S</span></tt> directives and support for
 DEFS statements with non-zero byte values</td>
 </tr>
-<tr class="row-odd"><td>3.1.4</td>
+<tr class="row-even"><td>3.1.4</td>
 <td>Added support for DEFB and DEFM statements that contain both
 strings and bytes</td>
 </tr>
-<tr class="row-even"><td>2.4</td>
+<tr class="row-odd"><td>2.4</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -271,11 +276,11 @@ strings and bytes</td>
         <li class="right" >
           <a href="skool-files.html" title="Skool files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 4.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2015, Richard Dymond.
+        &copy; Copyright 2016, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

@@ -2,10 +2,12 @@
 
 Skool macros
 ============
-`skool` files and `ref` files may contain skool macros that are 'expanded' to
-an appropriate piece of HTML markup (when rendering in HTML mode), or to an
+Skool files and ref files may contain skool macros that are 'expanded' to an
+appropriate piece of HTML markup (when rendering in HTML mode), or to an
 appropriate piece of plain text (when rendering in ASM mode).
 
+Syntax
+^^^^^^
 Skool macros have the following general form::
 
   #MACROrparam1,rparam2,...[,oparam1,oparam2,...]
@@ -33,10 +35,324 @@ is equivalent to::
 
   #UDG30115,56,2
 
-Numeric parameters may be given in decimal notation (as already shown in the
-examples above), or in hexadecimal notation (prefixed by ``$``)::
+.. _numericParameters:
 
-  #UDG$98E8,$06
+Numeric parameters
+^^^^^^^^^^^^^^^^^^
+Numeric parameters may be written in decimal notation::
+
+  #UDG51673,17
+
+or in hexadecimal notation (prefixed by ``$``)::
+
+  #UDG$C9D9,$11
+
+Wherever a sequence of numeric parameters appears in a macro, that sequence
+may optionally be enclosed in parentheses: ``(`` and ``)``. Parentheses are
+`required` if any numeric parameter is written as an expression containing
+arithmetic operations or skool macros::
+
+  #UDG(51672+1,#PEEK51672)
+
+The following operators are permitted in an arithmetic expression:
+
+* arithmetic operators: ``+``, ``-``, ``*``, ``/``, ``%`` (modulo), ``**``
+  (power)
+* bitwise operators: ``&`` (AND), ``|`` (OR), ``^`` (XOR)
+* bit shift operators: ``>>``, ``<<``
+* Boolean operators: ``&&`` (and), ``||`` (or)
+* comparison operators: ``==``, ``!=``, ``>``, ``<``, ``>=``, ``<=``
+
+Parentheses and spaces are also permitted in an arithmetic expression::
+
+  #IF(1 == 2 || (1 <= 2 && 2 < 3))(Yes,No)
+
+.. _stringParameters:
+
+String parameters
+^^^^^^^^^^^^^^^^^
+Where a macro requires a single string parameter consisting of arbitrary text,
+it must be enclosed in parentheses, square brackets or braces::
+
+  (text)
+  [text]
+  {text}
+
+If ``text`` contains unbalanced brackets, any non-whitespace character that is
+not present in ``text`` may be used as an alternative delimiter. For example::
+
+  /text/
+  |text|
+
+Where a macro requires multiple string parameters consisting of arbitrary text,
+they must be enclosed in parentheses, square brackets or braces and be
+separated by commas::
+
+  (string1,string2)
+  [string1,string2]
+  {string1,string2}
+
+Alternatively, an arbitrary delimiter - ``d``, which cannot be whitespace - and
+separator - ``s``, which can be whitespace - may be used. (They can be the same
+character.) The string parameters must open with ``ds``, be separated by ``s``,
+and close with ``sd``. For example::
+
+  //same/delimiter/and/separator//
+  | different delimiter and separator |
+
+This form is required if any of the strings contain a comma.
+
+SMPL macros
+^^^^^^^^^^^
+The macros described in this section constitute the Skool Macro Programming
+Language (SMPL). They can be used to programmatically specify values in the
+parameter string of any macro.
+
+.. _hash:
+
+#()
+---
+The ``#()`` macro expands the skool macros in its sole string parameter. ::
+
+  #(text)
+
+It takes effect only when it immediately follows another skool macro; in that
+case, it is expanded `before` that macro. For example::
+
+  #UDGARRAY#(2#FOR37159,37168,9||n|;(n+1),#PEEKn||)(item)
+
+This instance of the ``#()`` macro expands the ``#FOR`` macro first, giving::
+
+  2;(37159+1),#PEEK37159;(37168+1),#PEEK37168
+
+It then expands the ``#PEEK`` macros, ultimately forming the parameters of the
+``#UDGARRAY`` macro.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``text`` parameter. Note that if an alternative delimiter is used, it must not
+be an alphanumeric character (A-Z, a-z, 0-9).
+
+.. _EVAL:
+
+#EVAL
+-----
+The ``#EVAL`` macro expands to the value of an arithmetic expression. ::
+
+  #EVALexpr[,base,width]
+
+* ``expr`` is the arithmetic expression
+* ``base`` is the number base in which the value is expressed: ``2``, ``10``
+  (the default) or ``16``
+* ``width`` is the minimum number of digits in the output (default: ``1``);
+  the value will be padded with leading zeroes if necessary
+
+For example::
+
+  ; The following mask byte is #EVAL(#PEEK29435,2,8).
+   29435 DEFB 62
+
+This instance of the ``#EVAL`` macro expands to '00111110' (62 in binary).
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.1     | New     |
++---------+---------+
+
+.. _FOR:
+
+#FOR
+----
+The ``#FOR`` macro expands to a sequence of strings based on a range of
+integers. ::
+
+  #FORstart,stop[,step](var,string[,sep,fsep])
+
+* ``start`` is first integer in the range
+* ``stop`` is the final integer in the range
+* ``step`` is the gap between each integer in the range (default: ``1``)
+* ``var`` is the variable name; for each integer in the range, it evaluates to
+  that integer
+* ``string`` is the output string that is evaluated for each integer in the
+  range; wherever the variable name (``var``) appears, its value is substituted
+* ``sep`` is the separator placed between each output string (default: the
+  empty string)
+* ``fsep`` is the separator placed between the final two output strings
+  (default: ``sep``)
+
+For example::
+
+  ; The next three bytes (#FOR31734,31736||n|#PEEKn|, | and ||) define the
+  ; item locations.
+   31734 DEFB 24,17,156
+
+This instance of the ``#FOR`` macro expands to '24, 17 and 156'.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``var``, ``string``, ``sep`` and ``fsep`` parameters.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.1     | New     |
++---------+---------+
+
+.. _FOREACH:
+
+#FOREACH
+--------
+
+The ``#FOREACH`` macro expands to a sequence of output strings based on a
+sequence of input strings. ::
+
+  #FOREACH([s1,s2,...])(var,string[,sep,fsep])
+
+or::
+
+  #FOREACH(svar)(var,string[,sep,fsep])
+
+* ``s1``, ``s2``  etc. are the input strings
+* ``svar`` is a special variable that expands to a specific sequence of input
+  strings (see below)
+* ``var`` is the variable name; for each input string, it evaluates to that
+  string
+* ``string`` is the output string that is evaluated for each input string;
+  wherever the variable name (``var``) appears, its value is substituted
+* ``sep`` is the separator placed between each output string (default: the
+  empty string)
+* ``fsep`` is the separator placed between the final two output strings
+  (default: ``sep``)
+
+For example::
+
+  ; The next three bytes (#FOREACH(31734,31735,31736)||n|#PEEKn|, | and ||)
+  ; define the item locations.
+   31734 DEFB 24,17,156
+
+This instance of the ``#FOREACH`` macro expands to '24, 17 and 156'.
+
+The ``#FOREACH`` macro recognises certain special variables, each one of which
+expands to a specific sequence of strings. The special variables are:
+
+* ``ENTRY[types]`` - the addresses of every entry of the specified type(s) in
+  the memory map; if ``types`` is not given, every type is included
+* ``EREFaddr`` - the addresses of the routines that jump to or call a given
+  instruction (at ``addr``)
+* ``REFaddr`` - the addresses of the routines that jump to or call a given
+  routine (at ``addr``), or jump to or call any entry point within that routine
+
+For example::
+
+  ; The messages can be found at #FOREACH(ENTRYt)||n|n|, | and ||.
+
+This instance of the ``#FOREACH`` macro expands to a list of the addresses of
+the entries of type ``t`` (text).
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``var``, ``string``, ``sep`` and ``fsep`` parameters.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.1     | New     |
++---------+---------+
+
+.. _IF:
+
+#IF
+---
+The ``#IF`` macro expands to an arbitrary string based on the truth value of an
+arithmetic expression. ::
+
+  #IFexpr(true[,false])
+
+* ``expr`` is the arithmetic expression
+* ``true`` is the output string when ``expr`` is true
+* ``false`` is the output string when ``expr`` is false (default: the empty
+  string)
+
+For example::
+
+  ; #FOR0,7||n|#IF(#PEEK47134 & 2**(7-n))(X,O)||
+   47134 DEFB 170
+
+This instance of the ``#IF`` macro is used (in combination with a ``#FOR``
+macro and a ``#PEEK`` macro) to display the contents of the address 47134 in
+the memory snapshot in binary format with 'X' for one and 'O' for zero:
+XOXOXOXO.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``true`` and ``false`` output strings.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.1     | New     |
++---------+---------+
+
+.. _MAP:
+
+#MAP
+----
+The ``#MAP`` macro expands to a value from a map of key-value pairs whose keys
+are integers. ::
+
+  #MAPkey(default[,k1:v1,k2:v2...])
+
+* ``key`` is the integer to look up in the map
+* ``default`` is the default output string (used when ``key`` is not found in
+  the map)
+* ``k1:v1``, ``k2:v2`` etc. are the key-value pairs in the map
+
+For example::
+
+  ; The next three bytes specify the directions that are available from here:
+  ; #FOR56112,56114||q|#MAP(#PEEKq)(?,0:left,1:right,2:up,3:down)|, | and ||.
+   56112 DEFB 0,1,3
+
+This instance of the ``#MAP`` macro is used (in combination with a ``#FOR``
+macro and a ``#PEEK`` macro) to display a list of directions available based on
+the contents of addresses 56112-56114: 'left, right and down'.
+
+Note that the keys (``k1``, ``k2`` etc.) may be expressed using arithmetic
+operations. They may also be expressed using skool macros, but in that case the
+*entire* parameter string of the ``#MAP`` macro must be enclosed by a
+:ref:`hash` macro.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+default output string and the key-value pairs.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.1     | New     |
++---------+---------+
+
+.. _PEEK:
+
+#PEEK
+-----
+The ``#PEEK`` macro expands to the contents of an address in the memory
+snapshot. ::
+
+  #PEEKaddr
+
+* ``addr`` is the address
+
+For example::
+
+  ; At the start of the game, the number of lives remaining is #PEEK33879.
+
+This instance of the ``#PEEK`` macro expands to the contents of the address
+33879 in the memory snapshot.
+
+See also :ref:`POKES`.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.1     | New     |
++---------+---------+
 
 General macros
 ^^^^^^^^^^^^^^
@@ -90,11 +406,11 @@ See also :ref:`FACT` and :ref:`POKE`.
 In HTML mode, the ``#CALL`` macro expands to the return value of a method on
 the `HtmlWriter` class or subclass that is being used to create the HTML
 disassembly (as defined by the ``HtmlWriterClass`` parameter in the
-:ref:`ref-Config` section of the `ref` file).
+:ref:`ref-Config` section of the ref file).
 
 In ASM mode, the ``#CALL`` macro expands to the return value of a method on the
 `AsmWriter` class or subclass that is being used to generate the ASM output (as
-defined by the :ref:`writer` ASM directive in the `skool` file). ::
+defined by the :ref:`writer` ASM directive in the skool file). ::
 
   #CALL:methodName(args)
 
@@ -103,22 +419,25 @@ defined by the :ref:`writer` ASM directive in the `skool` file). ::
 
 For example::
 
-  ; The byte at address 32768 is #CALL:peek(32768).
+  ; The word at address 32768 is #CALL:word(32768).
 
-This instance of the ``#CALL`` macro expands to the return value of the `peek`
+This instance of the ``#CALL`` macro expands to the return value of the `word`
 method (on the `HtmlWriter` or `AsmWriter` subclass being used) when called
 with the argument ``32768``.
 
 For information on writing methods that may be called by a ``#CALL`` macro, see
 the documentation on :ref:`extending SkoolKit <extendingSkoolKit>`.
 
-+---------+----------------------------+
-| Version | Changes                    |
-+=========+============================+
-| 3.1     | Added support for ASM mode |
-+---------+----------------------------+
-| 2.1     | New                        |
-+---------+----------------------------+
++---------+--------------------------------------------------------------+
+| Version | Changes                                                      |
++=========+==============================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in |
+|         | numeric method arguments                                     |
++---------+--------------------------------------------------------------+
+| 3.1     | Added support for ASM mode                                   |
++---------+--------------------------------------------------------------+
+| 2.1     | New                                                          |
++---------+--------------------------------------------------------------+
 
 .. _CHR:
 
@@ -130,10 +449,6 @@ encoding. ::
 
   #CHRnum
 
-or::
-
-  #CHR(num)
-
 For example:
 
 .. parsed-literal::
@@ -144,18 +459,21 @@ For example:
 In HTML mode, this instance of the ``#CHR`` macro expands to ``&#169;``. In ASM
 mode, it expands to the copyright symbol.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 3.1     | New     |
-+---------+---------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | ``num`` parameter                                                |
++---------+------------------------------------------------------------------+
+| 3.1     | New                                                              |
++---------+------------------------------------------------------------------+
 
 .. _D:
 
 #D
 --
-The ``#D`` (Description) macro expands to the title of an entry (a routine or
-data block) in the memory map. ::
+The ``#D`` macro expands to the title of an entry (a routine or data block) in
+the memory map. ::
 
   #Daddr
 
@@ -171,13 +489,20 @@ For example::
 
 This instance of the ``#D`` macro expands to the title of the routine at 27126.
 
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | ``addr`` parameter                                               |
++---------+------------------------------------------------------------------+
+
 .. _EREFS:
 
 #EREFS
 ------
-The ``#EREFS`` (Entry point REFerenceS) macro expands to a comma-separated
-sequence of hyperlinks to (in HTML mode) or addresses of (in ASM mode) the
-routines that jump to or call a given address. ::
+The ``#EREFS`` macro expands to a comma-separated sequence of hyperlinks to (in
+HTML mode) or addresses of (in ASM mode) the routines that jump to or call a
+given address. ::
 
   #EREFSaddr
 
@@ -185,11 +510,18 @@ routines that jump to or call a given address. ::
 
 See also :ref:`m-REFS`.
 
-+---------+----------------------------+
-| Version | Changes                    |
-+=========+============================+
-| 3.1     | Added support for ASM mode |
-+---------+----------------------------+
+.. note::
+   The ``#EREFS`` macro is deprecated since version 5.1. Consider using the
+   special variable ``EREFaddr`` with the :ref:`FOREACH` macro instead.
+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | ``addr`` parameter                                               |
++---------+------------------------------------------------------------------+
+| 3.1     | Added support for ASM mode                                       |
++---------+------------------------------------------------------------------+
 
 .. _FACT:
 
@@ -239,23 +571,18 @@ string (in ASM mode). ::
   #HTML(text)
 
 The ``#HTML`` macro may be used to render HTML (which would otherwise be
-escaped) from a `skool` file. For example::
+escaped) from a skool file. For example::
 
   ; #HTML(For more information, go <a href="http://example.com/">here</a>.)
-
-If ``text`` contains a closing bracket - ``)`` - then the macro will not expand
-as required. In that case, square brackets, braces or any character that does
-not appear in ``text`` (except for an upper case letter) may be used as
-delimiters::
-
-  #HTML[text]
-  #HTML{text}
-  #HTML@text@
 
 ``text`` may contain other skool macros, which will be expanded before
 rendering. For example::
 
   ; #HTML[The UDG defined here (32768) looks like this: #UDG32768,4,1]
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``text`` parameter. Note that if an alternative delimiter is used, it must not
+be an upper case letter.
 
 See also :ref:`UDGTABLE`.
 
@@ -279,14 +606,14 @@ another page. ::
 * ``link text`` is the link text to use
 
 In HTML mode, if the link text is blank, the page's link text (as defined in
-the :ref:`links` section or the relevant :ref:`page` section of the `ref` file)
+the :ref:`links` section or the relevant :ref:`page` section of the ref file)
 is substituted.
 
 In ASM mode, the ``#LINK`` macro expands to the link text.
 
 The page IDs that may be used are the same as the file IDs that may be used in
-the :ref:`paths` section of a `ref` file, or the page IDs defined by
-:ref:`page` sections.
+the :ref:`paths` section of a ref file, or the page IDs defined by :ref:`page`
+sections.
 
 For example::
 
@@ -383,9 +710,9 @@ See also :ref:`BUG` and :ref:`FACT`.
 
 #R
 --
-In HTML mode, the ``#R`` (Reference) macro expands to a hyperlink (``<a>``
-element) to the disassembly page for a routine or data block, or to a line at a
-given address within that page. ::
+In HTML mode, the ``#R`` macro expands to a hyperlink (``<a>`` element) to the
+disassembly page for a routine or data block, or to a line at a given address
+within that page. ::
 
   #Raddr[@code][#name][(link text)]
 
@@ -415,24 +742,37 @@ disassembly page for the routine at 25820.
 In ASM mode, this instance of the ``#R`` macro expands to the label for the
 routine at 25820 (or simply ``25820`` if that routine has no label).
 
-+---------+------------------------------------------------------------------+
-| Version | Changes                                                          |
-+=========+==================================================================+
-| 3.5     | Added the ability to resolve (in HTML mode) the address of an    |
-|         | entry point in another disassembly when an appropriate           |
-|         | :ref:`remote entry <rEntry>` is defined                          |
-+---------+------------------------------------------------------------------+
-| 2.0     | Added support for the ``@code`` notation                         |
-+---------+------------------------------------------------------------------+
+To create a hyperlink to the first instruction in a routine or data block, use
+an anchor that evaluates to the address of that instruction. For example::
+
+  ; See the #R40000#40000(first item) in the data table at 40000.
+
+In HTML mode, the anchor of this ``#R`` macro (40000) is converted to the
+format specified by the ``AddressAnchor`` parameter in the :ref:`ref-Game`
+section.
+
++---------+---------------------------------------------------------------+
+| Version | Changes                                                       |
++=========+===============================================================+
+| 5.1     | An anchor that matches the entry address is converted to the  |
+|         | format specified by the ``AddressAnchor`` parameter; added    |
+|         | support for arithmetic expressions and skool macros in the    |
+|         | ``addr`` parameter                                            |
++---------+---------------------------------------------------------------+
+| 3.5     | Added the ability to resolve (in HTML mode) the address of an |
+|         | entry point in another disassembly when an appropriate        |
+|         | :ref:`remote entry <rEntry>` is defined                       |
++---------+---------------------------------------------------------------+
+| 2.0     | Added support for the ``@code`` notation                      |
++---------+---------------------------------------------------------------+
 
 .. _m-REFS:
 
 #REFS
 -----
-The ``#REFS`` (REFerenceS) macro expands to a comma-separated sequence of
-hyperlinks to (in HTML mode) or addresses of (in ASM mode) the routines that
-jump to or call a given routine, or jump to or call any entry point within that
-routine. ::
+The ``#REFS`` macro expands to a comma-separated sequence of hyperlinks to (in
+HTML mode) or addresses of (in ASM mode) the routines that jump to or call a
+given routine, or jump to or call any entry point within that routine. ::
 
   #REFSaddr[(prefix)]
 
@@ -446,30 +786,42 @@ If there are no references, the macro expands to the following text::
 
 See also :ref:`EREFS`.
 
-+---------+--------------------------------+
-| Version | Changes                        |
-+=========+================================+
-| 3.1     | Added support for ASM mode     |
-+---------+--------------------------------+
-| 1.0.6   | Added the ``prefix`` parameter |
-+---------+--------------------------------+
+.. note::
+   The ``#REFS`` macro is deprecated since version 5.1. Consider using the
+   special variable ``REFaddr`` with the :ref:`FOREACH` macro instead.
+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | ``addr`` parameter                                               |
++---------+------------------------------------------------------------------+
+| 3.1     | Added support for ASM mode                                       |
++---------+------------------------------------------------------------------+
+| 1.0.6   | Added the ``prefix`` parameter                                   |
++---------+------------------------------------------------------------------+
 
 .. _REG:
 
 #REG
 ----
-In HTML mode, the ``#REG`` (REGister) macro expands to a styled ``<span>``
-element containing a register name. ::
+In HTML mode, the ``#REG`` macro expands to a styled ``<span>`` element
+containing a register name. ::
 
   #REGreg
 
-* ``reg`` is the name of the register (e.g. 'a', 'bc')
+* ``reg`` is the name of the register
 
 In ASM mode, the ``#REG`` macro expands to the name of the register.
 
-The register name must contain 1, 2 or 3 of the following characters::
+The register name must be one of the following::
 
-  abcdefhlirspxy'
+  a b c d e h l
+  a' b' c' d' e' h' l'
+  af bc de hl
+  af' bc' de' hl'
+  ix iy ixh iyh ixl iyl
+  i r sp pc
 
 For example:
 
@@ -477,6 +829,12 @@ For example:
    :class: nonexistent
 
     24623 LD C,31       ; #REGbc'=31
+
++---------+-----------------------------------------------------+
+| Version | Changes                                             |
++=========+=====================================================+
+| 5.1     | The ``reg`` parameter must be a valid register name |
++---------+-----------------------------------------------------+
 
 .. _SPACE:
 
@@ -486,10 +844,6 @@ The ``#SPACE`` macro expands to one or more ``&#160;`` expressions (in HTML
 mode) or spaces (in ASM mode). ::
 
   #SPACE[num]
-
-or::
-
-  #SPACE([num])
 
 * ``num`` is the number of spaces required (default: 1)
 
@@ -511,11 +865,14 @@ text where necessary. For example::
   ; 'Score:#SPACE(5)0'
   t49152 DEFM "Score:     0"
 
-+---------+------------------------------------------------+
-| Version | Changes                                        |
-+=========+================================================+
-| 2.4.1   | Added support for the ``#SPACE([num])`` syntax |
-+---------+------------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | ``num`` parameter                                                |
++---------+------------------------------------------------------------------+
+| 2.4.1   | Added support for the ``#SPACE([num])`` syntax                   |
++---------+------------------------------------------------------------------+
 
 .. _TABLE:
 
@@ -642,21 +999,13 @@ of text rendered in the game font. ::
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (default: '`font`'); '`.png`' or
   '`.gif`' will be appended (depending on the default image format specified in
-  the :ref:`ref-ImageWriter` section of the `ref` file) if not present
-
-If ``text`` contains a closing bracket - ``)`` - then the macro will not expand
-as required. In that case, square brackets, braces or any character that does
-not appear in ``text`` may be used as delimiters; for example::
-
-  #FONT:[(0) OK]$3D00
-  #FONT:{(0) OK}$3D00
-  #FONT:/(0) OK/$3D00
+  the :ref:`ref-ImageWriter` section of the ref file) if not present
 
 If an image with the given filename doesn't already exist, it will be created.
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly; otherwise the filename is taken to be relative to
 the directory defined by the ``FontImagePath`` parameter in the :ref:`paths`
-section of the `ref` file.
+section of the ref file.
 
 For example::
 
@@ -665,34 +1014,40 @@ For example::
   ; #HTML[#FONT:(0123456789)49152]
 
 In HTML mode, this instance of the ``#FONT`` macro expands to an ``<img>``
-element for the image of the digits 0-9 in the 8*8 font whose graphic data
+element for the image of the digits 0-9 in the 8x8 font whose graphic data
 starts at 49152.
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 4.3     | Added the ability to create frames                              |
-+---------+-----------------------------------------------------------------+
-| 4.2     | Added the ability to specify alt text for the ``<img>`` element |
-+---------+-----------------------------------------------------------------+
-| 4.0     | Added support for keyword arguments                             |
-+---------+-----------------------------------------------------------------+
-| 3.6     | Added the ``text`` parameter, and made the ``chars`` parameter  |
-|         | optional                                                        |
-+---------+-----------------------------------------------------------------+
-| 3.0     | Added image-cropping capabilities                               |
-+---------+-----------------------------------------------------------------+
-| 2.0.5   | Added the ``fname`` parameter and support for regular 8x8 fonts |
-+---------+-----------------------------------------------------------------+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``text`` parameter.
+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | numeric parameters                                               |
++---------+------------------------------------------------------------------+
+| 4.3     | Added the ability to create frames                               |
++---------+------------------------------------------------------------------+
+| 4.2     | Added the ability to specify alt text for the ``<img>`` element  |
++---------+------------------------------------------------------------------+
+| 4.0     | Added support for keyword arguments                              |
++---------+------------------------------------------------------------------+
+| 3.6     | Added the ``text`` parameter, and made the ``chars`` parameter   |
+|         | optional                                                         |
++---------+------------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities                                |
++---------+------------------------------------------------------------------+
+| 2.0.5   | Added the ``fname`` parameter and support for regular 8x8 fonts  |
++---------+------------------------------------------------------------------+
 
 .. _SCR:
 
 #SCR
 ----
-In HTML mode, the ``#SCR`` (SCReenshot) macro expands to an ``<img>`` element
-for an image constructed from the display file and attribute file (or suitably
-arranged graphic data and attribute bytes elsewhere in memory) of the current
-memory snapshot (in turn constructed from the contents of the `skool` file). ::
+In HTML mode, the ``#SCR`` macro expands to an ``<img>`` element for an image
+constructed from the display file and attribute file (or suitably arranged
+graphic data and attribute bytes elsewhere in memory) of the current memory
+snapshot (in turn constructed from the contents of the skool file). ::
 
   #SCR[scale,x,y,w,h,df,af][{CROP}][(fname)]
 
@@ -708,13 +1063,13 @@ memory snapshot (in turn constructed from the contents of the `skool` file). ::
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (default: '`scr`'); '`.png`' or
   '`.gif`' will be appended (depending on the default image format specified in
-  the :ref:`ref-ImageWriter` section of the `ref` file) if not present
+  the :ref:`ref-ImageWriter` section of the ref file) if not present
 
 If an image with the given filename doesn't already exist, it will be created.
 If ``fname`` starts with a '/', the filename is taken to be relative to the
 root of the HTML disassembly; otherwise the filename is taken to be relative to
 the directory defined by the ``ScreenshotImagePath`` parameter in the
-:ref:`paths` section of the `ref` file.
+:ref:`paths` section of the ref file.
 
 For example::
 
@@ -722,21 +1077,32 @@ For example::
   ; { #SCR(loading) | This is the loading screen. }
   ; TABLE#
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 4.3     | Added the ability to create frames                              |
-+---------+-----------------------------------------------------------------+
-| 4.2     | Added the ability to specify alt text for the ``<img>`` element |
-+---------+-----------------------------------------------------------------+
-| 4.0     | Added support for keyword arguments                             |
-+---------+-----------------------------------------------------------------+
-| 3.0     | Added image-cropping capabilities and the ``df`` and ``af``     |
-|         | parameters                                                      |
-+---------+-----------------------------------------------------------------+
-| 2.0.5   | Added the ``scale``, ``x``, ``y``, ``w``, ``h`` and ``fname``   |
-|         | parameters                                                      |
-+---------+-----------------------------------------------------------------+
+.. note::
+   In SkoolKit 5.0 and earlier versions, ``#SCR(2)`` would create an image file
+   named `2.png` using the default parameter values. However, since the
+   introduction in version 5.1 of support for arithmetic expressions in numeric
+   parameters, ``#SCR(2)`` creates an image file with the default name and
+   scale 2; to create an image file named `2.png` with the default parameter
+   values in SkoolKit 5.1+, write ``#SCR()(2)`` instead.
+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | numeric parameters                                               |
++---------+------------------------------------------------------------------+
+| 4.3     | Added the ability to create frames                               |
++---------+------------------------------------------------------------------+
+| 4.2     | Added the ability to specify alt text for the ``<img>`` element  |
++---------+------------------------------------------------------------------+
+| 4.0     | Added support for keyword arguments                              |
++---------+------------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities and the ``df`` and ``af``      |
+|         | parameters                                                       |
++---------+------------------------------------------------------------------+
+| 2.0.5   | Added the ``scale``, ``x``, ``y``, ``w``, ``h`` and ``fname``    |
+|         | parameters                                                       |
++---------+------------------------------------------------------------------+
 
 .. _UDG:
 
@@ -763,7 +1129,7 @@ of a UDG (an 8x8 block of pixels). ::
 * ``fname`` is the name of the image file (if not given, a name based on
   ``addr``, ``attr`` and ``scale`` will be generated); '`.png`' or '`.gif`'
   will be appended (depending on the default image format specified in the
-  :ref:`ref-ImageWriter` section of the `ref` file) if not present
+  :ref:`ref-ImageWriter` section of the ref file) if not present
 
 The mask specification (``MASK``) takes the form::
 
@@ -773,11 +1139,15 @@ The mask specification (``MASK``) takes the form::
 * ``step`` is the interval between successive mask bytes (defaults to the value
   of ``step`` for the UDG)
 
-If an image with the given filename doesn't already exist, it will be created.
-If ``fname`` starts with a '/', the filename is taken to be relative to the
-root of the HTML disassembly; otherwise the filename is taken to be relative to
-the directory defined by the ``UDGImagePath`` parameter in the :ref:`paths`
-section of the `ref` file.
+Note that if any of the parameters in the mask specification is expressed using
+arithmetic operations or skool macros, then the entire specification must be
+enclosed in parentheses.
+
+If an image with the given filename (``fname``) doesn't already exist, it will
+be created.  If ``fname`` starts with a '/', the filename is taken to be
+relative to the root of the HTML disassembly; otherwise the filename is taken
+to be relative to the directory defined by the ``UDGImagePath`` parameter in
+the :ref:`paths` section of the ref file.
 
 For example::
 
@@ -789,28 +1159,31 @@ In HTML mode, this instance of the ``#UDG`` macro expands to an ``<img>``
 element for the image of the UDG at 39144 (which will be named `safe_key.png`
 or `safe_key.gif`), with attribute byte 6 (INK 6: PAPER 0).
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 4.3     | Added the ability to create frames                              |
-+---------+-----------------------------------------------------------------+
-| 4.2     | Added the ability to specify alt text for the ``<img>`` element |
-+---------+-----------------------------------------------------------------+
-| 4.0     | Added the ``mask`` parameter and support for AND-OR masking;    |
-|         | added support for keyword arguments                             |
-+---------+-----------------------------------------------------------------+
-| 3.1.2   | Made the ``attr`` parameter optional                            |
-+---------+-----------------------------------------------------------------+
-| 3.0     | Added image-cropping capabilities                               |
-+---------+-----------------------------------------------------------------+
-| 2.4     | Added the ``rotate`` parameter                                  |
-+---------+-----------------------------------------------------------------+
-| 2.3.1   | Added the ``flip`` parameter                                    |
-+---------+-----------------------------------------------------------------+
-| 2.1     | Added support for masks                                         |
-+---------+-----------------------------------------------------------------+
-| 2.0.5   | Added the ``fname`` parameter                                   |
-+---------+-----------------------------------------------------------------+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | numeric parameters                                               |
++---------+------------------------------------------------------------------+
+| 4.3     | Added the ability to create frames                               |
++---------+------------------------------------------------------------------+
+| 4.2     | Added the ability to specify alt text for the ``<img>`` element  |
++---------+------------------------------------------------------------------+
+| 4.0     | Added the ``mask`` parameter and support for AND-OR masking;     |
+|         | added support for keyword arguments                              |
++---------+------------------------------------------------------------------+
+| 3.1.2   | Made the ``attr`` parameter optional                             |
++---------+------------------------------------------------------------------+
+| 3.0     | Added image-cropping capabilities                                |
++---------+------------------------------------------------------------------+
+| 2.4     | Added the ``rotate`` parameter                                   |
++---------+------------------------------------------------------------------+
+| 2.3.1   | Added the ``flip`` parameter                                     |
++---------+------------------------------------------------------------------+
+| 2.1     | Added support for masks                                          |
++---------+------------------------------------------------------------------+
+| 2.0.5   | Added the ``fname`` parameter                                    |
++---------+------------------------------------------------------------------+
 
 .. _UDGARRAY:
 
@@ -836,7 +1209,7 @@ image of an array of UDGs (8x8 blocks of pixels). ::
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file; '`.png`' or '`.gif`' will be
   appended (depending on the default image format specified in the
-  :ref:`ref-ImageWriter` section of the `ref` file) if not present
+  :ref:`ref-ImageWriter` section of the ref file) if not present
 
 ``SPEC1``, ``SPEC2`` etc. are UDG specifications for the sets of UDGs that make
 up the array. Each UDG specification has the form::
@@ -882,11 +1255,25 @@ As many UDG specifications as required may be supplied, separated by
 semicolons; the UDGs will be arranged in a rectangular array with the given
 width.
 
-If an image with the given filename doesn't already exist, it will be created.
-If ``fname`` starts with a '/', the filename is taken to be relative to the
-root of the HTML disassembly; otherwise the filename is taken to be relative to
-the directory defined by the ``UDGImagePath`` parameter in the :ref:`paths`
-section of the `ref` file.
+Note that, like the main parameters of a ``#UDGARRAY`` macro (up to but not
+including the first semicolon), if any of the following parts of the parameter
+string is expressed using arithmetic operations or skool macros, then that part
+must be enclosed in parentheses:
+
+* any of the 1-5 parts of a UDG address range specification (separated by ``-``
+  and ``x``)
+* the part of a UDG specification after the comma that follows the address
+  range
+* any of the 1-5 parts of a mask address range specification (separated by
+  ``-`` and ``x``)
+* the part of a mask specification after the comma that follows the address
+  range
+
+If an image with the given filename (``fname``) doesn't already exist, it will
+be created.  If ``fname`` starts with a '/', the filename is taken to be
+relative to the root of the HTML disassembly; otherwise the filename is taken
+to be relative to the directory defined by the ``UDGImagePath`` parameter in
+the :ref:`paths` section of the ref file.
 
 For example::
 
@@ -902,6 +1289,9 @@ named `base_sprite.png`.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the  |
+|         | numeric parameters                                                |
++---------+-------------------------------------------------------------------+
 | 4.2     | Added the ability to specify alt text for the ``<img>`` element   |
 +---------+-------------------------------------------------------------------+
 | 4.0     | Added the ``mask`` parameter and support for AND-OR masking;      |
@@ -1051,15 +1441,14 @@ Snapshot macros
 ^^^^^^^^^^^^^^^
 The :ref:`POKES`, :ref:`POPS` and :ref:`PUSHS` macros (described in the
 following sections) may be used to manipulate the memory snapshot that is built
-from the ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements in the `skool`
+from the ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements in the skool
 file. Each macro expands to an empty string.
 
 .. _POKES:
 
 #POKES
 ------
-The ``#POKES`` (POKE Snapshot) macro POKEs values into the current memory
-snapshot. ::
+The ``#POKES`` macro POKEs values into the current memory snapshot. ::
 
   #POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
 
@@ -1085,20 +1474,25 @@ For example::
 This instance of the ``#POKES`` macro does ``POKE 32772,254`` and
 ``POKE 32775,136``, which fixes a graphic glitch in the UDG at 32768.
 
-+---------+--------------------------------------+
-| Version | Changes                              |
-+=========+======================================+
-| 3.1     | Added support for ASM mode           |
-+---------+--------------------------------------+
-| 2.3.1   | Added support for multiple addresses |
-+---------+--------------------------------------+
+See also :ref:`PEEK`.
+
++---------+------------------------------------------------------------------+
+| Version | Changes                                                          |
++=========+==================================================================+
+| 5.1     | Added support for arithmetic expressions and skool macros in the |
+|         | numeric parameters                                               |
++---------+------------------------------------------------------------------+
+| 3.1     | Added support for ASM mode                                       |
++---------+------------------------------------------------------------------+
+| 2.3.1   | Added support for multiple addresses                             |
++---------+------------------------------------------------------------------+
 
 .. _POPS:
 
 #POPS
 -----
-The ``#POPS`` (POP Snapshot) macro removes the current memory snapshot and
-replaces it with the one that was previously saved by a ``#PUSHS`` macro. ::
+The ``#POPS`` macro removes the current memory snapshot and replaces it with
+the one that was previously saved by a ``#PUSHS`` macro. ::
 
   #POPS
 
@@ -1112,8 +1506,8 @@ replaces it with the one that was previously saved by a ``#PUSHS`` macro. ::
 
 #PUSHS
 ------
-The ``#PUSHS`` (PUSH Snapshot) macro saves the current memory snapshot, and
-replaces it with an identical copy with a given name. ::
+The ``#PUSHS`` macro saves the current memory snapshot, and replaces it with an
+identical copy with a given name. ::
 
   #PUSHS[name]
 
@@ -1127,3 +1521,55 @@ it must not start with a capital letter.
 +=========+============================+
 | 3.1     | Added support for ASM mode |
 +---------+----------------------------+
+
+.. _definingMacrosWithReplace:
+
+Defining macros with @replace
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+By using the :ref:`replace` directive, it is possible to define new macros
+based on existing ones without writing any Python code. Some examples are given
+below.
+
+#asm
+----
+There is the :ref:`HTML` macro for inserting content in HTML mode only, but
+there is no corresponding macro for inserting content in ASM mode only. The
+following ``@replace`` directive defines an ``#asm`` macro to fill that gap::
+
+  @replace=/#asm(\(.*\))/#IF(#HTML(1)0<1)\1
+
+For example::
+
+  #asm(This text appears only in ASM mode.)
+
+#tile
+-----
+Suppose the game you're disassembling arranges tiles in groups of nine bytes:
+the attribute byte first, followed by the eight graphic bytes. If there is a
+tile at 32768, then::
+
+  #UDG(32769,#PEEK32768)
+
+will create an image of it. If you want to create several tile images, this
+syntax can get cumbersome; it would be easier if you could supply just the
+address of the attribute byte. The following ``@replace`` directive defines a
+``#tile`` macro that creates a tile image given an attribute byte address::
+
+  @replace=/#tile\i/#UDG(\1+1,#PEEK\1)
+
+Now you can create an image of the tile at 32768 like this::
+
+  #tile32768
+
+#tiles
+------
+If you have several nine-byte tiles arranged one after the other, you might
+want to create images of all of them in a single row of a ``#UDGTABLE``. The
+following ``@replace`` directive defines a ``#tiles`` macro for this purpose::
+
+  @replace=/#tiles\i,\i/#FOR(\1,\1+9*(\2-1),9);;n;#UDG(n+1,#PEEKn); | ;;
+
+Now you can create a ``#UDGTABLE`` of images of a series of 10 tiles starting
+at 32768 like this::
+
+  #UDGTABLE { #tiles32768,10 } TABLE#

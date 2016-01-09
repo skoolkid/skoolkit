@@ -1,6 +1,33 @@
 Changelog
 =========
 
+5.1 (2016-01-09)
+----------------
+* Added the :ref:`replace` ASM directive (which replaces strings that match a
+  regular expression in skool file annotations and ref file sections)
+* Added the :ref:`hash`, :ref:`EVAL`, :ref:`FOR`, :ref:`FOREACH`, :ref:`IF`,
+  :ref:`MAP` and :ref:`PEEK` macros (which can be used to programmatically
+  specify the parameters of any macro)
+* Added support for arithmetic expressions and skool macros in numeric macro
+  parameters
+* Added the ``--bfix``,  ``--ofix`` and ``--ssub`` options to
+  :ref:`skool2bin.py` (for parsing the skool file in ``@bfix``, ``@ofix`` and
+  ``@ssub`` mode)
+* Added the ``DefaultAnimationFormat`` parameter to the :ref:`ref-ImageWriter`
+  section (for specifying the default format for animated images)
+* The :ref:`R` macro now converts an anchor that matches the entry address to
+  the format specified by the ``AddressAnchor`` parameter (making it easier to
+  link to the first instruction in an entry when using a custom anchor format)
+* :ref:`skool2ctl.py` now appends a terminal ``i`` directive if the skool file
+  ends before 65536
+* :ref:`skool2sft.py` now preserves ``i`` blocks in the same way as code and
+  data blocks (instead of verbatim), which enables their conversion to decimal
+  or hexadecimal when restored from a skool file template
+* Fixed how the colours in flashing blank tiles are detected when writing an
+  uncropped image file
+* Fixed how a 2-colour PNG image is created when it contains an attribute with
+  equal INK and PAPER colours
+
 5.0 (2015-10-04)
 ----------------
 * Added the :ref:`skool2bin.py` command (for converting a skool file into a
@@ -14,7 +41,7 @@ Changelog
 * Added the ``--set`` option to :ref:`skool2asm.py` (for setting ASM writer
   property values)
 * Added the ``RefFiles`` parameter to the :ref:`ref-Config` section (for
-  specifying extra `ref` files to use)
+  specifying extra ref files to use)
 * Added support to :ref:`sna2skool.py` for reading SpecEmu's 64K code execution
   map files
 * Fixed how :ref:`tap2sna.py` does a standard load from a TZX file
@@ -112,7 +139,7 @@ Changelog
 4.1.1 (2014-09-20)
 ------------------
 * Updated links to SkoolKit's new home at `skoolkit.ca <http://skoolkit.ca>`_
-* Added example control and `ref` files for `Hungry Horace`_
+* Added example control and ref files for `Hungry Horace`_
 * Removed the Manic Miner disassembly from the SkoolKit distribution; it is now
   being developed separately `here <https://github.com/skoolkid/manicminer>`__
 
@@ -143,15 +170,15 @@ Changelog
 4.0 (2014-05-25)
 ----------------
 * Every HTML page is built from templates defined in :ref:`template` sections
-  in the `ref` file
+  in the ref file
 * Added support for keyword arguments to the :ref:`FONT`, :ref:`SCR`,
   :ref:`UDG` and :ref:`UDGARRAY` macros
 * Added the ``mask`` parameter to the :ref:`UDG` and :ref:`UDGARRAY` macros
   (for specifying the type of mask to apply)
 * Added support for defining page headers in the :ref:`pageHeaders` section of
-  the `ref` file
+  the ref file
 * Added the ``--ref-file`` and ``--ref-sections`` options to
-  :ref:`skool2html.py` (to show the entire default `ref` file or individual
+  :ref:`skool2html.py` (to show the entire default ref file or individual
   sections of it)
 * Added the ``EntryDescriptions`` parameter to the :ref:`memoryMap` section
   (for specifying whether to display entry descriptions on a memory map page)

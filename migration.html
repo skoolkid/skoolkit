@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Migrating from SkoolKit 4 &mdash; SkoolKit 5.0 documentation</title>
+    <title>Migrating from SkoolKit 4 &mdash; SkoolKit 5.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.0',
+        VERSION:     '5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.1 documentation" href="index.html" />
     <link rel="next" title="Changelog" href="changelog.html" />
     <link rel="prev" title="Supported assemblers" href="assemblers.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="assemblers.html" title="Supported assemblers"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -94,7 +94,7 @@
 <span id="migrating"></span><h1>Migrating from SkoolKit 4<a class="headerlink" href="#migrating-from-skoolkit-4" title="Permalink to this headline">¶</a></h1>
 <p>SkoolKit 5 includes some changes that make it incompatible with SkoolKit 4. If
 you have developed a disassembly using SkoolKit 4 and find that the SkoolKit
-commands no longer work with your control files or <cite>skool</cite> files, or produce
+commands no longer work with your control files or skool files, or produce
 broken output, look through the following sections for tips on how to migrate
 your disassembly to SkoolKit 5.</p>
 <div class="section" id="d-directives">
@@ -119,12 +119,12 @@ be rewritten with a length parameter:</p>
 </div>
 <div class="section" id="asm-directives">
 <h2>ASM directives<a class="headerlink" href="#asm-directives" title="Permalink to this headline">¶</a></h2>
-<p>In SkoolKit 4, ASM directives could be declared in a control file or a <cite>skool</cite>
+<p>In SkoolKit 4, ASM directives could be declared in a control file or a skool
 file by starting a line with <tt class="docutils literal"><span class="pre">;</span> <span class="pre">&#64;</span></tt>; for example, in a control file:</p>
 <div class="highlight-none"><div class="highlight"><pre>; @label:24576=START
 </pre></div>
 </div>
-<p>and in a <cite>skool</cite> file (or skool file template):</p>
+<p>and in a skool file (or skool file template):</p>
 <div class="highlight-none"><div class="highlight"><pre>; @label=START
 </pre></div>
 </div>
@@ -133,7 +133,7 @@ declared in a control file by using the <tt class="docutils literal"><span class
 <div class="highlight-none"><div class="highlight"><pre>@ 24576 label=START
 </pre></div>
 </div>
-<p>and in a <cite>skool</cite> file (or skool file template) by starting a line with <tt class="docutils literal"><span class="pre">&#64;</span></tt>:</p>
+<p>and in a skool file (or skool file template) by starting a line with <tt class="docutils literal"><span class="pre">&#64;</span></tt>:</p>
 <div class="highlight-none"><div class="highlight"><pre>@label=START
 </pre></div>
 </div>
@@ -218,7 +218,7 @@ new <tt class="docutils literal"><span class="pre">-P/--set</span></tt> option:<
 </div>
 <div class="section" id="skoolkit4to5-py">
 <h2>skoolkit4to5.py<a class="headerlink" href="#skoolkit4to5-py" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference external" href="https://github.com/skoolkid/skoolkit/raw/master/utils/skoolkit4to5.py">skoolkit4to5.py</a> script may be used to convert a control file, <cite>skool</cite>
+<p>The <a class="reference external" href="https://github.com/skoolkid/skoolkit/raw/master/utils/skoolkit4to5.py">skoolkit4to5.py</a> script may be used to convert a control file, skool
 file, skool file template or CSS file that is compatible with SkoolKit 4 into a
 file that will work with SkoolKit 5. For example, to convert <cite>game.skool</cite>:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skoolkit4to5.py game.skool &gt; game5.skool
@@ -245,11 +245,11 @@ file that will work with SkoolKit 5. For example, to convert <cite>game.skool</c
         <li class="right" >
           <a href="assemblers.html" title="Supported assemblers"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2015, Richard Dymond.
+        &copy; Copyright 2016, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

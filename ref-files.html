@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &mdash; SkoolKit 5.0 documentation</title>
+    <title>Ref files &mdash; SkoolKit 5.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.0',
+        VERSION:     '5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.1 documentation" href="index.html" />
     <link rel="next" title="HTML templates" href="html-templates.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -111,7 +111,7 @@
   <div class="section" id="ref-files">
 <span id="reffiles"></span><h1>Ref files<a class="headerlink" href="#ref-files" title="Permalink to this headline">¶</a></h1>
 <p>If you want to configure or augment an HTML disassembly, you will need one or
-more <cite>ref</cite> files. A <cite>ref</cite> file can be used to (for example):</p>
+more ref files. A ref file can be used to (for example):</p>
 <ul class="simple">
 <li>add a &#8216;Bugs&#8217; page on which bugs are documented</li>
 <li>add a &#8216;Trivia&#8217; page on which interesting facts are documented</li>
@@ -126,12 +126,12 @@ more <cite>ref</cite> files. A <cite>ref</cite> file can be used to (for example
 <li>define the location of the files and directories in the disassembly</li>
 <li>define the colours used when creating images</li>
 </ul>
-<p>A <cite>ref</cite> file must be formatted into sections separated by section names inside
+<p>A ref file must be formatted into sections separated by section names inside
 square brackets, like this:</p>
 <div class="highlight-none"><div class="highlight"><pre>[SectionName]
 </pre></div>
 </div>
-<p>The contents of each section that may be found in a <cite>ref</cite> file are described
+<p>The contents of each section that may be found in a ref file are described
 below.</p>
 <div class="section" id="bug">
 <span id="ref-bug"></span><h2>[Bug:*:*]<a class="headerlink" href="#bug" title="Permalink to this headline">¶</a></h2>
@@ -261,19 +261,19 @@ short 3-digit form)</li>
 <p>Recognised parameters are:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">GameDir</span></tt> - the root directory of the game&#8217;s HTML disassembly; if not
-specified, the base name of the <cite>skool</cite> or <cite>ref</cite> file given on the
+specified, the base name of the skool or ref file given on the
 <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> command line will be used</li>
 <li><tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt> - the name of the Python class to use for writing the
 HTML disassembly of the game (default: <tt class="docutils literal"><span class="pre">skoolkit.skoolhtml.HtmlWriter</span></tt>); if
 the class is in a module that is not in the module search path (e.g. a
 standalone module that is not part of an installed package), the module&#8217;s
 location may be specified thus: <tt class="docutils literal"><span class="pre">/path/to/moduledir:module.classname</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">RefFiles</span></tt> - a semicolon-separated list of extra <cite>ref</cite> files to use (in
+<li><tt class="docutils literal"><span class="pre">RefFiles</span></tt> - a semicolon-separated list of extra ref files to use (in
 addition to the one named on the <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> command line, and any
 others with the same filename prefix)</li>
-<li><tt class="docutils literal"><span class="pre">SkoolFile</span></tt> - the name of the main <cite>skool</cite> file to use if not given on the
+<li><tt class="docutils literal"><span class="pre">SkoolFile</span></tt> - the name of the main skool file to use if not given on the
 <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> command line; if not specified, the
-<cite>skool</cite> file with the same base name as the <cite>ref</cite> file will be used</li>
+skool file with the same base name as the ref file will be used</li>
 </ul>
 <p>For information on how to create your own Python class for writing an HTML
 disassembly, see the documentation on
@@ -348,7 +348,7 @@ number of SkoolKit)</li>
 font files can be declared by separating their names with semicolons</li>
 <li><tt class="docutils literal"><span class="pre">Game</span></tt> - the name of the game, which appears in the title of every page,
 and also in the header of every page (if no logo is defined); if not
-specified, the base name of the <cite>skool</cite> file is used</li>
+specified, the base name of the skool file is used</li>
 <li><tt class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></tt> - a comma-separated list of addresses of entries
 to include on the &#8216;Game status buffer&#8217; page in addition to those that are
 marked with a <tt class="docutils literal"><span class="pre">g</span></tt> (see the
@@ -500,8 +500,10 @@ SkoolKit&#8217;s image creation library. The parameters are in the format:</p>
 </div>
 <p>Recognised parameters are:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">DefaultFormat</span></tt> - the default image format; valid values are <tt class="docutils literal"><span class="pre">png</span></tt> (the
-default) and <tt class="docutils literal"><span class="pre">gif</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">DefaultAnimationFormat</span></tt> - the default format for animated images: <tt class="docutils literal"><span class="pre">png</span></tt>
+or <tt class="docutils literal"><span class="pre">gif</span></tt>; if not specified, <tt class="docutils literal"><span class="pre">DefaultFormat</span></tt> is used</li>
+<li><tt class="docutils literal"><span class="pre">DefaultFormat</span></tt> - the default image format: <tt class="docutils literal"><span class="pre">png</span></tt> (the default) or
+<tt class="docutils literal"><span class="pre">gif</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">GIFEnableAnimation</span></tt> - <tt class="docutils literal"><span class="pre">1</span></tt> to create animated GIFs for images that
 contain flashing cells, or <tt class="docutils literal"><span class="pre">0</span></tt> to create plain (unanimated) GIFs for such
 images (default: <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
@@ -544,12 +546,15 @@ browsers.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>3.0.1</td>
+<tr class="row-even"><td>5.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">DefaultAnimationFormat</span></tt> parameter</td>
+</tr>
+<tr class="row-odd"><td>3.0.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">DefaultFormat</span></tt>, <tt class="docutils literal"><span class="pre">GIFEnableAnimation</span></tt>,
 <tt class="docutils literal"><span class="pre">GIFTransparency</span></tt>, <tt class="docutils literal"><span class="pre">PNGAlpha</span></tt> and <tt class="docutils literal"><span class="pre">PNGEnableAnimation</span></tt>
 parameters</td>
 </tr>
-<tr class="row-odd"><td>3.0</td>
+<tr class="row-even"><td>3.0</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -779,7 +784,7 @@ named <tt class="docutils literal"><span class="pre">Source</span></tt> in the f
 <div class="highlight-none"><div class="highlight"><pre>Source=fname
 </pre></div>
 </div>
-<p>where <tt class="docutils literal"><span class="pre">fname</span></tt> is the path to the <cite>skool</cite> file from which to generate the
+<p>where <tt class="docutils literal"><span class="pre">fname</span></tt> is the path to the skool file from which to generate the
 secondary disassembly. If the <tt class="docutils literal"><span class="pre">Source</span></tt> parameter is not provided, its value
 defaults to <cite>CodeID.skool</cite>.</p>
 <p>When a secondary disassembly named <tt class="docutils literal"><span class="pre">CodeID</span></tt> is defined, the following page
@@ -852,7 +857,7 @@ sections.</p>
 matches the page ID, if one exists; otherwise, the stock <a class="reference internal" href="html-templates.html#t-page"><em>Page</em></a> template
 is used.</p>
 <p>Note that a <tt class="docutils literal"><span class="pre">Page:*</span></tt> section may be empty; if so, it may be omitted from the
-<cite>ref</cite> file.</p>
+ref file.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -1211,13 +1216,13 @@ overridden in this section.</p>
 </div>
 <div class="section" id="ref-file-comments">
 <h2>Ref file comments<a class="headerlink" href="#ref-file-comments" title="Permalink to this headline">¶</a></h2>
-<p>A comment may be added to a <cite>ref</cite> file by starting a line with a semicolon. For
+<p>A comment may be added to a ref file by starting a line with a semicolon. For
 example:</p>
 <div class="highlight-none"><div class="highlight"><pre>; This is a comment
 </pre></div>
 </div>
-<p>If a non-comment line in a <cite>ref</cite> file section needs to start with a semicolon,
-it can be escaped by doubling it:</p>
+<p>If a non-comment line in a ref file section needs to start with a semicolon, it
+can be escaped by doubling it:</p>
 <div class="highlight-none"><div class="highlight"><pre>[PageContent:Custom]
 &lt;code&gt;
 ;; This is not a ref file comment
@@ -1233,10 +1238,9 @@ it can be escaped by doubling it:</p>
 </div>
 <div class="section" id="square-brackets">
 <h2>Square brackets<a class="headerlink" href="#square-brackets" title="Permalink to this headline">¶</a></h2>
-<p>If a <cite>ref</cite> file section needs to contain a line that looks like a section
-header (i.e. like <tt class="docutils literal"><span class="pre">[SectionName]</span></tt>), then to prevent that line from being
-parsed as a section header it can be escaped by doubling the opening square
-bracket:</p>
+<p>If a ref file section needs to contain a line that looks like a section header
+(i.e. like <tt class="docutils literal"><span class="pre">[SectionName]</span></tt>), then to prevent that line from being parsed as a
+section header it can be escaped by doubling the opening square bracket:</p>
 <div class="highlight-none"><div class="highlight"><pre>[PageContent:Custom]
 &lt;code&gt;
 [[This is not a section header]
@@ -1272,11 +1276,11 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2015, Richard Dymond.
+        &copy; Copyright 2016, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

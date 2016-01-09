@@ -4,7 +4,7 @@ Control files
 =============
 A control file contains a list of start addresses of code and data blocks. This
 information can be used by :ref:`sna2skool.py <sna2skool.py>` to organise a
-`skool` file into corresponding code and data blocks.
+skool file into corresponding code and data blocks.
 
 Each block address in a control file is marked with a 'control directive',
 which is a single letter that indicates what the block contains:
@@ -140,7 +140,7 @@ The directives (``B``, ``T``, ``C`` and ``S``) used here to mark the sub-blocks
 are the upper case equivalents of the directives used to mark top-level blocks
 (``b``, ``t``, ``c`` and ``s``). The comments at the end of these sub-block
 declarations are taken as instruction-level comments and will appear as such in
-the resultant `skool` file.
+the resultant skool file.
 
 If an instruction-level comment spans a group of two or more sub-blocks, it
 must be declared with an ``M`` directive::
@@ -485,18 +485,18 @@ example::
 
 Limitations
 -----------
-A control file can be useful in the early stages of developing a `skool` file
-for reorganising code and data blocks, but it cannot preserve the following:
+A control file can be useful in the early stages of developing a skool file for
+reorganising code and data blocks, but it cannot preserve the following:
 
 * ASM block directives
-* the exact locations of :ref:`org`, :ref:`writer`, :ref:`assemble`,
-  :ref:`start`, :ref:`end` and :ref:`set` directives
+* the exact locations of :ref:`assemble`, :ref:`end`, :ref:`org`,
+  :ref:`replace`, :ref:`set`, :ref:`start` and :ref:`writer` directives
 * :ref:`data definition entries <dEntry>` ('d' blocks) and
   :ref:`remote entries <rEntry>` ('r' blocks)
 * comments that are not part of a code or data block
 
 :ref:`skoolFileTemplates`, however, can preserve all of these elements, and so
-may be a better choice for `skool` files that contain any of them.
+may be a better choice for skool files that contain any of them.
 
 Revision history
 ----------------

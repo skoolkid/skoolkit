@@ -4,7 +4,7 @@ Migrating from SkoolKit 4
 =========================
 SkoolKit 5 includes some changes that make it incompatible with SkoolKit 4. If
 you have developed a disassembly using SkoolKit 4 and find that the SkoolKit
-commands no longer work with your control files or `skool` files, or produce
+commands no longer work with your control files or skool files, or produce
 broken output, look through the following sections for tips on how to migrate
 your disassembly to SkoolKit 5.
 
@@ -29,12 +29,12 @@ be rewritten with a length parameter::
 
 ASM directives
 --------------
-In SkoolKit 4, ASM directives could be declared in a control file or a `skool`
+In SkoolKit 4, ASM directives could be declared in a control file or a skool
 file by starting a line with ``; @``; for example, in a control file::
 
   ; @label:24576=START
 
-and in a `skool` file (or skool file template)::
+and in a skool file (or skool file template)::
 
   ; @label=START
 
@@ -43,7 +43,7 @@ declared in a control file by using the ``@`` directive::
 
   @ 24576 label=START
 
-and in a `skool` file (or skool file template) by starting a line with ``@``::
+and in a skool file (or skool file template) by starting a line with ``@``::
 
   @label=START
 
@@ -116,7 +116,7 @@ new ``-P/--set`` option:
 
 skoolkit4to5.py
 ---------------
-The `skoolkit4to5.py`_ script may be used to convert a control file, `skool`
+The `skoolkit4to5.py`_ script may be used to convert a control file, skool
 file, skool file template or CSS file that is compatible with SkoolKit 4 into a
 file that will work with SkoolKit 5. For example, to convert `game.skool`::
 

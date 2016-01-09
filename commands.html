@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Commands &mdash; SkoolKit 5.0 documentation</title>
+    <title>Commands &mdash; SkoolKit 5.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.0',
+        VERSION:     '5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.1 documentation" href="index.html" />
     <link rel="next" title="Parsing, rendering, and modes" href="parsing.html" />
     <link rel="prev" title="SkoolKit 1.x changelog" href="changelog1.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="changelog1.html" title="SkoolKit 1.x changelog"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -171,7 +171,7 @@ convert SNA, SZX and Z80 snapshots</td>
 </div>
 <div class="section" id="skool2asm-py">
 <span id="id3"></span><h2>skool2asm.py<a class="headerlink" href="#skool2asm-py" title="Permalink to this headline">¶</a></h2>
-<p><cite>skool2asm.py</cite> converts a <cite>skool</cite> file into an ASM file that can be fed to an
+<p><cite>skool2asm.py</cite> converts a skool file into an ASM file that can be fed to an
 assembler (see <a class="reference internal" href="assemblers.html#supportedassemblers"><em>Supported assemblers</em></a>). For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2asm.py game.skool &gt; game.asm
 </pre></div>
@@ -238,7 +238,7 @@ can be set by the <tt class="docutils literal"><span class="pre">--set</span></t
 <td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> and <tt class="docutils literal"><span class="pre">-p</span></tt> options and the long options</td>
 </tr>
 <tr class="row-even"><td>2.2.2</td>
-<td>Added the ability to read a <cite>skool</cite> file from standard input</td>
+<td>Added the ability to read a skool file from standard input</td>
 </tr>
 <tr class="row-odd"><td>2.1.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-u</span></tt>, <tt class="docutils literal"><span class="pre">-D</span></tt> and <tt class="docutils literal"><span class="pre">-H</span></tt> options</td>
@@ -251,7 +251,7 @@ can be set by the <tt class="docutils literal"><span class="pre">--set</span></t
 </div>
 <div class="section" id="skool2bin-py">
 <span id="id4"></span><h2>skool2bin.py<a class="headerlink" href="#skool2bin-py" title="Permalink to this headline">¶</a></h2>
-<p><cite>skool2bin.py</cite> converts a <cite>skool</cite> file into a binary (raw memory) file. For
+<p><cite>skool2bin.py</cite> converts a skool file into a binary (raw memory) file. For
 example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2bin.py game.skool
 </pre></div>
@@ -264,8 +264,11 @@ regular file, or &#39;-&#39; for standard input. If &#39;file.bin&#39; is not gi
 defaults to the name of the input file with &#39;.skool&#39; replaced by &#39;.bin&#39;.
 
 Options:
+  -b, --bfix            Apply @ofix and @bfix directives
   -E ADDR, --end ADDR   Stop converting at this address
-  -i, --isub            Apply instruction substitutions (@isub)
+  -i, --isub            Apply @isub directives
+  -o, --ofix            Apply @ofix directives
+  -s, --ssub            Apply @isub and @ssub directives
   -S ADDR, --start ADDR
                         Start converting at this address
   -V, --version         Show SkoolKit version number and exit
@@ -273,8 +276,8 @@ Options:
 </div>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="14%" />
+<col width="86%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -282,7 +285,10 @@ Options:
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.0</td>
+<tr class="row-even"><td>5.1</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--bfix</span></tt>, <tt class="docutils literal"><span class="pre">--ofix</span></tt> and <tt class="docutils literal"><span class="pre">--ssub</span></tt> options</td>
+</tr>
+<tr class="row-odd"><td>5.0</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -290,8 +296,8 @@ Options:
 </div>
 <div class="section" id="skool2ctl-py">
 <span id="id5"></span><h2>skool2ctl.py<a class="headerlink" href="#skool2ctl-py" title="Permalink to this headline">¶</a></h2>
-<p><cite>skool2ctl.py</cite> converts a <cite>skool</cite> file into a
-<a class="reference internal" href="control-files.html#controlfiles"><em>control file</em></a>. For example:</p>
+<p><cite>skool2ctl.py</cite> converts a skool file into a <a class="reference internal" href="control-files.html#controlfiles"><em>control file</em></a>.
+For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2ctl.py game.skool &gt; game.ctl
 </pre></div>
 </div>
@@ -331,7 +337,7 @@ data definition entries and ASM block directives), consider using
 <table border="1" class="docutils">
 <colgroup>
 <col width="13%" />
-<col width="87%" />
+<col width="88%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -339,29 +345,33 @@ data definition entries and ASM block directives), consider using
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.5</td>
+<tr class="row-even"><td>5.1</td>
+<td>A terminal <tt class="docutils literal"><span class="pre">i</span></tt> directive is appended if the skool file ends
+before 65536</td>
+</tr>
+<tr class="row-odd"><td>4.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--start</span></tt> and <tt class="docutils literal"><span class="pre">--end</span></tt> options</td>
 </tr>
-<tr class="row-odd"><td>4.4</td>
+<tr class="row-even"><td>4.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--hex-lower</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>3.7</td>
+<tr class="row-odd"><td>3.7</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--preserve-base</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option and the long options</td>
 </tr>
-<tr class="row-even"><td>2.4</td>
+<tr class="row-odd"><td>2.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-a</span></tt> option and the ability to preserve some ASM
 directives</td>
 </tr>
-<tr class="row-odd"><td>2.2.2</td>
-<td>Added the ability to read a <cite>skool</cite> file from standard input</td>
+<tr class="row-even"><td>2.2.2</td>
+<td>Added the ability to read a skool file from standard input</td>
 </tr>
-<tr class="row-even"><td>2.0.6</td>
+<tr class="row-odd"><td>2.0.6</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-h</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>1.1</td>
+<tr class="row-even"><td>1.1</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -369,7 +379,7 @@ directives</td>
 </div>
 <div class="section" id="skool2html-py">
 <span id="id6"></span><h2>skool2html.py<a class="headerlink" href="#skool2html-py" title="Permalink to this headline">¶</a></h2>
-<p><cite>skool2html.py</cite> converts a <cite>skool</cite> file (and its associated <cite>ref</cite> files, if any
+<p><cite>skool2html.py</cite> converts a skool file (and its associated ref files, if any
 exist) into a browsable disassembly in HTML format.</p>
 <p>For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2html.py game.skool
@@ -379,18 +389,18 @@ exist) into a browsable disassembly in HTML format.</p>
 named <cite>game*.ref</cite> (e.g. <cite>game.ref</cite>, <cite>game-bugs.ref</cite>, <cite>game-pokes.ref</cite> and so
 on) also exist, they will be used to provide further information to the
 conversion process.</p>
-<p><cite>skool2html.py</cite> can operate directly on <cite>ref</cite> files, too. For example:</p>
+<p><cite>skool2html.py</cite> can operate directly on ref files, too. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2html.py game.ref
 </pre></div>
 </div>
-<p>In this case, the <cite>skool</cite> file declared in the <a class="reference internal" href="ref-files.html#ref-config"><em>[Config]</em></a> section will
-be used; if no <cite>skool</cite> file is declared, <cite>game.skool</cite> will be used if it
-exists. In addition, any existing files besides <cite>game.ref</cite> that are named
-<cite>game*.ref</cite> (e.g. <cite>game-bugs.ref</cite>, <cite>game-pokes.ref</cite> and so on) will also be
-used, along with any extra files named in the <tt class="docutils literal"><span class="pre">RefFiles</span></tt> parameter in the
+<p>In this case, the skool file declared in the <a class="reference internal" href="ref-files.html#ref-config"><em>[Config]</em></a> section will be
+used; if no skool file is declared, <cite>game.skool</cite> will be used if it exists.  In
+addition, any existing files besides <cite>game.ref</cite> that are named <cite>game*.ref</cite>
+(e.g. <cite>game-bugs.ref</cite>, <cite>game-pokes.ref</cite> and so on) will also be used, along
+with any extra files named in the <tt class="docutils literal"><span class="pre">RefFiles</span></tt> parameter in the
 <a class="reference internal" href="ref-files.html#ref-config"><em>[Config]</em></a> section.</p>
-<p>If an input file&#8217;s name ends with &#8216;.ref&#8217;, it will be treated as a <cite>ref</cite> file;
-otherwise it will be treated as a <cite>skool</cite> file.</p>
+<p>If an input file&#8217;s name ends with &#8216;.ref&#8217;, it will be treated as a ref file;
+otherwise it will be treated as a skool file.</p>
 <p><cite>skool2html.py</cite> supports several options; run it with no arguments to see a
 list:</p>
 <div class="highlight-none"><div class="highlight"><pre>usage: skool2html.py [options] FILE [FILE...]
@@ -441,12 +451,11 @@ Options:
                         &#39;--config Config/HtmlWriterClass=CLASS&#39;
 </pre></div>
 </div>
-<p><cite>skool2html.py</cite> searches the following directories for <cite>skool</cite> files, <cite>ref</cite>
-files, CSS files, JavaScript files, font files, and files listed in the
-<a class="reference internal" href="ref-files.html#resources"><em>[Resources]</em></a> section of the <cite>ref</cite> file:</p>
+<p><cite>skool2html.py</cite> searches the following directories for skool files, ref files,
+CSS files, JavaScript files, font files, and files listed in the
+<a class="reference internal" href="ref-files.html#resources"><em>[Resources]</em></a> section of the ref file:</p>
 <ul class="simple">
-<li>The directory that contains the <cite>skool</cite> or <cite>ref</cite> file named on the command
-line</li>
+<li>The directory that contains the skool or ref file named on the command line</li>
 <li>The current working directory</li>
 <li><cite>./resources</cite></li>
 <li><cite>~/.skoolkit</cite></li>
@@ -521,10 +530,10 @@ matches the theme name</td>
 <td>No longer shows timings by default; added the <tt class="docutils literal"><span class="pre">-t</span></tt> option</td>
 </tr>
 <tr class="row-even"><td>2.3.1</td>
-<td>Added support for reading multiple <cite>ref</cite> files per disassembly</td>
+<td>Added support for reading multiple ref files per disassembly</td>
 </tr>
 <tr class="row-odd"><td>2.2.2</td>
-<td>Added the ability to read a <cite>skool</cite> file from standard input</td>
+<td>Added the ability to read a skool file from standard input</td>
 </tr>
 <tr class="row-even"><td>2.2</td>
 <td>No longer writes the Skool Daze and Back to Skool disassemblies
@@ -544,7 +553,7 @@ by default; added the <tt class="docutils literal"><span class="pre">-d</span></
 </div>
 <div class="section" id="skool2sft-py">
 <span id="id7"></span><h2>skool2sft.py<a class="headerlink" href="#skool2sft-py" title="Permalink to this headline">¶</a></h2>
-<p><cite>skool2sft.py</cite>  converts a <cite>skool</cite> file into a
+<p><cite>skool2sft.py</cite>  converts a skool file into a
 <a class="reference internal" href="skool-file-templates.html#skoolfiletemplates"><em>skool file template</em></a>. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2sft.py game.skool &gt; game.sft
 </pre></div>
@@ -569,8 +578,8 @@ Options:
 </div>
 <table border="1" class="docutils">
 <colgroup>
-<col width="16%" />
-<col width="84%" />
+<col width="13%" />
+<col width="87%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -578,19 +587,23 @@ Options:
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.5</td>
+<tr class="row-even"><td>5.1</td>
+<td><tt class="docutils literal"><span class="pre">i</span></tt> blocks are preserved in the same way as code and data
+blocks (instead of verbatim)</td>
+</tr>
+<tr class="row-odd"><td>4.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--start</span></tt> and <tt class="docutils literal"><span class="pre">--end</span></tt> options</td>
 </tr>
-<tr class="row-odd"><td>4.4</td>
+<tr class="row-even"><td>4.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--hex-lower</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>3.7</td>
+<tr class="row-odd"><td>3.7</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--preserve-base</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option and the long options</td>
 </tr>
-<tr class="row-even"><td>2.4</td>
+<tr class="row-odd"><td>2.4</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -599,7 +612,7 @@ Options:
 <div class="section" id="sna2skool-py">
 <span id="id8"></span><h2>sna2skool.py<a class="headerlink" href="#sna2skool-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>sna2skool.py</cite> converts a binary (raw memory) file or a SNA, SZX or Z80
-snapshot into a <cite>skool</cite> file. For example:</p>
+snapshot into a skool file. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py game.z80 &gt; game.skool
 </pre></div>
 </div>
@@ -878,11 +891,11 @@ Options:
         <li class="right" >
           <a href="changelog1.html" title="SkoolKit 1.x changelog"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2015, Richard Dymond.
+        &copy; Copyright 2016, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

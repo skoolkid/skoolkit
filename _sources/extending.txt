@@ -10,10 +10,11 @@ Extension modules
 While creating a disassembly of a game, you may find that SkoolKit's suite of
 :ref:`skool macros <skoolMacros>` is inadequate for certain tasks. For example,
 the game might have large tile-based sprites that you want to create images of
-for the HTML disassembly, and composing long :ref:`udgArray` macros for them
-would be too tedious. Or you might want to insert a timestamp somewhere in the
-ASM disassembly so that you (or others) can keep track of when your ASM files
-were written.
+for the HTML disassembly, and composing long ``#UDGARRAY`` macros for them or
+defining a new sprite-building macro with the ``@replace`` directive (see
+:ref:`definingMacrosWithReplace`) would be too tedious or impractical. Or you
+might want to insert a timestamp somewhere in the ASM disassembly so that you
+(or others) can keep track of when your ASM files were written.
 
 One way to solve these problems is to add custom methods that could be called
 by a :ref:`call` macro. But where to add the methods? SkoolKit's core
@@ -44,20 +45,20 @@ package directory; to locate this directory, run :ref:`skool2html.py` with the
 
 (The package directory may be different on your system.) With `game.py` in
 place, add the following line to the :ref:`ref-Config` section of your
-disassembly's `ref` file::
+disassembly's ref file::
 
   HtmlWriterClass=skoolkit.game.GameHtmlWriter
 
-If you don't have a `ref` file yet, create one (ideally named `game.ref`,
-assuming the `skool` file is `game.skool`); if the `ref` file doesn't have a
+If you don't have a ref file yet, create one (ideally named `game.ref`,
+assuming the skool file is `game.skool`); if the ref file doesn't have a
 ``[Config]`` section yet, add one.
 
-Now whenever :ref:`skool2html.py` is run on your `skool` file (or `ref` file),
+Now whenever :ref:`skool2html.py` is run on your skool file (or ref file),
 SkoolKit will use the GameHtmlWriter class instead of the core HtmlWriter
 class.
 
 To get :ref:`skool2asm.py` to use GameAsmWriter instead of the core AsmWriter
-class when it's run on your `skool` file, add the following :ref:`writer` ASM
+class when it's run on your skool file, add the following :ref:`writer` ASM
 directive somewhere after the ``@start`` directive, and before the ``@end``
 directive (if there is one)::
 
@@ -82,7 +83,7 @@ by using the ``-W``/``--writer`` option of :ref:`skool2html.py` or
   $ skool2html.py -W ~/.skoolkit:game.GameHtmlWriter game.skool
 
 Specifying the writer class this way will override any ``HtmlWriterClass``
-parameter in the `ref` file or ``@writer`` directive in the `skool` file.
+parameter in the ref file or ``@writer`` directive in the skool file.
 
 #CALL methods
 -------------
@@ -175,21 +176,22 @@ whether it is implemented on a subclass of AsmWriter or HtmlWriter:
 A skool macro method must return a 2-tuple of the form ``(end, string)``, where
 ``end`` is the index of the character after the last character of the macro's
 parameter string, and ``string`` is the HTML or text to which the macro will be
-expanded.
+expanded. Note that if ``string`` itself contains skool macros, then they will
+be expanded.
 
 The `expand_sprite` method on GameHtmlWriter may therefore look something like
 this::
 
-  from skoolkit.skoolhtml import HtmlWriter
+  from skoolkit.skoolhtml import HtmlWriter, Frame
+  from skoolkit.skoolmacro import parse_image_macro
 
   class GameHtmlWriter(HtmlWriter):
-      # #SPRITEspriteId[{x,y,width,height}](fname)
+      # #SPRITEid[{x,y,width,height}](fname)
       def expand_sprite(self, text, index, cwd):
-          end, img_path, crop_rect, sprite_id = self.parse_image_params(text, index, 1)
-          if self.need_image(img_path):
-              udgs = self.build_sprite(sprite_id)
-              self.write_image(img_path, udgs, crop_rect)
-          return end, self.img_element(cwd, img_path)
+          end, crop_rect, fname, frame, alt, (sprite_id,) = parse_image_macro(text, index, names=['id'])
+          udgs = self.build_sprite(sprite_id)
+          frames = [Frame(udgs, 2, 0, *crop_rect, name=frame)]
+          return end, self.handle_image(frames, fname, cwd, alt)
 
 With this method (and an appropriate implementation of the `build_sprite`
 method) in place, the ``#SPRITE`` macro might be used like this::
@@ -208,9 +210,6 @@ The `expand_timestamp` method on GameAsmWriter would look something like this::
       def expand_timestamp(self, text, index):
           return index, time.strftime("%a %d %b %Y %H:%M:%S %Z")
 
-Note that if the ``string`` part of the return value of a skool macro method
-contains skool macros, then they will be expanded.
-
 .. _ext-MacroParsing:
 
 Parsing skool macros
@@ -224,41 +223,35 @@ to parse the parameters of a skool macro.
       Added the *names* parameter and support for keyword arguments; *index*
       defaults to 0.
 
-.. autofunction:: skoolkit.skoolmacro.parse_params
+   .. versionchanged:: 5.1
+      Added support for parameters expressed using arithmetic operators and
+      skool macros.
 
-   .. versionchanged:: 3.6
-      Added the *except_chars* and *only_chars* parameters.
+.. autofunction:: skoolkit.skoolmacro.parse_strings
 
-HtmlWriter also provides a method for parsing the parameters of an
-image-creating skool macro.
+   .. versionadded:: 5.1
 
-.. automethod:: skoolkit.skoolhtml.HtmlWriter.parse_image_params
+.. autofunction:: skoolkit.skoolmacro.parse_brackets
 
-   .. versionchanged:: 3.6
-      If *path_id* is blank or *None*, ``image_path`` is equal to ``fname``;
-      added the *ints* parameter.
+   .. versionadded:: 5.1
 
-   .. versionchanged:: 4.0
-      Added the *names* parameter and support for keyword arguments.
+.. autofunction:: skoolkit.skoolmacro.parse_image_macro
 
-   .. versionchanged:: 4.2
-      Added the *frame* and *alt* parameters.
+   .. versionadded:: 5.1
 
-.. _ext-ExpandingMacros:
+.. note::
+   The :func:`parse_params` function in skoolkit.skoolmacro is deprecated since
+   version 5.1. Use :func:`~skoolkit.skoolmacro.parse_ints` and
+   :func:`~skoolkit.skoolmacro.parse_brackets` instead.
 
-Expanding skool macros
-----------------------
-Both HtmlWriter and AsmWriter provide methods for expanding skool macros. These
-are useful for basing a ``#CALL`` method or custom macro on an existing macro.
-
-.. automethod:: skoolkit.skoolhtml.HtmlWriter.expand
-
-.. automethod:: skoolkit.skoolasm.AsmWriter.expand
+.. note::
+   The :meth:`parse_image_params` method on HtmlWriter is deprecated since
+   version 5.1. Use :func:`~skoolkit.skoolmacro.parse_image_macro` instead.
 
 Parsing ref files
 -----------------
 HtmlWriter provides some convenience methods for extracting text and data from
-`ref` files. These methods are described below.
+ref files. These methods are described below.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_section
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_sections
@@ -269,26 +262,7 @@ Memory snapshots
 ----------------
 The `snapshot` attribute on HtmlWriter and AsmWriter is a 65536-element list
 that represents the 64K of the Spectrum's memory; it is populated when the
-`skool` file is being parsed.
-
-A simple ``#PEEK`` macro that expands to the value of the byte at a given
-address might be implemented by using `snapshot` like this::
-
-  from skoolkit.skoolhtml import HtmlWriter
-  from skoolkit.skoolasm import AsmWriter
-  from skoolkit.skoolmacro import parse_ints
-
-  class GameHtmlWriter(HtmlWriter):
-      # #PEEKaddress
-      def expand_peek(self, text, index, cwd):
-          end, address = parse_ints(text, index, 1)
-          return end, str(self.snapshot[address])
-
-  class GameAsmWriter(AsmWriter):
-      # #PEEKaddress
-      def expand_peek(self, text, index):
-          end, address = parse_ints(text, index, 1)
-          return end, str(self.snapshot[address])
+skool file is being parsed.
 
 HtmlWriter also provides some methods for saving and restoring memory
 snapshots, which can be useful for temporarily changing graphic data or the
@@ -320,7 +294,7 @@ implemented like this::
       # #INVERSEaddress,attr
       def expand_inverse(self, text, index, cwd):
           end, address, attr = parse_ints(text, index, 2)
-          img_path = self.image_path('inverse{0}_{1}'.format(address, attr))
+          img_path = self.image_path('inverse{}_{}'.format(address, attr))
           if self.need_image(img_path):
               udg_data = [b ^ 255 for b in self.snapshot[address:address + 8]]
               udg = Udg(attr, udg_data)
@@ -347,9 +321,17 @@ The Frame class represents a single frame of an animated image.
       The *mask* parameter specifies the type of mask to apply (see
       :ref:`masks`).
 
+   .. versionchanged:: 5.1
+      The *udgs* parameter can be a function that returns the array of tiles;
+      added the *name* parameter.
+
 HtmlWriter provides the following image-related convenience methods.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.image_path
+
+   .. versionchanged:: 5.1
+      Added the *frames* parameter.
+
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.need_image
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.write_image
 
@@ -357,11 +339,15 @@ HtmlWriter provides the following image-related convenience methods.
       The *mask* parameter specifies the type of mask to apply (see
       :ref:`masks`).
 
+.. automethod:: skoolkit.skoolhtml.HtmlWriter.img_element
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.write_animated_image
 
    .. versionadded:: 3.6
 
-.. automethod:: skoolkit.skoolhtml.HtmlWriter.img_element
+.. automethod:: skoolkit.skoolhtml.HtmlWriter.handle_image
+
+   .. versionadded:: 5.1
+
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.screenshot
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.flip_udgs
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.rotate_udgs
@@ -369,8 +355,8 @@ HtmlWriter provides the following image-related convenience methods.
 HtmlWriter initialisation
 -------------------------
 If your HtmlWriter subclass needs to perform some initialisation tasks, such as
-creating instance variables, or parsing `ref` file sections, the place to do
-that is the `init()` method.
+creating instance variables, or parsing ref file sections, the place to do that
+is the `init()` method.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.init
 

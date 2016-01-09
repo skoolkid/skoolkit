@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Parsing, rendering, and modes &mdash; SkoolKit 5.0 documentation</title>
+    <title>Parsing, rendering, and modes &mdash; SkoolKit 5.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.0',
+        VERSION:     '5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.1 documentation" href="index.html" />
     <link rel="next" title="Control files" href="control-files.html" />
     <link rel="prev" title="Commands" href="commands.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="commands.html" title="Commands"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -97,24 +97,24 @@
   <div class="section" id="parsing-rendering-and-modes">
 <h1>Parsing, rendering, and modes<a class="headerlink" href="#parsing-rendering-and-modes" title="Permalink to this headline">¶</a></h1>
 <p>The following subsections explain at a high level the two phases involved in
-transforming a <cite>skool</cite> file (and its related <cite>ref</cite> files, if any exist) into
-HTML or ASM format by using <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> or <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>:
-parsing and rendering.</p>
+transforming a skool file (and its related ref files, if any exist) into HTML
+or ASM format by using <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> or <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>: parsing and
+rendering.</p>
 <div class="section" id="parsing">
 <h2>Parsing<a class="headerlink" href="#parsing" title="Permalink to this headline">¶</a></h2>
-<p>In the first phase, the <cite>skool</cite> file is parsed. Parsing a <cite>skool</cite> file entails
+<p>In the first phase, the skool file is parsed. Parsing a skool file entails
 reading each line of the file, and processing any relevant
 <a class="reference internal" href="asm.html#asmdirectives"><em>ASM directives</em></a> that are found along the way.</p>
 <p>After an ASM directive has been processed, it is discarded, so that it cannot
 be &#8216;seen&#8217; during the rendering phase. The purpose of the ASM directives is to
-transform the <cite>skool</cite> file into something suitable for rendering (in either
-HTML or ASM format) later on.</p>
+transform the skool file into something suitable for rendering (in either HTML
+or ASM format) later on.</p>
 <p>Whether a particular ASM directive is processed depends on the mode in which
 the parsing is being done: HTML mode or ASM mode.</p>
 <div class="section" id="html-mode">
 <h3>HTML mode<a class="headerlink" href="#html-mode" title="Permalink to this headline">¶</a></h3>
 <p>HTML mode is used when the target output format is HTML, as is the case when
-running <cite>skool2html.py</cite>. In HTML mode, most ASM directives are ignored because
+running <cite>skool2html.py</cite>. In HTML mode, some ASM directives are ignored because
 they are irrelevant to the purpose of creating the HTML version of the
 disassembly. The only ASM directives that are processed in HTML mode are the
 following:</p>
@@ -122,6 +122,7 @@ following:</p>
 <li><a class="reference internal" href="asm.html#assemble"><em>&#64;assemble</em></a></li>
 <li><a class="reference internal" href="asm.html#keep"><em>&#64;keep</em></a></li>
 <li><a class="reference internal" href="asm.html#label"><em>&#64;label</em></a></li>
+<li><a class="reference internal" href="asm.html#replace"><em>&#64;replace</em></a></li>
 <li><a class="reference internal" href="asm.html#bfixblockdirectives"><em>&#64;bfix block directives</em></a></li>
 <li><a class="reference internal" href="asm.html#isubblockdirectives"><em>&#64;isub block directives</em></a></li>
 <li><a class="reference internal" href="asm.html#ofixblockdirectives"><em>&#64;ofix block directives</em></a></li>
@@ -157,19 +158,19 @@ running <cite>skool2asm.py</cite>. In ASM mode, all ASM directives are processed
 </div>
 <div class="section" id="rendering">
 <h2>Rendering<a class="headerlink" href="#rendering" title="Permalink to this headline">¶</a></h2>
-<p>In the second phase, the <cite>skool</cite> file (stripped of all its ASM directives
-during the parsing phase) is &#8216;rendered&#8217; - as either HTML or ASM, depending on
-the mode.</p>
+<p>In the second phase, the skool file (stripped of all its ASM directives during
+the parsing phase) is &#8216;rendered&#8217; - as either HTML or ASM, depending on the
+mode.</p>
 <div class="section" id="id1">
 <h3>HTML mode<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<p>HTML mode is used to render the <cite>skool</cite> file (and its related <cite>ref</cite> file, if
-one exists) as a bunch of HTML files. During rendering, any
+<p>HTML mode is used to render the skool file (and its related ref file, if one
+exists) as a bunch of HTML files. During rendering, any
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a> found along the way are expanded to the
 required HTML markup.</p>
 </div>
 <div class="section" id="id2">
 <h3>ASM mode<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<p>ASM mode is used to render the <cite>skool</cite> file as a single, assembler-ready ASM
+<p>ASM mode is used to render the skool file as a single, assembler-ready ASM
 file. During rendering, any <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a> found along the
 way are expanded to some appropriate plain text.</p>
 </div>
@@ -194,11 +195,11 @@ way are expanded to some appropriate plain text.</p>
         <li class="right" >
           <a href="commands.html" title="Commands"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2015, Richard Dymond.
+        &copy; Copyright 2016, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &mdash; SkoolKit 5.0 documentation</title>
+    <title>Extending SkoolKit &mdash; SkoolKit 5.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.0',
+        VERSION:     '5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.1 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -48,7 +48,6 @@
 <li><a class="reference internal" href="#call-methods">#CALL methods</a></li>
 <li><a class="reference internal" href="#skool-macros">Skool macros</a></li>
 <li><a class="reference internal" href="#parsing-skool-macros">Parsing skool macros</a></li>
-<li><a class="reference internal" href="#expanding-skool-macros">Expanding skool macros</a></li>
 <li><a class="reference internal" href="#parsing-ref-files">Parsing ref files</a></li>
 <li><a class="reference internal" href="#memory-snapshots">Memory snapshots</a></li>
 <li><a class="reference internal" href="#graphics">Graphics</a></li>
@@ -93,10 +92,11 @@
 <p>While creating a disassembly of a game, you may find that SkoolKit&#8217;s suite of
 <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a> is inadequate for certain tasks. For example,
 the game might have large tile-based sprites that you want to create images of
-for the HTML disassembly, and composing long <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macros for them
-would be too tedious. Or you might want to insert a timestamp somewhere in the
-ASM disassembly so that you (or others) can keep track of when your ASM files
-were written.</p>
+for the HTML disassembly, and composing long <tt class="docutils literal"><span class="pre">#UDGARRAY</span></tt> macros for them or
+defining a new sprite-building macro with the <tt class="docutils literal"><span class="pre">&#64;replace</span></tt> directive (see
+<a class="reference internal" href="skool-macros.html#definingmacroswithreplace"><em>Defining macros with &#64;replace</em></a>) would be too tedious or impractical. Or you
+might want to insert a timestamp somewhere in the ASM disassembly so that you
+(or others) can keep track of when your ASM files were written.</p>
 <p>One way to solve these problems is to add custom methods that could be called
 by a <a class="reference internal" href="skool-macros.html#call"><em>#CALL</em></a> macro. But where to add the methods? SkoolKit&#8217;s core
 HTML writer and ASM writer classes are skoolkit.skoolhtml.HtmlWriter and
@@ -125,18 +125,18 @@ package directory; to locate this directory, run <a class="reference internal" h
 </div>
 <p>(The package directory may be different on your system.) With <cite>game.py</cite> in
 place, add the following line to the <a class="reference internal" href="ref-files.html#ref-config"><em>[Config]</em></a> section of your
-disassembly&#8217;s <cite>ref</cite> file:</p>
+disassembly&#8217;s ref file:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">HtmlWriterClass</span><span class="o">=</span><span class="n">skoolkit</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">GameHtmlWriter</span>
 </pre></div>
 </div>
-<p>If you don&#8217;t have a <cite>ref</cite> file yet, create one (ideally named <cite>game.ref</cite>,
-assuming the <cite>skool</cite> file is <cite>game.skool</cite>); if the <cite>ref</cite> file doesn&#8217;t have a
+<p>If you don&#8217;t have a ref file yet, create one (ideally named <cite>game.ref</cite>,
+assuming the skool file is <cite>game.skool</cite>); if the ref file doesn&#8217;t have a
 <tt class="docutils literal"><span class="pre">[Config]</span></tt> section yet, add one.</p>
-<p>Now whenever <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> is run on your <cite>skool</cite> file (or <cite>ref</cite> file),
+<p>Now whenever <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> is run on your skool file (or ref file),
 SkoolKit will use the GameHtmlWriter class instead of the core HtmlWriter
 class.</p>
 <p>To get <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a> to use GameAsmWriter instead of the core AsmWriter
-class when it&#8217;s run on your <cite>skool</cite> file, add the following <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a> ASM
+class when it&#8217;s run on your skool file, add the following <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a> ASM
 directive somewhere after the <tt class="docutils literal"><span class="pre">&#64;start</span></tt> directive, and before the <tt class="docutils literal"><span class="pre">&#64;end</span></tt>
 directive (if there is one):</p>
 <div class="highlight-python"><div class="highlight"><pre>@writer=skoolkit.game.GameAsmWriter
@@ -161,7 +161,7 @@ by using the <tt class="docutils literal"><span class="pre">-W</span></tt>/<tt c
 </pre></div>
 </div>
 <p>Specifying the writer class this way will override any <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt>
-parameter in the <cite>ref</cite> file or <tt class="docutils literal"><span class="pre">&#64;writer</span></tt> directive in the <cite>skool</cite> file.</p>
+parameter in the ref file or <tt class="docutils literal"><span class="pre">&#64;writer</span></tt> directive in the skool file.</p>
 </div>
 <div class="section" id="call-methods">
 <h2>#CALL methods<a class="headerlink" href="#call-methods" title="Permalink to this headline">¶</a></h2>
@@ -250,19 +250,20 @@ HtmlWriter subclass</li>
 <p>A skool macro method must return a 2-tuple of the form <tt class="docutils literal"><span class="pre">(end,</span> <span class="pre">string)</span></tt>, where
 <tt class="docutils literal"><span class="pre">end</span></tt> is the index of the character after the last character of the macro&#8217;s
 parameter string, and <tt class="docutils literal"><span class="pre">string</span></tt> is the HTML or text to which the macro will be
-expanded.</p>
+expanded. Note that if <tt class="docutils literal"><span class="pre">string</span></tt> itself contains skool macros, then they will
+be expanded.</p>
 <p>The <cite>expand_sprite</cite> method on GameHtmlWriter may therefore look something like
 this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span><span class="p">,</span> <span class="n">Frame</span>
+<span class="kn">from</span> <span class="nn">skoolkit.skoolmacro</span> <span class="kn">import</span> <span class="n">parse_image_macro</span>
 
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
-    <span class="c"># #SPRITEspriteId[{x,y,width,height}](fname)</span>
+    <span class="c"># #SPRITEid[{x,y,width,height}](fname)</span>
     <span class="k">def</span> <span class="nf">expand_sprite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">cwd</span><span class="p">):</span>
-        <span class="n">end</span><span class="p">,</span> <span class="n">img_path</span><span class="p">,</span> <span class="n">crop_rect</span><span class="p">,</span> <span class="n">sprite_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_image_params</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">need_image</span><span class="p">(</span><span class="n">img_path</span><span class="p">):</span>
-            <span class="n">udgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_sprite</span><span class="p">(</span><span class="n">sprite_id</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_image</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="n">udgs</span><span class="p">,</span> <span class="n">crop_rect</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_element</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="n">img_path</span><span class="p">)</span>
+        <span class="n">end</span><span class="p">,</span> <span class="n">crop_rect</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">alt</span><span class="p">,</span> <span class="p">(</span><span class="n">sprite_id</span><span class="p">,)</span> <span class="o">=</span> <span class="n">parse_image_macro</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">])</span>
+        <span class="n">udgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_sprite</span><span class="p">(</span><span class="n">sprite_id</span><span class="p">)</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="p">[</span><span class="n">Frame</span><span class="p">(</span><span class="n">udgs</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">crop_rect</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">frame</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_image</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">alt</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>With this method (and an appropriate implementation of the <cite>build_sprite</cite>
@@ -282,8 +283,6 @@ TABLE#
         <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%a </span><span class="si">%d</span><span class="s"> %b %Y %H:%M:%S %Z&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Note that if the <tt class="docutils literal"><span class="pre">string</span></tt> part of the return value of a skool macro method
-contains skool macros, then they will be expanded.</p>
 </div>
 <div class="section" id="parsing-skool-macros">
 <span id="ext-macroparsing"></span><h2>Parsing skool macros<a class="headerlink" href="#parsing-skool-macros" title="Permalink to this headline">¶</a></h2>
@@ -292,11 +291,10 @@ to parse the parameters of a skool macro.</p>
 <dl class="function">
 <dt id="skoolkit.skoolmacro.parse_ints">
 <tt class="descclassname">skoolkit.skoolmacro.</tt><tt class="descname">parse_ints</tt><big>(</big><em>text</em>, <em>index=0</em>, <em>num=0</em>, <em>defaults=()</em>, <em>names=()</em><big>)</big><a class="headerlink" href="#skoolkit.skoolmacro.parse_ints" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse a string of comma-separated integer parameters. The string will be
-parsed until either the end is reached, or an invalid character is
-encountered. The set of valid characters consists of the comma, &#8216;$&#8217;, the
-digits 0-9, and the letters A-F and a-f; if <cite>names</cite> is not empty, the set
-of valid characters also includes &#8216;=&#8217; and the letters g-z.</p>
+<dd><p>Parse a sequence of comma-separated integer parameters, optionally
+enclosed in parentheses. If parentheses are used, the parameters may be
+expressed using arithmetic operators and skool macros. See
+<a class="reference internal" href="skool-macros.html#numericparameters"><em>Numeric parameters</em></a> for more details.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -308,7 +306,8 @@ of valid characters also includes &#8216;=&#8217; and the letters g-z.</p>
 number of elements in <cite>names</cite> if that list is not empty.</li>
 <li><strong>defaults</strong> &#8211; The default values of the optional parameters.</li>
 <li><strong>names</strong> &#8211; The names of the parameters; if not empty, keyword arguments
-are parsed.</li>
+are parsed. Parameter names are restricted to lower case
+letters (a-z).</li>
 </ul>
 </td>
 </tr>
@@ -326,15 +325,19 @@ are parsed.</li>
 <p><span class="versionmodified">Changed in version 4.0: </span>Added the <em>names</em> parameter and support for keyword arguments; <em>index</em>
 defaults to 0.</p>
 </div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 5.1: </span>Added support for parameters expressed using arithmetic operators and
+skool macros.</p>
+</div>
 </dd></dl>
 
 <dl class="function">
-<dt id="skoolkit.skoolmacro.parse_params">
-<tt class="descclassname">skoolkit.skoolmacro.</tt><tt class="descname">parse_params</tt><big>(</big><em>text</em>, <em>index</em>, <em>p_text=None</em>, <em>chars=''</em>, <em>except_chars=''</em>, <em>only_chars=''</em><big>)</big><a class="headerlink" href="#skoolkit.skoolmacro.parse_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse a string of the form <tt class="docutils literal"><span class="pre">params[(p_text)]</span></tt>. The parameter string
-<tt class="docutils literal"><span class="pre">params</span></tt> will be parsed until either the end is reached, or an invalid
-character is encountered. The default set of valid characters consists of
-&#8216;$&#8217;, &#8216;#&#8217;, the digits 0-9, and the letters A-Z and a-z.</p>
+<dt id="skoolkit.skoolmacro.parse_strings">
+<tt class="descclassname">skoolkit.skoolmacro.</tt><tt class="descname">parse_strings</tt><big>(</big><em>text</em>, <em>index=0</em>, <em>num=0</em>, <em>defaults=()</em><big>)</big><a class="headerlink" href="#skoolkit.skoolmacro.parse_strings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a sequence of comma-separated string parameters. The sequence must
+be enclosed in parentheses, square brackets or braces. If the sequence
+itself contains commas or unmatched brackets, then an alternative delimiter
+and separator may be used; see <a class="reference internal" href="skool-macros.html#stringparameters"><em>String parameters</em></a> for more details.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -342,130 +345,123 @@ character is encountered. The default set of valid characters consists of
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>text</strong> &#8211; The text to parse.</li>
 <li><strong>index</strong> &#8211; The index at which to start parsing.</li>
-<li><strong>p_text</strong> &#8211; The default value to use for text found in parentheses.</li>
-<li><strong>chars</strong> &#8211; Characters to consider valid in addition to those in the
-default set.</li>
-<li><strong>except_chars</strong> &#8211; If not empty, all characters except those in this
-string are considered valid.</li>
-<li><strong>only_chars</strong> &#8211; If not empty, only the characters in this string are
-considered valid.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A 3-tuple of the form <tt class="docutils literal"><span class="pre">(end,</span> <span class="pre">params,</span> <span class="pre">p_text)</span></tt>, where:</p>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">end</span></tt> is the index at which parsing terminated</li>
-<li><tt class="docutils literal"><span class="pre">params</span></tt> is the parameter string</li>
-<li><tt class="docutils literal"><span class="pre">p_text</span></tt> is the text found in parentheses (if any)</li>
-</ul>
-</p>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 3.6: </span>Added the <em>except_chars</em> and <em>only_chars</em> parameters.</p>
-</div>
-</dd></dl>
-
-<p>HtmlWriter also provides a method for parsing the parameters of an
-image-creating skool macro.</p>
-<dl class="method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.parse_image_params">
-<tt class="descclassname">HtmlWriter.</tt><tt class="descname">parse_image_params</tt><big>(</big><em>text</em>, <em>index</em>, <em>num=0</em>, <em>defaults=()</em>, <em>path_id='UDGImagePath'</em>, <em>fname=''</em>, <em>chars=''</em>, <em>ints=None</em>, <em>names=()</em>, <em>frame=False</em>, <em>alt=False</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.parse_image_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse a string of the form:</p>
-<p><tt class="docutils literal"><span class="pre">params[{x,y,width,height}][(fname[*frame][|alt])]</span></tt></p>
-<p>The parameter string <tt class="docutils literal"><span class="pre">params</span></tt> may contain comma-separated values and
-is parsed until either the end is reached, or an invalid character is
-encountered. The default set of valid characters consists of the comma,
-&#8216;$&#8217;, the digits 0-9, and the letters A-F and a-f; if <cite>names</cite> is not
-empty, the set of valid characters also includes &#8216;=&#8217; and the letters
-g-z.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>text</strong> &#8211; The text to parse.</li>
-<li><strong>index</strong> &#8211; The index at which to start parsing.</li>
-<li><strong>num</strong> &#8211; The maximum number of parameters to parse; this is set to
-the number of elements in <cite>names</cite> if that list is not
-empty.</li>
+<li><strong>num</strong> &#8211; The maximum number of parameters to parse; if 0, all parameters
+are parsed.</li>
 <li><strong>defaults</strong> &#8211; The default values of the optional parameters.</li>
-<li><strong>path_id</strong> &#8211; The ID of the target directory for the image file (as
-defined in the <a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the <cite>ref</cite> file).</li>
-<li><strong>fname</strong> &#8211; The default base name of the image file.</li>
-<li><strong>chars</strong> &#8211; Characters to consider valid in addition to those in the
-default set.</li>
-<li><strong>ints</strong> &#8211; A list of the indexes (0-based) of the parameters that
-must evaluate to an integer; if <cite>None</cite>, every parameter
-must evaluate to an integer.</li>
-<li><strong>names</strong> &#8211; The names of the parameters; if not empty, keyword
-arguments in the parameter string <tt class="docutils literal"><span class="pre">params</span></tt> are parsed.</li>
-<li><strong>frame</strong> &#8211; Whether to parse and return the frame name.</li>
-<li><strong>alt</strong> &#8211; Whether to parse and return the alt text.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A list of the form
-<tt class="docutils literal"><span class="pre">[end,</span> <span class="pre">image_path,</span> <span class="pre">frame,</span> <span class="pre">alt,</span> <span class="pre">crop_rect,</span> <span class="pre">value1,</span> <span class="pre">value2...]</span></tt>,
-where:</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A tuple of the form <tt class="docutils literal"><span class="pre">(end,</span> <span class="pre">result)</span></tt>, where:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">end</span></tt> is the index at which parsing terminated</li>
-<li><tt class="docutils literal"><span class="pre">image_path</span></tt> is either the full path of the image file
-(relative to the root directory of the disassembly) or
-<tt class="docutils literal"><span class="pre">fname</span></tt> (if <cite>path_id</cite> is blank or <cite>None</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">frame</span></tt> is the frame name (present only if <cite>frame</cite> is
-<cite>True</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">alt</span></tt> is the alt text (present only if <cite>alt</cite> is <cite>True</cite>)</li>
-<li><tt class="docutils literal"><span class="pre">crop_rect</span></tt> is <tt class="docutils literal"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">width,</span> <span class="pre">height)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">value1</span></tt>, <tt class="docutils literal"><span class="pre">value2</span></tt> etc. are the parameter values</li>
+<li><tt class="docutils literal"><span class="pre">result</span></tt> is either the single parameter itself (when <cite>num</cite> is
+1), or a list of the parameters</li>
 </ul>
 </p>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 3.6: </span>If <em>path_id</em> is blank or <em>None</em>, <tt class="docutils literal"><span class="pre">image_path</span></tt> is equal to <tt class="docutils literal"><span class="pre">fname</span></tt>;
-added the <em>ints</em> parameter.</p>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 4.0: </span>Added the <em>names</em> parameter and support for keyword arguments.</p>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 4.2: </span>Added the <em>frame</em> and <em>alt</em> parameters.</p>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 5.1.</span></p>
 </div>
 </dd></dl>
 
+<dl class="function">
+<dt id="skoolkit.skoolmacro.parse_brackets">
+<tt class="descclassname">skoolkit.skoolmacro.</tt><tt class="descname">parse_brackets</tt><big>(</big><em>text</em>, <em>index=0</em>, <em>default=None</em>, <em>opening='('</em>, <em>closing=')'</em><big>)</big><a class="headerlink" href="#skoolkit.skoolmacro.parse_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a single string parameter enclosed either in parentheses or by an
+arbitrary pair of delimiters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> &#8211; The text to parse.</li>
+<li><strong>index</strong> &#8211; The index at which to start parsing.</li>
+<li><strong>default</strong> &#8211; The default value if no string parameter is found.</li>
+<li><strong>opening</strong> &#8211; The opening delimiter.</li>
+<li><strong>closing</strong> &#8211; The closing delimiter.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A tuple of the form <tt class="docutils literal"><span class="pre">(end,</span> <span class="pre">param)</span></tt>, where:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">end</span></tt> is the index at which parsing terminated</li>
+<li><tt class="docutils literal"><span class="pre">param</span></tt> is the string parameter (or <cite>default</cite> if none is
+found)</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 5.1.</span></p>
 </div>
-<div class="section" id="expanding-skool-macros">
-<span id="ext-expandingmacros"></span><h2>Expanding skool macros<a class="headerlink" href="#expanding-skool-macros" title="Permalink to this headline">¶</a></h2>
-<p>Both HtmlWriter and AsmWriter provide methods for expanding skool macros. These
-are useful for basing a <tt class="docutils literal"><span class="pre">#CALL</span></tt> method or custom macro on an existing macro.</p>
-<dl class="method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.expand">
-<tt class="descclassname">HtmlWriter.</tt><tt class="descname">expand</tt><big>(</big><em>text</em>, <em>cwd</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.expand" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return <cite>text</cite> with skool macros expanded. <cite>cwd</cite> is the current
-working directory, which is required by macros that create images or
-hyperlinks.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="skoolkit.skoolasm.AsmWriter.expand">
-<tt class="descclassname">AsmWriter.</tt><tt class="descname">expand</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#skoolkit.skoolasm.AsmWriter.expand" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return <cite>text</cite> with skool macros expanded.</p>
+<dl class="function">
+<dt id="skoolkit.skoolmacro.parse_image_macro">
+<tt class="descclassname">skoolkit.skoolmacro.</tt><tt class="descname">parse_image_macro</tt><big>(</big><em>text</em>, <em>index=0</em>, <em>defaults=()</em>, <em>names=()</em>, <em>fname=''</em><big>)</big><a class="headerlink" href="#skoolkit.skoolmacro.parse_image_macro" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a string of the form:</p>
+<p><tt class="docutils literal"><span class="pre">[params][{x,y,width,height}][(fname[*frame][|alt])]</span></tt></p>
+<p>The parameter string <tt class="docutils literal"><span class="pre">params</span></tt> may contain comma-separated integer values,
+and may optionally be enclosed in parentheses. Parentheses are <em>required</em>
+if any parameter is expressed using arithmetic operations or skool macros.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> &#8211; The text to parse.</li>
+<li><strong>index</strong> &#8211; The index at which to start parsing.</li>
+<li><strong>defaults</strong> &#8211; The default values of the optional parameters.</li>
+<li><strong>names</strong> &#8211; The names of the parameters.</li>
+<li><strong>fname</strong> &#8211; The default base name of the image file.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A tuple of the form
+<tt class="docutils literal"><span class="pre">(end,</span> <span class="pre">crop_rect,</span> <span class="pre">fname,</span> <span class="pre">frame,</span> <span class="pre">alt,</span> <span class="pre">values)</span></tt>, where:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">end</span></tt> is the index at which parsing terminated</li>
+<li><tt class="docutils literal"><span class="pre">crop_rect</span></tt> is <tt class="docutils literal"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">width,</span> <span class="pre">height)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">fname</span></tt> is the base name of the image file</li>
+<li><tt class="docutils literal"><span class="pre">frame</span></tt> is the frame name (<cite>None</cite> if no frame is specified)</li>
+<li><tt class="docutils literal"><span class="pre">alt</span></tt> is the alt text (<cite>None</cite> if no alt text is specified)</li>
+<li><tt class="docutils literal"><span class="pre">values</span></tt> is a list of the parameter values</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 5.1.</span></p>
+</div>
 </dd></dl>
 
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <tt class="xref py py-func docutils literal"><span class="pre">parse_params()</span></tt> function in skoolkit.skoolmacro is deprecated since
+version 5.1. Use <a class="reference internal" href="#skoolkit.skoolmacro.parse_ints" title="skoolkit.skoolmacro.parse_ints"><tt class="xref py py-func docutils literal"><span class="pre">parse_ints()</span></tt></a> and
+<a class="reference internal" href="#skoolkit.skoolmacro.parse_brackets" title="skoolkit.skoolmacro.parse_brackets"><tt class="xref py py-func docutils literal"><span class="pre">parse_brackets()</span></tt></a> instead.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <tt class="xref py py-meth docutils literal"><span class="pre">parse_image_params()</span></tt> method on HtmlWriter is deprecated since
+version 5.1. Use <a class="reference internal" href="#skoolkit.skoolmacro.parse_image_macro" title="skoolkit.skoolmacro.parse_image_macro"><tt class="xref py py-func docutils literal"><span class="pre">parse_image_macro()</span></tt></a> instead.</p>
+</div>
 </div>
 <div class="section" id="parsing-ref-files">
 <h2>Parsing ref files<a class="headerlink" href="#parsing-ref-files" title="Permalink to this headline">¶</a></h2>
 <p>HtmlWriter provides some convenience methods for extracting text and data from
-<cite>ref</cite> files. These methods are described below.</p>
+ref files. These methods are described below.</p>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.get_section">
 <tt class="descclassname">HtmlWriter.</tt><tt class="descname">get_section</tt><big>(</big><em>section_name</em>, <em>paragraphs=False</em>, <em>lines=False</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.get_section" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the contents of a <cite>ref</cite> file section.</p>
+<dd><p>Return the contents of a ref file section.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -488,8 +484,8 @@ paragraph) as a single string.</li>
 <dt id="skoolkit.skoolhtml.HtmlWriter.get_sections">
 <tt class="descclassname">HtmlWriter.</tt><tt class="descname">get_sections</tt><big>(</big><em>section_type</em>, <em>paragraphs=False</em>, <em>lines=False</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.get_sections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of 2-tuples of the form <tt class="docutils literal"><span class="pre">(suffix,</span> <span class="pre">contents)</span></tt> or
-3-tuples of the form <tt class="docutils literal"><span class="pre">(infix,</span> <span class="pre">suffix,</span> <span class="pre">contents)</span></tt> derived from
-<cite>ref</cite> file sections whose names start with <cite>section_type</cite> followed by a
+3-tuples of the form <tt class="docutils literal"><span class="pre">(infix,</span> <span class="pre">suffix,</span> <span class="pre">contents)</span></tt> derived from ref
+file sections whose names start with <cite>section_type</cite> followed by a
 colon. <tt class="docutils literal"><span class="pre">suffix</span></tt> is the part of the section name that follows either
 the first colon (when there is only one) or the second colon (when
 there is more than one); <tt class="docutils literal"><span class="pre">infix</span></tt> is the part of the section name
@@ -515,7 +511,7 @@ contents (or each paragraph) as a single string.</li>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.get_dictionary">
 <tt class="descclassname">HtmlWriter.</tt><tt class="descname">get_dictionary</tt><big>(</big><em>section_name</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.get_dictionary" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a dictionary built from the contents of a <cite>ref</cite> file section.
+<dd><p>Return a dictionary built from the contents of a ref file section.
 Each line in the section should be of the form <tt class="docutils literal"><span class="pre">X=Y</span></tt>.</p>
 </dd></dl>
 
@@ -523,7 +519,7 @@ Each line in the section should be of the form <tt class="docutils literal"><spa
 <dt id="skoolkit.skoolhtml.HtmlWriter.get_dictionaries">
 <tt class="descclassname">HtmlWriter.</tt><tt class="descname">get_dictionaries</tt><big>(</big><em>section_type</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.get_dictionaries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of 2-tuples of the form <tt class="docutils literal"><span class="pre">(suffix,</span> <span class="pre">dict)</span></tt> derived
-from <cite>ref</cite> file sections whose names start with <cite>section_type</cite> followed
+from ref file sections whose names start with <cite>section_type</cite> followed
 by a colon. <tt class="docutils literal"><span class="pre">suffix</span></tt> is the part of the section name that follows the
 first colon, and <tt class="docutils literal"><span class="pre">dict</span></tt> is a dictionary built from the contents of
 that section; each line in the section should be of the form <tt class="docutils literal"><span class="pre">X=Y</span></tt>.</p>
@@ -534,26 +530,7 @@ that section; each line in the section should be of the form <tt class="docutils
 <h2>Memory snapshots<a class="headerlink" href="#memory-snapshots" title="Permalink to this headline">¶</a></h2>
 <p>The <cite>snapshot</cite> attribute on HtmlWriter and AsmWriter is a 65536-element list
 that represents the 64K of the Spectrum&#8217;s memory; it is populated when the
-<cite>skool</cite> file is being parsed.</p>
-<p>A simple <tt class="docutils literal"><span class="pre">#PEEK</span></tt> macro that expands to the value of the byte at a given
-address might be implemented by using <cite>snapshot</cite> like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
-<span class="kn">from</span> <span class="nn">skoolkit.skoolasm</span> <span class="kn">import</span> <span class="n">AsmWriter</span>
-<span class="kn">from</span> <span class="nn">skoolkit.skoolmacro</span> <span class="kn">import</span> <span class="n">parse_ints</span>
-
-<span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
-    <span class="c"># #PEEKaddress</span>
-    <span class="k">def</span> <span class="nf">expand_peek</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">cwd</span><span class="p">):</span>
-        <span class="n">end</span><span class="p">,</span> <span class="n">address</span> <span class="o">=</span> <span class="n">parse_ints</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">end</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">snapshot</span><span class="p">[</span><span class="n">address</span><span class="p">])</span>
-
-<span class="k">class</span> <span class="nc">GameAsmWriter</span><span class="p">(</span><span class="n">AsmWriter</span><span class="p">):</span>
-    <span class="c"># #PEEKaddress</span>
-    <span class="k">def</span> <span class="nf">expand_peek</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-        <span class="n">end</span><span class="p">,</span> <span class="n">address</span> <span class="o">=</span> <span class="n">parse_ints</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">end</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">snapshot</span><span class="p">[</span><span class="n">address</span><span class="p">])</span>
-</pre></div>
-</div>
+skool file is being parsed.</p>
 <p>HtmlWriter also provides some methods for saving and restoring memory
 snapshots, which can be useful for temporarily changing graphic data or the
 contents of data tables. These methods are described below.</p>
@@ -622,7 +599,7 @@ implemented like this:</p>
     <span class="c"># #INVERSEaddress,attr</span>
     <span class="k">def</span> <span class="nf">expand_inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">cwd</span><span class="p">):</span>
         <span class="n">end</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">attr</span> <span class="o">=</span> <span class="n">parse_ints</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">img_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_path</span><span class="p">(</span><span class="s">&#39;inverse{0}_{1}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+        <span class="n">img_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_path</span><span class="p">(</span><span class="s">&#39;inverse{}_{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">need_image</span><span class="p">(</span><span class="n">img_path</span><span class="p">):</span>
             <span class="n">udg_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span> <span class="o">^</span> <span class="mi">255</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">snapshot</span><span class="p">[</span><span class="n">address</span><span class="p">:</span><span class="n">address</span> <span class="o">+</span> <span class="mi">8</span><span class="p">]]</span>
             <span class="n">udg</span> <span class="o">=</span> <span class="n">Udg</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">udg_data</span><span class="p">)</span>
@@ -667,7 +644,7 @@ class.</p>
 <p>The Frame class represents a single frame of an animated image.</p>
 <dl class="class">
 <dt id="skoolkit.skoolhtml.Frame">
-<em class="property">class </em><tt class="descclassname">skoolkit.skoolhtml.</tt><tt class="descname">Frame</tt><big>(</big><em>udgs</em>, <em>scale=1</em>, <em>mask=0</em>, <em>x=0</em>, <em>y=0</em>, <em>width=None</em>, <em>height=None</em>, <em>delay=32</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.Frame" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">skoolkit.skoolhtml.</tt><tt class="descname">Frame</tt><big>(</big><em>udgs</em>, <em>scale=1</em>, <em>mask=0</em>, <em>x=0</em>, <em>y=0</em>, <em>width=None</em>, <em>height=None</em>, <em>delay=32</em>, <em>name=''</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.Frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a frame of an animated image.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -676,7 +653,7 @@ class.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>udgs</strong> &#8211; The two-dimensional array of tiles (instances of
 <a class="reference internal" href="#skoolkit.skoolhtml.Udg" title="skoolkit.skoolhtml.Udg"><tt class="xref py py-class docutils literal"><span class="pre">Udg</span></tt></a>) from which to build the
-frame.</li>
+frame, or a function that returns the array of tiles.</li>
 <li><strong>scale</strong> &#8211; The scale of the frame.</li>
 <li><strong>mask</strong> &#8211; The type of mask to apply to the tiles in the frame: 0 (no
 mask), 1 (OR-AND mask), or 2 (AND-OR mask).</li>
@@ -690,6 +667,7 @@ used.</li>
 used.</li>
 <li><strong>delay</strong> &#8211; The delay between this frame and the next in 1/100ths of a
 second.</li>
+<li><strong>name</strong> &#8211; The name of this frame.</li>
 </ul>
 </td>
 </tr>
@@ -702,12 +680,16 @@ second.</li>
 <p><span class="versionmodified">Changed in version 4.0: </span>The <em>mask</em> parameter specifies the type of mask to apply (see
 <a class="reference internal" href="skool-macros.html#masks"><em>Masks</em></a>).</p>
 </div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 5.1: </span>The <em>udgs</em> parameter can be a function that returns the array of tiles;
+added the <em>name</em> parameter.</p>
+</div>
 </dd></dl>
 
 <p>HtmlWriter provides the following image-related convenience methods.</p>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.image_path">
-<tt class="descclassname">HtmlWriter.</tt><tt class="descname">image_path</tt><big>(</big><em>fname</em>, <em>path_id='UDGImagePath'</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.image_path" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">HtmlWriter.</tt><tt class="descname">image_path</tt><big>(</big><em>fname</em>, <em>path_id='UDGImagePath'</em>, <em>frames=()</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.image_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the full path of an image file relative to the root directory
 of the disassembly. If <cite>fname</cite> does not end with &#8216;.png&#8217; or &#8216;.gif&#8217;, an
 appropriate suffix will be appended (depending on the default image
@@ -721,12 +703,20 @@ blank, <cite>None</cite> is returned.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>fname</strong> &#8211; The name of the image file.</li>
 <li><strong>path_id</strong> &#8211; The ID of the target directory (as defined in the
-<a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the <cite>ref</cite> file).</li>
+<a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the ref file).</li>
+<li><strong>frames</strong> &#8211; The list of frames (instances of
+<a class="reference internal" href="#skoolkit.skoolhtml.Frame" title="skoolkit.skoolhtml.Frame"><tt class="xref py py-class docutils literal"><span class="pre">Frame</span></tt></a>) that define the
+image. If supplied, it is used to determine whether the
+image is animated, and select the appropriate filename
+suffix accordingly.</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 5.1: </span>Added the <em>frames</em> parameter.</p>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -783,9 +773,32 @@ the final image.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="skoolkit.skoolhtml.HtmlWriter.img_element">
+<tt class="descclassname">HtmlWriter.</tt><tt class="descname">img_element</tt><big>(</big><em>cwd</em>, <em>image_path</em>, <em>alt=None</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.img_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an <tt class="docutils literal"><span class="pre">&lt;img</span> <span class="pre">.../&gt;</span></tt> element for an image file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cwd</strong> &#8211; The current working directory (from which the relative path
+of the image file will be computed).</li>
+<li><strong>image_path</strong> &#8211; The full path of the image file relative to the root
+directory of the disassembly.</li>
+<li><strong>alt</strong> &#8211; The alt text to use for the image; if <cite>None</cite>, the base name
+of the image file (with the &#8216;.png&#8217; or &#8216;.gif&#8217; suffix
+removed) will be used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.write_animated_image">
 <tt class="descclassname">HtmlWriter.</tt><tt class="descname">write_animated_image</tt><big>(</big><em>image_path</em>, <em>frames</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.write_animated_image" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create an animated image and write it to a file.</p>
+<dd><p>Create an image and write it to a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -808,26 +821,40 @@ the image.</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.img_element">
-<tt class="descclassname">HtmlWriter.</tt><tt class="descname">img_element</tt><big>(</big><em>cwd</em>, <em>image_path</em>, <em>alt=None</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.img_element" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return an <tt class="docutils literal"><span class="pre">&lt;img</span> <span class="pre">.../&gt;</span></tt> element for an image file.</p>
+<dt id="skoolkit.skoolhtml.HtmlWriter.handle_image">
+<tt class="descclassname">HtmlWriter.</tt><tt class="descname">handle_image</tt><big>(</big><em>frames</em>, <em>fname=''</em>, <em>cwd=None</em>, <em>alt=None</em>, <em>path_id='UDGImagePath'</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.handle_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a named frame for an image, and write an image file if
+required. This is a convenience method that calls
+<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.image_path" title="skoolkit.skoolhtml.HtmlWriter.image_path"><tt class="xref py py-meth docutils literal"><span class="pre">image_path()</span></tt></a>,
+<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.need_image" title="skoolkit.skoolhtml.HtmlWriter.need_image"><tt class="xref py py-meth docutils literal"><span class="pre">need_image()</span></tt></a>,
+<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.write_animated_image" title="skoolkit.skoolhtml.HtmlWriter.write_animated_image"><tt class="xref py py-meth docutils literal"><span class="pre">write_animated_image()</span></tt></a> and
+<a class="reference internal" href="#skoolkit.skoolhtml.HtmlWriter.img_element" title="skoolkit.skoolhtml.HtmlWriter.img_element"><tt class="xref py py-meth docutils literal"><span class="pre">img_element()</span></tt></a> as appropriate.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>frames</strong> &#8211; The list of frames (instances of
+<a class="reference internal" href="#skoolkit.skoolhtml.Frame" title="skoolkit.skoolhtml.Frame"><tt class="xref py py-class docutils literal"><span class="pre">Frame</span></tt></a>) from which to build
+the image.</li>
+<li><strong>fname</strong> &#8211; The name of the image file.</li>
 <li><strong>cwd</strong> &#8211; The current working directory (from which the relative path
 of the image file will be computed).</li>
-<li><strong>image_path</strong> &#8211; The full path of the image file relative to the root
-directory of the disassembly.</li>
-<li><strong>alt</strong> &#8211; The alt text to use for the image; if <cite>None</cite>, the base name
-of the image file (with the &#8216;.png&#8217; or &#8216;.gif&#8217; suffix
-removed) will be used.</li>
+<li><strong>alt</strong> &#8211; The alt text to use for the image.</li>
+<li><strong>path_id</strong> &#8211; The ID of the target directory (as defined in the
+<a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the ref file).</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The <tt class="docutils literal"><span class="pre">&lt;img</span> <span class="pre">.../&gt;</span></tt> element, or an empty string if no image is
+created.</p>
 </td>
 </tr>
 </tbody>
 </table>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 5.1.</span></p>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -897,8 +924,8 @@ horizontally and vertically.</li>
 <div class="section" id="htmlwriter-initialisation">
 <h2>HtmlWriter initialisation<a class="headerlink" href="#htmlwriter-initialisation" title="Permalink to this headline">¶</a></h2>
 <p>If your HtmlWriter subclass needs to perform some initialisation tasks, such as
-creating instance variables, or parsing <cite>ref</cite> file sections, the place to do
-that is the <cite>init()</cite> method.</p>
+creating instance variables, or parsing ref file sections, the place to do that
+is the <cite>init()</cite> method.</p>
 <dl class="method">
 <dt id="skoolkit.skoolhtml.HtmlWriter.init">
 <tt class="descclassname">HtmlWriter.</tt><tt class="descname">init</tt><big>(</big><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.init" title="Permalink to this definition">¶</a></dt>
@@ -934,11 +961,11 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2015, Richard Dymond.
+        &copy; Copyright 2016, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

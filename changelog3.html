@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>SkoolKit 3.x changelog &mdash; SkoolKit 5.0 documentation</title>
+    <title>SkoolKit 3.x changelog &mdash; SkoolKit 5.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.0',
+        VERSION:     '5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.1 documentation" href="index.html" />
     <link rel="up" title="Changelog" href="changelog.html" />
     <link rel="next" title="SkoolKit 2.x changelog" href="changelog2.html" />
     <link rel="prev" title="Changelog" href="changelog.html" /> 
@@ -41,7 +41,7 @@
         <li class="right" >
           <a href="changelog.html" title="Changelog"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li>
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li>
           <li><a href="changelog.html" accesskey="U">Changelog</a> &raquo;</li> 
       </ul>
     </div>
@@ -133,7 +133,7 @@ from an arbitrary sequence of frames</li>
 <li>Enhanced the <a class="reference internal" href="skool-macros.html#font"><em>#FONT</em></a> macro so that it can create an image of arbitrary
 text</li>
 <li>Added support for copying arbitrary files into an HTML disassembly by using
-the <a class="reference internal" href="ref-files.html#resources"><em>[Resources]</em></a> section in the <cite>ref</cite> file</li>
+the <a class="reference internal" href="ref-files.html#resources"><em>[Resources]</em></a> section in the ref file</li>
 <li>Added the <tt class="docutils literal"><span class="pre">--join-css</span></tt> option to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> (to concatenate CSS
 files into a single file)</li>
 <li>Added the <tt class="docutils literal"><span class="pre">--search-dirs</span></tt> option to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> (to show the
@@ -142,11 +142,11 @@ locations that <cite>skool2html.py</cite> searches for resources)</li>
 <li>Added an example control file for the 48K Spectrum ROM: <cite>48.rom.ctl</cite></li>
 <li>Control files can now preserve blank comments that span two or more
 instructions</li>
-<li>The <tt class="docutils literal"><span class="pre">[Config]</span></tt> section no longer has to be in the <cite>ref</cite> file named on the
-<cite>skool2html.py</cite> command line; it can be in any secondary <cite>ref</cite> file</li>
+<li>The <tt class="docutils literal"><span class="pre">[Config]</span></tt> section no longer has to be in the ref file named on the
+<cite>skool2html.py</cite> command line; it can be in any secondary ref file</li>
 <li>Fixed the bug that makes <cite>skool2html.py</cite> fail if the <tt class="docutils literal"><span class="pre">FontPath</span></tt>,
 <tt class="docutils literal"><span class="pre">JavaScriptPath</span></tt> or <tt class="docutils literal"><span class="pre">StyleSheetPath</span></tt> parameter in the <tt class="docutils literal"><span class="pre">[Paths]</span></tt> section
-of the <cite>ref</cite> file is set to some directory other than the default</li>
+of the ref file is set to some directory other than the default</li>
 </ul>
 </div>
 <div class="section" id="id3">
@@ -182,10 +182,10 @@ that list entry point referrers)</li>
 <li>Added the <tt class="docutils literal"><span class="pre">--package-dir</span></tt> option to <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a> (to show the path
 to the skoolkit package directory)</li>
 <li>Added support for the <tt class="docutils literal"><span class="pre">LinkOperands</span></tt> parameter in the <a class="reference internal" href="ref-files.html#ref-game"><em>[Game]</em></a>
-section of the <cite>ref</cite> file, which may be used to enable the address operands
+section of the ref file, which may be used to enable the address operands
 of LD instructions to be hyperlinked</li>
 <li>Added support for defining image colours by using hex triplets in the
-<a class="reference internal" href="ref-files.html#ref-colours"><em>[Colours]</em></a> section of the <cite>ref</cite> file</li>
+<a class="reference internal" href="ref-files.html#ref-colours"><em>[Colours]</em></a> section of the ref file</li>
 <li>Added support to the <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a> ASM directive for the
 <cite>handle-unsupported-macros</cite> and <cite>wrap-column-width-min</cite> properties</li>
 <li>Fixed the <a class="reference internal" href="skool-macros.html#erefs"><em>#EREFS</em></a> and <a class="reference internal" href="skool-macros.html#m-refs"><em>#REFS</em></a> macros so that they work with
@@ -297,7 +297,7 @@ correctly for the purpose of building a memory snapshot</li>
 routine&#8217;s register section (by using prefixes such as &#8216;Input:&#8217; and &#8216;Output:&#8217;)</li>
 <li>Added support for the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
 <tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> parameters in the <a class="reference internal" href="ref-files.html#ref-game"><em>[Game]</em></a> section of
-the <cite>ref</cite> file</li>
+the ref file</li>
 <li>Added the &#8216;default&#8217; CSS class for HTML tables created by the <a class="reference internal" href="skool-macros.html#table"><em>#TABLE</em></a>
 macro</li>
 </ul>
@@ -308,7 +308,7 @@ macro</li>
 <li>Enhanced the <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macro so that it accepts both horizontal and
 vertical steps in UDG address ranges</li>
 <li>Added support for the <tt class="docutils literal"><span class="pre">Font</span></tt> and <tt class="docutils literal"><span class="pre">FontPath</span></tt> parameters in the
-<a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the <cite>ref</cite> file (for specifying font files used by CSS
+<a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the ref file (for specifying font files used by CSS
 <cite>&#64;font-face</cite> rules)</li>
 <li>Added a Spectrum theme CSS file that uses the Spectrum font and colours:
 <cite>skoolkit-spectrum.css</cite></li>
@@ -328,7 +328,7 @@ removed support for the redundant <tt class="docutils literal"><span class="pre"
 <li>Added support for the <a class="reference internal" href="skool-macros.html#call"><em>#CALL</em></a>, <a class="reference internal" href="skool-macros.html#m-refs"><em>#REFS</em></a>, <a class="reference internal" href="skool-macros.html#erefs"><em>#EREFS</em></a>, <a class="reference internal" href="skool-macros.html#pushs"><em>#PUSHS</em></a>,
 <a class="reference internal" href="skool-macros.html#pokes"><em>#POKES</em></a> and <a class="reference internal" href="skool-macros.html#pops"><em>#POPS</em></a> macros in ASM mode</li>
 <li>Added the <tt class="docutils literal"><span class="pre">-c</span></tt> option to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> (to simulate adding lines to
-the <cite>ref</cite> file)</li>
+the ref file)</li>
 <li>Added a dark theme CSS file: <cite>skoolkit-dark.css</cite></li>
 </ul>
 </div>
@@ -351,7 +351,7 @@ group is used</li>
 GIFs)</li>
 <li>Added support for creating animated PNGs in APNG format</li>
 <li>Added support for transparency in PNG images (by using the <tt class="docutils literal"><span class="pre">PNGAlpha</span></tt>
-parameter in the <a class="reference internal" href="ref-files.html#ref-imagewriter"><em>[ImageWriter]</em></a> section of the <cite>ref</cite> file)</li>
+parameter in the <a class="reference internal" href="ref-files.html#ref-imagewriter"><em>[ImageWriter]</em></a> section of the ref file)</li>
 <li>Added an example control file: <cite>jet_set_willy.ctl</cite></li>
 <li>Fixed the bug in how images are cropped by the <a class="reference internal" href="skool-macros.html#font"><em>#FONT</em></a>, <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a>,
 <a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a> and <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macros when using non-zero <tt class="docutils literal"><span class="pre">X</span></tt> and <tt class="docutils literal"><span class="pre">Y</span></tt>
@@ -363,7 +363,7 @@ parameters</li>
 <ul class="simple">
 <li>SkoolKit now works with Python 3.x</li>
 <li>Added a native image creation library, which can be configured by using the
-<a class="reference internal" href="ref-files.html#ref-imagewriter"><em>[ImageWriter]</em></a> section of the <cite>ref</cite> file; <cite>gd</cite> and <cite>PIL</cite> are no
+<a class="reference internal" href="ref-files.html#ref-imagewriter"><em>[ImageWriter]</em></a> section of the ref file; <cite>gd</cite> and <cite>PIL</cite> are no
 longer required or supported</li>
 <li>Enhanced the <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a> macro so that graphic data and attribute bytes in
 places other than the display file and attribute file may be used to build a
@@ -392,12 +392,12 @@ and <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRA
         <li class="right" >
           <a href="changelog.html" title="Changelog"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li>
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li>
           <li><a href="changelog.html" >Changelog</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2015, Richard Dymond.
+        &copy; Copyright 2016, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

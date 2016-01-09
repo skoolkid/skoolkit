@@ -28,7 +28,7 @@ SkoolKit 3.x changelog
 * Enhanced the :ref:`FONT` macro so that it can create an image of arbitrary
   text
 * Added support for copying arbitrary files into an HTML disassembly by using
-  the :ref:`resources` section in the `ref` file
+  the :ref:`resources` section in the ref file
 * Added the ``--join-css`` option to :ref:`skool2html.py` (to concatenate CSS
   files into a single file)
 * Added the ``--search-dirs`` option to :ref:`skool2html.py` (to show the
@@ -37,11 +37,11 @@ SkoolKit 3.x changelog
 * Added an example control file for the 48K Spectrum ROM: `48.rom.ctl`
 * Control files can now preserve blank comments that span two or more
   instructions
-* The ``[Config]`` section no longer has to be in the `ref` file named on the
-  `skool2html.py` command line; it can be in any secondary `ref` file
+* The ``[Config]`` section no longer has to be in the ref file named on the
+  `skool2html.py` command line; it can be in any secondary ref file
 * Fixed the bug that makes `skool2html.py` fail if the ``FontPath``,
   ``JavaScriptPath`` or ``StyleSheetPath`` parameter in the ``[Paths]`` section
-  of the `ref` file is set to some directory other than the default
+  of the ref file is set to some directory other than the default
 
 3.5 (2013-09-01)
 ----------------
@@ -73,10 +73,10 @@ SkoolKit 3.x changelog
 * Added the ``--package-dir`` option to :ref:`skool2asm.py` (to show the path
   to the skoolkit package directory)
 * Added support for the ``LinkOperands`` parameter in the :ref:`ref-Game`
-  section of the `ref` file, which may be used to enable the address operands
+  section of the ref file, which may be used to enable the address operands
   of LD instructions to be hyperlinked
 * Added support for defining image colours by using hex triplets in the
-  :ref:`ref-Colours` section of the `ref` file
+  :ref:`ref-Colours` section of the ref file
 * Added support to the :ref:`set` ASM directive for the
   `handle-unsupported-macros` and `wrap-column-width-min` properties
 * Fixed the :ref:`EREFS` and :ref:`m-REFS` macros so that they work with
@@ -176,7 +176,7 @@ SkoolKit 3.x changelog
   routine's register section (by using prefixes such as 'Input:' and 'Output:')
 * Added support for the ``InputRegisterTableHeader`` and
   ``OutputRegisterTableHeader`` parameters in the :ref:`ref-Game` section of
-  the `ref` file
+  the ref file
 * Added the 'default' CSS class for HTML tables created by the :ref:`table`
   macro
 
@@ -185,7 +185,7 @@ SkoolKit 3.x changelog
 * Enhanced the :ref:`UDGARRAY` macro so that it accepts both horizontal and
   vertical steps in UDG address ranges
 * Added support for the ``Font`` and ``FontPath`` parameters in the
-  :ref:`Paths` section of the `ref` file (for specifying font files used by CSS
+  :ref:`Paths` section of the ref file (for specifying font files used by CSS
   `@font-face` rules)
 * Added a Spectrum theme CSS file that uses the Spectrum font and colours:
   `skoolkit-spectrum.css`
@@ -203,7 +203,7 @@ SkoolKit 3.x changelog
 * Added support for the :ref:`CALL`, :ref:`m-REFS`, :ref:`EREFS`, :ref:`PUSHS`,
   :ref:`POKES` and :ref:`POPS` macros in ASM mode
 * Added the ``-c`` option to :ref:`skool2html.py` (to simulate adding lines to
-  the `ref` file)
+  the ref file)
 * Added a dark theme CSS file: `skoolkit-dark.css`
 
 3.0.2 (2012-05-01)
@@ -222,7 +222,7 @@ SkoolKit 3.x changelog
   GIFs)
 * Added support for creating animated PNGs in APNG format
 * Added support for transparency in PNG images (by using the ``PNGAlpha``
-  parameter in the :ref:`ref-ImageWriter` section of the `ref` file)
+  parameter in the :ref:`ref-ImageWriter` section of the ref file)
 * Added an example control file: `jet_set_willy.ctl`
 * Fixed the bug in how images are cropped by the :ref:`FONT`, :ref:`SCR`,
   :ref:`UDG` and :ref:`UDGARRAY` macros when using non-zero ``X`` and ``Y``
@@ -232,7 +232,7 @@ SkoolKit 3.x changelog
 ----------------
 * SkoolKit now works with Python 3.x
 * Added a native image creation library, which can be configured by using the
-  :ref:`ref-ImageWriter` section of the `ref` file; `gd` and `PIL` are no
+  :ref:`ref-ImageWriter` section of the ref file; `gd` and `PIL` are no
   longer required or supported
 * Enhanced the :ref:`SCR` macro so that graphic data and attribute bytes in
   places other than the display file and attribute file may be used to build a

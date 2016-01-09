@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>HTML templates &mdash; SkoolKit 5.0 documentation</title>
+    <title>HTML templates &mdash; SkoolKit 5.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.0',
+        VERSION:     '5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.0 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.1 documentation" href="index.html" />
     <link rel="next" title="ASM modes and directives" href="asm.html" />
     <link rel="prev" title="Ref files" href="ref-files.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -116,11 +116,11 @@
   <div class="section" id="html-templates">
 <span id="htmltemplates"></span><h1>HTML templates<a class="headerlink" href="#html-templates" title="Permalink to this headline">¶</a></h1>
 <p>Every page in an HTML disassembly is built from a single full-page template and
-several subtemplates defined by <a class="reference internal" href="ref-files.html#template"><em>[Template:*]</em></a> sections in the <cite>ref</cite> file.</p>
+several subtemplates defined by <a class="reference internal" href="ref-files.html#template"><em>[Template:*]</em></a> sections in the ref file.</p>
 <p>A template may contain &#8216;replacement fields&#8217; - identifiers enclosed by braces
 (<tt class="docutils literal"><span class="pre">{</span></tt> and <tt class="docutils literal"><span class="pre">}</span></tt>) - that are replaced by appropriate content (typically derived
-from the <cite>skool</cite> file or a <cite>ref</cite> file section) when the template is formatted.
-The following &#8216;universal&#8217; identifiers are available in every template:</p>
+from the skool file or a ref file section) when the template is formatted. The
+following &#8216;universal&#8217; identifiers are available in every template:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">Game</span></tt> - a dictionary of the parameters in the <a class="reference internal" href="ref-files.html#ref-game"><em>[Game]</em></a> section</li>
 <li><tt class="docutils literal"><span class="pre">SkoolKit</span></tt> - a dictionary of parameters relevant to the page currently
@@ -172,8 +172,8 @@ memory map entry (see below)</li>
 are:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">address</span></tt> - the address of the entry (may be in decimal or hexadecimal
-format, depending on how it appears in the <cite>skool</cite> file, and the options
-passed to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a>)</li>
+format, depending on how it appears in the skool file, and the options passed
+to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a>)</li>
 <li><tt class="docutils literal"><span class="pre">annotated</span></tt> - &#8216;1&#8217; if any instructions in the entry have a non-empty comment
 field, &#8216;0&#8217; otherwise</li>
 <li><tt class="docutils literal"><span class="pre">byte</span></tt> - the LSB of the entry address</li>
@@ -190,6 +190,11 @@ otherwise</li>
 <li><tt class="docutils literal"><span class="pre">size</span></tt> - the size of the entry in bytes</li>
 <li><tt class="docutils literal"><span class="pre">title</span></tt> - the title of the entry</li>
 <li><tt class="docutils literal"><span class="pre">type</span></tt> - the block type of the entry (&#8216;b&#8217;, &#8216;c&#8217;, &#8216;g&#8217;, &#8216;s&#8217;, &#8216;t&#8217;, &#8216;u&#8217; or &#8216;w&#8217;)</li>
+</ul>
+<p>The <tt class="docutils literal"><span class="pre">entry</span></tt> dictionary also contains the following parameters:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">input</span></tt> - &#8216;1&#8217; if there are input register values defined, &#8216;0&#8217; otherwise</li>
+<li><tt class="docutils literal"><span class="pre">output</span></tt> - &#8216;1&#8217; if there are output register values defined, &#8216;0&#8217; otherwise</li>
 </ul>
 <p>To see the default <tt class="docutils literal"><span class="pre">Asm</span></tt> template, run the following command:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:Asm
@@ -307,7 +312,7 @@ operation and comment).</p>
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">address</span></tt> - the address of the instruction (may be in decimal or
-hexadecimal format, depending on how it appears in the <cite>skool</cite> file, and the
+hexadecimal format, depending on how it appears in the skool file, and the
 options passed to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a>)</li>
 <li><tt class="docutils literal"><span class="pre">annotated</span></tt> - &#8216;1&#8217; if the instruction has a comment field, &#8216;0&#8217; otherwise</li>
 <li><tt class="docutils literal"><span class="pre">called</span></tt> - &#8216;2&#8217; if the instruction is an entry point, &#8216;1&#8217; otherwise</li>
@@ -335,7 +340,7 @@ output register values.</p>
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">description</span></tt> - the register&#8217;s description (as it appears in the register
-section for the current entry in the <cite>skool</cite> file)</li>
+section for the current entry in the skool file)</li>
 <li><tt class="docutils literal"><span class="pre">entry</span></tt> - a dictionary of parameters corresponding to the current memory
 map entry (see <a class="reference internal" href="#t-asm"><em>Asm</em></a>)</li>
 <li><tt class="docutils literal"><span class="pre">name</span></tt> - the register&#8217;s name (e.g. &#8216;HL&#8217;)</li>
@@ -551,8 +556,8 @@ map entry</li>
 <p>The parameters in the <tt class="docutils literal"><span class="pre">entry</span></tt> dictionary are:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">address</span></tt> - the address of the entry (may be in decimal or hexadecimal
-format, depending on how it appears in the <cite>skool</cite> file, and the options
-passed to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a>)</li>
+format, depending on how it appears in the skool file, and the options passed
+to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a>)</li>
 <li><tt class="docutils literal"><span class="pre">byte</span></tt> - the LSB of the entry address</li>
 <li><tt class="docutils literal"><span class="pre">description</span></tt> - the entry description</li>
 <li><tt class="docutils literal"><span class="pre">exists</span></tt> - &#8216;1&#8217;</li>
@@ -733,11 +738,11 @@ identifiers):</p>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2015, Richard Dymond.
+        &copy; Copyright 2016, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
