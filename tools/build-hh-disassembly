@@ -2,6 +2,7 @@
 
 declare -A SK_VERSIONS
 SK_VERSIONS=(
+  [20160109]=5.1
   [20150214]=4.3
   [20140920]=4.1.1
 )
