@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011-2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -22,7 +22,7 @@ import posixpath
 import textwrap
 import importlib
 
-VERSION = '5.1rc3'
+VERSION = '5.1'
 ENCODING = 'utf-8'
 PY3 = sys.version_info >= (3,)
 PACKAGE_DIR = os.path.dirname(__file__)
