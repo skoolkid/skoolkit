@@ -494,41 +494,6 @@ EOF
 }
 
 ###############################################################################
-# Update the SkoolKit project on launchpad.net
-###############################################################################
-update_launchpad() {
-  _require_skoolkit
-
-  files=$(echo skoolkit{-$VERSION{.tar.xz,.zip,-1.noarch.rpm},_$VERSION-1_all.deb})
-
-  echo -n "Checking files to upload: "
-  for f in $files; do
-    fname=$SKOOLKIT_HOME/dist/$f
-    if [[ ! -f $fname ]]; then
-      echo "FAILED ($fname not found)"
-      exit 1
-    fi
-  done
-  echo "OK"
-
-  read -sp "Enter passphrase: " pp
-  echo -ne "\nSigning files: "
-  for fname in $files; do
-    f=$SKOOLKIT_HOME/dist/$fname
-    rm -f $f.asc
-    logfile=$f.log
-    if ! gpg -asb --batch --default-key $SKOOLKIT_KEY --passphrase $pp $f &> $logfile; then
-      echo "FAILED (see $logfile)"
-      exit 1
-    fi
-    rm -f $logfile
-  done
-  echo "OK"
-
-  $TOOLS/lputil.py --production $VERSION
-}
-
-###############################################################################
 # Print usage information
 ###############################################################################
 usage() {
@@ -552,7 +517,6 @@ Post-release commands:
   ifpypi - verify that SkoolKit can be installed from PyPI
   doczip - build a documentation zip archive for PyPI
   ppadeb - build and upload a signed source package to the SkoolKit PPA
-  sklpad - update the SkoolKit project on launchpad.net
 EOM
 }
 
@@ -577,7 +541,6 @@ while [[ -n "$1" ]]; do
     ifpypi) check_pypi ;;
     doczip) build_doczip ;;
     ppadeb) upload_ppa_source ;;
-    sklpad) update_launchpad ;;
          *) echo "*** Unknown command '$1' ***"; usage ;;
   esac
   shift
