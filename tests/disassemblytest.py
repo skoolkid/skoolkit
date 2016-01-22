@@ -33,6 +33,7 @@ def _find_ids_and_hrefs(elements, doc_anchors, doc_hrefs):
 def _read_files(root_dir):
     all_files = {} # filename -> (element ids and <a> names, hrefs and srcs)
     for root, dirs, files in os.walk(root_dir):
+        dirs[:] = [d for d in dirs if d != '.git']
         for f in files:
             fname = os.path.join(root, f)
             all_files[fname] = (set(), set())
