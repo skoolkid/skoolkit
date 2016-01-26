@@ -1,6 +1,9 @@
 Changelog
 =========
 
+5.2b1
+-----
+
 5.1 (2016-01-09)
 ----------------
 * Added the :ref:`replace` ASM directive (which replaces strings that match a
