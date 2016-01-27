@@ -69,6 +69,20 @@ diff_html() {
   echo "done"
 }
 
+diff_bins() {
+  old=$1/bin
+  new=$2/bin
+
+  out=diffs-bin
+  echo -n "Writing diffs to $out..."
+  mkdir -p $out
+  for a in $old/*.bin; do
+    b=$(basename $a)
+    cmp $a $new/$b > $out/$b.diff
+  done
+  echo "done"
+}
+
 diff_images() {
   img_type=$1
   [ $img_type = png ] && diff_cmd=$ANALYSE_PNG || diff_cmd=$ANALYSE_GIF
@@ -104,10 +118,10 @@ print_usage() {
   cat >&2 << EOM
 Usage: $(basename $0) [options] DIR1 DIR2 TYPE [TYPE...]
 
-  Runs 'diff' on the ASM, CTL, GIF, HTML, PNG, SKOOL or SFT files in two
+  Runs 'diff' on the ASM, BIN, CTL, GIF, HTML, PNG, SKOOL or SFT files in two
   directories and outputs the results to suitably named files.
 
-  TYPE can be one of: asm ctl genctl gif html png skool sft all
+  TYPE can be one of: asm bin ctl genctl gif html png skool sft all
 
 Options:
   -d DIR     Filter diff files through check-diffs.py using exp-diffs-TYPE.txt
@@ -154,6 +168,7 @@ shift 2
 while [ "$1" != "" ]; do
   case "$1" in
     asm) diff_files asm $OLD $NEW ;;
+    bin) diff_bins $OLD $NEW ;;
     ctl) diff_files ctl $OLD $NEW ;;
     genctl) diff_files genctl $OLD $NEW ctl ;;
     gif) diff_images gif $OLD $NEW ;;
@@ -163,6 +178,7 @@ while [ "$1" != "" ]; do
     sft) diff_files sft $OLD $NEW ;;
     all)
       diff_files asm $OLD $NEW
+      diff_bins bin $OLD $NEW
       diff_files ctl $OLD $NEW
       diff_files genctl $OLD $NEW ctl
       diff_images gif $OLD $NEW

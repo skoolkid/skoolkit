@@ -57,6 +57,12 @@ write_asms() {
   done
 }
 
+write_bins() {
+  for m in '' '-i'; do
+    run_cmd "./skool2bin.py $m src/$skoolfile" bin/$GAME$m.bin
+  done
+}
+
 write_ctls() {
   for b in '' '-h' '-l'; do
     run_cmd "./skool2ctl.py $b src/$skoolfile" ctl/$GAME$b.ctl
@@ -102,7 +108,7 @@ write_sfts() {
 usage() {
   echo "Usage: $(basename $0) $GAMES TYPE [TYPE...]"
   echo ""
-  echo "  TYPE can be one of: asm ctl genctl html skool sft all"
+  echo "  TYPE can be one of: asm bin ctl genctl html skool sft all"
   exit 1
 }
 
@@ -120,6 +126,7 @@ shift
 while [ "$1" != "" ]; do
   case "$1" in
     asm) write_asms ;;
+    bin) write_bins ;;
     ctl) write_ctls ;;
     genctl) write_genctls ;;
     html) write_html ;;
@@ -127,6 +134,7 @@ while [ "$1" != "" ]; do
     sft) write_sfts ;;
     all)
       write_asms
+      write_bins
       write_ctls
       write_genctls
       write_html
