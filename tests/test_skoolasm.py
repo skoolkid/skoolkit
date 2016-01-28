@@ -21,6 +21,7 @@ class MockSkoolParser:
     def __init__(self, snapshot=None):
         self.snapshot = snapshot
         self.memory_map = ()
+        self.base = None
 
     def get_entry(self, address):
         return None

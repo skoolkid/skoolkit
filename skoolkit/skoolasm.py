@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -20,7 +20,8 @@ import re
 
 from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, warn, write_text, wrap, get_chr
 from skoolkit.skoolmacro import MacroParsingError, UnsupportedMacroError
-from skoolkit.skoolparser import TableParser, ListParser, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
+from skoolkit.skoolparser import (TableParser, ListParser, BASE_16, TABLE_MARKER, TABLE_END_MARKER,
+                                  LIST_MARKER, LIST_END_MARKER)
 
 UDGTABLE_MARKER = '#UDGTABLE'
 
@@ -29,6 +30,7 @@ DEF_INSTRUCTION_WIDTH = 23
 class AsmWriter:
     def __init__(self, parser, properties, lower):
         self.parser = parser
+        self.base = parser.base
         self.show_warnings = self._get_int_property(properties, 'warnings', 1)
 
         # Build a label dictionary
@@ -204,6 +206,9 @@ class AsmWriter:
 
     def expand_map(self, text, index):
         return skoolmacro.parse_map(text, index)
+
+    def expand_n(self, text, index):
+        return skoolmacro.parse_n(text, index, self.base == BASE_16, self.lower)
 
     def expand_peek(self, text, index):
         return skoolmacro.parse_peek(text, index, self.snapshot)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012-2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -708,6 +708,24 @@ def parse_map(text, index):
                 raise MacroParsingError("Invalid key ({}): {}".format(k, text[args_index:end]))
     _map_cache[map_id] = m
     return end, m[value]
+
+def parse_n(text, index, is_hex, is_lower):
+    # #Nvalue[,hwidth,dwidth,affix][(prefix[,suffix])]
+    end, value, hwidth, dwidth, affix = parse_ints(text, index, 4, (None, 1, 0))
+    if affix:
+        end, (prefix, suffix) = parse_strings(text, end, 2, ('', ''))
+    else:
+        prefix = suffix = ''
+    if is_hex:
+        if hwidth is None:
+            if 0 <= value < 256:
+                hwidth = 2
+            else:
+                hwidth = 4
+        if is_lower:
+            return end, '{}{:0{}x}{}'.format(prefix, value, hwidth, suffix)
+        return end, '{}{:0{}X}{}'.format(prefix, value, hwidth, suffix)
+    return end, '{:0{}}'.format(value, dwidth)
 
 def parse_peek(text, index, snapshot):
     # #PEEKaddr
