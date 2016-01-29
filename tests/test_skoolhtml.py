@@ -153,12 +153,12 @@ PREV_UP_NEXT = """<table class="asm-navigation">
 ERROR_PREFIX = 'Error while parsing #{0} macro'
 
 class MockSkoolParser:
-    def __init__(self, snapshot=None, entries=None, memory_map=()):
+    def __init__(self, snapshot=None, entries=None, memory_map=(), base=None):
         self.snapshot = snapshot
         self.entries = entries or {}
         self.memory_map = memory_map
+        self.base = base
         self.skoolfile = ''
-        self.base = None
 
     def get_entry(self, address):
         return self.entries.get(address)
@@ -209,7 +209,7 @@ class HtmlWriterTestCase(SkoolKitTestCase):
         if ref is not None:
             ref_parser.parse(StringIO(ref))
         if skool is None:
-            skool_parser = MockSkoolParser(snapshot)
+            skool_parser = MockSkoolParser(snapshot, base=base)
         else:
             self.skoolfile = self.write_text_file(skool, suffix='.skool')
             skool_parser = SkoolParser(self.skoolfile, case=case, base=base, html=True, create_labels=create_labels, asm_labels=asm_labels)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from skoolkit.skoolparser import CASE_LOWER
+from skoolkit.skoolparser import BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
 
 ERROR_PREFIX = 'Error while parsing #{} macro'
 
@@ -634,6 +634,68 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#MAP0 ()', "No mappings provided: 0", prefix)
         self._assert_error(writer, '#MAP0(1,2:3', "No closing bracket: (1,2:3", prefix)
         self._assert_error(writer, '#MAP0(1,x1:3)', "Invalid key (x1): (1,x1:3)", prefix)
+
+    def test_macro_n_decimal(self):
+        for base in (None, BASE_10):
+            for case in (None, CASE_LOWER, CASE_UPPER):
+                writer = self._get_writer(base=base, case=case)
+                for params, exp_output in (
+                    ('12', '12'),
+                    ('13579', '13579'),
+                    ('23,4', '23'),
+                    ('34,4,5', '00034'),
+                    ('45,,,1(0x)', '45'),
+                    ('56,,,1[,h]', '56'),
+                    ('23456,,,1//$/H//', '23456')
+                ):
+                    self.assertEqual(writer.expand('#N{}'.format(params)), exp_output,
+                                     "base={}, case={}".format(base, case))
+
+    def test_macro_n_hex_lower(self):
+        writer = self._get_writer(base=BASE_16, case=CASE_LOWER)
+        for params, exp_output in (
+            ('12', '0c'),
+            ('12($)', '0c($)'),
+            ('13579', '350b'),
+            ('13,4', '000d'),
+            ('14,4,5', '000e'),
+            ('15,,,1(0x)', '0x0f'),
+            ('26,,,1[,h]', '1ah'),
+            ('27,,,1||$|H||', '$1bH'),
+            ('13580,,,1($)', '$350c'),
+            ('13581,,,1{,h}', '350dh'),
+            ('13582,,,1::0x:H::', '0x350eH')
+        ):
+            self.assertEqual(writer.expand('#N{}'.format(params)), exp_output)
+
+    def test_macro_n_hex_upper(self):
+        writer = self._get_writer(base=BASE_16, case=CASE_UPPER)
+        for params, exp_output in (
+            ('12', '0C'),
+            ('12($)', '0C($)'),
+            ('13579', '350B'),
+            ('13,4', '000D'),
+            ('14,4,5', '000E'),
+            ('15,,,1(0x)', '0x0F'),
+            ('26,,,1(,h)', '1Ah'),
+            ('27,,,1{$,H}', '$1BH'),
+            ('13580,,,1;;$;;', '$350C'),
+            ('13581,,,1(,h)', '350Dh'),
+            ('13582,,,1! 0x H !', '0x350EH')
+        ):
+            self.assertEqual(writer.expand('#N{}'.format(params)), exp_output)
+
+    def test_macro_n_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('N')
+
+        self._assert_error(writer, '#N', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#N()', "No parameters (expected 1)", prefix)
+        self._assert_error(writer, '#N(2', "No closing bracket: (2", prefix)
+        self._assert_error(writer, '#N(x,4)', "Cannot parse integer 'x' in parameter string: 'x,4'", prefix)
+        self._assert_error(writer, '#N(1,2,3,4,5)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
+        self._assert_error(writer, '#N(4,3,2,1)', "No text parameter", prefix)
+        self._assert_error(writer, '#N(4,3,2,1)(a,b,c)', "Too many parameters (expected 2): 'a,b,c'", prefix)
 
     def test_macro_peek(self):
         writer = self._get_writer(snapshot=[1, 2, 3])

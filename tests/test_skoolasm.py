@@ -18,10 +18,10 @@ def get_chr(code):
         return chr(code)
 
 class MockSkoolParser:
-    def __init__(self, snapshot=None):
+    def __init__(self, snapshot=None, base=None):
         self.snapshot = snapshot
+        self.base = base
         self.memory_map = ()
-        self.base = None
 
     def get_entry(self, address):
         return None
@@ -30,7 +30,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def _get_writer(self, skool=None, crlf=False, tab=False, case=None, base=None,
                     instr_width=23, warn=False, asm_mode=1, fix_mode=0, snapshot=()):
         if skool is None:
-            skool_parser = MockSkoolParser(snapshot)
+            skool_parser = MockSkoolParser(snapshot, base)
             properties = {}
         else:
             skoolfile = self.write_text_file(skool, suffix='.skool')
