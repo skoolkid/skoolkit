@@ -669,21 +669,22 @@ class CommonSkoolMacroTest:
             self.assertEqual(writer.expand('#N{}'.format(params)), exp_output)
 
     def test_macro_n_hex_upper(self):
-        writer = self._get_writer(base=BASE_16, case=CASE_UPPER)
-        for params, exp_output in (
-            ('12', '0C'),
-            ('12($)', '0C($)'),
-            ('13579', '350B'),
-            ('13,4', '000D'),
-            ('14,4,5', '000E'),
-            ('15,,,1(0x)', '0x0F'),
-            ('26,,,1(,h)', '1Ah'),
-            ('27,,,1{$,H}', '$1BH'),
-            ('13580,,,1;;$;;', '$350C'),
-            ('13581,,,1(,h)', '350Dh'),
-            ('13582,,,1! 0x H !', '0x350EH')
-        ):
-            self.assertEqual(writer.expand('#N{}'.format(params)), exp_output)
+        for case in (None, CASE_UPPER):
+            writer = self._get_writer(base=BASE_16, case=case)
+            for params, exp_output in (
+                ('12', '0C'),
+                ('12($)', '0C($)'),
+                ('13579', '350B'),
+                ('13,4', '000D'),
+                ('14,4,5', '000E'),
+                ('15,,,1(0x)', '0x0F'),
+                ('26,,,1(,h)', '1Ah'),
+                ('27,,,1{$,H}', '$1BH'),
+                ('13580,,,1;;$;;', '$350C'),
+                ('13581,,,1(,h)', '350Dh'),
+                ('13582,,,1! 0x H !', '0x350EH')
+            ):
+                self.assertEqual(writer.expand('#N{}'.format(params)), exp_output, 'case={}'.format(case))
 
     def test_macro_n_invalid(self):
         writer = self._get_writer()
