@@ -706,6 +706,46 @@ See also :ref:`BUG` and :ref:`FACT`.
 |         | HTML mode; added support for ASM mode                            |
 +---------+------------------------------------------------------------------+
 
+.. _N:
+
+#N
+--
+The ``#N`` macro renders a numeric value in hexadecimal format when the
+``--hex`` option is used with :ref:`skool2asm.py` or :ref:`skool2html.py`, or in
+decimal format otherwise. A hexadecimal number is rendered in lower case when
+the ``--lower`` option is used, or in upper case otherwise. ::
+
+  #Nvalue[,hwidth,dwidth,affix][(prefix[,suffix])]
+
+* ``value`` is the numeric value
+* ``hwidth`` is the minimum number of digits printed in hexadecimal output
+  (default: 2 for values < 256, or 4 otherwise)
+* ``dwidth`` is the minimum number of digits printed in decimal output
+  (default: 1)
+* ``affix`` is 1 if ``prefix`` or ``suffix`` is specified, 0 if not (default:
+  0)
+* ``prefix`` is the prefix for a hexadecimal number (default: empty string)
+* ``suffix`` is the suffix for a hexadecimal number (default: empty string)
+
+For example::
+
+  #N15,4,5,1(0x)
+
+This instance of the ``#N`` macro expands to one of the following:
+
+* ``00015`` (when ``--hex`` is not used)
+* ``0x000F`` (when ``--hex`` is used without ``--lower``)
+* ``0x000f`` (when both ``--hex`` and ``--lower`` are used)
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``prefix`` and ``suffix`` parameters.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.2     | New     |
++---------+---------+
+
 .. _R:
 
 #R

@@ -3,6 +3,8 @@ Changelog
 
 5.2b1
 -----
+* Added the :ref:`N` macro (which renders a numeric value in hexadecimal format
+  when the ``--hex`` option is used with `skool2asm.py` or `skool2html.py`)
 
 5.1 (2016-01-09)
 ----------------
