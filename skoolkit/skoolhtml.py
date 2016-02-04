@@ -1278,6 +1278,11 @@ class HtmlWriter:
             raise MacroParsingError("Unknown page ID: {}".format(page_id))
         if link_text == '':
             link_text = self.links[page_id][0]
+        if page_id in self.main_memory_maps:
+            try:
+                anchor = '#' + self.asm_anchor(self.get_entry(int(anchor[1:])).address)
+            except (ValueError, AttributeError):
+                pass
         href = self.relpath(cwd, self.paths[page_id]) + anchor
         return end, self.format_link(href, link_text)
 
