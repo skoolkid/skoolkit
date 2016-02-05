@@ -1208,6 +1208,60 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(nest_macros('#LINK#(:{{}})({})'.format(link_text), page_id), ASMDIR)
         self._assert_link_equals(output, '../page2.html', link_text)
 
+    def test_macro_link_to_memory_map_page(self):
+        skool = '\n'.join((
+            'c40000 RET',
+            '',
+            'b40001 DEFB 0',
+            '',
+            't40002 DEFM "!"'
+        ))
+        address_fmt = '{address:04x}'
+        ref = '\n'.join((
+            '[Game]',
+            'AddressAnchor={}'.format(address_fmt),
+            '[MemoryMap:MemoryMap]',
+            '[MemoryMap:RoutinesMap]',
+            'EntryTypes=c',
+            '[MemoryMap:CustomMap]',
+            'EntryTypes=bt'
+        ))
+        writer = self._get_writer(skool=skool, ref=ref)
+
+        # Anchor matches an entry address - anchor should be converted
+        for page_id, address in (
+            ('RoutinesMap', 40000),
+            ('MemoryMap', 40001),
+            ('CustomMap', 40002),
+        ):
+            output = writer.expand('#LINK:{0}#{1}({1})'.format(page_id, address), ASMDIR)
+            exp_anchor = address_fmt.format(address=address)
+            self._assert_link_equals(output, '../maps/{}.html#{}'.format(page_id, exp_anchor), str(address))
+
+        # Anchor doesn't match an entry address - anchor should be unchanged
+        for page_id, anchor in (
+            ('RoutinesMap', '40003'),
+            ('MemoryMap', '40004'),
+            ('CustomMap', '40005'),
+            ('RoutinesMap', 'foo'),
+            ('MemoryMap', 'bar'),
+            ('CustomMap', 'baz')
+        ):
+            output = writer.expand('#LINK:{0}#{1}({1})'.format(page_id, anchor), ASMDIR)
+            self._assert_link_equals(output, '../maps/{}.html#{}'.format(page_id, anchor), anchor)
+
+    def test_macro_link_to_non_memory_map_page_with_entry_address_anchor(self):
+        skool = 'c40000 RET'
+        ref = '\n'.join((
+            '[Game]',
+            'AddressAnchor={address:04x}',
+            '[PageContent:CustomPage]',
+            'Hello'
+        ))
+        writer = self._get_writer(skool=skool, ref=ref)
+        output = writer.expand('#LINK:CustomPage#40000(foo)', ASMDIR)
+        self._assert_link_equals(output, '../CustomPage.html#40000', 'foo')
+
     def test_macro_link_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_link_invalid(self)
         self._assert_error(writer, '#LINK:nonexistentPageID(text)', 'Unknown page ID: nonexistentPageID', prefix)
