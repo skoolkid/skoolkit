@@ -624,9 +624,22 @@ the 'Glossary' page, with link text 'glossary'.
 
 In ASM mode, this instance of the ``#LINK`` macro expands to 'glossary'.
 
+To create a hyperlink to an entry on a memory map page, use the address of the
+entry as the anchor. For example::
+
+  ; Now we update the #LINK:GameStatusBuffer#40000(number of lives).
+
+In HTML mode, the anchor of this ``#LINK`` macro (40000) is converted to the
+format specified by the ``AddressAnchor`` parameter in the :ref:`ref-Game`
+section.
+
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 5.2     | An entry address anchor in a link to a memory map page is        |
+|         | converted to the format specified by the ``AddressAnchor``       |
+|         | parameter                                                        |
++---------+------------------------------------------------------------------+
 | 3.1.3   | If left blank, the link text defaults to the page's link text in |
 |         | HTML mode                                                        |
 +---------+------------------------------------------------------------------+
