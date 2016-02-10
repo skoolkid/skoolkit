@@ -255,9 +255,11 @@ set +e # No longer abort on errors (the following 'ls' commands can fail)
 for diff_type in $DIFF_TYPES; do
   echo
   diff_dir=diffs-$diff_type
+  echo -en "\e[0;31m"
   if [ $diff_type = "gif" ] || [ $diff_type = "png" ]; then
-    ls -al $diff_dir/*.txt
+    ls -l $diff_dir/*.txt 2> /dev/null
   else
-    ls -al $diff_dir/X-*.diff
-  fi || echo "No $diff_type diffs found in $diff_dir"
+    ls -l $diff_dir/X-*.diff 2> /dev/null
+  fi || echo -e "\e[0;32mNo $diff_type diffs found in $diff_dir"
+  echo -en "\e[0m"
 done
