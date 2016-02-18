@@ -116,8 +116,8 @@ The ``#()`` macro expands the skool macros in its sole string parameter. ::
 
   #(text)
 
-It takes effect only when it immediately follows another skool macro; in that
-case, it is expanded `before` that macro. For example::
+It takes effect only when it immediately follows the opening token of another
+skool macro, and is expanded `before` that macro. For example::
 
   #UDGARRAY#(2#FOR37159,37168,9||n|;(n+1),#PEEKn||)(item)
 
