@@ -39,4 +39,5 @@ SkoolKit can:
   ``@ofix``, ``@bfix`` and other ASM directives)
 * produce TAP files from assembled code (using ``bin2tap.py``)
 
-See the [user manual](http://skoolkid.github.io/skoolkit/) for more details.
+See the [user manual](http://skoolkid.github.io/skoolkit/) for more details
+(mirror [here](https://skoolkid.gitlab.io/skoolkit/)).
