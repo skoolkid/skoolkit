@@ -5,4 +5,7 @@ python:
   - 3.3
   - 3.4
   - 3.5
-script: make test
+install: pip install codecov
+script: make test-cover
+after_success:
+  - codecov
