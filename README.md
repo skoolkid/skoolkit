@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/skoolkid/skoolkit.svg?branch=master)](https://travis-ci.org/skoolkid/skoolkit)
+[![Coverage](https://codecov.io/github/skoolkid/skoolkit/coverage.svg?branch=master)](https://codecov.io/github/skoolkid/skoolkit?branch=master)
 
 SkoolKit
 ========
