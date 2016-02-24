@@ -5,7 +5,9 @@ python:
   - 3.3
   - 3.4
   - 3.5
-install: pip install codecov
-script: make test-cover
+install:
+  - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then pip install codecov; fi
+script:
+  - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then make test-cover; else make test; fi
 after_success:
-  - codecov
+  - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then codecov; fi
