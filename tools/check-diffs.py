@@ -104,6 +104,18 @@ def get_diffs(fname, options=None, fnames=False):
                 last = None
     return diffs
 
+def convert_addresses(lines, index):
+    changed = False
+    hex_lines = []
+    for line in lines:
+        try:
+            address = int(line[index + 1:index + 6])
+            hex_lines.append('{}${:04X}{}'.format(line[:index + 1], address, line[index + 6:]))
+            changed = True
+        except ValueError:
+            hex_lines.append(line)
+    return changed, hex_lines
+
 def run(diff_file, exp_diffs_file):
     diffs = get_diffs(diff_file, fnames=True)
     options = {}
@@ -122,6 +134,15 @@ def run(diff_file, exp_diffs_file):
     ignore_equivalent_defbs = options.get('IgnoreEquivalentDEFBs', False)
     ignore_strings = options.get('IgnoreDiffsContaining', ())
     ignore_regexes = options.get('IgnoreDiffsContainingRegex', ())
+    ignore_address_indexes = options.get('IgnoreAddressIndex', ())
+
+    for i in ignore_address_indexes:
+        index = int(i)
+        for _, old_lines, new_lines in exp_diffs[:]:
+            old_changed, hex_old_lines = convert_addresses(old_lines, index)
+            new_changed, hex_new_lines = convert_addresses(new_lines, index)
+            if old_changed or new_changed:
+                exp_diffs.append((None, hex_old_lines, hex_new_lines))
 
     unexp_diffs = set()
     lines = []
@@ -218,6 +239,7 @@ def run(diff_file, exp_diffs_file):
         print('+')
         for directive, value in (
             ('ExpIgnoreCase', ignore_exp_case),
+            ('IgnoreAddressIndex', ignore_address_indexes),
             ('IgnoreBlankLines', ignore_blank_lines),
             ('IgnoreCase', ignore_case),
             ('IgnoreDiffsContaining', ignore_strings),
