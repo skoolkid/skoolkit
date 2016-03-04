@@ -3,6 +3,37 @@
 Commands
 ========
 
+.. _bin2sna.py:
+
+bin2sna.py
+----------
+`bin2sna.py` converts a binary (raw memory) file into a Z80 snapshot. For
+example::
+
+  $ bin2sna.py game.bin
+
+will create a file named `game.z80`. By default, the origin address (the
+address of the first byte of code or data), the start address (the first byte
+of code to run) and the stack pointer are set to 65536 minus the length of
+`game.bin`.
+
+Run `bin2sna.py` with no arguments to see the list of available options::
+
+  usage: bin2sna.py [options] file.bin [file.z80]
+
+  Convert a binary (raw memory) file into a Z80 snapshot. If 'file.z80' is not
+  given, it defaults to the name of the input file with '.bin' replaced by
+  '.z80'.
+
+  Options:
+    -V, --version  Show SkoolKit version number and exit
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.2     | New     |
++---------+---------+
+
 .. _bin2tap.py:
 
 bin2tap.py

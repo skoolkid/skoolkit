@@ -84,6 +84,7 @@ setup(
     packages=['skoolkit'],
     package_data={'skoolkit': ['resources/*.css']},
     scripts=[
+        'bin2sna.py',
         'bin2tap.py',
         'skool2asm.py',
         'skool2bin.py',

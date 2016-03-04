@@ -216,6 +216,8 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 _authors = [u'Richard Dymond']
 man_pages = [
+    ('man/bin2sna.py', 'bin2sna.py',
+     u'convert a binary file into a Z80 snapshot', _authors, 1),
     ('man/bin2tap.py', 'bin2tap.py',
      u'convert a binary file or snapshot into a TAP file', _authors, 1),
     ('man/skool2asm.py', 'skool2asm.py',

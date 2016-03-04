@@ -113,10 +113,10 @@ def open_file(fname, mode='r'):
         # Assume this is already a file-like object
         return fname
 
-def read_bin_file(fname):
+def read_bin_file(fname, size=-1):
     try:
         with open(fname, 'rb') as f:
-            return bytearray(f.read()) # PY: 'return f.read()' in Python 3
+            return bytearray(f.read(size)) # PY: 'return f.read(size)' in Python 3
     except IOError as e:
         if e.errno == 2:
             raise SkoolKitError('{0}: file not found'.format(fname))
