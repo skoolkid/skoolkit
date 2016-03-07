@@ -31,10 +31,10 @@ def _get_z80(ram, org):
         z80 += make_z80_ram_block(data, bank + 3)
     return z80
 
-def _write_z80(infile, outfile):
+def run(infile, outfile, options):
     ram = list(read_bin_file(infile, 49152))
-    org = 65536 - len(ram)
-    ram = [0] * (49152 - len(ram)) + ram
+    org = options.org or 65536 - len(ram)
+    ram = [0] * (org - 16384) + ram + [0] * (65536 - org - len(ram))
     parent_dir = os.path.dirname(outfile)
     if parent_dir and not os.path.isdir(parent_dir):
         os.makedirs(parent_dir)
@@ -51,6 +51,8 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-o', '--org', dest='org', metavar='ORG', type=int,
+                       help="Set the origin address (default: 65536 minus the length of file.bin)")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
     namespace, unknown_args = parser.parse_known_args(args)
@@ -63,4 +65,4 @@ def main(args):
             outfile = infile[:-3] + 'z80'
         else:
             outfile = infile + '.z80'
-    _write_z80(infile, outfile)
+    run(infile, outfile, namespace)

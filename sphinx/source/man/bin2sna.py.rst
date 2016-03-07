@@ -16,6 +16,10 @@ replaced by '.z80'.
 
 OPTIONS
 =======
+-o, --org `ORG`
+  Set the origin address. The default origin address is 65536 minus the length
+  of file.bin.
+
 -V, --version
   Show the SkoolKit version number and exit.
 

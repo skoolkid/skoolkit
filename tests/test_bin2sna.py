@@ -1,14 +1,22 @@
 # -*- coding: utf-8 -*-
 import os
 import unittest
+try:
+    from mock import patch
+except ImportError:
+    from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import bin2sna, VERSION
 from skoolkit.snapshot import get_snapshot
 
+def mock_run(*args):
+    global run_args
+    run_args = args
+
 class Bin2SnaTest(SkoolKitTestCase):
-    def _run(self, infile, outfile=None):
-        args = infile
+    def _run(self, args, outfile=None):
+        infile = args.split()[-1]
         if outfile:
             args += ' ' + outfile
         elif infile.lower().endswith('.bin'):
@@ -22,10 +30,12 @@ class Bin2SnaTest(SkoolKitTestCase):
         self.tempfiles.append(outfile)
         return outfile
 
-    def _check_z80(self, z80file, data):
+    def _check_z80(self, z80file, data, org=None):
         with open(z80file, 'rb') as f:
             z80h = bytearray(f.read(34))
-        org = pc = sp = 65536 - len(data)
+        if org is None:
+            org = 65536 - len(data)
+        pc = sp = org
 
         self.assertEqual((z80h[12] >> 1) & 7, 0) # BORDER
         self.assertEqual(z80h[27], 1)            # IFF1
@@ -40,6 +50,16 @@ class Bin2SnaTest(SkoolKitTestCase):
         snapshot = get_snapshot(z80file)
         self.assertEqual(data, snapshot[org:org + len(data)])
 
+    @patch.object(bin2sna, 'run', mock_run)
+    def test_default_option_values(self):
+        data = [0] * 10
+        binfile = self.write_bin_file(data, suffix='.bin')
+        bin2sna.main((binfile,))
+        infile, outfile, options = run_args
+        self.assertEqual(infile, binfile)
+        self.assertEqual(outfile, binfile[:-3] + 'z80')
+        self.assertEqual(options.org, None)
+
     def test_no_arguments(self):
         output, error = self.run_bin2sna(catch_exit=2)
         self.assertEqual([], output)
@@ -49,6 +69,13 @@ class Bin2SnaTest(SkoolKitTestCase):
         output, error = self.run_bin2sna('-x test_invalid_option.bin', catch_exit=2)
         self.assertEqual([], output)
         self.assertTrue(error.startswith('usage: bin2sna.py'))
+
+    def test_invalid_option_value(self):
+        binfile = self.write_bin_file(suffix='.bin')
+        for option in ('-o ABC',):
+            output, error = self.run_bin2sna('{} {}'.format(option, binfile), catch_exit=2)
+            self.assertEqual([], output)
+            self.assertTrue(error.startswith('usage: bin2sna.py'))
 
     def test_no_options(self):
         data = [1, 2, 3, 4, 5]
@@ -76,6 +103,13 @@ class Bin2SnaTest(SkoolKitTestCase):
         binfile = self.write_bin_file(data, suffix='.bin')
         z80file = self._run(binfile, '{}/out.z80'.format(odir))
         self._check_z80(z80file, data)
+
+    def test_option_o(self):
+        data = [1, 2, 3]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        for option, org in (('-o', 30000), ('--org', 40000)):
+            z80file = self._run("{} {} {}".format(option, org, binfile))
+            self._check_z80(z80file, data, org)
 
     def test_option_V(self):
         for option in ('-V', '--version'):
