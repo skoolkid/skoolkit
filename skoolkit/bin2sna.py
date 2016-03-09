@@ -22,10 +22,10 @@ import argparse
 from skoolkit import read_bin_file, VERSION
 from skoolkit.snapshot import make_z80_ram_block, set_z80_registers, set_z80_state
 
-def _get_z80(ram, org):
+def _get_z80(ram, sp, pc):
     z80 = [0] * 86
     z80[30] = 54 # Indicate a v3 Z80 snapshot
-    set_z80_registers(z80, 'i=63', 'iy=23610', 'sp={}'.format(org), 'pc={}'.format(org))
+    set_z80_registers(z80, 'i=63', 'iy=23610', 'sp={}'.format(sp), 'pc={}'.format(pc))
     set_z80_state(z80, 'iff=1', 'im=1')
     for bank, data in ((5, ram[:16384]), (1, ram[16384:32768]), (2, ram[32768:49152])):
         z80 += make_z80_ram_block(data, bank + 3)
@@ -35,11 +35,15 @@ def run(infile, outfile, options):
     ram = list(read_bin_file(infile, 49152))
     org = options.org or 65536 - len(ram)
     ram = [0] * (org - 16384) + ram + [0] * (65536 - org - len(ram))
+    if options.start is None:
+        start = org
+    else:
+        start = options.start
     parent_dir = os.path.dirname(outfile)
     if parent_dir and not os.path.isdir(parent_dir):
         os.makedirs(parent_dir)
     with open(outfile, 'wb') as f:
-        f.write(bytearray(_get_z80(ram, org)))
+        f.write(bytearray(_get_z80(ram, org, start)))
 
 def main(args):
     parser = argparse.ArgumentParser(
@@ -53,6 +57,8 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-o', '--org', dest='org', metavar='ORG', type=int,
                        help="Set the origin address (default: 65536 minus the length of file.bin)")
+    group.add_argument('-s', '--start', dest='start', metavar='START', type=int,
+                       help="Set the address at which to start execution (default: ORG)")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
     namespace, unknown_args = parser.parse_known_args(args)

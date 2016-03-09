@@ -20,6 +20,10 @@ OPTIONS
   Set the origin address. The default origin address is 65536 minus the length
   of file.bin.
 
+-s, --start `START`
+  Set the address at which to start execution when the snapshot is loaded. The
+  default start address is `ORG`.
+
 -V, --version
   Show the SkoolKit version number and exit.
 
@@ -30,7 +34,8 @@ EXAMPLES
    |
    |   ``bin2sna.py game.bin``
 
-2. Convert ``ram.bin`` into a Z80 snapshot named ``game.z80``:
+2. Convert ``ram.bin`` into a Z80 snapshot named ``game.z80`` that starts
+   execution at 32768:
 
    |
-   |   ``bin2tap.py ram.bin game.z80``
+   |   ``bin2sna.py -s 32768 ram.bin game.z80``

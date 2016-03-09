@@ -26,9 +26,12 @@ Run `bin2sna.py` with no arguments to see the list of available options::
   '.z80'.
 
   Options:
-    -o ORG, --org ORG  Set the origin address (default: 65536 minus the length
-                       of file.bin)
-    -V, --version      Show SkoolKit version number and exit
+    -o ORG, --org ORG     Set the origin address (default: 65536 minus the
+                          length of file.bin)
+    -s START, --start START
+                          Set the address at which to start execution (default:
+                          ORG)
+    -V, --version         Show SkoolKit version number and exit
 
 +---------+---------+
 | Version | Changes |
