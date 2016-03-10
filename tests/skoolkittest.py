@@ -2,8 +2,9 @@
 import sys
 try:
     from StringIO import StringIO
+    from io import BytesIO
 except ImportError:
-    from io import StringIO
+    from io import BytesIO, StringIO
 import os
 from os.path import abspath, dirname
 from shutil import rmtree
@@ -65,33 +66,42 @@ def create_tzx_header_block(title='', start=0, data_type=3):
     return block
 
 class Stream:
-    def __init__(self):
-        self.buffer = StringIO()
+    def __init__(self, binary=False):
+        self._buffer = BytesIO() if binary else StringIO()
+        self.buffer = self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return
 
     def write(self, text):
-        self.buffer.write(text)
+        self._buffer.write(text)
 
     def writelines(self, lines):
-        self.buffer.writelines(lines)
+        self._buffer.writelines(lines)
 
     def flush(self):
         return
 
     def getvalue(self):
-        return self.buffer.getvalue()
+        return self._buffer.getvalue()
 
     def clear(self):
-        self.buffer.seek(0)
-        self.buffer.truncate()
+        self._buffer.seek(0)
+        self._buffer.truncate()
 
 class SkoolKitTestCase(TestCase):
+    stdout_binary = False
+
     def setUp(self):
         self.longMessage = True
         self.maxDiff = None
         self.stdin = sys.stdin
         self.stdout = sys.stdout
         self.stderr = sys.stderr
-        sys.stdout = self.out = Stream()
+        sys.stdout = self.out = Stream(self.stdout_binary)
         sys.stderr = self.err = Stream()
         self.tempfiles = []
         self.tempdirs = []

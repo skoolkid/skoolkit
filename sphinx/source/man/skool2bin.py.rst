@@ -13,7 +13,7 @@ DESCRIPTION
 ``skool2bin.py`` converts a skool file into a binary (raw memory) file.
 'file.skool' may be a regular file, or '-' for standard input. If 'file.bin' is
 not given, it defaults to the name of the input file with '.skool' replaced by
-'.bin'.
+'.bin'. 'file.bin' may be a regular file, or '-' for standard output.
 
 OPTIONS
 =======

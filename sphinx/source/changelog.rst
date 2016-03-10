@@ -7,6 +7,7 @@ Changelog
   snapshot)
 * Added the :ref:`N` macro (which renders a numeric value in hexadecimal format
   when the ``--hex`` option is used with `skool2asm.py` or `skool2html.py`)
+* :ref:`skool2bin.py` can now write to standard output
 * When the :ref:`LINK` macro links to an entry on a memory map page, the anchor
   is converted to the format specified by the ``AddressAnchor`` parameter
 

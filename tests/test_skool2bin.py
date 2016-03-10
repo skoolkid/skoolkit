@@ -162,6 +162,8 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
 
 class BinWriterTest(SkoolKitTestCase):
+    stdout_binary = True
+
     def _test_write(self, skool, base_address, exp_data, exp_err=None, asm_mode=0, fix_mode=0, start=None, end=None):
         if skool is None:
             skoolfile = '-'
@@ -235,6 +237,13 @@ class BinWriterTest(SkoolKitTestCase):
     def test_skool_file_from_stdin(self):
         self.write_stdin('c49152 RET')
         self._test_write(None, 49152, [201])
+
+    def test_binary_file_to_stdout(self):
+        skoolfile = self.write_text_file('t30000 DEFM "abc"', suffix='.skool')
+        bin_writer = skool2bin.BinWriter(skoolfile)
+        bin_writer.write('-', None, None)
+        self.assertEqual(self.out.getvalue(), b'abc')
+        self.assertEqual(self.err.getvalue(), "Wrote stdout: start=30000, end=30003, size=3\n")
 
     def test_start_address(self):
         skool = '\n'.join((

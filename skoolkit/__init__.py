@@ -102,6 +102,10 @@ def get_class(name_spec):
 
 def open_file(fname, mode='r'):
     if fname == '-':
+        if 'w' in mode:
+            if PY3 and 'b' in mode:
+                return sys.stdout.buffer # pragma: no cover
+            return sys.stdout
         return sys.stdin
     try:
         return open(fname, mode)

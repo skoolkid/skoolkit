@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2015, 2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -130,8 +130,10 @@ class BinWriter:
         else:
             end_address = end
         data = self.snapshot[base_address:end_address]
-        with open(binfile, 'wb') as f:
+        with open_file(binfile, 'wb') as f:
             f.write(bytearray(data))
+        if binfile == '-':
+            binfile = 'stdout'
         info("Wrote {}: start={}, end={}, size={}".format(binfile, base_address, end_address, len(data)))
 
 def run(skoolfile, binfile, options):
@@ -143,7 +145,8 @@ def main(args):
         usage='skool2bin.py [options] file.skool [file.bin]',
         description="Convert a skool file into a binary (raw memory) file. "
                     "'file.skool' may be a regular file, or '-' for standard input. "
-                    "If 'file.bin' is not given, it defaults to the name of the input file with '.skool' replaced by '.bin'.",
+                    "If 'file.bin' is not given, it defaults to the name of the input file with '.skool' replaced by '.bin'. "
+                    "'file.bin' may be a regular file, or '-' for standard output.",
         add_help=False
     )
     parser.add_argument('skoolfile', help=argparse.SUPPRESS, nargs='?')

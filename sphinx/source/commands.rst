@@ -186,6 +186,7 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
   Convert a skool file into a binary (raw memory) file. 'file.skool' may be a
   regular file, or '-' for standard input. If 'file.bin' is not given, it
   defaults to the name of the input file with '.skool' replaced by '.bin'.
+  'file.bin' may be a regular file, or '-' for standard output.
 
   Options:
     -b, --bfix            Apply @ofix and @bfix directives
@@ -197,13 +198,15 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
                           Start converting at this address
     -V, --version         Show SkoolKit version number and exit
 
-+---------+---------------------------------------------------------+
-| Version | Changes                                                 |
-+=========+=========================================================+
-| 5.1     | Added the ``--bfix``, ``--ofix`` and ``--ssub`` options |
-+---------+---------------------------------------------------------+
-| 5.0     | New                                                     |
-+---------+---------------------------------------------------------+
++---------+---------------------------------------------------------------+
+| Version | Changes                                                       |
++=========+===============================================================+
+| 5.2     | Added the ability to write the binary file to standard output |
++---------+---------------------------------------------------------------+
+| 5.1     | Added the ``--bfix``, ``--ofix`` and ``--ssub`` options       |
++---------+---------------------------------------------------------------+
+| 5.0     | New                                                           |
++---------+---------------------------------------------------------------+
 
 .. _skool2ctl.py:
 
