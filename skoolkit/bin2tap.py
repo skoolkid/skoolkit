@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2010-2013, 2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2013, 2015, 2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -93,8 +93,8 @@ def _get_data_loader(title, org, length, start, stack):
     return _get_header(title, len(data), 23296) + _make_tap_block(data)
 
 def run(ram, clear, org, start, stack, binfile, tapfile):
-    title = os.path.basename(binfile)
-    if title.lower().endswith(('.bin', '.sna', '.szx', '.z80')):
+    title = os.path.basename(tapfile)
+    if title.lower().endswith('.tap'):
         title = title[:-4]
     tap_data = _get_basic_loader(title, clear, start)
 
@@ -107,6 +107,7 @@ def run(ram, clear, org, start, stack, binfile, tapfile):
             # If the main data block overwrites the stack, make sure that
             # SA/LD-RET (1343) and the start address are ready to be popped off
             # the stack when loading has finished
+            ram = list(ram)
             for byte in stack_contents:
                 if 0 <= index < length:
                     ram[index] = byte
@@ -122,7 +123,8 @@ def run(ram, clear, org, start, stack, binfile, tapfile):
 def main(args):
     parser = argparse.ArgumentParser(
         usage='bin2tap.py [options] FILE',
-        description="Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a TAP file.",
+        description="Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a TAP file. "
+                    "FILE may be a regular file, or '-' to read a binary file from standard input.",
         add_help=False
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
@@ -150,7 +152,7 @@ def main(args):
         org = namespace.org or 16384
         ram = get_snapshot(infile)[org:namespace.end]
     else:
-        ram = read_bin_file(infile)
+        ram = read_bin_file(infile, 49152)
         org = namespace.org or 65536 - len(ram)
     clear = namespace.clear
     start = namespace.start or org
@@ -159,6 +161,8 @@ def main(args):
     if tapfile is None:
         if infile.lower().endswith(('.bin', '.sna', '.szx', '.z80')):
             prefix = infile[:-4]
+        elif infile == '-':
+            prefix = 'program'
         else:
             prefix = infile
         tapfile = prefix + ".tap"

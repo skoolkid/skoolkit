@@ -21,9 +21,10 @@ Run `bin2sna.py` with no arguments to see the list of available options::
 
   usage: bin2sna.py [options] file.bin [file.z80]
 
-  Convert a binary (raw memory) file into a Z80 snapshot. If 'file.z80' is not
-  given, it defaults to the name of the input file with '.bin' replaced by
-  '.z80'.
+  Convert a binary (raw memory) file into a Z80 snapshot. 'file.bin' may be a
+  regular file, or '-' for standard input. If 'file.z80' is not given, it
+  defaults to the name of the input file with '.bin' replaced by '.z80', or
+  'program.z80' if reading from standard input.
 
   Options:
     -o ORG, --org ORG     Set the origin address (default: 65536 minus the
@@ -57,7 +58,8 @@ it with no arguments to see the list of available options::
   usage: bin2tap.py [options] FILE
 
   Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a TAP
-  file.
+  file. FILE may be a regular file, or '-' to read a binary file from standard
+  input.
 
   Options:
     -c N, --clear N       Use a 'CLEAR N' command in the BASIC loader and leave
@@ -93,6 +95,8 @@ Spectrum is 23952 ($5D90).
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 5.2     | Added the ability to read a binary file from standard input     |
++---------+-----------------------------------------------------------------+
 | 4.5     | Added the ``--clear`` and ``--end`` options, and the ability to |
 |         | convert SNA, SZX and Z80 snapshots                              |
 +---------+-----------------------------------------------------------------+

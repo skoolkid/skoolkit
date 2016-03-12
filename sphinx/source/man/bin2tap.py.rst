@@ -11,7 +11,8 @@ SYNOPSIS
 DESCRIPTION
 ===========
 ``bin2tap.py`` converts a binary (raw memory) file or a SNA, SZX or Z80
-snapshot into a TAP file.
+snapshot into a TAP file. FILE may be a regular file, or '-' to read a binary
+file from standard input.
 
 OPTIONS
 =======
@@ -33,8 +34,9 @@ OPTIONS
   Set the start address to JP to; the default start address is `ORG`.
 
 -t, --tapfile `TAPFILE`
-  Set the TAP filename; the default filename is the basename of FILE with the
-  '.bin', '.sna', '.szx' or '.z80' suffix replaced by '.tap'.
+  Set the TAP filename. If reading from standard input, the default filename is
+  'program.tap'; otherwise it is the basename of FILE with the '.bin', '.sna',
+  '.szx' or '.z80' suffix replaced by '.tap'.
 
 -V, --version
   Show the SkoolKit version number and exit.

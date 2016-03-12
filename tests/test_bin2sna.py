@@ -21,6 +21,8 @@ class Bin2SnaTest(SkoolKitTestCase):
             args += ' ' + outfile
         elif infile.lower().endswith('.bin'):
             outfile = infile[:-3] + 'z80'
+        elif infile == '-':
+            outfile = 'program.z80'
         else:
             outfile = infile + '.z80'
         output, error = self.run_bin2sna(args)
@@ -105,6 +107,12 @@ class Bin2SnaTest(SkoolKitTestCase):
         data = [1]
         binfile = self.write_bin_file(data, suffix='.bin')
         z80file = self._run(binfile, '{}/out.z80'.format(odir))
+        self._check_z80(z80file, data)
+
+    def test_read_from_standard_input(self):
+        data = [1, 2, 3]
+        self.write_stdin(bytearray(data))
+        z80file = self._run('-')
         self._check_z80(z80file, data)
 
     def test_option_o(self):

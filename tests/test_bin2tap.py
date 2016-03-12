@@ -29,7 +29,7 @@ class Bin2TapTest(SkoolKitTestCase):
             tap = f.read()
         if PY3:
             return list(tap)
-        return [ord(c) for c in tap]
+        return map(ord, tap)
 
     def _get_word(self, num):
         return (num % 256, num // 256)
@@ -43,17 +43,20 @@ class Bin2TapTest(SkoolKitTestCase):
     def _get_str(self, chars):
         return [ord(c) for c in chars]
 
-    def _check_tap(self, tap_data, bin_data, infile, org=None, start=None, stack=None):
+    def _check_tap(self, tap_data, bin_data, infile, org=None, start=None, stack=None, name=None):
         if org is None:
             org = 65536 - len(bin_data)
         if start is None:
             start = org
         if stack is None:
             stack = org
-
-        name = os.path.basename(infile)
-        if name.lower().endswith(('.bin', '.sna', '.szx', '.z80')):
-            name = name[:-4]
+        if name is None:
+            if infile == '-':
+                name = 'program'
+            else:
+                name = os.path.basename(infile)
+                if name.lower().endswith(('.bin', '.sna', '.szx', '.z80')):
+                    name = name[:-4]
         title = [ord(c) for c in name[:10].ljust(10)]
 
         # BASIC loader header
@@ -224,6 +227,13 @@ class Bin2TapTest(SkoolKitTestCase):
         tap_data = self._run(binfile)
         self._check_tap(tap_data, bin_data, binfile)
 
+    def test_read_from_standard_input(self):
+        bin_data = [1, 2, 3]
+        self.write_stdin(bytearray(bin_data))
+        binfile = '-'
+        tap_data = self._run(binfile, 'program.tap')
+        self._check_tap(tap_data, bin_data, binfile)
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_bin2tap(option, err_lines=True, catch_exit=0)
@@ -270,7 +280,7 @@ class Bin2TapTest(SkoolKitTestCase):
         binfile = self.write_bin_file(bin_data, suffix='.bin')
         for option in ('-t', '--tapfile'):
             tap_data = self._run('{} {} {}'.format(option, tapfile, binfile), tapfile)
-            self._check_tap(tap_data, bin_data, binfile)
+            self._check_tap(tap_data, bin_data, binfile, name=tapfile[:-4])
             os.remove(tapfile)
 
     def test_data_overwrites_stack(self):

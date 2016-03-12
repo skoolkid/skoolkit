@@ -15,7 +15,7 @@ from unittest import TestCase
 
 SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
-from skoolkit import (bin2sna, bin2tap, skool2asm, skool2bin, skool2ctl,
+from skoolkit import (PY3, bin2sna, bin2tap, skool2asm, skool2bin, skool2ctl,
                       skool2html, skool2sft, sna2skool, tap2sna, tapinfo)
 
 def get_parity(data):
@@ -79,9 +79,6 @@ class Stream:
     def write(self, text):
         self._buffer.write(text)
 
-    def writelines(self, lines):
-        self._buffer.writelines(lines)
-
     def flush(self):
         return
 
@@ -91,6 +88,30 @@ class Stream:
     def clear(self):
         self._buffer.seek(0)
         self._buffer.truncate()
+
+class StdIn:
+    def __init__(self, data):
+        if PY3 or isinstance(data, str):
+            self.data = data
+            self.buffer = self
+        else:
+            self.data = "".join(map(chr, data))
+
+    def __iter__(self):
+        for line in self.data.split('\n'):
+            yield line
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return
+
+    def read(self, *args):
+        return self.data
+
+    def close(self):
+        return
 
 class SkoolKitTestCase(TestCase):
     stdout_binary = False
@@ -108,7 +129,6 @@ class SkoolKitTestCase(TestCase):
 
     def tearDown(self):
         self.remove_files()
-        sys.stdin.close()
         sys.stdin = self.stdin
         sys.stdout = self.stdout
         sys.stderr = self.stderr
@@ -169,7 +189,7 @@ class SkoolKitTestCase(TestCase):
         return self._write_file(bytearray(data), path, suffix, False)
 
     def write_stdin(self, contents):
-        sys.stdin = open(self.write_text_file(contents), 'r')
+        sys.stdin = StdIn(contents)
 
     def _get_z80_ram_block(self, data, compress, page=None):
         if compress:

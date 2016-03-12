@@ -10,9 +10,10 @@ SYNOPSIS
 
 DESCRIPTION
 ===========
-``bin2sna.py`` converts a binary (raw memory) file into a Z80 snapshot. If
-'file.z80' is not given, it defaults to the name of the input file with '.bin'
-replaced by '.z80'.
+``bin2sna.py`` converts a binary (raw memory) file into a Z80 snapshot.
+'file.bin' may be a regular file, or '-' for standard input. If 'file.z80' is
+not given, it defaults to the name of the input file with '.bin' replaced by
+'.z80', or 'program.z80' if reading from standard input.
 
 OPTIONS
 =======

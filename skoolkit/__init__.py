@@ -118,9 +118,15 @@ def open_file(fname, mode='r'):
         return fname
 
 def read_bin_file(fname, size=-1):
+    if fname == '-':
+        if PY3:
+            return sys.stdin.buffer.read(size) # pragma: no cover
+        return bytearray(sys.stdin.read(size))
     try:
         with open(fname, 'rb') as f:
-            return bytearray(f.read(size)) # PY: 'return f.read(size)' in Python 3
+            if PY3:
+                return f.read(size) # pragma: no cover
+            return bytearray(f.read(size))
     except IOError as e:
         if e.errno == 2:
             raise SkoolKitError('{0}: file not found'.format(fname))

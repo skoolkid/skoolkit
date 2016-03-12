@@ -49,7 +49,9 @@ def main(args):
     parser = argparse.ArgumentParser(
         usage='bin2sna.py [options] file.bin [file.z80]',
         description="Convert a binary (raw memory) file into a Z80 snapshot. "
-                    "If 'file.z80' is not given, it defaults to the name of the input file with '.bin' replaced by '.z80'.",
+                    "'file.bin' may be a regular file, or '-' for standard input. "
+                    "If 'file.z80' is not given, it defaults to the name of the input file with '.bin' replaced by '.z80', "
+                    "or 'program.z80' if reading from standard input.",
         add_help=False
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
@@ -69,6 +71,8 @@ def main(args):
     if outfile is None:
         if infile.lower().endswith('.bin'):
             outfile = infile[:-3] + 'z80'
+        elif infile == '-':
+            outfile = 'program.z80'
         else:
             outfile = infile + '.z80'
     run(infile, outfile, namespace)
