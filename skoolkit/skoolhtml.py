@@ -126,6 +126,7 @@ class HtmlWriter:
 
         self.game_vars = self.get_dictionary('Game')
         self.asm_anchor_template = self.game_vars['AddressAnchor']
+        self.udg_fname_template = self.game_vars['UDGFilename']
         self.paths = self.get_dictionary('Paths')
         self.asm_fname_template = self.paths['CodeFiles']
         self.titles = self.get_dictionary('Titles')
@@ -1375,7 +1376,7 @@ class HtmlWriter:
         addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step = params
         udgs = lambda: self._build_udg(addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step)
         if not fname and not frame:
-            fname = 'udg{}_{}x{}'.format(addr, attr, scale)
+            fname = self.udg_fname_template.format(addr=addr, attr=attr, scale=scale)
             if frame == '':
                 frame = fname
         frames = [Frame(udgs, scale, mask, *crop_rect, name=frame)]

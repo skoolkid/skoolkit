@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2014, 2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2014-2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -65,6 +65,7 @@ Release=
 StyleSheet=skoolkit.css
 TitlePrefix=The complete
 TitleSuffix=RAM disassembly
+UDGFilename=udg{addr}_{attr}x{scale}
 """
 
 SECTIONS['ImageWriter'] = """

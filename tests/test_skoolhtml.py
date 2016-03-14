@@ -46,6 +46,7 @@ AddressAnchor={{address}}
 Created=
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
+UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
 [Paths]
 CodePath={}
 CodeFiles={{address}}.html
@@ -57,6 +58,7 @@ AddressAnchor={{address}}
 Created=
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
+UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
 [Paths]
 CodePath={ASMDIR}
 ScreenshotImagePath={SCRDIR}
@@ -72,6 +74,7 @@ AddressAnchor={{address}}
 Created=
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
+UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
 {REF_SECTIONS[PageHeaders]}
 [Paths]
 CodePath={ASMDIR}
@@ -2071,6 +2074,21 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(macro, ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         self._check_image(writer, [[udg]], scale, mask, y=y, height=28, path=exp_image_path)
+
+    def test_macro_udg_with_custom_default_udg_filename(self):
+        udg_filename = 'udg{addr:04X}_{attr:02X}x{scale}'
+        ref = '[Game]\nUDGFilename={}'.format(udg_filename)
+        writer = self._get_writer(ref=ref, snapshot=[0] * 24, mock_file_info=True)
+
+        addr = 16
+        attr = 40
+        scale = 3
+        exp_fname = 'udg0010_28x3'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, exp_fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDG{},{},{}'.format(addr, attr, scale), ASMDIR)
+        self._assert_img_equals(output, exp_fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
 
     def test_macro_udg_with_custom_udg_image_path(self):
         udg_path = 'graphics/udgs'
