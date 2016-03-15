@@ -2901,12 +2901,14 @@ class SkoolParserTest(SkoolKitTestCase):
             ' 24598 LD D,B',
             '@bfix+end',
             '',
-            "; Let's test the @rfix block directive",
+            "; Let's test some @rfix directives",
             'c24599 NOP',
-            '@rfix-begin',
+            '@rfix=LD E,B',
             ' 24600 LD E,A',
+            '@rfix-begin',
+            ' 24601 LD H,A',
             '@rfix+else',
-            ' 24600 LD E,B',
+            ' 24601 LD H,B',
             '@rfix+end',
         ))
         parser = self._get_parser(skool, asm_mode=1, fix_mode=0)
@@ -2918,6 +2920,7 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instructions[2].operation, 'LD D,A')
         instructions = parser.get_entry(24599).instructions
         self.assertEqual(instructions[1].operation, 'LD E,A')
+        self.assertEqual(instructions[2].operation, 'LD H,A')
 
     def test_fix_mode_1(self):
         skool = '\n'.join((
@@ -2942,12 +2945,14 @@ class SkoolParserTest(SkoolKitTestCase):
             ' 24598 LD D,B',
             '@bfix+end',
             '',
-            "; Let's test the @rfix block directive",
+            "; Let's test some @rfix directives",
             'c24599 NOP',
-            '@rfix-begin',
+            '@rfix=LD E,B',
             ' 24600 LD E,A',
+            '@rfix-begin',
+            ' 24601 LD H,A',
             '@rfix+else',
-            ' 24600 LD E,B',
+            ' 24601 LD H,B',
             '@rfix+end',
         ))
         parser = self._get_parser(skool, asm_mode=1, fix_mode=1)
@@ -2959,6 +2964,7 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instructions[2].operation, 'LD D,A')
         instructions = parser.get_entry(24599).instructions
         self.assertEqual(instructions[1].operation, 'LD E,A')
+        self.assertEqual(instructions[2].operation, 'LD H,A')
 
     def test_fix_mode_2(self):
         skool = '\n'.join((
@@ -2983,12 +2989,14 @@ class SkoolParserTest(SkoolKitTestCase):
             ' 24598 LD D,B',
             '@bfix+end',
             '',
-            "; Let's test the @rfix block directive",
+            "; Let's test some @rfix directives",
             'c24599 NOP',
-            '@rfix-begin',
+            '@rfix=LD E,B',
             ' 24600 LD E,A',
+            '@rfix-begin',
+            ' 24601 LD H,A',
             '@rfix+else',
-            ' 24600 LD E,B',
+            ' 24601 LD H,B',
             '@rfix+end',
         ))
         parser = self._get_parser(skool, asm_mode=1, fix_mode=2)
@@ -3000,6 +3008,7 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instructions[2].operation, 'LD D,B')
         instructions = parser.get_entry(24599).instructions
         self.assertEqual(instructions[1].operation, 'LD E,A')
+        self.assertEqual(instructions[2].operation, 'LD H,A')
 
     def test_fix_mode_3(self):
         skool = '\n'.join((
@@ -3024,12 +3033,14 @@ class SkoolParserTest(SkoolKitTestCase):
             ' 24598 LD D,B',
             '@bfix+end',
             '',
-            "; Let's test the @rfix block directive",
+            "; Let's test some @rfix directives",
             'c24599 NOP',
-            '@rfix-begin',
+            '@rfix=LD E,B',
             ' 24600 LD E,A',
+            '@rfix-begin',
+            ' 24601 LD H,A',
             '@rfix+else',
-            ' 24600 LD E,B',
+            ' 24601 LD H,B',
             '@rfix+end',
         ))
         parser = self._get_parser(skool, asm_mode=3, fix_mode=3)
@@ -3041,6 +3052,7 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instructions[2].operation, 'LD D,B')
         instructions = parser.get_entry(24599).instructions
         self.assertEqual(instructions[1].operation, 'LD E,B')
+        self.assertEqual(instructions[2].operation, 'LD H,B')
 
     def test_rsub_minus_inside_rsub_minus(self):
         # @rsub-begin inside @rsub- block

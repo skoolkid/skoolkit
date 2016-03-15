@@ -642,6 +642,28 @@ See also :ref:`definingMacrosWithReplace`.
 | 5.1     | New     |
 +---------+---------+
 
+.. _rfix:
+
+@rfix
+^^^^^
+The ``@rfix`` directive makes an instruction substitution in :ref:`rfixMode`.
+::
+
+  @rfix=INSTRUCTION
+
+* ``INSTRUCTION`` is the replacement instruction
+
+For example::
+
+  @rfix=LD HL,0
+   27519 LD L,0
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.2     | New     |
++---------+---------+
+
 .. _rfixBlockDirectives:
 
 @rfix block directives

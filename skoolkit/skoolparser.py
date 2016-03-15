@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -502,6 +502,8 @@ class SkoolParser:
                     self.mode.bfix = directive[5:].rstrip()
                 elif directive.startswith('ofix='):
                     self.mode.ofix = directive[5:].rstrip()
+                elif directive.startswith('rfix='):
+                    self.mode.rfix = directive[5:].rstrip()
                 elif directive.startswith('nolabel'):
                     self.mode.nolabel = True
                 elif directive.startswith('nowarn'):
@@ -676,6 +678,7 @@ class Mode:
         self.isub = None
         self.ofix = None
         self.bfix = None
+        self.rfix = None
         self.ssub = None
         self.rsub = None
         self.keep = False
@@ -709,7 +712,9 @@ class Mode:
 
         if not self.html:
             sub = self.isub
-            if self.bfix is not None and self.do_bfixes:
+            if self.rfix is not None and self.do_rfixes:
+                sub = self.rfix
+            elif self.bfix is not None and self.do_bfixes:
                 sub = self.bfix
             elif self.ofix is not None and self.do_ofixes:
                 sub = self.ofix
