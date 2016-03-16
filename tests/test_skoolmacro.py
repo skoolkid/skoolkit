@@ -34,8 +34,8 @@ class SkoolMacroTest(SkoolKitTestCase):
 
         # Blank parameters
         text = '1,,$a,'
-        end, p1, p2, p3, p4 = parse_ints(text, 0, 4)
-        self.assertEqual((1, None, 10, None), (p1, p2, p3, p4))
+        end, p1, p2, p3, p4 = parse_ints(text, 0, 4, (0, 0, 0))
+        self.assertEqual((1, 0, 10, 0), (p1, p2, p3, p4))
         self.assertEqual(end, len(text))
 
         # First parameter optional and omitted
@@ -112,8 +112,22 @@ class SkoolMacroTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(MacroParsingError, re.escape("Not enough parameters (expected 4): '1,2,$3'")):
             parse_ints('1,2,$3', num=4)
 
+    def test_parse_ints_with_required_parameter_left_blank(self):
+        for text, num, defaults, pos in (
+            (',1,2', 3, (), 1),
+            (',1,', 3, (2,), 1),
+            ('0,,2', 3, (), 2),
+            ('0,,', 3, (2,), 2),
+            ('0,1,', 3, (), 3),
+            ('0,1,', 3, (), 3)
+        ):
+            error_msg = "Missing required parameter in position {}/{}: '{}'".format(pos, num - len(defaults), text)
+            for param_string in (text, '({})'.format(text)):
+                with self.assertRaisesRegexp(MacroParsingError, error_msg):
+                    parse_ints(param_string, num=num, defaults=defaults)
+
     def test_parse_ints_with_kwargs_not_enough_parameters(self):
-        with self.assertRaisesRegexp(MacroParsingError, "Missing required argument 'a'"):
+        with self.assertRaisesRegexp(MacroParsingError, "Missing required argument 'a': 'b=4,c=5'$"):
             parse_ints('b=4,c=5', defaults=(2, 3), names=('a', 'b', 'c'))
 
     def test_parse_ints_non_kwarg_after_kwarg(self):

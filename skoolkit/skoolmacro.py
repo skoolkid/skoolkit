@@ -407,11 +407,15 @@ def get_params(param_string, num=0, defaults=(), names=(), safe=True, ints=None)
         for i in range(req):
             req_name = names[i]
             if req_name not in named_params:
-                raise MissingParameterError("Missing required argument '{}'".format(req_name))
+                raise MissingParameterError("Missing required argument '{}': '{}'".format(req_name, param_string))
     elif index < req:
         if params:
             raise MissingParameterError("Not enough parameters (expected {}): '{}'".format(req, param_string))
         raise MissingParameterError("No parameters (expected {})".format(req))
+    elif None in params:
+        missing_index = params.index(None)
+        if missing_index < req:
+            raise MissingParameterError("Missing required parameter in position {}/{}: '{}'".format(missing_index + 1, req, param_string))
     if index > num > 0:
         raise TooManyParametersError("Too many parameters (expected {}): '{}'".format(num, param_string), param_string)
 

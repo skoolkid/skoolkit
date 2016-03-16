@@ -17,6 +17,8 @@ Changelog
   be piped to :ref:`bin2sna.py` or :ref:`bin2tap.py`)
 * When the :ref:`LINK` macro links to an entry on a memory map page, the anchor
   is converted to the format specified by the ``AddressAnchor`` parameter
+* Fixed how required integer macro parameters are handled when left blank (e.g.
+  ``#POKES30000,,8``)
 
 5.1 (2016-01-09)
 ----------------

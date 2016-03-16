@@ -177,10 +177,19 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('EVAL')
 
         self._assert_error(writer, '#EVAL', 'No parameters (expected 1)', prefix)
+        self._assert_error(writer, '#EVAL()', 'No parameters (expected 1)', prefix)
         self._assert_error(writer, '#EVALx', 'No parameters (expected 1)', prefix)
+
+        self._assert_error(writer, '#EVAL,', "Missing required parameter in position 1/1: ','", prefix)
+        self._assert_error(writer, '#EVAL(,)', "Missing required parameter in position 1/1: ','", prefix)
+        self._assert_error(writer, '#EVAL,16', "Missing required parameter in position 1/1: ',16'", prefix)
+        self._assert_error(writer, '#EVAL(,16)', "Missing required parameter in position 1/1: ',16'", prefix)
+
+        self._assert_error(writer, '#EVAL(1,10,5,8)', "Too many parameters (expected 3): '1,10,5,8'", prefix)
+
         self._assert_error(writer, '#EVAL(1,x)', "Cannot parse integer 'x' in parameter string: '1,x'", prefix)
         self._assert_error(writer, '#EVAL(1,,x)', "Cannot parse integer 'x' in parameter string: '1,,x'", prefix)
-        self._assert_error(writer, '#EVAL(1,10,5,8)', "Too many parameters (expected 3): '1,10,5,8'", prefix)
+
         self._assert_error(writer, '#EVAL5,3', 'Invalid base (3): 5,3', prefix)
 
     def test_macro_fact_invalid(self):
@@ -191,13 +200,24 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('FONT')
 
         self._test_invalid_image_macro(writer, '#FONT', 'No parameters (expected 1)', prefix)
+        self._test_invalid_image_macro(writer, '#FONT()', 'No parameters (expected 1)', prefix)
         self._test_invalid_image_macro(writer, '#FONT:', 'No text parameter', prefix)
-        self._test_invalid_image_macro(writer, '#FONT(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
+        self._test_invalid_image_macro(writer, '#FONT:()0', 'Empty message: ()', prefix)
+
+        self._test_invalid_image_macro(writer, '#FONT,10', "Missing required argument 'addr': ',10'", prefix)
+        self._test_invalid_image_macro(writer, '#FONT(,10)', "Missing required argument 'addr': ',10'", prefix)
+        self._test_invalid_image_macro(writer, '#FONTscale=4', "Missing required argument 'addr': 'scale=4'", prefix)
+        self._test_invalid_image_macro(writer, '#FONT(scale=4)', "Missing required argument 'addr': 'scale=4'", prefix)
+        self._test_invalid_image_macro(writer, '#FONT,scale=4', "Missing required argument 'addr': ',scale=4'", prefix)
+        self._test_invalid_image_macro(writer, '#FONT(,scale=4)', "Missing required argument 'addr': ',scale=4'", prefix)
+
         self._test_invalid_image_macro(writer, '#FONT0,1,2,3,4,5', "Too many parameters (expected 4): '0,1,2,3,4,5'", prefix)
         self._test_invalid_image_macro(writer, '#FONT0{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
+
+        self._test_invalid_image_macro(writer, '#FONT(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
+
         self._test_invalid_image_macro(writer, '#FONT0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
         self._test_invalid_image_macro(writer, '#FONT0(foo', 'No closing bracket: (foo', prefix)
-        self._test_invalid_image_macro(writer, '#FONT:()0', 'Empty message: ()', prefix)
         self._test_invalid_image_macro(writer, '#FONT:[hi)0', 'No closing bracket: [hi)0', prefix)
 
     def test_macro_for(self):
@@ -277,9 +297,19 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('FOR')
 
         self._assert_error(writer, '#FOR', 'No parameters (expected 2)', prefix)
+        self._assert_error(writer, '#FOR()', 'No parameters (expected 2)', prefix)
+
         self._assert_error(writer, '#FOR0', "Not enough parameters (expected 2): '0'", prefix)
+        self._assert_error(writer, '#FOR(0)', "Not enough parameters (expected 2): '0'", prefix)
+
+        self._assert_error(writer, '#FOR,1(n,n)', "Missing required parameter in position 1/2: ',1'", prefix)
+        self._assert_error(writer, '#FOR(,1)(n,n)', "Missing required parameter in position 1/2: ',1'", prefix)
+        self._assert_error(writer, '#FOR0,(n,n)', "Missing required parameter in position 2/2: '0,'", prefix)
+        self._assert_error(writer, '#FOR(0,)(n,n)', "Missing required parameter in position 2/2: '0,'", prefix)
+
         self._assert_error(writer, '#FOR0,1', 'No variable name: 0,1', prefix)
         self._assert_error(writer, '#FOR0,1()', "No variable name: 0,1()", prefix)
+
         self._assert_error(writer, '#FOR0,1(n,n', 'No closing bracket: (n,n', prefix)
 
     def test_macro_foreach(self):
@@ -692,11 +722,19 @@ class CommonSkoolMacroTest:
 
         self._assert_error(writer, '#N', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#N()', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#N(2', "No closing bracket: (2", prefix)
-        self._assert_error(writer, '#N(x,4)', "Cannot parse integer 'x' in parameter string: 'x,4'", prefix)
-        self._assert_error(writer, '#N(1,2,3,4,5)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
         self._assert_error(writer, '#N(4,3,2,1)', "No text parameter", prefix)
+
+        self._assert_error(writer, '#N,', "Missing required parameter in position 1/1: ','", prefix)
+        self._assert_error(writer, '#N(,)', "Missing required parameter in position 1/1: ','", prefix)
+        self._assert_error(writer, '#N,4', "Missing required parameter in position 1/1: ',4'", prefix)
+        self._assert_error(writer, '#N(,4)', "Missing required parameter in position 1/1: ',4'", prefix)
+
+        self._assert_error(writer, '#N(1,2,3,4,5)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
         self._assert_error(writer, '#N(4,3,2,1)(a,b,c)', "Too many parameters (expected 2): 'a,b,c'", prefix)
+
+        self._assert_error(writer, '#N(x,4)', "Cannot parse integer 'x' in parameter string: 'x,4'", prefix)
+
+        self._assert_error(writer, '#N(2', "No closing bracket: (2", prefix)
 
     def test_macro_peek(self):
         writer = self._get_writer(snapshot=[1, 2, 3])
@@ -773,8 +811,22 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('POKES')
 
         self._assert_error(writer, '#POKES', 'No parameters (expected 2)', prefix)
+        self._assert_error(writer, '#POKES()', 'No parameters (expected 2)', prefix)
+
         self._assert_error(writer, '#POKES0', "Not enough parameters (expected 2): '0'", prefix)
+        self._assert_error(writer, '#POKES(0)', "Not enough parameters (expected 2): '0'", prefix)
         self._assert_error(writer, '#POKES0,1;1', "Not enough parameters (expected 2): '1'", prefix)
+        self._assert_error(writer, '#POKES(0,1);(1)', "Not enough parameters (expected 2): '1'", prefix)
+
+        self._assert_error(writer, '#POKES,0', "Missing required parameter in position 1/2: ',0'", prefix)
+        self._assert_error(writer, '#POKES(,0)', "Missing required parameter in position 1/2: ',0'", prefix)
+        self._assert_error(writer, '#POKES0,', "Missing required parameter in position 2/2: '0,'", prefix)
+        self._assert_error(writer, '#POKES0,x', "Missing required parameter in position 2/2: '0,'", prefix)
+        self._assert_error(writer, '#POKES(0,)', "Missing required parameter in position 2/2: '0,'", prefix)
+        self._assert_error(writer, '#POKES0,,1', "Missing required parameter in position 2/2: '0,,1'", prefix)
+        self._assert_error(writer, '#POKES(0,,1)', "Missing required parameter in position 2/2: '0,,1'", prefix)
+
+        self._assert_error(writer, '#POKES(0,x)', "Cannot parse integer 'x' in parameter string: '0,x'", prefix)
 
     def test_macro_pops(self):
         writer = self._get_writer(snapshot=[0, 0])
@@ -900,10 +952,27 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('UDG')
 
         self._test_invalid_image_macro(writer, '#UDG', 'No parameters (expected 1)', prefix)
-        self._test_invalid_image_macro(writer, '#UDG(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG()', 'No parameters (expected 1)', prefix)
+
+        self._test_invalid_image_macro(writer, '#UDG,5', "Missing required argument 'addr': ',5'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG(,5)', "Missing required argument 'addr': ',5'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGscale=2', "Missing required argument 'addr': 'scale=2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG(scale=2)', "Missing required argument 'addr': 'scale=2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG,scale=2', "Missing required argument 'addr': ',scale=2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG(,scale=2)', "Missing required argument 'addr': ',scale=2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG0:,2', "Missing required argument 'addr': ',2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG0:(,2)', "Missing required argument 'addr': ',2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG0:step=2', "Missing required argument 'addr': 'step=2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG0:(step=2)', "Missing required argument 'addr': 'step=2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG0:,step=2', "Missing required argument 'addr': ',step=2'", prefix)
+        self._test_invalid_image_macro(writer, '#UDG0:(,step=2)', "Missing required argument 'addr': ',step=2'", prefix)
+
         self._test_invalid_image_macro(writer, '#UDG0,1,2,3,4,5,6,7,8,9', "Too many parameters (expected 8): '0,1,2,3,4,5,6,7,8,9'", prefix)
         self._test_invalid_image_macro(writer, '#UDG0:1,2,3', "Too many parameters (expected 2): '1,2,3'", prefix)
         self._test_invalid_image_macro(writer, '#UDG0{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
+
+        self._test_invalid_image_macro(writer, '#UDG(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
+
         self._test_invalid_image_macro(writer, '#UDG0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
         self._test_invalid_image_macro(writer, '#UDG0(foo', 'No closing bracket: (foo', prefix)
 
@@ -912,17 +981,33 @@ class CommonSkoolMacroTest:
         prefix = ERROR_PREFIX.format('UDGARRAY')
 
         self._test_invalid_image_macro(writer, '#UDGARRAY', 'No parameters (expected 1)', prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY()', 'No parameters (expected 1)', prefix)
+
+        self._test_invalid_image_macro(writer, '#UDGARRAY,5;0(foo)', "Missing required argument 'width': ',5'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY(,5);0(foo)', "Missing required argument 'width': ',5'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAYscale=4;0(foo)', "Missing required argument 'width': 'scale=4'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY(scale=4);0(foo)', "Missing required argument 'width': 'scale=4'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY,scale=4;0(foo)', "Missing required argument 'width': ',scale=4'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY(,scale=4);0(foo)', "Missing required argument 'width': ',scale=4'", prefix)
+
         self._test_invalid_image_macro(writer, '#UDGARRAY1;(foo)', 'Expected UDG address range specification: #UDGARRAY1;', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;,2(foo)', 'Expected UDG address range specification: #UDGARRAY1;', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0:(foo)', 'Expected mask address range specification: #UDGARRAY1;0:', prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0:,2(foo)', 'Expected mask address range specification: #UDGARRAY1;0:', prefix)
+
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0', 'Missing filename: #UDGARRAY1;0', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0()', 'Missing filename: #UDGARRAY1;0()', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0{0,0}1(foo)', 'Missing filename: #UDGARRAY1;0{0,0}', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0(*)', 'Missing filename or frame ID: #UDGARRAY1;0(*)', prefix)
+
         self._test_invalid_image_macro(writer, '#UDGARRAY1;32768,1,2,3,4', "Too many parameters (expected 3): '1,2,3,4'", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;32768:32769,1,2', "Too many parameters (expected 1): '1,2'", prefix)
-        self._test_invalid_image_macro(writer, '#UDGARRAY1;32768xJ', "Invalid multiplier in address range specification: 32768xJ", prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0{0,0,23,14,5}(foo)', "Too many parameters in cropping specification (expected 4 at most): {0,0,23,14,5}", prefix)
+
+        self._test_invalid_image_macro(writer, '#UDGARRAY(foo)', "Cannot parse integer 'foo' in parameter string: 'foo'", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;32768xJ', "Invalid multiplier in address range specification: 32768xJ", prefix)
+        self._test_invalid_image_macro(writer, '#UDGARRAY1;0x2:8xK', "Invalid multiplier in address range specification: 8xK", prefix)
+
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0{0,0,23,14(foo)', 'No closing brace on cropping specification: {0,0,23,14(foo)', prefix)
         self._test_invalid_image_macro(writer, '#UDGARRAY1;0(foo', 'No closing bracket: (foo', prefix)
 
