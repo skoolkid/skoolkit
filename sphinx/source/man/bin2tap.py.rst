@@ -6,7 +6,7 @@ bin2tap.py
 
 SYNOPSIS
 ========
-``bin2tap.py`` [options] FILE
+``bin2tap.py`` [options] FILE [file.tap]
 
 DESCRIPTION
 ===========
@@ -36,7 +36,9 @@ OPTIONS
 -t, --tapfile `TAPFILE`
   Set the TAP filename. If reading from standard input, the default filename is
   'program.tap'; otherwise it is the basename of FILE with the '.bin', '.sna',
-  '.szx' or '.z80' suffix replaced by '.tap'.
+  '.szx' or '.z80' suffix replaced by '.tap'. ``Note:`` this option is
+  deprecated since version 5.2; use the second positional argument to specify
+  the TAP filename.
 
 -V, --version
   Show the SkoolKit version number and exit.

@@ -122,12 +122,13 @@ def run(ram, clear, org, start, stack, binfile, tapfile):
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage='bin2tap.py [options] FILE',
+        usage='bin2tap.py [options] FILE [file.tap]',
         description="Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a TAP file. "
                     "FILE may be a regular file, or '-' to read a binary file from standard input.",
         add_help=False
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
+    parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--clear', dest='clear', metavar='N', type=int,
                        help="Use a 'CLEAR N' command in the BASIC loader and leave the stack pointer alone")
@@ -157,7 +158,7 @@ def main(args):
     clear = namespace.clear
     start = namespace.start or org
     stack = namespace.stack or org
-    tapfile = namespace.tapfile
+    tapfile = namespace.outfile or namespace.tapfile
     if tapfile is None:
         if infile.lower().endswith(('.bin', '.sna', '.szx', '.z80')):
             prefix = infile[:-4]

@@ -55,7 +55,7 @@ of code to run) and the stack pointer are set to 65536 minus the length of
 `game.bin`. These values can be changed by passing options to `bin2tap.py`. Run
 it with no arguments to see the list of available options::
 
-  usage: bin2tap.py [options] FILE
+  usage: bin2tap.py [options] FILE [file.tap]
 
   Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a TAP
   file. FILE may be a regular file, or '-' to read a binary file from standard
@@ -74,6 +74,10 @@ it with no arguments to see the list of available options::
     -t TAPFILE, --tapfile TAPFILE
                           Set the TAP filename
     -V, --version         Show SkoolKit version number and exit
+
+.. note::
+   The ``-t/--tapfile`` option is deprecated since version 5.2. Use the second
+   positional argument to specify the TAP filename.
 
 Note that the ROM tape loading routine at 1366 ($0556) and the load routine
 used by `bin2tap.py` together require 14 bytes for stack operations, and so
@@ -95,7 +99,8 @@ Spectrum is 23952 ($5D90).
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
-| 5.2     | Added the ability to read a binary file from standard input     |
+| 5.2     | Added the ability to read a binary file from standard input;    |
+|         | added a second positional argument specifying the TAP filename  |
 +---------+-----------------------------------------------------------------+
 | 4.5     | Added the ``--clear`` and ``--end`` options, and the ability to |
 |         | convert SNA, SZX and Z80 snapshots                              |
