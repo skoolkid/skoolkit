@@ -15,9 +15,8 @@ example::
 will create a file named `game.z80`. By default, the origin address (the
 address of the first byte of code or data), the start address (the first byte
 of code to run) and the stack pointer are set to 65536 minus the length of
-`game.bin`.
-
-Run `bin2sna.py` with no arguments to see the list of available options::
+`game.bin`. These values can be changed by passing options to `bin2sna.py`. Run
+it with no arguments to see the list of available options::
 
   usage: bin2sna.py [options] file.bin [file.z80]
 
@@ -29,6 +28,8 @@ Run `bin2sna.py` with no arguments to see the list of available options::
   Options:
     -o ORG, --org ORG     Set the origin address (default: 65536 minus the
                           length of file.bin)
+    -p STACK, --stack STACK
+                          Set the stack pointer (default: ORG)
     -s START, --start START
                           Set the address at which to start execution (default:
                           ORG)

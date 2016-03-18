@@ -32,14 +32,15 @@ class Bin2SnaTest(SkoolKitTestCase):
         self.tempfiles.append(outfile)
         return outfile
 
-    def _check_z80(self, z80file, data, org=None, pc=None):
+    def _check_z80(self, z80file, data, org=None, sp=None, pc=None):
         with open(z80file, 'rb') as f:
             z80h = bytearray(f.read(34))
         if org is None:
             org = 65536 - len(data)
+        if sp is None:
+            sp = org
         if pc is None:
             pc = org
-        sp = org
 
         self.assertEqual((z80h[12] >> 1) & 7, 0) # BORDER
         self.assertEqual(z80h[27], 1)            # IFF1
@@ -63,6 +64,7 @@ class Bin2SnaTest(SkoolKitTestCase):
         self.assertEqual(infile, binfile)
         self.assertEqual(outfile, binfile[:-3] + 'z80')
         self.assertEqual(options.org, None)
+        self.assertEqual(options.stack, None)
         self.assertEqual(options.start, None)
 
     def test_no_arguments(self):
@@ -77,7 +79,7 @@ class Bin2SnaTest(SkoolKitTestCase):
 
     def test_invalid_option_value(self):
         binfile = self.write_bin_file(suffix='.bin')
-        for option in ('-o ABC', '-s ?'):
+        for option in ('-o ABC', '-p Q', '-s ?'):
             output, error = self.run_bin2sna('{} {}'.format(option, binfile), catch_exit=2)
             self.assertEqual([], output)
             self.assertTrue(error.startswith('usage: bin2sna.py'))
@@ -121,6 +123,13 @@ class Bin2SnaTest(SkoolKitTestCase):
         for option, org in (('-o', 30000), ('--org', 40000)):
             z80file = self._run("{} {} {}".format(option, org, binfile))
             self._check_z80(z80file, data, org)
+
+    def test_option_p(self):
+        data = [1, 2, 4]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        for option, stack in (('-p', 35000), ('--stack', 45000)):
+            z80file = self._run("{} {} {}".format(option, stack, binfile))
+            self._check_z80(z80file, data, sp=stack)
 
     def test_option_s(self):
         data = [2, 3, 4]

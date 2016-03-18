@@ -21,6 +21,9 @@ OPTIONS
   Set the origin address. The default origin address is 65536 minus the length
   of file.bin.
 
+-p, --stack `STACK`
+  Set the stack pointer. The default value is `ORG`.
+
 -s, --start `START`
   Set the address at which to start execution when the snapshot is loaded. The
   default start address is `ORG`.

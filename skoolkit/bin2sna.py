@@ -39,11 +39,15 @@ def run(infile, outfile, options):
         start = org
     else:
         start = options.start
+    if options.stack is None:
+        stack = org
+    else:
+        stack = options.stack
     parent_dir = os.path.dirname(outfile)
     if parent_dir and not os.path.isdir(parent_dir):
         os.makedirs(parent_dir)
     with open(outfile, 'wb') as f:
-        f.write(bytearray(_get_z80(ram, org, start)))
+        f.write(bytearray(_get_z80(ram, stack, start)))
 
 def main(args):
     parser = argparse.ArgumentParser(
@@ -59,6 +63,8 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-o', '--org', dest='org', metavar='ORG', type=int,
                        help="Set the origin address (default: 65536 minus the length of file.bin)")
+    group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=int,
+                       help="Set the stack pointer (default: ORG)")
     group.add_argument('-s', '--start', dest='start', metavar='START', type=int,
                        help="Set the address at which to start execution (default: ORG)")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
