@@ -22,11 +22,11 @@ import argparse
 from skoolkit import read_bin_file, VERSION
 from skoolkit.snapshot import make_z80_ram_block, set_z80_registers, set_z80_state
 
-def _get_z80(ram, sp, pc):
+def _get_z80(ram, sp, pc, border):
     z80 = [0] * 86
     z80[30] = 54 # Indicate a v3 Z80 snapshot
     set_z80_registers(z80, 'i=63', 'iy=23610', 'sp={}'.format(sp), 'pc={}'.format(pc))
-    set_z80_state(z80, 'iff=1', 'im=1')
+    set_z80_state(z80, 'iff=1', 'im=1', 'border={}'.format(border & 7))
     for bank, data in ((5, ram[:16384]), (1, ram[16384:32768]), (2, ram[32768:49152])):
         z80 += make_z80_ram_block(data, bank + 3)
     return z80
@@ -47,7 +47,7 @@ def run(infile, outfile, options):
     if parent_dir and not os.path.isdir(parent_dir):
         os.makedirs(parent_dir)
     with open(outfile, 'wb') as f:
-        f.write(bytearray(_get_z80(ram, stack, start)))
+        f.write(bytearray(_get_z80(ram, stack, start, options.border)))
 
 def main(args):
     parser = argparse.ArgumentParser(
@@ -61,6 +61,8 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-b', '--border', dest='border', metavar='BORDER', type=int, default=7,
+                       help="Set the border colour (default: 7)")
     group.add_argument('-o', '--org', dest='org', metavar='ORG', type=int,
                        help="Set the origin address (default: 65536 minus the length of file.bin)")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=int,

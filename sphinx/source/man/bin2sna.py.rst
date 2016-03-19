@@ -17,6 +17,9 @@ not given, it defaults to the name of the input file with '.bin' replaced by
 
 OPTIONS
 =======
+-b, --border `BORDER`
+  Set the border colour. The default border colour is 7 (white).
+
 -o, --org `ORG`
   Set the origin address. The default origin address is 65536 minus the length
   of file.bin.

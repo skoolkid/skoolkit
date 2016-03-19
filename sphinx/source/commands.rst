@@ -26,6 +26,8 @@ it with no arguments to see the list of available options::
   'program.z80' if reading from standard input.
 
   Options:
+    -b BORDER, --border BORDER
+                          Set the border colour (default: 7)
     -o ORG, --org ORG     Set the origin address (default: 65536 minus the
                           length of file.bin)
     -p STACK, --stack STACK

@@ -32,7 +32,7 @@ class Bin2SnaTest(SkoolKitTestCase):
         self.tempfiles.append(outfile)
         return outfile
 
-    def _check_z80(self, z80file, data, org=None, sp=None, pc=None):
+    def _check_z80(self, z80file, data, org=None, sp=None, pc=None, border=7):
         with open(z80file, 'rb') as f:
             z80h = bytearray(f.read(34))
         if org is None:
@@ -42,10 +42,10 @@ class Bin2SnaTest(SkoolKitTestCase):
         if pc is None:
             pc = org
 
-        self.assertEqual((z80h[12] >> 1) & 7, 0) # BORDER
-        self.assertEqual(z80h[27], 1)            # IFF1
-        self.assertEqual(z80h[28], 1)            # IFF2
-        self.assertEqual(z80h[29] & 3, 1)        # Interrupt mode
+        self.assertEqual((z80h[12] >> 1) & 7, border) # BORDER
+        self.assertEqual(z80h[27], 1)                 # IFF1
+        self.assertEqual(z80h[28], 1)                 # IFF2
+        self.assertEqual(z80h[29] & 3, 1)             # Interrupt mode
 
         self.assertEqual(z80h[8] + 256 * z80h[9], sp)      # SP
         self.assertEqual(z80h[10], 63)                     # I
@@ -63,6 +63,7 @@ class Bin2SnaTest(SkoolKitTestCase):
         infile, outfile, options = run_args
         self.assertEqual(infile, binfile)
         self.assertEqual(outfile, binfile[:-3] + 'z80')
+        self.assertEqual(options.border, 7)
         self.assertEqual(options.org, None)
         self.assertEqual(options.stack, None)
         self.assertEqual(options.start, None)
@@ -79,7 +80,7 @@ class Bin2SnaTest(SkoolKitTestCase):
 
     def test_invalid_option_value(self):
         binfile = self.write_bin_file(suffix='.bin')
-        for option in ('-o ABC', '-p Q', '-s ?'):
+        for option in ('-b !', '-o ABC', '-p Q', '-s ?'):
             output, error = self.run_bin2sna('{} {}'.format(option, binfile), catch_exit=2)
             self.assertEqual([], output)
             self.assertTrue(error.startswith('usage: bin2sna.py'))
@@ -116,6 +117,13 @@ class Bin2SnaTest(SkoolKitTestCase):
         self.write_stdin(bytearray(data))
         z80file = self._run('-')
         self._check_z80(z80file, data)
+
+    def test_option_b(self):
+        data = [0, 2, 4]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        for option, border in (('-b', 2), ('--border', 4)):
+            z80file = self._run("{} {} {}".format(option, border, binfile))
+            self._check_z80(z80file, data, border=border)
 
     def test_option_o(self):
         data = [1, 2, 3]
