@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2010-2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -543,7 +543,7 @@ class SkoolParser:
 
         if self.mode.include:
             tag, sep, value = directive.rstrip().partition('=')
-            if sep and tag in ('rsub', 'ssub', 'isub', 'bfix', 'ofix', 'assemble', 'label', 'rem'):
+            if sep and tag in ('rsub', 'ssub', 'isub', 'rfix', 'bfix', 'ofix', 'assemble', 'label', 'rem'):
                 self.mode.add_instruction_asm_directive(tag, value)
             elif not sep and tag in ('nolabel', 'nowarn', 'keep'):
                 self.mode.add_instruction_asm_directive(tag)

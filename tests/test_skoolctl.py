@@ -69,6 +69,7 @@ c32768 NOP          ; Do nothing
  32786 DEFW 0,1     ; and blank lines
 @ssub=DEFM "Lo"
  32790 defm "H",105 ;
+@rfix=DEFB 0
  32792 DEFS 3       ; in the comment}
  $801B RET          ; Instruction with a
                     ; comment continuation line
@@ -212,6 +213,7 @@ B 32785,1,1
 W 32786,4,4
 @ 32790 ssub=DEFM "Lo"
 T 32790,2,1:B1
+@ 32792 rfix=DEFB 0
 S 32792,3,3
   32795,1 Instruction with a comment continuation line
 E 32768 End comment paragraph 1.
@@ -303,6 +305,7 @@ B $8011,1,1
 W $8012,4,4
 @ $8016 ssub=DEFM "Lo"
 T $8016,2,1:B1
+@ $8018 rfix=DEFB 0
 S $8018,3,3
   $801B,1 Instruction with a comment continuation line
 E $8000 End comment paragraph 1.
