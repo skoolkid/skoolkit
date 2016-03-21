@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -17,6 +17,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import os.path
 import time
 
 from skoolkit import info, get_class, show_package_dir, VERSION
@@ -44,7 +45,7 @@ def run(skoolfile, options):
     # Write the ASM file
     cls_name = options.writer or parser.asm_writer_class
     if cls_name:
-        asm_writer_class = get_class(cls_name)
+        asm_writer_class = get_class(cls_name, os.path.dirname(skoolfile))
         if not options.quiet:
             info('Using ASM writer {0}'.format(cls_name))
     else:

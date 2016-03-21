@@ -81,13 +81,10 @@ def get_address_format(hexadecimal=False, lower=False):
 def get_chr(code):
     return chr(code) if PY3 else unichr(code).encode(ENCODING)
 
-def get_class(name_spec):
-    if ':' in name_spec:
-        path, name = name_spec.rsplit(':', 1)
-        if path not in sys.path:
-            sys.path.insert(0, os.path.expanduser(path))
-    else:
-        name = name_spec
+def get_class(name_spec, default_path):
+    path, sep, name = name_spec.rpartition(':')
+    if sep:
+        sys.path.insert(0, os.path.expanduser(path) or default_path)
     if '.' not in name:
         raise SkoolKitError("Invalid class name: '{0}'".format(name))
     mod_name, cls_name = name.rsplit('.', 1)

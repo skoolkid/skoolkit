@@ -85,6 +85,11 @@ by using the ``-W``/``--writer`` option of :ref:`skool2html.py` or
 Specifying the writer class this way will override any ``HtmlWriterClass``
 parameter in the ref file or ``@writer`` directive in the skool file.
 
+Note that if the writer class is specified with a blank module path (e.g.
+``:game.GameHtmlWriter``), SkoolKit will search for the module in both the
+current working directory and the directory containing the skool file or ref
+file named on the command line.
+
 #CALL methods
 -------------
 Implementing a method that can be called by a :ref:`call` macro is done by

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -170,11 +170,11 @@ def process_file(infile, topdir, options):
     stdin = False
 
     skoolfile_f = reffile_f = None
-    ref_search_dir = ''
+    ref_search_dir = module_path = ''
     if infile.endswith('.ref'):
         reffile_f = find(infile, extra_search_dirs)
         if reffile_f:
-            ref_search_dir = dirname(reffile_f)
+            ref_search_dir = module_path = dirname(reffile_f)
             prefix = get_prefix(basename(reffile_f))
     elif infile == '-':
         stdin = True
@@ -183,7 +183,7 @@ def process_file(infile, topdir, options):
     else:
         skoolfile_f = find(infile, extra_search_dirs)
         if skoolfile_f:
-            ref_search_dir = dirname(skoolfile_f)
+            ref_search_dir = module_path = dirname(skoolfile_f)
             prefix = get_prefix(basename(skoolfile_f))
             reffile_f = find('{}.ref'.format(prefix), extra_search_dirs, ref_search_dir)
             if reffile_f:
@@ -233,7 +233,7 @@ def process_file(infile, topdir, options):
     elif not stdin:
         notify('Found no ref file for {}'.format(skoolfile_n))
 
-    html_writer_class = get_class(config['HtmlWriterClass'])
+    html_writer_class = get_class(config['HtmlWriterClass'], module_path)
     game_dir = config.get('GameDir', prefix)
 
     # Parse the skool file and initialise the writer

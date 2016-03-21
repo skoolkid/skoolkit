@@ -39,7 +39,17 @@ class SkoolKitTest(SkoolKitTestCase):
         invalidate_caches()
         module_path = os.path.dirname(module)
         module_name = os.path.basename(module)[:-3]
-        writer_class = get_class('{}:{}.{}'.format(module_path, module_name, class_name))
+        writer_class = get_class('{}:{}.{}'.format(module_path, module_name, class_name), '')
+        self.assertEqual(writer_class.__name__, class_name)
+
+    def test_get_class_with_default_path_and_blank_module_path(self):
+        class_name = 'CustomWriter'
+        mod = 'class {}:\n    pass'.format(class_name)
+        module = self.write_text_file(mod, '{}/custom.py'.format(self.make_directory()))
+        invalidate_caches()
+        default_path = os.path.dirname(module)
+        module_name = os.path.basename(module)[:-3]
+        writer_class = get_class(':{}.{}'.format(module_name, class_name), default_path)
         self.assertEqual(writer_class.__name__, class_name)
 
 if __name__ == '__main__':
