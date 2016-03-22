@@ -60,6 +60,7 @@ c32768 NOP          ; Do nothing
  32785 DEFB 0       ;
 @rsub=DEFB 3
  32786 DEFW 0,1     ;
+@rfix=DEFM "Hey"
  32790 DEFM "Hi"    ;
  32792 DEFS 3       ; }
  32795 RET          ; Return
@@ -196,6 +197,7 @@ cC32768,1;20 Do nothing
  B32785,1;20
 @rsub=DEFB 3
  W32786,4;20
+@rfix=DEFM "Hey"
  T32790,2;20
  S32792,3;20 }
  C32795,1;20 Return
