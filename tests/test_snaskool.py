@@ -1463,6 +1463,21 @@ class SkoolWriterTest(SkoolKitTestCase):
         ]
         self._test_write_skool([0] * 3, ctl, exp_skool)
 
+    def test_rfix_directive(self):
+        ctl = '\n'.join((
+            'c 00000',
+            '@ 00000 rfix=LD DE,0',
+            'i 00002',
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            '@rfix=LD DE,0',
+            'c00000 LD D,0        ;'
+        ]
+        self._test_write_skool([22, 0], ctl, exp_skool)
+
     def test_registers(self):
         ctl = '\n'.join((
             'c 00000 Routine',
