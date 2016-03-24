@@ -1203,6 +1203,18 @@ class SftParserTest(SkoolKitTestCase):
         ]
         self._test_disassembly(sft, exp_skool, snapshot)
 
+    def test_asm_directive_rfix(self):
+        snapshot = [46, 0]
+        sft = '\n'.join((
+            '@rfix=LD HL,0',
+            'cC00000,2'
+        ))
+        exp_skool = [
+            '@rfix=LD HL,0',
+            'c00000 LD L,0'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
     def test_asm_directive_rfix_block(self):
         snapshot = [14, 0]
         sft = '\n'.join((
