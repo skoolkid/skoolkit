@@ -8,7 +8,7 @@ except ImportError:
     from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import bin2tap, VERSION
+from skoolkit import bin2tap, SkoolKitError, VERSION
 
 PY3 = sys.version_info >= (3,)
 
@@ -205,6 +205,11 @@ class Bin2TapTest(SkoolKitTestCase):
             output, error = self.run_bin2tap('{0} {1}'.format(option, binfile), catch_exit=2)
             self.assertEqual(len(output), 0)
             self.assertTrue(error.startswith('usage: bin2tap.py'))
+
+    def test_empty_bin(self):
+        binfile = self.write_bin_file(suffix='.bin')
+        with self.assertRaisesRegexp(SkoolKitError, '^{} is empty$'.format(binfile)):
+            self.run_bin2tap(binfile)
 
     def test_no_options(self):
         bin_data = [1, 2, 3, 4, 5]

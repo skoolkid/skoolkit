@@ -19,7 +19,7 @@
 import os.path
 import argparse
 
-from skoolkit import read_bin_file, VERSION
+from skoolkit import SkoolKitError, read_bin_file, VERSION
 from skoolkit.snapshot import get_snapshot
 
 def _get_str(chars):
@@ -154,6 +154,8 @@ def main(args):
         ram = get_snapshot(infile)[org:namespace.end]
     else:
         ram = read_bin_file(infile, 49152)
+        if len(ram) == 0:
+            raise SkoolKitError('{} is empty'.format(infile))
         org = namespace.org or 65536 - len(ram)
     clear = namespace.clear
     start = namespace.start or org
