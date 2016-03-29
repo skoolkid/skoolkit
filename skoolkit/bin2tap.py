@@ -151,6 +151,8 @@ def main(args):
         parser.exit(2, parser.format_help())
     if infile.lower().endswith(('.sna', '.szx', '.z80')):
         org = namespace.org or 16384
+        if org >= namespace.end:
+            raise SkoolKitError('End address must be greater than {}'.format(org))
         ram = get_snapshot(infile)[org:namespace.end]
     else:
         ram = read_bin_file(infile, 49152)
