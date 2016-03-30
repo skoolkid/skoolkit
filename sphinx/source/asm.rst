@@ -632,7 +632,19 @@ This ``@replace`` directive would replace ``#udg$a001,40960`` with
 ``#UDG($a001,#PEEK40960)``.
 
 Note that string replacements specified by ``@replace`` directives are made
-before skool macros are expanded.
+before skool macros are expanded, and in the order in which the directives
+appear in the skool file. For example, if we have::
+
+  @replace=/#foo\i/#bar\1
+  @replace=/#bar\i/#EVAL\1,16
+
+then ``#foo31`` would be replaced by ``#EVAL31,16``, but if these directives
+were reversed::
+
+  @replace=/#bar\i/#EVAL\1,16
+  @replace=/#foo\i/#bar\1
+
+then ``#foo31`` would be replaced by ``#bar31``.
 
 See also :ref:`definingMacrosWithReplace`.
 
