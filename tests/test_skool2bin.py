@@ -73,6 +73,14 @@ class Skool2BinTest(SkoolKitTestCase):
         self.assertEqual(mock_bin_writer.binfile, 'program.bin')
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_output_filename(self):
+        skoolfile = 'test.skool'
+        binfile = 'test-output-filename.bin'
+        output, error = self.run_skool2bin('{} {}'.format(skoolfile, binfile))
+        self.assertEqual(len(error), 0)
+        self.assertEqual(mock_bin_writer.binfile, binfile)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_b(self):
         skoolfile = 'test-b.skool'
         exp_binfile = skoolfile[:-6] + '.bin'
