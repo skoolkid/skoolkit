@@ -698,8 +698,8 @@ The ``@rsub`` directive makes an instruction substitution in :ref:`rsubMode`.
 
 For example::
 
-  @rsub=INC BC
-   30143 INC C         ; Point #REGbc at the next byte of data
+  @rsub=LD BC,0
+   30143 LD C,0        ; Reset #REGbc to 0
 
 .. _rsubBlockDirectives:
 
