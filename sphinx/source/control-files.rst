@@ -483,6 +483,9 @@ example::
   % This is another comment
   ; This is yet another comment
 
+Control file comments are ignored by `sna2skool.py`, and will not show up in
+the skool file.
+
 Limitations
 -----------
 A control file can be useful in the early stages of developing a skool file for
