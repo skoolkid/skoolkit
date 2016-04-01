@@ -65,6 +65,14 @@ utility, included with SkoolKit:
 
   $ ./skool2bin.py $SKOOL2BINOPTS $GAME.skool
 
+To create a Z80 snapshot from $GAME.bin, use the bin2sna.py utility, included
+with SkoolKit:
+
+  $ ./bin2sna.py $GAME.bin
+
+The resultant snapshot, $GAME.z80, can be loaded into an emulator, and the game
+will start automatically.
+
 To create a TAP file from $GAME.bin, use the bin2tap.py utility, included with
 SkoolKit:
 
