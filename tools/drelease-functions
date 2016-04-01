@@ -27,12 +27,25 @@ GHHTMLOPTS+="-c MemoryMap:MemoryMap/PageByteColumns=0 -c MemoryMap:DataMap/PageB
 [[ -n $GHCONFIG ]] && GHHTMLOPTS+=" $GHCONFIG"
 [[ -n $GHTHEME ]] && GHHTMLOPTS+=" -T $GHTHEME"
 SKOOLKIT_TOOLS=$SKOOLKIT_HOME/tools
-SKOOLKIT_VERSION=$(cd $SKOOLKIT_HOME; git tag | tail -n 1 | cut -c2-)
-SKOOLKIT_TARBALL=$SKOOLKIT_ARCHIVE/skoolkit-$SKOOLKIT_VERSION.tar.xz
+if [[ -z $SKDEV ]]; then
+  SKOOLKIT_VERSION=$(cd $SKOOLKIT_HOME; git tag | tail -n 1 | cut -c2-)
+  SKOOLKIT_TARBALL=$SKOOLKIT_ARCHIVE/skoolkit-$SKOOLKIT_VERSION.tar.xz
+else
+  SKOOLKIT_VERSION=$($SKOOLKIT_HOME/skool2html.py -V 2>&1 | cut -f2 -d' ')
+  SKOOLKIT_TARBALL=$SKOOLKIT_HOME/dist/skoolkit-$SKOOLKIT_VERSION.tar.xz
+fi
 
 ###############################################################################
 # Utility functions
 ###############################################################################
+_require_skoolkit_tarball() {
+  if [[ ! -f $SKOOLKIT_TARBALL ]]; then
+    echo "$SKOOLKIT_TARBALL: file not found"
+    [[ -n $SKDEV ]] && echo 'Run "make -C $SKOOLKIT_HOME tarball" to build it'
+    exit 1
+  fi
+}
+
 _exec() {
   message=$1
   command=$2
@@ -109,7 +122,8 @@ count_lines() {
 disassembly_diffs() {
   mkdir -p $DIFFSBUILD
   cd $DIFFSBUILD
-  $SKOOLKIT_TOOLS/disassembly-diff -c $SKOOLKIT_VERSION $* $GAME 2>&1 | tee diffs.log
+  [[ -z $SKDEV ]] && ddopts="-c $SKOOLKIT_VERSION"
+  $SKOOLKIT_TOOLS/disassembly-diff $ddopts $* $GAME 2>&1 | tee diffs.log
 }
 
 ###############################################################################
@@ -124,6 +138,7 @@ check_asms() {
 # Make a TAP file from an ASM file and load it
 ###############################################################################
 check_tap() {
+  _require_skoolkit_tarball
   binfile=$DIFFSBUILD/disassembly-current-$SKOOLKIT_VERSION/asm/$1.bin
   tapfile=$(basename $binfile .bin).tap
   _cd_tmpdir
@@ -144,6 +159,7 @@ skooldiff() {
 # Build the disassembly distribution tarball and zip archive
 ###############################################################################
 build_tarball() {
+  _require_skoolkit_tarball
   _cd_tmpdir
   logdir=$(pwd)
   tar xf $SKOOLKIT_TARBALL
@@ -165,6 +181,7 @@ build_tarball() {
 # Update the HTML disassembly on the gh-pages branch
 ###############################################################################
 update_ghpages() {
+  _require_skoolkit_tarball
   mkdir -p $BUILD
   gamedir=$(grep ^GameDir= $REF | cut -c9-)
   ghrepo=$(echo $gamedir | tr -d _)
@@ -200,6 +217,7 @@ EOM
 # Run the disassembly tests
 ###############################################################################
 test_disassembly() {
+  _require_skoolkit_tarball
   _cd_tmpdir
   logdir=$(pwd)
   tar xf $SKOOLKIT_TARBALL
@@ -232,6 +250,10 @@ Commands:
   dtests - run the disassembly tests
   tarzip - build the disassembly distribution tarball and zip archive
   ghhtml - update the HTML disassembly on the gh-pages branch
+
+Environment variables:
+  SKDEV - if not blank, use the current development version of SkoolKit instead
+          of the latest release
 EOM
   exit 1
 }
