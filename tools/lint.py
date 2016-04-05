@@ -21,6 +21,10 @@ IGNORE_MSG_IDS = [
     'C0301', # Line too long
     'C0302', # Too many lines in module
     'C1001', # Old-style class
+    'E0601', # Variable used before assignment
+    'E0611', # No such name in module
+    'E1101', # No such member in instance
+    'F0401', # Import error
     'R0201', # Method could be a function
     'R0902', # Too many instance attributes
     'R0903', # Too few public methods
