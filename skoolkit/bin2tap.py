@@ -92,7 +92,7 @@ def _get_data_loader(title, org, length, start, stack):
 
     return _get_header(title, len(data), 23296) + _make_tap_block(data)
 
-def run(ram, clear, org, start, stack, binfile, tapfile):
+def run(ram, clear, org, start, stack, tapfile):
     title = os.path.basename(tapfile)
     if title.lower().endswith('.tap'):
         title = title[:-4]
@@ -171,4 +171,4 @@ def main(args):
         else:
             prefix = infile
         tapfile = prefix + ".tap"
-    run(ram, clear, org, start, stack, infile, tapfile)
+    run(ram, clear, org, start, stack, tapfile)

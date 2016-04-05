@@ -180,13 +180,12 @@ class Bin2TapTest(SkoolKitTestCase):
         data = [0] * 10
         binfile = self.write_bin_file(data, suffix='.bin')
         bin2tap.main((binfile,))
-        ram, clear, org, start, stack, infile, tapfile = run_args
+        ram, clear, org, start, stack, tapfile = run_args
         self.assertEqual(ram, bytearray(data))
         self.assertIsNone(clear)
         self.assertEqual(org, 65536 - len(data))
         self.assertEqual(start, org)
         self.assertEqual(stack, org)
-        self.assertEqual(infile, binfile)
         self.assertEqual(tapfile, binfile[:-4] + '.tap')
 
     def test_no_arguments(self):
