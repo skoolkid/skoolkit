@@ -258,7 +258,9 @@ Recognised parameters are:
 * ``TitleSuffix`` - the suffix to use after the game name or logo in the header
   of the main index page (default: 'RAM disassembly')
 * ``UDGFilename`` - the format of the default filename for images created by
-  the :ref:`UDG` macro (default: ``udg{addr}_{attr}x{scale}``)
+  the :ref:`UDG` macro (default: ``udg{addr}_{attr}x{scale}``); this is a
+  standard Python format string that recognises the macro parameters ``addr``,
+  ``attr`` and ``scale``
 
 The ``AddressAnchor`` parameter contains a standard Python format string that
 specifies the format of the anchors attached to instructions on disassembly
