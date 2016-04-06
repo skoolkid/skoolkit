@@ -1,7 +1,7 @@
 Changelog
 =========
 
-5.2b1
+5.2rc
 -----
 * Added the :ref:`bin2sna.py` command (for converting a binary file into a Z80
   snapshot)
