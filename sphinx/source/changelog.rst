@@ -1,8 +1,8 @@
 Changelog
 =========
 
-5.2rc
------
+5.2 (2016-05-02)
+----------------
 * Added the :ref:`bin2sna.py` command (for converting a binary file into a Z80
   snapshot)
 * Added the :ref:`N` macro (which renders a numeric value in hexadecimal format
