@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &mdash; SkoolKit 5.1 documentation</title>
+    <title>Extending SkoolKit &mdash; SkoolKit 5.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.1',
+        VERSION:     '5.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.2 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -162,6 +162,10 @@ by using the <tt class="docutils literal"><span class="pre">-W</span></tt>/<tt c
 </div>
 <p>Specifying the writer class this way will override any <tt class="docutils literal"><span class="pre">HtmlWriterClass</span></tt>
 parameter in the ref file or <tt class="docutils literal"><span class="pre">&#64;writer</span></tt> directive in the skool file.</p>
+<p>Note that if the writer class is specified with a blank module path (e.g.
+<tt class="docutils literal"><span class="pre">:game.GameHtmlWriter</span></tt>), SkoolKit will search for the module in both the
+current working directory and the directory containing the skool file or ref
+file named on the command line.</p>
 </div>
 <div class="section" id="call-methods">
 <h2>#CALL methods<a class="headerlink" href="#call-methods" title="Permalink to this headline">¶</a></h2>
@@ -961,7 +965,7 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

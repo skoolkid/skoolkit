@@ -632,7 +632,19 @@ This ``@replace`` directive would replace ``#udg$a001,40960`` with
 ``#UDG($a001,#PEEK40960)``.
 
 Note that string replacements specified by ``@replace`` directives are made
-before skool macros are expanded.
+before skool macros are expanded, and in the order in which the directives
+appear in the skool file. For example, if we have::
+
+  @replace=/#foo\i/#bar\1
+  @replace=/#bar\i/#EVAL\1,16
+
+then ``#foo31`` would be replaced by ``#EVAL31,16``, but if these directives
+were reversed::
+
+  @replace=/#bar\i/#EVAL\1,16
+  @replace=/#foo\i/#bar\1
+
+then ``#foo31`` would be replaced by ``#bar31``.
 
 See also :ref:`definingMacrosWithReplace`.
 
@@ -640,6 +652,28 @@ See also :ref:`definingMacrosWithReplace`.
 | Version | Changes |
 +=========+=========+
 | 5.1     | New     |
++---------+---------+
+
+.. _rfix:
+
+@rfix
+^^^^^
+The ``@rfix`` directive makes an instruction substitution in :ref:`rfixMode`.
+::
+
+  @rfix=INSTRUCTION
+
+* ``INSTRUCTION`` is the replacement instruction
+
+For example::
+
+  @rfix=LD HL,0
+   27519 LD L,0
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.2     | New     |
 +---------+---------+
 
 .. _rfixBlockDirectives:
@@ -664,8 +698,8 @@ The ``@rsub`` directive makes an instruction substitution in :ref:`rsubMode`.
 
 For example::
 
-  @rsub=INC BC
-   30143 INC C         ; Point #REGbc at the next byte of data
+  @rsub=LD BC,0
+   30143 LD C,0        ; Reset #REGbc to 0
 
 .. _rsubBlockDirectives:
 

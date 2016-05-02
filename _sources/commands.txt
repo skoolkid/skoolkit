@@ -3,6 +3,46 @@
 Commands
 ========
 
+.. _bin2sna.py:
+
+bin2sna.py
+----------
+`bin2sna.py` converts a binary (raw memory) file into a Z80 snapshot. For
+example::
+
+  $ bin2sna.py game.bin
+
+will create a file named `game.z80`. By default, the origin address (the
+address of the first byte of code or data), the start address (the first byte
+of code to run) and the stack pointer are set to 65536 minus the length of
+`game.bin`. These values can be changed by passing options to `bin2sna.py`. Run
+it with no arguments to see the list of available options::
+
+  usage: bin2sna.py [options] file.bin [file.z80]
+
+  Convert a binary (raw memory) file into a Z80 snapshot. 'file.bin' may be a
+  regular file, or '-' for standard input. If 'file.z80' is not given, it
+  defaults to the name of the input file with '.bin' replaced by '.z80', or
+  'program.z80' if reading from standard input.
+
+  Options:
+    -b BORDER, --border BORDER
+                          Set the border colour (default: 7)
+    -o ORG, --org ORG     Set the origin address (default: 65536 minus the
+                          length of file.bin)
+    -p STACK, --stack STACK
+                          Set the stack pointer (default: ORG)
+    -s START, --start START
+                          Set the address at which to start execution (default:
+                          ORG)
+    -V, --version         Show SkoolKit version number and exit
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.2     | New     |
++---------+---------+
+
 .. _bin2tap.py:
 
 bin2tap.py
@@ -18,10 +58,11 @@ of code to run) and the stack pointer are set to 65536 minus the length of
 `game.bin`. These values can be changed by passing options to `bin2tap.py`. Run
 it with no arguments to see the list of available options::
 
-  usage: bin2tap.py [options] FILE
+  usage: bin2tap.py [options] FILE [file.tap]
 
   Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a TAP
-  file.
+  file. FILE may be a regular file, or '-' to read a binary file from standard
+  input.
 
   Options:
     -c N, --clear N       Use a 'CLEAR N' command in the BASIC loader and leave
@@ -36,6 +77,10 @@ it with no arguments to see the list of available options::
     -t TAPFILE, --tapfile TAPFILE
                           Set the TAP filename
     -V, --version         Show SkoolKit version number and exit
+
+.. note::
+   The ``-t/--tapfile`` option is deprecated since version 5.2. Use the second
+   positional argument to specify the TAP filename.
 
 Note that the ROM tape loading routine at 1366 ($0556) and the load routine
 used by `bin2tap.py` together require 14 bytes for stack operations, and so
@@ -57,6 +102,9 @@ Spectrum is 23952 ($5D90).
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 5.2     | Added the ability to read a binary file from standard input;    |
+|         | added a second positional argument specifying the TAP filename  |
++---------+-----------------------------------------------------------------+
 | 4.5     | Added the ``--clear`` and ``--end`` options, and the ability to |
 |         | convert SNA, SZX and Z80 snapshots                              |
 +---------+-----------------------------------------------------------------+
@@ -150,6 +198,7 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
   Convert a skool file into a binary (raw memory) file. 'file.skool' may be a
   regular file, or '-' for standard input. If 'file.bin' is not given, it
   defaults to the name of the input file with '.skool' replaced by '.bin'.
+  'file.bin' may be a regular file, or '-' for standard output.
 
   Options:
     -b, --bfix            Apply @ofix and @bfix directives
@@ -161,13 +210,15 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
                           Start converting at this address
     -V, --version         Show SkoolKit version number and exit
 
-+---------+---------------------------------------------------------+
-| Version | Changes                                                 |
-+=========+=========================================================+
-| 5.1     | Added the ``--bfix``, ``--ofix`` and ``--ssub`` options |
-+---------+---------------------------------------------------------+
-| 5.0     | New                                                     |
-+---------+---------------------------------------------------------+
++---------+---------------------------------------------------------------+
+| Version | Changes                                                       |
++=========+===============================================================+
+| 5.2     | Added the ability to write the binary file to standard output |
++---------+---------------------------------------------------------------+
+| 5.1     | Added the ``--bfix``, ``--ofix`` and ``--ssub`` options       |
++---------+---------------------------------------------------------------+
+| 5.0     | New                                                           |
++---------+---------------------------------------------------------------+
 
 .. _skool2ctl.py:
 

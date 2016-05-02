@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &mdash; SkoolKit 5.1 documentation</title>
+    <title>Ref files &mdash; SkoolKit 5.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.1',
+        VERSION:     '5.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.2 documentation" href="index.html" />
     <link rel="next" title="HTML templates" href="html-templates.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -382,6 +382,10 @@ with semicolons</li>
 header of the main index page (default: &#8216;The complete&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">TitleSuffix</span></tt> - the suffix to use after the game name or logo in the header
 of the main index page (default: &#8216;RAM disassembly&#8217;)</li>
+<li><tt class="docutils literal"><span class="pre">UDGFilename</span></tt> - the format of the default filename for images created by
+the <a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a> macro (default: <tt class="docutils literal"><span class="pre">udg{addr}_{attr}x{scale}</span></tt>); this is a
+standard Python format string that recognises the macro parameters <tt class="docutils literal"><span class="pre">addr</span></tt>,
+<tt class="docutils literal"><span class="pre">attr</span></tt> and <tt class="docutils literal"><span class="pre">scale</span></tt></li>
 </ul>
 <p>The <tt class="docutils literal"><span class="pre">AddressAnchor</span></tt> parameter contains a standard Python format string that
 specifies the format of the anchors attached to instructions on disassembly
@@ -403,37 +407,40 @@ could produce such an anchor should be avoided.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.3</td>
+<tr class="row-even"><td>5.2</td>
+<td>Added the <tt class="docutils literal"><span class="pre">UDGFilename</span></tt> parameter</td>
+</tr>
+<tr class="row-odd"><td>4.3</td>
 <td>Added the <tt class="docutils literal"><span class="pre">AddressAnchor</span></tt> parameter</td>
 </tr>
-<tr class="row-odd"><td>4.1</td>
+<tr class="row-even"><td>4.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">LinkInternalOperands</span></tt> parameter</td>
 </tr>
-<tr class="row-even"><td>4.0</td>
+<tr class="row-odd"><td>4.0</td>
 <td>Set default values for the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
 <tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> parameters; added the
 <tt class="docutils literal"><span class="pre">Copyright</span></tt>, <tt class="docutils literal"><span class="pre">Created</span></tt> and <tt class="docutils literal"><span class="pre">Release</span></tt> parameters (which used
 to live in the <tt class="docutils literal"><span class="pre">[Info]</span></tt> section in SkoolKit 3)</td>
 </tr>
-<tr class="row-odd"><td>3.7</td>
+<tr class="row-even"><td>3.7</td>
 <td>Added the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter</td>
 </tr>
-<tr class="row-even"><td>3.5</td>
+<tr class="row-odd"><td>3.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">Font</span></tt>, <tt class="docutils literal"><span class="pre">LogoImage</span></tt> and <tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parameters
 (all of which used to live in the <a class="reference internal" href="#paths"><em>[Paths]</em></a> section,
 <tt class="docutils literal"><span class="pre">LogoImage</span></tt> by the name <tt class="docutils literal"><span class="pre">Logo</span></tt>)</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">LinkOperands</span></tt> parameter</td>
 </tr>
-<tr class="row-even"><td>3.1.2</td>
+<tr class="row-odd"><td>3.1.2</td>
 <td>Added the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
 <tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> parameters</td>
 </tr>
-<tr class="row-odd"><td>2.0.5</td>
+<tr class="row-even"><td>2.0.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">Logo</span></tt> parameter</td>
 </tr>
-<tr class="row-even"><td>2.0.3</td>
+<tr class="row-odd"><td>2.0.3</td>
 <td>Added the <tt class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></tt> parameter</td>
 </tr>
 </tbody>
@@ -1276,7 +1283,7 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

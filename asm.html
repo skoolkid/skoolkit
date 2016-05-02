@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ASM modes and directives &mdash; SkoolKit 5.1 documentation</title>
+    <title>ASM modes and directives &mdash; SkoolKit 5.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.1',
+        VERSION:     '5.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.2 documentation" href="index.html" />
     <link rel="next" title="Extending SkoolKit" href="extending.html" />
     <link rel="prev" title="HTML templates" href="html-templates.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -77,6 +77,7 @@
 <li><a class="reference internal" href="#org">&#64;org</a></li>
 <li><a class="reference internal" href="#rem">&#64;rem</a></li>
 <li><a class="reference internal" href="#replace">&#64;replace</a></li>
+<li><a class="reference internal" href="#rfix">&#64;rfix</a></li>
 <li><a class="reference internal" href="#rfix-block-directives">&#64;rfix block directives</a></li>
 <li><a class="reference internal" href="#rsub">&#64;rsub</a></li>
 <li><a class="reference internal" href="#rsub-block-directives">&#64;rsub block directives</a></li>
@@ -725,7 +726,19 @@ example:</p>
 <p>This <tt class="docutils literal"><span class="pre">&#64;replace</span></tt> directive would replace <tt class="docutils literal"><span class="pre">#udg$a001,40960</span></tt> with
 <tt class="docutils literal"><span class="pre">#UDG($a001,#PEEK40960)</span></tt>.</p>
 <p>Note that string replacements specified by <tt class="docutils literal"><span class="pre">&#64;replace</span></tt> directives are made
-before skool macros are expanded.</p>
+before skool macros are expanded, and in the order in which the directives
+appear in the skool file. For example, if we have:</p>
+<div class="highlight-none"><div class="highlight"><pre>@replace=/#foo\i/#bar\1
+@replace=/#bar\i/#EVAL\1,16
+</pre></div>
+</div>
+<p>then <tt class="docutils literal"><span class="pre">#foo31</span></tt> would be replaced by <tt class="docutils literal"><span class="pre">#EVAL31,16</span></tt>, but if these directives
+were reversed:</p>
+<div class="highlight-none"><div class="highlight"><pre>@replace=/#bar\i/#EVAL\1,16
+@replace=/#foo\i/#bar\1
+</pre></div>
+</div>
+<p>then <tt class="docutils literal"><span class="pre">#foo31</span></tt> would be replaced by <tt class="docutils literal"><span class="pre">#bar31</span></tt>.</p>
 <p>See also <a class="reference internal" href="skool-macros.html#definingmacroswithreplace"><em>Defining macros with &#64;replace</em></a>.</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -744,6 +757,37 @@ before skool macros are expanded.</p>
 </tbody>
 </table>
 </div>
+<div class="section" id="rfix">
+<span id="id14"></span><h3>&#64;rfix<a class="headerlink" href="#rfix" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">&#64;rfix</span></tt> directive makes an instruction substitution in <a class="reference internal" href="#rfixmode"><em>&#64;rfix mode</em></a>.</p>
+<div class="highlight-none"><div class="highlight"><pre>@rfix=INSTRUCTION
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">INSTRUCTION</span></tt> is the replacement instruction</li>
+</ul>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>@rfix=LD HL,0
+ 27519 LD L,0
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>5.2</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="rfix-block-directives">
 <span id="rfixblockdirectives"></span><h3>&#64;rfix block directives<a class="headerlink" href="#rfix-block-directives" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;rfix</span></tt> block directives define a block of lines that will be inserted or
@@ -751,7 +795,7 @@ removed in <a class="reference internal" href="#rfixmode"><em>&#64;rfix mode</em
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><em>&#64;bfix block directives</em></a>.</p>
 </div>
 <div class="section" id="rsub">
-<span id="id14"></span><h3>&#64;rsub<a class="headerlink" href="#rsub" title="Permalink to this headline">¶</a></h3>
+<span id="id15"></span><h3>&#64;rsub<a class="headerlink" href="#rsub" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;rsub</span></tt> directive makes an instruction substitution in <a class="reference internal" href="#rsubmode"><em>&#64;rsub mode</em></a>.</p>
 <div class="highlight-none"><div class="highlight"><pre>@rsub=INSTRUCTION
 </pre></div>
@@ -760,8 +804,8 @@ removed in <a class="reference internal" href="#rfixmode"><em>&#64;rfix mode</em
 <li><tt class="docutils literal"><span class="pre">INSTRUCTION</span></tt> is the replacement instruction</li>
 </ul>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre>@rsub=INC BC
- 30143 INC C         ; Point #REGbc at the next byte of data
+<div class="highlight-none"><div class="highlight"><pre>@rsub=LD BC,0
+ 30143 LD C,0        ; Reset #REGbc to 0
 </pre></div>
 </div>
 </div>
@@ -772,7 +816,7 @@ removed in <a class="reference internal" href="#rsubmode"><em>&#64;rsub mode</em
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><em>&#64;bfix block directives</em></a>.</p>
 </div>
 <div class="section" id="set">
-<span id="id15"></span><h3>&#64;set<a class="headerlink" href="#set" title="Permalink to this headline">¶</a></h3>
+<span id="id16"></span><h3>&#64;set<a class="headerlink" href="#set" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;set</span></tt> directive sets a property on the ASM writer.</p>
 <div class="highlight-none"><div class="highlight"><pre>@set-name=value
 </pre></div>
@@ -838,7 +882,7 @@ ASM output (after parsing the skool file), or <tt class="docutils literal"><span
 </table>
 </div>
 <div class="section" id="ssub">
-<span id="id16"></span><h3>&#64;ssub<a class="headerlink" href="#ssub" title="Permalink to this headline">¶</a></h3>
+<span id="id17"></span><h3>&#64;ssub<a class="headerlink" href="#ssub" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;ssub</span></tt> directive makes an instruction substitution in <a class="reference internal" href="#ssubmode"><em>&#64;ssub mode</em></a>.</p>
 <div class="highlight-none"><div class="highlight"><pre>@ssub=INSTRUCTION
 </pre></div>
@@ -881,14 +925,14 @@ removed in <a class="reference internal" href="#ssubmode"><em>&#64;ssub mode</em
 </table>
 </div>
 <div class="section" id="start">
-<span id="id17"></span><h3>&#64;start<a class="headerlink" href="#start" title="Permalink to this headline">¶</a></h3>
+<span id="id18"></span><h3>&#64;start<a class="headerlink" href="#start" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;start</span></tt> directive indicates where to start parsing the skool file for
 the purpose of generating ASM output. Everything before the <tt class="docutils literal"><span class="pre">&#64;start</span></tt>
 directive is ignored by <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>.</p>
 <p>See also <a class="reference internal" href="#end"><em>&#64;end</em></a>.</p>
 </div>
 <div class="section" id="writer">
-<span id="id18"></span><h3>&#64;writer<a class="headerlink" href="#writer" title="Permalink to this headline">¶</a></h3>
+<span id="id19"></span><h3>&#64;writer<a class="headerlink" href="#writer" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;writer</span></tt> directive specifies the name of the Python class to use to
 generate ASM output. It must be placed somewhere after the <a class="reference internal" href="#start"><em>&#64;start</em></a>
 directive, and before the <a class="reference internal" href="#end"><em>&#64;end</em></a> directive (if there is one).</p>
@@ -947,7 +991,7 @@ path</td>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
