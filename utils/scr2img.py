@@ -85,7 +85,7 @@ def run(infile, outfile, options):
 # Begin
 ###############################################################################
 parser = argparse.ArgumentParser(
-    usage='sc2img.py [options] INPUT [OUTPUT]',
+    usage='scr2img.py [options] INPUT [OUTPUT]',
     description="Convert a Spectrum screenshot (or a portion of it) into a PNG or GIF file. "
                 "INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.",
     add_help=False
