@@ -1,6 +1,5 @@
 ROM = /usr/share/spectrum-roms/48.rom
 NOSETESTS27 ?= nosetests-2.7
-NOSETESTS32 ?= $(HOME)/Python/Python3.2/bin/nosetests
 NOSETESTS33 ?= $(HOME)/Python/Python3.3/bin/nosetests
 NOSETESTS34 ?= python3.4 /usr/bin/nosetests
 NOSETESTS35 ?= $(HOME)/Python/Python3.5/bin/nosetests
@@ -20,7 +19,7 @@ usage:
 	@echo "  rom           build the Spectrum ROM disassembly"
 	@echo "  test[-all]    run core/all tests with current Python interpreter"
 	@echo "  test27[-all]  run core/all tests with Python 2.7"
-	@echo "  test3X[-all]  run core/all tests with Python 3.X (2<=X<=5)"
+	@echo "  test3X[-all]  run core/all tests with Python 3.X (3<=X<=5)"
 	@echo "  test-cover    run core tests with coverage info"
 	@echo "  release       build a SkoolKit release tarball and zip archive"
 	@echo "  tarball       build a SkoolKit release tarball"

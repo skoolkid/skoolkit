@@ -212,7 +212,7 @@ test_disassemblies() {
   btslog=$BACKTOSKOOL_HOME/build/tests.log
   mkdir -p $CONTACTSAMCRUISE_HOME/build
   csclog=$CONTACTSAMCRUISE_HOME/build/tests.log
-  targets="test27 test32 test33 test34 test35"
+  targets="test27 test33 test34 test35"
 
   make -C $MANICMINER_HOME $targets &> $mmlog & PIDmm=$!
   make -C $JETSETWILLY_HOME $targets &> $jswlog & PIDjsw=$!

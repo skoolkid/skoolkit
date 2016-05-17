@@ -3,6 +3,7 @@ Changelog
 
 5.3b1
 -----
+* Dropped support for Python 3.2
 
 5.2 (2016-05-02)
 ----------------
