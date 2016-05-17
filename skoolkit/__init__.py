@@ -22,7 +22,7 @@ import posixpath
 import textwrap
 import importlib
 
-VERSION = '5.2'
+VERSION = '5.3b1'
 ENCODING = 'utf-8'
 PY3 = sys.version_info >= (3,)
 PACKAGE_DIR = os.path.dirname(__file__)

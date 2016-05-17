@@ -1,6 +1,9 @@
 Changelog
 =========
 
+5.3b1
+-----
+
 5.2 (2016-05-02)
 ----------------
 * Added the :ref:`bin2sna.py` command (for converting a binary file into a Z80
