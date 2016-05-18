@@ -186,6 +186,14 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
                 output = writer.expand('#HTML{0}{1}{2}'.format(delim1, text, delim2))
                 self.assertEqual(output, '')
 
+    def test_macro_include(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#INCLUDE(foo)'), '')
+        self.assertEqual(writer.expand('#INCLUDE[bar,Y]'), '')
+        self.assertEqual(writer.expand('#INCLUDE{baz,N}'), '')
+        self.assertEqual(writer.expand('#INCLUDE||qux||'), '')
+        self.assertEqual(writer.expand('#INCLUDE//xyzzy/1//'), '')
+
     def test_macro_link(self):
         writer = self._get_writer()
 

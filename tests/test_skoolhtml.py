@@ -33,11 +33,12 @@ REF_SECTIONS = {
     'Template_link': defaults.get_section('Template:link'),
     'Template_list': defaults.get_section('Template:list'),
     'Template_list_item': defaults.get_section('Template:list_item'),
+    'Template_paragraph': defaults.get_section('Template:paragraph'),
+    'Template_reg': defaults.get_section('Template:reg'),
     'Template_table': defaults.get_section('Template:table'),
     'Template_table_cell': defaults.get_section('Template:table_cell'),
     'Template_table_header_cell': defaults.get_section('Template:table_header_cell'),
     'Template_table_row': defaults.get_section('Template:table_row'),
-    'Template_reg': defaults.get_section('Template:reg')
 }
 
 MINIMAL_REF_FILE = """
@@ -89,6 +90,7 @@ Pokes={REFERENCE_DIR}/pokes.html
 {REF_SECTIONS[Template_link]}
 {REF_SECTIONS[Template_list]}
 {REF_SECTIONS[Template_list_item]}
+{REF_SECTIONS[Template_paragraph]}
 {REF_SECTIONS[Template_reg]}
 {REF_SECTIONS[Template_table]}
 {REF_SECTIONS[Template_table_cell]}
@@ -1171,6 +1173,45 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         text = 'tested nested SMPL macros'
         output = writer.expand(nest_macros('#HTML/{}/', text))
         self.assertEqual(output, text)
+
+    def test_macro_include_no_paragraphs(self):
+        ref = '\n'.join((
+            '[Foo]',
+            'Bar',
+            '',
+            '#IF0(Baz,Qux)'
+        ))
+        exp_html = '\n'.join((
+            'Bar',
+            '',
+            'Qux'
+        ))
+        writer = self._get_writer(ref=ref)
+
+        for params in ('(Foo)', '[Foo]', '{Foo}', '//Foo//'):
+            output = writer.expand('#INCLUDE' + params, ASMDIR)
+            self.assertEqual(output, exp_html)
+
+    def test_macro_include_with_paragraphs(self):
+        ref = '\n'.join((
+            '[Foo]',
+            'Bar',
+            '',
+            '#IF1(Baz,Qux)'
+        ))
+        exp_html = '\n'.join((
+            '<div class="paragraph">',
+            'Bar',
+            '</div>',
+            '<div class="paragraph">',
+            'Baz',
+            '</div>'
+        ))
+        writer = self._get_writer(ref=ref)
+
+        for params in ('(Foo,Y)', '[Foo,1]', '{Foo,true}', '//Foo/T//'):
+            output = writer.expand('#INCLUDE' + params, ASMDIR)
+            self.assertEqual(output, exp_html)
 
     def test_macro_link(self):
         ref = '\n'.join((

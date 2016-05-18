@@ -198,6 +198,10 @@ class AsmWriter:
     def expand_if(self, text, index):
         return skoolmacro.parse_if(text, index)
 
+    def expand_include(self, text, index):
+        end, (section, paragraphs) = skoolmacro.parse_include(text, index)
+        return end, ''
+
     def expand_link(self, text, index):
         end, page_id, anchor, link_text = skoolmacro.parse_link(text, index)
         if not link_text:

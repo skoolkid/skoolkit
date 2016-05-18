@@ -1273,6 +1273,13 @@ class HtmlWriter:
     def expand_if(self, text, index, cwd):
         return skoolmacro.parse_if(text, index)
 
+    def expand_include(self, text, index, cwd):
+        end, (section, paragraphs) = skoolmacro.parse_include(text, index)
+        content = self.get_section(section, paragraphs)
+        if paragraphs:
+            return end, self.join_paragraphs(content, cwd)
+        return end, content
+
     def expand_link(self, text, index, cwd):
         end, page_id, anchor, link_text = skoolmacro.parse_link(text, index)
         if page_id not in self.paths:

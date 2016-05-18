@@ -666,6 +666,10 @@ def parse_if(text, index):
         return end, s_true
     return end, s_false
 
+def parse_include(text, index):
+    # #INCLUDE(section[,paragraphs])
+    return parse_strings(text, index, 2, ('',))
+
 def parse_link(text, index):
     # #LINK:PageId[#name](link text)
     macro = '#LINK'
