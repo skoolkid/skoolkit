@@ -4,6 +4,8 @@ Changelog
 5.3b1
 -----
 * Dropped support for Python 3.2
+* Added the :ref:`INCLUDE` macro (which expands to the contents of a ref file
+  section)
 
 5.2 (2016-05-02)
 ----------------
