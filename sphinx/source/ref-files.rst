@@ -69,9 +69,10 @@ section names and contents take the form::
   Second top-level item.
   ...
 
-where ``title`` is the title of the entry, and the intro text and top-level
-items are separated by blank lines. Lower-level items are created by using
-indentation, as shown.
+where ``title`` is the title of the entry. The intro text and the first
+top-level item must be separated by a blank line. Lower-level items are created
+by using indentation, as shown. Blank lines between items are optional and will
+be ignored.
 
 If the intro text is a single hyphen (``-``), it will not be included in the
 final HTML rendering.
