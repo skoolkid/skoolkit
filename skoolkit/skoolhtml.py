@@ -53,6 +53,7 @@ P_FACTS = 'Facts'
 P_BUGS = 'Bugs'
 P_POKES = 'Pokes'
 P_CHANGELOG = 'Changelog'
+P_ASM_SINGLE_PAGE = 'AsmSinglePage'
 
 # Default image path ID
 DEF_IMG_PATH = 'UDGImagePath'
@@ -126,6 +127,7 @@ class HtmlWriter:
 
         self.game_vars = self.get_dictionary('Game')
         self.asm_anchor_template = self.game_vars['AddressAnchor']
+        self.asm_single_page_template = self.game_vars.get('AsmSinglePageTemplate')
         self.udg_fname_template = self.game_vars['UDGFilename']
         self.paths = self.get_dictionary('Paths')
         self.asm_fname_template = self.paths['CodeFiles']
@@ -163,11 +165,15 @@ class HtmlWriter:
             self.titles.setdefault(index_page_id, c_id)
             code_path_id = code['CodePathId'] = '{}-CodePath'.format(c_id)
             self.paths.setdefault(code_path_id, c_id)
-            for entry_type in 'bcgstuw':
-                asm_page_id = self._get_asm_page_id(c_id, entry_type)
-                default_asm_page_id = self._get_asm_page_id(MAIN_CODE_ID, entry_type)
-                self.titles.setdefault(asm_page_id, self.titles[default_asm_page_id])
-                self.page_headers.setdefault(asm_page_id, self.page_headers[default_asm_page_id])
+            asm_single_page_id = '{}-{}'.format(c_id, P_ASM_SINGLE_PAGE)
+            self.paths.setdefault(asm_single_page_id, '{}/asm.html'.format(c_id))
+            self.titles.setdefault(asm_single_page_id, c_id)
+            if not self.asm_single_page_template:
+                for entry_type in 'bcgstuw':
+                    asm_page_id = self._get_asm_page_id(c_id, entry_type)
+                    default_asm_page_id = self._get_asm_page_id(MAIN_CODE_ID, entry_type)
+                    self.titles.setdefault(asm_page_id, self.titles[default_asm_page_id])
+                    self.page_headers.setdefault(asm_page_id, self.page_headers[default_asm_page_id])
 
         self.gsb_includes = []
         for addr_str in self.game_vars.get('GameStatusBufferIncludes', '').split(','):
@@ -303,7 +309,11 @@ class HtmlWriter:
                 return self.paths[code['CodePathId']]
         raise SkoolKitError("Cannot find code path for '{}' disassembly".format(code_id))
 
-    def _get_asm_page_id(self, code_id, entry_type):
+    def _get_asm_page_id(self, code_id, entry_type=None):
+        if self.asm_single_page_template:
+            if code_id == MAIN_CODE_ID:
+                return P_ASM_SINGLE_PAGE
+            return '{}-{}'.format(code_id, P_ASM_SINGLE_PAGE)
         if code_id == MAIN_CODE_ID:
             return 'Asm-{}'.format(entry_type)
         return '{}-Asm-{}'.format(code_id, entry_type)
@@ -456,8 +466,15 @@ class HtmlWriter:
         except:
             raise SkoolKitError("Cannot format filename ({}) with address={}".format(self.asm_fname_template, address))
 
-    def asm_relpath(self, cwd, address, path):
-        return self.relpath(cwd, join(path, self.asm_fname(address)))
+    def _asm_relpath(self, cwd, address, code_id=None):
+        if not code_id:
+            code_id = self.code_id
+        if self.asm_single_page_template:
+            page_id = self._get_asm_page_id(code_id)
+            fname = self.relpath(cwd, self.paths[page_id])
+            return '{}#{}'.format(fname, self.asm_anchor(address))
+        code_path = self.get_code_path(code_id)
+        return self.relpath(cwd, join(code_path, self.asm_fname(address)))
 
     def asm_anchor(self, address):
         try:
@@ -624,7 +641,7 @@ class HtmlWriter:
             'byte': entry.address % 256,
             'label': self.parser.get_asm_label(entry.address),
             'description': description,
-            'href': self.asm_relpath(cwd, entry.address, self.code_path),
+            'href': self._asm_relpath(cwd, entry.address),
             'size': entry.size,
             'title': self.expand(entry.description, cwd)
         }
@@ -775,23 +792,10 @@ class HtmlWriter:
         }
         return self.format_template('asm_comment', t_asm_comment_subs)
 
-    def write_entry(self, cwd, index, map_file):
+    def _get_asm_entry(self, cwd, index, map_file):
         entry = self.memory_map[index]
-        fname = join(cwd, self.asm_fname(entry.address))
-        page_id = self._get_asm_page_id(self.code_id, entry.ctl)
-        self._set_cwd(page_id, fname)
-
         entry_dict = self._get_asm_entry_dict(cwd, index, map_file)
         entry_dict['annotated'] = int(any([i.comment and i.comment.text for i in entry.instructions]))
-
-        if index:
-            prev_entry_dict = self._get_asm_entry_dict(cwd, index - 1, map_file)
-        else:
-            prev_entry_dict = self.nonexistent_entry_dict
-        if index + 1 < len(self.memory_map):
-            next_entry_dict = self._get_asm_entry_dict(cwd, index + 1, map_file)
-        else:
-            next_entry_dict = self.nonexistent_entry_dict
 
         input_reg, output_reg = self.format_registers(cwd, entry.registers, entry_dict)
 
@@ -810,21 +814,14 @@ class HtmlWriter:
                 external_ref = entry != reference.entry
                 if external_ref or asm_label or self.link_internal_operands:
                     entry_address = reference.entry.address
-                    if external_ref and reference.address == entry_address:
-                        name = ''
-                    else:
-                        name = '#{}'.format(self.asm_anchor(reference.address))
-                    if reference.entry.asm_id:
-                        # This is a reference to an entry in another disassembly
-                        entry_file = self.asm_relpath(cwd, entry_address, self.get_code_path(reference.entry.asm_id))
-                    else:
-                        # This is a reference to an entry in the same disassembly
-                        entry_file = self.asm_fname(entry_address)
+                    href = self._asm_relpath(cwd, entry_address, reference.entry.asm_id)
+                    if not (self.asm_single_page_template or (external_ref and reference.address == entry_address)):
+                        href += '#{}'.format(self.asm_anchor(reference.address))
                     if asm_label and not operation_u.startswith('RST'):
                         link_text = asm_label
                     else:
                         link_text = reference.addr_str
-                    link = self.format_link(entry_file + name, link_text)
+                    link = self.format_link(href, link_text)
                     operation = operation.replace(reference.addr_str, link)
 
             comment = instruction.comment
@@ -849,19 +846,53 @@ class HtmlWriter:
         if entry.end_comment:
             lines.append(self.format_entry_comment(cwd, entry_dict, entry.end_comment))
 
-        subs = {
-            'prev_entry': prev_entry_dict,
+        return {
             'entry': entry_dict,
-            'next_entry': next_entry_dict,
             'registers_input': input_reg,
             'registers_output': output_reg,
             'disassembly': '\n'.join(lines)
         }
+
+    def write_entry(self, cwd, index, map_file):
+        subs = self._get_asm_entry(cwd, index, map_file)
+
+        if index:
+            prev_entry_dict = self._get_asm_entry_dict(cwd, index - 1, map_file)
+        else:
+            prev_entry_dict = self.nonexistent_entry_dict
+        if index + 1 < len(self.memory_map):
+            next_entry_dict = self._get_asm_entry_dict(cwd, index + 1, map_file)
+        else:
+            next_entry_dict = self.nonexistent_entry_dict
+        subs['prev_entry'] = prev_entry_dict
+        subs['next_entry'] = next_entry_dict
+
+        entry = self.memory_map[index]
+        fname = join(cwd, self.asm_fname(entry.address))
+        page_id = self._get_asm_page_id(self.code_id, entry.ctl)
+        self._set_cwd(page_id, fname)
+
         self.write_file(fname, self.format_page(page_id, cwd, subs, 'Asm'))
 
+    def _write_asm_single_page(self, map_file):
+        page_id = self._get_asm_page_id(self.code_id)
+        fname = self.paths[page_id]
+        cwd = os.path.dirname(fname)
+        asm_entries = []
+        for i, entry in enumerate(self.memory_map):
+            entry_subs = self._get_asm_entry(cwd, i, map_file)
+            entry_subs['anchor'] = self.asm_anchor(entry.address)
+            asm_entries.append(self.format_template('asm_entry', entry_subs))
+        subs = {'m_asm_entry': '\n'.join(asm_entries)}
+        self._set_cwd(page_id, fname)
+        self.write_file(fname, self.format_page(page_id, cwd, subs, self.asm_single_page_template))
+
     def write_entries(self, cwd, map_file):
-        for i in range(len(self.memory_map)):
-            self.write_entry(cwd, i, map_file)
+        if self.asm_single_page_template:
+            self._write_asm_single_page(map_file)
+        else:
+            for i in range(len(self.memory_map)):
+                self.write_entry(cwd, i, map_file)
 
     def write_asm_entries(self):
         self.write_entries(self.code_path, self.paths[P_MEMORY_MAP])
@@ -1330,21 +1361,25 @@ class HtmlWriter:
         container = self.parser.get_container(address, code_id)
         if not code_id and not container:
             raise MacroParsingError('Could not find routine file containing {}'.format(addr_str))
-        inst_addr_str = self.parser.get_instruction_addr_str(address, code_id)
-        if container:
-            container_address = container.address
+        if self.asm_single_page_template:
+            href = self._asm_relpath(cwd, address, code_id)
         else:
-            container_address = address
-        try:
-            if skoolmacro.evaluate(anchor[1:]) == container_address:
-                anchor = '#{}'.format(self.asm_anchor(container_address))
-        except ValueError:
-            pass
-        if not anchor and address != container_address:
-            anchor = '#{}'.format(self.asm_anchor(address))
+            if container:
+                container_address = container.address
+            else:
+                container_address = address
+            if anchor:
+                try:
+                    if skoolmacro.evaluate(anchor[1:]) == container_address:
+                        anchor = '#{}'.format(self.asm_anchor(container_address))
+                except ValueError:
+                    pass
+            elif address != container_address:
+                anchor = '#{}'.format(self.asm_anchor(address))
+            href = self._asm_relpath(cwd, container_address, code_id) + anchor
         asm_label = self.parser.get_asm_label(address)
-        ref_file = self.asm_relpath(cwd, container_address, code_path)
-        return end, self.format_link(ref_file + anchor, link_text or asm_label or inst_addr_str)
+        inst_addr_str = self.parser.get_instruction_addr_str(address, code_id)
+        return end, self.format_link(href, link_text or asm_label or inst_addr_str)
 
     def expand_refs(self, text, index, cwd):
         return skoolmacro.parse_refs(text, index, self.parser)

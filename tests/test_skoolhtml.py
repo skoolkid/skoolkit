@@ -82,6 +82,7 @@ CodePath={ASMDIR}
 FontImagePath=images/font
 ScreenshotImagePath={SCRDIR}
 UDGImagePath={UDGDIR}
+AsmSinglePage=asm.html
 Bugs={REFERENCE_DIR}/bugs.html
 CodeFiles={{address}}.html
 Facts={REFERENCE_DIR}/facts.html
@@ -1466,6 +1467,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         prefix = ERROR_PREFIX.format('R')
         self._assert_error(writer, '#R$ABCD', 'Could not find routine file containing $ABCD', prefix)
 
+    def test_macro_r_asm_single_page(self):
+        ref = '[Game]\nAsmSinglePageTemplate=AsmAllInOne'
+        skool = 'c40000 RET'
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        output = writer.expand('#R40000', '')
+        self._assert_link_equals(output, 'asm.html#40000', '40000')
+
     def test_macro_r_other_code(self):
         ref = '\n'.join((
             '[OtherCode:other]',
@@ -1509,6 +1518,17 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         # Nested macros: other code with remote entry
         output = writer.expand(nest_macros('#R#(49152@{})', 'other'), ASMDIR)
         self._assert_link_equals(output, '../other/49152.html', 'C000')
+
+    def test_macro_r_other_code_asm_single_page(self):
+        ref = '\n'.join((
+            '[Game]',
+            'AsmSinglePageTemplate=AsmAllInOne',
+            '[OtherCode:other]'
+        ))
+        writer = self._get_writer(ref=ref, skool='')
+
+        output = writer.expand('#R40000@other', '')
+        self._assert_link_equals(output, 'other/asm.html#40000', '40000')
 
     def test_macro_r_decimal(self):
         ref = '\n'.join((
@@ -3696,6 +3716,91 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'content': content
         }
         self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
+
+    def test_write_asm_entries_on_single_page(self):
+        ref = '[Game]\nAsmSinglePageTemplate=AsmAllInOne'
+        skool = '\n'.join((
+            '; Routine at 32768',
+            'c32768 CALL 32773',
+            ' 32771 JR 32768',
+            '',
+            '; Routine at 32773',
+            ';',
+            '; Used by the routine at #R32768.',
+            'c32773 RET'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div id="32768" class="description">32768: Routine at 32768</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="32768"></span>32768</td>
+            <td class="instruction">CALL <a href="asm.html#32773">32773</a></td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="32771"></span>32771</td>
+            <td class="instruction">JR 32768</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+            <div id="32773" class="description">32773: Routine at 32773</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            <div class="paragraph">
+            Used by the routine at <a href="asm.html#32768">32768</a>.
+            </div>
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="32773"></span>32773</td>
+            <td class="instruction">RET</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'path': '',
+            'header': 'Disassembly',
+            'title': 'Disassembly',
+            'body_class': 'AsmSinglePage',
+            'content': content
+        }
+        self._assert_files_equal('asm.html', subs)
 
     def test_write_asm_entries_with_invalid_asm_anchor(self):
         ref = '[Game]\nAddressAnchor={Address:04x}'

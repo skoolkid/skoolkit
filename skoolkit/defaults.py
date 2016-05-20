@@ -209,6 +209,7 @@ JavaScriptPath=.
 ScreenshotImagePath=images/scr
 StyleSheetPath=.
 UDGImagePath=images/udgs
+AsmSinglePage=asm.html
 Bugs=reference/bugs.html
 Changelog=reference/changelog.html
 CodeFiles={address}.html
@@ -278,6 +279,28 @@ SECTIONS['Template:Asm'] = """
 <td class="next"><span class="next-{next_entry[exists]}">Next: <a href="{next_entry[href]}">{next_entry[address]}</a></span></td>
 </tr>
 </table>
+{t_footer}
+</body>
+</html>
+"""
+
+SECTIONS['Template:AsmAllInOne'] = """
+<!DOCTYPE html>
+<html>
+<head>
+<title>{Game[Game]}: {SkoolKit[title]}</title>
+<meta charset="utf-8" />
+{m_stylesheet}
+{m_javascript}
+</head>
+<body class="{SkoolKit[page_id]}">
+<table class="header">
+<tr>
+<td class="logo"><a href="{SkoolKit[index_href]}">{Game[Logo]}</a></td>
+<td class="page-header">{SkoolKit[page_header]}</td>
+</tr>
+</table>
+{m_asm_entry}
 {t_footer}
 </body>
 </html>
@@ -398,6 +421,32 @@ SECTIONS['Template:asm_comment'] = """
 </div>
 </td>
 </tr>
+"""
+
+SECTIONS['Template:asm_entry'] = """
+<div id="{anchor}" class="description">{entry[address]}: {entry[title]}</div>
+<table class="disassembly">
+<tr>
+<td class="routine-comment" colspan="4">
+<div class="details">
+{entry[description]}
+</div>
+<table class="input-{entry[input]}">
+<tr class="asm-input-header">
+<th colspan="2">{Game[InputRegisterTableHeader]}</th>
+</tr>
+{registers_input}
+</table>
+<table class="output-{entry[output]}">
+<tr class="asm-output-header">
+<th colspan="2">{Game[OutputRegisterTableHeader]}</th>
+</tr>
+{registers_output}
+</table>
+</td>
+</tr>
+{disassembly}
+</table>
 """
 
 SECTIONS['Template:asm_instruction'] = """
@@ -541,6 +590,7 @@ Asm-s=Unused RAM at
 Asm-t=Data at
 Asm-u=Unused RAM at
 Asm-w=Data at
+AsmSinglePage=Disassembly
 Bugs=Bugs
 Changelog=Changelog
 DataMap=Data
