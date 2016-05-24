@@ -92,6 +92,7 @@ setup(
         'skool2html.py',
         'skool2sft.py',
         'sna2skool.py',
+        'snapinfo.py',
         'tap2sna.py',
         'tapinfo.py'
     ],

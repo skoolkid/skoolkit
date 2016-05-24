@@ -1,69 +1,25 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys
-import os
+
+# Copyright 2013-2016 Richard Dymond (rjdymond@gmail.com)
+#
+# This file is part of SkoolKit.
+#
+# SkoolKit is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# SkoolKit is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# SkoolKit. If not, see <http://www.gnu.org/licenses/>.
+
 import argparse
 
-SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
-if SKOOLKIT_HOME:
-    if not os.path.isdir(SKOOLKIT_HOME):
-        sys.stderr.write('SKOOLKIT_HOME={}: directory not found\n'.format(SKOOLKIT_HOME))
-        sys.exit(1)
-    sys.path.insert(0, SKOOLKIT_HOME)
-else:
-    try:
-        import skoolkit
-    except ImportError:
-        sys.stderr.write('Error: SKOOLKIT_HOME is not set, and SkoolKit is not installed\n')
-        sys.exit(1)
-
+from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, read_bin_file, write_text, VERSION
 from skoolkit.snapshot import get_snapshot
-from skoolkit import get_int_param
-
-# http://www.worldofspectrum.org/faq/reference/z80format.htm
-# http://www.worldofspectrum.org/faq/reference/128kreference.htm
-
-BLOCK_ADDRESSES_48K = {
-    4: '32768-49151 8000-BFFF',
-    5: '49152-65535 C000-FFFF',
-    8: '16384-32767 4000-7FFF'
-}
-
-BLOCK_ADDRESSES_128K = {
-    5: '32768-49151 8000-BFFF',
-    8: '16384-32767 4000-7FFF'
-}
-
-V2_MACHINES = {
-    0: ('48K Spectrum', '16K Spectrum', True),
-    1: ('48K Spectrum + IF1', '16K Spectrum + IF1', True),
-    2: ('SamRam', 'SamRam', False),
-    3: ('128K Spectrum', 'Spectrum +2', False),
-    4: ('128K Spectrum + IF1', 'Spectrum +2 + IF1', False)
-}
-
-V3_MACHINES = {
-    0: ('48K Spectrum', '16K Spectrum', True),
-    1: ('48K Spectrum + IF1', '16K Spectrum + IF1', True),
-    2: ('SamRam', 'SamRam', False),
-    3: ('48K Spectrum + MGT', '16K Spectrum + MGT', True),
-    4: ('128K Spectrum', 'Spectrum +2', False),
-    5: ('128K Spectrum + IF1', 'Spectrum +2 + IF1', False),
-    6: ('128K Spectrum + MGT' 'Spectrum +2 + MGT', False),
-}
-
-MACHINES = {
-    7: ('Spectrum +3', 'Spectrum +2A', False),
-    8: ('Spectrum +3', 'Spectrum +2A', False),
-    9: ('Pentagon (128K)', 'Pentagon (128K)', False),
-    10: ('Scorpion (256K)', 'Scorpion (256K)', False),
-    11: ('Didaktik+Kompakt', 'Didaktik+Kompakt', False),
-    12: ('Spectrum +2', 'Spectrum +2', False),
-    13: ('Spectrum +2A', 'Spectrum +2A', False),
-    14: ('TC2048', 'TC2048', False),
-    15: ('TC2068', 'TC2068', False),
-    128: ('TS2068', 'TS2068', False),
-}
 
 TOKENS = {
     165: 'RND',
@@ -164,19 +120,19 @@ class BasicLister:
         self.snapshot = snapshot
         i = (snapshot[23635] + 256 * snapshot[23636]) or 23755
         while i < len(snapshot) and snapshot[i] < 64:
-            self._write('{: 4} '.format(snapshot[i] * 256 + snapshot[i + 1]))
+            write_text('{: 4} '.format(snapshot[i] * 256 + snapshot[i + 1]))
             self.lspace = False
             i = self._print_basic_line(i + 4)
 
     def _print_basic_line(self, i):
         while self.snapshot[i] != 13:
             if self.snapshot[i] == 14:
-                self._write(self._get_fp_num(i))
+                write_text(self._get_fp_num(i))
                 i += 6
             else:
-                self._write(self._get_chars(self.snapshot[i]))
+                write_text(self._get_chars(self.snapshot[i]))
                 i += 1
-        self._write('\n')
+        write_text('\n')
         return i + 1
 
     def _get_chars(self, code):
@@ -231,9 +187,6 @@ class BasicLister:
             return token
         return token + ' '
 
-    def _write(self, text):
-        sys.stdout.write(text)
-
 class Registers:
     reg_map = {
         'b': 'bc', 'c': 'bc', 'b2': 'bc2', 'c2': 'bc2',
@@ -275,16 +228,55 @@ class Registers:
                 return word // 256
             return word % 256
 
-def get_word(data, index):
-    return data[index] + 256 * data[index + 1]
+###############################################################################
 
-def to_binary(b):
-    return '{:08b}'.format(b)
+# http://www.worldofspectrum.org/faq/reference/z80format.htm
+# http://www.worldofspectrum.org/faq/reference/128kreference.htm
 
-def analyse_z80(z80file):
-    # Read the Z80 file
-    with open(z80file, 'rb') as f:
-        data = bytearray(f.read())
+BLOCK_ADDRESSES_48K = {
+    4: '32768-49151 8000-BFFF',
+    5: '49152-65535 C000-FFFF',
+    8: '16384-32767 4000-7FFF'
+}
+
+BLOCK_ADDRESSES_128K = {
+    5: '32768-49151 8000-BFFF',
+    8: '16384-32767 4000-7FFF'
+}
+
+V2_MACHINES = {
+    0: ('48K Spectrum', '16K Spectrum', True),
+    1: ('48K Spectrum + IF1', '16K Spectrum + IF1', True),
+    2: ('SamRam', 'SamRam', False),
+    3: ('128K Spectrum', 'Spectrum +2', False),
+    4: ('128K Spectrum + IF1', 'Spectrum +2 + IF1', False)
+}
+
+V3_MACHINES = {
+    0: ('48K Spectrum', '16K Spectrum', True),
+    1: ('48K Spectrum + IF1', '16K Spectrum + IF1', True),
+    2: ('SamRam', 'SamRam', False),
+    3: ('48K Spectrum + MGT', '16K Spectrum + MGT', True),
+    4: ('128K Spectrum', 'Spectrum +2', False),
+    5: ('128K Spectrum + IF1', 'Spectrum +2 + IF1', False),
+    6: ('128K Spectrum + MGT' 'Spectrum +2 + MGT', False),
+}
+
+MACHINES = {
+    7: ('Spectrum +3', 'Spectrum +2A', False),
+    8: ('Spectrum +3', 'Spectrum +2A', False),
+    9: ('Pentagon (128K)', 'Pentagon (128K)', False),
+    10: ('Scorpion (256K)', 'Scorpion (256K)', False),
+    11: ('Didaktik+Kompakt', 'Didaktik+Kompakt', False),
+    12: ('Spectrum +2', 'Spectrum +2', False),
+    13: ('Spectrum +2A', 'Spectrum +2A', False),
+    14: ('TC2048', 'TC2048', False),
+    15: ('TC2068', 'TC2068', False),
+    128: ('TS2068', 'TS2068', False),
+}
+
+def _analyse_z80(z80file):
+    data = read_bin_file(z80file)
 
     # Extract header and RAM block(s)
     if get_word(data, 6) > 0:
@@ -388,13 +380,10 @@ SZX_MACHINES = {
     6: 'ZX Spectrum +3e'
 }
 
-def get_block_id(data, index):
+def _get_block_id(data, index):
     return ''.join([chr(b) for b in data[index:index+ 4]])
 
-def get_dword(data, index):
-    return data[index] + 256 * data[index + 1] + 65536 * data[index + 2] + 16777216 * data[index + 3]
-
-def print_ramp(block, variables):
+def _print_ramp(block, variables):
     lines = []
     flags = get_word(block, 0)
     compressed = 'compressed' if flags & 1 else 'uncompressed'
@@ -414,7 +403,7 @@ def print_ramp(block, variables):
     lines.append("RAM: {}{} bytes, {}".format(addresses, len(ram), compressed))
     return lines
 
-def print_spcr(block, variables):
+def _print_spcr(block, variables):
     lines = []
     lines.append('Border: {}'.format(block[0]))
     ch7ffd = block[1]
@@ -423,7 +412,7 @@ def print_spcr(block, variables):
     lines.append('Port $7FFD: {} (bank {} paged into 49152-65535 C000-FFFF)'.format(ch7ffd, bank))
     return lines
 
-def print_z80r(block, variables):
+def _print_z80r(block, variables):
     lines = []
     lines.append('Interrupts: {}abled'.format('en' if block[27] else 'dis'))
     lines.append('Interrupt mode: {}'.format(block[28]))
@@ -447,19 +436,17 @@ def print_z80r(block, variables):
     return lines + reg.get_lines()
 
 SZX_BLOCK_PRINTERS = {
-    'RAMP': print_ramp,
-    'SPCR': print_spcr,
-    'Z80R': print_z80r
+    'RAMP': _print_ramp,
+    'SPCR': _print_spcr,
+    'Z80R': _print_z80r
 }
 
-def analyse_szx(szxfile):
-    with open(szxfile, 'rb') as f:
-        szx = bytearray(f.read())
+def _analyse_szx(szxfile):
+    szx = read_bin_file(szxfile)
 
-    magic = get_block_id(szx, 0)
+    magic = _get_block_id(szx, 0)
     if magic != 'ZXST':
-        sys.stderr.write("{} is not an SZX file\n".format(namespace.szxfile))
-        sys.exit(1)
+        raise SkoolKitError("{} is not an SZX file".format(szxfile))
 
     print('Version: {}.{}'.format(szx[4], szx[5]))
     machine_id = szx[6]
@@ -468,7 +455,7 @@ def analyse_szx(szxfile):
 
     i = 8
     while i < len(szx):
-        block_id = get_block_id(szx, i)
+        block_id = _get_block_id(szx, i)
         block_size = get_dword(szx, i + 4)
         i += 8
         print('{}: {} bytes'.format(block_id, block_size))
@@ -499,9 +486,8 @@ def _print_ram_banks(sna):
         print('RAM bank {} ({})'.format(b, desc))
         size -= 16384
 
-def analyse_sna(snafile):
-    with open(snafile, 'rb') as f:
-        sna = bytearray(f.read(147487))
+def _analyse_sna(snafile):
+    sna = read_bin_file(snafile, 147487)
     is128 = len(sna) > 49179
 
     print('RAM: {}K'.format(128 if is128 else 48))
@@ -537,7 +523,9 @@ def analyse_sna(snafile):
     if is128:
         _print_ram_banks(sna)
 
-def find(infile, byte_seq):
+###############################################################################
+
+def _find(infile, byte_seq):
     step = 1
     if '-' in byte_seq:
         byte_seq, step = byte_seq.split('-', 1)
@@ -549,7 +537,7 @@ def find(infile, byte_seq):
         if snapshot[a:a + offset:step] == byte_values:
             print("{0}-{1}-{2} {0:04X}-{1:04X}-{2}: {3}".format(a, a + offset - step, step, byte_seq))
 
-def find_text(infile, text):
+def _find_text(infile, text):
     size = len(text)
     byte_values = [ord(c) for c in text]
     snapshot = get_snapshot(infile)
@@ -557,7 +545,7 @@ def find_text(infile, text):
         if snapshot[a:a + size] == byte_values:
             print("{0}-{1} {0:04X}-{1:04X}: {2}".format(a, a + size - 1, text))
 
-def peek(infile, specs):
+def _peek(infile, specs):
     snapshot = get_snapshot(infile)
     for addr_range in specs:
         step = 1
@@ -578,44 +566,43 @@ def peek(infile, specs):
                 char = ''
             print('{0:>5} {0:04X}: {1:>3}  {1:02X}  {1:08b}  {2}'.format(a, value, char))
 
-###############################################################################
-# Begin
-###############################################################################
-parser = argparse.ArgumentParser(
-    usage='snapinfo.py [options] file',
-    description="Analyse an SNA, SZX or Z80 snapshot.",
-    add_help=False
-)
-parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
-group = parser.add_argument_group('Options')
-group.add_argument('-b', '--basic', action='store_true',
-                   help='List the BASIC program')
-group.add_argument('-f', '--find', metavar='A[,B...[-N]]',
-                   help='Search for the byte sequence A,B... with distance N (default=1) between bytes')
-group.add_argument('-p', '--peek', metavar='A[-B[-C]]', action='append',
-                   help='Show the contents of addresses A TO B STEP C; this option may be used multiple times')
-group.add_argument('-t', '--find-text', dest='text', metavar='TEXT',
-                   help='Search for a text string')
-namespace, unknown_args = parser.parse_known_args()
-if unknown_args or namespace.infile is None:
-    parser.exit(2, parser.format_help())
-infile = namespace.infile
-snapshot_type = infile[-4:].lower()
-if snapshot_type not in ('.sna', '.szx', '.z80'):
-    sys.stderr.write('Error: unrecognized snapshot type\n')
-    sys.exit(1)
+def main(args):
+    parser = argparse.ArgumentParser(
+        usage='snapinfo.py [options] file',
+        description="Analyse an SNA, SZX or Z80 snapshot.",
+        add_help=False
+    )
+    parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
+    group = parser.add_argument_group('Options')
+    group.add_argument('-b', '--basic', action='store_true',
+                       help='List the BASIC program')
+    group.add_argument('-f', '--find', metavar='A[,B...[-N]]',
+                       help='Search for the byte sequence A,B... with distance N (default=1) between bytes')
+    group.add_argument('-p', '--peek', metavar='A[-B[-C]]', action='append',
+                       help='Show the contents of addresses A TO B STEP C; this option may be used multiple times')
+    group.add_argument('-t', '--find-text', dest='text', metavar='TEXT',
+                       help='Search for a text string')
+    group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
+                       help='Show SkoolKit version number and exit')
+    namespace, unknown_args = parser.parse_known_args(args)
+    if unknown_args or namespace.infile is None:
+        parser.exit(2, parser.format_help())
+    infile = namespace.infile
+    snapshot_type = infile[-4:].lower()
+    if snapshot_type not in ('.sna', '.szx', '.z80'):
+        raise SkoolKitError('Unrecognised snapshot type')
 
-if namespace.find is not None:
-    find(infile, namespace.find)
-elif namespace.text is not None:
-    find_text(infile, namespace.text)
-elif namespace.peek is not None:
-    peek(infile, namespace.peek)
-elif namespace.basic:
-    BasicLister().list_basic(get_snapshot(infile))
-elif snapshot_type == '.sna':
-    analyse_sna(infile)
-elif snapshot_type == '.z80':
-    analyse_z80(infile)
-else:
-    analyse_szx(infile)
+    if namespace.find is not None:
+        _find(infile, namespace.find)
+    elif namespace.text is not None:
+        _find_text(infile, namespace.text)
+    elif namespace.peek is not None:
+        _peek(infile, namespace.peek)
+    elif namespace.basic:
+        BasicLister().list_basic(get_snapshot(infile))
+    elif snapshot_type == '.sna':
+        _analyse_sna(infile)
+    elif snapshot_type == '.z80':
+        _analyse_z80(infile)
+    else:
+        _analyse_szx(infile)
