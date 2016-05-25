@@ -93,6 +93,7 @@ setup(
         'skool2sft.py',
         'sna2skool.py',
         'snapinfo.py',
+        'snapmod.py',
         'tap2sna.py',
         'tapinfo.py'
     ],
