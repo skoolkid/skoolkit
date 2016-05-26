@@ -19,13 +19,12 @@
 import os
 import argparse
 
-from skoolkit import SkoolKitError, get_word, write_line, VERSION
+from skoolkit import SkoolKitError, get_word, read_bin_file, write_line, VERSION
 from skoolkit.tap2sna import move, poke
 from skoolkit.snapshot import get_snapshot, make_z80_ram_block, set_z80_registers, set_z80_state
 
 def _read_z80(z80file):
-    with open(z80file, 'rb') as f:
-        data = bytearray(f.read())
+    data = read_bin_file(z80file)
     if get_word(data, 6) > 0:
         header = data[:30]
     else:
@@ -46,7 +45,7 @@ def _write_z80(header, snapshot, fname):
     with open(fname, 'wb') as f:
         f.write(bytearray(header + ram))
 
-def _run(infile, options, outfile):
+def run(infile, options, outfile):
     header, snapshot = _read_z80(infile)
     for spec in options.moves:
         move(snapshot, spec)
@@ -90,6 +89,6 @@ def main(args):
     if outfile is None:
         outfile = infile
     if namespace.force or not os.path.isfile(outfile):
-        _run(infile, namespace, outfile)
+        run(infile, namespace, outfile)
     else:
         write_line('{}: file already exists; use -f to overwrite'.format(outfile))

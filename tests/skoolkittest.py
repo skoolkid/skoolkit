@@ -257,7 +257,7 @@ class SkoolKitTestCase(TestCase):
                 banks.update(pages)
                 for bank in set(range(8)) - set(banks.keys()):
                     banks[bank] = [0] * 16384
-            z80 = header
+            z80 = header[:]
             for bank, data in banks.items():
                 z80 += self._get_z80_ram_block(data, compress, bank + 3)
         return model, self.write_bin_file(z80, suffix='.z80')
