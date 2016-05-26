@@ -4985,6 +4985,66 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
+    def test_write_page_with_section_prefix(self):
+        page_id = 'mypage'
+        header = 'Welcome to my page'
+        title = 'This is my page'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'JavaScript={0}.js',
+            'SectionPrefix={0}',
+            '[{0}:item1:Item 1]',
+            'Item 1, paragraph 1.',
+            '',
+            'Item 1, paragraph 2.',
+            '[{0}:item2:Item 2]',
+            'Item 2, paragraph 1.',
+            '',
+            'Item 2, paragraph 2.',
+            '[Titles]',
+            '{0}={1}',
+            '[PageHeaders]',
+            '{0}={2}'
+        )).format(page_id, title, header)
+        exp_content = """
+            <ul class="contents">
+            <li><a href="#item1">Item 1</a></li>
+            <li><a href="#item2">Item 2</a></li>
+            </ul>
+            <div><span id="item1"></span></div>
+            <div class="box box-1">
+            <div class="box-title">Item 1</div>
+            <div class="paragraph">
+            Item 1, paragraph 1.
+            </div>
+            <div class="paragraph">
+            Item 1, paragraph 2.
+            </div>
+            </div>
+            <div><span id="item2"></span></div>
+            <div class="box box-2">
+            <div class="box-title">Item 2</div>
+            <div class="paragraph">
+            Item 2, paragraph 1.
+            </div>
+            <div class="paragraph">
+            Item 2, paragraph 2.
+            </div>
+            </div>
+        """
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        subs = {
+            'title': title,
+            'header': header,
+            'path': '',
+            'body_class': page_id,
+            'js': '{}.js'.format(page_id),
+            'content': exp_content
+        }
+        self._assert_files_equal('{}.html'.format(page_id), subs)
+
     def test_write_bugs(self):
         ref = '\n'.join((
             '[Bug:b1:Showstopper]',

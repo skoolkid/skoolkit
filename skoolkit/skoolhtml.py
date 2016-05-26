@@ -669,7 +669,7 @@ class HtmlWriter:
             items.append(self.format_template('contents_list_item', subs))
         return '\n'.join(items)
 
-    def _write_box_page(self, page_id, entries):
+    def _write_box_page(self, page_id, entries, js=None):
         fname = self.paths[page_id]
         cwd = self._set_cwd(page_id, fname)
         entries_html = []
@@ -685,7 +685,7 @@ class HtmlWriter:
             'm_contents_list_item': self._format_contents_list_items([(anchor, title) for anchor, title, p in entries]),
             'entries': '\n'.join(entries_html),
         }
-        html = self.format_page(page_id, cwd, subs, 'Reference')
+        html = self.format_page(page_id, cwd, subs, 'Reference', js)
         self.write_file(fname, html)
 
     def write_pokes(self):
@@ -936,13 +936,18 @@ class HtmlWriter:
         self.write_file(fname, html)
 
     def write_page(self, page_id):
-        fname = self.paths[page_id]
-        cwd = self._set_cwd(page_id, fname)
         page = self.pages[page_id]
-        subs = {'content': self.expand(page.get('PageContent', ''), cwd)}
         js = page.get('JavaScript')
-        html = self.format_page(page_id, cwd, subs, 'Page', js)
-        self.write_file(fname, html)
+        section_prefix = page.get('SectionPrefix')
+        if section_prefix:
+            entries = self.get_sections(section_prefix, True)
+            self._write_box_page(page_id, entries, js)
+        else:
+            fname = self.paths[page_id]
+            cwd = self._set_cwd(page_id, fname)
+            subs = {'content': self.expand(page.get('PageContent', ''), cwd)}
+            html = self.format_page(page_id, cwd, subs, 'Page', js)
+            self.write_file(fname, html)
 
     def write_file(self, fname, contents):
         with self.file_info.open_file(fname) as f:
