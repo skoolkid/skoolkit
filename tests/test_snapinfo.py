@@ -55,6 +55,47 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(exp_output, output)
 
+    def test_z80v3_48k_uncompressed(self):
+        header = list(range(30))
+        header[6:8] = [0, 0] # Version 2+
+        header[12] = 6 # BORDER 3, uncompressed RAM
+        header.extend((54, 0)) # Remaining header length (version 3)
+        header.extend((206, 250)) # PC=64206
+        header += [0] * (header[-4] - 2)
+        ram = [0] * 49152
+        z80file = self.write_z80_file(header, ram)
+        exp_output = [
+            'Z80 file: {}'.format(z80file),
+            'Version: 3',
+            'Machine: 48K Spectrum',
+            'Interrupts: enabled',
+            'Interrupt mode: 1',
+            'Border: 3',
+            'Registers:',
+            '  PC  64206 FACE    SP   2312 0908',
+            '  IX   6681 1A19    IY   6167 1817',
+            '  I      10   0A    R      11   0B',
+            "  B       3   03    B'     16   10",
+            "  C       2   02    C'     15   0F",
+            "  BC    770 0302    BC'  4111 100F",
+            "  D      14   0E    D'     18   12",
+            "  E      13   0D    E'     17   11",
+            "  DE   3597 0E0D    DE'  4625 1211",
+            "  H       5   05    H'     20   14",
+            "  L       4   04    L'     19   13",
+            "  HL   1284 0504    HL'  5139 1413",
+            "  A       0   00    A'     21   15",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00000001        F' 00010110",
+            'RAM block 4 (32768-49151 8000-BFFF): 16384 bytes (uncompressed)',
+            'RAM block 5 (49152-65535 C000-FFFF): 16384 bytes (uncompressed)',
+            'RAM block 8 (16384-32767 4000-7FFF): 16384 bytes (uncompressed)'
+        ]
+
+        output, error = self.run_snapinfo(z80file)
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output)
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_snapinfo(option, err_lines=True, catch_exit=0)

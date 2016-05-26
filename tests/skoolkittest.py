@@ -223,24 +223,26 @@ class SkoolKitTestCase(TestCase):
             return block + [0, 237, 237, 0]
         return block
 
-    def write_z80(self, ram, version=3, compress=False, machine_id=0, modify=False, out_7ffd=0, pages={}):
+    def write_z80(self, ram, version=3, compress=False, machine_id=0, modify=False, out_7ffd=0, pages={}, header=None):
         model = 1
         if version == 1:
-            header = [0] * 30
-            header[6] = 255 # Set PC > 0 to indicate a v1 Z80 snapshot
-            if compress:
-                header[12] |= 32 # Signal that the RAM data block is compressed
+            if header is None:
+                header = [0] * 30
+                header[6] = 255 # Set PC > 0 to indicate a v1 Z80 snapshot
+                if compress:
+                    header[12] |= 32 # Signal that the RAM data block is compressed
             z80 = header + self._get_z80_ram_block(ram, compress)
         else:
-            if version == 2:
-                header = [0] * 55
-                header[30] = 23 # Indicate a v2 Z80 snapshot
-            else:
-                header = [0] * 86
-                header[30] = 54 # Indicate a v3 Z80 snapshot
-            header[34] = machine_id
-            header[35] = out_7ffd
-            header[37] = 128 if modify else 0
+            if header is None:
+                if version == 2:
+                    header = [0] * 55
+                    header[30] = 23 # Indicate a v2 Z80 snapshot
+                else:
+                    header = [0] * 86
+                    header[30] = 54 # Indicate a v3 Z80 snapshot
+                header[34] = machine_id
+                header[35] = out_7ffd
+                header[37] = 128 if modify else 0
             banks = {5: ram[:16384]}
             if (version == 2 and machine_id < 2) or (version == 3 and machine_id in (0, 1, 3)):
                 # 16K/48K
@@ -259,6 +261,9 @@ class SkoolKitTestCase(TestCase):
             for bank, data in banks.items():
                 z80 += self._get_z80_ram_block(data, compress, bank + 3)
         return model, self.write_bin_file(z80, suffix='.z80')
+
+    def write_z80_file(self, header, ram, version=3, compress=False, machine_id=0, pages={}):
+        return self.write_z80(ram, version, compress, machine_id, pages=pages, header=header)[1]
 
     def _get_szx_header(self, machine_id=1, ch7ffd=0, specregs=True):
         header = [90, 88, 83, 84] # ZXST

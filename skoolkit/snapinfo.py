@@ -300,7 +300,7 @@ def _analyse_z80(z80file):
         machine_dict = V2_MACHINES if version == 2 else V3_MACHINES
         machine_id = header[34]
         index = header[37] // 128
-        machine_spec = machine_dict.get(machine_id, MACHINES.get(machine_id, ('Unknown', 'Unknown')))
+        machine_spec = machine_dict.get(machine_id, MACHINES.get(machine_id, ('Unknown', 'Unknown', True)))
         machine = machine_spec[index]
         if machine_spec[2]:
             block_dict = BLOCK_ADDRESSES_48K
