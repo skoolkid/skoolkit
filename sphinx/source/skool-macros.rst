@@ -1598,7 +1598,8 @@ identical copy with a given name. ::
 * ``name`` is the snapshot name (defaults to an empty string)
 
 The snapshot name must be limited to the characters '$', '#', 0-9, A-Z and a-z;
-it must not start with a capital letter.
+it must not start with a capital letter. The name can be retrieved by using the
+:meth:`~skoolkit.skoolhtml.HtmlWriter.get_snapshot_name` method on HtmlWriter.
 
 +---------+----------------------------+
 | Version | Changes                    |
