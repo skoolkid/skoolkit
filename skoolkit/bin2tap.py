@@ -76,23 +76,29 @@ def _get_basic_loader(title, clear, start):
 
     return _get_header(title, len(data), line=10) + _make_tap_block(data)
 
-def _get_data_loader(title, org, length, start, stack):
-    data = [221, 33]                            # LD IX,ORG
+def _get_data_loader(title, org, length, start, stack, scr):
+    if scr:
+        data = list(scr)
+        data.extend((0,) * (6912 - len(data)))
+    else:
+        data = []
+    address = 23296 - len(data)
+    data.extend((221, 33))                  # LD IX,ORG
     data.extend(_get_word(org))
-    data.append(17)                             # LD DE,LENGTH
+    data.append(17)                         # LD DE,LENGTH
     data.extend(_get_word(length))
-    data.append(55)                             # SCF
-    data.append(159)                            # SBC A,A
-    data.append(49)                             # LD SP,STACK
+    data.append(55)                         # SCF
+    data.append(159)                        # SBC A,A
+    data.append(49)                         # LD SP,STACK
     data.extend(_get_word(stack))
-    data.append(1)                              # LD BC,START
+    data.append(1)                          # LD BC,START
     data.extend(_get_word(start))
-    data.append(197)                            # PUSH BC
-    data.extend((195, 86, 5))                   # JP 1366
+    data.append(197)                        # PUSH BC
+    data.extend((195, 86, 5))               # JP 1366
 
-    return _get_header(title, len(data), 23296) + _make_tap_block(data)
+    return _get_header(title, len(data), address) + _make_tap_block(data)
 
-def run(ram, clear, org, start, stack, tapfile):
+def run(ram, clear, org, start, stack, tapfile, scr):
     title = os.path.basename(tapfile)
     if title.lower().endswith('.tap'):
         title = title[:-4]
@@ -112,7 +118,7 @@ def run(ram, clear, org, start, stack, tapfile):
                 if 0 <= index < length:
                     ram[index] = byte
                     index += 1
-        tap_data.extend(_get_data_loader(title, org, length, start, stack))
+        tap_data.extend(_get_data_loader(title, org, length, start, stack, scr))
     else:
         tap_data.extend(_get_header(title, length, org))
     tap_data.extend(_make_tap_block(ram))
@@ -140,6 +146,8 @@ def main(args):
                        help="Set the stack pointer (default: ORG)")
     group.add_argument('-s', '--start', dest='start', metavar='START', type=int,
                        help="Set the start address to JP to (default: ORG)")
+    group.add_argument('-S', '--screen', dest='screen', metavar='FILE',
+                       help="Add a loading screen to the TAP file; FILE may be a snapshot or a 6912-byte SCR file")
     group.add_argument('-t', '--tapfile', dest='tapfile', metavar='TAPFILE',
                        help="Set the TAP filename")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
@@ -171,4 +179,10 @@ def main(args):
         else:
             prefix = infile
         tapfile = prefix + ".tap"
-    run(ram, clear, org, start, stack, tapfile)
+    scr = namespace.screen
+    if scr is not None:
+        if scr.lower().endswith(('.sna', '.szx', '.z80')):
+            scr = get_snapshot(scr)[16384:23296]
+        else:
+            scr = read_bin_file(scr, 6912)
+    run(ram, clear, org, start, stack, tapfile, scr)

@@ -43,7 +43,7 @@ class Bin2TapTest(SkoolKitTestCase):
     def _get_str(self, chars):
         return [ord(c) for c in chars]
 
-    def _check_tap(self, tap_data, bin_data, infile, org=None, start=None, stack=None, name=None):
+    def _check_tap(self, tap_data, bin_data, infile, org=None, start=None, stack=None, name=None, scr=None):
         if org is None:
             org = 65536 - len(bin_data)
         if start is None:
@@ -61,17 +61,15 @@ class Bin2TapTest(SkoolKitTestCase):
 
         # BASIC loader header
         i, j = 0, 21
-        basic_loader_header = tap_data[i:j]
         loader_length = 20
         exp_header = [19, 0, 0, 0]
         exp_header += title
         exp_header += [loader_length, 0, 10, 0, loader_length, 0]
         exp_header.append(self._get_parity(exp_header))
-        self.assertEqual(exp_header, basic_loader_header)
+        self.assertEqual(exp_header, tap_data[i:j])
 
         # BASIC loader data
         i, j = j, j + loader_length + 4
-        basic_loader_data = tap_data[i:j]
         start_addr = self._get_str('"23296"')
         exp_data = [loader_length + 2, 0, 255]
         exp_data += [0, 10, 16, 0]
@@ -80,21 +78,28 @@ class Bin2TapTest(SkoolKitTestCase):
         exp_data += [249, 192, 176] + start_addr  # RANDOMIZE USR VAL "23296"
         exp_data.append(13)                       # ENTER
         exp_data.append(self._get_parity(exp_data))
-        self.assertEqual(exp_data, basic_loader_data)
+        self.assertEqual(exp_data, tap_data[i:j])
 
         # Code loader header
         i, j = j, j + 21
-        code_loader_header = tap_data[i:j]
         exp_header = [19, 0, 0, 3]
         exp_header += title
-        exp_header += [19, 0, 0, 91, 0, 0]
+        if scr:
+            exp_header += [19, 27, 0, 64]
+        else:
+            exp_header += [19, 0, 0, 91]
+        exp_header += [0, 0]
         exp_header.append(self._get_parity(exp_header))
-        self.assertEqual(exp_header, code_loader_header)
+        self.assertEqual(exp_header, tap_data[i:j])
 
         # Code loader data
-        i, j = j, j + 23
-        code_loader_data = tap_data[i:j]
-        exp_data = [21, 0, 255, 221, 33]
+        if scr:
+            i, j = j, j + 6935
+            exp_data = [21, 27, 255] + scr
+        else:
+            i, j = j, j + 23
+            exp_data = [21, 0, 255]
+        exp_data += [221, 33]
         exp_data.extend(self._get_word(org))
         exp_data.append(17)
         exp_data.extend(self._get_word(len(bin_data)))
@@ -104,15 +109,15 @@ class Bin2TapTest(SkoolKitTestCase):
         exp_data.extend(self._get_word(start))
         exp_data += [197, 195, 86, 5]
         exp_data.append(self._get_parity(exp_data))
+        self.assertEqual(exp_data, tap_data[i:j])
 
         # Data
-        data = tap_data[j:]
         exp_data = []
         exp_data.extend(self._get_word(len(bin_data) + 2))
         exp_data.append(255)
         exp_data.extend(bin_data)
         exp_data.append(self._get_parity(exp_data))
-        self.assertEqual(exp_data, data)
+        self.assertEqual(exp_data, tap_data[j:])
 
     def _check_tap_with_clear_command(self, tap_data, bin_data, infile, clear, org=None, start=None):
         if org is None:
@@ -180,13 +185,14 @@ class Bin2TapTest(SkoolKitTestCase):
         data = [0] * 10
         binfile = self.write_bin_file(data, suffix='.bin')
         bin2tap.main((binfile,))
-        ram, clear, org, start, stack, tapfile = run_args
+        ram, clear, org, start, stack, tapfile, scr = run_args
         self.assertEqual(ram, bytearray(data))
         self.assertIsNone(clear)
         self.assertEqual(org, 65536 - len(data))
         self.assertEqual(start, org)
         self.assertEqual(stack, org)
         self.assertEqual(tapfile, binfile[:-4] + '.tap')
+        self.assertIsNone(scr)
 
     def test_no_arguments(self):
         output, error = self.run_bin2tap(catch_exit=2)
@@ -319,7 +325,7 @@ class Bin2TapTest(SkoolKitTestCase):
         ram[org - 16384:end - 16384] = data
         z80 = self.write_z80(ram)[1]
         tap_data = self._run('-o {} -e {} {}'.format(org, end, z80))
-        self._check_tap(tap_data, data, z80)
+        self._check_tap(tap_data, data, z80, org)
 
     def test_option_e_with_szx(self):
         ram = [0] * 49152
@@ -329,7 +335,7 @@ class Bin2TapTest(SkoolKitTestCase):
         ram[org - 16384:end - 16384] = data
         szx = self.write_szx(ram)
         tap_data = self._run('-o {} -e {} {}'.format(org, end, szx))
-        self._check_tap(tap_data, data, szx)
+        self._check_tap(tap_data, data, szx, org)
 
     def test_option_end_with_sna(self):
         ram = [0] * 49152
@@ -339,7 +345,39 @@ class Bin2TapTest(SkoolKitTestCase):
         ram[org - 16384:end - 16384] = data
         sna = self.write_bin_file([0] * 27 + ram, suffix='.sna')
         tap_data = self._run('-o {} --end {} {}'.format(org, end, sna))
-        self._check_tap(tap_data, data, sna)
+        self._check_tap(tap_data, data, sna, org)
+
+    def test_option_S_with_scr(self):
+        scr = [85] * 6912
+        scrfile = self.write_bin_file(scr, suffix='.scr')
+        data = [35]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        tap_data = self._run('-S {} {}'.format(scrfile, binfile))
+        self._check_tap(tap_data, data, binfile, scr=scr)
+
+    def test_option_screen_with_sna(self):
+        scr = [170] * 6912
+        sna = self.write_bin_file([0] * 27 + scr + [0] * 58624, suffix='.sna')
+        data = [27]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        tap_data = self._run('--screen {} {}'.format(sna, binfile))
+        self._check_tap(tap_data, data, binfile, scr=scr)
+
+    def test_option_S_with_szx(self):
+        scr = [254] * 6912
+        szx = self.write_szx(scr + [0] * 42240)
+        data = [18]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        tap_data = self._run('-S {} {}'.format(szx, binfile))
+        self._check_tap(tap_data, data, binfile, scr=scr)
+
+    def test_option_screen_with_z80(self):
+        scr = [129] * 6912
+        z80 = self.write_z80(scr + [0] * 42240)[1]
+        data = [51]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        tap_data = self._run('--screen {} {}'.format(z80, binfile))
+        self._check_tap(tap_data, data, binfile, scr=scr)
 
 if __name__ == '__main__':
     unittest.main()
