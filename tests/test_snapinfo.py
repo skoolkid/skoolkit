@@ -96,6 +96,51 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(exp_output, output)
 
+    def test_szx_48k_uncompressed(self):
+        registers = list(range(26)) # Registers
+        registers.extend((1, 1)) # IFF1, IFF2
+        registers.append(2) # Interrupt mode
+        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        szxfile = self.write_szx([0] * 49152, False, registers=registers, border=3)
+        exp_output = [
+            'Version: 1.4',
+            'Machine: 48K ZX Spectrum',
+            'SPCR: 8 bytes',
+            '  Border: 3',
+            '  Port $7FFD: 0 (bank 0 paged into 49152-65535 C000-FFFF)',
+            'Z80R: 37 bytes',
+            '  Interrupts: enabled',
+            '  Interrupt mode: 2',
+            '  PC   5910 1716    SP   5396 1514',
+            '  IX   4368 1110    IY   4882 1312',
+            '  I      24   18    R      25   19',
+            "  B       3   03    B'     11   0B",
+            "  C       2   02    C'     10   0A",
+            "  BC    770 0302    BC'  2826 0B0A",
+            "  D       5   05    D'     13   0D",
+            "  E       4   04    E'     12   0C",
+            "  DE   1284 0504    DE'  3340 0D0C",
+            "  H       7   07    H'     15   0F",
+            "  L       6   06    L'     14   0E",
+            "  HL   1798 0706    HL'  3854 0F0E",
+            "  A       1   01    A'      9   09",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00000000        F' 00001000",
+            'RAMP: 16387 bytes',
+            '  Page: 0',
+            '  RAM: 16384 bytes, uncompressed',
+            'RAMP: 16387 bytes',
+            '  Page: 2',
+            '  RAM: 32768-49151 8000-BFFF: 16384 bytes, uncompressed',
+            'RAMP: 16387 bytes',
+            '  Page: 5',
+            '  RAM: 16384-32767 4000-7FFF: 16384 bytes, uncompressed'
+        ]
+
+        output, error = self.run_snapinfo(szxfile)
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output)
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_snapinfo(option, err_lines=True, catch_exit=0)

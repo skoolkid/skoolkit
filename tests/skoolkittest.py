@@ -265,7 +265,7 @@ class SkoolKitTestCase(TestCase):
     def write_z80_file(self, header, ram, version=3, compress=False, machine_id=0, pages={}):
         return self.write_z80(ram, version, compress, machine_id, pages=pages, header=header)[1]
 
-    def _get_szx_header(self, machine_id=1, ch7ffd=0, specregs=True):
+    def _get_szx_header(self, machine_id=1, ch7ffd=0, specregs=True, border=0):
         header = [90, 88, 83, 84] # ZXST
         header.extend((1, 4)) # Version 1.4
         header.append(machine_id) # 0=16K, 1=48K, 2+=128K
@@ -273,10 +273,16 @@ class SkoolKitTestCase(TestCase):
         if specregs:
             header.extend((83, 80, 67, 82)) # SPCR
             header.extend((8, 0, 0, 0)) # Size
-            header.append(0) # Border
+            header.append(border) # BORDER
             header.append(ch7ffd) # Last OUT to port $7FFD
             header.extend((0, 0, 0, 0, 0, 0))
         return header
+
+    def _get_zxstz80regs(self, registers):
+        z80r = [90, 56, 48, 82] # Z80R
+        z80r.extend((37, 0, 0, 0)) # Size
+        z80r.extend(registers)
+        return z80r
 
     def _get_zxstrampage(self, page, compress, data):
         if compress:
@@ -292,8 +298,10 @@ class SkoolKitTestCase(TestCase):
         ramp.extend(ram)
         return ramp
 
-    def write_szx(self, exp_ram, compress=True, machine_id=1, ch7ffd=0, pages={}):
-        szx = self._get_szx_header(machine_id, ch7ffd)
+    def write_szx(self, exp_ram, compress=True, machine_id=1, ch7ffd=0, pages={}, registers=None, border=0):
+        szx = self._get_szx_header(machine_id, ch7ffd, border=border)
+        if registers:
+            szx.extend(self._get_zxstz80regs(registers))
         rampages = {5: self._get_zxstrampage(5, compress, exp_ram[:16384])}
         if machine_id >= 1:
             # 48K and 128K
