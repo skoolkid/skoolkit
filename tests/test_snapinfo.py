@@ -141,6 +141,39 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(exp_output, output)
 
+    def test_option_b_with_integers(self):
+        basic = (
+            0, 10,                # Line 10
+            13, 0,                # Length of line 10
+            253,                  # CLEAR
+            50, 52, 53, 55, 53,   # 24575
+            14, 0, 0, 255, 95, 0, # 24575 in floating point form
+            13,                   # ENTER
+            0, 20,                # Line 20
+            5, 0,                 # Length of line 20
+            239, 34, 34, 175,     # LOAD ""CODE
+            13,                   # ENTER
+            0, 30,                # Line 30
+            14, 0,                # Length of line 30
+            249, 192,             # RANDOMIZE USR
+            50, 52, 53, 55, 54,   # 24576
+            14, 0, 0, 0, 96, 0,   # 24576 in floating point form
+            13,                   # ENTER
+            128                   # End of BASIC area
+        )
+        ram = [0] * 49152
+        ram[7371:7371 + len(basic)] = basic
+        snafile = self.write_bin_file([0] * 27 + ram, suffix='.sna')
+        exp_output = [
+            '  10 CLEAR 24575',
+            '  20 LOAD ""CODE',
+            '  30 RANDOMIZE USR 24576'
+        ]
+
+        output, error = self.run_snapinfo('-b {}'.format(snafile))
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output)
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_snapinfo(option, err_lines=True, catch_exit=0)
