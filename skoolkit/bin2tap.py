@@ -55,7 +55,7 @@ def _get_header(title, length, start=None, line=None):
         data.extend(_get_word(length))      # Length of BASIC program only
     return _make_tap_block(data, True)
 
-def _get_basic_loader(title, clear, start):
+def _get_basic_loader(title, clear, start, scr):
     data = [0, 10]                          # Line 10
     if clear is None:
         start_addr = '"23296"'
@@ -64,10 +64,21 @@ def _get_basic_loader(title, clear, start):
         clear_addr = '"{}"'.format(clear)
         start_addr = '"{}"'.format(start)
         line_length = 12 + len(clear_addr) + len(start_addr)
+        if scr:
+            line_length += 20
         data.extend(_get_word(line_length)) # Length of line 10
         data.extend((253, 176))             # CLEAR VAL
         data.extend(_get_str(clear_addr))   # "address"
         data.append(58)                     # :
+        if scr:
+            poke_addr = _get_str('"23739"')
+            data.extend((239, 34, 34, 170)) # LOAD ""SCREEN$
+            data.append(58)                 # :
+            data.extend((244, 176))         # POKE VAL
+            data.extend(poke_addr)          # "23739"
+            data.append(44)                 # ,
+            data.extend((175, 34, 111, 34)) # CODE "o"
+            data.append(58)                 # :
     data.extend((239, 34, 34, 175))         # LOAD ""CODE
     data.append(58)                         # :
     data.extend((249, 192, 176))            # RANDOMIZE USR VAL
@@ -102,7 +113,7 @@ def run(ram, clear, org, start, stack, tapfile, scr):
     title = os.path.basename(tapfile)
     if title.lower().endswith('.tap'):
         title = title[:-4]
-    tap_data = _get_basic_loader(title, clear, start)
+    tap_data = _get_basic_loader(title, clear, start, scr)
 
     length = len(ram)
     if clear is None:
@@ -120,6 +131,9 @@ def run(ram, clear, org, start, stack, tapfile, scr):
                     index += 1
         tap_data.extend(_get_data_loader(title, org, length, start, stack, scr))
     else:
+        if scr:
+            tap_data.extend(_get_header(title, 6912, 16384))
+            tap_data.extend(_make_tap_block(scr))
         tap_data.extend(_get_header(title, length, org))
     tap_data.extend(_make_tap_block(ram))
 

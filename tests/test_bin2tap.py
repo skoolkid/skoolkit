@@ -119,7 +119,7 @@ class Bin2TapTest(SkoolKitTestCase):
         exp_data.append(self._get_parity(exp_data))
         self.assertEqual(exp_data, tap_data[j:])
 
-    def _check_tap_with_clear_command(self, tap_data, bin_data, infile, clear, org=None, start=None):
+    def _check_tap_with_clear_command(self, tap_data, bin_data, infile, clear, org=None, start=None, scr=None):
         if org is None:
             org = 65536 - len(bin_data)
         if start is None:
@@ -135,9 +135,20 @@ class Bin2TapTest(SkoolKitTestCase):
         clear_addr = self._get_str('"{}"'.format(clear))
         start_addr = self._get_str('"{}"'.format(start))
         line_length = 12 + len(clear_addr) + len(start_addr)
+        if scr:
+            line_length += 20
         exp_data += [0, 10, line_length, 0]
         exp_data += [253, 176] + clear_addr       # CLEAR VAL "address"
         exp_data.append(58)                       # :
+        if scr:
+            poke_addr = self._get_str('"23739"')
+            exp_data.extend((239, 34, 34, 170))   # LOAD ""SCREEN$
+            exp_data.append(58)                   # :
+            exp_data.extend((244, 176))           # POKE VAL
+            exp_data.extend(poke_addr)            # "23739"
+            exp_data.append(44)                   # ,
+            exp_data.extend((175, 34, 111, 34))   # CODE "o"
+            exp_data.append(58)                   # :
         exp_data += [239, 34, 34, 175]            # LOAD ""CODE
         exp_data.append(58)                       # :
         exp_data += [249, 192, 176] + start_addr  # RANDOMIZE USR VAL "address"
@@ -147,38 +158,54 @@ class Bin2TapTest(SkoolKitTestCase):
         loader_length = length - 4
         exp_data[0] = length - 2
         index = 21 + length
-        basic_loader_data = tap_data[21:index]
-        self.assertEqual(exp_data, basic_loader_data)
+        self.assertEqual(exp_data, tap_data[21:index])
 
         # BASIC loader header
-        basic_loader_header = tap_data[:21]
         exp_header = [19, 0, 0, 0]
         exp_header += title
         exp_header += self._get_word(loader_length)
         exp_header += [10, 0]
         exp_header += self._get_word(loader_length)
         exp_header.append(self._get_parity(exp_header))
-        self.assertEqual(exp_header, basic_loader_header)
+        self.assertEqual(exp_header, tap_data[:21])
+
+        if scr:
+            # Loading screen header
+            exp_header = [19, 0, 0, 3]
+            exp_header.extend(title)
+            exp_header.extend(self._get_word(6912))
+            exp_header.extend(self._get_word(16384))
+            exp_header.extend((0, 0))
+            exp_header.append(self._get_parity(exp_header))
+            self.assertEqual(exp_header, tap_data[index:index + 21])
+            index += 21
+
+            # Loading screen data
+            exp_data = []
+            exp_data.extend(self._get_word(6914))
+            exp_data.append(255)
+            exp_data.extend(scr)
+            exp_data.append(self._get_parity(exp_data))
+            self.assertEqual(exp_data, tap_data[index:index + 6916])
+            index += 6916
 
         # Code loader header
-        code_loader_header = tap_data[index:index + 21]
         exp_header = [19, 0, 0, 3]
         exp_header += title
         exp_header += self._get_word(len(bin_data))
         exp_header += self._get_word(org)
         exp_header += [0, 0]
         exp_header.append(self._get_parity(exp_header))
-        self.assertEqual(exp_header, code_loader_header)
-        index = index + 21
+        self.assertEqual(exp_header, tap_data[index:index + 21])
+        index += 21
 
         # Data
-        data = tap_data[index:]
         exp_data = []
         exp_data.extend(self._get_word(len(bin_data) + 2))
         exp_data.append(255)
         exp_data.extend(bin_data)
         exp_data.append(self._get_parity(exp_data))
-        self.assertEqual(exp_data, data)
+        self.assertEqual(exp_data, tap_data[index:])
 
     @patch.object(bin2tap, 'run', mock_run)
     def test_default_option_values(self):
@@ -357,7 +384,7 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_option_screen_with_sna(self):
         scr = [170] * 6912
-        sna = self.write_bin_file([0] * 27 + scr + [0] * 58624, suffix='.sna')
+        sna = self.write_bin_file([0] * 27 + scr + [0] * 42240, suffix='.sna')
         data = [27]
         binfile = self.write_bin_file(data, suffix='.bin')
         tap_data = self._run('--screen {} {}'.format(sna, binfile))
@@ -378,6 +405,15 @@ class Bin2TapTest(SkoolKitTestCase):
         binfile = self.write_bin_file(data, suffix='.bin')
         tap_data = self._run('--screen {} {}'.format(z80, binfile))
         self._check_tap(tap_data, data, binfile, scr=scr)
+
+    def test_option_S_with_option_c(self):
+        scr = [144] * 6912
+        scrfile = self.write_bin_file(scr, suffix='.scr')
+        data = [147]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        clear = 32768
+        tap_data = self._run('-S {} -c {} {}'.format(scrfile, clear, binfile))
+        self._check_tap_with_clear_command(tap_data, data, binfile, clear, scr=scr)
 
 if __name__ == '__main__':
     unittest.main()
