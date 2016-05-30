@@ -174,6 +174,37 @@ class SnapinfoTest(SkoolKitTestCase):
         ]
         self._test_sna(ram, exp_output, '-b')
 
+    def test_option_f_with_single_byte(self):
+        ram = [0] * 49152
+        address = 53267
+        ram[address - 16384] = 77
+        exp_output = ['53267-53267-1 D013-D013-1: 77']
+        self._test_sna(ram, exp_output, '-f 77')
+
+    def test_option_find_with_byte_sequence(self):
+        ram = [0] * 49152
+        address = 35674
+        seq = (2, 4, 6)
+        ram[address - 16384:address - 16384 + len(seq)] = seq
+        seq_str = ','.join([str(b) for b in seq])
+        exp_output = ['35674-35676-1 8B5A-8B5C-1: {}'.format(seq_str)]
+        self._test_sna(ram, exp_output, '--find {}'.format(seq_str))
+
+    def test_option_f_with_byte_sequence_and_step(self):
+        ram = [0] * 49152
+        address = 47983
+        seq = (2, 3, 5)
+        step = 2
+        ram[address - 16384:address - 16384 + step * len(seq):step] = seq
+        seq_str = ','.join([str(b) for b in seq])
+        exp_output = ['47983-47987-2 BB6F-BB73-2: {}'.format(seq_str)]
+        self._test_sna(ram, exp_output, '-f {}-{}'.format(seq_str, step))
+
+    def test_option_find_with_nonexistent_byte_sequence(self):
+        ram = [0] * 49152
+        exp_output = []
+        self._test_sna(ram, exp_output, '--find 1,2,3')
+
     def test_option_p_with_single_address(self):
         ram = [0] * 49152
         address = 31759
