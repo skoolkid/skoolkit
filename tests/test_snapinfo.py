@@ -5,6 +5,14 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, VERSION
 
 class SnapinfoTest(SkoolKitTestCase):
+    def _test_sna(self, ram, exp_output, options='', header=None):
+        if header is None:
+            header = [0] * 27
+        snafile = self.write_bin_file(header + ram, suffix='.sna')
+        output, error = self.run_snapinfo(' '.join((options, snafile)))
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output)
+
     def test_no_arguments(self):
         output, error = self.run_snapinfo(catch_exit=2)
         self.assertEqual(len(output), 0)
@@ -20,14 +28,13 @@ class SnapinfoTest(SkoolKitTestCase):
             self.run_snapinfo('unknown.snap')
 
     def test_sna_48k(self):
-        sna = list(range(23))
-        sna[19] = 4 # Interrupts enabled
-        sna.extend((0, 64)) # SP=16384
-        sna.append(1) # IM 1
-        sna.append(2) # BORDER 2
-        sna.extend((0, 128)) # PC=32768
-        sna.extend([0] * 49150)
-        snafile = self.write_bin_file(sna, suffix='.sna')
+        header = list(range(23))
+        header[19] = 4 # Interrupts enabled
+        header.extend((0, 64)) # SP=16384
+        header.append(1) # IM 1
+        header.append(2) # BORDER 2
+        ram = [0, 128] # PC=32768
+        ram.extend([0] * 49150)
         exp_output = [
             'RAM: 48K',
             'Interrupts: enabled',
@@ -50,10 +57,7 @@ class SnapinfoTest(SkoolKitTestCase):
             '    SZ5H3PNC           SZ5H3PNC',
             "  F 00010101        F' 00000111"
         ]
-
-        output, error = self.run_snapinfo(snafile)
-        self.assertEqual(error, '')
-        self.assertEqual(exp_output, output)
+        self._test_sna(ram, exp_output, header=header)
 
     def test_z80v3_48k_uncompressed(self):
         header = list(range(30))
@@ -163,16 +167,59 @@ class SnapinfoTest(SkoolKitTestCase):
         )
         ram = [0] * 49152
         ram[7371:7371 + len(basic)] = basic
-        snafile = self.write_bin_file([0] * 27 + ram, suffix='.sna')
         exp_output = [
             '  10 CLEAR 24575',
             '  20 LOAD ""CODE',
             '  30 RANDOMIZE USR 24576'
         ]
+        self._test_sna(ram, exp_output, '-b')
 
-        output, error = self.run_snapinfo('-b {}'.format(snafile))
-        self.assertEqual(error, '')
-        self.assertEqual(exp_output, output)
+    def test_option_p_with_single_address(self):
+        ram = [0] * 49152
+        address = 31759
+        ram[address - 16384] = 47
+        exp_output = ['31759 7C0F:  47  2F  00101111  /']
+        self._test_sna(ram, exp_output, '-p {}'.format(address))
+
+    def test_option_peek_with_address_range(self):
+        ram = [0] * 49152
+        address1 = 41885
+        address2 = 41888
+        ram[address1 - 16384:address2 -16383] = list(range(153, 154 + address2 - address1))
+        exp_output = [
+            '41885 A39D: 153  99  10011001',
+            '41886 A39E: 154  9A  10011010',
+            '41887 A39F: 155  9B  10011011',
+            '41888 A3A0: 156  9C  10011100'
+        ]
+        self._test_sna(ram, exp_output, '--peek {}-{}'.format(address1, address2))
+
+    def test_option_p_with_address_range_and_step(self):
+        ram = [0] * 49152
+        address1 = 25663
+        address2 = 25669
+        step = 3
+        ram[address1 - 16384:address2 -16383:step] = [33, 65, 255]
+        exp_output = [
+            '25663 643F:  33  21  00100001  !',
+            '25666 6442:  65  41  01000001  A',
+            '25669 6445: 255  FF  11111111'
+        ]
+        self._test_sna(ram, exp_output, '-p {}-{}-{}'.format(address1, address2, step))
+
+    def test_option_peek_multiple(self):
+        ram = [0] * 49152
+        options = []
+        addresses = (33333, 44173, 50998)
+        for a in addresses:
+            ram[a - 16384] = a % 256
+            options.append('--peek {}'.format(a))
+        exp_output = [
+            '33333 8235:  53  35  00110101  5',
+            '44173 AC8D: 141  8D  10001101',
+            '50998 C736:  54  36  00110110  6'
+        ]
+        self._test_sna(ram, exp_output, ' '.join(options))
 
     def test_option_V(self):
         for option in ('-V', '--version'):
