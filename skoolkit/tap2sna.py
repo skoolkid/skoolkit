@@ -461,6 +461,8 @@ def main(args):
                        help="Write the snapshot file in this directory.")
     group.add_argument('-f', '--force', action='store_true',
                        help="Overwrite an existing snapshot.")
+    group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=int,
+                       help="Set the stack pointer.")
     group.add_argument('--ram', dest='ram_ops', metavar='OPERATION', action='append', default=[],
                        help="Perform a load, move or poke operation on the memory snapshot being built. "
                             "Do '--ram help' for more information. This option may be used multiple times.")
@@ -489,6 +491,8 @@ def main(args):
     url, z80 = namespace.args
     if namespace.output_dir:
         z80 = os.path.join(namespace.output_dir, z80)
+    if namespace.stack is not None:
+        namespace.reg.append('sp={}'.format(namespace.stack))
     if namespace.start is not None:
         namespace.reg.append('pc={}'.format(namespace.start))
     if namespace.force or not os.path.isfile(z80):

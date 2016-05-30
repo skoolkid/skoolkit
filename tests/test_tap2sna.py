@@ -101,6 +101,27 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.assertTrue(os.path.isfile(os.path.join(odir, z80_fname)))
 
     @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    def test_options_p_stack(self):
+        for option, stack in (('-p', 24576), ('--stack', 49152)):
+            output, error = self.run_tap2sna('{} {} in.tap out.z80'.format(option, stack))
+            self.assertEqual([], output)
+            self.assertEqual(error, '')
+            url, options, z80 = make_z80_args
+            self.assertEqual(['sp={}'.format(stack)], options.reg)
+
+    def test_option_p(self):
+        block = create_tap_data_block([0])
+        tapfile = self._write_tap([block])
+        z80file = self.write_bin_file(suffix='.z80')
+        stack = 32768
+
+        output, error = self.run_tap2sna('-f -p {} {} {}'.format(stack, tapfile, z80file))
+        self.assertEqual(error, '')
+        with open(z80file, 'rb') as f:
+            z80_header = bytearray(f.read(10))
+        self.assertEqual(z80_header[8] + 256 * z80_header[9], stack)
+
+    @patch.object(tap2sna, 'make_z80', mock_make_z80)
     def test_options_s_start(self):
         start = 30000
         exp_reg = ['pc={}'.format(start)]
