@@ -22,6 +22,10 @@ Z80_REGISTERS = {
     'pc': 32
 }
 
+def mock_make_z80(*args):
+    global make_z80_args
+    make_z80_args = args
+
 def mock_write_z80(ram, namespace, z80):
     global snapshot
     snapshot = [0] * 16384 + ram
@@ -95,6 +99,29 @@ class Tap2SnaTest(SkoolKitTestCase):
             output, error = self.run_tap2sna('{} {} {} {}'.format(option, odir, tapfile, z80_fname))
             self.assertEqual(len(error), 0)
             self.assertTrue(os.path.isfile(os.path.join(odir, z80_fname)))
+
+    @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    def test_options_s_start(self):
+        start = 30000
+        exp_reg = ['pc={}'.format(start)]
+        for option in ('-s', '--start'):
+            output, error = self.run_tap2sna('{} {} in.tap out.z80'.format(option, start))
+            self.assertEqual([], output)
+            self.assertEqual(error, '')
+            url, options, z80 = make_z80_args
+            self.assertEqual(exp_reg, options.reg)
+
+    def test_option_s(self):
+        block = create_tap_data_block([0])
+        tapfile = self._write_tap([block])
+        z80file = self.write_bin_file(suffix='.z80')
+        start = 40000
+
+        output, error = self.run_tap2sna('-f -s {} {} {}'.format(start, tapfile, z80file))
+        self.assertEqual(error, '')
+        with open(z80file, 'rb') as f:
+            z80_header = bytearray(f.read(34))
+        self.assertEqual(z80_header[32] + 256 * z80_header[33], start)
 
     def test_option_V(self):
         for option in ('-V', '--version'):

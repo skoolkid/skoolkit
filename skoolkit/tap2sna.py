@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2013, 2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015, 2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -440,11 +440,11 @@ Set a hardware state attribute. Recognised names and their default values are:
   im     - interrupt mode (default=1)
 """.lstrip())
 
-def _make_z80(url, namespace, z80):
+def make_z80(url, options, z80):
     tape_type, tape = _get_tape(url)
     tape_blocks = _get_tape_blocks(tape_type, tape)
-    ram = _get_ram(tape_blocks, namespace)
-    _write_z80(ram, namespace, z80)
+    ram = _get_ram(tape_blocks, options)
+    _write_z80(ram, options, z80)
 
 def main(args):
     parser = SkoolKitArgumentParser(
@@ -467,6 +467,8 @@ def main(args):
     group.add_argument('--reg', dest='reg', metavar='name=value', action='append', default=[],
                        help="Set the value of a register. Do '--reg help' for more information. "
                             "This option may be used multiple times.")
+    group.add_argument('-s', '--start', dest='start', metavar='START', type=int,
+                       help="Set the start address to JP to.")
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. "
                             "This option may be used multiple times.")
@@ -487,9 +489,11 @@ def main(args):
     url, z80 = namespace.args
     if namespace.output_dir:
         z80 = os.path.join(namespace.output_dir, z80)
+    if namespace.start is not None:
+        namespace.reg.append('pc={}'.format(namespace.start))
     if namespace.force or not os.path.isfile(z80):
         try:
-            _make_z80(url, namespace, z80)
+            make_z80(url, namespace, z80)
         except Exception as e:
             raise SkoolKitError("Error while getting snapshot {0}: {1}".format(os.path.basename(z80), e.args[0]))
     else:
