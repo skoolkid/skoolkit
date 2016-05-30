@@ -28,6 +28,28 @@ class SnapmodTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolKitError, 'Unrecognised input snapshot type$'):
             self.run_snapmod('unknown.snap')
 
+    def test_reg_help(self):
+        output, error = self.run_snapmod('--reg help')
+        self.assertEqual(error, '')
+        exp_output = [
+            'Usage: --r name=value, --reg name=value',
+            '',
+            'Set the value of a register or register pair. For example:',
+            '',
+            '  --reg hl=32768',
+            '  --reg b=17',
+            '',
+            "To set the value of an alternate (shadow) register, use the '^' prefix:",
+            '',
+            '  --reg ^hl=10072',
+            '',
+            'Recognised register names are:',
+            '',
+            '  ^a, ^b, ^bc, ^c, ^d, ^de, ^e, ^f, ^h, ^hl, ^l, a, b, bc, c, d, de, e,',
+            '  f, h, hl, i, ix, iy, l, pc, r, sp'
+        ]
+        self.assertEqual(exp_output, output)
+
     @patch.object(snapmod, 'run', mock_run)
     def test_options_s_state(self):
         for option in ('-s', '--state'):

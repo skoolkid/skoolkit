@@ -17,11 +17,30 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import textwrap
 import argparse
 
 from skoolkit import SkoolKitError, get_word, read_bin_file, write_line, VERSION
 from skoolkit.tap2sna import move, poke
-from skoolkit.snapshot import get_snapshot, make_z80_ram_block, set_z80_registers, set_z80_state
+from skoolkit.snapshot import get_snapshot, make_z80_ram_block, set_z80_registers, set_z80_state, Z80_REGISTERS
+
+def _print_reg_help():
+    reg_names = ', '.join(sorted(Z80_REGISTERS.keys()))
+    print("""
+Usage: --r name=value, --reg name=value
+
+Set the value of a register or register pair. For example:
+
+  --reg hl=32768
+  --reg b=17
+
+To set the value of an alternate (shadow) register, use the '^' prefix:
+
+  --reg ^hl=10072
+
+Recognised register names are:
+
+  {}""".format('\n  '.join(textwrap.wrap(reg_names, 70))).lstrip())
 
 def _read_z80(z80file):
     data = read_bin_file(z80file)
@@ -73,12 +92,15 @@ def main(args):
                             "Prefix 'v' with '^' to perform an XOR operation, or '+' to perform an ADD operation. "
                             "This option may be used multiple times.")
     group.add_argument('-r', '--reg', dest='reg', metavar='name=value', action='append', default=[],
-                       help="Set the value of a register. This option may be used multiple times.")
+                       help="Set the value of a register. Do '--reg help' for more information. This option may be used multiple times.")
     group.add_argument('-s', '--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute (border, iff, im). This option may be used multiple times.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
+    if 'help' in namespace.reg:
+        _print_reg_help()
+        return
     infile = namespace.infile
     outfile = namespace.outfile
     if unknown_args or infile is None:
