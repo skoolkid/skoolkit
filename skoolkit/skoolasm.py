@@ -199,7 +199,7 @@ class AsmWriter:
         return skoolmacro.parse_if(text, index)
 
     def expand_include(self, text, index):
-        end, (section, paragraphs) = skoolmacro.parse_include(text, index)
+        end, paragraphs, section = skoolmacro.parse_include(text, index)
         return end, ''
 
     def expand_link(self, text, index):

@@ -189,10 +189,10 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def test_macro_include(self):
         writer = self._get_writer()
         self.assertEqual(writer.expand('#INCLUDE(foo)'), '')
-        self.assertEqual(writer.expand('#INCLUDE[bar,Y]'), '')
-        self.assertEqual(writer.expand('#INCLUDE{baz,N}'), '')
-        self.assertEqual(writer.expand('#INCLUDE||qux||'), '')
-        self.assertEqual(writer.expand('#INCLUDE//xyzzy/1//'), '')
+        self.assertEqual(writer.expand('#INCLUDE[bar]'), '')
+        self.assertEqual(writer.expand('#INCLUDE{baz}'), '')
+        self.assertEqual(writer.expand('#INCLUDE|qux|'), '')
+        self.assertEqual(writer.expand('#INCLUDE/xyzzy/'), '')
 
     def test_macro_link(self):
         writer = self._get_writer()

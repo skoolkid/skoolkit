@@ -667,8 +667,13 @@ def parse_if(text, index):
     return end, s_false
 
 def parse_include(text, index):
-    # #INCLUDE(section[,paragraphs])
-    return parse_strings(text, index, 2, ('',))
+    # #INCLUDE[paragraphs](section)
+    try:
+        end, paragraphs = parse_ints(text, index, 1, (0,))
+    except InvalidParameterError:
+        end, paragraphs = index, 0
+    end, section = parse_strings(text, end, 1)
+    return end, paragraphs, section
 
 def parse_link(text, index):
     # #LINK:PageId[#name](link text)

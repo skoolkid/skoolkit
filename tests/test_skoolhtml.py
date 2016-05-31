@@ -1189,7 +1189,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ))
         writer = self._get_writer(ref=ref)
 
-        for params in ('(Foo)', '[Foo]', '{Foo}', '//Foo//'):
+        for params in ('(Foo)', '0[Foo]', '(){Foo}', '(0+0)/Foo/'):
             output = writer.expand('#INCLUDE' + params, ASMDIR)
             self.assertEqual(output, exp_html)
 
@@ -1210,7 +1210,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ))
         writer = self._get_writer(ref=ref)
 
-        for params in ('(Foo,Y)', '[Foo,1]', '{Foo,true}', '//Foo/T//'):
+        for params in ('1(Foo)', '(1)[Foo]', '(1*1){Foo}', '(0+1)/Foo/'):
             output = writer.expand('#INCLUDE' + params, ASMDIR)
             self.assertEqual(output, exp_html)
 

@@ -599,11 +599,11 @@ See also :ref:`UDGTABLE`.
 In HTML mode, the ``#INCLUDE`` macro expands to the contents of a ref file
 section; in ASM mode, it expands to an empty string. ::
 
-  #INCLUDE(section[,paragraphs])
+  #INCLUDE[paragraphs](section)
 
-* ``section`` is the name of the ref file section
 * ``paragraphs`` specifies how to format the contents of the ref file section:
-  verbatim, or (if ``paragraphs`` is present and not blank) into paragraphs
+  verbatim (``0`` - the default), or into paragraphs (``1``)
+* ``section`` is the name of the ref file section
 
 The ``#INCLUDE`` macro can be used to insert the contents of one ref file
 section into another. For example::
@@ -615,7 +615,7 @@ section into another. For example::
   This is the intro to the 'Routines' map page.
 
 See :ref:`stringParameters` for details on alternative ways to supply the
-``section`` and ``paragraphs`` parameters.
+``section`` parameter.
 
 +---------+---------+
 | Version | Changes |

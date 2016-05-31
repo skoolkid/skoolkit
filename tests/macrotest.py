@@ -582,6 +582,14 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#IF(0)(true,false,other)', "Too many output strings (expected 2): (0)(true,false,other)", prefix)
         self._assert_error(writer, '#IF1(true,false', "No closing bracket: (true,false", prefix)
 
+    def test_macro_include_invalid(self):
+        writer = self._get_writer()
+        prefix = ERROR_PREFIX.format('INCLUDE')
+
+        self._assert_error(writer, '#INCLUDE', "No text parameter", prefix)
+        self._assert_error(writer, '#INCLUDE0', "No text parameter", prefix)
+        self._assert_error(writer, '#INCLUDE(0)', "No text parameter", prefix)
+
     def test_macro_link_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('LINK')

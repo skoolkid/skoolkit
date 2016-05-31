@@ -1310,7 +1310,7 @@ class HtmlWriter:
         return skoolmacro.parse_if(text, index)
 
     def expand_include(self, text, index, cwd):
-        end, (section, paragraphs) = skoolmacro.parse_include(text, index)
+        end, paragraphs, section = skoolmacro.parse_include(text, index)
         content = self.get_section(section, paragraphs)
         if paragraphs:
             return end, self.join_paragraphs(content, cwd)
