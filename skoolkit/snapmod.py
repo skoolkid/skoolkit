@@ -42,6 +42,17 @@ Recognised register names are:
 
   {}""".format('\n  '.join(textwrap.wrap(reg_names, 70))).lstrip())
 
+def _print_state_help():
+    print("""
+Usage: -s name=value, --state name=value
+
+Set a hardware state attribute. Recognised names and their default values are:
+
+  border - border colour (default=0)
+  iff    - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
+  im     - interrupt mode (default=1)
+""".strip())
+
 def _read_z80(z80file):
     data = read_bin_file(z80file)
     if get_word(data, 6) > 0:
@@ -94,12 +105,15 @@ def main(args):
     group.add_argument('-r', '--reg', dest='reg', metavar='name=value', action='append', default=[],
                        help="Set the value of a register. Do '--reg help' for more information. This option may be used multiple times.")
     group.add_argument('-s', '--state', dest='state', metavar='name=value', action='append', default=[],
-                       help="Set a hardware state attribute (border, iff, im). This option may be used multiple times.")
+                       help="Set a hardware state attribute. Do '--state help' for more information. This option may be used multiple times.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
     if 'help' in namespace.reg:
         _print_reg_help()
+        return
+    if 'help' in namespace.state:
+        _print_state_help()
         return
     infile = namespace.infile
     outfile = namespace.outfile

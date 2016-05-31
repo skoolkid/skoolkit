@@ -78,6 +78,20 @@ class SnapmodTest(SkoolKitTestCase):
         z80_ram = get_snapshot(outfile)[16384:]
         self.assertEqual(ram, z80_ram, "RAM was not preserved")
 
+    def test_state_help(self):
+        output, error = self.run_snapmod('--state help')
+        self.assertEqual(error, '')
+        exp_output = [
+            'Usage: -s name=value, --state name=value',
+            '',
+            'Set a hardware state attribute. Recognised names and their default values are:',
+            '',
+            '  border - border colour (default=0)',
+            '  iff    - interrupt flip-flop: 0=disabled, 1=enabled (default=1)',
+            '  im     - interrupt mode (default=1)'
+        ]
+        self.assertEqual(exp_output, output)
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_snapmod(option, err_lines=True, catch_exit=0)
