@@ -59,6 +59,49 @@ class SnapinfoTest(SkoolKitTestCase):
         ]
         self._test_sna(ram, exp_output, header=header)
 
+    def test_sna_128k(self):
+        header = list(range(25))
+        header[19] = 0 # Interrupts disabled
+        header.append(2) # IM 2
+        header.append(4) # BORDER 4
+        ram = [0] * 49152
+        header2 = [0, 96] # PC=24576
+        header2.append(1) # Port 0x7ffd
+        header2.append(0) # TR-DOS ROM not paged
+        banks = [0] * (5 * 16384)
+        exp_output = [
+            'RAM: 128K',
+            'Interrupts: disabled',
+            'Interrupt mode: 2',
+            'Border: 4',
+            'Registers:',
+            '  PC  24576 6000    SP   6167 1817',
+            '  IX   4625 1211    IY   4111 100F',
+            '  I       0   00    R      20   14',
+            "  B      14   0E    B'      6   06",
+            "  C      13   0D    C'      5   05",
+            "  BC   3597 0E0D    BC'  1541 0605",
+            "  D      12   0C    D'      4   04",
+            "  E      11   0B    E'      3   03",
+            "  DE   3083 0C0B    DE'  1027 0403",
+            "  H      10   0A    H'      2   02",
+            "  L       9   09    L'      1   01",
+            "  HL   2569 0A09    HL'   513 0201",
+            "  A      22   16    A'      8   08",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00010101        F' 00000111",
+            'RAM bank 5 (16384 bytes: 16384-32767 4000-7FFF)',
+            'RAM bank 2 (16384 bytes: 32768-49151 8000-BFFF)',
+            'RAM bank 1 (16384 bytes: 49152-65535 C000-FFFF)',
+            'RAM bank 0 (16384 bytes)',
+            'RAM bank 3 (16384 bytes)',
+            'RAM bank 4 (16384 bytes)',
+            'RAM bank 6 (16384 bytes)',
+            'RAM bank 7 (16384 bytes)'
+        ]
+
+        self._test_sna(ram + header2 + banks, exp_output, header=header)
+
     def test_z80v3_48k_uncompressed(self):
         header = list(range(30))
         header[6:8] = [0, 0] # Version 2+
