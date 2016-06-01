@@ -295,6 +295,30 @@ class SnapinfoTest(SkoolKitTestCase):
         ]
         self._test_sna(ram, exp_output, ' '.join(options))
 
+    def test_option_t_with_single_occurrence(self):
+        ram = [0] * 49152
+        text = 'foo'
+        address = 43567
+        ram[address - 16384:address - 16384 + len(text)] = [ord(c) for c in text]
+        exp_output = ['{0}-{1} {0:04X}-{1:04X}: {2}'.format(address, address + len(text) - 1, text)]
+        self._test_sna(ram, exp_output, '-t {}'.format(text))
+
+    def test_option_find_text_with_multiple_occurrences(self):
+        ram = [0] * 49152
+        text = 'bar'
+        text_bin = [ord(c) for c in text]
+        addresses = (32536, 43567, 61437)
+        exp_output = []
+        for a in addresses:
+            ram[a - 16384:a - 16384 + len(text)] = text_bin
+            exp_output.append('{0}-{1} {0:04X}-{1:04X}: {2}'.format(a, a + len(text) - 1, text))
+        self._test_sna(ram, exp_output, '--find-text {}'.format(text))
+
+    def test_option_t_with_no_occurrences(self):
+        ram = [0] * 49152
+        exp_output = []
+        self._test_sna(ram, exp_output, '-t nowhere')
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_snapinfo(option, err_lines=True, catch_exit=0)
