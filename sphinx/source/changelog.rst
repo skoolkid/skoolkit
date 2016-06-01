@@ -6,6 +6,8 @@ Changelog
 * Dropped support for Python 3.2
 * Added the :ref:`INCLUDE` macro (which expands to the contents of a ref file
   section)
+* Removed the Spectrum ROM disassembly from the SkoolKit distribution; it is
+  now being developed separately `here <https://github.com/skoolkid/rom>`__
 
 5.2 (2016-05-02)
 ----------------

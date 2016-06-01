@@ -1,4 +1,3 @@
-ROM = /usr/share/spectrum-roms/48.rom
 NOSETESTS27 ?= nosetests-2.7
 NOSETESTS33 ?= $(HOME)/Python/Python3.3/bin/nosetests
 NOSETESTS34 ?= python3.4 /usr/bin/nosetests
@@ -16,7 +15,6 @@ usage:
 	@echo "  man           build the man pages"
 	@echo "  clean         clean the documentation and man pages"
 	@echo "  hh            build the Hungry Horace disassembly"
-	@echo "  rom           build the Spectrum ROM disassembly"
 	@echo "  test[-all]    run core/all tests with current Python interpreter"
 	@echo "  test27[-all]  run core/all tests with Python 2.7"
 	@echo "  test3X[-all]  run core/all tests with Python 3.X (3<=X<=5)"
@@ -29,7 +27,6 @@ usage:
 	@echo "Variables:"
 	@echo "  THEMES     CSS theme(s) to use"
 	@echo "  HTML_OPTS  options passed to skool2html.py"
-	@echo "  ROM        path to the Spectrum ROM dump"
 
 .PHONY: doc
 doc:
@@ -49,23 +46,15 @@ hh:
 	./sna2skool.py -c examples/hungry_horace.ctl build/hungry_horace.z80 > build/hungry_horace.skool
 	./skool2html.py $(OPTIONS) -S build examples/hungry_horace.ref
 
-.PHONY: rom
-rom:
-	mkdir -p build
-	./sna2skool.py -o 0 -H -c examples/48.rom.ctl $(ROM) > build/48.rom.skool
-	./skool2html.py $(OPTIONS) -S build examples/48.rom.ref
-
 .PHONY: write-disassembly-tests
 write-disassembly-tests:
 	for t in asm ctl html sft; do \
 	    tools/write-hh-tests.py $$t > tests/test_hh_$$t.py; \
-	    tools/write-rom-tests.py $$t > tests/test_rom_$$t.py; \
 	done
 
 .PHONY: remove-disassembly-tests
 remove-disassembly-tests:
 	rm -f tests/test_hh_*.py*
-	rm -f tests/test_rom_*.py*
 
 .PHONY: test
 test: remove-disassembly-tests

@@ -22,6 +22,7 @@ Usage: $(basename $0) [options] $GAMES [TYPE [TYPE ...]]
     CONTACTSAMCRUISE_HOME - home directory of the Contact Sam Cruise disassembly
     MANICMINER_HOME - home directory of the Manic Miner disassembly
     JETSETWILLY_HOME - home directory of the Jet Set Willy disassembly
+    ROM_DISASSEMBLY_HOME - home directory of the Spectrum ROM disassembly
     DISASSEMBLY_ARCHIVE - directory containing disassembly release tarballs
     SKOOLKIT_ARCHIVE - directory containing SkoolKit release tarballs
     SKOOLKIT_HOME - home directory of the skoolkit project
@@ -212,8 +213,8 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
   rm -rf $NEW_DIR/src
   mkdir $NEW_DIR/src
   if [ "$GAME" = "rom" ]; then
-    $NEW_DIR/sna2skool.py -o 0 -H -c $NEW_DIR/examples/48.rom.ctl $SNAPSHOT > $NEW_DIR/src/48.rom.skool
-    cp -p $NEW_DIR/examples/48.rom.ref $NEW_DIR/src
+    $NEW_DIR/sna2skool.py -o 0 -H -c $DHOME/sources/48.rom.ctl $SNAPSHOT > $NEW_DIR/src/48.rom.skool
+    cp -p $DHOME/sources/48.rom.ref $NEW_DIR/src
   elif [ "$GAME" = "hh" ]; then
     $NEW_DIR/sna2skool.py -c $NEW_DIR/examples/hungry_horace.ctl $SNAPSHOT > $NEW_DIR/src/hungry_horace.skool
     cp -p $NEW_DIR/examples/hungry_horace.ref $NEW_DIR/src

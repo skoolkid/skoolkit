@@ -67,6 +67,15 @@ _require_disassemblies() {
     echo "Error: directory not found: $JETSETWILLY_HOME"
     exit 1
   fi
+
+  if [[ -z $ROM_DISASSEMBLY_HOME ]]; then
+    echo "Error: ROM_DISASSEMBLY_HOME not defined."
+    exit 1
+  fi
+  if [[ ! -d $ROM_DISASSEMBLY_HOME ]]; then
+    echo "Error: directory not found: $ROM_DISASSEMBLY_HOME"
+    exit 1
+  fi
 }
 
 ###############################################################################
@@ -192,7 +201,7 @@ _check_examples() {
   rootdir=$1
   logdir=$2
 
-  _check_files examples $rootdir $logdir 48.rom.{ctl,ref} hungry_horace.{ctl,ref,t2s}
+  _check_files examples $rootdir $logdir hungry_horace.{ctl,ref,t2s}
 }
 
 ###############################################################################
@@ -202,6 +211,8 @@ test_disassemblies() {
   _require_skoolkit
   _require_disassemblies
 
+  mkdir -p $ROM_DISASSEMBLY_HOME/build
+  romlog=$ROM_DISASSEMBLY_HOME/build/tests.log
   mkdir -p $MANICMINER_HOME/build
   mmlog=$MANICMINER_HOME/build/tests.log
   mkdir -p $JETSETWILLY_HOME/build
@@ -214,12 +225,14 @@ test_disassemblies() {
   csclog=$CONTACTSAMCRUISE_HOME/build/tests.log
   targets="test27 test33 test34 test35"
 
+  make -C $ROM_DISASSEMBLY_HOME $targets &> $romlog & PIDrom=$!
   make -C $MANICMINER_HOME $targets &> $mmlog & PIDmm=$!
   make -C $JETSETWILLY_HOME $targets &> $jswlog & PIDjsw=$!
   make -C $SKOOLDAZE_HOME $targets &> $sdlog & PIDsd=$!
   make -C $BACKTOSKOOL_HOME $targets &> $btslog & PIDbts=$!
   make -C $CONTACTSAMCRUISE_HOME $targets &> $csclog & PIDcsc=$!
 
+  _wait "Spectrum ROM tests" $PIDrom "(see $romlog)" _
   _wait "Manic Miner tests" $PIDmm "(see $mmlog)" _
   _wait "Jet Set Willy tests" $PIDjsw "(see $jswlog)" _
   _wait "Skool Daze tests" $PIDsd "(see $sdlog)" _
@@ -234,8 +247,8 @@ disassembly_diffs() {
   _require_skoolkit
   _require_disassemblies
 
-  romdiffsdir=$SKOOLKIT_HOME/build/rom-disassembly-diff
   hhdiffsdir=$SKOOLKIT_HOME/build/hh-disassembly-diff
+  romdiffsdir=$ROM_DISASSEMBLY_HOME/build/disassembly-diff
   mmdiffsdir=$MANICMINER_HOME/build/disassembly-diff
   jswdiffsdir=$JETSETWILLY_HOME/build/disassembly-diff
   sddiffsdir=$SKOOLDAZE_HOME/build/disassembly-diff
@@ -251,16 +264,16 @@ disassembly_diffs() {
     rm -rf $d/disassembly-current-*
   done
 
-  (cd $romdiffsdir; $DISASSEMBLY_DIFF rom &> $diffslog) & PIDrom=$!
   (cd $hhdiffsdir; $DISASSEMBLY_DIFF hh &> $diffslog) & PIDhh=$!
+  (cd $romdiffsdir; $DISASSEMBLY_DIFF rom &> $diffslog) & PIDrom=$!
   (cd $mmdiffsdir; $DISASSEMBLY_DIFF mm &> $diffslog) & PIDmm=$!
   (cd $jswdiffsdir; $DISASSEMBLY_DIFF jsw &> $diffslog) & PIDjsw=$!
   (cd $sddiffsdir; $DISASSEMBLY_DIFF sd &> $diffslog) & PIDsd=$!
   (cd $btsdiffsdir; $DISASSEMBLY_DIFF bts &> $diffslog) & PIDbts=$!
   (cd $cscdiffsdir; $DISASSEMBLY_DIFF csc &> $diffslog) & PIDcsc=$!
 
-  _wait "Spectrum ROM disassembly-diff" $PIDrom "(see $romdiffsdir/$diffslog)"
   _wait "Hungry Horace disassembly-diff" $PIDhh "(see $hhdiffsdir/$diffslog)"
+  _wait "Spectrum ROM disassembly-diff" $PIDrom "(see $romdiffsdir/$diffslog)"
   _wait "Manic Miner disassembly-diff" $PIDmm "(see $mmdiffsdir/$diffslog)"
   _wait "Jet Set Willy disassembly-diff" $PIDjsw "(see $jswdiffsdir/$diffslog)"
   _wait "Skool Daze disassembly-diff" $PIDsd "(see $sddiffsdir/$diffslog)"
@@ -275,9 +288,9 @@ check_asms() {
   _require_skoolkit
   _require_disassemblies
 
-  romasmdir=$SKOOLKIT_HOME/build/rom-disassembly-diff/disassembly-current-$VERSION/asm
   hhasmdir=$SKOOLKIT_HOME/build/hh-disassembly-diff/disassembly-current-$VERSION/asm
   asmsubdir=build/disassembly-diff/disassembly-current-$VERSION/asm
+  romasmdir=$ROM_DISASSEMBLY_HOME/$asmsubdir
   mmasmdir=$MANICMINER_HOME/$asmsubdir
   jswasmdir=$JETSETWILLY_HOME/$asmsubdir
   sdasmdir=$SKOOLDAZE_HOME/$asmsubdir
@@ -286,16 +299,16 @@ check_asms() {
   asmlog=asm.log
   CHECK_ASMS=$TOOLS/check-asms
 
-  (cd $romasmdir; $CHECK_ASMS rom &> $asmlog) & PIDrom=$!
   (cd $hhasmdir; $CHECK_ASMS hh &> $asmlog) & PIDhh=$!
+  (cd $romasmdir; $CHECK_ASMS rom &> $asmlog) & PIDrom=$!
   (cd $mmasmdir; $CHECK_ASMS mm &> $asmlog) & PIDmm=$!
   (cd $jswasmdir; $CHECK_ASMS jsw &> $asmlog) & PIDjsw=$!
   (cd $sdasmdir; $CHECK_ASMS sd &> $asmlog) & PIDsd=$!
   (cd $btsasmdir; $CHECK_ASMS bts &> $asmlog) & PIDbts=$!
   (cd $cscasmdir; $CHECK_ASMS csc &> $asmlog) & PIDcsc=$!
 
-  _wait "Spectrum ROM check-asms" $PIDrom "(see $romasmdir/$asmlog)" _
   _wait "Hungry Horace check-asms" $PIDhh "(see $hhasmdir/$asmlog)" _
+  _wait "Spectrum ROM check-asms" $PIDrom "(see $romasmdir/$asmlog)" _
   _wait "Manic Miner check-asms" $PIDmm "(see $mmasmdir/$asmlog)" _
   _wait "Jet Set Willy check-asms" $PIDjsw "(see $jswasmdir/$asmlog)" _
   _wait "Skool Daze check-asms" $PIDsd "(see $sdasmdir/$asmlog)" _
@@ -503,9 +516,9 @@ Usage: $(basename $0) COMMAND [COMMAND...]
 SkoolKit testing and release tool.
 
 Pre-release commands:
-  dtests - run the disassemblies (MM/JSW/SD/BTS/CSC) tests
-  ddiffs - run disassembly-diff on the ROM/HH/MM/JSW/SD/BTS/CSC disassemblies
-  asmchk - run check-asms on the ROM/HH/MM/JSW/SD/BTS/CSC disassemblies
+  dtests - run the disassemblies (ROM/MM/JSW/SD/BTS/CSC) tests
+  ddiffs - run disassembly-diff on the HH/ROM/MM/JSW/SD/BTS/CSC disassemblies
+  asmchk - run check-asms on the HH/ROM/MM/JSW/SD/BTS/CSC disassemblies
   setup1 - verify that 'setup.py install' works from a release tarball
   setup2 - verify that 'setup.py install' works from an sdist tarball
 

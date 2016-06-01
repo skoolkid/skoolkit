@@ -5,10 +5,8 @@
 .emacs.desktop.lock
 build
 diffs-hh
-diffs-rom
 dist
 MANIFEST
 tests/cover
 tests/test_hh_*.py
-tests/test_rom_*.py
 untracked

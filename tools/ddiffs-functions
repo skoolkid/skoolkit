@@ -58,7 +58,17 @@ read_ddiffsrc() {
       exit 1
     fi
     DHOME=$JETSETWILLY_HOME
-  elif [ "$GAME" = "rom" ] || [ "$GAME" = "hh" ]; then
+  elif [ "$GAME" = "rom" ]; then
+    if [ -z "$ROM_DISASSEMBLY_HOME" ]; then
+      echo "Error: ROM_DISASSEMBLY_HOME not defined."
+      exit 1
+    fi
+    if [ ! -d "$ROM_DISASSEMBLY_HOME" ]; then
+      echo "Error: directory not found: $ROM_DISASSEMBLY_HOME"
+      exit 1
+    fi
+    DHOME=$ROM_DISASSEMBLY_HOME
+  elif [ "$GAME" = "hh" ]; then
     if [ -z "$SKOOLKIT_HOME" ]; then
       echo "Error: SKOOLKIT_HOME not defined."
       exit 1
@@ -71,14 +81,10 @@ read_ddiffsrc() {
   fi
 
   rcpath=$DHOME/.ddiffsrc
-  if [ "$GAME" = "rom" ] || [ "$GAME" = "hh" ]; then
+  if [ "$GAME" = "hh" ]; then
     OLD_VERSION=$(cd $SKOOLKIT_HOME; git tag | tail -n 1 | cut -c2-)
     SK_OLD_VERSION=$OLD_VERSION
-    if [ "$GAME" = "rom" ]; then
-      SNAPSHOT=/usr/share/spectrum-roms/48.rom
-    elif [ "$GAME" = "hh" ]; then
-      SNAPSHOT=$SKOOLKIT_HOME/build/hungry_horace.z80
-    fi
+    SNAPSHOT=$SKOOLKIT_HOME/build/hungry_horace.z80
   elif [ -f "$rcpath" ]; then
     . $rcpath
   else
