@@ -74,6 +74,9 @@ it with no arguments to see the list of available options::
                           Set the stack pointer (default: ORG)
     -s START, --start START
                           Set the start address to JP to (default: ORG)
+    -S FILE, --screen FILE
+                          Add a loading screen to the TAP file; FILE may be a
+                          snapshot or a 6912-byte SCR file
     -t TAPFILE, --tapfile TAPFILE
                           Set the TAP filename
     -V, --version         Show SkoolKit version number and exit
@@ -102,6 +105,8 @@ Spectrum is 23952 ($5D90).
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 5.3     | Added the ``--screen`` option                                   |
++---------+-----------------------------------------------------------------+
 | 5.2     | Added the ability to read a binary file from standard input;    |
 |         | added a second positional argument specifying the TAP filename  |
 +---------+-----------------------------------------------------------------+

@@ -6,6 +6,8 @@ Changelog
 * Dropped support for Python 3.2
 * Added the :ref:`INCLUDE` macro (which expands to the contents of a ref file
   section)
+* Added the ``--screen`` option to :ref:`bin2tap.py` (for adding a loading
+  screen to the TAP file)
 * Removed the Spectrum ROM disassembly from the SkoolKit distribution; it is
   now being developed separately `here <https://github.com/skoolkid/rom>`__
 
