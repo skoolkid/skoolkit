@@ -8,6 +8,8 @@ Changelog
   section)
 * Added the ``--screen`` option to :ref:`bin2tap.py` (for adding a loading
   screen to the TAP file)
+* Added the ``--stack`` and ``--start`` options to :ref:`tap2sna.py` (for
+  specifying the stack and start addresses)
 * Removed the Spectrum ROM disassembly from the SkoolKit distribution; it is
   now being developed separately `here <https://github.com/skoolkid/rom>`__
 

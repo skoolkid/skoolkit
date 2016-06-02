@@ -628,11 +628,15 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     -d DIR, --output-dir DIR
                           Write the snapshot file in this directory.
     -f, --force           Overwrite an existing snapshot.
+    -p STACK, --stack STACK
+                          Set the stack pointer.
     --ram OPERATION       Perform a load, move or poke operation on the memory
                           snapshot being built. Do '--ram help' for more
                           information. This option may be used multiple times.
     --reg name=value      Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
+    -s START, --start START
+                          Set the start address to JP to.
     --state name=value    Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
@@ -685,6 +689,8 @@ given on the command line.
 +---------+----------------------------------------------------------------+
 | Version | Changes                                                        |
 +=========+================================================================+
+| 5.3     | Added the ``--stack`` and ``--start`` options                  |
++---------+----------------------------------------------------------------+
 | 4.5     | Added support for TZX block type 0x14 (pure data), for loading |
 |         | the first and last bytes of a tape block, and for modifying    |
 |         | memory with XOR and ADD operations                             |
