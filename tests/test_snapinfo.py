@@ -13,6 +13,14 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(exp_output, output)
 
+    def _test_z80(self, exp_output, header=None, ram=None, version=3, compress=False, machine_id=0):
+        if ram is None:
+            ram = [0] * 49152
+        z80file = self.write_z80_file(header, ram, version, compress, machine_id)
+        output, error = self.run_snapinfo(z80file)
+        self.assertEqual(error, '')
+        self.assertEqual(['Z80 file: {}'.format(z80file)] + exp_output, output)
+
     def test_no_arguments(self):
         output, error = self.run_snapinfo(catch_exit=2)
         self.assertEqual(len(output), 0)
@@ -102,6 +110,35 @@ class SnapinfoTest(SkoolKitTestCase):
 
         self._test_sna(ram + header2 + banks, exp_output, header=header)
 
+    def test_z80v1_uncompressed(self):
+        header = list(range(16, 46))
+        header[12] = 12 # BORDER 6, uncompressed RAM
+        exp_output = [
+            'Version: 1',
+            'Machine: 48K Spectrum',
+            'Interrupts: enabled',
+            'Interrupt mode: 1',
+            'Border: 6',
+            'Registers:',
+            '  PC   5910 1716    SP   6424 1918',
+            '  IX  10793 2A29    IY  10279 2827',
+            '  I      26   1A    R      27   1B',
+            "  B      19   13    B'     32   20",
+            "  C      18   12    C'     31   1F",
+            "  BC   4882 1312    BC'  8223 201F",
+            "  D      30   1E    D'     34   22",
+            "  E      29   1D    E'     33   21",
+            "  DE   7709 1E1D    DE'  8737 2221",
+            "  H      21   15    H'     36   24",
+            "  L      20   14    L'     35   23",
+            "  HL   5396 1514    HL'  9251 2423",
+            "  A      16   10    A'     37   25",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00010001        F' 00100110",
+            '48K RAM block (16384-65535 4000-FFFF): 49152 bytes (uncompressed)'
+        ]
+        self._test_z80(exp_output, header, version=1)
+
     def test_z80v3_48k_uncompressed(self):
         header = list(range(30))
         header[6:8] = [0, 0] # Version 2+
@@ -109,10 +146,7 @@ class SnapinfoTest(SkoolKitTestCase):
         header.extend((54, 0)) # Remaining header length (version 3)
         header.extend((206, 250)) # PC=64206
         header += [0] * (header[-4] - 2)
-        ram = [0] * 49152
-        z80file = self.write_z80_file(header, ram)
         exp_output = [
-            'Z80 file: {}'.format(z80file),
             'Version: 3',
             'Machine: 48K Spectrum',
             'Interrupts: enabled',
@@ -138,10 +172,7 @@ class SnapinfoTest(SkoolKitTestCase):
             'RAM block 5 (49152-65535 C000-FFFF): 16384 bytes (uncompressed)',
             'RAM block 8 (16384-32767 4000-7FFF): 16384 bytes (uncompressed)'
         ]
-
-        output, error = self.run_snapinfo(z80file)
-        self.assertEqual(error, '')
-        self.assertEqual(exp_output, output)
+        self._test_z80(exp_output, header, version=3)
 
     def test_szx_48k_uncompressed(self):
         registers = list(range(26)) # Registers
