@@ -17,6 +17,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import re
 
 from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, read_bin_file, write_text, VERSION
 from skoolkit.snapshot import get_snapshot
@@ -145,26 +146,41 @@ class BasicLister:
         return self._get_token(code)
 
     def _get_fp_num(self, i):
-        j = i - 1
-        num_str = ''
-        while chr(self.snapshot[j]) in '0123456789.':
-            num_str = chr(self.snapshot[j]) + num_str
-            j -= 1
+        num_str = self._get_num_str(i - 1)
         if num_str:
             if self.snapshot[i + 1] == 0:
+                # Small integer (signed)
                 sign = -1 if self.snapshot[i + 2] else 1
                 num = sign * get_word(self.snapshot, i + 3)
             else:
+                # Floating point number (unsigned)
                 exponent = self.snapshot[i + 1] - 160
-                sign = -1 if self.snapshot[i + 2] & 128 else 1
                 mantissa = float(16777216 * (self.snapshot[i + 2] | 128)
                                  + 65536 * self.snapshot[i + 3]
                                  + 256 * self.snapshot[i + 4]
                                  + self.snapshot[i + 5])
-                num = sign * mantissa * (2 ** exponent)
-            if num and abs(1 - float(num_str) / num) > 1e-10:
+                num = mantissa * (2 ** exponent)
+            if num and abs(1 - float(num_str) / num) > 1e-9:
                 return '{{{}}}'.format(num)
         return ''
+
+    def _get_num_str(self, j):
+        num_str = chr(self.snapshot[j])
+        while re.match('[0-9.]+([eE][-+]?[0-9]+)?', num_str):
+            j -= 1
+            this_chr = chr(self.snapshot[j])
+            signed = this_chr in '+-'
+            if signed:
+                num_str = this_chr + num_str
+                j -= 1
+                this_chr = chr(self.snapshot[j])
+            if this_chr in 'eE':
+                num_str = this_chr + num_str
+                j -= 1
+            elif signed:
+                break
+            num_str = chr(self.snapshot[j]) + num_str
+        return num_str[1:]
 
     def _get_char(self, code):
         if code == 94:
