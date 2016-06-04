@@ -56,10 +56,10 @@ mkdir -p $MANDIR
 
 rsync -aR \
   {bin2{sna,tap},skool2{asm,bin,ctl,html,sft},sna2skool,snap{info,mod},tap{2sna,info}}.py \
-  skoolkit/{__init__,bin2{sna,tap},ctlparser,defaults,disassembler,gifwriter,image,pngwriter,refparser,sftparser,skool{{,2}{asm,ctl,html,sft},2bin,macro,parser},sna{,2}skool,snap{info,mod,shot},tap{2sna,info},textutils,z80}.py \
+  skoolkit/{__init__,basic,bin2{sna,tap},ctlparser,defaults,disassembler,gifwriter,image,pngwriter,refparser,sftparser,skool{{,2}{asm,ctl,html,sft},2bin,macro,parser},sna{,2}skool,snap{info,mod,shot},tap{2sna,info},textutils,z80}.py \
   examples/hungry_horace.{ctl,ref,t2s} \
   skoolkit/resources/skoolkit{,-dark,-green,-plum,-wide}.css \
-  tests/{{macro,skoolkit}test,test_{bin2{sna,tap},ctlparser,disassembler,image,skool{{,2}{asm,ctl,html,sft},2bin,macro,parser},refparser,sftparser,skoolkit,sna{2,}skool,snap{info,mod,shot},tap{2sna,info},textutils,z80}}.py \
+  tests/{{macro,skoolkit}test,test_{basic,bin2{sna,tap},ctlparser,disassembler,image,skool{{,2}{asm,ctl,html,sft},2bin,macro,parser},refparser,sftparser,skoolkit,sna{2,}skool,snap{info,mod,shot},tap{2sna,info},textutils,z80}}.py \
   COPYING MANIFEST.in setup.py \
   $ABSDIR
 
