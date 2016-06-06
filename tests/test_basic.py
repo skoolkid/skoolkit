@@ -77,3 +77,16 @@ class BasicListerTest(SkoolKitTestCase):
         ]
         exp_output = ['  10 PRINT 123{1.5}']
         self._test_basic(basic, exp_output)
+
+    def test_non_ascii_characters(self):
+        basic = [
+            0, 10, 7, 0,              # Line 10, length
+            245, 34, 94, 96, 127, 34, # PRINT "↑£©"
+            13,                       # ENTER
+            128                       # End of BASIC area
+        ]
+        exp_output = ['  10 PRINT "↑£©"']
+        self._test_basic(basic, exp_output)
+
+if __name__ == '__main__':
+    unittest.main()
