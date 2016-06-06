@@ -88,5 +88,15 @@ class BasicListerTest(SkoolKitTestCase):
         exp_output = ['  10 PRINT "↑£©"']
         self._test_basic(basic, exp_output)
 
+    def test_undefined_character_codes(self):
+        basic = [
+            0, 10, 6, 0,       # Line 10, length
+            234, 0, 1, 30, 31, # REM ????
+            13,                # ENTER
+            128                # End of BASIC area
+        ]
+        exp_output = ['  10 REM {0x00}{0x01}{0x1E}{0x1F}']
+        self._test_basic(basic, exp_output)
+
 if __name__ == '__main__':
     unittest.main()
