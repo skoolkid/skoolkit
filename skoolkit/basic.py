@@ -123,7 +123,7 @@ class BasicLister:
             line_no = snapshot[i] * 256 + snapshot[i + 1]
             self.lspace = False
             i, line = self._get_basic_line(i + 4)
-            lines.append('{: 4} {}'.format(line_no, line))
+            lines.append('{:>4} {}'.format(line_no, line))
         return '\n'.join(lines)
 
     def _get_basic_line(self, i):
@@ -201,4 +201,5 @@ class BasicLister:
         if code < 168 or code == 203 or token[-1] in '#=>':
             # RND, INKEY$, PI, THEN, '<=', '>=', '<>', 'OPEN #', 'CLOSE #'
             return token
+        self.lspace = False
         return token + ' '
