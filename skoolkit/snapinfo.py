@@ -316,7 +316,7 @@ def _print_ram_banks(sna):
         if size >= 16384:
             desc = '16384 bytes'
         elif size > 0:
-            desc = 'truncated: {} bytes'.format(size)
+            desc = 'truncated: {} byte(s)'.format(size)
         else:
             desc = 'missing'
         print('RAM bank {} ({})'.format(b, desc))

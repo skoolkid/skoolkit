@@ -126,6 +126,43 @@ class SnapinfoTest(SkoolKitTestCase):
 
         self._test_sna(ram + header2 + banks, exp_output, header=header)
 
+    def test_sna_128k_truncated(self):
+        ram = [0] * 49152
+        header2 = [0] * 4
+        banks = [0] * 16385
+        exp_output = [
+            'RAM: 128K',
+            'Interrupts: disabled',
+            'Interrupt mode: 0',
+            'Border: 0',
+            'Registers:',
+            '  PC      0 0000    SP      0 0000',
+            '  IX      0 0000    IY      0 0000',
+            '  I       0   00    R       0   00',
+            "  B       0   00    B'      0   00",
+            "  C       0   00    C'      0   00",
+            "  BC      0 0000    BC'     0 0000",
+            "  D       0   00    D'      0   00",
+            "  E       0   00    E'      0   00",
+            "  DE      0 0000    DE'     0 0000",
+            "  H       0   00    H'      0   00",
+            "  L       0   00    L'      0   00",
+            "  HL      0 0000    HL'     0 0000",
+            "  A       0   00    A'      0   00",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00000000        F' 00000000",
+            'RAM bank 5 (16384 bytes: 16384-32767 4000-7FFF)',
+            'RAM bank 2 (16384 bytes: 32768-49151 8000-BFFF)',
+            'RAM bank 0 (16384 bytes: 49152-65535 C000-FFFF)',
+            'RAM bank 1 (16384 bytes)',
+            'RAM bank 3 (truncated: 1 byte(s))',
+            'RAM bank 4 (missing)',
+            'RAM bank 6 (missing)',
+            'RAM bank 7 (missing)'
+        ]
+
+        self._test_sna(ram + header2 + banks, exp_output)
+
     def test_z80v1_uncompressed(self):
         header = list(range(16, 46))
         header[12] = 12 # BORDER 6, uncompressed RAM
