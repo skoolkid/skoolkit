@@ -195,7 +195,7 @@ class SnapinfoTest(SkoolKitTestCase):
     def test_z80v3_48k_uncompressed(self):
         header = list(range(30))
         header[6:8] = [0, 0] # Version 2+
-        header[12] = 6 # BORDER 3, uncompressed RAM
+        header[12] = 6 # BORDER 3
         header.extend((54, 0)) # Remaining header length (version 3)
         header.extend((206, 250)) # PC=64206
         header += [0] * (header[-4] - 2)
@@ -226,6 +226,42 @@ class SnapinfoTest(SkoolKitTestCase):
             'RAM block 8 (16384-32767 4000-7FFF): 16384 bytes (uncompressed)'
         ]
         self._test_z80(exp_output, header, version=3)
+
+    def test_z80v3_48k_compressed(self):
+        header = list(range(48, 78))
+        header[6:8] = [0, 0] # Version 2+
+        header[12] = 14 # BORDER 7
+        header[28] = 0 # Interrupts disabled
+        header.extend((54, 0)) # Remaining header length (version 3)
+        header.extend((183, 201)) # PC=51639
+        header += [0] * (header[-4] - 2)
+        exp_output = [
+            'Version: 3',
+            'Machine: 48K Spectrum',
+            'Interrupts: disabled',
+            'Interrupt mode: 1',
+            'Border: 7',
+            'Registers:',
+            '  PC  51639 C9B7    SP  14648 3938',
+            '  IX  19017 4A49    IY  18503 4847',
+            '  I      58   3A    R      59   3B',
+            "  B      51   33    B'     64   40",
+            "  C      50   32    C'     63   3F",
+            "  BC  13106 3332    BC' 16447 403F",
+            "  D      62   3E    D'     66   42",
+            "  E      61   3D    E'     65   41",
+            "  DE  15933 3E3D    DE' 16961 4241",
+            "  H      53   35    H'     68   44",
+            "  L      52   34    L'     67   43",
+            "  HL  13620 3534    HL' 17475 4443",
+            "  A      48   30    A'     69   45",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00110001        F' 01000110",
+            'RAM block 4 (32768-49151 8000-BFFF): 260 bytes (compressed)',
+            'RAM block 5 (49152-65535 C000-FFFF): 260 bytes (compressed)',
+            'RAM block 8 (16384-32767 4000-7FFF): 260 bytes (compressed)'
+        ]
+        self._test_z80(exp_output, header, version=3, compress=True)
 
     def test_z80v3_128k_uncompressed(self):
         header = list(range(32, 62))
