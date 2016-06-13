@@ -32,6 +32,17 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         self.assertEqual(['Z80 file: {}'.format(z80file)] + exp_output, output)
 
+    def _test_szx(self, exp_output, registers=None, border=0, ram=None, compress=False, machine_id=1, ch7ffd=0, pages=None):
+        if ram is None:
+            ram = [0] * 49152
+        if machine_id > 1 and pages is None:
+            bank = (0,) * 16384
+            pages = {p: bank for p in (1, 3, 4, 6, 7)}
+        szxfile = self.write_szx(ram, compress, machine_id, ch7ffd, pages, registers, border)
+        output, error = self.run_snapinfo(szxfile)
+        self.assertEqual(error, '')
+        self.assertEqual(exp_output, output)
+
     def _test_basic(self, data, exp_output, option):
         ram = [0] * 49152
         ram[7371:7371 + len(data)] = data
@@ -312,7 +323,6 @@ class SnapinfoTest(SkoolKitTestCase):
         registers.extend((1, 1)) # IFF1, IFF2
         registers.append(2) # Interrupt mode
         registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
-        szxfile = self.write_szx([0] * 49152, False, registers=registers, border=3)
         exp_output = [
             'Version: 1.4',
             'Machine: 48K ZX Spectrum',
@@ -347,10 +357,63 @@ class SnapinfoTest(SkoolKitTestCase):
             '  Page: 5',
             '  RAM: 16384-32767 4000-7FFF: 16384 bytes, uncompressed'
         ]
+        self._test_szx(exp_output, registers, border=3, compress=False)
 
-        output, error = self.run_snapinfo(szxfile)
-        self.assertEqual(error, '')
-        self.assertEqual(exp_output, output)
+    def test_szx_128k_uncompressed(self):
+        registers = list(range(16, 42)) # Registers
+        registers.extend((0, 0)) # IFF1, IFF2
+        registers.append(1) # Interrupt mode
+        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        exp_output = [
+            'Version: 1.4',
+            'Machine: ZX Spectrum 128',
+            'SPCR: 8 bytes',
+            '  Border: 6',
+            '  Port $7FFD: 1 (bank 1 paged into 49152-65535 C000-FFFF)',
+            'Z80R: 37 bytes',
+            '  Interrupts: disabled',
+            '  Interrupt mode: 1',
+            '  PC  10022 2726    SP   9508 2524',
+            '  IX   8480 2120    IY   8994 2322',
+            '  I      40   28    R      41   29',
+            "  B      19   13    B'     27   1B",
+            "  C      18   12    C'     26   1A",
+            "  BC   4882 1312    BC'  6938 1B1A",
+            "  D      21   15    D'     29   1D",
+            "  E      20   14    E'     28   1C",
+            "  DE   5396 1514    DE'  7452 1D1C",
+            "  H      23   17    H'     31   1F",
+            "  L      22   16    L'     30   1E",
+            "  HL   5910 1716    HL'  7966 1F1E",
+            "  A      17   11    A'     25   19",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00010000        F' 00011000",
+            'RAMP: 16387 bytes',
+            '  Page: 0',
+            '  RAM: 16384 bytes, uncompressed',
+            'RAMP: 16387 bytes',
+            '  Page: 1',
+            '  RAM: 49152-65535 C000-FFFF: 16384 bytes, uncompressed',
+            'RAMP: 16387 bytes',
+            '  Page: 2',
+            '  RAM: 32768-49151 8000-BFFF: 16384 bytes, uncompressed',
+            'RAMP: 16387 bytes',
+            '  Page: 3',
+            '  RAM: 16384 bytes, uncompressed',
+            'RAMP: 16387 bytes',
+            '  Page: 4',
+            '  RAM: 16384 bytes, uncompressed',
+            'RAMP: 16387 bytes',
+            '  Page: 5',
+            '  RAM: 16384-32767 4000-7FFF: 16384 bytes, uncompressed',
+            'RAMP: 16387 bytes',
+            '  Page: 6',
+            '  RAM: 16384 bytes, uncompressed',
+            'RAMP: 16387 bytes',
+            '  Page: 7',
+            '  RAM: 16384 bytes, uncompressed'
+        ]
+        self._test_szx(exp_output, registers, border=6, compress=False, machine_id=2, ch7ffd=1, pages=None)
 
     @patch.object(snapinfo, 'BasicLister', MockBasicLister)
     def test_option_b(self):
