@@ -64,10 +64,8 @@ def _read_z80(z80file):
 
 def _write_z80(header, snapshot, fname):
     if len(header) == 30:
-        if header[12] & 32:
-            ram = make_z80_ram_block(snapshot[16384:], 0)[3:] + [0, 237, 237, 0]
-        else:
-            ram = snapshot[16384:]
+        header[12] |= 32
+        ram = make_z80_ram_block(snapshot[16384:], 0)[3:] + [0, 237, 237, 0]
     else:
         ram = []
         for bank, data in ((5, snapshot[16384:32768]), (1, snapshot[32768:49152]), (2, snapshot[49152:])):

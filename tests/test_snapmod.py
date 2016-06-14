@@ -28,6 +28,34 @@ class SnapmodTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolKitError, 'Unrecognised input snapshot type$'):
             self.run_snapmod('unknown.snap')
 
+    @patch.object(snapmod, 'run', mock_run)
+    def test_options_p_poke(self):
+        for option in ('-p', '--poke'):
+            output, error = self.run_snapmod('{0} 32768,1 {0} 40000-40010,2 test.z80'.format(option))
+            self.assertEqual([], output)
+            self.assertEqual(error, '')
+            infile, options, outfile = run_args
+            self.assertEqual(['32768,1', '40000-40010,2'], options.pokes)
+
+    def test_option_p_z80v1_uncompressed(self):
+        address, value = 49152, 55
+        header = list(range(30))
+        header[12] &= 223 # RAM block uncompressed
+        ram = [0] * 49152
+        exp_ram = ram[:]
+        exp_ram[address - 16384] = value
+        infile = self.write_z80_file(header, ram, 1, False)
+        exp_header = header[:]
+        exp_header[12] |= 32 # RAM block compressed
+        outfile = self.write_bin_file(suffix='.z80')
+        output, error = self.run_snapmod('-f -p {},{} {} {}'.format(address, value, infile, outfile))
+        self.assertEqual([], output)
+        self.assertEqual(error, '')
+        z80_header = list(read_bin_file(outfile, 30))
+        self.assertEqual(exp_header, z80_header)
+        z80_ram = get_snapshot(outfile)[16384:]
+        self.assertEqual(exp_ram, z80_ram)
+
     def test_reg_help(self):
         output, error = self.run_snapmod('--reg help')
         self.assertEqual(error, '')
