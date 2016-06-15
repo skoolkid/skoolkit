@@ -14,6 +14,23 @@ def mock_run(*args):
     run_args = args
 
 class SnapmodTest(SkoolKitTestCase):
+    def _test_z80(self, options, header, exp_header=None, ram=None, exp_ram=None, version=3, compress=False):
+        if exp_header is None:
+            exp_header = header
+        if ram is None:
+            ram = [0] * 49152
+        if exp_ram is None:
+            exp_ram = ram
+        infile = self.write_z80_file(header, ram, version, compress)
+        outfile = self.write_bin_file(suffix='.z80')
+        output, error = self.run_snapmod('-f {} {} {}'.format(options, infile, outfile))
+        self.assertEqual([], output)
+        self.assertEqual(error, '')
+        z80_header = list(read_bin_file(outfile, len(exp_header)))
+        self.assertEqual(exp_header, z80_header)
+        z80_ram = get_snapshot(outfile)[16384:]
+        self.assertEqual(exp_ram, z80_ram)
+
     def test_no_arguments(self):
         output, error = self.run_snapmod(catch_exit=2)
         self.assertEqual(len(output), 0)
@@ -27,6 +44,30 @@ class SnapmodTest(SkoolKitTestCase):
     def test_unrecognised_snapshot_type(self):
         with self.assertRaisesRegexp(SkoolKitError, 'Unrecognised input snapshot type$'):
             self.run_snapmod('unknown.snap')
+
+    @patch.object(snapmod, 'run', mock_run)
+    def test_options_m_move(self):
+        for option in ('-m', '--move'):
+            output, error = self.run_snapmod('{0} 30000,10,40000 {0} 50000,20,60000 test.z80'.format(option))
+            self.assertEqual([], output)
+            self.assertEqual(error, '')
+            infile, options, outfile = run_args
+            self.assertEqual(['30000,10,40000', '50000,20,60000'], options.moves)
+
+    def test_option_m_z80v1(self):
+        src, size, dest = 30000, 10, 40000
+        header = list(range(30))
+        header[12] &= 223 # RAM block uncompressed
+        ram = [0] * 49152
+        block = [1] * size
+        ram[src - 16384:src - 16384 + size] = block
+        exp_ram = ram[:]
+        exp_ram[dest - 16384:dest - 16384 + size] = block
+        infile = self.write_z80_file(header, ram, 1, False)
+        exp_header = header[:]
+        exp_header[12] |= 32 # RAM block compressed
+        options = '-m {},{},{}'.format(src, size, dest)
+        self._test_z80(options, header, exp_header, ram, exp_ram, 1, False)
 
     @patch.object(snapmod, 'run', mock_run)
     def test_options_p_poke(self):
@@ -47,14 +88,8 @@ class SnapmodTest(SkoolKitTestCase):
         infile = self.write_z80_file(header, ram, 1, False)
         exp_header = header[:]
         exp_header[12] |= 32 # RAM block compressed
-        outfile = self.write_bin_file(suffix='.z80')
-        output, error = self.run_snapmod('-f -p {},{} {} {}'.format(address, value, infile, outfile))
-        self.assertEqual([], output)
-        self.assertEqual(error, '')
-        z80_header = list(read_bin_file(outfile, 30))
-        self.assertEqual(exp_header, z80_header)
-        z80_ram = get_snapshot(outfile)[16384:]
-        self.assertEqual(exp_ram, z80_ram)
+        options = '-p {},{}'.format(address, value)
+        self._test_z80(options, header, exp_header, ram, exp_ram, 1, False)
 
     def test_reg_help(self):
         output, error = self.run_snapmod('--reg help')
