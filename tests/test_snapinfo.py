@@ -415,6 +415,11 @@ class SnapinfoTest(SkoolKitTestCase):
         ]
         self._test_szx(exp_output, registers, border=6, compress=False, machine_id=2, ch7ffd=1, pages=None)
 
+    def test_szx_without_magic_number(self):
+        non_szx = self.write_bin_file((1, 2, 3), suffix='.szx')
+        with self.assertRaisesRegexp(SkoolKitError, '{} is not an SZX file$'.format(non_szx)):
+            self.run_snapinfo(non_szx)
+
     @patch.object(snapinfo, 'BasicLister', MockBasicLister)
     def test_option_b(self):
         ram = [127] * 49152
