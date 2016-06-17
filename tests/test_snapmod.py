@@ -45,6 +45,18 @@ class SnapmodTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolKitError, 'Unrecognised input snapshot type$'):
             self.run_snapmod('unknown.snap')
 
+    def test_no_clobber_input_file(self):
+        infile = self.write_bin_file(suffix='.z80')
+        output, error = self.run_snapmod('-p 16384,0 {}'.format(infile))
+        self.assertEqual(output[0], '{}: file already exists; use -f to overwrite'.format(infile))
+        self.assertEqual(error, '')
+
+    def test_no_clobber_output_file(self):
+        outfile = self.write_bin_file(suffix='.z80')
+        output, error = self.run_snapmod('-p 16384,0 in.z80 {}'.format(outfile))
+        self.assertEqual(output[0], '{}: file already exists; use -f to overwrite'.format(outfile))
+        self.assertEqual(error, '')
+
     @patch.object(snapmod, 'run', mock_run)
     def test_options_m_move(self):
         for option in ('-m', '--move'):
