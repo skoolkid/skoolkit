@@ -604,6 +604,44 @@ file; otherwise it is assumed to be in one of the other supported formats.
 | 1.0.4   | Added the ``-g`` and ``-s`` options                             |
 +---------+-----------------------------------------------------------------+
 
+.. _snapinfo.py:
+
+snapinfo.py
+-----------
+`snapinfo.py` shows information on the registers and RAM in a SNA, SZX or Z80
+snapshot. For example::
+
+  $ snapinfo.py game.z80
+
+To list the options supported by `snapinfo.py`, run it with no arguments::
+
+  usage: snapinfo.py [options] file
+
+  Analyse an SNA, SZX or Z80 snapshot.
+
+  Options:
+    -b, --basic           List the BASIC program
+    -f A[,B...[-N]], --find A[,B...[-N]]
+                          Search for the byte sequence A,B... with distance N
+                          (default=1) between bytes
+    -p A[-B[-C]], --peek A[-B[-C]]
+                          Show the contents of addresses A TO B STEP C; this
+                          option may be used multiple times
+    -t TEXT, --find-text TEXT
+                          Search for a text string
+    -V, --version         Show SkoolKit version number and exit
+
+With no options, `snapinfo.py` displays register values, the interrupt mode,
+and the border colour. By using one of the options shown above, it can list
+the BASIC program (if one is present), show the contents of a range of
+addresses, or search the RAM for a sequence of byte values or a text string.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.3     | New     |
++---------+---------+
+
 .. _tap2sna.py:
 
 tap2sna.py
