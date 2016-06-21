@@ -642,6 +642,46 @@ addresses, or search the RAM for a sequence of byte values or a text string.
 | 5.3     | New     |
 +---------+---------+
 
+.. _snapmod.py:
+
+snapmod.py
+----------
+`snapmod.py` modifies the registers and RAM in a 48K Z80 snapshot. For
+example::
+
+  $ snapmod.py --poke 32768,0 game.z80 poked.z80
+
+To list the options supported by `snapmod.py`, run it with no arguments::
+
+  usage: snapmod.py [options] in.z80 [out.z80]
+
+  Modify a 48K Z80 snapshot.
+
+  Options:
+    -f, --force           Overwrite an existing snapshot.
+    -m src,size,dest, --move src,size,dest
+                          Move a block of bytes of the given size from src to
+                          dest. This option may be used multiple times.
+    -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
+                          POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
+                          with '^' to perform an XOR operation, or '+' to
+                          perform an ADD operation. This option may be used
+                          multiple times.
+    -r name=value, --reg name=value
+                          Set the value of a register. Do '--reg help' for more
+                          information. This option may be used multiple times.
+    -s name=value, --state name=value
+                          Set a hardware state attribute. Do '--state help' for
+                          more information. This option may be used multiple
+                          times.
+    -V, --version         Show SkoolKit version number and exit.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.3     | New     |
++---------+---------+
+
 .. _tap2sna.py:
 
 tap2sna.py

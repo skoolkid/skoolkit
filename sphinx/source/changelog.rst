@@ -6,6 +6,8 @@ Changelog
 * Dropped support for Python 3.2
 * Added the :ref:`snapinfo.py` command (for showing information on the
   registers and RAM in a SNA, SZX or Z80 snapshot)
+* Added the :ref:`snapmod.py` command (for modifying the registers and RAM in a
+  48K Z80 snapshot)
 * Added the :ref:`INCLUDE` macro (which expands to the contents of a ref file
   section)
 * Added the ``--screen`` option to :ref:`bin2tap.py` (for adding a loading
