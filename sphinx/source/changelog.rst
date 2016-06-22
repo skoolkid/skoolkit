@@ -10,6 +10,9 @@ Changelog
   48K Z80 snapshot)
 * Added the :ref:`INCLUDE` macro (which expands to the contents of a ref file
   section)
+* Added the ability to write the HTML disassembly to a single page (by using
+  the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game` section and
+  the :ref:`t_AsmAllInOne` and :ref:`t_asm_entry` templates)
 * Added the ``SectionPrefix`` parameter to the :ref:`page` section (for
   specifying the prefix of the names of ref file sections from which to build
   a 'box page')

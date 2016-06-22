@@ -92,6 +92,26 @@ To see the default ``Asm`` template, run the following command::
 
   $ skool2html.py -r Template:Asm
 
+.. _t_AsmAllInOne:
+
+AsmAllInOne
+-----------
+The ``AsmAllInOne`` template is a full-page template that may be used to build
+a disassembly on a single page (by setting the ``AsmSinglePageTemplate``
+parameter in the :ref:`ref-Game` section).
+
+The following identifier is available (in addition to the universal and
+page-level identifiers):
+
+* ``m_asm_entry`` - replaced by one or more copies of the :ref:`t_asm_entry`
+  subtemplate
+
+To see the default ``AsmAllInOne`` template, run the following command::
+
+  $ skool2html.py -r Template:AsmAllInOne
+
+.. versionadded:: 5.3
+
 .. _t_GameIndex:
 
 GameIndex
@@ -206,6 +226,33 @@ identifiers):
 To see the default ``asm_comment`` template, run the following command::
 
   $ skool2html.py -r Template:asm_comment
+
+.. _t_asm_entry:
+
+asm_entry
+---------
+The ``asm_entry`` template is the subtemplate used by the :ref:`t_AsmAllInOne`
+full-page template to format the disassembly of a memory map entry.
+
+The following identifiers are available (in addition to the universal
+identifiers):
+
+* ``disassembly`` - replaced by sequences of copies of the
+  :ref:`t_asm_instruction` subtemplate, punctuated by copies of the
+  :ref:`t_asm_comment` subtemplate
+* ``entry`` - a dictionary of parameters corresponding to the memory map entry;
+  the parameters in this dictionary are the same as those in the ``entry``
+  dictionary in the :ref:`t_Asm` template
+* ``registers_input`` - replaced by any number of copies of the
+  :ref:`t_asm_register` subtemplate
+* ``registers_output`` - replaced by any number of copies of the
+  :ref:`t_asm_register` subtemplate
+
+To see the default ``asm_entry`` template, run the following command::
+
+  $ skool2html.py -r Template:asm_entry
+
+.. versionadded:: 5.3
 
 .. _t_asm_instruction:
 
