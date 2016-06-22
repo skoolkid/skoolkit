@@ -10,6 +10,9 @@ Changelog
   48K Z80 snapshot)
 * Added the :ref:`INCLUDE` macro (which expands to the contents of a ref file
   section)
+* Added the ``SectionPrefix`` parameter to the :ref:`page` section (for
+  specifying the prefix of the names of ref file sections from which to build
+  a 'box page')
 * Added the ``--screen`` option to :ref:`bin2tap.py` (for adding a loading
   screen to the TAP file)
 * Added the ``--stack`` and ``--start`` options to :ref:`tap2sna.py` (for

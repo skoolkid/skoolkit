@@ -151,7 +151,8 @@ Reference
 ---------
 The ``Reference`` template is the full-page template that is used to build the
 'Bugs', 'Trivia', 'Pokes', 'Glossary', 'Graphic glitches' and 'Changelog'
-pages.
+pages, and also any custom page that uses the ``SectionPrefix`` parameter in
+the :ref:`page` section.
 
 It contains the following identifiers (in addition to the universal and
 page-level identifiers):

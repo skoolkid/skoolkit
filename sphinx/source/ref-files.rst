@@ -662,6 +662,12 @@ Recognised parameters are:
 * ``PageContent`` - the HTML source of the body of the page; this defaults to
   the contents of the corresponding :ref:`pageContent` section, but may be
   specified here if the source can be written on a single line
+* ``SectionPrefix`` - the prefix of the names of the ref file sections from
+  which to build a 'box page' (like the 'Bugs' and 'Trivia' pages); the names
+  of the ref file sections must be in the form ``[prefix:anchor:title]``
+
+Note that the ``Content``, ``SectionPrefix`` and ``PageContent`` parameters are
+mutually exclusive (and that is their order of precedence).
 
 By default, the custom page is written to a file named `PageID.html` in the
 root directory of the disassembly; to change this, add a line to the
@@ -670,8 +676,9 @@ can be defined in the :ref:`titles`, :ref:`pageHeaders` and :ref:`links`
 sections.
 
 Every custom page is built using the :ref:`HTML template <template>` whose name
-matches the page ID, if one exists; otherwise, the stock :ref:`t_Page` template
-is used.
+matches the page ID, if one exists; otherwise, either the :ref:`t_Reference`
+template is used (when ``SectionPrefix`` is defined), or the :ref:`t_Page`
+template is used.
 
 Note that a ``Page:*`` section may be empty; if so, it may be omitted from the
 ref file.
@@ -679,6 +686,8 @@ ref file.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 5.3     | Added the ``SectionPrefix`` parameter                            |
++---------+------------------------------------------------------------------+
 | 3.5     | The ``JavaScript`` parameter specifies the JavaScript file(s) to |
 |         | use                                                              |
 +---------+------------------------------------------------------------------+
