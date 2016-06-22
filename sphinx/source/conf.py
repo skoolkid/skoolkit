@@ -234,6 +234,8 @@ man_pages = [
      u'convert a snapshot into a skool file', _authors, 1),
     ('man/snapinfo.py', 'snapinfo.py',
      u'show information on the registers and RAM in a snapshot file', _authors, 1),
+    ('man/snapmod.py', 'snapmod.py',
+     u'modify a 48K Z80 snapshot', _authors, 1),
     ('man/tap2sna.py', 'tap2sna.py',
      u'convert a TAP or TZX file into a snapshot file', _authors, 1),
     ('man/tapinfo.py', 'tapinfo.py',
