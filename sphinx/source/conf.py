@@ -232,6 +232,8 @@ man_pages = [
      u'convert a skool file into a skool file template', _authors, 1),
     ('man/sna2skool.py', 'sna2skool.py',
      u'convert a snapshot into a skool file', _authors, 1),
+    ('man/snapinfo.py', 'snapinfo.py',
+     u'show information on the registers and RAM in a snapshot file', _authors, 1),
     ('man/tap2sna.py', 'tap2sna.py',
      u'convert a TAP or TZX file into a snapshot file', _authors, 1),
     ('man/tapinfo.py', 'tapinfo.py',
