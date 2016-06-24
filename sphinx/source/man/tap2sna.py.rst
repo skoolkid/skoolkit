@@ -24,6 +24,9 @@ OPTIONS
 -f, --force
   Overwrite an existing snapshot.
 
+-p, --stack `STACK`
+  Set the stack pointer. This option is equivalent to ``--reg sp=STACK``.
+
 --ram OPERATION
   Perform a load, move or poke operation on the memory snapshot being built. Do
   ``--ram help`` for more information, or see the sections on ``LOAD``,
@@ -33,6 +36,10 @@ OPTIONS
 --reg name=value
   Set the value of a register. Do ``--reg help`` for more information, or see
   the section on ``REGISTERS`` below. This option may be used multiple times.
+
+-s, --start `START`
+  Set the start address to JP to. This option is equivalent to
+  ``--reg pc=START``.
 
 --state name=value
   Set a hardware state attribute. Do ``--state help`` for more information, or
