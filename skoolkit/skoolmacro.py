@@ -66,7 +66,7 @@ RE_LINK_PARAMS = re.compile('[^(\s]+')
 
 RE_PARAM_NAME = re.compile('\s*{}\s*='.format(PARAM_NAME))
 
-RE_REGISTER = re.compile("(af?|bc?|c|de?|e|hl?|l)'?|i[xy][lh]?|i|pc|r|sp")
+RE_REGISTER = re.compile("(af?|f|bc?|c|de?|e|hl?|l)'?|i[xy][lh]?|i|pc|r|sp")
 
 class UnsupportedMacroError(SkoolKitError):
     pass

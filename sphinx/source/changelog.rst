@@ -20,6 +20,7 @@ Changelog
   screen to the TAP file)
 * Added the ``--stack`` and ``--start`` options to :ref:`tap2sna.py` (for
   specifying the stack and start addresses)
+* Added support to the :ref:`REG` macro for the F and F' registers
 * Removed the Spectrum ROM disassembly from the SkoolKit distribution; it is
   now being developed separately `here <https://github.com/skoolkid/rom>`__
 

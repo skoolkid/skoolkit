@@ -898,7 +898,7 @@ class CommonSkoolMacroTest:
         template = '<span class="register">{}</span>' if writer.needs_cwd() else '{}'
 
         # Upper case, all registers
-        for reg in ('a', 'b', 'c', 'd', 'e', 'h', 'l', "a'", "b'", "c'", "d'", "e'", "h'", "l'", 'af', 'bc', 'de', 'hl',
+        for reg in ('a', 'b', 'c', 'd', 'e', 'f', 'h', 'l', "a'", "b'", "c'", "d'", "e'", "f'", "h'", "l'", 'af', 'bc', 'de', 'hl',
                     "af'", "bc'", "de'", "hl'", 'ix', 'iy', 'ixh', 'iyh', 'ixl', 'iyl', 'i', 'r', 'sp', 'pc'):
             output = writer.expand('#REG{}'.format(reg))
             self.assertEqual(output, template.format(reg.upper()))

@@ -900,8 +900,8 @@ In ASM mode, the ``#REG`` macro expands to the name of the register.
 
 The register name must be one of the following::
 
-  a b c d e h l
-  a' b' c' d' e' h' l'
+  a b c d e f h l
+  a' b' c' d' e' f' h' l'
   af bc de hl
   af' bc' de' hl'
   ix iy ixh iyh ixl iyl
@@ -917,6 +917,8 @@ For example:
 +---------+-----------------------------------------------------+
 | Version | Changes                                             |
 +=========+=====================================================+
+| 5.3     | Added support for the F and F' registers            |
++---------+-----------------------------------------------------+
 | 5.1     | The ``reg`` parameter must be a valid register name |
 +---------+-----------------------------------------------------+
 
