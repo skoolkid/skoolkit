@@ -33,6 +33,10 @@ OPTIONS
 -s, --start `START`
   Set the start address to JP to; the default start address is `ORG`.
 
+-S, --screen `FILE`
+  Add a loading screen to the TAP file. `FILE` may be a snapshot or a 6912-byte
+  SCR file.
+
 -t, --tapfile `TAPFILE`
   Set the TAP filename. If reading from standard input, the default filename is
   'program.tap'; otherwise it is the basename of FILE with the '.bin', '.sna',
