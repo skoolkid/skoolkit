@@ -7,6 +7,7 @@ SkoolKit manual
    whatis
    usage
    diy
+   commands
    assemblers
    migration
    changelog
@@ -17,7 +18,6 @@ Technical reference
 .. toctree::
    :maxdepth: 1
 
-   commands
    parsing
    control-files
    skool-files
