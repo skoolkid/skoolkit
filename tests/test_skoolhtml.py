@@ -1465,7 +1465,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         # Non-existent reference
         prefix = ERROR_PREFIX.format('R')
-        self._assert_error(writer, '#R$ABCD', 'Could not find routine file containing $ABCD', prefix)
+        self._assert_error(writer, '#R$ABCD', 'Could not find instruction at $ABCD', prefix)
 
     def test_macro_r_asm_single_page(self):
         ref = '[Game]\nAsmSinglePageTemplate=AsmAllInOne'
