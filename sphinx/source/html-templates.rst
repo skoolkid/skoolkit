@@ -43,7 +43,7 @@ Asm
 The ``Asm`` template is the full-page template that is used to build
 disassembly pages.
 
-It contains the following identifiers (in addition to the universal and
+The following identifiers are available (in addition to the universal and
 page-level identifiers):
 
 * ``disassembly`` - replaced by sequences of copies of the
@@ -119,7 +119,7 @@ GameIndex
 The ``GameIndex`` template is the full-page template that is used to build the
 disassembly index page.
 
-It contains the following identifier (in addition to the universal and
+The following identifier is available (in addition to the universal and
 page-level identifiers):
 
 * ``m_index_section`` - replaced by any number of copies of the
@@ -136,7 +136,7 @@ MemoryMap
 The ``MemoryMap`` template is the full-page template that is used to build
 memory map pages and the 'Game status buffer' page.
 
-It contains the following identifiers (in addition to the universal and
+The following identifiers are available (in addition to the universal and
 page-level identifiers):
 
 * ``MemoryMap`` - a dictionary of the parameters in the corresponding
@@ -155,7 +155,7 @@ Page
 The ``Page`` template is the full-page template that is used to build custom
 pages defined by :ref:`page` and :ref:`pageContent` sections.
 
-It contains the following identifier (in addition to the universal and
+The following identifier is available (in addition to the universal and
 page-level identifiers):
 
 * ``content`` - replaced by the value of the ``PageContent`` parameter in the
@@ -174,7 +174,7 @@ The ``Reference`` template is the full-page template that is used to build the
 pages, and also any custom page that uses the ``SectionPrefix`` parameter in
 the :ref:`page` section.
 
-It contains the following identifiers (in addition to the universal and
+The following identifiers are available (in addition to the universal and
 page-level identifiers):
 
 * ``entries`` - replaced by one or more copies of the :ref:`t_changelog_entry`
@@ -195,7 +195,7 @@ anchor
 The ``anchor`` template is the subtemplate used to format a page anchor (by
 default, a ``<span>`` element with an ``id`` attribute).
 
-It contains the following identifier (in addition to the universal
+The following identifier is available (in addition to the universal
 identifiers):
 
 * ``anchor`` - the value of the ``id`` attribute
@@ -209,10 +209,10 @@ To see the default ``anchor`` template, run the following command::
 asm_comment
 -----------
 The ``asm_comment`` template is the subtemplate used by the :ref:`t_Asm`
-full-page template to format block start comments, mid-block comments and block
-end comments.
+full-page template and the :ref:`t_asm_entry` subtemplate to format block start
+comments, mid-block comments and block end comments.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``entry`` - a dictionary of parameters corresponding to the current memory
@@ -259,10 +259,10 @@ To see the default ``asm_entry`` template, run the following command::
 asm_instruction
 ---------------
 The ``asm_instruction`` template is the subtemplate used by the :ref:`t_Asm`
-full-page template to format an instruction (including its label, address,
-operation and comment).
+full-page template and the :ref:`t_asm_entry` subtemplate to format an
+instruction (including its label, address, operation and comment).
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``address`` - the address of the instruction (may be in decimal or
@@ -289,10 +289,10 @@ To see the default ``asm_instruction`` template, run the following command::
 asm_register
 ------------
 The ``asm_register`` template is the subtemplate used by the :ref:`t_Asm`
-full-page template to format each row in a table of input register values or
-output register values.
+full-page template and the :ref:`t_asm_entry` subtemplate to format each row in
+a table of input register values or output register values.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``description`` - the register's description (as it appears in the register
@@ -312,7 +312,7 @@ changelog_entry
 The ``changelog_entry`` is the subtemplate used by the :ref:`t_Reference`
 full-page template to format each entry on the 'Changelog' page.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``description`` - the changelog entry intro text
@@ -336,7 +336,7 @@ The ``changelog_item_list`` template is the subtemplate used by the
 also by the ``changelog_item`` or :ref:`t_list_item` subtemplate to format a
 list of subitems or subsubitems etc.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``indent`` - the indentation level of the item list: '' (blank string) for
@@ -360,7 +360,7 @@ The ``contents_list_item`` template is the subtemplate used by the
 on the 'Bugs', 'Trivia', 'Pokes', 'Glossary', 'Graphic glitches' and
 'Changelog' pages.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``href`` - the URL to the entry on the page
@@ -389,7 +389,7 @@ img
 ---
 The ``img`` template is the subtemplate used to format ``<img>`` elements.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``alt`` - the 'alt' text for the image
@@ -407,7 +407,7 @@ The ``index_section`` template is the subtemplate used by the
 :ref:`t_GameIndex` full-page template to format each group of links on the
 disassembly index page.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``header`` - the header text for the group of links (as defined in the name
@@ -427,7 +427,7 @@ The ``index_section_item`` template is the subtemplate used by the
 :ref:`t_index_section` subtemplate to format each link in a link group on the
 disassembly index page.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``href`` - the relative path to the page being linked to
@@ -448,7 +448,7 @@ javascript
 The ``javascript`` template is the subtemplate used by the full-page templates
 to format each ``<script>`` element in the head of a page.
 
-It contains the following identifier (in addition to the universal
+The following identifier is available (in addition to the universal
 identifiers):
 
 * ``src`` - the relative path to the JavaScript file
@@ -465,7 +465,7 @@ The ``link`` template is the subtemplate used to format the hyperlinks created
 by the :ref:`BUG`, :ref:`FACT`, :ref:`POKE`, :ref:`LINK` and :ref:`R` macros,
 and the hyperlinks in instruction operands on disassembly pages.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``href`` - the relative path to the page being linked to
@@ -481,7 +481,7 @@ list
 ----
 The ``list`` template is used by the :ref:`LIST` macro to format a list.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``class`` - the CSS class name for the list
@@ -503,7 +503,7 @@ template to format each item in the list, and also by the
 :ref:`t_changelog_item_list` subtemplate to format each item in a changelog
 item list.
 
-It contains the following identifier (in addition to the universal
+The following identifier is available (in addition to the universal
 identifiers):
 
 * ``item`` - replaced by the text of the list item
@@ -522,7 +522,7 @@ The ``map_entry`` template is the subtemplate used by the :ref:`t_MemoryMap`
 full-page template to format each entry on the memory map pages and the 'Game
 status buffer' page.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``MemoryMap`` - a dictionary of parameters from the corresponding
@@ -564,7 +564,7 @@ the following items:
 * entries on the 'Bugs', 'Trivia', 'Pokes', 'Glossary', 'Graphic glitches' and
   'Changelog' pages
 
-It contains the following identifier (in addition to the universal
+The following identifier is available (in addition to the universal
 identifiers):
 
 * ``paragraph`` - the text of the paragraph
@@ -581,7 +581,7 @@ The ``reference_entry`` template is the subtemplate used by the
 :ref:`t_Reference` full-page template to format each entry on the 'Bugs',
 'Trivia', 'Pokes', 'Glossary' and 'Graphic glitches' pages.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``contents`` - replaced by the pre-formatted contents of the relevant
@@ -601,7 +601,7 @@ reg
 The ``reg`` template is the subtemplate used by the :ref:`REG` macro to format
 a register name.
 
-It contains the following identifier (in addition to the universal
+The following identifier is available (in addition to the universal
 identifiers):
 
 * ``reg`` - the register name (e.g. 'HL')
@@ -617,7 +617,7 @@ stylesheet
 The ``stylesheet`` template is the subtemplate used by the full-page templates
 to format each ``<link>`` element for a CSS file in the head of a page.
 
-It contains the following identifier (in addition to the universal
+The following identifier is available (in addition to the universal
 identifiers):
 
 * ``href`` - the relative path to the CSS file
@@ -632,7 +632,7 @@ table
 -----
 The ``table`` template is used by the :ref:`TABLE` macro to format a table.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``class`` - the CSS class name for the table
@@ -652,7 +652,7 @@ table_cell
 The ``table_cell`` template is the subtemplate used by the :ref:`t_table_row`
 template to format each non-header cell in the table row.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``class`` - the CSS class name for the cell
@@ -673,7 +673,7 @@ table_header_cell
 The ``table_header_cell`` template is the subtemplate used by the
 :ref:`t_table_row` template to format each header cell in the table row.
 
-It contains the following identifiers (in addition to the universal
+The following identifiers are available (in addition to the universal
 identifiers):
 
 * ``colspan`` - the number of columns spanned by the cell
@@ -693,7 +693,7 @@ table_row
 The ``table_row`` template is the subtemplate used by the :ref:`t_table`
 template to format each row in the table.
 
-It contains the following identifier (in addition to the universal
+The following identifier is available (in addition to the universal
 identifiers):
 
 * ``cells`` - replaced by one or more copies of the :ref:`t_table_cell` or
