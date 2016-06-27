@@ -165,7 +165,7 @@ class HtmlWriter:
             self.titles.setdefault(index_page_id, c_id)
             code_path_id = code['CodePathId'] = '{}-CodePath'.format(c_id)
             self.paths.setdefault(code_path_id, c_id)
-            asm_single_page_id = '{}-{}'.format(c_id, P_ASM_SINGLE_PAGE)
+            asm_single_page_id = code['AsmSinglePageId'] = '{}-{}'.format(c_id, P_ASM_SINGLE_PAGE)
             self.paths.setdefault(asm_single_page_id, '{}/asm.html'.format(c_id))
             self.titles.setdefault(asm_single_page_id, c_id)
             if not self.asm_single_page_template:

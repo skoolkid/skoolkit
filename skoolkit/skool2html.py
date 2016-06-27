@@ -281,7 +281,11 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
 
     # Write disassembly files
     if 'd' in files:
-        clock(html_writer.write_asm_entries, '  Writing disassembly files in {}'.format(normpath(game_dir, html_writer.code_path)))
+        if html_writer.asm_single_page_template:
+            message = 'Writing {}'.format(normpath(game_dir, paths['AsmSinglePage']))
+        else:
+            message = 'Writing disassembly files in {}'.format(normpath(game_dir, html_writer.code_path))
+        clock(html_writer.write_asm_entries, '  ' + message)
 
     # Write the memory map files
     if 'm' in files:
@@ -319,7 +323,11 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
             map_path = paths[map_name]
             asm_path = paths[code['CodePathId']]
             clock(html_writer2.write_map, '    Writing {}'.format(normpath(game_dir, map_path)), map_name)
-            clock(html_writer2.write_entries, '    Writing disassembly files in {}'.format(normpath(game_dir, asm_path)), asm_path, map_path)
+            if html_writer.asm_single_page_template:
+                message = 'Writing {}'.format(normpath(game_dir, paths[code['AsmSinglePageId']]))
+            else:
+                message = 'Writing disassembly files in {}'.format(normpath(game_dir, asm_path))
+            clock(html_writer2.write_entries, '    ' + message, asm_path, map_path)
 
     # Write index.html
     if 'i' in files:

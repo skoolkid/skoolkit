@@ -89,6 +89,9 @@ class MockSkoolParser:
     def make_replacements(self, item):
         pass
 
+    def clone(self, skoolfile):
+        return self
+
 class Skool2HtmlTest(SkoolKitTestCase):
     def setUp(self):
         global html_writer
@@ -584,6 +587,32 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.write_text_file(path=path)
         with self.assertRaisesRegexp(SkoolKitError, 'Cannot copy {0} to {1}: {1} is not a directory'.format(resource, dest_dir)):
             self.run_skool2html('-d {} {}'.format(self.odir, reffile))
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_single_page_disassembly(self):
+        reffile = self.write_text_file("[Game]\nAsmSinglePageTemplate=AsmAllInOne", suffix='.ref')
+        prefix = reffile[:-4]
+        self.write_text_file(path='{}.skool'.format(prefix))
+        output, error = self.run_skool2html('-d {} {}'.format(self.odir, reffile))
+        self.assertEqual(error, '')
+        self.assertEqual(output[5], '  Writing {}/asm.html'.format(os.path.basename(prefix)))
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_single_page_disassembly_other_code(self):
+        ref = '\n'.join((
+            '[Game]',
+            'AsmSinglePageTemplate=AsmAllInOne',
+            '[OtherCode:start]',
+            'Source={}'.format(self.write_text_file(suffix='.skool'))
+        ))
+        reffile = self.write_text_file(ref, suffix='.ref')
+        prefix = reffile[:-4]
+        self.write_text_file(path='{}.skool'.format(prefix))
+        output, error = self.run_skool2html('-d {} {}'.format(self.odir, reffile))
+        self.assertEqual(error, '')
+        self.assertEqual(output[8], '    Writing {}/start/asm.html'.format(os.path.basename(prefix)))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
