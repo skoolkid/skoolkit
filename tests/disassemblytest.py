@@ -35,11 +35,12 @@ def _read_files(root_dir):
     for root, dirs, files in os.walk(root_dir):
         dirs[:] = [d for d in dirs if d != '.git']
         for f in files:
-            fname = os.path.join(root, f)
-            all_files[fname] = (set(), set())
-            if f.endswith('.html'):
-                doc = parse(fname)
-                _find_ids_and_hrefs(doc.documentElement.childNodes, *all_files[fname])
+            if f != '.gitlab-ci.yml':
+                fname = os.path.join(root, f)
+                all_files[fname] = (set(), set())
+                if f.endswith('.html'):
+                    doc = parse(fname)
+                    _find_ids_and_hrefs(doc.documentElement.childNodes, *all_files[fname])
     return all_files
 
 def check_links(root_dir):

@@ -200,6 +200,9 @@ update_ghpages() {
   cd $ghrepo
   git checkout -q gh-pages
   rsync -r $htmldir/ .
+  cd ..
+  _exec "Checking links" "$SKOOLKIT_TOOLS/check-links.py $ghrepo" $BUILD/$GAME-links.log
+  cd $ghrepo
   echo
   git status -bs
   cat <<EOM
