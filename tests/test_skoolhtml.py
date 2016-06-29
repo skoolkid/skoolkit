@@ -1467,6 +1467,9 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         prefix = ERROR_PREFIX.format('R')
         self._assert_error(writer, '#R$ABCD', 'Could not find instruction at $ABCD', prefix)
 
+        # Explicit code ID and non-existent reference
+        self._assert_error(writer, '#R$ABCD@main', 'Could not find instruction at $ABCD', prefix)
+
     def test_macro_r_asm_single_page(self):
         ref = '[Game]\nAsmSinglePageTemplate=AsmAllInOne'
         skool = 'c40000 RET'

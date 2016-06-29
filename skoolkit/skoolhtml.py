@@ -1364,7 +1364,7 @@ class HtmlWriter:
         else:
             code_path = self.code_path
         container = self.parser.get_container(address, code_id)
-        if not code_id and not container:
+        if (not code_id or code_id == self.code_id) and not container:
             raise MacroParsingError('Could not find instruction at {}'.format(addr_str))
         if self.asm_single_page_template:
             href = self._asm_relpath(cwd, address, code_id)
