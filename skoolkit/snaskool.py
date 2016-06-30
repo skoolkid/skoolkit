@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -955,7 +955,10 @@ class SkoolWriter:
             start = text.find('{ ', index)
             if start < 0:
                 break
-            end = text.index(' }', start)
+            try:
+                end = text.index(' }', start)
+            except ValueError:
+                raise SkoolKitError("No closing ' }}' on row/item: {}...".format(text[start:start + 15]))
             index = end + 2
             indexes.append(index)
 

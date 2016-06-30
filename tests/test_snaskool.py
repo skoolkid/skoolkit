@@ -1346,6 +1346,16 @@ class SkoolWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolKitError, re.escape("No end marker found: #TABLE { this table h...")):
             writer.write_skool(0, False)
 
+    def test_no_table_row_end_marker(self):
+        ctl = '\n'.join((
+            'b 00000',
+            'D 00000 #TABLE { this row has no end marker} TABLE#',
+            'i 00001'
+        ))
+        writer = self._get_writer([0], ctl)
+        with self.assertRaisesRegexp(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
+            writer.write_skool(0, False)
+
     def test_no_udgtable_end_marker(self):
         ctl = '\n'.join((
             'b 00000',
@@ -1356,6 +1366,16 @@ class SkoolWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolKitError, re.escape("No end marker found: #UDGTABLE { this table h...")):
             writer.write_skool(0, False)
 
+    def test_no_udgtable_row_end_marker(self):
+        ctl = '\n'.join((
+            'b 00000',
+            'D 00000 #UDGTABLE { this row has no end marker} UDGTABLE#',
+            'i 00001'
+        ))
+        writer = self._get_writer([0], ctl)
+        with self.assertRaisesRegexp(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
+            writer.write_skool(0, False)
+
     def test_no_list_end_marker(self):
         ctl = '\n'.join((
             'b 00000',
@@ -1364,6 +1384,16 @@ class SkoolWriterTest(SkoolKitTestCase):
         ))
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegexp(SkoolKitError, re.escape("No end marker found: #LIST { this list ha...")):
+            writer.write_skool(0, False)
+
+    def test_no_list_item_end_marker(self):
+        ctl = '\n'.join((
+            'b 00000',
+            'D 00000 #LIST { this item has no end marker} LIST#',
+            'i 00001'
+        ))
+        writer = self._get_writer([0], ctl)
+        with self.assertRaisesRegexp(SkoolKitError, re.escape("No closing ' }' on row/item: { this item has...")):
             writer.write_skool(0, False)
 
     def test_ignoreua_directives(self):
