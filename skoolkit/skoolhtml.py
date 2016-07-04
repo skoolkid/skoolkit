@@ -673,7 +673,11 @@ class HtmlWriter:
         fname = self.paths[page_id]
         cwd = self._set_cwd(page_id, fname)
         entries_html = []
-        for i, (anchor, title, paragraphs) in enumerate(entries):
+        for i, entry in enumerate(entries):
+            try:
+                anchor, title, paragraphs = entry
+            except ValueError:
+                raise SkoolKitError("{} page: No title for item with anchor '{}'".format(page_id, entry[0]))
             t_reference_entry_subs = {
                 't_anchor': self.format_anchor(anchor),
                 'num': 1 + i % 2,

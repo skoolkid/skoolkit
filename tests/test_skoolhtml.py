@@ -5048,6 +5048,18 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
+    def test_write_page_with_section_prefix_and_malformed_section_name(self):
+        page_id = 'Custom'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'SectionPrefix={0}',
+            '[{0}:item1]',
+            'This is an item.'
+        )).format(page_id)
+        writer = self._get_writer(ref=ref, skool='')
+        with self.assertRaisesRegexp(SkoolKitError, "{} page: No title for item with anchor 'item1'".format(page_id)):
+            writer.write_page(page_id)
+
     def test_write_bugs(self):
         ref = '\n'.join((
             '[Bug:b1:Showstopper]',
@@ -5094,6 +5106,15 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref, skool='')
         writer.write_bugs()
         self._assert_title_equals(path, title, header)
+
+    def test_write_bugs_with_malformed_section_name(self):
+        ref = '\n'.join((
+            '[Bug:bug1]',
+            'This is a bug.'
+        ))
+        writer = self._get_writer(ref=ref, skool='')
+        with self.assertRaisesRegexp(SkoolKitError, "Bugs page: No title for item with anchor 'bug1'"):
+            writer.write_bugs()
 
     def test_write_facts(self):
         ref = '\n'.join((
@@ -5153,6 +5174,15 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer.write_facts()
         self._assert_title_equals(path, title, header)
 
+    def test_write_facts_with_malformed_section_name(self):
+        ref = '\n'.join((
+            '[Fact:fact1]',
+            'This is a fact.'
+        ))
+        writer = self._get_writer(ref=ref, skool='')
+        with self.assertRaisesRegexp(SkoolKitError, "Facts page: No title for item with anchor 'fact1'"):
+            writer.write_facts()
+
     def test_write_pokes(self):
         html = """
             <ul class="contents">
@@ -5192,6 +5222,15 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer.write_pokes()
         self._assert_title_equals(path, title, header)
 
+    def test_write_pokes_with_malformed_section_name(self):
+        ref = '\n'.join((
+            '[Poke:poke1]',
+            'This is a POKE.'
+        ))
+        writer = self._get_writer(ref=ref, skool='')
+        with self.assertRaisesRegexp(SkoolKitError, "Pokes page: No title for item with anchor 'poke1'"):
+            writer.write_pokes()
+
     def test_write_graphic_glitches(self):
         ref = '[GraphicGlitch:g0:Wrong arms]\nHello.'
         content = """
@@ -5230,6 +5269,15 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer = self._get_writer(ref=ref, skool='')
         writer.write_graphic_glitches()
         self._assert_title_equals(path, title, header)
+
+    def test_write_graphic_glitches_with_malformed_section_name(self):
+        ref = '\n'.join((
+            '[GraphicGlitch:glitch1]',
+            'This is a graphic glitch.'
+        ))
+        writer = self._get_writer(ref=ref, skool='')
+        with self.assertRaisesRegexp(SkoolKitError, "GraphicGlitches page: No title for item with anchor 'glitch1'"):
+            writer.write_graphic_glitches()
 
     def test_write_gsb_page(self):
         skool = '\n'.join((
