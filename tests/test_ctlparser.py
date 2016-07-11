@@ -1012,6 +1012,26 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(['Paragraph 1.', 'Paragraph 2.'], sub_blocks[0].header)
         self.assertEqual(['Mid-routine comment.'], sub_blocks[1].header)
 
+    def test_M_directive_terminates_previous_sub_block(self):
+        ctl = '\n'.join((
+            'c 65533',
+            '  65533 This sub-block is terminated by the following M directive',
+            'M 65534,2 This spans an implicit "C" sub-block and a "B" sub-block',
+            'B 65535,1'
+        ))
+        ctl_parser = self._get_ctl_parser(ctl)
+        blocks = ctl_parser.get_blocks()
+
+        self.assertEqual(len(blocks), 1)
+        sub_blocks = blocks[0].blocks
+        exp_subctls = {
+            65533: ('c', 'This sub-block is terminated by the following M directive', None),
+            65534: ('c', '', (65536, 'This spans an implicit "C" sub-block and a "B" sub-block')),
+            65535: ('b', '', None)
+        }
+        subctls = {b.start:(b.ctl, b.comment, b.multiline_comment) for b in sub_blocks}
+        self.assertEqual(exp_subctls, subctls)
+
     def test_loop(self):
         start = 30000
         length = 25

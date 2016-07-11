@@ -2026,6 +2026,25 @@ class SkoolWriterTest(SkoolKitTestCase):
         ]
         self._test_write_skool(snapshot, ctl, exp_skool, write_refs=1)
 
+    def test_M_directive_terminates_previous_sub_block(self):
+        snapshot = [120, 207, 2]
+        ctl = '\n'.join((
+            'c 00000',
+            '  00000 This sub-block is terminated by the M directive',
+            'M 00001,2 This spans an implicit "C" sub-block and a "B" sub-block',
+            'B 00002,1',
+            'i 00003'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            'c00000 LD A,B        ; This sub-block is terminated by the M directive',
+            ' 00001 RST 8         ; {This spans an implicit "C" sub-block and a "B"',
+            ' 00002 DEFB 2        ; sub-block}'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
 class CtlWriterTest(SkoolKitTestCase):
     def test_decimal_addresses_below_10000(self):
         ctls = {0: 'b', 1: 'c', 22: 't', 333: 'w', 4444: 's'}
