@@ -19,7 +19,7 @@
 
 import re
 
-from skoolkit import get_word
+from skoolkit.numberutils import get_number
 
 TOKENS = {
     165: 'RND',
@@ -147,24 +147,10 @@ class BasicLister:
             return self._get_char(code)
         return self._get_token(code)
 
-    def _get_number(self, i):
-        if self.snapshot[i + 1] == 0:
-            # Small integer (unsigned)
-            num = get_word(self.snapshot, i + 3)
-        else:
-            # Floating point number (unsigned)
-            exponent = self.snapshot[i + 1] - 160
-            mantissa = float(16777216 * (self.snapshot[i + 2] | 128)
-                             + 65536 * self.snapshot[i + 3]
-                             + 256 * self.snapshot[i + 4]
-                             + self.snapshot[i + 5])
-            num = mantissa * (2 ** exponent)
-        return num
-
     def _get_fp_num(self, i):
         num_str = self._get_num_str(i - 1)
         if num_str:
-            num = self._get_number(i)
+            num = get_number(self.snapshot, i)
             if num and abs(1 - float(num_str) / num) > 1e-9:
                 return '{{{}}}'.format(num)
         return ''
