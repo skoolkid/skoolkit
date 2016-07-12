@@ -20,15 +20,15 @@
 from skoolkit import get_word
 
 def get_number(snapshot, i):
-    if snapshot[i + 1] == 0:
+    if snapshot[i] == 0:
         # Small integer (unsigned)
-        num = get_word(snapshot, i + 3)
+        num = get_word(snapshot, i + 2)
     else:
         # Floating point number (unsigned)
-        exponent = snapshot[i + 1] - 160
-        mantissa = float(16777216 * (snapshot[i + 2] | 128)
-                         + 65536 * snapshot[i + 3]
-                         + 256 * snapshot[i + 4]
-                         + snapshot[i + 5])
+        exponent = snapshot[i] - 160
+        mantissa = float(16777216 * (snapshot[i + 1] | 128)
+                         + 65536 * snapshot[i + 2]
+                         + 256 * snapshot[i + 3]
+                         + snapshot[i + 4])
         num = mantissa * (2 ** exponent)
     return num
