@@ -22,13 +22,20 @@ from skoolkit import get_word
 def get_number(snapshot, i):
     if snapshot[i] == 0:
         # Small integer (unsigned)
-        num = get_word(snapshot, i + 2)
+        num = _get_integer(snapshot, i)
     else:
         # Floating point number (unsigned)
-        exponent = snapshot[i] - 160
-        mantissa = float(16777216 * (snapshot[i + 1] | 128)
-                         + 65536 * snapshot[i + 2]
-                         + 256 * snapshot[i + 3]
-                         + snapshot[i + 4])
-        num = mantissa * (2 ** exponent)
+        num = _get_float(snapshot, i)
+    return num
+
+def _get_integer(snapshot, i):
+    return get_word(snapshot, i + 2)
+
+def _get_float(snapshot, i):
+    exponent = snapshot[i] - 160
+    mantissa = float(16777216 * (snapshot[i + 1] | 128)
+                     + 65536 * snapshot[i + 2]
+                     + 256 * snapshot[i + 3]
+                     + snapshot[i + 4])
+    num = mantissa * (2 ** exponent)
     return num
