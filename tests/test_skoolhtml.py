@@ -4732,6 +4732,20 @@ class HtmlOutputTest(HtmlWriterTestCase):
 
     def test_write_changelog(self):
         ref = '\n'.join((
+            '[Changelog:20120706]',
+            '-',
+            '',
+            'There are blank lines...',
+            '',
+            '...between these...',
+            '',
+            '...top-level items',
+            '[Changelog:20120705]',
+            '-',
+            '',
+            'There are no blank lines...',
+            '...between these...',
+            '...top-level items',
             '[Changelog:20120704]',
             'Documented many #BUG(bugs).',
             '',
@@ -4740,21 +4754,46 @@ class HtmlOutputTest(HtmlWriterTestCase):
             '    3',
             '    4',
             '  5',
+            '',
+            '6',
             '[Changelog:20120703]',
             '-',
             '',
             '1',
             '  2',
             '    3',
+            '4',
             '[Changelog:20120702]',
             'Initial release'
         ))
         content = """
             <ul class="contents">
+            <li><a href="#20120706">20120706</a></li>
+            <li><a href="#20120705">20120705</a></li>
             <li><a href="#20120704">20120704</a></li>
             <li><a href="#20120703">20120703</a></li>
             <li><a href="#20120702">20120702</a></li>
             </ul>
+            <div><span id="20120706"></span></div>
+            <div class="changelog changelog-1">
+            <div class="changelog-title">20120706</div>
+            <div class="changelog-desc"></div>
+            <ul class="changelog">
+            <li>There are blank lines...</li>
+            <li>...between these...</li>
+            <li>...top-level items</li>
+            </ul>
+            </div>
+            <div><span id="20120705"></span></div>
+            <div class="changelog changelog-2">
+            <div class="changelog-title">20120705</div>
+            <div class="changelog-desc"></div>
+            <ul class="changelog">
+            <li>There are no blank lines...</li>
+            <li>...between these...</li>
+            <li>...top-level items</li>
+            </ul>
+            </div>
             <div><span id="20120704"></span></div>
             <div class="changelog changelog-1">
             <div class="changelog-title">20120704</div>
@@ -4771,6 +4810,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <li>5</li>
             </ul>
             </li>
+            <li>6</li>
             </ul>
             </div>
             <div><span id="20120703"></span></div>
@@ -4787,6 +4827,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </li>
             </ul>
             </li>
+            <li>4</li>
             </ul>
             </div>
             <div><span id="20120702"></span></div>
