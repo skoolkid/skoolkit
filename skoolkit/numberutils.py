@@ -21,7 +21,7 @@ from skoolkit import get_word
 
 def get_number(snapshot, i):
     if snapshot[i] == 0:
-        # Small integer (unsigned)
+        # Small integer (signed)
         num = _get_integer(snapshot, i)
     else:
         # Floating point number (unsigned)
@@ -29,7 +29,22 @@ def get_number(snapshot, i):
     return num
 
 def _get_integer(snapshot, i):
-    return get_word(snapshot, i + 2)
+    # See ZX Spectrum ROM routine INT_FETCH at 0x2D7F
+    sign = snapshot[i + 1]
+    lsb = (snapshot[i + 2] ^ sign) - sign
+    if (lsb < 0):
+        lsb += 256
+        carry = 1
+    else:
+        carry = 0
+
+    msb = ((snapshot[i + 3] + sign + carry) & 255) ^ sign
+
+    num = 256 * msb + lsb
+    if ((sign & 128) != 0):
+        num *= -1
+
+    return num
 
 def _get_float(snapshot, i):
     exponent = snapshot[i] - 160

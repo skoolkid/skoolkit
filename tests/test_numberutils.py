@@ -6,7 +6,11 @@ from skoolkit.numberutils import get_number
 
 TEST_NUMBERS = (
     # kwargs, result
-    ({'snapshot': [0, 0, 210, 4, 0], 'i': 0}, 1234), # Positive integer
+    ({'snapshot': [0, 0, 210, 4, 0], 'i': 0},   1234), # Positive integer
+    ({'snapshot': [0, 255, 207, 43, 0], 'i': 0}, -54321), # Negative integer
+    ({'snapshot': [0, 127, 53, 179, 0], 'i': 0},  19659), # Positive integer, non-conforming sign byte
+    ({'snapshot': [0, 128, 53, 179, 0], 'i': 0}, -45877), # Negative integer, non-conforming sign byte
+    ({'snapshot': [0, 0, 0, 1, 1, 0], 'i': 1}, 257), # Positive integer, offset 1
 )
 
 class NumberUtilsTest(SkoolKitTestCase):
