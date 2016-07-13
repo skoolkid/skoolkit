@@ -48,6 +48,11 @@ class SnapinfoTest(SkoolKitTestCase):
         ram[7371:7371 + len(data)] = data
         self._test_sna(ram, exp_output, ('-b', '--basic')[option])
 
+    def _test_bad_spec(self, option, bad_spec, exp_error):
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_snapinfo('{} {} test.sna'.format(option, bad_spec))
+        self.assertEqual(cm.exception.args[0], '{}: {}'.format(exp_error, bad_spec))
+
     def test_no_arguments(self):
         output, error = self.run_snapinfo(catch_exit=2)
         self.assertEqual(len(output), 0)
@@ -509,6 +514,13 @@ class SnapinfoTest(SkoolKitTestCase):
             '50998 C736:  54  36  00110110  6'
         ]
         self._test_sna(ram, exp_output, ' '.join(options))
+
+    def test_option_peek_with_invalid_address_range(self):
+        exp_error = 'Invalid address range'
+        self._test_bad_spec('--peek', 'X', exp_error)
+        self._test_bad_spec('-p', '32768-?', exp_error)
+        self._test_bad_spec('--peek', '32768-32868-q', exp_error)
+        self._test_bad_spec('-p', '32768-32868-2-3', exp_error)
 
     def test_option_t_with_single_occurrence(self):
         ram = [0] * 49152

@@ -382,18 +382,15 @@ def _find_text(infile, text):
             print("{0}-{1} {0:04X}-{1:04X}: {2}".format(a, a + size - 1, text))
 
 def _peek(infile, specs):
-    snapshot = get_snapshot(infile)
+    addr_ranges = []
     for addr_range in specs:
-        step = 1
-        if '-' in addr_range:
-            addr1, addr2 = addr_range.split('-', 1)
-            addr1 = get_int_param(addr1)
-            if '-' in addr2:
-                addr2, step = [get_int_param(i) for i in addr2.split('-', 1)]
-            else:
-                addr2 = get_int_param(addr2)
-        else:
-            addr1 = addr2 = get_int_param(addr_range)
+        try:
+            values = [get_int_param(i) for i in addr_range.split('-', 2)]
+        except ValueError:
+            raise SkoolKitError('Invalid address range: {}'.format(addr_range))
+        addr_ranges.append(values + [values[0], 1][len(values) - 1:])
+    snapshot = get_snapshot(infile)
+    for addr1, addr2, step in addr_ranges:
         for a in range(addr1, addr2 + 1, step):
             value = snapshot[a]
             if 32 <= value <= 126:
