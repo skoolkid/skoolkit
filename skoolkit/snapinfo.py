@@ -366,7 +366,10 @@ def _find(infile, byte_seq):
     if '-' in byte_seq:
         byte_seq, step = byte_seq.split('-', 1)
         step = get_int_param(step)
-    byte_values = [get_int_param(i) for i in byte_seq.split(',')]
+    try:
+        byte_values = [get_int_param(i) for i in byte_seq.split(',')]
+    except ValueError:
+        raise SkoolKitError('Invalid byte sequence: {}'.format(byte_seq))
     offset = step * len(byte_values)
     snapshot = get_snapshot(infile)
     for a in range(16384, 65537 - offset):

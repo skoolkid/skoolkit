@@ -468,6 +468,13 @@ class SnapinfoTest(SkoolKitTestCase):
         exp_output = []
         self._test_sna(ram, exp_output, '--find 1,2,3')
 
+    def test_option_find_with_invalid_byte_sequence(self):
+        exp_error = 'Invalid byte sequence'
+        self._test_bad_spec('--find', 'z', exp_error)
+        self._test_bad_spec('-f', '1,!', exp_error)
+        self._test_bad_spec('--find', '1,2,?', exp_error)
+        self._test_bad_spec('-f', '1,,3', exp_error)
+
     def test_option_p_with_single_address(self):
         ram = [0] * 49152
         address = 31759
