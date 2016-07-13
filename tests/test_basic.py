@@ -5,10 +5,21 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit.basic import BasicLister
 
 class BasicListerTest(SkoolKitTestCase):
-    def _test_basic(self, data, exp_output):
-        snapshot = [0] * 23755 + data
+    def _test_basic(self, data, exp_output, prog=23755):
+        snapshot = [0] * prog + data
+        snapshot[23635:23637] = (prog % 256, prog // 256)
         basic = BasicLister().list_basic(snapshot)
         self.assertEqual(exp_output, basic.split('\n'))
+
+    def test_prog_not_23755(self):
+        basic = [
+            0, 10, 5, 0,     # Line 10, length
+            245, 34, 65, 34, # PRINT "A"
+            13,              # ENTER
+            128              # End of BASIC area
+        ]
+        exp_output = ['  10 PRINT "A"']
+        self._test_basic(basic, exp_output, 23800)
 
     def test_integers(self):
         basic = [
