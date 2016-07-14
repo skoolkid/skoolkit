@@ -3805,6 +3805,60 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal('asm.html', subs)
 
+    def test_write_asm_entries_on_single_page_with_custom_path_and_title_and_header(self):
+        path = 'allinone.html'
+        header = 'All the entries'
+        title = 'The disassembly'
+        ref = '\n'.join((
+            '[Game]',
+            'AsmSinglePageTemplate=AsmAllInOne',
+            '[Paths]',
+            'AsmSinglePage={}',
+            '[Titles]',
+            'AsmSinglePage={}',
+            '[PageHeaders]',
+            'AsmSinglePage={}'
+        )).format(path, title, header)
+        skool = '; Routine at 40000\nc40000 RET'
+        content = """
+            <div id="40000" class="description">40000: Routine at 40000</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="40000"></span>40000</td>
+            <td class="instruction">RET</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'path': '',
+            'header': header,
+            'title': title,
+            'body_class': 'AsmSinglePage',
+            'content': content
+        }
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        self._assert_files_equal(path, subs)
+
     def test_write_asm_entries_with_invalid_asm_anchor(self):
         ref = '[Game]\nAddressAnchor={Address:04x}'
         skool = 'c40000 RET'
@@ -4420,6 +4474,101 @@ class HtmlOutputTest(HtmlWriterTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             writer.write_map('MemoryMap')
         self.assertEqual(cm.exception.args[0], "Cannot format anchor ({foo:04X}) with address=32768")
+
+    def test_write_map_with_single_page_template(self):
+        ref = '[Game]\nAsmSinglePageTemplate=AsmAllInOne'
+        skool = '\n'.join((
+            '; A routine here',
+            'c32768 RET',
+            '',
+            '; A data block there',
+            'b32769 DEFB 0'
+        ))
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page-1">Page</th>
+            <th class="map-byte-1">Byte</th>
+            <th>Address</th>
+            <th class="map-length-0">Length</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page-1">128</td>
+            <td class="map-byte-1">0</td>
+            <td class="map-c"><span id="32768"></span><a href="../asm.html#32768">32768</a></td>
+            <td class="map-length-0">1</td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10">A routine here</div>
+            <div class="map-entry-desc-0">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-page-1">128</td>
+            <td class="map-byte-1">1</td>
+            <td class="map-b"><span id="32769"></span><a href="../asm.html#32769">32769</a></td>
+            <td class="map-length-0">1</td>
+            <td class="map-b-desc">
+            <div class="map-entry-title-10">A data block there</div>
+            <div class="map-entry-desc-0">
+            </div>
+            </td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'body_class': 'MemoryMap',
+            'header': 'Memory map',
+            'content': content
+        }
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_map('MemoryMap')
+        self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
+
+    def test_write_map_with_single_page_template_using_custom_path(self):
+        path = 'disassembly.html'
+        ref = '\n'.join((
+            '[Game]',
+            'AsmSinglePageTemplate=AsmAllInOne',
+            '[Paths]',
+            'AsmSinglePage={}'
+        )).format(path)
+        skool = '; A routine\nc30000 RET'
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page-1">Page</th>
+            <th class="map-byte-1">Byte</th>
+            <th>Address</th>
+            <th class="map-length-0">Length</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page-1">117</td>
+            <td class="map-byte-1">48</td>
+            <td class="map-c"><span id="30000"></span><a href="../{}#30000">30000</a></td>
+            <td class="map-length-0">1</td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10">A routine</div>
+            <div class="map-entry-desc-0">
+            </div>
+            </td>
+            </tr>
+            </table>
+        """.format(path)
+        subs = {
+            'body_class': 'MemoryMap',
+            'header': 'Memory map',
+            'content': content
+        }
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_map('MemoryMap')
+        self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
     def test_write_custom_map(self):
         skool = '\n'.join((
