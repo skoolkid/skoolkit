@@ -24,7 +24,7 @@ def get_number(snapshot, i):
         # Small integer (signed)
         num = _get_integer(snapshot, i)
     else:
-        # Floating point number (unsigned)
+        # Floating point number (signed)
         num = _get_float(snapshot, i)
     return num
 
@@ -48,9 +48,13 @@ def _get_integer(snapshot, i):
 
 def _get_float(snapshot, i):
     exponent = snapshot[i] - 160
+    if ((snapshot[i + 1] & 128) == 0):
+        sign = 1
+    else:
+        sign = -1
     mantissa = float(16777216 * (snapshot[i + 1] | 128)
                      + 65536 * snapshot[i + 2]
                      + 256 * snapshot[i + 3]
                      + snapshot[i + 4])
-    num = mantissa * (2 ** exponent)
+    num = sign * mantissa * (2 ** exponent)
     return num
