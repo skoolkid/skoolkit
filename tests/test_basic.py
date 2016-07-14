@@ -11,6 +11,17 @@ class BasicListerTest(SkoolKitTestCase):
         basic = BasicLister().list_basic(snapshot)
         self.assertEqual(exp_output, basic.split('\n'))
 
+    def test_incorrect_line_length(self):
+        basic = [
+            0, 10, 5, 0,     # Line 10, length (5 instead of 8)
+            245, 34, 65, 34, # PRINT "A"
+            33, 33, 33,      # !!!
+            13,              # ENTER
+            128              # End of BASIC area
+        ]
+        exp_output = ['  10 PRINT "A"!!!']
+        self._test_basic(basic, exp_output)
+
     def test_prog_not_23755(self):
         basic = [
             0, 10, 5, 0,     # Line 10, length
