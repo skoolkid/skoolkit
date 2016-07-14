@@ -75,7 +75,6 @@ class SnapmodTest(SkoolKitTestCase):
         ram[src - 16384:src - 16384 + size] = block
         exp_ram = ram[:]
         exp_ram[dest - 16384:dest - 16384 + size] = block
-        infile = self.write_z80_file(header, ram, 1, False)
         exp_header = header[:]
         exp_header[12] |= 32 # RAM block compressed
         options = '-m {},{},{}'.format(src, size, dest)
@@ -97,10 +96,62 @@ class SnapmodTest(SkoolKitTestCase):
         ram = [0] * 49152
         exp_ram = ram[:]
         exp_ram[address - 16384] = value
-        infile = self.write_z80_file(header, ram, 1, False)
         exp_header = header[:]
         exp_header[12] |= 32 # RAM block compressed
         options = '-p {},{}'.format(address, value)
+        self._test_z80(options, header, exp_header, ram, exp_ram, 1, False)
+
+    def test_option_poke_z80v2_uncompressed_address_range_plus(self):
+        addr1, addr2, inc = 30000, 30004, 100
+        header = [0] * 55
+        header[30] = 23 # Version 2
+        ram = [0] * 49152
+        values = (1, 22, 103, 204, 55)
+        i, j = addr1 - 16384, addr2 - 16383
+        ram[i:j] = values
+        exp_ram = ram[:]
+        exp_ram[i:j] = [(b + inc) & 255 for b in values]
+        exp_header = header[:]
+        options = '--poke {}-{},+{}'.format(addr1, addr2, inc)
+        self._test_z80(options, header, exp_header, ram, exp_ram, 2, False)
+
+    def test_option_p_z80v3_compressed_address_range_step_xor(self):
+        addr1, addr2, step, xor = 40000, 40010, 2, 170
+        header = [0] * 86
+        header[30] = 54 # Version 3
+        ram = [0] * 49152
+        values = (9, 43, 99, 198, 203, 241)
+        i, j = addr1 - 16384, addr2 - 16383
+        ram[i:j:step] = values
+        exp_ram = ram[:]
+        exp_ram[i:j:step] = [b ^ xor for b in values]
+        exp_header = header[:]
+        options = '--poke {}-{}-{},^{}'.format(addr1, addr2, step, xor)
+        self._test_z80(options, header, exp_header, ram, exp_ram, 3, True)
+
+    def test_option_poke_multiple(self):
+        pokes = ((24576, 1), (32768, 34), (49152, 205))
+        header = list(range(30))
+        header[12] &= 223 # RAM block uncompressed
+        ram = [0] * 49152
+        exp_ram = ram[:]
+        for address, value in pokes:
+            exp_ram[address - 16384] = value
+        exp_header = header[:]
+        exp_header[12] |= 32 # RAM block compressed
+        options = ' '.join(['--poke {},{}'.format(a, v) for a, v in pokes])
+        self._test_z80(options, header, exp_header, ram, exp_ram, 1, False)
+
+    def test_option_p_hexadecimal_values(self):
+        addr1, addr2, step, value = 50000, 50006, 3, 200
+        header = list(range(30))
+        header[12] &= 223 # RAM block uncompressed
+        ram = [0] * 49152
+        exp_ram = ram[:]
+        exp_ram[addr1 - 16384:addr2 - 16383:step] = [value] * 3
+        exp_header = header[:]
+        exp_header[12] |= 32 # RAM block compressed
+        options = '-p ${:04X}-${:04x}-${:X},${:02x}'.format(addr1, addr2, step, value)
         self._test_z80(options, header, exp_header, ram, exp_ram, 1, False)
 
     def test_reg_help(self):
