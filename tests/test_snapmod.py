@@ -9,11 +9,32 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, snapmod, read_bin_file, VERSION
 from skoolkit.snapshot import get_snapshot
 
+Z80_REGISTERS = {
+    'a': 0, 'f': 1, 'bc': 2, 'c': 2, 'b': 3, 'hl': 4, 'l': 4, 'h': 5,
+    'sp': 8, 'i': 10, 'r': 11, 'de': 13, 'e': 13, 'd': 14, '^bc': 15,
+    '^c': 15, '^b': 16, '^de': 17, '^e': 17, '^d': 18, '^hl': 19,
+    '^l': 19, '^h': 20, '^a': 21, '^f': 22, 'iy': 23, 'ix': 25,
+    'pc': 32
+}
 def mock_run(*args):
     global run_args
     run_args = args
 
 class SnapmodTest(SkoolKitTestCase):
+    def _get_header(self, version, compress=False):
+        if version == 1:
+            header = [0] * 30
+            header[6] = 255 # PC > 0
+            if compress:
+                header[12] |= 32 # RAM block compressed
+        elif version == 2:
+            header = [0] * 55
+            header[30] = 23
+        else:
+            header = [0] * 86
+            header[30] = 54
+        return header
+
     def _test_z80(self, options, header, exp_header=None, ram=None, exp_ram=None, version=3, compress=False):
         if exp_header is None:
             exp_header = header
@@ -37,17 +58,7 @@ class SnapmodTest(SkoolKitTestCase):
             options = '{} ${:04X},${:x},${:04x}'.format(option, src, size, dest)
         else:
             options = '{} {},{},{}'.format(option, src, size, dest)
-        if version == 1:
-            header = [0] * 30
-            header[6] = 255 # PC > 0
-            if compress:
-                header[12] |= 32 # RAM block compressed
-        elif version == 2:
-            header = [0] * 55
-            header[30] = 23
-        else:
-            header = [0] * 86
-            header[30] = 54
+        header = self._get_header(version, compress)
         exp_header = header[:]
         if version == 1:
             exp_header[12] |= 32 # RAM block compressed
@@ -56,6 +67,31 @@ class SnapmodTest(SkoolKitTestCase):
         exp_ram = ram[:]
         exp_ram[dest - 16384:dest - 16384 + size] = block
         self._test_z80(options, header, exp_header, ram, exp_ram, version, compress)
+
+    def _test_reg(self, option, registers, version, base16=False):
+        header = self._get_header(version)
+        exp_header = header[:]
+        options = []
+        for reg, value in registers.items():
+            if base16:
+                options.append('{} {}=${:x}'.format(option, reg, value))
+            else:
+                options.append('{} {}={}'.format(option, reg, value))
+            reg = reg.lower()
+            if version == 1 and reg == 'pc':
+                exp_header[6:8] = (value % 256, value // 256)
+            elif len(reg.replace('^', '')) == 1:
+                if reg == 'r':
+                    exp_header[11] = value
+                    exp_header[12] |= value // 128
+                else:
+                    exp_header[Z80_REGISTERS[reg]] = value
+            else:
+                index = Z80_REGISTERS[reg]
+                exp_header[index:index + 2] = (value % 256, value // 256)
+        if version == 1:
+            exp_header[12] |= 32 # RAM block compressed
+        self._test_z80(' '.join(options), header, exp_header, version=version, compress=False)
 
     def test_no_arguments(self):
         output, error = self.run_snapmod(catch_exit=2)
@@ -192,6 +228,58 @@ class SnapmodTest(SkoolKitTestCase):
         exp_header[12] |= 32 # RAM block compressed
         options = '-p ${:04X}-${:04x}-${:X},${:02x}'.format(addr1, addr2, step, value)
         self._test_z80(options, header, exp_header, ram, exp_ram, 1, False)
+
+    def test_option_r_z80v1_8_bit_registers(self):
+        registers = {
+            'a': 5, 'b': 24, 'c': 13, 'd': 105, 'e': 32, 'f': 205, 'h': 14, 'l': 7,
+            '^a': 23, '^b': 2, '^c': 131, '^d': 5, '^e': 232, '^f': 5, '^h': 141, '^l': 72,
+            'i': 54, 'r': 99
+        }
+        self._test_reg('-r', registers, 1)
+
+    def test_option_reg_z80v1_register_pairs(self):
+        registers = {
+            'bc': 12345, 'de': 23456, 'hl': 34567,
+            '^bc': 45678, '^de': 56789, '^hl': 54321,
+            'ix': 43210, 'iy': 32109, 'sp': 21098, 'pc': 10987
+        }
+        self._test_reg('--reg', registers, 1)
+
+    def test_option_r_z80v2_8_bit_registers(self):
+        registers = {
+            'A': 5, 'B': 24, 'C': 13, 'D': 105, 'E': 32, 'F': 205, 'H': 14, 'L': 7,
+            '^A': 5, '^B': 24, '^C': 13, '^D': 105, '^E': 32, '^F': 205, '^H': 14, '^L': 7,
+            'I': 54, 'R': 99
+        }
+        self._test_reg('-r', registers, 2)
+
+    def test_option_reg_z80v2_register_pairs(self):
+        registers = {
+            'BC': 12345, 'DE': 23456, 'HL': 34567,
+            '^BC': 45678, '^DE': 56789, '^HL': 54321,
+            'IX': 43210, 'IY': 32109, 'SP': 21098, 'PC': 10987
+        }
+        self._test_reg('--reg', registers, 2)
+
+    def test_option_r_z80v3_8_bit_registers(self):
+        registers = {
+            'A': 5, 'B': 24, 'C': 13, 'D': 105, 'E': 32, 'F': 205, 'H': 14, 'L': 7,
+            '^a': 4, '^b': 23, '^c': 12, '^d': 104, '^e': 31, '^f': 204, '^h': 13, '^l': 6,
+            'I': 254, 'r': 199
+        }
+        self._test_reg('-r', registers, 3)
+
+    def test_option_reg_z80v3_register_pairs(self):
+        registers = {
+            'bc': 11111, 'de': 22222, 'hl': 33333,
+            '^BC': 44444, '^DE': 55555, '^HL': 65432,
+            'ix': 54321, 'iy': 43210, 'SP': 32109, 'PC': 21098
+        }
+        self._test_reg('--reg', registers, 3)
+
+    def test_option_r_hexadecimal_values(self):
+        registers = {'a': 0x1f, 'bc': 0xface}
+        self._test_reg('-r', registers, 1, True)
 
     def test_reg_help(self):
         output, error = self.run_snapmod('--reg help')

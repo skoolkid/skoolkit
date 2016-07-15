@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2013, 2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2013, 2015, 2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -77,7 +77,10 @@ def set_z80_registers(z80, *specs):
                 size = len(reg) - 1
             else:
                 size = len(reg)
-            offset = Z80_REGISTERS.get(reg, -1)
+            if reg == 'pc' and z80[6:8] != [0, 0]:
+                offset = 6
+            else:
+                offset = Z80_REGISTERS.get(reg, -1)
             if offset >= 0:
                 try:
                     value = get_int_param(val)
