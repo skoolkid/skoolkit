@@ -4839,6 +4839,160 @@ class HtmlOutputTest(HtmlWriterTestCase):
         writer.write_map('UnusedMap')
         self._assert_title_equals(path, title, header)
 
+    def test_write_other_code_using_single_page_template(self):
+        code_id = 'other'
+        ref = '\n'.join((
+            '[Game]',
+            'AsmSinglePageTemplate=AsmAllInOne',
+            '[OtherCode:{}]',
+        )).format(code_id)
+        other_skool = '\n'.join((
+            '; Routine at 40000',
+            'c40000 JR 40002',
+            '',
+            '; Routine at 40002',
+            'c40002 JR 40000'
+        ))
+        main_writer = self._get_writer(ref=ref, skool=other_skool)
+        code = main_writer.other_code[0][1]
+        index_page_id = code['IndexPageId']
+        self.assertEqual(index_page_id, '{}-Index'.format(code_id))
+        map_path = main_writer.paths[index_page_id]
+        self.assertEqual(map_path, '{0}/{0}.html'.format(code_id))
+        code_path_id = code['CodePathId']
+        self.assertEqual(code_path_id, '{}-CodePath'.format(code_id))
+        asm_path = main_writer.paths[code_path_id]
+        self.assertEqual(asm_path, code_id)
+        writer = main_writer.clone(main_writer.parser, code_id)
+        writer.write_file = self._mock_write_file
+        content = """
+            <div id="40000" class="description">40000: Routine at 40000</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="40000"></span>40000</td>
+            <td class="instruction">JR <a href="asm.html#40002">40002</a></td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+            <div id="40002" class="description">40002: Routine at 40002</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="40002"></span>40002</td>
+            <td class="instruction">JR <a href="asm.html#40000">40000</a></td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': code_id,
+            'body_class': '{}-AsmSinglePage'.format(code_id),
+            'content': content
+        }
+
+        writer.write_entries(asm_path, map_path)
+        self._assert_files_equal('{}/asm.html'.format(asm_path), subs)
+
+    def test_write_other_code_using_single_page_template_with_custom_path_and_title_and_header(self):
+        code_id = 'other'
+        path = 'code.html'
+        title = 'All the other code'
+        header = 'The disassembly'
+        ref = '\n'.join((
+            '[Game]',
+            'AsmSinglePageTemplate=AsmAllInOne',
+            '[Paths]',
+            '{0}-AsmSinglePage={1}',
+            '[Titles]',
+            '{0}-AsmSinglePage={2}',
+            '[PageHeaders]',
+            '{0}-AsmSinglePage={3}',
+            '[OtherCode:{0}]',
+        )).format(code_id, path, title, header)
+        other_skool = '; Routine at 40000\nc40000 RET'
+        main_writer = self._get_writer(ref=ref, skool=other_skool)
+        code = main_writer.other_code[0][1]
+        index_page_id = code['IndexPageId']
+        self.assertEqual(index_page_id, '{}-Index'.format(code_id))
+        map_path = main_writer.paths[index_page_id]
+        self.assertEqual(map_path, '{0}/{0}.html'.format(code_id))
+        code_path_id = code['CodePathId']
+        self.assertEqual(code_path_id, '{}-CodePath'.format(code_id))
+        asm_path = main_writer.paths[code_path_id]
+        self.assertEqual(asm_path, code_id)
+        writer = main_writer.clone(main_writer.parser, code_id)
+        writer.write_file = self._mock_write_file
+        content = """
+            <div id="40000" class="description">40000: Routine at 40000</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="40000"></span>40000</td>
+            <td class="instruction">RET</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'title': title,
+            'header': header,
+            'path': '',
+            'body_class': '{}-AsmSinglePage'.format(code_id),
+            'content': content
+        }
+
+        writer.write_entries(asm_path, map_path)
+        self._assert_files_equal(path, subs)
+
     def test_write_other_code_index(self):
         code_id = 'other'
         ref = '[OtherCode:{}]\nSource=other.skool'.format(code_id)
@@ -4878,6 +5032,107 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'content': content
         }
         self._assert_files_equal('{0}/{0}.html'.format(code_id), subs)
+
+    def test_write_other_code_index_using_single_page_template(self):
+        code_id = 'other'
+        ref = '\n'.join((
+            '[Game]',
+            'AsmSinglePageTemplate=AsmAllInOne',
+            '[OtherCode:{}]'
+        )).format(code_id)
+        routine_title = 'Other code'
+        skool = '; {}\nc65535 RET'.format(routine_title)
+        main_writer = self._get_writer(ref=ref, skool=skool)
+        writer = main_writer.clone(main_writer.parser, code_id)
+        writer.write_file = self._mock_write_file
+        code = main_writer.other_code[0][1]
+        index_page_id = code['IndexPageId']
+        self.assertEqual(index_page_id, '{}-Index'.format(code_id))
+        index_path = writer.paths[index_page_id]
+        self.assertEqual(index_path, '{0}/{0}.html'.format(code_id))
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page-0">Page</th>
+            <th class="map-byte-0">Byte</th>
+            <th>Address</th>
+            <th class="map-length-0">Length</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page-0">255</td>
+            <td class="map-byte-0">255</td>
+            <td class="map-c"><span id="65535"></span><a href="asm.html#65535">65535</a></td>
+            <td class="map-length-0">1</td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10">{}</div>
+            <div class="map-entry-desc-0">
+            </div>
+            </td>
+            </tr>
+            </table>
+        """.format(routine_title)
+        subs = {
+            'header': code_id,
+            'body_class': index_page_id,
+            'content': content
+        }
+
+        writer.write_map(index_page_id)
+        self._assert_files_equal(index_path, subs)
+
+    def test_write_other_code_index_using_single_page_template_with_custom_path(self):
+        code_id = 'secondary'
+        asm_single_page = 'disassembly.html'
+        ref = '\n'.join((
+            '[Game]',
+            'AsmSinglePageTemplate=AsmAllInOne',
+            '[Paths]',
+            '{0}-AsmSinglePage={0}/{1}',
+            '[OtherCode:{0}]'
+        )).format(code_id, asm_single_page)
+        routine_title = 'Other code'
+        skool = '; {}\nc65535 RET'.format(routine_title)
+        main_writer = self._get_writer(ref=ref, skool=skool)
+        writer = main_writer.clone(main_writer.parser, code_id)
+        writer.write_file = self._mock_write_file
+        code = main_writer.other_code[0][1]
+        index_page_id = code['IndexPageId']
+        self.assertEqual(index_page_id, '{}-Index'.format(code_id))
+        index_path = writer.paths[index_page_id]
+        self.assertEqual(index_path, '{0}/{0}.html'.format(code_id))
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page-0">Page</th>
+            <th class="map-byte-0">Byte</th>
+            <th>Address</th>
+            <th class="map-length-0">Length</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page-0">255</td>
+            <td class="map-byte-0">255</td>
+            <td class="map-c"><span id="65535"></span><a href="{}#65535">65535</a></td>
+            <td class="map-length-0">1</td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10">{}</div>
+            <div class="map-entry-desc-0">
+            </div>
+            </td>
+            </tr>
+            </table>
+        """.format(asm_single_page, routine_title)
+        subs = {
+            'header': code_id,
+            'body_class': index_page_id,
+            'content': content
+        }
+
+        writer.write_map(index_page_id)
+        self._assert_files_equal(index_path, subs)
 
     def test_write_changelog(self):
         ref = '\n'.join((
