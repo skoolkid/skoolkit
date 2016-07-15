@@ -31,6 +31,32 @@ class SnapmodTest(SkoolKitTestCase):
         z80_ram = get_snapshot(outfile)[16384:]
         self.assertEqual(exp_ram, z80_ram)
 
+    def _test_move(self, option, src, block, dest, version, compress, base16=False):
+        size = len(block)
+        if base16:
+            options = '{} ${:04X},${:x},${:04x}'.format(option, src, size, dest)
+        else:
+            options = '{} {},{},{}'.format(option, src, size, dest)
+        if version == 1:
+            header = [0] * 30
+            header[6] = 255 # PC > 0
+            if compress:
+                header[12] |= 32 # RAM block compressed
+        elif version == 2:
+            header = [0] * 55
+            header[30] = 23
+        else:
+            header = [0] * 86
+            header[30] = 54
+        exp_header = header[:]
+        if version == 1:
+            exp_header[12] |= 32 # RAM block compressed
+        ram = [0] * 49152
+        ram[src - 16384:src - 16384 + size] = block
+        exp_ram = ram[:]
+        exp_ram[dest - 16384:dest - 16384 + size] = block
+        self._test_z80(options, header, exp_header, ram, exp_ram, version, compress)
+
     def test_no_arguments(self):
         output, error = self.run_snapmod(catch_exit=2)
         self.assertEqual(len(output), 0)
@@ -66,19 +92,32 @@ class SnapmodTest(SkoolKitTestCase):
             infile, options, outfile = run_args
             self.assertEqual(['30000,10,40000', '50000,20,60000'], options.moves)
 
-    def test_option_m_z80v1(self):
-        src, size, dest = 30000, 10, 40000
-        header = list(range(30))
-        header[12] &= 223 # RAM block uncompressed
-        ram = [0] * 49152
-        block = [1] * size
-        ram[src - 16384:src - 16384 + size] = block
-        exp_ram = ram[:]
-        exp_ram[dest - 16384:dest - 16384 + size] = block
+    def test_option_m_z80v1_compressed(self):
+        self._test_move('-m', 30000, [1] * 10, 40000, 1, True)
+
+    def test_option_move_z80v2_compressed(self):
+        self._test_move('--move', 40000, [2] * 10, 50000, 2, True)
+
+    def test_option_m_z80v3_uncompressed(self):
+        self._test_move('-m', 50000, [3] * 5, 60000, 3, False)
+
+    def test_option_move_multiple(self):
+        specs = ((34576, 2, 30000), (45678, 3, 40000), (56789, 4, 50000))
+        header = [0] * 30
+        header[6] = 1
         exp_header = header[:]
         exp_header[12] |= 32 # RAM block compressed
-        options = '-m {},{},{}'.format(src, size, dest)
+        ram = [0] * 49152
+        for i, (src, size, dest) in enumerate(specs):
+            ram[src - 16384:src - 16384 + size] = [i + 10] * size
+        exp_ram = ram[:]
+        for src, size, dest in specs:
+            exp_ram[dest - 16384:dest - 16384 + size] = ram[src - 16384:src - 16384 + size]
+        options = ' '.join(['--move {},{},{}'.format(*spec) for spec in specs])
         self._test_z80(options, header, exp_header, ram, exp_ram, 1, False)
+
+    def test_option_m_hexadecimal_values(self):
+        self._test_move('-m', 0x81AF, [203] * 3, 0x920D, 1, False, True)
 
     @patch.object(snapmod, 'run', mock_run)
     def test_options_p_poke(self):
