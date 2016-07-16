@@ -135,3 +135,20 @@ class VariableLister:
                 line += ','
         line += ']'
         return i,line
+
+    def _get_control_var(self, i):
+        line = '(FOR control variable) '
+        letter = (self.snapshot[i] & 31) + 96
+        line += "{}=".format(self.text.get_chars(letter))
+        i += 1
+        line += "{} (".format(get_number(self.snapshot, i))
+        i += 5
+        line += 'limit={}, '.format(get_number(self.snapshot, i))
+        i += 5
+        line += 'step={}, '.format(get_number(self.snapshot, i))
+        i += 5
+        line += 'line={}, '.format(get_word(self.snapshot, i))
+        i += 2
+        line += 'statement={})'.format(self.snapshot[i])
+        i += 1
+        return i,line

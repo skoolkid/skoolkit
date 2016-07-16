@@ -107,5 +107,27 @@ class VariableListerTest(SkoolKitTestCase):
         ]
         self._test_variables(variables, exp_output)
 
+    def test_control_vars(self):
+        variables = [
+            240,                 # FOR control variable of name "p"
+            0, 0, 3, 0, 0,       # 3
+            0, 0, 7, 0, 0,       # limit = 7
+            0, 0, 2, 0, 0,       # step = 2
+            12, 0,               # line = 12
+            4,                   # statement = 4
+            244,                 # FOR control variable of name "t"
+            0, 255, 251, 255, 0, # -5
+            0, 255, 246, 255, 0, # limit = -10
+            0, 255, 251, 255, 0, # step = -5
+            95, 8,               # line = 2143
+            2,                   # statement = 2
+            128                  # End of variables area
+        ]
+        exp_output = [
+            '(FOR control variable) p=3 (limit=7, step=2, line=12, statement=4)',
+            '(FOR control variable) t=-5 (limit=-10, step=-5, line=2143, statement=2)',
+        ]
+        self._test_variables(variables, exp_output)
+
 if __name__ == '__main__':
     unittest.main()
