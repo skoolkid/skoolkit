@@ -39,7 +39,7 @@ class VariableListerTest(SkoolKitTestCase):
             147,                     # Number array variable of name "s"
             28, 0,                   # ?????Length?????, 
             1,                       # 1 dimension
-            5, 0,                    # Dimension 1, length 5?????
+            5, 0,                    # Dimension 1, length 5
             0, 0, 1, 0, 0,           # s(1) = 1
             0, 0, 5, 0, 0,           # s(2) = 5
             0, 255, 252, 255, 0,     # s(3) = -4
@@ -48,8 +48,8 @@ class VariableListerTest(SkoolKitTestCase):
             145,                     # Number array variable name "q"
             35, 0,                   # ?????Length?????
             2,                       # 2 dimensions
-            2, 0,                    # Dimension 1 length
-            3, 0,                    # Dimension 2 length
+            2, 0,                    # Dimension 1, length 2
+            3, 0,                    # Dimension 2, length 3
             0, 0, 11, 0, 0,          # q(1,1) = 11
             0, 0, 21, 0, 0,          # q(1,2) = 21
             0, 0, 31, 0, 0,          # q(1,3) = 31
@@ -75,6 +75,35 @@ class VariableListerTest(SkoolKitTestCase):
         exp_output = [
             '(Number) num=537',
             '(Number) xyz=-6221',
+        ]
+        self._test_variables(variables, exp_output)
+
+    def test_character_arrays(self):
+        variables = [
+            196,   # Character array variable of name "d$"
+            7, 0,  # ?????Length?????
+            1,     # 1 dimension
+            4, 0,  # Dimension 1, length 4
+            97,    # d$(1) = "a"
+            98,    # d$(2) = "b"
+            120,   # d$(3) = "x"
+            122,   # d$(4) = "z"
+            199,   # Character array variable of name "g$"
+            11, 0, # ?????Length?????
+            2,     # 2 dimensions
+            2, 0,  # Dimension 1, length 2
+            3, 0,  # Dimension 2, length 3
+            49,    # g(1,1) = "1"
+            50,    # g(1,2) = "2"
+            51,    # g(1,3) = "3"
+            79,    # g(2,1) = "O"
+            84,    # g(2,2) = "T"
+            90,    # g(2,3) = "Z"
+            128    # End of variables area
+        ]
+        exp_output = [
+            '(Character array) d$(4)=["a","b","x","z"]',
+            '(Character array) g$(2,3)=["1","2","3","O","T","Z"]',
         ]
         self._test_variables(variables, exp_output)
 

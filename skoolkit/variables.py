@@ -110,3 +110,28 @@ class VariableLister:
         line += letters + "={}".format(get_number(self.snapshot, i))
         i += 5
         return i, line
+
+    def _get_char_array_var(self, i):
+        line = '(Character array) '
+        letter = (self.snapshot[i] & 31) + 96
+        line += "{}$(".format(self.text.get_chars(letter))
+        data_length = get_word(self.snapshot, i + 1) - 1
+        dimensions = self.snapshot[i + 3]
+        i += 4
+        dimension_lengths = []
+        for x in range(0, dimensions):
+            dimension_length = get_word(self.snapshot, i)
+            i += 2
+            data_length -= 2
+            line += '{}'.format(dimension_length)
+            if (x < (dimensions - 1)):
+                line += ','
+        line += ')=['
+        while (data_length > 0):
+            line += '"{}"'.format(self.text.get_chars(self.snapshot[i]))
+            i += 1
+            data_length -= 1
+            if (data_length > 0):
+                line += ','
+        line += ']'
+        return i,line
