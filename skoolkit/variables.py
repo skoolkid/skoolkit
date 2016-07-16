@@ -73,9 +73,9 @@ class VariableLister:
     def _get_num_array_var(self, i):
         line = '(Number array) '
         letter = (self.snapshot[i] & 31) + 96
+        line += "{}(".format(self.text.get_chars(letter))
         data_length = get_word(self.snapshot, i + 1) - 1
         dimensions = self.snapshot[i + 3]
-        line += "{}(".format(self.text.get_chars(letter))
         i += 4
         dimension_lengths = []
         for x in range(0, dimensions):
@@ -94,3 +94,19 @@ class VariableLister:
                 line += ','
         line += ']'
         return i,line
+
+    def _get_long_num_var(self, i):
+        line = '(Number) '
+        letter = (self.snapshot[i] & 31) + 96
+        letters = '{}'.format(self.text.get_chars(letter))
+        i += 1
+        letter = self.snapshot[i]
+        while ((letter & 128) == 0):
+            letters += '{}'.format(self.text.get_chars(letter))
+            i += 1
+            letter = self.snapshot[i]
+        letters += '{}'.format(self.text.get_chars(letter & 127))
+        i += 1
+        line += letters + "={}".format(get_number(self.snapshot, i))
+        i += 5
+        return i, line

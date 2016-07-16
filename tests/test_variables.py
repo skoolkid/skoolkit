@@ -64,5 +64,19 @@ class VariableListerTest(SkoolKitTestCase):
         ]
         self._test_variables(variables, exp_output)
 
+    def test_numbers_long_name(self):
+        variables = [
+            174, 117, 237,       # Number variable of name "num"
+            0, 0, 25, 2, 0,      # 537
+            184, 121, 250,       # Number variable of name "xyz"
+            0, 255, 179, 231, 0, # -6221
+            128                  # End of variables area
+        ]
+        exp_output = [
+            '(Number) num=537',
+            '(Number) xyz=-6221',
+        ]
+        self._test_variables(variables, exp_output)
+
 if __name__ == '__main__':
     unittest.main()
