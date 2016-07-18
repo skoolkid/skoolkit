@@ -43,8 +43,9 @@ class SnapmodTest(SkoolKitTestCase):
         if exp_ram is None:
             exp_ram = ram
         infile = self.write_z80_file(header, ram, version, compress)
-        outfile = self.write_bin_file(suffix='.z80')
-        output, error = self.run_snapmod('-f {} {} {}'.format(options, infile, outfile))
+        outfile = '{}-out.z80'.format(infile[:-4])
+        self.tempfiles.append(outfile)
+        output, error = self.run_snapmod('{} {} {}'.format(options, infile, outfile))
         self.assertEqual([], output)
         self.assertEqual(error, '')
         z80_header = list(read_bin_file(outfile, len(exp_header)))
@@ -118,6 +119,33 @@ class SnapmodTest(SkoolKitTestCase):
         output, error = self.run_snapmod('-p 16384,0 in.z80 {}'.format(outfile))
         self.assertEqual(output[0], '{}: file already exists; use -f to overwrite'.format(outfile))
         self.assertEqual(error, '')
+
+    def test_option_f_clobber_input_file(self):
+        header = [0] * 30
+        header[6] = 1 # PC > 0
+        exp_header = header[:]
+        exp_header[12] |= 34 # RAM block compressed, BORDER 1
+        ram = [0] * 49152
+        infile = self.write_z80_file(header, ram, 1)
+        output, error = self.run_snapmod('-f -s border=1 {}'.format(infile))
+        self.assertEqual([], output)
+        self.assertEqual(error, '')
+        z80_header = list(read_bin_file(infile, len(exp_header)))
+        self.assertEqual(exp_header, z80_header)
+
+    def test_option_force_clobber_output_file(self):
+        header = [0] * 30
+        header[6] = 1 # PC > 0
+        exp_header = header[:]
+        exp_header[12] |= 36 # RAM block compressed, BORDER 2
+        ram = [0] * 49152
+        infile = self.write_z80_file(header, ram, 1)
+        outfile = self.write_bin_file(suffix='.z80')
+        output, error = self.run_snapmod('--force -s border=2 {} {}'.format(infile, outfile))
+        self.assertEqual([], output)
+        self.assertEqual(error, '')
+        z80_header = list(read_bin_file(outfile, len(exp_header)))
+        self.assertEqual(exp_header, z80_header)
 
     @patch.object(snapmod, 'run', mock_run)
     def test_options_m_move(self):
@@ -315,21 +343,13 @@ class SnapmodTest(SkoolKitTestCase):
     def test_option_s(self):
         header = [0] * 86
         header[30] = 54 # Version 3
-        ram = [0] * 49152
-        infile = self.write_z80_file(header, ram)
         exp_header = header[:]
         exp_header[12] |= 4 # BORDER 2
         exp_header[27] = 1 # IFF 1
         exp_header[28] = 1 # IFF 2
         exp_header[29] = (header[29] & 252) | 2 # IM 2
-        outfile = self.write_bin_file(suffix='.z80')
-        output, error = self.run_snapmod('-f -s border=2 -s iff=1 -s im=2 {} {}'.format(infile, outfile))
-        self.assertEqual([], output)
-        self.assertEqual(error, '')
-        z80_header = list(read_bin_file(outfile, 86))
-        self.assertEqual(exp_header, z80_header)
-        z80_ram = get_snapshot(outfile)[16384:]
-        self.assertEqual(ram, z80_ram, "RAM was not preserved")
+        options = '-s border=2 -s iff=1 -s im=2'
+        self._test_z80(options, header, exp_header)
 
     def test_state_help(self):
         output, error = self.run_snapmod('--state help')
