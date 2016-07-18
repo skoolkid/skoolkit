@@ -463,6 +463,16 @@ class SnapinfoTest(SkoolKitTestCase):
         exp_output = ['47983-47987-2 BB6F-BB73-2: {}'.format(seq_str)]
         self._test_sna(ram, exp_output, '-f {}-{}'.format(seq_str, step))
 
+    def test_option_f_with_hexadecimal_values(self):
+        ram = [0] * 49152
+        address = 47983
+        seq = (0x02, 0x3f, 0x5a)
+        step = 0x1a
+        ram[address - 16384:address - 16384 + step * len(seq):step] = seq
+        seq_str = ','.join(['${:02X}'.format(b) for b in seq])
+        exp_output = ['47983-48035-26 BB6F-BBA3-1A: {}'.format(seq_str)]
+        self._test_sna(ram, exp_output, '-f {}-${:02x}'.format(seq_str, step))
+
     def test_option_find_with_nonexistent_byte_sequence(self):
         ram = [0] * 49152
         exp_output = []
@@ -507,6 +517,19 @@ class SnapinfoTest(SkoolKitTestCase):
             '25669 6445: 255  FF  11111111'
         ]
         self._test_sna(ram, exp_output, '-p {}-{}-{}'.format(address1, address2, step))
+
+    def test_option_p_with_hexadecimal_values(self):
+        ram = [0] * 49152
+        address1 = 0x81ad
+        address2 = 0x81c1
+        step = 0x0a
+        ram[address1 - 16384:address2 -16383:step] = [33, 65, 255]
+        exp_output = [
+            '33197 81AD:  33  21  00100001  !',
+            '33207 81B7:  65  41  01000001  A',
+            '33217 81C1: 255  FF  11111111'
+        ]
+        self._test_sna(ram, exp_output, '-p ${:04X}-${:04x}-${:X}'.format(address1, address2, step))
 
     def test_option_peek_multiple(self):
         ram = [0] * 49152

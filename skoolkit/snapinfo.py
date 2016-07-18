@@ -374,7 +374,7 @@ def _find(infile, byte_seq):
     snapshot = get_snapshot(infile)
     for a in range(16384, 65537 - offset):
         if snapshot[a:a + offset:step] == byte_values:
-            print("{0}-{1}-{2} {0:04X}-{1:04X}-{2}: {3}".format(a, a + offset - step, step, byte_seq))
+            print("{0}-{1}-{2} {0:04X}-{1:04X}-{2:X}: {3}".format(a, a + offset - step, step, byte_seq))
 
 def _find_text(infile, text):
     size = len(text)
