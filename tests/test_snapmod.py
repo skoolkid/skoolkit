@@ -35,6 +35,13 @@ class SnapmodTest(SkoolKitTestCase):
             header[30] = 54
         return header
 
+    def _test_bad_spec(self, option, infile, exp_error):
+        outfile = '{}-out.z80'.format(infile[:-4])
+        self.tempfiles.append(outfile)
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_snapmod('{} {} {}'.format(option, infile, outfile))
+        self.assertEqual(cm.exception.args[0], exp_error)
+
     def _test_z80(self, options, header, exp_header=None, ram=None, exp_ram=None, version=3, compress=False):
         if exp_header is None:
             exp_header = header
@@ -183,6 +190,14 @@ class SnapmodTest(SkoolKitTestCase):
     def test_option_m_hexadecimal_values(self):
         self._test_move('-m', 0x81AF, [203] * 3, 0x920D, 1, False, True)
 
+    def test_option_m_invalid_values(self):
+        infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
+        self._test_bad_spec('-m 1', infile, 'Not enough arguments in move spec (expected 3): 1')
+        self._test_bad_spec('-m 1,2', infile, 'Not enough arguments in move spec (expected 3): 1,2')
+        self._test_bad_spec('-m x,2,3', infile, 'Invalid integer in move spec: x,2,3')
+        self._test_bad_spec('-m 1,y,3', infile, 'Invalid integer in move spec: 1,y,3')
+        self._test_bad_spec('-m 1,2,z', infile, 'Invalid integer in move spec: 1,2,z')
+
     @patch.object(snapmod, 'run', mock_run)
     def test_options_p_poke(self):
         for option in ('-p', '--poke'):
@@ -257,6 +272,15 @@ class SnapmodTest(SkoolKitTestCase):
         options = '-p ${:04X}-${:04x}-${:X},${:02x}'.format(addr1, addr2, step, value)
         self._test_z80(options, header, exp_header, ram, exp_ram, 1, False)
 
+    def test_option_p_invalid_values(self):
+        infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
+        self._test_bad_spec('-p 1', infile, 'Value missing in poke spec: 1')
+        self._test_bad_spec('-p q', infile, 'Value missing in poke spec: q')
+        self._test_bad_spec('-p 1,x', infile, 'Invalid value in poke spec: 1,x')
+        self._test_bad_spec('-p x,1', infile, 'Invalid address range in poke spec: x,1')
+        self._test_bad_spec('-p 1-y,1', infile, 'Invalid address range in poke spec: 1-y,1')
+        self._test_bad_spec('-p 1-3-z,1', infile, 'Invalid address range in poke spec: 1-3-z,1')
+
     def test_option_r_z80v1_8_bit_registers(self):
         registers = {
             'a': 5, 'b': 24, 'c': 13, 'd': 105, 'e': 32, 'f': 205, 'h': 14, 'l': 7,
@@ -309,6 +333,11 @@ class SnapmodTest(SkoolKitTestCase):
         registers = {'a': 0x1f, 'bc': 0xface}
         self._test_reg('-r', registers, 1, True)
 
+    def test_option_r_invalid_values(self):
+        infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
+        self._test_bad_spec('-r sp=j', infile, 'Cannot parse register value: sp=j')
+        self._test_bad_spec('-r x=b', infile, 'Invalid register: x=b')
+
     def test_reg_help(self):
         output, error = self.run_snapmod('--reg help')
         self.assertEqual(error, '')
@@ -350,6 +379,13 @@ class SnapmodTest(SkoolKitTestCase):
         exp_header[29] = (header[29] & 252) | 2 # IM 2
         options = '-s border=2 -s iff=1 -s im=2'
         self._test_z80(options, header, exp_header)
+
+    def test_option_s_invalid_values(self):
+        infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
+        self._test_bad_spec('-s border=k', infile, 'Cannot parse integer: border=k')
+        self._test_bad_spec('-s iff=$', infile, 'Cannot parse integer: iff=$')
+        self._test_bad_spec('-s im=?', infile, 'Cannot parse integer: im=?')
+        self._test_bad_spec('-s bar=1', infile, 'Invalid parameter: bar=1')
 
     def test_state_help(self):
         output, error = self.run_snapmod('--state help')

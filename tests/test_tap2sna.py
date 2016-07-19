@@ -70,13 +70,13 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(error, '')
         return get_snapshot(z80file)
 
-    def _test_bad_spec(self, option, bad_spec, exp_error):
+    def _test_bad_spec(self, option, exp_error):
         odir = self.make_directory()
         tapfile = self._write_tap([create_tap_data_block([1])])
         z80fname = 'test.z80'
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_tap2sna('--ram load=1,16384 {} {} -d {} {} {}'.format(option, bad_spec, odir, tapfile, z80fname))
-        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: {}: {}'.format(z80fname, exp_error, bad_spec))
+            self.run_tap2sna('--ram load=1,16384 {} -d {} {} {}'.format(option, odir, tapfile, z80fname))
+        self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: {}'.format(z80fname, exp_error))
 
     def test_no_arguments(self):
         output, error = self.run_tap2sna(catch_exit=2)
@@ -300,7 +300,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(snapshot[(start + 2 * step) & 65535], data[2])
 
     def test_ram_load_bad_address(self):
-        self._test_bad_spec('--ram', 'load=1,abcde', 'Cannot parse integer')
+        self._test_bad_spec('--ram load=1,abcde', 'Invalid integer in load spec: 1,abcde')
 
     def test_ram_poke_single_address(self):
         start = 16384
@@ -348,7 +348,12 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(snapshot[address], value)
 
     def test_ram_poke_bad_value(self):
-        self._test_bad_spec('--ram', 'poke=16384,$g', 'Cannot parse integer')
+        self._test_bad_spec('--ram poke=1', 'Value missing in poke spec: 1')
+        self._test_bad_spec('--ram poke=q', 'Value missing in poke spec: q')
+        self._test_bad_spec('--ram poke=1,x', 'Invalid value in poke spec: 1,x')
+        self._test_bad_spec('--ram poke=x,1', 'Invalid address range in poke spec: x,1')
+        self._test_bad_spec('--ram poke=1-y,1', 'Invalid address range in poke spec: 1-y,1')
+        self._test_bad_spec('--ram poke=1-3-z,1', 'Invalid address range in poke spec: 1-3-z,1')
 
     def test_ram_move(self):
         start = 16384
@@ -367,10 +372,14 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(snapshot[dest], value)
 
     def test_ram_move_bad_address(self):
-        self._test_bad_spec('--ram', 'move=16384,1,$800Z', 'Cannot parse integer')
+        self._test_bad_spec('--ram move=1', 'Not enough arguments in move spec (expected 3): 1')
+        self._test_bad_spec('--ram move=1,2', 'Not enough arguments in move spec (expected 3): 1,2')
+        self._test_bad_spec('--ram move=x,2,3', 'Invalid integer in move spec: x,2,3')
+        self._test_bad_spec('--ram move=1,y,3', 'Invalid integer in move spec: 1,y,3')
+        self._test_bad_spec('--ram move=1,2,z', 'Invalid integer in move spec: 1,2,z')
 
     def test_ram_invalid_operation(self):
-        self._test_bad_spec('--ram', 'foo=bar', 'Invalid operation')
+        self._test_bad_spec('--ram foo=bar', 'Invalid operation: foo=bar')
 
     def test_ram_help(self):
         output, error = self.run_tap2sna('--ram help')
@@ -571,10 +580,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(z80_header[2] + 256 * z80_header[3], reg_value)
 
     def test_reg_bad_value(self):
-        self._test_bad_spec('--reg', 'bc=A2', 'Cannot parse register value')
+        self._test_bad_spec('--reg bc=A2', 'Cannot parse register value: bc=A2')
 
     def test_ram_invalid_register(self):
-        self._test_bad_spec('--reg', 'iz=1', 'Invalid register')
+        self._test_bad_spec('--reg iz=1', 'Invalid register: iz=1')
 
     def test_reg_help(self):
         output, error = self.run_tap2sna('--reg help')
@@ -607,7 +616,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(z80_header[28], iff_value)
 
     def test_state_iff_bad_value(self):
-        self._test_bad_spec('--state', 'iff=fa', 'Cannot parse integer')
+        self._test_bad_spec('--state iff=fa', 'Cannot parse integer: iff=fa')
 
     def test_state_im(self):
         block = create_tap_data_block([0])
@@ -621,7 +630,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(z80_header[29] & 3, im_value)
 
     def test_state_im_bad_value(self):
-        self._test_bad_spec('--state', 'im=Q', 'Cannot parse integer')
+        self._test_bad_spec('--state im=Q', 'Cannot parse integer: im=Q')
 
     def test_state_border(self):
         block = create_tap_data_block([0])
@@ -635,10 +644,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual((z80_header[12] // 2) & 7, border)
 
     def test_state_border_bad_value(self):
-        self._test_bad_spec('--state', 'border=x!', 'Cannot parse integer')
+        self._test_bad_spec('--state border=x!', 'Cannot parse integer: border=x!')
 
     def test_state_invalid_parameter(self):
-        self._test_bad_spec('--state', 'baz=2', 'Invalid parameter')
+        self._test_bad_spec('--state baz=2', 'Invalid parameter: baz=2')
 
     def test_state_help(self):
         output, error = self.run_tap2sna('--state help')
