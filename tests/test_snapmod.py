@@ -115,6 +115,12 @@ class SnapmodTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolKitError, 'Unrecognised input snapshot type$'):
             self.run_snapmod('unknown.snap')
 
+    def test_nonexistent_input_file(self):
+        infile = 'non-existent.z80'
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_snapmod('-r hl=0 {}'.format(infile))
+        self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))
+
     def test_no_clobber_input_file(self):
         infile = self.write_bin_file(suffix='.z80')
         output, error = self.run_snapmod('-p 16384,0 {}'.format(infile))
