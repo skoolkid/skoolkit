@@ -117,23 +117,27 @@ def make_z80_ram_block(data, page):
     block = []
     prev_b = None
     count = 0
-    for b in data + [-1]:
+    for b in data:
         if b == prev_b or prev_b is None:
             prev_b = b
             if count < 255:
                 count += 1
                 continue
-        if count > 4 or (prev_b == 237 and count > 1):
-            block += [237, 237, count, prev_b]
+        if count > 4 or (count > 1 and prev_b == 237):
+            block.extend((237, 237, count, prev_b))
         elif prev_b == 237:
-            block += [237, b]
+            block.extend((237, b))
             prev_b = None
             count = 0
             continue
         else:
-            block += [prev_b] * count
+            block.extend((prev_b,) * count)
         prev_b = b
         count = 1
+    if count > 4 or (count > 1 and prev_b == 237):
+        block.extend((237, 237, count, prev_b))
+    else:
+        block.extend((prev_b,) * count)
     length = len(block)
     return [length % 256, length // 256, page] + block
 

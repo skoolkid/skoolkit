@@ -173,6 +173,11 @@ class Z80CompressionTest(SkoolKitTestCase):
         exp_data = [6, 0, 0, 237, 2, 237, 237, 5, 2]
         self.assertEqual(exp_data, block)
 
+    def test_block_ending_with_single_ED(self):
+        data = [0, 237]
+        exp_data = [2, 0, 0, 0, 237]
+        self.assertEqual(exp_data, make_z80_ram_block(data, 0))
+
 class SZXTest(SnapshotTest):
     def _test_szx(self, exp_ram, compress, machine_id=1, ch7ffd=0, pages={}, page=None):
         tmp_szx = self.write_szx(exp_ram, compress, machine_id, ch7ffd, pages)
