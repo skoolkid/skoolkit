@@ -143,5 +143,20 @@ class VariableListerTest(SkoolKitTestCase):
         ]
         self._test_variables(variables, exp_output)
 
+    def test_basic_lines_skipped(self):
+        variables = [
+            0, 10, 12, 0,                    # Line 10, length
+            245, 49, 50, 51, 52,             # PRINT 1234
+            14, 0, 0, 210, 4, 0,             # 1234
+            13,                              # ENTER
+            39, 15, 13, 0,                   # Line 9999, length
+            245, 45, 49, 50, 51, 52,         # PRINT -1234
+            14, 0, 0, 210, 4, 0,             # 1234
+            13,                              # ENTER
+            128                              # End of variables area
+        ]
+        exp_output = ['']
+        self._test_variables(variables, exp_output)
+
 if __name__ == '__main__':
     unittest.main()

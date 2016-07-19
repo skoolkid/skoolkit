@@ -35,24 +35,28 @@ class VariableLister:
             self.text.lspace = False
             variable_type = (snapshot[i] & 224)
             if (variable_type == 64):
-                # String
+                # String (010xxxxx)
                 i, line = self._get_string_var(i)
             elif (variable_type == 128):
-                # Array of numbers
+                # Array of numbers (100xxxxx)
                 i, line = self._get_num_array_var(i)
             elif (variable_type == 160):
-                # Number whose name is longer than one letter
+                # Number whose name is longer than one letter (101xxxxx)
                 i, line = self._get_long_num_var(i)
             elif (variable_type == 192):
-                # Array of characters
+                # Array of characters (110xxxxx)
                 i, line = self._get_char_array_var(i)
             elif (variable_type == 224):
-                # Control variable of a FOR-NEXT loop
+                # Control variable of a FOR-NEXT loop (111xxxxx)
                 i, line = self._get_control_var(i)
-            else:
-                # Number whose name is one letter
+            elif (variable_type == 96):
+                # Number whose name is one letter (011xxxxx)
                 i, line = self._get_short_num_var(i)
-            lines.append('{}'.format(line))
+            else:
+                # Basic line (000xxxxx / 001xxxxx)
+                i, line = self._skip_basic_line(i)
+            if (line != ''):
+                lines.append('{}'.format(line))
         return '\n'.join(lines)
 
     def _get_string_var(self, i):
@@ -160,4 +164,11 @@ class VariableLister:
         i += 1
         line += "{}".format(get_number(self.snapshot, i))
         i += 5
+        return i, line
+
+    def _skip_basic_line(self, i):
+        line = ''
+        i += 2
+        line_length = get_word(self.snapshot, i)
+        i += line_length + 2
         return i, line
