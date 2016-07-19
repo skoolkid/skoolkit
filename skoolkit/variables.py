@@ -152,3 +152,12 @@ class VariableLister:
         line += 'statement={})'.format(self.snapshot[i])
         i += 1
         return i,line
+
+    def _get_short_num_var(self, i):
+        line = '(Number) '
+        letter = (self.snapshot[i] & 31) + 96
+        line += '{}='.format(self.text.get_chars(letter))
+        i += 1
+        line += "{}".format(get_number(self.snapshot, i))
+        i += 5
+        return i, line
