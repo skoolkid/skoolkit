@@ -336,6 +336,76 @@ class SnapinfoTest(SkoolKitTestCase):
         ]
         self._test_z80(exp_output, header, compress=False, machine_id=4, pages=pages)
 
+    def test_szx_16k_uncompressed(self):
+        registers = list(range(32, 58)) # Registers
+        registers.extend((0, 0)) # IFF1, IFF2
+        registers.append(1) # Interrupt mode
+        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        exp_output = [
+            'Version: 1.4',
+            'Machine: 16K ZX Spectrum',
+            'SPCR: 8 bytes',
+            '  Border: 1',
+            '  Port $7FFD: 0 (bank 0 paged into 49152-65535 C000-FFFF)',
+            'Z80R: 37 bytes',
+            '  Interrupts: disabled',
+            '  Interrupt mode: 1',
+            '  PC  14134 3736    SP  13620 3534',
+            '  IX  12592 3130    IY  13106 3332',
+            '  I      56   38    R      57   39',
+            "  B      35   23    B'     43   2B",
+            "  C      34   22    C'     42   2A",
+            "  BC   8994 2322    BC' 11050 2B2A",
+            "  D      37   25    D'     45   2D",
+            "  E      36   24    E'     44   2C",
+            "  DE   9508 2524    DE' 11564 2D2C",
+            "  H      39   27    H'     47   2F",
+            "  L      38   26    L'     46   2E",
+            "  HL  10022 2726    HL' 12078 2F2E",
+            "  A      33   21    A'     41   29",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00100000        F' 00101000",
+            'RAMP: 16387 bytes',
+            '  Page: 5',
+            '  RAM: 16384-32767 4000-7FFF: 16384 bytes, uncompressed'
+        ]
+        self._test_szx(exp_output, registers, border=1, compress=False, machine_id=0)
+
+    def test_szx_16k_compressed(self):
+        registers = list(range(32, 58)) # Registers
+        registers.extend((0, 0)) # IFF1, IFF2
+        registers.append(1) # Interrupt mode
+        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        exp_output = [
+            'Version: 1.4',
+            'Machine: 16K ZX Spectrum',
+            'SPCR: 8 bytes',
+            '  Border: 2',
+            '  Port $7FFD: 0 (bank 0 paged into 49152-65535 C000-FFFF)',
+            'Z80R: 37 bytes',
+            '  Interrupts: disabled',
+            '  Interrupt mode: 1',
+            '  PC  14134 3736    SP  13620 3534',
+            '  IX  12592 3130    IY  13106 3332',
+            '  I      56   38    R      57   39',
+            "  B      35   23    B'     43   2B",
+            "  C      34   22    C'     42   2A",
+            "  BC   8994 2322    BC' 11050 2B2A",
+            "  D      37   25    D'     45   2D",
+            "  E      36   24    E'     44   2C",
+            "  DE   9508 2524    DE' 11564 2D2C",
+            "  H      39   27    H'     47   2F",
+            "  L      38   26    L'     46   2E",
+            "  HL  10022 2726    HL' 12078 2F2E",
+            "  A      33   21    A'     41   29",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00100000        F' 00101000",
+            'RAMP: 42 bytes',
+            '  Page: 5',
+            '  RAM: 16384-32767 4000-7FFF: 39 bytes, compressed'
+        ]
+        self._test_szx(exp_output, registers, border=2, compress=True, machine_id=0)
+
     def test_szx_48k_uncompressed(self):
         registers = list(range(26)) # Registers
         registers.extend((1, 1)) # IFF1, IFF2
@@ -376,6 +446,47 @@ class SnapinfoTest(SkoolKitTestCase):
             '  RAM: 16384-32767 4000-7FFF: 16384 bytes, uncompressed'
         ]
         self._test_szx(exp_output, registers, border=3, compress=False)
+
+    def test_szx_48k_compressed(self):
+        registers = list(range(26)) # Registers
+        registers.extend((1, 1)) # IFF1, IFF2
+        registers.append(2) # Interrupt mode
+        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        exp_output = [
+            'Version: 1.4',
+            'Machine: 48K ZX Spectrum',
+            'SPCR: 8 bytes',
+            '  Border: 4',
+            '  Port $7FFD: 0 (bank 0 paged into 49152-65535 C000-FFFF)',
+            'Z80R: 37 bytes',
+            '  Interrupts: enabled',
+            '  Interrupt mode: 2',
+            '  PC   5910 1716    SP   5396 1514',
+            '  IX   4368 1110    IY   4882 1312',
+            '  I      24   18    R      25   19',
+            "  B       3   03    B'     11   0B",
+            "  C       2   02    C'     10   0A",
+            "  BC    770 0302    BC'  2826 0B0A",
+            "  D       5   05    D'     13   0D",
+            "  E       4   04    E'     12   0C",
+            "  DE   1284 0504    DE'  3340 0D0C",
+            "  H       7   07    H'     15   0F",
+            "  L       6   06    L'     14   0E",
+            "  HL   1798 0706    HL'  3854 0F0E",
+            "  A       1   01    A'      9   09",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00000000        F' 00001000",
+            'RAMP: 42 bytes',
+            '  Page: 0',
+            '  RAM: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 2',
+            '  RAM: 32768-49151 8000-BFFF: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 5',
+            '  RAM: 16384-32767 4000-7FFF: 39 bytes, compressed'
+        ]
+        self._test_szx(exp_output, registers, border=4, compress=True)
 
     def test_szx_128k_uncompressed(self):
         registers = list(range(16, 42)) # Registers
@@ -432,6 +543,62 @@ class SnapinfoTest(SkoolKitTestCase):
             '  RAM: 16384 bytes, uncompressed'
         ]
         self._test_szx(exp_output, registers, border=6, compress=False, machine_id=2, ch7ffd=1, pages=None)
+
+    def test_szx_128k_compressed(self):
+        registers = list(range(16, 42)) # Registers
+        registers.extend((0, 0)) # IFF1, IFF2
+        registers.append(1) # Interrupt mode
+        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        exp_output = [
+            'Version: 1.4',
+            'Machine: ZX Spectrum 128',
+            'SPCR: 8 bytes',
+            '  Border: 7',
+            '  Port $7FFD: 1 (bank 1 paged into 49152-65535 C000-FFFF)',
+            'Z80R: 37 bytes',
+            '  Interrupts: disabled',
+            '  Interrupt mode: 1',
+            '  PC  10022 2726    SP   9508 2524',
+            '  IX   8480 2120    IY   8994 2322',
+            '  I      40   28    R      41   29',
+            "  B      19   13    B'     27   1B",
+            "  C      18   12    C'     26   1A",
+            "  BC   4882 1312    BC'  6938 1B1A",
+            "  D      21   15    D'     29   1D",
+            "  E      20   14    E'     28   1C",
+            "  DE   5396 1514    DE'  7452 1D1C",
+            "  H      23   17    H'     31   1F",
+            "  L      22   16    L'     30   1E",
+            "  HL   5910 1716    HL'  7966 1F1E",
+            "  A      17   11    A'     25   19",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00010000        F' 00011000",
+            'RAMP: 42 bytes',
+            '  Page: 0',
+            '  RAM: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 1',
+            '  RAM: 49152-65535 C000-FFFF: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 2',
+            '  RAM: 32768-49151 8000-BFFF: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 3',
+            '  RAM: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 4',
+            '  RAM: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 5',
+            '  RAM: 16384-32767 4000-7FFF: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 6',
+            '  RAM: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 7',
+            '  RAM: 39 bytes, compressed'
+        ]
+        self._test_szx(exp_output, registers, border=7, compress=True, machine_id=2, ch7ffd=1, pages=None)
 
     def test_szx_without_magic_number(self):
         non_szx = self.write_bin_file((1, 2, 3), suffix='.szx')
