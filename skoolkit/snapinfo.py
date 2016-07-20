@@ -21,6 +21,7 @@ import re
 
 from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, read_bin_file, VERSION
 from skoolkit.basic import BasicLister
+from skoolkit.variables import VariableLister
 from skoolkit.snapshot import get_snapshot
 
 class Registers:
@@ -412,6 +413,8 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-b', '--basic', action='store_true',
                        help='List the BASIC program')
+    group.add_argument('-v', '--vars', action='store_true',
+                       help='List variables')
     group.add_argument('-f', '--find', metavar='A[,B...[-N]]',
                        help='Search for the byte sequence A,B... with distance N (default=1) between bytes')
     group.add_argument('-p', '--peek', metavar='A[-B[-C]]', action='append',
@@ -436,6 +439,8 @@ def main(args):
         _peek(infile, namespace.peek)
     elif namespace.basic:
         print(BasicLister().list_basic(get_snapshot(infile)))
+    elif namespace.vars:
+        print(VariableLister().list_variables(get_snapshot(infile)))
     elif snapshot_type == '.sna':
         _analyse_sna(infile)
     elif snapshot_type == '.z80':
