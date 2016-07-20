@@ -67,6 +67,12 @@ class SnapinfoTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolKitError, 'Unrecognised snapshot type$'):
             self.run_snapinfo('unknown.snap')
 
+    def test_nonexistent_input_file(self):
+        infile = 'non-existent.z80'
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_snapinfo(infile)
+        self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))
+
     def test_sna_48k(self):
         header = list(range(23))
         header[19] = 4 # Interrupts enabled
