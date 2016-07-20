@@ -310,20 +310,13 @@ def _print_ram_banks(sna):
     print('RAM bank 5 (16384 bytes: 16384-32767 4000-7FFF)')
     print('RAM bank 2 (16384 bytes: 32768-49151 8000-BFFF)')
     print('RAM bank {} (16384 bytes: 49152-65535 C000-FFFF)'.format(bank))
-    size = len(sna) - 49183
     for b in sorted({0, 1, 3, 4, 6, 7} - {bank}):
-        prefix = 'RAM bank {}'.format(b)
-        if size >= 16384:
-            desc = '16384 bytes'
-        elif size > 0:
-            desc = 'truncated: {} byte(s)'.format(size)
-        else:
-            desc = 'missing'
-        print('RAM bank {} ({})'.format(b, desc))
-        size -= 16384
+        print('RAM bank {} (16384 bytes)'.format(b))
 
 def _analyse_sna(snafile):
-    sna = read_bin_file(snafile, 147487)
+    sna = read_bin_file(snafile, 147488)
+    if len(sna) not in (49179, 131103, 147487):
+        raise SkoolKitError('{}: not a SNA file'.format(snafile))
     is128 = len(sna) > 49179
 
     print('RAM: {}K'.format(128 if is128 else 48))
