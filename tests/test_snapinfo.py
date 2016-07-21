@@ -227,6 +227,105 @@ class SnapinfoTest(SkoolKitTestCase):
         ]
         self._test_z80(exp_output, header, version=1)
 
+    def test_z80v1_uncompressed(self):
+        header = list(range(16, 46))
+        header[12] = 42 # BORDER 5, compressed RAM
+        exp_output = [
+            'Version: 1',
+            'Machine: 48K Spectrum',
+            'Interrupts: enabled',
+            'Interrupt mode: 1',
+            'Border: 5',
+            'Registers:',
+            '  PC   5910 1716    SP   6424 1918',
+            '  IX  10793 2A29    IY  10279 2827',
+            '  I      26   1A    R      27   1B',
+            "  B      19   13    B'     32   20",
+            "  C      18   12    C'     31   1F",
+            "  BC   4882 1312    BC'  8223 201F",
+            "  D      30   1E    D'     34   22",
+            "  E      29   1D    E'     33   21",
+            "  DE   7709 1E1D    DE'  8737 2221",
+            "  H      21   15    H'     36   24",
+            "  L      20   14    L'     35   23",
+            "  HL   5396 1514    HL'  9251 2423",
+            "  A      16   10    A'     37   25",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00010001        F' 00100110",
+            '48K RAM block (16384-65535 4000-FFFF): 776 bytes (compressed)'
+        ]
+        self._test_z80(exp_output, header, version=1, compress=True)
+
+    def test_z80v2_48k_uncompressed(self):
+        header = list(range(30))
+        header[6:8] = [0, 0] # Version 2+
+        header[12] = 8 # BORDER 4
+        header.extend((23, 0)) # Remaining header length (version 2)
+        header.extend((173, 222)) # PC=57005
+        header.extend([0] * (header[-4] - 2))
+        exp_output = [
+            'Version: 2',
+            'Machine: 48K Spectrum',
+            'Interrupts: enabled',
+            'Interrupt mode: 1',
+            'Border: 4',
+            'Registers:',
+            '  PC  57005 DEAD    SP   2312 0908',
+            '  IX   6681 1A19    IY   6167 1817',
+            '  I      10   0A    R      11   0B',
+            "  B       3   03    B'     16   10",
+            "  C       2   02    C'     15   0F",
+            "  BC    770 0302    BC'  4111 100F",
+            "  D      14   0E    D'     18   12",
+            "  E      13   0D    E'     17   11",
+            "  DE   3597 0E0D    DE'  4625 1211",
+            "  H       5   05    H'     20   14",
+            "  L       4   04    L'     19   13",
+            "  HL   1284 0504    HL'  5139 1413",
+            "  A       0   00    A'     21   15",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00000001        F' 00010110",
+            'RAM block 4 (32768-49151 8000-BFFF): 16384 bytes (uncompressed)',
+            'RAM block 5 (49152-65535 C000-FFFF): 16384 bytes (uncompressed)',
+            'RAM block 8 (16384-32767 4000-7FFF): 16384 bytes (uncompressed)'
+        ]
+        self._test_z80(exp_output, header, version=2)
+
+    def test_z80v2_48k_compressed(self):
+        header = list(range(30))
+        header[6:8] = [0, 0] # Version 2+
+        header[12] = 10 # BORDER 5
+        header.extend((23, 0)) # Remaining header length (version 2)
+        header.extend((239, 190)) # PC=48879
+        header.extend([0] * (header[-4] - 2))
+        exp_output = [
+            'Version: 2',
+            'Machine: 48K Spectrum',
+            'Interrupts: enabled',
+            'Interrupt mode: 1',
+            'Border: 5',
+            'Registers:',
+            '  PC  48879 BEEF    SP   2312 0908',
+            '  IX   6681 1A19    IY   6167 1817',
+            '  I      10   0A    R      11   0B',
+            "  B       3   03    B'     16   10",
+            "  C       2   02    C'     15   0F",
+            "  BC    770 0302    BC'  4111 100F",
+            "  D      14   0E    D'     18   12",
+            "  E      13   0D    E'     17   11",
+            "  DE   3597 0E0D    DE'  4625 1211",
+            "  H       5   05    H'     20   14",
+            "  L       4   04    L'     19   13",
+            "  HL   1284 0504    HL'  5139 1413",
+            "  A       0   00    A'     21   15",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00000001        F' 00010110",
+            'RAM block 4 (32768-49151 8000-BFFF): 260 bytes (compressed)',
+            'RAM block 5 (49152-65535 C000-FFFF): 260 bytes (compressed)',
+            'RAM block 8 (16384-32767 4000-7FFF): 260 bytes (compressed)'
+        ]
+        self._test_z80(exp_output, header, version=2, compress=True)
+
     def test_z80v3_48k_uncompressed(self):
         header = list(range(30))
         header[6:8] = [0, 0] # Version 2+
@@ -301,7 +400,7 @@ class SnapinfoTest(SkoolKitTestCase):
     def test_z80v3_128k_uncompressed(self):
         header = list(range(32, 62))
         header[6:8] = [0, 0] # Version 2+
-        header[12] = 8 # BORDER 4, uncompressed RAM
+        header[12] = 8 # BORDER 4
         header.extend((54, 0)) # Remaining header length (version 3)
         header.extend((27, 101)) # PC=25883
         header.append(4) # 128K
@@ -341,6 +440,50 @@ class SnapinfoTest(SkoolKitTestCase):
             'RAM block 10: 16384 bytes (uncompressed)'
         ]
         self._test_z80(exp_output, header, compress=False, machine_id=4, pages=pages)
+
+    def test_z80v3_128k_compressed(self):
+        header = list(range(32, 62))
+        header[6:8] = [0, 0] # Version 2+
+        header[12] = 14 # BORDER 7
+        header.extend((54, 0)) # Remaining header length (version 3)
+        header.extend((237, 254)) # PC=65261
+        header.append(4) # 128K
+        header.append(3) # Port 0x7ffd
+        header += [0] * (header[-6] - 4)
+        pages = {bank: [0] * 16384 for bank in (1, 3, 4, 6, 7)}
+        exp_output = [
+            'Version: 3',
+            'Machine: 128K Spectrum',
+            'Interrupts: enabled',
+            'Interrupt mode: 1',
+            'Border: 7',
+            'Port $7FFD: 3 - bank 3 (block 6) paged into 49152-65535 C000-FFFF',
+            'Registers:',
+            '  PC  65261 FEED    SP  10536 2928',
+            '  IX  14905 3A39    IY  14391 3837',
+            '  I      42   2A    R      43   2B',
+            "  B      35   23    B'     48   30",
+            "  C      34   22    C'     47   2F",
+            "  BC   8994 2322    BC' 12335 302F",
+            "  D      46   2E    D'     50   32",
+            "  E      45   2D    E'     49   31",
+            "  DE  11821 2E2D    DE' 12849 3231",
+            "  H      37   25    H'     52   34",
+            "  L      36   24    L'     51   33",
+            "  HL   9508 2524    HL' 13363 3433",
+            "  A      32   20    A'     53   35",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00100001        F' 00110110",
+            'RAM block 3: 260 bytes (compressed)',
+            'RAM block 4: 260 bytes (compressed)',
+            'RAM block 5 (32768-49151 8000-BFFF): 260 bytes (compressed)',
+            'RAM block 6 (49152-65535 C000-FFFF): 260 bytes (compressed)',
+            'RAM block 7: 260 bytes (compressed)',
+            'RAM block 8 (16384-32767 4000-7FFF): 260 bytes (compressed)',
+            'RAM block 9: 260 bytes (compressed)',
+            'RAM block 10: 260 bytes (compressed)'
+        ]
+        self._test_z80(exp_output, header, compress=True, machine_id=4, pages=pages)
 
     def test_szx_16k_uncompressed(self):
         registers = list(range(32, 58)) # Registers
