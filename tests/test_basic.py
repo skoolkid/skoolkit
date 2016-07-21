@@ -142,7 +142,23 @@ class BasicListerTest(SkoolKitTestCase):
         exp_output = ['  10 PRINT "↑£©"']
         self._test_basic(basic, exp_output)
 
-    def test_character_codes_below_32(self):
+    def test_character_codes_16_to_23(self):
+        basic = [
+            0, 10, 14, 0,                                  # Line 10, length
+            234, 16, 1, 17, 2, 18, 3, 19, 4, 20, 1, 21, 1, # Codes 16-21
+            13,                                            # ENTER
+            0, 20, 8, 0,                                   # Line 20, length
+            234, 22, 13, 14, 23, 16, 17,                   # Codes 22, 23
+            13,                                            # ENTER
+            128                                            # End of BASIC area
+        ]
+        exp_output = [
+            '  10 REM {0x1001}{0x1102}{0x1203}{0x1304}{0x1401}{0x1501}',
+            '  20 REM {0x160D0E}{0x171011}'
+        ]
+        self._test_basic(basic, exp_output)
+
+    def test_other_character_codes_below_32(self):
         basic = [
             0, 10, 10, 0,                        # Line 10, length
             234, 0, 1, 2, 3, 4, 5, 6, 7,         # REM ????????
@@ -151,9 +167,6 @@ class BasicListerTest(SkoolKitTestCase):
             234, 8, 9, 10, 11, 12, 15,           # REM ??????
             13,                                  # ENTER
             0, 30, 10, 0,                        # Line 30, length
-            234, 16, 17, 18, 19, 20, 21, 22, 23, # REM ????????
-            13,                                  # ENTER
-            0, 40, 10, 0,                        # Line 30, length
             234, 24, 25, 26, 27, 28, 29, 30, 31, # REM ????????
             13,                                  # ENTER
             128                                  # End of BASIC area
@@ -161,8 +174,7 @@ class BasicListerTest(SkoolKitTestCase):
         exp_output = [
             '  10 REM {0x00}{0x01}{0x02}{0x03}{0x04}{0x05}{0x06}{0x07}',
             '  20 REM {0x08}{0x09}{0x0A}{0x0B}{0x0C}{0x0F}',
-            '  30 REM {0x10}{0x11}{0x12}{0x13}{0x14}{0x15}{0x16}{0x17}',
-            '  40 REM {0x18}{0x19}{0x1A}{0x1B}{0x1C}{0x1D}{0x1E}{0x1F}'
+            '  30 REM {0x18}{0x19}{0x1A}{0x1B}{0x1C}{0x1D}{0x1E}{0x1F}'
         ]
         self._test_basic(basic, exp_output)
 

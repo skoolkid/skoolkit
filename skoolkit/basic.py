@@ -129,7 +129,8 @@ class BasicLister:
     def _get_basic_line(self, i):
         line = ''
         while i < len(self.snapshot) and self.snapshot[i] != 13:
-            if self.snapshot[i] == 14:
+            code = self.snapshot[i]
+            if code == 14:
                 if i + 5 < len(self.snapshot):
                     line += self._get_fp_num(i)
                     i += 6
@@ -137,8 +138,14 @@ class BasicLister:
                     while i < len(self.snapshot):
                         line += '{{0x{:02X}}}'.format(self.snapshot[i])
                         i += 1
+            elif 16 <= code <= 21 and i + 1 < len(self.snapshot):
+                line += '{{0x{:02X}{:02X}}}'.format(code, self.snapshot[i + 1])
+                i += 2
+            elif 22 <= code <= 23 and i + 2 < len(self.snapshot):
+                line += '{{0x{:02X}{:02X}{:02X}}}'.format(code, self.snapshot[i + 1], self.snapshot[i + 2])
+                i += 3
             else:
-                line += self._get_chars(self.snapshot[i])
+                line += self._get_chars(code)
                 i += 1
         return i + 1, line
 
