@@ -37,16 +37,16 @@ class VariableListerTest(SkoolKitTestCase):
     def test_number_arrays(self):
         variables = [
             147,                     # Number array variable of name "s"
-            28, 0,                   # ?????Length?????, 
+            28, 0,                   # Length, 
             1,                       # 1 dimension
             5, 0,                    # Dimension 1, length 5
             0, 0, 1, 0, 0,           # s(1) = 1
             0, 0, 5, 0, 0,           # s(2) = 5
             0, 255, 252, 255, 0,     # s(3) = -4
-            130, 102, 102, 102, 102, # s(4) = 3.6
-            168, 162, 251, 64, 88,   # s(5) = -0.7e12
+            0, 0, 0, 5, 0,           # s(4) = 1280
+            0, 255, 0, 5, 0,         # s(5) = -64256
             145,                     # Number array variable name "q"
-            35, 0,                   # ?????Length?????
+            35, 0,                   # Length
             2,                       # 2 dimensions
             2, 0,                    # Dimension 1, length 2
             3, 0,                    # Dimension 2, length 3
@@ -59,7 +59,7 @@ class VariableListerTest(SkoolKitTestCase):
             128                      # End of variables area
         ]
         exp_output = [
-            '(Number array) s(5)=[1,5,-4,3.59999999963,-7e+11]',
+            '(Number array) s(5)=[1,5,-4,1280,-64256]',
             '(Number array) q(2,3)=[11,21,31,12,22,32]',
         ]
         self._test_variables(variables, exp_output)
@@ -81,7 +81,7 @@ class VariableListerTest(SkoolKitTestCase):
     def test_character_arrays(self):
         variables = [
             196,   # Character array variable of name "d$"
-            7, 0,  # ?????Length?????
+            7, 0,  # Length
             1,     # 1 dimension
             4, 0,  # Dimension 1, length 4
             97,    # d$(1) = "a"
@@ -89,7 +89,7 @@ class VariableListerTest(SkoolKitTestCase):
             120,   # d$(3) = "x"
             122,   # d$(4) = "z"
             199,   # Character array variable of name "g$"
-            11, 0, # ?????Length?????
+            11, 0, # Length
             2,     # 2 dimensions
             2, 0,  # Dimension 1, length 2
             3, 0,  # Dimension 2, length 3
@@ -134,12 +134,12 @@ class VariableListerTest(SkoolKitTestCase):
             112,              # Number variable of name "p"
             0, 0, 12, 0, 0,   # 12
             116,              # Number variable of name "t"
-            128, 64, 0, 0, 0, # 0.75
+            0, 0, 64, 0, 0,   # 64
             128               # End of variables area
         ]
         exp_output = [
             '(Number) p=12',
-            '(Number) t=0.75',
+            '(Number) t=64',
         ]
         self._test_variables(variables, exp_output)
 
@@ -168,8 +168,8 @@ class VariableListerTest(SkoolKitTestCase):
             0, 0, 128, 0, 0,                             # b(2,1)=128
             0, 0, 16, 0, 0,                              # b(2,2)=16
             0, 0, 32, 0, 0,                              # b(2,3)=32
-            172,111,110,103,111,110,229,                 # longone=2.25
-            130,16, 0, 0, 0,                             #
+            172,111,110,103,111,110,229,                 # longone=255
+            0, 0, 255, 0, 0,                             #
             195, 8, 0, 1, 5, 0,                          # dim c$(5)
             119,                                         # c$(1)="w"
             119,                                         # c$(2)="w"
@@ -193,8 +193,8 @@ class VariableListerTest(SkoolKitTestCase):
             0, 0, 15, 0, 0,                              # g(4)=15
             0, 0, 16, 0, 0,                              # g(5)=16
             0, 0, 17, 0, 0,                              # g(6)=17
-            172, 111, 110, 103, 101, 114, 111, 110, 229, # longerone=-8.25
-            132, 132, 0, 0, 0,                           #
+            172, 111, 110, 103, 101, 114, 111, 110, 229, # longerone=-63741
+            0, 255, 3, 7, 0,                             #
             200, 11, 0, 2, 3, 0, 2, 0,                   # dim h$(3,2)
             97,                                          # h$(1,1)="a"
             122,                                         # h$(1,2)="z"
@@ -208,7 +208,7 @@ class VariableListerTest(SkoolKitTestCase):
             0, 0, 0, 1, 0,                               # step = 256
             17, 0,                                       # line = 17
             1,                                           # statement = 1
-            106, 149, 244, 36, 0, 0,                     # j=-2e6
+            106, 0, 0, 36, 0, 0,                         # j=36
             0, 10, 3, 0, 245, 112, 13,                   # 10 PRINT p
             39, 15, 2, 0, 230, 13,                       # 9999 NEW
             128                                          # End of variables area
@@ -216,16 +216,16 @@ class VariableListerTest(SkoolKitTestCase):
         exp_output = [
             '(String) a$="asdf"',
             '(Number array) b(2,3)=[1,-1,64,128,16,32]',
-            '(Number) longone=2.25',
+            '(Number) longone=255',
             '(Character array) c$(5)=["w","w","w","w","w"]',
             '(FOR control variable) d=1 (limit=8, step=1, line=4, statement=7)',
             '(Number) e=65530',
             '(String) f$="zxcvb"',
             '(Number array) g(6)=[12,13,14,15,16,17]',
-            '(Number) longerone=-8.25',
+            '(Number) longerone=-63741',
             '(Character array) h$(3,2)=["a","z","b","y","c","x"]',
             '(FOR control variable) i=256 (limit=512, step=256, line=17, statement=1)',
-            '(Number) j=-2000000.0',
+            '(Number) j=36',
         ]
         self._test_variables(variables, exp_output)
 
