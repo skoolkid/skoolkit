@@ -15,6 +15,13 @@ class MockBasicLister:
         self.snapshot = snapshot
         return 'DONE!'
 
+class MockVariableLister:
+    def list_variables(self, snapshot):
+        global mock_variable_lister
+        mock_variable_lister = self
+        self.snapshot = snapshot
+        return 'DONE!'
+
 class SnapinfoTest(SkoolKitTestCase):
     def _test_sna(self, ram, exp_output, options='', header=None):
         if header is None:
@@ -765,6 +772,18 @@ class SnapinfoTest(SkoolKitTestCase):
             self.assertEqual(['DONE!'], output)
             self.assertEqual(exp_snapshot, mock_basic_lister.snapshot)
             mock_basic_lister.snapshot = None
+
+    @patch.object(snapinfo, 'VariableLister', MockVariableLister)
+    def test_option_v(self):
+        ram = [127] * 49152
+        snafile = self.write_bin_file([0] * 27 + ram, suffix='.sna')
+        exp_snapshot = [0] * 16384 + ram
+        for option in ('-v', '--vars'):
+            output, error = self.run_snapinfo('{} {}'.format(option, snafile))
+            self.assertEqual(error, '')
+            self.assertEqual(['DONE!'], output)
+            self.assertEqual(exp_snapshot, mock_variable_lister.snapshot)
+            mock_variable_lister.snapshot = None
 
     def test_option_f_with_single_byte(self):
         ram = [0] * 49152
