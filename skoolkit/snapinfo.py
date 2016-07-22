@@ -187,9 +187,8 @@ def _analyse_z80(z80file):
             block_len = get_word(ram_blocks, i)
             page_num = ram_blocks[i + 2]
             addr_range = block_dict.get(page_num)
-            if addr_range is None:
-                if page_num == bank + 3:
-                    addr_range = '49152-65535 C000-FFFF'
+            if addr_range is None and page_num - 3 == bank:
+                addr_range = '49152-65535 C000-FFFF'
             if addr_range:
                 addr_range = ' ({})'.format(addr_range)
             else:
@@ -311,20 +310,13 @@ def _print_ram_banks(sna):
     print('RAM bank 5 (16384 bytes: 16384-32767 4000-7FFF)')
     print('RAM bank 2 (16384 bytes: 32768-49151 8000-BFFF)')
     print('RAM bank {} (16384 bytes: 49152-65535 C000-FFFF)'.format(bank))
-    size = len(sna) - 49183
     for b in sorted({0, 1, 3, 4, 6, 7} - {bank}):
-        prefix = 'RAM bank {}'.format(b)
-        if size >= 16384:
-            desc = '16384 bytes'
-        elif size > 0:
-            desc = 'truncated: {} byte(s)'.format(size)
-        else:
-            desc = 'missing'
-        print('RAM bank {} ({})'.format(b, desc))
-        size -= 16384
+        print('RAM bank {} (16384 bytes)'.format(b))
 
 def _analyse_sna(snafile):
-    sna = read_bin_file(snafile, 147487)
+    sna = read_bin_file(snafile, 147488)
+    if len(sna) not in (49179, 131103, 147487):
+        raise SkoolKitError('{}: not a SNA file'.format(snafile))
     is128 = len(sna) > 49179
 
     print('RAM: {}K'.format(128 if is128 else 48))
@@ -367,12 +359,15 @@ def _find(infile, byte_seq):
     if '-' in byte_seq:
         byte_seq, step = byte_seq.split('-', 1)
         step = get_int_param(step)
-    byte_values = [get_int_param(i) for i in byte_seq.split(',')]
+    try:
+        byte_values = [get_int_param(i) for i in byte_seq.split(',')]
+    except ValueError:
+        raise SkoolKitError('Invalid byte sequence: {}'.format(byte_seq))
     offset = step * len(byte_values)
     snapshot = get_snapshot(infile)
     for a in range(16384, 65537 - offset):
         if snapshot[a:a + offset:step] == byte_values:
-            print("{0}-{1}-{2} {0:04X}-{1:04X}-{2}: {3}".format(a, a + offset - step, step, byte_seq))
+            print("{0}-{1}-{2} {0:04X}-{1:04X}-{2:X}: {3}".format(a, a + offset - step, step, byte_seq))
 
 def _find_text(infile, text):
     size = len(text)
@@ -383,18 +378,15 @@ def _find_text(infile, text):
             print("{0}-{1} {0:04X}-{1:04X}: {2}".format(a, a + size - 1, text))
 
 def _peek(infile, specs):
-    snapshot = get_snapshot(infile)
+    addr_ranges = []
     for addr_range in specs:
-        step = 1
-        if '-' in addr_range:
-            addr1, addr2 = addr_range.split('-', 1)
-            addr1 = get_int_param(addr1)
-            if '-' in addr2:
-                addr2, step = [get_int_param(i) for i in addr2.split('-', 1)]
-            else:
-                addr2 = get_int_param(addr2)
-        else:
-            addr1 = addr2 = get_int_param(addr_range)
+        try:
+            values = [get_int_param(i) for i in addr_range.split('-', 2)]
+        except ValueError:
+            raise SkoolKitError('Invalid address range: {}'.format(addr_range))
+        addr_ranges.append(values + [values[0], 1][len(values) - 1:])
+    snapshot = get_snapshot(infile)
+    for addr1, addr2, step in addr_ranges:
         for a in range(addr1, addr2 + 1, step):
             value = snapshot[a]
             if 32 <= value <= 126:

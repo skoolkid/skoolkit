@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -131,6 +131,7 @@ class CtlParser:
                         self._registers.setdefault(start, []).append(fields)
                 elif ctl == 'M':
                     self._multiline_comments[start] = (end, text)
+                    self._subctls.setdefault(start, None)
                 elif ctl == 'L':
                     count = lengths[0][0]
                     if count > 1:

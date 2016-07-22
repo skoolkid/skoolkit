@@ -5,10 +5,64 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit.basic import BasicLister
 
 class BasicListerTest(SkoolKitTestCase):
-    def _test_basic(self, data, exp_output):
-        snapshot = [0] * 23755 + data
+    def _test_basic(self, data, exp_output, prog=23755):
+        snapshot = [0] * prog + data
+        snapshot[23635:23637] = (prog % 256, prog // 256)
         basic = BasicLister().list_basic(snapshot)
         self.assertEqual(exp_output, basic.split('\n'))
+
+    def test_program_with_no_end_marker(self):
+        basic = [
+            0, 10, 5, 0,     # Line 10, length
+            245, 34, 65, 34, # PRINT "A"
+            13,              # ENTER
+            0, 0, 0, 0, 0    # No end marker
+        ]
+        exp_output = [
+            '  10 PRINT "A"',
+            '   0 {0x00}'
+        ]
+        self._test_basic(basic, exp_output)
+
+    def test_line_with_no_carriage_return(self):
+        basic = [
+            0, 10, 5, 0,     # Line 10, length
+            245, 34, 65, 34, # PRINT "A"
+            33,              # "!" (instead of ENTER)
+            128              # End of BASIC area
+        ]
+        exp_output = ['  10 PRINT "A"!{0x80}']
+        self._test_basic(basic, exp_output)
+
+    def test_line_containing_number_marker_without_floating_point_number(self):
+        basic = [
+            0, 10, 6, 0,       # Line 10, length
+            245, 49,           # PRINT 1
+            14, 1, 0, 13, 128  # Number marker, no floating point number
+        ]
+        exp_output = ['  10 PRINT 1{0x0E}{0x01}{0x00}{0x0D}{0x80}']
+        self._test_basic(basic, exp_output)
+
+    def test_incorrect_line_length(self):
+        basic = [
+            0, 10, 5, 0,     # Line 10, length (5 instead of 8)
+            245, 34, 65, 34, # PRINT "A"
+            33, 33, 33,      # !!!
+            13,              # ENTER
+            128              # End of BASIC area
+        ]
+        exp_output = ['  10 PRINT "A"!!!']
+        self._test_basic(basic, exp_output)
+
+    def test_prog_not_23755(self):
+        basic = [
+            0, 10, 5, 0,     # Line 10, length
+            245, 34, 65, 34, # PRINT "A"
+            13,              # ENTER
+            128              # End of BASIC area
+        ]
+        exp_output = ['  10 PRINT "A"']
+        self._test_basic(basic, exp_output, 23800)
 
     def test_integers(self):
         basic = [
@@ -88,14 +142,81 @@ class BasicListerTest(SkoolKitTestCase):
         exp_output = ['  10 PRINT "↑£©"']
         self._test_basic(basic, exp_output)
 
-    def test_undefined_character_codes(self):
+    def test_character_codes_16_to_23(self):
         basic = [
-            0, 10, 6, 0,       # Line 10, length
-            234, 0, 1, 30, 31, # REM ????
-            13,                # ENTER
-            128                # End of BASIC area
+            0, 10, 14, 0,                                  # Line 10, length
+            234, 16, 1, 17, 2, 18, 3, 19, 4, 20, 1, 21, 1, # Codes 16-21
+            13,                                            # ENTER
+            0, 20, 8, 0,                                   # Line 20, length
+            234, 22, 13, 14, 23, 16, 17,                   # Codes 22, 23
+            13,                                            # ENTER
+            128                                            # End of BASIC area
         ]
-        exp_output = ['  10 REM {0x00}{0x01}{0x1E}{0x1F}']
+        exp_output = [
+            '  10 REM {0x1001}{0x1102}{0x1203}{0x1304}{0x1401}{0x1501}',
+            '  20 REM {0x160D0E}{0x171011}'
+        ]
+        self._test_basic(basic, exp_output)
+
+    def test_other_character_codes_below_32(self):
+        basic = [
+            0, 10, 10, 0,                        # Line 10, length
+            234, 0, 1, 2, 3, 4, 5, 6, 7,         # REM ????????
+            13,                                  # ENTER
+            0, 20, 8, 0,                         # Line 20, length
+            234, 8, 9, 10, 11, 12, 15,           # REM ??????
+            13,                                  # ENTER
+            0, 30, 10, 0,                        # Line 30, length
+            234, 24, 25, 26, 27, 28, 29, 30, 31, # REM ????????
+            13,                                  # ENTER
+            128                                  # End of BASIC area
+        ]
+        exp_output = [
+            '  10 REM {0x00}{0x01}{0x02}{0x03}{0x04}{0x05}{0x06}{0x07}',
+            '  20 REM {0x08}{0x09}{0x0A}{0x0B}{0x0C}{0x0F}',
+            '  30 REM {0x18}{0x19}{0x1A}{0x1B}{0x1C}{0x1D}{0x1E}{0x1F}'
+        ]
+        self._test_basic(basic, exp_output)
+
+    def test_block_graphics(self):
+        basic = [
+            0, 10, 10, 0,                           # Line 10, length
+            234,                                    # REM
+            128, 129, 130, 131, 132, 133, 134, 135, # Block graphics
+            13,                                     # ENTER
+            0, 20, 10, 0,                           # Line 20, length
+            234,                                    # REM
+            136, 137, 138, 139, 140, 141, 142, 143, # More block graphics
+            13,                                     # ENTER
+            128                                     # End of BASIC area
+        ]
+        exp_output = [
+            '  10 REM {0x80}{0x81}{0x82}{0x83}{0x84}{0x85}{0x86}{0x87}',
+            '  20 REM {0x88}{0x89}{0x8A}{0x8B}{0x8C}{0x8D}{0x8E}{0x8F}'
+        ]
+        self._test_basic(basic, exp_output)
+
+    def test_udgs(self):
+        basic = [
+            0, 10, 9, 0,                       # Line 10, length
+            234,                               # REM
+            144, 145, 146, 147, 148, 149, 150, # UDGs A-G
+            13,                                # ENTER
+            0, 20, 9, 0,                       # Line 20, length
+            234,                               # REM
+            151, 152, 153, 154, 155, 156, 157, # UDGs H-N
+            13,                                # ENTER
+            0, 30, 9, 0,                       # Line 30, length
+            234,                               # REM
+            158, 159, 160, 161, 162, 163, 164, # UDGs O-U
+            13,                                # ENTER
+            128                                # End of BASIC area
+        ]
+        exp_output = [
+            '  10 REM {0x90}{0x91}{0x92}{0x93}{0x94}{0x95}{0x96}',
+            '  20 REM {0x97}{0x98}{0x99}{0x9A}{0x9B}{0x9C}{0x9D}',
+            '  30 REM {0x9E}{0x9F}{0xA0}{0xA1}{0xA2}{0xA3}{0xA4}'
+        ]
         self._test_basic(basic, exp_output)
 
     def test_all_tokens(self):

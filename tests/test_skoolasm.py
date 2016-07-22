@@ -687,6 +687,80 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(warnings[8], 'WARNING: Comment above 32769 contains address (32769) not converted to a label:')
         self.assertEqual(warnings[9], '; This mid-routine comment is above 32769.')
 
+    def test_warn_unconverted_addresses_below_10000(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine at 0 - no match (too low)',
+            ';',
+            '; Used by the routine at 1  - no match (too low).',
+            ';',
+            '; A 1000.0 - no match',
+            '; B 1000/1 - no match',
+            '; C 1000*0 - no match',
+            '; D 1000+0 - no match',
+            '; E 24 - no match (too low)',
+            '; HL 256 - no match (too low)',
+            ';',
+            '; This routine is used 257-1024 times.',
+            'c00000 RET ; Or is it 9999 times?',
+            '; Or is it 7354 times?',
+            '',
+            '; 12345 - no match; 1234 - match.',
+            'c09999 RET ; But not 10000 times!'
+        ))
+        exp_warnings = [
+            'WARNING: Comment above 0 contains address (257) not converted to a label:',
+            '; This routine is used 257-1024 times.',
+            'WARNING: Comment at 0 contains address (9999) not converted to a label:',
+            '  RET                     ; Or is it 9999 times?',
+            'WARNING: Comment contains address (7354) not converted to a label:',
+            '; Or is it 7354 times?',
+            'WARNING: Comment contains address (1234) not converted to a label:',
+            '; 12345 - no match; 1234 - match.'
+        ]
+
+        self._get_asm(skool, warn=True)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual(exp_warnings, warnings)
+
+    def test_warn_unconverted_hexadecimal_addresses(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine at $0000',
+            ';',
+            '; Used by the routine at 0x0001.',
+            ';',
+            '; BC 0018 - no match (missing prefix)',
+            '; DE $0018 - a match',
+            ';',
+            '; This routine is used $01D8 times.',
+            'c$0000 RET ; Or is it 0x270e times?',
+            '; Or is it 0x1CBA times?',
+            '',
+            'c$DEAD RET ; This is at $DEAD',
+            "; $DEAF won't match - out of bounds."
+        ))
+        exp_warnings = [
+            'WARNING: Comment contains address ($0000) not converted to a label:',
+            '; Routine at $0000',
+            'WARNING: Comment contains address (0x0001) not converted to a label:',
+            '; Used by the routine at 0x0001.',
+            'WARNING: Register description contains address ($0018) not converted to a label:',
+            '; DE $0018 - a match',
+            'WARNING: Comment above 0 contains address ($01D8) not converted to a label:',
+            '; This routine is used $01D8 times.',
+            'WARNING: Comment at 0 contains address (0x270e) not converted to a label:',
+            '  RET                     ; Or is it 0x270e times?',
+            'WARNING: Comment contains address (0x1CBA) not converted to a label:',
+            '; Or is it 0x1CBA times?',
+            'WARNING: Comment at 57005 contains address ($DEAD) not converted to a label:',
+            '  RET                     ; This is at $DEAD'
+        ]
+
+        self._get_asm(skool, warn=True)
+        warnings = self.err.getvalue().split('\n')[:-1]
+        self.assertEqual(exp_warnings, warnings)
+
     def test_warn_long_line(self):
         skool = '\n'.join((
             '@start',

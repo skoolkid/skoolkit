@@ -698,15 +698,14 @@ class Disassembly:
             for instruction in entry.instructions:
                 instruction.referrers = []
         for entry in self.entries:
-            if entry.ctl == 'c':
-                for instruction in entry.instructions:
-                    operation = instruction.operation
-                    if operation.upper().startswith(('DJ', 'JR', 'JP', 'CA', 'RS')):
-                        addr_str = get_address(operation)
-                        if addr_str:
-                            callee = self.instructions.get(parse_int(addr_str))
-                            if callee:
-                                callee.add_referrer(entry)
+            for instruction in entry.instructions:
+                operation = instruction.operation
+                if operation.upper().startswith(('DJ', 'JR', 'JP', 'CA', 'RS')):
+                    addr_str = get_address(operation)
+                    if addr_str:
+                        callee = self.instructions.get(parse_int(addr_str))
+                        if callee:
+                            callee.add_referrer(entry)
 
     def _address_str(self, address):
         return self.address_fmt.format(address)
@@ -772,7 +771,7 @@ class SkoolWriter:
     def _write_entry_description(self, entry, write_refs):
         wrote_desc = False
         ignoreua_d = entry.has_ignoreua_directive(DESCRIPTION)
-        if entry.ctl == 'c' and write_refs > -1:
+        if write_refs > -1:
             referrers = entry.instructions[0].referrers
             if referrers and (write_refs == 1 or not entry.description):
                 self.write_comment('')

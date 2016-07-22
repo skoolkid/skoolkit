@@ -48,6 +48,11 @@ class SnapinfoTest(SkoolKitTestCase):
         ram[7371:7371 + len(data)] = data
         self._test_sna(ram, exp_output, ('-b', '--basic')[option])
 
+    def _test_bad_spec(self, option, bad_spec, exp_error):
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_snapinfo('{} {} test.sna'.format(option, bad_spec))
+        self.assertEqual(cm.exception.args[0], '{}: {}'.format(exp_error, bad_spec))
+
     def test_no_arguments(self):
         output, error = self.run_snapinfo(catch_exit=2)
         self.assertEqual(len(output), 0)
@@ -61,6 +66,12 @@ class SnapinfoTest(SkoolKitTestCase):
     def test_unrecognised_snapshot_type(self):
         with self.assertRaisesRegexp(SkoolKitError, 'Unrecognised snapshot type$'):
             self.run_snapinfo('unknown.snap')
+
+    def test_nonexistent_input_file(self):
+        infile = 'non-existent.z80'
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_snapinfo(infile)
+        self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))
 
     def test_sna_48k(self):
         header = list(range(23))
@@ -137,42 +148,55 @@ class SnapinfoTest(SkoolKitTestCase):
 
         self._test_sna(ram + header2 + banks, exp_output, header=header)
 
-    def test_sna_128k_truncated(self):
+    def test_sna_128k_9_banks(self):
+        header = list(range(25))
+        header[19] = 0 # Interrupts disabled
+        header.append(1) # IM 1
+        header.append(5) # BORDER 5
         ram = [0] * 49152
-        header2 = [0] * 4
-        banks = [0] * 16385
+        header2 = [0, 96] # PC=24576
+        header2.append(2) # Port 0x7ffd
+        header2.append(0) # TR-DOS ROM not paged
+        banks = [0] * (6 * 16384)
         exp_output = [
             'RAM: 128K',
             'Interrupts: disabled',
-            'Interrupt mode: 0',
-            'Border: 0',
+            'Interrupt mode: 1',
+            'Border: 5',
             'Registers:',
-            '  PC      0 0000    SP      0 0000',
-            '  IX      0 0000    IY      0 0000',
-            '  I       0   00    R       0   00',
-            "  B       0   00    B'      0   00",
-            "  C       0   00    C'      0   00",
-            "  BC      0 0000    BC'     0 0000",
-            "  D       0   00    D'      0   00",
-            "  E       0   00    E'      0   00",
-            "  DE      0 0000    DE'     0 0000",
-            "  H       0   00    H'      0   00",
-            "  L       0   00    L'      0   00",
-            "  HL      0 0000    HL'     0 0000",
-            "  A       0   00    A'      0   00",
+            '  PC  24576 6000    SP   6167 1817',
+            '  IX   4625 1211    IY   4111 100F',
+            '  I       0   00    R      20   14',
+            "  B      14   0E    B'      6   06",
+            "  C      13   0D    C'      5   05",
+            "  BC   3597 0E0D    BC'  1541 0605",
+            "  D      12   0C    D'      4   04",
+            "  E      11   0B    E'      3   03",
+            "  DE   3083 0C0B    DE'  1027 0403",
+            "  H      10   0A    H'      2   02",
+            "  L       9   09    L'      1   01",
+            "  HL   2569 0A09    HL'   513 0201",
+            "  A      22   16    A'      8   08",
             '    SZ5H3PNC           SZ5H3PNC',
-            "  F 00000000        F' 00000000",
+            "  F 00010101        F' 00000111",
             'RAM bank 5 (16384 bytes: 16384-32767 4000-7FFF)',
             'RAM bank 2 (16384 bytes: 32768-49151 8000-BFFF)',
-            'RAM bank 0 (16384 bytes: 49152-65535 C000-FFFF)',
+            'RAM bank 2 (16384 bytes: 49152-65535 C000-FFFF)',
+            'RAM bank 0 (16384 bytes)',
             'RAM bank 1 (16384 bytes)',
-            'RAM bank 3 (truncated: 1 byte(s))',
-            'RAM bank 4 (missing)',
-            'RAM bank 6 (missing)',
-            'RAM bank 7 (missing)'
+            'RAM bank 3 (16384 bytes)',
+            'RAM bank 4 (16384 bytes)',
+            'RAM bank 6 (16384 bytes)',
+            'RAM bank 7 (16384 bytes)'
         ]
+        self._test_sna(ram + header2 + banks, exp_output, header=header)
 
-        self._test_sna(ram + header2 + banks, exp_output)
+    def test_sna_bad_size(self):
+        for size in (49178, 49180, 131104, 147488):
+            infile = self.write_bin_file([0] * size, suffix='.sna')
+            with self.assertRaises(SkoolKitError) as cm:
+                self.run_snapinfo(infile)
+            self.assertEqual(cm.exception.args[0], '{}: not a SNA file'.format(infile))
 
     def test_z80v1_uncompressed(self):
         header = list(range(16, 46))
@@ -202,6 +226,105 @@ class SnapinfoTest(SkoolKitTestCase):
             '48K RAM block (16384-65535 4000-FFFF): 49152 bytes (uncompressed)'
         ]
         self._test_z80(exp_output, header, version=1)
+
+    def test_z80v1_uncompressed(self):
+        header = list(range(16, 46))
+        header[12] = 42 # BORDER 5, compressed RAM
+        exp_output = [
+            'Version: 1',
+            'Machine: 48K Spectrum',
+            'Interrupts: enabled',
+            'Interrupt mode: 1',
+            'Border: 5',
+            'Registers:',
+            '  PC   5910 1716    SP   6424 1918',
+            '  IX  10793 2A29    IY  10279 2827',
+            '  I      26   1A    R      27   1B',
+            "  B      19   13    B'     32   20",
+            "  C      18   12    C'     31   1F",
+            "  BC   4882 1312    BC'  8223 201F",
+            "  D      30   1E    D'     34   22",
+            "  E      29   1D    E'     33   21",
+            "  DE   7709 1E1D    DE'  8737 2221",
+            "  H      21   15    H'     36   24",
+            "  L      20   14    L'     35   23",
+            "  HL   5396 1514    HL'  9251 2423",
+            "  A      16   10    A'     37   25",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00010001        F' 00100110",
+            '48K RAM block (16384-65535 4000-FFFF): 776 bytes (compressed)'
+        ]
+        self._test_z80(exp_output, header, version=1, compress=True)
+
+    def test_z80v2_48k_uncompressed(self):
+        header = list(range(30))
+        header[6:8] = [0, 0] # Version 2+
+        header[12] = 8 # BORDER 4
+        header.extend((23, 0)) # Remaining header length (version 2)
+        header.extend((173, 222)) # PC=57005
+        header.extend([0] * (header[-4] - 2))
+        exp_output = [
+            'Version: 2',
+            'Machine: 48K Spectrum',
+            'Interrupts: enabled',
+            'Interrupt mode: 1',
+            'Border: 4',
+            'Registers:',
+            '  PC  57005 DEAD    SP   2312 0908',
+            '  IX   6681 1A19    IY   6167 1817',
+            '  I      10   0A    R      11   0B',
+            "  B       3   03    B'     16   10",
+            "  C       2   02    C'     15   0F",
+            "  BC    770 0302    BC'  4111 100F",
+            "  D      14   0E    D'     18   12",
+            "  E      13   0D    E'     17   11",
+            "  DE   3597 0E0D    DE'  4625 1211",
+            "  H       5   05    H'     20   14",
+            "  L       4   04    L'     19   13",
+            "  HL   1284 0504    HL'  5139 1413",
+            "  A       0   00    A'     21   15",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00000001        F' 00010110",
+            'RAM block 4 (32768-49151 8000-BFFF): 16384 bytes (uncompressed)',
+            'RAM block 5 (49152-65535 C000-FFFF): 16384 bytes (uncompressed)',
+            'RAM block 8 (16384-32767 4000-7FFF): 16384 bytes (uncompressed)'
+        ]
+        self._test_z80(exp_output, header, version=2)
+
+    def test_z80v2_48k_compressed(self):
+        header = list(range(30))
+        header[6:8] = [0, 0] # Version 2+
+        header[12] = 10 # BORDER 5
+        header.extend((23, 0)) # Remaining header length (version 2)
+        header.extend((239, 190)) # PC=48879
+        header.extend([0] * (header[-4] - 2))
+        exp_output = [
+            'Version: 2',
+            'Machine: 48K Spectrum',
+            'Interrupts: enabled',
+            'Interrupt mode: 1',
+            'Border: 5',
+            'Registers:',
+            '  PC  48879 BEEF    SP   2312 0908',
+            '  IX   6681 1A19    IY   6167 1817',
+            '  I      10   0A    R      11   0B',
+            "  B       3   03    B'     16   10",
+            "  C       2   02    C'     15   0F",
+            "  BC    770 0302    BC'  4111 100F",
+            "  D      14   0E    D'     18   12",
+            "  E      13   0D    E'     17   11",
+            "  DE   3597 0E0D    DE'  4625 1211",
+            "  H       5   05    H'     20   14",
+            "  L       4   04    L'     19   13",
+            "  HL   1284 0504    HL'  5139 1413",
+            "  A       0   00    A'     21   15",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00000001        F' 00010110",
+            'RAM block 4 (32768-49151 8000-BFFF): 260 bytes (compressed)',
+            'RAM block 5 (49152-65535 C000-FFFF): 260 bytes (compressed)',
+            'RAM block 8 (16384-32767 4000-7FFF): 260 bytes (compressed)'
+        ]
+        self._test_z80(exp_output, header, version=2, compress=True)
 
     def test_z80v3_48k_uncompressed(self):
         header = list(range(30))
@@ -277,7 +400,7 @@ class SnapinfoTest(SkoolKitTestCase):
     def test_z80v3_128k_uncompressed(self):
         header = list(range(32, 62))
         header[6:8] = [0, 0] # Version 2+
-        header[12] = 8 # BORDER 4, uncompressed RAM
+        header[12] = 8 # BORDER 4
         header.extend((54, 0)) # Remaining header length (version 3)
         header.extend((27, 101)) # PC=25883
         header.append(4) # 128K
@@ -317,6 +440,120 @@ class SnapinfoTest(SkoolKitTestCase):
             'RAM block 10: 16384 bytes (uncompressed)'
         ]
         self._test_z80(exp_output, header, compress=False, machine_id=4, pages=pages)
+
+    def test_z80v3_128k_compressed(self):
+        header = list(range(32, 62))
+        header[6:8] = [0, 0] # Version 2+
+        header[12] = 14 # BORDER 7
+        header.extend((54, 0)) # Remaining header length (version 3)
+        header.extend((237, 254)) # PC=65261
+        header.append(4) # 128K
+        header.append(3) # Port 0x7ffd
+        header += [0] * (header[-6] - 4)
+        pages = {bank: [0] * 16384 for bank in (1, 3, 4, 6, 7)}
+        exp_output = [
+            'Version: 3',
+            'Machine: 128K Spectrum',
+            'Interrupts: enabled',
+            'Interrupt mode: 1',
+            'Border: 7',
+            'Port $7FFD: 3 - bank 3 (block 6) paged into 49152-65535 C000-FFFF',
+            'Registers:',
+            '  PC  65261 FEED    SP  10536 2928',
+            '  IX  14905 3A39    IY  14391 3837',
+            '  I      42   2A    R      43   2B',
+            "  B      35   23    B'     48   30",
+            "  C      34   22    C'     47   2F",
+            "  BC   8994 2322    BC' 12335 302F",
+            "  D      46   2E    D'     50   32",
+            "  E      45   2D    E'     49   31",
+            "  DE  11821 2E2D    DE' 12849 3231",
+            "  H      37   25    H'     52   34",
+            "  L      36   24    L'     51   33",
+            "  HL   9508 2524    HL' 13363 3433",
+            "  A      32   20    A'     53   35",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00100001        F' 00110110",
+            'RAM block 3: 260 bytes (compressed)',
+            'RAM block 4: 260 bytes (compressed)',
+            'RAM block 5 (32768-49151 8000-BFFF): 260 bytes (compressed)',
+            'RAM block 6 (49152-65535 C000-FFFF): 260 bytes (compressed)',
+            'RAM block 7: 260 bytes (compressed)',
+            'RAM block 8 (16384-32767 4000-7FFF): 260 bytes (compressed)',
+            'RAM block 9: 260 bytes (compressed)',
+            'RAM block 10: 260 bytes (compressed)'
+        ]
+        self._test_z80(exp_output, header, compress=True, machine_id=4, pages=pages)
+
+    def test_szx_16k_uncompressed(self):
+        registers = list(range(32, 58)) # Registers
+        registers.extend((0, 0)) # IFF1, IFF2
+        registers.append(1) # Interrupt mode
+        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        exp_output = [
+            'Version: 1.4',
+            'Machine: 16K ZX Spectrum',
+            'SPCR: 8 bytes',
+            '  Border: 1',
+            '  Port $7FFD: 0 (bank 0 paged into 49152-65535 C000-FFFF)',
+            'Z80R: 37 bytes',
+            '  Interrupts: disabled',
+            '  Interrupt mode: 1',
+            '  PC  14134 3736    SP  13620 3534',
+            '  IX  12592 3130    IY  13106 3332',
+            '  I      56   38    R      57   39',
+            "  B      35   23    B'     43   2B",
+            "  C      34   22    C'     42   2A",
+            "  BC   8994 2322    BC' 11050 2B2A",
+            "  D      37   25    D'     45   2D",
+            "  E      36   24    E'     44   2C",
+            "  DE   9508 2524    DE' 11564 2D2C",
+            "  H      39   27    H'     47   2F",
+            "  L      38   26    L'     46   2E",
+            "  HL  10022 2726    HL' 12078 2F2E",
+            "  A      33   21    A'     41   29",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00100000        F' 00101000",
+            'RAMP: 16387 bytes',
+            '  Page: 5',
+            '  RAM: 16384-32767 4000-7FFF: 16384 bytes, uncompressed'
+        ]
+        self._test_szx(exp_output, registers, border=1, compress=False, machine_id=0)
+
+    def test_szx_16k_compressed(self):
+        registers = list(range(32, 58)) # Registers
+        registers.extend((0, 0)) # IFF1, IFF2
+        registers.append(1) # Interrupt mode
+        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        exp_output = [
+            'Version: 1.4',
+            'Machine: 16K ZX Spectrum',
+            'SPCR: 8 bytes',
+            '  Border: 2',
+            '  Port $7FFD: 0 (bank 0 paged into 49152-65535 C000-FFFF)',
+            'Z80R: 37 bytes',
+            '  Interrupts: disabled',
+            '  Interrupt mode: 1',
+            '  PC  14134 3736    SP  13620 3534',
+            '  IX  12592 3130    IY  13106 3332',
+            '  I      56   38    R      57   39',
+            "  B      35   23    B'     43   2B",
+            "  C      34   22    C'     42   2A",
+            "  BC   8994 2322    BC' 11050 2B2A",
+            "  D      37   25    D'     45   2D",
+            "  E      36   24    E'     44   2C",
+            "  DE   9508 2524    DE' 11564 2D2C",
+            "  H      39   27    H'     47   2F",
+            "  L      38   26    L'     46   2E",
+            "  HL  10022 2726    HL' 12078 2F2E",
+            "  A      33   21    A'     41   29",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00100000        F' 00101000",
+            'RAMP: 42 bytes',
+            '  Page: 5',
+            '  RAM: 16384-32767 4000-7FFF: 39 bytes, compressed'
+        ]
+        self._test_szx(exp_output, registers, border=2, compress=True, machine_id=0)
 
     def test_szx_48k_uncompressed(self):
         registers = list(range(26)) # Registers
@@ -358,6 +595,47 @@ class SnapinfoTest(SkoolKitTestCase):
             '  RAM: 16384-32767 4000-7FFF: 16384 bytes, uncompressed'
         ]
         self._test_szx(exp_output, registers, border=3, compress=False)
+
+    def test_szx_48k_compressed(self):
+        registers = list(range(26)) # Registers
+        registers.extend((1, 1)) # IFF1, IFF2
+        registers.append(2) # Interrupt mode
+        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        exp_output = [
+            'Version: 1.4',
+            'Machine: 48K ZX Spectrum',
+            'SPCR: 8 bytes',
+            '  Border: 4',
+            '  Port $7FFD: 0 (bank 0 paged into 49152-65535 C000-FFFF)',
+            'Z80R: 37 bytes',
+            '  Interrupts: enabled',
+            '  Interrupt mode: 2',
+            '  PC   5910 1716    SP   5396 1514',
+            '  IX   4368 1110    IY   4882 1312',
+            '  I      24   18    R      25   19',
+            "  B       3   03    B'     11   0B",
+            "  C       2   02    C'     10   0A",
+            "  BC    770 0302    BC'  2826 0B0A",
+            "  D       5   05    D'     13   0D",
+            "  E       4   04    E'     12   0C",
+            "  DE   1284 0504    DE'  3340 0D0C",
+            "  H       7   07    H'     15   0F",
+            "  L       6   06    L'     14   0E",
+            "  HL   1798 0706    HL'  3854 0F0E",
+            "  A       1   01    A'      9   09",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00000000        F' 00001000",
+            'RAMP: 42 bytes',
+            '  Page: 0',
+            '  RAM: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 2',
+            '  RAM: 32768-49151 8000-BFFF: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 5',
+            '  RAM: 16384-32767 4000-7FFF: 39 bytes, compressed'
+        ]
+        self._test_szx(exp_output, registers, border=4, compress=True)
 
     def test_szx_128k_uncompressed(self):
         registers = list(range(16, 42)) # Registers
@@ -415,6 +693,62 @@ class SnapinfoTest(SkoolKitTestCase):
         ]
         self._test_szx(exp_output, registers, border=6, compress=False, machine_id=2, ch7ffd=1, pages=None)
 
+    def test_szx_128k_compressed(self):
+        registers = list(range(16, 42)) # Registers
+        registers.extend((0, 0)) # IFF1, IFF2
+        registers.append(1) # Interrupt mode
+        registers.extend((0, 0, 0, 0, 0, 0, 0, 0))
+        exp_output = [
+            'Version: 1.4',
+            'Machine: ZX Spectrum 128',
+            'SPCR: 8 bytes',
+            '  Border: 7',
+            '  Port $7FFD: 1 (bank 1 paged into 49152-65535 C000-FFFF)',
+            'Z80R: 37 bytes',
+            '  Interrupts: disabled',
+            '  Interrupt mode: 1',
+            '  PC  10022 2726    SP   9508 2524',
+            '  IX   8480 2120    IY   8994 2322',
+            '  I      40   28    R      41   29',
+            "  B      19   13    B'     27   1B",
+            "  C      18   12    C'     26   1A",
+            "  BC   4882 1312    BC'  6938 1B1A",
+            "  D      21   15    D'     29   1D",
+            "  E      20   14    E'     28   1C",
+            "  DE   5396 1514    DE'  7452 1D1C",
+            "  H      23   17    H'     31   1F",
+            "  L      22   16    L'     30   1E",
+            "  HL   5910 1716    HL'  7966 1F1E",
+            "  A      17   11    A'     25   19",
+            '    SZ5H3PNC           SZ5H3PNC',
+            "  F 00010000        F' 00011000",
+            'RAMP: 42 bytes',
+            '  Page: 0',
+            '  RAM: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 1',
+            '  RAM: 49152-65535 C000-FFFF: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 2',
+            '  RAM: 32768-49151 8000-BFFF: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 3',
+            '  RAM: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 4',
+            '  RAM: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 5',
+            '  RAM: 16384-32767 4000-7FFF: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 6',
+            '  RAM: 39 bytes, compressed',
+            'RAMP: 42 bytes',
+            '  Page: 7',
+            '  RAM: 39 bytes, compressed'
+        ]
+        self._test_szx(exp_output, registers, border=7, compress=True, machine_id=2, ch7ffd=1, pages=None)
+
     def test_szx_without_magic_number(self):
         non_szx = self.write_bin_file((1, 2, 3), suffix='.szx')
         with self.assertRaisesRegexp(SkoolKitError, '{} is not an SZX file$'.format(non_szx)):
@@ -458,10 +792,27 @@ class SnapinfoTest(SkoolKitTestCase):
         exp_output = ['47983-47987-2 BB6F-BB73-2: {}'.format(seq_str)]
         self._test_sna(ram, exp_output, '-f {}-{}'.format(seq_str, step))
 
+    def test_option_f_with_hexadecimal_values(self):
+        ram = [0] * 49152
+        address = 47983
+        seq = (0x02, 0x3f, 0x5a)
+        step = 0x1a
+        ram[address - 16384:address - 16384 + step * len(seq):step] = seq
+        seq_str = ','.join(['${:02X}'.format(b) for b in seq])
+        exp_output = ['47983-48035-26 BB6F-BBA3-1A: {}'.format(seq_str)]
+        self._test_sna(ram, exp_output, '-f {}-${:02x}'.format(seq_str, step))
+
     def test_option_find_with_nonexistent_byte_sequence(self):
         ram = [0] * 49152
         exp_output = []
         self._test_sna(ram, exp_output, '--find 1,2,3')
+
+    def test_option_find_with_invalid_byte_sequence(self):
+        exp_error = 'Invalid byte sequence'
+        self._test_bad_spec('--find', 'z', exp_error)
+        self._test_bad_spec('-f', '1,!', exp_error)
+        self._test_bad_spec('--find', '1,2,?', exp_error)
+        self._test_bad_spec('-f', '1,,3', exp_error)
 
     def test_option_p_with_single_address(self):
         ram = [0] * 49152
@@ -496,6 +847,19 @@ class SnapinfoTest(SkoolKitTestCase):
         ]
         self._test_sna(ram, exp_output, '-p {}-{}-{}'.format(address1, address2, step))
 
+    def test_option_p_with_hexadecimal_values(self):
+        ram = [0] * 49152
+        address1 = 0x81ad
+        address2 = 0x81c1
+        step = 0x0a
+        ram[address1 - 16384:address2 -16383:step] = [33, 65, 255]
+        exp_output = [
+            '33197 81AD:  33  21  00100001  !',
+            '33207 81B7:  65  41  01000001  A',
+            '33217 81C1: 255  FF  11111111'
+        ]
+        self._test_sna(ram, exp_output, '-p ${:04X}-${:04x}-${:X}'.format(address1, address2, step))
+
     def test_option_peek_multiple(self):
         ram = [0] * 49152
         options = []
@@ -509,6 +873,13 @@ class SnapinfoTest(SkoolKitTestCase):
             '50998 C736:  54  36  00110110  6'
         ]
         self._test_sna(ram, exp_output, ' '.join(options))
+
+    def test_option_peek_with_invalid_address_range(self):
+        exp_error = 'Invalid address range'
+        self._test_bad_spec('--peek', 'X', exp_error)
+        self._test_bad_spec('-p', '32768-?', exp_error)
+        self._test_bad_spec('--peek', '32768-32868-q', exp_error)
+        self._test_bad_spec('-p', '32768-32868-2-3', exp_error)
 
     def test_option_t_with_single_occurrence(self):
         ram = [0] * 49152

@@ -8,4 +8,4 @@ http://www.worldofspectrum.org/pub/sinclair/games/h/HungryHorace.tzx.zip
 hungry_horace.z80
 --state border=7
 --ram poke=23624,56 # BORDCR
---reg pc=24576
+--start 24576

@@ -393,13 +393,13 @@ class AsmWriter:
             self.write_line("{0}{1}".format(instruction.asm_label, self.label_suffix))
 
     def find_unconverted_address(self, text):
-        search = re.search('[1-9][0-9][0-9][0-9][0-9]', text)
-        if search:
-            start, end = search.span()
-            if (start == 0 or text[start - 1] == ' ') and (end == len(text) or not text[end].isalnum()):
-                uaddress = int(search.group())
-                if self.base_address <= uaddress <= self.end_address:
-                    return uaddress
+        for match in re.finditer('(\A|\s|\()((?:0x|\$)[0-9A-Fa-f]{4}|[1-9][0-9]{2,4})(?!([0-9A-Za-z]|[./*+][0-9]))', text):
+            addr = match.group(2)
+            if addr.startswith(('0x', '$')):
+                if self.base_address <= int(addr[-4:], 16) <= self.end_address:
+                    return addr
+            elif max(self.base_address, 257) <= int(addr) <= self.end_address:
+                return addr
 
     def print_instructions(self):
         i = 0

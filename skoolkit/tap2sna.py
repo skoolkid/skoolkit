@@ -61,7 +61,7 @@ def _write_z80(ram, options, fname):
     with open(fname, 'wb') as f:
         f.write(bytearray(_get_z80(ram, options)))
 
-def _get_int_params(param_str, num, leave=()):
+def _get_int_params(param_str, num, leave):
     params = []
     for index, n in enumerate(param_str.split(',')):
         if index in leave:
@@ -94,7 +94,10 @@ def _load_block(snapshot, block, start, length=None, step=None, offset=None, inc
     return len(data)
 
 def _load(snapshot, counters, blocks, param_str):
-    block_num, start, length, step, offset, inc = _get_int_params(param_str, 6, (0,))
+    try:
+        block_num, start, length, step, offset, inc = _get_int_params(param_str, 6, (0,))
+    except ValueError:
+        raise SkoolKitError('Invalid integer in load spec: {}'.format(param_str))
     default_index = 1
     load_last = False
     if block_num.startswith('+'):
@@ -115,33 +118,38 @@ def _load(snapshot, counters, blocks, param_str):
     counters[block_num] += length
 
 def move(snapshot, param_str):
-    src, length, dest = _get_int_params(param_str, 3)
+    params = param_str.split(',', 2)
+    if len(params) < 3:
+        raise SkoolKitError("Not enough arguments in move spec (expected 3): {}".format(param_str))
+    try:
+        src, length, dest = [get_int_param(p) for p in params]
+    except ValueError:
+        raise SkoolKitError('Invalid integer in move spec: {}'.format(param_str))
     snapshot[dest:dest + length] = snapshot[src:src + length]
 
 def poke(snapshot, param_str):
-    addr, val = param_str.split(',', 1)
-    if val.startswith('^'):
-        value = get_int_param(val[1:])
-        poke_f = lambda b: b ^ value
-    elif val.startswith('+'):
-        value = get_int_param(val[1:])
-        poke_f = lambda b: (b + value) & 255
-    else:
-        value = get_int_param(val)
-        poke_f = lambda b: value
-    step = 1
-    if '-' in addr:
-        addr1, addr2 = addr.split('-', 1)
-        addr1 = get_int_param(addr1)
-        if '-' in addr2:
-            addr2, step = [get_int_param(i) for i in addr2.split('-', 1)]
+    try:
+        addr, val = param_str.split(',', 1)
+    except ValueError:
+        raise SkoolKitError("Value missing in poke spec: {}".format(param_str))
+    try:
+        if val.startswith('^'):
+            value = get_int_param(val[1:])
+            poke_f = lambda b: b ^ value
+        elif val.startswith('+'):
+            value = get_int_param(val[1:])
+            poke_f = lambda b: (b + value) & 255
         else:
-            addr2 = get_int_param(addr2)
-    else:
-        addr1 = get_int_param(addr)
-        addr2 = addr1
-    addr2 += 1
-    for a in range(addr1, addr2, step):
+            value = get_int_param(val)
+            poke_f = lambda b: value
+    except ValueError:
+        raise SkoolKitError('Invalid value in poke spec: {}'.format(param_str))
+    try:
+        values = [get_int_param(i) for i in addr.split('-', 2)]
+    except ValueError:
+        raise SkoolKitError('Invalid address range in poke spec: {}'.format(param_str))
+    addr1, addr2, step = values + [values[0], 1][len(values) - 1:]
+    for a in range(addr1, addr2 + 1, step):
         snapshot[a] = poke_f(snapshot[a])
 
 def _get_ram(blocks, options):
@@ -180,15 +188,12 @@ def _get_ram(blocks, options):
 
     counters = {}
     for op_type, param_str in operations:
-        try:
-            if op_type == 'load':
-                _load(snapshot, counters, blocks, param_str)
-            elif op_type == 'move':
-                move(snapshot, param_str)
-            elif op_type == 'poke':
-                poke(snapshot, param_str)
-        except ValueError:
-            raise SkoolKitError("Cannot parse integer: {}={}".format(op_type, param_str))
+        if op_type == 'load':
+            _load(snapshot, counters, blocks, param_str)
+        elif op_type == 'move':
+            move(snapshot, param_str)
+        elif op_type == 'poke':
+            poke(snapshot, param_str)
 
     return snapshot[16384:]
 
