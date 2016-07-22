@@ -21,6 +21,10 @@ Changelog
 * Added the ``--stack`` and ``--start`` options to :ref:`tap2sna.py` (for
   specifying the stack and start addresses)
 * Added support to the :ref:`REG` macro for the F and F' registers
+* Improved how :ref:`skool2asm.py` scans annotations for addresses not
+  converted to labels
+* Fixed how a memory block that ends with a single ED byte is compressed in a
+  Z80 snapshot
 * Removed the Spectrum ROM disassembly from the SkoolKit distribution; it is
   now being developed separately `here <https://github.com/skoolkid/rom>`__
 
