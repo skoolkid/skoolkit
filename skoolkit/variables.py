@@ -20,7 +20,7 @@
 import re
 
 from skoolkit.basic import get_number
-from skoolkit.text import TextReader
+from skoolkit.basic import TextReader
 from skoolkit import get_word
 
 class VariableLister:
