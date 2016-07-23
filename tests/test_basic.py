@@ -141,7 +141,7 @@ class BasicListerTest(SkoolKitTestCase):
         snapshot = [0] * prog + data
         snapshot[23635:23637] = (prog % 256, prog // 256)
         basic = BasicLister().list_basic(snapshot)
-        self.assertEqual(exp_output, basic.split('\n'))
+        self.assertEqual(['Basic listing:'] + exp_output, basic.split('\n'))
 
     def test_program_with_no_end_marker(self):
         basic = [
@@ -435,7 +435,7 @@ class VariableListerTest(SkoolKitTestCase):
     def _test_variables(self, data, exp_output):
         snapshot = [0] * 23755 + data
         variables = VariableLister().list_variables(snapshot)
-        self.assertEqual(exp_output, variables.split('\n'))
+        self.assertEqual(['Variables:'] + exp_output, variables.split('\n'))
 
     def test_strings(self):
         variables = [
@@ -582,7 +582,7 @@ class VariableListerTest(SkoolKitTestCase):
             13,                              # ENTER
             128                              # End of variables area
         ]
-        exp_output = ['']
+        exp_output = []
         self._test_variables(variables, exp_output)
 
     def test_mixed_variables(self):
