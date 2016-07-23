@@ -429,10 +429,13 @@ def main(args):
         _find_text(infile, namespace.text)
     elif namespace.peek is not None:
         _peek(infile, namespace.peek)
-    elif namespace.basic:
-        print(BasicLister().list_basic(get_snapshot(infile)))
-    elif namespace.vars:
-        print(VariableLister().list_variables(get_snapshot(infile)))
+    elif namespace.basic or namespace.vars:
+        if namespace.basic:
+            print('Basic listing:')
+            print(BasicLister().list_basic(get_snapshot(infile)))
+        if namespace.vars:
+            print('Variables:')
+            print(VariableLister().list_variables(get_snapshot(infile)))
     elif snapshot_type == '.sna':
         _analyse_sna(infile)
     elif snapshot_type == '.z80':
