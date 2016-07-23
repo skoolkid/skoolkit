@@ -143,6 +143,13 @@ class BasicListerTest(SkoolKitTestCase):
         basic = BasicLister().list_basic(snapshot)
         self.assertEqual(['Basic listing:'] + exp_output, basic.split('\n'))
 
+    def test_no_program(self):
+        variables = [
+            128 # End of BASIC area
+        ]
+        exp_output = []
+        self._test_basic(variables, exp_output)
+
     def test_program_with_no_end_marker(self):
         basic = [
             0, 10, 5, 0,     # Line 10, length
