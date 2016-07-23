@@ -19,8 +19,48 @@
 
 import re
 
-from skoolkit.numberutils import get_number
+from skoolkit import get_word
 from skoolkit.text import TextReader
+
+def get_number(snapshot, i):
+    if snapshot[i] == 0:
+        # Small integer (signed)
+        num = _get_integer(snapshot, i)
+    else:
+        # Floating point number (signed)
+        num = _get_float(snapshot, i)
+    return num
+
+def _get_integer(snapshot, i):
+    # See ZX Spectrum ROM routine INT_FETCH at 0x2D7F
+    sign = snapshot[i + 1]
+    lsb = (snapshot[i + 2] ^ sign) - sign
+    if (lsb < 0):
+        lsb += 256
+        carry = 1
+    else:
+        carry = 0
+
+    msb = ((snapshot[i + 3] + sign + carry) & 255) ^ sign
+
+    num = 256 * msb + lsb
+    if ((sign & 128) != 0):
+        num *= -1
+
+    return num
+
+def _get_float(snapshot, i):
+    exponent = snapshot[i] - 160
+    if ((snapshot[i + 1] & 128) == 0):
+        sign = 1
+    else:
+        sign = -1
+    mantissa = float(16777216 * (snapshot[i + 1] | 128)
+                     + 65536 * snapshot[i + 2]
+                     + 256 * snapshot[i + 3]
+                     + snapshot[i + 4])
+    num = sign * mantissa * (2 ** exponent)
+    return num
 
 class BasicLister:
     def __init__(self):
