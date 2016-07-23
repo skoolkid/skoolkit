@@ -21,7 +21,7 @@ import re
 
 from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, read_bin_file, VERSION
 from skoolkit.basic import BasicLister
-from skoolkit.variables import VariableLister
+from skoolkit.basic import VariableLister
 from skoolkit.snapshot import get_snapshot
 
 class Registers:
