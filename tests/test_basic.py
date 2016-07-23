@@ -437,6 +437,13 @@ class VariableListerTest(SkoolKitTestCase):
         variables = VariableLister().list_variables(snapshot)
         self.assertEqual(['Variables:'] + exp_output, variables.split('\n'))
 
+    def test_no_variables(self):
+        variables = [
+            128                              # End of variables area
+        ]
+        exp_output = []
+        self._test_variables(variables, exp_output)
+
     def test_strings(self):
         variables = [
             67,                         # String variable of name "c$"
