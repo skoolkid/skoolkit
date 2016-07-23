@@ -19,7 +19,7 @@
 
 import re
 
-from skoolkit.numberutils import get_number
+from skoolkit.basic import get_number
 from skoolkit.text import TextReader
 from skoolkit import get_word
 
