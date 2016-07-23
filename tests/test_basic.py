@@ -451,6 +451,16 @@ class VariableListerTest(SkoolKitTestCase):
         exp_output = []
         self._test_variables(variables, exp_output)
 
+    def test_variables_with_no_end_marker(self):
+        basic = [
+            112,           # Number variable of name "p"
+            0, 0, 12, 0, 0 # 12
+        ]
+        exp_output = [
+            '(Number) p=12'
+        ]
+        self._test_variables(basic, exp_output)
+
     def test_strings(self):
         variables = [
             67,                         # String variable of name "c$"
