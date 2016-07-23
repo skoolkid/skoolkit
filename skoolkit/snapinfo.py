@@ -431,10 +431,8 @@ def main(args):
         _peek(infile, namespace.peek)
     elif namespace.basic or namespace.vars:
         if namespace.basic:
-            print('Basic listing:')
             print(BasicLister().list_basic(get_snapshot(infile)))
         if namespace.vars:
-            print('Variables:')
             print(VariableLister().list_variables(get_snapshot(infile)))
     elif snapshot_type == '.sna':
         _analyse_sna(infile)
