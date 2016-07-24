@@ -291,19 +291,11 @@ class VariableLister:
         return '\n'.join(lines)
 
     def _get_string_var(self, i):
-        line = '(String) '
-        letter = (self.snapshot[i] & 31) + 96
-        line += "{}$=\"".format(self.text.get_chars(letter))
+        letter = self.text.get_chars((self.snapshot[i] & 31) + 96)
         str_length = get_word(self.snapshot, i + 1)
-        i += 3
-        while str_length > 0:
-            self.text.lspace = True
-            code = self.snapshot[i]
-            line += self.text.get_chars(code)
-            str_length -= 1
-            i += 1
-        line += '"'
-        return i, line
+        value = ''.join([self.text.get_chars(c) for c in self.snapshot[i + 3:i + 3 + str_length]])
+        line = '(String) {}$="{}"'.format(letter, value)
+        return i + 3 + str_length, line
 
     def _get_num_array_var(self, i):
         line = '(Number array) '
@@ -312,23 +304,12 @@ class VariableLister:
         data_length = get_word(self.snapshot, i + 1) - 1
         dimensions = self.snapshot[i + 3]
         i += 4
-        dimension_lengths = []
-        for x in range(0, dimensions):
-            dimension_length = get_word(self.snapshot, i)
-            i += 2
-            data_length -= 2
-            line += '{}'.format(dimension_length)
-            if x < (dimensions - 1):
-                line += ','
-        line += ')=['
-        while data_length > 0:
-            line += '{}'.format(get_number(self.snapshot, i))
-            i += 5
-            data_length -= 5
-            if data_length > 0:
-                line += ','
-        line += ']'
-        return i,line
+        line += ','.join(['{}'.format(get_word(self.snapshot, c)) for c in range (i, i + 2 * dimensions, 2)])
+        i += 2 * dimensions
+        data_length -= 2 * dimensions
+        value = ','.join(['{}'.format(get_number(self.snapshot, c)) for c in range(i, i + data_length, 5)])
+        line += ')=[' + value + ']'
+        return i + data_length, line
 
     def _get_long_num_var(self, i):
         line = '(Number) '
@@ -341,10 +322,8 @@ class VariableLister:
             i += 1
             letter = self.snapshot[i]
         letters += '{}'.format(self.text.get_chars(letter & 127))
-        i += 1
-        line += letters + "={}".format(get_number(self.snapshot, i))
-        i += 5
-        return i, line
+        line += letters + "={}".format(get_number(self.snapshot, i + 1))
+        return i + 6, line
 
     def _get_char_array_var(self, i):
         line = '(Character array) '
@@ -353,23 +332,12 @@ class VariableLister:
         data_length = get_word(self.snapshot, i + 1) - 1
         dimensions = self.snapshot[i + 3]
         i += 4
-        dimension_lengths = []
-        for x in range(0, dimensions):
-            dimension_length = get_word(self.snapshot, i)
-            i += 2
-            data_length -= 2
-            line += '{}'.format(dimension_length)
-            if x < (dimensions - 1):
-                line += ','
-        line += ')=['
-        while data_length > 0:
-            line += '"{}"'.format(self.text.get_chars(self.snapshot[i]))
-            i += 1
-            data_length -= 1
-            if data_length > 0:
-                line += ','
-        line += ']'
-        return i,line
+        line += ','.join(['{}'.format(get_word(self.snapshot, c)) for c in range (i, i + 2 * dimensions, 2)])
+        i += 2 * dimensions
+        data_length -= 2 * dimensions
+        value = ','.join(['"{}"'.format(self.text.get_chars(c)) for c in self.snapshot[i:i + data_length]])
+        line += ')=[' + value + ']'
+        return i + data_length, line
 
     def _get_control_var(self, i):
         line = '(FOR control variable) '
