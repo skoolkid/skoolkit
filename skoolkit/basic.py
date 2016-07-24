@@ -128,7 +128,7 @@ def _get_integer(snapshot, i):
     # See ZX Spectrum ROM routine INT_FETCH at 0x2D7F
     sign = snapshot[i + 1]
     lsb = (snapshot[i + 2] ^ sign) - sign
-    if (lsb < 0):
+    if lsb < 0:
         lsb += 256
         carry = 1
     else:
@@ -137,14 +137,14 @@ def _get_integer(snapshot, i):
     msb = ((snapshot[i + 3] + sign + carry) & 255) ^ sign
 
     num = 256 * msb + lsb
-    if ((sign & 128) != 0):
+    if (sign & 128) != 0:
         num *= -1
 
     return num
 
 def _get_float(snapshot, i):
     exponent = snapshot[i] - 160
-    if ((snapshot[i + 1] & 128) == 0):
+    if (snapshot[i + 1] & 128) == 0:
         sign = 1
     else:
         sign = -1
@@ -265,28 +265,28 @@ class VariableLister:
         while i < len(snapshot) and snapshot[i] != 128:
             self.text.lspace = False
             variable_type = (snapshot[i] & 224)
-            if (variable_type == 64):
+            if variable_type == 64:
                 # String (010xxxxx)
                 i, line = self._get_string_var(i)
-            elif (variable_type == 128):
+            elif variable_type == 128:
                 # Array of numbers (100xxxxx)
                 i, line = self._get_num_array_var(i)
-            elif (variable_type == 160):
+            elif variable_type == 160:
                 # Number whose name is longer than one letter (101xxxxx)
                 i, line = self._get_long_num_var(i)
-            elif (variable_type == 192):
+            elif variable_type == 192:
                 # Array of characters (110xxxxx)
                 i, line = self._get_char_array_var(i)
-            elif (variable_type == 224):
+            elif variable_type == 224:
                 # Control variable of a FOR-NEXT loop (111xxxxx)
                 i, line = self._get_control_var(i)
-            elif (variable_type == 96):
+            elif variable_type == 96:
                 # Number whose name is one letter (011xxxxx)
                 i, line = self._get_short_num_var(i)
             else:
                 # Basic line (000xxxxx / 001xxxxx)
                 i, line = self._skip_basic_line(i)
-            if (line != ''):
+            if line != '':
                 lines.append('{}'.format(line))
         return '\n'.join(lines)
 
@@ -318,14 +318,14 @@ class VariableLister:
             i += 2
             data_length -= 2
             line += '{}'.format(dimension_length)
-            if (x < (dimensions - 1)):
+            if x < (dimensions - 1):
                 line += ','
         line += ')=['
-        while (data_length > 0):
+        while data_length > 0:
             line += '{}'.format(get_number(self.snapshot, i))
             i += 5
             data_length -= 5
-            if (data_length > 0):
+            if data_length > 0:
                 line += ','
         line += ']'
         return i,line
@@ -336,7 +336,7 @@ class VariableLister:
         letters = '{}'.format(self.text.get_chars(letter))
         i += 1
         letter = self.snapshot[i]
-        while ((letter & 128) == 0):
+        while (letter & 128) == 0:
             letters += '{}'.format(self.text.get_chars(letter))
             i += 1
             letter = self.snapshot[i]
@@ -359,14 +359,14 @@ class VariableLister:
             i += 2
             data_length -= 2
             line += '{}'.format(dimension_length)
-            if (x < (dimensions - 1)):
+            if x < (dimensions - 1):
                 line += ','
         line += ')=['
-        while (data_length > 0):
+        while data_length > 0:
             line += '"{}"'.format(self.text.get_chars(self.snapshot[i]))
             i += 1
             data_length -= 1
-            if (data_length > 0):
+            if data_length > 0:
                 line += ','
         line += ']'
         return i,line
