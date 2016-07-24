@@ -264,7 +264,7 @@ class VariableLister:
         i = (snapshot[23627] + 256 * snapshot[23628]) or 23755
         while i < len(snapshot) and snapshot[i] != 128:
             self.text.lspace = False
-            variable_type = (snapshot[i] & 224)
+            variable_type = snapshot[i] & 224
             if variable_type == 64:
                 # String (010xxxxx)
                 i, line = self._get_string_var(i)
