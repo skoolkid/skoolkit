@@ -261,7 +261,7 @@ class VariableLister:
     def list_variables(self, snapshot):
         lines = ['Variables:']
         self.snapshot = snapshot
-        i = (snapshot[23627] + 256 * snapshot[23628]) or 23755
+        i = snapshot[23627] + 256 * snapshot[23628]
         while i < len(snapshot) and snapshot[i] != 128:
             self.text.lspace = False
             variable_type = snapshot[i] & 224
