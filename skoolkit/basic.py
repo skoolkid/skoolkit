@@ -354,10 +354,8 @@ class VariableLister:
         line = '(Number) '
         letter = (self.snapshot[i] & 31) + 96
         line += '{}='.format(self.text.get_chars(letter))
-        i += 1
-        line += "{}".format(get_number(self.snapshot, i))
-        i += 5
-        return i, line
+        line += "{}".format(get_number(self.snapshot, i + 1))
+        return i + 6, line
 
     def _skip_basic_line(self, i):
         line = ''
