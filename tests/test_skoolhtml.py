@@ -1472,11 +1472,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_r_asm_single_page(self):
         ref = '[Game]\nAsmSinglePageTemplate=AsmAllInOne'
-        skool = 'c40000 RET'
+        skool = 'c40000 LD A,B\n 40001 RET'
         writer = self._get_writer(ref=ref, skool=skool)
 
         output = writer.expand('#R40000', '')
         self._assert_link_equals(output, 'asm.html#40000', '40000')
+
+        output = writer.expand('#R40001', '')
+        self._assert_link_equals(output, 'asm.html#40001', '40001')
 
     def test_macro_r_other_code(self):
         ref = '\n'.join((
@@ -3724,13 +3727,15 @@ class HtmlOutputTest(HtmlWriterTestCase):
         ref = '[Game]\nAsmSinglePageTemplate=AsmAllInOne'
         skool = '\n'.join((
             '; Routine at 32768',
-            'c32768 CALL 32773',
-            ' 32771 JR 32768',
+            'c32768 CALL 32775',
+            ' 32771 JR Z,32776',
+            ' 32773 JR 32768',
             '',
-            '; Routine at 32773',
+            '; Routine at 32775',
             ';',
             '; Used by the routine at #R32768.',
-            'c32773 RET'
+            'c32775 LD A,B',
+            '*32776 RET'
         ))
         writer = self._get_writer(ref=ref, skool=skool)
         writer.write_asm_entries()
@@ -3757,17 +3762,23 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="32768"></span>32768</td>
-            <td class="instruction">CALL <a href="asm.html#32773">32773</a></td>
+            <td class="instruction">CALL <a href="#32775">32775</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-1"><span id="32771"></span>32771</td>
+            <td class="instruction">JR Z,<a href="#32776">32776</a></td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="32773"></span>32773</td>
             <td class="instruction">JR 32768</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             </table>
-            <div id="32773" class="description">32773: Routine at 32773</div>
+            <div id="32775" class="description">32775: Routine at 32775</div>
             <table class="disassembly">
             <tr>
             <td class="routine-comment" colspan="4">
@@ -3790,7 +3801,13 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </tr>
             <tr>
             <td class="asm-label-0"></td>
-            <td class="address-2"><span id="32773"></span>32773</td>
+            <td class="address-2"><span id="32775"></span>32775</td>
+            <td class="instruction">LD A,B</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="32776"></span>32776</td>
             <td class="instruction">RET</td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
@@ -4887,7 +4904,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="40000"></span>40000</td>
-            <td class="instruction">JR <a href="asm.html#40002">40002</a></td>
+            <td class="instruction">JR <a href="#40002">40002</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             </table>
@@ -4912,7 +4929,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             <tr>
             <td class="asm-label-0"></td>
             <td class="address-2"><span id="40002"></span>40002</td>
-            <td class="instruction">JR <a href="asm.html#40000">40000</a></td>
+            <td class="instruction">JR <a href="#40000">40000</a></td>
             <td class="comment-10" rowspan="1"></td>
             </tr>
             </table>
