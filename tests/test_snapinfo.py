@@ -778,7 +778,7 @@ class SnapinfoTest(SkoolKitTestCase):
         ram = [127] * 49152
         snafile = self.write_bin_file([0] * 27 + ram, suffix='.sna')
         exp_snapshot = [0] * 16384 + ram
-        for option in ('-v', '--vars'):
+        for option in ('-v', '--variables'):
             output, error = self.run_snapinfo('{} {}'.format(option, snafile))
             self.assertEqual(error, '')
             self.assertEqual(['VARIABLES DONE!'], output)
@@ -791,7 +791,7 @@ class SnapinfoTest(SkoolKitTestCase):
         ram = [127] * 49152
         snafile = self.write_bin_file([0] * 27 + ram, suffix='.sna')
         exp_snapshot = [0] * 16384 + ram
-        for option in ('-bv', '-b --vars', '--basic -v', '--basic --vars'):
+        for option in ('-bv', '-b --variables', '--basic -v', '--basic --variables'):
             output, error = self.run_snapinfo('{} {}'.format(option, snafile))
             self.assertEqual(error, '')
             self.assertEqual(['BASIC DONE!', 'VARIABLES DONE!'], output)

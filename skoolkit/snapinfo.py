@@ -411,7 +411,7 @@ def main(args):
                        help='Show the contents of addresses A TO B STEP C; this option may be used multiple times')
     group.add_argument('-t', '--find-text', dest='text', metavar='TEXT',
                        help='Search for a text string')
-    group.add_argument('-v', '--vars', action='store_true',
+    group.add_argument('-v', '--variables', action='store_true',
                        help='List variables')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
@@ -429,10 +429,10 @@ def main(args):
         _find_text(infile, namespace.text)
     elif namespace.peek is not None:
         _peek(infile, namespace.peek)
-    elif namespace.basic or namespace.vars:
+    elif namespace.basic or namespace.variables:
         if namespace.basic:
             print(BasicLister().list_basic(get_snapshot(infile)))
-        if namespace.vars:
+        if namespace.variables:
             print(VariableLister().list_variables(get_snapshot(infile)))
     elif snapshot_type == '.sna':
         _analyse_sna(infile)
