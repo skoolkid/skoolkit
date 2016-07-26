@@ -17,7 +17,6 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import re
 
 from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, read_bin_file, VERSION
 from skoolkit.basic import BasicLister
