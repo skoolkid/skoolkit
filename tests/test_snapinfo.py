@@ -227,7 +227,7 @@ class SnapinfoTest(SkoolKitTestCase):
         ]
         self._test_z80(exp_output, header, version=1)
 
-    def test_z80v1_uncompressed(self):
+    def test_z80v1_compressed(self):
         header = list(range(16, 46))
         header[12] = 42 # BORDER 5, compressed RAM
         exp_output = [
