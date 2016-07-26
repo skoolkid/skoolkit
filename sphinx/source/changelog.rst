@@ -1,7 +1,7 @@
 Changelog
 =========
 
-5.3b1
+5.3rc
 -----
 * Dropped support for Python 3.2
 * Added the :ref:`snapinfo.py` command (for showing information on the
