@@ -31,23 +31,23 @@ class NumberUtilsTest(SkoolKitTestCase):
         ({'snapshot': [168, 5, 142, 188, 109], 'i': 0}, 0.573625364e12), # Long mantissa
     )
 
-    def _test_function_integer(self, exp_result, func, **kwargs):
+    def _test_function_integer(self, exp_result, **kwargs):
         kwargs_str = ', '.join(['{}={!r}'.format(k, v) for k, v in kwargs.items()])
-        msg = "{}({}) failed".format(func.__name__, kwargs_str)
-        self.assertEqual(exp_result, func(**kwargs), msg)
+        msg = "{}({}) failed".format('get_number', kwargs_str)
+        self.assertEqual(exp_result, get_number(**kwargs), msg)
 
-    def _test_function_float(self, exp_result, func, **kwargs):
+    def _test_function_float(self, exp_result, **kwargs):
         kwargs_str = ', '.join(['{}={!r}'.format(k, v) for k, v in kwargs.items()])
-        msg = "{}({}) = {} failed".format(func.__name__, kwargs_str, exp_result)
-        self.assertTrue(abs(1 - exp_result / func(**kwargs)) <= 1e-9, msg)
+        msg = "{}({}) = {} failed".format('get_number', kwargs_str, exp_result)
+        self.assertTrue(abs(1 - exp_result / get_number(**kwargs)) <= 1e-9, msg)
 
     def test_get_number_integer(self):
         for kwargs, exp_result in self.TEST_NUMBERS_INTEGER:
-            self._test_function_integer(exp_result, get_number, **kwargs)
+            self._test_function_integer(exp_result, **kwargs)
 
     def test_get_number_float(self):
         for kwargs, exp_result in self.TEST_NUMBERS_FLOAT:
-            self._test_function_float(exp_result, get_number, **kwargs)
+            self._test_function_float(exp_result, **kwargs)
 
 class TextReaderTest(SkoolKitTestCase):
     TEST_CODES_32_AND_BELOW = (
