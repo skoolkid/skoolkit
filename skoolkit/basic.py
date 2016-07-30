@@ -116,13 +116,9 @@ TOKENS = {
 }
 
 def get_number(snapshot, i):
-    if snapshot[i] == 0:
-        # Small integer (signed)
-        num = _get_integer(snapshot, i)
-    else:
-        # Floating point number (signed)
-        num = _get_float(snapshot, i)
-    return num
+    if snapshot[i]:
+        return _get_float(snapshot, i)
+    return _get_integer(snapshot, i)
 
 def _get_integer(snapshot, i):
     # See ZX Spectrum ROM routine INT_FETCH at 0x2D7F
