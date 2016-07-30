@@ -154,6 +154,9 @@ USE_SK_DEV=0
 if [ "$SKOOLKIT_VERSION" = "dev" ]; then
   USE_SK_DEV=1
   SKOOLKIT_VERSION=$($SKOOLKIT_HOME/skool2html.py -V 2>&1 | cut -f2 -d' ')
+  if [[ $SKOOLKIT_VERSION == *rc* ]]; then
+    BUILD_SK_TARBALL=0
+  fi
 fi
 
 OLD_SKOOLKIT_VERSION=${OLD_SKOOLKIT_VERSION:-$SKOOLKIT_VERSION}

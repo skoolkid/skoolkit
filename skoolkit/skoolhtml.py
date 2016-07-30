@@ -817,10 +817,13 @@ class HtmlWriter:
                 asm_label = self.parser.get_asm_label(reference.address)
                 external_ref = entry != reference.entry
                 if external_ref or asm_label or self.link_internal_operands:
-                    entry_address = reference.entry.address
-                    href = self._asm_relpath(cwd, entry_address, reference.entry.asm_id)
-                    if not (self.asm_single_page_template or (external_ref and reference.address == entry_address)):
-                        href += '#{}'.format(self.asm_anchor(reference.address))
+                    if self.asm_single_page_template:
+                        href = '#{}'.format(self.asm_anchor(reference.address))
+                    else:
+                        entry_address = reference.entry.address
+                        href = self._asm_relpath(cwd, entry_address, reference.entry.asm_id)
+                        if not (external_ref and reference.address == entry_address):
+                            href += '#{}'.format(self.asm_anchor(reference.address))
                     if asm_label and not operation_u.startswith('RST'):
                         link_text = asm_label
                     else:
