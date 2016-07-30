@@ -429,10 +429,11 @@ def main(args):
     elif namespace.peek is not None:
         _peek(infile, namespace.peek)
     elif namespace.basic or namespace.variables:
+        snapshot = get_snapshot(infile)
         if namespace.basic:
-            print(BasicLister().list_basic(get_snapshot(infile)))
+            print(BasicLister().list_basic(snapshot))
         if namespace.variables:
-            print(VariableLister().list_variables(get_snapshot(infile)))
+            print(VariableLister().list_variables(snapshot))
     elif snapshot_type == '.sna':
         _analyse_sna(infile)
     elif snapshot_type == '.z80':
