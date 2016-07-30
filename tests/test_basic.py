@@ -4,7 +4,7 @@ import unittest
 from skoolkittest import SkoolKitTestCase
 from skoolkit.basic import get_number, TextReader, BasicLister, VariableLister
 
-class NumberUtilsTest(SkoolKitTestCase):
+class get_number_Test(SkoolKitTestCase):
     TEST_NUMBERS_INTEGER = (
         # kwargs, result
         ({'snapshot': [0, 0, 210, 4, 0], 'i': 0},   1234),    # Positive integer
