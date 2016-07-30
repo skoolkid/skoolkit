@@ -190,7 +190,7 @@ class BasicLister:
         self.text = TextReader()
 
     def list_basic(self, snapshot):
-        lines = ['Basic listing:']
+        lines = []
         self.snapshot = snapshot
         i = (snapshot[23635] + 256 * snapshot[23636]) or 23755
         while i < len(snapshot) and snapshot[i] < 64:
@@ -254,7 +254,7 @@ class VariableLister:
         self.text = TextReader()
 
     def list_variables(self, snapshot):
-        lines = ['Variables:']
+        lines = []
         self.snapshot = snapshot
         i = snapshot[23627] + 256 * snapshot[23628]
         while i < len(snapshot) and snapshot[i] != 128:
