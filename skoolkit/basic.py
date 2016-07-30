@@ -140,10 +140,7 @@ def _get_integer(snapshot, i):
 
 def _get_float(snapshot, i):
     exponent = snapshot[i] - 160
-    if (snapshot[i + 1] & 128) == 0:
-        sign = 1
-    else:
-        sign = -1
+    sign = -1 if snapshot[i + 1] & 128 else 1
     mantissa = float(16777216 * (snapshot[i + 1] | 128)
                      + 65536 * snapshot[i + 2]
                      + 256 * snapshot[i + 3]
