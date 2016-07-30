@@ -31,10 +31,6 @@ class NumberUtilsTest(SkoolKitTestCase):
         ({'snapshot': [168, 5, 142, 188, 109], 'i': 0}, 0.573625364e12), # Long mantissa
     )
 
-    def setUp(self):
-        SkoolKitTestCase.setUp(self)
-        self.longMessage = True
-
     def _test_function_integer(self, exp_result, func, **kwargs):
         kwargs_str = ', '.join(['{}={!r}'.format(k, v) for k, v in kwargs.items()])
         msg = "{}({}) failed".format(func.__name__, kwargs_str)
