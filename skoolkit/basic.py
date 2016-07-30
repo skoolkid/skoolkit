@@ -148,8 +148,7 @@ def _get_float(snapshot, i):
                      + 65536 * snapshot[i + 2]
                      + 256 * snapshot[i + 3]
                      + snapshot[i + 4])
-    num = sign * mantissa * (2 ** exponent)
-    return num
+    return sign * mantissa * (2 ** exponent)
 
 class TextReader:
     def __init__(self):
