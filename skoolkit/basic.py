@@ -277,9 +277,9 @@ class VariableLister:
                 i, line = self._get_short_num_var(i)
             else:
                 # Basic line (000xxxxx / 001xxxxx)
-                i, line = self._skip_basic_line(i)
-            if line != '':
-                lines.append('{}'.format(line))
+                i += get_word(snapshot, i + 2) + 4
+                continue
+            lines.append('{}'.format(line))
         return '\n'.join(lines)
 
     def _get_string_var(self, i):
@@ -348,10 +348,3 @@ class VariableLister:
         line += '{}='.format(self.text.get_chars(letter))
         line += "{}".format(get_number(self.snapshot, i + 1))
         return i + 6, line
-
-    def _skip_basic_line(self, i):
-        line = ''
-        i += 2
-        line_length = get_word(self.snapshot, i)
-        i += line_length + 2
-        return i, line
