@@ -13,8 +13,6 @@ class get_number_Test(SkoolKitTestCase):
         ({'snapshot': [0, 255, 207, 43, 0], 'i': 0}, -54321), # Negative integer
         ({'snapshot': [0, 255, 12, 0, 0], 'i': 0}, -65524),   # Negative integer, LSB only
         ({'snapshot': [0, 255, 0, 62, 0], 'i': 0}, -49664),   # Negative integer, MSB only
-        ({'snapshot': [0, 127, 53, 179, 0], 'i': 0},  19659), # Positive integer, non-conforming sign byte
-        ({'snapshot': [0, 128, 53, 179, 0], 'i': 0}, -45877), # Negative integer, non-conforming sign byte
         ({'snapshot': [0, 0, 0, 1, 1, 0], 'i': 1}, 257),      # Positive integer, offset 1
     )
 

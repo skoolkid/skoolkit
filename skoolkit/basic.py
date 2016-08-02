@@ -121,22 +121,9 @@ def get_number(snapshot, i):
     return _get_integer(snapshot, i)
 
 def _get_integer(snapshot, i):
-    # See ZX Spectrum ROM routine INT_FETCH at 0x2D7F
-    sign = snapshot[i + 1]
-    lsb = (snapshot[i + 2] ^ sign) - sign
-    if lsb < 0:
-        lsb += 256
-        carry = 1
-    else:
-        carry = 0
-
-    msb = ((snapshot[i + 3] + sign + carry) & 255) ^ sign
-
-    num = 256 * msb + lsb
-    if (sign & 128) != 0:
-        num *= -1
-
-    return num
+    if snapshot[i + 1]:
+        return get_word(snapshot, i + 2) - 65536
+    return get_word(snapshot, i + 2)
 
 def _get_float(snapshot, i):
     exponent = snapshot[i] - 160
