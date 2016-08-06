@@ -115,7 +115,7 @@ TOKENS = {
     255: 'COPY'
 }
 
-def get_number(snapshot, i):
+def _get_number(snapshot, i):
     if snapshot[i]:
         return _get_float(snapshot, i)
     return _get_integer(snapshot, i)
@@ -210,7 +210,7 @@ class BasicLister:
     def _get_fp_num(self, i):
         num_str = self._get_num_str(i - 1)
         if num_str:
-            num = get_number(self.snapshot, i + 1)
+            num = _get_number(self.snapshot, i + 1)
             if num and abs(1 - float(num_str) / num) > 1e-9:
                 return '{{{}}}'.format(num)
         return ''
@@ -286,7 +286,7 @@ class VariableLister:
         dims = [str(get_word(self.snapshot, c)) for c in range(i, i + 2 * dimensions, 2)]
         i += 2 * dimensions
         data_length -= 2 * dimensions
-        values = [str(get_number(self.snapshot, c)) for c in range(i, i + data_length, 5)]
+        values = [str(_get_number(self.snapshot, c)) for c in range(i, i + data_length, 5)]
         line = '(Number array) {}({})=[{}]'.format(varname, ','.join(dims), ','.join(values))
         return i + data_length, line
 
@@ -300,7 +300,7 @@ class VariableLister:
             i += 1
             letter = self.snapshot[i]
         varname += '{}'.format(self.text.get_chars(letter & 127))
-        line = '(Number) {}={}'.format(varname, get_number(self.snapshot, i + 1))
+        line = '(Number) {}={}'.format(varname, _get_number(self.snapshot, i + 1))
         return i + 6, line
 
     def _get_char_array_var(self, i):
@@ -319,9 +319,9 @@ class VariableLister:
     def _get_control_var(self, i):
         letter = (self.snapshot[i] & 31) + 96
         varname = self.text.get_chars(letter)
-        value = get_number(self.snapshot, i + 1)
-        limit = get_number(self.snapshot, i + 6)
-        step = get_number(self.snapshot, i + 11)
+        value = _get_number(self.snapshot, i + 1)
+        limit = _get_number(self.snapshot, i + 6)
+        step = _get_number(self.snapshot, i + 11)
         line_number = get_word(self.snapshot, i + 16)
         statement = self.snapshot[i + 18]
         line = '(FOR control variable) {}={} (limit={}, step={}, line={}, statement={})'.format(varname, value, limit, step, line_number, statement)
@@ -330,5 +330,5 @@ class VariableLister:
     def _get_short_num_var(self, i):
         letter = (self.snapshot[i] & 31) + 96
         varname = self.text.get_chars(letter)
-        line = '(Number) {}={}'.format(varname, get_number(self.snapshot, i + 1))
+        line = '(Number) {}={}'.format(varname, _get_number(self.snapshot, i + 1))
         return i + 6, line
