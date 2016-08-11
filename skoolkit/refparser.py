@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2009-2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2016 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -101,7 +101,7 @@ class RefParser:
                 dictionaries.append((section_id, self._get_dictionary(lines)))
         return dictionaries
 
-    def get_section(self, section_name, paragraphs=False, lines=False):
+    def get_section(self, section_name, paragraphs=False, lines=False, trim=True):
         """Return the contents of a section.
 
         :param section_name: The section name.
@@ -110,15 +110,18 @@ class RefParser:
         :param lines: If `True`, return the contents (or each paragraph) as a
                       list of lines; otherwise return the contents (or each
                       paragraph) as a single string.
+        :param trim: If `True`, remove leading whitespace from each line.
         """
         contents = self._sections.get(section_name, ())
+        if trim:
+            contents = [line.lstrip() for line in contents]
         if paragraphs:
             return self._get_paragraphs(contents, lines)
         if lines:
             return contents[:]
         return '\n'.join(contents)
 
-    def get_sections(self, section_type, paragraphs=False, lines=False):
+    def get_sections(self, section_type, paragraphs=False, lines=False, trim=True):
         """Return a list of 2-tuples of the form ``(suffix, contents)`` or
         3-tuples of the form ``(infix, suffix, contents)`` derived from
         sections whose names start with `section_type` followed by a colon.
@@ -133,13 +136,14 @@ class RefParser:
         :param lines: If `True`, return the contents (or each paragraph) of
                       each section as a list of lines; otherwise return the
                       contents (or each paragraph) as a single string.
+        :param trim: If `True`, remove leading whitespace from each line.
         """
         sep = ':'
         prefix = section_type + sep
         items = []
         for section_name in self._sections:
             if section_name.startswith(prefix):
-                contents = self.get_section(section_name, paragraphs, lines)
+                contents = self.get_section(section_name, paragraphs, lines, trim)
                 elements = section_name.split(sep, 2)
                 if len(elements) < 3:
                     items.append((elements[1], contents))

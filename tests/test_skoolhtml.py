@@ -363,6 +363,26 @@ class MethodTest(HtmlWriterTestCase):
         section = writer.get_section('Foo')
         self.assertEqual(section, 'Baz')
 
+    def test_get_section_trim_lines(self):
+        ref = '\n'.join((
+            '[Foo]',
+            '  Line 1.',
+            '    Line 2.'
+        ))
+        writer = self._get_writer(ref=ref)
+        section = writer.get_section('Foo')
+        self.assertEqual(section, 'Line 1.\nLine 2.')
+
+    def test_get_section_no_trim_lines(self):
+        ref = '\n'.join((
+            '[Foo]',
+            '  Line 1.',
+            '    Line 2.'
+        ))
+        writer = self._get_writer(ref=ref)
+        section = writer.get_section('Foo', trim=False)
+        self.assertEqual(section, '  Line 1.\n    Line 2.')
+
     @patch.object(skoolhtml, 'REF_FILE', MINIMAL_REF_FILE + '[Foo:a]\nBar\n[Foo:b]\nBaz\n[Foo:c]\nQux')
     def test_get_sections(self):
         writer = self._get_writer(ref='[Foo:b]\nXyzzy')

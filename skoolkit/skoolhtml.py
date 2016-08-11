@@ -348,7 +348,7 @@ class HtmlWriter:
         return dictionaries
 
     # API
-    def get_section(self, section_name, paragraphs=False, lines=False):
+    def get_section(self, section_name, paragraphs=False, lines=False, trim=True):
         """Return the contents of a ref file section.
 
         :param section_name: The section name.
@@ -357,13 +357,14 @@ class HtmlWriter:
         :param lines: If `True`, return the contents (or each paragraph) as a
                       list of lines; otherwise return the contents (or each
                       paragraph) as a single string.
+        :param trim: If `True`, remove leading whitespace from each line.
         """
         if self.ref_parser.has_section(section_name):
-            return self.ref_parser.get_section(section_name, paragraphs, lines)
-        return self.defaults.get_section(section_name, paragraphs, lines)
+            return self.ref_parser.get_section(section_name, paragraphs, lines, trim)
+        return self.defaults.get_section(section_name, paragraphs, lines, trim)
 
     # API
-    def get_sections(self, section_type, paragraphs=False, lines=False):
+    def get_sections(self, section_type, paragraphs=False, lines=False, trim=True):
         """Return a list of 2-tuples of the form ``(suffix, contents)`` or
         3-tuples of the form ``(infix, suffix, contents)`` derived from ref
         file sections whose names start with `section_type` followed by a
@@ -378,11 +379,12 @@ class HtmlWriter:
         :param lines: If `True`, return the contents (or each paragraph) of
                       each section as a list of lines; otherwise return the
                       contents (or each paragraph) as a single string.
+        :param trim: If `True`, remove leading whitespace from each line.
         """
         sections = []
         index = {}
-        default_sections = self.defaults.get_sections(section_type, paragraphs, lines)
-        user_sections = self.ref_parser.get_sections(section_type, paragraphs, lines)
+        default_sections = self.defaults.get_sections(section_type, paragraphs, lines, trim)
+        user_sections = self.ref_parser.get_sections(section_type, paragraphs, lines, trim)
         for section in default_sections + user_sections:
             suffix = ':'.join(section[:-1])
             if suffix in index:
@@ -428,14 +430,11 @@ class HtmlWriter:
 
     def _get_changelog(self):
         changelog = []
-        for title, paragraphs in self.get_sections('Changelog', True, True):
+        for title, paragraphs in self.get_sections('Changelog', True, True, False):
             intro = paragraphs[0][0]
             if intro == '-':
                 intro = ''
-            items = []
-            for p in paragraphs[1:]:
-                items.append(p)
-            changelog.append((title, intro, items))
+            changelog.append((title, intro, paragraphs[1:]))
         return changelog
 
     def get_page_ids(self):
