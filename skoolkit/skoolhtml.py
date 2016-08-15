@@ -141,9 +141,16 @@ class HtmlWriter:
             self.pages[page_id] = {'PageContent': contents}
             self.page_ids.append(page_id)
         for page_id, details in self.get_dictionaries('Page'):
+            page = self.pages.setdefault(page_id, {})
+            section_prefix = details.get('SectionPrefix')
+            if section_prefix:
+                entries = self.get_sections(section_prefix, True)
+                if entries:
+                    page['entries'] = entries
+                else:
+                    continue # pragma: no cover
             if page_id not in self.page_ids:
                 self.page_ids.append(page_id)
-            page = self.pages.setdefault(page_id, {})
             page.update(details)
         for page_id, page in self.pages.items():
             path = page.get('Content')
@@ -944,9 +951,8 @@ class HtmlWriter:
     def write_page(self, page_id):
         page = self.pages[page_id]
         js = page.get('JavaScript')
-        section_prefix = page.get('SectionPrefix')
-        if section_prefix:
-            entries = self.get_sections(section_prefix, True)
+        entries = page.get('entries')
+        if entries:
             self._write_box_page(page_id, entries, js)
         else:
             fname = self.paths[page_id]

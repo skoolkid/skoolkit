@@ -262,6 +262,24 @@ class HtmlWriterTest(HtmlWriterTestCase):
         section = writer.get_section('Test', lines=True)
         self.assertEqual(['Hello everyone.', 'Goodbye everyone.'], section)
 
+    def test_non_empty_box_page_is_registered(self):
+        ref = '\n'.join((
+            '[Page:Foo]',
+            'SectionPrefix=Foo',
+            '[Foo:foo:Foo]',
+            'Hello.'
+        ))
+        writer = self._get_writer(ref=ref)
+        self.assertIn('Foo', writer.get_page_ids())
+
+    def test_empty_box_page_is_not_registered(self):
+        ref = '\n'.join((
+            '[Page:Bar]',
+            'SectionPrefix=Bar'
+        ))
+        writer = self._get_writer(ref=ref)
+        self.assertNotIn('Bar', writer.get_page_ids())
+
 class MethodTest(HtmlWriterTestCase):
     def setUp(self):
         HtmlWriterTestCase.setUp(self)
