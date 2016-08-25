@@ -4,7 +4,7 @@
 .emacs.desktop
 .emacs.desktop.lock
 build
-diffs-hh
+diffs
 dist
 MANIFEST
 tests/cover
