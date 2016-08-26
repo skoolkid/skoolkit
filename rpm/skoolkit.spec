@@ -1,7 +1,5 @@
-%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
-
 Name:           skoolkit
-Version:        %($SKOOLKIT_HOME/bin2tap.py --version 2>&1 | cut -f2 -d' ')
+Version:        5.2
 Release:        1
 Summary:        Tools for creating disassemblies of ZX Spectrum programs
 
@@ -10,8 +8,8 @@ URL:            http://skoolkit.ca/
 Source0:        http://skoolkit.ca/downloads/%{name}/%{name}-%{version}.tar.xz
 
 BuildArch:      noarch
-BuildRequires:  python-devel
-Requires:       python >= 2.7
+BuildRequires:  python3-devel
+Requires:       python3 >= 3.2
 
 %description
 SkoolKit is a collection of utilities that can be used to disassemble a
@@ -27,12 +25,11 @@ developer- and assembler-friendly ASM version of the disassembly.
 %setup -q
 
 %build
-%{__python} setup.py build
+%{__python3} setup.py build
 
 %install
 rm -rf $RPM_BUILD_ROOT
-# --prefix=... is needed on openSUSE, but not Fedora
-%{__python} setup.py install -O1 --prefix=%{_prefix} --skip-build --root $RPM_BUILD_ROOT
+%{__python3} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
 install -d %{buildroot}%{_mandir}/man1
 cp -p man/man1/* %{buildroot}%{_mandir}/man1
 install -d %{buildroot}%{_datadir}/%{name}
@@ -43,7 +40,7 @@ cp -a examples %{buildroot}%{_datadir}/%{name}
 %{_bindir}/*
 %{_mandir}/man1/*
 %{_datadir}/%{name}/*
-%{python_sitelib}/*
+%{python3_sitelib}/*
 
 %changelog
 * Mon May 02 2016 Richard Dymond <rjdymond@gmail.com> 5.2-1
