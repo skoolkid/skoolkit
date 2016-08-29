@@ -12,19 +12,21 @@ Installation
 ------------
 There are various ways to install the latest stable release of SkoolKit:
 
-* from the zip archive or tarball available at
-  `skoolkit.ca <http://skoolkit.ca/?page_id=177>`_
-* from the DEB package or RPM package available at `skoolkit.ca`_
-* from `PyPI <https://pypi.python.org/pypi/skoolkit>`_ by using
-  `easy_install <https://pythonhosted.org/setuptools/easy_install.html>`_ or
-  `pip <http://www.pip-installer.org/>`_
-* from the `SkoolKit PPA <https://launchpad.net/~rjdymond/+archive/ppa>`_ for
-  Ubuntu
+* from the zip archive or tarball available at `skoolkit.ca`_
+* from `PyPI`_ by using `pip`_
+* from the `PPA`_ for Ubuntu
+* from the `copr repo`_ for Fedora
 
 If you choose the zip archive or tarball, note that SkoolKit can be used
 wherever it is unpacked: it does not need to be installed in any particular
 location. However, if you would like to install SkoolKit as a Python package,
 you can do so by using the supplied ``setup.py`` script.
+
+.. _skoolkit.ca: http://skoolkit.ca/?page_id=177
+.. _PyPI: https://pypi.python.org/pypi/skoolkit
+.. _pip: https://pip.pypa.io/
+.. _PPA: https://launchpad.net/~rjdymond/+archive/ppa
+.. _copr repo: https://copr.fedorainfracloud.org/coprs/rjdymond/SkoolKit/
 
 Windows
 ^^^^^^^
