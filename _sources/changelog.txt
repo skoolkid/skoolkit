@@ -1,6 +1,33 @@
 Changelog
 =========
 
+5.3 (2016-09-05)
+----------------
+* Dropped support for Python 3.2
+* Added the :ref:`snapinfo.py` command (for showing information on the
+  registers and RAM in a SNA, SZX or Z80 snapshot)
+* Added the :ref:`snapmod.py` command (for modifying the registers and RAM in a
+  48K Z80 snapshot)
+* Added the :ref:`INCLUDE` macro (which expands to the contents of a ref file
+  section)
+* Added the ability to write the HTML disassembly to a single page (by using
+  the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game` section and
+  the :ref:`t_AsmAllInOne` and :ref:`t_asm_entry` templates)
+* Added the ``SectionPrefix`` parameter to the :ref:`page` section (for
+  specifying the prefix of the names of ref file sections from which to build
+  a 'box page')
+* Added the ``--screen`` option to :ref:`bin2tap.py` (for adding a loading
+  screen to the TAP file)
+* Added the ``--stack`` and ``--start`` options to :ref:`tap2sna.py` (for
+  specifying the stack and start addresses)
+* Added support to the :ref:`REG` macro for the F and F' registers
+* Improved how :ref:`skool2asm.py` scans annotations for addresses not
+  converted to labels
+* Fixed how a memory block that ends with a single ED byte is compressed in a
+  Z80 snapshot
+* Removed the Spectrum ROM disassembly from the SkoolKit distribution; it is
+  now being developed separately `here <https://github.com/skoolkid/rom>`__
+
 5.2 (2016-05-02)
 ----------------
 * Added the :ref:`bin2sna.py` command (for converting a binary file into a Z80

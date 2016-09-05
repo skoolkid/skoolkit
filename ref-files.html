@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &mdash; SkoolKit 5.2 documentation</title>
+    <title>Ref files &mdash; SkoolKit 5.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.2',
+        VERSION:     '5.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.3 documentation" href="index.html" />
     <link rel="next" title="HTML templates" href="html-templates.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -171,9 +171,10 @@ Second top-level item.
 ...
 </pre></div>
 </div>
-<p>where <tt class="docutils literal"><span class="pre">title</span></tt> is the title of the entry, and the intro text and top-level
-items are separated by blank lines. Lower-level items are created by using
-indentation, as shown.</p>
+<p>where <tt class="docutils literal"><span class="pre">title</span></tt> is the title of the entry. The intro text and the first
+top-level item must be separated by a blank line. Lower-level items are created
+by using indentation, as shown. Blank lines between items are optional and will
+be ignored.</p>
 <p>If the intro text is a single hyphen (<tt class="docutils literal"><span class="pre">-</span></tt>), it will not be included in the
 final HTML rendering.</p>
 <p>The intro text and changelog items may contain HTML markup and
@@ -338,6 +339,10 @@ aspects of the HTML output. The parameters are in the format:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">AddressAnchor</span></tt> - the format of the anchors attached to instructions on
 disassembly pages and entries on memory map pages (default: <tt class="docutils literal"><span class="pre">{address}</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">AsmSinglePageTemplate</span></tt> - the name of the HTML template used to build the
+disassembly on a single page, as opposed to a separate page for each routine
+and data block (default: None); set this to &#8216;AsmAllInOne&#8217; to use the
+<a class="reference internal" href="html-templates.html#t-asmallinone"><em>AsmAllInOne</em></a> template</li>
 <li><tt class="docutils literal"><span class="pre">Copyright</span></tt> - the copyright message that appears in the footer of every
 page (default: &#8216;&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">Created</span></tt> - the message indicating the software used to create the
@@ -407,40 +412,43 @@ could produce such an anchor should be avoided.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.2</td>
+<tr class="row-even"><td>5.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">AsmSinglePageTemplate</span></tt> parameter</td>
+</tr>
+<tr class="row-odd"><td>5.2</td>
 <td>Added the <tt class="docutils literal"><span class="pre">UDGFilename</span></tt> parameter</td>
 </tr>
-<tr class="row-odd"><td>4.3</td>
+<tr class="row-even"><td>4.3</td>
 <td>Added the <tt class="docutils literal"><span class="pre">AddressAnchor</span></tt> parameter</td>
 </tr>
-<tr class="row-even"><td>4.1</td>
+<tr class="row-odd"><td>4.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">LinkInternalOperands</span></tt> parameter</td>
 </tr>
-<tr class="row-odd"><td>4.0</td>
+<tr class="row-even"><td>4.0</td>
 <td>Set default values for the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
 <tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> parameters; added the
 <tt class="docutils literal"><span class="pre">Copyright</span></tt>, <tt class="docutils literal"><span class="pre">Created</span></tt> and <tt class="docutils literal"><span class="pre">Release</span></tt> parameters (which used
 to live in the <tt class="docutils literal"><span class="pre">[Info]</span></tt> section in SkoolKit 3)</td>
 </tr>
-<tr class="row-even"><td>3.7</td>
+<tr class="row-odd"><td>3.7</td>
 <td>Added the <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter</td>
 </tr>
-<tr class="row-odd"><td>3.5</td>
+<tr class="row-even"><td>3.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">Font</span></tt>, <tt class="docutils literal"><span class="pre">LogoImage</span></tt> and <tt class="docutils literal"><span class="pre">StyleSheet</span></tt> parameters
 (all of which used to live in the <a class="reference internal" href="#paths"><em>[Paths]</em></a> section,
 <tt class="docutils literal"><span class="pre">LogoImage</span></tt> by the name <tt class="docutils literal"><span class="pre">Logo</span></tt>)</td>
 </tr>
-<tr class="row-even"><td>3.4</td>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">LinkOperands</span></tt> parameter</td>
 </tr>
-<tr class="row-odd"><td>3.1.2</td>
+<tr class="row-even"><td>3.1.2</td>
 <td>Added the <tt class="docutils literal"><span class="pre">InputRegisterTableHeader</span></tt> and
 <tt class="docutils literal"><span class="pre">OutputRegisterTableHeader</span></tt> parameters</td>
 </tr>
-<tr class="row-even"><td>2.0.5</td>
+<tr class="row-odd"><td>2.0.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">Logo</span></tt> parameter</td>
 </tr>
-<tr class="row-odd"><td>2.0.3</td>
+<tr class="row-even"><td>2.0.3</td>
 <td>Added the <tt class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></tt> parameter</td>
 </tr>
 </tbody>
@@ -650,6 +658,9 @@ form:</p>
 </ul>
 <p>Recognised page IDs are:</p>
 <ul class="simple">
+<li><tt class="docutils literal"><span class="pre">AsmSinglePage</span></tt> - the disassembly page (when a single-page template is
+specified by the <tt class="docutils literal"><span class="pre">AsmSinglePageTemplate</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a>
+section)</li>
 <li><tt class="docutils literal"><span class="pre">Bugs</span></tt> - the &#8216;Bugs&#8217; page</li>
 <li><tt class="docutils literal"><span class="pre">Changelog</span></tt> - the &#8216;Changelog&#8217; page</li>
 <li><tt class="docutils literal"><span class="pre">DataMap</span></tt> - the &#8216;Data&#8217; memory map page</li>
@@ -679,8 +690,8 @@ hyperlink. For example:</p>
 displayed alongside it.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="21%" />
-<col width="79%" />
+<col width="20%" />
+<col width="80%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -688,13 +699,16 @@ displayed alongside it.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>2.5</td>
+<tr class="row-even"><td>5.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">AsmSinglePage</span></tt> page ID</td>
+</tr>
+<tr class="row-odd"><td>2.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> page ID</td>
 </tr>
-<tr class="row-odd"><td>2.2.5</td>
+<tr class="row-even"><td>2.2.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> page ID</td>
 </tr>
-<tr class="row-even"><td>2.0.5</td>
+<tr class="row-odd"><td>2.0.5</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -803,9 +817,13 @@ and directory IDs become available for use in the <a class="reference internal" 
 <tt class="docutils literal"><span class="pre">bcgstuw</span></tt>, depending on the entry type)</li>
 <li><tt class="docutils literal"><span class="pre">CodeID-CodePath</span></tt> - the ID of the directory in which the disassembly pages
 are written</li>
+<li><tt class="docutils literal"><span class="pre">CodeID-AsmSinglePage</span></tt> - the ID of the disassembly page (when a single-page
+template is specified by the <tt class="docutils literal"><span class="pre">AsmSinglePageTemplate</span></tt> parameter in the
+<a class="reference internal" href="#ref-game"><em>[Game]</em></a> section)</li>
 </ul>
 <p>By default, the index page is written to <cite>CodeID/CodeID.html</cite>, and the
-disassembly pages are written in a directory named <cite>CodeID</cite>.</p>
+disassembly pages are written in a directory named <cite>CodeID</cite>; if a single-page
+template is used, the disassembly page is written to <cite>CodeID/asm.html</cite>.</p>
 <p>Note that the index page is a memory map page, and as such can be configured by
 creating a <a class="reference internal" href="#memorymap"><em>[MemoryMap:*]</em></a> section (<tt class="docutils literal"><span class="pre">MemoryMap:CodeID-Index</span></tt>) for it.</p>
 <table border="1" class="docutils">
@@ -854,15 +872,21 @@ their names with semicolons</li>
 <li><tt class="docutils literal"><span class="pre">PageContent</span></tt> - the HTML source of the body of the page; this defaults to
 the contents of the corresponding <a class="reference internal" href="#pagecontent"><em>[PageContent:*]</em></a> section, but may be
 specified here if the source can be written on a single line</li>
+<li><tt class="docutils literal"><span class="pre">SectionPrefix</span></tt> - the prefix of the names of the ref file sections from
+which to build a &#8216;box page&#8217; (like the &#8216;Bugs&#8217; and &#8216;Trivia&#8217; pages); the names
+of the ref file sections must be in the form <tt class="docutils literal"><span class="pre">[prefix:anchor:title]</span></tt></li>
 </ul>
+<p>Note that the <tt class="docutils literal"><span class="pre">Content</span></tt>, <tt class="docutils literal"><span class="pre">SectionPrefix</span></tt> and <tt class="docutils literal"><span class="pre">PageContent</span></tt> parameters are
+mutually exclusive (and that is their order of precedence).</p>
 <p>By default, the custom page is written to a file named <cite>PageID.html</cite> in the
 root directory of the disassembly; to change this, add a line to the
 <a class="reference internal" href="#paths"><em>[Paths]</em></a> section. The title, page header and link text for the custom page
 can be defined in the <a class="reference internal" href="#titles"><em>[Titles]</em></a>, <a class="reference internal" href="#pageheaders"><em>[PageHeaders]</em></a> and <a class="reference internal" href="#links"><em>[Links]</em></a>
 sections.</p>
 <p>Every custom page is built using the <a class="reference internal" href="#template"><em>HTML template</em></a> whose name
-matches the page ID, if one exists; otherwise, the stock <a class="reference internal" href="html-templates.html#t-page"><em>Page</em></a> template
-is used.</p>
+matches the page ID, if one exists; otherwise, either the <a class="reference internal" href="html-templates.html#t-reference"><em>Reference</em></a>
+template is used (when <tt class="docutils literal"><span class="pre">SectionPrefix</span></tt> is defined), or the <a class="reference internal" href="html-templates.html#t-page"><em>Page</em></a>
+template is used.</p>
 <p>Note that a <tt class="docutils literal"><span class="pre">Page:*</span></tt> section may be empty; if so, it may be omitted from the
 ref file.</p>
 <table border="1" class="docutils">
@@ -876,11 +900,14 @@ ref file.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>3.5</td>
+<tr class="row-even"><td>5.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">SectionPrefix</span></tt> parameter</td>
+</tr>
+<tr class="row-odd"><td>3.5</td>
 <td>The <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter specifies the JavaScript file(s) to
 use</td>
 </tr>
-<tr class="row-odd"><td>2.1</td>
+<tr class="row-even"><td>2.1</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -934,6 +961,9 @@ disassembly. Each line has the form:</p>
 <li><tt class="docutils literal"><span class="pre">Asm-t</span></tt> - disassembly pages for &#8216;t&#8217; blocks (default: &#8216;Data&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">Asm-u</span></tt> - disassembly pages for &#8216;u&#8217; blocks (default: &#8216;Unused&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">Asm-w</span></tt> - disassembly pages for &#8216;w&#8217; blocks (default: &#8216;Data&#8217;)</li>
+<li><tt class="docutils literal"><span class="pre">AsmSinglePage</span></tt> - the disassembly page (when a single-page template is
+specified by the <tt class="docutils literal"><span class="pre">AsmSinglePageTemplate</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a>
+section)</li>
 <li><tt class="docutils literal"><span class="pre">Bugs</span></tt> - the &#8216;Bugs&#8217; page</li>
 <li><tt class="docutils literal"><span class="pre">Changelog</span></tt> - the &#8216;Changelog&#8217; page</li>
 <li><tt class="docutils literal"><span class="pre">DataMap</span></tt> - the &#8216;Data&#8217; memory map page</li>
@@ -957,8 +987,8 @@ defined in this section; it is composed from the values of the <tt class="docuti
 and <tt class="docutils literal"><span class="pre">TitleSuffix</span></tt> parameters in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a> section.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="20%" />
+<col width="80%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -966,7 +996,10 @@ and <tt class="docutils literal"><span class="pre">TitleSuffix</span></tt> param
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.0</td>
+<tr class="row-even"><td>5.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">AsmSinglePage</span></tt> page ID</td>
+</tr>
+<tr class="row-odd"><td>4.0</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -987,6 +1020,9 @@ of the disassembly</li>
 </ul>
 <p>Recognised file IDs and their default paths are:</p>
 <ul class="simple">
+<li><tt class="docutils literal"><span class="pre">AsmSinglePage</span></tt> - the disassembly page (when a single-page template is
+specified by the <tt class="docutils literal"><span class="pre">AsmSinglePageTemplate</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a>
+section; default: <tt class="docutils literal"><span class="pre">asm.html</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">Bugs</span></tt> - the &#8216;Bugs&#8217; page (default: <tt class="docutils literal"><span class="pre">reference/bugs.html</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">Changelog</span></tt> - the &#8216;Changelog&#8217; page (default: <tt class="docutils literal"><span class="pre">reference/changelog.html</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">CodeFiles</span></tt> - the format of the disassembly page filenames (default:
@@ -1045,25 +1081,28 @@ to <tt class="docutils literal"><span class="pre">{address:04X}.html</span></tt>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.3</td>
+<tr class="row-even"><td>5.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">AsmSinglePage</span></tt> file ID</td>
+</tr>
+<tr class="row-odd"><td>4.3</td>
 <td>Added the <tt class="docutils literal"><span class="pre">CodeFiles</span></tt> file ID</td>
 </tr>
-<tr class="row-odd"><td>3.1.1</td>
+<tr class="row-even"><td>3.1.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">FontPath</span></tt> directory ID</td>
 </tr>
-<tr class="row-even"><td>2.5</td>
+<tr class="row-odd"><td>2.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> file ID</td>
 </tr>
-<tr class="row-odd"><td>2.2.5</td>
+<tr class="row-even"><td>2.2.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> file ID</td>
 </tr>
-<tr class="row-even"><td>2.1.1</td>
+<tr class="row-odd"><td>2.1.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">CodePath</span></tt> directory ID</td>
 </tr>
-<tr class="row-odd"><td>2.0.5</td>
+<tr class="row-even"><td>2.0.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">FontImagePath</span></tt> directory ID</td>
 </tr>
-<tr class="row-even"><td>2.0</td>
+<tr class="row-odd"><td>2.0</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1175,6 +1214,9 @@ entry at&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">Asm-t</span></tt> - disassembly pages for &#8216;t&#8217; blocks (default: &#8216;Data at&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">Asm-u</span></tt> - disassembly pages for &#8216;u&#8217; blocks (default: &#8216;Unused RAM at&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">Asm-w</span></tt> - disassembly pages for &#8216;w&#8217; blocks (default: &#8216;Data at&#8217;)</li>
+<li><tt class="docutils literal"><span class="pre">AsmSinglePage</span></tt> - the disassembly page (when a single-page template is
+specified by the <tt class="docutils literal"><span class="pre">AsmSinglePageTemplate</span></tt> parameter in the <a class="reference internal" href="#ref-game"><em>[Game]</em></a>
+section; default: &#8216;Disassembly&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">Bugs</span></tt> - the &#8216;Bugs&#8217; page (default: &#8216;Bugs&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">Changelog</span></tt> - the &#8216;Changelog&#8217; page (default: &#8216;Changelog&#8217;)</li>
 <li><tt class="docutils literal"><span class="pre">DataMap</span></tt> - the &#8216;Data&#8217; memory map page (default: &#8216;Data&#8217;)</li>
@@ -1197,8 +1239,8 @@ addresses&#8217;)</li>
 overridden in this section.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="21%" />
-<col width="79%" />
+<col width="20%" />
+<col width="80%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -1206,16 +1248,19 @@ overridden in this section.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.0</td>
+<tr class="row-even"><td>5.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">AsmSinglePage</span></tt> page ID</td>
+</tr>
+<tr class="row-odd"><td>4.0</td>
 <td>Added the <tt class="docutils literal"><span class="pre">Asm-*</span></tt> page IDs</td>
 </tr>
-<tr class="row-odd"><td>2.5</td>
+<tr class="row-even"><td>2.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">UnusedMap</span></tt> page ID</td>
 </tr>
-<tr class="row-even"><td>2.2.5</td>
+<tr class="row-odd"><td>2.2.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">Changelog</span></tt> page ID</td>
 </tr>
-<tr class="row-odd"><td>2.0.5</td>
+<tr class="row-even"><td>2.0.5</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1283,7 +1328,7 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

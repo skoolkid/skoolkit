@@ -259,7 +259,15 @@ HtmlWriter provides some convenience methods for extracting text and data from
 ref files. These methods are described below.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_section
+
+   .. versionchanged:: 5.3
+      Added the *trim* parameter.
+
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_sections
+
+   .. versionchanged:: 5.3
+      Added the *trim* parameter.
+
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_dictionary
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_dictionaries
 

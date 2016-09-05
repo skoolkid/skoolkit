@@ -592,6 +592,37 @@ See also :ref:`UDGTABLE`.
 | 3.1.2   | New     |
 +---------+---------+
 
+.. _INCLUDE:
+
+#INCLUDE
+--------
+In HTML mode, the ``#INCLUDE`` macro expands to the contents of a ref file
+section; in ASM mode, it expands to an empty string. ::
+
+  #INCLUDE[paragraphs](section)
+
+* ``paragraphs`` specifies how to format the contents of the ref file section:
+  verbatim (``0`` - the default), or into paragraphs (``1``)
+* ``section`` is the name of the ref file section
+
+The ``#INCLUDE`` macro can be used to insert the contents of one ref file
+section into another. For example::
+
+  [MemoryMap:RoutinesMap]
+  Intro=#INCLUDE(RoutinesMapIntro)
+
+  [RoutinesMapIntro]
+  This is the intro to the 'Routines' map page.
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``section`` parameter.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.3     | New     |
++---------+---------+
+
 .. _LINK:
 
 #LINK
@@ -869,8 +900,8 @@ In ASM mode, the ``#REG`` macro expands to the name of the register.
 
 The register name must be one of the following::
 
-  a b c d e h l
-  a' b' c' d' e' h' l'
+  a b c d e f h l
+  a' b' c' d' e' f' h' l'
   af bc de hl
   af' bc' de' hl'
   ix iy ixh iyh ixl iyl
@@ -886,6 +917,8 @@ For example:
 +---------+-----------------------------------------------------+
 | Version | Changes                                             |
 +=========+=====================================================+
+| 5.3     | Added support for the F and F' registers            |
++---------+-----------------------------------------------------+
 | 5.1     | The ``reg`` parameter must be a valid register name |
 +---------+-----------------------------------------------------+
 
@@ -1567,7 +1600,8 @@ identical copy with a given name. ::
 * ``name`` is the snapshot name (defaults to an empty string)
 
 The snapshot name must be limited to the characters '$', '#', 0-9, A-Z and a-z;
-it must not start with a capital letter.
+it must not start with a capital letter. The name can be retrieved by using the
+:meth:`~skoolkit.skoolhtml.HtmlWriter.get_snapshot_name` method on HtmlWriter.
 
 +---------+----------------------------+
 | Version | Changes                    |

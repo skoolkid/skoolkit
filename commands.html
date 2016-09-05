@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Commands &mdash; SkoolKit 5.2 documentation</title>
+    <title>Commands &mdash; SkoolKit 5.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.2',
+        VERSION:     '5.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,9 +23,9 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.2 documentation" href="index.html" />
-    <link rel="next" title="Parsing, rendering, and modes" href="parsing.html" />
-    <link rel="prev" title="SkoolKit 1.x changelog" href="changelog1.html" /> 
+    <link rel="top" title="SkoolKit 5.3 documentation" href="index.html" />
+    <link rel="next" title="Supported assemblers" href="assemblers.html" />
+    <link rel="prev" title="Disassembly DIY" href="diy.html" /> 
   </head>
   <body>
     <div class="related">
@@ -35,12 +35,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="parsing.html" title="Parsing, rendering, and modes"
+          <a href="assemblers.html" title="Supported assemblers"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="changelog1.html" title="SkoolKit 1.x changelog"
+          <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -56,6 +56,8 @@
 <li><a class="reference internal" href="#skool2html-py">skool2html.py</a></li>
 <li><a class="reference internal" href="#skool2sft-py">skool2sft.py</a></li>
 <li><a class="reference internal" href="#sna2skool-py">sna2skool.py</a></li>
+<li><a class="reference internal" href="#snapinfo-py">snapinfo.py</a></li>
+<li><a class="reference internal" href="#snapmod-py">snapmod.py</a></li>
 <li><a class="reference internal" href="#tap2sna-py">tap2sna.py</a></li>
 <li><a class="reference internal" href="#tapinfo-py">tapinfo.py</a></li>
 </ul>
@@ -63,11 +65,11 @@
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="changelog1.html"
-                        title="previous chapter">SkoolKit 1.x changelog</a></p>
+  <p class="topless"><a href="diy.html"
+                        title="previous chapter">Disassembly DIY</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="parsing.html"
-                        title="next chapter">Parsing, rendering, and modes</a></p>
+  <p class="topless"><a href="assemblers.html"
+                        title="next chapter">Supported assemblers</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/commands.txt"
@@ -173,6 +175,9 @@ Options:
                         Set the stack pointer (default: ORG)
   -s START, --start START
                         Set the start address to JP to (default: ORG)
+  -S FILE, --screen FILE
+                        Add a loading screen to the TAP file; FILE may be a
+                        snapshot or a 6912-byte SCR file
   -t TAPFILE, --tapfile TAPFILE
                         Set the TAP filename
   -V, --version         Show SkoolKit version number and exit
@@ -209,21 +214,24 @@ Spectrum is 23952 ($5D90).</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.2</td>
+<tr class="row-even"><td>5.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--screen</span></tt> option</td>
+</tr>
+<tr class="row-odd"><td>5.2</td>
 <td>Added the ability to read a binary file from standard input;
 added a second positional argument specifying the TAP filename</td>
 </tr>
-<tr class="row-odd"><td>4.5</td>
+<tr class="row-even"><td>4.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--clear</span></tt> and <tt class="docutils literal"><span class="pre">--end</span></tt> options, and the ability to
 convert SNA, SZX and Z80 snapshots</td>
 </tr>
-<tr class="row-even"><td>3.4</td>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option and the long options</td>
 </tr>
-<tr class="row-odd"><td>2.2.5</td>
+<tr class="row-even"><td>2.2.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-p</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>1.3.1</td>
+<tr class="row-odd"><td>1.3.1</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -803,8 +811,103 @@ read binary files</td>
 </tbody>
 </table>
 </div>
+<div class="section" id="snapinfo-py">
+<span id="id10"></span><h2>snapinfo.py<a class="headerlink" href="#snapinfo-py" title="Permalink to this headline">¶</a></h2>
+<p><cite>snapinfo.py</cite> shows information on the registers and RAM in a SNA, SZX or Z80
+snapshot. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ snapinfo.py game.z80
+</pre></div>
+</div>
+<p>To list the options supported by <cite>snapinfo.py</cite>, run it with no arguments:</p>
+<div class="highlight-none"><div class="highlight"><pre>usage: snapinfo.py [options] file
+
+Analyse an SNA, SZX or Z80 snapshot.
+
+Options:
+  -b, --basic           List the BASIC program
+  -f A[,B...[-N]], --find A[,B...[-N]]
+                        Search for the byte sequence A,B... with distance N
+                        (default=1) between bytes
+  -p A[-B[-C]], --peek A[-B[-C]]
+                        Show the contents of addresses A TO B STEP C; this
+                        option may be used multiple times
+  -t TEXT, --find-text TEXT
+                        Search for a text string
+  -V, --version         Show SkoolKit version number and exit
+</pre></div>
+</div>
+<p>With no options, <cite>snapinfo.py</cite> displays register values, the interrupt mode,
+and the border colour. By using one of the options shown above, it can list
+the BASIC program (if one is present), show the contents of a range of
+addresses, or search the RAM for a sequence of byte values or a text string.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>5.3</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="snapmod-py">
+<span id="id11"></span><h2>snapmod.py<a class="headerlink" href="#snapmod-py" title="Permalink to this headline">¶</a></h2>
+<p><cite>snapmod.py</cite> modifies the registers and RAM in a 48K Z80 snapshot. For
+example:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ snapmod.py --poke 32768,0 game.z80 poked.z80
+</pre></div>
+</div>
+<p>To list the options supported by <cite>snapmod.py</cite>, run it with no arguments:</p>
+<div class="highlight-none"><div class="highlight"><pre>usage: snapmod.py [options] in.z80 [out.z80]
+
+Modify a 48K Z80 snapshot.
+
+Options:
+  -f, --force           Overwrite an existing snapshot.
+  -m src,size,dest, --move src,size,dest
+                        Move a block of bytes of the given size from src to
+                        dest. This option may be used multiple times.
+  -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
+                        POKE N,v for N in {a, a+c, a+2c..., b}. Prefix &#39;v&#39;
+                        with &#39;^&#39; to perform an XOR operation, or &#39;+&#39; to
+                        perform an ADD operation. This option may be used
+                        multiple times.
+  -r name=value, --reg name=value
+                        Set the value of a register. Do &#39;--reg help&#39; for more
+                        information. This option may be used multiple times.
+  -s name=value, --state name=value
+                        Set a hardware state attribute. Do &#39;--state help&#39; for
+                        more information. This option may be used multiple
+                        times.
+  -V, --version         Show SkoolKit version number and exit.
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>5.3</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="tap2sna-py">
-<span id="id10"></span><h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Permalink to this headline">¶</a></h2>
+<span id="id12"></span><h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>tap2sna.py</cite> converts a TAP or TZX file (which may be inside a zip archive)
 into a Z80 snapshot. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ tap2sna.py game.tap game.z80
@@ -824,11 +927,15 @@ Options:
   -d DIR, --output-dir DIR
                         Write the snapshot file in this directory.
   -f, --force           Overwrite an existing snapshot.
+  -p STACK, --stack STACK
+                        Set the stack pointer.
   --ram OPERATION       Perform a load, move or poke operation on the memory
                         snapshot being built. Do &#39;--ram help&#39; for more
                         information. This option may be used multiple times.
   --reg name=value      Set the value of a register. Do &#39;--reg help&#39; for more
                         information. This option may be used multiple times.
+  -s START, --start START
+                        Set the start address to JP to.
   --state name=value    Set a hardware state attribute. Do &#39;--state help&#39; for
                         more information. This option may be used multiple
                         times.
@@ -888,19 +995,22 @@ given on the command line.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>4.5</td>
+<tr class="row-even"><td>5.3</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--stack</span></tt> and <tt class="docutils literal"><span class="pre">--start</span></tt> options</td>
+</tr>
+<tr class="row-odd"><td>4.5</td>
 <td>Added support for TZX block type 0x14 (pure data), for loading
 the first and last bytes of a tape block, and for modifying
 memory with XOR and ADD operations</td>
 </tr>
-<tr class="row-odd"><td>3.5</td>
+<tr class="row-even"><td>3.5</td>
 <td>New</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="tapinfo-py">
-<span id="id11"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Permalink to this headline">¶</a></h2>
+<span id="id13"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>tapinfo.py</cite> shows information on the blocks in a TAP or TZX file. For
 example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ tapinfo.py game.tzx
@@ -950,12 +1060,12 @@ Options:
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="parsing.html" title="Parsing, rendering, and modes"
+          <a href="assemblers.html" title="Supported assemblers"
              >next</a> |</li>
         <li class="right" >
-          <a href="changelog1.html" title="SkoolKit 1.x changelog"
+          <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

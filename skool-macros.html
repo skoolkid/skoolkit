@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool macros &mdash; SkoolKit 5.2 documentation</title>
+    <title>Skool macros &mdash; SkoolKit 5.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.2',
+        VERSION:     '5.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.3 documentation" href="index.html" />
     <link rel="next" title="Ref files" href="ref-files.html" />
     <link rel="prev" title="Skool file templates" href="skool-file-templates.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -69,6 +69,7 @@
 <li><a class="reference internal" href="#erefs">#EREFS</a></li>
 <li><a class="reference internal" href="#fact">#FACT</a></li>
 <li><a class="reference internal" href="#html">#HTML</a></li>
+<li><a class="reference internal" href="#include">#INCLUDE</a></li>
 <li><a class="reference internal" href="#link">#LINK</a></li>
 <li><a class="reference internal" href="#list">#LIST</a></li>
 <li><a class="reference internal" href="#poke">#POKE</a></li>
@@ -819,8 +820,48 @@ be an upper case letter.</p>
 </tbody>
 </table>
 </div>
+<div class="section" id="include">
+<span id="id15"></span><h3>#INCLUDE<a class="headerlink" href="#include" title="Permalink to this headline">¶</a></h3>
+<p>In HTML mode, the <tt class="docutils literal"><span class="pre">#INCLUDE</span></tt> macro expands to the contents of a ref file
+section; in ASM mode, it expands to an empty string.</p>
+<div class="highlight-none"><div class="highlight"><pre>#INCLUDE[paragraphs](section)
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">paragraphs</span></tt> specifies how to format the contents of the ref file section:
+verbatim (<tt class="docutils literal"><span class="pre">0</span></tt> - the default), or into paragraphs (<tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">section</span></tt> is the name of the ref file section</li>
+</ul>
+<p>The <tt class="docutils literal"><span class="pre">#INCLUDE</span></tt> macro can be used to insert the contents of one ref file
+section into another. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>[MemoryMap:RoutinesMap]
+Intro=#INCLUDE(RoutinesMapIntro)
+
+[RoutinesMapIntro]
+This is the intro to the &#39;Routines&#39; map page.
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="#stringparameters"><em>String parameters</em></a> for details on alternative ways to supply the
+<tt class="docutils literal"><span class="pre">section</span></tt> parameter.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>5.3</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="link">
-<span id="id15"></span><h3>#LINK<a class="headerlink" href="#link" title="Permalink to this headline">¶</a></h3>
+<span id="id16"></span><h3>#LINK<a class="headerlink" href="#link" title="Permalink to this headline">¶</a></h3>
 <p>In HTML mode, the <tt class="docutils literal"><span class="pre">#LINK</span></tt> macro expands to a hyperlink (<tt class="docutils literal"><span class="pre">&lt;a&gt;</span></tt> element) to
 another page.</p>
 <div class="highlight-none"><div class="highlight"><pre>#LINK:PageId[#name](link text)
@@ -880,7 +921,7 @@ HTML mode</td>
 </table>
 </div>
 <div class="section" id="list">
-<span id="id16"></span><h3>#LIST<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h3>
+<span id="id17"></span><h3>#LIST<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">#LIST</span></tt> macro marks the beginning of a list of bulleted items; <tt class="docutils literal"><span class="pre">LIST#</span></tt>
 is used to mark the end. Between these markers, the list items are defined.</p>
 <div class="highlight-none"><div class="highlight"><pre>#LIST[(class)]&lt;items&gt;LIST#
@@ -920,7 +961,7 @@ using a <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a> 
 </table>
 </div>
 <div class="section" id="poke">
-<span id="id17"></span><h3>#POKE<a class="headerlink" href="#poke" title="Permalink to this headline">¶</a></h3>
+<span id="id18"></span><h3>#POKE<a class="headerlink" href="#poke" title="Permalink to this headline">¶</a></h3>
 <p>In HTML mode, the <tt class="docutils literal"><span class="pre">#POKE</span></tt> macro expands to a hyperlink (<tt class="docutils literal"><span class="pre">&lt;a&gt;</span></tt> element) to
 the &#8216;Pokes&#8217; page, or to a specific entry on that page.</p>
 <div class="highlight-none"><div class="highlight"><pre>#POKE[#name][(link text)]
@@ -964,7 +1005,7 @@ HTML mode; added support for ASM mode</td>
 </table>
 </div>
 <div class="section" id="n">
-<span id="id18"></span><h3>#N<a class="headerlink" href="#n" title="Permalink to this headline">¶</a></h3>
+<span id="id19"></span><h3>#N<a class="headerlink" href="#n" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">#N</span></tt> macro renders a numeric value in hexadecimal format when the
 <tt class="docutils literal"><span class="pre">--hex</span></tt> option is used with <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a> or <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a>, or in
 decimal format otherwise. A hexadecimal number is rendered in lower case when
@@ -1013,7 +1054,7 @@ the <tt class="docutils literal"><span class="pre">--lower</span></tt> option is
 </table>
 </div>
 <div class="section" id="r">
-<span id="id19"></span><h3>#R<a class="headerlink" href="#r" title="Permalink to this headline">¶</a></h3>
+<span id="id20"></span><h3>#R<a class="headerlink" href="#r" title="Permalink to this headline">¶</a></h3>
 <p>In HTML mode, the <tt class="docutils literal"><span class="pre">#R</span></tt> macro expands to a hyperlink (<tt class="docutils literal"><span class="pre">&lt;a&gt;</span></tt> element) to the
 disassembly page for a routine or data block, or to a line at a given address
 within that page.</p>
@@ -1127,7 +1168,7 @@ special variable <tt class="docutils literal"><span class="pre">REFaddr</span></
 </table>
 </div>
 <div class="section" id="reg">
-<span id="id20"></span><h3>#REG<a class="headerlink" href="#reg" title="Permalink to this headline">¶</a></h3>
+<span id="id21"></span><h3>#REG<a class="headerlink" href="#reg" title="Permalink to this headline">¶</a></h3>
 <p>In HTML mode, the <tt class="docutils literal"><span class="pre">#REG</span></tt> macro expands to a styled <tt class="docutils literal"><span class="pre">&lt;span&gt;</span></tt> element
 containing a register name.</p>
 <div class="highlight-none"><div class="highlight"><pre>#REGreg
@@ -1138,8 +1179,8 @@ containing a register name.</p>
 </ul>
 <p>In ASM mode, the <tt class="docutils literal"><span class="pre">#REG</span></tt> macro expands to the name of the register.</p>
 <p>The register name must be one of the following:</p>
-<div class="highlight-none"><div class="highlight"><pre>a b c d e h l
-a&#39; b&#39; c&#39; d&#39; e&#39; h&#39; l&#39;
+<div class="highlight-none"><div class="highlight"><pre>a b c d e f h l
+a&#39; b&#39; c&#39; d&#39; e&#39; f&#39; h&#39; l&#39;
 af bc de hl
 af&#39; bc&#39; de&#39; hl&#39;
 ix iy ixh iyh ixl iyl
@@ -1161,14 +1202,17 @@ i r sp pc
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.1</td>
+<tr class="row-even"><td>5.3</td>
+<td>Added support for the F and F&#8217; registers</td>
+</tr>
+<tr class="row-odd"><td>5.1</td>
 <td>The <tt class="docutils literal"><span class="pre">reg</span></tt> parameter must be a valid register name</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="space">
-<span id="id21"></span><h3>#SPACE<a class="headerlink" href="#space" title="Permalink to this headline">¶</a></h3>
+<span id="id22"></span><h3>#SPACE<a class="headerlink" href="#space" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">#SPACE</span></tt> macro expands to one or more <tt class="docutils literal"><span class="pre">&amp;#160;</span></tt> expressions (in HTML
 mode) or spaces (in ASM mode).</p>
 <div class="highlight-none"><div class="highlight"><pre>#SPACE[num]
@@ -1216,7 +1260,7 @@ t49152 DEFM &quot;Score:     0&quot;
 </table>
 </div>
 <div class="section" id="table">
-<span id="id22"></span><h3>#TABLE<a class="headerlink" href="#table" title="Permalink to this headline">¶</a></h3>
+<span id="id23"></span><h3>#TABLE<a class="headerlink" href="#table" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">#TABLE</span></tt> macro marks the beginning of a table; <tt class="docutils literal"><span class="pre">TABLE#</span></tt> is used to mark
 the end. Between these markers, the rows of the table are defined.</p>
 <div class="highlight-none"><div class="highlight"><pre>#TABLE[([class[,class1[:w][,class2[:w]...]]])]&lt;rows&gt;TABLE#
@@ -1287,7 +1331,7 @@ more than 79 characters wide when rendered. For example:</p>
 <p>See also <a class="reference internal" href="#udgtable"><em>#UDGTABLE</em></a>.</p>
 </div>
 <div class="section" id="udgtable">
-<span id="id23"></span><h3>#UDGTABLE<a class="headerlink" href="#udgtable" title="Permalink to this headline">¶</a></h3>
+<span id="id24"></span><h3>#UDGTABLE<a class="headerlink" href="#udgtable" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">#UDGTABLE</span></tt> macro behaves in exactly the same way as the <tt class="docutils literal"><span class="pre">#TABLE</span></tt>
 macro, except that the resulting table will not be rendered in ASM mode. Its
 intended use is to contain images that will be rendered in HTML mode only.</p>
@@ -1312,7 +1356,7 @@ as follows:</p>
 </pre></div>
 </div>
 <div class="section" id="font">
-<span id="id24"></span><h3>#FONT<a class="headerlink" href="#font" title="Permalink to this headline">¶</a></h3>
+<span id="id25"></span><h3>#FONT<a class="headerlink" href="#font" title="Permalink to this headline">¶</a></h3>
 <p>In HTML mode, the <tt class="docutils literal"><span class="pre">#FONT</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element for an image
 of text rendered in the game font.</p>
 <div class="highlight-none"><div class="highlight"><pre>#FONT[:(text)]addr[,chars,attr,scale][{CROP}][(fname)]
@@ -1385,7 +1429,7 @@ optional</td>
 </table>
 </div>
 <div class="section" id="scr">
-<span id="id25"></span><h3>#SCR<a class="headerlink" href="#scr" title="Permalink to this headline">¶</a></h3>
+<span id="id26"></span><h3>#SCR<a class="headerlink" href="#scr" title="Permalink to this headline">¶</a></h3>
 <p>In HTML mode, the <tt class="docutils literal"><span class="pre">#SCR</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element for an image
 constructed from the display file and attribute file (or suitably arranged
 graphic data and attribute bytes elsewhere in memory) of the current memory
@@ -1464,7 +1508,7 @@ parameters</td>
 </table>
 </div>
 <div class="section" id="udg">
-<span id="id26"></span><h3>#UDG<a class="headerlink" href="#udg" title="Permalink to this headline">¶</a></h3>
+<span id="id27"></span><h3>#UDG<a class="headerlink" href="#udg" title="Permalink to this headline">¶</a></h3>
 <p>In HTML mode, the <tt class="docutils literal"><span class="pre">#UDG</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element for the image
 of a UDG (an 8x8 block of pixels).</p>
 <div class="highlight-none"><div class="highlight"><pre>#UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:MASK][{CROP}][(fname)]
@@ -1562,7 +1606,7 @@ added support for keyword arguments</td>
 </table>
 </div>
 <div class="section" id="udgarray">
-<span id="id27"></span><h3>#UDGARRAY<a class="headerlink" href="#udgarray" title="Permalink to this headline">¶</a></h3>
+<span id="id28"></span><h3>#UDGARRAY<a class="headerlink" href="#udgarray" title="Permalink to this headline">¶</a></h3>
 <p>In HTML mode, the <tt class="docutils literal"><span class="pre">#UDGARRAY</span></tt> macro expands to an <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element for the
 image of an array of UDGs (8x8 blocks of pixels).</p>
 <div class="highlight-none"><div class="highlight"><pre>#UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];SPEC1[;SPEC2;...][{CROP}](fname)
@@ -1759,7 +1803,7 @@ second; it also sets the default delay for any frames that follow (default:
 with a delay of 0.5s between each frame.</p>
 </div>
 <div class="section" id="cropping">
-<span id="id28"></span><h3>Cropping<a class="headerlink" href="#cropping" title="Permalink to this headline">¶</a></h3>
+<span id="id29"></span><h3>Cropping<a class="headerlink" href="#cropping" title="Permalink to this headline">¶</a></h3>
 <p>Each image macro accepts a cropping specification (<tt class="docutils literal"><span class="pre">CROP</span></tt>) which takes the
 form:</p>
 <div class="highlight-none"><div class="highlight"><pre>x,y,width,height
@@ -1786,7 +1830,7 @@ top two rows and bottom two rows of pixels removed, and the leftmost two
 columns and rightmost two columns of pixels removed.</p>
 </div>
 <div class="section" id="masks">
-<span id="id29"></span><h3>Masks<a class="headerlink" href="#masks" title="Permalink to this headline">¶</a></h3>
+<span id="id30"></span><h3>Masks<a class="headerlink" href="#masks" title="Permalink to this headline">¶</a></h3>
 <p>The <a class="reference internal" href="#udg"><em>#UDG</em></a> and <a class="reference internal" href="#udgarray"><em>#UDGARRAY</em></a> macros accept a <tt class="docutils literal"><span class="pre">mask</span></tt> parameter that
 determines what kind of mask to apply to each UDG. The supported values are:</p>
 <ul class="simple">
@@ -1881,7 +1925,7 @@ following sections) may be used to manipulate the memory snapshot that is built
 from the <tt class="docutils literal"><span class="pre">DEFB</span></tt>, <tt class="docutils literal"><span class="pre">DEFM</span></tt>, <tt class="docutils literal"><span class="pre">DEFS</span></tt> and <tt class="docutils literal"><span class="pre">DEFW</span></tt> statements in the skool
 file. Each macro expands to an empty string.</p>
 <div class="section" id="pokes">
-<span id="id30"></span><h3>#POKES<a class="headerlink" href="#pokes" title="Permalink to this headline">¶</a></h3>
+<span id="id31"></span><h3>#POKES<a class="headerlink" href="#pokes" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">#POKES</span></tt> macro POKEs values into the current memory snapshot.</p>
 <div class="highlight-none"><div class="highlight"><pre>#POKESaddr,byte[,length,step][;addr,byte[,length,step];...]
 </pre></div>
@@ -1934,7 +1978,7 @@ numeric parameters</td>
 </table>
 </div>
 <div class="section" id="pops">
-<span id="id31"></span><h3>#POPS<a class="headerlink" href="#pops" title="Permalink to this headline">¶</a></h3>
+<span id="id32"></span><h3>#POPS<a class="headerlink" href="#pops" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">#POPS</span></tt> macro removes the current memory snapshot and replaces it with
 the one that was previously saved by a <tt class="docutils literal"><span class="pre">#PUSHS</span></tt> macro.</p>
 <div class="highlight-none"><div class="highlight"><pre>#POPS
@@ -1958,7 +2002,7 @@ the one that was previously saved by a <tt class="docutils literal"><span class=
 </table>
 </div>
 <div class="section" id="pushs">
-<span id="id32"></span><h3>#PUSHS<a class="headerlink" href="#pushs" title="Permalink to this headline">¶</a></h3>
+<span id="id33"></span><h3>#PUSHS<a class="headerlink" href="#pushs" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">#PUSHS</span></tt> macro saves the current memory snapshot, and replaces it with an
 identical copy with a given name.</p>
 <div class="highlight-none"><div class="highlight"><pre>#PUSHS[name]
@@ -1968,7 +2012,8 @@ identical copy with a given name.</p>
 <li><tt class="docutils literal"><span class="pre">name</span></tt> is the snapshot name (defaults to an empty string)</li>
 </ul>
 <p>The snapshot name must be limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z;
-it must not start with a capital letter.</p>
+it must not start with a capital letter. The name can be retrieved by using the
+<a class="reference internal" href="extending.html#skoolkit.skoolhtml.HtmlWriter.get_snapshot_name" title="skoolkit.skoolhtml.HtmlWriter.get_snapshot_name"><tt class="xref py py-meth docutils literal"><span class="pre">get_snapshot_name()</span></tt></a> method on HtmlWriter.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="24%" />
@@ -2060,7 +2105,7 @@ at 32768 like this:</p>
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

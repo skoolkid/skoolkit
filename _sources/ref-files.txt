@@ -69,9 +69,10 @@ section names and contents take the form::
   Second top-level item.
   ...
 
-where ``title`` is the title of the entry, and the intro text and top-level
-items are separated by blank lines. Lower-level items are created by using
-indentation, as shown.
+where ``title`` is the title of the entry. The intro text and the first
+top-level item must be separated by a blank line. Lower-level items are created
+by using indentation, as shown. Blank lines between items are optional and will
+be ignored.
 
 If the intro text is a single hyphen (``-``), it will not be included in the
 final HTML rendering.
@@ -213,6 +214,10 @@ Recognised parameters are:
 
 * ``AddressAnchor`` - the format of the anchors attached to instructions on
   disassembly pages and entries on memory map pages (default: ``{address}``)
+* ``AsmSinglePageTemplate`` - the name of the HTML template used to build the
+  disassembly on a single page, as opposed to a separate page for each routine
+  and data block (default: None); set this to 'AsmAllInOne' to use the
+  :ref:`t_AsmAllInOne` template
 * ``Copyright`` - the copyright message that appears in the footer of every
   page (default: '')
 * ``Created`` - the message indicating the software used to create the
@@ -276,6 +281,8 @@ could produce such an anchor should be avoided.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 5.3     | Added the ``AsmSinglePageTemplate`` parameter                     |
++---------+-------------------------------------------------------------------+
 | 5.2     | Added the ``UDGFilename`` parameter                               |
 +---------+-------------------------------------------------------------------+
 | 4.3     | Added the ``AddressAnchor`` parameter                             |
@@ -477,6 +484,9 @@ where:
 
 Recognised page IDs are:
 
+* ``AsmSinglePage`` - the disassembly page (when a single-page template is
+  specified by the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game`
+  section)
 * ``Bugs`` - the 'Bugs' page
 * ``Changelog`` - the 'Changelog' page
 * ``DataMap`` - the 'Data' memory map page
@@ -507,15 +517,17 @@ This declares that the link text for the 'Everything' memory map page will be
 'Everything', and '(routines, data, text and unused addresses)' will be
 displayed alongside it.
 
-+---------+---------------------------------+
-| Version | Changes                         |
-+=========+=================================+
-| 2.5     | Added the ``UnusedMap`` page ID |
-+---------+---------------------------------+
-| 2.2.5   | Added the ``Changelog`` page ID |
-+---------+---------------------------------+
-| 2.0.5   | New                             |
-+---------+---------------------------------+
++---------+-------------------------------------+
+| Version | Changes                             |
++=========+=====================================+
+| 5.3     | Added the ``AsmSinglePage`` page ID |
++---------+-------------------------------------+
+| 2.5     | Added the ``UnusedMap`` page ID     |
++---------+-------------------------------------+
+| 2.2.5   | Added the ``Changelog`` page ID     |
++---------+-------------------------------------+
+| 2.0.5   | New                                 |
++---------+-------------------------------------+
 
 .. _memoryMap:
 
@@ -617,9 +629,13 @@ and directory IDs become available for use in the :ref:`paths`, :ref:`titles`,
   ``bcgstuw``, depending on the entry type)
 * ``CodeID-CodePath`` - the ID of the directory in which the disassembly pages
   are written
+* ``CodeID-AsmSinglePage`` - the ID of the disassembly page (when a single-page
+  template is specified by the ``AsmSinglePageTemplate`` parameter in the
+  :ref:`ref-Game` section)
 
 By default, the index page is written to `CodeID/CodeID.html`, and the
-disassembly pages are written in a directory named `CodeID`.
+disassembly pages are written in a directory named `CodeID`; if a single-page
+template is used, the disassembly page is written to `CodeID/asm.html`.
 
 Note that the index page is a memory map page, and as such can be configured by
 creating a :ref:`memoryMap` section (``MemoryMap:CodeID-Index``) for it.
@@ -661,6 +677,12 @@ Recognised parameters are:
 * ``PageContent`` - the HTML source of the body of the page; this defaults to
   the contents of the corresponding :ref:`pageContent` section, but may be
   specified here if the source can be written on a single line
+* ``SectionPrefix`` - the prefix of the names of the ref file sections from
+  which to build a 'box page' (like the 'Bugs' and 'Trivia' pages); the names
+  of the ref file sections must be in the form ``[prefix:anchor:title]``
+
+Note that the ``Content``, ``SectionPrefix`` and ``PageContent`` parameters are
+mutually exclusive (and that is their order of precedence).
 
 By default, the custom page is written to a file named `PageID.html` in the
 root directory of the disassembly; to change this, add a line to the
@@ -669,8 +691,9 @@ can be defined in the :ref:`titles`, :ref:`pageHeaders` and :ref:`links`
 sections.
 
 Every custom page is built using the :ref:`HTML template <template>` whose name
-matches the page ID, if one exists; otherwise, the stock :ref:`t_Page` template
-is used.
+matches the page ID, if one exists; otherwise, either the :ref:`t_Reference`
+template is used (when ``SectionPrefix`` is defined), or the :ref:`t_Page`
+template is used.
 
 Note that a ``Page:*`` section may be empty; if so, it may be omitted from the
 ref file.
@@ -678,6 +701,8 @@ ref file.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 5.3     | Added the ``SectionPrefix`` parameter                            |
++---------+------------------------------------------------------------------+
 | 3.5     | The ``JavaScript`` parameter specifies the JavaScript file(s) to |
 |         | use                                                              |
 +---------+------------------------------------------------------------------+
@@ -727,6 +752,9 @@ Recognised page IDs are:
 * ``Asm-t`` - disassembly pages for 't' blocks (default: 'Data')
 * ``Asm-u`` - disassembly pages for 'u' blocks (default: 'Unused')
 * ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data')
+* ``AsmSinglePage`` - the disassembly page (when a single-page template is
+  specified by the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game`
+  section)
 * ``Bugs`` - the 'Bugs' page
 * ``Changelog`` - the 'Changelog' page
 * ``DataMap`` - the 'Data' memory map page
@@ -751,11 +779,13 @@ Note that the header of the disassembly index page (``GameIndex``) is not
 defined in this section; it is composed from the values of the ``TitlePrefix``
 and ``TitleSuffix`` parameters in the :ref:`ref-Game` section.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 4.0     | New     |
-+---------+---------+
++---------+-------------------------------------+
+| Version | Changes                             |
++=========+=====================================+
+| 5.3     | Added the ``AsmSinglePage`` page ID |
++---------+-------------------------------------+
+| 4.0     | New                                 |
++---------+-------------------------------------+
 
 .. _paths:
 
@@ -774,6 +804,9 @@ where:
 
 Recognised file IDs and their default paths are:
 
+* ``AsmSinglePage`` - the disassembly page (when a single-page template is
+  specified by the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game`
+  section; default: ``asm.html``)
 * ``Bugs`` - the 'Bugs' page (default: ``reference/bugs.html``)
 * ``Changelog`` - the 'Changelog' page (default: ``reference/changelog.html``)
 * ``CodeFiles`` - the format of the disassembly page filenames (default:
@@ -825,6 +858,8 @@ to ``{address:04X}.html``.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 5.3     | Added the ``AsmSinglePage`` file ID                               |
++---------+-------------------------------------------------------------------+
 | 4.3     | Added the ``CodeFiles`` file ID                                   |
 +---------+-------------------------------------------------------------------+
 | 3.1.1   | Added the ``FontPath`` directory ID                               |
@@ -937,6 +972,9 @@ Recognised page IDs and their default titles are:
 * ``Asm-t`` - disassembly pages for 't' blocks (default: 'Data at')
 * ``Asm-u`` - disassembly pages for 'u' blocks (default: 'Unused RAM at')
 * ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data at')
+* ``AsmSinglePage`` - the disassembly page (when a single-page template is
+  specified by the ``AsmSinglePageTemplate`` parameter in the :ref:`ref-Game`
+  section; default: 'Disassembly')
 * ``Bugs`` - the 'Bugs' page (default: 'Bugs')
 * ``Changelog`` - the 'Changelog' page (default: 'Changelog')
 * ``DataMap`` - the 'Data' memory map page (default: 'Data')
@@ -958,17 +996,19 @@ The title of a page defined by a :ref:`memoryMap`, :ref:`otherCode`,
 :ref:`page` or :ref:`pageContent` section defaults to the page ID, but can be
 overridden in this section.
 
-+---------+---------------------------------+
-| Version | Changes                         |
-+=========+=================================+
-| 4.0     | Added the ``Asm-*`` page IDs    |
-+---------+---------------------------------+
-| 2.5     | Added the ``UnusedMap`` page ID |
-+---------+---------------------------------+
-| 2.2.5   | Added the ``Changelog`` page ID |
-+---------+---------------------------------+
-| 2.0.5   | New                             |
-+---------+---------------------------------+
++---------+-------------------------------------+
+| Version | Changes                             |
++=========+=====================================+
+| 5.3     | Added the ``AsmSinglePage`` page ID |
++---------+-------------------------------------+
+| 4.0     | Added the ``Asm-*`` page IDs        |
++---------+-------------------------------------+
+| 2.5     | Added the ``UnusedMap`` page ID     |
++---------+-------------------------------------+
+| 2.2.5   | Added the ``Changelog`` page ID     |
++---------+-------------------------------------+
+| 2.0.5   | New                                 |
++---------+-------------------------------------+
 
 Ref file comments
 -----------------

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>HTML templates &mdash; SkoolKit 5.2 documentation</title>
+    <title>HTML templates &mdash; SkoolKit 5.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.2',
+        VERSION:     '5.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.2 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.3 documentation" href="index.html" />
     <link rel="next" title="ASM modes and directives" href="asm.html" />
     <link rel="prev" title="Ref files" href="ref-files.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -49,12 +49,14 @@
   <ul>
 <li><a class="reference internal" href="#">HTML templates</a><ul>
 <li><a class="reference internal" href="#asm">Asm</a></li>
+<li><a class="reference internal" href="#asmallinone">AsmAllInOne</a></li>
 <li><a class="reference internal" href="#gameindex">GameIndex</a></li>
 <li><a class="reference internal" href="#memorymap">MemoryMap</a></li>
 <li><a class="reference internal" href="#page">Page</a></li>
 <li><a class="reference internal" href="#reference">Reference</a></li>
 <li><a class="reference internal" href="#anchor">anchor</a></li>
 <li><a class="reference internal" href="#asm-comment">asm_comment</a></li>
+<li><a class="reference internal" href="#asm-entry">asm_entry</a></li>
 <li><a class="reference internal" href="#asm-instruction">asm_instruction</a></li>
 <li><a class="reference internal" href="#asm-register">asm_register</a></li>
 <li><a class="reference internal" href="#changelog-entry">changelog_entry</a></li>
@@ -151,7 +153,7 @@ subtemplate</li>
 <span id="t-asm"></span><h2>Asm<a class="headerlink" href="#asm" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">Asm</span></tt> template is the full-page template that is used to build
 disassembly pages.</p>
-<p>It contains the following identifiers (in addition to the universal and
+<p>The following identifiers are available (in addition to the universal and
 page-level identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">disassembly</span></tt> - replaced by sequences of copies of the
@@ -201,11 +203,30 @@ otherwise</li>
 </pre></div>
 </div>
 </div>
+<div class="section" id="asmallinone">
+<span id="t-asmallinone"></span><h2>AsmAllInOne<a class="headerlink" href="#asmallinone" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">AsmAllInOne</span></tt> template is a full-page template that may be used to build
+a disassembly on a single page (by setting the <tt class="docutils literal"><span class="pre">AsmSinglePageTemplate</span></tt>
+parameter in the <a class="reference internal" href="ref-files.html#ref-game"><em>[Game]</em></a> section).</p>
+<p>The following identifier is available (in addition to the universal and
+page-level identifiers):</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">m_asm_entry</span></tt> - replaced by one or more copies of the <a class="reference internal" href="#t-asm-entry"><em>asm_entry</em></a>
+subtemplate</li>
+</ul>
+<p>To see the default <tt class="docutils literal"><span class="pre">AsmAllInOne</span></tt> template, run the following command:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:AsmAllInOne
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 5.3.</span></p>
+</div>
+</div>
 <div class="section" id="gameindex">
 <span id="t-gameindex"></span><h2>GameIndex<a class="headerlink" href="#gameindex" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">GameIndex</span></tt> template is the full-page template that is used to build the
 disassembly index page.</p>
-<p>It contains the following identifier (in addition to the universal and
+<p>The following identifier is available (in addition to the universal and
 page-level identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">m_index_section</span></tt> - replaced by any number of copies of the
@@ -220,7 +241,7 @@ page-level identifiers):</p>
 <span id="t-memorymap"></span><h2>MemoryMap<a class="headerlink" href="#memorymap" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">MemoryMap</span></tt> template is the full-page template that is used to build
 memory map pages and the &#8216;Game status buffer&#8217; page.</p>
-<p>It contains the following identifiers (in addition to the universal and
+<p>The following identifiers are available (in addition to the universal and
 page-level identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">MemoryMap</span></tt> - a dictionary of the parameters in the corresponding
@@ -237,7 +258,7 @@ subtemplate</li>
 <span id="t-page"></span><h2>Page<a class="headerlink" href="#page" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">Page</span></tt> template is the full-page template that is used to build custom
 pages defined by <a class="reference internal" href="ref-files.html#page"><em>[Page:*]</em></a> and <a class="reference internal" href="ref-files.html#pagecontent"><em>[PageContent:*]</em></a> sections.</p>
-<p>It contains the following identifier (in addition to the universal and
+<p>The following identifier is available (in addition to the universal and
 page-level identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">content</span></tt> - replaced by the value of the <tt class="docutils literal"><span class="pre">PageContent</span></tt> parameter in the
@@ -252,8 +273,9 @@ corresponding <a class="reference internal" href="ref-files.html#page"><em>[Page
 <span id="t-reference"></span><h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">Reference</span></tt> template is the full-page template that is used to build the
 &#8216;Bugs&#8217;, &#8216;Trivia&#8217;, &#8216;Pokes&#8217;, &#8216;Glossary&#8217;, &#8216;Graphic glitches&#8217; and &#8216;Changelog&#8217;
-pages.</p>
-<p>It contains the following identifiers (in addition to the universal and
+pages, and also any custom page that uses the <tt class="docutils literal"><span class="pre">SectionPrefix</span></tt> parameter in
+the <a class="reference internal" href="ref-files.html#page"><em>[Page:*]</em></a> section.</p>
+<p>The following identifiers are available (in addition to the universal and
 page-level identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">entries</span></tt> - replaced by one or more copies of the <a class="reference internal" href="#t-changelog-entry"><em>changelog_entry</em></a>
@@ -272,7 +294,7 @@ glitches&#8217; pages)</li>
 <span id="t-anchor"></span><h2>anchor<a class="headerlink" href="#anchor" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">anchor</span></tt> template is the subtemplate used to format a page anchor (by
 default, a <tt class="docutils literal"><span class="pre">&lt;span&gt;</span></tt> element with an <tt class="docutils literal"><span class="pre">id</span></tt> attribute).</p>
-<p>It contains the following identifier (in addition to the universal
+<p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">anchor</span></tt> - the value of the <tt class="docutils literal"><span class="pre">id</span></tt> attribute</li>
@@ -285,9 +307,9 @@ identifiers):</p>
 <div class="section" id="asm-comment">
 <span id="t-asm-comment"></span><h2>asm_comment<a class="headerlink" href="#asm-comment" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">asm_comment</span></tt> template is the subtemplate used by the <a class="reference internal" href="#t-asm"><em>Asm</em></a>
-full-page template to format block start comments, mid-block comments and block
-end comments.</p>
-<p>It contains the following identifiers (in addition to the universal
+full-page template and the <a class="reference internal" href="#t-asm-entry"><em>asm_entry</em></a> subtemplate to format block start
+comments, mid-block comments and block end comments.</p>
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">entry</span></tt> - a dictionary of parameters corresponding to the current memory
@@ -303,12 +325,38 @@ string (when formatting a block end comment)</li>
 </pre></div>
 </div>
 </div>
+<div class="section" id="asm-entry">
+<span id="t-asm-entry"></span><h2>asm_entry<a class="headerlink" href="#asm-entry" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">asm_entry</span></tt> template is the subtemplate used by the <a class="reference internal" href="#t-asmallinone"><em>AsmAllInOne</em></a>
+full-page template to format the disassembly of a memory map entry.</p>
+<p>The following identifiers are available (in addition to the universal
+identifiers):</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">disassembly</span></tt> - replaced by sequences of copies of the
+<a class="reference internal" href="#t-asm-instruction"><em>asm_instruction</em></a> subtemplate, punctuated by copies of the
+<a class="reference internal" href="#t-asm-comment"><em>asm_comment</em></a> subtemplate</li>
+<li><tt class="docutils literal"><span class="pre">entry</span></tt> - a dictionary of parameters corresponding to the memory map entry;
+the parameters in this dictionary are the same as those in the <tt class="docutils literal"><span class="pre">entry</span></tt>
+dictionary in the <a class="reference internal" href="#t-asm"><em>Asm</em></a> template</li>
+<li><tt class="docutils literal"><span class="pre">registers_input</span></tt> - replaced by any number of copies of the
+<a class="reference internal" href="#t-asm-register"><em>asm_register</em></a> subtemplate</li>
+<li><tt class="docutils literal"><span class="pre">registers_output</span></tt> - replaced by any number of copies of the
+<a class="reference internal" href="#t-asm-register"><em>asm_register</em></a> subtemplate</li>
+</ul>
+<p>To see the default <tt class="docutils literal"><span class="pre">asm_entry</span></tt> template, run the following command:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:asm_entry
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 5.3.</span></p>
+</div>
+</div>
 <div class="section" id="asm-instruction">
 <span id="t-asm-instruction"></span><h2>asm_instruction<a class="headerlink" href="#asm-instruction" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">asm_instruction</span></tt> template is the subtemplate used by the <a class="reference internal" href="#t-asm"><em>Asm</em></a>
-full-page template to format an instruction (including its label, address,
-operation and comment).</p>
-<p>It contains the following identifiers (in addition to the universal
+full-page template and the <a class="reference internal" href="#t-asm-entry"><em>asm_entry</em></a> subtemplate to format an
+instruction (including its label, address, operation and comment).</p>
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">address</span></tt> - the address of the instruction (may be in decimal or
@@ -334,9 +382,9 @@ hyperlinked if appropriate</li>
 <div class="section" id="asm-register">
 <span id="t-asm-register"></span><h2>asm_register<a class="headerlink" href="#asm-register" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">asm_register</span></tt> template is the subtemplate used by the <a class="reference internal" href="#t-asm"><em>Asm</em></a>
-full-page template to format each row in a table of input register values or
-output register values.</p>
-<p>It contains the following identifiers (in addition to the universal
+full-page template and the <a class="reference internal" href="#t-asm-entry"><em>asm_entry</em></a> subtemplate to format each row in
+a table of input register values or output register values.</p>
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">description</span></tt> - the register&#8217;s description (as it appears in the register
@@ -354,7 +402,7 @@ map entry (see <a class="reference internal" href="#t-asm"><em>Asm</em></a>)</li
 <span id="t-changelog-entry"></span><h2>changelog_entry<a class="headerlink" href="#changelog-entry" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">changelog_entry</span></tt> is the subtemplate used by the <a class="reference internal" href="#t-reference"><em>Reference</em></a>
 full-page template to format each entry on the &#8216;Changelog&#8217; page.</p>
-<p>It contains the following identifiers (in addition to the universal
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">description</span></tt> - the changelog entry intro text</li>
@@ -376,7 +424,7 @@ the entry title as the anchor name)</li>
 <a class="reference internal" href="#t-changelog-entry"><em>changelog_entry</em></a> subtemplate to format a list of changelog items, and
 also by the <tt class="docutils literal"><span class="pre">changelog_item</span></tt> or <a class="reference internal" href="#t-list-item"><em>list_item</em></a> subtemplate to format a
 list of subitems or subsubitems etc.</p>
-<p>It contains the following identifiers (in addition to the universal
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">indent</span></tt> - the indentation level of the item list: &#8216;&#8217; (blank string) for
@@ -398,7 +446,7 @@ command:</p>
 <a class="reference internal" href="#t-reference"><em>Reference</em></a> full-page template to format each item in the contents list
 on the &#8216;Bugs&#8217;, &#8216;Trivia&#8217;, &#8216;Pokes&#8217;, &#8216;Glossary&#8217;, &#8216;Graphic glitches&#8217; and
 &#8216;Changelog&#8217; pages.</p>
-<p>It contains the following identifiers (in addition to the universal
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">href</span></tt> - the URL to the entry on the page</li>
@@ -424,7 +472,7 @@ format the <tt class="docutils literal"><span class="pre">&lt;footer&gt;</span><
 <div class="section" id="img">
 <span id="t-img"></span><h2>img<a class="headerlink" href="#img" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">img</span></tt> template is the subtemplate used to format <tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> elements.</p>
-<p>It contains the following identifiers (in addition to the universal
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">alt</span></tt> - the &#8216;alt&#8217; text for the image</li>
@@ -440,7 +488,7 @@ identifiers):</p>
 <p>The <tt class="docutils literal"><span class="pre">index_section</span></tt> template is the subtemplate used by the
 <a class="reference internal" href="#t-gameindex"><em>GameIndex</em></a> full-page template to format each group of links on the
 disassembly index page.</p>
-<p>It contains the following identifiers (in addition to the universal
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">header</span></tt> - the header text for the group of links (as defined in the name
@@ -458,7 +506,7 @@ of the <a class="reference internal" href="ref-files.html#indexgroup"><em>[Index
 <p>The <tt class="docutils literal"><span class="pre">index_section_item</span></tt> template is the subtemplate used by the
 <a class="reference internal" href="#t-index-section"><em>index_section</em></a> subtemplate to format each link in a link group on the
 disassembly index page.</p>
-<p>It contains the following identifiers (in addition to the universal
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">href</span></tt> - the relative path to the page being linked to</li>
@@ -477,7 +525,7 @@ command:</p>
 <span id="t-javascript"></span><h2>javascript<a class="headerlink" href="#javascript" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">javascript</span></tt> template is the subtemplate used by the full-page templates
 to format each <tt class="docutils literal"><span class="pre">&lt;script&gt;</span></tt> element in the head of a page.</p>
-<p>It contains the following identifier (in addition to the universal
+<p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">src</span></tt> - the relative path to the JavaScript file</li>
@@ -492,7 +540,7 @@ identifiers):</p>
 <p>The <tt class="docutils literal"><span class="pre">link</span></tt> template is the subtemplate used to format the hyperlinks created
 by the <a class="reference internal" href="skool-macros.html#bug"><em>#BUG</em></a>, <a class="reference internal" href="skool-macros.html#fact"><em>#FACT</em></a>, <a class="reference internal" href="skool-macros.html#poke"><em>#POKE</em></a>, <a class="reference internal" href="skool-macros.html#link"><em>#LINK</em></a> and <a class="reference internal" href="skool-macros.html#r"><em>#R</em></a> macros,
 and the hyperlinks in instruction operands on disassembly pages.</p>
-<p>It contains the following identifiers (in addition to the universal
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">href</span></tt> - the relative path to the page being linked to</li>
@@ -506,7 +554,7 @@ identifiers):</p>
 <div class="section" id="list">
 <span id="t-list"></span><h2>list<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">list</span></tt> template is used by the <a class="reference internal" href="skool-macros.html#list"><em>#LIST</em></a> macro to format a list.</p>
-<p>It contains the following identifiers (in addition to the universal
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">class</span></tt> - the CSS class name for the list</li>
@@ -527,7 +575,7 @@ subtemplate</li>
 template to format each item in the list, and also by the
 <a class="reference internal" href="#t-changelog-item-list"><em>changelog_item_list</em></a> subtemplate to format each item in a changelog
 item list.</p>
-<p>It contains the following identifier (in addition to the universal
+<p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">item</span></tt> - replaced by the text of the list item</li>
@@ -545,7 +593,7 @@ identifiers):</p>
 <p>The <tt class="docutils literal"><span class="pre">map_entry</span></tt> template is the subtemplate used by the <a class="reference internal" href="#t-memorymap"><em>MemoryMap</em></a>
 full-page template to format each entry on the memory map pages and the &#8216;Game
 status buffer&#8217; page.</p>
-<p>It contains the following identifiers (in addition to the universal
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">MemoryMap</span></tt> - a dictionary of parameters from the corresponding
@@ -586,7 +634,7 @@ the following items:</p>
 <li>entries on the &#8216;Bugs&#8217;, &#8216;Trivia&#8217;, &#8216;Pokes&#8217;, &#8216;Glossary&#8217;, &#8216;Graphic glitches&#8217; and
 &#8216;Changelog&#8217; pages</li>
 </ul>
-<p>It contains the following identifier (in addition to the universal
+<p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">paragraph</span></tt> - the text of the paragraph</li>
@@ -601,7 +649,7 @@ identifiers):</p>
 <p>The <tt class="docutils literal"><span class="pre">reference_entry</span></tt> template is the subtemplate used by the
 <a class="reference internal" href="#t-reference"><em>Reference</em></a> full-page template to format each entry on the &#8216;Bugs&#8217;,
 &#8216;Trivia&#8217;, &#8216;Pokes&#8217;, &#8216;Glossary&#8217; and &#8216;Graphic glitches&#8217; pages.</p>
-<p>It contains the following identifiers (in addition to the universal
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">contents</span></tt> - replaced by the pre-formatted contents of the relevant
@@ -619,7 +667,7 @@ identifiers):</p>
 <span id="t-reg"></span><h2>reg<a class="headerlink" href="#reg" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">reg</span></tt> template is the subtemplate used by the <a class="reference internal" href="skool-macros.html#reg"><em>#REG</em></a> macro to format
 a register name.</p>
-<p>It contains the following identifier (in addition to the universal
+<p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">reg</span></tt> - the register name (e.g. &#8216;HL&#8217;)</li>
@@ -633,7 +681,7 @@ identifiers):</p>
 <span id="t-stylesheet"></span><h2>stylesheet<a class="headerlink" href="#stylesheet" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">stylesheet</span></tt> template is the subtemplate used by the full-page templates
 to format each <tt class="docutils literal"><span class="pre">&lt;link&gt;</span></tt> element for a CSS file in the head of a page.</p>
-<p>It contains the following identifier (in addition to the universal
+<p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">href</span></tt> - the relative path to the CSS file</li>
@@ -646,7 +694,7 @@ identifiers):</p>
 <div class="section" id="table">
 <span id="t-table"></span><h2>table<a class="headerlink" href="#table" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">table</span></tt> template is used by the <a class="reference internal" href="skool-macros.html#table"><em>#TABLE</em></a> macro to format a table.</p>
-<p>It contains the following identifiers (in addition to the universal
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">class</span></tt> - the CSS class name for the table</li>
@@ -665,7 +713,7 @@ subtemplate</li>
 <span id="t-table-cell"></span><h2>table_cell<a class="headerlink" href="#table-cell" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">table_cell</span></tt> template is the subtemplate used by the <a class="reference internal" href="#t-table-row"><em>table_row</em></a>
 template to format each non-header cell in the table row.</p>
-<p>It contains the following identifiers (in addition to the universal
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">class</span></tt> - the CSS class name for the cell</li>
@@ -685,7 +733,7 @@ identifiers):</p>
 <span id="t-table-header-cell"></span><h2>table_header_cell<a class="headerlink" href="#table-header-cell" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">table_header_cell</span></tt> template is the subtemplate used by the
 <a class="reference internal" href="#t-table-row"><em>table_row</em></a> template to format each header cell in the table row.</p>
-<p>It contains the following identifiers (in addition to the universal
+<p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">colspan</span></tt> - the number of columns spanned by the cell</li>
@@ -704,7 +752,7 @@ identifiers):</p>
 <span id="t-table-row"></span><h2>table_row<a class="headerlink" href="#table-row" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">table_row</span></tt> template is the subtemplate used by the <a class="reference internal" href="#t-table"><em>table</em></a>
 template to format each row in the table.</p>
-<p>It contains the following identifier (in addition to the universal
+<p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">cells</span></tt> - replaced by one or more copies of the <a class="reference internal" href="#t-table-cell"><em>table_cell</em></a> or
@@ -738,7 +786,7 @@ identifiers):</p>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.2 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

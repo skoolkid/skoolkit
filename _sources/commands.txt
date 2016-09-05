@@ -74,6 +74,9 @@ it with no arguments to see the list of available options::
                           Set the stack pointer (default: ORG)
     -s START, --start START
                           Set the start address to JP to (default: ORG)
+    -S FILE, --screen FILE
+                          Add a loading screen to the TAP file; FILE may be a
+                          snapshot or a 6912-byte SCR file
     -t TAPFILE, --tapfile TAPFILE
                           Set the TAP filename
     -V, --version         Show SkoolKit version number and exit
@@ -102,6 +105,8 @@ Spectrum is 23952 ($5D90).
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 5.3     | Added the ``--screen`` option                                   |
++---------+-----------------------------------------------------------------+
 | 5.2     | Added the ability to read a binary file from standard input;    |
 |         | added a second positional argument specifying the TAP filename  |
 +---------+-----------------------------------------------------------------+
@@ -599,6 +604,84 @@ file; otherwise it is assumed to be in one of the other supported formats.
 | 1.0.4   | Added the ``-g`` and ``-s`` options                             |
 +---------+-----------------------------------------------------------------+
 
+.. _snapinfo.py:
+
+snapinfo.py
+-----------
+`snapinfo.py` shows information on the registers and RAM in a SNA, SZX or Z80
+snapshot. For example::
+
+  $ snapinfo.py game.z80
+
+To list the options supported by `snapinfo.py`, run it with no arguments::
+
+  usage: snapinfo.py [options] file
+
+  Analyse an SNA, SZX or Z80 snapshot.
+
+  Options:
+    -b, --basic           List the BASIC program
+    -f A[,B...[-N]], --find A[,B...[-N]]
+                          Search for the byte sequence A,B... with distance N
+                          (default=1) between bytes
+    -p A[-B[-C]], --peek A[-B[-C]]
+                          Show the contents of addresses A TO B STEP C; this
+                          option may be used multiple times
+    -t TEXT, --find-text TEXT
+                          Search for a text string
+    -V, --version         Show SkoolKit version number and exit
+
+With no options, `snapinfo.py` displays register values, the interrupt mode,
+and the border colour. By using one of the options shown above, it can list
+the BASIC program (if one is present), show the contents of a range of
+addresses, or search the RAM for a sequence of byte values or a text string.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.3     | New     |
++---------+---------+
+
+.. _snapmod.py:
+
+snapmod.py
+----------
+`snapmod.py` modifies the registers and RAM in a 48K Z80 snapshot. For
+example::
+
+  $ snapmod.py --poke 32768,0 game.z80 poked.z80
+
+To list the options supported by `snapmod.py`, run it with no arguments::
+
+  usage: snapmod.py [options] in.z80 [out.z80]
+
+  Modify a 48K Z80 snapshot.
+
+  Options:
+    -f, --force           Overwrite an existing snapshot.
+    -m src,size,dest, --move src,size,dest
+                          Move a block of bytes of the given size from src to
+                          dest. This option may be used multiple times.
+    -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
+                          POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
+                          with '^' to perform an XOR operation, or '+' to
+                          perform an ADD operation. This option may be used
+                          multiple times.
+    -r name=value, --reg name=value
+                          Set the value of a register. Do '--reg help' for more
+                          information. This option may be used multiple times.
+    -s name=value, --state name=value
+                          Set a hardware state attribute. Do '--state help' for
+                          more information. This option may be used multiple
+                          times.
+    -V, --version         Show SkoolKit version number and exit.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.3     | New     |
++---------+---------+
+
 .. _tap2sna.py:
 
 tap2sna.py
@@ -623,11 +706,15 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     -d DIR, --output-dir DIR
                           Write the snapshot file in this directory.
     -f, --force           Overwrite an existing snapshot.
+    -p STACK, --stack STACK
+                          Set the stack pointer.
     --ram OPERATION       Perform a load, move or poke operation on the memory
                           snapshot being built. Do '--ram help' for more
                           information. This option may be used multiple times.
     --reg name=value      Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
+    -s START, --start START
+                          Set the start address to JP to.
     --state name=value    Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
@@ -680,6 +767,8 @@ given on the command line.
 +---------+----------------------------------------------------------------+
 | Version | Changes                                                        |
 +=========+================================================================+
+| 5.3     | Added the ``--stack`` and ``--start`` options                  |
++---------+----------------------------------------------------------------+
 | 4.5     | Added support for TZX block type 0x14 (pure data), for loading |
 |         | the first and last bytes of a tape block, and for modifying    |
 |         | memory with XOR and ADD operations                             |
