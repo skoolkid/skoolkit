@@ -1,5 +1,5 @@
 Name:           skoolkit
-Version:        5.2
+Version:        5.3
 Release:        1
 Summary:        Tools for creating disassemblies of ZX Spectrum programs
 
@@ -9,7 +9,7 @@ Source0:        http://skoolkit.ca/downloads/%{name}/%{name}-%{version}.tar.xz
 
 BuildArch:      noarch
 BuildRequires:  python3-devel
-Requires:       python3 >= 3.2
+Requires:       python3 >= 3.3
 
 %description
 SkoolKit is a collection of utilities that can be used to disassemble a
@@ -43,6 +43,9 @@ cp -a examples %{buildroot}%{_datadir}/%{name}
 %{python3_sitelib}/*
 
 %changelog
+* Mon Sep 05 2016 Richard Dymond <rjdymond@gmail.com> 5.3-1
+- Updated to 5.3
+
 * Mon May 02 2016 Richard Dymond <rjdymond@gmail.com> 5.2-1
 - Updated to 5.2
 
