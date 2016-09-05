@@ -1,8 +1,8 @@
 Changelog
 =========
 
-5.3rc3
-------
+5.3 (2016-09-05)
+----------------
 * Dropped support for Python 3.2
 * Added the :ref:`snapinfo.py` command (for showing information on the
   registers and RAM in a SNA, SZX or Z80 snapshot)
