@@ -217,16 +217,13 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
   rm -rf skoolkit-${SKOOLKIT_VERSION}
   rm -rf $NEW_DIR/src
   mkdir $NEW_DIR/src
-  if [ "$GAME" = "rom" ]; then
-    $NEW_DIR/sna2skool.py -o 0 -H -c $DHOME/sources/48.rom.ctl $SNAPSHOT > $NEW_DIR/src/48.rom.skool
-    cp -p $DHOME/sources/48.rom.ref $NEW_DIR/src
-  elif [ "$GAME" = "hh" ]; then
+  if [ "$GAME" = "hh" ]; then
     $NEW_DIR/sna2skool.py -c $NEW_DIR/examples/hungry_horace.ctl $SNAPSHOT > $NEW_DIR/src/hungry_horace.skool
     cp -p $NEW_DIR/examples/hungry_horace.ref $NEW_DIR/src
   else
-    cp -p $DHOME/sources/*.skool $DHOME/sources/*.ref $DHOME/sources/*.css $NEW_DIR/src
-    find $DHOME/sources -name '*.js' -exec cp -p {} $NEW_DIR/src \;
-    cp -p $DHOME/sources/*.py $NEW_DIR
+    cp -p $DHOME/sources/*.skool $DHOME/sources/*.ref $NEW_DIR/src
+    find $DHOME/sources -name '*.css' -o -name '*.js' -exec cp -p {} $NEW_DIR/src \;
+    find $DHOME/sources -name '*.py' -exec cp -p {} $NEW_DIR \;
   fi
 fi
 
