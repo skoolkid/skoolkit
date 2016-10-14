@@ -64,6 +64,9 @@ Alternatively, $GAME.skool can be converted to a binary file by the skool2bin.py
 utility, included with SkoolKit:
 
   $ ./skool2bin.py $SKOOL2BINOPTS $GAME.skool
+EOF
+
+[[ $GAME == rom ]] || cat <<EOF
 
 To create a Z80 snapshot from $GAME.bin, use the bin2sna.py utility, included
 with SkoolKit:
@@ -122,9 +125,7 @@ rm -rf src
 mkdir src
 cp -p $DHOME/sources/*.skool src
 cp -p $DHOME/sources/*.ref src
-cp -p $DHOME/sources/*.css src
-find $DHOME/sources -name '*.js' -exec cp -p {} src \;
-cp -p $DHOME/sources/*.py src
+find $DHOME/sources \( -name '*.js' -o -name '*.css' -o -name '*.py' \) -exec cp -p {} src \;
 
 DISTDIR=dist
 PKGNAME=$GAME-disassembly-$VERSION
@@ -143,7 +144,7 @@ echo "done"
 echo -n "Copying source files..."
 rm -f src/*.pyc
 cp -a src ${ABSDIR}/sources
-cp -p $DHOME/sources/COPYING $ABSDIR/sources
+find $DHOME/sources -name COPYING -exec cp -p {} $ABSDIR/sources \;
 readme > ${ABSDIR}/readme.txt
 asm_header > ${ABSDIR}/asm.txt
 echo "done"
