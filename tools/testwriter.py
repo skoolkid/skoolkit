@@ -16,7 +16,7 @@ sys.path.insert(0, '{}/tests'.format(SKOOLKIT_HOME))
 import disassemblytest
 """.lstrip()
 
-def _write_tests(test_type, snapshot, output, skool, html_writer, asm_writer, ctl, org, ref, clean):
+def _write_tests(test_type, snapshot, output, skool, html_writer, asm_writer, sna2skool_opts, ctl, ref, clean):
     print(PROLOGUE)
     variables = []
     if skool:
@@ -24,8 +24,6 @@ def _write_tests(test_type, snapshot, output, skool, html_writer, asm_writer, ct
     else:
         _add_variable(variables, 'SNAPSHOT', snapshot)
         _add_variable(variables, 'CTL', ctl)
-        if org is not None:
-            _add_variable(variables, 'ORG', org)
     if test_type == 'asm':
         if asm_writer:
             _add_variable(variables, 'WRITER', asm_writer)
@@ -39,6 +37,8 @@ def _write_tests(test_type, snapshot, output, skool, html_writer, asm_writer, ct
             _add_variable(variables, 'REF', ref)
     elif test_type == 'sft':
         _add_variable(variables, 'SNAPSHOT', snapshot)
+        if sna2skool_opts:
+            _add_variable(variables, 'SNA2SKOOL_OPTS', sna2skool_opts)
     class_name = '{}TestCase'.format(test_type.capitalize())
     print('class {0}(disassemblytest.{0}):'.format(class_name))
     for options in OPTIONS_LISTS[test_type]:
@@ -93,8 +93,8 @@ OPTIONS_LISTS = {
 
 TEST_TYPES = sorted(OPTIONS_LISTS)
 
-def write_tests(skool=None, snapshot=None, output=None, html_writer=None, asm_writer=None, ctl=None, org=None, ref=None, clean=True):
+def write_tests(skool=None, snapshot=None, output=None, html_writer=None, asm_writer=None, sna2skool_opts=None, ctl=None, ref=None, clean=True):
     if len(sys.argv) != 2 or sys.argv[1] not in TEST_TYPES:
         sys.stderr.write("Usage: {} {}\n".format(os.path.basename(sys.argv[0]), '|'.join(TEST_TYPES)))
         sys.exit(1)
-    _write_tests(sys.argv[1], snapshot, output, skool, html_writer, asm_writer, ctl, org, ref, clean)
+    _write_tests(sys.argv[1], snapshot, output, skool, html_writer, asm_writer, sna2skool_opts, ctl, ref, clean)

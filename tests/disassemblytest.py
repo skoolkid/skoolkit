@@ -68,21 +68,19 @@ def check_links(root_dir):
     return all_files, orphans, missing_files, missing_anchors
 
 class DisassembliesTestCase(SkoolKitTestCase):
-    def _write_skool(self, snapshot, ctl, org):
+    def _write_skool(self, snapshot, ctl):
         if not os.path.isfile(snapshot):
             self.fail("{} not found".format(snapshot))
         os.environ['SKOOLKIT_HOME'] = SKOOLKIT_HOME
         options = '-c {}'.format(ctl)
-        if org is not None:
-            options += ' -o {}'.format(org)
         output, error = self.run_sna2skool('{} {}'.format(options, snapshot), out_lines=False, err_lines=True)
         self.assertEqual(['Using control file: {}'.format(ctl)], error)
         return self.write_text_file(output)
 
 class AsmTestCase(DisassembliesTestCase):
-    def _test_asm(self, options, skool=None, snapshot=None, ctl=None, org=None, writer=None, clean=True):
+    def _test_asm(self, options, skool=None, snapshot=None, ctl=None, writer=None, clean=True):
         if not skool:
-            skool = self._write_skool(snapshot, ctl, org)
+            skool = self._write_skool(snapshot, ctl)
         if writer:
             options += ' -W {}'.format(writer)
         output, stderr = self.run_skool2asm('{} {}'.format(options, skool), err_lines=True)
@@ -94,9 +92,9 @@ class AsmTestCase(DisassembliesTestCase):
         self.assertTrue(stderr[-1].startswith('Wrote ASM to stdout'))
 
 class CtlTestCase(DisassembliesTestCase):
-    def _test_ctl(self, options, skool=None, snapshot=None, ctl=None, org=None):
+    def _test_ctl(self, options, skool=None, snapshot=None, ctl=None):
         if not skool:
-            skool = self._write_skool(snapshot, ctl, org)
+            skool = self._write_skool(snapshot, ctl)
         args = '{} {}'.format(options, skool)
         output, stderr = self.run_skool2ctl(args)
         self.assertEqual(stderr, '')
@@ -135,9 +133,9 @@ class HtmlTestCase(DisassembliesTestCase):
                     error_msg.append('  {} -> {}'.format(fname, link_dest))
             self.fail('\n'.join(error_msg))
 
-    def _test_html(self, options, skool=None, snapshot=None, ctl=None, org=None, output=None, writer=None, ref=None):
+    def _test_html(self, options, skool=None, snapshot=None, ctl=None, output=None, writer=None, ref=None):
         if not skool:
-            skool = self._write_skool(snapshot, ctl, org)
+            skool = self._write_skool(snapshot, ctl)
             options += ' -c Config/SkoolFile={}'.format(skool)
         if writer:
             options += ' -W {}'.format(writer)
@@ -152,9 +150,9 @@ class HtmlTestCase(DisassembliesTestCase):
         self._check_links()
 
 class SftTestCase(DisassembliesTestCase):
-    def _test_sft(self, options, skool=None, snapshot=None, ctl=None, org=None):
+    def _test_sft(self, options, skool=None, snapshot=None, sna2skool_opts=None, ctl=None):
         if not skool:
-            skool = self._write_skool(snapshot, ctl, org)
+            skool = self._write_skool(snapshot, ctl)
         with open(skool) as f:
             orig_skool = f.read().split('\n')
         args = '{} {}'.format(options, skool)
@@ -162,7 +160,7 @@ class SftTestCase(DisassembliesTestCase):
         self.assertEqual(stderr, '')
         sftfile = self.write_text_file(sft)
         options = '-T {}'.format(sftfile)
-        if org is not None:
-            options += ' -o {}'.format(org)
+        if sna2skool_opts:
+            options += ' {}'.format(sna2skool_opts)
         output, stderr = self.run_sna2skool('{} {}'.format(options, snapshot))
         self.assertEqual(orig_skool[:-1], output)
