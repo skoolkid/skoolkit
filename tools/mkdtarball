@@ -14,6 +14,7 @@ EOF
 }
 
 readme() {
+  [[ -z $DTCONFIG ]] || htmlopts="$DTCONFIG "
   cat <<EOF
 The HTML disassembly in this archive was built from the source files in the
 'sources' subdirectory using version $SK_VERSION of SkoolKit.
@@ -32,7 +33,7 @@ steps:
 
 3. Change to the directory where SkoolKit was unpacked and run this command:
 
-   $ ./skool2html.py $REFFILE
+   $ ./skool2html.py $htmlopts$REFFILE
 EOF
 }
 
@@ -135,7 +136,7 @@ rm -rf $ABSDIR
 # Build the HTML disassembly
 echo -n "Writing disassembly..."
 cd src
-../skool2html.py -q -S ../resources -d ../${ABSDIR} $REFFILE
+../skool2html.py $DTCONFIG -q -S ../resources -d ../${ABSDIR} $REFFILE
 cd ..
 mv ${ABSDIR}/* ${ABSDIR}/html
 echo "done"
