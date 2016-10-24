@@ -12,12 +12,13 @@ NOSETESTS35 ?= $(HOME)/Python/Python3.5/bin/nosetests
 .PHONY: usage
 usage:
 	@echo "Targets:"
-	@echo "  usage   show this help"
-	@echo "  html    build the HTML disassembly"
-	@echo "  asm     build the ASM disassembly"
-	@echo "  test    run tests with current Python interpreter"
-	@echo "  test27  run tests with Python 2.7"
-	@echo "  test3X  run tests with Python 3.X (3<=X<=5)"
+	@echo "  usage     show this help"
+	@echo "  html      build the HTML disassembly"
+	@echo "  asm       build the ASM disassembly"
+	@echo "  test      run tests with current Python interpreter"
+	@echo "  test27    run tests with Python 2.7"
+	@echo "  test3X    run tests with Python 3.X (3<=X<=5)"
+	@$(MAKE) -s _targets
 	@echo ""
 	@echo "Variables:"
 	@echo "  SKOOLKIT_HOME  directory containing the version of SkoolKit to use"
@@ -25,6 +26,9 @@ usage:
 	@echo "  THEMES         CSS theme(s) to use"
 	@echo "  HTML_OPTS      extra options passed to skool2html.py"
 	@echo "  ASM_OPTS       options passed to skool2asm.py"
+
+.PHONY: _targets
+_targets:
 
 .PHONY: html
 html:
