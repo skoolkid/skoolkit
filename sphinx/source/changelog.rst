@@ -3,6 +3,8 @@ Changelog
 
 5.4b1
 -----
+* Added the ``--variables`` option to :ref:`snapinfo.py` (for showing the
+  contents of the variables area)
 
 5.3 (2016-09-05)
 ----------------

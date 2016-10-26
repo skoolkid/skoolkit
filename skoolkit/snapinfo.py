@@ -20,6 +20,7 @@ import argparse
 
 from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, read_bin_file, VERSION
 from skoolkit.basic import BasicLister
+from skoolkit.basic import VariableLister
 from skoolkit.snapshot import get_snapshot
 
 class Registers:
@@ -409,6 +410,8 @@ def main(args):
                        help='Show the contents of addresses A TO B STEP C; this option may be used multiple times')
     group.add_argument('-t', '--find-text', dest='text', metavar='TEXT',
                        help='Search for a text string')
+    group.add_argument('-v', '--variables', action='store_true',
+                       help='List variables')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
     namespace, unknown_args = parser.parse_known_args(args)
@@ -425,8 +428,12 @@ def main(args):
         _find_text(infile, namespace.text)
     elif namespace.peek is not None:
         _peek(infile, namespace.peek)
-    elif namespace.basic:
-        print(BasicLister().list_basic(get_snapshot(infile)))
+    elif namespace.basic or namespace.variables:
+        snapshot = get_snapshot(infile)
+        if namespace.basic:
+            print(BasicLister().list_basic(snapshot))
+        if namespace.variables:
+            print(VariableLister().list_variables(snapshot))
     elif snapshot_type == '.sna':
         _analyse_sna(infile)
     elif snapshot_type == '.z80':

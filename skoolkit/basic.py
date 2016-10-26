@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2016 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2016 Richard Dymond (rjdymond@gmail.com) and Philip M. Anderson
+# (weyoun47@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -114,14 +115,71 @@ TOKENS = {
     255: 'COPY'
 }
 
+def _get_number(snapshot, i):
+    if snapshot[i]:
+        return _get_float(snapshot, i)
+    return _get_integer(snapshot, i)
+
+def _get_integer(snapshot, i):
+    if snapshot[i + 1]:
+        return get_word(snapshot, i + 2) - 65536
+    return get_word(snapshot, i + 2)
+
+def _get_float(snapshot, i):
+    exponent = snapshot[i] - 160
+    sign = -1 if snapshot[i + 1] & 128 else 1
+    mantissa = float(16777216 * (snapshot[i + 1] | 128)
+                     + 65536 * snapshot[i + 2]
+                     + 256 * snapshot[i + 3]
+                     + snapshot[i + 4])
+    return sign * mantissa * (2 ** exponent)
+
+class TextReader:
+    def __init__(self):
+        self.lspace = False
+
+    def get_chars(self, code):
+        if code <= 32:
+            self.lspace = False
+            return self._get_char(code)
+        if code <= 164:
+            self.lspace = True
+            return self._get_char(code)
+        return self._get_token(code)
+
+    def _get_char(self, code):
+        if code == 94:
+            return '↑'
+        if code == 96:
+            return '£'
+        if code == 127:
+            return '©'
+        if 32 <= code <= 126:
+            return chr(code)
+        return '{{0x{:02X}}}'.format(code)
+
+    def _get_token(self, code):
+        token = TOKENS[code]
+        if self.lspace and code >= 197 and token[0] >= 'A':
+            token = ' ' + token
+        self.lspace = True
+        if code < 168 or code == 203 or token[-1] in '#=>':
+            # RND, INKEY$, PI, THEN, '<=', '>=', '<>', 'OPEN #', 'CLOSE #'
+            return token
+        self.lspace = False
+        return token + ' '
+
 class BasicLister:
+    def __init__(self):
+        self.text = TextReader()
+
     def list_basic(self, snapshot):
         lines = []
         self.snapshot = snapshot
         i = (snapshot[23635] + 256 * snapshot[23636]) or 23755
         while i < len(snapshot) and snapshot[i] < 64:
             line_no = snapshot[i] * 256 + snapshot[i + 1]
-            self.lspace = False
+            self.text.lspace = False
             i, line = self._get_basic_line(i + 4)
             lines.append('{:>4} {}'.format(line_no, line))
         return '\n'.join(lines)
@@ -145,33 +203,14 @@ class BasicLister:
                 line += '{{0x{:02X}{:02X}{:02X}}}'.format(code, self.snapshot[i + 1], self.snapshot[i + 2])
                 i += 3
             else:
-                line += self._get_chars(code)
+                line += self.text.get_chars(code)
                 i += 1
         return i + 1, line
-
-    def _get_chars(self, code):
-        if code <= 32:
-            self.lspace = False
-            return self._get_char(code)
-        if code <= 164:
-            self.lspace = True
-            return self._get_char(code)
-        return self._get_token(code)
 
     def _get_fp_num(self, i):
         num_str = self._get_num_str(i - 1)
         if num_str:
-            if self.snapshot[i + 1] == 0:
-                # Small integer (unsigned)
-                num = get_word(self.snapshot, i + 3)
-            else:
-                # Floating point number (unsigned)
-                exponent = self.snapshot[i + 1] - 160
-                mantissa = float(16777216 * (self.snapshot[i + 2] | 128)
-                                 + 65536 * self.snapshot[i + 3]
-                                 + 256 * self.snapshot[i + 4]
-                                 + self.snapshot[i + 5])
-                num = mantissa * (2 ** exponent)
+            num = _get_number(self.snapshot, i + 1)
             if num and abs(1 - float(num_str) / num) > 1e-9:
                 return '{{{}}}'.format(num)
         return ''
@@ -194,24 +233,102 @@ class BasicLister:
             num_str = chr(self.snapshot[j]) + num_str
         return num_str[1:]
 
-    def _get_char(self, code):
-        if code == 94:
-            return '↑'
-        if code == 96:
-            return '£'
-        if code == 127:
-            return '©'
-        if 32 <= code <= 126:
-            return chr(code)
-        return '{{0x{:02X}}}'.format(code)
+class VariableLister:
+    def __init__(self):
+        self.text = TextReader()
 
-    def _get_token(self, code):
-        token = TOKENS[code]
-        if self.lspace and code >= 197 and token[0] >= 'A':
-            token = ' ' + token
-        self.lspace = True
-        if code < 168 or code == 203 or token[-1] in '#=>':
-            # RND, INKEY$, PI, THEN, '<=', '>=', '<>', 'OPEN #', 'CLOSE #'
-            return token
-        self.lspace = False
-        return token + ' '
+    def list_variables(self, snapshot):
+        lines = []
+        self.snapshot = snapshot
+        i = snapshot[23627] + 256 * snapshot[23628]
+        while i < len(snapshot) and snapshot[i] != 128:
+            self.text.lspace = False
+            variable_type = snapshot[i] & 224
+            if variable_type == 64:
+                # String (010xxxxx)
+                i, line = self._get_string_var(i)
+            elif variable_type == 128:
+                # Array of numbers (100xxxxx)
+                i, line = self._get_num_array_var(i)
+            elif variable_type == 160:
+                # Number whose name is longer than one letter (101xxxxx)
+                i, line = self._get_long_num_var(i)
+            elif variable_type == 192:
+                # Array of characters (110xxxxx)
+                i, line = self._get_char_array_var(i)
+            elif variable_type == 224:
+                # Control variable of a FOR-NEXT loop (111xxxxx)
+                i, line = self._get_control_var(i)
+            elif variable_type == 96:
+                # Number whose name is one letter (011xxxxx)
+                i, line = self._get_short_num_var(i)
+            else:
+                # Basic line (00xxxxxx)
+                i += get_word(snapshot, i + 2) + 4
+                continue
+            lines.append('{}'.format(line))
+        return '\n'.join(lines)
+
+    def _get_string_var(self, i):
+        letter = (self.snapshot[i] & 31) + 96
+        varname = self.text.get_chars(letter)
+        str_length = get_word(self.snapshot, i + 1)
+        value = ''.join([self.text.get_chars(c) for c in self.snapshot[i + 3:i + 3 + str_length]])
+        line = '(String) {}$="{}"'.format(varname, value)
+        return i + 3 + str_length, line
+
+    def _get_num_array_var(self, i):
+        letter = (self.snapshot[i] & 31) + 96
+        varname = self.text.get_chars(letter)
+        data_length = get_word(self.snapshot, i + 1) - 1
+        dimensions = self.snapshot[i + 3]
+        i += 4
+        dims = [str(get_word(self.snapshot, c)) for c in range(i, i + 2 * dimensions, 2)]
+        i += 2 * dimensions
+        data_length -= 2 * dimensions
+        values = [str(_get_number(self.snapshot, c)) for c in range(i, i + data_length, 5)]
+        line = '(Number array) {}({})=[{}]'.format(varname, ','.join(dims), ', '.join(values))
+        return i + data_length, line
+
+    def _get_long_num_var(self, i):
+        letter = (self.snapshot[i] & 31) + 96
+        varname = '{}'.format(self.text.get_chars(letter))
+        i += 1
+        letter = self.snapshot[i]
+        while (letter & 128) == 0:
+            varname += '{}'.format(self.text.get_chars(letter))
+            i += 1
+            letter = self.snapshot[i]
+        varname += '{}'.format(self.text.get_chars(letter & 127))
+        line = '(Number) {}={}'.format(varname, _get_number(self.snapshot, i + 1))
+        return i + 6, line
+
+    def _get_char_array_var(self, i):
+        letter = (self.snapshot[i] & 31) + 96
+        varname = self.text.get_chars(letter)
+        data_length = get_word(self.snapshot, i + 1) - 1
+        dimensions = self.snapshot[i + 3]
+        i += 4
+        dims = [str(get_word(self.snapshot, c)) for c in range(i, i + 2 * dimensions, 2)]
+        i += 2 * dimensions
+        data_length -= 2 * dimensions
+        values = [(self.text.get_chars(self.snapshot[c])) for c in range(i, i + data_length)]
+        line = '(Character array) {}$({})=["{}"]'.format(varname, ','.join(dims), '", "'.join(values))
+        return i + data_length, line
+
+    def _get_control_var(self, i):
+        letter = (self.snapshot[i] & 31) + 96
+        varname = self.text.get_chars(letter)
+        value = _get_number(self.snapshot, i + 1)
+        limit = _get_number(self.snapshot, i + 6)
+        step = _get_number(self.snapshot, i + 11)
+        line_number = get_word(self.snapshot, i + 16)
+        statement = self.snapshot[i + 18]
+        line = '(FOR control variable) {}={} (limit={}, step={}, line={}, statement={})'.format(varname, value, limit, step, line_number, statement)
+        return i + 19, line
+
+    def _get_short_num_var(self, i):
+        letter = (self.snapshot[i] & 31) + 96
+        varname = self.text.get_chars(letter)
+        line = '(Number) {}={}'.format(varname, _get_number(self.snapshot, i + 1))
+        return i + 6, line
