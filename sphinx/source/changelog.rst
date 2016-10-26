@@ -1,6 +1,9 @@
 Changelog
 =========
 
+5.4b1
+-----
+
 5.3 (2016-09-05)
 ----------------
 * Dropped support for Python 3.2
