@@ -94,7 +94,7 @@ parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
 parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
 group = parser.add_argument_group('Options')
 group.add_argument('-f', dest='flip', action='store_true',
-                   help="Flip the image")
+                   help="Flip the image horizontally")
 group.add_argument('-i', dest='invert', action='store_true',
                    help="Invert video for cells that are flashing")
 group.add_argument('-n', dest='animated', action='store_false',
