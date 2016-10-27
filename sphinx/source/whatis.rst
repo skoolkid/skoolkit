@@ -50,6 +50,11 @@ skool files for these disassemblies can always be obtained from
 .. _Manic Miner: http://skoolkit.ca/disassemblies/manic_miner/
 .. _Jet Set Willy: http://skoolkit.ca/disassemblies/jet_set_willy/
 
+Authors
+-------
+SkoolKit is developed and maintained by Richard Dymond, and contains
+contributions from Philip M Anderson.
+
 Licence
 -------
 SkoolKit is free software: you can redistribute it and/or modify it under the
