@@ -629,18 +629,21 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
                           option may be used multiple times
     -t TEXT, --find-text TEXT
                           Search for a text string
+    -v, --variables       List variables
     -V, --version         Show SkoolKit version number and exit
 
 With no options, `snapinfo.py` displays register values, the interrupt mode,
 and the border colour. By using one of the options shown above, it can list
-the BASIC program (if one is present), show the contents of a range of
+the BASIC program and variables (if present), show the contents of a range of
 addresses, or search the RAM for a sequence of byte values or a text string.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.3     | New     |
-+---------+---------+
++---------+----------------------------------+
+| Version | Changes                          |
++=========+==================================+
+| 5.4     | Added the ``--variables`` option |
++---------+----------------------------------+
+| 5.3     | New                              |
++---------+----------------------------------+
 
 .. _snapmod.py:
 

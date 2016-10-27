@@ -29,6 +29,9 @@ OPTIONS
 -t, --find-text `TEXT`
   Search for a text string.
 
+-v, --variables
+  List the contents of the variables area.
+
 -V, --version
   Show the SkoolKit version number and exit.
 
