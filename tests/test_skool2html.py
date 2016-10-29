@@ -769,22 +769,22 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self._test_option_w('--write', 'P', 'write_page', [('CustomPage1',), ('CustomPage2',)])
 
     def test_option_w_B(self):
-        self._test_option_w('-w', 'B', 'write_graphic_glitches')
+        self._test_option_w('-w', 'B', 'write_page', [('GraphicGlitches',)])
 
     def test_option_w_c(self):
         self._test_option_w('--write', 'c', 'write_changelog')
 
     def test_option_w_b(self):
-        self._test_option_w('-w', 'b', 'write_bugs')
+        self._test_option_w('-w', 'b', 'write_page', [('Bugs',)])
 
     def test_option_w_t(self):
-        self._test_option_w('--write', 't', 'write_facts')
+        self._test_option_w('--write', 't', 'write_page', [('Facts',)])
 
     def test_option_w_y(self):
-        self._test_option_w('-w', 'y', 'write_glossary')
+        self._test_option_w('-w', 'y', 'write_page', [('Glossary',)])
 
     def test_option_w_p(self):
-        self._test_option_w('--write', 'p', 'write_pokes')
+        self._test_option_w('--write', 'p', 'write_page', [('Pokes',)])
 
     def test_option_w_o_map(self):
         self._test_option_w('-w', 'o', 'write_map', [('other-Index',)])

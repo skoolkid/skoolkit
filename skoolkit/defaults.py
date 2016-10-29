@@ -179,6 +179,26 @@ LengthColumn=1
 ; Write=1
 """
 
+SECTIONS['Page:Bugs'] = """
+SectionPrefix=Bug
+"""
+
+SECTIONS['Page:Facts'] = """
+SectionPrefix=Fact
+"""
+
+SECTIONS['Page:Glossary'] = """
+SectionPrefix=Glossary
+"""
+
+SECTIONS['Page:GraphicGlitches'] = """
+SectionPrefix=GraphicGlitch
+"""
+
+SECTIONS['Page:Pokes'] = """
+SectionPrefix=Poke
+"""
+
 SECTIONS['PageHeaders'] = """
 Asm-b=Data
 Asm-c=Routines

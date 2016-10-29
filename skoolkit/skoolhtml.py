@@ -46,12 +46,7 @@ P_ROUTINES_MAP = 'RoutinesMap'
 P_DATA_MAP = 'DataMap'
 P_MESSAGES_MAP = 'MessagesMap'
 P_UNUSED_MAP = 'UnusedMap'
-P_GRAPHIC_GLITCHES = 'GraphicGlitches'
 P_GSB = 'GameStatusBuffer'
-P_GLOSSARY = 'Glossary'
-P_FACTS = 'Facts'
-P_BUGS = 'Bugs'
-P_POKES = 'Pokes'
 P_CHANGELOG = 'Changelog'
 P_ASM_SINGLE_PAGE = 'AsmSinglePage'
 
@@ -144,11 +139,9 @@ class HtmlWriter:
             page = self.pages.setdefault(page_id, {})
             section_prefix = details.get('SectionPrefix')
             if section_prefix:
-                entries = self.get_sections(section_prefix, True)
-                if entries:
-                    page['entries'] = entries
-                else:
-                    continue # pragma: no cover
+                page['entries'] = self.get_sections(section_prefix, True)
+                if not page['entries']:
+                    continue
             if page_id not in self.page_ids:
                 self.page_ids.append(page_id)
             page.update(details)
@@ -219,14 +212,6 @@ class HtmlWriter:
         if global_js:
             self.js_files = tuple(global_js.split(';'))
 
-        self.bugs = self.get_sections('Bug', True)
-        self.facts = self.get_sections('Fact', True)
-        self.pokes = self.get_sections('Poke', True)
-        self.graphic_glitches = self.get_sections('GraphicGlitch', True)
-        self.glossary = []
-        for term, paragraphs in self.get_sections('Glossary', True):
-            anchor = term.lower().replace(' ', '_')
-            self.glossary.append((anchor, term, paragraphs))
         self.changelog = self._get_changelog()
 
         self.templates = {}
@@ -580,9 +565,6 @@ class HtmlWriter:
             udgs.append(Udg(attr, self.snapshot[a:a + 8]))
         return [udgs]
 
-    def write_graphic_glitches(self):
-        self._write_box_page(P_GRAPHIC_GLITCHES, self.graphic_glitches)
-
     def write_index(self):
         index_fname = self.paths[P_GAME_INDEX]
         cwd = self._set_cwd(P_GAME_INDEX, index_fname)
@@ -679,11 +661,14 @@ class HtmlWriter:
         fname = self.paths[page_id]
         cwd = self._set_cwd(page_id, fname)
         entries_html = []
+        link_list = []
         for i, entry in enumerate(entries):
             try:
                 anchor, title, paragraphs = entry
             except ValueError:
-                raise SkoolKitError("{} page: No title for item with anchor '{}'".format(page_id, entry[0]))
+                title, paragraphs = entry
+                anchor = title.lower().replace(' ', '_')
+            link_list.append((anchor, title))
             t_reference_entry_subs = {
                 't_anchor': self.format_anchor(anchor),
                 'num': 1 + i % 2,
@@ -692,23 +677,11 @@ class HtmlWriter:
             }
             entries_html.append(self.format_template('reference_entry', t_reference_entry_subs))
         subs = {
-            'm_contents_list_item': self._format_contents_list_items([(anchor, title) for anchor, title, p in entries]),
+            'm_contents_list_item': self._format_contents_list_items(link_list),
             'entries': '\n'.join(entries_html),
         }
         html = self.format_page(page_id, cwd, subs, 'Reference', js)
         self.write_file(fname, html)
-
-    def write_pokes(self):
-        self._write_box_page(P_POKES, self.pokes)
-
-    def write_bugs(self):
-        self._write_box_page(P_BUGS, self.bugs)
-
-    def write_facts(self):
-        self._write_box_page(P_FACTS, self.facts)
-
-    def write_glossary(self):
-        self._write_box_page(P_GLOSSARY, self.glossary)
 
     def _build_changelog_items(self, items, level=0):
         if not items:
@@ -1265,9 +1238,9 @@ class HtmlWriter:
     def needs_cwd(self):
         return True
 
-    def _expand_item_macro(self, item, link_text, cwd, items, path_id):
+    def _expand_item_macro(self, item, link_text, cwd, path_id):
         if item and link_text == '':
-            for name, title, contents in items:
+            for name, title, contents in self.pages[path_id]['entries']:
                 if item == name:
                     link_text = title
                     break
@@ -1280,7 +1253,7 @@ class HtmlWriter:
 
     def expand_bug(self, text, index, cwd):
         end, item, link_text = skoolmacro.parse_bug(text, index)
-        return end, self._expand_item_macro(item, link_text, cwd, self.bugs, P_BUGS)
+        return end, self._expand_item_macro(item, link_text, cwd, 'Bugs')
 
     def expand_call(self, text, index, cwd):
         return skoolmacro.parse_call(text, index, self, cwd)
@@ -1300,7 +1273,7 @@ class HtmlWriter:
 
     def expand_fact(self, text, index, cwd):
         end, item, link_text = skoolmacro.parse_fact(text, index)
-        return end, self._expand_item_macro(item, link_text, cwd, self.facts, P_FACTS)
+        return end, self._expand_item_macro(item, link_text, cwd, 'Facts')
 
     def expand_font(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)
@@ -1358,7 +1331,7 @@ class HtmlWriter:
 
     def expand_poke(self, text, index, cwd):
         end, item, link_text = skoolmacro.parse_poke(text, index)
-        return end, self._expand_item_macro(item, link_text, cwd, self.pokes, P_POKES)
+        return end, self._expand_item_macro(item, link_text, cwd, 'Pokes')
 
     def expand_pokes(self, text, index, cwd):
         return skoolmacro.parse_pokes(text, index, self.snapshot)

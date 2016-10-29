@@ -293,25 +293,17 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
             clock(html_writer.write_map, '  Writing {}'.format(normpath(game_dir, paths[map_name])), map_name)
 
     # Write pages defined in the ref file
-    if 'P' in files:
+    if set(files) & set('BbPpty'):
+        default_pages = {'GraphicGlitches': 'B', 'Bugs': 'b', 'Pokes': 'p', 'Facts': 't', 'Glossary': 'y'}
         for page_id in pages:
-            page_details = html_writer.pages[page_id]
-            copy_resources(search_dir, extra_search_dirs, odir, page_details.get('JavaScript'), js_path, indent=2)
-            clock(html_writer.write_page, '  Writing {}'.format(normpath(game_dir, paths[page_id])), page_id)
+            if (page_id in default_pages and default_pages[page_id] in files) or (page_id not in default_pages and 'P' in files):
+                page_details = html_writer.pages[page_id]
+                copy_resources(search_dir, extra_search_dirs, odir, page_details.get('JavaScript'), js_path, indent=2)
+                clock(html_writer.write_page, '  Writing {}'.format(normpath(game_dir, paths[page_id])), page_id)
 
     # Write other files
-    if 'B' in files and html_writer.graphic_glitches:
-        clock(html_writer.write_graphic_glitches, '  Writing {}'.format(normpath(game_dir, paths['GraphicGlitches'])))
     if 'c' in files and html_writer.changelog:
         clock(html_writer.write_changelog, '  Writing {}'.format(normpath(game_dir, paths['Changelog'])))
-    if 'b' in files and html_writer.bugs:
-        clock(html_writer.write_bugs, '  Writing {}'.format(normpath(game_dir, paths['Bugs'])))
-    if 't' in files and html_writer.facts:
-        clock(html_writer.write_facts, '  Writing {}'.format(normpath(game_dir, paths['Facts'])))
-    if 'y' in files and html_writer.glossary:
-        clock(html_writer.write_glossary, '  Writing {}'.format(normpath(game_dir, paths['Glossary'])))
-    if 'p' in files and html_writer.pokes:
-        clock(html_writer.write_pokes, '  Writing {}'.format(normpath(game_dir, paths['Pokes'])))
     if 'o' in files:
         for code_id, code in html_writer.other_code:
             skoolfile = find(code['Source'], extra_search_dirs, search_dir)
