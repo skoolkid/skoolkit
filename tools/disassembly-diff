@@ -219,7 +219,7 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
     cp -p $NEW_DIR/examples/hungry_horace.ref $NEW_DIR/src
   else
     cp -p $DHOME/sources/*.skool $DHOME/sources/*.ref $NEW_DIR/src
-    find $DHOME/sources -name '*.css' -o -name '*.js' -exec cp -p {} $NEW_DIR/src \;
+    find $DHOME/sources \( -name '*.css' -o -name '*.js' \) -exec cp -p {} $NEW_DIR/src \;
     find $DHOME/sources -name '*.py' -exec cp -p {} $NEW_DIR \;
   fi
 fi
