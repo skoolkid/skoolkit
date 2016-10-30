@@ -120,6 +120,43 @@ Spectrum is 23952 ($5D90).
 | 1.3.1   | New                                                             |
 +---------+-----------------------------------------------------------------+
 
+.. _scr2img.py:
+
+scr2img.py
+----------
+`scr2img.py` converts the screenshot in a SCR file or SNA/SZX/Z80 snapshot into
+a PNG or GIF file. For example::
+
+  $ scr2img.py game.scr
+
+will create a file named `game.png`.
+
+To list the options supported by `scr2img.py`, run it with no arguments::
+
+  usage: scr2img.py [options] INPUT [OUTPUT]
+
+  Convert a Spectrum screenshot (or a portion of it) into a PNG or GIF file.
+  INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.
+
+  Options:
+    -f, --flip            Flip the image horizontally
+    -i, --invert          Invert video for cells that are flashing
+    -n, --no-animation    Do not animate flashing cells
+    -p a[-b[-c]],v, --poke a[-b[-c]],v
+                          POKE N,v for N in {a, a+c, a+2c..., b} (this option
+                          may be used multiple times)
+    -s SCALE, --scale SCALE
+                          Set the scale of the image (default=1)
+    -V, --version         Show SkoolKit version number and exit
+    -w W,H, --size W,H    Set width and height to (W,H)
+    -x X,Y, --origin X,Y  Set top-left to (X,Y)
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.4     | New     |
++---------+---------+
+
 .. _skool2asm.py:
 
 skool2asm.py

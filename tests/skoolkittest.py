@@ -15,9 +15,9 @@ from unittest import TestCase
 
 SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
-from skoolkit import (PY3, bin2sna, bin2tap, skool2asm, skool2bin, skool2ctl,
-                      skool2html, skool2sft, sna2skool, snapinfo, snapmod,
-                      tap2sna, tapinfo)
+from skoolkit import (PY3, bin2sna, bin2tap, scr2img, skool2asm, skool2bin,
+                      skool2ctl, skool2html, skool2sft, sna2skool, snapinfo,
+                      snapmod, tap2sna, tapinfo)
 
 def get_parity(data):
     parity = 0
@@ -347,6 +347,9 @@ class SkoolKitTestCase(TestCase):
 
     def run_bin2tap(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=None):
         return self._run_skoolkit_command(bin2tap.main, args, out_lines, err_lines, strip_cr, catch_exit)
+
+    def run_scr2img(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=None):
+        return self._run_skoolkit_command(scr2img.main, args, out_lines, err_lines, strip_cr, catch_exit)
 
     def run_skool2asm(self, args='', out_lines=True, err_lines=False, strip_cr=True, catch_exit=None):
         return self._run_skoolkit_command(skool2asm.main, args, out_lines, err_lines, strip_cr, catch_exit)
