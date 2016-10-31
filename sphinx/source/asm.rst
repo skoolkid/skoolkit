@@ -283,6 +283,32 @@ See also :ref:`start`.
 | 2.2.2   | New     |
 +---------+---------+
 
+.. _equ:
+
+@equ
+^^^^
+The ``@equ`` directive defines an EQU directive that will appear in the ASM
+output. ::
+
+  @equ=label=value
+
+* ``label`` is the label
+* ``value`` is the value assigned to the label
+
+For example::
+
+  @equ=ATTRS=22528
+  c32768 LD HL,22528
+
+This will produce an EQU directive (``ATTRS EQU 22528``) in the ASM output, and
+replace the operand of the instruction at 32768 with a label: ``LD HL,ATTRS``.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.4     | New     |
++---------+---------+
+
 .. _ignoreua:
 
 @ignoreua

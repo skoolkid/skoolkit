@@ -2546,6 +2546,37 @@ class SkoolParserTest(SkoolKitTestCase):
         with self.assertRaisesRegexp(SkoolParsingError, 'Duplicate label START at 40001'):
             self._get_parser(skool, asm_mode=1, asm_labels=True)
 
+    def test_equ_directive_html_mode(self):
+        skool = '\n'.join((
+            '@start',
+            '@equ=DF=16384',
+            'c32768 LD HL,16384'
+        ))
+        parser = self._get_parser(skool)
+        self.assertEqual([], parser.equs)
+        instruction = parser.get_instruction(32768)
+        self.assertEqual(instruction.operation, 'LD HL,16384')
+
+    def test_equ_directive_asm_mode(self):
+        skool = '\n'.join((
+            '@start',
+            '@equ=DF=16384',
+            'c32768 LD HL,16384'
+        ))
+        parser = self._get_parser(skool, asm_mode=1)
+        self.assertEqual([('DF', '16384')], parser.equs)
+        instruction = parser.get_instruction(32768)
+        self.assertEqual(instruction.operation, 'LD HL,DF')
+
+    def test_equ_directive_with_bad_value_is_recorded(self):
+        skool = '\n'.join((
+            '@start',
+            '@equ=DF=foo',
+            'c32768 LD HL,16384'
+        ))
+        parser = self._get_parser(skool, asm_mode=1)
+        self.assertEqual([('DF', 'foo')], parser.equs)
+
     def test_asm_mode(self):
         skool = '\n'.join((
             '@start',

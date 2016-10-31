@@ -252,6 +252,8 @@ class SkoolParser:
         self.asm_writer_class = None
         self.properties = {}
         self._replacements = []
+        self.equs = []
+        self._equ_values = {}
 
         with open_file(skoolfile) as f:
             self._parse_skool(f, min_address, max_address)
@@ -519,6 +521,14 @@ class SkoolParser:
                     name, sep, value = directive[4:].partition('=')
                     if sep:
                         self.properties[name.lower()] = value
+                elif directive.startswith('equ='):
+                    name, sep, value = directive[4:].rstrip().partition('=')
+                    if sep:
+                        self.equs.append((name, value))
+                        try:
+                            self._equ_values[get_int_param(value)] = name
+                        except ValueError:
+                            pass
         elif directive.startswith('start'):
             self.mode.start()
 
@@ -630,6 +640,8 @@ class SkoolParser:
                 # Warn if we cannot find a label to replace the operand of this
                 # routine instruction (will need @nowarn if this is OK)
                 self.warn('Found no label for operand: {} {}'.format(instruction.addr_str, operation))
+        elif operand_int in self._equ_values:
+            instruction.operation = operation.replace(operand, self._equ_values[operand_int])
         else:
             references = self._instructions.get(operand_int)
             is_local = not (references and references[0].container.is_remote())
