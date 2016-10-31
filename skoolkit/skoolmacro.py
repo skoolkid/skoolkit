@@ -817,12 +817,18 @@ def parse_reg(text, index, lower):
     # #REGreg
     if index >= len(text):
         raise MacroParsingError('Missing register argument')
-    match = RE_REGISTER.match(text, index)
-    if not match:
-        raise MacroParsingError('Bad register: "{}"'.format(text[index:]))
+    if text[index] in 'abcdefghijklmnopqrstuvwxyz':
+        match = RE_REGISTER.match(text, index)
+        if not match:
+            raise MacroParsingError('Bad register: "{}"'.format(text[index:]))
+        end, reg = match.end(), match.group()
+    else:
+        end, reg = parse_strings(text, index, 1)
+        if not reg:
+            raise MacroParsingError('Missing register argument')
     if lower:
-        return match.end(), match.group()
-    return match.end(), match.group().upper()
+        return end, reg.lower()
+    return end, reg.upper()
 
 def parse_scr(text, index):
     # #SCR[scale,x,y,w,h,df,af][{x,y,width,height}][(fname)]

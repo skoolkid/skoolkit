@@ -890,15 +890,25 @@ See also :ref:`EREFS`.
 #REG
 ----
 In HTML mode, the ``#REG`` macro expands to a styled ``<span>`` element
-containing a register name. ::
+containing a register name or arbitrary text (with case adjusted as
+appropriate). ::
 
   #REGreg
 
-* ``reg`` is the name of the register
+where ``reg`` is the name of the register, or::
 
-In ASM mode, the ``#REG`` macro expands to the name of the register.
+  #REG(text)
 
-The register name must be one of the following::
+where ``text`` is arbitrary text (e.g. ``hlh'l'``).
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``text`` parameter. Note that if an alternative delimiter is used, it must not
+be a letter.
+
+In ASM mode, the ``#REG`` macro expands to either ``reg`` or ``text`` (with
+case adjusted as appropriate).
+
+The register name (``reg``) must be one of the following::
 
   a b c d e f h l
   a' b' c' d' e' f' h' l'
@@ -917,6 +927,8 @@ For example:
 +---------+-----------------------------------------------------+
 | Version | Changes                                             |
 +=========+=====================================================+
+| 5.4     | Added support for an arbitrary text parameter       |
++---------+-----------------------------------------------------+
 | 5.3     | Added support for the F and F' registers            |
 +---------+-----------------------------------------------------+
 | 5.1     | The ``reg`` parameter must be a valid register name |

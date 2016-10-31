@@ -7,6 +7,8 @@ Changelog
   file or SNA/SZX/Z80 snapshot into a PNG or GIF file)
 * Added the :ref:`equ` ASM directive (which produces an EQU directive in the
   ASM output)
+* The :ref:`REG` macro now accepts an arbitrary text parameter (e.g.
+  ``#REG(hlh'l')``)
 * Added the ``--variables`` option to :ref:`snapinfo.py` (for showing the
   contents of the variables area)
 

@@ -907,20 +907,33 @@ class CommonSkoolMacroTest:
         output = writer.expand(nest_macros('#REG#({})', 'hl'))
         self.assertEqual(output, template.format('HL'))
 
+        # Arbitrary text argument
+        output = writer.expand("#REG(hlh'l')")
+        self.assertEqual(output, template.format("HLH'L'"))
+        output = writer.expand("#REG/hl(de)/")
+        self.assertEqual(output, template.format("HL(DE)"))
+
         # Lower case
         writer = self._get_writer(case=CASE_LOWER)
         output = writer.expand('#REGhl')
         self.assertEqual(output, template.format('hl'))
+
+        # Arbitrary text argument, lower case
+        writer = self._get_writer(case=CASE_LOWER)
+        output = writer.expand("#REG[ded'e']")
+        self.assertEqual(output, template.format("ded'e'"))
 
     def test_macro_reg_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('REG')
 
         self._assert_error(writer, '#REG', 'Missing register argument', prefix)
+        self._assert_error(writer, '#REG()', 'Missing register argument', prefix)
+        self._assert_error(writer, '#REG||', 'Missing register argument', prefix)
+        self._assert_error(writer, '#REG(bc', 'No closing bracket: (bc', prefix)
+        self._assert_error(writer, '#REG/hl', 'No terminating delimiter: /hl', prefix)
         self._assert_error(writer, '#REGq', 'Bad register: "q"', prefix)
-        self._assert_error(writer, '#REG(q)', 'Bad register: "(q)"', prefix)
-        self._assert_error(writer, "#REG'a", 'Bad register: "\'a"', prefix)
-        self._assert_error(writer, "#REG(xil)", 'Bad register: "(xil)"', prefix)
+        self._assert_error(writer, "#REGx'", 'Bad register: "x\'"', prefix)
 
     def test_macro_scr_invalid(self):
         writer = self._get_writer(snapshot=[0] * 8)
