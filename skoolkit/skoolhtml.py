@@ -139,8 +139,15 @@ class HtmlWriter:
             page = self.pages.setdefault(page_id, {})
             section_prefix = details.get('SectionPrefix')
             if section_prefix:
-                page['entries'] = self.get_sections(section_prefix, True)
-                if not page['entries']:
+                page['entries'] = entries = []
+                for entry in self.get_sections(section_prefix, True):
+                    try:
+                        anchor, title, paragraphs = entry
+                    except ValueError:
+                        title, paragraphs = entry
+                        anchor = title.lower().replace(' ', '_')
+                    entries.append((anchor, title, paragraphs))
+                if not entries:
                     continue
             if page_id not in self.page_ids:
                 self.page_ids.append(page_id)
@@ -662,12 +669,7 @@ class HtmlWriter:
         cwd = self._set_cwd(page_id, fname)
         entries_html = []
         link_list = []
-        for i, entry in enumerate(entries):
-            try:
-                anchor, title, paragraphs = entry
-            except ValueError:
-                title, paragraphs = entry
-                anchor = title.lower().replace(' ', '_')
+        for i, (anchor, title, paragraphs) in enumerate(entries):
             link_list.append((anchor, title))
             t_reference_entry_subs = {
                 't_anchor': self.format_anchor(anchor),
@@ -1306,7 +1308,13 @@ class HtmlWriter:
         if page_id not in self.paths:
             raise MacroParsingError("Unknown page ID: {}".format(page_id))
         if link_text == '':
-            link_text = self.links[page_id][0]
+            if anchor and page_id in self.page_ids and 'entries' in self.pages[page_id]:
+                for item_anchor, title, paragraphs in self.pages[page_id]['entries']:
+                    if anchor[1:] == item_anchor:
+                        link_text = title
+                        break
+            if not link_text:
+                link_text = self.links[page_id][0]
         if page_id in self.main_memory_maps:
             try:
                 anchor = '#' + self.asm_anchor(self.get_entry(int(anchor[1:])).address)

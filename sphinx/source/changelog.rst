@@ -9,6 +9,8 @@ Changelog
   ASM output)
 * The :ref:`REG` macro now accepts an arbitrary text parameter (e.g.
   ``#REG(hlh'l')``)
+* When the :ref:`LINK` macro links to an item on a box page, the link text
+  defaults to the item's title if left blank
 * Added the ``--variables`` option to :ref:`snapinfo.py` (for showing the
   contents of the variables area)
 
