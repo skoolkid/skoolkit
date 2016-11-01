@@ -1093,6 +1093,100 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(asm[3], 'START_0:')
         self.assertEqual(asm[5], 'START_1:')
 
+    def test_equ_directives(self):
+        skool = '\n'.join((
+            '@start',
+            '@equ=DFILE=16384',
+            '@equ=ATTRS=22528',
+            'c32768 LD HL,16384',
+            ' 32771 LD DE,22528'
+        ))
+        exp_asm = [
+            '  DFILE EQU 16384',
+            '  ATTRS EQU 22528',
+            '',
+            '  LD HL,DFILE',
+            '  LD DE,ATTRS',
+            ''
+        ]
+        asm = self._get_asm(skool)
+        self.assertEqual(exp_asm, asm)
+
+    def test_equ_value_converted_to_decimal(self):
+        skool = '\n'.join((
+            '@start',
+            '@equ=DFILE=$4000',
+            'c$8000 LD HL,$4000'
+        ))
+        exp_asm = [
+            '  DFILE EQU 16384',
+            '',
+            '  LD HL,DFILE',
+            ''
+        ]
+        asm = self._get_asm(skool, base=BASE_10)
+        self.assertEqual(exp_asm, asm)
+
+    def test_equ_value_converted_to_hex(self):
+        skool = '\n'.join((
+            '@start',
+            '@equ=DFILE=16384',
+            'c32778 LD HL,16384'
+        ))
+        exp_asm = [
+            '  DFILE EQU $4000',
+            '',
+            '  LD HL,DFILE',
+            ''
+        ]
+        asm = self._get_asm(skool, base=BASE_16)
+        self.assertEqual(exp_asm, asm)
+
+    def test_equ_value_converted_to_lower_case_hex(self):
+        skool = '\n'.join((
+            '@start',
+            '@equ=Foo=61613',
+            'c32768 LD HL,61613'
+        ))
+        exp_asm = [
+            '  Foo equ $f0ad',
+            '',
+            '  ld hl,Foo',
+            ''
+        ]
+        asm = self._get_asm(skool, base=BASE_16, case=CASE_LOWER)
+        self.assertEqual(exp_asm, asm)
+
+    def test_equ_value_converted_to_upper_case_hex(self):
+        skool = '\n'.join((
+            '@start',
+            '@equ=Foo=61613',
+            'c32768 LD HL,61613'
+        ))
+        exp_asm = [
+            '  Foo EQU $F0AD',
+            '',
+            '  LD HL,Foo',
+            ''
+        ]
+        asm = self._get_asm(skool, base=BASE_16, case=CASE_UPPER)
+        self.assertEqual(exp_asm, asm)
+
+    def test_equ_value_preserved_if_not_valid_integer(self):
+        skool = '\n'.join((
+            '@start',
+            '@equ=FOO=BadValue',
+            'c32768 RET'
+        ))
+        exp_asm = [
+            '  FOO EQU BadValue',
+            '',
+            '  RET',
+            ''
+        ]
+        asm = self._get_asm(skool)
+        self.assertEqual(exp_asm, asm)
+
     def test_org_address_converted_to_decimal(self):
         skool = '\n'.join((
             '@start',

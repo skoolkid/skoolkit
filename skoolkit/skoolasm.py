@@ -102,6 +102,7 @@ class AsmWriter:
 
     def write(self):
         self.print_header(self.parser.header)
+        self.print_equs(self.parser.equs)
         for entry in self.parser.memory_map:
             first_instruction = entry.instructions[0]
             org = first_instruction.org
@@ -121,6 +122,20 @@ class AsmWriter:
         if header:
             for line in header:
                 self.write_line(('; ' + line).rstrip())
+            self.write_line('')
+
+    def print_equs(self, equs):
+        if equs:
+            if self.lower:
+                equ_dir = 'equ'
+            else:
+                equ_dir = 'EQU'
+            for label, value in equs:
+                try:
+                    value = self.expand_n('{},,,1($)'.format(value), 0)[1]
+                except MacroParsingError:
+                    pass
+                self.write_line('{}{} {} {}'.format(self.indent, label, equ_dir, value))
             self.write_line('')
 
     def print_entry(self):
