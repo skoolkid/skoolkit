@@ -293,8 +293,8 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
             clock(html_writer.write_map, '  Writing {}'.format(normpath(game_dir, paths[map_name])), map_name)
 
     # Write pages defined in the ref file
-    if set(files) & set('BbPpty'):
-        default_pages = {'GraphicGlitches': 'B', 'Bugs': 'b', 'Pokes': 'p', 'Facts': 't', 'Glossary': 'y'}
+    if set(files) & set('BbcPpty'):
+        default_pages = {'GraphicGlitches': 'B', 'Bugs': 'b', 'Changelog': 'c', 'Pokes': 'p', 'Facts': 't', 'Glossary': 'y'}
         for page_id in pages:
             if (page_id in default_pages and default_pages[page_id] in files) or (page_id not in default_pages and 'P' in files):
                 page_details = html_writer.pages[page_id]
@@ -302,8 +302,6 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
                 clock(html_writer.write_page, '  Writing {}'.format(normpath(game_dir, paths[page_id])), page_id)
 
     # Write other files
-    if 'c' in files and html_writer.changelog:
-        clock(html_writer.write_changelog, '  Writing {}'.format(normpath(game_dir, paths['Changelog'])))
     if 'o' in files:
         for code_id, code in html_writer.other_code:
             skoolfile = find(code['Source'], extra_search_dirs, search_dir)

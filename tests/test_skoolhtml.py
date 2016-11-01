@@ -5313,7 +5313,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </div>
         """
         writer = self._get_writer(ref=ref, skool='')
-        writer.write_changelog()
+        writer.write_page('Changelog')
         subs = {
             'header': 'Changelog',
             'body_class': 'Changelog',
@@ -5349,7 +5349,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </div>
         """
         writer = self._get_writer(ref=ref, skool='')
-        writer.write_changelog()
+        writer.write_page('Changelog')
         subs = {
             'header': 'Changelog',
             'body_class': 'Changelog',
@@ -5370,8 +5370,39 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'Changelog={}'
         )).format(title, header, path)
         writer = self._get_writer(ref=ref, skool='')
-        writer.write_changelog()
+        writer.write_page('Changelog')
         self._assert_title_equals(path, title, header)
+
+    def test_write_changelog_entry_with_specified_anchor(self):
+        anchor = 'latest'
+        title = '20161101'
+        ref = '\n'.join((
+            '[Changelog:{}:{}]'.format(anchor, title),
+            '-',
+            '',
+            'Item 1'
+        ))
+        content = """
+            <ul class="contents">
+            <li><a href="#{0}">{1}</a></li>
+            </ul>
+            <div><span id="{0}"></span></div>
+            <div class="changelog changelog-1">
+            <div class="changelog-title">{1}</div>
+            <div class="changelog-desc"></div>
+            <ul class="changelog">
+            <li>Item 1</li>
+            </ul>
+            </div>
+        """.format(anchor, title)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page('Changelog')
+        subs = {
+            'header': 'Changelog',
+            'body_class': 'Changelog',
+            'content': content
+        }
+        self._assert_files_equal(join(REFERENCE_DIR, 'changelog.html'), subs)
 
     def test_write_glossary(self):
         ref = '\n'.join((

@@ -11,6 +11,9 @@ Changelog
   ``#REG(hlh'l')``)
 * When the :ref:`LINK` macro links to an item on a box page, the link text
   defaults to the item's title if left blank
+* Added the ``SectionType`` parameter to the :ref:`page` section (for
+  specifying how to parse and render the ref file sections from which a box
+  page is built)
 * Added the ``--variables`` option to :ref:`snapinfo.py` (for showing the
   contents of the variables area)
 

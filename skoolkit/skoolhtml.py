@@ -47,7 +47,6 @@ P_DATA_MAP = 'DataMap'
 P_MESSAGES_MAP = 'MessagesMap'
 P_UNUSED_MAP = 'UnusedMap'
 P_GSB = 'GameStatusBuffer'
-P_CHANGELOG = 'Changelog'
 P_ASM_SINGLE_PAGE = 'AsmSinglePage'
 
 # Default image path ID
@@ -140,13 +139,24 @@ class HtmlWriter:
             section_prefix = details.get('SectionPrefix')
             if section_prefix:
                 page['entries'] = entries = []
-                for entry in self.get_sections(section_prefix, True):
+                use_paragraphs = details.get('SectionType') != 'ListItems'
+                if use_paragraphs:
+                    sections = self.get_sections(section_prefix, True)
+                else:
+                    sections = self.get_sections(section_prefix, True, True, False)
+                for entry in sections:
                     try:
                         anchor, title, paragraphs = entry
                     except ValueError:
                         title, paragraphs = entry
                         anchor = title.lower().replace(' ', '_')
-                    entries.append((anchor, title, paragraphs))
+                    if use_paragraphs:
+                        entries.append((anchor, title, paragraphs))
+                    else:
+                        intro = paragraphs[0][0]
+                        if intro == '-':
+                            intro = ''
+                        entries.append((anchor, title, intro, paragraphs[1:]))
                 if not entries:
                     continue
             if page_id not in self.page_ids:
@@ -218,8 +228,6 @@ class HtmlWriter:
         global_js = self.game_vars.get('JavaScript')
         if global_js:
             self.js_files = tuple(global_js.split(';'))
-
-        self.changelog = self._get_changelog()
 
         self.templates = {}
         for name, template in self.get_sections('Template'):
@@ -426,15 +434,6 @@ class HtmlWriter:
         :param name: An optional name for the snapshot.
         """
         self._snapshots.append((self.snapshot[:], name))
-
-    def _get_changelog(self):
-        changelog = []
-        for title, paragraphs in self.get_sections('Changelog', True, True, False):
-            intro = paragraphs[0][0]
-            if intro == '-':
-                intro = ''
-            changelog.append((title, intro, paragraphs[1:]))
-        return changelog
 
     def get_page_ids(self):
         return self.page_ids
@@ -664,12 +663,18 @@ class HtmlWriter:
             items.append(self.format_template('contents_list_item', subs))
         return '\n'.join(items)
 
-    def _write_box_page(self, page_id, entries, js=None):
+    def _format_box_page(self, page_id):
+        if self.pages[page_id].get('SectionType') == 'ListItems':
+            return self._build_list_items_html(page_id)
+        return self._build_paragraphs_html(page_id)
+
+    def _build_paragraphs_html(self, page_id):
+        page = self.pages[page_id]
         fname = self.paths[page_id]
         cwd = self._set_cwd(page_id, fname)
         entries_html = []
         link_list = []
-        for i, (anchor, title, paragraphs) in enumerate(entries):
+        for i, (anchor, title, paragraphs) in enumerate(page.get('entries')):
             link_list.append((anchor, title))
             t_reference_entry_subs = {
                 't_anchor': self.format_anchor(anchor),
@@ -682,38 +687,19 @@ class HtmlWriter:
             'm_contents_list_item': self._format_contents_list_items(link_list),
             'entries': '\n'.join(entries_html),
         }
-        html = self.format_page(page_id, cwd, subs, 'Reference', js)
-        self.write_file(fname, html)
+        return self.format_page(page_id, cwd, subs, 'Reference', page.get('JavaScript'))
 
-    def _build_changelog_items(self, items, level=0):
-        if not items:
-            return ''
-        changelog_items = []
-        for item, subitems in items:
-            if subitems:
-                item = '{}\n{}\n'.format(item, self._build_changelog_items(subitems, level + 1))
-            changelog_items.append(self.format_template('changelog_item', {'item': item}, 'list_item'))
-        if level > 0:
-            indent = level
-        else:
-            indent = ''
-        t_changelog_item_list_subs = {
-            'indent': indent,
-            'm_changelog_item': '\n'.join(changelog_items)
-        }
-        return self.format_template('changelog_item_list', t_changelog_item_list_subs)
-
-    def write_changelog(self):
-        fname = self.paths[P_CHANGELOG]
-        cwd = self._set_cwd(P_CHANGELOG, fname)
-
+    def _build_list_items_html(self, page_id):
+        page = self.pages[page_id]
+        fname = self.paths[page_id]
+        cwd = self._set_cwd(page_id, fname)
         contents = []
         entries = []
-        for j, (title, description, items) in enumerate(self.changelog):
-            contents.append((title, title))
-            changelog_items = []
+        for j, (anchor, title, description, items) in enumerate(page.get('entries')):
+            contents.append((anchor, title))
+            list_items = []
             for item in items:
-                indents = [(0, changelog_items)]
+                indents = [(0, list_items)]
                 for line in item:
                     subitems = indents[-1][1]
                     item_text = self.expand(line.strip(), cwd)
@@ -729,21 +715,41 @@ class HtmlWriter:
                             indents.pop()
                         subitems = indents[-1][1]
                         subitems.append([item_text, None])
-            t_changelog_entry_subs = {
-                't_anchor': self.format_anchor(title),
+            t_entry_subs = {
+                't_anchor': self.format_anchor(anchor),
                 'num': 1 + j % 2,
                 'title': title,
                 'description': self.expand(description, cwd),
-                't_changelog_item_list': self._build_changelog_items(changelog_items)
+                't_changelog_item_list': self._build_list_items(page_id, list_items)
             }
-            entries.append(self.format_template('changelog_entry', t_changelog_entry_subs))
-
+            entries.append(self.format_template(page_id + '-entry', t_entry_subs, 'changelog_entry'))
         subs = {
             'm_contents_list_item': self._format_contents_list_items(contents),
             'entries': '\n'.join(entries),
         }
-        html = self.format_page(P_CHANGELOG, cwd, subs, 'Reference')
-        self.write_file(fname, html)
+        return self.format_page(page_id, cwd, subs, 'Reference')
+
+    def _build_list_items(self, page_id, items, level=0):
+        if not items:
+            return ''
+        list_items = []
+        if page_id == 'Changelog':
+            item_template = 'changelog_item'
+        else:
+            item_template = page_id + '-item'
+        for item, subitems in items:
+            if subitems:
+                item = '{}\n{}\n'.format(item, self._build_list_items(page_id, subitems, level + 1))
+            list_items.append(self.format_template(item_template, {'item': item}, 'list_item'))
+        if level > 0:
+            indent = level
+        else:
+            indent = ''
+        t_changelog_item_list_subs = {
+            'indent': indent,
+            'm_changelog_item': '\n'.join(list_items)
+        }
+        return self.format_template(page_id + '-item_list', t_changelog_item_list_subs, 'changelog_item_list')
 
     def format_registers(self, cwd, registers, entry_dict):
         input_values = []
@@ -925,16 +931,14 @@ class HtmlWriter:
 
     def write_page(self, page_id):
         page = self.pages[page_id]
-        js = page.get('JavaScript')
-        entries = page.get('entries')
-        if entries:
-            self._write_box_page(page_id, entries, js)
+        fname = self.paths[page_id]
+        if page.get('entries'):
+            html = self._format_box_page(page_id)
         else:
-            fname = self.paths[page_id]
             cwd = self._set_cwd(page_id, fname)
             subs = {'content': self.expand(page.get('PageContent', ''), cwd)}
-            html = self.format_page(page_id, cwd, subs, 'Page', js)
-            self.write_file(fname, html)
+            html = self.format_page(page_id, cwd, subs, 'Page', page.get('JavaScript'))
+        self.write_file(fname, html)
 
     def write_file(self, fname, contents):
         with self.file_info.open_file(fname) as f:

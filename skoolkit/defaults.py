@@ -183,6 +183,11 @@ SECTIONS['Page:Bugs'] = """
 SectionPrefix=Bug
 """
 
+SECTIONS['Page:Changelog'] = """
+SectionPrefix=Changelog
+SectionType=ListItems
+"""
+
 SECTIONS['Page:Facts'] = """
 SectionPrefix=Fact
 """

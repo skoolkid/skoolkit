@@ -772,7 +772,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self._test_option_w('-w', 'B', 'write_page', [('GraphicGlitches',)])
 
     def test_option_w_c(self):
-        self._test_option_w('--write', 'c', 'write_changelog')
+        self._test_option_w('--write', 'c', 'write_page', [('Changelog',)])
 
     def test_option_w_b(self):
         self._test_option_w('-w', 'b', 'write_page', [('Bugs',)])

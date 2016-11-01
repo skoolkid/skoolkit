@@ -680,6 +680,9 @@ Recognised parameters are:
 * ``SectionPrefix`` - the prefix of the names of the ref file sections from
   which to build a 'box page' (like the 'Bugs' and 'Trivia' pages); the names
   of the ref file sections must be in the form ``[prefix:anchor:title]``
+* ``SectionType`` - how to parse and render box page ref file sections (when
+  ``SectionPrefix`` is defined): as list items with indentation
+  (``ListItems``), or as paragraphs (the default)
 
 Note that the ``Content``, ``SectionPrefix`` and ``PageContent`` parameters are
 mutually exclusive (and that is their order of precedence).
@@ -701,6 +704,8 @@ ref file.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 5.4     | Added the ``SectionType`` parameter                              |
++---------+------------------------------------------------------------------+
 | 5.3     | Added the ``SectionPrefix`` parameter                            |
 +---------+------------------------------------------------------------------+
 | 3.5     | The ``JavaScript`` parameter specifies the JavaScript file(s) to |
