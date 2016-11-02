@@ -992,16 +992,67 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self._test_ctl(skool, exp_ctl)
 
-    def test_replace_directive(self):
+    def test_equ_directives(self):
+        skool = '\n'.join((
+            '@equ=ATTRS=22528',
+            '; Routine',
+            'c32768 LD A,B',
+            '@equ=SEED=23670',
+            ' 32769 RET'
+        ))
+        exp_ctl = [
+            '@ 32768 equ=ATTRS=22528',
+            '@ 32768 equ=SEED=23670',
+            'c 32768 Routine',
+            'i 32770'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
+    def test_replace_directives(self):
         skool = '\n'.join((
             '@replace=/foo/bar',
             '; Routine',
-            'c32768 RET'
+            'c32768 LD A,B',
+            '@replace=/bar/baz',
+            ' 32769 RET'
         ))
         exp_ctl = [
             '@ 32768 replace=/foo/bar',
+            '@ 32768 replace=/bar/baz',
             'c 32768 Routine',
-            'i 32769'
+            'i 32770'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
+    def test_set_directives(self):
+        skool = '\n'.join((
+            '@set-crlf=1',
+            '; Routine',
+            'c32768 LD A,B',
+            '@set-tab=1',
+            ' 32769 RET'
+        ))
+        exp_ctl = [
+            '@ 32768 set-crlf=1',
+            '@ 32768 set-tab=1',
+            'c 32768 Routine',
+            'i 32770'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
+    def test_writer_directives(self):
+        skool = '\n'.join((
+            '@writer=foo.bar.Baz',
+            '; Routine',
+            'c32768 LD A,B',
+            '@writer=bar.baz.Qux',
+            ' 32769 RET'
+        ))
+        exp_ctl = [
+            '@ 32768 writer=foo.bar.Baz',
+            '@ 32768 writer=bar.baz.Qux',
+            'c 32768 Routine',
+            'i 32770'
         ]
         self._test_ctl(skool, exp_ctl)
 

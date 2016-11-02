@@ -35,7 +35,8 @@ AD_WRITER = 'writer'
 AD_ORG = 'org'
 AD_END = 'end'
 AD_REPLACE = 'replace'
-ENTRY_ASM_DIRECTIVES = (AD_START, AD_WRITER, AD_ORG, AD_END, AD_REPLACE)
+AD_EQU = 'equ'
+ENTRY_ASM_DIRECTIVES = (AD_START, AD_WRITER, AD_ORG, AD_END, AD_REPLACE, AD_EQU)
 AD_SET = 'set-'
 AD_IGNOREUA = 'ignoreua'
 
@@ -466,7 +467,8 @@ class SkoolParser:
                 address_comments.append((None, None))
                 if comments and map_entry:
                     map_entry.end_comment = join_comments(comments, True)
-                # Process an '@end' directive if one was found
+                # Process any entry-level directives found after the first
+                # instruction
                 if self.mode.entry_asm_directives and map_entry:
                     self.mode.apply_entry_asm_directives(map_entry)
                 comments[:] = []
@@ -513,9 +515,11 @@ class SkoolParser:
 
             ignores[:] = []
 
-        if comments and map_entry:
-            map_entry.end_comment = join_comments(comments, True)
-            map_entry.ignoreua[END] = len(ignores) > 0
+        if map_entry:
+            self.mode.apply_entry_asm_directives(map_entry)
+            if comments:
+                map_entry.end_comment = join_comments(comments, True)
+                map_entry.ignoreua[END] = len(ignores) > 0
 
         last_entry = None
         last_instruction = None
@@ -549,7 +553,7 @@ class SkoolParser:
                 self.mode.add_instruction_asm_directive(tag)
             elif not sep and tag == AD_IGNOREUA:
                 ignores.append(line_no)
-            elif sep and (tag in (AD_ORG, AD_WRITER, AD_REPLACE) or tag.startswith(AD_SET)):
+            elif sep and (tag in (AD_ORG, AD_WRITER, AD_REPLACE, AD_EQU) or tag.startswith(AD_SET)):
                 self.mode.add_entry_asm_directive(tag, value)
             elif not sep and tag in (AD_START, AD_END):
                 self.mode.add_entry_asm_directive(tag)
