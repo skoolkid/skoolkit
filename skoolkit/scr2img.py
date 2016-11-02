@@ -19,8 +19,12 @@
 import sys
 import os
 import argparse
+try:
+    from __builtin__ import open
+except ImportError:
+    from builtins import open # Import this so that it can be mocked
 
-from skoolkit import SkoolKitError, VERSION
+from skoolkit import SkoolKitError, read_bin_file, VERSION
 from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import get_snapshot
 from skoolkit.skoolhtml import Udg, Frame
@@ -63,8 +67,7 @@ def run(infile, outfile, options):
     h = min(24 - y, h)
 
     if infile[-4:].lower() == '.scr':
-        with open(infile, 'rb') as f:
-            scr = bytearray(f.read(6912))
+        scr = read_bin_file(infile, 6912)
         snapshot = [0] * 65536
         snapshot[16384:16384 + len(scr)] = scr
     else:

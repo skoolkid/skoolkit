@@ -1,8 +1,23 @@
 # -*- coding: utf-8 -*-
 import unittest
+try:
+    from mock import patch
+except ImportError:
+    from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, scr2img, VERSION
+from skoolkit.skoolhtml import Udg
+
+class MockImageWriter:
+    def __init__(self, options):
+        global image_writer
+        image_writer = self
+        self.options = options
+
+    def write_image(self, frames, img_file, img_format):
+        self.frames = frames
+        self.img_format = img_format
 
 class Scr2ImgTest(SkoolKitTestCase):
     def test_no_arguments(self):
@@ -24,6 +39,25 @@ class Scr2ImgTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_scr2img(infile)
         self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))
+
+    @patch.object(scr2img, 'ImageWriter', MockImageWriter)
+    @patch.object(scr2img, 'open')
+    def test_option_n(self, mock_open):
+        scr = [0] * 6144 + [120] * 768
+        exp_udgs = [[Udg(120, [0, 0, 0, 0, 0, 0, 0, 0])] * 32] * 24
+        scrfile = self.write_bin_file(scr, suffix='.scr')
+        exp_outfile = scrfile[:-3] + 'png'
+        for option in ('-n', '--no-animation'):
+            output, error = self.run_scr2img('{} {}'.format(option, scrfile))
+            self.assertEqual([], output)
+            self.assertEqual(error, '')
+            self.assertEqual({'GIFEnableAnimation': 0, 'PNGEnableAnimation': 0}, image_writer.options)
+            self.assertEqual(image_writer.img_format, 'png')
+            mock_open.assert_called_with(exp_outfile, 'wb')
+            self.assertEqual(len(image_writer.frames), 1)
+            frame = image_writer.frames[0]
+            self.assertEqual(frame.scale, 1)
+            self.assertEqual(exp_udgs, frame.udgs)
 
     def test_option_V(self):
         for option in ('-V', '--version'):
