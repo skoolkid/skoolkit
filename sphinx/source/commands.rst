@@ -677,13 +677,14 @@ and the border colour. By using one of the options shown above, it can list
 the BASIC program and variables (if present), show the contents of a range of
 addresses, or search the RAM for a sequence of byte values or a text string.
 
-+---------+----------------------------------+
-| Version | Changes                          |
-+=========+==================================+
-| 5.4     | Added the ``--variables`` option |
-+---------+----------------------------------+
-| 5.3     | New                              |
-+---------+----------------------------------+
++---------+---------------------------------------------------------------+
+| Version | Changes                                                       |
++=========+===============================================================+
+| 5.4     | Added the ``--variables`` option; UDGs in a BASIC program are |
+|         | shown as special symbols (e.g. ``{UDG-A}``)                   |
++---------+---------------------------------------------------------------+
+| 5.3     | New                                                           |
++---------+---------------------------------------------------------------+
 
 .. _snapmod.py:
 

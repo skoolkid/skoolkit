@@ -218,9 +218,9 @@ class BasicListerTest(SkoolKitTestCase):
             128                                # End of BASIC area
         ]
         exp_output = [
-            '  10 REM {0x90}{0x91}{0x92}{0x93}{0x94}{0x95}{0x96}',
-            '  20 REM {0x97}{0x98}{0x99}{0x9A}{0x9B}{0x9C}{0x9D}',
-            '  30 REM {0x9E}{0x9F}{0xA0}{0xA1}{0xA2}{0xA3}{0xA4}'
+            '  10 REM {UDG-A}{UDG-B}{UDG-C}{UDG-D}{UDG-E}{UDG-F}{UDG-G}',
+            '  20 REM {UDG-H}{UDG-I}{UDG-J}{UDG-K}{UDG-L}{UDG-M}{UDG-N}',
+            '  30 REM {UDG-O}{UDG-P}{UDG-Q}{UDG-R}{UDG-S}{UDG-T}{UDG-U}'
         ]
         self._test_basic(basic, exp_output)
 

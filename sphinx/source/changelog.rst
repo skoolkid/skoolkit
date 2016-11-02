@@ -18,6 +18,8 @@ Changelog
   routines and data blocks to a single page)
 * Added the ``--variables`` option to :ref:`snapinfo.py` (for showing the
   contents of the variables area)
+* :ref:`snapinfo.py` now shows special symbols for UDGs in a BASIC program
+  (e.g. ``{UDG-A}``)
 
 5.3 (2016-09-05)
 ----------------

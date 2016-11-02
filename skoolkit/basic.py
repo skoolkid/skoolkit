@@ -156,6 +156,8 @@ class TextReader:
             return '©'
         if 32 <= code <= 126:
             return chr(code)
+        if 144 <= code <= 164:
+            return '{{UDG-{}}}'.format(chr(code - 79))
         return '{{0x{:02X}}}'.format(code)
 
     def _get_token(self, code):
