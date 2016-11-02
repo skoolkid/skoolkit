@@ -616,6 +616,16 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    def test_option_1(self):
+        skoolfile = self.write_text_file(suffix='.skool')
+        for option in ('-1', '--asm-one-page'):
+            output, error = self.run_skool2html('{} {}'.format(option, skoolfile))
+            self.assertEqual(error, '')
+            self.assertEqual(html_writer.asm_single_page_template, 'AsmAllInOne')
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_option_S(self):
         resource_dir = self.make_directory()
         css_fname = 'foo.css'

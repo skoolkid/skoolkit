@@ -14,6 +14,8 @@ Changelog
 * Added the ``SectionType`` parameter to the :ref:`page` section (for
   specifying how to parse and render the ref file sections from which a box
   page is built)
+* Added the ``--asm-one-page`` option to :ref:`skool2html.py` (for writing all
+  routines and data blocks to a single page)
 * Added the ``--variables`` option to :ref:`snapinfo.py` (for showing the
   contents of the variables area)
 

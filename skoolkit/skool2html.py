@@ -343,9 +343,11 @@ def main(args):
     )
     parser.add_argument('infiles', help=argparse.SUPPRESS, nargs='*')
     group = parser.add_argument_group('Options')
+    group.add_argument('-1', '--asm-one-page', dest='asm_one_page', action='store_true',
+                       help="Write all routines and data blocks to a single page")
     group.add_argument('-a', '--asm-labels', dest='asm_labels', action='store_true',
                        help="Use ASM labels")
-    group.add_argument('-c', '--config', dest='config_specs', metavar='S/L', action='append',
+    group.add_argument('-c', '--config', dest='config_specs', metavar='S/L', action='append', default=[],
                        help="Add the line 'L' to the ref file section 'S'; this\n"
                             "option may be used multiple times")
     group.add_argument('-C', '--create-labels', dest='create_labels', action='store_true',
@@ -413,7 +415,8 @@ def main(args):
     if unknown_args or not namespace.infiles:
         parser.exit(2, parser.format_help())
     verbose, show_timings = namespace.verbose, namespace.show_timings
-    namespace.config_specs = namespace.config_specs or []
+    if namespace.asm_one_page:
+        namespace.config_specs.append('Game/AsmSinglePageTemplate=AsmAllInOne')
     if namespace.writer:
         namespace.config_specs.append('Config/HtmlWriterClass={}'.format(namespace.writer))
     if namespace.pages:

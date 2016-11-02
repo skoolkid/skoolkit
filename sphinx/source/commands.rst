@@ -369,6 +369,7 @@ list::
   for standard input.
 
   Options:
+    -1, --asm-one-page    Write all routines and data blocks to a single page
     -a, --asm-labels      Use ASM labels
     -c S/L, --config S/L  Add the line 'L' to the ref file section 'S'; this
                           option may be used multiple times
@@ -449,6 +450,8 @@ will use the following CSS files, if they exist, in the order listed:
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 5.4     | Added the ``--asm-one-page`` option                              |
++---------+------------------------------------------------------------------+
 | 5.0     | The ``--theme`` option also looks for a CSS file whose base name |
 |         | matches the theme name                                           |
 +---------+------------------------------------------------------------------+
