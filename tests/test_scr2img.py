@@ -80,6 +80,15 @@ class Scr2ImgTest(SkoolKitTestCase):
         for option in ('-n', '--no-animation'):
             self._test_scr2img(mock_open, option, scr, exp_udgs, iw_options=exp_iw_options)
 
+    @patch.object(scr2img, 'ImageWriter', MockImageWriter)
+    @patch.object(scr2img, 'open')
+    def test_option_s(self, mock_open):
+        scr = [0] * 6144 + [1] * 768
+        exp_udgs = [[Udg(1, [0] * 8)] * 32] * 24
+        for option, scale in (('-s ', 2), ('--scale', 3)):
+            args = '{} {}'.format(option, scale)
+            self._test_scr2img(mock_open, args, scr, exp_udgs, scale)
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_scr2img(option, err_lines=True, catch_exit=0)
