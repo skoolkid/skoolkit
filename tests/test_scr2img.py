@@ -20,6 +20,27 @@ class MockImageWriter:
         self.img_format = img_format
 
 class Scr2ImgTest(SkoolKitTestCase):
+    def _test_scr2img(self, mock_open, options, scr, udgs, scale=1, outfile=None, iw_options=None):
+        scrfile = self.write_bin_file(scr, suffix='.scr')
+        args = '{} {}'.format(options, scrfile)
+        if outfile:
+            exp_outfile = outfile
+            img_format = outfile[:-3]
+            args += ' {}'.format(outfile)
+        else:
+            img_format = 'png'
+            exp_outfile = scrfile[:-3] + img_format
+        output, error = self.run_scr2img(args)
+        self.assertEqual([], output)
+        self.assertEqual(error, '')
+        self.assertEqual(iw_options or {}, image_writer.options)
+        self.assertEqual(image_writer.img_format, img_format)
+        mock_open.assert_called_with(exp_outfile, 'wb')
+        self.assertEqual(len(image_writer.frames), 1)
+        frame = image_writer.frames[0]
+        self.assertEqual(frame.scale, scale)
+        self.assertEqual(udgs, frame.udgs)
+
     def test_no_arguments(self):
         output, error = self.run_scr2img(catch_exit=2)
         self.assertEqual(len(output), 0)
@@ -42,22 +63,22 @@ class Scr2ImgTest(SkoolKitTestCase):
 
     @patch.object(scr2img, 'ImageWriter', MockImageWriter)
     @patch.object(scr2img, 'open')
+    def test_option_i(self, mock_open):
+        scr = [85] * 6144 + [135, 7] * 384
+        udg1 = Udg(7, [170] * 8) # Inverted
+        udg2 = Udg(7, [85] * 8)  # Unchanged
+        exp_udgs = [[udg1, udg2] * 16] * 24
+        for option in ('-i', '--invert'):
+            self._test_scr2img(mock_open, option, scr, exp_udgs)
+
+    @patch.object(scr2img, 'ImageWriter', MockImageWriter)
+    @patch.object(scr2img, 'open')
     def test_option_n(self, mock_open):
-        scr = [0] * 6144 + [120] * 768
-        exp_udgs = [[Udg(120, [0, 0, 0, 0, 0, 0, 0, 0])] * 32] * 24
-        scrfile = self.write_bin_file(scr, suffix='.scr')
-        exp_outfile = scrfile[:-3] + 'png'
+        scr = [0] * 6144 + [248] * 768
+        exp_udgs = [[Udg(248, [0, 0, 0, 0, 0, 0, 0, 0])] * 32] * 24
+        exp_iw_options = {'GIFEnableAnimation': 0, 'PNGEnableAnimation': 0}
         for option in ('-n', '--no-animation'):
-            output, error = self.run_scr2img('{} {}'.format(option, scrfile))
-            self.assertEqual([], output)
-            self.assertEqual(error, '')
-            self.assertEqual({'GIFEnableAnimation': 0, 'PNGEnableAnimation': 0}, image_writer.options)
-            self.assertEqual(image_writer.img_format, 'png')
-            mock_open.assert_called_with(exp_outfile, 'wb')
-            self.assertEqual(len(image_writer.frames), 1)
-            frame = image_writer.frames[0]
-            self.assertEqual(frame.scale, 1)
-            self.assertEqual(exp_udgs, frame.udgs)
+            self._test_scr2img(mock_open, option, scr, exp_udgs, iw_options=exp_iw_options)
 
     def test_option_V(self):
         for option in ('-V', '--version'):

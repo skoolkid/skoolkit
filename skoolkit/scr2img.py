@@ -21,8 +21,9 @@ import os
 import argparse
 try:
     from __builtin__ import open
-except ImportError:
-    from builtins import open # Import this so that it can be mocked
+except ImportError: # pragma: no cover
+    # Import this so that it can be mocked
+    from builtins import open # pragma: no cover
 
 from skoolkit import SkoolKitError, read_bin_file, VERSION
 from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATION
