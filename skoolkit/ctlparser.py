@@ -19,7 +19,7 @@
 import bisect
 
 from skoolkit import warn, get_int_param, open_file
-from skoolkit.skoolctl import (ENTRY_ASM_DIRECTIVES, AD_SET, AD_IGNOREUA,
+from skoolkit.skoolctl import (extract_entry_asm_directives, AD_IGNOREUA,
                                TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 from skoolkit.textutils import partition_unquoted, split_unquoted
 
@@ -89,8 +89,7 @@ class CtlParser:
         self._end_comments = {}
         self._lengths = {}
         self._multiline_comments = {}
-        self._entry_asm_directives = {}
-        self._instruction_asm_directives = {}
+        self._asm_directives = {}
         self._ignoreua_directives = {}
         self._loops = []
 
@@ -161,11 +160,8 @@ class CtlParser:
                         if text:
                             self._multiline_comments[start] = (address, text)
             elif asm_directive:
-                directive, address, value = asm_directive
-                if directive in ENTRY_ASM_DIRECTIVES or directive.startswith(AD_SET):
-                    self._entry_asm_directives.setdefault(address, []).append((directive, value))
-                else:
-                    self._instruction_asm_directives.setdefault(address, []).append((directive, value))
+                directive, address = asm_directive
+                self._asm_directives.setdefault(address, []).append(directive)
         f.close()
 
         self._terminate_multiline_comments()
@@ -225,15 +221,12 @@ class CtlParser:
             address = get_int_param(fields[0])
         except ValueError:
             raise CtlParserError("invalid ASM directive address")
-        try:
-            directive, value = [f.rstrip() for f in fields[1].split('=', 1)]
-        except ValueError:
-            directive, value = fields[1], None
+        directive = fields[1]
         comment_type = 'i'
         if directive.startswith(AD_IGNOREUA + ':'):
             directive, comment_type = directive.split(':', 1)
         if directive != AD_IGNOREUA:
-            return directive, address, value
+            return directive, address
         if comment_type not in COMMENT_TYPES:
             raise CtlParserError("invalid @ignoreua directive suffix: '{}'".format(comment_type))
         self._ignoreua_directives.setdefault(address, set()).add(comment_type)
@@ -284,7 +277,9 @@ class CtlParser:
         for i, address in enumerate(block_addresses[:-1]):
             block = Block(self._ctls[address], address)
             block.end = block_addresses[i + 1]
-            block.asm_directives = self._entry_asm_directives.get(address, ())
+            block.asm_directives = extract_entry_asm_directives(self._asm_directives.get(address, ()))
+            if self._asm_directives.get(address) == []:
+                del self._asm_directives[address]
             block.ignoreua_directives = tuple(self._ignoreua_directives.get(address, set()).intersection(ENTRY_COMMENT_TYPES))
             block.title = self._titles.get(address)
             block.description = self._descriptions.get(address, ())
@@ -306,7 +301,7 @@ class CtlParser:
             block.blocks[-1].end = block.end
 
         # Set sub-block attributes
-        asm_directives = tuple(self._instruction_asm_directives.items())
+        asm_directives = tuple(self._asm_directives.items())
         for block in blocks:
             for sub_block in block.blocks:
                 sub_address = sub_block.start

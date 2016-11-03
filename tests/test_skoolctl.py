@@ -248,7 +248,7 @@ b 49193 ASM block directives
   49193,1,1
 s 49194 Zero block
   49194,384,128
-@ 49194 end
+@ 49578 end
 b 49578 Complex DEFB statements
   49578,20,3:T5:2,T7:3
 t 49598 Complex DEFM statements
@@ -340,7 +340,7 @@ b $C029 ASM block directives
   $C029,1,1
 s $C02A Zero block
   $C02A,384,128
-@ $C02A end
+@ $C1AA end
 b $C1AA Complex DEFB statements
   $C1AA,20,3:T5:2,T7:3
 t $C1BE Complex DEFM statements
@@ -992,6 +992,27 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self._test_ctl(skool, exp_ctl)
 
+    def test_end_directives(self):
+        skool = '\n'.join((
+            '; Routine',
+            'c32768 LD A,B',
+            '@end',
+            ' 32769 RET',
+            '@end',
+            '',
+            '; Another routine',
+            'c32770 RET',
+            '@end' # Not preserved (appears after last instruction)
+        ))
+        exp_ctl = [
+            'c 32768 Routine',
+            '@ 32769 end',
+            '@ 32770 end',
+            'c 32770 Another routine',
+            'i 32771'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
     def test_equ_directives(self):
         skool = '\n'.join((
             '@equ=ATTRS=22528',
@@ -1002,8 +1023,24 @@ class CtlWriterTest(SkoolKitTestCase):
         ))
         exp_ctl = [
             '@ 32768 equ=ATTRS=22528',
-            '@ 32768 equ=SEED=23670',
             'c 32768 Routine',
+            '@ 32769 equ=SEED=23670',
+            'i 32770'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
+    def test_org_directives(self):
+        skool = '\n'.join((
+            '@org=32768',
+            '; Routine',
+            'c32768 LD A,B',
+            '@org=32769',
+            ' 32769 RET'
+        ))
+        exp_ctl = [
+            '@ 32768 org=32768',
+            'c 32768 Routine',
+            '@ 32769 org=32769',
             'i 32770'
         ]
         self._test_ctl(skool, exp_ctl)
@@ -1018,8 +1055,8 @@ class CtlWriterTest(SkoolKitTestCase):
         ))
         exp_ctl = [
             '@ 32768 replace=/foo/bar',
-            '@ 32768 replace=/bar/baz',
             'c 32768 Routine',
+            '@ 32769 replace=/bar/baz',
             'i 32770'
         ]
         self._test_ctl(skool, exp_ctl)
@@ -1034,8 +1071,24 @@ class CtlWriterTest(SkoolKitTestCase):
         ))
         exp_ctl = [
             '@ 32768 set-crlf=1',
-            '@ 32768 set-tab=1',
             'c 32768 Routine',
+            '@ 32769 set-tab=1',
+            'i 32770'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
+    def test_start_directives(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine',
+            'c32768 LD A,B',
+            '@start',
+            ' 32769 RET'
+        ))
+        exp_ctl = [
+            '@ 32768 start',
+            'c 32768 Routine',
+            '@ 32769 start',
             'i 32770'
         ]
         self._test_ctl(skool, exp_ctl)
@@ -1050,9 +1103,28 @@ class CtlWriterTest(SkoolKitTestCase):
         ))
         exp_ctl = [
             '@ 32768 writer=foo.bar.Baz',
-            '@ 32768 writer=bar.baz.Qux',
             'c 32768 Routine',
+            '@ 32769 writer=bar.baz.Qux',
             'i 32770'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
+    def test_order_of_entry_asm_directives_is_preserved(self):
+        skool = '\n'.join((
+            '@start',
+            '@equ=ATTRS=22528',
+            '@replace=/foo/bar',
+            '@replace=/baz/qux',
+            '; Routine',
+            'c49152 RET           ;'
+        ))
+        exp_ctl = [
+            '@ 49152 start',
+            '@ 49152 equ=ATTRS=22528',
+            '@ 49152 replace=/foo/bar',
+            '@ 49152 replace=/baz/qux',
+            'c 49152 Routine',
+            'i 49153'
         ]
         self._test_ctl(skool, exp_ctl)
 

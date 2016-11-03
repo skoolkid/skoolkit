@@ -23,7 +23,7 @@ from skoolkit import SkoolKitError, warn, write_line, wrap, parse_int, get_addre
 from skoolkit.ctlparser import CtlParser
 from skoolkit.disassembler import Disassembler
 from skoolkit.skoolasm import UDGTABLE_MARKER
-from skoolkit.skoolctl import (AD_START, AD_ORG, AD_END, AD_IGNOREUA,
+from skoolkit.skoolctl import (AD_START, AD_ORG, AD_IGNOREUA,
                                TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
 from skoolkit.skoolparser import get_address, TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER
 
@@ -689,8 +689,8 @@ class Disassembly:
 
     def contains_entry_asm_directive(self, asm_dir):
         for entry in self.entries:
-            for directive, value in entry.asm_directives:
-                if directive == asm_dir:
+            for directive in entry.asm_directives:
+                if directive == asm_dir or directive.startswith(asm_dir + '='):
                     return True
 
     def _calculate_references(self):
@@ -725,23 +725,18 @@ class SkoolWriter:
 
     def write_skool(self, write_refs, text):
         if not self.disassembly.contains_entry_asm_directive(AD_START):
-            self.write_asm_directive(AD_START)
+            self.write_asm_directives(AD_START)
             if not self.disassembly.contains_entry_asm_directive(AD_ORG):
-                self.write_asm_directive(AD_ORG, self.address_str(self.disassembly.org, False))
+                self.write_asm_directives('{}={}'.format(AD_ORG, self.address_str(self.disassembly.org, False)))
         for entry_index, entry in enumerate(self.disassembly.entries):
             if entry_index:
                 write_line('')
             self._write_entry(entry, write_refs, text)
 
     def _write_entry(self, entry, write_refs, show_text):
-        has_end_directive = False
-        for directive, value in entry.asm_directives:
-            if directive == AD_END:
-                has_end_directive = True
-            else:
-                self.write_asm_directive(directive, value)
+        self.write_asm_directives(*entry.asm_directives)
         if entry.has_ignoreua_directive(TITLE):
-            self.write_asm_directive(AD_IGNOREUA)
+            self.write_asm_directives(AD_IGNOREUA)
 
         if entry.ctl == 'i' and entry.blocks[-1].end >= 65536 and not entry.title and all([b.ctl == 'i' for b in entry.blocks]):
             return
@@ -763,10 +758,8 @@ class SkoolWriter:
         self._write_body(entry, wrote_desc, write_refs, show_text)
 
         if entry.has_ignoreua_directive(END):
-            self.write_asm_directive(AD_IGNOREUA)
+            self.write_asm_directives(AD_IGNOREUA)
         self.write_paragraphs(entry.end_comment)
-        if has_end_directive:
-            self.write_asm_directive(AD_END)
 
     def _write_entry_description(self, entry, write_refs):
         wrote_desc = False
@@ -776,7 +769,7 @@ class SkoolWriter:
             if referrers and (write_refs == 1 or not entry.description):
                 self.write_comment('')
                 if ignoreua_d:
-                    self.write_asm_directive(AD_IGNOREUA)
+                    self.write_asm_directives(AD_IGNOREUA)
                 self.write_referrers(REFS_PREFIX, referrers)
                 wrote_desc = True
         if entry.description:
@@ -785,7 +778,7 @@ class SkoolWriter:
             else:
                 self.write_comment('')
                 if ignoreua_d:
-                    self.write_asm_directive(AD_IGNOREUA)
+                    self.write_asm_directives(AD_IGNOREUA)
             self.write_paragraphs(entry.description)
             wrote_desc = True
         return wrote_desc
@@ -793,7 +786,7 @@ class SkoolWriter:
     def _write_registers(self, entry):
         self.write_comment('')
         if entry.has_ignoreua_directive(REGISTERS):
-            self.write_asm_directive(AD_IGNOREUA)
+            self.write_asm_directives(AD_IGNOREUA)
         max_indent = max([reg.find(':') for reg, desc in entry.registers])
         for reg, desc in entry.registers:
             reg = reg.rjust(max_indent + len(reg) - reg.find(':'))
@@ -843,7 +836,7 @@ class SkoolWriter:
                 referrers = block.instructions[0].referrers
                 if referrers and (write_refs == 1 or not block.header):
                     if ignoreua_m:
-                        self.write_asm_directive(AD_IGNOREUA)
+                        self.write_asm_directives(AD_IGNOREUA)
                     self.write_referrers(EREFS_PREFIX, referrers)
                     begun_header = True
             if block.header:
@@ -856,7 +849,7 @@ class SkoolWriter:
                 if begun_header:
                     self._write_paragraph_separator()
                 elif ignoreua_m:
-                    self.write_asm_directive(AD_IGNOREUA)
+                    self.write_asm_directives(AD_IGNOREUA)
                 self.write_paragraphs(block.header)
             comment_width = max(self.comment_width - line_width, MIN_INSTRUCTION_COMMENT_WIDTH)
             comment_lines = self._format_block_comment(block, comment_width)
@@ -880,10 +873,9 @@ class SkoolWriter:
                 comment = ''
             if index > 0 and entry.ctl == 'c' and ctl == '*' and write_refs > -1:
                 self.write_referrers(EREFS_PREFIX, instruction.referrers)
-            for directive, value in instruction.asm_directives:
-                self.write_asm_directive(directive, value)
+            self.write_asm_directives(*instruction.asm_directives)
             if block.has_ignoreua_directive(instruction.address, INSTRUCTION):
-                self.write_asm_directive(AD_IGNOREUA)
+                self.write_asm_directives(AD_IGNOREUA)
             if entry.ctl == 'c' or comment:
                 write_line(('{}{} {} ; {}'.format(ctl, self.address_str(address), operation.ljust(op_width), comment)).rstrip())
             else:
@@ -920,12 +912,9 @@ class SkoolWriter:
             suffix = '#R{}'.format(self.address_str(referrers[-1].address, False))
             self.write_comment('{0}{1}{2}.'.format(prefix, infix, suffix))
 
-    def write_asm_directive(self, directive, value=None):
-        if value is None:
-            suffix = ''
-        else:
-            suffix = '={0}'.format(value)
-        write_line('@{}{}'.format(directive, suffix))
+    def write_asm_directives(self, *directives):
+        for directive in directives:
+            write_line('@' + directive)
 
     def to_ascii(self, data):
         chars = ['[']

@@ -443,19 +443,19 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
         exp_entry_asm_directives = {
-            30000: [('start', None)],
-            30100: (),
-            30200: (),
-            30300: (),
-            30400: (),
-            30500: (),
-            30600: (),
-            30700: ()
+            30000: ['start'],
+            30100: [],
+            30200: [],
+            30300: [],
+            30400: [],
+            30500: [],
+            30600: [],
+            30700: []
         }
         self._check_entry_asm_directives(exp_entry_asm_directives, blocks)
 
         exp_instruction_asm_directives = {
-            30101: [('label', 'LOOP')]
+            30101: ['label=LOOP']
         }
         self._check_instruction_asm_directives(exp_instruction_asm_directives, blocks)
 
@@ -533,7 +533,7 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
-        exp_entry_asm_directives = {30700: ()}
+        exp_entry_asm_directives = {30700: []}
         self._check_entry_asm_directives(exp_entry_asm_directives, blocks)
 
         self._check_instruction_asm_directives({}, blocks)
@@ -635,13 +635,13 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
         exp_entry_asm_directives = {
-            30000: [('start', None)],
-            30100: ()
+            30000: ['start'],
+            30100: []
         }
         self._check_entry_asm_directives(exp_entry_asm_directives, blocks)
 
         exp_instruction_asm_directives = {
-            30101: [('label', 'LOOP')]
+            30101: ['label=LOOP']
         }
         self._check_instruction_asm_directives(exp_instruction_asm_directives, blocks)
 
@@ -717,13 +717,13 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_multiline_comments(exp_multiline_comments, blocks)
 
         exp_entry_asm_directives = {
-            30100: (),
-            30200: ()
+            30100: [],
+            30200: []
         }
         self._check_entry_asm_directives(exp_entry_asm_directives, blocks)
 
         exp_instruction_asm_directives = {
-            30101: [('label', 'LOOP')]
+            30101: ['label=LOOP']
         }
         self._check_instruction_asm_directives(exp_instruction_asm_directives, blocks)
 
@@ -1099,10 +1099,10 @@ class CtlParserTest(SkoolKitTestCase):
         self.assertEqual(['This end comment should not be repeated'], block.end_comment)
 
         # Check entry-level ASM directives
-        self.assertEqual([('start', None), ('org', '30000')], block.asm_directives)
+        self.assertEqual(['start', 'org=30000'], block.asm_directives)
 
         # Check instruction-level ASM directives
-        exp_directives = {start + 20: [('label', 'END')]}
+        exp_directives = {start + 20: ['label=END']}
         self._check_instruction_asm_directives(exp_directives, blocks)
 
     def test_loop_including_entries(self):
@@ -1185,12 +1185,12 @@ class CtlParserTest(SkoolKitTestCase):
         self._check_end_comments(exp_end_comments, blocks)
 
         # Check entry-level ASM directives
-        self.assertEqual([('start', None), ('org', '40000')], blocks[0].asm_directives)
+        self.assertEqual(['start', 'org=40000'], blocks[0].asm_directives)
         for block in blocks[1:]:
-            self.assertEqual((), block.asm_directives)
+            self.assertEqual([], block.asm_directives)
 
         # Check instruction-level ASM directives
-        exp_directives = {start + 20: [('label', 'END')]}
+        exp_directives = {start + 20: ['label=END']}
         self._check_instruction_asm_directives(exp_directives, blocks)
 
     def test_loop_crossing_64k_boundary(self):

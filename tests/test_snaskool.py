@@ -114,7 +114,7 @@ R 32768 A Some value
 R 32768 B Some other value
   32768,2 This is an instruction-level comment that spans two instructions and is too long to fit on two lines, so extends to three
 E 32768 Routine end comment.
-@ 32768 end
+@ 32770 end
 c 32770 Routine with registers but no description
 R 32770 HL Some value
 R 32770 BC Some other value
@@ -151,8 +151,8 @@ c32768 XOR A         ; {This is an instruction-level comment that spans two
  32769 RET           ; instructions and is too long to fit on two lines, so
                      ; extends to three}
 ; Routine end comment.
-@end
 
+@end
 ; Routine with registers but no description
 ;
 ; .
@@ -245,11 +245,11 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(entry.registers, [['A', 'Some value'], ['B', 'Some other value']])
         self.assertEqual(entry.end_comment, ['Routine end comment.'])
         exp_asm_directives = [
-            ('start', None),
-            ('writer', 'skoolkit.game.GameAsmWriter'),
-            ('replace', '/#copy/#CHR(169)'),
-            ('org', '32768'),
-            ('end', None)
+            'start',
+            'writer=skoolkit.game.GameAsmWriter',
+            'replace=/#copy/#CHR(169)',
+            'org=32768',
+            'end'
         ]
         self.assertEqual(exp_asm_directives, entry.asm_directives)
 
@@ -271,7 +271,7 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual(instruction.entry, entry)
         self.assertEqual(instruction.ctl, 'c')
         self.assertEqual(instruction.comment, None)
-        self.assertEqual(instruction.asm_directives, [('label', 'START')])
+        self.assertEqual(['label=START'], instruction.asm_directives)
 
         # Entry #2 (32770)
         entry = entries[1]
@@ -1395,6 +1395,160 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer = self._get_writer([0], ctl)
         with self.assertRaisesRegexp(SkoolKitError, re.escape("No closing ' }' on row/item: { this item has...")):
             writer.write_skool(0, False)
+
+    def test_end_directives(self):
+        ctl = '\n'.join((
+            'c 00000 Routine at 0',
+            '@ 00001 end',
+            '@ 00002 end',
+            'c 00002 Routine at 2',
+            'i 00003'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            'c00000 XOR A         ;',
+            '@end',
+            ' 00001 RET           ;',
+            '',
+            '@end',
+            '; Routine at 2',
+            'c00002 RET           ;',
+        ]
+        snapshot = [175, 201, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_equ_directives(self):
+        ctl = '\n'.join((
+            '@ 00000 equ=ATTRS=22528',
+            'c 00000 Routine at 0',
+            '@ 00001 equ=UDG=23675',
+            'i 00002'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '@equ=ATTRS=22528',
+            '; Routine at 0',
+            'c00000 XOR A         ;',
+            '@equ=UDG=23675',
+            ' 00001 RET           ;'
+        ]
+        snapshot = [175, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_org_directives(self):
+        ctl = '\n'.join((
+            '@ 00000 org=0',
+            'c 00000 Routine at 0',
+            '@ 00001 org=1',
+            'i 00002'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            'c00000 XOR A         ;',
+            '@org=1',
+            ' 00001 RET           ;'
+        ]
+        snapshot = [175, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_replace_directives(self):
+        ctl = '\n'.join((
+            '@ 00000 replace=/foo/bar',
+            'c 00000 Routine at 0',
+            '@ 00001 replace=/baz/qux',
+            'i 00002'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '@replace=/foo/bar',
+            '; Routine at 0',
+            'c00000 XOR A         ;',
+            '@replace=/baz/qux',
+            ' 00001 RET           ;'
+        ]
+        snapshot = [175, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_set_directives(self):
+        ctl = '\n'.join((
+            '@ 00000 set-crlf=1',
+            'c 00000 Routine at 0',
+            '@ 00001 set-tab=1',
+            'i 00002'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '@set-crlf=1',
+            '; Routine at 0',
+            'c00000 XOR A         ;',
+            '@set-tab=1',
+            ' 00001 RET           ;'
+        ]
+        snapshot = [175, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_start_directives(self):
+        ctl = '\n'.join((
+            '@ 00000 start',
+            'c 00000 Routine at 0',
+            '@ 00001 start',
+            'i 00002'
+        ))
+        exp_skool = [
+            '@start',
+            '; Routine at 0',
+            'c00000 XOR A         ;',
+            '@start',
+            ' 00001 RET           ;'
+        ]
+        snapshot = [175, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_writer_directives(self):
+        ctl = '\n'.join((
+            '@ 00000 writer=x.y.z',
+            'c 00000 Routine at 0',
+            '@ 00001 writer=foo.bar.baz',
+            'i 00002'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '@writer=x.y.z',
+            '; Routine at 0',
+            'c00000 XOR A         ;',
+            '@writer=foo.bar.baz',
+            ' 00001 RET           ;'
+        ]
+        snapshot = [175, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_order_of_entry_asm_directives_is_preserved(self):
+        ctl = '\n'.join((
+            '@ 00000 start',
+            '@ 00000 equ=ATTRS=22528',
+            '@ 00000 replace=/foo/bar',
+            '@ 00000 replace=/baz/qux',
+            'c 00000 Routine at 0',
+            'i 00001'
+        ))
+        exp_skool = [
+            '@start',
+            '@equ=ATTRS=22528',
+            '@replace=/foo/bar',
+            '@replace=/baz/qux',
+            '; Routine at 0',
+            'c00000 RET           ;'
+        ]
+        snapshot = [201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_ignoreua_directives(self):
         ctl = '\n'.join((

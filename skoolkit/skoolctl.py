@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import re
+
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
 from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction, parse_address_comments,
                                   join_comments, parse_asm_block_directive, DIRECTIVES)
@@ -31,14 +33,12 @@ COMMENTS = 'c'
 
 # ASM directives
 AD_START = 'start'
-AD_WRITER = 'writer'
 AD_ORG = 'org'
-AD_END = 'end'
-AD_REPLACE = 'replace'
-AD_EQU = 'equ'
-ENTRY_ASM_DIRECTIVES = (AD_START, AD_WRITER, AD_ORG, AD_END, AD_REPLACE, AD_EQU)
-AD_SET = 'set-'
 AD_IGNOREUA = 'ignoreua'
+
+# An entry ASM directive is one that should be placed before the entry title
+# when it is associated with the first instruction in the entry
+RE_ENTRY_ASM_DIRECTIVE = re.compile("end$|equ=|org=|replace=|set-[-a-z]+=|start$|writer=")
 
 # Comment types to which the @ignoreua directive may be applied
 TITLE = 't'
@@ -204,6 +204,14 @@ def get_lengths(stmt_lengths):
             length_params.append('{0}*{1}'.format(length, mult))
     return ','.join(length_params)
 
+def extract_entry_asm_directives(asm_directives):
+    entry_asm_dirs = []
+    for directive in asm_directives[:]:
+        if RE_ENTRY_ASM_DIRECTIVE.match(directive):
+            entry_asm_dirs.append(directive)
+            asm_directives.remove(directive)
+    return entry_asm_dirs
+
 class CtlWriter:
     def __init__(self, skoolfile, elements='btdrmsc', write_hex=0, write_asm_dirs=True,
                  preserve_base=False, min_address=0, max_address=65536):
@@ -218,16 +226,12 @@ class CtlWriter:
         if self.parser.end_address < 65536:
             write_line('i {}'.format(self.addr_str(self.parser.end_address)))
 
-    def _write_asm_directive(self, directive, address, value=None):
-        if value is None:
-            suffix = ''
-        else:
-            suffix = '={0}'.format(value)
-        write_line('@ {} {}{}'.format(self.addr_str(address), directive, suffix))
+    def _write_asm_directive(self, directive, address):
+        write_line('@ {} {}'.format(self.addr_str(address), directive))
 
-    def _write_entry_asm_directive(self, entry, directive, value=None):
+    def _write_entry_asm_directive(self, entry, directive):
         if self.write_asm_dirs:
-            self._write_asm_directive(directive, entry.address, value)
+            self._write_asm_directive(directive, entry.address)
 
     def _write_entry_ignoreua_directive(self, entry, comment_type):
         if entry.ignoreua[comment_type] and self.write_asm_dirs:
@@ -236,16 +240,14 @@ class CtlWriter:
     def _write_instruction_asm_directives(self, instruction):
         if self.write_asm_dirs:
             address = instruction.address
-            for directive, value in instruction.asm_directives:
-                self._write_asm_directive(directive, address, value)
+            for directive in instruction.asm_directives:
+                self._write_asm_directive(directive, address)
             if instruction.ignoreua:
                 self._write_asm_directive('{}:{}'.format(AD_IGNOREUA, INSTRUCTION), address)
 
     def write_entry(self, entry):
-        if entry.start:
-            self._write_entry_asm_directive(entry, AD_START)
-        for directive, value in entry.asm_directives:
-            self._write_entry_asm_directive(entry, directive, value)
+        for directive in entry.asm_directives:
+            self._write_entry_asm_directive(entry, directive)
         address = self.addr_str(entry.address)
 
         self._write_entry_ignoreua_directive(entry, TITLE)
@@ -275,9 +277,6 @@ class CtlWriter:
         if BLOCK_COMMENTS in self.elements:
             for p in entry.end_comment:
                 write_line('E {0} {1}'.format(address, p))
-
-        if entry.end:
-            self._write_entry_asm_directive(entry, AD_END)
 
     def write_body(self, entry):
         if entry.ctl in 'gu':
@@ -467,10 +466,6 @@ class SkoolParser:
                 address_comments.append((None, None))
                 if comments and map_entry:
                     map_entry.end_comment = join_comments(comments, True)
-                # Process any entry-level directives found after the first
-                # instruction
-                if self.mode.entry_asm_directives and map_entry:
-                    self.mode.apply_entry_asm_directives(map_entry)
                 comments[:] = []
                 map_entry = None
                 continue
@@ -494,7 +489,7 @@ class SkoolParser:
                 start_comment, desc, details, registers = parse_comment_block(comments, ignores, self.mode)
                 map_entry = Entry(ctl, desc, details, registers, self.mode.entry_ignoreua)
                 instruction.mid_block_comment = start_comment
-                self.mode.apply_entry_asm_directives(map_entry)
+                map_entry.asm_directives = extract_entry_asm_directives(instruction.asm_directives)
                 self.memory_map.append(map_entry)
                 comments[:] = []
                 instruction.ignoremrcua = self.mode.ignoremrcua
@@ -515,11 +510,9 @@ class SkoolParser:
 
             ignores[:] = []
 
-        if map_entry:
-            self.mode.apply_entry_asm_directives(map_entry)
-            if comments:
-                map_entry.end_comment = join_comments(comments, True)
-                map_entry.ignoreua[END] = len(ignores) > 0
+        if comments and map_entry:
+            map_entry.end_comment = join_comments(comments, True)
+            map_entry.ignoreua[END] = len(ignores) > 0
 
         last_entry = None
         last_instruction = None
@@ -546,17 +539,10 @@ class SkoolParser:
             return
 
         if self.mode.include:
-            tag, sep, value = directive.rstrip().partition('=')
-            if sep and tag in ('rsub', 'ssub', 'isub', 'rfix', 'bfix', 'ofix', 'assemble', 'label', 'rem'):
-                self.mode.add_instruction_asm_directive(tag, value)
-            elif not sep and tag in ('nolabel', 'nowarn', 'keep'):
-                self.mode.add_instruction_asm_directive(tag)
-            elif not sep and tag == AD_IGNOREUA:
+            if directive == AD_IGNOREUA:
                 ignores.append(line_no)
-            elif sep and (tag in (AD_ORG, AD_WRITER, AD_REPLACE, AD_EQU) or tag.startswith(AD_SET)):
-                self.mode.add_entry_asm_directive(tag, value)
-            elif not sep and tag in (AD_START, AD_END):
-                self.mode.add_entry_asm_directive(tag)
+            else:
+                self.mode.add_asm_directive(directive)
 
     def _parse_instruction(self, line):
         ctl, addr_str, operation, comment = parse_instruction(line)
@@ -565,38 +551,24 @@ class SkoolParser:
         except ValueError:
             raise SkoolParsingError("Invalid address ({}):\n{}".format(addr_str, line.rstrip()))
         instruction = Instruction(ctl, address, operation, self.preserve_base)
-        self.mode.apply_instruction_asm_directives(instruction)
+        self.mode.apply_asm_directives(instruction)
         return instruction, comment
 
 class Mode:
     def __init__(self):
         self.include = True
-        self.instruction_asm_directives = []
-        self.entry_asm_directives = []
+        self.asm_directives = []
         self.entry_ignoreua = {}
         self.html = False
         self.lower = False
         self.upper = False
 
-    def add_instruction_asm_directive(self, directive, value=None):
-        self.instruction_asm_directives.append((directive, value))
+    def add_asm_directive(self, directive):
+        self.asm_directives.append(directive)
 
-    def add_entry_asm_directive(self, directive, value=None):
-        self.entry_asm_directives.append((directive, value))
-
-    def apply_instruction_asm_directives(self, instruction):
-        instruction.asm_directives = self.instruction_asm_directives
-        self.instruction_asm_directives = []
-
-    def apply_entry_asm_directives(self, entry):
-        for directive, value in self.entry_asm_directives:
-            if directive == AD_START:
-                entry.start = True
-            elif directive == AD_END:
-                entry.end = True
-            else:
-                entry.add_asm_directive(directive, value)
-        self.entry_asm_directives = []
+    def apply_asm_directives(self, instruction):
+        instruction.asm_directives = self.asm_directives
+        self.asm_directives = []
 
 class FakeInstruction:
     def __init__(self, address, comment):
@@ -648,9 +620,7 @@ class Entry:
         }
         self.instructions = []
         self.end_comment = ()
-        self.start = False
-        self.end = False
-        self.asm_directives = []
+        self.asm_directives = None
 
     def sort_instructions(self):
         self.instructions.sort(key=lambda i: i.address)
@@ -658,6 +628,3 @@ class Entry:
 
     def add_instruction(self, instruction):
         self.instructions.append(instruction)
-
-    def add_asm_directive(self, name, value):
-        self.asm_directives.append((name, value))

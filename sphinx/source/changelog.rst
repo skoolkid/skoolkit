@@ -20,6 +20,8 @@ Changelog
   contents of the variables area)
 * :ref:`snapinfo.py` now shows special symbols for UDGs in a BASIC program
   (e.g. ``{UDG-A}``)
+* Improved how :ref:`end`, :ref:`org`, :ref:`replace`, :ref:`set`, :ref:`start`
+  and :ref:`writer` directives are preserved and restored via a control file
 
 5.3 (2016-09-05)
 ----------------
