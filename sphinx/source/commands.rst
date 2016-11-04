@@ -142,6 +142,7 @@ To list the options supported by `scr2img.py`, run it with no arguments::
     -f, --flip            Flip the image horizontally
     -i, --invert          Invert video for cells that are flashing
     -n, --no-animation    Do not animate flashing cells
+    -o X,Y, --origin X,Y  Top-left crop at (X,Y)
     -p a[-b[-c]],v, --poke a[-b[-c]],v
                           POKE N,v for N in {a, a+c, a+2c..., b} (this option
                           may be used multiple times)
@@ -149,7 +150,6 @@ To list the options supported by `scr2img.py`, run it with no arguments::
                           Set the scale of the image (default=1)
     -V, --version         Show SkoolKit version number and exit
     -w W,H, --size W,H    Set width and height to (W,H)
-    -x X,Y, --origin X,Y  Set top-left to (X,Y)
 
 +---------+---------+
 | Version | Changes |

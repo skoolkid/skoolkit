@@ -106,6 +106,8 @@ def main(args):
                        help="Invert video for cells that are flashing")
     group.add_argument('-n', '--no-animation', dest='animated', action='store_false',
                        help="Do not animate flashing cells")
+    group.add_argument('-o', '--origin', metavar='X,Y', default='0,0',
+                       help="Top-left crop at (X,Y)")
     group.add_argument('-p', '--poke', dest='pokes', metavar='a[-b[-c]],v', action='append', default=[],
                        help='POKE N,v for N in {a, a+c, a+2c..., b} (this option may be used multiple times)')
     group.add_argument('-s', '--scale', type=int, default=1,
@@ -114,8 +116,6 @@ def main(args):
                        help='Show SkoolKit version number and exit')
     group.add_argument('-w', '--size', metavar='W,H', default='32,24',
                        help="Set width and height to (W,H)")
-    group.add_argument('-x', '--origin', metavar='X,Y', default='0,0',
-                       help="Set top-left to (X,Y)")
     namespace, unknown_args = parser.parse_known_args(args)
     infile = namespace.infile
     if unknown_args or infile is None:
