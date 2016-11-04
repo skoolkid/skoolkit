@@ -148,8 +148,8 @@ To list the options supported by `scr2img.py`, run it with no arguments::
                           may be used multiple times)
     -s SCALE, --scale SCALE
                           Set the scale of the image (default=1)
+    -S WxH, --size WxH    Crop to this width and height (in tiles)
     -V, --version         Show SkoolKit version number and exit
-    -w W,H, --size W,H    Set width and height to (W,H)
 
 +---------+---------+
 | Version | Changes |

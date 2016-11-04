@@ -63,7 +63,7 @@ def _write_image(udgs, img_file, scale, animated):
 
 def run(infile, outfile, options):
     x, y = [int(c) for c in options.origin.split(',', 1)]
-    w, h = [int(c) for c in options.size.split(',', 1)]
+    w, h = [int(c) for c in options.size.split('x', 1)]
     w = min(32 - x, w)
     h = min(24 - y, h)
 
@@ -112,10 +112,10 @@ def main(args):
                        help='POKE N,v for N in {a, a+c, a+2c..., b} (this option may be used multiple times)')
     group.add_argument('-s', '--scale', type=int, default=1,
                        help="Set the scale of the image (default=1)")
+    group.add_argument('-S', '--size', metavar='WxH', default='32,24',
+                       help="Crop to this width and height (in tiles)")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
-    group.add_argument('-w', '--size', metavar='W,H', default='32,24',
-                       help="Set width and height to (W,H)")
     namespace, unknown_args = parser.parse_known_args(args)
     infile = namespace.infile
     if unknown_args or infile is None:
