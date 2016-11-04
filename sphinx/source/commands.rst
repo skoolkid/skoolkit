@@ -139,17 +139,19 @@ To list the options supported by `scr2img.py`, run it with no arguments::
   INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.
 
   Options:
-    -f, --flip            Flip the image horizontally
-    -i, --invert          Invert video for cells that are flashing
-    -n, --no-animation    Do not animate flashing cells
-    -o X,Y, --origin X,Y  Top-left crop at (X,Y)
-    -p a[-b[-c]],v, --poke a[-b[-c]],v
-                          POKE N,v for N in {a, a+c, a+2c..., b} (this option
-                          may be used multiple times)
+    -f, --flip            Flip the image horizontally.
+    -i, --invert          Invert video for cells that are flashing.
+    -n, --no-animation    Do not animate flashing cells.
+    -o X,Y, --origin X,Y  Top-left crop at (X,Y).
+    -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
+                          POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
+                          with '^' to perform an XOR operation, or '+' to
+                          perform an ADD operation. This option may be used
+                          multiple times.
     -s SCALE, --scale SCALE
-                          Set the scale of the image (default=1)
-    -S WxH, --size WxH    Crop to this width and height (in tiles)
-    -V, --version         Show SkoolKit version number and exit
+                          Set the scale of the image (default=1).
+    -S WxH, --size WxH    Crop to this width and height (in tiles).
+    -V, --version         Show SkoolKit version number and exit.
 
 +---------+---------+
 | Version | Changes |

@@ -101,21 +101,23 @@ def main(args):
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('-f', '--flip', action='store_true',
-                       help="Flip the image horizontally")
+                       help="Flip the image horizontally.")
     group.add_argument('-i', '--invert', action='store_true',
-                       help="Invert video for cells that are flashing")
+                       help="Invert video for cells that are flashing.")
     group.add_argument('-n', '--no-animation', dest='animated', action='store_false',
-                       help="Do not animate flashing cells")
+                       help="Do not animate flashing cells.")
     group.add_argument('-o', '--origin', metavar='X,Y', default='0,0',
-                       help="Top-left crop at (X,Y)")
-    group.add_argument('-p', '--poke', dest='pokes', metavar='a[-b[-c]],v', action='append', default=[],
-                       help='POKE N,v for N in {a, a+c, a+2c..., b} (this option may be used multiple times)')
+                       help="Top-left crop at (X,Y).")
+    group.add_argument('-p', '--poke', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append', default=[],
+                       help="POKE N,v for N in {a, a+c, a+2c..., b}. "
+                            "Prefix 'v' with '^' to perform an XOR operation, or '+' to perform an ADD operation. "
+                            "This option may be used multiple times.")
     group.add_argument('-s', '--scale', type=int, default=1,
-                       help="Set the scale of the image (default=1)")
+                       help="Set the scale of the image (default=1).")
     group.add_argument('-S', '--size', metavar='WxH', default='32,24',
-                       help="Crop to this width and height (in tiles)")
+                       help="Crop to this width and height (in tiles).")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
-                       help='Show SkoolKit version number and exit')
+                       help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
     infile = namespace.infile
     if unknown_args or infile is None:
