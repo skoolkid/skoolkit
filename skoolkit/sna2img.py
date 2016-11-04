@@ -92,7 +92,7 @@ def run(infile, outfile, options):
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage='scr2img.py [options] INPUT [OUTPUT]',
+        usage='sna2img.py [options] INPUT [OUTPUT]',
         description="Convert a Spectrum screenshot (or a portion of it) into a PNG or GIF file. "
                     "INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.",
         add_help=False
@@ -114,7 +114,7 @@ def main(args):
                             "This option may be used multiple times.")
     group.add_argument('-s', '--scale', type=int, default=1,
                        help="Set the scale of the image (default=1).")
-    group.add_argument('-S', '--size', metavar='WxH', default='32,24',
+    group.add_argument('-S', '--size', metavar='WxH', default='32x24',
                        help="Crop to this width and height (in tiles).")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')

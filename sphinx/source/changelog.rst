@@ -3,7 +3,7 @@ Changelog
 
 5.4b1
 -----
-* Added the :ref:`scr2img.py` command (for converting the screenshot in a SCR
+* Added the :ref:`sna2img.py` command (for converting the screenshot in a SCR
   file or SNA/SZX/Z80 snapshot into a PNG or GIF file)
 * Added the :ref:`equ` ASM directive (which produces an EQU directive in the
   ASM output)

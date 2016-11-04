@@ -19,9 +19,9 @@
 
 import sys
 
-from skoolkit import scr2img, error, SkoolKitError
+from skoolkit import sna2img, error, SkoolKitError
 
 try:
-    scr2img.main(sys.argv[1:])
+    sna2img.main(sys.argv[1:])
 except SkoolKitError as e:
     error(e.args[0])

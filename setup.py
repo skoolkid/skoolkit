@@ -86,12 +86,12 @@ setup(
     scripts=[
         'bin2sna.py',
         'bin2tap.py',
-        'scr2img.py',
         'skool2asm.py',
         'skool2bin.py',
         'skool2ctl.py',
         'skool2html.py',
         'skool2sft.py',
+        'sna2img.py',
         'sna2skool.py',
         'snapinfo.py',
         'snapmod.py',

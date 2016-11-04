@@ -120,45 +120,6 @@ Spectrum is 23952 ($5D90).
 | 1.3.1   | New                                                             |
 +---------+-----------------------------------------------------------------+
 
-.. _scr2img.py:
-
-scr2img.py
-----------
-`scr2img.py` converts the screenshot in a SCR file or SNA/SZX/Z80 snapshot into
-a PNG or GIF file. For example::
-
-  $ scr2img.py game.scr
-
-will create a file named `game.png`.
-
-To list the options supported by `scr2img.py`, run it with no arguments::
-
-  usage: scr2img.py [options] INPUT [OUTPUT]
-
-  Convert a Spectrum screenshot (or a portion of it) into a PNG or GIF file.
-  INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.
-
-  Options:
-    -f, --flip            Flip the image horizontally.
-    -i, --invert          Invert video for cells that are flashing.
-    -n, --no-animation    Do not animate flashing cells.
-    -o X,Y, --origin X,Y  Top-left crop at (X,Y).
-    -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
-                          POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
-                          with '^' to perform an XOR operation, or '+' to
-                          perform an ADD operation. This option may be used
-                          multiple times.
-    -s SCALE, --scale SCALE
-                          Set the scale of the image (default=1).
-    -S WxH, --size WxH    Crop to this width and height (in tiles).
-    -V, --version         Show SkoolKit version number and exit.
-
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.4     | New     |
-+---------+---------+
-
 .. _skool2asm.py:
 
 skool2asm.py
@@ -533,6 +494,45 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 +---------+-------------------------------------------------------------+
 | 2.4     | New                                                         |
 +---------+-------------------------------------------------------------+
+
+.. _sna2img.py:
+
+sna2img.py
+----------
+`sna2img.py` converts the screenshot in a SCR file or SNA/SZX/Z80 snapshot into
+a PNG or GIF file. For example::
+
+  $ sna2img.py game.scr
+
+will create a file named `game.png`.
+
+To list the options supported by `sna2img.py`, run it with no arguments::
+
+  usage: sna2img.py [options] INPUT [OUTPUT]
+
+  Convert a Spectrum screenshot (or a portion of it) into a PNG or GIF file.
+  INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.
+
+  Options:
+    -f, --flip            Flip the image horizontally.
+    -i, --invert          Invert video for cells that are flashing.
+    -n, --no-animation    Do not animate flashing cells.
+    -o X,Y, --origin X,Y  Top-left crop at (X,Y).
+    -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
+                          POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
+                          with '^' to perform an XOR operation, or '+' to
+                          perform an ADD operation. This option may be used
+                          multiple times.
+    -s SCALE, --scale SCALE
+                          Set the scale of the image (default=1).
+    -S WxH, --size WxH    Crop to this width and height (in tiles).
+    -V, --version         Show SkoolKit version number and exit.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.4     | New     |
++---------+---------+
 
 .. _sna2skool.py:
 
