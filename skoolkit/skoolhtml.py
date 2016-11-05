@@ -519,17 +519,7 @@ class HtmlWriter:
         :param flip: 1 to flip horizontally, 2 to flip vertically, or 3 to flip
                      horizontally and vertically.
         """
-        flipped_udgs = set()
-        for row in udgs:
-            for udg in row:
-                if id(udg) not in flipped_udgs:
-                    udg.flip(flip)
-                    flipped_udgs.add(id(udg))
-        if flip & 1:
-            for row in udgs:
-                row.reverse()
-        if flip & 2:
-            udgs.reverse()
+        flip_udgs(udgs, flip)
 
     # API
     def rotate_udgs(self, udgs, rotate=1):
@@ -1431,8 +1421,7 @@ class HtmlWriter:
         return end, self.handle_image(frames, fname, cwd, alt)
 
     def _adjust_udgarray(self, udgs, flip, rotate):
-        if flip:
-            self.flip_udgs(udgs, flip)
+        self.flip_udgs(udgs, flip)
         if rotate:
             self.rotate_udgs(udgs, rotate)
         return udgs
@@ -1648,3 +1637,17 @@ class Frame(object):
     @property
     def tiles(self):
         return len(self.udgs[0]) * len(self.udgs)
+
+def flip_udgs(udgs, flip=1):
+    if flip:
+        flipped_udgs = set()
+        for row in udgs:
+            for udg in row:
+                if id(udg) not in flipped_udgs:
+                    udg.flip(flip)
+                    flipped_udgs.add(id(udg))
+        if flip & 1:
+            for row in udgs:
+                row.reverse()
+        if flip & 2:
+            udgs.reverse()

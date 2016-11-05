@@ -514,7 +514,8 @@ To list the options supported by `sna2img.py`, run it with no arguments::
   INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.
 
   Options:
-    -f, --flip            Flip the image horizontally.
+    -f N, --flip N        Flip the image horizontally (N=1), vertically (N=2),
+                          or both (N=3).
     -i, --invert          Invert video for cells that are flashing.
     -n, --no-animation    Do not animate flashing cells.
     -o X,Y, --origin X,Y  Top-left crop at (X,Y).

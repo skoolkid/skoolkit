@@ -28,26 +28,18 @@ except ImportError: # pragma: no cover
 from skoolkit import SkoolKitError, read_bin_file, VERSION
 from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import get_snapshot
-from skoolkit.skoolhtml import Udg, Frame
+from skoolkit.skoolhtml import Udg, Frame, flip_udgs
 from skoolkit.tap2sna import poke
 
-def _get_screen_udg(scr, row, col):
-    attr = scr[6144 + 32 * row + col]
-    address = 2048 * (row // 8) + 32 * (row % 8) + col
-    udg_bytes = [scr[address + 256 * n] for n in range(8)]
-    return Udg(attr, udg_bytes)
-
-def _get_screenshot(scr, x=0, y=0, w=32, h=24, flip=False):
+def _get_screenshot(scr, x=0, y=0, w=32, h=24):
     scr_udgs = []
-    for r in range(y, y + h):
+    for row in range(y, y + h):
         scr_udgs.append([])
-        for c in range(x, x + w):
-            udg = _get_screen_udg(scr, r, c)
-            if flip:
-                udg.flip()
-                scr_udgs[-1].insert(0, udg)
-            else:
-                scr_udgs[-1].append(udg)
+        for col in range(x, x + w):
+            attr = scr[6144 + 32 * row + col]
+            address = 2048 * (row // 8) + 32 * (row % 8) + col
+            udg_bytes = [scr[address + 256 * n] for n in range(8)]
+            scr_udgs[-1].append(Udg(attr, udg_bytes))
     return scr_udgs
 
 def _write_image(udgs, img_file, scale, animated):
@@ -77,17 +69,17 @@ def run(infile, outfile, options):
     for spec in options.pokes:
         poke(snapshot, spec)
 
-    scr = snapshot[16384:23296]
+    scrshot = _get_screenshot(snapshot[16384:23296], x, y, w, h)
 
     if options.invert:
-        for i in range(6144, 6912):
-            if scr[i] & 128:
-                df = 2048 * (i // 256 - 24) + i % 256
-                for j in range(df, df + 2048, 256):
-                    scr[j] ^= 255
-                scr[i] -= 128
+        for row in scrshot:
+            for udg in row:
+                if udg.attr & 128:
+                    udg.data = [b^255 for b in udg.data]
+                udg.attr &= 127
 
-    scrshot = _get_screenshot(scr, x, y, w, h, options.flip)
+    flip_udgs(scrshot, options.flip)
+
     _write_image(scrshot, outfile, options.scale, options.animated)
 
 def main(args):
@@ -100,8 +92,8 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-f', '--flip', action='store_true',
-                       help="Flip the image horizontally.")
+    group.add_argument('-f', '--flip', metavar='N', type=int, default=0,
+                       help="Flip the image horizontally (N=1), vertically (N=2), or both (N=3).")
     group.add_argument('-i', '--invert', action='store_true',
                        help="Invert video for cells that are flashing.")
     group.add_argument('-n', '--no-animation', dest='animated', action='store_false',
