@@ -529,30 +529,7 @@ class HtmlWriter:
         :param udgs: The array of UDGs.
         :param rotate: The number of rotations to perform.
         """
-        rotated_udgs = set()
-        for row in udgs:
-            for udg in row:
-                if id(udg) not in rotated_udgs:
-                    udg.rotate(rotate)
-                    rotated_udgs.add(id(udg))
-        if rotate & 3 == 1:
-            rotated = []
-            for i in range(len(udgs[0])):
-                rotated.append([])
-                for j in range(len(udgs)):
-                    rotated[-1].insert(0, udgs[j][i])
-            udgs[:] = rotated
-        elif rotate & 3 == 2:
-            udgs.reverse()
-            for row in udgs:
-                row.reverse()
-        elif rotate & 3 == 3:
-            rotated = []
-            for i in range(len(udgs[0])):
-                rotated.insert(0, [])
-                for j in range(len(udgs)):
-                    rotated[0].append(udgs[j][i])
-            udgs[:] = rotated
+        rotate_udgs(udgs, rotate)
 
     def get_font_udg_array(self, address, attr, message):
         udgs = []
@@ -1422,8 +1399,7 @@ class HtmlWriter:
 
     def _adjust_udgarray(self, udgs, flip, rotate):
         self.flip_udgs(udgs, flip)
-        if rotate:
-            self.rotate_udgs(udgs, rotate)
+        self.rotate_udgs(udgs, rotate)
         return udgs
 
     def expand_udgarray(self, text, index, cwd):
@@ -1651,3 +1627,30 @@ def flip_udgs(udgs, flip=1):
                 row.reverse()
         if flip & 2:
             udgs.reverse()
+
+def rotate_udgs(udgs, rotate=1):
+    if rotate:
+        rotated_udgs = set()
+        for row in udgs:
+            for udg in row:
+                if id(udg) not in rotated_udgs:
+                    udg.rotate(rotate)
+                    rotated_udgs.add(id(udg))
+        if rotate & 3 == 1:
+            rotated = []
+            for i in range(len(udgs[0])):
+                rotated.append([])
+                for j in range(len(udgs)):
+                    rotated[-1].insert(0, udgs[j][i])
+            udgs[:] = rotated
+        elif rotate & 3 == 2:
+            udgs.reverse()
+            for row in udgs:
+                row.reverse()
+        elif rotate & 3 == 3:
+            rotated = []
+            for i in range(len(udgs[0])):
+                rotated.insert(0, [])
+                for j in range(len(udgs)):
+                    rotated[0].append(udgs[j][i])
+            udgs[:] = rotated

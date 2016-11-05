@@ -524,6 +524,7 @@ To list the options supported by `sna2img.py`, run it with no arguments::
                           with '^' to perform an XOR operation, or '+' to
                           perform an ADD operation. This option may be used
                           multiple times.
+    -r N, --rotate N      Rotate the image 90*N degrees clockwise.
     -s SCALE, --scale SCALE
                           Set the scale of the image (default=1).
     -S WxH, --size WxH    Crop to this width and height (in tiles).

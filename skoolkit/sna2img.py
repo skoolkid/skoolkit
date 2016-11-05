@@ -28,7 +28,7 @@ except ImportError: # pragma: no cover
 from skoolkit import SkoolKitError, read_bin_file, VERSION
 from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import get_snapshot
-from skoolkit.skoolhtml import Udg, Frame, flip_udgs
+from skoolkit.skoolhtml import Udg, Frame, flip_udgs, rotate_udgs
 from skoolkit.tap2sna import poke
 
 def _get_screenshot(scr, x=0, y=0, w=32, h=24):
@@ -79,6 +79,7 @@ def run(infile, outfile, options):
                 udg.attr &= 127
 
     flip_udgs(scrshot, options.flip)
+    rotate_udgs(scrshot, options.rotate)
 
     _write_image(scrshot, outfile, options.scale, options.animated)
 
@@ -104,6 +105,8 @@ def main(args):
                        help="POKE N,v for N in {a, a+c, a+2c..., b}. "
                             "Prefix 'v' with '^' to perform an XOR operation, or '+' to perform an ADD operation. "
                             "This option may be used multiple times.")
+    group.add_argument('-r', '--rotate', metavar='N', type=int, default=0,
+                       help="Rotate the image 90*N degrees clockwise.")
     group.add_argument('-s', '--scale', type=int, default=1,
                        help="Set the scale of the image (default=1).")
     group.add_argument('-S', '--size', metavar='WxH', default='32x24',
