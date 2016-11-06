@@ -16,6 +16,7 @@ r24576 other
  24579
 
 @start
+@equ=ATTRS=22528
 @replace=/#copy/#CHR169
 @set-bullet=.
 @set-comment-width-min=13
@@ -153,6 +154,7 @@ r24576 other
  24579
 
 @start
+@equ=ATTRS=22528
 @replace=/#copy/#CHR169
 @set-bullet=.
 @set-comment-width-min=13
