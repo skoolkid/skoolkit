@@ -2560,13 +2560,27 @@ class SkoolParserTest(SkoolKitTestCase):
     def test_equ_directive_asm_mode(self):
         skool = '\n'.join((
             '@start',
+            '@equ=ZERO=0',
+            '@equ=PAGE=256',
             '@equ=DF=16384',
-            'c32768 LD HL,16384'
+            'c32768 LD HL,16384',
+            ' 32771 LD DE,$0000',
+            ' 32774 LD BC,16384+6912',
+            ' 32777 LD A,0',
+            ' 32779 DEFS 256'
         ))
+        exp_equs = [('ZERO', '0'), ('PAGE', '256'), ('DF', '16384')]
+        exp_instructions = (
+            (32768, 'LD HL,DF'),
+            (32771, 'LD DE,ZERO'),
+            (32774, 'LD BC,DF+6912'),
+            (32777, 'LD A,0'),        # Not applied to 8-bit operands
+            (32779, 'DEFS 256')       # Not applied to DEFS statements
+        )
         parser = self._get_parser(skool, asm_mode=1)
-        self.assertEqual([('DF', '16384')], parser.equs)
-        instruction = parser.get_instruction(32768)
-        self.assertEqual(instruction.operation, 'LD HL,DF')
+        self.assertEqual(exp_equs, parser.equs)
+        for address, exp_operation in exp_instructions:
+            self.assertEqual(parser.get_instruction(address).operation, exp_operation)
 
     def test_equ_directive_with_bad_value_is_recorded(self):
         skool = '\n'.join((
