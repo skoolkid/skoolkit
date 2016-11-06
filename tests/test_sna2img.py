@@ -41,6 +41,12 @@ class Sna2ImgTest(SkoolKitTestCase):
         self.assertEqual(frame.scale, scale)
         self.assertEqual(udgs, frame.udgs)
 
+    def _test_bad_spec(self, option, exp_error):
+        scrfile = self.write_bin_file(suffix='.scr')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_sna2img('{} {}'.format(option, scrfile))
+        self.assertEqual(cm.exception.args[0], exp_error)
+
     def test_no_arguments(self):
         output, error = self.run_sna2img(catch_exit=2)
         self.assertEqual(len(output), 0)
@@ -79,6 +85,72 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_iw_options = {'GIFEnableAnimation': 0, 'PNGEnableAnimation': 0}
         for option in ('-n', '--no-animation'):
             self._test_sna2img(mock_open, option, scr, exp_udgs, iw_options=exp_iw_options)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_p(self, mock_open):
+        scr = [0] * 6912
+        exp_udgs = [[Udg(0, [0] * 8)] * 32 for i in range(24)]
+        exp_udgs[0][0] = Udg(0, [255, 0, 0, 0, 0, 0, 0, 0])
+        for option in ('-p', '--poke'):
+            self._test_sna2img(mock_open, '{} 16384,255'.format(option), scr, exp_udgs)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_p_address_range(self, mock_open):
+        scr = [0] * 6912
+        exp_udgs = [[Udg(0, [0] * 8)] * 32 for i in range(24)]
+        exp_udgs[0][0].data[0] = 255
+        self._test_sna2img(mock_open, '-p 16384-16415,255', scr, exp_udgs)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_p_address_range_with_step(self, mock_open):
+        scr = [0] * 6912
+        exp_udgs = [[Udg(0, [0] * 8)] * 32 for i in range(24)]
+        exp_udgs[0][0] = Udg(0, [15] * 8)
+        self._test_sna2img(mock_open, '-p 16384-18176-256,15', scr, exp_udgs)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_p_hexadecimal_values(self, mock_open):
+        scr = [0] * 6912
+        exp_udgs = [[Udg(0, [0] * 8)] * 32 for i in range(24)]
+        exp_udgs[0][0] = Udg(0, [15] * 8)
+        self._test_sna2img(mock_open, '-p $4000-$4700-$100,$0f', scr, exp_udgs)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_p_with_add_operation(self, mock_open):
+        scr = [0] * 6912
+        exp_udgs = [[Udg(0, [0] * 8)] * 32 for i in range(24)]
+        exp_udgs[0][0].data[0] = 5
+        self._test_sna2img(mock_open, '-p 16384-16415,+5', scr, exp_udgs)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_p_with_xor_operation(self, mock_open):
+        scr = [255] * 6912
+        exp_udgs = [[Udg(255, [255] * 8)] * 32 for i in range(24)]
+        exp_udgs[0][0].data[0] = 240
+        self._test_sna2img(mock_open, '-p 16384-16415,^15', scr, exp_udgs)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_p_multiple(self, mock_open):
+        scr = [0] * 6912
+        exp_udgs = [[Udg(0, [0] * 8)] * 32 for i in range(24)]
+        exp_udgs[0][0] = Udg(0, [255, 0, 0, 0, 0, 0, 0, 0])
+        exp_udgs[0][1] = Udg(0, [170, 0, 0, 0, 0, 0, 0, 0])
+        self._test_sna2img(mock_open, '-p 16384,255 --poke 16385,170', scr, exp_udgs)
+
+    def test_option_p_invalid_values(self):
+        self._test_bad_spec('-p 1', 'Value missing in poke spec: 1')
+        self._test_bad_spec('-p q', 'Value missing in poke spec: q')
+        self._test_bad_spec('-p 1,x', 'Invalid value in poke spec: 1,x')
+        self._test_bad_spec('-p x,1', 'Invalid address range in poke spec: x,1')
+        self._test_bad_spec('-p 1-y,1', 'Invalid address range in poke spec: 1-y,1')
+        self._test_bad_spec('-p 1-3-z,1', 'Invalid address range in poke spec: 1-3-z,1')
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')
