@@ -5627,6 +5627,113 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
+    def test_write_page_with_section_prefix_as_list_items(self):
+        page_id = 'MyListItemsPage'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'SectionPrefix=Entry',
+            'SectionType=ListItems',
+            '[Entry:entry1:Entry 1]',
+            'Intro.',
+            '',
+            'Item 1',
+            '  Subitem 1A',
+            '  Subitem 1B',
+            'Item 2'
+        )).format(page_id)
+        exp_content = """
+            <ul class="contents">
+            <li><a href="#entry1">Entry 1</a></li>
+            </ul>
+            <div><span id="entry1"></span></div>
+            <div class="changelog changelog-1">
+            <div class="changelog-title">Entry 1</div>
+            <div class="changelog-desc">Intro.</div>
+            <ul class="changelog">
+            <li>Item 1
+            <ul class="changelog1">
+            <li>Subitem 1A</li>
+            <li>Subitem 1B</li>
+            </ul>
+            </li>
+            <li>Item 2</li>
+            </ul>
+            </div>
+        """
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        subs = {
+            'title': page_id,
+            'header': page_id,
+            'path': '',
+            'body_class': page_id,
+            'content': exp_content
+        }
+        self._assert_files_equal('{}.html'.format(page_id), subs)
+
+    def test_write_page_with_section_prefix_as_list_items_using_custom_subtemplates(self):
+        page_id = 'MyListItemsPage'
+        ref = '\n'.join((
+            '[Page:{}]',
+            'SectionPrefix=Entry',
+            'SectionType=ListItems',
+            '',
+            '[Entry:entry1:Entry 1]',
+            'Intro.',
+            '',
+            'Item 1',
+            '  Subitem 1A',
+            '  Subitem 1B',
+            'Item 2',
+            '',
+            '[Template:{}-entry]',
+            '<div>{t_anchor}</div>',
+            '<div class="entry entry-{num}">',
+            '<div class="entry-title">{title}</div>',
+            '<div class="entry-intro">{description}</div>',
+            '{t_changelog_item_list}',
+            '</div>',
+            '',
+            '[Template:{}-item_list]',
+            '<ul class="level{indent}">',
+            '{m_changelog_item}',
+            '</ul>',
+            '',
+            '[Template:{}-item]',
+            '<li>* {item}</li>'
+        )).replace('{}', page_id)
+        exp_content = """
+            <ul class="contents">
+            <li><a href="#entry1">Entry 1</a></li>
+            </ul>
+            <div><span id="entry1"></span></div>
+            <div class="entry entry-1">
+            <div class="entry-title">Entry 1</div>
+            <div class="entry-intro">Intro.</div>
+            <ul class="level">
+            <li>* Item 1
+            <ul class="level1">
+            <li>* Subitem 1A</li>
+            <li>* Subitem 1B</li>
+            </ul>
+            </li>
+            <li>* Item 2</li>
+            </ul>
+            </div>
+        """
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        subs = {
+            'title': page_id,
+            'header': page_id,
+            'path': '',
+            'body_class': page_id,
+            'content': exp_content
+        }
+        self._assert_files_equal('{}.html'.format(page_id), subs)
+
     def test_write_bugs(self):
         ref = '\n'.join((
             '[Bug:b1:Showstopper]',
