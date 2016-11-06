@@ -134,6 +134,11 @@ def _get_float(snapshot, i):
                      + snapshot[i + 4])
     return sign * mantissa * (2 ** exponent)
 
+def _unflatten(values, dimensions):
+    for d in reversed(dimensions[1:]):
+        values = [values[i:i + d] for i in range(0, len(values), d)]
+    return values
+
 class TextReader:
     def __init__(self):
         self.lspace = False
@@ -285,11 +290,12 @@ class VariableLister:
         data_length = get_word(self.snapshot, i + 1) - 1
         dimensions = self.snapshot[i + 3]
         i += 4
-        dims = [str(get_word(self.snapshot, c)) for c in range(i, i + 2 * dimensions, 2)]
+        dims = [get_word(self.snapshot, c) for c in range(i, i + 2 * dimensions, 2)]
+        dims_str = ','.join([str(d) for d in dims])
         i += 2 * dimensions
         data_length -= 2 * dimensions
-        values = [str(_get_number(self.snapshot, c)) for c in range(i, i + data_length, 5)]
-        line = '(Number array) {}({})=[{}]'.format(varname, ','.join(dims), ', '.join(values))
+        values = _unflatten([_get_number(self.snapshot, c) for c in range(i, i + data_length, 5)], dims)
+        line = '(Number array) {}({})={}'.format(varname, dims_str, values)
         return i + data_length, line
 
     def _get_long_num_var(self, i):
@@ -311,11 +317,12 @@ class VariableLister:
         data_length = get_word(self.snapshot, i + 1) - 1
         dimensions = self.snapshot[i + 3]
         i += 4
-        dims = [str(get_word(self.snapshot, c)) for c in range(i, i + 2 * dimensions, 2)]
+        dims = [get_word(self.snapshot, c) for c in range(i, i + 2 * dimensions, 2)]
+        dims_str = ','.join([str(d) for d in dims])
         i += 2 * dimensions
         data_length -= 2 * dimensions
-        values = [(self.text.get_chars(self.snapshot[c])) for c in range(i, i + data_length)]
-        line = '(Character array) {}$({})=["{}"]'.format(varname, ','.join(dims), '", "'.join(values))
+        values = _unflatten([self.text.get_chars(self.snapshot[c]) for c in range(i, i + data_length)], dims)
+        line = '(Character array) {}$({})={}'.format(varname, dims_str, values)
         return i + data_length, line
 
     def _get_control_var(self, i):

@@ -354,27 +354,46 @@ class VariableListerTest(SkoolKitTestCase):
             28, 0,                   # Length
             1,                       # 1 dimension
             5, 0,                    # Dimension 1, length 5
-            0, 0, 1, 0, 0,           # s(1) = 1
-            0, 0, 5, 0, 0,           # s(2) = 5
-            0, 255, 252, 255, 0,     # s(3) = -4
-            0, 0, 0, 5, 0,           # s(4) = 1280
-            0, 255, 0, 5, 0,         # s(5) = -64256
+            0, 0, 1, 0, 0,           # s(1)=1
+            0, 0, 5, 0, 0,           # s(2)=5
+            0, 255, 252, 255, 0,     # s(3)=-4
+            0, 0, 0, 5, 0,           # s(4)=1280
+            0, 255, 0, 5, 0,         # s(5)=-64256
             145,                     # Number array variable "q"
             35, 0,                   # Length
             2,                       # 2 dimensions
             2, 0,                    # Dimension 1, length 2
             3, 0,                    # Dimension 2, length 3
-            0, 0, 11, 0, 0,          # q(1,1) = 11
-            0, 0, 21, 0, 0,          # q(1,2) = 21
-            0, 0, 31, 0, 0,          # q(1,3) = 31
-            0, 0, 12, 0, 0,          # q(2,1) = 12
-            0, 0, 22, 0, 0,          # q(2,2) = 22
-            0, 0, 32, 0, 0,          # q(2,3) = 32
+            0, 0, 11, 0, 0,          # q(1,1)=11
+            0, 0, 21, 0, 0,          # q(1,2)=21
+            0, 0, 31, 0, 0,          # q(1,3)=31
+            0, 0, 12, 0, 0,          # q(2,1)=12
+            0, 0, 22, 0, 0,          # q(2,2)=22
+            0, 0, 32, 0, 0,          # q(2,3)=32
+            144,                     # Number array variable "p"
+            67, 0,                   # Length
+            3,                       # 3 dimensions
+            2, 0,                    # Dimension 1, length 2
+            3, 0,                    # Dimension 2, length 3
+            2, 0,                    # Dimension 3, length 2
+            0, 0, 1, 0, 0,           # p(1,1,1)=1
+            0, 0, 2, 0, 0,           # p(1,1,2)=2
+            0, 0, 3, 0, 0,           # p(1,2,1)=3
+            0, 0, 4, 0, 0,           # p(1,2,2)=4
+            0, 0, 5, 0, 0,           # p(1,3,1)=5
+            0, 0, 6, 0, 0,           # p(1,3,2)=6
+            0, 0, 7, 0, 0,           # p(2,1,1)=7
+            0, 0, 8, 0, 0,           # p(2,1,2)=8
+            0, 0, 9, 0, 0,           # p(2,2,1)=9
+            0, 0, 10, 0, 0,          # p(2,2,2)=10
+            0, 0, 11, 0, 0,          # p(2,3,1)=11
+            0, 0, 12, 0, 0,          # p(2,3,2)=12
             128                      # End of variables area
         ]
         exp_output = [
             '(Number array) s(5)=[1, 5, -4, 1280, -64256]',
-            '(Number array) q(2,3)=[11, 21, 31, 12, 22, 32]'
+            '(Number array) q(2,3)=[[11, 21, 31], [12, 22, 32]]',
+            '(Number array) p(2,3,2)=[[[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 10], [11, 12]]]'
         ]
         self._test_variables(variables, exp_output)
 
@@ -398,26 +417,45 @@ class VariableListerTest(SkoolKitTestCase):
             7, 0,  # Length
             1,     # 1 dimension
             4, 0,  # Dimension 1, length 4
-            97,    # d$(1) = "a"
-            98,    # d$(2) = "b"
-            120,   # d$(3) = "x"
-            122,   # d$(4) = "z"
+            97,    # d$(1)="a"
+            98,    # d$(2)="b"
+            120,   # d$(3)="x"
+            122,   # d$(4)="z"
             199,   # Character array variable "g$"
             11, 0, # Length
             2,     # 2 dimensions
             2, 0,  # Dimension 1, length 2
             3, 0,  # Dimension 2, length 3
-            49,    # g(1,1) = "1"
-            50,    # g(1,2) = "2"
-            51,    # g(1,3) = "3"
-            79,    # g(2,1) = "O"
-            84,    # g(2,2) = "T"
-            90,    # g(2,3) = "Z"
+            49,    # g(1,1)="1"
+            50,    # g(1,2)="2"
+            51,    # g(1,3)="3"
+            79,    # g(2,1)="O"
+            84,    # g(2,2)="T"
+            90,    # g(2,3)="Z"
+            200,   # Character array variable "h$"
+            19, 0, # Length
+            3,     # 3 dimensions
+            3, 0,  # Dimension 1, length 3
+            2, 0,  # Dimension 2, length 2
+            2, 0,  # Dimension 3, length 2
+            97,    # g(1,1,1)="a"
+            98,    # g(1,1,2)="b"
+            99,    # g(1,2,1)="c"
+            100,   # g(1,2,2)="d"
+            101,   # g(2,1,1)="e"
+            102,   # g(2,1,2)="f"
+            103,   # g(2,2,1)="g"
+            104,   # g(2,2,2)="h"
+            105,   # g(3,1,1)="i"
+            106,   # g(3,1,2)="j"
+            107,   # g(3,2,1)="k"
+            108,   # g(3,2,2)="l"
             128    # End of variables area
         ]
         exp_output = [
-            '(Character array) d$(4)=["a", "b", "x", "z"]',
-            '(Character array) g$(2,3)=["1", "2", "3", "O", "T", "Z"]'
+            "(Character array) d$(4)=['a', 'b', 'x', 'z']",
+            "(Character array) g$(2,3)=[['1', '2', '3'], ['O', 'T', 'Z']]",
+            "(Character array) h$(3,2,2)=[[['a', 'b'], ['c', 'd']], [['e', 'f'], ['g', 'h']], [['i', 'j'], ['k', 'l']]]"
         ]
         self._test_variables(variables, exp_output)
 
@@ -425,16 +463,16 @@ class VariableListerTest(SkoolKitTestCase):
         variables = [
             240,                 # FOR control variable "p"
             0, 0, 3, 0, 0,       # 3
-            0, 0, 7, 0, 0,       # limit = 7
-            0, 0, 2, 0, 0,       # step = 2
-            12, 0,               # line = 12
-            4,                   # statement = 4
+            0, 0, 7, 0, 0,       # limit=7
+            0, 0, 2, 0, 0,       # step=2
+            12, 0,               # line=12
+            4,                   # statement=4
             244,                 # FOR control variable "t"
             0, 255, 251, 255, 0, # -5
-            0, 255, 246, 255, 0, # limit = -10
-            0, 255, 251, 255, 0, # step = -5
-            95, 8,               # line = 2143
-            2,                   # statement = 2
+            0, 255, 246, 255, 0, # limit=-10
+            0, 255, 251, 255, 0, # step=-5
+            95, 8,               # line=2143
+            2,                   # statement=2
             128                  # End of variables area
         ]
         exp_output = [
@@ -485,17 +523,17 @@ class VariableListerTest(SkoolKitTestCase):
             172,111,110,103,111,110,229,                 # longone=255
             0, 0, 255, 0, 0,                             #
             195, 8, 0, 1, 5, 0,                          # dim c$(5)
-            119,                                         # c$(1)="w"
-            119,                                         # c$(2)="w"
-            119,                                         # c$(3)="w"
-            119,                                         # c$(4)="w"
-            119,                                         # c$(5)="w"
+            48,                                          # c$(1)="0"
+            49,                                          # c$(2)="1"
+            50,                                          # c$(3)="2"
+            51,                                          # c$(4)="3"
+            52,                                          # c$(5)="4"
             228,                                         # FOR control var "d"
             0, 0, 1, 0, 0,                               # 1
-            0, 0, 8, 0, 0,                               # limit = 8
-            0, 0, 1, 0, 0,                               # step = 1
-            4, 0,                                        # line = 4
-            7,                                           # statement = 7
+            0, 0, 8, 0, 0,                               # limit=8
+            0, 0, 1, 0, 0,                               # step=1
+            4, 0,                                        # line=4
+            7,                                           # statement=7
             101, 0, 0, 250, 255, 0,                      # e=65530
             0, 12, 3, 0, 243, 105, 13,                   # 12 NEXT i
             39, 7, 6, 0, 234, 116, 101, 115, 116, 13,    # 9991 REM test
@@ -518,10 +556,10 @@ class VariableListerTest(SkoolKitTestCase):
             120,                                         # h$(3,2)="x"
             233,                                         # FOR control var "i"
             0, 0, 0, 1, 0,                               # 256
-            0, 0, 0, 2, 0,                               # limit = 512
-            0, 0, 0, 1, 0,                               # step = 256
-            17, 0,                                       # line = 17
-            1,                                           # statement = 1
+            0, 0, 0, 2, 0,                               # limit=512
+            0, 0, 0, 1, 0,                               # step=256
+            17, 0,                                       # line=17
+            1,                                           # statement=1
             106, 0, 0, 36, 0, 0,                         # j=36
             0, 10, 3, 0, 245, 112, 13,                   # 10 PRINT p
             39, 15, 2, 0, 230, 13,                       # 9999 NEW
@@ -529,15 +567,15 @@ class VariableListerTest(SkoolKitTestCase):
         ]
         exp_output = [
             '(String) a$="asdf"',
-            '(Number array) b(2,3)=[1, -1, 64, 128, 16, 32]',
+            '(Number array) b(2,3)=[[1, -1, 64], [128, 16, 32]]',
             '(Number) longone=255',
-            '(Character array) c$(5)=["w", "w", "w", "w", "w"]',
+            "(Character array) c$(5)=['0', '1', '2', '3', '4']",
             '(FOR control variable) d=1 (limit=8, step=1, line=4, statement=7)',
             '(Number) e=65530',
             '(String) f$="zxcvb"',
             '(Number array) g(6)=[12, 13, 14, 15, 16, 17]',
             '(Number) longerone=-63741',
-            '(Character array) h$(3,2)=["a", "z", "b", "y", "c", "x"]',
+            "(Character array) h$(3,2)=[['a', 'z'], ['b', 'y'], ['c', 'x']]",
             '(FOR control variable) i=256 (limit=512, step=256, line=17, statement=1)',
             '(Number) j=36'
         ]
