@@ -1013,6 +1013,20 @@ class SftParserTest(SkoolKitTestCase):
         ]
         self._test_disassembly(sft, exp_skool, snapshot)
 
+    def test_asm_directive_equ(self):
+        snapshot = [33, 0, 64]
+        sft = '\n'.join((
+            '@equ=DISPLAY=16384',
+            '; Routine',
+            'cC00000,3',
+        ))
+        exp_skool = [
+            '@equ=DISPLAY=16384',
+            '; Routine',
+            'c00000 LD HL,16384',
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
     def test_asm_directive_ignoreua(self):
         snapshot = [120, 201]
         sft = '\n'.join((
