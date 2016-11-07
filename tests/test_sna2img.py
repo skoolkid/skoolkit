@@ -25,7 +25,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         args = '{} {}'.format(options, scrfile)
         if outfile:
             exp_outfile = outfile
-            img_format = outfile[:-3]
+            img_format = outfile[-3:]
             args += ' {}'.format(outfile)
         else:
             img_format = 'png'
@@ -75,6 +75,13 @@ class Sna2ImgTest(SkoolKitTestCase):
         scr = ([170] * 256 + [0] * 256) * 12 + [2] * 768
         exp_udgs = [[Udg(2, [170, 0] * 4)] * 32] * 24
         self._test_sna2img(mock_open, '', scr, exp_udgs)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_gif_output(self, mock_open):
+        scr = ([85] * 256 + [0] * 256) * 12 + [2] * 768
+        exp_udgs = [[Udg(2, [85, 0] * 4)] * 32] * 24
+        self._test_sna2img(mock_open, '', scr, exp_udgs, outfile='scr.gif')
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')
