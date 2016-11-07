@@ -250,6 +250,13 @@ class Sna2ImgTest(SkoolKitTestCase):
             args = '{} {}'.format(option, scale)
             self._test_sna2img(mock_open, args, scr, exp_udgs, scale)
 
+    def test_option_s_invalid_value(self):
+        scrfile = self.write_bin_file(suffix='.scr')
+        output, error = self.run_sna2img('-s Q {}'.format(scrfile), catch_exit=2)
+        self.assertEqual(len(output), 0)
+        self.assertTrue(error.startswith('usage: sna2img.py'))
+        self.assertTrue(error.endswith("error: argument -s/--scale: invalid int value: 'Q'\n"))
+
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')
     def test_option_S(self, mock_open):
