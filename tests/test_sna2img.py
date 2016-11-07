@@ -39,7 +39,9 @@ class Sna2ImgTest(SkoolKitTestCase):
         self.assertEqual(len(image_writer.frames), 1)
         frame = image_writer.frames[0]
         self.assertEqual(frame.scale, scale)
-        self.assertEqual(udgs, frame.udgs)
+        self.assertEqual(len(udgs), len(frame.udgs))
+        for i, row in enumerate(udgs):
+            self.assertEqual(udgs[i], frame.udgs[i], "Row {}/{} differs from expected value".format(i + 1, len(udgs)))
 
     def _test_bad_spec(self, option, exp_error):
         scrfile = self.write_bin_file(suffix='.scr')
@@ -66,6 +68,35 @@ class Sna2ImgTest(SkoolKitTestCase):
         with self.assertRaises(SkoolKitError) as cm:
             self.run_sna2img(infile)
         self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_f_1(self, mock_open):
+        scr = [170] * 6144 + [56] * 768
+        exp_udgs = [[Udg(56, [85] * 8)] * 32] * 24
+        for option in ('-f', '--flip'):
+            self._test_sna2img(mock_open, '{} 1'.format(option), scr, exp_udgs)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_f_2(self, mock_open):
+        scr = ([255] * 256 + [0] * 256) * 12 + [1] * 768
+        exp_udgs = [[Udg(1, [0, 255] * 4)] * 32] * 24
+        self._test_sna2img(mock_open, '-f 2', scr, exp_udgs)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_f_3(self, mock_open):
+        scr = ([170] * 256 + [0] * 256) * 12 + [2] * 768
+        exp_udgs = [[Udg(2, [0, 85] * 4)] * 32] * 24
+        self._test_sna2img(mock_open, '--flip 3', scr, exp_udgs)
+
+    def test_option_f_invalid_value(self):
+        scrfile = self.write_bin_file(suffix='.scr')
+        output, error = self.run_sna2img('-f ? {}'.format(scrfile), catch_exit=2)
+        self.assertEqual(len(output), 0)
+        self.assertTrue(error.startswith('usage: sna2img.py'))
+        self.assertTrue(error.endswith("error: argument -f/--flip: invalid int value: '?'\n"))
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')
