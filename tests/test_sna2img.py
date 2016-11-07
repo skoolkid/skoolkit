@@ -119,6 +119,22 @@ class Sna2ImgTest(SkoolKitTestCase):
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')
+    def test_option_o(self, mock_open):
+        scr = [240] * 6144 + [7] * 736 + [4] * 32
+        exp_udgs = [[Udg(7, [240] * 8)] * 5] * 5 + [[Udg(4, [240] * 8)] * 5]
+        for option in ('-o', '--origin'):
+            self._test_sna2img(mock_open, '{} 27,18'.format(option), scr, exp_udgs)
+
+    def test_option_o_invalid_values(self):
+        scrfile = self.write_bin_file(suffix='.scr')
+        for coords in ('x,1', '1,y', 'p,q', '1', '1,2,3'):
+            output, error = self.run_sna2img('-o {} {}'.format(coords, scrfile), catch_exit=2)
+            self.assertEqual(len(output), 0)
+            self.assertTrue(error.startswith('usage: sna2img.py'))
+            self.assertTrue(error.endswith("error: argument -o/--origin: invalid coordinates: '{}'\n".format(coords)))
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
     def test_option_p(self, mock_open):
         scr = [0] * 6912
         exp_udgs = [[Udg(0, [0] * 8)] * 32 for i in range(24)]

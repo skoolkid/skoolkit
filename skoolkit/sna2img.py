@@ -31,6 +31,13 @@ from skoolkit.snapshot import get_snapshot
 from skoolkit.skoolhtml import Udg, Frame, flip_udgs, rotate_udgs
 from skoolkit.tap2sna import poke
 
+def _coords(arg):
+    try:
+        coords = [int(c) for c in arg.split(',', 1)]
+        return (coords[0], coords[1])
+    except (ValueError, IndexError):
+        raise argparse.ArgumentTypeError("invalid coordinates: '{}'".format(arg))
+
 def _get_screenshot(scr, x=0, y=0, w=32, h=24):
     scr_udgs = []
     for row in range(y, y + h):
@@ -54,7 +61,7 @@ def _write_image(udgs, img_file, scale, animated):
         image_writer.write_image([frame], f, image_format)
 
 def run(infile, outfile, options):
-    x, y = [int(c) for c in options.origin.split(',', 1)]
+    x, y = options.origin
     w, h = [int(c) for c in options.size.split('x', 1)]
     w = min(32 - x, w)
     h = min(24 - y, h)
@@ -99,7 +106,7 @@ def main(args):
                        help="Invert video for cells that are flashing.")
     group.add_argument('-n', '--no-animation', dest='animated', action='store_false',
                        help="Do not animate flashing cells.")
-    group.add_argument('-o', '--origin', metavar='X,Y', default='0,0',
+    group.add_argument('-o', '--origin', metavar='X,Y', type=_coords, default='0,0',
                        help="Top-left crop at (X,Y).")
     group.add_argument('-p', '--poke', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append', default=[],
                        help="POKE N,v for N in {a, a+c, a+2c..., b}. "
