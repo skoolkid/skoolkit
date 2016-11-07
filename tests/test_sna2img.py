@@ -71,6 +71,13 @@ class Sna2ImgTest(SkoolKitTestCase):
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')
+    def test_no_options(self, mock_open):
+        scr = ([170] * 256 + [0] * 256) * 12 + [2] * 768
+        exp_udgs = [[Udg(2, [170, 0] * 4)] * 32] * 24
+        self._test_sna2img(mock_open, '', scr, exp_udgs)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
     def test_option_f_1(self, mock_open):
         scr = [170] * 6144 + [56] * 768
         exp_udgs = [[Udg(56, [85] * 8)] * 32] * 24
