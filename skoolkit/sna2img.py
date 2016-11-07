@@ -31,12 +31,18 @@ from skoolkit.snapshot import get_snapshot
 from skoolkit.skoolhtml import Udg, Frame, flip_udgs, rotate_udgs
 from skoolkit.tap2sna import poke
 
-def _coords(arg):
+def _int_pair(arg, sep, desc):
     try:
-        coords = [int(c) for c in arg.split(',', 1)]
-        return (coords[0], coords[1])
+        pair = [int(c) for c in arg.split(sep, 1)]
+        return (pair[0], pair[1])
     except (ValueError, IndexError):
-        raise argparse.ArgumentTypeError("invalid coordinates: '{}'".format(arg))
+        raise argparse.ArgumentTypeError("invalid {}: '{}'".format(desc, arg))
+
+def _coords(arg):
+    return _int_pair(arg, ',', 'coordinates')
+
+def _dimensions(arg):
+    return _int_pair(arg, 'x', 'dimensions')
 
 def _get_screenshot(scr, x=0, y=0, w=32, h=24):
     scr_udgs = []
@@ -62,9 +68,8 @@ def _write_image(udgs, img_file, scale, animated):
 
 def run(infile, outfile, options):
     x, y = options.origin
-    w, h = [int(c) for c in options.size.split('x', 1)]
-    w = min(32 - x, w)
-    h = min(24 - y, h)
+    w = min(32 - x, options.size[0])
+    h = min(24 - y, options.size[1])
 
     if infile[-4:].lower() == '.scr':
         scr = read_bin_file(infile, 6912)
@@ -83,7 +88,7 @@ def run(infile, outfile, options):
             for udg in row:
                 if udg.attr & 128:
                     udg.data = [b^255 for b in udg.data]
-                udg.attr &= 127
+                    udg.attr &= 127
 
     flip_udgs(scrshot, options.flip)
     rotate_udgs(scrshot, options.rotate)
@@ -116,7 +121,7 @@ def main(args):
                        help="Rotate the image 90*N degrees clockwise.")
     group.add_argument('-s', '--scale', type=int, default=1,
                        help="Set the scale of the image (default=1).")
-    group.add_argument('-S', '--size', metavar='WxH', default='32x24',
+    group.add_argument('-S', '--size', metavar='WxH', type=_dimensions, default='32x24',
                        help="Crop to this width and height (in tiles).")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')

@@ -125,6 +125,19 @@ class Sna2ImgTest(SkoolKitTestCase):
         for option in ('-o', '--origin'):
             self._test_sna2img(mock_open, '{} 27,18'.format(option), scr, exp_udgs)
 
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_options_o_and_S_together(self, mock_open):
+        scr = [7] * 6144
+        for n in range(24):
+            scr.extend(list(range(n, n + 32)))
+        x, y = 4, 5
+        w, h = 6, 7
+        udg_data = [7] * 8
+        exp_udgs = [[Udg(i + j, udg_data) for i in range(x, x + w)] for j in range(y, y + h)]
+        options = '-o {},{} -S {}x{}'.format(x, y, w, h)
+        self._test_sna2img(mock_open, options, scr, exp_udgs)
+
     def test_option_o_invalid_values(self):
         scrfile = self.write_bin_file(suffix='.scr')
         for coords in ('x,1', '1,y', 'p,q', '1', '1,2,3'):
@@ -236,6 +249,22 @@ class Sna2ImgTest(SkoolKitTestCase):
         for option, scale in (('-s ', 2), ('--scale', 3)):
             args = '{} {}'.format(option, scale)
             self._test_sna2img(mock_open, args, scr, exp_udgs, scale)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_S(self, mock_open):
+        scr = [15] * 6144 + [4] * 32 + [7] * 736
+        exp_udgs =  [[Udg(4, [15] * 8)] * 5] + [[Udg(7, [15] * 8)] * 5] * 5
+        for option in ('-S', '--size'):
+            self._test_sna2img(mock_open, '{} 5x6'.format(option), scr, exp_udgs)
+
+    def test_option_S_invalid_values(self):
+        scrfile = self.write_bin_file(suffix='.scr')
+        for dimensions in ('Xx1', '1xY', 'pxq', '1', '1x2x3'):
+            output, error = self.run_sna2img('-S {} {}'.format(dimensions, scrfile), catch_exit=2)
+            self.assertEqual(len(output), 0)
+            self.assertTrue(error.startswith('usage: sna2img.py'))
+            self.assertTrue(error.endswith("error: argument -S/--size: invalid dimensions: '{}'\n".format(dimensions)))
 
     def test_option_V(self):
         for option in ('-V', '--version'):
