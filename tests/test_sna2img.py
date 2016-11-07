@@ -185,6 +185,35 @@ class Sna2ImgTest(SkoolKitTestCase):
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')
+    def test_option_r_1(self, mock_open):
+        scr = ([170] * 256 + [0] * 256) * 12 + [56] * 768
+        exp_udgs = [[Udg(56, [85, 0] * 4)] * 24] * 32
+        for option in ('-r', '--rotate'):
+            self._test_sna2img(mock_open, '{} 1'.format(option), scr, exp_udgs)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_r_2(self, mock_open):
+        scr = ([170] * 256 + [0] * 256) * 12 + [1] * 768
+        exp_udgs = [[Udg(1, [0, 85] * 4)] * 32] * 24
+        self._test_sna2img(mock_open, '-r 2', scr, exp_udgs)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_r_3(self, mock_open):
+        scr = ([170] * 256 + [0] * 256) * 12 + [2] * 768
+        exp_udgs = [[Udg(2, [0, 170] * 4)] * 24] * 32
+        self._test_sna2img(mock_open, '--rotate 3', scr, exp_udgs)
+
+    def test_option_r_invalid_value(self):
+        scrfile = self.write_bin_file(suffix='.scr')
+        output, error = self.run_sna2img('-r X {}'.format(scrfile), catch_exit=2)
+        self.assertEqual(len(output), 0)
+        self.assertTrue(error.startswith('usage: sna2img.py'))
+        self.assertTrue(error.endswith("error: argument -r/--rotate: invalid int value: 'X'\n"))
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
     def test_option_s(self, mock_open):
         scr = [0] * 6144 + [1] * 768
         exp_udgs = [[Udg(1, [0] * 8)] * 32] * 24
