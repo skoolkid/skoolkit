@@ -2768,7 +2768,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         for macro, params in (('#FOO', 'xyz'), ('#BAR', '1,2(baz)'), ('#UDGS', '#r1'), ('#LINKS', '')):
             self._assert_error(writer, macro + params, 'Found unknown macro: {}'.format(macro))
 
-class HtmlOutputTest(HtmlWriterTestCase):
+class HtmlWriterOutputTestCase(HtmlWriterTestCase):
     def setUp(self):
         HtmlWriterTestCase.setUp(self)
         self.files = {}
@@ -2814,6 +2814,7 @@ class HtmlOutputTest(HtmlWriterTestCase):
             t_html_lines = [line for line in t_html_lines if line]
         self.assertEqual(t_html_lines, d_html_lines)
 
+class HtmlOutputTest(HtmlWriterOutputTestCase):
     def _assert_title_equals(self, fname, title, header):
         html = self._read_file(fname)
         name = self.skoolfile[:-6]
@@ -4731,20 +4732,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal(map_path, subs)
 
-    def test_write_custom_map_using_custom_template(self):
-        map_id = 'CustomMap'
-        ref = '\n'.join((
-            '[MemoryMap:{0}]',
-            'EntryTypes=c',
-            'Intro=Bar',
-            '[Template:{0}]',
-            '<foo>{{MemoryMap[Intro]}}</foo>'
-        )).format(map_id)
-        writer = self._get_writer(ref=ref, skool='c50000 RET')
-        writer.write_map(map_id)
-        path = 'maps/{}.html'.format(map_id)
-        self.assertEqual('<foo>Bar</foo>', self.files[path])
-
     def test_write_memory_map_with_intro(self):
         intro = 'This map is empty.'
         ref = '[MemoryMap:MemoryMap]\nIntro={}'.format(intro)
@@ -5321,42 +5308,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
         }
         self._assert_files_equal(join(REFERENCE_DIR, 'changelog.html'), subs)
 
-    def test_write_changelog_with_changelog_item_template(self):
-        # Test that the 'changelog_item' template is used if defined (instead
-        # of the default 'list_item' template)
-        ref = '\n'.join((
-            '[Changelog:20141123]',
-            '-',
-            '',
-            'Item 1',
-            'Item 2',
-            '',
-            '[Template:changelog_item]',
-            '<li>* {item}</li>'
-        ))
-        content = """
-            <ul class="contents">
-            <li><a href="#20141123">20141123</a></li>
-            </ul>
-            <div><span id="20141123"></span></div>
-            <div class="changelog changelog-1">
-            <div class="changelog-title">20141123</div>
-            <div class="changelog-desc"></div>
-            <ul class="changelog">
-            <li>* Item 1</li>
-            <li>* Item 2</li>
-            </ul>
-            </div>
-        """
-        writer = self._get_writer(ref=ref, skool='')
-        writer.write_page('Changelog')
-        subs = {
-            'header': 'Changelog',
-            'body_class': 'Changelog',
-            'content': content
-        }
-        self._assert_files_equal(join(REFERENCE_DIR, 'changelog.html'), subs)
-
     def test_write_changelog_with_custom_title_and_header_and_path(self):
         title = 'Log of changes'
         header = 'What has changed?'
@@ -5488,38 +5439,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             'content': '<b>This is the content of the custom page.</b>\n'
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
-
-    def test_write_page_using_custom_template(self):
-        page_id = 'Custom'
-        content = 'hello'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'PageContent={1}',
-            '[Template:{0}]',
-            '<foo>{{content}}</foo>'
-        )).format(page_id, content)
-        writer = self._get_writer(ref=ref, skool='')
-        writer.write_page(page_id)
-        path = '{}.html'.format(page_id)
-        self.assertEqual('<foo>{}</foo>'.format(content), self.files[path])
-
-    def test_write_page_using_footer_template(self):
-        page_id = 'PageWithCustomFooter'
-        content = 'hey'
-        footer = '<footer>Notes</footer>'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'PageContent={1}',
-            '[Template:{0}]',
-            '<bar>{{content}}</bar>',
-            '{{t_footer}}',
-            '[Template:footer]',
-            footer
-        )).format(page_id, content)
-        writer = self._get_writer(ref=ref, skool='')
-        writer.write_page(page_id)
-        path = '{}.html'.format(page_id)
-        self.assertEqual('<bar>{}</bar>\n{}'.format(content, footer), self.files[path])
 
     def test_write_page_with_no_page_section(self):
         page_id = 'page'
@@ -5659,68 +5578,6 @@ class HtmlOutputTest(HtmlWriterTestCase):
             </ul>
             </li>
             <li>Item 2</li>
-            </ul>
-            </div>
-        """
-
-        writer = self._get_writer(ref=ref, skool='')
-        writer.write_page(page_id)
-        subs = {
-            'title': page_id,
-            'header': page_id,
-            'path': '',
-            'body_class': page_id,
-            'content': exp_content
-        }
-        self._assert_files_equal('{}.html'.format(page_id), subs)
-
-    def test_write_page_with_section_prefix_as_list_items_using_custom_subtemplates(self):
-        page_id = 'MyListItemsPage'
-        ref = '\n'.join((
-            '[Page:{}]',
-            'SectionPrefix=Entry',
-            'SectionType=ListItems',
-            '',
-            '[Entry:entry1:Entry 1]',
-            'Intro.',
-            '',
-            'Item 1',
-            '  Subitem 1A',
-            '  Subitem 1B',
-            'Item 2',
-            '',
-            '[Template:{}-entry]',
-            '<div>{t_anchor}</div>',
-            '<div class="entry entry-{num}">',
-            '<div class="entry-title">{title}</div>',
-            '<div class="entry-intro">{description}</div>',
-            '{t_changelog_item_list}',
-            '</div>',
-            '',
-            '[Template:{}-item_list]',
-            '<ul class="level{indent}">',
-            '{m_changelog_item}',
-            '</ul>',
-            '',
-            '[Template:{}-item]',
-            '<li>* {item}</li>'
-        )).replace('{}', page_id)
-        exp_content = """
-            <ul class="contents">
-            <li><a href="#entry1">Entry 1</a></li>
-            </ul>
-            <div><span id="entry1"></span></div>
-            <div class="entry entry-1">
-            <div class="entry-title">Entry 1</div>
-            <div class="entry-intro">Intro.</div>
-            <ul class="level">
-            <li>* Item 1
-            <ul class="level1">
-            <li>* Subitem 1A</li>
-            <li>* Subitem 1B</li>
-            </ul>
-            </li>
-            <li>* Item 2</li>
             </ul>
             </div>
         """
@@ -6504,6 +6361,188 @@ class HtmlOutputTest(HtmlWriterTestCase):
         logo_value = writer.expand(logo, cwd)
         page = self._read_file('{}.html'.format(page_id), True)
         self.assertEqual(page[0], logo_value)
+
+class HtmlTemplateTest(HtmlWriterOutputTestCase):
+    def _assert_content_equal(self, exp_content, fpath):
+        exp_lines = [line.lstrip() for line in exp_content.strip().split('\n')]
+        lines = [line.lstrip() for line in self.files[fpath].split('\n')]
+        self.assertEqual(exp_lines, lines)
+
+    def test_custom_map_with_custom_page_template(self):
+        map_id = 'CustomMap'
+        ref = '\n'.join((
+            '[MemoryMap:{0}]',
+            'EntryTypes=c',
+            'Intro=Bar',
+            '[Template:{0}]',
+            '<foo>{{MemoryMap[Intro]}}</foo>'
+        )).format(map_id)
+
+        writer = self._get_writer(ref=ref, skool='c50000 RET')
+        writer.write_map(map_id)
+        path = 'maps/{}.html'.format(map_id)
+        self.assertEqual('<foo>Bar</foo>', self.files[path])
+
+    def test_changelog_with_changelog_item_template(self):
+        # Test that the 'changelog_item' template is used if defined (instead
+        # of the default 'list_item' template)
+        ref = '\n'.join((
+            '[Changelog:20141123]',
+            '-',
+            '',
+            'Item 1',
+            'Item 2',
+            '',
+            '[Template:changelog_item]',
+            '<li>* {item}</li>'
+        ))
+        content = """
+            <ul class="contents">
+            <li><a href="#20141123">20141123</a></li>
+            </ul>
+            <div><span id="20141123"></span></div>
+            <div class="changelog changelog-1">
+            <div class="changelog-title">20141123</div>
+            <div class="changelog-desc"></div>
+            <ul class="changelog">
+            <li>* Item 1</li>
+            <li>* Item 2</li>
+            </ul>
+            </div>
+        """
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page('Changelog')
+        subs = {
+            'header': 'Changelog',
+            'body_class': 'Changelog',
+            'content': content
+        }
+        self._assert_files_equal(join(REFERENCE_DIR, 'changelog.html'), subs)
+
+    def test_page_with_custom_page_template(self):
+        page_id = 'Custom'
+        content = 'hello'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'PageContent={1}',
+            '[Template:{0}]',
+            '<foo>{{content}}</foo>'
+        )).format(page_id, content)
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        path = '{}.html'.format(page_id)
+        self._assert_content_equal('<foo>{}</foo>'.format(content), path)
+
+    def test_page_with_custom_footer_template(self):
+        page_id = 'PageWithCustomFooter'
+        content = 'hey'
+        footer = '<footer>Notes</footer>'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'PageContent={1}',
+            '[Template:{0}]',
+            '<bar>{{content}}</bar>',
+            '{{t_footer}}',
+            '[Template:footer]',
+            footer
+        )).format(page_id, content)
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        path = '{}.html'.format(page_id)
+        self.assertEqual('<bar>{}</bar>\n{}'.format(content, footer), self.files[path])
+
+    def test_box_page_with_custom_page_template(self):
+        page_id = 'MyCustomBoxPage'
+        ref = '\n'.join((
+            '[Page:{}]',
+            'SectionPrefix=Entry',
+            '',
+            '[Entry:Entry 1]',
+            'First entry.',
+            '',
+            '[Template:{}]',
+            'Just the entries!',
+            '{entries}'
+        )).replace('{}', page_id)
+        exp_content = """
+            Just the entries!
+            <div><span id="entry_1"></span></div>
+            <div class="box box-1">
+            <div class="box-title">Entry 1</div>
+            <div class="paragraph">
+            First entry.
+            </div>
+            </div>
+        """
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        self._assert_content_equal(exp_content, '{}.html'.format(page_id))
+
+    def test_box_page_as_list_items_with_custom_subtemplates(self):
+        page_id = 'MyListItemsPage'
+        ref = '\n'.join((
+            '[Page:{}]',
+            'SectionPrefix=Entry',
+            'SectionType=ListItems',
+            '',
+            '[Entry:entry1:Entry 1]',
+            'Intro.',
+            '',
+            'Item 1',
+            '  Subitem 1A',
+            '  Subitem 1B',
+            'Item 2',
+            '',
+            '[Template:{}-entry]',
+            '<div>{t_anchor}</div>',
+            '<div class="entry entry-{num}">',
+            '<div class="entry-title">{title}</div>',
+            '<div class="entry-intro">{description}</div>',
+            '{t_changelog_item_list}',
+            '</div>',
+            '',
+            '[Template:{}-item_list]',
+            '<ul class="level{indent}">',
+            '{m_changelog_item}',
+            '</ul>',
+            '',
+            '[Template:{}-item]',
+            '<li>* {item}</li>'
+        )).replace('{}', page_id)
+        exp_content = """
+            <ul class="contents">
+            <li><a href="#entry1">Entry 1</a></li>
+            </ul>
+            <div><span id="entry1"></span></div>
+            <div class="entry entry-1">
+            <div class="entry-title">Entry 1</div>
+            <div class="entry-intro">Intro.</div>
+            <ul class="level">
+            <li>* Item 1
+            <ul class="level1">
+            <li>* Subitem 1A</li>
+            <li>* Subitem 1B</li>
+            </ul>
+            </li>
+            <li>* Item 2</li>
+            </ul>
+            </div>
+        """
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        subs = {
+            'title': page_id,
+            'header': page_id,
+            'path': '',
+            'body_class': page_id,
+            'content': exp_content
+        }
+        self._assert_files_equal('{}.html'.format(page_id), subs)
 
 class UdgTest(SkoolKitTestCase):
     def test_flip(self):
