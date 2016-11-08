@@ -9,8 +9,8 @@ Changelog
   ASM output)
 * The :ref:`REG` macro now accepts an arbitrary text parameter (e.g.
   ``#REG(hlh'l')``)
-* When the :ref:`LINK` macro links to an item on a box page, the link text
-  defaults to the item's title if left blank
+* When the :ref:`LINK` macro links to an entry on a box page, the link text
+  defaults to the title of the entry if left blank
 * Added the ``SectionType`` parameter to the :ref:`page` section (for
   specifying how to parse and render the ref file sections from which a box
   page is built)
