@@ -637,9 +637,9 @@ another page. ::
 * ``link text`` is the link text to use
 
 In HTML mode, if the link text is blank, it defaults to the title of the entry
-being linked to (if the page is a 'box page' and contains the specified
-anchor), or to the page's link text (as defined in the :ref:`links` section or
-the relevant :ref:`page` section of the ref file) otherwise.
+being linked to (if the page is a :ref:`box page <boxpages>` and contains the
+specified anchor), or to the page's link text (as defined in the :ref:`links`
+section or the relevant :ref:`page` section of the ref file) otherwise.
 
 In ASM mode, the ``#LINK`` macro expands to the link text.
 
@@ -668,8 +668,9 @@ section.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 5.4     | When linking to an entry on a box page, the link text, if left   |
-|         | blank, defaults to the title of the entry (in HTML mode)         |
+| 5.4     | When linking to an entry on a :ref:`box page <boxpages>`, the    |
+|         | link text, if left blank, defaults to the title of the entry (in |
+|         | HTML mode)                                                       |
 +---------+------------------------------------------------------------------+
 | 5.2     | An entry address anchor in a link to a memory map page is        |
 |         | converted to the format specified by the ``AddressAnchor``       |

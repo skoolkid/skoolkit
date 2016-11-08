@@ -9,11 +9,11 @@ Changelog
   ASM output)
 * The :ref:`REG` macro now accepts an arbitrary text parameter (e.g.
   ``#REG(hlh'l')``)
-* When the :ref:`LINK` macro links to an entry on a box page, the link text
-  defaults to the title of the entry if left blank
+* When the :ref:`LINK` macro links to an entry on a :ref:`box page <boxpages>`,
+  the link text defaults to the title of the entry if left blank
 * Added the ``SectionType`` parameter to the :ref:`page` section (for
-  specifying how to parse and render the ref file sections from which a box
-  page is built)
+  specifying how to parse and render the ref file sections from which a
+  :ref:`box page <boxpages>` is built)
 * Added the ``--asm-one-page`` option to :ref:`skool2html.py` (for writing all
   routines and data blocks to a single page)
 * Added the ``--variables`` option to :ref:`snapinfo.py` (for showing the
@@ -37,7 +37,7 @@ Changelog
   the :ref:`t_AsmAllInOne` and :ref:`t_asm_entry` templates)
 * Added the ``SectionPrefix`` parameter to the :ref:`page` section (for
   specifying the prefix of the names of ref file sections from which to build
-  a 'box page')
+  a :ref:`box page <boxpages>`)
 * Added the ``--screen`` option to :ref:`bin2tap.py` (for adding a loading
   screen to the TAP file)
 * Added the ``--stack`` and ``--start`` options to :ref:`tap2sna.py` (for
