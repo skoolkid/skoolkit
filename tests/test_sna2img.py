@@ -20,16 +20,23 @@ class MockImageWriter:
         self.img_format = img_format
 
 class Sna2ImgTest(SkoolKitTestCase):
-    def _test_sna2img(self, mock_open, options, scr, udgs, scale=1, outfile=None, iw_options=None):
-        scrfile = self.write_bin_file(scr, suffix='.scr')
-        args = '{} {}'.format(options, scrfile)
+    def _test_sna2img(self, mock_open, options, scr, udgs, scale=1, outfile=None, iw_options=None, ftype='scr'):
+        if ftype == 'scr':
+            infile = self.write_bin_file(scr, suffix='.scr')
+        elif ftype == 'sna':
+            infile = self.write_bin_file([0] * 27 + scr + [0] * 42240, suffix='.sna')
+        elif ftype == 'szx':
+            infile = self.write_szx(scr + [0] * 42240)
+        elif ftype == 'z80':
+            infile = self.write_z80(scr + [0] * 42240)[1]
+        args = '{} {}'.format(options, infile)
         if outfile:
             exp_outfile = outfile
             img_format = outfile[-3:]
             args += ' {}'.format(outfile)
         else:
             img_format = 'png'
-            exp_outfile = scrfile[:-3] + img_format
+            exp_outfile = infile[:-3] + img_format
         output, error = self.run_sna2img(args)
         self.assertEqual([], output)
         self.assertEqual(error, '')
@@ -72,16 +79,37 @@ class Sna2ImgTest(SkoolKitTestCase):
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')
     def test_no_options(self, mock_open):
-        scr = ([170] * 256 + [0] * 256) * 12 + [2] * 768
-        exp_udgs = [[Udg(2, [170, 0] * 4)] * 32] * 24
+        scr = ([170] * 256 + [0] * 256) * 12 + [4] * 768
+        exp_udgs = [[Udg(4, [170, 0] * 4)] * 32] * 24
         self._test_sna2img(mock_open, '', scr, exp_udgs)
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')
     def test_gif_output(self, mock_open):
-        scr = ([85] * 256 + [0] * 256) * 12 + [2] * 768
-        exp_udgs = [[Udg(2, [85, 0] * 4)] * 32] * 24
+        scr = ([85] * 256 + [0] * 256) * 12 + [5] * 768
+        exp_udgs = [[Udg(5, [85, 0] * 4)] * 32] * 24
         self._test_sna2img(mock_open, '', scr, exp_udgs, outfile='scr.gif')
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_sna_input(self, mock_open):
+        scr = ([84] * 256 + [0] * 256) * 12 + [6] * 768
+        exp_udgs = [[Udg(6, [84, 0] * 4)] * 32] * 24
+        self._test_sna2img(mock_open, '', scr, exp_udgs, ftype='sna')
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_szx_input(self, mock_open):
+        scr = ([170] * 256 + [0] * 256) * 12 + [7] * 768
+        exp_udgs = [[Udg(7, [170, 0] * 4)] * 32] * 24
+        self._test_sna2img(mock_open, '', scr, exp_udgs, ftype='szx')
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_z80_input(self, mock_open):
+        scr = ([42] * 256 + [0] * 256) * 12 + [8] * 768
+        exp_udgs = [[Udg(8, [42, 0] * 4)] * 32] * 24
+        self._test_sna2img(mock_open, '', scr, exp_udgs, ftype='z80')
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')
