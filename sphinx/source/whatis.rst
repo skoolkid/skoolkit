@@ -33,7 +33,8 @@ SkoolKit can:
   (by use of the :ref:`R` macro in annotations, and automatically in the
   operands of ``CALL`` and ``JP`` instructions)
 * neatly render lists of bugs, trivia and POKEs on separate pages (using
-  :ref:`ref-Bug`, :ref:`ref-Fact` and :ref:`ref-Poke` sections in a ref file)
+  :ref:`[Bug:*] <boxpages>`, :ref:`[Fact:*] <boxpages>` and
+  :ref:`[Poke:*] <boxpages>` sections in a ref file)
 * produce ASM files that include bugfixes declared in the skool file (with
   :ref:`ofix`, :ref:`bfix` and other ASM directives)
 * produce TAP files from assembled code (using :ref:`bin2tap.py`)

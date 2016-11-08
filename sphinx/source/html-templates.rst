@@ -578,15 +578,13 @@ To see the default ``paragraph`` template, run the following command::
 reference_entry
 ---------------
 The ``reference_entry`` template is the subtemplate used by the
-:ref:`t_Reference` full-page template to format each entry on the 'Bugs',
-'Trivia', 'Pokes', 'Glossary' and 'Graphic glitches' pages.
+:ref:`t_Reference` full-page template to format each entry on a
+:ref:`box page <boxpages>` that has a default ``SectionType``.
 
 The following identifiers are available (in addition to the universal
 identifiers):
 
-* ``contents`` - replaced by the pre-formatted contents of the relevant
-  :ref:`ref-Bug`, :ref:`ref-Fact`, :ref:`ref-Poke`, :ref:`ref-Glossary` or
-  :ref:`ref-GraphicGlitch` section
+* ``contents`` - replaced by the pre-formatted contents of the relevant entry
 * ``num`` - '1' or '2', depending on the order of the entry on the page
 * ``title`` - the entry title
 
