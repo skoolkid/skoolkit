@@ -884,7 +884,8 @@ command::
   $ skool2html.py -r Page:
 
 If ``anchor`` is omitted from an entry section name, it defaults to the title
-converted to lower case with spaces replaced by underscores.
+converted to lower case with parentheses and whitespace characters replaced by
+underscores.
 
 By default, a box page entry section will be parsed as a sequence of paragraphs
 separated by blank lines. For example::

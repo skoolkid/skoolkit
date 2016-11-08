@@ -24,6 +24,7 @@ import posixpath
 import os.path
 from os.path import isfile, isdir, basename
 from collections import defaultdict
+import re
 try:
     from StringIO import StringIO
 except ImportError:         # pragma: no cover
@@ -149,7 +150,7 @@ class HtmlWriter:
                         anchor, title, paragraphs = entry
                     except ValueError:
                         title, paragraphs = entry
-                        anchor = title.lower().replace(' ', '_')
+                        anchor = re.sub('[\s()]', '_', title.lower())
                     if use_paragraphs:
                         entries.append((anchor, title, paragraphs))
                     else:

@@ -5598,24 +5598,26 @@ class HtmlOutputTest(HtmlWriterTestCase):
 
     def test_write_page_with_section_prefix_and_missing_anchor(self):
         page_id = 'Custom'
+        title = 'Item 1\t(First)'
+        exp_anchor = 'item_1__first_'
         ref = '\n'.join((
             '[Page:{0}]',
             'SectionPrefix={0}',
-            '[{0}:Item 1]',
+            '[{0}:{1}]',
             'This is an item.'
-        )).format(page_id)
+        )).format(page_id, title)
         content = """
             <ul class="contents">
-            <li><a href="#item_1">Item 1</a></li>
+            <li><a href="#{0}">{1}</a></li>
             </ul>
-            <div><span id="item_1"></span></div>
+            <div><span id="{0}"></span></div>
             <div class="box box-1">
-            <div class="box-title">Item 1</div>
+            <div class="box-title">{1}</div>
             <div class="paragraph">
             This is an item.
             </div>
             </div>
-        """
+        """.format(exp_anchor, title)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page(page_id)
         subs = {
