@@ -374,6 +374,12 @@ list::
                           Specify the HTML writer class to use; shorthand for
                           '--config Config/HtmlWriterClass=CLASS'
 
+.. note::
+   The 'B', 'b', 'c', 'p', 't' and 'y' file identifiers in the ``--write``
+   option are deprecated since version 5.4. To specify the Graphic glitches,
+   Bugs, Changelog, Pokes, Trivia or Glossary page, use the ``-P/--pages``
+   option with ``--write P``.
+
 `skool2html.py` searches the following directories for skool files, ref files,
 CSS files, JavaScript files, font files, and files listed in the
 :ref:`resources` section of the ref file:
