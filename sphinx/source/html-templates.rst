@@ -90,7 +90,7 @@ The ``entry`` dictionary also contains the following parameters:
 
 To see the default ``Asm`` template, run the following command::
 
-  $ skool2html.py -r Template:Asm
+  $ skool2html.py -r Template:Asm$
 
 .. _t_AsmAllInOne:
 
@@ -169,18 +169,15 @@ To see the default ``Page`` template, run the following command::
 
 Reference
 ---------
-The ``Reference`` template is the full-page template that is used to build the
-'Bugs', 'Trivia', 'Pokes', 'Glossary', 'Graphic glitches' and 'Changelog'
-pages, and also any custom page that uses the ``SectionPrefix`` parameter in
-the :ref:`page` section.
+The ``Reference`` template is the full-page template that is used to build
+:ref:`box pages <boxpages>`.
 
 The following identifiers are available (in addition to the universal and
 page-level identifiers):
 
 * ``entries`` - replaced by one or more copies of the :ref:`t_changelog_entry`
-  subtemplate (on the 'Changelog' page), or the :ref:`t_reference_entry`
-  subtemplate (on the 'Bugs', 'Trivia', 'Pokes', 'Glossary' and 'Graphic
-  glitches' pages)
+  subtemplate (when the page's ``SectionType`` is ``ListItems``), or the
+  :ref:`t_reference_entry` subtemplate
 * ``m_contents_list_item`` - replaced by one or more copies of the
   :ref:`t_contents_list_item` subtemplate
 
@@ -310,18 +307,19 @@ To see the default ``asm_register`` template, run the following command::
 changelog_entry
 ---------------
 The ``changelog_entry`` is the subtemplate used by the :ref:`t_Reference`
-full-page template to format each entry on the 'Changelog' page.
+full-page template to format each entry on a :ref:`box page <boxpages>` whose
+``SectionType`` is ``ListItems``.
 
 The following identifiers are available (in addition to the universal
 identifiers):
 
-* ``description`` - the changelog entry intro text
+* ``description`` - the entry intro text
 * ``num`` - '1' or '2', depending on the order of the entry on the page
 * ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate (with
   the entry title as the anchor name)
 * ``t_changelog_item_list`` - replaced by a copy of the
   :ref:`t_changelog_item_list` subtemplate
-* ``title`` - the changelog entry title
+* ``title`` - the entry title
 
 To see the default ``changelog_entry`` template, run the following command::
 
@@ -332,9 +330,10 @@ To see the default ``changelog_entry`` template, run the following command::
 changelog_item_list
 -------------------
 The ``changelog_item_list`` template is the subtemplate used by the
-:ref:`t_changelog_entry` subtemplate to format a list of changelog items, and
-also by the ``changelog_item`` or :ref:`t_list_item` subtemplate to format a
-list of subitems or subsubitems etc.
+:ref:`t_changelog_entry` subtemplate to format a list of items in an entry on a
+:ref:`box page <boxpages>` whose ``SectionType`` is ``ListItems``, and also by
+the :ref:`t_list_item` subtemplate to format a list of subitems or subsubitems
+etc.
 
 The following identifiers are available (in addition to the universal
 identifiers):
@@ -343,8 +342,8 @@ identifiers):
   the list of top-level items, '1' for a list of subitems, '2' for a list of
   subsubitems etc.
 * ``m_changelog_item`` - replaced by one or more copies of the
-  ``changelog_item`` subtemplate if it exists, or the :ref:`t_list_item`
-  subtemplate otherwise
+  ``changelog_item`` subtemplate if it exists and the current page ID is
+  'Changelog', or the :ref:`t_list_item` subtemplate otherwise
 
 To see the default ``changelog_item_list`` template, run the following
 command::
@@ -357,8 +356,7 @@ contents_list_item
 ------------------
 The ``contents_list_item`` template is the subtemplate used by the
 :ref:`t_Reference` full-page template to format each item in the contents list
-on the 'Bugs', 'Trivia', 'Pokes', 'Glossary', 'Graphic glitches' and
-'Changelog' pages.
+on a :ref:`box page <boxpages>`.
 
 The following identifiers are available (in addition to the universal
 identifiers):
@@ -499,9 +497,8 @@ To see the default ``list`` template, run the following command::
 list_item
 ---------
 The ``list_item`` template is the subtemplate used by the :ref:`t_list`
-template to format each item in the list, and also by the
-:ref:`t_changelog_item_list` subtemplate to format each item in a changelog
-item list.
+template and the :ref:`t_changelog_item_list` subtemplate to format each item
+in the list.
 
 The following identifier is available (in addition to the universal
 identifiers):
@@ -561,8 +558,7 @@ the following items:
 
 * memory map entry descriptions (on disassembly pages and memory map pages)
 * mid-block comments and block end comments on disassembly pages
-* entries on the 'Bugs', 'Trivia', 'Pokes', 'Glossary', 'Graphic glitches' and
-  'Changelog' pages
+* entries on a :ref:`box page <boxpages>`
 
 The following identifier is available (in addition to the universal
 identifiers):
