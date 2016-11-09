@@ -660,10 +660,9 @@ another page. ::
 * ``name`` is the name of an anchor on the page to link to
 * ``link text`` is the link text to use
 
-In HTML mode, if the link text is blank, it defaults to the title of the entry
-being linked to (if the page is a :ref:`box page <boxpages>` and contains the
-specified anchor), or to the page's link text (as defined in the :ref:`links`
-section or the relevant :ref:`page` section of the ref file) otherwise.
+In HTML mode, if the link text is blank, it defaults either to the title of the
+entry being linked to (if the page is a :ref:`box page <boxpages>` and contains
+an entry with the specified anchor), or to the page's link text.
 
 In ASM mode, the ``#LINK`` macro expands to the link text.
 
