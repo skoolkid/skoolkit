@@ -342,8 +342,7 @@ identifiers):
   the list of top-level items, '1' for a list of subitems, '2' for a list of
   subsubitems etc.
 * ``m_changelog_item`` - replaced by one or more copies of the
-  ``changelog_item`` subtemplate if it exists and the current page ID is
-  'Changelog', or the :ref:`t_list_item` subtemplate otherwise
+  :ref:`t_list_item` subtemplate
 
 To see the default ``changelog_item_list`` template, run the following
 command::

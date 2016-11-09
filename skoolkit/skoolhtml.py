@@ -264,8 +264,16 @@ class HtmlWriter:
     def set_style_sheet(self, value):
         self.game_vars['StyleSheet'] = value
 
-    def format_template(self, template_name, subs, default=None):
+    def _format_template(self, template_name, subs, default=None):
+        # Prefer templates in this order:
+        #   1. PageID-template_name
+        #   2. template_name
+        #   3. default
         template = self.templates.get(template_name, self.templates.get(default))
+        page_id = self._get_page_id()
+        if not (template_name == page_id or template_name.startswith(page_id + '-')):
+            tname = '{}-{}'.format(page_id, template_name)
+            template = self.templates.get(tname, template)
         subs.update(self.template_subs)
         return template.format(**subs)
 
@@ -483,7 +491,7 @@ class HtmlWriter:
     def join_paragraphs(self, paragraphs, cwd):
         lines = []
         for p in paragraphs:
-            lines.append(self.format_template('paragraph', {'paragraph': self.expand(p, cwd).strip()}))
+            lines.append(self._format_template('paragraph', {'paragraph': self.expand(p, cwd).strip()}))
         return '\n'.join(lines)
 
     def _get_screen_udg(self, row, col, df_addr=16384, af_addr=22528):
@@ -539,9 +547,11 @@ class HtmlWriter:
             udgs.append(Udg(attr, self.snapshot[a:a + 8]))
         return [udgs]
 
+    def _get_page_id(self):
+        return self.skoolkit['page_id']
+
     def write_index(self):
-        index_fname = self.paths[P_GAME_INDEX]
-        cwd = self._set_cwd(P_GAME_INDEX, index_fname)
+        index_fname, cwd = self._set_cwd(P_GAME_INDEX)
 
         link_groups = {}
         for section_id, header_text, page_list in self.get_sections('Index', False, True):
@@ -577,15 +587,15 @@ class HtmlWriter:
                         'link_text': link_text,
                         'other_text': other_text
                     }
-                    items.append(self.format_template('index_section_item', t_index_section_item_subs))
+                    items.append(self._format_template('index_section_item', t_index_section_item_subs))
                 t_index_section_subs = {
                     'header': header,
                     'm_index_section_item': '\n'.join(items)
                 }
-                sections_html.append(self.format_template('index_section', t_index_section_subs))
+                sections_html.append(self._format_template('index_section', t_index_section_subs))
 
         subs = {'m_index_section': '\n'.join(sections_html)}
-        html = self.format_page(P_GAME_INDEX, cwd, subs)
+        html = self._format_page(cwd, subs)
         self.write_file(index_fname, html)
 
     def _get_entry_dict(self, cwd, entry, desc=True):
@@ -628,18 +638,17 @@ class HtmlWriter:
         items = []
         for anchor, title in link_list:
             subs = {'href': '#' + anchor, 'title': title}
-            items.append(self.format_template('contents_list_item', subs))
+            items.append(self._format_template('contents_list_item', subs))
         return '\n'.join(items)
 
-    def _format_box_page(self, page_id):
-        if self.pages[page_id].get('SectionType') == 'ListItems':
-            return self._build_list_items_html(page_id)
-        return self._build_paragraphs_html(page_id)
+    def _format_box_page(self, cwd):
+        if self.pages[self._get_page_id()].get('SectionType') == 'ListItems':
+            return self._build_list_items_html(cwd)
+        return self._build_paragraphs_html(cwd)
 
-    def _build_paragraphs_html(self, page_id):
+    def _build_paragraphs_html(self, cwd):
+        page_id = self._get_page_id()
         page = self.pages[page_id]
-        fname = self.paths[page_id]
-        cwd = self._set_cwd(page_id, fname)
         entries_html = []
         link_list = []
         for i, (anchor, title, paragraphs) in enumerate(page.get('entries')):
@@ -650,17 +659,16 @@ class HtmlWriter:
                 'title': title,
                 'contents': self.join_paragraphs(paragraphs, cwd)
             }
-            entries_html.append(self.format_template('reference_entry', t_reference_entry_subs))
+            entries_html.append(self._format_template(page_id + '-entry', t_reference_entry_subs, 'reference_entry'))
         subs = {
             'm_contents_list_item': self._format_contents_list_items(link_list),
             'entries': '\n'.join(entries_html),
         }
-        return self.format_page(page_id, cwd, subs, 'Reference', page.get('JavaScript'))
+        return self._format_page(cwd, subs, 'Reference', page.get('JavaScript'))
 
-    def _build_list_items_html(self, page_id):
+    def _build_list_items_html(self, cwd):
+        page_id = self._get_page_id()
         page = self.pages[page_id]
-        fname = self.paths[page_id]
-        cwd = self._set_cwd(page_id, fname)
         contents = []
         entries = []
         for j, (anchor, title, description, items) in enumerate(page.get('entries')):
@@ -688,27 +696,23 @@ class HtmlWriter:
                 'num': 1 + j % 2,
                 'title': title,
                 'description': self.expand(description, cwd),
-                't_changelog_item_list': self._build_list_items(page_id, list_items)
+                't_changelog_item_list': self._build_list_items(list_items)
             }
-            entries.append(self.format_template(page_id + '-entry', t_entry_subs, 'changelog_entry'))
+            entries.append(self._format_template(page_id + '-entry', t_entry_subs, 'changelog_entry'))
         subs = {
             'm_contents_list_item': self._format_contents_list_items(contents),
             'entries': '\n'.join(entries),
         }
-        return self.format_page(page_id, cwd, subs, 'Reference')
+        return self._format_page(cwd, subs, 'Reference')
 
-    def _build_list_items(self, page_id, items, level=0):
+    def _build_list_items(self, items, level=0):
         if not items:
             return ''
         list_items = []
-        if page_id == 'Changelog':
-            item_template = 'changelog_item'
-        else:
-            item_template = page_id + '-item'
         for item, subitems in items:
             if subitems:
-                item = '{}\n{}\n'.format(item, self._build_list_items(page_id, subitems, level + 1))
-            list_items.append(self.format_template(item_template, {'item': item}, 'list_item'))
+                item = '{}\n{}\n'.format(item, self._build_list_items(subitems, level + 1))
+            list_items.append(self._format_template('list_item', {'item': item}))
         if level > 0:
             indent = level
         else:
@@ -717,7 +721,7 @@ class HtmlWriter:
             'indent': indent,
             'm_changelog_item': '\n'.join(list_items)
         }
-        return self.format_template(page_id + '-item_list', t_changelog_item_list_subs, 'changelog_item_list')
+        return self._format_template(self._get_page_id() + '-item_list', t_changelog_item_list_subs, 'changelog_item_list')
 
     def format_registers(self, cwd, registers, entry_dict):
         input_values = []
@@ -739,7 +743,7 @@ class HtmlWriter:
             for reg in registers:
                 subs['name'] = reg.name
                 subs['description'] = self.expand(reg.contents, cwd)
-                registers_html.append(self.format_template('asm_register', subs))
+                registers_html.append(self._format_template('asm_register', subs))
             reg_lists.append('\n'.join(registers_html))
         return reg_lists
 
@@ -749,7 +753,7 @@ class HtmlWriter:
             't_anchor': anchor,
             'm_paragraph': self.join_paragraphs(paragraphs, cwd)
         }
-        return self.format_template('asm_comment', t_asm_comment_subs)
+        return self._format_template('asm_comment', t_asm_comment_subs)
 
     def _get_asm_entry(self, cwd, index, map_file):
         entry = self.memory_map[index]
@@ -803,7 +807,7 @@ class HtmlWriter:
             instruction_subs['comment_rowspan'] = comment_rowspan
             instruction_subs['annotated'] = annotated
             instruction_subs['t_anchor'] = anchor
-            lines.append(self.format_template('asm_instruction', instruction_subs))
+            lines.append(self._format_template('asm_instruction', instruction_subs))
 
         if entry.end_comment:
             lines.append(self.format_entry_comment(cwd, entry_dict, entry.end_comment))
@@ -816,6 +820,11 @@ class HtmlWriter:
         }
 
     def write_entry(self, cwd, index, map_file):
+        entry = self.memory_map[index]
+        page_id = self._get_asm_page_id(self.code_id, entry.ctl)
+        fname = join(cwd, self.asm_fname(entry.address))
+        self._set_cwd(page_id, fname)
+
         subs = self._get_asm_entry(cwd, index, map_file)
 
         if index:
@@ -829,25 +838,18 @@ class HtmlWriter:
         subs['prev_entry'] = prev_entry_dict
         subs['next_entry'] = next_entry_dict
 
-        entry = self.memory_map[index]
-        fname = join(cwd, self.asm_fname(entry.address))
-        page_id = self._get_asm_page_id(self.code_id, entry.ctl)
-        self._set_cwd(page_id, fname)
-
-        self.write_file(fname, self.format_page(page_id, cwd, subs, 'Asm'))
+        self.write_file(fname, self._format_page(cwd, subs, 'Asm'))
 
     def _write_asm_single_page(self, map_file):
         page_id = self._get_asm_page_id(self.code_id)
-        fname = self.paths[page_id]
-        cwd = os.path.dirname(fname)
+        fname, cwd = self._set_cwd(page_id)
         asm_entries = []
         for i, entry in enumerate(self.memory_map):
             entry_subs = self._get_asm_entry(cwd, i, map_file)
             entry_subs['anchor'] = self.asm_anchor(entry.address)
-            asm_entries.append(self.format_template('asm_entry', entry_subs))
+            asm_entries.append(self._format_template('asm_entry', entry_subs))
         subs = {'m_asm_entry': '\n'.join(asm_entries)}
-        self._set_cwd(page_id, fname)
-        self.write_file(fname, self.format_page(page_id, cwd, subs, self.asm_single_page_template))
+        self.write_file(fname, self._format_page(cwd, subs, self.asm_single_page_template))
 
     def write_entries(self, cwd, map_file):
         if self.asm_single_page_template:
@@ -868,8 +870,7 @@ class HtmlWriter:
         return any([entry.ctl in entry_types for entry in self.memory_map])
 
     def write_map(self, map_name):
-        fname = self.paths[map_name]
-        cwd = self._set_cwd(map_name, fname)
+        fname, cwd = self._set_cwd(map_name)
 
         map_details = self.memory_maps.get(map_name, {})
         entry_types = map_details.get('EntryTypes', DEF_MEMORY_MAP_ENTRY_TYPES)
@@ -888,45 +889,46 @@ class HtmlWriter:
             if entry.ctl in entry_types or ('G' in entry_types and entry.address in self.gsb_includes):
                 t_map_entry_subs['entry'] = self._get_map_entry_dict(cwd, entry, desc)
                 t_map_entry_subs['t_anchor'] = self.format_anchor(self.asm_anchor(entry.address))
-                map_entries.append(self.format_template('map_entry', t_map_entry_subs))
+                map_entries.append(self._format_template('map_entry', t_map_entry_subs))
 
         subs = {
             'MemoryMap': map_dict,
             'm_map_entry': '\n'.join(map_entries)
         }
-        html = self.format_page(map_name, cwd, subs, P_MEMORY_MAP)
+        html = self._format_page(cwd, subs, P_MEMORY_MAP)
         self.write_file(fname, html)
 
     def write_page(self, page_id):
         page = self.pages[page_id]
-        fname = self.paths[page_id]
+        fname, cwd = self._set_cwd(page_id)
         if page.get('entries'):
-            html = self._format_box_page(page_id)
+            html = self._format_box_page(cwd)
         else:
-            cwd = self._set_cwd(page_id, fname)
             subs = {'content': self.expand(page.get('PageContent', ''), cwd)}
-            html = self.format_page(page_id, cwd, subs, 'Page', page.get('JavaScript'))
+            html = self._format_page(cwd, subs, 'Page', page.get('JavaScript'))
         self.write_file(fname, html)
 
     def write_file(self, fname, contents):
         with self.file_info.open_file(fname) as f:
             f.write(contents)
 
-    def _set_cwd(self, page_id, fname):
+    def _set_cwd(self, page_id, fname=None):
+        if fname is None:
+            fname = self.paths[page_id]
         cwd = os.path.dirname(fname)
         self.skoolkit['page_id'] = page_id
         self.skoolkit['index_href'] = self.relpath(cwd, self.paths[P_GAME_INDEX])
         self.skoolkit['title'] = self.titles[page_id]
         self.skoolkit['page_header'] = self.page_headers[page_id]
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
-        return cwd
+        return fname, cwd
 
-    def format_page(self, page_id, cwd, subs, default=None, js=None):
+    def _format_page(self, cwd, subs, default=None, js=None):
         if cwd not in self.stylesheets:
             stylesheets = []
             for css_file in self.game_vars['StyleSheet'].split(';'):
                 t_stylesheet_subs = {'href': self.relpath(cwd, join(self.paths['StyleSheetPath'], basename(css_file)))}
-                stylesheets.append(self.format_template('stylesheet', t_stylesheet_subs))
+                stylesheets.append(self._format_template('stylesheet', t_stylesheet_subs))
             self.stylesheets[cwd] = '\n'.join(stylesheets)
 
         js_key = (cwd, js)
@@ -939,13 +941,13 @@ class HtmlWriter:
                 js_files = self.js_files
             for js_file in js_files:
                 t_javascript_subs = {'src': self.relpath(cwd, join(self.paths['JavaScriptPath'], basename(js_file)))}
-                javascript.append(self.format_template('javascript', t_javascript_subs))
+                javascript.append(self._format_template('javascript', t_javascript_subs))
             self.javascript[js_key] = '\n'.join(javascript)
 
         subs['m_stylesheet'] = self.stylesheets[cwd]
         subs['m_javascript'] = self.javascript[js_key]
-        subs['t_footer'] = self.format_template('footer', {})
-        return self.format_template(page_id, subs, default)
+        subs['t_footer'] = self._format_template('footer', {})
+        return self._format_template(self._get_page_id(), subs, default)
 
     def _get_logo(self, cwd):
         if cwd not in self.logo:
@@ -961,13 +963,13 @@ class HtmlWriter:
         return self.logo[cwd]
 
     def format_anchor(self, anchor):
-        return self.format_template('anchor', {'anchor': anchor})
+        return self._format_template('anchor', {'anchor': anchor})
 
     def format_link(self, href, link_text):
-        return self.format_template('link', {'href': href, 'link_text': link_text})
+        return self._format_template('link', {'href': href, 'link_text': link_text})
 
     def format_img(self, alt, src):
-        return self.format_template('img', {'alt': alt, 'src': src})
+        return self._format_template('img', {'alt': alt, 'src': src})
 
     def _get_image_format(self, image_path):
         img_file_ext = image_path.lower()[-4:]
@@ -1057,21 +1059,21 @@ class HtmlWriter:
                     'contents': cell.contents
                 }
                 if cell.header:
-                    cells.append(self.format_template('table_header_cell', cell_subs))
+                    cells.append(self._format_template('table_header_cell', cell_subs))
                 else:
                     cell_class = cell.cell_class
                     if cell.transparent:
                         cell_class += " transparent"
                     cell_subs['class'] = cell_class.lstrip()
-                    cells.append(self.format_template('table_cell', cell_subs))
-            rows.append(self.format_template('table_row', {'cells': '\n'.join(cells)}))
+                    cells.append(self._format_template('table_cell', cell_subs))
+            rows.append(self._format_template('table_row', {'cells': '\n'.join(cells)}))
         table_subs = {'class': table.table_class, 'm_table_row': '\n'.join(rows)}
-        return self.format_template('table', table_subs)
+        return self._format_template('table', table_subs)
 
     def build_list(self, list_obj):
-        items = [self.format_template('list_item', {'item': i}) for i in list_obj.items]
+        items = [self._format_template('list_item', {'item': i}) for i in list_obj.items]
         list_subs = {'class': list_obj.css_class, 'm_list_item': '\n'.join(items)}
-        return self.format_template('list', list_subs)
+        return self._format_template('list', list_subs)
 
     # API
     def img_element(self, cwd, image_path, alt=None):
@@ -1356,7 +1358,7 @@ class HtmlWriter:
 
     def expand_reg(self, text, index, cwd):
         end, reg = skoolmacro.parse_reg(text, index, self.case == CASE_LOWER)
-        return end, self.format_template('reg', {'reg': reg})
+        return end, self._format_template('reg', {'reg': reg})
 
     def expand_scr(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(text, index)

@@ -235,6 +235,7 @@ class HtmlWriterTestCase(SkoolKitTestCase):
         writer = HtmlWriter(skool_parser, ref_parser, file_info, case)
         if mock_write_file:
             writer.write_file = self._mock_write_file
+        writer.skoolkit['page_id'] = 'None'
         return writer
 
 class HtmlWriterTest(HtmlWriterTestCase):
@@ -6147,24 +6148,22 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal(join(ASMDIR, '24576.html'), subs)
 
-    def test_format_page_with_single_global_js(self):
+    def test_write_page_with_single_global_js(self):
         global_js = 'js/global.js'
         page_id = 'Custom'
         ref = '\n'.join((
             '[Game]',
             'JavaScript={0}',
             '[Page:{1}]',
-            'Path=',
             '[Template:{1}]',
             '{{m_javascript}}'
         )).format(global_js, page_id)
         writer = self._get_writer(ref=ref)
-        cwd = 'subdir/subdir2'
-        page = writer.format_page(page_id, cwd, {}).split('\n')
-        js_path = writer.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(global_js)))
-        self.assertEqual(page[0], '<script type="text/javascript" src="{}"></script>'.format(js_path))
+        writer.write_page(page_id)
+        js_path = basename(global_js)
+        self.assertEqual(self._read_file(page_id + '.html'), '<script type="text/javascript" src="{}"></script>'.format(js_path))
 
-    def test_format_page_with_multiple_global_js(self):
+    def test_write_page_with_multiple_global_js(self):
         js_files = ['js/global1.js', 'js.global2.js']
         global_js = ';'.join(js_files)
         page_id = 'Custom'
@@ -6177,45 +6176,44 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             '{{m_javascript}}'
         )).format(global_js, page_id)
         writer = self._get_writer(ref=ref)
-        cwd = 'subdir/subdir2'
-        page = writer.format_page(page_id, cwd, {}).split('\n')
-        js_paths = [writer.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
+        writer.write_page(page_id)
+        js_paths = [basename(js) for js in js_files]
+        page = self._read_file(page_id + '.html', True)
         self.assertEqual(page[0], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
         self.assertEqual(page[1], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
 
-    def test_format_page_with_single_local_js(self):
+    def test_write_page_with_single_local_js(self):
         page_id = 'Custom'
-        ref = '\n'.join((
-            '[Page:{0}]',
-            'Path=',
-            '[Template:{0}]',
-            '{{m_javascript}}'
-        )).format(page_id)
-        writer = self._get_writer(ref=ref)
-        cwd = 'subdir/subdir2'
         js = 'js/script.js'
-        page = writer.format_page(page_id, cwd, {}, js=js).split('\n')
-        js_path = writer.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
-        self.assertEqual(page[0], '<script type="text/javascript" src="{}"></script>'.format(js_path))
-
-    def test_format_page_with_multiple_local_js(self):
-        page_id = 'Custom'
         ref = '\n'.join((
             '[Page:{0}]',
-            'Path=',
+            'JavaScript={1}',
             '[Template:{0}]',
             '{{m_javascript}}'
-        )).format(page_id)
+        )).format(page_id, js)
         writer = self._get_writer(ref=ref)
-        cwd = 'subdir'
+        writer.write_page(page_id)
+        js_path = basename(js)
+        self.assertEqual(self._read_file(page_id + '.html'), '<script type="text/javascript" src="{}"></script>'.format(js_path))
+
+    def test_write_page_with_multiple_local_js(self):
+        page_id = 'Custom'
         js_files = ['js/script1.js', 'js/script2.js']
         js = ';'.join(js_files)
-        page = writer.format_page(page_id, cwd, {}, js=js).split('\n')
-        js_paths = [writer.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js))) for js in js_files]
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'JavaScript={1}',
+            '[Template:{0}]',
+            '{{m_javascript}}'
+        )).format(page_id, js)
+        writer = self._get_writer(ref=ref)
+        writer.write_page(page_id)
+        js_paths = [basename(js) for js in js_files]
+        page = self._read_file(page_id + '.html', True)
         self.assertEqual(page[0], '<script type="text/javascript" src="{}"></script>'.format(js_paths[0]))
         self.assertEqual(page[1], '<script type="text/javascript" src="{}"></script>'.format(js_paths[1]))
 
-    def test_format_page_with_local_and_global_js(self):
+    def test_write_page_with_local_and_global_js(self):
         global_js_files = ['js/global1.js', 'js.global2.js']
         global_js = ';'.join(global_js_files)
         local_js_files = ['js/local1.js', 'js/local2.js']
@@ -6225,18 +6223,17 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             '[Game]',
             'JavaScript={0}',
             '[Page:{1}]',
-            'Path=',
+            'JavaScript={2}',
             '[Template:{1}]',
             '{{m_javascript}}'
-        )).format(global_js, page_id)
+        )).format(global_js, page_id, local_js)
         writer = self._get_writer(ref=ref)
-        cwd = 'subdir/subdir2'
-        page = writer.format_page(page_id, cwd, {}, js=local_js).split('\n')
+        writer.write_page(page_id)
+        page = self._read_file(page_id + '.html', True)
         for i, js in enumerate(global_js_files + local_js_files):
-            js_path = writer.relpath(cwd, '{}/{}'.format(writer.paths['JavaScriptPath'], basename(js)))
-            self.assertEqual(page[i], '<script type="text/javascript" src="{}"></script>'.format(js_path))
+            self.assertEqual(page[i], '<script type="text/javascript" src="{}"></script>'.format(basename(js)))
 
-    def test_format_page_with_single_css(self):
+    def test_write_page_with_single_css(self):
         css = 'css/game.css'
         page_id = 'Custom'
         ref = '\n'.join((
@@ -6248,12 +6245,11 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             '{{m_stylesheet}}'
         )).format(css, page_id)
         writer = self._get_writer(ref=ref)
-        cwd = ''
-        page = writer.format_page(page_id, cwd, {}).split('\n')
-        css_path = writer.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css)))
-        self.assertEqual(page[0], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_path))
+        writer.write_page(page_id)
+        page = self._read_file(page_id + '.html')
+        self.assertEqual(page, '<link rel="stylesheet" type="text/css" href="{}" />'.format(basename(css)))
 
-    def test_format_page_with_multiple_css(self):
+    def test_write_page_with_multiple_css(self):
         css_files = ['css/game.css', 'css/foo.css']
         page_id = 'Custom'
         ref = '\n'.join((
@@ -6265,9 +6261,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             '{{m_stylesheet}}'
         )).format(';'.join(css_files), page_id)
         writer = self._get_writer(ref=ref)
-        cwd = ''
-        page = writer.format_page(page_id, cwd, {}).split('\n')
-        css_paths = [writer.relpath(cwd, '{}/{}'.format(writer.paths['StyleSheetPath'], basename(css))) for css in css_files]
+        writer.write_page(page_id)
+        page = self._read_file(page_id + '.html', True)
+        css_paths = [basename(css) for css in css_files]
         self.assertEqual(page[0], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[0]))
         self.assertEqual(page[1], '<link rel="stylesheet" type="text/css" href="{}" />'.format(css_paths[1]))
 
@@ -6345,7 +6341,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         page = self._read_file(path, True)
         self.assertEqual(page[0], '<img alt="{}" src="{}" />'.format(game_name, logo))
 
-    def test_format_page_with_logo(self):
+    def test_write_page_with_logo(self):
         logo = 'ABC #UDG30000 123'
         page_id = 'custom'
         ref = '\n'.join((
@@ -6383,9 +6379,9 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         path = 'maps/{}.html'.format(map_id)
         self.assertEqual('<foo>Bar</foo>', self.files[path])
 
-    def test_changelog_with_changelog_item_template(self):
-        # Test that the 'changelog_item' template is used if defined (instead
-        # of the default 'list_item' template)
+    def test_changelog_with_custom_item_template(self):
+        # Test that the 'Changelog-list_item' template is used if defined
+        # instead of the default 'list_item' template)
         ref = '\n'.join((
             '[Changelog:20141123]',
             '-',
@@ -6393,7 +6389,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             'Item 1',
             'Item 2',
             '',
-            '[Template:changelog_item]',
+            '[Template:Changelog-list_item]',
             '<li>* {item}</li>'
         ))
         content = """
@@ -6510,7 +6506,7 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             '{m_changelog_item}',
             '</ul>',
             '',
-            '[Template:{}-item]',
+            '[Template:{}-list_item]',
             '<li>* {item}</li>'
         )).replace('{}', page_id)
         exp_content = """
