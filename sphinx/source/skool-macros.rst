@@ -392,6 +392,18 @@ In ASM mode, this instance of the ``#BUG`` macro expands to 'bug'.
 
 See also :ref:`FACT` and :ref:`POKE`.
 
+.. note::
+   The ``#BUG`` macro is deprecated since version 5.4. Either use the
+   :ref:`LINK` macro instead, or use the :ref:`replace` directive to convert
+   existing ``#BUG`` macros into ``#LINK`` macros::
+
+     @replace=/#BUG(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Bugs\1(bug)
+     @replace=/#BUG(?![A-Z])/#LINK:Bugs
+
+   The first directive replaces ``#BUG`` macros that have no link text
+   parameter; the second directive replaces ``#BUG`` macros that do have a link
+   text parameter.
+
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
@@ -553,6 +565,18 @@ In HTML mode, this instance of the ``#FACT`` macro expands to a hyperlink to
 an entry on the 'Trivia' page, with link text equal to the title of the entry.
 
 See also :ref:`BUG` and :ref:`POKE`.
+
+.. note::
+   The ``#FACT`` macro is deprecated since version 5.4. Either use the
+   :ref:`LINK` macro instead, or use the :ref:`replace` directive to convert
+   existing ``#FACT`` macros into ``#LINK`` macros::
+
+     @replace=/#FACT(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Facts\1(fact)
+     @replace=/#FACT(?![A-Z])/#LINK:Facts
+
+   The first directive replaces ``#FACT`` macros that have no link text
+   parameter; the second directive replaces ``#FACT`` macros that do have a
+   link text parameter.
 
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
@@ -747,6 +771,18 @@ an entry on the 'Pokes' page, with link text 'infinite lives'.
 In ASM mode, this instance of the ``#POKE`` macro expands to 'infinite lives'.
 
 See also :ref:`BUG` and :ref:`FACT`.
+
+.. note::
+   The ``#POKE`` macro is deprecated since version 5.4. Either use the
+   :ref:`LINK` macro instead, or use the :ref:`replace` directive to convert
+   existing ``#POKE`` macros into ``#LINK`` macros::
+
+     @replace=/#POKE(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Pokes\1(poke)
+     @replace=/#POKE(?![A-Z])/#LINK:Pokes
+
+   The first directive replaces ``#POKE`` macros that have no link text
+   parameter; the second directive replaces ``#POKE`` macros that do have a
+   link text parameter.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
