@@ -6594,6 +6594,96 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
+    def test_custom_asm_c_page_with_custom_subtemplates(self):
+        skool = '\n'.join((
+            '; Routine at 32768',
+            ';',
+            '; Do stuff.',
+            ';',
+            '; HL 0',
+            'c32768 XOR A  ; #REGa=0'
+        ))
+        ref = '\n'.join((
+            '[Template:Asm-c]',
+            '{entry[title]}',
+            '{entry[description]}',
+            '{registers_input}',
+            '{disassembly}',
+            '',
+            '[Template:Asm-c-asm_register]',
+            '{name} register: {description}',
+            '',
+            '[Template:Asm-c-asm_comment]',
+            '{m_paragraph}',
+            '',
+            '[Template:Asm-c-paragraph]',
+            '{paragraph}',
+            '',
+            '[Template:Asm-c-asm_instruction]',
+            '{address}: {operation} ; {comment}',
+            '',
+            '[Template:Asm-c-reg]',
+            '{reg}'
+        ))
+        exp_content = """
+            Routine at 32768
+            Do stuff.
+            HL register: 0
+            32768: XOR A ; A=0
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_content, 'asm/32768.html')
+
+    def test_custom_other_code_asm_c_page_with_custom_subtemplates(self):
+        code_id = 'Stuff'
+        other_skool = '\n'.join((
+            '; Routine at 32768',
+            ';',
+            '; Do stuff.',
+            ';',
+            '; HL 0',
+            'c32768 LD B,A  ; #REGb=#REGa'
+        ))
+        ref = '\n'.join((
+            '[OtherCode:{}]',
+            '',
+            '[Template:{}-Asm-c]',
+            '{entry[title]}',
+            '{entry[description]}',
+            '{registers_input}',
+            '{disassembly}',
+            '',
+            '[Template:{}-Asm-c-asm_register]',
+            '{name} register: {description}',
+            '',
+            '[Template:{}-Asm-c-asm_comment]',
+            '{m_paragraph}',
+            '',
+            '[Template:{}-Asm-c-paragraph]',
+            '{paragraph}',
+            '',
+            '[Template:{}-Asm-c-asm_instruction]',
+            '{address}: {operation} ; {comment}',
+            '',
+            '[Template:{}-Asm-c-reg]',
+            '{reg}'
+        )).replace('{}', code_id)
+        exp_content = """
+            Routine at 32768
+            Do stuff.
+            HL register: 0
+            32768: LD B,A ; B=A
+        """
+
+        main_writer = self._get_writer(ref=ref, skool=other_skool)
+        oc_writer = main_writer.clone(main_writer.parser, code_id)
+        oc_writer.write_file = self._mock_write_file
+        asm_path = map_path = 'other'
+        oc_writer.write_entries(asm_path, map_path)
+        self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
+
 class UdgTest(SkoolKitTestCase):
     def test_flip(self):
         udg = Udg(0, [1, 2, 4, 8, 16, 32, 64, 128], [1, 2, 4, 8, 16, 32, 64, 128])
