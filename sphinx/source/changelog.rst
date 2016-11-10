@@ -22,6 +22,7 @@ Changelog
   (e.g. ``{UDG-A}``)
 * Improved how :ref:`end`, :ref:`org`, :ref:`replace`, :ref:`set`, :ref:`start`
   and :ref:`writer` directives are preserved and restored via a control file
+* Added support for :ref:`page-specific HTML subtemplates <ps_templates>`
 
 5.3 (2016-09-05)
 ----------------

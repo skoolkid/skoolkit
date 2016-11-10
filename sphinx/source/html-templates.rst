@@ -697,3 +697,109 @@ To see the default ``table_row`` template, run the following command::
   $ skool2html.py -r Template:table_row
 
 .. versionadded:: 4.2
+
+.. _ps_templates:
+
+Page-specific templates
+-----------------------
+When SkoolKit builds an HTML page, it uses the template whose name matches the
+page ID (``PageID``) if it exists, or one of the stock page-level templates
+otherwise. For example, when building the ``RoutinesMap`` memory map page,
+SkoolKit uses the ``RoutinesMap`` template if it exists, or the stock
+:ref:`t_MemoryMap` template otherwise.
+
++-------------------------------+----------------------------+----------------------+
+| Page type                     | Preferred template         | Stock template       |
++===============================+============================+======================+
+| Home (index)                  | ``GameIndex``              | :ref:`t_GameIndex`   |
++-------------------------------+----------------------------+----------------------+
+| :ref:`Other code <otherCode>` | ``CodeID-Index``           | :ref:`t_MemoryMap`   |
+| index                         |                            |                      |
++-------------------------------+----------------------------+----------------------+
+| Routine/data block            | ``[CodeID-]Asm-*``         | :ref:`t_Asm`         |
++-------------------------------+----------------------------+----------------------+
+| Disassembly (single page)     | ``[CodeID-]AsmSinglePage`` | :ref:`t_AsmAllInOne` |
++-------------------------------+----------------------------+----------------------+
+| :ref:`Memory map <memoryMap>` | ``PageID``                 | :ref:`t_MemoryMap`   |
++-------------------------------+----------------------------+----------------------+
+| :ref:`Box page <boxpages>`    | ``PageID``                 | :ref:`t_Reference`   |
++-------------------------------+----------------------------+----------------------+
+| :ref:`Custom page <Page>`     | ``PageID``                 | :ref:`t_Page`        |
+| (non-box)                     |                            |                      |
++-------------------------------+----------------------------+----------------------+
+
+When SkoolKit builds an element of an HTML page whose format is defined by a
+subtemplate, it uses the subtemplate whose name starts with ``PageID-`` if it
+exists, or one of the stock subtemplates otherwise. For example, when building
+the footer of the ``Changelog`` page, SkoolKit uses the ``Changelog-footer``
+template if it exists, or the stock :ref:`t_footer` template otherwise.
+
++-------------------------------+--------------------------------------+------------------------------+
+| Element type                  | Preferred template                   | Stock subtemplate            |
++===============================+======================================+==============================+
+| Registers table               | ``[CodeID-]Asm-*-asm_register``      | :ref:`t_asm_register`        |
++-------------------------------+--------------------------------------+------------------------------+
+| Routine/data block comment    | ``[CodeID-]Asm-*-asm_comment``       | :ref:`t_asm_comment`         |
++-------------------------------+--------------------------------------+------------------------------+
+| Instruction                   | ``[CodeID-]Asm-*-asm_instruction``   | :ref:`t_asm_instruction`     |
++-------------------------------+--------------------------------------+------------------------------+
+| Single-page disassembly       | ``[CodeID-]AsmSinglePage-asm_entry`` | :ref:`t_asm_entry`           |
+| routine/data block            |                                      |                              |
++-------------------------------+--------------------------------------+------------------------------+
+| :ref:`Box page <boxpages>`    | ``PageID-entry``                     | :ref:`t_reference_entry`     |
+| entry (paragraphs)            |                                      |                              |
++-------------------------------+--------------------------------------+------------------------------+
+| :ref:`Box page <boxpages>`    | ``PageID-entry``                     | :ref:`t_changelog_entry`     |
+| entry (list items)            |                                      |                              |
++-------------------------------+--------------------------------------+------------------------------+
+| :ref:`Box page <boxpages>`    | ``PageID-item_list``                 | :ref:`t_changelog_item_list` |
+| entry  list                   |                                      |                              |
++-------------------------------+--------------------------------------+------------------------------+
+| :ref:`Box page <boxpages>`    | ``PageID-list_item``                 | :ref:`t_list_item`           |
+| entry list item               |                                      |                              |
++-------------------------------+--------------------------------------+------------------------------+
+| :ref:`Box page <boxpages>`    | ``PageID-contents_list_item``        | :ref:`t_contents_list_item`  |
+| contents list item            |                                      |                              |
++-------------------------------+--------------------------------------+------------------------------+
+| Paragraph on a                | ``PageID-paragraph``                 | :ref:`t_paragraph`           |
+| routine/data block page,      |                                      |                              |
+| :ref:`box page <boxpages>` or |                                      |                              |
+| :ref:`memory map <memoryMap>` |                                      |                              |
+| page                          |                                      |                              |
++-------------------------------+--------------------------------------+------------------------------+
+| Entry on a                    | ``PageID-map_entry``                 | :ref:`t_map_entry`           |
+| :ref:`memory map <memoryMap>` |                                      |                              |
+| page                          |                                      |                              |
++-------------------------------+--------------------------------------+------------------------------+
+| ``<link>`` element for a CSS  | ``PageID-stylesheet``                | :ref:`t_stylesheet`          |
+| file                          |                                      |                              |
++-------------------------------+--------------------------------------+------------------------------+
+| ``<script>`` element          | ``PageID-javascript``                | :ref:`t_javascript`          |
++-------------------------------+--------------------------------------+------------------------------+
+| ``<img>`` element             | ``PageID-img``                       | :ref:`t_img`                 |
++-------------------------------+--------------------------------------+------------------------------+
+| Hyperlink                     | ``PageID-link``                      | :ref:`t_link`                |
++-------------------------------+--------------------------------------+------------------------------+
+| Page anchor                   | ``PageID-anchor``                    | :ref:`t_anchor`              |
++-------------------------------+--------------------------------------+------------------------------+
+| Page footer                   | ``PageID-footer``                    | :ref:`t_footer`              |
++-------------------------------+--------------------------------------+------------------------------+
+| Register name rendered by the | ``PageID-reg``                       | :ref:`t_reg`                 |
+| :ref:`REG` macro              |                                      |                              |
++-------------------------------+--------------------------------------+------------------------------+
+| List created by the           | ``PageID-list``                      | :ref:`t_list`                |
+| :ref:`LIST` macro             +--------------------------------------+------------------------------+
+|                               | ``PageID-list_item``                 | :ref:`t_list_item`           |
++-------------------------------+--------------------------------------+------------------------------+
+| Table created by the          | ``PageID-table``                     | :ref:`t_table`               |
+| :ref:`TABLE` macro            +--------------------------------------+------------------------------+
+|                               | ``PageID-table_row``                 | :ref:`t_table_row`           |
+|                               +--------------------------------------+------------------------------+
+|                               | ``PageID-table_header_cell``         | :ref:`t_table_header_cell`   |
+|                               +--------------------------------------+------------------------------+
+|                               | ``PageID-table_cell``                | :ref:`t_table_cell`          |
++-------------------------------+--------------------------------------+------------------------------+
+
+Wherever ``Asm-*`` appears in the tables above, it means one of ``Asm-b``,
+``Asm-c``, ``Asm-g``, ``Asm-s``, ``Asm-t``, ``Asm-u`` or ``Asm-w``, depending
+on the type of code or data block.
