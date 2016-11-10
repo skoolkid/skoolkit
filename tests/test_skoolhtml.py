@@ -6540,6 +6540,60 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
+    def test_page_with_custom_table_templates(self):
+        page_id = 'JustSomePage'
+        ref = '\n'.join((
+            '[PageContent:{}]',
+            '#TABLE',
+            '{ =h This | =h That }',
+            '{ 1A | 1B }',
+            '{ 2A | 2B }',
+            'TABLE#',
+            '',
+            '[Template:{}-table]',
+            'BEGIN TABLE (',
+            '{m_table_row}',
+            ') END TABLE',
+            '',
+            '[Template:{}-table_row]',
+            '<row>',
+            '{cells}',
+            '</row>',
+            '',
+            '[Template:{}-table_header_cell]',
+            '<header>{contents}</header>',
+            '',
+            '[Template:{}-table_cell]',
+            '<cell>{contents}</cell>'
+        )).replace('{}', page_id)
+        exp_content = """
+            BEGIN TABLE (
+            <row>
+            <header>This</header>
+            <header>That</header>
+            </row>
+            <row>
+            <cell>1A</cell>
+            <cell>1B</cell>
+            </row>
+            <row>
+            <cell>2A</cell>
+            <cell>2B</cell>
+            </row>
+            ) END TABLE
+        """
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        subs = {
+            'title': page_id,
+            'header': page_id,
+            'path': '',
+            'body_class': page_id,
+            'content': exp_content
+        }
+        self._assert_files_equal('{}.html'.format(page_id), subs)
+
 class UdgTest(SkoolKitTestCase):
     def test_flip(self):
         udg = Udg(0, [1, 2, 4, 8, 16, 32, 64, 128], [1, 2, 4, 8, 16, 32, 64, 128])

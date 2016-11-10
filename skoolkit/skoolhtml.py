@@ -265,15 +265,11 @@ class HtmlWriter:
         self.game_vars['StyleSheet'] = value
 
     def _format_template(self, template_name, subs, default=None):
-        # Prefer templates in this order:
-        #   1. PageID-template_name
-        #   2. template_name
-        #   3. default
-        template = self.templates.get(template_name, self.templates.get(default))
-        page_id = self._get_page_id()
-        if not (template_name == page_id or template_name.startswith(page_id + '-')):
-            tname = '{}-{}'.format(page_id, template_name)
-            template = self.templates.get(tname, template)
+        if default is None:
+            tname = '{}-{}'.format(self._get_page_id(), template_name)
+            template = self.templates.get(tname, self.templates[template_name])
+        else:
+            template = self.templates.get(template_name, self.templates[default])
         subs.update(self.template_subs)
         return template.format(**subs)
 
