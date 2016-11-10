@@ -6684,6 +6684,78 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         oc_writer.write_entries(asm_path, map_path)
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
+    def test_custom_asm_single_page_with_custom_subtemplates(self):
+        skool = '\n'.join((
+            '; Routine at 32768',
+            'c32768 XOR A',
+            '',
+            '; Data block at 32769',
+            'b32769 DEFB 0',
+        ))
+        ref = '\n'.join((
+            '[Game]',
+            'AsmSinglePageTemplate=AsmAllInOne',
+            '',
+            '[Template:AsmSinglePage]',
+            '{m_asm_entry}',
+            '',
+            '[Template:AsmSinglePage-asm_entry]',
+            '{entry[title]}',
+            '{disassembly}',
+            '',
+            '[Template:AsmSinglePage-asm_instruction]',
+            '{address}: {operation}'
+        ))
+        exp_content = """
+            Routine at 32768
+            32768: XOR A
+            Data block at 32769
+            32769: DEFB 0
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_content, 'asm.html')
+
+    def test_custom_other_code_asm_single_page_with_custom_subtemplates(self):
+        code_id = 'Other'
+        other_skool = '\n'.join((
+            '; Routine at 49152',
+            'c49152 XOR B',
+            '',
+            '; Data block at 49153',
+            'b49153 DEFB 1',
+        ))
+        ref = '\n'.join((
+            '[OtherCode:{}]',
+            '',
+            '[Game]',
+            'AsmSinglePageTemplate=AsmAllInOne',
+            '',
+            '[Template:{}-AsmSinglePage]',
+            '{m_asm_entry}',
+            '',
+            '[Template:{}-AsmSinglePage-asm_entry]',
+            '{entry[title]}',
+            '{disassembly}',
+            '',
+            '[Template:{}-AsmSinglePage-asm_instruction]',
+            '{address}: {operation}'
+        )).replace('{}', code_id)
+        exp_content = """
+            Routine at 49152
+            49152: XOR B
+            Data block at 49153
+            49153: DEFB 1
+        """
+
+        main_writer = self._get_writer(ref=ref, skool=other_skool)
+        oc_writer = main_writer.clone(main_writer.parser, code_id)
+        oc_writer.write_file = self._mock_write_file
+        asm_path = map_path = 'other'
+        oc_writer.write_entries(asm_path, map_path)
+        self._assert_content_equal(exp_content, '{}/asm.html'.format(code_id))
+
 class UdgTest(SkoolKitTestCase):
     def test_flip(self):
         udg = Udg(0, [1, 2, 4, 8, 16, 32, 64, 128], [1, 2, 4, 8, 16, 32, 64, 128])
