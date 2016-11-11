@@ -7151,6 +7151,36 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         writer.write_page(page_id)
         self._assert_content_equal(exp_content, '{}.html'.format(page_id))
 
+    def test_custom_map_page_with_custom_subtemplates(self):
+        skool = '\n'.join((
+            '; Routine at 49152',
+            ';',
+            '; Reset HL.',
+            'c49152 LD HL,0'
+        ))
+        ref = '\n'.join((
+            '[MemoryMap:MemoryMap]',
+            'EntryDescriptions=1',
+            '',
+            '[Template:MemoryMap]',
+            '{m_map_entry}',
+            '',
+            '[Template:MemoryMap-map_entry]',
+            '{entry[address]}: {entry[title]}',
+            '{entry[description]}',
+            '',
+            '[Template:MemoryMap-paragraph]',
+            '{paragraph}'
+        ))
+        exp_content = """
+            49152: Routine at 49152
+            Reset HL.
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_map('MemoryMap')
+        self._assert_content_equal(exp_content, 'maps/all.html')
+
 class UdgTest(SkoolKitTestCase):
     def test_flip(self):
         udg = Udg(0, [1, 2, 4, 8, 16, 32, 64, 128], [1, 2, 4, 8, 16, 32, 64, 128])
