@@ -595,6 +595,12 @@ where ``PageID`` is the unique ID of the page.
 
 The HTML source may contain :ref:`skool macros <skoolMacros>`.
 
+.. note::
+   The ``PageContent:*`` section is deprecated since version 5.4. Instead use
+   the ``PageContent`` parameter (in the :ref:`page` section) with an
+   :ref:`INCLUDE` macro to specify the ref file section that contains the page
+   content.
+
 +---------+---------+
 | Version | Changes |
 +=========+=========+

@@ -6450,6 +6450,26 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         path = '{}.html'.format(page_id)
         self.assertEqual('<bar>{}</bar>\n{}'.format(content, footer), self.files[path])
 
+    def test_page_with_content_defined_by_include_macro(self):
+        page_id = 'MyPage'
+        content = 'This is the content of my page.'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'PageContent=#INCLUDE({0})',
+            '[{0}]',
+            content
+        )).format(page_id)
+        subs = {
+            'header': page_id,
+            'body_class': page_id,
+            'path': '',
+            'content': content
+        }
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        self._assert_files_equal('{}.html'.format(page_id), subs)
+
     def test_box_page_with_custom_page_template(self):
         page_id = 'MyCustomBoxPage'
         ref = '\n'.join((
