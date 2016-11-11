@@ -153,7 +153,7 @@ To see the default ``MemoryMap`` template, run the following command::
 Page
 ----
 The ``Page`` template is the full-page template that is used to build custom
-pages defined by :ref:`page` and :ref:`pageContent` sections.
+non-box pages defined by :ref:`page` and :ref:`pageContent` sections.
 
 The following identifier is available (in addition to the universal and
 page-level identifiers):
