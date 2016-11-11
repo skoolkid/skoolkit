@@ -7113,6 +7113,44 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         oc_writer.write_entries(asm_path, map_path)
         self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
 
+    def test_custom_box_page_with_custom_subtemplates(self):
+        page_id = 'MyBoxes'
+        ref = '\n'.join((
+            '[Page:{}]',
+            'SectionPrefix=Box',
+            '',
+            '[Box:Box 1]',
+            'Stuff.',
+            '',
+            '[Box:Box 2]',
+            'More stuff.',
+            '',
+            '[Template:{}]',
+            '{m_contents_list_item}',
+            '',
+            '{entries}',
+            '',
+            '[Template:{}-contents_list_item]',
+            '* {title}',
+            '',
+            '[Template:{}-paragraph]',
+            '{paragraph}',
+            '',
+            '[Template:{}-entry]',
+            '{title}: {contents}'
+        )).replace('{}', page_id)
+        exp_content = """
+            * Box 1
+            * Box 2
+
+            Box 1: Stuff.
+            Box 2: More stuff.
+        """
+
+        writer = self._get_writer(ref=ref)
+        writer.write_page(page_id)
+        self._assert_content_equal(exp_content, '{}.html'.format(page_id))
+
 class UdgTest(SkoolKitTestCase):
     def test_flip(self):
         udg = Udg(0, [1, 2, 4, 8, 16, 32, 64, 128], [1, 2, 4, 8, 16, 32, 64, 128])
