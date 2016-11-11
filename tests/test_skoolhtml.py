@@ -6756,6 +6756,363 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         oc_writer.write_entries(asm_path, map_path)
         self._assert_content_equal(exp_content, '{}/asm.html'.format(code_id))
 
+    def test_custom_asm_b_page_with_custom_subtemplates(self):
+        skool = '\n'.join((
+            '; Data block at 32768',
+            'b32768 DEFB 0'
+        ))
+        ref = '\n'.join((
+            '[Template:Asm-b]',
+            '{entry[title]}',
+            '{disassembly}',
+            '',
+            '[Template:Asm-b-asm_instruction]',
+            '{t_anchor}: {operation}',
+            '',
+            '[Template:Asm-b-anchor]',
+            '{anchor}'
+        ))
+        exp_content = """
+            Data block at 32768
+            32768: DEFB 0
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_content, 'asm/32768.html')
+
+    def test_custom_other_code_asm_b_page_with_custom_subtemplates(self):
+        code_id = 'Stuff'
+        other_skool = '\n'.join((
+            '; Data block at 32768',
+            ';',
+            '; #LINK:Bugs(bug)',
+            'b32768 DEFB 0'
+        ))
+        ref = '\n'.join((
+            '[OtherCode:{}]',
+            '',
+            '[Template:{}-Asm-b]',
+            '{entry[title]}',
+            '{entry[description]}',
+            '{disassembly}',
+            '',
+            '[Template:{}-Asm-b-asm_instruction]',
+            '{address}: {operation}',
+            '',
+            '[Template:{}-Asm-b-paragraph]',
+            '{paragraph}',
+            '',
+            '[Template:{}-Asm-b-link]',
+            'Link: {href} ({link_text})'
+        )).replace('{}', code_id)
+        exp_content = """
+            Data block at 32768
+            Link: ../reference/bugs.html (bug)
+            32768: DEFB 0
+        """
+
+        main_writer = self._get_writer(ref=ref, skool=other_skool)
+        oc_writer = main_writer.clone(main_writer.parser, code_id)
+        oc_writer.write_file = self._mock_write_file
+        asm_path = map_path = 'other'
+        oc_writer.write_entries(asm_path, map_path)
+        self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
+
+    def test_custom_asm_g_page_with_custom_subtemplates(self):
+        skool = '\n'.join((
+            '; Game status buffer entry at 32768',
+            'g32768 DEFB 0'
+        ))
+        ref = '\n'.join((
+            '[Template:Asm-g]',
+            '{entry[title]}',
+            '{disassembly}',
+            '{t_footer}',
+            '',
+            '[Template:Asm-g-asm_instruction]',
+            '{address}: {operation}',
+            '',
+            '[Template:Asm-g-footer]',
+            '(done)'
+        ))
+        exp_content = """
+            Game status buffer entry at 32768
+            32768: DEFB 0
+            (done)
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_content, 'asm/32768.html')
+
+    def test_custom_other_code_asm_g_page_with_custom_subtemplates(self):
+        code_id = 'Stuff'
+        other_skool = '\n'.join((
+            '; Game status buffer entry at 32768',
+            ';',
+            '; #LIST { Thing 1 } { Thing 2 } LIST#',
+            'g32768 DEFB 0'
+        ))
+        ref = '\n'.join((
+            '[OtherCode:{}]',
+            '',
+            '[Template:{}-Asm-g]',
+            '{entry[title]}',
+            '{entry[description]}',
+            '{disassembly}',
+            '',
+            '[Template:{}-Asm-g-asm_instruction]',
+            '{address}: {operation}',
+            '',
+            '[Template:{}-Asm-g-paragraph]',
+            '{paragraph}',
+            '',
+            '[Template:{}-Asm-g-list]',
+            'Items:',
+            '{m_list_item}',
+            '',
+            '[Template:{}-Asm-g-list_item]',
+            '+ {item}'
+        )).replace('{}', code_id)
+        exp_content = """
+            Game status buffer entry at 32768
+            Items:
+            + Thing 1
+            + Thing 2
+            32768: DEFB 0
+        """
+
+        main_writer = self._get_writer(ref=ref, skool=other_skool)
+        oc_writer = main_writer.clone(main_writer.parser, code_id)
+        oc_writer.write_file = self._mock_write_file
+        asm_path = map_path = 'other'
+        oc_writer.write_entries(asm_path, map_path)
+        self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
+
+    def test_custom_asm_s_page_with_custom_subtemplates(self):
+        skool = '\n'.join((
+            '; Space',
+            's32768 DEFS 10'
+        ))
+        ref = '\n'.join((
+            '[Template:Asm-s]',
+            '{m_stylesheet}',
+            '{entry[title]}',
+            '{disassembly}',
+            '',
+            '[Template:Asm-s-asm_instruction]',
+            '{address}: {operation}',
+            '',
+            '[Template:Asm-s-stylesheet]',
+            '-- {href} --'
+        ))
+        exp_content = """
+            -- ../skoolkit.css --
+            Space
+            32768: DEFS 10
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_content, 'asm/32768.html')
+
+    def test_custom_other_code_asm_s_page_with_custom_subtemplate(self):
+        code_id = 'Stuff'
+        other_skool = '\n'.join((
+            '; Space',
+            's32768 DEFS 10'
+        ))
+        ref = '\n'.join((
+            '[OtherCode:{}]',
+            '',
+            '[Template:{}-Asm-s]',
+            '{entry[title]}',
+            '{disassembly}',
+            '',
+            '[Template:{}-Asm-s-asm_instruction]',
+            '{address}: {operation}'
+        )).replace('{}', code_id)
+        exp_content = """
+            Space
+            32768: DEFS 10
+        """
+
+        main_writer = self._get_writer(ref=ref, skool=other_skool)
+        oc_writer = main_writer.clone(main_writer.parser, code_id)
+        oc_writer.write_file = self._mock_write_file
+        asm_path = map_path = 'other'
+        oc_writer.write_entries(asm_path, map_path)
+        self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
+
+    def test_custom_asm_t_page_with_custom_subtemplates(self):
+        skool = '\n'.join((
+            '; Message at 32768',
+            't32768 DEFM "Hello"'
+        ))
+        ref = '\n'.join((
+            '[Game]',
+            'JavaScript=foo.js',
+            '',
+            '[Template:Asm-t]',
+            '{m_javascript}',
+            '{entry[title]}',
+            '{disassembly}',
+            '',
+            '[Template:Asm-t-asm_instruction]',
+            '{address}: {operation}',
+            '',
+            '[Template:Asm-t-javascript]',
+            '-- {src} --'
+        ))
+        exp_content = """
+            -- ../foo.js --
+            Message at 32768
+            32768: DEFM "Hello"
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_content, 'asm/32768.html')
+
+    def test_custom_other_code_asm_t_page_with_custom_subtemplate(self):
+        code_id = 'Stuff'
+        other_skool = '\n'.join((
+            '; Message at 32768',
+            't32768 DEFM "Hello"'
+        ))
+        ref = '\n'.join((
+            '[OtherCode:{}]',
+            '',
+            '[Template:{}-Asm-t]',
+            '{entry[title]}',
+            '{disassembly}',
+            '',
+            '[Template:{}-Asm-t-asm_instruction]',
+            '{address}: {operation}'
+        )).replace('{}', code_id)
+        exp_content = """
+            Message at 32768
+            32768: DEFM "Hello"
+        """
+
+        main_writer = self._get_writer(ref=ref, skool=other_skool)
+        oc_writer = main_writer.clone(main_writer.parser, code_id)
+        oc_writer.write_file = self._mock_write_file
+        asm_path = map_path = 'other'
+        oc_writer.write_entries(asm_path, map_path)
+        self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
+
+    def test_custom_asm_u_page_with_custom_subtemplates(self):
+        skool = '\n'.join((
+            '; Unused',
+            ';',
+            '; #UDG32768',
+            'u32768 DEFS 100'
+        ))
+        ref = '\n'.join((
+            '[Template:Asm-u]',
+            '{entry[title]}',
+            '{entry[description]}',
+            '{disassembly}',
+            '',
+            '[Template:Asm-u-asm_instruction]',
+            '{address}: {operation}',
+            '',
+            '[Template:Asm-u-paragraph]',
+            '{paragraph}',
+            '',
+            '[Template:Asm-u-img]',
+            'Image: {src}'
+        ))
+        exp_content = """
+            Unused
+            Image: ../images/udgs/udg32768_56x4.png
+            32768: DEFS 100
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_content, 'asm/32768.html')
+
+    def test_custom_other_code_asm_u_page_with_custom_subtemplate(self):
+        code_id = 'Stuff'
+        other_skool = '\n'.join((
+            '; Unused',
+            'u32768 DEFS 100'
+        ))
+        ref = '\n'.join((
+            '[OtherCode:{}]',
+            '',
+            '[Template:{}-Asm-u]',
+            '{entry[title]}',
+            '{disassembly}',
+            '',
+            '[Template:{}-Asm-u-asm_instruction]',
+            '{address}: {operation}'
+        )).replace('{}', code_id)
+        exp_content = """
+            Unused
+            32768: DEFS 100
+        """
+
+        main_writer = self._get_writer(ref=ref, skool=other_skool)
+        oc_writer = main_writer.clone(main_writer.parser, code_id)
+        oc_writer.write_file = self._mock_write_file
+        asm_path = map_path = 'other'
+        oc_writer.write_entries(asm_path, map_path)
+        self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
+
+    def test_custom_asm_w_page_with_custom_subtemplate(self):
+        skool = '\n'.join((
+            '; A word',
+            'w32768 DEFW 1759'
+        ))
+        ref = '\n'.join((
+            '[Template:Asm-w]',
+            '{entry[title]}',
+            '{disassembly}',
+            '',
+            '[Template:Asm-w-asm_instruction]',
+            '{address}: {operation}'
+        ))
+        exp_content = """
+            A word
+            32768: DEFW 1759
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_content, 'asm/32768.html')
+
+    def test_custom_other_code_asm_w_page_with_custom_subtemplate(self):
+        code_id = 'Stuff'
+        other_skool = '\n'.join((
+            '; A word',
+            'w32768 DEFW 1759'
+        ))
+        ref = '\n'.join((
+            '[OtherCode:{}]',
+            '',
+            '[Template:{}-Asm-w]',
+            '{entry[title]}',
+            '{disassembly}',
+            '',
+            '[Template:{}-Asm-w-asm_instruction]',
+            '{address}: {operation}'
+        )).replace('{}', code_id)
+        exp_content = """
+            A word
+            32768: DEFW 1759
+        """
+
+        main_writer = self._get_writer(ref=ref, skool=other_skool)
+        oc_writer = main_writer.clone(main_writer.parser, code_id)
+        oc_writer.write_file = self._mock_write_file
+        asm_path = map_path = 'other'
+        oc_writer.write_entries(asm_path, map_path)
+        self._assert_content_equal(exp_content, '{}/32768.html'.format(asm_path))
+
 class UdgTest(SkoolKitTestCase):
     def test_flip(self):
         udg = Udg(0, [1, 2, 4, 8, 16, 32, 64, 128], [1, 2, 4, 8, 16, 32, 64, 128])
