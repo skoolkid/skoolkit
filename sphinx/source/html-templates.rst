@@ -556,7 +556,8 @@ The ``paragraph`` template is the subtemplate used to format each paragraph in
 the following items:
 
 * memory map entry descriptions (on disassembly pages and memory map pages)
-* mid-block comments and block end comments on disassembly pages
+* block start comments, mid-block comments and block end comments on
+  disassembly pages
 * entries on a :ref:`box page <boxpages>`
 
 The following identifier is available (in addition to the universal
