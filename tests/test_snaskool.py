@@ -1647,6 +1647,137 @@ class SkoolWriterTest(SkoolKitTestCase):
         ]
         self._test_write_skool([0] * 3, ctl, exp_skool)
 
+    def test_bfix_directives(self):
+        ctl = '\n'.join((
+            'c 00000 Routine at 0',
+            '@ 00000 bfix=XOR B',
+            '@ 00001 bfix=RET Z',
+            'i 00002'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            '@bfix=XOR B',
+            'c00000 XOR A         ;',
+            '@bfix=RET Z',
+            ' 00001 RET           ;'
+        ]
+        snapshot = [175, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_isub_directives(self):
+        ctl = '\n'.join((
+            'c 00000 Routine at 0',
+            '@ 00000 isub=XOR B',
+            '@ 00001 isub=RET Z',
+            'i 00002'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            '@isub=XOR B',
+            'c00000 XOR A         ;',
+            '@isub=RET Z',
+            ' 00001 RET           ;'
+        ]
+        snapshot = [175, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_keep_directives(self):
+        ctl = '\n'.join((
+            'c 00000 Routine at 0',
+            '@ 00000 keep',
+            '@ 00003 keep',
+            'i 00006'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            '@keep',
+            'c00000 LD BC,0       ;',
+            '@keep',
+            ' 00003 LD DE,0       ;'
+        ]
+        snapshot = [1, 0, 0, 17, 0, 0]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_nolabel_directives(self):
+        ctl = '\n'.join((
+            'c 00000 Routine at 0',
+            '@ 00000 nolabel',
+            '@ 00002 nolabel',
+            'i 00004'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            '@nolabel',
+            'c00000 JR 2          ;',
+            '@nolabel',
+            '*00002 JR 0          ;'
+        ]
+        snapshot = [24, 0, 24, 252]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_nowarn_directive(self):
+        ctl = '\n'.join((
+            'c 00000 Routine at 0',
+            '@ 00000 nowarn',
+            'i 00004'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            '@nowarn',
+            'c00000 LD BC,3       ;',
+            ' 00003 RET           ;'
+        ]
+        snapshot = [1, 3, 0, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_ofix_directives(self):
+        ctl = '\n'.join((
+            'c 00000 Routine at 0',
+            '@ 00000 ofix=LD A,0',
+            '@ 00002 ofix=LD B,0',
+            'i 00004'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            '@ofix=LD A,0',
+            'c00000 LD A,1        ;',
+            '@ofix=LD B,0',
+            ' 00002 LD B,1        ;'
+        ]
+        snapshot = [62, 1, 6, 1]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_rem_directives(self):
+        ctl = '\n'.join((
+            'c 00000 Routine at 0',
+            '@ 00000 rem=It begins',
+            '@ 00001 rem=Done',
+            'i 00002'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            '@rem=It begins',
+            'c00000 XOR A         ;',
+            '@rem=Done',
+            ' 00001 RET           ;'
+        ]
+        snapshot = [175, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_rfix_directive(self):
         ctl = '\n'.join((
             'c 00000',
@@ -1661,6 +1792,44 @@ class SkoolWriterTest(SkoolKitTestCase):
             'c00000 LD D,0        ;'
         ]
         self._test_write_skool([22, 0], ctl, exp_skool)
+
+    def test_rsub_directives(self):
+        ctl = '\n'.join((
+            'c 00000 Routine at 0',
+            '@ 00000 rsub=LD BC,0',
+            '@ 00002 rsub=LD DE,0',
+            'i 00004'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            '@rsub=LD BC,0',
+            'c00000 LD B,0        ;',
+            '@rsub=LD DE,0',
+            ' 00002 LD E,0        ;'
+        ]
+        snapshot = [6, 0, 30, 0]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_ssub_directives(self):
+        ctl = '\n'.join((
+            'c 00000 Routine at 0',
+            '@ 00000 ssub=LD A,32768%256',
+            '@ 00002 ssub=LD B,32768%256',
+            'i 00004'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            '@ssub=LD A,32768%256',
+            'c00000 LD A,0        ;',
+            '@ssub=LD B,32768%256',
+            ' 00002 LD B,0        ;'
+        ]
+        snapshot = [62, 0, 6, 0]
+        self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_registers(self):
         ctl = '\n'.join((
