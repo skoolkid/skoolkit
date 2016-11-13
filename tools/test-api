@@ -57,7 +57,8 @@ write_module() {
   cat <<EOF
 import time
 
-from skoolkit.skoolhtml import HtmlWriter, Udg, Frame
+from skoolkit.graphics import Udg, Frame
+from skoolkit.skoolhtml import HtmlWriter
 from skoolkit.skoolasm import AsmWriter
 from skoolkit.skoolmacro import parse_ints, parse_image_macro
 
