@@ -2790,6 +2790,7 @@ class HtmlWriterOutputTestCase(HtmlWriterTestCase):
         js = subs.get('js')
         subs.setdefault('name', basename(self.skoolfile)[:-6])
         subs.setdefault('path', '../')
+        subs.setdefault('map', '{}maps/all.html'.format(subs['path']))
         subs.setdefault('script', '<script type="text/javascript" src="{}"></script>'.format(js) if js else '')
         subs.setdefault('title', subs['header'])
         subs.setdefault('logo', subs['name'])
@@ -2797,7 +2798,7 @@ class HtmlWriterOutputTestCase(HtmlWriterTestCase):
         prev_up_next_lines = []
         if 'up' in subs:
             subs['prev_link'] = '<span class="prev-0">Prev: <a href=""></a></span>'
-            subs['up_link'] = 'Up: <a href="{path}maps/all.html#{up}">Map</a>'.format(**subs)
+            subs['up_link'] = 'Up: <a href="{map}#{up}">Map</a>'.format(**subs)
             subs['next_link'] = '<span class="next-0">Next: <a href=""></a></span>'
             if 'prev' in subs:
                 subs['prev_link'] = '<span class="prev-1">Prev: <a href="{0}.html">{0:05d}</a></span>'.format(subs['prev'])
@@ -3679,7 +3680,6 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             'w30006 DEFW 0'
         ))
         writer = self._get_writer(ref=ref, skool=skool)
-        name = basename(self.skoolfile)[:-6]
         writer.write_asm_entries()
 
         address = 30000
@@ -4899,6 +4899,240 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         writer = self._get_writer(ref=ref, skool='u30000 DEFB 0')
         writer.write_map('UnusedMap')
         self._assert_title_equals(path, title, header)
+
+    def test_write_other_code_asm_entries(self):
+        code_id = 'startup'
+        ref = '[OtherCode:{}]'.format(code_id)
+        other_skool = '\n'.join((
+            '; Some data',
+            'b30000 DEFB 0',
+            '',
+            '; A routine',
+            'c30001 RET'
+            '',
+            '; A message',
+            't30002 DEFM "a"'
+        ))
+        main_writer = self._get_writer(ref=ref, skool=other_skool)
+
+        code = main_writer.other_code[0][1]
+        index_page_id = code['IndexPageId']
+        self.assertEqual(index_page_id, '{}-Index'.format(code_id))
+        map_path = main_writer.paths[index_page_id]
+        self.assertEqual(map_path, '{}/{}.html'.format(code_id, code_id))
+        code_path_id = code['CodePathId']
+        self.assertEqual(code_path_id, '{}-CodePath'.format(code_id))
+        asm_path = main_writer.paths[code_path_id]
+        self.assertEqual(asm_path, code_id)
+
+        writer = main_writer.clone(main_writer.parser, code_id)
+        writer.write_file = self._mock_write_file
+        writer.write_entries(asm_path, map_path)
+
+        content = """
+            <div class="description">30000: Some data</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="30000"></span>30000</td>
+            <td class="instruction">DEFB 0</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'map': basename(map_path),
+            'title': 'Data at 30000',
+            'header': 'Data',
+            'body_class': '{}-Asm-b'.format(code_id),
+            'up': 30000,
+            'next': 30001,
+            'content': content
+        }
+        self._assert_files_equal('{}/30000.html'.format(asm_path), subs)
+
+        content = """
+            <div class="description">30001: A routine</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="30001"></span>30001</td>
+            <td class="instruction">RET</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'map': basename(map_path),
+            'title': 'Routine at 30001',
+            'header': 'Routines',
+            'body_class': '{}-Asm-c'.format(code_id),
+            'prev': 30000,
+            'up': 30001,
+            'next': 30002,
+            'content': content
+        }
+        self._assert_files_equal('{}/30001.html'.format(asm_path), subs)
+
+        content = """
+            <div class="description">30002: A message</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="30002"></span>30002</td>
+            <td class="instruction">DEFM "a"</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'map': basename(map_path),
+            'title': 'Data at 30002',
+            'header': 'Data',
+            'body_class': '{}-Asm-t'.format(code_id),
+            'prev': 30001,
+            'up': 30002,
+            'content': content
+        }
+        self._assert_files_equal('{}/30002.html'.format(asm_path), subs)
+
+    def test_write_other_code_asm_entries_with_custom_path_and_titles_and_headers(self):
+        code_id = 'secondary'
+        code_path = 'other-code'
+        titles = {
+            'b': 'Bytes at',
+            'c': 'Code at',
+            'g': 'GSB entry at',
+            's': 'Space at',
+            't': 'Text at',
+            'u': 'Unused bytes at',
+            'w': 'Words at'
+        }
+        headers = {
+            'b': 'Bytes',
+            'c': 'Code',
+            'g': 'GSB',
+            's': 'Unused space',
+            't': 'Text',
+            'u': 'Unused bytes',
+            'w': 'Words'
+        }
+        ref = '\n'.join((
+            '[OtherCode:{code_id}]',
+            '',
+            '[Paths]',
+            '{code_id}-CodePath={code_path}',
+            '',
+            '[Titles]',
+            '{code_id}-Asm-b={titles[b]}',
+            '{code_id}-Asm-c={titles[c]}',
+            '{code_id}-Asm-g={titles[g]}',
+            '{code_id}-Asm-s={titles[s]}',
+            '{code_id}-Asm-t={titles[t]}',
+            '{code_id}-Asm-u={titles[u]}',
+            '{code_id}-Asm-w={titles[w]}',
+            '',
+            '[PageHeaders]',
+            '{code_id}-Asm-b={headers[b]}',
+            '{code_id}-Asm-c={headers[c]}',
+            '{code_id}-Asm-g={headers[g]}',
+            '{code_id}-Asm-s={headers[s]}',
+            '{code_id}-Asm-t={headers[t]}',
+            '{code_id}-Asm-u={headers[u]}',
+            '{code_id}-Asm-w={headers[w]}',
+        )).format(code_id=code_id, code_path=code_path, titles=titles, headers=headers)
+        other_skool = '\n'.join((
+            '; b',
+            'b30000 DEFB 0',
+            '',
+            '; c',
+            'c30001 RET',
+            '',
+            '; g',
+            'g30002 DEFB 0',
+            '',
+            '; s',
+            's30003 DEFS 1',
+            '',
+            '; t',
+            't30004 DEFM "a"',
+            '',
+            '; u',
+            'u30005 DEFB 0',
+            '',
+            '; w',
+            'w30006 DEFW 0'
+        ))
+        main_writer = self._get_writer(ref=ref, skool=other_skool)
+
+        code = main_writer.other_code[0][1]
+        index_page_id = code['IndexPageId']
+        self.assertEqual(index_page_id, '{}-Index'.format(code_id))
+        map_path = main_writer.paths[index_page_id]
+        self.assertEqual(map_path, '{}/{}.html'.format(code_id, code_id))
+        code_path_id = code['CodePathId']
+        self.assertEqual(code_path_id, '{}-CodePath'.format(code_id))
+        asm_path = main_writer.paths[code_path_id]
+        self.assertEqual(asm_path, code_path)
+
+        writer = main_writer.clone(main_writer.parser, code_id)
+        writer.write_file = self._mock_write_file
+        writer.write_entries(asm_path, map_path)
+
+        address = 30000
+        for entry_type in 'bcgstuw':
+            path = '{}/{}.html'.format(asm_path, address)
+            title = '{} {}'.format(titles[entry_type], address)
+            self._assert_title_equals(path, title, headers[entry_type])
+            address += 1
 
     def test_write_other_code_using_single_page_template(self):
         code_id = 'other'
