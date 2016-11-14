@@ -934,6 +934,78 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._check_sublengths(exp_sublengths, ctl_parser.get_blocks())
 
+    def test_assemble_directives(self):
+        ctl = '\n'.join((
+            '@ 30000 assemble=1',
+            'c 30000 Routine at 30000',
+            '@ 30001 assemble=0'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            30000: []
+        }
+        exp_instruction_directives = {
+            30000: ['assemble=1'],
+            30001: ['assemble=0']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_bfix_directives(self):
+        ctl = '\n'.join((
+            '@ 40000 bfix=XOR A',
+            'c 40000 Routine at 40000',
+            '@ 40001 bfix=XOR B'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            40000: []
+        }
+        exp_instruction_directives = {
+            40000: ['bfix=XOR A'],
+            40001: ['bfix=XOR B']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_end_directives(self):
+        ctl = '\n'.join((
+            'c 40000 Routine at 40000',
+            '@ 40001 end',
+            '@ 40002 end',
+            'c 40002 Routine at 40002'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            40000: [],
+            40002: ['end']
+        }
+        exp_instruction_directives = {
+            40001: ['end']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_equ_directives(self):
+        ctl = '\n'.join((
+            '@ 50000 equ=ATTRS=22528',
+            'c 50000 Routine at 50000',
+            '@ 50001 equ=UDG=23675'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            50000: ['equ=ATTRS=22528'],
+        }
+        exp_instruction_directives = {
+            50001: ['equ=UDG=23675']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
     def test_ignoreua_directives(self):
         ctl = '\n'.join((
             '@ 30000 ignoreua:t',
@@ -974,6 +1046,286 @@ class CtlParserTest(SkoolKitTestCase):
             30005: ['m']
         }
         self._check_ignoreua_directives(exp_entry_directives, exp_other_directives, blocks)
+
+    def test_isub_directives(self):
+        ctl = '\n'.join((
+            '@ 40000 isub=LD A,1',
+            'c 40000 Routine at 40000',
+            '@ 40002 isub=LD A,2'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            40000: []
+        }
+        exp_instruction_directives = {
+            40000: ['isub=LD A,1'],
+            40002: ['isub=LD A,2']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_keep_directives(self):
+        ctl = '\n'.join((
+            '@ 50000 keep',
+            'c 50000 Routine at 50000',
+            '@ 50003 keep'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            50000: []
+        }
+        exp_instruction_directives = {
+            50000: ['keep'],
+            50003: ['keep']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_label_directives(self):
+        ctl = '\n'.join((
+            '@ 60000 label=START',
+            'c 60000 Routine at 60000',
+            '@ 60003 label=LOOP'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            60000: []
+        }
+        exp_instruction_directives = {
+            60000: ['label=START'],
+            60003: ['label=LOOP']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_nolabel_directives(self):
+        ctl = '\n'.join((
+            '@ 30000 nolabel',
+            'c 30000 Routine at 30000',
+            '@ 30003 nolabel'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            30000: []
+        }
+        exp_instruction_directives = {
+            30000: ['nolabel'],
+            30003: ['nolabel']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_nowarn_directives(self):
+        ctl = '\n'.join((
+            '@ 40000 nowarn',
+            'c 40000 Routine at 40000',
+            '@ 40003 nowarn'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            40000: []
+        }
+        exp_instruction_directives = {
+            40000: ['nowarn'],
+            40003: ['nowarn']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_ofix_directives(self):
+        ctl = '\n'.join((
+            '@ 50000 ofix=LD HL,12345',
+            'c 50000 Routine at 50000',
+            '@ 50003 ofix=CALL 34567'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            50000: []
+        }
+        exp_instruction_directives = {
+            50000: ['ofix=LD HL,12345'],
+            50003: ['ofix=CALL 34567']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_org_directives(self):
+        ctl = '\n'.join((
+            '@ 60000 org=60000',
+            'c 60000 Routine at 60000',
+            '@ 60001 org=60001'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            60000: ['org=60000'],
+        }
+        exp_instruction_directives = {
+            60001: ['org=60001']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_rem_directives(self):
+        ctl = '\n'.join((
+            '@ 30000 rem=It begins',
+            'c 30000 Routine at 30000',
+            '@ 30010 rem=It ends'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            30000: []
+        }
+        exp_instruction_directives = {
+            30000: ['rem=It begins'],
+            30010: ['rem=It ends']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_replace_directives(self):
+        ctl = '\n'.join((
+            '@ 40000 replace=/foo/bar',
+            'c 40000 Routine at 40000',
+            '@ 40001 replace=/baz/qux'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            40000: ['replace=/foo/bar'],
+        }
+        exp_instruction_directives = {
+            40001: ['replace=/baz/qux']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_rfix_directives(self):
+        ctl = '\n'.join((
+            '@ 50000 rfix=LD BC,0',
+            'c 50000 Routine at 50000',
+            '@ 50002 rfix=LD HL,0'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            50000: []
+        }
+        exp_instruction_directives = {
+            50000: ['rfix=LD BC,0'],
+            50002: ['rfix=LD HL,0']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_rsub_directives(self):
+        ctl = '\n'.join((
+            '@ 60000 rsub=LD DE,0',
+            'c 60000 Routine at 60000',
+            '@ 60002 rsub=LD IX,0'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            60000: []
+        }
+        exp_instruction_directives = {
+            60000: ['rsub=LD DE,0'],
+            60002: ['rsub=LD IX,0']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_set_directives(self):
+        ctl = '\n'.join((
+            '@ 30000 set-crlf=1',
+            'c 30000 Routine at 30000',
+            '@ 30001 set-tab=1'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            30000: ['set-crlf=1'],
+        }
+        exp_instruction_directives = {
+            30001: ['set-tab=1']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_ssub_directives(self):
+        ctl = '\n'.join((
+            '@ 40000 ssub=INC HL',
+            'c 40000 Routine at 60000',
+            '@ 40001 ssub=INC BC'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            40000: []
+        }
+        exp_instruction_directives = {
+            40000: ['ssub=INC HL'],
+            40001: ['ssub=INC BC']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_start_directives(self):
+        ctl = '\n'.join((
+            '@ 50000 start',
+            'c 50000 Routine at 50000',
+            '@ 50001 start'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            50000: ['start'],
+        }
+        exp_instruction_directives = {
+            50001: ['start']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_writer_directives(self):
+        ctl = '\n'.join((
+            '@ 60000 writer=x.y.z',
+            'c 60000 Routine at 60000',
+            '@ 60001 writer=foo.bar.baz'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            60000: ['writer=x.y.z'],
+        }
+        exp_instruction_directives = {
+            60001: ['writer=foo.bar.baz']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
+        self._check_instruction_asm_directives(exp_instruction_directives, blocks)
+
+    def test_order_of_entry_asm_directives_is_preserved(self):
+        ctl = '\n'.join((
+            '@ 30000 start',
+            '@ 30000 equ=ATTRS=22528',
+            '@ 30000 replace=/foo/bar',
+            '@ 30000 replace=/baz/qux',
+            'c 30000 Routine at 30000'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_entry_directives = {
+            30000: ['start', 'equ=ATTRS=22528', 'replace=/foo/bar', 'replace=/baz/qux']
+        }
+        self._check_entry_asm_directives(exp_entry_directives, blocks)
 
     def test_registers(self):
         ctl = '\n'.join((
