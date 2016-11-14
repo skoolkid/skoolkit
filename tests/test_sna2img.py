@@ -7,7 +7,7 @@ except ImportError:
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, sna2img, VERSION
-from skoolkit.skoolhtml import Udg
+from skoolkit.graphics import Udg
 
 class MockImageWriter:
     def __init__(self, options):

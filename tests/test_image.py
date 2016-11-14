@@ -9,7 +9,7 @@ from skoolkittest import SkoolKitTestCase
 from skoolkit.image import (ImageWriter, DEFAULT_FORMAT,
                             PNG_COMPRESSION_LEVEL, PNG_ENABLE_ANIMATION,
                             PNG_ALPHA, GIF_ENABLE_ANIMATION, GIF_TRANSPARENCY)
-from skoolkit.skoolhtml import Udg, Frame
+from skoolkit.graphics import Udg, Frame
 
 PY3 = sys.version_info >= (3,)
 

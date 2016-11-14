@@ -28,7 +28,7 @@ except ImportError: # pragma: no cover
 from skoolkit import SkoolKitError, read_bin_file, VERSION
 from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import get_snapshot
-from skoolkit.skoolhtml import Udg, Frame, flip_udgs, rotate_udgs
+from skoolkit.graphics import Udg, Frame, flip_udgs, rotate_udgs
 from skoolkit.tap2sna import poke
 
 def _int_pair(arg, sep, desc):
