@@ -58,18 +58,28 @@ class Udg(object):
             return self.attr == other.attr and self.data == other.data and self.mask == other.mask
         return False
 
-    def _rotate_tile(self, tile_data):
+    def _rotate_tile(self, tile_data, backwards=0):
         rotated = []
-        b = 1
-        while b < 129:
-            rbyte = 0
-            for byte in tile_data:
-                rbyte //= 2
-                if byte & b:
-                    rbyte += 128
-            rotated.append(rbyte)
-            b *= 2
-        rotated.reverse()
+        if backwards:
+            b = 1
+            while b < 129:
+                rbyte = 0
+                for byte in tile_data:
+                    rbyte *= 2
+                    if byte & b:
+                        rbyte += 1
+                rotated.append(rbyte)
+                b *= 2
+        else:
+            b = 128
+            while b:
+                rbyte = 0
+                for byte in tile_data:
+                    rbyte //= 2
+                    if byte & b:
+                        rbyte += 128
+                rotated.append(rbyte)
+                b //= 2
         return rotated
 
     # API
@@ -94,10 +104,12 @@ class Udg(object):
 
         :param rotate: The number of rotations to perform.
         """
-        for i in range(rotate & 3):
-            self.data = self._rotate_tile(self.data)
+        if rotate & 1:
+            self.data = self._rotate_tile(self.data, rotate & 2)
             if self.mask:
-                self.mask = self._rotate_tile(self.mask)
+                self.mask = self._rotate_tile(self.mask, rotate & 2)
+        elif rotate & 2:
+            self.flip(3)
 
     def copy(self):
         if self.mask:
