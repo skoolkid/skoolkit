@@ -80,10 +80,9 @@ class Udg(object):
                      horizontally and vertically.
         """
         if flip & 1:
-            for i in range(8):
-                self.data[i] = FLIP[self.data[i]]
-                if self.mask:
-                    self.mask[i] = FLIP[self.mask[i]]
+            self.data = [FLIP[b] for b in self.data]
+            if self.mask:
+                self.mask = [FLIP[b] for b in self.mask]
         if flip & 2:
             self.data.reverse()
             if self.mask:
