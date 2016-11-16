@@ -428,6 +428,12 @@ class DisassemblyTest(SkoolKitTestCase):
         entry = entries[16]
         self.assertEqual(entry.address, 32841)
 
+    def test_empty_disassembly(self):
+        ctl_parser = CtlParser({0: 'i'})
+        disassembly = Disassembly([], ctl_parser, True)
+        self.assertEqual(len(disassembly.entries), 0)
+        self.assertIsNone(disassembly.org)
+
     def test_referrers(self):
         snapshot = [
             201,       # 00000 RET
@@ -1059,6 +1065,12 @@ class SkoolWriterTest(SkoolKitTestCase):
         writer.write_skool(0, False)
         skool = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(SKOOL, skool)
+
+    def test_empty_disassembly(self):
+        snapshot = []
+        ctl = ''
+        exp_skool = ['']
+        self._test_write_skool(snapshot, ctl, exp_skool)
 
     def test_line_width_short(self):
         snapshot = [175, 201]

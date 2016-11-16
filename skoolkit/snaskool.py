@@ -603,7 +603,10 @@ class Disassembly:
         self.instructions = {}
         self.entries = []
         self._create_entries()
-        self.org = self.entries[0].address
+        if self.entries:
+            self.org = self.entries[0].address
+        else:
+            self.org = None
         if final:
             self._calculate_references()
 
@@ -724,6 +727,8 @@ class SkoolWriter:
         return str(address)
 
     def write_skool(self, write_refs, text):
+        if not self.disassembly.entries:
+            return
         if not self.disassembly.contains_entry_asm_directive(AD_START):
             self.write_asm_directives(AD_START)
             if not self.disassembly.contains_entry_asm_directive(AD_ORG):
