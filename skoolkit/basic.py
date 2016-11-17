@@ -281,7 +281,7 @@ class VariableLister:
         varname = self.text.get_chars(letter)
         str_length = get_word(self.snapshot, i + 1)
         value = ''.join([self.text.get_chars(c) for c in self.snapshot[i + 3:i + 3 + str_length]])
-        line = '(String) {}$="{}"'.format(varname, value)
+        line = '{}$="{}"'.format(varname, value)
         return i + 3 + str_length, line
 
     def _get_num_array_var(self, i):
@@ -295,7 +295,7 @@ class VariableLister:
         i += 2 * dimensions
         data_length -= 2 * dimensions
         values = _unflatten([_get_number(self.snapshot, c) for c in range(i, i + data_length, 5)], dims)
-        line = '(Number array) {}({})={}'.format(varname, dims_str, values)
+        line = '{}({})={}'.format(varname, dims_str, values)
         return i + data_length, line
 
     def _get_long_num_var(self, i):
@@ -308,7 +308,7 @@ class VariableLister:
             i += 1
             letter = self.snapshot[i]
         varname += '{}'.format(self.text.get_chars(letter & 127))
-        line = '(Number) {}={}'.format(varname, _get_number(self.snapshot, i + 1))
+        line = '{}={}'.format(varname, _get_number(self.snapshot, i + 1))
         return i + 6, line
 
     def _get_char_array_var(self, i):
@@ -327,7 +327,7 @@ class VariableLister:
             values = _unflatten(strings, dims[:-1])
         else:
             values = strings[0]
-        line = '(Character array) {}$({})={!r}'.format(varname, dims_str, values)
+        line = '{}$({})={!r}'.format(varname, dims_str, values)
         return i + data_length, line
 
     def _get_control_var(self, i):
@@ -338,11 +338,11 @@ class VariableLister:
         step = _get_number(self.snapshot, i + 11)
         line_number = get_word(self.snapshot, i + 16)
         statement = self.snapshot[i + 18]
-        line = '(FOR control variable) {}={} (limit={}, step={}, line={}, statement={})'.format(varname, value, limit, step, line_number, statement)
+        line = '{}={} (limit={}, step={}, line={}, statement={})'.format(varname, value, limit, step, line_number, statement)
         return i + 19, line
 
     def _get_short_num_var(self, i):
         letter = (self.snapshot[i] & 31) + 96
         varname = self.text.get_chars(letter)
-        line = '(Number) {}={}'.format(varname, _get_number(self.snapshot, i + 1))
+        line = '{}={}'.format(varname, _get_number(self.snapshot, i + 1))
         return i + 6, line

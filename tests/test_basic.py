@@ -321,7 +321,7 @@ class VariableListerTest(SkoolKitTestCase):
             112,           # Number variable "p"
             0, 0, 12, 0, 0 # 12
         ]
-        exp_output = ['(Number) p=12']
+        exp_output = ['p=12']
         self._test_variables(variables, exp_output)
 
     def test_strings(self):
@@ -341,10 +341,10 @@ class VariableListerTest(SkoolKitTestCase):
             128                         # End of variables area
         ]
         exp_output = [
-            '(String) c$="abc 123"',
-            '(String) d$="INKEY$"',
-            '(String) f$="FN "',
-            '(String) z$=" OR "'
+            'c$="abc 123"',
+            'd$="INKEY$"',
+            'f$="FN "',
+            'z$=" OR "'
         ]
         self._test_variables(variables, exp_output)
 
@@ -391,9 +391,9 @@ class VariableListerTest(SkoolKitTestCase):
             128                      # End of variables area
         ]
         exp_output = [
-            '(Number array) s(5)=[1, 5, -4, 1280, -64256]',
-            '(Number array) q(2,3)=[[11, 21, 31], [12, 22, 32]]',
-            '(Number array) p(2,3,2)=[[[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 10], [11, 12]]]'
+            's(5)=[1, 5, -4, 1280, -64256]',
+            'q(2,3)=[[11, 21, 31], [12, 22, 32]]',
+            'p(2,3,2)=[[[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 10], [11, 12]]]'
         ]
         self._test_variables(variables, exp_output)
 
@@ -406,8 +406,8 @@ class VariableListerTest(SkoolKitTestCase):
             128                  # End of variables area
         ]
         exp_output = [
-            '(Number) num=537',
-            '(Number) xyz=-6221'
+            'num=537',
+            'xyz=-6221'
         ]
         self._test_variables(variables, exp_output)
 
@@ -453,9 +453,9 @@ class VariableListerTest(SkoolKitTestCase):
             128    # End of variables area
         ]
         exp_output = [
-            "(Character array) d$(4)='abxz'",
-            "(Character array) g$(2,3)=['123', 'OTZ']",
-            "(Character array) h$(3,2,2)=[['ab', 'cd'], ['ef', 'gh'], ['ij', 'kl']]"
+            "d$(4)='abxz'",
+            "g$(2,3)=['123', 'OTZ']",
+            "h$(3,2,2)=[['ab', 'cd'], ['ef', 'gh'], ['ij', 'kl']]"
         ]
         self._test_variables(variables, exp_output)
 
@@ -476,8 +476,8 @@ class VariableListerTest(SkoolKitTestCase):
             128                  # End of variables area
         ]
         exp_output = [
-            '(FOR control variable) p=3 (limit=7, step=2, line=12, statement=4)',
-            '(FOR control variable) t=-5 (limit=-10, step=-5, line=2143, statement=2)'
+            'p=3 (limit=7, step=2, line=12, statement=4)',
+            't=-5 (limit=-10, step=-5, line=2143, statement=2)'
         ]
         self._test_variables(variables, exp_output)
 
@@ -490,8 +490,8 @@ class VariableListerTest(SkoolKitTestCase):
             128               # End of variables area
         ]
         exp_output = [
-            '(Number) p=12',
-            '(Number) t=64'
+            'p=12',
+            't=64'
         ]
         self._test_variables(variables, exp_output)
 
@@ -566,18 +566,18 @@ class VariableListerTest(SkoolKitTestCase):
             128                                          # End of variables
         ]
         exp_output = [
-            '(String) a$="asdf"',
-            '(Number array) b(2,3)=[[1, -1, 64], [128, 16, 32]]',
-            '(Number) longone=255',
-            "(Character array) c$(5)='01234'",
-            '(FOR control variable) d=1 (limit=8, step=1, line=4, statement=7)',
-            '(Number) e=65530',
-            '(String) f$="zxcvb"',
-            '(Number array) g(6)=[12, 13, 14, 15, 16, 17]',
-            '(Number) longerone=-63741',
-            "(Character array) h$(3,2)=['az', 'by', 'cx']",
-            '(FOR control variable) i=256 (limit=512, step=256, line=17, statement=1)',
-            '(Number) j=36'
+            'a$="asdf"',
+            'b(2,3)=[[1, -1, 64], [128, 16, 32]]',
+            'longone=255',
+            "c$(5)='01234'",
+            'd=1 (limit=8, step=1, line=4, statement=7)',
+            'e=65530',
+            'f$="zxcvb"',
+            'g(6)=[12, 13, 14, 15, 16, 17]',
+            'longerone=-63741',
+            "h$(3,2)=['az', 'by', 'cx']",
+            'i=256 (limit=512, step=256, line=17, statement=1)',
+            'j=36'
         ]
         self._test_variables(variables, exp_output)
 
