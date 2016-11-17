@@ -335,7 +335,7 @@ class VariableListerTest(SkoolKitTestCase):
             70,                         # String variable "f$"
             1, 0,                       # 1 character long
             168,                        # "FN " (trailing space)
-            90,                         # String variable "k$"
+            90,                         # String variable "z$"
             1, 0,                       # 1 character long
             197,                        # " OR " (leading and trailing spaces)
             128                         # End of variables area
