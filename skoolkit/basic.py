@@ -321,8 +321,13 @@ class VariableLister:
         dims_str = ','.join([str(d) for d in dims])
         i += 2 * dimensions
         data_length -= 2 * dimensions
-        values = _unflatten([self.text.get_chars(self.snapshot[c]) for c in range(i, i + data_length)], dims)
-        line = '(Character array) {}$({})={}'.format(varname, dims_str, values)
+        str_len = dims[-1]
+        strings = [''.join([self.text.get_chars(self.snapshot[k]) for k in range(j, j + str_len)]) for j in range(i, i + data_length, str_len)]
+        if dimensions > 1:
+            values = _unflatten(strings, dims[:-1])
+        else:
+            values = strings[0]
+        line = '(Character array) {}$({})={!r}'.format(varname, dims_str, values)
         return i + data_length, line
 
     def _get_control_var(self, i):

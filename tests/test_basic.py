@@ -453,9 +453,9 @@ class VariableListerTest(SkoolKitTestCase):
             128    # End of variables area
         ]
         exp_output = [
-            "(Character array) d$(4)=['a', 'b', 'x', 'z']",
-            "(Character array) g$(2,3)=[['1', '2', '3'], ['O', 'T', 'Z']]",
-            "(Character array) h$(3,2,2)=[[['a', 'b'], ['c', 'd']], [['e', 'f'], ['g', 'h']], [['i', 'j'], ['k', 'l']]]"
+            "(Character array) d$(4)='abxz'",
+            "(Character array) g$(2,3)=['123', 'OTZ']",
+            "(Character array) h$(3,2,2)=[['ab', 'cd'], ['ef', 'gh'], ['ij', 'kl']]"
         ]
         self._test_variables(variables, exp_output)
 
@@ -569,13 +569,13 @@ class VariableListerTest(SkoolKitTestCase):
             '(String) a$="asdf"',
             '(Number array) b(2,3)=[[1, -1, 64], [128, 16, 32]]',
             '(Number) longone=255',
-            "(Character array) c$(5)=['0', '1', '2', '3', '4']",
+            "(Character array) c$(5)='01234'",
             '(FOR control variable) d=1 (limit=8, step=1, line=4, statement=7)',
             '(Number) e=65530',
             '(String) f$="zxcvb"',
             '(Number array) g(6)=[12, 13, 14, 15, 16, 17]',
             '(Number) longerone=-63741',
-            "(Character array) h$(3,2)=[['a', 'z'], ['b', 'y'], ['c', 'x']]",
+            "(Character array) h$(3,2)=['az', 'by', 'cx']",
             '(FOR control variable) i=256 (limit=512, step=256, line=17, statement=1)',
             '(Number) j=36'
         ]
