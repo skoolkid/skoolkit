@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import unittest
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit.graphics import Udg
