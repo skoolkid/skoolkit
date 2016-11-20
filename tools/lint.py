@@ -20,6 +20,7 @@ IGNORE_MSG_IDS = [
     'C0111', # Missing docstring
     'C0301', # Line too long
     'C0302', # Too many lines in module
+    'C0325', # Unnecessary parens after 'print' keyword
     'C1001', # Old-style class
     'E0601', # Variable used before assignment
     'E0611', # No such name in module
