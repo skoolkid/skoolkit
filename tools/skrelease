@@ -255,7 +255,7 @@ disassembly_diffs() {
   btsdiffsdir=$BACKTOSKOOL_HOME/build/disassembly-diff
   cscdiffsdir=$CONTACTSAMCRUISE_HOME/build/disassembly-diff
   diffslog=diffs.log
-  DISASSEMBLY_DIFF="$TOOLS/disassembly-diff -t"
+  DISASSEMBLY_DIFF="$TOOLS/disassembly-diff -r -t"
 
   _build_tarball
   for d in $romdiffsdir $hhdiffsdir $mmdiffsdir $jswdiffsdir $sddiffsdir $btsdiffsdir $cscdiffsdir; do
