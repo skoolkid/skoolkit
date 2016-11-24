@@ -1372,7 +1372,7 @@ class HtmlWriter:
         if index < len(text) and text[index] == '*':
             return self._expand_udgarray_with_frames(text, index, cwd)
 
-        end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgarray(text, index, Udg, self.snapshot)
+        end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgarray(text, index, self.snapshot)
         udg_array, scale, flip, rotate, mask = params
         udgs = lambda: self._adjust_udgarray(udg_array, flip, rotate)
         frames = [Frame(udgs, scale, mask, *crop_rect, name=frame)]

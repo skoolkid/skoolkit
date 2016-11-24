@@ -1,8 +1,8 @@
 Changelog
 =========
 
-5.4rc
------
+5.4rc2
+------
 * Added the :ref:`sna2img.py` command (for converting the screenshot in a SCR
   file or SNA/SZX/Z80 snapshot into a PNG or GIF file)
 * Added the :ref:`equ` ASM directive (which produces an EQU directive in the
@@ -23,6 +23,8 @@ Changelog
 * Improved how :ref:`end`, :ref:`org`, :ref:`replace`, :ref:`set`, :ref:`start`
   and :ref:`writer` directives are preserved and restored via a control file
 * Added support for :ref:`page-specific HTML subtemplates <ps_templates>`
+* The :ref:`UDGARRAY` macro now pads out the bottom row of an array with extra
+  UDGs if necessary (to prevent the creation of a broken image file)
 
 5.3 (2016-09-05)
 ----------------

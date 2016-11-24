@@ -21,12 +21,15 @@ import inspect
 import re
 
 from skoolkit import SkoolKitError, SkoolParsingError
+from skoolkit.graphics import Udg
 
 _map_cache = {}
 
 _writer = None
 
 _cwd = ()
+
+FILL_UDG = Udg(66, [129, 66, 36, 24, 24, 36, 66, 128])
 
 MACRO_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -855,7 +858,7 @@ def parse_udg(text, index):
     end, fname, frame, alt = _parse_image_fname(text, end)
     return end, crop_rect, fname, frame, alt, (addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step)
 
-def parse_udgarray(text, index, udg_class=None, snapshot=None):
+def parse_udgarray(text, index, snapshot=None):
     # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];addr[,attr,step,inc][:addr[,step]];...[{x,y,width,height}](fname)
     names = ('width', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
     defaults = (56, 2, 1, 0, 0, 0, 1)
@@ -883,18 +886,20 @@ def parse_udgarray(text, index, udg_class=None, snapshot=None):
                 end, mask_step = parse_ints(text, end + 1, defaults=(udg_step,), names=('step',))
             else:
                 mask_step = udg_step
-        if udg_class:
+        if snapshot:
             has_masks = has_masks or len(mask_addresses) > 0
             mask_addresses += [None] * (len(udg_addresses) - len(mask_addresses))
             for u, m in zip(udg_addresses, mask_addresses):
                 udg_bytes = [(snapshot[u + n * udg_step] + udg_inc) % 256 for n in range(8)]
-                udg = udg_class(udg_attr, udg_bytes)
+                udg = Udg(udg_attr, udg_bytes)
                 if m is not None and mask:
                     udg.mask = [snapshot[m + n * mask_step] for n in range(8)]
                 if len(udg_array[-1]) == width:
                     udg_array.append([udg])
                 else:
                     udg_array[-1].append(udg)
+    if len(udg_array) > 1 and len(udg_array[-1]) < width:
+        udg_array[-1].extend((FILL_UDG,) * (width - len(udg_array[-1])))
     if not has_masks:
         mask = 0
     end, crop_rect = _parse_crop_spec(text, end)

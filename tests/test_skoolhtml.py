@@ -2359,7 +2359,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         fname = 'test_udg_array'
         exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
         exp_src = '../{}'.format(exp_image_path)
-        output = writer.expand('#UDGARRAY8;32768-32784-1-8({})'.format(fname), ASMDIR)
+        output = writer.expand('#UDGARRAY2;32768-32785-1-16({})'.format(fname), ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
@@ -2390,6 +2390,15 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, fname, exp_src)
         udg_array = [[Udg(attr, udg_data, udg_mask)] * width] * 2
         self._check_image(writer, udg_array, scale, True, x, y, w, h, exp_image_path)
+
+        # Separately specified attributes
+        fname = 'attrs'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDGARRAY2;0,1;0,2;0,3;0,4({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        exp_udgs = [[Udg(1, [0] * 8), Udg(2, [0] * 8)], [Udg(3, [0] * 8), Udg(4, [0] * 8)]]
+        self._check_image(writer, exp_udgs, path=exp_image_path)
 
         # Flip
         fname = 'test_udg_array4'
@@ -2501,6 +2510,30 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#UDGARRAY#(2#FOR20000,20009,9||n|;(n+1),#PEEKn||)({})'.format(fname), ASMDIR)
         self._assert_img_equals(output, fname, exp_src)
         self._check_image(writer, [[udg1, udg2]], scale, path=exp_image_path)
+
+    def test_macro_udgarray_with_short_array(self):
+        writer = self._get_writer(snapshot=[0] * 24, mock_file_info=True)
+
+        # Width 2, 2 rows, 1 UDG in bottom row - padded
+        fname = 'short'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        udg = Udg(56, [0] * 8)
+        fill_udg = Udg(66, [129, 66, 36, 24, 24, 36, 66, 128])
+        exp_udgs = [[udg, udg], [udg, fill_udg]]
+        output = writer.expand('#UDGARRAY2;0;8;16({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, exp_udgs, path=exp_image_path)
+
+        # Width 3, 1 row, 2 UDGs - no padding
+        fname = 'short2'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        udg = Udg(56, [0] * 8)
+        exp_udgs = [[udg, udg]]
+        output = writer.expand('#UDGARRAY3;0;8({})'.format(fname), ASMDIR)
+        self._assert_img_equals(output, fname, exp_src)
+        self._check_image(writer, exp_udgs, path=exp_image_path)
 
     def test_macro_udgarray_with_custom_udg_image_path(self):
         udg_path = 'udg_images'
