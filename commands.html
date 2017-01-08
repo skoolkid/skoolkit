@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Commands &mdash; SkoolKit 5.3 documentation</title>
+    <title>Commands &mdash; SkoolKit 5.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.3',
+        VERSION:     '5.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.4 documentation" href="index.html" />
     <link rel="next" title="Supported assemblers" href="assemblers.html" />
     <link rel="prev" title="Disassembly DIY" href="diy.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -55,6 +55,7 @@
 <li><a class="reference internal" href="#skool2ctl-py">skool2ctl.py</a></li>
 <li><a class="reference internal" href="#skool2html-py">skool2html.py</a></li>
 <li><a class="reference internal" href="#skool2sft-py">skool2sft.py</a></li>
+<li><a class="reference internal" href="#sna2img-py">sna2img.py</a></li>
 <li><a class="reference internal" href="#sna2skool-py">sna2skool.py</a></li>
 <li><a class="reference internal" href="#snapinfo-py">snapinfo.py</a></li>
 <li><a class="reference internal" href="#snapmod-py">snapmod.py</a></li>
@@ -481,6 +482,7 @@ Convert skool files and ref files to HTML. FILE may be a regular file, or &#39;-
 for standard input.
 
 Options:
+  -1, --asm-one-page    Write all routines and data blocks to a single page
   -a, --asm-labels      Use ASM labels
   -c S/L, --config S/L  Add the line &#39;L&#39; to the ref file section &#39;S&#39;; this
                         option may be used multiple times
@@ -522,6 +524,13 @@ Options:
                         Specify the HTML writer class to use; shorthand for
                         &#39;--config Config/HtmlWriterClass=CLASS&#39;
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The &#8216;B&#8217;, &#8216;b&#8217;, &#8216;c&#8217;, &#8216;p&#8217;, &#8216;t&#8217; and &#8216;y&#8217; file identifiers in the <tt class="docutils literal"><span class="pre">--write</span></tt>
+option are deprecated since version 5.4. To specify the Graphic glitches,
+Bugs, Changelog, Pokes, Trivia or Glossary page, use the <tt class="docutils literal"><span class="pre">-P/--pages</span></tt>
+option with <tt class="docutils literal"><span class="pre">--write</span> <span class="pre">P</span></tt>.</p>
 </div>
 <p><cite>skool2html.py</cite> searches the following directories for skool files, ref files,
 CSS files, JavaScript files, font files, and files listed in the
@@ -569,55 +578,58 @@ StyleSheet=skoolkit.css;game.css
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.0</td>
+<tr class="row-even"><td>5.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--asm-one-page</span></tt> option</td>
+</tr>
+<tr class="row-odd"><td>5.0</td>
 <td>The <tt class="docutils literal"><span class="pre">--theme</span></tt> option also looks for a CSS file whose base name
 matches the theme name</td>
 </tr>
-<tr class="row-odd"><td>4.1</td>
+<tr class="row-even"><td>4.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--search</span></tt> and <tt class="docutils literal"><span class="pre">--writer</span></tt> options</td>
 </tr>
-<tr class="row-even"><td>4.0</td>
+<tr class="row-odd"><td>4.0</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--ref-sections</span></tt> and <tt class="docutils literal"><span class="pre">--ref-file</span></tt> options</td>
 </tr>
-<tr class="row-odd"><td>3.6</td>
+<tr class="row-even"><td>3.6</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--join-css</span></tt> and <tt class="docutils literal"><span class="pre">--search-dirs</span></tt> options</td>
 </tr>
-<tr class="row-even"><td>3.5</td>
+<tr class="row-odd"><td>3.5</td>
 <td>Added support for multiple CSS themes</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-a</span></tt> and <tt class="docutils literal"><span class="pre">-C</span></tt> options and the long options</td>
 </tr>
-<tr class="row-even"><td>3.3.2</td>
+<tr class="row-odd"><td>3.3.2</td>
 <td>Added <cite>$PACKAGE_DIR/resources</cite> to the search path; added the
 <tt class="docutils literal"><span class="pre">-p</span></tt> and <tt class="docutils literal"><span class="pre">-T</span></tt> options</td>
 </tr>
-<tr class="row-odd"><td>3.2</td>
+<tr class="row-even"><td>3.2</td>
 <td>Added <cite>~/.skoolkit</cite> to the search path</td>
 </tr>
-<tr class="row-even"><td>3.1</td>
+<tr class="row-odd"><td>3.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-c</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>3.0.2</td>
+<tr class="row-even"><td>3.0.2</td>
 <td>No longer shows timings by default; added the <tt class="docutils literal"><span class="pre">-t</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>2.3.1</td>
+<tr class="row-odd"><td>2.3.1</td>
 <td>Added support for reading multiple ref files per disassembly</td>
 </tr>
-<tr class="row-odd"><td>2.2.2</td>
+<tr class="row-even"><td>2.2.2</td>
 <td>Added the ability to read a skool file from standard input</td>
 </tr>
-<tr class="row-even"><td>2.2</td>
+<tr class="row-odd"><td>2.2</td>
 <td>No longer writes the Skool Daze and Back to Skool disassemblies
 by default; added the <tt class="docutils literal"><span class="pre">-d</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>2.1.1</td>
+<tr class="row-even"><td>2.1.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-l</span></tt>, <tt class="docutils literal"><span class="pre">-u</span></tt>, <tt class="docutils literal"><span class="pre">-D</span></tt> and <tt class="docutils literal"><span class="pre">-H</span></tt> options</td>
 </tr>
-<tr class="row-even"><td>2.1</td>
+<tr class="row-odd"><td>2.1</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-o</span></tt> and <tt class="docutils literal"><span class="pre">-P</span></tt> options</td>
 </tr>
-<tr class="row-odd"><td>1.4</td>
+<tr class="row-even"><td>1.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option</td>
 </tr>
 </tbody>
@@ -681,8 +693,57 @@ blocks (instead of verbatim)</td>
 </tbody>
 </table>
 </div>
+<div class="section" id="sna2img-py">
+<span id="id9"></span><h2>sna2img.py<a class="headerlink" href="#sna2img-py" title="Permalink to this headline">¶</a></h2>
+<p><cite>sna2img.py</cite> converts the screenshot in a SCR file or SNA/SZX/Z80 snapshot into
+a PNG or GIF file. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ sna2img.py game.scr
+</pre></div>
+</div>
+<p>will create a file named <cite>game.png</cite>.</p>
+<p>To list the options supported by <cite>sna2img.py</cite>, run it with no arguments:</p>
+<div class="highlight-none"><div class="highlight"><pre>usage: sna2img.py [options] INPUT [OUTPUT]
+
+Convert a Spectrum screenshot (or a portion of it) into a PNG or GIF file.
+INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.
+
+Options:
+  -f N, --flip N        Flip the image horizontally (N=1), vertically (N=2),
+                        or both (N=3).
+  -i, --invert          Invert video for cells that are flashing.
+  -n, --no-animation    Do not animate flashing cells.
+  -o X,Y, --origin X,Y  Top-left crop at (X,Y).
+  -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
+                        POKE N,v for N in {a, a+c, a+2c..., b}. Prefix &#39;v&#39;
+                        with &#39;^&#39; to perform an XOR operation, or &#39;+&#39; to
+                        perform an ADD operation. This option may be used
+                        multiple times.
+  -r N, --rotate N      Rotate the image 90*N degrees clockwise.
+  -s SCALE, --scale SCALE
+                        Set the scale of the image (default=1).
+  -S WxH, --size WxH    Crop to this width and height (in tiles).
+  -V, --version         Show SkoolKit version number and exit.
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>5.4</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="sna2skool-py">
-<span id="id9"></span><h2>sna2skool.py<a class="headerlink" href="#sna2skool-py" title="Permalink to this headline">¶</a></h2>
+<span id="id10"></span><h2>sna2skool.py<a class="headerlink" href="#sna2skool-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>sna2skool.py</cite> converts a binary (raw memory) file or a SNA, SZX or Z80
 snapshot into a skool file. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ sna2skool.py game.z80 &gt; game.skool
@@ -812,7 +873,7 @@ read binary files</td>
 </table>
 </div>
 <div class="section" id="snapinfo-py">
-<span id="id10"></span><h2>snapinfo.py<a class="headerlink" href="#snapinfo-py" title="Permalink to this headline">¶</a></h2>
+<span id="id11"></span><h2>snapinfo.py<a class="headerlink" href="#snapinfo-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>snapinfo.py</cite> shows information on the registers and RAM in a SNA, SZX or Z80
 snapshot. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ snapinfo.py game.z80
@@ -833,17 +894,18 @@ Options:
                         option may be used multiple times
   -t TEXT, --find-text TEXT
                         Search for a text string
+  -v, --variables       List variables
   -V, --version         Show SkoolKit version number and exit
 </pre></div>
 </div>
 <p>With no options, <cite>snapinfo.py</cite> displays register values, the interrupt mode,
 and the border colour. By using one of the options shown above, it can list
-the BASIC program (if one is present), show the contents of a range of
+the BASIC program and variables (if present), show the contents of a range of
 addresses, or search the RAM for a sequence of byte values or a text string.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="13%" />
+<col width="88%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -851,14 +913,18 @@ addresses, or search the RAM for a sequence of byte values or a text string.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.3</td>
+<tr class="row-even"><td>5.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--variables</span></tt> option; UDGs in a BASIC program are
+shown as special symbols (e.g. <tt class="docutils literal"><span class="pre">{UDG-A}</span></tt>)</td>
+</tr>
+<tr class="row-odd"><td>5.3</td>
 <td>New</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="snapmod-py">
-<span id="id11"></span><h2>snapmod.py<a class="headerlink" href="#snapmod-py" title="Permalink to this headline">¶</a></h2>
+<span id="id12"></span><h2>snapmod.py<a class="headerlink" href="#snapmod-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>snapmod.py</cite> modifies the registers and RAM in a 48K Z80 snapshot. For
 example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ snapmod.py --poke 32768,0 game.z80 poked.z80
@@ -907,7 +973,7 @@ Options:
 </table>
 </div>
 <div class="section" id="tap2sna-py">
-<span id="id12"></span><h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Permalink to this headline">¶</a></h2>
+<span id="id13"></span><h2>tap2sna.py<a class="headerlink" href="#tap2sna-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>tap2sna.py</cite> converts a TAP or TZX file (which may be inside a zip archive)
 into a Z80 snapshot. For example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ tap2sna.py game.tap game.z80
@@ -1010,7 +1076,7 @@ memory with XOR and ADD operations</td>
 </table>
 </div>
 <div class="section" id="tapinfo-py">
-<span id="id13"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Permalink to this headline">¶</a></h2>
+<span id="id14"></span><h2>tapinfo.py<a class="headerlink" href="#tapinfo-py" title="Permalink to this headline">¶</a></h2>
 <p><cite>tapinfo.py</cite> shows information on the blocks in a TAP or TZX file. For
 example:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ tapinfo.py game.tzx
@@ -1065,11 +1131,11 @@ Options:
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2016, Richard Dymond.
+        &copy; Copyright 2017, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Skool macros &mdash; SkoolKit 5.3 documentation</title>
+    <title>Skool macros &mdash; SkoolKit 5.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.3',
+        VERSION:     '5.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.4 documentation" href="index.html" />
     <link rel="next" title="Ref files" href="ref-files.html" />
     <link rel="prev" title="Skool file templates" href="skool-file-templates.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -562,6 +562,19 @@ text is blank or omitted.</p>
 entry on the &#8216;Bugs&#8217; page.</p>
 <p>In ASM mode, this instance of the <tt class="docutils literal"><span class="pre">#BUG</span></tt> macro expands to &#8216;bug&#8217;.</p>
 <p>See also <a class="reference internal" href="#fact"><em>#FACT</em></a> and <a class="reference internal" href="#poke"><em>#POKE</em></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The <tt class="docutils literal"><span class="pre">#BUG</span></tt> macro is deprecated since version 5.4. Either use the
+<a class="reference internal" href="#link"><em>#LINK</em></a> macro instead, or use the <a class="reference internal" href="asm.html#replace"><em>&#64;replace</em></a> directive to convert
+existing <tt class="docutils literal"><span class="pre">#BUG</span></tt> macros into <tt class="docutils literal"><span class="pre">#LINK</span></tt> macros:</p>
+<div class="highlight-none"><div class="highlight"><pre>@replace=/#BUG(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Bugs\1(bug)
+@replace=/#BUG(?![A-Z])/#LINK:Bugs
+</pre></div>
+</div>
+<p class="last">The first directive replaces <tt class="docutils literal"><span class="pre">#BUG</span></tt> macros that have no link text
+parameter; the second directive replaces <tt class="docutils literal"><span class="pre">#BUG</span></tt> macros that do have a link
+text parameter.</p>
+</div>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -764,6 +777,19 @@ link text is blank or omitted.</p>
 <p>In HTML mode, this instance of the <tt class="docutils literal"><span class="pre">#FACT</span></tt> macro expands to a hyperlink to
 an entry on the &#8216;Trivia&#8217; page, with link text equal to the title of the entry.</p>
 <p>See also <a class="reference internal" href="#bug"><em>#BUG</em></a> and <a class="reference internal" href="#poke"><em>#POKE</em></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The <tt class="docutils literal"><span class="pre">#FACT</span></tt> macro is deprecated since version 5.4. Either use the
+<a class="reference internal" href="#link"><em>#LINK</em></a> macro instead, or use the <a class="reference internal" href="asm.html#replace"><em>&#64;replace</em></a> directive to convert
+existing <tt class="docutils literal"><span class="pre">#FACT</span></tt> macros into <tt class="docutils literal"><span class="pre">#LINK</span></tt> macros:</p>
+<div class="highlight-none"><div class="highlight"><pre>@replace=/#FACT(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Facts\1(fact)
+@replace=/#FACT(?![A-Z])/#LINK:Facts
+</pre></div>
+</div>
+<p class="last">The first directive replaces <tt class="docutils literal"><span class="pre">#FACT</span></tt> macros that have no link text
+parameter; the second directive replaces <tt class="docutils literal"><span class="pre">#FACT</span></tt> macros that do have a
+link text parameter.</p>
+</div>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -872,9 +898,9 @@ another page.</p>
 <li><tt class="docutils literal"><span class="pre">name</span></tt> is the name of an anchor on the page to link to</li>
 <li><tt class="docutils literal"><span class="pre">link</span> <span class="pre">text</span></tt> is the link text to use</li>
 </ul>
-<p>In HTML mode, if the link text is blank, the page&#8217;s link text (as defined in
-the <a class="reference internal" href="ref-files.html#links"><em>[Links]</em></a> section or the relevant <a class="reference internal" href="ref-files.html#page"><em>[Page:*]</em></a> section of the ref file)
-is substituted.</p>
+<p>In HTML mode, if the link text is blank, it defaults either to the title of the
+entry being linked to (if the page is a <a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a> and contains
+an entry with the specified anchor), or to the page&#8217;s link text.</p>
 <p>In ASM mode, the <tt class="docutils literal"><span class="pre">#LINK</span></tt> macro expands to the link text.</p>
 <p>The page IDs that may be used are the same as the file IDs that may be used in
 the <a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of a ref file, or the page IDs defined by <a class="reference internal" href="ref-files.html#page"><em>[Page:*]</em></a>
@@ -905,16 +931,21 @@ section.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.2</td>
+<tr class="row-even"><td>5.4</td>
+<td>When linking to an entry on a <a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a>, the
+link text, if left blank, defaults to the title of the entry (in
+HTML mode)</td>
+</tr>
+<tr class="row-odd"><td>5.2</td>
 <td>An entry address anchor in a link to a memory map page is
 converted to the format specified by the <tt class="docutils literal"><span class="pre">AddressAnchor</span></tt>
 parameter</td>
 </tr>
-<tr class="row-odd"><td>3.1.3</td>
+<tr class="row-even"><td>3.1.3</td>
 <td>If left blank, the link text defaults to the page&#8217;s link text in
 HTML mode</td>
 </tr>
-<tr class="row-even"><td>2.1</td>
+<tr class="row-odd"><td>2.1</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -986,6 +1017,19 @@ link text is blank or omitted.</p>
 an entry on the &#8216;Pokes&#8217; page, with link text &#8216;infinite lives&#8217;.</p>
 <p>In ASM mode, this instance of the <tt class="docutils literal"><span class="pre">#POKE</span></tt> macro expands to &#8216;infinite lives&#8217;.</p>
 <p>See also <a class="reference internal" href="#bug"><em>#BUG</em></a> and <a class="reference internal" href="#fact"><em>#FACT</em></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The <tt class="docutils literal"><span class="pre">#POKE</span></tt> macro is deprecated since version 5.4. Either use the
+<a class="reference internal" href="#link"><em>#LINK</em></a> macro instead, or use the <a class="reference internal" href="asm.html#replace"><em>&#64;replace</em></a> directive to convert
+existing <tt class="docutils literal"><span class="pre">#POKE</span></tt> macros into <tt class="docutils literal"><span class="pre">#LINK</span></tt> macros:</p>
+<div class="highlight-none"><div class="highlight"><pre>@replace=/#POKE(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Pokes\1(poke)
+@replace=/#POKE(?![A-Z])/#LINK:Pokes
+</pre></div>
+</div>
+<p class="last">The first directive replaces <tt class="docutils literal"><span class="pre">#POKE</span></tt> macros that have no link text
+parameter; the second directive replaces <tt class="docutils literal"><span class="pre">#POKE</span></tt> macros that do have a
+link text parameter.</p>
+</div>
 <table border="1" class="docutils">
 <colgroup>
 <col width="12%" />
@@ -1170,15 +1214,22 @@ special variable <tt class="docutils literal"><span class="pre">REFaddr</span></
 <div class="section" id="reg">
 <span id="id21"></span><h3>#REG<a class="headerlink" href="#reg" title="Permalink to this headline">¶</a></h3>
 <p>In HTML mode, the <tt class="docutils literal"><span class="pre">#REG</span></tt> macro expands to a styled <tt class="docutils literal"><span class="pre">&lt;span&gt;</span></tt> element
-containing a register name.</p>
+containing a register name or arbitrary text (with case adjusted as
+appropriate).</p>
 <div class="highlight-none"><div class="highlight"><pre>#REGreg
 </pre></div>
 </div>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">reg</span></tt> is the name of the register</li>
-</ul>
-<p>In ASM mode, the <tt class="docutils literal"><span class="pre">#REG</span></tt> macro expands to the name of the register.</p>
-<p>The register name must be one of the following:</p>
+<p>where <tt class="docutils literal"><span class="pre">reg</span></tt> is the name of the register, or:</p>
+<div class="highlight-none"><div class="highlight"><pre>#REG(text)
+</pre></div>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">text</span></tt> is arbitrary text (e.g. <tt class="docutils literal"><span class="pre">hlh'l'</span></tt>).</p>
+<p>See <a class="reference internal" href="#stringparameters"><em>String parameters</em></a> for details on alternative ways to supply the
+<tt class="docutils literal"><span class="pre">text</span></tt> parameter. Note that if an alternative delimiter is used, it must not
+be a letter.</p>
+<p>In ASM mode, the <tt class="docutils literal"><span class="pre">#REG</span></tt> macro expands to either <tt class="docutils literal"><span class="pre">reg</span></tt> or <tt class="docutils literal"><span class="pre">text</span></tt> (with
+case adjusted as appropriate).</p>
+<p>The register name (<tt class="docutils literal"><span class="pre">reg</span></tt>) must be one of the following:</p>
 <div class="highlight-none"><div class="highlight"><pre>a b c d e f h l
 a&#39; b&#39; c&#39; d&#39; e&#39; f&#39; h&#39; l&#39;
 af bc de hl
@@ -1202,10 +1253,13 @@ i r sp pc
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.3</td>
+<tr class="row-even"><td>5.4</td>
+<td>Added support for an arbitrary text parameter</td>
+</tr>
+<tr class="row-odd"><td>5.3</td>
 <td>Added support for the F and F&#8217; registers</td>
 </tr>
-<tr class="row-odd"><td>5.1</td>
+<tr class="row-even"><td>5.1</td>
 <td>The <tt class="docutils literal"><span class="pre">reg</span></tt> parameter must be a valid register name</td>
 </tr>
 </tbody>
@@ -2105,11 +2159,11 @@ at 32768 like this:</p>
         <li class="right" >
           <a href="skool-file-templates.html" title="Skool file templates"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2016, Richard Dymond.
+        &copy; Copyright 2017, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

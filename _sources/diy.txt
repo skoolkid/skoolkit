@@ -206,9 +206,9 @@ data blocks, and all the annotations you carefully added to `game.skool`.
 Adding pokes, bugs and trivia
 -----------------------------
 Adding 'Pokes', 'Bugs', and 'Trivia' pages to a disassembly is done by adding
-:ref:`ref-Poke`, :ref:`ref-Bug`, and :ref:`ref-Fact` sections to the ref file.
-For any such sections that are present, `skool2html.py` will add links to the
-disassembly index page.
+:ref:`[Poke:*] <boxpages>`, :ref:`[Bug:*] <boxpages>`, and
+:ref:`[Fact:*] <boxpages>` sections to the ref file. For any such sections that
+are present, `skool2html.py` will add links to the disassembly index page.
 
 For example, let's add a poke. Add the following lines to `hungry_horace.ref`::
 

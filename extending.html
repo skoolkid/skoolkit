@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &mdash; SkoolKit 5.3 documentation</title>
+    <title>Extending SkoolKit &mdash; SkoolKit 5.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.3',
+        VERSION:     '5.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.4 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -258,7 +258,8 @@ expanded. Note that if <tt class="docutils literal"><span class="pre">string</sp
 be expanded.</p>
 <p>The <cite>expand_sprite</cite> method on GameHtmlWriter may therefore look something like
 this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span><span class="p">,</span> <span class="n">Frame</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">skoolkit.graphics</span> <span class="kn">import</span> <span class="n">Frame</span>
+<span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolmacro</span> <span class="kn">import</span> <span class="n">parse_image_macro</span>
 
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
@@ -580,12 +581,12 @@ was most recently saved (by
 <div class="section" id="graphics">
 <span id="ext-graphics"></span><h2>Graphics<a class="headerlink" href="#graphics" title="Permalink to this headline">¶</a></h2>
 <p>If you are going to implement custom image-creating <tt class="docutils literal"><span class="pre">#CALL</span></tt> methods or skool
-macros, you will need to make use of the skoolkit.skoolhtml.Udg class.</p>
+macros, you will need to make use of the skoolkit.graphics.Udg class.</p>
 <p>The Udg class represents an 8x8 graphic (8 bytes) with a single attribute byte,
 and an optional mask.</p>
 <dl class="class">
-<dt id="skoolkit.skoolhtml.Udg">
-<em class="property">class </em><tt class="descclassname">skoolkit.skoolhtml.</tt><tt class="descname">Udg</tt><big>(</big><em>attr</em>, <em>data</em>, <em>mask=None</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.Udg" title="Permalink to this definition">¶</a></dt>
+<dt id="skoolkit.graphics.Udg">
+<em class="property">class </em><tt class="descclassname">skoolkit.graphics.</tt><tt class="descname">Udg</tt><big>(</big><em>attr</em>, <em>data</em>, <em>mask=None</em><big>)</big><a class="headerlink" href="#skoolkit.graphics.Udg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise the UDG.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -600,11 +601,15 @@ and an optional mask.</p>
 </tr>
 </tbody>
 </table>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 5.4: </span>The Udg class moved from skoolkit.skoolhtml to skoolkit.graphics.</p>
+</div>
 </dd></dl>
 
 <p>A simple <tt class="docutils literal"><span class="pre">#INVERSE</span></tt> macro that creates an inverse image of a UDG might be
 implemented like this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span><span class="p">,</span> <span class="n">Udg</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">skoolkit.graphics</span> <span class="kn">import</span> <span class="n">Udg</span>
+<span class="kn">from</span> <span class="nn">skoolkit.skoolhtml</span> <span class="kn">import</span> <span class="n">HtmlWriter</span>
 <span class="kn">from</span> <span class="nn">skoolkit.skoolmacro</span> <span class="kn">import</span> <span class="n">parse_ints</span>
 
 <span class="k">class</span> <span class="nc">GameHtmlWriter</span><span class="p">(</span><span class="n">HtmlWriter</span><span class="p">):</span>
@@ -622,8 +627,8 @@ implemented like this:</p>
 <p>The Udg class provides two methods for manipulating an 8x8 graphic: <cite>flip</cite> and
 <cite>rotate</cite>.</p>
 <dl class="method">
-<dt id="skoolkit.skoolhtml.Udg.flip">
-<tt class="descclassname">Udg.</tt><tt class="descname">flip</tt><big>(</big><em>flip=1</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.Udg.flip" title="Permalink to this definition">¶</a></dt>
+<dt id="skoolkit.graphics.Udg.flip">
+<tt class="descclassname">Udg.</tt><tt class="descname">flip</tt><big>(</big><em>flip=1</em><big>)</big><a class="headerlink" href="#skoolkit.graphics.Udg.flip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flip the UDG.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -637,8 +642,8 @@ horizontally and vertically.</td>
 </dd></dl>
 
 <dl class="method">
-<dt id="skoolkit.skoolhtml.Udg.rotate">
-<tt class="descclassname">Udg.</tt><tt class="descname">rotate</tt><big>(</big><em>rotate=1</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.Udg.rotate" title="Permalink to this definition">¶</a></dt>
+<dt id="skoolkit.graphics.Udg.rotate">
+<tt class="descclassname">Udg.</tt><tt class="descname">rotate</tt><big>(</big><em>rotate=1</em><big>)</big><a class="headerlink" href="#skoolkit.graphics.Udg.rotate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate the UDG 90 degrees clockwise.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -651,12 +656,12 @@ horizontally and vertically.</td>
 </dd></dl>
 
 <p>If you are going to implement <tt class="docutils literal"><span class="pre">#CALL</span></tt> methods or skool macros that create
-animated images, you will need to make use of the skoolkit.skoolhtml.Frame
+animated images, you will need to make use of the skoolkit.graphics.Frame
 class.</p>
 <p>The Frame class represents a single frame of an animated image.</p>
 <dl class="class">
-<dt id="skoolkit.skoolhtml.Frame">
-<em class="property">class </em><tt class="descclassname">skoolkit.skoolhtml.</tt><tt class="descname">Frame</tt><big>(</big><em>udgs</em>, <em>scale=1</em>, <em>mask=0</em>, <em>x=0</em>, <em>y=0</em>, <em>width=None</em>, <em>height=None</em>, <em>delay=32</em>, <em>name=''</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.Frame" title="Permalink to this definition">¶</a></dt>
+<dt id="skoolkit.graphics.Frame">
+<em class="property">class </em><tt class="descclassname">skoolkit.graphics.</tt><tt class="descname">Frame</tt><big>(</big><em>udgs</em>, <em>scale=1</em>, <em>mask=0</em>, <em>x=0</em>, <em>y=0</em>, <em>width=None</em>, <em>height=None</em>, <em>delay=32</em>, <em>name=''</em><big>)</big><a class="headerlink" href="#skoolkit.graphics.Frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a frame of an animated image.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -664,7 +669,7 @@ class.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>udgs</strong> &#8211; The two-dimensional array of tiles (instances of
-<a class="reference internal" href="#skoolkit.skoolhtml.Udg" title="skoolkit.skoolhtml.Udg"><tt class="xref py py-class docutils literal"><span class="pre">Udg</span></tt></a>) from which to build the
+<a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><tt class="xref py py-class docutils literal"><span class="pre">Udg</span></tt></a>) from which to build the
 frame, or a function that returns the array of tiles.</li>
 <li><strong>scale</strong> &#8211; The scale of the frame.</li>
 <li><strong>mask</strong> &#8211; The type of mask to apply to the tiles in the frame: 0 (no
@@ -696,6 +701,9 @@ second.</li>
 <p><span class="versionmodified">Changed in version 5.1: </span>The <em>udgs</em> parameter can be a function that returns the array of tiles;
 added the <em>name</em> parameter.</p>
 </div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 5.4: </span>The Frame class moved from skoolkit.skoolhtml to skoolkit.graphics.</p>
+</div>
 </dd></dl>
 
 <p>HtmlWriter provides the following image-related convenience methods.</p>
@@ -717,7 +725,7 @@ blank, <cite>None</cite> is returned.</p>
 <li><strong>path_id</strong> &#8211; The ID of the target directory (as defined in the
 <a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> section of the ref file).</li>
 <li><strong>frames</strong> &#8211; The list of frames (instances of
-<a class="reference internal" href="#skoolkit.skoolhtml.Frame" title="skoolkit.skoolhtml.Frame"><tt class="xref py py-class docutils literal"><span class="pre">Frame</span></tt></a>) that define the
+<a class="reference internal" href="#skoolkit.graphics.Frame" title="skoolkit.graphics.Frame"><tt class="xref py py-class docutils literal"><span class="pre">Frame</span></tt></a>) that define the
 image. If supplied, it is used to determine whether the
 image is animated, and select the appropriate filename
 suffix accordingly.</li>
@@ -763,7 +771,7 @@ directory of the disassembly.</td>
 image (relative to the root directory of the
 disassembly).</li>
 <li><strong>udgs</strong> &#8211; The two-dimensional array of tiles (instances of
-<a class="reference internal" href="#skoolkit.skoolhtml.Udg" title="skoolkit.skoolhtml.Udg"><tt class="xref py py-class docutils literal"><span class="pre">Udg</span></tt></a>) from which to build the
+<a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><tt class="xref py py-class docutils literal"><span class="pre">Udg</span></tt></a>) from which to build the
 image.</li>
 <li><strong>crop_rect</strong> &#8211; The cropping rectangle, <tt class="docutils literal"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">width,</span> <span class="pre">height)</span></tt>,
 where <tt class="docutils literal"><span class="pre">x</span></tt> and <tt class="docutils literal"><span class="pre">y</span></tt> are the x- and y-coordinates of
@@ -820,7 +828,7 @@ removed) will be used.</li>
 image (relative to the root directory of the
 disassembly).</li>
 <li><strong>frames</strong> &#8211; A list of the frames (instances of
-<a class="reference internal" href="#skoolkit.skoolhtml.Frame" title="skoolkit.skoolhtml.Frame"><tt class="xref py py-class docutils literal"><span class="pre">Frame</span></tt></a>) from which to build
+<a class="reference internal" href="#skoolkit.graphics.Frame" title="skoolkit.graphics.Frame"><tt class="xref py py-class docutils literal"><span class="pre">Frame</span></tt></a>) from which to build
 the image.</li>
 </ul>
 </td>
@@ -847,7 +855,7 @@ required. This is a convenience method that calls
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>frames</strong> &#8211; The list of frames (instances of
-<a class="reference internal" href="#skoolkit.skoolhtml.Frame" title="skoolkit.skoolhtml.Frame"><tt class="xref py py-class docutils literal"><span class="pre">Frame</span></tt></a>) from which to build
+<a class="reference internal" href="#skoolkit.graphics.Frame" title="skoolkit.graphics.Frame"><tt class="xref py py-class docutils literal"><span class="pre">Frame</span></tt></a>) from which to build
 the image.</li>
 <li><strong>fname</strong> &#8211; The name of the image file.</li>
 <li><strong>cwd</strong> &#8211; The current working directory (from which the relative path
@@ -873,7 +881,7 @@ created.</p>
 <dt id="skoolkit.skoolhtml.HtmlWriter.screenshot">
 <tt class="descclassname">HtmlWriter.</tt><tt class="descname">screenshot</tt><big>(</big><em>x=0</em>, <em>y=0</em>, <em>w=32</em>, <em>h=24</em>, <em>df_addr=16384</em>, <em>af_addr=22528</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.screenshot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a two-dimensional array of tiles (instances of
-<a class="reference internal" href="#skoolkit.skoolhtml.Udg" title="skoolkit.skoolhtml.Udg"><tt class="xref py py-class docutils literal"><span class="pre">Udg</span></tt></a>) built from the display file and
+<a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><tt class="xref py py-class docutils literal"><span class="pre">Udg</span></tt></a>) built from the display file and
 attribute file of the current memory snapshot.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -893,11 +901,10 @@ attribute file of the current memory snapshot.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.flip_udgs">
-<tt class="descclassname">HtmlWriter.</tt><tt class="descname">flip_udgs</tt><big>(</big><em>udgs</em>, <em>flip=1</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.flip_udgs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Flip a 2D array of UDGs (instances of
-<a class="reference internal" href="#skoolkit.skoolhtml.Udg" title="skoolkit.skoolhtml.Udg"><tt class="xref py py-class docutils literal"><span class="pre">Udg</span></tt></a>).</p>
+<dl class="function">
+<dt id="skoolkit.graphics.flip_udgs">
+<tt class="descclassname">skoolkit.graphics.</tt><tt class="descname">flip_udgs</tt><big>(</big><em>udgs</em>, <em>flip=1</em><big>)</big><a class="headerlink" href="#skoolkit.graphics.flip_udgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flip a 2D array of UDGs (instances of <a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><tt class="xref py py-class docutils literal"><span class="pre">Udg</span></tt></a>).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -913,11 +920,11 @@ horizontally and vertically.</li>
 </table>
 </dd></dl>
 
-<dl class="method">
-<dt id="skoolkit.skoolhtml.HtmlWriter.rotate_udgs">
-<tt class="descclassname">HtmlWriter.</tt><tt class="descname">rotate_udgs</tt><big>(</big><em>udgs</em>, <em>rotate=1</em><big>)</big><a class="headerlink" href="#skoolkit.skoolhtml.HtmlWriter.rotate_udgs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rotate a 2D array of UDGs (instances of
-<a class="reference internal" href="#skoolkit.skoolhtml.Udg" title="skoolkit.skoolhtml.Udg"><tt class="xref py py-class docutils literal"><span class="pre">Udg</span></tt></a>) 90 degrees clockwise.</p>
+<dl class="function">
+<dt id="skoolkit.graphics.rotate_udgs">
+<tt class="descclassname">skoolkit.graphics.</tt><tt class="descname">rotate_udgs</tt><big>(</big><em>udgs</em>, <em>rotate=1</em><big>)</big><a class="headerlink" href="#skoolkit.graphics.rotate_udgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate a 2D array of UDGs (instances of <a class="reference internal" href="#skoolkit.graphics.Udg" title="skoolkit.graphics.Udg"><tt class="xref py py-class docutils literal"><span class="pre">Udg</span></tt></a>)
+90 degrees clockwise.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -932,6 +939,14 @@ horizontally and vertically.</li>
 </table>
 </dd></dl>
 
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <tt class="xref py py-meth docutils literal"><span class="pre">flip_udgs()</span></tt> and <tt class="xref py py-meth docutils literal"><span class="pre">rotate_udgs()</span></tt> methods on
+skoolkit.skoolhtml.HtmlWriter are deprecated since version 5.4. Use the
+<a class="reference internal" href="#skoolkit.graphics.flip_udgs" title="skoolkit.graphics.flip_udgs"><tt class="xref py py-func docutils literal"><span class="pre">flip_udgs()</span></tt></a> and
+<a class="reference internal" href="#skoolkit.graphics.rotate_udgs" title="skoolkit.graphics.rotate_udgs"><tt class="xref py py-func docutils literal"><span class="pre">rotate_udgs()</span></tt></a> functions in skoolkit.graphics
+instead.</p>
+</div>
 </div>
 <div class="section" id="htmlwriter-initialisation">
 <h2>HtmlWriter initialisation<a class="headerlink" href="#htmlwriter-initialisation" title="Permalink to this headline">¶</a></h2>
@@ -973,11 +988,11 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2016, Richard Dymond.
+        &copy; Copyright 2017, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

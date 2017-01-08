@@ -392,6 +392,18 @@ In ASM mode, this instance of the ``#BUG`` macro expands to 'bug'.
 
 See also :ref:`FACT` and :ref:`POKE`.
 
+.. note::
+   The ``#BUG`` macro is deprecated since version 5.4. Either use the
+   :ref:`LINK` macro instead, or use the :ref:`replace` directive to convert
+   existing ``#BUG`` macros into ``#LINK`` macros::
+
+     @replace=/#BUG(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Bugs\1(bug)
+     @replace=/#BUG(?![A-Z])/#LINK:Bugs
+
+   The first directive replaces ``#BUG`` macros that have no link text
+   parameter; the second directive replaces ``#BUG`` macros that do have a link
+   text parameter.
+
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
@@ -554,6 +566,18 @@ an entry on the 'Trivia' page, with link text equal to the title of the entry.
 
 See also :ref:`BUG` and :ref:`POKE`.
 
+.. note::
+   The ``#FACT`` macro is deprecated since version 5.4. Either use the
+   :ref:`LINK` macro instead, or use the :ref:`replace` directive to convert
+   existing ``#FACT`` macros into ``#LINK`` macros::
+
+     @replace=/#FACT(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Facts\1(fact)
+     @replace=/#FACT(?![A-Z])/#LINK:Facts
+
+   The first directive replaces ``#FACT`` macros that have no link text
+   parameter; the second directive replaces ``#FACT`` macros that do have a
+   link text parameter.
+
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
@@ -636,9 +660,9 @@ another page. ::
 * ``name`` is the name of an anchor on the page to link to
 * ``link text`` is the link text to use
 
-In HTML mode, if the link text is blank, the page's link text (as defined in
-the :ref:`links` section or the relevant :ref:`page` section of the ref file)
-is substituted.
+In HTML mode, if the link text is blank, it defaults either to the title of the
+entry being linked to (if the page is a :ref:`box page <boxpages>` and contains
+an entry with the specified anchor), or to the page's link text.
 
 In ASM mode, the ``#LINK`` macro expands to the link text.
 
@@ -667,6 +691,10 @@ section.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 5.4     | When linking to an entry on a :ref:`box page <boxpages>`, the    |
+|         | link text, if left blank, defaults to the title of the entry (in |
+|         | HTML mode)                                                       |
++---------+------------------------------------------------------------------+
 | 5.2     | An entry address anchor in a link to a memory map page is        |
 |         | converted to the format specified by the ``AddressAnchor``       |
 |         | parameter                                                        |
@@ -742,6 +770,18 @@ an entry on the 'Pokes' page, with link text 'infinite lives'.
 In ASM mode, this instance of the ``#POKE`` macro expands to 'infinite lives'.
 
 See also :ref:`BUG` and :ref:`FACT`.
+
+.. note::
+   The ``#POKE`` macro is deprecated since version 5.4. Either use the
+   :ref:`LINK` macro instead, or use the :ref:`replace` directive to convert
+   existing ``#POKE`` macros into ``#LINK`` macros::
+
+     @replace=/#POKE(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Pokes\1(poke)
+     @replace=/#POKE(?![A-Z])/#LINK:Pokes
+
+   The first directive replaces ``#POKE`` macros that have no link text
+   parameter; the second directive replaces ``#POKE`` macros that do have a
+   link text parameter.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
@@ -890,15 +930,25 @@ See also :ref:`EREFS`.
 #REG
 ----
 In HTML mode, the ``#REG`` macro expands to a styled ``<span>`` element
-containing a register name. ::
+containing a register name or arbitrary text (with case adjusted as
+appropriate). ::
 
   #REGreg
 
-* ``reg`` is the name of the register
+where ``reg`` is the name of the register, or::
 
-In ASM mode, the ``#REG`` macro expands to the name of the register.
+  #REG(text)
 
-The register name must be one of the following::
+where ``text`` is arbitrary text (e.g. ``hlh'l'``).
+
+See :ref:`stringParameters` for details on alternative ways to supply the
+``text`` parameter. Note that if an alternative delimiter is used, it must not
+be a letter.
+
+In ASM mode, the ``#REG`` macro expands to either ``reg`` or ``text`` (with
+case adjusted as appropriate).
+
+The register name (``reg``) must be one of the following::
 
   a b c d e f h l
   a' b' c' d' e' f' h' l'
@@ -917,6 +967,8 @@ For example:
 +---------+-----------------------------------------------------+
 | Version | Changes                                             |
 +=========+=====================================================+
+| 5.4     | Added support for an arbitrary text parameter       |
++---------+-----------------------------------------------------+
 | 5.3     | Added support for the F and F' registers            |
 +---------+-----------------------------------------------------+
 | 5.1     | The ``reg`` parameter must be a valid register name |

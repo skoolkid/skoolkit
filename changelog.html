@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Changelog &mdash; SkoolKit 5.3 documentation</title>
+    <title>Changelog &mdash; SkoolKit 5.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.3',
+        VERSION:     '5.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.4 documentation" href="index.html" />
     <link rel="next" title="SkoolKit 4.x changelog" href="changelog4.html" />
     <link rel="prev" title="Migrating from SkoolKit 4" href="migration.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 4"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -48,10 +48,11 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">5.3 (2016-09-05)</a></li>
-<li><a class="reference internal" href="#id2">5.2 (2016-05-02)</a></li>
-<li><a class="reference internal" href="#id3">5.1 (2016-01-09)</a></li>
-<li><a class="reference internal" href="#id4">5.0 (2015-10-04)</a></li>
+<li><a class="reference internal" href="#id1">5.4 (2017-01-08)</a></li>
+<li><a class="reference internal" href="#id2">5.3 (2016-09-05)</a></li>
+<li><a class="reference internal" href="#id3">5.2 (2016-05-02)</a></li>
+<li><a class="reference internal" href="#id4">5.1 (2016-01-09)</a></li>
+<li><a class="reference internal" href="#id5">5.0 (2015-10-04)</a></li>
 <li><a class="reference internal" href="#older-versions">Older versions</a></li>
 </ul>
 </li>
@@ -92,7 +93,34 @@
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2>5.3 (2016-09-05)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>5.4 (2017-01-08)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Added the <a class="reference internal" href="commands.html#sna2img-py"><em>sna2img.py</em></a> command (for converting the screenshot in a SCR
+file or SNA/SZX/Z80 snapshot into a PNG or GIF file)</li>
+<li>Added the <a class="reference internal" href="asm.html#equ"><em>&#64;equ</em></a> ASM directive (which produces an EQU directive in the
+ASM output)</li>
+<li>The <a class="reference internal" href="skool-macros.html#reg"><em>#REG</em></a> macro now accepts an arbitrary text parameter (e.g.
+<tt class="docutils literal"><span class="pre">#REG(hlh'l')</span></tt>)</li>
+<li>When the <a class="reference internal" href="skool-macros.html#link"><em>#LINK</em></a> macro links to an entry on a <a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a>,
+the link text defaults to the title of the entry if left blank</li>
+<li>Added the <tt class="docutils literal"><span class="pre">SectionType</span></tt> parameter to the <a class="reference internal" href="ref-files.html#page"><em>[Page:*]</em></a> section (for
+specifying how to parse and render the ref file sections from which a
+<a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a> is built)</li>
+<li>Added the <tt class="docutils literal"><span class="pre">--asm-one-page</span></tt> option to <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> (for writing all
+routines and data blocks to a single page)</li>
+<li>Added the <tt class="docutils literal"><span class="pre">--variables</span></tt> option to <a class="reference internal" href="commands.html#snapinfo-py"><em>snapinfo.py</em></a> (for showing the
+contents of the variables area)</li>
+<li><a class="reference internal" href="commands.html#snapinfo-py"><em>snapinfo.py</em></a> now shows special symbols for UDGs in a BASIC program
+(e.g. <tt class="docutils literal"><span class="pre">{UDG-A}</span></tt>)</li>
+<li>Improved how <a class="reference internal" href="asm.html#end"><em>&#64;end</em></a>, <a class="reference internal" href="asm.html#org"><em>&#64;org</em></a>, <a class="reference internal" href="asm.html#replace"><em>&#64;replace</em></a>, <a class="reference internal" href="asm.html#set"><em>&#64;set</em></a>, <a class="reference internal" href="asm.html#start"><em>&#64;start</em></a>
+and <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a> directives are preserved and restored via a control file</li>
+<li>Added support for <a class="reference internal" href="html-templates.html#ps-templates"><em>page-specific HTML subtemplates</em></a></li>
+<li>The <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macro now pads out the bottom row of an array with extra
+UDGs if necessary (to prevent the creation of a broken image file)</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>5.3 (2016-09-05)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Dropped support for Python 3.2</li>
 <li>Added the <a class="reference internal" href="commands.html#snapinfo-py"><em>snapinfo.py</em></a> command (for showing information on the
@@ -106,7 +134,7 @@ the <tt class="docutils literal"><span class="pre">AsmSinglePageTemplate</span><
 the <a class="reference internal" href="html-templates.html#t-asmallinone"><em>AsmAllInOne</em></a> and <a class="reference internal" href="html-templates.html#t-asm-entry"><em>asm_entry</em></a> templates)</li>
 <li>Added the <tt class="docutils literal"><span class="pre">SectionPrefix</span></tt> parameter to the <a class="reference internal" href="ref-files.html#page"><em>[Page:*]</em></a> section (for
 specifying the prefix of the names of ref file sections from which to build
-a &#8216;box page&#8217;)</li>
+a <a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a>)</li>
 <li>Added the <tt class="docutils literal"><span class="pre">--screen</span></tt> option to <a class="reference internal" href="commands.html#bin2tap-py"><em>bin2tap.py</em></a> (for adding a loading
 screen to the TAP file)</li>
 <li>Added the <tt class="docutils literal"><span class="pre">--stack</span></tt> and <tt class="docutils literal"><span class="pre">--start</span></tt> options to <a class="reference internal" href="commands.html#tap2sna-py"><em>tap2sna.py</em></a> (for
@@ -120,8 +148,8 @@ Z80 snapshot</li>
 now being developed separately <a class="reference external" href="https://github.com/skoolkid/rom">here</a></li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h2>5.2 (2016-05-02)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h2>5.2 (2016-05-02)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <a class="reference internal" href="commands.html#bin2sna-py"><em>bin2sna.py</em></a> command (for converting a binary file into a Z80
 snapshot)</li>
@@ -141,8 +169,8 @@ is converted to the format specified by the <tt class="docutils literal"><span c
 <tt class="docutils literal"><span class="pre">#POKES30000,,8</span></tt>)</li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>5.1 (2016-01-09)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>5.1 (2016-01-09)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <a class="reference internal" href="asm.html#replace"><em>&#64;replace</em></a> ASM directive (which replaces strings that match a
 regular expression in skool file annotations and ref file sections)</li>
@@ -170,8 +198,8 @@ uncropped image file</li>
 equal INK and PAPER colours</li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>5.0 (2015-10-04)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>5.0 (2015-10-04)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <a class="reference internal" href="commands.html#skool2bin-py"><em>skool2bin.py</em></a> command (for converting a skool file into a
 binary file)</li>
@@ -221,11 +249,11 @@ map files</li>
         <li class="right" >
           <a href="migration.html" title="Migrating from SkoolKit 4"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2016, Richard Dymond.
+        &copy; Copyright 2017, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ASM modes and directives &mdash; SkoolKit 5.3 documentation</title>
+    <title>ASM modes and directives &mdash; SkoolKit 5.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.3',
+        VERSION:     '5.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.4 documentation" href="index.html" />
     <link rel="next" title="Extending SkoolKit" href="extending.html" />
     <link rel="prev" title="HTML templates" href="html-templates.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -65,6 +65,7 @@
 <li><a class="reference internal" href="#bfix">&#64;bfix</a></li>
 <li><a class="reference internal" href="#bfix-block-directives">&#64;bfix block directives</a></li>
 <li><a class="reference internal" href="#end">&#64;end</a></li>
+<li><a class="reference internal" href="#equ">&#64;equ</a></li>
 <li><a class="reference internal" href="#ignoreua">&#64;ignoreua</a></li>
 <li><a class="reference internal" href="#isub">&#64;isub</a></li>
 <li><a class="reference internal" href="#isub-block-directives">&#64;isub block directives</a></li>
@@ -388,8 +389,43 @@ directive is ignored by <a class="reference internal" href="commands.html#skool2
 </tbody>
 </table>
 </div>
+<div class="section" id="equ">
+<span id="id4"></span><h3>&#64;equ<a class="headerlink" href="#equ" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">&#64;equ</span></tt> directive defines an EQU directive that will appear in the ASM
+output.</p>
+<div class="highlight-none"><div class="highlight"><pre>@equ=label=value
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">label</span></tt> is the label</li>
+<li><tt class="docutils literal"><span class="pre">value</span></tt> is the value assigned to the label</li>
+</ul>
+<p>For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>@equ=ATTRS=22528
+c32768 LD HL,22528
+</pre></div>
+</div>
+<p>This will produce an EQU directive (<tt class="docutils literal"><span class="pre">ATTRS</span> <span class="pre">EQU</span> <span class="pre">22528</span></tt>) in the ASM output, and
+replace the operand of the instruction at 32768 with a label: <tt class="docutils literal"><span class="pre">LD</span> <span class="pre">HL,ATTRS</span></tt>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>5.4</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="ignoreua">
-<span id="id4"></span><h3>&#64;ignoreua<a class="headerlink" href="#ignoreua" title="Permalink to this headline">¶</a></h3>
+<span id="id5"></span><h3>&#64;ignoreua<a class="headerlink" href="#ignoreua" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;ignoreua</span></tt> directive suppresses any warnings that would otherwise be
 reported concerning addresses not converted to labels in the comment that
 follows; the comment may be an entry title, an entry description, a register
@@ -492,7 +528,7 @@ comments and block end comments</td>
 </table>
 </div>
 <div class="section" id="isub">
-<span id="id5"></span><h3>&#64;isub<a class="headerlink" href="#isub" title="Permalink to this headline">¶</a></h3>
+<span id="id6"></span><h3>&#64;isub<a class="headerlink" href="#isub" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;isub</span></tt> directive makes an instruction substitution in <a class="reference internal" href="#isubmode"><em>&#64;isub mode</em></a>.</p>
 <div class="highlight-none"><div class="highlight"><pre>@isub=INSTRUCTION
 </pre></div>
@@ -515,7 +551,7 @@ removed in <a class="reference internal" href="#isubmode"><em>&#64;isub mode</em
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><em>&#64;bfix block directives</em></a>.</p>
 </div>
 <div class="section" id="keep">
-<span id="id6"></span><h3>&#64;keep<a class="headerlink" href="#keep" title="Permalink to this headline">¶</a></h3>
+<span id="id7"></span><h3>&#64;keep<a class="headerlink" href="#keep" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;keep</span></tt> directive prevents the substitution of a label for the operand in
 the next instruction (but only when the instruction has not been replaced using
 an <tt class="docutils literal"><span class="pre">&#64;isub</span></tt> or <tt class="docutils literal"><span class="pre">&#64;ssub</span></tt> directive).</p>
@@ -530,7 +566,7 @@ an <tt class="docutils literal"><span class="pre">&#64;isub</span></tt> or <tt c
 pure data value, not a variable or routine address.</p>
 </div>
 <div class="section" id="label">
-<span id="id7"></span><h3>&#64;label<a class="headerlink" href="#label" title="Permalink to this headline">¶</a></h3>
+<span id="id8"></span><h3>&#64;label<a class="headerlink" href="#label" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;label</span></tt> directive sets the label for the next instruction.</p>
 <div class="highlight-none"><div class="highlight"><pre>@label=LABEL
 </pre></div>
@@ -546,7 +582,7 @@ c24576 XOR A
 <p>This sets the label for the routine at 24576 to <tt class="docutils literal"><span class="pre">ENDGAME</span></tt>.</p>
 </div>
 <div class="section" id="nolabel">
-<span id="id8"></span><h3>&#64;nolabel<a class="headerlink" href="#nolabel" title="Permalink to this headline">¶</a></h3>
+<span id="id9"></span><h3>&#64;nolabel<a class="headerlink" href="#nolabel" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;nolabel</span></tt> directive prevents the next instruction from having a label
 automatically generated.</p>
 <p>For example:</p>
@@ -596,7 +632,7 @@ TOGGLE_0:
 </div>
 </div>
 <div class="section" id="nowarn">
-<span id="id9"></span><h3>&#64;nowarn<a class="headerlink" href="#nowarn" title="Permalink to this headline">¶</a></h3>
+<span id="id10"></span><h3>&#64;nowarn<a class="headerlink" href="#nowarn" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;nowarn</span></tt> directive suppresses any warnings that would otherwise be
 reported for the next instruction concerning:</p>
 <ul class="simple">
@@ -629,7 +665,7 @@ not being replaced with a label (usually you would want the operand of a CALL
 instruction to be replaced with a label, but not in this case).</p>
 </div>
 <div class="section" id="ofix">
-<span id="id10"></span><h3>&#64;ofix<a class="headerlink" href="#ofix" title="Permalink to this headline">¶</a></h3>
+<span id="id11"></span><h3>&#64;ofix<a class="headerlink" href="#ofix" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;ofix</span></tt> directive makes an instruction substitution in <a class="reference internal" href="#ofixmode"><em>&#64;ofix mode</em></a>.</p>
 <div class="highlight-none"><div class="highlight"><pre>@ofix=INSTRUCTION
 </pre></div>
@@ -652,7 +688,7 @@ removed in <a class="reference internal" href="#ofixmode"><em>&#64;ofix mode</em
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><em>&#64;bfix block directives</em></a>.</p>
 </div>
 <div class="section" id="org">
-<span id="id11"></span><h3>&#64;org<a class="headerlink" href="#org" title="Permalink to this headline">¶</a></h3>
+<span id="id12"></span><h3>&#64;org<a class="headerlink" href="#org" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;org</span></tt> directive inserts an <tt class="docutils literal"><span class="pre">ORG</span></tt> assembler directive.</p>
 <div class="highlight-none"><div class="highlight"><pre>@org=ADDRESS
 </pre></div>
@@ -662,7 +698,7 @@ removed in <a class="reference internal" href="#ofixmode"><em>&#64;ofix mode</em
 </ul>
 </div>
 <div class="section" id="rem">
-<span id="id12"></span><h3>&#64;rem<a class="headerlink" href="#rem" title="Permalink to this headline">¶</a></h3>
+<span id="id13"></span><h3>&#64;rem<a class="headerlink" href="#rem" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;rem</span></tt> directive may be used to make an illuminating comment about a
 nearby section or other ASM directive in a skool file. The directive is ignored
 by the parser.</p>
@@ -695,7 +731,7 @@ by the parser.</p>
 </table>
 </div>
 <div class="section" id="replace">
-<span id="id13"></span><h3>&#64;replace<a class="headerlink" href="#replace" title="Permalink to this headline">¶</a></h3>
+<span id="id14"></span><h3>&#64;replace<a class="headerlink" href="#replace" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;replace</span></tt> directive replaces strings that match a regular expression in
 skool file annotations and ref file sections.</p>
 <div class="highlight-none"><div class="highlight"><pre>@replace=/pattern/repl
@@ -758,7 +794,7 @@ were reversed:</p>
 </table>
 </div>
 <div class="section" id="rfix">
-<span id="id14"></span><h3>&#64;rfix<a class="headerlink" href="#rfix" title="Permalink to this headline">¶</a></h3>
+<span id="id15"></span><h3>&#64;rfix<a class="headerlink" href="#rfix" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;rfix</span></tt> directive makes an instruction substitution in <a class="reference internal" href="#rfixmode"><em>&#64;rfix mode</em></a>.</p>
 <div class="highlight-none"><div class="highlight"><pre>@rfix=INSTRUCTION
 </pre></div>
@@ -795,7 +831,7 @@ removed in <a class="reference internal" href="#rfixmode"><em>&#64;rfix mode</em
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><em>&#64;bfix block directives</em></a>.</p>
 </div>
 <div class="section" id="rsub">
-<span id="id15"></span><h3>&#64;rsub<a class="headerlink" href="#rsub" title="Permalink to this headline">¶</a></h3>
+<span id="id16"></span><h3>&#64;rsub<a class="headerlink" href="#rsub" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;rsub</span></tt> directive makes an instruction substitution in <a class="reference internal" href="#rsubmode"><em>&#64;rsub mode</em></a>.</p>
 <div class="highlight-none"><div class="highlight"><pre>@rsub=INSTRUCTION
 </pre></div>
@@ -816,7 +852,7 @@ removed in <a class="reference internal" href="#rsubmode"><em>&#64;rsub mode</em
 <p>The syntax is equivalent to that for the <a class="reference internal" href="#bfixblockdirectives"><em>&#64;bfix block directives</em></a>.</p>
 </div>
 <div class="section" id="set">
-<span id="id16"></span><h3>&#64;set<a class="headerlink" href="#set" title="Permalink to this headline">¶</a></h3>
+<span id="id17"></span><h3>&#64;set<a class="headerlink" href="#set" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;set</span></tt> directive sets a property on the ASM writer.</p>
 <div class="highlight-none"><div class="highlight"><pre>@set-name=value
 </pre></div>
@@ -882,7 +918,7 @@ ASM output (after parsing the skool file), or <tt class="docutils literal"><span
 </table>
 </div>
 <div class="section" id="ssub">
-<span id="id17"></span><h3>&#64;ssub<a class="headerlink" href="#ssub" title="Permalink to this headline">¶</a></h3>
+<span id="id18"></span><h3>&#64;ssub<a class="headerlink" href="#ssub" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;ssub</span></tt> directive makes an instruction substitution in <a class="reference internal" href="#ssubmode"><em>&#64;ssub mode</em></a>.</p>
 <div class="highlight-none"><div class="highlight"><pre>@ssub=INSTRUCTION
 </pre></div>
@@ -925,14 +961,14 @@ removed in <a class="reference internal" href="#ssubmode"><em>&#64;ssub mode</em
 </table>
 </div>
 <div class="section" id="start">
-<span id="id18"></span><h3>&#64;start<a class="headerlink" href="#start" title="Permalink to this headline">¶</a></h3>
+<span id="id19"></span><h3>&#64;start<a class="headerlink" href="#start" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;start</span></tt> directive indicates where to start parsing the skool file for
 the purpose of generating ASM output. Everything before the <tt class="docutils literal"><span class="pre">&#64;start</span></tt>
 directive is ignored by <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>.</p>
 <p>See also <a class="reference internal" href="#end"><em>&#64;end</em></a>.</p>
 </div>
 <div class="section" id="writer">
-<span id="id19"></span><h3>&#64;writer<a class="headerlink" href="#writer" title="Permalink to this headline">¶</a></h3>
+<span id="id20"></span><h3>&#64;writer<a class="headerlink" href="#writer" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">&#64;writer</span></tt> directive specifies the name of the Python class to use to
 generate ASM output. It must be placed somewhere after the <a class="reference internal" href="#start"><em>&#64;start</em></a>
 directive, and before the <a class="reference internal" href="#end"><em>&#64;end</em></a> directive (if there is one).</p>
@@ -991,11 +1027,11 @@ path</td>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2016, Richard Dymond.
+        &copy; Copyright 2017, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

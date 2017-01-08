@@ -332,6 +332,7 @@ list::
   for standard input.
 
   Options:
+    -1, --asm-one-page    Write all routines and data blocks to a single page
     -a, --asm-labels      Use ASM labels
     -c S/L, --config S/L  Add the line 'L' to the ref file section 'S'; this
                           option may be used multiple times
@@ -373,6 +374,12 @@ list::
                           Specify the HTML writer class to use; shorthand for
                           '--config Config/HtmlWriterClass=CLASS'
 
+.. note::
+   The 'B', 'b', 'c', 'p', 't' and 'y' file identifiers in the ``--write``
+   option are deprecated since version 5.4. To specify the Graphic glitches,
+   Bugs, Changelog, Pokes, Trivia or Glossary page, use the ``-P/--pages``
+   option with ``--write P``.
+
 `skool2html.py` searches the following directories for skool files, ref files,
 CSS files, JavaScript files, font files, and files listed in the
 :ref:`resources` section of the ref file:
@@ -412,6 +419,8 @@ will use the following CSS files, if they exist, in the order listed:
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 5.4     | Added the ``--asm-one-page`` option                              |
++---------+------------------------------------------------------------------+
 | 5.0     | The ``--theme`` option also looks for a CSS file whose base name |
 |         | matches the theme name                                           |
 +---------+------------------------------------------------------------------+
@@ -491,6 +500,47 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 +---------+-------------------------------------------------------------+
 | 2.4     | New                                                         |
 +---------+-------------------------------------------------------------+
+
+.. _sna2img.py:
+
+sna2img.py
+----------
+`sna2img.py` converts the screenshot in a SCR file or SNA/SZX/Z80 snapshot into
+a PNG or GIF file. For example::
+
+  $ sna2img.py game.scr
+
+will create a file named `game.png`.
+
+To list the options supported by `sna2img.py`, run it with no arguments::
+
+  usage: sna2img.py [options] INPUT [OUTPUT]
+
+  Convert a Spectrum screenshot (or a portion of it) into a PNG or GIF file.
+  INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.
+
+  Options:
+    -f N, --flip N        Flip the image horizontally (N=1), vertically (N=2),
+                          or both (N=3).
+    -i, --invert          Invert video for cells that are flashing.
+    -n, --no-animation    Do not animate flashing cells.
+    -o X,Y, --origin X,Y  Top-left crop at (X,Y).
+    -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
+                          POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
+                          with '^' to perform an XOR operation, or '+' to
+                          perform an ADD operation. This option may be used
+                          multiple times.
+    -r N, --rotate N      Rotate the image 90*N degrees clockwise.
+    -s SCALE, --scale SCALE
+                          Set the scale of the image (default=1).
+    -S WxH, --size WxH    Crop to this width and height (in tiles).
+    -V, --version         Show SkoolKit version number and exit.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 5.4     | New     |
++---------+---------+
 
 .. _sna2skool.py:
 
@@ -629,18 +679,22 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
                           option may be used multiple times
     -t TEXT, --find-text TEXT
                           Search for a text string
+    -v, --variables       List variables
     -V, --version         Show SkoolKit version number and exit
 
 With no options, `snapinfo.py` displays register values, the interrupt mode,
 and the border colour. By using one of the options shown above, it can list
-the BASIC program (if one is present), show the contents of a range of
+the BASIC program and variables (if present), show the contents of a range of
 addresses, or search the RAM for a sequence of byte values or a text string.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.3     | New     |
-+---------+---------+
++---------+---------------------------------------------------------------+
+| Version | Changes                                                       |
++=========+===============================================================+
+| 5.4     | Added the ``--variables`` option; UDGs in a BASIC program are |
+|         | shown as special symbols (e.g. ``{UDG-A}``)                   |
++---------+---------------------------------------------------------------+
+| 5.3     | New                                                           |
++---------+---------------------------------------------------------------+
 
 .. _snapmod.py:
 

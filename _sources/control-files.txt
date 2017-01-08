@@ -492,8 +492,6 @@ A control file can be useful in the early stages of developing a skool file for
 reorganising code and data blocks, but it cannot preserve the following:
 
 * ASM block directives
-* the exact locations of :ref:`assemble`, :ref:`end`, :ref:`org`,
-  :ref:`replace`, :ref:`set`, :ref:`start` and :ref:`writer` directives
 * :ref:`data definition entries <dEntry>` ('d' blocks) and
   :ref:`remote entries <rEntry>` ('r' blocks)
 * comments that are not part of a code or data block

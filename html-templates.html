@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>HTML templates &mdash; SkoolKit 5.3 documentation</title>
+    <title>HTML templates &mdash; SkoolKit 5.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.3',
+        VERSION:     '5.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.4 documentation" href="index.html" />
     <link rel="next" title="ASM modes and directives" href="asm.html" />
     <link rel="prev" title="Ref files" href="ref-files.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -79,6 +79,7 @@
 <li><a class="reference internal" href="#table-cell">table_cell</a></li>
 <li><a class="reference internal" href="#table-header-cell">table_header_cell</a></li>
 <li><a class="reference internal" href="#table-row">table_row</a></li>
+<li><a class="reference internal" href="#page-specific-templates">Page-specific templates</a></li>
 </ul>
 </li>
 </ul>
@@ -199,7 +200,7 @@ otherwise</li>
 <li><tt class="docutils literal"><span class="pre">output</span></tt> - &#8216;1&#8217; if there are output register values defined, &#8216;0&#8217; otherwise</li>
 </ul>
 <p>To see the default <tt class="docutils literal"><span class="pre">Asm</span></tt> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:Asm
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:Asm$
 </pre></div>
 </div>
 </div>
@@ -257,7 +258,7 @@ subtemplate</li>
 <div class="section" id="page">
 <span id="t-page"></span><h2>Page<a class="headerlink" href="#page" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">Page</span></tt> template is the full-page template that is used to build custom
-pages defined by <a class="reference internal" href="ref-files.html#page"><em>[Page:*]</em></a> and <a class="reference internal" href="ref-files.html#pagecontent"><em>[PageContent:*]</em></a> sections.</p>
+non-box pages defined by <a class="reference internal" href="ref-files.html#page"><em>[Page:*]</em></a> and <a class="reference internal" href="ref-files.html#pagecontent"><em>[PageContent:*]</em></a> sections.</p>
 <p>The following identifier is available (in addition to the universal and
 page-level identifiers):</p>
 <ul class="simple">
@@ -271,17 +272,14 @@ corresponding <a class="reference internal" href="ref-files.html#page"><em>[Page
 </div>
 <div class="section" id="reference">
 <span id="t-reference"></span><h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
-<p>The <tt class="docutils literal"><span class="pre">Reference</span></tt> template is the full-page template that is used to build the
-&#8216;Bugs&#8217;, &#8216;Trivia&#8217;, &#8216;Pokes&#8217;, &#8216;Glossary&#8217;, &#8216;Graphic glitches&#8217; and &#8216;Changelog&#8217;
-pages, and also any custom page that uses the <tt class="docutils literal"><span class="pre">SectionPrefix</span></tt> parameter in
-the <a class="reference internal" href="ref-files.html#page"><em>[Page:*]</em></a> section.</p>
+<p>The <tt class="docutils literal"><span class="pre">Reference</span></tt> template is the full-page template that is used to build
+<a class="reference internal" href="ref-files.html#boxpages"><em>box pages</em></a>.</p>
 <p>The following identifiers are available (in addition to the universal and
 page-level identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">entries</span></tt> - replaced by one or more copies of the <a class="reference internal" href="#t-changelog-entry"><em>changelog_entry</em></a>
-subtemplate (on the &#8216;Changelog&#8217; page), or the <a class="reference internal" href="#t-reference-entry"><em>reference_entry</em></a>
-subtemplate (on the &#8216;Bugs&#8217;, &#8216;Trivia&#8217;, &#8216;Pokes&#8217;, &#8216;Glossary&#8217; and &#8216;Graphic
-glitches&#8217; pages)</li>
+subtemplate (when the page&#8217;s <tt class="docutils literal"><span class="pre">SectionType</span></tt> is <tt class="docutils literal"><span class="pre">ListItems</span></tt>), or the
+<a class="reference internal" href="#t-reference-entry"><em>reference_entry</em></a> subtemplate</li>
 <li><tt class="docutils literal"><span class="pre">m_contents_list_item</span></tt> - replaced by one or more copies of the
 <a class="reference internal" href="#t-contents-list-item"><em>contents_list_item</em></a> subtemplate</li>
 </ul>
@@ -401,17 +399,18 @@ map entry (see <a class="reference internal" href="#t-asm"><em>Asm</em></a>)</li
 <div class="section" id="changelog-entry">
 <span id="t-changelog-entry"></span><h2>changelog_entry<a class="headerlink" href="#changelog-entry" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">changelog_entry</span></tt> is the subtemplate used by the <a class="reference internal" href="#t-reference"><em>Reference</em></a>
-full-page template to format each entry on the &#8216;Changelog&#8217; page.</p>
+full-page template to format each entry on a <a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a> whose
+<tt class="docutils literal"><span class="pre">SectionType</span></tt> is <tt class="docutils literal"><span class="pre">ListItems</span></tt>.</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">description</span></tt> - the changelog entry intro text</li>
+<li><tt class="docutils literal"><span class="pre">description</span></tt> - the entry intro text</li>
 <li><tt class="docutils literal"><span class="pre">num</span></tt> - &#8216;1&#8217; or &#8216;2&#8217;, depending on the order of the entry on the page</li>
 <li><tt class="docutils literal"><span class="pre">t_anchor</span></tt> - replaced by a copy of the <a class="reference internal" href="#t-anchor"><em>anchor</em></a> subtemplate (with
 the entry title as the anchor name)</li>
 <li><tt class="docutils literal"><span class="pre">t_changelog_item_list</span></tt> - replaced by a copy of the
 <a class="reference internal" href="#t-changelog-item-list"><em>changelog_item_list</em></a> subtemplate</li>
-<li><tt class="docutils literal"><span class="pre">title</span></tt> - the changelog entry title</li>
+<li><tt class="docutils literal"><span class="pre">title</span></tt> - the entry title</li>
 </ul>
 <p>To see the default <tt class="docutils literal"><span class="pre">changelog_entry</span></tt> template, run the following command:</p>
 <div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:changelog_entry
@@ -421,9 +420,10 @@ the entry title as the anchor name)</li>
 <div class="section" id="changelog-item-list">
 <span id="t-changelog-item-list"></span><h2>changelog_item_list<a class="headerlink" href="#changelog-item-list" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">changelog_item_list</span></tt> template is the subtemplate used by the
-<a class="reference internal" href="#t-changelog-entry"><em>changelog_entry</em></a> subtemplate to format a list of changelog items, and
-also by the <tt class="docutils literal"><span class="pre">changelog_item</span></tt> or <a class="reference internal" href="#t-list-item"><em>list_item</em></a> subtemplate to format a
-list of subitems or subsubitems etc.</p>
+<a class="reference internal" href="#t-changelog-entry"><em>changelog_entry</em></a> subtemplate to format a list of items in an entry on a
+<a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a> whose <tt class="docutils literal"><span class="pre">SectionType</span></tt> is <tt class="docutils literal"><span class="pre">ListItems</span></tt>, and also by
+the <a class="reference internal" href="#t-list-item"><em>list_item</em></a> subtemplate to format a list of subitems or subsubitems
+etc.</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
@@ -431,8 +431,7 @@ identifiers):</p>
 the list of top-level items, &#8216;1&#8217; for a list of subitems, &#8216;2&#8217; for a list of
 subsubitems etc.</li>
 <li><tt class="docutils literal"><span class="pre">m_changelog_item</span></tt> - replaced by one or more copies of the
-<tt class="docutils literal"><span class="pre">changelog_item</span></tt> subtemplate if it exists, or the <a class="reference internal" href="#t-list-item"><em>list_item</em></a>
-subtemplate otherwise</li>
+<a class="reference internal" href="#t-list-item"><em>list_item</em></a> subtemplate</li>
 </ul>
 <p>To see the default <tt class="docutils literal"><span class="pre">changelog_item_list</span></tt> template, run the following
 command:</p>
@@ -444,8 +443,7 @@ command:</p>
 <span id="t-contents-list-item"></span><h2>contents_list_item<a class="headerlink" href="#contents-list-item" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">contents_list_item</span></tt> template is the subtemplate used by the
 <a class="reference internal" href="#t-reference"><em>Reference</em></a> full-page template to format each item in the contents list
-on the &#8216;Bugs&#8217;, &#8216;Trivia&#8217;, &#8216;Pokes&#8217;, &#8216;Glossary&#8217;, &#8216;Graphic glitches&#8217; and
-&#8216;Changelog&#8217; pages.</p>
+on a <a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a>.</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
@@ -572,9 +570,8 @@ subtemplate</li>
 <div class="section" id="list-item">
 <span id="t-list-item"></span><h2>list_item<a class="headerlink" href="#list-item" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">list_item</span></tt> template is the subtemplate used by the <a class="reference internal" href="#t-list"><em>list</em></a>
-template to format each item in the list, and also by the
-<a class="reference internal" href="#t-changelog-item-list"><em>changelog_item_list</em></a> subtemplate to format each item in a changelog
-item list.</p>
+template and the <a class="reference internal" href="#t-changelog-item-list"><em>changelog_item_list</em></a> subtemplate to format each item
+in the list.</p>
 <p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
@@ -630,9 +627,9 @@ otherwise</li>
 the following items:</p>
 <ul class="simple">
 <li>memory map entry descriptions (on disassembly pages and memory map pages)</li>
-<li>mid-block comments and block end comments on disassembly pages</li>
-<li>entries on the &#8216;Bugs&#8217;, &#8216;Trivia&#8217;, &#8216;Pokes&#8217;, &#8216;Glossary&#8217;, &#8216;Graphic glitches&#8217; and
-&#8216;Changelog&#8217; pages</li>
+<li>block start comments, mid-block comments and block end comments on
+disassembly pages</li>
+<li>entries on a <a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a></li>
 </ul>
 <p>The following identifier is available (in addition to the universal
 identifiers):</p>
@@ -647,14 +644,12 @@ identifiers):</p>
 <div class="section" id="reference-entry">
 <span id="t-reference-entry"></span><h2>reference_entry<a class="headerlink" href="#reference-entry" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">reference_entry</span></tt> template is the subtemplate used by the
-<a class="reference internal" href="#t-reference"><em>Reference</em></a> full-page template to format each entry on the &#8216;Bugs&#8217;,
-&#8216;Trivia&#8217;, &#8216;Pokes&#8217;, &#8216;Glossary&#8217; and &#8216;Graphic glitches&#8217; pages.</p>
+<a class="reference internal" href="#t-reference"><em>Reference</em></a> full-page template to format each entry on a
+<a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a> that has a default <tt class="docutils literal"><span class="pre">SectionType</span></tt>.</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">contents</span></tt> - replaced by the pre-formatted contents of the relevant
-<a class="reference internal" href="ref-files.html#ref-bug"><em>[Bug:*:*]</em></a>, <a class="reference internal" href="ref-files.html#ref-fact"><em>[Fact:*:*]</em></a>, <a class="reference internal" href="ref-files.html#ref-poke"><em>[Poke:*:*]</em></a>, <a class="reference internal" href="ref-files.html#ref-glossary"><em>[Glossary:*]</em></a> or
-<a class="reference internal" href="ref-files.html#ref-graphicglitch"><em>[GraphicGlitch:*:*]</em></a> section</li>
+<li><tt class="docutils literal"><span class="pre">contents</span></tt> - replaced by the pre-formatted contents of the relevant entry</li>
 <li><tt class="docutils literal"><span class="pre">num</span></tt> - &#8216;1&#8217; or &#8216;2&#8217;, depending on the order of the entry on the page</li>
 <li><tt class="docutils literal"><span class="pre">title</span></tt> - the entry title</li>
 </ul>
@@ -766,6 +761,190 @@ identifiers):</p>
 <p><span class="versionmodified">New in version 4.2.</span></p>
 </div>
 </div>
+<div class="section" id="page-specific-templates">
+<span id="ps-templates"></span><h2>Page-specific templates<a class="headerlink" href="#page-specific-templates" title="Permalink to this headline">¶</a></h2>
+<p>When SkoolKit builds an HTML page, it uses the template whose name matches the
+page ID (<tt class="docutils literal"><span class="pre">PageID</span></tt>) if it exists, or one of the stock page-level templates
+otherwise. For example, when building the <tt class="docutils literal"><span class="pre">RoutinesMap</span></tt> memory map page,
+SkoolKit uses the <tt class="docutils literal"><span class="pre">RoutinesMap</span></tt> template if it exists, or the stock
+<a class="reference internal" href="#t-memorymap"><em>MemoryMap</em></a> template otherwise.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="35%" />
+<col width="27%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Page type</th>
+<th class="head">Preferred template</th>
+<th class="head">Stock template</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Home (index)</td>
+<td><tt class="docutils literal"><span class="pre">GameIndex</span></tt></td>
+<td><a class="reference internal" href="#t-gameindex"><em>GameIndex</em></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#othercode"><em>Other code</em></a>
+index</td>
+<td><tt class="docutils literal"><span class="pre">CodeID-Index</span></tt></td>
+<td><a class="reference internal" href="#t-memorymap"><em>MemoryMap</em></a></td>
+</tr>
+<tr class="row-even"><td>Routine/data block</td>
+<td><tt class="docutils literal"><span class="pre">[CodeID-]Asm-*</span></tt></td>
+<td><a class="reference internal" href="#t-asm"><em>Asm</em></a></td>
+</tr>
+<tr class="row-odd"><td>Disassembly (single page)</td>
+<td><tt class="docutils literal"><span class="pre">[CodeID-]AsmSinglePage</span></tt></td>
+<td><a class="reference internal" href="#t-asmallinone"><em>AsmAllInOne</em></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="ref-files.html#memorymap"><em>Memory map</em></a></td>
+<td><tt class="docutils literal"><span class="pre">PageID</span></tt></td>
+<td><a class="reference internal" href="#t-memorymap"><em>MemoryMap</em></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#boxpages"><em>Box page</em></a></td>
+<td><tt class="docutils literal"><span class="pre">PageID</span></tt></td>
+<td><a class="reference internal" href="#t-reference"><em>Reference</em></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="ref-files.html#page"><em>Custom page</em></a>
+(non-box)</td>
+<td><tt class="docutils literal"><span class="pre">PageID</span></tt></td>
+<td><a class="reference internal" href="#t-page"><em>Page</em></a></td>
+</tr>
+</tbody>
+</table>
+<p>When SkoolKit builds an element of an HTML page whose format is defined by a
+subtemplate, it uses the subtemplate whose name starts with <tt class="docutils literal"><span class="pre">PageID-</span></tt> if it
+exists, or one of the stock subtemplates otherwise. For example, when building
+the footer of the <tt class="docutils literal"><span class="pre">Changelog</span></tt> page, SkoolKit uses the <tt class="docutils literal"><span class="pre">Changelog-footer</span></tt>
+template if it exists, or the stock <a class="reference internal" href="#t-footer"><em>footer</em></a> template otherwise.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="31%" />
+<col width="38%" />
+<col width="30%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Element type</th>
+<th class="head">Preferred template</th>
+<th class="head">Stock subtemplate</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Registers table</td>
+<td><tt class="docutils literal"><span class="pre">[CodeID-]Asm-*-asm_register</span></tt></td>
+<td><a class="reference internal" href="#t-asm-register"><em>asm_register</em></a></td>
+</tr>
+<tr class="row-odd"><td>Routine/data block comment</td>
+<td><tt class="docutils literal"><span class="pre">[CodeID-]Asm-*-asm_comment</span></tt></td>
+<td><a class="reference internal" href="#t-asm-comment"><em>asm_comment</em></a></td>
+</tr>
+<tr class="row-even"><td>Instruction</td>
+<td><tt class="docutils literal"><span class="pre">[CodeID-]Asm-*-asm_instruction</span></tt></td>
+<td><a class="reference internal" href="#t-asm-instruction"><em>asm_instruction</em></a></td>
+</tr>
+<tr class="row-odd"><td>Single-page disassembly
+routine/data block</td>
+<td><tt class="docutils literal"><span class="pre">[CodeID-]AsmSinglePage-asm_entry</span></tt></td>
+<td><a class="reference internal" href="#t-asm-entry"><em>asm_entry</em></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="ref-files.html#boxpages"><em>Box page</em></a>
+entry (paragraphs)</td>
+<td><tt class="docutils literal"><span class="pre">PageID-entry</span></tt></td>
+<td><a class="reference internal" href="#t-reference-entry"><em>reference_entry</em></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#boxpages"><em>Box page</em></a>
+entry (list items)</td>
+<td><tt class="docutils literal"><span class="pre">PageID-entry</span></tt></td>
+<td><a class="reference internal" href="#t-changelog-entry"><em>changelog_entry</em></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="ref-files.html#boxpages"><em>Box page</em></a>
+entry  list</td>
+<td><tt class="docutils literal"><span class="pre">PageID-item_list</span></tt></td>
+<td><a class="reference internal" href="#t-changelog-item-list"><em>changelog_item_list</em></a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="ref-files.html#boxpages"><em>Box page</em></a>
+entry list item</td>
+<td><tt class="docutils literal"><span class="pre">PageID-list_item</span></tt></td>
+<td><a class="reference internal" href="#t-list-item"><em>list_item</em></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="ref-files.html#boxpages"><em>Box page</em></a>
+contents list item</td>
+<td><tt class="docutils literal"><span class="pre">PageID-contents_list_item</span></tt></td>
+<td><a class="reference internal" href="#t-contents-list-item"><em>contents_list_item</em></a></td>
+</tr>
+<tr class="row-odd"><td>Paragraph on a
+routine/data block page,
+<a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a> or
+<a class="reference internal" href="ref-files.html#memorymap"><em>memory map</em></a>
+page</td>
+<td><tt class="docutils literal"><span class="pre">PageID-paragraph</span></tt></td>
+<td><a class="reference internal" href="#t-paragraph"><em>paragraph</em></a></td>
+</tr>
+<tr class="row-even"><td>Entry on a
+<a class="reference internal" href="ref-files.html#memorymap"><em>memory map</em></a>
+page</td>
+<td><tt class="docutils literal"><span class="pre">PageID-map_entry</span></tt></td>
+<td><a class="reference internal" href="#t-map-entry"><em>map_entry</em></a></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">&lt;link&gt;</span></tt> element for a CSS
+file</td>
+<td><tt class="docutils literal"><span class="pre">PageID-stylesheet</span></tt></td>
+<td><a class="reference internal" href="#t-stylesheet"><em>stylesheet</em></a></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">&lt;script&gt;</span></tt> element</td>
+<td><tt class="docutils literal"><span class="pre">PageID-javascript</span></tt></td>
+<td><a class="reference internal" href="#t-javascript"><em>javascript</em></a></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">&lt;img&gt;</span></tt> element</td>
+<td><tt class="docutils literal"><span class="pre">PageID-img</span></tt></td>
+<td><a class="reference internal" href="#t-img"><em>img</em></a></td>
+</tr>
+<tr class="row-even"><td>Hyperlink</td>
+<td><tt class="docutils literal"><span class="pre">PageID-link</span></tt></td>
+<td><a class="reference internal" href="#t-link"><em>link</em></a></td>
+</tr>
+<tr class="row-odd"><td>Page anchor</td>
+<td><tt class="docutils literal"><span class="pre">PageID-anchor</span></tt></td>
+<td><a class="reference internal" href="#t-anchor"><em>anchor</em></a></td>
+</tr>
+<tr class="row-even"><td>Page footer</td>
+<td><tt class="docutils literal"><span class="pre">PageID-footer</span></tt></td>
+<td><a class="reference internal" href="#t-footer"><em>footer</em></a></td>
+</tr>
+<tr class="row-odd"><td>Register name rendered by the
+<a class="reference internal" href="skool-macros.html#reg"><em>#REG</em></a> macro</td>
+<td><tt class="docutils literal"><span class="pre">PageID-reg</span></tt></td>
+<td><a class="reference internal" href="#t-reg"><em>reg</em></a></td>
+</tr>
+<tr class="row-even"><td rowspan="2">List created by the
+<a class="reference internal" href="skool-macros.html#list"><em>#LIST</em></a> macro</td>
+<td><tt class="docutils literal"><span class="pre">PageID-list</span></tt></td>
+<td><a class="reference internal" href="#t-list"><em>list</em></a></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PageID-list_item</span></tt></td>
+<td><a class="reference internal" href="#t-list-item"><em>list_item</em></a></td>
+</tr>
+<tr class="row-even"><td rowspan="4">Table created by the
+<a class="reference internal" href="skool-macros.html#table"><em>#TABLE</em></a> macro</td>
+<td><tt class="docutils literal"><span class="pre">PageID-table</span></tt></td>
+<td><a class="reference internal" href="#t-table"><em>table</em></a></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PageID-table_row</span></tt></td>
+<td><a class="reference internal" href="#t-table-row"><em>table_row</em></a></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">PageID-table_header_cell</span></tt></td>
+<td><a class="reference internal" href="#t-table-header-cell"><em>table_header_cell</em></a></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">PageID-table_cell</span></tt></td>
+<td><a class="reference internal" href="#t-table-cell"><em>table_cell</em></a></td>
+</tr>
+</tbody>
+</table>
+<p>Wherever <tt class="docutils literal"><span class="pre">Asm-*</span></tt> appears in the tables above, it means one of <tt class="docutils literal"><span class="pre">Asm-b</span></tt>,
+<tt class="docutils literal"><span class="pre">Asm-c</span></tt>, <tt class="docutils literal"><span class="pre">Asm-g</span></tt>, <tt class="docutils literal"><span class="pre">Asm-s</span></tt>, <tt class="docutils literal"><span class="pre">Asm-t</span></tt>, <tt class="docutils literal"><span class="pre">Asm-u</span></tt> or <tt class="docutils literal"><span class="pre">Asm-w</span></tt>, depending
+on the type of code or data block.</p>
+</div>
 </div>
 
 
@@ -786,11 +965,11 @@ identifiers):</p>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2016, Richard Dymond.
+        &copy; Copyright 2017, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

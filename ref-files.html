@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &mdash; SkoolKit 5.3 documentation</title>
+    <title>Ref files &mdash; SkoolKit 5.4 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.3',
+        VERSION:     '5.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.3 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 5.4 documentation" href="index.html" />
     <link rel="next" title="HTML templates" href="html-templates.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -48,14 +48,9 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Ref files</a><ul>
-<li><a class="reference internal" href="#bug">[Bug:*:*]</a></li>
-<li><a class="reference internal" href="#changelog">[Changelog:*]</a></li>
 <li><a class="reference internal" href="#colours">[Colours]</a></li>
 <li><a class="reference internal" href="#config">[Config]</a></li>
-<li><a class="reference internal" href="#fact">[Fact:*:*]</a></li>
 <li><a class="reference internal" href="#game">[Game]</a></li>
-<li><a class="reference internal" href="#glossary">[Glossary:*]</a></li>
-<li><a class="reference internal" href="#graphicglitch">[GraphicGlitch:*:*]</a></li>
 <li><a class="reference internal" href="#imagewriter">[ImageWriter]</a></li>
 <li><a class="reference internal" href="#index">[Index]</a></li>
 <li><a class="reference internal" href="#indexgroup">[Index:*:*]</a></li>
@@ -66,10 +61,10 @@
 <li><a class="reference internal" href="#pagecontent">[PageContent:*]</a></li>
 <li><a class="reference internal" href="#pageheaders">[PageHeaders]</a></li>
 <li><a class="reference internal" href="#paths">[Paths]</a></li>
-<li><a class="reference internal" href="#poke">[Poke:*:*]</a></li>
 <li><a class="reference internal" href="#resources">[Resources]</a></li>
 <li><a class="reference internal" href="#template">[Template:*]</a></li>
 <li><a class="reference internal" href="#titles">[Titles]</a></li>
+<li><a class="reference internal" href="#box-pages">Box pages</a></li>
 <li><a class="reference internal" href="#ref-file-comments">Ref file comments</a></li>
 <li><a class="reference internal" href="#square-brackets">Square brackets</a></li>
 </ul>
@@ -133,69 +128,6 @@ square brackets, like this:</p>
 </div>
 <p>The contents of each section that may be found in a ref file are described
 below.</p>
-<div class="section" id="bug">
-<span id="ref-bug"></span><h2>[Bug:*:*]<a class="headerlink" href="#bug" title="Permalink to this headline">¶</a></h2>
-<p>Each <tt class="docutils literal"><span class="pre">Bug:*:*</span></tt> section defines an entry on the &#8216;Bugs&#8217; page. The section names
-and contents take the form:</p>
-<div class="highlight-none"><div class="highlight"><pre>[Bug:anchor:title]
-First paragraph.
-
-Second paragraph.
-
-...
-</pre></div>
-</div>
-<p>where:</p>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">anchor</span></tt> is the name of the HTML anchor for the entry</li>
-<li><tt class="docutils literal"><span class="pre">title</span></tt> is the title of the entry</li>
-</ul>
-<p>To ensure that an entry can be linked to by the <a class="reference internal" href="skool-macros.html#bug"><em>#BUG</em></a> macro, the anchor
-name must be limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z.</p>
-<p>Paragraphs must be separated by blank lines, and may contain HTML markup and
-<a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
-</div>
-<div class="section" id="changelog">
-<span id="ref-changelog"></span><h2>[Changelog:*]<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h2>
-<p>Each <tt class="docutils literal"><span class="pre">Changelog:*</span></tt> section defines an entry on the &#8216;Changelog&#8217; page. The
-section names and contents take the form:</p>
-<div class="highlight-none"><div class="highlight"><pre>[Changelog:title]
-Intro text.
-
-First top-level item.
-  First subitem.
-  Second subitem.
-    First subsubitem.
-
-Second top-level item.
-...
-</pre></div>
-</div>
-<p>where <tt class="docutils literal"><span class="pre">title</span></tt> is the title of the entry. The intro text and the first
-top-level item must be separated by a blank line. Lower-level items are created
-by using indentation, as shown. Blank lines between items are optional and will
-be ignored.</p>
-<p>If the intro text is a single hyphen (<tt class="docutils literal"><span class="pre">-</span></tt>), it will not be included in the
-final HTML rendering.</p>
-<p>The intro text and changelog items may contain HTML markup and
-<a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>2.2.5</td>
-<td>New</td>
-</tr>
-</tbody>
-</table>
-</div>
 <div class="section" id="colours">
 <span id="ref-colours"></span><h2>[Colours]<a class="headerlink" href="#colours" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">Colours</span></tt> section contains colour definitions that will be used when
@@ -305,28 +237,6 @@ a module outside the module search path</td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="fact">
-<span id="ref-fact"></span><h2>[Fact:*:*]<a class="headerlink" href="#fact" title="Permalink to this headline">¶</a></h2>
-<p>Each <tt class="docutils literal"><span class="pre">Fact:*:*</span></tt> section defines an entry on the &#8216;Trivia&#8217; page. The section
-names and contents take the form:</p>
-<div class="highlight-none"><div class="highlight"><pre>[Fact:anchor:title]
-First paragraph.
-
-Second paragraph.
-
-...
-</pre></div>
-</div>
-<p>where:</p>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">anchor</span></tt> is the name of the HTML anchor for the entry</li>
-<li><tt class="docutils literal"><span class="pre">title</span></tt> is the title of the entry</li>
-</ul>
-<p>To ensure that an entry can be linked to by the <a class="reference internal" href="skool-macros.html#fact"><em>#FACT</em></a> macro, the anchor
-name must be limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z.</p>
-<p>Paragraphs must be separated by blank lines, and may contain HTML markup and
-<a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
 </div>
 <div class="section" id="game">
 <span id="ref-game"></span><h2>[Game]<a class="headerlink" href="#game" title="Permalink to this headline">¶</a></h2>
@@ -453,58 +363,6 @@ to live in the <tt class="docutils literal"><span class="pre">[Info]</span></tt>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="glossary">
-<span id="ref-glossary"></span><h2>[Glossary:*]<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h2>
-<p>Each <tt class="docutils literal"><span class="pre">Glossary:*</span></tt> section defines an entry on the &#8216;Glossary&#8217; page. The
-section names and contents take the form:</p>
-<div class="highlight-none"><div class="highlight"><pre>[Glossary:term]
-First paragraph.
-
-Second paragraph.
-
-...
-</pre></div>
-</div>
-<p>where <tt class="docutils literal"><span class="pre">term</span></tt> is the term being defined in the entry.</p>
-<p>Paragraphs must be separated by blank lines, and may contain HTML markup and
-<a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="19%" />
-<col width="81%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>3.1.3</td>
-<td>Added support for multiple paragraphs</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="graphicglitch">
-<span id="ref-graphicglitch"></span><h2>[GraphicGlitch:*:*]<a class="headerlink" href="#graphicglitch" title="Permalink to this headline">¶</a></h2>
-<p>Each <tt class="docutils literal"><span class="pre">GraphicGlitch:*:*</span></tt> section defines an entry on the &#8216;Graphic glitches&#8217;
-page. The section names and contents take the form:</p>
-<div class="highlight-none"><div class="highlight"><pre>[GraphicGlitch:anchor:title]
-First paragraph.
-
-Second paragraph.
-
-...
-</pre></div>
-</div>
-<p>where:</p>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">anchor</span></tt> is the name of the HTML anchor for the entry</li>
-<li><tt class="docutils literal"><span class="pre">title</span></tt> is the title of the entry</li>
-</ul>
-<p>Paragraphs must be separated by blank lines, and may contain HTML markup and
-<a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
 </div>
 <div class="section" id="imagewriter">
 <span id="ref-imagewriter"></span><h2>[ImageWriter]<a class="headerlink" href="#imagewriter" title="Permalink to this headline">¶</a></h2>
@@ -873,16 +731,18 @@ their names with semicolons</li>
 the contents of the corresponding <a class="reference internal" href="#pagecontent"><em>[PageContent:*]</em></a> section, but may be
 specified here if the source can be written on a single line</li>
 <li><tt class="docutils literal"><span class="pre">SectionPrefix</span></tt> - the prefix of the names of the ref file sections from
-which to build a &#8216;box page&#8217; (like the &#8216;Bugs&#8217; and &#8216;Trivia&#8217; pages); the names
-of the ref file sections must be in the form <tt class="docutils literal"><span class="pre">[prefix:anchor:title]</span></tt></li>
+which to build the entries on a <a class="reference internal" href="#boxpages"><em>box page</em></a></li>
+<li><tt class="docutils literal"><span class="pre">SectionType</span></tt> - how to parse and render <a class="reference internal" href="#boxpages"><em>box page</em></a> entry
+sections (when <tt class="docutils literal"><span class="pre">SectionPrefix</span></tt> is defined): as list items with indentation
+(<tt class="docutils literal"><span class="pre">ListItems</span></tt>), or as paragraphs (the default)</li>
 </ul>
 <p>Note that the <tt class="docutils literal"><span class="pre">Content</span></tt>, <tt class="docutils literal"><span class="pre">SectionPrefix</span></tt> and <tt class="docutils literal"><span class="pre">PageContent</span></tt> parameters are
 mutually exclusive (and that is their order of precedence).</p>
 <p>By default, the custom page is written to a file named <cite>PageID.html</cite> in the
 root directory of the disassembly; to change this, add a line to the
 <a class="reference internal" href="#paths"><em>[Paths]</em></a> section. The title, page header and link text for the custom page
-can be defined in the <a class="reference internal" href="#titles"><em>[Titles]</em></a>, <a class="reference internal" href="#pageheaders"><em>[PageHeaders]</em></a> and <a class="reference internal" href="#links"><em>[Links]</em></a>
-sections.</p>
+default to &#8216;PageID&#8217;, but can be overridden in the <a class="reference internal" href="#titles"><em>[Titles]</em></a>,
+<a class="reference internal" href="#pageheaders"><em>[PageHeaders]</em></a> and <a class="reference internal" href="#links"><em>[Links]</em></a> sections.</p>
 <p>Every custom page is built using the <a class="reference internal" href="#template"><em>HTML template</em></a> whose name
 matches the page ID, if one exists; otherwise, either the <a class="reference internal" href="html-templates.html#t-reference"><em>Reference</em></a>
 template is used (when <tt class="docutils literal"><span class="pre">SectionPrefix</span></tt> is defined), or the <a class="reference internal" href="html-templates.html#t-page"><em>Page</em></a>
@@ -900,14 +760,17 @@ ref file.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.3</td>
+<tr class="row-even"><td>5.4</td>
+<td>Added the <tt class="docutils literal"><span class="pre">SectionType</span></tt> parameter</td>
+</tr>
+<tr class="row-odd"><td>5.3</td>
 <td>Added the <tt class="docutils literal"><span class="pre">SectionPrefix</span></tt> parameter</td>
 </tr>
-<tr class="row-odd"><td>3.5</td>
+<tr class="row-even"><td>3.5</td>
 <td>The <tt class="docutils literal"><span class="pre">JavaScript</span></tt> parameter specifies the JavaScript file(s) to
 use</td>
 </tr>
-<tr class="row-even"><td>2.1</td>
+<tr class="row-odd"><td>2.1</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -923,6 +786,13 @@ form:</p>
 </div>
 <p>where <tt class="docutils literal"><span class="pre">PageID</span></tt> is the unique ID of the page.</p>
 <p>The HTML source may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <tt class="docutils literal"><span class="pre">PageContent:*</span></tt> section is deprecated since version 5.4. Instead use
+the <tt class="docutils literal"><span class="pre">PageContent</span></tt> parameter (in the <a class="reference internal" href="#page"><em>[Page:*]</em></a> section) with an
+<a class="reference internal" href="skool-macros.html#include"><em>#INCLUDE</em></a> macro to specify the ref file section that contains the page
+content.</p>
+</div>
 <table border="1" class="docutils">
 <colgroup>
 <col width="50%" />
@@ -1108,28 +978,6 @@ to <tt class="docutils literal"><span class="pre">{address:04X}.html</span></tt>
 </tbody>
 </table>
 </div>
-<div class="section" id="poke">
-<span id="ref-poke"></span><h2>[Poke:*:*]<a class="headerlink" href="#poke" title="Permalink to this headline">¶</a></h2>
-<p>Each <tt class="docutils literal"><span class="pre">Poke:*:*</span></tt> section defines an entry on the &#8216;Pokes&#8217; page. The section
-names and contents take the form:</p>
-<div class="highlight-none"><div class="highlight"><pre>[Poke:anchor:title]
-First paragraph.
-
-Second paragraph.
-
-...
-</pre></div>
-</div>
-<p>where:</p>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">anchor</span></tt> is the name of the HTML anchor for the entry</li>
-<li><tt class="docutils literal"><span class="pre">title</span></tt> is the title of the entry</li>
-</ul>
-<p>To ensure that an entry can be linked to by the <a class="reference internal" href="skool-macros.html#poke"><em>#POKE</em></a> macro, the anchor
-name must be limited to the characters &#8216;$&#8217;, &#8216;#&#8217;, 0-9, A-Z and a-z.</p>
-<p>Paragraphs must be separated by blank lines, and may contain HTML markup and
-<a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
-</div>
 <div class="section" id="resources">
 <span id="id10"></span><h2>[Resources]<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">Resources</span></tt> section lists files that will be copied into the disassembly
@@ -1266,6 +1114,79 @@ overridden in this section.</p>
 </tbody>
 </table>
 </div>
+<div class="section" id="box-pages">
+<span id="boxpages"></span><h2>Box pages<a class="headerlink" href="#box-pages" title="Permalink to this headline">¶</a></h2>
+<p>A &#8216;box page&#8217; is an HTML page that contains entries (blocks of arbitrary text)
+distinguished by alternating background colours, and a table of contents (links
+to each entry). It is defined by a <a class="reference internal" href="#page"><em>[Page:*]</em></a> section that contains a
+<tt class="docutils literal"><span class="pre">SectionPrefix</span></tt> parameter, which determines the prefix of the ref file
+sections from which the entries are built.</p>
+<p>SkoolKit defines some box pages by default. Their names and the ref file
+sections that can be used to define their entries are as follows:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">Bugs</span></tt> - <tt class="docutils literal"><span class="pre">[Bug:title]</span></tt> or <tt class="docutils literal"><span class="pre">[Bug:anchor:title]</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Changelog</span></tt> - <tt class="docutils literal"><span class="pre">[Changelog:title]</span></tt> or <tt class="docutils literal"><span class="pre">[Changelog:anchor:title]</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Facts</span></tt> - <tt class="docutils literal"><span class="pre">[Fact:title]</span></tt> or <tt class="docutils literal"><span class="pre">[Fact:anchor:title]</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Glossary</span></tt> - <tt class="docutils literal"><span class="pre">[Glossary:title]</span></tt> or <tt class="docutils literal"><span class="pre">[Glossary:anchor:title]</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">GraphicGlitches</span></tt> - <tt class="docutils literal"><span class="pre">[GraphicGlitch:title]</span></tt> or
+<tt class="docutils literal"><span class="pre">[GraphicGlitch:anchor:title]</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">Pokes</span></tt> - <tt class="docutils literal"><span class="pre">[Poke:title]</span></tt> or <tt class="docutils literal"><span class="pre">[Poke:anchor:title]</span></tt></li>
+</ul>
+<p>To see the contents of the default <tt class="docutils literal"><span class="pre">[Page:*]</span></tt> sections, run the following
+command:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Page:
+</pre></div>
+</div>
+<p>If <tt class="docutils literal"><span class="pre">anchor</span></tt> is omitted from an entry section name, it defaults to the title
+converted to lower case with parentheses and whitespace characters replaced by
+underscores.</p>
+<p>By default, a box page entry section will be parsed as a sequence of paragraphs
+separated by blank lines. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>[Bug:anchor:title]
+First paragraph.
+
+Second paragraph.
+
+...
+</pre></div>
+</div>
+<p>However, if the <tt class="docutils literal"><span class="pre">SectionType</span></tt> parameter in the <a class="reference internal" href="#page"><em>[Page:*]</em></a> section is set to
+<tt class="docutils literal"><span class="pre">ListItems</span></tt>, each entry section will be parsed as a sequence of list items
+with indentation. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre>[Changelog:title]
+Intro text.
+
+First top-level item.
+  First subitem.
+  Second subitem.
+    First subsubitem.
+
+Second top-level item.
+...
+</pre></div>
+</div>
+<p>The intro text and the first top-level item must be separated by a blank line.
+Lower-level items are created by using indentation, as shown. Blank lines
+between items are optional and will be ignored. If the intro text is a single
+hyphen (<tt class="docutils literal"><span class="pre">-</span></tt>), it will not be included in the final HTML rendering.</p>
+<p>Entry sections may contain HTML markup and <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>5.4</td>
+<td>The <tt class="docutils literal"><span class="pre">anchor</span></tt> part of an entry section name is optional</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="ref-file-comments">
 <h2>Ref file comments<a class="headerlink" href="#ref-file-comments" title="Permalink to this headline">¶</a></h2>
 <p>A comment may be added to a ref file by starting a line with a semicolon. For
@@ -1328,11 +1249,11 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2016, Richard Dymond.
+        &copy; Copyright 2017, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>

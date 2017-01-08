@@ -26,66 +26,6 @@ square brackets, like this::
 The contents of each section that may be found in a ref file are described
 below.
 
-.. _ref-Bug:
-
-[Bug:\*:\*]
------------
-Each ``Bug:*:*`` section defines an entry on the 'Bugs' page. The section names
-and contents take the form::
-
-  [Bug:anchor:title]
-  First paragraph.
-
-  Second paragraph.
-
-  ...
-
-where:
-
-* ``anchor`` is the name of the HTML anchor for the entry
-* ``title`` is the title of the entry
-
-To ensure that an entry can be linked to by the :ref:`bug` macro, the anchor
-name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
-
-Paragraphs must be separated by blank lines, and may contain HTML markup and
-:ref:`skool macros <skoolMacros>`.
-
-.. _ref-Changelog:
-
-[Changelog:\*]
---------------
-Each ``Changelog:*`` section defines an entry on the 'Changelog' page. The
-section names and contents take the form::
-
-  [Changelog:title]
-  Intro text.
-
-  First top-level item.
-    First subitem.
-    Second subitem.
-      First subsubitem.
-
-  Second top-level item.
-  ...
-
-where ``title`` is the title of the entry. The intro text and the first
-top-level item must be separated by a blank line. Lower-level items are created
-by using indentation, as shown. Blank lines between items are optional and will
-be ignored.
-
-If the intro text is a single hyphen (``-``), it will not be included in the
-final HTML rendering.
-
-The intro text and changelog items may contain HTML markup and
-:ref:`skool macros <skoolMacros>`.
-
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 2.2.5   | New     |
-+---------+---------+
-
 .. _ref-Colours:
 
 [Colours]
@@ -175,31 +115,6 @@ disassembly, see the documentation on
 +---------+-------------------------------------------------------------------+
 | 2.0     | New                                                               |
 +---------+-------------------------------------------------------------------+
-
-.. _ref-Fact:
-
-[Fact:\*:\*]
-------------
-Each ``Fact:*:*`` section defines an entry on the 'Trivia' page. The section
-names and contents take the form::
-
-  [Fact:anchor:title]
-  First paragraph.
-
-  Second paragraph.
-
-  ...
-
-where:
-
-* ``anchor`` is the name of the HTML anchor for the entry
-* ``title`` is the title of the entry
-
-To ensure that an entry can be linked to by the :ref:`fact` macro, the anchor
-name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
-
-Paragraphs must be separated by blank lines, and may contain HTML markup and
-:ref:`skool macros <skoolMacros>`.
 
 .. _ref-Game:
 
@@ -309,53 +224,6 @@ could produce such an anchor should be avoided.
 +---------+-------------------------------------------------------------------+
 | 2.0.3   | Added the ``GameStatusBufferIncludes`` parameter                  |
 +---------+-------------------------------------------------------------------+
-
-.. _ref-Glossary:
-
-[Glossary:\*]
--------------
-Each ``Glossary:*`` section defines an entry on the 'Glossary' page. The
-section names and contents take the form::
-
-  [Glossary:term]
-  First paragraph.
-
-  Second paragraph.
-
-  ...
-
-where ``term`` is the term being defined in the entry.
-
-Paragraphs must be separated by blank lines, and may contain HTML markup and
-:ref:`skool macros <skoolMacros>`.
-
-+---------+---------------------------------------+
-| Version | Changes                               |
-+=========+=======================================+
-| 3.1.3   | Added support for multiple paragraphs |
-+---------+---------------------------------------+
-
-.. _ref-GraphicGlitch:
-
-[GraphicGlitch:\*:\*]
----------------------
-Each ``GraphicGlitch:*:*`` section defines an entry on the 'Graphic glitches'
-page. The section names and contents take the form::
-
-  [GraphicGlitch:anchor:title]
-  First paragraph.
-
-  Second paragraph.
-
-  ...
-
-where:
-
-* ``anchor`` is the name of the HTML anchor for the entry
-* ``title`` is the title of the entry
-
-Paragraphs must be separated by blank lines, and may contain HTML markup and
-:ref:`skool macros <skoolMacros>`.
 
 .. _ref-ImageWriter:
 
@@ -678,8 +546,10 @@ Recognised parameters are:
   the contents of the corresponding :ref:`pageContent` section, but may be
   specified here if the source can be written on a single line
 * ``SectionPrefix`` - the prefix of the names of the ref file sections from
-  which to build a 'box page' (like the 'Bugs' and 'Trivia' pages); the names
-  of the ref file sections must be in the form ``[prefix:anchor:title]``
+  which to build the entries on a :ref:`box page <boxpages>`
+* ``SectionType`` - how to parse and render :ref:`box page <boxpages>` entry
+  sections (when ``SectionPrefix`` is defined): as list items with indentation
+  (``ListItems``), or as paragraphs (the default)
 
 Note that the ``Content``, ``SectionPrefix`` and ``PageContent`` parameters are
 mutually exclusive (and that is their order of precedence).
@@ -687,8 +557,8 @@ mutually exclusive (and that is their order of precedence).
 By default, the custom page is written to a file named `PageID.html` in the
 root directory of the disassembly; to change this, add a line to the
 :ref:`Paths` section. The title, page header and link text for the custom page
-can be defined in the :ref:`titles`, :ref:`pageHeaders` and :ref:`links`
-sections.
+default to 'PageID', but can be overridden in the :ref:`titles`,
+:ref:`pageHeaders` and :ref:`links` sections.
 
 Every custom page is built using the :ref:`HTML template <template>` whose name
 matches the page ID, if one exists; otherwise, either the :ref:`t_Reference`
@@ -701,6 +571,8 @@ ref file.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 5.4     | Added the ``SectionType`` parameter                              |
++---------+------------------------------------------------------------------+
 | 5.3     | Added the ``SectionPrefix`` parameter                            |
 +---------+------------------------------------------------------------------+
 | 3.5     | The ``JavaScript`` parameter specifies the JavaScript file(s) to |
@@ -722,6 +594,12 @@ form::
 where ``PageID`` is the unique ID of the page.
 
 The HTML source may contain :ref:`skool macros <skoolMacros>`.
+
+.. note::
+   The ``PageContent:*`` section is deprecated since version 5.4. Instead use
+   the ``PageContent`` parameter (in the :ref:`page` section) with an
+   :ref:`INCLUDE` macro to specify the ref file section that contains the page
+   content.
 
 +---------+---------+
 | Version | Changes |
@@ -875,31 +753,6 @@ to ``{address:04X}.html``.
 | 2.0     | New                                                               |
 +---------+-------------------------------------------------------------------+
 
-.. _ref-Poke:
-
-[Poke:\*:\*]
-------------
-Each ``Poke:*:*`` section defines an entry on the 'Pokes' page. The section
-names and contents take the form::
-
-  [Poke:anchor:title]
-  First paragraph.
-
-  Second paragraph.
-
-  ...
-
-where:
-
-* ``anchor`` is the name of the HTML anchor for the entry
-* ``title`` is the title of the entry
-
-To ensure that an entry can be linked to by the :ref:`poke` macro, the anchor
-name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
-
-Paragraphs must be separated by blank lines, and may contain HTML markup and
-:ref:`skool macros <skoolMacros>`.
-
 .. _resources:
 
 [Resources]
@@ -1009,6 +862,74 @@ overridden in this section.
 +---------+-------------------------------------+
 | 2.0.5   | New                                 |
 +---------+-------------------------------------+
+
+.. _boxpages:
+
+Box pages
+---------
+A 'box page' is an HTML page that contains entries (blocks of arbitrary text)
+distinguished by alternating background colours, and a table of contents (links
+to each entry). It is defined by a :ref:`Page` section that contains a
+``SectionPrefix`` parameter, which determines the prefix of the ref file
+sections from which the entries are built.
+
+SkoolKit defines some box pages by default. Their names and the ref file
+sections that can be used to define their entries are as follows:
+
+* ``Bugs`` - ``[Bug:title]`` or ``[Bug:anchor:title]``
+* ``Changelog`` - ``[Changelog:title]`` or ``[Changelog:anchor:title]``
+* ``Facts`` - ``[Fact:title]`` or ``[Fact:anchor:title]``
+* ``Glossary`` - ``[Glossary:title]`` or ``[Glossary:anchor:title]``
+* ``GraphicGlitches`` - ``[GraphicGlitch:title]`` or
+  ``[GraphicGlitch:anchor:title]``
+* ``Pokes`` - ``[Poke:title]`` or ``[Poke:anchor:title]``
+
+To see the contents of the default ``[Page:*]`` sections, run the following
+command::
+
+  $ skool2html.py -r Page:
+
+If ``anchor`` is omitted from an entry section name, it defaults to the title
+converted to lower case with parentheses and whitespace characters replaced by
+underscores.
+
+By default, a box page entry section will be parsed as a sequence of paragraphs
+separated by blank lines. For example::
+
+  [Bug:anchor:title]
+  First paragraph.
+
+  Second paragraph.
+
+  ...
+
+However, if the ``SectionType`` parameter in the :ref:`Page` section is set to
+``ListItems``, each entry section will be parsed as a sequence of list items
+with indentation. For example::
+
+  [Changelog:title]
+  Intro text.
+
+  First top-level item.
+    First subitem.
+    Second subitem.
+      First subsubitem.
+
+  Second top-level item.
+  ...
+
+The intro text and the first top-level item must be separated by a blank line.
+Lower-level items are created by using indentation, as shown. Blank lines
+between items are optional and will be ignored. If the intro text is a single
+hyphen (``-``), it will not be included in the final HTML rendering.
+
+Entry sections may contain HTML markup and :ref:`skool macros <skoolMacros>`.
+
++---------+----------------------------------------------------------+
+| Version | Changes                                                  |
++=========+==========================================================+
+| 5.4     | The ``anchor`` part of an entry section name is optional |
++---------+----------------------------------------------------------+
 
 Ref file comments
 -----------------

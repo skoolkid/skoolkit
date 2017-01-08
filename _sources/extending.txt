@@ -187,7 +187,8 @@ be expanded.
 The `expand_sprite` method on GameHtmlWriter may therefore look something like
 this::
 
-  from skoolkit.skoolhtml import HtmlWriter, Frame
+  from skoolkit.graphics import Frame
+  from skoolkit.skoolhtml import HtmlWriter
   from skoolkit.skoolmacro import parse_image_macro
 
   class GameHtmlWriter(HtmlWriter):
@@ -290,17 +291,21 @@ contents of data tables. These methods are described below.
 Graphics
 --------
 If you are going to implement custom image-creating ``#CALL`` methods or skool
-macros, you will need to make use of the skoolkit.skoolhtml.Udg class.
+macros, you will need to make use of the skoolkit.graphics.Udg class.
 
 The Udg class represents an 8x8 graphic (8 bytes) with a single attribute byte,
 and an optional mask.
 
-.. autoclass:: skoolkit.skoolhtml.Udg
+.. autoclass:: skoolkit.graphics.Udg
+
+   .. versionchanged:: 5.4
+      The Udg class moved from skoolkit.skoolhtml to skoolkit.graphics.
 
 A simple ``#INVERSE`` macro that creates an inverse image of a UDG might be
 implemented like this::
 
-  from skoolkit.skoolhtml import HtmlWriter, Udg
+  from skoolkit.graphics import Udg
+  from skoolkit.skoolhtml import HtmlWriter
   from skoolkit.skoolmacro import parse_ints
 
   class GameHtmlWriter(HtmlWriter):
@@ -317,16 +322,16 @@ implemented like this::
 The Udg class provides two methods for manipulating an 8x8 graphic: `flip` and
 `rotate`.
 
-.. automethod:: skoolkit.skoolhtml.Udg.flip
-.. automethod:: skoolkit.skoolhtml.Udg.rotate
+.. automethod:: skoolkit.graphics.Udg.flip
+.. automethod:: skoolkit.graphics.Udg.rotate
 
 If you are going to implement ``#CALL`` methods or skool macros that create
-animated images, you will need to make use of the skoolkit.skoolhtml.Frame
+animated images, you will need to make use of the skoolkit.graphics.Frame
 class.
 
 The Frame class represents a single frame of an animated image.
 
-.. autoclass:: skoolkit.skoolhtml.Frame
+.. autoclass:: skoolkit.graphics.Frame
 
    .. versionadded:: 3.6
 
@@ -337,6 +342,9 @@ The Frame class represents a single frame of an animated image.
    .. versionchanged:: 5.1
       The *udgs* parameter can be a function that returns the array of tiles;
       added the *name* parameter.
+
+   .. versionchanged:: 5.4
+      The Frame class moved from skoolkit.skoolhtml to skoolkit.graphics.
 
 HtmlWriter provides the following image-related convenience methods.
 
@@ -362,8 +370,15 @@ HtmlWriter provides the following image-related convenience methods.
    .. versionadded:: 5.1
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.screenshot
-.. automethod:: skoolkit.skoolhtml.HtmlWriter.flip_udgs
-.. automethod:: skoolkit.skoolhtml.HtmlWriter.rotate_udgs
+.. autofunction:: skoolkit.graphics.flip_udgs
+.. autofunction:: skoolkit.graphics.rotate_udgs
+
+.. note::
+   The :meth:`flip_udgs` and :meth:`rotate_udgs` methods on
+   skoolkit.skoolhtml.HtmlWriter are deprecated since version 5.4. Use the
+   :func:`~skoolkit.graphics.flip_udgs` and
+   :func:`~skoolkit.graphics.rotate_udgs` functions in skoolkit.graphics
+   instead.
 
 HtmlWriter initialisation
 -------------------------
