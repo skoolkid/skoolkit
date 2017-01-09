@@ -1,6 +1,9 @@
 Changelog
 =========
 
+6.0b1
+-----
+
 5.4 (2017-01-08)
 ----------------
 * Added the :ref:`sna2img.py` command (for converting the screenshot in a SCR
