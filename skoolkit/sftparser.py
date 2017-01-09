@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2011-2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2015, 2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -20,7 +20,7 @@ from skoolkit import SkoolKitError, write_line, get_int_param, parse_int, get_ad
 from skoolkit.ctlparser import parse_params
 from skoolkit.disassembler import Disassembler
 from skoolkit.skoolparser import set_bytes, parse_asm_block_directive, DIRECTIVES
-from skoolkit.skoolsft import VerbatimLine, VALID_CTLS
+from skoolkit.skoolsft import VerbatimLine, VALID_CTLS, VERBATIM_BLOCKS
 from skoolkit.textutils import find_unquoted, split_unquoted
 
 class SftParsingError(SkoolKitError):
@@ -145,7 +145,7 @@ class SftParser:
                 continue
 
             # Check whether we're in a block that should be restored verbatim
-            if v_block_ctl is None and line[0] in 'dr' or (line[0] == 'i' and line[1] in '$0123456789'):
+            if v_block_ctl is None and line.startswith(VERBATIM_BLOCKS):
                 v_block_ctl = line[0]
             if v_block_ctl:
                 if v_block_ctl == 'd':

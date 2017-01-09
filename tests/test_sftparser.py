@@ -1363,27 +1363,6 @@ class SftParserTest(SkoolKitTestCase):
         ]
         self._test_disassembly(sft, exp_skool, snapshot)
 
-    def test_verbatim_i_block_with_no_instructions(self):
-        sft = 'i65500'
-        exp_skool = ['i65500']
-        self._test_disassembly(sft, exp_skool)
-
-    def test_verbatim_i_block_with_one_instruction(self):
-        sft = 'i65500 DEFS $24'
-        exp_skool = ['i65500 DEFS $24']
-        self._test_disassembly(sft, exp_skool)
-
-    def test_verbatim_i_block_with_two_instructions(self):
-        sft = '\n'.join((
-            'i65500 DEFW $0000',
-            ' 65510 DEFS 26'
-        ))
-        exp_skool = [
-            'i65500 DEFW $0000',
-            ' 65510 DEFS 26'
-        ]
-        self._test_disassembly(sft, exp_skool)
-
     def test_i_block_with_no_instructions(self):
         sft = 'iI65500'
         exp_skool = ['i65500']
