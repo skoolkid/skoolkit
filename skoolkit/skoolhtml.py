@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2016 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -1177,23 +1177,6 @@ class HtmlWriter:
     def needs_cwd(self):
         return True
 
-    def _expand_item_macro(self, item, link_text, cwd, path_id):
-        if item and link_text == '':
-            for name, title, contents in self.pages[path_id]['entries']:
-                if item == name:
-                    link_text = title
-                    break
-            else:
-                raise MacroParsingError("Cannot determine title of item '{}'".format(item))
-        href = self.relpath(cwd, self.paths[path_id])
-        if item:
-            href += '#' + item
-        return self.format_link(href, link_text)
-
-    def expand_bug(self, text, index, cwd):
-        end, item, link_text = skoolmacro.parse_bug(text, index)
-        return end, self._expand_item_macro(item, link_text, cwd, 'Bugs')
-
     def expand_call(self, text, index, cwd):
         return skoolmacro.parse_call(text, index, self, cwd)
 
@@ -1209,10 +1192,6 @@ class HtmlWriter:
 
     def expand_eval(self, text, index, cwd):
         return skoolmacro.parse_eval(text, index)
-
-    def expand_fact(self, text, index, cwd):
-        end, item, link_text = skoolmacro.parse_fact(text, index)
-        return end, self._expand_item_macro(item, link_text, cwd, 'Facts')
 
     def expand_font(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)
@@ -1273,10 +1252,6 @@ class HtmlWriter:
 
     def expand_peek(self, text, index, cwd):
         return skoolmacro.parse_peek(text, index, self.snapshot)
-
-    def expand_poke(self, text, index, cwd):
-        end, item, link_text = skoolmacro.parse_poke(text, index)
-        return end, self._expand_item_macro(item, link_text, cwd, 'Pokes')
 
     def expand_pokes(self, text, index, cwd):
         return skoolmacro.parse_pokes(text, index, self.snapshot)

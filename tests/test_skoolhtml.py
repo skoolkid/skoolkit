@@ -874,26 +874,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def _assert_img_equals(self, html, alt, src):
         self.assertEqual(html, '<img alt="{0}" src="{1}" />'.format(alt, src))
 
-    def _test_reference_macro(self, macro, def_link_text, page):
-        writer = self._get_writer()
-        for link_text in ('', '(test)', '(test (nested) parentheses)'):
-            for anchor in ('', '#test', '#foo$bar'):
-                output = writer.expand('#{}{}{}'.format(macro, anchor, link_text), ASMDIR)
-                self._assert_link_equals(output, '../{}/{}.html{}'.format(REFERENCE_DIR, page, anchor), link_text[1:-1] or def_link_text)
-
-        for suffix in ',;:.!)?/"\'':
-            output = writer.expand('#{}#name{}'.format(macro, suffix), ASMDIR)
-            self._assert_link_equals(output, '../{}/{}.html#name'.format(REFERENCE_DIR, page), def_link_text, suffix)
-
-        anchor = 'testingNestedSmplMacros'
-        link_text = 'OK'
-        output = writer.expand(nest_macros('#{}#(#{{}})({})'.format(macro, link_text), anchor), ASMDIR)
-        self._assert_link_equals(output, '../{}/{}.html#{}'.format(REFERENCE_DIR, page, anchor), link_text)
-
-        link_text = 'testing nested SMPL macros'
-        output = writer.expand(nest_macros('#{}({{}})'.format(macro), link_text), ASMDIR)
-        self._assert_link_equals(output, '../{}/{}.html'.format(REFERENCE_DIR, page), link_text)
-
     def _assert_error(self, writer, text, error_msg=None, prefix=None, error=SkoolParsingError):
         with self.assertRaises(error) as cm:
             writer.expand(text, ASMDIR)
@@ -921,17 +901,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def _unsupported_macro(self, *args):
         raise UnsupportedMacroError()
-
-    def test_macro_bug(self):
-        self._test_reference_macro('BUG', 'bug', 'bugs')
-
-        # Anchor with empty link text
-        writer = self._get_writer()
-        anchor = 'bug1'
-        title = 'Bad bug'
-        writer.pages['Bugs']['entries'] = [(anchor, title, None)]
-        output = writer.expand('#BUG#{0}()'.format(anchor), ASMDIR)
-        self._assert_link_equals(output, '../reference/bugs.html#{0}'.format(anchor), title)
 
     def test_macro_chr(self):
         writer = self._get_writer()
@@ -980,17 +949,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#EREFS(30004+2*3-(8+4)/2)', ASMDIR), exp_output)
         self.assertEqual(writer.expand('#EREFS($7534 - 6 + (7 - 5) * 3)', ASMDIR), exp_output)
         self.assertEqual(writer.expand(nest_macros('#EREFS({})', 30004), ASMDIR), exp_output)
-
-    def test_macro_fact(self):
-        self._test_reference_macro('FACT', 'fact', 'facts')
-
-        # Anchor with empty link text
-        writer = self._get_writer()
-        anchor = 'fact1'
-        title = 'Amazing fact'
-        writer.pages['Facts']['entries'] = [(anchor, title, None)]
-        output = writer.expand('#FACT#{0}()'.format(anchor), ASMDIR)
-        self._assert_link_equals(output, '../reference/facts.html#{0}'.format(anchor), title)
 
     def test_macro_font(self):
         snapshot = [0] * 65536
@@ -1407,17 +1365,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         # No end marker
         self._assert_error(writer, '#LIST { Item }', 'No end marker: #LIST { Item }...')
-
-    def test_macro_poke(self):
-        self._test_reference_macro('POKE', 'poke', 'pokes')
-
-        # Anchor with empty link text
-        writer = self._get_writer()
-        anchor = 'poke1'
-        title = 'Awesome POKE'
-        writer.pages['Pokes']['entries'] = [(anchor, title, None)]
-        output = writer.expand('#POKE#{0}()'.format(anchor), ASMDIR)
-        self._assert_link_equals(output, '../reference/pokes.html#{0}'.format(anchor), title)
 
     def test_macro_r(self):
         skool = '\n'.join((
@@ -5479,7 +5426,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             '...between these...',
             '...top-level items',
             '[Changelog:20120704]',
-            'Documented many #BUG(bugs).',
+            'Documented many #LINK:Bugs(bugs).',
             '',
             '1',
             '  2',

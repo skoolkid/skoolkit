@@ -41,10 +41,9 @@ SkoolKit 2.x changelog
 * Enhanced the :ref:`UDG` and :ref:`UDGARRAY` macros so that images can be
   flipped horizontally and vertically
 * Enhanced the :ref:`POKES` macro so that multiple pokes may be specified
-* Added support for the :ref:`FACT` and :ref:`POKE` macros in ASM mode
-* When the link text of a :ref:`BUG`, :ref:`FACT` or :ref:`POKE` macro is left
-  blank, the title of the corresponding bug, trivia or poke entry is
-  substituted
+* Added support for the ``#FACT`` and ``#POKE`` macros in ASM mode
+* When the link text of a ``#BUG``, ``#FACT`` or ``#POKE`` macro is left blank,
+  the title of the corresponding bug, trivia or poke entry is substituted
 * Fixed the parsing of link text in skool macros in ASM mode so that nested
   parentheses are handled correctly
 * Fixed the rendering of table borders in ASM mode where cells with rowspan > 1

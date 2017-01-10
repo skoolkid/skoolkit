@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2016 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -171,10 +171,6 @@ class AsmWriter:
     def needs_cwd(self):
         return False
 
-    def expand_bug(self, text, index):
-        end, item, link_text = skoolmacro.parse_bug(text, index)
-        return end, link_text or 'bug'
-
     def expand_call(self, text, index):
         return skoolmacro.parse_call(text, index, self)
 
@@ -190,10 +186,6 @@ class AsmWriter:
 
     def expand_eval(self, text, index):
         return skoolmacro.parse_eval(text, index)
-
-    def expand_fact(self, text, index):
-        end, item, link_text = skoolmacro.parse_fact(text, index)
-        return end, link_text or 'fact'
 
     def expand_font(self, text, index):
         if self.handle_unsupported_macros:
@@ -231,10 +223,6 @@ class AsmWriter:
 
     def expand_peek(self, text, index):
         return skoolmacro.parse_peek(text, index, self.snapshot)
-
-    def expand_poke(self, text, index):
-        end, item, link_text = skoolmacro.parse_poke(text, index)
-        return end, link_text or 'poke'
 
     def expand_pokes(self, text, index):
         return skoolmacro.parse_pokes(text, index, self.snapshot)

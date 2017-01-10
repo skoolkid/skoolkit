@@ -81,26 +81,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def _test_invalid_image_macro(self, writer, macro, error_msg, prefix):
         self._test_unsupported_macro(writer, macro, error_msg)
 
-    def _test_reference_macro(self, macro, def_link_text):
-        writer = self._get_writer()
-        for link_text in ('', '()', '(testing)', '(testing (nested) parentheses)'):
-            for anchor in ('', '#name', '#foo$bar'):
-                output = writer.expand('#{}{}{}'.format(macro, anchor, link_text))
-                self.assertEqual(output, link_text[1:-1] or def_link_text)
-
-        for suffix in ',;:.!)?/"\'':
-            output = writer.expand('#{}#name{}'.format(macro, suffix))
-            self.assertEqual(output, def_link_text + suffix)
-
-        anchor = 'testingNestedSmplMacros'
-        link_text = 'OK'
-        output = writer.expand(nest_macros('#{}#(#{{}})({})'.format(macro, link_text), anchor))
-        self.assertEqual(output, link_text)
-
-        link_text = 'testing nested SMPL macros'
-        output = writer.expand(nest_macros('#{}({{}})'.format(macro), link_text))
-        self.assertEqual(output, link_text)
-
     def _test_call(self, arg1, arg2, arg3=None):
         # Method used to test the #CALL macro
         return str((arg1, arg2, arg3))
@@ -121,9 +101,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         asm = self._get_asm(skool)
         self.assertEqual(asm[1], '  DEFB 123                ; A=0')
         self.assertEqual(asm[2], "  DEFB $23                ; '#'")
-
-    def test_macro_bug(self):
-        self._test_reference_macro('BUG', 'bug')
 
     def test_macro_chr(self):
         writer = self._get_writer()
@@ -159,9 +136,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#EREFS(30004+2*3-(8+4)/2)'), exp_output)
         self.assertEqual(writer.expand('#EREFS($7534 - 6 + (7 - 5) * 3)'), exp_output)
         self.assertEqual(writer.expand(nest_macros('#EREFS({})', 30004)), exp_output)
-
-    def test_macro_fact(self):
-        self._test_reference_macro('FACT', 'fact')
 
     def test_macro_font(self):
         writer = self._get_writer()
@@ -218,9 +192,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def test_macro_link_invalid(self):
         writer, prefix = CommonSkoolMacroTest.test_macro_link_invalid(self)
         self._assert_error(writer, '#LINK:PageID()', 'Blank link text: #LINK:PageID()', prefix)
-
-    def test_macro_poke(self):
-        self._test_reference_macro('POKE', 'poke')
 
     def test_macro_r(self):
         skool = '\n'.join((

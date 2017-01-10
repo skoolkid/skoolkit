@@ -357,60 +357,6 @@ See also :ref:`POKES`.
 General macros
 ^^^^^^^^^^^^^^
 
-.. _BUG:
-
-#BUG
-----
-In HTML mode, the ``#BUG`` macro expands to a hyperlink (``<a>`` element) to
-the 'Bugs' page, or to a specific entry on that page. ::
-
-  #BUG[#name][(link text)]
-
-* ``#name`` is the named anchor of a bug (if linking to a specific one)
-* ``link text`` is the link text to use
-
-The anchor name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
-
-In HTML mode, if the link text is blank, the title of the bug entry (if linking
-to a specific one) is substituted; if the link text is omitted entirely, 'bug'
-is substituted.
-
-In ASM mode, the ``#BUG`` macro expands to the link text, or 'bug' if the link
-text is blank or omitted.
-
-For example:
-
-.. parsed-literal::
-   :class: nonexistent
-
-    42726 DEFB 130 ; This is a #BUG#bug1; it should be 188
-
-In HTML mode, this instance of the ``#BUG`` macro expands to a hyperlink to an
-entry on the 'Bugs' page.
-
-In ASM mode, this instance of the ``#BUG`` macro expands to 'bug'.
-
-See also :ref:`FACT` and :ref:`POKE`.
-
-.. note::
-   The ``#BUG`` macro is deprecated since version 5.4. Either use the
-   :ref:`LINK` macro instead, or use the :ref:`replace` directive to convert
-   existing ``#BUG`` macros into ``#LINK`` macros::
-
-     @replace=/#BUG(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Bugs\1(bug)
-     @replace=/#BUG(?![A-Z])/#LINK:Bugs
-
-   The first directive replaces ``#BUG`` macros that have no link text
-   parameter; the second directive replaces ``#BUG`` macros that do have a link
-   text parameter.
-
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 2.3.1   | If left blank, the link text defaults to the bug entry title in |
-|         | HTML mode                                                       |
-+---------+-----------------------------------------------------------------+
-
 .. _CALL:
 
 #CALL
@@ -534,56 +480,6 @@ See also :ref:`m-REFS`.
 +---------+------------------------------------------------------------------+
 | 3.1     | Added support for ASM mode                                       |
 +---------+------------------------------------------------------------------+
-
-.. _FACT:
-
-#FACT
------
-In HTML mode, the ``#FACT`` macro expands to a hyperlink (``<a>`` element) to
-the 'Trivia' page, or to a specific entry on that page. ::
-
-  #FACT[#name][(link text)]
-
-* ``#name`` is the named anchor of a trivia entry (if linking to a specific
-  one)
-* ``link text`` is the link text to use
-
-The anchor name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
-
-In HTML mode, if the link text is blank, the title of the trivia entry (if
-linking to a specific one) is substituted; if the link text is omitted
-entirely, 'fact' is substituted.
-
-In ASM mode, the ``#FACT`` macro expands to the link text, or 'fact' if the
-link text is blank or omitted.
-
-For example::
-
-  See the trivia entry #FACT#interestingFact() for details.
-
-In HTML mode, this instance of the ``#FACT`` macro expands to a hyperlink to
-an entry on the 'Trivia' page, with link text equal to the title of the entry.
-
-See also :ref:`BUG` and :ref:`POKE`.
-
-.. note::
-   The ``#FACT`` macro is deprecated since version 5.4. Either use the
-   :ref:`LINK` macro instead, or use the :ref:`replace` directive to convert
-   existing ``#FACT`` macros into ``#LINK`` macros::
-
-     @replace=/#FACT(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Facts\1(fact)
-     @replace=/#FACT(?![A-Z])/#LINK:Facts
-
-   The first directive replaces ``#FACT`` macros that have no link text
-   parameter; the second directive replaces ``#FACT`` macros that do have a
-   link text parameter.
-
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 2.3.1   | If left blank, the link text defaults to the trivia entry title |
-|         | in HTML mode; added support for ASM mode                        |
-+---------+-----------------------------------------------------------------+
 
 .. _HTML:
 
@@ -737,58 +633,6 @@ using a :ref:`set` directive to set the ``bullet`` property on the ASM writer.
 +=========+=========+
 | 3.2     | New     |
 +---------+---------+
-
-.. _POKE:
-
-#POKE
------
-In HTML mode, the ``#POKE`` macro expands to a hyperlink (``<a>`` element) to
-the 'Pokes' page, or to a specific entry on that page. ::
-
-  #POKE[#name][(link text)]
-
-* ``#name`` is the named anchor of a poke (if linking to a specific one)
-* ``link text`` is the link text to use
-
-The anchor name must be limited to the characters '$', '#', 0-9, A-Z and a-z.
-
-In HTML mode, if the link text is blank, the title of the poke entry (if
-linking to a specific one) is substituted; if the link text is omitted
-entirely, 'poke' is substituted.
-
-In ASM mode, the ``#POKE`` macro expands to the link text, or 'poke' if the
-link text is blank or omitted.
-
-For example::
-
-  ; Of course, if you feel like cheating, you can always give yourself
-  ; #POKE#infiniteLives(infinite lives).
-
-In HTML mode, this instance of the ``#POKE`` macro expands to a hyperlink to
-an entry on the 'Pokes' page, with link text 'infinite lives'.
-
-In ASM mode, this instance of the ``#POKE`` macro expands to 'infinite lives'.
-
-See also :ref:`BUG` and :ref:`FACT`.
-
-.. note::
-   The ``#POKE`` macro is deprecated since version 5.4. Either use the
-   :ref:`LINK` macro instead, or use the :ref:`replace` directive to convert
-   existing ``#POKE`` macros into ``#LINK`` macros::
-
-     @replace=/#POKE(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Pokes\1(poke)
-     @replace=/#POKE(?![A-Z])/#LINK:Pokes
-
-   The first directive replaces ``#POKE`` macros that have no link text
-   parameter; the second directive replaces ``#POKE`` macros that do have a
-   link text parameter.
-
-+---------+------------------------------------------------------------------+
-| Version | Changes                                                          |
-+=========+==================================================================+
-| 2.3.1   | If left blank, the link text defaults to the poke entry title in |
-|         | HTML mode; added support for ASM mode                            |
-+---------+------------------------------------------------------------------+
 
 .. _N:
 

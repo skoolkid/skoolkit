@@ -459,8 +459,8 @@ To see the default ``javascript`` template, run the following command::
 link
 ----
 The ``link`` template is the subtemplate used to format the hyperlinks created
-by the :ref:`BUG`, :ref:`FACT`, :ref:`POKE`, :ref:`LINK` and :ref:`R` macros,
-and the hyperlinks in instruction operands on disassembly pages.
+by the :ref:`LINK` and :ref:`R` macros, and the hyperlinks in instruction
+operands on disassembly pages.
 
 The following identifiers are available (in addition to the universal
 identifiers):

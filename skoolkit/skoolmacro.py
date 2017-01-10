@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012-2016 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -475,22 +475,6 @@ def expand_macros(writer, text, *cwd):
 
     return text
 
-def parse_item_macro(text, index, macro, def_link_text):
-    end = index
-    anchor = ''
-    match = RE_ANCHOR.match(text, end)
-    if match:
-        anchor = match.group()
-        end += len(anchor)
-    end, link_text = parse_brackets(text, end, def_link_text)
-    if anchor == '#':
-        raise MacroParsingError("No item name: {}{}".format(macro, text[index:end]))
-    return end, anchor[1:], link_text
-
-def parse_bug(text, index):
-    # #BUG[#name][(link text)]
-    return parse_item_macro(text, index, '#BUG', 'bug')
-
 def parse_call(text, index, writer, cwd=None):
     # #CALL:methodName(args)
     macro = '#CALL'
@@ -580,10 +564,6 @@ def parse_eval(text, index):
     else:
         raise MacroParsingError("Invalid base ({}): {}".format(base, text[index:end]))
     return end, value
-
-def parse_fact(text, index):
-    # #FACT[#name][(link text)]
-    return parse_item_macro(text, index, '#FACT', 'fact')
 
 def parse_font(text, index):
     # #FONT[:(text)]addr[,chars,attr,scale][{x,y,width,height}][(fname)]
@@ -747,10 +727,6 @@ def parse_peek(text, index, snapshot):
     # #PEEKaddr
     end, addr = parse_ints(text, index, 1)
     return end, str(snapshot[addr & 65535])
-
-def parse_poke(text, index):
-    # #POKE[#name][(link text)]
-    return parse_item_macro(text, index, '#POKE', 'poke')
 
 def parse_pokes(text, index, snapshot):
     # #POKESaddr,byte[,length,step][;addr,byte[,length,step];...]

@@ -9,15 +9,6 @@ def nest_macros(template, *values):
     return template.format(*nested_macros)
 
 class CommonSkoolMacroTest:
-    def _test_invalid_reference_macro(self, macro):
-        writer = self._get_writer()
-        prefix = ERROR_PREFIX.format(macro)
-
-        self._assert_error(writer, '#{}#'.format(macro), "No item name: #{}#".format(macro), prefix)
-        self._assert_error(writer, '#{}(foo'.format(macro), "No closing bracket: (foo", prefix)
-
-        return writer, prefix
-
     def _check_call(self, writer, params, *args):
         macro = '#CALL:test_call({})'.format(params)
         if writer.needs_cwd():
@@ -25,9 +16,6 @@ class CommonSkoolMacroTest:
             self.assertEqual(writer.expand(macro, cwd), writer.test_call(*((cwd,) + args)))
         else:
             self.assertEqual(writer.expand(macro), writer.test_call(*args))
-
-    def test_macro_bug_invalid(self):
-        self._test_invalid_reference_macro('BUG')
 
     def test_macro_call(self):
         writer = self._get_writer(warn=True)
@@ -191,9 +179,6 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#EVAL(1,,x)', "Cannot parse integer 'x' in parameter string: '1,,x'", prefix)
 
         self._assert_error(writer, '#EVAL5,3', 'Invalid base (3): 5,3', prefix)
-
-    def test_macro_fact_invalid(self):
-        self._test_invalid_reference_macro('FACT')
 
     def test_macro_font_invalid(self):
         writer = self._get_writer()
@@ -771,9 +756,6 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#PEEK()', "No parameters (expected 1)", prefix)
         self._assert_error(writer, '#PEEK(3', "No closing bracket: (3", prefix)
         self._assert_error(writer, '#PEEK(4,5)', "Too many parameters (expected 1): '4,5'", prefix)
-
-    def test_macro_poke_invalid(self):
-        self._test_invalid_reference_macro('POKE')
 
     def test_macro_pokes(self):
         writer = self._get_writer(snapshot=[0] * 20)
