@@ -32,3 +32,33 @@ And for the ``#POKE`` macro::
 
   @replace=/#POKE(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Pokes\1(poke)
   @replace=/#POKE(?![A-Z])/#LINK:Pokes
+
+[PageContent:\*]
+----------------
+``[PageContent:*]`` sections are not supported in SkoolKit 6; instead, the
+``PageContent`` parameter in the :ref:`page` section should be used.
+
+If you have a ``[PageContent:*]`` section consisting of a single line, then
+bring that line into the ``PageContent`` parameter of a corresponding
+``[Page:*]`` section. For example::
+
+  [PageContent:MyPage]
+  #CALL:myPageContents()
+
+can be replaced by::
+
+  [Page:MyPage]
+  PageContent=#CALL:myPageContents()
+
+If you have a ``[PageContent:*]`` section consisting of more than one line,
+then add a ``[Page:*]`` section (or update an existing one) with a
+``PageContent`` parameter that uses the :ref:`INCLUDE` macro. For example::
+
+  [PageContent:MyOtherPage]
+  Line 1.
+  Line 2.
+
+can be activated by adding a corresponding ``[Page:*]`` section::
+
+  [Page:MyOtherPage]
+  PageContent=#INCLUDE(PageContent:MyOtherPage)

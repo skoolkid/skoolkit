@@ -371,9 +371,9 @@ Recognised page IDs are:
 The default link text for a page is the same as the header defined in the
 :ref:`pageHeaders` section, except where indicated above.
 
-The link text for a page defined by a :ref:`memoryMap`, :ref:`otherCode`,
-:ref:`page` or :ref:`pageContent` section also defaults to the page header
-text, but can be overridden in this section.
+The link text for a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
+:ref:`page` section also defaults to the page header text, but can be
+overridden in this section.
 
 If the link text starts with some text in square brackets, that text alone is
 used as the link text, and the remaining text is displayed alongside the
@@ -520,9 +520,8 @@ creating a :ref:`memoryMap` section (``MemoryMap:CodeID-Index``) for it.
 
 [Page:\*]
 ---------
-A ``Page:*`` section may be used to either declare a page that already exists,
-or define a custom page in the HTML disassembly (in conjunction with a
-corresponding :ref:`pageContent` section). The section name takes the form::
+A ``Page:*`` section either declares a page that already exists, or defines a
+custom page in the HTML disassembly. The section name takes the form::
 
   [Page:PageID]
 
@@ -542,9 +541,8 @@ Recognised parameters are:
   any declared by the ``JavaScript`` parameter in the :ref:`ref-Game` section
   (default: None); multiple JavaScript files can be declared by separating
   their names with semicolons
-* ``PageContent`` - the HTML source of the body of the page; this defaults to
-  the contents of the corresponding :ref:`pageContent` section, but may be
-  specified here if the source can be written on a single line
+* ``PageContent`` - the HTML source of the body of the page; the :ref:`INCLUDE`
+  macro may be used here to include the contents of a separate ref file section
 * ``SectionPrefix`` - the prefix of the names of the ref file sections from
   which to build the entries on a :ref:`box page <boxpages>`
 * ``SectionType`` - how to parse and render :ref:`box page <boxpages>` entry
@@ -552,7 +550,8 @@ Recognised parameters are:
   (``ListItems``), or as paragraphs (the default)
 
 Note that the ``Content``, ``SectionPrefix`` and ``PageContent`` parameters are
-mutually exclusive (and that is their order of precedence).
+mutually exclusive (and that is their order of precedence); one of them must be
+present.
 
 By default, the custom page is written to a file named `PageID.html` in the
 root directory of the disassembly; to change this, add a line to the
@@ -564,9 +563,6 @@ Every custom page is built using the :ref:`HTML template <template>` whose name
 matches the page ID, if one exists; otherwise, either the :ref:`t_Reference`
 template is used (when ``SectionPrefix`` is defined), or the :ref:`t_Page`
 template is used.
-
-Note that a ``Page:*`` section may be empty; if so, it may be omitted from the
-ref file.
 
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
@@ -580,32 +576,6 @@ ref file.
 +---------+------------------------------------------------------------------+
 | 2.1     | New                                                              |
 +---------+------------------------------------------------------------------+
-
-.. _pageContent:
-
-[PageContent:\*]
-----------------
-A ``PageContent:*`` section contains the HTML source of the body of a custom
-page (optionally defined in a :ref:`page` section). The section name takes the
-form::
-
-  [PageContent:PageID]
-
-where ``PageID`` is the unique ID of the page.
-
-The HTML source may contain :ref:`skool macros <skoolMacros>`.
-
-.. note::
-   The ``PageContent:*`` section is deprecated since version 5.4. Instead use
-   the ``PageContent`` parameter (in the :ref:`page` section) with an
-   :ref:`INCLUDE` macro to specify the ref file section that contains the page
-   content.
-
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 2.1     | New     |
-+---------+---------+
 
 .. _pageHeaders:
 
@@ -649,9 +619,9 @@ Recognised page IDs are:
 The default header text for a page is the same as the title defined in the
 :ref:`titles` section, except where indicated above.
 
-The header text for a page defined by a :ref:`memoryMap`, :ref:`otherCode`,
-:ref:`page` or :ref:`pageContent` section also defaults to the title, but can
-be overridden in this section.
+The header text for a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
+:ref:`page` section also defaults to the title, but can be overridden in this
+section.
 
 Note that the header of the disassembly index page (``GameIndex``) is not
 defined in this section; it is composed from the values of the ``TitlePrefix``
@@ -845,9 +815,9 @@ Recognised page IDs and their default titles are:
 * ``UnusedMap`` - the 'Unused addresses' memory map page (default: 'Unused
   addresses')
 
-The title of a page defined by a :ref:`memoryMap`, :ref:`otherCode`,
-:ref:`page` or :ref:`pageContent` section defaults to the page ID, but can be
-overridden in this section.
+The title of a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
+:ref:`page` section defaults to the page ID, but can be overridden in this
+section.
 
 +---------+-------------------------------------+
 | Version | Changes                             |

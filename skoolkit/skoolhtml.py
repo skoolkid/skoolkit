@@ -113,9 +113,6 @@ class HtmlWriter:
 
         self.page_ids = []
         self.pages = {}
-        for page_id, contents in self.get_sections('PageContent'):
-            self.pages[page_id] = {'PageContent': contents}
-            self.page_ids.append(page_id)
         for page_id, details in self.get_dictionaries('Page'):
             page = self.pages.setdefault(page_id, {})
             section_prefix = details.get('SectionPrefix')

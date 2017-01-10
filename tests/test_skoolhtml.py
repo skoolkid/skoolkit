@@ -1304,8 +1304,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ref = '\n'.join((
             '[Game]',
             'AddressAnchor={address:04x}',
-            '[PageContent:CustomPage]',
-            'Hello'
+            '[Page:CustomPage]',
+            'PageContent=Hello'
         ))
         writer = self._get_writer(skool=skool, ref=ref)
         output = writer.expand('#LINK:CustomPage#40000(foo)', ASMDIR)
@@ -5634,9 +5634,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         ref = '\n'.join((
             '[Page:{0}]',
             'JavaScript=test-html.js',
-            '',
-            '[PageContent:{0}]',
-            '<b>This is the content of the custom page.</b>',
+            'PageContent=<b>This is the content of the custom page.</b>',
             '',
             '[PageHeaders]',
             '{0}=Custom page',
@@ -5659,7 +5657,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
     def test_write_page_with_no_page_section(self):
         page_id = 'page'
         content = '<b>This is the content of the custom page.</b>'
-        ref = '[PageContent:{}]\n{}'.format(page_id, content)
+        ref = '[Page:{}]\nPageContent={}'.format(page_id, content)
         writer = self._get_writer(ref=ref, skool='')
         writer.write_page(page_id)
         subs = {
@@ -6778,7 +6776,10 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
     def test_page_with_custom_table_templates(self):
         page_id = 'JustSomePage'
         ref = '\n'.join((
-            '[PageContent:{}]',
+            '[Page:{}]',
+            'PageContent=#INCLUDE({})',
+            '',
+            '[{}]',
             '#TABLE',
             '{ =h This | =h That }',
             '{ 1A | 1B }',
