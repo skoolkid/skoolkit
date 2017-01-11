@@ -245,15 +245,6 @@ to parse the parameters of a skool macro.
 
    .. versionadded:: 5.1
 
-.. note::
-   The :func:`parse_params` function in skoolkit.skoolmacro is deprecated since
-   version 5.1. Use :func:`~skoolkit.skoolmacro.parse_ints` and
-   :func:`~skoolkit.skoolmacro.parse_brackets` instead.
-
-.. note::
-   The :meth:`parse_image_params` method on HtmlWriter is deprecated since
-   version 5.1. Use :func:`~skoolkit.skoolmacro.parse_image_macro` instead.
-
 Parsing ref files
 -----------------
 HtmlWriter provides some convenience methods for extracting text and data from

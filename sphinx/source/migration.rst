@@ -85,3 +85,15 @@ can be activated by adding a corresponding ``[Page:*]`` section::
 
   [Page:MyOtherPage]
   PageContent=#INCLUDE(PageContent:MyOtherPage)
+
+parse_image_params()
+--------------------
+The :meth:`parse_image_params` method on HtmlWriter has been removed in
+SkoolKit 6. Use the :func:`~skoolkit.skoolmacro.parse_image_macro` function
+instead.
+
+parse_params()
+--------------
+The :func:`parse_params` function in skoolkit.skoolmacro has been removed in
+SkoolKit 6. Use the :func:`~skoolkit.skoolmacro.parse_ints` and
+:func:`~skoolkit.skoolmacro.parse_brackets` functions instead.

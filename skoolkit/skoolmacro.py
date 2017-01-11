@@ -245,42 +245,6 @@ def parse_image_macro(text, index=0, defaults=(), names=(), fname=''):
     end, fname, frame, alt = _parse_image_fname(text, end, fname)
     return end, crop_rect, fname, frame, alt, result[1:]
 
-# Deprecated
-def parse_params(text, index, p_text=None, chars='', except_chars='', only_chars=''):
-    """Parse a string of the form ``params[(p_text)]``. The parameter string
-    ``params`` will be parsed until either the end is reached, or an invalid
-    character is encountered. The default set of valid characters consists of
-    '$', '#', the digits 0-9, and the letters A-Z and a-z.
-
-    :param text: The text to parse.
-    :param index: The index at which to start parsing.
-    :param p_text: The default value to use for text found in parentheses.
-    :param chars: Characters to consider valid in addition to those in the
-                  default set.
-    :param except_chars: If not empty, all characters except those in this
-                         string are considered valid.
-    :param only_chars: If not empty, only the characters in this string are
-                       considered valid.
-    :return: A 3-tuple of the form ``(end, params, p_text)``, where:
-
-             * ``end`` is the index at which parsing terminated
-             * ``params`` is the parameter string
-             * ``p_text`` is the text found in parentheses (if any)
-    """
-    start = index
-    if except_chars:
-        while index < len(text) and text[index] not in except_chars:
-            index += 1
-    elif only_chars:
-        while index < len(text) and text[index] in only_chars:
-            index += 1
-    else:
-        valid_chars = '$#' + chars
-        while index < len(text) and (text[index].isalnum() or text[index] in valid_chars):
-            index += 1
-    end, p_text = parse_brackets(text, index, p_text)
-    return end, text[start:index], p_text
-
 def parse_address_range(text, index, width):
     elements = []
     end = index - 1
@@ -361,7 +325,7 @@ def evaluate(param, safe=False):
             pass
     raise ValueError
 
-def get_params(param_string, num=0, defaults=(), names=(), safe=True, ints=None):
+def get_params(param_string, num=0, defaults=(), names=(), safe=True):
     params = []
     named_params = {}
     index = 0
@@ -394,9 +358,7 @@ def get_params(param_string, num=0, defaults=(), names=(), safe=True, ints=None)
                 try:
                     param = evaluate(value, safe)
                 except ValueError:
-                    if ints is None or index in ints:
-                        raise InvalidParameterError("Cannot parse integer '{}' in parameter string: '{}'".format(value, param_string))
-                    param = value
+                    raise InvalidParameterError("Cannot parse integer '{}' in parameter string: '{}'".format(value, param_string))
                 if names and name:
                     named_params[name] = param
                 else:

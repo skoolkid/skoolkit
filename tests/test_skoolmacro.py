@@ -3,7 +3,7 @@ import re
 import unittest
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit.skoolmacro import (parse_ints, parse_strings, parse_brackets, parse_image_macro, parse_params,
+from skoolkit.skoolmacro import (parse_ints, parse_strings, parse_brackets, parse_image_macro,
                                  parse_address_range, MacroParsingError, NoParametersError, MissingParameterError,
                                  TooManyParametersError)
 
@@ -468,57 +468,6 @@ class SkoolMacroTest(SkoolKitTestCase):
         self.assertEqual(frame, 'frame1')
         self.assertEqual(alt, 'Logo')
         self.assertEqual([1], values)
-
-    def test_parse_params_default_valid_characters(self):
-        text = '$5B'
-        result = parse_params(text, 0)
-        self.assertEqual(result, (len(text), '$5B', None))
-
-        text = '$5B[foo]'
-        result = parse_params(text, 0, 'qux')
-        self.assertEqual(result, (text.index('['), '$5B', 'qux'))
-
-        text = '1234(foo)'
-        result = parse_params(text, 0, 'qux')
-        self.assertEqual(result, (len(text), '1234', 'foo'))
-
-        text = '#foo(bar)'
-        result = parse_params(text, 0)
-        self.assertEqual(result, (len(text), '#foo', 'bar'))
-
-        text = '1,2,3,4(foo)'
-        result = parse_params(text, 0)
-        self.assertEqual(result, (1, '1', None))
-
-    def test_parse_params_extra_valid_characters(self):
-        text = '$5A,2'
-        result = parse_params(text, 0, chars=',')
-        self.assertEqual(result, (len(text), '$5A,2', None))
-
-        text = '$5A,2.'
-        result = parse_params(text, 0, 'xyzzy', chars=',',)
-        self.assertEqual(result, (text.index('.'), '$5A,2', 'xyzzy'))
-
-        text = '1;2#blah(hey)'
-        result = parse_params(text, 0, 'xyzzy', chars=';',)
-        self.assertEqual(result, (len(text), '1;2#blah', 'hey'))
-
-    def test_parse_params_except_chars(self):
-        text = '*foo,3;bar,$4:baz*'
-        result = parse_params(text, 0, except_chars=' (')
-        self.assertEqual(result, (len(text), '*foo,3;bar,$4:baz*', None))
-
-        text = '*foo,3;bar,$4:baz* etc.'
-        result = parse_params(text, 0, 'qux', except_chars=' (')
-        self.assertEqual(result, (text.index(' '), '*foo,3;bar,$4:baz*', 'qux'))
-
-        text = '*foo,3;bar,$4:baz*(qux)'
-        result = parse_params(text, 0, except_chars=' (')
-        self.assertEqual(result, (len(text), '*foo,3;bar,$4:baz*', 'qux'))
-
-        text = '*foo,3(bar,$4){baz}* etc.'
-        result = parse_params(text, 0, except_chars=' ')
-        self.assertEqual(result, (text.index(' '), '*foo,3(bar,$4){baz}*', None))
 
     def test_parse_address_range(self):
         addr_specs = [
