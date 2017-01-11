@@ -53,7 +53,7 @@ OPTIONS
   Show the path to the skoolkit package directory and exit.
 
 -P, --pages `PAGES`
-  Write only these custom pages (when using ``--write P``); `PAGES` is a
+  Write only these pages (when using ``--write P``); `PAGES` is a
   comma-separated list of page IDs.
 
 -q, --quiet
@@ -89,11 +89,8 @@ OPTIONS
   Write only these files, where `X` is one or more of:
 
   |
-  |   ``B`` = Graphic glitches    ``o`` = Other code
-  |   ``b`` = Bugs                ``P`` = Custom pages
-  |   ``c`` = Changelog           ``p`` = Pokes
-  |   ``d`` = Disassembly files   ``t`` = Trivia
-  |   ``i`` = Disassembly index   ``y`` = Glossary
+  |   ``d`` = Disassembly files   ``o`` = Other code
+  |   ``i`` = Disassembly index   ``P`` = Other pages
   |   ``m`` = Memory maps
 
 -W, --writer `CLASS`
@@ -165,7 +162,7 @@ EXAMPLES
    |
    |   ``skool2html.py -d html -l -H game1.ref game2.skool``
 
-4. Write only the 'Bugs', 'Pokes' and 'Trivia' pages for 'game1':
+4. Write only the 'Bugs' and 'Pokes' pages for 'game1':
 
    |
-   |   ``skool2html.py -w bpt game1.ref``
+   |   ``skool2html.py -w P -P Bugs,Pokes game1.ref``

@@ -347,7 +347,7 @@ list::
     -o, --rebuild-images  Overwrite existing image files
     -p, --package-dir     Show path to skoolkit package directory and exit
     -P PAGES, --pages PAGES
-                          Write only these custom pages (when using '--write P');
+                          Write only these pages (when using '--write P');
                           PAGES is a comma-separated list of page IDs
     -q, --quiet           Be quiet
     -r PREFIX, --ref-sections PREFIX
@@ -364,21 +364,12 @@ list::
     -u, --upper           Write the disassembly in upper case
     -V, --version         Show SkoolKit version number and exit
     -w X, --write X       Write only these files, where X is one or more of:
-                            B = Graphic glitches    o = Other code
-                            b = Bugs                P = Custom pages
-                            c = Changelog           p = Pokes
-                            d = Disassembly files   t = Trivia
-                            i = Disassembly index   y = Glossary
+                            d = Disassembly files   o = Other code
+                            i = Disassembly index   P = Other pages
                             m = Memory maps
     -W CLASS, --writer CLASS
                           Specify the HTML writer class to use; shorthand for
                           '--config Config/HtmlWriterClass=CLASS'
-
-.. note::
-   The 'B', 'b', 'c', 'p', 't' and 'y' file identifiers in the ``--write``
-   option are deprecated since version 5.4. To specify the Graphic glitches,
-   Bugs, Changelog, Pokes, Trivia or Glossary page, use the ``-P/--pages``
-   option with ``--write P``.
 
 `skool2html.py` searches the following directories for skool files, ref files,
 CSS files, JavaScript files, font files, and files listed in the

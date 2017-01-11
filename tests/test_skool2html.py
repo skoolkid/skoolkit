@@ -113,11 +113,9 @@ class Skool2HtmlTest(SkoolKitTestCase):
             '[Glossary:Term1]',
             'Definition 1.',
             '[Page:CustomPage1]',
-            '[PageContent:CustomPage1]',
-            '<b>This is the content of custom page 1.</b>',
+            'PageContent=<b>This is the content of custom page 1.</b>',
             '[Page:CustomPage2]',
-            '[PageContent:CustomPage2]',
-            'Lo',
+            'PageContent=Lo',
             '[GraphicGlitch:SpriteBug]',
             'There is a bug in this sprite.',
             '[Fact:fact:Fact]',
@@ -164,7 +162,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertFalse(options.new_images)
         self.assertEqual(options.case, None)
         self.assertEqual(options.base, None)
-        self.assertEqual(options.files, 'BbcdGgimoPpty')
+        self.assertEqual(options.files, 'dimoP')
         self.assertEqual(options.pages, [])
         self.assertEqual(options.output_dir, None)
 
@@ -776,25 +774,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self._test_option_w('-w', 'd', 'write_asm_entries')
 
     def test_option_w_P(self):
-        self._test_option_w('--write', 'P', 'write_page', [('CustomPage1',), ('CustomPage2',)])
-
-    def test_option_w_B(self):
-        self._test_option_w('-w', 'B', 'write_page', [('GraphicGlitches',)])
-
-    def test_option_w_c(self):
-        self._test_option_w('--write', 'c', 'write_page', [('Changelog',)])
-
-    def test_option_w_b(self):
-        self._test_option_w('-w', 'b', 'write_page', [('Bugs',)])
-
-    def test_option_w_t(self):
-        self._test_option_w('--write', 't', 'write_page', [('Facts',)])
-
-    def test_option_w_y(self):
-        self._test_option_w('-w', 'y', 'write_page', [('Glossary',)])
-
-    def test_option_w_p(self):
-        self._test_option_w('--write', 'p', 'write_page', [('Pokes',)])
+        exp_pages = ('Bugs', 'Changelog', 'Facts', 'Glossary', 'GraphicGlitches', 'Pokes', 'CustomPage1', 'CustomPage2')
+        self._test_option_w('--write', 'P', 'write_page', [(p,) for p in exp_pages])
 
     def test_option_w_o_map(self):
         self._test_option_w('-w', 'o', 'write_map', [('other-Index',)])

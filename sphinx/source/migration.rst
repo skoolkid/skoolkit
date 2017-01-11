@@ -86,6 +86,18 @@ can be activated by adding a corresponding ``[Page:*]`` section::
   [Page:MyOtherPage]
   PageContent=#INCLUDE(PageContent:MyOtherPage)
 
+skool2html.py -w
+----------------
+In SkoolKit 5, the ``-w/--write`` option of :ref:`skool2html.py` recognised the
+'B' (Graphic glitches), 'b' (Bugs), 'c' (Changelog), 'p' (Pokes), 't' (Trivia)
+and 'y' (Glossary) file identifiers. In SkoolKit 6, these file identifiers are
+not supported; instead, the 'P' file identifier should be used along with the
+``-P/--pages`` option.
+
+For example, to write only the 'Bugs' and 'Changelog' pages::
+
+  $ skool2html.py --write P --pages Bugs,Changelog game.ref
+
 flip_udgs()
 -----------
 The :meth:`flip_udgs` method on HtmlWriter has been removed in SkoolKit 6. Use

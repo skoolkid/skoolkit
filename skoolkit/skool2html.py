@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2008-2016 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -292,16 +292,14 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
         for map_name in html_writer.main_memory_maps:
             clock(html_writer.write_map, '  Writing {}'.format(normpath(game_dir, paths[map_name])), map_name)
 
-    # Write pages defined in the ref file
-    if set(files) & set('BbcPpty'):
-        default_pages = {'GraphicGlitches': 'B', 'Bugs': 'b', 'Changelog': 'c', 'Pokes': 'p', 'Facts': 't', 'Glossary': 'y'}
+    # Write pages defined by [Page:*] sections
+    if 'P' in files:
         for page_id in pages:
-            if (page_id in default_pages and default_pages[page_id] in files) or (page_id not in default_pages and 'P' in files):
-                page_details = html_writer.pages[page_id]
-                copy_resources(search_dir, extra_search_dirs, odir, page_details.get('JavaScript'), js_path, indent=2)
-                clock(html_writer.write_page, '  Writing {}'.format(normpath(game_dir, paths[page_id])), page_id)
+            page_details = html_writer.pages[page_id]
+            copy_resources(search_dir, extra_search_dirs, odir, page_details.get('JavaScript'), js_path, indent=2)
+            clock(html_writer.write_page, '  Writing {}'.format(normpath(game_dir, paths[page_id])), page_id)
 
-    # Write other files
+    # Write other code files
     if 'o' in files:
         for code_id, code in html_writer.other_code:
             skoolfile = find(code['Source'], extra_search_dirs, search_dir)
@@ -367,7 +365,7 @@ def main(args):
     group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
                        help="Show path to skoolkit package directory and exit")
     group.add_argument('-P', '--pages', dest='pages', metavar='PAGES',
-                       help="Write only these custom pages (when using '--write P');\n"
+                       help="Write only these pages (when using '--write P');\n"
                             "PAGES is a comma-separated list of page IDs")
     group.add_argument('-q', '--quiet', dest='verbose', action='store_false',
                        help="Be quiet")
@@ -390,13 +388,10 @@ def main(args):
     group.add_argument('-V', '--version', action='version',
                        version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
-    group.add_argument('-w', '--write', dest='files', metavar='X', default='BbcdGgimoPpty',
+    group.add_argument('-w', '--write', dest='files', metavar='X', default='dimoP',
                        help="Write only these files, where X is one or more of:\n"
-                            "  B = Graphic glitches    o = Other code\n"
-                            "  b = Bugs                P = Custom pages\n"
-                            "  c = Changelog           p = Pokes\n"
-                            "  d = Disassembly files   t = Trivia\n"
-                            "  i = Disassembly index   y = Glossary\n"
+                            "  d = Disassembly files   o = Other code\n"
+                            "  i = Disassembly index   P = Other pages\n"
                             "  m = Memory maps\n")
     group.add_argument('-W', '--writer', dest='writer', metavar='CLASS',
                        help="Specify the HTML writer class to use; shorthand for\n"
