@@ -115,28 +115,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#CHR($42 + 3 * 2 - (5 + 4) / 3)'), 'E')
         self.assertEqual(writer.expand(nest_macros('#CHR({})', 70)), 'F')
 
-    def test_macro_erefs(self):
-        skool = '\n'.join((
-            '@start',
-            '; First routine',
-            'c30000 CALL 30004',
-            '',
-            '; Second routine',
-            'c30003 LD A,B',
-            ' 30004 LD B,C',
-            '',
-            '; Third routine',
-            'c30005 JP 30004',
-        ))
-        writer = self._get_writer(skool)
-
-        exp_output = 'routines at 30000 and 30005'
-        self.assertEqual(writer.expand('#EREFS30004'), exp_output)
-        self.assertEqual(writer.expand('#EREFS$7534'), exp_output)
-        self.assertEqual(writer.expand('#EREFS(30004+2*3-(8+4)/2)'), exp_output)
-        self.assertEqual(writer.expand('#EREFS($7534 - 6 + (7 - 5) * 3)'), exp_output)
-        self.assertEqual(writer.expand(nest_macros('#EREFS({})', 30004)), exp_output)
-
     def test_macro_font(self):
         writer = self._get_writer()
         self._test_unsupported_macro(writer, '#FONT55584,,,1{1,2}')
@@ -421,39 +399,6 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         # Other code with remote entry
         output = writer.expand('#R$c000@main')
         self.assertEqual(output, '49152')
-
-    def test_macro_refs(self):
-        skool = '\n'.join((
-            '@start',
-            '; Used by the routines at 24583, 24586 and 24589',
-            'c24581 LD A,B',
-            ' 24582 RET',
-            '',
-            '; Uses 24581',
-            'c24583 CALL 24581',
-            '',
-            '; Also uses 24581',
-            'c24586 CALL 24581',
-            '',
-            '; Uses 24581 too',
-            'c24589 JP 24582',
-        ))
-        writer = self._get_writer(skool)
-
-        # Some referrers
-        exp_output = 'routines at 24583, 24586 and 24589'
-        self.assertEqual(writer.expand('#REFS24581'), exp_output)
-        self.assertEqual(writer.expand('#REFS$6005'), exp_output)
-        self.assertEqual(writer.expand('#REFS($6005 + 1 - 2 * 2 + (5 + 1) / 2)'), exp_output)
-        self.assertEqual(writer.expand(nest_macros('#REFS({})', 24581)), exp_output)
-
-        # Prefix
-        output = writer.expand('#REFS24581(Exploited by the)')
-        self.assertEqual(output, 'Exploited by the routines at 24583, 24586 and 24589')
-
-        # No referrers
-        output = writer.expand('#REFS24586')
-        self.assertEqual(output, 'Not used directly by any other routines')
 
     def test_macro_scr(self):
         writer = self._get_writer()

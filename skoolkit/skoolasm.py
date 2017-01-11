@@ -181,9 +181,6 @@ class AsmWriter:
     def expand_d(self, text, index):
         return skoolmacro.parse_d(text, index, self.parser)
 
-    def expand_erefs(self, text, index):
-        return skoolmacro.parse_erefs(text, index, self.parser)
-
     def expand_eval(self, text, index):
         return skoolmacro.parse_eval(text, index)
 
@@ -250,9 +247,6 @@ class AsmWriter:
                 else:
                     label = addr_str
         return end, label
-
-    def expand_refs(self, text, index):
-        return skoolmacro.parse_refs(text, index, self.parser)
 
     def expand_reg(self, text, index):
         return skoolmacro.parse_reg(text, index, self.lower)

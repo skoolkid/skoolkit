@@ -915,41 +915,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.expand('#CHR($42 + 3 * 2 - (2 + 7) / 3)'), '&#69;')
         self.assertEqual(writer.expand(nest_macros('#CHR({})', 70)), '&#70;')
 
-    def test_macro_erefs(self):
-        # Entry point with one referrer
-        skool = '\n'.join((
-            '; Referrer',
-            'c40000 JP 40004',
-            '',
-            '; Routine',
-            'c40003 LD A,B',
-            ' 40004 INC A'
-        ))
-        writer = self._get_writer(skool=skool)
-        output = writer.expand('#EREFS40004', ASMDIR)
-        self.assertEqual(output, 'routine at <a href="40000.html">40000</a>')
-
-        # Entry point with more than one referrer
-        skool = '\n'.join((
-            '; First routine',
-            'c30000 CALL 30004',
-            '',
-            '; Second routine',
-            'c30003 LD A,B',
-            ' 30004 LD B,C',
-            '',
-            '; Third routine',
-            'c30005 JP 30004',
-        ))
-        writer = self._get_writer(skool=skool)
-
-        exp_output = 'routines at <a href="30000.html">30000</a> and <a href="30005.html">30005</a>'
-        self.assertEqual(writer.expand('#EREFS30004', ASMDIR), exp_output)
-        self.assertEqual(writer.expand('#EREFS$7534', ASMDIR), exp_output)
-        self.assertEqual(writer.expand('#EREFS(30004+2*3-(8+4)/2)', ASMDIR), exp_output)
-        self.assertEqual(writer.expand('#EREFS($7534 - 6 + (7 - 5) * 3)', ASMDIR), exp_output)
-        self.assertEqual(writer.expand(nest_macros('#EREFS({})', 30004), ASMDIR), exp_output)
-
     def test_macro_font(self):
         snapshot = [0] * 65536
         writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
@@ -1732,54 +1697,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
         # Non-existent other code reference
         self._assert_error(writer, '#R24576@nonexistent', "Cannot find code path for 'nonexistent' disassembly", error=SkoolKitError)
-
-    def test_macro_refs(self):
-        # One referrer
-        skool = '\n'.join((
-            '; Referrer',
-            'c40000 JP 40003',
-            '',
-            '; Routine',
-            'c40003 LD A,B'
-        ))
-        writer = self._get_writer(skool=skool)
-        output = writer.expand('#REFS40003', ASMDIR)
-        self.assertEqual(output, 'routine at <a href="40000.html">40000</a>')
-
-        skool = '\n'.join((
-            '; Not used directly by any other routines',
-            'c24576 LD HL,$6003',
-            '',
-            '; Used by the routines at 24581, 24584 and 24590',
-            'c24579 LD A,H',
-            ' 24580 RET',
-            '',
-            '; Calls 24579',
-            'c24581 CALL 24579',
-            '',
-            '; Also calls 24579',
-            'c24584 CALL 24579',
-            ' 24587 JP 24580',
-            '',
-            '; Calls 24579 too',
-            'c24590 CALL 24580',
-        ))
-        writer = self._get_writer(skool=skool)
-
-        # Some referrers
-        exp_output = 'routines at <a href="24581.html">24581</a>, <a href="24584.html">24584</a> and <a href="24590.html">24590</a>'
-        self.assertEqual(writer.expand('#REFS24579', ASMDIR), exp_output)
-        self.assertEqual(writer.expand('#REFS$6003', ASMDIR), exp_output)
-        self.assertEqual(writer.expand('#REFS($6003 + 1 - 2 * 2 + (5 + 1) / 2)', ASMDIR), exp_output)
-        self.assertEqual(writer.expand(nest_macros('#REFS({})', 24579), ASMDIR), exp_output)
-
-        # Prefix
-        output = writer.expand('#REFS24579(Exploited by the)', ASMDIR)
-        self.assertEqual(output, 'Exploited by the routines at <a href="24581.html">24581</a>, <a href="24584.html">24584</a> and <a href="24590.html">24590</a>')
-
-        # No referrers
-        output = writer.expand('#REFS24576', ASMDIR)
-        self.assertEqual(output, 'Not used directly by any other routines')
 
     def test_macro_scr(self):
         snapshot = [0] * 65536

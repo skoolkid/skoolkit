@@ -536,22 +536,6 @@ def parse_d(text, index, entry_holder):
         raise MacroParsingError('Entry at {} has no description'.format(addr))
     return end, entry.description
 
-def parse_erefs(text, index, entry_holder):
-    # #EREFSaddr
-    end, address = parse_ints(text, index, 1)
-    ereferrers = entry_holder.get_entry_point_refs(address)
-    if not ereferrers:
-        raise MacroParsingError('Entry point at {} has no referrers'.format(address))
-    ereferrers.sort()
-    rep = 'routine at '
-    if len(ereferrers) > 1:
-        rep = 'routines at '
-        rep += ', '.join('#R{}'.format(addr) for addr in ereferrers[:-1])
-        rep += ' and '
-    addr = ereferrers[-1]
-    rep += '#R{}'.format(addr)
-    return end, rep
-
 def parse_eval(text, index):
     # #EVALexpr[,base,width]
     end, value, base, width = parse_ints(text, index, 3, (10, 1))
@@ -770,27 +754,6 @@ def parse_r(text, index):
         anchor = ''
     end, link_text = parse_brackets(text, end)
     return end, addr_str, address, code_id, anchor, link_text
-
-def parse_refs(text, index, entry_holder):
-    # #REFSaddr[(prefix)]
-    end, address = parse_ints(text, index, 1)
-    end, prefix = parse_brackets(text, end, '')
-    entry = entry_holder.get_entry(address)
-    if not entry:
-        raise MacroParsingError('No entry at {}'.format(address))
-    referrers = [ref.address for ref in entry.referrers]
-    if referrers:
-        referrers.sort()
-        rep = '{} routine at '.format(prefix).lstrip()
-        if len(referrers) > 1:
-            rep = '{} routines at '.format(prefix).lstrip()
-            rep += ', '.join('#R{}'.format(addr) for addr in referrers[:-1])
-            rep += ' and '
-        addr = referrers[-1]
-        rep += '#R{}'.format(addr)
-    else:
-        rep = 'Not used directly by any other routines'
-    return end, rep
 
 def parse_reg(text, index, lower):
     # #REGreg

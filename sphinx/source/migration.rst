@@ -10,10 +10,9 @@ your disassembly to SkoolKit 6.
 
 #BUG, #FACT, #POKE
 ------------------
-The ``#BUG``, ``#FACT`` and ``#POKE`` macros are no longer supported in
-SkoolKit 6. However, they can be brought back into service by using suitable
-:ref:`replace` directives to convert them into equivalent :ref:`LINK` macros.
-For example::
+The ``#BUG``, ``#FACT`` and ``#POKE`` macros are not supported in SkoolKit 6.
+However, they can be brought back into service by using suitable :ref:`replace`
+directives to convert them into equivalent :ref:`LINK` macros. For example::
 
   @replace=/#BUG(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Bugs\1(bug)
   @replace=/#BUG(?![A-Z])/#LINK:Bugs
@@ -32,6 +31,30 @@ And for the ``#POKE`` macro::
 
   @replace=/#POKE(#[a-zA-Z\d$#]+(?![a-zA-Z\d$#(])|(?![#(A-Z]))/#LINK:Pokes\1(poke)
   @replace=/#POKE(?![A-Z])/#LINK:Pokes
+
+#EREFS, #REFS
+-------------
+The ``#EREFS`` and ``#REFS`` macros are not supported in SkoolKit 6.
+
+A near equivalent to the ``#EREFS`` macro can be defined by using the
+:ref:`replace` directive thus::
+
+  @replace=/#erefs\i/#IF(#neref\1);;the routine#IF(#neref\1>1)(s) at #FOREACH(EREF\1)||n|#Rn|, | and ||;no other routines;;
+  @replace=/#neref\i/0#FOREACH(EREF\1)(n,+1)
+
+and used like this::
+
+  ; This entry point is used by #erefs32769.
+
+A near equivalent to the ``#REFS`` macro can be defined by using the
+:ref:`replace` directive thus::
+
+  @replace=/#refs\i/#IF(#nref\1);;the routine#IF(#nref\1>1)(s) at #FOREACH(REF\1)||n|#Rn|, | and ||;no other routines;;
+  @replace=/#nref\i/0#FOREACH(REF\1)(n,+1)
+
+and used like this::
+
+  ; Used by #refs32768.
 
 [PageContent:\*]
 ----------------

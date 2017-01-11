@@ -127,15 +127,6 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#D32770', 'Entry at 32770 has no description', prefix)
         self._assert_error(writer, '#D32771', 'Cannot determine description for non-existent entry at 32771', prefix)
 
-    def test_macro_erefs_invalid(self):
-        writer = self._get_writer(skool='@start\nc30005 JP 30004')
-        prefix = ERROR_PREFIX.format('EREFS')
-
-        self._assert_error(writer, '#EREFS', 'No parameters (expected 1)', prefix)
-        self._assert_error(writer, '#EREFSx', 'No parameters (expected 1)', prefix)
-        self._assert_error(writer, '#EREFS(0,1)', "Too many parameters (expected 1): '0,1'", prefix)
-        self._assert_error(writer, '#EREFS30005', 'Entry point at 30005 has no referrers', prefix)
-
     def test_macro_eval(self):
         writer = self._get_writer()
 
@@ -865,15 +856,6 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#R32768(qux', "No closing bracket: (qux", prefix)
 
         return writer, prefix
-
-    def test_macro_refs_invalid(self):
-        writer = self._get_writer(skool='')
-        prefix = ERROR_PREFIX.format('REFS')
-
-        self._assert_error(writer, '#REFS', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#REFSx', "No parameters (expected 1)", prefix)
-        self._assert_error(writer, '#REFS34567(foo', "No closing bracket: (foo", prefix)
-        self._assert_error(writer, '#REFS40000', "No entry at 40000", prefix)
 
     def test_macro_reg(self):
         writer = self._get_writer()

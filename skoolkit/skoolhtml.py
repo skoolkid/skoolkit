@@ -1184,9 +1184,6 @@ class HtmlWriter:
     def expand_d(self, text, index, cwd):
         return skoolmacro.parse_d(text, index, self)
 
-    def expand_erefs(self, text, index, cwd):
-        return skoolmacro.parse_erefs(text, index, self.parser)
-
     def expand_eval(self, text, index, cwd):
         return skoolmacro.parse_eval(text, index)
 
@@ -1287,9 +1284,6 @@ class HtmlWriter:
         asm_label = self.parser.get_asm_label(address)
         inst_addr_str = self.parser.get_instruction_addr_str(address, code_id)
         return end, self.format_link(href, link_text or asm_label or inst_addr_str)
-
-    def expand_refs(self, text, index, cwd):
-        return skoolmacro.parse_refs(text, index, self.parser)
 
     def expand_reg(self, text, index, cwd):
         end, reg = skoolmacro.parse_reg(text, index, self.case == CASE_LOWER)

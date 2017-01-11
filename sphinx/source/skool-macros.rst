@@ -454,33 +454,6 @@ This instance of the ``#D`` macro expands to the title of the routine at 27126.
 |         | ``addr`` parameter                                               |
 +---------+------------------------------------------------------------------+
 
-.. _EREFS:
-
-#EREFS
-------
-The ``#EREFS`` macro expands to a comma-separated sequence of hyperlinks to (in
-HTML mode) or addresses of (in ASM mode) the routines that jump to or call a
-given address. ::
-
-  #EREFSaddr
-
-* ``addr`` is the address to search for references to
-
-See also :ref:`m-REFS`.
-
-.. note::
-   The ``#EREFS`` macro is deprecated since version 5.1. Consider using the
-   special variable ``EREFaddr`` with the :ref:`FOREACH` macro instead.
-
-+---------+------------------------------------------------------------------+
-| Version | Changes                                                          |
-+=========+==================================================================+
-| 5.1     | Added support for arithmetic expressions and skool macros in the |
-|         | ``addr`` parameter                                               |
-+---------+------------------------------------------------------------------+
-| 3.1     | Added support for ASM mode                                       |
-+---------+------------------------------------------------------------------+
-
 .. _HTML:
 
 #HTML
@@ -733,41 +706,6 @@ section.
 +---------+---------------------------------------------------------------+
 | 2.0     | Added support for the ``@code`` notation                      |
 +---------+---------------------------------------------------------------+
-
-.. _m-REFS:
-
-#REFS
------
-The ``#REFS`` macro expands to a comma-separated sequence of hyperlinks to (in
-HTML mode) or addresses of (in ASM mode) the routines that jump to or call a
-given routine, or jump to or call any entry point within that routine. ::
-
-  #REFSaddr[(prefix)]
-
-* ``addr`` is the address of the routine to search for references to
-* ``prefix`` is the text to display before the sequence of hyperlinks or
-  addresses if there is at least one reference (default: no text)
-
-If there are no references, the macro expands to the following text::
-
-  Not used directly by any other routines
-
-See also :ref:`EREFS`.
-
-.. note::
-   The ``#REFS`` macro is deprecated since version 5.1. Consider using the
-   special variable ``REFaddr`` with the :ref:`FOREACH` macro instead.
-
-+---------+------------------------------------------------------------------+
-| Version | Changes                                                          |
-+=========+==================================================================+
-| 5.1     | Added support for arithmetic expressions and skool macros in the |
-|         | ``addr`` parameter                                               |
-+---------+------------------------------------------------------------------+
-| 3.1     | Added support for ASM mode                                       |
-+---------+------------------------------------------------------------------+
-| 1.0.6   | Added the ``prefix`` parameter                                   |
-+---------+------------------------------------------------------------------+
 
 .. _REG:
 
