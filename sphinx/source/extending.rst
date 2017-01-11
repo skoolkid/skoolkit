@@ -364,13 +364,6 @@ HtmlWriter provides the following image-related convenience methods.
 .. autofunction:: skoolkit.graphics.flip_udgs
 .. autofunction:: skoolkit.graphics.rotate_udgs
 
-.. note::
-   The :meth:`flip_udgs` and :meth:`rotate_udgs` methods on
-   skoolkit.skoolhtml.HtmlWriter are deprecated since version 5.4. Use the
-   :func:`~skoolkit.graphics.flip_udgs` and
-   :func:`~skoolkit.graphics.rotate_udgs` functions in skoolkit.graphics
-   instead.
-
 HtmlWriter initialisation
 -------------------------
 If your HtmlWriter subclass needs to perform some initialisation tasks, such as

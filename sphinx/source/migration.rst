@@ -86,6 +86,17 @@ can be activated by adding a corresponding ``[Page:*]`` section::
   [Page:MyOtherPage]
   PageContent=#INCLUDE(PageContent:MyOtherPage)
 
+flip_udgs()
+-----------
+The :meth:`flip_udgs` method on HtmlWriter has been removed in SkoolKit 6. Use
+the :func:`~skoolkit.graphics.flip_udgs` function in skoolkit.graphics instead.
+
+rotate_udgs()
+-------------
+The :meth:`rotate_udgs` method on HtmlWriter has been removed in SkoolKit 6.
+Use the :func:`~skoolkit.graphics.rotate_udgs` function in skoolkit.graphics
+instead.
+
 parse_image_params()
 --------------------
 The :meth:`parse_image_params` method on HtmlWriter has been removed in

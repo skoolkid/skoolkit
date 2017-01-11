@@ -494,12 +494,6 @@ class HtmlWriter:
             scr_udgs.append([self._get_screen_udg(r, c, df_addr, af_addr) for c in range(x, x + width)])
         return scr_udgs
 
-    def flip_udgs(self, udgs, flip=1):
-        flip_udgs(udgs, flip)
-
-    def rotate_udgs(self, udgs, rotate=1):
-        rotate_udgs(udgs, rotate)
-
     def get_font_udg_array(self, address, attr, message):
         udgs = []
         for c in message:
