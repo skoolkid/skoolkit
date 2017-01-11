@@ -322,15 +322,6 @@ class Bin2TapTest(SkoolKitTestCase):
             tap_data = self._run('{} {} {}'.format(option, stack, binfile))
             self._check_tap(tap_data, bin_data, binfile, stack=stack)
 
-    def test_option_t(self):
-        tapfile = 'testtap-{0}.tap'.format(os.getpid())
-        self.tempfiles.append(tapfile)
-        bin_data = [i for i in range(32)]
-        binfile = self.write_bin_file(bin_data, suffix='.bin')
-        for option in ('-t', '--tapfile'):
-            tap_data = self._run('{} {} {}'.format(option, tapfile, binfile), tapfile)
-            self._check_tap(tap_data, bin_data, binfile, name=tapfile[:-4])
-
     def test_data_overwrites_stack(self):
         bin_data = [0] * 10
         binfile = self.write_bin_file(bin_data, suffix='.bin')

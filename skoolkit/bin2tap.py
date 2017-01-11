@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2010-2013, 2015, 2016 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2013, 2015-2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -162,8 +162,6 @@ def main(args):
                        help="Set the start address to JP to (default: ORG)")
     group.add_argument('-S', '--screen', dest='screen', metavar='FILE',
                        help="Add a loading screen to the TAP file; FILE may be a snapshot or a 6912-byte SCR file")
-    group.add_argument('-t', '--tapfile', dest='tapfile', metavar='TAPFILE',
-                       help="Set the TAP filename")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
 
@@ -184,7 +182,7 @@ def main(args):
     clear = namespace.clear
     start = namespace.start or org
     stack = namespace.stack or org
-    tapfile = namespace.outfile or namespace.tapfile
+    tapfile = namespace.outfile
     if tapfile is None:
         if infile.lower().endswith(('.bin', '.sna', '.szx', '.z80')):
             prefix = infile[:-4]

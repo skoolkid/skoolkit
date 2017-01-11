@@ -77,13 +77,7 @@ it with no arguments to see the list of available options::
     -S FILE, --screen FILE
                           Add a loading screen to the TAP file; FILE may be a
                           snapshot or a 6912-byte SCR file
-    -t TAPFILE, --tapfile TAPFILE
-                          Set the TAP filename
     -V, --version         Show SkoolKit version number and exit
-
-.. note::
-   The ``-t/--tapfile`` option is deprecated since version 5.2. Use the second
-   positional argument to specify the TAP filename.
 
 Note that the ROM tape loading routine at 1366 ($0556) and the load routine
 used by `bin2tap.py` together require 14 bytes for stack operations, and so

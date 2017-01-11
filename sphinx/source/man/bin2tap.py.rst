@@ -37,13 +37,6 @@ OPTIONS
   Add a loading screen to the TAP file. `FILE` may be a snapshot or a 6912-byte
   SCR file.
 
--t, --tapfile `TAPFILE`
-  Set the TAP filename. If reading from standard input, the default filename is
-  'program.tap'; otherwise it is the basename of FILE with the '.bin', '.sna',
-  '.szx' or '.z80' suffix replaced by '.tap'. ``Note:`` this option is
-  deprecated since version 5.2; use the second positional argument to specify
-  the TAP filename.
-
 -V, --version
   Show the SkoolKit version number and exit.
 

@@ -86,6 +86,15 @@ can be activated by adding a corresponding ``[Page:*]`` section::
   [Page:MyOtherPage]
   PageContent=#INCLUDE(PageContent:MyOtherPage)
 
+bin2tap.py -t
+-------------
+In SkoolKit 5, :ref:`bin2tap.py` had a ``-t/--tapfile`` option for specifying
+the output TAP filename. In SkoolKit 6, this option is not supported; instead
+the TAP filename should be specified, if necessary, after the input filename.
+For example::
+
+  $ bin2tap.py in.bin out.tap
+
 skool2html.py -w
 ----------------
 In SkoolKit 5, the ``-w/--write`` option of :ref:`skool2html.py` recognised the
