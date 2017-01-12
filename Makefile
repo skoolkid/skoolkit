@@ -1,3 +1,4 @@
+NOSETESTS ?= nosetests3
 NOSETESTS27 ?= nosetests-2.7
 NOSETESTS34 ?= python3.4 /usr/bin/nosetests
 NOSETESTS35 ?= $(HOME)/Python/Python3.5/bin/nosetests
@@ -15,7 +16,7 @@ usage:
 	@echo "  man           build the man pages"
 	@echo "  clean         clean the documentation and man pages"
 	@echo "  hh            build the Hungry Horace disassembly"
-	@echo "  test[-all]    run core/all tests with current Python interpreter"
+	@echo "  test[-all]    run core/all tests with default Python 3 interpreter"
 	@echo "  test27[-all]  run core/all tests with Python 2.7"
 	@echo "  test3X[-all]  run core/all tests with Python 3.X (4<=X<=6)"
 	@echo "  test-cover    run core tests with coverage info"
@@ -58,11 +59,11 @@ remove-disassembly-tests:
 
 .PHONY: test
 test: remove-disassembly-tests
-	nosetests -w tests
+	$(NOSETESTS) -w tests
 
 .PHONY: test-all
 test-all: write-disassembly-tests
-	nosetests -w tests
+	$(NOSETESTS) -w tests
 
 .PHONY: test%
 test%: remove-disassembly-tests
@@ -74,7 +75,7 @@ test%-all: write-disassembly-tests
 
 .PHONY: test-cover
 test-cover: remove-disassembly-tests
-	nosetests -w tests --with-coverage --cover-package=skoolkit --cover-erase
+	$(NOSETESTS) -w tests --with-coverage --cover-package=skoolkit --cover-erase
 
 .PHONY: release
 release:

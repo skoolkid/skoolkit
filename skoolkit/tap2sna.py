@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2013, 2015, 2016 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015-2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -24,10 +24,10 @@ import tempfile
 import zipfile
 try:
     from urllib2 import urlopen
-    from urlparse import urlparse
-except ImportError:                    # pragma: no cover
-    from urllib.request import urlopen # pragma: no cover
-    from urllib.parse import urlparse  # pragma: no cover
+    from urlparse import urlparse # pragma: no cover
+except ImportError:
+    from urllib.request import urlopen
+    from urllib.parse import urlparse
 
 from skoolkit import SkoolKitError, get_int_param, get_word, get_word3, get_dword, open_file, write_line, VERSION
 from skoolkit.snapshot import set_z80_registers, set_z80_state, make_z80_ram_block, Z80_REGISTERS

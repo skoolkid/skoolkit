@@ -15,7 +15,7 @@ usage:
 	@echo "  usage     show this help"
 	@echo "  html      build the HTML disassembly"
 	@echo "  asm       build the ASM disassembly"
-	@echo "  test      run tests with current Python interpreter"
+	@echo "  test      run tests with default Python 3 interpreter"
 	@echo "  test27    run tests with Python 2.7"
 	@echo "  test3X    run tests with Python 3.X (4<=X<=6)"
 	@$(MAKE) -s _targets
@@ -46,7 +46,7 @@ write-tests:
 
 .PHONY: test
 test: write-tests
-	nosetests -w tests
+	nosetests3 -w tests
 
 .PHONY: test%
 test%: write-tests
