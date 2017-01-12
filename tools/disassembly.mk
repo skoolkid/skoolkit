@@ -8,6 +8,7 @@ NOSETESTS27 ?= nosetests-2.7
 NOSETESTS33 ?= $(HOME)/Python/Python3.3/bin/nosetests
 NOSETESTS34 ?= python3.4 /usr/bin/nosetests
 NOSETESTS35 ?= $(HOME)/Python/Python3.5/bin/nosetests
+NOSETESTS36 ?= $(HOME)/Python/Python3.6/bin/nosetests
 
 .PHONY: usage
 usage:
@@ -17,7 +18,7 @@ usage:
 	@echo "  asm       build the ASM disassembly"
 	@echo "  test      run tests with current Python interpreter"
 	@echo "  test27    run tests with Python 2.7"
-	@echo "  test3X    run tests with Python 3.X (3<=X<=5)"
+	@echo "  test3X    run tests with Python 3.X (3<=X<=6)"
 	@$(MAKE) -s _targets
 	@echo ""
 	@echo "Variables:"

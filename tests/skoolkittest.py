@@ -258,8 +258,8 @@ class SkoolKitTestCase(TestCase):
                 for bank in set(range(8)) - set(banks.keys()):
                     banks[bank] = [0] * 16384
             z80 = header[:]
-            for bank, data in banks.items():
-                z80 += self._get_z80_ram_block(data, compress, bank + 3)
+            for bank in sorted(banks):
+                z80 += self._get_z80_ram_block(banks[bank], compress, bank + 3)
         return model, self.write_bin_file(z80, suffix='.z80')
 
     def write_z80_file(self, header, ram, version=3, compress=False, machine_id=0, pages={}):
@@ -316,8 +316,8 @@ class SkoolKitTestCase(TestCase):
                     rampages[bank] = self._get_zxstrampage(bank, compress, data)
                 for bank in set(range(8)) - set(rampages):
                     rampages[bank] = self._get_zxstrampage(bank, compress, [0] * 16384)
-        for rampage in rampages.values():
-            szx.extend(rampage)
+        for bank in sorted(rampages):
+            szx.extend(rampages[bank])
         return self.write_bin_file(szx, suffix='.szx')
 
     def to_lines(self, text, strip_cr):

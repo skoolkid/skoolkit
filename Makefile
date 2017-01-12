@@ -2,6 +2,7 @@ NOSETESTS27 ?= nosetests-2.7
 NOSETESTS33 ?= $(HOME)/Python/Python3.3/bin/nosetests
 NOSETESTS34 ?= python3.4 /usr/bin/nosetests
 NOSETESTS35 ?= $(HOME)/Python/Python3.5/bin/nosetests
+NOSETESTS36 ?= $(HOME)/Python/Python3.6/bin/nosetests
 OPTIONS = -d build/html -t
 
 OPTIONS += $(foreach theme,$(THEMES),-T $(theme))
@@ -17,7 +18,7 @@ usage:
 	@echo "  hh            build the Hungry Horace disassembly"
 	@echo "  test[-all]    run core/all tests with current Python interpreter"
 	@echo "  test27[-all]  run core/all tests with Python 2.7"
-	@echo "  test3X[-all]  run core/all tests with Python 3.X (3<=X<=5)"
+	@echo "  test3X[-all]  run core/all tests with Python 3.X (3<=X<=6)"
 	@echo "  test-cover    run core tests with coverage info"
 	@echo "  release       build a SkoolKit release tarball and zip archive"
 	@echo "  tarball       build a SkoolKit release tarball"
