@@ -3,6 +3,7 @@ Changelog
 
 6.0b1
 -----
+* Dropped support for Python 3.3
 
 5.4 (2017-01-08)
 ----------------
