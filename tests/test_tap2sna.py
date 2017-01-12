@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
 import os
 import unittest
 from zipfile import ZipFile
 from io import BytesIO
-try:
-    from mock import patch, Mock
-except ImportError:
-    from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock
 
 from skoolkittest import (SkoolKitTestCase, create_data_block,
                           create_tap_header_block, create_tap_data_block,

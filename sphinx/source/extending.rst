@@ -41,7 +41,7 @@ package directory; to locate this directory, run :ref:`skool2html.py` with the
 ``-p`` option::
 
   $ skool2html.py -p
-  /usr/lib/python2.7/dist-packages/skoolkit
+  /usr/lib/python3/dist-packages/skoolkit
 
 (The package directory may be different on your system.) With `game.py` in
 place, add the following line to the :ref:`ref-Config` section of your

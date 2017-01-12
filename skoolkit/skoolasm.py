@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2008-2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
@@ -18,7 +16,7 @@
 
 import re
 
-from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, warn, write_text, wrap, get_chr
+from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, warn, write_text, wrap
 from skoolkit.skoolmacro import MacroParsingError, UnsupportedMacroError
 from skoolkit.skoolparser import (TableParser, ListParser, BASE_16, TABLE_MARKER, TABLE_END_MARKER,
                                   LIST_MARKER, LIST_END_MARKER)
@@ -176,7 +174,7 @@ class AsmWriter:
 
     def expand_chr(self, text, index):
         end, num = skoolmacro.parse_chr(text, index)
-        return end, get_chr(num)
+        return end, chr(num)
 
     def expand_d(self, text, index):
         return skoolmacro.parse_d(text, index, self.parser)

@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
 import os
 import unittest
-try:
-    from mock import patch, Mock
-except ImportError:
-    from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock
 
 from skoolkittest import SkoolKitTestCase
 import skoolkit

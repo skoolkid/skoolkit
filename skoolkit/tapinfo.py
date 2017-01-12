@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2013, 2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015, 2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -286,7 +284,7 @@ def main(args):
         raise SkoolKitError('Unrecognised tape type')
 
     with open(infile, 'rb') as f:
-        tape = bytearray(f.read()) # PY: 'tape = f.read()' in Python 3
+        tape = f.read()
 
     if tape_type == '.tap':
         _analyse_tap(tape)

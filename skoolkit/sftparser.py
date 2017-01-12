@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2011-2015, 2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.

@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2009-2013, 2015, 2016 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2013, 2015-2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -212,8 +210,7 @@ def _read_szx(data, page=None):
             ram = rampage[3:]
             if rampage[0] & 1:
                 try:
-                    # PY: No need to convert to bytes and bytearray in Python 3
-                    ram = bytearray(zlib.decompress(bytes(ram)))
+                    ram = zlib.decompress(ram)
                 except zlib.error as e:
                     raise SnapshotError("Error while decompressing page {0}: {1}".format(page, e.args[0]))
             if len(ram) != 16384:

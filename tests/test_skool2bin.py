@@ -1,15 +1,9 @@
-# -*- coding: utf-8 -*-
 import sys
 import unittest
-try:
-    from mock import patch
-except ImportError:
-    from unittest.mock import patch
+from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError, VERSION, skool2bin
-
-PY3 = sys.version_info >= (3,)
 
 class MockBinWriter:
     def __init__(self, skoolfile, asm_mode, fix_mode):
@@ -183,11 +177,7 @@ class BinWriterTest(SkoolKitTestCase):
         bin_writer = skool2bin.BinWriter(skoolfile, asm_mode, fix_mode)
         bin_writer.write(binfile, start, end)
         with open(binfile, 'rb') as f:
-            data = f.read()
-        if PY3:
-            data = list(data)
-        else:
-            data = [ord(c) for c in data]
+            data = list(f.read())
         self.assertEqual(exp_data, data)
         size = len(data)
         stderr = self.to_lines(self.err.getvalue(), True)

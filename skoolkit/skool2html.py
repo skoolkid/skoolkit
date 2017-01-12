@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2008-2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
@@ -22,10 +20,7 @@ from os.path import isfile, isdir, basename, dirname
 import shutil
 import time
 import argparse
-try:
-    from StringIO import StringIO
-except ImportError:         # pragma: no cover
-    from io import StringIO # pragma: no cover
+from io import StringIO
 
 from skoolkit import defaults, SkoolKitError, show_package_dir, write, write_line, get_class, normpath, PACKAGE_DIR, VERSION
 from skoolkit.refparser import RefParser

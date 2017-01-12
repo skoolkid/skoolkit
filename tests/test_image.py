@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import sys
 import zlib
 import unittest
@@ -10,8 +9,6 @@ from skoolkit.image import (ImageWriter, DEFAULT_FORMAT,
                             PNG_COMPRESSION_LEVEL, PNG_ENABLE_ANIMATION,
                             PNG_ALPHA, GIF_ENABLE_ANIMATION, GIF_TRANSPARENCY)
 from skoolkit.graphics import Udg, Frame
-
-PY3 = sys.version_info >= (3,)
 
 TRANSPARENT = [0, 254, 0]
 BLACK = [0, 0, 0]
@@ -139,20 +136,14 @@ class ImageWriterTest:
         frame = Frame(udg_array, scale, mask, x, y, width, height)
         img_stream = BytesIO()
         image_writer.write_image([frame], img_stream, img_format)
-        if PY3:
-            img_bytes = [b for b in img_stream.getvalue()]
-        else:
-            img_bytes = [ord(c) for c in img_stream.getvalue()]
+        img_bytes = [b for b in img_stream.getvalue()]
         img_stream.close()
         return img_bytes
 
     def _get_animated_image_data(self, image_writer, frames, img_format):
         img_stream = BytesIO()
         image_writer.write_image(frames, img_stream, img_format)
-        if PY3:
-            img_bytes = [b for b in img_stream.getvalue()]
-        else:
-            img_bytes = [ord(c) for c in img_stream.getvalue()]
+        img_bytes = [b for b in img_stream.getvalue()]
         img_stream.close()
         return img_bytes
 
@@ -849,12 +840,8 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         fdat_end = i + chunk_length
         i, seq_num = self._get_dword(img_bytes, i)
         self.assertEqual(seq_num, exp_seq_num)
-        if PY3:
-            image_data_z = bytes(img_bytes[i:fdat_end])
-            image_data = list(zlib.decompress(image_data_z))
-        else:
-            image_data_z = ''.join(chr(b) for b in img_bytes[i:fdat_end])
-            image_data = [ord(c) for c in zlib.decompress(image_data_z)]
+        image_data_z = bytes(img_bytes[i:fdat_end])
+        image_data = list(zlib.decompress(image_data_z))
         pixels = self._get_pixels_from_image_data(bit_depth, palette, image_data, width)
         self.assertEqual(len(pixels[0]), len(exp_pixels[0])) # width
         self.assertEqual(len(pixels), len(exp_pixels)) # height
@@ -870,12 +857,8 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         i, chunk_type = self._get_chunk_type(img_bytes, i)
         self.assertEqual(IDAT, chunk_type)
         idat_end = i + chunk_length
-        if PY3:
-            image_data_z = bytes(img_bytes[i:idat_end])
-            image_data = list(zlib.decompress(image_data_z))
-        else:
-            image_data_z = ''.join(chr(b) for b in img_bytes[i:idat_end])
-            image_data = [ord(c) for c in zlib.decompress(image_data_z)]
+        image_data_z = bytes(img_bytes[i:idat_end])
+        image_data = list(zlib.decompress(image_data_z))
         pixels = self._get_pixels_from_image_data(bit_depth, palette, image_data, width)
         self.assertEqual(len(pixels[0]), len(exp_pixels[0])) # width
         self.assertEqual(len(pixels), len(exp_pixels)) # height
@@ -911,10 +894,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         else:
             bit_depth = 1
         image_data_z = method(frame, bit_depth=bit_depth, mask=png_writer.masks[mask])
-        if PY3:
-            image_data = list(zlib.decompress(image_data_z))
-        else:
-            image_data = [ord(c) for c in zlib.decompress(bytes(image_data_z))]
+        image_data = list(zlib.decompress(image_data_z))
         pixels = self._get_pixels_from_image_data(bit_depth, palette, image_data, width)
         self.assertEqual(len(pixels[0]), len(exp_pixels[0])) # width
         self.assertEqual(len(pixels), len(exp_pixels)) # height

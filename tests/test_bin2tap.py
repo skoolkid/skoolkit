@@ -1,16 +1,10 @@
-# -*- coding: utf-8 -*-
 import sys
 import os
 import unittest
-try:
-    from mock import patch
-except ImportError:
-    from unittest.mock import patch
+from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import bin2tap, SkoolKitError, VERSION
-
-PY3 = sys.version_info >= (3,)
 
 def mock_run(*args):
     global run_args
@@ -26,10 +20,7 @@ class Bin2TapTest(SkoolKitTestCase):
         self.assertTrue(os.path.isfile(tapfile))
         self.tempfiles.append(tapfile)
         with open(tapfile, 'rb') as f:
-            tap = f.read()
-        if PY3:
-            return list(tap)
-        return map(ord, tap)
+            return list(f.read())
 
     def _get_word(self, num):
         return (num % 256, num // 256)

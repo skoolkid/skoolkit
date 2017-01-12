@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import re
 import unittest
 import textwrap
@@ -10,12 +9,6 @@ from skoolkit.skoolasm import AsmWriter
 from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, BASE_16
 
 ERROR_PREFIX = 'Error while parsing #{0} macro'
-
-def get_chr(code):
-    try:
-        return unichr(code).encode('utf-8')
-    except NameError:
-        return chr(code)
 
 class MockSkoolParser:
     def __init__(self, snapshot=None, base=None):
@@ -105,8 +98,8 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def test_macro_chr(self):
         writer = self._get_writer()
 
-        self.assertEqual(writer.expand('#CHR169'), get_chr(169))
-        self.assertEqual(writer.expand('#CHR(163)1985'), '{0}1985'.format(get_chr(163)))
+        self.assertEqual(writer.expand('#CHR169'), chr(169))
+        self.assertEqual(writer.expand('#CHR(163)1985'), '{0}1985'.format(chr(163)))
         self.assertEqual(writer.expand('#CHR65+3'), 'A+3')
         self.assertEqual(writer.expand('#CHR65*2'), 'A*2')
         self.assertEqual(writer.expand('#CHR65-9'), 'A-9')

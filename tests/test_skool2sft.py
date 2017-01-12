@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
 import unittest
-try:
-    from mock import patch
-except ImportError:
-    from unittest.mock import patch
+from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import skool2sft, VERSION

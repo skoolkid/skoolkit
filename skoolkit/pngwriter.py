@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2012-2014, 2016 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2014, 2016-2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -348,8 +346,7 @@ class PngWriter:
                     rows = scale
                 else:
                     rows = y1 - y
-                # PY: No need to convert data to bytes in Python 3
-                img_data.extend(compressor.compress(bytes(scanline * rows)))
+                img_data.extend(compressor.compress(scanline * rows))
                 y += scale
         img_data.extend(compressor.flush())
         return img_data
@@ -373,8 +370,7 @@ class PngWriter:
                     pixel_row.extend(mask.apply(udg, j, pixels[p], pixels[i], trans))
                 r = ''.join(pixel_row)
                 scanline = bytearray([int(r[k:k + 8], 2) for k in range(0, len(r), 8)])
-                # PY: No need to convert data to bytes in Python 3
-                img_data.extend(compressor.compress(bytes(scanline * scale)))
+                img_data.extend(compressor.compress(scanline * scale))
         img_data.extend(compressor.flush())
         return img_data
 
@@ -437,15 +433,14 @@ class PngWriter:
                 scanline5.extend(pixels[udg_bytes[5]])
                 scanline6.extend(pixels[udg_bytes[6]])
                 scanline7.extend(pixels[udg_bytes[7]])
-            # PY: No need to convert data to bytes in Python 3
-            img_data.extend(compressor.compress(bytes(scanline0 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline1 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline2 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline3 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline4 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline5 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline6 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline7 * scale)))
+            img_data.extend(compressor.compress(scanline0 * scale))
+            img_data.extend(compressor.compress(scanline1 * scale))
+            img_data.extend(compressor.compress(scanline2 * scale))
+            img_data.extend(compressor.compress(scanline3 * scale))
+            img_data.extend(compressor.compress(scanline4 * scale))
+            img_data.extend(compressor.compress(scanline5 * scale))
+            img_data.extend(compressor.compress(scanline6 * scale))
+            img_data.extend(compressor.compress(scanline7 * scale))
         img_data.extend(compressor.flush())
         return img_data
 
@@ -542,15 +537,14 @@ class PngWriter:
                 byte = udg_bytes[7]
                 scanline7.extend(pixels[byte // 16])
                 scanline7.extend(pixels[byte & 15])
-            # PY: No need to convert data to bytes in Python 3
-            img_data.extend(compressor.compress(bytes(scanline0 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline1 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline2 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline3 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline4 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline5 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline6 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline7 * scale)))
+            img_data.extend(compressor.compress(scanline0 * scale))
+            img_data.extend(compressor.compress(scanline1 * scale))
+            img_data.extend(compressor.compress(scanline2 * scale))
+            img_data.extend(compressor.compress(scanline3 * scale))
+            img_data.extend(compressor.compress(scanline4 * scale))
+            img_data.extend(compressor.compress(scanline5 * scale))
+            img_data.extend(compressor.compress(scanline6 * scale))
+            img_data.extend(compressor.compress(scanline7 * scale))
         img_data.extend(compressor.flush())
         return img_data
 
@@ -618,15 +612,14 @@ class PngWriter:
                 byte = udg_bytes[7]
                 scanline7.extend(pixels[byte // 16])
                 scanline7.extend(pixels[byte & 15])
-            # PY: No need to convert data to bytes in Python 3
-            img_data.extend(compressor.compress(bytes(scanline0 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline1 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline2 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline3 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline4 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline5 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline6 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline7 * scale)))
+            img_data.extend(compressor.compress(scanline0 * scale))
+            img_data.extend(compressor.compress(scanline1 * scale))
+            img_data.extend(compressor.compress(scanline2 * scale))
+            img_data.extend(compressor.compress(scanline3 * scale))
+            img_data.extend(compressor.compress(scanline4 * scale))
+            img_data.extend(compressor.compress(scanline5 * scale))
+            img_data.extend(compressor.compress(scanline6 * scale))
+            img_data.extend(compressor.compress(scanline7 * scale))
         img_data.extend(compressor.flush())
         return img_data
 
@@ -692,15 +685,14 @@ class PngWriter:
                 mask_byte = mask_bytes[7]
                 scanline7.extend(pixels[(byte & 240) + mask_byte // 16])
                 scanline7.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
-            # PY: No need to convert data to bytes in Python 3
-            img_data.extend(compressor.compress(bytes(scanline0 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline1 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline2 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline3 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline4 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline5 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline6 * scale)))
-            img_data.extend(compressor.compress(bytes(scanline7 * scale)))
+            img_data.extend(compressor.compress(scanline0 * scale))
+            img_data.extend(compressor.compress(scanline1 * scale))
+            img_data.extend(compressor.compress(scanline2 * scale))
+            img_data.extend(compressor.compress(scanline3 * scale))
+            img_data.extend(compressor.compress(scanline4 * scale))
+            img_data.extend(compressor.compress(scanline5 * scale))
+            img_data.extend(compressor.compress(scanline6 * scale))
+            img_data.extend(compressor.compress(scanline7 * scale))
         img_data.extend(compressor.flush())
         return img_data
 
@@ -727,8 +719,7 @@ class PngWriter:
                 b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[b ^ xor]
                 img_data.extend((0, b7 * 255, b6 * 255, b5 * 255, b4 * 255, b3 * 255, b2 * 255, b1 * 255, b0 * 255) * 8)
 
-        # PY: No need to convert data to bytes in Python 3
-        return zlib.compress(bytes(img_data), self.compression_level)
+        return zlib.compress(img_data, self.compression_level)
 
     def _build_image_data_bd1_nt(self, frame, **kwargs):
         # 2 colours, full size, no masks
@@ -909,8 +900,7 @@ class PngWriter:
                         scanline.extend((b1 * 255,) * e_scale)
                         scanline.append(b1 * 128 + b0 * 127)
                         scanline.extend((b0 * 255,) * e_scale)
-                # PY: No need to convert data to bytes in Python 3
-                img_data.extend(compressor.compress(bytes(scanline * scale)))
+                img_data.extend(compressor.compress(scanline * scale))
         img_data.extend(compressor.flush())
         return img_data
 
@@ -919,5 +909,4 @@ class PngWriter:
         # brackets means it is evaluated before 'multiplying' the tuple (and is
         # therefore quicker)
         scanlines = bytearray((0,) * ((1 + frame.width // 8) * frame.height))
-        # PY: No need to convert data to bytes in Python 3
-        return zlib.compress(bytes(scanlines), self.compression_level)
+        return zlib.compress(scanlines, self.compression_level)

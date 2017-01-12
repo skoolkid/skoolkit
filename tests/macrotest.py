@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from skoolkit.skoolparser import BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
 
 ERROR_PREFIX = 'Error while parsing #{} macro'

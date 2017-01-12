@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2011-2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
@@ -23,8 +21,6 @@ import textwrap
 import importlib
 
 VERSION = '6.0b1'
-ENCODING = 'utf-8'
-PY3 = sys.version_info >= (3,)
 PACKAGE_DIR = os.path.dirname(__file__)
 
 def error(msg):
@@ -78,9 +74,6 @@ def get_address_format(hexadecimal=False, lower=False):
         return '${:04X}'
     return '{:05d}'
 
-def get_chr(code):
-    return chr(code) if PY3 else unichr(code).encode(ENCODING)
-
 def get_class(name_spec, default_path):
     path, sep, name = name_spec.rpartition(':')
     if sep:
@@ -100,9 +93,7 @@ def get_class(name_spec, default_path):
 def open_file(fname, mode='r'):
     if fname == '-':
         if 'w' in mode:
-            if PY3 and 'b' in mode:
-                return sys.stdout.buffer
-            return sys.stdout # pragma: no cover
+            return sys.stdout.buffer
         return sys.stdin
     try:
         return open(fname, mode)
@@ -116,14 +107,10 @@ def open_file(fname, mode='r'):
 
 def read_bin_file(fname, size=-1):
     if fname == '-':
-        if PY3:
-            return sys.stdin.buffer.read(size)
-        return bytearray(sys.stdin.read(size)) # pragma: no cover
+        return sys.stdin.buffer.read(size)
     try:
         with open(fname, 'rb') as f:
-            if PY3:
-                return f.read(size)
-            return bytearray(f.read(size)) # pragma: no cover
+            return f.read(size)
     except IOError as e:
         if e.errno == 2:
             raise SkoolKitError('{0}: file not found'.format(fname))

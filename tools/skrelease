@@ -223,7 +223,7 @@ test_disassemblies() {
   btslog=$BACKTOSKOOL_HOME/build/tests.log
   mkdir -p $CONTACTSAMCRUISE_HOME/build
   csclog=$CONTACTSAMCRUISE_HOME/build/tests.log
-  targets="test27 test34 test35 test36"
+  targets="test34 test35 test36"
 
   make -C $ROM_DISASSEMBLY_HOME $targets &> $romlog & PIDrom=$!
   make -C $MANICMINER_HOME $targets &> $mmlog & PIDmm=$!

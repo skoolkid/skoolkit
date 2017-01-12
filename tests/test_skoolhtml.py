@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
 import re
 from os.path import basename, isfile
 from posixpath import join
 import unittest
-try:
-    from mock import patch
-except ImportError:
-    from unittest.mock import patch
+from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase, StringIO
 from macrotest import CommonSkoolMacroTest, nest_macros
@@ -184,10 +180,9 @@ class MockFileInfo:
         self.fname = None
         self.mode = None
 
-    # PY: open_file(self, *names, mode='w') in Python 3
-    def open_file(self, *names, **kwargs):
+    def open_file(self, *names, mode='w'):
         self.fname = join(*names)
-        self.mode = kwargs.get('mode', 'w') # PY: Not needed in Python 3
+        self.mode = mode
         return StringIO()
 
     def add_image(self, image_path):

@@ -1,10 +1,5 @@
-# -*- coding: utf-8 -*-
 import sys
-try:
-    from StringIO import StringIO
-    from io import BytesIO
-except ImportError:
-    from io import BytesIO, StringIO
+from io import BytesIO, StringIO
 import os
 from os.path import abspath, dirname
 from shutil import rmtree
@@ -15,7 +10,7 @@ from unittest import TestCase
 
 SKOOLKIT_HOME = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, SKOOLKIT_HOME)
-from skoolkit import (PY3, bin2sna, bin2tap, sna2img, skool2asm, skool2bin,
+from skoolkit import (bin2sna, bin2tap, sna2img, skool2asm, skool2bin,
                       skool2ctl, skool2html, skool2sft, sna2skool, snapinfo,
                       snapmod, tap2sna, tapinfo)
 
@@ -92,11 +87,8 @@ class Stream:
 
 class StdIn:
     def __init__(self, data):
-        if PY3 or isinstance(data, str):
-            self.data = data
-            self.buffer = self
-        else:
-            self.data = "".join(map(chr, data))
+        self.data = data
+        self.buffer = self
 
     def __iter__(self):
         for line in self.data.split('\n'):
@@ -286,8 +278,7 @@ class SkoolKitTestCase(TestCase):
 
     def _get_zxstrampage(self, page, compress, data):
         if compress:
-            # PY: No need to convert to bytes and bytearray in Python 3
-            ram = bytearray(zlib.compress(bytes(bytearray(data)), 9))
+            ram = zlib.compress(bytearray(data), 9)
         else:
             ram = data
         ramp = [82, 65, 77, 80] # RAMP

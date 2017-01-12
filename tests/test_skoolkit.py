@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
 import sys
 import os
 import unittest
-try:
-    from importlib import invalidate_caches
-except ImportError:
-    invalidate_caches = lambda: None
+from importlib import invalidate_caches
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import error, get_class, open_file, read_bin_file

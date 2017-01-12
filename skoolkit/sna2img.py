@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2013, 2015, 2016 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015-2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -18,11 +16,7 @@
 
 import os
 import argparse
-try:
-    from __builtin__ import open
-except ImportError: # pragma: no cover
-    # Import this so that it can be mocked
-    from builtins import open # pragma: no cover
+from builtins import open
 
 from skoolkit import SkoolKitError, read_bin_file, VERSION
 from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATION

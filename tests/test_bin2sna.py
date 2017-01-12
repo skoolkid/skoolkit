@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
 import os
 import unittest
-try:
-    from mock import patch
-except ImportError:
-    from unittest.mock import patch
+from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import bin2sna, VERSION

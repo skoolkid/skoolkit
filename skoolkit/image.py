@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2012-2015 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2012-2015, 2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #

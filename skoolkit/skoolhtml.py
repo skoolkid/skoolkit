@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2008-2017 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
@@ -25,10 +23,7 @@ import os.path
 from os.path import isfile, isdir, basename
 from collections import defaultdict
 import re
-try:
-    from StringIO import StringIO
-except ImportError:         # pragma: no cover
-    from io import StringIO # pragma: no cover
+from io import StringIO
 
 from skoolkit import skoolmacro, SkoolKitError, warn, parse_int, VERSION
 from skoolkit.defaults import REF_FILE
@@ -1271,14 +1266,12 @@ class FileInfo:
         self.replace_images = replace_images
         self.images = set()
 
-    # PY: open_file(self, *names, mode='w') in Python 3
-    def open_file(self, *names, **kwargs):
+    def open_file(self, *names, mode='w'):
         path = self.odir
         for name in names:
             path = join(path, name)
         if not isdir(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))
-        mode = kwargs.get('mode', 'w') # PY: Not needed in Python 3
         return open(path, mode)
 
     def add_image(self, image_path):
