@@ -16,9 +16,6 @@ input.
 
 OPTIONS
 =======
--a, --no-asm-dirs
-  Do not write ASM directives.
-
 -b, --preserve-base
   Preserve the base of decimal and hexadecimal values in instruction operands
   and DEFB, DEFM, DEFS and DEFW statements. (By default, only binary values and
@@ -43,6 +40,7 @@ OPTIONS
   Write only these elements, where `X` is one or more of:
 
   |
+  |   ``a`` = ASM directives
   |   ``b`` = block types and addresses
   |   ``t`` = block titles
   |   ``d`` = block descriptions
@@ -64,4 +62,4 @@ EXAMPLES
    addresses and titles:
 
    |
-   |   ``skool2ctl.py -w bt -a game.skool > game.ctl``
+   |   ``skool2ctl.py -w bt game.skool > game.ctl``

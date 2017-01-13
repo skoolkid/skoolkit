@@ -17,10 +17,11 @@
 import argparse
 
 from skoolkit import VERSION
-from skoolkit.skoolctl import CtlWriter, BLOCKS, BLOCK_TITLES, BLOCK_DESC, REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS
+from skoolkit.skoolctl import (CtlWriter, ASM_DIRECTIVES, BLOCKS, BLOCK_TITLES, BLOCK_DESC,
+                               REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS)
 
 def run(skoolfile, options):
-    writer = CtlWriter(skoolfile, options.elements, options.write_hex, options.write_asm_dirs,
+    writer = CtlWriter(skoolfile, options.elements, options.write_hex,
                        options.preserve_base, options.start, options.end)
     writer.write()
 
@@ -34,8 +35,6 @@ def main(args):
     )
     parser.add_argument('skoolfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-a', '--no-asm-dirs', action='store_false', dest='write_asm_dirs',
-                       help='Do not write ASM directives')
     group.add_argument('-b', '--preserve-base', action='store_true', dest='preserve_base',
                        help="Preserve the base of decimal and hexadecimal values in\n"
                             "instruction operands and DEFB/DEFM/DEFS/DEFW statements")
@@ -50,16 +49,17 @@ def main(args):
     group.add_argument('-V', '--version', action='version',
                        version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
-    default_elements = BLOCKS + BLOCK_TITLES + BLOCK_DESC + REGISTERS + BLOCK_COMMENTS + SUBBLOCKS + COMMENTS
-    group.add_argument('-w', '--write', dest='elements', metavar='X', default=default_elements,
+    elements = (ASM_DIRECTIVES, BLOCKS, BLOCK_TITLES, BLOCK_DESC, REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS)
+    group.add_argument('-w', '--write', dest='elements', metavar='X', default="".join(elements),
                        help="Write only these elements, where X is one or more of:\n"
-                            "  {0} = block types and addresses\n"
-                            "  {1} = block titles\n"
-                            "  {2} = block descriptions\n"
-                            "  {3} = registers\n"
-                            "  {4} = mid-block comments and block start/end comments\n"
-                            "  {5} = sub-block types and addresses\n"
-                            "  {6} = instruction-level comments\n".format(BLOCKS, BLOCK_TITLES, BLOCK_DESC, REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS))
+                            "  {} = ASM directives\n"
+                            "  {} = block types and addresses\n"
+                            "  {} = block titles\n"
+                            "  {} = block descriptions\n"
+                            "  {} = registers\n"
+                            "  {} = mid-block comments and block start/end comments\n"
+                            "  {} = sub-block types and addresses\n"
+                            "  {} = instruction-level comments\n".format(*elements))
     namespace, unknown_args = parser.parse_known_args(args)
     if unknown_args or namespace.skoolfile is None:
         parser.exit(2, parser.format_help())

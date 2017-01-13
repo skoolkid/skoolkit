@@ -21,6 +21,7 @@ from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_
                                   join_comments, parse_asm_block_directive, DIRECTIVES)
 from skoolkit.z80 import get_size, split_operation
 
+ASM_DIRECTIVES = 'a'
 BLOCKS = 'b'
 BLOCK_TITLES = 't'
 BLOCK_DESC = 'd'
@@ -211,11 +212,11 @@ def extract_entry_asm_directives(asm_directives):
     return entry_asm_dirs
 
 class CtlWriter:
-    def __init__(self, skoolfile, elements='btdrmsc', write_hex=0, write_asm_dirs=True,
+    def __init__(self, skoolfile, elements='abtdrmsc', write_hex=0,
                  preserve_base=False, min_address=0, max_address=65536):
         self.parser = SkoolParser(skoolfile, preserve_base, min_address, max_address)
         self.elements = elements
-        self.write_asm_dirs = write_asm_dirs
+        self.write_asm_dirs = ASM_DIRECTIVES in elements
         self.address_fmt = get_address_format(write_hex, write_hex < 0)
 
     def write(self):

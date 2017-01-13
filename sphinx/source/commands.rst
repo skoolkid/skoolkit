@@ -241,7 +241,6 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
   may be a regular file, or '-' for standard input.
 
   Options:
-    -a, --no-asm-dirs     Do not write ASM directives
     -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
                           instruction operands and DEFB/DEFM/DEFS/DEFW statements
     -E ADDR, --end ADDR   Stop converting at this address
@@ -251,6 +250,7 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
                           Start converting at this address
     -V, --version         Show SkoolKit version number and exit
     -w X, --write X       Write only these elements, where X is one or more of:
+                            a = ASM directives
                             b = block types and addresses
                             t = block titles
                             d = block descriptions
@@ -263,29 +263,30 @@ If you need to preserve any elements that control files do not support (such as
 data definition entries and ASM block directives), consider using
 :ref:`skool2sft.py` to create a skool file template instead.
 
-+---------+---------------------------------------------------------------+
-| Version | Changes                                                       |
-+=========+===============================================================+
-| 5.1     | A terminal ``i`` directive is appended if the skool file ends |
-|         | before 65536                                                  |
-+---------+---------------------------------------------------------------+
-| 4.5     | Added the ``--start`` and ``--end`` options                   |
-+---------+---------------------------------------------------------------+
-| 4.4     | Added the ``--hex-lower`` option                              |
-+---------+---------------------------------------------------------------+
-| 3.7     | Added the ``--preserve-base`` option                          |
-+---------+---------------------------------------------------------------+
-| 3.4     | Added the ``-V`` option and the long options                  |
-+---------+---------------------------------------------------------------+
-| 2.4     | Added the ``-a`` option and the ability to preserve some ASM  |
-|         | directives                                                    |
-+---------+---------------------------------------------------------------+
-| 2.2.2   | Added the ability to read a skool file from standard input    |
-+---------+---------------------------------------------------------------+
-| 2.0.6   | Added the ``-h`` option                                       |
-+---------+---------------------------------------------------------------+
-| 1.1     | New                                                           |
-+---------+---------------------------------------------------------------+
++---------+----------------------------------------------------------------+
+| Version | Changes                                                        |
++=========+================================================================+
+| 6.0     | Added support for the 'a' identifier in the ``--write`` option |
++---------+----------------------------------------------------------------+
+| 5.1     | A terminal ``i`` directive is appended if the skool file ends  |
+|         | before 65536                                                   |
++---------+----------------------------------------------------------------+
+| 4.5     | Added the ``--start`` and ``--end`` options                    |
++---------+----------------------------------------------------------------+
+| 4.4     | Added the ``--hex-lower`` option                               |
++---------+----------------------------------------------------------------+
+| 3.7     | Added the ``--preserve-base`` option                           |
++---------+----------------------------------------------------------------+
+| 3.4     | Added the ``-V`` option and the long options                   |
++---------+----------------------------------------------------------------+
+| 2.4     | Added the ability to preserve some ASM directives              |
++---------+----------------------------------------------------------------+
+| 2.2.2   | Added the ability to read a skool file from standard input     |
++---------+----------------------------------------------------------------+
+| 2.0.6   | Added the ``-h`` option                                        |
++---------+----------------------------------------------------------------+
+| 1.1     | New                                                            |
++---------+----------------------------------------------------------------+
 
 .. _skool2html.py:
 

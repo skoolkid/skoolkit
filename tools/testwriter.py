@@ -70,11 +70,10 @@ def _get_asm_options_list():
 
 def _get_ctl_options_list():
     options_list = []
-    for w in ('', '-w b', '-w bt', '-w btd', '-w btdr', '-w btdrm', '-w btdrms', '-w btdrmsc'):
+    for w in ('', '-w b', '-w bt', '-w btd', '-w btdr', '-w btdrm', '-w btdrms', '-w btdrmsc', '-w abtdrmsc'):
         for h in ('', '-h', '-l'):
-            for a in ('', '-a'):
-                for b in ('', '-b'):
-                    options_list.append('{} {} {} {}'.format(w, h, a, b).strip())
+            for b in ('', '-b'):
+                options_list.append('{} {} {}'.format(w, h, b).strip())
     return options_list
 
 def _get_html_options_list():

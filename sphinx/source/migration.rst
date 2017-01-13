@@ -95,6 +95,13 @@ For example::
 
   $ bin2tap.py in.bin out.tap
 
+skool2ctl.py -a
+---------------
+In SkoolKit 5, :ref:`skool2ctl.py` had a ``-a/--no-asm-dirs`` option for
+omitting ASM directives from the output. In SkoolKit 6, this option is not
+supported; instead, the ``-w/--write`` option now recognises the 'a' identifier
+for specifying whether to include ASM directives in the output.
+
 skool2html.py -w
 ----------------
 In SkoolKit 5, the ``-w/--write`` option of :ref:`skool2html.py` recognised the

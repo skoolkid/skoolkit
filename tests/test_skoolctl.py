@@ -357,23 +357,43 @@ c $C1E3 Routine with an empty multi-instruction comment and instruction comments
 i $C1EB Another ignore block
 E $C1EB End comment on the final block.""".split('\n')
 
-TEST_CTL_BS = """c 00000
+TEST_CTL_ABS = """c 00000
+@ 00000 label=START0
 c 00001
+@ 00001 label=START1
 c 00033
+@ 00033 label=START33
 c 00555
+@ 00555 label=START555
 c 07890
+@ 07890 label=START7890
+@ 32768 start
+@ 32768 writer=package.module.classname
+@ 32768 set-bullet=+
+@ 32768 org=32768
 c 32768
+@ 32768 label=START
+@ 32769 bfix=DEFB 2,3
 B 32769,2,2
+@ 32771 nowarn
+@ 32772 isub=DEFB 0,1
 B 32771,3,1,2
 T 32774,5,5
+@ 32779 keep
 W 32779,2,2
 S 32781,2,2
+@ 32783 nolabel
+@ 32785 ofix=DEFB 2
 B 32785,1,1
+@ 32786 rsub=DEFW 0,1,2
 W 32786,4,4
+@ 32790 ssub=DEFM "Lo"
 T 32790,2,1:B1
+@ 32792 rfix=DEFB 0
 S 32792,3,3
 i 32796
 b 49152
+@ 49152 rem=Hello!
   49152,1,1
 g 49153
 W 49153,2,2
@@ -401,6 +421,7 @@ b 49193
   49193,1,1
 s 49194
   49194,384,128
+@ 49578 end
 b 49578
   49578,20,3:T5:2,T7:3
 t 49598
@@ -625,10 +646,10 @@ c62000 LD A,","
 """
 
 class CtlWriterTest(SkoolKitTestCase):
-    def _get_ctl(self, elements='btdrmsc', write_hex=0, write_asm_dirs=True, skool=TEST_SKOOL,
+    def _get_ctl(self, elements='abtdrmsc', write_hex=0, skool=TEST_SKOOL,
                  preserve_base=False, min_address=0, max_address=65536):
         skoolfile = self.write_text_file(skool, suffix='.skool')
-        writer = CtlWriter(skoolfile, elements, write_hex, write_asm_dirs, preserve_base, min_address, max_address)
+        writer = CtlWriter(skoolfile, elements, write_hex, preserve_base, min_address, max_address)
         writer.write()
         return self.out.getvalue().split('\n')[:-1]
 
@@ -649,27 +670,27 @@ class CtlWriterTest(SkoolKitTestCase):
         self.assertEqual(TEST_CTL_HEX, self._get_ctl(write_hex=1))
 
     def test_default_elements_no_asm_dirs(self):
-        ctl = self._get_ctl(write_asm_dirs=False)
+        ctl = self._get_ctl('btdrmsc')
         test_ctl = [line for line in TEST_CTL if not line.startswith('@')]
         self.assertEqual(test_ctl, ctl)
 
     def test_wb(self):
-        ctl = self._get_ctl('b', write_asm_dirs=False)
+        ctl = self._get_ctl('b')
         test_ctl = [line[:7] for line in TEST_CTL if line[0] in DIRECTIVES]
         self.assertEqual(test_ctl, ctl)
 
     def test_wbd(self):
-        ctl = self._get_ctl('bd', write_asm_dirs=False)
+        ctl = self._get_ctl('bd')
         test_ctl = []
         for line in TEST_CTL:
             if line[0] in DIRECTIVES:
                 test_ctl.append(line[:7])
-            elif line.startswith('D 32768'):
+            elif line.startswith('D'):
                 test_ctl.append(line)
         self.assertEqual(test_ctl, ctl)
 
     def test_wbm(self):
-        ctl = self._get_ctl('bm', write_asm_dirs=False)
+        ctl = self._get_ctl('bm')
         test_ctl = []
         for line in TEST_CTL:
             if line[0] in DIRECTIVES:
@@ -679,7 +700,7 @@ class CtlWriterTest(SkoolKitTestCase):
         self.assertEqual(test_ctl, ctl)
 
     def test_wbr(self):
-        ctl = self._get_ctl('br', write_asm_dirs=False)
+        ctl = self._get_ctl('br')
         test_ctl = []
         for line in TEST_CTL:
             if line[0] in DIRECTIVES:
@@ -689,15 +710,20 @@ class CtlWriterTest(SkoolKitTestCase):
         self.assertEqual(test_ctl, ctl)
 
     def test_wbs(self):
-        ctl = self._get_ctl('bs', write_asm_dirs=False)
-        self.assertEqual(TEST_CTL_BS, ctl)
+        ctl = self._get_ctl('bs')
+        test_ctl = [line for line in TEST_CTL_ABS if line[0] != '@']
+        self.assertEqual(test_ctl, ctl)
+
+    def test_wabs(self):
+        ctl = self._get_ctl('abs')
+        self.assertEqual(TEST_CTL_ABS, ctl)
 
     def test_wbsc(self):
-        ctl = self._get_ctl('bsc', write_asm_dirs=False)
+        ctl = self._get_ctl('bsc')
         self.assertEqual(TEST_CTL_BSC, ctl)
 
     def test_wbt(self):
-        ctl = self._get_ctl('bt', write_asm_dirs=False)
+        ctl = self._get_ctl('bt')
         test_ctl = [line for line in TEST_CTL if line[0] in DIRECTIVES]
         self.assertEqual(test_ctl, ctl)
 
