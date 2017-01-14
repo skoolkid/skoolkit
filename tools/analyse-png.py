@@ -1,9 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
 import sys
 import os
 import zlib
-
-PY3 = sys.version_info >= (3,)
 
 PALETTE = {
     (0, 254, 0): 'TRANSPARENT',
@@ -39,9 +38,7 @@ def _to_chars(data):
     return ''.join(chr(b) for b in data)
 
 def decompress(data):
-    if PY3:
-        return list(zlib.decompress(bytes(data)))
-    return [ord(c) for c in zlib.decompress(bytes(bytearray(data)))]
+    return list(zlib.decompress(bytes(data)))
 
 def parse_args(args):
     p_args = []
