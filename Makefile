@@ -1,5 +1,5 @@
 NOSETESTS ?= nosetests3
-NOSETESTS34 ?= python3.4 /usr/bin/nosetests
+NOSETESTS34 ?= python3.4 /usr/bin/nosetests3
 NOSETESTS35 ?= $(HOME)/Python/Python3.5/bin/nosetests
 NOSETESTS36 ?= $(HOME)/Python/Python3.6/bin/nosetests
 OPTIONS = -d build/html -t
