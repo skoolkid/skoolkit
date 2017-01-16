@@ -465,12 +465,7 @@ class MethodTest(HtmlWriterTestCase):
             writer.image_path(fname, path_id)
 
     def test_image_path_with_frames(self):
-        ref = '\n'.join((
-            '[ImageWriter]',
-            'DefaultAnimationFormat=gif',
-            'DefaultFormat=png'
-        ))
-        writer = self._get_writer(ref=ref)
+        writer = self._get_writer()
         udg_path = writer.paths['UDGImagePath']
 
         # One frame, no flash
@@ -781,9 +776,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
-    def test_macro_font_with_custom_default_animation_format(self):
-        ref = '[ImageWriter]\nDefaultAnimationFormat=gif'
-        writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_file_info=True)
+    def test_macro_font_uses_default_animation_format(self):
+        writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
 
         # No flash
         fname = 'font_no_flash'
@@ -1546,11 +1540,10 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
-    def test_macro_scr_with_custom_default_animation_format(self):
-        ref = '[ImageWriter]\nDefaultAnimationFormat=gif'
+    def test_macro_scr_uses_default_animation_format(self):
         snapshot = [0] * 2050
         af = 2048
-        writer = self._get_writer(ref=ref, snapshot=snapshot, mock_file_info=True)
+        writer = self._get_writer(snapshot=snapshot, mock_file_info=True)
 
         # No flash
         fname = 'scr_no_flash'
@@ -1849,9 +1842,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
-    def test_macro_udg_with_custom_default_animation_format(self):
-        ref = '[ImageWriter]\nDefaultAnimationFormat=gif'
-        writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_file_info=True)
+    def test_macro_udg_uses_default_animation_format(self):
+        writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
 
         # No flash
         fname = 'udg_no_flash'
@@ -2170,9 +2162,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, fname, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
-    def test_macro_udgarray_with_custom_default_animation_format(self):
-        ref = '[ImageWriter]\nDefaultAnimationFormat=gif'
-        writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_file_info=True)
+    def test_macro_udgarray_with_flash(self):
+        writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
 
         # No flash
         fname = 'udgarray_no_flash'
@@ -2290,7 +2281,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
         fname = 'test_udg_array_frames'
-        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_image_path = '{}/{}.gif'.format(UDGDIR, fname)
         exp_src = '../{}'.format(exp_image_path)
         delay1 = 93
         macro4 = '#UDGARRAY*foo,{};bar;qux,(delay=5+8*2-12/3)({})'.format(delay1, fname)
@@ -2304,9 +2295,8 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         frames = [frame1, frame2, frame3]
         self._check_animated_image(writer.image_writer, frames)
 
-    def test_macro_udgarray_frames_with_custom_default_animation_format(self):
-        ref = '[ImageWriter]\nDefaultAnimationFormat=gif'
-        writer = self._get_writer(ref=ref, snapshot=[0] * 8, mock_file_info=True)
+    def test_macro_udgarray_frames_uses_default_animation_format(self):
+        writer = self._get_writer(snapshot=[0] * 8, mock_file_info=True)
 
         writer.expand('#UDG0,1(*frame1)')
         writer.expand('#UDG0,2(*frame2)')
@@ -2360,7 +2350,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
         fname = 'animated'
-        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_image_path = '{}/{}.gif'.format(UDGDIR, fname)
         exp_src = '../{}'.format(exp_image_path)
         alt = 'Animated'
         writer.expand('#UDGARRAY1;0(*frame1)', ASMDIR)

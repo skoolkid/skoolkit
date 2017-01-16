@@ -74,7 +74,7 @@ class ImageWriter:
         self._create_colours(full_palette)
         self._create_attr_index()
         self.default_format = self.options[DEFAULT_FORMAT]
-        self.default_animation_format = self.options.get(DEFAULT_ANIMATION_FORMAT, self.default_format)
+        self.default_animation_format = self.options[DEFAULT_ANIMATION_FORMAT]
         self.animation = {
             PNG_FORMAT: self.options[PNG_ENABLE_ANIMATION],
             GIF_FORMAT: self.options[GIF_ENABLE_ANIMATION]
@@ -143,6 +143,7 @@ class ImageWriter:
     def _get_default_options(self):
         return {
             DEFAULT_FORMAT: PNG_FORMAT,
+            DEFAULT_ANIMATION_FORMAT: GIF_FORMAT,
             PNG_COMPRESSION_LEVEL: 9,
             PNG_ENABLE_ANIMATION: 1,
             PNG_ALPHA: 255,

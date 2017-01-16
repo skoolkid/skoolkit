@@ -86,6 +86,13 @@ can be activated by adding a corresponding ``[Page:*]`` section::
   [Page:MyOtherPage]
   PageContent=#INCLUDE(PageContent:MyOtherPage)
 
+DefaultAnimationFormat
+----------------------
+In SkoolKit 5, the ``DefaultAnimationFormat`` parameter in the
+:ref:`ref-ImageWriter` section defaulted to the value of the ``DefaultFormat``
+parameter (``png`` by default). In SkoolKit 6, ``DefaultAnimationFormat``
+defaults to ``gif``.
+
 bin2tap.py -t
 -------------
 In SkoolKit 5, :ref:`bin2tap.py` had a ``-t/--tapfile`` option for specifying

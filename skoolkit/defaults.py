@@ -67,7 +67,7 @@ UDGFilename=udg{addr}_{attr}x{scale}
 """
 
 SECTIONS['ImageWriter'] = """
-; DefaultAnimationFormat=png
+; DefaultAnimationFormat=gif
 ; DefaultFormat=png
 ; GIFEnableAnimation=1
 ; GIFTransparency=0
