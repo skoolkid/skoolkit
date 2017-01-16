@@ -200,10 +200,8 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
   SKOOLKIT_TAR=skoolkit-${SKOOLKIT_VERSION}.tar.xz
   if [ $USE_SK_DEV -eq 1 ]; then
     if [ $BUILD_SK_TARBALL -eq 1 ] || [ ! -f ${SKOOLKIT_TAR} ]; then
-      pushd $SKOOLKIT_HOME > /dev/null
-      echo "Building tarball for version $SKOOLKIT_VERSION of SkoolKit"
-      $TOOLS/mksktarball -q -t
-      popd > /dev/null
+      echo "Building tarball for SkoolKit $SKOOLKIT_VERSION"
+      $TOOLS/mksktarball -nqt
       cp -p $SKOOLKIT_HOME/dist/${SKOOLKIT_TAR} .
     fi
   else

@@ -9,6 +9,7 @@ Usage: $(basename $0) [options]
 
 Options:
   -h  Show this help
+  -n  Omit documentation and man pages
   -q  Be quiet
   -t  Write only the release tarball
 EOF
@@ -37,22 +38,21 @@ PKGDIR=$PKGNAME
 
 VERBOSE=1
 WRITE_ZIP=1
+INCLUDE_DOCS=1
 
-while getopts ":hpqt" opt; do
+while getopts ":hnpqt" opt; do
   case $opt in
     h) usage ;;
+    n) INCLUDE_DOCS=0 ;;
     q) VERBOSE=0 ;;
     t) WRITE_ZIP=0 ;;
   esac
 done
 
 DISTDIR=$SKOOLKIT_HOME/dist
+mkdir -p $DISTDIR
 ABSDIR=${DISTDIR}/${PKGDIR}
 rm -rf ${ABSDIR}
-DOCSDIR=${ABSDIR}/docs
-mkdir -p $DOCSDIR
-MANDIR=${ABSDIR}/man/man1
-mkdir -p $MANDIR
 
 rsync -aR \
   {bin2{sna,tap},skool2{asm,bin,ctl,html,sft},sna2{img,skool},snap{info,mod},tap{2sna,info}}.py \
@@ -63,20 +63,26 @@ rsync -aR \
   COPYING MANIFEST.in setup.py \
   $ABSDIR
 
-# Documentation and man pages
-cd $SKOOLKIT_HOME/sphinx
-rm -rf build/*
-if ! make html &> /dev/null; then
-  echo "*** Error building documentation; aborting"
-  exit 1
+if [[ $INCLUDE_DOCS == 1 ]]; then
+  # Documentation and man pages
+  cd $SKOOLKIT_HOME/sphinx
+  rm -rf build/*
+  if ! make html &> /dev/null; then
+    echo "*** Error building documentation; aborting"
+    exit 1
+  fi
+  rm -rf build/html/man
+  DOCSDIR=${ABSDIR}/docs
+  mkdir -p $DOCSDIR
+  rsync -a --exclude=.buildinfo --exclude=objects.inv build/html/ $DOCSDIR
+  if ! make man &> /dev/null; then
+    echo "*** Error building man pages; aborting"
+    exit 1
+  fi
+  MANDIR=${ABSDIR}/man/man1
+  mkdir -p $MANDIR
+  rsync -a build/man/*.py.1 $MANDIR
 fi
-rm -rf build/html/man
-rsync -a --exclude=.buildinfo --exclude=objects.inv build/html/ $DOCSDIR
-if ! make man &> /dev/null; then
-  echo "*** Error building man pages; aborting"
-  exit 1
-fi
-rsync -a build/man/*.py.1 $MANDIR
 
 cd $DISTDIR
 
