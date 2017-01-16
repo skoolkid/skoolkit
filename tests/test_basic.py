@@ -304,9 +304,9 @@ class BasicListerTest(SkoolKitTestCase):
         self._test_basic(basic, exp_output)
 
 class VariableListerTest(SkoolKitTestCase):
-    def _test_variables(self, data, exp_output, vars=23755):
-        snapshot = [0] * vars + data
-        snapshot[23627:23629] = (vars % 256, vars // 256)
+    def _test_variables(self, data, exp_output, vars_addr=23755):
+        snapshot = [0] * vars_addr + data
+        snapshot[23627:23629] = (vars_addr % 256, vars_addr // 256)
         variables = VariableLister().list_variables(snapshot)
         self.assertEqual(exp_output, variables.split('\n'))
 
