@@ -93,6 +93,11 @@ In SkoolKit 5, the ``DefaultAnimationFormat`` parameter in the
 parameter (``png`` by default). In SkoolKit 6, ``DefaultAnimationFormat``
 defaults to ``gif``.
 
+PageHeaders:Asm-t
+-----------------
+In SkoolKit 5, the default :ref:`header <pageHeaders>` for ``Asm-t`` pages
+(disassembly pages for 't' blocks) was 'Data'. In SkoolKit 6, it is 'Messages'.
+
 bin2tap.py -t
 -------------
 In SkoolKit 5, :ref:`bin2tap.py` had a ``-t/--tapfile`` option for specifying

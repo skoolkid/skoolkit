@@ -599,7 +599,7 @@ Recognised page IDs are:
 * ``Asm-c`` - disassembly pages for 'c' blocks (default: 'Routines')
 * ``Asm-g`` - disassembly pages for 'g' blocks (default: 'Game status buffer')
 * ``Asm-s`` - disassembly pages for 's' blocks (default: 'Unused')
-* ``Asm-t`` - disassembly pages for 't' blocks (default: 'Data')
+* ``Asm-t`` - disassembly pages for 't' blocks (default: 'Messages')
 * ``Asm-u`` - disassembly pages for 'u' blocks (default: 'Unused')
 * ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data')
 * ``AsmSinglePage`` - the disassembly page (when a single-page template is
@@ -629,13 +629,15 @@ Note that the header of the disassembly index page (``GameIndex``) is not
 defined in this section; it is composed from the values of the ``TitlePrefix``
 and ``TitleSuffix`` parameters in the :ref:`ref-Game` section.
 
-+---------+-------------------------------------+
-| Version | Changes                             |
-+=========+=====================================+
-| 5.3     | Added the ``AsmSinglePage`` page ID |
-+---------+-------------------------------------+
-| 4.0     | New                                 |
-+---------+-------------------------------------+
++---------+------------------------------------------------------+
+| Version | Changes                                              |
++=========+======================================================+
+| 6.0     | The default header for ``Asm-t`` pages is 'Messages' |
++---------+------------------------------------------------------+
+| 5.3     | Added the ``AsmSinglePage`` page ID                  |
++---------+------------------------------------------------------+
+| 4.0     | New                                                  |
++---------+------------------------------------------------------+
 
 .. _paths:
 
