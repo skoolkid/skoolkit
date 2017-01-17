@@ -229,18 +229,21 @@ class SkoolParser:
     :param create_labels: Whether to create default labels for unlabelled
                           instructions.
     :param asm_labels: Whether to parse `@label` directives.
+    :param min_address: Ignore addresses below this one.
+    :param max_address: Ignore addresses above this one.
+    :param snapshot: Base snapshot to use instead of an empty one.
     """
     def __init__(self, skoolfile, case=None, base=None, asm_mode=0, warnings=False, fix_mode=0, html=False,
-                 create_labels=False, asm_labels=True, min_address=0, max_address=65536):
+                 create_labels=False, asm_labels=True, min_address=0, max_address=65536, snapshot=None):
         self.skoolfile = skoolfile
         self.mode = Mode(case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels)
         self.case = case
         self.base = base
 
-        self.snapshot = [0] * 65536  # 64K of Spectrum memory
-        self._instructions = {}      # address -> [Instructions]
-        self._entries = {}           # address -> SkoolEntry
-        self.memory_map = []         # SkoolEntry instances
+        self.snapshot = snapshot or [0] * 65536  # 64K of Spectrum memory
+        self._instructions = {}                  # address -> [Instructions]
+        self._entries = {}                       # address -> SkoolEntry
+        self.memory_map = []                     # SkoolEntry instances
         self.base_address = 65536
         self.end_address = 0
         self.header = []
@@ -266,7 +269,8 @@ class SkoolParser:
             self.mode.fix_mode,
             self.mode.html,
             self.mode.create_labels,
-            self.mode.asm_labels
+            self.mode.asm_labels,
+            snapshot=self.snapshot[:]
         )
 
     def get_entry(self, address):

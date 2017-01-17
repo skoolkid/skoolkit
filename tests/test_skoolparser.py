@@ -3342,6 +3342,23 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNone(instructions[5].mid_block_comment)
         self.assertEqual(instructions[5].comment.text, '')
 
+    def test_clone(self):
+        skool = 'b40000 DEFB 1,2,3,4,5,6,7,8'
+        parser = self._get_parser(skool)
+        skool2 = 'b40002 DEFB 9,10,11,12'
+        skool2file = self.write_text_file(skool2, suffix='.skool')
+        clone = parser.clone(skool2file)
+        self.assertEqual(parser.case, clone.case)
+        self.assertEqual(parser.base, clone.base)
+        self.assertEqual(parser.mode.asm_mode, clone.mode.asm_mode)
+        self.assertEqual(parser.mode.warn, clone.mode.warn)
+        self.assertEqual(parser.mode.fix_mode, clone.mode.fix_mode)
+        self.assertEqual(parser.mode.html, clone.mode.html)
+        self.assertEqual(parser.mode.create_labels, clone.mode.create_labels)
+        self.assertEqual(parser.mode.asm_labels, clone.mode.asm_labels)
+        self.assertEqual([1, 2, 3, 4, 5, 6, 7, 8], parser.snapshot[40000:40008])
+        self.assertEqual([1, 2, 9, 10, 11, 12, 7, 8], clone.snapshot[40000:40008])
+
 class TableParserTest(SkoolKitTestCase):
     class MockWriter:
         def expand(self, text):
