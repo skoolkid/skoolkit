@@ -796,7 +796,7 @@ Recognised page IDs and their default titles are:
 * ``Asm-g`` - disassembly pages for 'g' blocks (default: 'Game status buffer
   entry at')
 * ``Asm-s`` - disassembly pages for 's' blocks (default: 'Unused RAM at')
-* ``Asm-t`` - disassembly pages for 't' blocks (default: 'Data at')
+* ``Asm-t`` - disassembly pages for 't' blocks (default: 'Text at')
 * ``Asm-u`` - disassembly pages for 'u' blocks (default: 'Unused RAM at')
 * ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data at')
 * ``AsmSinglePage`` - the disassembly page (when a single-page template is
@@ -823,19 +823,21 @@ The title of a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
 :ref:`page` section defaults to the page ID, but can be overridden in this
 section.
 
-+---------+-------------------------------------+
-| Version | Changes                             |
-+=========+=====================================+
-| 5.3     | Added the ``AsmSinglePage`` page ID |
-+---------+-------------------------------------+
-| 4.0     | Added the ``Asm-*`` page IDs        |
-+---------+-------------------------------------+
-| 2.5     | Added the ``UnusedMap`` page ID     |
-+---------+-------------------------------------+
-| 2.2.5   | Added the ``Changelog`` page ID     |
-+---------+-------------------------------------+
-| 2.0.5   | New                                 |
-+---------+-------------------------------------+
++---------+----------------------------------------------------+
+| Version | Changes                                            |
++=========+====================================================+
+| 6.0     | The default title for ``Asm-t`` pages is 'Text at' |
++---------+----------------------------------------------------+
+| 5.3     | Added the ``AsmSinglePage`` page ID                |
++---------+----------------------------------------------------+
+| 4.0     | Added the ``Asm-*`` page IDs                       |
++---------+----------------------------------------------------+
+| 2.5     | Added the ``UnusedMap`` page ID                    |
++---------+----------------------------------------------------+
+| 2.2.5   | Added the ``Changelog`` page ID                    |
++---------+----------------------------------------------------+
+| 2.0.5   | New                                                |
++---------+----------------------------------------------------+
 
 .. _boxpages:
 

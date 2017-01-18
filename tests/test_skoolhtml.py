@@ -4681,7 +4681,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         """
         subs = {
             'map': basename(map_path),
-            'title': 'Data at 30002',
+            'title': 'Text at 30002',
             'header': 'Messages',
             'body_class': '{}-Asm-t'.format(code_id),
             'prev': 30001,

@@ -98,6 +98,12 @@ PageHeaders:Asm-t
 In SkoolKit 5, the default :ref:`header <pageHeaders>` for ``Asm-t`` pages
 (disassembly pages for 't' blocks) was 'Data'. In SkoolKit 6, it is 'Messages'.
 
+Titles:Asm-t
+------------
+In SkoolKit 5, the default :ref:`title <titles>` for ``Asm-t`` pages
+(disassembly pages for 't' blocks) was 'Data at'. In SkoolKit 6, it is 'Text
+at'.
+
 bin2tap.py -t
 -------------
 In SkoolKit 5, :ref:`bin2tap.py` had a ``-t/--tapfile`` option for specifying
