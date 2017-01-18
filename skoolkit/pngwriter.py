@@ -178,9 +178,9 @@ class PngWriter:
 
     def _bd4_nt_method(self, frame):
         if frame.scale == 1:
-            min_index = 40
+            min_index = 51
         elif frame.scale == 2:
-            min_index = 68
+            min_index = 80
         else:
             min_index = 230
         if frame.tiles / len(frame.attr_map) >= min_index:

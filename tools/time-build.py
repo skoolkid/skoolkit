@@ -131,7 +131,7 @@ def _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analys
 
 def bd4(iw, method1, method2, udg_arrays, scales):
     mask_type = 0
-    analyse_ua = False
+    analyse_ua = len(udg_arrays) == 2
 
     if not udg_arrays:
         analyse_ua = True
