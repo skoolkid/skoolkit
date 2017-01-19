@@ -154,7 +154,6 @@ def bd2(iw, method1, method2, udg_arrays, scales, masked=False):
             mask_data = (247,) * 8
             udg_arrays.append([[Udg(56, data, mask_data)] * 3] * 5)
             udg_arrays.append([[Udg(56, data, mask_data)] * 3] * 4)
-        scales = scales or (2, 4, 8)
     elif not udg_arrays:
         data = (170,) * 8
         udg_arrays.append([[Udg(a, data) for a in (1, 19)]])           # u=2, a=2

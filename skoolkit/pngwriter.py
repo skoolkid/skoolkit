@@ -191,7 +191,7 @@ class PngWriter:
         return self._build_image_data_bd1_nt
 
     def _bd2_at_method(self, frame):
-        if frame.all_masked and (frame.scale == 2 or frame.scale & 3 == 0):
+        if frame.all_masked:
             return self._build_image_data_bd2_at
         return self._build_image_data_bd12
 
@@ -624,22 +624,16 @@ class PngWriter:
         return img_data
 
     def _build_image_data_bd2_at(self, frame, mask, **kwargs):
-        # Bit depth 2, full size, fully masked, scale 2 or a multiple of 4
+        # Bit depth 2, full size, fully masked
         attrs = {}
         scale = frame.scale
-        if scale & 3 == 0:
-            q = scale // 4
-            b = ((0,) * q, (85,) * q, (170,) * q, (255,) * q) # 00000000, 01010101, 10101010, 11111111
-            for attr, (p, i) in frame.attr_map.items():
-                c = mask.colours(b, p, i, 0)
-                attrs[attr] = [c[b3] + c[b2] + c[b1] + c[b0] for b3, b2, b1, b0 in BIT_PAIRS2]
-        elif scale == 2:
-            for attr, (paper, ink) in frame.attr_map.items():
-                p = mask.colours((paper, ink, 0), 0, 1, 2)
-                attrs[attr] = [(p[b3] * 80 + p[b2] * 5, p[b1] * 80 + p[b0] * 5) for b3, b2, b1, b0 in BIT_PAIRS2]
-
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
+        bits = _get_bd2_bytes(scale)
+        for attr, (paper, ink) in frame.attr_map.items():
+            p = mask.colours((paper, ink, 0), 0, 1, 2)
+            attrs[attr] = [bits[p[d] * 64 + p[c] * 16 + p[b] * 4 + p[a]] for d, c, b, a in BIT_PAIRS2]
+
         for row in frame.udgs:
             scanline0 = bytearray((0,))
             scanline1 = bytearray((0,))
@@ -693,6 +687,7 @@ class PngWriter:
             img_data.extend(compressor.compress(scanline5 * scale))
             img_data.extend(compressor.compress(scanline6 * scale))
             img_data.extend(compressor.compress(scanline7 * scale))
+
         img_data.extend(compressor.flush())
         return img_data
 
