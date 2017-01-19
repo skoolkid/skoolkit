@@ -177,7 +177,7 @@ class PngWriter:
         bd4_fs_method_dict[1] = (None, self._build_image_data_bd_any) # Masked
 
     def _bd1_nt_method(self, frame):
-        if frame.tiles == 1 and frame.scale in (1, 2, 4, 8):
+        if frame.tiles == 1 and frame.scale < 10:
             return self._build_image_data_bd1_nt_1udg
         return self._build_image_data_bd1_nt
 
@@ -707,28 +707,18 @@ class PngWriter:
         return img_data
 
     def _build_image_data_bd1_nt_1udg(self, frame, **kwargs):
-        # 1 UDG, 2 colours, full size, no masks, scale 1, 2, 4 or 8
+        # 1 UDG, 2 colours, full size, no masks
         udg = frame.udgs[0][0]
         img_data = bytearray()
         xor = frame.attr_map[udg.attr & 127][0] * 255
-
         scale = frame.scale
-        if scale == 4:
-            for b in udg.data:
-                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[b ^ xor]
-                img_data.extend((0, b7 * 240 + b6 * 15, b5 * 240 + b4 * 15, b3 * 240 + b2 * 15, b1 * 240 + b0 * 15) * 4)
-        elif scale == 2:
-            for b in udg.data:
-                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[b ^ xor]
-                img_data.extend((0, b7 * 192 + b6 * 48 + b5 * 12 + b4 * 3, b3 * 192 + b2 * 48 + b1 * 12 + b0 * 3) * 2)
-        elif scale == 1:
+        if scale == 1:
             for b in udg.data:
                 img_data.extend((0, b ^ xor))
-        elif scale == 8:
+        else:
+            bits = _get_bd1_bytes(scale)
             for b in udg.data:
-                b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[b ^ xor]
-                img_data.extend((0, b7 * 255, b6 * 255, b5 * 255, b4 * 255, b3 * 255, b2 * 255, b1 * 255, b0 * 255) * 8)
-
+                img_data.extend(([0] + bits[b ^ xor]) * scale)
         return zlib.compress(img_data, self.compression_level)
 
     def _build_image_data_bd1_nt(self, frame, **kwargs):

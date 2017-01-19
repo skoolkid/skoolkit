@@ -118,7 +118,7 @@ def _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analys
                 t2 = clock(m2, frame, bit_depth=bit_depth, mask=mask)
                 num_udgs = len(udgs[0]) * len(udgs)
                 num_attrs = len(attr_map)
-                output = '  num_udgs={}, num_attrs={}, scale={}: {:0.2f}ms {:0.2f}ms'.format(num_udgs, num_attrs, scale, t1, t2)
+                output = '  num_udgs={}, num_attrs={}, scale={}: {:0.3f}ms {:0.3f}ms'.format(num_udgs, num_attrs, scale, t1, t2)
                 write(output)
                 if t1 < t2:
                     method1_faster.append(output)
@@ -177,7 +177,6 @@ def bd1(iw, method1, method2, udg_arrays, scales, one_udg=False):
     if one_udg:
         if not udg_arrays:
             udg_arrays.append([[Udg(56, (170,) * 8)]])
-        scales = scales or (1, 2, 4, 8)
     elif not udg_arrays:
         attrs = (56, 7, 0, 63)
         for num_udgs in range(1, 10):
