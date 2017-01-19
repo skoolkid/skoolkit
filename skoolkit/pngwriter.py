@@ -47,6 +47,16 @@ BD4_MAP1 = (
 )
 BD2_BITS = [BITS4[n] for n in (0, 1, 3, 7, 8, 12, 14, 15)]
 
+BD1_BYTES = {}
+
+def _get_bd1_bytes(scale):
+    if scale not in BD1_BYTES:
+        BD1_BYTES[scale] = []
+        for v in range(256):
+            b = ''.join([d * scale for d in '{:08b}'.format(v)])
+            BD1_BYTES[scale].append([int(b[i:i + 8], 2) for i in range(0, len(b), 8)])
+    return BD1_BYTES[scale]
+
 class PngWriter:
     def __init__(self, alpha=255, compression_level=9, masks=None):
         self.alpha = alpha
@@ -726,181 +736,49 @@ class PngWriter:
         compressor = zlib.compressobj(self.compression_level)
         scale = frame.scale
         attr_map = frame.attr_map
-        e_scale = scale // 8
-        scale_m = scale & 7
         img_data = bytearray()
+        bits = _get_bd1_bytes(scale)
+
         for row in frame.udgs:
-            for i in range(8):
-                scanline = bytearray((0,))
-                for udg in row:
-                    paper, ink = attr_map[udg.attr & 127]
-                    if ink == paper:
-                        byte = paper * 255
-                    else:
-                        byte = udg.data[i] ^ (paper * 255)
-                    if scale == 1:
-                        scanline.append(byte)
-                        continue
-                    b7, b6, b5, b4, b3, b2, b1, b0 = BITS8[byte]
-                    if scale == 2:
-                        scanline.append(b7 * 192 + b6 * 48 + b5 * 12 + b4 * 3)
-                        scanline.append(b3 * 192 + b2 * 48 + b1 * 12 + b0 * 3)
-                    elif scale == 3:
-                        scanline.append(b7 * 224 + b6 * 28 + b5 * 3)
-                        scanline.append(b5 * 128 + b4 * 112 + b3 * 14 + b2)
-                        scanline.append(b2 * 192 + b1 * 56 + b0 * 7)
-                    elif scale == 4:
-                        scanline.append(b7 * 240 + b6 * 15)
-                        scanline.append(b5 * 240 + b4 * 15)
-                        scanline.append(b3 * 240 + b2 * 15)
-                        scanline.append(b1 * 240 + b0 * 15)
-                    elif scale == 5:
-                        scanline.append(b7 * 248 + b6 * 7)
-                        scanline.append(b6 * 192 + b5 * 62 + b4)
-                        scanline.append(b4 * 240 + b3 * 15)
-                        scanline.append(b3 * 128 + b2 * 124 + b1 * 3)
-                        scanline.append(b1 * 224 + b0 * 31)
-                    elif scale == 6:
-                        scanline.append(b7 * 252 + b6 * 3)
-                        scanline.append(b6 * 240 + b5 * 15)
-                        scanline.append(b5 * 192 + b4 * 63)
-                        scanline.append(b3 * 252 + b2 * 3)
-                        scanline.append(b2 * 240 + b1 * 15)
-                        scanline.append(b1 * 192 + b0 * 63)
-                    elif scale == 7:
-                        scanline.append(b7 * 254 + b6)
-                        scanline.append(b6 * 252 + b5 * 3)
-                        scanline.append(b5 * 248 + b4 * 7)
-                        scanline.append(b4 * 240 + b3 * 15)
-                        scanline.append(b3 * 224 + b2 * 31)
-                        scanline.append(b2 * 192 + b1 * 63)
-                        scanline.append(b1 * 128 + b0 * 127)
-                    elif scale == 8:
-                        scanline.append(b7 * 255)
-                        scanline.append(b6 * 255)
-                        scanline.append(b5 * 255)
-                        scanline.append(b4 * 255)
-                        scanline.append(b3 * 255)
-                        scanline.append(b2 * 255)
-                        scanline.append(b1 * 255)
-                        scanline.append(b0 * 255)
-                    elif scale_m == 0:
-                        scanline.extend((b7 * 255,) * e_scale)
-                        scanline.extend((b6 * 255,) * e_scale)
-                        scanline.extend((b5 * 255,) * e_scale)
-                        scanline.extend((b4 * 255,) * e_scale)
-                        scanline.extend((b3 * 255,) * e_scale)
-                        scanline.extend((b2 * 255,) * e_scale)
-                        scanline.extend((b1 * 255,) * e_scale)
-                        scanline.extend((b0 * 255,) * e_scale)
-                    elif scale_m == 1:
-                        scanline.extend((b7 * 255,) * e_scale)
-                        scanline.append(b7 * 128 + b6 * 127)
-                        scanline.extend((b6 * 255,) * (e_scale - 1))
-                        scanline.append(b6 * 192 + b5 * 63)
-                        scanline.extend((b5 * 255,) * (e_scale - 1))
-                        scanline.append(b5 * 224 + b4 * 31)
-                        scanline.extend((b4 * 255,) * (e_scale - 1))
-                        scanline.append(b4 * 240 + b3 * 15)
-                        scanline.extend((b3 * 255,) * (e_scale - 1))
-                        scanline.append(b3 * 248 + b2 * 7)
-                        scanline.extend((b2 * 255,) * (e_scale - 1))
-                        scanline.append(b2 * 252 + b1 * 3)
-                        scanline.extend((b1 * 255,) * (e_scale - 1))
-                        scanline.append(b1 * 254 + b0)
-                        scanline.extend((b0 * 255,) * e_scale)
-                    elif scale_m == 2:
-                        scanline.extend((b7 * 255,) * e_scale)
-                        scanline.append(b7 * 192 + b6 * 63)
-                        scanline.extend((b6 * 255,) * (e_scale - 1))
-                        scanline.append(b6 * 240 + b5 * 15)
-                        scanline.extend((b5 * 255,) * (e_scale - 1))
-                        scanline.append(b5 * 252 + b4 * 3)
-                        scanline.extend((b4 * 255,) * e_scale)
-                        scanline.extend((b3 * 255,) * e_scale)
-                        scanline.append(b3 * 192 + b2 * 63)
-                        scanline.extend((b2 * 255,) * (e_scale - 1))
-                        scanline.append(b2 * 240 + b1 * 15)
-                        scanline.extend((b1 * 255,) * (e_scale - 1))
-                        scanline.append(b1 * 252 + b0 * 3)
-                        scanline.extend((b0 * 255,) * e_scale)
-                    elif scale_m == 3:
-                        scanline.extend((b7 * 255,) * e_scale)
-                        scanline.append(b7 * 224 + b6 * 31)
-                        scanline.extend((b6 * 255,) * (e_scale - 1))
-                        scanline.append(b6 * 252 + b5 * 3)
-                        scanline.extend((b5 * 255,) * e_scale)
-                        scanline.append(b5 * 128 + b4 * 127)
-                        scanline.extend((b4 * 255,) * (e_scale - 1))
-                        scanline.append(b4 * 240 + b3 * 15)
-                        scanline.extend((b3 * 255,) * (e_scale - 1))
-                        scanline.append(b3 * 254 + b2)
-                        scanline.extend((b2 * 255,) * e_scale)
-                        scanline.append(b2 * 192 + b1 * 63)
-                        scanline.extend((b1 * 255,) * (e_scale - 1))
-                        scanline.append(b1 * 248 + b0 * 7)
-                        scanline.extend((b0 * 255,) * e_scale)
-                    elif scale_m == 4:
-                        scanline.extend((b7 * 255,) * e_scale)
-                        scanline.append(b7 * 240 + b6 * 15)
-                        scanline.extend((b6 * 255,) * e_scale)
-                        scanline.extend((b5 * 255,) * e_scale)
-                        scanline.append(b5 * 240 + b4 * 15)
-                        scanline.extend((b4 * 255,) * e_scale)
-                        scanline.extend((b3 * 255,) * e_scale)
-                        scanline.append(b3 * 240 + b2 * 15)
-                        scanline.extend((b2 * 255,) * e_scale)
-                        scanline.extend((b1 * 255,) * e_scale)
-                        scanline.append(b1 * 240 + b0 * 15)
-                        scanline.extend((b0 * 255,) * e_scale)
-                    elif scale_m == 5:
-                        scanline.extend((b7 * 255,) * e_scale)
-                        scanline.append(b7 * 248 + b6 * 7)
-                        scanline.extend((b6 * 255,) * e_scale)
-                        scanline.append(b6 * 192 + b5 * 63)
-                        scanline.extend((b5 * 255,) * (e_scale - 1))
-                        scanline.append(b5 * 254 + b4)
-                        scanline.extend((b4 * 255,) * e_scale)
-                        scanline.append(b4 * 240 + b3 * 15)
-                        scanline.extend((b3 * 255,) * e_scale)
-                        scanline.append(b3 * 128 + b2 * 127)
-                        scanline.extend((b2 * 255,) * (e_scale - 1))
-                        scanline.append(b2 * 252 + b1 * 3)
-                        scanline.extend((b1 * 255,) * e_scale)
-                        scanline.append(b1 * 224 + b0 * 31)
-                        scanline.extend((b0 * 255,) * e_scale)
-                    elif scale_m == 6:
-                        scanline.extend((b7 * 255,) * e_scale)
-                        scanline.append(b7 * 252 + b6 * 3)
-                        scanline.extend((b6 * 255,) * e_scale)
-                        scanline.append(b6 * 240 + b5 * 15)
-                        scanline.extend((b5 * 255,) * e_scale)
-                        scanline.append(b5 * 192 + b4 * 63)
-                        scanline.extend((b4 * 255,) * e_scale)
-                        scanline.extend((b3 * 255,) * e_scale)
-                        scanline.append(b3 * 252 + b2 * 3)
-                        scanline.extend((b2 * 255,) * e_scale)
-                        scanline.append(b2 * 240 + b1 * 15)
-                        scanline.extend((b1 * 255,) * e_scale)
-                        scanline.append(b1 * 192 + b0 * 63)
-                        scanline.extend((b0 * 255,) * e_scale)
-                    elif scale_m == 7:
-                        scanline.extend((b7 * 255,) * e_scale)
-                        scanline.append(b7 * 254 + b6)
-                        scanline.extend((b6 * 255,) * e_scale)
-                        scanline.append(b6 * 252 + b5 * 3)
-                        scanline.extend((b5 * 255,) * e_scale)
-                        scanline.append(b5 * 248 + b4 * 7)
-                        scanline.extend((b4 * 255,) * e_scale)
-                        scanline.append(b4 * 240 + b3 * 15)
-                        scanline.extend((b3 * 255,) * e_scale)
-                        scanline.append(b3 * 224 + b2 * 31)
-                        scanline.extend((b2 * 255,) * e_scale)
-                        scanline.append(b2 * 192 + b1 * 63)
-                        scanline.extend((b1 * 255,) * e_scale)
-                        scanline.append(b1 * 128 + b0 * 127)
-                        scanline.extend((b0 * 255,) * e_scale)
-                img_data.extend(compressor.compress(scanline * scale))
+            scanline0 = bytearray((0,))
+            scanline1 = bytearray((0,))
+            scanline2 = bytearray((0,))
+            scanline3 = bytearray((0,))
+            scanline4 = bytearray((0,))
+            scanline5 = bytearray((0,))
+            scanline6 = bytearray((0,))
+            scanline7 = bytearray((0,))
+            for udg in row:
+                paper, ink = attr_map[udg.attr & 127]
+                b_mask = paper * 255
+                if ink == paper:
+                    data = bits[b_mask]
+                    scanline0.extend(data)
+                    scanline1.extend(data)
+                    scanline2.extend(data)
+                    scanline3.extend(data)
+                    scanline4.extend(data)
+                    scanline5.extend(data)
+                    scanline6.extend(data)
+                    scanline7.extend(data)
+                else:
+                    scanline0.extend(bits[udg.data[0] ^ b_mask])
+                    scanline1.extend(bits[udg.data[1] ^ b_mask])
+                    scanline2.extend(bits[udg.data[2] ^ b_mask])
+                    scanline3.extend(bits[udg.data[3] ^ b_mask])
+                    scanline4.extend(bits[udg.data[4] ^ b_mask])
+                    scanline5.extend(bits[udg.data[5] ^ b_mask])
+                    scanline6.extend(bits[udg.data[6] ^ b_mask])
+                    scanline7.extend(bits[udg.data[7] ^ b_mask])
+            img_data.extend(compressor.compress(scanline0 * scale))
+            img_data.extend(compressor.compress(scanline1 * scale))
+            img_data.extend(compressor.compress(scanline2 * scale))
+            img_data.extend(compressor.compress(scanline3 * scale))
+            img_data.extend(compressor.compress(scanline4 * scale))
+            img_data.extend(compressor.compress(scanline5 * scale))
+            img_data.extend(compressor.compress(scanline6 * scale))
+            img_data.extend(compressor.compress(scanline7 * scale))
+
         img_data.extend(compressor.flush())
         return img_data
 
