@@ -45,7 +45,6 @@ BD4_MAP1 = (
     ((3, 2), (2, 0), (0, 2)),
     ((3, 1),)
 )
-BD2_BITS = [BITS4[n] for n in (0, 1, 3, 7, 8, 12, 14, 15)]
 
 BD1_BYTES = {}
 
@@ -56,6 +55,16 @@ def _get_bd1_bytes(scale):
             b = ''.join([d * scale for d in '{:08b}'.format(v)])
             BD1_BYTES[scale].append([int(b[i:i + 8], 2) for i in range(0, len(b), 8)])
     return BD1_BYTES[scale]
+
+BD2_BYTES = {}
+
+def _get_bd2_bytes(scale):
+    if scale not in BD2_BYTES:
+        BD2_BYTES[scale] = []
+        for bits in ['{:08b}'.format(v) for v in range(256)]:
+            b = ''.join([d * scale for d in [bits[i:i + 2] for i in range(0, 8, 2)]])
+            BD2_BYTES[scale].append([int(b[i:i + 8], 2) for i in range(0, len(b), 8)])
+    return BD2_BYTES[scale]
 
 class PngWriter:
     def __init__(self, alpha=255, compression_level=9, masks=None):
@@ -561,31 +570,11 @@ class PngWriter:
     def _build_image_data_bd2_nt(self, frame, **kwargs):
         # Bit depth 2, full size, no masks
         scale = frame.scale
-        scale_m = scale & 3
-        q = scale // 4
-        attrs = {}
-        if scale_m == 2:
-            for attr, (p, i) in frame.attr_map.items():
-                c = ((p * 85,), (p * 80 + i * 5,), (i * 80 + p * 5,), (i * 85,))
-                attrs[attr] = [c[b3 * 3] * q + c[b3 * 2 + b2] + c[b2 * 3] * q + c[b1 * 3] * q + c[b1 * 2 + b0] + c[b0 * 3] * q for b3, b2, b1, b0 in BITS4]
-        elif scale_m == 0:
-            for attr, (p, i) in frame.attr_map.items():
-                c = ((p * 85,), (i * 85,))
-                attrs[attr] = [c[b3] * q + c[b2] * q + c[b1] * q + c[b0] * q for b3, b2, b1, b0 in BITS4]
-        elif scale == 1:
-            for attr, t in frame.attr_map.items():
-                attrs[attr] = [(t[b3] * 64 + t[b2] * 16 + t[b1] * 4 + t[b0],) for b3, b2, b1, b0 in BITS4]
-        elif scale_m == 1:
-            for attr, t in frame.attr_map.items():
-                c = [(t[b3] * 64 + t[b2] * 16 + t[b1] * 4 + t[b0],) for b3, b2, b1, b0 in BD2_BITS]
-                attrs[attr] = [c[b3 * 7] * q + c[b3 * 4 + b2 * 3] + c[b2 * 7] * (q - 1) + c[b2 * 5 + b1 * 2] + c[b1 * 7] * (q - 1) + c[b1 * 6 + b0] + c[b0 * 7] * q for b3, b2, b1, b0 in BITS4]
-        else:
-            for attr, t in frame.attr_map.items():
-                c = [(t[b3] * 64 + t[b2] * 16 + t[b1] * 4 + t[b0],) for b3, b2, b1, b0 in BD2_BITS]
-                attrs[attr] = [c[b3 * 7] * q + c[b3 * 6 + b2] + c[b2 * 7] * q + c[b2 * 5 + b1 * 2] + c[b1 * 7] * q + c[b1 * 4 + b0 * 3] + c[b0 * 7] * q for b3, b2, b1, b0 in BITS4]
-
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
+        bits = _get_bd2_bytes(scale)
+        attrs = {attr: [bits[t[d] * 64 + t[c] * 16 + t[b] * 4 + t[a]] for d, c, b, a in BITS4] for attr, t in frame.attr_map.items()}
+
         for row in frame.udgs:
             scanline0 = bytearray((0,))
             scanline1 = bytearray((0,))
@@ -630,6 +619,7 @@ class PngWriter:
             img_data.extend(compressor.compress(scanline5 * scale))
             img_data.extend(compressor.compress(scanline6 * scale))
             img_data.extend(compressor.compress(scanline7 * scale))
+
         img_data.extend(compressor.flush())
         return img_data
 
