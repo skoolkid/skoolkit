@@ -46,25 +46,21 @@ BD4_MAP1 = (
     ((3, 1),)
 )
 
-BD1_BYTES = {}
+BD_BYTES = {d: {1: [(i,) for i in range(256)]} for d in (1, 2, 4)}
 
-def _get_bd1_bytes(scale):
-    if scale not in BD1_BYTES:
-        BD1_BYTES[scale] = []
-        for v in range(256):
-            b = ''.join([d * scale for d in '{:08b}'.format(v)])
-            BD1_BYTES[scale].append([int(b[i:i + 8], 2) for i in range(0, len(b), 8)])
-    return BD1_BYTES[scale]
-
-BD2_BYTES = {}
-
-def _get_bd2_bytes(scale):
-    if scale not in BD2_BYTES:
-        BD2_BYTES[scale] = []
-        for bits in ['{:08b}'.format(v) for v in range(256)]:
-            b = ''.join([d * scale for d in [bits[i:i + 2] for i in range(0, 8, 2)]])
-            BD2_BYTES[scale].append([int(b[i:i + 8], 2) for i in range(0, len(b), 8)])
-    return BD2_BYTES[scale]
+def _get_bytes(depth, scale):
+    bd_bytes = BD_BYTES.setdefault(depth, {})
+    if scale not in bd_bytes:
+        bd_bytes[scale] = []
+        for p in ['{:08b}'.format(v) for v in range(256)]:
+            if depth == 1:
+                b = ''.join([d * scale for d in p])
+            elif depth == 2:
+                b = p[:2] * scale + p[2:4] * scale + p[4:6] * scale + p[6:] * scale
+            else:
+                b = p[:4] * scale + p[4:] * scale
+            bd_bytes[scale].append(tuple([int(b[i:i + 8], 2) for i in range(0, len(b), 8)]))
+    return bd_bytes[scale]
 
 class PngWriter:
     def __init__(self, alpha=255, compression_level=9, masks=None):
@@ -438,57 +434,8 @@ class PngWriter:
     def _build_image_data_bd4_nt2(self, frame, **kwargs):
         # Bit depth 4, full size, no masks, small
         scale = frame.scale
-        attr_dict = {}
-        if scale == 1:
-            for attr, (paper, ink) in frame.attr_map.items():
-                pp = paper * 17
-                pi = paper * 16 + ink
-                ip = ink * 16 + paper
-                ii = ink * 17
-                attr_dict[attr] = (
-                    (pp, pp), (pp, pi), (pp, ip), (pp, ii),
-                    (pi, pp), (pi, pi), (pi, ip), (pi, ii),
-                    (ip, pp), (ip, pi), (ip, ip), (ip, ii),
-                    (ii, pp), (ii, pi), (ii, ip), (ii, ii)
-                )
-        elif scale & 1:
-            h_scale = scale // 2
-            t_scale = scale + h_scale
-            d_scale = scale * 2
-            for attr, (paper, ink) in frame.attr_map.items():
-                pp = (paper * 17,)
-                pi = (paper * 16 + ink,)
-                ip = (ink * 16 + paper,)
-                ii = (ink * 17,)
-                attr_dict[attr] = (
-                    pp * d_scale,
-                    pp * t_scale + pi + ii * h_scale,
-                    pp * scale + ii * h_scale + ip + pp * h_scale,
-                    pp * scale + ii * scale,
-                    pp * h_scale + pi + ii * h_scale + pp * scale,
-                    pp * h_scale + pi + ii * h_scale + pp * h_scale + pi + ii * h_scale,
-                    pp * h_scale + pi + ii * scale + ip + pp * h_scale,
-                    pp * h_scale + pi + ii * t_scale,
-                    ii * h_scale + ip + pp * t_scale,
-                    ii * h_scale + ip + pp * scale + pi + ii * h_scale,
-                    ii * h_scale + ip + pp * h_scale + ii * h_scale + ip + pp * h_scale,
-                    ii * h_scale + ip + pp * h_scale + ii * scale,
-                    ii * scale + pp * scale,
-                    ii * scale + pp * h_scale + pi + ii * h_scale,
-                    ii * t_scale + ip + pp * h_scale,
-                    ii * d_scale
-                )
-        else:
-            h_scale = scale // 2
-            for attr, (paper, ink) in frame.attr_map.items():
-                p = (paper * 17,) * h_scale
-                i = (ink * 17,) * h_scale
-                attr_dict[attr] = (
-                    p * 4,         p * 3 + i,     p * 2 + i + p, p * 2 + i * 2,
-                    p + i + p * 2, (p + i) * 2,   p + i * 2 + p, p + i * 3,
-                    i + p * 3,     i + p * 2 + i, (i + p) * 2,   i + p + i * 2,
-                    i * 2 + p * 2, i * 2 + p + i, i * 3 + p,     i * 4
-                )
+        p = _get_bytes(4, scale)
+        attrs = {attr: [p[t[d] * 16 + t[c]] + p[t[b] * 16 + t[a]] for d, c, b, a in BITS4] for attr, t in frame.attr_map.items()}
 
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
@@ -502,7 +449,7 @@ class PngWriter:
             scanline6 = bytearray((0,))
             scanline7 = bytearray((0,))
             for udg in row:
-                pixels = attr_dict[udg.attr & 127]
+                pixels = attrs[udg.attr & 127]
                 udg_bytes = udg.data
                 byte = udg_bytes[0]
                 scanline0.extend(pixels[byte // 16])
@@ -536,6 +483,7 @@ class PngWriter:
             img_data.extend(compressor.compress(scanline5 * scale))
             img_data.extend(compressor.compress(scanline6 * scale))
             img_data.extend(compressor.compress(scanline7 * scale))
+
         img_data.extend(compressor.flush())
         return img_data
 
@@ -544,7 +492,7 @@ class PngWriter:
         scale = frame.scale
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
-        bits = _get_bd2_bytes(scale)
+        bits = _get_bytes(2, scale)
         attrs = {attr: [bits[t[d] * 64 + t[c] * 16 + t[b] * 4 + t[a]] for d, c, b, a in BITS4] for attr, t in frame.attr_map.items()}
 
         for row in frame.udgs:
@@ -601,7 +549,7 @@ class PngWriter:
         scale = frame.scale
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
-        bits = _get_bd2_bytes(scale)
+        bits = _get_bytes(2, scale)
         for attr, (paper, ink) in frame.attr_map.items():
             p = mask.colours((paper, ink, 0), 0, 1, 2)
             attrs[attr] = [bits[p[d] * 64 + p[c] * 16 + p[b] * 4 + p[a]] for d, c, b, a in BIT_PAIRS2]
@@ -673,9 +621,9 @@ class PngWriter:
             for b in udg.data:
                 img_data.extend((0, b ^ xor))
         else:
-            bits = _get_bd1_bytes(scale)
+            bits = _get_bytes(1, scale)
             for b in udg.data:
-                img_data.extend(([0] + bits[b ^ xor]) * scale)
+                img_data.extend(((0,) + bits[b ^ xor]) * scale)
         return zlib.compress(img_data, self.compression_level)
 
     def _build_image_data_bd1_nt(self, frame, **kwargs):
@@ -684,7 +632,7 @@ class PngWriter:
         scale = frame.scale
         attr_map = frame.attr_map
         img_data = bytearray()
-        bits = _get_bd1_bytes(scale)
+        bits = _get_bytes(1, scale)
 
         for row in frame.udgs:
             scanline0 = bytearray((0,))
