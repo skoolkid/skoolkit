@@ -4,6 +4,8 @@ Changelog
 6.0b1
 -----
 * Dropped support for Python 2.7 and 3.3
+* Fixed how :ref:`sna2skool.py` handles a snapshot that contains a dangling
+  IX/IY prefix (DD/FD) when generating a control file
 
 5.4 (2017-01-08)
 ----------------

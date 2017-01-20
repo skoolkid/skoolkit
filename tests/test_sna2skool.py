@@ -526,6 +526,38 @@ class OptionsTest(SkoolKitTestCase):
 
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_g_with_invalid_ix_prefix(self):
+        ctlfile = self.write_text_file()
+        data = [
+            221,       # DEFB 221 (IX prefix, no suffix)
+            50, 53, 53 # DEFM "255"
+        ]
+        binfile = self.write_bin_file(data)
+        output, error = self.run_sna2skool('-g {} {}'.format(ctlfile, binfile))
+        self.assertEqual(error, '')
+        with open(ctlfile, 'r') as f:
+            gen_ctl = [line.rstrip() for line in f]
+        self.assertEqual(['b 65532', 't 65533'], gen_ctl)
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_g_with_invalid_iy_prefix(self):
+        ctlfile = self.write_text_file()
+        data = [
+            253,       # DEFB 253 (IY prefix, no suffix)
+            50, 53, 53 # DEFM "255"
+        ]
+        binfile = self.write_bin_file(data)
+        output, error = self.run_sna2skool('-g {} {}'.format(ctlfile, binfile))
+        self.assertEqual(error, '')
+        with open(ctlfile, 'r') as f:
+            gen_ctl = [line.rstrip() for line in f]
+        self.assertEqual(['b 65532', 't 65533'], gen_ctl)
+        self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_g_with_end_address_after_ret(self):
         ctlfile = self.write_text_file()
         data = [

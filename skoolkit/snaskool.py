@@ -184,7 +184,7 @@ def _is_terminal_instruction(instruction):
     if data[0] == 233:
         # JP (HL)
         return True
-    if data[0] in (221, 253) and data[1] == 233:
+    if len(data) == 2 and data[0] in (221, 253) and data[1] == 233:
         # JP (IX)/JP (IY)
         return True
     if data[0] == 24 and data[1] > 0:
