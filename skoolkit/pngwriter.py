@@ -29,22 +29,9 @@ FDAT = (102, 100, 65, 84)
 IEND_CHUNK = (0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130)
 CRC_MASK = 4294967295
 
-BITS4 = [[(n & m) // m for m in (8, 4, 2, 1)] for n in range(16)]
-BITS8 = [[(n & m) // m for m in (128, 64, 32, 16, 8, 4, 2, 1)] for n in range(256)]
-BIT_PAIRS = [((n & 192) >> 6, (n & 48) >> 4, (n & 12) >> 2, n & 3) for n in range(256)]
-BIT_PAIRS2 = [[((n << m) & 128) // 64 + ((n << m) & 8) // 8 for m in range(4)] for n in range(256)]
-BD4_MAP0 = (
-    ((0, 1),),
-    ((0, 2), (1, 2)),
-    ((1, 2), (0, 2)),
-    ((1, 1),)
-)
-BD4_MAP1 = (
-    ((0, 1),),
-    ((0, 2), (1, 0), (3, 2)),
-    ((3, 2), (2, 0), (0, 2)),
-    ((3, 1),)
-)
+BITS4 = [[int(d) for d in '{:04b}'.format(n)] for n in range(16)]
+BITS8 = [[int(d) for d in '{:08b}'.format(n)] for n in range(256)]
+BIT_PAIRS = [[((n << m) & 128) // 64 + ((n << m) & 8) // 8 for m in range(4)] for n in range(256)]
 
 BD_BYTES = {d: {1: [(i,) for i in range(256)]} for d in (1, 2, 4)}
 
@@ -187,13 +174,7 @@ class PngWriter:
         return self._build_image_data_bd1_nt
 
     def _bd4_nt_method(self, frame):
-        if frame.scale == 1:
-            min_index = 51
-        elif frame.scale == 2:
-            min_index = 80
-        else:
-            min_index = 230
-        if frame.tiles / len(frame.attr_map) >= min_index:
+        if frame.tiles / len(frame.attr_map) > 66:
             return self._build_image_data_bd4_nt1
         return self._build_image_data_bd4_nt2
 
@@ -364,39 +345,8 @@ class PngWriter:
     def _build_image_data_bd4_nt1(self, frame, **kwargs):
         # Bit depth 4, full size, no masks, large
         scale = frame.scale
-        attr_map = frame.attr_map
-        attrs = {}
-        if scale == 1:
-            for attr, (p, i) in attr_map.items():
-                b = (p * 17, p * 16 + i, i * 16 + p, i * 17)
-                attrs[attr] = [[b[bit] for bit in BIT_PAIRS[j]] for j in range(256)]
-        elif scale == 2:
-            for attr, (p, i) in attr_map.items():
-                b = (p * 17, i * 17)
-                attrs[attr] = [[b[bit] for bit in BITS8[j]] for j in range(256)]
-        elif scale & 1:
-            for attr, (p, i) in attr_map.items():
-                b = ((p * 17,), (p * 16 + i,), (i * 16 + p,), (i * 17,))
-                attrs[attr] = []
-                for j in range(256):
-                    byte_list = []
-                    attrs[attr].append(byte_list)
-                    for bit in BIT_PAIRS[j]:
-                        for k, s in BD4_MAP1[bit]:
-                            if s:
-                                byte_list.extend(b[k] * (scale // s))
-                            else:
-                                byte_list.extend(b[k])
-        else:
-            for attr, (p, i) in attr_map.items():
-                b = ((p * 17,), (i * 17,))
-                attrs[attr] = []
-                for j in range(256):
-                    byte_list = []
-                    attrs[attr].append(byte_list)
-                    for bit in BIT_PAIRS[j]:
-                        for k, s in BD4_MAP0[bit]:
-                            byte_list.extend(b[k] * (scale // s))
+        p = _get_bytes(4, scale)
+        attrs = {attr: [p[t[h] * 16 + t[g]] + p[t[f] * 16 + t[e]] + p[t[d] * 16 + t[c]] + p[t[b] * 16 + t[a]] for h, g, f, e, d, c, b, a in BITS8] for attr, t in frame.attr_map.items()}
 
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
@@ -428,6 +378,7 @@ class PngWriter:
             img_data.extend(compressor.compress(scanline5 * scale))
             img_data.extend(compressor.compress(scanline6 * scale))
             img_data.extend(compressor.compress(scanline7 * scale))
+
         img_data.extend(compressor.flush())
         return img_data
 
@@ -552,7 +503,7 @@ class PngWriter:
         bits = _get_bytes(2, scale)
         for attr, (paper, ink) in frame.attr_map.items():
             p = mask.colours((paper, ink, 0), 0, 1, 2)
-            attrs[attr] = [bits[p[d] * 64 + p[c] * 16 + p[b] * 4 + p[a]] for d, c, b, a in BIT_PAIRS2]
+            attrs[attr] = [bits[p[d] * 64 + p[c] * 16 + p[b] * 4 + p[a]] for d, c, b, a in BIT_PAIRS]
 
         for row in frame.udgs:
             scanline0 = bytearray((0,))

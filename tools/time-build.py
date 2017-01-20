@@ -139,7 +139,7 @@ def bd4(iw, method1, method2, udg_arrays, scales):
         udg_arrays.append([[Udg(i, (240,) * 8) for i in range(16)]] * 64)  # u=1024, a=16
         udg_arrays.append([[Udg(i, (240,) * 8) for i in range(24)]] * 128) # u=3072, a=24
 
-    scales = scales or (1, 2, 3, 4)
+    scales = scales or (1, 2, 3, 4, 5, 6, 7, 8)
 
     _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analyse_ua)
 
