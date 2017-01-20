@@ -193,18 +193,23 @@ def bd2_at(iw, method1, method2, udg_arrays, scales):
     bd2(iw, method1, method2, udg_arrays, scales, masked=True)
 
 METHODS = (
+    # Bit depth 4
     ('bd4_nt1', 'bd4_nt2', bd4),
     ('bd_any', 'bd4_nt1', bd4),
     ('bd_any', 'bd4_nt2', bd4),
-    ('bd12', 'bd2_at', bd2_at),
-    ('bd12', 'bd2_nt', bd2),
-    ('bd_any', 'bd12', bd2),
+
+    # Bit depth 2
     ('bd_any', 'bd2_at', bd2_at),
     ('bd_any', 'bd2_nt', bd2),
-    ('bd12', 'bd1_nt', bd1),
-    ('bd12', 'bd1_nt_1udg', bd1_1udg),
-    ('bd1_nt', 'bd1_nt_1udg', bd1_1udg),
+
+    # Bit depth 1
+    ('bd_any', 'bd1_at', bd1),
     ('bd_any', 'bd1_nt', bd1),
+    ('bd1_at', 'bd1_nt', bd1),
+
+    # Bit depth 1, 1 UDG
+    ('bd1_at', 'bd1_nt_1udg', bd1_1udg),
+    ('bd1_nt', 'bd1_nt_1udg', bd1_1udg),
     ('bd_any', 'bd1_nt_1udg', bd1_1udg)
 )
 
