@@ -113,7 +113,7 @@ class HtmlWriter:
             section_prefix = details.get('SectionPrefix')
             if section_prefix:
                 page['entries'] = entries = []
-                use_paragraphs = details.get('SectionType') != 'ListItems'
+                use_paragraphs = details.get('SectionType') not in ('ListItems', 'BulletPoints')
                 if use_paragraphs:
                     sections = self.get_sections(section_prefix, True)
                 else:
@@ -127,7 +127,7 @@ class HtmlWriter:
                     if use_paragraphs:
                         entries.append((anchor, title, paragraphs))
                     else:
-                        intro = paragraphs[0][0]
+                        intro = ' '.join(paragraphs[0])
                         if intro == '-':
                             intro = ''
                         entries.append((anchor, title, intro, paragraphs[1:]))
@@ -591,8 +591,11 @@ class HtmlWriter:
         return '\n'.join(items)
 
     def _format_box_page(self, cwd):
-        if self.pages[self._get_page_id()].get('SectionType') == 'ListItems':
+        section_type = self.pages[self._get_page_id()].get('SectionType')
+        if section_type == 'ListItems':
             return self._build_list_items_html(cwd)
+        if section_type == 'BulletPoints':
+            return self._build_list_items_html(cwd, '-')
         return self._build_paragraphs_html(cwd)
 
     def _build_paragraphs_html(self, cwd):
@@ -615,7 +618,7 @@ class HtmlWriter:
         }
         return self._format_page(cwd, subs, 'Reference', page.get('JavaScript'))
 
-    def _build_list_items_html(self, cwd):
+    def _build_list_items_html(self, cwd, prefix=''):
         page_id = self._get_page_id()
         page = self.pages[page_id]
         contents = []
@@ -627,25 +630,31 @@ class HtmlWriter:
                 indents = [(0, list_items)]
                 for line in item:
                     subitems = indents[-1][1]
-                    item_text = self.expand(line.strip(), cwd)
-                    new_indent = len(line) - len(line.lstrip())
-                    if new_indent == indents[-1][0]:
-                        subitems.append([item_text, None])
-                    elif new_indent > indents[-1][0]:
-                        new_subitems = [[item_text, None]]
-                        subitems[-1][1] = new_subitems
-                        indents.append((new_indent, new_subitems))
+                    s_line = line.lstrip()
+                    new_indent = len(line) - len(s_line)
+                    if prefix and not s_line.startswith(prefix):
+                        if not subitems:
+                            continue
+                        subitems[-1][0] += ' {}'.format(s_line)
                     else:
-                        while new_indent < indents[-1][0]:
-                            indents.pop()
-                        subitems = indents[-1][1]
-                        subitems.append([item_text, None])
+                        subitem = [s_line[len(prefix):].lstrip(), None]
+                        if new_indent == indents[-1][0]:
+                            subitems.append(subitem)
+                        elif new_indent > indents[-1][0]:
+                            new_subitems = [subitem]
+                            subitems[-1][1] = new_subitems
+                            indents.append((new_indent, new_subitems))
+                        else:
+                            while new_indent < indents[-1][0]:
+                                indents.pop()
+                            subitems = indents[-1][1]
+                            subitems.append(subitem)
             t_entry_subs = {
                 't_anchor': self.format_anchor(anchor),
                 'num': 1 + j % 2,
                 'title': title,
                 'description': self.expand(description, cwd),
-                't_changelog_item_list': self._build_list_items(list_items)
+                't_changelog_item_list': self._build_list_items(cwd, list_items)
             }
             entries.append(self.format_template(page_id + '-entry', t_entry_subs, 'changelog_entry'))
         subs = {
@@ -654,13 +663,14 @@ class HtmlWriter:
         }
         return self._format_page(cwd, subs, 'Reference')
 
-    def _build_list_items(self, items, level=0):
+    def _build_list_items(self, cwd, items, level=0):
         if not items:
             return ''
         list_items = []
         for item, subitems in items:
+            item = self.expand(item, cwd)
             if subitems:
-                item = '{}\n{}\n'.format(item, self._build_list_items(subitems, level + 1))
+                item = '{}\n{}\n'.format(item, self._build_list_items(cwd, subitems, level + 1))
             list_items.append(self.format_template('list_item', {'item': item}))
         if level > 0:
             indent = level

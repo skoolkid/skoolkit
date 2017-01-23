@@ -548,8 +548,9 @@ Recognised parameters are:
 * ``SectionPrefix`` - the prefix of the names of the ref file sections from
   which to build the entries on a :ref:`box page <boxpages>`
 * ``SectionType`` - how to parse and render :ref:`box page <boxpages>` entry
-  sections (when ``SectionPrefix`` is defined): as list items with indentation
-  (``ListItems``), or as paragraphs (the default)
+  sections (when ``SectionPrefix`` is defined): as single-line list items with
+  indentation (``ListItems``), as multi-line list items prefixed by '-'
+  (``BulletPoints``), or as paragraphs (the default)
 
 Note that the ``Content``, ``SectionPrefix`` and ``PageContent`` parameters are
 mutually exclusive (and that is their order of precedence); one of them must be
@@ -569,6 +570,8 @@ template is used.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 6.0     | Added support for ``SectionType=BulletPoints``                   |
++---------+------------------------------------------------------------------+
 | 5.4     | Added the ``SectionType`` parameter                              |
 +---------+------------------------------------------------------------------+
 | 5.3     | Added the ``SectionPrefix`` parameter                            |
@@ -869,7 +872,7 @@ If ``anchor`` is omitted from an entry section name, it defaults to the title
 converted to lower case with parentheses and whitespace characters replaced by
 underscores.
 
-By default, a box page entry section will be parsed as a sequence of paragraphs
+By default, a box page entry section is parsed as a sequence of paragraphs
 separated by blank lines. For example::
 
   [Bug:anchor:title]
@@ -880,8 +883,8 @@ separated by blank lines. For example::
   ...
 
 However, if the ``SectionType`` parameter in the :ref:`Page` section is set to
-``ListItems``, each entry section will be parsed as a sequence of list items
-with indentation. For example::
+``ListItems``, each entry section is parsed as a sequence of single-line list
+items with indentation. For example::
 
   [Changelog:title]
   Intro text.
@@ -896,16 +899,39 @@ with indentation. For example::
 
 The intro text and the first top-level item must be separated by a blank line.
 Lower-level items are created by using indentation, as shown. Blank lines
-between items are optional and will be ignored. If the intro text is a single
-hyphen (``-``), it will not be included in the final HTML rendering.
+between items are optional and are ignored. If the intro text is a single
+hyphen (``-``), it is not included in the final HTML rendering.
+
+If your list items are long, you might prefer to set the ``SectionType``
+parameter to ``BulletPoints``; in that case, each entry section is parsed as a
+sequence of multi-line list items prefixed by '-'. For example::
+
+  [Changes:title]
+  Intro text.
+
+  - First top-level item,
+    split over two lines.
+    - First subitem, also
+      split over two lines.
+    - Second subitem, on one line this time.
+      - First subsubitem,
+        this time split
+        over three lines.
+
+  - Second top-level item.
+  ...
 
 Entry sections may contain HTML markup and :ref:`skool macros <skoolMacros>`.
 
-+---------+----------------------------------------------------------+
-| Version | Changes                                                  |
-+=========+==========================================================+
-| 5.4     | The ``anchor`` part of an entry section name is optional |
-+---------+----------------------------------------------------------+
++---------+-------------------------------------------------------------+
+| Version | Changes                                                     |
++=========+=============================================================+
+| 6.0     | Added support for parsing an entry section as a sequence of |
+|         | multi-line list items prefixed by '-'                       |
+|         | (``SectionType=BulletPoints``)                              |
++---------+-------------------------------------------------------------+
+| 5.4     | The ``anchor`` part of an entry section name is optional    |
++---------+-------------------------------------------------------------+
 
 Ref file comments
 -----------------

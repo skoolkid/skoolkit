@@ -6439,6 +6439,159 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
+    def test_box_page_as_bullet_points(self):
+        page_id = 'Changes'
+        ref = '\n'.join((
+            '[Page:{}]'.format(page_id),
+            'SectionPrefix=Change',
+            'SectionType=BulletPoints',
+            '',
+            '[Change:20170106]',
+            '-',
+            '',
+            '- There are blank lines...',
+            '',
+            '- ...between these...',
+            '',
+            '- ...top-level items',
+            '',
+            '[Change:20170105]',
+            '-',
+            '',
+            '- There are no blank lines...',
+            '- ...between these...',
+            '- ...top-level items',
+            '',
+            '[Change:20170104]',
+            'Many #LINK:Facts(changes).',
+            '',
+            '- This is',
+            '  bullet point 1',
+            '  - This is bullet',
+            '    point 2',
+            '    - This is bullet point',
+            '      3',
+            '    - This',
+            '      is bullet',
+            '      point 4',
+            '  - This is bullet point 5',
+            '',
+            '',
+            '- This is #LINK:Bugs(bullet',
+            '  point 6)',
+            '',
+            '[Change:20170103]',
+            '-',
+            '',
+            '- This is bullet point 1',
+            '',
+            '  - This is bullet',
+            '    point 2',
+            '    - This is',
+            '      bullet point 3',
+            '- This is',
+            '  bullet point 4',
+            '',
+            '[Change:20170102]',
+            'Intro on #HTML(two',
+            'lines).',
+            '',
+            'This item is ignored (no bullet)',
+            '',
+            '- This is the first item',
+            '[Change:20170101]',
+            'Initial release'
+        ))
+        content = """
+            <ul class="contents">
+            <li><a href="#20170106">20170106</a></li>
+            <li><a href="#20170105">20170105</a></li>
+            <li><a href="#20170104">20170104</a></li>
+            <li><a href="#20170103">20170103</a></li>
+            <li><a href="#20170102">20170102</a></li>
+            <li><a href="#20170101">20170101</a></li>
+            </ul>
+            <div><span id="20170106"></span></div>
+            <div class="changelog changelog-1">
+            <div class="changelog-title">20170106</div>
+            <div class="changelog-desc"></div>
+            <ul class="changelog">
+            <li>There are blank lines...</li>
+            <li>...between these...</li>
+            <li>...top-level items</li>
+            </ul>
+            </div>
+            <div><span id="20170105"></span></div>
+            <div class="changelog changelog-2">
+            <div class="changelog-title">20170105</div>
+            <div class="changelog-desc"></div>
+            <ul class="changelog">
+            <li>There are no blank lines...</li>
+            <li>...between these...</li>
+            <li>...top-level items</li>
+            </ul>
+            </div>
+            <div><span id="20170104"></span></div>
+            <div class="changelog changelog-1">
+            <div class="changelog-title">20170104</div>
+            <div class="changelog-desc">Many <a href="reference/facts.html">changes</a>.</div>
+            <ul class="changelog">
+            <li>This is bullet point 1
+            <ul class="changelog1">
+            <li>This is bullet point 2
+            <ul class="changelog2">
+            <li>This is bullet point 3</li>
+            <li>This is bullet point 4</li>
+            </ul>
+            </li>
+            <li>This is bullet point 5</li>
+            </ul>
+            </li>
+            <li>This is <a href="reference/bugs.html">bullet point 6</a></li>
+            </ul>
+            </div>
+            <div><span id="20170103"></span></div>
+            <div class="changelog changelog-2">
+            <div class="changelog-title">20170103</div>
+            <div class="changelog-desc"></div>
+            <ul class="changelog">
+            <li>This is bullet point 1
+            <ul class="changelog1">
+            <li>This is bullet point 2
+            <ul class="changelog2">
+            <li>This is bullet point 3</li>
+            </ul>
+            </li>
+            </ul>
+            </li>
+            <li>This is bullet point 4</li>
+            </ul>
+            </div>
+            <div><span id="20170102"></span></div>
+            <div class="changelog changelog-1">
+            <div class="changelog-title">20170102</div>
+            <div class="changelog-desc">Intro on two lines.</div>
+            <ul class="changelog">
+            <li>This is the first item</li>
+            </ul>
+            </div>
+            <div><span id="20170101"></span></div>
+            <div class="changelog changelog-2">
+            <div class="changelog-title">20170101</div>
+            <div class="changelog-desc">Initial release</div>
+            </div>
+        """
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        subs = {
+            'title': page_id,
+            'header': page_id,
+            'path': '',
+            'body_class': page_id,
+            'content': content
+        }
+        self._assert_files_equal('{}.html'.format(page_id), subs)
+
     def test_page_with_custom_table_templates(self):
         page_id = 'JustSomePage'
         ref = '\n'.join((

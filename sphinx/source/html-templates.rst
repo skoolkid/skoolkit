@@ -176,8 +176,8 @@ The following identifiers are available (in addition to the universal and
 page-level identifiers):
 
 * ``entries`` - replaced by one or more copies of the :ref:`t_changelog_entry`
-  subtemplate (when the page's ``SectionType`` is ``ListItems``), or the
-  :ref:`t_reference_entry` subtemplate
+  subtemplate (when the page's ``SectionType`` is ``BulletPoints`` or
+  ``ListItems``), or the :ref:`t_reference_entry` subtemplate
 * ``m_contents_list_item`` - replaced by one or more copies of the
   :ref:`t_contents_list_item` subtemplate
 
@@ -308,7 +308,7 @@ changelog_entry
 ---------------
 The ``changelog_entry`` is the subtemplate used by the :ref:`t_Reference`
 full-page template to format each entry on a :ref:`box page <boxpages>` whose
-``SectionType`` is ``ListItems``.
+``SectionType`` is ``BulletPoints`` or ``ListItems``.
 
 The following identifiers are available (in addition to the universal
 identifiers):
@@ -331,9 +331,9 @@ changelog_item_list
 -------------------
 The ``changelog_item_list`` template is the subtemplate used by the
 :ref:`t_changelog_entry` subtemplate to format a list of items in an entry on a
-:ref:`box page <boxpages>` whose ``SectionType`` is ``ListItems``, and also by
-the :ref:`t_list_item` subtemplate to format a list of subitems or subsubitems
-etc.
+:ref:`box page <boxpages>` whose ``SectionType`` is ``BulletPoints`` or
+``ListItems``, and also by the :ref:`t_list_item` subtemplate to format a list
+of subitems or subsubitems etc.
 
 The following identifiers are available (in addition to the universal
 identifiers):

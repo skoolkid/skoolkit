@@ -4,6 +4,9 @@ Changelog
 6.0b1
 -----
 * Dropped support for Python 2.7 and 3.3
+* Added support for parsing a :ref:`box page <boxpages>` entry section as a
+  sequence of multi-line list items prefixed by '-' (with
+  ``SectionType=BulletPoints``)
 * Fixed how :ref:`sna2skool.py` handles a snapshot that contains a dangling
   IX/IY prefix (DD/FD) when generating a control file
 
