@@ -271,6 +271,28 @@ class PngWriter:
         img_file.write(img_data)
         img_file.write(bytearray(self._get_crc(img_data))) # CRC
 
+    def _scan_frame(self, frame, scan_udg_f, *args):
+        compressor = zlib.compressobj(self.compression_level)
+        img_data = bytearray()
+        scale = frame.scale
+        for row in frame.udgs:
+            scanlines = (
+                bytearray((0,)), bytearray((0,)), bytearray((0,)), bytearray((0,)),
+                bytearray((0,)), bytearray((0,)), bytearray((0,)), bytearray((0,))
+            )
+            for udg in row:
+                scan_udg_f(udg, scanlines, *args)
+            img_data.extend(compressor.compress(scanlines[0] * scale))
+            img_data.extend(compressor.compress(scanlines[1] * scale))
+            img_data.extend(compressor.compress(scanlines[2] * scale))
+            img_data.extend(compressor.compress(scanlines[3] * scale))
+            img_data.extend(compressor.compress(scanlines[4] * scale))
+            img_data.extend(compressor.compress(scanlines[5] * scale))
+            img_data.extend(compressor.compress(scanlines[6] * scale))
+            img_data.extend(compressor.compress(scanlines[7] * scale))
+        img_data.extend(compressor.flush())
+        return img_data
+
     def _build_image_data_bd_any(self, frame, bit_depth, mask):
         # Build image data at any bit depth using a generic method
         compressor = zlib.compressobj(self.compression_level)
@@ -628,25 +650,23 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
+    def _scan_udg_bd1_at(self, udg, scanlines, mask, attrs, pixels, bits):
+        p, i = attrs[udg.attr & 127]
+        paper, ink = pixels[p], pixels[i]
+        scanlines[0].extend(bits[int(''.join(mask.apply(udg, 0, paper, ink, '0')), 2)])
+        scanlines[1].extend(bits[int(''.join(mask.apply(udg, 1, paper, ink, '0')), 2)])
+        scanlines[2].extend(bits[int(''.join(mask.apply(udg, 2, paper, ink, '0')), 2)])
+        scanlines[3].extend(bits[int(''.join(mask.apply(udg, 3, paper, ink, '0')), 2)])
+        scanlines[4].extend(bits[int(''.join(mask.apply(udg, 4, paper, ink, '0')), 2)])
+        scanlines[5].extend(bits[int(''.join(mask.apply(udg, 5, paper, ink, '0')), 2)])
+        scanlines[6].extend(bits[int(''.join(mask.apply(udg, 6, paper, ink, '0')), 2)])
+        scanlines[7].extend(bits[int(''.join(mask.apply(udg, 7, paper, ink, '0')), 2)])
+
     def _build_image_data_bd1_at(self, frame, mask, **kwargs):
         # Bit depth 1, full size, masked
-        compressor = zlib.compressobj(self.compression_level)
-        img_data = bytearray()
-        scale = frame.scale
-        attr_map = frame.attr_map
-        pixels = ('0' * scale, '1' * scale)
-        trans = pixels[0]
-        for row in frame.udgs:
-            for j in range(8):
-                pixel_row = ['00000000']
-                for udg in row:
-                    p, i = attr_map[udg.attr & 127]
-                    pixel_row.extend(mask.apply(udg, j, pixels[p], pixels[i], trans))
-                r = ''.join(pixel_row)
-                scanline = bytearray([int(r[k:k + 8], 2) for k in range(0, len(r), 8)])
-                img_data.extend(compressor.compress(scanline * scale))
-        img_data.extend(compressor.flush())
-        return img_data
+        pixels = ('0', '1')
+        bits = _get_bytes(1, frame.scale)
+        return self._scan_frame(frame, self._scan_udg_bd1_at, mask, frame.attr_map, pixels, bits)
 
     def _build_image_data_bd0(self, frame, **kwargs):
         # 1 colour (i.e. blank), full size; placing the integer value in
