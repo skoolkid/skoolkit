@@ -364,225 +364,137 @@ class PngWriter:
         img_data.extend(compressor.flush())
         return img_data
 
+    def _scan_udg_bd4_nt1(self, udg, scanlines, attrs):
+        pixels = attrs[udg.attr & 127]
+        udg_bytes = udg.data
+        scanlines[0].extend(pixels[udg_bytes[0]])
+        scanlines[1].extend(pixels[udg_bytes[1]])
+        scanlines[2].extend(pixels[udg_bytes[2]])
+        scanlines[3].extend(pixels[udg_bytes[3]])
+        scanlines[4].extend(pixels[udg_bytes[4]])
+        scanlines[5].extend(pixels[udg_bytes[5]])
+        scanlines[6].extend(pixels[udg_bytes[6]])
+        scanlines[7].extend(pixels[udg_bytes[7]])
+
     def _build_image_data_bd4_nt1(self, frame, **kwargs):
         # Bit depth 4, full size, no masks, large
-        scale = frame.scale
-        p = _get_bytes(4, scale)
+        p = _get_bytes(4, frame.scale)
         attrs = {attr: [p[t[h] * 16 + t[g]] + p[t[f] * 16 + t[e]] + p[t[d] * 16 + t[c]] + p[t[b] * 16 + t[a]] for h, g, f, e, d, c, b, a in BITS8] for attr, t in frame.attr_map.items()}
+        return self._scan_frame(frame, self._scan_udg_bd4_nt1, attrs)
 
-        compressor = zlib.compressobj(self.compression_level)
-        img_data = bytearray()
-        for row in frame.udgs:
-            scanline0 = bytearray((0,))
-            scanline1 = bytearray((0,))
-            scanline2 = bytearray((0,))
-            scanline3 = bytearray((0,))
-            scanline4 = bytearray((0,))
-            scanline5 = bytearray((0,))
-            scanline6 = bytearray((0,))
-            scanline7 = bytearray((0,))
-            for udg in row:
-                pixels = attrs[udg.attr & 127]
-                udg_bytes = udg.data
-                scanline0.extend(pixels[udg_bytes[0]])
-                scanline1.extend(pixels[udg_bytes[1]])
-                scanline2.extend(pixels[udg_bytes[2]])
-                scanline3.extend(pixels[udg_bytes[3]])
-                scanline4.extend(pixels[udg_bytes[4]])
-                scanline5.extend(pixels[udg_bytes[5]])
-                scanline6.extend(pixels[udg_bytes[6]])
-                scanline7.extend(pixels[udg_bytes[7]])
-            img_data.extend(compressor.compress(scanline0 * scale))
-            img_data.extend(compressor.compress(scanline1 * scale))
-            img_data.extend(compressor.compress(scanline2 * scale))
-            img_data.extend(compressor.compress(scanline3 * scale))
-            img_data.extend(compressor.compress(scanline4 * scale))
-            img_data.extend(compressor.compress(scanline5 * scale))
-            img_data.extend(compressor.compress(scanline6 * scale))
-            img_data.extend(compressor.compress(scanline7 * scale))
-
-        img_data.extend(compressor.flush())
-        return img_data
+    def _scan_udg_bd4_nt2(self, udg, scanlines, attrs):
+        pixels = attrs[udg.attr & 127]
+        udg_bytes = udg.data
+        byte = udg_bytes[0]
+        scanlines[0].extend(pixels[byte // 16])
+        scanlines[0].extend(pixels[byte & 15])
+        byte = udg_bytes[1]
+        scanlines[1].extend(pixels[byte // 16])
+        scanlines[1].extend(pixels[byte & 15])
+        byte = udg_bytes[2]
+        scanlines[2].extend(pixels[byte // 16])
+        scanlines[2].extend(pixels[byte & 15])
+        byte = udg_bytes[3]
+        scanlines[3].extend(pixels[byte // 16])
+        scanlines[3].extend(pixels[byte & 15])
+        byte = udg_bytes[4]
+        scanlines[4].extend(pixels[byte // 16])
+        scanlines[4].extend(pixels[byte & 15])
+        byte = udg_bytes[5]
+        scanlines[5].extend(pixels[byte // 16])
+        scanlines[5].extend(pixels[byte & 15])
+        byte = udg_bytes[6]
+        scanlines[6].extend(pixels[byte // 16])
+        scanlines[6].extend(pixels[byte & 15])
+        byte = udg_bytes[7]
+        scanlines[7].extend(pixels[byte // 16])
+        scanlines[7].extend(pixels[byte & 15])
 
     def _build_image_data_bd4_nt2(self, frame, **kwargs):
         # Bit depth 4, full size, no masks, small
-        scale = frame.scale
-        p = _get_bytes(4, scale)
+        p = _get_bytes(4, frame.scale)
         attrs = {attr: [p[t[d] * 16 + t[c]] + p[t[b] * 16 + t[a]] for d, c, b, a in BITS4] for attr, t in frame.attr_map.items()}
+        return self._scan_frame(frame, self._scan_udg_bd4_nt2, attrs)
 
-        compressor = zlib.compressobj(self.compression_level)
-        img_data = bytearray()
-        for row in frame.udgs:
-            scanline0 = bytearray((0,))
-            scanline1 = bytearray((0,))
-            scanline2 = bytearray((0,))
-            scanline3 = bytearray((0,))
-            scanline4 = bytearray((0,))
-            scanline5 = bytearray((0,))
-            scanline6 = bytearray((0,))
-            scanline7 = bytearray((0,))
-            for udg in row:
-                pixels = attrs[udg.attr & 127]
-                udg_bytes = udg.data
-                byte = udg_bytes[0]
-                scanline0.extend(pixels[byte // 16])
-                scanline0.extend(pixels[byte & 15])
-                byte = udg_bytes[1]
-                scanline1.extend(pixels[byte // 16])
-                scanline1.extend(pixels[byte & 15])
-                byte = udg_bytes[2]
-                scanline2.extend(pixels[byte // 16])
-                scanline2.extend(pixels[byte & 15])
-                byte = udg_bytes[3]
-                scanline3.extend(pixels[byte // 16])
-                scanline3.extend(pixels[byte & 15])
-                byte = udg_bytes[4]
-                scanline4.extend(pixels[byte // 16])
-                scanline4.extend(pixels[byte & 15])
-                byte = udg_bytes[5]
-                scanline5.extend(pixels[byte // 16])
-                scanline5.extend(pixels[byte & 15])
-                byte = udg_bytes[6]
-                scanline6.extend(pixels[byte // 16])
-                scanline6.extend(pixels[byte & 15])
-                byte = udg_bytes[7]
-                scanline7.extend(pixels[byte // 16])
-                scanline7.extend(pixels[byte & 15])
-            img_data.extend(compressor.compress(scanline0 * scale))
-            img_data.extend(compressor.compress(scanline1 * scale))
-            img_data.extend(compressor.compress(scanline2 * scale))
-            img_data.extend(compressor.compress(scanline3 * scale))
-            img_data.extend(compressor.compress(scanline4 * scale))
-            img_data.extend(compressor.compress(scanline5 * scale))
-            img_data.extend(compressor.compress(scanline6 * scale))
-            img_data.extend(compressor.compress(scanline7 * scale))
-
-        img_data.extend(compressor.flush())
-        return img_data
+    def _scan_udg_bd2_nt(self, udg, scanlines, attrs):
+        pixels = attrs[udg.attr & 127]
+        udg_bytes = udg.data
+        byte = udg_bytes[0]
+        scanlines[0].extend(pixels[byte // 16])
+        scanlines[0].extend(pixels[byte & 15])
+        byte = udg_bytes[1]
+        scanlines[1].extend(pixels[byte // 16])
+        scanlines[1].extend(pixels[byte & 15])
+        byte = udg_bytes[2]
+        scanlines[2].extend(pixels[byte // 16])
+        scanlines[2].extend(pixels[byte & 15])
+        byte = udg_bytes[3]
+        scanlines[3].extend(pixels[byte // 16])
+        scanlines[3].extend(pixels[byte & 15])
+        byte = udg_bytes[4]
+        scanlines[4].extend(pixels[byte // 16])
+        scanlines[4].extend(pixels[byte & 15])
+        byte = udg_bytes[5]
+        scanlines[5].extend(pixels[byte // 16])
+        scanlines[5].extend(pixels[byte & 15])
+        byte = udg_bytes[6]
+        scanlines[6].extend(pixels[byte // 16])
+        scanlines[6].extend(pixels[byte & 15])
+        byte = udg_bytes[7]
+        scanlines[7].extend(pixels[byte // 16])
+        scanlines[7].extend(pixels[byte & 15])
 
     def _build_image_data_bd2_nt(self, frame, **kwargs):
         # Bit depth 2, full size, no masks
-        scale = frame.scale
-        compressor = zlib.compressobj(self.compression_level)
-        img_data = bytearray()
-        bits = _get_bytes(2, scale)
+        bits = _get_bytes(2, frame.scale)
         attrs = {attr: [bits[t[d] * 64 + t[c] * 16 + t[b] * 4 + t[a]] for d, c, b, a in BITS4] for attr, t in frame.attr_map.items()}
+        return self._scan_frame(frame, self._scan_udg_bd2_nt, attrs)
 
-        for row in frame.udgs:
-            scanline0 = bytearray((0,))
-            scanline1 = bytearray((0,))
-            scanline2 = bytearray((0,))
-            scanline3 = bytearray((0,))
-            scanline4 = bytearray((0,))
-            scanline5 = bytearray((0,))
-            scanline6 = bytearray((0,))
-            scanline7 = bytearray((0,))
-            for udg in row:
-                pixels = attrs[udg.attr & 127]
-                udg_bytes = udg.data
-                byte = udg_bytes[0]
-                scanline0.extend(pixels[byte // 16])
-                scanline0.extend(pixels[byte & 15])
-                byte = udg_bytes[1]
-                scanline1.extend(pixels[byte // 16])
-                scanline1.extend(pixels[byte & 15])
-                byte = udg_bytes[2]
-                scanline2.extend(pixels[byte // 16])
-                scanline2.extend(pixels[byte & 15])
-                byte = udg_bytes[3]
-                scanline3.extend(pixels[byte // 16])
-                scanline3.extend(pixels[byte & 15])
-                byte = udg_bytes[4]
-                scanline4.extend(pixels[byte // 16])
-                scanline4.extend(pixels[byte & 15])
-                byte = udg_bytes[5]
-                scanline5.extend(pixels[byte // 16])
-                scanline5.extend(pixels[byte & 15])
-                byte = udg_bytes[6]
-                scanline6.extend(pixels[byte // 16])
-                scanline6.extend(pixels[byte & 15])
-                byte = udg_bytes[7]
-                scanline7.extend(pixels[byte // 16])
-                scanline7.extend(pixels[byte & 15])
-            img_data.extend(compressor.compress(scanline0 * scale))
-            img_data.extend(compressor.compress(scanline1 * scale))
-            img_data.extend(compressor.compress(scanline2 * scale))
-            img_data.extend(compressor.compress(scanline3 * scale))
-            img_data.extend(compressor.compress(scanline4 * scale))
-            img_data.extend(compressor.compress(scanline5 * scale))
-            img_data.extend(compressor.compress(scanline6 * scale))
-            img_data.extend(compressor.compress(scanline7 * scale))
-
-        img_data.extend(compressor.flush())
-        return img_data
+    def _scan_udg_bd2_at(self, udg, scanlines, attrs):
+        pixels = attrs[udg.attr & 127]
+        udg_bytes = udg.data
+        mask_bytes = udg.mask or udg_bytes
+        byte = udg_bytes[0]
+        mask_byte = mask_bytes[0]
+        scanlines[0].extend(pixels[(byte & 240) + mask_byte // 16])
+        scanlines[0].extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+        byte = udg_bytes[1]
+        mask_byte = mask_bytes[1]
+        scanlines[1].extend(pixels[(byte & 240) + mask_byte // 16])
+        scanlines[1].extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+        byte = udg_bytes[2]
+        mask_byte = mask_bytes[2]
+        scanlines[2].extend(pixels[(byte & 240) + mask_byte // 16])
+        scanlines[2].extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+        byte = udg_bytes[3]
+        mask_byte = mask_bytes[3]
+        scanlines[3].extend(pixels[(byte & 240) + mask_byte // 16])
+        scanlines[3].extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+        byte = udg_bytes[4]
+        mask_byte = mask_bytes[4]
+        scanlines[4].extend(pixels[(byte & 240) + mask_byte // 16])
+        scanlines[4].extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+        byte = udg_bytes[5]
+        mask_byte = mask_bytes[5]
+        scanlines[5].extend(pixels[(byte & 240) + mask_byte // 16])
+        scanlines[5].extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+        byte = udg_bytes[6]
+        mask_byte = mask_bytes[6]
+        scanlines[6].extend(pixels[(byte & 240) + mask_byte // 16])
+        scanlines[6].extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
+        byte = udg_bytes[7]
+        mask_byte = mask_bytes[7]
+        scanlines[7].extend(pixels[(byte & 240) + mask_byte // 16])
+        scanlines[7].extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
 
     def _build_image_data_bd2_at(self, frame, mask, **kwargs):
         # Bit depth 2, full size, masked
         attrs = {}
-        scale = frame.scale
-        compressor = zlib.compressobj(self.compression_level)
-        img_data = bytearray()
-        bits = _get_bytes(2, scale)
+        bits = _get_bytes(2, frame.scale)
         for attr, (paper, ink) in frame.attr_map.items():
             p = mask.colours((paper, ink, 0), 0, 1, 2)
             attrs[attr] = [bits[p[d] * 64 + p[c] * 16 + p[b] * 4 + p[a]] for d, c, b, a in BIT_PAIRS]
-
-        for row in frame.udgs:
-            scanline0 = bytearray((0,))
-            scanline1 = bytearray((0,))
-            scanline2 = bytearray((0,))
-            scanline3 = bytearray((0,))
-            scanline4 = bytearray((0,))
-            scanline5 = bytearray((0,))
-            scanline6 = bytearray((0,))
-            scanline7 = bytearray((0,))
-            for udg in row:
-                pixels = attrs[udg.attr & 127]
-                udg_bytes = udg.data
-                mask_bytes = udg.mask or udg_bytes
-                byte = udg_bytes[0]
-                mask_byte = mask_bytes[0]
-                scanline0.extend(pixels[(byte & 240) + mask_byte // 16])
-                scanline0.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
-                byte = udg_bytes[1]
-                mask_byte = mask_bytes[1]
-                scanline1.extend(pixels[(byte & 240) + mask_byte // 16])
-                scanline1.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
-                byte = udg_bytes[2]
-                mask_byte = mask_bytes[2]
-                scanline2.extend(pixels[(byte & 240) + mask_byte // 16])
-                scanline2.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
-                byte = udg_bytes[3]
-                mask_byte = mask_bytes[3]
-                scanline3.extend(pixels[(byte & 240) + mask_byte // 16])
-                scanline3.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
-                byte = udg_bytes[4]
-                mask_byte = mask_bytes[4]
-                scanline4.extend(pixels[(byte & 240) + mask_byte // 16])
-                scanline4.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
-                byte = udg_bytes[5]
-                mask_byte = mask_bytes[5]
-                scanline5.extend(pixels[(byte & 240) + mask_byte // 16])
-                scanline5.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
-                byte = udg_bytes[6]
-                mask_byte = mask_bytes[6]
-                scanline6.extend(pixels[(byte & 240) + mask_byte // 16])
-                scanline6.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
-                byte = udg_bytes[7]
-                mask_byte = mask_bytes[7]
-                scanline7.extend(pixels[(byte & 240) + mask_byte // 16])
-                scanline7.extend(pixels[(byte & 15) * 16 + (mask_byte & 15)])
-            img_data.extend(compressor.compress(scanline0 * scale))
-            img_data.extend(compressor.compress(scanline1 * scale))
-            img_data.extend(compressor.compress(scanline2 * scale))
-            img_data.extend(compressor.compress(scanline3 * scale))
-            img_data.extend(compressor.compress(scanline4 * scale))
-            img_data.extend(compressor.compress(scanline5 * scale))
-            img_data.extend(compressor.compress(scanline6 * scale))
-            img_data.extend(compressor.compress(scanline7 * scale))
-
-        img_data.extend(compressor.flush())
-        return img_data
+        return self._scan_frame(frame, self._scan_udg_bd2_at, attrs)
 
     def _build_image_data_bd1_nt_1udg(self, frame, **kwargs):
         # 1 UDG, 2 colours, full size, no masks
@@ -599,56 +511,34 @@ class PngWriter:
                 img_data.extend(((0,) + bits[b ^ xor]) * scale)
         return zlib.compress(img_data, self.compression_level)
 
+    def _scan_udg_bd1_nt(self, udg, scanlines, attrs, bits):
+        paper, ink = attrs[udg.attr & 127]
+        b_mask = paper * 255
+        if ink == paper:
+            data = bits[b_mask]
+            scanlines[0].extend(data)
+            scanlines[1].extend(data)
+            scanlines[2].extend(data)
+            scanlines[3].extend(data)
+            scanlines[4].extend(data)
+            scanlines[5].extend(data)
+            scanlines[6].extend(data)
+            scanlines[7].extend(data)
+        else:
+            udg_data = udg.data
+            scanlines[0].extend(bits[udg_data[0] ^ b_mask])
+            scanlines[1].extend(bits[udg_data[1] ^ b_mask])
+            scanlines[2].extend(bits[udg_data[2] ^ b_mask])
+            scanlines[3].extend(bits[udg_data[3] ^ b_mask])
+            scanlines[4].extend(bits[udg_data[4] ^ b_mask])
+            scanlines[5].extend(bits[udg_data[5] ^ b_mask])
+            scanlines[6].extend(bits[udg_data[6] ^ b_mask])
+            scanlines[7].extend(bits[udg_data[7] ^ b_mask])
+
     def _build_image_data_bd1_nt(self, frame, **kwargs):
         # 2 colours, full size, no masks
-        compressor = zlib.compressobj(self.compression_level)
-        scale = frame.scale
-        attr_map = frame.attr_map
-        img_data = bytearray()
-        bits = _get_bytes(1, scale)
-
-        for row in frame.udgs:
-            scanline0 = bytearray((0,))
-            scanline1 = bytearray((0,))
-            scanline2 = bytearray((0,))
-            scanline3 = bytearray((0,))
-            scanline4 = bytearray((0,))
-            scanline5 = bytearray((0,))
-            scanline6 = bytearray((0,))
-            scanline7 = bytearray((0,))
-            for udg in row:
-                paper, ink = attr_map[udg.attr & 127]
-                b_mask = paper * 255
-                if ink == paper:
-                    data = bits[b_mask]
-                    scanline0.extend(data)
-                    scanline1.extend(data)
-                    scanline2.extend(data)
-                    scanline3.extend(data)
-                    scanline4.extend(data)
-                    scanline5.extend(data)
-                    scanline6.extend(data)
-                    scanline7.extend(data)
-                else:
-                    scanline0.extend(bits[udg.data[0] ^ b_mask])
-                    scanline1.extend(bits[udg.data[1] ^ b_mask])
-                    scanline2.extend(bits[udg.data[2] ^ b_mask])
-                    scanline3.extend(bits[udg.data[3] ^ b_mask])
-                    scanline4.extend(bits[udg.data[4] ^ b_mask])
-                    scanline5.extend(bits[udg.data[5] ^ b_mask])
-                    scanline6.extend(bits[udg.data[6] ^ b_mask])
-                    scanline7.extend(bits[udg.data[7] ^ b_mask])
-            img_data.extend(compressor.compress(scanline0 * scale))
-            img_data.extend(compressor.compress(scanline1 * scale))
-            img_data.extend(compressor.compress(scanline2 * scale))
-            img_data.extend(compressor.compress(scanline3 * scale))
-            img_data.extend(compressor.compress(scanline4 * scale))
-            img_data.extend(compressor.compress(scanline5 * scale))
-            img_data.extend(compressor.compress(scanline6 * scale))
-            img_data.extend(compressor.compress(scanline7 * scale))
-
-        img_data.extend(compressor.flush())
-        return img_data
+        bits = _get_bytes(1, frame.scale)
+        return self._scan_frame(frame, self._scan_udg_bd1_nt, frame.attr_map, bits)
 
     def _scan_udg_bd1_at(self, udg, scanlines, mask, attrs, pixels, bits):
         p, i = attrs[udg.attr & 127]
