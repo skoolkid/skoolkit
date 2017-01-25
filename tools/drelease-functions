@@ -104,14 +104,14 @@ _check_files() {
 }
 
 ###############################################################################
-# Count lines of length 80 or more in the skool files
+# Count lines of length 80 or more in the skool and ref files
 ###############################################################################
 count_lines() {
   _cd_tmpdir
   for f in $SRCFILES; do
-    if [[ $f = *.skool ]]; then
+    if [[ $f = *.skool || $f = *.ref ]]; then
       cmd="$SKOOLKIT_TOOLS/count80.py -i $DHOME/sources/.clinesignore -p $DHOME/sources/$f"
-      _exec "Counting lines of length 80 or more in $f" "$cmd" $(pwd)/$f.log
+      _exec "Counting lines of length 80 or more in $f" "$cmd" $(pwd)/$f.log || true
     fi
   done
 }
@@ -243,7 +243,7 @@ Usage: $(basename $0) COMMAND [COMMAND...]
 $GAMENAME disassembly testing and release tool.
 
 Commands:
-  clines - count lines of length 80 or more in the skool file(s)
+  clines - count lines of length 80 or more in the skool and ref files
   ddiffs - run disassembly-diff on the disassembly
   ddiffn - run 'disassembly-diff -n' on the disassembly
   asmchk - run check-asms on the disassembly
