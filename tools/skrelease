@@ -116,7 +116,7 @@ _cd_tmpdir() {
 _create_venv() {
   venvdir=${1:-venv}
 
-  _exec "Creating virtual environment" "virtualenv --quiet $venvdir" $(pwd)/venv.log
+  _exec "Creating virtual environment" "pyvenv $venvdir" $(pwd)/venv.log
 }
 
 _build_tarball() {
