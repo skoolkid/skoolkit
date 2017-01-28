@@ -3,6 +3,7 @@
 import sys
 import os
 import time
+import gc
 
 # Use the current development version of SkoolKit
 SKOOLKIT_HOME = os.environ.get('SKOOLKIT_HOME')
@@ -23,6 +24,7 @@ def write(line):
 def clock(method, *args, **kwargs):
     elapsed = []
     for n in range(3):
+        gc.collect()
         start = time.time()
         method(*args, **kwargs)
         elapsed.append((time.time() - start) * 1000)
@@ -297,6 +299,7 @@ Available options:
 ###############################################################################
 method1_name, method2_name, run_all, udgs, scales = parse_args(sys.argv[1:])
 udg_arrays = tuple([eval(udg_array) for udg_array in udgs])
+gc.disable()
 if run_all:
     for name1, name2, f in METHODS:
         time_methods(name1, name2, udg_arrays, scales)
