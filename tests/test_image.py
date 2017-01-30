@@ -181,7 +181,7 @@ class ImageWriterTest:
             y += min_j * scale
             for j in range(min_j, max_j):
                 if y < y0:
-                    rows = y - y0 + scale
+                    rows = min(y - y0 + scale, height)
                 else:
                     rows = min(y1 - y, scale)
                 pixel_row = []
@@ -211,7 +211,7 @@ class ImageWriterTest:
                     min_x_floor = len(pixel_row)
                     for k in range(min_k, max_k):
                         if x < x0:
-                            cols = x - x0 + scale
+                            cols = min(x - x0 + scale, width)
                         else:
                             cols = min(x1 - x, scale)
                         ink_p = (i_rgb,) * cols
@@ -469,6 +469,10 @@ class ImageWriterTest:
         self._test_image(udg_array, x=5)
         self._test_image(udg_array, y=7)
         self._test_image(udg_array, x=1, y=2, width=9, height=11)
+        self._test_image(udg_array, scale=3, x=4, width=1)
+        self._test_image(udg_array, scale=3, y=4, height=1)
+        self._test_image(udg_array, scale=10, x=1, width=1)
+        self._test_image(udg_array, scale=10, y=1, height=1)
 
     def test_unmasked_bd1_blank_flashing(self):
         # Unmasked image, bit depth 1, 1 UDG
@@ -514,6 +518,10 @@ class ImageWriterTest:
         self._test_image(udg_array, x=5)
         self._test_image(udg_array, y=7)
         self._test_image(udg_array, x=1, y=2, width=10, height=11)
+        self._test_image(udg_array, scale=3, x=4, width=1)
+        self._test_image(udg_array, scale=3, y=4, height=1)
+        self._test_image(udg_array, scale=10, x=1, width=1)
+        self._test_image(udg_array, scale=10, y=1, height=1)
 
     def test_unmasked_bd2_blank_flashing(self):
         # Unmasked image, bit depth 2, 2 UDGs
@@ -592,6 +600,10 @@ class ImageWriterTest:
         self._test_image(udg_array, x=3)
         self._test_image(udg_array, y=7)
         self._test_image(udg_array, x=2, y=1, width=11, height=9)
+        self._test_image(udg_array, scale=3, x=4, width=1)
+        self._test_image(udg_array, scale=3, y=4, height=1)
+        self._test_image(udg_array, scale=10, x=1, width=1)
+        self._test_image(udg_array, scale=10, y=1, height=1)
 
     def test_unmasked_bd4_blank_flashing(self):
         # Unmasked image, bit depth 4, 3 UDGs

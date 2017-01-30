@@ -336,7 +336,7 @@ class PngWriter:
                         x += min_j * scale
                         for pixel in mask.apply(udg, k, paper, ink, 0)[min_j:max_j]:
                             if x < x0:
-                                cols = x - x0 + scale
+                                cols = min(x - x0 + scale, frame.width)
                             elif x < x1_pixel_floor:
                                 cols = scale
                             else:
@@ -354,7 +354,7 @@ class PngWriter:
                     p.extend((0,) * (len(p) & 1))
                     scanline.extend([p[j] * 16 + p[j + 1] for j in range(0, len(p), 2)])
                 if y < y0:
-                    rows = y - y0 + scale
+                    rows = min(y - y0 + scale, frame.height)
                 elif y < y1_pixel_floor:
                     rows = scale
                 else:

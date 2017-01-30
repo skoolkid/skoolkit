@@ -134,7 +134,7 @@ class GifWriter:
                         x += min_j * scale
                         for pixel in mask.apply(udg, k, chr(paper), chr(ink), chr(0))[min_j:max_j]:
                             if x < x0:
-                                cols = x - x0 + scale
+                                cols = min(x - x0 + scale, frame.width)
                             elif x < x1_pixel_floor:
                                 cols = scale
                             else:
@@ -142,7 +142,7 @@ class GifWriter:
                             pixel_row.append(pixel * cols)
                             x += scale
                 if y < y0:
-                    rows = y - y0 + scale
+                    rows = min(y - y0 + scale, frame.height)
                 elif y < y1_pixel_floor:
                     rows = scale
                 else:
