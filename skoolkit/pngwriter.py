@@ -298,69 +298,69 @@ class PngWriter:
         compressor = zlib.compressobj(self.compression_level)
         img_data = bytearray()
         scale = frame.scale
-        attr_map = frame.attr_map
-        x0 = frame.x
-        y0 = frame.y
-        x1 = x0 + frame.width
-        y1 = y0 + frame.height
+        attrs = frame.attr_map
+        x0, y0 = frame.x, frame.y
+        width, height = frame.width, frame.height
+        y1 = y0 + height
         inc = 8 * scale
-        min_col = x0 // inc
-        max_col = x1 // inc
-        min_row = y0 // inc
-        max_row = y1 // inc
-        x0_floor = inc * min_col
-        x1_floor = inc * max_col
-        x1_pixel_floor = scale * (x1 // scale)
-        y1_pixel_floor = scale * (y1 // scale)
-        trans_pixels = (0,) * scale
+        r0, r1 = y0 // inc, y1 // inc + 1
+        c0, c1 = x0 // inc, (x0 + width) // inc + 1
+        p0 = x0 % inc
+        p1 = p0 + width
+        bd4 = bit_depth == 4
+        if bd4:
+            pixels = (
+                (0,) * scale, (1,) * scale, (2,) * scale, (3,) * scale,
+                (4,) * scale, (5,) * scale, (6,) * scale, (7,) * scale,
+                (8,) * scale, (9,) * scale, (10,) * scale, (11,) * scale,
+                (12,) * scale, (13,) * scale, (14,) * scale, (15,) * scale
+            )
+            padding = (0,) * (width & 1)
+        else:
+            pixels = ('0' * scale, '1' * scale, '2' * scale, '3' * scale)
+            digits = 8 // bit_depth
+            zero = '0' * digits
+            padding = '0' * (-width & (digits - 1))
+            base = 2 ** bit_depth
+        trans = pixels[0]
 
-        y = inc * min_row
-        for row in frame.udgs[min_row:max_row + 1]:
-            min_k = max(0, (y0 - y) // scale)
-            max_k = min(8, 1 + (y1 - 1 - y) // scale)
-            y += min_k * scale
-            for k in range(min_k, max_k):
-                p = []
-                x = x0_floor
-                for udg in row[min_col:max_col + 1]:
-                    paper, ink = attr_map[udg.attr & 127]
-                    if x0 <= x < x1_floor:
-                        # Full width UDG
-                        for pixels in mask.apply(udg, k, (paper,) * scale, (ink,) * scale, trans_pixels):
-                            p.extend(pixels)
-                        x += inc
+        k0, k1 = (y0 % inc) // scale, min(8, 1 + (y1 - inc * r0 - 1) // scale)
+        y = scale * (y0 // scale)
+        rows = min(y - y0 + scale, height)
+        for row in frame.udgs[r0:r1]:
+            scanlines = (
+                bytearray((0,)), bytearray((0,)), bytearray((0,)), bytearray((0,)),
+                bytearray((0,)), bytearray((0,)), bytearray((0,)), bytearray((0,))
+            )
+            pixel_rows = ([], [], [], [], [], [], [], [])
+            for udg in row[c0:c1]:
+                paper, ink = attrs[udg.attr & 127]
+                for k in range(k0, k1):
+                    b = mask.apply(udg, k, pixels[paper], pixels[ink], trans)
+                    p = pixel_rows[k]
+                    if bd4:
+                        for px in b:
+                            p.extend(px)
                     else:
-                        # UDG cropped on the left or right
-                        min_j = max(0, (x0 - x) // scale)
-                        max_j = min(8, 1 + (x1 - 1 - x) // scale)
-                        x += min_j * scale
-                        for pixel in mask.apply(udg, k, paper, ink, 0)[min_j:max_j]:
-                            if x < x0:
-                                cols = min(x - x0 + scale, frame.width)
-                            elif x < x1_pixel_floor:
-                                cols = scale
-                            else:
-                                cols = x1 - x
-                            p.extend((pixel,) * cols)
-                            x += scale
-                scanline = bytearray((0,))
-                if bit_depth == 1:
-                    p.extend((0,) * (-len(p) & 7))
-                    scanline.extend([p[j] * 128 + p[j + 1] * 64 + p[j + 2] * 32 + p[j + 3] * 16 + p[j + 4] * 8 + p[j + 5] * 4 + p[j + 6] * 2 + p[j + 7] for j in range(0, len(p), 8)])
-                elif bit_depth == 2:
-                    p.extend((0,) * (-len(p) & 3))
-                    scanline.extend([p[j] * 64 + p[j + 1] * 16 + p[j + 2] * 4 + p[j + 3] for j in range(0, len(p), 4)])
-                elif bit_depth == 4:
-                    p.extend((0,) * (len(p) & 1))
-                    scanline.extend([p[j] * 16 + p[j + 1] for j in range(0, len(p), 2)])
-                if y < y0:
-                    rows = min(y - y0 + scale, frame.height)
-                elif y < y1_pixel_floor:
-                    rows = scale
+                        p.extend(b)
+            for i in range(k0, k1):
+                p = pixel_rows[i]
+                if bd4:
+                    p = p[p0:p1]
+                    p.extend(padding)
+                    scanlines[i].extend([p[j] * 16 + p[j + 1] for j in range(0, len(p), 2)])
                 else:
-                    rows = y1 - y
-                img_data.extend(compressor.compress(scanline * rows))
-                y += scale
+                    r = ''.join(p)[p0:p1] + padding
+                    scanlines[i].extend([int(r[n:n + digits], base) for n in range(0, len(r), digits)])
+            img_data.extend(compressor.compress(scanlines[k0] * rows))
+            y += (k1 - k0) * scale
+            if k1 > k0 + 1:
+                for i in range(k0 + 1, k1 - 1):
+                    img_data.extend(compressor.compress(scanlines[i] * scale))
+                img_data.extend(compressor.compress(scanlines[k1 - 1] * min(scale, y1 - y + scale)))
+            rows = min(scale, y1 - y)
+            k0, k1 = 0, min(8, 1 + (y1 - y - 1) // scale)
+
         img_data.extend(compressor.flush())
         return img_data
 
