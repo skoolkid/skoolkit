@@ -131,22 +131,19 @@ class GifWriter:
     def _get_all_pixels(self, frame):
         # Get all the pixels in an uncropped image
         scale = frame.scale
-        attr_map = frame.attr_map
+        attrs = {attr: (chr(p) * scale, chr(i) * scale) for attr, (p, i) in frame.attr_map.items()}
         mask = self.masks[frame.mask]
-        attr_index = {}
-        for attr, (paper, ink) in attr_map.items():
-            attr_index[attr] = (chr(paper) * scale, chr(ink) * scale)
+        trans = chr(0) * scale
 
         pixels = []
-        t = chr(0) * scale
         for row in frame.udgs:
-            for k in range(8):
-                pixel_row = []
-                for udg in row:
-                    paper, ink = attr_index[udg.attr & 127]
-                    pixel_row.extend(mask.apply(udg, k, paper, ink, t))
-                for i in range(scale):
-                    pixels += pixel_row
+            pixel_rows = ([], [], [], [], [], [], [], [])
+            for udg in row:
+                paper, ink = attrs[udg.attr & 127]
+                for k in range(8):
+                    pixel_rows[k].extend(mask.apply(udg, k, paper, ink, trans))
+            pixels.extend([''.join(p) * scale for p in pixel_rows])
+
         return ''.join(pixels)
 
     def _get_all_pixels_nt(self, frame):
