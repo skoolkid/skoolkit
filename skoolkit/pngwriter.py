@@ -169,7 +169,7 @@ class PngWriter:
         bd4_fs_method_dict[1] = (None, self._build_image_data_bd_any) # Masked
 
     def _bd1_nt_method(self, frame):
-        if frame.tiles == 1 and frame.scale < 10:
+        if frame.tiles == 1 and frame.scale < 11:
             return self._build_image_data_bd1_nt_1udg
         return self._build_image_data_bd1_nt
 
