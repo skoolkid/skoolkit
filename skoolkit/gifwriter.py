@@ -194,9 +194,7 @@ class GifWriter:
 
     def _compress(self, pixels, min_code_size):
         # Initialise the dictionary
-        init_d = {}
-        for i in range(1 << min_code_size):
-            init_d[chr(i)] = i
+        init_d = {chr(i): i for i in range(1 << min_code_size)}
 
         # Add initial (dummy) STOP and CLEAR codes
         clear_code = 1 << min_code_size
@@ -211,6 +209,7 @@ class GifWriter:
         output = []
         bit_buf = BINSTR[code_size][clear_code]
         i = 0
+        num_p = len(pixels)
         while 1:
             # Check for max dictionary length
             if d_size == 4095:
@@ -223,7 +222,7 @@ class GifWriter:
 
             # Find the next substring not yet in the dictionary
             new_substr = ''
-            while i < len(pixels):
+            while i < num_p:
                 new_substr += pixels[i]
                 if new_substr in d:
                     substr = new_substr
@@ -233,14 +232,11 @@ class GifWriter:
             bit_buf = BINSTR[code_size][d[substr]] + bit_buf
 
             k = len(bit_buf)
-            if k > 127:
+            if k > 1023:
                 # Flush full bytes in the bit buffer to the output
                 while k > 31:
                     value = int(bit_buf[k - 32:k], 2)
-                    output.append(value & 255)
-                    output.append((value >> 8) & 255)
-                    output.append((value >> 16) & 255)
-                    output.append((value >> 24) & 255)
+                    output.extend((value & 255, (value >> 8) & 255, (value >> 16) & 255, value >> 24))
                     k -= 32
                 bit_buf = bit_buf[:k]
 
