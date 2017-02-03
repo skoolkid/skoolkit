@@ -266,11 +266,14 @@ class ImageWriterTest:
                 y += scale
 
         if frames_differ:
+            if not cropped:
+                min_y = inc * (min_y // inc)
+                if max_y % inc:
+                    max_y = inc * (1 + max_y // inc)
             frame2_xy = (min_x, min_y)
             pixels2 = [pixels2[i][min_x:max_x] for i in range(min_y, max_y)]
         else:
             pixels2 = frame2_xy = None
-
 
         masks = has_masks + all_masked
         return palette, masks, pixels, pixels2, frame2_xy
@@ -347,6 +350,20 @@ class ImageWriterTest:
         udg = Udg(88, (34,) * 8, (119,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, scale=1, mask=True)
+
+    def test_masked_bd2_flashing(self):
+        # Masked image, bit depth 2, one UDG flashing
+        udg1 = Udg(56, (1,) * 8)
+        udg2 = Udg(184, (0,) * 8, (255, 129, 129, 129, 129, 129, 129, 255))
+        udg_array = [[udg1, udg2]]
+        self._test_image(udg_array, mask=1)
+
+    def test_masked_bd2_cropped_flashing(self):
+        # Masked image, bit depth 2, cropped, one UDG flashing
+        udg1 = Udg(56, (1,) * 8)
+        udg2 = Udg(184, (0,) * 8, (255, 255, 195, 195, 195, 195, 255, 255))
+        udg_array = [[udg1, udg2]]
+        self._test_image(udg_array, mask=1, x=1, y=1, width=14, height=6)
 
     def test_mask2_bd2(self):
         # AND-OR mask, bit depth 2

@@ -313,7 +313,7 @@ class ImageWriter:
                         has_non_trans = True
                     if None in pixels:
                         has_trans = True
-                    if ink in colours and paper in colours and (null_mask or has_trans):
+                    if ink in colours and paper in colours and has_non_trans and (null_mask or has_trans):
                         break
                 if use_flash and attr & 128 and ink != paper and has_non_trans:
                     min_x = min(x, min_x)

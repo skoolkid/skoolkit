@@ -9,6 +9,7 @@ Changelog
   ``SectionType=BulletPoints``)
 * Fixed how an image is cropped when the crop rectangle fits within a single
   tile row or column
+* Fixed how a masked image with flashing cells is built
 * Fixed how :ref:`sna2skool.py` handles a snapshot that contains a dangling
   IX/IY prefix (DD/FD) when generating a control file
 
