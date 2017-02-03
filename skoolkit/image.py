@@ -361,13 +361,13 @@ class ImageWriter:
 class NoMask:
     def apply(self, udg, row, paper, ink, trans):
         udg_byte = udg.data[row]
-        pixels = []
-        for b in range(8):
-            if udg_byte & 128:
-                pixels.append(ink)
-            else:
-                pixels.append(paper)
-            udg_byte *= 2
+        pixels = [paper] * 8
+        index = 7
+        while udg_byte:
+            if udg_byte & 1:
+                pixels[index] = ink
+            udg_byte //= 2
+            index -= 1
         return pixels
 
 class OrAndMask:
