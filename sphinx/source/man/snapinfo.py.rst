@@ -18,9 +18,9 @@ OPTIONS
 -b, --basic
   List the BASIC program.
 
--f, --find `A[,B...[-N]]`
-  Search for the byte sequence A,B... with distance N (default=1) between
-  bytes.
+-f, --find `A[,B...[-M[-N]]]`
+  Search for the byte sequence A,B... with distance ranging from M to N
+  (default=1) between bytes.
 
 -p, --peek `A[-B[-C]]`
   Show the contents of addresses A TO B STEP C. This option may be used

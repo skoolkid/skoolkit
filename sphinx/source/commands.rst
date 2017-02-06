@@ -657,9 +657,9 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
 
   Options:
     -b, --basic           List the BASIC program
-    -f A[,B...[-N]], --find A[,B...[-N]]
-                          Search for the byte sequence A,B... with distance N
-                          (default=1) between bytes
+    -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
+                          Search for the byte sequence A,B... with distance
+                          ranging from M to N (default=1) between bytes
     -p A[-B[-C]], --peek A[-B[-C]]
                           Show the contents of addresses A TO B STEP C; this
                           option may be used multiple times
@@ -676,6 +676,8 @@ addresses, or search the RAM for a sequence of byte values or a text string.
 +---------+---------------------------------------------------------------+
 | Version | Changes                                                       |
 +=========+===============================================================+
+| 6.0     | Added support to the ``--find`` option for distance ranges    |
++---------+---------------------------------------------------------------+
 | 5.4     | Added the ``--variables`` option; UDGs in a BASIC program are |
 |         | shown as special symbols (e.g. ``{UDG-A}``)                   |
 +---------+---------------------------------------------------------------+

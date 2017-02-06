@@ -4,6 +4,8 @@ Changelog
 6.0b1
 -----
 * Dropped support for Python 2.7 and 3.3
+* Added support to the ``--find`` option of :ref:`snapinfo.py` for specifying a
+  range of distances between byte values (e.g. ``--find 1,2,3-1-10``)
 * Added support for parsing a :ref:`box page <boxpages>` entry section as a
   sequence of multi-line list items prefixed by '-' (with
   ``SectionType=BulletPoints``)

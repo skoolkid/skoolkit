@@ -351,30 +351,36 @@ def _analyse_sna(snafile):
 
 ###############################################################################
 
-def _find(infile, byte_seq):
-    step = 1
+def _find(snapshot, byte_seq):
+    steps = '1'
     if '-' in byte_seq:
-        byte_seq, step = byte_seq.split('-', 1)
-        step = get_int_param(step)
+        byte_seq, steps = byte_seq.split('-', 1)
     try:
         byte_values = [get_int_param(i) for i in byte_seq.split(',')]
     except ValueError:
         raise SkoolKitError('Invalid byte sequence: {}'.format(byte_seq))
-    offset = step * len(byte_values)
-    snapshot = get_snapshot(infile)
-    for a in range(16384, 65537 - offset):
-        if snapshot[a:a + offset:step] == byte_values:
-            print("{0}-{1}-{2} {0:04X}-{1:04X}-{2:X}: {3}".format(a, a + offset - step, step, byte_seq))
+    try:
+        if '-' in steps:
+            limits = [get_int_param(n) for n in steps.split('-', 1)]
+            steps = range(limits[0], limits[1] + 1)
+        else:
+            steps = [get_int_param(steps)]
+    except ValueError:
+        raise SkoolKitError('Invalid distance: {}'.format(steps))
+    for step in steps:
+        offset = step * len(byte_values)
+        for a in range(16384, 65537 - offset):
+            if snapshot[a:a + offset:step] == byte_values:
+                print("{0}-{1}-{2} {0:04X}-{1:04X}-{2:X}: {3}".format(a, a + offset - step, step, byte_seq))
 
-def _find_text(infile, text):
+def _find_text(snapshot, text):
     size = len(text)
     byte_values = [ord(c) for c in text]
-    snapshot = get_snapshot(infile)
     for a in range(16384, 65536 - size + 1):
         if snapshot[a:a + size] == byte_values:
             print("{0}-{1} {0:04X}-{1:04X}: {2}".format(a, a + size - 1, text))
 
-def _peek(infile, specs):
+def _peek(snapshot, specs):
     addr_ranges = []
     for addr_range in specs:
         try:
@@ -382,7 +388,6 @@ def _peek(infile, specs):
         except ValueError:
             raise SkoolKitError('Invalid address range: {}'.format(addr_range))
         addr_ranges.append(values + [values[0], 1][len(values) - 1:])
-    snapshot = get_snapshot(infile)
     for addr1, addr2, step in addr_ranges:
         for a in range(addr1, addr2 + 1, step):
             value = snapshot[a]
@@ -402,8 +407,8 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-b', '--basic', action='store_true',
                        help='List the BASIC program')
-    group.add_argument('-f', '--find', metavar='A[,B...[-N]]',
-                       help='Search for the byte sequence A,B... with distance N (default=1) between bytes')
+    group.add_argument('-f', '--find', metavar='A[,B...[-M[-N]]]',
+                       help='Search for the byte sequence A,B... with distance ranging from M to N (default=1) between bytes')
     group.add_argument('-p', '--peek', metavar='A[-B[-C]]', action='append',
                        help='Show the contents of addresses A TO B STEP C; this option may be used multiple times')
     group.add_argument('-t', '--find-text', dest='text', metavar='TEXT',
@@ -420,18 +425,19 @@ def main(args):
     if snapshot_type not in ('.sna', '.szx', '.z80'):
         raise SkoolKitError('Unrecognised snapshot type')
 
-    if namespace.find is not None:
-        _find(infile, namespace.find)
-    elif namespace.text is not None:
-        _find_text(infile, namespace.text)
-    elif namespace.peek is not None:
-        _peek(infile, namespace.peek)
-    elif namespace.basic or namespace.variables:
+    if any((namespace.find, namespace.text, namespace.peek, namespace.basic, namespace.variables)):
         snapshot = get_snapshot(infile)
-        if namespace.basic:
-            print(BasicLister().list_basic(snapshot))
-        if namespace.variables:
-            print(VariableLister().list_variables(snapshot))
+        if namespace.find:
+            _find(snapshot, namespace.find)
+        elif namespace.text:
+            _find_text(snapshot, namespace.text)
+        elif namespace.peek:
+            _peek(snapshot, namespace.peek)
+        else:
+            if namespace.basic:
+                print(BasicLister().list_basic(snapshot))
+            if namespace.variables:
+                print(VariableLister().list_variables(snapshot))
     elif snapshot_type == '.sna':
         _analyse_sna(infile)
     elif snapshot_type == '.z80':

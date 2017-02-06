@@ -51,10 +51,14 @@ class SnapinfoTest(SkoolKitTestCase):
         ram[7371:7371 + len(data)] = data
         self._test_sna(ram, exp_output, ('-b', '--basic')[option])
 
-    def _test_bad_spec(self, option, bad_spec, exp_error):
+    def _test_bad_spec(self, option, bad_spec, exp_error, add_spec=True):
+        snafile = self.write_bin_file((0,) * 49179, suffix='.sna')
         with self.assertRaises(SkoolKitError) as cm:
-            self.run_snapinfo('{} {} test.sna'.format(option, bad_spec))
-        self.assertEqual(cm.exception.args[0], '{}: {}'.format(exp_error, bad_spec))
+            self.run_snapinfo('{} {} {}'.format(option, bad_spec, snafile))
+        if add_spec:
+            self.assertEqual(cm.exception.args[0], '{}: {}'.format(exp_error, bad_spec))
+        else:
+            self.assertEqual(cm.exception.args[0], exp_error)
 
     def test_no_arguments(self):
         output, error = self.run_snapinfo(catch_exit=2)
@@ -822,6 +826,21 @@ class SnapinfoTest(SkoolKitTestCase):
         exp_output = ['47983-47987-2 BB6F-BB73-2: {}'.format(seq_str)]
         self._test_sna(ram, exp_output, '-f {}-{}'.format(seq_str, step))
 
+    def test_option_f_with_byte_sequence_and_step_range(self):
+        ram = [0] * 49152
+        addresses = (31783, 42567, 52172)
+        seq = (8, 10, 13)
+        steps = (2, 3, 4)
+        seq_str = ','.join([str(b) for b in seq])
+        for addr, step in zip(addresses, steps):
+            ram[addr - 16384:addr - 16384 + step * len(seq):step] = seq
+        exp_output = [
+            '31783-31787-2 7C27-7C2B-2: 8,10,13',
+            '42567-42573-3 A647-A64D-3: 8,10,13',
+            '52172-52180-4 CBCC-CBD4-4: 8,10,13'
+        ]
+        self._test_sna(ram, exp_output, '-f {}-1-5'.format(seq_str))
+
     def test_option_f_with_hexadecimal_values(self):
         ram = [0] * 49152
         address = 47983
@@ -843,6 +862,13 @@ class SnapinfoTest(SkoolKitTestCase):
         self._test_bad_spec('-f', '1,!', exp_error)
         self._test_bad_spec('--find', '1,2,?', exp_error)
         self._test_bad_spec('-f', '1,,3', exp_error)
+
+    def test_option_find_with_invalid_step(self):
+        exp_error = 'Invalid distance: {}'
+        self._test_bad_spec('--find', '1,2,3-x', exp_error.format('x'), False)
+        self._test_bad_spec('-f', '4,5,6-1-y', exp_error.format('1-y'), False)
+        self._test_bad_spec('--find', '7,8,9-z-5', exp_error.format('z-5'), False)
+        self._test_bad_spec('-f', '10,11,12-q-?', exp_error.format('q-?'), False)
 
     def test_option_p_with_single_address(self):
         ram = [0] * 49152
