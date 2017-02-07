@@ -333,25 +333,6 @@ class MethodTest(HtmlWriterTestCase):
         self._assert_scr_equal(writer, 1, 2, 12, 10)
         self._assert_scr_equal(writer, 10, 10)
 
-    def test_get_font_udg_array(self):
-        snapshot = [0] * 65536
-        char1 = [1, 2, 3, 4, 5, 6, 7, 8]
-        char2 = [8, 7, 6, 5, 4, 3, 2, 1]
-        chars = [char1, char2]
-        char_data = []
-        for char in chars:
-            char_data.extend(char)
-        address = 32768
-        snapshot[address:address + sum(len(c) for c in chars)] = char_data
-        writer = self._get_writer(snapshot=snapshot)
-        attr = 56
-        message = ''.join([chr(n) for n in range(32, 32 + len(chars))])
-        font_udg_array = writer.get_font_udg_array(address, attr, message)
-        self.assertEqual(len(font_udg_array[0]), len(chars))
-        for i, udg in enumerate(font_udg_array[0]):
-            self.assertEqual(udg.attr, attr)
-            self.assertEqual(udg.data, chars[i])
-
     def test_ref_parsing(self):
         ref = '\n'.join((
             '[Links]',

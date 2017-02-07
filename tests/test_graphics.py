@@ -1,7 +1,7 @@
 import unittest
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit.graphics import Udg, flip_udgs, rotate_udgs
+from skoolkit.graphics import Udg, flip_udgs, rotate_udgs, font_udgs
 
 class UdgTest(SkoolKitTestCase):
     def test_flip(self):
@@ -170,6 +170,25 @@ class UdgTest(SkoolKitTestCase):
         udg_r = base_udg.copy()
         udg_r.rotate(1)
         self.assertEqual([[udg_r], [udg_r]], udgs)
+
+class GraphicsTest(SkoolKitTestCase):
+    def test_font_udgs(self):
+        snapshot = [0] * 65536
+        char1 = [1, 2, 3, 4, 5, 6, 7, 8]
+        char2 = [8, 7, 6, 5, 4, 3, 2, 1]
+        chars = [char1, char2]
+        char_data = []
+        for char in chars:
+            char_data.extend(char)
+        address = 32768
+        snapshot[address:address + sum(len(c) for c in chars)] = char_data
+        attr = 56
+        message = ''.join([chr(n) for n in range(32, 32 + len(chars))])
+        font_udg_array = font_udgs(snapshot, address, attr, message)
+        self.assertEqual(len(font_udg_array[0]), len(chars))
+        for i, udg in enumerate(font_udg_array[0]):
+            self.assertEqual(udg.attr, attr)
+            self.assertEqual(udg.data, chars[i])
 
 if __name__ == '__main__':
     unittest.main()

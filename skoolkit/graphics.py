@@ -259,3 +259,35 @@ def rotate_udgs(udgs, rotate=1):
                 for j in range(len(udgs)):
                     rotated[0].append(udgs[j][i])
             udgs[:] = rotated
+
+def adjust_udgs(udgs, flip, rotate):
+    flip_udgs(udgs, flip)
+    rotate_udgs(udgs, rotate)
+    return udgs
+
+def build_udg(snapshot, addr, attr, step, inc, flip, rotate, mask, mask_addr, mask_step):
+    udg_bytes = [(snapshot[addr + n * step] + inc) % 256 for n in range(8)]
+    mask_bytes = None
+    if mask and mask_addr is not None:
+        mask_bytes = snapshot[mask_addr:mask_addr + 8 * mask_step:mask_step]
+    udg = Udg(attr, udg_bytes, mask_bytes)
+    udg.flip(flip)
+    udg.rotate(rotate)
+    return udg
+
+def font_udgs(snapshot, address, attr, message):
+    udgs = []
+    for c in message:
+        a = address + 8 * (ord(c) - 32)
+        udgs.append(Udg(attr, snapshot[a:a + 8]))
+    return [udgs]
+
+def scr_udgs(snapshot, x, y, w, h, df_addr=16384, af_addr=22528):
+    width = min((w, 32 - x))
+    height = min((h, 24 - y))
+    scr_udgs = []
+    for r in range(y, y + height):
+        attr_addr = af_addr + 32 * r + x
+        addr = df_addr + 2048 * (r // 8) + 32 * (r % 8) + x
+        scr_udgs.append([Udg(snapshot[attr_addr + i], snapshot[addr + i:addr + i + 2048:256]) for i in range(width)])
+    return scr_udgs

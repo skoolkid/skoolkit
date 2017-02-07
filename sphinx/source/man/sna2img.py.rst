@@ -15,7 +15,11 @@ or GIF file. INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.
 
 OPTIONS
 =======
--f N, --flip N
+-e, --expand `MACRO`
+  Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The '#' prefix may be omitted,
+  and any filename parameter is ignored.
+
+-f, --flip `N`
   Flip the image horizontally (N=1), vertically (N=2), or both (N=3).
 
 -i, --invert
@@ -24,7 +28,7 @@ OPTIONS
 -n, --no-animation
   Do not animate flashing cells.
 
--o X,Y, --origin X,Y
+-o, --origin `X,Y`
   Top-left crop the image at tile coordinates (X,Y).
 
 -p, --poke `a[-b[-c]],[^+]v`
@@ -32,13 +36,13 @@ OPTIONS
   XOR operation, or '+' to perform an ADD operation. This option may be used
   multiple times.
 
--r N, --rotate N
+-r, --rotate `N`
   Rotate the image 90*N degrees clockwise.
 
--s SCALE, --scale SCALE
+-s, --scale `SCALE`
   Set the scale of the image (default=1).
 
--S WxH, --size WxH
+-S, --size `WxH`
   Crop the image to this width and height (in tiles).
 
 -V, --version
@@ -55,4 +59,9 @@ EXAMPLES
    scale 2:
 
    |
-   |   ``sna2im.py -s 2 game.z80 scr.gif``
+   |   ``sna2img.py -s 2 game.z80 scr.gif``
+
+3. Expand a #FONT macro and write the image to ``font.png``:
+
+   |
+   |   ``sna2img.py -e FONT32768,26 game.z80 font.png``

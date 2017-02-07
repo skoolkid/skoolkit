@@ -27,7 +27,7 @@ from io import StringIO
 
 from skoolkit import skoolmacro, SkoolKitError, warn, parse_int, VERSION
 from skoolkit.defaults import REF_FILE
-from skoolkit.graphics import Frame, Udg, flip_udgs, rotate_udgs
+from skoolkit.graphics import Frame, Udg, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.image import ImageWriter
 from skoolkit.refparser import RefParser
 from skoolkit.skoolmacro import MacroParsingError, get_macros, expand_macros
@@ -464,11 +464,6 @@ class HtmlWriter:
             lines.append(self.format_template('paragraph', {'paragraph': self.expand(p, cwd).strip()}))
         return '\n'.join(lines)
 
-    def _get_screen_udg(self, row, col, df_addr=16384, af_addr=22528):
-        attr = self.snapshot[af_addr + 32 * row + col]
-        address = df_addr + 2048 * (row // 8) + 32 * (row % 8) + col
-        return Udg(attr, self.snapshot[address:address + 2048:256])
-
     # API
     def screenshot(self, x=0, y=0, w=32, h=24, df_addr=16384, af_addr=22528):
         """Return a two-dimensional array of tiles (instances of
@@ -482,19 +477,7 @@ class HtmlWriter:
         :param df_addr: The display file address to use.
         :param af_addr: The attribute file address to use.
         """
-        width = min((w, 32 - x))
-        height = min((h, 24 - y))
-        scr_udgs = []
-        for r in range(y, y + height):
-            scr_udgs.append([self._get_screen_udg(r, c, df_addr, af_addr) for c in range(x, x + width)])
-        return scr_udgs
-
-    def get_font_udg_array(self, address, attr, message):
-        udgs = []
-        for c in message:
-            a = address + 8 * (ord(c) - 32)
-            udgs.append(Udg(attr, self.snapshot[a:a + 8]))
-        return [udgs]
+        return scr_udgs(self.snapshot, x, y, w, h, df_addr, af_addr)
 
     def _get_page_id(self):
         return self.skoolkit['page_id']
@@ -1098,7 +1081,7 @@ class HtmlWriter:
     def expand_font(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)
         message, addr, chars, attr, scale = params
-        udgs = lambda: self.get_font_udg_array(addr, attr, message[:chars])
+        udgs = lambda: font_udgs(self.snapshot, addr, attr, message[:chars])
         frames = [Frame(udgs, scale, 0, *crop_rect, name=frame)]
         return end, self.handle_image(frames, fname, cwd, alt, 'FontImagePath')
 
@@ -1212,20 +1195,10 @@ class HtmlWriter:
         end, table = self.table_parser.parse_text(self, text, index, cwd)
         return end, self.build_table(table)
 
-    def _build_udg(self, addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step):
-        udg_bytes = [(self.snapshot[addr + n * step] + inc) % 256 for n in range(8)]
-        mask_bytes = None
-        if mask and mask_addr is not None:
-            mask_bytes = self.snapshot[mask_addr:mask_addr + 8 * mask_step:mask_step]
-        udg = Udg(attr, udg_bytes, mask_bytes)
-        udg.flip(flip)
-        udg.rotate(rotate)
-        return [[udg]]
-
     def expand_udg(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udg(text, index)
         addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step = params
-        udgs = lambda: self._build_udg(addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step)
+        udgs = lambda: [[build_udg(self.snapshot, addr, attr, step, inc, flip, rotate, mask, mask_addr, mask_step)]]
         if not fname and not frame:
             fname = self.udg_fname_template.format(addr=addr, attr=attr, scale=scale)
             if frame == '':
@@ -1237,18 +1210,13 @@ class HtmlWriter:
         end, fname, alt, frames = skoolmacro.parse_udgarray_with_frames(text, index, self.frames)
         return end, self.handle_image(frames, fname, cwd, alt)
 
-    def _adjust_udgarray(self, udgs, flip, rotate):
-        flip_udgs(udgs, flip)
-        rotate_udgs(udgs, rotate)
-        return udgs
-
     def expand_udgarray(self, text, index, cwd):
         if index < len(text) and text[index] == '*':
             return self._expand_udgarray_with_frames(text, index, cwd)
 
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgarray(text, index, self.snapshot)
         udg_array, scale, flip, rotate, mask = params
-        udgs = lambda: self._adjust_udgarray(udg_array, flip, rotate)
+        udgs = lambda: adjust_udgs(udg_array, flip, rotate)
         frames = [Frame(udgs, scale, mask, *crop_rect, name=frame)]
         return end, self.handle_image(frames, fname, cwd, alt)
 

@@ -4,6 +4,8 @@ Changelog
 6.0b1
 -----
 * Dropped support for Python 2.7 and 3.3
+* Added the ``--expand`` option to :ref:`sna2img.py` (for expanding a
+  ``#FONT``, ``#SCR``, ``#UDG`` or ``#UDGARRAY`` macro)
 * Added the ``--find-tile`` option to :ref:`snapinfo.py` (for searching for the
   graphic data of a tile currently on screeen)
 * Added support to the ``--find`` option of :ref:`snapinfo.py` for specifying a

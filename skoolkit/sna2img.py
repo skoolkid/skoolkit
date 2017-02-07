@@ -16,13 +16,45 @@
 
 import os
 import argparse
+import re
 from builtins import open
 
-from skoolkit import SkoolKitError, read_bin_file, VERSION
+from skoolkit import SkoolKitError, read_bin_file, VERSION, skoolmacro
 from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import get_snapshot
-from skoolkit.graphics import Udg, Frame, flip_udgs, rotate_udgs
+from skoolkit.graphics import Udg, Frame, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.tap2sna import poke
+
+def _parse_font(snapshot, param_str):
+    end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(param_str)
+    message, addr, chars, attr, scale = params
+    udgs = font_udgs(snapshot, addr, attr, message[:chars])
+    return Frame(udgs, scale, 0, *crop_rect)
+
+def _parse_scr(snapshot, param_str):
+    end, crop_rect, fname, frame, alt, params = skoolmacro.parse_scr(param_str)
+    scale, x, y, w, h, df, af = params
+    udgs = scr_udgs(snapshot, x, y, w, h, df, af)
+    return Frame(udgs, scale, 0, *crop_rect)
+
+def _parse_udg(snapshot, param_str):
+    end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udg(param_str)
+    addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step = params
+    udgs = [[build_udg(snapshot, addr, attr, step, inc, flip, rotate, mask, mask_addr, mask_step)]]
+    return Frame(udgs, scale, mask, *crop_rect)
+
+def _parse_udgarray(snapshot, param_str):
+    end, crop_rect, fname, frame, alt, params = skoolmacro.parse_udgarray(param_str, 0, snapshot, False)
+    udg_array, scale, flip, rotate, mask = params
+    udgs = adjust_udgs(udg_array, flip, rotate)
+    return Frame(udgs, scale, mask, *crop_rect)
+
+MACROS = {
+    'FONT': _parse_font,
+    'SCR': _parse_scr,
+    'UDG': _parse_udg,
+    'UDGARRAY': _parse_udgarray
+}
 
 def _int_pair(arg, sep, desc):
     try:
@@ -37,33 +69,17 @@ def _coords(arg):
 def _dimensions(arg):
     return _int_pair(arg, 'x', 'dimensions')
 
-def _get_screenshot(scr, x=0, y=0, w=32, h=24):
-    scr_udgs = []
-    for row in range(y, y + h):
-        scr_udgs.append([])
-        for col in range(x, x + w):
-            attr = scr[6144 + 32 * row + col]
-            address = 2048 * (row // 8) + 32 * (row % 8) + col
-            udg_bytes = [scr[address + 256 * n] for n in range(8)]
-            scr_udgs[-1].append(Udg(attr, udg_bytes))
-    return scr_udgs
-
-def _write_image(udgs, img_file, scale, animated):
+def _write_image(frame, img_file, animated):
     iw_options = {}
     if not animated:
         iw_options[GIF_ENABLE_ANIMATION] = 0
         iw_options[PNG_ENABLE_ANIMATION] = 0
     image_writer = ImageWriter(options=iw_options)
     image_format = 'gif' if img_file.lower()[-4:] == '.gif' else 'png'
-    frame = Frame(udgs, scale)
     with open(img_file, "wb") as f:
         image_writer.write_image([frame], f, image_format)
 
 def run(infile, outfile, options):
-    x, y = options.origin
-    w = min(32 - x, options.size[0])
-    h = min(24 - y, options.size[1])
-
     if infile[-4:].lower() == '.scr':
         scr = read_bin_file(infile, 6912)
         snapshot = [0] * 65536
@@ -74,19 +90,27 @@ def run(infile, outfile, options):
     for spec in options.pokes:
         poke(snapshot, spec)
 
-    scrshot = _get_screenshot(snapshot[16384:23296], x, y, w, h)
+    if options.macro is not None:
+        match = re.match('(#?)(FONT|SCR|UDG|UDGARRAY)([^A-Z]|$)', options.macro)
+        if match:
+            frame = MACROS[match.group(2)](snapshot, options.macro[match.end(2):])
+        else:
+            raise SkoolKitError('Macro must be #FONT, #SCR, #UDG or #UDGARRAY')
+    else:
+        (x, y), (w, h) = options.origin, options.size
+        frame = Frame(scr_udgs(snapshot, x, y, w, h), options.scale)
 
     if options.invert:
-        for row in scrshot:
+        for row in frame.udgs:
             for udg in row:
                 if udg.attr & 128:
                     udg.data = [b^255 for b in udg.data]
                     udg.attr &= 127
 
-    flip_udgs(scrshot, options.flip)
-    rotate_udgs(scrshot, options.rotate)
+    flip_udgs(frame.udgs, options.flip)
+    rotate_udgs(frame.udgs, options.rotate)
 
-    _write_image(scrshot, outfile, options.scale, options.animated)
+    _write_image(frame, outfile, options.animated)
 
 def main(args):
     parser = argparse.ArgumentParser(
@@ -98,6 +122,8 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-e', '--expand', dest='macro', metavar='MACRO',
+                       help="Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The '#' prefix may be omitted.")
     group.add_argument('-f', '--flip', metavar='N', type=int, default=0,
                        help="Flip the image horizontally (N=1), vertically (N=2), or both (N=3).")
     group.add_argument('-i', '--invert', action='store_true',

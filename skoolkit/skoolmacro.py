@@ -509,7 +509,7 @@ def parse_eval(text, index):
         raise MacroParsingError("Invalid base ({}): {}".format(base, text[index:end]))
     return end, value
 
-def parse_font(text, index):
+def parse_font(text, index=0):
     # #FONT[:(text)]addr[,chars,attr,scale][{x,y,width,height}][(fname)]
     if index < len(text) and text[index] == ':':
         index, message = parse_strings(text, index + 1, 1)
@@ -732,7 +732,7 @@ def parse_reg(text, index, lower):
         return end, reg.lower()
     return end, reg.upper()
 
-def parse_scr(text, index):
+def parse_scr(text, index=0):
     # #SCR[scale,x,y,w,h,df,af][{x,y,width,height}][(fname)]
     names = ('scale', 'x', 'y', 'w', 'h', 'df', 'af')
     defaults = (1, 0, 0, 32, 24, 16384, 22528)
@@ -743,7 +743,7 @@ def parse_space(text, index, space):
     end, num = parse_ints(text, index, 1, (1,))
     return end, space * num
 
-def parse_udg(text, index):
+def parse_udg(text, index=0):
     # #UDGaddr[,attr,scale,step,inc,flip,rotate,mask][:addr[,step]][{x,y,width,height}][(fname)]
     names = ('addr', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
     defaults = (56, 4, 1, 0, 0, 0, 1)
@@ -757,7 +757,7 @@ def parse_udg(text, index):
     end, fname, frame, alt = _parse_image_fname(text, end)
     return end, crop_rect, fname, frame, alt, (addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step)
 
-def parse_udgarray(text, index, snapshot=None):
+def parse_udgarray(text, index, snapshot=None, req_fname=True):
     # #UDGARRAYwidth[,attr,scale,step,inc,flip,rotate,mask];addr[,attr,step,inc][:addr[,step]];...[{x,y,width,height}](fname)
     names = ('width', 'attr', 'scale', 'step', 'inc', 'flip', 'rotate', 'mask')
     defaults = (56, 2, 1, 0, 0, 0, 1)
@@ -803,10 +803,11 @@ def parse_udgarray(text, index, snapshot=None):
         mask = 0
     end, crop_rect = _parse_crop_spec(text, end)
     end, fname, frame, alt = _parse_image_fname(text, end)
-    if not fname and frame is None:
-        raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
-    if not fname and not frame:
-        raise MacroParsingError('Missing filename or frame ID: #UDGARRAY{}'.format(text[index:end]))
+    if req_fname:
+        if not fname and frame is None:
+            raise MacroParsingError('Missing filename: #UDGARRAY{}'.format(text[index:end]))
+        if not fname and not frame:
+            raise MacroParsingError('Missing filename or frame ID: #UDGARRAY{}'.format(text[index:end]))
     return end, crop_rect, fname, frame, alt, (udg_array, scale, flip, rotate, mask)
 
 def parse_udgarray_with_frames(text, index, frame_map=None):

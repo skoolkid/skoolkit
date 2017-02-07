@@ -506,6 +506,9 @@ To list the options supported by `sna2img.py`, run it with no arguments::
   INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.
 
   Options:
+    -e MACRO, --expand MACRO
+                          Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The '#'
+                          prefix may be omitted.
     -f N, --flip N        Flip the image horizontally (N=1), vertically (N=2),
                           or both (N=3).
     -i, --invert          Invert video for cells that are flashing.
@@ -522,11 +525,13 @@ To list the options supported by `sna2img.py`, run it with no arguments::
     -S WxH, --size WxH    Crop to this width and height (in tiles).
     -V, --version         Show SkoolKit version number and exit.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.4     | New     |
-+---------+---------+
++---------+-------------------------------+
+| Version | Changes                       |
++=========+===============================+
+| 6.0     | Added the ``--expand`` option |
++---------+-------------------------------+
+| 5.4     | New                           |
++---------+-------------------------------+
 
 .. _sna2skool.py:
 
