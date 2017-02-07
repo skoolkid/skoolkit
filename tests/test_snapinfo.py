@@ -961,6 +961,86 @@ class SnapinfoTest(SkoolKitTestCase):
         exp_output = []
         self._test_sna(ram, exp_output, '-t nowhere')
 
+    def test_option_T(self):
+        ram = [0] * 49152
+        tile_addr = 54212
+        tile_data = [0, 24, 12, 6, 127, 6, 12, 24]
+        x, y = 3, 7
+        df_addr = 16384 + 2048 * (y // 8) + 32 * (y & 7) + x
+        ram[df_addr - 16384:df_addr - 14336:256] = tile_data
+        ram[tile_addr - 16384:tile_addr - 16376] = tile_data
+        exp_output = [
+            '|        |',
+            '|   **   |',
+            '|    **  |',
+            '|     ** |',
+            '| *******|',
+            '|     ** |',
+            '|    **  |',
+            '|   **   |',
+            '54212-54219-1 D3C4-D3CB-1: 0,24,12,6,127,6,12,24'
+        ]
+        self._test_sna(ram, exp_output, '-T {},{}'.format(x, y))
+
+    def test_option_find_tile_with_step(self):
+        ram = [0] * 49152
+        tile_addr = 27483
+        tile_data = [0, 127, 127, 96, 96, 103, 103, 102]
+        x, y = 9, 15
+        step = 2
+        df_addr = 16384 + 2048 * (y // 8) + 32 * (y & 7) + x
+        ram[df_addr - 16384:df_addr - 14336:256] = tile_data
+        ram[tile_addr - 16384:tile_addr - 16384 + 8 * step:step] = tile_data
+        exp_output = [
+            '|        |',
+            '| *******|',
+            '| *******|',
+            '| **     |',
+            '| **     |',
+            '| **  ***|',
+            '| **  ***|',
+            '| **  ** |',
+            '27483-27497-2 6B5B-6B69-2: 0,127,127,96,96,103,103,102'
+        ]
+        self._test_sna(ram, exp_output, '--find-tile {},{}-{}'.format(x, y, step))
+
+    def test_option_T_with_step_range(self):
+        ram = [0] * 49152
+        tile_addr = 46987
+        tile_data = [0, 254, 254, 6, 6, 230, 230, 102]
+        x, y = 27, 2
+        step = 3
+        df_addr = 16384 + 2048 * (y // 8) + 32 * (y & 7) + x
+        ram[df_addr - 16384:df_addr - 14336:256] = tile_data
+        ram[tile_addr - 16384:tile_addr - 16384 + 8 * step:step] = tile_data
+        exp_output = [
+            '|        |',
+            '|******* |',
+            '|******* |',
+            '|     ** |',
+            '|     ** |',
+            '|***  ** |',
+            '|***  ** |',
+            '| **  ** |',
+            '46987-47008-3 B78B-B7A0-3: 0,254,254,6,6,230,230,102'
+        ]
+        self._test_sna(ram, exp_output, '-T {},{}-2-3'.format(x, y))
+
+    def test_option_find_tile_with_invalid_coordinates(self):
+        exp_error = 'Invalid tile coordinates'
+        self._test_bad_spec('--find-tile', 'x,0', exp_error)
+        self._test_bad_spec('-T', '0,y', exp_error)
+        self._test_bad_spec('--find-tile', '?,!', exp_error)
+        self._test_bad_spec('-T', '33,1', exp_error)
+        self._test_bad_spec('--find-tile', '2,27', exp_error)
+
+    def test_option_find_tile_with_invalid_step(self):
+        exp_error = 'Invalid distance: {}'
+        self._test_bad_spec('--find-tile', '2,3-x', exp_error.format('x'), False)
+        self._test_bad_spec('-T', '5,6-1-y', exp_error.format('1-y'), False)
+        self._test_bad_spec('--find-tile', '8,9-z-5', exp_error.format('z-5'), False)
+        self._test_bad_spec('-T', '11,12-q-?', exp_error.format('q-?'), False)
+
     def test_option_V(self):
         for option in ('-V', '--version'):
             output, error = self.run_snapinfo(option, err_lines=True, catch_exit=0)

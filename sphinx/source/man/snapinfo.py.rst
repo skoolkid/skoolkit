@@ -29,15 +29,25 @@ OPTIONS
 -t, --find-text `TEXT`
   Search for a text string.
 
+-T, --find-tile `X,Y[-M[-N]]`
+  Search for the graphic data of the tile at (X,Y) with distance ranging from M
+  to N (default=1) between bytes.
+
 -v, --variables
   List the contents of the variables area.
 
 -V, --version
   Show the SkoolKit version number and exit.
 
-EXAMPLE
-=======
-Display the contents of the registers in ``game.z80``:
+EXAMPLES
+========
+1. Display the contents of the registers in ``game.z80``:
 
 |
 |   ``snapinfo.py game.z80``
+
+2. Search for the graphic data of the tile currently at (2,3) on screen in
+   ``game.z80``, with a distance of 1 or 2 between bytes:
+
+|
+|   ``snapinfo.py -T 2,3-1-2 game.z80``

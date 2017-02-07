@@ -665,6 +665,9 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
                           option may be used multiple times
     -t TEXT, --find-text TEXT
                           Search for a text string
+    -T X,Y[-M[-N]], --find-tile X,Y[-M[-N]]
+                          Search for the graphic data of the tile at (X,Y) with
+                          distance ranging from M to N (default=1) between bytes
     -v, --variables       List variables
     -V, --version         Show SkoolKit version number and exit
 
@@ -673,16 +676,17 @@ and the border colour. By using one of the options shown above, it can list
 the BASIC program and variables (if present), show the contents of a range of
 addresses, or search the RAM for a sequence of byte values or a text string.
 
-+---------+---------------------------------------------------------------+
-| Version | Changes                                                       |
-+=========+===============================================================+
-| 6.0     | Added support to the ``--find`` option for distance ranges    |
-+---------+---------------------------------------------------------------+
-| 5.4     | Added the ``--variables`` option; UDGs in a BASIC program are |
-|         | shown as special symbols (e.g. ``{UDG-A}``)                   |
-+---------+---------------------------------------------------------------+
-| 5.3     | New                                                           |
-+---------+---------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.0     | Added support to the ``--find`` option for distance ranges; added |
+|         | the ``--find-tile`` option                                        |
++---------+-------------------------------------------------------------------+
+| 5.4     | Added the ``--variables`` option; UDGs in a BASIC program are     |
+|         | shown as special symbols (e.g. ``{UDG-A}``)                       |
++---------+-------------------------------------------------------------------+
+| 5.3     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _snapmod.py:
 

@@ -17,8 +17,7 @@
 import argparse
 
 from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, read_bin_file, VERSION
-from skoolkit.basic import BasicLister
-from skoolkit.basic import VariableLister
+from skoolkit.basic import BasicLister, VariableLister
 from skoolkit.snapshot import get_snapshot
 
 class Registers:
@@ -351,7 +350,7 @@ def _analyse_sna(snafile):
 
 ###############################################################################
 
-def _find(snapshot, byte_seq):
+def _find(snapshot, byte_seq, base_addr=16384):
     steps = '1'
     if '-' in byte_seq:
         byte_seq, steps = byte_seq.split('-', 1)
@@ -369,9 +368,25 @@ def _find(snapshot, byte_seq):
         raise SkoolKitError('Invalid distance: {}'.format(steps))
     for step in steps:
         offset = step * len(byte_values)
-        for a in range(16384, 65537 - offset):
+        for a in range(base_addr, 65537 - offset):
             if snapshot[a:a + offset:step] == byte_values:
                 print("{0}-{1}-{2} {0:04X}-{1:04X}-{2:X}: {3}".format(a, a + offset - step, step, byte_seq))
+
+def _find_tile(snapshot, coords):
+    steps = '1'
+    if '-' in coords:
+        coords, steps = coords.split('-', 1)
+    try:
+        x, y = [get_int_param(i) for i in coords.split(',', 1)]
+        if not 0 <= x < 32 or not 0 <= y < 24:
+            raise ValueError
+    except ValueError:
+        raise SkoolKitError('Invalid tile coordinates: {}'.format(coords))
+    df_addr = 16384 + 2048 * (y // 8) + 32 * (y & 7) + x
+    byte_seq = snapshot[df_addr:df_addr + 2048:256]
+    for b in byte_seq:
+        print('|{:08b}|'.format(b).replace('0', ' ').replace('1', '*'))
+    _find(snapshot, '{}-{}'.format(','.join([str(b) for b in byte_seq]), steps), 23296)
 
 def _find_text(snapshot, text):
     size = len(text)
@@ -413,6 +428,8 @@ def main(args):
                        help='Show the contents of addresses A TO B STEP C; this option may be used multiple times')
     group.add_argument('-t', '--find-text', dest='text', metavar='TEXT',
                        help='Search for a text string')
+    group.add_argument('-T', '--find-tile', dest='tile', metavar='X,Y[-M[-N]]',
+                       help='Search for the graphic data of the tile at (X,Y) with distance ranging from M to N (default=1) between bytes')
     group.add_argument('-v', '--variables', action='store_true',
                        help='List variables')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
@@ -425,10 +442,12 @@ def main(args):
     if snapshot_type not in ('.sna', '.szx', '.z80'):
         raise SkoolKitError('Unrecognised snapshot type')
 
-    if any((namespace.find, namespace.text, namespace.peek, namespace.basic, namespace.variables)):
+    if any((namespace.find, namespace.tile, namespace.text, namespace.peek, namespace.basic, namespace.variables)):
         snapshot = get_snapshot(infile)
         if namespace.find:
             _find(snapshot, namespace.find)
+        elif namespace.tile:
+            _find_tile(snapshot, namespace.tile)
         elif namespace.text:
             _find_text(snapshot, namespace.text)
         elif namespace.peek:
