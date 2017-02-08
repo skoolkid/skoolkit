@@ -675,6 +675,9 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
                           distance ranging from M to N (default=1) between bytes
     -v, --variables       List variables
     -V, --version         Show SkoolKit version number and exit
+    -w A[-B[-C]], --word A[-B[-C]]
+                          Show the words at addresses A TO B STEP C; this option
+                          may be used multiple times
 
 With no options, `snapinfo.py` displays register values, the interrupt mode,
 and the border colour. By using one of the options shown above, it can list
@@ -685,7 +688,7 @@ addresses, or search the RAM for a sequence of byte values or a text string.
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 6.0     | Added support to the ``--find`` option for distance ranges; added |
-|         | the ``--find-tile`` option                                        |
+|         | the ``--find-tile`` and ``--word`` options                        |
 +---------+-------------------------------------------------------------------+
 | 5.4     | Added the ``--variables`` option; UDGs in a BASIC program are     |
 |         | shown as special symbols (e.g. ``{UDG-A}``)                       |

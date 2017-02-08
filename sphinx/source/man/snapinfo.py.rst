@@ -39,6 +39,10 @@ OPTIONS
 -V, --version
   Show the SkoolKit version number and exit.
 
+-w, --word `A[-B[-C]]`
+  Show the words (2-byte values) at addresses A TO B STEP C. This option may be
+  used multiple times.
+
 EXAMPLES
 ========
 1. Display the contents of the registers in ``game.z80``:

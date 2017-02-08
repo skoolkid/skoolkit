@@ -1046,5 +1046,72 @@ class SnapinfoTest(SkoolKitTestCase):
             output, error = self.run_snapinfo(option, err_lines=True, catch_exit=0)
             self.assertEqual(['SkoolKit {}'.format(VERSION)], output + error)
 
+    def test_option_w_with_single_address(self):
+        ram = [0] * 49152
+        address = 46731
+        ram[address - 16384:address - 16382] = [47, 10]
+        exp_output = ['46731 B68B:  2607  0A2F']
+        self._test_sna(ram, exp_output, '-w {}'.format(address))
+
+    def test_option_word_with_address_range(self):
+        ram = [0] * 49152
+        address1 = 57116
+        address2 = 57122
+        ram[address1 - 16384:address2 -16382] = [27, 45, 132, 19, 18, 3, 23, 0]
+        exp_output = [
+            '57116 DF1C: 11547  2D1B',
+            '57118 DF1E:  4996  1384',
+            '57120 DF20:   786  0312',
+            '57122 DF22:    23  0017'
+        ]
+        self._test_sna(ram, exp_output, '--word {}-{}'.format(address1, address2))
+
+    def test_option_w_with_address_range_and_step(self):
+        ram = [0] * 49152
+        address1 = 36874
+        address2 = 36880
+        step = 3
+        ram[address1 - 16384:address2 -16382] = [1, 0, 0, 215, 2, 0, 7, 113]
+        exp_output = [
+            '36874 900A:     1  0001',
+            '36877 900D:   727  02D7',
+            '36880 9010: 28935  7107'
+        ]
+        self._test_sna(ram, exp_output, '-w {}-{}-{}'.format(address1, address2, step))
+
+    def test_option_w_with_hexadecimal_values(self):
+        ram = [0] * 49152
+        address1 = 0x900a
+        address2 = 0x9010
+        step = 0x03
+        ram[address1 - 16384:address2 -16382] = [1, 0, 0, 215, 2, 0, 7, 113]
+        exp_output = [
+            '36874 900A:     1  0001',
+            '36877 900D:   727  02D7',
+            '36880 9010: 28935  7107'
+        ]
+        self._test_sna(ram, exp_output, '-w ${:04X}-${:04x}-${:X}'.format(address1, address2, step))
+
+    def test_option_word_multiple(self):
+        ram = [0] * 49152
+        options = []
+        addresses = (37162, 42174, 56118)
+        for a in addresses:
+            ram[a - 16384:a - 16382] = [a // 256, a % 256]
+            options.append('--word {}'.format(a))
+        exp_output = [
+            '37162 912A: 10897  2A91',
+            '42174 A4BE: 48804  BEA4',
+            '56118 DB36: 14043  36DB'
+        ]
+        self._test_sna(ram, exp_output, ' '.join(options))
+
+    def test_option_word_with_invalid_address_range(self):
+        exp_error = 'Invalid address range'
+        self._test_bad_spec('--word', 'X', exp_error)
+        self._test_bad_spec('-w', '32768-?', exp_error)
+        self._test_bad_spec('--word', '32768-32868-q', exp_error)
+        self._test_bad_spec('-w', '32768-32868-2-3', exp_error)
+
 if __name__ == '__main__':
     unittest.main()

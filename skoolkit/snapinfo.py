@@ -350,6 +350,16 @@ def _analyse_sna(snafile):
 
 ###############################################################################
 
+def _get_address_ranges(specs, step=1):
+    addr_ranges = []
+    for addr_range in specs:
+        try:
+            values = [get_int_param(i) for i in addr_range.split('-', 2)]
+        except ValueError:
+            raise SkoolKitError('Invalid address range: {}'.format(addr_range))
+        addr_ranges.append(values + [values[0], step][len(values) - 1:])
+    return addr_ranges
+
 def _find(snapshot, byte_seq, base_addr=16384):
     steps = '1'
     if '-' in byte_seq:
@@ -396,14 +406,7 @@ def _find_text(snapshot, text):
             print("{0}-{1} {0:04X}-{1:04X}: {2}".format(a, a + size - 1, text))
 
 def _peek(snapshot, specs):
-    addr_ranges = []
-    for addr_range in specs:
-        try:
-            values = [get_int_param(i) for i in addr_range.split('-', 2)]
-        except ValueError:
-            raise SkoolKitError('Invalid address range: {}'.format(addr_range))
-        addr_ranges.append(values + [values[0], 1][len(values) - 1:])
-    for addr1, addr2, step in addr_ranges:
+    for addr1, addr2, step in _get_address_ranges(specs):
         for a in range(addr1, addr2 + 1, step):
             value = snapshot[a]
             if 32 <= value <= 126:
@@ -411,6 +414,12 @@ def _peek(snapshot, specs):
             else:
                 char = ''
             print('{0:>5} {0:04X}: {1:>3}  {1:02X}  {1:08b}  {2}'.format(a, value, char))
+
+def _word(snapshot, specs):
+    for addr1, addr2, step in _get_address_ranges(specs, 2):
+        for a in range(addr1, addr2 + 1, step):
+            value = snapshot[a] + 256 * snapshot[a + 1]
+            print('{0:>5} {0:04X}: {1:>5}  {1:04X}'.format(a, value))
 
 def main(args):
     parser = argparse.ArgumentParser(
@@ -434,6 +443,8 @@ def main(args):
                        help='List variables')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
+    group.add_argument('-w', '--word', metavar='A[-B[-C]]', action='append',
+                       help='Show the words at addresses A TO B STEP C; this option may be used multiple times')
     namespace, unknown_args = parser.parse_known_args(args)
     if unknown_args or namespace.infile is None:
         parser.exit(2, parser.format_help())
@@ -442,7 +453,7 @@ def main(args):
     if snapshot_type not in ('.sna', '.szx', '.z80'):
         raise SkoolKitError('Unrecognised snapshot type')
 
-    if any((namespace.find, namespace.tile, namespace.text, namespace.peek, namespace.basic, namespace.variables)):
+    if any((namespace.find, namespace.tile, namespace.text, namespace.peek, namespace.word, namespace.basic, namespace.variables)):
         snapshot = get_snapshot(infile)
         if namespace.find:
             _find(snapshot, namespace.find)
@@ -452,6 +463,8 @@ def main(args):
             _find_text(snapshot, namespace.text)
         elif namespace.peek:
             _peek(snapshot, namespace.peek)
+        elif namespace.word:
+            _word(snapshot, namespace.word)
         else:
             if namespace.basic:
                 print(BasicLister().list_basic(snapshot))
