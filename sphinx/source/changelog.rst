@@ -11,6 +11,7 @@ Changelog
   a range of addresses) to :ref:`snapinfo.py`
 * Added support to the ``--find`` option of :ref:`snapinfo.py` for specifying a
   range of distances between byte values (e.g. ``--find 1,2,3-1-10``)
+* The ``--peek`` option of :ref:`snapinfo.py` now shows UDGs and BASIC tokens
 * Added support for parsing a :ref:`box page <boxpages>` entry section as a
   sequence of multi-line list items prefixed by '-' (with
   ``SectionType=BulletPoints``)

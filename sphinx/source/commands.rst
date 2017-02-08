@@ -688,7 +688,8 @@ addresses, or search the RAM for a sequence of byte values or a text string.
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 6.0     | Added support to the ``--find`` option for distance ranges; added |
-|         | the ``--find-tile`` and ``--word`` options                        |
+|         | the ``--find-tile`` and ``--word`` options; the ``--peek`` option |
+|         | shows UDGs and BASIC tokens                                       |
 +---------+-------------------------------------------------------------------+
 | 5.4     | Added the ``--variables`` option; UDGs in a BASIC program are     |
 |         | shown as special symbols (e.g. ``{UDG-A}``)                       |

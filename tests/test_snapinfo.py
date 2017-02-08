@@ -881,12 +881,12 @@ class SnapinfoTest(SkoolKitTestCase):
         ram = [0] * 49152
         address1 = 41885
         address2 = 41888
-        ram[address1 - 16384:address2 -16383] = list(range(153, 154 + address2 - address1))
+        ram[address1 - 16384:address2 -16383] = list(range(99, 100 + address2 - address1))
         exp_output = [
-            '41885 A39D: 153  99  10011001',
-            '41886 A39E: 154  9A  10011010',
-            '41887 A39F: 155  9B  10011011',
-            '41888 A3A0: 156  9C  10011100'
+            '41885 A39D:  99  63  01100011  c',
+            '41886 A39E: 100  64  01100100  d',
+            '41887 A39F: 101  65  01100101  e',
+            '41888 A3A0: 102  66  01100110  f'
         ]
         self._test_sna(ram, exp_output, '--peek {}-{}'.format(address1, address2))
 
@@ -895,11 +895,11 @@ class SnapinfoTest(SkoolKitTestCase):
         address1 = 25663
         address2 = 25669
         step = 3
-        ram[address1 - 16384:address2 -16383:step] = [33, 65, 255]
+        ram[address1 - 16384:address2 -16383:step] = [33, 65, 126]
         exp_output = [
             '25663 643F:  33  21  00100001  !',
             '25666 6442:  65  41  01000001  A',
-            '25669 6445: 255  FF  11111111'
+            '25669 6445: 126  7E  01111110  ~'
         ]
         self._test_sna(ram, exp_output, '-p {}-{}-{}'.format(address1, address2, step))
 
@@ -908,11 +908,11 @@ class SnapinfoTest(SkoolKitTestCase):
         address1 = 0x81ad
         address2 = 0x81c1
         step = 0x0a
-        ram[address1 - 16384:address2 -16383:step] = [33, 65, 255]
+        ram[address1 - 16384:address2 -16383:step] = [33, 65, 126]
         exp_output = [
             '33197 81AD:  33  21  00100001  !',
             '33207 81B7:  65  41  01000001  A',
-            '33217 81C1: 255  FF  11111111'
+            '33217 81C1: 126  7E  01111110  ~'
         ]
         self._test_sna(ram, exp_output, '-p ${:04X}-${:04x}-${:X}'.format(address1, address2, step))
 
@@ -929,6 +929,148 @@ class SnapinfoTest(SkoolKitTestCase):
             '50998 C736:  54  36  00110110  6'
         ]
         self._test_sna(ram, exp_output, ' '.join(options))
+
+    def test_option_p_with_udgs(self):
+        ram = [0] * 49152
+        address = 61892
+        udgs = list(range(144, 165))
+        ram[address - 16384:address - 16384 + len(udgs)] = udgs
+        exp_output = [
+            '61892 F1C4: 144  90  10010000  UDG-A',
+            '61893 F1C5: 145  91  10010001  UDG-B',
+            '61894 F1C6: 146  92  10010010  UDG-C',
+            '61895 F1C7: 147  93  10010011  UDG-D',
+            '61896 F1C8: 148  94  10010100  UDG-E',
+            '61897 F1C9: 149  95  10010101  UDG-F',
+            '61898 F1CA: 150  96  10010110  UDG-G',
+            '61899 F1CB: 151  97  10010111  UDG-H',
+            '61900 F1CC: 152  98  10011000  UDG-I',
+            '61901 F1CD: 153  99  10011001  UDG-J',
+            '61902 F1CE: 154  9A  10011010  UDG-K',
+            '61903 F1CF: 155  9B  10011011  UDG-L',
+            '61904 F1D0: 156  9C  10011100  UDG-M',
+            '61905 F1D1: 157  9D  10011101  UDG-N',
+            '61906 F1D2: 158  9E  10011110  UDG-O',
+            '61907 F1D3: 159  9F  10011111  UDG-P',
+            '61908 F1D4: 160  A0  10100000  UDG-Q',
+            '61909 F1D5: 161  A1  10100001  UDG-R',
+            '61910 F1D6: 162  A2  10100010  UDG-S',
+            '61911 F1D7: 163  A3  10100011  UDG-T',
+            '61912 F1D8: 164  A4  10100100  UDG-U'
+        ]
+        self._test_sna(ram, exp_output, '-p {}-{}'.format(address, address + len(udgs) - 1))
+
+    def test_option_peek_with_basic_tokens(self):
+        ram = [0] * 49152
+        address = 42152
+        tokens = list(range(165, 256))
+        ram[address - 16384:address - 16384 + len(tokens)] = tokens
+        exp_output = [
+            '42152 A4A8: 165  A5  10100101  RND',
+            '42153 A4A9: 166  A6  10100110  INKEY$',
+            '42154 A4AA: 167  A7  10100111  PI',
+            '42155 A4AB: 168  A8  10101000  FN',
+            '42156 A4AC: 169  A9  10101001  POINT',
+            '42157 A4AD: 170  AA  10101010  SCREEN$',
+            '42158 A4AE: 171  AB  10101011  ATTR',
+            '42159 A4AF: 172  AC  10101100  AT',
+            '42160 A4B0: 173  AD  10101101  TAB',
+            '42161 A4B1: 174  AE  10101110  VAL$',
+            '42162 A4B2: 175  AF  10101111  CODE',
+            '42163 A4B3: 176  B0  10110000  VAL',
+            '42164 A4B4: 177  B1  10110001  LEN',
+            '42165 A4B5: 178  B2  10110010  SIN',
+            '42166 A4B6: 179  B3  10110011  COS',
+            '42167 A4B7: 180  B4  10110100  TAN',
+            '42168 A4B8: 181  B5  10110101  ASN',
+            '42169 A4B9: 182  B6  10110110  ACS',
+            '42170 A4BA: 183  B7  10110111  ATN',
+            '42171 A4BB: 184  B8  10111000  LN',
+            '42172 A4BC: 185  B9  10111001  EXP',
+            '42173 A4BD: 186  BA  10111010  INT',
+            '42174 A4BE: 187  BB  10111011  SQR',
+            '42175 A4BF: 188  BC  10111100  SGN',
+            '42176 A4C0: 189  BD  10111101  ABS',
+            '42177 A4C1: 190  BE  10111110  PEEK',
+            '42178 A4C2: 191  BF  10111111  IN',
+            '42179 A4C3: 192  C0  11000000  USR',
+            '42180 A4C4: 193  C1  11000001  STR$',
+            '42181 A4C5: 194  C2  11000010  CHR$',
+            '42182 A4C6: 195  C3  11000011  NOT',
+            '42183 A4C7: 196  C4  11000100  BIN',
+            '42184 A4C8: 197  C5  11000101  OR',
+            '42185 A4C9: 198  C6  11000110  AND',
+            '42186 A4CA: 199  C7  11000111  <=',
+            '42187 A4CB: 200  C8  11001000  >=',
+            '42188 A4CC: 201  C9  11001001  <>',
+            '42189 A4CD: 202  CA  11001010  LINE',
+            '42190 A4CE: 203  CB  11001011  THEN',
+            '42191 A4CF: 204  CC  11001100  TO',
+            '42192 A4D0: 205  CD  11001101  STEP',
+            '42193 A4D1: 206  CE  11001110  DEF FN',
+            '42194 A4D2: 207  CF  11001111  CAT',
+            '42195 A4D3: 208  D0  11010000  FORMAT',
+            '42196 A4D4: 209  D1  11010001  MOVE',
+            '42197 A4D5: 210  D2  11010010  ERASE',
+            '42198 A4D6: 211  D3  11010011  OPEN #',
+            '42199 A4D7: 212  D4  11010100  CLOSE #',
+            '42200 A4D8: 213  D5  11010101  MERGE',
+            '42201 A4D9: 214  D6  11010110  VERIFY',
+            '42202 A4DA: 215  D7  11010111  BEEP',
+            '42203 A4DB: 216  D8  11011000  CIRCLE',
+            '42204 A4DC: 217  D9  11011001  INK',
+            '42205 A4DD: 218  DA  11011010  PAPER',
+            '42206 A4DE: 219  DB  11011011  FLASH',
+            '42207 A4DF: 220  DC  11011100  BRIGHT',
+            '42208 A4E0: 221  DD  11011101  INVERSE',
+            '42209 A4E1: 222  DE  11011110  OVER',
+            '42210 A4E2: 223  DF  11011111  OUT',
+            '42211 A4E3: 224  E0  11100000  LPRINT',
+            '42212 A4E4: 225  E1  11100001  LLIST',
+            '42213 A4E5: 226  E2  11100010  STOP',
+            '42214 A4E6: 227  E3  11100011  READ',
+            '42215 A4E7: 228  E4  11100100  DATA',
+            '42216 A4E8: 229  E5  11100101  RESTORE',
+            '42217 A4E9: 230  E6  11100110  NEW',
+            '42218 A4EA: 231  E7  11100111  BORDER',
+            '42219 A4EB: 232  E8  11101000  CONTINUE',
+            '42220 A4EC: 233  E9  11101001  DIM',
+            '42221 A4ED: 234  EA  11101010  REM',
+            '42222 A4EE: 235  EB  11101011  FOR',
+            '42223 A4EF: 236  EC  11101100  GO TO',
+            '42224 A4F0: 237  ED  11101101  GO SUB',
+            '42225 A4F1: 238  EE  11101110  INPUT',
+            '42226 A4F2: 239  EF  11101111  LOAD',
+            '42227 A4F3: 240  F0  11110000  LIST',
+            '42228 A4F4: 241  F1  11110001  LET',
+            '42229 A4F5: 242  F2  11110010  PAUSE',
+            '42230 A4F6: 243  F3  11110011  NEXT',
+            '42231 A4F7: 244  F4  11110100  POKE',
+            '42232 A4F8: 245  F5  11110101  PRINT',
+            '42233 A4F9: 246  F6  11110110  PLOT',
+            '42234 A4FA: 247  F7  11110111  RUN',
+            '42235 A4FB: 248  F8  11111000  SAVE',
+            '42236 A4FC: 249  F9  11111001  RANDOMIZE',
+            '42237 A4FD: 250  FA  11111010  IF',
+            '42238 A4FE: 251  FB  11111011  CLS',
+            '42239 A4FF: 252  FC  11111100  DRAW',
+            '42240 A500: 253  FD  11111101  CLEAR',
+            '42241 A501: 254  FE  11111110  RETURN',
+            '42242 A502: 255  FF  11111111  COPY'
+        ]
+        self._test_sna(ram, exp_output, '--peek {}-{}'.format(address, address + len(tokens) - 1))
+
+    def test_option_p_with_nonstandard_characters(self):
+        ram = [0] * 49152
+        address = 44637
+        chars = [94, 96, 127]
+        ram[address - 16384:address - 16384 + len(chars)] = chars
+        exp_output = [
+            '44637 AE5D:  94  5E  01011110  ↑',
+            '44638 AE5E:  96  60  01100000  £',
+            '44639 AE5F: 127  7F  01111111  ©'
+        ]
+        self._test_sna(ram, exp_output, '-p {}-{}'.format(address, address + len(chars) - 1))
 
     def test_option_peek_with_invalid_address_range(self):
         exp_error = 'Invalid address range'

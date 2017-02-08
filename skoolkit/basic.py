@@ -113,6 +113,21 @@ TOKENS = {
     255: 'COPY'
 }
 
+def get_char(code, u_fmt='{{0x{:02X}}}', udg_fmt='{{UDG-{}}}', tokens=False):
+    if code == 94:
+        return '↑'
+    if code == 96:
+        return '£'
+    if code == 127:
+        return '©'
+    if 32 <= code <= 126:
+        return chr(code)
+    if 144 <= code <= 164:
+        return udg_fmt.format(chr(code - 79))
+    if code >= 165 and tokens:
+        return TOKENS[code]
+    return u_fmt.format(code)
+
 def _get_number(snapshot, i):
     if snapshot[i]:
         return _get_float(snapshot, i)
@@ -144,24 +159,11 @@ class TextReader:
     def get_chars(self, code):
         if code <= 32:
             self.lspace = False
-            return self._get_char(code)
+            return get_char(code)
         if code <= 164:
             self.lspace = True
-            return self._get_char(code)
+            return get_char(code)
         return self._get_token(code)
-
-    def _get_char(self, code):
-        if code == 94:
-            return '↑'
-        if code == 96:
-            return '£'
-        if code == 127:
-            return '©'
-        if 32 <= code <= 126:
-            return chr(code)
-        if 144 <= code <= 164:
-            return '{{UDG-{}}}'.format(chr(code - 79))
-        return '{{0x{:02X}}}'.format(code)
 
     def _get_token(self, code):
         token = TOKENS[code]

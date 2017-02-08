@@ -17,7 +17,7 @@
 import argparse
 
 from skoolkit import SkoolKitError, get_dword, get_int_param, get_word, read_bin_file, VERSION
-from skoolkit.basic import BasicLister, VariableLister
+from skoolkit.basic import BasicLister, VariableLister, get_char
 from skoolkit.snapshot import get_snapshot
 
 class Registers:
@@ -409,10 +409,7 @@ def _peek(snapshot, specs):
     for addr1, addr2, step in _get_address_ranges(specs):
         for a in range(addr1, addr2 + 1, step):
             value = snapshot[a]
-            if 32 <= value <= 126:
-                char = chr(value)
-            else:
-                char = ''
+            char = get_char(value, '', 'UDG-{}', True)
             print('{0:>5} {0:04X}: {1:>3}  {1:02X}  {1:08b}  {2}'.format(a, value, char))
 
 def _word(snapshot, specs):

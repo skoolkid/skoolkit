@@ -17,6 +17,7 @@
 import argparse
 
 from skoolkit import SkoolKitError, get_word, get_word3, get_dword, VERSION
+from skoolkit.basic import get_char
 
 ARCHIVE_INFO = {
     0: "Full title",
@@ -38,18 +39,9 @@ def _get_str(data):
     text = ''
     for b in data:
         if b == 13:
-            char = '\n'
-        elif b == 94:
-            char = '↑'
-        elif b == 96:
-            char = '£'
-        elif b == 127:
-            char = '©'
-        elif 32 <= b < 127:
-            char = chr(b)
+            text += '\n'
         else:
-            char = '?'
-        text += char
+            text += get_char(b, '?', '?')
     return text
 
 def _format_text(prefix, data, start, length):
