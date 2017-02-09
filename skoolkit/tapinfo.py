@@ -16,8 +16,8 @@
 
 import argparse
 
-from skoolkit import SkoolKitError, get_word, get_word3, get_dword, VERSION
-from skoolkit.basic import get_char
+from skoolkit import SkoolKitError, get_word, get_word3, get_dword, get_int_param, VERSION
+from skoolkit.basic import BasicLister, get_char
 
 ARCHIVE_INFO = {
     0: "Full title",
@@ -220,12 +220,28 @@ def _print_block(index, data, info=(), block_id=None, header=None):
     for line in info:
         _print_info(line)
 
-def _analyse_tzx(tzx, options):
+def _list_basic(cur_block_num, data, block_num, address):
+    if block_num == cur_block_num:
+        snapshot = [0] * address + list(data[1:-1])
+        print(BasicLister().list_basic(snapshot))
+
+def _get_basic_block(spec):
+    if spec:
+        try:
+            if ',' in spec:
+                return [get_int_param(i) for i in spec.split(',', 1)]
+            return get_int_param(spec), 23755
+        except ValueError:
+            raise SkoolKitError('Invalid block specification: {}'.format(spec))
+
+def _analyse_tzx(tzx, basic_block, options):
     if tzx[:8] != bytearray((90, 88, 84, 97, 112, 101, 33, 26)):
         raise SkoolKitError("Not a TZX file")
 
     try:
-        print('Version: {}.{}'.format(tzx[8], tzx[9]))
+        version = 'Version: {}.{}'.format(tzx[8], tzx[9])
+        if not basic_block:
+            print(version)
     except IndexError:
         raise SkoolKitError('TZX version number not found')
 
@@ -241,16 +257,22 @@ def _analyse_tzx(tzx, options):
     i = 10
     while i < len(tzx):
         i, block_id, header, info, tape_data = _get_block_info(tzx, i, block_num)
-        if not block_ids or block_id in block_ids:
+        if basic_block:
+            _list_basic(block_num, tape_data, *basic_block)
+        elif not block_ids or block_id in block_ids:
             _print_block(block_num, tape_data, info, block_id, header)
         block_num += 1
 
-def _analyse_tap(tap):
+def _analyse_tap(tap, basic_block):
     i = 0
     block_num = 1
     while i < len(tap):
         block_len = get_word(tap, i)
-        _print_block(block_num, tap[i + 2:i + 2 + block_len])
+        data = tap[i + 2:i + 2 + block_len]
+        if basic_block:
+            _list_basic(block_num, data, *basic_block)
+        else:
+            _print_block(block_num, data)
         i += block_len + 2
         block_num += 1
 
@@ -265,6 +287,8 @@ def main(args):
     group.add_argument('-b', '--tzx-blocks', dest='block_ids', metavar='IDs',
                        help="Show TZX blocks with these IDs only; "
                             "'IDs' is a comma-separated list of hexadecimal block IDs, e.g. 10,11,2a")
+    group.add_argument('-B', '--basic', metavar='N[,A]',
+                       help='List the BASIC program in block N loaded at address A (default 23755)')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
     namespace, unknown_args = parser.parse_known_args(args)
@@ -275,10 +299,12 @@ def main(args):
     if tape_type not in ('.tap', '.tzx'):
         raise SkoolKitError('Unrecognised tape type')
 
+    basic_block = _get_basic_block(namespace.basic)
+
     with open(infile, 'rb') as f:
         tape = f.read()
 
     if tape_type == '.tap':
-        _analyse_tap(tape)
+        _analyse_tap(tape, basic_block)
     else:
-        _analyse_tzx(tape, namespace)
+        _analyse_tzx(tape, basic_block, namespace)

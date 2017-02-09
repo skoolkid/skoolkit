@@ -18,13 +18,21 @@ OPTIONS
   Show TZX blocks with these IDs only; `IDs` is a comma-separated list of
   hexadecimal block IDs, e.g. 10,11,2a.
 
+-B, --basic `N[,A]`
+  List the BASIC program in block number N loaded at address A (default 23755).
+
 -V, --version
   Show the SkoolKit version number and exit.
 
-EXAMPLE
-=======
-Show information on the standard speed (0x10) and turbo speed (0x11) data
-blocks only in  ``game.tzx``:
+EXAMPLES
+========
+1. Show information on the standard speed (0x10) and turbo speed (0x11) data
+   blocks only in  ``game.tzx``:
 
 |
 |   ``tapinfo.py -b 10,11 game.tzx``
+
+2. List the BASIC program in the second block in ``game.tap``:
+
+|
+|   ``tapinfo.py -B 2 game.tap``

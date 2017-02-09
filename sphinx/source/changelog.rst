@@ -6,6 +6,8 @@ Changelog
 * Dropped support for Python 2.7 and 3.3
 * Added the ``--expand`` option to :ref:`sna2img.py` (for expanding a
   ``#FONT``, ``#SCR``, ``#UDG`` or ``#UDGARRAY`` macro)
+* Added the ``--basic`` option to :ref:`tapinfo.py` (for listing the BASIC
+  program in a tape block)
 * Added the ``--find-tile`` option (for searching for the graphic data of a
   tile currently on screen) and the ``--word`` option (for showing the words at
   a range of addresses) to :ref:`snapinfo.py`
