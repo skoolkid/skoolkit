@@ -20,15 +20,19 @@ class MockImageWriter:
         self.img_format = img_format
 
 class Sna2ImgTest(SkoolKitTestCase):
-    def _test_sna2img(self, mock_open, options, scr, udgs, scale=1, outfile=None, iw_options=None, ftype='scr'):
+    def _test_sna2img(self, mock_open, options, data, udgs, scale=1, mask=0, x=0, y=0,
+                      width=None, height=None, address=16384, outfile=None, iw_options=None, ftype='scr'):
         if ftype == 'scr':
-            infile = self.write_bin_file(scr, suffix='.scr')
-        elif ftype == 'sna':
-            infile = self.write_bin_file([0] * 27 + scr + [0] * 42240, suffix='.sna')
-        elif ftype == 'szx':
-            infile = self.write_szx(scr + [0] * 42240)
-        elif ftype == 'z80':
-            infile = self.write_z80(scr + [0] * 42240)[1]
+            infile = self.write_bin_file(data, suffix='.scr')
+        else:
+            ram = [0] * (address - 16384) + data
+            ram.extend((0,) * (49152 - len(ram)))
+            if ftype == 'sna':
+                infile = self.write_bin_file([0] * 27 + ram, suffix='.sna')
+            elif ftype == 'szx':
+                infile = self.write_szx(ram)
+            elif ftype == 'z80':
+                infile = self.write_z80(ram)[1]
         args = '{} {}'.format(options, infile)
         if outfile:
             exp_outfile = outfile
@@ -45,10 +49,19 @@ class Sna2ImgTest(SkoolKitTestCase):
         mock_open.assert_called_with(exp_outfile, 'wb')
         self.assertEqual(len(image_writer.frames), 1)
         frame = image_writer.frames[0]
-        self.assertEqual(frame.scale, scale)
         self.assertEqual(len(udgs), len(frame.udgs))
         for i, row in enumerate(udgs):
             self.assertEqual(udgs[i], frame.udgs[i], "Row {}/{} differs from expected value".format(i + 1, len(udgs)))
+        self.assertEqual(frame.scale, scale)
+        self.assertEqual(frame.mask, mask)
+        self.assertEqual(frame.x, x)
+        self.assertEqual(frame.y, y)
+        if width is None:
+            width = 8 * len(frame.udgs[0]) * scale
+        if height is None:
+            height = 8 * len(frame.udgs) * scale
+        self.assertEqual(frame.width, width)
+        self.assertEqual(frame.height, height)
 
     def _test_bad_spec(self, option, exp_error):
         scrfile = self.write_bin_file(suffix='.scr')
@@ -110,6 +123,51 @@ class Sna2ImgTest(SkoolKitTestCase):
         scr = ([42] * 256 + [0] * 256) * 12 + [8] * 768
         exp_udgs = [[Udg(8, [42, 0] * 4)] * 32] * 24
         self._test_sna2img(mock_open, '', scr, exp_udgs, ftype='z80')
+
+    @patch.object(sna2img, 'run', mock_run)
+    def test_options_e_expand(self):
+        for option, value in (('-e', 'UDG32768'), ('--expand', 'FONT49152')):
+            output, error = self.run_sna2img('{} {} test.scr'.format(option, value))
+            self.assertEqual([], output)
+            self.assertEqual(error, '')
+            infile, outfile, options = run_args
+            self.assertEqual(options.macro, value)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_e_font(self, mock_open):
+        addr = 30000
+        attr = 5
+        char1 = Udg(attr, [170] * 8)
+        char2 = Udg(attr, [129] * 8)
+        exp_udgs = [[char1, char2]]
+        chars = len(exp_udgs[0])
+        scale = 3
+        x, y = 1, 2
+        width, height = 40, 19
+        data = char1.data + char2.data
+        macro = 'FONT{},{},{},{}{{{},{},{},{}}}(ignored.gif)'.format(addr, chars, attr, scale, x, y, width, height)
+        self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, scale, 0, x, y, width, height, addr, ftype='sna')
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_e_font_with_text(self, mock_open):
+        font_addr = 25000
+        text = 'ab'
+        addr = font_addr + 8 * (ord(text[0]) - 32)
+        char1 = Udg(56, [85] * 8)
+        char2 = Udg(56, [240] * 8)
+        exp_udgs = [[char1, char2]]
+        scale = 2
+        data = char1.data + char2.data
+        macro = '#FONT:({}){}'.format(text, font_addr)
+        self._test_sna2img(mock_open, '--expand {}'.format(macro), data, exp_udgs, scale, address=addr, ftype='sna')
+
+    def test_option_e_font_invalid_parameters(self):
+        scrfile = self.write_bin_file(suffix='.scr')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_sna2img('-e FONTx {}'.format(scrfile))
+        self.assertEqual(cm.exception.args[0], 'Invalid #FONT macro: No parameters (expected 1)')
 
     @patch.object(sna2img, 'run', mock_run)
     def test_options_f_flip(self):

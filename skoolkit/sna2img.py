@@ -93,7 +93,11 @@ def run(infile, outfile, options):
     if options.macro is not None:
         match = re.match('(#?)(FONT|SCR|UDG|UDGARRAY)([^A-Z]|$)', options.macro)
         if match:
-            frame = MACROS[match.group(2)](snapshot, options.macro[match.end(2):])
+            macro = match.group(2)
+            try:
+                frame = MACROS[macro](snapshot, options.macro[match.end(2):])
+            except skoolmacro.MacroParsingError as e:
+                raise SkoolKitError('Invalid #{} macro: {}'.format(macro, e.args[0]))
         else:
             raise SkoolKitError('Macro must be #FONT, #SCR, #UDG or #UDGARRAY')
     else:
