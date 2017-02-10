@@ -488,21 +488,6 @@ SECTIONS['Template:asm_register'] = """
 </tr>
 """
 
-SECTIONS['Template:changelog_entry'] = """
-<div>{t_anchor}</div>
-<div class="changelog changelog-{num}">
-<div class="changelog-title">{title}</div>
-<div class="changelog-desc">{description}</div>
-{t_changelog_item_list}
-</div>
-"""
-
-SECTIONS['Template:changelog_item_list'] = """
-<ul class="changelog{indent}">
-{m_changelog_item}
-</ul>
-"""
-
 SECTIONS['Template:contents_list_item'] = """
 <li><a href="{href}">{title}</a></li>
 """
@@ -544,8 +529,23 @@ SECTIONS['Template:list'] = """
 </ul>
 """
 
+SECTIONS['Template:list_entry'] = """
+<div>{t_anchor}</div>
+<div class="changelog changelog-{num}">
+<div class="changelog-title">{title}</div>
+<div class="changelog-desc">{description}</div>
+{t_list_items}
+</div>
+"""
+
 SECTIONS['Template:list_item'] = """
 <li>{item}</li>
+"""
+
+SECTIONS['Template:list_items'] = """
+<ul class="changelog{indent}">
+{m_list_item}
+</ul>
 """
 
 SECTIONS['Template:map_entry'] = """

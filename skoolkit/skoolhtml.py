@@ -637,9 +637,9 @@ class HtmlWriter:
                 'num': 1 + j % 2,
                 'title': title,
                 'description': self.expand(description, cwd),
-                't_changelog_item_list': self._build_list_items(cwd, list_items)
+                't_list_items': self._build_list_items(cwd, list_items)
             }
-            entries.append(self.format_template(page_id + '-entry', t_entry_subs, 'changelog_entry'))
+            entries.append(self.format_template(page_id + '-entry', t_entry_subs, 'list_entry'))
         subs = {
             'm_contents_list_item': self._format_contents_list_items(contents),
             'entries': '\n'.join(entries),
@@ -659,11 +659,11 @@ class HtmlWriter:
             indent = level
         else:
             indent = ''
-        t_changelog_item_list_subs = {
+        t_list_items_subs = {
             'indent': indent,
-            'm_changelog_item': '\n'.join(list_items)
+            'm_list_item': '\n'.join(list_items)
         }
-        return self.format_template(self._get_page_id() + '-item_list', t_changelog_item_list_subs, 'changelog_item_list')
+        return self.format_template(self._get_page_id() + '-item_list', t_list_items_subs, 'list_items')
 
     def format_registers(self, cwd, registers, entry_dict):
         input_values = []

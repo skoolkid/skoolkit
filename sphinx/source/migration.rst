@@ -93,6 +93,16 @@ In SkoolKit 5, the ``DefaultAnimationFormat`` parameter in the
 parameter (``png`` by default). In SkoolKit 6, ``DefaultAnimationFormat``
 defaults to ``gif``.
 
+changelog_* templates
+---------------------
+The ``changelog_entry`` and ``changelog_item_list`` templates have been renamed
+:ref:`t_list_entry` and :ref:`t_list_items`. (They are general purpose
+templates used not just by the 'Changelog' page, but by any
+:ref:`box page <boxpages>` whose ``SectionType`` is ``BulletPoints`` or
+``ListItems``.) Accordingly, the ``t_changelog_item_list`` and
+``m_changelog_item`` identifiers in those templates have been renamed
+``t_list_items`` and ``m_list_item``.
+
 PageHeaders:Asm-t
 -----------------
 In SkoolKit 5, the default :ref:`header <pageHeaders>` for ``Asm-t`` pages

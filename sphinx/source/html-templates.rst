@@ -175,7 +175,7 @@ The ``Reference`` template is the full-page template that is used to build
 The following identifiers are available (in addition to the universal and
 page-level identifiers):
 
-* ``entries`` - replaced by one or more copies of the :ref:`t_changelog_entry`
+* ``entries`` - replaced by one or more copies of the :ref:`t_list_entry`
   subtemplate (when the page's ``SectionType`` is ``BulletPoints`` or
   ``ListItems``), or the :ref:`t_reference_entry` subtemplate
 * ``m_contents_list_item`` - replaced by one or more copies of the
@@ -301,53 +301,6 @@ identifiers):
 To see the default ``asm_register`` template, run the following command::
 
   $ skool2html.py -r Template:asm_register
-
-.. _t_changelog_entry:
-
-changelog_entry
----------------
-The ``changelog_entry`` is the subtemplate used by the :ref:`t_Reference`
-full-page template to format each entry on a :ref:`box page <boxpages>` whose
-``SectionType`` is ``BulletPoints`` or ``ListItems``.
-
-The following identifiers are available (in addition to the universal
-identifiers):
-
-* ``description`` - the entry intro text
-* ``num`` - '1' or '2', depending on the order of the entry on the page
-* ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate (with
-  the entry title as the anchor name)
-* ``t_changelog_item_list`` - replaced by a copy of the
-  :ref:`t_changelog_item_list` subtemplate
-* ``title`` - the entry title
-
-To see the default ``changelog_entry`` template, run the following command::
-
-  $ skool2html.py -r Template:changelog_entry
-
-.. _t_changelog_item_list:
-
-changelog_item_list
--------------------
-The ``changelog_item_list`` template is the subtemplate used by the
-:ref:`t_changelog_entry` subtemplate to format a list of items in an entry on a
-:ref:`box page <boxpages>` whose ``SectionType`` is ``BulletPoints`` or
-``ListItems``, and also by the :ref:`t_list_item` subtemplate to format a list
-of subitems or subsubitems etc.
-
-The following identifiers are available (in addition to the universal
-identifiers):
-
-* ``indent`` - the indentation level of the item list: '' (blank string) for
-  the list of top-level items, '1' for a list of subitems, '2' for a list of
-  subsubitems etc.
-* ``m_changelog_item`` - replaced by one or more copies of the
-  :ref:`t_list_item` subtemplate
-
-To see the default ``changelog_item_list`` template, run the following
-command::
-
-  $ skool2html.py -r Template:changelog_item_list
 
 .. _t_contents_list_item:
 
@@ -491,13 +444,40 @@ To see the default ``list`` template, run the following command::
 
 .. versionadded:: 4.2
 
+.. _t_list_entry:
+
+list_entry
+----------
+The ``list_entry`` is the subtemplate used by the :ref:`t_Reference` full-page
+template to format each entry on a :ref:`box page <boxpages>` whose
+``SectionType`` is ``BulletPoints`` or ``ListItems``.
+
+The following identifiers are available (in addition to the universal
+identifiers):
+
+* ``description`` - the entry intro text
+* ``num`` - '1' or '2', depending on the order of the entry on the page
+* ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate (with
+  the entry title as the anchor name)
+* ``t_list_items`` - replaced by a copy of the :ref:`t_list_items` subtemplate
+* ``title`` - the entry title
+
+To see the default ``list_entry`` template, run the following command::
+
+  $ skool2html.py -r Template:list_entry
+
+.. versionchanged:: 6.0
+   The name of this template changed from ``changelog_entry`` to
+   ``list_entry``; accordingly, the name of the ``t_changelog_item_list``
+   identifier changed to ``t_list_items``.
+
 .. _t_list_item:
 
 list_item
 ---------
 The ``list_item`` template is the subtemplate used by the :ref:`t_list`
-template and the :ref:`t_changelog_item_list` subtemplate to format each item
-in the list.
+template and the :ref:`t_list_items` subtemplate to format each item in the
+list.
 
 The following identifier is available (in addition to the universal
 identifiers):
@@ -506,9 +486,37 @@ identifiers):
 
 To see the default ``list_item`` template, run the following command::
 
-  $ skool2html.py -r Template:list_item
+  $ skool2html.py -r Template:list_item$
 
 .. versionadded:: 4.2
+
+.. _t_list_items:
+
+list_items
+----------
+The ``list_items`` template is the subtemplate used by the :ref:`t_list_entry`
+subtemplate to format a list of items in an entry on a
+:ref:`box page <boxpages>` whose ``SectionType`` is ``BulletPoints`` or
+``ListItems``, and also by the :ref:`t_list_item` subtemplate to format a list
+of subitems or subsubitems etc.
+
+The following identifiers are available (in addition to the universal
+identifiers):
+
+* ``indent`` - the indentation level of the item list: '' (blank string) for
+  the list of top-level items, '1' for a list of subitems, '2' for a list of
+  subsubitems etc.
+* ``m_list_item`` - replaced by one or more copies of the :ref:`t_list_item`
+  subtemplate
+
+To see the default ``list_items`` template, run the following command::
+
+  $ skool2html.py -r Template:list_items
+
+.. versionchanged:: 6.0
+   The name of this template changed from ``changelog_item_list`` to
+   ``list_items``; accordingly, the name of the ``m_changelog_item``
+   identifier changed to ``m_list_item``.
 
 .. _t_map_entry:
 
@@ -750,11 +758,11 @@ template if it exists, or the stock :ref:`t_footer` template otherwise.
 | :ref:`Box page <boxpages>`    | ``PageID-entry``                     | :ref:`t_reference_entry`     |
 | entry (paragraphs)            |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
-| :ref:`Box page <boxpages>`    | ``PageID-entry``                     | :ref:`t_changelog_entry`     |
+| :ref:`Box page <boxpages>`    | ``PageID-entry``                     | :ref:`t_list_entry`          |
 | entry (list items)            |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
-| :ref:`Box page <boxpages>`    | ``PageID-item_list``                 | :ref:`t_changelog_item_list` |
-| entry  list                   |                                      |                              |
+| :ref:`Box page <boxpages>`    | ``PageID-item_list``                 | :ref:`t_list_items`          |
+| entry list                    |                                      |                              |
 +-------------------------------+--------------------------------------+------------------------------+
 | :ref:`Box page <boxpages>`    | ``PageID-list_item``                 | :ref:`t_list_item`           |
 | entry list item               |                                      |                              |
