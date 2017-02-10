@@ -169,6 +169,49 @@ class Sna2ImgTest(SkoolKitTestCase):
             self.run_sna2img('-e FONTx {}'.format(scrfile))
         self.assertEqual(cm.exception.args[0], 'Invalid #FONT macro: No parameters (expected 1)')
 
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_e_scr(self, mock_open):
+        df_addr = 24576
+        af_addr = 30720
+        udg = Udg(2, [170] * 8)
+        exp_udgs = [[udg]]
+        scale = 2
+        scr_x, scr_y = 31, 23
+        scr_w, scr_h = 1, 1
+        tile_addr = df_addr + 2048 * (scr_y // 8) + 32 * (scr_y % 8) + scr_x
+        tile_attr_addr = af_addr + 32 * scr_y + scr_x
+        data = [0] * (tile_attr_addr - tile_addr + 1)
+        data[0:2048:256] = udg.data
+        data[-1] = udg.attr
+        macro = 'SCR{},{},{},{},{},{},{}(ignored)'.format(scale, scr_x, scr_y, scr_w, scr_h, df_addr, af_addr)
+        self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, scale, address=tile_addr, ftype='sna')
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_e_scr_cropped(self, mock_open):
+        udg = Udg(2, [129] * 8)
+        exp_udgs = [[udg]]
+        scale = 3
+        scr_x, scr_y = 30, 23
+        scr_w, scr_h = 1, 1
+        x, y = 2, 1
+        width, height = 14, 13
+        tile_addr = 16384 + 2048 * (scr_y // 8) + 32 * (scr_y % 8) + scr_x
+        tile_attr_addr = 22528 + 32 * scr_y + scr_x
+        data = [0] * (tile_attr_addr - tile_addr + 1)
+        data[0:2048:256] = udg.data
+        data[-1] = udg.attr
+        crop = '{{{},{},{},{}}}'.format(x, y, width, height)
+        macro = '#SCR{},{},{},{},{}{}'.format(scale, scr_x, scr_y, scr_w, scr_h, crop)
+        self._test_sna2img(mock_open, '--expand {}'.format(macro), data, exp_udgs, scale, 0, x, y, width, height, tile_addr, ftype='sna')
+
+    def test_option_e_scr_invalid_parameters(self):
+        scrfile = self.write_bin_file(suffix='.scr')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_sna2img('-e SCR{{x}} {}'.format(scrfile))
+        self.assertEqual(cm.exception.args[0], "Invalid #SCR macro: Cannot parse integer 'x' in parameter string: 'x'")
+
     @patch.object(sna2img, 'run', mock_run)
     def test_options_f_flip(self):
         for option, value in (('-f', 1), ('--flip', 2)):
