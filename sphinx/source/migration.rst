@@ -103,6 +103,28 @@ templates used not just by the 'Changelog' page, but by any
 ``m_changelog_item`` identifiers in those templates have been renamed
 ``t_list_items`` and ``m_list_item``.
 
+CSS selectors
+-------------
+The `class` attributes of some HTML elements have changed in SkoolKit 6.
+
+The following table lists the selectors that appeared in the CSS files in
+SkoolKit 5, and their replacements in SkoolKit 6.
+
+===================  ==========
+SkoolKit 5           SkoolKit 6
+===================  ==========
+div.changelog        div.list-entry
+div.changelog-1      div.list-entry-1
+div.changelog-2      div.list-entry-2
+div.changelog-desc   div.list-entry-desc
+div.changelog-title  div.list-entry-title
+ul.changelog         ul.list-entry
+===================  ==========
+
+In addition, the 'ul.changelogN' selector (N=1, 2, 3 etc.), which is used in
+the stock :ref:`t_list_items` template but is unstyled (i.e. does not appear in
+any of the CSS files), has been replaced by 'ul.list-entryN' in SkoolKit 6.
+
 PageHeaders:Asm-t
 -----------------
 In SkoolKit 5, the default :ref:`header <pageHeaders>` for ``Asm-t`` pages

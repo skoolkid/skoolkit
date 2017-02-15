@@ -531,9 +531,9 @@ SECTIONS['Template:list'] = """
 
 SECTIONS['Template:list_entry'] = """
 <div>{t_anchor}</div>
-<div class="changelog changelog-{num}">
-<div class="changelog-title">{title}</div>
-<div class="changelog-desc">{description}</div>
+<div class="list-entry list-entry-{num}">
+<div class="list-entry-title">{title}</div>
+<div class="list-entry-desc">{description}</div>
 {t_list_items}
 </div>
 """
@@ -543,7 +543,7 @@ SECTIONS['Template:list_item'] = """
 """
 
 SECTIONS['Template:list_items'] = """
-<ul class="changelog{indent}">
+<ul class="list-entry{indent}">
 {m_list_item}
 </ul>
 """

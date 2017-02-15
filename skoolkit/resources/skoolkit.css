@@ -56,10 +56,10 @@ div.box-title {
 div.box p {
   margin-bottom: 0;
 }
-div.box-1, div.changelog-1 {
+div.box-1, div.list-entry-1 {
   background-color: #aaccee;
 }
-div.box-2, div.changelog-2 {
+div.box-2, div.list-entry-2 {
   background-color: #bbddff;
 }
 div.paragraph {
@@ -189,20 +189,20 @@ div.map-entry-title-11 {
   font-weight: bold;
   font-family: sans;
 }
-div.changelog {
+div.list-entry {
   width: 800px;
   padding: 6px;
   margin-bottom: 10px;
   border-radius: 10px;
 }
-div.changelog-title {
+div.list-entry-title {
   font-size: 150%;
   font-weight: bold;
 }
-div.changelog-desc {
+div.list-entry-desc {
   margin-top: 5px;
 }
-ul.changelog {
+ul.list-entry {
   margin-top: 5px;
   margin-bottom: 0;
 }

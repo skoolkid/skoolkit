@@ -8,10 +8,10 @@ a {
 a:hover {
   color: #ff00ff;
 }
-div.box-1, div.changelog-1 {
+div.box-1, div.list-entry-1 {
   background-color: #4c7f19;
 }
-div.box-2, div.changelog-2 {
+div.box-2, div.list-entry-2 {
   background-color: #336600;
 }
 table table.default th, table.default th {

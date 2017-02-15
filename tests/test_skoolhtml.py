@@ -5101,34 +5101,34 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <li><a href="#20120702">20120702</a></li>
             </ul>
             <div><span id="20120706"></span></div>
-            <div class="changelog changelog-1">
-            <div class="changelog-title">20120706</div>
-            <div class="changelog-desc"></div>
-            <ul class="changelog">
+            <div class="list-entry list-entry-1">
+            <div class="list-entry-title">20120706</div>
+            <div class="list-entry-desc"></div>
+            <ul class="list-entry">
             <li>There are blank lines...</li>
             <li>...between these...</li>
             <li>...top-level items</li>
             </ul>
             </div>
             <div><span id="20120705"></span></div>
-            <div class="changelog changelog-2">
-            <div class="changelog-title">20120705</div>
-            <div class="changelog-desc"></div>
-            <ul class="changelog">
+            <div class="list-entry list-entry-2">
+            <div class="list-entry-title">20120705</div>
+            <div class="list-entry-desc"></div>
+            <ul class="list-entry">
             <li>There are no blank lines...</li>
             <li>...between these...</li>
             <li>...top-level items</li>
             </ul>
             </div>
             <div><span id="20120704"></span></div>
-            <div class="changelog changelog-1">
-            <div class="changelog-title">20120704</div>
-            <div class="changelog-desc">Documented many <a href="bugs.html">bugs</a>.</div>
-            <ul class="changelog">
+            <div class="list-entry list-entry-1">
+            <div class="list-entry-title">20120704</div>
+            <div class="list-entry-desc">Documented many <a href="bugs.html">bugs</a>.</div>
+            <ul class="list-entry">
             <li>1
-            <ul class="changelog1">
+            <ul class="list-entry1">
             <li>2
-            <ul class="changelog2">
+            <ul class="list-entry2">
             <li>3</li>
             <li>4</li>
             </ul>
@@ -5140,14 +5140,14 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </ul>
             </div>
             <div><span id="20120703"></span></div>
-            <div class="changelog changelog-2">
-            <div class="changelog-title">20120703</div>
-            <div class="changelog-desc"></div>
-            <ul class="changelog">
+            <div class="list-entry list-entry-2">
+            <div class="list-entry-title">20120703</div>
+            <div class="list-entry-desc"></div>
+            <ul class="list-entry">
             <li>1
-            <ul class="changelog1">
+            <ul class="list-entry1">
             <li>2
-            <ul class="changelog2">
+            <ul class="list-entry2">
             <li>3</li>
             </ul>
             </li>
@@ -5157,9 +5157,9 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             </ul>
             </div>
             <div><span id="20120702"></span></div>
-            <div class="changelog changelog-1">
-            <div class="changelog-title">20120702</div>
-            <div class="changelog-desc">Initial release</div>
+            <div class="list-entry list-entry-1">
+            <div class="list-entry-title">20120702</div>
+            <div class="list-entry-desc">Initial release</div>
             </div>
         """
         writer = self._get_writer(ref=ref, skool='')
@@ -5201,10 +5201,10 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <li><a href="#{0}">{1}</a></li>
             </ul>
             <div><span id="{0}"></span></div>
-            <div class="changelog changelog-1">
-            <div class="changelog-title">{1}</div>
-            <div class="changelog-desc"></div>
-            <ul class="changelog">
+            <div class="list-entry list-entry-1">
+            <div class="list-entry-title">{1}</div>
+            <div class="list-entry-desc"></div>
+            <ul class="list-entry">
             <li>Item 1</li>
             </ul>
             </div>
@@ -5428,12 +5428,12 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <li><a href="#entry1">Entry 1</a></li>
             </ul>
             <div><span id="entry1"></span></div>
-            <div class="changelog changelog-1">
-            <div class="changelog-title">Entry 1</div>
-            <div class="changelog-desc">Intro.</div>
-            <ul class="changelog">
+            <div class="list-entry list-entry-1">
+            <div class="list-entry-title">Entry 1</div>
+            <div class="list-entry-desc">Intro.</div>
+            <ul class="list-entry">
             <li>Item 1
-            <ul class="changelog1">
+            <ul class="list-entry1">
             <li>Subitem 1A</li>
             <li>Subitem 1B</li>
             </ul>
@@ -6257,10 +6257,10 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <li><a href="#20141123">20141123</a></li>
             </ul>
             <div><span id="20141123"></span></div>
-            <div class="changelog changelog-1">
-            <div class="changelog-title">20141123</div>
-            <div class="changelog-desc"></div>
-            <ul class="changelog">
+            <div class="list-entry list-entry-1">
+            <div class="list-entry-title">20141123</div>
+            <div class="list-entry-desc"></div>
+            <ul class="list-entry">
             <li>* Item 1</li>
             <li>* Item 2</li>
             </ul>
@@ -6493,34 +6493,34 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             <li><a href="#20170101">20170101</a></li>
             </ul>
             <div><span id="20170106"></span></div>
-            <div class="changelog changelog-1">
-            <div class="changelog-title">20170106</div>
-            <div class="changelog-desc"></div>
-            <ul class="changelog">
+            <div class="list-entry list-entry-1">
+            <div class="list-entry-title">20170106</div>
+            <div class="list-entry-desc"></div>
+            <ul class="list-entry">
             <li>There are blank lines...</li>
             <li>...between these...</li>
             <li>...top-level items</li>
             </ul>
             </div>
             <div><span id="20170105"></span></div>
-            <div class="changelog changelog-2">
-            <div class="changelog-title">20170105</div>
-            <div class="changelog-desc"></div>
-            <ul class="changelog">
+            <div class="list-entry list-entry-2">
+            <div class="list-entry-title">20170105</div>
+            <div class="list-entry-desc"></div>
+            <ul class="list-entry">
             <li>There are no blank lines...</li>
             <li>...between these...</li>
             <li>...top-level items</li>
             </ul>
             </div>
             <div><span id="20170104"></span></div>
-            <div class="changelog changelog-1">
-            <div class="changelog-title">20170104</div>
-            <div class="changelog-desc">Many <a href="reference/facts.html">changes</a>.</div>
-            <ul class="changelog">
+            <div class="list-entry list-entry-1">
+            <div class="list-entry-title">20170104</div>
+            <div class="list-entry-desc">Many <a href="reference/facts.html">changes</a>.</div>
+            <ul class="list-entry">
             <li>This is bullet point 1
-            <ul class="changelog1">
+            <ul class="list-entry1">
             <li>This is bullet point 2
-            <ul class="changelog2">
+            <ul class="list-entry2">
             <li>This is bullet point 3</li>
             <li>This is bullet point 4</li>
             </ul>
@@ -6532,14 +6532,14 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             </ul>
             </div>
             <div><span id="20170103"></span></div>
-            <div class="changelog changelog-2">
-            <div class="changelog-title">20170103</div>
-            <div class="changelog-desc"></div>
-            <ul class="changelog">
+            <div class="list-entry list-entry-2">
+            <div class="list-entry-title">20170103</div>
+            <div class="list-entry-desc"></div>
+            <ul class="list-entry">
             <li>This is bullet point 1
-            <ul class="changelog1">
+            <ul class="list-entry1">
             <li>This is bullet point 2
-            <ul class="changelog2">
+            <ul class="list-entry2">
             <li>This is bullet point 3</li>
             </ul>
             </li>
@@ -6549,17 +6549,17 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
             </ul>
             </div>
             <div><span id="20170102"></span></div>
-            <div class="changelog changelog-1">
-            <div class="changelog-title">20170102</div>
-            <div class="changelog-desc">Intro on two lines.</div>
-            <ul class="changelog">
+            <div class="list-entry list-entry-1">
+            <div class="list-entry-title">20170102</div>
+            <div class="list-entry-desc">Intro on two lines.</div>
+            <ul class="list-entry">
             <li>This is the first item</li>
             </ul>
             </div>
             <div><span id="20170101"></span></div>
-            <div class="changelog changelog-2">
-            <div class="changelog-title">20170101</div>
-            <div class="changelog-desc">Initial release</div>
+            <div class="list-entry list-entry-2">
+            <div class="list-entry-title">20170101</div>
+            <div class="list-entry-desc">Initial release</div>
             </div>
         """
         writer = self._get_writer(ref=ref, skool='')
