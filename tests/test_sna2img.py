@@ -212,6 +212,45 @@ class Sna2ImgTest(SkoolKitTestCase):
             self.run_sna2img('-e SCR{{x}} {}'.format(scrfile))
         self.assertEqual(cm.exception.args[0], "Invalid #SCR macro: Cannot parse integer 'x' in parameter string: 'x'")
 
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_e_udg(self, mock_open):
+        addr = 25000
+        attr = 4
+        scale = 3
+        step = 2
+        inc = 1
+        flip = 1
+        rotate = 2
+        mask = 1
+        mask_addr = addr + 8 * step
+        udg = Udg(attr, [239] * 8, [248] * 8)
+        exp_udg = Udg(attr, [b + inc for b in udg.data], udg.mask[:])
+        exp_udg.flip(flip)
+        exp_udg.rotate(rotate)
+        exp_udgs = [[exp_udg]]
+        data = [0] * (16 * step)
+        data[0:16 * step:step] = udg.data + udg.mask
+        macro = 'UDG{},{},{},{},{},{},{},{}:{}(ignored)'.format(addr, attr, scale, step, inc, flip, rotate, mask, mask_addr)
+        self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, scale, mask, address=addr, ftype='sna')
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_e_udg_cropped(self, mock_open):
+        addr = 26000
+        udg = Udg(56, [85] * 8)
+        exp_udgs = [[udg]]
+        x, y = 3, 2
+        width, height = 28, 25
+        macro = '#UDG{}{{{},{},{},{}}}'.format(addr, x, y, width, height)
+        self._test_sna2img(mock_open, '-e {}'.format(macro), udg.data, exp_udgs, 4, 0, x, y, width, height, addr, ftype='sna')
+
+    def test_option_e_udg_invalid_parameters(self):
+        scrfile = self.write_bin_file(suffix='.scr')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_sna2img('-e UDG(0,q) {}'.format(scrfile))
+        self.assertEqual(cm.exception.args[0], "Invalid #UDG macro: Cannot parse integer 'q' in parameter string: '0,q'")
+
     @patch.object(sna2img, 'run', mock_run)
     def test_options_f_flip(self):
         for option, value in (('-f', 1), ('--flip', 2)):
