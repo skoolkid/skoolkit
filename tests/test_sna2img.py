@@ -251,6 +251,46 @@ class Sna2ImgTest(SkoolKitTestCase):
             self.run_sna2img('-e UDG(0,q) {}'.format(scrfile))
         self.assertEqual(cm.exception.args[0], "Invalid #UDG macro: Cannot parse integer 'q' in parameter string: '0,q'")
 
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_e_udgarray(self, mock_open):
+        addr = 24576
+        attr = 49
+        scale = 1
+        step = 3
+        inc = 2
+        flip = 2
+        rotate = 1
+        mask = 2
+        mask_addr = addr + 8 * step
+        udg = Udg(attr, [126] * 8, [192] * 8)
+        exp_udg = Udg(attr, [b + inc for b in udg.data], udg.mask[:])
+        exp_udg.flip(flip)
+        exp_udg.rotate(rotate)
+        exp_udgs = [[exp_udg]]
+        data = [0] * (16 * step)
+        data[0:16 * step:step] = udg.data + udg.mask
+        macro = 'UDGARRAY1,{},{},{},{},{},{},{};{}:{}(ignored)'.format(attr, scale, step, inc, flip, rotate, mask, addr, mask_addr)
+        self._test_sna2img(mock_open, '--expand {}'.format(macro), data, exp_udgs, scale, mask, address=addr, ftype='sna')
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_e_udgarray_cropped(self, mock_open):
+        addr = 26000
+        udg = Udg(56, [85] * 8)
+        exp_udgs = [[udg, udg]]
+        x, y = 3, 2
+        width, height = 12, 13
+        data = udg.data * len(exp_udgs)
+        macro = '#UDGARRAY2;{}x2{{{},{},{},{}}}'.format(addr, x, y, width, height)
+        self._test_sna2img(mock_open, '-e {}'.format(macro), data, exp_udgs, 2, 0, x, y, width, height, addr, ftype='sna')
+
+    def test_option_e_udgarray_invalid_parameters(self):
+        scrfile = self.write_bin_file(suffix='.scr')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_sna2img('-e UDGARRAY(1,?);32768 {}'.format(scrfile))
+        self.assertEqual(cm.exception.args[0], "Invalid #UDGARRAY macro: Cannot parse integer '?' in parameter string: '1,?'")
+
     @patch.object(sna2img, 'run', mock_run)
     def test_options_f_flip(self):
         for option, value in (('-f', 1), ('--flip', 2)):
