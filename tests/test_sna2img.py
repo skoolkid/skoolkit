@@ -291,6 +291,12 @@ class Sna2ImgTest(SkoolKitTestCase):
             self.run_sna2img('-e UDGARRAY(1,?);32768 {}'.format(scrfile))
         self.assertEqual(cm.exception.args[0], "Invalid #UDGARRAY macro: Cannot parse integer '?' in parameter string: '1,?'")
 
+    def test_option_e_unrecognised_macro(self):
+        scrfile = self.write_bin_file(suffix='.scr')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_sna2img('--expand HTML(nope) {}'.format(scrfile))
+        self.assertEqual(cm.exception.args[0], "Macro must be #FONT, #SCR, #UDG or #UDGARRAY")
+
     @patch.object(sna2img, 'run', mock_run)
     def test_options_f_flip(self):
         for option, value in (('-f', 1), ('--flip', 2)):
