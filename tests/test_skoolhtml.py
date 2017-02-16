@@ -2527,6 +2527,19 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
                 self.assertEqual(html[line_no], '<td class="instruction">{}</td>'.format(exp_html))
                 line_no += 6
 
+    def test_parameter_DefaultAnimationFormat(self):
+        ref = '[ImageWriter]\nDefaultAnimationFormat=png'
+        fname = 'test_animation'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        udg = Udg(130, [136] * 8) # Flashing
+        macro = '#UDG0,{}({})'.format(udg.attr, fname)
+        writer = self._get_writer(snapshot=udg.data, ref=ref, mock_file_info=True)
+        output = writer.expand(macro, ASMDIR)
+        self.assertEqual(output, '<img alt="{}" src="{}" />'.format(fname, exp_src))
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+        self.assertEqual([[udg]], writer.image_writer.udg_array)
+
     def test_html_escape(self):
         # Check that HTML characters from the skool file are escaped
         skool = '\n'.join((
