@@ -18,7 +18,7 @@ instead of (or as well as) being given on the command line.
 
 OPTIONS
 =======
--d DIR, --output-dir DIR
+-d, --output-dir `DIR`
   Write the snapshot file in this directory.
 
 -f, --force
