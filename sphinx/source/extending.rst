@@ -233,6 +233,9 @@ to parse the parameters of a skool macro.
       Added support for parameters expressed using arithmetic operators and
       skool macros.
 
+   .. versionchanged:: 6.0
+      Added the *fields* parameter.
+
 .. autofunction:: skoolkit.skoolmacro.parse_strings
 
    .. versionadded:: 5.1

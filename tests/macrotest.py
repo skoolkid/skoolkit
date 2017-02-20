@@ -546,6 +546,30 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand('#IF1()'), '')
         self.assertEqual(writer.expand('#IF0()'), '')
 
+    def test_macro_if_base_none(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#IF({base}==0)(PASS,FAIL)'), 'PASS')
+
+    def test_macro_if_base_10(self):
+        writer = self._get_writer(base=BASE_10)
+        self.assertEqual(writer.expand('#IF({base}==10)(PASS,FAIL)'), 'PASS')
+
+    def test_macro_if_base_16(self):
+        writer = self._get_writer(base=BASE_16)
+        self.assertEqual(writer.expand('#IF({base}==16)(PASS,FAIL)'), 'PASS')
+
+    def test_macro_if_case_none(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#IF({case}==0)(PASS,FAIL)'), 'PASS')
+
+    def test_macro_if_case_lower(self):
+        writer = self._get_writer(case=CASE_LOWER)
+        self.assertEqual(writer.expand('#IF({case}==1)(PASS,FAIL)'), 'PASS')
+
+    def test_macro_if_case_upper(self):
+        writer = self._get_writer(case=CASE_UPPER)
+        self.assertEqual(writer.expand('#IF({case}==2)(PASS,FAIL)'), 'PASS')
+
     def test_macro_if_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('IF')

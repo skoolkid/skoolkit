@@ -67,6 +67,27 @@ Parentheses and spaces are also permitted in an arithmetic expression::
 
   #IF(1 == 2 || (1 <= 2 && 2 < 3))(Yes,No)
 
+The :ref:`IF` macro also recognises some replacement fields in its numeric
+parameter:
+
+* ``asm`` - 1 if in ASM mode, 0 otherwise
+* ``base`` - 10 if the ``--decimal`` option is used with :ref:`skool2asm.py`
+  or :ref:`skool2html.py`, 16 if the ``--hex`` option is used, or 0 if neither
+  option is used
+* ``case`` - 1 if the ``--lower`` option is used with :ref:`skool2asm.py`
+  or :ref:`skool2html.py`, 2 if the ``--upper`` option is used, or 0 if neither
+  option is used
+* ``html`` - 1 if in HTML mode, 0 otherwise
+
+For example::
+
+  #IF({case}==1)(hl,HL)
+
+expands to ``hl`` if in lower case mode, or ``HL`` otherwise.
+
+Note that if a replacement field is used, the numeric parameter must be
+enclosed in parentheses.
+
 .. _stringParameters:
 
 String parameters
@@ -284,11 +305,16 @@ XOXOXOXO.
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``true`` and ``false`` output strings.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.1     | New     |
-+---------+---------+
+See :ref:`numericParameters` for details on the replacement fields that may be
+used in the ``expr`` parameter.
+
++---------+----------------------------------------------------------------+
+| Version | Changes                                                        |
++=========+================================================================+
+| 6.0     | Added support for replacement fields in the ``expr`` parameter |
++---------+----------------------------------------------------------------+
+| 5.1     | New                                                            |
++---------+----------------------------------------------------------------+
 
 .. _MAP:
 
@@ -1457,7 +1483,7 @@ There is the :ref:`HTML` macro for inserting content in HTML mode only, but
 there is no corresponding macro for inserting content in ASM mode only. The
 following ``@replace`` directive defines an ``#asm`` macro to fill that gap::
 
-  @replace=/#asm(\(.*\))/#IF(#HTML(1)0<1)\1
+  @replace=/#asm(\(.*\))/#IF({asm})\1
 
 For example::
 

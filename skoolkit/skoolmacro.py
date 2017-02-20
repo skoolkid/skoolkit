@@ -91,7 +91,7 @@ class ClosingBracketError(MacroParsingError):
     pass
 
 # API
-def parse_ints(text, index=0, num=0, defaults=(), names=()):
+def parse_ints(text, index=0, num=0, defaults=(), names=(), fields=None):
     """Parse a sequence of comma-separated integer parameters, optionally
     enclosed in parentheses. If parentheses are used, the parameters may be
     expressed using arithmetic operators and skool macros. See
@@ -105,6 +105,9 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
     :param names: The names of the parameters; if not empty, keyword arguments
                   are parsed. Parameter names are restricted to lower case
                   letters (a-z).
+    :param fields: A dictionary of replacement field names and values. The
+                   fields named in this dictionary are replaced by their values
+                   wherever they appear in the parameter string.
     :return: A list of the form ``[end, value1, value2...]``, where:
 
              * ``end`` is the index at which parsing terminated
@@ -114,6 +117,8 @@ def parse_ints(text, index=0, num=0, defaults=(), names=()):
         end, params = parse_brackets(text, index)
         if _writer:
             params = _writer.expand(params, *_cwd)
+        if fields:
+            params = params.format(**fields)
         return [end] + get_params(params, num, defaults, names, False)
     if names:
         match = RE_NAMED_PARAMS.match(text, index)
@@ -577,10 +582,10 @@ def parse_html(text, index):
     # #HTML(text)
     return parse_strings(text, index, 1)
 
-def parse_if(text, index):
+def parse_if(text, index, fields):
     # #IFexpr(true[,false])
     try:
-        end, value = parse_ints(text, index, 1)
+        end, value = parse_ints(text, index, 1, fields=fields)
     except MacroParsingError:
         raise MacroParsingError("No valid expression found: '#IF{}'".format(text[index:]))
     try:

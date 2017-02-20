@@ -11,9 +11,10 @@ from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, B
 ERROR_PREFIX = 'Error while parsing #{0} macro'
 
 class MockSkoolParser:
-    def __init__(self, snapshot=None, base=None):
+    def __init__(self, snapshot, base, case):
         self.snapshot = snapshot
         self.base = base
+        self.case = case
         self.memory_map = ()
 
     def get_entry(self, address):
@@ -23,7 +24,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def _get_writer(self, skool=None, crlf=False, tab=False, case=None, base=None,
                     instr_width=23, warn=False, asm_mode=1, fix_mode=0, snapshot=()):
         if skool is None:
-            skool_parser = MockSkoolParser(snapshot, base)
+            skool_parser = MockSkoolParser(snapshot, base, case)
             properties = {}
         else:
             skoolfile = self.write_text_file(skool, suffix='.skool')
@@ -130,6 +131,14 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
                 delim2 = delimiters.get(delim1, delim1)
                 output = writer.expand('#HTML{0}{1}{2}'.format(delim1, text, delim2))
                 self.assertEqual(output, '')
+
+    def test_macro_if_asm(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#IF({asm})(PASS,FAIL)'), 'PASS')
+
+    def test_macro_if_html(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#IF({html})(FAIL,PASS)'), 'PASS')
 
     def test_macro_include(self):
         writer = self._get_writer()

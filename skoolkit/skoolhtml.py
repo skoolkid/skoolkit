@@ -79,6 +79,13 @@ class HtmlWriter:
         self.case = case
         self.base = skool_parser.base
 
+        self.fields = {
+            'asm': 0,
+            'base': self.base or 0,
+            'case': self.case or 0,
+            'html': 1
+        }
+
         colours = self._parse_colours(self.get_dictionary('Colours'))
         iw_options = self.get_dictionary('ImageWriter')
         self.image_writer = ImageWriter(colours, iw_options)
@@ -1095,7 +1102,7 @@ class HtmlWriter:
         return skoolmacro.parse_html(text, index)
 
     def expand_if(self, text, index, cwd):
-        return skoolmacro.parse_if(text, index)
+        return skoolmacro.parse_if(text, index, self.fields)
 
     def expand_include(self, text, index, cwd):
         end, paragraphs, section = skoolmacro.parse_include(text, index)

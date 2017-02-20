@@ -32,7 +32,7 @@ LIST_MARKER = '#LIST'
 LIST_END_MARKER = 'LIST#'
 
 #: Force upper case.
-CASE_UPPER = 0
+CASE_UPPER = 2
 #: Force lower case.
 CASE_LOWER = 1
 #: Force decimal.

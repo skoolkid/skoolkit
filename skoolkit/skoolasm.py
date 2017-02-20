@@ -31,6 +31,13 @@ class AsmWriter:
         self.base = parser.base
         self.show_warnings = self._get_int_property(properties, 'warnings', 1)
 
+        self.fields = {
+            'asm': 1,
+            'base': self.base or 0,
+            'case': parser.case or 0,
+            'html': 0
+        }
+
         # Build a label dictionary
         self.labels = {}
         for entry in self.parser.memory_map:
@@ -198,7 +205,7 @@ class AsmWriter:
         return end, ''
 
     def expand_if(self, text, index):
-        return skoolmacro.parse_if(text, index)
+        return skoolmacro.parse_if(text, index, self.fields)
 
     def expand_include(self, text, index):
         end, paragraphs, section = skoolmacro.parse_include(text, index)

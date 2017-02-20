@@ -878,6 +878,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand(nest_macros('#HTML/{}/', text))
         self.assertEqual(output, text)
 
+    def test_macro_if_asm(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#IF({asm})(FAIL,PASS)'), 'PASS')
+
+    def test_macro_if_html(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#IF({html})(PASS,FAIL)'), 'PASS')
+
     def test_macro_include_no_paragraphs(self):
         ref = '\n'.join((
             '[Foo]',

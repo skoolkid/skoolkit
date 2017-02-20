@@ -14,6 +14,8 @@ Changelog
 * Added support to the ``--find`` option of :ref:`snapinfo.py` for specifying a
   range of distances between byte values (e.g. ``--find 1,2,3-1-10``)
 * The ``--peek`` option of :ref:`snapinfo.py` now shows UDGs and BASIC tokens
+* Added support for replacement fields (such as ``{base}`` and ``{case}``) in
+  the ``expr`` parameter of the :ref:`IF` macro
 * Added support for parsing a :ref:`box page <boxpages>` entry section as a
   sequence of multi-line list items prefixed by '-' (with
   ``SectionType=BulletPoints``)
