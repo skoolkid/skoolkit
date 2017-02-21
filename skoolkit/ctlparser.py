@@ -92,30 +92,36 @@ class CtlParser:
         self._loops = []
 
     def parse_ctl(self, ctlfile, min_address=0, max_address=65536):
-        entry_ctl = None
+        with open_file(ctlfile) as f:
+            for line in f:
+                if line.startswith(('b', 'c', 'g', 'i', 's', 't', 'u', 'w')):
+                    try:
+                        address = get_int_param(line[1:].lstrip().split(' ', 1)[0])
+                        if min_address <= address < max_address:
+                            self._ctls[address] = line[0]
+                    except ValueError:
+                        pass
+        entry_addresses = sorted(self._ctls)
+
         f = open_file(ctlfile)
         for line_no, line in enumerate(f, 1):
             s_line = line.rstrip()
             if not s_line:
                 continue
             try:
-                ctl, start, end, text, lengths, asm_directive = self._parse_ctl_line(s_line, entry_ctl)
+                ctl, start, end, text, lengths, asm_directive = self._parse_ctl_line(s_line, entry_addresses)
             except CtlParserError as e:
                 warn('Ignoring line {} in {} ({}):\n{}'.format(line_no, ctlfile, e.args[0], s_line))
                 continue
             if ctl:
-                ctl = ctl.strip()
-                if ctl.islower():
-                    entry_ctl = ctl
                 if not min_address <= start < max_address:
                     continue
                 if ctl.islower():
-                    self._ctls[start] = ctl
                     self._titles[start] = text
-                elif ctl in 'D':
+                elif ctl == 'D':
                     self._descriptions.setdefault(start, []).append(text)
                     self._subctls.setdefault(start, None)
-                elif ctl in 'N':
+                elif ctl == 'N':
                     self._mid_block_comments.setdefault(start, []).append(text)
                     self._subctls.setdefault(start, None)
                 elif ctl == 'E':
@@ -166,7 +172,7 @@ class CtlParser:
         self._unroll_loops(max_address)
         self._ctls[max_address] = 'i'
 
-    def _parse_ctl_line(self, line, entry_ctl):
+    def _parse_ctl_line(self, line, entry_addresses):
         ctl = start = end = text = asm_directive = None
         lengths = ()
         first_char = line[0]
@@ -174,19 +180,21 @@ class CtlParser:
         if content:
             if first_char in ' bBcCDEgiLMNRsStTuwW':
                 fields = split_unquoted(content, ' ', 1)
-                ctl = first_char
-                if ctl == ' ':
-                    if entry_ctl is None:
-                        raise CtlParserError("blank directive with no containing block")
-                    if entry_ctl in 'bcstw':
-                        ctl = entry_ctl.upper()
-                    else:
-                        ctl = 'B'
                 params = split_unquoted(fields[0], ',')
                 try:
                     start = get_int_param(params[0])
                 except ValueError:
                     raise CtlParserError("invalid address")
+                ctl = first_char
+                if ctl == ' ':
+                    index = bisect.bisect_right(entry_addresses, start) - 1
+                    if index < 0:
+                        raise CtlParserError("blank directive with no containing block")
+                    entry_ctl = self._ctls[entry_addresses[index]]
+                    if entry_ctl in 'cstw':
+                        ctl = entry_ctl.upper()
+                    else:
+                        ctl = 'B'
                 try:
                     int_params = parse_params(ctl, params[1:])
                 except ValueError:

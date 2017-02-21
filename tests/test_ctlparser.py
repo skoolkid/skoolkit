@@ -458,6 +458,36 @@ class CtlParserTest(SkoolKitTestCase):
         }
         self._check_instruction_asm_directives(exp_instruction_asm_directives, blocks)
 
+    def test_blank_directive_out_of_order(self):
+        ctl = '\n'.join((
+            'c 65534',
+            'b 65535',
+            '  65534,1 This is a C directive'
+        ))
+        blocks = self._get_ctl_parser(ctl).get_blocks()
+
+        exp_subctls = {
+            65534: 'c',
+            65535: 'b'
+        }
+        self._check_subctls(exp_subctls, blocks)
+
+    def test_blank_directive_with_no_containing_block(self):
+        ctl = '\n'.join((
+            '  30000',
+            'b 30001'
+        ))
+        ctl_parser = CtlParser()
+        ctlfile = self.write_text_file(ctl)
+        ctl_parser.parse_ctl(ctlfile)
+
+        warnings = self.err.getvalue().split('\n')[0:-1:2]
+        exp_warnings = ['WARNING: Ignoring line 1 in {} (blank directive with no containing block):'.format(ctlfile)]
+        self.assertEqual(exp_warnings, warnings)
+
+        exp_subctls = {30001: 'b'}
+        self._check_subctls(exp_subctls, ctl_parser.get_blocks())
+
     def test_parse_ctl_with_min_address(self):
         ctl_parser = self._get_ctl_parser(CTL, 30700)
         blocks = ctl_parser.get_blocks()
