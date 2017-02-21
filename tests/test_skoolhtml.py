@@ -1073,6 +1073,14 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         # No end marker
         self._assert_error(writer, '#LIST { Item }', 'No end marker: #LIST { Item }...')
 
+    def test_macro_map_asm(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#MAP({asm})(FAIL,0:PASS)'), 'PASS')
+
+    def test_macro_map_html(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#MAP({html})(FAIL,1:PASS)'), 'PASS')
+
     def test_macro_r(self):
         skool = '\n'.join((
             'c00000 LD A,B',

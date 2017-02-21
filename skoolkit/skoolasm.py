@@ -218,7 +218,7 @@ class AsmWriter:
         return end, link_text
 
     def expand_map(self, text, index):
-        return skoolmacro.parse_map(text, index)
+        return skoolmacro.parse_map(text, index, self.fields)
 
     def expand_n(self, text, index):
         return skoolmacro.parse_n(text, index, self.base == BASE_16, self.lower)

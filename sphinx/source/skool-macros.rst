@@ -67,8 +67,8 @@ Parentheses and spaces are also permitted in an arithmetic expression::
 
   #IF(1 == 2 || (1 <= 2 && 2 < 3))(Yes,No)
 
-The :ref:`IF` macro also recognises some replacement fields in its numeric
-parameter:
+The ``expr`` parameter of the :ref:`IF` macro and the ``key`` parameter of the
+:ref:`MAP` macro also recognise some replacement fields:
 
 * ``asm`` - 1 if in ASM mode, 0 otherwise
 * ``base`` - 10 if the ``--decimal`` option is used with :ref:`skool2asm.py`
@@ -348,11 +348,16 @@ operations. They may also be expressed using skool macros, but in that case the
 See :ref:`stringParameters` for details on alternative ways to supply the
 default output string and the key-value pairs.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.1     | New     |
-+---------+---------+
+See :ref:`numericParameters` for details on the replacement fields that may be
+used in the ``key`` parameter.
+
++---------+---------------------------------------------------------------+
+| Version | Changes                                                       |
++=========+===============================================================+
+| 6.0     | Added support for replacement fields in the ``key`` parameter |
++---------+---------------------------------------------------------------+
+| 5.1     | New                                                           |
++---------+---------------------------------------------------------------+
 
 .. _PEEK:
 

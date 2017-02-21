@@ -1137,7 +1137,7 @@ class HtmlWriter:
         return end, self.build_list(list_obj)
 
     def expand_map(self, text, index, cwd):
-        return skoolmacro.parse_map(text, index)
+        return skoolmacro.parse_map(text, index, self.fields)
 
     def expand_n(self, text, index, cwd):
         return skoolmacro.parse_n(text, index, self.base == BASE_16, self.case == CASE_LOWER)

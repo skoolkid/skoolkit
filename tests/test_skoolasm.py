@@ -173,6 +173,14 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         writer, prefix = CommonSkoolMacroTest.test_macro_link_invalid(self)
         self._assert_error(writer, '#LINK:PageID()', 'Blank link text: #LINK:PageID()', prefix)
 
+    def test_macro_map_asm(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#MAP({asm})(FAIL,1:PASS)'), 'PASS')
+
+    def test_macro_map_html(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#MAP({html})(FAIL,0:PASS)'), 'PASS')
+
     def test_macro_r(self):
         skool = '\n'.join((
             '@start',

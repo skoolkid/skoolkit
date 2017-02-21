@@ -661,6 +661,30 @@ class CommonSkoolMacroTest:
         output = writer.expand('#MAP1|;?;0:A;1:Oh, OK;2:C;|')
         self.assertEqual(output, 'Oh, OK')
 
+    def test_macro_map_base_none(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#MAP({base})(FAIL,0:PASS)'), 'PASS')
+
+    def test_macro_map_base_10(self):
+        writer = self._get_writer(base=BASE_10)
+        self.assertEqual(writer.expand('#MAP({base})(FAIL,10:PASS)'), 'PASS')
+
+    def test_macro_map_base_16(self):
+        writer = self._get_writer(base=BASE_16)
+        self.assertEqual(writer.expand('#MAP({base})(FAIL,16:PASS)'), 'PASS')
+
+    def test_macro_map_case_none(self):
+        writer = self._get_writer()
+        self.assertEqual(writer.expand('#MAP({case})(FAIL,0:PASS)'), 'PASS')
+
+    def test_macro_map_case_lower(self):
+        writer = self._get_writer(case=CASE_LOWER)
+        self.assertEqual(writer.expand('#MAP({case})(FAIL,1:PASS)'), 'PASS')
+
+    def test_macro_map_case_upper(self):
+        writer = self._get_writer(case=CASE_UPPER)
+        self.assertEqual(writer.expand('#MAP({case})(FAIL,2:PASS)'), 'PASS')
+
     def test_macro_map_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('MAP')
