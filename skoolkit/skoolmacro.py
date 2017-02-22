@@ -586,6 +586,8 @@ def parse_if(text, index, fields):
     # #IFexpr(true[,false])
     try:
         end, value = parse_ints(text, index, 1, fields=fields)
+    except KeyError as e:
+        raise InvalidParameterError('Unrecognised field: {}'.format(e.args[0]))
     except MacroParsingError:
         raise MacroParsingError("No valid expression found: '#IF{}'".format(text[index:]))
     try:
@@ -631,7 +633,12 @@ def parse_link(text, index):
 
 def parse_map(text, index, fields):
     # #MAPvalue(default[,k1:v1,k2:v2...])
-    args_index, value = parse_ints(text, index, 1, fields=fields)
+    try:
+        args_index, value = parse_ints(text, index, 1, fields=fields)
+    except KeyError as e:
+        raise InvalidParameterError('Unrecognised field: {}'.format(e.args[0]))
+    except MacroParsingError:
+        raise MacroParsingError("No valid expression found: '#MAP{}'".format(text[index:]))
     try:
         end, args = parse_strings(text, args_index)
     except NoParametersError:
