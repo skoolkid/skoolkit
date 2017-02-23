@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 import sys
 import argparse
+import re
+
+CSS_SELECTORS = (
+    ('(div|ul).changelog', r'\1.list-entry'),
+    ('div.changelog-(1|2|desc|title)', r'div.list-entry-\1'),
+)
 
 def _parse_ref(reffile_f):
     preamble = []
@@ -59,7 +65,10 @@ def convert_ref(reffile_f):
         print('\n'.join(lines).rstrip() + '\n')
 
 def convert_css(cssfile_f):
-    print('Not implemented', file=sys.stderr)
+    css = cssfile_f.read()
+    for old, new in CSS_SELECTORS:
+        css = re.sub(old + '(?= |,|$)', new, css)
+    print(css.rstrip())
 
 def main(args):
     parser = argparse.ArgumentParser(
