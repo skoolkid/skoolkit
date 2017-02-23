@@ -247,7 +247,7 @@ disassembly_diffs() {
   _require_skoolkit
   _require_disassemblies
 
-  hhdiffsdir=$SKOOLKIT_HOME/build/hh-disassembly-diff
+  hhdiffsdir=$SKOOLKIT_HOME/build/disassembly-diff
   romdiffsdir=$ROM_DISASSEMBLY_HOME/build/disassembly-diff
   mmdiffsdir=$MANICMINER_HOME/build/disassembly-diff
   jswdiffsdir=$JETSETWILLY_HOME/build/disassembly-diff
@@ -288,8 +288,8 @@ check_asms() {
   _require_skoolkit
   _require_disassemblies
 
-  hhasmdir=$SKOOLKIT_HOME/build/hh-disassembly-diff/disassembly-current-$VERSION/asm
   asmsubdir=build/disassembly-diff/disassembly-current-$VERSION/asm
+  hhasmdir=$SKOOLKIT_HOME/$asmsubdir
   romasmdir=$ROM_DISASSEMBLY_HOME/$asmsubdir
   mmasmdir=$MANICMINER_HOME/$asmsubdir
   jswasmdir=$JETSETWILLY_HOME/$asmsubdir
