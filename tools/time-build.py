@@ -19,21 +19,21 @@ from skoolkit.image import ImageWriter
 from skoolkit.skoolhtml import Udg, Frame
 
 def write(line):
-    sys.stdout.write(line + '\n')
+    print(line)
 
-def clock(method, *args, **kwargs):
+def clock(method, *args):
     elapsed = []
     for n in range(3):
         gc.collect()
         start = time.time()
-        method(*args, **kwargs)
+        method(*args)
         elapsed.append((time.time() - start) * 1000)
 
     trials = max((10, int(2000 / min(elapsed))))
     elapsed = []
     for n in range(trials):
         start = time.time()
-        method(*args, **kwargs)
+        method(*args)
         elapsed.append((time.time() - start) * 1000)
 
     elapsed.sort()
@@ -51,21 +51,6 @@ def get_method(iw, method):
     sys.stderr.write('{}: method not found\n'.format(method))
     sys.exit(1)
 
-def ua(a, b, c, d, t1, t2, t3, t4):
-    """Solve the equations
-         aN+bM=t1
-         cN+dM=t3
-    for N and M, and the equations
-         aP+bQ=t2
-         cP+dQ=t4
-    for P and Q, and return i=(N-P)/(Q-M). (When u/a>i, the method with timings
-    t1 and t3 is faster than the other method.)"""
-    n = (d*t1-b*t3)/(a*d-b*c)
-    m = (t1-a*n)/b
-    p = (d*t2-b*t4)/(a*d-b*c)
-    q = (t2-a*p)/b
-    return n, m, p, q, (n-p)/(q-m)
-
 def _get_attr_map(iw, udgs, scale):
     frame = Frame(udgs, scale)
     use_flash = True
@@ -80,70 +65,45 @@ def _get_attr_map(iw, udgs, scale):
         bit_depth = 1
     return bit_depth, attr_map
 
-def _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analyse_ua=False):
+def _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type):
     m1 = get_method(iw, method1)
     m2 = get_method(iw, method2)
     write('{} v. {}:'.format(m1.__name__, m2.__name__))
     mask = iw.masks[mask_type]
 
-    if analyse_ua:
+    method1_faster = []
+    for udgs in udg_arrays:
         for scale in scales:
-            write('  scale={}:'.format(scale))
-            ua_params = []
-            timings = []
-            for udgs in udg_arrays:
-                frame = Frame(udgs, scale, mask_type)
-                bit_depth, attr_map = _get_attr_map(iw, udgs, scale)
-                frame.attr_map = attr_map
-                num_udgs = len(udgs[0]) * len(udgs)
-                num_attrs = len(attr_map)
-                ua_params.append(num_attrs)
-                ua_params.append(num_udgs)
-                t1 = clock(m1, frame, bit_depth=bit_depth, mask=mask)
-                t2 = clock(m2, frame, bit_depth=bit_depth, mask=mask)
-                timings.append(t1)
-                timings.append(t2)
-                write('    num_udgs={}, num_attrs={}: {:0.2f}ms {:0.2f}ms'.format(num_udgs, num_attrs, t1, t2))
-            n, m, p, q, index = ua(*(ua_params + timings))
-            write('    {}: {:0.4f}a+{:0.4f}u'.format(method1, n, m))
-            write('    {}: {:0.4f}a+{:0.4f}u'.format(method2, p, q))
-            symbol = '<' if m - q > 0 else '>'
-            write('    {} is faster than {} when u/a {} {:0.4f}'.format(method1, method2, symbol, index))
+            frame = Frame(udgs, scale, mask_type)
+            bit_depth, attr_map = _get_attr_map(iw, udgs, scale)
+            frame.attr_map = attr_map
+            t1 = clock(m1, frame, mask, bit_depth)
+            t2 = clock(m2, frame, mask, bit_depth)
+            num_udgs = len(udgs[0]) * len(udgs)
+            num_attrs = len(attr_map)
+            output = '  num_udgs={}, num_attrs={}, scale={}: {:0.3f}ms {:0.3f}ms'.format(num_udgs, num_attrs, scale, t1, t2)
+            write(output)
+            if t1 < t2:
+                method1_faster.append(output)
+    if method1_faster:
+        write('{} is faster than {} when:'.format(method1, method2))
+        for output in method1_faster:
+            write(output)
     else:
-        method1_faster = []
-        for udgs in udg_arrays:
-            for scale in scales:
-                frame = Frame(udgs, scale, mask_type)
-                bit_depth, attr_map = _get_attr_map(iw, udgs, scale)
-                frame.attr_map = attr_map
-                t1 = clock(m1, frame, bit_depth=bit_depth, mask=mask)
-                t2 = clock(m2, frame, bit_depth=bit_depth, mask=mask)
-                num_udgs = len(udgs[0]) * len(udgs)
-                num_attrs = len(attr_map)
-                output = '  num_udgs={}, num_attrs={}, scale={}: {:0.3f}ms {:0.3f}ms'.format(num_udgs, num_attrs, scale, t1, t2)
-                write(output)
-                if t1 < t2:
-                    method1_faster.append(output)
-        if method1_faster:
-            write('{} is faster than {} when:'.format(method1, method2))
-            for output in method1_faster:
-                write(output)
-        else:
-            write('{} is slower than {} for all UDG arrays tested'.format(method1, method2))
+        write('{} is slower than {} for all UDG arrays tested'.format(method1, method2))
 
 def bd4(iw, method1, method2, udg_arrays, scales):
     mask_type = 0
-    analyse_ua = len(udg_arrays) == 2
 
     if not udg_arrays:
-        analyse_ua = True
-        udg_arrays = []
-        udg_arrays.append([[Udg(i, (240,) * 8) for i in range(16)]] * 64)  # u=1024, a=16
-        udg_arrays.append([[Udg(i, (240,) * 8) for i in range(24)]] * 128) # u=3072, a=24
-
+        udg_arrays = (
+            [[Udg(4, (1,) * 8), Udg(13, (2,) * 8)]],        # 2 UDGs, 2 attrs
+            [[Udg(i, (240,) * 8) for i in range(16)]] * 64, # 1024 UDGs, 16 attrs
+            [[Udg(i, (240,) * 8) for i in range(24)]] * 128 # 3072 UDGs, 24 attrs
+        )
     scales = scales or (1, 2, 3, 4, 5, 6, 7, 8)
 
-    _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type, analyse_ua)
+    _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type)
 
 def bd2(iw, method1, method2, udg_arrays, scales, masked=False):
     mask_type = 0
@@ -204,9 +164,7 @@ def bd2_at(iw, method1, method2, udg_arrays, scales):
 
 METHODS = (
     # Bit depth 4
-    ('bd4_nt1', 'bd4_nt2', bd4),
-    ('bd_any', 'bd4_nt1', bd4),
-    ('bd_any', 'bd4_nt2', bd4),
+    ('bd_any', 'bd4_nt', bd4),
 
     # Bit depth 2
     ('bd_any', 'bd2_at', bd2_at),

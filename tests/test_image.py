@@ -94,12 +94,6 @@ def create_attr_index():
 CRC_TABLE = create_crc_table()
 ATTR_INDEX = create_attr_index()
 
-class MockFrame:
-    def __init__(self, tiles, num_attrs, scale):
-        self.tiles = tiles
-        self.attr_map = dict([(i, 0) for i in range(num_attrs)])
-        self.scale = scale
-
 class ImageWriterOptionsTest(SkoolKitTestCase):
     def test_change_option_values(self):
         options = {
@@ -364,6 +358,15 @@ class ImageWriterTest:
         udg2 = Udg(184, (0,) * 8, (255, 255, 195, 195, 195, 195, 255, 255))
         udg_array = [[udg1, udg2]]
         self._test_image(udg_array, mask=1, x=1, y=1, width=14, height=6)
+
+    def test_masked_bd2_scaled(self):
+        # Masked image, bit depth 2, scales 1-2
+        udg1 = Udg(56, (1,) * 8)
+        udg2 = Udg(184, (0,) * 8, (255, 129, 129, 129, 129, 129, 129, 255))
+        udg_array = [[udg1, udg2]]
+        self._test_image(udg_array, mask=1)
+        self._test_image(udg_array, scale=2, mask=1)
+        return udg_array
 
     def test_mask2_bd2(self):
         # AND-OR mask, bit depth 2
@@ -922,7 +925,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
             bit_depth = 2
         else:
             bit_depth = 1
-        image_data_z = method(frame, bit_depth=bit_depth, mask=png_writer.masks[mask])
+        image_data_z = method(frame, png_writer.masks[mask], bit_depth)
         image_data = list(zlib.decompress(image_data_z))
         pixels = self._get_pixels_from_image_data(bit_depth, palette, image_data, width)
         self.assertEqual(len(pixels[0]), len(exp_pixels[0])) # width
@@ -1080,28 +1083,12 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         udg_array = ImageWriterTest.test_unmasked_bd4_scaled(self)
         self._test_image(udg_array, scale=3)
 
-    def test_bd4_nt1(self):
-        udg_array = [[Udg(attr, (15,) * 8) for attr in (1, 19, 37, 55)]]
-        method_name = 'bd4_nt1'
-        self._test_method(method_name, udg_array, scale=1)
-        self._test_method(method_name, udg_array, scale=2)
-        self._test_method(method_name, udg_array, scale=3)
-        self._test_method(method_name, udg_array, scale=4)
-
-    def test_bd2_nt(self):
-        udg_array = [[Udg(attr, (85,) * 8) for attr in (1, 19)]]
-        method_name = 'bd2_nt'
-        self._test_method(method_name, udg_array, scale=1)
-        self._test_method(method_name, udg_array, scale=2)
-        self._test_method(method_name, udg_array, scale=3)
-        self._test_method(method_name, udg_array, scale=4)
-        self._test_method(method_name, udg_array, scale=5)
-
-    def test_bd2_at(self):
-        udg_array = [[Udg(56, (15,) * 8, (207,) * 8)]]
-        method_name = 'bd2_at'
-        self._test_method(method_name, udg_array, scale=2, mask=True)
-        self._test_method(method_name, udg_array, scale=4, mask=True)
+    def test_masked_bd2_scaled(self):
+        # Masked image, bit depth 2, scales 1-5
+        udg_array = ImageWriterTest.test_masked_bd2_scaled(self)
+        self._test_image(udg_array, scale=3, mask=1)
+        self._test_image(udg_array, scale=4, mask=1)
+        self._test_image(udg_array, scale=5, mask=1)
 
     def test_bd1_nt_1udg(self):
         udg_array = [[Udg(34, (170,) * 8)]]
@@ -1110,11 +1097,6 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self._test_method(method_name, udg_array, scale=2)
         self._test_method(method_name, udg_array, scale=4)
         self._test_method(method_name, udg_array, scale=8)
-
-    def test_bd4_nt_method(self):
-        png_writer = ImageWriter().writers['png']
-        frame = MockFrame(1000, 3, 3)
-        self.assertEqual(png_writer._build_image_data_bd4_nt1, png_writer._bd4_nt_method(frame))
 
 class GifWriterTest(SkoolKitTestCase, ImageWriterTest):
     def setUp(self):
