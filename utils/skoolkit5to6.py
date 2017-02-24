@@ -3,6 +3,16 @@ import sys
 import argparse
 import re
 
+DESCRIPTION = """
+Convert a ref file or CSS file from SkoolKit 5 format to SkoolKit 6 format and
+print it on standard output. Specifically:
+
+* reactivate [PageContent:*] sections
+* rename and update [Template:changelog_entry] sections
+* rename and update [Template:changelog_item_list] sections
+* update {div,ul}.changelog* CSS selectors
+"""
+
 CSS_SELECTORS = (
     ('(div|ul).changelog', r'\1.list-entry'),
     ('div.changelog-(1|2|desc|title)', r'div.list-entry-\1'),
@@ -17,7 +27,7 @@ def _parse_ref(reffile_f):
         s_line = line.rstrip()
         if line.startswith('[') and not line.startswith('[[') and s_line.endswith(']'):
             if section_name:
-                sections.append((section_name, section))
+                sections.append([section_name, section])
             else:
                 preamble = section
             section_name = s_line[1:-1]
@@ -35,6 +45,14 @@ def _get_section(sections, name):
         if name == section[0]:
             return index, section
     return -1, None
+
+def _update_template(sections, old_name, new_name, old_field, new_field):
+    template = _get_section(sections, 'Template:' + old_name)[1]
+    if template:
+        template[0] = 'Template:' + new_name
+        lines = template[1]
+        for i in range(len(lines)):
+            lines[i] = lines[i].replace(old_field, new_field).replace('changelog', 'list-entry')
 
 def convert_ref(reffile_f):
     preamble, sections = _parse_ref(reffile_f)
@@ -58,6 +76,12 @@ def convert_ref(reffile_f):
         index = _get_section(sections, 'PageContent:' + section[0][5:])[0]
         sections.insert(index, section)
 
+    # [Template:changelog_entry]
+    _update_template(sections, 'changelog_entry', 'list_entry', '{t_changelog_item_list}', '{t_list_items}')
+
+    # [Template:changelog_item_list]
+    _update_template(sections, 'changelog_item_list', 'list_items', '{m_changelog_item}', '{m_list_item}')
+
     # Print ref file
     print('\n'.join(preamble))
     for section_name, lines in sections:
@@ -73,7 +97,8 @@ def convert_css(cssfile_f):
 def main(args):
     parser = argparse.ArgumentParser(
         usage='skoolkit5to6.py FILE',
-        description="Convert a ref or css file from SkoolKit 5 format to SkoolKit 6 format and print it on standard output.",
+        description=DESCRIPTION,
+        formatter_class=argparse.RawTextHelpFormatter,
         add_help=False
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')

@@ -186,3 +186,13 @@ parse_params()
 The :func:`parse_params` function in skoolkit.skoolmacro has been removed in
 SkoolKit 6. Use the :func:`~skoolkit.skoolmacro.parse_ints` and
 :func:`~skoolkit.skoolmacro.parse_brackets` functions instead.
+
+skoolkit5to6.py
+---------------
+The `skoolkit5to6.py`_ script may be used to convert a ref file or CSS file
+that is compatible with SkoolKit 5 into a file that will work with SkoolKit 6.
+For example, to convert `game.ref`::
+
+  $ skoolkit5to6.py game.ref > game6.ref
+
+.. _skoolkit5to6.py: https://github.com/skoolkid/skoolkit/raw/master/utils/skoolkit5to6.py
