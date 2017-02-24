@@ -200,10 +200,6 @@ class Frame(object):
     def cropped(self):
         return self.width != self.full_width or self.height != self.full_height
 
-    @property
-    def tiles(self):
-        return len(self.udgs[0]) * len(self.udgs)
-
 # API
 def flip_udgs(udgs, flip=1):
     """Flip a 2D array of UDGs (instances of :class:`~skoolkit.graphics.Udg`).

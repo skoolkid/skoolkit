@@ -132,29 +132,23 @@ def bd2(iw, method1, method2, udg_arrays, scales, masked=False):
 
     _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type)
 
-def bd1(iw, method1, method2, udg_arrays, scales, one_udg=False, masked=False):
+def bd1(iw, method1, method2, udg_arrays, scales, masked=False):
     udg_arrays = udg_arrays or []
 
-    if one_udg:
-        if not udg_arrays:
-            udg_arrays.append([[Udg(56, (170,) * 8)]])
-    elif masked:
-        if not udg_arrays:
+    if not udg_arrays:
+        if masked:
             udg_arrays.append([[Udg(56, (0,) * 8, (1,) * 8)]])
             udg_arrays.append([[Udg(56, (0,) * 8, (1,) * 8)] * 2] * 2)
             udg_arrays.append([[Udg(56, (0,) * 8, (1,) * 8)] * 3] * 3)
-    elif not udg_arrays:
-        attrs = (56, 7, 0, 63)
-        for num_udgs in range(1, 10):
-            for num_attrs in range(1, min(num_udgs, 4) + 1):
-                udg_arrays.append([[Udg(attrs[i % num_attrs], (170,) * 8) for i in range(num_udgs)]])
+        else:
+            attrs = (56, 7, 0, 63)
+            for num_udgs in range(1, 10):
+                for num_attrs in range(1, min(num_udgs, 4) + 1):
+                    udg_arrays.append([[Udg(attrs[i % num_attrs], (170,) * 8) for i in range(num_udgs)]])
 
     scales = scales or (1, 2, 3, 4, 5, 6, 7, 8)
 
     _compare_methods(iw, method1, method2, udg_arrays, scales, mask_type=0)
-
-def bd1_1udg(iw, method1, method2, udg_arrays, scales):
-    bd1(iw, method1, method2, udg_arrays, scales, one_udg=True)
 
 def bd1_at(iw, method1, method2, udg_arrays, scales):
     bd1(iw, method1, method2, udg_arrays, scales, masked=True)
@@ -173,12 +167,7 @@ METHODS = (
     # Bit depth 1
     ('bd_any', 'bd1_at', bd1_at),
     ('bd_any', 'bd1_nt', bd1),
-    ('bd1_at', 'bd1_nt', bd1),
-
-    # Bit depth 1, 1 UDG
-    ('bd1_at', 'bd1_nt_1udg', bd1_1udg),
-    ('bd1_nt', 'bd1_nt_1udg', bd1_1udg),
-    ('bd_any', 'bd1_nt_1udg', bd1_1udg)
+    ('bd1_at', 'bd1_nt', bd1)
 )
 
 def time_methods(method1_name, method2_name, udg_arrays, scale):

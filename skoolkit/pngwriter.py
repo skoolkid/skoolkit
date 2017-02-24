@@ -129,48 +129,36 @@ class PngWriter:
         #   bit_depth: 0 (1 colour), 1 (2 colours), 2 or 4
         #   full_size: 0 (cropped), 1 (full size)
         #      masked: 0 (unmasked), 1 (partially or fully masked)
-        # and the values are 2-element tuples:
-        #   (method1, method2)
-        # where method1, if not None, returns the appropriate method to use to
-        # build the image data (based on the number of UDGs, the number of
-        # distinct attributes, and the scale); otherwise method2 is used to
-        # build the image data
+        # and each value is the method to use to build the image data
 
         # Create default values
         self.png_method_dict = {}
-        default_methods = (None, self._build_image_data_bd_any)
         for bit_depth in (0, 1, 2, 4):
             bd_method_dict = self.png_method_dict[bit_depth] = {}
             for full_size in (0, 1):
                 fs_method_dict = bd_method_dict[full_size] = {}
                 for masked in (0, 1):
-                    fs_method_dict[masked] = default_methods
+                    fs_method_dict[masked] = self._build_image_data_bd_any
 
         # Bit depth 0 (1 colour)
-        bd0_methods = (None, self._build_image_data_bd0)
         bd0_fs_method_dict = self.png_method_dict[0][1]
-        bd0_fs_method_dict[0] = bd0_methods # Unmasked
-        bd0_fs_method_dict[1] = bd0_methods # Masked
+        bd0_fs_method_dict[0] = self._build_image_data_bd0 # Unmasked
+        bd0_fs_method_dict[1] = self._build_image_data_bd0 # Masked
 
         # Bit depth 1 (2 colours)
         bd1_fs_method_dict = self.png_method_dict[1][1]
-        bd1_fs_method_dict[0] = (self._bd1_nt_method, None)           # Unmasked
-        bd1_fs_method_dict[1] = (None, self._build_image_data_bd1_at) # Masked
+        bd1_fs_method_dict[0] = self._build_image_data_bd1_nt # Unmasked
+        bd1_fs_method_dict[1] = self._build_image_data_bd1_at # Masked
 
         # Bit depth 2
         bd2_fs_method_dict = self.png_method_dict[2][1]
-        bd2_fs_method_dict[0] = (None, self._build_image_data_bd2_nt) # Unmasked
-        bd2_fs_method_dict[1] = (None, self._build_image_data_bd2_at) # Masked
+        bd2_fs_method_dict[0] = self._build_image_data_bd2_nt # Unmasked
+        bd2_fs_method_dict[1] = self._build_image_data_bd2_at # Masked
 
         # Bit depth 4
         bd4_fs_method_dict = self.png_method_dict[4][1]
-        bd4_fs_method_dict[0] = (None, self._build_image_data_bd4_nt) # Unmasked
-        bd4_fs_method_dict[1] = (None, self._build_image_data_bd_any) # Masked
-
-    def _bd1_nt_method(self, frame):
-        if frame.tiles == 1 and frame.scale < 11:
-            return self._build_image_data_bd1_nt_1udg
-        return self._build_image_data_bd1_nt
+        bd4_fs_method_dict[0] = self._build_image_data_bd4_nt # Unmasked
+        bd4_fs_method_dict[1] = self._build_image_data_bd_any # Masked
 
     def _to_bytes(self, num):
         return (num >> 24, (num >> 16) & 255, (num >> 8) & 255, num & 255)
@@ -222,10 +210,8 @@ class PngWriter:
             bd = 0
         else:
             bd = bit_depth
-        method, build_method = self.png_method_dict[bd][full_size][masked]
+        build_method = self.png_method_dict[bd][full_size][masked]
         frame.attr_map = attr_map
-        if method:
-            build_method = method(frame)
 
         frame1 = build_method(frame, mask, bit_depth)
 
@@ -471,21 +457,6 @@ class PngWriter:
             p = mask.colours((paper, ink, 0), 0, 1, 2)
             attrs[attr] = [bits[p[d] * 64 + p[c] * 16 + p[b] * 4 + p[a]] for d, c, b, a in BIT_PAIRS]
         return self._scan_frame(frame, self._scan_udg_bd2_at, attrs)
-
-    def _build_image_data_bd1_nt_1udg(self, frame, *args):
-        # 1 UDG, 2 colours, full size, no masks
-        udg = frame.udgs[0][0]
-        img_data = bytearray()
-        xor = frame.attr_map[udg.attr & 127][0] * 255
-        scale = frame.scale
-        if scale == 1:
-            for b in udg.data:
-                img_data.extend((0, b ^ xor))
-        else:
-            bits = _get_bytes(1, scale)
-            for b in udg.data:
-                img_data.extend(((0,) + bits[b ^ xor]) * scale)
-        return zlib.compress(img_data, self.compression_level)
 
     def _scan_udg_bd1_nt(self, udg, scanlines, attrs, bits):
         paper, ink = attrs[udg.attr & 127]
