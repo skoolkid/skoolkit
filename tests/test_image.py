@@ -173,6 +173,8 @@ class ImageWriterTest:
             min_j = max(0, (y0 - y) // scale)
             max_j = min(8, 1 + (y1 - y - 1) // scale)
             y += min_j * scale
+            row_flashing = False
+            min_y_floor = len(pixels)
             for j in range(min_j, max_j):
                 if y < y0:
                     rows = min(y - y0 + scale, height)
@@ -198,7 +200,7 @@ class ImageWriterTest:
                     min_k = max(0, (x0 - x) // scale)
                     max_k = min(8, 1 + (x1 - x - 1) // scale)
                     x += min_k * scale
-                    flashing = attr & 128 and paper != ink
+                    udg_flashing = attr & 128 and paper != ink
                     has_non_trans = False
                     byte <<= min_k
                     mask_byte <<= min_k
@@ -236,7 +238,7 @@ class ImageWriterTest:
                         if pixel_rgb not in palette:
                             palette.append(pixel_rgb)
                         pixel_row.extend(pixel)
-                        if flashing:
+                        if udg_flashing:
                             f_pixel_rgb = f_pixel[0]
                             if f_pixel_rgb not in palette:
                                 palette.append(f_pixel_rgb)
@@ -247,23 +249,18 @@ class ImageWriterTest:
                         byte *= 2
                         mask_byte *= 2
                         x += scale
-                    if flashing and (has_non_trans or cropped):
-                        # A 'flashing' cell that is entirely transparent is
-                        # excluded from a full-size image, but included in a
-                        # cropped image
+                    if udg_flashing and has_non_trans:
                         min_x = min(min_x_floor, min_x)
                         max_x = max(len(pixel_row), max_x)
-                        min_y = min(len(pixels), min_y)
-                        max_y = max(len(pixels) + rows, max_y)
+                        row_flashing = True
                 pixels += [pixel_row] * rows
                 pixels2 += [pixel_row2] * rows
+                if row_flashing:
+                    min_y = min(min_y_floor, min_y)
+                    max_y = max(len(pixels), max_y)
                 y += scale
 
         if frames_differ:
-            if not cropped:
-                min_y = inc * (min_y // inc)
-                if max_y % inc:
-                    max_y = inc * (1 + max_y // inc)
             frame2_xy = (min_x, min_y)
             pixels2 = [pixels2[i][min_x:max_x] for i in range(min_y, max_y)]
         else:
@@ -322,6 +319,12 @@ class ImageWriterTest:
         udg_array = [[udg]]
         self._test_scales(udg_array, mask=1, x=3, y=1, width=4, height=6)
 
+    def test_bd0_mask1_cropped_flashing(self):
+        # OR-AND mask, single colour (transparent), cropped, FLASH bit set
+        udg = Udg(184, (0,) * 8, (255,) * 8)
+        udg_array = [[udg]]
+        self._test_scales(udg_array, mask=1, x=3, y=1, width=4, height=6)
+
     def test_bd0_mask2(self):
         # AND-OR mask, single colour (transparent)
         udg = Udg(56, (0,) * 8, (255,) * 8)
@@ -337,6 +340,12 @@ class ImageWriterTest:
     def test_bd0_mask2_cropped(self):
         # AND-OR mask, single colour (transparent), cropped
         udg = Udg(56, (0,) * 8, (255,) * 8)
+        udg_array = [[udg]]
+        self._test_scales(udg_array, mask=2, x=3, y=1, width=4, height=6)
+
+    def test_bd0_mask2_cropped_flashing(self):
+        # AND-OR mask, single colour (transparent), cropped, FLASH bit set
+        udg = Udg(184, (0,) * 8, (255,) * 8)
         udg_array = [[udg]]
         self._test_scales(udg_array, mask=2, x=3, y=1, width=4, height=6)
 
