@@ -16,6 +16,7 @@ print it on standard output. Specifically:
 CSS_SELECTORS = (
     ('(div|ul).changelog', r'\1.list-entry'),
     ('div.changelog-(1|2|desc|title)', r'div.list-entry-\1'),
+    ('ul.changelog([1-9][0-9]*)', r'ul.list-entry\1'),
 )
 
 def _parse_ref(reffile_f):
