@@ -474,6 +474,11 @@ class MethodTest(HtmlWriterTestCase):
         img_path = writer.image_path('img', frames=[Frame(udgs, 1, 0, 4)])
         self.assertEqual(img_path, '{}/img.gif'.format(udg_path))
 
+        # One frame, FLASH bit set, completely transparent (no flash rect)
+        udgs = [[Udg(129, (0,) * 8, (255,) * 8)]]
+        img_path = writer.image_path('img', frames=[Frame(udgs, 1, 1)])
+        self.assertEqual(img_path, '{}/img.png'.format(udg_path))
+
         # Two frames
         udgs = [[Udg(0, (0,) * 8)]]
         img_path = writer.image_path('img', frames=[Frame(udgs)] * 2)

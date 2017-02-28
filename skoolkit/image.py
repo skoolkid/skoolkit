@@ -95,29 +95,22 @@ class ImageWriter:
         colours = set()
         has_trans = False
         for frame in frames:
-            f_colours, f_attrs, flash_rect = self._get_colours(frame, use_flash)
-            colours.update(f_colours)
-            attrs.update(f_attrs)
+            if not hasattr(frame, 'colours'):
+                self._get_colours(frame, use_flash)
+            colours.update(frame.colours)
+            attrs.update(frame.attrs)
             has_trans = has_trans or frame.has_trans
         palette, attr_map = self._get_palette(colours, attrs, has_trans)
-        self.writers[img_format].write_image(frames, img_file, palette, attr_map, has_trans, flash_rect)
+        self.writers[img_format].write_image(frames, img_file, palette, attr_map, has_trans, frames[0].flash_rect)
 
     def select_format(self, frames):
         if frames and self.default_animation_format != self.default_format:
             if len(frames) > 1:
                 return self.default_animation_format
-            frame = frames[0]
-            x0, y0 = frame.x, frame.y
-            inc = 8 * frame.scale
-            min_col = x0 // inc
-            max_col = (x0 + frame.width) // inc
-            min_row = y0 // inc
-            max_row = (y0 + frame.height) // inc
-            for row in frame.udgs[min_row:max_row + 1]:
-                for udg in row[min_col:max_col + 1]:
-                    attr = udg.attr
-                    if attr & 128 and attr & 7 != (attr & 56) // 8:
-                        return self.default_animation_format
+            if self.animation.get(self.default_animation_format):
+                self._get_colours(frames[0], True)
+                if frames[0].flash_rect:
+                    return self.default_animation_format
         return self.default_format
 
     def _get_default_palette(self):
@@ -284,7 +277,9 @@ class ImageWriter:
         frame.has_trans = has_trans
         frame.has_masks = has_masks
         frame.all_masked = all_masked
-        return colours, attrs, flash_rect
+        frame.colours = colours
+        frame.attrs = attrs
+        frame.flash_rect = flash_rect
 
     def _get_all_colours(self, frame, use_flash=False):
         # Find all the colours in an uncropped image
@@ -336,7 +331,9 @@ class ImageWriter:
         frame.has_trans = has_trans
         frame.has_masks = has_masks
         frame.all_masked = all_masked
-        return colours, attrs, flash_rect
+        frame.colours = colours
+        frame.attrs = attrs
+        frame.flash_rect = flash_rect
 
     def _get_palette(self, colours, attrs, has_trans):
         colour_map = {}
