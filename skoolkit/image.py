@@ -189,33 +189,23 @@ class ImageWriter:
         return has_trans or None in pixels, has_non_trans
 
     def _get_colours(self, frame, use_flash=False):
-        if not frame.cropped:
-            return self._get_all_colours(frame, use_flash)
-
         udg_array = frame.udgs
         null_mask = frame.mask == 0
         scale = frame.scale
         mask = self.masks[frame.mask]
         x0, y0, width, height = frame.x, frame.y, frame.width, frame.height
-        x1 = x0 + width
-        y1 = y0 + height
+        x1, y1 = x0 + width, y0 + height
         attrs = set()
         colours = set()
         has_masks = 0
-        all_masked = 1
         has_trans = False
         flashing = False
         inc = 8 * scale
-        min_col = x0 // inc
-        max_col = x1 // inc
-        min_row = y0 // inc
-        max_row = y1 // inc
-        x0_floor = inc * min_col
-        y0_floor = inc * min_row
-        x1_floor = inc * max_col
-        y1_floor = inc * max_row
-        min_x = width
-        min_y = height
+        min_col, max_col = x0 // inc, x1 // inc
+        min_row, max_row = y0 // inc, y1 // inc
+        x0_floor, x1_floor = inc * min_col, inc * max_col
+        y0_floor, y1_floor = inc * min_row, inc * max_row
+        min_x, min_y = width, height
         max_x = max_y = 0
 
         y = y0_floor
@@ -227,8 +217,6 @@ class ImageWriter:
                 paper, ink = self.attr_index[attr & 127]
                 if udg.mask:
                     has_masks = 1
-                else:
-                    all_masked = 0
                 udg_whole = x0 <= x < x1_floor and y0 <= y < y1_floor
                 has_non_trans = False
                 if udg_whole:
@@ -271,69 +259,16 @@ class ImageWriter:
             y += inc
 
         if flashing:
-            flash_rect = (min_x - x0, min_y - y0, max_x - min_x, max_y - min_y)
+            if frame.cropped:
+                frame.flash_rect = (min_x - x0, min_y - y0, max_x - min_x, max_y - min_y)
+            else:
+                frame.flash_rect = (min_x // inc, min_y // inc, 1 + (max_x - min_x) // inc, 1 + (max_y - min_y) // inc)
         else:
-            flash_rect = None
+            frame.flash_rect = None
         frame.has_trans = has_trans
         frame.has_masks = has_masks
-        frame.all_masked = all_masked
         frame.colours = colours
         frame.attrs = attrs
-        frame.flash_rect = flash_rect
-
-    def _get_all_colours(self, frame, use_flash=False):
-        # Find all the colours in an uncropped image
-        udg_array = frame.udgs
-        null_mask = frame.mask == 0
-        mask = self.masks[frame.mask]
-        attrs = set()
-        colours = set()
-        has_trans = False
-        has_masks = 0
-        all_masked = 1
-        flashing = False
-        min_x = len(udg_array[0])
-        min_y = len(udg_array)
-        max_x = max_y = 0
-
-        y = 0
-        for row in udg_array:
-            x = 0
-            for udg in row:
-                attr = udg.attr
-                attrs.add(attr & 127)
-                paper, ink = self.attr_index[attr & 127]
-                has_non_trans = False
-                for i in range(8):
-                    pixels = mask.apply(udg, i, paper, ink, None)
-                    has_trans, has_non_trans = self._check_pixels(colours, pixels, ink, paper, has_trans, has_non_trans)
-                    if ink in colours and paper in colours and has_non_trans and (null_mask or has_trans):
-                        break
-                if use_flash and attr & 128 and ink != paper and has_non_trans:
-                    min_x = min(x, min_x)
-                    min_y = min(y, min_y)
-                    max_x = max(x, max_x)
-                    max_y = max(y, max_y)
-                    flashing = True
-                    colours.add(ink)
-                    colours.add(paper)
-                if udg.mask:
-                    has_masks = 1
-                else:
-                    all_masked = 0
-                x += 1
-            y += 1
-
-        if flashing:
-            flash_rect = (min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
-        else:
-            flash_rect = None
-        frame.has_trans = has_trans
-        frame.has_masks = has_masks
-        frame.all_masked = all_masked
-        frame.colours = colours
-        frame.attrs = attrs
-        frame.flash_rect = flash_rect
 
     def _get_palette(self, colours, attrs, has_trans):
         colour_map = {}
