@@ -126,7 +126,7 @@ class ImageWriterTest:
     def _get_dword(self, stream, index):
         return index + 4, 16777216 * stream[index] + 65536 * stream[index + 1] + 256 * stream[index + 2] + stream[index + 3]
 
-    def _get_image_data(self, image_writer, udg_array, img_format, scale=1, mask=False, x=0, y=0, width=None, height=None):
+    def _get_image_data(self, image_writer, udg_array, img_format, scale=1, mask=0, x=0, y=0, width=None, height=None):
         frame = Frame(udg_array, scale, mask, x, y, width, height)
         img_stream = BytesIO()
         image_writer.write_image([frame], img_stream, img_format)
@@ -269,11 +269,11 @@ class ImageWriterTest:
         masks = has_masks + all_masked
         return palette, masks, pixels, pixels2, frame2_xy
 
-    def _test_scales(self, udg_array, scales=(1, 2, 3, 4), mask=0, x=0, y=0, width=None, height=None, exp_pixels=None, iw_args=None):
+    def _test_scales(self, udg_array, scales=(1, 2, 3, 4), mask=0, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None):
         for scale in scales:
             s_w = len(udg_array[0]) * 8 * (scale - 1) + width if width is not None else None
             s_h = len(udg_array) * 8 * (scale - 1) + height if height is not None else None
-            self._test_image(udg_array, exp_pixels, scale, mask, x, y, s_w, s_h, iw_args)
+            self._test_image(udg_array, scale, mask, x, y, s_w, s_h, iw_args, exp_pixels)
 
     ###########################################################################
 
@@ -351,85 +351,113 @@ class ImageWriterTest:
 
     ###########################################################################
 
-    def test_unmasked_bd1_custom_colours(self):
-        # Unmasked image, two custom colours
-        indigo = [75, 0, 130]
-        salmon = [250, 128, 114]
-        colours = {'BLUE': indigo, 'RED': salmon}
-        iw_args = {'palette': colours}
-        udg = Udg(10, (195,) * 8) # 11000011
-        udg_array = [[udg]]
-        exp_pixels = [[salmon, salmon, indigo, indigo, indigo, indigo, salmon, salmon]] * 8
-        self._test_image(udg_array, exp_pixels=exp_pixels, iw_args=iw_args)
-
-    def test_unmasked_bd1_cropped(self):
-        # Unmasked image, bit depth 1, cropped
-        udg = Udg(5, (148,) * 8)
-        udg_array = [[udg] * 2] * 2
-        self._test_image(udg_array, width=11)
-        self._test_image(udg_array, height=12)
-        self._test_image(udg_array, x=5)
-        self._test_image(udg_array, y=7)
-        self._test_image(udg_array, x=1, y=2, width=9, height=11)
-        self._test_image(udg_array, scale=3, x=4, width=1)
-        self._test_image(udg_array, scale=3, y=4, height=1)
-        self._test_image(udg_array, scale=10, x=1, width=1)
-        self._test_image(udg_array, scale=10, y=1, height=1)
-
-    def test_unmasked_bd1_blank_flashing(self):
-        # Unmasked image, bit depth 1, 1 UDG
-        udg = Udg(129, (0,) * 8)
-        udg_array = [[udg]]
-        self._test_image(udg_array)
-
-    def test_unmasked_bd1_blank_flashing_cropped(self):
-        # Unmasked image, bit depth 1, 1 UDG, cropped
-        udg = Udg(129, (0,) * 8)
-        udg_array = [[udg]]
-        self._test_image(udg_array, x=2)
-
-    def test_unmasked_bd1_flashing(self):
-        # Unmasked image, bit depth 1, 2 UDGs
-        udg = Udg(177, (164,) * 8)
-        udg_array = [[udg] * 2]
-        self._test_image(udg_array)
-
-    def test_unmasked_bd1_scaled(self):
-        # Unmasked image, bit depth 1, scales 1-4, 2 UDGs
+    def test_bd1(self):
+        # No mask, 2 colours
         udg = Udg(49, (164,) * 8)
         udg_array = [[udg] * 2]
-        self._test_image(udg_array)
-        self._test_image(udg_array, scale=2)
-        self._test_image(udg_array, scale=3)
-        self._test_image(udg_array, scale=4)
+        self._test_scales(udg_array)
 
-    def test_unmasked_bd1_attribute_with_same_ink_and_paper(self):
-        # Unmasked image, bit depth 1, 2 UDGs, 2 attributes - one with INK and
-        # PAPER the same colour
-        udg1 = Udg(7, (1,) * 8)
-        udg2 = Udg(63, (2,) * 8)
+    def test_bd1_flashing(self):
+        # No mask, 2 colours, flashing
+        udg = Udg(177, (164,) * 8)
+        udg_array = [[udg] * 2]
+        self._test_scales(udg_array)
+
+    def test_bd1_cropped(self):
+        # No mask, 2 colours, cropped
+        udg = Udg(5, (148,) * 8)
+        udg_array = [[udg] * 2] * 2
+        self._test_scales(udg_array, x=1, y=2, width=9, height=11)
+
+    def test_bd1_cropped_width_less_than_scale(self):
+        # No mask, 2 colours, cropped, width less than scale
+        udg = Udg(5, (148,) * 8)
+        udg_array = [[udg] * 2] * 2
+        self._test_image(udg_array, scale=3, x=4, width=1)
+        self._test_image(udg_array, scale=10, x=1, width=1)
+
+    def test_bd1_cropped_height_less_than_scale(self):
+        # No mask, 2 colours, cropped, height less than scale
+        udg = Udg(5, (148,) * 8)
+        udg_array = [[udg] * 2] * 2
+        self._test_image(udg_array, scale=3, y=4, height=1)
+        self._test_image(udg_array, scale=10, y=1, height=1)
+
+    def test_bd1_cropped_flashing(self):
+        # No mask, 2 colours, cropped, flashing
+        udg = Udg(129, (0,) * 8)
+        udg_array = [[udg]]
+        self._test_scales(udg_array, x=2, y=1, width=5, height=6)
+
+    def test_bd1_mask1_ink(self):
+        # OR-AND mask, two colours (trans + ink)
+        udg = Udg(49, (136,) * 8, (255,) * 8)
+        udg_array = [[udg]]
+        self._test_scales(udg_array, mask=1)
+
+    def test_bd1_mask1_paper(self):
+        # OR-AND mask, two colours (trans + paper)
+        udg = Udg(8, (0,) * 8, (88,) * 8)
+        udg_array = [[udg]]
+        self._test_scales(udg_array, mask=1)
+
+    def test_bd1_mask1_flashing_no_trans(self):
+        # OR-AND mask, flashing, no transparent bits
+        udg = Udg(184, (1,) * 8, (1,) * 8)
+        udg_array = [[udg]]
+        self._test_scales(udg_array, mask=1)
+
+    def test_bd1_mask1_cropped(self):
+        # OR-AND mask, two colours (trans + ink), cropped
+        udg = Udg(49, (136,) * 8, (255,) * 8)
+        udg_array = [[udg]]
+        self._test_scales(udg_array, mask=1, x=1, y=2, width=5, height=5)
+
+    def test_bd1_mask1_cropped_flashing(self):
+        # OR-AND mask, INK = PAPER, cropped, FLASH bit set
+        udg = Udg(137, (136,) * 8, (255,) * 8)
+        udg_array = [[udg]]
+        self._test_scales(udg_array, mask=1, x=2, y=1, width=5, height=5)
+
+    def test_bd1_mask2_ink(self):
+        # AND-OR mask, two colours (trans + ink)
+        udg = Udg(49, (136,) * 8, (255,) * 8)
+        udg_array = [[udg]]
+        self._test_scales(udg_array, mask=2)
+
+    def test_bd1_mask2_paper(self):
+        # AND-OR mask, two colours (trans + paper)
+        udg = Udg(8, (0,) * 8, (88,) * 8)
+        udg_array = [[udg]]
+        self._test_scales(udg_array, mask=2)
+
+    def test_bd1_mask2_flashing_no_trans(self):
+        # AND-OR mask, flashing, no transparent bits
+        udg = Udg(184, (1,) * 8, (1,) * 8)
+        udg_array = [[udg]]
+        self._test_scales(udg_array, mask=2)
+
+    def test_bd1_mask2_cropped(self):
+        # AND-OR mask, two colours (trans + ink), cropped
+        udg = Udg(49, (136,) * 8, (255,) * 8)
+        udg_array = [[udg]]
+        self._test_scales(udg_array, mask=2, x=1, y=2, width=5, height=5)
+
+    def test_bd1_mask2_cropped_flashing(self):
+        # AND-OR mask, INK = PAPER, cropped, FLASH bit set
+        udg = Udg(137, (136,) * 8, (255,) * 8)
+        udg_array = [[udg]]
+        self._test_scales(udg_array, mask=2, x=2, y=1, width=5, height=5)
+
+    def test_bd1_attribute_with_same_ink_and_paper(self):
+        # No mask, 2 colours, 2 UDGs, 2 attributes - one with INK and PAPER the
+        # same colour
+        udg1 = Udg(7, (1,) * 8)  # INK 7: PAPER 0
+        udg2 = Udg(63, (2,) * 8) # INK 7: PAPER 7
         udg_array = [[udg1], [udg2]]
         self._test_image(udg_array)
 
-    def test_masked_bd1_flashing(self):
-        # Masked image, flashing, no transparent bits
-        udg = Udg(184, (1,) * 8, (1,) * 8)
-        udg_array = [[udg] * 4]
-        self._test_image(udg_array, scale=1, mask=1)
-
-    def test_masked_bd1_ink(self):
-        # Masked image, two colours (trans + ink)
-        udg = Udg(49, (136,) * 8, (255,) * 8)
-        udg_array = [[udg]]
-        self._test_image(udg_array, mask=1)
-
-    def test_masked_bd1_paper(self):
-        # Masked image, two colours (trans + paper)
-        udg = Udg(8, (0,) * 8, (88,) * 8)
-        udg_array = [[udg]]
-        self._test_image(udg_array, mask=1)
-
-    def test_mask2_bd1_one_udg_maskless(self):
+    def test_bd1_mask2_one_udg_maskless(self):
         # AND-OR mask, one UDG with no mask
         udg1 = Udg(7, (15,) * 8, (31,) * 8)
         udg2 = Udg(7, (240,) * 8)
@@ -669,84 +697,70 @@ class ImageWriterTest:
 
     ###########################################################################
 
-    def test_masked_alpha(self):
-        # Masked image, alpha < 255
+    def test_mask1_alpha(self):
+        # OR-AND mask, alpha < 255
         iw_args = {'options': self.alpha_option}
         udg = Udg(88, (34,) * 8, (163,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, mask=1, iw_args=iw_args)
 
-    def test_masked_no_transparency(self):
-        # Masked image with no transparent bits
+    def test_mask1_no_transparency(self):
+        # OR-AND mask, no transparent bits
         udg = Udg(56, (255,) * 8, (1,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, mask=1)
 
-    def test_masked_cropped_no_transparency(self):
-        # Masked image, cropped, with no transparent bits
+    def test_mask1_cropped_no_transparency(self):
+        # OR-AND mask, cropped, no transparent bits
         udg = Udg(56, (255,) * 8, (1,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, mask=1, y=2)
 
-    def test_masked_cropped_flashing(self):
-        # Masked image, cropped, flashing
-        udg1 = Udg(184, (240,) * 8, (243,) * 8)
-        udg2 = Udg(56, (170,) * 8)
-        udg_array = [[udg1, udg2]] * 2
-        self._test_image(udg_array, scale=2, mask=1, x=1, y=1, width=29, height=27)
-
-    def test_masked_cropped_flashing_one_udg_all_transparent(self):
-        # Masked image, cropped, flashing, one UDG all transparent
-        udg1 = Udg(135, (0,) * 8, (255,) * 8)
-        udg2 = Udg(184, (240,) * 8)
-        udg_array = [[udg1, udg2]]
-        self._test_image(udg_array, scale=2, mask=1, x=1, y=1, width=27, height=13)
-
-    def test_masked_flashing(self):
-        # Masked image, flashing
-        udg = Udg(184, (240,) * 8, (243,) * 8)
-        udg_array = [[udg]]
-        self._test_image(udg_array, mask=1)
-
-    def test_masked_flashing_one_udg_all_transparent(self):
-        # Masked image, flashing, one UDG all transparent
+    def test_mask1_flashing_one_udg_all_transparent(self):
+        # OR-AND mask, flashing, one UDG all transparent
         udg1 = Udg(135, (0,) * 8, (255,) * 8)
         udg2 = Udg(135, (240,) * 8)
         udg_array = [[udg1, udg2]]
         self._test_image(udg_array, scale=2, mask=1)
 
-    def test_masked_flashing_no_animation(self):
-        # Masked image, flashing, no animation
+    def test_mask1_cropped_flashing_one_udg_all_transparent(self):
+        # OR-AND mask, cropped, flashing, one UDG all transparent
+        udg1 = Udg(135, (0,) * 8, (255,) * 8)
+        udg2 = Udg(184, (240,) * 8)
+        udg_array = [[udg1, udg2]]
+        self._test_image(udg_array, scale=2, mask=1, x=1, y=1, width=27, height=13)
+
+    def test_mask1_flashing_no_animation(self):
+        # OR-AND mask, flashing, no animation
         iw_args = {'options': {self.animation_flag: 0}}
         udg = Udg(184, (240,) * 8, (243,) * 8)
         udg_array = [[udg]]
-        self._test_image(udg_array, iw_args=iw_args)
+        self._test_image(udg_array, mask=1, iw_args=iw_args)
 
-    def test_unmasked_alpha(self):
-        # Masked image, alpha < 255
+    def test_alpha_no_mask(self):
+        # No mask, alpha < 255
         iw_args = {'options': self.alpha_option}
         udg = Udg(56, (132,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, iw_args=iw_args)
 
-    def test_unmasked_flashing(self):
-        # Unmasked image, flashing
-        udg = Udg(184, (240,) * 8)
-        udg_array = [[udg]]
-        self._test_image(udg_array)
-
-    def test_unmasked_cropped_flashing(self):
-        # Unmasked image, cropped, flashing
-        udg = Udg(184, (240,) * 8)
-        udg_array = [[udg] * 3]
-        self._test_image(udg_array, x=2, y=0, width=17, height=8)
-
-    def test_unmasked_flashing_no_animation(self):
-        # Unmasked image, flashing, no animation
+    def test_flashing_no_animation(self):
+        # No mask, flashing, no animation
         iw_args = {'options': {self.animation_flag: 0}}
         udg = Udg(184, (240,) * 8)
         udg_array = [[udg]]
         self._test_image(udg_array, iw_args=iw_args)
+
+    def test_custom_colours(self):
+        # Two custom colours
+        indigo = [75, 0, 130]
+        salmon = [250, 128, 114]
+        colours = {'BLUE': indigo, 'RED': salmon}
+        iw_args = {'palette': colours}
+        udg = Udg(10, (195,) * 8) # 11000011
+        udg_array = [[udg]]
+        exp_pixels = [[salmon, salmon, indigo, indigo, indigo, indigo, salmon, salmon]] * 8
+        self._test_image(udg_array, iw_args=iw_args, exp_pixels=exp_pixels)
 
     def test_animation(self):
         # 3 frames, 2 colours, 16x8
@@ -763,7 +777,7 @@ class ImageWriterTest:
         frames = [frame1, frame2]
         self._test_animated_image(frames)
 
-    def test_animation_masked(self):
+    def test_animation_mask1(self):
         # 2 frames, transparency on frame 2
         iw_args = {'options': self.alpha_option}
         frame1 = Frame([[Udg(49, (64,) * 8)]])
@@ -969,7 +983,7 @@ class PngWriterTest(SkoolKitTestCase, ImageWriterTest):
         self.assertEqual(idat_crc, self._get_crc(img_bytes[idat_start:idat_end]))
         return i
 
-    def _test_image(self, udg_array, exp_pixels=None, scale=1, mask=False, x=0, y=0, width=None, height=None, iw_args=None):
+    def _test_image(self, udg_array, scale=1, mask=0, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None):
         image_writer = ImageWriter(**(iw_args or {}))
         img_bytes = self._get_image_data(image_writer, udg_array, 'png', scale, mask, x, y, width, height)
 
@@ -1236,7 +1250,7 @@ class GifWriterTest(SkoolKitTestCase, ImageWriterTest):
 
         return i
 
-    def _test_image(self, udg_array, exp_pixels=None, scale=1, mask=False, x=0, y=0, width=None, height=None, iw_args=None, exp_clear_codes=None):
+    def _test_image(self, udg_array, scale=1, mask=0, x=0, y=0, width=None, height=None, iw_args=None, exp_pixels=None, exp_clear_codes=None):
         if iw_args is None:
             iw_args = {}
         options = iw_args.setdefault('options', {})
