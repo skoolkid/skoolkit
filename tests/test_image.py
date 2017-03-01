@@ -466,107 +466,103 @@ class ImageWriterTest:
 
     ###########################################################################
 
-    def test_unmasked_bd2_cropped(self):
-        # Unmasked image, bit depth 2, cropped
-        udg1 = Udg(30, (170,) * 8)
-        udg2 = Udg(28, (81,) * 8)
+    def test_bd2(self):
+        # No mask, 4 colours
+        udg1 = Udg(56, (93,) * 8)  # INK 0: PAPER 7
+        udg2 = Udg(49, (162,) * 8) # INK 1: PAPER 6
+        udg_array = [[udg1, udg2]]
+        self._test_scales(udg_array)
+
+    def test_bd2_flashing(self):
+        # No mask, 4 colours, flashing
+        udg1 = Udg(56, (93,) * 8)   # INK 0: PAPER 7: FLASH 1
+        udg2 = Udg(177, (162,) * 8) # INK 1: PAPER 6: FLASH 1
+        udg_array = [[udg1, udg2]]
+        self._test_scales(udg_array)
+
+    def test_bd2_cropped(self):
+        # No mask, 3 colours, cropped
+        udg1 = Udg(30, (170,) * 8) # INK 6: PAPER 3
+        udg2 = Udg(28, (81,) * 8)  # INK 4: PAPER 3
         udg_array = [[udg1, udg2]] * 2
-        self._test_image(udg_array, width=11)
-        self._test_image(udg_array, height=12)
-        self._test_image(udg_array, x=5)
-        self._test_image(udg_array, y=7)
-        self._test_image(udg_array, x=1, y=2, width=10, height=11)
+        self._test_scales(udg_array, x=3, y=4, width=11, height=11)
+
+    def test_bd2_cropped_width_less_than_scale(self):
+        # No mask, 3 colours, cropped, width less than scale
+        udg1 = Udg(30, (170,) * 8) # INK 6: PAPER 3
+        udg2 = Udg(28, (81,) * 8)  # INK 4: PAPER 3
+        udg_array = [[udg1, udg2]] * 2
         self._test_image(udg_array, scale=3, x=4, width=1)
-        self._test_image(udg_array, scale=3, y=4, height=1)
         self._test_image(udg_array, scale=10, x=1, width=1)
+
+    def test_bd2_cropped_height_less_than_scale(self):
+        # No mask, 3 colours, cropped, height less than scale
+        udg1 = Udg(30, (170,) * 8) # INK 6: PAPER 3
+        udg2 = Udg(28, (81,) * 8)  # INK 4: PAPER 3
+        udg_array = [[udg1, udg2]] * 2
+        self._test_image(udg_array, scale=3, y=4, height=1)
         self._test_image(udg_array, scale=10, y=1, height=1)
 
-    def test_unmasked_bd2_blank_flashing(self):
-        # Unmasked image, bit depth 2, 2 UDGs
-        udg1 = Udg(129, (0,) * 8)
-        udg2 = Udg(130, (255,) * 8)
+    def test_bd2_cropped_flashing(self):
+        # No mask, 3 colours, cropped, flashing
+        udg1 = Udg(129, (0,) * 8)   # INK 1: PAPER 0: FLASH 1
+        udg2 = Udg(130, (255,) * 8) # INK 2: PAPER 0: FLASH 1
         udg_array = [[udg1, udg2]]
-        self._test_image(udg_array)
+        self._test_scales(udg_array, x=1, y=3, width=13, height=4)
 
-    def test_unmasked_bd2_blank_flashing_cropped(self):
-        # Unmasked image, bit depth 2, 2 UDGs, cropped
-        udg1 = Udg(129, (0,) * 8)
-        udg2 = Udg(130, (255,) * 8)
-        udg_array = [[udg1, udg2]]
-        self._test_image(udg_array, y=3)
-
-    def test_unmasked_bd2_flashing(self):
-        # Unmasked image, bit depth 2, flashing, scales 1-4
-        udg1 = Udg(56, (93,) * 8)
-        udg2 = Udg(177, (162,) * 8)
-        udg_array = [[udg1, udg2]]
-        self._test_image(udg_array)
-        self._test_image(udg_array, scale=2)
-        self._test_image(udg_array, scale=3)
-        self._test_image(udg_array, scale=4)
-
-    def test_unmasked_bd2_scaled(self):
-        # Unmasked image, bit depth 2, scales 1-4
-        udg1 = Udg(56, (93,) * 8)
-        udg2 = Udg(49, (162,) * 8)
-        udg_array = [[udg1, udg2]]
-        self._test_image(udg_array)
-        self._test_image(udg_array, scale=2)
-        self._test_image(udg_array, scale=3)
-        self._test_image(udg_array, scale=4)
-
-    def test_masked_bd2_cropped(self):
-        # Masked image, bit depth 2, cropped
-        udg = Udg(88, (34,) * 8, (119,) * 8)
-        udg_array = [[udg] * 3]
-        self._test_image(udg_array, mask=1, width=17)
-        self._test_image(udg_array, mask=1, height=3)
-        self._test_image(udg_array, mask=1, x=5)
-        self._test_image(udg_array, mask=1, y=1)
-        self._test_image(udg_array, mask=1, x=2, y=2, width=16, height=4)
-
-    def test_masked_bd2(self):
-        # Masked image, bit depth 2
-        udg = Udg(88, (34,) * 8, (119,) * 8)
+    def test_bd2_mask1(self):
+        # OR-AND mask, 2 colours + trans
+        udg = Udg(88, (34,) * 8, (119,) * 8) # INK 0: PAPER 3: BRIGHT 1
         udg_array = [[udg]]
-        self._test_image(udg_array, scale=1, mask=1)
+        self._test_scales(udg_array, mask=1)
 
-    def test_masked_bd2_flashing(self):
-        # Masked image, bit depth 2, one UDG flashing
-        udg1 = Udg(56, (1,) * 8)
-        udg2 = Udg(184, (0,) * 8, (255, 129, 129, 129, 129, 129, 129, 255))
+    def test_bd2_mask1_flashing(self):
+        # OR-AND mask, 2 colours + trans, one UDG flashing
+        udg1 = Udg(56, (1,) * 8) # INK 0: PAPER 7: FLASH 0
+        udg2 = Udg(184, (0,) * 8, (255, 129, 129, 129, 129, 129, 129, 255)) # INK 0: PAPER 7: FLASH 1
         udg_array = [[udg1, udg2]]
-        self._test_image(udg_array, mask=1)
+        self._test_scales(udg_array, mask=1)
 
-    def test_masked_bd2_cropped_flashing(self):
-        # Masked image, bit depth 2, cropped, one UDG flashing
-        udg1 = Udg(56, (1,) * 8)
-        udg2 = Udg(184, (0,) * 8, (255, 255, 195, 195, 195, 195, 255, 255))
+    def test_bd2_mask1_cropped(self):
+        # OR-AND mask, 3 colours + trans, cropped
+        udg1 = Udg(88, (34,) * 8, (119,) * 8) # INK 0: PAPER 3: BRIGHT 1
+        udg2 = Udg(89, (34,) * 8, (119,) * 8) # INK 1: PAPER 3: BRIGHT 1
+        udg_array = [[udg1, udg2], [udg2, udg1]]
+        self._test_scales(udg_array, mask=1, x=2, y=2, width=13, height=11)
+
+    def test_bd2_mask1_cropped_flashing(self):
+        # OR-AND mask, 2 colours + trans, cropped, one UDG flashing
+        udg1 = Udg(56, (1,) * 8) # INK 0: PAPER 7: FLASH 0
+        udg2 = Udg(184, (0,) * 8, (255, 255, 195, 195, 195, 195, 255, 255)) # INK 0: PAPER 7: FLASH 1
         udg_array = [[udg1, udg2]]
-        self._test_image(udg_array, mask=1, x=1, y=1, width=14, height=6)
+        self._test_scales(udg_array, mask=1, x=1, y=1, width=14, height=6)
 
-    def test_masked_bd2_scaled(self):
-        # Masked image, bit depth 2, scales 1-4
-        udg1 = Udg(56, (1,) * 8)
-        udg2 = Udg(184, (0,) * 8, (255, 129, 129, 129, 129, 129, 129, 255))
-        udg_array = [[udg1, udg2]]
-        self._test_image(udg_array, mask=1)
-        self._test_image(udg_array, scale=2, mask=1)
-        self._test_image(udg_array, scale=3, mask=1)
-        self._test_image(udg_array, scale=4, mask=1)
-
-    def test_mask2_bd2(self):
-        # AND-OR mask, bit depth 2
-        udg = Udg(56, (170,) * 8, (170,) + (255,) * 7)
+    def test_bd2_mask2(self):
+        # AND-OR mask, 2 colours + trans
+        udg = Udg(56, (170,) * 8, (170,) + (255,) * 7) # INK 0: PAPER 7
         udg_array = [[udg]]
-        self._test_image(udg_array, mask=2)
-        self._test_image(udg_array, scale=2, mask=2)
+        self._test_scales(udg_array, mask=2)
 
-    def test_mask2_bd2_cropped(self):
-        # AND-OR mask, bit depth 2, cropped
-        udg = Udg(56, (170,) * 8, (170,) + (255,) * 7)
-        udg_array = [[udg] * 3]
-        self._test_image(udg_array, mask=2, x=7, y=3, width=9, height=2)
+    def test_bd2_mask2_flashing(self):
+        # AND-OR mask, 2 colours + trans, one UDG flashing
+        udg1 = Udg(56, (1,) * 8) # INK 0: PAPER 7: FLASH 0
+        udg2 = Udg(184, (0,) * 8, (255, 129, 129, 129, 129, 129, 129, 255)) # INK 0: PAPER 7: FLASH 1
+        udg_array = [[udg1, udg2]]
+        self._test_scales(udg_array, mask=2)
+
+    def test_bd2_mask2_cropped(self):
+        # AND-OR mask, 3 colours + trans, cropped
+        udg1 = Udg(88, (34,) * 8, (119,) * 8) # INK 0: PAPER 3: BRIGHT 1
+        udg2 = Udg(89, (34,) * 8, (119,) * 8) # INK 1: PAPER 3: BRIGHT 1
+        udg_array = [[udg1, udg2], [udg2, udg1]]
+        self._test_scales(udg_array, mask=2, x=1, y=3, width=13, height=11)
+
+    def test_bd2_mask2_cropped_flashing(self):
+        # AND-OR mask, 2 colours + trans, cropped, one UDG flashing
+        udg1 = Udg(56, (1,) * 8) # INK 0: PAPER 7: FLASH 0
+        udg2 = Udg(184, (0,) * 8, (255, 255, 195, 195, 195, 195, 255, 255)) # INK 0: PAPER 7: FLASH 1
+        udg_array = [[udg1, udg2]]
+        self._test_scales(udg_array, mask=2, x=1, y=1, width=14, height=6)
 
     ###########################################################################
 
