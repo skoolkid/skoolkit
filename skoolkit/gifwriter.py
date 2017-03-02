@@ -66,15 +66,7 @@ class GifWriter:
             if flash_rect:
                 # Frame 2
                 f2_x, f2_y, f2_w, f2_h = flash_rect
-                if frame.cropped:
-                    f2_frame = frame.swap_colours(x=frame.x + f2_x, y=frame.y + f2_y, width=f2_w, height=f2_h)
-                else:
-                    f2_frame = frame.swap_colours(f2_x, f2_y, f2_w, f2_h)
-                    sf = 8 * frame.scale
-                    f2_x *= sf
-                    f2_y *= sf
-                    f2_w *= sf
-                    f2_h *= sf
+                f2_frame = frame.swap_colours(frame.x + f2_x, frame.y + f2_y, f2_w, f2_h)
                 f2_attr_map = attr_map.copy()
                 for attr, (paper, ink) in attr_map.items():
                     new_attr = (attr & 192) + (attr & 7) * 8 + (attr & 56) // 8

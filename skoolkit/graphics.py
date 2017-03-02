@@ -146,11 +146,15 @@ class Frame(object):
         self.delay = delay
         self.name = name
 
-    def swap_colours(self, tx=0, ty=0, tw=None, th=None, x=0, y=0, width=None, height=None):
+    def swap_colours(self, x, y, width, height):
         # Swap paper and ink in UDGs that are flashing
-        t_width = tw or len(self.udgs[0])
-        t_height = th or len(self.udgs)
-        udgs = [self.udgs[i][tx:tx + t_width] for i in range(ty, ty + t_height)]
+        if self.cropped:
+            udgs = [row[:] for row in self.udgs]
+        else:
+            inc = 8 * self.scale
+            tx, ty, tw, th = x // inc, y // inc, width // inc, height // inc
+            udgs = [row[tx:tx + tw] for row in self.udgs[ty:ty + th]]
+            x, y, width, height = 0, 0, None, None
         for row in udgs:
             for i in range(len(row)):
                 udg = row[i]

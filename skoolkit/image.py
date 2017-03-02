@@ -240,9 +240,9 @@ class ImageWriter:
                 if use_flash and attr & 128 and ink != paper and has_non_trans:
                     if udg_whole:
                         min_x = min(x, min_x)
+                        max_x = max(x + inc, max_x)
                         min_y = min(y, min_y)
-                        max_x = max(x, max_x)
-                        max_y = max(y, max_y)
+                        max_y = max(y + inc, max_y)
                     else:
                         fx0 = max(x0, x + min_k * scale)
                         fx1 = min(x1, x + max_k * scale)
@@ -259,10 +259,7 @@ class ImageWriter:
             y += inc
 
         if flashing:
-            if frame.cropped:
-                frame.flash_rect = (min_x - x0, min_y - y0, max_x - min_x, max_y - min_y)
-            else:
-                frame.flash_rect = (min_x // inc, min_y // inc, 1 + (max_x - min_x) // inc, 1 + (max_y - min_y) // inc)
+            frame.flash_rect = (min_x - x0, min_y - y0, max_x - min_x, max_y - min_y)
         else:
             frame.flash_rect = None
         frame.has_trans = has_trans

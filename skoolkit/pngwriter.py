@@ -67,7 +67,7 @@ class PngWriter:
         bit_depth, palette_size = self._get_bit_depth(palette)
         frame1 = frames[0]
         width, height = frame1.width, frame1.height
-        frame1_data, frame2_data, frame2_rect = self._build_image_data(frame1, palette_size, bit_depth, attr_map, flash_rect)
+        frame1_data, frame2_data = self._build_image_data(frame1, palette_size, bit_depth, attr_map, flash_rect)
 
         # PNG signature
         img_file.write(self.png_signature)
@@ -99,7 +99,7 @@ class PngWriter:
 
         # fcTL and fdAT
         if len(frames) == 1 and flash_rect:
-            f2_x_offset, f2_y_offset, f2_width, f2_height = frame2_rect
+            f2_x_offset, f2_y_offset, f2_width, f2_height = flash_rect
             self._write_fctl_chunk(img_file, 1, frame1.delay, f2_width, f2_height, f2_x_offset, f2_y_offset)
             self._write_img_data_chunk(img_file, self.fdat2 + frame2_data)
         for frame in frames[1:]:
@@ -216,16 +216,10 @@ class PngWriter:
         frame1 = build_method(frame, mask, bit_depth)
 
         # Frame 2
-        frame2 = frame2_rect = None
+        frame2 = None
         if flash_rect:
             f2_x, f2_y, f2_w, f2_h = flash_rect
-            if full_size:
-                f2_frame = frame.swap_colours(f2_x, f2_y, f2_w, f2_h)
-                sf = 8 * frame.scale
-                frame2_rect = (f2_x * sf, f2_y * sf, f2_w * sf, f2_h * sf)
-            else:
-                f2_frame = frame.swap_colours(x=frame.x + f2_x, y=frame.y + f2_y, width=f2_w, height=f2_h)
-                frame2_rect = flash_rect
+            f2_frame = frame.swap_colours(frame.x + f2_x, frame.y + f2_y, f2_w, f2_h)
             f2_attr_map = attr_map.copy()
             for attr, (paper, ink) in attr_map.items():
                 new_attr = (attr & 192) + (attr & 7) * 8 + (attr & 56) // 8
@@ -233,7 +227,7 @@ class PngWriter:
             f2_frame.attr_map = f2_attr_map
             frame2 = build_method(f2_frame, mask, bit_depth)
 
-        return frame1, frame2, frame2_rect
+        return frame1, frame2
 
     def _get_crc(self, byte_list):
         crc = CRC_MASK
