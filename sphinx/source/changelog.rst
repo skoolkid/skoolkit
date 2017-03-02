@@ -5,12 +5,13 @@ Changelog
 -----
 * Dropped support for Python 2.7 and 3.3
 * Added the ``--expand`` option to :ref:`sna2img.py` (for expanding a
-  ``#FONT``, ``#SCR``, ``#UDG`` or ``#UDGARRAY`` macro)
+  :ref:`FONT`, :ref:`SCR`, :ref:`UDG` or :ref:`UDGARRAY` macro)
 * Added the ``--basic`` option to :ref:`tapinfo.py` (for listing the BASIC
   program in a tape block)
-* Added the ``--find-tile`` option (for searching for the graphic data of a
-  tile currently on screen) and the ``--word`` option (for showing the words at
-  a range of addresses) to :ref:`snapinfo.py`
+* Added the ``--find-tile`` option to :ref:`snapinfo.py` (for searching for the
+  graphic data of a tile currently on screen)
+* Added the ``--word`` option to :ref:`snapinfo.py` (for showing the words at a
+  range of addresses)
 * Added support to the ``--find`` option of :ref:`snapinfo.py` for specifying a
   range of distances between byte values (e.g. ``--find 1,2,3-1-10``)
 * The ``--peek`` option of :ref:`snapinfo.py` now shows UDGs and BASIC tokens
@@ -20,8 +21,7 @@ Changelog
 * Added support for parsing a :ref:`box page <boxpages>` entry section as a
   sequence of multi-line list items prefixed by '-' (with
   ``SectionType=BulletPoints``)
-* Fixed how an image is cropped when the crop rectangle fits within a single
-  tile row or column
+* Fixed how an image is cropped when the crop rectangle is very narrow
 * Fixed how a masked image with flashing cells is built
 * Fixed how :ref:`sna2skool.py` handles a snapshot that contains a dangling
   IX/IY prefix (DD/FD) when generating a control file
