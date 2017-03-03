@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+skool() {
+  cat <<EOF
+@start
+; Routine
+c32768 SCF
+EOF
+}
+
+test_skool2asm() {
+  echo -n "Testing skool2asm.py..."
+  diff -u <(skool | ./skool2asm.py - 2>/dev/null) <(echo -e "; Routine\n  SCF\n")
+}
+
+test_skool2bin() {
+  echo -n "Testing skool2bin.py..."
+  cmp <(skool | ./skool2bin.py - - 2>/dev/null) <(echo -n "7")
+}
+
+test_skool2ctl() {
+  echo -n "Testing skool2ctl.py..."
+  diff -u <(skool | ./skool2ctl.py - 2>/dev/null) <(echo -e "@ 32768 start\nc 32768 Routine\ni 32769")
+}
+
+test_skool2html() {
+  echo -n "Testing skool2html.py..."
+  skool2html=$(pwd)/skool2html.py
+  cd $(mktemp -d)
+  skool | $skool2html - &>/dev/null
+  tmpdir=$(pwd)
+  cd - &>/dev/null
+  grep -q '<td class="instruction">SCF</td>' $tmpdir/program/asm/32768.html
+}
+
+test_skool2sft() {
+  echo -n "Testing skool2sft.py..."
+  diff -u <(skool | ./skool2sft.py - 2>/dev/null) <(echo -e "@start\n; Routine\ncC32768,1")
+}
+
+for t in test_skool2{asm,bin,ctl,html,sft}; do
+  $t && echo "OK" || echo "FAILED"
+done
