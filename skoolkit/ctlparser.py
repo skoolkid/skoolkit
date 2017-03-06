@@ -92,22 +92,22 @@ class CtlParser:
         self._loops = []
 
     def parse_ctl(self, ctlfile, min_address=0, max_address=65536):
+        ctl_lines = []
         with open_file(ctlfile) as f:
             for line in f:
-                if line.startswith(('b', 'c', 'g', 'i', 's', 't', 'u', 'w')):
-                    try:
-                        address = get_int_param(line[1:].lstrip().split(' ', 1)[0])
-                        if min_address <= address < max_address:
-                            self._ctls[address] = line[0]
-                    except ValueError:
-                        pass
+                s_line = line.rstrip()
+                if s_line:
+                    ctl_lines.append(s_line)
+                    if s_line.startswith(('b', 'c', 'g', 'i', 's', 't', 'u', 'w')):
+                        try:
+                            address = get_int_param(s_line[1:].lstrip().split(' ', 1)[0])
+                            if min_address <= address < max_address:
+                                self._ctls[address] = s_line[0]
+                        except ValueError:
+                            pass
         entry_addresses = sorted(self._ctls)
 
-        f = open_file(ctlfile)
-        for line_no, line in enumerate(f, 1):
-            s_line = line.rstrip()
-            if not s_line:
-                continue
+        for line_no, s_line in enumerate(ctl_lines, 1):
             try:
                 ctl, start, end, text, lengths, asm_directive = self._parse_ctl_line(s_line, entry_addresses)
             except CtlParserError as e:
@@ -166,7 +166,6 @@ class CtlParser:
             elif asm_directive:
                 directive, address = asm_directive
                 self._asm_directives.setdefault(address, []).append(directive)
-        f.close()
 
         self._terminate_multiline_comments()
         self._unroll_loops(max_address)
