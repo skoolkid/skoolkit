@@ -549,13 +549,14 @@ Now `game.skool` can be converted into a browsable HTML disassembly using
 `sna2skool.py` supports several options; run it with no arguments to see a
 list::
 
-  usage: sna2skool.py [options] file
+  usage: sna2skool.py [options] FILE
 
   Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool
-  file.
+  file. FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -c FILE, --ctl FILE   Use FILE as the control file
+    -c FILE, --ctl FILE   Use FILE as the control file (may be '-' for standard
+                          input)
     -e ADDR, --end ADDR   Stop disassembling at this address (default=65536)
     -g FILE, --generate-ctl FILE
                           Generate a control file in FILE
@@ -582,7 +583,8 @@ list::
     -s ADDR, --start ADDR
                           Start disassembling at this address (default=16384)
     -t, --text            Show ASCII text in the comment fields
-    -T FILE, --sft FILE   Use FILE as the skool file template
+    -T FILE, --sft FILE   Use FILE as the skool file template (may be '-' for
+                          standard input)
     -V, --version         Show SkoolKit version number and exit
     -w W, --line-width W  Set the maximum line width of the skool file (default:
                           79)

@@ -76,14 +76,15 @@ def run(snafile, options):
 
 def main(args):
     parser = argparse.ArgumentParser(
-        usage='sna2skool.py [options] file',
-        description="Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool file.",
+        usage='sna2skool.py [options] FILE',
+        description="Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool file. "
+                    "FILE may be a regular file, or '-' for standard input.",
         add_help=False
     )
     parser.add_argument('snafile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--ctl', dest='ctlfile', metavar='FILE',
-                       help='Use FILE as the control file')
+                       help="Use FILE as the control file (may be '-' for standard input)")
     group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=int, default=END,
                        help='Stop disassembling at this address (default={})'.format(END))
     group.add_argument('-g', '--generate-ctl', dest='genctlfile', metavar='FILE',
@@ -117,7 +118,7 @@ def main(args):
     group.add_argument('-t', '--text', dest='text', action='store_true',
                        help='Show ASCII text in the comment fields')
     group.add_argument('-T', '--sft', dest='sftfile', metavar='FILE',
-                       help='Use FILE as the skool file template')
+                       help="Use FILE as the skool file template (may be '-' for standard input)")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
     group.add_argument('-w', '--line-width', dest='line_width', metavar='W', type=int, default=79,

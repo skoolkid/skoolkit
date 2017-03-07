@@ -11,14 +11,16 @@ SYNOPSIS
 DESCRIPTION
 ===========
 ``sna2kool.py`` converts a binary (raw memory) file or a SNA, SZX or Z80
-snapshot into a skool file. The skool file is written to stdout.
+snapshot into a skool file. The skool file is written to standard output. When
+FILE is '-', ``sna2skool.py`` reads from standard input.
 
 OPTIONS
 =======
 -c, --ctl `FILE`
-  Specify the control file to use. By default, any control file whose name
-  (minus the .ctl suffix) matches the input snapshot name (minus
-  the .bin, .sna, .szx or .z80 suffix, if any) will be used, if present.
+  Specify the control file to use (which may be '-' for standard input). By
+  default, any control file whose name (minus the .ctl suffix) matches the
+  input snapshot name (minus the .bin, .sna, .szx or .z80 suffix, if any) will
+  be used, if present.
 
 -e, --end `ADDR`
   Stop disassembling at this address; the default end address is 65536.
@@ -78,9 +80,10 @@ OPTIONS
   Show ASCII text in the comment fields of the disassembly.
 
 -T, --sft `FILE`
-  Specify the skool file template to use. By default, any skool file template
-  whose name (minus the .sft suffix) matches the input snapshot name (minus
-  the .bin, .sna, .szx or .z80 suffix, if any) will be used, if present.
+  Specify the skool file template to use (which may be '-' for standard input).
+  By default, any skool file template whose name (minus the .sft suffix)
+  matches the input snapshot name (minus the .bin, .sna, .szx or .z80 suffix,
+  if any) will be used, if present.
 
 -V, --version
   Show the SkoolKit version number and exit.
