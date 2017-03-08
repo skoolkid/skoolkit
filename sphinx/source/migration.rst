@@ -164,6 +164,13 @@ For example, to write only the 'Bugs' and 'Changelog' pages::
 
   $ skool2html.py --write P --pages Bugs,Changelog game.ref
 
+Udg
+---
+In SkoolKit 5.4, the :class:`~skoolkit.graphics.Udg` class moved from
+skoolkit.skoolhtml to skoolkit.graphics, but was still available in
+skoolkit.skoolhtml. In SkoolKit 6, it is no longer available in
+skoolkit.skoolhtml.
+
 flip_udgs()
 -----------
 The :meth:`flip_udgs` method on HtmlWriter has been removed in SkoolKit 6. Use

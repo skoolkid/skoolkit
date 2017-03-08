@@ -27,7 +27,7 @@ from io import StringIO
 
 from skoolkit import skoolmacro, SkoolKitError, warn, parse_int, VERSION
 from skoolkit.defaults import REF_FILE
-from skoolkit.graphics import Frame, Udg, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs
+from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.image import ImageWriter
 from skoolkit.refparser import RefParser
 from skoolkit.skoolmacro import MacroParsingError, get_macros, expand_macros

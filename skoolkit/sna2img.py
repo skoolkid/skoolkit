@@ -22,7 +22,7 @@ from builtins import open
 from skoolkit import SkoolKitError, read_bin_file, VERSION, skoolmacro
 from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import get_snapshot
-from skoolkit.graphics import Udg, Frame, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs
+from skoolkit.graphics import Frame, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.tap2sna import poke
 
 def _parse_font(snapshot, param_str):
