@@ -84,7 +84,8 @@ def convert_ref(reffile_f):
     _update_template(sections, 'changelog_item_list', 'list_items', '{m_changelog_item}', '{m_list_item}')
 
     # Print ref file
-    print('\n'.join(preamble))
+    if preamble:
+        print('\n'.join(preamble))
     for section_name, lines in sections:
         print('[{}]'.format(section_name))
         print('\n'.join(lines).rstrip() + '\n')
