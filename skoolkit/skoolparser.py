@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
-import cgi
+import html
 import re
 
 from skoolkit import SkoolParsingError, warn, wrap, get_int_param, parse_int, open_file
@@ -89,10 +89,10 @@ def _html_escape(text):
         end = text.find(delim2, index) + 1
         if end < index:
             end = len(text)
-        chunks.append(cgi.escape(text[:start]))
+        chunks.append(html.escape(text[:start], False))
         chunks.append(text[start:end])
         text = text[end:]
-    chunks.append(cgi.escape(text))
+    chunks.append(html.escape(text, False))
     return ''.join(chunks)
 
 def join_comments(comments, split=False, html=False):
@@ -911,7 +911,7 @@ class Instruction:
         return self.container.is_routine()
 
     def html_escape(self):
-        self.operation = cgi.escape(self.operation)
+        self.operation = html.escape(self.operation, False)
 
     def get_addr_str(self):
         if self.addr_base == BASE_10:
