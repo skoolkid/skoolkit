@@ -407,26 +407,26 @@ class OptionsTest(SkoolKitTestCase):
         error_tp = '{0}: file not found'
 
         nonexistent_bin = 'nonexistent.bin'
-        with self.assertRaisesRegexp(SkoolKitError, error_tp.format(nonexistent_bin)):
+        with self.assertRaisesRegex(SkoolKitError, error_tp.format(nonexistent_bin)):
             self.run_sna2skool(nonexistent_bin)
 
         binfile = self.write_bin_file(suffix='.bin')
 
         nonexistent_ctl = 'nonexistent.ctl'
-        with self.assertRaisesRegexp(SkoolKitError, error_tp.format(nonexistent_ctl)):
+        with self.assertRaisesRegex(SkoolKitError, error_tp.format(nonexistent_ctl)):
             self.run_sna2skool('-c {0} {1}'.format(nonexistent_ctl, binfile))
 
         nonexistent_sft = 'nonexistent.sft'
-        with self.assertRaisesRegexp(SkoolKitError, error_tp.format(nonexistent_sft)):
+        with self.assertRaisesRegex(SkoolKitError, error_tp.format(nonexistent_sft)):
             self.run_sna2skool('-T {0} {1}'.format(nonexistent_sft, binfile))
 
         ctlfile = self.write_text_file()
         nonexistent_map = 'nonexistent.map'
-        with self.assertRaisesRegexp(SkoolKitError, error_tp.format(nonexistent_map)):
+        with self.assertRaisesRegex(SkoolKitError, error_tp.format(nonexistent_map)):
             self.run_sna2skool('-g {0} -M {1} {2}'.format(ctlfile, nonexistent_map, binfile))
 
         nonexistent_map = self.make_directory()
-        with self.assertRaisesRegexp(SkoolKitError, '{} is a directory'.format(nonexistent_map)):
+        with self.assertRaisesRegex(SkoolKitError, '{} is a directory'.format(nonexistent_map)):
             self.run_sna2skool('-g {0} -M {1} {2}'.format(ctlfile, nonexistent_map, binfile))
 
     def test_option_V(self):
@@ -692,7 +692,7 @@ class OptionsTest(SkoolKitTestCase):
     def _test_option_M_invalid_map(self, code_map, line_no, invalid_line, error):
         ctlfile = self.write_text_file()
         code_map_file = self.write_text_file('\n'.join(code_map), suffix='.log')
-        with self.assertRaisesRegexp(SkoolKitError, '{}, line {}: {}: {}'.format(code_map_file, line_no, error, invalid_line)):
+        with self.assertRaisesRegex(SkoolKitError, '{}, line {}: {}: {}'.format(code_map_file, line_no, error, invalid_line)):
             self.run_sna2skool('-g {} -M {} test-invalid-map.bin'.format(ctlfile, code_map_file))
 
     def test_option_M_unparseable_address(self):
@@ -710,7 +710,7 @@ class OptionsTest(SkoolKitTestCase):
         ctlfile = self.write_text_file()
         for code_map in ('', 'PC=FEDC'):
             code_map_file = self.write_text_file(code_map, suffix='.log')
-            with self.assertRaisesRegexp(SkoolKitError, '{}: Unrecognised format'.format(code_map_file)):
+            with self.assertRaisesRegex(SkoolKitError, '{}: Unrecognised format'.format(code_map_file)):
                 self.run_sna2skool('-g {} -M {} test-unrecognised-map.bin'.format(ctlfile, code_map_file))
 
     @patch.object(sna2skool, 'read_bin_file', Mock(return_value=[201]))

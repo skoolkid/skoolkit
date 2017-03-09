@@ -231,13 +231,13 @@ class Bin2TapTest(SkoolKitTestCase):
 
     def test_empty_bin(self):
         binfile = self.write_bin_file(suffix='.bin')
-        with self.assertRaisesRegexp(SkoolKitError, '^{} is empty$'.format(binfile)):
+        with self.assertRaisesRegex(SkoolKitError, '^{} is empty$'.format(binfile)):
             self.run_bin2tap(binfile)
 
     def test_invalid_end_address(self):
-        with self.assertRaisesRegexp(SkoolKitError, '^End address must be greater than 16384$'):
+        with self.assertRaisesRegex(SkoolKitError, '^End address must be greater than 16384$'):
             self.run_bin2tap('-e 16384 file.z80')
-        with self.assertRaisesRegexp(SkoolKitError, '^End address must be greater than 24576$'):
+        with self.assertRaisesRegex(SkoolKitError, '^End address must be greater than 24576$'):
             self.run_bin2tap('-o 24576 -e 23296 file.sna')
 
     def test_no_options(self):

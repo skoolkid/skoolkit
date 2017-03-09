@@ -206,14 +206,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     def test_nonexistent_skool_file(self):
         skoolfile = 'xyz.skool'
-        with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(skoolfile)):
+        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(skoolfile)):
             self.run_skool2html('-d {0} {1}'.format(self.odir, skoolfile))
 
     def test_nonexistent_skool_file_named_in_ref_file(self):
         skoolfile = 'pqr.skool'
         ref = '[Config]\nSkoolFile={}'.format(skoolfile)
         reffile = self.write_text_file(ref, suffix='.ref')
-        with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(skoolfile)):
+        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(skoolfile)):
             self.run_skool2html('-d {} {}'.format(self.odir, reffile))
 
     def test_nonexistent_secondary_skool_file(self):
@@ -221,12 +221,12 @@ class Skool2HtmlTest(SkoolKitTestCase):
         ref = '[OtherCode:save]\nSource={}'.format(skoolfile)
         reffile = self.write_text_file(ref, suffix='.ref')
         self.write_text_file(path='{}.skool'.format(reffile[:-4]))
-        with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(skoolfile)):
+        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(skoolfile)):
             self.run_skool2html('-w o -d {} {}'.format(self.odir, reffile))
 
     def test_nonexistent_ref_file(self):
         reffile = 'zyx.ref'
-        with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(reffile)):
+        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(reffile)):
             self.run_skool2html('-d {0} {1}'.format(self.odir, reffile))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
@@ -234,7 +234,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     def test_nonexistent_css_file(self):
         cssfile = 'abc.css'
         skoolfile = self.write_text_file(suffix='.skool')
-        with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(cssfile)):
+        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(cssfile)):
             self.run_skool2html('-c Game/StyleSheet={0} -w "" -d {1} {2}'.format(cssfile, self.odir, skoolfile))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
@@ -247,7 +247,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
             'JavaScript={}'.format(jsfile)
         ))
         self.write_text_file(ref, '{}.ref'.format(skoolfile[:-6]))
-        with self.assertRaisesRegexp(SkoolKitError, '{}: file not found'.format(jsfile)):
+        with self.assertRaisesRegex(SkoolKitError, '{}: file not found'.format(jsfile)):
             self.run_skool2html('-w P -d {} {}'.format(self.odir, skoolfile))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
@@ -255,7 +255,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     def test_invalid_page_id(self):
         page_id = 'NonexistentPage'
         skoolfile = self.write_text_file(suffix='.skool')
-        with self.assertRaisesRegexp(SkoolKitError, 'Invalid page ID: {}'.format(page_id)):
+        with self.assertRaisesRegex(SkoolKitError, 'Invalid page ID: {}'.format(page_id)):
             self.run_skool2html('-d {0} -w P -P {1} {2}'.format(self.odir, page_id, skoolfile))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
@@ -567,7 +567,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         resource = 'nosuchfile.png'
         reffile = self.write_text_file("[Resources]\n{}=foo".format(resource), suffix='.ref')
         self.write_text_file(path='{}.skool'.format(reffile[:-4]))
-        with self.assertRaisesRegexp(SkoolKitError, 'Cannot copy resource "{}": file not found'.format(resource)):
+        with self.assertRaisesRegex(SkoolKitError, 'Cannot copy resource "{}": file not found'.format(resource)):
             self.run_skool2html('-d {} {}'.format(self.odir, reffile))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
@@ -579,7 +579,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.write_text_file(path='{}.skool'.format(reffile[:-4]))
         path = os.path.join(self.odir, reffile[:-4], dest_dir)
         self.write_text_file(path=path)
-        with self.assertRaisesRegexp(SkoolKitError, 'Cannot copy {0} to {1}: {1} is not a directory'.format(resource, dest_dir)):
+        with self.assertRaisesRegex(SkoolKitError, 'Cannot copy {0} to {1}: {1} is not a directory'.format(resource, dest_dir)):
             self.run_skool2html('-d {} {}'.format(self.odir, reffile))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
@@ -713,7 +713,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.make_directory(dest)
         error_msg = "Cannot write CSS file '{}': {} already exists and is a directory".format(single_css, dest)
         for option in ('-j', '--join-css'):
-            with self.assertRaisesRegexp(SkoolKitError, error_msg):
+            with self.assertRaisesRegex(SkoolKitError, error_msg):
                 self.run_skool2html('{} {} -d {} {}'.format(option, single_css, self.odir, skoolfile))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
@@ -835,7 +835,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
                 self.assertEqual(error, '')
                 section = html_writer.ref_parser.get_dictionary(section_name)
                 self.assertEqual(section[param_name], value, '{0}/{1}!={2}'.format(section_name, param_name, value))
-            with self.assertRaisesRegexp(SkoolKitError, 'Malformed SectionName/Line spec: {0}'.format(sl_spec)):
+            with self.assertRaisesRegex(SkoolKitError, 'Malformed SectionName/Line spec: {0}'.format(sl_spec)):
                 self.run_skool2html('{} {} {}'.format(option, sl_spec, reffile))
 
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)

@@ -71,7 +71,7 @@ class SnapinfoTest(SkoolKitTestCase):
         self.assertTrue(error.startswith('usage: snapinfo.py'))
 
     def test_unrecognised_snapshot_type(self):
-        with self.assertRaisesRegexp(SkoolKitError, 'Unrecognised snapshot type$'):
+        with self.assertRaisesRegex(SkoolKitError, 'Unrecognised snapshot type$'):
             self.run_snapinfo('unknown.snap')
 
     def test_nonexistent_input_file(self):
@@ -758,7 +758,7 @@ class SnapinfoTest(SkoolKitTestCase):
 
     def test_szx_without_magic_number(self):
         non_szx = self.write_bin_file((1, 2, 3), suffix='.szx')
-        with self.assertRaisesRegexp(SkoolKitError, '{} is not an SZX file$'.format(non_szx)):
+        with self.assertRaisesRegex(SkoolKitError, '{} is not an SZX file$'.format(non_szx)):
             self.run_snapinfo(non_szx)
 
     @patch.object(snapinfo, 'BasicLister', MockBasicLister)

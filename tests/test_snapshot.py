@@ -24,12 +24,12 @@ class ErrorTest(SnapshotTest):
     def test_unknown_file_type(self):
         file_type = 'tzx'
         snapshot_file = self.write_bin_file(suffix='.{0}'.format(file_type))
-        with self.assertRaisesRegexp(SnapshotError, "{}: Unknown file type '{}'".format(snapshot_file, file_type)):
+        with self.assertRaisesRegex(SnapshotError, "{}: Unknown file type '{}'".format(snapshot_file, file_type)):
             get_snapshot(snapshot_file)
 
     def test_bad_ram_size(self):
         ram_size = 3
-        with self.assertRaisesRegexp(SnapshotError, 'RAM size is {}'.format(ram_size)):
+        with self.assertRaisesRegex(SnapshotError, 'RAM size is {}'.format(ram_size)):
             get_snapshot(self.write_bin_file([0] * (27 + ram_size), suffix='.sna'))
 
 class SNATest(SnapshotTest):
@@ -156,7 +156,7 @@ class Z80Test(SnapshotTest):
         z80 += [237, 237, 0, 11] # Bad block of length 0
         z80 += [0, 237, 237, 0] # Terminator
         z80_file = self.write_bin_file(z80, suffix='.z80')
-        with self.assertRaisesRegexp(SnapshotError, 'Found ED ED 00 0B'):
+        with self.assertRaisesRegex(SnapshotError, 'Found ED ED 00 0B'):
             get_snapshot(z80_file)
 
 class Z80CompressionTest(SkoolKitTestCase):

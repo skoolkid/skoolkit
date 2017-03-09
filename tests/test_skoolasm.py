@@ -464,7 +464,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         writer = self._get_writer()
 
         # No end marker
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Missing end marker: #UDGTABLE { A1 }...")):
+        with self.assertRaisesRegex(SkoolParsingError, re.escape("Missing end marker: #UDGTABLE { A1 }...")):
             writer.format('#UDGTABLE { A1 }', 79)
 
     def test_unknown_macro(self):
@@ -1746,7 +1746,7 @@ class TableMacroTest(SkoolKitTestCase):
 
     def test_missing_end_marker(self):
         writer = self._get_writer()
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Missing end marker: #TABLE { A1 }...")):
+        with self.assertRaisesRegex(SkoolParsingError, re.escape("Missing end marker: #TABLE { A1 }...")):
             writer.format('#TABLE { A1 }', 79)
 
     def test_no_closing_bracket_in_css_class_list(self):
@@ -1863,7 +1863,7 @@ class ListMacroTest(SkoolKitTestCase):
 
     def test_missing_end_marker(self):
         writer = self._get_writer()
-        with self.assertRaisesRegexp(SkoolParsingError, re.escape("Missing end marker: #LIST { Item }...")):
+        with self.assertRaisesRegex(SkoolParsingError, re.escape("Missing end marker: #LIST { Item }...")):
             writer.format('#LIST { Item }', 79)
 
     def test_no_closing_bracket_in_parameter_list(self):

@@ -442,7 +442,7 @@ class MethodTest(HtmlWriterTestCase):
 
         path_id = 'UnknownImagePath'
         fname = 'img.png'
-        with self.assertRaisesRegexp(SkoolKitError, "Unknown path ID '{}' for image file '{}'".format(path_id, fname)):
+        with self.assertRaisesRegex(SkoolKitError, "Unknown path ID '{}' for image file '{}'".format(path_id, fname)):
             writer.image_path(fname, path_id)
 
     def test_image_path_with_frames(self):
@@ -512,7 +512,7 @@ class MethodTest(HtmlWriterTestCase):
 
         # Unsupported format
         image_path = 'images/test.jpg'
-        with self.assertRaisesRegexp(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
+        with self.assertRaisesRegex(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
             writer.write_image(image_path, udgs)
 
     def test_write_animated_image_png(self):
@@ -545,7 +545,7 @@ class MethodTest(HtmlWriterTestCase):
         writer = self._get_writer(mock_file_info=True)
 
         image_path = 'images/test_animated.jpg'
-        with self.assertRaisesRegexp(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
+        with self.assertRaisesRegex(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
             writer.write_animated_image(image_path, None)
 
 class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):

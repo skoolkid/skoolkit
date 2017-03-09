@@ -306,7 +306,7 @@ class SftParserTest(SkoolKitTestCase):
             "cC50000,b5:B5",
             "cC$ABCG,20"
         ):
-            with self.assertRaisesRegexp(SftParsingError, re.escape("Invalid line: {}".format(line.split()[0]))):
+            with self.assertRaisesRegex(SftParsingError, re.escape("Invalid line: {}".format(line.split()[0]))):
                 self._parse_sft(line)
 
     def test_byte_formats(self):

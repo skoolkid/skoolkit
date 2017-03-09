@@ -108,7 +108,7 @@ class SkoolMacroTest(SkoolKitTestCase):
         self.assertEqual([len(text), 4, 2, 15], parse_ints(text, names=names))
 
     def test_parse_ints_not_enough_parameters(self):
-        with self.assertRaisesRegexp(MacroParsingError, re.escape("Not enough parameters (expected 4): '1,2,$3'")):
+        with self.assertRaisesRegex(MacroParsingError, re.escape("Not enough parameters (expected 4): '1,2,$3'")):
             parse_ints('1,2,$3', num=4)
 
     def test_parse_ints_with_required_parameter_left_blank(self):
@@ -122,19 +122,19 @@ class SkoolMacroTest(SkoolKitTestCase):
         ):
             error_msg = "Missing required parameter in position {}/{}: '{}'".format(pos, num - len(defaults), text)
             for param_string in (text, '({})'.format(text)):
-                with self.assertRaisesRegexp(MacroParsingError, error_msg):
+                with self.assertRaisesRegex(MacroParsingError, error_msg):
                     parse_ints(param_string, num=num, defaults=defaults)
 
     def test_parse_ints_with_kwargs_not_enough_parameters(self):
-        with self.assertRaisesRegexp(MacroParsingError, "Missing required argument 'a': 'b=4,c=5'$"):
+        with self.assertRaisesRegex(MacroParsingError, "Missing required argument 'a': 'b=4,c=5'$"):
             parse_ints('b=4,c=5', defaults=(2, 3), names=('a', 'b', 'c'))
 
     def test_parse_ints_non_kwarg_after_kwarg(self):
-        with self.assertRaisesRegexp(MacroParsingError, "Non-keyword argument after keyword argument: '3'"):
+        with self.assertRaisesRegex(MacroParsingError, "Non-keyword argument after keyword argument: '3'"):
             parse_ints('1,bar=2,3', names=('foo', 'bar', 'baz'))
 
     def test_parse_ints_unknown_kwarg(self):
-        with self.assertRaisesRegexp(MacroParsingError, "Unknown keyword argument: 'qux=2'"):
+        with self.assertRaisesRegex(MacroParsingError, "Unknown keyword argument: 'qux=2'"):
             parse_ints('foo=1,qux=2', names=('foo', 'bar'))
 
     def test_parse_strings(self):
@@ -176,34 +176,34 @@ class SkoolMacroTest(SkoolKitTestCase):
     def test_parse_strings_no_parameters(self):
         msg = "No text parameter"
 
-        with self.assertRaisesRegexp(NoParametersError, msg):
+        with self.assertRaisesRegex(NoParametersError, msg):
             parse_strings('')
 
-        with self.assertRaisesRegexp(NoParametersError, msg):
+        with self.assertRaisesRegex(NoParametersError, msg):
             parse_strings(' (')
 
-        with self.assertRaisesRegexp(NoParametersError, msg):
+        with self.assertRaisesRegex(NoParametersError, msg):
             parse_strings('\t{')
 
     def test_parse_strings_no_terminating_delimiter(self):
         text = '(foo'
-        with self.assertRaisesRegexp(MacroParsingError, re.escape("No closing bracket: {}".format(text))):
+        with self.assertRaisesRegex(MacroParsingError, re.escape("No closing bracket: {}".format(text))):
             parse_strings(text)
 
         text = '{foo)'
-        with self.assertRaisesRegexp(MacroParsingError, re.escape("No closing bracket: {}".format(text))):
+        with self.assertRaisesRegex(MacroParsingError, re.escape("No closing bracket: {}".format(text))):
             parse_strings(text)
 
         text = '[foo}'
-        with self.assertRaisesRegexp(MacroParsingError, re.escape("No closing bracket: {}".format(text))):
+        with self.assertRaisesRegex(MacroParsingError, re.escape("No closing bracket: {}".format(text))):
             parse_strings(text)
 
         text = '/foo,bar/'
-        with self.assertRaisesRegexp(MacroParsingError, "No terminating delimiter: {}".format(text)):
+        with self.assertRaisesRegex(MacroParsingError, "No terminating delimiter: {}".format(text)):
             parse_strings(text)
 
         text = '//foo/bar/'
-        with self.assertRaisesRegexp(MacroParsingError, "No terminating delimiter: {}".format(text)):
+        with self.assertRaisesRegex(MacroParsingError, "No terminating delimiter: {}".format(text)):
             parse_strings(text)
 
     def test_parse_strings_too_many_parameters(self):

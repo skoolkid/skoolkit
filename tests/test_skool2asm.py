@@ -273,19 +273,19 @@ class Skool2AsmTest(SkoolKitTestCase):
         # Test a writer with no module or package name
         writer = 'AbsoluteAsmWriter'
         skoolfile = self.write_text_file(skool.format(writer), suffix='.skool')
-        with self.assertRaisesRegexp(SkoolKitError, "Invalid class name: '{}'".format(writer)):
+        with self.assertRaisesRegex(SkoolKitError, "Invalid class name: '{}'".format(writer)):
             self.run_skool2asm(skoolfile)
 
         # Test a writer in a nonexistent module
         writer = 'nonexistentmodule.AsmWriter'
         skoolfile = self.write_text_file(skool.format(writer), suffix='.skool')
-        with self.assertRaisesRegexp(SkoolKitError, "Failed to import class nonexistentmodule.AsmWriter: No module named '?nonexistentmodule'?"):
+        with self.assertRaisesRegex(SkoolKitError, "Failed to import class nonexistentmodule.AsmWriter: No module named '?nonexistentmodule'?"):
             self.run_skool2asm(skoolfile)
 
         # Test a writer that doesn't exist
         writer = 'test_skool2asm.NonexistentAsmWriter'
         skoolfile = self.write_text_file(skool.format(writer), suffix='.skool')
-        with self.assertRaisesRegexp(SkoolKitError, "No class named 'NonexistentAsmWriter' in module 'test_skool2asm'"):
+        with self.assertRaisesRegex(SkoolKitError, "No class named 'NonexistentAsmWriter' in module 'test_skool2asm'"):
             self.run_skool2asm(skoolfile)
 
         # Test a writer that exists

@@ -1154,7 +1154,7 @@ class SkoolParserTest(SkoolKitTestCase):
         return SkoolParser(skoolfile, *args, **kwargs)
 
     def assert_error(self, skool, error, *args, **kwargs):
-        with self.assertRaisesRegexp(SkoolParsingError, error):
+        with self.assertRaisesRegex(SkoolParsingError, error):
             self._get_parser(skool, *args, **kwargs)
 
     def test_invalid_entry_address(self):
@@ -2542,7 +2542,7 @@ class SkoolParserTest(SkoolKitTestCase):
             '@label=START',
             'c40001 RET'
         ))
-        with self.assertRaisesRegexp(SkoolParsingError, 'Duplicate label START at 40001'):
+        with self.assertRaisesRegex(SkoolParsingError, 'Duplicate label START at 40001'):
             self._get_parser(skool, asm_mode=1, asm_labels=True)
 
     def test_equ_directive_html_mode(self):

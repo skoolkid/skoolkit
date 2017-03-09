@@ -108,7 +108,7 @@ class SnapmodTest(SkoolKitTestCase):
         self.assertTrue(error.startswith('usage: snapmod.py'))
 
     def test_unrecognised_snapshot_type(self):
-        with self.assertRaisesRegexp(SkoolKitError, 'Unrecognised input snapshot type$'):
+        with self.assertRaisesRegex(SkoolKitError, 'Unrecognised input snapshot type$'):
             self.run_snapmod('unknown.snap')
 
     def test_nonexistent_input_file(self):

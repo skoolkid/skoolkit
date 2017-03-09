@@ -80,7 +80,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         self.assertTrue(error.startswith('usage: sna2img.py'))
 
     def test_unrecognised_snapshot_type(self):
-        with self.assertRaisesRegexp(SkoolKitError, 'Unrecognised input file type$'):
+        with self.assertRaisesRegex(SkoolKitError, 'Unrecognised input file type$'):
             self.run_sna2img('unknown.snap')
 
     def test_nonexistent_input_file(self):

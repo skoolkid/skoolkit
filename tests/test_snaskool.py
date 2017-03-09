@@ -1354,7 +1354,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 00001'
         ))
         writer = self._get_writer([0], ctl)
-        with self.assertRaisesRegexp(SkoolKitError, re.escape("No end marker found: #TABLE { this table h...")):
+        with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #TABLE { this table h...")):
             writer.write_skool(0, False)
 
     def test_no_table_row_end_marker(self):
@@ -1364,7 +1364,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 00001'
         ))
         writer = self._get_writer([0], ctl)
-        with self.assertRaisesRegexp(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
+        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
             writer.write_skool(0, False)
 
     def test_no_udgtable_end_marker(self):
@@ -1374,7 +1374,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 00001'
         ))
         writer = self._get_writer([0], ctl)
-        with self.assertRaisesRegexp(SkoolKitError, re.escape("No end marker found: #UDGTABLE { this table h...")):
+        with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #UDGTABLE { this table h...")):
             writer.write_skool(0, False)
 
     def test_no_udgtable_row_end_marker(self):
@@ -1384,7 +1384,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 00001'
         ))
         writer = self._get_writer([0], ctl)
-        with self.assertRaisesRegexp(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
+        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this row has ...")):
             writer.write_skool(0, False)
 
     def test_no_list_end_marker(self):
@@ -1394,7 +1394,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 00001'
         ))
         writer = self._get_writer([0], ctl)
-        with self.assertRaisesRegexp(SkoolKitError, re.escape("No end marker found: #LIST { this list ha...")):
+        with self.assertRaisesRegex(SkoolKitError, re.escape("No end marker found: #LIST { this list ha...")):
             writer.write_skool(0, False)
 
     def test_no_list_item_end_marker(self):
@@ -1404,7 +1404,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             'i 00001'
         ))
         writer = self._get_writer([0], ctl)
-        with self.assertRaisesRegexp(SkoolKitError, re.escape("No closing ' }' on row/item: { this item has...")):
+        with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this item has...")):
             writer.write_skool(0, False)
 
     def test_end_directives(self):
