@@ -1,4 +1,3 @@
-import re
 from os.path import basename, isfile
 from posixpath import join
 import unittest
@@ -9,7 +8,7 @@ from macrotest import CommonSkoolMacroTest, nest_macros
 from skoolkit import VERSION, SkoolKitError, SkoolParsingError, defaults, skoolhtml
 from skoolkit.graphics import Udg, Frame
 from skoolkit.image import ImageWriter
-from skoolkit.skoolmacro import MacroParsingError, UnsupportedMacroError
+from skoolkit.skoolmacro import UnsupportedMacroError
 from skoolkit.skoolhtml import HtmlWriter, FileInfo
 from skoolkit.skoolparser import SkoolParser, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
 from skoolkit.refparser import RefParser
