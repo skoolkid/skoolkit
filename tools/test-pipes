@@ -8,6 +8,41 @@ c32768 SCF
 EOF
 }
 
+test_bin2sna() {
+  echo -n "Testing bin2sna.py..."
+  bin2sna=$(pwd)/bin2sna.py
+  sna2skool=$(pwd)/sna2skool.py
+  cd $(mktemp -d)
+  z80=bin2sna-test.z80
+  echo Hi | $bin2sna -o 30000 - $z80
+  diff -u <($sna2skool -s 30000 -e 30002 $z80) <(echo -e "@start\n@org=30000\n; Routine at 30000\nc30000 LD C,B        ;\n 30001 LD L,C        ;")
+}
+
+test_bin2tap() {
+  echo -n "Testing bin2tap.py..."
+  bin2tap=$(pwd)/bin2tap.py
+  tapinfo=$(pwd)/tapinfo.py
+  cd $(mktemp -d)
+  tap=bin2tap-test.tap
+  echo Hi | $bin2tap - $tap
+  grep -q "Data: 255, 72, 105, 10, 212" <($tapinfo $tap)
+}
+
+test_sna2skool() {
+  echo -n "Testing sna2skool.py..."
+  diff -u <(echo -n Hi | ./sna2skool.py -) <(echo -e "@start\n@org=65534\n; Routine at 65534\nc65534 LD C,B        ;\n 65535 LD L,C        ;")
+}
+
+test_sna2skool_ctl() {
+  echo -n "Testing sna2skool.py --ctl..."
+  diff -u <(echo "t 65534" | ./sna2skool.py --ctl - <(echo -n Hi) 2> /dev/null) <(echo -e '@start\n@org=65534\n; Message at 65534\nt65534 DEFM "Hi"')
+}
+
+test_sna2skool_sft() {
+  echo -n "Testing sna2skool.py --sft..."
+  diff -u <(echo "tT65534,2" | ./sna2skool.py --sft - <(echo -n Hi) 2> /dev/null) <(echo -e 't65534 DEFM "Hi"')
+}
+
 test_skool2asm() {
   echo -n "Testing skool2asm.py..."
   diff -u <(skool | ./skool2asm.py - 2>/dev/null) <(echo -e "; Routine\n  SCF\n")
@@ -28,9 +63,7 @@ test_skool2html() {
   skool2html=$(pwd)/skool2html.py
   cd $(mktemp -d)
   skool | $skool2html - &>/dev/null
-  tmpdir=$(pwd)
-  cd - &>/dev/null
-  grep -q '<td class="instruction">SCF</td>' $tmpdir/program/asm/32768.html
+  grep -q '<td class="instruction">SCF</td>' program/asm/32768.html
 }
 
 test_skool2sft() {
@@ -38,6 +71,8 @@ test_skool2sft() {
   diff -u <(skool | ./skool2sft.py - 2>/dev/null) <(echo -e "@start\n; Routine\ncC32768,1")
 }
 
-for t in test_skool2{asm,bin,ctl,html,sft}; do
+cwd=$(pwd)
+for t in test_{bin2{sna,tap},sna2skool{,_ctl,_sft},skool2{asm,bin,ctl,html,sft}}; do
+  cd $cwd
   $t && echo "OK" || echo "FAILED"
 done
