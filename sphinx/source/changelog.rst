@@ -1,7 +1,7 @@
 Changelog
 =========
 
-6.0b1
+6.0rc
 -----
 * Dropped support for Python 2.7 and 3.3
 * Added the ``--expand`` option to :ref:`sna2img.py` (for expanding a
