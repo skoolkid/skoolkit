@@ -330,6 +330,7 @@ def _get_tape(urlstring, member=None):
                     member = name
                     break
             else:
+                f.close()
                 raise TapeError('No TAP or TZX file found')
         write_line('Extracting {0}'.format(member))
         tape = z.open(member)
