@@ -188,6 +188,8 @@ class HtmlWriter:
                 self.paths.setdefault(map_name, 'maps/{}.html'.format(map_name))
                 self.titles.setdefault(map_name, map_name)
 
+        self.paths = {page_id: self.expand(path) for page_id, path in self.paths.items()}
+
         for page_id, title in self.titles.items():
             self.page_headers.setdefault(page_id, title)
             links.setdefault(page_id, self.page_headers[page_id])
@@ -867,8 +869,8 @@ class HtmlWriter:
         cwd = os.path.dirname(fname)
         self.skoolkit['page_id'] = page_id
         self.skoolkit['index_href'] = self.relpath(cwd, self.paths[P_GAME_INDEX])
-        self.skoolkit['title'] = self.titles[page_id]
-        self.skoolkit['page_header'] = self.page_headers[page_id]
+        self.skoolkit['title'] = self.expand(self.titles[page_id], cwd)
+        self.skoolkit['page_header'] = self.expand(self.page_headers[page_id], cwd)
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
         return fname, cwd
 

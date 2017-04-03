@@ -6251,6 +6251,33 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         page = self._read_file('{}.html'.format(page_id), True)
         self.assertEqual(page[0], logo_value)
 
+    def test_write_page_with_path_and_title_and_page_header_containing_skool_macros(self):
+        page_id = 'SMTest'
+        content = 'Hi.'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            'PageContent={1}',
+            '',
+            '[Paths]',
+            '{0}=item#EVAL85,16.html',
+            '',
+            '[PageHeaders]',
+            '{0}=Item #EVAL85,2,8',
+            '',
+            '[Titles]',
+            '{0}=Items (#EVAL85,2,8)'
+        )).format(page_id, content)
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        subs = {
+            'title': 'Items (01010101)',
+            'header': 'Item 01010101',
+            'path': '',
+            'body_class': page_id,
+            'content': content
+        }
+        self._assert_files_equal('item55.html', subs)
+
 class HtmlTemplateTest(HtmlWriterOutputTestCase):
     def _assert_content_equal(self, exp_content, fpath):
         exp_lines = [line.lstrip() for line in exp_content.strip().split('\n')]
