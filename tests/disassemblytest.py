@@ -1,3 +1,4 @@
+import sys
 import os
 import shutil
 from lxml import etree
@@ -6,7 +7,15 @@ from xml.dom import Node
 
 from skoolkittest import SkoolKitTestCase, SKOOLKIT_HOME
 
-XHTML_XSD = os.path.join(SKOOLKIT_HOME, 'XSD', 'xhtml1-strict.xsd')
+sys.path.insert(0, SKOOLKIT_HOME)
+from skoolkit.skoolhtml import HtmlWriter
+from skoolkit.skoolmacro import get_macros
+
+class MacroExpander(HtmlWriter):
+    def __init__(self, base, case):
+        self.base = base
+        self.case = case
+        self.macros = get_macros(self)
 
 def _find_ids_and_hrefs(elements, doc_anchors, doc_hrefs):
     for node in elements:
@@ -133,6 +142,16 @@ class HtmlTestCase(DisassembliesTestCase):
             self.fail('\n'.join(error_msg))
 
     def _test_html(self, options, skool=None, snapshot=None, ctl=None, output=None, writer=None, ref=None):
+        base = case = None
+        if '-H' in options:
+            base = 16
+        elif '-D' in options:
+            base = 10
+        if '-l' in options:
+            case = 1
+        elif '-u' in options:
+            case = 2
+        macro_expander = MacroExpander(base, case)
         if not skool:
             skool = self._write_skool(snapshot, ctl)
             options += ' -c Config/SkoolFile={}'.format(skool)
@@ -144,7 +163,8 @@ class HtmlTestCase(DisassembliesTestCase):
         stdout, error = self.run_skool2html('-d {} {} {}'.format(self.odir, options, ref))
         self.assertEqual(error, '')
         reps = {'odir': self.odir, 'SKOOLKIT_HOME': SKOOLKIT_HOME, 'skoolfile': skool, 'reffile': ref}
-        self.assertEqual(output.format(**reps).split('\n'), stdout)
+        exp_output = macro_expander.expand(output.format(**reps)).split('\n')
+        self.assertEqual(exp_output, stdout)
         self._validate_xhtml()
         self._check_links()
 
