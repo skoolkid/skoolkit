@@ -20,7 +20,7 @@ import posixpath
 import textwrap
 import importlib
 
-VERSION = '6.0rc2'
+VERSION = '6.0rc3'
 PACKAGE_DIR = os.path.dirname(__file__)
 
 def error(msg):

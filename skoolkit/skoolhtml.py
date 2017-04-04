@@ -504,7 +504,7 @@ class HtmlWriter:
                 fname = self.paths.get(page_id)
                 if fname and self.file_exists(fname):
                     link_file = self.relpath(cwd, fname)
-                    link_text = self.links[page_id]
+                    link_text = [self.expand(t, cwd) for t in self.links[page_id]]
                     links.append((link_file, link_text[0], link_text[1]))
             sections[section_id] = (header_text, links)
         other_code_links = []
@@ -512,7 +512,7 @@ class HtmlWriter:
             fname = self.paths[code['IndexPageId']]
             if self.file_exists(fname):
                 link_file = self.relpath(cwd, fname)
-                link_text = self.links[code['IndexPageId']]
+                link_text = [self.expand(t, cwd) for t in self.links[code['IndexPageId']]]
                 other_code_links.append((link_file, link_text[0], link_text[1]))
         sections['OtherCode'] = ('Other code', other_code_links)
 

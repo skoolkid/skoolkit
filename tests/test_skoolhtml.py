@@ -2813,6 +2813,32 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         """
         self._test_write_index(files, content, ref)
 
+    def test_write_index_with_custom_link_text_containing_skool_macros(self):
+        ref = '\n'.join((
+            '[Links]',
+            'Bugs=[Bugs#IF1(!)] (#N23)',
+            'Changelog=[Changelog#IF1(?)] (#EVAL35,16)',
+            'start-Index=Startup code (#IF1(23))',
+            '[OtherCode:start]'
+        ))
+        files = [
+            'reference/bugs.html',
+            'reference/changelog.html',
+            'start/start.html'
+        ]
+        content = """
+            <div class="section-header">Other code</div>
+            <ul class="index-list">
+            <li><a href="start/start.html">Startup code (23)</a></li>
+            </ul>
+            <div class="section-header">Reference</div>
+            <ul class="index-list">
+            <li><a href="reference/changelog.html">Changelog?</a> (23)</li>
+            <li><a href="reference/bugs.html">Bugs!</a> (23)</li>
+            </ul>
+        """
+        self._test_write_index(files, content, ref)
+
     def test_write_index_with_custom_footer(self):
         files = []
         content = ""
