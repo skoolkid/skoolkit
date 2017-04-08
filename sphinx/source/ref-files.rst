@@ -925,17 +925,20 @@ sequence of multi-line list items prefixed by '-'. For example::
   - Second top-level item.
   ...
 
-Entry sections may contain HTML markup and :ref:`skool macros <skoolMacros>`.
+An entry section's ``anchor``, ``title`` and contents may contain HTML markup
+and :ref:`skool macros <skoolMacros>`.
 
-+---------+-------------------------------------------------------------+
-| Version | Changes                                                     |
-+=========+=============================================================+
-| 6.0     | Added support for parsing an entry section as a sequence of |
-|         | multi-line list items prefixed by '-'                       |
-|         | (``SectionType=BulletPoints``)                              |
-+---------+-------------------------------------------------------------+
-| 5.4     | The ``anchor`` part of an entry section name is optional    |
-+---------+-------------------------------------------------------------+
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 6.0     | Added support for parsing an entry section as a sequence of     |
+|         | multi-line list items prefixed by '-'                           |
+|         | (``SectionType=BulletPoints``); the ``anchor`` and ``title`` of |
+|         | an entry section name may contain                               |
+|         | :ref:`skool macros <skoolMacros>`                               |
++---------+-----------------------------------------------------------------+
+| 5.4     | The ``anchor`` part of an entry section name is optional        |
++---------+-----------------------------------------------------------------+
 
 Ref file comments
 -----------------

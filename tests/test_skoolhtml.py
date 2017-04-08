@@ -6659,6 +6659,113 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
+    def test_box_page_with_skool_macros_in_section_name(self):
+        page_id = 'MyPageWithSkoolMacrosInTheSectionName'
+        ref = '\n'.join((
+            '[Page:{}]',
+            'SectionPrefix=Entry',
+            '',
+            '[Entry:entry#EVAL1,2,8:Entry #EVAL1,16,2]',
+            'Hello.'
+        )).format(page_id)
+        exp_content = """
+            <ul class="contents">
+            <li><a href="#entry00000001">Entry 01</a></li>
+            </ul>
+            <div><span id="entry00000001"></span></div>
+            <div class="box box-1">
+            <div class="box-title">Entry 01</div>
+            <div class="paragraph">
+            Hello.
+            </div>
+            </div>
+        """
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        subs = {
+            'title': page_id,
+            'header': page_id,
+            'path': '',
+            'body_class': page_id,
+            'content': exp_content
+        }
+        self._assert_files_equal('{}.html'.format(page_id), subs)
+
+    def test_box_page_as_list_items_with_skool_macros_in_section_name(self):
+        page_id = 'MyListItemsPageWithSkoolMacrosInTheSectionName'
+        ref = '\n'.join((
+            '[Page:{}]',
+            'SectionPrefix=Entry',
+            'SectionType=ListItems',
+            '',
+            '[Entry:entry#EVAL1,2,8:Entry #EVAL1,16,2]',
+            '-',
+            '',
+            'An item'
+        )).format(page_id)
+        exp_content = """
+            <ul class="contents">
+            <li><a href="#entry00000001">Entry 01</a></li>
+            </ul>
+            <div><span id="entry00000001"></span></div>
+            <div class="list-entry list-entry-1">
+            <div class="list-entry-title">Entry 01</div>
+            <div class="list-entry-desc"></div>
+            <ul class="list-entry">
+            <li>An item</li>
+            </ul>
+            </div>
+        """
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        subs = {
+            'title': page_id,
+            'header': page_id,
+            'path': '',
+            'body_class': page_id,
+            'content': exp_content
+        }
+        self._assert_files_equal('{}.html'.format(page_id), subs)
+
+    def test_box_page_as_bullet_points_with_skool_macros_in_section_name(self):
+        page_id = 'MyBulletPointsPageWithSkoolMacrosInTheSectionName'
+        ref = '\n'.join((
+            '[Page:{}]',
+            'SectionPrefix=Entry',
+            'SectionType=BulletPoints',
+            '',
+            '[Entry:entry#EVAL1,2,8:Entry #EVAL1,16,2]',
+            '-',
+            '',
+            '- A bullet point'
+        )).format(page_id)
+        exp_content = """
+            <ul class="contents">
+            <li><a href="#entry00000001">Entry 01</a></li>
+            </ul>
+            <div><span id="entry00000001"></span></div>
+            <div class="list-entry list-entry-1">
+            <div class="list-entry-title">Entry 01</div>
+            <div class="list-entry-desc"></div>
+            <ul class="list-entry">
+            <li>A bullet point</li>
+            </ul>
+            </div>
+        """
+
+        writer = self._get_writer(ref=ref, skool='')
+        writer.write_page(page_id)
+        subs = {
+            'title': page_id,
+            'header': page_id,
+            'path': '',
+            'body_class': page_id,
+            'content': exp_content
+        }
+        self._assert_files_equal('{}.html'.format(page_id), subs)
+
     def test_page_with_custom_table_templates(self):
         page_id = 'JustSomePage'
         ref = '\n'.join((

@@ -596,6 +596,8 @@ class HtmlWriter:
         entries_html = []
         link_list = []
         for i, (anchor, title, paragraphs) in enumerate(page.get('entries')):
+            anchor = self.expand(anchor, cwd)
+            title = self.expand(title, cwd)
             link_list.append((anchor, title))
             t_reference_entry_subs = {
                 't_anchor': self.format_anchor(anchor),
@@ -616,6 +618,8 @@ class HtmlWriter:
         contents = []
         entries = []
         for j, (anchor, title, description, items) in enumerate(page.get('entries')):
+            anchor = self.expand(anchor, cwd)
+            title = self.expand(title, cwd)
             contents.append((anchor, title))
             list_items = []
             for item in items:

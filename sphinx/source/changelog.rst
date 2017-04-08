@@ -21,10 +21,17 @@ Changelog
 * Added support for parsing a :ref:`box page <boxpages>` entry section as a
   sequence of multi-line list items prefixed by '-' (with
   ``SectionType=BulletPoints``)
+* The ``anchor`` and ``title`` of a :ref:`box page <boxpages>` entry section
+  name may now contain :ref:`skool macros <skoolMacros>`
+* The :ref:`path <paths>`, :ref:`title <titles>` and
+  :ref:`header <pageHeaders>` of a page may now contain
+  :ref:`skool macros <skoolMacros>`
 * Fixed how an image is cropped when the crop rectangle is very narrow
 * Fixed how a masked image with flashing cells is built
 * Fixed how :ref:`sna2skool.py` handles a snapshot that contains a dangling
   IX/IY prefix (DD/FD) when generating a control file
+* Fixed the bug that prevents the expansion of skool macros in a page's link
+  text on the disassembly home page
 
 5.4 (2017-01-08)
 ----------------
