@@ -59,8 +59,10 @@ class RefParser:
             self._sections[section_name] = [line]
 
     def apply_replacements(self, repf):
+        sections = OrderedDict()
         for name in self._sections:
-            self._sections[name] = [repf(line) for line in self._sections[name]]
+            sections[repf(name)] = [repf(line) for line in self._sections[name]]
+        self._sections = sections
 
     def has_section(self, section_name):
         """Return whether there is any section named `section_name`."""

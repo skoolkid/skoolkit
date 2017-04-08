@@ -628,7 +628,7 @@ For example::
 @replace
 ^^^^^^^^
 The ``@replace`` directive replaces strings that match a regular expression in
-skool file annotations and ref file sections. ::
+skool file annotations and ref file section names and contents. ::
 
   @replace=/pattern/repl
 
@@ -674,11 +674,13 @@ then ``#foo31`` would be replaced by ``#bar31``.
 
 See also :ref:`definingMacrosWithReplace`.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.1     | New     |
-+---------+---------+
++---------+--------------------------------------------+
+| Version | Changes                                    |
++=========+============================================+
+| 6.0     | Replaces strings in ref file section names |
++---------+--------------------------------------------+
+| 5.1     | New                                        |
++---------+--------------------------------------------+
 
 .. _rfix:
 

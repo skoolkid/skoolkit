@@ -1,7 +1,7 @@
 Changelog
 =========
 
-6.0rc3
+6.0rc4
 ------
 * Dropped support for Python 2.7 and 3.3
 * Added the ``--expand`` option to :ref:`sna2img.py` (for expanding a
@@ -26,6 +26,8 @@ Changelog
 * The :ref:`path <paths>`, :ref:`title <titles>` and
   :ref:`header <pageHeaders>` of a page may now contain
   :ref:`skool macros <skoolMacros>`
+* The :ref:`replace` directive now acts on ref file section names as well as
+  their contents
 * Fixed how an image is cropped when the crop rectangle is very narrow
 * Fixed how a masked image with flashing cells is built
 * Fixed how :ref:`sna2skool.py` handles a snapshot that contains a dangling

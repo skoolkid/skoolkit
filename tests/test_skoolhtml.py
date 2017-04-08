@@ -264,6 +264,19 @@ class HtmlWriterTest(HtmlWriterTestCase):
         section = writer.get_section('Test', lines=True)
         self.assertEqual(['Hello everyone.', 'Goodbye everyone.'], section)
 
+    def test_replace_directive_on_entry_section_name(self):
+        ref = '\n'.join((
+            '[Test#foo]',
+            'Work#foo.'
+        ))
+        skool = '\n'.join((
+            '@replace=/#foo/ing',
+            'c32768 RET'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+        section = writer.get_section('Testing', lines=True)
+        self.assertEqual(['Working.'], section)
+
     def test_non_empty_box_page_is_registered(self):
         ref = '\n'.join((
             '[Page:Foo]',
