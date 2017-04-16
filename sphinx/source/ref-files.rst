@@ -128,7 +128,8 @@ aspects of the HTML output. The parameters are in the format::
 Recognised parameters are:
 
 * ``AddressAnchor`` - the format of the anchors attached to instructions on
-  disassembly pages and entries on memory map pages (default: ``{address}``)
+  disassembly pages and entries on memory map pages (default: ``{address}``);
+  this may contain :ref:`skool macros <skoolMacros>`
 * ``AsmSinglePageTemplate`` - the name of the HTML template used to build the
   disassembly on a single page, as opposed to a separate page for each routine
   and data block (default: None); set this to 'AsmAllInOne' to use the
@@ -185,9 +186,11 @@ Recognised parameters are:
 The ``AddressAnchor`` parameter contains a standard Python format string that
 specifies the format of the anchors attached to instructions on disassembly
 pages and entries on memory map pages. The default format string is
-``{address}``, which produces decimal addresses (e.g. ``#65280``); to produce
+``{address}``, which produces decimal addresses (e.g. ``#65280``). To produce
 4-digit, lower case hexadecimal addresses instead (e.g. ``#ff00``), change
-``AddressAnchor`` to ``{address:04x}``.
+``AddressAnchor`` to ``{address:04x}``. Or to produce hexadecimal addresses if
+the ``--hex`` option is used with :ref:`skool2html.py`, and decimal addresses
+otherwise: ``#IF({base}==16)({address:04x},{address})``.
 
 Note that an address anchor that starts with an upper case letter (e.g.
 ``#FF00``) will be interpreted as a skool macro, and so any format string that
@@ -196,6 +199,9 @@ could produce such an anchor should be avoided.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 6.0     | The ``AddressAnchor`` parameter may contain                       |
+|         | :ref:`skool macros <skoolMacros>`                                 |
++---------+-------------------------------------------------------------------+
 | 5.3     | Added the ``AsmSinglePageTemplate`` parameter                     |
 +---------+-------------------------------------------------------------------+
 | 5.2     | Added the ``UDGFilename`` parameter                               |

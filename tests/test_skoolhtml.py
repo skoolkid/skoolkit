@@ -1445,6 +1445,18 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         output = writer.expand('#R40001', ASMDIR)
         self._assert_link_equals(output, '40000.html#9c41', '40001')
 
+    def test_macro_r_with_custom_asm_anchor_containing_skool_macro(self):
+        ref = '[Game]\nAddressAnchor=#IF({base}==10)({address},{address:04x})'
+        skool = '\n'.join((
+            '; Routine at 50000',
+            'c50000 LD A,B',
+            ' 50001 RET'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        output = writer.expand('#R50001', ASMDIR)
+        self._assert_link_equals(output, '50000.html#c351', '50001')
+
     def test_macro_r_converts_entry_address_to_custom_asm_anchor(self):
         ref = '[Game]\nAddressAnchor={address:04x}'
         writer = self._get_writer(ref=ref, skool='c40000 RET')
@@ -3480,6 +3492,73 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
 
+    def test_write_asm_entries_with_custom_address_anchor_containing_skool_macro(self):
+        ref = '\n'.join((
+            '[Game]',
+            'AddressAnchor=#IF(0)({address},{address:04X})',
+            'LinkInternalOperands=1'
+        ))
+        skool = '\n'.join((
+            '; Routine at 30000',
+            'c30000 LD A,B',
+            '; Jump back.',
+            ' 30001 JR 30000'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">30000: Routine at 30000</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="7530"></span>30000</td>
+            <td class="instruction">LD A,B</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <span id="7531"></span>
+            <div class="comments">
+            <div class="paragraph">
+            Jump back.
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-1"><span id="7531"></span>30001</td>
+            <td class="instruction">JR <a href="30000.html#7530">30000</a></td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 30000',
+            'body_class': 'Asm-c',
+            'up': '7530',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '30000.html'), subs)
+
     def test_write_asm_entries_on_single_page(self):
         ref = '[Game]\nAsmSinglePageTemplate=AsmAllInOne'
         skool = '\n'.join((
@@ -4227,6 +4306,42 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             <td class="map-length-0">1</td>
             <td class="map-c-desc">
             <div class="map-entry-title-10">Routine at 23456</div>
+            <div class="map-entry-desc-0">
+            </div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer.write_map('MemoryMap')
+        subs = {
+            'body_class': 'MemoryMap',
+            'header': 'Memory map',
+            'content': content
+        }
+        self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
+
+    def test_write_map_with_custom_asm_anchor_containing_skool_macro(self):
+        ref = '[Game]\nAddressAnchor=#MAP({base})({address:04x},10:{address})'
+        skool = '; Routine at 34567\nc34567 RET'
+        writer = self._get_writer(ref=ref, skool=skool)
+
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page-1">Page</th>
+            <th class="map-byte-1">Byte</th>
+            <th>Address</th>
+            <th class="map-length-0">Length</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page-1">135</td>
+            <td class="map-byte-1">7</td>
+            <td class="map-c"><span id="8707"></span><a href="../asm/34567.html">34567</a></td>
+            <td class="map-length-0">1</td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10">Routine at 34567</div>
             <div class="map-entry-desc-0">
             </div>
             </td>

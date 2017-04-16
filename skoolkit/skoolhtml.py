@@ -104,7 +104,7 @@ class HtmlWriter:
         self.macros = get_macros(self)
 
         self.game_vars = self.get_dictionary('Game')
-        self.asm_anchor_template = self.game_vars['AddressAnchor']
+        self.asm_anchor_template = self.expand(self.game_vars['AddressAnchor'])
         self.asm_single_page_template = self.game_vars.get('AsmSinglePageTemplate')
         self.udg_fname_template = self.game_vars['UDGFilename']
         self.paths = self.get_dictionary('Paths')
