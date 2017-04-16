@@ -21,11 +21,12 @@ Changelog
 * Added support for parsing a :ref:`box page <boxpages>` entry section as a
   sequence of multi-line list items prefixed by '-' (with
   ``SectionType=BulletPoints``)
-* The following ref file components may now contain
-  :ref:`skool macros <skoolMacros>`: the ``anchor`` and ``title`` of a
-  :ref:`box page <boxpages>` entry section name; the :ref:`path <paths>`,
-  :ref:`title <titles>` and :ref:`header <pageHeaders>` of a page; the
-  ``AddressAnchor`` parameter in the :ref:`ref-Game` section
+* The following ref file components may now contain skool macros: the
+  ``anchor`` and ``title`` of a :ref:`box page <boxpages>` entry section name;
+  the :ref:`path <paths>`, :ref:`title <titles>` and
+  :ref:`header <pageHeaders>` of a page; the ``AddressAnchor`` parameter in the
+  :ref:`ref-Game` section; the ``PageByteColumns`` parameter in the
+  :ref:`memoryMap` section
 * The :ref:`replace` directive now acts on ref file section names as well as
   their contents
 * Fixed how an image is cropped when the crop rectangle is very narrow

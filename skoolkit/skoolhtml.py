@@ -834,7 +834,7 @@ class HtmlWriter:
             'EntryTypes': entry_types,
             'Intro': self.expand(map_details.get('Intro', ''), cwd),
             'LengthColumn': map_details.get('LengthColumn', '0'),
-            'PageByteColumns': map_details.get('PageByteColumns', '0')
+            'PageByteColumns': self.expand(map_details.get('PageByteColumns', '0'))
         }
         desc = map_dict['EntryDescriptions'] != '0'
 

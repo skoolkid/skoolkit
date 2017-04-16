@@ -443,7 +443,8 @@ Recognised parameters and their default values are:
 * ``LengthColumn`` - ``1`` to display the 'Length' column, or ``0`` not to
   (default: ``0``)
 * ``PageByteColumns`` - ``1`` to display 'Page' and 'Byte' columns, or ``0``
-  not to (default: ``0``)
+  not to (default: ``0``); this parameter may contain
+  :ref:`skool macros <skoolMacros>`
 * ``Write`` - ``1`` to write the memory map page, or ``0`` not to (default:
   ``1``)
 
@@ -465,6 +466,9 @@ name matches the page ID, if one exists; otherwise, the stock
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 6.0     | The ``PageByteColumns`` parameter may contain                    |
+|         | :ref:`skool macros <skoolMacros>`                                |
++---------+------------------------------------------------------------------+
 | 4.0     | Added the ``EntryDescriptions`` and ``LengthColumn`` parameters, |
 |         | and support for the ``G`` identifier in the ``EntryTypes``       |
 |         | parameter                                                        |

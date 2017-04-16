@@ -4548,6 +4548,45 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal(map_path, subs)
 
+    def test_write_map_with_PageByteColumns_containing_skool_macro(self):
+        ref = '\n'.join((
+            '[MemoryMap:MemoryMap]',
+            'PageByteColumns=#IF({base}==16)(0,1)'
+        ))
+        skool = '; Routine at 45678\nc45678 RET'
+        writer = self._get_writer(ref=ref, skool=skool, base=BASE_16)
+
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page-0">Page</th>
+            <th class="map-byte-0">Byte</th>
+            <th>Address</th>
+            <th class="map-length-0">Length</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page-0">178</td>
+            <td class="map-byte-0">110</td>
+            <td class="map-c"><span id="45678"></span><a href="../asm/45678.html">B26E</a></td>
+            <td class="map-length-0">1</td>
+            <td class="map-c-desc">
+            <div class="map-entry-title-10">Routine at 45678</div>
+            <div class="map-entry-desc-0">
+            </div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer.write_map('MemoryMap')
+        subs = {
+            'body_class': 'MemoryMap',
+            'header': 'Memory map',
+            'content': content
+        }
+        self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
+
     def test_write_memory_map_with_intro(self):
         intro = 'This map is empty.'
         ref = '[MemoryMap:MemoryMap]\nIntro={}'.format(intro)
