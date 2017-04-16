@@ -548,7 +548,8 @@ A ``Page:*`` section contains parameters in the form::
 Recognised parameters are:
 
 * ``Content`` - the path (directory and filename) of a page that already
-  exists; when this parameter is supplied, no others are required
+  exists; when this parameter (which may contain
+  :ref:`skool macros <skoolMacros>`) is supplied, no others are required
 * ``JavaScript`` - the base name of the JavaScript file to use in addition to
   any declared by the ``JavaScript`` parameter in the :ref:`ref-Game` section
   (default: None); multiple JavaScript files can be declared by separating
@@ -580,7 +581,8 @@ template is used.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 6.0     | Added support for ``SectionType=BulletPoints``                   |
+| 6.0     | Added support for ``SectionType=BulletPoints``; the ``Content``  |
+|         | parameter may contain :ref:`skool macros <skoolMacros>`          |
 +---------+------------------------------------------------------------------+
 | 5.4     | Added the ``SectionType`` parameter                              |
 +---------+------------------------------------------------------------------+

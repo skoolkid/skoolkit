@@ -2864,6 +2864,22 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         """
         self._test_write_index(files, content, ref)
 
+    def test_write_index_with_custom_link_to_existing_page_specified_using_skool_macro(self):
+        ref = '\n'.join((
+            '[Page:AlreadyThere]',
+            'Content=asm/#MAP({base})(32768,16:8000).html',
+            '[Index:DataTables:Data tables and buffers]',
+            'AlreadyThere'
+        ))
+        files = ['asm/32768.html']
+        content = """
+            <div class="section-header">Data tables and buffers</div>
+            <ul class="index-list">
+            <li><a href="asm/32768.html">AlreadyThere</a></li>
+            </ul>
+        """
+        self._test_write_index(files, content, ref)
+
     def test_write_index_with_custom_footer(self):
         files = []
         content = ""

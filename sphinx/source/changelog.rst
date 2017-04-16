@@ -1,7 +1,7 @@
 Changelog
 =========
 
-6.0rc4
+6.0rc5
 ------
 * Dropped support for Python 2.7 and 3.3
 * Added the ``--expand`` option to :ref:`sna2img.py` (for expanding a
@@ -26,7 +26,8 @@ Changelog
   the :ref:`path <paths>`, :ref:`title <titles>` and
   :ref:`header <pageHeaders>` of a page; the ``AddressAnchor`` parameter in the
   :ref:`ref-Game` section; the ``PageByteColumns`` parameter in the
-  :ref:`memoryMap` section
+  :ref:`memoryMap` section; the ``Content`` parameter in the :ref:`page`
+  section
 * The :ref:`replace` directive now acts on ref file section names as well as
   their contents
 * Fixed how an image is cropped when the crop rectangle is very narrow
