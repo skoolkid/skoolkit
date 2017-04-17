@@ -108,7 +108,6 @@ class HtmlWriter:
         self.asm_single_page_template = self.game_vars.get('AsmSinglePageTemplate')
         self.udg_fname_template = self.game_vars['UDGFilename']
         self.paths = self.get_dictionary('Paths')
-        self.asm_fname_template = self.paths['CodeFiles']
         self.titles = self.get_dictionary('Titles')
         self.page_headers = self.get_dictionary('PageHeaders')
         links = self.get_dictionary('Links')
@@ -189,6 +188,8 @@ class HtmlWriter:
                 self.titles.setdefault(map_name, map_name)
 
         self.paths = {page_id: self.expand(path) for page_id, path in self.paths.items()}
+
+        self.asm_fname_template = self.paths['CodeFiles']
 
         for page_id, title in self.titles.items():
             self.page_headers.setdefault(page_id, title)

@@ -188,9 +188,10 @@ specifies the format of the anchors attached to instructions on disassembly
 pages and entries on memory map pages. The default format string is
 ``{address}``, which produces decimal addresses (e.g. ``#65280``). To produce
 4-digit, lower case hexadecimal addresses instead (e.g. ``#ff00``), change
-``AddressAnchor`` to ``{address:04x}``. Or to produce hexadecimal addresses if
-the ``--hex`` option is used with :ref:`skool2html.py`, and decimal addresses
-otherwise: ``#IF({base}==16)({address:04x},{address})``.
+``AddressAnchor`` to ``{address:04x}``. Or to produce 4-digit, lower case
+hexadecimal addresses if the ``--hex`` option is used with
+:ref:`skool2html.py`, and decimal addresses otherwise:
+``{address#IF({base}==16)(:04x)}``.
 
 Note that an address anchor that starts with an upper case letter (e.g.
 ``#FF00``) will be interpreted as a skool macro, and so any format string that
@@ -719,9 +720,11 @@ Recognised directory IDs and their default paths are:
 The ``CodeFiles`` parameter contains a standard Python format string that
 specifies the format of a disassembly page filename based on the address of the
 routine or data block. The default format string is ``{address}.html``, which
-produces decimal addresses (e.g. ``65280.html``); to produce 4-digit, upper
+produces decimal addresses (e.g. ``65280.html``). To produce 4-digit, upper
 case hexadecimal addresses instead (e.g. ``FF00.html``), change ``CodeFiles``
-to ``{address:04X}.html``.
+to ``{address:04X}.html``. Or to produce 4-digit, upper case hexadecimal
+addresses if the ``--hex`` option is used with :ref:`skool2html.py`, and
+decimal addresses otherwise: ``{address#IF({base}==16)(:04X)}.html``.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |

@@ -3433,6 +3433,23 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             title = 'Data at {}'.format(address)
             self._assert_title_equals(path, title, 'Data')
 
+    def test_write_asm_entries_with_custom_filenames_specified_by_skool_macro(self):
+        ref = '[Paths]\nCodeFiles=0#IF({base}==16)(x{address:04x},d{address}).html'
+        skool = '\n'.join((
+            '; Data',
+            'b40000 DEFS 10000',
+            '',
+            '; More data',
+            'b50000 DEFS 10000'
+        ))
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_asm_entries()
+
+        for address in (40000, 50000):
+            path = '{}/0d{}.html'.format(ASMDIR, address)
+            title = 'Data at {}'.format(address)
+            self._assert_title_equals(path, title, 'Data')
+
     def test_write_asm_entries_with_invalid_filename_template(self):
         ref = '[Paths]\nCodeFiles={Address:04x}.html'
         skool = 'b30000 DEFS 10000'
