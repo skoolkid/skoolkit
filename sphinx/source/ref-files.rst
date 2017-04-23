@@ -178,10 +178,6 @@ Recognised parameters are:
   header of the main index page (default: 'The complete')
 * ``TitleSuffix`` - the suffix to use after the game name or logo in the header
   of the main index page (default: 'RAM disassembly')
-* ``UDGFilename`` - the format of the default filename for images created by
-  the :ref:`UDG` macro (default: ``udg{addr}_{attr}x{scale}``); this is a
-  standard Python format string that recognises the macro parameters ``addr``,
-  ``attr`` and ``scale``
 
 The ``AddressAnchor`` parameter contains a standard Python format string that
 specifies the format of the anchors attached to instructions on disassembly
@@ -204,8 +200,6 @@ could produce such an anchor should be avoided.
 |         | :ref:`skool macros <skoolMacros>`                                 |
 +---------+-------------------------------------------------------------------+
 | 5.3     | Added the ``AsmSinglePageTemplate`` parameter                     |
-+---------+-------------------------------------------------------------------+
-| 5.2     | Added the ``UDGFilename`` parameter                               |
 +---------+-------------------------------------------------------------------+
 | 4.3     | Added the ``AddressAnchor`` parameter                             |
 +---------+-------------------------------------------------------------------+
@@ -694,6 +688,10 @@ Recognised file IDs and their default paths are:
 * ``Pokes`` - the 'Pokes' page (default: ``reference/pokes.html``)
 * ``RoutinesMap`` - the 'Routines' memory map page (default:
   ``maps/routines.html``)
+* ``UDGFilename`` - the format of the default filename for images created by
+  the :ref:`UDG` macro (default: ``udg{addr}_{attr}x{scale}``); this is a
+  standard Python format string that recognises the macro parameters ``addr``,
+  ``attr`` and ``scale``
 * ``UnusedMap`` - the 'Unused addresses' memory map page (default:
   ``maps/unused.html``)
 
@@ -729,7 +727,9 @@ decimal addresses otherwise: ``{address#IF({base}==16)(:04X)}.html``.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 6.0     | Paths may contain :ref:`skool macros <skoolMacros>`               |
+| 6.0     | Paths may contain :ref:`skool macros <skoolMacros>`; added the    |
+|         | ``UDGFilename`` parameter (which used to live in the              |
+|         | :ref:`ref-Game` section)                                          |
 +---------+-------------------------------------------------------------------+
 | 5.3     | Added the ``AsmSinglePage`` file ID                               |
 +---------+-------------------------------------------------------------------+

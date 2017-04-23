@@ -46,10 +46,10 @@ AddressAnchor={{address}}
 Created=
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
-UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
 [Paths]
 CodePath={}
 CodeFiles={{address}}.html
+UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
 """.format(ASMDIR)
 
 METHOD_MINIMAL_REF_FILE = """
@@ -58,11 +58,11 @@ AddressAnchor={{address}}
 Created=
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
-UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
 [Paths]
 CodePath={ASMDIR}
 ScreenshotImagePath={SCRDIR}
 UDGImagePath={UDGDIR}
+UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
 CodeFiles={{address}}.html
 [Template:img]
 <img alt="{{alt}}" src="{{src}}" />
@@ -74,7 +74,6 @@ AddressAnchor={{address}}
 Created=
 LinkInternalOperands=0
 LinkOperands=CALL,DEFW,DJNZ,JP,JR
-UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
 {REF_SECTIONS[Page_Bugs]}
 {REF_SECTIONS[Page_Facts]}
 {REF_SECTIONS[Page_Pokes]}
@@ -84,6 +83,7 @@ CodePath={ASMDIR}
 FontImagePath=images/font
 ScreenshotImagePath={SCRDIR}
 UDGImagePath={UDGDIR}
+UDGFilename=udg{{addr}}_{{attr}}x{{scale}}
 AsmSinglePage=asm.html
 Bugs={REFERENCE_DIR}/bugs.html
 CodeFiles={{address}}.html
@@ -1843,13 +1843,28 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
 
     def test_macro_udg_with_custom_default_udg_filename(self):
         udg_filename = 'udg{addr:04X}_{attr:02X}x{scale}'
-        ref = '[Game]\nUDGFilename={}'.format(udg_filename)
+        ref = '[Paths]\nUDGFilename={}'.format(udg_filename)
         writer = self._get_writer(ref=ref, snapshot=[0] * 24, mock_file_info=True)
 
         addr = 16
         attr = 40
         scale = 3
         exp_fname = 'udg0010_28x3'
+        exp_image_path = '{}/{}.png'.format(UDGDIR, exp_fname)
+        exp_src = '../{}'.format(exp_image_path)
+        output = writer.expand('#UDG{},{},{}'.format(addr, attr, scale), ASMDIR)
+        self._assert_img_equals(output, exp_fname, exp_src)
+        self.assertEqual(writer.file_info.fname, exp_image_path)
+
+    def test_macro_udg_with_custom_default_udg_filename_specified_by_skool_macro(self):
+        udg_filename = '#IF({base}==16)(udg{addr:04X}_{attr:02X}x{scale},udg{addr})'
+        ref = '[Paths]\nUDGFilename={}'.format(udg_filename)
+        writer = self._get_writer(ref=ref, snapshot=[0] * 18, base=BASE_16, mock_file_info=True)
+
+        addr = 10
+        attr = 26
+        scale = 2
+        exp_fname = 'udg000A_1Ax2'
         exp_image_path = '{}/{}.png'.format(UDGDIR, exp_fname)
         exp_src = '../{}'.format(exp_image_path)
         output = writer.expand('#UDG{},{},{}'.format(addr, attr, scale), ASMDIR)

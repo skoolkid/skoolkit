@@ -93,6 +93,11 @@ In SkoolKit 5, the ``DefaultAnimationFormat`` parameter in the
 parameter (``png`` by default). In SkoolKit 6, ``DefaultAnimationFormat``
 defaults to ``gif``.
 
+UDGFilename
+-----------
+In SkoolKit 5, the ``UDGFilename`` parameter lived in the :ref:`ref-Game`
+section. In SkoolKit 6, it has moved to the :ref:`paths` section.
+
 changelog_* templates
 ---------------------
 The ``changelog_entry`` and ``changelog_item_list`` templates have been renamed

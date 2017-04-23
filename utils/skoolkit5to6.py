@@ -41,11 +41,20 @@ def _parse_ref(reffile_f):
         preamble = section
     return preamble, sections
 
-def _get_section(sections, name):
+def _get_section(sections, name, create=False):
     for index, section in enumerate(sections):
         if name == section[0]:
             return index, section
+    if create:
+        sections.append([name, []])
+        return len(sections) - 1, sections[-1]
     return -1, None
+
+def _append_line(lines, line):
+    index = len(lines)
+    while index and not lines[index - 1]:
+        index -= 1
+    lines.insert(index, line)
 
 def _update_template(sections, old_name, new_name, old_field, new_field):
     template = _get_section(sections, 'Template:' + old_name)[1]
@@ -63,19 +72,26 @@ def convert_ref(reffile_f):
     for section in sections:
         if section[0].startswith('PageContent:'):
             page_section_name = 'Page:' + section[0][12:]
-            index, page_section = _get_section(sections, page_section_name)
+            page_section = _get_section(sections, page_section_name)[1]
             page_content_param = 'PageContent=#INCLUDE({})'.format(section[0])
             if page_section is None:
                 new_page_sections.append((page_section_name, [page_content_param]))
             else:
-                lines = page_section[1]
-                index = len(lines)
-                while index and not lines[index - 1]:
-                    index -= 1
-                lines.insert(index, page_content_param)
+                _append_line(page_section[1], page_content_param)
     for section in new_page_sections:
         index = _get_section(sections, 'PageContent:' + section[0][5:])[0]
         sections.insert(index, section)
+
+    # UDGFilename
+    game_section = _get_section(sections, 'Game')[1]
+    if game_section:
+        lines = game_section[1]
+        for line in lines:
+            if line.startswith('UDGFilename='):
+                paths = _get_section(sections, 'Paths', True)[1][1]
+                _append_line(paths, line)
+                lines.remove(line)
+                break
 
     # [Template:changelog_entry]
     _update_template(sections, 'changelog_entry', 'list_entry', '{t_changelog_item_list}', '{t_list_items}')

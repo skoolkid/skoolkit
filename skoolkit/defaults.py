@@ -63,7 +63,6 @@ Release=
 StyleSheet=skoolkit.css
 TitlePrefix=The complete
 TitleSuffix=RAM disassembly
-UDGFilename=udg{addr}_{attr}x{scale}
 """
 
 SECTIONS['ImageWriter'] = """
@@ -246,6 +245,7 @@ MemoryMap=maps/all.html
 MessagesMap=maps/messages.html
 Pokes=reference/pokes.html
 RoutinesMap=maps/routines.html
+UDGFilename=udg{addr}_{attr}x{scale}
 UnusedMap=maps/unused.html
 """
 
