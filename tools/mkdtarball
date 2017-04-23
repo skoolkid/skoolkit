@@ -50,7 +50,7 @@ The ASM disassembly can be built by following these steps:
 
 1. Download and unpack SkoolKit $SK_VERSION.
 
-2. Copy '$GAME.skool' from the 'sources' subdirectory in this archive to the
+2. Copy every file from the 'sources' subdirectory in this archive to the
    directory where SkoolKit was unpacked.
 
 3. Change to the directory where SkoolKit was unpacked and run this command:
@@ -143,7 +143,7 @@ echo "done"
 
 # Copy source files
 echo -n "Copying source files..."
-rm -f src/*.pyc
+rm -rf src/__pycache__
 cp -a src ${ABSDIR}/sources
 find $DHOME/sources -name COPYING -exec cp -p {} $ABSDIR/sources \;
 readme > ${ABSDIR}/readme.txt
