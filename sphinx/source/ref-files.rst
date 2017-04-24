@@ -137,8 +137,7 @@ Recognised parameters are:
   page (default: '')
 * ``Created`` - the message indicating the software used to create the
   disassembly that appears in the footer of every page (default: 'Created using
-  SkoolKit $VERSION.'; the string ``$VERSION`` is replaced by the version
-  number of SkoolKit)
+  SkoolKit #VERSION.')
 * ``Font`` - the base name of the font file to use (default: None); multiple
   font files can be declared by separating their names with semicolons
 * ``Game`` - the name of the game, which appears in the title of every page,

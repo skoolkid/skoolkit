@@ -48,7 +48,7 @@ HtmlWriterClass=skoolkit.skoolhtml.HtmlWriter
 SECTIONS['Game'] = """
 AddressAnchor={address}
 Copyright=
-Created=Created using <a href="http://skoolkit.ca/">SkoolKit</a> $VERSION.
+Created=Created using <a href="http://skoolkit.ca/">SkoolKit</a> #VERSION.
 ; Font=
 ; Game=
 ; GameStatusBufferIncludes=

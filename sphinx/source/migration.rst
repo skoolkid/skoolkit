@@ -86,6 +86,13 @@ can be activated by adding a corresponding ``[Page:*]`` section::
   [Page:MyOtherPage]
   PageContent=#INCLUDE(PageContent:MyOtherPage)
 
+Created
+-------
+In SkoolKit 5, wherever ``$VERSION`` appeared in the ``Created`` parameter in
+the :ref:`ref-Game` section, it was replaced by the version number of SkoolKit.
+In SkoolKit 6, this replacement is no longer made; use the :ref:`VERSION` macro
+instead.
+
 DefaultAnimationFormat
 ----------------------
 In SkoolKit 5, the ``DefaultAnimationFormat`` parameter in the

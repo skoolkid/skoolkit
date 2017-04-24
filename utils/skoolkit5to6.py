@@ -82,7 +82,7 @@ def convert_ref(reffile_f):
         index = _get_section(sections, 'PageContent:' + section[0][5:])[0]
         sections.insert(index, section)
 
-    # UDGFilename
+    # Created/UDGFilename
     game_section = _get_section(sections, 'Game')[1]
     if game_section:
         lines = game_section[1]
@@ -92,6 +92,9 @@ def convert_ref(reffile_f):
                 _append_line(paths, line)
                 lines.remove(line)
                 break
+        for i, line in enumerate(lines):
+            if line.startswith('Created='):
+                lines[i] = 'Created=' + line[8:].replace('$VERSION', '#VERSION')
 
     # [Template:changelog_entry]
     _update_template(sections, 'changelog_entry', 'list_entry', '{t_changelog_item_list}', '{t_list_items}')

@@ -25,7 +25,7 @@ from collections import defaultdict
 import re
 from io import StringIO
 
-from skoolkit import skoolmacro, SkoolKitError, warn, parse_int, VERSION
+from skoolkit import skoolmacro, SkoolKitError, warn, parse_int
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.image import ImageWriter
@@ -221,7 +221,6 @@ class HtmlWriter:
         self.templates = {}
         for name, template in self.get_sections('Template'):
             self.templates[name] = template
-        self.game['Created'] = self.game['Created'].replace('$VERSION', VERSION)
         self.skoolkit = {}
         self.stylesheets = {}
         self.javascript = {}
