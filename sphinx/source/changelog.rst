@@ -23,9 +23,8 @@ Changelog
   ``SectionType=BulletPoints``)
 * The following ref file components may now contain skool macros: the
   ``anchor`` and ``title`` of a :ref:`box page <boxpages>` entry section name;
-  the :ref:`path <paths>`, :ref:`title <titles>` and
-  :ref:`header <pageHeaders>` of a page; the ``AddressAnchor`` parameter in the
-  :ref:`ref-Game` section; the ``PageByteColumns`` parameter in the
+  parameters in the :ref:`ref-Game`, :ref:`pageHeaders`, :ref:`paths` and
+  :ref:`titles` sections; the ``PageByteColumns`` parameter in the
   :ref:`memoryMap` section; the ``Content`` parameter in the :ref:`page`
   section
 * The :ref:`replace` directive now acts on ref file section names as well as

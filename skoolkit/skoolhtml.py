@@ -103,8 +103,13 @@ class HtmlWriter:
         self.list_parser = ListParser()
         self.macros = get_macros(self)
 
-        self.game_vars = self.get_dictionary('Game')
-        self.asm_anchor_template = self.expand(self.game_vars['AddressAnchor'])
+        self.game_vars = {}
+        for k, v in self.get_dictionary('Game').items():
+            if k == 'Logo':
+                self.game_vars[k] = v
+            else:
+                self.game_vars[k] = self.expand(v)
+        self.asm_anchor_template = self.game_vars['AddressAnchor']
         self.asm_single_page_template = self.game_vars.get('AsmSinglePageTemplate')
         self.paths = self.get_dictionary('Paths')
         self.titles = self.get_dictionary('Titles')

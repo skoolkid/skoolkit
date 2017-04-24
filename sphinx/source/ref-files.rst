@@ -128,8 +128,7 @@ aspects of the HTML output. The parameters are in the format::
 Recognised parameters are:
 
 * ``AddressAnchor`` - the format of the anchors attached to instructions on
-  disassembly pages and entries on memory map pages (default: ``{address}``);
-  this may contain :ref:`skool macros <skoolMacros>`
+  disassembly pages and entries on memory map pages (default: ``{address}``)
 * ``AsmSinglePageTemplate`` - the name of the HTML template used to build the
   disassembly on a single page, as opposed to a separate page for each routine
   and data block (default: None); set this to 'AsmAllInOne' to use the
@@ -179,6 +178,8 @@ Recognised parameters are:
 * ``TitleSuffix`` - the suffix to use after the game name or logo in the header
   of the main index page (default: 'RAM disassembly')
 
+Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
+
 The ``AddressAnchor`` parameter contains a standard Python format string that
 specifies the format of the anchors attached to instructions on disassembly
 pages and entries on memory map pages. The default format string is
@@ -196,8 +197,7 @@ could produce such an anchor should be avoided.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 6.0     | The ``AddressAnchor`` parameter may contain                       |
-|         | :ref:`skool macros <skoolMacros>`                                 |
+| 6.0     | Parameters may contain :ref:`skool macros <skoolMacros>`          |
 +---------+-------------------------------------------------------------------+
 | 5.3     | Added the ``AsmSinglePageTemplate`` parameter                     |
 +---------+-------------------------------------------------------------------+
@@ -628,6 +628,8 @@ Recognised page IDs are:
 * ``RoutinesMap`` - the 'Routines' memory map page
 * ``UnusedMap`` - the 'Unused addresses' memory map page
 
+Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
+
 The default header text for a page is the same as the title defined in the
 :ref:`titles` section, except where indicated above.
 
@@ -714,6 +716,8 @@ Recognised directory IDs and their default paths are:
 * ``UDGImagePath`` - the directory in which UDG images (created by the
   :ref:`#UDG <UDG>` or :ref:`#UDGARRAY <UDGARRAY>` macro) are placed (default:
   ``images/udgs``)
+
+Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
 The ``CodeFiles`` parameter contains a standard Python format string that
 specifies the format of a disassembly page filename based on the address of the
@@ -839,6 +843,8 @@ Recognised page IDs and their default titles are:
 * ``RoutinesMap`` - the 'Routines' memory map page (default: 'Routines')
 * ``UnusedMap`` - the 'Unused addresses' memory map page (default: 'Unused
   addresses')
+
+Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
 The title of a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
 :ref:`page` section defaults to the page ID, but can be overridden in this
