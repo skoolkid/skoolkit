@@ -278,6 +278,9 @@ class AsmWriter:
             return end, ''
         raise UnsupportedMacroError()
 
+    def expand_version(self, text, index):
+        return skoolmacro.parse_version(text, index)
+
     def expand(self, text):
         """Return `text` with skool macros expanded."""
         return skoolmacro.expand_macros(self, text).strip()

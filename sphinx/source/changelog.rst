@@ -30,6 +30,7 @@ Changelog
   section
 * The :ref:`replace` directive now acts on ref file section names as well as
   their contents
+* Added the :ref:`VERSION` macro (which expands to the version of SkoolKit)
 * Fixed how an image is cropped when the crop rectangle is very narrow
 * Fixed how a masked image with flashing cells is built
 * Fixed how :ref:`sna2skool.py` handles a snapshot that contains a dangling

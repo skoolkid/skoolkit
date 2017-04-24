@@ -18,7 +18,7 @@ from collections import defaultdict
 import inspect
 import re
 
-from skoolkit import SkoolKitError, SkoolParsingError
+from skoolkit import VERSION, SkoolKitError, SkoolParsingError
 from skoolkit.graphics import Udg
 
 _map_cache = {}
@@ -860,3 +860,6 @@ def parse_udgarray_with_frames(text, index, frame_map=None):
             frames.append(frame)
 
     return end, fname, alt, frames
+
+def parse_version(text, index):
+    return index, VERSION

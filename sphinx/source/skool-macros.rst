@@ -911,6 +911,20 @@ intended use is to contain images that will be rendered in HTML mode only.
 
 See :ref:`TABLE`, and also :ref:`HTML`.
 
+.. _VERSION:
+
+#VERSION
+--------
+The ``#VERSION`` macro expands to the version of SkoolKit. ::
+
+  #VERSION
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 6.0     | New     |
++---------+---------+
+
 .. _imageMacros:
 
 Image macros

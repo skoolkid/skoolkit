@@ -1,3 +1,4 @@
+from skoolkit import VERSION
 from skoolkit.skoolparser import BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
 
 ERROR_PREFIX = 'Error while parsing #{} macro'
@@ -1056,3 +1057,8 @@ class CommonSkoolMacroTest:
         self._test_invalid_image_macro(writer, '#UDGARRAY*foo,qux(bar)', "Missing 'delay' parameter for frame 'foo'", prefix)
 
         return writer, prefix
+
+    def test_macro_version(self):
+        writer = self._get_writer()
+        output = writer.expand('#VERSION')
+        self.assertEqual(output, VERSION)
