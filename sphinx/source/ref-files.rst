@@ -196,7 +196,8 @@ could produce such an anchor should be avoided.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 6.0     | Parameters may contain :ref:`skool macros <skoolMacros>`          |
+| 6.0     | Every parameter (not just ``Logo``) may contain                   |
+|         | :ref:`skool macros <skoolMacros>`                                 |
 +---------+-------------------------------------------------------------------+
 | 5.3     | Added the ``AsmSinglePageTemplate`` parameter                     |
 +---------+-------------------------------------------------------------------+
@@ -431,16 +432,16 @@ Recognised parameters and their default values are:
   * ``u`` - unused addresses
   * ``w`` - DEFW blocks
 
-* ``Intro`` - the text (which may contain HTML markup and
-  :ref:`skool macros <skoolMacros>`) displayed at the top of the memory map
-  page (default: '')
+* ``Intro`` - the text (which may contain HTML markup) displayed at the top of
+  the memory map page (default: '')
 * ``LengthColumn`` - ``1`` to display the 'Length' column, or ``0`` not to
   (default: ``0``)
 * ``PageByteColumns`` - ``1`` to display 'Page' and 'Byte' columns, or ``0``
-  not to (default: ``0``); this parameter may contain
-  :ref:`skool macros <skoolMacros>`
+  not to (default: ``0``)
 * ``Write`` - ``1`` to write the memory map page, or ``0`` not to (default:
   ``1``)
+
+Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
 To see the default memory map pages and their properties, run the following
 command::
@@ -460,7 +461,7 @@ name matches the page ID, if one exists; otherwise, the stock
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 6.0     | The ``PageByteColumns`` parameter may contain                    |
+| 6.0     | Every parameter (not just ``Intro``) may contain                 |
 |         | :ref:`skool macros <skoolMacros>`                                |
 +---------+------------------------------------------------------------------+
 | 4.0     | Added the ``EntryDescriptions`` and ``LengthColumn`` parameters, |
@@ -542,8 +543,7 @@ A ``Page:*`` section contains parameters in the form::
 Recognised parameters are:
 
 * ``Content`` - the path (directory and filename) of a page that already
-  exists; when this parameter (which may contain
-  :ref:`skool macros <skoolMacros>`) is supplied, no others are required
+  exists; when this parameter is supplied, no others are required
 * ``JavaScript`` - the base name of the JavaScript file to use in addition to
   any declared by the ``JavaScript`` parameter in the :ref:`ref-Game` section
   (default: None); multiple JavaScript files can be declared by separating
@@ -556,6 +556,8 @@ Recognised parameters are:
   sections (when ``SectionPrefix`` is defined): as single-line list items with
   indentation (``ListItems``), as multi-line list items prefixed by '-'
   (``BulletPoints``), or as paragraphs (the default)
+
+Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
 Note that the ``Content``, ``SectionPrefix`` and ``PageContent`` parameters are
 mutually exclusive (and that is their order of precedence); one of them must be
@@ -575,8 +577,9 @@ template is used.
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 6.0     | Added support for ``SectionType=BulletPoints``; the ``Content``  |
-|         | parameter may contain :ref:`skool macros <skoolMacros>`          |
+| 6.0     | Added support for ``SectionType=BulletPoints``; every parameter  |
+|         | (not just ``PageContent``) may contain                           |
+|         | :ref:`skool macros <skoolMacros>`                                |
 +---------+------------------------------------------------------------------+
 | 5.4     | Added the ``SectionType`` parameter                              |
 +---------+------------------------------------------------------------------+

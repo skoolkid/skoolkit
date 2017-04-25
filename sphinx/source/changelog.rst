@@ -1,7 +1,7 @@
 Changelog
 =========
 
-6.0rc8
+6.0rc9
 ------
 * Dropped support for Python 2.7 and 3.3
 * Added the ``--expand`` option to :ref:`sna2img.py` (for expanding a
@@ -23,10 +23,8 @@ Changelog
   ``SectionType=BulletPoints``)
 * The following ref file components may now contain skool macros: the
   ``anchor`` and ``title`` of a :ref:`box page <boxpages>` entry section name;
-  parameters in the :ref:`ref-Game`, :ref:`pageHeaders`, :ref:`paths` and
-  :ref:`titles` sections; the ``PageByteColumns`` parameter in the
-  :ref:`memoryMap` section; the ``Content`` parameter in the :ref:`page`
-  section
+  every parameter in the :ref:`ref-Game`, :ref:`memoryMap`, :ref:`page`,
+  :ref:`pageHeaders`, :ref:`paths` and :ref:`titles` sections
 * The :ref:`replace` directive now acts on ref file section names as well as
   their contents
 * Added the :ref:`VERSION` macro (which expands to the version of SkoolKit)

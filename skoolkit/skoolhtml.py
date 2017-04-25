@@ -103,12 +103,7 @@ class HtmlWriter:
         self.list_parser = ListParser()
         self.macros = get_macros(self)
 
-        self.game_vars = {}
-        for k, v in self.get_dictionary('Game').items():
-            if k == 'Logo':
-                self.game_vars[k] = v
-            else:
-                self.game_vars[k] = self.expand(v)
+        self.game_vars = self._expand_values('Game', 'Logo')
         self.asm_anchor_template = self.game_vars['AddressAnchor']
         self.asm_single_page_template = self.game_vars.get('AsmSinglePageTemplate')
         self.paths = self.get_dictionary('Paths')
@@ -119,6 +114,7 @@ class HtmlWriter:
         self.page_ids = []
         self.pages = {}
         for page_id, details in self.get_dictionaries('Page'):
+            self._expand_values(details, 'PageContent')
             page = self.pages.setdefault(page_id, {})
             section_prefix = details.get('SectionPrefix')
             if section_prefix:
@@ -185,13 +181,14 @@ class HtmlWriter:
         self.main_memory_maps = []
         self.memory_maps = {}
         for map_name, map_details in self.get_dictionaries('MemoryMap'):
+            self._expand_values(map_details, 'Intro')
             self.memory_maps[map_name] = map_details
             if map_name not in other_code_indexes and self._should_write_map(map_details):
                 self.main_memory_maps.append(map_name)
                 self.paths.setdefault(map_name, 'maps/{}.html'.format(map_name))
                 self.titles.setdefault(map_name, map_name)
 
-        self.paths = {page_id: self.expand(path) for page_id, path in self.paths.items()}
+        self._expand_values(self.paths)
 
         self.asm_fname_template = self.paths['CodeFiles']
         self.udg_fname_template = self.paths['UDGFilename']
@@ -260,6 +257,16 @@ class HtmlWriter:
             template = self.templates.get(template_name, self.templates[default])
         subs.update(self.template_subs)
         return template.format(**subs)
+
+    def _expand_values(self, obj, *exceptions):
+        if isinstance(obj, str):
+            d = self.get_dictionary(obj)
+        else:
+            d = obj
+        for k in d:
+            if k not in exceptions:
+                d[k] = self.expand(d[k])
+        return d
 
     def _parse_colours(self, colour_specs):
         colours = {}
@@ -839,7 +846,7 @@ class HtmlWriter:
             'EntryTypes': entry_types,
             'Intro': self.expand(map_details.get('Intro', ''), cwd),
             'LengthColumn': map_details.get('LengthColumn', '0'),
-            'PageByteColumns': self.expand(map_details.get('PageByteColumns', '0'))
+            'PageByteColumns': map_details.get('PageByteColumns', '0')
         }
         desc = map_dict['EntryDescriptions'] != '0'
 
