@@ -1101,7 +1101,7 @@ class HtmlWriter:
         return skoolmacro.parse_d(text, index, self)
 
     def expand_eval(self, text, index, cwd):
-        return skoolmacro.parse_eval(text, index)
+        return skoolmacro.parse_eval(text, index, self.case == CASE_LOWER)
 
     def expand_font(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)

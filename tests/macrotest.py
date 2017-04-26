@@ -150,6 +150,10 @@ class CommonSkoolMacroTest:
         self.assertEqual(writer.expand(nest_macros('#EVAL(5+5,{})', '8+8')), 'A')
         self.assertEqual(writer.expand(nest_macros('#EVAL(5+5,16,{})', '1+1')), '0A')
 
+        # Hexadecimal lower case
+        writer = self._get_writer(case=CASE_LOWER)
+        self.assertEqual(writer.expand('#EVAL57005,16'), 'dead')
+
     def test_macro_eval_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('EVAL')

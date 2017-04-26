@@ -501,18 +501,21 @@ def parse_d(text, index, entry_holder):
         raise MacroParsingError('Entry at {} has no description'.format(addr))
     return end, entry.description
 
-def parse_eval(text, index):
+def parse_eval(text, index, lower):
     # #EVALexpr[,base,width]
     end, value, base, width = parse_ints(text, index, 3, (10, 1))
     if base == 2:
-        value = '{:0{}b}'.format(value, width)
+        fmt = '{:0{}b}'
     elif base == 10:
-        value = '{:0{}}'.format(value, width)
+        fmt = '{:0{}}'
     elif base == 16:
-        value = '{:0{}X}'.format(value, width)
+        if lower:
+            fmt = '{:0{}x}'
+        else:
+            fmt = '{:0{}X}'
     else:
         raise MacroParsingError("Invalid base ({}): {}".format(base, text[index:end]))
-    return end, value
+    return end, fmt.format(value, width)
 
 def parse_font(text, index=0):
     # #FONT[:(text)]addr[,chars,attr,scale][{x,y,width,height}][(fname)]

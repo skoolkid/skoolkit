@@ -1,8 +1,8 @@
 Changelog
 =========
 
-6.0rc9
-------
+6.0rc10
+-------
 * Dropped support for Python 2.7 and 3.3
 * Added the ``--expand`` option to :ref:`sna2img.py` (for expanding a
   :ref:`FONT`, :ref:`SCR`, :ref:`UDG` or :ref:`UDGARRAY` macro)
@@ -27,6 +27,8 @@ Changelog
   :ref:`pageHeaders`, :ref:`paths` and :ref:`titles` sections
 * The :ref:`replace` directive now acts on ref file section names as well as
   their contents
+* The :ref:`EVAL` macro now renders hexadecimal values in lower case when the
+  ``--lower`` option of :ref:`skool2asm.py` or :ref:`skool2html.py` is used
 * Added the :ref:`VERSION` macro (which expands to the version of SkoolKit)
 * Fixed how an image is cropped when the crop rectangle is very narrow
 * Fixed how a masked image with flashing cells is built

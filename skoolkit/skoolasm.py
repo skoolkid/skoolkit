@@ -187,7 +187,7 @@ class AsmWriter:
         return skoolmacro.parse_d(text, index, self.parser)
 
     def expand_eval(self, text, index):
-        return skoolmacro.parse_eval(text, index)
+        return skoolmacro.parse_eval(text, index, self.lower)
 
     def expand_font(self, text, index):
         if self.handle_unsupported_macros:
