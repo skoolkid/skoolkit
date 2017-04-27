@@ -143,6 +143,11 @@ def run(diff_file, exp_diffs_file):
             if old_changed or new_changed:
                 exp_diffs.append((None, hex_old_lines, hex_new_lines))
 
+    if ignore_exp_case:
+        for entry in exp_diffs:
+            entry[1][:] = [s.lower() for s in entry[1]]
+            entry[2][:] = [s.lower() for s in entry[2]]
+
     unexp_diffs = set()
     lines = []
     last_fname = None
@@ -208,14 +213,12 @@ def run(diff_file, exp_diffs_file):
         if old_lines == new_lines:
             continue
 
+        if ignore_exp_case:
+            old_lines = [s.lower() for s in old]
+            new_lines = [s.lower() for s in new]
+        else:
+            old_lines, new_lines = old, new
         for _, exp_old, exp_new in exp_diffs:
-            if ignore_exp_case:
-                old_lines = [s.lower() for s in old]
-                new_lines = [s.lower() for s in new]
-                exp_old = [s.lower() for s in exp_old]
-                exp_new = [s.lower() for s in exp_new]
-            else:
-                old_lines, new_lines = old, new
             if (old_lines, new_lines) == (exp_old, exp_new):
                 break
         else:
