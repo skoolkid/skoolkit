@@ -77,13 +77,7 @@ it with no arguments to see the list of available options::
     -S FILE, --screen FILE
                           Add a loading screen to the TAP file; FILE may be a
                           snapshot or a 6912-byte SCR file
-    -t TAPFILE, --tapfile TAPFILE
-                          Set the TAP filename
     -V, --version         Show SkoolKit version number and exit
-
-.. note::
-   The ``-t/--tapfile`` option is deprecated since version 5.2. Use the second
-   positional argument to specify the TAP filename.
 
 Note that the ROM tape loading routine at 1366 ($0556) and the load routine
 used by `bin2tap.py` together require 14 bytes for stack operations, and so
@@ -247,7 +241,6 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
   may be a regular file, or '-' for standard input.
 
   Options:
-    -a, --no-asm-dirs     Do not write ASM directives
     -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
                           instruction operands and DEFB/DEFM/DEFS/DEFW statements
     -E ADDR, --end ADDR   Stop converting at this address
@@ -257,6 +250,7 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
                           Start converting at this address
     -V, --version         Show SkoolKit version number and exit
     -w X, --write X       Write only these elements, where X is one or more of:
+                            a = ASM directives
                             b = block types and addresses
                             t = block titles
                             d = block descriptions
@@ -269,29 +263,30 @@ If you need to preserve any elements that control files do not support (such as
 data definition entries and ASM block directives), consider using
 :ref:`skool2sft.py` to create a skool file template instead.
 
-+---------+---------------------------------------------------------------+
-| Version | Changes                                                       |
-+=========+===============================================================+
-| 5.1     | A terminal ``i`` directive is appended if the skool file ends |
-|         | before 65536                                                  |
-+---------+---------------------------------------------------------------+
-| 4.5     | Added the ``--start`` and ``--end`` options                   |
-+---------+---------------------------------------------------------------+
-| 4.4     | Added the ``--hex-lower`` option                              |
-+---------+---------------------------------------------------------------+
-| 3.7     | Added the ``--preserve-base`` option                          |
-+---------+---------------------------------------------------------------+
-| 3.4     | Added the ``-V`` option and the long options                  |
-+---------+---------------------------------------------------------------+
-| 2.4     | Added the ``-a`` option and the ability to preserve some ASM  |
-|         | directives                                                    |
-+---------+---------------------------------------------------------------+
-| 2.2.2   | Added the ability to read a skool file from standard input    |
-+---------+---------------------------------------------------------------+
-| 2.0.6   | Added the ``-h`` option                                       |
-+---------+---------------------------------------------------------------+
-| 1.1     | New                                                           |
-+---------+---------------------------------------------------------------+
++---------+----------------------------------------------------------------+
+| Version | Changes                                                        |
++=========+================================================================+
+| 6.0     | Added support for the 'a' identifier in the ``--write`` option |
++---------+----------------------------------------------------------------+
+| 5.1     | A terminal ``i`` directive is appended if the skool file ends  |
+|         | before 65536                                                   |
++---------+----------------------------------------------------------------+
+| 4.5     | Added the ``--start`` and ``--end`` options                    |
++---------+----------------------------------------------------------------+
+| 4.4     | Added the ``--hex-lower`` option                               |
++---------+----------------------------------------------------------------+
+| 3.7     | Added the ``--preserve-base`` option                           |
++---------+----------------------------------------------------------------+
+| 3.4     | Added the ``-V`` option and the long options                   |
++---------+----------------------------------------------------------------+
+| 2.4     | Added the ability to preserve some ASM directives              |
++---------+----------------------------------------------------------------+
+| 2.2.2   | Added the ability to read a skool file from standard input     |
++---------+----------------------------------------------------------------+
+| 2.0.6   | Added the ``-h`` option                                        |
++---------+----------------------------------------------------------------+
+| 1.1     | New                                                            |
++---------+----------------------------------------------------------------+
 
 .. _skool2html.py:
 
@@ -347,7 +342,7 @@ list::
     -o, --rebuild-images  Overwrite existing image files
     -p, --package-dir     Show path to skoolkit package directory and exit
     -P PAGES, --pages PAGES
-                          Write only these custom pages (when using '--write P');
+                          Write only these pages (when using '--write P');
                           PAGES is a comma-separated list of page IDs
     -q, --quiet           Be quiet
     -r PREFIX, --ref-sections PREFIX
@@ -364,21 +359,12 @@ list::
     -u, --upper           Write the disassembly in upper case
     -V, --version         Show SkoolKit version number and exit
     -w X, --write X       Write only these files, where X is one or more of:
-                            B = Graphic glitches    o = Other code
-                            b = Bugs                P = Custom pages
-                            c = Changelog           p = Pokes
-                            d = Disassembly files   t = Trivia
-                            i = Disassembly index   y = Glossary
+                            d = Disassembly files   o = Other code
+                            i = Disassembly index   P = Other pages
                             m = Memory maps
     -W CLASS, --writer CLASS
                           Specify the HTML writer class to use; shorthand for
                           '--config Config/HtmlWriterClass=CLASS'
-
-.. note::
-   The 'B', 'b', 'c', 'p', 't' and 'y' file identifiers in the ``--write``
-   option are deprecated since version 5.4. To specify the Graphic glitches,
-   Bugs, Changelog, Pokes, Trivia or Glossary page, use the ``-P/--pages``
-   option with ``--write P``.
 
 `skool2html.py` searches the following directories for skool files, ref files,
 CSS files, JavaScript files, font files, and files listed in the
@@ -520,6 +506,9 @@ To list the options supported by `sna2img.py`, run it with no arguments::
   INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.
 
   Options:
+    -e MACRO, --expand MACRO
+                          Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The '#'
+                          prefix may be omitted.
     -f N, --flip N        Flip the image horizontally (N=1), vertically (N=2),
                           or both (N=3).
     -i, --invert          Invert video for cells that are flashing.
@@ -536,11 +525,13 @@ To list the options supported by `sna2img.py`, run it with no arguments::
     -S WxH, --size WxH    Crop to this width and height (in tiles).
     -V, --version         Show SkoolKit version number and exit.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.4     | New     |
-+---------+---------+
++---------+-------------------------------+
+| Version | Changes                       |
++=========+===============================+
+| 6.0     | Added the ``--expand`` option |
++---------+-------------------------------+
+| 5.4     | New                           |
++---------+-------------------------------+
 
 .. _sna2skool.py:
 
@@ -558,13 +549,14 @@ Now `game.skool` can be converted into a browsable HTML disassembly using
 `sna2skool.py` supports several options; run it with no arguments to see a
 list::
 
-  usage: sna2skool.py [options] file
+  usage: sna2skool.py [options] FILE
 
   Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool
-  file.
+  file. FILE may be a regular file, or '-' for standard input.
 
   Options:
-    -c FILE, --ctl FILE   Use FILE as the control file
+    -c FILE, --ctl FILE   Use FILE as the control file (may be '-' for standard
+                          input)
     -e ADDR, --end ADDR   Stop disassembling at this address (default=65536)
     -g FILE, --generate-ctl FILE
                           Generate a control file in FILE
@@ -591,7 +583,8 @@ list::
     -s ADDR, --start ADDR
                           Start disassembling at this address (default=16384)
     -t, --text            Show ASCII text in the comment fields
-    -T FILE, --sft FILE   Use FILE as the skool file template
+    -T FILE, --sft FILE   Use FILE as the skool file template (may be '-' for
+                          standard input)
     -V, --version         Show SkoolKit version number and exit
     -w W, --line-width W  Set the maximum line width of the skool file (default:
                           79)
@@ -671,30 +664,40 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
 
   Options:
     -b, --basic           List the BASIC program
-    -f A[,B...[-N]], --find A[,B...[-N]]
-                          Search for the byte sequence A,B... with distance N
-                          (default=1) between bytes
+    -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
+                          Search for the byte sequence A,B... with distance
+                          ranging from M to N (default=1) between bytes
     -p A[-B[-C]], --peek A[-B[-C]]
                           Show the contents of addresses A TO B STEP C; this
                           option may be used multiple times
     -t TEXT, --find-text TEXT
                           Search for a text string
+    -T X,Y[-M[-N]], --find-tile X,Y[-M[-N]]
+                          Search for the graphic data of the tile at (X,Y) with
+                          distance ranging from M to N (default=1) between bytes
     -v, --variables       List variables
     -V, --version         Show SkoolKit version number and exit
+    -w A[-B[-C]], --word A[-B[-C]]
+                          Show the words at addresses A TO B STEP C; this option
+                          may be used multiple times
 
 With no options, `snapinfo.py` displays register values, the interrupt mode,
 and the border colour. By using one of the options shown above, it can list
 the BASIC program and variables (if present), show the contents of a range of
 addresses, or search the RAM for a sequence of byte values or a text string.
 
-+---------+---------------------------------------------------------------+
-| Version | Changes                                                       |
-+=========+===============================================================+
-| 5.4     | Added the ``--variables`` option; UDGs in a BASIC program are |
-|         | shown as special symbols (e.g. ``{UDG-A}``)                   |
-+---------+---------------------------------------------------------------+
-| 5.3     | New                                                           |
-+---------+---------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.0     | Added support to the ``--find`` option for distance ranges; added |
+|         | the ``--find-tile`` and ``--word`` options; the ``--peek`` option |
+|         | shows UDGs and BASIC tokens                                       |
++---------+-------------------------------------------------------------------+
+| 5.4     | Added the ``--variables`` option; UDGs in a BASIC program are     |
+|         | shown as special symbols (e.g. ``{UDG-A}``)                       |
++---------+-------------------------------------------------------------------+
+| 5.3     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _snapmod.py:
 
@@ -849,10 +852,15 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
     -b IDs, --tzx-blocks IDs
                           Show TZX blocks with these IDs only; 'IDs' is a comma-
                           separated list of hexadecimal block IDs, e.g. 10,11,2a
+    -B N[,A], --basic N[,A]
+                          List the BASIC program in block N loaded at address A
+                          (default 23755)
     -V, --version         Show SkoolKit version number and exit
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.0     | New     |
-+---------+---------+
++---------+------------------------------+
+| Version | Changes                      |
++=========+==============================+
+| 6.0     | Added the ``--basic`` option |
++---------+------------------------------+
+| 5.0     | New                          |
++---------+------------------------------+

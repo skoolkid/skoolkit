@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>HTML templates &mdash; SkoolKit 5.4 documentation</title>
+    <title>HTML templates &mdash; SkoolKit 6.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.4',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 6.0 documentation" href="index.html" />
     <link rel="next" title="ASM modes and directives" href="asm.html" />
     <link rel="prev" title="Ref files" href="ref-files.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 6.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -59,8 +59,6 @@
 <li><a class="reference internal" href="#asm-entry">asm_entry</a></li>
 <li><a class="reference internal" href="#asm-instruction">asm_instruction</a></li>
 <li><a class="reference internal" href="#asm-register">asm_register</a></li>
-<li><a class="reference internal" href="#changelog-entry">changelog_entry</a></li>
-<li><a class="reference internal" href="#changelog-item-list">changelog_item_list</a></li>
 <li><a class="reference internal" href="#contents-list-item">contents_list_item</a></li>
 <li><a class="reference internal" href="#footer">footer</a></li>
 <li><a class="reference internal" href="#img">img</a></li>
@@ -69,7 +67,9 @@
 <li><a class="reference internal" href="#javascript">javascript</a></li>
 <li><a class="reference internal" href="#link">link</a></li>
 <li><a class="reference internal" href="#list">list</a></li>
+<li><a class="reference internal" href="#list-entry">list_entry</a></li>
 <li><a class="reference internal" href="#list-item">list_item</a></li>
+<li><a class="reference internal" href="#list-items">list_items</a></li>
 <li><a class="reference internal" href="#map-entry">map_entry</a></li>
 <li><a class="reference internal" href="#paragraph">paragraph</a></li>
 <li><a class="reference internal" href="#reference-entry">reference_entry</a></li>
@@ -258,7 +258,7 @@ subtemplate</li>
 <div class="section" id="page">
 <span id="t-page"></span><h2>Page<a class="headerlink" href="#page" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">Page</span></tt> template is the full-page template that is used to build custom
-non-box pages defined by <a class="reference internal" href="ref-files.html#page"><em>[Page:*]</em></a> and <a class="reference internal" href="ref-files.html#pagecontent"><em>[PageContent:*]</em></a> sections.</p>
+non-box pages defined by <a class="reference internal" href="ref-files.html#page"><em>[Page:*]</em></a> sections.</p>
 <p>The following identifier is available (in addition to the universal and
 page-level identifiers):</p>
 <ul class="simple">
@@ -277,9 +277,9 @@ corresponding <a class="reference internal" href="ref-files.html#page"><em>[Page
 <p>The following identifiers are available (in addition to the universal and
 page-level identifiers):</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">entries</span></tt> - replaced by one or more copies of the <a class="reference internal" href="#t-changelog-entry"><em>changelog_entry</em></a>
-subtemplate (when the page&#8217;s <tt class="docutils literal"><span class="pre">SectionType</span></tt> is <tt class="docutils literal"><span class="pre">ListItems</span></tt>), or the
-<a class="reference internal" href="#t-reference-entry"><em>reference_entry</em></a> subtemplate</li>
+<li><tt class="docutils literal"><span class="pre">entries</span></tt> - replaced by one or more copies of the <a class="reference internal" href="#t-list-entry"><em>list_entry</em></a>
+subtemplate (when the page&#8217;s <tt class="docutils literal"><span class="pre">SectionType</span></tt> is <tt class="docutils literal"><span class="pre">BulletPoints</span></tt> or
+<tt class="docutils literal"><span class="pre">ListItems</span></tt>), or the <a class="reference internal" href="#t-reference-entry"><em>reference_entry</em></a> subtemplate</li>
 <li><tt class="docutils literal"><span class="pre">m_contents_list_item</span></tt> - replaced by one or more copies of the
 <a class="reference internal" href="#t-contents-list-item"><em>contents_list_item</em></a> subtemplate</li>
 </ul>
@@ -396,49 +396,6 @@ map entry (see <a class="reference internal" href="#t-asm"><em>Asm</em></a>)</li
 </pre></div>
 </div>
 </div>
-<div class="section" id="changelog-entry">
-<span id="t-changelog-entry"></span><h2>changelog_entry<a class="headerlink" href="#changelog-entry" title="Permalink to this headline">¶</a></h2>
-<p>The <tt class="docutils literal"><span class="pre">changelog_entry</span></tt> is the subtemplate used by the <a class="reference internal" href="#t-reference"><em>Reference</em></a>
-full-page template to format each entry on a <a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a> whose
-<tt class="docutils literal"><span class="pre">SectionType</span></tt> is <tt class="docutils literal"><span class="pre">ListItems</span></tt>.</p>
-<p>The following identifiers are available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">description</span></tt> - the entry intro text</li>
-<li><tt class="docutils literal"><span class="pre">num</span></tt> - &#8216;1&#8217; or &#8216;2&#8217;, depending on the order of the entry on the page</li>
-<li><tt class="docutils literal"><span class="pre">t_anchor</span></tt> - replaced by a copy of the <a class="reference internal" href="#t-anchor"><em>anchor</em></a> subtemplate (with
-the entry title as the anchor name)</li>
-<li><tt class="docutils literal"><span class="pre">t_changelog_item_list</span></tt> - replaced by a copy of the
-<a class="reference internal" href="#t-changelog-item-list"><em>changelog_item_list</em></a> subtemplate</li>
-<li><tt class="docutils literal"><span class="pre">title</span></tt> - the entry title</li>
-</ul>
-<p>To see the default <tt class="docutils literal"><span class="pre">changelog_entry</span></tt> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:changelog_entry
-</pre></div>
-</div>
-</div>
-<div class="section" id="changelog-item-list">
-<span id="t-changelog-item-list"></span><h2>changelog_item_list<a class="headerlink" href="#changelog-item-list" title="Permalink to this headline">¶</a></h2>
-<p>The <tt class="docutils literal"><span class="pre">changelog_item_list</span></tt> template is the subtemplate used by the
-<a class="reference internal" href="#t-changelog-entry"><em>changelog_entry</em></a> subtemplate to format a list of items in an entry on a
-<a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a> whose <tt class="docutils literal"><span class="pre">SectionType</span></tt> is <tt class="docutils literal"><span class="pre">ListItems</span></tt>, and also by
-the <a class="reference internal" href="#t-list-item"><em>list_item</em></a> subtemplate to format a list of subitems or subsubitems
-etc.</p>
-<p>The following identifiers are available (in addition to the universal
-identifiers):</p>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">indent</span></tt> - the indentation level of the item list: &#8216;&#8217; (blank string) for
-the list of top-level items, &#8216;1&#8217; for a list of subitems, &#8216;2&#8217; for a list of
-subsubitems etc.</li>
-<li><tt class="docutils literal"><span class="pre">m_changelog_item</span></tt> - replaced by one or more copies of the
-<a class="reference internal" href="#t-list-item"><em>list_item</em></a> subtemplate</li>
-</ul>
-<p>To see the default <tt class="docutils literal"><span class="pre">changelog_item_list</span></tt> template, run the following
-command:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:changelog_item_list
-</pre></div>
-</div>
-</div>
 <div class="section" id="contents-list-item">
 <span id="t-contents-list-item"></span><h2>contents_list_item<a class="headerlink" href="#contents-list-item" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">contents_list_item</span></tt> template is the subtemplate used by the
@@ -536,8 +493,8 @@ identifiers):</p>
 <div class="section" id="link">
 <span id="t-link"></span><h2>link<a class="headerlink" href="#link" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">link</span></tt> template is the subtemplate used to format the hyperlinks created
-by the <a class="reference internal" href="skool-macros.html#bug"><em>#BUG</em></a>, <a class="reference internal" href="skool-macros.html#fact"><em>#FACT</em></a>, <a class="reference internal" href="skool-macros.html#poke"><em>#POKE</em></a>, <a class="reference internal" href="skool-macros.html#link"><em>#LINK</em></a> and <a class="reference internal" href="skool-macros.html#r"><em>#R</em></a> macros,
-and the hyperlinks in instruction operands on disassembly pages.</p>
+by the <a class="reference internal" href="skool-macros.html#link"><em>#LINK</em></a> and <a class="reference internal" href="skool-macros.html#r"><em>#R</em></a> macros, and the hyperlinks in instruction
+operands on disassembly pages.</p>
 <p>The following identifiers are available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
@@ -567,22 +524,73 @@ subtemplate</li>
 <p><span class="versionmodified">New in version 4.2.</span></p>
 </div>
 </div>
+<div class="section" id="list-entry">
+<span id="t-list-entry"></span><h2>list_entry<a class="headerlink" href="#list-entry" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">list_entry</span></tt> is the subtemplate used by the <a class="reference internal" href="#t-reference"><em>Reference</em></a> full-page
+template to format each entry on a <a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a> whose
+<tt class="docutils literal"><span class="pre">SectionType</span></tt> is <tt class="docutils literal"><span class="pre">BulletPoints</span></tt> or <tt class="docutils literal"><span class="pre">ListItems</span></tt>.</p>
+<p>The following identifiers are available (in addition to the universal
+identifiers):</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">description</span></tt> - the entry intro text</li>
+<li><tt class="docutils literal"><span class="pre">num</span></tt> - &#8216;1&#8217; or &#8216;2&#8217;, depending on the order of the entry on the page</li>
+<li><tt class="docutils literal"><span class="pre">t_anchor</span></tt> - replaced by a copy of the <a class="reference internal" href="#t-anchor"><em>anchor</em></a> subtemplate (with
+the entry title as the anchor name)</li>
+<li><tt class="docutils literal"><span class="pre">t_list_items</span></tt> - replaced by a copy of the <a class="reference internal" href="#t-list-items"><em>list_items</em></a> subtemplate</li>
+<li><tt class="docutils literal"><span class="pre">title</span></tt> - the entry title</li>
+</ul>
+<p>To see the default <tt class="docutils literal"><span class="pre">list_entry</span></tt> template, run the following command:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:list_entry
+</pre></div>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 6.0: </span>The name of this template changed from <tt class="docutils literal"><span class="pre">changelog_entry</span></tt> to
+<tt class="docutils literal"><span class="pre">list_entry</span></tt>; accordingly, the name of the <tt class="docutils literal"><span class="pre">t_changelog_item_list</span></tt>
+identifier changed to <tt class="docutils literal"><span class="pre">t_list_items</span></tt>.</p>
+</div>
+</div>
 <div class="section" id="list-item">
 <span id="t-list-item"></span><h2>list_item<a class="headerlink" href="#list-item" title="Permalink to this headline">¶</a></h2>
 <p>The <tt class="docutils literal"><span class="pre">list_item</span></tt> template is the subtemplate used by the <a class="reference internal" href="#t-list"><em>list</em></a>
-template and the <a class="reference internal" href="#t-changelog-item-list"><em>changelog_item_list</em></a> subtemplate to format each item
-in the list.</p>
+template and the <a class="reference internal" href="#t-list-items"><em>list_items</em></a> subtemplate to format each item in the
+list.</p>
 <p>The following identifier is available (in addition to the universal
 identifiers):</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">item</span></tt> - replaced by the text of the list item</li>
 </ul>
 <p>To see the default <tt class="docutils literal"><span class="pre">list_item</span></tt> template, run the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:list_item
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:list_item$
 </pre></div>
 </div>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 4.2.</span></p>
+</div>
+</div>
+<div class="section" id="list-items">
+<span id="t-list-items"></span><h2>list_items<a class="headerlink" href="#list-items" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">list_items</span></tt> template is the subtemplate used by the <a class="reference internal" href="#t-list-entry"><em>list_entry</em></a>
+subtemplate to format a list of items in an entry on a
+<a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a> whose <tt class="docutils literal"><span class="pre">SectionType</span></tt> is <tt class="docutils literal"><span class="pre">BulletPoints</span></tt> or
+<tt class="docutils literal"><span class="pre">ListItems</span></tt>, and also by the <a class="reference internal" href="#t-list-item"><em>list_item</em></a> subtemplate to format a list
+of subitems or subsubitems etc.</p>
+<p>The following identifiers are available (in addition to the universal
+identifiers):</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">indent</span></tt> - the indentation level of the item list: &#8216;&#8217; (blank string) for
+the list of top-level items, &#8216;1&#8217; for a list of subitems, &#8216;2&#8217; for a list of
+subsubitems etc.</li>
+<li><tt class="docutils literal"><span class="pre">m_list_item</span></tt> - replaced by one or more copies of the <a class="reference internal" href="#t-list-item"><em>list_item</em></a>
+subtemplate</li>
+</ul>
+<p>To see the default <tt class="docutils literal"><span class="pre">list_items</span></tt> template, run the following command:</p>
+<div class="highlight-none"><div class="highlight"><pre>$ skool2html.py -r Template:list_items
+</pre></div>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 6.0: </span>The name of this template changed from <tt class="docutils literal"><span class="pre">changelog_item_list</span></tt> to
+<tt class="docutils literal"><span class="pre">list_items</span></tt>; accordingly, the name of the <tt class="docutils literal"><span class="pre">m_changelog_item</span></tt>
+identifier changed to <tt class="docutils literal"><span class="pre">m_list_item</span></tt>.</p>
 </div>
 </div>
 <div class="section" id="map-entry">
@@ -856,12 +864,12 @@ entry (paragraphs)</td>
 <tr class="row-odd"><td><a class="reference internal" href="ref-files.html#boxpages"><em>Box page</em></a>
 entry (list items)</td>
 <td><tt class="docutils literal"><span class="pre">PageID-entry</span></tt></td>
-<td><a class="reference internal" href="#t-changelog-entry"><em>changelog_entry</em></a></td>
+<td><a class="reference internal" href="#t-list-entry"><em>list_entry</em></a></td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="ref-files.html#boxpages"><em>Box page</em></a>
-entry  list</td>
+entry list</td>
 <td><tt class="docutils literal"><span class="pre">PageID-item_list</span></tt></td>
-<td><a class="reference internal" href="#t-changelog-item-list"><em>changelog_item_list</em></a></td>
+<td><a class="reference internal" href="#t-list-items"><em>list_items</em></a></td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="ref-files.html#boxpages"><em>Box page</em></a>
 entry list item</td>
@@ -965,7 +973,7 @@ on the type of code or data block.</p>
         <li class="right" >
           <a href="ref-files.html" title="Ref files"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 6.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

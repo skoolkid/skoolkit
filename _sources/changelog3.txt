@@ -79,8 +79,8 @@ SkoolKit 3.x changelog
   :ref:`ref-Colours` section of the ref file
 * Added support to the :ref:`set` ASM directive for the
   `handle-unsupported-macros` and `wrap-column-width-min` properties
-* Fixed the :ref:`EREFS` and :ref:`m-REFS` macros so that they work with
-  hexadecimal address parameters
+* Fixed the ``#EREFS`` and ``#REFS`` macros so that they work with hexadecimal
+  address parameters
 * Fixed the bug that crashes :ref:`sna2skool.py` when generating a control file
   from a code execution map and a snapshot with a code block that terminates at
   65535
@@ -200,7 +200,7 @@ SkoolKit 3.x changelog
   producing ASM output)
 * Added the :ref:`CHR` macro (for rendering arbitrary unicode characters);
   removed support for the redundant ``#C`` macro accordingly
-* Added support for the :ref:`CALL`, :ref:`m-REFS`, :ref:`EREFS`, :ref:`PUSHS`,
+* Added support for the :ref:`CALL`, ``#REFS``, ``#EREFS``, :ref:`PUSHS`,
   :ref:`POKES` and :ref:`POPS` macros in ASM mode
 * Added the ``-c`` option to :ref:`skool2html.py` (to simulate adding lines to
   the ref file)

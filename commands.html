@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Commands &mdash; SkoolKit 5.4 documentation</title>
+    <title>Commands &mdash; SkoolKit 6.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.4',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 6.0 documentation" href="index.html" />
     <link rel="next" title="Supported assemblers" href="assemblers.html" />
     <link rel="prev" title="Disassembly DIY" href="diy.html" /> 
   </head>
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 6.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -179,15 +179,8 @@ Options:
   -S FILE, --screen FILE
                         Add a loading screen to the TAP file; FILE may be a
                         snapshot or a 6912-byte SCR file
-  -t TAPFILE, --tapfile TAPFILE
-                        Set the TAP filename
   -V, --version         Show SkoolKit version number and exit
 </pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <tt class="docutils literal"><span class="pre">-t/--tapfile</span></tt> option is deprecated since version 5.2. Use the second
-positional argument to specify the TAP filename.</p>
 </div>
 <p>Note that the ROM tape loading routine at 1366 ($0556) and the load routine
 used by <cite>bin2tap.py</cite> together require 14 bytes for stack operations, and so
@@ -385,7 +378,6 @@ Convert a skool file into a control file and write it to standard output. FILE
 may be a regular file, or &#39;-&#39; for standard input.
 
 Options:
-  -a, --no-asm-dirs     Do not write ASM directives
   -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
                         instruction operands and DEFB/DEFM/DEFS/DEFW statements
   -E ADDR, --end ADDR   Stop converting at this address
@@ -395,6 +387,7 @@ Options:
                         Start converting at this address
   -V, --version         Show SkoolKit version number and exit
   -w X, --write X       Write only these elements, where X is one or more of:
+                          a = ASM directives
                           b = block types and addresses
                           t = block titles
                           d = block descriptions
@@ -409,7 +402,7 @@ data definition entries and ASM block directives), consider using
 <a class="reference internal" href="#skool2sft-py"><em>skool2sft.py</em></a> to create a skool file template instead.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="13%" />
+<col width="12%" />
 <col width="88%" />
 </colgroup>
 <thead valign="bottom">
@@ -418,33 +411,35 @@ data definition entries and ASM block directives), consider using
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.1</td>
+<tr class="row-even"><td>6.0</td>
+<td>Added support for the &#8216;a&#8217; identifier in the <tt class="docutils literal"><span class="pre">--write</span></tt> option</td>
+</tr>
+<tr class="row-odd"><td>5.1</td>
 <td>A terminal <tt class="docutils literal"><span class="pre">i</span></tt> directive is appended if the skool file ends
 before 65536</td>
 </tr>
-<tr class="row-odd"><td>4.5</td>
+<tr class="row-even"><td>4.5</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--start</span></tt> and <tt class="docutils literal"><span class="pre">--end</span></tt> options</td>
 </tr>
-<tr class="row-even"><td>4.4</td>
+<tr class="row-odd"><td>4.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--hex-lower</span></tt> option</td>
 </tr>
-<tr class="row-odd"><td>3.7</td>
+<tr class="row-even"><td>3.7</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--preserve-base</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>3.4</td>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-V</span></tt> option and the long options</td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
-<td>Added the <tt class="docutils literal"><span class="pre">-a</span></tt> option and the ability to preserve some ASM
-directives</td>
+<tr class="row-even"><td>2.4</td>
+<td>Added the ability to preserve some ASM directives</td>
 </tr>
-<tr class="row-even"><td>2.2.2</td>
+<tr class="row-odd"><td>2.2.2</td>
 <td>Added the ability to read a skool file from standard input</td>
 </tr>
-<tr class="row-odd"><td>2.0.6</td>
+<tr class="row-even"><td>2.0.6</td>
 <td>Added the <tt class="docutils literal"><span class="pre">-h</span></tt> option</td>
 </tr>
-<tr class="row-even"><td>1.1</td>
+<tr class="row-odd"><td>1.1</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -497,7 +492,7 @@ Options:
   -o, --rebuild-images  Overwrite existing image files
   -p, --package-dir     Show path to skoolkit package directory and exit
   -P PAGES, --pages PAGES
-                        Write only these custom pages (when using &#39;--write P&#39;);
+                        Write only these pages (when using &#39;--write P&#39;);
                         PAGES is a comma-separated list of page IDs
   -q, --quiet           Be quiet
   -r PREFIX, --ref-sections PREFIX
@@ -514,23 +509,13 @@ Options:
   -u, --upper           Write the disassembly in upper case
   -V, --version         Show SkoolKit version number and exit
   -w X, --write X       Write only these files, where X is one or more of:
-                          B = Graphic glitches    o = Other code
-                          b = Bugs                P = Custom pages
-                          c = Changelog           p = Pokes
-                          d = Disassembly files   t = Trivia
-                          i = Disassembly index   y = Glossary
+                          d = Disassembly files   o = Other code
+                          i = Disassembly index   P = Other pages
                           m = Memory maps
   -W CLASS, --writer CLASS
                         Specify the HTML writer class to use; shorthand for
                         &#39;--config Config/HtmlWriterClass=CLASS&#39;
 </pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The &#8216;B&#8217;, &#8216;b&#8217;, &#8216;c&#8217;, &#8216;p&#8217;, &#8216;t&#8217; and &#8216;y&#8217; file identifiers in the <tt class="docutils literal"><span class="pre">--write</span></tt>
-option are deprecated since version 5.4. To specify the Graphic glitches,
-Bugs, Changelog, Pokes, Trivia or Glossary page, use the <tt class="docutils literal"><span class="pre">-P/--pages</span></tt>
-option with <tt class="docutils literal"><span class="pre">--write</span> <span class="pre">P</span></tt>.</p>
 </div>
 <p><cite>skool2html.py</cite> searches the following directories for skool files, ref files,
 CSS files, JavaScript files, font files, and files listed in the
@@ -708,6 +693,9 @@ Convert a Spectrum screenshot (or a portion of it) into a PNG or GIF file.
 INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.
 
 Options:
+  -e MACRO, --expand MACRO
+                        Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The &#39;#&#39;
+                        prefix may be omitted.
   -f N, --flip N        Flip the image horizontally (N=1), vertically (N=2),
                         or both (N=3).
   -i, --invert          Invert video for cells that are flashing.
@@ -727,8 +715,8 @@ Options:
 </div>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="23%" />
+<col width="78%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -736,7 +724,10 @@ Options:
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.4</td>
+<tr class="row-even"><td>6.0</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--expand</span></tt> option</td>
+</tr>
+<tr class="row-odd"><td>5.4</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -754,13 +745,14 @@ snapshot into a skool file. For example:</p>
 <a class="reference internal" href="#skool2asm-py"><em>skool2asm.py</em></a>.</p>
 <p><cite>sna2skool.py</cite> supports several options; run it with no arguments to see a
 list:</p>
-<div class="highlight-none"><div class="highlight"><pre>usage: sna2skool.py [options] file
+<div class="highlight-none"><div class="highlight"><pre>usage: sna2skool.py [options] FILE
 
 Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool
-file.
+file. FILE may be a regular file, or &#39;-&#39; for standard input.
 
 Options:
-  -c FILE, --ctl FILE   Use FILE as the control file
+  -c FILE, --ctl FILE   Use FILE as the control file (may be &#39;-&#39; for standard
+                        input)
   -e ADDR, --end ADDR   Stop disassembling at this address (default=65536)
   -g FILE, --generate-ctl FILE
                         Generate a control file in FILE
@@ -787,7 +779,8 @@ Options:
   -s ADDR, --start ADDR
                         Start disassembling at this address (default=16384)
   -t, --text            Show ASCII text in the comment fields
-  -T FILE, --sft FILE   Use FILE as the skool file template
+  -T FILE, --sft FILE   Use FILE as the skool file template (may be &#39;-&#39; for
+                        standard input)
   -V, --version         Show SkoolKit version number and exit
   -w W, --line-width W  Set the maximum line width of the skool file (default:
                         79)
@@ -886,16 +879,22 @@ Analyse an SNA, SZX or Z80 snapshot.
 
 Options:
   -b, --basic           List the BASIC program
-  -f A[,B...[-N]], --find A[,B...[-N]]
-                        Search for the byte sequence A,B... with distance N
-                        (default=1) between bytes
+  -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
+                        Search for the byte sequence A,B... with distance
+                        ranging from M to N (default=1) between bytes
   -p A[-B[-C]], --peek A[-B[-C]]
                         Show the contents of addresses A TO B STEP C; this
                         option may be used multiple times
   -t TEXT, --find-text TEXT
                         Search for a text string
+  -T X,Y[-M[-N]], --find-tile X,Y[-M[-N]]
+                        Search for the graphic data of the tile at (X,Y) with
+                        distance ranging from M to N (default=1) between bytes
   -v, --variables       List variables
   -V, --version         Show SkoolKit version number and exit
+  -w A[-B[-C]], --word A[-B[-C]]
+                        Show the words at addresses A TO B STEP C; this option
+                        may be used multiple times
 </pre></div>
 </div>
 <p>With no options, <cite>snapinfo.py</cite> displays register values, the interrupt mode,
@@ -904,7 +903,7 @@ the BASIC program and variables (if present), show the contents of a range of
 addresses, or search the RAM for a sequence of byte values or a text string.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="13%" />
+<col width="12%" />
 <col width="88%" />
 </colgroup>
 <thead valign="bottom">
@@ -913,11 +912,16 @@ addresses, or search the RAM for a sequence of byte values or a text string.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.4</td>
+<tr class="row-even"><td>6.0</td>
+<td>Added support to the <tt class="docutils literal"><span class="pre">--find</span></tt> option for distance ranges; added
+the <tt class="docutils literal"><span class="pre">--find-tile</span></tt> and <tt class="docutils literal"><span class="pre">--word</span></tt> options; the <tt class="docutils literal"><span class="pre">--peek</span></tt> option
+shows UDGs and BASIC tokens</td>
+</tr>
+<tr class="row-odd"><td>5.4</td>
 <td>Added the <tt class="docutils literal"><span class="pre">--variables</span></tt> option; UDGs in a BASIC program are
 shown as special symbols (e.g. <tt class="docutils literal"><span class="pre">{UDG-A}</span></tt>)</td>
 </tr>
-<tr class="row-odd"><td>5.3</td>
+<tr class="row-even"><td>5.3</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1091,13 +1095,16 @@ Options:
   -b IDs, --tzx-blocks IDs
                         Show TZX blocks with these IDs only; &#39;IDs&#39; is a comma-
                         separated list of hexadecimal block IDs, e.g. 10,11,2a
+  -B N[,A], --basic N[,A]
+                        List the BASIC program in block N loaded at address A
+                        (default 23755)
   -V, --version         Show SkoolKit version number and exit
 </pre></div>
 </div>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="23%" />
+<col width="77%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -1105,7 +1112,10 @@ Options:
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.0</td>
+<tr class="row-even"><td>6.0</td>
+<td>Added the <tt class="docutils literal"><span class="pre">--basic</span></tt> option</td>
+</tr>
+<tr class="row-odd"><td>5.0</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1131,7 +1141,7 @@ Options:
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 6.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

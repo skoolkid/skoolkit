@@ -137,8 +137,7 @@ Recognised parameters are:
   page (default: '')
 * ``Created`` - the message indicating the software used to create the
   disassembly that appears in the footer of every page (default: 'Created using
-  SkoolKit $VERSION.'; the string ``$VERSION`` is replaced by the version
-  number of SkoolKit)
+  SkoolKit #VERSION.')
 * ``Font`` - the base name of the font file to use (default: None); multiple
   font files can be declared by separating their names with semicolons
 * ``Game`` - the name of the game, which appears in the title of every page,
@@ -177,17 +176,18 @@ Recognised parameters are:
   header of the main index page (default: 'The complete')
 * ``TitleSuffix`` - the suffix to use after the game name or logo in the header
   of the main index page (default: 'RAM disassembly')
-* ``UDGFilename`` - the format of the default filename for images created by
-  the :ref:`UDG` macro (default: ``udg{addr}_{attr}x{scale}``); this is a
-  standard Python format string that recognises the macro parameters ``addr``,
-  ``attr`` and ``scale``
+
+Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
 The ``AddressAnchor`` parameter contains a standard Python format string that
 specifies the format of the anchors attached to instructions on disassembly
 pages and entries on memory map pages. The default format string is
-``{address}``, which produces decimal addresses (e.g. ``#65280``); to produce
+``{address}``, which produces decimal addresses (e.g. ``#65280``). To produce
 4-digit, lower case hexadecimal addresses instead (e.g. ``#ff00``), change
-``AddressAnchor`` to ``{address:04x}``.
+``AddressAnchor`` to ``{address:04x}``. Or to produce 4-digit, lower case
+hexadecimal addresses if the ``--hex`` option is used with
+:ref:`skool2html.py`, and decimal addresses otherwise:
+``{address#IF({base}==16)(:04x)}``.
 
 Note that an address anchor that starts with an upper case letter (e.g.
 ``#FF00``) will be interpreted as a skool macro, and so any format string that
@@ -196,9 +196,10 @@ could produce such an anchor should be avoided.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 5.3     | Added the ``AsmSinglePageTemplate`` parameter                     |
+| 6.0     | Every parameter (not just ``Logo``) may contain                   |
+|         | :ref:`skool macros <skoolMacros>`                                 |
 +---------+-------------------------------------------------------------------+
-| 5.2     | Added the ``UDGFilename`` parameter                               |
+| 5.3     | Added the ``AsmSinglePageTemplate`` parameter                     |
 +---------+-------------------------------------------------------------------+
 | 4.3     | Added the ``AddressAnchor`` parameter                             |
 +---------+-------------------------------------------------------------------+
@@ -236,8 +237,8 @@ SkoolKit's image creation library. The parameters are in the format::
 
 Recognised parameters are:
 
-* ``DefaultAnimationFormat`` - the default format for animated images: ``png``
-  or ``gif``; if not specified, ``DefaultFormat`` is used
+* ``DefaultAnimationFormat`` - the default format for animated images: ``gif``
+  (the default) or ``png``
 * ``DefaultFormat`` - the default image format: ``png`` (the default) or
   ``gif``
 * ``GIFEnableAnimation`` - ``1`` to create animated GIFs for images that
@@ -275,6 +276,8 @@ browsers.
 +---------+--------------------------------------------------------------+
 | Version | Changes                                                      |
 +=========+==============================================================+
+| 6.0     | ``DefaultAnimationFormat`` defaults to ``gif``               |
++---------+--------------------------------------------------------------+
 | 5.1     | Added the ``DefaultAnimationFormat`` parameter               |
 +---------+--------------------------------------------------------------+
 | 3.0.1   | Added the ``DefaultFormat``, ``GIFEnableAnimation``,         |
@@ -371,9 +374,9 @@ Recognised page IDs are:
 The default link text for a page is the same as the header defined in the
 :ref:`pageHeaders` section, except where indicated above.
 
-The link text for a page defined by a :ref:`memoryMap`, :ref:`otherCode`,
-:ref:`page` or :ref:`pageContent` section also defaults to the page header
-text, but can be overridden in this section.
+The link text for a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
+:ref:`page` section also defaults to the page header text, but can be
+overridden in this section.
 
 If the link text starts with some text in square brackets, that text alone is
 used as the link text, and the remaining text is displayed alongside the
@@ -429,15 +432,16 @@ Recognised parameters and their default values are:
   * ``u`` - unused addresses
   * ``w`` - DEFW blocks
 
-* ``Intro`` - the text (which may contain HTML markup and
-  :ref:`skool macros <skoolMacros>`) displayed at the top of the memory map
-  page (default: '')
+* ``Intro`` - the text (which may contain HTML markup) displayed at the top of
+  the memory map page (default: '')
 * ``LengthColumn`` - ``1`` to display the 'Length' column, or ``0`` not to
   (default: ``0``)
 * ``PageByteColumns`` - ``1`` to display 'Page' and 'Byte' columns, or ``0``
   not to (default: ``0``)
 * ``Write`` - ``1`` to write the memory map page, or ``0`` not to (default:
   ``1``)
+
+Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
 To see the default memory map pages and their properties, run the following
 command::
@@ -457,6 +461,9 @@ name matches the page ID, if one exists; otherwise, the stock
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 6.0     | Every parameter (not just ``Intro``) may contain                 |
+|         | :ref:`skool macros <skoolMacros>`                                |
++---------+------------------------------------------------------------------+
 | 4.0     | Added the ``EntryDescriptions`` and ``LengthColumn`` parameters, |
 |         | and support for the ``G`` identifier in the ``EntryTypes``       |
 |         | parameter                                                        |
@@ -520,9 +527,8 @@ creating a :ref:`memoryMap` section (``MemoryMap:CodeID-Index``) for it.
 
 [Page:\*]
 ---------
-A ``Page:*`` section may be used to either declare a page that already exists,
-or define a custom page in the HTML disassembly (in conjunction with a
-corresponding :ref:`pageContent` section). The section name takes the form::
+A ``Page:*`` section either declares a page that already exists, or defines a
+custom page in the HTML disassembly. The section name takes the form::
 
   [Page:PageID]
 
@@ -542,17 +548,20 @@ Recognised parameters are:
   any declared by the ``JavaScript`` parameter in the :ref:`ref-Game` section
   (default: None); multiple JavaScript files can be declared by separating
   their names with semicolons
-* ``PageContent`` - the HTML source of the body of the page; this defaults to
-  the contents of the corresponding :ref:`pageContent` section, but may be
-  specified here if the source can be written on a single line
+* ``PageContent`` - the HTML source of the body of the page; the :ref:`INCLUDE`
+  macro may be used here to include the contents of a separate ref file section
 * ``SectionPrefix`` - the prefix of the names of the ref file sections from
   which to build the entries on a :ref:`box page <boxpages>`
 * ``SectionType`` - how to parse and render :ref:`box page <boxpages>` entry
-  sections (when ``SectionPrefix`` is defined): as list items with indentation
-  (``ListItems``), or as paragraphs (the default)
+  sections (when ``SectionPrefix`` is defined): as single-line list items with
+  indentation (``ListItems``), as multi-line list items prefixed by '-'
+  (``BulletPoints``), or as paragraphs (the default)
+
+Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
 Note that the ``Content``, ``SectionPrefix`` and ``PageContent`` parameters are
-mutually exclusive (and that is their order of precedence).
+mutually exclusive (and that is their order of precedence); one of them must be
+present.
 
 By default, the custom page is written to a file named `PageID.html` in the
 root directory of the disassembly; to change this, add a line to the
@@ -565,12 +574,13 @@ matches the page ID, if one exists; otherwise, either the :ref:`t_Reference`
 template is used (when ``SectionPrefix`` is defined), or the :ref:`t_Page`
 template is used.
 
-Note that a ``Page:*`` section may be empty; if so, it may be omitted from the
-ref file.
-
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 6.0     | Added support for ``SectionType=BulletPoints``; every parameter  |
+|         | (not just ``PageContent``) may contain                           |
+|         | :ref:`skool macros <skoolMacros>`                                |
++---------+------------------------------------------------------------------+
 | 5.4     | Added the ``SectionType`` parameter                              |
 +---------+------------------------------------------------------------------+
 | 5.3     | Added the ``SectionPrefix`` parameter                            |
@@ -580,32 +590,6 @@ ref file.
 +---------+------------------------------------------------------------------+
 | 2.1     | New                                                              |
 +---------+------------------------------------------------------------------+
-
-.. _pageContent:
-
-[PageContent:\*]
-----------------
-A ``PageContent:*`` section contains the HTML source of the body of a custom
-page (optionally defined in a :ref:`page` section). The section name takes the
-form::
-
-  [PageContent:PageID]
-
-where ``PageID`` is the unique ID of the page.
-
-The HTML source may contain :ref:`skool macros <skoolMacros>`.
-
-.. note::
-   The ``PageContent:*`` section is deprecated since version 5.4. Instead use
-   the ``PageContent`` parameter (in the :ref:`page` section) with an
-   :ref:`INCLUDE` macro to specify the ref file section that contains the page
-   content.
-
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 2.1     | New     |
-+---------+---------+
 
 .. _pageHeaders:
 
@@ -627,7 +611,7 @@ Recognised page IDs are:
 * ``Asm-c`` - disassembly pages for 'c' blocks (default: 'Routines')
 * ``Asm-g`` - disassembly pages for 'g' blocks (default: 'Game status buffer')
 * ``Asm-s`` - disassembly pages for 's' blocks (default: 'Unused')
-* ``Asm-t`` - disassembly pages for 't' blocks (default: 'Data')
+* ``Asm-t`` - disassembly pages for 't' blocks (default: 'Messages')
 * ``Asm-u`` - disassembly pages for 'u' blocks (default: 'Unused')
 * ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data')
 * ``AsmSinglePage`` - the disassembly page (when a single-page template is
@@ -646,24 +630,29 @@ Recognised page IDs are:
 * ``RoutinesMap`` - the 'Routines' memory map page
 * ``UnusedMap`` - the 'Unused addresses' memory map page
 
+Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
+
 The default header text for a page is the same as the title defined in the
 :ref:`titles` section, except where indicated above.
 
-The header text for a page defined by a :ref:`memoryMap`, :ref:`otherCode`,
-:ref:`page` or :ref:`pageContent` section also defaults to the title, but can
-be overridden in this section.
+The header text for a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
+:ref:`page` section also defaults to the title, but can be overridden in this
+section.
 
 Note that the header of the disassembly index page (``GameIndex``) is not
 defined in this section; it is composed from the values of the ``TitlePrefix``
 and ``TitleSuffix`` parameters in the :ref:`ref-Game` section.
 
-+---------+-------------------------------------+
-| Version | Changes                             |
-+=========+=====================================+
-| 5.3     | Added the ``AsmSinglePage`` page ID |
-+---------+-------------------------------------+
-| 4.0     | New                                 |
-+---------+-------------------------------------+
++---------+------------------------------------------------------------+
+| Version | Changes                                                    |
++=========+============================================================+
+| 6.0     | The default header for ``Asm-t`` pages is 'Messages'; page |
+|         | headers may contain :ref:`skool macros <skoolMacros>`      |
++---------+------------------------------------------------------------+
+| 5.3     | Added the ``AsmSinglePage`` page ID                        |
++---------+------------------------------------------------------------+
+| 4.0     | New                                                        |
++---------+------------------------------------------------------------+
 
 .. _paths:
 
@@ -703,6 +692,10 @@ Recognised file IDs and their default paths are:
 * ``Pokes`` - the 'Pokes' page (default: ``reference/pokes.html``)
 * ``RoutinesMap`` - the 'Routines' memory map page (default:
   ``maps/routines.html``)
+* ``UDGFilename`` - the format of the default filename for images created by
+  the :ref:`UDG` macro (default: ``udg{addr}_{attr}x{scale}``); this is a
+  standard Python format string that recognises the macro parameters ``addr``,
+  ``attr`` and ``scale``
 * ``UnusedMap`` - the 'Unused addresses' memory map page (default:
   ``maps/unused.html``)
 
@@ -726,16 +719,24 @@ Recognised directory IDs and their default paths are:
   :ref:`#UDG <UDG>` or :ref:`#UDGARRAY <UDGARRAY>` macro) are placed (default:
   ``images/udgs``)
 
+Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
+
 The ``CodeFiles`` parameter contains a standard Python format string that
 specifies the format of a disassembly page filename based on the address of the
 routine or data block. The default format string is ``{address}.html``, which
-produces decimal addresses (e.g. ``65280.html``); to produce 4-digit, upper
+produces decimal addresses (e.g. ``65280.html``). To produce 4-digit, upper
 case hexadecimal addresses instead (e.g. ``FF00.html``), change ``CodeFiles``
-to ``{address:04X}.html``.
+to ``{address:04X}.html``. Or to produce 4-digit, upper case hexadecimal
+addresses if the ``--hex`` option is used with :ref:`skool2html.py`, and
+decimal addresses otherwise: ``{address#IF({base}==16)(:04X)}.html``.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 6.0     | Paths may contain :ref:`skool macros <skoolMacros>`; added the    |
+|         | ``UDGFilename`` parameter (which used to live in the              |
+|         | :ref:`ref-Game` section)                                          |
++---------+-------------------------------------------------------------------+
 | 5.3     | Added the ``AsmSinglePage`` file ID                               |
 +---------+-------------------------------------------------------------------+
 | 4.3     | Added the ``CodeFiles`` file ID                                   |
@@ -822,7 +823,7 @@ Recognised page IDs and their default titles are:
 * ``Asm-g`` - disassembly pages for 'g' blocks (default: 'Game status buffer
   entry at')
 * ``Asm-s`` - disassembly pages for 's' blocks (default: 'Unused RAM at')
-* ``Asm-t`` - disassembly pages for 't' blocks (default: 'Data at')
+* ``Asm-t`` - disassembly pages for 't' blocks (default: 'Text at')
 * ``Asm-u`` - disassembly pages for 'u' blocks (default: 'Unused RAM at')
 * ``Asm-w`` - disassembly pages for 'w' blocks (default: 'Data at')
 * ``AsmSinglePage`` - the disassembly page (when a single-page template is
@@ -845,23 +846,28 @@ Recognised page IDs and their default titles are:
 * ``UnusedMap`` - the 'Unused addresses' memory map page (default: 'Unused
   addresses')
 
-The title of a page defined by a :ref:`memoryMap`, :ref:`otherCode`,
-:ref:`page` or :ref:`pageContent` section defaults to the page ID, but can be
-overridden in this section.
+Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
-+---------+-------------------------------------+
-| Version | Changes                             |
-+=========+=====================================+
-| 5.3     | Added the ``AsmSinglePage`` page ID |
-+---------+-------------------------------------+
-| 4.0     | Added the ``Asm-*`` page IDs        |
-+---------+-------------------------------------+
-| 2.5     | Added the ``UnusedMap`` page ID     |
-+---------+-------------------------------------+
-| 2.2.5   | Added the ``Changelog`` page ID     |
-+---------+-------------------------------------+
-| 2.0.5   | New                                 |
-+---------+-------------------------------------+
+The title of a page defined by a :ref:`memoryMap`, :ref:`otherCode` or
+:ref:`page` section defaults to the page ID, but can be overridden in this
+section.
+
++---------+----------------------------------------------------------------+
+| Version | Changes                                                        |
++=========+================================================================+
+| 6.0     | The default title for ``Asm-t`` pages is 'Text at'; titles may |
+|         | contain :ref:`skool macros <skoolMacros>`                      |
++---------+----------------------------------------------------------------+
+| 5.3     | Added the ``AsmSinglePage`` page ID                            |
++---------+----------------------------------------------------------------+
+| 4.0     | Added the ``Asm-*`` page IDs                                   |
++---------+----------------------------------------------------------------+
+| 2.5     | Added the ``UnusedMap`` page ID                                |
++---------+----------------------------------------------------------------+
+| 2.2.5   | Added the ``Changelog`` page ID                                |
++---------+----------------------------------------------------------------+
+| 2.0.5   | New                                                            |
++---------+----------------------------------------------------------------+
 
 .. _boxpages:
 
@@ -893,7 +899,7 @@ If ``anchor`` is omitted from an entry section name, it defaults to the title
 converted to lower case with parentheses and whitespace characters replaced by
 underscores.
 
-By default, a box page entry section will be parsed as a sequence of paragraphs
+By default, a box page entry section is parsed as a sequence of paragraphs
 separated by blank lines. For example::
 
   [Bug:anchor:title]
@@ -904,8 +910,8 @@ separated by blank lines. For example::
   ...
 
 However, if the ``SectionType`` parameter in the :ref:`Page` section is set to
-``ListItems``, each entry section will be parsed as a sequence of list items
-with indentation. For example::
+``ListItems``, each entry section is parsed as a sequence of single-line list
+items with indentation. For example::
 
   [Changelog:title]
   Intro text.
@@ -920,16 +926,42 @@ with indentation. For example::
 
 The intro text and the first top-level item must be separated by a blank line.
 Lower-level items are created by using indentation, as shown. Blank lines
-between items are optional and will be ignored. If the intro text is a single
-hyphen (``-``), it will not be included in the final HTML rendering.
+between items are optional and are ignored. If the intro text is a single
+hyphen (``-``), it is not included in the final HTML rendering.
 
-Entry sections may contain HTML markup and :ref:`skool macros <skoolMacros>`.
+If your list items are long, you might prefer to set the ``SectionType``
+parameter to ``BulletPoints``; in that case, each entry section is parsed as a
+sequence of multi-line list items prefixed by '-'. For example::
 
-+---------+----------------------------------------------------------+
-| Version | Changes                                                  |
-+=========+==========================================================+
-| 5.4     | The ``anchor`` part of an entry section name is optional |
-+---------+----------------------------------------------------------+
+  [Changes:title]
+  Intro text.
+
+  - First top-level item,
+    split over two lines.
+    - First subitem, also
+      split over two lines.
+    - Second subitem, on one line this time.
+      - First subsubitem,
+        this time split
+        over three lines.
+
+  - Second top-level item.
+  ...
+
+An entry section's ``anchor``, ``title`` and contents may contain HTML markup
+and :ref:`skool macros <skoolMacros>`.
+
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 6.0     | Added support for parsing an entry section as a sequence of     |
+|         | multi-line list items prefixed by '-'                           |
+|         | (``SectionType=BulletPoints``); the ``anchor`` and ``title`` of |
+|         | an entry section name may contain                               |
+|         | :ref:`skool macros <skoolMacros>`                               |
++---------+-----------------------------------------------------------------+
+| 5.4     | The ``anchor`` part of an entry section name is optional        |
++---------+-----------------------------------------------------------------+
 
 Ref file comments
 -----------------

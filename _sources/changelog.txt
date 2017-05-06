@@ -1,6 +1,42 @@
 Changelog
 =========
 
+6.0 (2017-05-06)
+----------------
+* Dropped support for Python 2.7 and 3.3
+* Added the ``--expand`` option to :ref:`sna2img.py` (for expanding a
+  :ref:`FONT`, :ref:`SCR`, :ref:`UDG` or :ref:`UDGARRAY` macro)
+* Added the ``--basic`` option to :ref:`tapinfo.py` (for listing the BASIC
+  program in a tape block)
+* Added the ``--find-tile`` option to :ref:`snapinfo.py` (for searching for the
+  graphic data of a tile currently on screen)
+* Added the ``--word`` option to :ref:`snapinfo.py` (for showing the words at a
+  range of addresses)
+* Added support to the ``--find`` option of :ref:`snapinfo.py` for specifying a
+  range of distances between byte values (e.g. ``--find 1,2,3-1-10``)
+* The ``--peek`` option of :ref:`snapinfo.py` now shows UDGs and BASIC tokens
+* Added support for replacement fields (such as ``{base}`` and ``{case}``) in
+  the ``expr`` parameter of the :ref:`IF` macro and the ``key`` parameter of
+  the :ref:`MAP` macro
+* Added support for parsing a :ref:`box page <boxpages>` entry section as a
+  sequence of multi-line list items prefixed by '-' (with
+  ``SectionType=BulletPoints``)
+* The following ref file components may now contain skool macros: the
+  ``anchor`` and ``title`` of a :ref:`box page <boxpages>` entry section name;
+  every parameter in the :ref:`ref-Game`, :ref:`memoryMap`, :ref:`page`,
+  :ref:`pageHeaders`, :ref:`paths` and :ref:`titles` sections
+* The :ref:`replace` directive now acts on ref file section names as well as
+  their contents
+* The :ref:`EVAL` macro now renders hexadecimal values in lower case when the
+  ``--lower`` option of :ref:`skool2asm.py` or :ref:`skool2html.py` is used
+* Added the :ref:`VERSION` macro (which expands to the version of SkoolKit)
+* Fixed how an image is cropped when the crop rectangle is very narrow
+* Fixed how a masked image with flashing cells is built
+* Fixed how :ref:`sna2skool.py` handles a snapshot that contains a dangling
+  IX/IY prefix (DD/FD) when generating a control file
+* Fixed the bug that prevents the expansion of skool macros in a page's link
+  text on the disassembly home page
+
 5.4 (2017-01-08)
 ----------------
 * Added the :ref:`sna2img.py` command (for converting the screenshot in a SCR

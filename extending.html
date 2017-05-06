@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Extending SkoolKit &mdash; SkoolKit 5.4 documentation</title>
+    <title>Extending SkoolKit &mdash; SkoolKit 6.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.4',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 6.0 documentation" href="index.html" />
     <link rel="prev" title="ASM modes and directives" href="asm.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 6.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -120,7 +120,7 @@ First, place the extension module (let&#8217;s call it <cite>game.py</cite>) in 
 package directory; to locate this directory, run <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> with the
 <tt class="docutils literal"><span class="pre">-p</span></tt> option:</p>
 <div class="highlight-python"><div class="highlight"><pre>$ skool2html.py -p
-/usr/lib/python2.7/dist-packages/skoolkit
+/usr/lib/python3/dist-packages/skoolkit
 </pre></div>
 </div>
 <p>(The package directory may be different on your system.) With <cite>game.py</cite> in
@@ -295,7 +295,7 @@ TABLE#
 to parse the parameters of a skool macro.</p>
 <dl class="function">
 <dt id="skoolkit.skoolmacro.parse_ints">
-<tt class="descclassname">skoolkit.skoolmacro.</tt><tt class="descname">parse_ints</tt><big>(</big><em>text</em>, <em>index=0</em>, <em>num=0</em>, <em>defaults=()</em>, <em>names=()</em><big>)</big><a class="headerlink" href="#skoolkit.skoolmacro.parse_ints" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">skoolkit.skoolmacro.</tt><tt class="descname">parse_ints</tt><big>(</big><em>text</em>, <em>index=0</em>, <em>num=0</em>, <em>defaults=()</em>, <em>names=()</em>, <em>fields=None</em><big>)</big><a class="headerlink" href="#skoolkit.skoolmacro.parse_ints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse a sequence of comma-separated integer parameters, optionally
 enclosed in parentheses. If parentheses are used, the parameters may be
 expressed using arithmetic operators and skool macros. See
@@ -313,6 +313,9 @@ number of elements in <cite>names</cite> if that list is not empty.</li>
 <li><strong>names</strong> &#8211; The names of the parameters; if not empty, keyword arguments
 are parsed. Parameter names are restricted to lower case
 letters (a-z).</li>
+<li><strong>fields</strong> &#8211; A dictionary of replacement field names and values. The
+fields named in this dictionary are replaced by their values
+wherever they appear in the parameter string.</li>
 </ul>
 </td>
 </tr>
@@ -333,6 +336,9 @@ defaults to 0.</p>
 <div class="versionchanged">
 <p><span class="versionmodified">Changed in version 5.1: </span>Added support for parameters expressed using arithmetic operators and
 skool macros.</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 6.0: </span>Added the <em>fields</em> parameter.</p>
 </div>
 </dd></dl>
 
@@ -447,17 +453,6 @@ if any parameter is expressed using arithmetic operations or skool macros.</p>
 </div>
 </dd></dl>
 
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <tt class="xref py py-func docutils literal"><span class="pre">parse_params()</span></tt> function in skoolkit.skoolmacro is deprecated since
-version 5.1. Use <a class="reference internal" href="#skoolkit.skoolmacro.parse_ints" title="skoolkit.skoolmacro.parse_ints"><tt class="xref py py-func docutils literal"><span class="pre">parse_ints()</span></tt></a> and
-<a class="reference internal" href="#skoolkit.skoolmacro.parse_brackets" title="skoolkit.skoolmacro.parse_brackets"><tt class="xref py py-func docutils literal"><span class="pre">parse_brackets()</span></tt></a> instead.</p>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <tt class="xref py py-meth docutils literal"><span class="pre">parse_image_params()</span></tt> method on HtmlWriter is deprecated since
-version 5.1. Use <a class="reference internal" href="#skoolkit.skoolmacro.parse_image_macro" title="skoolkit.skoolmacro.parse_image_macro"><tt class="xref py py-func docutils literal"><span class="pre">parse_image_macro()</span></tt></a> instead.</p>
-</div>
 </div>
 <div class="section" id="parsing-ref-files">
 <h2>Parsing ref files<a class="headerlink" href="#parsing-ref-files" title="Permalink to this headline">¶</a></h2>
@@ -939,14 +934,6 @@ horizontally and vertically.</li>
 </table>
 </dd></dl>
 
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <tt class="xref py py-meth docutils literal"><span class="pre">flip_udgs()</span></tt> and <tt class="xref py py-meth docutils literal"><span class="pre">rotate_udgs()</span></tt> methods on
-skoolkit.skoolhtml.HtmlWriter are deprecated since version 5.4. Use the
-<a class="reference internal" href="#skoolkit.graphics.flip_udgs" title="skoolkit.graphics.flip_udgs"><tt class="xref py py-func docutils literal"><span class="pre">flip_udgs()</span></tt></a> and
-<a class="reference internal" href="#skoolkit.graphics.rotate_udgs" title="skoolkit.graphics.rotate_udgs"><tt class="xref py py-func docutils literal"><span class="pre">rotate_udgs()</span></tt></a> functions in skoolkit.graphics
-instead.</p>
-</div>
 </div>
 <div class="section" id="htmlwriter-initialisation">
 <h2>HtmlWriter initialisation<a class="headerlink" href="#htmlwriter-initialisation" title="Permalink to this headline">¶</a></h2>
@@ -988,7 +975,7 @@ subclasses may override it.</p>
         <li class="right" >
           <a href="asm.html" title="ASM modes and directives"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 6.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

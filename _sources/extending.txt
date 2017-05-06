@@ -41,7 +41,7 @@ package directory; to locate this directory, run :ref:`skool2html.py` with the
 ``-p`` option::
 
   $ skool2html.py -p
-  /usr/lib/python2.7/dist-packages/skoolkit
+  /usr/lib/python3/dist-packages/skoolkit
 
 (The package directory may be different on your system.) With `game.py` in
 place, add the following line to the :ref:`ref-Config` section of your
@@ -233,6 +233,9 @@ to parse the parameters of a skool macro.
       Added support for parameters expressed using arithmetic operators and
       skool macros.
 
+   .. versionchanged:: 6.0
+      Added the *fields* parameter.
+
 .. autofunction:: skoolkit.skoolmacro.parse_strings
 
    .. versionadded:: 5.1
@@ -244,15 +247,6 @@ to parse the parameters of a skool macro.
 .. autofunction:: skoolkit.skoolmacro.parse_image_macro
 
    .. versionadded:: 5.1
-
-.. note::
-   The :func:`parse_params` function in skoolkit.skoolmacro is deprecated since
-   version 5.1. Use :func:`~skoolkit.skoolmacro.parse_ints` and
-   :func:`~skoolkit.skoolmacro.parse_brackets` instead.
-
-.. note::
-   The :meth:`parse_image_params` method on HtmlWriter is deprecated since
-   version 5.1. Use :func:`~skoolkit.skoolmacro.parse_image_macro` instead.
 
 Parsing ref files
 -----------------
@@ -372,13 +366,6 @@ HtmlWriter provides the following image-related convenience methods.
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.screenshot
 .. autofunction:: skoolkit.graphics.flip_udgs
 .. autofunction:: skoolkit.graphics.rotate_udgs
-
-.. note::
-   The :meth:`flip_udgs` and :meth:`rotate_udgs` methods on
-   skoolkit.skoolhtml.HtmlWriter are deprecated since version 5.4. Use the
-   :func:`~skoolkit.graphics.flip_udgs` and
-   :func:`~skoolkit.graphics.rotate_udgs` functions in skoolkit.graphics
-   instead.
 
 HtmlWriter initialisation
 -------------------------

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Changelog &mdash; SkoolKit 5.4 documentation</title>
+    <title>Changelog &mdash; SkoolKit 6.0 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.4',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,9 +23,9 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 5.4 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 6.0 documentation" href="index.html" />
     <link rel="next" title="SkoolKit 4.x changelog" href="changelog4.html" />
-    <link rel="prev" title="Migrating from SkoolKit 4" href="migration.html" /> 
+    <link rel="prev" title="Migrating from SkoolKit 5" href="migration.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,9 +38,9 @@
           <a href="changelog4.html" title="SkoolKit 4.x changelog"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="migration.html" title="Migrating from SkoolKit 4"
+          <a href="migration.html" title="Migrating from SkoolKit 5"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 6.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
@@ -48,11 +48,12 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">5.4 (2017-01-08)</a></li>
-<li><a class="reference internal" href="#id2">5.3 (2016-09-05)</a></li>
-<li><a class="reference internal" href="#id3">5.2 (2016-05-02)</a></li>
-<li><a class="reference internal" href="#id4">5.1 (2016-01-09)</a></li>
-<li><a class="reference internal" href="#id5">5.0 (2015-10-04)</a></li>
+<li><a class="reference internal" href="#id1">6.0 (2017-05-06)</a></li>
+<li><a class="reference internal" href="#id2">5.4 (2017-01-08)</a></li>
+<li><a class="reference internal" href="#id3">5.3 (2016-09-05)</a></li>
+<li><a class="reference internal" href="#id4">5.2 (2016-05-02)</a></li>
+<li><a class="reference internal" href="#id5">5.1 (2016-01-09)</a></li>
+<li><a class="reference internal" href="#id6">5.0 (2015-10-04)</a></li>
 <li><a class="reference internal" href="#older-versions">Older versions</a></li>
 </ul>
 </li>
@@ -60,7 +61,7 @@
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="migration.html"
-                        title="previous chapter">Migrating from SkoolKit 4</a></p>
+                        title="previous chapter">Migrating from SkoolKit 5</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="changelog4.html"
                         title="next chapter">SkoolKit 4.x changelog</a></p>
@@ -93,7 +94,45 @@
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2>5.4 (2017-01-08)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>6.0 (2017-05-06)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Dropped support for Python 2.7 and 3.3</li>
+<li>Added the <tt class="docutils literal"><span class="pre">--expand</span></tt> option to <a class="reference internal" href="commands.html#sna2img-py"><em>sna2img.py</em></a> (for expanding a
+<a class="reference internal" href="skool-macros.html#font"><em>#FONT</em></a>, <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a>, <a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a> or <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a> macro)</li>
+<li>Added the <tt class="docutils literal"><span class="pre">--basic</span></tt> option to <a class="reference internal" href="commands.html#tapinfo-py"><em>tapinfo.py</em></a> (for listing the BASIC
+program in a tape block)</li>
+<li>Added the <tt class="docutils literal"><span class="pre">--find-tile</span></tt> option to <a class="reference internal" href="commands.html#snapinfo-py"><em>snapinfo.py</em></a> (for searching for the
+graphic data of a tile currently on screen)</li>
+<li>Added the <tt class="docutils literal"><span class="pre">--word</span></tt> option to <a class="reference internal" href="commands.html#snapinfo-py"><em>snapinfo.py</em></a> (for showing the words at a
+range of addresses)</li>
+<li>Added support to the <tt class="docutils literal"><span class="pre">--find</span></tt> option of <a class="reference internal" href="commands.html#snapinfo-py"><em>snapinfo.py</em></a> for specifying a
+range of distances between byte values (e.g. <tt class="docutils literal"><span class="pre">--find</span> <span class="pre">1,2,3-1-10</span></tt>)</li>
+<li>The <tt class="docutils literal"><span class="pre">--peek</span></tt> option of <a class="reference internal" href="commands.html#snapinfo-py"><em>snapinfo.py</em></a> now shows UDGs and BASIC tokens</li>
+<li>Added support for replacement fields (such as <tt class="docutils literal"><span class="pre">{base}</span></tt> and <tt class="docutils literal"><span class="pre">{case}</span></tt>) in
+the <tt class="docutils literal"><span class="pre">expr</span></tt> parameter of the <a class="reference internal" href="skool-macros.html#if"><em>#IF</em></a> macro and the <tt class="docutils literal"><span class="pre">key</span></tt> parameter of
+the <a class="reference internal" href="skool-macros.html#map"><em>#MAP</em></a> macro</li>
+<li>Added support for parsing a <a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a> entry section as a
+sequence of multi-line list items prefixed by &#8216;-&#8216; (with
+<tt class="docutils literal"><span class="pre">SectionType=BulletPoints</span></tt>)</li>
+<li>The following ref file components may now contain skool macros: the
+<tt class="docutils literal"><span class="pre">anchor</span></tt> and <tt class="docutils literal"><span class="pre">title</span></tt> of a <a class="reference internal" href="ref-files.html#boxpages"><em>box page</em></a> entry section name;
+every parameter in the <a class="reference internal" href="ref-files.html#ref-game"><em>[Game]</em></a>, <a class="reference internal" href="ref-files.html#memorymap"><em>[MemoryMap:*]</em></a>, <a class="reference internal" href="ref-files.html#page"><em>[Page:*]</em></a>,
+<a class="reference internal" href="ref-files.html#pageheaders"><em>[PageHeaders]</em></a>, <a class="reference internal" href="ref-files.html#paths"><em>[Paths]</em></a> and <a class="reference internal" href="ref-files.html#titles"><em>[Titles]</em></a> sections</li>
+<li>The <a class="reference internal" href="asm.html#replace"><em>&#64;replace</em></a> directive now acts on ref file section names as well as
+their contents</li>
+<li>The <a class="reference internal" href="skool-macros.html#eval"><em>#EVAL</em></a> macro now renders hexadecimal values in lower case when the
+<tt class="docutils literal"><span class="pre">--lower</span></tt> option of <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a> or <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> is used</li>
+<li>Added the <a class="reference internal" href="skool-macros.html#version"><em>#VERSION</em></a> macro (which expands to the version of SkoolKit)</li>
+<li>Fixed how an image is cropped when the crop rectangle is very narrow</li>
+<li>Fixed how a masked image with flashing cells is built</li>
+<li>Fixed how <a class="reference internal" href="commands.html#sna2skool-py"><em>sna2skool.py</em></a> handles a snapshot that contains a dangling
+IX/IY prefix (DD/FD) when generating a control file</li>
+<li>Fixed the bug that prevents the expansion of skool macros in a page&#8217;s link
+text on the disassembly home page</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>5.4 (2017-01-08)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <a class="reference internal" href="commands.html#sna2img-py"><em>sna2img.py</em></a> command (for converting the screenshot in a SCR
 file or SNA/SZX/Z80 snapshot into a PNG or GIF file)</li>
@@ -119,8 +158,8 @@ and <a class="reference internal" href="asm.html#writer"><em>&#64;writer</em></a
 UDGs if necessary (to prevent the creation of a broken image file)</li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h2>5.3 (2016-09-05)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h2>5.3 (2016-09-05)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Dropped support for Python 3.2</li>
 <li>Added the <a class="reference internal" href="commands.html#snapinfo-py"><em>snapinfo.py</em></a> command (for showing information on the
@@ -148,8 +187,8 @@ Z80 snapshot</li>
 now being developed separately <a class="reference external" href="https://github.com/skoolkid/rom">here</a></li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>5.2 (2016-05-02)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>5.2 (2016-05-02)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <a class="reference internal" href="commands.html#bin2sna-py"><em>bin2sna.py</em></a> command (for converting a binary file into a Z80
 snapshot)</li>
@@ -169,8 +208,8 @@ is converted to the format specified by the <tt class="docutils literal"><span c
 <tt class="docutils literal"><span class="pre">#POKES30000,,8</span></tt>)</li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>5.1 (2016-01-09)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>5.1 (2016-01-09)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <a class="reference internal" href="asm.html#replace"><em>&#64;replace</em></a> ASM directive (which replaces strings that match a
 regular expression in skool file annotations and ref file sections)</li>
@@ -198,8 +237,8 @@ uncropped image file</li>
 equal INK and PAPER colours</li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h2>5.0 (2015-10-04)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h2>5.0 (2015-10-04)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added the <a class="reference internal" href="commands.html#skool2bin-py"><em>skool2bin.py</em></a> command (for converting a skool file into a
 binary file)</li>
@@ -247,9 +286,9 @@ map files</li>
           <a href="changelog4.html" title="SkoolKit 4.x changelog"
              >next</a> |</li>
         <li class="right" >
-          <a href="migration.html" title="Migrating from SkoolKit 4"
+          <a href="migration.html" title="Migrating from SkoolKit 5"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 5.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">SkoolKit 6.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
