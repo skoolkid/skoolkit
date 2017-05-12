@@ -140,7 +140,7 @@ check_tap() {
   tapfile=$(basename $binfile .bin).tap
   _cd_tmpdir
   tar xf $SKOOLKIT_TARBALL
-  _exec "Writing $tapfile" "skoolkit-$SKOOLKIT_VERSION/bin2tap.py -t $tapfile $binfile" $(pwd)/bin2tap.log
+  _exec "Writing $tapfile" "skoolkit-$SKOOLKIT_VERSION/bin2tap.py $binfile $tapfile" $(pwd)/bin2tap.log
   fuse $tapfile
 }
 
