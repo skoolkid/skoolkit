@@ -62,7 +62,7 @@ def run(root_dir, options):
     for fname, link_dest in missing_anchors:
         print('  {} -> {}'.format(fname, link_dest))
 
-    return 1 if orphans or missing_files or missing_anchors else 0
+    return 1 if missing_files or missing_anchors else 0
 
 ###############################################################################
 # Begin
