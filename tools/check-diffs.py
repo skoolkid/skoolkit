@@ -34,10 +34,6 @@ def print_usage():
       this will discard any generated diff that matches it with the decimal
       addresses replaced by hexadecimal addresses.
 
-  ; @IgnoreBlankLines
-      Ignore blank lines in generated diffs. This will discard a generated diff
-      if the old non-blank lines match the new non-blank lines.
-
   ; @IgnoreCase
       Ignore case in generated diffs. This will discard a generated diff if the
       old lines and the new lines differ only in case.
@@ -58,11 +54,6 @@ def print_usage():
   ; @IgnoreFile=f
       Ignore generated diffs from a file whose name ends with 'f'.
 
-  ; @IgnoreLeadingWhitespace
-      Ignore leading whitespace in generated diffs. This will discard a
-      generated diff if the old lines differ from the new lines only in the
-      amount of leading whitespace.
-
   ; @IgnoreReverseSubstitution=/s/r
       Replace the string 's' with the string 'r' in the new lines of generated
       diffs. This will discard a generated diff if the new lines match the old
@@ -73,10 +64,11 @@ def print_usage():
       diffs. This will discard a generated diff if the old lines match the new
       lines after the replacement has been made.
 
-  ; @IgnoreTrailingWhitespace
-      Ignore trailing whitespace in generated diffs. This will discard a
-      generated diff if the old lines differ from the new lines only in the
-      amount of trailing whitespace.
+  ; @IgnoreWhitespace
+      Ignore leading whitespace, trailing whitespace and blank lines in
+      generated diffs. This will discard a generated diff if the old lines
+      differ from the new lines only in the amount of leading/trailing
+      whitespace or blank lines.
 
   ; @RegexReplace=/s/r
       Replace substrings that match the regular expression 's' with the regular
@@ -186,9 +178,7 @@ def run(diff_file, exp_diffs_file):
         exp_diffs = get_diffs(exp_diffs_file, options)
     ignore_case = options.get('IgnoreCase', False)
     ignore_exp_case = options.get('ExpIgnoreCase', False)
-    ignore_blank_lines = options.get('IgnoreBlankLines', False)
-    ignore_leading_whitespace = options.get('IgnoreLeadingWhitespace', False)
-    ignore_trailing_whitespace = options.get('IgnoreTrailingWhitespace', False)
+    ignore_whitespace = options.get('IgnoreWhitespace', False)
     subs = options.get('IgnoreSubstitution', ())
     rev_subs = options.get('IgnoreReverseSubstitution', ())
     regex_subs = options.get('RegexReplace', ())
@@ -242,10 +232,6 @@ def run(diff_file, exp_diffs_file):
         if ignore:
             continue
 
-        if ignore_blank_lines:
-            old_lines = [line for line in old_lines if line.strip()]
-            new_lines = [line for line in new_lines if line.strip()]
-
         for sub in subs:
             substr, rep = sub[1:-1].split(sub[0])
             old_lines = [line.replace(substr, rep) for line in old_lines]
@@ -262,13 +248,9 @@ def run(diff_file, exp_diffs_file):
             old_lines = [line.lower() for line in old_lines]
             new_lines = [line.lower() for line in new_lines]
 
-        if ignore_leading_whitespace:
-            old_lines = [line.lstrip() for line in old_lines]
-            new_lines = [line.lstrip() for line in new_lines]
-
-        if ignore_trailing_whitespace:
-            old_lines = [line.rstrip() for line in old_lines]
-            new_lines = [line.rstrip() for line in new_lines]
+        if ignore_whitespace:
+            old_lines = [line.strip() for line in old_lines if line.strip()]
+            new_lines = [line.strip() for line in new_lines if line.strip()]
 
         if ignore_equivalent_defbs and len(old_lines) == len(new_lines):
             old_lines, new_lines = remove_equivalent_defbs(old_lines, new_lines)
@@ -305,16 +287,14 @@ def run(diff_file, exp_diffs_file):
         for directive, value in (
             ('ExpIgnoreCase', ignore_exp_case),
             ('IgnoreAddressIndex', ignore_address_indexes),
-            ('IgnoreBlankLines', ignore_blank_lines),
             ('IgnoreCase', ignore_case),
             ('IgnoreDiffsContaining', ignore_strings),
             ('IgnoreDiffsContainingRegex', ignore_regexes),
             ('IgnoreEquivalentDEFBs', ignore_equivalent_defbs),
             ('IgnoreFile', ignore_files),
-            ('IgnoreLeadingWhitespace', ignore_leading_whitespace),
             ('IgnoreReverseSubstitution', rev_subs),
             ('IgnoreSubstitution', subs),
-            ('IgnoreTrailingWhitespace', ignore_trailing_whitespace),
+            ('IgnoreWhitespace', ignore_whitespace),
             ('RegexReplace', regex_subs)
         ):
             if isinstance(value, (list, tuple)):
