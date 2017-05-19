@@ -54,11 +54,6 @@ def print_usage():
   ; @IgnoreFile=f
       Ignore generated diffs from a file whose name ends with 'f'.
 
-  ; @IgnoreReverseSubstitution=/s/r
-      Replace the string 's' with the string 'r' in the new lines of generated
-      diffs. This will discard a generated diff if the new lines match the old
-      lines after the replacement has been made.
-
   ; @IgnoreSubstitution=/s/r
       Replace the string 's' with the string 'r' in the old lines of generated
       diffs. This will discard a generated diff if the old lines match the new
@@ -74,6 +69,12 @@ def print_usage():
       Replace substrings that match the regular expression 's' with the regular
       expression 'r' in the old lines of generated diffs. This will discard a
       generated diff if the old lines match the new lines after the replacement
+      has been made.
+
+  ; @RegexReplaceNew=/s/r
+      Replace substrings that match the regular expression 's' with the regular
+      expression 'r' in the new lines of generated diffs. This will discard a
+      generated diff if the new lines match the old lines after the replacement
       has been made.
 """.format(basename(sys.argv[0])))
     sys.exit(1)
@@ -180,7 +181,7 @@ def run(diff_file, exp_diffs_file):
     ignore_exp_case = options.get('ExpIgnoreCase', False)
     ignore_whitespace = options.get('IgnoreWhitespace', False)
     subs = options.get('IgnoreSubstitution', ())
-    rev_subs = options.get('IgnoreReverseSubstitution', ())
+    regex_new_subs = options.get('RegexReplaceNew', ())
     regex_subs = options.get('RegexReplace', ())
     ignore_files = options.get('IgnoreFile', ())
     ignore_equivalent_defbs = options.get('IgnoreEquivalentDEFBs', False)
@@ -236,12 +237,12 @@ def run(diff_file, exp_diffs_file):
             substr, rep = sub[1:-1].split(sub[0])
             old_lines = [line.replace(substr, rep) for line in old_lines]
 
-        for sub in rev_subs:
-            substr, rep = sub[1:-1].split(sub[0])
-            new_lines = [line.replace(substr, rep) for line in new_lines]
+        for sub in regex_new_subs:
+            pattern, rep = sub[1:].split(sub[0])[0:2]
+            new_lines = [re.sub(pattern, rep, line) for line in new_lines]
 
         for sub in regex_subs:
-            pattern, rep = sub[1:-1].split(sub[0])
+            pattern, rep = sub[1:].split(sub[0])[0:2]
             old_lines = [re.sub(pattern, rep, line) for line in old_lines]
 
         if ignore_case:
@@ -292,10 +293,10 @@ def run(diff_file, exp_diffs_file):
             ('IgnoreDiffsContainingRegex', ignore_regexes),
             ('IgnoreEquivalentDEFBs', ignore_equivalent_defbs),
             ('IgnoreFile', ignore_files),
-            ('IgnoreReverseSubstitution', rev_subs),
             ('IgnoreSubstitution', subs),
             ('IgnoreWhitespace', ignore_whitespace),
-            ('RegexReplace', regex_subs)
+            ('RegexReplace', regex_subs),
+            ('RegexReplaceNew', regex_new_subs)
         ):
             if isinstance(value, (list, tuple)):
                 for val in value:
