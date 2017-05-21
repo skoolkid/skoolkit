@@ -46,11 +46,6 @@ def print_usage():
       Ignore generated diffs that contain the regex 'r'. This will discard a
       generated diff if any part of it matches the regular expression 'r'.
 
-  ; @IgnoreEquivalentDEFBs
-      Ignore equivalent DEFB statements in generated diffs. This will discard a
-      generated diff if its old lines and new lines contain equivalent DEFB
-      statements (e.g. '-DEFB 0' and '+DEFB $00').
-
   ; @IgnoreFile=f
       Ignore generated diffs from a file whose name ends with 'f'.
 
@@ -78,56 +73,6 @@ def print_usage():
       has been made.
 """.format(basename(sys.argv[0])))
     sys.exit(1)
-
-def parse_int(num_str):
-    try:
-        if num_str[0] == '$':
-            return int(num_str[1:], 16)
-        return int(num_str)
-    except:
-        return None
-
-def extract_bytes(line, index):
-    num_strs = []
-    num_str = ''
-    while index < len(line):
-        char = line[index].upper()
-        if char not in ' ,0123456789$ABCDEF':
-            break
-        if char == ',':
-            num_strs.append(num_str.strip())
-            num_str = ''
-        else:
-            num_str += char
-        index += 1
-    if num_str:
-        num_strs.append(num_str)
-    bytes = [parse_int(num_str) for num_str in num_strs]
-    return bytes, index
-
-def equivalent_defbs(line1, line2):
-    start1 = line1.upper().find('DEFB')
-    if start1 < 0:
-        return False
-    start2 = line2.upper().find('DEFB')
-    if start2 < 0:
-        return False
-    bytes1, end1 = extract_bytes(line1, start1 + 4)
-    bytes2, end2 = extract_bytes(line2, start2 + 4)
-    if bytes1 != bytes2:
-        return False
-    new_line1 = line1[:start1] + line1[end1:]
-    new_line2 = line2[:start2] + line2[end2:]
-    return new_line1 == new_line2
-
-def remove_equivalent_defbs(lines1, lines2):
-    old_lines = []
-    new_lines = []
-    for line1, line2 in zip(lines1, lines2):
-        if not equivalent_defbs(line1, line2):
-            old_lines.append(line1)
-            new_lines.append(line2)
-    return old_lines, new_lines
 
 def get_diffs(fname, options=None, fnames=False):
     diffs = []
@@ -184,7 +129,6 @@ def run(diff_file, exp_diffs_file):
     regex_new_subs = options.get('RegexReplaceNew', ())
     regex_subs = options.get('RegexReplace', ())
     ignore_files = options.get('IgnoreFile', ())
-    ignore_equivalent_defbs = options.get('IgnoreEquivalentDEFBs', False)
     ignore_strings = options.get('IgnoreDiffsContaining', ())
     ignore_regexes = options.get('IgnoreDiffsContainingRegex', ())
     ignore_address_indexes = options.get('IgnoreAddressIndex', ())
@@ -253,9 +197,6 @@ def run(diff_file, exp_diffs_file):
             old_lines = [line.strip() for line in old_lines if line.strip()]
             new_lines = [line.strip() for line in new_lines if line.strip()]
 
-        if ignore_equivalent_defbs and len(old_lines) == len(new_lines):
-            old_lines, new_lines = remove_equivalent_defbs(old_lines, new_lines)
-
         if old_lines == new_lines:
             continue
 
@@ -291,7 +232,6 @@ def run(diff_file, exp_diffs_file):
             ('IgnoreCase', ignore_case),
             ('IgnoreDiffsContaining', ignore_strings),
             ('IgnoreDiffsContainingRegex', ignore_regexes),
-            ('IgnoreEquivalentDEFBs', ignore_equivalent_defbs),
             ('IgnoreFile', ignore_files),
             ('IgnoreSubstitution', subs),
             ('IgnoreWhitespace', ignore_whitespace),
