@@ -34,10 +34,6 @@ def print_usage():
       this will discard any generated diff that matches it with the decimal
       addresses replaced by hexadecimal addresses.
 
-  ; @IgnoreCase
-      Ignore case in generated diffs. This will discard a generated diff if the
-      old lines and the new lines differ only in case.
-
   ; @IgnoreDiffsContainingRegex=r
       Ignore generated diffs that contain the regex 'r'. This will discard a
       generated diff if any part of it matches the regular expression 'r'.
@@ -113,7 +109,6 @@ def run(diff_file, exp_diffs_file):
     exp_diffs = []
     if isfile(exp_diffs_file):
         exp_diffs = get_diffs(exp_diffs_file, options)
-    ignore_case = options.get('IgnoreCase', False)
     ignore_exp_case = options.get('ExpIgnoreCase', False)
     ignore_whitespace = options.get('IgnoreWhitespace', False)
     regex_new_subs = options.get('RegexReplaceNew', ())
@@ -167,10 +162,6 @@ def run(diff_file, exp_diffs_file):
             pattern, rep = sub[1:].split(sub[0])[0:2]
             old_lines = [re.sub(pattern, rep, line) for line in old_lines]
 
-        if ignore_case:
-            old_lines = [line.lower() for line in old_lines]
-            new_lines = [line.lower() for line in new_lines]
-
         if ignore_whitespace:
             old_lines = [line.strip() for line in old_lines if line.strip()]
             new_lines = [line.strip() for line in new_lines if line.strip()]
@@ -207,7 +198,6 @@ def run(diff_file, exp_diffs_file):
         for directive, value in (
             ('ExpIgnoreCase', ignore_exp_case),
             ('IgnoreAddressIndex', ignore_address_indexes),
-            ('IgnoreCase', ignore_case),
             ('IgnoreDiffsContainingRegex', ignore_regexes),
             ('IgnoreFile', ignore_files),
             ('IgnoreWhitespace', ignore_whitespace),
