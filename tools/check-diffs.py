@@ -49,11 +49,6 @@ def print_usage():
   ; @IgnoreFile=f
       Ignore generated diffs from a file whose name ends with 'f'.
 
-  ; @IgnoreSubstitution=/s/r
-      Replace the string 's' with the string 'r' in the old lines of generated
-      diffs. This will discard a generated diff if the old lines match the new
-      lines after the replacement has been made.
-
   ; @IgnoreWhitespace
       Ignore leading whitespace, trailing whitespace and blank lines in
       generated diffs. This will discard a generated diff if the old lines
@@ -125,7 +120,6 @@ def run(diff_file, exp_diffs_file):
     ignore_case = options.get('IgnoreCase', False)
     ignore_exp_case = options.get('ExpIgnoreCase', False)
     ignore_whitespace = options.get('IgnoreWhitespace', False)
-    subs = options.get('IgnoreSubstitution', ())
     regex_new_subs = options.get('RegexReplaceNew', ())
     regex_subs = options.get('RegexReplace', ())
     ignore_files = options.get('IgnoreFile', ())
@@ -176,10 +170,6 @@ def run(diff_file, exp_diffs_file):
                 break
         if ignore:
             continue
-
-        for sub in subs:
-            substr, rep = sub[1:-1].split(sub[0])
-            old_lines = [line.replace(substr, rep) for line in old_lines]
 
         for sub in regex_new_subs:
             pattern, rep = sub[1:].split(sub[0])[0:2]
@@ -233,7 +223,6 @@ def run(diff_file, exp_diffs_file):
             ('IgnoreDiffsContaining', ignore_strings),
             ('IgnoreDiffsContainingRegex', ignore_regexes),
             ('IgnoreFile', ignore_files),
-            ('IgnoreSubstitution', subs),
             ('IgnoreWhitespace', ignore_whitespace),
             ('RegexReplace', regex_subs),
             ('RegexReplaceNew', regex_new_subs)
