@@ -38,10 +38,6 @@ def print_usage():
       Ignore case in generated diffs. This will discard a generated diff if the
       old lines and the new lines differ only in case.
 
-  ; @IgnoreDiffsContaining=s
-      Ignore generated diffs that contain 's'. This will discard a generated
-      diff if it contains the substring 's' (case-insensitive).
-
   ; @IgnoreDiffsContainingRegex=r
       Ignore generated diffs that contain the regex 'r'. This will discard a
       generated diff if any part of it matches the regular expression 'r'.
@@ -123,7 +119,6 @@ def run(diff_file, exp_diffs_file):
     regex_new_subs = options.get('RegexReplaceNew', ())
     regex_subs = options.get('RegexReplace', ())
     ignore_files = options.get('IgnoreFile', ())
-    ignore_strings = options.get('IgnoreDiffsContaining', ())
     ignore_regexes = options.get('IgnoreDiffsContainingRegex', ())
     ignore_address_indexes = options.get('IgnoreAddressIndex', ())
 
@@ -157,13 +152,6 @@ def run(diff_file, exp_diffs_file):
 
         ignore = False
         all_lines = old_lines + new_lines
-        for substring in ignore_strings:
-            string_l = substring.lower()
-            if any(line.lower().find(string_l) >= 0 for line in all_lines):
-                ignore = True
-                break
-        if ignore:
-            continue
         for regex in ignore_regexes:
             if any(re.search(regex, line) for line in all_lines):
                 ignore = True
@@ -220,7 +208,6 @@ def run(diff_file, exp_diffs_file):
             ('ExpIgnoreCase', ignore_exp_case),
             ('IgnoreAddressIndex', ignore_address_indexes),
             ('IgnoreCase', ignore_case),
-            ('IgnoreDiffsContaining', ignore_strings),
             ('IgnoreDiffsContainingRegex', ignore_regexes),
             ('IgnoreFile', ignore_files),
             ('IgnoreWhitespace', ignore_whitespace),
