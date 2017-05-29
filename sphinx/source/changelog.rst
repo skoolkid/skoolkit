@@ -1,6 +1,9 @@
 Changelog
 =========
 
+6.1b1
+-----
+
 6.0 (2017-05-06)
 ----------------
 * Dropped support for Python 2.7 and 3.3
