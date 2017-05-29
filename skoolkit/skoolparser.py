@@ -40,6 +40,18 @@ BASE_10 = 10
 #: Force hexadecimal.
 BASE_16 = 16
 
+def _replace_nums(operation, hex_fmt=None, skip_bit=False):
+    elements = re.split('(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', operation)
+    for i in range(2 * int(skip_bit) + 1, len(elements), 2):
+        prev_p = elements[i - 1]
+        if not ((prev_p.endswith('%') and prev_p.strip() != '%') or prev_p.endswith('"')):
+            p = elements[i]
+            if hex_fmt is None and p.startswith('$'):
+                elements[i] = str(int(p[1:], 16))
+            elif hex_fmt and not p.startswith('$'):
+                elements[i] = hex_fmt.format(int(p))
+    return ''.join(elements)
+
 def get_address(operation):
     search = re.search('(\A|[\s,(+-])(\$[0-9A-Fa-f]+|%[01]+|\d+)', operation)
     if search:
@@ -784,68 +796,47 @@ class Mode:
             if address is not None:
                 addr_str = self.hex4fmt.format(address)
             if operation:
-                operation = self.convert(operation)
+                operation = self.convert(operation, self.hex2fmt, self.hex4fmt)
         return addr_str, operation
 
-    def convert(self, operation):
+    def convert(self, operation, hex2fmt=None, hex4fmt=None):
         if operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW ')):
             elements = split_operation(operation, strip=False)
             if elements[0].upper() == 'DEFW':
-                convert_method = self.replace_address
+                digits = 4
             else:
-                convert_method = self.replace_byte
+                digits = 2
             items = []
             for item in elements[1:]:
                 if item.lstrip().startswith('"'):
                     items.append(item)
                 else:
-                    items.append(convert_method(item))
+                    items.append(self.replace_number(item, digits))
             return '{} {}'.format(elements[0], ','.join(items))
 
         elements = split_operation(operation, tidy=True)
         op = elements[0]
 
         # Instructions containing '(I[XY]+d)'
-        index = self.get_index(operation)
-        if index:
-            if len(elements) == 3:
-                return self.replace_index(operation, index, parse_int(elements[2]))
-            return self.replace_index(operation, index)
+        if re.search('\(I[XY] *[+-].*\)', operation.upper()):
+            return _replace_nums(operation, hex2fmt, op in ('BIT', 'RES', 'SET'))
 
         if op in ('CALL', 'DJNZ', 'JP', 'JR'):
-            return self.replace_address(operation)
+            return _replace_nums(operation, hex4fmt)
 
         if op in ('AND', 'OR', 'XOR', 'SUB', 'CP', 'IN', 'OUT', 'ADD', 'ADC', 'SBC', 'RST'):
-            return self.replace_byte(operation)
+            return _replace_nums(operation, hex2fmt)
 
         if op == 'LD' and len(elements) == 3:
             operands = elements[1:]
             if operands[0] in ('A', 'B', 'C', 'D', 'E', 'H', 'L', 'IXL', 'IXH', 'IYL', 'IYH', '(HL)') and not operands[1].startswith('('):
                 # LD r,n; LD (HL),n
-                return self.replace_byte(operation)
+                return _replace_nums(operation, hex2fmt)
             if not set(('A', 'BC', 'DE', 'HL', 'IX', 'IY', 'SP')).isdisjoint(operands):
                 # LD A,(nn); LD (nn),A; LD rr,nn; LD rr,(nn); LD (nn),rr
-                return self.replace_address(operation)
+                return _replace_nums(operation, hex4fmt)
 
         return operation
-
-    def get_index(self, op):
-        match = re.search('\([Ii][XYxy] *[\+-].*\)', op)
-        if match:
-            return match.group()
-
-    def replace_index(self, operation, index, byte=None):
-        if byte is None:
-            return operation.replace(index, self.replace_byte(index))
-        marker = '_'
-        operation = self.replace_byte(operation.replace(index, marker))
-        return operation.replace(marker, self.replace_byte(index))
-
-    def replace_byte(self, text):
-        return self.replace_number(text, 2)
-
-    def replace_address(self, text):
-        return self.replace_number(text, 4)
 
     def replace_number(self, text, digits):
         num_str = get_address(text)

@@ -3,6 +3,9 @@ Changelog
 
 6.1b1
 -----
+* Added support for converting the base of every numerical term in an
+  instruction operand that contains two or more (e.g. ``LD A,32768/256`` to
+  ``LD A,$8000/$100``)
 
 6.0 (2017-05-06)
 ----------------
