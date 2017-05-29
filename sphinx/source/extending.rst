@@ -1,7 +1,5 @@
 .. _extendingSkoolKit:
 
-.. highlight:: python
-
 Extending SkoolKit
 ==================
 
@@ -24,7 +22,9 @@ a better way is to subclass HtmlWriter and AsmWriter in a separate extension
 module, and add the methods there; then that extension module can be easily
 used with different versions of SkoolKit, and shared with other people.
 
-A minimal extension module would look like this::
+A minimal extension module would look like this:
+
+.. code-block:: python
 
   from skoolkit.skoolhtml import HtmlWriter
   from skoolkit.skoolasm import AsmWriter
@@ -106,7 +106,9 @@ created).
 
 Let's say your sprite-image-creating method will accept two parameters (in
 addition to `cwd`): `sprite_id` (the sprite identifier) and  `fname` (the image
-filename). The method (let's call it `sprite`) would look something like this::
+filename). The method (let's call it `sprite`) would look something like this:
+
+.. code-block:: python
 
   from skoolkit.skoolhtml import HtmlWriter
 
@@ -128,7 +130,9 @@ method) in place, it's possible to use a ``#CALL`` macro like this::
 
 Adding a ``#CALL`` method to the AsmWriter subclass is equally simple. The
 timestamp-creating method (let's call it `timestamp`) would look something like
-this::
+this:
+
+.. code-block:: python
 
   import time
   from skoolkit.skoolasm import AsmWriter
@@ -185,7 +189,9 @@ expanded. Note that if ``string`` itself contains skool macros, then they will
 be expanded.
 
 The `expand_sprite` method on GameHtmlWriter may therefore look something like
-this::
+this:
+
+.. code-block:: python
 
   from skoolkit.graphics import Frame
   from skoolkit.skoolhtml import HtmlWriter
@@ -207,7 +213,9 @@ method) in place, the ``#SPRITE`` macro might be used like this::
   { Sprite 3 (jumping) }
   TABLE#
 
-The `expand_timestamp` method on GameAsmWriter would look something like this::
+The `expand_timestamp` method on GameAsmWriter would look something like this:
+
+.. code-block:: python
 
   import time
   from skoolkit.skoolasm import AsmWriter
@@ -296,7 +304,9 @@ and an optional mask.
       The Udg class moved from skoolkit.skoolhtml to skoolkit.graphics.
 
 A simple ``#INVERSE`` macro that creates an inverse image of a UDG might be
-implemented like this::
+implemented like this:
+
+.. code-block:: python
 
   from skoolkit.graphics import Udg
   from skoolkit.skoolhtml import HtmlWriter
@@ -375,7 +385,9 @@ is the `init()` method.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.init
 
-For example::
+For example:
+
+.. code-block:: python
 
   from skoolkit.skoolhtml import HtmlWriter
 
