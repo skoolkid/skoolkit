@@ -1313,6 +1313,30 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         ]
         self.assertEqual(exp_asm, self._get_asm(skool))
 
+    def test_comment_for_sub_block_containing_wide_instruction(self):
+        skool = '\n'.join((
+            '@start',
+            'c30000 LD B,0     ; Comment',
+            '@label=VERYLONGLABELINDEEDOHYES',
+            ' 30002 HALT       ; {Comment for the DJNZ loop with the very long label;',
+            ' 30003 DJNZ 30002 ; the lines in the comment for these instructions',
+            ' 30005 XOR A      ; should be aligned on the left (but not necessarily',
+            '                  ; aligned with the comments for the other instructions)}',
+            ' 30006 RET        ; Comment',
+        ))
+        exp_asm = [
+            '  LD B,0                  ; Comment',
+            'VERYLONGLABELINDEEDOHYES:',
+            '  HALT                          ; Comment for the DJNZ loop with the very long',
+            '  DJNZ VERYLONGLABELINDEEDOHYES ; label; the lines in the comment for these',
+            '  XOR A                         ; instructions should be aligned on the left',
+            '                                ; (but not necessarily aligned with the',
+            '                                ; comments for the other instructions)',
+            '  RET                     ; Comment',
+            '',
+        ]
+        self.assertEqual(exp_asm, self._get_asm(skool))
+
 class TableMacroTest(SkoolKitTestCase):
     def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')

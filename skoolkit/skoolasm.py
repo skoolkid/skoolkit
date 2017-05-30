@@ -448,7 +448,7 @@ class AsmWriter:
             iaddress = instruction.address
 
             rowspan = instruction.comment.rowspan
-            instr_width = max(len(instruction.operation), self.instr_width)
+            instr_width = max([len(i.operation) for i in instructions[i:i + rowspan]] + [self.instr_width])
             comment_width = self.line_width - 3 - instr_width - self.indent_width
             lines = wrap(self.expand(instruction.comment.text), max((comment_width, self.min_comment_width)))
 
