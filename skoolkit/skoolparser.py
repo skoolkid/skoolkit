@@ -19,7 +19,7 @@ import re
 
 from skoolkit import SkoolParsingError, warn, wrap, get_int_param, parse_int, open_file
 from skoolkit.skoolmacro import DELIMITERS, INTEGER, ClosingBracketError, parse_brackets
-from skoolkit.textutils import partition_unquoted
+from skoolkit.textutils import partition_unquoted, split_quoted
 from skoolkit.z80 import assemble, convert_case, get_size, split_operation
 
 DIRECTIVES = 'bcgistuw'
@@ -41,16 +41,16 @@ BASE_10 = 10
 BASE_16 = 16
 
 def _replace_nums(operation, hex_fmt=None, skip_bit=False):
-    elements = re.split('(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', operation)
+    elements = re.split('(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', '(' + operation)
     for i in range(2 * int(skip_bit) + 1, len(elements), 2):
-        prev_p = elements[i - 1]
-        if not ((prev_p.endswith('%') and prev_p.strip() != '%') or prev_p.endswith('"')):
+        p1, p2 = elements[i - 1][:-1].strip(), elements[i - 1][-1]
+        if (p2 != '%' or not p1 or p1[-1] == ')') and p2 != '"':
             p = elements[i]
             if hex_fmt is None and p.startswith('$'):
                 elements[i] = str(int(p[1:], 16))
             elif hex_fmt and not p.startswith('$'):
                 elements[i] = hex_fmt.format(int(p))
-    return ''.join(elements)
+    return ''.join(elements)[1:]
 
 def get_address(operation):
     search = re.search('(\A|[\s,(+-])(\$[0-9A-Fa-f]+|%[01]+|\d+)', operation)
@@ -801,18 +801,17 @@ class Mode:
 
     def convert(self, operation, hex2fmt=None, hex4fmt=None):
         if operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW ')):
-            elements = split_operation(operation, strip=False)
-            if elements[0].upper() == 'DEFW':
-                digits = 4
+            if operation.upper().startswith('DEFW'):
+                hex_fmt = hex4fmt
             else:
-                digits = 2
-            items = []
-            for item in elements[1:]:
-                if item.lstrip().startswith('"'):
-                    items.append(item)
+                hex_fmt = hex2fmt
+            converted = operation[:4]
+            for p in split_quoted(operation[4:]):
+                if p.startswith('"'):
+                    converted += p
                 else:
-                    items.append(self.replace_number(item, digits))
-            return '{} {}'.format(elements[0], ','.join(items))
+                    converted += _replace_nums(p, hex_fmt)
+            return converted
 
         elements = split_operation(operation, tidy=True)
         op = elements[0]
@@ -837,20 +836,6 @@ class Mode:
                 return _replace_nums(operation, hex4fmt)
 
         return operation
-
-    def replace_number(self, text, digits):
-        num_str = get_address(text)
-        if num_str is None or num_str.startswith('%'):
-            return text
-        num = parse_int(num_str)
-        if self.decimal:
-            return text.replace(num_str, str(num))
-        if self.hexadecimal:
-            if digits <= 2 and num < 256:
-                hex_fmt = self.hex2fmt
-            else:
-                hex_fmt = self.hex4fmt
-            return text.replace(num_str, hex_fmt.format(num))
 
 class Instruction:
     def __init__(self, ctl, addr_str, operation):

@@ -60,3 +60,22 @@ def partition_unquoted(text, sep, default=''):
     if len(parts) == 2:
         return (parts[0], sep, parts[1])
     return (text, '', default)
+
+def split_quoted(text):
+    i = 0
+    elements = ['']
+    while i < len(text):
+        c = text[i]
+        i += 1
+        if elements[-1].startswith('"'):
+            if c == '"':
+                elements[-1] += c
+                elements.append('')
+                continue
+            if c == '\\':
+                c += text[i:i + 1]
+                i += 1
+        elif c == '"':
+            elements.append('')
+        elements[-1] += c
+    return [e for e in elements if e]

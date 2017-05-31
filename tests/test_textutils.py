@@ -1,5 +1,5 @@
 from skoolkittest import SkoolKitTestCase
-from skoolkit.textutils import find_unquoted, split_unquoted, partition_unquoted
+from skoolkit.textutils import find_unquoted, split_unquoted, partition_unquoted, split_quoted
 
 TEST_FIND = (
     # args, kwargs, result
@@ -44,6 +44,24 @@ TEST_PARTITION = (
     (('a":"b:c', ':', 'x'), ('a":"b', ':', 'c'))
 )
 
+TEST_SPLIT_QUOTED = (
+    # text, result
+    ('a', ['a']),
+    ('"', ['"']),
+    ('"...', ['"...']),
+    ('""', ['""']),
+    ('"":3', ['""', ':3']),
+    ('"a"', ['"a"']),
+    ('"a"+4', ['"a"', '+4']),
+    ('"b"+5+"c"', ['"b"', '+5+', '"c"']),
+    ('6+"d"+7', ['6+', '"d"', '+7']),
+    ('"e"-"f"', ['"e"', '-', '"f"']),
+    (r'"\""', [r'"\""']),
+    (r'"\""*10', [r'"\""', '*10']),
+    (r'"\\"+1', [r'"\\"', '+1']),
+    (r'\"abc","d"', ['\\', '"abc"', ',', '"d"'])
+)
+
 class TextUtilsTest(SkoolKitTestCase):
     def setUp(self):
         SkoolKitTestCase.setUp(self)
@@ -68,3 +86,7 @@ class TextUtilsTest(SkoolKitTestCase):
     def test_partition_unquoted(self):
         for args, exp_result in TEST_PARTITION:
             self._test_function(exp_result, partition_unquoted, *args)
+
+    def test_split_quoted(self):
+        for text, exp_result in TEST_SPLIT_QUOTED:
+            self._test_function(exp_result, split_quoted, text)

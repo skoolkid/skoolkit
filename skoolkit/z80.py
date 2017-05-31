@@ -463,16 +463,14 @@ def _assemble(operation, address):
     except:
         return
 
-def split_operation(operation, tidy=False, strip=True):
+def split_operation(operation, tidy=False):
     if tidy:
         operation = convert_case(operation, False, True)
     elements = operation.split(None, 1)
     if len(elements) < 2:
         return elements
     elements[1:] = split_unquoted(elements[1], ',')
-    if strip:
-        return [e.strip() for e in elements]
-    return elements
+    return [e.strip() for e in elements]
 
 def get_size(operation, address):
     return len(assemble(operation, address))
