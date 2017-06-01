@@ -1267,6 +1267,49 @@ CHARACTER_OPERANDS = (
     ('XOR "?"', (238, 63))
 )
 
+ARITHMETIC_EXPRESSION_OPERANDS = (
+    ('ADC A,"/"+1', (206, 48)),
+    ('ADD A,$5A-"2"', (198, 40)),
+    ('AND 64/8', (230, 8)),
+    ('CP (5+1)*6', (254, 36)),
+    ('LD B,3-$80', (6, 131)),
+    ('LD C,3+%11', (14, 6)),
+    ('LD D,(19-2)%10', (22, 7)),
+    ('LD E,(19-2) %10', (30, 7)),
+    ('LD H,32769/256', (38, 128)),
+    ('LD L,32769%256', (46, 1)),
+    ('LD (HL),"1"+2', (54, 51)),
+    ('LD A,1+"2"', (62, 51)),
+    ('LD IXh,140-$07', (221, 38, 133)),
+    ('LD IXl,(1+2)*3', (221, 46, 9)),
+    ('LD (IX+1+3),49153/256', (221, 54, 4, 192)),
+    ('LD IYh,%1111%100', (253, 38, 15)),
+    ('LD IYl,64/$08', (253, 46, 8)),
+    ('LD (IY+5-2),%11%%10', (253, 54, 3, 1)),
+    ('LD BC,12345+6', (1, 63, 48)),
+    ('LD DE,+(23456-8)/2', (17, 204, 45)),
+    ('LD HL,34567+(8*9)', (33, 79, 135)),
+    ('LD SP,$01+$100*$80', (49, 1, 128)),
+    ('LD IX,-(100*%100000000)', (221, 33, 0, 156)),
+    ('LD IY,45678%256+32768', (253, 33, 110, 128)),
+    ('LD BC,(56789+1)', (237, 75, 214, 221)),
+    ('LD DE,(33333+2*(8+3))', (237, 91, 75, 130)),
+    ('LD HL,(44444-2)', (42, 154, 173)),
+    ('LD SP,($abcd+$ef)', (237, 123, 188, 172)),
+    ('LD IX,(17+$a0*256)', (221, 42, 17, 160)),
+    ('LD IY,(100000/10)', (253, 42, 16, 39)),
+    ('LD (49152-13),BC', (237, 67, 243, 191)),
+    ('LD ($8000+$0F),DE', (237, 83, 15, 128)),
+    ('LD (30000+12/4),HL', (34, 51, 117)),
+    ('LD (40000+12*4),SP', (237, 115, 112, 156)),
+    ('LD ((5+17)*319),IX', (221, 34, 106, 27)),
+    ('LD (43*(108+56)),IY', (253, 34, 140, 27)),
+    ('OR "5"+5', (246, 58)),
+    ('SBC A,16/4', (222, 4)),
+    ('SUB 13%5', (214, 3)),
+    ('XOR (1+2)/3', (238, 1))
+)
+
 TRICKY_CHARACTER_OPERANDS = (
     ('ADC A,","', (206, 44)),
     ('ADD A,"\\""', (198, 34)),
@@ -1288,7 +1331,8 @@ UNUSUAL_WHITESPACE = (
     ('LD C, ( IX + 0 )', (221, 78, 0)),
     ('LD\t( IX + 0 ), D', (221, 114, 0)),
     ('XOR\tE', (171,)),
-    ('DEFB 5, "AB", 6', (5, 65, 66, 6)),
+    ('SUB (7+8)\t%10', (214, 5)),
+    ('DEFB 5, "AB", 6,(3*4)\t%11', (5, 65, 66, 6, 1)),
     ('DEFW 1 , "," , 2', (1, 0, 44, 0, 2, 0)),
     ('DEFS 3, ","', (44, 44, 44))
 )
@@ -1299,7 +1343,10 @@ DEFB_DEFM = (
     ('"A",1', (65, 1)),
     (r'0,"\"A,\""', (0, 34, 65, 44, 34)),
     (r'"C:\\",12', (67, 58, 92, 12)),
-    ('256,1,1000,2', (0, 1, 0, 2)),
+    ('"",5,"a",""', (5, 97)),
+    ('"1"+1,2+"2","3"+4+"5",3*$04', (50, 52, 108, 12)),
+    ('%11/3,44444%256,(1+2) %10', (1, 156, 3)),
+    ('256,1,1000,2,"23"+1,""+1', (0, 1, 0, 2, 0, 0)),
     ('1,x,2', (1, 0, 2))
 )
 
@@ -1309,6 +1356,7 @@ DEFW = (
     ('%101,%111111111', (5, 0, 255, 1)),
     ('"a",1', (97, 0, 1, 0)),
     (r'"\\",1', (92, 0, 1, 0)),
+    ('120+5,"0"+$1000,23+45*256', (125, 0, 48, 16, 23, 45)),
     ('1,65536,2', (1, 0, 0, 0, 2, 0)),
     ('?,45', (0, 0, 45, 0))
 )
@@ -1319,6 +1367,7 @@ DEFS = (
     ('$02,$02', (2, 2)),
     ('3,%01010101', (85, 85, 85)),
     ('2,"b"', (98, 98)),
+    ('2*2,"0"+$80', (176, 176, 176, 176)),
     ('2,257', (0, 0)),
     ('65536,1', ()),
     ('$,4', ())
@@ -1331,10 +1380,10 @@ class Z80Test(SkoolKitTestCase):
 
     def _test_operation(self, operation, exp_data, address):
         data = assemble(operation, address)
-        self.assertEqual(exp_data, data, "assemble('{}', {}) failed".format(operation, address))
+        self.assertEqual(data, exp_data, "assemble('{}', {}) failed".format(operation, address))
         exp_length = len(data)
         length = get_size(operation, address)
-        self.assertEqual(exp_length, length, "get_size('{}', {}) failed".format(operation, address))
+        self.assertEqual(length, exp_length, "get_size('{}', {}) failed".format(operation, address))
 
     def _test_assembly(self, operation, exp_data=(), address=0, test_lower=False):
         self._test_operation(operation, exp_data, address)
@@ -1355,6 +1404,10 @@ class Z80Test(SkoolKitTestCase):
 
     def test_character_operands(self):
         for operation, exp_data in CHARACTER_OPERANDS:
+            self._test_assembly(operation, exp_data)
+
+    def test_arithmetic_expression_operands(self):
+        for operation, exp_data in ARITHMETIC_EXPRESSION_OPERANDS:
             self._test_assembly(operation, exp_data)
 
     def test_tricky_character_operands(self):
@@ -1396,7 +1449,16 @@ class Z80Test(SkoolKitTestCase):
             'JP 65536',
             'LD A,(IX*0)',
             'JR 130',
-            'NEG A'
+            'NEG A',
+            'LD B,"12"',
+            'IM -2',
+            'BIT -4,C',
+            'RES -3,D',
+            'SET -2,E',
+            'IN A,(-53)',
+            'OUT (1-2),A',
+            'RST -56',
+            'XOR %21'
         )
         for operation in invalid_operations:
             self._test_assembly(operation)

@@ -14,34 +14,60 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import re
 from functools import partial
 
-from skoolkit import get_int_param, parse_int
-from skoolkit.textutils import split_unquoted
+from skoolkit.textutils import split_unquoted, split_quoted
 
 REG = ('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')
 REG_PAIRS = ('BC', 'DE', 'HL', 'SP')
 INDEX_REG = ('IXH', 'IXL', 'IYH', 'IYL')
 INDEX_REG_PAIRS = ('IX', 'IY')
+OPERAND_AE_CHARS = frozenset(' +-*/%0123456789()')
 
-def _parse_num(num, brackets):
-    if brackets:
-        if num.startswith("(") and num.endswith(")"):
-            return get_int_param(num[1:-1])
+def _convert_chars(text):
+    s = ''
+    for p in split_quoted(text):
+        if p.startswith('"') and p.endswith('"'):
+            if p.startswith('"\\'):
+                s += str(ord(p[2:-1]))
+            else:
+                s += str(ord(p[1:-1]))
+        else:
+            s += p
+    return s
+
+def _convert_nums(text):
+    elements = re.split('(\$[0-9A-Fa-f]+|%[01]+|\d+)', re.sub('\s+', '', text))
+    for i in range(1, len(elements), 2):
+        q = elements[i]
+        if q.startswith('$'):
+            elements[i] = str(int(q[1:], 16))
+        elif q.startswith('%'):
+            p = elements[i - 1]
+            if i == 1 or (p and p[-1] != ')'):
+                elements[i] = str(int(q[1:], 2))
+    return ''.join(elements)
+
+def _parse_expr(text, limit, brackets, non_neg, default):
+    try:
+        if not brackets or (text.startswith("(") and text.endswith(")")):
+            s = _convert_nums(_convert_chars(text))
+            if set(s) <= OPERAND_AE_CHARS:
+                value = int(eval(s.replace('/', '//')))
+                if not (abs(value) >= limit or (non_neg and value < 0)):
+                    return value % limit
         raise ValueError
-    return get_int_param(num)
+    except:
+        if default is None:
+            raise ValueError
+        return default
 
-def _parse_byte(num, limit=256, brackets=False):
-    value = _parse_num(num, brackets)
-    if 0 <= value < limit:
-        return value
-    raise ValueError
+def _parse_byte(text, limit=256, brackets=False, non_neg=False, default=None):
+    return _parse_expr(text, limit, brackets, non_neg, default)
 
-def _parse_word(num, brackets=False):
-    value = _parse_num(num, brackets)
-    if 0 <= value < 65536:
-        return value
-    raise ValueError
+def _parse_word(text, brackets=False, default=None):
+    return _parse_expr(text, 65536, brackets, False, default)
 
 def _parse_offset(op):
     if op.startswith(('(IX+', '(IX-', '(IY+', '(IY-')) and op.endswith(')'):
@@ -98,7 +124,7 @@ def _assemble_add(address, op1, op2):
             return (_index_code(op1), 9 + 16 * _reg_pair_index(op2))
 
 def _bit_res_set(base_code, address, op1, op2):
-    bit_offset = base_code + 8 * _parse_byte(op1, 8)
+    bit_offset = base_code + 8 * _parse_byte(op1, 8, non_neg=True)
     if op2.startswith('(I'):
         return (_index_code(op2), 203, _parse_offset(op2), bit_offset + 6)
     return (203, bit_offset + _reg_index(op2))
@@ -147,13 +173,13 @@ def _assemble_ex(address, op1, op2):
             return (_index_code(op2), 227)
 
 def _assemble_im(address, op):
-    return (237, 70 + (0, 16, 24)[_parse_byte(op, 3)])
+    return (237, 70 + (0, 16, 24)[_parse_byte(op, 3, non_neg=True)])
 
 def _assemble_in(address, op1, op2):
     if op2 == '(C)' and op1 != '(HL)':
         return (237, 64 + 8 * _reg_index(op1))
     if op1 == 'A':
-        return (219, _parse_byte(op2, brackets=True))
+        return (219, _parse_byte(op2, brackets=True, non_neg=True))
 
 def _assemble_jp(address, op1, op2=None):
     if op2 is None:
@@ -280,7 +306,7 @@ def _assemble_out(address, op1, op2):
     if op1 == '(C)' and op2 != '(HL)':
         return (237, 65 + 8 * _reg_index(op2))
     if op2 == 'A':
-        return (211, _parse_byte(op1, brackets=True))
+        return (211, _parse_byte(op1, brackets=True, non_neg=True))
 
 def _pop_push(base_code, address, op):
     if op in INDEX_REG_PAIRS:
@@ -298,7 +324,7 @@ def _rotate_and_shift(base_code, address, op):
     return (203, base_code + _reg_index(op))
 
 def _assemble_rst(address, op):
-    num = _parse_byte(op, 57)
+    num = _parse_byte(op, 57, non_neg=True)
     if num % 8 == 0:
         return (199 + num,)
 
@@ -379,38 +405,41 @@ MNEMONICS = {
     'XOR': partial(_arithmetic_a, 168)
 }
 
-def _item_value(item, limit=256):
-    value = parse_int(item, 0)
-    if 0 <= value < limit:
-        return value
-    return 0
+def _parse_string(item):
+    if item.startswith('"') and item.endswith('"'):
+        data = []
+        i = 1
+        while i < len(item) - 1:
+            if item[i] == '"':
+                return
+            if item[i] == '\\':
+                i += 1
+            data.append(ord(item[i]))
+            i += 1
+        return data
 
 def _assemble_defb(items):
     data = []
     for item in items:
-        if item.startswith('"'):
-            i = 1
-            while i < len(item) - 1:
-                if item[i] == '\\':
-                    i += 1
-                data.append(ord(item[i]))
-                i += 1
+        values = _parse_string(item)
+        if values is not None:
+            data.extend(values)
         else:
-            data.append(_item_value(item))
+            data.append(_parse_byte(item, default=0))
     return tuple(data)
 
 def _assemble_defs(items):
     if items:
-        span = _item_value(items[0], 65536)
+        span = _parse_word(items[0], default=0)
         if len(items) > 1:
-            value = _item_value(items[1])
+            value = _parse_byte(items[1], default=0)
         else:
             value = 0
         return (value,) * span
 
 def _assemble_defw(items):
     data = []
-    for arg in [_item_value(v, 65536) for v in items]:
+    for arg in [_parse_word(v, default=0) for v in items]:
         data.extend((arg % 256, arg // 256))
     return tuple(data)
 
