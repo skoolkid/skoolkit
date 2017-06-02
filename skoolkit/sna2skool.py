@@ -15,9 +15,9 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-from os.path import isfile
 
-from skoolkit import info, read_bin_file, VERSION
+from skoolkit import info, find_file, read_bin_file, VERSION
+from skoolkit.config import get_config
 from skoolkit.ctlparser import CtlParser
 from skoolkit.sftparser import SftParser
 from skoolkit.snapshot import get_snapshot
@@ -27,10 +27,6 @@ START = 16384
 END = 65536
 DEFB_SIZE = 8
 DEFM_SIZE = 66
-
-def find(fname):
-    if isfile(fname):
-        return fname
 
 def run(snafile, options):
     # Read the snapshot file
@@ -47,6 +43,7 @@ def run(snafile, options):
         snapshot.extend(ram)
         start = max(org, options.start)
     end = min(options.end, len(snapshot))
+    config = get_config('sna2skool')
 
     # Pad out the end of the snapshot to avoid disassembly errors when an
     # instruction crosses the 64K boundary
@@ -61,7 +58,7 @@ def run(snafile, options):
 
     if options.genctlfile:
         # Generate a control file
-        ctls = generate_ctls(snapshot, start, end, options.code_map)
+        ctls = generate_ctls(snapshot, start, end, options.code_map, config)
         write_ctl(options.genctlfile, ctls, options.ctl_hex)
         ctl_parser = CtlParser(ctls)
     elif options.ctlfile:
@@ -71,7 +68,7 @@ def run(snafile, options):
         ctl_parser.parse_ctl(options.ctlfile, options.start, options.end)
     else:
         ctl_parser = CtlParser({start: 'c', end: 'i'})
-    writer = SkoolWriter(snapshot, ctl_parser, options)
+    writer = SkoolWriter(snapshot, ctl_parser, options, config)
     writer.write_skool(options.write_refs, options.text)
 
 def main(args):
@@ -135,7 +132,7 @@ def main(args):
     else:
         prefix = snafile
     if not (namespace.ctlfile or namespace.sftfile):
-        namespace.sftfile = find('{}.sft'.format(prefix))
+        namespace.sftfile = find_file(prefix + '.sft')
     if not (namespace.ctlfile or namespace.sftfile):
-        namespace.ctlfile = find('{}.ctl'.format(prefix))
+        namespace.ctlfile = find_file(prefix + '.ctl')
     run(snafile, namespace)

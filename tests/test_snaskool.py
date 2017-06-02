@@ -3,6 +3,7 @@ import unittest
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import SkoolKitError
+from skoolkit.config import COMMANDS
 from skoolkit.snaskool import Disassembly, SkoolWriter, write_ctl
 from skoolkit.ctlparser import CtlParser
 
@@ -214,11 +215,13 @@ c32779 JR 32773      ;
 b32781 DEFB 0
 """.split('\n')
 
+CONFIG = COMMANDS['sna2skool']
+
 class DisassemblyTest(SkoolKitTestCase):
     def _test_disassembly(self, snapshot, ctl, exp_instructions, **kwargs):
         ctl_parser = CtlParser()
         ctl_parser.parse_ctl(self.write_text_file(ctl))
-        disassembly = Disassembly(snapshot, ctl_parser, True, **kwargs)
+        disassembly = Disassembly(snapshot, ctl_parser, CONFIG, True, **kwargs)
         entries = disassembly.entries
         self.assertEqual(len(entries), 2)
         entry = entries[0]
@@ -230,7 +233,7 @@ class DisassemblyTest(SkoolKitTestCase):
     def test_disassembly(self):
         ctl_parser = CtlParser()
         ctl_parser.parse_ctl(self.write_text_file(DISASSEMBLY_CTL))
-        disassembly = Disassembly(DISASSEMBLY_SNAPSHOT, ctl_parser, True)
+        disassembly = Disassembly(DISASSEMBLY_SNAPSHOT, ctl_parser, CONFIG, True)
 
         entries = disassembly.entries
         self.assertEqual(len(entries), 17)
@@ -466,7 +469,7 @@ class DisassemblyTest(SkoolKitTestCase):
         ctls = ['c 00000'] + ['c {:05d}'.format(a) for a in exp_ref_addresses] + ['i 00068']
         ctl_parser = CtlParser()
         ctl_parser.parse_ctl(self.write_text_file('\n'.join(ctls)))
-        disassembly = Disassembly(snapshot, ctl_parser, True)
+        disassembly = Disassembly(snapshot, ctl_parser, CONFIG, True)
 
         referrers = disassembly.entries[0].instructions[0].referrers
         ref_addresses = set([entry.address for entry in referrers])
@@ -1051,7 +1054,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         ctl_parser = CtlParser()
         ctl_parser.parse_ctl(self.write_text_file(ctl))
         options = MockOptions(line_width, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
-        return SkoolWriter(snapshot, ctl_parser, options)
+        return SkoolWriter(snapshot, ctl_parser, options, CONFIG)
 
     def _test_write_skool(self, snapshot, ctl, exp_skool, write_refs=0, show_text=False, **kwargs):
         writer = self._get_writer(snapshot, ctl, **kwargs)

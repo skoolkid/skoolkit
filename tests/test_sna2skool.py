@@ -287,12 +287,13 @@ class MockSftParser:
         self.wrote_skool = True
 
 class MockSkoolWriter:
-    def __init__(self, snapshot, ctl_parser, options):
+    def __init__(self, snapshot, ctl_parser, options, config):
         global mock_skool_writer
         mock_skool_writer = self
         self.snapshot = snapshot
         self.ctl_parser = ctl_parser
         self.options = options
+        self.config = config
         self.wrote_skool = False
 
     def write_skool(self, write_refs, text):

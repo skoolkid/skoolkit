@@ -22,7 +22,8 @@ import time
 import argparse
 from io import StringIO
 
-from skoolkit import defaults, SkoolKitError, show_package_dir, write, write_line, get_class, normpath, PACKAGE_DIR, VERSION
+from skoolkit import (defaults, SkoolKitError, find_file, show_package_dir,
+                      write, write_line, get_class, normpath, PACKAGE_DIR, VERSION)
 from skoolkit.refparser import RefParser
 from skoolkit.skoolhtml import FileInfo
 from skoolkit.skoolparser import SkoolParser, CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
@@ -88,9 +89,7 @@ def find(fname, extra_search_dirs, first_search_dir=None):
     search_dirs.extend(SEARCH_DIRS)
     if extra_search_dirs:
         search_dirs.extend(extra_search_dirs)
-    for f in [os.path.join(d, fname) for d in search_dirs]:
-        if isfile(f):
-            return f
+    return find_file(fname, search_dirs)
 
 def add_lines(ref_parser, config_specs, section=None):
     for config_spec in config_specs:

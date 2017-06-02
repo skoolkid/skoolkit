@@ -29,9 +29,6 @@ OP_WIDTH = 13
 MIN_COMMENT_WIDTH = 10
 MIN_INSTRUCTION_COMMENT_WIDTH = 10
 
-REFS_PREFIX = 'Used by the '
-EREFS_PREFIX = 'This entry point is used by the '
-
 # The maximum number of distinct bytes that can be in a data block (as a
 # fraction of the block length)
 UNIQUE_BYTES_MAX = 0.3
@@ -213,7 +210,7 @@ def _find_terminal_instruction(disassembler, ctls, start, end=65536, ctl=None):
             break
     return address
 
-def _generate_ctls_with_code_map(snapshot, start, end, code_map):
+def _generate_ctls_with_code_map(snapshot, start, end, code_map, config):
     # (1) Use the code map to create an initial set of 'c' ctls, and mark all
     #     unexecuted blocks as 'U' (unknown)
     # (2) Where a 'c' block doesn't end with a RET/JP/JR, extend it up to the
@@ -254,7 +251,7 @@ def _generate_ctls_with_code_map(snapshot, start, end, code_map):
     # (3) Mark entry points in 'U' blocks that are CALLed or JPed to from 'c'
     # blocks with 'c'
     ctl_parser = CtlParser(ctls)
-    disassembly = Disassembly(snapshot, ctl_parser)
+    disassembly = Disassembly(snapshot, ctl_parser, config)
     while 1:
         disassembly.build(True)
         done = True
@@ -329,7 +326,7 @@ def _generate_ctls_with_code_map(snapshot, start, end, code_map):
 
     return ctls
 
-def _generate_ctls_without_code_map(snapshot, start, end):
+def _generate_ctls_without_code_map(snapshot, start, end, config):
     ctls = {start: 'c', end: 'i'}
 
     # Look for potential 'RET', 'JR d' and 'JP nn' instructions and assume that
@@ -345,7 +342,7 @@ def _generate_ctls_without_code_map(snapshot, start, end):
             ctls[address + 2] = 'c'
 
     ctl_parser = CtlParser(ctls)
-    disassembly = Disassembly(snapshot, ctl_parser)
+    disassembly = Disassembly(snapshot, ctl_parser, config)
 
     # Scan the disassembly for pairs of adjacent blocks that overlap, and join
     # such pairs
@@ -534,11 +531,11 @@ def _analyse_blocks(disassembly, ctls):
                 if z_end < end:
                     ctls[z_end] = 'c'
 
-def generate_ctls(snapshot, start, end, code_map):
+def generate_ctls(snapshot, start, end, code_map, config):
     if code_map:
-        ctls = _generate_ctls_with_code_map(snapshot, start, end, code_map)
+        ctls = _generate_ctls_with_code_map(snapshot, start, end, code_map, config)
     else:
-        ctls = _generate_ctls_without_code_map(snapshot, start, end)
+        ctls = _generate_ctls_without_code_map(snapshot, start, end, config)
 
     # Join any adjacent data and zero blocks
     blocks = _get_blocks(ctls)
@@ -584,7 +581,8 @@ class Entry:
         return comment_type in self.ignoreua_directives
 
 class Disassembly:
-    def __init__(self, snapshot, ctl_parser, final=False, defb_size=8, defb_mod=1, zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
+    def __init__(self, snapshot, ctl_parser, config, final=False, defb_size=8, defb_mod=1,
+                 zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
         self.disassembler = Disassembler(snapshot, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
         self.ctl_parser = ctl_parser
         if asm_hex:
@@ -595,6 +593,7 @@ class Disassembly:
         else:
             self.address_fmt = '{0}'
         self.entry_map = {}
+        self.config = config
         self.build(final)
 
     def build(self, final=False):
@@ -617,18 +616,10 @@ class Disassembly:
                     self.instructions[instruction.address] = instruction
                 continue
             title = block.title
-            if block.ctl == 'c':
-                title = title or 'Routine at {}'.format(self._address_str(block.start))
-            elif block.ctl in 'bw':
-                title = title or 'Data block at {}'.format(self._address_str(block.start))
-            elif block.ctl == 't':
-                title = title or 'Message at {}'.format(self._address_str(block.start))
-            elif block.ctl == 'g':
-                title = title or 'Game status buffer entry at {}'.format(self._address_str(block.start))
-            elif block.ctl in 'us':
-                title = title or 'Unused'
-            elif block.ctl == 'i' and (block.description or block.registers or block.blocks[0].header):
-                title = title or 'Ignored'
+            if not title:
+                ctl = block.ctl
+                if ctl != 'i' or block.description or block.registers or block.blocks[0].header:
+                    title = self.config.get('Title-' + ctl, '').format(address=self._address_str(block.start))
             for sub_block in block.blocks:
                 address = sub_block.start
                 if sub_block.ctl in 'cBT':
@@ -712,12 +703,13 @@ class Disassembly:
         return self.address_fmt.format(address)
 
 class SkoolWriter:
-    def __init__(self, snapshot, ctl_parser, options):
+    def __init__(self, snapshot, ctl_parser, options, config):
         self.comment_width = max(options.line_width - 2, MIN_COMMENT_WIDTH)
-        self.disassembly = Disassembly(snapshot, ctl_parser, True, options.defb_size, options.defb_mod, options.zfill,
-                                       options.defm_width, options.asm_hex, options.asm_lower)
+        self.disassembly = Disassembly(snapshot, ctl_parser, config, True, options.defb_size, options.defb_mod,
+                                       options.zfill, options.defm_width, options.asm_hex, options.asm_lower)
         self.address_fmt = get_address_format(options.asm_hex, options.asm_lower)
         self.asm_hex = options.asm_hex
+        self.config = config
 
     def address_str(self, address, pad=True):
         if self.asm_hex or pad:
@@ -773,7 +765,7 @@ class SkoolWriter:
                 self.write_comment('')
                 if ignoreua_d:
                     self.write_asm_directives(AD_IGNOREUA)
-                self.write_referrers(REFS_PREFIX, referrers)
+                self.write_referrers(referrers, False)
                 wrote_desc = True
         if entry.description:
             if wrote_desc:
@@ -840,7 +832,7 @@ class SkoolWriter:
                 if referrers and (write_refs == 1 or not block.header):
                     if ignoreua_m:
                         self.write_asm_directives(AD_IGNOREUA)
-                    self.write_referrers(EREFS_PREFIX, referrers)
+                    self.write_referrers(referrers)
                     begun_header = True
             if block.header:
                 if first_block:
@@ -875,7 +867,7 @@ class SkoolWriter:
             else:
                 comment = ''
             if index > 0 and entry.ctl == 'c' and ctl == '*' and write_refs > -1:
-                self.write_referrers(EREFS_PREFIX, instruction.referrers)
+                self.write_referrers(instruction.referrers)
             self.write_asm_directives(*instruction.asm_directives)
             if block.has_ignoreua_directive(instruction.address, INSTRUCTION):
                 self.write_asm_directives(AD_IGNOREUA)
@@ -906,14 +898,17 @@ class SkoolWriter:
                 self._write_paragraph_separator()
             self.write_comment(paragraphs[-1])
 
-    def write_referrers(self, prefix, referrers):
+    def write_referrers(self, referrers, erefs=True):
         if referrers:
-            if len(referrers) == 1:
-                infix = 'routine at '
+            if erefs:
+                key = 'EntryPointRef'
             else:
-                infix = 'routines at {} and '.format(', '.join('#R{}'.format(self.address_str(r.address, False)) for r in referrers[:-1]))
-            suffix = '#R{}'.format(self.address_str(referrers[-1].address, False))
-            self.write_comment('{0}{1}{2}.'.format(prefix, infix, suffix))
+                key = 'Ref'
+            fields = {'ref': '#R' + self.address_str(referrers[-1].address, False)}
+            if len(referrers) > 1:
+                key += 's'
+                fields['refs'] = ', '.join(['#R' + self.address_str(r.address, False) for r in referrers[:-1]])
+            self.write_comment(self.config[key].format(**fields))
 
     def write_asm_directives(self, *directives):
         for directive in directives:

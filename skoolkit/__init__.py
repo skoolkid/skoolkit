@@ -90,6 +90,11 @@ def get_class(name_spec, default_path):
     except AttributeError:
         raise SkoolKitError("No class named '{0}' in module '{1}'".format(cls_name, mod_name))
 
+def find_file(fname, search_dirs=('',)):
+    for f in [os.path.join(d, fname) for d in search_dirs]:
+        if os.path.isfile(f):
+            return f
+
 def open_file(fname, mode='r'):
     if fname == '-':
         if 'w' in mode:
