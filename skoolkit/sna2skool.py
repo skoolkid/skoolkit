@@ -25,10 +25,8 @@ from skoolkit.snaskool import SkoolWriter, generate_ctls, write_ctl
 
 START = 16384
 END = 65536
-DEFB_SIZE = 8
-DEFM_SIZE = 66
 
-def run(snafile, options):
+def run(snafile, options, config):
     # Read the snapshot file
     if snafile[-4:].lower() in ('.sna', '.szx', '.z80'):
         snapshot = get_snapshot(snafile, options.page)
@@ -43,7 +41,6 @@ def run(snafile, options):
         snapshot.extend(ram)
         start = max(org, options.start)
     end = min(options.end, len(snapshot))
-    config = get_config('sna2skool')
 
     # Pad out the end of the snapshot to avoid disassembly errors when an
     # instruction crosses the 64K boundary
@@ -72,6 +69,7 @@ def run(snafile, options):
     writer.write_skool(options.write_refs, options.text)
 
 def main(args):
+    config = get_config('sna2skool')
     parser = argparse.ArgumentParser(
         usage='sna2skool.py [options] FILE',
         description="Convert a binary (raw memory) file or a SNA, SZX or Z80 snapshot into a skool file. "
@@ -86,41 +84,41 @@ def main(args):
                        help='Stop disassembling at this address (default={})'.format(END))
     group.add_argument('-g', '--generate-ctl', dest='genctlfile', metavar='FILE',
                        help='Generate a control file in FILE')
-    group.add_argument('-h', '--ctl-hex', dest='ctl_hex', action='store_const', const=1, default=0,
+    group.add_argument('-h', '--ctl-hex', dest='ctl_hex', action='store_const', const=1, default=config['CtlHex'],
                        help='Write upper case hexadecimal addresses in the generated control file')
-    group.add_argument('-H', '--skool-hex', dest='asm_hex', action='store_true',
+    group.add_argument('-H', '--skool-hex', dest='asm_hex', action='store_const', const=1, default=config['SkoolHex'],
                        help='Write hexadecimal addresses and operands in the disassembly')
-    group.add_argument('-i', '--ctl-hex-lower', dest='ctl_hex', action='store_const', const=-1, default=0,
+    group.add_argument('-i', '--ctl-hex-lower', dest='ctl_hex', action='store_const', const=-1, default=config['CtlHex'],
                        help='Write lower case hexadecimal addresses in the generated control file')
-    group.add_argument('-l', '--defm-size', dest='defm_width', metavar='L', type=int, default=DEFM_SIZE,
-                       help='Set the maximum number of characters per DEFM statement to L (default={})'.format(DEFM_SIZE))
-    group.add_argument('-L', '--lower', dest='asm_lower', action='store_true',
+    group.add_argument('-l', '--defm-size', dest='defm_width', metavar='L', type=int, default=config['DefmSize'],
+                       help='Set the maximum number of characters per DEFM statement to L (default={})'.format(config['DefmSize']))
+    group.add_argument('-L', '--lower', dest='asm_lower', action='store_const', const=1, default=config['LowerCase'],
                        help='Write the disassembly in lower case')
-    group.add_argument('-m', '--defb-mod', dest='defb_mod', metavar='M', type=int, default=1,
+    group.add_argument('-m', '--defb-mod', dest='defb_mod', metavar='M', type=int, default=config['DefbMod'],
                        help='Group DEFB blocks by addresses that are divisible by M')
     group.add_argument('-M', '--map', dest='code_map', metavar='FILE',
                        help='Use FILE as a code execution map when generating a control file')
-    group.add_argument('-n', '--defb-size', dest='defb_size', metavar='N', type=int, default=DEFB_SIZE,
-                       help='Set the maximum number of bytes per DEFB statement to N (default={})'.format(DEFB_SIZE))
+    group.add_argument('-n', '--defb-size', dest='defb_size', metavar='N', type=int, default=config['DefbSize'],
+                       help='Set the maximum number of bytes per DEFB statement to N (default={})'.format(config['DefbSize']))
     group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=int,
                        help='Specify the origin address of a binary (.bin) file (default: 65536 - length)')
     group.add_argument('-p', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535')
-    group.add_argument('-r', '--no-erefs', dest='write_refs', action='store_const', const=-1, default=0,
+    group.add_argument('-r', '--no-erefs', dest='write_refs', action='store_const', const=-1, default=config['Erefs'],
                        help="Don't add comments that list entry point referrers")
-    group.add_argument('-R', '--erefs', dest='write_refs', action='store_const', const=1, default=0,
+    group.add_argument('-R', '--erefs', dest='write_refs', action='store_const', const=1, default=config['Erefs'],
                        help="Always add comments that list entry point referrers")
     group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=int, default=0,
                        help='Start disassembling at this address (default={})'.format(START))
-    group.add_argument('-t', '--text', dest='text', action='store_true',
+    group.add_argument('-t', '--text', dest='text', action='store_const', const=1, default=config['Text'],
                        help='Show ASCII text in the comment fields')
     group.add_argument('-T', '--sft', dest='sftfile', metavar='FILE',
                        help="Use FILE as the skool file template (may be '-' for standard input)")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
-    group.add_argument('-w', '--line-width', dest='line_width', metavar='W', type=int, default=79,
-                       help='Set the maximum line width of the skool file (default: 79)')
-    group.add_argument('-z', '--defb-zfill', dest='zfill', action='store_true',
+    group.add_argument('-w', '--line-width', dest='line_width', metavar='W', type=int, default=config['LineWidth'],
+                       help='Set the maximum line width of the skool file (default: {})'.format(config['LineWidth']))
+    group.add_argument('-z', '--defb-zfill', dest='zfill', action='store_const', const=1, default=config['DefbZfill'],
                        help='Pad decimal values in DEFB statements with leading zeroes')
 
     namespace, unknown_args = parser.parse_known_args(args)
@@ -135,4 +133,4 @@ def main(args):
         namespace.sftfile = find_file(prefix + '.sft')
     if not (namespace.ctlfile or namespace.sftfile):
         namespace.ctlfile = find_file(prefix + '.ctl')
-    run(snafile, namespace)
+    run(snafile, namespace, config)

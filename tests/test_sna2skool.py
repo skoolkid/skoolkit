@@ -4,6 +4,7 @@ from unittest.mock import patch, Mock
 
 from skoolkittest import SkoolKitTestCase
 from skoolkit import sna2skool, SkoolKitError, VERSION
+from skoolkit.config import COMMANDS
 
 # Binary data designed to test the default static code analysis algorithm:
 #   1. Insert block separators after byte sequences 201 ('RET'), 195,n,n
@@ -305,6 +306,9 @@ def mock_run(*args):
     global run_args
     run_args = args
 
+def mock_config(name):
+    return COMMANDS[name]
+
 class OptionsTest(SkoolKitTestCase):
     def _create_z80_map(self, addresses):
         bits = []
@@ -367,9 +371,10 @@ class OptionsTest(SkoolKitTestCase):
         return log
 
     @patch.object(sna2skool, 'run', mock_run)
+    @patch.object(sna2skool, 'get_config', mock_config)
     def test_default_option_values(self):
         sna2skool.main(('test.sna',))
-        snafile, options = run_args
+        snafile, options = run_args[:2]
         self.assertEqual(snafile, 'test.sna')
         self.assertIsNone(options.ctlfile)
         self.assertIsNone(options.sftfile)
@@ -387,6 +392,79 @@ class OptionsTest(SkoolKitTestCase):
         self.assertEqual(options.defb_mod, 1)
         self.assertEqual(options.line_width, 79)
         self.assertFalse(options.zfill)
+
+    @patch.object(sna2skool, 'run', mock_run)
+    def test_config_read_from_file(self):
+        ini = '\n'.join((
+            '[sna2skool]',
+            'CtlHex=1',
+            'DefbMod=8',
+            'DefbSize=12',
+            'DefbZfill=1',
+            'DefmSize=92',
+            'Erefs=-1',
+            'LineWidth=119',
+            'LowerCase=1',
+            'SkoolHex=1',
+            'Text=1',
+            'Title-b=Data at {address}',
+            'Title-c=Code at {address}'
+        ))
+        self.write_text_file(ini, 'skoolkit.ini')
+        sna2skool.main(('test.sna',))
+        snafile, options, config = run_args
+        self.assertEqual(snafile, 'test.sna')
+        self.assertIsNone(options.ctlfile)
+        self.assertIsNone(options.sftfile)
+        self.assertIsNone(options.genctlfile)
+        self.assertEqual(options.ctl_hex, 1)
+        self.assertTrue(options.asm_hex)
+        self.assertTrue(options.asm_lower)
+        self.assertEqual(options.start, 0)
+        self.assertEqual(options.end, 65536)
+        self.assertIsNone(options.org)
+        self.assertIsNone(options.page)
+        self.assertTrue(options.text)
+        self.assertEqual(options.write_refs, -1)
+        self.assertEqual(options.defb_size, 12)
+        self.assertEqual(options.defb_mod, 8)
+        self.assertEqual(options.line_width, 119)
+        self.assertTrue(options.zfill)
+        self.assertEqual(config.get('Title-b'), 'Data at {address}')
+        self.assertEqual(config.get('Title-c'), 'Code at {address}')
+
+    @patch.object(sna2skool, 'run', mock_run)
+    def test_invalid_option_values_read_from_file(self):
+        ini = '\n'.join((
+            '[sna2skool]',
+            'CtlHex=?',
+            'DefbMod=16',
+            'DefbSize=x'
+        ))
+        self.write_text_file(ini, 'skoolkit.ini')
+        sna2skool.main(('test.sna',))
+        snafile, options = run_args[:2]
+        self.assertEqual(snafile, 'test.sna')
+        self.assertEqual(options.ctl_hex, 0)
+        self.assertEqual(options.defb_mod, 16)
+        self.assertEqual(options.defb_size, 8)
+
+    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_writer_config_read_from_file(self):
+        ini = '\n'.join((
+            '[sna2skool]',
+            'Title-b=Data at {address}',
+            'Title-c=Code at {address}'
+        ))
+        self.write_text_file(ini, 'skoolkit.ini')
+        output, error = self.run_sna2skool('test.sna')
+        self.assertEqual(error, '')
+        config = mock_skool_writer.config
+        self.assertEqual(config.get('Title-b'), 'Data at {address}')
+        self.assertEqual(config.get('Title-c'), 'Code at {address}')
+        self.assertTrue(mock_skool_writer.wrote_skool)
 
     def test_invalid_option(self):
         output, error = self.run_sna2skool('-x dummy.bin', catch_exit=2)
@@ -924,7 +1002,7 @@ class OptionsTest(SkoolKitTestCase):
         sftfile = '{}.sft'.format(snafile[:-4])
         self.write_text_file(path=sftfile)
         sna2skool.main((snafile,))
-        snafile, options = run_args
+        options = run_args[1]
         self.assertEqual(options.sftfile, sftfile)
 
         # Test that a control file specified by the '-c' option takes
@@ -966,7 +1044,7 @@ class OptionsTest(SkoolKitTestCase):
         binfile = 'input.bar'
         ctlfile = self.write_text_file(path='{}.ctl'.format(binfile))
         sna2skool.main((binfile,))
-        snafile, options = run_args
+        options = run_args[1]
         self.assertEqual(options.ctlfile, ctlfile)
 
     @patch.object(sna2skool, 'write_ctl', Mock())

@@ -21,6 +21,16 @@ from skoolkit.refparser import RefParser
 
 COMMANDS = {
     'sna2skool': {
+        'CtlHex': 0,
+        'DefbMod': 1,
+        'DefbSize': 8,
+        'DefbZfill': 0,
+        'DefmSize': 66,
+        'Erefs': 0,
+        'LineWidth': 79,
+        'LowerCase': 0,
+        'SkoolHex': 0,
+        'Text': 0,
         'EntryPointRef': 'This entry point is used by the routine at {ref}.',
         'EntryPointRefs': 'This entry point is used by the routines at {refs} and {ref}.',
         'Ref': 'Used by the routine at {ref}.',
@@ -42,5 +52,12 @@ def get_config(name):
     if skoolkit_ini:
         ref_parser = RefParser()
         ref_parser.parse(skoolkit_ini)
-        config.update(ref_parser.get_dictionary(name))
+        for k, v in ref_parser.get_dictionary(name).items():
+            if isinstance(config.get(k), int):
+                try:
+                    config[k] = int(v)
+                except ValueError:
+                    pass
+            else:
+                config[k] = v
     return config
