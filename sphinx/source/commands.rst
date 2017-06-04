@@ -611,9 +611,75 @@ If the file specified by the ``-M`` option is 8192 bytes long, it is assumed to
 be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
 file; otherwise it is assumed to be in one of the other supported formats.
 
+.. _sna2skool-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`sna2skool.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``CtlHex`` - write addresses in a generated control file in lower case
+  hexadecimal (``-1``), decimal (``0``, the default), or upper case hexadecimal
+  (``1``)
+* ``DefbMod`` - group DEFB blocks by addresses that are divisible by this
+  number (default: ``1``)
+* ``DefbSize`` - maximum number of bytes per DEFB statement (default: ``8``)
+* ``DefbZfill`` - pad decimal values in DEFB statements with leading zeroes
+  (``1``), or leave them unpadded (``0``, the default)
+* ``DefmSize`` - maximum number of characters in a DEFM statement (default:
+  ``66``)
+* ``EntryPointRef`` - template used to format the comment for an entry point
+  with exactly one referrer (default: ``This entry point is used by the routine
+  at {ref}.``)
+* ``EntryPointRefs`` - template used to format the comment for an entry point
+  with two or more referrers (default: ``This entry point is used by the
+  routines at {refs} and {ref}.``)
+* ``Erefs`` - when to add a comment that lists entry point referrers: never
+  (``-1``), if no other comment is defined at the entry point (``0``, the
+  default), or always (``1``)
+* ``LineWidth`` - maximum line width of the skool file (default: ``79``)
+* ``LowerCase`` - write the disassembly in lower case (``1``) or upper case
+  (``0``, the default)
+* ``Ref`` - template used to format the comment for a routine with exactly one
+  referrer (default: ``Used by the routine at {ref}.``)
+* ``Refs`` - template used to format the comment for a routine with two or more
+  referrers (default: ``Used by the routines at {refs} and {ref}.``)
+* ``SkoolHex`` - write addresses and instruction operands in hexadecimal
+  (``1``) or decimal (``0``, the default)
+* ``Text`` - show ASCII text in the comment fields (``1``), or don't (``0``,
+  the default)
+* ``Title-b`` - template used to format the title for an untitled 'b' block
+  (default: ``Data block at {address}``)
+* ``Title-c`` - template used to format the title for an untitled 'c' block
+  (default: ``Routine at {address}``)
+* ``Title-g`` - template used to format the title for an untitled 'g' block
+  (default: ``Game status buffer entry at {address}``
+* ``Title-i`` - template used to format the title for an untitled 'i' block
+  (default: ``Ignored``)
+* ``Title-s`` - template used to format the title for an untitled 's' block
+  (default: ``Unused``)
+* ``Title-t`` - template used to format the title for an untitled 't' block
+  (default: ``Message at {address}``)
+* ``Title-u`` - template used to format the title for an untitled 'u' block
+  (default: ``Unused``)
+* ``Title-w`` - template used to format the title for an untitled 'w' block
+  (default: ``Data block at {address}``)
+
+Configuration parameters must appear in a ``[sna2skool]`` section. For example,
+to make `sna2skool.py` generate hexadecimal skool files with a line width of
+120 characters by default (without having to use the ``-H`` and ``-W`` options
+on the command line), add the following section to `skoolkit.ini`::
+
+  [sna2skool]
+  LineWidth=120
+  SkoolHex=1
+
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 6.1     | Configuration is read from `skoolkit.ini` if present            |
++---------+-----------------------------------------------------------------+
 | 5.0     | Added support for SpecEmu's 64K code execution map files        |
 +---------+-----------------------------------------------------------------+
 | 4.4     | Added the ``--ctl-hex-lower`` and ``--end`` options             |
