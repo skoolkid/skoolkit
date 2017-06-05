@@ -402,9 +402,49 @@ will use the following CSS files, if they exist, in the order listed:
 * `dark.css`
 * `wide.css`
 
+.. _skool2html-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`skool2html.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``AsmLabels`` - use ASM labels (``1``), or don't (``0``, the default)
+* ``AsmOnePage`` - write all routines and data blocks to a single page (``1``),
+  or to multiple pages (``0``, the default)
+* ``Base`` - convert addresses and instruction operands to hexadecimal (``16``)
+  or decimal (``10``), or leave them as they are (``0``, the default)
+* ``Case`` - write the disassembly in lower case (``1``) or upper case (``2``),
+  or leave it as it is (``0``, the default)
+* ``CreateLabels`` - create default labels for unlabelled instructions (``1``),
+  or don't (``0``, the default)
+* ``JoinCss`` - if specified, concatenate CSS files into a single file with
+  this name
+* ``OutputDir`` - write files in this directory (default: ``.``)
+* ``Quiet`` - be quiet (``1``) or verbose (``0``, the default)
+* ``RebuildImages`` - overwrite existing image files (``1``), or leave them
+  alone (``0``, the default)
+* ``Search`` - directory to add to the resource search path; to specify two or
+  more directories, separate them with semicolons
+* ``Theme`` - CSS theme to use; to specify two or more themes, separate them
+  with semicolons
+* ``Time`` - show timings (``1``), or don't (``0``, the default)
+
+Configuration parameters must appear in a ``[skool2html]`` section. For
+example, to make `skool2html.py` use ASM labels and write the disassembly in
+hexadecimal by default (without having to use the ``-H`` and ``-a`` options on
+the command line), add the following section to `skoolkit.ini`::
+
+  [skool2html]
+  AsmLabels=1
+  Base=16
+
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 6.1     | Configuration is read from `skoolkit.ini` if present             |
++---------+------------------------------------------------------------------+
 | 5.4     | Added the ``--asm-one-page`` option                              |
 +---------+------------------------------------------------------------------+
 | 5.0     | The ``--theme`` option also looks for a CSS file whose base name |

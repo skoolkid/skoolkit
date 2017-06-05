@@ -6,6 +6,7 @@ from unittest.mock import patch, Mock
 from skoolkittest import SkoolKitTestCase
 import skoolkit
 from skoolkit import normpath, skool2html, PACKAGE_DIR, VERSION, SkoolKitError
+from skoolkit.config import COMMANDS
 from skoolkit.skoolhtml import HtmlWriter
 from skoolkit.skoolparser import CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
 
@@ -88,6 +89,9 @@ class MockSkoolParser:
     def clone(self, skoolfile):
         return self
 
+def mock_config(name):
+    return COMMANDS[name]
+
 class Skool2HtmlTest(SkoolKitTestCase):
     def setUp(self):
         global html_writer
@@ -97,6 +101,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         html_writer = None
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'get_config', mock_config)
     def _test_option_w(self, write_option, file_ids, method_name, exp_arg_list=None):
         ref = '\n'.join((
             '[OtherCode:other]',
@@ -147,20 +152,95 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(arg_list, exp_arg_list, '{}: {} != {}'.format(method_name, arg_list, exp_arg_list))
 
     @patch.object(skool2html, 'run', mock_run)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_default_option_values(self):
         infiles = ['game1.ref', 'game2.skool']
         skool2html.main(infiles)
         files, options = run_args
         self.assertEqual(files, infiles)
-        self.assertTrue(options.verbose)
+        self.assertFalse(options.asm_labels)
+        self.assertFalse(options.asm_one_page)
+        self.assertFalse(options.create_labels)
+        self.assertEqual(options.single_css, '')
+        self.assertEqual(options.search, [])
+        self.assertEqual(options.themes, [])
+        self.assertFalse(options.quiet)
         self.assertFalse(options.show_timings)
         self.assertEqual(options.config_specs, [])
         self.assertFalse(options.new_images)
-        self.assertEqual(options.case, None)
-        self.assertEqual(options.base, None)
+        self.assertEqual(options.case, 0)
+        self.assertEqual(options.base, 0)
         self.assertEqual(options.files, 'dimoP')
         self.assertEqual(options.pages, [])
-        self.assertEqual(options.output_dir, None)
+        self.assertEqual(options.output_dir, '.')
+
+    @patch.object(skool2html, 'run', mock_run)
+    def test_config_read_from_file(self):
+        output_dir = self.make_directory()
+        ini = '\n'.join((
+            '[skool2html]',
+            'AsmLabels=1',
+            'AsmOnePage=1',
+            'Base=16',
+            'Case=-1',
+            'CreateLabels=1',
+            'JoinCss=css.css',
+            'OutputDir=' + output_dir,
+            'Quiet=1',
+            'RebuildImages=1',
+            'Search=this;that',
+            'Theme=dark;wide',
+            'Time=1'
+        ))
+        self.write_text_file(ini, 'skoolkit.ini')
+        infiles = ['game1.ref', 'game2.skool']
+        skool2html.main(infiles)
+        files, options = run_args
+        self.assertEqual(files, infiles)
+        self.assertTrue(options.asm_labels)
+        self.assertTrue(options.asm_one_page)
+        self.assertTrue(options.create_labels)
+        self.assertEqual(options.single_css, 'css.css')
+        self.assertEqual(options.search, ['this', 'that'])
+        self.assertEqual(options.themes, ['dark', 'wide'])
+        self.assertEqual(options.quiet, 1)
+        self.assertTrue(options.show_timings)
+        self.assertEqual(options.config_specs, ['Game/AsmSinglePageTemplate=AsmAllInOne'])
+        self.assertTrue(options.new_images)
+        self.assertEqual(options.case, -1)
+        self.assertEqual(options.base, 16)
+        self.assertEqual(options.files, 'dimoP')
+        self.assertEqual(options.pages, [])
+        self.assertEqual(options.output_dir, output_dir)
+
+    @patch.object(skool2html, 'run', mock_run)
+    def test_invalid_option_values_read_from_file(self):
+        ini = '\n'.join((
+            '[skool2html]',
+            'AsmLabels=x',
+            'Base=10',
+            'CreateLabels=y'
+        ))
+        self.write_text_file(ini, 'skoolkit.ini')
+        infiles = ['game.skool']
+        skool2html.main(infiles)
+        files, options = run_args
+        self.assertEqual(files, infiles)
+        self.assertFalse(options.asm_labels)
+        self.assertFalse(options.asm_one_page)
+        self.assertFalse(options.create_labels)
+        self.assertEqual(options.single_css, '')
+        self.assertEqual(options.search, [])
+        self.assertEqual(options.themes, [])
+        self.assertFalse(options.quiet)
+        self.assertFalse(options.show_timings)
+        self.assertEqual(options.config_specs, [])
+        self.assertFalse(options.new_images)
+        self.assertEqual(options.case, 0)
+        self.assertEqual(options.base, 10)
+        self.assertEqual(options.files, 'dimoP')
+        self.assertEqual(options.pages, [])
+        self.assertEqual(options.output_dir, '.')
 
     def test_no_arguments(self):
         output, error = self.run_skool2html(catch_exit=2)
@@ -173,6 +253,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertTrue(error.startswith('usage: skool2html.py'))
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_no_ref(self):
         skool = '\n'.join((
             '; Routine',
@@ -260,6 +341,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_default_ref_file(self):
         skoolfile = self.write_text_file(suffix='.skool')
         game_dir = 'default-ref-file-test-{0}'.format(os.getpid())
@@ -271,6 +353,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_multiple_ref_files(self):
         skoolfile = self.write_text_file(suffix='.skool')
         reffile = self.write_text_file("[Config]\nSkoolFile={0}".format(skoolfile), suffix='.ref')
@@ -303,6 +386,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(skool_parser.skoolfile, skoolfile)
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_skool_from_stdin(self):
         self.write_stdin('; Routine\nc30000 RET')
         game_dir = 'program'
@@ -314,6 +398,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_output_dir_with_trailing_separator(self):
         skoolfile = self.write_text_file(suffix='.skool')
         output, error = self.run_skool2html('-d {}/ {}'.format(self.odir, skoolfile))
@@ -322,6 +407,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_no_output_dir(self):
         skoolfile = self.write_text_file(suffix='.skool')
         name = os.path.basename(skoolfile[:-6])
@@ -331,6 +417,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(output[3], 'Creating directory {0}'.format(name))
 
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_html_writer_class(self):
         writer_module = '\n'.join((
             'import sys',
@@ -355,6 +442,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_file_with_ref_suffix_is_treated_as_a_ref_file(self):
         reffile = self.write_text_file(suffix='.ref')
         self.write_text_file(path='{}.skool'.format(reffile[:-4]))
@@ -365,6 +453,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_file_without_ref_suffix_is_treated_as_a_skool_file(self):
         for suffix in ('.skool', '.sks', '.kit', ''):
             skoolfile = self.write_text_file(suffix=suffix)
@@ -376,6 +465,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_ref_file_in_same_directory_as_skool_file(self):
         subdir = self.make_directory()
         skoolfile = self.write_text_file(path='{}/test-{}.skool'.format(subdir, os.getpid()))
@@ -387,6 +477,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_skool_file_in_same_directory_as_ref_file(self):
         subdir = self.make_directory()
         reffile = self.write_text_file(path='{}/test-{}.ref'.format(subdir, os.getpid()))
@@ -523,6 +614,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_custom_style_sheet_path(self):
         css_file = self.write_text_file(suffix='.css')
         style_sheet_path = 'css'
@@ -584,6 +676,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_single_page_disassembly(self):
         reffile = self.write_text_file("[Game]\nAsmSinglePageTemplate=AsmAllInOne", suffix='.ref')
         prefix = reffile[:-4]
@@ -594,6 +687,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_single_page_disassembly_other_code(self):
         ref = '\n'.join((
             '[Game]',
@@ -620,6 +714,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_option_S(self):
         resource_dir = self.make_directory()
         css_fname = 'foo.css'
@@ -634,6 +729,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_option_S_multiple(self):
         css_fname = 'foo.css'
         js_fname = 'bar.js'
@@ -679,6 +775,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_option_j(self):
         css1_content = 'a { color: blue }'
         css1 = self.write_text_file(css1_content, suffix='.css')
@@ -719,13 +816,14 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_option_a(self):
         skoolfile = self.write_text_file(suffix='.skool')
         for option in ('-a', '--asm-labels'):
             output, error = self.run_skool2html('{} {}'.format(option, skoolfile))
             self.assertEqual(error, '')
-            self.assertIs(mock_skool_parser.create_labels, False)
-            self.assertIs(mock_skool_parser.asm_labels, True)
+            self.assertFalse(mock_skool_parser.create_labels)
+            self.assertTrue(mock_skool_parser.asm_labels)
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
@@ -735,7 +833,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         for option in ('-C', '--create-labels'):
             output, error = self.run_skool2html('{} {}'.format(option, skoolfile))
             self.assertEqual(error, '')
-            self.assertIs(mock_skool_parser.create_labels, True)
+            self.assertTrue(mock_skool_parser.create_labels)
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
@@ -807,6 +905,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_option_t(self):
         skoolfile = self.write_text_file(suffix='.skool')
         pattern = 'Done \([0-9]+\.[0-9][0-9]s\)'
@@ -850,6 +949,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_option_T(self):
         skoolfile = self.write_text_file(suffix='.skool')
         cssfile1 = self.write_text_file(suffix='.css')
@@ -866,6 +966,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_option_T_multiple(self):
         skoolfile = self.write_text_file(suffix='.skool')
         default_css = [self.write_text_file(suffix='.css') for i in range(2)]
@@ -956,6 +1057,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_Config_RefFiles_parameter(self):
         ref1 = '\n'.join((
             '[Game]',
@@ -984,6 +1086,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_Config_RefFiles_parameter_contains_ref_file_already_parsed(self):
         prefix = self.write_text_file(suffix='.skool')[:-6]
         ref1 = '\n'.join((
@@ -1012,6 +1115,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_Config_RefFiles_parameter_contains_nonexistent_file(self):
         ref1 = '\n'.join((
             '[Paths]',
@@ -1034,6 +1138,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_Config_RefFiles_parameter_via_option_c(self):
         ref = '\n'.join((
             '[Game]',
@@ -1050,6 +1155,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)
+    @patch.object(skool2html, 'get_config', mock_config)
     def test_option_c_modifies_extra_ref_files(self):
         extra_ref = '\n'.join((
             '[Game]',

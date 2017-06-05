@@ -43,6 +43,20 @@ COMMANDS = {
         'Title-t': 'Message at {address}',
         'Title-u': 'Unused',
         'Title-w': 'Data block at {address}'
+    },
+    'skool2html': {
+        'AsmLabels': 0,
+        'AsmOnePage': 0,
+        'Base': 0,
+        'Case': 0,
+        'CreateLabels': 0,
+        'JoinCss': '',
+        'OutputDir': '.',
+        'Quiet': 0,
+        'RebuildImages': 0,
+        'Search': '',
+        'Theme': '',
+        'Time': 0
     }
 }
 

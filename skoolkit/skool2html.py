@@ -24,6 +24,7 @@ from io import StringIO
 
 from skoolkit import (defaults, SkoolKitError, find_file, show_package_dir,
                       write, write_line, get_class, normpath, PACKAGE_DIR, VERSION)
+from skoolkit.config import get_config
 from skoolkit.refparser import RefParser
 from skoolkit.skoolhtml import FileInfo
 from skoolkit.skoolparser import SkoolParser, CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
@@ -87,8 +88,7 @@ def find(fname, extra_search_dirs, first_search_dir=None):
     else:
         search_dirs = []
     search_dirs.extend(SEARCH_DIRS)
-    if extra_search_dirs:
-        search_dirs.extend(extra_search_dirs)
+    search_dirs.extend(extra_search_dirs)
     return find_file(fname, search_dirs)
 
 def add_lines(ref_parser, config_specs, section=None):
@@ -316,7 +316,7 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
         clock(html_writer.write_index, '  Writing {}'.format(normpath(game_dir, paths['GameIndex'])))
 
 def run(files, options):
-    if options.output_dir in (None, '.'):
+    if options.output_dir == '.':
         topdir = ''
     else:
         topdir = normpath(options.output_dir)
@@ -325,6 +325,10 @@ def run(files, options):
 
 def main(args):
     global verbose, show_timings
+
+    config = get_config('skool2html')
+    def_themes = [t for t in config['Theme'].split(';') if t]
+    def_search_dirs = [d for d in config['Search'].split(';') if d]
 
     parser = argparse.ArgumentParser(
         usage='skool2html.py [options] FILE [FILE...]',
@@ -335,33 +339,33 @@ def main(args):
     )
     parser.add_argument('infiles', help=argparse.SUPPRESS, nargs='*')
     group = parser.add_argument_group('Options')
-    group.add_argument('-1', '--asm-one-page', dest='asm_one_page', action='store_true',
+    group.add_argument('-1', '--asm-one-page', dest='asm_one_page', action='store_const', const=1, default=config['AsmOnePage'],
                        help="Write all routines and data blocks to a single page")
-    group.add_argument('-a', '--asm-labels', dest='asm_labels', action='store_true',
+    group.add_argument('-a', '--asm-labels', dest='asm_labels', action='store_const', const=1, default=config['AsmLabels'],
                        help="Use ASM labels")
     group.add_argument('-c', '--config', dest='config_specs', metavar='S/L', action='append', default=[],
                        help="Add the line 'L' to the ref file section 'S'; this\n"
                             "option may be used multiple times")
-    group.add_argument('-C', '--create-labels', dest='create_labels', action='store_true',
+    group.add_argument('-C', '--create-labels', dest='create_labels', action='store_const', const=1, default=config['CreateLabels'],
                        help="Create default labels for unlabelled instructions")
-    group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR',
+    group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR', default=config['OutputDir'],
                        help="Write files in this directory (default is '.')")
-    group.add_argument('-D', '--decimal', dest='base', action='store_const', const=BASE_10,
+    group.add_argument('-D', '--decimal', dest='base', action='store_const', const=BASE_10, default=config['Base'],
                        help="Write the disassembly in decimal")
-    group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16,
+    group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16, default=config['Base'],
                        help="Write the disassembly in hexadecimal")
-    group.add_argument('-j', '--join-css', dest='single_css', metavar='NAME',
+    group.add_argument('-j', '--join-css', dest='single_css', metavar='NAME', default=config['JoinCss'],
                        help="Concatenate CSS files into a single file with this name")
-    group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER,
+    group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER, default=config['Case'],
                        help="Write the disassembly in lower case")
-    group.add_argument('-o', '--rebuild-images', dest='new_images', action='store_true',
+    group.add_argument('-o', '--rebuild-images', dest='new_images', action='store_const', const=1, default=config['RebuildImages'],
                        help="Overwrite existing image files")
     group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
                        help="Show path to skoolkit package directory and exit")
     group.add_argument('-P', '--pages', dest='pages', metavar='PAGES',
                        help="Write only these pages (when using '--write P');\n"
                             "PAGES is a comma-separated list of page IDs")
-    group.add_argument('-q', '--quiet', dest='verbose', action='store_false',
+    group.add_argument('-q', '--quiet', dest='quiet', action='store_const', const=1, default=config['Quiet'],
                        help="Be quiet")
     group.add_argument('-r', '--ref-sections', dest='ref_sections', metavar='PREFIX',
                        help="Show default ref file sections whose names start with\n"
@@ -370,14 +374,14 @@ def main(args):
                        help="Show the entire default ref file and exit")
     group.add_argument('-s', '--search-dirs', dest='search_dirs', action='store_true',
                        help="Show the locations skool2html.py searches for resources")
-    group.add_argument('-S', '--search', dest='search', metavar='DIR', action='append',
+    group.add_argument('-S', '--search', dest='search', metavar='DIR', action='append', default=def_search_dirs,
                        help="Add this directory to the resource search path; this\n"
                             "option may be used multiple times")
-    group.add_argument('-t', '--time', dest='show_timings', action='store_true',
+    group.add_argument('-t', '--time', dest='show_timings', action='store_const', const=1, default=config['Time'],
                        help="Show timings")
-    group.add_argument('-T', '--theme', dest='themes', metavar='THEME', action='append', default=[],
+    group.add_argument('-T', '--theme', dest='themes', metavar='THEME', action='append', default=def_themes,
                        help="Use this CSS theme; this option may be used multiple\ntimes")
-    group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER,
+    group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER, default=config['Case'],
                        help="Write the disassembly in upper case")
     group.add_argument('-V', '--version', action='version',
                        version='SkoolKit {}'.format(VERSION),
@@ -403,7 +407,7 @@ def main(args):
         show_ref_sections(namespace.ref_sections)
     if unknown_args or not namespace.infiles:
         parser.exit(2, parser.format_help())
-    verbose, show_timings = namespace.verbose, namespace.show_timings
+    verbose, show_timings = not namespace.quiet, namespace.show_timings
     if namespace.asm_one_page:
         namespace.config_specs.append('Game/AsmSinglePageTemplate=AsmAllInOne')
     if namespace.writer:

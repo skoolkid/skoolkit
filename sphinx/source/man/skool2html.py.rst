@@ -144,6 +144,42 @@ will use the following CSS files, if they exist, in the order listed:
 |   dark.css
 |   wide.css
 
+CONFIGURATION
+=============
+``skool2html.py`` will read configuration from a file named ``skoolkit.ini`` in
+the current working directory or in ``~/.skoolkit``, if present. The recognised
+configuration parameters are:
+
+:AsmLabels: Use ASM labels (``1``), or don't (``0``, the default).
+:AsmOnePage: Write all routines and data blocks to a single page (``1``), or to
+  multiple pages (``0``, the default).
+:Base: Convert addresses and instruction operands to hexadecimal (``16``) or
+  decimal (``10``), or leave them as they are (``0``, the default).
+:Case: Write the disassembly in lower case (``1``) or upper case (``2``), or
+  leave it as it is (``0``, the default).
+:CreateLabels: Create default labels for unlabelled instructions (``1``), or
+  don't (``0``, the default).
+:JoinCss: If specified, concatenate CSS files into a single file with this
+  name.
+:OutputDir: Write files in this directory (default: ``.``).
+:Quiet: Be quiet (``1``) or verbose (``0``, the default).
+:RebuildImages: Overwrite existing image files (``1``), or leave them alone
+  (``0``, the default).
+:Search: Directory to add to the resource search path. To specify two or more
+  directories, separate them with semicolons.
+:Theme: CSS theme to use. To specify two or more themes, separate them with
+  semicolons.
+:Time: Show timings (``1``), or don't (``0``, the default).
+
+Configuration parameters must appear in a ``[skool2html]`` section. For
+example, to make ``skool2html.py`` use ASM labels and write the disassembly in
+hexadecimal by default (without having to use the ``-H`` and ``-a`` options on
+the command line), add the following section to ``skoolkit.ini``::
+
+  [skool2html]
+  AsmLabels=1
+  Base=16
+
 EXAMPLES
 ========
 1. Build the entire HTML disassembly for 'game1' from a ref file:
