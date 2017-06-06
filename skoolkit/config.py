@@ -57,6 +57,13 @@ COMMANDS = {
         'Search': '',
         'Theme': '',
         'Time': 0
+    },
+    'skool2asm': {
+        'Base': 0,
+        'Case': 0,
+        'CreateLabels': 0,
+        'Quiet': 0,
+        'Warnings': 1
     }
 }
 

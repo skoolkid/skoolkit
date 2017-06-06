@@ -8,7 +8,8 @@ Changelog
   more (e.g. ``LD A,32768/256`` to ``LD A,$8000/$100``)
 * Added support for assembling instructions and DEFB/DEFM/DEFS/DEFW statements
   whose operands contain arithmetic expressions (e.g. ``DEFM "H","i"+$80``)
-* Added support to :ref:`skool2html.py <skool2html-conf>` and
+* Added support to :ref:`skool2asm.py <skool2asm-conf>`,
+  :ref:`skool2html.py <skool2html-conf>` and
   :ref:`sna2skool.py <sna2skool-conf>` for reading configuration from a file
   named `skoolkit.ini`, if present
 

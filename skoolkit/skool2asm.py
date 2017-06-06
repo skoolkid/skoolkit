@@ -19,6 +19,7 @@ import os.path
 import time
 
 from skoolkit import info, get_class, show_package_dir, VERSION
+from skoolkit.config import get_config
 from skoolkit.skoolasm import AsmWriter
 from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, BASE_16
 
@@ -59,6 +60,9 @@ def run(skoolfile, options):
     clock(options.quiet, 'Wrote ASM to stdout', asm_writer.write)
 
 def main(args):
+    config = get_config('skool2asm')
+    def_properties = ['{}={}'.format(k[4:], v) for k, v in config.items() if k.startswith('Set-')]
+
     parser = argparse.ArgumentParser(
         usage='skool2asm.py [options] FILE',
         description="Convert a skool file into an ASM file and write it to standard output. "
@@ -68,9 +72,9 @@ def main(args):
     )
     parser.add_argument('skoolfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-c', '--create-labels', dest='create_labels', action='store_true',
+    group.add_argument('-c', '--create-labels', dest='create_labels', action='store_const', const=1, default=config['CreateLabels'],
                        help="Create default labels for unlabelled instructions")
-    group.add_argument('-D', '--decimal', dest='base', action='store_const', const=BASE_10,
+    group.add_argument('-D', '--decimal', dest='base', action='store_const', const=BASE_10, default=config['Base'],
                        help="Write the disassembly in decimal")
     group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=int, default=65536,
                        help="Stop converting at this address")
@@ -80,15 +84,15 @@ def main(args):
                             "  N=1: @ofix only\n"
                             "  N=2: @ofix and @bfix\n"
                             "  N=3: @ofix, @bfix and @rfix (implies -r)")
-    group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16,
+    group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16, default=config['Base'],
                        help="Write the disassembly in hexadecimal")
-    group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER,
+    group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER, default=config['Case'],
                        help="Write the disassembly in lower case")
     group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
                        help="Show path to skoolkit package directory and exit")
-    group.add_argument('-P', '--set', dest='properties', metavar='p=v', action='append', default=[],
+    group.add_argument('-P', '--set', dest='properties', metavar='p=v', action='append', default=def_properties,
                        help="Set the value of ASM writer property 'p' to 'v'; this\noption may be used multiple times")
-    group.add_argument('-q', '--quiet', dest='quiet', action='store_true',
+    group.add_argument('-q', '--quiet', dest='quiet', action='store_const', const=1, default=config['Quiet'],
                        help="Be quiet")
     group.add_argument('-r', '--rsub', dest='asm_mode', action='store_const', const=3, default=1,
                        help="Apply safe substitutions (@ssub) and relocatability\nsubstitutions (@rsub) (implies '-f 1')")
@@ -96,11 +100,11 @@ def main(args):
                        help="Apply safe substitutions (@ssub)")
     group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=int, default=0,
                        help="Start converting at this address")
-    group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER,
+    group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER, default=config['Case'],
                        help="Write the disassembly in upper case")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
-    group.add_argument('-w', '--no-warnings', dest='warn', action='store_false',
+    group.add_argument('-w', '--no-warnings', dest='warn', action='store_const', const=0, default=config['Warnings'],
                        help="Suppress warnings")
     group.add_argument('-W', '--writer', dest='writer', metavar='CLASS',
                        help="Specify the ASM writer class to use")

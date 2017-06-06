@@ -74,6 +74,31 @@ OPTIONS
   Specify the ASM writer class to use; this will override any @writer directive
   in the skool file.
 
+CONFIGURATION
+=============
+``skool2asm.py`` will read configuration from a file named ``skoolkit.ini`` in
+the current working directory or in ``~/.skoolkit``, if present. The recognised
+configuration parameters are:
+
+:Base: Convert addresses and instruction operands to hexadecimal (``16``) or
+  decimal (``10``), or leave them as they are (``0``, the default).
+:Case: Write the disassembly in lower case (``1``) or upper case (``2``), or
+  leave it as it is (``0``, the default).
+:CreateLabels: Create default labels for unlabelled instructions (``1``), or
+  don't (``0``, the default).
+:Quiet: Be quiet (``1``) or verbose (``0``, the default).
+:Set-property: Set an ASM writer property value, e.g. ``Set-bullet=+``.
+:Warnings: Show warnings (``1``, the default), or suppress them (``0``).
+
+Configuration parameters must appear in a ``[skool2asm]`` section. For example,
+to make ``skool2asm.py`` write the disassembly in hexadecimal with a line width
+of 120 characters by default (without having to use the ``-H`` and ``-P``
+options on the command line), add the following section to ``skoolkit.ini``::
+
+  [skool2asm]
+  Base=16
+  Set-line-width=120
+
 EXAMPLES
 ========
 1. Convert ``game.skool`` into an ASM file named ``game.asm``:
