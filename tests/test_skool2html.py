@@ -90,7 +90,7 @@ class MockSkoolParser:
         return self
 
 def mock_config(name):
-    return COMMANDS[name]
+    return {k: v[0] for k, v in COMMANDS[name].items()}
 
 class Skool2HtmlTest(SkoolKitTestCase):
     def setUp(self):
@@ -173,6 +173,7 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(options.files, 'dimoP')
         self.assertEqual(options.pages, [])
         self.assertEqual(options.output_dir, '.')
+        self.assertEqual(options.params, [])
 
     @patch.object(skool2html, 'run', mock_run)
     def test_config_read_from_file(self):
@@ -1053,6 +1054,54 @@ class Skool2HtmlTest(SkoolKitTestCase):
                 self.assertEqual(error, '')
                 headers = [line[1:-1] for line in output if line.startswith('[') and line.endswith(']')]
                 self.assertEqual(exp_headers, headers)
+
+    @patch.object(skool2html, 'run', mock_run)
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_option_I(self):
+        for option, spec, attr, exp_value in (('-I', 'Base=16', 'base', 16), ('--ini', 'Case=1', 'case', 1)):
+            self.run_skool2html('{} {} test-I.skool'.format(option, spec))
+            options = run_args[1]
+            self.assertEqual(options.params, [spec])
+            self.assertEqual(getattr(options, attr), exp_value)
+
+    @patch.object(skool2html, 'run', mock_run)
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_option_I_multiple(self):
+        self.run_skool2html('-I Quiet=1 --ini Time=1 test-I-multiple.skool')
+        options = run_args[1]
+        self.assertEqual(options.params, ['Quiet=1', 'Time=1'])
+        self.assertEqual(options.quiet, 1)
+        self.assertEqual(options.show_timings, 1)
+
+    @patch.object(skool2html, 'run', mock_run)
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_option_I_overrides_other_options(self):
+        self.run_skool2html('-H -I Base=10 -l --ini Case=2 test.skool')
+        options = run_args[1]
+        self.assertEqual(options.params, ['Base=10', 'Case=2'])
+        self.assertEqual(options.base, 10)
+        self.assertEqual(options.case, 2)
+
+    @patch.object(skool2html, 'run', mock_run)
+    def test_option_I_overrides_config_read_from_file(self):
+        ini = '\n'.join((
+            '[skool2html]',
+            'Base=10',
+            'Case=1'
+        ))
+        self.write_text_file(ini, 'skoolkit.ini')
+        self.run_skool2html('-I Base=16 --ini Case=2 test.skool')
+        options = run_args[1]
+        self.assertEqual(options.params, ['Base=16', 'Case=2'])
+        self.assertEqual(options.base, 16)
+        self.assertEqual(options.case, 2)
+
+    @patch.object(skool2html, 'run', mock_run)
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_option_I_invalid_value(self):
+        self.run_skool2html('-I Quiet=x test-I-invalid.skool')
+        options = run_args[1]
+        self.assertEqual(options.quiet, 0)
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)

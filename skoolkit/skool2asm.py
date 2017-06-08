@@ -19,7 +19,7 @@ import os.path
 import time
 
 from skoolkit import info, get_class, show_package_dir, VERSION
-from skoolkit.config import get_config
+from skoolkit.config import get_config, update_options
 from skoolkit.skoolasm import AsmWriter
 from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, BASE_16
 
@@ -86,6 +86,8 @@ def main(args):
                             "  N=3: @ofix, @bfix and @rfix (implies -r)")
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16, default=config['Base'],
                        help="Write the disassembly in hexadecimal")
+    group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
+                       help="Set the value of the configuration parameter 'p' to\n'v'; this option may be used multiple times")
     group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER, default=config['Case'],
                        help="Write the disassembly in lower case")
     group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
@@ -114,4 +116,5 @@ def main(args):
         show_package_dir()
     if unknown_args or namespace.skoolfile is None:
         parser.exit(2, parser.format_help())
+    update_options('skool2asm', namespace, namespace.params)
     run(namespace.skoolfile, namespace)

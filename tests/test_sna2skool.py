@@ -307,7 +307,7 @@ def mock_run(*args):
     run_args = args
 
 def mock_config(name):
-    return COMMANDS[name]
+    return {k: v[0] for k, v in COMMANDS[name].items()}
 
 class OptionsTest(SkoolKitTestCase):
     def _create_z80_map(self, addresses):
@@ -392,6 +392,7 @@ class OptionsTest(SkoolKitTestCase):
         self.assertEqual(options.defb_mod, 1)
         self.assertEqual(options.line_width, 79)
         self.assertFalse(options.zfill)
+        self.assertEqual(options.params, [])
 
     @patch.object(sna2skool, 'run', mock_run)
     def test_config_read_from_file(self):
@@ -819,6 +820,54 @@ class OptionsTest(SkoolKitTestCase):
                 gen_ctl = [line.rstrip() for line in f]
             self.assertEqual(['c $fffd'], gen_ctl)
             self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'run', mock_run)
+    @patch.object(sna2skool, 'get_config', mock_config)
+    def test_option_I(self):
+        for option, spec, attr, exp_value in (('-I', 'CtlHex=-1', 'ctl_hex', -1), ('--ini', 'Text=1', 'text', 1)):
+            self.run_sna2skool('{} {} test-I.skool'.format(option, spec))
+            options = run_args[1]
+            self.assertEqual(options.params, [spec])
+            self.assertEqual(getattr(options, attr), exp_value)
+
+    @patch.object(sna2skool, 'run', mock_run)
+    @patch.object(sna2skool, 'get_config', mock_config)
+    def test_option_I_multiple(self):
+        self.run_sna2skool('-I DefbMod=8 --ini Erefs=1 test-I-multiple.skool')
+        options = run_args[1]
+        self.assertEqual(options.params, ['DefbMod=8', 'Erefs=1'])
+        self.assertEqual(options.defb_mod, 8)
+        self.assertEqual(options.write_refs, 1)
+
+    @patch.object(sna2skool, 'run', mock_run)
+    @patch.object(sna2skool, 'get_config', mock_config)
+    def test_option_I_overrides_other_options(self):
+        self.run_sna2skool('-H -I SkoolHex=0 -L --ini LowerCase=0 test.skool')
+        options = run_args[1]
+        self.assertEqual(options.params, ['SkoolHex=0', 'LowerCase=0'])
+        self.assertEqual(options.asm_hex, 0)
+        self.assertEqual(options.asm_lower, 0)
+
+    @patch.object(sna2skool, 'run', mock_run)
+    def test_option_I_overrides_config_read_from_file(self):
+        ini = '\n'.join((
+            '[sna2skool]',
+            'CtlHex=-1',
+            'SkoolHex=1'
+        ))
+        self.write_text_file(ini, 'skoolkit.ini')
+        self.run_sna2skool('-I SkoolHex=0 --ini CtlHex=1 test.skool')
+        options = run_args[1]
+        self.assertEqual(options.params, ['SkoolHex=0', 'CtlHex=1'])
+        self.assertEqual(options.asm_hex, 0)
+        self.assertEqual(options.ctl_hex, 1)
+
+    @patch.object(sna2skool, 'run', mock_run)
+    @patch.object(sna2skool, 'get_config', mock_config)
+    def test_option_I_invalid_value(self):
+        self.run_sna2skool('-I Text=x test-I-invalid.skool')
+        options = run_args[1]
+        self.assertEqual(options.text, 0)
 
     @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)

@@ -37,6 +37,11 @@ OPTIONS
 -i, --ctl-hex-lower
   Write lower case hexadecimal addresses in the generated control file.
 
+-I, --ini `param=value`
+  Set the value of a configuration parameter (see ``CONFIGURATION``),
+  overriding any value found in ``skoolkit.ini``. This option may be used
+  multiple times.
+
 -l, --defm-size `CHARS`
   Set the maximum number of characters that may appear in a DEFM statement; the
   default number is 66.
@@ -94,6 +99,70 @@ OPTIONS
 
 -z, --defb-zfill
   Pad decimal values in DEFB statements with leading zeroes.
+
+CONFIGURATION
+=============
+``sna2skool.py`` will read configuration from a file named ``skoolkit.ini`` in
+the current working directory or in ``~/.skoolkit``, if present. The recognised
+configuration parameters are:
+
+:CtlHex: Write addresses in a generated control file in lower case hexadecimal
+  (``-1``), decimal (``0``, the default), or upper case hexadecimal (``1``).
+:DefbMod: Group DEFB blocks by addresses that are divisible by this number
+  (default: ``1``).
+:DefbSize: Maximum number of bytes per DEFB statement (default: ``8``).
+:DefbZfill: Pad decimal values in DEFB statements with leading zeroes (``1``),
+  or leave them unpadded (``0``, the default).
+:DefmSize: Maximum number of characters in a DEFM statement (default: ``66``).
+:EntryPointRef: Template used to format the comment for an entry point with
+  exactly one referrer (default: ``This entry point is used by the routine at
+  {ref}.``).
+:EntryPointRefs: Template used to format the comment for an entry point with
+  two or more referrers (default: ``This entry point is used by the routines at
+  {refs} and {ref}.``).
+:Erefs: When to add a comment that lists entry point referrers: never (``-1``),
+  if no other comment is defined at the entry point (``0``, the default), or
+  always (``1``).
+:LineWidth: Maximum line width of the skool file (default: ``79``).
+:LowerCase: Write the disassembly in lower case (``1``) or upper case (``0``,
+  the default).
+:Ref: Template used to format the comment for a routine with exactly one
+  referrer (default: ``Used by the routine at {ref}.``).
+:Refs: Template used to format the comment for a routine with two or more
+  referrers (default: ``Used by the routines at {refs} and {ref}.``).
+:SkoolHex: Write addresses and instruction operands in hexadecimal (``1``) or
+  decimal (``0``, the default).
+:Text: Show ASCII text in the comment fields (``1``), or don't (``0``, the
+  default).
+:Title-b: Template used to format the title for an untitled 'b' block (default:
+  ``Data block at {address}``).
+:Title-c: Template used to format the title for an untitled 'c' block (default:
+  ``Routine at {address}``).
+:Title-g: Template used to format the title for an untitled 'g' block (default:
+  ``Game status buffer entry at {address}``).
+:Title-i: Template used to format the title for an untitled 'i' block (default:
+  ``Ignored``).
+:Title-s: Template used to format the title for an untitled 's' block (default:
+  ``Unused``).
+:Title-t: Template used to format the title for an untitled 't' block (default:
+  ``Message at {address}``).
+:Title-u: Template used to format the title for an untitled 'u' block (default:
+  ``Unused``).
+:Title-w: Template used to format the title for an untitled 'w' block (default:
+  ``Data block at {address}``).
+
+Configuration parameters must appear in a ``[sna2skool]`` section. For example,
+to make ``sna2skool.py`` generate hexadecimal skool files with a line width of
+120 characters by default (without having to use the ``-H`` and ``-W`` options
+on the command line), add the following section to ``skoolkit.ini``::
+
+  [sna2skool]
+  LineWidth=120
+  SkoolHex=1
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+``skoolkit.ini``.
 
 EXAMPLES
 ========

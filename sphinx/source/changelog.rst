@@ -12,6 +12,8 @@ Changelog
   :ref:`skool2html.py <skool2html-conf>` and
   :ref:`sna2skool.py <sna2skool-conf>` for reading configuration from a file
   named `skoolkit.ini`, if present
+* Added the ``--ini`` option to :ref:`skool2asm.py`, :ref:`skool2html.py` and
+  :ref:`sna2skool.py` (for setting the value of a configuration parameter)
 
 6.0 (2017-05-06)
 ----------------

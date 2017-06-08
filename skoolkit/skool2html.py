@@ -24,7 +24,7 @@ from io import StringIO
 
 from skoolkit import (defaults, SkoolKitError, find_file, show_package_dir,
                       write, write_line, get_class, normpath, PACKAGE_DIR, VERSION)
-from skoolkit.config import get_config
+from skoolkit.config import get_config, update_options
 from skoolkit.refparser import RefParser
 from skoolkit.skoolhtml import FileInfo
 from skoolkit.skoolparser import SkoolParser, CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
@@ -354,6 +354,8 @@ def main(args):
                        help="Write the disassembly in decimal")
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16, default=config['Base'],
                        help="Write the disassembly in hexadecimal")
+    group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
+                       help="Set the value of the configuration parameter 'p' to\n'v'; this option may be used multiple times")
     group.add_argument('-j', '--join-css', dest='single_css', metavar='NAME', default=config['JoinCss'],
                        help="Concatenate CSS files into a single file with this name")
     group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER, default=config['Case'],
@@ -407,6 +409,7 @@ def main(args):
         show_ref_sections(namespace.ref_sections)
     if unknown_args or not namespace.infiles:
         parser.exit(2, parser.format_help())
+    update_options('skool2html', namespace, namespace.params)
     verbose, show_timings = not namespace.quiet, namespace.show_timings
     if namespace.asm_one_page:
         namespace.config_specs.append('Game/AsmSinglePageTemplate=AsmAllInOne')

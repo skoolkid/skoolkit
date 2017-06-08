@@ -37,6 +37,11 @@ OPTIONS
 -H, --hex
   Write the disassembly in hexadecimal.
 
+-I, --ini `param=value`
+  Set the value of a configuration parameter (see ``CONFIGURATION``),
+  overriding any value found in ``skoolkit.ini``. This option may be used
+  multiple times.
+
 -l, --lower
   Write the disassembly in lower case.
 
@@ -98,6 +103,10 @@ options on the command line), add the following section to ``skoolkit.ini``::
   [skool2asm]
   Base=16
   Set-line-width=120
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+``skoolkit.ini``.
 
 EXAMPLES
 ========

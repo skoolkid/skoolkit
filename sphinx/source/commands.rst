@@ -140,6 +140,8 @@ assembler (see :ref:`supportedAssemblers`). For example::
                             N=2: @ofix and @bfix
                             N=3: @ofix, @bfix and @rfix (implies -r)
     -H, --hex             Write the disassembly in hexadecimal
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'; this option may be used multiple times
     -l, --lower           Write the disassembly in lower case
     -p, --package-dir     Show path to skoolkit package directory and exit
     -P p=v, --set p=v     Set the value of ASM writer property 'p' to 'v'; this
@@ -191,25 +193,30 @@ options on the command line), add the following section to `skoolkit.ini`::
   Base=16
   Set-line-width=120
 
-+---------+--------------------------------------------------------------+
-| Version | Changes                                                      |
-+=========+==============================================================+
-| 6.1     | Configuration is read from `skoolkit.ini` if present         |
-+---------+--------------------------------------------------------------+
-| 5.0     | Added the ``--set`` option                                   |
-+---------+--------------------------------------------------------------+
-| 4.5     | Added the ``--start`` and ``--end`` options                  |
-+---------+--------------------------------------------------------------+
-| 4.1     | Added the ``--writer`` option                                |
-+---------+--------------------------------------------------------------+
-| 3.4     | Added the ``-V`` and ``-p`` options and the long options     |
-+---------+--------------------------------------------------------------+
-| 2.2.2   | Added the ability to read a skool file from standard input   |
-+---------+--------------------------------------------------------------+
-| 2.1.1   | Added the ``-u``, ``-D`` and ``-H`` options                  |
-+---------+--------------------------------------------------------------+
-| 1.1     | Added the ``-c`` option                                      |
-+---------+--------------------------------------------------------------+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 6.1     | Configuration is read from `skoolkit.ini` if present; added the |
+|         | ``--ini`` option                                                |
++---------+-----------------------------------------------------------------+
+| 5.0     | Added the ``--set`` option                                      |
++---------+-----------------------------------------------------------------+
+| 4.5     | Added the ``--start`` and ``--end`` options                     |
++---------+-----------------------------------------------------------------+
+| 4.1     | Added the ``--writer`` option                                   |
++---------+-----------------------------------------------------------------+
+| 3.4     | Added the ``-V`` and ``-p`` options and the long options        |
++---------+-----------------------------------------------------------------+
+| 2.2.2   | Added the ability to read a skool file from standard input      |
++---------+-----------------------------------------------------------------+
+| 2.1.1   | Added the ``-u``, ``-D`` and ``-H`` options                     |
++---------+-----------------------------------------------------------------+
+| 1.1     | Added the ``-c`` option                                         |
++---------+-----------------------------------------------------------------+
 
 .. _skool2bin.py:
 
@@ -366,6 +373,8 @@ list::
                           Write files in this directory (default is '.')
     -D, --decimal         Write the disassembly in decimal
     -H, --hex             Write the disassembly in hexadecimal
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'; this option may be used multiple times
     -j NAME, --join-css NAME
                           Concatenate CSS files into a single file with this name
     -l, --lower           Write the disassembly in lower case
@@ -470,10 +479,15 @@ the command line), add the following section to `skoolkit.ini`::
   AsmLabels=1
   Base=16
 
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
-| 6.1     | Configuration is read from `skoolkit.ini` if present             |
+| 6.1     | Configuration is read from `skoolkit.ini` if present; added the  |
+|         | ``--ini`` option                                                 |
 +---------+------------------------------------------------------------------+
 | 5.4     | Added the ``--asm-one-page`` option                              |
 +---------+------------------------------------------------------------------+
@@ -636,6 +650,8 @@ list::
                           disassembly
     -i, --ctl-hex-lower   Write lower case hexadecimal addresses in the
                           generated control file
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'; this option may be used multiple times
     -l L, --defm-size L   Set the maximum number of characters per DEFM
                           statement to L (default=66)
     -L, --lower           Write the disassembly in lower case
@@ -724,7 +740,7 @@ configuration parameters are:
 * ``Title-c`` - template used to format the title for an untitled 'c' block
   (default: ``Routine at {address}``)
 * ``Title-g`` - template used to format the title for an untitled 'g' block
-  (default: ``Game status buffer entry at {address}``
+  (default: ``Game status buffer entry at {address}``)
 * ``Title-i`` - template used to format the title for an untitled 'i' block
   (default: ``Ignored``)
 * ``Title-s`` - template used to format the title for an untitled 's' block
@@ -745,10 +761,15 @@ on the command line), add the following section to `skoolkit.ini`::
   LineWidth=120
   SkoolHex=1
 
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
-| 6.1     | Configuration is read from `skoolkit.ini` if present            |
+| 6.1     | Configuration is read from `skoolkit.ini` if present; added the |
+|         | ``--ini`` option                                                |
 +---------+-----------------------------------------------------------------+
 | 5.0     | Added support for SpecEmu's 64K code execution map files        |
 +---------+-----------------------------------------------------------------+

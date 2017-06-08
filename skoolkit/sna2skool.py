@@ -17,7 +17,7 @@
 import argparse
 
 from skoolkit import info, find_file, read_bin_file, VERSION
-from skoolkit.config import get_config
+from skoolkit.config import get_config, update_options
 from skoolkit.ctlparser import CtlParser
 from skoolkit.sftparser import SftParser
 from skoolkit.snapshot import get_snapshot
@@ -90,6 +90,8 @@ def main(args):
                        help='Write hexadecimal addresses and operands in the disassembly')
     group.add_argument('-i', '--ctl-hex-lower', dest='ctl_hex', action='store_const', const=-1, default=config['CtlHex'],
                        help='Write lower case hexadecimal addresses in the generated control file')
+    group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
+                       help="Set the value of the configuration parameter 'p' to 'v'; this option may be used multiple times")
     group.add_argument('-l', '--defm-size', dest='defm_width', metavar='L', type=int, default=config['DefmSize'],
                        help='Set the maximum number of characters per DEFM statement to L (default={})'.format(config['DefmSize']))
     group.add_argument('-L', '--lower', dest='asm_lower', action='store_const', const=1, default=config['LowerCase'],
@@ -133,4 +135,5 @@ def main(args):
         namespace.sftfile = find_file(prefix + '.sft')
     if not (namespace.ctlfile or namespace.sftfile):
         namespace.ctlfile = find_file(prefix + '.ctl')
+    update_options('sna2skool', namespace, namespace.params, config)
     run(snafile, namespace, config)

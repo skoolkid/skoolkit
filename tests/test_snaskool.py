@@ -215,7 +215,7 @@ c32779 JR 32773      ;
 b32781 DEFB 0
 """.split('\n')
 
-CONFIG = COMMANDS['sna2skool']
+CONFIG = {k: v[0] for k, v in COMMANDS['sna2skool'].items()}
 
 class DisassemblyTest(SkoolKitTestCase):
     def _test_disassembly(self, snapshot, ctl, exp_instructions, **kwargs):

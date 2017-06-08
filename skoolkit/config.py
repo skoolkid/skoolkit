@@ -21,54 +21,54 @@ from skoolkit.refparser import RefParser
 
 COMMANDS = {
     'sna2skool': {
-        'CtlHex': 0,
-        'DefbMod': 1,
-        'DefbSize': 8,
-        'DefbZfill': 0,
-        'DefmSize': 66,
-        'Erefs': 0,
-        'LineWidth': 79,
-        'LowerCase': 0,
-        'SkoolHex': 0,
-        'Text': 0,
-        'EntryPointRef': 'This entry point is used by the routine at {ref}.',
-        'EntryPointRefs': 'This entry point is used by the routines at {refs} and {ref}.',
-        'Ref': 'Used by the routine at {ref}.',
-        'Refs': 'Used by the routines at {refs} and {ref}.',
-        'Title-b': 'Data block at {address}',
-        'Title-c': 'Routine at {address}',
-        'Title-g': 'Game status buffer entry at {address}',
-        'Title-i': 'Ignored',
-        'Title-s': 'Unused',
-        'Title-t': 'Message at {address}',
-        'Title-u': 'Unused',
-        'Title-w': 'Data block at {address}'
+        'CtlHex': (0, 'ctl_hex'),
+        'DefbMod': (1, 'defb_mod'),
+        'DefbSize': (8, 'defb_size'),
+        'DefbZfill': (0, 'zfill'),
+        'DefmSize': (66, 'defm_width'),
+        'Erefs': (0, 'write_refs'),
+        'LineWidth': (79, 'line_width'),
+        'LowerCase': (0, 'asm_lower'),
+        'SkoolHex': (0, 'asm_hex'),
+        'Text': (0, 'text'),
+        'EntryPointRef': ('This entry point is used by the routine at {ref}.', ''),
+        'EntryPointRefs': ('This entry point is used by the routines at {refs} and {ref}.', ''),
+        'Ref': ('Used by the routine at {ref}.', ''),
+        'Refs': ('Used by the routines at {refs} and {ref}.', ''),
+        'Title-b': ('Data block at {address}', ''),
+        'Title-c': ('Routine at {address}', ''),
+        'Title-g': ('Game status buffer entry at {address}', ''),
+        'Title-i': ('Ignored', ''),
+        'Title-s': ('Unused', ''),
+        'Title-t': ('Message at {address}', ''),
+        'Title-u': ('Unused', ''),
+        'Title-w': ('Data block at {address}', '')
     },
     'skool2html': {
-        'AsmLabels': 0,
-        'AsmOnePage': 0,
-        'Base': 0,
-        'Case': 0,
-        'CreateLabels': 0,
-        'JoinCss': '',
-        'OutputDir': '.',
-        'Quiet': 0,
-        'RebuildImages': 0,
-        'Search': '',
-        'Theme': '',
-        'Time': 0
+        'AsmLabels': (0, 'asm_labels'),
+        'AsmOnePage': (0, 'asm_one_page'),
+        'Base': (0, 'base'),
+        'Case': (0, 'case'),
+        'CreateLabels': (0, 'create_labels'),
+        'JoinCss': ('', 'single_css'),
+        'OutputDir': ('.', 'output_dir'),
+        'Quiet': (0, 'quiet'),
+        'RebuildImages': (0, 'new_images'),
+        'Search': ('', 'search'),
+        'Theme': ('', 'themes'),
+        'Time': (0, 'show_timings')
     },
     'skool2asm': {
-        'Base': 0,
-        'Case': 0,
-        'CreateLabels': 0,
-        'Quiet': 0,
-        'Warnings': 1
+        'Base': (0, 'base'),
+        'Case': (0, 'case'),
+        'CreateLabels': (0, 'create_labels'),
+        'Quiet': (0, 'quiet'),
+        'Warnings': (1, 'warn')
     }
 }
 
 def get_config(name):
-    config = COMMANDS.get(name, {}).copy()
+    config = {k: v[0] for k, v in COMMANDS.get(name, {}).items()}
     skoolkit_ini = find_file('skoolkit.ini', ('', expanduser('~/.skoolkit')))
     if skoolkit_ini:
         ref_parser = RefParser()
@@ -82,3 +82,19 @@ def get_config(name):
             else:
                 config[k] = v
     return config
+
+def update_options(name, options, specs, config=None):
+    def_config = COMMANDS.get(name, {})
+    for spec in specs:
+        param, sep, value = spec.partition('=')
+        if sep and param in def_config:
+            def_value, attr_name = def_config[param]
+            try:
+                if isinstance(def_value, int):
+                    value = int(value)
+                if attr_name:
+                    setattr(options, attr_name, value)
+                if config:
+                    config[param] = value
+            except ValueError:
+                pass

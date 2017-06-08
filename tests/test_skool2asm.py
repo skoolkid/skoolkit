@@ -13,7 +13,7 @@ def mock_run(*args):
     run_args = args
 
 def mock_config(name):
-    return COMMANDS[name]
+    return {k: v[0] for k, v in COMMANDS[name].items()}
 
 class MockSkoolParser:
     def __init__(self, skoolfile, case, base, asm_mode, warnings, fix_mode, html,
@@ -71,6 +71,7 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(options.start, 0)
         self.assertEqual(options.end, 65536)
         self.assertEqual(options.properties, [])
+        self.assertEqual(options.params, [])
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
@@ -389,6 +390,54 @@ class Skool2AsmTest(SkoolKitTestCase):
             self.assertTrue(mock_asm_writer.wrote)
             mock_asm_writer.properties = None
             mock_asm_writer.wrote = False
+
+    @patch.object(skool2asm, 'run', mock_run)
+    @patch.object(skool2asm, 'get_config', mock_config)
+    def test_option_I(self):
+        for option, spec, attr, exp_value in (('-I', 'Base=16', 'base', 16), ('--ini', 'Case=1', 'case', 1)):
+            self.run_skool2asm('{} {} test-I.skool'.format(option, spec))
+            options = run_args[1]
+            self.assertEqual(options.params, [spec])
+            self.assertEqual(getattr(options, attr), exp_value)
+
+    @patch.object(skool2asm, 'run', mock_run)
+    @patch.object(skool2asm, 'get_config', mock_config)
+    def test_option_I_multiple(self):
+        self.run_skool2asm('-I Quiet=1 --ini Warnings=0 test-I-multiple.skool')
+        options = run_args[1]
+        self.assertEqual(options.params, ['Quiet=1', 'Warnings=0'])
+        self.assertEqual(options.quiet, 1)
+        self.assertEqual(options.warn, 0)
+
+    @patch.object(skool2asm, 'run', mock_run)
+    @patch.object(skool2asm, 'get_config', mock_config)
+    def test_option_I_overrides_other_options(self):
+        self.run_skool2asm('-H -I Base=10 -l --ini Case=2 test.skool')
+        options = run_args[1]
+        self.assertEqual(options.params, ['Base=10', 'Case=2'])
+        self.assertEqual(options.base, 10)
+        self.assertEqual(options.case, 2)
+
+    @patch.object(skool2asm, 'run', mock_run)
+    def test_option_I_overrides_config_read_from_file(self):
+        ini = '\n'.join((
+            '[skool2asm]',
+            'Base=10',
+            'Case=1'
+        ))
+        self.write_text_file(ini, 'skoolkit.ini')
+        self.run_skool2asm('-I Base=16 --ini Case=2 test.skool')
+        options = run_args[1]
+        self.assertEqual(options.params, ['Base=16', 'Case=2'])
+        self.assertEqual(options.base, 16)
+        self.assertEqual(options.case, 2)
+
+    @patch.object(skool2asm, 'run', mock_run)
+    @patch.object(skool2asm, 'get_config', mock_config)
+    def test_option_I_invalid_value(self):
+        self.run_skool2asm('-I Quiet=x test-I-invalid.skool')
+        options = run_args[1]
+        self.assertEqual(options.quiet, 0)
 
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_tab_property(self):
