@@ -15,6 +15,9 @@ GIF file. INPUT may be a SCR file, a skool file, or a SNA, SZX or Z80 snapshot.
 
 OPTIONS
 =======
+-b, --bfix
+  When INPUT is a skool file, parse it in @bfix mode.
+
 -e, --expand `MACRO`
   Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The '#' prefix may be omitted,
   and any filename parameter is ignored.

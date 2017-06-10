@@ -89,7 +89,7 @@ def run(infile, outfile, options):
         snapshot = get_snapshot(infile)
     else:
         try:
-            snapshot = BinWriter(infile).snapshot
+            snapshot = BinWriter(infile, fix_mode=options.fix_mode).snapshot
         except:
             raise SkoolKitError('Unable to parse {} as a skool file'.format(infile))
 
@@ -132,6 +132,8 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
+    group.add_argument('-b', '--bfix', dest='fix_mode', action='store_const', const=2, default=0,
+                       help="Parse a skool file in @bfix mode.")
     group.add_argument('-e', '--expand', dest='macro', metavar='MACRO',
                        help="Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The '#' prefix may be omitted.")
     group.add_argument('-f', '--flip', metavar='N', type=int, default=0,

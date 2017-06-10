@@ -15,6 +15,8 @@ Changelog
 * Added the ``--ini`` option to :ref:`skool2asm.py`, :ref:`skool2html.py` and
   :ref:`sna2skool.py` (for setting the value of a configuration parameter)
 * :ref:`sna2img.py` can now read skool files
+* Added the ``--bfix`` option to :ref:`sna2img.py` (for parsing a skool file
+  in ``@bfix`` mode)
 
 6.0 (2017-05-06)
 ----------------

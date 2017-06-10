@@ -590,6 +590,7 @@ To list the options supported by `sna2img.py`, run it with no arguments::
   INPUT may be a SCR file, a skool file, or a SNA, SZX or Z80 snapshot.
 
   Options:
+    -b, --bfix            Parse a skool file in @bfix mode.
     -e MACRO, --expand MACRO
                           Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The '#'
                           prefix may be omitted.
@@ -609,15 +610,16 @@ To list the options supported by `sna2img.py`, run it with no arguments::
     -S WxH, --size WxH    Crop to this width and height (in tiles).
     -V, --version         Show SkoolKit version number and exit.
 
-+---------+---------------------------------------+
-| Version | Changes                               |
-+=========+=======================================+
-| 6.1     | Added the ability to read skool files |
-+---------+---------------------------------------+
-| 6.0     | Added the ``--expand`` option         |
-+---------+---------------------------------------+
-| 5.4     | New                                   |
-+---------+---------------------------------------+
++---------+-------------------------------------------------------------+
+| Version | Changes                                                     |
++=========+=============================================================+
+| 6.1     | Added the ability to read skool files; added the ``--bfix`` |
+|         | option                                                      |
++---------+-------------------------------------------------------------+
+| 6.0     | Added the ``--expand`` option                               |
++---------+-------------------------------------------------------------+
+| 5.4     | New                                                         |
++---------+-------------------------------------------------------------+
 
 .. _sna2skool.py:
 

@@ -68,6 +68,21 @@ class Sna2ImgTest(SkoolKitTestCase):
         self.assertEqual(frame.width, width)
         self.assertEqual(frame.height, height)
 
+    @patch.object(sna2img, 'run', mock_run)
+    def test_default_option_values(self):
+        self.run_sna2img('in.z80')
+        options = run_args[2]
+        self.assertEqual(options.fix_mode, 0)
+        self.assertIsNone(options.macro)
+        self.assertEqual(options.flip, 0)
+        self.assertFalse(options.invert)
+        self.assertTrue(options.animated)
+        self.assertEqual(options.origin, (0, 0))
+        self.assertEqual(options.pokes, [])
+        self.assertEqual(options.rotate, 0)
+        self.assertEqual(options.scale, 1)
+        self.assertEqual(options.size, (32, 24))
+
     def _test_bad_spec(self, option, exp_error):
         scrfile = self.write_bin_file(suffix='.scr')
         with self.assertRaises(SkoolKitError) as cm:
@@ -153,6 +168,19 @@ class Sna2ImgTest(SkoolKitTestCase):
         infile = self.write_bin_file([137])
         with self.assertRaisesRegex(SkoolKitError, '^Unable to parse {} as a skool file$'.format(infile)):
             self.run_sna2img(infile)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_b(self, mock_open):
+        skool = '\n'.join((
+            '@bfix=DEFB 2,2,2,2,2,2,2,2',
+            'b32768 DEFB 1,1,1,1,1,1,1,1'
+        ))
+        infile = self.write_text_file(skool, suffix='.skool')
+        for option in ('-b', '--bfix'):
+            output, error = self.run_sna2img('{} -e UDG32768 {}'.format(option, infile))
+            self.assertEqual(error, '')
+            self.assertEqual(image_writer.frames[0].udgs, [[Udg(56, [2] * 8)]])
 
     @patch.object(sna2img, 'run', mock_run)
     def test_options_e_expand(self):
