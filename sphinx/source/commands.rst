@@ -575,8 +575,8 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 
 sna2img.py
 ----------
-`sna2img.py` converts the screenshot in a SCR file or SNA/SZX/Z80 snapshot into
-a PNG or GIF file. For example::
+`sna2img.py` converts the screenshot or other graphic data in a SCR file, skool
+file, or SNA/SZX/Z80 snapshot into a PNG or GIF file. For example::
 
   $ sna2img.py game.scr
 
@@ -586,8 +586,8 @@ To list the options supported by `sna2img.py`, run it with no arguments::
 
   usage: sna2img.py [options] INPUT [OUTPUT]
 
-  Convert a Spectrum screenshot (or a portion of it) into a PNG or GIF file.
-  INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.
+  Convert a Spectrum screenshot or other graphic data into a PNG or GIF file.
+  INPUT may be a SCR file, a skool file, or a SNA, SZX or Z80 snapshot.
 
   Options:
     -e MACRO, --expand MACRO
@@ -609,13 +609,15 @@ To list the options supported by `sna2img.py`, run it with no arguments::
     -S WxH, --size WxH    Crop to this width and height (in tiles).
     -V, --version         Show SkoolKit version number and exit.
 
-+---------+-------------------------------+
-| Version | Changes                       |
-+=========+===============================+
-| 6.0     | Added the ``--expand`` option |
-+---------+-------------------------------+
-| 5.4     | New                           |
-+---------+-------------------------------+
++---------+---------------------------------------+
+| Version | Changes                               |
++=========+=======================================+
+| 6.1     | Added the ability to read skool files |
++---------+---------------------------------------+
+| 6.0     | Added the ``--expand`` option         |
++---------+---------------------------------------+
+| 5.4     | New                                   |
++---------+---------------------------------------+
 
 .. _sna2skool.py:
 

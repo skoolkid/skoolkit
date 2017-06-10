@@ -40,8 +40,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'SkoolKit'
-copyright = u'2017, Richard Dymond'
+project = 'SkoolKit'
+copyright = '2017, Richard Dymond'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -214,34 +214,34 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-_authors = [u'Richard Dymond']
+_authors = ['Richard Dymond']
 man_pages = [
     ('man/bin2sna.py', 'bin2sna.py',
-     u'convert a binary file into a Z80 snapshot', _authors, 1),
+     'convert a binary file into a Z80 snapshot', _authors, 1),
     ('man/bin2tap.py', 'bin2tap.py',
-     u'convert a binary file or snapshot into a TAP file', _authors, 1),
+     'convert a binary file or snapshot into a TAP file', _authors, 1),
     ('man/skool2asm.py', 'skool2asm.py',
-     u'convert a skool file to ASM format', _authors, 1),
+     'convert a skool file to ASM format', _authors, 1),
     ('man/skool2bin.py', 'skool2bin.py',
-     u'convert a skool file into a binary (raw memory) file', _authors, 1),
+     'convert a skool file into a binary (raw memory) file', _authors, 1),
     ('man/skool2ctl.py', 'skool2ctl.py',
-     u'convert a skool file into a control file', _authors, 1),
+     'convert a skool file into a control file', _authors, 1),
     ('man/skool2html.py', 'skool2html.py',
-     u'convert skool and ref files to HTML', _authors, 1),
+     'convert skool and ref files to HTML', _authors, 1),
     ('man/skool2sft.py', 'skool2sft.py',
-     u'convert a skool file into a skool file template', _authors, 1),
+     'convert a skool file into a skool file template', _authors, 1),
     ('man/sna2img.py', 'sna2img.py',
-     u'convert a SCR/SNA/SZX/Z80 file into a PNG or GIF file', _authors, 1),
+     'convert a SCR/SKOOL/SNA/SZX/Z80 file into a PNG or GIF file', _authors, 1),
     ('man/sna2skool.py', 'sna2skool.py',
-     u'convert a snapshot into a skool file', _authors, 1),
+     'convert a snapshot into a skool file', _authors, 1),
     ('man/snapinfo.py', 'snapinfo.py',
-     u'show information on the registers and RAM in a snapshot file', _authors, 1),
+     'show information on the registers and RAM in a snapshot file', _authors, 1),
     ('man/snapmod.py', 'snapmod.py',
-     u'modify a 48K Z80 snapshot', _authors, 1),
+     'modify a 48K Z80 snapshot', _authors, 1),
     ('man/tap2sna.py', 'tap2sna.py',
-     u'convert a TAP or TZX file into a snapshot file', _authors, 1),
+     'convert a TAP or TZX file into a snapshot file', _authors, 1),
     ('man/tapinfo.py', 'tapinfo.py',
-     u'show the blocks in a TAP or TZX file', _authors, 1)
+     'show the blocks in a TAP or TZX file', _authors, 1)
 ]
 
 # If true, show URL addresses after external links.

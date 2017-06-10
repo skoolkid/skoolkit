@@ -23,6 +23,7 @@ from skoolkit import SkoolKitError, read_bin_file, VERSION, skoolmacro
 from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import get_snapshot
 from skoolkit.graphics import Frame, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs
+from skoolkit.skool2bin import BinWriter
 from skoolkit.tap2sna import poke
 
 def _parse_font(snapshot, param_str):
@@ -84,8 +85,13 @@ def run(infile, outfile, options):
         scr = read_bin_file(infile, 6912)
         snapshot = [0] * 65536
         snapshot[16384:16384 + len(scr)] = scr
-    else:
+    elif infile[-4:].lower() in ('.sna', '.szx', '.z80'):
         snapshot = get_snapshot(infile)
+    else:
+        try:
+            snapshot = BinWriter(infile).snapshot
+        except:
+            raise SkoolKitError('Unable to parse {} as a skool file'.format(infile))
 
     for spec in options.pokes:
         poke(snapshot, spec)
@@ -119,8 +125,8 @@ def run(infile, outfile, options):
 def main(args):
     parser = argparse.ArgumentParser(
         usage='sna2img.py [options] INPUT [OUTPUT]',
-        description="Convert a Spectrum screenshot (or a portion of it) into a PNG or GIF file. "
-                    "INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.",
+        description="Convert a Spectrum screenshot or other graphic data into a PNG or GIF file. "
+                    "INPUT may be a SCR file, a skool file, or a SNA, SZX or Z80 snapshot.",
         add_help=False
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
@@ -152,9 +158,8 @@ def main(args):
     infile = namespace.infile
     if unknown_args or infile is None:
         parser.exit(2, parser.format_help())
-    if infile[-4:].lower() not in ('.scr', '.sna', '.szx', '.z80'):
-        raise SkoolKitError('Unrecognised input file type')
     outfile = namespace.outfile
     if outfile is None:
-        outfile = os.path.basename(infile[:-4]) + '.png'
+        prefix, sep, suffix = infile.rpartition('.')
+        outfile = os.path.basename(prefix or suffix) + '.png'
     run(infile, outfile, namespace)

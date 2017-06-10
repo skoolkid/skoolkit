@@ -14,6 +14,7 @@ Changelog
   named `skoolkit.ini`, if present
 * Added the ``--ini`` option to :ref:`skool2asm.py`, :ref:`skool2html.py` and
   :ref:`sna2skool.py` (for setting the value of a configuration parameter)
+* :ref:`sna2img.py` can now read skool files
 
 6.0 (2017-05-06)
 ----------------

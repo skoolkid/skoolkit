@@ -10,8 +10,8 @@ SYNOPSIS
 
 DESCRIPTION
 ===========
-``sna2img.py`` converts a Spectrum screenshot (or a portion of it) into a PNG
-or GIF file. INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.
+``sna2img.py`` converts a Spectrum screenshot or other graphic into a PNG or
+GIF file. INPUT may be a SCR file, a skool file, or a SNA, SZX or Z80 snapshot.
 
 OPTIONS
 =======
@@ -64,4 +64,4 @@ EXAMPLES
 3. Expand a #FONT macro and write the image to ``font.png``:
 
    |
-   |   ``sna2img.py -e FONT32768,26 game.z80 font.png``
+   |   ``sna2img.py -e FONT32768,26 game.skool font.png``

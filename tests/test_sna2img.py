@@ -33,6 +33,10 @@ class Sna2ImgTest(SkoolKitTestCase):
                 infile = self.write_szx(ram)
             elif ftype == 'z80':
                 infile = self.write_z80(ram)[1]
+            else:
+                skool = 'b{:05d} DEFB {}'.format(address, ','.join([str(b) for b in data]))
+                suffix = '.' + ftype if ftype else ''
+                infile = self.write_text_file(skool, suffix=suffix)
         args = '{} {}'.format(options, infile)
         if outfile:
             exp_outfile = outfile
@@ -40,7 +44,8 @@ class Sna2ImgTest(SkoolKitTestCase):
             args += ' {}'.format(outfile)
         else:
             img_format = 'png'
-            exp_outfile = infile[:-3] + img_format
+            prefix, sep, suffix = infile.rpartition('.')
+            exp_outfile = '{}.{}'.format(prefix or suffix, img_format)
         output, error = self.run_sna2img(args)
         self.assertEqual([], output)
         self.assertEqual(error, '')
@@ -78,10 +83,6 @@ class Sna2ImgTest(SkoolKitTestCase):
         output, error = self.run_sna2img('-x test.z80', catch_exit=2)
         self.assertEqual(len(output), 0)
         self.assertTrue(error.startswith('usage: sna2img.py'))
-
-    def test_unrecognised_snapshot_type(self):
-        with self.assertRaisesRegex(SkoolKitError, 'Unrecognised input file type$'):
-            self.run_sna2img('unknown.snap')
 
     def test_nonexistent_input_file(self):
         infile = 'non-existent.z80'
@@ -123,6 +124,35 @@ class Sna2ImgTest(SkoolKitTestCase):
         scr = ([42] * 256 + [0] * 256) * 12 + [8] * 768
         exp_udgs = [[Udg(8, [42, 0] * 4)] * 32] * 24
         self._test_sna2img(mock_open, '', scr, exp_udgs, ftype='z80')
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_skool_input(self, mock_open):
+        addr = 25000
+        data = [239] * 8
+        exp_udgs = [[Udg(56, data)]]
+        self._test_sna2img(mock_open, '-e UDG{}'.format(addr), data, exp_udgs, scale=4, address=addr, ftype='skool')
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_skool_input_with_alternative_filename_suffix(self, mock_open):
+        addr = 52000
+        data = [173] * 8
+        exp_udgs = [[Udg(56, data)]]
+        self._test_sna2img(mock_open, '-e UDG{}'.format(addr), data, exp_udgs, scale=4, address=addr, ftype='sks')
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_skool_input_with_no_filename_suffix(self, mock_open):
+        addr = 64000
+        data = [101] * 8
+        exp_udgs = [[Udg(56, data)]]
+        self._test_sna2img(mock_open, '-e UDG{}'.format(addr), data, exp_udgs, scale=4, address=addr, ftype='')
+
+    def test_unreadable_skool_input(self):
+        infile = self.write_bin_file([137])
+        with self.assertRaisesRegex(SkoolKitError, '^Unable to parse {} as a skool file$'.format(infile)):
+            self.run_sna2img(infile)
 
     @patch.object(sna2img, 'run', mock_run)
     def test_options_e_expand(self):
