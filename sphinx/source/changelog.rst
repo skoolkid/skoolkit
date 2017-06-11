@@ -17,6 +17,8 @@ Changelog
 * :ref:`sna2img.py` can now read skool files
 * Added the ``--bfix`` option to :ref:`sna2img.py` (for parsing a skool file
   in ``@bfix`` mode)
+* Added the ``--move`` option to :ref:`sna2img.py` (for copying the contents of
+  a block of RAM to another location)
 
 6.0 (2017-05-06)
 ----------------

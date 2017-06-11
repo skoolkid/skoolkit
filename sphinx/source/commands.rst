@@ -597,6 +597,9 @@ To list the options supported by `sna2img.py`, run it with no arguments::
     -f N, --flip N        Flip the image horizontally (N=1), vertically (N=2),
                           or both (N=3).
     -i, --invert          Invert video for cells that are flashing.
+    -m src,size,dest, --move src,size,dest
+                          Move a block of bytes of the given size from src to
+                          dest. This option may be used multiple times.
     -n, --no-animation    Do not animate flashing cells.
     -o X,Y, --origin X,Y  Top-left crop at (X,Y).
     -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
@@ -614,7 +617,7 @@ To list the options supported by `sna2img.py`, run it with no arguments::
 | Version | Changes                                                     |
 +=========+=============================================================+
 | 6.1     | Added the ability to read skool files; added the ``--bfix`` |
-|         | option                                                      |
+|         | and ``--move`` options                                      |
 +---------+-------------------------------------------------------------+
 | 6.0     | Added the ``--expand`` option                               |
 +---------+-------------------------------------------------------------+

@@ -28,6 +28,10 @@ OPTIONS
 -i, --invert
   Invert video and reset the FLASH bit for cells that are flashing.
 
+-m, --move `src,size,dest`
+  Move a block of bytes of the given size from 'src' to 'dest'. This option may
+  be used multiple times.
+
 -n, --no-animation
   Do not animate flashing cells.
 

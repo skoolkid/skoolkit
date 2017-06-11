@@ -76,6 +76,7 @@ class Sna2ImgTest(SkoolKitTestCase):
         self.assertIsNone(options.macro)
         self.assertEqual(options.flip, 0)
         self.assertFalse(options.invert)
+        self.assertEqual(options.moves, [])
         self.assertTrue(options.animated)
         self.assertEqual(options.origin, (0, 0))
         self.assertEqual(options.pokes, [])
@@ -409,6 +410,37 @@ class Sna2ImgTest(SkoolKitTestCase):
         udg2 = Udg(7, [85] * 8)  # Unchanged
         exp_udgs = [[udg1, udg2] * 16] * 24
         self._test_sna2img(mock_open, '-i', scr, exp_udgs)
+
+    @patch.object(sna2img, 'run', mock_run)
+    def test_options_m_move(self):
+        for option, value in (('-m', '32768,256,49152'), ('--move', '24576,6912,16384')):
+            output, error = self.run_sna2img('{} {} test.scr'.format(option, value))
+            self.assertEqual([], output)
+            self.assertEqual(error, '')
+            options = run_args[2]
+            self.assertEqual(options.moves, [value])
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_m_multiple(self, mock_open):
+        scr = [1, 1, 2, 2] + [0] * 6908
+        exp_udgs = [[Udg(56, [1, 1, 0, 0, 0, 0, 2, 2])]]
+        options = '-e UDG16392 -m 16384,2,16392 --move 16386,2,16398'
+        self._test_sna2img(mock_open, options, scr, exp_udgs, scale=4)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_m_hexadecimal_values(self, mock_open):
+        scr = [1, 2, 3, 4] + [0] * 6908
+        exp_udgs = [[Udg(56, scr[:8])]]
+        self._test_sna2img(mock_open, '-e UDG16392 -m $4000,4,$4008', scr, exp_udgs, scale=4)
+
+    def test_option_m_invalid_values(self):
+        self._test_bad_spec('-m 1', 'Not enough arguments in move spec (expected 3): 1')
+        self._test_bad_spec('-m 1,2', 'Not enough arguments in move spec (expected 3): 1,2')
+        self._test_bad_spec('-m x,2,3', 'Invalid integer in move spec: x,2,3')
+        self._test_bad_spec('-m 1,y,3', 'Invalid integer in move spec: 1,y,3')
+        self._test_bad_spec('-m 1,2,z', 'Invalid integer in move spec: 1,2,z')
 
     @patch.object(sna2img, 'run', mock_run)
     def test_options_n_no_animation(self):

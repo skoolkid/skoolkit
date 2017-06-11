@@ -24,7 +24,7 @@ from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATI
 from skoolkit.snapshot import get_snapshot
 from skoolkit.graphics import Frame, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.skool2bin import BinWriter
-from skoolkit.tap2sna import poke
+from skoolkit.tap2sna import move, poke
 
 def _parse_font(snapshot, param_str):
     end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(param_str)
@@ -93,6 +93,8 @@ def run(infile, outfile, options):
         except:
             raise SkoolKitError('Unable to parse {} as a skool file'.format(infile))
 
+    for spec in options.moves:
+        move(snapshot, spec)
     for spec in options.pokes:
         poke(snapshot, spec)
 
@@ -140,6 +142,8 @@ def main(args):
                        help="Flip the image horizontally (N=1), vertically (N=2), or both (N=3).")
     group.add_argument('-i', '--invert', action='store_true',
                        help="Invert video for cells that are flashing.")
+    group.add_argument('-m', '--move', dest='moves', metavar='src,size,dest', action='append', default=[],
+                       help='Move a block of bytes of the given size from src to dest. This option may be used multiple times.')
     group.add_argument('-n', '--no-animation', dest='animated', action='store_false',
                        help="Do not animate flashing cells.")
     group.add_argument('-o', '--origin', metavar='X,Y', type=_coords, default='0,0',
