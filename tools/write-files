@@ -58,7 +58,7 @@ write_asms() {
 }
 
 write_bins() {
-  for m in '' '-i' '-o' '-b'; do
+  for m in '' '-i' '-s' '-o' '-b'; do
     out=bin/$GAME$m.bin
     run_cmd "./skool2bin.py $m src/$skoolfile $out" /dev/null 0 $out
   done
