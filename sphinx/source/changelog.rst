@@ -19,6 +19,8 @@ Changelog
   in ``@bfix`` mode)
 * Added the ``--move`` option to :ref:`sna2img.py` (for copying the contents of
   a block of RAM to another location)
+* Improved how :ref:`skool2asm.py` formats comments that cover two or more
+  instructions
 
 6.0 (2017-05-06)
 ----------------

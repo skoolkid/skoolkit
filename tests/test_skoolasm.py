@@ -1337,6 +1337,44 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         ]
         self.assertEqual(exp_asm, self._get_asm(skool))
 
+    def test_blank_line_in_comment_for_sub_block(self):
+        skool = '\n'.join((
+            '@start',
+            '; Data',
+            'b32768 DEFB 215,217,213,211 ; {Some data',
+            ' 32772 DEFB 0               ; }',
+            ' 32773 DEFB 255',
+            ' 32774 DEFB 0,1,2,3         ; Some other data',
+        ))
+        exp_asm = [
+            '; Data',
+            '  DEFB 215,217,213,211    ; Some data',
+            '  DEFB 0                  ;',
+            '  DEFB 255',
+            '  DEFB 0,1,2,3            ; Some other data',
+            '',
+        ]
+        self.assertEqual(exp_asm, self._get_asm(skool))
+
+    def test_blank_line_in_comment_for_sub_block_containing_wide_instruction(self):
+        skool = '\n'.join((
+            '@start',
+            '; Data',
+            'b32768 DEFB 215,217,213,211,254,13 ; {Some data',
+            ' 32774 DEFB 0                      ; }',
+            ' 32775 DEFB 255',
+            ' 32776 DEFB 0,1,2,3                ; Some other data',
+        ))
+        exp_asm = [
+            '; Data',
+            '  DEFB 215,217,213,211,254,13 ; Some data',
+            '  DEFB 0                      ;',
+            '  DEFB 255',
+            '  DEFB 0,1,2,3            ; Some other data',
+            '',
+        ]
+        self.assertEqual(exp_asm, self._get_asm(skool))
+
 class TableMacroTest(SkoolKitTestCase):
     def _get_writer(self, skool='', crlf=False, tab=False, instr_width=23, warn=False):
         skoolfile = self.write_text_file(skool, suffix='.skool')

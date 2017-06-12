@@ -408,7 +408,7 @@ class AsmWriter:
 
     def print_instructions(self):
         i = 0
-        rowspan = 0
+        rows = 0
         lines = []
         instructions = self.entry.instructions
 
@@ -420,11 +420,11 @@ class AsmWriter:
 
             # Deal with remaining comment lines or rowspan on the previous
             # instruction
-            if lines or rowspan > 0:
-                if rowspan > 0:
+            if lines or rows:
+                if rows:
                     self.print_instruction_prefix(instruction, i)
                     operation = instruction.operation
-                    rowspan -= 1
+                    rows -= 1
                     i += 1
                 else:
                     operation = ''
@@ -432,14 +432,15 @@ class AsmWriter:
                 if lines:
                     line_comment = lines.pop(0)
                     oline = '{0}{1} ; {2}'.format(self.indent, operation.ljust(instr_width), line_comment)
+                    if not ignoreua:
+                        uaddress = self.find_unconverted_address(line_comment)
+                        if uaddress:
+                            self.warn('Comment at {} contains address ({}) not converted to a label:\n{}'.format(iaddress, uaddress, oline))
+                elif rowspan > 1:
+                    oline = '{}{} ;'.format(self.indent, operation.ljust(instr_width))
                 else:
-                    line_comment = ''
-                    oline = '{0}{1}'.format(self.indent, operation)
+                    oline = self.indent + operation
                 self.write_line(oline)
-                if not ignoreua:
-                    uaddress = self.find_unconverted_address(line_comment)
-                    if uaddress:
-                        self.warn('Comment at {0} contains address ({1}) not converted to a label:\n{2}'.format(iaddress, uaddress, oline))
                 if len(oline) > self.line_width:
                     self.warn('Line is {0} characters long:\n{1}'.format(len(oline), oline))
                 continue # pragma: no cover
@@ -447,7 +448,7 @@ class AsmWriter:
             ignoreua = instruction.ignoreua
             iaddress = instruction.address
 
-            rowspan = instruction.comment.rowspan
+            rowspan = rows = instruction.comment.rowspan
             instr_width = max([len(i.operation) for i in instructions[i:i + rowspan]] + [self.instr_width])
             comment_width = self.line_width - 3 - instr_width - self.indent_width
             lines = wrap(self.expand(instruction.comment.text), max((comment_width, self.min_comment_width)))
