@@ -139,6 +139,41 @@ def make_z80_ram_block(data, page):
     length = len(block)
     return [length % 256, length // 256, page] + block
 
+def move(snapshot, param_str):
+    params = param_str.split(',', 2)
+    if len(params) < 3:
+        raise SkoolKitError("Not enough arguments in move spec (expected 3): {}".format(param_str))
+    try:
+        src, length, dest = [get_int_param(p) for p in params]
+    except ValueError:
+        raise SkoolKitError('Invalid integer in move spec: {}'.format(param_str))
+    snapshot[dest:dest + length] = snapshot[src:src + length]
+
+def poke(snapshot, param_str):
+    try:
+        addr, val = param_str.split(',', 1)
+    except ValueError:
+        raise SkoolKitError("Value missing in poke spec: {}".format(param_str))
+    try:
+        if val.startswith('^'):
+            value = get_int_param(val[1:])
+            poke_f = lambda b: b ^ value
+        elif val.startswith('+'):
+            value = get_int_param(val[1:])
+            poke_f = lambda b: (b + value) & 255
+        else:
+            value = get_int_param(val)
+            poke_f = lambda b: value
+    except ValueError:
+        raise SkoolKitError('Invalid value in poke spec: {}'.format(param_str))
+    try:
+        values = [get_int_param(i) for i in addr.split('-', 2)]
+    except ValueError:
+        raise SkoolKitError('Invalid address range in poke spec: {}'.format(param_str))
+    addr1, addr2, step = values + [values[0], 1][len(values) - 1:]
+    for a in range(addr1, addr2 + 1, step):
+        snapshot[a] = poke_f(snapshot[a])
+
 def _read_sna(data, page=None):
     if len(data) <= 49179 or page is None:
         return data[27:49179]

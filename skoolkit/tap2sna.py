@@ -24,7 +24,7 @@ from urllib.request import urlopen
 from urllib.parse import urlparse
 
 from skoolkit import SkoolKitError, get_int_param, get_word, get_word3, get_dword, open_file, write_line, VERSION
-from skoolkit.snapshot import set_z80_registers, set_z80_state, make_z80_ram_block, Z80_REGISTERS
+from skoolkit.snapshot import set_z80_registers, set_z80_state, make_z80_ram_block, move, poke, Z80_REGISTERS
 
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
@@ -110,41 +110,6 @@ def _load(snapshot, counters, blocks, param_str):
         length = len(block) - index
     length = _load_block(snapshot, block, start, length, step, offset, inc, index)
     counters[block_num] += length
-
-def move(snapshot, param_str):
-    params = param_str.split(',', 2)
-    if len(params) < 3:
-        raise SkoolKitError("Not enough arguments in move spec (expected 3): {}".format(param_str))
-    try:
-        src, length, dest = [get_int_param(p) for p in params]
-    except ValueError:
-        raise SkoolKitError('Invalid integer in move spec: {}'.format(param_str))
-    snapshot[dest:dest + length] = snapshot[src:src + length]
-
-def poke(snapshot, param_str):
-    try:
-        addr, val = param_str.split(',', 1)
-    except ValueError:
-        raise SkoolKitError("Value missing in poke spec: {}".format(param_str))
-    try:
-        if val.startswith('^'):
-            value = get_int_param(val[1:])
-            poke_f = lambda b: b ^ value
-        elif val.startswith('+'):
-            value = get_int_param(val[1:])
-            poke_f = lambda b: (b + value) & 255
-        else:
-            value = get_int_param(val)
-            poke_f = lambda b: value
-    except ValueError:
-        raise SkoolKitError('Invalid value in poke spec: {}'.format(param_str))
-    try:
-        values = [get_int_param(i) for i in addr.split('-', 2)]
-    except ValueError:
-        raise SkoolKitError('Invalid address range in poke spec: {}'.format(param_str))
-    addr1, addr2, step = values + [values[0], 1][len(values) - 1:]
-    for a in range(addr1, addr2 + 1, step):
-        snapshot[a] = poke_f(snapshot[a])
 
 def _get_ram(blocks, options):
     snapshot = [0] * 65536

@@ -19,8 +19,8 @@ import textwrap
 import argparse
 
 from skoolkit import SkoolKitError, get_word, read_bin_file, write_line, VERSION
-from skoolkit.tap2sna import move, poke
-from skoolkit.snapshot import get_snapshot, make_z80_ram_block, set_z80_registers, set_z80_state, Z80_REGISTERS
+from skoolkit.snapshot import (get_snapshot, make_z80_ram_block, set_z80_registers,
+                               set_z80_state, move, poke, Z80_REGISTERS)
 
 def _print_reg_help():
     reg_names = ', '.join(sorted(Z80_REGISTERS.keys()))
