@@ -680,9 +680,9 @@ class Mode:
         self.assemble = 0
         self.fix_mode = fix_mode
         self.do_rfixes = fix_mode >= 3
-        self.do_rsubs = asm_mode >= 3 or self.do_rfixes
+        self.do_rsubs = asm_mode >= 3
         self.do_ssubs = asm_mode >= 2
-        self.do_ofixes = fix_mode >= 1 or self.do_rsubs
+        self.do_ofixes = fix_mode >= 1
         self.do_bfixes = fix_mode >= 2
         self.labels = []
         self.create_labels = create_labels

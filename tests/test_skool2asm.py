@@ -293,13 +293,35 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
-    def test_option_f(self):
-        for option, value in (('-f', 1), ('--fixes', 2)):
-            output, error = self.run_skool2asm('-q {} {} test-u.skool'.format(option, value))
-            self.assertEqual(mock_skool_parser.fix_mode, value)
-            self.assertTrue(mock_asm_writer.wrote)
-            mock_skool_parser.fix_mode = None
-            mock_asm_writer.wrote = False
+    def test_option_f_0(self):
+        output, error = self.run_skool2asm('-q -f 0 test-f0.skool')
+        self.assertEqual(mock_skool_parser.fix_mode, 0)
+        self.assertEqual(mock_skool_parser.asm_mode, 1)
+        self.assertTrue(mock_asm_writer.wrote)
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_option_f_1(self):
+        output, error = self.run_skool2asm('-q --fixes 1 test-f1.skool')
+        self.assertEqual(mock_skool_parser.fix_mode, 1)
+        self.assertEqual(mock_skool_parser.asm_mode, 1)
+        self.assertTrue(mock_asm_writer.wrote)
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_option_f_2(self):
+        output, error = self.run_skool2asm('-q -f 2 test-f2.skool')
+        self.assertEqual(mock_skool_parser.fix_mode, 2)
+        self.assertEqual(mock_skool_parser.asm_mode, 1)
+        self.assertTrue(mock_asm_writer.wrote)
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_option_f_3(self):
+        output, error = self.run_skool2asm('-q --fixes 3 test-f3.skool')
+        self.assertEqual(mock_skool_parser.fix_mode, 3)
+        self.assertEqual(mock_skool_parser.asm_mode, 3)
+        self.assertTrue(mock_asm_writer.wrote)
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
@@ -317,9 +339,42 @@ class Skool2AsmTest(SkoolKitTestCase):
         for option in ('-r', '--rsub'):
             output, error = self.run_skool2asm('-q {} test-r.skool'.format(option))
             self.assertEqual(mock_skool_parser.asm_mode, 3)
+            self.assertEqual(mock_skool_parser.fix_mode, 1)
             self.assertTrue(mock_asm_writer.wrote)
             mock_skool_parser.asm_mode = None
             mock_asm_writer.wrote = False
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_options_r_f_0(self):
+        output, error = self.run_skool2asm('-q -r -f 0 test-rf0.skool')
+        self.assertEqual(mock_skool_parser.fix_mode, 1)
+        self.assertEqual(mock_skool_parser.asm_mode, 3)
+        self.assertTrue(mock_asm_writer.wrote)
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_options_r_f_1(self):
+        output, error = self.run_skool2asm('-q -r -f 1 test-rf1.skool')
+        self.assertEqual(mock_skool_parser.fix_mode, 1)
+        self.assertEqual(mock_skool_parser.asm_mode, 3)
+        self.assertTrue(mock_asm_writer.wrote)
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_options_r_f_2(self):
+        output, error = self.run_skool2asm('-q -r -f 2 test-rf2.skool')
+        self.assertEqual(mock_skool_parser.fix_mode, 2)
+        self.assertEqual(mock_skool_parser.asm_mode, 3)
+        self.assertTrue(mock_asm_writer.wrote)
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_options_r_f_3(self):
+        output, error = self.run_skool2asm('-q -r -f 3 test-rf3.skool')
+        self.assertEqual(mock_skool_parser.fix_mode, 3)
+        self.assertEqual(mock_skool_parser.asm_mode, 3)
+        self.assertTrue(mock_asm_writer.wrote)
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)

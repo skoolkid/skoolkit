@@ -21,6 +21,8 @@ Changelog
   a block of RAM to another location)
 * Improved how :ref:`skool2asm.py` formats comments that cover two or more
   instructions
+* Fixed :ref:`skool2asm.py` so that it processes ``@ssub`` directives when
+  ``--fixes 3`` is specified
 
 6.0 (2017-05-06)
 ----------------
