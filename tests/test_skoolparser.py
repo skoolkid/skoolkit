@@ -2027,7 +2027,9 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool)
         self.assertEqual(parser.get_instruction_addr_str(24583, ''), '24583')
         self.assertEqual(parser.get_instruction_addr_str(24586, ''), '600A')
-        self.assertEqual(parser.get_instruction_addr_str(24586, 'start'), '24586')
+        self.assertEqual(parser.get_instruction_addr_str(24587, '24587'), '24587')
+        self.assertEqual(parser.get_instruction_addr_str(24587, '$600b'), '600b')
+        self.assertEqual(parser.get_instruction_addr_str(24586, '$600B', 'start'), '600B')
 
     def test_get_instruction_addr_str_base_10(self):
         skool = '\n'.join((
@@ -2038,7 +2040,7 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool, base=BASE_10)
         self.assertEqual(parser.get_instruction_addr_str(24583, ''), '24583')
         self.assertEqual(parser.get_instruction_addr_str(24586, ''), '24586')
-        self.assertEqual(parser.get_instruction_addr_str(24586, 'load'), '24586')
+        self.assertEqual(parser.get_instruction_addr_str(24586, '', 'load'), '24586')
 
     def test_get_instruction_addr_str_base_16(self):
         skool = '\n'.join((
@@ -2049,7 +2051,7 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool, base=BASE_16)
         self.assertEqual(parser.get_instruction_addr_str(24583, ''), '6007')
         self.assertEqual(parser.get_instruction_addr_str(24586, ''), '600A')
-        self.assertEqual(parser.get_instruction_addr_str(24586, 'save'), '600A')
+        self.assertEqual(parser.get_instruction_addr_str(24586, '', 'save'), '600A')
 
     def test_get_instruction_addr_str_base_16_lower_case(self):
         skool = '\n'.join((
@@ -2060,7 +2062,7 @@ class SkoolParserTest(SkoolKitTestCase):
         parser = self._get_parser(skool, case=CASE_LOWER, base=BASE_16)
         self.assertEqual(parser.get_instruction_addr_str(24583, ''), '6007')
         self.assertEqual(parser.get_instruction_addr_str(24586, ''), '600a')
-        self.assertEqual(parser.get_instruction_addr_str(24586, 'save'), '600a')
+        self.assertEqual(parser.get_instruction_addr_str(24586, '', 'save'), '600a')
 
     def test_base_conversion_no_base(self):
         parser = self._get_parser(TEST_BASE_CONVERSION_SKOOL, base=None)

@@ -312,12 +312,11 @@ class SkoolParser:
         if instruction:
             return instruction.asm_label
 
-    def get_instruction_addr_str(self, address, asm_id=''):
+    def get_instruction_addr_str(self, address, default, asm_id=''):
         instruction = self.get_instruction(address, asm_id)
         if instruction:
             return instruction.get_addr_str()
-        if asm_id:
-            return self.mode.get_addr_str(address)
+        return self.mode.get_addr_str(address, default)
 
     def convert_address_operand(self, operand):
         return self.mode.convert_address_operand(operand)
@@ -761,10 +760,14 @@ class Mode:
 
         self.reset()
 
-    def get_addr_str(self, address):
+    def get_addr_str(self, address, default):
         if self.hexadecimal:
             return self.addr_fmt.format(address)
-        return str(address)
+        if self.decimal:
+            return str(address)
+        if default.startswith('$'):
+            return default[1:]
+        return default
 
     def convert_address_operand(self, operand):
         if self.decimal:

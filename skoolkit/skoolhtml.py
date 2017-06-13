@@ -1198,7 +1198,7 @@ class HtmlWriter:
                 anchor = '#{}'.format(self.asm_anchor(address))
             href = self._asm_relpath(cwd, container_address, code_id) + anchor
         asm_label = self.parser.get_asm_label(address)
-        inst_addr_str = self.parser.get_instruction_addr_str(address, code_id)
+        inst_addr_str = self.parser.get_instruction_addr_str(address, addr_str, code_id)
         return end, self.format_link(href, link_text or asm_label or inst_addr_str)
 
     def expand_reg(self, text, index, cwd):

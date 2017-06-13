@@ -240,17 +240,12 @@ class AsmWriter:
         if link_text:
             return end, link_text
         if code_id:
-            return end, self.parser.get_instruction_addr_str(address, code_id)
+            return end, self.parser.get_instruction_addr_str(address, addr_str, code_id)
         label = self.labels.get(address)
         if label is None:
             if self.base_address <= address <= self.end_address:
                 self.warn('Could not convert address {} to label'.format(addr_str))
-            label = self.parser.get_instruction_addr_str(address)
-            if label is None:
-                if addr_str.startswith('$'):
-                    label = addr_str[1:]
-                else:
-                    label = addr_str
+            label = self.parser.get_instruction_addr_str(address, addr_str)
         return end, label
 
     def expand_reg(self, text, index):

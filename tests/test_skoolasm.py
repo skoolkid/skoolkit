@@ -278,6 +278,19 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         output = writer.expand('#R$6001')
         self.assertEqual(output, '6001')
         self.assertEqual(self.err.getvalue(), 'WARNING: Could not convert address $6001 to label\n')
+        self.clear_streams()
+
+        # Decimal address out of range
+        output = writer.expand('#R32768')
+        self.assertTrue(writer.parser.end_address < 32768)
+        self.assertEqual(output, '32768')
+        self.assertEqual(self.err.getvalue(), '')
+
+        # Hexadecimal address out of range
+        output = writer.expand('#R$80fF')
+        self.assertTrue(writer.parser.end_address < 0x80ff)
+        self.assertEqual(output, '80fF')
+        self.assertEqual(self.err.getvalue(), '')
 
     def test_macro_r_other_code(self):
         skool = '\n'.join((
@@ -368,6 +381,18 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         output = writer.expand('#R49152@other')
         self.assertEqual(output, 'C000')
 
+        # Decimal address out of range
+        output = writer.expand('#R16384')
+        self.assertTrue(writer.parser.base_address > 16384)
+        self.assertEqual(output, '4000')
+        self.assertEqual(self.err.getvalue(), '')
+
+        # Hexadecimal address out of range
+        output = writer.expand('#R$d0fF')
+        self.assertTrue(writer.parser.end_address < 0xd0ff)
+        self.assertEqual(output, 'D0FF')
+        self.assertEqual(self.err.getvalue(), '')
+
     def test_macro_r_hex_lower(self):
         skool = '\n'.join((
             '@start',
@@ -389,6 +414,18 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         output = writer.expand('#R49152@other')
         self.assertEqual(output, 'c000')
 
+        # Decimal address out of range
+        output = writer.expand('#R23296')
+        self.assertTrue(writer.parser.base_address > 23296)
+        self.assertEqual(output, '5b00')
+        self.assertEqual(self.err.getvalue(), '')
+
+        # Hexadecimal address out of range
+        output = writer.expand('#R$d0fF')
+        self.assertTrue(writer.parser.end_address < 0xd0ff)
+        self.assertEqual(output, 'd0ff')
+        self.assertEqual(self.err.getvalue(), '')
+
     def test_macro_r_decimal(self):
         skool = '\n'.join((
             '@start',
@@ -409,6 +446,18 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         # Other code with remote entry
         output = writer.expand('#R$c000@main')
         self.assertEqual(output, '49152')
+
+        # Decimal address out of range
+        output = writer.expand('#R24576')
+        self.assertTrue(writer.parser.base_address > 24576)
+        self.assertEqual(output, '24576')
+        self.assertEqual(self.err.getvalue(), '')
+
+        # Hexadecimal address out of range
+        output = writer.expand('#R$d0fF')
+        self.assertTrue(writer.parser.end_address < 0xd0ff)
+        self.assertEqual(output, '53503')
+        self.assertEqual(self.err.getvalue(), '')
 
     def test_macro_scr(self):
         writer = self._get_writer()
