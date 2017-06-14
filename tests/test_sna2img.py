@@ -90,6 +90,11 @@ class Sna2ImgTest(SkoolKitTestCase):
             self.run_sna2img('{} {}'.format(option, scrfile))
         self.assertEqual(cm.exception.args[0], exp_error)
 
+    def _test_nonexistent_input_file(self, infile):
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_sna2img(infile)
+        self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))
+
     def test_no_arguments(self):
         output, error = self.run_sna2img(catch_exit=2)
         self.assertEqual(len(output), 0)
@@ -100,11 +105,20 @@ class Sna2ImgTest(SkoolKitTestCase):
         self.assertEqual(len(output), 0)
         self.assertTrue(error.startswith('usage: sna2img.py'))
 
-    def test_nonexistent_input_file(self):
-        infile = 'non-existent.z80'
-        with self.assertRaises(SkoolKitError) as cm:
-            self.run_sna2img(infile)
-        self.assertEqual(cm.exception.args[0], '{}: file not found'.format(infile))
+    def test_nonexistent_scr_file(self):
+        self._test_nonexistent_input_file('non-existent.scr')
+
+    def test_nonexistent_skool_file(self):
+        self._test_nonexistent_input_file('non-existent.skool')
+
+    def test_nonexistent_sna_file(self):
+        self._test_nonexistent_input_file('non-existent.sna')
+
+    def test_nonexistent_szx_file(self):
+        self._test_nonexistent_input_file('non-existent.szx')
+
+    def test_nonexistent_z80_file(self):
+        self._test_nonexistent_input_file('non-existent.z80')
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')

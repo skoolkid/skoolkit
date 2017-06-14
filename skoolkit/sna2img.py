@@ -89,6 +89,8 @@ def run(infile, outfile, options):
     else:
         try:
             snapshot = BinWriter(infile, fix_mode=options.fix_mode).snapshot
+        except SkoolKitError:
+            raise
         except:
             raise SkoolKitError('Unable to parse {} as a skool file'.format(infile))
 
