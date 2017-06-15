@@ -184,10 +184,10 @@ td.map-t-desc {
 }
 div.map-entry-title-11, div.map-entry-desc-1, td.map-s-desc, td.map-u-desc {
   color: #000000;
+  font-family: sans;
 }
 div.map-entry-title-11 {
   font-weight: bold;
-  font-family: sans;
 }
 div.list-entry {
   width: 800px;

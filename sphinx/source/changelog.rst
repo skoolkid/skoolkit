@@ -26,6 +26,7 @@ Changelog
   in another disassembly) in ASM mode
 * Fixed :ref:`skool2asm.py` so that it processes ``@ssub`` directives when
   ``--fixes 3`` is specified
+* Fixed the styling of entry descriptions for 't' blocks on a memory map page
 
 6.0 (2017-05-06)
 ----------------
