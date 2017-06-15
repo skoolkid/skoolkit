@@ -23,7 +23,7 @@ REG = ('B', 'C', 'D', 'E', 'H', 'L', '(HL)', 'A')
 REG_PAIRS = ('BC', 'DE', 'HL', 'SP')
 INDEX_REG = ('IXH', 'IXL', 'IYH', 'IYL')
 INDEX_REG_PAIRS = ('IX', 'IY')
-OPERAND_AE_CHARS = frozenset(' +-*/%0123456789()')
+OPERAND_AE_CHARS = frozenset('+-*/%0123456789()')
 
 def _convert_chars(text):
     s = ''
