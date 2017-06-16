@@ -171,6 +171,26 @@ class UdgTest(SkoolKitTestCase):
         udg_r.rotate(1)
         self.assertEqual([[udg_r], [udg_r]], udgs)
 
+    def test_rotate_udgs_with_rows_of_different_sizes(self):
+        base_udg1 = Udg(1, [170] * 8)
+        base_udg2 = Udg(2, [85] * 8)
+
+        udg1 = base_udg1.copy()
+        udg2 = base_udg2.copy()
+        udg1_r1 = Udg(1, [255, 0] * 4)
+        udg2_r1 = Udg(2, [0, 255] * 4)
+        udgs = [[udg1], [udg2, udg1]]
+        rotate_udgs(udgs, 1)
+        self.assertEqual([[udg2_r1, udg1_r1], [udg1_r1]], udgs)
+
+        udg1 = base_udg1.copy()
+        udg2 = base_udg2.copy()
+        udg1_r3 = Udg(1, [0, 255] * 4)
+        udg2_r3 = Udg(2, [255, 0] * 4)
+        udgs = [[udg1, udg2], [udg2]]
+        rotate_udgs(udgs, 3)
+        self.assertEqual([[udg2_r3], [udg1_r3, udg2_r3]], udgs)
+
 class GraphicsTest(SkoolKitTestCase):
     def test_font_udgs(self):
         snapshot = [0] * 65536

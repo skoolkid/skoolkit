@@ -243,10 +243,11 @@ def rotate_udgs(udgs, rotate=1):
                     rotated_udgs.add(id(udg))
         if rotate & 3 == 1:
             rotated = []
-            for i in range(len(udgs[0])):
+            for i in range(max([len(r) for r in udgs])):
                 rotated.append([])
                 for j in range(len(udgs)):
-                    rotated[-1].insert(0, udgs[j][i])
+                    if i < len(udgs[j]):
+                        rotated[-1].insert(0, udgs[j][i])
             udgs[:] = rotated
         elif rotate & 3 == 2:
             udgs.reverse()
@@ -254,10 +255,11 @@ def rotate_udgs(udgs, rotate=1):
                 row.reverse()
         elif rotate & 3 == 3:
             rotated = []
-            for i in range(len(udgs[0])):
+            for i in range(max([len(r) for r in udgs])):
                 rotated.insert(0, [])
                 for j in range(len(udgs)):
-                    rotated[0].append(udgs[j][i])
+                    if i < len(udgs[j]):
+                        rotated[0].append(udgs[j][i])
             udgs[:] = rotated
 
 def adjust_udgs(udgs, flip, rotate):
