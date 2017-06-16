@@ -218,10 +218,12 @@ b32781 DEFB 0
 CONFIG = {k: v[0] for k, v in COMMANDS['sna2skool'].items()}
 
 class DisassemblyTest(SkoolKitTestCase):
-    def _test_disassembly(self, snapshot, ctl, exp_instructions, **kwargs):
+    def _test_disassembly(self, snapshot, ctl, exp_instructions, params=None, **kwargs):
         ctl_parser = CtlParser()
         ctl_parser.parse_ctl(self.write_text_file(ctl))
-        disassembly = Disassembly(snapshot, ctl_parser, CONFIG, True, **kwargs)
+        config = CONFIG.copy()
+        config.update(params or {})
+        disassembly = Disassembly(snapshot, ctl_parser, config, True, **kwargs)
         entries = disassembly.entries
         self.assertEqual(len(entries), 2)
         entry = entries[0]
@@ -1049,12 +1051,14 @@ class MockOptions:
         self.asm_lower = asm_lower
 
 class SkoolWriterTest(SkoolKitTestCase):
-    def _get_writer(self, snapshot, ctl, line_width=79, defb_size=8, defb_mod=1, zfill=False, defm_width=66,
-                    asm_hex=False, asm_lower=False):
+    def _get_writer(self, snapshot, ctl, params=None, line_width=79, defb_size=8, defb_mod=1,
+                    zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
         ctl_parser = CtlParser()
         ctl_parser.parse_ctl(self.write_text_file(ctl))
         options = MockOptions(line_width, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
-        return SkoolWriter(snapshot, ctl_parser, options, CONFIG)
+        config = CONFIG.copy()
+        config.update(params or {})
+        return SkoolWriter(snapshot, ctl_parser, options, config)
 
     def _test_write_skool(self, snapshot, ctl, exp_skool, write_refs=0, show_text=False, **kwargs):
         writer = self._get_writer(snapshot, ctl, **kwargs)
@@ -2381,6 +2385,178 @@ class SkoolWriterTest(SkoolKitTestCase):
             ' 00002 DEFB 2        ; sub-block}'
         ]
         self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_custom_Ref(self):
+        params = {'Ref': 'Used by the subroutine at {ref}.'}
+        snapshot = [201, 24, 253]
+        ctl = '\n'.join((
+            'c 00000',
+            'c 00001',
+            'i 00003'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            ';',
+            '; Used by the subroutine at #R1.',
+            'c00000 RET           ;',
+            '',
+            '; Routine at 1',
+            'c00001 JR 0          ;'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool, params=params)
+
+    def test_custom_Refs_with_two_referrers(self):
+        params = {'Refs': 'Used by the subroutines at {refs} and {ref}.'}
+        snapshot = [201, 24, 253, 24, 251]
+        ctl = '\n'.join((
+            'c 00000',
+            'c 00001',
+            'c 00003',
+            'i 00005'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            ';',
+            '; Used by the subroutines at #R1 and #R3.',
+            'c00000 RET           ;',
+            '',
+            '; Routine at 1',
+            'c00001 JR 0          ;',
+            '',
+            '; Routine at 3',
+            'c00003 JR 0          ;'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool, params=params)
+
+    def test_custom_Refs_with_three_referrers(self):
+        params = {'Refs': 'Used by the subroutines at {refs} and {ref}.'}
+        snapshot = [201, 24, 253, 24, 251, 24, 249]
+        ctl = '\n'.join((
+            'c 00000',
+            'c 00001',
+            'c 00003',
+            'c 00005',
+            'i 00007'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            ';',
+            '; Used by the subroutines at #R1, #R3 and #R5.',
+            'c00000 RET           ;',
+            '',
+            '; Routine at 1',
+            'c00001 JR 0          ;',
+            '',
+            '; Routine at 3',
+            'c00003 JR 0          ;',
+            '',
+            '; Routine at 5',
+            'c00005 JR 0          ;'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool, params=params)
+
+    def test_custom_EntryPointRef(self):
+        params = {'EntryPointRef': 'Used by the subroutine at {ref}.'}
+        snapshot = [175, 201, 24, 253]
+        ctl = '\n'.join((
+            'c 00000',
+            'c 00002',
+            'i 00004'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            'c00000 XOR A         ;',
+            '; Used by the subroutine at #R2.',
+            '*00001 RET           ;',
+            '',
+            '; Routine at 2',
+            'c00002 JR 1          ;'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool, params=params)
+
+    def test_custom_EntryPointRefs_with_two_referrers(self):
+        params = {'EntryPointRefs': 'Used by the subroutines at {refs} and {ref}.'}
+        snapshot = [175, 201, 24, 253, 24, 251]
+        ctl = '\n'.join((
+            'c 00000',
+            'c 00002',
+            'c 00004',
+            'i 00006'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            'c00000 XOR A         ;',
+            '; Used by the subroutines at #R2 and #R4.',
+            '*00001 RET           ;',
+            '',
+            '; Routine at 2',
+            'c00002 JR 1          ;',
+            '',
+            '; Routine at 4',
+            'c00004 JR 1          ;'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool, params=params)
+
+    def test_custom_EntryPointRefs_with_three_referrers(self):
+        params = {'EntryPointRefs': 'Used by the subroutines at {refs} and {ref}.'}
+        snapshot = [175, 201, 24, 253, 24, 251, 24, 249]
+        ctl = '\n'.join((
+            'c 00000',
+            'c 00002',
+            'c 00004',
+            'c 00006',
+            'i 00008'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Routine at 0',
+            'c00000 XOR A         ;',
+            '; Used by the subroutines at #R2, #R4 and #R6.',
+            '*00001 RET           ;',
+            '',
+            '; Routine at 2',
+            'c00002 JR 1          ;',
+            '',
+            '; Routine at 4',
+            'c00004 JR 1          ;',
+            '',
+            '; Routine at 6',
+            'c00006 JR 1          ;'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool, params=params)
+
+    def test_custom_config_passed_to_disassembly(self):
+        params = {
+            'Title-b': 'Data at {address}',
+            'Title-c': 'Code at {address}'
+        }
+        snapshot = [201, 0]
+        ctl = '\n'.join((
+            'c 00000',
+            'b 00001',
+            'i 00002'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '; Code at 0',
+            'c00000 RET           ;',
+            '',
+            '; Data at 1',
+            'b00001 DEFB 0'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool, params=params)
 
 class CtlWriterTest(SkoolKitTestCase):
     def test_decimal_addresses_below_10000(self):
