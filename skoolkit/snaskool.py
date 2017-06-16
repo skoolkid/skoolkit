@@ -210,7 +210,7 @@ def _find_terminal_instruction(disassembler, ctls, start, end=65536, ctl=None):
             break
     return address
 
-def _generate_ctls_with_code_map(snapshot, start, end, code_map, config):
+def _generate_ctls_with_code_map(snapshot, start, end, code_map):
     # (1) Use the code map to create an initial set of 'c' ctls, and mark all
     #     unexecuted blocks as 'U' (unknown)
     # (2) Where a 'c' block doesn't end with a RET/JP/JR, extend it up to the
@@ -251,7 +251,7 @@ def _generate_ctls_with_code_map(snapshot, start, end, code_map, config):
     # (3) Mark entry points in 'U' blocks that are CALLed or JPed to from 'c'
     # blocks with 'c'
     ctl_parser = CtlParser(ctls)
-    disassembly = Disassembly(snapshot, ctl_parser, config)
+    disassembly = Disassembly(snapshot, ctl_parser)
     while 1:
         disassembly.build(True)
         done = True
@@ -326,7 +326,7 @@ def _generate_ctls_with_code_map(snapshot, start, end, code_map, config):
 
     return ctls
 
-def _generate_ctls_without_code_map(snapshot, start, end, config):
+def _generate_ctls_without_code_map(snapshot, start, end):
     ctls = {start: 'c', end: 'i'}
 
     # Look for potential 'RET', 'JR d' and 'JP nn' instructions and assume that
@@ -342,7 +342,7 @@ def _generate_ctls_without_code_map(snapshot, start, end, config):
             ctls[address + 2] = 'c'
 
     ctl_parser = CtlParser(ctls)
-    disassembly = Disassembly(snapshot, ctl_parser, config)
+    disassembly = Disassembly(snapshot, ctl_parser)
 
     # Scan the disassembly for pairs of adjacent blocks that overlap, and join
     # such pairs
@@ -531,11 +531,11 @@ def _analyse_blocks(disassembly, ctls):
                 if z_end < end:
                     ctls[z_end] = 'c'
 
-def generate_ctls(snapshot, start, end, code_map, config):
+def generate_ctls(snapshot, start, end, code_map):
     if code_map:
-        ctls = _generate_ctls_with_code_map(snapshot, start, end, code_map, config)
+        ctls = _generate_ctls_with_code_map(snapshot, start, end, code_map)
     else:
-        ctls = _generate_ctls_without_code_map(snapshot, start, end, config)
+        ctls = _generate_ctls_without_code_map(snapshot, start, end)
 
     # Join any adjacent data and zero blocks
     blocks = _get_blocks(ctls)
@@ -581,7 +581,7 @@ class Entry:
         return comment_type in self.ignoreua_directives
 
 class Disassembly:
-    def __init__(self, snapshot, ctl_parser, config, final=False, defb_size=8, defb_mod=1,
+    def __init__(self, snapshot, ctl_parser, config=None, final=False, defb_size=8, defb_mod=1,
                  zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
         self.disassembler = Disassembler(snapshot, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
         self.ctl_parser = ctl_parser
@@ -593,7 +593,7 @@ class Disassembly:
         else:
             self.address_fmt = '{0}'
         self.entry_map = {}
-        self.config = config
+        self.config = config or {}
         self.build(final)
 
     def build(self, final=False):
