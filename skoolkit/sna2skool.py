@@ -32,7 +32,7 @@ def run(snafile, options, config):
         snapshot = get_snapshot(snafile, options.page)
         start = max(START, options.start)
     else:
-        ram = read_bin_file(snafile)
+        ram = read_bin_file(snafile, 65536)
         if options.org is None:
             org = 65536 - len(ram)
         else:
