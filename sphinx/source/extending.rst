@@ -377,11 +377,15 @@ HtmlWriter provides the following image-related convenience methods.
 .. autofunction:: skoolkit.graphics.flip_udgs
 .. autofunction:: skoolkit.graphics.rotate_udgs
 
-HtmlWriter initialisation
--------------------------
-If your HtmlWriter subclass needs to perform some initialisation tasks, such as
-creating instance variables, or parsing ref file sections, the place to do that
-is the `init()` method.
+Writer initialisation
+---------------------
+If your AsmWriter or HtmlWriter subclass needs to perform some initialisation
+tasks, such as creating instance variables, or parsing ref file sections, the
+place to do that is the `init()` method.
+
+.. automethod:: skoolkit.skoolasm.AsmWriter.init
+
+   .. versionadded:: 6.1
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.init
 

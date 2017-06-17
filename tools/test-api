@@ -63,6 +63,9 @@ from skoolkit.skoolasm import AsmWriter
 from skoolkit.skoolmacro import parse_ints, parse_image_macro
 
 class GameHtmlWriter(HtmlWriter):
+    def init(self):
+        self.init_called = 1
+
     def sprite(self, cwd, attr, fname):
         img_path = self.image_path(fname)
         if self.need_image(img_path):
@@ -112,9 +115,14 @@ class GameHtmlWriter(HtmlWriter):
         return index, time.strftime("%a %d %b %Y %H:%M:%S %Z")
 
     def copyright(self, cwd):
+        if not hasattr(self, 'init_called'):
+            raise Exception('init() not called')
         return self.expand('#CHR169', cwd)
 
 class GameAsmWriter(AsmWriter):
+    def init(self):
+        self.init_called = 1
+
     # #WORDaddress
     def expand_word(self, text, index):
         end, address = parse_ints(text, index, 1)
@@ -127,6 +135,8 @@ class GameAsmWriter(AsmWriter):
         return index, time.strftime("%a %d %b %Y %H:%M:%S %Z")
 
     def copyright(self):
+        if not hasattr(self, 'init_called'):
+            raise Exception('init() not called')
         return self.expand('#CHR169')
 EOF
 }

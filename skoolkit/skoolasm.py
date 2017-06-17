@@ -95,6 +95,16 @@ class AsmWriter:
 
         self.macros = skoolmacro.get_macros(self)
 
+        self.init()
+
+    # API
+    def init(self):
+        """Perform post-initialisation operations. This method is called after
+        `__init__()` has completed. By default the method does nothing, but
+        subclasses may override it.
+        """
+        return
+
     def _get_int_property(self, properties, name, default):
         try:
             return int(properties[name])
