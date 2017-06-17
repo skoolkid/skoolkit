@@ -1,3 +1,4 @@
+from io import StringIO
 import re
 import unittest
 
@@ -218,12 +219,10 @@ b32781 DEFB 0
 CONFIG = {k: v[0] for k, v in COMMANDS['sna2skool'].items()}
 
 class DisassemblyTest(SkoolKitTestCase):
-    def _test_disassembly(self, snapshot, ctl, exp_instructions, params=None, **kwargs):
+    def _test_disassembly(self, snapshot, ctl, exp_instructions, **kwargs):
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(self.write_text_file(ctl))
-        config = CONFIG.copy()
-        config.update(params or {})
-        disassembly = Disassembly(snapshot, ctl_parser, config, True, **kwargs)
+        ctl_parser.parse_ctl(StringIO(ctl))
+        disassembly = Disassembly(snapshot, ctl_parser, CONFIG, True, **kwargs)
         entries = disassembly.entries
         self.assertEqual(len(entries), 2)
         entry = entries[0]
@@ -234,7 +233,7 @@ class DisassemblyTest(SkoolKitTestCase):
 
     def test_disassembly(self):
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(self.write_text_file(DISASSEMBLY_CTL))
+        ctl_parser.parse_ctl(StringIO(DISASSEMBLY_CTL))
         disassembly = Disassembly(DISASSEMBLY_SNAPSHOT, ctl_parser, CONFIG, True)
 
         entries = disassembly.entries
@@ -470,7 +469,7 @@ class DisassemblyTest(SkoolKitTestCase):
         exp_ref_addresses = [1] + list(range(2, 14, 2)) + list(range(14, 68, 3))
         ctls = ['c 00000'] + ['c {:05d}'.format(a) for a in exp_ref_addresses] + ['i 00068']
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(self.write_text_file('\n'.join(ctls)))
+        ctl_parser.parse_ctl(StringIO('\n'.join(ctls)))
         disassembly = Disassembly(snapshot, ctl_parser, CONFIG, True)
 
         referrers = disassembly.entries[0].instructions[0].referrers
@@ -1040,6 +1039,49 @@ class DisassemblyTest(SkoolKitTestCase):
         ]
         self._test_disassembly(snapshot, ctl, exp_instructions)
 
+    def test_config(self):
+        params = {
+            'Title-b': 'Bytes at {address}',
+            'Title-c': 'Code at {address}',
+            'Title-g': 'Game state at {address}',
+            'Title-i': 'Ignored RAM at {address}',
+            'Title-s': 'Unused space at {address}',
+            'Title-t': 'Text at {address}',
+            'Title-u': 'Unused bytes at {address}',
+            'Title-w': 'Words at {address}'
+        }
+        snapshot = [0] * 9
+        ctl = '\n'.join((
+            'b 00000',
+            'c 00001',
+            'g 00002',
+            'i 00003',
+            'D 00003 Force a title for this ignored block.',
+            's 00004',
+            't 00005',
+            'u 00006',
+            'w 00007',
+            'i 00009'
+        ))
+        exp_titles = [
+            'Bytes at 0',
+            'Code at 1',
+            'Game state at 2',
+            'Ignored RAM at 3',
+            'Unused space at 4',
+            'Text at 5',
+            'Unused bytes at 6',
+            'Words at 7',
+            None
+        ]
+        ctl_parser = CtlParser()
+        ctl_parser.parse_ctl(StringIO(ctl))
+        config = CONFIG.copy()
+        config.update(params)
+        disassembly = Disassembly(snapshot, ctl_parser, config, True)
+
+        self.assertEqual([e.title for e in disassembly.entries], exp_titles)
+
 class MockOptions:
     def __init__(self, line_width, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower):
         self.line_width = line_width
@@ -1054,7 +1096,7 @@ class SkoolWriterTest(SkoolKitTestCase):
     def _get_writer(self, snapshot, ctl, params=None, line_width=79, defb_size=8, defb_mod=1,
                     zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
         ctl_parser = CtlParser()
-        ctl_parser.parse_ctl(self.write_text_file(ctl))
+        ctl_parser.parse_ctl(StringIO(ctl))
         options = MockOptions(line_width, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
         config = CONFIG.copy()
         config.update(params or {})
