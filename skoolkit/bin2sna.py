@@ -18,14 +18,7 @@ import os
 import argparse
 
 from skoolkit import read_bin_file, VERSION
-from skoolkit.snapshot import make_z80v3_ram_blocks, set_z80_registers, set_z80_state
-
-def _get_z80(ram, sp, pc, border):
-    z80 = [0] * 86
-    z80[30] = 54 # Indicate a v3 Z80 snapshot
-    set_z80_registers(z80, 'i=63', 'iy=23610', 'sp={}'.format(sp), 'pc={}'.format(pc))
-    set_z80_state(z80, 'iff=1', 'im=1', 'border={}'.format(border & 7))
-    return z80 + make_z80v3_ram_blocks(ram)
+from skoolkit.snapshot import write_z80v3
 
 def run(infile, outfile, options):
     ram = list(read_bin_file(infile, 49152))
@@ -42,8 +35,9 @@ def run(infile, outfile, options):
     parent_dir = os.path.dirname(outfile)
     if parent_dir and not os.path.isdir(parent_dir):
         os.makedirs(parent_dir)
-    with open(outfile, 'wb') as f:
-        f.write(bytearray(_get_z80(ram, stack, start, options.border)))
+    registers = ('sp={}'.format(stack), 'pc={}'.format(start))
+    state = ('border={}'.format(options.border),)
+    write_z80v3(outfile, ram, registers, state)
 
 def main(args):
     parser = argparse.ArgumentParser(

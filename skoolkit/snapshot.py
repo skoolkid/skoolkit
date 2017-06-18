@@ -145,6 +145,14 @@ def make_z80v3_ram_blocks(ram):
         blocks.extend(make_z80_ram_block(data, bank + 3))
     return blocks
 
+def write_z80v3(fname, ram, registers, state):
+    z80 = [0] * 86
+    z80[30] = 54 # Indicate a v3 Z80 snapshot
+    set_z80_registers(z80, 'i=63', 'iy=23610', *registers)
+    set_z80_state(z80, 'iff=1', 'im=1', *state)
+    with open(fname, 'wb') as f:
+        f.write(bytes(z80 + make_z80v3_ram_blocks(ram)))
+
 def move(snapshot, param_str):
     params = param_str.split(',', 2)
     if len(params) < 3:
