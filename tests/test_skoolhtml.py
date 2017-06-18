@@ -234,6 +234,21 @@ class HtmlWriterTestCase(SkoolKitTestCase):
         return writer
 
 class HtmlWriterTest(HtmlWriterTestCase):
+    def _test_unexpandable_macros_in_ref_file_section(self, section, *exceptions, params=None):
+        if not params:
+            params = []
+            for line in defaults.get_section(section).split('\n')[1:]:
+                if line.startswith(';'):
+                    line = line[1:].lstrip()
+                params.append(line.split('=', 1)[0])
+            for param in exceptions:
+                params.remove(param)
+        for param in params:
+            ref = '[{}]\n{}=#R32768'.format(section, param)
+            exp_error = '^Failed to expand macros in {} parameter: #R32768$'.format(param)
+            with self.assertRaisesRegex(SkoolKitError, exp_error, msg='{}:{}'.format(section, param)):
+                self._get_writer(ref=ref)
+
     def test_OtherCode_Source_parameter(self):
         ref = '\n'.join((
             '[OtherCode:load]',
@@ -294,6 +309,19 @@ class HtmlWriterTest(HtmlWriterTestCase):
         ))
         writer = self._get_writer(ref=ref)
         self.assertNotIn('Bar', writer.get_page_ids())
+
+    def test_unexpandable_macros_in_Game_section(self):
+        self._test_unexpandable_macros_in_ref_file_section('Game', 'Logo')
+
+    def test_unexpandable_macros_in_MemoryMap_section(self):
+        self._test_unexpandable_macros_in_ref_file_section('MemoryMap:MemoryMap', 'Intro')
+
+    def test_unexpandable_macros_in_Page_section(self):
+        params = ('Content', 'JavaScript', 'SectionPrefix', 'SectionType')
+        self._test_unexpandable_macros_in_ref_file_section('Page:MyPage', params=params)
+
+    def test_unexpandable_macros_in_Paths_section(self):
+        self._test_unexpandable_macros_in_ref_file_section('Paths')
 
 class MethodTest(HtmlWriterTestCase):
     def setUp(self):

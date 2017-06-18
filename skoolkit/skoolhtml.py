@@ -265,7 +265,10 @@ class HtmlWriter:
             d = obj
         for k in d:
             if k not in exceptions:
-                d[k] = self.expand(d[k])
+                try:
+                    d[k] = self.expand(d[k])
+                except:
+                    raise SkoolKitError('Failed to expand macros in {} parameter: {}'.format(k, d[k]))
         return d
 
     def _parse_colours(self, colour_specs):
