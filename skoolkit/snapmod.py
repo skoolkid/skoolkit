@@ -19,8 +19,8 @@ import textwrap
 import argparse
 
 from skoolkit import SkoolKitError, get_word, read_bin_file, write_line, VERSION
-from skoolkit.snapshot import (get_snapshot, make_z80_ram_block, set_z80_registers,
-                               set_z80_state, move, poke, Z80_REGISTERS)
+from skoolkit.snapshot import (get_snapshot, make_z80_ram_block, make_z80v3_ram_blocks,
+                               set_z80_registers, set_z80_state, move, poke, Z80_REGISTERS)
 
 def _print_reg_help():
     reg_names = ', '.join(sorted(Z80_REGISTERS.keys()))
@@ -65,9 +65,7 @@ def _write_z80(header, snapshot, fname):
         header[12] |= 32
         ram = make_z80_ram_block(snapshot[16384:], 0)[3:] + [0, 237, 237, 0]
     else:
-        ram = []
-        for bank, data in ((5, snapshot[16384:32768]), (1, snapshot[32768:49152]), (2, snapshot[49152:])):
-            ram += make_z80_ram_block(data, bank + 3)
+        ram = make_z80v3_ram_blocks(snapshot[16384:])
     with open(fname, 'wb') as f:
         f.write(bytearray(header + ram))
 

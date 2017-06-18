@@ -139,6 +139,12 @@ def make_z80_ram_block(data, page):
     length = len(block)
     return [length % 256, length // 256, page] + block
 
+def make_z80v3_ram_blocks(ram):
+    blocks = []
+    for bank, data in ((5, ram[:16384]), (1, ram[16384:32768]), (2, ram[32768:49152])):
+        blocks.extend(make_z80_ram_block(data, bank + 3))
+    return blocks
+
 def move(snapshot, param_str):
     params = param_str.split(',', 2)
     if len(params) < 3:

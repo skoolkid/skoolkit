@@ -24,7 +24,7 @@ from urllib.request import urlopen
 from urllib.parse import urlparse
 
 from skoolkit import SkoolKitError, get_int_param, get_word, get_word3, get_dword, open_file, write_line, VERSION
-from skoolkit.snapshot import set_z80_registers, set_z80_state, make_z80_ram_block, move, poke, Z80_REGISTERS
+from skoolkit.snapshot import set_z80_registers, set_z80_state, make_z80v3_ram_blocks, move, poke, Z80_REGISTERS
 
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
@@ -39,13 +39,9 @@ class TapeError(Exception):
 def _get_z80(ram, options):
     z80 = [0] * 86
     z80[30] = 54 # Indicate a v3 Z80 snapshot
-    set_z80_registers(z80, 'i=63', 'iy=23610')
-    set_z80_registers(z80, *options.reg)
-    set_z80_state(z80, 'iff=1', 'im=1')
-    set_z80_state(z80, *options.state)
-    for bank, data in ((5, ram[:16384]), (1, ram[16384:32768]), (2, ram[32768:49152])):
-        z80 += make_z80_ram_block(data, bank + 3)
-    return z80
+    set_z80_registers(z80, 'i=63', 'iy=23610', *options.reg)
+    set_z80_state(z80, 'iff=1', 'im=1', *options.state)
+    return z80 + make_z80v3_ram_blocks(ram)
 
 def _write_z80(ram, options, fname):
     parent_dir = os.path.dirname(fname)
