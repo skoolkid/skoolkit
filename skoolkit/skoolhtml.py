@@ -1225,7 +1225,10 @@ class HtmlWriter:
         addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step = params
         udgs = lambda: [[build_udg(self.snapshot, addr, attr, step, inc, flip, rotate, mask, mask_addr, mask_step)]]
         if not fname and not frame:
-            fname = self.udg_fname_template.format(addr=addr, attr=attr, scale=scale)
+            try:
+                fname = self.udg_fname_template.format(addr=addr, attr=attr, scale=scale)
+            except:
+                raise SkoolKitError("Cannot format UDG filename ({}) with addr={}, attr={}, scale={}".format(self.udg_fname_template, addr, attr, scale))
             if frame == '':
                 frame = fname
         frames = [Frame(udgs, scale, mask, *crop_rect, name=frame)]

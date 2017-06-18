@@ -1871,6 +1871,13 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         self._assert_img_equals(output, exp_fname, exp_src)
         self.assertEqual(writer.file_info.fname, exp_image_path)
 
+    def test_macro_udg_with_invalid_filename_template(self):
+        ref = '[Paths]\nUDGFilename={Address}x{Scale}'
+        skool = 'b32768 DEFS 8'
+        writer = self._get_writer(ref=ref, skool=skool)
+        error_msg = "Cannot format UDG filename ({Address}x{Scale}) with addr=32768, attr=5, scale=2"
+        self._assert_error(writer, '#UDG32768,5,2', error_msg, error=SkoolKitError)
+
     def test_macro_udg_with_custom_udg_image_path(self):
         udg_path = 'graphics/udgs'
         ref = '[Paths]\nUDGImagePath={}'.format(udg_path)
