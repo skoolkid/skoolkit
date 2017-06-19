@@ -287,6 +287,27 @@ ref files. These methods are described below.
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_dictionary
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_dictionaries
 
+Formatting templates
+--------------------
+HtmlWriter provides a method for formatting a template defined by a
+:ref:`Template` section.
+
+.. automethod:: skoolkit.skoolhtml.HtmlWriter.format_template
+
+   .. versionadded:: 4.0
+
+Note that there is typically no need to specify *default* when formatting a
+user-defined template:
+
+.. code-block:: python
+
+  self.format_template('custom', {'foo': 'bar'})
+
+will format the ``PageID-custom`` template (where ``PageID`` is the ID of the
+current page) if it exists, or the ``custom`` template otherwise, in accordance
+with SkoolKit's rules for preferring :ref:`page-specific templates
+<ps_templates>`.
+
 Memory snapshots
 ----------------
 The `snapshot` attribute on HtmlWriter and AsmWriter is a 65536-element list

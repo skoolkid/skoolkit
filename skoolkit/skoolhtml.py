@@ -248,15 +248,25 @@ class HtmlWriter:
     def set_style_sheet(self, value):
         self.game_vars['StyleSheet'] = value
 
-    # Internal API
-    def format_template(self, template_name, subs, default=None):
+    # API
+    def format_template(self, name, fields, default=None):
+        """Format a template with a set of replacement fields.
+
+        :param name: The name of the template.
+        :param fields: A dictionary of replacement field names and values.
+        :param default: The default template to use if the named template
+                        cannot be found. If `None`, use the 'PageID-name'
+                        template if that exists, or the named template
+                        otherwise.
+        :return: The formatted string.
+        """
         if default is None:
-            tname = '{}-{}'.format(self._get_page_id(), template_name)
-            template = self.templates.get(tname, self.templates[template_name])
+            tname = '{}-{}'.format(self._get_page_id(), name)
+            template = self.templates.get(tname, self.templates[name])
         else:
-            template = self.templates.get(template_name, self.templates[default])
-        subs.update(self.template_subs)
-        return template.format(**subs)
+            template = self.templates.get(name, self.templates[default])
+        fields.update(self.template_subs)
+        return template.format(**fields)
 
     def _expand_values(self, obj, *exceptions):
         if isinstance(obj, str):

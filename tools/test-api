@@ -50,6 +50,9 @@ write_ref() {
   cat <<EOF
 [Config]
 HtmlWriterClass=skoolkit.game.GameHtmlWriter
+
+[Template:simple]
+{text}
 EOF
 }
 
@@ -117,7 +120,7 @@ class GameHtmlWriter(HtmlWriter):
     def copyright(self, cwd):
         if not hasattr(self, 'init_called'):
             raise Exception('init() not called')
-        return self.expand('#CHR169', cwd)
+        return self.format_template('simple', {'text': self.expand('#CHR169')})
 
 class GameAsmWriter(AsmWriter):
     def init(self):
