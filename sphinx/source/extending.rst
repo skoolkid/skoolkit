@@ -256,6 +256,19 @@ to parse the parameters of a skool macro.
 
    .. versionadded:: 5.1
 
+Expanding skool macros
+----------------------
+Both AsmWriter and HtmlWriter provide methods for expanding skool macros. These
+are useful for immediately expanding macros in a ``#CALL`` method or custom
+macro method.
+
+.. automethod:: skoolkit.skoolasm.AsmWriter.expand
+
+.. automethod:: skoolkit.skoolhtml.HtmlWriter.expand
+
+   .. versionchanged:: 5.1
+      The *cwd* parameter is optional.
+
 Parsing ref files
 -----------------
 HtmlWriter provides some convenience methods for extracting text and data from

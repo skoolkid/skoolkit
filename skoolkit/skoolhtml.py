@@ -1257,6 +1257,7 @@ class HtmlWriter:
     def expand_version(self, text, index, cwd):
         return skoolmacro.parse_version(text, index)
 
+    # API
     def expand(self, text, cwd=None):
         """Return `text` with skool macros expanded. `cwd` is the current
         working directory, which is required by macros that create images or
