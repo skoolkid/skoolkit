@@ -1803,7 +1803,7 @@ class DisassemblerTest(SkoolKitTestCase):
         return Disassembler(snapshot, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
 
     def _get_snapshot(self, start, data):
-        snapshot = [0] * 65539
+        snapshot = [0] * 65536
         snapshot[start:start + len(data)] = list(data)
         return snapshot
 
@@ -1826,6 +1826,30 @@ class DisassemblerTest(SkoolKitTestCase):
             instructions = disassembler.disassemble(len(sna_prefix), len(snapshot))
             operations = tuple([inst.operation for inst in instructions])
             self.assertEqual(operations, ops)
+
+    def test_ld1(self):
+        # 65535 LD A,n
+        self.defbs_equal(62)
+
+    def test_ld2(self):
+        # 65535 LD BC,nn
+        self.defbs_equal(1)
+
+    def test_ld3(self):
+        # 65534 LD BC,nn
+        self.defbs_equal(1, 0)
+
+    def test_ld4(self):
+        # 65534 LD (IX+d),A
+        self.defbs_equal(221, 119)
+
+    def test_ld5(self):
+        # 65534 LD (IX+d),n
+        self.defbs_equal(221, 54)
+
+    def test_ld6(self):
+        # 65533 LD (IX+d),n
+        self.defbs_equal(221, 54, 0)
 
     def test_jr1(self):
         # 65535 JR d

@@ -1314,7 +1314,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         self._test_write_skool(snapshot, ctl, exp_skool, write_refs=1)
 
     def test_bad_blocks(self):
-        snapshot = [0] * 65537
+        snapshot = [0] * 65536
         snapshot[65533:65535] = [62, 195]
         ctls = ('c 65533', 'c 65534')
         writer = self._get_writer(snapshot, '\n'.join(ctls))

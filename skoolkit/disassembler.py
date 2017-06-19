@@ -193,13 +193,13 @@ class Disassembler:
         return template, 1
 
     def byte_arg(self, template, a, base):
-        return template.format(self.num_str(self.snapshot[a + 1], 1, base)), 2
+        return template.format(self.num_str(self.snapshot[(a + 1) & 65535], 1, base)), 2
 
     def word_arg(self, template, a, base):
-        return template.format(self.num_str(self.snapshot[a + 1] + 256 * self.snapshot[a + 2], 2, base)), 3
+        return template.format(self.num_str(self.snapshot[(a + 1) & 65535] + 256 * self.snapshot[(a + 2) & 65535], 2, base)), 3
 
     def jr_arg(self, template, a, base):
-        offset = self.snapshot[a + 1]
+        offset = self.snapshot[(a + 1) & 65535]
         if offset < 128:
             address = a + 2 + offset
         else:
@@ -263,19 +263,19 @@ class Disassembler:
             arg_base = base[-1]
         else:
             arg_base = None
-        return template.format(self.index_offset(a, base), self.num_str(self.snapshot[a + 2], 1, arg_base)), 3
+        return template.format(self.index_offset(a, base), self.num_str(self.snapshot[(a + 2) & 65535], 1, arg_base)), 3
 
     def index_offset(self, a, base):
-        i = self.snapshot[a + 1]
+        i = self.snapshot[(a + 1) & 65535]
         if i < 128:
             return '+{}'.format(self.num_str(i, 1, base))
         return '-{}'.format(self.num_str(abs(i - 256), 1, base))
 
     def cb_arg(self, a, base):
-        return self.after_CB[self.snapshot[a + 1]], 2
+        return self.after_CB[self.snapshot[(a + 1) & 65535]], 2
 
     def ed_arg(self, a, base):
-        decoder, template = self.after_ED.get(self.snapshot[a + 1], (None, None))
+        decoder, template = self.after_ED.get(self.snapshot[(a + 1) & 65535], (None, None))
         if template:
             operation, length = decoder(self, template, a + 1, base)
             return operation, length + 1
@@ -284,7 +284,7 @@ class Disassembler:
         return self.defb(a, 2)
 
     def dd_arg(self, a, base):
-        decoder, template = self.after_DD.get(self.snapshot[a + 1], (None, None))
+        decoder, template = self.after_DD.get(self.snapshot[(a + 1) & 65535], (None, None))
         if template:
             operation, length = decoder(self, template, a + 1, base)
             return operation, length + 1
@@ -298,7 +298,7 @@ class Disassembler:
         return operation.replace('IX', 'IY'), length
 
     def ddcb_arg(self, a, base):
-        decoder, template = self.after_DDCB.get(self.snapshot[a + 3], (None, None))
+        decoder, template = self.after_DDCB.get(self.snapshot[(a + 3) & 65535], (None, None))
         if template:
             operation = decoder(self, template, a + 1, base)[0]
             return operation, 4

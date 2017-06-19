@@ -42,9 +42,7 @@ def run(snafile, options, config):
         start = max(org, options.start)
     end = min(options.end, len(snapshot))
 
-    # Pad out the end of the snapshot to avoid disassembly errors when an
-    # instruction crosses the 64K boundary
-    snapshot += [0] * (65539 - len(snapshot))
+    snapshot += [0] * (65536 - len(snapshot))
 
     if options.sftfile:
         # Use a skool file template
