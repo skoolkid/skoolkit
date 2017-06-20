@@ -308,6 +308,26 @@ current page) if it exists, or the ``custom`` template otherwise, in accordance
 with SkoolKit's rules for preferring :ref:`page-specific templates
 <ps_templates>`.
 
+Base and case
+-------------
+The `base` and `case` attributes on AsmWriter and HtmlWriter can be inspected
+to determine the mode in which :ref:`skool2asm.py` or :ref:`skool2html.py` is
+running.
+
+The `base` attribute has one of the following values:
+
+* 0 - default (neither ``--decimal`` nor ``--hex``)
+* 10 - decimal (``--decimal``)
+* 16 - hexadecimal (``--hex``)
+
+The `case` attribute has one of the following values:
+
+* 0 - default (neither ``--lower`` nor ``--upper``)
+* 1 - lower case (``--lower``)
+* 2 - upper case (``--upper``)
+
+.. versionadded:: 6.1
+
 Memory snapshots
 ----------------
 The `snapshot` attribute on HtmlWriter and AsmWriter is a 65536-element list

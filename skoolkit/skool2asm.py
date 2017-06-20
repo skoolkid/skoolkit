@@ -56,7 +56,7 @@ def run(skoolfile, options):
             properties[name] = value
     if not options.warn:
         properties['warnings'] = '0'
-    asm_writer = asm_writer_class(parser, properties, options.case == CASE_LOWER)
+    asm_writer = asm_writer_class(parser, properties)
     clock(options.quiet, 'Wrote ASM to stdout', asm_writer.write)
 
 def main(args):

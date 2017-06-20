@@ -21,7 +21,7 @@ class MockSkoolParser:
         return None
 
 class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
-    def _get_writer(self, skool=None, crlf=False, tab=False, case=None, base=None,
+    def _get_writer(self, skool=None, crlf=False, tab=False, case=0, base=0,
                     instr_width=23, warn=False, asm_mode=1, fix_mode=0, snapshot=()):
         if skool is None:
             skool_parser = MockSkoolParser(snapshot, base, case)
@@ -34,9 +34,9 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             properties['tab'] = '1' if tab else '0'
             properties['instruction-width'] = instr_width
             properties['warnings'] = '1' if warn else '0'
-        return AsmWriter(skool_parser, properties, case == CASE_LOWER)
+        return AsmWriter(skool_parser, properties)
 
-    def _get_asm(self, skool, crlf=False, tab=False, case=None, base=None, instr_width=23, warn=False, asm_mode=1, fix_mode=0):
+    def _get_asm(self, skool, crlf=False, tab=False, case=0, base=0, instr_width=23, warn=False, asm_mode=1, fix_mode=0):
         self.clear_streams()
         writer = self._get_writer(skool, crlf, tab, case, base, instr_width, warn, asm_mode, fix_mode)
         writer.write()
@@ -1433,7 +1433,7 @@ class TableMacroTest(SkoolKitTestCase):
         properties['tab'] = '1' if tab else '0'
         properties['instruction-width'] = instr_width
         properties['warnings'] = '1' if warn else '0'
-        return AsmWriter(skool_parser, properties, False)
+        return AsmWriter(skool_parser, properties)
 
     def _assert_error(self, skool, error):
         self.clear_streams()
@@ -1920,7 +1920,7 @@ class ListMacroTest(SkoolKitTestCase):
         properties['tab'] = '1' if tab else '0'
         properties['instruction-width'] = instr_width
         properties['warnings'] = '1' if warn else '0'
-        return AsmWriter(skool_parser, properties, False)
+        return AsmWriter(skool_parser, properties)
 
     def _assert_error(self, skool, error):
         self.clear_streams()

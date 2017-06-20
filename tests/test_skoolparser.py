@@ -2065,7 +2065,7 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(parser.get_instruction_addr_str(24586, '', 'save'), '600a')
 
     def test_base_conversion_no_base(self):
-        parser = self._get_parser(TEST_BASE_CONVERSION_SKOOL, base=None)
+        parser = self._get_parser(TEST_BASE_CONVERSION_SKOOL, base=0)
         for line in TEST_BASE_CONVERSION_SKOOL.split('\n'):
             self.assertEqual(parser.get_instruction(int(line[1:6])).operation, line[7:])
 
@@ -2178,7 +2178,7 @@ class SkoolParserTest(SkoolKitTestCase):
             (54002, 'ld b,1'),
             (54004, 'Ret'),
         )
-        parser = self._get_parser(skool, case=None)
+        parser = self._get_parser(skool, case=0)
         for address, operation in exp_instructions:
             self.assertEqual(parser.get_instruction(address).operation, operation)
 

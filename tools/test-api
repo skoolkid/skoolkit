@@ -67,6 +67,10 @@ from skoolkit.skoolmacro import parse_ints, parse_image_macro
 
 class GameHtmlWriter(HtmlWriter):
     def init(self):
+        if self.base != 0:
+            raise Exception("GameHtmlWriter.base != 0")
+        if self.case != 0:
+            raise Exception("GameHtmlWriter.case != 0")
         self.init_called = 1
 
     def sprite(self, cwd, attr, fname):
@@ -124,6 +128,10 @@ class GameHtmlWriter(HtmlWriter):
 
 class GameAsmWriter(AsmWriter):
     def init(self):
+        if self.base != 0:
+            raise Exception("GameAsmWriter.base != 0")
+        if self.case != 0:
+            raise Exception("GameAsmWriter.case != 0")
         self.init_called = 1
 
     # #WORDaddress

@@ -18,23 +18,24 @@ import re
 
 from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, warn, write_text, wrap
 from skoolkit.skoolmacro import MacroParsingError, UnsupportedMacroError
-from skoolkit.skoolparser import (TableParser, ListParser, BASE_16, TABLE_MARKER, TABLE_END_MARKER,
-                                  LIST_MARKER, LIST_END_MARKER)
+from skoolkit.skoolparser import (TableParser, ListParser, BASE_16, CASE_LOWER,
+                                  TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER)
 
 UDGTABLE_MARKER = '#UDGTABLE'
 
 DEF_INSTRUCTION_WIDTH = 23
 
 class AsmWriter:
-    def __init__(self, parser, properties, lower):
+    def __init__(self, parser, properties):
         self.parser = parser
-        self.base = parser.base
+        self.base = parser.base # API
+        self.case = parser.case # API
         self.show_warnings = self._get_int_property(properties, 'warnings', 1)
 
         self.fields = {
             'asm': 1,
-            'base': self.base or 0,
-            'case': parser.case or 0,
+            'base': self.base,
+            'case': self.case,
             'html': 0
         }
 
@@ -57,7 +58,7 @@ class AsmWriter:
             self.end_address = self.parser.memory_map[-1].instructions[-1].address
 
         self.bullet = properties.get('bullet', '*')
-        self.lower = lower
+        self.lower = self.case == CASE_LOWER
 
         # Field widths (line = indent + instruction + ' ; ' + comment)
         if self._get_int_property(properties, 'tab', 0):

@@ -226,10 +226,10 @@ class SkoolParser:
     :param skoolfile: The name of the skool file to parse.
     :param case: :data:`~skoolkit.skoolparser.CASE_UPPER` to force upper case,
                  :data:`~skoolkit.skoolparser.CASE_LOWER` to force lower case,
-                 or `None` to leave case unchanged.
+                 or 0 to leave case unchanged.
     :param base: :data:`~skoolkit.skoolparser.BASE_10` to force decimal,
                  :data:`~skoolkit.skoolparser.BASE_16` to force hexadecimal, or
-                 `None` to leave number bases unchanged.
+                 0 to leave number bases unchanged.
     :param asm_mode: 0 to ignore ASM directives, 1 to parse them in `@isub`
                      mode, 2 to parse them in `@ssub` mode, or 3 to parse them
                      in `@rsub` mode.
@@ -245,7 +245,7 @@ class SkoolParser:
     :param max_address: Ignore addresses above this one.
     :param snapshot: Base snapshot to use instead of an empty one.
     """
-    def __init__(self, skoolfile, case=None, base=None, asm_mode=0, warnings=False, fix_mode=0, html=False,
+    def __init__(self, skoolfile, case=0, base=0, asm_mode=0, warnings=False, fix_mode=0, html=False,
                  create_labels=False, asm_labels=True, min_address=0, max_address=65536, snapshot=None):
         self.skoolfile = skoolfile
         self.mode = Mode(case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels)

@@ -35,12 +35,11 @@ class MockSkoolParser:
         self.asm_writer_class = ''
 
 class MockAsmWriter:
-    def __init__(self, parser, properties, lower):
+    def __init__(self, parser, properties):
         global mock_asm_writer
         mock_asm_writer = self
         self.parser = parser
         self.properties = properties
-        self.lower = lower
         self.wrote = False
 
     def write(self):
@@ -93,7 +92,6 @@ class Skool2AsmTest(SkoolKitTestCase):
         self.assertEqual(mock_skool_parser.max_address, 65536)
 
         self.assertIs(mock_asm_writer.parser, mock_skool_parser)
-        self.assertFalse(mock_asm_writer.lower)
         self.assertEqual({}, mock_asm_writer.properties)
         self.assertTrue(mock_asm_writer.wrote)
 
@@ -251,9 +249,7 @@ class Skool2AsmTest(SkoolKitTestCase):
             output, error = self.run_skool2asm('-q {} test-l.skool'.format(option))
             self.assertEqual(mock_skool_parser.case, CASE_LOWER)
             mock_skool_parser.case = None
-            self.assertTrue(mock_asm_writer.lower)
             self.assertTrue(mock_asm_writer.wrote)
-            mock_asm_writer.lower = None
             mock_asm_writer.wrote = False
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
@@ -264,9 +260,7 @@ class Skool2AsmTest(SkoolKitTestCase):
             output, error = self.run_skool2asm('-q {} test-u.skool'.format(option))
             self.assertEqual(mock_skool_parser.case, CASE_UPPER)
             mock_skool_parser.case = None
-            self.assertFalse(mock_asm_writer.lower)
             self.assertTrue(mock_asm_writer.wrote)
-            mock_asm_writer.lower = True
             mock_asm_writer.wrote = False
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)

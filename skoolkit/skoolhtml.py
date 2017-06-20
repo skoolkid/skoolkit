@@ -64,25 +64,22 @@ class HtmlWriter:
     :param ref_parser: The ref file parser to use.
     :type file_info: :class:`FileInfo`
     :param file_info: The `FileInfo` object to use.
-    :param case: The case in which to render register names produced by the
-                 :ref:`REG` macro (:data:`~skoolkit.skoolparser.CASE_LOWER` for
-                 lower case, anything else for upper case)
     :param code_id: The ID of the disassembly.
     """
-    def __init__(self, skool_parser, ref_parser, file_info=None, case=None, code_id=MAIN_CODE_ID):
+    def __init__(self, skool_parser, ref_parser, file_info=None, code_id=MAIN_CODE_ID):
         self.parser = skool_parser
         self.ref_parser = ref_parser
         skool_parser.make_replacements(ref_parser)
         self.defaults = RefParser()
         self.defaults.parse(StringIO(REF_FILE))
         self.file_info = file_info
-        self.case = case
-        self.base = skool_parser.base
+        self.case = skool_parser.case # API
+        self.base = skool_parser.base # API
 
         self.fields = {
             'asm': 0,
-            'base': self.base or 0,
-            'case': self.case or 0,
+            'base': self.base,
+            'case': self.case,
             'html': 1
         }
 
@@ -241,7 +238,7 @@ class HtmlWriter:
         warn(s)
 
     def clone(self, skool_parser, code_id):
-        the_clone = self.__class__(skool_parser, self.ref_parser, self.file_info, self.case, code_id)
+        the_clone = self.__class__(skool_parser, self.ref_parser, self.file_info, code_id)
         the_clone.set_style_sheet(self.game_vars['StyleSheet'])
         return the_clone
 

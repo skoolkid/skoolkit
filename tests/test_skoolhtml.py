@@ -161,11 +161,12 @@ PREV_UP_NEXT = """<table class="asm-navigation">
 ERROR_PREFIX = 'Error while parsing #{0} macro'
 
 class MockSkoolParser:
-    def __init__(self, snapshot=None, entries=None, memory_map=(), base=None):
+    def __init__(self, snapshot=None, entries=None, memory_map=(), base=0, case=0):
         self.snapshot = snapshot
         self.entries = entries or {}
         self.memory_map = memory_map
         self.base = base
+        self.case = case
         self.skoolfile = ''
 
     def get_entry(self, address):
@@ -208,7 +209,7 @@ class HtmlWriterTestCase(SkoolKitTestCase):
     def _mock_write_file(self, fname, contents):
         self.files[fname] = contents
 
-    def _get_writer(self, ref=None, snapshot=(), case=None, base=None,
+    def _get_writer(self, ref=None, snapshot=(), case=0, base=0,
                     skool=None, create_labels=False, asm_labels=False,
                     mock_file_info=False, mock_write_file=True, warn=False):
         self.skoolfile = None
@@ -216,7 +217,7 @@ class HtmlWriterTestCase(SkoolKitTestCase):
         if ref is not None:
             ref_parser.parse(StringIO(ref))
         if skool is None:
-            skool_parser = MockSkoolParser(snapshot, base=base)
+            skool_parser = MockSkoolParser(snapshot, base=base, case=case)
         else:
             self.skoolfile = self.write_text_file(skool, suffix='.skool')
             skool_parser = SkoolParser(self.skoolfile, case=case, base=base, html=True, create_labels=create_labels, asm_labels=asm_labels)
@@ -227,7 +228,7 @@ class HtmlWriterTestCase(SkoolKitTestCase):
             file_info = FileInfo(self.odir, GAMEDIR, False)
         patch.object(skoolhtml, 'ImageWriter', TestImageWriter).start()
         self.addCleanup(patch.stopall)
-        writer = HtmlWriter(skool_parser, ref_parser, file_info, case)
+        writer = HtmlWriter(skool_parser, ref_parser, file_info)
         if mock_write_file:
             writer.write_file = self._mock_write_file
         writer.skoolkit['page_id'] = 'None'

@@ -159,7 +159,6 @@ def get_prefix(fname):
 
 def process_file(infile, topdir, options):
     extra_search_dirs = options.search
-    case = options.case
     pages = options.pages
     stdin = False
 
@@ -235,9 +234,10 @@ def process_file(infile, topdir, options):
         fname = 'skool file from standard input'
     else:
         fname = skoolfile_f
-    skool_parser = clock(SkoolParser, 'Parsing {}'.format(fname), skoolfile_f, case=case, base=options.base, html=True, create_labels=options.create_labels, asm_labels=options.asm_labels)
+    skool_parser = clock(SkoolParser, 'Parsing {}'.format(fname), skoolfile_f, case=options.case, base=options.base,
+                         html=True, create_labels=options.create_labels, asm_labels=options.asm_labels)
     file_info = FileInfo(topdir, game_dir, options.new_images)
-    html_writer = html_writer_class(skool_parser, ref_parser, file_info, case)
+    html_writer = html_writer_class(skool_parser, ref_parser, file_info)
 
     # Check that the specified pages exist
     all_page_ids = html_writer.get_page_ids()
