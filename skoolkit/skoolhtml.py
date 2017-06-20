@@ -558,7 +558,7 @@ class HtmlWriter:
                 sections_html.append(self.format_template('index_section', t_index_section_subs))
 
         subs = {'m_index_section': '\n'.join(sections_html)}
-        html = self._format_page(cwd, subs)
+        html = self._format_page(cwd, subs, P_GAME_INDEX)
         self.write_file(index_fname, html)
 
     def _get_entry_dict(self, cwd, entry, desc=True):
@@ -900,7 +900,7 @@ class HtmlWriter:
         self.game['Logo'] = self.game['LogoImage'] = self._get_logo(cwd)
         return fname, cwd
 
-    def _format_page(self, cwd, subs, default=None, js=None):
+    def _format_page(self, cwd, subs, default, js=None):
         if cwd not in self.stylesheets:
             stylesheets = []
             for css_file in self.game_vars['StyleSheet'].split(';'):
