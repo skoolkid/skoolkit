@@ -888,6 +888,23 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self._test_ctl(skool, exp_ctl)
 
+    def test_arithmetic_expressions(self):
+        skool = '\n'.join((
+            'b40000 DEFB "a"+128',
+            ' 40001 DEFB "H","i"+$80',
+            ' 40003 DEFB 32768/256,32768%256,1+2,3*4,5-6',
+            ' 40008 DEFM "a"+128',
+            ' 40009 DEFM "H","i"+$80',
+            ' 40011 DEFM 32768/256,32768%256,1+2,3*4,5-6'
+        ))
+        exp_ctl = [
+            'b 40000',
+            '  40000,8,1,T1:1,5',
+            'T 40008,8,B1,1:B1,B5',
+            'i 40016'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
     def test_ignoreua_directives(self):
         skool = '\n'.join((
             '@ignoreua',

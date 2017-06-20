@@ -19,7 +19,7 @@ import re
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
 from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction, parse_address_comments,
                                   join_comments, parse_asm_block_directive, DIRECTIVES)
-from skoolkit.z80 import get_size, split_operation
+from skoolkit.z80 import get_size, parse_string, split_operation
 
 ASM_DIRECTIVES = 'a'
 BLOCKS = 'b'
@@ -123,24 +123,21 @@ def get_defb_length(operation, preserve_base):
     length = 0
     prev_base = None
     for item in parts + ['""']:
-        if item.startswith('"'):
+        c_data = parse_string(item)
+        if c_data is not None:
             if length:
                 lengths.append(byte_fmt[prev_base].format(length))
                 full_length += length
-                length = 0
                 prev_base = None
-            i = 1
-            while i < len(item) - 1:
-                if item[i] == '\\':
-                    i += 1
-                i += 1
-                length += 1
+            length = len(c_data)
             if length:
                 lengths.append(text_fmt.format(length))
                 full_length += length
                 length = 0
         else:
             cur_base = _get_base(item, preserve_base)
+            if cur_base == 'c':
+                cur_base = 'd'
             if prev_base != cur_base and length:
                 lengths.append(byte_fmt[prev_base].format(length))
                 full_length += length

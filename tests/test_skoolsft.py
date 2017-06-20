@@ -613,6 +613,21 @@ class SftWriterTest(SkoolKitTestCase):
         ]
         self._test_sft(skool, exp_sft)
 
+    def test_arithmetic_expressions(self):
+        skool = '\n'.join((
+            'b40000 DEFB "a"+128',
+            ' 40001 DEFB "H","i"+$80',
+            ' 40003 DEFB 32768/256,32768%256,1+2,3*4,5-6',
+            ' 40008 DEFM "a"+128',
+            ' 40009 DEFM "H","i"+$80',
+            ' 40011 DEFM 32768/256,32768%256,1+2,3*4,5-6'
+        ))
+        exp_sft = [
+            'bB40000,1,T1:1,5',
+            ' T40008,B1,1:B1,B5'
+        ]
+        self._test_sft(skool, exp_sft)
+
     def test_gap_between_instructions(self):
         skool = '\n'.join((
             'c25000 LD A,10',

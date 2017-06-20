@@ -405,7 +405,7 @@ MNEMONICS = {
     'XOR': partial(_arithmetic_a, 168)
 }
 
-def _parse_string(item):
+def parse_string(item):
     if item.startswith('"') and item.endswith('"'):
         data = []
         i = 1
@@ -421,7 +421,7 @@ def _parse_string(item):
 def _assemble_defb(items):
     data = []
     for item in items:
-        values = _parse_string(item)
+        values = parse_string(item)
         if values is not None:
             data.extend(values)
         else:
