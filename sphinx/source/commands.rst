@@ -465,9 +465,9 @@ configuration parameters are:
 * ``RebuildImages`` - overwrite existing image files (``1``), or leave them
   alone (``0``, the default)
 * ``Search`` - directory to add to the resource search path; to specify two or
-  more directories, separate them with semicolons
+  more directories, separate them with commas
 * ``Theme`` - CSS theme to use; to specify two or more themes, separate them
-  with semicolons
+  with commas
 * ``Time`` - show timings (``1``), or don't (``0``, the default)
 
 Configuration parameters must appear in a ``[skool2html]`` section. For

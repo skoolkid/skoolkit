@@ -90,7 +90,13 @@ class MockSkoolParser:
         return self
 
 def mock_config(name):
-    return {k: v[0] for k, v in COMMANDS[name].items()}
+    config = {}
+    for k, v in COMMANDS.get(name, {}).items():
+        if isinstance(v[0], tuple):
+            config[k] = []
+        else:
+            config[k] = v[0]
+    return config
 
 class Skool2HtmlTest(SkoolKitTestCase):
     def setUp(self):
@@ -189,8 +195,8 @@ class Skool2HtmlTest(SkoolKitTestCase):
             'OutputDir=' + output_dir,
             'Quiet=1',
             'RebuildImages=1',
-            'Search=this;that',
-            'Theme=dark;wide',
+            'Search=this,that',
+            'Theme=dark,wide',
             'Time=1'
         ))
         self.write_text_file(ini, 'skoolkit.ini')
@@ -1072,6 +1078,15 @@ class Skool2HtmlTest(SkoolKitTestCase):
         self.assertEqual(options.params, ['Quiet=1', 'Time=1'])
         self.assertEqual(options.quiet, 1)
         self.assertEqual(options.show_timings, 1)
+
+    @patch.object(skool2html, 'run', mock_run)
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_option_I_multivalued_parameters(self):
+        self.run_skool2html('-I Search=dir1,dir2 --ini Theme=theme1,theme2 test-I-multivalued.skool')
+        options = run_args[1]
+        self.assertEqual(options.params, ['Search=dir1,dir2', 'Theme=theme1,theme2'])
+        self.assertEqual(options.search, ['dir1', 'dir2'])
+        self.assertEqual(options.themes, ['theme1', 'theme2'])
 
     @patch.object(skool2html, 'run', mock_run)
     @patch.object(skool2html, 'get_config', mock_config)

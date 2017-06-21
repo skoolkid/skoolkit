@@ -327,8 +327,6 @@ def main(args):
     global verbose, show_timings
 
     config = get_config('skool2html')
-    def_themes = [t for t in config['Theme'].split(';') if t]
-    def_search_dirs = [d for d in config['Search'].split(';') if d]
 
     parser = argparse.ArgumentParser(
         usage='skool2html.py [options] FILE [FILE...]',
@@ -376,12 +374,12 @@ def main(args):
                        help="Show the entire default ref file and exit")
     group.add_argument('-s', '--search-dirs', dest='search_dirs', action='store_true',
                        help="Show the locations skool2html.py searches for resources")
-    group.add_argument('-S', '--search', dest='search', metavar='DIR', action='append', default=def_search_dirs,
+    group.add_argument('-S', '--search', dest='search', metavar='DIR', action='append', default=config['Search'],
                        help="Add this directory to the resource search path; this\n"
                             "option may be used multiple times")
     group.add_argument('-t', '--time', dest='show_timings', action='store_const', const=1, default=config['Time'],
                        help="Show timings")
-    group.add_argument('-T', '--theme', dest='themes', metavar='THEME', action='append', default=def_themes,
+    group.add_argument('-T', '--theme', dest='themes', metavar='THEME', action='append', default=config['Theme'],
                        help="Use this CSS theme; this option may be used multiple\ntimes")
     group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER, default=config['Case'],
                        help="Write the disassembly in upper case")

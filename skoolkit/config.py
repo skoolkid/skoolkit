@@ -54,8 +54,8 @@ COMMANDS = {
         'OutputDir': ('.', 'output_dir'),
         'Quiet': (0, 'quiet'),
         'RebuildImages': (0, 'new_images'),
-        'Search': ('', 'search'),
-        'Theme': ('', 'themes'),
+        'Search': ((), 'search'),
+        'Theme': ((), 'themes'),
         'Time': (0, 'show_timings')
     },
     'skool2asm': {
@@ -68,7 +68,12 @@ COMMANDS = {
 }
 
 def get_config(name):
-    config = {k: v[0] for k, v in COMMANDS.get(name, {}).items()}
+    config = {}
+    for k, v in COMMANDS.get(name, {}).items():
+        if isinstance(v[0], tuple):
+            config[k] = []
+        else:
+            config[k] = v[0]
     skoolkit_ini = find_file('skoolkit.ini', ('', expanduser('~/.skoolkit')))
     if skoolkit_ini:
         ref_parser = RefParser()
@@ -79,6 +84,8 @@ def get_config(name):
                     config[k] = int(v)
                 except ValueError:
                     pass
+            elif isinstance(config.get(k), list):
+                config[k] = [s for s in v.split(',') if s]
             else:
                 config[k] = v
     return config
@@ -92,6 +99,8 @@ def update_options(name, options, specs, config=None):
             try:
                 if isinstance(def_value, int):
                     value = int(value)
+                elif isinstance(def_value, tuple):
+                    value = [s for s in value.split(',') if s]
                 if attr_name:
                     setattr(options, attr_name, value)
                 if config:
