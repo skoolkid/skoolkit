@@ -257,13 +257,19 @@ class HtmlWriter:
                         otherwise.
         :return: The formatted string.
         """
-        if default is None:
-            tname = '{}-{}'.format(self._get_page_id(), name)
-            template = self.templates.get(tname, self.templates[name])
-        else:
-            template = self.templates.get(name, self.templates[default])
+        try:
+            if default is None:
+                tname = '{}-{}'.format(self._get_page_id(), name)
+                template = self.templates.get(tname, self.templates[name])
+            else:
+                template = self.templates.get(name, self.templates[default])
+        except KeyError as e:
+            raise SkoolKitError("'{}' template does not exist".format(e.args[0]))
         fields.update(self.template_subs)
-        return template.format(**fields)
+        try:
+            return template.format(**fields)
+        except KeyError as e:
+            raise SkoolKitError("Unknown field '{}' in '{}' template".format(e.args[0], name))
 
     def _expand_values(self, obj, *exceptions):
         if isinstance(obj, str):

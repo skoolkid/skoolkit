@@ -589,6 +589,55 @@ class MethodTest(HtmlWriterTestCase):
         with self.assertRaisesRegex(SkoolKitError, 'Unsupported image file format: {}'.format(image_path)):
             writer.write_animated_image(image_path, None)
 
+    def test_format_template(self):
+        writer = self._get_writer(ref='[Template:foo]\n{bar}')
+        output = writer.format_template('foo', {'bar': 'baz'})
+        self.assertEqual(output, 'baz')
+
+    def test_format_template_page_specific_template_exists(self):
+        page_id = 'CustomPage'
+        ref = '\n'.join((
+            '[Template:{}-foo]'.format(page_id),
+            '!!{bar}!!',
+            '[Template:foo]',
+            '{bar}',
+        ))
+        writer = self._get_writer(ref=ref)
+        writer.skoolkit['page_id'] = page_id
+        output = writer.format_template('foo', {'bar': 'baz'})
+        self.assertEqual(output, '!!baz!!')
+
+    def test_format_template_unused_default(self):
+        ref = '\n'.join((
+            '[Template:foo]',
+            '{bar}',
+            '[Template:default-foo]',
+            '<<{bar}>>',
+        ))
+        writer = self._get_writer(ref=ref)
+        output = writer.format_template('foo', {'bar': 'baz'}, 'default-foo')
+        self.assertEqual(output, 'baz')
+
+    def test_format_template_uses_default(self):
+        writer = self._get_writer(ref='[Template:default-foo]\n{bar}')
+        output = writer.format_template('foo', {'bar': 'baz'}, 'default-foo')
+        self.assertEqual(output, 'baz')
+
+    def test_format_template_unknown_field(self):
+        writer = self._get_writer(ref='[Template:foo]\n{bar}')
+        with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'bar' in 'foo' template$"):
+            writer.format_template('foo', {'notbar': 'baz'})
+
+    def test_format_template_nonexistent_template(self):
+        writer = self._get_writer()
+        with self.assertRaisesRegex(SkoolKitError, "^'non-existent' template does not exist$"):
+            writer.format_template('non-existent', {})
+
+    def test_format_template_nonexistent_default(self):
+        writer = self._get_writer()
+        with self.assertRaisesRegex(SkoolKitError, "^'default' template does not exist$"):
+            writer.format_template('non-existent', {}, 'default')
+
 class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
     def setUp(self):
         HtmlWriterTestCase.setUp(self)
@@ -6554,6 +6603,17 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             'content': content
         }
         self._assert_files_equal('item55.html', subs)
+
+    def test_write_page_with_broken_template(self):
+        page_id = 'Custom'
+        ref = '\n'.join((
+            '[Page:{0}]',
+            '[Template:{0}]',
+            '{{this_will_not_work}}'
+        )).format(page_id)
+        writer = self._get_writer(ref=ref)
+        with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'this_will_not_work' in 'Custom' template$"):
+            writer.write_page(page_id)
 
 class HtmlTemplateTest(HtmlWriterOutputTestCase):
     def _assert_content_equal(self, exp_content, fpath):
