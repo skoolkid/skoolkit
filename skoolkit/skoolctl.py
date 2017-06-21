@@ -19,7 +19,7 @@ import re
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
 from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction, parse_address_comments,
                                   join_comments, parse_asm_block_directive, DIRECTIVES)
-from skoolkit.z80 import get_size, parse_string, split_operation
+from skoolkit.z80 import get_size, parse_string, parse_word, split_operation
 
 ASM_DIRECTIVES = 'a'
 BLOCKS = 'b'
@@ -172,14 +172,20 @@ def get_defs_length(operation, preserve_base):
         fmt = FORMAT_PRESERVE_BASE
     else:
         fmt = FORMAT_NO_BASE
-    size = None
-    lengths = []
+    values = []
     for item in split_operation(operation)[1:3]:
-        if size is None:
-            size = get_int_param(item)
         base = _get_base(item, preserve_base)
-        lengths.append(fmt[base].format(item))
-    return size, ':'.join(lengths)
+        try:
+            value = get_int_param(item)
+        except ValueError:
+            try:
+                item = value = parse_word(item)
+            except ValueError:
+                raise SkoolParsingError("Invalid integer '{}': {}".format(item, operation))
+            if base == 'c':
+                base = 'd'
+        values.append((value, fmt[base].format(item)))
+    return values[0][0], ':'.join([v[1] for v in values])
 
 def get_lengths(stmt_lengths):
     # Find subsequences of identical statement lengths and abbreviate them,

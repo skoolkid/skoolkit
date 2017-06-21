@@ -1,3 +1,4 @@
+from io import StringIO
 import unittest
 
 from skoolkittest import SkoolKitTestCase
@@ -424,7 +425,7 @@ c62000 LD A,","
 
 class SftWriterTest(SkoolKitTestCase):
     def _test_sft(self, skool, exp_sft, write_hex=0, preserve_base=False, min_address=0, max_address=65536):
-        skoolfile = self.write_text_file(skool, suffix='.skool')
+        skoolfile = StringIO(skool)
         writer = SftWriter(skoolfile, write_hex, preserve_base)
         writer.write(min_address, max_address)
         sft = self.out.getvalue().split('\n')[:-1]
@@ -511,6 +512,16 @@ class SftWriterTest(SkoolKitTestCase):
             ' S54650,d50:c";";30 }'
         ]
         self._test_sft(TEST_S_DIRECTIVES_SKOOL, exp_sft, preserve_base=True)
+
+    def test_s_directive_invalid_size(self):
+        writer = SftWriter(StringIO('s30000 DEFS x,1'))
+        with self.assertRaisesRegex(SkoolParsingError, "^Invalid integer 'x': DEFS x,1$"):
+            writer.write()
+
+    def test_s_directive_invalid_value(self):
+        writer = SftWriter(StringIO('s30000 DEFS 10,y'))
+        with self.assertRaisesRegex(SkoolParsingError, "^Invalid integer 'y': DEFS 10,y$"):
+            writer.write()
 
     def test_operand_bases_no_base(self):
         exp_sft = [
@@ -620,11 +631,13 @@ class SftWriterTest(SkoolKitTestCase):
             ' 40003 DEFB 32768/256,32768%256,1+2,3*4,5-6',
             ' 40008 DEFM "a"+128',
             ' 40009 DEFM "H","i"+$80',
-            ' 40011 DEFM 32768/256,32768%256,1+2,3*4,5-6'
+            ' 40011 DEFM 32768/256,32768%256,1+2,3*4,5-6',
+            ' 40016 DEFS 256*2," "+128'
         ))
         exp_sft = [
             'bB40000,1,T1:1,5',
-            ' T40008,B1,1:B1,B5'
+            ' T40008,B1,1:B1,B5',
+            ' S40016,512:160'
         ]
         self._test_sft(skool, exp_sft)
 

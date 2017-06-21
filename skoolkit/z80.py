@@ -66,7 +66,7 @@ def _parse_expr(text, limit, brackets, non_neg, default):
 def _parse_byte(text, limit=256, brackets=False, non_neg=False, default=None):
     return _parse_expr(text, limit, brackets, non_neg, default)
 
-def _parse_word(text, brackets=False, default=None):
+def parse_word(text, brackets=False, default=None):
     return _parse_expr(text, 65536, brackets, False, default)
 
 def _parse_offset(op):
@@ -131,9 +131,9 @@ def _bit_res_set(base_code, address, op1, op2):
 
 def _assemble_call(address, op1, op2=None):
     if op2 is None:
-        addr = _parse_word(op1)
+        addr = parse_word(op1)
         return (205, addr % 256, addr // 256)
-    addr = _parse_word(op2)
+    addr = parse_word(op2)
     return (196 + 8 * _condition_index(op1), addr % 256, addr // 256)
 
 def _inc_dec(base_code8, base_code16, address, op):
@@ -149,7 +149,7 @@ def _inc_dec(base_code8, base_code16, address, op):
     return (base_code8 + 8 * _reg_index(op),)
 
 def _address_offset(address, op):
-    offset = _parse_word(op) - address
+    offset = parse_word(op) - address
     if offset >= 65410:
         offset -= 65536
     elif offset <= -65407:
@@ -189,9 +189,9 @@ def _assemble_jp(address, op1, op2=None):
             return (221, 233)
         if op1 == '(IY)':
             return (253, 233)
-        addr = _parse_word(op1)
+        addr = parse_word(op1)
         return (195, addr % 256, addr // 256)
-    addr = _parse_word(op2)
+    addr = parse_word(op2)
     return (194 + 8 * _condition_index(op1), addr % 256, addr // 256)
 
 def _assemble_jr(address, op1, op2=None):
@@ -215,7 +215,7 @@ def _assemble_ld(address, op1, op2):
             if op2.startswith('('):
                 try:
                     # LD A,(nn)
-                    addr = _parse_word(op2, True)
+                    addr = parse_word(op2, True)
                     return (58, addr % 256, addr // 256)
                 except ValueError:
                     # LD A,(BC); LD A,(DE)
@@ -252,7 +252,7 @@ def _assemble_ld(address, op1, op2):
     if op1 in REG_PAIRS:
         op1_index = _reg_pair_index(op1)
         if op2.startswith('('):
-            addr = _parse_word(op2, True)
+            addr = parse_word(op2, True)
             lsb, msb = addr % 256, addr // 256
             if op1 == 'HL':
                 # LD HL,(nn)
@@ -266,28 +266,28 @@ def _assemble_ld(address, op1, op2):
             # LD SP,I{X,Y}
             return (_index_code(op2), 249)
         # LD BC|DE|HL|SP,nn
-        addr = _parse_word(op2)
+        addr = parse_word(op2)
         return (1 + 16 * op1_index, addr % 256, addr // 256)
 
     if op1 in INDEX_REG_PAIRS:
         if op2.startswith('('):
-            addr = _parse_word(op2, True)
+            addr = parse_word(op2, True)
             # LD I{X,Y},(nn)
             return (_index_code(op1), 42, addr % 256, addr // 256)
         # LD I{X,Y},nn
-        addr = _parse_word(op2)
+        addr = parse_word(op2)
         return (_index_code(op1), 33, addr % 256, addr // 256)
 
     if op1.startswith('('):
         if op2 == 'A':
             try:
                 # LD (nn),A
-                addr = _parse_word(op1, True)
+                addr = parse_word(op1, True)
                 return (50, addr % 256, addr // 256)
             except ValueError:
                 # LD (BC),A; LD (DE),A
                 return (2 + 16 * ('(BC)', '(DE)').index(op1),)
-        addr = _parse_word(op1, True)
+        addr = parse_word(op1, True)
         lsb, msb = addr % 256, addr // 256
         if op2 == 'HL':
             # LD (nn),HL
@@ -430,7 +430,7 @@ def _assemble_defb(items):
 
 def _assemble_defs(items):
     if items:
-        span = _parse_word(items[0], default=0)
+        span = parse_word(items[0], default=0)
         if len(items) > 1:
             value = _parse_byte(items[1], default=0)
         else:
@@ -439,7 +439,7 @@ def _assemble_defs(items):
 
 def _assemble_defw(items):
     data = []
-    for arg in [_parse_word(v, default=0) for v in items]:
+    for arg in [parse_word(v, default=0) for v in items]:
         data.extend((arg % 256, arg // 256))
     return tuple(data)
 

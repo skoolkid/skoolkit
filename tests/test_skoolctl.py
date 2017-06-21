@@ -1,3 +1,4 @@
+from io import StringIO
 import unittest
 
 from skoolkittest import SkoolKitTestCase
@@ -648,7 +649,7 @@ c62000 LD A,","
 class CtlWriterTest(SkoolKitTestCase):
     def _get_ctl(self, elements='abtdrmsc', write_hex=0, skool=TEST_SKOOL,
                  preserve_base=False, min_address=0, max_address=65536):
-        skoolfile = self.write_text_file(skool, suffix='.skool')
+        skoolfile = StringIO(skool)
         writer = CtlWriter(skoolfile, elements, write_hex, preserve_base, min_address, max_address)
         writer.write()
         return self.out.getvalue().split('\n')[:-1]
@@ -787,6 +788,14 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self._test_ctl(TEST_S_DIRECTIVES_SKOOL, exp_ctl, preserve_base=True)
 
+    def test_s_directive_invalid_size(self):
+        with self.assertRaisesRegex(SkoolParsingError, "^Invalid integer 'x': DEFS x,1$"):
+            CtlWriter(StringIO('s30000 DEFS x,1'))
+
+    def test_s_directive_invalid_value(self):
+        with self.assertRaisesRegex(SkoolParsingError, "^Invalid integer 'y': DEFS 10,y$"):
+            CtlWriter(StringIO('s30000 DEFS 10,y'))
+
     def test_operand_bases_no_base(self):
         exp_ctl = [
             'c 60000 Operations in various bases',
@@ -895,13 +904,15 @@ class CtlWriterTest(SkoolKitTestCase):
             ' 40003 DEFB 32768/256,32768%256,1+2,3*4,5-6',
             ' 40008 DEFM "a"+128',
             ' 40009 DEFM "H","i"+$80',
-            ' 40011 DEFM 32768/256,32768%256,1+2,3*4,5-6'
+            ' 40011 DEFM 32768/256,32768%256,1+2,3*4,5-6',
+            ' 40016 DEFS 256*2," "+128'
         ))
         exp_ctl = [
             'b 40000',
             '  40000,8,1,T1:1,5',
             'T 40008,8,B1,1:B1,B5',
-            'i 40016'
+            'S 40016,512,512:160',
+            'i 40528'
         ]
         self._test_ctl(skool, exp_ctl)
 
