@@ -1095,7 +1095,7 @@ of a UDG (an 8x8 block of pixels). ::
 * ``MASK`` is the mask specification (see below)
 * ``CROP`` is the cropping specification (see :ref:`cropping`)
 * ``fname`` is the name of the image file (if not given, a name specified by
-  the ``UDGFilename`` parameter in the :ref:`ref-Game` section will be used);
+  the ``UDGFilename`` parameter in the :ref:`Paths` section will be used);
   '`.png`' or '`.gif`' will be appended (depending on the default image format
   specified in the :ref:`ref-ImageWriter` section) if not present
 
