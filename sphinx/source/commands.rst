@@ -962,10 +962,9 @@ before the snapshot is saved. For more information on the operations that the
 
   $ tap2sna.py --ram help
 
-For complex snapshots that require many ``--ram``, ``--reg`` or ``--state``
-options to build, it may be more convenient to store the arguments to
-`tap2sna.py` in a file. For example, if the file `game.t2s` has the following
-contents::
+For complex snapshots that require many options to build, it may be more
+convenient to store the arguments to `tap2sna.py` in a file. For example, if
+the file `game.t2s` has the following contents::
 
   ;
   ; tap2sna.py file for GAME
@@ -974,9 +973,9 @@ contents::
   game.z80
   --ram load=4,32768         # Load the fourth block at 32768
   --ram move=40960,512,43520 # Move 40960-41471 to 43520-44031
-  --reg pc=34816             # Start at 34816
-  --reg sp=32768             # Stack at 32768
   --state iff=0              # Disable interrupts
+  --stack 32768              # Stack at 32768
+  --start 34816              # Start at 34816
 
 then::
 
