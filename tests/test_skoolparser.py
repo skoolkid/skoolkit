@@ -2700,7 +2700,7 @@ class SkoolParserTest(SkoolKitTestCase):
 
     def test_replace_directive(self):
         skool = '\n'.join((
-            '@replace=/#COPY/#CHR169/',
+            '@replace=/#COPY/#CHR169/ This text is ignored',
             r'@replace=/#BIGUDG(\d+)/#UDG\1,57,8',
             '@replace=@/gap/@#SPACE10@',
             r'@replace=/~(\w+)~/Register \1/',

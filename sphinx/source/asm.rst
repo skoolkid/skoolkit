@@ -632,8 +632,15 @@ skool file annotations and ref file section names and contents. ::
 
   @replace=/pattern/repl
 
+or::
+
+  @replace=/pattern/repl/
+
 * ``pattern`` is the regular expression
 * ``repl`` is the replacement string
+
+(If the second form is used, any text appearing after the terminating ``/`` is
+ignored.)
 
 For example::
 
