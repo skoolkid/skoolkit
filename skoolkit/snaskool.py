@@ -707,8 +707,8 @@ class SkoolWriter:
         self.comment_width = max(options.line_width - 2, MIN_COMMENT_WIDTH)
         self.asm_hex = options.base == 16
         self.disassembly = Disassembly(snapshot, ctl_parser, config, True, options.defb_size, options.defb_mod,
-                                       options.zfill, options.defm_width, self.asm_hex, options.asm_lower)
-        self.address_fmt = get_address_format(self.asm_hex, options.asm_lower)
+                                       options.zfill, options.defm_width, self.asm_hex, options.case == 1)
+        self.address_fmt = get_address_format(self.asm_hex, options.case == 1)
         self.config = config
 
     def address_str(self, address, pad=True):

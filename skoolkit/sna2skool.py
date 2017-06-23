@@ -47,7 +47,7 @@ def run(snafile, options, config):
     if options.sftfile:
         # Use a skool file template
         info('Using skool file template: {}'.format(options.sftfile))
-        writer = SftParser(snapshot, options.sftfile, options.zfill, options.base == 16, options.asm_lower)
+        writer = SftParser(snapshot, options.sftfile, options.zfill, options.base == 16, options.case == 1)
         writer.write_skool(options.start, options.end)
         return
 
@@ -92,7 +92,7 @@ def main(args):
                        help="Set the value of the configuration parameter 'p' to 'v'; this option may be used multiple times")
     group.add_argument('-l', '--defm-size', dest='defm_width', metavar='L', type=int, default=config['DefmSize'],
                        help='Set the maximum number of characters per DEFM statement to L (default={})'.format(config['DefmSize']))
-    group.add_argument('-L', '--lower', dest='asm_lower', action='store_const', const=1, default=config['LowerCase'],
+    group.add_argument('-L', '--lower', dest='case', action='store_const', const=1, default=config['Case'],
                        help='Write the disassembly in lower case')
     group.add_argument('-m', '--defb-mod', dest='defb_mod', metavar='M', type=int, default=config['DefbMod'],
                        help='Group DEFB blocks by addresses that are divisible by M')

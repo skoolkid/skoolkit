@@ -1083,21 +1083,21 @@ class DisassemblyTest(SkoolKitTestCase):
         self.assertEqual([e.title for e in disassembly.entries], exp_titles)
 
 class MockOptions:
-    def __init__(self, line_width, defb_size, defb_mod, zfill, defm_width, base, asm_lower):
+    def __init__(self, line_width, defb_size, defb_mod, zfill, defm_width, base, case):
         self.line_width = line_width
         self.defb_size = defb_size
         self.defb_mod = defb_mod
         self.zfill = zfill
         self.defm_width = defm_width
         self.base = base
-        self.asm_lower = asm_lower
+        self.case = case
 
 class SkoolWriterTest(SkoolKitTestCase):
     def _get_writer(self, snapshot, ctl, params=None, line_width=79, defb_size=8, defb_mod=1,
-                    zfill=False, defm_width=66, base=10, asm_lower=False):
+                    zfill=False, defm_width=66, base=10, case=2):
         ctl_parser = CtlParser()
         ctl_parser.parse_ctl(StringIO(ctl))
-        options = MockOptions(line_width, defb_size, defb_mod, zfill, defm_width, base, asm_lower)
+        options = MockOptions(line_width, defb_size, defb_mod, zfill, defm_width, base, case)
         config = CONFIG.copy()
         config.update(params or {})
         return SkoolWriter(snapshot, ctl_parser, options, config)
@@ -2063,7 +2063,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; Data block at 000a',
             'b$000a defb $ff'
         ]
-        self._test_write_skool(snapshot, ctl, exp_skool, base=16, asm_lower=True)
+        self._test_write_skool(snapshot, ctl, exp_skool, base=16, case=1)
 
     def test_defm_width(self):
         snapshot = [65] * 4

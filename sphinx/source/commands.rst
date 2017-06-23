@@ -714,6 +714,8 @@ configuration parameters are:
 
 * ``Base`` - write addresses and instruction operands in hexadecimal (``16``)
   or decimal (``10``, the default)
+* ``Case`` - write the disassembly in lower case (``1``) or upper case (``2``,
+  the default)
 * ``CtlHex`` - write addresses in a generated control file in lower case
   hexadecimal (``-1``), decimal (``0``, the default), or upper case hexadecimal
   (``1``)
@@ -734,8 +736,6 @@ configuration parameters are:
   (``-1``), if no other comment is defined at the entry point (``0``, the
   default), or always (``1``)
 * ``LineWidth`` - maximum line width of the skool file (default: ``79``)
-* ``LowerCase`` - write the disassembly in lower case (``1``) or upper case
-  (``0``, the default)
 * ``Ref`` - template used to format the comment for a routine with exactly one
   referrer (default: ``Used by the routine at {ref}.``)
 * ``Refs`` - template used to format the comment for a routine with two or more
@@ -761,12 +761,12 @@ configuration parameters are:
 
 Configuration parameters must appear in a ``[sna2skool]`` section. For example,
 to make `sna2skool.py` generate hexadecimal skool files with a line width of
-120 characters by default (without having to use the ``-H`` and ``-W`` options
+120 characters by default (without having to use the ``-H`` and ``-w`` options
 on the command line), add the following section to `skoolkit.ini`::
 
   [sna2skool]
+  Base=16
   LineWidth=120
-  SkoolHex=1
 
 Configuration parameters may also be set on the command line by using the
 ``--ini`` option. Parameter values set this way will override any found in
