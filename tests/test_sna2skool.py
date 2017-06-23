@@ -380,7 +380,7 @@ class OptionsTest(SkoolKitTestCase):
         self.assertIsNone(options.sftfile)
         self.assertIsNone(options.genctlfile)
         self.assertFalse(options.ctl_hex)
-        self.assertFalse(options.asm_hex)
+        self.assertEqual(options.base, 10)
         self.assertFalse(options.asm_lower)
         self.assertEqual(options.start, 0)
         self.assertEqual(options.end, 65536)
@@ -398,6 +398,7 @@ class OptionsTest(SkoolKitTestCase):
     def test_config_read_from_file(self):
         ini = '\n'.join((
             '[sna2skool]',
+            'Base=16',
             'CtlHex=1',
             'DefbMod=8',
             'DefbSize=12',
@@ -406,7 +407,6 @@ class OptionsTest(SkoolKitTestCase):
             'Erefs=-1',
             'LineWidth=119',
             'LowerCase=1',
-            'SkoolHex=1',
             'Text=1',
             'Title-b=Data at {address}',
             'Title-c=Code at {address}'
@@ -419,7 +419,7 @@ class OptionsTest(SkoolKitTestCase):
         self.assertIsNone(options.sftfile)
         self.assertIsNone(options.genctlfile)
         self.assertEqual(options.ctl_hex, 1)
-        self.assertTrue(options.asm_hex)
+        self.assertEqual(options.base, 16)
         self.assertTrue(options.asm_lower)
         self.assertEqual(options.start, 0)
         self.assertEqual(options.end, 65536)
@@ -521,7 +521,7 @@ class OptionsTest(SkoolKitTestCase):
         for option in ('-H', '--skool-hex'):
             output, error = self.run_sna2skool('{} test.sna'.format(option))
             self.assertEqual(error, '')
-            self.assertTrue(mock_skool_writer.options.asm_hex)
+            self.assertEqual(mock_skool_writer.options.base, 16)
             self.assertTrue(mock_skool_writer.wrote_skool)
 
     @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
@@ -842,24 +842,24 @@ class OptionsTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'run', mock_run)
     @patch.object(sna2skool, 'get_config', mock_config)
     def test_option_I_overrides_other_options(self):
-        self.run_sna2skool('-H -I SkoolHex=0 -L --ini LowerCase=0 test.skool')
+        self.run_sna2skool('-H -I Base=10 -L --ini LowerCase=0 test.skool')
         options = run_args[1]
-        self.assertEqual(options.params, ['SkoolHex=0', 'LowerCase=0'])
-        self.assertEqual(options.asm_hex, 0)
+        self.assertEqual(options.params, ['Base=10', 'LowerCase=0'])
+        self.assertEqual(options.base, 10)
         self.assertEqual(options.asm_lower, 0)
 
     @patch.object(sna2skool, 'run', mock_run)
     def test_option_I_overrides_config_read_from_file(self):
         ini = '\n'.join((
             '[sna2skool]',
-            'CtlHex=-1',
-            'SkoolHex=1'
+            'Base=16',
+            'CtlHex=-1'
         ))
         self.write_text_file(ini, 'skoolkit.ini')
-        self.run_sna2skool('-I SkoolHex=0 --ini CtlHex=1 test.skool')
+        self.run_sna2skool('-I Base=10 --ini CtlHex=1 test.skool')
         options = run_args[1]
-        self.assertEqual(options.params, ['SkoolHex=0', 'CtlHex=1'])
-        self.assertEqual(options.asm_hex, 0)
+        self.assertEqual(options.params, ['Base=10', 'CtlHex=1'])
+        self.assertEqual(options.base, 10)
         self.assertEqual(options.ctl_hex, 1)
 
     @patch.object(sna2skool, 'run', mock_run)

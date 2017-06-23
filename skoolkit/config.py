@@ -21,6 +21,7 @@ from skoolkit.refparser import RefParser
 
 COMMANDS = {
     'sna2skool': {
+        'Base': (10, 'base'),
         'CtlHex': (0, 'ctl_hex'),
         'DefbMod': (1, 'defb_mod'),
         'DefbSize': (8, 'defb_size'),
@@ -29,7 +30,6 @@ COMMANDS = {
         'Erefs': (0, 'write_refs'),
         'LineWidth': (79, 'line_width'),
         'LowerCase': (0, 'asm_lower'),
-        'SkoolHex': (0, 'asm_hex'),
         'Text': (0, 'text'),
         'EntryPointRef': ('This entry point is used by the routine at {ref}.', ''),
         'EntryPointRefs': ('This entry point is used by the routines at {refs} and {ref}.', ''),

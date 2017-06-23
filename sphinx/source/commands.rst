@@ -712,6 +712,8 @@ Configuration
 current working directory or in `~/.skoolkit`, if present. The recognised
 configuration parameters are:
 
+* ``Base`` - write addresses and instruction operands in hexadecimal (``16``)
+  or decimal (``10``, the default)
 * ``CtlHex`` - write addresses in a generated control file in lower case
   hexadecimal (``-1``), decimal (``0``, the default), or upper case hexadecimal
   (``1``)
@@ -738,8 +740,6 @@ configuration parameters are:
   referrer (default: ``Used by the routine at {ref}.``)
 * ``Refs`` - template used to format the comment for a routine with two or more
   referrers (default: ``Used by the routines at {refs} and {ref}.``)
-* ``SkoolHex`` - write addresses and instruction operands in hexadecimal
-  (``1``) or decimal (``0``, the default)
 * ``Text`` - show ASCII text in the comment fields (``1``), or don't (``0``,
   the default)
 * ``Title-b`` - template used to format the title for an untitled 'b' block

@@ -47,7 +47,7 @@ def run(snafile, options, config):
     if options.sftfile:
         # Use a skool file template
         info('Using skool file template: {}'.format(options.sftfile))
-        writer = SftParser(snapshot, options.sftfile, options.zfill, options.asm_hex, options.asm_lower)
+        writer = SftParser(snapshot, options.sftfile, options.zfill, options.base == 16, options.asm_lower)
         writer.write_skool(options.start, options.end)
         return
 
@@ -84,7 +84,7 @@ def main(args):
                        help='Generate a control file in FILE')
     group.add_argument('-h', '--ctl-hex', dest='ctl_hex', action='store_const', const=1, default=config['CtlHex'],
                        help='Write upper case hexadecimal addresses in the generated control file')
-    group.add_argument('-H', '--skool-hex', dest='asm_hex', action='store_const', const=1, default=config['SkoolHex'],
+    group.add_argument('-H', '--skool-hex', dest='base', action='store_const', const=16, default=config['Base'],
                        help='Write hexadecimal addresses and operands in the disassembly')
     group.add_argument('-i', '--ctl-hex-lower', dest='ctl_hex', action='store_const', const=-1, default=config['CtlHex'],
                        help='Write lower case hexadecimal addresses in the generated control file')

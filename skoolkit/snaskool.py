@@ -705,10 +705,10 @@ class Disassembly:
 class SkoolWriter:
     def __init__(self, snapshot, ctl_parser, options, config):
         self.comment_width = max(options.line_width - 2, MIN_COMMENT_WIDTH)
+        self.asm_hex = options.base == 16
         self.disassembly = Disassembly(snapshot, ctl_parser, config, True, options.defb_size, options.defb_mod,
-                                       options.zfill, options.defm_width, options.asm_hex, options.asm_lower)
-        self.address_fmt = get_address_format(options.asm_hex, options.asm_lower)
-        self.asm_hex = options.asm_hex
+                                       options.zfill, options.defm_width, self.asm_hex, options.asm_lower)
+        self.address_fmt = get_address_format(self.asm_hex, options.asm_lower)
         self.config = config
 
     def address_str(self, address, pad=True):
