@@ -73,8 +73,6 @@ class HtmlWriter:
         self.defaults = RefParser()
         self.defaults.parse(StringIO(REF_FILE))
         self.file_info = file_info
-        self.case = skool_parser.case # API
-        self.base = skool_parser.base # API
 
         self.fields = {
             'asm': 0,
@@ -233,6 +231,16 @@ class HtmlWriter:
         subclasses may override it.
         """
         return
+
+    # API
+    @property
+    def base(self):
+        return self.parser.base
+
+    # API
+    @property
+    def case(self):
+        return self.parser.case
 
     def warn(self, s):
         warn(s)

@@ -28,8 +28,6 @@ DEF_INSTRUCTION_WIDTH = 23
 class AsmWriter:
     def __init__(self, parser, properties):
         self.parser = parser
-        self.base = parser.base # API
-        self.case = parser.case # API
         self.show_warnings = self._get_int_property(properties, 'warnings', 1)
 
         self.fields = {
@@ -105,6 +103,16 @@ class AsmWriter:
         subclasses may override it.
         """
         return
+
+    # API
+    @property
+    def base(self):
+        return self.parser.base
+
+    # API
+    @property
+    def case(self):
+        return self.parser.case
 
     def _get_int_property(self, properties, name, default):
         try:
