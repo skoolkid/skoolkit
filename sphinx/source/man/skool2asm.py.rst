@@ -49,8 +49,8 @@ OPTIONS
   Show the path to the skoolkit package directory and exit.
 
 -P, --set `property=value`
-  Set the value of an ASM writer property; this option may be used multiple
-  times.
+  Set the value of an ASM writer property (see ``ASM WRITER PROPERTIES``). This
+  option may be used multiple times.
 
 -q, --quiet
   Be quiet. This option suppresses both the timing information, and the message
@@ -92,7 +92,8 @@ configuration parameters are:
 :CreateLabels: Create default labels for unlabelled instructions (``1``), or
   don't (``0``, the default).
 :Quiet: Be quiet (``1``) or verbose (``0``, the default).
-:Set-property: Set an ASM writer property value, e.g. ``Set-bullet=+``.
+:Set-property: Set an ASM writer property value (see ``ASM WRITER
+  PROPERTIES``), e.g. ``Set-bullet=+``.
 :Warnings: Show warnings (``1``, the default), or suppress them (``0``).
 
 Configuration parameters must appear in a ``[skool2asm]`` section. For example,
@@ -107,6 +108,35 @@ options on the command line), add the following section to ``skoolkit.ini``::
 Configuration parameters may also be set on the command line by using the
 ``--ini`` option. Parameter values set this way will override any found in
 ``skoolkit.ini``.
+
+ASM WRITER PROPERTIES
+=====================
+Recognised ASM writer property names and their default values are:
+
+:bullet: the bullet character(s) to use for list items specified in a
+  :ref:`LIST` macro (default: ``*``).
+:comment-width-min: the minimum width of the instruction comment field
+  (default: ``10``).
+:crlf: ``1`` to use CR+LF to terminate lines, or ``0`` to use the system
+  default (default: ``0``).
+:handle-unsupported-macros: how to handle an unsupported macro: ``1`` to expand
+  it to an empty string, or ``0`` to exit with an error (default: ``0``).
+:indent: the number of spaces by which to indent instructions (default: ``2``).
+:instruction-width: the width of the instruction field (default: ``23``).
+:label-colons: ``1`` to append a colon to labels, or ``0`` to leave labels
+  unadorned (default: ``1``).
+:line-width: the maximum width of each line (default: ``79``).
+:tab: ``1`` to use a tab character to indent instructions, or ``0`` to use
+  spaces (default: ``0``).
+:warnings: ``1`` to print any warnings that are produced while writing ASM
+  output (after parsing the skool file), or ``0`` to suppress them (default:
+  ``1``).
+:wrap-column-width-min: the minimum width of a wrappable table column (default:
+  ``10``).
+
+Property values may be set in ``skoolkit.ini`` by using the ``Set-property``
+configuration parameter (see ``CONFIGURATION``), or on the command line by
+using the ``--set`` option.
 
 EXAMPLES
 ========
