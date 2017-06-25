@@ -379,7 +379,7 @@ class OptionsTest(SkoolKitTestCase):
         self.assertIsNone(options.ctlfile)
         self.assertIsNone(options.sftfile)
         self.assertIsNone(options.genctlfile)
-        self.assertFalse(options.ctl_hex)
+        self.assertEqual(options.ctl_hex, 0)
         self.assertEqual(options.base, 10)
         self.assertEqual(options.case, 2)
         self.assertEqual(options.start, 0)
@@ -824,7 +824,7 @@ class OptionsTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'run', mock_run)
     @patch.object(sna2skool, 'get_config', mock_config)
     def test_option_I(self):
-        for option, spec, attr, exp_value in (('-I', 'CtlHex=-1', 'ctl_hex', -1), ('--ini', 'Text=1', 'text', 1)):
+        for option, spec, attr, exp_value in (('-I', 'CtlHex=2', 'ctl_hex', 2), ('--ini', 'Text=1', 'text', 1)):
             self.run_sna2skool('{} {} test-I.skool'.format(option, spec))
             options = run_args[1]
             self.assertEqual(options.params, [spec])
@@ -853,7 +853,7 @@ class OptionsTest(SkoolKitTestCase):
         ini = '\n'.join((
             '[sna2skool]',
             'Base=16',
-            'CtlHex=-1'
+            'CtlHex=2'
         ))
         self.write_text_file(ini, 'skoolkit.ini')
         self.run_sna2skool('-I Base=10 --ini CtlHex=1 test.skool')

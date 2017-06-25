@@ -110,8 +110,8 @@ configuration parameters are:
   decimal (``10``, the default).
 :Case: Write the disassembly in lower case (``1``) or upper case (``2``, the
   default).
-:CtlHex: Write addresses in a generated control file in lower case hexadecimal
-  (``-1``), decimal (``0``, the default), or upper case hexadecimal (``1``).
+:CtlHex: Write addresses in a generated control file in decimal (``0``, the
+  default), lower case hexadecimal (``1``), or upper case hexadecimal (``2``).
 :DefbMod: Group DEFB blocks by addresses that are divisible by this number
   (default: ``1``).
 :DefbSize: Maximum number of bytes per DEFB statement (default: ``8``).

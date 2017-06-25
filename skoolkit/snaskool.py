@@ -410,7 +410,7 @@ def _generate_ctls_without_code_map(snapshot, start, end):
 
 def write_ctl(ctlfile, ctls, ctl_hex):
     # Write a control file
-    addr_fmt = get_address_format(ctl_hex, ctl_hex < 0)
+    addr_fmt = get_address_format(ctl_hex, ctl_hex == 1)
     with open(ctlfile, 'w') as f:
         for address in [a for a in sorted(ctls) if a < 65536]:
             f.write('{0} {1}\n'.format(ctls[address], addr_fmt.format(address)))

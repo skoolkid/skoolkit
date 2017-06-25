@@ -716,9 +716,9 @@ configuration parameters are:
   or decimal (``10``, the default)
 * ``Case`` - write the disassembly in lower case (``1``) or upper case (``2``,
   the default)
-* ``CtlHex`` - write addresses in a generated control file in lower case
-  hexadecimal (``-1``), decimal (``0``, the default), or upper case hexadecimal
-  (``1``)
+* ``CtlHex`` - write addresses in a generated control file in decimal (``0``,
+  the default), lower case hexadecimal (``1``),  or upper case hexadecimal
+  (``2``)
 * ``DefbMod`` - group DEFB blocks by addresses that are divisible by this
   number (default: ``1``)
 * ``DefbSize`` - maximum number of bytes per DEFB statement (default: ``8``)

@@ -82,11 +82,11 @@ def main(args):
                        help='Stop disassembling at this address (default={})'.format(END))
     group.add_argument('-g', '--generate-ctl', dest='genctlfile', metavar='FILE',
                        help='Generate a control file in FILE')
-    group.add_argument('-h', '--ctl-hex', dest='ctl_hex', action='store_const', const=1, default=config['CtlHex'],
+    group.add_argument('-h', '--ctl-hex', dest='ctl_hex', action='store_const', const=2, default=config['CtlHex'],
                        help='Write upper case hexadecimal addresses in the generated control file')
     group.add_argument('-H', '--skool-hex', dest='base', action='store_const', const=16, default=config['Base'],
                        help='Write hexadecimal addresses and operands in the disassembly')
-    group.add_argument('-i', '--ctl-hex-lower', dest='ctl_hex', action='store_const', const=-1, default=config['CtlHex'],
+    group.add_argument('-i', '--ctl-hex-lower', dest='ctl_hex', action='store_const', const=1, default=config['CtlHex'],
                        help='Write lower case hexadecimal addresses in the generated control file')
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'; this option may be used multiple times")
