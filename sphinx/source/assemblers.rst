@@ -85,3 +85,12 @@ TAP file by using :ref:`bin2tap.py`::
   $ bin2tap.py game.bin
 
 The resultant TAP file, `game.tap`, can then be loaded into an emulator.
+
+Creating a Z80 snapshot
+-----------------------
+Having created `game.bin` by using your chosen assembler, you can now create a
+Z80 snapshot by using :ref:`bin2sna.py`::
+
+  $ bin2sna.py game.bin
+
+The resultant snapshot, `game.z80`, can then be loaded into an emulator.
