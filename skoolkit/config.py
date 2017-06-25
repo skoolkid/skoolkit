@@ -28,7 +28,7 @@ COMMANDS = {
         'DefbSize': (8, 'defb_size'),
         'DefbZfill': (0, 'zfill'),
         'DefmSize': (66, 'defm_width'),
-        'Erefs': (0, 'write_refs'),
+        'Erefs': (1, 'write_refs'),
         'LineWidth': (79, 'line_width'),
         'Text': (0, 'text'),
         'EntryPointRef': ('This entry point is used by the routine at {ref}.', ''),

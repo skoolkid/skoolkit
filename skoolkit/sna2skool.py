@@ -104,9 +104,9 @@ def main(args):
                        help='Specify the origin address of a binary (.bin) file (default: 65536 - length)')
     group.add_argument('-p', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535')
-    group.add_argument('-r', '--no-erefs', dest='write_refs', action='store_const', const=-1, default=config['Erefs'],
+    group.add_argument('-r', '--no-erefs', dest='write_refs', action='store_const', const=0, default=config['Erefs'],
                        help="Don't add comments that list entry point referrers")
-    group.add_argument('-R', '--erefs', dest='write_refs', action='store_const', const=1, default=config['Erefs'],
+    group.add_argument('-R', '--erefs', dest='write_refs', action='store_const', const=2, default=config['Erefs'],
                        help="Always add comments that list entry point referrers")
     group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=int, default=0,
                        help='Start disassembling at this address (default={})'.format(START))

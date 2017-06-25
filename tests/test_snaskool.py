@@ -1102,7 +1102,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         config.update(params or {})
         return SkoolWriter(snapshot, ctl_parser, options, config)
 
-    def _test_write_skool(self, snapshot, ctl, exp_skool, write_refs=0, show_text=False, **kwargs):
+    def _test_write_skool(self, snapshot, ctl, exp_skool, write_refs=1, show_text=False, **kwargs):
         writer = self._get_writer(snapshot, ctl, **kwargs)
         writer.write_skool(write_refs, show_text)
         skool = self.out.getvalue().rstrip().split('\n')
@@ -1110,7 +1110,7 @@ class SkoolWriterTest(SkoolKitTestCase):
 
     def test_write_skool(self):
         writer = self._get_writer(WRITER_SNAPSHOT, WRITER_CTL)
-        writer.write_skool(0, False)
+        writer.write_skool(1, False)
         skool = self.out.getvalue().split('\n')[:-1]
         self.assertEqual(SKOOL, skool)
 
@@ -1217,7 +1217,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '; Routine at 30005',
             'c30005 JR 30001      ;'
         ]
-        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=-1)
+        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=0)
 
     def test_write_refs_default(self):
         snapshot = [0] * 65536
@@ -1262,7 +1262,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             ' 40008 JR 40002      ;',
             ' 40010 JR 40003      ;'
         ]
-        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=0)
+        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=1)
 
     def test_write_refs_always(self):
         snapshot = [0] * 65536
@@ -1311,7 +1311,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             ' 50008 JR 50002      ;',
             ' 50010 JR 50003      ;'
         ]
-        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=1)
+        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=2)
 
     def test_bad_blocks(self):
         snapshot = [0] * 65536
@@ -1686,7 +1686,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '*10003 JR 10000      ;',
         ]
         snapshot = [0] * 10000 + [24, 1, 120, 24, 251]
-        self._test_write_skool(snapshot, ctl, exp_skool, 1)
+        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=2)
 
     def test_assemble_directives(self):
         ctl = '\n'.join((
@@ -2407,7 +2407,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             'u00002 JR 4',
             '*00004 JR 0'
         ]
-        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=1)
+        self._test_write_skool(snapshot, ctl, exp_skool, write_refs=2)
 
     def test_M_directive_terminates_previous_sub_block(self):
         snapshot = [120, 207, 2]

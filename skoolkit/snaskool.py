@@ -759,9 +759,9 @@ class SkoolWriter:
     def _write_entry_description(self, entry, write_refs):
         wrote_desc = False
         ignoreua_d = entry.has_ignoreua_directive(DESCRIPTION)
-        if write_refs > -1:
+        if write_refs:
             referrers = entry.instructions[0].referrers
-            if referrers and (write_refs == 1 or not entry.description):
+            if referrers and (write_refs == 2 or not entry.description):
                 self.write_comment('')
                 if ignoreua_d:
                     self.write_asm_directives(AD_IGNOREUA)
@@ -827,9 +827,9 @@ class SkoolWriter:
         for block in entry.blocks:
             ignoreua_m = block.has_ignoreua_directive(block.start, MID_BLOCK)
             begun_header = False
-            if not first_block and entry.ctl == 'c' and write_refs > -1:
+            if not first_block and entry.ctl == 'c' and write_refs:
                 referrers = block.instructions[0].referrers
-                if referrers and (write_refs == 1 or not block.header):
+                if referrers and (write_refs == 2 or not block.header):
                     if ignoreua_m:
                         self.write_asm_directives(AD_IGNOREUA)
                     self.write_referrers(referrers)
@@ -866,7 +866,7 @@ class SkoolWriter:
                 comment = self.to_ascii(instruction.bytes)
             else:
                 comment = ''
-            if index > 0 and entry.ctl == 'c' and ctl == '*' and write_refs > -1:
+            if index > 0 and entry.ctl == 'c' and ctl == '*' and write_refs:
                 self.write_referrers(instruction.referrers)
             self.write_asm_directives(*instruction.asm_directives)
             if block.has_ignoreua_directive(instruction.address, INSTRUCTION):
