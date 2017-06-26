@@ -405,8 +405,8 @@ class OptionsTest(SkoolKitTestCase):
             'DefbSize=12',
             'DefbZfill=1',
             'DefmSize=92',
-            'Erefs=2',
             'LineWidth=119',
+            'ListRefs=2',
             'Text=1',
             'Title-b=Data at {address}',
             'Title-c=Code at {address}'
@@ -833,9 +833,9 @@ class OptionsTest(SkoolKitTestCase):
     @patch.object(sna2skool, 'run', mock_run)
     @patch.object(sna2skool, 'get_config', mock_config)
     def test_option_I_multiple(self):
-        self.run_sna2skool('-I DefbMod=8 --ini Erefs=0 test-I-multiple.skool')
+        self.run_sna2skool('-I DefbMod=8 --ini ListRefs=0 test-I-multiple.skool')
         options = run_args[1]
-        self.assertEqual(options.params, ['DefbMod=8', 'Erefs=0'])
+        self.assertEqual(options.params, ['DefbMod=8', 'ListRefs=0'])
         self.assertEqual(options.defb_mod, 8)
         self.assertEqual(options.write_refs, 0)
 

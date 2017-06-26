@@ -732,10 +732,10 @@ configuration parameters are:
 * ``EntryPointRefs`` - template used to format the comment for an entry point
   with two or more referrers (default: ``This entry point is used by the
   routines at {refs} and {ref}.``)
-* ``Erefs`` - when to add a comment that lists entry point referrers: never
-  (``0``), if no other comment is defined at the entry point (``1``, the
-  default), or always (``2``)
 * ``LineWidth`` - maximum line width of the skool file (default: ``79``)
+* ``ListRefs`` - when to add a comment that lists routine or entry point
+  referrers: never (``0``), if no other comment is defined at the entry point
+  (``1``, the default), or always (``2``)
 * ``Ref`` - template used to format the comment for a routine with exactly one
   referrer (default: ``Used by the routine at {ref}.``)
 * ``Refs`` - template used to format the comment for a routine with two or more
