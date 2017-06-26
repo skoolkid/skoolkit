@@ -729,6 +729,10 @@ section.
 +---------+---------------------------------------------------------------+
 | Version | Changes                                                       |
 +=========+===============================================================+
+| 6.1     | When ``addr`` refers to an unavailable instruction, it may be |
+|         | converted to decimal or hexadecimal according to the options  |
+|         | passed to :ref:`skool2asm.py` or :ref:`skool2html.py`         |
++---------+---------------------------------------------------------------+
 | 5.1     | An anchor that matches the entry address is converted to the  |
 |         | format specified by the ``AddressAnchor`` parameter; added    |
 |         | support for arithmetic expressions and skool macros in the    |
