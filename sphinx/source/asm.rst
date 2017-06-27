@@ -197,11 +197,14 @@ Note that ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements are always
 converted into byte values and inserted into the memory snapshot; the
 ``@assemble`` directive is only required for assembly language instructions.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.0     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.1     | Added the ability to assemble instructions whose operands contain |
+|         | arithmetic expressions                                            |
++---------+-------------------------------------------------------------------+
+| 5.0     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _bfix:
 
