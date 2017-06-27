@@ -219,8 +219,8 @@ The ``@bfix`` directive makes an instruction substitution in :ref:`bfixMode`.
 
 For example::
 
-  @bfix=DEFM "Phosphorus"
-  t57532 DEFM "Phosphorous"
+  @bfix=XOR B
+   29713 XOR C
 
 .. _bfixBlockDirectives:
 
