@@ -658,34 +658,37 @@ list::
                           generated control file
     -H, --skool-hex       Write hexadecimal addresses and operands in the
                           disassembly
-    -i, --ctl-hex-lower   Write lower case hexadecimal addresses in the
-                          generated control file
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
                           'v'; this option may be used multiple times
-    -l L, --defm-size L   Set the maximum number of characters per DEFM
-                          statement to L (default=66)
     -L, --lower           Write the disassembly in lower case
-    -m M, --defb-mod M    Group DEFB blocks by addresses that are divisible by M
     -M FILE, --map FILE   Use FILE as a code execution map when generating a
                           control file
-    -n N, --defb-size N   Set the maximum number of bytes per DEFB statement to
-                          N (default=8)
     -o ADDR, --org ADDR   Specify the origin address of a binary (.bin) file
                           (default: 65536 - length)
     -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
                           49152-65535
-    -r, --no-erefs        Don't add comments that list entry point referrers
-    -R, --erefs           Always add comments that list entry point referrers
     -s ADDR, --start ADDR
                           Start disassembling at this address (default=16384)
-    -t, --text            Show ASCII text in the comment fields
     -T FILE, --sft FILE   Use FILE as the skool file template (may be '-' for
                           standard input)
     -V, --version         Show SkoolKit version number and exit
     -w W, --line-width W  Set the maximum line width of the skool file (default:
                           79)
-    -z, --defb-zfill      Pad decimal values in DEFB statements with leading
-                          zeroes
+
+.. note::
+   The ``-i``, ``-l``, ``-m``, ``-n``, ``-r``, ``-R``, ``-t`` and ``-z``
+   options and their corresponding long options are deprecated since version
+   6.1. Use the ``-I/--ini`` option with an appropriate configuration parameter
+   instead:
+
+    * instead of ``-i/--ctl-hex-lower``, use ``-I CtlHex=1``
+    * instead of ``-l/--defm-size L``, use ``-I DefmSize=L``
+    * instead of ``-m/--defb-mod M``, use ``-I DefbMod=M``
+    * instead of ``-n/--defb-size N``, use ``-I DefbSize=N``
+    * instead of ``-r/--no-erefs``, use ``-I ListRefs=0``
+    * instead of ``-R/--erefs``, use ``-I ListRefs=2``
+    * instead of ``-t/--text``, use ``-I Text=1``
+    * instead of ``-z/--defb-zfill``, use ``-I DefbZfill=1``
 
 If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
 to be a binary file.

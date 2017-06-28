@@ -87,31 +87,31 @@ def main(args):
     group.add_argument('-H', '--skool-hex', dest='base', action='store_const', const=16, default=config['Base'],
                        help='Write hexadecimal addresses and operands in the disassembly')
     group.add_argument('-i', '--ctl-hex-lower', dest='ctl_hex', action='store_const', const=1, default=config['CtlHex'],
-                       help='Write lower case hexadecimal addresses in the generated control file')
+                       help=argparse.SUPPRESS)
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
                        help="Set the value of the configuration parameter 'p' to 'v'; this option may be used multiple times")
     group.add_argument('-l', '--defm-size', dest='defm_width', metavar='L', type=int, default=config['DefmSize'],
-                       help='Set the maximum number of characters per DEFM statement to L (default={})'.format(config['DefmSize']))
+                       help=argparse.SUPPRESS)
     group.add_argument('-L', '--lower', dest='case', action='store_const', const=1, default=config['Case'],
                        help='Write the disassembly in lower case')
     group.add_argument('-m', '--defb-mod', dest='defb_mod', metavar='M', type=int, default=config['DefbMod'],
-                       help='Group DEFB blocks by addresses that are divisible by M')
+                       help=argparse.SUPPRESS)
     group.add_argument('-M', '--map', dest='code_map', metavar='FILE',
                        help='Use FILE as a code execution map when generating a control file')
     group.add_argument('-n', '--defb-size', dest='defb_size', metavar='N', type=int, default=config['DefbSize'],
-                       help='Set the maximum number of bytes per DEFB statement to N (default={})'.format(config['DefbSize']))
+                       help=argparse.SUPPRESS)
     group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=int,
                        help='Specify the origin address of a binary (.bin) file (default: 65536 - length)')
     group.add_argument('-p', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535')
     group.add_argument('-r', '--no-erefs', dest='write_refs', action='store_const', const=0, default=config['ListRefs'],
-                       help="Don't add comments that list entry point referrers")
+                       help=argparse.SUPPRESS)
     group.add_argument('-R', '--erefs', dest='write_refs', action='store_const', const=2, default=config['ListRefs'],
-                       help="Always add comments that list entry point referrers")
+                       help=argparse.SUPPRESS)
     group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=int, default=0,
                        help='Start disassembling at this address (default={})'.format(START))
     group.add_argument('-t', '--text', dest='text', action='store_const', const=1, default=config['Text'],
-                       help='Show ASCII text in the comment fields')
+                       help=argparse.SUPPRESS)
     group.add_argument('-T', '--sft', dest='sftfile', metavar='FILE',
                        help="Use FILE as the skool file template (may be '-' for standard input)")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
@@ -119,7 +119,7 @@ def main(args):
     group.add_argument('-w', '--line-width', dest='line_width', metavar='W', type=int, default=config['LineWidth'],
                        help='Set the maximum line width of the skool file (default: {})'.format(config['LineWidth']))
     group.add_argument('-z', '--defb-zfill', dest='zfill', action='store_const', const=1, default=config['DefbZfill'],
-                       help='Pad decimal values in DEFB statements with leading zeroes')
+                       help=argparse.SUPPRESS)
 
     namespace, unknown_args = parser.parse_known_args(args)
     snafile = namespace.snafile
