@@ -703,7 +703,8 @@ The disassembly ID (``code``) and anchor name (``name``) must be limited to the
 characters '$', '#', 0-9, A-Z and a-z.
 
 In ASM mode, the ``#R`` macro expands to the link text if it is specified, or
-to the label for ``addr``, or to ``addr`` if no label is found.
+to the label for ``addr``, or to ``addr`` (converted to decimal or hexadecimal
+as appropriate) if no label is found.
 
 For example::
 
@@ -726,24 +727,23 @@ In HTML mode, the anchor of this ``#R`` macro (40000) is converted to the
 format specified by the ``AddressAnchor`` parameter in the :ref:`ref-Game`
 section.
 
-+---------+---------------------------------------------------------------+
-| Version | Changes                                                       |
-+=========+===============================================================+
-| 6.1     | When ``addr`` refers to an unavailable instruction, it may be |
-|         | converted to decimal or hexadecimal according to the options  |
-|         | passed to :ref:`skool2asm.py` or :ref:`skool2html.py`         |
-+---------+---------------------------------------------------------------+
-| 5.1     | An anchor that matches the entry address is converted to the  |
-|         | format specified by the ``AddressAnchor`` parameter; added    |
-|         | support for arithmetic expressions and skool macros in the    |
-|         | ``addr`` parameter                                            |
-+---------+---------------------------------------------------------------+
-| 3.5     | Added the ability to resolve (in HTML mode) the address of an |
-|         | entry point in another disassembly when an appropriate        |
-|         | :ref:`remote entry <rEntry>` is defined                       |
-+---------+---------------------------------------------------------------+
-| 2.0     | Added support for the ``@code`` notation                      |
-+---------+---------------------------------------------------------------+
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 6.1     | In ASM mode, ``addr`` is converted to decimal or hexadecimal as |
+|         | appropriate even when it refers to an unavailable instruction   |
++---------+-----------------------------------------------------------------+
+| 5.1     | An anchor that matches the entry address is converted to the    |
+|         | format specified by the ``AddressAnchor`` parameter; added      |
+|         | support for arithmetic expressions and skool macros in the      |
+|         | ``addr`` parameter                                              |
++---------+-----------------------------------------------------------------+
+| 3.5     | Added the ability to resolve (in HTML mode) the address of an   |
+|         | entry point in another disassembly when an appropriate          |
+|         | :ref:`remote entry <rEntry>` is defined                         |
++---------+-----------------------------------------------------------------+
+| 2.0     | Added support for the ``@code`` notation                        |
++---------+-----------------------------------------------------------------+
 
 .. _REG:
 
