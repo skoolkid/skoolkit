@@ -40,11 +40,11 @@ BASE_10 = 10
 #: Force hexadecimal.
 BASE_16 = 16
 
-def _replace_nums(operation, hex_fmt=None, skip_bit=False):
-    elements = re.split('(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', '(' + operation)
+def _replace_nums(operation, hex_fmt=None, skip_bit=False, prefix=None):
+    elements = re.split('(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', (prefix or '(') + operation)
     for i in range(2 * int(skip_bit) + 1, len(elements), 2):
         p1, p2 = elements[i - 1][:-1].strip(), elements[i - 1][-1]
-        if (p2 != '%' or not p1 or p1[-1] == ')') and p2 != '"':
+        if (p2 != '%' or not p1 or p1[-1] in ')"') and p2 != '"':
             p = elements[i]
             if hex_fmt is None and p.startswith('$'):
                 elements[i] = str(int(p[1:], 16))
@@ -809,11 +809,14 @@ class Mode:
             else:
                 hex_fmt = hex2fmt
             converted = operation[:4]
+            prefix = None
             for p in split_quoted(operation[4:]):
                 if p.startswith('"'):
                     converted += p
+                    prefix = '"'
                 else:
-                    converted += _replace_nums(p, hex_fmt)
+                    converted += _replace_nums(p, hex_fmt, prefix=prefix)
+                    prefix = None
             return converted
 
         elements = split_operation(operation, tidy=True)
