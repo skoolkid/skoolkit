@@ -53,8 +53,6 @@ RE_EXPAND = re.compile('#[^A-Za-z0-9\s]')
 
 RE_FRAME_ID = re.compile('[^\s,;(]+')
 
-RE_HEX_INT = re.compile('\$([0-9a-fA-F]+)')
-
 RE_MACRO = re.compile('#[A-Z]+')
 
 RE_MACRO_METHOD = re.compile('expand_([a-z]+)$')
@@ -323,7 +321,7 @@ def _parse_image_fname(text, index, fname=''):
 def evaluate(param, safe=False):
     if safe or set(param) <= AE_CHARS:
         try:
-            return int(eval(RE_HEX_INT.sub(r'int("\1",16)', param).replace('/', '//').replace('&&', ' and ').replace('||', ' or ')))
+            return int(eval(param.replace('$', '0x').replace('/', '//').replace('&&', ' and ').replace('||', ' or ')))
         except:
             pass
     raise ValueError
