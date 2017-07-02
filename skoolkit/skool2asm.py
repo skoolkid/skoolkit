@@ -117,6 +117,7 @@ def main(args):
     if unknown_args or namespace.skoolfile is None:
         parser.exit(2, parser.format_help())
     update_options('skool2asm', namespace, namespace.params)
+    namespace.properties += [p[4:] for p in namespace.params if p.startswith('Set-')]
     if namespace.fix_mode == 3:
         namespace.asm_mode = 3
     elif namespace.asm_mode == 3:

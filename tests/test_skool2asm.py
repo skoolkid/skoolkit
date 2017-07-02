@@ -483,6 +483,14 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'run', mock_run)
     @patch.object(skool2asm, 'get_config', mock_config)
+    def test_option_I_sets_property_values(self):
+        self.run_skool2asm('-I Set-line-width=120 --ini Set-bullet=+ test.skool')
+        options = run_args[1]
+        self.assertEqual(options.params, ['Set-line-width=120', 'Set-bullet=+'])
+        self.assertEqual(options.properties, ['line-width=120', 'bullet=+'])
+
+    @patch.object(skool2asm, 'run', mock_run)
+    @patch.object(skool2asm, 'get_config', mock_config)
     def test_option_I_invalid_value(self):
         self.run_skool2asm('-I Quiet=x test-I-invalid.skool')
         options = run_args[1]
