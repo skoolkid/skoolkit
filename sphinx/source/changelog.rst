@@ -18,8 +18,9 @@ Changelog
   ``@bfix`` mode by using the ``--bfix`` option
 * Added the ``--move`` option to :ref:`sna2img.py` (for copying the contents of
   a block of RAM to another location)
-* Improved how :ref:`skool2asm.py` formats comments that cover two or more
-  instructions
+* Improved how :ref:`skool2asm.py` formats a comment that covers two or more
+  instructions: now the comment is aligned to the widest instruction, and even
+  blank lines are prefixed by a semicolon
 * Improved how the :ref:`R` macro renders the address of an unavailable
   instruction (an instruction outside the range of the current disassembly, or
   in another disassembly) in ASM mode
