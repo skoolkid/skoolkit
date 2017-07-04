@@ -1267,6 +1267,16 @@ CHARACTER_OPERANDS = (
     ('XOR "?"', (238, 63))
 )
 
+ZERO_PADDED_OPERANDS = (
+    ('LD A,01', (62, 1)),
+    ('LD B,002', (6, 2)),
+    ('LD BC,003', (1, 3, 0)),
+    ('LD (0004),DE', (237, 83, 4, 0)),
+    ('LD HL,(00005)', (42, 5, 0)),
+    ('DEFB 1,02,003', (1, 2, 3)),
+    ('DEFW 1,02,003,0004,00005', (1, 0, 2, 0, 3, 0, 4, 0, 5, 0))
+)
+
 ARITHMETIC_EXPRESSION_OPERANDS = (
     ('ADC A,"/"+1', (206, 48)),
     ('ADD A,$5A-"2"', (198, 40)),
@@ -1404,6 +1414,10 @@ class Z80Test(SkoolKitTestCase):
 
     def test_character_operands(self):
         for operation, exp_data in CHARACTER_OPERANDS:
+            self._test_assembly(operation, exp_data)
+
+    def test_zero_padded_operands(self):
+        for operation, exp_data in ZERO_PADDED_OPERANDS:
             self._test_assembly(operation, exp_data)
 
     def test_arithmetic_expression_operands(self):

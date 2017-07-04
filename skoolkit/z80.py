@@ -47,6 +47,8 @@ def _convert_nums(text):
             p = elements[i - 1]
             if i == 1 or (p and p[-1] != ')'):
                 elements[i] = str(int(q[1:], 2))
+        elif q.startswith('0'):
+            elements[i] = str(int(q))
     return ''.join(elements)
 
 def _parse_expr(text, limit, brackets, non_neg, default):
