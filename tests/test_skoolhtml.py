@@ -625,8 +625,13 @@ class MethodTest(HtmlWriterTestCase):
 
     def test_format_template_unknown_field(self):
         writer = self._get_writer(ref='[Template:foo]\n{bar}')
-        with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'bar' in 'foo' template$"):
+        with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'bar' in foo template$"):
             writer.format_template('foo', {'notbar': 'baz'})
+
+    def test_format_template_unknown_format_code(self):
+        writer = self._get_writer(ref='[Template:foo]\n{bar:04x}')
+        with self.assertRaisesRegex(SkoolKitError, "^Failed to format foo template: Unknown format code 'x' for object of type 'str'$"):
+            writer.format_template('foo', {'bar': 'baz'})
 
     def test_format_template_nonexistent_template(self):
         writer = self._get_writer()
@@ -1508,7 +1513,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ref = '[Paths]\nCodeFiles={Address}.html'
         skool = 'b32768 DEFS 12345'
         writer = self._get_writer(ref=ref, skool=skool)
-        error_msg = "Cannot format filename ({Address}.html) with address=32768"
+        error_msg = "Unknown field 'Address' in CodeFiles template"
         self._assert_error(writer, '#R32768', error_msg, error=SkoolKitError)
 
     def test_macro_r_with_custom_asm_anchor(self):
@@ -1546,7 +1551,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ref = '[Game]\nAddressAnchor={address:j}'
         skool = 'c40000 LD A,B\n 40001 RET'
         writer = self._get_writer(ref=ref, skool=skool)
-        error_msg = "Cannot format anchor ({address:j}) with address=40001"
+        error_msg = "Failed to format AddressAnchor template: Unknown format code 'j' for object of type 'int'"
         self._assert_error(writer, '#R40001', error_msg, error=SkoolKitError)
 
     def test_macro_r_invalid(self):
@@ -1953,7 +1958,7 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
         ref = '[Paths]\nUDGFilename={Address}x{Scale}'
         skool = 'b32768 DEFS 8'
         writer = self._get_writer(ref=ref, skool=skool)
-        error_msg = "Cannot format UDG filename ({Address}x{Scale}) with addr=32768, attr=5, scale=2"
+        error_msg = "Unknown field 'Address' in UDGFilename template"
         self._assert_error(writer, '#UDG32768,5,2', error_msg, error=SkoolKitError)
 
     def test_macro_udg_with_custom_udg_image_path(self):
@@ -3554,9 +3559,8 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         ref = '[Paths]\nCodeFiles={Address:04x}.html'
         skool = 'b30000 DEFS 10000'
         writer = self._get_writer(ref=ref, skool=skool)
-        with self.assertRaises(SkoolKitError) as cm:
+        with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'Address' in CodeFiles template$"):
             writer.write_asm_entries()
-        self.assertEqual(cm.exception.args[0], "Cannot format filename ({Address:04x}.html) with address=30000")
 
     def test_write_asm_entries_with_custom_anchors(self):
         ref = '\n'.join((
@@ -3849,9 +3853,8 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         ref = '[Game]\nAddressAnchor={Address:04x}'
         skool = 'c40000 RET'
         writer = self._get_writer(ref=ref, skool=skool)
-        with self.assertRaises(SkoolKitError) as cm:
+        with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'Address' in AddressAnchor template$"):
             writer.write_asm_entries()
-        self.assertEqual(cm.exception.args[0], "Cannot format anchor ({Address:04x}) with address=40000")
 
     def test_write_asm_entries_with_missing_OtherCode_section(self):
         skool = '\n'.join((
@@ -4413,9 +4416,8 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         ref = '[Paths]\nCodeFiles={address:q}.html'
         skool = 'c10000 RET'
         writer = self._get_writer(ref=ref, skool=skool)
-        with self.assertRaises(SkoolKitError) as cm:
+        with self.assertRaisesRegex(SkoolKitError, "^Failed to format CodeFiles template: Unknown format code 'q' for object of type 'int'$"):
             writer.write_map('MemoryMap')
-        self.assertEqual(cm.exception.args[0], "Cannot format filename ({address:q}.html) with address=10000")
 
     def test_write_map_with_custom_asm_anchors(self):
         ref = '[Game]\nAddressAnchor={address:04x}'
@@ -4493,9 +4495,8 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         ref = '[Game]\nAddressAnchor={foo:04X}'
         skool = 'c32768 RET'
         writer = self._get_writer(ref=ref, skool=skool)
-        with self.assertRaises(SkoolKitError) as cm:
+        with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'foo' in AddressAnchor template$"):
             writer.write_map('MemoryMap')
-        self.assertEqual(cm.exception.args[0], "Cannot format anchor ({foo:04X}) with address=32768")
 
     def test_write_map_with_single_page_template(self):
         ref = '[Game]\nAsmSinglePageTemplate=AsmAllInOne'
@@ -6612,7 +6613,7 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             '{{this_will_not_work}}'
         )).format(page_id)
         writer = self._get_writer(ref=ref)
-        with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'this_will_not_work' in 'Custom' template$"):
+        with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'this_will_not_work' in Custom template$"):
             writer.write_page(page_id)
 
 class HtmlTemplateTest(HtmlWriterOutputTestCase):

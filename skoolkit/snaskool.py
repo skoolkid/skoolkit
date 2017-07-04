@@ -17,7 +17,8 @@
 import sys
 import os
 
-from skoolkit import SkoolKitError, warn, write_line, wrap, parse_int, get_address_format, open_file, read_bin_file
+from skoolkit import (SkoolKitError, open_file, read_bin_file, warn, write_line,
+                      wrap, parse_int, get_address_format, format_template)
 from skoolkit.ctlparser import CtlParser
 from skoolkit.disassembler import Disassembler
 from skoolkit.skoolasm import UDGTABLE_MARKER
@@ -619,7 +620,8 @@ class Disassembly:
             if not title:
                 ctl = block.ctl
                 if ctl != 'i' or block.description or block.registers or block.blocks[0].header:
-                    title = self.config.get('Title-' + ctl, '').format(address=self._address_str(block.start))
+                    name = 'Title-' + ctl
+                    title = format_template(self.config.get(name, ''), name, address=self._address_str(block.start))
             for sub_block in block.blocks:
                 address = sub_block.start
                 if sub_block.ctl in 'cBT':
@@ -908,7 +910,7 @@ class SkoolWriter:
             if len(referrers) > 1:
                 key += 's'
                 fields['refs'] = ', '.join(['#R' + self.address_str(r.address, False) for r in referrers[:-1]])
-            self.write_comment(self.config[key].format(**fields))
+            self.write_comment(format_template(self.config[key], key, **fields))
 
     def write_asm_directives(self, *directives):
         for directive in directives:

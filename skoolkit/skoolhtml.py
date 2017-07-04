@@ -25,7 +25,7 @@ from collections import defaultdict
 import re
 from io import StringIO
 
-from skoolkit import skoolmacro, SkoolKitError, warn, parse_int
+from skoolkit import skoolmacro, SkoolKitError, warn, parse_int, format_template
 from skoolkit.defaults import REF_FILE
 from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.image import ImageWriter
@@ -274,10 +274,7 @@ class HtmlWriter:
         except KeyError as e:
             raise SkoolKitError("'{}' template does not exist".format(e.args[0]))
         fields.update(self.template_subs)
-        try:
-            return template.format(**fields)
-        except KeyError as e:
-            raise SkoolKitError("Unknown field '{}' in '{}' template".format(e.args[0], name))
+        return format_template(template, name, **fields)
 
     def _expand_values(self, obj, *exceptions):
         if isinstance(obj, str):
@@ -482,10 +479,7 @@ class HtmlWriter:
         return posixpath.relpath(target, cwd)
 
     def asm_fname(self, address, path=''):
-        try:
-            return posixpath.normpath(join(path, self.asm_fname_template.format(address=address)))
-        except:
-            raise SkoolKitError("Cannot format filename ({}) with address={}".format(self.asm_fname_template, address))
+        return posixpath.normpath(join(path, format_template(self.asm_fname_template, 'CodeFiles', address=address)))
 
     def _asm_relpath(self, cwd, address, code_id=None):
         if not code_id:
@@ -498,10 +492,7 @@ class HtmlWriter:
         return self.relpath(cwd, join(code_path, self.asm_fname(address)))
 
     def asm_anchor(self, address):
-        try:
-            return self.asm_anchor_template.format(address=address)
-        except:
-            raise SkoolKitError("Cannot format anchor ({}) with address={}".format(self.asm_anchor_template, address))
+        return format_template(self.asm_anchor_template, 'AddressAnchor', address=address)
 
     def join_paragraphs(self, paragraphs, cwd):
         lines = []
@@ -1249,10 +1240,7 @@ class HtmlWriter:
         addr, attr, scale, step, inc, flip, rotate, mask, mask_addr, mask_step = params
         udgs = lambda: [[build_udg(self.snapshot, addr, attr, step, inc, flip, rotate, mask, mask_addr, mask_step)]]
         if not fname and not frame:
-            try:
-                fname = self.udg_fname_template.format(addr=addr, attr=attr, scale=scale)
-            except:
-                raise SkoolKitError("Cannot format UDG filename ({}) with addr={}, attr={}, scale={}".format(self.udg_fname_template, addr, attr, scale))
+            fname = format_template(self.udg_fname_template, 'UDGFilename', addr=addr, attr=attr, scale=scale)
             if frame == '':
                 frame = fname
         frames = [Frame(udgs, scale, mask, *crop_rect, name=frame)]

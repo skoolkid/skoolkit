@@ -121,6 +121,14 @@ def read_bin_file(fname, size=-1):
             raise SkoolKitError('{0}: file not found'.format(fname))
         raise
 
+def format_template(template__, name__, **fields):
+    try:
+        return template__.format(**fields)
+    except ValueError as e:
+        raise SkoolKitError('Failed to format {} template: {}'.format(name__, e.args[0]))
+    except KeyError as e:
+        raise SkoolKitError("Unknown field '{}' in {} template".format(e.args[0], name__))
+
 def normpath(*paths):
     return posixpath.normpath(posixpath.join(*[p.replace('\\', '/') for p in paths]))
 

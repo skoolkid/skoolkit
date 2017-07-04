@@ -1082,6 +1082,23 @@ class DisassemblyTest(SkoolKitTestCase):
 
         self.assertEqual([e.title for e in disassembly.entries], exp_titles)
 
+    def test_invalid_title_templates(self):
+        snapshot = [0, 0]
+        for entry_type in 'bcgistuw':
+            params = {'Title-' + entry_type: 'Stuff at {address:04X}'}
+            ctl = '\n'.join((
+                '{} 00000'.format(entry_type),
+                'D 00000 Comment.',
+                'i 00002'
+            ))
+            ctl_parser = CtlParser()
+            ctl_parser.parse_ctl(StringIO(ctl))
+            config = CONFIG.copy()
+            config.update(params)
+            error = "^Failed to format Title-{} template: Unknown format code 'X' for object of type 'str'$".format(entry_type)
+            with self.assertRaisesRegex(SkoolKitError, error):
+                Disassembly(snapshot, ctl_parser, config, True)
+
 class MockOptions:
     def __init__(self, line_width, defb_size, defb_mod, zfill, defm_width, base, case):
         self.line_width = line_width
@@ -2449,6 +2466,19 @@ class SkoolWriterTest(SkoolKitTestCase):
         ]
         self._test_write_skool(snapshot, ctl, exp_skool, params=params)
 
+    def test_invalid_custom_Ref(self):
+        params = {'Ref': 'Used by the subroutine at {ref:04X}.'}
+        snapshot = [201, 24, 253]
+        ctl = '\n'.join((
+            'c 00000',
+            'c 00001',
+            'i 00003'
+        ))
+        writer = self._get_writer(snapshot, ctl, params=params)
+
+        with self.assertRaisesRegex(SkoolKitError, "^Failed to format Ref template: Unknown format code 'X' for object of type 'str'$"):
+            writer.write_skool(1, 0)
+
     def test_custom_Refs_with_two_referrers(self):
         params = {'Refs': 'Used by the subroutines at {refs} and {ref}.'}
         snapshot = [201, 24, 253, 24, 251]
@@ -2503,6 +2533,20 @@ class SkoolWriterTest(SkoolKitTestCase):
         ]
         self._test_write_skool(snapshot, ctl, exp_skool, params=params)
 
+    def test_invalid_custom_Refs(self):
+        params = {'Refs': 'Used by the subroutines at {refs} and {lastref}.'}
+        snapshot = [201, 24, 253, 24, 251]
+        ctl = '\n'.join((
+            'c 00000',
+            'c 00001',
+            'c 00003',
+            'i 00005'
+        ))
+        writer = self._get_writer(snapshot, ctl, params=params)
+
+        with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'lastref' in Refs template$"):
+            writer.write_skool(1, 0)
+
     def test_custom_EntryPointRef(self):
         params = {'EntryPointRef': 'Used by the subroutine at {ref}.'}
         snapshot = [175, 201, 24, 253]
@@ -2523,6 +2567,19 @@ class SkoolWriterTest(SkoolKitTestCase):
             'c00002 JR 1          ;'
         ]
         self._test_write_skool(snapshot, ctl, exp_skool, params=params)
+
+    def test_invalid_custom_EntryPointRef(self):
+        params = {'EntryPointRef': 'Used by the subroutine at {ref:04x}.'}
+        snapshot = [175, 201, 24, 253]
+        ctl = '\n'.join((
+            'c 00000',
+            'c 00002',
+            'i 00004'
+        ))
+        writer = self._get_writer(snapshot, ctl, params=params)
+
+        with self.assertRaisesRegex(SkoolKitError, "^Failed to format EntryPointRef template: Unknown format code 'x' for object of type 'str'$"):
+            writer.write_skool(1, 0)
 
     def test_custom_EntryPointRefs_with_two_referrers(self):
         params = {'EntryPointRefs': 'Used by the subroutines at {refs} and {ref}.'}
@@ -2577,6 +2634,21 @@ class SkoolWriterTest(SkoolKitTestCase):
             'c00006 JR 1          ;'
         ]
         self._test_write_skool(snapshot, ctl, exp_skool, params=params)
+
+    def test_invalid_custom_EntryPointRefs(self):
+        params = {'EntryPointRefs': 'Used by the subroutines at {refs} and {finalref}.'}
+        snapshot = [175, 201, 24, 253, 24, 251, 24, 249]
+        ctl = '\n'.join((
+            'c 00000',
+            'c 00002',
+            'c 00004',
+            'c 00006',
+            'i 00008'
+        ))
+        writer = self._get_writer(snapshot, ctl, params=params)
+
+        with self.assertRaisesRegex(SkoolKitError, "^Unknown field 'finalref' in EntryPointRefs template$"):
+            writer.write_skool(1, 0)
 
     def test_custom_config_passed_to_disassembly(self):
         params = {
