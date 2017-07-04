@@ -1,6 +1,7 @@
 import sys
 import os
 import shutil
+from collections import namedtuple
 from lxml import etree
 from xml.dom.minidom import parse
 from xml.dom import Node
@@ -13,8 +14,7 @@ from skoolkit.skoolmacro import get_macros
 
 class MacroExpander(HtmlWriter):
     def __init__(self, base, case):
-        self.base = base
-        self.case = case
+        self.parser = namedtuple('SkoolParser', ('base', 'case'))(base, case)
         self.macros = get_macros(self)
 
 def _find_ids_and_hrefs(elements, doc_anchors, doc_hrefs):

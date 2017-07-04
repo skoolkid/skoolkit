@@ -4,7 +4,7 @@ BUILD = build
 HTML_OPTIONS = $(HTML_OPTS)
 HTML_OPTIONS += -d $(BUILD)/html -t
 HTML_OPTIONS += $(foreach theme,$(THEMES),-T $(theme))
-NOSETESTS34 ?= python3.4 /usr/bin/nosetests
+NOSETESTS34 ?= $(HOME)/Python/Python3.4/bin/nosetests
 NOSETESTS35 ?= $(HOME)/Python/Python3.5/bin/nosetests
 NOSETESTS36 ?= $(HOME)/Python/Python3.6/bin/nosetests
 
