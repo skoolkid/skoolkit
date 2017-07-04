@@ -101,7 +101,9 @@ def open_file(fname, mode='r'):
             return sys.stdout.buffer
         return sys.stdin
     try:
-        return open(fname, mode)
+        if 'b' in mode:
+            return open(fname, mode)
+        return open(fname, mode, encoding='utf-8')
     except IOError as e:
         if e.errno == 2:
             raise SkoolKitError('{0}: file not found'.format(fname))
