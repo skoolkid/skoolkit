@@ -293,7 +293,6 @@ class PngWriter:
         else:
             pixels = ('0' * scale, '1' * scale, '2' * scale, '3' * scale)
             digits = 8 // bit_depth
-            zero = '0' * digits
             padding = '0' * (-width & (digits - 1))
             base = 2 ** bit_depth
         trans = pixels[0]
