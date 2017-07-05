@@ -7,6 +7,7 @@ HTML_OPTIONS += $(foreach theme,$(THEMES),-T $(theme))
 NOSETESTS34 ?= $(HOME)/Python/Python3.4/bin/nosetests
 NOSETESTS35 ?= $(HOME)/Python/Python3.5/bin/nosetests
 NOSETESTS36 ?= $(HOME)/Python/Python3.6/bin/nosetests
+TESTS ?= asm ctl html sft
 
 .PHONY: usage
 usage:
@@ -40,7 +41,8 @@ asm:
 .PHONY: write-tests
 write-tests:
 	mkdir -p tests
-	for t in asm ctl html sft; do utils/write-tests.py $$t > tests/test_$$t.py; done
+	rm -f tests/test_*.py
+	for t in $(TESTS); do utils/write-tests.py $$t > tests/test_$$t.py; done
 
 .PHONY: test
 test: write-tests
