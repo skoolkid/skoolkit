@@ -2762,6 +2762,15 @@ class SkoolParserTest(SkoolKitTestCase):
         ]
         self.assertEqual(exp_details, entry.details)
 
+    def test_replace_directive_processed_before_html_escaped(self):
+        skool = '\n'.join((
+            r'@replace=/&([0-9A-F]{2})/+\1',
+            '; &0A == +0A, & that is true',
+            'c32768 RET'
+        ))
+        entry = self._get_parser(skool, html=True).get_entry(32768)
+        self.assertEqual(entry.description, '+0A == +0A, &amp; that is true')
+
     def test_replace_directive_with_no_pattern_or_replacement(self):
         skool = '\n'.join((
             '@replace=',

@@ -561,7 +561,6 @@ class Mode:
         self.include = True
         self.asm_directives = []
         self.entry_ignoreua = {}
-        self.html = False
         self.lower = False
         self.upper = False
 

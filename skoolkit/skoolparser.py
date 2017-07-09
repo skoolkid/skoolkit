@@ -107,7 +107,7 @@ def _html_escape(text):
     chunks.append(html.escape(text, False))
     return ''.join(chunks)
 
-def join_comments(comments, split=False, html=False):
+def join_comments(comments, split=False):
     sections = [[]]
     for line in comments:
         s_line = line.strip()
@@ -116,8 +116,6 @@ def join_comments(comments, split=False, html=False):
         elif s_line:
             sections[-1].append(s_line)
     paragraphs = [" ".join(section) for section in sections if section]
-    if html:
-        paragraphs = [_html_escape(p) for p in paragraphs]
     if split:
         return paragraphs
     if paragraphs:
@@ -161,8 +159,6 @@ def _parse_registers(lines, mode):
     if desc_lines:
         desc = ' '.join(desc_lines).lstrip()
         registers.append((prefix, reg, desc))
-    if mode.html:
-        return [(prefix, reg, _html_escape(desc)) for prefix, reg, desc in registers]
     return registers
 
 def parse_comment_block(comments, ignores, mode):
@@ -184,10 +180,10 @@ def parse_comment_block(comments, ignores, mode):
     mode.entry_ignoreua['d'] = section_ignores[1]
     mode.entry_ignoreua['r'] = section_ignores[2]
     mode.ignoremrcua = section_ignores[3]
-    title = join_comments(sections[0], html=mode.html)
-    description = join_comments(sections[1], split=True, html=mode.html)
+    title = join_comments(sections[0])
+    description = join_comments(sections[1], split=True)
     registers = _parse_registers(sections[2], mode)
-    start_comment = join_comments(sections[3], split=True, html=mode.html)
+    start_comment = join_comments(sections[3], split=True)
     return start_comment, title, description, registers
 
 def parse_instruction(line):
@@ -196,7 +192,7 @@ def parse_instruction(line):
     operation, sep, comment = partition_unquoted(line[6:], ';')
     return ctl, addr_str, operation.strip(), comment.strip()
 
-def parse_address_comments(comments, html=False):
+def parse_address_comments(comments):
     i = 0
     while i < len(comments):
         instruction, comment = comments[i]
@@ -216,7 +212,7 @@ def parse_address_comments(comments, html=False):
             else:
                 comment_lines.append(comment)
             rowspan = len(comment_lines)
-            address_comment = join_comments(comment_lines, html=html).strip()
+            address_comment = join_comments(comment_lines).strip()
             instruction.set_comment(rowspan, address_comment)
         i += 1
 
@@ -390,7 +386,7 @@ class SkoolParser:
                     self._instructions.setdefault(address, []).append(instruction)
                 map_entry.add_instruction(instruction)
                 if self.comments:
-                    instruction.mid_block_comment = join_comments(self.comments, split=True, html=self.mode.html)
+                    instruction.mid_block_comment = join_comments(self.comments, split=True)
                     self.comments[:] = []
                     self.mode.ignoremrcua = 0 in self.ignores
 
@@ -423,8 +419,11 @@ class SkoolParser:
             self.end_address = end_address + (get_size(last_instruction.operation, end_address) or 1)
 
         # Do some post-processing
-        parse_address_comments(address_comments, self.mode.html)
+        parse_address_comments(address_comments)
         self.make_replacements(self)
+        if self.mode.html:
+            for entry in self.memory_map:
+                entry.apply_replacements(_html_escape)
         self._calculate_references()
         if self.mode.asm_labels:
             self._generate_labels()
@@ -458,7 +457,7 @@ class SkoolParser:
         return text
 
     def _add_end_comment(self, map_entry):
-        map_entry.end_comment = join_comments(self.comments, split=True, html=self.mode.html)
+        map_entry.end_comment = join_comments(self.comments, split=True)
         map_entry.ignoreua['e'] = len(self.ignores) > 0
 
     def _parse_asm_directive(self, directive):
