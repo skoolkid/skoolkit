@@ -314,6 +314,10 @@ class SkoolParser:
             return instruction.get_addr_str()
         return self.mode.get_addr_str(address, default)
 
+    def convert_operand(self, operand):
+        operation = self.mode.apply_case('', 'DEFB ' + operand)[1]
+        return self.mode.apply_base('', operation)[1][5:]
+
     def convert_address_operand(self, operand):
         return self.mode.convert_address_operand(operand)
 

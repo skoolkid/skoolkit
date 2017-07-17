@@ -155,10 +155,7 @@ class AsmWriter:
             else:
                 equ_dir = 'EQU'
             for label, value in equs:
-                try:
-                    value = self.expand_n('{},,,1($)'.format(value), 0)[1]
-                except MacroParsingError:
-                    pass
+                value = self.parser.convert_operand(value)
                 self.write_line('{}{} {} {}'.format(self.indent, label, equ_dir, value))
             self.write_line('')
 

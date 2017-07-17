@@ -1087,6 +1087,27 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         asm = self._get_asm(skool)
         self.assertEqual(exp_asm, asm)
 
+    def test_equ_values_are_not_converted(self):
+        skool = '\n'.join((
+            '@start',
+            '@equ=DFILE=16384',
+            '@equ=ATTRS=$5800',
+            '@equ=Foo=$abCD',
+            'c32768 LD HL,16384',
+            ' 32771 LD DE,22528'
+        ))
+        exp_asm = [
+            '  DFILE EQU 16384',
+            '  ATTRS EQU $5800',
+            '  Foo EQU $abCD',
+            '',
+            '  LD HL,DFILE',
+            '  LD DE,ATTRS',
+            ''
+        ]
+        asm = self._get_asm(skool)
+        self.assertEqual(exp_asm, asm)
+
     def test_equ_value_converted_to_decimal(self):
         skool = '\n'.join((
             '@start',
@@ -1120,7 +1141,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def test_equ_value_converted_to_lower_case_hex(self):
         skool = '\n'.join((
             '@start',
-            '@equ=Foo=61613',
+            '@equ=Foo=$F0AD',
             'c32768 LD HL,61613'
         ))
         exp_asm = [
@@ -1135,7 +1156,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
     def test_equ_value_converted_to_upper_case_hex(self):
         skool = '\n'.join((
             '@start',
-            '@equ=Foo=61613',
+            '@equ=Foo=$f0ad',
             'c32768 LD HL,61613'
         ))
         exp_asm = [
