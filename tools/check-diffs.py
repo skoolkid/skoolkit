@@ -112,7 +112,7 @@ def run(diff_file, exp_diffs_file):
     options = {}
     exp_diffs = []
     if isfile(exp_diffs_file):
-        exp_diffs = get_diffs(exp_diffs_file, options)
+        orig_exp_diffs = get_diffs(exp_diffs_file, options)
     ignore_exp_case = options.get('ExpIgnoreCase', False)
     ignore_whitespace = options.get('IgnoreWhitespace', False)
     ignore_wrap = options.get('IgnoreWrap', False)
@@ -122,12 +122,15 @@ def run(diff_file, exp_diffs_file):
     ignore_regexes = options.get('IgnoreDiffsContainingRegex', ())
     ignore_address_indexes = options.get('IgnoreAddressIndex', ())
 
+    exp_diffs = [(fname, old[:], new[:]) for fname, old, new in orig_exp_diffs]
+    exp_diffs_map = {i: i for i in range(len(exp_diffs))}
     for i in ignore_address_indexes:
         index = int(i)
-        for _, old_lines, new_lines in exp_diffs[:]:
+        for i, (_, old_lines, new_lines) in enumerate(orig_exp_diffs):
             old_changed, hex_old_lines = convert_addresses(old_lines, index)
             new_changed, hex_new_lines = convert_addresses(new_lines, index)
             if old_changed or new_changed:
+                exp_diffs_map[len(exp_diffs)] = i
                 exp_diffs.append((None, hex_old_lines, hex_new_lines))
 
     if ignore_exp_case:
@@ -135,6 +138,7 @@ def run(diff_file, exp_diffs_file):
             entry[1][:] = [s.lower() for s in entry[1]]
             entry[2][:] = [s.lower() for s in entry[2]]
 
+    used_exp_diffs = set()
     unexp_diffs = set()
     lines = []
     last_fname = None
@@ -183,8 +187,9 @@ def run(diff_file, exp_diffs_file):
             new_lines = [s.lower() for s in new]
         else:
             old_lines, new_lines = old, new
-        for _, exp_old, exp_new in exp_diffs:
+        for i, (_, exp_old, exp_new) in enumerate(exp_diffs):
             if (old_lines, new_lines) == (exp_old, exp_new):
+                used_exp_diffs.add(i)
                 break
         else:
             unexp_diff = (tuple(old), tuple(new))
@@ -221,6 +226,11 @@ def run(diff_file, exp_diffs_file):
                 print('+ @{}={}'.format(directive, value))
         print('')
         print('\n'.join(lines))
+
+    for i in sorted(used_exp_diffs):
+        _, exp_old, exp_new = orig_exp_diffs[exp_diffs_map[i]]
+        for line in exp_old + exp_new + ['']:
+            sys.stderr.write(line + '\n')
 
 def main():
     run(*parse_args(sys.argv[1:]))

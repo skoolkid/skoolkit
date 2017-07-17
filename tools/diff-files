@@ -2,6 +2,7 @@
 RM_EMPTY_DIFFS=1
 DEF_PREFIX="X-"
 PREFIX=$DEF_PREFIX
+USED_EXP_DIFFS=used-exp-diffs
 
 UTILS=$(dirname $0)
 [ "${UTILS:0:1}" = "/" ] || UTILS=$(pwd)/$UTILS
@@ -22,8 +23,9 @@ do_diff() {
   fi
   if [ $CHECK_DIFFS -eq 1 ] && [ -f $ofile ]; then
     xdiff=$(dirname $ofile)/$PREFIX$(basename $ofile)
+    used_exp_diffs=$(dirname $ofile)/$USED_EXP_DIFFS-$(basename $ofile .diff).txt
     exp_diffs_file=$DIFFS_DIR/exp-diffs-${diff_type}.txt
-    $UTILS/check-diffs.py $exp_diffs_file $ofile > $xdiff
+    $UTILS/check-diffs.py $exp_diffs_file $ofile > $xdiff 2> $used_exp_diffs
     if [ $RM_EMPTY_DIFFS -eq 1 ] && [ ! -s $xdiff ]; then
       rm $xdiff
     fi
@@ -48,6 +50,7 @@ diff_files() {
     b=$(basename $a)
     do_diff $diff_type $a $new/$diff_type/$b $out/$b.diff
   done
+  $UTILS/unique-diffs.py $out/$USED_EXP_DIFFS-*.$file_type.txt > $out/$USED_EXP_DIFFS.txt
   echo "done"
 }
 
@@ -66,6 +69,7 @@ diff_html() {
       grep '^+++ ' $diff_file | grep -o "$d/.*.html" > $out/$d.files
     fi
   done
+  $UTILS/unique-diffs.py $out/$USED_EXP_DIFFS-*.html.txt > $out/$USED_EXP_DIFFS.txt
   echo "done"
 }
 
