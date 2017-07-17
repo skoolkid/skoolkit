@@ -47,6 +47,10 @@ def print_usage():
       differ from the new lines only in the amount of leading/trailing
       whitespace or blank lines.
 
+  ; @IgnoreWrap
+      Ignore line wrapping. This will discard a generated diff if the old lines
+      differ from the new lines only in where they are wrapped.
+
   ; @RegexReplace=/s/r
       Replace substrings that match the regular expression 's' with the regular
       expression 'r' in the old lines of generated diffs. This will discard a
@@ -111,6 +115,7 @@ def run(diff_file, exp_diffs_file):
         exp_diffs = get_diffs(exp_diffs_file, options)
     ignore_exp_case = options.get('ExpIgnoreCase', False)
     ignore_whitespace = options.get('IgnoreWhitespace', False)
+    ignore_wrap = options.get('IgnoreWrap', False)
     regex_new_subs = options.get('RegexReplaceNew', ())
     regex_subs = options.get('RegexReplace', ())
     ignore_files = options.get('IgnoreFile', ())
@@ -166,6 +171,10 @@ def run(diff_file, exp_diffs_file):
             old_lines = [line.strip() for line in old_lines if line.strip()]
             new_lines = [line.strip() for line in new_lines if line.strip()]
 
+        if ignore_wrap:
+            old_lines = [' '.join(old_lines)]
+            new_lines = [' '.join(new_lines)]
+
         if old_lines == new_lines:
             continue
 
@@ -201,6 +210,7 @@ def run(diff_file, exp_diffs_file):
             ('IgnoreDiffsContainingRegex', ignore_regexes),
             ('IgnoreFile', ignore_files),
             ('IgnoreWhitespace', ignore_whitespace),
+            ('IgnoreWrap', ignore_wrap),
             ('RegexReplace', regex_subs),
             ('RegexReplaceNew', regex_new_subs)
         ):
