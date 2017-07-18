@@ -24,6 +24,8 @@ Changelog
 * Improved how the :ref:`R` macro renders the address of an unavailable
   instruction (an instruction outside the range of the current disassembly, or
   in another disassembly) in ASM mode
+* Fixed the bug that prevents the expansion of a macro whose numeric parameters
+  contain the '<', '>' or '&' characters
 * Fixed :ref:`skool2asm.py` so that it processes ``@ssub`` directives when
   ``--fixes 3`` is specified
 * Fixed the styling of entry descriptions for 't' blocks on a memory map page

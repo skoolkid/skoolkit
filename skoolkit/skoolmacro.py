@@ -15,6 +15,7 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 from collections import defaultdict
+import html
 import inspect
 import re
 
@@ -319,6 +320,7 @@ def _parse_image_fname(text, index, fname=''):
     return end, fname, frame, alt
 
 def evaluate(param, safe=False):
+    param = html.unescape(param)
     if safe or set(param) <= AE_CHARS:
         try:
             return int(eval(param.replace('$', '0x').replace('/', '//').replace('&&', ' and ').replace('||', ' or ')))
