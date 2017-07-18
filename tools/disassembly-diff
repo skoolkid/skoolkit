@@ -253,7 +253,7 @@ for diff_type in $DIFF_TYPES; do
   echo
   diff_dir=diffs-$diff_type
   echo -en "\e[0;31m"
-  if [ $diff_type = "gif" ] || [ $diff_type = "png" ]; then
+  if [ $diff_type = "bin" ] || [ $diff_type = "gif" ] || [ $diff_type = "png" ]; then
     ls -l $diff_dir/*.txt 2> /dev/null
   else
     ls -l $diff_dir/X-*.diff 2> /dev/null

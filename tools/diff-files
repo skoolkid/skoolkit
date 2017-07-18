@@ -82,7 +82,9 @@ diff_bins() {
   mkdir -p $out
   for a in $old/*.bin; do
     b=$(basename $a)
-    cmp $a $new/$b > $out/$b.diff
+    diff_file=$out/$b.txt
+    cmp $a $new/$b > $diff_file
+    [ -s $diff_file ] || rm $diff_file
   done
   echo "done"
 }
