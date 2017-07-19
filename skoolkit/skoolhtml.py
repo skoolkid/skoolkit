@@ -18,6 +18,7 @@
 Defines the :class:`FileInfo` and :class:`HtmlWriter` classes.
 """
 
+import html
 import posixpath
 import os.path
 from os.path import isfile, isdir, basename
@@ -1121,7 +1122,7 @@ class HtmlWriter:
     def expand_font(self, text, index, cwd):
         end, crop_rect, fname, frame, alt, params = skoolmacro.parse_font(text, index)
         message, addr, chars, attr, scale = params
-        udgs = lambda: font_udgs(self.snapshot, addr, attr, message[:chars])
+        udgs = lambda: font_udgs(self.snapshot, addr, attr, html.unescape(message)[:chars])
         frames = [Frame(udgs, scale, 0, *crop_rect, name=frame)]
         return end, self.handle_image(frames, fname, cwd, alt, 'FontImagePath')
 
@@ -1132,7 +1133,8 @@ class HtmlWriter:
         return skoolmacro.parse_foreach(text, index, self)
 
     def expand_html(self, text, index, cwd):
-        return skoolmacro.parse_html(text, index)
+        end, content = skoolmacro.parse_html(text, index)
+        return end, html.unescape(content)
 
     def expand_if(self, text, index, cwd):
         return skoolmacro.parse_if(text, index, self.fields)

@@ -1280,66 +1280,6 @@ class SkoolParserTest(SkoolKitTestCase):
         inst = parser.get_instruction(49152)
         self.assertEqual(inst.comment.text, 'Return if X<=Y & Y>=Z')
 
-    def test_html_macro(self):
-        skool = '\n'.join((
-            'c24577 NOP ; #HTML(1. See <a href="url">this</a>)',
-            '           ; #HTML[2. See <a href="url">this</a>]',
-            '           ; #HTML{3. See <a href="url">this</a>}',
-            '           ; #HTML@4. See <a href="url">this</a>@',
-            '           ; #HTML!5. See <a href="url">this</a>!',
-            '           ; #HTML%6. See <a href="url">this</a>%',
-            '           ; #HTML*7. See <a href="url">this</a>*',
-            '           ; #HTML_8. See <a href="url">this</a>_',
-            '           ; #HTML-9. See <a href="url">this</a>-',
-            '           ; #HTML+10. See <a href="url">this</a>+',
-            '           ; #HTML??',
-            '           ; #HTML|#CHR169|',
-            '           ; #HTML:This macro is <em>unterminated</em>',
-            '; Test the HTML macro with an empty parameter string',
-            ' 24588 NOP ; #HTML'
-        ))
-        parser = self._get_parser(skool, html=True)
-
-        delimiters = {
-            '(': ')',
-            '[': ']',
-            '{': '}'
-        }
-        text = parser.get_instruction(24577).comment.text
-        lines = []
-        for i, delim1 in enumerate('([{@!%*_-+', 1):
-            delim2 = delimiters.get(delim1, delim1)
-            lines.append('#HTML{0}{1}. See <a href="url">this</a>{2}'.format(delim1, i, delim2))
-        lines.append('#HTML??')
-        lines.append('#HTML|#CHR169|')
-        lines.append('#HTML:This macro is <em>unterminated</em>')
-        self.assertEqual(text, ' '.join(lines))
-
-        self.assertEqual(parser.get_instruction(24588).comment.text, '#HTML')
-
-    def test_font_macro_text_parameter(self):
-        macros = (
-            '#FONT:(1. A < B)0',
-            '#FONT:[2. A & B]8',
-            '#FONT:{3. A > B}16',
-            '#FONT:@4. A <> B@24',
-            '#FONT:??',
-            '#FONT:*This macro is <unterminated>'
-        )
-        skool = '\n'.join((
-            ('; Test the FONT macro text parameter',
-             'c24577 NOP ; {}') +
-            ('           ; {}',) * (len(macros) - 1) +
-            ('; Test the FONT macro with an empty parameter string',
-             ' 24588 NOP ; #FONT:')
-        )).format(*macros)
-        parser = self._get_parser(skool, html=True)
-
-        text = parser.get_instruction(24577).comment.text
-        self.assertEqual(text, ' '.join(macros))
-
-        self.assertEqual(parser.get_instruction(24588).comment.text, '#FONT:')
-
     def test_entry_title(self):
         title = 'This is an entry title'
         skool = '\n'.join((

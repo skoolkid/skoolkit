@@ -90,22 +90,7 @@ def parse_asm_block_directive(directive, stack):
     return False
 
 def _html_escape(text):
-    chunks = []
-    while 1:
-        search = re.search('(#HTML[^A-Z]|#FONT:.)', text)
-        if not search:
-            break
-        start, index = search.span()
-        delim1 = search.group()[-1]
-        delim2 = DELIMITERS.get(delim1, delim1)
-        end = text.find(delim2, index) + 1
-        if end < index:
-            end = len(text)
-        chunks.append(html.escape(text[:start], False))
-        chunks.append(text[start:end])
-        text = text[end:]
-    chunks.append(html.escape(text, False))
-    return ''.join(chunks)
+    return html.escape(text, False)
 
 def join_comments(comments, split=False):
     sections = [[]]

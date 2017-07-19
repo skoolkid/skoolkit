@@ -1,3 +1,4 @@
+import html
 from os.path import basename, isfile
 from posixpath import join
 import unittest
@@ -233,6 +234,32 @@ class HtmlWriterTestCase(SkoolKitTestCase):
             writer.write_file = self._mock_write_file
         writer.skoolkit['page_id'] = 'None'
         return writer
+
+    def _check_image(self, writer, udg_array, scale=2, mask=0, x=0, y=0, width=None, height=None, path=None):
+        self.assertEqual(writer.file_info.fname, path)
+        if width is None:
+            width = 8 * len(udg_array[0]) * scale
+        if height is None:
+            height = 8 * len(udg_array) * scale
+        image_writer = writer.image_writer
+        self.assertEqual(image_writer.scale, scale)
+        self.assertEqual(image_writer.mask, mask)
+        self.assertEqual(image_writer.x, x)
+        self.assertEqual(image_writer.y, y)
+        self.assertEqual(image_writer.width, width)
+        self.assertEqual(image_writer.height, height)
+        self.assertEqual(len(image_writer.udg_array), len(udg_array))
+        self._compare_udgs(image_writer.udg_array, udg_array)
+
+    def _compare_udgs(self, udg_array, exp_udg_array):
+        for i, row in enumerate(udg_array):
+            exp_row = exp_udg_array[i]
+            self.assertEqual(len(row), len(exp_row))
+            for j, udg in enumerate(row):
+                exp_udg = exp_row[j]
+                self.assertEqual(udg.attr, exp_udg.attr)
+                self.assertEqual(udg.data, exp_udg.data)
+                self.assertEqual(udg.mask, exp_udg.mask)
 
 class HtmlWriterTest(HtmlWriterTestCase):
     def _test_unexpandable_macros_in_ref_file_section(self, section, *exceptions, params=None):
@@ -664,32 +691,6 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             exp_lines.append('')
         self.assertEqual(exp_lines, lines)
 
-    def _compare_udgs(self, udg_array, exp_udg_array):
-        for i, row in enumerate(udg_array):
-            exp_row = exp_udg_array[i]
-            self.assertEqual(len(row), len(exp_row))
-            for j, udg in enumerate(row):
-                exp_udg = exp_row[j]
-                self.assertEqual(udg.attr, exp_udg.attr)
-                self.assertEqual(udg.data, exp_udg.data)
-                self.assertEqual(udg.mask, exp_udg.mask)
-
-    def _check_image(self, writer, udg_array, scale=2, mask=0, x=0, y=0, width=None, height=None, path=None):
-        self.assertEqual(writer.file_info.fname, path)
-        if width is None:
-            width = 8 * len(udg_array[0]) * scale
-        if height is None:
-            height = 8 * len(udg_array) * scale
-        image_writer = writer.image_writer
-        self.assertEqual(image_writer.scale, scale)
-        self.assertEqual(image_writer.mask, mask)
-        self.assertEqual(image_writer.x, x)
-        self.assertEqual(image_writer.y, y)
-        self.assertEqual(image_writer.width, width)
-        self.assertEqual(image_writer.height, height)
-        self.assertEqual(len(image_writer.udg_array), len(udg_array))
-        self._compare_udgs(image_writer.udg_array, udg_array)
-
     def _check_animated_image(self, image_writer, frames):
         self.assertEqual(len(image_writer.frames), len(frames))
         for i, frame in enumerate(image_writer.frames):
@@ -965,11 +966,11 @@ class SkoolMacroTest(HtmlWriterTestCase, CommonSkoolMacroTest):
             '[': ']',
             '{': '}'
         }
-        for text in('', 'See <a href="url">this</a>', 'A &gt; B'):
+        for text in('', 'Hello', '&lt;&amp;&gt;'):
             for delim1 in '([{!@$%^*_-+|':
                 delim2 = delimiters.get(delim1, delim1)
                 output = writer.expand('#HTML{0}{1}{2}'.format(delim1, text, delim2))
-                self.assertEqual(output, text)
+                self.assertEqual(output, html.unescape(text))
 
         output = writer.expand('#HTML?#CHR169?')
         self.assertEqual(output, '&#169;')
@@ -2724,6 +2725,78 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         writer.write_page('Bugs')
         html = self._read_file(join(REFERENCE_DIR, 'bugs.html'))
         self.assertIn('<p>Hello</p>', html)
+
+    def test_macro_font_text_parameter_is_not_html_escaped(self):
+        font_addr = 30000
+        fname = 'message'
+        exp_image_path = '{}/{}.png'.format(FONTDIR, fname)
+        exp_src = '../{}'.format(exp_image_path)
+        message = '<&>'
+        skool = '\n'.join((
+            '; Font',
+            ';',
+            '; #FONT:({}){}({})'.format(message, font_addr, fname),
+            'b30048 DEFS 8,1 ; &',
+            ' 30224 DEFS 8,2 ; <',
+            ' 30240 DEFS 8,3 ; >'
+        ))
+        writer = self._get_writer(skool=skool, mock_file_info=True)
+        writer.write_asm_entries()
+        udg_array = [[]]
+        for c in message:
+            c_addr = font_addr + 8 * (ord(c) - 32)
+            udg_array[0].append(Udg(56, writer.snapshot[c_addr:c_addr + 8]))
+        self._check_image(writer, udg_array, path=exp_image_path)
+
+    def test_macro_html_parameter_is_not_html_escaped(self):
+        text = '<&>'
+        skool = '\n'.join((
+            '; Routine at 50000',
+            ';',
+            '; #HTML({})'.format(text),
+            'c50000 RET'
+        ))
+        writer = self._get_writer(skool=skool)
+        writer.write_asm_entries()
+
+        content = """
+            <div class="description">50000: Routine at 50000</div>
+            <table class="disassembly">
+            <tr>
+            <td class="routine-comment" colspan="4">
+            <div class="details">
+            <div class="paragraph">
+            {}
+            </div>
+            </div>
+            <table class="input-0">
+            <tr class="asm-input-header">
+            <th colspan="2">Input</th>
+            </tr>
+            </table>
+            <table class="output-0">
+            <tr class="asm-output-header">
+            <th colspan="2">Output</th>
+            </tr>
+            </table>
+            </td>
+            </tr>
+            <tr>
+            <td class="asm-label-0"></td>
+            <td class="address-2"><span id="50000"></span>50000</td>
+            <td class="instruction">RET</td>
+            <td class="comment-10" rowspan="1"></td>
+            </tr>
+            </table>
+        """.format(text)
+        subs = {
+            'header': 'Routines',
+            'title': 'Routine at 50000',
+            'body_class': 'Asm-c',
+            'up': '50000',
+            'content': content
+        }
+        self._assert_files_equal(join(ASMDIR, '50000.html'), subs)
 
     def _test_write_index(self, files, content, ref='', custom_subs=None):
         writer = self._get_writer(ref=ref, skool='')

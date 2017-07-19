@@ -99,7 +99,7 @@ it must be enclosed in parentheses, square brackets or braces::
   [text]
   {text}
 
-If ``text`` contains unbalanced brackets, any non-whitespace character that is
+If ``text`` contains unbalanced brackets, a non-whitespace character that is
 not present in ``text`` may be used as an alternative delimiter. For example::
 
   /text/
@@ -122,6 +122,9 @@ and close with ``sd``. For example::
   | different delimiter and separator |
 
 This form is required if any of the strings contain a comma.
+
+Note that if an alternative delimiter or separator is used, it must not be '&',
+'<' or '>'.
 
 SMPL macros
 ^^^^^^^^^^^
