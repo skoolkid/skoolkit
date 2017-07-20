@@ -73,22 +73,6 @@ diff_html() {
   echo "done"
 }
 
-diff_bins() {
-  old=$1/bin
-  new=$2/bin
-
-  out=diffs-bin
-  echo -n "Writing diffs to $out..."
-  mkdir -p $out
-  for a in $old/*.bin; do
-    b=$(basename $a)
-    diff_file=$out/$b.txt
-    cmp $a $new/$b > $diff_file
-    [ -s $diff_file ] || rm $diff_file
-  done
-  echo "done"
-}
-
 diff_images() {
   img_type=$1
   [ $img_type = png ] && diff_cmd=$ANALYSE_PNG || diff_cmd=$ANALYSE_GIF
@@ -174,7 +158,7 @@ shift 2
 while [ "$1" != "" ]; do
   case "$1" in
     asm) diff_files asm $OLD $NEW ;;
-    bin) diff_bins $OLD $NEW ;;
+    bin) diff_files bin $OLD $NEW dump ;;
     ctl) diff_files ctl $OLD $NEW ;;
     genctl) diff_files genctl $OLD $NEW ctl ;;
     gif) diff_images gif $OLD $NEW ;;

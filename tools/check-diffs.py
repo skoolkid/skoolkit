@@ -110,7 +110,7 @@ def convert_addresses(lines, index):
 def run(diff_file, exp_diffs_file):
     diffs = get_diffs(diff_file, fnames=True)
     options = {}
-    exp_diffs = []
+    orig_exp_diffs = []
     if isfile(exp_diffs_file):
         orig_exp_diffs = get_diffs(exp_diffs_file, options)
     ignore_exp_case = options.get('ExpIgnoreCase', False)

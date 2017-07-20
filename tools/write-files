@@ -57,10 +57,20 @@ write_asms() {
   done
 }
 
+dump_bin() {
+  bin=$1
+
+  [[ $GAME = rom ]] || offset=$(( 65536 - $(du -b $bin | cut -f1) ))
+  hexdump -v -e '/1 "%_ad "' -e '/1 "%u\n"' $bin | while read addr byte; do
+    [[ $GAME = rom ]] && printf "$%04X $%02X\n" $addr $byte || echo $(( addr + offset )) $byte
+  done
+}
+
 write_bins() {
   for m in '' '-i' '-s' '-o' '-b'; do
-    out=bin/$GAME$m.bin
-    run_cmd "./skool2bin.py $m src/$skoolfile $out" /dev/null 0 $out
+    bin=bin/$GAME$m.bin
+    run_cmd "./skool2bin.py $m src/$skoolfile $bin" /dev/null 0 $bin
+    run_cmd "dump_bin $bin" bin/$GAME$m.dump
   done
 }
 
