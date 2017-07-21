@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import sys
 import os
 import zlib
@@ -39,42 +40,6 @@ def _to_chars(data):
 
 def decompress(data):
     return list(zlib.decompress(bytes(data)))
-
-def parse_args(args):
-    p_args = []
-    show_diff = False
-    show_filters = False
-    i = 0
-    while i < len(args):
-        arg = args[i]
-        if arg == '-a':
-            pass
-        elif arg == '-d':
-            show_diff = True
-        elif arg == '-f':
-            show_filters = True
-        elif arg.startswith('-'):
-            show_usage()
-        else:
-            p_args.append(arg)
-        i += 1
-    if (show_diff and len(p_args) != 2) or (not show_diff and len(p_args) != 1):
-        show_usage()
-    return p_args, show_diff, show_filters
-
-def show_usage():
-    sys.stderr.write("""
-Usage: {0} [options] FILE
-       {0} -d FILE FILE
-
-  Analyse a PNG file, or compare two PNG files.
-
-Available options:
-  -a  Show a detailed analysis of the file (default)
-  -d  Show the differences in appearance between two images
-  -f  Show the filter types used in the image data
-""".lstrip().format(os.path.basename(sys.argv[0])))
-    sys.exit()
 
 def _paeth(a, b, c):
     p = a + b - c
@@ -375,22 +340,48 @@ def analyse_png(data):
             print('    {}'.format(_byte_str(blocklet)))
             j += len(blocklet)
 
+def dump_png(data):
+    width, height, pixels = _get_png_info(data)
+    print('Width: {}'.format(width))
+    print('Height: {}'.format(height))
+    for y, row in enumerate(pixels):
+        for x, pixel in enumerate(row):
+            colour = PALETTE.get(tuple(pixel), 'UNKNOWN')
+            print('({},{}): {} ({})'.format(x, y, ','.join([str(v) for v in pixel]), colour))
+
 ###############################################################################
 # Begin
 ###############################################################################
-files, show_diff, show_filters = parse_args(sys.argv[1:])
+parser = argparse.ArgumentParser(
+    usage='\n  analyse-png.py [options] FILE\n  analyse-png.py -d FILE FILE',
+    description="Analyse a PNG file, or compare two PNG files.",
+    add_help=False
+)
+parser.add_argument('args', help=argparse.SUPPRESS, nargs='*')
+group = parser.add_argument_group('Options')
+group.add_argument('-d', dest='show_diff', action='store_true',
+                   help="Show the differences in appearance between two images")
+group.add_argument('--dump', action='store_true',
+                   help="Dump image info and pixel values")
+group.add_argument('-f', dest='show_filters', action='store_true',
+                   help="Show the filter types used in the image data")
+namespace, unknown_args = parser.parse_known_args()
+if unknown_args or len(namespace.args) != (2 if namespace.show_diff else 1):
+    parser.exit(2, parser.format_help())
 
 file_data = []
-for infile in files:
+for infile in namespace.args:
     with open(infile, 'rb') as f:
-        file_data.append(list(bytearray(f.read()))) # PY: 'list(f.read())' in Python 3
+        file_data.append(list(f.read()))
 
-if show_filters:
-    analyse_filters(file_data[0])
-elif show_diff:
-    try:
-        show_diffs(files[0], file_data[0], files[1], file_data[1])
-    except PNGError as e:
-        sys.stderr.write('ERROR: {0}\n'.format(e.args[0]))
-else:
-    analyse_png(file_data[0])
+try:
+    if namespace.show_filters:
+        analyse_filters(file_data[0])
+    elif namespace.show_diff:
+        show_diffs(namespace.args[0], file_data[0], namespace.args[1], file_data[1])
+    elif namespace.dump:
+        dump_png(file_data[0])
+    else:
+        analyse_png(file_data[0])
+except PNGError as e:
+    sys.stderr.write('ERROR: {}\n'.format(e.args[0]))

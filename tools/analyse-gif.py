@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import sys
 import os
 from collections import deque
@@ -40,42 +41,6 @@ def _to_chars(data):
 
 def _bin_str(num, num_bits=8):
     return ''.join(['1' if num & (1 << (n - 1)) else '0' for n in range(num_bits, 0, -1)])
-
-def parse_args(args):
-    p_args = []
-    show_diff = False
-    debug = False
-    i = 0
-    while i < len(args):
-        arg = args[i]
-        if arg == '-a':
-            pass
-        elif arg == '-d':
-            show_diff = True
-        elif arg == '--debug':
-            debug = True
-        elif arg.startswith('-'):
-            show_usage()
-        else:
-            p_args.append(arg)
-        i += 1
-    if (show_diff and len(p_args) != 2) or (not show_diff and len(p_args) != 1):
-        show_usage()
-    return p_args, show_diff, debug
-
-def show_usage():
-    sys.stderr.write("""
-Usage: {0} [options] FILE
-       {0} -d FILE FILE
-
-  Analyse a GIF file, or compare two GIF files.
-
-Available options:
-  -a       Show a detailed analysis of the file (default)
-  -d       Show the differences in appearance between two images
-  --debug  Show LZW-decoding debug info
-""".lstrip().format(os.path.basename(sys.argv[0])))
-    sys.exit()
 
 class Frame:
     def __init__(self):
@@ -468,19 +433,52 @@ def analyse_gif(data):
         print('')
         _print_pixels(lzw_block, j + 1)
 
+def dump_gif(data):
+    info = _get_gif_info(data)
+    print('Width: {}'.format(info.width))
+    print('Height: {}'.format(info.height))
+    for i, frame in enumerate(info.frames, 1):
+        print('Frame {} width: {}'.format(i, frame.width))
+        print('Frame {} height: {}'.format(i, frame.height))
+        print('Frame {} x,y: {},{}'.format(i, frame.x, frame.y))
+        print('Frame {} delay: {}'.format(i, frame.delay))
+        for y, row in enumerate(frame.pixels):
+            for x, pixel in enumerate(row):
+                colour = PALETTE.get(tuple(pixel), 'UNKNOWN')
+                print('Frame {} ({},{}): {} ({})'.format(i, x, y, ','.join([str(v) for v in pixel]), colour))
+
 ###############################################################################
 # Begin
 ###############################################################################
-files, show_diff, debug = parse_args(sys.argv[1:])
+parser = argparse.ArgumentParser(
+    usage='\n  analyse-gif.py [options] FILE\n  analyse-gif.py -d FILE FILE',
+    description="Analyse a GIF file, or compare two GIF files.",
+    add_help=False
+)
+parser.add_argument('args', help=argparse.SUPPRESS, nargs='*')
+group = parser.add_argument_group('Options')
+group.add_argument('-d', dest='show_diff', action='store_true',
+                   help="Show the differences in appearance between two images")
+group.add_argument('--debug', action='store_true',
+                   help="Show LZW-decoding debug info")
+group.add_argument('--dump', action='store_true',
+                   help="Dump image info and pixel values")
+namespace, unknown_args = parser.parse_known_args()
+if unknown_args or len(namespace.args) != (2 if namespace.show_diff else 1):
+    parser.exit(2, parser.format_help())
+
+debug = namespace.debug
 
 file_data = []
-for infile in files:
+for infile in namespace.args:
     with open(infile, 'rb') as f:
-        file_data.append(list(bytearray(f.read()))) # PY: 'list(f.read())' in Python 3
+        file_data.append(list(f.read()))
 
 try:
-    if show_diff:
-        show_diffs(files[0], file_data[0], files[1], file_data[1])
+    if namespace.show_diff:
+        show_diffs(namespace.args[0], file_data[0], namespace.args[1], file_data[1])
+    elif namespace.dump:
+        dump_gif(file_data[0])
     else:
         analyse_gif(file_data[0])
 except GIFError as e:
