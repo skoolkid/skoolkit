@@ -2527,6 +2527,53 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(len(instruction.referrers), 0)
         self.assertEqual(instruction.operation, skool[5][7:])
 
+    def test_label_substitution_in_defb_statements(self):
+        skool = '\n'.join((
+            '@start',
+            '@label=START',
+            'b30000 DEFB "30000"             ; No label here',
+            '@label=HELLO',
+            ' 30005 DEFB "Hello 30000"       ; Or here',
+            ' 30016 DEFB 30000/256           ; But one here',
+            ' 30017 DEFB 30000/256,30005/256 ; And two here'
+        ))
+        parser = self._get_parser(skool, asm_mode=1, asm_labels=True)
+
+        self.assertEqual(parser.get_instruction(30000).operation, 'DEFB "30000"')
+        self.assertEqual(parser.get_instruction(30005).operation, 'DEFB "Hello 30000"')
+        self.assertEqual(parser.get_instruction(30016).operation, 'DEFB START/256')
+        self.assertEqual(parser.get_instruction(30017).operation, 'DEFB START/256,HELLO/256')
+
+    def test_label_substitution_in_defm_statements(self):
+        skool = '\n'.join((
+            '@start',
+            '@label=START',
+            'b40000 DEFM "40000"             ; No label here',
+            '@label=HELLO',
+            ' 40005 DEFM "Hello 40000"       ; Or here',
+            ' 40016 DEFM 40000/256           ; But one here',
+            ' 40017 DEFM 40000/256,40005/256 ; And two here'
+        ))
+        parser = self._get_parser(skool, asm_mode=1, asm_labels=True)
+
+        self.assertEqual(parser.get_instruction(40000).operation, 'DEFM "40000"')
+        self.assertEqual(parser.get_instruction(40005).operation, 'DEFM "Hello 40000"')
+        self.assertEqual(parser.get_instruction(40016).operation, 'DEFM START/256')
+        self.assertEqual(parser.get_instruction(40017).operation, 'DEFM START/256,HELLO/256')
+
+    def test_label_substitution_in_defw_statements(self):
+        skool = '\n'.join((
+            '@start',
+            '@label=START',
+            'b50000 DEFW 50000               ; One label here',
+            '@label=END',
+            ' 50002 DEFW 50000,50002         ; And two here'
+        ))
+        parser = self._get_parser(skool, asm_mode=1, asm_labels=True)
+
+        self.assertEqual(parser.get_instruction(50000).operation, 'DEFW START')
+        self.assertEqual(parser.get_instruction(50002).operation, 'DEFW START,END')
+
     def test_error_duplicate_label(self):
         skool = '\n'.join((
             '@start',

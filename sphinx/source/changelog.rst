@@ -26,6 +26,7 @@ Changelog
   in another disassembly) in ASM mode
 * Fixed the bug that prevents the expansion of a macro whose numeric parameters
   contain the '<', '>' or '&' characters
+* Fixed how labels are substituted for addresses in DEFB/DEFM/DEFW statements
 * Fixed :ref:`skool2asm.py` so that it processes ``@ssub`` directives when
   ``--fixes 3`` is specified
 * Fixed the styling of entry descriptions for 't' blocks on a memory map page

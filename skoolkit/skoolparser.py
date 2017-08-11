@@ -19,7 +19,7 @@ import re
 
 from skoolkit import SkoolParsingError, warn, wrap, get_int_param, parse_int, open_file
 from skoolkit.skoolmacro import DELIMITERS, INTEGER, ClosingBracketError, parse_brackets
-from skoolkit.textutils import partition_unquoted, split_quoted
+from skoolkit.textutils import partition_unquoted, split_quoted, split_unquoted
 from skoolkit.z80 import assemble, convert_case, get_size, split_operation
 
 DIRECTIVES = 'bcgistuw'
@@ -596,7 +596,12 @@ class SkoolParser:
         for entry in self.memory_map:
             for instruction in entry.instructions:
                 if instruction.sub or not instruction.keep:
-                    self._label_operand(instruction)
+                    operation = instruction.operation
+                    if operation.upper().startswith(('DEFB', 'DEFM', 'DEFW')):
+                        operands = [self._replace_addresses(instruction, op) for op in split_unquoted(operation[5:], ',')]
+                        instruction.operation = operation[:5] + ','.join(operands)
+                    elif not operation.upper().startswith(('RST', 'DEFS')):
+                        instruction.operation = self._replace_addresses(instruction, operation)
 
     def _generate_labels(self):
         """Generate labels for mid-routine entry points (based on the label of
@@ -614,43 +619,49 @@ class SkoolParser:
                             instruction.asm_label = '{0}_{1}'.format(main_label, index)
                             index += 1
 
-    def _label_operand(self, instruction):
+    def _replace_addresses(self, instruction, operand):
+        rep = ''
+        for p in split_quoted(operand):
+            if not p.startswith('"'):
+                addr_str = get_address(p)
+                if addr_str:
+                    label = self._get_label(instruction, addr_str)
+                    if label:
+                        p = p.replace(addr_str, label)
+            rep += p
+        return rep
+
+    def _get_label(self, instruction, addr_str):
+        operation_u = instruction.operation.upper()
+        address = get_int_param(addr_str)
+        if address < 256 and (not operation_u.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD '))
+                              or self._is_8_bit_ld_instruction(operation_u)):
+            return
         label_warn = instruction.sub is None and instruction.warn
-        operation = instruction.operation
-        operation_u = operation.upper()
-        if operation_u.startswith(('RST', 'DEFS')):
-            return
-        operand = get_address(operation)
-        if operand is None:
-            return
-        operand_int = get_int_param(operand)
-        if operand_int < 256 and (not operation_u.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD '))
-                                  or self._is_8_bit_ld_instruction(operation_u)):
-            return
-        reference = self.get_instruction(operand_int)
+        reference = self.get_instruction(address)
         if reference:
             if reference.asm_label:
-                rep = operation.replace(operand, reference.asm_label)
                 if reference.is_in_routine() and label_warn and operation_u.startswith('LD '):
                     # Warn if a LD operand is replaced with a routine label in
                     # an unsubbed operation (will need @keep to retain operand,
                     # or @nowarn if the replacement is OK)
-                    self.warn('LD operand replaced with routine label in unsubbed operation:\n  {} {} -> {}'.format(instruction.addr_str, operation, rep))
-                instruction.operation = rep
-            elif instruction.warn and instruction.is_in_routine():
+                    rep = instruction.operation.replace(addr_str, reference.asm_label)
+                    self.warn('LD operand replaced with routine label in unsubbed operation:\n  {} {} -> {}'.format(instruction.addr_str, instruction.operation, rep))
+                return reference.asm_label
+            if instruction.warn and instruction.is_in_routine():
                 # Warn if we cannot find a label to replace the operand of this
                 # routine instruction (will need @nowarn if this is OK)
-                self.warn('Found no label for operand: {} {}'.format(instruction.addr_str, operation))
-        elif operand_int in self._equ_values:
-            instruction.operation = operation.replace(operand, self._equ_values[operand_int])
+                self.warn('Found no label for operand: {} {}'.format(instruction.addr_str, instruction.operation))
+        elif address in self._equ_values:
+            return self._equ_values[address]
         else:
-            references = self._instructions.get(operand_int)
+            references = self._instructions.get(address)
             is_local = not (references and references[0].container.is_remote())
-            if is_local and label_warn and self.mode.do_ssubs and self.base_address <= operand_int < self.end_address:
+            if is_local and label_warn and self.mode.do_ssubs and self.base_address <= address < self.end_address:
                 # Warn if the operand is inside the address range of the
                 # disassembly (where code might be) but doesn't refer to the
                 # address of an instruction (will need @nowarn if this is OK)
-                self.warn('Unreplaced operand: {} {}'.format(instruction.addr_str, operation))
+                self.warn('Unreplaced operand: {} {}'.format(instruction.addr_str, instruction.operation))
 
 class Mode:
     def __init__(self, case, base, asm_mode, warnings, fix_mode, html, create_labels, asm_labels):
