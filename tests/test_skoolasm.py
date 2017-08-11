@@ -1077,8 +1077,8 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ' 32771 LD DE,22528'
         ))
         exp_asm = [
-            '  DFILE EQU 16384',
-            '  ATTRS EQU 22528',
+            'DFILE EQU 16384',
+            'ATTRS EQU 22528',
             '',
             '  LD HL,DFILE',
             '  LD DE,ATTRS',
@@ -1097,9 +1097,9 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             ' 32771 LD DE,22528'
         ))
         exp_asm = [
-            '  DFILE EQU 16384',
-            '  ATTRS EQU $5800',
-            '  Foo EQU $abCD',
+            'DFILE EQU 16384',
+            'ATTRS EQU $5800',
+            'Foo EQU $abCD',
             '',
             '  LD HL,DFILE',
             '  LD DE,ATTRS',
@@ -1115,7 +1115,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             'c$8000 LD HL,$4000'
         ))
         exp_asm = [
-            '  DFILE EQU 16384',
+            'DFILE EQU 16384',
             '',
             '  LD HL,DFILE',
             ''
@@ -1130,7 +1130,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             'c32778 LD HL,16384'
         ))
         exp_asm = [
-            '  DFILE EQU $4000',
+            'DFILE EQU $4000',
             '',
             '  LD HL,DFILE',
             ''
@@ -1145,7 +1145,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             'c32768 LD HL,61613'
         ))
         exp_asm = [
-            '  Foo equ $f0ad',
+            'Foo equ $f0ad',
             '',
             '  ld hl,Foo',
             ''
@@ -1160,7 +1160,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             'c32768 LD HL,61613'
         ))
         exp_asm = [
-            '  Foo EQU $F0AD',
+            'Foo EQU $F0AD',
             '',
             '  LD HL,Foo',
             ''
@@ -1175,7 +1175,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             'c32768 RET'
         ))
         exp_asm = [
-            '  FOO EQU BadValue',
+            'FOO EQU BadValue',
             '',
             '  RET',
             ''

@@ -156,7 +156,7 @@ class AsmWriter:
                 equ_dir = 'EQU'
             for label, value in equs:
                 value = self.parser.convert_operand(value)
-                self.write_line('{}{} {} {}'.format(self.indent, label, equ_dir, value))
+                self.write_line('{} {} {}'.format(label, equ_dir, value))
             self.write_line('')
 
     def print_entry(self):
