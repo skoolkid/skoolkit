@@ -18,7 +18,7 @@ import html
 import re
 
 from skoolkit import SkoolParsingError, warn, wrap, get_int_param, parse_int, open_file
-from skoolkit.skoolmacro import DELIMITERS, INTEGER, ClosingBracketError, parse_brackets
+from skoolkit.skoolmacro import INTEGER, ClosingBracketError, parse_brackets
 from skoolkit.textutils import partition_unquoted, split_quoted, split_unquoted
 from skoolkit.z80 import assemble, convert_case, get_size, split_operation
 
