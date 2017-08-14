@@ -24,8 +24,10 @@ Changelog
 * Improved how the :ref:`R` macro renders the address of an unavailable
   instruction (an instruction outside the range of the current disassembly, or
   in another disassembly) in ASM mode
+* Removed the indent from EQU directives in ASM output (for compatibility with
+  SjASMPlus)
 * Fixed the bug that prevents the expansion of a macro whose numeric parameters
-  contain the '<', '>' or '&' characters
+  contain a '<', '>' or '&' character
 * Fixed how labels are substituted for addresses in DEFB/DEFM/DEFW statements
 * Fixed :ref:`skool2asm.py` so that it processes ``@ssub`` directives when
   ``--fixes 3`` is specified
