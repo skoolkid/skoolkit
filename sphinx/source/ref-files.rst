@@ -973,7 +973,7 @@ example::
 If a non-comment line in a ref file section needs to start with a semicolon, it
 can be escaped by doubling it::
 
-  [PageContent:Custom]
+  [Glossary:term]
   <code>
   ;; This is not a ref file comment
   </code>
@@ -990,7 +990,7 @@ If a ref file section needs to contain a line that looks like a section header
 (i.e. like ``[SectionName]``), then to prevent that line from being parsed as a
 section header it can be escaped by doubling the opening square bracket::
 
-  [PageContent:Custom]
+  [Glossary:term]
   <code>
   [[This is not a section header]
   </code>
