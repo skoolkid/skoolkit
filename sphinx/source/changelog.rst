@@ -1,7 +1,7 @@
 Changelog
 =========
 
-6.1b1
+6.1rc
 -----
 * Added support for converting the base of every numerical term in an
   instruction operand or DEFB/DEFM/DEFS/DEFW statement that contains two or
