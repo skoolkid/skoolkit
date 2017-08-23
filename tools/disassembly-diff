@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -e # Abort on errors
 
-. $(dirname $0)/ddiffs-functions
+TOOLS=$(dirname $(realpath $0))
+. $TOOLS/ddiffs-functions
 
 usage() {
   cat <<EOU
@@ -103,8 +104,6 @@ if [ ! -d "$SKOOLKIT_HOME" ]; then
   exit 1
 fi
 
-TOOLS=$(dirname $0)
-[ "${TOOLS:0:1}" = "/" ] || TOOLS=$(pwd)/$TOOLS
 WRITE_OLD=0
 WRITE_NEW=1
 BUILD_SK_TARBALL=1
