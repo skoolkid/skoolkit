@@ -215,11 +215,13 @@ class BasicLister:
         return i + 1, line
 
     def _get_fp_num(self, i):
+        num = _get_number(self.snapshot, i + 1)
         num_str = self._get_num_str(i - 1)
         if num_str:
-            num = _get_number(self.snapshot, i + 1)
             if num and abs(1 - float(num_str) / num) > 1e-9:
                 return '{{{}}}'.format(num)
+        elif num:
+            return '{{{}}}'.format(num)
         return ''
 
     def _get_num_str(self, j):
