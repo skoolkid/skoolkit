@@ -1,8 +1,8 @@
 Changelog
 =========
 
-6.1rc
------
+6.1rc2
+------
 * Added support for converting the base of every numerical term in an
   instruction operand or DEFB/DEFM/DEFS/DEFW statement that contains two or
   more (e.g. ``LD A,32768/256`` to ``LD A,$8000/$100``)

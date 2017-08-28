@@ -218,11 +218,18 @@ class BasicLister:
         num_str = self._get_num_str(i - 1)
         if num_str:
             num = _get_number(self.snapshot, i + 1)
-            if num and abs(1 - float(num_str) / num) > 1e-9:
+            str_val = float(num_str)
+            if num:
+                delta = abs(1 - str_val / num)
+            else:
+                delta = abs(str_val)
+            if delta > 1e-9:
                 return '{{{}}}'.format(num)
         return ''
 
     def _get_num_str(self, j):
+        while self.snapshot[j] < 33:
+            j -=1
         num_str = chr(self.snapshot[j])
         while re.match('[0-9.]+([eE][-+]?[0-9]+)?', num_str):
             j -= 1

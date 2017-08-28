@@ -125,6 +125,31 @@ class BasicListerTest(SkoolKitTestCase):
         ]
         self._test_basic(basic, exp_output)
 
+    def test_floating_point_numbers_in_def_fn(self):
+        basic = [
+            0, 10, 24, 0,         # Line 10, length
+            206, 112, 40, 120,    # DEF FN p(x
+            14, 1, 41, 61, 12, 2, # floating point placeholder
+            44, 121,              # ,y
+            14, 0, 0, 2, 0, 0,    # floating point placeholder
+            41, 61, 120, 42, 121, # )=x*y
+            13,                   # ENTER
+            128                   # End of BASIC area
+        ]
+        exp_output = ['  10 DEF FN p(x,y)=x*y']
+        self._test_basic(basic, exp_output)
+
+    def test_floating_point_number_after_non_numeric_characters(self):
+        basic = [
+            0, 10, 13, 0,           # Line 10, length
+            245, 49, 46, 53, 32, 8, # PRINT 1.5 {0x08}
+            14, 129, 64, 0, 0, 0,   # 1.5 in floating point form
+            13,                     # ENTER
+            128                     # End of BASIC area
+        ]
+        exp_output = ['  10 PRINT 1.5 {0x08}']
+        self._test_basic(basic, exp_output)
+
     def test_fake_floating_point_number(self):
         basic = [
             0, 10, 11, 0,         # Line 10, length
@@ -134,6 +159,28 @@ class BasicListerTest(SkoolKitTestCase):
             128                   # End of BASIC area
         ]
         exp_output = ['  10 PRINT 123{1.5}']
+        self._test_basic(basic, exp_output)
+
+    def test_fake_floating_point_number_is_zero(self):
+        basic = [
+            0, 10, 9, 0,       # Line 10, length
+            245, 49,           # PRINT 1
+            14, 0, 0, 0, 0, 0, # 0 in floating point form
+            13,                # ENTER
+            128                # End of BASIC area
+        ]
+        exp_output = ['  10 PRINT 1{0}']
+        self._test_basic(basic, exp_output)
+
+    def test_fake_floating_point_number_after_non_numeric_characters(self):
+        basic = [
+            0, 10, 11, 0,         # Line 10, length
+            245, 49, 32, 8,       # PRINT 1 {0x08}
+            14, 129, 64, 0, 0, 0, # 1.5 in floating point form
+            13,                   # ENTER
+            128                   # End of BASIC area
+        ]
+        exp_output = ['  10 PRINT 1 {0x08}{1.5}']
         self._test_basic(basic, exp_output)
 
     def test_non_ascii_characters(self):
