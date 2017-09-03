@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installing and using SkoolKit &mdash; SkoolKit 6.0 documentation</title>
+    <title>Installing and using SkoolKit &#8212; SkoolKit 6.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.0',
+        VERSION:     '6.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,12 +23,14 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 6.0 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="SkoolKit 6.1 documentation" href="index.html" />
     <link rel="next" title="Disassembly DIY" href="diy.html" />
     <link rel="prev" title="What is SkoolKit?" href="whatis.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -40,10 +42,10 @@
         <li class="right" >
           <a href="whatis.html" title="What is SkoolKit?"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 6.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.1 documentation</a> &#187;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
@@ -65,22 +67,21 @@
   <h4>Next topic</h4>
   <p class="topless"><a href="diy.html"
                         title="next chapter">Disassembly DIY</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/usage.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/usage.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -89,7 +90,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="installing-and-using-skoolkit">
 <h1>Installing and using SkoolKit<a class="headerlink" href="#installing-and-using-skoolkit" title="Permalink to this headline">¶</a></h1>
@@ -111,30 +112,30 @@ running Windows, you can get Python <a class="reference external" href="http://w
 <p>If you choose the zip archive or tarball, note that SkoolKit can be used
 wherever it is unpacked: it does not need to be installed in any particular
 location. However, if you would like to install SkoolKit as a Python package,
-you can do so by using the supplied <tt class="docutils literal"><span class="pre">setup.py</span></tt> script.</p>
+you can do so by using the supplied <code class="docutils literal"><span class="pre">setup.py</span></code> script.</p>
 <div class="section" id="windows">
 <h3>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h3>
 <p>To install SkoolKit as a Python package on Windows, open a command prompt,
 change to the directory where SkoolKit was unpacked, and run the following
 command:</p>
-<div class="highlight-none"><div class="highlight"><pre>&gt; setup.py install
+<div class="highlight-none"><div class="highlight"><pre><span></span>&gt; setup.py install
 </pre></div>
 </div>
 <p>This will install the SkoolKit command scripts in <cite>C:\Python36\Scripts</cite>
 (assuming you have installed Python in <cite>C:\Python36</cite>), which means you can
 run them from anywhere (assuming you have added <cite>C:\Python36\Scripts</cite> to the
-<tt class="docutils literal"><span class="pre">Path</span></tt> environment variable).</p>
+<code class="docutils literal"><span class="pre">Path</span></code> environment variable).</p>
 </div>
 <div class="section" id="linux-bsd">
 <h3>Linux/*BSD<a class="headerlink" href="#linux-bsd" title="Permalink to this headline">¶</a></h3>
 <p>To install SkoolKit as a Python package on Linux/*BSD, open a terminal window,
 change to the directory where SkoolKit was unpacked, and run the following
 command as root:</p>
-<div class="highlight-none"><div class="highlight"><pre># ./setup.py install
+<div class="highlight-none"><div class="highlight"><pre><span></span># ./setup.py install
 </pre></div>
 </div>
 <p>This will install the SkoolKit command scripts in <cite>/usr/local/bin</cite> (or some
-other suitable location in your <tt class="docutils literal"><span class="pre">PATH</span></tt>), which means you can run them from
+other suitable location in your <code class="docutils literal"><span class="pre">PATH</span></code>), which means you can run them from
 anywhere.</p>
 </div>
 </div>
@@ -142,13 +143,13 @@ anywhere.</p>
 <h2>Linux/*BSD v. Windows command line<a class="headerlink" href="#linux-bsd-v-windows-command-line" title="Permalink to this headline">¶</a></h2>
 <p>Throughout this documentation, commands that must be entered in a terminal
 window (&#8216;Command Prompt&#8217; in Windows) are shown on a line beginning with a
-dollar sign (<tt class="docutils literal"><span class="pre">$</span></tt>), like this:</p>
-<div class="highlight-none"><div class="highlight"><pre>$ some-script.py some arguments
+dollar sign (<code class="docutils literal"><span class="pre">$</span></code>), like this:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ some-script.py some arguments
 </pre></div>
 </div>
 <p>On Windows, and on Linux/*BSD if SkoolKit has been installed as a Python
 package (see above), the commands may be entered exactly as they are shown. On
-Linux/*BSD, use a dot-slash prefix (e.g. <tt class="docutils literal"><span class="pre">./some-script.py</span></tt>) if the script
+Linux/*BSD, use a dot-slash prefix (e.g. <code class="docutils literal"><span class="pre">./some-script.py</span></code>) if the script
 is being run from the current working directory.</p>
 </div>
 </div>
@@ -159,7 +160,7 @@ is being run from the current working directory.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -171,12 +172,12 @@ is being run from the current working directory.</p>
         <li class="right" >
           <a href="whatis.html" title="What is SkoolKit?"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 6.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.1 documentation</a> &#187;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2017, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Richard Dymond.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
     </div>
   </body>
 </html>

@@ -1,6 +1,38 @@
 Changelog
 =========
 
+6.1 (2017-09-03)
+----------------
+* Added support for converting the base of every numerical term in an
+  instruction operand or DEFB/DEFM/DEFS/DEFW statement that contains two or
+  more (e.g. ``LD A,32768/256`` to ``LD A,$8000/$100``)
+* Added support for assembling instructions and DEFB/DEFM/DEFS/DEFW statements
+  whose operands contain arithmetic expressions (e.g. ``DEFM "H","i"+$80``)
+* Added support to :ref:`skool2asm.py <skool2asm-conf>`,
+  :ref:`skool2html.py <skool2html-conf>` and
+  :ref:`sna2skool.py <sna2skool-conf>` for reading configuration from a file
+  named `skoolkit.ini`, if present
+* Added the ``--ini`` option to :ref:`skool2asm.py`, :ref:`skool2html.py` and
+  :ref:`sna2skool.py` (for setting the value of a configuration parameter)
+* :ref:`sna2img.py` can now read skool files, in either the default mode, or
+  ``@bfix`` mode by using the ``--bfix`` option
+* Added the ``--move`` option to :ref:`sna2img.py` (for copying the contents of
+  a block of RAM to another location)
+* Improved how :ref:`skool2asm.py` formats a comment that covers two or more
+  instructions: now the comment is aligned to the widest instruction, and even
+  blank lines are prefixed by a semicolon
+* Improved how the :ref:`R` macro renders the address of an unavailable
+  instruction (an instruction outside the range of the current disassembly, or
+  in another disassembly) in ASM mode
+* Removed the indent from EQU directives in ASM output (for compatibility with
+  SjASMPlus)
+* Fixed the bug that prevents the expansion of a macro whose numeric parameters
+  contain a '<', '>' or '&' character
+* Fixed how labels are substituted for addresses in DEFB/DEFM/DEFW statements
+* Fixed :ref:`skool2asm.py` so that it processes ``@ssub`` directives when
+  ``--fixes 3`` is specified
+* Fixed the styling of entry descriptions for 't' blocks on a memory map page
+
 6.0 (2017-05-06)
 ----------------
 * Dropped support for Python 2.7 and 3.3

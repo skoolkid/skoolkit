@@ -197,11 +197,14 @@ Note that ``DEFB``, ``DEFM``, ``DEFS`` and ``DEFW`` statements are always
 converted into byte values and inserted into the memory snapshot; the
 ``@assemble`` directive is only required for assembly language instructions.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.0     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.1     | Added the ability to assemble instructions whose operands contain |
+|         | arithmetic expressions                                            |
++---------+-------------------------------------------------------------------+
+| 5.0     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _bfix:
 
@@ -216,8 +219,8 @@ The ``@bfix`` directive makes an instruction substitution in :ref:`bfixMode`.
 
 For example::
 
-  @bfix=DEFM "Phosphorus"
-  t57532 DEFM "Phosphorous"
+  @bfix=XOR B
+   29713 XOR C
 
 .. _bfixBlockDirectives:
 
@@ -632,8 +635,15 @@ skool file annotations and ref file section names and contents. ::
 
   @replace=/pattern/repl
 
+or::
+
+  @replace=/pattern/repl/
+
 * ``pattern`` is the regular expression
 * ``repl`` is the replacement string
+
+(If the second form is used, any text appearing after the terminating ``/`` is
+ignored.)
 
 For example::
 
@@ -782,17 +792,18 @@ For example::
 
 This ``@set`` directive sets the bullet character to '+'.
 
-+---------+---------------------------------------------------------------+
-| Version | Changes                                                       |
-+=========+===============================================================+
-| 3.4     | Added the `handle-unsupported-macros` and                     |
-|         | `wrap-column-width-min` properties                            |
-+---------+---------------------------------------------------------------+
-| 3.3.1   | Added the `comment-width-min`, `indent`, `instruction-width`, |
-|         | `label-colons`, `line-width` and `warnings` properties        |
-+---------+---------------------------------------------------------------+
-| 3.2     | New                                                           |
-+---------+---------------------------------------------------------------+
++---------+-------------------------------------------------------------+
+| Version | Changes                                                     |
++=========+=============================================================+
+| 3.4     | Added the ``handle-unsupported-macros`` and                 |
+|         | ``wrap-column-width-min`` properties                        |
++---------+-------------------------------------------------------------+
+| 3.3.1   | Added the ``comment-width-min``, ``indent``,                |
+|         | ``instruction-width``, ``label-colons``, ``line-width`` and |
+|         | ``warnings`` properties                                     |
++---------+-------------------------------------------------------------+
+| 3.2     | New                                                         |
++---------+-------------------------------------------------------------+
 
 .. _ssub:
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Parsing, rendering, and modes &mdash; SkoolKit 6.0 documentation</title>
+    <title>Parsing, rendering, and modes &#8212; SkoolKit 6.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.0',
+        VERSION:     '6.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,12 +23,14 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 6.0 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="SkoolKit 6.1 documentation" href="index.html" />
     <link rel="next" title="Control files" href="control-files.html" />
     <link rel="prev" title="SkoolKit 1.x changelog" href="changelog1.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -40,10 +42,10 @@
         <li class="right" >
           <a href="changelog1.html" title="SkoolKit 1.x changelog"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 6.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.1 documentation</a> &#187;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
@@ -68,22 +70,21 @@
   <h4>Next topic</h4>
   <p class="topless"><a href="control-files.html"
                         title="next chapter">Control files</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/parsing.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/parsing.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -92,19 +93,19 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="parsing-rendering-and-modes">
 <h1>Parsing, rendering, and modes<a class="headerlink" href="#parsing-rendering-and-modes" title="Permalink to this headline">¶</a></h1>
 <p>The following subsections explain at a high level the two phases involved in
 transforming a skool file (and its related ref files, if any exist) into HTML
-or ASM format by using <a class="reference internal" href="commands.html#skool2html-py"><em>skool2html.py</em></a> or <a class="reference internal" href="commands.html#skool2asm-py"><em>skool2asm.py</em></a>: parsing and
+or ASM format by using <a class="reference internal" href="commands.html#skool2html-py"><span class="std std-ref">skool2html.py</span></a> or <a class="reference internal" href="commands.html#skool2asm-py"><span class="std std-ref">skool2asm.py</span></a>: parsing and
 rendering.</p>
 <div class="section" id="parsing">
 <h2>Parsing<a class="headerlink" href="#parsing" title="Permalink to this headline">¶</a></h2>
 <p>In the first phase, the skool file is parsed. Parsing a skool file entails
 reading each line of the file, and processing any relevant
-<a class="reference internal" href="asm.html#asmdirectives"><em>ASM directives</em></a> that are found along the way.</p>
+<a class="reference internal" href="asm.html#asmdirectives"><span class="std std-ref">ASM directives</span></a> that are found along the way.</p>
 <p>After an ASM directive has been processed, it is discarded, so that it cannot
 be &#8216;seen&#8217; during the rendering phase. The purpose of the ASM directives is to
 transform the skool file into something suitable for rendering (in either HTML
@@ -119,36 +120,36 @@ they are irrelevant to the purpose of creating the HTML version of the
 disassembly. The only ASM directives that are processed in HTML mode are the
 following:</p>
 <ul class="simple">
-<li><a class="reference internal" href="asm.html#assemble"><em>&#64;assemble</em></a></li>
-<li><a class="reference internal" href="asm.html#keep"><em>&#64;keep</em></a></li>
-<li><a class="reference internal" href="asm.html#label"><em>&#64;label</em></a></li>
-<li><a class="reference internal" href="asm.html#replace"><em>&#64;replace</em></a></li>
-<li><a class="reference internal" href="asm.html#bfixblockdirectives"><em>&#64;bfix block directives</em></a></li>
-<li><a class="reference internal" href="asm.html#isubblockdirectives"><em>&#64;isub block directives</em></a></li>
-<li><a class="reference internal" href="asm.html#ofixblockdirectives"><em>&#64;ofix block directives</em></a></li>
-<li><a class="reference internal" href="asm.html#rfixblockdirectives"><em>&#64;rfix block directives</em></a></li>
-<li><a class="reference internal" href="asm.html#rsubblockdirectives"><em>&#64;rsub block directives</em></a></li>
-<li><a class="reference internal" href="asm.html#ssubblockdirectives"><em>&#64;ssub block directives</em></a></li>
+<li><a class="reference internal" href="asm.html#assemble"><span class="std std-ref">&#64;assemble</span></a></li>
+<li><a class="reference internal" href="asm.html#keep"><span class="std std-ref">&#64;keep</span></a></li>
+<li><a class="reference internal" href="asm.html#label"><span class="std std-ref">&#64;label</span></a></li>
+<li><a class="reference internal" href="asm.html#replace"><span class="std std-ref">&#64;replace</span></a></li>
+<li><a class="reference internal" href="asm.html#bfixblockdirectives"><span class="std std-ref">&#64;bfix block directives</span></a></li>
+<li><a class="reference internal" href="asm.html#isubblockdirectives"><span class="std std-ref">&#64;isub block directives</span></a></li>
+<li><a class="reference internal" href="asm.html#ofixblockdirectives"><span class="std std-ref">&#64;ofix block directives</span></a></li>
+<li><a class="reference internal" href="asm.html#rfixblockdirectives"><span class="std std-ref">&#64;rfix block directives</span></a></li>
+<li><a class="reference internal" href="asm.html#rsubblockdirectives"><span class="std std-ref">&#64;rsub block directives</span></a></li>
+<li><a class="reference internal" href="asm.html#ssubblockdirectives"><span class="std std-ref">&#64;ssub block directives</span></a></li>
 </ul>
 <p>The reason that the block directives are processed is that they may define two
 different versions of a section of code or data: first, a version to include in
-the output if the corresponding ASM mode (<a class="reference internal" href="asm.html#bfixmode"><em>&#64;bfix</em></a>,
-<a class="reference internal" href="asm.html#isubmode"><em>&#64;isub</em></a>, <a class="reference internal" href="asm.html#ofixmode"><em>&#64;ofix</em></a>, <a class="reference internal" href="asm.html#rfixmode"><em>&#64;rfix</em></a>,
-<a class="reference internal" href="asm.html#rsubmode"><em>&#64;rsub</em></a>, <a class="reference internal" href="asm.html#ssubmode"><em>&#64;ssub</em></a>) is in effect; and second, a
+the output if the corresponding ASM mode (<a class="reference internal" href="asm.html#bfixmode"><span class="std std-ref">&#64;bfix</span></a>,
+<a class="reference internal" href="asm.html#isubmode"><span class="std std-ref">&#64;isub</span></a>, <a class="reference internal" href="asm.html#ofixmode"><span class="std std-ref">&#64;ofix</span></a>, <a class="reference internal" href="asm.html#rfixmode"><span class="std std-ref">&#64;rfix</span></a>,
+<a class="reference internal" href="asm.html#rsubmode"><span class="std std-ref">&#64;rsub</span></a>, <a class="reference internal" href="asm.html#ssubmode"><span class="std std-ref">&#64;ssub</span></a>) is in effect; and second, a
 version to include in the output if the corresponding ASM mode is not in
 effect - which will always be the case when parsing in HTML mode.</p>
 <p>For example:</p>
-<div class="highlight-none"><div class="highlight"><pre>@bfix-begin
+<div class="highlight-none"><div class="highlight"><pre><span></span>@bfix-begin
  32459 CP 26  ; This is a bug; it should be &#39;CP 27&#39;
 @bfix+else
        CP 27  ;
 @bfix+end
 </pre></div>
 </div>
-<p>This instance of a <tt class="docutils literal"><span class="pre">&#64;bfix</span></tt> block directive defines two versions of a section
-of code. The first version (between <tt class="docutils literal"><span class="pre">&#64;bfix-begin</span></tt> and <tt class="docutils literal"><span class="pre">&#64;bfix+else</span></tt>) will be
-included in the HTML output, and the second version (between <tt class="docutils literal"><span class="pre">&#64;bfix+else</span></tt> and
-<tt class="docutils literal"><span class="pre">&#64;bfix+end</span></tt>) will be omitted.</p>
+<p>This instance of a <code class="docutils literal"><span class="pre">&#64;bfix</span></code> block directive defines two versions of a section
+of code. The first version (between <code class="docutils literal"><span class="pre">&#64;bfix-begin</span></code> and <code class="docutils literal"><span class="pre">&#64;bfix+else</span></code>) will be
+included in the HTML output, and the second version (between <code class="docutils literal"><span class="pre">&#64;bfix+else</span></code> and
+<code class="docutils literal"><span class="pre">&#64;bfix+end</span></code>) will be omitted.</p>
 </div>
 <div class="section" id="asm-mode">
 <h3>ASM mode<a class="headerlink" href="#asm-mode" title="Permalink to this headline">¶</a></h3>
@@ -165,13 +166,13 @@ mode.</p>
 <h3>HTML mode<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <p>HTML mode is used to render the skool file (and its related ref file, if one
 exists) as a bunch of HTML files. During rendering, any
-<a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a> found along the way are expanded to the
+<a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a> found along the way are expanded to the
 required HTML markup.</p>
 </div>
 <div class="section" id="id2">
 <h3>ASM mode<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <p>ASM mode is used to render the skool file as a single, assembler-ready ASM
-file. During rendering, any <a class="reference internal" href="skool-macros.html#skoolmacros"><em>skool macros</em></a> found along the
+file. During rendering, any <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a> found along the
 way are expanded to some appropriate plain text.</p>
 </div>
 </div>
@@ -183,7 +184,7 @@ way are expanded to some appropriate plain text.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -195,12 +196,12 @@ way are expanded to some appropriate plain text.</p>
         <li class="right" >
           <a href="changelog1.html" title="SkoolKit 1.x changelog"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 6.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.1 documentation</a> &#187;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2017, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Richard Dymond.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
     </div>
   </body>
 </html>

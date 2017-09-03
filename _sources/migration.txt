@@ -4,9 +4,9 @@ Migrating from SkoolKit 5
 =========================
 SkoolKit 6 includes some changes that make it incompatible with SkoolKit 5. If
 you have developed a disassembly using SkoolKit 5 and find that the SkoolKit
-commands no longer work with your control files or skool files, or produce
-broken output, look through the following sections for tips on how to migrate
-your disassembly to SkoolKit 6.
+commands no longer work with your skool files or ref files, or produce broken
+output, look through the following sections for tips on how to migrate your
+disassembly to SkoolKit 6.
 
 #BUG, #FACT, #POKE
 ------------------

@@ -140,6 +140,8 @@ assembler (see :ref:`supportedAssemblers`). For example::
                             N=2: @ofix and @bfix
                             N=3: @ofix, @bfix and @rfix (implies -r)
     -H, --hex             Write the disassembly in hexadecimal
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'; this option may be used multiple times
     -l, --lower           Write the disassembly in lower case
     -p, --package-dir     Show path to skoolkit package directory and exit
     -P p=v, --set p=v     Set the value of ASM writer property 'p' to 'v'; this
@@ -163,23 +165,58 @@ modes.
 See the :ref:`set` directive for information on the ASM writer properties that
 can be set by the ``--set`` option.
 
-+---------+--------------------------------------------------------------+
-| Version | Changes                                                      |
-+=========+==============================================================+
-| 5.0     | Added the ``--set`` option                                   |
-+---------+--------------------------------------------------------------+
-| 4.5     | Added the ``--start`` and ``--end`` options                  |
-+---------+--------------------------------------------------------------+
-| 4.1     | Added the ``--writer`` option                                |
-+---------+--------------------------------------------------------------+
-| 3.4     | Added the ``-V`` and ``-p`` options and the long options     |
-+---------+--------------------------------------------------------------+
-| 2.2.2   | Added the ability to read a skool file from standard input   |
-+---------+--------------------------------------------------------------+
-| 2.1.1   | Added the ``-u``, ``-D`` and ``-H`` options                  |
-+---------+--------------------------------------------------------------+
-| 1.1     | Added the ``-c`` option                                      |
-+---------+--------------------------------------------------------------+
+.. _skool2asm-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`skool2asm.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``Base`` - convert addresses and instruction operands to hexadecimal (``16``)
+  or decimal (``10``), or leave them as they are (``0``, the default)
+* ``Case`` - write the disassembly in lower case (``1``) or upper case (``2``),
+  or leave it as it is (``0``, the default)
+* ``CreateLabels`` - create default labels for unlabelled instructions (``1``),
+  or don't (``0``, the default)
+* ``Quiet`` - be quiet (``1``) or verbose (``0``, the default)
+* ``Set-property`` - set an ASM writer property value, e.g. ``Set-bullet=+``
+  (see the :ref:`set` directive for a list of available properties)
+* ``Warnings`` - show warnings (``1``, the default), or suppress them (``0``)
+
+Configuration parameters must appear in a ``[skool2asm]`` section. For example,
+to make `skool2asm.py` write the disassembly in hexadecimal with a line width
+of 120 characters by default (without having to use the ``-H`` and ``-P``
+options on the command line), add the following section to `skoolkit.ini`::
+
+  [skool2asm]
+  Base=16
+  Set-line-width=120
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 6.1     | Configuration is read from `skoolkit.ini` if present; added the |
+|         | ``--ini`` option                                                |
++---------+-----------------------------------------------------------------+
+| 5.0     | Added the ``--set`` option                                      |
++---------+-----------------------------------------------------------------+
+| 4.5     | Added the ``--start`` and ``--end`` options                     |
++---------+-----------------------------------------------------------------+
+| 4.1     | Added the ``--writer`` option                                   |
++---------+-----------------------------------------------------------------+
+| 3.4     | Added the ``-V`` and ``-p`` options and the long options        |
++---------+-----------------------------------------------------------------+
+| 2.2.2   | Added the ability to read a skool file from standard input      |
++---------+-----------------------------------------------------------------+
+| 2.1.1   | Added the ``-u``, ``-D`` and ``-H`` options                     |
++---------+-----------------------------------------------------------------+
+| 1.1     | Added the ``-c`` option                                         |
++---------+-----------------------------------------------------------------+
 
 .. _skool2bin.py:
 
@@ -209,15 +246,18 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
                           Start converting at this address
     -V, --version         Show SkoolKit version number and exit
 
-+---------+---------------------------------------------------------------+
-| Version | Changes                                                       |
-+=========+===============================================================+
-| 5.2     | Added the ability to write the binary file to standard output |
-+---------+---------------------------------------------------------------+
-| 5.1     | Added the ``--bfix``, ``--ofix`` and ``--ssub`` options       |
-+---------+---------------------------------------------------------------+
-| 5.0     | New                                                           |
-+---------+---------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.1     | Added the ability to assemble instructions whose operands contain |
+|         | arithmetic expressions                                            |
++---------+-------------------------------------------------------------------+
+| 5.2     | Added the ability to write the binary file to standard output     |
++---------+-------------------------------------------------------------------+
+| 5.1     | Added the ``--bfix``, ``--ofix`` and ``--ssub`` options           |
++---------+-------------------------------------------------------------------+
+| 5.0     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _skool2ctl.py:
 
@@ -336,6 +376,8 @@ list::
                           Write files in this directory (default is '.')
     -D, --decimal         Write the disassembly in decimal
     -H, --hex             Write the disassembly in hexadecimal
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'; this option may be used multiple times
     -j NAME, --join-css NAME
                           Concatenate CSS files into a single file with this name
     -l, --lower           Write the disassembly in lower case
@@ -402,9 +444,54 @@ will use the following CSS files, if they exist, in the order listed:
 * `dark.css`
 * `wide.css`
 
+.. _skool2html-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`skool2html.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``AsmLabels`` - use ASM labels (``1``), or don't (``0``, the default)
+* ``AsmOnePage`` - write all routines and data blocks to a single page (``1``),
+  or to multiple pages (``0``, the default)
+* ``Base`` - convert addresses and instruction operands to hexadecimal (``16``)
+  or decimal (``10``), or leave them as they are (``0``, the default)
+* ``Case`` - write the disassembly in lower case (``1``) or upper case (``2``),
+  or leave it as it is (``0``, the default)
+* ``CreateLabels`` - create default labels for unlabelled instructions (``1``),
+  or don't (``0``, the default)
+* ``JoinCss`` - if specified, concatenate CSS files into a single file with
+  this name
+* ``OutputDir`` - write files in this directory (default: ``.``)
+* ``Quiet`` - be quiet (``1``) or verbose (``0``, the default)
+* ``RebuildImages`` - overwrite existing image files (``1``), or leave them
+  alone (``0``, the default)
+* ``Search`` - directory to add to the resource search path; to specify two or
+  more directories, separate them with commas
+* ``Theme`` - CSS theme to use; to specify two or more themes, separate them
+  with commas
+* ``Time`` - show timings (``1``), or don't (``0``, the default)
+
+Configuration parameters must appear in a ``[skool2html]`` section. For
+example, to make `skool2html.py` use ASM labels and write the disassembly in
+hexadecimal by default (without having to use the ``-H`` and ``-a`` options on
+the command line), add the following section to `skoolkit.ini`::
+
+  [skool2html]
+  AsmLabels=1
+  Base=16
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 6.1     | Configuration is read from `skoolkit.ini` if present; added the  |
+|         | ``--ini`` option                                                 |
++---------+------------------------------------------------------------------+
 | 5.4     | Added the ``--asm-one-page`` option                              |
 +---------+------------------------------------------------------------------+
 | 5.0     | The ``--theme`` option also looks for a CSS file whose base name |
@@ -491,8 +578,8 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 
 sna2img.py
 ----------
-`sna2img.py` converts the screenshot in a SCR file or SNA/SZX/Z80 snapshot into
-a PNG or GIF file. For example::
+`sna2img.py` converts the screenshot or other graphic data in a SCR file, skool
+file, or SNA/SZX/Z80 snapshot into a PNG or GIF file. For example::
 
   $ sna2img.py game.scr
 
@@ -502,16 +589,20 @@ To list the options supported by `sna2img.py`, run it with no arguments::
 
   usage: sna2img.py [options] INPUT [OUTPUT]
 
-  Convert a Spectrum screenshot (or a portion of it) into a PNG or GIF file.
-  INPUT may be a SCR file, or a SNA, SZX or Z80 snapshot.
+  Convert a Spectrum screenshot or other graphic data into a PNG or GIF file.
+  INPUT may be a SCR file, a skool file, or a SNA, SZX or Z80 snapshot.
 
   Options:
+    -b, --bfix            Parse a skool file in @bfix mode.
     -e MACRO, --expand MACRO
                           Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The '#'
                           prefix may be omitted.
     -f N, --flip N        Flip the image horizontally (N=1), vertically (N=2),
                           or both (N=3).
     -i, --invert          Invert video for cells that are flashing.
+    -m src,size,dest, --move src,size,dest
+                          Move a block of bytes of the given size from src to
+                          dest. This option may be used multiple times.
     -n, --no-animation    Do not animate flashing cells.
     -o X,Y, --origin X,Y  Top-left crop at (X,Y).
     -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
@@ -525,13 +616,16 @@ To list the options supported by `sna2img.py`, run it with no arguments::
     -S WxH, --size WxH    Crop to this width and height (in tiles).
     -V, --version         Show SkoolKit version number and exit.
 
-+---------+-------------------------------+
-| Version | Changes                       |
-+=========+===============================+
-| 6.0     | Added the ``--expand`` option |
-+---------+-------------------------------+
-| 5.4     | New                           |
-+---------+-------------------------------+
++---------+-------------------------------------------------------------+
+| Version | Changes                                                     |
++=========+=============================================================+
+| 6.1     | Added the ability to read skool files; added the ``--bfix`` |
+|         | and ``--move`` options                                      |
++---------+-------------------------------------------------------------+
+| 6.0     | Added the ``--expand`` option                               |
++---------+-------------------------------------------------------------+
+| 5.4     | New                                                         |
++---------+-------------------------------------------------------------+
 
 .. _sna2skool.py:
 
@@ -564,32 +658,37 @@ list::
                           generated control file
     -H, --skool-hex       Write hexadecimal addresses and operands in the
                           disassembly
-    -i, --ctl-hex-lower   Write lower case hexadecimal addresses in the
-                          generated control file
-    -l L, --defm-size L   Set the maximum number of characters per DEFM
-                          statement to L (default=66)
+    -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
+                          'v'; this option may be used multiple times
     -L, --lower           Write the disassembly in lower case
-    -m M, --defb-mod M    Group DEFB blocks by addresses that are divisible by M
     -M FILE, --map FILE   Use FILE as a code execution map when generating a
                           control file
-    -n N, --defb-size N   Set the maximum number of bytes per DEFB statement to
-                          N (default=8)
     -o ADDR, --org ADDR   Specify the origin address of a binary (.bin) file
                           (default: 65536 - length)
     -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
                           49152-65535
-    -r, --no-erefs        Don't add comments that list entry point referrers
-    -R, --erefs           Always add comments that list entry point referrers
     -s ADDR, --start ADDR
                           Start disassembling at this address (default=16384)
-    -t, --text            Show ASCII text in the comment fields
     -T FILE, --sft FILE   Use FILE as the skool file template (may be '-' for
                           standard input)
     -V, --version         Show SkoolKit version number and exit
     -w W, --line-width W  Set the maximum line width of the skool file (default:
                           79)
-    -z, --defb-zfill      Pad decimal values in DEFB statements with leading
-                          zeroes
+
+.. note::
+   The ``-i``, ``-l``, ``-m``, ``-n``, ``-r``, ``-R``, ``-t`` and ``-z``
+   options and their corresponding long options are deprecated since version
+   6.1. Use the ``-I/--ini`` option with an appropriate configuration parameter
+   instead:
+
+    * instead of ``-i/--ctl-hex-lower``, use ``-I CtlHex=1``
+    * instead of ``-l/--defm-size L``, use ``-I DefmSize=L``
+    * instead of ``-m/--defb-mod M``, use ``-I DefbMod=M``
+    * instead of ``-n/--defb-size N``, use ``-I DefbSize=N``
+    * instead of ``-r/--no-erefs``, use ``-I ListRefs=0``
+    * instead of ``-R/--erefs``, use ``-I ListRefs=2``
+    * instead of ``-t/--text``, use ``-I Text=1``
+    * instead of ``-z/--defb-zfill``, use ``-I DefbZfill=1``
 
 If the input filename does not end with '.sna', '.szx' or '.z80', it is assumed
 to be a binary file.
@@ -611,9 +710,80 @@ If the file specified by the ``-M`` option is 8192 bytes long, it is assumed to
 be a Z80 map file; if it is 65536 bytes long, it is assumed to be a SpecEmu map
 file; otherwise it is assumed to be in one of the other supported formats.
 
+.. _sna2skool-conf:
+
+Configuration
+^^^^^^^^^^^^^
+`sna2skool.py` will read configuration from a file named `skoolkit.ini` in the
+current working directory or in `~/.skoolkit`, if present. The recognised
+configuration parameters are:
+
+* ``Base`` - write addresses and instruction operands in hexadecimal (``16``)
+  or decimal (``10``, the default)
+* ``Case`` - write the disassembly in lower case (``1``) or upper case (``2``,
+  the default)
+* ``CtlHex`` - write addresses in a generated control file in decimal (``0``,
+  the default), lower case hexadecimal (``1``),  or upper case hexadecimal
+  (``2``)
+* ``DefbMod`` - group DEFB blocks by addresses that are divisible by this
+  number (default: ``1``)
+* ``DefbSize`` - maximum number of bytes per DEFB statement (default: ``8``)
+* ``DefbZfill`` - pad decimal values in DEFB statements with leading zeroes
+  (``1``), or leave them unpadded (``0``, the default)
+* ``DefmSize`` - maximum number of characters in a DEFM statement (default:
+  ``66``)
+* ``EntryPointRef`` - template used to format the comment for an entry point
+  with exactly one referrer (default: ``This entry point is used by the routine
+  at {ref}.``)
+* ``EntryPointRefs`` - template used to format the comment for an entry point
+  with two or more referrers (default: ``This entry point is used by the
+  routines at {refs} and {ref}.``)
+* ``LineWidth`` - maximum line width of the skool file (default: ``79``)
+* ``ListRefs`` - when to add a comment that lists routine or entry point
+  referrers: never (``0``), if no other comment is defined at the entry point
+  (``1``, the default), or always (``2``)
+* ``Ref`` - template used to format the comment for a routine with exactly one
+  referrer (default: ``Used by the routine at {ref}.``)
+* ``Refs`` - template used to format the comment for a routine with two or more
+  referrers (default: ``Used by the routines at {refs} and {ref}.``)
+* ``Text`` - show ASCII text in the comment fields (``1``), or don't (``0``,
+  the default)
+* ``Title-b`` - template used to format the title for an untitled 'b' block
+  (default: ``Data block at {address}``)
+* ``Title-c`` - template used to format the title for an untitled 'c' block
+  (default: ``Routine at {address}``)
+* ``Title-g`` - template used to format the title for an untitled 'g' block
+  (default: ``Game status buffer entry at {address}``)
+* ``Title-i`` - template used to format the title for an untitled 'i' block
+  (default: ``Ignored``)
+* ``Title-s`` - template used to format the title for an untitled 's' block
+  (default: ``Unused``)
+* ``Title-t`` - template used to format the title for an untitled 't' block
+  (default: ``Message at {address}``)
+* ``Title-u`` - template used to format the title for an untitled 'u' block
+  (default: ``Unused``)
+* ``Title-w`` - template used to format the title for an untitled 'w' block
+  (default: ``Data block at {address}``)
+
+Configuration parameters must appear in a ``[sna2skool]`` section. For example,
+to make `sna2skool.py` generate hexadecimal skool files with a line width of
+120 characters by default (without having to use the ``-H`` and ``-w`` options
+on the command line), add the following section to `skoolkit.ini`::
+
+  [sna2skool]
+  Base=16
+  LineWidth=120
+
+Configuration parameters may also be set on the command line by using the
+``--ini`` option. Parameter values set this way will override any found in
+`skoolkit.ini`.
+
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 6.1     | Configuration is read from `skoolkit.ini` if present; added the |
+|         | ``--ini`` option                                                |
++---------+-----------------------------------------------------------------+
 | 5.0     | Added support for SpecEmu's 64K code execution map files        |
 +---------+-----------------------------------------------------------------+
 | 4.4     | Added the ``--ctl-hex-lower`` and ``--end`` options             |
@@ -798,10 +968,9 @@ before the snapshot is saved. For more information on the operations that the
 
   $ tap2sna.py --ram help
 
-For complex snapshots that require many ``--ram``, ``--reg`` or ``--state``
-options to build, it may be more convenient to store the arguments to
-`tap2sna.py` in a file. For example, if the file `game.t2s` has the following
-contents::
+For complex snapshots that require many options to build, it may be more
+convenient to store the arguments to `tap2sna.py` in a file. For example, if
+the file `game.t2s` has the following contents::
 
   ;
   ; tap2sna.py file for GAME
@@ -810,9 +979,9 @@ contents::
   game.z80
   --ram load=4,32768         # Load the fourth block at 32768
   --ram move=40960,512,43520 # Move 40960-41471 to 43520-44031
-  --reg pc=34816             # Start at 34816
-  --reg sp=32768             # Stack at 32768
   --state iff=0              # Disable interrupts
+  --stack 32768              # Stack at 32768
+  --start 34816              # Start at 34816
 
 then::
 

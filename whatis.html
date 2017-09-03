@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>What is SkoolKit? &mdash; SkoolKit 6.0 documentation</title>
+    <title>What is SkoolKit? &#8212; SkoolKit 6.1 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.0',
+        VERSION:     '6.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,12 +23,14 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SkoolKit 6.0 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="SkoolKit 6.1 documentation" href="index.html" />
     <link rel="next" title="Installing and using SkoolKit" href="usage.html" />
     <link rel="prev" title="SkoolKit manual" href="index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -40,10 +42,10 @@
         <li class="right" >
           <a href="index.html" title="SkoolKit manual"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">SkoolKit 6.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.1 documentation</a> &#187;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
@@ -61,22 +63,21 @@
   <h4>Next topic</h4>
   <p class="topless"><a href="usage.html"
                         title="next chapter">Installing and using SkoolKit</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/whatis.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/whatis.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -85,7 +86,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="what-is-skoolkit">
 <h1>What is SkoolKit?<a class="headerlink" href="#what-is-skoolkit" title="Permalink to this headline">¶</a></h1>
@@ -104,22 +105,22 @@ developer- and assembler-friendly ASM version of the disassembly.</p>
 <p>SkoolKit can:</p>
 <ul class="simple">
 <li>convert a TAP or TZX file into a &#8216;pristine&#8217; snapshot (using
-<a class="reference internal" href="commands.html#tap2sna-py"><em>tap2sna.py</em></a>)</li>
+<a class="reference internal" href="commands.html#tap2sna-py"><span class="std std-ref">tap2sna.py</span></a>)</li>
 <li>disassemble SNA, Z80 and SZX snapshots as well as raw memory files</li>
 <li>distinguish code from data by using a code execution map produced by an
 emulator</li>
 <li>build still and animated PNG/GIF images from graphic data in the game
-snapshot (using the <a class="reference internal" href="skool-macros.html#udg"><em>#UDG</em></a>, <a class="reference internal" href="skool-macros.html#udgarray"><em>#UDGARRAY</em></a>, <a class="reference internal" href="skool-macros.html#font"><em>#FONT</em></a> and <a class="reference internal" href="skool-macros.html#scr"><em>#SCR</em></a>
+snapshot (using the <a class="reference internal" href="skool-macros.html#udg"><span class="std std-ref">#UDG</span></a>, <a class="reference internal" href="skool-macros.html#udgarray"><span class="std std-ref">#UDGARRAY</span></a>, <a class="reference internal" href="skool-macros.html#font"><span class="std std-ref">#FONT</span></a> and <a class="reference internal" href="skool-macros.html#scr"><span class="std std-ref">#SCR</span></a>
 macros)</li>
 <li>create hyperlinks between routines and data blocks that refer to each other
-(by use of the <a class="reference internal" href="skool-macros.html#r"><em>#R</em></a> macro in annotations, and automatically in the
-operands of <tt class="docutils literal"><span class="pre">CALL</span></tt> and <tt class="docutils literal"><span class="pre">JP</span></tt> instructions)</li>
+(by use of the <a class="reference internal" href="skool-macros.html#r"><span class="std std-ref">#R</span></a> macro in annotations, and automatically in the
+operands of <code class="docutils literal"><span class="pre">CALL</span></code> and <code class="docutils literal"><span class="pre">JP</span></code> instructions)</li>
 <li>neatly render lists of bugs, trivia and POKEs on separate pages (using
-<a class="reference internal" href="ref-files.html#boxpages"><em>[Bug:*]</em></a>, <a class="reference internal" href="ref-files.html#boxpages"><em>[Fact:*]</em></a> and
-<a class="reference internal" href="ref-files.html#boxpages"><em>[Poke:*]</em></a> sections in a ref file)</li>
+<a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">[Bug:*]</span></a>, <a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">[Fact:*]</span></a> and
+<a class="reference internal" href="ref-files.html#boxpages"><span class="std std-ref">[Poke:*]</span></a> sections in a ref file)</li>
 <li>produce ASM files that include bugfixes declared in the skool file (with
-<a class="reference internal" href="asm.html#ofix"><em>&#64;ofix</em></a>, <a class="reference internal" href="asm.html#bfix"><em>&#64;bfix</em></a> and other ASM directives)</li>
-<li>produce TAP files from assembled code (using <a class="reference internal" href="commands.html#bin2tap-py"><em>bin2tap.py</em></a>)</li>
+<a class="reference internal" href="asm.html#ofix"><span class="std std-ref">&#64;ofix</span></a>, <a class="reference internal" href="asm.html#bfix"><span class="std std-ref">&#64;bfix</span></a> and other ASM directives)</li>
+<li>produce TAP files from assembled code (using <a class="reference internal" href="commands.html#bin2tap-py"><span class="std std-ref">bin2tap.py</span></a>)</li>
 </ul>
 <p>For a demonstration of SkoolKit&#8217;s capabilities, take a look at the complete
 disassemblies of <a class="reference external" href="http://skoolkit.ca/disassemblies/skool_daze/">Skool Daze</a>, <a class="reference external" href="http://skoolkit.ca/disassemblies/back_to_skool/">Back to Skool</a>, <a class="reference external" href="http://skoolkit.ca/disassemblies/contact_sam_cruise/">Contact Sam Cruise</a>,
@@ -149,7 +150,7 @@ licence.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -161,12 +162,12 @@ licence.</p>
         <li class="right" >
           <a href="index.html" title="SkoolKit manual"
              >previous</a> |</li>
-        <li><a href="index.html">SkoolKit 6.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.1 documentation</a> &#187;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2017, Richard Dymond.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Richard Dymond.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
     </div>
   </body>
 </html>

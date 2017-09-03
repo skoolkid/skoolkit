@@ -1,7 +1,5 @@
 .. _extendingSkoolKit:
 
-.. highlight:: python
-
 Extending SkoolKit
 ==================
 
@@ -24,7 +22,9 @@ a better way is to subclass HtmlWriter and AsmWriter in a separate extension
 module, and add the methods there; then that extension module can be easily
 used with different versions of SkoolKit, and shared with other people.
 
-A minimal extension module would look like this::
+A minimal extension module would look like this:
+
+.. code-block:: python
 
   from skoolkit.skoolhtml import HtmlWriter
   from skoolkit.skoolasm import AsmWriter
@@ -106,7 +106,9 @@ created).
 
 Let's say your sprite-image-creating method will accept two parameters (in
 addition to `cwd`): `sprite_id` (the sprite identifier) and  `fname` (the image
-filename). The method (let's call it `sprite`) would look something like this::
+filename). The method (let's call it `sprite`) would look something like this:
+
+.. code-block:: python
 
   from skoolkit.skoolhtml import HtmlWriter
 
@@ -128,7 +130,9 @@ method) in place, it's possible to use a ``#CALL`` macro like this::
 
 Adding a ``#CALL`` method to the AsmWriter subclass is equally simple. The
 timestamp-creating method (let's call it `timestamp`) would look something like
-this::
+this:
+
+.. code-block:: python
 
   import time
   from skoolkit.skoolasm import AsmWriter
@@ -185,7 +189,9 @@ expanded. Note that if ``string`` itself contains skool macros, then they will
 be expanded.
 
 The `expand_sprite` method on GameHtmlWriter may therefore look something like
-this::
+this:
+
+.. code-block:: python
 
   from skoolkit.graphics import Frame
   from skoolkit.skoolhtml import HtmlWriter
@@ -207,7 +213,9 @@ method) in place, the ``#SPRITE`` macro might be used like this::
   { Sprite 3 (jumping) }
   TABLE#
 
-The `expand_timestamp` method on GameAsmWriter would look something like this::
+The `expand_timestamp` method on GameAsmWriter would look something like this:
+
+.. code-block:: python
 
   import time
   from skoolkit.skoolasm import AsmWriter
@@ -248,6 +256,19 @@ to parse the parameters of a skool macro.
 
    .. versionadded:: 5.1
 
+Expanding skool macros
+----------------------
+Both AsmWriter and HtmlWriter provide methods for expanding skool macros. These
+are useful for immediately expanding macros in a ``#CALL`` method or custom
+macro method.
+
+.. automethod:: skoolkit.skoolasm.AsmWriter.expand
+
+.. automethod:: skoolkit.skoolhtml.HtmlWriter.expand
+
+   .. versionchanged:: 5.1
+      The *cwd* parameter is optional.
+
 Parsing ref files
 -----------------
 HtmlWriter provides some convenience methods for extracting text and data from
@@ -265,6 +286,47 @@ ref files. These methods are described below.
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_dictionary
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.get_dictionaries
+
+Formatting templates
+--------------------
+HtmlWriter provides a method for formatting a template defined by a
+:ref:`Template` section.
+
+.. automethod:: skoolkit.skoolhtml.HtmlWriter.format_template
+
+   .. versionadded:: 4.0
+
+Note that there is typically no need to specify *default* when formatting a
+user-defined template:
+
+.. code-block:: python
+
+  self.format_template('custom', {'foo': 'bar'})
+
+will format the ``PageID-custom`` template (where ``PageID`` is the ID of the
+current page) if it exists, or the ``custom`` template otherwise, in accordance
+with SkoolKit's rules for preferring :ref:`page-specific templates
+<ps_templates>`.
+
+Base and case
+-------------
+The `base` and `case` attributes on AsmWriter and HtmlWriter can be inspected
+to determine the mode in which :ref:`skool2asm.py` or :ref:`skool2html.py` is
+running.
+
+The `base` attribute has one of the following values:
+
+* 0 - default (neither ``--decimal`` nor ``--hex``)
+* 10 - decimal (``--decimal``)
+* 16 - hexadecimal (``--hex``)
+
+The `case` attribute has one of the following values:
+
+* 0 - default (neither ``--lower`` nor ``--upper``)
+* 1 - lower case (``--lower``)
+* 2 - upper case (``--upper``)
+
+.. versionadded:: 6.1
 
 Memory snapshots
 ----------------
@@ -296,7 +358,9 @@ and an optional mask.
       The Udg class moved from skoolkit.skoolhtml to skoolkit.graphics.
 
 A simple ``#INVERSE`` macro that creates an inverse image of a UDG might be
-implemented like this::
+implemented like this:
+
+.. code-block:: python
 
   from skoolkit.graphics import Udg
   from skoolkit.skoolhtml import HtmlWriter
@@ -367,15 +431,21 @@ HtmlWriter provides the following image-related convenience methods.
 .. autofunction:: skoolkit.graphics.flip_udgs
 .. autofunction:: skoolkit.graphics.rotate_udgs
 
-HtmlWriter initialisation
--------------------------
-If your HtmlWriter subclass needs to perform some initialisation tasks, such as
-creating instance variables, or parsing ref file sections, the place to do that
-is the `init()` method.
+Writer initialisation
+---------------------
+If your AsmWriter or HtmlWriter subclass needs to perform some initialisation
+tasks, such as creating instance variables, or parsing ref file sections, the
+place to do that is the `init()` method.
+
+.. automethod:: skoolkit.skoolasm.AsmWriter.init
+
+   .. versionadded:: 6.1
 
 .. automethod:: skoolkit.skoolhtml.HtmlWriter.init
 
-For example::
+For example:
+
+.. code-block:: python
 
   from skoolkit.skoolhtml import HtmlWriter
 
