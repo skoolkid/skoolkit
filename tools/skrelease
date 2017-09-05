@@ -454,30 +454,6 @@ check_pypi() {
 }
 
 ###############################################################################
-# Build a documentation zip archive for PyPI
-###############################################################################
-build_doczip() {
-  _require_skoolkit
-
-  zipfile=$SKOOLKIT_HOME/dist/skoolkit-$VERSION-docs.zip
-
-  _cd_tmpdir
-  echo -n "Cloning local git repository: "
-  git clone -ql $SKOOLKIT_HOME
-  echo "OK"
-  logfile=$(pwd)/sphinx.log
-  cd skoolkit/sphinx
-  sed -i 's/^\(SPHINXOPTS.*=\)$/\1 -D html_theme=nature/' Makefile
-  _exec "Building documentation" "make html" $logfile
-  cd build/html
-  rm -rf .buildinfo _sources/man man objects.inv $zipfile
-  echo -n "Building zip archive: "
-  zip -9qr $zipfile .
-  echo "OK"
-  echo "Now upload $zipfile to PyPI"
-}
-
-###############################################################################
 # Build and upload signed source package(s) to the SkoolKit PPA
 ###############################################################################
 upload_ppa_source() {
@@ -531,7 +507,6 @@ Post-release commands:
   ghdocs - prepare documentation on the gh-pages branch
   bsdist - build a source package for uploading to PyPI
   ifpypi - verify that SkoolKit can be installed from PyPI
-  doczip - build a documentation zip archive for PyPI
   ppadeb - build and upload signed source package(s) to the SkoolKit PPA
 EOM
 }
@@ -555,7 +530,6 @@ while [[ -n "$1" ]]; do
     ghdocs) prepare_gh_pages ;;
     bsdist) build_sdist ;;
     ifpypi) check_pypi ;;
-    doczip) build_doczip ;;
     ppadeb) upload_ppa_source ;;
          *) echo "*** Unknown command '$1' ***"; usage ;;
   esac
