@@ -1,6 +1,9 @@
 Changelog
 =========
 
+6.2b1
+-----
+
 6.1 (2017-09-03)
 ----------------
 * Added support for converting the base of every numerical term in an
