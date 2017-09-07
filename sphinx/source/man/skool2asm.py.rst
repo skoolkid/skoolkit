@@ -60,6 +60,9 @@ OPTIONS
   Apply safe substitutions (@ssub) and relocatability substitutions (@rsub)
   (implies ``-f 1``).
 
+--show-config
+  Show configuration parameter values.
+
 -s, --ssub
   Apply safe substitutions (@ssub).
 

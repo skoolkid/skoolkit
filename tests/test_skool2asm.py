@@ -496,6 +496,38 @@ class Skool2AsmTest(SkoolKitTestCase):
         options = run_args[1]
         self.assertEqual(options.quiet, 0)
 
+    @patch.object(skool2asm, 'get_config', mock_config)
+    def test_option_show_config(self):
+        output, error = self.run_skool2asm('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = [
+            'Base=0',
+            'Case=0',
+            'CreateLabels=0',
+            'Quiet=0',
+            'Warnings=1'
+        ]
+        self.assertEqual(exp_output, output)
+
+    def test_option_show_config_read_from_file(self):
+        ini = '\n'.join((
+            '[skool2asm]',
+            'Base=10',
+            'Case=1',
+            'Quiet=1'
+        ))
+        self.write_text_file(ini, 'skoolkit.ini')
+        output, error = self.run_skool2asm('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = [
+            'Base=10',
+            'Case=1',
+            'CreateLabels=0',
+            'Quiet=1',
+            'Warnings=1'
+        ]
+        self.assertEqual(exp_output, output)
+
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_tab_property(self):
         skool = '\n'.join((

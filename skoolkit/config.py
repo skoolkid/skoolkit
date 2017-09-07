@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 from os.path import expanduser
 
 from skoolkit import find_file
@@ -107,3 +108,8 @@ def update_options(name, options, specs, config=None):
                     config[param] = value
             except ValueError:
                 pass
+
+def show_config(config):
+    for name in sorted(config):
+        print('{}={}'.format(name, config[name]))
+    sys.exit(0)

@@ -149,6 +149,7 @@ assembler (see :ref:`supportedAssemblers`). For example::
     -q, --quiet           Be quiet
     -r, --rsub            Apply safe substitutions (@ssub) and relocatability
                           substitutions (@rsub) (implies '-f 1')
+    --show-config         Show configuration parameter values
     -s, --ssub            Apply safe substitutions (@ssub)
     -S ADDR, --start ADDR
                           Start converting at this address
@@ -200,6 +201,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 6.2     | Added the ``--show-config`` option                              |
++---------+-----------------------------------------------------------------+
 | 6.1     | Configuration is read from `skoolkit.ini` if present; added the |
 |         | ``--ini`` option                                                |
 +---------+-----------------------------------------------------------------+

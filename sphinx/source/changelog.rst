@@ -3,6 +3,8 @@ Changelog
 
 6.2b1
 -----
+* Added the ``--show-config`` option to :ref:`skool2asm.py` (for showing
+  configuration parameter values)
 
 6.1 (2017-09-03)
 ----------------

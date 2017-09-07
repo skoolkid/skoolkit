@@ -19,7 +19,7 @@ import os.path
 import time
 
 from skoolkit import info, get_class, show_package_dir, VERSION
-from skoolkit.config import get_config, update_options
+from skoolkit.config import get_config, show_config, update_options
 from skoolkit.skoolasm import AsmWriter
 from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, BASE_16
 
@@ -98,6 +98,8 @@ def main(args):
                        help="Be quiet")
     group.add_argument('-r', '--rsub', dest='asm_mode', action='store_const', const=3, default=1,
                        help="Apply safe substitutions (@ssub) and relocatability\nsubstitutions (@rsub) (implies '-f 1')")
+    group.add_argument('--show-config', dest='show_config', action='store_true',
+                       help="Show configuration parameter values")
     group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=1,
                        help="Apply safe substitutions (@ssub)")
     group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=int, default=0,
@@ -112,6 +114,8 @@ def main(args):
                        help="Specify the ASM writer class to use")
 
     namespace, unknown_args = parser.parse_known_args(args)
+    if namespace.show_config:
+        show_config(config)
     if namespace.package_dir:
         show_package_dir()
     if unknown_args or namespace.skoolfile is None:
