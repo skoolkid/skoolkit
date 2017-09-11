@@ -24,7 +24,7 @@ from io import StringIO
 
 from skoolkit import (defaults, SkoolKitError, find_file, show_package_dir,
                       write, write_line, get_class, normpath, PACKAGE_DIR, VERSION)
-from skoolkit.config import get_config, update_options
+from skoolkit.config import get_config, show_config, update_options
 from skoolkit.refparser import RefParser
 from skoolkit.skoolhtml import FileInfo
 from skoolkit.skoolparser import SkoolParser, CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
@@ -377,6 +377,8 @@ def main(args):
     group.add_argument('-S', '--search', dest='search', metavar='DIR', action='append', default=config['Search'],
                        help="Add this directory to the resource search path; this\n"
                             "option may be used multiple times")
+    group.add_argument('--show-config', dest='show_config', action='store_true',
+                       help="Show configuration parameter values")
     group.add_argument('-t', '--time', dest='show_timings', action='store_const', const=1, default=config['Time'],
                        help="Show timings")
     group.add_argument('-T', '--theme', dest='themes', metavar='THEME', action='append', default=config['Theme'],
@@ -397,6 +399,8 @@ def main(args):
 
     start = time.time()
     namespace, unknown_args = parser.parse_known_args(args)
+    if namespace.show_config:
+        show_config(config)
     if namespace.package_dir:
         show_package_dir()
     if namespace.search_dirs:

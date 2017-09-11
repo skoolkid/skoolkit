@@ -77,6 +77,9 @@ OPTIONS
   Add this directory to the resource search path; this option may be used
   multiple times.
 
+--show-config
+  Show configuration parameter values.
+
 -t, --time
   Show timings.
 

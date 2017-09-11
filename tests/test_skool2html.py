@@ -1118,6 +1118,53 @@ class Skool2HtmlTest(SkoolKitTestCase):
         options = run_args[1]
         self.assertEqual(options.quiet, 0)
 
+    @patch.object(skool2html, 'get_config', mock_config)
+    def test_option_show_config(self):
+        output, error = self.run_skool2html('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = [
+            'AsmLabels=0',
+            'AsmOnePage=0',
+            'Base=0',
+            'Case=0',
+            'CreateLabels=0',
+            'JoinCss=',
+            'OutputDir=.',
+            'Quiet=0',
+            'RebuildImages=0',
+            'Search=',
+            'Theme=',
+            'Time=0'
+        ]
+        self.assertEqual(exp_output, output)
+
+    def test_option_show_config_read_from_file(self):
+        ini = '\n'.join((
+            '[skool2html]',
+            'AsmLabels=1',
+            'OutputDir=html',
+            'Quiet=1',
+            'Theme=dark,wide'
+        ))
+        self.write_text_file(ini, 'skoolkit.ini')
+        output, error = self.run_skool2html('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = [
+            'AsmLabels=1',
+            'AsmOnePage=0',
+            'Base=0',
+            'Case=0',
+            'CreateLabels=0',
+            'JoinCss=',
+            'OutputDir=html',
+            'Quiet=1',
+            'RebuildImages=0',
+            'Search=',
+            'Theme=dark,wide',
+            'Time=0'
+        ]
+        self.assertEqual(exp_output, output)
+
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2html, 'write_disassembly', mock_write_disassembly)

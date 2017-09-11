@@ -397,6 +397,7 @@ list::
     -s, --search-dirs     Show the locations skool2html.py searches for resources
     -S DIR, --search DIR  Add this directory to the resource search path; this
                           option may be used multiple times
+    --show-config         Show configuration parameter values
     -t, --time            Show timings
     -T THEME, --theme THEME
                           Use this CSS theme; this option may be used multiple
@@ -492,6 +493,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 6.2     | Added the ``--show-config`` option                               |
++---------+------------------------------------------------------------------+
 | 6.1     | Configuration is read from `skoolkit.ini` if present; added the  |
 |         | ``--ini`` option                                                 |
 +---------+------------------------------------------------------------------+

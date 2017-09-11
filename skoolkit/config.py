@@ -111,5 +111,8 @@ def update_options(name, options, specs, config=None):
 
 def show_config(config):
     for name in sorted(config):
-        print('{}={}'.format(name, config[name]))
+        value = config[name]
+        if isinstance(value, list):
+            value = ','.join(value)
+        print('{}={}'.format(name, value))
     sys.exit(0)
