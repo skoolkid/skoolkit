@@ -17,7 +17,7 @@
 import argparse
 
 from skoolkit import info, find_file, read_bin_file, VERSION
-from skoolkit.config import get_config, update_options
+from skoolkit.config import get_config, show_config, update_options
 from skoolkit.ctlparser import CtlParser
 from skoolkit.sftparser import SftParser
 from skoolkit.snapshot import get_snapshot
@@ -108,6 +108,8 @@ def main(args):
                        help=argparse.SUPPRESS)
     group.add_argument('-R', '--erefs', dest='write_refs', action='store_const', const=2, default=config['ListRefs'],
                        help=argparse.SUPPRESS)
+    group.add_argument('--show-config', dest='show_config', action='store_true',
+                       help="Show configuration parameter values")
     group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=int, default=0,
                        help='Start disassembling at this address (default={})'.format(START))
     group.add_argument('-t', '--text', dest='text', action='store_const', const=1, default=config['Text'],
@@ -122,6 +124,8 @@ def main(args):
                        help=argparse.SUPPRESS)
 
     namespace, unknown_args = parser.parse_known_args(args)
+    if namespace.show_config:
+        show_config(config)
     snafile = namespace.snafile
     if unknown_args or snafile is None:
         parser.exit(2, parser.format_help())

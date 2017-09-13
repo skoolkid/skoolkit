@@ -3,8 +3,9 @@ Changelog
 
 6.2b1
 -----
-* Added the ``--show-config`` option to :ref:`skool2asm.py` and
-  :ref:`skool2html.py` (for showing configuration parameter values)
+* Added the ``--show-config`` option to :ref:`skool2asm.py`,
+  :ref:`skool2html.py` and :ref:`sna2skool.py` (for showing configuration
+  parameter values)
 
 6.1 (2017-09-03)
 ----------------

@@ -673,6 +673,7 @@ list::
                           (default: 65536 - length)
     -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
                           49152-65535
+    --show-config         Show configuration parameter values
     -s ADDR, --start ADDR
                           Start disassembling at this address (default=16384)
     -T FILE, --sft FILE   Use FILE as the skool file template (may be '-' for
@@ -787,6 +788,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+-----------------------------------------------------------------+
 | Version | Changes                                                         |
 +=========+=================================================================+
+| 6.2     | Added the ``--show-config`` option                              |
++---------+-----------------------------------------------------------------+
 | 6.1     | Configuration is read from `skoolkit.ini` if present; added the |
 |         | ``--ini`` option                                                |
 +---------+-----------------------------------------------------------------+

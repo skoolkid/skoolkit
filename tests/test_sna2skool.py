@@ -942,6 +942,72 @@ class OptionsTest(SkoolKitTestCase):
             self.assertEqual(mock_skool_writer.write_refs, 2)
             self.assertTrue(mock_skool_writer.wrote_skool)
 
+    @patch.object(sna2skool, 'get_config', mock_config)
+    def test_option_show_config(self):
+        output, error = self.run_sna2skool('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = [
+            'Base=10',
+            'Case=2',
+            'CtlHex=0',
+            'DefbMod=1',
+            'DefbSize=8',
+            'DefbZfill=0',
+            'DefmSize=66',
+            'EntryPointRef=This entry point is used by the routine at {ref}.',
+            'EntryPointRefs=This entry point is used by the routines at {refs} and {ref}.',
+            'LineWidth=79',
+            'ListRefs=1',
+            'Ref=Used by the routine at {ref}.',
+            'Refs=Used by the routines at {refs} and {ref}.',
+            'Text=0',
+            'Title-b=Data block at {address}',
+            'Title-c=Routine at {address}',
+            'Title-g=Game status buffer entry at {address}',
+            'Title-i=Ignored',
+            'Title-s=Unused',
+            'Title-t=Message at {address}',
+            'Title-u=Unused',
+            'Title-w=Data block at {address}'
+        ]
+        self.assertEqual(exp_output, output)
+
+    def test_option_show_config_read_from_file(self):
+        ini = '\n'.join((
+            '[sna2skool]',
+            'Case=1',
+            'Ref=Called by the routine at {ref}.',
+            'Title-t=Text at {address}'
+        ))
+        self.write_text_file(ini, 'skoolkit.ini')
+        output, error = self.run_sna2skool('--show-config', catch_exit=0)
+        self.assertEqual(error, '')
+        exp_output = [
+            'Base=10',
+            'Case=1',
+            'CtlHex=0',
+            'DefbMod=1',
+            'DefbSize=8',
+            'DefbZfill=0',
+            'DefmSize=66',
+            'EntryPointRef=This entry point is used by the routine at {ref}.',
+            'EntryPointRefs=This entry point is used by the routines at {refs} and {ref}.',
+            'LineWidth=79',
+            'ListRefs=1',
+            'Ref=Called by the routine at {ref}.',
+            'Refs=Used by the routines at {refs} and {ref}.',
+            'Text=0',
+            'Title-b=Data block at {address}',
+            'Title-c=Routine at {address}',
+            'Title-g=Game status buffer entry at {address}',
+            'Title-i=Ignored',
+            'Title-s=Unused',
+            'Title-t=Text at {address}',
+            'Title-u=Unused',
+            'Title-w=Data block at {address}'
+        ]
+        self.assertEqual(exp_output, output)
+
     @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)

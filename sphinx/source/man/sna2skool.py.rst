@@ -78,6 +78,9 @@ OPTIONS
   routines that use it; the comment will precede any additional comment defined
   in a control file.
 
+--show-config
+  Show configuration parameter values.
+
 -s, --start `ADDR`
   Start disassembling at this address; the default start address is 16384.
 
