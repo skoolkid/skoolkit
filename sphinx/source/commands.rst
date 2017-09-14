@@ -37,11 +37,14 @@ it with no arguments to see the list of available options::
                           ORG)
     -V, --version         Show SkoolKit version number and exit
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.2     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------+
+| Version | Changes                                                     |
++=========+=============================================================+
+| 6.2     | The ``--org``, ``--stack`` and ``--start`` options accept a |
+|         | hexadecimal integer prefixed by '0x'                        |
++---------+-------------------------------------------------------------+
+| 5.2     | New                                                         |
++---------+-------------------------------------------------------------+
 
 .. _bin2tap.py:
 

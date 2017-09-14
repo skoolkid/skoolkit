@@ -3,6 +3,8 @@ Changelog
 
 6.2b1
 -----
+* The ``--org``, ``--stack`` and ``--start`` options of :ref:`bin2sna.py` now
+  accept a hexadecimal integer prefixed by '0x'
 * Added the ``--show-config`` option to :ref:`skool2asm.py`,
   :ref:`skool2html.py` and :ref:`sna2skool.py` (for showing configuration
   parameter values)

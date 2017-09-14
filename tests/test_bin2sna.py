@@ -128,6 +128,13 @@ class Bin2SnaTest(SkoolKitTestCase):
             z80file = self._run("{} {} {}".format(option, org, binfile))
             self._check_z80(z80file, data, org)
 
+    def test_option_o_with_hex_address(self):
+        data = [1, 2, 3]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        for option, org in (('-o', '0x800d'), ('--org', '0xABCD')):
+            z80file = self._run("{} {} {}".format(option, org, binfile))
+            self._check_z80(z80file, data, int(org[2:], 16))
+
     def test_option_p(self):
         data = [1, 2, 4]
         binfile = self.write_bin_file(data, suffix='.bin')
@@ -135,12 +142,26 @@ class Bin2SnaTest(SkoolKitTestCase):
             z80file = self._run("{} {} {}".format(option, stack, binfile))
             self._check_z80(z80file, data, sp=stack)
 
+    def test_option_p_with_hex_address(self):
+        data = [1, 2, 4]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        for option, stack in (('-p', '0x7fff'), ('--stack', '0xC001')):
+            z80file = self._run("{} {} {}".format(option, stack, binfile))
+            self._check_z80(z80file, data, sp=int(stack[2:], 16))
+
     def test_option_s(self):
         data = [2, 3, 4]
         binfile = self.write_bin_file(data, suffix='.bin')
         for option, start in (('-s', 50000), ('--start', 60000)):
             z80file = self._run("{} {} {}".format(option, start, binfile))
             self._check_z80(z80file, data, pc=start)
+
+    def test_option_s_with_hex_address(self):
+        data = [2, 3, 4]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        for option, start in (('-s', '0x6f00'), ('--start', '0xD00A')):
+            z80file = self._run("{} {} {}".format(option, start, binfile))
+            self._check_z80(z80file, data, pc=int(start[2:], 16))
 
     def test_option_V(self):
         for option in ('-V', '--version'):

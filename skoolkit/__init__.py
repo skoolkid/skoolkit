@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
 import sys
 import os
 import posixpath
@@ -142,6 +143,15 @@ def get_word3(data, index):
 
 def get_dword(data, index):
     return get_word3(data, index) + 16777216 * data[index + 3]
+
+def integer(arg):
+    try:
+        s_arg = arg.strip()
+        if s_arg.startswith('0x'):
+            return int(s_arg[2:], 16)
+        return int(s_arg)
+    except ValueError:
+        raise argparse.ArgumentTypeError("invalid integer: '{}'".format(arg))
 
 class SkoolKitError(Exception):
     pass

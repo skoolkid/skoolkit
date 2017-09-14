@@ -17,7 +17,7 @@
 import os
 import argparse
 
-from skoolkit import read_bin_file, VERSION
+from skoolkit import integer, read_bin_file, VERSION
 from skoolkit.snapshot import write_z80v3
 
 def run(infile, outfile, options):
@@ -53,11 +53,11 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-b', '--border', dest='border', metavar='BORDER', type=int, default=7,
                        help="Set the border colour (default: 7)")
-    group.add_argument('-o', '--org', dest='org', metavar='ORG', type=int,
+    group.add_argument('-o', '--org', dest='org', metavar='ORG', type=integer,
                        help="Set the origin address (default: 65536 minus the length of file.bin)")
-    group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=int,
+    group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
                        help="Set the stack pointer (default: ORG)")
-    group.add_argument('-s', '--start', dest='start', metavar='START', type=int,
+    group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
                        help="Set the address at which to start execution (default: ORG)")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
