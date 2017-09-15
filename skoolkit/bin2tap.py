@@ -17,7 +17,7 @@
 import os.path
 import argparse
 
-from skoolkit import SkoolKitError, read_bin_file, VERSION
+from skoolkit import SkoolKitError, integer, read_bin_file, VERSION
 from skoolkit.snapshot import get_snapshot
 
 def _get_str(chars):
@@ -148,15 +148,15 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
-    group.add_argument('-c', '--clear', dest='clear', metavar='N', type=int,
+    group.add_argument('-c', '--clear', dest='clear', metavar='N', type=integer,
                        help="Use a 'CLEAR N' command in the BASIC loader and leave the stack pointer alone")
-    group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=int, default=65536,
+    group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=65536,
                        help="Set the end address when reading a snapshot")
-    group.add_argument('-o', '--org', dest='org', metavar='ORG', type=int,
+    group.add_argument('-o', '--org', dest='org', metavar='ORG', type=integer,
                        help="Set the origin address (default: 16384 for a snapshot, otherwise 65536 minus the length of FILE)")
-    group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=int,
+    group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
                        help="Set the stack pointer (default: ORG)")
-    group.add_argument('-s', '--start', dest='start', metavar='START', type=int,
+    group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
                        help="Set the start address to JP to (default: ORG)")
     group.add_argument('-S', '--screen', dest='screen', metavar='FILE',
                        help="Add a loading screen to the TAP file; FILE may be a snapshot or a 6912-byte SCR file")

@@ -99,23 +99,26 @@ leaves the stack pointer alone, enabling the program to return to BASIC without
 crashing. The lowest usable address with the ``--clear`` option on a bare 48K
 Spectrum is 23952 ($5D90).
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 5.3     | Added the ``--screen`` option                                   |
-+---------+-----------------------------------------------------------------+
-| 5.2     | Added the ability to read a binary file from standard input;    |
-|         | added a second positional argument specifying the TAP filename  |
-+---------+-----------------------------------------------------------------+
-| 4.5     | Added the ``--clear`` and ``--end`` options, and the ability to |
-|         | convert SNA, SZX and Z80 snapshots                              |
-+---------+-----------------------------------------------------------------+
-| 3.4     | Added the ``-V`` option and the long options                    |
-+---------+-----------------------------------------------------------------+
-| 2.2.5   | Added the ``-p`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 1.3.1   | New                                                             |
-+---------+-----------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | The ``--clear``, ``--end``, ``--org``, ``--stack`` and            |
+|         | ``--start`` options accept a hexadecimal integer prefixed by '0x' |
++---------+-------------------------------------------------------------------+
+| 5.3     | Added the ``--screen`` option                                     |
++---------+-------------------------------------------------------------------+
+| 5.2     | Added the ability to read a binary file from standard input;      |
+|         | added a second positional argument specifying the TAP filename    |
++---------+-------------------------------------------------------------------+
+| 4.5     | Added the ``--clear`` and ``--end`` options, and the ability to   |
+|         | convert SNA, SZX and Z80 snapshots                                |
++---------+-------------------------------------------------------------------+
+| 3.4     | Added the ``-V`` option and the long options                      |
++---------+-------------------------------------------------------------------+
+| 2.2.5   | Added the ``-p`` option                                           |
++---------+-------------------------------------------------------------------+
+| 1.3.1   | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _skool2asm.py:
 

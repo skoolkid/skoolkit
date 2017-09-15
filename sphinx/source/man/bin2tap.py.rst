@@ -18,20 +18,25 @@ OPTIONS
 =======
 -c, --clear `N`
   Use a ``CLEAR N`` command in the BASIC loader, and leave the stack pointer
-  alone. This option overrides the ``--stack`` option.
+  alone. This option overrides the ``--stack`` option. `N` must be a decimal
+  number, or a hexadecimal number prefixed by '0x'.
 
 -e, --end `ADDR`
-  Set the end address when reading a snapshot.
+  Set the end address when reading a snapshot. `ADDR` must be a decimal number,
+  or a hexadecimal number prefixed by '0x'.
 
 -o, --org `ORG`
   Set the origin address; the default origin address is 16384 for a snapshot,
-  or 65536 minus the length of FILE for a binary file.
+  or 65536 minus the length of FILE for a binary file. `ORG` must be a decimal
+  number, or a hexadecimal number prefixed by '0x'.
 
 -p, --stack `STACK`
-  Set the stack pointer; the default value is `ORG`.
+  Set the stack pointer; the default value is `ORG`. `STACK` must be a decimal
+  number, or a hexadecimal number prefixed by '0x'.
 
 -s, --start `START`
-  Set the start address to JP to; the default start address is `ORG`.
+  Set the start address to JP to; the default start address is `ORG`. `START`
+  must be a decimal number, or a hexadecimal number prefixed by '0x'.
 
 -S, --screen `FILE`
   Add a loading screen to the TAP file. `FILE` may be a snapshot or a 6912-byte
