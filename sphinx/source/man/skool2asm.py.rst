@@ -23,7 +23,8 @@ OPTIONS
   Write the disassembly in decimal.
 
 -E, --end `ADDR`
-  Stop converting at this address.
+  Stop converting at this address. `ADDR` must be a decimal number, or a
+  hexadecimal number prefixed by '0x'.
 
 -f, --fixes `N`
   Apply fixes; `N` may be one of:
@@ -67,7 +68,8 @@ OPTIONS
   Apply safe substitutions (@ssub).
 
 -S, --start `ADDR`
-  Start converting at this address.
+  Start converting at this address. `ADDR` must be a decimal number, or a
+  hexadecimal number prefixed by '0x'.
 
 -u, --upper
   Write the disassembly in upper case.

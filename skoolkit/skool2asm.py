@@ -18,7 +18,7 @@ import argparse
 import os.path
 import time
 
-from skoolkit import info, get_class, show_package_dir, VERSION
+from skoolkit import info, get_class, integer, show_package_dir, VERSION
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.skoolasm import AsmWriter
 from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, BASE_16
@@ -76,7 +76,7 @@ def main(args):
                        help="Create default labels for unlabelled instructions")
     group.add_argument('-D', '--decimal', dest='base', action='store_const', const=BASE_10, default=config['Base'],
                        help="Write the disassembly in decimal")
-    group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=int, default=65536,
+    group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=integer, default=65536,
                        help="Stop converting at this address")
     group.add_argument('-f', '--fixes', dest='fix_mode', metavar='N', type=int, choices=range(4), default=0,
                        help="Apply fixes:\n"
@@ -102,7 +102,7 @@ def main(args):
                        help="Show configuration parameter values")
     group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=1,
                        help="Apply safe substitutions (@ssub)")
-    group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=int, default=0,
+    group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer, default=0,
                        help="Start converting at this address")
     group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER, default=config['Case'],
                        help="Write the disassembly in upper case")

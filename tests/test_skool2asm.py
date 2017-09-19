@@ -188,11 +188,31 @@ class Skool2AsmTest(SkoolKitTestCase):
 
     @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
     @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_option_S_with_hex_address(self):
+        for option, start in (('-S', '0x7ef0'), ('--start', '0xA1FF')):
+            output, error = self.run_skool2asm('-q {} {} test-S-hex.skool'.format(option, start))
+            self.assertEqual(error, '')
+            self.assertEqual(mock_skool_parser.min_address, int(start[2:], 16))
+            self.assertTrue(mock_asm_writer.wrote)
+            mock_asm_writer.wrote = False
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
     def test_option_E(self):
         for option, end in (('-E', 50000), ('--end', 60000)):
             output, error = self.run_skool2asm('-q {} {} test-E.skool'.format(option, end))
             self.assertEqual(error, '')
             self.assertEqual(mock_skool_parser.max_address, end)
+            self.assertTrue(mock_asm_writer.wrote)
+            mock_asm_writer.wrote = False
+
+    @patch.object(skool2asm, 'SkoolParser', MockSkoolParser)
+    @patch.object(skool2asm, 'AsmWriter', MockAsmWriter)
+    def test_option_E_with_hex_address(self):
+        for option, end in (('-E', '0x81af'), ('--end', '0xAB00')):
+            output, error = self.run_skool2asm('-q {} {} test-E-hex.skool'.format(option, end))
+            self.assertEqual(error, '')
+            self.assertEqual(mock_skool_parser.max_address, int(end[2:], 16))
             self.assertTrue(mock_asm_writer.wrote)
             mock_asm_writer.wrote = False
 
