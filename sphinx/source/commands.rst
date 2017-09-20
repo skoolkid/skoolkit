@@ -259,6 +259,9 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal        |
+|         | integer prefixed by '0x'                                          |
++---------+-------------------------------------------------------------------+
 | 6.1     | Added the ability to assemble instructions whose operands contain |
 |         | arithmetic expressions                                            |
 +---------+-------------------------------------------------------------------+

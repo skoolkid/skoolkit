@@ -102,6 +102,20 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.end, value)
 
     @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_option_E_with_hex_address(self):
+        skoolfile = 'test-E-hex.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option, value in (('-E', '0x7ff0'), ('--end', '0xA1B5')):
+            output, error = self.run_skool2bin('{} {} {}'.format(option, value, skoolfile))
+            self.assertEqual(len(error), 0)
+            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_bin_writer.asm_mode, 0)
+            self.assertEqual(mock_bin_writer.fix_mode, 0)
+            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
+            self.assertIsNone(mock_bin_writer.start)
+            self.assertEqual(mock_bin_writer.end, int(value[2:], 16))
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
     def test_option_i(self):
         skoolfile = 'test-i.skool'
         exp_binfile = skoolfile[:-6] + '.bin'
@@ -155,6 +169,20 @@ class Skool2BinTest(SkoolKitTestCase):
             self.assertEqual(mock_bin_writer.fix_mode, 0)
             self.assertEqual(mock_bin_writer.binfile, exp_binfile)
             self.assertEqual(mock_bin_writer.start, value)
+            self.assertIsNone(mock_bin_writer.end)
+
+    @patch.object(skool2bin, 'BinWriter', MockBinWriter)
+    def test_option_S_with_hex_address(self):
+        skoolfile = 'test-S-hex.skool'
+        exp_binfile = skoolfile[:-6] + '.bin'
+        for option, value in (('-S', '0x7abc'), ('--start', '0xFA0A')):
+            output, error = self.run_skool2bin('{} {} {}'.format(option, value, skoolfile))
+            self.assertEqual(len(error), 0)
+            self.assertEqual(mock_bin_writer.skoolfile, skoolfile)
+            self.assertEqual(mock_bin_writer.asm_mode, 0)
+            self.assertEqual(mock_bin_writer.fix_mode, 0)
+            self.assertEqual(mock_bin_writer.binfile, exp_binfile)
+            self.assertEqual(mock_bin_writer.start, int(value[2:], 16))
             self.assertIsNone(mock_bin_writer.end)
 
     def test_option_V(self):

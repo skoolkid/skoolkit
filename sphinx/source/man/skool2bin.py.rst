@@ -21,7 +21,8 @@ OPTIONS
   Apply @ofix and @bfix directives.
 
 -E, --end `ADDR`
-  Stop converting at this address.
+  Stop converting at this address. `ADDR` must be a decimal number, or a
+  hexadecimal number prefixed by '0x'.
 
 -i, --isub
   Apply @isub directives.
@@ -33,7 +34,8 @@ OPTIONS
   Apply @isub and @ssub directives.
 
 -S, --start `ADDR`
-  Start converting at this address.
+  Start converting at this address. `ADDR` must be a decimal number, or a
+  hexadecimal number prefixed by '0x'.
 
 -V, --version
   Show the SkoolKit version number and exit.

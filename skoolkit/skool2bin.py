@@ -16,7 +16,7 @@
 
 import argparse
 
-from skoolkit import SkoolParsingError, open_file, info, warn, get_int_param, VERSION
+from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, warn, VERSION
 from skoolkit.skoolparser import parse_asm_block_directive
 from skoolkit.skoolsft import VALID_CTLS
 from skoolkit.textutils import find_unquoted
@@ -152,7 +152,7 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-b', '--bfix', dest='fix_mode', action='store_const', const=2, default=0,
                        help="Apply @ofix and @bfix directives")
-    group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=int,
+    group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=integer,
                        help='Stop converting at this address')
     group.add_argument('-i', '--isub', dest='asm_mode', action='store_const', const=1, default=0,
                        help="Apply @isub directives")
@@ -160,7 +160,7 @@ def main(args):
                        help="Apply @ofix directives")
     group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=0,
                        help="Apply @isub and @ssub directives")
-    group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=int,
+    group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer,
                        help='Start converting at this address')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit')
