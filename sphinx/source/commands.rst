@@ -319,6 +319,9 @@ data definition entries and ASM block directives), consider using
 +---------+----------------------------------------------------------------+
 | Version | Changes                                                        |
 +=========+================================================================+
+| 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal     |
+|         | integer prefixed by '0x'                                       |
++---------+----------------------------------------------------------------+
 | 6.0     | Added support for the 'a' identifier in the ``--write`` option |
 +---------+----------------------------------------------------------------+
 | 5.1     | A terminal ``i`` directive is appended if the skool file ends  |

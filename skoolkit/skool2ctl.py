@@ -16,7 +16,7 @@
 
 import argparse
 
-from skoolkit import VERSION
+from skoolkit import integer, VERSION
 from skoolkit.skoolctl import (CtlWriter, ASM_DIRECTIVES, BLOCKS, BLOCK_TITLES, BLOCK_DESC,
                                REGISTERS, BLOCK_COMMENTS, SUBBLOCKS, COMMENTS)
 
@@ -38,13 +38,13 @@ def main(args):
     group.add_argument('-b', '--preserve-base', action='store_true', dest='preserve_base',
                        help="Preserve the base of decimal and hexadecimal values in\n"
                             "instruction operands and DEFB/DEFM/DEFS/DEFW statements")
-    group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=int, default=65536,
+    group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=integer, default=65536,
                        help="Stop converting at this address")
     group.add_argument('-h', '--hex', action='store_const', dest='write_hex', const=1, default=0,
                        help='Write addresses in upper case hexadecimal format')
     group.add_argument('-l', '--hex-lower', action='store_const', dest='write_hex', const=-1, default=0,
                        help='Write addresses in lower case hexadecimal format')
-    group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=int, default=0,
+    group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer, default=0,
                        help="Start converting at this address")
     group.add_argument('-V', '--version', action='version',
                        version='SkoolKit {}'.format(VERSION),

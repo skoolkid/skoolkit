@@ -22,7 +22,8 @@ OPTIONS
   character values are preserved.)
 
 -E, --end `ADDR`
-  Stop converting at this address.
+  Stop converting at this address. `ADDR` must be a decimal number, or a
+  hexadecimal number prefixed by '0x'.
 
 -h, --hex
   Write addresses in upper case hexadecimal format.
@@ -31,7 +32,8 @@ OPTIONS
   Write addresses in lower case hexadecimal format.
 
 -S, --start `ADDR`
-  Start converting at this address.
+  Start converting at this address. `ADDR` must be a decimal number, or a
+  hexadecimal number prefixed by '0x'.
 
 -V, --version
   Show the SkoolKit version number and exit.
