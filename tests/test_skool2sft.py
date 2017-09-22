@@ -87,11 +87,27 @@ class Skool2SftTest(SkoolKitTestCase):
             self.assertEqual(mock_sft_writer.max_address, end)
 
     @patch.object(skool2sft, 'SftWriter', MockSftWriter)
+    def test_option_E_with_hex_address(self):
+        for option, end in (('-E', '0x7a0f'), ('--end', '0xA00D')):
+            skool2sft.main((option, str(end), 'test.skool'))
+            self.assertTrue(mock_sft_writer.write_called)
+            self.assertEqual(mock_sft_writer.min_address, 0)
+            self.assertEqual(mock_sft_writer.max_address, int(end[2:], 16))
+
+    @patch.object(skool2sft, 'SftWriter', MockSftWriter)
     def test_option_S(self):
         for option, start in (('-S', 40000), ('--start', 50000)):
             skool2sft.main((option, str(start), 'test.skool'))
             self.assertTrue(mock_sft_writer.write_called)
             self.assertEqual(mock_sft_writer.min_address, start)
+            self.assertEqual(mock_sft_writer.max_address, 65536)
+
+    @patch.object(skool2sft, 'SftWriter', MockSftWriter)
+    def test_option_S_with_hex_address(self):
+        for option, start in (('-S', '0x7b10'), ('--start', '0xBF01')):
+            skool2sft.main((option, str(start), 'test.skool'))
+            self.assertTrue(mock_sft_writer.write_called)
+            self.assertEqual(mock_sft_writer.min_address, int(start[2:], 16))
             self.assertEqual(mock_sft_writer.max_address, 65536)
 
     @patch.object(skool2sft, 'SftWriter', MockSftWriter)

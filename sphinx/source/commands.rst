@@ -579,6 +579,9 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 +---------+-------------------------------------------------------------+
 | Version | Changes                                                     |
 +=========+=============================================================+
+| 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal  |
+|         | integer prefixed by '0x'                                    |
++---------+-------------------------------------------------------------+
 | 5.1     | ``i`` blocks are preserved in the same way as code and data |
 |         | blocks (instead of verbatim)                                |
 +---------+-------------------------------------------------------------+
