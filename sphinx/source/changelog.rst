@@ -5,8 +5,8 @@ Changelog
 -----
 * The ``--clear``, ``--end``, ``--org``, ``--stack`` and ``--start`` options of
   :ref:`bin2sna.py`, :ref:`bin2tap.py`, :ref:`skool2asm.py`,
-  :ref:`skool2bin.py`, :ref:`skool2ctl.py` and :ref:`skool2sft.py` now accept a
-  hexadecimal integer prefixed by '0x'
+  :ref:`skool2bin.py`, :ref:`skool2ctl.py`, :ref:`skool2sft.py` and
+  :ref:`sna2skool.py` now accept a hexadecimal integer prefixed by '0x'
 * Added the ``--show-config`` option to :ref:`skool2asm.py`,
   :ref:`skool2html.py` and :ref:`sna2skool.py` (for showing configuration
   parameter values)

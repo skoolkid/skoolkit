@@ -23,7 +23,8 @@ OPTIONS
   be used, if present.
 
 -e, --end `ADDR`
-  Stop disassembling at this address; the default end address is 65536.
+  Stop disassembling at this address; the default end address is 65536. `ADDR`
+  must be a decimal number, or a hexadecimal number prefixed by '0x'.
 
 -g, --generate-ctl `FILE`
   Generate a control file in `FILE`.
@@ -63,7 +64,8 @@ OPTIONS
 
 -o, --org `ADDR`
   Specify the origin address of a binary (.bin) file; the default origin
-  address is 65536 minus the length of the file.
+  address is 65536 minus the length of the file. `ADDR` must be a decimal
+  number, or a hexadecimal number prefixed by '0x'.
 
 -p, --page `PAGE`
   Specify the page (0-7) of a 128K snapshot to map to 49152-65535.
@@ -83,6 +85,7 @@ OPTIONS
 
 -s, --start `ADDR`
   Start disassembling at this address; the default start address is 16384.
+  `ADDR` must be a decimal number, or a hexadecimal number prefixed by '0x'.
 
 -t, --text
   Show ASCII text in the comment fields of the disassembly.

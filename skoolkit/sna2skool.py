@@ -16,7 +16,7 @@
 
 import argparse
 
-from skoolkit import info, find_file, read_bin_file, VERSION
+from skoolkit import find_file, info, integer, read_bin_file, VERSION
 from skoolkit.config import get_config, show_config, update_options
 from skoolkit.ctlparser import CtlParser
 from skoolkit.sftparser import SftParser
@@ -78,7 +78,7 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--ctl', dest='ctlfile', metavar='FILE',
                        help="Use FILE as the control file (may be '-' for standard input)")
-    group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=int, default=END,
+    group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=END,
                        help='Stop disassembling at this address (default={})'.format(END))
     group.add_argument('-g', '--generate-ctl', dest='genctlfile', metavar='FILE',
                        help='Generate a control file in FILE')
@@ -100,7 +100,7 @@ def main(args):
                        help='Use FILE as a code execution map when generating a control file')
     group.add_argument('-n', '--defb-size', dest='defb_size', metavar='N', type=int, default=config['DefbSize'],
                        help=argparse.SUPPRESS)
-    group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=int,
+    group.add_argument('-o', '--org', dest='org', metavar='ADDR', type=integer,
                        help='Specify the origin address of a binary (.bin) file (default: 65536 - length)')
     group.add_argument('-p', '--page', dest='page', metavar='PAGE', type=int, choices=list(range(8)),
                        help='Specify the page (0-7) of a 128K snapshot to map to 49152-65535')
@@ -110,7 +110,7 @@ def main(args):
                        help=argparse.SUPPRESS)
     group.add_argument('--show-config', dest='show_config', action='store_true',
                        help="Show configuration parameter values")
-    group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=int, default=0,
+    group.add_argument('-s', '--start', dest='start', metavar='ADDR', type=integer, default=0,
                        help='Start disassembling at this address (default={})'.format(START))
     group.add_argument('-t', '--text', dest='text', action='store_const', const=1, default=config['Text'],
                        help=argparse.SUPPRESS)

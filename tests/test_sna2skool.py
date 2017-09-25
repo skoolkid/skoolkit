@@ -567,6 +567,19 @@ class OptionsTest(SkoolKitTestCase):
             self.assertEqual(ctls[value], 'i')
             self.assertTrue(mock_skool_writer.wrote_skool)
 
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_e_with_hex_address(self):
+        binfile = self.write_bin_file([0] * 3)
+        for option, value in (('-e', '0xfffe'), ('--end', '0xFFFF')):
+            output, error = self.run_sna2skool('{} {} {}'.format(option, value, binfile))
+            self.assertEqual(error, '')
+            ctls = mock_skool_writer.ctl_parser.ctls
+            end = int(value[2:], 16)
+            self.assertIn(end, ctls)
+            self.assertEqual(ctls[end], 'i')
+            self.assertTrue(mock_skool_writer.wrote_skool)
+
     @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
@@ -910,6 +923,18 @@ class OptionsTest(SkoolKitTestCase):
             self.assertEqual(mock_skool_writer.snapshot[value], 201)
             self.assertTrue(mock_skool_writer.wrote_skool)
 
+    @patch.object(sna2skool, 'read_bin_file', Mock(return_value=[201]))
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_o_with_hex_address(self):
+        for option, value in (('-o', '0x7f00'), ('--org', '0xAB0C')):
+            output, error = self.run_sna2skool('{} {} test.bin'.format(option, value))
+            self.assertEqual(error, '')
+            org = int(value[2:], 16)
+            self.assertEqual({org: 'c', org + 1: 'i'}, mock_ctl_parser.ctls)
+            self.assertEqual(mock_skool_writer.snapshot[org], 201)
+            self.assertTrue(mock_skool_writer.wrote_skool)
+
     @patch.object(sna2skool, 'CtlParser', MockCtlParser)
     @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
     def test_option_p(self):
@@ -1016,6 +1041,18 @@ class OptionsTest(SkoolKitTestCase):
         exp_ctls = {start: 'c', 65536: 'i'}
         for option in ('-s', '--start'):
             output, error = self.run_sna2skool('{} {} test.sna'.format(option, start))
+            self.assertEqual(error, '')
+            self.assertEqual(exp_ctls, mock_ctl_parser.ctls)
+            self.assertTrue(mock_skool_writer.wrote_skool)
+
+    @patch.object(sna2skool, 'get_snapshot', mock_get_snapshot)
+    @patch.object(sna2skool, 'CtlParser', MockCtlParser)
+    @patch.object(sna2skool, 'SkoolWriter', MockSkoolWriter)
+    def test_option_s_with_hex_address(self):
+        start = 65534
+        exp_ctls = {start: 'c', 65536: 'i'}
+        for option in ('-s', '--start'):
+            output, error = self.run_sna2skool('{} 0x{:04x} test.sna'.format(option, start))
             self.assertEqual(error, '')
             self.assertEqual(exp_ctls, mock_ctl_parser.ctls)
             self.assertTrue(mock_skool_writer.wrote_skool)
