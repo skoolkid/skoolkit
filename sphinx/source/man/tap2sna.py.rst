@@ -26,6 +26,7 @@ OPTIONS
 
 -p, --stack `STACK`
   Set the stack pointer. This option is equivalent to ``--reg sp=STACK``.
+  `STACK` must be a decimal number, or a hexadecimal number prefixed by '0x'.
 
 --ram OPERATION
   Perform a load, move or poke operation on the memory snapshot being built. Do
@@ -39,7 +40,8 @@ OPTIONS
 
 -s, --start `START`
   Set the start address to JP to. This option is equivalent to
-  ``--reg pc=START``.
+  ``--reg pc=START``. `START` must be a decimal number, or a hexadecimal number
+  prefixed by '0x'.
 
 --state name=value
   Set a hardware state attribute. Do ``--state help`` for more information, or

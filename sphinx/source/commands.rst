@@ -1019,6 +1019,9 @@ given on the command line.
 +---------+----------------------------------------------------------------+
 | Version | Changes                                                        |
 +=========+================================================================+
+| 6.2     | The ``--stack`` and ``--start`` options accept a hexadecimal   |
+|         | integer prefixed by '0x'                                       |
++---------+----------------------------------------------------------------+
 | 5.3     | Added the ``--stack`` and ``--start`` options                  |
 +---------+----------------------------------------------------------------+
 | 4.5     | Added support for TZX block type 0x14 (pure data), for loading |

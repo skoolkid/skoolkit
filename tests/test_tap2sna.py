@@ -105,6 +105,15 @@ class Tap2SnaTest(SkoolKitTestCase):
             url, options, z80 = make_z80_args
             self.assertEqual(['sp={}'.format(stack)], options.reg)
 
+    @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    def test_options_p_stack_with_hex_address(self):
+        for option, stack in (('-p', '0x6ff0'), ('--stack', '0x9ABC')):
+            output, error = self.run_tap2sna('{} {} in.tap out.z80'.format(option, stack))
+            self.assertEqual([], output)
+            self.assertEqual(error, '')
+            url, options, z80 = make_z80_args
+            self.assertEqual(['sp={}'.format(int(stack[2:], 16))], options.reg)
+
     def test_option_p(self):
         block = create_tap_data_block([0])
         tapfile = self._write_tap([block])
@@ -123,6 +132,17 @@ class Tap2SnaTest(SkoolKitTestCase):
         exp_reg = ['pc={}'.format(start)]
         for option in ('-s', '--start'):
             output, error = self.run_tap2sna('{} {} in.tap out.z80'.format(option, start))
+            self.assertEqual([], output)
+            self.assertEqual(error, '')
+            url, options, z80 = make_z80_args
+            self.assertEqual(exp_reg, options.reg)
+
+    @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    def test_options_s_start_with_hex_address(self):
+        start = 30000
+        exp_reg = ['pc={}'.format(start)]
+        for option in ('-s', '--start'):
+            output, error = self.run_tap2sna('{} 0x{:04X} in.tap out.z80'.format(option, start))
             self.assertEqual([], output)
             self.assertEqual(error, '')
             url, options, z80 = make_z80_args
