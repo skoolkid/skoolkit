@@ -302,7 +302,7 @@ def _print_ram_help():
     sys.stdout.write("""
 Usage: --ram load=block,start[,length,step,offset,inc]
        --ram move=src,size,dest
-       --ram poke=a[-b[-c]],v
+       --ram poke=a[-b[-c]],[^+]v
 
 Load data from a tape block, move a block of bytes from one location to
 another, or POKE a single address or range of addresses with a given value.
