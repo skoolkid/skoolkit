@@ -18,7 +18,7 @@ import os
 import argparse
 
 from skoolkit import integer, read_bin_file, VERSION
-from skoolkit.snapshot import write_z80v3
+from skoolkit.snapshot import print_reg_help, write_z80v3
 
 def run(infile, outfile, options):
     ram = list(read_bin_file(infile, 49152))
@@ -35,7 +35,7 @@ def run(infile, outfile, options):
     parent_dir = os.path.dirname(outfile)
     if parent_dir and not os.path.isdir(parent_dir):
         os.makedirs(parent_dir)
-    registers = ('sp={}'.format(stack), 'pc={}'.format(start))
+    registers = ['sp={}'.format(stack), 'pc={}'.format(start)] + options.reg
     state = ('border={}'.format(options.border),)
     write_z80v3(outfile, ram, registers, state)
 
@@ -52,16 +52,21 @@ def main(args):
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('-b', '--border', dest='border', metavar='BORDER', type=int, default=7,
-                       help="Set the border colour (default: 7)")
+                       help="Set the border colour (default: 7).")
     group.add_argument('-o', '--org', dest='org', metavar='ORG', type=integer,
-                       help="Set the origin address (default: 65536 minus the length of file.bin)")
+                       help="Set the origin address (default: 65536 minus the length of file.bin).")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
-                       help="Set the stack pointer (default: ORG)")
+                       help="Set the stack pointer (default: ORG).")
+    group.add_argument('-r', '--reg', dest='reg', metavar='name=value', action='append', default=[],
+                       help="Set the value of a register. Do '--reg help' for more information. This option may be used multiple times.")
     group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
-                       help="Set the address at which to start execution (default: ORG)")
+                       help="Set the address at which to start execution (default: ORG).")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
-                       help='Show SkoolKit version number and exit')
+                       help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
+    if 'help' in namespace.reg:
+        print_reg_help()
+        return
     infile = namespace.infile
     if unknown_args or infile is None:
         parser.exit(2, parser.format_help())

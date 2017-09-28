@@ -3,6 +3,8 @@ Changelog
 
 6.2b1
 -----
+* Added the ``--reg`` option to :ref:`bin2sna.py` (for setting the value of a
+  register)
 * The ``--clear``, ``--end``, ``--org``, ``--stack`` and ``--start`` options of
   the :ref:`SkoolKit commands <commands>` now accept a hexadecimal integer
   prefixed by '0x'

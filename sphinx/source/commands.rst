@@ -27,24 +27,27 @@ it with no arguments to see the list of available options::
 
   Options:
     -b BORDER, --border BORDER
-                          Set the border colour (default: 7)
+                          Set the border colour (default: 7).
     -o ORG, --org ORG     Set the origin address (default: 65536 minus the
-                          length of file.bin)
+                          length of file.bin).
     -p STACK, --stack STACK
-                          Set the stack pointer (default: ORG)
+                          Set the stack pointer (default: ORG).
+    -r name=value, --reg name=value
+                          Set the value of a register. Do '--reg help' for more
+                          information. This option may be used multiple times.
     -s START, --start START
                           Set the address at which to start execution (default:
-                          ORG)
-    -V, --version         Show SkoolKit version number and exit
+                          ORG).
+    -V, --version         Show SkoolKit version number and exit.
 
-+---------+-------------------------------------------------------------+
-| Version | Changes                                                     |
-+=========+=============================================================+
-| 6.2     | The ``--org``, ``--stack`` and ``--start`` options accept a |
-|         | hexadecimal integer prefixed by '0x'                        |
-+---------+-------------------------------------------------------------+
-| 5.2     | New                                                         |
-+---------+-------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | Added the ``--reg`` option; the ``--org``, ``--stack`` and        |
+|         | ``--start`` options accept a hexadecimal integer prefixed by '0x' |
++---------+-------------------------------------------------------------------+
+| 5.2     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _bin2tap.py:
 

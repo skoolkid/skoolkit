@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import textwrap
 import zlib
 
 from skoolkit import SkoolKitError, get_int_param, read_bin_file
@@ -93,6 +94,24 @@ def set_z80_registers(z80, *specs):
                     z80[12] |= 1
             else:
                 raise SkoolKitError('Invalid register: {}'.format(spec))
+
+def print_reg_help():
+    reg_names = ', '.join(sorted(Z80_REGISTERS))
+    print("""
+Usage: -r name=value, --reg name=value
+
+Set the value of a register or register pair. For example:
+
+  --reg hl=32768
+  --reg b=17
+
+To set the value of an alternate (shadow) register, use the '^' prefix:
+
+  --reg ^hl=10072
+
+Recognised register names are:
+
+  {}""".format('\n  '.join(textwrap.wrap(reg_names, 70))).lstrip())
 
 def set_z80_state(z80, *specs):
     for spec in specs:

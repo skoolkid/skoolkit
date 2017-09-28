@@ -26,16 +26,47 @@ OPTIONS
   by '0x'.
 
 -p, --stack `STACK`
-  Set the stack pointer. The default value is `ORG`. `STACK` must be a decimal
-  number, or a hexadecimal number prefixed by '0x'.
+  Set the stack pointer. This option is equivalent to ``--reg sp=STACK``. The
+  default value is `ORG`. `STACK` must be a decimal number, or a hexadecimal
+  number prefixed by '0x'.
+
+-r, --reg `name=value`
+  Set the value of a register. Do ``--reg help`` for more information, or see
+  the section on ``REGISTERS`` below. This option may be used multiple times.
 
 -s, --start `START`
-  Set the address at which to start execution when the snapshot is loaded. The
-  default start address is `ORG`. `START` must be a decimal number, or a
-  hexadecimal number prefixed by '0x'.
+  Set the address at which to start execution when the snapshot is loaded. This
+  option is equivalent to ``--reg pc=START``. The default start address is
+  `ORG`. `START` must be a decimal number, or a hexadecimal number prefixed by
+  '0x'.
 
 -V, --version
   Show the SkoolKit version number and exit.
+
+REGISTERS
+=========
+The ``--reg`` option sets the value of a register in the snapshot.
+
+|
+|  ``--reg name=value``
+
+For example:
+
+|
+|  ``--reg hl=32768``
+|  ``--reg b=17``
+
+To set the value of an alternate (shadow) register, use the '^' prefix:
+
+|
+|  ``--reg ^hl=10072``
+
+Recognised register names are:
+
+|
+|  ``^a``, ``^b``, ``^bc``, ``^c``, ``^d``, ``^de``, ``^e``, ``^f``, ``^h``, ``^hl``, ``^l``,
+|  ``a``, ``b``, ``bc``, ``c``, ``d``, ``de``, ``e``, ``f``, ``h``, ``hl``, ``l``,
+|  ``i``, ``ix``, ``iy``, ``pc``, ``r``, ``sp``
 
 EXAMPLES
 ========

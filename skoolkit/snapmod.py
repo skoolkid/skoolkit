@@ -15,30 +15,11 @@
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import textwrap
 import argparse
 
 from skoolkit import SkoolKitError, get_word, read_bin_file, write_line, VERSION
 from skoolkit.snapshot import (get_snapshot, make_z80_ram_block, make_z80v3_ram_blocks,
-                               set_z80_registers, set_z80_state, move, poke, Z80_REGISTERS)
-
-def _print_reg_help():
-    reg_names = ', '.join(sorted(Z80_REGISTERS.keys()))
-    print("""
-Usage: --r name=value, --reg name=value
-
-Set the value of a register or register pair. For example:
-
-  --reg hl=32768
-  --reg b=17
-
-To set the value of an alternate (shadow) register, use the '^' prefix:
-
-  --reg ^hl=10072
-
-Recognised register names are:
-
-  {}""".format('\n  '.join(textwrap.wrap(reg_names, 70))).lstrip())
+                               move, poke, print_reg_help, set_z80_registers, set_z80_state)
 
 def _print_state_help():
     print("""
@@ -104,7 +85,7 @@ def main(args):
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
     if 'help' in namespace.reg:
-        _print_reg_help()
+        print_reg_help()
         return
     if 'help' in namespace.state:
         _print_state_help()

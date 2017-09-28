@@ -149,6 +149,28 @@ class Bin2SnaTest(SkoolKitTestCase):
             z80file = self._run("{} {} {}".format(option, stack, binfile))
             self._check_z80(z80file, data, sp=int(stack[2:], 16))
 
+    def test_option_reg_help(self):
+        output, error = self.run_bin2sna('--reg help')
+        self.assertEqual(error, '')
+        exp_output = [
+            'Usage: -r name=value, --reg name=value',
+            '',
+            'Set the value of a register or register pair. For example:',
+            '',
+            '  --reg hl=32768',
+            '  --reg b=17',
+            '',
+            "To set the value of an alternate (shadow) register, use the '^' prefix:",
+            '',
+            '  --reg ^hl=10072',
+            '',
+            'Recognised register names are:',
+            '',
+            '  ^a, ^b, ^bc, ^c, ^d, ^de, ^e, ^f, ^h, ^hl, ^l, a, b, bc, c, d, de, e,',
+            '  f, h, hl, i, ix, iy, l, pc, r, sp'
+        ]
+        self.assertEqual(exp_output, output)
+
     def test_option_s(self):
         data = [2, 3, 4]
         binfile = self.write_bin_file(data, suffix='.bin')

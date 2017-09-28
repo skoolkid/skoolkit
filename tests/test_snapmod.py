@@ -344,7 +344,7 @@ class SnapmodTest(SkoolKitTestCase):
         output, error = self.run_snapmod('--reg help')
         self.assertEqual(error, '')
         exp_output = [
-            'Usage: --r name=value, --reg name=value',
+            'Usage: -r name=value, --reg name=value',
             '',
             'Set the value of a register or register pair. For example:',
             '',
