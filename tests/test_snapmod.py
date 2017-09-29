@@ -1,17 +1,10 @@
 import unittest
 from unittest.mock import patch
 
-from skoolkittest import SkoolKitTestCase
+from skoolkittest import SkoolKitTestCase, Z80_REGISTERS
 from skoolkit import SkoolKitError, snapmod, read_bin_file, VERSION
 from skoolkit.snapshot import get_snapshot
 
-Z80_REGISTERS = {
-    'a': 0, 'f': 1, 'bc': 2, 'c': 2, 'b': 3, 'hl': 4, 'l': 4, 'h': 5,
-    'sp': 8, 'i': 10, 'r': 11, 'de': 13, 'e': 13, 'd': 14, '^bc': 15,
-    '^c': 15, '^b': 16, '^de': 17, '^e': 17, '^d': 18, '^hl': 19,
-    '^l': 19, '^h': 20, '^a': 21, '^f': 22, 'iy': 23, 'ix': 25,
-    'pc': 32
-}
 def mock_run(*args):
     global run_args
     run_args = args

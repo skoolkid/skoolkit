@@ -14,6 +14,14 @@ from skoolkit import (bin2sna, bin2tap, sna2img, skool2asm, skool2bin,
                       skool2ctl, skool2html, skool2sft, sna2skool, snapinfo,
                       snapmod, tap2sna, tapinfo)
 
+Z80_REGISTERS = {
+    'a': 0, 'f': 1, 'bc': 2, 'c': 2, 'b': 3, 'hl': 4, 'l': 4, 'h': 5,
+    'sp': 8, 'i': 10, 'r': 11, 'de': 13, 'e': 13, 'd': 14, '^bc': 15,
+    '^c': 15, '^b': 16, '^de': 17, '^e': 17, '^d': 18, '^hl': 19,
+    '^l': 19, '^h': 20, '^a': 21, '^f': 22, 'iy': 23, 'ix': 25,
+    'pc': 32
+}
+
 def get_parity(data):
     parity = 0
     for b in data:

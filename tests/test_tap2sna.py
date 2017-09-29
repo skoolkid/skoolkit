@@ -4,19 +4,11 @@ from zipfile import ZipFile
 from io import BytesIO
 from unittest.mock import patch, Mock
 
-from skoolkittest import (SkoolKitTestCase, create_data_block,
+from skoolkittest import (SkoolKitTestCase, Z80_REGISTERS, create_data_block,
                           create_tap_header_block, create_tap_data_block,
                           create_tzx_header_block, create_tzx_data_block)
 from skoolkit import tap2sna, VERSION, SkoolKitError
 from skoolkit.snapshot import get_snapshot
-
-Z80_REGISTERS = {
-    'a': 0, 'f': 1, 'bc': 2, 'c': 2, 'b': 3, 'hl': 4, 'l': 4, 'h': 5,
-    'sp': 8, 'i': 10, 'r': 11, 'de': 13, 'e': 13, 'd': 14, '^bc': 15,
-    '^c': 15, '^b': 16, '^de': 17, '^e': 17, '^d': 18, '^hl': 19,
-    '^l': 19, '^h': 20, '^a': 21, '^f': 22, 'iy': 23, 'ix': 25,
-    'pc': 32
-}
 
 def mock_make_z80(*args):
     global make_z80_args
@@ -34,7 +26,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         if zip_archive:
             archive_fname = self.write_bin_file(suffix='.zip')
             with ZipFile(archive_fname, 'w') as archive:
-                archive.writestr(tap_name or 'game.tap', bytes(bytearray(tap_data)))
+                archive.writestr(tap_name or 'game.tap', bytearray(tap_data))
             return archive_fname
         return self.write_bin_file(tap_data, suffix='.tap')
 
@@ -46,7 +38,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         if zip_archive:
             archive_fname = self.write_bin_file(suffix='.zip')
             with ZipFile(archive_fname, 'w') as archive:
-                archive.writestr(tzx_name or 'game.tzx', bytes(bytearray(tzx_data)))
+                archive.writestr(tzx_name or 'game.tzx', bytearray(tzx_data))
             return archive_fname
         return self.write_bin_file(tzx_data, suffix='.tzx')
 
@@ -123,7 +115,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna('-f -p {} {} {}'.format(stack, tapfile, z80file))
         self.assertEqual(error, '')
         with open(z80file, 'rb') as f:
-            z80_header = bytearray(f.read(10))
+            z80_header = f.read(10)
         self.assertEqual(z80_header[8] + 256 * z80_header[9], stack)
 
     @patch.object(tap2sna, 'make_z80', mock_make_z80)
@@ -157,7 +149,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna('-f -s {} {} {}'.format(start, tapfile, z80file))
         self.assertEqual(error, '')
         with open(z80file, 'rb') as f:
-            z80_header = bytearray(f.read(34))
+            z80_header = f.read(34)
         self.assertEqual(z80_header[32] + 256 * z80_header[33], start)
 
     def test_option_V(self):
@@ -182,7 +174,7 @@ class Tap2SnaTest(SkoolKitTestCase):
     def test_zip_archive_with_no_tape_file(self):
         archive_fname = self.write_bin_file(suffix='.zip')
         with ZipFile(archive_fname, 'w') as archive:
-            archive.writestr('game.txt', bytes(bytearray((1, 2))))
+            archive.writestr('game.txt', bytearray((1, 2)))
         z80_fname = 'test.z80'
         with self.assertRaises(SkoolKitError) as cm:
             self.run_tap2sna('{} {}'.format(archive_fname, z80_fname))
@@ -545,7 +537,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna('--force --ram load=1,16384 {} {}'.format(tapfile, z80file))
         self.assertEqual(error, '')
         with open(z80file, 'rb') as f:
-            z80_header = bytearray(f.read(34))
+            z80_header = f.read(34)
         for reg, exp_value in exp_reg_values.items():
             offset = Z80_REGISTERS[reg]
             size = len(reg) - 1 if reg.startswith('^') else len(reg)
@@ -572,7 +564,7 @@ class Tap2SnaTest(SkoolKitTestCase):
             output, error = self.run_tap2sna('--force --ram load=1,16384 {} {} {}'.format(reg_options, tapfile, z80file))
             self.assertEqual(error, '')
             with open(z80file, 'rb') as f:
-                z80_header = bytearray(f.read(34))
+                z80_header = f.read(34)
             for reg, exp_value in reg_dict.items():
                 offset = Z80_REGISTERS[reg]
                 size = len(reg) - 1 if reg.startswith('^') else len(reg)
@@ -592,7 +584,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna('--ram load=1,16384 --reg bc=${:x} -d {} {} {}'.format(reg_value, odir, tapfile, z80fname))
         self.assertEqual(error, '')
         with open(os.path.join(odir, z80fname), 'rb') as f:
-            z80_header = bytearray(f.read(4))
+            z80_header = f.read(4)
         self.assertEqual(z80_header[2] + 256 * z80_header[3], reg_value)
 
     def test_reg_bad_value(self):
@@ -613,7 +605,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna('--force --ram load=1,16384 {} {}'.format(tapfile, z80file))
         self.assertEqual(error, '')
         with open(z80file, 'rb') as f:
-            z80_header = bytearray(f.read(30))
+            z80_header = f.read(30)
         self.assertEqual(z80_header[12] & 14, 0) # border=0
         self.assertEqual(z80_header[27], 1) # iff1=1
         self.assertEqual(z80_header[28], 1) # iff2=1
@@ -627,7 +619,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna('--force --ram load=1,16384 --state iff={} {} {}'.format(iff_value, tapfile, z80file))
         self.assertEqual(error, '')
         with open(z80file, 'rb') as f:
-            z80_header = bytearray(f.read(29))
+            z80_header = f.read(29)
         self.assertEqual(z80_header[27], iff_value)
         self.assertEqual(z80_header[28], iff_value)
 
@@ -642,7 +634,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna('--force --ram load=1,16384 --state im={} {} {}'.format(im_value, tapfile, z80file))
         self.assertEqual(error, '')
         with open(z80file, 'rb') as f:
-            z80_header = bytearray(f.read(30))
+            z80_header = f.read(30)
         self.assertEqual(z80_header[29] & 3, im_value)
 
     def test_state_im_bad_value(self):
@@ -656,7 +648,7 @@ class Tap2SnaTest(SkoolKitTestCase):
         output, error = self.run_tap2sna('--force --ram load=1,16384 --state border={} {} {}'.format(border, tapfile, z80file))
         self.assertEqual(error, '')
         with open(z80file, 'rb') as f:
-            z80_header = bytearray(f.read(13))
+            z80_header = f.read(13)
         self.assertEqual((z80_header[12] // 2) & 7, border)
 
     def test_state_border_bad_value(self):

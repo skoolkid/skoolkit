@@ -2,8 +2,8 @@ import os
 import unittest
 from unittest.mock import patch
 
-from skoolkittest import SkoolKitTestCase
-from skoolkit import bin2sna, VERSION
+from skoolkittest import SkoolKitTestCase, Z80_REGISTERS
+from skoolkit import SkoolKitError, bin2sna, VERSION
 from skoolkit.snapshot import get_snapshot
 
 def mock_run(*args):
@@ -30,7 +30,7 @@ class Bin2SnaTest(SkoolKitTestCase):
 
     def _check_z80(self, z80file, data, org=None, sp=None, pc=None, border=7):
         with open(z80file, 'rb') as f:
-            z80h = bytearray(f.read(34))
+            z80h = f.read(34)
         if org is None:
             org = 65536 - len(data)
         if sp is None:
@@ -51,6 +51,13 @@ class Bin2SnaTest(SkoolKitTestCase):
         snapshot = get_snapshot(z80file)
         self.assertEqual(data, snapshot[org:org + len(data)])
 
+    def _test_bad_spec(self, option, exp_error):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        z80file = self.write_bin_file(suffix='.z80')
+        with self.assertRaises(SkoolKitError) as cm:
+            self.run_bin2sna('{} {} {}'.format(option, binfile, z80file))
+        self.assertEqual(cm.exception.args[0], exp_error)
+
     @patch.object(bin2sna, 'run', mock_run)
     def test_default_option_values(self):
         data = [0] * 10
@@ -61,6 +68,7 @@ class Bin2SnaTest(SkoolKitTestCase):
         self.assertEqual(outfile, binfile[:-3] + 'z80')
         self.assertEqual(options.border, 7)
         self.assertEqual(options.org, None)
+        self.assertEqual([], options.reg)
         self.assertEqual(options.stack, None)
         self.assertEqual(options.start, None)
 
@@ -148,6 +156,52 @@ class Bin2SnaTest(SkoolKitTestCase):
         for option, stack in (('-p', '0x7fff'), ('--stack', '0xC001')):
             z80file = self._run("{} {} {}".format(option, stack, binfile))
             self._check_z80(z80file, data, sp=int(stack[2:], 16))
+
+    def test_option_r(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        z80file = self.write_bin_file(suffix='.z80')
+        reg_dicts = (
+            {'^a': 1, '^b': 2, '^c': 3, '^d': 4, '^e': 5, '^f': 6, '^h': 7, '^l': 8},
+            {'a': 9, 'b': 10, 'c': 11, 'd': 12, 'e': 13, 'f': 14, 'h': 15, 'l': 16, 'r': 129},
+            {'^bc': 258, '^de': 515, '^hl': 65534, 'bc': 259, 'de': 516, 'hl': 65533},
+            {'i': 13, 'ix': 1027, 'iy': 1284, 'pc': 1541, 'r': 23, 'sp': 32769}
+        )
+        for reg_dict in reg_dicts:
+            options = []
+            option = '--reg'
+            for reg, value in reg_dict.items():
+                options.append('{} {}={}'.format(option, reg, value))
+                option = '-r' if option == '--reg' else '--reg'
+            output, error = self.run_bin2sna('{} {} {}'.format(' '.join(options), binfile, z80file))
+            self.assertEqual(error, '')
+            with open(z80file, 'rb') as f:
+                z80_header = f.read(34)
+            for reg, exp_value in reg_dict.items():
+                offset = Z80_REGISTERS[reg]
+                size = len(reg) - 1 if reg.startswith('^') else len(reg)
+                if size == 1:
+                    value = z80_header[offset]
+                else:
+                    value = z80_header[offset] + 256 * z80_header[offset + 1]
+                self.assertEqual(value, exp_value)
+                if reg == 'r' and exp_value & 128:
+                    self.assertEqual(z80_header[12] & 1, 1)
+
+    def test_option_reg_with_hex_value(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        z80file = self.write_bin_file(suffix='.z80')
+        reg_value = 35487
+        output, error = self.run_bin2sna('--reg bc=${:x} {} {}'.format(reg_value, binfile, z80file))
+        self.assertEqual(error, '')
+        with open(z80file, 'rb') as f:
+            z80_header = f.read(4)
+        self.assertEqual(z80_header[2] + 256 * z80_header[3], reg_value)
+
+    def test_option_reg_bad_value(self):
+        self._test_bad_spec('--reg bc=A2', 'Cannot parse register value: bc=A2')
+
+    def test_option_reg_invalid_register(self):
+        self._test_bad_spec('--reg iz=1', 'Invalid register: iz=1')
 
     def test_option_reg_help(self):
         output, error = self.run_bin2sna('--reg help')
