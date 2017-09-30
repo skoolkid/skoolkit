@@ -5,6 +5,9 @@ Changelog
 -----
 * Added the ``--reg`` option to :ref:`bin2sna.py` (for setting the value of a
   register)
+* Added the ``Includes`` parameter to the :ref:`memoryMap` section (for
+  specifying addresses of entries to include on the memory map page in addition
+  to those specified by the ``EntryTypes`` parameter)
 * The ``--clear``, ``--end``, ``--org``, ``--stack`` and ``--start`` options of
   the :ref:`SkoolKit commands <commands>` now accept a hexadecimal integer
   prefixed by '0x'

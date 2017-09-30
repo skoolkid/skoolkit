@@ -177,6 +177,10 @@ Recognised parameters are:
 * ``TitleSuffix`` - the suffix to use after the game name or logo in the header
   of the main index page (default: 'RAM disassembly')
 
+.. note::
+   The ``GameStatusBufferIncludes`` parameter is deprecated since version 6.2.
+   Use the ``Includes`` parameter in the :ref:`memoryMap` section instead.
+
 Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
 The ``AddressAnchor`` parameter contains a standard Python format string that
@@ -432,6 +436,9 @@ Recognised parameters and their default values are:
   * ``u`` - unused addresses
   * ``w`` - DEFW blocks
 
+* ``Includes`` - a comma-separated list of addresses of entries to include on
+  the memory map page in addition to those specified by the ``EntryTypes``
+  parameter
 * ``Intro`` - the text (which may contain HTML markup) displayed at the top of
   the memory map page (default: '')
 * ``LengthColumn`` - ``1`` to display the 'Length' column, or ``0`` not to
@@ -440,6 +447,11 @@ Recognised parameters and their default values are:
   not to (default: ``0``)
 * ``Write`` - ``1`` to write the memory map page, or ``0`` not to (default:
   ``1``)
+
+.. note::
+   The ``G`` identifier in the ``EntryTypes`` parameter (along with the
+   ``GameStatusBufferIncludes`` parameter in the :ref:`ref-Game` section) is
+   deprecated since version 6.2. Use the ``Includes`` parameter instead.
 
 Every parameter in this section may contain :ref:`skool macros <skoolMacros>`.
 
@@ -461,6 +473,8 @@ name matches the page ID, if one exists; otherwise, the stock
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 6.2     | Added the ``Includes`` parameter                                 |
++---------+------------------------------------------------------------------+
 | 6.0     | Every parameter (not just ``Intro``) may contain                 |
 |         | :ref:`skool macros <skoolMacros>`                                |
 +---------+------------------------------------------------------------------+

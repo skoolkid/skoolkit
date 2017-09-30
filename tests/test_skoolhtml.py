@@ -419,7 +419,7 @@ class MethodTest(HtmlWriterTestCase):
         # [MemoryMap:*]
         self.assertIn('TestMap', writer.main_memory_maps)
         self.assertIn('TestMap', writer.memory_maps)
-        self.assertEqual(writer.memory_maps['TestMap'], {'EntryTypes': 'w'})
+        self.assertEqual(writer.memory_maps['TestMap'], {'EntryTypes': 'w', 'Includes': []})
 
     @patch.object(skoolhtml, 'REF_FILE', MINIMAL_REF_FILE + '[Foo]\nBar')
     def test_get_section_from_default_ref_file(self):
@@ -4880,6 +4880,86 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
             }
             self._assert_files_equal(join(MAPS_DIR, 'all.html'), subs)
 
+    def test_write_map_with_includes_but_no_entry_types(self):
+        ref = '\n'.join((
+            '[MemoryMap:Custom]',
+            'EntryTypes=',
+            'Includes=30001,30003,30004'
+        ))
+        skool = '\n'.join((
+            '; GSB entry',
+            ';',
+            '; Number of lives.',
+            'g30000 DEFB 4',
+            '',
+            '; Data',
+            'w30001 DEFW 78',
+            '',
+            '; Message ID',
+            't30003 DEFB 0',
+            '',
+            '; Another message ID',
+            't30004 DEFB 0',
+            '',
+            '; Code',
+            'c30005 RET',
+            '',
+            'i30006',
+        ))
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page-0">Page</th>
+            <th class="map-byte-0">Byte</th>
+            <th>Address</th>
+            <th class="map-length-0">Length</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page-0">117</td>
+            <td class="map-byte-0">49</td>
+            <td class="map-w"><span id="30001"></span><a href="../asm/30001.html">30001</a></td>
+            <td class="map-length-0">2</td>
+            <td class="map-w-desc">
+            <div class="map-entry-title-10">Data</div>
+            <div class="map-entry-desc-0">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-page-0">117</td>
+            <td class="map-byte-0">51</td>
+            <td class="map-t"><span id="30003"></span><a href="../asm/30003.html">30003</a></td>
+            <td class="map-length-0">1</td>
+            <td class="map-t-desc">
+            <div class="map-entry-title-10">Message ID</div>
+            <div class="map-entry-desc-0">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-page-0">117</td>
+            <td class="map-byte-0">52</td>
+            <td class="map-t"><span id="30004"></span><a href="../asm/30004.html">30004</a></td>
+            <td class="map-length-0">1</td>
+            <td class="map-t-desc">
+            <div class="map-entry-title-10">Another message ID</div>
+            <div class="map-entry-desc-0">
+            </div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_map('Custom')
+        subs = {
+            'header': 'Custom',
+            'body_class': 'Custom',
+            'content': content
+        }
+        self._assert_files_equal(join(MAPS_DIR, 'Custom.html'), subs)
+
     def test_write_data_map_with_custom_title_and_header_and_path(self):
         title = 'Data blocks'
         header = 'Blocks of data'
@@ -6233,8 +6313,102 @@ class HtmlOutputTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)
 
-    def test_write_gsb_page_with_includes(self):
+    def test_write_gsb_page_with_gsb_includes(self):
         ref = '[Game]\nGameStatusBufferIncludes=30003,30004'
+        skool = '\n'.join((
+            '; GSB entry 1',
+            ';',
+            '; Number of lives.',
+            'g30000 DEFB 4',
+            '',
+            '; GSB entry 2',
+            'g30001 DEFW 78',
+            '',
+            '; Message ID',
+            't30003 DEFB 0',
+            '',
+            '; Another message ID',
+            't30004 DEFB 0',
+            '',
+            '; Not a game status buffer entry',
+            'c30005 RET',
+            '',
+            'i30006',
+        ))
+        content = """
+            <div class="map-intro"></div>
+            <table class="map">
+            <tr>
+            <th class="map-page-0">Page</th>
+            <th class="map-byte-0">Byte</th>
+            <th>Address</th>
+            <th class="map-length-1">Length</th>
+            <th>Description</th>
+            </tr>
+            <tr>
+            <td class="map-page-0">117</td>
+            <td class="map-byte-0">48</td>
+            <td class="map-g"><span id="30000"></span><a href="../asm/30000.html">30000</a></td>
+            <td class="map-length-1">1</td>
+            <td class="map-g-desc">
+            <div class="map-entry-title-11">GSB entry 1</div>
+            <div class="map-entry-desc-1">
+            <div class="paragraph">
+            Number of lives.
+            </div>
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-page-0">117</td>
+            <td class="map-byte-0">49</td>
+            <td class="map-g"><span id="30001"></span><a href="../asm/30001.html">30001</a></td>
+            <td class="map-length-1">2</td>
+            <td class="map-g-desc">
+            <div class="map-entry-title-11">GSB entry 2</div>
+            <div class="map-entry-desc-1">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-page-0">117</td>
+            <td class="map-byte-0">51</td>
+            <td class="map-t"><span id="30003"></span><a href="../asm/30003.html">30003</a></td>
+            <td class="map-length-1">1</td>
+            <td class="map-t-desc">
+            <div class="map-entry-title-11">Message ID</div>
+            <div class="map-entry-desc-1">
+            </div>
+            </td>
+            </tr>
+            <tr>
+            <td class="map-page-0">117</td>
+            <td class="map-byte-0">52</td>
+            <td class="map-t"><span id="30004"></span><a href="../asm/30004.html">30004</a></td>
+            <td class="map-length-1">1</td>
+            <td class="map-t-desc">
+            <div class="map-entry-title-11">Another message ID</div>
+            <div class="map-entry-desc-1">
+            </div>
+            </td>
+            </tr>
+            </table>
+        """
+        writer = self._get_writer(ref=ref, skool=skool)
+        writer.write_map('GameStatusBuffer')
+        subs = {
+            'header': 'Game status buffer',
+            'body_class': 'GameStatusBuffer',
+            'content': content
+        }
+        self._assert_files_equal(join(BUFFERS_DIR, 'gbuffer.html'), subs)
+
+    def test_write_gsb_page_with_includes(self):
+        ref = '\n'.join((
+            '[MemoryMap:GameStatusBuffer]',
+            'EntryTypes=g',
+            'Includes=30003,30004'
+        ))
         skool = '\n'.join((
             '; GSB entry 1',
             ';',

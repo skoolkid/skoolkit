@@ -179,6 +179,12 @@ class HtmlWriter:
         for map_name, map_details in self.get_dictionaries('MemoryMap'):
             self._expand_values(map_details, 'Intro')
             self.memory_maps[map_name] = map_details
+            includes = []
+            for addr_str in map_details.get('Includes', '').split(','):
+                address = parse_int(addr_str)
+                if self.get_entry(address):
+                    includes.append(address)
+            map_details['Includes'] = includes
             if map_name not in other_code_indexes and self._should_write_map(map_details):
                 self.main_memory_maps.append(map_name)
                 self.paths.setdefault(map_name, 'maps/{}.html'.format(map_name))
@@ -848,7 +854,7 @@ class HtmlWriter:
         if map_details.get('Write') == '0':
             return False
         entry_types = map_details.get('EntryTypes', DEF_MEMORY_MAP_ENTRY_TYPES)
-        if 'G' in entry_types and self.gsb_includes:
+        if map_details['Includes'] or ('G' in entry_types and self.gsb_includes):
             return True
         return any([entry.ctl in entry_types for entry in self.memory_map])
 
@@ -868,8 +874,9 @@ class HtmlWriter:
 
         map_entries = []
         t_map_entry_subs = {'MemoryMap': map_dict}
+        includes = map_details.get('Includes', ())
         for entry in self.memory_map:
-            if entry.ctl in entry_types or ('G' in entry_types and entry.address in self.gsb_includes):
+            if entry.ctl in entry_types or entry.address in includes or ('G' in entry_types and entry.address in self.gsb_includes):
                 t_map_entry_subs['entry'] = self._get_map_entry_dict(cwd, entry, desc)
                 t_map_entry_subs['t_anchor'] = self.format_anchor(self.asm_anchor(entry.address))
                 map_entries.append(self.format_template('map_entry', t_map_entry_subs))
