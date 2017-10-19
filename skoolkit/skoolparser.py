@@ -623,11 +623,12 @@ class SkoolParser:
         rep = ''
         for p in split_quoted(operand):
             if not p.startswith('"'):
-                addr_str = get_address(p)
-                if addr_str:
-                    label = self._get_label(instruction, addr_str)
+                pieces = re.split('(\A|(?<=[\s,(+-]))(\$[0-9A-Fa-f]+|%[01]+|\d+)', p)
+                for i in range(2, len(pieces), 3):
+                    label = self._get_label(instruction, pieces[i])
                     if label:
-                        p = p.replace(addr_str, label)
+                        pieces[i] = label
+                p = ''.join(pieces)
             rep += p
         return rep
 

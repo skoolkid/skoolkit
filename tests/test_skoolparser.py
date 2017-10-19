@@ -2420,12 +2420,17 @@ class SkoolParserTest(SkoolKitTestCase):
             '@start',
             '@label=START',
             '@ssub=LD HL,32768+$0A',
-            'c32768 LD HL,32778'
+            'c32768 LD HL,32778',
+            '@label=DOSTUFF',
+            '@ssub=LD DE,10+32768',
+            ' 32771 LD DE,32778',
+            ' 32774 JP 32768/256+32771'
         ))
         parser = self._get_parser(skool, asm_mode=2, asm_labels=True)
 
-        instruction = parser.get_instruction(32768)
-        self.assertEqual(instruction.operation, 'LD HL,START+$0A')
+        self.assertEqual(parser.get_instruction(32768).operation, 'LD HL,START+$0A')
+        self.assertEqual(parser.get_instruction(32771).operation, 'LD DE,10+START')
+        self.assertEqual(parser.get_instruction(32774).operation, 'JP START/256+DOSTUFF')
 
     def test_no_label_substitution_for_8_bit_numeric_operands(self):
         skool = (
@@ -2535,7 +2540,9 @@ class SkoolParserTest(SkoolKitTestCase):
             '@label=HELLO',
             ' 30005 DEFB "Hello 30000"       ; Or here',
             ' 30016 DEFB 30000/256           ; But one here',
-            ' 30017 DEFB 30000/256,30005/256 ; And two here'
+            ' 30017 DEFB 30000/256,30005/256 ; And two here',
+            ' 30019 DEFB 1+30000%256         ; One here',
+            ' 30021 DEFB 30000/256+30005/256 ; Two here'
         ))
         parser = self._get_parser(skool, asm_mode=1, asm_labels=True)
 
@@ -2543,6 +2550,8 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(parser.get_instruction(30005).operation, 'DEFB "Hello 30000"')
         self.assertEqual(parser.get_instruction(30016).operation, 'DEFB START/256')
         self.assertEqual(parser.get_instruction(30017).operation, 'DEFB START/256,HELLO/256')
+        self.assertEqual(parser.get_instruction(30019).operation, 'DEFB 1+START%256')
+        self.assertEqual(parser.get_instruction(30021).operation, 'DEFB START/256+HELLO/256')
 
     def test_label_substitution_in_defm_statements(self):
         skool = '\n'.join((
@@ -2552,7 +2561,9 @@ class SkoolParserTest(SkoolKitTestCase):
             '@label=HELLO',
             ' 40005 DEFM "Hello 40000"       ; Or here',
             ' 40016 DEFM 40000/256           ; But one here',
-            ' 40017 DEFM 40000/256,40005/256 ; And two here'
+            ' 40017 DEFM 40000/256,40005/256 ; And two here',
+            ' 40019 DEFM 1+40000%256         ; One here',
+            ' 40021 DEFM 40000/256+40005/256 ; Two here'
         ))
         parser = self._get_parser(skool, asm_mode=1, asm_labels=True)
 
@@ -2560,6 +2571,8 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(parser.get_instruction(40005).operation, 'DEFM "Hello 40000"')
         self.assertEqual(parser.get_instruction(40016).operation, 'DEFM START/256')
         self.assertEqual(parser.get_instruction(40017).operation, 'DEFM START/256,HELLO/256')
+        self.assertEqual(parser.get_instruction(40019).operation, 'DEFM 1+START%256')
+        self.assertEqual(parser.get_instruction(40021).operation, 'DEFM START/256+HELLO/256')
 
     def test_label_substitution_in_defw_statements(self):
         skool = '\n'.join((
@@ -2567,12 +2580,16 @@ class SkoolParserTest(SkoolKitTestCase):
             '@label=START',
             'b50000 DEFW 50000               ; One label here',
             '@label=END',
-            ' 50002 DEFW 50000,50002         ; And two here'
+            ' 50002 DEFW 50000,50002         ; And two here',
+            ' 50006 DEFW 1+50000             ; One here',
+            ' 50008 DEFW 50000+50002/256     ; Two here'
         ))
         parser = self._get_parser(skool, asm_mode=1, asm_labels=True)
 
         self.assertEqual(parser.get_instruction(50000).operation, 'DEFW START')
         self.assertEqual(parser.get_instruction(50002).operation, 'DEFW START,END')
+        self.assertEqual(parser.get_instruction(50006).operation, 'DEFW 1+START')
+        self.assertEqual(parser.get_instruction(50008).operation, 'DEFW START+END/256')
 
     def test_error_duplicate_label(self):
         skool = '\n'.join((

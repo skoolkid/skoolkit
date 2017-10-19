@@ -14,6 +14,10 @@ Changelog
 * Added the ``--show-config`` option to :ref:`skool2asm.py`,
   :ref:`skool2html.py` and :ref:`sna2skool.py` (for showing configuration
   parameter values)
+* Added support for substituting labels in instruction operands and
+  DEFB/DEFM/DEFW statements that contain multiple addresses (e.g.
+  ``LD BC,30000+40000%256``), or where the address is the second or later term
+  in an expression (e.g. ``DEFW 1+30000``)
 
 6.1 (2017-09-03)
 ----------------
