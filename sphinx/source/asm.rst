@@ -445,9 +445,13 @@ The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 
 @keep
 ^^^^^
-The ``@keep`` directive prevents the substitution of a label for the operand in
-the next instruction (but only when the instruction has not been replaced using
-an ``@isub`` or ``@ssub`` directive).
+The ``@keep`` directive prevents the substitution of labels for numeric values
+in the operand of the next instruction::
+
+  @keep[=val1[,val2...]]
+
+* ``val1``, ``val2`` etc. are the values to keep; if none are specified, all
+  values are kept
 
 For example::
 
@@ -458,6 +462,14 @@ If the ``@keep`` directive were not present, the operand (24576) of the
 ``LD BC`` instruction would be replaced with the label of the routine at 24576
 (if there is a routine at that address); however, the operand is meant to be a
 pure data value, not a variable or routine address.
+
++---------+-----------------------------------------------------------------+
+| Version | Changes                                                         |
++=========+=================================================================+
+| 6.2     | Added the ability to specify the values to keep; the ``@keep``  |
+|         | directive is applied to instructions that have been replaced by |
+|         | an :ref:`isub` or :ref:`ssub` directive                         |
++---------+-----------------------------------------------------------------+
 
 .. _label:
 

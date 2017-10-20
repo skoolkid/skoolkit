@@ -2874,8 +2874,37 @@ class SkoolParserTest(SkoolKitTestCase):
         ))
         parser = self._get_parser(skool, html=True)
         entry = parser.get_entry(40000)
-        self.assertFalse(entry.instructions[0].keep)
-        self.assertTrue(entry.instructions[1].keep)
+        self.assertFalse(entry.instructions[0].keep_values())
+        self.assertTrue(entry.instructions[1].keep_values())
+        self.assertIsNone(entry.instructions[1].reference)
+
+    def test_html_mode_keep_with_one_value(self):
+        skool = '\n'.join((
+            '; Routine',
+            '@keep=40003',
+            'c40000 LD HL,40003',
+            '',
+            '; Another routine',
+            'c40003 RET'
+        ))
+        parser = self._get_parser(skool, html=True)
+        entry = parser.get_entry(40000)
+        self.assertTrue(entry.instructions[0].keep_value(40003))
+        self.assertIsNone(entry.instructions[0].reference)
+
+    def test_html_mode_keep_with_one_unused_value(self):
+        skool = '\n'.join((
+            '; Routine',
+            '@keep=40004',
+            'c40000 LD HL,40003',
+            '',
+            '; Another routine',
+            'c40003 RET'
+        ))
+        parser = self._get_parser(skool, html=True)
+        entry = parser.get_entry(40000)
+        self.assertFalse(entry.instructions[0].keep_value(40003))
+        self.assertIsNotNone(entry.instructions[0].reference)
 
     def test_html_mode_rem(self):
         skool = '\n'.join((

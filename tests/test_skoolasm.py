@@ -1336,6 +1336,55 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             '@start',
             '; Routine',
             '@keep',
+            'c30000 LD HL,30006',
+            '@keep',
+            ' 30003 LD DE,30006+30007',
+            '',
+            '; Routine',
+            '@label=NEXT',
+            'c30006 XOR A',
+            '@label=END',
+            ' 30007 RET'
+        ))
+        asm = self._get_asm(skool)
+        self.assertEqual(asm[1], '  LD HL,30006')
+        self.assertEqual(asm[2], '  LD DE,30006+30007')
+
+    def test_keep_directive_with_isub(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine',
+            '@keep',
+            '@isub=LD HL,30003+2',
+            'c30000 LD HL,30005',
+            '',
+            '; Routine',
+            '@label=NEXT',
+            ' 30003 RET'
+        ))
+        asm = self._get_asm(skool)
+        self.assertEqual(asm[1], '  LD HL,30003+2')
+
+    def test_keep_directive_with_ssub(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine',
+            '@keep',
+            '@ssub=LD HL,30003+2',
+            'c30000 LD HL,30005',
+            '',
+            '; Routine',
+            '@label=NEXT',
+            ' 30003 RET'
+        ))
+        asm = self._get_asm(skool, asm_mode=2)
+        self.assertEqual(asm[1], '  LD HL,30003+2')
+
+    def test_keep_directive_with_one_value(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine',
+            '@keep=30003',
             'c30000 LD HL,30003',
             '',
             '; Routine',
@@ -1344,6 +1393,66 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         ))
         asm = self._get_asm(skool)
         self.assertEqual(asm[1], '  LD HL,30003')
+
+    def test_keep_directive_with_one_hex_value(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine',
+            '@keep=$7533',
+            'c30000 LD HL,30003',
+            '',
+            '; Routine',
+            '@label=NEXT',
+            'c30003 RET',
+        ))
+        asm = self._get_asm(skool)
+        self.assertEqual(asm[1], '  LD HL,30003')
+
+    def test_keep_directive_with_one_unused_value(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine',
+            '@keep=30004',
+            'c30000 LD HL,30003',
+            '',
+            '; Routine',
+            '@label=NEXT',
+            'c30003 RET',
+        ))
+        asm = self._get_asm(skool)
+        self.assertEqual(asm[1], '  LD HL,NEXT')
+
+    def test_keep_directive_with_one_of_two_values(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine',
+            '@keep=30004',
+            'c30000 LD HL,30003+30004',
+            '',
+            '; Routine',
+            '@label=NEXT',
+            'c30003 XOR A',
+            '@label=END',
+            ' 30004 RET'
+        ))
+        asm = self._get_asm(skool)
+        self.assertEqual(asm[1], '  LD HL,NEXT+30004')
+
+    def test_keep_directive_with_two_values(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine',
+            '@keep=30003,30004',
+            'c30000 LD HL,30003+30004',
+            '',
+            '; Routine',
+            '@label=NEXT',
+            'c30003 XOR A',
+            '@label=END',
+            ' 30004 RET'
+        ))
+        asm = self._get_asm(skool)
+        self.assertEqual(asm[1], '  LD HL,30003+30004')
 
     def test_nolabel_directive(self):
         skool = '\n'.join((

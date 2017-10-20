@@ -18,6 +18,7 @@ Changelog
   DEFB/DEFM/DEFW statements that contain multiple addresses (e.g.
   ``LD BC,30000+40000%256``), or where the address is the second or later term
   in an expression (e.g. ``DEFW 1+30000``)
+* The :ref:`keep` directive can now specify the values to keep
 
 6.1 (2017-09-03)
 ----------------

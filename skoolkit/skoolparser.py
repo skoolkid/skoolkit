@@ -485,7 +485,12 @@ class SkoolParser:
             if directive.startswith('label='):
                 self.mode.label = directive[6:].rstrip()
             elif directive.startswith('keep'):
-                self.mode.keep = True
+                self.mode.keep = []
+                if directive.startswith('keep='):
+                    for n in directive[5:].split(','):
+                        addr = parse_int(n)
+                        if addr is not None:
+                            self.mode.keep.append(addr)
             elif directive.startswith('replace='):
                 self._add_replacement(directive[8:])
             elif directive.startswith('assemble='):
@@ -564,8 +569,6 @@ class SkoolParser:
         # Parse operations for routine/data addresses
         for entry in self.memory_map:
             for instruction in entry.instructions:
-                if instruction.keep:
-                    continue
                 operation = instruction.operation.upper()
                 if not operation.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD ', 'RST')) or self._is_8_bit_ld_instruction(operation):
                     continue
@@ -573,6 +576,8 @@ class SkoolParser:
                 if not addr_str:
                     continue
                 address = parse_int(addr_str)
+                if instruction.keep_value(address):
+                    continue
                 other_instruction = self._instructions.get(address, (None,))[0]
                 if other_instruction:
                     other_entry = other_instruction.container
@@ -595,7 +600,7 @@ class SkoolParser:
     def _substitute_labels(self):
         for entry in self.memory_map:
             for instruction in entry.instructions:
-                if instruction.sub or not instruction.keep:
+                if not instruction.keep_values():
                     operation = instruction.operation
                     if operation.upper().startswith(('DEFB', 'DEFM', 'DEFW')):
                         operands = [self._replace_addresses(instruction, op) for op in split_unquoted(operation[5:], ',')]
@@ -635,6 +640,8 @@ class SkoolParser:
     def _get_label(self, instruction, addr_str):
         operation_u = instruction.operation.upper()
         address = get_int_param(addr_str)
+        if instruction.keep_value(address):
+            return
         if address < 256 and (not operation_u.startswith(('CALL', 'DEFW', 'DJNZ', 'JP', 'JR', 'LD '))
                               or self._is_8_bit_ld_instruction(operation_u)):
             return
@@ -706,7 +713,7 @@ class Mode:
         self.rfix = None
         self.ssub = None
         self.rsub = None
-        self.keep = False
+        self.keep = None
         self.nowarn = False
         self.nolabel = False
         self.ignoreua = False
@@ -869,7 +876,7 @@ class Instruction:
             self.sub = operation
         else:
             self.sub = None
-        self.keep = False
+        self.keep = None
         self.warn = True
         self.ignoreua = False
         self.ignoremrcua = False
@@ -905,6 +912,12 @@ class Instruction:
             self.mid_block_comment = [repf(p) for p in self.mid_block_comment]
         if self.comment:
             self.comment.apply_replacements(repf)
+
+    def keep_values(self):
+        return self.keep == []
+
+    def keep_value(self, value):
+        return self.keep_values() or (self.keep and value in self.keep)
 
 class Reference:
     def __init__(self, entry, address, addr_str):
