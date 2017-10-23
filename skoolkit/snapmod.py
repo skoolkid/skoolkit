@@ -19,18 +19,8 @@ import argparse
 
 from skoolkit import SkoolKitError, get_word, read_bin_file, write_line, VERSION
 from skoolkit.snapshot import (get_snapshot, make_z80_ram_block, make_z80v3_ram_blocks,
-                               move, poke, print_reg_help, set_z80_registers, set_z80_state)
-
-def _print_state_help():
-    print("""
-Usage: -s name=value, --state name=value
-
-Set a hardware state attribute. Recognised names and their default values are:
-
-  border - border colour (default=0)
-  iff    - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
-  im     - interrupt mode (default=1)
-""".strip())
+                               move, poke, print_reg_help, print_state_help,
+                               set_z80_registers, set_z80_state)
 
 def _read_z80(z80file):
     data = read_bin_file(z80file)
@@ -85,10 +75,10 @@ def main(args):
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
     if 'help' in namespace.reg:
-        print_reg_help()
+        print_reg_help('r')
         return
     if 'help' in namespace.state:
-        _print_state_help()
+        print_state_help('s')
         return
     infile = namespace.infile
     outfile = namespace.outfile

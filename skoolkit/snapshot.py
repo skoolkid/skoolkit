@@ -95,10 +95,13 @@ def set_z80_registers(z80, *specs):
             else:
                 raise SkoolKitError('Invalid register: {}'.format(spec))
 
-def print_reg_help():
+def print_reg_help(short_option=None):
+    options = ['--reg name=value']
+    if short_option:
+        options.insert(0, '-{} name=value'.format(short_option))
     reg_names = ', '.join(sorted(Z80_REGISTERS))
     print("""
-Usage: -r name=value, --reg name=value
+Usage: {}
 
 Set the value of a register or register pair. For example:
 
@@ -111,7 +114,8 @@ To set the value of an alternate (shadow) register, use the '^' prefix:
 
 Recognised register names are:
 
-  {}""".format('\n  '.join(textwrap.wrap(reg_names, 70))).lstrip())
+  {}
+""".format(', '.join(options), '\n  '.join(textwrap.wrap(reg_names, 70))).strip())
 
 def set_z80_state(z80, *specs):
     for spec in specs:
@@ -129,6 +133,20 @@ def set_z80_state(z80, *specs):
                 raise SkoolKitError("Invalid parameter: {}".format(spec))
         except ValueError:
             raise SkoolKitError("Cannot parse integer: {}".format(spec))
+
+def print_state_help(short_option=None):
+    options = ['--state name=value']
+    if short_option:
+        options.insert(0, '-{} name=value'.format(short_option))
+    print("""
+Usage: {}
+
+Set a hardware state attribute. Recognised names and their default values are:
+
+  border - border colour (default=0)
+  iff    - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
+  im     - interrupt mode (default=1)
+""".format(', '.join(options)).strip())
 
 def make_z80_ram_block(data, page):
     block = []

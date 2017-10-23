@@ -38,13 +38,18 @@ it with no arguments to see the list of available options::
     -s START, --start START
                           Set the address at which to start execution (default:
                           ORG).
+    -S name=value, --state name=value
+                          Set a hardware state attribute. Do '--state help' for
+                          more information. This option may be used multiple
+                          times.
     -V, --version         Show SkoolKit version number and exit.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 6.2     | Added the ``--reg`` option; the ``--org``, ``--stack`` and        |
-|         | ``--start`` options accept a hexadecimal integer prefixed by '0x' |
+| 6.2     | Added the ``--reg`` and ``--state`` options; the ``--org``,       |
+|         | ``--stack`` and ``--start`` options accept a hexadecimal integer  |
+|         | prefixed by '0x'                                                  |
 +---------+-------------------------------------------------------------------+
 | 5.2     | New                                                               |
 +---------+-------------------------------------------------------------------+

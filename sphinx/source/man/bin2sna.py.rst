@@ -18,7 +18,8 @@ not given, it defaults to the name of the input file with '.bin' replaced by
 OPTIONS
 =======
 -b, --border `BORDER`
-  Set the border colour. The default border colour is 7 (white).
+  Set the border colour. This option is equivalent to
+  ``--state border=BORDER``. The default border colour is 7 (white).
 
 -o, --org `ORG`
   Set the origin address. The default origin address is 65536 minus the length
@@ -39,6 +40,11 @@ OPTIONS
   option is equivalent to ``--reg pc=START``. The default start address is
   `ORG`. `START` must be a decimal number, or a hexadecimal number prefixed by
   '0x'.
+
+-S, --state `name=value`
+  Set a hardware state attribute. Do ``--state help`` for more information, or
+  see the section on ``HARDWARE STATE`` below. This option may be used multiple
+  times.
 
 -V, --version
   Show the SkoolKit version number and exit.
@@ -67,6 +73,24 @@ Recognised register names are:
 |  ``^a``, ``^b``, ``^bc``, ``^c``, ``^d``, ``^de``, ``^e``, ``^f``, ``^h``, ``^hl``, ``^l``,
 |  ``a``, ``b``, ``bc``, ``c``, ``d``, ``de``, ``e``, ``f``, ``h``, ``hl``, ``l``,
 |  ``i``, ``ix``, ``iy``, ``pc``, ``r``, ``sp``
+
+HARDWARE STATE
+==============
+The ``--state`` option sets a hardware state attribute.
+
+|
+|  ``--state name=value``
+
+Recognised attribute names are:
+
+``border``
+  border colour
+
+``iff``
+  interrupt flip-flop: 0=disabled, 1=enabled
+
+``im``
+  interrupt mode
 
 EXAMPLES
 ========

@@ -25,7 +25,7 @@ from urllib.parse import urlparse
 
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_word,
                       get_word3, integer, open_file, write_line, VERSION)
-from skoolkit.snapshot import write_z80v3, move, poke, Z80_REGISTERS
+from skoolkit.snapshot import move, poke, print_reg_help, print_state_help, write_z80v3
 
 class SkoolKitArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
@@ -364,36 +364,6 @@ another, or POKE a single address or range of addresses with a given value.
   --ram poke=40000-40004-2,1 # POKE 40000,1: POKE 40002,1: POKE 40004,1
 """.lstrip())
 
-def _print_reg_help():
-    reg_names = ', '.join(sorted(Z80_REGISTERS.keys()))
-    sys.stdout.write("""
-Usage: --reg name=value
-
-Set the value of a register or register pair. For example:
-
-  --reg hl=32768
-  --reg b=17
-
-To set the value of an alternate (shadow) register, use the '^' prefix:
-
-  --reg ^hl=10072
-
-Recognised register names are:
-
-  {}
-""".format('\n  '.join(textwrap.wrap(reg_names, 70))).lstrip())
-
-def _print_state_help():
-    sys.stdout.write("""
-Usage: --state name=value
-
-Set a hardware state attribute. Recognised names and their default values are:
-
-  border - border colour (default=0)
-  iff    - interrupt flip-flop: 0=disabled, 1=enabled (default=1)
-  im     - interrupt mode (default=1)
-""".lstrip())
-
 def make_z80(url, options, z80):
     tape_type, tape = _get_tape(url)
     tape_blocks = _get_tape_blocks(tape_type, tape)
@@ -435,10 +405,10 @@ def main(args):
         _print_ram_help()
         return
     if 'help' in namespace.reg:
-        _print_reg_help()
+        print_reg_help()
         return
     if 'help' in namespace.state:
-        _print_state_help()
+        print_state_help()
         return
     if unknown_args or len(namespace.args) != 2:
         parser.exit(2, parser.format_help())

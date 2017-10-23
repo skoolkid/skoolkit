@@ -28,7 +28,8 @@ class Bin2SnaTest(SkoolKitTestCase):
         self.tempfiles.append(outfile)
         return outfile
 
-    def _check_z80(self, z80file, data, org=None, sp=None, pc=None, border=7):
+    def _check_z80(self, z80file, data, org=None, sp=None, pc=None, border=7,
+                   iff=1, im=1):
         with open(z80file, 'rb') as f:
             z80h = f.read(34)
         if org is None:
@@ -39,9 +40,9 @@ class Bin2SnaTest(SkoolKitTestCase):
             pc = org
 
         self.assertEqual((z80h[12] >> 1) & 7, border) # BORDER
-        self.assertEqual(z80h[27], 1)                 # IFF1
-        self.assertEqual(z80h[28], 1)                 # IFF2
-        self.assertEqual(z80h[29] & 3, 1)             # Interrupt mode
+        self.assertEqual(z80h[27], iff)               # IFF1
+        self.assertEqual(z80h[28], iff)               # IFF2
+        self.assertEqual(z80h[29] & 3, im)            # Interrupt mode
 
         self.assertEqual(z80h[8] + 256 * z80h[9], sp)      # SP
         self.assertEqual(z80h[10], 63)                     # I
@@ -71,6 +72,7 @@ class Bin2SnaTest(SkoolKitTestCase):
         self.assertEqual([], options.reg)
         self.assertEqual(options.stack, None)
         self.assertEqual(options.start, None)
+        self.assertEqual([], options.state)
 
     def test_no_arguments(self):
         output, error = self.run_bin2sna(catch_exit=2)
@@ -238,6 +240,33 @@ class Bin2SnaTest(SkoolKitTestCase):
         for option, start in (('-s', '0x6f00'), ('--start', '0xD00A')):
             z80file = self._run("{} {} {}".format(option, start, binfile))
             self._check_z80(z80file, data, pc=int(start[2:], 16))
+
+    def test_option_S(self):
+        data = [0]
+        binfile = self.write_bin_file(data, suffix='.bin')
+        for option, border, iff, im in (('-S', 3, 0, 2), ('--state', 5, 1, 0)):
+            z80file = self._run("{0} border={1} {0} iff={2} {0} im={3} {4}".format(option, border, iff, im, binfile))
+            self._check_z80(z80file, data, border=border, iff=iff, im=im)
+
+    def test_option_S_invalid_values(self):
+        self._test_bad_spec('-S border=k', 'Cannot parse integer: border=k')
+        self._test_bad_spec('--state iff=$', 'Cannot parse integer: iff=$')
+        self._test_bad_spec('-S im=?', 'Cannot parse integer: im=?')
+        self._test_bad_spec('--state bar=1', 'Invalid parameter: bar=1')
+
+    def test_option_state_help(self):
+        output, error = self.run_bin2sna('--state help')
+        self.assertEqual(error, '')
+        exp_output = [
+            'Usage: -S name=value, --state name=value',
+            '',
+            'Set a hardware state attribute. Recognised names and their default values are:',
+            '',
+            '  border - border colour (default=0)',
+            '  iff    - interrupt flip-flop: 0=disabled, 1=enabled (default=1)',
+            '  im     - interrupt mode (default=1)'
+        ]
+        self.assertEqual(exp_output, output)
 
     def test_option_V(self):
         for option in ('-V', '--version'):

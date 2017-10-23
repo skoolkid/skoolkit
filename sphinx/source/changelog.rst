@@ -5,6 +5,8 @@ Changelog
 -----
 * Added the ``--reg`` option to :ref:`bin2sna.py` (for setting the value of a
   register)
+* Added the ``--state`` option to :ref:`bin2sna.py` (for setting the value of a
+  hardware state attribute)
 * Added the ``Includes`` parameter to the :ref:`memoryMap` section (for
   specifying addresses of entries to include on the memory map page in addition
   to those specified by the ``EntryTypes`` parameter)

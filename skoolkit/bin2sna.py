@@ -18,7 +18,7 @@ import os
 import argparse
 
 from skoolkit import integer, read_bin_file, VERSION
-from skoolkit.snapshot import print_reg_help, write_z80v3
+from skoolkit.snapshot import print_reg_help, print_state_help, write_z80v3
 
 def run(infile, outfile, options):
     ram = list(read_bin_file(infile, 49152))
@@ -36,7 +36,7 @@ def run(infile, outfile, options):
     if parent_dir and not os.path.isdir(parent_dir):
         os.makedirs(parent_dir)
     registers = ['sp={}'.format(stack), 'pc={}'.format(start)] + options.reg
-    state = ('border={}'.format(options.border),)
+    state = ['border={}'.format(options.border)] + options.state
     write_z80v3(outfile, ram, registers, state)
 
 def main(args):
@@ -61,11 +61,16 @@ def main(args):
                        help="Set the value of a register. Do '--reg help' for more information. This option may be used multiple times.")
     group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
                        help="Set the address at which to start execution (default: ORG).")
+    group.add_argument('-S', '--state', dest='state', metavar='name=value', action='append', default=[],
+                       help="Set a hardware state attribute. Do '--state help' for more information. This option may be used multiple times.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
     if 'help' in namespace.reg:
-        print_reg_help()
+        print_reg_help('r')
+        return
+    if 'help' in namespace.state:
+        print_state_help('S')
         return
     infile = namespace.infile
     if unknown_args or infile is None:
