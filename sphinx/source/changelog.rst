@@ -7,6 +7,8 @@ Changelog
   register)
 * Added the ``--state`` option to :ref:`bin2sna.py` (for setting the value of a
   hardware state attribute)
+* :ref:`sna2img.py` can now read a binary (raw memory) file when the
+  ``--binary`` option is used
 * Added the ``Includes`` parameter to the :ref:`memoryMap` section (for
   specifying addresses of entries to include on the memory map page in addition
   to those specified by the ``EntryTypes`` parameter)

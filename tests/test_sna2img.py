@@ -33,6 +33,8 @@ class Sna2ImgTest(SkoolKitTestCase):
                 infile = self.write_szx(ram)
             elif ftype == 'z80':
                 infile = self.write_z80(ram)[1]
+            elif ftype == 'bin':
+                infile = self.write_bin_file(ram, suffix='.bin')
             else:
                 skool = 'b{:05d} DEFB {}'.format(address, ','.join([str(b) for b in data]))
                 suffix = '.' + ftype if ftype else ''
@@ -196,6 +198,16 @@ class Sna2ImgTest(SkoolKitTestCase):
             output, error = self.run_sna2img('{} -e UDG32768 {}'.format(option, infile))
             self.assertEqual(error, '')
             self.assertEqual(image_writer.frames[0].udgs, [[Udg(56, [2] * 8)]])
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_B(self, mock_open):
+        addr = 65528
+        data = [127] * 8
+        exp_udgs = [[Udg(56, data)]]
+        for option in ('-B', '--binary'):
+            options = '{} -e UDG{}'.format(option, addr)
+            self._test_sna2img(mock_open, options, data, exp_udgs, scale=4, address=addr, ftype='bin')
 
     @patch.object(sna2img, 'run', mock_run)
     def test_options_e_expand(self):

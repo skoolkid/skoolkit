@@ -10,13 +10,17 @@ SYNOPSIS
 
 DESCRIPTION
 ===========
-``sna2img.py`` converts a Spectrum screenshot or other graphic into a PNG or
-GIF file. INPUT may be a SCR file, a skool file, or a SNA, SZX or Z80 snapshot.
+``sna2img.py`` converts a Spectrum screenshot or other graphic data into a PNG
+or GIF file. INPUT may be a binary (raw memory) file, a SCR file, a skool file,
+or a SNA, SZX or Z80 snapshot.
 
 OPTIONS
 =======
 -b, --bfix
   When INPUT is a skool file, parse it in @bfix mode.
+
+-B, --binary
+  Read INPUT as a binary (raw memory) file.
 
 -e, --expand `MACRO`
   Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The '#' prefix may be omitted,

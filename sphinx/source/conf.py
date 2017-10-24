@@ -231,7 +231,7 @@ man_pages = [
     ('man/skool2sft.py', 'skool2sft.py',
      'convert a skool file into a skool file template', _authors, 1),
     ('man/sna2img.py', 'sna2img.py',
-     'convert a SCR/SKOOL/SNA/SZX/Z80 file into a PNG or GIF file', _authors, 1),
+     'convert a binary file or a SCR/SKOOL/SNA/SZX/Z80 file into a PNG or GIF file', _authors, 1),
     ('man/sna2skool.py', 'sna2skool.py',
      'convert a binary file or a snapshot into a skool file', _authors, 1),
     ('man/snapinfo.py', 'snapinfo.py',

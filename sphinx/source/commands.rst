@@ -608,8 +608,9 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 
 sna2img.py
 ----------
-`sna2img.py` converts the screenshot or other graphic data in a SCR file, skool
-file, or SNA/SZX/Z80 snapshot into a PNG or GIF file. For example::
+`sna2img.py` converts the screenshot or other graphic data in a binary (raw
+memory) file, SCR file, skool file, or SNA/SZX/Z80 snapshot into a PNG or GIF
+file. For example::
 
   $ sna2img.py game.scr
 
@@ -620,10 +621,12 @@ To list the options supported by `sna2img.py`, run it with no arguments::
   usage: sna2img.py [options] INPUT [OUTPUT]
 
   Convert a Spectrum screenshot or other graphic data into a PNG or GIF file.
-  INPUT may be a SCR file, a skool file, or a SNA, SZX or Z80 snapshot.
+  INPUT may be a binary (raw memory) file, a SCR file, a skool file, or a SNA,
+  SZX or Z80 snapshot.
 
   Options:
     -b, --bfix            Parse a skool file in @bfix mode.
+    -B, --binary          Read the input as a binary (raw memory) file.
     -e MACRO, --expand MACRO
                           Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The '#'
                           prefix may be omitted.
@@ -646,16 +649,19 @@ To list the options supported by `sna2img.py`, run it with no arguments::
     -S WxH, --size WxH    Crop to this width and height (in tiles).
     -V, --version         Show SkoolKit version number and exit.
 
-+---------+-------------------------------------------------------------+
-| Version | Changes                                                     |
-+=========+=============================================================+
-| 6.1     | Added the ability to read skool files; added the ``--bfix`` |
-|         | and ``--move`` options                                      |
-+---------+-------------------------------------------------------------+
-| 6.0     | Added the ``--expand`` option                               |
-+---------+-------------------------------------------------------------+
-| 5.4     | New                                                         |
-+---------+-------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | Added the ``--binary`` option and the ability to read binary (raw |
+|         | memory) files                                                     |
++---------+-------------------------------------------------------------------+
+| 6.1     | Added the ability to read skool files; added the ``--bfix`` and   |
+|         | ``--move`` options                                                |
++---------+-------------------------------------------------------------------+
+| 6.0     | Added the ``--expand`` option                                     |
++---------+-------------------------------------------------------------------+
+| 5.4     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _sna2skool.py:
 

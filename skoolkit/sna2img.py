@@ -80,7 +80,10 @@ def _write_image(frame, img_file, animated):
         image_writer.write_image([frame], f, image_format)
 
 def run(infile, outfile, options):
-    if infile[-4:].lower() == '.scr':
+    if options.binary:
+        snapshot = read_bin_file(infile, 49152)
+        snapshot = [0] * (65536 - len(snapshot)) + list(snapshot)
+    elif infile[-4:].lower() == '.scr':
         scr = read_bin_file(infile, 6912)
         snapshot = [0] * 65536
         snapshot[16384:16384 + len(scr)] = scr
@@ -129,7 +132,7 @@ def main(args):
     parser = argparse.ArgumentParser(
         usage='sna2img.py [options] INPUT [OUTPUT]',
         description="Convert a Spectrum screenshot or other graphic data into a PNG or GIF file. "
-                    "INPUT may be a SCR file, a skool file, or a SNA, SZX or Z80 snapshot.",
+                    "INPUT may be a binary (raw memory) file, a SCR file, a skool file, or a SNA, SZX or Z80 snapshot.",
         add_help=False
     )
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
@@ -137,6 +140,8 @@ def main(args):
     group = parser.add_argument_group('Options')
     group.add_argument('-b', '--bfix', dest='fix_mode', action='store_const', const=2, default=0,
                        help="Parse a skool file in @bfix mode.")
+    group.add_argument('-B', '--binary', dest='binary', action='store_true',
+                       help="Read the input as a binary (raw memory) file.")
     group.add_argument('-e', '--expand', dest='macro', metavar='MACRO',
                        help="Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The '#' prefix may be omitted.")
     group.add_argument('-f', '--flip', metavar='N', type=int, default=0,
