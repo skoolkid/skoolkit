@@ -42,6 +42,11 @@ OPTIONS
 -o, --origin `X,Y`
   Top-left crop the image at tile coordinates (X,Y).
 
+-O, --org `ORG`
+  Set the origin address of a binary file. This option implies ``--binary``.
+  The default origin address is 65536 minus the length of the file. `ORG` must
+  be a decimal number, or a hexadecimal number prefixed by '0x'.
+
 -p, --poke `a[-b[-c]],[^+]v`
   POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v' with '^' to perform an
   XOR operation, or '+' to perform an ADD operation. This option may be used

@@ -638,6 +638,8 @@ To list the options supported by `sna2img.py`, run it with no arguments::
                           dest. This option may be used multiple times.
     -n, --no-animation    Do not animate flashing cells.
     -o X,Y, --origin X,Y  Top-left crop at (X,Y).
+    -O ORG, --org ORG     Set the origin address of a binary file (default:
+                          65536 minus the length of the file).
     -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
                           POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
                           with '^' to perform an XOR operation, or '+' to
@@ -652,8 +654,8 @@ To list the options supported by `sna2img.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 6.2     | Added the ``--binary`` option and the ability to read binary (raw |
-|         | memory) files                                                     |
+| 6.2     | Added the ``--binary`` and ``--org`` options and the ability to   |
+|         | read binary (raw memory) files                                    |
 +---------+-------------------------------------------------------------------+
 | 6.1     | Added the ability to read skool files; added the ``--bfix`` and   |
 |         | ``--move`` options                                                |

@@ -34,7 +34,7 @@ class Sna2ImgTest(SkoolKitTestCase):
             elif ftype == 'z80':
                 infile = self.write_z80(ram)[1]
             elif ftype == 'bin':
-                infile = self.write_bin_file(ram, suffix='.bin')
+                infile = self.write_bin_file(data, suffix='.bin')
             else:
                 skool = 'b{:05d} DEFB {}'.format(address, ','.join([str(b) for b in data]))
                 suffix = '.' + ftype if ftype else ''
@@ -85,6 +85,8 @@ class Sna2ImgTest(SkoolKitTestCase):
         self.assertEqual(options.rotate, 0)
         self.assertEqual(options.scale, 1)
         self.assertEqual(options.size, (32, 24))
+        self.assertFalse(options.binary)
+        self.assertIsNone(options.org)
 
     def _test_bad_spec(self, option, exp_error):
         scrfile = self.write_bin_file(suffix='.scr')
@@ -521,6 +523,32 @@ class Sna2ImgTest(SkoolKitTestCase):
             self.assertEqual(len(output), 0)
             self.assertTrue(error.startswith('usage: sna2img.py'))
             self.assertTrue(error.endswith("error: argument -o/--origin: invalid coordinates: '{}'\n".format(coords)))
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_O(self, mock_open):
+        data = [129] * 8
+        exp_udgs = [[Udg(56, data)]]
+        for option, addr in (('-O', 32768), ('--org', 0)):
+            options = '{0} {1} -e UDG{1}'.format(option, addr)
+            self._test_sna2img(mock_open, options, data, exp_udgs, scale=4, address=addr, ftype='bin')
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_O_with_hex_value(self, mock_open):
+        data = [96] * 8
+        exp_udgs = [[Udg(56, data)]]
+        for option, addr in (('-O', '0x7fa0'), ('--org', '0xF1AD')):
+            address = int(addr, 16)
+            options = '{} {} -e UDG{}'.format(option, addr, address)
+            self._test_sna2img(mock_open, options, data, exp_udgs, scale=4, address=address, ftype='bin')
+
+    def test_option_O_invalid_values(self):
+        for a in ('q', '0xfffg', '?'):
+            output, error = self.run_sna2img('-O {} test-O.scr'.format(a), catch_exit=2)
+            self.assertEqual(len(output), 0)
+            self.assertTrue(error.startswith('usage: sna2img.py'))
+            self.assertTrue(error.endswith("error: argument -O/--org: invalid integer: '{}'\n".format(a)))
 
     @patch.object(sna2img, 'run', mock_run)
     def test_options_p_poke(self):

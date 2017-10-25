@@ -19,7 +19,7 @@ import argparse
 import re
 from builtins import open
 
-from skoolkit import SkoolKitError, read_bin_file, VERSION, skoolmacro
+from skoolkit import SkoolKitError, integer, read_bin_file, VERSION, skoolmacro
 from skoolkit.image import ImageWriter, GIF_ENABLE_ANIMATION, PNG_ENABLE_ANIMATION
 from skoolkit.snapshot import get_snapshot, move, poke
 from skoolkit.graphics import Frame, flip_udgs, rotate_udgs, adjust_udgs, build_udg, font_udgs, scr_udgs
@@ -80,9 +80,13 @@ def _write_image(frame, img_file, animated):
         image_writer.write_image([frame], f, image_format)
 
 def run(infile, outfile, options):
-    if options.binary:
+    if options.binary or options.org is not None:
         snapshot = read_bin_file(infile, 49152)
-        snapshot = [0] * (65536 - len(snapshot)) + list(snapshot)
+        if options.org is None:
+            org = 65536 - len(snapshot)
+        else:
+            org = options.org
+        snapshot = [0] * org + list(snapshot) + [0] * (65536 - org - len(snapshot))
     elif infile[-4:].lower() == '.scr':
         scr = read_bin_file(infile, 6912)
         snapshot = [0] * 65536
@@ -154,6 +158,8 @@ def main(args):
                        help="Do not animate flashing cells.")
     group.add_argument('-o', '--origin', metavar='X,Y', type=_coords, default='0,0',
                        help="Top-left crop at (X,Y).")
+    group.add_argument('-O', '--org', dest='org', metavar='ORG', type=integer,
+                       help="Set the origin address of a binary file (default: 65536 minus the length of the file).")
     group.add_argument('-p', '--poke', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append', default=[],
                        help="POKE N,v for N in {a, a+c, a+2c..., b}. "
                             "Prefix 'v' with '^' to perform an XOR operation, or '+' to perform an ADD operation. "
