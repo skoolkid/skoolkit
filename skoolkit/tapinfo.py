@@ -229,7 +229,8 @@ def _get_basic_block(spec):
     if spec:
         try:
             if ',' in spec:
-                return [get_int_param(i) for i in spec.split(',', 1)]
+                params = spec.split(',', 1)
+                return get_int_param(params[0]), get_int_param(params[1], True)
             return get_int_param(spec), 23755
         except ValueError:
             raise SkoolKitError('Invalid block specification: {}'.format(spec))

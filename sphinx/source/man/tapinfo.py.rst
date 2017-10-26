@@ -19,7 +19,9 @@ OPTIONS
   hexadecimal block IDs, e.g. 10,11,2a.
 
 -B, --basic `N[,A]`
-  List the BASIC program in block number N loaded at address A (default 23755).
+  List the BASIC program in block number `N` loaded at address `A` (default
+  23755). `A` must be a decimal number, or a hexadecimal number prefixed by
+  '0x'.
 
 -V, --version
   Show the SkoolKit version number and exit.

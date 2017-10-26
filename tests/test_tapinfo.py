@@ -515,6 +515,20 @@ class TapinfoTest(SkoolKitTestCase):
         self.assertEqual(['BASIC DONE!'], output)
         self.assertEqual(exp_snapshot, mock_basic_lister.snapshot)
 
+    @patch.object(tapinfo, 'BasicLister', MockBasicLister)
+    def test_option_B_tap_with_hex_address(self):
+        prefix = [4] * 4
+        address = 23755 - len(prefix)
+        prog = [9] * 9
+        data = prefix + prog
+        tap_data = create_tap_data_block(data)
+        tapfile = self.write_bin_file(tap_data, suffix='.tap')
+        exp_snapshot = [0] * address + data
+        output, error = self.run_tapinfo('-B 1,0x{:04x} {}'.format(address, tapfile))
+        self.assertEqual(error, '')
+        self.assertEqual(['BASIC DONE!'], output)
+        self.assertEqual(exp_snapshot, mock_basic_lister.snapshot)
+
     def test_option_B_with_invalid_block_spec(self):
         exp_error = 'Invalid block specification'
         self._test_bad_spec('-B', 'q', exp_error)

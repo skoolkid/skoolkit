@@ -51,9 +51,11 @@ def write_text(text):
 def wrap(text, width):
     return textwrap.wrap(text, width, break_long_words=False, break_on_hyphens=False)
 
-def get_int_param(num_str):
+def get_int_param(num_str, accept0x=False):
     if num_str.startswith('$'):
         return int(num_str[1:], 16)
+    if accept0x and num_str.startswith('0x'):
+        return int(num_str[2:], 16)
     if num_str.startswith('%'):
         return int(num_str[1:], 2)
     if num_str.startswith('"') and num_str.endswith('"'):
