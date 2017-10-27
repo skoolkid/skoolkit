@@ -307,6 +307,15 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(snapshot[start], data[0])
         self.assertEqual(snapshot[(start + 2 * step) & 65535], data[2])
 
+    def test_ram_load_with_hexadecimal_parameters(self):
+        start = 30000
+        data = [1, 2, 3]
+        step = 2
+        offset = 3
+        inc = 0
+        snapshot = self._get_snapshot(start, data, load_options='--ram load=1,0x{:04x},0x{:04x},0x{:04x},0x{:04x},0x{:04x}'.format(start, len(data), step, offset, inc))
+        self.assertEqual(data, snapshot[30003:30008:2])
+
     def test_ram_load_bad_address(self):
         self._test_bad_spec('--ram load=1,abcde', 'Invalid integer in load spec: 1,abcde')
 

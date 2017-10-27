@@ -44,17 +44,17 @@ def _write_z80(ram, options, fname):
     write_line('Writing {0}'.format(fname))
     write_z80v3(fname, ram, options.reg, options.state)
 
-def _get_int_params(param_str, num, leave):
+def _get_load_params(param_str):
     params = []
     for index, n in enumerate(param_str.split(',')):
-        if index in leave:
+        if index == 0:
             params.append(n)
         elif n:
-            params.append(get_int_param(n))
+            params.append(get_int_param(n, True))
         else:
             params.append(None)
-    params += [None] * (num - len(params))
-    return params[:num]
+    params += [None] * (6 - len(params))
+    return params[:6]
 
 def _load_block(snapshot, block, start, length=None, step=None, offset=None, inc=None, index=1):
     if length is None:
@@ -78,7 +78,7 @@ def _load_block(snapshot, block, start, length=None, step=None, offset=None, inc
 
 def _load(snapshot, counters, blocks, param_str):
     try:
-        block_num, start, length, step, offset, inc = _get_int_params(param_str, 6, (0,))
+        block_num, start, length, step, offset, inc = _get_load_params(param_str)
     except ValueError:
         raise SkoolKitError('Invalid integer in load spec: {}'.format(param_str))
     default_index = 1
@@ -333,7 +333,7 @@ another, or POKE a single address or range of addresses with a given value.
   A single tape block can be loaded in two or more stages; for example:
 
   --ram load=2,32768,2048  # Load the first 2K at 32768
-  --ram load=2,49152       # Load the remainder at 49152
+  --ram load=2,0xC000      # Load the remainder at 49152
 
 --ram move=src,size,dest
 

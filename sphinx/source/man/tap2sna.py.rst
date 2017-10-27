@@ -94,7 +94,7 @@ A single tape block can be loaded in two or more stages; for example:
 
 |
 |  ``--ram load=2,32768,2048`` # Load the first 2K at 32768
-|  ``--ram load=2,49152``      # Load the remainder at 49152
+|  ``--ram load=2,0xC000``     # Load the remainder at 49152
 
 MOVE OPERATIONS
 ===============
