@@ -354,7 +354,7 @@ def _get_address_ranges(specs, step=1):
     addr_ranges = []
     for addr_range in specs:
         try:
-            values = [get_int_param(i) for i in addr_range.split('-', 2)]
+            values = [get_int_param(i, True) for i in addr_range.split('-', 2)]
         except ValueError:
             raise SkoolKitError('Invalid address range: {}'.format(addr_range))
         addr_ranges.append(values + [values[0], step][len(values) - 1:])

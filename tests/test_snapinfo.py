@@ -916,6 +916,19 @@ class SnapinfoTest(SkoolKitTestCase):
         ]
         self._test_sna(ram, exp_output, '-p ${:04X}-${:04x}-${:X}'.format(address1, address2, step))
 
+    def test_option_p_with_0x_hexadecimal_values(self):
+        ram = [0] * 49152
+        address1 = 0x81ad
+        address2 = 0x81c1
+        step = 0x0a
+        ram[address1 - 16384:address2 -16383:step] = [33, 65, 126]
+        exp_output = [
+            '33197 81AD:  33  21  00100001  !',
+            '33207 81B7:  65  41  01000001  A',
+            '33217 81C1: 126  7E  01111110  ~'
+        ]
+        self._test_sna(ram, exp_output, '-p 0x{:04X}-0x{:04x}-0x{:X}'.format(address1, address2, step))
+
     def test_option_peek_multiple(self):
         ram = [0] * 49152
         options = []
@@ -1233,6 +1246,19 @@ class SnapinfoTest(SkoolKitTestCase):
             '36880 9010: 28935  7107'
         ]
         self._test_sna(ram, exp_output, '-w ${:04X}-${:04x}-${:X}'.format(address1, address2, step))
+
+    def test_option_w_with_0x_hexadecimal_values(self):
+        ram = [0] * 49152
+        address1 = 0x900a
+        address2 = 0x9010
+        step = 0x03
+        ram[address1 - 16384:address2 -16382] = [1, 0, 0, 215, 2, 0, 7, 113]
+        exp_output = [
+            '36874 900A:     1  0001',
+            '36877 900D:   727  02D7',
+            '36880 9010: 28935  7107'
+        ]
+        self._test_sna(ram, exp_output, '-w 0x{:04X}-0x{:04x}-0x{:X}'.format(address1, address2, step))
 
     def test_option_word_multiple(self):
         ram = [0] * 49152

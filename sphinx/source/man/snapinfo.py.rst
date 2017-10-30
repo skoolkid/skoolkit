@@ -24,7 +24,8 @@ OPTIONS
 
 -p, --peek `A[-B[-C]]`
   Show the contents of addresses A TO B STEP C. This option may be used
-  multiple times.
+  multiple times. `A`, `B` and `C` must each be a decimal number, or a
+  hexadecimal number prefixed by '0x'.
 
 -t, --find-text `TEXT`
   Search for a text string.
@@ -41,7 +42,8 @@ OPTIONS
 
 -w, --word `A[-B[-C]]`
   Show the words (2-byte values) at addresses A TO B STEP C. This option may be
-  used multiple times.
+  used multiple times. `A`, `B` and `C` must each be a decimal number, or a
+  hexadecimal number prefixed by '0x'.
 
 EXAMPLES
 ========
