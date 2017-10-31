@@ -149,19 +149,19 @@ def main(args):
     parser.add_argument('outfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--clear', dest='clear', metavar='N', type=integer,
-                       help="Use a 'CLEAR N' command in the BASIC loader and leave the stack pointer alone")
+                       help="Use a 'CLEAR N' command in the BASIC loader and leave the stack pointer alone.")
     group.add_argument('-e', '--end', dest='end', metavar='ADDR', type=integer, default=65536,
-                       help="Set the end address when reading a snapshot")
+                       help="Set the end address when reading a snapshot.")
     group.add_argument('-o', '--org', dest='org', metavar='ORG', type=integer,
-                       help="Set the origin address (default: 16384 for a snapshot, otherwise 65536 minus the length of FILE)")
+                       help="Set the origin address (default: 16384 for a snapshot, otherwise 65536 minus the length of FILE).")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
-                       help="Set the stack pointer (default: ORG)")
+                       help="Set the stack pointer (default: ORG).")
     group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,
-                       help="Set the start address to JP to (default: ORG)")
+                       help="Set the start address to JP to (default: ORG).")
     group.add_argument('-S', '--screen', dest='screen', metavar='FILE',
-                       help="Add a loading screen to the TAP file; FILE may be a snapshot or a 6912-byte SCR file")
+                       help="Add a loading screen to the TAP file. FILE may be a snapshot or a 6912-byte SCR file.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
-                       help='Show SkoolKit version number and exit')
+                       help='Show SkoolKit version number and exit.')
 
     namespace, unknown_args = parser.parse_known_args(args)
     infile = namespace.infile

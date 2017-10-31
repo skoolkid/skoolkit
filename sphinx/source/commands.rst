@@ -77,18 +77,18 @@ it with no arguments to see the list of available options::
 
   Options:
     -c N, --clear N       Use a 'CLEAR N' command in the BASIC loader and leave
-                          the stack pointer alone
-    -e ADDR, --end ADDR   Set the end address when reading a snapshot
+                          the stack pointer alone.
+    -e ADDR, --end ADDR   Set the end address when reading a snapshot.
     -o ORG, --org ORG     Set the origin address (default: 16384 for a snapshot,
-                          otherwise 65536 minus the length of FILE)
+                          otherwise 65536 minus the length of FILE).
     -p STACK, --stack STACK
-                          Set the stack pointer (default: ORG)
+                          Set the stack pointer (default: ORG).
     -s START, --start START
-                          Set the start address to JP to (default: ORG)
+                          Set the start address to JP to (default: ORG).
     -S FILE, --screen FILE
-                          Add a loading screen to the TAP file; FILE may be a
-                          snapshot or a 6912-byte SCR file
-    -V, --version         Show SkoolKit version number and exit
+                          Add a loading screen to the TAP file. FILE may be a
+                          snapshot or a 6912-byte SCR file.
+    -V, --version         Show SkoolKit version number and exit.
 
 Note that the ROM tape loading routine at 1366 ($0556) and the load routine
 used by `bin2tap.py` together require 14 bytes for stack operations, and so
