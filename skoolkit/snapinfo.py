@@ -365,15 +365,15 @@ def _find(snapshot, byte_seq, base_addr=16384):
     if '-' in byte_seq:
         byte_seq, steps = byte_seq.split('-', 1)
     try:
-        byte_values = [get_int_param(i) for i in byte_seq.split(',')]
+        byte_values = [get_int_param(i, True) for i in byte_seq.split(',')]
     except ValueError:
         raise SkoolKitError('Invalid byte sequence: {}'.format(byte_seq))
     try:
         if '-' in steps:
-            limits = [get_int_param(n) for n in steps.split('-', 1)]
+            limits = [get_int_param(n, True) for n in steps.split('-', 1)]
             steps = range(limits[0], limits[1] + 1)
         else:
-            steps = [get_int_param(steps)]
+            steps = [get_int_param(steps, True)]
     except ValueError:
         raise SkoolKitError('Invalid distance: {}'.format(steps))
     for step in steps:

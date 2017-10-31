@@ -19,11 +19,12 @@ OPTIONS
   List the BASIC program.
 
 -f, --find `A[,B...[-M[-N]]]`
-  Search for the byte sequence A,B... with distance ranging from M to N
-  (default=1) between bytes.
+  Search for the byte sequence `A`, `B`... with distance ranging from `M` to
+  `N` (default=1) between bytes. `A`, `B`, etc. and `M` and `N` must each be a
+  decimal number, or a hexadecimal number prefixed by '0x'.
 
 -p, --peek `A[-B[-C]]`
-  Show the contents of addresses A TO B STEP C. This option may be used
+  Show the contents of addresses `A` TO `B` STEP `C`. This option may be used
   multiple times. `A`, `B` and `C` must each be a decimal number, or a
   hexadecimal number prefixed by '0x'.
 
@@ -41,9 +42,9 @@ OPTIONS
   Show the SkoolKit version number and exit.
 
 -w, --word `A[-B[-C]]`
-  Show the words (2-byte values) at addresses A TO B STEP C. This option may be
-  used multiple times. `A`, `B` and `C` must each be a decimal number, or a
-  hexadecimal number prefixed by '0x'.
+  Show the words (2-byte values) at addresses `A` TO `B` STEP `C`. This option
+  may be used multiple times. `A`, `B` and `C` must each be a decimal number,
+  or a hexadecimal number prefixed by '0x'.
 
 EXAMPLES
 ========

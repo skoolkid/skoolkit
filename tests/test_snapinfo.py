@@ -851,6 +851,16 @@ class SnapinfoTest(SkoolKitTestCase):
         exp_output = ['47983-48035-26 BB6F-BBA3-1A: {}'.format(seq_str)]
         self._test_sna(ram, exp_output, '-f {}-${:02x}'.format(seq_str, step))
 
+    def test_option_f_with_0x_hexadecimal_values(self):
+        ram = [0] * 49152
+        address = 47983
+        seq = (0x02, 0x3f, 0x5a)
+        step = 0x1a
+        ram[address - 16384:address - 16384 + step * len(seq):step] = seq
+        seq_str = ','.join(['0x{:02X}'.format(b) for b in seq])
+        exp_output = ['47983-48035-26 BB6F-BBA3-1A: {}'.format(seq_str)]
+        self._test_sna(ram, exp_output, '-f {}-0x{:02x}-0x{:02x}'.format(seq_str, step, step + 1))
+
     def test_option_find_with_nonexistent_byte_sequence(self):
         ram = [0] * 49152
         exp_output = []
