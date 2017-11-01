@@ -65,13 +65,13 @@ class SnapmodTest(SkoolKitTestCase):
         exp_ram[dest - 16384:dest - 16384 + size] = block
         self._test_z80(options, header, exp_header, ram, exp_ram, version, compress)
 
-    def _test_reg(self, option, registers, version, base16=False):
+    def _test_reg(self, option, registers, version, hex_prefix=None):
         header = self._get_header(version)
         exp_header = header[:]
         options = []
         for reg, value in registers.items():
-            if base16:
-                options.append('{} {}=${:x}'.format(option, reg, value))
+            if hex_prefix:
+                options.append('{} {}={}{:x}'.format(option, reg, hex_prefix, value))
             else:
                 options.append('{} {}={}'.format(option, reg, value))
             reg = reg.lower()
@@ -326,7 +326,11 @@ class SnapmodTest(SkoolKitTestCase):
 
     def test_option_r_hexadecimal_values(self):
         registers = {'a': 0x1f, 'bc': 0xface}
-        self._test_reg('-r', registers, 1, True)
+        self._test_reg('-r', registers, 1, '$')
+
+    def test_option_r_0x_hexadecimal_values(self):
+        registers = {'a': 0x2e, 'bc': 0xaced}
+        self._test_reg('-r', registers, 1, '0x')
 
     def test_option_r_invalid_values(self):
         infile = self.write_z80_file([1] * 30, [0] * 49152, 1)

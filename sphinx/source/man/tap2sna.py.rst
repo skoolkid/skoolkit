@@ -146,7 +146,7 @@ For example:
 
 |
 |  ``--reg hl=32768``
-|  ``--reg b=17``
+|  ``--reg b=0x1f``
 
 To set the value of an alternate (shadow) register, use the '^' prefix:
 

@@ -82,7 +82,7 @@ def set_z80_registers(z80, *specs):
                 offset = Z80_REGISTERS.get(reg, -1)
             if offset >= 0:
                 try:
-                    value = get_int_param(val)
+                    value = get_int_param(val, True)
                 except ValueError:
                     raise SkoolKitError("Cannot parse register value: {}".format(spec))
                 lsb, msb = value % 256, (value & 65535) // 256

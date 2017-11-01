@@ -199,6 +199,16 @@ class Bin2SnaTest(SkoolKitTestCase):
             z80_header = f.read(4)
         self.assertEqual(z80_header[2] + 256 * z80_header[3], reg_value)
 
+    def test_option_reg_with_0x_hex_value(self):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        z80file = self.write_bin_file(suffix='.z80')
+        reg_value = 43665
+        output, error = self.run_bin2sna('--reg hl=0x{:X} {} {}'.format(reg_value, binfile, z80file))
+        self.assertEqual(error, '')
+        with open(z80file, 'rb') as f:
+            z80_header = f.read(6)
+        self.assertEqual(z80_header[4] + 256 * z80_header[5], reg_value)
+
     def test_option_reg_bad_value(self):
         self._test_bad_spec('--reg bc=A2', 'Cannot parse register value: bc=A2')
 

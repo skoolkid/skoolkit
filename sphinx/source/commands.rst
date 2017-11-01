@@ -948,11 +948,13 @@ To list the options supported by `snapmod.py`, run it with no arguments::
                           times.
     -V, --version         Show SkoolKit version number and exit.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.3     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | The ``--reg`` option accepts a hexadecimal value prefixed by '0x' |
++---------+-------------------------------------------------------------------+
+| 5.3     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _tap2sna.py:
 
@@ -1035,20 +1037,20 @@ then::
 will create `game.z80` as if the arguments specified in `game.t2s` had been
 given on the command line.
 
-+---------+----------------------------------------------------------------+
-| Version | Changes                                                        |
-+=========+================================================================+
-| 6.2     | The ``--stack`` and ``--start`` options accept a hexadecimal   |
-|         | integer prefixed by '0x'                                       |
-+---------+----------------------------------------------------------------+
-| 5.3     | Added the ``--stack`` and ``--start`` options                  |
-+---------+----------------------------------------------------------------+
-| 4.5     | Added support for TZX block type 0x14 (pure data), for loading |
-|         | the first and last bytes of a tape block, and for modifying    |
-|         | memory with XOR and ADD operations                             |
-+---------+----------------------------------------------------------------+
-| 3.5     | New                                                            |
-+---------+----------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | The ``--ram``, ``--reg``, ``--stack`` and ``--start`` options     |
+|         | accept hexadecimal integers prefixed by '0x'                      |
++---------+-------------------------------------------------------------------+
+| 5.3     | Added the ``--stack`` and ``--start`` options                     |
++---------+-------------------------------------------------------------------+
+| 4.5     | Added support for TZX block type 0x14 (pure data), for loading    |
+|         | the first and last bytes of a tape block, and for modifying       |
+|         | memory with XOR and ADD operations                                |
++---------+-------------------------------------------------------------------+
+| 3.5     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _tapinfo.py:
 
