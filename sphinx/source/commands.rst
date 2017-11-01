@@ -145,33 +145,33 @@ assembler (see :ref:`supportedAssemblers`). For example::
   be a regular file, or '-' for standard input.
 
   Options:
-    -c, --create-labels   Create default labels for unlabelled instructions
-    -D, --decimal         Write the disassembly in decimal
-    -E ADDR, --end ADDR   Stop converting at this address
+    -c, --create-labels   Create default labels for unlabelled instructions.
+    -D, --decimal         Write the disassembly in decimal.
+    -E ADDR, --end ADDR   Stop converting at this address.
     -f N, --fixes N       Apply fixes:
                             N=0: None (default)
                             N=1: @ofix only
                             N=2: @ofix and @bfix
                             N=3: @ofix, @bfix and @rfix (implies -r)
-    -H, --hex             Write the disassembly in hexadecimal
+    -H, --hex             Write the disassembly in hexadecimal.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
-                          'v'; this option may be used multiple times
-    -l, --lower           Write the disassembly in lower case
-    -p, --package-dir     Show path to skoolkit package directory and exit
-    -P p=v, --set p=v     Set the value of ASM writer property 'p' to 'v'; this
-                          option may be used multiple times
-    -q, --quiet           Be quiet
+                          'v'. This option may be used multiple times.
+    -l, --lower           Write the disassembly in lower case.
+    -p, --package-dir     Show path to skoolkit package directory and exit.
+    -P p=v, --set p=v     Set the value of ASM writer property 'p' to 'v'. This
+                          option may be used multiple times.
+    -q, --quiet           Be quiet.
     -r, --rsub            Apply safe substitutions (@ssub) and relocatability
-                          substitutions (@rsub) (implies '-f 1')
-    --show-config         Show configuration parameter values
-    -s, --ssub            Apply safe substitutions (@ssub)
+                          substitutions (@rsub) (implies '-f 1').
+    --show-config         Show configuration parameter values.
+    -s, --ssub            Apply safe substitutions (@ssub).
     -S ADDR, --start ADDR
-                          Start converting at this address
-    -u, --upper           Write the disassembly in upper case
-    -V, --version         Show SkoolKit version number and exit
-    -w, --no-warnings     Suppress warnings
+                          Start converting at this address.
+    -u, --upper           Write the disassembly in upper case.
+    -V, --version         Show SkoolKit version number and exit.
+    -w, --no-warnings     Suppress warnings.
     -W CLASS, --writer CLASS
-                          Specify the ASM writer class to use
+                          Specify the ASM writer class to use.
 
 See :ref:`asmModesAndDirectives` for a description of the ``@ssub`` and
 ``@rsub`` substitution modes, and the ``@ofix``, ``@bfix`` and ``@rfix`` bugfix

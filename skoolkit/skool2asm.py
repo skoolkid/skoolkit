@@ -73,11 +73,11 @@ def main(args):
     parser.add_argument('skoolfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('-c', '--create-labels', dest='create_labels', action='store_const', const=1, default=config['CreateLabels'],
-                       help="Create default labels for unlabelled instructions")
+                       help="Create default labels for unlabelled instructions.")
     group.add_argument('-D', '--decimal', dest='base', action='store_const', const=BASE_10, default=config['Base'],
-                       help="Write the disassembly in decimal")
+                       help="Write the disassembly in decimal.")
     group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=integer, default=65536,
-                       help="Stop converting at this address")
+                       help="Stop converting at this address.")
     group.add_argument('-f', '--fixes', dest='fix_mode', metavar='N', type=int, choices=range(4), default=0,
                        help="Apply fixes:\n"
                             "  N=0: None (default)\n"
@@ -85,33 +85,33 @@ def main(args):
                             "  N=2: @ofix and @bfix\n"
                             "  N=3: @ofix, @bfix and @rfix (implies -r)")
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16, default=config['Base'],
-                       help="Write the disassembly in hexadecimal")
+                       help="Write the disassembly in hexadecimal.")
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
-                       help="Set the value of the configuration parameter 'p' to\n'v'; this option may be used multiple times")
+                       help="Set the value of the configuration parameter 'p' to\n'v'. This option may be used multiple times.")
     group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER, default=config['Case'],
-                       help="Write the disassembly in lower case")
+                       help="Write the disassembly in lower case.")
     group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
-                       help="Show path to skoolkit package directory and exit")
+                       help="Show path to skoolkit package directory and exit.")
     group.add_argument('-P', '--set', dest='properties', metavar='p=v', action='append', default=def_properties,
-                       help="Set the value of ASM writer property 'p' to 'v'; this\noption may be used multiple times")
+                       help="Set the value of ASM writer property 'p' to 'v'. This\noption may be used multiple times.")
     group.add_argument('-q', '--quiet', dest='quiet', action='store_const', const=1, default=config['Quiet'],
-                       help="Be quiet")
+                       help="Be quiet.")
     group.add_argument('-r', '--rsub', dest='asm_mode', action='store_const', const=3, default=1,
-                       help="Apply safe substitutions (@ssub) and relocatability\nsubstitutions (@rsub) (implies '-f 1')")
+                       help="Apply safe substitutions (@ssub) and relocatability\nsubstitutions (@rsub) (implies '-f 1').")
     group.add_argument('--show-config', dest='show_config', action='store_true',
-                       help="Show configuration parameter values")
+                       help="Show configuration parameter values.")
     group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=1,
-                       help="Apply safe substitutions (@ssub)")
+                       help="Apply safe substitutions (@ssub).")
     group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer, default=0,
-                       help="Start converting at this address")
+                       help="Start converting at this address.")
     group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER, default=config['Case'],
-                       help="Write the disassembly in upper case")
+                       help="Write the disassembly in upper case.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
-                       help='Show SkoolKit version number and exit')
+                       help='Show SkoolKit version number and exit.')
     group.add_argument('-w', '--no-warnings', dest='warn', action='store_const', const=0, default=config['Warnings'],
-                       help="Suppress warnings")
+                       help="Suppress warnings.")
     group.add_argument('-W', '--writer', dest='writer', metavar='CLASS',
-                       help="Specify the ASM writer class to use")
+                       help="Specify the ASM writer class to use.")
 
     namespace, unknown_args = parser.parse_known_args(args)
     if namespace.show_config:
