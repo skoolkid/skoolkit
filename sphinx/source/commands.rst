@@ -391,47 +391,47 @@ list::
   for standard input.
 
   Options:
-    -1, --asm-one-page    Write all routines and data blocks to a single page
-    -a, --asm-labels      Use ASM labels
-    -c S/L, --config S/L  Add the line 'L' to the ref file section 'S'; this
-                          option may be used multiple times
-    -C, --create-labels   Create default labels for unlabelled instructions
+    -1, --asm-one-page    Write all routines and data blocks to a single page.
+    -a, --asm-labels      Use ASM labels.
+    -c S/L, --config S/L  Add the line 'L' to the ref file section 'S'. This
+                          option may be used multiple times.
+    -C, --create-labels   Create default labels for unlabelled instructions.
     -d DIR, --output-dir DIR
-                          Write files in this directory (default is '.')
-    -D, --decimal         Write the disassembly in decimal
-    -H, --hex             Write the disassembly in hexadecimal
+                          Write files in this directory (default is '.').
+    -D, --decimal         Write the disassembly in decimal.
+    -H, --hex             Write the disassembly in hexadecimal.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
-                          'v'; this option may be used multiple times
+                          'v'. This option may be used multiple times.
     -j NAME, --join-css NAME
-                          Concatenate CSS files into a single file with this name
-    -l, --lower           Write the disassembly in lower case
-    -o, --rebuild-images  Overwrite existing image files
-    -p, --package-dir     Show path to skoolkit package directory and exit
+                          Concatenate CSS files into a single file with this name.
+    -l, --lower           Write the disassembly in lower case.
+    -o, --rebuild-images  Overwrite existing image files.
+    -p, --package-dir     Show path to skoolkit package directory and exit.
     -P PAGES, --pages PAGES
-                          Write only these pages (when using '--write P');
-                          PAGES is a comma-separated list of page IDs
-    -q, --quiet           Be quiet
+                          Write only these pages (when using '--write P').
+                          PAGES is a comma-separated list of page IDs.
+    -q, --quiet           Be quiet.
     -r PREFIX, --ref-sections PREFIX
                           Show default ref file sections whose names start with
-                          PREFIX and exit
-    -R, --ref-file        Show the entire default ref file and exit
-    -s, --search-dirs     Show the locations skool2html.py searches for resources
-    -S DIR, --search DIR  Add this directory to the resource search path; this
-                          option may be used multiple times
-    --show-config         Show configuration parameter values
-    -t, --time            Show timings
+                          PREFIX and exit.
+    -R, --ref-file        Show the entire default ref file and exit.
+    -s, --search-dirs     Show the locations skool2html.py searches for resources.
+    -S DIR, --search DIR  Add this directory to the resource search path. This
+                          option may be used multiple times.
+    --show-config         Show configuration parameter values.
+    -t, --time            Show timings.
     -T THEME, --theme THEME
-                          Use this CSS theme; this option may be used multiple
-                          times
-    -u, --upper           Write the disassembly in upper case
-    -V, --version         Show SkoolKit version number and exit
+                          Use this CSS theme. This option may be used multiple
+                          times.
+    -u, --upper           Write the disassembly in upper case.
+    -V, --version         Show SkoolKit version number and exit.
     -w X, --write X       Write only these files, where X is one or more of:
                             d = Disassembly files   o = Other code
                             i = Disassembly index   P = Other pages
                             m = Memory maps
     -W CLASS, --writer CLASS
                           Specify the HTML writer class to use; shorthand for
-                          '--config Config/HtmlWriterClass=CLASS'
+                          '--config Config/HtmlWriterClass=CLASS'.
 
 `skool2html.py` searches the following directories for skool files, ref files,
 CSS files, JavaScript files, font files, and files listed in the

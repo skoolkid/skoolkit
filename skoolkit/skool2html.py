@@ -338,56 +338,56 @@ def main(args):
     parser.add_argument('infiles', help=argparse.SUPPRESS, nargs='*')
     group = parser.add_argument_group('Options')
     group.add_argument('-1', '--asm-one-page', dest='asm_one_page', action='store_const', const=1, default=config['AsmOnePage'],
-                       help="Write all routines and data blocks to a single page")
+                       help="Write all routines and data blocks to a single page.")
     group.add_argument('-a', '--asm-labels', dest='asm_labels', action='store_const', const=1, default=config['AsmLabels'],
-                       help="Use ASM labels")
+                       help="Use ASM labels.")
     group.add_argument('-c', '--config', dest='config_specs', metavar='S/L', action='append', default=[],
-                       help="Add the line 'L' to the ref file section 'S'; this\n"
-                            "option may be used multiple times")
+                       help="Add the line 'L' to the ref file section 'S'. This\n"
+                            "option may be used multiple times.")
     group.add_argument('-C', '--create-labels', dest='create_labels', action='store_const', const=1, default=config['CreateLabels'],
-                       help="Create default labels for unlabelled instructions")
+                       help="Create default labels for unlabelled instructions.")
     group.add_argument('-d', '--output-dir', dest='output_dir', metavar='DIR', default=config['OutputDir'],
-                       help="Write files in this directory (default is '.')")
+                       help="Write files in this directory (default is '.').")
     group.add_argument('-D', '--decimal', dest='base', action='store_const', const=BASE_10, default=config['Base'],
-                       help="Write the disassembly in decimal")
+                       help="Write the disassembly in decimal.")
     group.add_argument('-H', '--hex', dest='base', action='store_const', const=BASE_16, default=config['Base'],
-                       help="Write the disassembly in hexadecimal")
+                       help="Write the disassembly in hexadecimal.")
     group.add_argument('-I', '--ini', dest='params', metavar='p=v', action='append', default=[],
-                       help="Set the value of the configuration parameter 'p' to\n'v'; this option may be used multiple times")
+                       help="Set the value of the configuration parameter 'p' to\n'v'. This option may be used multiple times.")
     group.add_argument('-j', '--join-css', dest='single_css', metavar='NAME', default=config['JoinCss'],
-                       help="Concatenate CSS files into a single file with this name")
+                       help="Concatenate CSS files into a single file with this name.")
     group.add_argument('-l', '--lower', dest='case', action='store_const', const=CASE_LOWER, default=config['Case'],
-                       help="Write the disassembly in lower case")
+                       help="Write the disassembly in lower case.")
     group.add_argument('-o', '--rebuild-images', dest='new_images', action='store_const', const=1, default=config['RebuildImages'],
-                       help="Overwrite existing image files")
+                       help="Overwrite existing image files.")
     group.add_argument('-p', '--package-dir', dest='package_dir', action='store_true',
-                       help="Show path to skoolkit package directory and exit")
+                       help="Show path to skoolkit package directory and exit.")
     group.add_argument('-P', '--pages', dest='pages', metavar='PAGES',
-                       help="Write only these pages (when using '--write P');\n"
-                            "PAGES is a comma-separated list of page IDs")
+                       help="Write only these pages (when using '--write P').\n"
+                            "PAGES is a comma-separated list of page IDs.")
     group.add_argument('-q', '--quiet', dest='quiet', action='store_const', const=1, default=config['Quiet'],
-                       help="Be quiet")
+                       help="Be quiet.")
     group.add_argument('-r', '--ref-sections', dest='ref_sections', metavar='PREFIX',
                        help="Show default ref file sections whose names start with\n"
-                            "PREFIX and exit")
+                            "PREFIX and exit.")
     group.add_argument('-R', '--ref-file', dest='ref_file', action='store_true',
-                       help="Show the entire default ref file and exit")
+                       help="Show the entire default ref file and exit.")
     group.add_argument('-s', '--search-dirs', dest='search_dirs', action='store_true',
-                       help="Show the locations skool2html.py searches for resources")
+                       help="Show the locations skool2html.py searches for resources.")
     group.add_argument('-S', '--search', dest='search', metavar='DIR', action='append', default=config['Search'],
-                       help="Add this directory to the resource search path; this\n"
-                            "option may be used multiple times")
+                       help="Add this directory to the resource search path. This\n"
+                            "option may be used multiple times.")
     group.add_argument('--show-config', dest='show_config', action='store_true',
-                       help="Show configuration parameter values")
+                       help="Show configuration parameter values.")
     group.add_argument('-t', '--time', dest='show_timings', action='store_const', const=1, default=config['Time'],
-                       help="Show timings")
+                       help="Show timings.")
     group.add_argument('-T', '--theme', dest='themes', metavar='THEME', action='append', default=config['Theme'],
-                       help="Use this CSS theme; this option may be used multiple\ntimes")
+                       help="Use this CSS theme. This option may be used multiple\ntimes.")
     group.add_argument('-u', '--upper', dest='case', action='store_const', const=CASE_UPPER, default=config['Case'],
-                       help="Write the disassembly in upper case")
+                       help="Write the disassembly in upper case.")
     group.add_argument('-V', '--version', action='version',
                        version='SkoolKit {}'.format(VERSION),
-                       help='Show SkoolKit version number and exit')
+                       help='Show SkoolKit version number and exit.')
     group.add_argument('-w', '--write', dest='files', metavar='X', default='dimoP',
                        help="Write only these files, where X is one or more of:\n"
                             "  d = Disassembly files   o = Other code\n"
@@ -395,7 +395,7 @@ def main(args):
                             "  m = Memory maps\n")
     group.add_argument('-W', '--writer', dest='writer', metavar='CLASS',
                        help="Specify the HTML writer class to use; shorthand for\n"
-                            "'--config Config/HtmlWriterClass=CLASS'")
+                            "'--config Config/HtmlWriterClass=CLASS'.")
 
     start = time.time()
     namespace, unknown_args = parser.parse_known_args(args)
