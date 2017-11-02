@@ -207,18 +207,18 @@ def poke(snapshot, param_str):
         raise SkoolKitError("Value missing in poke spec: {}".format(param_str))
     try:
         if val.startswith('^'):
-            value = get_int_param(val[1:])
+            value = get_int_param(val[1:], True)
             poke_f = lambda b: b ^ value
         elif val.startswith('+'):
-            value = get_int_param(val[1:])
+            value = get_int_param(val[1:], True)
             poke_f = lambda b: (b + value) & 255
         else:
-            value = get_int_param(val)
+            value = get_int_param(val, True)
             poke_f = lambda b: value
     except ValueError:
         raise SkoolKitError('Invalid value in poke spec: {}'.format(param_str))
     try:
-        values = [get_int_param(i) for i in addr.split('-', 2)]
+        values = [get_int_param(i, True) for i in addr.split('-', 2)]
     except ValueError:
         raise SkoolKitError('Invalid address range in poke spec: {}'.format(param_str))
     addr1, addr2, step = values + [values[0], 1][len(values) - 1:]

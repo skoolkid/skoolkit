@@ -364,6 +364,10 @@ class Tap2SnaTest(SkoolKitTestCase):
         snapshot = self._get_snapshot(16384, [1], '--ram poke=${:X},{}'.format(address, value))
         self.assertEqual(snapshot[address], value)
 
+    def test_ram_poke_0x_hex_values(self):
+        snapshot = self._get_snapshot(16384, [2, 1, 2], '--ram poke=0x4000-0x4002-0x02,0x2a')
+        self.assertEqual([42, 1, 42], snapshot[16384:16387])
+
     def test_ram_poke_bad_value(self):
         self._test_bad_spec('--ram poke=1', 'Value missing in poke spec: 1')
         self._test_bad_spec('--ram poke=q', 'Value missing in poke spec: q')

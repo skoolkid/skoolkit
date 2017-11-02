@@ -267,6 +267,18 @@ class SnapmodTest(SkoolKitTestCase):
         options = '-p ${:04X}-${:04x}-${:X},${:02x}'.format(addr1, addr2, step, value)
         self._test_z80(options, header, exp_header, ram, exp_ram, 1, False)
 
+    def test_option_p_0x_hexadecimal_values(self):
+        addr1, addr2, step, value = 60000, 60006, 3, 201
+        header = list(range(30))
+        header[12] &= 223 # RAM block uncompressed
+        ram = [0] * 49152
+        exp_ram = ram[:]
+        exp_ram[addr1 - 16384:addr2 - 16383:step] = [value] * 3
+        exp_header = header[:]
+        exp_header[12] |= 32 # RAM block compressed
+        options = '-p 0x{:04X}-0x{:04x}-0x{:X},0x{:02x}'.format(addr1, addr2, step, value)
+        self._test_z80(options, header, exp_header, ram, exp_ram, 1, False)
+
     def test_option_p_invalid_values(self):
         infile = self.write_z80_file([1] * 30, [0] * 49152, 1)
         self._test_bad_spec('-p 1', infile, 'Value missing in poke spec: 1')

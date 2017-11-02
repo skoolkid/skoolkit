@@ -131,7 +131,7 @@ operation, or '+' to perform an ADD operation
 For example:
 
 |
-|  ``--ram poke=24576,16``        # POKE 24576,16
+|  ``--ram poke=0x6000,0x10``     # POKE 24576,16
 |  ``--ram poke=30000-30002,^85`` # Perform 'XOR 85' on addresses 30000-30002
 |  ``--ram poke=40000-40004-2,1`` # POKE 40000,1: POKE 40002,1: POKE 40004,1
 

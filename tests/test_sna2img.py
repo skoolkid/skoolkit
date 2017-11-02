@@ -593,6 +593,14 @@ class Sna2ImgTest(SkoolKitTestCase):
 
     @patch.object(sna2img, 'ImageWriter', MockImageWriter)
     @patch.object(sna2img, 'open')
+    def test_option_p_0x_hexadecimal_values(self, mock_open):
+        scr = [0] * 6912
+        exp_udgs = [[Udg(0, [0] * 8)] * 32 for i in range(24)]
+        exp_udgs[0][0] = Udg(0, [31] * 8)
+        self._test_sna2img(mock_open, '-p 0x4000-0x4700-0x100,0x1f', scr, exp_udgs)
+
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
     def test_option_p_with_add_operation(self, mock_open):
         scr = [0] * 6912
         exp_udgs = [[Udg(0, [0] * 8)] * 32 for i in range(24)]

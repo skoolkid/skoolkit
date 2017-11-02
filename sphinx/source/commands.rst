@@ -655,7 +655,8 @@ To list the options supported by `sna2img.py`, run it with no arguments::
 | Version | Changes                                                           |
 +=========+===================================================================+
 | 6.2     | Added the ``--binary`` and ``--org`` options and the ability to   |
-|         | read binary (raw memory) files                                    |
+|         | read binary (raw memory) files; the ``--poke`` option accepts     |
+|         | hexadecimal integers prefixed by '0x'                             |
 +---------+-------------------------------------------------------------------+
 | 6.1     | Added the ability to read skool files; added the ``--bfix`` and   |
 |         | ``--move`` options                                                |
@@ -951,7 +952,8 @@ To list the options supported by `snapmod.py`, run it with no arguments::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 6.2     | The ``--reg`` option accepts a hexadecimal value prefixed by '0x' |
+| 6.2     | The ``--poke`` and ``--reg`` options accept hexadecimal integers  |
+|         | prefixed by '0x'                                                  |
 +---------+-------------------------------------------------------------------+
 | 5.3     | New                                                               |
 +---------+-------------------------------------------------------------------+
