@@ -689,31 +689,31 @@ list::
 
   Options:
     -c FILE, --ctl FILE   Use FILE as the control file (may be '-' for standard
-                          input)
-    -e ADDR, --end ADDR   Stop disassembling at this address (default=65536)
+                          input).
+    -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
     -g FILE, --generate-ctl FILE
-                          Generate a control file in FILE
+                          Generate a control file in FILE.
     -h, --ctl-hex         Write upper case hexadecimal addresses in the
-                          generated control file
+                          generated control file.
     -H, --skool-hex       Write hexadecimal addresses and operands in the
-                          disassembly
+                          disassembly.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
-                          'v'; this option may be used multiple times
-    -L, --lower           Write the disassembly in lower case
+                          'v'. This option may be used multiple times.
+    -L, --lower           Write the disassembly in lower case.
     -M FILE, --map FILE   Use FILE as a code execution map when generating a
-                          control file
+                          control file.
     -o ADDR, --org ADDR   Specify the origin address of a binary (.bin) file
-                          (default: 65536 - length)
+                          (default: 65536 - length).
     -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
-                          49152-65535
-    --show-config         Show configuration parameter values
+                          49152-65535.
+    --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
-                          Start disassembling at this address (default=16384)
+                          Start disassembling at this address (default=16384).
     -T FILE, --sft FILE   Use FILE as the skool file template (may be '-' for
-                          standard input)
-    -V, --version         Show SkoolKit version number and exit
+                          standard input).
+    -V, --version         Show SkoolKit version number and exit.
     -w W, --line-width W  Set the maximum line width of the skool file (default:
-                          79)
+                          79).
 
 .. note::
    The ``-i``, ``-l``, ``-m``, ``-n``, ``-r``, ``-R``, ``-t`` and ``-z``
