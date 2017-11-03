@@ -195,7 +195,7 @@ def move(snapshot, param_str):
     if len(params) < 3:
         raise SkoolKitError("Not enough arguments in move spec (expected 3): {}".format(param_str))
     try:
-        src, length, dest = [get_int_param(p) for p in params]
+        src, length, dest = [get_int_param(p, True) for p in params]
     except ValueError:
         raise SkoolKitError('Invalid integer in move spec: {}'.format(param_str))
     snapshot[dest:dest + length] = snapshot[src:src + length]

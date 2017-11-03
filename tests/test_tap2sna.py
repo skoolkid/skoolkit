@@ -392,6 +392,12 @@ class Tap2SnaTest(SkoolKitTestCase):
         snapshot = self._get_snapshot(src, [value], '--ram move=${:X},{},${:x}'.format(src, size, dest))
         self.assertEqual(snapshot[dest], value)
 
+    def test_ram_move_0x_hex_values(self):
+        src, size, dest = 16385, 1, 16384
+        value = 2
+        snapshot = self._get_snapshot(src, [value], '--ram move=0x{:X},0x{:X},0x{:x}'.format(src, size, dest))
+        self.assertEqual(snapshot[dest], value)
+
     def test_ram_move_bad_address(self):
         self._test_bad_spec('--ram move=1', 'Not enough arguments in move spec (expected 3): 1')
         self._test_bad_spec('--ram move=1,2', 'Not enough arguments in move spec (expected 3): 1,2')

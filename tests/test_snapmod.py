@@ -49,10 +49,10 @@ class SnapmodTest(SkoolKitTestCase):
         z80_ram = get_snapshot(outfile)[16384:]
         self.assertEqual(exp_ram, z80_ram)
 
-    def _test_move(self, option, src, block, dest, version, compress, base16=False):
+    def _test_move(self, option, src, block, dest, version, compress, hex_prefix=None):
         size = len(block)
-        if base16:
-            options = '{} ${:04X},${:x},${:04x}'.format(option, src, size, dest)
+        if hex_prefix:
+            options = '{0} {1}{2:04X},{1}{3:x},{1}{4:04x}'.format(option, hex_prefix, src, size, dest)
         else:
             options = '{} {},{},{}'.format(option, src, size, dest)
         header = self._get_header(version, compress)
@@ -183,7 +183,8 @@ class SnapmodTest(SkoolKitTestCase):
         self._test_z80(options, header, exp_header, ram, exp_ram, 1, False)
 
     def test_option_m_hexadecimal_values(self):
-        self._test_move('-m', 0x81AF, [203] * 3, 0x920D, 1, False, True)
+        self._test_move('-m', 0x81AF, [203] * 3, 0x920D, 1, False, '$')
+        self._test_move('-m', 0x91AF, [21] * 3, 0xA20D, 1, False, '0x')
 
     def test_option_m_invalid_values(self):
         infile = self.write_z80_file([1] * 30, [0] * 49152, 1)

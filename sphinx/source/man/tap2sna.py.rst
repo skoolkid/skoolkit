@@ -107,7 +107,8 @@ another before saving the snapshot.
 This moves a block of ``N`` bytes from ``src`` to ``dest``. For example:
 
 |
-|  ``--ram move=32512,256,32768`` # Move 32512-32767 to 32768-33023
+|  ``--ram move=32512,256,32768``     # Move 32512-32767 to 32768-33023
+|  ``--ram move=0x9c00,0x100,0x9d00`` # Move 39936-40191 to 40192-40447
 
 POKE OPERATIONS
 ===============

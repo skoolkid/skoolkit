@@ -463,6 +463,13 @@ class Sna2ImgTest(SkoolKitTestCase):
         exp_udgs = [[Udg(56, scr[:8])]]
         self._test_sna2img(mock_open, '-e UDG16392 -m $4000,4,$4008', scr, exp_udgs, scale=4)
 
+    @patch.object(sna2img, 'ImageWriter', MockImageWriter)
+    @patch.object(sna2img, 'open')
+    def test_option_m_0x_hexadecimal_values(self, mock_open):
+        scr = [1, 2, 3, 4] + [0] * 6908
+        exp_udgs = [[Udg(56, scr[:8])]]
+        self._test_sna2img(mock_open, '-e UDG16392 -m 0x4000,0x04,0x4008', scr, exp_udgs, scale=4)
+
     def test_option_m_invalid_values(self):
         self._test_bad_spec('-m 1', 'Not enough arguments in move spec (expected 3): 1')
         self._test_bad_spec('-m 1,2', 'Not enough arguments in move spec (expected 3): 1,2')

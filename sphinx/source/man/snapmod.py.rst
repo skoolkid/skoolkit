@@ -19,7 +19,8 @@ OPTIONS
 
 -m, --move `src,size,dest`
   Move a block of bytes of the given size from 'src' to 'dest'. This option may
-  be used multiple times.
+  be used multiple times. 'src', 'size' and 'dest' must each be a decimal
+  number, or a hexadecimal number prefixed by '0x'.
 
 -p, --poke `a[-b[-c]],[^+]v`
   POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v' with '^' to perform an
