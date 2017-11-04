@@ -427,21 +427,21 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('-b', '--basic', action='store_true',
-                       help='List the BASIC program')
+                       help='List the BASIC program.')
     group.add_argument('-f', '--find', metavar='A[,B...[-M[-N]]]',
-                       help='Search for the byte sequence A,B... with distance ranging from M to N (default=1) between bytes')
+                       help='Search for the byte sequence A,B... with distance ranging from M to N (default=1) between bytes.')
     group.add_argument('-p', '--peek', metavar='A[-B[-C]]', action='append',
-                       help='Show the contents of addresses A TO B STEP C; this option may be used multiple times')
+                       help='Show the contents of addresses A TO B STEP C. This option may be used multiple times.')
     group.add_argument('-t', '--find-text', dest='text', metavar='TEXT',
-                       help='Search for a text string')
+                       help='Search for a text string.')
     group.add_argument('-T', '--find-tile', dest='tile', metavar='X,Y[-M[-N]]',
-                       help='Search for the graphic data of the tile at (X,Y) with distance ranging from M to N (default=1) between bytes')
+                       help='Search for the graphic data of the tile at (X,Y) with distance ranging from M to N (default=1) between bytes.')
     group.add_argument('-v', '--variables', action='store_true',
-                       help='List variables')
+                       help='List variables.')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
-                       help='Show SkoolKit version number and exit')
+                       help='Show SkoolKit version number and exit.')
     group.add_argument('-w', '--word', metavar='A[-B[-C]]', action='append',
-                       help='Show the words at addresses A TO B STEP C; this option may be used multiple times')
+                       help='Show the words at addresses A TO B STEP C. This option may be used multiple times.')
     namespace, unknown_args = parser.parse_known_args(args)
     if unknown_args or namespace.infile is None:
         parser.exit(2, parser.format_help())

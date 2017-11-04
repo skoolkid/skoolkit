@@ -876,23 +876,24 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
   Analyse an SNA, SZX or Z80 snapshot.
 
   Options:
-    -b, --basic           List the BASIC program
+    -b, --basic           List the BASIC program.
     -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
                           Search for the byte sequence A,B... with distance
-                          ranging from M to N (default=1) between bytes
+                          ranging from M to N (default=1) between bytes.
     -p A[-B[-C]], --peek A[-B[-C]]
-                          Show the contents of addresses A TO B STEP C; this
-                          option may be used multiple times
+                          Show the contents of addresses A TO B STEP C. This
+                          option may be used multiple times.
     -t TEXT, --find-text TEXT
-                          Search for a text string
+                          Search for a text string.
     -T X,Y[-M[-N]], --find-tile X,Y[-M[-N]]
                           Search for the graphic data of the tile at (X,Y) with
-                          distance ranging from M to N (default=1) between bytes
-    -v, --variables       List variables
-    -V, --version         Show SkoolKit version number and exit
+                          distance ranging from M to N (default=1) between
+                          bytes.
+    -v, --variables       List variables.
+    -V, --version         Show SkoolKit version number and exit.
     -w A[-B[-C]], --word A[-B[-C]]
-                          Show the words at addresses A TO B STEP C; this option
-                          may be used multiple times
+                          Show the words at addresses A TO B STEP C. This option
+                          may be used multiple times.
 
 With no options, `snapinfo.py` displays register values, the interrupt mode,
 and the border colour. By using one of the options shown above, it can list
