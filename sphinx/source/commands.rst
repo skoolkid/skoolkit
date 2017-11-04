@@ -255,14 +255,14 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
   'file.bin' may be a regular file, or '-' for standard output.
 
   Options:
-    -b, --bfix            Apply @ofix and @bfix directives
-    -E ADDR, --end ADDR   Stop converting at this address
-    -i, --isub            Apply @isub directives
-    -o, --ofix            Apply @ofix directives
-    -s, --ssub            Apply @isub and @ssub directives
+    -b, --bfix            Apply @ofix and @bfix directives.
+    -E ADDR, --end ADDR   Stop converting at this address.
+    -i, --isub            Apply @isub directives.
+    -o, --ofix            Apply @ofix directives.
+    -s, --ssub            Apply @isub and @ssub directives.
     -S ADDR, --start ADDR
-                          Start converting at this address
-    -V, --version         Show SkoolKit version number and exit
+                          Start converting at this address.
+    -V, --version         Show SkoolKit version number and exit.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |

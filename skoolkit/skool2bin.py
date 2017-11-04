@@ -151,19 +151,19 @@ def main(args):
     parser.add_argument('binfile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('-b', '--bfix', dest='fix_mode', action='store_const', const=2, default=0,
-                       help="Apply @ofix and @bfix directives")
+                       help="Apply @ofix and @bfix directives.")
     group.add_argument('-E', '--end', dest='end', metavar='ADDR', type=integer,
-                       help='Stop converting at this address')
+                       help='Stop converting at this address.')
     group.add_argument('-i', '--isub', dest='asm_mode', action='store_const', const=1, default=0,
-                       help="Apply @isub directives")
+                       help="Apply @isub directives.")
     group.add_argument('-o', '--ofix', dest='fix_mode', action='store_const', const=1, default=0,
-                       help="Apply @ofix directives")
+                       help="Apply @ofix directives.")
     group.add_argument('-s', '--ssub', dest='asm_mode', action='store_const', const=2, default=0,
-                       help="Apply @isub and @ssub directives")
+                       help="Apply @isub and @ssub directives.")
     group.add_argument('-S', '--start', dest='start', metavar='ADDR', type=integer,
-                       help='Start converting at this address')
+                       help='Start converting at this address.')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
-                       help='Show SkoolKit version number and exit')
+                       help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
     skoolfile = namespace.skoolfile
     if unknown_args or skoolfile is None:
