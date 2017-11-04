@@ -303,13 +303,13 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
 
   Options:
     -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
-                          instruction operands and DEFB/DEFM/DEFS/DEFW statements
-    -E ADDR, --end ADDR   Stop converting at this address
-    -h, --hex             Write addresses in upper case hexadecimal format
-    -l, --hex-lower       Write addresses in lower case hexadecimal format
+                          instruction operands and DEFB/DEFM/DEFS/DEFW statements.
+    -E ADDR, --end ADDR   Stop converting at this address.
+    -h, --hex             Write addresses in upper case hexadecimal format.
+    -l, --hex-lower       Write addresses in lower case hexadecimal format.
     -S ADDR, --start ADDR
-                          Start converting at this address
-    -V, --version         Show SkoolKit version number and exit
+                          Start converting at this address.
+    -V, --version         Show SkoolKit version number and exit.
     -w X, --write X       Write only these elements, where X is one or more of:
                             a = ASM directives
                             b = block types and addresses
