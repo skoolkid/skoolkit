@@ -903,8 +903,8 @@ addresses, or search the RAM for a sequence of byte values or a text string.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
-| 6.2     | The ``--find``, ``--peek`` and ``--word`` options accept          |
-|         | hexadecimal integers prefixed by '0x'                             |
+| 6.2     | The ``--find``, ``--find-tile``, ``--peek`` and ``--word``        |
+|         | options accept hexadecimal integers prefixed by '0x'              |
 +---------+-------------------------------------------------------------------+
 | 6.0     | Added support to the ``--find`` option for distance ranges; added |
 |         | the ``--find-tile`` and ``--word`` options; the ``--peek`` option |

@@ -1191,6 +1191,28 @@ class SnapinfoTest(SkoolKitTestCase):
         ]
         self._test_sna(ram, exp_output, '-T {},{}-2-3'.format(x, y))
 
+    def test_option_T_with_hex_step_range_limits(self):
+        ram = [0] * 49152
+        tile_addr = 51132
+        tile_data = [102, 103, 103, 96, 96, 127, 127, 0]
+        x, y = 27, 2
+        step = 3
+        df_addr = 16384 + 2048 * (y // 8) + 32 * (y & 7) + x
+        ram[df_addr - 16384:df_addr - 14336:256] = tile_data
+        ram[tile_addr - 16384:tile_addr - 16384 + 8 * step:step] = tile_data
+        exp_output = [
+            '| **  ** |',
+            '| **  ***|',
+            '| **  ***|',
+            '| **     |',
+            '| **     |',
+            '| *******|',
+            '| *******|',
+            '|        |',
+            '51132-51153-3 C7BC-C7D1-3: 102,103,103,96,96,127,127,0'
+        ]
+        self._test_sna(ram, exp_output, '-T {},{}-0x02-0x03'.format(x, y))
+
     def test_option_find_tile_with_invalid_coordinates(self):
         exp_error = 'Invalid tile coordinates'
         self._test_bad_spec('--find-tile', 'x,0', exp_error)

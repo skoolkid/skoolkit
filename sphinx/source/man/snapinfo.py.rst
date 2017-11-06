@@ -33,7 +33,8 @@ OPTIONS
 
 -T, --find-tile `X,Y[-M[-N]]`
   Search for the graphic data of the tile at (X,Y) with distance ranging from M
-  to N (default=1) between bytes.
+  to N (default=1) between bytes. `M` and `N` must each be a decimal number, or
+  a hexadecimal number prefixed by '0x'.
 
 -v, --variables
   List the contents of the variables area.

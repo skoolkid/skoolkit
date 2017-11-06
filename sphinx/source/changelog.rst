@@ -14,8 +14,8 @@ Changelog
   specifying addresses of entries to include on the memory map page in addition
   to those specified by the ``EntryTypes`` parameter)
 * The :ref:`SkoolKit command <commands>` options now accept a hexadecimal
-  integer prefixed by '0x' wherever an address, byte, length, step or offset
-  value is expected
+  integer prefixed by '0x' wherever an address, byte, length, step, offset or
+  range limit value is expected
 * Added the ``--show-config`` option to :ref:`skool2asm.py`,
   :ref:`skool2html.py` and :ref:`sna2skool.py` (for showing configuration
   parameter values)
