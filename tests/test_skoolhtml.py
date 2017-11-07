@@ -6,12 +6,12 @@ from unittest.mock import patch
 
 from skoolkittest import SkoolKitTestCase, StringIO
 from macrotest import CommonSkoolMacroTest, nest_macros
-from skoolkit import VERSION, SkoolKitError, SkoolParsingError, defaults, skoolhtml
+from skoolkit import BASE_10, BASE_16, VERSION, SkoolKitError, SkoolParsingError, defaults, skoolhtml
 from skoolkit.graphics import Udg, Frame
 from skoolkit.image import ImageWriter
 from skoolkit.skoolmacro import UnsupportedMacroError
 from skoolkit.skoolhtml import HtmlWriter, FileInfo
-from skoolkit.skoolparser import SkoolParser, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
+from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER
 from skoolkit.refparser import RefParser
 
 GAMEDIR = 'test'

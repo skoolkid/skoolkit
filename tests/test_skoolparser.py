@@ -2,8 +2,8 @@ import unittest
 import re
 
 from skoolkittest import SkoolKitTestCase
-from skoolkit import SkoolParsingError
-from skoolkit.skoolparser import SkoolParser, TableParser, set_bytes, BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
+from skoolkit import SkoolParsingError, BASE_10, BASE_16
+from skoolkit.skoolparser import SkoolParser, TableParser, set_bytes, CASE_LOWER, CASE_UPPER
 
 TEST_BASE_CONVERSION_SKOOL = r"""
 c30000 LD A,%11101011

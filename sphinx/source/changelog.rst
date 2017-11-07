@@ -16,6 +16,9 @@ Changelog
 * The :ref:`SkoolKit command <commands>` options now accept a hexadecimal
   integer prefixed by '0x' wherever an address, byte, length, step, offset or
   range limit value is expected
+* Added the ``hex`` parameter to the :ref:`N` macro (for rendering a value in
+  hexadecimal format unless the ``--decimal`` option is used with
+  :ref:`skool2asm.py` or :ref:`skool2html.py`)
 * Added the ``--show-config`` option to :ref:`skool2asm.py`,
   :ref:`skool2html.py` and :ref:`sna2skool.py` (for showing configuration
   parameter values)

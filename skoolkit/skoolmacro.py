@@ -19,7 +19,7 @@ import html
 import inspect
 import re
 
-from skoolkit import VERSION, SkoolKitError, SkoolParsingError
+from skoolkit import BASE_10, BASE_16, VERSION, SkoolKitError, SkoolParsingError
 from skoolkit.graphics import Udg
 
 _map_cache = {}
@@ -664,14 +664,14 @@ def parse_map(text, index, fields):
     _map_cache[map_id] = m
     return end, m[value]
 
-def parse_n(text, index, is_hex, is_lower):
-    # #Nvalue[,hwidth,dwidth,affix][(prefix[,suffix])]
-    end, value, hwidth, dwidth, affix = parse_ints(text, index, 4, (None, 1, 0))
+def parse_n(text, index, base, is_lower):
+    # #Nvalue[,hwidth,dwidth,affix,hex][(prefix[,suffix])]
+    end, value, hwidth, dwidth, affix, tohex = parse_ints(text, index, 5, (None, 1, 0, 0))
     if affix:
         end, (prefix, suffix) = parse_strings(text, end, 2, ('', ''))
     else:
         prefix = suffix = ''
-    if is_hex:
+    if base == BASE_16 or (tohex and base != BASE_10):
         if hwidth is None:
             if 0 <= value < 256:
                 hwidth = 2

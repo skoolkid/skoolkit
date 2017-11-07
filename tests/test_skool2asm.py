@@ -4,9 +4,9 @@ from unittest.mock import patch, Mock
 
 from skoolkittest import SkoolKitTestCase
 import skoolkit
-from skoolkit import skool2asm, SkoolKitError, VERSION
+from skoolkit import skool2asm, SkoolKitError, BASE_10, BASE_16, VERSION
 from skoolkit.config import COMMANDS
-from skoolkit.skoolparser import BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
+from skoolkit.skoolparser import CASE_LOWER, CASE_UPPER
 
 def mock_run(*args):
     global run_args

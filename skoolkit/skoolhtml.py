@@ -32,7 +32,7 @@ from skoolkit.graphics import Frame, adjust_udgs, build_udg, font_udgs, scr_udgs
 from skoolkit.image import ImageWriter
 from skoolkit.refparser import RefParser
 from skoolkit.skoolmacro import MacroParsingError, get_macros, expand_macros
-from skoolkit.skoolparser import TableParser, ListParser, BASE_16, CASE_LOWER
+from skoolkit.skoolparser import TableParser, ListParser, CASE_LOWER
 
 #: The ID of the main disassembly.
 MAIN_CODE_ID = 'main'
@@ -1182,7 +1182,7 @@ class HtmlWriter:
         return skoolmacro.parse_map(text, index, self.fields)
 
     def expand_n(self, text, index, cwd):
-        return skoolmacro.parse_n(text, index, self.base == BASE_16, self.case == CASE_LOWER)
+        return skoolmacro.parse_n(text, index, self.base, self.case == CASE_LOWER)
 
     def expand_peek(self, text, index, cwd):
         return skoolmacro.parse_peek(text, index, self.snapshot)

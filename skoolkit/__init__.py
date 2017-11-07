@@ -24,6 +24,9 @@ import importlib
 VERSION = '6.2b1'
 PACKAGE_DIR = os.path.dirname(__file__)
 
+BASE_10 = 10
+BASE_16 = 16
+
 def error(msg):
     sys.stderr.write('ERROR: {0}\n'.format(msg))
     sys.exit(1)

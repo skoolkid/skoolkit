@@ -17,7 +17,7 @@
 import html
 import re
 
-from skoolkit import SkoolParsingError, warn, wrap, get_int_param, parse_int, open_file
+from skoolkit import BASE_10, BASE_16, SkoolParsingError, warn, wrap, get_int_param, parse_int, open_file
 from skoolkit.skoolmacro import INTEGER, ClosingBracketError, parse_brackets
 from skoolkit.textutils import partition_unquoted, split_quoted, split_unquoted
 from skoolkit.z80 import assemble, convert_case, get_size, split_operation
@@ -35,10 +35,6 @@ LIST_END_MARKER = 'LIST#'
 CASE_UPPER = 2
 #: Force lower case.
 CASE_LOWER = 1
-#: Force decimal.
-BASE_10 = 10
-#: Force hexadecimal.
-BASE_16 = 16
 
 def _replace_nums(operation, hex_fmt=None, skip_bit=False, prefix=None):
     elements = re.split('(?<=[\s,(%*/+-])(\$[0-9A-Fa-f]+|\d+)', (prefix or '(') + operation)

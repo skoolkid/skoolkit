@@ -18,7 +18,7 @@ import re
 
 from skoolkit import skoolmacro, SkoolKitError, SkoolParsingError, warn, write_text, wrap
 from skoolkit.skoolmacro import MacroParsingError, UnsupportedMacroError
-from skoolkit.skoolparser import (TableParser, ListParser, BASE_16, CASE_LOWER,
+from skoolkit.skoolparser import (TableParser, ListParser, CASE_LOWER,
                                   TABLE_MARKER, TABLE_END_MARKER, LIST_MARKER, LIST_END_MARKER)
 
 UDGTABLE_MARKER = '#UDGTABLE'
@@ -237,7 +237,7 @@ class AsmWriter:
         return skoolmacro.parse_map(text, index, self.fields)
 
     def expand_n(self, text, index):
-        return skoolmacro.parse_n(text, index, self.base == BASE_16, self.lower)
+        return skoolmacro.parse_n(text, index, self.base, self.lower)
 
     def expand_peek(self, text, index):
         return skoolmacro.parse_peek(text, index, self.snapshot)

@@ -4,9 +4,9 @@ import textwrap
 
 from skoolkittest import SkoolKitTestCase
 from macrotest import CommonSkoolMacroTest, nest_macros
-from skoolkit import SkoolParsingError
+from skoolkit import SkoolParsingError, BASE_10, BASE_16
 from skoolkit.skoolasm import AsmWriter
-from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER, BASE_10, BASE_16
+from skoolkit.skoolparser import SkoolParser, CASE_LOWER, CASE_UPPER
 
 ERROR_PREFIX = 'Error while parsing #{0} macro'
 

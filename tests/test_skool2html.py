@@ -5,10 +5,10 @@ from unittest.mock import patch, Mock
 
 from skoolkittest import SkoolKitTestCase
 import skoolkit
-from skoolkit import normpath, skool2html, PACKAGE_DIR, VERSION, SkoolKitError
+from skoolkit import normpath, skool2html, BASE_10, BASE_16, PACKAGE_DIR, VERSION, SkoolKitError
 from skoolkit.config import COMMANDS
 from skoolkit.skoolhtml import HtmlWriter
-from skoolkit.skoolparser import CASE_UPPER, CASE_LOWER, BASE_10, BASE_16
+from skoolkit.skoolparser import CASE_UPPER, CASE_LOWER
 
 def mock_run(*args):
     global run_args

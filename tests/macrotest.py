@@ -1,5 +1,5 @@
-from skoolkit import VERSION
-from skoolkit.skoolparser import BASE_10, BASE_16, CASE_LOWER, CASE_UPPER
+from skoolkit import BASE_10, BASE_16, VERSION
+from skoolkit.skoolparser import CASE_LOWER, CASE_UPPER
 
 ERROR_PREFIX = 'Error while parsing #{} macro'
 
@@ -754,6 +754,15 @@ class CommonSkoolMacroTest:
             ):
                 self.assertEqual(writer.expand('#N{}'.format(params)), exp_output, 'case={}'.format(case))
 
+    def test_macro_n_hex_param(self):
+        for base, value, exp_output in (
+            (None, 26, '1A'),
+            (BASE_10, 42, '42'),
+            (BASE_16, 58, '3A')
+        ):
+            writer = self._get_writer(base=base)
+            self.assertEqual(writer.expand('#N{},,,,1'.format(value)), exp_output)
+
     def test_macro_n_invalid(self):
         writer = self._get_writer()
         prefix = ERROR_PREFIX.format('N')
@@ -767,7 +776,7 @@ class CommonSkoolMacroTest:
         self._assert_error(writer, '#N,4', "Missing required parameter in position 1/1: ',4'", prefix)
         self._assert_error(writer, '#N(,4)', "Missing required parameter in position 1/1: ',4'", prefix)
 
-        self._assert_error(writer, '#N(1,2,3,4,5)', "Too many parameters (expected 4): '1,2,3,4,5'", prefix)
+        self._assert_error(writer, '#N(1,2,3,4,5,6)', "Too many parameters (expected 5): '1,2,3,4,5,6'", prefix)
         self._assert_error(writer, '#N(4,3,2,1)(a,b,c)', "Too many parameters (expected 2): 'a,b,c'", prefix)
 
         self._assert_error(writer, '#N(x,4)', "Cannot parse integer 'x' in parameter string: 'x,4'", prefix)
