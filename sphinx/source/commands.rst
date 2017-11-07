@@ -1072,12 +1072,13 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 
   Options:
     -b IDs, --tzx-blocks IDs
-                          Show TZX blocks with these IDs only; 'IDs' is a comma-
-                          separated list of hexadecimal block IDs, e.g. 10,11,2a
+                          Show TZX blocks with these IDs only. 'IDs' is a comma-
+                          separated list of hexadecimal block IDs, e.g.
+                          10,11,2a.
     -B N[,A], --basic N[,A]
                           List the BASIC program in block N loaded at address A
-                          (default 23755)
-    -V, --version         Show SkoolKit version number and exit
+                          (default 23755).
+    -V, --version         Show SkoolKit version number and exit.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |

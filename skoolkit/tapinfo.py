@@ -286,12 +286,12 @@ def main(args):
     parser.add_argument('infile', help=argparse.SUPPRESS, nargs='?')
     group = parser.add_argument_group('Options')
     group.add_argument('-b', '--tzx-blocks', dest='block_ids', metavar='IDs',
-                       help="Show TZX blocks with these IDs only; "
-                            "'IDs' is a comma-separated list of hexadecimal block IDs, e.g. 10,11,2a")
+                       help="Show TZX blocks with these IDs only. "
+                            "'IDs' is a comma-separated list of hexadecimal block IDs, e.g. 10,11,2a.")
     group.add_argument('-B', '--basic', metavar='N[,A]',
-                       help='List the BASIC program in block N loaded at address A (default 23755)')
+                       help='List the BASIC program in block N loaded at address A (default 23755).')
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
-                       help='Show SkoolKit version number and exit')
+                       help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)
     if unknown_args or namespace.infile is None:
         parser.exit(2, parser.format_help())
