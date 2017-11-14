@@ -428,7 +428,7 @@ EOM
 }
 
 ###############################################################################
-# Build a source package for uploading to PyPI
+# Build a source package and upload it to PyPI
 ###############################################################################
 build_sdist() {
   _require_skoolkit
@@ -438,10 +438,7 @@ build_sdist() {
   logfile=$(pwd)/sdist.log
   tar xf $TARBALL
   cd skoolkit-$VERSION
-  _exec "Building source package" "./setup.py sdist" $logfile
-  sdist=skoolkit-$VERSION.tar.gz
-  mv dist/$sdist $SKOOLKIT_HOME/dist
-  echo "Now upload $SKOOLKIT_HOME/dist/$sdist to PyPI"
+  _exec "Building and uploading source package" "./setup.py sdist upload" $logfile
 }
 
 ###############################################################################
@@ -505,7 +502,7 @@ Post-release commands:
   debpkg - build, install, verify and uninstall a DEB package
   rpmpkg - build, install, verify and uninstall an RPM package
   ghdocs - prepare documentation on the gh-pages branch
-  bsdist - build a source package for uploading to PyPI
+  bsdist - build a source package and upload it to PyPI
   ifpypi - verify that SkoolKit can be installed from PyPI
   ppadeb - build and upload signed source package(s) to the SkoolKit PPA
 EOM
