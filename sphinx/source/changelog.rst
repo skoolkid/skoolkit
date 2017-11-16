@@ -26,7 +26,9 @@ Changelog
   DEFB/DEFM/DEFW statements that contain multiple addresses (e.g.
   ``LD BC,30000+40000%256``), or where the address is the second or later term
   in an expression (e.g. ``DEFW 1+30000``)
-* The :ref:`keep` directive can now specify the values to keep
+* The :ref:`keep` directive can now specify the values to keep, and is applied
+  to instructions that have been replaced by an :ref:`isub`, :ref:`ssub` or
+  :ref:`rsub` directive
 * The :ref:`nolabel` directive is now processed in HTML mode
 
 6.1 (2017-09-03)

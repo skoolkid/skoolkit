@@ -453,6 +453,9 @@ in the operand of the next instruction::
 * ``val1``, ``val2`` etc. are the values to keep; if none are specified, all
   values are kept
 
+In HTML mode, the ``@keep`` directive also prevents the operand from being
+hyperlinked.
+
 For example::
 
   @keep
@@ -463,13 +466,13 @@ If the ``@keep`` directive were not present, the operand (24576) of the
 (if there is a routine at that address); however, the operand is meant to be a
 pure data value, not a variable or routine address.
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 6.2     | Added the ability to specify the values to keep; the ``@keep``  |
-|         | directive is applied to instructions that have been replaced by |
-|         | an :ref:`isub` or :ref:`ssub` directive                         |
-+---------+-----------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | Added the ability to specify the values to keep; the ``@keep``    |
+|         | directive is applied to instructions that have been replaced by   |
+|         | an :ref:`isub`, :ref:`ssub` or :ref:`rsub` directive              |
++---------+-------------------------------------------------------------------+
 
 .. _label:
 
