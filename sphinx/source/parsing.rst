@@ -30,6 +30,7 @@ following:
 * :ref:`assemble`
 * :ref:`keep`
 * :ref:`label`
+* :ref:`nolabel`
 * :ref:`replace`
 * :ref:`bfixBlockDirectives`
 * :ref:`isubBlockDirectives`

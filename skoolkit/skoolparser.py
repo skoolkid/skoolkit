@@ -480,6 +480,8 @@ class SkoolParser:
 
             if directive.startswith('label='):
                 self.mode.label = directive[6:].rstrip()
+            elif directive.startswith('nolabel'):
+                self.mode.nolabel = True
             elif directive.startswith('keep'):
                 self.mode.keep = []
                 if directive.startswith('keep='):
@@ -508,8 +510,6 @@ class SkoolParser:
                     self.mode.ofix = directive[5:].rstrip()
                 elif directive.startswith('rfix='):
                     self.mode.rfix = directive[5:].rstrip()
-                elif directive.startswith('nolabel'):
-                    self.mode.nolabel = True
                 elif directive.startswith('nowarn'):
                     self.mode.nowarn = True
                 elif directive.startswith('ignoreua'):
@@ -731,6 +731,7 @@ class Mode:
 
     def apply_asm_attributes(self, instruction):
         instruction.keep = self.keep
+        instruction.nolabel = self.nolabel
 
         if self.asm_labels and self.label:
             if self.label in self.labels:
@@ -756,7 +757,6 @@ class Mode:
                 instruction.apply_sub(sub)
 
             instruction.warn = not self.nowarn
-            instruction.nolabel = self.nolabel
             instruction.ignoreua = self.ignoreua
             instruction.ignoremrcua = self.ignoremrcua
             instruction.org = self.org
