@@ -1380,6 +1380,21 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         asm = self._get_asm(skool, asm_mode=2)
         self.assertEqual(asm[1], '  LD HL,30003+2')
 
+    def test_keep_directive_with_rsub(self):
+        skool = '\n'.join((
+            '@start',
+            '; Routine',
+            '@keep',
+            '@rsub=LD HL,30003+2',
+            'c30000 LD HL,30005',
+            '',
+            '; Routine',
+            '@label=NEXT',
+            ' 30003 RET'
+        ))
+        asm = self._get_asm(skool, asm_mode=3)
+        self.assertEqual(asm[1], '  LD HL,30003+2')
+
     def test_keep_directive_with_one_value(self):
         skool = '\n'.join((
             '@start',
