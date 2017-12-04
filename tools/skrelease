@@ -76,6 +76,15 @@ _require_disassemblies() {
     echo "Error: directory not found: $ROM_DISASSEMBLY_HOME"
     exit 1
   fi
+
+  if [[ -z $HUNGRYHORACE_HOME ]]; then
+    echo "Error: HUNGRYHORACE_HOME not defined."
+    exit 1
+  fi
+  if [[ ! -d $HUNGRYHORACE_HOME ]]; then
+    echo "Error: directory not found: $HUNGRYHORACE_HOME"
+    exit 1
+  fi
 }
 
 ###############################################################################
@@ -205,12 +214,14 @@ _check_examples() {
 }
 
 ###############################################################################
-# Run the disassemblies (MM/JSW/SD/BTS/CSC) tests
+# Run the disassemblies (HH/ROM/MM/JSW/SD/BTS/CSC) tests
 ###############################################################################
 test_disassemblies() {
   _require_skoolkit
   _require_disassemblies
 
+  mkdir -p $HUNGRYHORACE_HOME/build
+  hhlog=$HUNGRYHORACE_HOME/build/tests.log
   mkdir -p $ROM_DISASSEMBLY_HOME/build
   romlog=$ROM_DISASSEMBLY_HOME/build/tests.log
   mkdir -p $MANICMINER_HOME/build
@@ -225,6 +236,7 @@ test_disassemblies() {
   csclog=$CONTACTSAMCRUISE_HOME/build/tests.log
   targets="test34 test35 test36"
 
+  make -C $HUNGRYHORACE_HOME $targets &> $hhlog & PIDhh=$!
   make -C $ROM_DISASSEMBLY_HOME $targets &> $romlog & PIDrom=$!
   make -C $MANICMINER_HOME $targets &> $mmlog & PIDmm=$!
   make -C $JETSETWILLY_HOME $targets &> $jswlog & PIDjsw=$!
@@ -232,6 +244,7 @@ test_disassemblies() {
   make -C $BACKTOSKOOL_HOME $targets &> $btslog & PIDbts=$!
   make -C $CONTACTSAMCRUISE_HOME $targets &> $csclog & PIDcsc=$!
 
+  _wait "Hungry Horace tests" $PIDhh "(see $hhlog)" _
   _wait "Spectrum ROM tests" $PIDrom "(see $romlog)" _
   _wait "Manic Miner tests" $PIDmm "(see $mmlog)" _
   _wait "Jet Set Willy tests" $PIDjsw "(see $jswlog)" _
@@ -247,7 +260,7 @@ disassembly_diffs() {
   _require_skoolkit
   _require_disassemblies
 
-  hhdiffsdir=$SKOOLKIT_HOME/build/disassembly-diff
+  hhdiffsdir=$HUNGRYHORACE_HOME/build/disassembly-diff
   romdiffsdir=$ROM_DISASSEMBLY_HOME/build/disassembly-diff
   mmdiffsdir=$MANICMINER_HOME/build/disassembly-diff
   jswdiffsdir=$JETSETWILLY_HOME/build/disassembly-diff
@@ -289,7 +302,7 @@ check_asms() {
   _require_disassemblies
 
   asmsubdir=build/disassembly-diff/disassembly-current-$VERSION/asm
-  hhasmdir=$SKOOLKIT_HOME/$asmsubdir
+  hhasmdir=$HUNGRYHORACE_HOME/$asmsubdir
   romasmdir=$ROM_DISASSEMBLY_HOME/$asmsubdir
   mmasmdir=$MANICMINER_HOME/$asmsubdir
   jswasmdir=$JETSETWILLY_HOME/$asmsubdir
@@ -492,7 +505,7 @@ Usage: $(basename $0) COMMAND [COMMAND...]
 SkoolKit testing and release tool.
 
 Pre-release commands:
-  dtests - run the disassemblies (ROM/MM/JSW/SD/BTS/CSC) tests
+  dtests - run the disassemblies (HH/ROM/MM/JSW/SD/BTS/CSC) tests
   ddiffs - run disassembly-diff on the HH/ROM/MM/JSW/SD/BTS/CSC disassemblies
   asmchk - run check-asms on the HH/ROM/MM/JSW/SD/BTS/CSC disassemblies
   setup1 - verify that 'setup.py install' works from a release tarball

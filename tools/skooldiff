@@ -28,10 +28,6 @@ read_ddiffsrc $GAME
 if [ "$GAME" = "rom" ]; then
   SKOOL=$DHOME/sources/rom.skool
   SNA2SKOOL_OPTS="-o 0 -H"
-elif [ "$GAME" = "hh" ]; then
-  mkdir -p $SKOOLKIT_HOME/build
-  SKOOL=$SKOOLKIT_HOME/build/hungry_horace.skool
-  $SKOOLKIT_HOME/sna2skool.py -c $SKOOLKIT_HOME/examples/hungry_horace.ctl $SNAPSHOT > $SKOOL
 else
   SKOOL=$(ls -1 $DHOME/sources/*.skool | grep -Ev '/(load|save|start).skool')
 fi

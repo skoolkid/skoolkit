@@ -69,23 +69,19 @@ read_ddiffsrc() {
     fi
     DHOME=$ROM_DISASSEMBLY_HOME
   elif [ "$GAME" = "hh" ]; then
-    if [ -z "$SKOOLKIT_HOME" ]; then
-      echo "Error: SKOOLKIT_HOME not defined."
+    if [ -z "$HUNGRYHORACE_HOME" ]; then
+      echo "Error: HUNGRYHORACE_HOME not defined."
       exit 1
     fi
-    if [ ! -d "$SKOOLKIT_HOME" ]; then
-      echo "Error: directory not found: $SKOOLKIT_HOME"
+    if [ ! -d "$HUNGRYHORACE_HOME" ]; then
+      echo "Error: directory not found: $HUNGRYHORACE_HOME"
       exit 1
     fi
-    DHOME=$SKOOLKIT_HOME
+    DHOME=$HUNGRYHORACE_HOME
   fi
 
   rcpath=$DHOME/.ddiffsrc
-  if [ "$GAME" = "hh" ]; then
-    OLD_VERSION=$(cd $SKOOLKIT_HOME; git tag | tail -n 1 | cut -c2-)
-    SK_OLD_VERSION=$OLD_VERSION
-    SNAPSHOT=$SKOOLKIT_HOME/build/hungry_horace.z80
-  elif [ -f "$rcpath" ]; then
+  if [ -f "$rcpath" ]; then
     . $rcpath
   else
     echo "$rcpath: file not found" 1>&2

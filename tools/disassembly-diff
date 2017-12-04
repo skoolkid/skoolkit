@@ -23,6 +23,7 @@ Usage: $(basename $0) [options] $GAMES [TYPE [TYPE ...]]
     CONTACTSAMCRUISE_HOME - home directory of the Contact Sam Cruise disassembly
     MANICMINER_HOME - home directory of the Manic Miner disassembly
     JETSETWILLY_HOME - home directory of the Jet Set Willy disassembly
+    HUNGRYHORACE_HOME - home directory of the Hungry Horace disassembly
     ROM_DISASSEMBLY_HOME - home directory of the Spectrum ROM disassembly
     DISASSEMBLY_ARCHIVE - directory containing disassembly release tarballs
     SKOOLKIT_ARCHIVE - directory containing SkoolKit release tarballs
@@ -177,17 +178,11 @@ if [ $WRITE_OLD -eq 1 ] || [ ! -d $OLD_DIR ]; then
     tar xf $OLD_SKOOLKIT_TAR
     mv skoolkit-${OLD_SKOOLKIT_VERSION} $OLD_DIR
     mkdir $OLD_DIR/src
-    if [ "$GAME" = "hh" ]; then
-      $OLD_DIR/sna2skool.py -c $OLD_DIR/examples/hungry_horace.ctl $SNAPSHOT > $OLD_DIR/src/hungry_horace.skool
-      cp -p $OLD_DIR/examples/hungry_horace.ref $OLD_DIR/src
-    else
-      find $OLD_DISASSEMBLY_NAME -name '*.py' -exec cp {} $OLD_DIR/skoolkit \;
-      find $OLD_DISASSEMBLY_NAME -name '*.py' -exec cp {} $OLD_DIR \;
-      find $OLD_DISASSEMBLY_NAME -name '*.skool' -exec cp {} $OLD_DIR/src \;
-      find $OLD_DISASSEMBLY_NAME -name '*.ref' -exec cp {} $OLD_DIR/src \;
-      find $OLD_DISASSEMBLY_NAME -name '*.js' -exec cp {} $OLD_DIR/src \;
-      find $OLD_DISASSEMBLY_NAME -name '*.css' -exec cp {} $OLD_DIR/src \;
-    fi
+    find $OLD_DISASSEMBLY_NAME -name '*.py' -exec cp {} $OLD_DIR \;
+    find $OLD_DISASSEMBLY_NAME -name '*.skool' -exec cp {} $OLD_DIR/src \;
+    find $OLD_DISASSEMBLY_NAME -name '*.ref' -exec cp {} $OLD_DIR/src \;
+    find $OLD_DISASSEMBLY_NAME -name '*.js' -exec cp {} $OLD_DIR/src \;
+    find $OLD_DISASSEMBLY_NAME -name '*.css' -exec cp {} $OLD_DIR/src \;
   fi
 fi
 
@@ -211,14 +206,9 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
   rm -rf skoolkit-${SKOOLKIT_VERSION}
   rm -rf $NEW_DIR/src
   mkdir $NEW_DIR/src
-  if [ "$GAME" = "hh" ]; then
-    $NEW_DIR/sna2skool.py -c $NEW_DIR/examples/hungry_horace.ctl $SNAPSHOT > $NEW_DIR/src/hungry_horace.skool
-    cp -p $NEW_DIR/examples/hungry_horace.ref $NEW_DIR/src
-  else
-    cp -p $DHOME/sources/*.skool $DHOME/sources/*.ref $NEW_DIR/src
-    find $DHOME/sources \( -name '*.css' -o -name '*.js' \) -exec cp -p {} $NEW_DIR/src \;
-    find $DHOME/sources -name '*.py' -exec cp -p {} $NEW_DIR \;
-  fi
+  cp -p $DHOME/sources/*.skool $DHOME/sources/*.ref $NEW_DIR/src
+  find $DHOME/sources \( -name '*.css' -o -name '*.js' \) -exec cp -p {} $NEW_DIR/src \;
+  find $DHOME/sources -name '*.py' -exec cp -p {} $NEW_DIR \;
 fi
 
 if [ $WRITE_OLD -eq 1 ]; then
