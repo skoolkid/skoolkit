@@ -38,6 +38,9 @@ EOF
 }
 
 asm_header() {
+  [[ -z $SKOOL2BINOPTS ]] || skool2binopts="$SKOOL2BINOPTS "
+  [[ -z $BIN2SNAOPTS ]] || bin2snaopts="$BIN2SNAOPTS "
+  [[ -z $BIN2TAPOPTS ]] || bin2tapopts="$BIN2TAPOPTS "
   cat <<EOF
 An ASM version of the disassembly in this archive can be built from the source
 files in the 'sources' subdirectory using version $SK_VERSION of SkoolKit.
@@ -64,7 +67,7 @@ Now $GAME.asm can be assembled using pasmo (http://pasmo.speccy.org/):
 Alternatively, $GAME.skool can be converted to a binary file by the skool2bin.py
 utility, included with SkoolKit:
 
-  $ ./skool2bin.py $SKOOL2BINOPTS $GAME.skool
+  $ ./skool2bin.py $skool2binopts$GAME.skool
 EOF
 
 [[ $GAME == rom ]] || cat <<EOF
@@ -72,7 +75,7 @@ EOF
 To create a Z80 snapshot from $GAME.bin, use the bin2sna.py utility, included
 with SkoolKit:
 
-  $ ./bin2sna.py $GAME.bin
+  $ ./bin2sna.py $bin2snaopts$GAME.bin
 
 The resultant snapshot, $GAME.z80, can be loaded into an emulator, and the game
 will start automatically.
@@ -80,7 +83,7 @@ will start automatically.
 To create a TAP file from $GAME.bin, use the bin2tap.py utility, included with
 SkoolKit:
 
-  $ ./bin2tap.py $GAME.bin
+  $ ./bin2tap.py $bin2tapopts$GAME.bin
 
 The resultant TAP file, $GAME.tap, can be loaded into an emulator, and the game
 will start automatically.
