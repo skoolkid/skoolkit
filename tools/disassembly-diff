@@ -169,11 +169,7 @@ if [ $WRITE_OLD -eq 1 ] || [ ! -d $OLD_DIR ]; then
   clean_disassembly $OLD_DIR $DIFF_TYPES
   OLD_SKOOLKIT_TAR=skoolkit-${OLD_SKOOLKIT_VERSION}.tar.xz
   cp -np $SKOOLKIT_ARCHIVE/$OLD_SKOOLKIT_TAR .
-  DISASSEMBLY_TAR=${OLD_DISASSEMBLY_NAME}.tar.xz
-  if [ -f $DISASSEMBLY_ARCHIVE/$DISASSEMBLY_TAR ]; then
-    cp -np $DISASSEMBLY_ARCHIVE/$DISASSEMBLY_TAR .
-    [ ! -d $OLD_DISASSEMBLY_NAME ] && tar xf $DISASSEMBLY_TAR
-  fi
+  [ -d $OLD_DISASSEMBLY_NAME ] || tar xf $DISASSEMBLY_ARCHIVE/${OLD_DISASSEMBLY_NAME}.tar.xz
   if [ ! -d $OLD_DIR ]; then
     tar xf $OLD_SKOOLKIT_TAR
     mv skoolkit-${OLD_SKOOLKIT_VERSION} $OLD_DIR
