@@ -19,7 +19,7 @@ import os
 import argparse
 import tempfile
 import zipfile
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 from urllib.parse import urlparse
 
 from skoolkit import (SkoolKitError, get_dword, get_int_param, get_word,
@@ -264,7 +264,8 @@ def _get_tape(urlstring, member=None):
     url = urlparse(urlstring)
     if url.scheme:
         write_line('Downloading {0}'.format(urlstring))
-        u = urlopen(urlstring, timeout=30)
+        r = Request(urlstring, headers={'User-Agent': ''})
+        u = urlopen(r, timeout=30)
         f = tempfile.NamedTemporaryFile(prefix='tap2sna-')
         while 1:
             data = bytearray(u.read(4096))
