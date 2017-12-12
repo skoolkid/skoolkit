@@ -17,7 +17,6 @@
 import sys
 import os
 import argparse
-import textwrap
 import tempfile
 import zipfile
 from urllib.request import urlopen
