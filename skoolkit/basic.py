@@ -229,7 +229,7 @@ class BasicLister:
 
     def _get_num_str(self, j):
         while self.snapshot[j] < 33:
-            j -=1
+            j -= 1
         num_str = chr(self.snapshot[j])
         while re.match('[0-9.]+([eE][-+]?[0-9]+)?', num_str):
             j -= 1
