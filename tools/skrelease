@@ -273,7 +273,6 @@ disassembly_diffs() {
   _build_tarball
   for d in $romdiffsdir $hhdiffsdir $mmdiffsdir $jswdiffsdir $sddiffsdir $btsdiffsdir $cscdiffsdir; do
     mkdir -p $d
-    cp -p $TARBALL $d
     rm -rf $d/disassembly-current-*
   done
 

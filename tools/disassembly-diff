@@ -190,8 +190,8 @@ if [ $WRITE_NEW -eq 1 ] || [ ! -d $NEW_DIR ]; then
     if [ $BUILD_SK_TARBALL -eq 1 ] || [ ! -f $SKOOLKIT_HOME/dist/$SKOOLKIT_TAR ]; then
       echo "Building tarball for SkoolKit $SKOOLKIT_VERSION"
       $TOOLS/mksktarball -nqt
-      tar xf $SKOOLKIT_HOME/dist/$SKOOLKIT_TAR
     fi
+    tar xf $SKOOLKIT_HOME/dist/$SKOOLKIT_TAR
   else
     tar xf $SKOOLKIT_ARCHIVE/$SKOOLKIT_TAR
   fi
