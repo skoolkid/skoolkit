@@ -450,7 +450,11 @@ class SkoolParser:
         for line in skoolfile:
             if line.startswith(';'):
                 if self.mode.include:
-                    comments.append(line[2:].rstrip())
+                    if line.startswith('; '):
+                        start_from = 2
+                    else:
+                        start_from = 1
+                    comments.append(line[start_from:].rstrip())
                 instruction = None
                 address_comments.append((None, None))
                 continue
