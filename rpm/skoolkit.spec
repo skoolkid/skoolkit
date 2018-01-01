@@ -1,5 +1,5 @@
 Name:           skoolkit
-Version:        6.1
+Version:        6.2
 Release:        1
 Summary:        Tools for creating disassemblies of ZX Spectrum programs
 
@@ -43,6 +43,9 @@ cp -a examples %{buildroot}%{_datadir}/%{name}
 %{python3_sitelib}/*
 
 %changelog
+* Mon Jan 01 2018 Richard Dymond <rjdymond@gmail.com> 6.2-1
+- Updated to 6.2
+
 * Sun Sep 03 2017 Richard Dymond <rjdymond@gmail.com> 6.1-1
 - Updated to 6.1
 
