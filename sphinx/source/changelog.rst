@@ -1,8 +1,8 @@
 Changelog
 =========
 
-6.2rc
------
+6.2 (2018-01-01)
+----------------
 * Added the ``--reg`` option to :ref:`bin2sna.py` (for setting the value of a
   register)
 * Added the ``--state`` option to :ref:`bin2sna.py` (for setting the value of a
