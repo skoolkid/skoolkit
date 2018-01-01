@@ -309,7 +309,11 @@ class SkoolParser:
         for line in skoolfile:
             if line.startswith(';'):
                 if self.mode.started and self.mode.include:
-                    self.comments.append(line[2:].rstrip())
+                    if line.startswith('; '):
+                        start_from = 2
+                    else:
+                        start_from = 1
+                    self.comments.append(line[start_from:].rstrip())
                     self.mode.ignoreua = False
                 instruction = None
                 address_comments.append((None, None))
