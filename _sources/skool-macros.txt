@@ -648,12 +648,12 @@ using a :ref:`set` directive to set the ``bullet`` property on the ASM writer.
 
 #N
 --
-The ``#N`` macro renders a numeric value in hexadecimal format when the
-``--hex`` option is used with :ref:`skool2asm.py` or :ref:`skool2html.py`, or in
-decimal format otherwise. A hexadecimal number is rendered in lower case when
-the ``--lower`` option is used, or in upper case otherwise. ::
+The ``#N`` macro renders a numeric value in either decimal or hexadecimal
+format depending on the options used with :ref:`skool2asm.py` or
+:ref:`skool2html.py`. A hexadecimal number is rendered in lower case when the
+``--lower`` option is used, or in upper case otherwise. ::
 
-  #Nvalue[,hwidth,dwidth,affix][(prefix[,suffix])]
+  #Nvalue[,hwidth,dwidth,affix,hex][(prefix[,suffix])]
 
 * ``value`` is the numeric value
 * ``hwidth`` is the minimum number of digits printed in hexadecimal output
@@ -662,6 +662,9 @@ the ``--lower`` option is used, or in upper case otherwise. ::
   (default: 1)
 * ``affix`` is 1 if ``prefix`` or ``suffix`` is specified, 0 if not (default:
   0)
+* ``hex`` is 1 to render the value in hexadecimal format unless the
+  ``--decimal`` option is used, or 0 to render it in decimal format unless the
+  ``--hex`` option is used (default: 0)
 * ``prefix`` is the prefix for a hexadecimal number (default: empty string)
 * ``suffix`` is the suffix for a hexadecimal number (default: empty string)
 
@@ -678,11 +681,13 @@ This instance of the ``#N`` macro expands to one of the following:
 See :ref:`stringParameters` for details on alternative ways to supply the
 ``prefix`` and ``suffix`` parameters.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.2     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | Added the ``hex`` parameter                                       |
++---------+-------------------------------------------------------------------+
+| 5.2     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _R:
 

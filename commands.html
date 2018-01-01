@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Commands &#8212; SkoolKit 6.1 documentation</title>
+    <title>Commands &#8212; SkoolKit 6.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.1',
+        VERSION:     '6.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 6.2 documentation" href="index.html" />
     <link rel="next" title="Supported assemblers" href="assemblers.html" />
     <link rel="prev" title="Disassembly DIY" href="diy.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.2 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -130,21 +130,28 @@ defaults to the name of the input file with &#39;.bin&#39; replaced by &#39;.z80
 
 Options:
   -b BORDER, --border BORDER
-                        Set the border colour (default: 7)
+                        Set the border colour (default: 7).
   -o ORG, --org ORG     Set the origin address (default: 65536 minus the
-                        length of file.bin)
+                        length of file.bin).
   -p STACK, --stack STACK
-                        Set the stack pointer (default: ORG)
+                        Set the stack pointer (default: ORG).
+  -r name=value, --reg name=value
+                        Set the value of a register. Do &#39;--reg help&#39; for more
+                        information. This option may be used multiple times.
   -s START, --start START
                         Set the address at which to start execution (default:
-                        ORG)
-  -V, --version         Show SkoolKit version number and exit
+                        ORG).
+  -S name=value, --state name=value
+                        Set a hardware state attribute. Do &#39;--state help&#39; for
+                        more information. This option may be used multiple
+                        times.
+  -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="12%" />
+<col width="88%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -152,7 +159,12 @@ Options:
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.2</td>
+<tr class="row-even"><td>6.2</td>
+<td>Added the <code class="docutils literal"><span class="pre">--reg</span></code> and <code class="docutils literal"><span class="pre">--state</span></code> options; the <code class="docutils literal"><span class="pre">--org</span></code>,
+<code class="docutils literal"><span class="pre">--stack</span></code> and <code class="docutils literal"><span class="pre">--start</span></code> options accept a hexadecimal integer
+prefixed by &#8216;0x&#8217;</td>
+</tr>
+<tr class="row-odd"><td>5.2</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -178,18 +190,18 @@ input.
 
 Options:
   -c N, --clear N       Use a &#39;CLEAR N&#39; command in the BASIC loader and leave
-                        the stack pointer alone
-  -e ADDR, --end ADDR   Set the end address when reading a snapshot
+                        the stack pointer alone.
+  -e ADDR, --end ADDR   Set the end address when reading a snapshot.
   -o ORG, --org ORG     Set the origin address (default: 16384 for a snapshot,
-                        otherwise 65536 minus the length of FILE)
+                        otherwise 65536 minus the length of FILE).
   -p STACK, --stack STACK
-                        Set the stack pointer (default: ORG)
+                        Set the stack pointer (default: ORG).
   -s START, --start START
-                        Set the start address to JP to (default: ORG)
+                        Set the start address to JP to (default: ORG).
   -S FILE, --screen FILE
-                        Add a loading screen to the TAP file; FILE may be a
-                        snapshot or a 6912-byte SCR file
-  -V, --version         Show SkoolKit version number and exit
+                        Add a loading screen to the TAP file. FILE may be a
+                        snapshot or a 6912-byte SCR file.
+  -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
 <p>Note that the ROM tape loading routine at 1366 ($0556) and the load routine
@@ -218,24 +230,28 @@ Spectrum is 23952 ($5D90).</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.3</td>
+<tr class="row-even"><td>6.2</td>
+<td>The <code class="docutils literal"><span class="pre">--clear</span></code>, <code class="docutils literal"><span class="pre">--end</span></code>, <code class="docutils literal"><span class="pre">--org</span></code>, <code class="docutils literal"><span class="pre">--stack</span></code> and
+<code class="docutils literal"><span class="pre">--start</span></code> options accept a hexadecimal integer prefixed by &#8216;0x&#8217;</td>
+</tr>
+<tr class="row-odd"><td>5.3</td>
 <td>Added the <code class="docutils literal"><span class="pre">--screen</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>5.2</td>
+<tr class="row-even"><td>5.2</td>
 <td>Added the ability to read a binary file from standard input;
 added a second positional argument specifying the TAP filename</td>
 </tr>
-<tr class="row-even"><td>4.5</td>
+<tr class="row-odd"><td>4.5</td>
 <td>Added the <code class="docutils literal"><span class="pre">--clear</span></code> and <code class="docutils literal"><span class="pre">--end</span></code> options, and the ability to
 convert SNA, SZX and Z80 snapshots</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">-V</span></code> option and the long options</td>
 </tr>
-<tr class="row-even"><td>2.2.5</td>
+<tr class="row-odd"><td>2.2.5</td>
 <td>Added the <code class="docutils literal"><span class="pre">-p</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>1.3.1</td>
+<tr class="row-even"><td>1.3.1</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -255,32 +271,33 @@ Convert a skool file into an ASM file and write it to standard output. FILE may
 be a regular file, or &#39;-&#39; for standard input.
 
 Options:
-  -c, --create-labels   Create default labels for unlabelled instructions
-  -D, --decimal         Write the disassembly in decimal
-  -E ADDR, --end ADDR   Stop converting at this address
+  -c, --create-labels   Create default labels for unlabelled instructions.
+  -D, --decimal         Write the disassembly in decimal.
+  -E ADDR, --end ADDR   Stop converting at this address.
   -f N, --fixes N       Apply fixes:
                           N=0: None (default)
                           N=1: @ofix only
                           N=2: @ofix and @bfix
                           N=3: @ofix, @bfix and @rfix (implies -r)
-  -H, --hex             Write the disassembly in hexadecimal
+  -H, --hex             Write the disassembly in hexadecimal.
   -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
-                        &#39;v&#39;; this option may be used multiple times
-  -l, --lower           Write the disassembly in lower case
-  -p, --package-dir     Show path to skoolkit package directory and exit
-  -P p=v, --set p=v     Set the value of ASM writer property &#39;p&#39; to &#39;v&#39;; this
-                        option may be used multiple times
-  -q, --quiet           Be quiet
+                        &#39;v&#39;. This option may be used multiple times.
+  -l, --lower           Write the disassembly in lower case.
+  -p, --package-dir     Show path to skoolkit package directory and exit.
+  -P p=v, --set p=v     Set the value of ASM writer property &#39;p&#39; to &#39;v&#39;. This
+                        option may be used multiple times.
+  -q, --quiet           Be quiet.
   -r, --rsub            Apply safe substitutions (@ssub) and relocatability
-                        substitutions (@rsub) (implies &#39;-f 1&#39;)
-  -s, --ssub            Apply safe substitutions (@ssub)
+                        substitutions (@rsub) (implies &#39;-f 1&#39;).
+  --show-config         Show configuration parameter values.
+  -s, --ssub            Apply safe substitutions (@ssub).
   -S ADDR, --start ADDR
-                        Start converting at this address
-  -u, --upper           Write the disassembly in upper case
-  -V, --version         Show SkoolKit version number and exit
-  -w, --no-warnings     Suppress warnings
+                        Start converting at this address.
+  -u, --upper           Write the disassembly in upper case.
+  -V, --version         Show SkoolKit version number and exit.
+  -w, --no-warnings     Suppress warnings.
   -W CLASS, --writer CLASS
-                        Specify the ASM writer class to use
+                        Specify the ASM writer class to use.
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="asm.html#asmmodesanddirectives"><span class="std std-ref">ASM modes and directives</span></a> for a description of the <code class="docutils literal"><span class="pre">&#64;ssub</span></code> and
@@ -328,29 +345,33 @@ Set-line-width=120
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.1</td>
+<tr class="row-even"><td>6.2</td>
+<td>Added the <code class="docutils literal"><span class="pre">--show-config</span></code> option; the <code class="docutils literal"><span class="pre">--end</span></code> and <code class="docutils literal"><span class="pre">--start</span></code>
+options accept a hexadecimal integer prefixed by &#8216;0x&#8217;</td>
+</tr>
+<tr class="row-odd"><td>6.1</td>
 <td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal"><span class="pre">--ini</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>5.0</td>
+<tr class="row-even"><td>5.0</td>
 <td>Added the <code class="docutils literal"><span class="pre">--set</span></code> option</td>
 </tr>
-<tr class="row-even"><td>4.5</td>
+<tr class="row-odd"><td>4.5</td>
 <td>Added the <code class="docutils literal"><span class="pre">--start</span></code> and <code class="docutils literal"><span class="pre">--end</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>4.1</td>
+<tr class="row-even"><td>4.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">--writer</span></code> option</td>
 </tr>
-<tr class="row-even"><td>3.4</td>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">-V</span></code> and <code class="docutils literal"><span class="pre">-p</span></code> options and the long options</td>
 </tr>
-<tr class="row-odd"><td>2.2.2</td>
+<tr class="row-even"><td>2.2.2</td>
 <td>Added the ability to read a skool file from standard input</td>
 </tr>
-<tr class="row-even"><td>2.1.1</td>
+<tr class="row-odd"><td>2.1.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">-u</span></code>, <code class="docutils literal"><span class="pre">-D</span></code> and <code class="docutils literal"><span class="pre">-H</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>1.1</td>
+<tr class="row-even"><td>1.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">-c</span></code> option</td>
 </tr>
 </tbody>
@@ -373,14 +394,14 @@ defaults to the name of the input file with &#39;.skool&#39; replaced by &#39;.b
 &#39;file.bin&#39; may be a regular file, or &#39;-&#39; for standard output.
 
 Options:
-  -b, --bfix            Apply @ofix and @bfix directives
-  -E ADDR, --end ADDR   Stop converting at this address
-  -i, --isub            Apply @isub directives
-  -o, --ofix            Apply @ofix directives
-  -s, --ssub            Apply @isub and @ssub directives
+  -b, --bfix            Apply @ofix and @bfix directives.
+  -E ADDR, --end ADDR   Stop converting at this address.
+  -i, --isub            Apply @isub directives.
+  -o, --ofix            Apply @ofix directives.
+  -s, --ssub            Apply @isub and @ssub directives.
   -S ADDR, --start ADDR
-                        Start converting at this address
-  -V, --version         Show SkoolKit version number and exit
+                        Start converting at this address.
+  -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
 <table border="1" class="docutils">
@@ -394,17 +415,21 @@ Options:
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.1</td>
+<tr class="row-even"><td>6.2</td>
+<td>The <code class="docutils literal"><span class="pre">--end</span></code> and <code class="docutils literal"><span class="pre">--start</span></code> options accept a hexadecimal
+integer prefixed by &#8216;0x&#8217;</td>
+</tr>
+<tr class="row-odd"><td>6.1</td>
 <td>Added the ability to assemble instructions whose operands contain
 arithmetic expressions</td>
 </tr>
-<tr class="row-odd"><td>5.2</td>
+<tr class="row-even"><td>5.2</td>
 <td>Added the ability to write the binary file to standard output</td>
 </tr>
-<tr class="row-even"><td>5.1</td>
+<tr class="row-odd"><td>5.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">--bfix</span></code>, <code class="docutils literal"><span class="pre">--ofix</span></code> and <code class="docutils literal"><span class="pre">--ssub</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>5.0</td>
+<tr class="row-even"><td>5.0</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -429,13 +454,13 @@ may be a regular file, or &#39;-&#39; for standard input.
 
 Options:
   -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
-                        instruction operands and DEFB/DEFM/DEFS/DEFW statements
-  -E ADDR, --end ADDR   Stop converting at this address
-  -h, --hex             Write addresses in upper case hexadecimal format
-  -l, --hex-lower       Write addresses in lower case hexadecimal format
+                        instruction operands and DEFB/DEFM/DEFS/DEFW statements.
+  -E ADDR, --end ADDR   Stop converting at this address.
+  -h, --hex             Write addresses in upper case hexadecimal format.
+  -l, --hex-lower       Write addresses in lower case hexadecimal format.
   -S ADDR, --start ADDR
-                        Start converting at this address
-  -V, --version         Show SkoolKit version number and exit
+                        Start converting at this address.
+  -V, --version         Show SkoolKit version number and exit.
   -w X, --write X       Write only these elements, where X is one or more of:
                           a = ASM directives
                           b = block types and addresses
@@ -461,35 +486,39 @@ data definition entries and ASM block directives), consider using
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.0</td>
+<tr class="row-even"><td>6.2</td>
+<td>The <code class="docutils literal"><span class="pre">--end</span></code> and <code class="docutils literal"><span class="pre">--start</span></code> options accept a hexadecimal
+integer prefixed by &#8216;0x&#8217;</td>
+</tr>
+<tr class="row-odd"><td>6.0</td>
 <td>Added support for the &#8216;a&#8217; identifier in the <code class="docutils literal"><span class="pre">--write</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>5.1</td>
+<tr class="row-even"><td>5.1</td>
 <td>A terminal <code class="docutils literal"><span class="pre">i</span></code> directive is appended if the skool file ends
 before 65536</td>
 </tr>
-<tr class="row-even"><td>4.5</td>
+<tr class="row-odd"><td>4.5</td>
 <td>Added the <code class="docutils literal"><span class="pre">--start</span></code> and <code class="docutils literal"><span class="pre">--end</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>4.4</td>
+<tr class="row-even"><td>4.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">--hex-lower</span></code> option</td>
 </tr>
-<tr class="row-even"><td>3.7</td>
+<tr class="row-odd"><td>3.7</td>
 <td>Added the <code class="docutils literal"><span class="pre">--preserve-base</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">-V</span></code> option and the long options</td>
 </tr>
-<tr class="row-even"><td>2.4</td>
+<tr class="row-odd"><td>2.4</td>
 <td>Added the ability to preserve some ASM directives</td>
 </tr>
-<tr class="row-odd"><td>2.2.2</td>
+<tr class="row-even"><td>2.2.2</td>
 <td>Added the ability to read a skool file from standard input</td>
 </tr>
-<tr class="row-even"><td>2.0.6</td>
+<tr class="row-odd"><td>2.0.6</td>
 <td>Added the <code class="docutils literal"><span class="pre">-h</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>1.1</td>
+<tr class="row-even"><td>1.1</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -527,46 +556,47 @@ Convert skool files and ref files to HTML. FILE may be a regular file, or &#39;-
 for standard input.
 
 Options:
-  -1, --asm-one-page    Write all routines and data blocks to a single page
-  -a, --asm-labels      Use ASM labels
-  -c S/L, --config S/L  Add the line &#39;L&#39; to the ref file section &#39;S&#39;; this
-                        option may be used multiple times
-  -C, --create-labels   Create default labels for unlabelled instructions
+  -1, --asm-one-page    Write all routines and data blocks to a single page.
+  -a, --asm-labels      Use ASM labels.
+  -c S/L, --config S/L  Add the line &#39;L&#39; to the ref file section &#39;S&#39;. This
+                        option may be used multiple times.
+  -C, --create-labels   Create default labels for unlabelled instructions.
   -d DIR, --output-dir DIR
-                        Write files in this directory (default is &#39;.&#39;)
-  -D, --decimal         Write the disassembly in decimal
-  -H, --hex             Write the disassembly in hexadecimal
+                        Write files in this directory (default is &#39;.&#39;).
+  -D, --decimal         Write the disassembly in decimal.
+  -H, --hex             Write the disassembly in hexadecimal.
   -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
-                        &#39;v&#39;; this option may be used multiple times
+                        &#39;v&#39;. This option may be used multiple times.
   -j NAME, --join-css NAME
-                        Concatenate CSS files into a single file with this name
-  -l, --lower           Write the disassembly in lower case
-  -o, --rebuild-images  Overwrite existing image files
-  -p, --package-dir     Show path to skoolkit package directory and exit
+                        Concatenate CSS files into a single file with this name.
+  -l, --lower           Write the disassembly in lower case.
+  -o, --rebuild-images  Overwrite existing image files.
+  -p, --package-dir     Show path to skoolkit package directory and exit.
   -P PAGES, --pages PAGES
-                        Write only these pages (when using &#39;--write P&#39;);
-                        PAGES is a comma-separated list of page IDs
-  -q, --quiet           Be quiet
+                        Write only these pages (when using &#39;--write P&#39;).
+                        PAGES is a comma-separated list of page IDs.
+  -q, --quiet           Be quiet.
   -r PREFIX, --ref-sections PREFIX
                         Show default ref file sections whose names start with
-                        PREFIX and exit
-  -R, --ref-file        Show the entire default ref file and exit
-  -s, --search-dirs     Show the locations skool2html.py searches for resources
-  -S DIR, --search DIR  Add this directory to the resource search path; this
-                        option may be used multiple times
-  -t, --time            Show timings
+                        PREFIX and exit.
+  -R, --ref-file        Show the entire default ref file and exit.
+  -s, --search-dirs     Show the locations skool2html.py searches for resources.
+  -S DIR, --search DIR  Add this directory to the resource search path. This
+                        option may be used multiple times.
+  --show-config         Show configuration parameter values.
+  -t, --time            Show timings.
   -T THEME, --theme THEME
-                        Use this CSS theme; this option may be used multiple
-                        times
-  -u, --upper           Write the disassembly in upper case
-  -V, --version         Show SkoolKit version number and exit
+                        Use this CSS theme. This option may be used multiple
+                        times.
+  -u, --upper           Write the disassembly in upper case.
+  -V, --version         Show SkoolKit version number and exit.
   -w X, --write X       Write only these files, where X is one or more of:
                           d = Disassembly files   o = Other code
                           i = Disassembly index   P = Other pages
                           m = Memory maps
   -W CLASS, --writer CLASS
                         Specify the HTML writer class to use; shorthand for
-                        &#39;--config Config/HtmlWriterClass=CLASS&#39;
+                        &#39;--config Config/HtmlWriterClass=CLASS&#39;.
 </pre></div>
 </div>
 <p><cite>skool2html.py</cite> searches the following directories for skool files, ref files,
@@ -654,62 +684,65 @@ Base=16
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.1</td>
+<tr class="row-even"><td>6.2</td>
+<td>Added the <code class="docutils literal"><span class="pre">--show-config</span></code> option</td>
+</tr>
+<tr class="row-odd"><td>6.1</td>
 <td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal"><span class="pre">--ini</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>5.4</td>
+<tr class="row-even"><td>5.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">--asm-one-page</span></code> option</td>
 </tr>
-<tr class="row-even"><td>5.0</td>
+<tr class="row-odd"><td>5.0</td>
 <td>The <code class="docutils literal"><span class="pre">--theme</span></code> option also looks for a CSS file whose base name
 matches the theme name</td>
 </tr>
-<tr class="row-odd"><td>4.1</td>
+<tr class="row-even"><td>4.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">--search</span></code> and <code class="docutils literal"><span class="pre">--writer</span></code> options</td>
 </tr>
-<tr class="row-even"><td>4.0</td>
+<tr class="row-odd"><td>4.0</td>
 <td>Added the <code class="docutils literal"><span class="pre">--ref-sections</span></code> and <code class="docutils literal"><span class="pre">--ref-file</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>3.6</td>
+<tr class="row-even"><td>3.6</td>
 <td>Added the <code class="docutils literal"><span class="pre">--join-css</span></code> and <code class="docutils literal"><span class="pre">--search-dirs</span></code> options</td>
 </tr>
-<tr class="row-even"><td>3.5</td>
+<tr class="row-odd"><td>3.5</td>
 <td>Added support for multiple CSS themes</td>
 </tr>
-<tr class="row-odd"><td>3.4</td>
+<tr class="row-even"><td>3.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">-a</span></code> and <code class="docutils literal"><span class="pre">-C</span></code> options and the long options</td>
 </tr>
-<tr class="row-even"><td>3.3.2</td>
+<tr class="row-odd"><td>3.3.2</td>
 <td>Added <cite>$PACKAGE_DIR/resources</cite> to the search path; added the
 <code class="docutils literal"><span class="pre">-p</span></code> and <code class="docutils literal"><span class="pre">-T</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>3.2</td>
+<tr class="row-even"><td>3.2</td>
 <td>Added <cite>~/.skoolkit</cite> to the search path</td>
 </tr>
-<tr class="row-even"><td>3.1</td>
+<tr class="row-odd"><td>3.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">-c</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>3.0.2</td>
+<tr class="row-even"><td>3.0.2</td>
 <td>No longer shows timings by default; added the <code class="docutils literal"><span class="pre">-t</span></code> option</td>
 </tr>
-<tr class="row-even"><td>2.3.1</td>
+<tr class="row-odd"><td>2.3.1</td>
 <td>Added support for reading multiple ref files per disassembly</td>
 </tr>
-<tr class="row-odd"><td>2.2.2</td>
+<tr class="row-even"><td>2.2.2</td>
 <td>Added the ability to read a skool file from standard input</td>
 </tr>
-<tr class="row-even"><td>2.2</td>
+<tr class="row-odd"><td>2.2</td>
 <td>No longer writes the Skool Daze and Back to Skool disassemblies
 by default; added the <code class="docutils literal"><span class="pre">-d</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>2.1.1</td>
+<tr class="row-even"><td>2.1.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">-l</span></code>, <code class="docutils literal"><span class="pre">-u</span></code>, <code class="docutils literal"><span class="pre">-D</span></code> and <code class="docutils literal"><span class="pre">-H</span></code> options</td>
 </tr>
-<tr class="row-even"><td>2.1</td>
+<tr class="row-odd"><td>2.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">-o</span></code> and <code class="docutils literal"><span class="pre">-P</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>1.4</td>
+<tr class="row-even"><td>1.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">-V</span></code> option</td>
 </tr>
 </tbody>
@@ -732,84 +765,12 @@ output. FILE may be a regular file, or &#39;-&#39; for standard input.
 Options:
   -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
                         instruction operands and DEFB/DEFM/DEFS/DEFW
-                        statements
-  -E ADDR, --end ADDR   Stop converting at this address
-  -h, --hex             Write addresses in upper case hexadecimal format
-  -l, --hex-lower       Write addresses in lower case hexadecimal format
+                        statements.
+  -E ADDR, --end ADDR   Stop converting at this address.
+  -h, --hex             Write addresses in upper case hexadecimal format.
+  -l, --hex-lower       Write addresses in lower case hexadecimal format.
   -S ADDR, --start ADDR
-                        Start converting at this address
-  -V, --version         Show SkoolKit version number and exit
-</pre></div>
-</div>
-<table border="1" class="docutils">
-<colgroup>
-<col width="13%" />
-<col width="87%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Version</th>
-<th class="head">Changes</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>5.1</td>
-<td><code class="docutils literal"><span class="pre">i</span></code> blocks are preserved in the same way as code and data
-blocks (instead of verbatim)</td>
-</tr>
-<tr class="row-odd"><td>4.5</td>
-<td>Added the <code class="docutils literal"><span class="pre">--start</span></code> and <code class="docutils literal"><span class="pre">--end</span></code> options</td>
-</tr>
-<tr class="row-even"><td>4.4</td>
-<td>Added the <code class="docutils literal"><span class="pre">--hex-lower</span></code> option</td>
-</tr>
-<tr class="row-odd"><td>3.7</td>
-<td>Added the <code class="docutils literal"><span class="pre">--preserve-base</span></code> option</td>
-</tr>
-<tr class="row-even"><td>3.4</td>
-<td>Added the <code class="docutils literal"><span class="pre">-V</span></code> option and the long options</td>
-</tr>
-<tr class="row-odd"><td>2.4</td>
-<td>New</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="sna2img-py">
-<span id="id10"></span><h2>sna2img.py<a class="headerlink" href="#sna2img-py" title="Permalink to this headline">¶</a></h2>
-<p><cite>sna2img.py</cite> converts the screenshot or other graphic data in a SCR file, skool
-file, or SNA/SZX/Z80 snapshot into a PNG or GIF file. For example:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ sna2img.py game.scr
-</pre></div>
-</div>
-<p>will create a file named <cite>game.png</cite>.</p>
-<p>To list the options supported by <cite>sna2img.py</cite>, run it with no arguments:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>usage: sna2img.py [options] INPUT [OUTPUT]
-
-Convert a Spectrum screenshot or other graphic data into a PNG or GIF file.
-INPUT may be a SCR file, a skool file, or a SNA, SZX or Z80 snapshot.
-
-Options:
-  -b, --bfix            Parse a skool file in @bfix mode.
-  -e MACRO, --expand MACRO
-                        Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The &#39;#&#39;
-                        prefix may be omitted.
-  -f N, --flip N        Flip the image horizontally (N=1), vertically (N=2),
-                        or both (N=3).
-  -i, --invert          Invert video for cells that are flashing.
-  -m src,size,dest, --move src,size,dest
-                        Move a block of bytes of the given size from src to
-                        dest. This option may be used multiple times.
-  -n, --no-animation    Do not animate flashing cells.
-  -o X,Y, --origin X,Y  Top-left crop at (X,Y).
-  -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
-                        POKE N,v for N in {a, a+c, a+2c..., b}. Prefix &#39;v&#39;
-                        with &#39;^&#39; to perform an XOR operation, or &#39;+&#39; to
-                        perform an ADD operation. This option may be used
-                        multiple times.
-  -r N, --rotate N      Rotate the image 90*N degrees clockwise.
-  -s SCALE, --scale SCALE
-                        Set the scale of the image (default=1).
-  -S WxH, --size WxH    Crop to this width and height (in tiles).
+                        Start converting at this address.
   -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
@@ -824,14 +785,100 @@ Options:
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.1</td>
-<td>Added the ability to read skool files; added the <code class="docutils literal"><span class="pre">--bfix</span></code>
-and <code class="docutils literal"><span class="pre">--move</span></code> options</td>
+<tr class="row-even"><td>6.2</td>
+<td>The <code class="docutils literal"><span class="pre">--end</span></code> and <code class="docutils literal"><span class="pre">--start</span></code> options accept a hexadecimal
+integer prefixed by &#8216;0x&#8217;</td>
 </tr>
-<tr class="row-odd"><td>6.0</td>
+<tr class="row-odd"><td>5.1</td>
+<td><code class="docutils literal"><span class="pre">i</span></code> blocks are preserved in the same way as code and data
+blocks (instead of verbatim)</td>
+</tr>
+<tr class="row-even"><td>4.5</td>
+<td>Added the <code class="docutils literal"><span class="pre">--start</span></code> and <code class="docutils literal"><span class="pre">--end</span></code> options</td>
+</tr>
+<tr class="row-odd"><td>4.4</td>
+<td>Added the <code class="docutils literal"><span class="pre">--hex-lower</span></code> option</td>
+</tr>
+<tr class="row-even"><td>3.7</td>
+<td>Added the <code class="docutils literal"><span class="pre">--preserve-base</span></code> option</td>
+</tr>
+<tr class="row-odd"><td>3.4</td>
+<td>Added the <code class="docutils literal"><span class="pre">-V</span></code> option and the long options</td>
+</tr>
+<tr class="row-even"><td>2.4</td>
+<td>New</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="sna2img-py">
+<span id="id10"></span><h2>sna2img.py<a class="headerlink" href="#sna2img-py" title="Permalink to this headline">¶</a></h2>
+<p><cite>sna2img.py</cite> converts the screenshot or other graphic data in a binary (raw
+memory) file, SCR file, skool file, or SNA/SZX/Z80 snapshot into a PNG or GIF
+file. For example:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ sna2img.py game.scr
+</pre></div>
+</div>
+<p>will create a file named <cite>game.png</cite>.</p>
+<p>To list the options supported by <cite>sna2img.py</cite>, run it with no arguments:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>usage: sna2img.py [options] INPUT [OUTPUT]
+
+Convert a Spectrum screenshot or other graphic data into a PNG or GIF file.
+INPUT may be a binary (raw memory) file, a SCR file, a skool file, or a SNA,
+SZX or Z80 snapshot.
+
+Options:
+  -b, --bfix            Parse a skool file in @bfix mode.
+  -B, --binary          Read the input as a binary (raw memory) file.
+  -e MACRO, --expand MACRO
+                        Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The &#39;#&#39;
+                        prefix may be omitted.
+  -f N, --flip N        Flip the image horizontally (N=1), vertically (N=2),
+                        or both (N=3).
+  -i, --invert          Invert video for cells that are flashing.
+  -m src,size,dest, --move src,size,dest
+                        Move a block of bytes of the given size from src to
+                        dest. This option may be used multiple times.
+  -n, --no-animation    Do not animate flashing cells.
+  -o X,Y, --origin X,Y  Top-left crop at (X,Y).
+  -O ORG, --org ORG     Set the origin address of a binary file (default:
+                        65536 minus the length of the file).
+  -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
+                        POKE N,v for N in {a, a+c, a+2c..., b}. Prefix &#39;v&#39;
+                        with &#39;^&#39; to perform an XOR operation, or &#39;+&#39; to
+                        perform an ADD operation. This option may be used
+                        multiple times.
+  -r N, --rotate N      Rotate the image 90*N degrees clockwise.
+  -s SCALE, --scale SCALE
+                        Set the scale of the image (default=1).
+  -S WxH, --size WxH    Crop to this width and height (in tiles).
+  -V, --version         Show SkoolKit version number and exit.
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>6.2</td>
+<td>Added the <code class="docutils literal"><span class="pre">--binary</span></code> and <code class="docutils literal"><span class="pre">--org</span></code> options and the ability to
+read binary (raw memory) files; the <code class="docutils literal"><span class="pre">--move</span></code> and <code class="docutils literal"><span class="pre">--poke</span></code>
+options accept hexadecimal integers prefixed by &#8216;0x&#8217;</td>
+</tr>
+<tr class="row-odd"><td>6.1</td>
+<td>Added the ability to read skool files; added the <code class="docutils literal"><span class="pre">--bfix</span></code> and
+<code class="docutils literal"><span class="pre">--move</span></code> options</td>
+</tr>
+<tr class="row-even"><td>6.0</td>
 <td>Added the <code class="docutils literal"><span class="pre">--expand</span></code> option</td>
 </tr>
-<tr class="row-even"><td>5.4</td>
+<tr class="row-odd"><td>5.4</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -856,30 +903,31 @@ file. FILE may be a regular file, or &#39;-&#39; for standard input.
 
 Options:
   -c FILE, --ctl FILE   Use FILE as the control file (may be &#39;-&#39; for standard
-                        input)
-  -e ADDR, --end ADDR   Stop disassembling at this address (default=65536)
+                        input).
+  -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
   -g FILE, --generate-ctl FILE
-                        Generate a control file in FILE
+                        Generate a control file in FILE.
   -h, --ctl-hex         Write upper case hexadecimal addresses in the
-                        generated control file
+                        generated control file.
   -H, --skool-hex       Write hexadecimal addresses and operands in the
-                        disassembly
+                        disassembly.
   -I p=v, --ini p=v     Set the value of the configuration parameter &#39;p&#39; to
-                        &#39;v&#39;; this option may be used multiple times
-  -L, --lower           Write the disassembly in lower case
+                        &#39;v&#39;. This option may be used multiple times.
+  -L, --lower           Write the disassembly in lower case.
   -M FILE, --map FILE   Use FILE as a code execution map when generating a
-                        control file
+                        control file.
   -o ADDR, --org ADDR   Specify the origin address of a binary (.bin) file
-                        (default: 65536 - length)
+                        (default: 65536 - length).
   -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
-                        49152-65535
+                        49152-65535.
+  --show-config         Show configuration parameter values.
   -s ADDR, --start ADDR
-                        Start disassembling at this address (default=16384)
+                        Start disassembling at this address (default=16384).
   -T FILE, --sft FILE   Use FILE as the skool file template (may be &#39;-&#39; for
-                        standard input)
-  -V, --version         Show SkoolKit version number and exit
+                        standard input).
+  -V, --version         Show SkoolKit version number and exit.
   -w W, --line-width W  Set the maximum line width of the skool file (default:
-                        79)
+                        79).
 </pre></div>
 </div>
 <div class="admonition note">
@@ -994,54 +1042,58 @@ LineWidth=120
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.1</td>
+<tr class="row-even"><td>6.2</td>
+<td>Added the <code class="docutils literal"><span class="pre">--show-config</span></code> option; the <code class="docutils literal"><span class="pre">--end</span></code>, <code class="docutils literal"><span class="pre">--org</span></code> and
+<code class="docutils literal"><span class="pre">--start</span></code> options accept a hexadecimal integer prefixed by &#8216;0x&#8217;</td>
+</tr>
+<tr class="row-odd"><td>6.1</td>
 <td>Configuration is read from <cite>skoolkit.ini</cite> if present; added the
 <code class="docutils literal"><span class="pre">--ini</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>5.0</td>
+<tr class="row-even"><td>5.0</td>
 <td>Added support for SpecEmu&#8217;s 64K code execution map files</td>
 </tr>
-<tr class="row-even"><td>4.4</td>
+<tr class="row-odd"><td>4.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">--ctl-hex-lower</span></code> and <code class="docutils literal"><span class="pre">--end</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>4.3</td>
+<tr class="row-even"><td>4.3</td>
 <td>Added the <code class="docutils literal"><span class="pre">--line-width</span></code> option</td>
 </tr>
-<tr class="row-even"><td>3.4</td>
+<tr class="row-odd"><td>3.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">-V</span></code> and <code class="docutils literal"><span class="pre">-R</span></code> options and the long options</td>
 </tr>
-<tr class="row-odd"><td>3.3</td>
+<tr class="row-even"><td>3.3</td>
 <td>Added the <code class="docutils literal"><span class="pre">-M</span></code> option, along with support for code execution
 maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the
 ability to read 128K SNA snapshots</td>
 </tr>
-<tr class="row-even"><td>3.2</td>
+<tr class="row-odd"><td>3.2</td>
 <td>Added the <code class="docutils literal"><span class="pre">-p</span></code> option, and the ability to read SZX snapshots
 and 128K Z80 snapshots</td>
 </tr>
-<tr class="row-odd"><td>2.4</td>
+<tr class="row-even"><td>2.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">-T</span></code> option</td>
 </tr>
-<tr class="row-even"><td>2.1.2</td>
+<tr class="row-odd"><td>2.1.2</td>
 <td>Added the <code class="docutils literal"><span class="pre">-L</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>2.1</td>
+<tr class="row-even"><td>2.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">-H</span></code> option</td>
 </tr>
-<tr class="row-even"><td>2.0.6</td>
+<tr class="row-odd"><td>2.0.6</td>
 <td>Added the <code class="docutils literal"><span class="pre">-h</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>2.0.1</td>
+<tr class="row-even"><td>2.0.1</td>
 <td>Added the <code class="docutils literal"><span class="pre">-o</span></code>, <code class="docutils literal"><span class="pre">-r</span></code> and <code class="docutils literal"><span class="pre">-l</span></code> options, and the ability to
 read binary files</td>
 </tr>
-<tr class="row-even"><td>2.0</td>
+<tr class="row-odd"><td>2.0</td>
 <td>Added the <code class="docutils literal"><span class="pre">-n</span></code>, <code class="docutils literal"><span class="pre">-m</span></code> and <code class="docutils literal"><span class="pre">-z</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>1.0.5</td>
+<tr class="row-even"><td>1.0.5</td>
 <td>Added the <code class="docutils literal"><span class="pre">-t</span></code> option</td>
 </tr>
-<tr class="row-even"><td>1.0.4</td>
+<tr class="row-odd"><td>1.0.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">-g</span></code> and <code class="docutils literal"><span class="pre">-s</span></code> options</td>
 </tr>
 </tbody>
@@ -1061,23 +1113,24 @@ snapshot. For example:</p>
 Analyse an SNA, SZX or Z80 snapshot.
 
 Options:
-  -b, --basic           List the BASIC program
+  -b, --basic           List the BASIC program.
   -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
                         Search for the byte sequence A,B... with distance
-                        ranging from M to N (default=1) between bytes
+                        ranging from M to N (default=1) between bytes.
   -p A[-B[-C]], --peek A[-B[-C]]
-                        Show the contents of addresses A TO B STEP C; this
-                        option may be used multiple times
+                        Show the contents of addresses A TO B STEP C. This
+                        option may be used multiple times.
   -t TEXT, --find-text TEXT
-                        Search for a text string
+                        Search for a text string.
   -T X,Y[-M[-N]], --find-tile X,Y[-M[-N]]
                         Search for the graphic data of the tile at (X,Y) with
-                        distance ranging from M to N (default=1) between bytes
-  -v, --variables       List variables
-  -V, --version         Show SkoolKit version number and exit
+                        distance ranging from M to N (default=1) between
+                        bytes.
+  -v, --variables       List variables.
+  -V, --version         Show SkoolKit version number and exit.
   -w A[-B[-C]], --word A[-B[-C]]
-                        Show the words at addresses A TO B STEP C; this option
-                        may be used multiple times
+                        Show the words at addresses A TO B STEP C. This option
+                        may be used multiple times.
 </pre></div>
 </div>
 <p>With no options, <cite>snapinfo.py</cite> displays register values, the interrupt mode,
@@ -1095,16 +1148,20 @@ addresses, or search the RAM for a sequence of byte values or a text string.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.0</td>
+<tr class="row-even"><td>6.2</td>
+<td>The <code class="docutils literal"><span class="pre">--find</span></code>, <code class="docutils literal"><span class="pre">--find-tile</span></code>, <code class="docutils literal"><span class="pre">--peek</span></code> and <code class="docutils literal"><span class="pre">--word</span></code>
+options accept hexadecimal integers prefixed by &#8216;0x&#8217;</td>
+</tr>
+<tr class="row-odd"><td>6.0</td>
 <td>Added support to the <code class="docutils literal"><span class="pre">--find</span></code> option for distance ranges; added
 the <code class="docutils literal"><span class="pre">--find-tile</span></code> and <code class="docutils literal"><span class="pre">--word</span></code> options; the <code class="docutils literal"><span class="pre">--peek</span></code> option
 shows UDGs and BASIC tokens</td>
 </tr>
-<tr class="row-odd"><td>5.4</td>
+<tr class="row-even"><td>5.4</td>
 <td>Added the <code class="docutils literal"><span class="pre">--variables</span></code> option; UDGs in a BASIC program are
 shown as special symbols (e.g. <code class="docutils literal"><span class="pre">{UDG-A}</span></code>)</td>
 </tr>
-<tr class="row-even"><td>5.3</td>
+<tr class="row-odd"><td>5.3</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1144,8 +1201,8 @@ Options:
 </div>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="12%" />
+<col width="88%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -1153,7 +1210,11 @@ Options:
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.3</td>
+<tr class="row-even"><td>6.2</td>
+<td>The <code class="docutils literal"><span class="pre">--move</span></code>, <code class="docutils literal"><span class="pre">--poke</span></code> and <code class="docutils literal"><span class="pre">--reg</span></code> options accept
+hexadecimal integers prefixed by &#8216;0x&#8217;</td>
+</tr>
+<tr class="row-odd"><td>5.3</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1247,15 +1308,19 @@ given on the command line.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>5.3</td>
+<tr class="row-even"><td>6.2</td>
+<td>The <code class="docutils literal"><span class="pre">--ram</span></code>, <code class="docutils literal"><span class="pre">--reg</span></code>, <code class="docutils literal"><span class="pre">--stack</span></code> and <code class="docutils literal"><span class="pre">--start</span></code> options
+accept hexadecimal integers prefixed by &#8216;0x&#8217;</td>
+</tr>
+<tr class="row-odd"><td>5.3</td>
 <td>Added the <code class="docutils literal"><span class="pre">--stack</span></code> and <code class="docutils literal"><span class="pre">--start</span></code> options</td>
 </tr>
-<tr class="row-odd"><td>4.5</td>
+<tr class="row-even"><td>4.5</td>
 <td>Added support for TZX block type 0x14 (pure data), for loading
 the first and last bytes of a tape block, and for modifying
 memory with XOR and ADD operations</td>
 </tr>
-<tr class="row-even"><td>3.5</td>
+<tr class="row-odd"><td>3.5</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1275,18 +1340,19 @@ Show the blocks in a TAP or TZX file.
 
 Options:
   -b IDs, --tzx-blocks IDs
-                        Show TZX blocks with these IDs only; &#39;IDs&#39; is a comma-
-                        separated list of hexadecimal block IDs, e.g. 10,11,2a
+                        Show TZX blocks with these IDs only. &#39;IDs&#39; is a comma-
+                        separated list of hexadecimal block IDs, e.g.
+                        10,11,2a.
   -B N[,A], --basic N[,A]
                         List the BASIC program in block N loaded at address A
-                        (default 23755)
-  -V, --version         Show SkoolKit version number and exit
+                        (default 23755).
+  -V, --version         Show SkoolKit version number and exit.
 </pre></div>
 </div>
 <table border="1" class="docutils">
 <colgroup>
-<col width="23%" />
-<col width="77%" />
+<col width="12%" />
+<col width="88%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Version</th>
@@ -1294,10 +1360,14 @@ Options:
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.0</td>
+<tr class="row-even"><td>6.2</td>
+<td>The <code class="docutils literal"><span class="pre">--basic</span></code> option accepts a hexadecimal address prefixed by
+&#8216;0x&#8217;</td>
+</tr>
+<tr class="row-odd"><td>6.0</td>
 <td>Added the <code class="docutils literal"><span class="pre">--basic</span></code> option</td>
 </tr>
-<tr class="row-odd"><td>5.0</td>
+<tr class="row-even"><td>5.0</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1323,11 +1393,11 @@ Options:
         <li class="right" >
           <a href="diy.html" title="Disassembly DIY"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2017, Richard Dymond.
+        &#169; Copyright 2018, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
     </div>
   </body>

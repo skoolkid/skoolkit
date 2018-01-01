@@ -27,21 +27,32 @@ it with no arguments to see the list of available options::
 
   Options:
     -b BORDER, --border BORDER
-                          Set the border colour (default: 7)
+                          Set the border colour (default: 7).
     -o ORG, --org ORG     Set the origin address (default: 65536 minus the
-                          length of file.bin)
+                          length of file.bin).
     -p STACK, --stack STACK
-                          Set the stack pointer (default: ORG)
+                          Set the stack pointer (default: ORG).
+    -r name=value, --reg name=value
+                          Set the value of a register. Do '--reg help' for more
+                          information. This option may be used multiple times.
     -s START, --start START
                           Set the address at which to start execution (default:
-                          ORG)
-    -V, --version         Show SkoolKit version number and exit
+                          ORG).
+    -S name=value, --state name=value
+                          Set a hardware state attribute. Do '--state help' for
+                          more information. This option may be used multiple
+                          times.
+    -V, --version         Show SkoolKit version number and exit.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.2     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | Added the ``--reg`` and ``--state`` options; the ``--org``,       |
+|         | ``--stack`` and ``--start`` options accept a hexadecimal integer  |
+|         | prefixed by '0x'                                                  |
++---------+-------------------------------------------------------------------+
+| 5.2     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _bin2tap.py:
 
@@ -66,18 +77,18 @@ it with no arguments to see the list of available options::
 
   Options:
     -c N, --clear N       Use a 'CLEAR N' command in the BASIC loader and leave
-                          the stack pointer alone
-    -e ADDR, --end ADDR   Set the end address when reading a snapshot
+                          the stack pointer alone.
+    -e ADDR, --end ADDR   Set the end address when reading a snapshot.
     -o ORG, --org ORG     Set the origin address (default: 16384 for a snapshot,
-                          otherwise 65536 minus the length of FILE)
+                          otherwise 65536 minus the length of FILE).
     -p STACK, --stack STACK
-                          Set the stack pointer (default: ORG)
+                          Set the stack pointer (default: ORG).
     -s START, --start START
-                          Set the start address to JP to (default: ORG)
+                          Set the start address to JP to (default: ORG).
     -S FILE, --screen FILE
-                          Add a loading screen to the TAP file; FILE may be a
-                          snapshot or a 6912-byte SCR file
-    -V, --version         Show SkoolKit version number and exit
+                          Add a loading screen to the TAP file. FILE may be a
+                          snapshot or a 6912-byte SCR file.
+    -V, --version         Show SkoolKit version number and exit.
 
 Note that the ROM tape loading routine at 1366 ($0556) and the load routine
 used by `bin2tap.py` together require 14 bytes for stack operations, and so
@@ -96,23 +107,26 @@ leaves the stack pointer alone, enabling the program to return to BASIC without
 crashing. The lowest usable address with the ``--clear`` option on a bare 48K
 Spectrum is 23952 ($5D90).
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 5.3     | Added the ``--screen`` option                                   |
-+---------+-----------------------------------------------------------------+
-| 5.2     | Added the ability to read a binary file from standard input;    |
-|         | added a second positional argument specifying the TAP filename  |
-+---------+-----------------------------------------------------------------+
-| 4.5     | Added the ``--clear`` and ``--end`` options, and the ability to |
-|         | convert SNA, SZX and Z80 snapshots                              |
-+---------+-----------------------------------------------------------------+
-| 3.4     | Added the ``-V`` option and the long options                    |
-+---------+-----------------------------------------------------------------+
-| 2.2.5   | Added the ``-p`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 1.3.1   | New                                                             |
-+---------+-----------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | The ``--clear``, ``--end``, ``--org``, ``--stack`` and            |
+|         | ``--start`` options accept a hexadecimal integer prefixed by '0x' |
++---------+-------------------------------------------------------------------+
+| 5.3     | Added the ``--screen`` option                                     |
++---------+-------------------------------------------------------------------+
+| 5.2     | Added the ability to read a binary file from standard input;      |
+|         | added a second positional argument specifying the TAP filename    |
++---------+-------------------------------------------------------------------+
+| 4.5     | Added the ``--clear`` and ``--end`` options, and the ability to   |
+|         | convert SNA, SZX and Z80 snapshots                                |
++---------+-------------------------------------------------------------------+
+| 3.4     | Added the ``-V`` option and the long options                      |
++---------+-------------------------------------------------------------------+
+| 2.2.5   | Added the ``-p`` option                                           |
++---------+-------------------------------------------------------------------+
+| 1.3.1   | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _skool2asm.py:
 
@@ -131,32 +145,33 @@ assembler (see :ref:`supportedAssemblers`). For example::
   be a regular file, or '-' for standard input.
 
   Options:
-    -c, --create-labels   Create default labels for unlabelled instructions
-    -D, --decimal         Write the disassembly in decimal
-    -E ADDR, --end ADDR   Stop converting at this address
+    -c, --create-labels   Create default labels for unlabelled instructions.
+    -D, --decimal         Write the disassembly in decimal.
+    -E ADDR, --end ADDR   Stop converting at this address.
     -f N, --fixes N       Apply fixes:
                             N=0: None (default)
                             N=1: @ofix only
                             N=2: @ofix and @bfix
                             N=3: @ofix, @bfix and @rfix (implies -r)
-    -H, --hex             Write the disassembly in hexadecimal
+    -H, --hex             Write the disassembly in hexadecimal.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
-                          'v'; this option may be used multiple times
-    -l, --lower           Write the disassembly in lower case
-    -p, --package-dir     Show path to skoolkit package directory and exit
-    -P p=v, --set p=v     Set the value of ASM writer property 'p' to 'v'; this
-                          option may be used multiple times
-    -q, --quiet           Be quiet
+                          'v'. This option may be used multiple times.
+    -l, --lower           Write the disassembly in lower case.
+    -p, --package-dir     Show path to skoolkit package directory and exit.
+    -P p=v, --set p=v     Set the value of ASM writer property 'p' to 'v'. This
+                          option may be used multiple times.
+    -q, --quiet           Be quiet.
     -r, --rsub            Apply safe substitutions (@ssub) and relocatability
-                          substitutions (@rsub) (implies '-f 1')
-    -s, --ssub            Apply safe substitutions (@ssub)
+                          substitutions (@rsub) (implies '-f 1').
+    --show-config         Show configuration parameter values.
+    -s, --ssub            Apply safe substitutions (@ssub).
     -S ADDR, --start ADDR
-                          Start converting at this address
-    -u, --upper           Write the disassembly in upper case
-    -V, --version         Show SkoolKit version number and exit
-    -w, --no-warnings     Suppress warnings
+                          Start converting at this address.
+    -u, --upper           Write the disassembly in upper case.
+    -V, --version         Show SkoolKit version number and exit.
+    -w, --no-warnings     Suppress warnings.
     -W CLASS, --writer CLASS
-                          Specify the ASM writer class to use
+                          Specify the ASM writer class to use.
 
 See :ref:`asmModesAndDirectives` for a description of the ``@ssub`` and
 ``@rsub`` substitution modes, and the ``@ofix``, ``@bfix`` and ``@rfix`` bugfix
@@ -197,26 +212,29 @@ Configuration parameters may also be set on the command line by using the
 ``--ini`` option. Parameter values set this way will override any found in
 `skoolkit.ini`.
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 6.1     | Configuration is read from `skoolkit.ini` if present; added the |
-|         | ``--ini`` option                                                |
-+---------+-----------------------------------------------------------------+
-| 5.0     | Added the ``--set`` option                                      |
-+---------+-----------------------------------------------------------------+
-| 4.5     | Added the ``--start`` and ``--end`` options                     |
-+---------+-----------------------------------------------------------------+
-| 4.1     | Added the ``--writer`` option                                   |
-+---------+-----------------------------------------------------------------+
-| 3.4     | Added the ``-V`` and ``-p`` options and the long options        |
-+---------+-----------------------------------------------------------------+
-| 2.2.2   | Added the ability to read a skool file from standard input      |
-+---------+-----------------------------------------------------------------+
-| 2.1.1   | Added the ``-u``, ``-D`` and ``-H`` options                     |
-+---------+-----------------------------------------------------------------+
-| 1.1     | Added the ``-c`` option                                         |
-+---------+-----------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | Added the ``--show-config`` option; the ``--end`` and ``--start`` |
+|         | options accept a hexadecimal integer prefixed by '0x'             |
++---------+-------------------------------------------------------------------+
+| 6.1     | Configuration is read from `skoolkit.ini` if present; added the   |
+|         | ``--ini`` option                                                  |
++---------+-------------------------------------------------------------------+
+| 5.0     | Added the ``--set`` option                                        |
++---------+-------------------------------------------------------------------+
+| 4.5     | Added the ``--start`` and ``--end`` options                       |
++---------+-------------------------------------------------------------------+
+| 4.1     | Added the ``--writer`` option                                     |
++---------+-------------------------------------------------------------------+
+| 3.4     | Added the ``-V`` and ``-p`` options and the long options          |
++---------+-------------------------------------------------------------------+
+| 2.2.2   | Added the ability to read a skool file from standard input        |
++---------+-------------------------------------------------------------------+
+| 2.1.1   | Added the ``-u``, ``-D`` and ``-H`` options                       |
++---------+-------------------------------------------------------------------+
+| 1.1     | Added the ``-c`` option                                           |
++---------+-------------------------------------------------------------------+
 
 .. _skool2bin.py:
 
@@ -237,18 +255,21 @@ To list the options supported by `skool2bin.py`, run it with no arguments::
   'file.bin' may be a regular file, or '-' for standard output.
 
   Options:
-    -b, --bfix            Apply @ofix and @bfix directives
-    -E ADDR, --end ADDR   Stop converting at this address
-    -i, --isub            Apply @isub directives
-    -o, --ofix            Apply @ofix directives
-    -s, --ssub            Apply @isub and @ssub directives
+    -b, --bfix            Apply @ofix and @bfix directives.
+    -E ADDR, --end ADDR   Stop converting at this address.
+    -i, --isub            Apply @isub directives.
+    -o, --ofix            Apply @ofix directives.
+    -s, --ssub            Apply @isub and @ssub directives.
     -S ADDR, --start ADDR
-                          Start converting at this address
-    -V, --version         Show SkoolKit version number and exit
+                          Start converting at this address.
+    -V, --version         Show SkoolKit version number and exit.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal        |
+|         | integer prefixed by '0x'                                          |
++---------+-------------------------------------------------------------------+
 | 6.1     | Added the ability to assemble instructions whose operands contain |
 |         | arithmetic expressions                                            |
 +---------+-------------------------------------------------------------------+
@@ -282,13 +303,13 @@ To list the options supported by `skool2ctl.py`, run it with no arguments::
 
   Options:
     -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
-                          instruction operands and DEFB/DEFM/DEFS/DEFW statements
-    -E ADDR, --end ADDR   Stop converting at this address
-    -h, --hex             Write addresses in upper case hexadecimal format
-    -l, --hex-lower       Write addresses in lower case hexadecimal format
+                          instruction operands and DEFB/DEFM/DEFS/DEFW statements.
+    -E ADDR, --end ADDR   Stop converting at this address.
+    -h, --hex             Write addresses in upper case hexadecimal format.
+    -l, --hex-lower       Write addresses in lower case hexadecimal format.
     -S ADDR, --start ADDR
-                          Start converting at this address
-    -V, --version         Show SkoolKit version number and exit
+                          Start converting at this address.
+    -V, --version         Show SkoolKit version number and exit.
     -w X, --write X       Write only these elements, where X is one or more of:
                             a = ASM directives
                             b = block types and addresses
@@ -306,6 +327,9 @@ data definition entries and ASM block directives), consider using
 +---------+----------------------------------------------------------------+
 | Version | Changes                                                        |
 +=========+================================================================+
+| 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal     |
+|         | integer prefixed by '0x'                                       |
++---------+----------------------------------------------------------------+
 | 6.0     | Added support for the 'a' identifier in the ``--write`` option |
 +---------+----------------------------------------------------------------+
 | 5.1     | A terminal ``i`` directive is appended if the skool file ends  |
@@ -367,46 +391,47 @@ list::
   for standard input.
 
   Options:
-    -1, --asm-one-page    Write all routines and data blocks to a single page
-    -a, --asm-labels      Use ASM labels
-    -c S/L, --config S/L  Add the line 'L' to the ref file section 'S'; this
-                          option may be used multiple times
-    -C, --create-labels   Create default labels for unlabelled instructions
+    -1, --asm-one-page    Write all routines and data blocks to a single page.
+    -a, --asm-labels      Use ASM labels.
+    -c S/L, --config S/L  Add the line 'L' to the ref file section 'S'. This
+                          option may be used multiple times.
+    -C, --create-labels   Create default labels for unlabelled instructions.
     -d DIR, --output-dir DIR
-                          Write files in this directory (default is '.')
-    -D, --decimal         Write the disassembly in decimal
-    -H, --hex             Write the disassembly in hexadecimal
+                          Write files in this directory (default is '.').
+    -D, --decimal         Write the disassembly in decimal.
+    -H, --hex             Write the disassembly in hexadecimal.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
-                          'v'; this option may be used multiple times
+                          'v'. This option may be used multiple times.
     -j NAME, --join-css NAME
-                          Concatenate CSS files into a single file with this name
-    -l, --lower           Write the disassembly in lower case
-    -o, --rebuild-images  Overwrite existing image files
-    -p, --package-dir     Show path to skoolkit package directory and exit
+                          Concatenate CSS files into a single file with this name.
+    -l, --lower           Write the disassembly in lower case.
+    -o, --rebuild-images  Overwrite existing image files.
+    -p, --package-dir     Show path to skoolkit package directory and exit.
     -P PAGES, --pages PAGES
-                          Write only these pages (when using '--write P');
-                          PAGES is a comma-separated list of page IDs
-    -q, --quiet           Be quiet
+                          Write only these pages (when using '--write P').
+                          PAGES is a comma-separated list of page IDs.
+    -q, --quiet           Be quiet.
     -r PREFIX, --ref-sections PREFIX
                           Show default ref file sections whose names start with
-                          PREFIX and exit
-    -R, --ref-file        Show the entire default ref file and exit
-    -s, --search-dirs     Show the locations skool2html.py searches for resources
-    -S DIR, --search DIR  Add this directory to the resource search path; this
-                          option may be used multiple times
-    -t, --time            Show timings
+                          PREFIX and exit.
+    -R, --ref-file        Show the entire default ref file and exit.
+    -s, --search-dirs     Show the locations skool2html.py searches for resources.
+    -S DIR, --search DIR  Add this directory to the resource search path. This
+                          option may be used multiple times.
+    --show-config         Show configuration parameter values.
+    -t, --time            Show timings.
     -T THEME, --theme THEME
-                          Use this CSS theme; this option may be used multiple
-                          times
-    -u, --upper           Write the disassembly in upper case
-    -V, --version         Show SkoolKit version number and exit
+                          Use this CSS theme. This option may be used multiple
+                          times.
+    -u, --upper           Write the disassembly in upper case.
+    -V, --version         Show SkoolKit version number and exit.
     -w X, --write X       Write only these files, where X is one or more of:
                             d = Disassembly files   o = Other code
                             i = Disassembly index   P = Other pages
                             m = Memory maps
     -W CLASS, --writer CLASS
                           Specify the HTML writer class to use; shorthand for
-                          '--config Config/HtmlWriterClass=CLASS'
+                          '--config Config/HtmlWriterClass=CLASS'.
 
 `skool2html.py` searches the following directories for skool files, ref files,
 CSS files, JavaScript files, font files, and files listed in the
@@ -489,6 +514,8 @@ Configuration parameters may also be set on the command line by using the
 +---------+------------------------------------------------------------------+
 | Version | Changes                                                          |
 +=========+==================================================================+
+| 6.2     | Added the ``--show-config`` option                               |
++---------+------------------------------------------------------------------+
 | 6.1     | Configuration is read from `skoolkit.ini` if present; added the  |
 |         | ``--ini`` option                                                 |
 +---------+------------------------------------------------------------------+
@@ -549,17 +576,20 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
   Options:
     -b, --preserve-base   Preserve the base of decimal and hexadecimal values in
                           instruction operands and DEFB/DEFM/DEFS/DEFW
-                          statements
-    -E ADDR, --end ADDR   Stop converting at this address
-    -h, --hex             Write addresses in upper case hexadecimal format
-    -l, --hex-lower       Write addresses in lower case hexadecimal format
+                          statements.
+    -E ADDR, --end ADDR   Stop converting at this address.
+    -h, --hex             Write addresses in upper case hexadecimal format.
+    -l, --hex-lower       Write addresses in lower case hexadecimal format.
     -S ADDR, --start ADDR
-                          Start converting at this address
-    -V, --version         Show SkoolKit version number and exit
+                          Start converting at this address.
+    -V, --version         Show SkoolKit version number and exit.
 
 +---------+-------------------------------------------------------------+
 | Version | Changes                                                     |
 +=========+=============================================================+
+| 6.2     | The ``--end`` and ``--start`` options accept a hexadecimal  |
+|         | integer prefixed by '0x'                                    |
++---------+-------------------------------------------------------------+
 | 5.1     | ``i`` blocks are preserved in the same way as code and data |
 |         | blocks (instead of verbatim)                                |
 +---------+-------------------------------------------------------------+
@@ -578,8 +608,9 @@ To list the options supported by `skool2sft.py`, run it with no arguments::
 
 sna2img.py
 ----------
-`sna2img.py` converts the screenshot or other graphic data in a SCR file, skool
-file, or SNA/SZX/Z80 snapshot into a PNG or GIF file. For example::
+`sna2img.py` converts the screenshot or other graphic data in a binary (raw
+memory) file, SCR file, skool file, or SNA/SZX/Z80 snapshot into a PNG or GIF
+file. For example::
 
   $ sna2img.py game.scr
 
@@ -590,10 +621,12 @@ To list the options supported by `sna2img.py`, run it with no arguments::
   usage: sna2img.py [options] INPUT [OUTPUT]
 
   Convert a Spectrum screenshot or other graphic data into a PNG or GIF file.
-  INPUT may be a SCR file, a skool file, or a SNA, SZX or Z80 snapshot.
+  INPUT may be a binary (raw memory) file, a SCR file, a skool file, or a SNA,
+  SZX or Z80 snapshot.
 
   Options:
     -b, --bfix            Parse a skool file in @bfix mode.
+    -B, --binary          Read the input as a binary (raw memory) file.
     -e MACRO, --expand MACRO
                           Expand a #FONT, #SCR, #UDG or #UDGARRAY macro. The '#'
                           prefix may be omitted.
@@ -605,6 +638,8 @@ To list the options supported by `sna2img.py`, run it with no arguments::
                           dest. This option may be used multiple times.
     -n, --no-animation    Do not animate flashing cells.
     -o X,Y, --origin X,Y  Top-left crop at (X,Y).
+    -O ORG, --org ORG     Set the origin address of a binary file (default:
+                          65536 minus the length of the file).
     -p a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
                           POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
                           with '^' to perform an XOR operation, or '+' to
@@ -616,16 +651,20 @@ To list the options supported by `sna2img.py`, run it with no arguments::
     -S WxH, --size WxH    Crop to this width and height (in tiles).
     -V, --version         Show SkoolKit version number and exit.
 
-+---------+-------------------------------------------------------------+
-| Version | Changes                                                     |
-+=========+=============================================================+
-| 6.1     | Added the ability to read skool files; added the ``--bfix`` |
-|         | and ``--move`` options                                      |
-+---------+-------------------------------------------------------------+
-| 6.0     | Added the ``--expand`` option                               |
-+---------+-------------------------------------------------------------+
-| 5.4     | New                                                         |
-+---------+-------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | Added the ``--binary`` and ``--org`` options and the ability to   |
+|         | read binary (raw memory) files; the ``--move`` and ``--poke``     |
+|         | options accept hexadecimal integers prefixed by '0x'              |
++---------+-------------------------------------------------------------------+
+| 6.1     | Added the ability to read skool files; added the ``--bfix`` and   |
+|         | ``--move`` options                                                |
++---------+-------------------------------------------------------------------+
+| 6.0     | Added the ``--expand`` option                                     |
++---------+-------------------------------------------------------------------+
+| 5.4     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _sna2skool.py:
 
@@ -650,30 +689,31 @@ list::
 
   Options:
     -c FILE, --ctl FILE   Use FILE as the control file (may be '-' for standard
-                          input)
-    -e ADDR, --end ADDR   Stop disassembling at this address (default=65536)
+                          input).
+    -e ADDR, --end ADDR   Stop disassembling at this address (default=65536).
     -g FILE, --generate-ctl FILE
-                          Generate a control file in FILE
+                          Generate a control file in FILE.
     -h, --ctl-hex         Write upper case hexadecimal addresses in the
-                          generated control file
+                          generated control file.
     -H, --skool-hex       Write hexadecimal addresses and operands in the
-                          disassembly
+                          disassembly.
     -I p=v, --ini p=v     Set the value of the configuration parameter 'p' to
-                          'v'; this option may be used multiple times
-    -L, --lower           Write the disassembly in lower case
+                          'v'. This option may be used multiple times.
+    -L, --lower           Write the disassembly in lower case.
     -M FILE, --map FILE   Use FILE as a code execution map when generating a
-                          control file
+                          control file.
     -o ADDR, --org ADDR   Specify the origin address of a binary (.bin) file
-                          (default: 65536 - length)
+                          (default: 65536 - length).
     -p PAGE, --page PAGE  Specify the page (0-7) of a 128K snapshot to map to
-                          49152-65535
+                          49152-65535.
+    --show-config         Show configuration parameter values.
     -s ADDR, --start ADDR
-                          Start disassembling at this address (default=16384)
+                          Start disassembling at this address (default=16384).
     -T FILE, --sft FILE   Use FILE as the skool file template (may be '-' for
-                          standard input)
-    -V, --version         Show SkoolKit version number and exit
+                          standard input).
+    -V, --version         Show SkoolKit version number and exit.
     -w W, --line-width W  Set the maximum line width of the skool file (default:
-                          79)
+                          79).
 
 .. note::
    The ``-i``, ``-l``, ``-m``, ``-n``, ``-r``, ``-R``, ``-t`` and ``-z``
@@ -778,44 +818,47 @@ Configuration parameters may also be set on the command line by using the
 ``--ini`` option. Parameter values set this way will override any found in
 `skoolkit.ini`.
 
-+---------+-----------------------------------------------------------------+
-| Version | Changes                                                         |
-+=========+=================================================================+
-| 6.1     | Configuration is read from `skoolkit.ini` if present; added the |
-|         | ``--ini`` option                                                |
-+---------+-----------------------------------------------------------------+
-| 5.0     | Added support for SpecEmu's 64K code execution map files        |
-+---------+-----------------------------------------------------------------+
-| 4.4     | Added the ``--ctl-hex-lower`` and ``--end`` options             |
-+---------+-----------------------------------------------------------------+
-| 4.3     | Added the ``--line-width`` option                               |
-+---------+-----------------------------------------------------------------+
-| 3.4     | Added the ``-V`` and ``-R`` options and the long options        |
-+---------+-----------------------------------------------------------------+
-| 3.3     | Added the ``-M`` option, along with support for code execution  |
-|         | maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the   |
-|         | ability to read 128K SNA snapshots                              |
-+---------+-----------------------------------------------------------------+
-| 3.2     | Added the ``-p`` option, and the ability to read SZX snapshots  |
-|         | and 128K Z80 snapshots                                          |
-+---------+-----------------------------------------------------------------+
-| 2.4     | Added the ``-T`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 2.1.2   | Added the ``-L`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 2.1     | Added the ``-H`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 2.0.6   | Added the ``-h`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 2.0.1   | Added the ``-o``, ``-r`` and ``-l`` options, and the ability to |
-|         | read binary files                                               |
-+---------+-----------------------------------------------------------------+
-| 2.0     | Added the ``-n``, ``-m`` and ``-z`` options                     |
-+---------+-----------------------------------------------------------------+
-| 1.0.5   | Added the ``-t`` option                                         |
-+---------+-----------------------------------------------------------------+
-| 1.0.4   | Added the ``-g`` and ``-s`` options                             |
-+---------+-----------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | Added the ``--show-config`` option; the ``--end``, ``--org`` and  |
+|         | ``--start`` options accept a hexadecimal integer prefixed by '0x' |
++---------+-------------------------------------------------------------------+
+| 6.1     | Configuration is read from `skoolkit.ini` if present; added the   |
+|         | ``--ini`` option                                                  |
++---------+-------------------------------------------------------------------+
+| 5.0     | Added support for SpecEmu's 64K code execution map files          |
++---------+-------------------------------------------------------------------+
+| 4.4     | Added the ``--ctl-hex-lower`` and ``--end`` options               |
++---------+-------------------------------------------------------------------+
+| 4.3     | Added the ``--line-width`` option                                 |
++---------+-------------------------------------------------------------------+
+| 3.4     | Added the ``-V`` and ``-R`` options and the long options          |
++---------+-------------------------------------------------------------------+
+| 3.3     | Added the ``-M`` option, along with support for code execution    |
+|         | maps produced by Fuse, SpecEmu, Spud, Zero and Z80; added the     |
+|         | ability to read 128K SNA snapshots                                |
++---------+-------------------------------------------------------------------+
+| 3.2     | Added the ``-p`` option, and the ability to read SZX snapshots    |
+|         | and 128K Z80 snapshots                                            |
++---------+-------------------------------------------------------------------+
+| 2.4     | Added the ``-T`` option                                           |
++---------+-------------------------------------------------------------------+
+| 2.1.2   | Added the ``-L`` option                                           |
++---------+-------------------------------------------------------------------+
+| 2.1     | Added the ``-H`` option                                           |
++---------+-------------------------------------------------------------------+
+| 2.0.6   | Added the ``-h`` option                                           |
++---------+-------------------------------------------------------------------+
+| 2.0.1   | Added the ``-o``, ``-r`` and ``-l`` options, and the ability to   |
+|         | read binary files                                                 |
++---------+-------------------------------------------------------------------+
+| 2.0     | Added the ``-n``, ``-m`` and ``-z`` options                       |
++---------+-------------------------------------------------------------------+
+| 1.0.5   | Added the ``-t`` option                                           |
++---------+-------------------------------------------------------------------+
+| 1.0.4   | Added the ``-g`` and ``-s`` options                               |
++---------+-------------------------------------------------------------------+
 
 .. _snapinfo.py:
 
@@ -833,23 +876,24 @@ To list the options supported by `snapinfo.py`, run it with no arguments::
   Analyse an SNA, SZX or Z80 snapshot.
 
   Options:
-    -b, --basic           List the BASIC program
+    -b, --basic           List the BASIC program.
     -f A[,B...[-M[-N]]], --find A[,B...[-M[-N]]]
                           Search for the byte sequence A,B... with distance
-                          ranging from M to N (default=1) between bytes
+                          ranging from M to N (default=1) between bytes.
     -p A[-B[-C]], --peek A[-B[-C]]
-                          Show the contents of addresses A TO B STEP C; this
-                          option may be used multiple times
+                          Show the contents of addresses A TO B STEP C. This
+                          option may be used multiple times.
     -t TEXT, --find-text TEXT
-                          Search for a text string
+                          Search for a text string.
     -T X,Y[-M[-N]], --find-tile X,Y[-M[-N]]
                           Search for the graphic data of the tile at (X,Y) with
-                          distance ranging from M to N (default=1) between bytes
-    -v, --variables       List variables
-    -V, --version         Show SkoolKit version number and exit
+                          distance ranging from M to N (default=1) between
+                          bytes.
+    -v, --variables       List variables.
+    -V, --version         Show SkoolKit version number and exit.
     -w A[-B[-C]], --word A[-B[-C]]
-                          Show the words at addresses A TO B STEP C; this option
-                          may be used multiple times
+                          Show the words at addresses A TO B STEP C. This option
+                          may be used multiple times.
 
 With no options, `snapinfo.py` displays register values, the interrupt mode,
 and the border colour. By using one of the options shown above, it can list
@@ -859,6 +903,9 @@ addresses, or search the RAM for a sequence of byte values or a text string.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 6.2     | The ``--find``, ``--find-tile``, ``--peek`` and ``--word``        |
+|         | options accept hexadecimal integers prefixed by '0x'              |
++---------+-------------------------------------------------------------------+
 | 6.0     | Added support to the ``--find`` option for distance ranges; added |
 |         | the ``--find-tile`` and ``--word`` options; the ``--peek`` option |
 |         | shows UDGs and BASIC tokens                                       |
@@ -903,11 +950,14 @@ To list the options supported by `snapmod.py`, run it with no arguments::
                           times.
     -V, --version         Show SkoolKit version number and exit.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 5.3     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | The ``--move``, ``--poke`` and ``--reg`` options accept           |
+|         | hexadecimal integers prefixed by '0x'                             |
++---------+-------------------------------------------------------------------+
+| 5.3     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _tap2sna.py:
 
@@ -990,17 +1040,20 @@ then::
 will create `game.z80` as if the arguments specified in `game.t2s` had been
 given on the command line.
 
-+---------+----------------------------------------------------------------+
-| Version | Changes                                                        |
-+=========+================================================================+
-| 5.3     | Added the ``--stack`` and ``--start`` options                  |
-+---------+----------------------------------------------------------------+
-| 4.5     | Added support for TZX block type 0x14 (pure data), for loading |
-|         | the first and last bytes of a tape block, and for modifying    |
-|         | memory with XOR and ADD operations                             |
-+---------+----------------------------------------------------------------+
-| 3.5     | New                                                            |
-+---------+----------------------------------------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | The ``--ram``, ``--reg``, ``--stack`` and ``--start`` options     |
+|         | accept hexadecimal integers prefixed by '0x'                      |
++---------+-------------------------------------------------------------------+
+| 5.3     | Added the ``--stack`` and ``--start`` options                     |
++---------+-------------------------------------------------------------------+
+| 4.5     | Added support for TZX block type 0x14 (pure data), for loading    |
+|         | the first and last bytes of a tape block, and for modifying       |
+|         | memory with XOR and ADD operations                                |
++---------+-------------------------------------------------------------------+
+| 3.5     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _tapinfo.py:
 
@@ -1019,17 +1072,21 @@ To list the options supported by `tapinfo.py`, run it with no arguments::
 
   Options:
     -b IDs, --tzx-blocks IDs
-                          Show TZX blocks with these IDs only; 'IDs' is a comma-
-                          separated list of hexadecimal block IDs, e.g. 10,11,2a
+                          Show TZX blocks with these IDs only. 'IDs' is a comma-
+                          separated list of hexadecimal block IDs, e.g.
+                          10,11,2a.
     -B N[,A], --basic N[,A]
                           List the BASIC program in block N loaded at address A
-                          (default 23755)
-    -V, --version         Show SkoolKit version number and exit
+                          (default 23755).
+    -V, --version         Show SkoolKit version number and exit.
 
-+---------+------------------------------+
-| Version | Changes                      |
-+=========+==============================+
-| 6.0     | Added the ``--basic`` option |
-+---------+------------------------------+
-| 5.0     | New                          |
-+---------+------------------------------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.2     | The ``--basic`` option accepts a hexadecimal address prefixed by  |
+|         | '0x'                                                              |
++---------+-------------------------------------------------------------------+
+| 6.0     | Added the ``--basic`` option                                      |
++---------+-------------------------------------------------------------------+
+| 5.0     | New                                                               |
++---------+-------------------------------------------------------------------+

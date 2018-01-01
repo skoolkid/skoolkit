@@ -41,15 +41,17 @@ SkoolKit can:
 
 For a demonstration of SkoolKit's capabilities, take a look at the complete
 disassemblies of `Skool Daze`_, `Back to Skool`_, `Contact Sam Cruise`_,
-`Manic Miner`_ and `Jet Set Willy`_. The latest stable releases of the source
-skool files for these disassemblies can always be obtained from
-`skoolkit.ca`_; the latest development versions can be found on GitHub_.
+`Manic Miner`_, `Jet Set Willy`_ and `Hungry Horace`_. The latest stable
+releases of the source skool files for these disassemblies can always be
+obtained from `skoolkit.ca`_; the latest development versions can be found on
+GitHub_.
 
 .. _Skool Daze: http://skoolkit.ca/disassemblies/skool_daze/
 .. _Back to Skool: http://skoolkit.ca/disassemblies/back_to_skool/
 .. _Contact Sam Cruise: http://skoolkit.ca/disassemblies/contact_sam_cruise/
 .. _Manic Miner: http://skoolkit.ca/disassemblies/manic_miner/
 .. _Jet Set Willy: http://skoolkit.ca/disassemblies/jet_set_willy/
+.. _Hungry Horace: http://skoolkit.ca/disassemblies/hungry_horace/
 
 Authors
 -------

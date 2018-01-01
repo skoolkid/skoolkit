@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ASM modes and directives &#8212; SkoolKit 6.1 documentation</title>
+    <title>ASM modes and directives &#8212; SkoolKit 6.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.1',
+        VERSION:     '6.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 6.2 documentation" href="index.html" />
     <link rel="next" title="Extending SkoolKit" href="extending.html" />
     <link rel="prev" title="HTML templates" href="html-templates.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.2 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -557,9 +557,17 @@ removed in <a class="reference internal" href="#isubmode"><span class="std std-r
 </div>
 <div class="section" id="keep">
 <span id="id7"></span><h3>&#64;keep<a class="headerlink" href="#keep" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal"><span class="pre">&#64;keep</span></code> directive prevents the substitution of a label for the operand in
-the next instruction (but only when the instruction has not been replaced using
-an <code class="docutils literal"><span class="pre">&#64;isub</span></code> or <code class="docutils literal"><span class="pre">&#64;ssub</span></code> directive).</p>
+<p>The <code class="docutils literal"><span class="pre">&#64;keep</span></code> directive prevents the substitution of labels for numeric values
+in the operand of the next instruction:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>@keep[=val1[,val2...]]
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">val1</span></code>, <code class="docutils literal"><span class="pre">val2</span></code> etc. are the values to keep; if none are specified, all
+values are kept</li>
+</ul>
+<p>In HTML mode, the <code class="docutils literal"><span class="pre">&#64;keep</span></code> directive also prevents the operand from being
+hyperlinked.</p>
 <p>For example:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>@keep
  28328 LD BC,24576   ; #REGb=96, #REGc=0
@@ -569,6 +577,24 @@ an <code class="docutils literal"><span class="pre">&#64;isub</span></code> or <
 <code class="docutils literal"><span class="pre">LD</span> <span class="pre">BC</span></code> instruction would be replaced with the label of the routine at 24576
 (if there is a routine at that address); however, the operand is meant to be a
 pure data value, not a variable or routine address.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>6.2</td>
+<td>Added the ability to specify the values to keep; the <code class="docutils literal"><span class="pre">&#64;keep</span></code>
+directive is applied to instructions that have been replaced by
+an <a class="reference internal" href="#isub"><span class="std std-ref">&#64;isub</span></a>, <a class="reference internal" href="#ssub"><span class="std std-ref">&#64;ssub</span></a> or <a class="reference internal" href="#rsub"><span class="std std-ref">&#64;rsub</span></a> directive</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="label">
 <span id="id8"></span><h3>&#64;label<a class="headerlink" href="#label" title="Permalink to this headline">¶</a></h3>
@@ -635,6 +661,22 @@ TOGGLE_0:
   JR NZ,TOGGLE_0
 </pre></div>
 </div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Version</th>
+<th class="head">Changes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>6.2</td>
+<td>The <code class="docutils literal"><span class="pre">&#64;nolabel</span></code> directive is processed in HTML mode</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="nowarn">
 <span id="id10"></span><h3>&#64;nowarn<a class="headerlink" href="#nowarn" title="Permalink to this headline">¶</a></h3>
@@ -1042,11 +1084,11 @@ path</td>
         <li class="right" >
           <a href="html-templates.html" title="HTML templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2017, Richard Dymond.
+        &#169; Copyright 2018, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
     </div>
   </body>

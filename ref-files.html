@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ref files &#8212; SkoolKit 6.1 documentation</title>
+    <title>Ref files &#8212; SkoolKit 6.2 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '6.1',
+        VERSION:     '6.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="SkoolKit 6.1 documentation" href="index.html" />
+    <link rel="top" title="SkoolKit 6.2 documentation" href="index.html" />
     <link rel="next" title="HTML templates" href="html-templates.html" />
     <link rel="prev" title="Skool macros" href="skool-macros.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.2 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -297,6 +297,11 @@ header of the main index page (default: &#8216;The complete&#8217;)</li>
 <li><code class="docutils literal"><span class="pre">TitleSuffix</span></code> - the suffix to use after the game name or logo in the header
 of the main index page (default: &#8216;RAM disassembly&#8217;)</li>
 </ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></code> parameter is deprecated since version 6.2.
+Use the <code class="docutils literal"><span class="pre">Includes</span></code> parameter in the <a class="reference internal" href="#memorymap"><span class="std std-ref">[MemoryMap:*]</span></a> section instead.</p>
+</div>
 <p>Every parameter in this section may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 <p>The <code class="docutils literal"><span class="pre">AddressAnchor</span></code> parameter contains a standard Python format string that
 specifies the format of the anchors attached to instructions on disassembly
@@ -604,6 +609,9 @@ parameter in the <a class="reference internal" href="#ref-game"><span class="std
 <li><code class="docutils literal"><span class="pre">w</span></code> - DEFW blocks</li>
 </ul>
 </li>
+<li><code class="docutils literal"><span class="pre">Includes</span></code> - a comma-separated list of addresses of entries to include on
+the memory map page in addition to those specified by the <code class="docutils literal"><span class="pre">EntryTypes</span></code>
+parameter</li>
 <li><code class="docutils literal"><span class="pre">Intro</span></code> - the text (which may contain HTML markup) displayed at the top of
 the memory map page (default: &#8216;&#8217;)</li>
 <li><code class="docutils literal"><span class="pre">LengthColumn</span></code> - <code class="docutils literal"><span class="pre">1</span></code> to display the &#8216;Length&#8217; column, or <code class="docutils literal"><span class="pre">0</span></code> not to
@@ -613,6 +621,12 @@ not to (default: <code class="docutils literal"><span class="pre">0</span></code
 <li><code class="docutils literal"><span class="pre">Write</span></code> - <code class="docutils literal"><span class="pre">1</span></code> to write the memory map page, or <code class="docutils literal"><span class="pre">0</span></code> not to (default:
 <code class="docutils literal"><span class="pre">1</span></code>)</li>
 </ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="docutils literal"><span class="pre">G</span></code> identifier in the <code class="docutils literal"><span class="pre">EntryTypes</span></code> parameter (along with the
+<code class="docutils literal"><span class="pre">GameStatusBufferIncludes</span></code> parameter in the <a class="reference internal" href="#ref-game"><span class="std std-ref">[Game]</span></a> section) is
+deprecated since version 6.2. Use the <code class="docutils literal"><span class="pre">Includes</span></code> parameter instead.</p>
+</div>
 <p>Every parameter in this section may contain <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a>.</p>
 <p>To see the default memory map pages and their properties, run the following
 command:</p>
@@ -638,16 +652,19 @@ name matches the page ID, if one exists; otherwise, the stock
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>6.0</td>
+<tr class="row-even"><td>6.2</td>
+<td>Added the <code class="docutils literal"><span class="pre">Includes</span></code> parameter</td>
+</tr>
+<tr class="row-odd"><td>6.0</td>
 <td>Every parameter (not just <code class="docutils literal"><span class="pre">Intro</span></code>) may contain
 <a class="reference internal" href="skool-macros.html#skoolmacros"><span class="std std-ref">skool macros</span></a></td>
 </tr>
-<tr class="row-odd"><td>4.0</td>
+<tr class="row-even"><td>4.0</td>
 <td>Added the <code class="docutils literal"><span class="pre">EntryDescriptions</span></code> and <code class="docutils literal"><span class="pre">LengthColumn</span></code> parameters,
 and support for the <code class="docutils literal"><span class="pre">G</span></code> identifier in the <code class="docutils literal"><span class="pre">EntryTypes</span></code>
 parameter</td>
 </tr>
-<tr class="row-even"><td>2.5</td>
+<tr class="row-odd"><td>2.5</td>
 <td>New</td>
 </tr>
 </tbody>
@@ -1275,11 +1292,11 @@ with the first one removed.</p>
         <li class="right" >
           <a href="skool-macros.html" title="Skool macros"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SkoolKit 6.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2017, Richard Dymond.
+        &#169; Copyright 2018, Richard Dymond.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.9.
     </div>
   </body>
