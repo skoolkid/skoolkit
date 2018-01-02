@@ -1543,6 +1543,31 @@ class SkoolParserTest(SkoolKitTestCase):
         start_comment = parser.get_instruction(50000).mid_block_comment
         self.assertEqual(exp_start_comment, start_comment)
 
+    def test_unpadded_comments(self):
+        skool = '\n'.join((
+            ';Routine',
+            ';',
+            ';Paragraph 1.',
+            ';.',
+            ';Paragraph 2.',
+            ';',
+            ';A Value',
+            ';',
+            ';Start comment.',
+            'c32768 XOR A',
+            ';Mid-block comment.',
+            ' 32769 RET   ;Done.'
+        ))
+        parser = self._get_parser(skool, html=False)
+        entry = parser.get_entry(32768)
+        self.assertEqual(entry.description, 'Routine')
+        self.assertEqual(['Paragraph 1.', 'Paragraph 2.'], entry.details)
+        self.assertEqual(entry.registers[0].name, 'A')
+        self.assertEqual(entry.registers[0].contents, 'Value')
+        self.assertEqual(['Start comment.'], entry.instructions[0].mid_block_comment)
+        self.assertEqual(['Mid-block comment.'], entry.instructions[1].mid_block_comment)
+        self.assertEqual('Done.', entry.instructions[1].comment.text)
+
     def test_snapshot(self):
         skool = '\n'.join((
             '; Test snapshot building',

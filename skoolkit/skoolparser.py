@@ -1,4 +1,4 @@
-# Copyright 2008-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -149,9 +149,10 @@ def parse_comment_block(comments, ignores, mode):
     index = 0
     last_line = ""
     for line in comments:
-        if line:
-            sections[index].append(line)
-            last_line = line
+        s_line = line.strip()
+        if s_line:
+            sections[index].append(s_line)
+            last_line = s_line
         elif last_line:
             _apply_ignores(ignores, section_ignores, index, line_no)
             index = min(index + 1, len(sections) - 1)
@@ -309,7 +310,7 @@ class SkoolParser:
         for line in skoolfile:
             if line.startswith(';'):
                 if self.mode.started and self.mode.include:
-                    self.comments.append(line[2:].rstrip())
+                    self.comments.append(line[1:])
                     self.mode.ignoreua = False
                 instruction = None
                 address_comments.append((None, None))

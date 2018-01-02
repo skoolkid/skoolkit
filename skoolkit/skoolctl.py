@@ -1,4 +1,4 @@
-# Copyright 2010-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2010-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -450,7 +450,7 @@ class SkoolParser:
         for line in skoolfile:
             if line.startswith(';'):
                 if self.mode.include:
-                    comments.append(line[2:].rstrip())
+                    comments.append(line[1:])
                 instruction = None
                 address_comments.append((None, None))
                 continue

@@ -1362,6 +1362,33 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self._test_ctl(skool, exp_ctl)
 
+    def test_unpadded_comments(self):
+        skool = '\n'.join((
+            ';Routine',
+            ';',
+            ';Paragraph 1.',
+            ';.',
+            ';Paragraph 2.',
+            ';',
+            ';A Value',
+            ';',
+            ';Start comment.',
+            'c32768 XOR A',
+            ';Mid-block comment.',
+            ' 32769 RET   ;Done.'
+        ))
+        exp_ctl = [
+            'c 32768 Routine',
+            'D 32768 Paragraph 1.',
+            'D 32768 Paragraph 2.',
+            'R 32768 A Value',
+            'N 32768 Start comment.',
+            'N 32769 Mid-block comment.',
+            '  32769,1 Done.',
+            'i 32770'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
     def test_M_directives(self):
         skool = '\n'.join((
             'c30000 LD A,B   ; {Regular M directive',

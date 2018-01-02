@@ -1,4 +1,4 @@
-# Copyright 2008-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -145,7 +145,7 @@ class AsmWriter:
     def print_header(self, header):
         if header:
             for line in header:
-                self.write_line(('; ' + line).rstrip())
+                self.write_line((';' + line).rstrip())
             self.write_line('')
 
     def print_equs(self, equs):

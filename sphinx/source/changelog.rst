@@ -3,6 +3,8 @@ Changelog
 
 6.3b1
 -----
+* Added support for parsing block-level comments that are not left-padded by a
+  space
 
 6.2 (2018-01-01)
 ----------------
