@@ -1,6 +1,9 @@
 Changelog
 =========
 
+6.3b1
+-----
+
 6.2 (2018-01-01)
 ----------------
 * Added the ``--reg`` option to :ref:`bin2sna.py` (for setting the value of a
