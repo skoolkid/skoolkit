@@ -3,6 +3,8 @@ Changelog
 
 6.3b1
 -----
+* Added support to the :ref:`Resources` section for specifying files using
+  wildcard characters (``*``, ``?`` and ``[]``)
 * Added support for parsing block-level comments that are not left-padded by a
   space
 

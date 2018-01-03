@@ -786,15 +786,27 @@ where:
 The files to be copied must be present in `skool2html.py`'s search path in
 order for it to find them; to see the search path, run ``skool2html.py -s``.
 
+``fname`` may contain the special wildcard characters ``*``, ``?`` and ``[]``,
+which are expanded as follows:
+
+* ``*`` - matches any number of characters
+* ``?`` - matches any single character
+* ``[seq]`` - matches any character in ``seq``; ``seq`` may be a simple
+  sequence of characters (e.g. ``abcde``) or a range (e.g. ``a-e``)
+* ``[!seq]`` - matches any character not in ``seq``
+
 If your disassembly requires pre-built images or other resources that SkoolKit
 does not build, listing them in this section ensures that they will be copied
 into place whenever the disassembly is built.
 
-+---------+---------+
-| Version | Changes |
-+=========+=========+
-| 3.6     | New     |
-+---------+---------+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.3     | Added support for pathname pattern expansion using wildcard       |
+|         | characters                                                        |
++---------+-------------------------------------------------------------------+
+| 3.6     | New                                                               |
++---------+-------------------------------------------------------------------+
 
 .. _template:
 

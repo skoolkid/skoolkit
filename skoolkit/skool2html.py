@@ -1,4 +1,4 @@
-# Copyright 2008-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # SkoolKit. If not, see <http://www.gnu.org/licenses/>.
 
+import glob
 import sys
 import os
 from os.path import isfile, isdir, basename, dirname
@@ -83,14 +84,17 @@ def clock(operation, prefix, *args, **kwargs):
         notify('({0:0.2f}s)'.format(time.time() - go))
     return result
 
-def find(fname, extra_search_dirs, first_search_dir=None):
+def _get_search_dirs(extra_search_dirs, first_search_dir=None):
     if first_search_dir:
         search_dirs = [first_search_dir]
     else:
         search_dirs = []
     search_dirs.extend(SEARCH_DIRS)
     search_dirs.extend(extra_search_dirs)
-    return find_file(fname, search_dirs)
+    return search_dirs
+
+def find(fname, extra_search_dirs, first_search_dir=None):
+    return find_file(fname, _get_search_dirs(extra_search_dirs, first_search_dir))
 
 def add_lines(ref_parser, config_specs, section=None):
     for config_spec in config_specs:
@@ -268,11 +272,15 @@ def write_disassembly(html_writer, files, search_dir, extra_search_dirs, pages, 
 
     # Copy resources named in the [Resources] section
     resources = html_writer.ref_parser.get_dictionary('Resources')
+    search_dirs = _get_search_dirs(extra_search_dirs, search_dir)
     for f, dest_dir in resources.items():
-        fname = find(f, extra_search_dirs, search_dir)
-        if not fname:
+        fnames = []
+        for d in search_dirs:
+            fnames.extend(glob.glob(os.path.join(d, f)))
+        if not fnames:
             raise SkoolKitError('Cannot copy resource "{}": file not found'.format(normpath(f)))
-        copy_resource(fname, odir, dest_dir)
+        for fname in fnames:
+            copy_resource(fname, odir, dest_dir)
 
     # Write disassembly files
     if 'd' in files:

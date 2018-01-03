@@ -662,6 +662,33 @@ class Skool2HtmlTest(SkoolKitTestCase):
 
     @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
     @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
+    def test_resources_using_pathname_expansion(self):
+        resource_dir = self.make_directory()
+        self.write_bin_file(path=os.path.join(resource_dir, 'bar.png'))
+        self.write_bin_file(path=os.path.join(resource_dir, 'baz.png'))
+        self.write_bin_file(path=os.path.join(resource_dir, 'foo.txt'))
+        self.write_bin_file(path=os.path.join(resource_dir, 'qux.pdf'))
+        self.write_bin_file(path=os.path.join(resource_dir, 'xyzzy.png'))
+        ref = '\n'.join((
+            '[Resources]',
+            'b*.png=images',
+            'fo?.txt=text',
+            '[p-r]*.pdf=pdf',
+            '[!b]*.png=png'
+        ))
+        reffile = self.write_text_file(ref, suffix='.ref')
+        self.write_text_file(path='{}.skool'.format(reffile[:-4]))
+        output, error = self.run_skool2html('-d {} -S {} {}'.format(self.odir, resource_dir, reffile))
+        self.assertEqual(error, '')
+        game_dir = os.path.join(self.odir, reffile[:-4])
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'images', 'bar.png')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'images', 'baz.png')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'text', 'foo.txt')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'pdf', 'qux.pdf')))
+        self.assertTrue(os.path.isfile(os.path.join(game_dir, 'png', 'xyzzy.png')))
+
+    @patch.object(skool2html, 'get_class', Mock(return_value=TestHtmlWriter))
+    @patch.object(skool2html, 'SkoolParser', MockSkoolParser)
     def test_resource_not_found(self):
         resource = 'nosuchfile.png'
         reffile = self.write_text_file("[Resources]\n{}=foo".format(resource), suffix='.ref')
