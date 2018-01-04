@@ -1687,6 +1687,17 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual([1, 10, 170, 48, 49, 128], snapshot[23296:23302])
         self.assertEqual([48, 72, 136, 144, 104, 4, 10, 4], snapshot[30000:30008])
 
+    def test_defs_directives(self):
+        skool = '\n'.join((
+            '@defs=23296:6,$10',
+            '@defs=30000:4,"1" ; "1111"',
+            '; Start',
+            '32768 JP 49152'
+        ))
+        snapshot = self._get_parser(skool).snapshot
+        self.assertEqual([16] * 6, snapshot[23296:23302])
+        self.assertEqual([49] * 4, snapshot[30000:30004])
+
     def test_defw_directives(self):
         skool = '\n'.join((
             '@defw=23296:32769,$8002,%100000000,"0"',

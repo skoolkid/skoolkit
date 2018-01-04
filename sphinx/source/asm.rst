@@ -299,6 +299,35 @@ This will insert the value 5 followed by the ASCII codes of the characters in
 | 6.3     | New     |
 +---------+---------+
 
+.. _defs:
+
+@defs
+^^^^^
+The ``@defs`` directive inserts a sequence of byte values into the memory
+snapshot at a given address. ::
+
+  @defs=address:length[,value]
+
+* ``address`` is the address
+* ``length`` is the length of the sequence
+* ``value`` is the byte value (default: 0)
+
+The directive may be followed by a semicolon (``;``) and arbitrary text, which
+will be ignored.
+
+For example::
+
+  @defs=30000:5,$FF ; Five 255s
+
+This will insert the value 255 into the memory snapshot at addresses
+30000-30004.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 6.3     | New     |
++---------+---------+
+
 .. _defw:
 
 @defw

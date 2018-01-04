@@ -3,8 +3,8 @@ Changelog
 
 6.3b1
 -----
-* Added the :ref:`defb` directive (for inserting byte values into the memory
-  snapshot)
+* Added the :ref:`defb` and :ref:`defs` directives (for inserting byte values
+  into the memory snapshot)
 * Added the :ref:`defw` directive (for inserting word values into the memory
   snapshot)
 * Added support to the :ref:`Resources` section for specifying files using

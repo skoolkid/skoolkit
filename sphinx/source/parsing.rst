@@ -29,6 +29,7 @@ following:
 
 * :ref:`assemble`
 * :ref:`defb`
+* :ref:`defs`
 * :ref:`defw`
 * :ref:`keep`
 * :ref:`label`

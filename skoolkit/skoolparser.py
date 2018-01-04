@@ -491,7 +491,7 @@ class SkoolParser:
                 self.mode.label = directive[6:].rstrip()
             elif directive.startswith('nolabel'):
                 self.mode.nolabel = True
-            elif directive.startswith(('defb=', 'defw=')):
+            elif directive.startswith(('defb=', 'defs=', 'defw=')):
                 parse_asm_data_directive(self.snapshot, directive)
             elif directive.startswith('keep'):
                 self.mode.keep = []
