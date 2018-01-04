@@ -28,6 +28,7 @@ disassembly. The only ASM directives that are processed in HTML mode are the
 following:
 
 * :ref:`assemble`
+* :ref:`defb`
 * :ref:`keep`
 * :ref:`label`
 * :ref:`nolabel`

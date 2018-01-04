@@ -270,6 +270,35 @@ For example::
          JR NZ,32232   ;
   @bfix+end
 
+.. _defb:
+
+@defb
+^^^^^
+The ``@defb`` directive inserts byte values into the memory snapshot at a given
+address. ::
+
+  @defb=address:value1[,value2...]
+
+* ``address`` is the address
+* ``value1``, ``value2`` etc. are the byte values (as might appear in a DEFB
+  statement)
+
+The sequence of comma-separated values may be followed by a semicolon (``;``)
+and arbitrary text, which will be ignored.
+
+For example::
+
+  @defb=30000:5,"Hello" ; Welcome message
+
+This will insert the value 5 followed by the ASCII codes of the characters in
+"Hello" into the memory snapshot at address 30000.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 6.3     | New     |
++---------+---------+
+
 .. _end:
 
 @end

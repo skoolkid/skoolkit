@@ -1676,6 +1676,17 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(snapshot[30000:30003], [1, 2, 3])
         self.assertEqual(snapshot[50000:50003], [3, 2, 1])
 
+    def test_defb_directives(self):
+        skool = '\n'.join((
+            '@defb=23296:1,$0A,%10101010,"01",32768/256',
+            '@defb=30000:48,72,136,144,104,4,10,4 ; Key',
+            '; Start',
+            '32768 JP 49152'
+        ))
+        snapshot = self._get_parser(skool).snapshot
+        self.assertEqual([1, 10, 170, 48, 49, 128], snapshot[23296:23302])
+        self.assertEqual([48, 72, 136, 144, 104, 4, 10, 4], snapshot[30000:30008])
+
     def test_remote_entry(self):
         skool = '\n'.join((
             'r16384 start',

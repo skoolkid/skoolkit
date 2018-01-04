@@ -85,6 +85,14 @@ def parse_asm_block_directive(directive, stack):
         return True
     return False
 
+def parse_asm_data_directive(snapshot, directive):
+    address, sep, values = directive[5:].partition(':')
+    if sep:
+        addr = parse_int(address)
+        if addr is not None:
+            operation = '{} {}'.format(directive[:4], partition_unquoted(values, ';')[0])
+            set_bytes(snapshot, addr, operation)
+
 def _html_escape(text):
     return html.escape(text, False)
 
@@ -483,6 +491,8 @@ class SkoolParser:
                 self.mode.label = directive[6:].rstrip()
             elif directive.startswith('nolabel'):
                 self.mode.nolabel = True
+            elif directive.startswith('defb='):
+                parse_asm_data_directive(self.snapshot, directive)
             elif directive.startswith('keep'):
                 self.mode.keep = []
                 if directive.startswith('keep='):
