@@ -1687,6 +1687,17 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual([1, 10, 170, 48, 49, 128], snapshot[23296:23302])
         self.assertEqual([48, 72, 136, 144, 104, 4, 10, 4], snapshot[30000:30008])
 
+    def test_defw_directives(self):
+        skool = '\n'.join((
+            '@defw=23296:32769,$8002,%100000000,"0"',
+            '@defw=30000:32768 ; Start address',
+            '; Start',
+            '32768 JP 49152'
+        ))
+        snapshot = self._get_parser(skool).snapshot
+        self.assertEqual([1, 128, 2, 128, 0, 1, 48, 0], snapshot[23296:23304])
+        self.assertEqual([0, 128], snapshot[30000:30002])
+
     def test_remote_entry(self):
         skool = '\n'.join((
             'r16384 start',

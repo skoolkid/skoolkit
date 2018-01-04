@@ -299,6 +299,35 @@ This will insert the value 5 followed by the ASCII codes of the characters in
 | 6.3     | New     |
 +---------+---------+
 
+.. _defw:
+
+@defw
+^^^^^
+The ``@defw`` directive inserts word values into the memory snapshot at a given
+address. ::
+
+  @defw=address:value1[,value2...]
+
+* ``address`` is the address
+* ``value1``, ``value2`` etc. are the word values (as might appear in a DEFW
+  statement)
+
+The sequence of comma-separated values may be followed by a semicolon (``;``)
+and arbitrary text, which will be ignored.
+
+For example::
+
+  @defw=30000:32768,32775 ; Message addresses
+
+This will insert the word values 32768 and 32775 into the memory snapshot at
+addresses 30000 and 30002.
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 6.3     | New     |
++---------+---------+
+
 .. _end:
 
 @end
