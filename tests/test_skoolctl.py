@@ -1045,6 +1045,54 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self._test_ctl(skool, exp_ctl)
 
+    def test_defb_directives(self):
+        skool = '\n'.join((
+            '@defb=23296:128',
+            '; Routine',
+            'c32768 LD A,B',
+            '@defb=23297:129',
+            ' 32769 RET'
+        ))
+        exp_ctl = [
+            '@ 32768 defb=23296:128',
+            'c 32768 Routine',
+            '@ 32769 defb=23297:129',
+            'i 32770'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
+    def test_defs_directives(self):
+        skool = '\n'.join((
+            '@defs=23296:10,128',
+            '; Routine',
+            'c32768 LD A,B',
+            '@defs=23306:10,129',
+            ' 32769 RET'
+        ))
+        exp_ctl = [
+            '@ 32768 defs=23296:10,128',
+            'c 32768 Routine',
+            '@ 32769 defs=23306:10,129',
+            'i 32770'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
+    def test_defw_directives(self):
+        skool = '\n'.join((
+            '@defw=23296:256',
+            '; Routine',
+            'c32768 LD A,B',
+            '@defw=23298:32768',
+            ' 32769 RET'
+        ))
+        exp_ctl = [
+            '@ 32768 defw=23296:256',
+            'c 32768 Routine',
+            '@ 32769 defw=23298:32768',
+            'i 32770'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
     def test_end_directives(self):
         skool = '\n'.join((
             '; Routine',
