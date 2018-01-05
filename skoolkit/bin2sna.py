@@ -1,4 +1,4 @@
-# Copyright 2016-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2016-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -18,12 +18,12 @@ import os
 import argparse
 
 from skoolkit import integer, read_bin_file, VERSION
-from skoolkit.snapshot import print_reg_help, print_state_help, write_z80v3
+from skoolkit.snapshot import poke, print_reg_help, print_state_help, write_z80v3
 
 def run(infile, outfile, options):
     ram = list(read_bin_file(infile, 49152))
     org = options.org or 65536 - len(ram)
-    ram = [0] * (org - 16384) + ram + [0] * (65536 - org - len(ram))
+    snapshot = [0] * org + ram + [0] * (65536 - org - len(ram))
     if options.start is None:
         start = org
     else:
@@ -32,12 +32,14 @@ def run(infile, outfile, options):
         stack = org
     else:
         stack = options.stack
+    for spec in options.pokes:
+        poke(snapshot, spec)
     parent_dir = os.path.dirname(outfile)
     if parent_dir and not os.path.isdir(parent_dir):
         os.makedirs(parent_dir)
     registers = ['sp={}'.format(stack), 'pc={}'.format(start)] + options.reg
     state = ['border={}'.format(options.border)] + options.state
-    write_z80v3(outfile, ram, registers, state)
+    write_z80v3(outfile, snapshot[16384:], registers, state)
 
 def main(args):
     parser = argparse.ArgumentParser(
@@ -57,6 +59,10 @@ def main(args):
                        help="Set the origin address (default: 65536 minus the length of file.bin).")
     group.add_argument('-p', '--stack', dest='stack', metavar='STACK', type=integer,
                        help="Set the stack pointer (default: ORG).")
+    group.add_argument('-P', '--poke', dest='pokes', metavar='a[-b[-c]],[^+]v', action='append', default=[],
+                       help="POKE N,v for N in {a, a+c, a+2c..., b}. "
+                            "Prefix 'v' with '^' to perform an XOR operation, or '+' to perform an ADD operation. "
+                            "This option may be used multiple times.")
     group.add_argument('-r', '--reg', dest='reg', metavar='name=value', action='append', default=[],
                        help="Set the value of a register. Do '--reg help' for more information. This option may be used multiple times.")
     group.add_argument('-s', '--start', dest='start', metavar='START', type=integer,

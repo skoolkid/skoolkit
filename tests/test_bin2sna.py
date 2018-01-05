@@ -69,6 +69,7 @@ class Bin2SnaTest(SkoolKitTestCase):
         self.assertEqual(outfile, binfile[:-3] + 'z80')
         self.assertEqual(options.border, 7)
         self.assertEqual(options.org, None)
+        self.assertEqual([], options.pokes)
         self.assertEqual([], options.reg)
         self.assertEqual(options.stack, None)
         self.assertEqual(options.start, None)
@@ -158,6 +159,42 @@ class Bin2SnaTest(SkoolKitTestCase):
         for option, stack in (('-p', '0x7fff'), ('--stack', '0xC001')):
             z80file = self._run("{} {} {}".format(option, stack, binfile))
             self._check_z80(z80file, data, sp=int(stack[2:], 16))
+
+    def _test_poke(self, option, address, exp_values):
+        binfile = self.write_bin_file([0], suffix='.bin')
+        z80file = self._run('{} {}'.format(option, binfile))
+        self._check_z80(z80file, exp_values, address, 65535, 65535)
+
+    def test_options_P_poke(self):
+        for option, spec in (('-P', '32768,1'), ('--poke', '30000,5')):
+            address, exp_value = [int(i) for i in spec.split(',')]
+            self._test_poke('{} {}'.format(option, spec), address, [exp_value])
+
+    def test_option_P_address_range(self):
+        self._test_poke('-P 40000-40002,2', 40000, [2])
+
+    def test_option_P_address_range_with_step(self):
+        self._test_poke('-P 50000-50004-2,3', 50000, [3, 0, 3, 0, 3])
+
+    def test_option_P_0x_hexadecimal_values(self):
+        self._test_poke('-P 0xc350-0xC354-0x02,0x0f', 50000, [15, 0, 15, 0, 15])
+
+    def test_option_P_with_add_operation(self):
+        self._test_poke('-P 30000-30002,+4', 30000, [4] * 3)
+
+    def test_option_P_with_xor_operation(self):
+        self._test_poke('-P 60000-60002,^2', 60000, [2] * 3)
+
+    def test_option_P_multiple(self):
+        self._test_poke('-P 20000,5 --poke 20001,6', 20000, [5, 6])
+
+    def test_option_P_invalid_values(self):
+        self._test_bad_spec('-P 1', 'Value missing in poke spec: 1')
+        self._test_bad_spec('-P q', 'Value missing in poke spec: q')
+        self._test_bad_spec('-P 1,x', 'Invalid value in poke spec: 1,x')
+        self._test_bad_spec('-P x,1', 'Invalid address range in poke spec: x,1')
+        self._test_bad_spec('-P 1-y,1', 'Invalid address range in poke spec: 1-y,1')
+        self._test_bad_spec('-P 1-3-z,1', 'Invalid address range in poke spec: 1-3-z,1')
 
     def test_option_r(self):
         binfile = self.write_bin_file([0], suffix='.bin')

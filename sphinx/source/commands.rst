@@ -32,6 +32,11 @@ it with no arguments to see the list of available options::
                           length of file.bin).
     -p STACK, --stack STACK
                           Set the stack pointer (default: ORG).
+    -P a[-b[-c]],[^+]v, --poke a[-b[-c]],[^+]v
+                          POKE N,v for N in {a, a+c, a+2c..., b}. Prefix 'v'
+                          with '^' to perform an XOR operation, or '+' to
+                          perform an ADD operation. This option may be used
+                          multiple times.
     -r name=value, --reg name=value
                           Set the value of a register. Do '--reg help' for more
                           information. This option may be used multiple times.
@@ -47,6 +52,8 @@ it with no arguments to see the list of available options::
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 6.3     | Added the ``--poke`` option                                       |
++---------+-------------------------------------------------------------------+
 | 6.2     | Added the ``--reg`` and ``--state`` options; the ``--org``,       |
 |         | ``--stack`` and ``--start`` options accept a hexadecimal integer  |
 |         | prefixed by '0x'                                                  |
