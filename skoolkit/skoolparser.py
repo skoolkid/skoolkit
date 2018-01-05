@@ -500,6 +500,8 @@ class SkoolParser:
                         addr = parse_int(n)
                         if addr is not None:
                             self.mode.keep.append(addr)
+            elif directive.startswith('remote='):
+                self._parse_remote_directive(directive[7:])
             elif directive.startswith('replace='):
                 self._add_replacement(directive[8:])
             elif directive.startswith('assemble='):
@@ -544,6 +546,18 @@ class SkoolParser:
                             pass
         elif directive.startswith('start'):
             self.mode.start()
+
+    def _parse_remote_directive(self, params):
+        asm_id, sep, addresses = params.partition(':')
+        addrs = addresses.split(',')
+        address = parse_int(addrs[0])
+        if address is not None:
+            remote_entry = RemoteEntry(asm_id, address)
+            remote_entry.add_instruction(Instruction('r', addrs[0], asm_id))
+            for addr_str in addrs[1:]:
+                remote_entry.add_instruction(Instruction(' ', addr_str, ''))
+            for instruction in remote_entry.instructions:
+                self._instructions.setdefault(instruction.address, []).append(instruction)
 
     def _parse_instruction(self, line):
         ctl, addr_str, operation, comment = parse_instruction(line)

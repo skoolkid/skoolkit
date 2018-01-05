@@ -1730,6 +1730,48 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(entry.asm_id, 'start')
         self.assertEqual(entry.address, 16384)
 
+    def test_remote_directive(self):
+        skool = '\n'.join((
+            '@start',
+            '@remote=load:32768',
+            '; Routine',
+            'c49152 JP $8000',
+        ))
+        parser = self._get_parser(skool)
+        memory_map = parser.memory_map
+        self.assertEqual(len(memory_map), 1)
+        instructions = memory_map[0].instructions
+        self.assertEqual(len(instructions), 1)
+        reference = instructions[0].reference
+        self.assertIsNotNone(reference)
+        self.assertEqual(reference.address, 32768)
+        self.assertEqual(reference.addr_str, '$8000')
+        entry = reference.entry
+        self.assertTrue(entry.is_remote())
+        self.assertEqual(entry.asm_id, 'load')
+        self.assertEqual(entry.address, 32768)
+
+    def test_remote_directive_with_entry_point(self):
+        skool = '\n'.join((
+            '@start',
+            '@remote=save:33024,33027',
+            '; Routine',
+            'c49152 JP 33027'
+        ))
+        parser = self._get_parser(skool)
+        memory_map = parser.memory_map
+        self.assertEqual(len(memory_map), 1)
+        instructions = memory_map[0].instructions
+        self.assertEqual(len(instructions), 1)
+        reference = instructions[0].reference
+        self.assertIsNotNone(reference)
+        self.assertEqual(reference.address, 33027)
+        self.assertEqual(reference.addr_str, '33027')
+        entry = reference.entry
+        self.assertTrue(entry.is_remote())
+        self.assertEqual(entry.asm_id, 'save')
+        self.assertEqual(entry.address, 33024)
+
     def test_references(self):
         skool = '\n'.join((
             '; Routine',

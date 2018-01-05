@@ -34,6 +34,7 @@ following:
 * :ref:`keep`
 * :ref:`label`
 * :ref:`nolabel`
+* :ref:`remote`
 * :ref:`replace`
 * :ref:`bfixBlockDirectives`
 * :ref:`isubBlockDirectives`

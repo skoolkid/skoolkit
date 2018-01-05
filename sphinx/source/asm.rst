@@ -734,6 +734,37 @@ For example::
 | 2.4     | The ``=`` is required |
 +---------+-----------------------+
 
+.. _remote:
+
+@remote
+^^^^^^^
+The ``@remote`` directive creates a remote entry in a skool file. A remote
+entry enables ``JR``, ``JP`` and ``CALL`` instructions to be hyperlinked to an
+entry defined in another skool file. ::
+
+  @remote=code:address[,address2...]
+
+* ``code`` is the ID of the disassembly defined in the other skool file
+* ``address`` is the address of the remote entry
+* ``address2`` etc. are addresses of other entry points in the remote entry
+
+For example::
+
+  @remote=main:29012,29015
+
+This directive, if it appeared in a secondary skool file, would enable
+references to the routine at 29012 and its entry point at 29015 in the main
+disassembly. It would also enable the :ref:`R` macro to create a hyperlink to a
+remote entry point using the form::
+
+  #R29015@main
+
++---------+---------+
+| Version | Changes |
++=========+=========+
+| 6.3     | New     |
++---------+---------+
+
 .. _replace:
 
 @replace
