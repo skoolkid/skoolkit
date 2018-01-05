@@ -1146,6 +1146,22 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self._test_ctl(skool, exp_ctl)
 
+    def test_remote_directives(self):
+        skool = '\n'.join((
+            '@remote=main:55213',
+            '; Routine',
+            'c32768 LD A,B',
+            '@remote=start:41123,41127',
+            ' 32769 RET'
+        ))
+        exp_ctl = [
+            '@ 32768 remote=main:55213',
+            'c 32768 Routine',
+            '@ 32769 remote=start:41123,41127',
+            'i 32770'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
     def test_replace_directives(self):
         skool = '\n'.join((
             '@replace=/foo/bar',

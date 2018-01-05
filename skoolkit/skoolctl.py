@@ -37,7 +37,7 @@ AD_IGNOREUA = 'ignoreua'
 
 # An entry ASM directive is one that should be placed before the entry title
 # when it is associated with the first instruction in the entry
-RE_ENTRY_ASM_DIRECTIVE = re.compile("def[bsw]=|end$|equ=|org=|replace=|set-[-a-z]+=|start$|writer=")
+RE_ENTRY_ASM_DIRECTIVE = re.compile("def[bsw]=|end$|equ=|org=|remote=|replace=|set-[-a-z]+=|start$|writer=")
 
 # Comment types to which the @ignoreua directive may be applied
 TITLE = 't'
