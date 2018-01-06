@@ -1,4 +1,4 @@
-# Copyright 2013, 2015-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2013, 2015-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -260,11 +260,11 @@ def _get_tape_blocks(tape_type, tape):
         return _get_tzx_blocks(tape)
     return _get_tap_blocks(tape)
 
-def _get_tape(urlstring, member=None):
+def _get_tape(urlstring, user_agent, member=None):
     url = urlparse(urlstring)
     if url.scheme:
         write_line('Downloading {0}'.format(urlstring))
-        r = Request(urlstring, headers={'User-Agent': ''})
+        r = Request(urlstring, headers={'User-Agent': user_agent})
         u = urlopen(r, timeout=30)
         f = tempfile.NamedTemporaryFile(prefix='tap2sna-')
         while 1:
@@ -365,7 +365,7 @@ another, or POKE a single address or range of addresses with a given value.
 """.lstrip())
 
 def make_z80(url, options, z80):
-    tape_type, tape = _get_tape(url)
+    tape_type, tape = _get_tape(url, options.user_agent)
     tape_blocks = _get_tape_blocks(tape_type, tape)
     ram = _get_ram(tape_blocks, options)
     _write_z80(ram, options, z80)
@@ -398,6 +398,8 @@ def main(args):
     group.add_argument('--state', dest='state', metavar='name=value', action='append', default=[],
                        help="Set a hardware state attribute. Do '--state help' for more information. "
                             "This option may be used multiple times.")
+    group.add_argument('-u', '--user-agent', dest='user_agent', metavar='AGENT', default='',
+                       help="Set the User-Agent header.")
     group.add_argument('-V', '--version', action='version', version='SkoolKit {}'.format(VERSION),
                        help='Show SkoolKit version number and exit.')
     namespace, unknown_args = parser.parse_known_args(args)

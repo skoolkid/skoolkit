@@ -48,6 +48,9 @@ OPTIONS
   see the section on ``HARDWARE STATE`` below. This option may be used multiple
   times.
 
+-u, --user-agent `AGENT`
+  Set the User-Agent header used in an HTTP(S) request.
+
 -V, --version
   Show the SkoolKit version number and exit.
 

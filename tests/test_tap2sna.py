@@ -66,6 +66,19 @@ class Tap2SnaTest(SkoolKitTestCase):
             self.run_tap2sna('--ram load=1,16384 {} -d {} {} {}'.format(option, odir, tapfile, z80fname))
         self.assertEqual(cm.exception.args[0], 'Error while getting snapshot {}: {}'.format(z80fname, exp_error))
 
+    @patch.object(tap2sna, 'make_z80', mock_make_z80)
+    def test_default_option_values(self):
+        self.run_tap2sna('in.tap out.z80')
+        options = make_z80_args[1]
+        self.assertIsNone(options.output_dir)
+        self.assertFalse(options.force)
+        self.assertIsNone(options.stack)
+        self.assertEqual([], options.ram_ops)
+        self.assertEqual([], options.reg)
+        self.assertIsNone(options.start)
+        self.assertEqual([], options.state)
+        self.assertEqual(options.user_agent, '')
+
     def test_no_arguments(self):
         output, error = self.run_tap2sna(catch_exit=2)
         self.assertEqual(len(output), 0)
@@ -151,6 +164,20 @@ class Tap2SnaTest(SkoolKitTestCase):
         with open(z80file, 'rb') as f:
             z80_header = f.read(34)
         self.assertEqual(z80_header[32] + 256 * z80_header[33], start)
+
+    @patch.object(tap2sna, '_write_z80', mock_write_z80)
+    @patch.object(tap2sna, 'urlopen')
+    def test_option_u(self, mock_urlopen):
+        mock_urlopen.return_value = BytesIO(bytes(create_tap_data_block([1])))
+        url = 'http://example.com/test.tap'
+        for option, user_agent in (('-u', 'Wget/1.18'), ('--user-agent', 'SkoolKit/6.3')):
+            output, error = self.run_tap2sna('{} {} --ram load=1,23296 {} test.z80'.format(option, user_agent, url))
+            self.assertEqual(output[0], 'Downloading {}'.format(url))
+            self.assertEqual(error, '')
+            request = mock_urlopen.call_args[0][0]
+            self.assertEqual({'User-agent': user_agent}, request.headers)
+            self.assertEqual(snapshot[23296], 1)
+            mock_urlopen.return_value.seek(0)
 
     def test_option_V(self):
         for option in ('-V', '--version'):

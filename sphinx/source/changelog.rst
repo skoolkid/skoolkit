@@ -10,6 +10,8 @@ Changelog
 * Added the :ref:`remote` directive (for creating a remote entry)
 * Added the ``--poke`` option to :ref:`bin2sna.py` (for performing POKE
   operations on the snapshot)
+* Added the ``--user-agent`` option to :ref:`tap2sna.py` (for setting the
+  User-Agent header used in an HTTP request)
 * Added support to the :ref:`Resources` section for specifying files using
   wildcard characters (``*``, ``?`` and ``[]``)
 * Added support for parsing block-level comments that are not left-padded by a

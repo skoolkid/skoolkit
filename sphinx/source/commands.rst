@@ -1002,6 +1002,8 @@ To list the options supported by `tap2sna.py`, run it with no arguments::
     --state name=value    Set a hardware state attribute. Do '--state help' for
                           more information. This option may be used multiple
                           times.
+    -u AGENT, --user-agent AGENT
+                          Set the User-Agent header.
     -V, --version         Show SkoolKit version number and exit.
 
 Note that support for TZX files is limited to block types 0x10 (standard speed
@@ -1050,6 +1052,8 @@ given on the command line.
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |
 +=========+===================================================================+
+| 6.3     | Added the ``--user-agent`` option                                 |
++---------+-------------------------------------------------------------------+
 | 6.2     | The ``--ram``, ``--reg``, ``--stack`` and ``--start`` options     |
 |         | accept hexadecimal integers prefixed by '0x'                      |
 +---------+-------------------------------------------------------------------+
