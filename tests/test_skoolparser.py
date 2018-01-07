@@ -2805,6 +2805,20 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertIsNotNone(parser.get_entry(40003))
         self.assertIsNone(parser.get_entry(40004))
 
+    def test_org_directive(self):
+        skool = '\n'.join((
+            '@start',
+            '@org=40000',
+            '; Routine',
+            'c40000 XOR A',
+            '@org',
+            ' 40001 RET'
+        ))
+        parser = self._get_parser(skool, asm_mode=1)
+        instructions = parser.get_entry(40000).instructions
+        self.assertEqual(instructions[0].org, '40000')
+        self.assertEqual(instructions[1].org, '40001')
+
     def test_replace_directive(self):
         skool = '\n'.join((
             '@replace=/#COPY/#CHR169/ This text is ignored',

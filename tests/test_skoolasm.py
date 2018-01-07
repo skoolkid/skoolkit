@@ -1183,6 +1183,24 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         asm = self._get_asm(skool)
         self.assertEqual(exp_asm, asm)
 
+    def test_org_with_default_address(self):
+        skool = '\n'.join((
+            '@start',
+            '@org',
+            'c32768 RET'
+        ))
+        asm = self._get_asm(skool)
+        self.assertEqual(asm[0], '  ORG 32768')
+
+    def test_org_with_default_address_in_hex(self):
+        skool = '\n'.join((
+            '@start',
+            '@org',
+            'c$A0F1 RET'
+        ))
+        asm = self._get_asm(skool)
+        self.assertEqual(asm[0], '  ORG $A0F1')
+
     def test_org_address_converted_to_decimal(self):
         skool = '\n'.join((
             '@start',

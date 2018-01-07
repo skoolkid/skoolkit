@@ -528,8 +528,8 @@ class SkoolParser:
                 elif directive.startswith('ignoreua'):
                     self.mode.ignoreua = True
                     self.ignores.append(len(self.comments))
-                elif directive.startswith('org='):
-                    self.mode.org = directive[4:].rstrip()
+                elif directive.startswith('org'):
+                    self.mode.org = directive.rstrip().partition('=')[2]
                 elif directive.startswith('writer='):
                     self.asm_writer_class = directive[7:].rstrip()
                 elif directive.startswith('set-'):
@@ -784,7 +784,8 @@ class Mode:
             instruction.warn = not self.nowarn
             instruction.ignoreua = self.ignoreua
             instruction.ignoremrcua = self.ignoremrcua
-            instruction.org = self.org
+            if self.org != '':
+                instruction.org = self.org
 
         self.reset()
 
@@ -889,7 +890,7 @@ class Instruction:
         self.referrers = []
         self.asm_label = None
         self.nolabel = False
-        self.org = None
+        self.org = addr_str
         # If this instruction has no address, it was inserted between
         # @rsub+begin and @rsub+end; in that case, mark it as a subbed
         # instruction already

@@ -1135,14 +1135,22 @@ class CtlWriterTest(SkoolKitTestCase):
             '@org=32768',
             '; Routine',
             'c32768 LD A,B',
-            '@org=32769',
-            ' 32769 RET'
+            '@org',
+            ' 32769 RET',
+            '@org',
+            '; Another routine',
+            'c32770 LD A,C',
+            '@org=32771',
+            ' 32771 RET'
         ))
         exp_ctl = [
             '@ 32768 org=32768',
             'c 32768 Routine',
-            '@ 32769 org=32769',
-            'i 32770'
+            '@ 32769 org',
+            '@ 32770 org',
+            'c 32770 Another routine',
+            '@ 32771 org=32771',
+            'i 32772'
         ]
         self._test_ctl(skool, exp_ctl)
 

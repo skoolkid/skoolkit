@@ -14,6 +14,8 @@ Changelog
   User-Agent header used in an HTTP request)
 * Added support to the :ref:`Resources` section for specifying files using
   wildcard characters (``*``, ``?`` and ``[]``)
+* The ``address`` parameter of the :ref:`org` directive is now optional and
+  defaults to the address of the next instruction
 * Added support for parsing block-level comments that are not left-padded by a
   space
 

@@ -707,9 +707,19 @@ The syntax is equivalent to that for the :ref:`bfixBlockDirectives`.
 ^^^^
 The ``@org`` directive inserts an ``ORG`` assembler directive. ::
 
-  @org=ADDRESS
+  @org[=address]
 
-* ``ADDRESS`` is the ``ORG`` address
+* ``address`` is the ``ORG`` address; if not specified, it defaults to the
+  address of the next instruction
+
+Note that the ``@org`` directive works only on the first instruction in an
+entry.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.3     | The ``address`` parameter is optional                             |
++---------+-------------------------------------------------------------------+
 
 .. _rem:
 

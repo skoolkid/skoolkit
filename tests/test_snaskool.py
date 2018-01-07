@@ -1519,7 +1519,7 @@ class SkoolWriterTest(SkoolKitTestCase):
         ctl = '\n'.join((
             '@ 00000 org=0',
             'c 00000 Routine at 0',
-            '@ 00001 org=1',
+            '@ 00001 org',
             'i 00002'
         ))
         exp_skool = [
@@ -1527,7 +1527,7 @@ class SkoolWriterTest(SkoolKitTestCase):
             '@org=0',
             '; Routine at 0',
             'c00000 XOR A         ;',
-            '@org=1',
+            '@org',
             ' 00001 RET           ;'
         ]
         snapshot = [175, 201]

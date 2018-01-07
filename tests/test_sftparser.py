@@ -1179,14 +1179,18 @@ class SftParserTest(SkoolKitTestCase):
         self._test_disassembly(sft, exp_skool, snapshot)
 
     def test_asm_directive_org(self):
-        snapshot = [201]
+        snapshot = [175, 201]
         sft = '\n'.join((
             '@org=0',
-            'cC00000,1'
+            'cC00000,1',
+            '@org',
+            ' C00001,1'
         ))
         exp_skool = [
             '@org=0',
-            'c00000 RET'
+            'c00000 XOR A',
+            '@org',
+            ' 00001 RET'
         ]
         self._test_disassembly(sft, exp_skool, snapshot)
 

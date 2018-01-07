@@ -1188,7 +1188,7 @@ class CtlParserTest(SkoolKitTestCase):
         ctl = '\n'.join((
             '@ 60000 org=60000',
             'c 60000 Routine at 60000',
-            '@ 60001 org=60001'
+            '@ 60001 org'
         ))
         blocks = self._get_ctl_parser(ctl).get_blocks()
 
@@ -1196,7 +1196,7 @@ class CtlParserTest(SkoolKitTestCase):
             60000: ['org=60000'],
         }
         exp_instruction_directives = {
-            60001: ['org=60001']
+            60001: ['org']
         }
         self._check_entry_asm_directives(exp_entry_directives, blocks)
         self._check_instruction_asm_directives(exp_instruction_directives, blocks)
