@@ -1473,6 +1473,60 @@ class SkoolWriterTest(SkoolKitTestCase):
         with self.assertRaisesRegex(SkoolKitError, re.escape("No closing ' }' on row/item: { this item has...")):
             writer.write_skool(0, False)
 
+    def test_defb_directives(self):
+        snapshot = [0] * 5
+        ctl = '\n'.join((
+            '@ 00000 defb=0:1,$02,%11',
+            '@ 00000 defb=3:"Hi" ; Hi',
+            'b 00000 Data defined by @defb directives',
+            'i 00005'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '@defb=0:1,$02,%11',
+            '@defb=3:"Hi" ; Hi',
+            '; Data defined by @defb directives',
+            'b00000 DEFB 1,2,3,72,105'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_defs_directives(self):
+        snapshot = [0] * 5
+        ctl = '\n'.join((
+            '@ 00000 defs=0:3,2',
+            '@ 00000 defs=3:2,"!" ; !!',
+            'b 00000 Data defined by @defs directives',
+            'i 00005'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '@defs=0:3,2',
+            '@defs=3:2,"!" ; !!',
+            '; Data defined by @defs directives',
+            'b00000 DEFB 2,2,2,33,33'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
+    def test_defw_directives(self):
+        snapshot = [0] * 6
+        ctl = '\n'.join((
+            '@ 00000 defw=0:257,513',
+            '@ 00000 defw=4:$8001 ; 32769',
+            'b 00000 Data defined by @defw directives',
+            'i 00006'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '@defw=0:257,513',
+            '@defw=4:$8001 ; 32769',
+            '; Data defined by @defw directives',
+            'b00000 DEFB 1,1,1,2,1,128'
+        ]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_end_directives(self):
         ctl = '\n'.join((
             'c 00000 Routine at 0',

@@ -1,4 +1,4 @@
-# Copyright 2009-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -584,6 +584,7 @@ class Entry:
 class Disassembly:
     def __init__(self, snapshot, ctl_parser, config=None, final=False, defb_size=8, defb_mod=1,
                  zfill=False, defm_width=66, asm_hex=False, asm_lower=False):
+        ctl_parser.apply_asm_data_directives(snapshot)
         self.disassembler = Disassembler(snapshot, defb_size, defb_mod, zfill, defm_width, asm_hex, asm_lower)
         self.ctl_parser = ctl_parser
         if asm_hex:

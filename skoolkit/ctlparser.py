@@ -1,4 +1,4 @@
-# Copyright 2009-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2009-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -19,6 +19,7 @@ import bisect
 from skoolkit import warn, get_int_param, open_file
 from skoolkit.skoolctl import (extract_entry_asm_directives, AD_IGNOREUA,
                                TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
+from skoolkit.skoolparser import parse_asm_data_directive
 from skoolkit.textutils import partition_unquoted, split_unquoted
 
 COMMENT_TYPES = (TITLE, DESCRIPTION, REGISTERS, MID_BLOCK, INSTRUCTION, END)
@@ -321,6 +322,12 @@ class CtlParser:
                         sub_block.ignoreua_directives[addr] = tuple(dirs.difference(ENTRY_COMMENT_TYPES))
 
         return blocks
+
+    def apply_asm_data_directives(self, snapshot):
+        for directives in self._asm_directives.values():
+            for directive in directives:
+                if directive.startswith(('defb=', 'defs=','defw=')):
+                    parse_asm_data_directive(snapshot, directive)
 
 class Block:
     def __init__(self, ctl, start, top=True):
