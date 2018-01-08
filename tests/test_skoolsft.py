@@ -16,6 +16,9 @@ r24576 other
  24579
 
 @start
+@defb=23296:1,2,3 ; One, two, three
+@defs=23299:4,5
+@defw=23303:12345
 @equ=ATTRS=22528
 @replace=/#copy/#CHR169
 @set-bullet=.
@@ -154,6 +157,9 @@ r24576 other
  24579
 
 @start
+@defb=23296:1,2,3 ; One, two, three
+@defs=23299:4,5
+@defw=23303:12345
 @equ=ATTRS=22528
 @replace=/#copy/#CHR169
 @set-bullet=.
