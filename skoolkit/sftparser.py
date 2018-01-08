@@ -1,4 +1,4 @@
-# Copyright 2011-2015, 2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2015, 2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -17,7 +17,7 @@
 from skoolkit import SkoolKitError, write_line, get_int_param, parse_int, get_address_format, open_file
 from skoolkit.ctlparser import parse_params
 from skoolkit.disassembler import Disassembler
-from skoolkit.skoolparser import set_bytes, parse_asm_block_directive, DIRECTIVES
+from skoolkit.skoolparser import set_bytes, parse_asm_block_directive, parse_asm_data_directive, DIRECTIVES
 from skoolkit.skoolsft import VerbatimLine, VALID_CTLS, VERBATIM_BLOCKS
 from skoolkit.textutils import find_unquoted, split_unquoted
 
@@ -103,6 +103,8 @@ class SftParser:
                 if i != '-':
                     self.disassemble = False
                     break
+        elif directive.startswith(('defb=', 'defs=', 'defw=')):
+            parse_asm_data_directive(self.snapshot, directive)
 
     def _set_bytes(self, line):
         address = parse_int(line[1:6])

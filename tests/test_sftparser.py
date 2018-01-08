@@ -288,6 +288,48 @@ class SftParserTest(SkoolKitTestCase):
         exp_data = [5, 97, 44, 98, 6, 97, 59, 98, 111, 111, 255, 255]
         self.assertEqual(exp_data, snapshot[0:end])
 
+    def test_defb_directives(self):
+        snapshot = [0] * 5
+        sft = '\n'.join((
+            '@defb=0:1,$02,%11',
+            '@defb=3:"Hi" ; Hi',
+            'bB00000,5'
+        ))
+        exp_skool = [
+            '@defb=0:1,$02,%11',
+            '@defb=3:"Hi" ; Hi',
+            'b00000 DEFB 1,2,3,72,105'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_defs_directives(self):
+        snapshot = [0] * 5
+        sft = '\n'.join((
+            '@defs=0:3,2',
+            '@defs=3:2,"!" ; !!',
+            'bB00000,5'
+        ))
+        exp_skool = [
+            '@defs=0:3,2',
+            '@defs=3:2,"!" ; !!',
+            'b00000 DEFB 2,2,2,33,33'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
+    def test_defw_directives(self):
+        snapshot = [0] * 6
+        sft = '\n'.join((
+            '@defw=0:257,513',
+            '@defw=4:$8001 ; 32769',
+            'bB00000,6'
+        ))
+        exp_skool = [
+            '@defw=0:257,513',
+            '@defw=4:$8001 ; 32769',
+            'b00000 DEFB 1,1,1,2,1,128'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
     def test_invalid_line(self):
         for line in (
             "b",
