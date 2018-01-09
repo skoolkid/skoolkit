@@ -1587,6 +1587,25 @@ class SkoolWriterTest(SkoolKitTestCase):
         snapshot = [175, 201]
         self._test_write_skool(snapshot, ctl, exp_skool)
 
+    def test_remote_directives(self):
+        ctl = '\n'.join((
+            '@ 00000 remote=main:24576',
+            'c 00000 Routine at 0',
+            '@ 00001 remote=load:32768',
+            'i 00002'
+        ))
+        exp_skool = [
+            '@start',
+            '@org=0',
+            '@remote=main:24576',
+            '; Routine at 0',
+            'c00000 XOR A         ;',
+            '@remote=load:32768',
+            ' 00001 RET           ;'
+        ]
+        snapshot = [175, 201]
+        self._test_write_skool(snapshot, ctl, exp_skool)
+
     def test_replace_directives(self):
         ctl = '\n'.join((
             '@ 00000 replace=/foo/bar',
