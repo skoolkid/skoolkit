@@ -1248,6 +1248,18 @@ class SftParserTest(SkoolKitTestCase):
         ]
         self._test_disassembly(sft, exp_skool, snapshot)
 
+    def test_asm_directive_remote(self):
+        snapshot = [201]
+        sft = '\n'.join((
+            '@remote=save:64000',
+            'cC00000,1'
+        ))
+        exp_skool = [
+            '@remote=save:64000',
+            'c00000 RET'
+        ]
+        self._test_disassembly(sft, exp_skool, snapshot)
+
     def test_asm_directive_replace(self):
         snapshot = [127, 32, 49, 57, 56, 52]
         sft = '\n'.join((
