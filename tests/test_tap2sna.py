@@ -1,5 +1,6 @@
 import os
 import unittest
+import urllib
 from zipfile import ZipFile
 from io import BytesIO
 from unittest.mock import patch, Mock
@@ -742,6 +743,11 @@ class Tap2SnaTest(SkoolKitTestCase):
         self.assertEqual(output[0], 'Downloading {}'.format(url))
         self.assertEqual(error, '')
         self.assertEqual(data, snapshot[start:start + len(data)])
+
+    @patch.object(tap2sna, 'urlopen', Mock(side_effect=urllib.error.HTTPError('', 403, 'Forbidden', None, None)))
+    def test_http_error_on_remote_download(self):
+        with self.assertRaisesRegex(SkoolKitError, '^Error while getting snapshot test.z80: HTTP Error 403: Forbidden$'):
+            self.run_tap2sna('http://example.com/test.zip test.z80')
 
     def test_no_clobber(self):
         block = create_tap_data_block([0])

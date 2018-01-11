@@ -425,6 +425,6 @@ def main(args):
         try:
             make_z80(url, namespace, z80)
         except Exception as e:
-            raise SkoolKitError("Error while getting snapshot {0}: {1}".format(os.path.basename(z80), e.args[0]))
+            raise SkoolKitError("Error while getting snapshot {}: {}".format(os.path.basename(z80), e.args[0] if e.args else e))
     else:
         write_line('{0}: file already exists; use -f to overwrite'.format(z80))
