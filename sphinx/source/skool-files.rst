@@ -259,6 +259,10 @@ macro would be blank. The reason for this is that by default, the skool file
 parser does not convert assembly language instructions into byte values.
 However, this behaviour can be changed by using the :ref:`assemble` directive.
 
+.. note::
+   Data definition entries are deprecated since version 6.3. Use the
+   :ref:`defb`, :ref:`defs` and :ref:`defw` directives instead.
+
 .. _rEntry:
 
 Remote entries

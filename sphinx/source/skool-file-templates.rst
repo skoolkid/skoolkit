@@ -133,6 +133,10 @@ that its contents are set to 0 so that it will disassemble to ``DEFB 0``
 Note that in order to take effect, a ``d`` block must appear before the block
 that it overrides.
 
+.. note::
+   Data definition entries are deprecated since version 6.3. Use the
+   :ref:`defb`, :ref:`defs` and :ref:`defw` directives instead.
+
 Revision history
 ----------------
 +---------+-------------------------------------------------------------------+

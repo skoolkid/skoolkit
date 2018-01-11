@@ -280,8 +280,8 @@ address. ::
   @defb=address:value1[,value2...]
 
 * ``address`` is the address
-* ``value1``, ``value2`` etc. are the byte values (as might appear in a DEFB
-  statement)
+* ``value1``, ``value2`` etc. are the byte values (as might appear in a
+  ``DEFB`` statement)
 
 The sequence of comma-separated values may be followed by a semicolon (``;``)
 and arbitrary text, which will be ignored.
@@ -292,6 +292,11 @@ For example::
 
 This will insert the value 5 followed by the ASCII codes of the characters in
 "Hello" into the memory snapshot at address 30000.
+
+``@defb`` directives are processed not only when :ref:`skool2asm.py` or
+:ref:`skool2html.py` is run, but also when :ref:`sna2skool.py` is run on a
+control file or skool file template; thus the ``@defb`` directive can be used
+to override the contents of the snapshot that is read by `sna2skool.py`.
 
 +---------+---------+
 | Version | Changes |
@@ -322,6 +327,11 @@ For example::
 This will insert the value 255 into the memory snapshot at addresses
 30000-30004.
 
+``@defs`` directives are processed not only when :ref:`skool2asm.py` or
+:ref:`skool2html.py` is run, but also when :ref:`sna2skool.py` is run on a
+control file or skool file template; thus the ``@defs`` directive can be used
+to override the contents of the snapshot that is read by `sna2skool.py`.
+
 +---------+---------+
 | Version | Changes |
 +=========+=========+
@@ -338,8 +348,8 @@ address. ::
   @defw=address:value1[,value2...]
 
 * ``address`` is the address
-* ``value1``, ``value2`` etc. are the word values (as might appear in a DEFW
-  statement)
+* ``value1``, ``value2`` etc. are the word values (as might appear in a
+  ``DEFW`` statement)
 
 The sequence of comma-separated values may be followed by a semicolon (``;``)
 and arbitrary text, which will be ignored.
@@ -350,6 +360,11 @@ For example::
 
 This will insert the word values 32768 and 32775 into the memory snapshot at
 addresses 30000 and 30002.
+
+``@defw`` directives are processed not only when :ref:`skool2asm.py` or
+:ref:`skool2html.py` is run, but also when :ref:`sna2skool.py` is run on a
+control file or skool file template; thus the ``@defw`` directive can be used
+to override the contents of the snapshot that is read by `sna2skool.py`.
 
 +---------+---------+
 | Version | Changes |

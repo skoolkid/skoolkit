@@ -3,10 +3,8 @@ Changelog
 
 6.3b1
 -----
-* Added the :ref:`defb` and :ref:`defs` directives (for inserting byte values
-  into the memory snapshot)
-* Added the :ref:`defw` directive (for inserting word values into the memory
-  snapshot)
+* Added the :ref:`defb`, :ref:`defs` and :ref:`defw` directives (for inserting
+  byte values and word values into the memory snapshot)
 * Added the :ref:`remote` directive (for creating a remote entry)
 * Added the ``--poke`` option to :ref:`bin2sna.py` (for performing POKE
   operations on the snapshot)
