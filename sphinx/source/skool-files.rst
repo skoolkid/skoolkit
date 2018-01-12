@@ -300,6 +300,10 @@ not defined)::
 
   #R29012@main#29015(29015)
 
+.. note::
+   Defining a remote entry as described above is deprecated since version 6.3.
+   Use the :ref:`remote` directive instead.
+
 Revision history
 ----------------
 +---------+-----------------------------------------------------------------+
