@@ -3,9 +3,8 @@ import sys
 import argparse
 
 DESCRIPTION = """
-Convert a ref file from SkoolKit 6 format to SkoolKit 7 format, or convert the
-data definition entries and remote entries in a skool file or skool file
-template to a sequence of @defb, @defs, @defw and @remote directives.
+Convert a ref file, skool file or skool file template from SkoolKit 6 format to
+SkoolKit 7 format and print it on standard output.
 """
 
 def _parse_ref(reffile_f):
@@ -81,38 +80,55 @@ def convert_ref(reffile_f):
         print('[{}]'.format(section_name))
         print('\n'.join(lines).rstrip() + '\n')
 
-def _print_remote(lines):
+def _add_remote(directives, lines):
     if lines:
-        print('@remote={}:{}'.format(lines[0][1], ','.join([r[0] for r in lines])))
+        directives.append('@remote={}:{}'.format(lines[0][1], ','.join([r[0] for r in lines])))
         lines[:] = []
 
 def convert_skool(skoolfile_f):
+    directives = []
     remotes = []
+    blocks = []
+    lines = []
+    entry_ctl = ''
     for line in skoolfile_f:
         if line.startswith((';', '@')):
+            lines.append(line)
             continue
         s_line = line.strip()
         if not s_line:
-            entry_ctl = 'x'
-            _print_remote(remotes)
+            if entry_ctl not in ('d', 'r'):
+                blocks.append((entry_ctl, lines))
+                blocks.append(('', [line]))
+            lines = []
+            entry_ctl = ''
+            _add_remote(directives, remotes)
             continue
         if s_line[0] == ';':
+            lines.append(line)
             continue
+        lines.append(line)
         ctl = line[0]
         addr = line[1:6]
         operation = line[6:].partition(';')[0].strip()
         suffix = line[6:].strip()
-        if ctl in 'dr':
-            entry_ctl = ctl
-        elif ctl != ' ':
-            entry_ctl = 'x'
+        if ctl in 'bcdgirstuw':
+            entry_ctl = entry_ctl or ctl
         if entry_ctl == 'd':
             op_l = operation[:4].lower()
             if op_l in ('defb', 'defs', 'defw'):
-                print('@{}={}:{}'.format(op_l, addr, suffix[4:].lstrip()))
+                directives.append('@{}={}:{}'.format(op_l, addr, suffix[4:].lstrip()))
         elif entry_ctl == 'r':
             remotes.append((addr, operation))
-    _print_remote(remotes)
+    blocks.append((entry_ctl, lines))
+    _add_remote(directives, remotes)
+
+    for ctl, lines in blocks:
+        if ctl and directives:
+            while directives:
+                print(directives.pop(0))
+        for line in lines:
+            sys.stdout.write(line)
 
 def main(args):
     parser = argparse.ArgumentParser(
