@@ -2,9 +2,9 @@ Source: skoolkit
 Maintainer: Richard Dymond <rjdymond@gmail.com>
 Section: python
 Priority: optional
-Build-Depends: python3 (>= 3.3), debhelper (>= 7.4.3)
+Build-Depends: python3 (>= 3.4), debhelper (>= 7.4.3)
 Standards-Version: 3.9.6
-X-Python3-Version: >= 3.3
+X-Python3-Version: >= 3.4
 
 Package: skoolkit
 Architecture: all
