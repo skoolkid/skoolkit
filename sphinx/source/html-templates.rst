@@ -273,6 +273,7 @@ identifiers):
 * ``entry`` - a dictionary of parameters corresponding to the memory map entry
   that contains the instruction (see :ref:`t_Asm`)
 * ``label`` - the instruction's ASM label
+* ``location`` - the address of the instruction as a decimal number
 * ``operation`` - the assembly language operation (e.g. 'LD A,B'), with operand
   hyperlinked if appropriate
 * ``t_anchor`` - replaced by a copy of the :ref:`t_anchor` subtemplate
@@ -280,6 +281,9 @@ identifiers):
 To see the default ``asm_instruction`` template, run the following command::
 
   $ skool2html.py -r Template:asm_instruction
+
+.. versionchanged:: 6.3
+   Added the ``location`` identifier.
 
 .. _t_asm_register:
 

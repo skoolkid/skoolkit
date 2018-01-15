@@ -7488,6 +7488,29 @@ class HtmlTemplateTest(HtmlWriterOutputTestCase):
         }
         self._assert_files_equal('{}.html'.format(page_id), subs)
 
+    def test_custom_asm_instruction_template(self):
+        skool = '\n'.join((
+            '; Routine at 32768',
+            '@label=START',
+            'c32768 XOR A  ; Clear A.'
+        ))
+        ref = '\n'.join((
+            '[Template:Asm]',
+            '{entry[title]}',
+            '{disassembly}',
+            '',
+            '[Template:asm_instruction]',
+            '{label} {address} {location:04X}: {operation} ; {comment}'
+        ))
+        exp_content = """
+            Routine at 32768
+            START 32768 8000: XOR A ; Clear A.
+        """
+
+        writer = self._get_writer(ref=ref, skool=skool, asm_labels=True)
+        writer.write_asm_entries()
+        self._assert_content_equal(exp_content, 'asm/32768.html')
+
     def test_custom_asm_c_page_with_custom_subtemplates(self):
         skool = '\n'.join((
             '; Routine at 32768',

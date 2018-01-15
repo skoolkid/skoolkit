@@ -1,4 +1,4 @@
-# Copyright 2008-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2008-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -789,6 +789,7 @@ class HtmlWriter:
                 comment_text = ''
                 annotated = 0
             instruction_subs['address'] = instruction.addr_str
+            instruction_subs['location'] = instruction.address
             instruction_subs['called'] = 1 + int(instruction.ctl in 'c*')
             instruction_subs['label'] = instruction.asm_label or ''
             instruction_subs['operation'] = operation
