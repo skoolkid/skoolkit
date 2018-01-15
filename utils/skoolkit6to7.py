@@ -93,6 +93,8 @@ def convert_skool(skoolfile_f):
     entry_ctl = ''
     for line in skoolfile_f:
         if line.startswith((';', '@')):
+            if line.startswith('@nolabel'):
+                line = '@label=\n'
             lines.append(line)
             continue
         s_line = line.strip()
@@ -120,7 +122,9 @@ def convert_skool(skoolfile_f):
                 directives.append('@{}={}:{}'.format(op_l, addr, suffix[4:].lstrip()))
         elif entry_ctl == 'r':
             remotes.append((addr, operation))
-    blocks.append((entry_ctl, lines))
+    if entry_ctl not in ('d', 'r'):
+        blocks.append((entry_ctl, lines))
+    blocks.append(('b', []))
     _add_remote(directives, remotes)
 
     for ctl, lines in blocks:

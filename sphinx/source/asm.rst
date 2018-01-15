@@ -593,6 +593,16 @@ For example::
 
 This sets the label for the routine at 24576 to ``ENDGAME``.
 
+If ``LABEL`` is blank (``@label=``), the next instruction is prevented from
+having a label automatically generated.
+
++---------+-------------------------------------------------------------------+
+| Version | Changes                                                           |
++=========+===================================================================+
+| 6.3     | ``LABEL`` may be blank (to prevent the next instruction from      |
+|         | having a label automatically generated)                           |
++---------+-------------------------------------------------------------------+
+
 .. _nolabel:
 
 @nolabel
@@ -645,6 +655,10 @@ And the output when not in ``@bfix`` mode will be::
     LD (HL),A
     INC L
     JR NZ,TOGGLE_0
+
+.. note::
+   The ``@nolabel`` directive is deprecated since version 6.3. Use a blank
+   :ref:`label` directive (``@label=``) instead.
 
 +---------+-------------------------------------------------------------------+
 | Version | Changes                                                           |

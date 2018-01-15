@@ -756,7 +756,7 @@ class Mode:
 
     def apply_asm_attributes(self, instruction):
         instruction.keep = self.keep
-        instruction.nolabel = self.nolabel
+        instruction.nolabel = self.nolabel or self.label == ''
 
         if self.asm_labels and self.label:
             if self.label in self.labels:

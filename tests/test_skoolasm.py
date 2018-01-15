@@ -1501,6 +1501,20 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
         self.assertEqual(asm[2], '  LD A,B')
         self.assertEqual(asm[3], '  RET')
 
+    def test_blank_label_directive(self):
+        skool = '\n'.join((
+            '@start',
+            '; Start',
+            '@label=START',
+            'c32768 LD A,B',
+            '@label=',
+            '*32769 RET',
+        ))
+        asm = self._get_asm(skool)
+        self.assertEqual(asm[1], 'START:')
+        self.assertEqual(asm[2], '  LD A,B')
+        self.assertEqual(asm[3], '  RET')
+
     def test_comment_for_wide_instruction(self):
         skool = '\n'.join((
             '@start',
