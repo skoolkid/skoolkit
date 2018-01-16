@@ -18,7 +18,7 @@ import re
 
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
 from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction, parse_address_comments,
-                                  join_comments, parse_asm_block_directive, DIRECTIVES)
+                                  join_comments, parse_asm_block_directive, read_skool, DIRECTIVES)
 from skoolkit.z80 import get_size, parse_string, parse_word, split_operation
 
 ASM_DIRECTIVES = 'a'
@@ -442,79 +442,72 @@ class SkoolParser:
             self._parse_skool(f, min_address, max_address)
 
     def _parse_skool(self, skoolfile, min_address, max_address):
-        map_entry = None
-        instruction = None
-        comments = []
-        ignores = []
         address_comments = []
-        for line in skoolfile:
-            if line.startswith(';'):
-                if self.mode.include:
-                    comments.append(line[1:])
-                instruction = None
-                address_comments.append((None, None))
-                continue
+        for block in read_skool(skoolfile):
+            map_entry = None
+            instruction = None
+            comments = []
+            ignores = []
+            address_comments.append((None, None))
+            for line in block:
+                if line.startswith(';'):
+                    if self.mode.include:
+                        comments.append(line[1:])
+                    instruction = None
+                    address_comments.append((None, None))
+                    continue
 
-            if line.startswith('@'):
-                self._parse_asm_directive(line[1:].rstrip(), ignores, len(comments))
-                continue
+                if line.startswith('@'):
+                    self._parse_asm_directive(line[1:], ignores, len(comments))
+                    continue
 
-            if not self.mode.include:
-                continue
+                if not self.mode.include:
+                    continue
 
-            s_line = line.strip()
-            if not s_line:
-                instruction = None
-                address_comments.append((None, None))
-                if comments and map_entry:
-                    map_entry.end_comment = join_comments(comments, True)
-                comments[:] = []
-                map_entry = None
-                continue
+                s_line = line.lstrip()
+                if not s_line:
+                    continue
 
-            if s_line.startswith(';'):
-                if map_entry and instruction:
-                    # This is an instruction comment continuation line
-                    address_comments[-1][1] = '{} {}'.format(address_comments[-1][1], s_line[1:].lstrip())
-                continue # pragma: no cover
+                if s_line.startswith(';'):
+                    if map_entry and instruction:
+                        # This is an instruction comment continuation line
+                        address_comments[-1][1] = '{} {}'.format(address_comments[-1][1], s_line[1:].lstrip())
+                    continue # pragma: no cover
 
-            # This line contains an instruction
-            instruction, address_comment = self._parse_instruction(line)
-            address = instruction.address
-            if address < min_address:
-                continue
-            if address >= max_address:
-                map_entry = None
-                break
-            ctl = instruction.ctl
-            if ctl in DIRECTIVES:
-                start_comment, desc, details, registers = parse_comment_block(comments, ignores, self.mode)
-                map_entry = Entry(ctl, desc, details, registers, self.mode.entry_ignoreua)
-                instruction.mid_block_comment = start_comment
-                map_entry.asm_directives = extract_entry_asm_directives(instruction.asm_directives)
-                self.memory_map.append(map_entry)
-                comments[:] = []
-                instruction.ignoremrcua = self.mode.ignoremrcua
-            elif ctl in 'dr':
-                # This is a data definition entry or a remote entry
-                map_entry = None
-
-            if map_entry:
-                address_comments.append([instruction, address_comment])
-                map_entry.add_instruction(instruction)
-                if comments:
-                    instruction.mid_block_comment = join_comments(comments, True)
+                # This line contains an instruction
+                instruction, address_comment = self._parse_instruction(line)
+                address = instruction.address
+                if address < min_address:
+                    continue
+                if address >= max_address:
+                    map_entry = None
+                    break
+                ctl = instruction.ctl
+                if ctl in DIRECTIVES:
+                    start_comment, desc, details, registers = parse_comment_block(comments, ignores, self.mode)
+                    map_entry = Entry(ctl, desc, details, registers, self.mode.entry_ignoreua)
+                    instruction.mid_block_comment = start_comment
+                    map_entry.asm_directives = extract_entry_asm_directives(instruction.asm_directives)
+                    self.memory_map.append(map_entry)
                     comments[:] = []
-                    instruction.ignoremrcua = 0 in ignores
-                    instruction.ignoreua = any(ignores)
-                elif ignores:
-                    instruction.ignoreua = True
+                    instruction.ignoremrcua = self.mode.ignoremrcua
 
-            ignores[:] = []
+                if map_entry:
+                    address_comments.append([instruction, address_comment])
+                    map_entry.add_instruction(instruction)
+                    if comments:
+                        instruction.mid_block_comment = join_comments(comments, True)
+                        comments[:] = []
+                        instruction.ignoremrcua = 0 in ignores
+                        instruction.ignoreua = any(ignores)
+                    elif ignores:
+                        instruction.ignoreua = True
 
-        if comments and map_entry:
-            map_entry.end_comment = join_comments(comments, True)
-            map_entry.ignoreua[END] = len(ignores) > 0
+                ignores[:] = []
+
+            if comments and map_entry:
+                map_entry.end_comment = join_comments(comments, True)
+                map_entry.ignoreua[END] = len(ignores) > 0
 
         last_entry = None
         last_instruction = None
