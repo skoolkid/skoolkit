@@ -206,6 +206,21 @@ def parse_address_comments(comments):
             instruction.set_comment(rowspan, address_comment)
         i += 1
 
+def read_skool(skoolfile):
+    block = []
+    lines = []
+    for line in skoolfile:
+        s_line = line.rstrip()
+        lines.append(s_line)
+        if line[0] in 'bcdgirstuw':
+            yield block
+            block = []
+        elif not s_line:
+            block.extend(lines)
+            lines = []
+    block.extend(lines)
+    yield block
+
 class SkoolParser:
     """Parses a skool file.
 
@@ -312,88 +327,84 @@ class SkoolParser:
         return self.mode.convert_address_operand(operand)
 
     def _parse_skool(self, skoolfile, min_address, max_address):
-        map_entry = None
-        instruction = None
         address_comments = []
-        for line in skoolfile:
-            if line.startswith(';'):
-                if self.mode.started and self.mode.include:
-                    self.comments.append(line[1:])
-                    self.mode.ignoreua = False
-                instruction = None
-                address_comments.append((None, None))
-                continue
-
-            if line.startswith('@'):
-                self._parse_asm_directive(line[1:].rstrip())
-                continue
-
-            if not self.mode.include:
-                continue
-
-            s_line = line.strip()
-            if not s_line:
-                instruction = None
-                address_comments.append((None, None))
-                if self.comments:
-                    if map_entry:
-                        self._add_end_comment(map_entry)
-                    else:
-                        self.header += self.comments
-                self.comments[:] = []
-                self.ignores[:] = []
-                map_entry = None
-                continue
-
-            if s_line[0] == ';' and map_entry and instruction:
-                # This is an instruction comment continuation line
-                address_comments[-1][1] = '{0} {1}'.format(address_comments[-1][1], s_line[1:].lstrip())
-                continue
-
-            # This line contains an instruction
-            instruction, address_comment = self._parse_instruction(line)
-            address = instruction.address
-            addr_str = instruction.addr_str
-            ctl = instruction.ctl
-            if ctl in DIRECTIVES:
-                if address is None:
-                    raise SkoolParsingError("Invalid address: '{}'".format(addr_str))
-                start_comment, desc, details, registers = parse_comment_block(self.comments, self.ignores, self.mode)
-                map_entry = SkoolEntry(address, addr_str, ctl, desc, details, registers)
-                instruction.mid_block_comment = start_comment
-                map_entry.ignoreua.update(self.mode.entry_ignoreua)
-                self.mode.reset_entry_ignoreua()
-                self._entries[address] = map_entry
-                self.memory_map.append(map_entry)
-                self.comments[:] = []
-                self.base_address = min((address, self.base_address))
-            elif ctl == 'd':
-                # This is a data definition entry
-                map_entry = None
-            elif ctl == 'r':
-                # This is a remote entry
-                map_entry = RemoteEntry(instruction.operation, address)
-
-            if map_entry:
-                address_comments.append([instruction, address_comment])
-                if address is not None:
-                    self._instructions.setdefault(address, []).append(instruction)
-                map_entry.add_instruction(instruction)
-                if self.comments:
-                    instruction.mid_block_comment = join_comments(self.comments, split=True)
-                    self.comments[:] = []
-                    self.mode.ignoremrcua = 0 in self.ignores
-
-            self.mode.apply_asm_attributes(instruction)
+        for block in read_skool(skoolfile):
+            instruction = None
+            map_entry = None
+            address_comments.append((None, None))
             self.ignores[:] = []
+            for line in block:
+                if line.startswith(';'):
+                    if self.mode.started and self.mode.include:
+                        self.comments.append(line[1:])
+                        self.mode.ignoreua = False
+                    instruction = None
+                    address_comments.append((None, None))
+                    continue
 
-            # Set bytes in the snapshot if the instruction is DEF{B,M,S,W}
-            if address is not None:
-                operation = instruction.operation
-                if self.mode.assemble or operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW ')):
-                    set_bytes(self.snapshot, address, operation)
-        if self.comments and map_entry:
-            self._add_end_comment(map_entry)
+                if line.startswith('@'):
+                    self._parse_asm_directive(line[1:])
+                    continue
+
+                if not self.mode.include:
+                    continue
+
+                s_line = line.lstrip()
+                if not s_line:
+                    continue
+
+                if s_line[0] == ';' and map_entry and instruction:
+                    # This is an instruction comment continuation line
+                    address_comments[-1][1] = '{0} {1}'.format(address_comments[-1][1], s_line[1:].lstrip())
+                    continue
+
+                # This line contains an instruction
+                instruction, address_comment = self._parse_instruction(line)
+                address = instruction.address
+                addr_str = instruction.addr_str
+                ctl = instruction.ctl
+                if ctl in DIRECTIVES:
+                    if address is None:
+                        raise SkoolParsingError("Invalid address: '{}'".format(addr_str))
+                    start_comment, desc, details, registers = parse_comment_block(self.comments, self.ignores, self.mode)
+                    map_entry = SkoolEntry(address, addr_str, ctl, desc, details, registers)
+                    instruction.mid_block_comment = start_comment
+                    map_entry.ignoreua.update(self.mode.entry_ignoreua)
+                    self.mode.reset_entry_ignoreua()
+                    self._entries[address] = map_entry
+                    self.memory_map.append(map_entry)
+                    self.comments[:] = []
+                    self.base_address = min((address, self.base_address))
+                elif ctl == 'r':
+                    # This is a remote entry
+                    map_entry = RemoteEntry(instruction.operation, address)
+
+                if map_entry:
+                    address_comments.append([instruction, address_comment])
+                    if address is not None:
+                        self._instructions.setdefault(address, []).append(instruction)
+                    map_entry.add_instruction(instruction)
+                    if self.comments:
+                        instruction.mid_block_comment = join_comments(self.comments, split=True)
+                        self.comments[:] = []
+                        self.mode.ignoremrcua = 0 in self.ignores
+
+                self.mode.apply_asm_attributes(instruction)
+                self.ignores[:] = []
+
+                # Set bytes in the snapshot if the instruction is DEF{B,M,S,W}
+                if address is not None:
+                    operation = instruction.operation
+                    if self.mode.assemble or operation.upper().startswith(('DEFB ', 'DEFM ', 'DEFS ', 'DEFW ')):
+                        set_bytes(self.snapshot, address, operation)
+
+            if self.comments:
+                if map_entry:
+                    map_entry.end_comment = join_comments(self.comments, split=True)
+                    map_entry.ignoreua['e'] = len(self.ignores) > 0
+                else:
+                    self.header += self.comments
+                self.comments[:] = []
 
         if min_address > 0 or max_address < 65536:
             self.memory_map = [e for e in self.memory_map if min_address <= e.address < max_address]
@@ -449,10 +460,6 @@ class SkoolParser:
             except Exception as e:
                 raise SkoolParsingError("Failed to replace '{}' with '{}': {}".format(pattern, rep, e.args[0]))
         return text
-
-    def _add_end_comment(self, map_entry):
-        map_entry.end_comment = join_comments(self.comments, split=True)
-        map_entry.ignoreua['e'] = len(self.ignores) > 0
 
     def _parse_asm_directive(self, directive):
         if self.mode.started:
