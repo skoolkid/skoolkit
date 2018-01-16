@@ -1,4 +1,4 @@
-# Copyright 2011-2015, 2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2011-2015, 2017, 2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -17,7 +17,7 @@
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
 from skoolkit.skoolctl import (get_instruction_ctl, get_lengths, get_operand_bases,
                                get_defb_length, get_defs_length, get_defw_length)
-from skoolkit.skoolparser import parse_asm_block_directive, DIRECTIVES
+from skoolkit.skoolparser import parse_asm_block_directive, read_skool, DIRECTIVES
 from skoolkit.textutils import find_unquoted
 from skoolkit.z80 import get_size
 
@@ -111,67 +111,59 @@ class SftWriter:
         self.address_fmt = get_address_format(write_hex, write_hex < 0)
 
     def _parse_skool(self, min_address, max_address):
-        start_index = -1
-        lines = []
-        ctl_lines = []
-        entry_ctl = None
+        sft = []
         f = open_file(self.skoolfile)
-        for line in f:
-            if line.startswith(';'):
-                lines.append(VerbatimLine(line))
-                continue
-            if line.startswith('@'):
-                lines.append(VerbatimLine(line))
-                self._parse_asm_directive(line[1:].rstrip())
-                continue
-            if self.verbatim:
-                # This line is inside a '+' block, so include it as is
-                lines.append(VerbatimLine(line))
-                continue
-            s_line = line.strip()
-            if not s_line:
-                # This line is blank
-                lines.append(VerbatimLine(line))
-                entry_ctl = None
-                continue
-            # Check whether we're in a block that should be preserved verbatim
-            if entry_ctl is None and line.startswith(VERBATIM_BLOCKS):
-                entry_ctl = line[0]
-            if entry_ctl in VERBATIM_BLOCKS:
-                lines.append(VerbatimLine(line))
-            elif s_line.startswith(';'):
-                # This line is a continuation of an instruction comment
-                comment_index = line.index(';')
-                lines.append(VerbatimLine(" ;{} {}".format(comment_index, line[comment_index + 1:].lstrip())))
-            elif line[0] in VALID_CTLS:
-                # This line contains an instruction
-                ctl_line = self._parse_instruction(line)
-                if ctl_line.address >= max_address:
-                    while lines and lines[-1].is_trimmable():
-                        lines.pop()
-                    while lines and lines[-1].is_blank():
-                        lines.pop()
-                    break
-                if ctl_line.address >= min_address > 0 and start_index < 0:
-                    start_index = len(lines)
-                lines.append(ctl_line)
-                ctl_lines.append(ctl_line)
-            else:
-                lines.append(VerbatimLine(line))
+        for block in read_skool(f):
+            lines = []
+            entry_ctl = None
+            for line in block:
+                if line.startswith(';'):
+                    lines.append(VerbatimLine(line))
+                    continue
+                if line.startswith('@'):
+                    lines.append(VerbatimLine(line))
+                    self._parse_asm_directive(line[1:])
+                    continue
+                if self.verbatim:
+                    # This line is inside a '+' block, so include it as is
+                    lines.append(VerbatimLine(line))
+                    continue
+                s_line = line.lstrip()
+                if not s_line:
+                    # This line is blank
+                    lines.append(VerbatimLine(line))
+                    continue
+                # Check whether we're in a block that should be preserved verbatim
+                if entry_ctl is None and line.startswith(VERBATIM_BLOCKS):
+                    entry_ctl = line[0]
+                if entry_ctl in VERBATIM_BLOCKS:
+                    lines.append(VerbatimLine(line))
+                elif s_line.startswith(';'):
+                    # This line is a continuation of an instruction comment
+                    comment_index = line.index(';')
+                    lines.append(VerbatimLine(" ;{} {}".format(comment_index, line[comment_index + 1:].lstrip())))
+                elif line[0] in VALID_CTLS:
+                    # This line contains an instruction
+                    ctl_line = self._parse_instruction(line)
+                    if ctl_line.address >= max_address:
+                        while lines and lines[-1].is_trimmable():
+                            lines.pop()
+                        while lines and lines[-1].is_blank():
+                            lines.pop()
+                        lines.append(VerbatimLine(''))
+                        break
+                    if ctl_line.address < min_address:
+                        lines[:] = []
+                        break
+                    lines.append(ctl_line)
+                else:
+                    lines.append(VerbatimLine(line))
+            sft.extend(lines)
         f.close()
 
-        if min_address > 0:
-            if start_index < 0:
-                return []
-            if start_index < len(lines):
-                if str(lines[start_index])[0] in DIRECTIVES:
-                    while start_index > 0 and not lines[start_index].is_blank():
-                        start_index -= 1
-                else:
-                    while start_index < len(lines) and not lines[start_index].is_blank():
-                        start_index += 1
-                return self._compress_blocks(lines[start_index + 1:])
-        return self._compress_blocks(lines)
+        while sft and sft[-1].is_blank():
+            sft.pop()
+        return self._compress_blocks(sft)
 
     def _parse_instruction(self, line):
         ctl = line[0]
