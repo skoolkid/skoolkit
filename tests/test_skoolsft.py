@@ -798,6 +798,23 @@ class SftWriterTest(SkoolKitTestCase):
         ]
         self._test_sft(skool, exp_sft, min_address=40001, max_address=40003)
 
+    def test_min_and_max_address_with_entries_in_wrong_order(self):
+        skool = '\n'.join((
+            'b40003 DEFB 3',
+            '',
+            'b40002 DEFB 2',
+            '',
+            'b40001 DEFB 1',
+            '',
+            'b40000 DEFB 0'
+        ))
+        exp_sft = [
+            'bB40002,1',
+            '',
+            'bB40001,1',
+        ]
+        self._test_sft(skool, exp_sft, min_address=40001, max_address=40003)
+
     def test_min_and_max_address_give_no_content(self):
         skool = '\n'.join((
             'b40000 DEFB 0',

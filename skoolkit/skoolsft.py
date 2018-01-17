@@ -148,9 +148,8 @@ class SftWriter:
                     if ctl_line.address >= max_address:
                         while lines and lines[-1].is_trimmable():
                             lines.pop()
-                        while lines and lines[-1].is_blank():
-                            lines.pop()
-                        lines.append(VerbatimLine(''))
+                        if lines:
+                            lines.append(VerbatimLine(''))
                         break
                     if ctl_line.address < min_address:
                         lines[:] = []
