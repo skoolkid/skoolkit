@@ -1381,7 +1381,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             '',
             '; Routine',
             '@label=NEXT',
-            ' 30003 RET'
+            'c30003 RET'
         ))
         asm = self._get_asm(skool)
         self.assertEqual(asm[1], '  LD HL,30003+2')
@@ -1396,7 +1396,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             '',
             '; Routine',
             '@label=NEXT',
-            ' 30003 RET'
+            'c30003 RET'
         ))
         asm = self._get_asm(skool, asm_mode=2)
         self.assertEqual(asm[1], '  LD HL,30003+2')
@@ -1411,7 +1411,7 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             '',
             '; Routine',
             '@label=NEXT',
-            ' 30003 RET'
+            'c30003 RET'
         ))
         asm = self._get_asm(skool, asm_mode=3)
         self.assertEqual(asm[1], '  LD HL,30003+2')
