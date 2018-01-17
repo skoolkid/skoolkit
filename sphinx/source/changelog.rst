@@ -21,6 +21,8 @@ Changelog
   space
 * Fixed how an opening brace at the end of a line or a closing brace at the
   beginning of a line is handled in an instruction-level comment
+* Fixed the bug in :ref:`skool2ctl.py` that prevents an :ref:`ignoreua`
+  directive on a block end comment from being preserved correctly
 
 6.2 (2018-01-01)
 ----------------

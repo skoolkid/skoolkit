@@ -946,7 +946,10 @@ class CtlWriterTest(SkoolKitTestCase):
             '; Mid-block comment above 30005.',
             ' 30005 RET',
             '@ignoreua',
-            '; End comment for the routine at 30004.'
+            '; End comment for the routine at 30004.',
+            '',
+            '; The @ignoreua directive above should not spill over',
+            'c30006 RET'
         ))
         exp_ctl = [
             '@ 30000 ignoreua:t',
@@ -970,7 +973,8 @@ class CtlWriterTest(SkoolKitTestCase):
             'N 30005 Mid-block comment above 30005.',
             '@ 30004 ignoreua:e',
             'E 30004 End comment for the routine at 30004.',
-            'i 30006'
+            'c 30006 The @ignoreua directive above should not spill over',
+            'i 30007'
         ]
         self._test_ctl(skool, exp_ctl)
 

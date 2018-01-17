@@ -1324,7 +1324,10 @@ class AsmWriterTest(SkoolKitTestCase, CommonSkoolMacroTest):
             'c32768 LD A,B ;',
             ' 32769 RET',
             '@ignoreua',
-            '; This is the end comment after 32769.'
+            '; This is the end comment after 32769.',
+            '',
+            '; The @ignoreua directive above should not spill over',
+            'c32770 RET'
         ))
         self._get_asm(skool, warn=True)
         warnings = self.err.getvalue().split('\n')[:-1]
