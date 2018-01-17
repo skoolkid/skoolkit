@@ -1646,6 +1646,37 @@ class CtlWriterTest(SkoolKitTestCase):
         exp_ctl = []
         self._test_ctl(skool, exp_ctl, min_address=40001, max_address=40001)
 
+    def test_braces_in_comments(self):
+        skool = '\n'.join((
+            '; Test comments that start or end with a brace',
+            'b30000 DEFB 0 ; {{Unmatched closing',
+            ' 30001 DEFB 0 ; brace} }',
+            ' 30002 DEFB 0 ; { {Matched',
+            ' 30003 DEFB 0 ; braces} }',
+            ' 30004 DEFB 0 ; { {Unmatched opening',
+            ' 30005 DEFB 0 ; brace }}',
+            ' 30006 DEFB 0 ; {{{Unmatched closing braces}} }',
+            ' 30007 DEFB 0 ; { {{Matched braces (2)}} }',
+            ' 30008 DEFB 0 ; { {{Unmatched opening braces}}}',
+            ' 30009 DEFB 0 ; {Opening brace {',
+            ' 30010 DEFB 0 ; at the end of a line}}',
+            ' 30011 DEFB 0 ; {{Closing brace',
+            ' 30012 DEFB 0 ; } at the beginning of a line}'
+        ))
+        exp_ctl = [
+            'b 30000 Test comments that start or end with a brace',
+            '  30000,2,1 Unmatched closing brace}',
+            '  30002,2,1 {Matched braces}',
+            '  30004,2,1 {Unmatched opening brace',
+            '  30006,1,1 Unmatched closing braces}}',
+            '  30007,1,1 {{Matched braces (2)}}',
+            '  30008,1,1 {{Unmatched opening braces',
+            '  30009,2,1 Opening brace { at the end of a line',
+            '  30011,2,1 Closing brace } at the beginning of a line',
+            'i 30013'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
     def test_unmatched_opening_braces_in_instruction_comments(self):
         skool = '\n'.join((
             'b50000 DEFB 0 ; {The unmatched {opening brace} in this comment should be',

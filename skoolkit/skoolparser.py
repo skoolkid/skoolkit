@@ -189,7 +189,7 @@ def parse_address_comments(comments):
         if instruction:
             comment_lines = []
             if comment.startswith('{'):
-                comment_lines.append(comment.strip('{'))
+                comment_lines.append(comment.lstrip('{'))
                 nesting = comment.count('{') - comment.count('}')
                 while nesting > 0:
                     i += 1
@@ -198,7 +198,7 @@ def parse_address_comments(comments):
                     comment = comments[i][1]
                     comment_lines.append(comment)
                     nesting += comment.count('{') - comment.count('}')
-                comment_lines[-1] = comment_lines[-1].strip('}')
+                comment_lines[-1] = comment_lines[-1].rstrip('}')
             else:
                 comment_lines.append(comment)
             rowspan = len(comment_lines)

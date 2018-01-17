@@ -19,6 +19,8 @@ Changelog
 * Added the ``location`` identifier to the :ref:`t_asm_instruction` template
 * Added support for parsing block-level comments that are not left-padded by a
   space
+* Fixed how an opening brace at the end of a line or a closing brace at the
+  beginning of a line is handled in an instruction-level comment
 
 6.2 (2018-01-01)
 ----------------

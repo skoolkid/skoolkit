@@ -1610,7 +1610,11 @@ class SkoolParserTest(SkoolKitTestCase):
             ' 30005 DEFB 0 ; brace }}',
             ' 30006 DEFB 0 ; {{{Unmatched closing braces}} }',
             ' 30007 DEFB 0 ; { {{Matched braces (2)}} }',
-            ' 30008 DEFB 0 ; { {{Unmatched opening braces}}}'
+            ' 30008 DEFB 0 ; { {{Unmatched opening braces}}}',
+            ' 30009 DEFB 0 ; {Opening brace {',
+            ' 30010 DEFB 0 ; at the end of a line}}',
+            ' 30011 DEFB 0 ; {{Closing brace',
+            ' 30012 DEFB 0 ; } at the beginning of a line}'
         ))
         parser = self._get_parser(skool)
         exp_comments = (
@@ -1619,7 +1623,9 @@ class SkoolParserTest(SkoolKitTestCase):
             (30004, '{Unmatched opening brace'),
             (30006, 'Unmatched closing braces}}'),
             (30007, '{{Matched braces (2)}}'),
-            (30008, '{{Unmatched opening braces')
+            (30008, '{{Unmatched opening braces'),
+            (30009, 'Opening brace { at the end of a line'),
+            (30011, 'Closing brace } at the beginning of a line')
         )
         for address, exp_text in exp_comments:
             text = parser.get_instruction(address).comment.text
