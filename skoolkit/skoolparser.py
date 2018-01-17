@@ -207,19 +207,14 @@ def parse_address_comments(comments):
         i += 1
 
 def read_skool(skoolfile):
-    block = []
     lines = []
     for line in skoolfile:
         s_line = line.rstrip()
         lines.append(s_line)
-        if line[0] in 'bcdgirstuw':
-            yield block
-            block = []
-        elif not s_line:
-            block.extend(lines)
+        if not s_line:
+            yield lines
             lines = []
-    block.extend(lines)
-    yield block
+    yield lines
 
 class SkoolParser:
     """Parses a skool file.
