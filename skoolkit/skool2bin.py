@@ -1,4 +1,4 @@
-# Copyright 2015-2017 Richard Dymond (rjdymond@gmail.com)
+# Copyright 2015-2018 Richard Dymond (rjdymond@gmail.com)
 #
 # This file is part of SkoolKit.
 #
@@ -17,7 +17,7 @@
 import argparse
 
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, warn, VERSION
-from skoolkit.skoolparser import parse_asm_block_directive
+from skoolkit.skoolparser import parse_asm_block_directive, read_skool
 from skoolkit.skoolsft import VALID_CTLS
 from skoolkit.textutils import find_unquoted
 from skoolkit.z80 import assemble
@@ -37,32 +37,29 @@ class BinWriter:
         self._parse_skool(skoolfile)
 
     def _parse_skool(self, skoolfile):
-        entry_ctl = None
         f = open_file(skoolfile)
-        for line in f:
-            if line.startswith(';'):
-                continue
-            if line.startswith('@'):
-                self._parse_asm_directive(line[1:].rstrip())
-                continue
-            if not self.include:
-                continue
-            s_line = line.strip()
-            if not s_line:
-                # This line is blank
-                entry_ctl = None
-                continue
-            # Check whether we're in a block that can be skipped
-            if entry_ctl is None and line.startswith(SKIP_BLOCKS):
-                entry_ctl = line[0]
-            if entry_ctl in SKIP_BLOCKS:
-                continue
-            if s_line.startswith(';'):
-                # This line is a continuation of an instruction comment
-                continue
-            if line[0] in VALID_CTLS:
-                # This line contains an instruction
-                self._parse_instruction(line)
+        for block in read_skool(f):
+            for line in block:
+                if line.startswith(';'):
+                    continue
+                if line.startswith('@'):
+                    self._parse_asm_directive(line[1:])
+                    continue
+                if not self.include:
+                    continue
+                s_line = line.lstrip()
+                if not s_line:
+                    # This line is blank
+                    continue
+                # Check whether we're in a block that can be skipped
+                if line.startswith(SKIP_BLOCKS):
+                    break
+                if s_line.startswith(';'):
+                    # This line is a continuation of an instruction comment
+                    continue
+                if line[0] in VALID_CTLS:
+                    # This line contains an instruction
+                    self._parse_instruction(line)
         f.close()
 
     def _parse_instruction(self, line):
