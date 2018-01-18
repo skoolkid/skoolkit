@@ -206,14 +206,39 @@ def parse_address_comments(comments):
             instruction.set_comment(rowspan, address_comment)
         i += 1
 
-def read_skool(skoolfile):
+def read_skool(skoolfile, asm_mode=-1, fix_mode=0):
+    stack = []
     lines = []
+    include = True
     for line in skoolfile:
         s_line = line.rstrip()
-        lines.append(s_line)
-        if not s_line:
-            yield lines
-            lines = []
+        if asm_mode >= 0 and line.startswith('@') and parse_asm_block_directive(s_line[1:], stack):
+            include = True
+            for p, i in stack:
+                if p == 'ofix':
+                    do_op = fix_mode > 0
+                elif p == 'bfix':
+                    do_op = fix_mode > 1
+                elif p == 'rfix':
+                    do_op = fix_mode > 2
+                elif p == 'isub':
+                    do_op = asm_mode > 0
+                elif p == 'ssub':
+                    do_op = asm_mode > 1
+                elif p == 'rsub':
+                    do_op = asm_mode > 2
+                if do_op:
+                    include = i == '+'
+                else:
+                    include = i == '-'
+                if not include:
+                    break
+            continue
+        if include:
+            lines.append(s_line)
+            if not s_line:
+                yield lines
+                lines = []
     yield lines
 
 class SkoolParser:
@@ -255,7 +280,6 @@ class SkoolParser:
         self.base_address = 65536
         self.end_address = 0
         self.header = []
-        self.stack = []
         self.comments = []
         self.ignores = []
         self.asm_writer_class = None
@@ -323,25 +347,24 @@ class SkoolParser:
 
     def _parse_skool(self, skoolfile, min_address, max_address):
         address_comments = []
-        for block in read_skool(skoolfile):
+        for block in read_skool(skoolfile, self.mode.asm_mode, self.mode.fix_mode):
             instruction = None
             map_entry = None
             address_comments.append((None, None))
             self.ignores[:] = []
             for line in block:
-                if line.startswith(';'):
-                    if self.mode.started and self.mode.include:
-                        self.comments.append(line[1:])
-                        self.mode.ignoreua = False
-                    instruction = None
-                    address_comments.append((None, None))
-                    continue
-
                 if line.startswith('@'):
                     self._parse_asm_directive(line[1:])
                     continue
 
-                if not self.mode.include:
+                if not self.mode.started:
+                    continue
+
+                if line.startswith(';'):
+                    self.comments.append(line[1:])
+                    self.mode.ignoreua = False
+                    instruction = None
+                    address_comments.append((None, None))
                     continue
 
                 s_line = line.lstrip()
@@ -462,33 +485,6 @@ class SkoolParser:
                 self.mode.end()
                 return
 
-            if parse_asm_block_directive(directive, self.stack):
-                include = True
-                for p, i in self.stack:
-                    if p == 'ofix':
-                        do_op = self.mode.do_ofixes
-                    elif p == 'bfix':
-                        do_op = self.mode.do_bfixes
-                    elif p == 'rfix':
-                        do_op = self.mode.do_rfixes
-                    elif p == 'isub':
-                        do_op = self.mode.asm
-                    elif p == 'ssub':
-                        do_op = self.mode.do_ssubs
-                    elif p == 'rsub':
-                        do_op = self.mode.do_rsubs
-                    if do_op:
-                        include = i == '+'
-                    else:
-                        include = i == '-'
-                    if not include:
-                        break
-                self.mode.include = include
-                return
-
-            if not self.mode.include:
-                return
-
             if directive.startswith('label='):
                 self.mode.label = directive[6:].rstrip()
             elif directive.startswith('nolabel'):
@@ -512,7 +508,7 @@ class SkoolParser:
                 except ValueError:
                     pass
 
-            if self.mode.asm:
+            if self.mode.asm_mode:
                 if directive.startswith('rsub='):
                     self.mode.rsub = directive[5:].rstrip()
                 elif directive.startswith('ssub='):
@@ -688,7 +684,7 @@ class SkoolParser:
         else:
             references = self._instructions.get(address)
             is_local = not (references and references[0].container.is_remote())
-            if is_local and label_warn and self.mode.do_ssubs and self.base_address <= address < self.end_address:
+            if is_local and label_warn and self.mode.asm_mode > 1 and self.base_address <= address < self.end_address:
                 # Warn if the operand is inside the address range of the
                 # disassembly (where code might be) but doesn't refer to the
                 # address of an instruction (will need @nowarn if this is OK)
@@ -702,17 +698,10 @@ class Mode:
         self.hexadecimal = base == BASE_16
         self.html = html
         self.asm_mode = asm_mode
-        self.asm = asm_mode > 0
         self.warn = warnings
         self.started = asm_mode == 0
-        self.include = self.started
         self.assemble = 0
         self.fix_mode = fix_mode
-        self.do_rfixes = fix_mode >= 3
-        self.do_rsubs = asm_mode >= 3
-        self.do_ssubs = asm_mode >= 2
-        self.do_ofixes = fix_mode >= 1
-        self.do_bfixes = fix_mode >= 2
         self.labels = []
         self.create_labels = create_labels
         self.asm_labels = asm_labels
@@ -749,12 +738,10 @@ class Mode:
 
     def start(self):
         self.started = True
-        self.include = True
 
     def end(self):
-        if self.asm:
+        if self.asm_mode:
             self.started = False
-            self.include = False
 
     def apply_asm_attributes(self, instruction):
         instruction.keep = self.keep
@@ -768,15 +755,15 @@ class Mode:
 
         if not self.html:
             sub = self.isub
-            if self.rfix is not None and self.do_rfixes:
+            if self.rfix is not None and self.fix_mode > 2:
                 sub = self.rfix
-            elif self.bfix is not None and self.do_bfixes:
+            elif self.bfix is not None and self.fix_mode > 1:
                 sub = self.bfix
-            elif self.ofix is not None and self.do_ofixes:
+            elif self.ofix is not None and self.fix_mode > 0:
                 sub = self.ofix
-            elif self.rsub is not None and self.do_rsubs:
+            elif self.rsub is not None and self.asm_mode > 2:
                 sub = self.rsub
-            elif self.ssub is not None and self.do_ssubs:
+            elif self.ssub is not None and self.asm_mode > 1:
                 sub = self.ssub
             if sub is not None:
                 _, sub = self.apply_case('', sub)

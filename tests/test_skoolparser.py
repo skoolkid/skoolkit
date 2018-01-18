@@ -3316,6 +3316,54 @@ class SkoolParserTest(SkoolKitTestCase):
         self.assertEqual(instructions[1].operation, 'LD E,B')
         self.assertEqual(instructions[2].operation, 'LD H,B')
 
+    def test_bfix_block_directive_spanning_two_entries_fix_mode_0(self):
+        skool = '\n'.join((
+            '@start',
+            '; Data',
+            'b32768 DEFB 1',
+            '@bfix-begin',
+            ' 32769 DEFB 2',
+            '',
+            '; Unused',
+            'u32770 DEFB 0',
+            '@bfix+else',
+            ' 32769 DEFB 4',
+            ' 32770 DEFB 8',
+            '@bfix+end'
+        ))
+        parser = self._get_parser(skool, asm_mode=1)
+        memory_map = parser.memory_map
+        self.assertEqual(len(memory_map), 2)
+        instructions = memory_map[0].instructions
+        self.assertEqual(len(instructions), 2)
+        self.assertEqual(instructions[1].operation, 'DEFB 2')
+        instructions = memory_map[1].instructions
+        self.assertEqual(len(instructions), 1)
+        self.assertEqual(instructions[0].operation, 'DEFB 0')
+
+    def test_bfix_block_directive_spanning_two_entries_fix_mode_2(self):
+        skool = '\n'.join((
+            '@start',
+            '; Data',
+            'b32768 DEFB 1',
+            '@bfix-begin',
+            ' 32769 DEFB 2',
+            '',
+            '; Unused',
+            'u32770 DEFB 0',
+            '@bfix+else',
+            ' 32769 DEFB 4',
+            ' 32770 DEFB 8',
+            '@bfix+end'
+        ))
+        parser = self._get_parser(skool, asm_mode=1, fix_mode=2)
+        memory_map = parser.memory_map
+        self.assertEqual(len(memory_map), 1)
+        instructions = memory_map[0].instructions
+        self.assertEqual(len(instructions), 3)
+        self.assertEqual(instructions[1].operation, 'DEFB 4')
+        self.assertEqual(instructions[2].operation, 'DEFB 8')
+
     def test_rsub_minus_inside_rsub_minus(self):
         # @rsub-begin inside @rsub- block
         skool = '\n'.join((

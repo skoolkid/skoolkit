@@ -401,5 +401,39 @@ class BinWriterTest(SkoolKitTestCase):
         exp_data = [6, 2]
         self._test_write(skool, 30000, exp_data, fix_mode=2)
 
+    def test_bfix_block_directive_spanning_two_entries_fix_mode_0(self):
+        skool = '\n'.join((
+            '; Data',
+            'b32768 DEFB 1',
+            '@bfix-begin',
+            ' 32769 DEFB 2',
+            '',
+            '; Unused',
+            'u32770 DEFB 3',
+            '@bfix+else',
+            ' 32769 DEFB 4',
+            ' 32770 DEFB 8',
+            '@bfix+end'
+        ))
+        exp_data = [1, 2, 3]
+        self._test_write(skool, 32768, exp_data)
+
+    def test_bfix_block_directive_spanning_two_entries_fix_mode_2(self):
+        skool = '\n'.join((
+            '; Data',
+            'b32768 DEFB 1',
+            '@bfix-begin',
+            ' 32769 DEFB 2',
+            '',
+            '; Unused',
+            'u32770 DEFB 3',
+            '@bfix+else',
+            ' 32769 DEFB 4',
+            ' 32770 DEFB 8',
+            '@bfix+end'
+        ))
+        exp_data = [1, 4, 8]
+        self._test_write(skool, 32768, exp_data, fix_mode=2)
+
 if __name__ == '__main__':
     unittest.main()

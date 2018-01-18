@@ -31,21 +31,17 @@ class BinWriter:
         self.snapshot = [0] * 65536
         self.base_address = len(self.snapshot)
         self.end_address = 0
-        self.stack = []
-        self.include = True
         self.subs = [None] * 4
         self._parse_skool(skoolfile)
 
     def _parse_skool(self, skoolfile):
         f = open_file(skoolfile)
-        for block in read_skool(f):
+        for block in read_skool(f, self.asm_mode, self.fix_mode):
             for line in block:
                 if line.startswith(';'):
                     continue
                 if line.startswith('@'):
                     self._parse_asm_directive(line[1:])
-                    continue
-                if not self.include:
                     continue
                 s_line = line.lstrip()
                 if not s_line:
@@ -85,27 +81,6 @@ class BinWriter:
             warn("Failed to assemble:\n {} {}".format(address, operation))
 
     def _parse_asm_directive(self, directive):
-        if parse_asm_block_directive(directive, self.stack):
-            self.include = True
-            for p, i in self.stack:
-                if p == 'isub':
-                    do_op = self.asm_mode > 0
-                elif p == 'ssub':
-                    do_op = self.asm_mode > 1
-                elif p == 'ofix':
-                    do_op = self.fix_mode > 0
-                elif p == 'bfix':
-                    do_op = self.fix_mode > 1
-                else:
-                    do_op = False
-                if do_op:
-                    self.include = i == '+'
-                else:
-                    self.include = i == '-'
-                if not self.include:
-                    return
-        if not self.include:
-            return
         if directive.startswith('isub=') and self.asm_mode > 0:
             self.subs[3] = directive[5:].rstrip()
         elif directive.startswith('ssub=') and self.asm_mode > 1:

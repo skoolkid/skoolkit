@@ -435,7 +435,6 @@ class SkoolParser:
         self.preserve_base = preserve_base
         self.mode = Mode()
         self.memory_map = []
-        self.stack = []
         self.end_address = 65536
 
         with open_file(skoolfile) as f:
@@ -443,7 +442,7 @@ class SkoolParser:
 
     def _parse_skool(self, skoolfile, min_address, max_address):
         address_comments = []
-        for block in read_skool(skoolfile):
+        for block in read_skool(skoolfile, 0):
             map_entry = None
             instruction = None
             comments = []
@@ -451,17 +450,13 @@ class SkoolParser:
             address_comments.append((None, None))
             for line in block:
                 if line.startswith(';'):
-                    if self.mode.include:
-                        comments.append(line[1:])
+                    comments.append(line[1:])
                     instruction = None
                     address_comments.append((None, None))
                     continue
 
                 if line.startswith('@'):
                     self._parse_asm_directive(line[1:], ignores, len(comments))
-                    continue
-
-                if not self.mode.include:
                     continue
 
                 s_line = line.lstrip()
@@ -525,19 +520,10 @@ class SkoolParser:
         parse_address_comments(address_comments)
 
     def _parse_asm_directive(self, directive, ignores, line_no):
-        if parse_asm_block_directive(directive, self.stack):
-            self.mode.include = True
-            for _p, i in self.stack:
-                if i != '-':
-                    self.mode.include = False
-                    break
-            return
-
-        if self.mode.include:
-            if directive == AD_IGNOREUA:
-                ignores.append(line_no)
-            else:
-                self.mode.add_asm_directive(directive)
+        if directive == AD_IGNOREUA:
+            ignores.append(line_no)
+        else:
+            self.mode.add_asm_directive(directive)
 
     def _parse_instruction(self, line):
         ctl, addr_str, operation, comment = parse_instruction(line)
@@ -551,7 +537,6 @@ class SkoolParser:
 
 class Mode:
     def __init__(self):
-        self.include = True
         self.asm_directives = []
         self.entry_ignoreua = {}
         self.lower = False

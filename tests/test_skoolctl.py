@@ -1702,5 +1702,28 @@ class CtlWriterTest(SkoolKitTestCase):
         ]
         self._test_ctl(skool, exp_ctl)
 
+    def test_asm_block_directive_spanning_two_entries(self):
+        skool = '\n'.join((
+            '; Data',
+            'b32768 DEFB 1',
+            '@bfix-begin',
+            ' 32769 DEFB 2',
+            '',
+            '; Unused',
+            'u32770 DEFB 0',
+            '@bfix+else',
+            ' 32769 DEFB 4',
+            ' 32770 DEFB 8',
+            '@bfix+end'
+        ))
+        exp_ctl = [
+            'b 32768 Data',
+            '  32768,2,1',
+            'u 32770 Unused',
+            '  32770,1,1',
+            'i 32771'
+        ]
+        self._test_ctl(skool, exp_ctl)
+
 if __name__ == '__main__':
     unittest.main()
