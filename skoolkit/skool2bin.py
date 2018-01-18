@@ -17,7 +17,7 @@
 import argparse
 
 from skoolkit import SkoolParsingError, get_int_param, info, integer, open_file, warn, VERSION
-from skoolkit.skoolparser import parse_asm_block_directive, read_skool
+from skoolkit.skoolparser import read_skool
 from skoolkit.skoolsft import VALID_CTLS
 from skoolkit.textutils import find_unquoted
 from skoolkit.z80 import assemble
@@ -36,7 +36,7 @@ class BinWriter:
 
     def _parse_skool(self, skoolfile):
         f = open_file(skoolfile)
-        for block in read_skool(f, self.asm_mode, self.fix_mode):
+        for block in read_skool(f, 0, self.asm_mode, self.fix_mode):
             for line in block:
                 if line.startswith(';'):
                     continue

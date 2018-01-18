@@ -17,8 +17,8 @@
 import re
 
 from skoolkit import SkoolParsingError, write_line, get_int_param, get_address_format, open_file
-from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction, parse_address_comments,
-                                  join_comments, parse_asm_block_directive, read_skool, DIRECTIVES)
+from skoolkit.skoolparser import (Comment, Register, parse_comment_block, parse_instruction,
+                                  parse_address_comments, join_comments, read_skool, DIRECTIVES)
 from skoolkit.z80 import get_size, parse_string, parse_word, split_operation
 
 ASM_DIRECTIVES = 'a'
@@ -442,7 +442,7 @@ class SkoolParser:
 
     def _parse_skool(self, skoolfile, min_address, max_address):
         address_comments = []
-        for block in read_skool(skoolfile, 0):
+        for block in read_skool(skoolfile, 0, 0):
             map_entry = None
             instruction = None
             comments = []

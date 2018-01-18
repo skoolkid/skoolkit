@@ -206,35 +206,37 @@ def parse_address_comments(comments):
             instruction.set_comment(rowspan, address_comment)
         i += 1
 
-def read_skool(skoolfile, asm_mode=-1, fix_mode=0):
+def read_skool(skoolfile, asm=0, asm_mode=-1, fix_mode=0):
+    modes = {
+        'isub': asm_mode > 0,
+        'ssub': asm_mode > 1,
+        'rsub': asm_mode > 2,
+        'ofix': fix_mode > 0,
+        'bfix': fix_mode > 1,
+        'rfix': fix_mode > 2
+    }
     stack = []
     lines = []
     include = True
+    started = asm < 1
     for line in skoolfile:
         s_line = line.rstrip()
-        if asm_mode >= 0 and line.startswith('@') and parse_asm_block_directive(s_line[1:], stack):
-            include = True
-            for p, i in stack:
-                if p == 'ofix':
-                    do_op = fix_mode > 0
-                elif p == 'bfix':
-                    do_op = fix_mode > 1
-                elif p == 'rfix':
-                    do_op = fix_mode > 2
-                elif p == 'isub':
-                    do_op = asm_mode > 0
-                elif p == 'ssub':
-                    do_op = asm_mode > 1
-                elif p == 'rsub':
-                    do_op = asm_mode > 2
-                if do_op:
-                    include = i == '+'
-                else:
-                    include = i == '-'
-                if not include:
-                    break
-            continue
-        if include:
+        if asm_mode >= 0 and line.startswith('@'):
+            directive = s_line[1:]
+            if parse_asm_block_directive(directive, stack):
+                include = True
+                for p, i in stack:
+                    if modes[p]:
+                        include = i == '+'
+                    else:
+                        include = i == '-'
+                    if not include:
+                        break
+                continue
+            if asm and directive.startswith(('start', 'end')):
+                started = directive.startswith('start')
+                continue
+        if started and include:
             lines.append(s_line)
             if not s_line:
                 yield lines
@@ -347,7 +349,7 @@ class SkoolParser:
 
     def _parse_skool(self, skoolfile, min_address, max_address):
         address_comments = []
-        for block in read_skool(skoolfile, self.mode.asm_mode, self.mode.fix_mode):
+        for block in read_skool(skoolfile, self.mode.asm_mode, self.mode.asm_mode, self.mode.fix_mode):
             instruction = None
             map_entry = None
             address_comments.append((None, None))
@@ -355,9 +357,6 @@ class SkoolParser:
             for line in block:
                 if line.startswith('@'):
                     self._parse_asm_directive(line[1:])
-                    continue
-
-                if not self.mode.started:
                     continue
 
                 if line.startswith(';'):
@@ -480,70 +479,63 @@ class SkoolParser:
         return text
 
     def _parse_asm_directive(self, directive):
-        if self.mode.started:
-            if directive.startswith('end'):
-                self.mode.end()
-                return
+        if directive.startswith('label='):
+            self.mode.label = directive[6:].rstrip()
+        elif directive.startswith('nolabel'):
+            self.mode.nolabel = True
+        elif directive.startswith(('defb=', 'defs=', 'defw=')):
+            parse_asm_data_directive(self.snapshot, directive)
+        elif directive.startswith('keep'):
+            self.mode.keep = []
+            if directive.startswith('keep='):
+                for n in directive[5:].split(','):
+                    addr = parse_int(n)
+                    if addr is not None:
+                        self.mode.keep.append(addr)
+        elif directive.startswith('remote='):
+            self._parse_remote_directive(directive[7:])
+        elif directive.startswith('replace='):
+            self._add_replacement(directive[8:])
+        elif directive.startswith('assemble='):
+            try:
+                self.mode.assemble = int(directive[9:])
+            except ValueError:
+                pass
 
-            if directive.startswith('label='):
-                self.mode.label = directive[6:].rstrip()
-            elif directive.startswith('nolabel'):
-                self.mode.nolabel = True
-            elif directive.startswith(('defb=', 'defs=', 'defw=')):
-                parse_asm_data_directive(self.snapshot, directive)
-            elif directive.startswith('keep'):
-                self.mode.keep = []
-                if directive.startswith('keep='):
-                    for n in directive[5:].split(','):
-                        addr = parse_int(n)
-                        if addr is not None:
-                            self.mode.keep.append(addr)
-            elif directive.startswith('remote='):
-                self._parse_remote_directive(directive[7:])
-            elif directive.startswith('replace='):
-                self._add_replacement(directive[8:])
-            elif directive.startswith('assemble='):
-                try:
-                    self.mode.assemble = int(directive[9:])
-                except ValueError:
-                    pass
-
-            if self.mode.asm_mode:
-                if directive.startswith('rsub='):
-                    self.mode.rsub = directive[5:].rstrip()
-                elif directive.startswith('ssub='):
-                    self.mode.ssub = directive[5:].rstrip()
-                elif directive.startswith('isub='):
-                    self.mode.isub = directive[5:].rstrip()
-                elif directive.startswith('bfix='):
-                    self.mode.bfix = directive[5:].rstrip()
-                elif directive.startswith('ofix='):
-                    self.mode.ofix = directive[5:].rstrip()
-                elif directive.startswith('rfix='):
-                    self.mode.rfix = directive[5:].rstrip()
-                elif directive.startswith('nowarn'):
-                    self.mode.nowarn = True
-                elif directive.startswith('ignoreua'):
-                    self.mode.ignoreua = True
-                    self.ignores.append(len(self.comments))
-                elif directive.startswith('org'):
-                    self.mode.org = directive.rstrip().partition('=')[2]
-                elif directive.startswith('writer='):
-                    self.asm_writer_class = directive[7:].rstrip()
-                elif directive.startswith('set-'):
-                    name, sep, value = directive[4:].partition('=')
-                    if sep:
-                        self.properties[name.lower()] = value
-                elif directive.startswith('equ='):
-                    name, sep, value = directive[4:].rstrip().partition('=')
-                    if sep:
-                        self.equs.append((name, value))
-                        try:
-                            self._equ_values[get_int_param(value)] = name
-                        except ValueError:
-                            pass
-        elif directive.startswith('start'):
-            self.mode.start()
+        if self.mode.asm_mode:
+            if directive.startswith('rsub='):
+                self.mode.rsub = directive[5:].rstrip()
+            elif directive.startswith('ssub='):
+                self.mode.ssub = directive[5:].rstrip()
+            elif directive.startswith('isub='):
+                self.mode.isub = directive[5:].rstrip()
+            elif directive.startswith('bfix='):
+                self.mode.bfix = directive[5:].rstrip()
+            elif directive.startswith('ofix='):
+                self.mode.ofix = directive[5:].rstrip()
+            elif directive.startswith('rfix='):
+                self.mode.rfix = directive[5:].rstrip()
+            elif directive.startswith('nowarn'):
+                self.mode.nowarn = True
+            elif directive.startswith('ignoreua'):
+                self.mode.ignoreua = True
+                self.ignores.append(len(self.comments))
+            elif directive.startswith('org'):
+                self.mode.org = directive.rstrip().partition('=')[2]
+            elif directive.startswith('writer='):
+                self.asm_writer_class = directive[7:].rstrip()
+            elif directive.startswith('set-'):
+                name, sep, value = directive[4:].partition('=')
+                if sep:
+                    self.properties[name.lower()] = value
+            elif directive.startswith('equ='):
+                name, sep, value = directive[4:].rstrip().partition('=')
+                if sep:
+                    self.equs.append((name, value))
+                    try:
+                        self._equ_values[get_int_param(value)] = name
+                    except ValueError:
+                        pass
 
     def _parse_remote_directive(self, params):
         asm_id, sep, addresses = params.partition(':')
@@ -699,7 +691,6 @@ class Mode:
         self.html = html
         self.asm_mode = asm_mode
         self.warn = warnings
-        self.started = asm_mode == 0
         self.assemble = 0
         self.fix_mode = fix_mode
         self.labels = []
@@ -735,13 +726,6 @@ class Mode:
     def reset_entry_ignoreua(self):
         for section in 'tdr':
             self.entry_ignoreua[section] = False
-
-    def start(self):
-        self.started = True
-
-    def end(self):
-        if self.asm_mode:
-            self.started = False
 
     def apply_asm_attributes(self, instruction):
         instruction.keep = self.keep
